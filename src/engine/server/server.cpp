@@ -1128,7 +1128,6 @@ int CServer::NewClientCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_aClan[0] = 0;
 	pThis->m_aClients[ClientID].m_Country = -1;
 	pThis->m_aClients[ClientID].m_Authed = AUTHED_NO;
-	pThis->m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
 	pThis->m_aClients[ClientID].m_AuthTries = 0;
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
@@ -1158,7 +1157,6 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientID].m_Country = -1;
 	pThis->m_aClients[ClientID].m_IsDummy = false;
 	pThis->m_aClients[ClientID].m_Authed = AUTHED_NO;
-	pThis->m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
 	pThis->m_aClients[ClientID].m_AuthTries = 0;
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
@@ -1471,7 +1469,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if(Unpacker.Error() == 0 && m_aClients[ClientID].m_Authed)
 			{
 				CGameContext *GameServer = (CGameContext *) m_pGameServer;
-				if (GameServer->m_apPlayers[ClientID] && (GameServer->m_apPlayers[ClientID]->m_ClientVersion < VERSION_DDNET_RCONPROTECT || m_aClients[ClientID].m_LastAuthed))
+				if (GameServer->m_apPlayers[ClientID])
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "ClientID=%d rcon='%s'", ClientID, pCmd);
@@ -1483,7 +1481,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 					m_RconClientID = IServer::RCON_CID_SERV;
 					m_RconAuthLevel = AUTHED_ADMIN;
-					m_aClients[ClientID].m_LastAuthed = AUTHED_ADMIN;	//!!!!!!!!!!!! this was AUTHED_NO for default, but that means youre not authed. i dont know why but i tested it and with the old AUTHED_NO stuff you technically got logged out as its used for rcon logout aswell. keep this for isddnet support and by that also the good whisper 
 				}
 			}
 		}
@@ -1524,7 +1521,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else if(g_Config.m_SvRconModPassword[0] && str_comp(pPw, g_Config.m_SvRconModPassword) == 0)
 				{
-					m_aClients[ClientID].m_LastAuthed = AUTHED_MOD;
 					if(m_aClients[ClientID].m_Authed != AUTHED_MOD)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
@@ -2333,7 +2329,6 @@ void CServer::ConLogout(IConsole::IResult *pResult, void *pUser)
 		pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, pServer->m_RconClientID, true);
 
 		pServer->m_aClients[pServer->m_RconClientID].m_Authed = AUTHED_NO;
-		pServer->m_aClients[pServer->m_RconClientID].m_LastAuthed = AUTHED_NO;
 		pServer->m_aClients[pServer->m_RconClientID].m_AuthTries = 0;
 		pServer->m_aClients[pServer->m_RconClientID].m_pRconCmdToSend = 0;
 		pServer->SendRconLine(pServer->m_RconClientID, "Logout successful.");
