@@ -84,12 +84,12 @@ void CQueryLogin::OnData()
 				//profiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileViews = GetInt(GetID("ProfileViews"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus = GetText(GetID("ProfileStatus"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype = GetText(GetID("ProfileSkype"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube = GetText(GetID("ProfileYoutube"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail = GetText(GetID("ProfileEmail"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage = GetText(GetID("ProfileHomepage"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter = GetText(GetID("ProfileTwitter"));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(CPlayer::m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileSkype")), sizeof(CPlayer::m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileYoutube")), sizeof(CPlayer::m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileEmail")), sizeof(CPlayer::m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileHomepage")), sizeof(CPlayer::m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileTwitter")), sizeof(CPlayer::m_ProfileStatus));
 			}
 
 			m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
