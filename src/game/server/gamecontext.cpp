@@ -80,7 +80,16 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel"));
-				//m_pGameServer->m_apPlayers[m_ClientID]->m_neededxp = GetInt(GetID("NeededXp"));
+
+				//profiles
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileViews = GetInt(GetID("ProfileViews"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus = GetText(GetID("ProfileStatus"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype = GetText(GetID("ProfileSkype"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube = GetText(GetID("ProfileYoutube"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail = GetText(GetID("ProfileEmail"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage = GetText(GetID("ProfileHomepage"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter = GetText(GetID("ProfileTwitter"));
 			}
 
 			m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");

@@ -194,14 +194,15 @@ public:
 	bool m_IsMinigame;
 
 	//profiles
+	int m_ProfileStyle;
+	int m_ProfileViews;
 	char m_ProfileStatus[50];
 	char m_ProfileSkype[50];
 	char m_ProfileYoutube[50];
 	char m_ProfileEmail[50];
 	char m_ProfileHomepage[50];
 	char m_ProfileTwitter[50];
-	int m_ProfileStyle;
-	int m_ProfileViews;
+
 
 
 	//city stuff
