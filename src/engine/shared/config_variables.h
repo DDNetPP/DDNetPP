@@ -378,5 +378,5 @@ MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "a
 MACRO_CONFIG_STR(SvMinigameDefaultSkin, sv_minigame_default_skin, 12, "#", CFGFLAG_SERVER, "Change default skin in minigames")
 
 MACRO_CONFIG_INT(SvFakeSuper, sv_fake_super, 0, 0, 1, CFGFLAG_SERVER, "0 to deactivate the /fake_super command")
-
+MACRO_CONFIG_INT(SvFlagSounds, sv_flag_sounds, 0, 0, 1, CFGFLAG_SERVER, "blockflags make annoying sounds this command toggle the publicsounds")
 #endif

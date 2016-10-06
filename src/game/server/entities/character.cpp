@@ -839,6 +839,8 @@ void CCharacter::Tick()
 
 	}
 
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+
 	if (m_pPlayer->m_JailTime > 0)
 	{
 		m_pPlayer->m_EscapeTime = 0;

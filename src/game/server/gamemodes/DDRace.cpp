@@ -54,7 +54,10 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 			HadFlag |= 2;
 		if(F && F->m_pCarryingCharacter == pVictim)
 		{
-			GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+			if (g_Config.m_SvFlagSounds)
+			{
+				GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+			}
 			/*pVictim->GetPlayer()->m_Rainbow = false;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorBody = pVictim->GetPlayer()->m_ColorBodyOld;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorFeet = pVictim->GetPlayer()->m_ColorFeetOld;*/
@@ -77,7 +80,10 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character){
 	else{
 	F->m_AtStand = 0;
 
-	GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	if (g_Config.m_SvFlagSounds)
+	{
+		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	}
 	/*
 	F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
@@ -110,7 +116,10 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 void CGameControllerDDRace::DropFlag(int id){
 	CFlag *F = m_apFlags[id];
 	
-	GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	if (g_Config.m_SvFlagSounds)
+	{
+		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+	}
 	/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
@@ -176,7 +185,10 @@ void CGameControllerDDRace::Tick()
 		if(GameServer()->Collision()->GetCollisionAt(F->m_Pos.x, F->m_Pos.y)&CCollision::COLFLAG_DEATH || F->GameLayerClipped(F->m_Pos))
 		{
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "flag_return");
-			GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
+			if (g_Config.m_SvFlagSounds)
+			{
+				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
+			}
 			F->Reset();
 			continue;
 		}
@@ -195,7 +207,10 @@ void CGameControllerDDRace::Tick()
 
 				if ( Server()->Tick() > F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8){
 						
-					GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+					if (g_Config.m_SvFlagSounds)
+					{
+						GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+					}
 					/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
@@ -211,8 +226,12 @@ void CGameControllerDDRace::Tick()
 		}
 		else
 		{
-			if ( GameServer()->Collision()->GetTileIndex( GameServer()->Collision()->GetMapIndex(F->m_Pos) ) == 95){
+			if ( GameServer()->Collision()->GetTileIndex( GameServer()->Collision()->GetMapIndex(F->m_Pos) ) == 95)
+			{
+				if (g_Config.m_SvFlagSounds)
+				{
 					GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
+				}
 					F->Reset();
 			}
 
@@ -247,6 +266,8 @@ void CGameControllerDDRace::Tick()
 						if(!pPlayer)
 							continue;
 
+
+						//leave this sounds uncfgabel cuz not all players hear it
 						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorID] && GameServer()->m_apPlayers[pPlayer->m_SpectatorID]->GetTeam() == fi)
 							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
 						else if(pPlayer->GetTeam() == fi)
