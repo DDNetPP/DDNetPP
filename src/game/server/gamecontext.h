@@ -377,6 +377,8 @@ private:
 	static void ConRight(IConsole::IResult *pResult, void *pUserData);
 	static void ConUp(IConsole::IResult *pResult, void *pUserData);
 	static void ConDown(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

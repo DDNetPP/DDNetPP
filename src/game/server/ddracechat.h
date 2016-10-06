@@ -68,6 +68,7 @@ CHAT_COMMAND("Right", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRight, this, "move r
 CHAT_COMMAND("Up", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConUp, this, "move up in the minigame. (/buy minigame)")
 CHAT_COMMAND("Down", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDown, this, "move down in the minigame. (/buy minigame)")
 
+CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, this, "turns the xp/money messages you get from moneytiles/flags on or off")
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")
 //CHAT_COMMAND("remove_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRemovePolicehelper, this, "remove the policehelper rank from other players")
 //CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")

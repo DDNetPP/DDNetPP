@@ -1764,11 +1764,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "togglexpmsg"))
-				{
-					pPlayer->m_xpmsg ^= true;
-					SendBroadcast(" ", ClientID);
-				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "stats"))
 				{
 					//SendChatTarget(ClientID, "you knoop luk ur stats suck;");

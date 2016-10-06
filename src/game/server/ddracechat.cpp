@@ -41,6 +41,23 @@ bool CheckClientID(int ClientID);
 //	pPlayer->m_LastPlaytime = time_get() - time_freq()*g_Config.m_SvMaxAfkVoteTime;
 //}
 
+void CGameContext::ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	pPlayer->m_xpmsg ^= true;
+	pSelf->SendBroadcast(" ", pResult->m_ClientID);
+}
 
 void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
 {
