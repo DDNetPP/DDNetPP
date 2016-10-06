@@ -95,6 +95,13 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character){
 	
 }
 
+int CGameControllerDDRace::HasFlag(CCharacter *character) {
+	for(int i=0; i<2; i++)
+		if(m_apFlags[i]->m_pCarryingCharacter == character)
+			return i;
+	return -1;
+}
+
 void CGameControllerDDRace::DropFlag(int id){
 	CFlag *F = m_apFlags[id];
 	

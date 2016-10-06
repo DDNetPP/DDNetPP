@@ -23,6 +23,7 @@ public:
 
 	void DropFlag(int id);
 	void ChangeFlagOwner(int id, int character);
+	int HasFlag(CCharacter *character);
 
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();
