@@ -104,12 +104,12 @@ CSql::CSql()
 		"TaserLevel					INTEGER			DEFAULT 0," \
 		"ProfileStyle				INTEGER			DEFAULT 0," \
 		"ProfileViews				INTEGER			DEFAULT 0," \
-		"ProfileStatus				VARCHAR(128)	NOT NULL," \
+		/*"ProfileStatus				VARCHAR(128)	NOT NULL," \
 		"ProfileSkype				VARCHAR(128)	NOT NULL," \
 		"ProfileYoutube				VARCHAR(128)	NOT NULL," \
 		"ProfileEmail				VARCHAR(128)	NOT NULL," \
 		"ProfileHomepage			VARCHAR(128)	NOT NULL," \
-		"ProfileTwitter				VARCHAR(128)	NOT NULL);";
+		"ProfileTwitter				VARCHAR(128)	NOT NULL*/);";
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 
