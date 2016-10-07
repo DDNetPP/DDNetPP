@@ -160,19 +160,21 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"ItemName | Price | OwnTime:");
+		"ItemName | Price | Needed Level | OwnTime:");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"bloody         3 500 money | dead");
+		"bloody         3 500 money | lvl3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"rainbow       1 500 money | dead");
+		"rainbow       1 500 money | lvl8 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"minigame     250 money | disconnect");
+		"minigame     250 money | lvl2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"shit              5 money | forever");
+		"shit              5 money | lvl0 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"room_key     5 000 money | disconnect");
+		"room_key     5 000 money | lvl16 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"police          100 000 money | forever");
+		"police          100 000 money | lvl18 | forever");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"taser          50 000 money | police3 | forever");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
