@@ -9660,6 +9660,66 @@ void CCharacter::Tick()
 				//no basic moves for this submode
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 33) //ChillBlock5 left block area
+		{
+			//rest dummy 
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			//selfkill
+			//dynanimc
+			if (m_Core.m_Pos.x > 331 * 32 && m_Core.m_Pos.x < 371 * 32 && m_Core.m_Pos.y > 197 * 32 && m_Core.m_Pos.y < 220 * 32)
+			{
+				//the bot is happy even if he is freeze he is in his loved blockarea
+			}
+			else //else --> dyn kill
+			{
+				if (m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed)
+				{
+					if (Server()->Tick() % 20 == 0)
+					{
+						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+					}
+
+					if (m_Core.m_Pos.x < 376 * 32) //far
+					{
+						if (Server()->Tick() % 190 == 0)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+					}
+					else  //not far
+					{
+						if (Server()->Tick() % 50 == 0)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+					}
+				}
+			}
+			//hardcodet
+			if (m_Core.m_Pos.x > 405 * 32) //spawn left
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
+			if (m_Core.m_Pos.y > 218 * 32) //too low for example spawn down
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
+
+
+			if (m_Core.m_Pos.x > 364 * 32) //right side of the freeze (spawn n stuff)
+			{
+				m_Input.m_Direction = -1;
+				if (m_Core.m_Pos.x < 392 * 32 && IsGrounded())
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 99) //finally the special one :)
 		{
 			//rest dummy 

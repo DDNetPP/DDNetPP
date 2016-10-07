@@ -63,10 +63,10 @@ CHAT_COMMAND("shop", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShop, this, "Shows th
 //CHAT_COMMAND("playerinfo", "sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPlayerinfo, this, "Shows info about the player r")
 CHAT_COMMAND("policechat", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoliceChat, this, "get more attention in chat with this command")
 
-CHAT_COMMAND("Left", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLeft, this, "move left in the minigame. (/buy minigame)")
-CHAT_COMMAND("Right", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRight, this, "move right in the minigame. (/buy minigame)")
-CHAT_COMMAND("Up", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConUp, this, "move up in the minigame. (/buy minigame)")
-CHAT_COMMAND("Down", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDown, this, "move down in the minigame. (/buy minigame)")
+CHAT_COMMAND("MinigameLeft", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameLeft, this, "move left in the minigame. (/buy minigame)")
+CHAT_COMMAND("MinigameRight", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameRight, this, "move right in the minigame. (/buy minigame)")
+CHAT_COMMAND("MinigameUp", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameUp, this, "move up in the minigame. (/buy minigame)")
+CHAT_COMMAND("MinigameDown", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameDown, this, "move down in the minigame. (/buy minigame)")
 
 CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, this, "turns the xp/money messages you get from moneytiles/flags on or off")
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")

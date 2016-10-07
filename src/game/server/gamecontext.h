@@ -373,10 +373,10 @@ private:
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConLeft(IConsole::IResult *pResult, void *pUserData);
-	static void ConRight(IConsole::IResult *pResult, void *pUserData);
-	static void ConUp(IConsole::IResult *pResult, void *pUserData);
-	static void ConDown(IConsole::IResult *pResult, void *pUserData);
+	static void ConMinigameLeft(IConsole::IResult *pResult, void *pUserData);
+	static void ConMinigameRight(IConsole::IResult *pResult, void *pUserData);
+	static void ConMinigameUp(IConsole::IResult *pResult, void *pUserData);
+	static void ConMinigameDown(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);

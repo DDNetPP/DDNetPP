@@ -140,9 +140,9 @@ void CGameContext::ConMinigameinfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
 		"'/stop_minigame'      Stops the game...");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/left'           move left.");
+		"'/Minigameleft'           move left.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/right'           move right.");
+		"'/Minigameright'           move right.");
 }
 
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
@@ -2012,7 +2012,7 @@ void CGameContext::ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendBroadcast(" ", pResult->m_ClientID);
 }
 
-void CGameContext::ConLeft(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConMinigameLeft(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2036,12 +2036,12 @@ void CGameContext::ConLeft(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/left' command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameleft' command");
 	}
 
 }
 
-void CGameContext::ConRight(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConMinigameRight(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2075,12 +2075,12 @@ void CGameContext::ConRight(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/right' command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameright' command");
 	}
 
 }
 
-void CGameContext::ConUp(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConMinigameUp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2116,7 +2116,7 @@ void CGameContext::ConUp(IConsole::IResult *pResult, void *pUserData)
 
 }
 
-void CGameContext::ConDown(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
