@@ -1849,6 +1849,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						if (m_apPlayers[StatsID])
 						{
+							if (m_apPlayers[StatsID]->m_AccountID <= 0)
+							{
+								SendChatTarget(ClientID, "this player has no profile because he is not logged in.");
+								return;
+							}
+
+
+
 							m_apPlayers[StatsID]->m_ProfileViews++;
 
 
@@ -1922,6 +1930,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_style ", 14) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					char Input[256];
 
@@ -1960,6 +1974,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_status ", 15) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileStatus, pMsg->m_pMessage + 16, 50);
 
@@ -1972,6 +1992,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_skype ", 14) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileSkype, pMsg->m_pMessage + 15, 25);
 
@@ -1984,6 +2010,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_youtube ", 16) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileYoutube, pMsg->m_pMessage + 17, 25);
 
@@ -1996,6 +2028,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_email ", 14) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileEmail, pMsg->m_pMessage + 15, 25);
 
@@ -2008,6 +2046,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_homepage ", 17) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileHomepage, pMsg->m_pMessage + 18, 25);
 
@@ -2020,6 +2064,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_twitter ", 16) == 0)
 				{
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						return;
+					}
+
 					char aBuf[256];
 					str_copy(m_apPlayers[ClientID]->m_ProfileTwitter, pMsg->m_pMessage + 17, 25);
 
