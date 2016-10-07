@@ -203,7 +203,9 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Mod by ChillerDragon.Huge thanks to Devotee for help :)");
+		"ChillerDragon's Block mod.");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Created by ChillerDragon, timakro, Krisko, FruchtiHD, Pikotee & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRaceNetwork.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -217,20 +219,23 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
+
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"ChillerDragon's Block mod. v.0.0.1");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"ChillerDragons Modded DDraceNetwork Mod. Version: " GAME_VERSION);
-#if defined( GIT_SHORTREV_HASH )
+			"Based on Teeworlds DDraceNetwork Version: " GAME_VERSION);
+//#if defined( GIT_SHORTREV_HASH )
+//	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+//			"Git revision hash: " GIT_SHORTREV_HASH);
+//#endif
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"Git revision hash: " GIT_SHORTREV_HASH);
-#endif
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"Official site: ddnet.tw");
+			"Official DDraceNetwork site: ddnet.tw");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"For more Info /cmdlist");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-		    "ChillerDragon's Website: www.chillerdragon.weebly.com");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"ChillerDragon's Youtube Channels: ChillerDragon & TeeTower");
+	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+	//	    "ChillerDragon's Website: www.chillerdragon.weebly.com");
+	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+	//		"ChillerDragon's Youtube Channels: ChillerDragon & TeeTower");
 }
 /*
 void CGameContext::ConPlayerinfo(IConsole::IResult *pResult, void *pUserData)
@@ -2111,7 +2116,7 @@ void CGameContext::ConMinigameUp(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/up' command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameup' command");
 	}
 
 }
@@ -2147,7 +2152,7 @@ void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/down' command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigamedown' command");
 	}
 
 }

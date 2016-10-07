@@ -9669,7 +9669,9 @@ void CCharacter::Tick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 
+			//~~~~~~~~~
 			//selfkill
+			//~~~~~~~~~
 			//dynanimc
 			if (m_Core.m_Pos.x > 331 * 32 && m_Core.m_Pos.x < 371 * 32 && m_Core.m_Pos.y > 197 * 32 && m_Core.m_Pos.y < 220 * 32)
 			{
@@ -9710,7 +9712,11 @@ void CCharacter::Tick()
 				Die(m_pPlayer->GetCID(), WEAPON_SELF);
 			}
 
+			//~~~~~~~~~~
+			//Movement
+			//~~~~~~~~~~
 
+			//1st ground jump
 			if (m_Core.m_Pos.x > 364 * 32) //right side of the freeze (spawn n stuff)
 			{
 				m_Input.m_Direction = -1;
@@ -9718,6 +9724,11 @@ void CCharacter::Tick()
 				{
 					m_Input.m_Jump = 1;
 				}
+			}
+			//2nd air jump
+			if (m_Core.m_Pos.y > 216 * 32 - 10)
+			{
+				m_Input.m_Jump = 1;
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 99) //finally the special one :)

