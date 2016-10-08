@@ -3938,7 +3938,30 @@ void CCharacter::Tick()
 				else if (m_Core.m_Pos.x < 440 * 32 && m_Core.m_Pos.y > 213 * 32) //im tunnel laufen
 				{
 					m_Input.m_Direction = 1;
+					if (m_Core.m_Vel.x < 5.5f)
+					{
+						m_Input.m_TargetY = -3;
+						m_Input.m_TargetX = 200;
+						m_LatestInput.m_TargetY = -3;
+						m_LatestInput.m_TargetX = 200;
 
+						if (Server()->Tick() % 30 == 0)
+						{
+							SetWeapon(0);
+						}
+						if (Server()->Tick() % 55 == 0)
+						{
+							if (m_FreezeTime == 0)
+							{
+								m_Input.m_Fire++;
+								m_LatestInput.m_Fire++;
+							}
+						}
+						if (Server()->Tick() % 200 == 0)
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
 				}
 
 
@@ -9716,29 +9739,99 @@ void CCharacter::Tick()
 			//Movement
 			//~~~~~~~~~~
 
-			//1st ground jump
-			if (m_Core.m_Pos.x > 364 * 32) //right side of the freeze (spawn n stuff)
+			//right side of the freeze (spawn n stuff)
+			if (m_Core.m_Pos.x > 364 * 32)
 			{
 				m_Input.m_Direction = -1;
+				//1st ground jump
 				if (m_Core.m_Pos.x < 392 * 32 && IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
+
+				//2nd air jump
+				if (m_Core.m_Pos.y > 216 * 32 - 10)
+				{
+					m_Input.m_Jump = 1;
+				}
+
+
+				if (m_Core.m_Pos.x < 373 * 32)
+				{
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					if (pChr && pChr->IsAlive())
+					{
+						m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+						m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+						m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+						m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+
+					}
+				}
+
+
 			}
-			//2nd air jump
-			if (m_Core.m_Pos.y > 216 * 32 - 10)
-			{
-				m_Input.m_Jump = 1;
-			}
+
 		}
 		else if (m_pPlayer->m_DummyMode == 99) //finally the special one :)
 		{
 			//rest dummy 
 			m_Input.m_Hook = 0;
-			m_Input.m_Jump = 0;
+			m_Input.m_Jump = 1;
 			m_Input.m_Direction = 0;
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
+
+
+
+			/*
+			Plans for this mode:
+			make the bot predict the future:
+			-plans
+			-fear
+			-realistic 
+
+			then let the bot choose what is the best way to maximize his happyness:
+			calculate what to do:
+			- make plans come true
+			- make fear dont come true
+			- prepare for what will happen pretty sure
+			*/
+
+			
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true); 
+			if (pChr && pChr->IsAlive())
+			{
+				//m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				//m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+				//m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				//m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+
+
+				//check for teetower
+				if (pChr->m_Pos.x > m_Core.m_Pos.x - 2 && pChr->m_Pos.x < m_Core.m_Pos.x + 2 && pChr->m_Pos.y > m_Core.m_Pos.y - 128 && pChr->m_Pos.y < m_Core.m_Pos.y + 128)
+				{
+					m_pPlayer->m_TeeInfos.m_ColorBody = (360 * 200 / 360);
+
+					if (pChr->m_Pos.y > m_Core.m_Pos.y)
+					{
+
+					}
+					else if (pChr->m_Pos.y < m_Core.m_Pos.y)
+					{
+
+					}
+				}
+				else
+				{
+					//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+					m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+				}
+			}
+
 		}
 		else if (m_pPlayer->m_DummyMode == 100) //xyz_ddrace2 (ChillerEdited version)
 		{

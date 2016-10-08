@@ -426,7 +426,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *p
 		else if (!Human && !p->GetPlayer()->m_IsDummy)
 			continue;
 
-		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 446 * 32) // wenn der spieler nicht in der ruler area gefunden wurde such weiter (hoff ich mal xD)
+		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 446 * 32 || p->m_Pos.y < 198 * 32) // wenn der spieler nicht in der ruler area gefunden wurde such weiter (hoff ich mal xD)
 			continue;
 
 
@@ -460,7 +460,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *
 		else if (!Human && !p->GetPlayer()->m_IsDummy)
 			continue;
 
-		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 417 * 32 || p->m_Pos.x > 444 * 32) // wenn der gegner im unfreeze bereich der ruler area ist
+		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 417 * 32 || p->m_Pos.x > 444 * 32 || p->m_Pos.y < 198 * 32) // wenn der gegner im unfreeze bereich der ruler area ist
 			continue;
 
 
@@ -495,7 +495,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCh
 			continue;
 
 		//if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 415 * 32 || p->m_Pos.x > 416 * 32)
-		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 417 * 32 - 10) // wenn der spieler nicht in der ruler area (im linken freeze) gefunden wurde
+		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 417 * 32 - 10 || p->m_Pos.y < 198 * 32) // wenn der spieler nicht in der ruler area (im linken freeze) gefunden wurde
 			continue;
 
 
@@ -528,7 +528,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 		else if (!Human && !p->GetPlayer()->m_IsDummy)
 			continue;
 
-		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 434 * 32 || p->m_Pos.x > 441 * 32) // nur der wb bereich [neu der Wbbereich hört bei x: 441 auf]
+		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 434 * 32 || p->m_Pos.x > 441 * 32 || p->m_Pos.y < 198 * 32) // nur der wb bereich [neu der Wbbereich hört bei x: 441 auf]
 			continue;
 
 

@@ -265,6 +265,38 @@ public:
 	int m_Dummy_FriendID; // das wird jetzt benutzt um zu wissen ob der dummy einen freund hat oder nicht
 
 
+	//dummymode 99 vars (the special one)
+	//general
+	int m_Dummy_feelingsdiff;
+
+	int m_Dummy_happyness;
+	int m_Dummy_sadness;
+	int m_Dummy_boredness;
+	int m_Dummy_hypeness;
+	int m_Dummy_scaredness;
+	int m_Dummy_shockedness;
+	int m_Dummy_suprisedness;
+
+	int m_Dummy_pain;
+	int m_Dummy_adrenalin;
+
+	//brain
+
+	//future (hope/plans/ideas)
+
+	//future (fear)
+	//char m_Dummy_future_fear_what[1024];				//what scares the bot in the future
+	//char m_Dummy_future_fear_why_happen[1024];			//what makes the bot think this will or coudl happen
+	//char m_Dummy_future_fear_why_fear[1024];			//why is this scary for the bot
+	//int m_Dummy_future_fear_strength;					//how scared is the bot 
+	//int m_Dummy_future_fear_probability;				//how high is the chance that this coudl really happen
+
+	//future (realistic prediction)
+
+
+
+	
+
 
 	//dummymode 31 vars (ChillBlock5 police guard)
 	bool m_Dummy_SpawnAnimation;

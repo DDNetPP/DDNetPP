@@ -92,7 +92,8 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(CPlayer::m_ProfileTwitter));*/
 			}
 
-			m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
+			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
+			m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in :)");
 		}
 	}
 	else

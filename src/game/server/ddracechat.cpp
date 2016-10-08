@@ -207,7 +207,7 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"ChillerDragon's Block mod.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Created by ChillerDragon, timakro, Krisko, FruchtiHD, Pikotee & Blue");
+		"Created by ChillerDragon, timakro, FruchtiHD, Pikotee & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRaceNetwork.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
