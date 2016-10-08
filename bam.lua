@@ -182,6 +182,8 @@ function build(settings)
 	--settings.cc.flags:Add("-m32")
 	--settings.link.flags:Add("-m32")
 
+	settings.cc.flags_cxx:Add("-std=gnu++11")
+
 	cflags = os.getenv("CFLAGS")
 	if cflags then
 		settings.cc.flags:Add(cflags)

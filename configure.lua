@@ -384,8 +384,6 @@ function OptCCompiler(name, default_driver, default_c, default_cxx, desc)
 
 		if option.c_compiler then settings.cc.c_compiler = option.c_compiler end
 		if option.cxx_compiler then settings.cc.cxx_compiler = option.cxx_compiler end
-
-		settings.cc.flags:Add("-std=gnu++11")
 	end
 
 	local save = function(option, output)
