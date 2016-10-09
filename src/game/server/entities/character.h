@@ -4,12 +4,18 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <game/server/entity.h>
+#include <game/server/entities/stable_projectile.h>
 #include <game/generated/server_data.h>
 #include <game/generated/protocol.h>
 
 #include <game/gamecore.h>
 
 class CGameTeams;
+
+enum
+{
+	NUM_ATOMS = 6,
+};
 
 enum
 {
@@ -264,6 +270,10 @@ public:
 	bool m_Bloody;
 	bool m_Atom;
 	bool m_Trail;
+
+	// atom vars (not to be confused with atom wars)
+	CStableProjectile *m_AtomProjs[NUM_ATOMS];
+	int m_AtomPosition;
 
 	//Special Dummy vars
 	//char[] apFriends = new char[4];
