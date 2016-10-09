@@ -11375,10 +11375,13 @@ void CCharacter::Die(int Killer, int Weapon)
 	}
 
 	// remove atom projectiles on death
-	for(int i=0; i<NUM_ATOMS; i++)
+	if(m_AtomProjs[0])
 	{
-		GameServer()->m_World.DestroyEntity(m_AtomProjs[i]);
-		m_AtomProjs[i] = NULL;
+		for(int i=0; i<NUM_ATOMS; i++)
+		{
+			GameServer()->m_World.DestroyEntity(m_AtomProjs[i]);
+			m_AtomProjs[i] = NULL;
+		}
 	}
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
