@@ -79,7 +79,8 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_PoliceRank = GetInt(GetID("PoliceRank"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel")); 
+				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_tickets = GetInt(GetID("HammerfightTickets"));
 
 				//profiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
@@ -1687,9 +1688,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					CreateExplosion(vec2(408 * 32, 208 * 32), 1, 3, true, 0, 300);
 					//CreateExplosion();
 					SendChatTarget(ClientID, "Test Failed.");
-					CreateSoundGlobal(SOUND_CTF_RETURN);
-					//pPlayer->m_money = pPlayer->m_money + 250000;
-					//pPlayer->m_level++;
+					//CreateSoundGlobal(SOUND_CTF_RETURN);
+					pPlayer->m_money = pPlayer->m_money + 250000;
+					pPlayer->m_level++;
+					//pPlayer->GetCharacter()->m_IsHammerarena = false;
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;
 					//pPlayer->m_PoliceRank++;
 					//pPlayer->m_PoliceHelper = true;
@@ -1778,8 +1780,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					//SendChatTarget(ClientID, "you knoop luk ur stats suck;");
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Your Stats - Level: %d - Money: %d - Neededxp: %d", m_apPlayers[ClientID]->m_level, m_apPlayers[ClientID]->m_money, m_apPlayers[ClientID]->m_neededxp); //ne schaff ich eig selber ^^
-					SendChatTarget(ClientID, aBuf); //bissu da? geht das so?
+					str_format(aBuf, sizeof(aBuf), "Your Stats - Level: %d - Money: %d - hammerfight_tickets: %d", m_apPlayers[ClientID]->m_level, m_apPlayers[ClientID]->m_money, m_apPlayers[ClientID]->m_hammerfight_tickets); 
+					SendChatTarget(ClientID, aBuf); 
 					return;
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "stats ", 6) == 0)
@@ -2376,7 +2378,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "you need at least PoliceLevel 2 to promote others.");
 					}
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0)
+				/*else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0) //old unfinished tilebased hammerfight system by FruchtiHD
 				{
 					char aBuf[256];
 					if (m_apPlayers[ClientID]->m_LastFight && m_apPlayers[ClientID]->m_LastGift + 250 * Server()->TickSpeed() > Server()->Tick())
@@ -2441,7 +2443,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 
 					return;
-				}
+				}*/
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "420 ", 4) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))

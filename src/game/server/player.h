@@ -205,8 +205,15 @@ public:
 
 
 
+	//hammerfight (chillerdragos new version)
+	int m_hammerfight_tickets;
+	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
+	int m_HF_return_posX;
+	int m_HF_return_posY;
+
+
 	//city stuff
-	int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it
+	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_TaserOn;
 	bool m_PoliceHelper;
 	int m_TaserLevel;

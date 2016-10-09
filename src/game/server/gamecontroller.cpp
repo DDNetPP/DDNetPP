@@ -539,6 +539,7 @@ void IGameController::PostReset()
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
+
 	/*// do scoreing
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
@@ -556,19 +557,31 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 
 
 
-		pKiller->m_KillStreak++;
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "%s's killing Spree has ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
-		if (pVictim->GetPlayer()->m_KillStreak >= 5)
-		{
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		}
-		pVictim->GetPlayer()->m_KillStreak = 0;
-		char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "skilled", "hammerfight boss", "doing great", "the master","the best","the king" };
-		int iBuf = ((pKiller->m_KillStreak / 5) - 1) % 10;
-		str_format(aBuf, sizeof(aBuf), "%s is %s with %d Hammerkills!", Server()->ClientName(pKiller->GetCID()), m_SpreeMsg[iBuf], pKiller->m_KillStreak);
-		if (pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		//pKiller->m_KillStreak++;
+		//char aBuf[256];
+		//str_format(aBuf, sizeof(aBuf), "%s's killing Spree has ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+		//if (pVictim->GetPlayer()->m_KillStreak >= 5)
+		//{
+		//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		//}
+		//pVictim->GetPlayer()->m_KillStreak = 0;
+		//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "skilled", "hammerfight boss", "doing great", "the master","the best","the king" };
+		//int iBuf = ((pKiller->m_KillStreak / 5) - 1) % 10;
+		//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Hammerkills!", Server()->ClientName(pKiller->GetCID()), m_SpreeMsg[iBuf], pKiller->m_KillStreak);
+		//if (pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
+		//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+
+	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "KILL");
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "pkiller %d", pKiller);
+
+	if (!pKiller || Weapon == WEAPON_GAME)
+		return 0;
+	if (pKiller == pVictim->GetPlayer())
+		return 0; // suicide
+
+	pKiller->GetCharacter()->m_Bloody = true;
+
 
 
 	return 0;

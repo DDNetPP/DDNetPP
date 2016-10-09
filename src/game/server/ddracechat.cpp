@@ -207,7 +207,7 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"ChillerDragon's Block mod.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Created by ChillerDragon, timakro, FruchtiHD, Pikotee & Blue");
+		"Created by ChillerDragon, timakro, FruchtiHD, Pikotee, \\toast & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRaceNetwork.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -1873,6 +1873,21 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
+	else if (!str_comp_nocase(aItem, "hammerfight_ticket"))
+	{
+		if (pPlayer->m_money >= 150)
+		{
+			pPlayer->m_money -= 150;
+			pPlayer->m_hammerfight_tickets++;
+
+			str_format(aBuf, sizeof(aBuf), "you bought a hammerfight_ticket. you now have %d hammerfight tickets.", pPlayer->m_hammerfight_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 150.");
+		}
+	}
 	//else if (!str_comp_nocase(aItem, "bloody"))
 	//{
 	//	if (pChr->m_BoughtBloody)
@@ -2224,4 +2239,77 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough permissions to use this command.");
 	}
+}
+
+void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/hammerfight ' + 'join' or 'leave'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "join"))
+	{
+		if (g_Config.m_SvHammerArenaState)
+		{
+			if (pPlayer->m_hammerfight_tickets > 0)
+			{
+				if (!pPlayer->GetCharacter()->m_IsHammerarena)
+				{
+					pPlayer->m_hammerfight_tickets--;
+					pPlayer->GetCharacter()->m_IsHammerarena = true;
+					pPlayer->GetCharacter()->m_isDmg = true;
+					pSelf->SendChatTarget(pResult->m_ClientID, "You are now a hammerfighter! good luck and have fun!");
+				}
+				else
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "you are already in the hammerfight arena");
+				}
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have a ticket. Buy one first with '/buy hammerfight_ticket'");
+			}
+		}
+		else //no arena configurated
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "no hammerfight-arena found.");
+		}
+	}
+	else if (!str_comp_nocase(aInput, "leave"))
+	{
+		if (pPlayer->GetCharacter()->m_IsHammerarena)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "teleport request sent. Don't move 6 seconds.");
+			pPlayer->GetCharacter()->m_Hammerarena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
+			pPlayer->GetCharacter()->m_Hammerarena_exit_request = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you are not in a arena.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/hammerfight ' + 'join' or 'leave'");
+	}
+
 }

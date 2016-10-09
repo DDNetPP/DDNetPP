@@ -33,7 +33,7 @@ CONSOLE_COMMAND("Bloody", "v", CFGFLAG_SERVER, ConBloody, this, "activates blood
 CONSOLE_COMMAND("UnJail", "v", CFGFLAG_SERVER, ConUnJail, this, "use this cmd to unjial unevil ppl")
 CONSOLE_COMMAND("Jail", "vi", CFGFLAG_SERVER, ConJail, this, "use this cmd to jail evil ppl")
 CONSOLE_COMMAND("ninjasteam", "v", CFGFLAG_SERVER, Conninjasteam, this, "activates a awesome NINJASTEAM")
-CONSOLE_COMMAND("hammerfight", "v", CFGFLAG_SERVER, Conhammerfight, this, "activates hammerfight for a player")
+CONSOLE_COMMAND("hammerfightmode", "v", CFGFLAG_SERVER, ConHammerfightMode, this, "activates hammerfightmode for a player")
 CONSOLE_COMMAND("super", "", CFGFLAG_SERVER|CMDFLAG_TEST, ConSuper, this, "Makes you super")
 CONSOLE_COMMAND("freezeShotgun", "v", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
 CONSOLE_COMMAND("Damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")

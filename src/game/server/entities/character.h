@@ -240,7 +240,10 @@ public:
 	//city stuff
 	int m_survivexpvalue;
 	bool m_Rainbow;
-	bool m_hammerfight;
+	bool m_hammerfight; //used for the rcon command has nothing todo with arenas yet
+	bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
+	bool m_Hammerarena_exit_request;
+	int m_Hammerarena_exit_request_time;
 	bool m_isHeal;
 	bool m_Jetpack;
 	bool m_freezeShotgun;

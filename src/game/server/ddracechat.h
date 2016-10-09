@@ -69,6 +69,10 @@ CHAT_COMMAND("MinigameUp", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameUp, thi
 CHAT_COMMAND("MinigameDown", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameDown, this, "move down in the minigame. (/buy minigame)")
 
 CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, this, "turns the xp/money messages you get from moneytiles/flags on or off")
+
+CHAT_COMMAND("hammerfight", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfight, this, "teleports you in the hammerfight arena (you can die there)")
+//CHAT_COMMAND("hammerfight_leave", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfightLeave, this, "teleports you out of the hammerfigth arena")
+
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")
 //CHAT_COMMAND("remove_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRemovePolicehelper, this, "remove the policehelper rank from other players")
 //CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")

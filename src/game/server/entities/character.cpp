@@ -847,6 +847,13 @@ void CCharacter::Tick()
 			//return;
 			//this retrun produces some funny stuff xD
 		}
+		else if (m_pPlayer->m_level > 99)
+		{
+			if (m_pPlayer->m_xpmsg)
+			{
+				GameServer()->SendBroadcast("you reached maximum level", m_pPlayer->GetCID());
+			}
+		}
 		else
 		{
 			if (Server()->Tick() % 50 == 0)
@@ -861,15 +868,50 @@ void CCharacter::Tick()
 				}
 				else
 				{
-					if (m_pPlayer->m_xpmsg)
+					if (m_pPlayer->m_InBank)
 					{
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "xp [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
-						m_pPlayer->m_xp++;
+						if (m_pPlayer->m_xpmsg)
+						{
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nxp [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							m_pPlayer->m_xp++;
+						}
+						else
+						{
+							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+						}
+					}
+					else  //not in bank
+					{
+						if (m_pPlayer->m_xpmsg)
+						{
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "xp [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							m_pPlayer->m_xp++;
+						}
 					}
 				}
 			}
+		}
+	}
+
+	if (m_Hammerarena_exit_request)
+	{
+		m_Hammerarena_exit_request_time--;
+
+		if (m_Hammerarena_exit_request_time == 0)
+		{
+			m_Hammerarena_exit_request = false;
+			m_IsHammerarena = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "succsesfully teleported out of arena.");
+		}
+
+		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || !m_Core.m_Vel.y == 0.0f)
+		{
+			m_Hammerarena_exit_request = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "teleport failed because you moved.");
 		}
 	}
 
@@ -916,6 +958,56 @@ void CCharacter::Tick()
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a Gangster is over. You cant get damage anymore.");
 			m_isDmg = false;
+		}
+	}
+
+	if (g_Config.m_SvHammerArenaState == 1) // ChillBlock5
+	{
+		if (m_IsHammerarena)
+		{
+			if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
+			{
+
+			}
+			else //not in arena
+			{
+
+				m_pPlayer->m_HF_return_posX = m_Core.m_Pos.x;
+				m_pPlayer->m_HF_return_posY = m_Core.m_Pos.y;
+
+
+				//if not in arena tele to random arena spawn:
+
+				int r = rand() % 3; // 0 1 2
+				if (r == 0)
+				{
+					m_Core.m_Pos.x = 420 * 32;
+					m_Core.m_Pos.y = 166 * 32 - 5;
+				}
+				else if (r == 1)
+				{
+					m_Core.m_Pos.x = 430 * 32;
+					m_Core.m_Pos.y = 170 * 32;
+				}
+				else if (r == 2)
+				{
+					m_Core.m_Pos.x = 440 * 32;
+					m_Core.m_Pos.y = 166 * 32 - 5;
+				}
+
+			}
+		}
+		else //not in hammerfight mode
+		{
+			if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
+			{
+				m_Core.m_Pos.x = m_pPlayer->m_HF_return_posX;
+				m_Core.m_Pos.y = m_pPlayer->m_HF_return_posY;
+			}
+			else //not in arena
+			{
+
+			}
 		}
 	}
 
@@ -984,10 +1076,20 @@ void CCharacter::Tick()
 		if (m_Core.m_Pos.x > 359 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 224 * 32 && m_Core.m_Pos.y < 229 * 32) //in bank
 		{
 			m_pPlayer->m_InBank = true;
-			if (Server()->Tick() % 30 == 0)
+
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 			{
-				GameServer()->SendBroadcast(" ~ B A N K ~", m_pPlayer->GetCID());
+				//dont show the bank broadcast if the player has the flag this will be done in the flag code
 			}
+			else
+			{
+				if (Server()->Tick() % 30 == 0)
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				}
+			}
+
+
 			m_pPlayer->m_ExitBank = true;
 		}
 		else //if not in bank
@@ -11166,6 +11268,32 @@ void CCharacter::Die(int Killer, int Weapon)
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	Teams()->OnCharacterDeath(GetPlayer()->GetCID(), Weapon);
+
+
+	if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME)
+	{
+		//GameServer()->GetPlayerChar(Killer)->m_Bloody = true;
+
+		if (GameServer()->GetPlayerChar(Killer)->m_IsHammerarena)
+		{
+			GameServer()->m_apPlayers[Killer]->m_money += 150;
+			GameServer()->m_apPlayers[Killer]->m_xp += 100;
+
+			GameServer()->SendChatTarget(Killer, "+500 money for kill");
+			str_format(aBuf, sizeof(aBuf), "+100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+			GameServer()->SendChatTarget(Killer, aBuf);
+		}
+	}
+	if (m_pPlayer) //victim
+	{
+		//m_pPlayer->m_InfRainbow = true;
+		if (m_IsHammerarena)
+		{
+			str_format(aBuf, sizeof(aBuf), "you lost the hammerfight because you were killed by %s", Server()->ClientName(Killer));
+			GameServer()->SendChatTarget(Killer, aBuf);
+		}
+	}
+	
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
@@ -12568,6 +12696,14 @@ void CCharacter::MoneyTile2()
 			GameServer()->SendBroadcast("You need an account to use this moneytile. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 			return;
 		}
+		else if (m_pPlayer->m_level > 99)
+		{
+			if (m_pPlayer->m_xpmsg)
+			{
+				GameServer()->SendBroadcast("you reached maximum level", m_pPlayer->GetCID());
+			}
+			return;
+		}
 
 		if (GameServer()->Server()->IsAuthed(m_pPlayer->GetCID()))
 		{
@@ -12681,6 +12817,14 @@ void CCharacter::MoneyTile()
 			GameServer()->SendBroadcast("You need an account to use this moneytile. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 			return;
 		}
+		else if (m_pPlayer->m_level > 99)
+		{
+			if (m_pPlayer->m_xpmsg)
+			{
+				GameServer()->SendBroadcast("you reached maximum level", m_pPlayer->GetCID());
+			}
+			return;
+		}
 
 
 		//flag extra xp
@@ -12768,24 +12912,32 @@ void CCharacter::MoneyTilePlus()
 		}
 		*/
 
-
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile! +2500xp  +500money");
-
-		m_pPlayer->m_xp += 2500;  //for (i < 2500; i++)
-		m_pPlayer->m_money += 500;
-
-
-
-
-
-
-		//m_getxp = true; //das kann weg oder? ja
-		if (m_pPlayer->m_xpmsg)
+		if (m_pPlayer->m_level > 99) //dont give xp for max level dudes
 		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "money [%d]\nxp [%d/%d]\nlevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
-			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile!  +500money");
+			m_pPlayer->m_money += 500;
 		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile! +2500xp  +500money");
+
+			m_pPlayer->m_xp += 2500;  //for (i < 2500; i++)
+			m_pPlayer->m_money += 500;
+
+
+
+
+
+
+			//m_getxp = true; //das kann weg oder? ja
+			if (m_pPlayer->m_xpmsg)
+			{
+				char aBuf[128];
+				str_format(aBuf, sizeof(aBuf), "money [%d]\nxp [%d/%d]\nlevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+			}
+		}
+
 
 		m_pPlayer->m_MoneyTilePlus = false;
 

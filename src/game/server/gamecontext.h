@@ -268,7 +268,7 @@ private:
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
-	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
+	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
 	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
 	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
 	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
@@ -379,6 +379,8 @@ private:
 	static void ConMinigameDown(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConHammerfight(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

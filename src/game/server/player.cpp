@@ -949,8 +949,8 @@ void CPlayer::Save()
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
 	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
 
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
-		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_AccountID);
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `HammerfightTickets` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
+		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_hammerfight_tickets, m_AccountID);
 
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);
@@ -1121,13 +1121,13 @@ void CPlayer::CalcExp()
 		m_neededxp = 680000;
 	else if (m_level == 21)					//80 000
 		m_neededxp = 760000;
-	else if (m_level == 22)					//80 000
+	else if (m_level == 22)					//90 000
 		m_neededxp = 850000;
-	else if (m_level == 23)					//90 000
+	else if (m_level == 23)					//100 000
 		m_neededxp = 950000;
-	else if (m_level == 24)					//100 000
+	else if (m_level == 24)					//150 000
 		m_neededxp = 1200000;
-	else if (m_level == 25)					//150 000			Police[2]		policehelper
+	else if (m_level == 25)					//200 000			Police[2]		policehelper
 		m_neededxp = 1400000;
 	else if (m_level == 26)					//200 000
 		m_neededxp = 1600000;
@@ -1135,77 +1135,176 @@ void CPlayer::CalcExp()
 		m_neededxp = 1800000;
 	else if (m_level == 28)					//200 000
 		m_neededxp = 2000000;
-	else if (m_level == 29)					//200 000
+	else if (m_level == 29)					//210 000
 		m_neededxp = 2210000;
-	else if (m_level == 30)					//210 000			Police[3]		taser
+	else if (m_level == 30)					//220 000			Police[3]		taser
 		m_neededxp = 2430000;
-	else if (m_level == 31)					//220 000
+	else if (m_level == 31)					//230 000
 		m_neededxp = 2660000;
-	else if (m_level == 32)					//230 000
+	else if (m_level == 32)					//240 000
 		m_neededxp = 2900000;
-	else if (m_level == 33)					//240 000
+	else if (m_level == 33)					//250 000
 		m_neededxp = 3150000;
-	else if (m_level == 34)					//250 000
+	else if (m_level == 34)					//350 000                      
 		m_neededxp = 3500000;
-	else if (m_level == 35)					//350 000
+	else if (m_level == 35)					//450 000
 		m_neededxp = 3950000;
-	else if (m_level == 36)					//450 000
+	else if (m_level == 36)					//550 000
 		m_neededxp = 4500000;
-	else if (m_level == 37)					//550 000
-		m_neededxp = 5150000;
-	else if (m_level == 38)					//650 000
-		m_neededxp = 5900000;
-	else if (m_level == 39)					//750 000
-		m_neededxp = 6750000;
-	else if (m_level == 40)					//850 000
-		m_neededxp = 7700000;
-	else if (m_level == 41)					//950 000
-		m_neededxp = 8700000;
+	else if (m_level == 37)					//750 000
+		m_neededxp = 5250000;
+	else if (m_level == 38)					//850 000
+		m_neededxp = 6100000;
+	else if (m_level == 39)					//900 000
+		m_neededxp = 7000000;
+	else if (m_level == 40)					//1 000 000			Police[4]		homing missels
+		m_neededxp = 8000000;
+	else if (m_level == 41)					//1 000 000
+		m_neededxp = 9000000;
 	else if (m_level == 42)					//1 000 000
-		m_neededxp = 10200000;
-	else if (m_level == 43)					//1 500 000
-		m_neededxp = 12200000;
-	else if (m_level == 44)					//2 000 000
-		m_neededxp = 15200000;
-	else if (m_level == 45)					//3 000 000
-		m_neededxp = 20700000;
-	else if (m_level == 46)					//5 500 000
+		m_neededxp = 10000000;
+	else if (m_level == 43)					//1 000 000
+		m_neededxp = 11000000;
+	else if (m_level == 44)					//1 000 000
+		m_neededxp = 12000000;
+	else if (m_level == 45)					//1 000 000
+		m_neededxp = 13000000;
+	else if (m_level == 46)					//1 000 000
+		m_neededxp = 14000000;
+	else if (m_level == 47)					//1 000 000
+		m_neededxp = 15000000;
+	else if (m_level == 48)					//1 000 000
+		m_neededxp = 16000000;
+	else if (m_level == 49)					//1 000 000
+		m_neededxp = 17000000;
+	else if (m_level == 50)					//1 000 000
+		m_neededxp = 18000000;
+	else if (m_level == 51)					//1 000 000
+		m_neededxp = 19000000;
+	else if (m_level == 52)					//1 000 000
+		m_neededxp = 20000000;
+	else if (m_level == 53)					//1 000 000
+		m_neededxp = 21000000;
+	else if (m_level == 54)					//1 000 000
+		m_neededxp = 22000000;
+	else if (m_level == 55)					//1 000 000
+		m_neededxp = 23000000;
+	else if (m_level == 56)					//1 000 000
+		m_neededxp = 24000000;
+	else if (m_level == 57)					//1 000 000
+		m_neededxp = 25000000;
+	else if (m_level == 58)					//1 000 000
+		m_neededxp = 26000000;
+	else if (m_level == 59)					//1 000 000
 		m_neededxp = 27000000;
-	else if (m_level == 47)					//6 300 000
-		m_neededxp = 130000000;
-	else if (m_level == 48)					//103 000 000
-		m_neededxp = 300000000;
-	else if (m_level == 49)					//170 000 000
-		m_neededxp = 1000000000;
-	else if (m_level == 50)					//700 000 000
-		m_neededxp = 2000000000;
-	else if (m_level == 51)					//1 000 000 000
-		m_neededxp = 3000000000;
-	else if (m_level == 52)					//1 000 000 000
-		m_neededxp = 4000000000;
-	else if (m_level == 53)					//1 000 000 000
-		m_neededxp = 5000000000;
-	else if (m_level == 54)					//1 000 000 000
-		m_neededxp = 6000000000;
-	else if (m_level == 55)					//1 000 000 000
-		m_neededxp = 7000000000;
-	else if (m_level == 56)					//1 000 000 000
-		m_neededxp = 8000000000;
-	else if (m_level == 57)					//1 000 000 000
-		m_neededxp = 9000000000;
-	else if (m_level == 58)					//1 000 000 000
-		m_neededxp = 10000000000;
-	else if (m_level == 59)					//1 000 000 000
-		m_neededxp = 15000000000;
-	else if (m_level == 60)					//5 000 000 000
-		m_neededxp = 999999999999999992;	//xxxxxxxxxxx
+	else if (m_level == 60)					//1 000 000
+		m_neededxp = 28000000;
+	else if (m_level == 61)					//1 000 000
+		m_neededxp = 29000000;
+	else if (m_level == 62)					//1 000 000
+		m_neededxp = 30000000;
+	else if (m_level == 63)					//1 000 000
+		m_neededxp = 31000000;
+	else if (m_level == 64)					//1 000 000
+		m_neededxp = 32000000;
+	else if (m_level == 65)					//1 000 000
+		m_neededxp = 33000000;
+	else if (m_level == 66)					//1 000 000
+		m_neededxp = 34000000;
+	else if (m_level == 67)					//1 000 000
+		m_neededxp = 35000000;
+	else if (m_level == 68)					//1 000 000
+		m_neededxp = 36000000;
+	else if (m_level == 69)					//1 000 000
+		m_neededxp = 37000000;
+	else if (m_level == 70)					//1 000 000
+		m_neededxp = 38000000;
+	else if (m_level == 71)					//1 000 000
+		m_neededxp = 39000000;
+	else if (m_level == 72)					//1 000 000
+		m_neededxp = 40000000;
+	else if (m_level == 73)					//1 010 000
+		m_neededxp = 41010000;
+	else if (m_level == 74)					//1 010 000
+		m_neededxp = 42020000;
+	else if (m_level == 75)					//1 010 000
+		m_neededxp = 43030000;
+	else if (m_level == 76)					//1 010 000
+		m_neededxp = 44040000;
+	else if (m_level == 77)					//1 010 000
+		m_neededxp = 45050000;
+	else if (m_level == 78)					//1 010 000
+		m_neededxp = 46060000;
+	else if (m_level == 79)					//1 010 000
+		m_neededxp = 47070000;
+	else if (m_level == 80)					//1 010 000
+		m_neededxp = 48080000;
+	else if (m_level == 81)					//1 010 000
+		m_neededxp = 49090000;
+	else if (m_level == 82)					//1 010 000
+		m_neededxp = 50100000;
+	else if (m_level == 83)					//1 010 000
+		m_neededxp = 51110000;
+	else if (m_level == 84)					//1 010 000
+		m_neededxp = 52120000;
+	else if (m_level == 85)					//1 010 000
+		m_neededxp = 53130000;
+	else if (m_level == 86)					//1 010 000
+		m_neededxp = 54140000;
+	else if (m_level == 87)					//1 010 000
+		m_neededxp = 55150000;
+	else if (m_level == 88)					//1 010 000
+		m_neededxp = 56160000;
+	else if (m_level == 89)					//1 010 000
+		m_neededxp = 57170000;
+	else if (m_level == 90)					//1 010 000
+		m_neededxp = 58180000;
+	else if (m_level == 91)					//1 010 000
+		m_neededxp = 59190000;
+	else if (m_level == 92)					//1 010 000
+		m_neededxp = 60200000;
+	else if (m_level == 93)					//1 100 000
+		m_neededxp = 61300000;
+	else if (m_level == 94)					//1 100 000
+		m_neededxp = 62400000;
+	else if (m_level == 95)					//1 100 000
+		m_neededxp = 63500000;
+	else if (m_level == 96)					//1 100 000
+		m_neededxp = 64600000;
+	else if (m_level == 97)					//1 100 000
+		m_neededxp = 65700000;
+	else if (m_level == 98)					//1 100 000
+		m_neededxp = 66800000;
+	else if (m_level == 99)					//1 100 000
+		m_neededxp = 67900000;
 	else
-		m_neededxp = 404000000000000000;    //404 error         
+		m_neededxp = 404000000000000;    //404 error         
+
+
+
+		//WARNING!
+		/*
+
+		by increasing max level you need to change the hardcodet max level 99:
+		you need to make some changes in the following places:
+
+		player.ccp (CheckLevel())
+		character.cpp(HasFlag)
+		character.cpp(Moneytile)
+		character.cpp(Moneytile2)
+		character.cpp(Moneytileplus)
+
+
+
+		*/
 
 }
 
 void CPlayer::CheckLevel()
 {
+	if (m_level > 99)
+		return;
+
 	if (m_AccountID <= 0)
 		return;
 

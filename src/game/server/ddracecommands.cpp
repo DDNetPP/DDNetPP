@@ -394,7 +394,7 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 }
 
 
-void CGameContext::Conhammerfight(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;

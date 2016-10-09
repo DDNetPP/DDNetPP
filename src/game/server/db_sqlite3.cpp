@@ -102,6 +102,7 @@ CSql::CSql()
 		"JailTime					INTEGER			DEFAULT 0," \
 		"EscapeTime					INTEGER			DEFAULT 0," \
 		"TaserLevel					INTEGER			DEFAULT 0," \
+		"HammerfightTickets			INTEGER			DEFAULT 0," \
 		"ProfileStyle				INTEGER			DEFAULT 0," \
 		"ProfileViews				INTEGER			DEFAULT 0);";
 		//"ProfileStatus				VARCHAR(128)	NOT NULL," \
