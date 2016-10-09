@@ -89,6 +89,22 @@ inline vector2_base<T> closest_point_on_line(vector2_base<T> line_point0, vector
 	return t;*/
 }
 
+template<typename T>
+inline vector2_base<T> rotate_around_point(vector2_base<T> point, vector2_base<T> pivot, float angle)
+{
+	T s = sin(angle);
+	T c = cos(angle);
+	// translate point to origin
+	point -= pivot;
+	// rotate point
+	vector2_base<T> rotated_point;
+	rotated_point.x = point.x*c - point.y*s;
+	rotated_point.y = point.x*s + point.y*c;
+	// translate point back to pivot
+	point = rotated_point + pivot;
+	return point;
+}
+
 // ------------------------------------
 template<typename T>
 class vector3_base
