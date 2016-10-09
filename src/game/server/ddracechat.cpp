@@ -162,9 +162,13 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ItemName | Price | Needed Level | OwnTime:");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"rainbow       1 500 money | lvl8 | dead");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"bloody         3 500 money | lvl3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"rainbow       1 500 money | lvl8 | dead");
+		"atom         3 500 money | lvl3 | dead");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"trail         3 500 money | lvl3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"minigame     250 money | lvl2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -1827,6 +1831,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 250.");
 		}
 	}
+	// buy cosmetic feature
 	else if (!str_comp_nocase(aItem, "rainbow"))
 	{
 		if (pPlayer->GetCharacter()->m_Rainbow)
@@ -1872,6 +1877,58 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 				pPlayer->m_money -= 3500;
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "you bought bloody until death.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
+			}
+		}
+	}
+	else if (!str_comp_nocase(aItem, "atom"))
+	{
+		if (pPlayer->GetCharacter()->m_Atom)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you already own atom");
+			return;
+		}
+
+		if (pPlayer->m_level < 15)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 15 to buy atom.");
+		}
+		else
+		{
+			if (pPlayer->m_money >= 3500)
+			{
+				pPlayer->m_money -= 3500;
+				pPlayer->GetCharacter()->m_Atom = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you bought atom until death.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
+			}
+		}
+	}
+	else if (!str_comp_nocase(aItem, "trail"))
+	{
+		if (pPlayer->GetCharacter()->m_Trail)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you already own trail");
+			return;
+		}
+
+		if (pPlayer->m_level < 15)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 15 to buy trail.");
+		}
+		else
+		{
+			if (pPlayer->m_money >= 3500)
+			{
+				pPlayer->m_money -= 3500;
+				pPlayer->GetCharacter()->m_Trail = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you bought trail until death.");
 			}
 			else
 			{
@@ -2379,69 +2436,8 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
 }
 
-void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-	if (pResult->NumArguments() != 1)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
-		return;
-	}
-
-
-	char aBuf[256];
-	char aInput[32];
-	str_copy(aInput, pResult->GetString(0), 32);
-
-	if (!str_comp_nocase(aInput, "off"))
-	{
-		//if (pPlayer->GetCharacter()->m_Bloody || pPlayer->m_InfBloody)
-		//{
-			pPlayer->GetCharacter()->m_Bloody = false;
-			pPlayer->m_InfBloody = false;
-			pSelf->SendChatTarget(pResult->m_ClientID, "bloody turned off");
-		//}
-		//else
-		//{
-		//	pSelf->SendChatTarget(pResult->m_ClientID, "you don't have bloody.");
-		//}
-	}
-	else if (!str_comp_nocase(aInput, "accept"))
-	{
-		if (pPlayer->m_bloody_offer)
-		{
-			if (!pPlayer->GetCharacter()->m_Bloody)
-			{
-				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted bloody. You can turn off bloody agian with '/bloody off'");
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Bloody.");
-			}
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you bloody so you can't accept it :p");
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
-	}
-
-}
+// accept/turn-off cosmetic features
 
 void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 {
@@ -2497,5 +2493,172 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/rainbow ' + 'accept' or 'off'");
 	}
+}
 
+void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+			pPlayer->GetCharacter()->m_Bloody = false;
+			pPlayer->m_InfBloody = false;
+			pSelf->SendChatTarget(pResult->m_ClientID, "bloody turned off");
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_bloody_offer)
+		{
+			if (!pPlayer->GetCharacter()->m_Bloody)
+			{
+				pPlayer->GetCharacter()->m_Bloody = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted bloody. You can turn off bloody agian with '/bloody off'");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Bloody.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you bloody so you can't accept it :p");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+	}
+}
+
+void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/atom ' + 'accept' or 'off'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+			pPlayer->GetCharacter()->m_Atom = false;
+			pPlayer->m_InfAtom = false;
+			pSelf->SendChatTarget(pResult->m_ClientID, "atom turned off");
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_atom_offer)
+		{
+			if (!pPlayer->GetCharacter()->m_Atom)
+			{
+				pPlayer->GetCharacter()->m_Atom = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted atom. You can turn off atom agian with '/atom off'");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Atom.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you atom so you can't accept it :p");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/atom ' + 'accept' or 'off'");
+	}
+}
+
+void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/trail ' + 'accept' or 'off'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+			pPlayer->GetCharacter()->m_Trail = false;
+			pPlayer->m_InfTrail = false;
+			pSelf->SendChatTarget(pResult->m_ClientID, "trail turned off");
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_trail_offer)
+		{
+			if (!pPlayer->GetCharacter()->m_Trail)
+			{
+				pPlayer->GetCharacter()->m_Trail = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted trail. You can turn off trail agian with '/trail off'");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Trail.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you trail so you can't accept it :p");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/trail ' + 'accept' or 'off'");
+	}
 }

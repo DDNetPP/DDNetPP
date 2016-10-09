@@ -235,11 +235,7 @@ public:
 	bool SameTeam(int ClientID);
 	bool m_Super;
 	bool m_SuperJump;
-	bool m_Bloody;
-	//bool m_BoughtBloody;
-	//city stuff
 	int m_survivexpvalue;
-	bool m_Rainbow;
 	bool m_hammerfight; //used for the rcon command has nothing todo with arenas yet
 	//bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
 	//bool m_Hammerarena_exit_request;
@@ -263,6 +259,11 @@ public:
 	bool m_FreezeHammer;
 	bool m_fake_super;
 
+	// finite cosmetics
+	bool m_Rainbow;
+	bool m_Bloody;
+	bool m_Atom;
+	bool m_Trail;
 
 	//Special Dummy vars
 	//char[] apFriends = new char[4];

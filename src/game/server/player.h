@@ -215,10 +215,7 @@ public:
 	int m_pvp_arena_kills;
 	int m_pvp_arena_deaths;
 
-
 	//city stuff
-	bool m_bloody_offer;
-	bool m_rainbow_offer;
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];
@@ -268,9 +265,18 @@ public:
 	float m_Dummy_nn_highest_fitness;
 	int m_Dummy_nn_time;
 
+	// infinite cosmetics
+	bool m_InfRainbow;
+	bool m_InfBloody;
+	bool m_InfAtom;
+	bool m_InfTrail;
+	// cosmetic offers
+	bool m_rainbow_offer;
+	bool m_bloody_offer;
+	bool m_atom_offer;
+	bool m_trail_offer;
 
 	int m_KillStreak;
-	bool m_InfBloody;
 	bool m_IsJailed;
 	int64 m_EscapeTime;
 	bool m_InBank;
@@ -280,7 +286,6 @@ public:
 	//bool m_hammerfight;
 	//bool m_isHeal;
 	bool m_ninjasteam;
-	bool m_InfRainbow;
 	bool m_disarm;
 	//bool m_freezeShotgun;
 	int m_RainbowColor;

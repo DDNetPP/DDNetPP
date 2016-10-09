@@ -2112,6 +2112,73 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					return;
 				}
+				// give cosmetics
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
+				{
+					if (Server()->IsAuthed(ClientID))
+					{
+
+
+
+						char aBuf[256];
+						char aUsername[MAX_NAME_LENGTH];
+						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
+
+						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+						int RainbowID = -1;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (!m_apPlayers[i])
+								continue;
+
+							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+							{
+								RainbowID = i;
+								break;
+							}
+						}
+
+						if (RainbowID >= 0 && RainbowID < MAX_CLIENTS)
+						{
+							if (m_apPlayers[RainbowID])
+							{
+								if (m_apPlayers[RainbowID]->m_rainbow_offer)
+								{
+									SendChatTarget(ClientID, "This player has already an rainbow offer.");
+								}
+								else
+								{
+									if (ClientID == RainbowID)
+									{
+										GetPlayerChar(ClientID)->m_Rainbow = true;;
+										SendChatTarget(ClientID, "you gave rainbow to your self.");
+									}
+									else
+									{
+										str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
+										SendChatTarget(ClientID, aBuf);
+										m_apPlayers[RainbowID]->m_rainbow_offer = true;
+
+										str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
+										SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
+									}
+								}
+							}
+						}
+						else
+						{
+							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+							SendChatTarget(ClientID, aBuf);
+						}
+
+						return;
+					}
+					else
+					{
+						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+					}
+				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))
@@ -2178,7 +2245,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
 					}
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 13) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))
 					{
@@ -2191,7 +2258,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 
-						int RainbowID = -1;
+						int AtomID = -1;
 						for (int i = 0; i < MAX_CLIENTS; i++)
 						{
 							if (!m_apPlayers[i])
@@ -2199,34 +2266,100 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
 							{
-								RainbowID = i;
+								AtomID = i;
 								break;
 							}
 						}
 
-						if (RainbowID >= 0 && RainbowID < MAX_CLIENTS)
+						if (AtomID >= 0 && AtomID < MAX_CLIENTS)
 						{
-							if (m_apPlayers[RainbowID])
+							if (m_apPlayers[AtomID])
 							{
-								if (m_apPlayers[RainbowID]->m_rainbow_offer)
+								if (m_apPlayers[AtomID]->m_atom_offer)
 								{
-									SendChatTarget(ClientID, "This player has already an rainbow offer.");
+									SendChatTarget(ClientID, "This player has already an atom offer.");
 								}
 								else
 								{
-									if (ClientID == RainbowID)
+									if (ClientID == AtomID)
 									{
-										GetPlayerChar(ClientID)->m_Rainbow = true;;
-										SendChatTarget(ClientID, "you gave rainbow to your self.");
+										GetPlayerChar(ClientID)->m_Atom = true;;
+										SendChatTarget(ClientID, "you gave atom to your self.");
 									}
 									else
 									{
-										str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
+										str_format(aBuf, sizeof(aBuf), "Atom offer sent to %s", aUsername);
 										SendChatTarget(ClientID, aBuf);
-										m_apPlayers[RainbowID]->m_rainbow_offer = true;
+										m_apPlayers[AtomID]->m_atom_offer = true;
 
-										str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
-										SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
+										str_format(aBuf, sizeof(aBuf), "%s wants to give you atom. Type '/atom accept' to accept and activate atom for you.", Server()->ClientName(ClientID));
+										SendChatTarget(m_apPlayers[AtomID]->GetCID(), aBuf);
+									}
+								}
+							}
+						}
+						else
+						{
+							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+							SendChatTarget(ClientID, aBuf);
+						}
+
+						return;
+					}
+					else
+					{
+						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+					}
+				}
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 13) == 0)
+				{
+					if (Server()->IsAuthed(ClientID))
+					{
+
+
+
+						char aBuf[256];
+						char aUsername[MAX_NAME_LENGTH];
+						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
+
+						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+						int TrailID = -1;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (!m_apPlayers[i])
+								continue;
+
+							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+							{
+								TrailID = i;
+								break;
+							}
+						}
+
+						if (TrailID >= 0 && TrailID < MAX_CLIENTS)
+						{
+							if (m_apPlayers[TrailID])
+							{
+								if (m_apPlayers[TrailID]->m_trail_offer)
+								{
+									SendChatTarget(ClientID, "This player has already an trail offer.");
+								}
+								else
+								{
+									if (ClientID == TrailID)
+									{
+										GetPlayerChar(ClientID)->m_Trail = true;;
+										SendChatTarget(ClientID, "you gave trail to your self.");
+									}
+									else
+									{
+										str_format(aBuf, sizeof(aBuf), "Trail offer sent to %s", aUsername);
+										SendChatTarget(ClientID, aBuf);
+										m_apPlayers[TrailID]->m_trail_offer = true;
+
+										str_format(aBuf, sizeof(aBuf), "%s wants to give you trail. Type '/trail accept' to accept and activate trail for you.", Server()->ClientName(ClientID));
+										SendChatTarget(m_apPlayers[TrailID]->GetCID(), aBuf);
 									}
 								}
 							}

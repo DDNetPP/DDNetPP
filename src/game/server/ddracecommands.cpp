@@ -99,55 +99,6 @@ void CGameContext::ConNinja(IConsole::IResult *pResult, void *pUserData)
 	pSelf->ModifyWeapons(pResult, pUserData, WEAPON_NINJA, false);
 }
 
-void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	int ClientID = pResult->GetVictim();
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if (pPlayer)
-	{
-		//pPlayer->m_freezeShotgun ^= true;
-		pPlayer->m_InfRainbow ^= true;
-
-
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you": "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
-	}
-}
-
-void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
-{
-	// pSelf = GameContext()
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	int ClientID = pResult->GetVictim();
-
-	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
-	if (pChr)
-	{
-		pChr->m_Rainbow ^= true;
-
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Rainbow has been %s for %s", pChr->m_Rainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-
-		str_format(aBuf, sizeof(aBuf), "Rainbow was %s by %s", pChr->m_Rainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
-	}
-}
-
-
-
 void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
@@ -278,6 +229,77 @@ void CGameContext::Conninjasteam(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+
+// cosmetics
+
+void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_Rainbow ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Rainbow has been %s for %s", pChr->m_Rainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Rainbow was %s by %s", pChr->m_Rainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		//pPlayer->m_freezeShotgun ^= true;
+		pPlayer->m_InfRainbow ^= true;
+
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you": "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_Bloody ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Bloody has been %s for %s", pChr->m_Bloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Bloody was %s by %s", pChr->m_Bloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConInfBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -300,9 +322,8 @@ void CGameContext::ConInfBloody(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConOldAtom(IConsole::IResult *pResult, void *pUserData)
 {
-	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -312,13 +333,79 @@ void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
 	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
 	if (pChr)
 	{
-		pChr->m_Bloody ^= true;
+		pChr->m_Atom ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Bloody has been %s for %s", pChr->m_Bloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Atom has been %s for %s", pChr->m_Atom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Bloody was %s by %s", pChr->m_Bloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Atom was %s by %s", pChr->m_Atom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConInfAtom(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		pPlayer->m_InfAtom ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Infinite Atom has been %s for %s", pPlayer->m_InfAtom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Infinite Atom was %s by %s", pPlayer->m_InfAtom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_Trail ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Trail has been %s for %s", pChr->m_Trail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Trail was %s by %s", pChr->m_Trail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConInfTrail(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		pPlayer->m_InfTrail ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Infinite Trail has been %s for %s", pPlayer->m_InfTrail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Infinite Trail was %s by %s", pPlayer->m_InfTrail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 }

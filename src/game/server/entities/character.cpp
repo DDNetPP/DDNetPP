@@ -13167,8 +13167,11 @@ void CCharacter::DDRaceInit()
 	//m_Dummy_friend = "nobody";
 	m_Dummy_FriendID = -1;
 
-
-
+	// disable finite cosmetics by default
+	m_Rainbow = false;
+	m_Bloody = false;
+	m_Atom = false;
+	m_Trail = false;
 
 	int Team = Teams()->m_Core.Team(m_Core.m_Id);
 

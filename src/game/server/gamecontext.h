@@ -256,8 +256,6 @@ private:
 	static void ConNinja(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnSolo(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnDeep(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
@@ -266,9 +264,8 @@ private:
 	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
+	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
 	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
 	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
@@ -283,6 +280,20 @@ private:
 	static void ConUnWeapons(IConsole::IResult *pResult, void *pUserData);
 	static void ConAddWeapon(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemoveWeapon(IConsole::IResult *pResult, void *pUserData);
+
+	// cosmetics
+	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
 
 	//HACK ChillerDragon
 	//static void ConHack(IConsole::IResult *pResult, void *pUserData);
@@ -384,8 +395,6 @@ private:
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
-	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
-	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

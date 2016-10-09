@@ -138,6 +138,17 @@ void CPlayer::Reset()
 	m_Dummy_nn_highest_Distance_touched = 0.0f;
 	m_Minigameworld_size_x = 30;
 	m_max_level = 99; //is actually 1 more
+
+	// disable infinite cosmetics by default
+	m_InfRainbow = false;
+	m_InfBloody = false;
+	m_InfAtom = false;
+	m_InfTrail = false;
+	// disable cosmetic offers by default
+	m_rainbow_offer = false;
+	m_bloody_offer = false;
+	m_atom_offer = false;
+	m_trail_offer = false;
 }
 
 void CPlayer::Tick()
