@@ -211,6 +211,10 @@ public:
 	int m_HF_return_posX;
 	int m_HF_return_posY;
 
+	int m_hammerfight_games_played;
+	int m_hammerfight_kills;
+	int m_hammerfight_deaths;
+
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp

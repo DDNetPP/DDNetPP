@@ -81,6 +81,9 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel")); 
 				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_tickets = GetInt(GetID("HammerfightTickets"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_games_played = GetInt(GetID("HammerfightGames"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_kills = GetInt(GetID("HammerfightKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_deaths = GetInt(GetID("HammerfightDeaths"));
 
 				//profiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
@@ -1689,7 +1692,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//CreateExplosion();
 					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
-					pPlayer->m_money = pPlayer->m_money + 250000;
+					pPlayer->m_money = pPlayer->m_money + 300;
 					pPlayer->m_level++;
 					//pPlayer->GetCharacter()->m_IsHammerarena = false;
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;
@@ -1865,7 +1868,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 							if (m_apPlayers[StatsID]->m_ProfileStyle == 0)  //default
 							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID), m_apPlayers[StatsID]->m_level, m_apPlayers[StatsID]->m_money);
+								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
 								SendChatTarget(ClientID, aBuf);
 								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
 								SendChatTarget(ClientID, aBuf);
@@ -1879,7 +1882,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							}
 							else if (m_apPlayers[StatsID]->m_ProfileStyle == 1)  //shit
 							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID), m_apPlayers[StatsID]->m_level, m_apPlayers[StatsID]->m_money);
+								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
 								SendChatTarget(ClientID, aBuf);
 								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
 								SendChatTarget(ClientID, aBuf);
@@ -1889,7 +1892,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							}
 							else if (m_apPlayers[StatsID]->m_ProfileStyle == 2)  //social
 							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID), m_apPlayers[StatsID]->m_level, m_apPlayers[StatsID]->m_money);
+								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
 								SendChatTarget(ClientID, aBuf);
 								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
 								SendChatTarget(ClientID, aBuf);
@@ -1907,7 +1910,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							}
 							else if (m_apPlayers[StatsID]->m_ProfileStyle == 3)  //show-off
 							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID), m_apPlayers[StatsID]->m_level, m_apPlayers[StatsID]->m_money);
+								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
 								SendChatTarget(ClientID, aBuf);
 								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
 								SendChatTarget(ClientID, aBuf);
@@ -1920,6 +1923,22 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 								SendChatTarget(ClientID, aBuf);
 								str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[StatsID]->m_shit);
 								SendChatTarget(ClientID, aBuf);
+							}
+							else if (m_apPlayers[StatsID]->m_ProfileStyle == 4)  //pvp
+							{
+								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
+								SendChatTarget(ClientID, aBuf);
+								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
+								SendChatTarget(ClientID, aBuf);
+								SendChatTarget(ClientID, "-------------------------");
+								str_format(aBuf, sizeof(aBuf), "Hammerfight Games: %d", m_apPlayers[StatsID]->m_hammerfight_games_played);
+								SendChatTarget(ClientID, aBuf);
+								str_format(aBuf, sizeof(aBuf), "Hammerfight Kills: %d", m_apPlayers[StatsID]->m_hammerfight_kills);
+								SendChatTarget(ClientID, aBuf);
+								str_format(aBuf, sizeof(aBuf), "Hammerfight Deaths: %d", m_apPlayers[StatsID]->m_hammerfight_deaths);
+								SendChatTarget(ClientID, aBuf);
+								//str_format(aBuf, sizeof(aBuf), "Hammerfight K/D: %d", m_apPlayers[StatsID]->m_hammerfight_kills / m_hammerfight_deaths);
+								//SendChatTarget(ClientID, aBuf);
 							}
 						}
 					}
@@ -1967,9 +1986,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						m_apPlayers[ClientID]->m_ProfileStyle = 3;
 						SendChatTarget(ClientID, "Changed profile-style to: show-off");
 					}
+					else if (!str_comp_nocase(Input, "pvp"))
+					{
+						m_apPlayers[ClientID]->m_ProfileStyle = 4;
+						SendChatTarget(ClientID, "Changed profile-style to: pvp");
+					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "error: '%s'    is not a profile style. choose between following: default, shit, social and show-off", Input);
+						str_format(aBuf, sizeof(aBuf), "error: '%s'    is not a profile style. choose between following: default, shit, social, show-off and pvp", Input);
 						SendChatTarget(ClientID, aBuf);
 					}
 

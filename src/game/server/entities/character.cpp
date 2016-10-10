@@ -11270,7 +11270,7 @@ void CCharacter::Die(int Killer, int Weapon)
 	Teams()->OnCharacterDeath(GetPlayer()->GetCID(), Weapon);
 
 
-	if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME)
+	if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME && Weapon != WEAPON_SELF)
 	{
 		//GameServer()->GetPlayerChar(Killer)->m_Bloody = true;
 
@@ -11278,8 +11278,10 @@ void CCharacter::Die(int Killer, int Weapon)
 		{
 			GameServer()->m_apPlayers[Killer]->m_money += 150;
 			GameServer()->m_apPlayers[Killer]->m_xp += 100;
+			GameServer()->m_apPlayers[Killer]->m_hammerfight_kills++;
 
-			GameServer()->SendChatTarget(Killer, "+500 money for kill");
+
+			//GameServer()->SendChatTarget(Killer, "+500 money for kill");
 			str_format(aBuf, sizeof(aBuf), "+100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->SendChatTarget(Killer, aBuf);
 		}
@@ -11289,8 +11291,10 @@ void CCharacter::Die(int Killer, int Weapon)
 		//m_pPlayer->m_InfRainbow = true;
 		if (m_IsHammerarena)
 		{
+			m_pPlayer->m_hammerfight_deaths++;
+
 			str_format(aBuf, sizeof(aBuf), "you lost the hammerfight because you were killed by %s", Server()->ClientName(Killer));
-			GameServer()->SendChatTarget(Killer, aBuf);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
 	}
 	

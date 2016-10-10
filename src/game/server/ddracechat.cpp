@@ -2275,6 +2275,7 @@ void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
 				if (!pPlayer->GetCharacter()->m_IsHammerarena)
 				{
 					pPlayer->m_hammerfight_tickets--;
+					pPlayer->m_hammerfight_games_played++;
 					pPlayer->GetCharacter()->m_IsHammerarena = true;
 					pPlayer->GetCharacter()->m_isDmg = true;
 					pSelf->SendChatTarget(pResult->m_ClientID, "You are now a hammerfighter! good luck and have fun!");
