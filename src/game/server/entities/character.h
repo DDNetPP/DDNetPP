@@ -338,6 +338,8 @@ public:
 	bool m_Dummy_AttackedOnSpawn;
 	bool m_Dummy_bored_shootin;
 	bool m_Dummy_bored_cuz_nothing_happens;
+	bool m_Dummy_movement_to_block_area_style_window;  //yep dis is too long
+	bool m_Dummy_planned_movment; // belongs to:   m_Dummy_movement_to_block_area_style_window
 
 	//dummy 19 vars
 	int m_DummyDriveDuration = 0;
