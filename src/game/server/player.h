@@ -218,6 +218,11 @@ public:
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
+	char m_money_transaction0[512];
+	char m_money_transaction1[512];
+	char m_money_transaction2[512];
+	char m_money_transaction3[512];
+	char m_money_transaction4[512];
 	bool m_TaserOn;
 	bool m_PoliceHelper;
 	int m_TaserLevel;

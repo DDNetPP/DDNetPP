@@ -1767,6 +1767,12 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		if (pPlayer->m_money >= 5)
 		{
 			pPlayer->m_money -= 5;
+			str_format(pPlayer->m_money_transaction4, sizeof(pPlayer->m_money_transaction4), "%s", pPlayer->m_money_transaction3);
+			str_format(pPlayer->m_money_transaction3, sizeof(pPlayer->m_money_transaction3), "%s", pPlayer->m_money_transaction2);
+			str_format(pPlayer->m_money_transaction2, sizeof(pPlayer->m_money_transaction2), "%s", pPlayer->m_money_transaction1);
+			str_format(pPlayer->m_money_transaction1, sizeof(pPlayer->m_money_transaction1), "%s", pPlayer->m_money_transaction0);
+			str_format(pPlayer->m_money_transaction0, sizeof(pPlayer->m_money_transaction0), "-5 bought shit");
+
 			pPlayer->m_shit++;
 			pSelf->SendChatTarget(pResult->m_ClientID, "you bought shit.");
 		}
@@ -2313,4 +2319,32 @@ void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/hammerfight ' + 'join' or 'leave'");
 	}
 
+}
+
+void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
+	str_format(aBuf, sizeof(aBuf), "Money: %d", pPlayer->m_money);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction0);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction1);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction2);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction3);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction4);
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 }

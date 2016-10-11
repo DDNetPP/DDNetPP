@@ -70,6 +70,8 @@ CHAT_COMMAND("MinigameDown", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameDown,
 
 CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, this, "turns the xp/money messages you get from moneytiles/flags on or off")
 
+CHAT_COMMAND("money", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMoney, this, "shows your money and last transactions")
+
 CHAT_COMMAND("hammerfight", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfight, this, "teleports you in the hammerfight arena (you can die there)")
 //CHAT_COMMAND("hammerfight_leave", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfightLeave, this, "teleports you out of the hammerfigth arena")
 
