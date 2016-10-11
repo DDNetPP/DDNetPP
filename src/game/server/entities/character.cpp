@@ -801,6 +801,16 @@ void CCharacter::Tick()
 	}
 
 
+	//if (Server()->Tick() % 90 == 0)
+	//{
+	//	if (g_Config.m_SvFinishEvent == 1) //works but shit dont use xD
+	//	{
+	//		//str_format(g_Config.m_SvName, sizeof(g_Config.m_SvName), "EVENT RUNNING!!!11elf");
+	//		//much spaces needed to make the 128 char array full     so that no loop creates
+	//		//str_format(g_Config.m_SvBackupName, sizeof(g_Config.m_SvBackupName), g_Config.m_SvName);
+	//		str_format(g_Config.m_SvName, sizeof(g_Config.m_SvName), "%s  (Event)                                                  ", g_Config.m_SvName);
+	//	}
+	//}
 
 
 	if (g_Config.m_SvRoomState == 1) // ChillBlock5
@@ -12068,8 +12078,17 @@ void CCharacter::HandleTiles(int Index)
 		}
 		else
 		{
-			m_pPlayer->m_xp = m_pPlayer->m_xp + 250;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+250 xp");
+			if (g_Config.m_SvFinishEvent == 1)
+			{
+				m_pPlayer->m_xp = m_pPlayer->m_xp + 250 + 500;
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+250 xp");
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+500 xp (Event-bonus)");
+			}
+			else
+			{
+				m_pPlayer->m_xp = m_pPlayer->m_xp + 250;
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+250 xp");
+			}
 		}
 	}
 

@@ -2348,3 +2348,33 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction4);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 }
+
+void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
+	if (g_Config.m_SvFinishEvent == 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Race Event ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Info: You get more xp for finishing the map!");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "no events running at the moment...");
+	}
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
+}
