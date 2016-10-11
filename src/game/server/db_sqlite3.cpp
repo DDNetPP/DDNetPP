@@ -102,10 +102,10 @@ CSql::CSql()
 		"JailTime					INTEGER			DEFAULT 0," \
 		"EscapeTime					INTEGER			DEFAULT 0," \
 		"TaserLevel					INTEGER			DEFAULT 0," \
-		"HammerfightTickets			INTEGER			DEFAULT 0," \
-		"HammerfightGames			INTEGER			DEFAULT 0," \
-		"HammerfightKills			INTEGER			DEFAULT 0," \
-		"HammerfightDeaths			INTEGER			DEFAULT 0," \
+		"PvPArenaTickets			INTEGER			DEFAULT 0," \
+		"PvPArenaGames				INTEGER			DEFAULT 0," \
+		"PvPArenaKills				INTEGER			DEFAULT 0," \
+		"PvPArenaDeaths				INTEGER			DEFAULT 0," \
 		"ProfileStyle				INTEGER			DEFAULT 0," \
 		"ProfileViews				INTEGER			DEFAULT 0);";
 		//"ProfileStatus				VARCHAR(128)	NOT NULL," \

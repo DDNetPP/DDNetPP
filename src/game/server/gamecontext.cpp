@@ -80,10 +80,10 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel")); 
-				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_tickets = GetInt(GetID("HammerfightTickets"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_games_played = GetInt(GetID("HammerfightGames"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_kills = GetInt(GetID("HammerfightKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_hammerfight_deaths = GetInt(GetID("HammerfightDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_tickets = GetInt(GetID("PvPArenaTickets"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_games_played = GetInt(GetID("PvPArenaGames"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_kills = GetInt(GetID("PvPArenaKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_deaths = GetInt(GetID("PvPArenaDeaths"));
 
 				//profiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
@@ -1788,7 +1788,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					//SendChatTarget(ClientID, "you knoop luk ur stats suck;");
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Your Stats - Level: %d - Money: %d - hammerfight_tickets: %d", m_apPlayers[ClientID]->m_level, m_apPlayers[ClientID]->m_money, m_apPlayers[ClientID]->m_hammerfight_tickets); 
+					str_format(aBuf, sizeof(aBuf), "Your Stats - Level: %d - Money: %d - hammerfight_tickets: %d", m_apPlayers[ClientID]->m_level, m_apPlayers[ClientID]->m_money, m_apPlayers[ClientID]->m_pvp_arena_tickets); 
 					SendChatTarget(ClientID, aBuf); 
 					return;
 				}
@@ -1936,13 +1936,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
 								SendChatTarget(ClientID, aBuf);
 								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "Hammerfight Games: %d", m_apPlayers[StatsID]->m_hammerfight_games_played);
+								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[StatsID]->m_pvp_arena_games_played);
 								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Hammerfight Kills: %d", m_apPlayers[StatsID]->m_hammerfight_kills);
+								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[StatsID]->m_pvp_arena_kills);
 								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Hammerfight Deaths: %d", m_apPlayers[StatsID]->m_hammerfight_deaths);
+								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[StatsID]->m_pvp_arena_deaths);
 								SendChatTarget(ClientID, aBuf);
-								//str_format(aBuf, sizeof(aBuf), "Hammerfight K/D: %d", m_apPlayers[StatsID]->m_hammerfight_kills / m_hammerfight_deaths);
+								//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[StatsID]->m_pvp_arena_kills / m_pvp_arena_deaths);
 								//SendChatTarget(ClientID, aBuf);
 							}
 						}

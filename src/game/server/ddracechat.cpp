@@ -1879,14 +1879,14 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if (!str_comp_nocase(aItem, "hammerfight_ticket"))
+	else if (!str_comp_nocase(aItem, "pvp_arena_ticket"))
 	{
 		if (pPlayer->m_money >= 150)
 		{
 			pPlayer->m_money -= 150;
-			pPlayer->m_hammerfight_tickets++;
+			pPlayer->m_pvp_arena_tickets++;
 
-			str_format(aBuf, sizeof(aBuf), "you bought a hammerfight_ticket. you now have %d hammerfight tickets.", pPlayer->m_hammerfight_tickets);
+			str_format(aBuf, sizeof(aBuf), "you bought a pvp_arena_ticket. you now have %d tickets.", pPlayer->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
@@ -2247,7 +2247,7 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2263,7 +2263,7 @@ void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/hammerfight ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/pvp_arena ' + 'join' or 'leave'");
 		return;
 	}
 
@@ -2274,40 +2274,40 @@ void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aInput, "join"))
 	{
-		if (g_Config.m_SvHammerArenaState)
+		if (g_Config.m_SvPvpArenaState)
 		{
-			if (pPlayer->m_hammerfight_tickets > 0)
+			if (pPlayer->m_pvp_arena_tickets > 0)
 			{
-				if (!pPlayer->GetCharacter()->m_IsHammerarena)
+				if (!pPlayer->GetCharacter()->m_IsPVParena)
 				{
-					pPlayer->m_hammerfight_tickets--;
-					pPlayer->m_hammerfight_games_played++;
-					pPlayer->GetCharacter()->m_IsHammerarena = true;
+					pPlayer->m_pvp_arena_tickets--;
+					pPlayer->m_pvp_arena_games_played++;
+					pPlayer->GetCharacter()->m_IsPVParena = true;
 					pPlayer->GetCharacter()->m_isDmg = true;
-					pSelf->SendChatTarget(pResult->m_ClientID, "You are now a hammerfighter! good luck and have fun!");
+					pSelf->SendChatTarget(pResult->m_ClientID, "teleporting to arena... good luck and have fun!");
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "you are already in the hammerfight arena");
+					pSelf->SendChatTarget(pResult->m_ClientID, "you are already in the  PvP-arena");
 				}
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have a ticket. Buy one first with '/buy hammerfight_ticket'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have a ticket. Buy one first with '/buy pvp_arena_ticket'");
 			}
 		}
 		else //no arena configurated
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "no hammerfight-arena found.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "no pvp-arena found.");
 		}
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
 	{
-		if (pPlayer->GetCharacter()->m_IsHammerarena)
+		if (pPlayer->GetCharacter()->m_IsPVParena)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "teleport request sent. Don't move 6 seconds.");
-			pPlayer->GetCharacter()->m_Hammerarena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
-			pPlayer->GetCharacter()->m_Hammerarena_exit_request = true;
+			pPlayer->GetCharacter()->m_pvp_arena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
+			pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
 		}
 		else
 		{
@@ -2316,7 +2316,7 @@ void CGameContext::ConHammerfight(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/hammerfight ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/pvp_arena ' + 'join' or 'leave'");
 	}
 
 }

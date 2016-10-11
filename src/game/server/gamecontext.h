@@ -382,7 +382,7 @@ private:
 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConHammerfight(IConsole::IResult *pResult, void *pUserData);
+	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

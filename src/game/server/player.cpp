@@ -137,6 +137,7 @@ void CPlayer::Reset()
 	m_Dummy_nn_highest_Distance = 0.0f;
 	m_Dummy_nn_highest_Distance_touched = 0.0f;
 	m_Minigameworld_size_x = 30;
+	m_max_level = 99; //is actually 1 more
 }
 
 void CPlayer::Tick()
@@ -949,8 +950,8 @@ void CPlayer::Save()
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
 	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
 
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `HammerfightTickets` = %i, `HammerfightGames` = %i, `HammerfightKills` = %i, `HammerfightDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
-		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_hammerfight_tickets, m_hammerfight_games_played, m_hammerfight_kills, m_hammerfight_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
+		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
 
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);
@@ -1285,6 +1286,8 @@ void CPlayer::CalcExp()
 		//WARNING!
 		/*
 
+		OLD!!!
+
 		by increasing max level you need to change the hardcodet max level 99:
 		you need to make some changes in the following places:
 
@@ -1293,7 +1296,15 @@ void CPlayer::CalcExp()
 		character.cpp(Moneytile)
 		character.cpp(Moneytile2)
 		character.cpp(Moneytileplus)
+		character.cpp(Finish)
+		character.cpp(void CCharacter::Die(int Killer, int Weapon))  (hammerfight)
 
+
+		NEW!!!
+
+		made it dynamic!
+		there is a var called m_max_level
+		update this var if u increase the level sys
 
 
 		*/
@@ -1302,7 +1313,7 @@ void CPlayer::CalcExp()
 
 void CPlayer::CheckLevel()
 {
-	if (m_level > 99)
+	if (m_level > m_max_level)
 		return;
 
 	if (m_AccountID <= 0)

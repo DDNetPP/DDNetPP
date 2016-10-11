@@ -205,15 +205,15 @@ public:
 
 
 
-	//hammerfight (chillerdragos new version)
-	int m_hammerfight_tickets;
+	//PvP-arena ChillerDragon
+	int m_pvp_arena_tickets;
 	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
-	int m_HF_return_posX;
-	int m_HF_return_posY;
+	int m_PVP_return_posX;
+	int m_PVP_return_posY;
 
-	int m_hammerfight_games_played;
-	int m_hammerfight_kills;
-	int m_hammerfight_deaths;
+	int m_pvp_arena_games_played;
+	int m_pvp_arena_kills;
+	int m_pvp_arena_deaths;
 
 
 	//city stuff
@@ -239,6 +239,7 @@ public:
 	int m_shit;
 	int m_money;
 	int m_level;
+	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
 	int64 m_xp;
 	bool m_xpmsg;
 	bool m_hidejailmsg;

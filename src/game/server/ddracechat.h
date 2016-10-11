@@ -72,8 +72,8 @@ CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, t
 
 CHAT_COMMAND("money", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMoney, this, "shows your money and last transactions")
 
-CHAT_COMMAND("hammerfight", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfight, this, "teleports you in the hammerfight arena (you can die there)")
-//CHAT_COMMAND("hammerfight_leave", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHammerfightLeave, this, "teleports you out of the hammerfigth arena")
+CHAT_COMMAND("pvp_arena", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPvpArena, this, "teleports you in the pvp-arena (you can die there)")
+
 
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")
 //CHAT_COMMAND("remove_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRemovePolicehelper, this, "remove the policehelper rank from other players")
