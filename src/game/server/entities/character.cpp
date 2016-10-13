@@ -11218,6 +11218,76 @@ void CCharacter::Tick()
 		}
 	}
 
+	if(m_Trail || m_pPlayer->m_InfTrail)
+	{
+		if(!m_TrailProjs[0])
+		{
+			for(int i=0; i<NUM_TRAILS; i++)
+			{
+				m_TrailProjs[i] = new CStableProjectile(GameWorld(), WEAPON_SHOTGUN);
+			}
+			m_TrailHistory.clear();
+			m_TrailHistory.push_front(std::make_tuple(m_Pos, 0.0f));
+			m_TrailHistory.push_front(std::make_tuple(m_Pos, NUM_TRAILS*TRAIL_DIST));
+			m_TrailHistoryLength = NUM_TRAILS*TRAIL_DIST;
+		}
+		vec2 FrontPos = std::get<0>(m_TrailHistory.front());
+		if(FrontPos != m_Pos)
+		{
+			float FrontLength = distance(m_Pos, FrontPos);
+			m_TrailHistory.push_front(std::make_tuple(m_Pos, FrontLength));
+			m_TrailHistoryLength += FrontLength;
+		}
+
+		while(1)
+		{
+			float LastDist = std::get<1>(m_TrailHistory.back());
+			if(m_TrailHistoryLength-LastDist >= NUM_TRAILS*TRAIL_DIST)
+			{
+				m_TrailHistory.pop_back();
+				m_TrailHistoryLength -= LastDist;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		int HistoryPos = 0;
+		float HistoryPosLength = 0.0f;
+		float AdditionalLength = 0.0f;
+		for(int i=0; i<NUM_TRAILS; i++)
+		{
+			float Length = (i+1)*TRAIL_DIST;
+			float NextDist;
+			while(1)
+			{
+				NextDist = std::get<1>(m_TrailHistory[HistoryPos]);
+				if(Length <= HistoryPosLength+NextDist)
+				{
+					AdditionalLength = Length - HistoryPosLength;
+					break;
+				}
+				else
+				{
+					HistoryPos += 1;
+					HistoryPosLength += NextDist;
+					AdditionalLength = 0;
+				}
+			}
+			m_TrailProjs[i]->m_Pos = std::get<0>(m_TrailHistory[HistoryPos]);
+			m_TrailProjs[i]->m_Pos += (std::get<0>(m_TrailHistory[HistoryPos+1])-m_TrailProjs[i]->m_Pos)*(AdditionalLength/NextDist);
+		}
+	}
+	else if(m_TrailProjs[0])
+	{
+		for(int i=0; i<NUM_TRAILS; i++)
+		{
+			GameServer()->m_World.DestroyEntity(m_TrailProjs[i]);
+			m_TrailProjs[i] = NULL;
+		}
+	}
+
 	/*// handle death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
@@ -11381,6 +11451,16 @@ void CCharacter::Die(int Killer, int Weapon)
 		{
 			GameServer()->m_World.DestroyEntity(m_AtomProjs[i]);
 			m_AtomProjs[i] = NULL;
+		}
+	}
+
+	// remove trail projectiles on death
+	if(m_TrailProjs[0])
+	{
+		for(int i=0; i<NUM_TRAILS; i++)
+		{
+			GameServer()->m_World.DestroyEntity(m_TrailProjs[i]);
+			m_TrailProjs[i] = NULL;
 		}
 	}
 
@@ -13217,6 +13297,12 @@ void CCharacter::DDRaceInit()
 	for(int i=0; i<NUM_ATOMS; i++)
 	{
 		m_AtomProjs[i] = NULL;
+	}
+
+	// default trail variables
+	for(int i=0; i<NUM_TRAILS; i++)
+	{
+		m_TrailProjs[i] = NULL;
 	}
 
 	int Team = Teams()->m_Core.Team(m_Core.m_Id);

@@ -3,6 +3,7 @@
 #ifndef GAME_SERVER_ENTITIES_CHARACTER_H
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
+#include <deque>
 #include <game/server/entity.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/generated/server_data.h>
@@ -10,12 +11,11 @@
 
 #include <game/gamecore.h>
 
-class CGameTeams;
+#define NUM_ATOMS 6
+#define NUM_TRAILS 20
+#define TRAIL_DIST 20
 
-enum
-{
-	NUM_ATOMS = 6,
-};
+class CGameTeams;
 
 enum
 {
@@ -274,6 +274,11 @@ public:
 	// atom vars (not to be confused with atom wars)
 	CStableProjectile *m_AtomProjs[NUM_ATOMS];
 	int m_AtomPosition;
+
+	// trail vars
+	CStableProjectile *m_TrailProjs[NUM_TRAILS];
+	std::deque<std::tuple<vec2, float>> m_TrailHistory;
+	float m_TrailHistoryLength;
 
 	//Special Dummy vars
 	//char[] apFriends = new char[4];
