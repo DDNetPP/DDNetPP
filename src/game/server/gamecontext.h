@@ -257,7 +257,7 @@ private:
 	static void ConUnSolo(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnDeep(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
-	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
@@ -266,7 +266,7 @@ private:
 	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
 	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
@@ -384,6 +384,8 @@ private:
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
+	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

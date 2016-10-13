@@ -1114,7 +1114,7 @@ void CGameContext::OnClientEnter(int ClientID)
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
-		SendChatTarget(ClientID, "ChillerDrago's Block mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
+		SendChatTarget(ClientID, "ChillerDragon's Block mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
 		SendChatTarget(ClientID, "please visit http://ddnet.tw or say /info for more info");
 
 		if(g_Config.m_SvWelcome[0]!=0)
@@ -2112,18 +2112,150 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "bloody off"))
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
 				{
-					GetPlayerChar(ClientID)->m_Bloody = false;
-					m_apPlayers[ClientID]->m_InfBloody = false;
-					SendChatTarget(ClientID, "turned off bloody.");
+					if (Server()->IsAuthed(ClientID))
+					{
+
+
+
+						char aBuf[256];
+						char aUsername[MAX_NAME_LENGTH];
+						str_copy(aUsername, pMsg->m_pMessage + 13, MAX_NAME_LENGTH + 7);
+
+						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+						int BloodyID = -1;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (!m_apPlayers[i])
+								continue;
+
+							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+							{
+								BloodyID = i;
+								break;
+							}
+						}
+
+						if (BloodyID >= 0 && BloodyID < MAX_CLIENTS)
+						{
+							if (m_apPlayers[BloodyID])
+							{
+								if (m_apPlayers[BloodyID]->m_bloody_offer)
+								{
+									SendChatTarget(ClientID, "This player has already an offer.");
+								}
+								else
+								{
+									if (ClientID == BloodyID)
+									{
+										GetPlayerChar(ClientID)->m_Bloody = true;;
+										SendChatTarget(ClientID, "you gave bloody to your self.");
+									}
+									else
+									{
+										str_format(aBuf, sizeof(aBuf), "Bloody offer sent to %s", aUsername);
+										SendChatTarget(ClientID, aBuf);
+										m_apPlayers[BloodyID]->m_bloody_offer = true;
+
+										str_format(aBuf, sizeof(aBuf), "%s wants to give you bloody. Type '/bloody accept' to accept and activate bloody for you.", Server()->ClientName(ClientID));
+										SendChatTarget(m_apPlayers[BloodyID]->GetCID(), aBuf);
+									}
+								}
+							}
+						}
+						else
+						{
+							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+							SendChatTarget(ClientID, aBuf);
+						}
+
+						return;
+					}
+					else
+					{
+						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+					}
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "rainbow off"))
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
 				{
-					GetPlayerChar(ClientID)->m_Rainbow = false;
-					m_apPlayers[ClientID]->m_InfRainbow = false;
-					SendChatTarget(ClientID, "turned off rainbow.");
+					if (Server()->IsAuthed(ClientID))
+					{
+
+
+
+						char aBuf[256];
+						char aUsername[MAX_NAME_LENGTH];
+						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
+
+						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+						int RainbowID = -1;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (!m_apPlayers[i])
+								continue;
+
+							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+							{
+								RainbowID = i;
+								break;
+							}
+						}
+
+						if (RainbowID >= 0 && RainbowID < MAX_CLIENTS)
+						{
+							if (m_apPlayers[RainbowID])
+							{
+								if (m_apPlayers[RainbowID]->m_rainbow_offer)
+								{
+									SendChatTarget(ClientID, "This player has already an rainbow offer.");
+								}
+								else
+								{
+									if (ClientID == RainbowID)
+									{
+										GetPlayerChar(ClientID)->m_Rainbow = true;;
+										SendChatTarget(ClientID, "you gave rainbow to your self.");
+									}
+									else
+									{
+										str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
+										SendChatTarget(ClientID, aBuf);
+										m_apPlayers[RainbowID]->m_rainbow_offer = true;
+
+										str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
+										SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
+									}
+								}
+							}
+						}
+						else
+						{
+							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+							SendChatTarget(ClientID, aBuf);
+						}
+
+						return;
+					}
+					else
+					{
+						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+					}
 				}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "bloody off"))
+				//{
+				//	GetPlayerChar(ClientID)->m_Bloody = false;
+				//	m_apPlayers[ClientID]->m_InfBloody = false;
+				//	SendChatTarget(ClientID, "turned off bloody.");
+				//}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "rainbow off"))
+				//{
+				//	GetPlayerChar(ClientID)->m_Rainbow = false;
+				//	m_apPlayers[ClientID]->m_InfRainbow = false;
+				//	SendChatTarget(ClientID, "turned off rainbow.");
+				//}
 			/*	else if (!str_comp(pMsg->m_pMessage + 1, "buy shit"))
 				{
 					if (m_apPlayers[ClientID]->m_money < 5)

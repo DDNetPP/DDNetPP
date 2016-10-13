@@ -217,6 +217,8 @@ public:
 
 
 	//city stuff
+	bool m_bloody_offer;
+	bool m_rainbow_offer;
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];

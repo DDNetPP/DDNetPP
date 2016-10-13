@@ -123,7 +123,7 @@ void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -300,7 +300,7 @@ void CGameContext::ConInfBloody(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;

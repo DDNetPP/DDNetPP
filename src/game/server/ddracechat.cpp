@@ -2378,3 +2378,124 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
 }
+
+void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+		//if (pPlayer->GetCharacter()->m_Bloody || pPlayer->m_InfBloody)
+		//{
+			pPlayer->GetCharacter()->m_Bloody = false;
+			pPlayer->m_InfBloody = false;
+			pSelf->SendChatTarget(pResult->m_ClientID, "bloody turned off");
+		//}
+		//else
+		//{
+		//	pSelf->SendChatTarget(pResult->m_ClientID, "you don't have bloody.");
+		//}
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_bloody_offer)
+		{
+			if (!pPlayer->GetCharacter()->m_Bloody)
+			{
+				pPlayer->GetCharacter()->m_Bloody = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted bloody. You can turn off bloody agian with '/bloody off'");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Bloody.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you bloody so you can't accept it :p");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+	}
+
+}
+
+void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/rainbow ' + 'accept' or 'off'");
+		return;
+	}
+
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+		pPlayer->GetCharacter()->m_Rainbow = false;
+		pPlayer->m_InfRainbow = false;
+		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow turned off");
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_rainbow_offer)
+		{
+			if (!pPlayer->GetCharacter()->m_Rainbow)
+			{
+				pPlayer->GetCharacter()->m_Rainbow = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted rainbow. You can turn off rainbow agian with '/rainbow off'");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Rainbow.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you rainbow so you can't accept it :p");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/rainbow ' + 'accept' or 'off'");
+	}
+
+}
