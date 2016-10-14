@@ -11275,7 +11275,19 @@ void CCharacter::Tick()
 			float NextDist;
 			while(1)
 			{
+				// in case floating point arithmetic errors should fuck us up
+				// don't crash and recalculate total history length
+				if((unsigned int)HistoryPos >= m_TrailHistory.size())
+				{
+					m_TrailHistoryLength = 0.0f;
+					for(std::deque<std::tuple<vec2,float>>::iterator it=m_TrailHistory.begin(); it!=m_TrailHistory.end(); ++it)
+					{
+						m_TrailHistoryLength += std::get<1>(*it);
+					}
+					break;
+				}
 				NextDist = std::get<1>(m_TrailHistory[HistoryPos]);
+
 				if(Length <= HistoryPosLength+NextDist)
 				{
 					AdditionalLength = Length - HistoryPosLength;
