@@ -2245,7 +2245,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
 					}
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 13) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 10) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))
 					{
@@ -2254,7 +2254,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						char aBuf[256];
 						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
+						str_copy(aUsername, pMsg->m_pMessage + 11, MAX_NAME_LENGTH + 7);
 
 						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 
@@ -2311,7 +2311,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
 					}
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 13) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 11) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))
 					{
@@ -2320,7 +2320,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						char aBuf[256];
 						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
+						str_copy(aUsername, pMsg->m_pMessage + 12, MAX_NAME_LENGTH + 7);
 
 						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 

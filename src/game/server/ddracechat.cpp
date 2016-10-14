@@ -165,10 +165,10 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"rainbow       1 500 money | lvl8 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"bloody         3 500 money | lvl3 | dead");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+	/*pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"atom         3 500 money | lvl3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"trail         3 500 money | lvl3 | dead");
+		"trail         3 500 money | lvl3 | dead");*/
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"minigame     250 money | lvl2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -1884,7 +1884,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if (!str_comp_nocase(aItem, "atom"))
+	/*else if (!str_comp_nocase(aItem, "atom"))
 	{
 		if (pPlayer->GetCharacter()->m_Atom)
 		{
@@ -1935,7 +1935,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
 			}
 		}
-	}
+	}*/
 	else if (!str_comp_nocase(aItem, "pvp_arena_ticket"))
 	{
 		if (pPlayer->m_money >= 150)
