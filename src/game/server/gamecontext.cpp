@@ -88,6 +88,15 @@ void CQueryLogin::OnData()
 				//profiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileViews = GetInt(GetID("ProfileViews"));
+
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, GetText(GetID("ProfileEmail")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter));
+
+
 				/*str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(CPlayer::m_ProfileStatus));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(CPlayer::m_ProfileSkype));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(CPlayer::m_ProfileYoutube));

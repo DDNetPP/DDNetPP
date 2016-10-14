@@ -958,11 +958,16 @@ void CPlayer::Save()
 	if (m_AccountID <= 0)
 		return;
 
-	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
-	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
+	//not working
+	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
+	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
 
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
-		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
+	//working without txt
+	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
+	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
+
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s' WHERE `ID` = %i",
+		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
 
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);

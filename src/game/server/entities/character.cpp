@@ -848,6 +848,19 @@ void CCharacter::Tick()
 		}
 
 	}
+	else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
+	{
+		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
+		{
+			if (m_Core.m_Pos.x > 363 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 231 * 32 && m_Core.m_Pos.y < 233 * 32)
+			{
+				m_Core.m_Pos.x = 367 * 32;
+				m_Core.m_Pos.y = 232 * 32 - 1;
+				GameServer()->SendBroadcast("You need a key to enter this room!\n Try '/buy room_key' to enter this area.", m_pPlayer->GetCID());
+			}
+		}
+
+	}
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{

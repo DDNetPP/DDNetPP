@@ -87,13 +87,42 @@ CSql::CSql()
 		sqlite3_close(m_pDB);
 	}
 
+	//char *Query = "CREATE TABLE IF NOT EXISTS Accounts (" \
+	//	"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
+	//	"Username					VARCHAR(32)		NOT NULL," \
+	//	"Password					VARCHAR(128)	NOT NULL," \
+	//	"Level						INTEGER			DEFAULT 0," \
+	//	"Money						INTEGER			DEFAULT 0," \
+	//	/* "Neededxp                   INTEGER         DEFAULT 5000," \
+	//	"Plusxp                     INTEGER         DEFAULT 1000," \ */
+	//	"Exp						INTEGER			DEFAULT 0," \
+	//	"Shit						INTEGER			DEFAULT 0," \
+	//	"LastGift					INTEGER			DEFAULT 0," \
+	//	"PoliceRank					INTEGER			DEFAULT 0," \
+	//	"JailTime					INTEGER			DEFAULT 0," \
+	//	"EscapeTime					INTEGER			DEFAULT 0," \
+	//	"TaserLevel					INTEGER			DEFAULT 0," \
+	//	"PvPArenaTickets			INTEGER			DEFAULT 0," \
+	//	"PvPArenaGames				INTEGER			DEFAULT 0," \
+	//	"PvPArenaKills				INTEGER			DEFAULT 0," \
+	//	"PvPArenaDeaths				INTEGER			DEFAULT 0," \
+	//	"ProfileStyle				INTEGER			DEFAULT 0," \
+	//	"ProfileViews				INTEGER			DEFAULT 0);";
+	//	//"ProfileStatus				VARCHAR(128)	NOT NULL," \
+	//	//"ProfileSkype				VARCHAR(128)	NOT NULL," \
+	//	//"ProfileYoutube				VARCHAR(128)	NOT NULL," \
+	//	//"ProfileEmail				VARCHAR(128)	NOT NULL," \
+	//	//"ProfileHomepage			VARCHAR(128)	NOT NULL," \
+	//	//"ProfileTwitter				VARCHAR(128)	NOT NULL);";
+
+
 	char *Query = "CREATE TABLE IF NOT EXISTS Accounts (" \
 		"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
 		"Username					VARCHAR(32)		NOT NULL," \
 		"Password					VARCHAR(128)	NOT NULL," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
-		/* "Neededxp                   INTEGER         DEFAULT 5000," \
+		/* "Neededxp                INTEGER         DEFAULT 5000," \
 		"Plusxp                     INTEGER         DEFAULT 1000," \ */
 		"Exp						INTEGER			DEFAULT 0," \
 		"Shit						INTEGER			DEFAULT 0," \
@@ -107,13 +136,13 @@ CSql::CSql()
 		"PvPArenaKills				INTEGER			DEFAULT 0," \
 		"PvPArenaDeaths				INTEGER			DEFAULT 0," \
 		"ProfileStyle				INTEGER			DEFAULT 0," \
-		"ProfileViews				INTEGER			DEFAULT 0);";
-		//"ProfileStatus				VARCHAR(128)	NOT NULL," \
-		//"ProfileSkype				VARCHAR(128)	NOT NULL," \
-		//"ProfileYoutube				VARCHAR(128)	NOT NULL," \
-		//"ProfileEmail				VARCHAR(128)	NOT NULL," \
-		//"ProfileHomepage			VARCHAR(128)	NOT NULL," \
-		//"ProfileTwitter				VARCHAR(128)	NOT NULL);";
+		"ProfileViews				INTEGER			DEFAULT 0," \
+		"ProfileStatus				VARCHAR(128)	DEFAULT ''," \
+		"ProfileSkype				VARCHAR(128)	DEFAULT ''," \
+		"ProfileYoutube				VARCHAR(128)	DEFAULT ''," \
+		"ProfileEmail				VARCHAR(128)	DEFAULT ''," \
+		"ProfileHomepage			VARCHAR(128)	DEFAULT ''," \
+		"ProfileTwitter				VARCHAR(128)	DEFAULT '');";
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 
