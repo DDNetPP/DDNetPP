@@ -277,7 +277,14 @@ public:
 
 	// trail vars
 	CStableProjectile *m_TrailProjs[NUM_TRAILS];
-	std::deque<std::tuple<vec2, float>> m_TrailHistory;
+	struct HistoryPoint
+	{
+		vec2 m_Pos;
+		float m_Dist;
+
+		HistoryPoint(vec2 Pos, float Dist): m_Pos(Pos), m_Dist(Dist) {}
+	};
+	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
 	//Special Dummy vars

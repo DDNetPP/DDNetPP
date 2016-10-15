@@ -11240,21 +11240,21 @@ void CCharacter::Tick()
 				m_TrailProjs[i] = new CStableProjectile(GameWorld(), WEAPON_SHOTGUN);
 			}
 			m_TrailHistory.clear();
-			m_TrailHistory.push_front(std::make_tuple(m_Pos, 0.0f));
-			m_TrailHistory.push_front(std::make_tuple(m_Pos, NUM_TRAILS*TRAIL_DIST));
+			m_TrailHistory.push_front(HistoryPoint(m_Pos, 0.0f));
+			m_TrailHistory.push_front(HistoryPoint(m_Pos, NUM_TRAILS*TRAIL_DIST));
 			m_TrailHistoryLength = NUM_TRAILS*TRAIL_DIST;
 		}
-		vec2 FrontPos = std::get<0>(m_TrailHistory.front());
+		vec2 FrontPos = m_TrailHistory.front().m_Pos;
 		if(FrontPos != m_Pos)
 		{
 			float FrontLength = distance(m_Pos, FrontPos);
-			m_TrailHistory.push_front(std::make_tuple(m_Pos, FrontLength));
+			m_TrailHistory.push_front(HistoryPoint(m_Pos, FrontLength));
 			m_TrailHistoryLength += FrontLength;
 		}
 
 		while(1)
 		{
-			float LastDist = std::get<1>(m_TrailHistory.back());
+			float LastDist = m_TrailHistory.back().m_Dist;
 			if(m_TrailHistoryLength-LastDist >= NUM_TRAILS*TRAIL_DIST)
 			{
 				m_TrailHistory.pop_back();
@@ -11280,13 +11280,13 @@ void CCharacter::Tick()
 				if((unsigned int)HistoryPos >= m_TrailHistory.size())
 				{
 					m_TrailHistoryLength = 0.0f;
-					for(std::deque<std::tuple<vec2,float>>::iterator it=m_TrailHistory.begin(); it!=m_TrailHistory.end(); ++it)
+					for(std::deque<HistoryPoint>::iterator it=m_TrailHistory.begin(); it!=m_TrailHistory.end(); ++it)
 					{
-						m_TrailHistoryLength += std::get<1>(*it);
+						m_TrailHistoryLength += it->m_Dist;
 					}
 					break;
 				}
-				NextDist = std::get<1>(m_TrailHistory[HistoryPos]);
+				NextDist = m_TrailHistory[HistoryPos].m_Dist;
 
 				if(Length <= HistoryPosLength+NextDist)
 				{
@@ -11300,8 +11300,8 @@ void CCharacter::Tick()
 					AdditionalLength = 0;
 				}
 			}
-			m_TrailProjs[i]->m_Pos = std::get<0>(m_TrailHistory[HistoryPos]);
-			m_TrailProjs[i]->m_Pos += (std::get<0>(m_TrailHistory[HistoryPos+1])-m_TrailProjs[i]->m_Pos)*(AdditionalLength/NextDist);
+			m_TrailProjs[i]->m_Pos = m_TrailHistory[HistoryPos].m_Pos;
+			m_TrailProjs[i]->m_Pos += (m_TrailHistory[HistoryPos+1].m_Pos-m_TrailProjs[i]->m_Pos)*(AdditionalLength/NextDist);
 		}
 	}
 	else if(m_TrailProjs[0])
