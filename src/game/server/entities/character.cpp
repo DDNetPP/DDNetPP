@@ -852,10 +852,10 @@ void CCharacter::Tick()
 	{
 		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
 		{
-			if (m_Core.m_Pos.x > 363 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 231 * 32 && m_Core.m_Pos.y < 233 * 32)
+			if (m_Core.m_Pos.x > 84 * 32 && m_Core.m_Pos.x < 87 * 32 && m_Core.m_Pos.y > 182 * 32 && m_Core.m_Pos.y < 184 * 32)
 			{
-				m_Core.m_Pos.x = 367 * 32;
-				m_Core.m_Pos.y = 232 * 32 - 1;
+				m_Core.m_Pos.x = 88 * 32;
+				m_Core.m_Pos.y = 183 * 32;
 				GameServer()->SendBroadcast("You need a key to enter this room!\n Try '/buy room_key' to enter this area.", m_pPlayer->GetCID());
 			}
 		}
@@ -11202,25 +11202,25 @@ void CCharacter::Tick()
 
 	if(m_Atom || m_pPlayer->m_InfAtom)
 	{
-		if(!m_AtomProjs[0])
-		{
-			for(int i=0; i<NUM_ATOMS; i++)
-			{
-				m_AtomProjs[i] = new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN);
-			}
-			m_AtomPosition = 0;
-		}
-		if(++m_AtomPosition >= 60)
-		{
-			m_AtomPosition = 0;
-		}
-		vec2 AtomPos;
-		AtomPos.x = m_Pos.x + 200*cos(m_AtomPosition*M_PI*2/60);
-		AtomPos.y = m_Pos.y + 80*sin(m_AtomPosition*M_PI*2/60);
-		for(int i=0; i<NUM_ATOMS; i++)
-		{
-			m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i*M_PI*2/NUM_ATOMS);
-		}
+		//if(!m_AtomProjs[0])
+		//{
+		//	for(int i=0; i<NUM_ATOMS; i++)
+		//	{
+		//		m_AtomProjs[i] = new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN);
+		//	}
+		//	m_AtomPosition = 0;
+		//}
+		//if(++m_AtomPosition >= 60)
+		//{
+		//	m_AtomPosition = 0;
+		//}
+		//vec2 AtomPos;
+		//AtomPos.x = m_Pos.x + 200*cos(m_AtomPosition*M_PI*2/60);
+		//AtomPos.y = m_Pos.y + 80*sin(m_AtomPosition*M_PI*2/60);
+		//for(int i=0; i<NUM_ATOMS; i++)
+		//{
+		//	m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i*M_PI*2/NUM_ATOMS);
+		//}
 	}
 	else if(m_AtomProjs[0])
 	{
