@@ -1697,16 +1697,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//CreateExplosion(vec2(-1, -1), m_pPlayer->GetCID(), 3, true, 0, 300);
 					//CreateExplosion(( 408 * 32, 208 * 32), m_pPlayer->GetCID(), 3, true, 0, 300);
 					//CreateExplosion((408 * 32, 208 * 32), 1, 3, true, 0, 300);
-					CreateExplosion(vec2(408 * 32, 208 * 32), 1, 3, true, 0, 300);
+					//CreateExplosion(vec2(408 * 32, 208 * 32), 1, 3, true, 0, 300);
 					//CreateExplosion();
 					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
 					//pPlayer->m_money = pPlayer->m_money + 300;
-					str_format(pPlayer->m_money_transaction4, sizeof(pPlayer->m_money_transaction4), "%s", pPlayer->m_money_transaction3);
-					str_format(pPlayer->m_money_transaction3, sizeof(pPlayer->m_money_transaction3), "%s", pPlayer->m_money_transaction2);
-					str_format(pPlayer->m_money_transaction2, sizeof(pPlayer->m_money_transaction2), "%s", pPlayer->m_money_transaction1);
-					str_format(pPlayer->m_money_transaction1, sizeof(pPlayer->m_money_transaction1), "%s", pPlayer->m_money_transaction0);
-					str_format(pPlayer->m_money_transaction0, sizeof(pPlayer->m_money_transaction0), "+300 testcmd300");
+					//pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
 					//pPlayer->m_level++;
 					//pPlayer->GetCharacter()->m_IsHammerarena = false;
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;
@@ -1733,20 +1729,20 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ciliDR", aBuf);
 
 
-						if (r == 999)
+						if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
 						{
 							SendChatTarget(ClientID, "you robbed the bank! +1000 money");
-							m_apPlayers[ClientID]->m_money += 1000;
+							m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
 						}
 						else if (r > 900)
 						{
 							SendChatTarget(ClientID, "you robbed the bank! +10 money");
-							m_apPlayers[ClientID]->m_money += 10;
+							m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
 						}
 						else if (r > 800)
 						{
 							SendChatTarget(ClientID, "you robbed the bank! +5 money");
-							m_apPlayers[ClientID]->m_money += 5;
+							m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
 						}
 						else
 						{
@@ -1796,11 +1792,31 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "stats"))
 				{
-					//SendChatTarget(ClientID, "you knoop luk ur stats suck;");
-					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Your Stats - Level: %d - Money: %d - hammerfight_tickets: %d", m_apPlayers[ClientID]->m_level, m_apPlayers[ClientID]->m_money, m_apPlayers[ClientID]->m_pvp_arena_tickets); 
-					SendChatTarget(ClientID, aBuf); 
-					return;
+					if (m_apPlayers[ClientID]->m_AccountID <= 0)
+					{
+						SendChatTarget(ClientID, "you need to be logged in to see your stats.");
+					}
+					else
+					{
+						char aBuf[128];
+
+						pPlayer->CalcExp();
+
+						SendChatTarget(ClientID, "~~~ Stats ~~~");
+						SendChatTarget(ClientID, "::Basics::");
+						str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ClientID]->m_level);
+						SendChatTarget(ClientID, aBuf);
+						str_format(aBuf, sizeof(aBuf), "Xp: [%d/%d]", m_apPlayers[ClientID]->m_xp, m_apPlayers[ClientID]->m_neededxp);
+						SendChatTarget(ClientID, aBuf);
+						str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ClientID]->m_money);
+						SendChatTarget(ClientID, aBuf);
+						SendChatTarget(ClientID, "want more money infos? ---> '/money'");
+						SendChatTarget(ClientID, "::Special::");
+						str_format(aBuf, sizeof(aBuf), "pvp_arena_tickets: %d", m_apPlayers[ClientID]->m_pvp_arena_tickets);
+						SendChatTarget(ClientID, aBuf);
+
+						return;
+					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "stats ", 6) == 0)
 				{
@@ -2534,7 +2550,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 									SendChatTarget(ClientID, "You can't give money to your dummy");
 								else
 								{
-									m_apPlayers[giftID]->m_money += 50;
+									m_apPlayers[giftID]->MoneyTransaction(+50, "+50 gift");
 									str_format(aBuf, sizeof(aBuf), "you gave %s 50 money!", Server()->ClientName(giftID));
 									SendChatTarget(ClientID, aBuf);
 

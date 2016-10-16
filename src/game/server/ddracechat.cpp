@@ -148,6 +148,10 @@ void CGameContext::ConMinigameinfo(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "room_key     %d money | lvl16 | disconnect", g_Config.m_SvRoomPrice);
+
+
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
@@ -174,7 +178,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"shit              5 money | lvl0 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"room_key     5 000 money | lvl16 | disconnect");
+		aBuf);
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"police          100 000 money | lvl18 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -1688,7 +1692,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_money >= 100000)
 		{
-			pPlayer->m_money -= 100000;
+			pPlayer->MoneyTransaction(-100000, "-100000 you bought shit");
 			pPlayer->m_PoliceRank++;
 			str_format(aBuf, sizeof(aBuf), "You bought PoliceRank[%d]!", pPlayer->m_PoliceRank);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1755,7 +1759,10 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		pPlayer->m_money -= pPlayer->m_TaserPrice;
+		str_format(aBuf, sizeof(aBuf), "-%d bought taser", pPlayer->m_TaserPrice);
+		pPlayer->MoneyTransaction(-pPlayer->m_TaserPrice, aBuf);
+
+
 		pPlayer->m_TaserLevel++;
 		if (pPlayer->m_TaserLevel == 1)
 		{
@@ -1770,12 +1777,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->m_money >= 5)
 		{
-			pPlayer->m_money -= 5;
-			str_format(pPlayer->m_money_transaction4, sizeof(pPlayer->m_money_transaction4), "%s", pPlayer->m_money_transaction3);
-			str_format(pPlayer->m_money_transaction3, sizeof(pPlayer->m_money_transaction3), "%s", pPlayer->m_money_transaction2);
-			str_format(pPlayer->m_money_transaction2, sizeof(pPlayer->m_money_transaction2), "%s", pPlayer->m_money_transaction1);
-			str_format(pPlayer->m_money_transaction1, sizeof(pPlayer->m_money_transaction1), "%s", pPlayer->m_money_transaction0);
-			str_format(pPlayer->m_money_transaction0, sizeof(pPlayer->m_money_transaction0), "-5 bought shit");
+			pPlayer->MoneyTransaction(-5, "-5 you bought shit");
 
 			pPlayer->m_shit++;
 			pSelf->SendChatTarget(pResult->m_ClientID, "you bought shit.");
@@ -1792,11 +1794,21 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "you need level 16 or more to buy a key.");
 			return;
 		}
-		if (pPlayer->m_money >= 5000)
+		if (pPlayer->m_BoughtRoom)
 		{
-			pPlayer->m_money -= 5000;
+			pSelf->SendChatTarget(pResult->m_ClientID, "you already own this item.");
+			return;
+		}
+		if (g_Config.m_SvRoomState == 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "an admin has turned off the room.");
+			return;
+		}
+		if (pPlayer->m_money >= g_Config.m_SvRoomPrice)
+		{
+			str_format(aBuf, sizeof(aBuf), "-%d bought room_key", g_Config.m_SvRoomPrice);
+			pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, aBuf);
 			pPlayer->m_BoughtRoom = true;
-			//pSelf->SendChatTarget(pResult->m_ClientID, "you bought acces to the bank room until disconnect. '/room' to tele to room.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "you bought a key. You can now enter the bankroom until disconnect.");
 		}
 		else
@@ -1822,7 +1834,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_money >= 250)
 		{
-			pPlayer->m_money -= 250;
+			pPlayer->MoneyTransaction(-250, "-250 bought minigame");
 			pPlayer->m_BoughtGame = true;
 			pSelf->SendChatTarget(pResult->m_ClientID, "you bought the minigame until disconnect. Check '/minigameinfo' for more informations.");
 		}
@@ -1848,7 +1860,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_money >= 1500)
 			{
-				pPlayer->m_money -= 1500;
+				pPlayer->MoneyTransaction(-1500, "-1500 bought rainbow");
 				pPlayer->GetCharacter()->m_Rainbow = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "you bought rainbow until death.");
 			}
@@ -1874,7 +1886,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_money >= 3500)
 			{
-				pPlayer->m_money -= 3500;
+				pPlayer->MoneyTransaction(-3500, "-3500 bought bloody");
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "you bought bloody until death.");
 			}
@@ -1900,7 +1912,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_money >= 3500)
 			{
-				pPlayer->m_money -= 3500;
+				pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
 				pPlayer->GetCharacter()->m_Atom = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "you bought atom until death.");
 			}
@@ -1926,7 +1938,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_money >= 3500)
 			{
-				pPlayer->m_money -= 3500;
+				pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
 				pPlayer->GetCharacter()->m_Trail = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "you bought trail until death.");
 			}
@@ -1940,7 +1952,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->m_money >= 150)
 		{
-			pPlayer->m_money -= 150;
+			pPlayer->MoneyTransaction(-150, "-150 bought pvp_arena_ticket");
 			pPlayer->m_pvp_arena_tickets++;
 
 			str_format(aBuf, sizeof(aBuf), "you bought a pvp_arena_ticket. you now have %d tickets.", pPlayer->m_pvp_arena_tickets);
@@ -2403,6 +2415,11 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction2);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction3);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction4);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction5);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction6);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction7);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction8);
+	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction9);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 }
 

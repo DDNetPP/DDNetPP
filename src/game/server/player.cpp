@@ -1345,8 +1345,24 @@ void CPlayer::CheckLevel()
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", m_level);
 		GameServer()->SendChatTarget(m_ClientID, aBuf);  //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
-		m_money += 50;
+		MoneyTransaction(+50, "+50 level up");
 
 		CalcExp();
 	}
+}
+
+
+void CPlayer::MoneyTransaction(int Amount, const char *Description)
+{
+	m_money += Amount;
+	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
+	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
+	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);
+	str_format(m_money_transaction6, sizeof(m_money_transaction6), "%s", m_money_transaction5);
+	str_format(m_money_transaction5, sizeof(m_money_transaction5), "%s", m_money_transaction4);
+	str_format(m_money_transaction4, sizeof(m_money_transaction4), "%s", m_money_transaction3);
+	str_format(m_money_transaction3, sizeof(m_money_transaction3), "%s", m_money_transaction2);
+	str_format(m_money_transaction2, sizeof(m_money_transaction2), "%s", m_money_transaction1);
+	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
+	str_format(m_money_transaction0, sizeof(m_money_transaction0), Description);
 }

@@ -42,6 +42,8 @@ public:
 
 	void FindDuplicateSkins();
 
+	void MoneyTransaction(int Amount, const char *Description);
+
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -222,6 +224,11 @@ public:
 	char m_money_transaction2[512];
 	char m_money_transaction3[512];
 	char m_money_transaction4[512];
+	char m_money_transaction5[512];
+	char m_money_transaction6[512];
+	char m_money_transaction7[512];
+	char m_money_transaction8[512];
+	char m_money_transaction9[512];
 	bool m_TaserOn;
 	bool m_PoliceHelper;
 	int m_TaserLevel;
