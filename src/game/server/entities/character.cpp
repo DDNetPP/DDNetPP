@@ -11202,11 +11202,11 @@ void CCharacter::Tick()
 
 	if(m_Atom || m_pPlayer->m_InfAtom)
 	{
-		if(!m_AtomProjs[0])
+		if(m_AtomProjs.empty())
 		{
 			for(int i=0; i<NUM_ATOMS; i++)
 			{
-				m_AtomProjs[i] = new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN);
+				m_AtomProjs.push_back(new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN));
 			}
 			m_AtomPosition = 0;
 		}
@@ -11222,22 +11222,22 @@ void CCharacter::Tick()
 			m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i*M_PI*2/NUM_ATOMS);
 		}
 	}
-	else if(m_AtomProjs[0])
+	else if(!m_AtomProjs.empty())
 	{
-		for(int i=0; i<NUM_ATOMS; i++)
+		for(std::vector<CStableProjectile *>::iterator it=m_AtomProjs.begin(); it!=m_AtomProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(m_AtomProjs[i]);
-			m_AtomProjs[i] = NULL;
+			GameServer()->m_World.DestroyEntity(*it);
 		}
+		m_AtomProjs.clear();
 	}
 
 	if(m_Trail || m_pPlayer->m_InfTrail)
 	{
-		if(!m_TrailProjs[0])
+		if(m_TrailProjs.empty())
 		{
 			for(int i=0; i<NUM_TRAILS; i++)
 			{
-				m_TrailProjs[i] = new CStableProjectile(GameWorld(), WEAPON_SHOTGUN);
+				m_TrailProjs.push_back(new CStableProjectile(GameWorld(), WEAPON_SHOTGUN));
 			}
 			m_TrailHistory.clear();
 			m_TrailHistory.push_front(HistoryPoint(m_Pos, 0.0f));
@@ -11304,13 +11304,13 @@ void CCharacter::Tick()
 			m_TrailProjs[i]->m_Pos += (m_TrailHistory[HistoryPos+1].m_Pos-m_TrailProjs[i]->m_Pos)*(AdditionalLength/NextDist);
 		}
 	}
-	else if(m_TrailProjs[0])
+	else if(!m_TrailProjs.empty())
 	{
-		for(int i=0; i<NUM_TRAILS; i++)
+		for(std::vector<CStableProjectile *>::iterator it=m_TrailProjs.begin(); it!=m_TrailProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(m_TrailProjs[i]);
-			m_TrailProjs[i] = NULL;
+			GameServer()->m_World.DestroyEntity(*it);
 		}
+		m_TrailProjs.clear();
 	}
 
 	/*// handle death-tiles and leaving gamelayer
@@ -11470,23 +11470,23 @@ void CCharacter::Die(int Killer, int Weapon)
 	}
 
 	// remove atom projectiles on death
-	if(m_AtomProjs[0])
+	if(!m_AtomProjs.empty())
 	{
-		for(int i=0; i<NUM_ATOMS; i++)
+		for(std::vector<CStableProjectile *>::iterator it=m_AtomProjs.begin(); it!=m_AtomProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(m_AtomProjs[i]);
-			m_AtomProjs[i] = NULL;
+			GameServer()->m_World.DestroyEntity(*it);
 		}
+		m_AtomProjs.clear();
 	}
 
 	// remove trail projectiles on death
-	if(m_TrailProjs[0])
+	if(!m_TrailProjs.empty())
 	{
-		for(int i=0; i<NUM_TRAILS; i++)
+		for(std::vector<CStableProjectile *>::iterator it=m_TrailProjs.begin(); it!=m_TrailProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(m_TrailProjs[i]);
-			m_TrailProjs[i] = NULL;
+			GameServer()->m_World.DestroyEntity(*it);
 		}
+		m_TrailProjs.clear();
 	}
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
@@ -13317,18 +13317,6 @@ void CCharacter::DDRaceInit()
 	m_Bloody = false;
 	m_Atom = false;
 	m_Trail = false;
-
-	// default atom variables
-	for(int i=0; i<NUM_ATOMS; i++)
-	{
-		m_AtomProjs[i] = NULL;
-	}
-
-	// default trail variables
-	for(int i=0; i<NUM_TRAILS; i++)
-	{
-		m_TrailProjs[i] = NULL;
-	}
 
 	int Team = Teams()->m_Core.Team(m_Core.m_Id);
 

@@ -272,11 +272,11 @@ public:
 	bool m_Trail;
 
 	// atom vars (not to be confused with atom wars)
-	CStableProjectile *m_AtomProjs[NUM_ATOMS];
+	std::vector<CStableProjectile *> m_AtomProjs;
 	int m_AtomPosition;
 
 	// trail vars
-	CStableProjectile *m_TrailProjs[NUM_TRAILS];
+	std::vector<CStableProjectile *> m_TrailProjs;
 	struct HistoryPoint
 	{
 		vec2 m_Pos;
