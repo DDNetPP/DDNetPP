@@ -11202,25 +11202,25 @@ void CCharacter::Tick()
 
 	if(m_Atom || m_pPlayer->m_InfAtom)
 	{
-		//if(!m_AtomProjs[0])
-		//{
-		//	for(int i=0; i<NUM_ATOMS; i++)
-		//	{
-		//		m_AtomProjs[i] = new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN);
-		//	}
-		//	m_AtomPosition = 0;
-		//}
-		//if(++m_AtomPosition >= 60)
-		//{
-		//	m_AtomPosition = 0;
-		//}
-		//vec2 AtomPos;
-		//AtomPos.x = m_Pos.x + 200*cos(m_AtomPosition*M_PI*2/60);
-		//AtomPos.y = m_Pos.y + 80*sin(m_AtomPosition*M_PI*2/60);
-		//for(int i=0; i<NUM_ATOMS; i++)
-		//{
-		//	m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i*M_PI*2/NUM_ATOMS);
-		//}
+		if(!m_AtomProjs[0])
+		{
+			for(int i=0; i<NUM_ATOMS; i++)
+			{
+				m_AtomProjs[i] = new CStableProjectile(GameWorld(), i%2?WEAPON_GRENADE:WEAPON_SHOTGUN);
+			}
+			m_AtomPosition = 0;
+		}
+		if(++m_AtomPosition >= 60)
+		{
+			m_AtomPosition = 0;
+		}
+		vec2 AtomPos;
+		AtomPos.x = m_Pos.x + 200*cos(m_AtomPosition*M_PI*2/60);
+		AtomPos.y = m_Pos.y + 80*sin(m_AtomPosition*M_PI*2/60);
+		for(int i=0; i<NUM_ATOMS; i++)
+		{
+			m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i*M_PI*2/NUM_ATOMS);
+		}
 	}
 	else if(m_AtomProjs[0])
 	{

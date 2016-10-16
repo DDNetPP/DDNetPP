@@ -1701,17 +1701,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//CreateExplosion();
 					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
-					pPlayer->m_money = pPlayer->m_money + 300;
+					//pPlayer->m_money = pPlayer->m_money + 300;
 					str_format(pPlayer->m_money_transaction4, sizeof(pPlayer->m_money_transaction4), "%s", pPlayer->m_money_transaction3);
 					str_format(pPlayer->m_money_transaction3, sizeof(pPlayer->m_money_transaction3), "%s", pPlayer->m_money_transaction2);
 					str_format(pPlayer->m_money_transaction2, sizeof(pPlayer->m_money_transaction2), "%s", pPlayer->m_money_transaction1);
 					str_format(pPlayer->m_money_transaction1, sizeof(pPlayer->m_money_transaction1), "%s", pPlayer->m_money_transaction0);
 					str_format(pPlayer->m_money_transaction0, sizeof(pPlayer->m_money_transaction0), "+300 testcmd300");
-					pPlayer->m_level++;
+					//pPlayer->m_level++;
 					//pPlayer->GetCharacter()->m_IsHammerarena = false;
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;
 					//pPlayer->m_PoliceRank++;
 					//pPlayer->m_PoliceHelper = true;
+					SendBroadcast(g_Config.m_SvAdString, ClientID);
 
 					return;
 				}
