@@ -1794,7 +1794,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to see your stats.");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 					}
 					else
 					{
@@ -1985,7 +1985,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 						return;
 					}
 
@@ -2034,7 +2034,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 						return;
 					}
 
@@ -2070,7 +2070,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 						return;
 					}
 
@@ -2088,7 +2088,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 						return;
 					}
 
@@ -2106,7 +2106,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
 						return;
 					}
 

@@ -2679,3 +2679,27 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/trail ' + 'accept' or 'off'");
 	}
 }
+
+void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Account Info ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "How to register?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/register (name) (password) (password)");
+	pSelf->SendChatTarget(pResult->m_ClientID, "How to login?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/login (name) (password)");
+	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
+	//pSelf->SendChatTarget(pResult->m_ClientID, "Tipp: name and password shoudl be different");
+}
