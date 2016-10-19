@@ -142,7 +142,8 @@ CSql::CSql()
 		"ProfileYoutube				VARCHAR(128)	DEFAULT ''," \
 		"ProfileEmail				VARCHAR(128)	DEFAULT ''," \
 		"ProfileHomepage			VARCHAR(128)	DEFAULT ''," \
-		"ProfileTwitter				VARCHAR(128)	DEFAULT '');";
+		"ProfileTwitter				VARCHAR(128)	DEFAULT ''," \
+		"HomingMissiles				INTEGER			DEFAULT 0);";
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 

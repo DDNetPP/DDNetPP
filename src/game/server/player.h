@@ -219,6 +219,7 @@ public:
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
+	int m_homing_missiles_ammo;
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];
 	char m_money_transaction2[512];
