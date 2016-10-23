@@ -1996,6 +1996,13 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
+
 	if (pResult->NumArguments() != 3)
 	{
 		pSelf->SendChatTarget(ClientID, "Please use '/register [name] [password] [password_repeat]'.");
@@ -2054,6 +2061,12 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 	
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
 	if (pResult->NumArguments() != 2)
 	{
 		pSelf->SendChatTarget(ClientID, "Please use '/login [name] [password]'.");

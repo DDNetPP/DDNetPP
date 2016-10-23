@@ -384,4 +384,6 @@ MACRO_CONFIG_INT(SvFlagSounds, sv_flag_sounds, 0, 0, 1, CFGFLAG_SERVER, "blockfl
 MACRO_CONFIG_INT(SvFinishEvent, sv_finish_event, 0, 0, 1, CFGFLAG_SERVER, "xp event gives more xp for finishing a map")
 MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, "changes the price for the '/shop' item 'room_key'")
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
+
+MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "activate account stuff?")
 #endif
