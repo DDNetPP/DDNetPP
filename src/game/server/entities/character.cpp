@@ -927,6 +927,7 @@ void CCharacter::Tick()
 		if (m_pvp_arena_exit_request_time == 0)
 		{
 			m_pPlayer->m_pvp_arena_tickets++;
+			m_Health = 10;
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "succsesfully teleported out of arena.");
@@ -11621,7 +11622,7 @@ void CCharacter::TickPaused()
 		++m_EmoteStop;
 }
 
-bool CCharacter::IncreaseHealth(int Amount) //dragon test moderator 20 hp
+bool CCharacter::IncreaseHealth(int Amount) 
 {
 	if(m_Health >= 10)
 		return false;

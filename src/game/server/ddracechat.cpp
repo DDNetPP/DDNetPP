@@ -183,6 +183,8 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"police          100 000 money | lvl18 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"taser          50 000 money | police3 | forever");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"pvp_arena_ticket     150 money | lvl0 | till use");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
