@@ -1093,6 +1093,30 @@ void CCharacter::Tick()
 			}
 		}
 	}
+	else if (g_Config.m_SvJailState == 3) // Blockdale by SarKro (right side of spawn)
+	{
+		if (m_pPlayer->m_JailTime > 0)
+		{
+			if (m_Core.m_Pos.x > 142 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 173 * 32 && m_Core.m_Pos.y < 179 * 32)
+			{
+				//im jail
+			}
+			else
+			{
+				m_Core.m_Pos.x = 144 * 32 + 10;
+				m_Core.m_Pos.y = 177 * 32;
+			}
+		}
+		else //if not jailed 
+		{
+			//if the player is not jailed but in jail tp him out 
+			if (m_Core.m_Pos.x > 142 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 173 * 32 && m_Core.m_Pos.y < 179 * 32)
+			{
+				m_Core.m_Pos.x = 133 * 32 + 10;
+				m_Core.m_Pos.y = 177 * 32 + 20;
+			}
+		}
+	}
 
 	if (g_Config.m_SvBankState == 1) // ChillBlock5 (on top of bankroom)
 	{
@@ -1124,6 +1148,16 @@ void CCharacter::Tick()
 				m_pPlayer->m_ExitBank = false;
 			}
 		}
+	}
+
+	//NEW TESTY AIMBOT FOR USERS (Server Side aimbot)
+	if (m_pPlayer->m_cheats_aimbot)
+	{
+		m_Input.m_Hook = 0;
+		m_Input.m_Jump = 0;
+		m_Input.m_Direction = 0;
+		m_LatestInput.m_Fire = 0;
+		m_Input.m_Fire = 0;
 	}
 
 
@@ -7250,7 +7284,8 @@ void CCharacter::Tick()
 			0					Main mode
 			1					attack mode (if ruler spot is ruled and bot is in tunnel)
 			2                   different wayblock mode
-			3                   (PLANNED) 1on1 mode with counting in chat and helping
+			3					special defend mode
+			4                   (PLANNED) 1on1 mode with counting in chat and helping
 
 
 
@@ -7513,8 +7548,8 @@ void CCharacter::Tick()
 						}
 
 
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "targX: %d = %d - %d", m_Input.m_TargetX, pChr->m_Pos.x, m_Pos.x);
+						//char aBuf[256];
+						//str_format(aBuf, sizeof(aBuf), "targX: %d = %d - %d", m_Input.m_TargetX, pChr->m_Pos.x, m_Pos.x);
 						//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
@@ -7537,11 +7572,13 @@ void CCharacter::Tick()
 
 						//schau ob sich der gegner bewegt und der bot grad nicht mehr am angreifen iss dann resette falls er davor halt misshookt hat
 						//geht nich -.-
-						/*	if (!m_Core.m_HookState == HOOK_FLYING && !m_Core.m_HookState == HOOK_GRABBED)
+						if (m_Core.m_HookState != HOOK_FLYING && m_Core.m_HookState != HOOK_GRABBED)
 						{
-						if (Server()->Tick() % 10 == 0)
-						m_Input.m_Hook = 0;
-						}*/
+							if (Server()->Tick() % 10 == 0)
+							{
+								m_Input.m_Hook = 0;
+							}
+						}
 
 
 
@@ -9905,6 +9942,153 @@ void CCharacter::Tick()
 			{
 				//no basic moves for this submode
 			}
+		}
+		else if (m_pPlayer->m_DummyMode == 32) //chattin guy
+		{
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+			m_Input.m_TargetX = 200;
+			m_Input.m_TargetY = 2;
+			m_LatestInput.m_TargetX = 200;
+			m_LatestInput.m_TargetY = 2;
+			m_Dummy_32tick++;
+
+			if (m_Dummy_32reset)
+			{
+				m_Dummy_32weapon = 0;
+				m_Dummy_32balance = 0;
+				m_Dummy_32dir = 0;
+				m_Dummy_32fire = false;
+				m_Dummy_32jump = false;
+				m_Dummy_32hook = false;
+				m_Dummy_32reset = false;
+			}
+
+			//DIRECTION
+			m_Input.m_Direction = m_Dummy_32dir;
+
+			//WEAPONS
+			if (m_aWeapons[m_Dummy_32weapon].m_Got)
+			{
+				SetWeapon(m_Dummy_32weapon);
+			}
+
+
+			//SELFKILL
+			if (m_Dummy_32kill)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
+
+			//FIRE
+			if (m_Dummy_32fire || m_Dummy_32tick > m_Dummy_32fire0_start && m_Dummy_32tick < m_Dummy_32fire0_stop)
+			{
+				m_Input.m_Fire++;
+			}
+
+			//JUMP
+			if (m_Dummy_32jump)
+			{
+				m_Input.m_Jump = 1;
+			}
+
+			//HOOK
+			if (m_Dummy_32hook)
+			{
+				m_Input.m_Hook = 1;
+			}
+
+			//FIRE
+			if (m_Dummy_32fire)
+			{
+				m_Input.m_Fire++;
+				m_LatestInput.m_Fire++;
+			}
+
+			//BALANCE
+			if (m_Dummy_32balance == 1) //middle
+			{
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				if (pChr && pChr->IsAlive())
+				{
+					if (pChr->m_Pos.y > m_Core.m_Pos.y)
+					{
+						if (pChr->m_Pos.x > m_Core.m_Pos.x + 2)
+						{
+							m_Input.m_Direction = 1;
+						}
+						else if (pChr->m_Pos.x < m_Core.m_Pos.x - 2)
+						{
+							m_Input.m_Direction = -1;
+						}
+					}
+				}
+			}
+			else if (m_Dummy_32balance == 2) //left
+			{
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				if (pChr && pChr->IsAlive())
+				{
+					m_Input.m_TargetX = 2;
+					m_Input.m_TargetY = 200;
+					m_LatestInput.m_TargetX = 2;
+					m_LatestInput.m_TargetY = 200;
+
+					if (pChr->m_Pos.y > m_Core.m_Pos.y)
+					{
+						m_Input.m_Direction = 1;
+						if (pChr->m_Pos.x < m_Core.m_Pos.x - 3)
+						{
+							m_Input.m_Direction = -1;
+						}
+						if (pChr->m_Pos.x > m_Core.m_Pos.x + 1)
+						{
+							m_Input.m_Direction = 1;
+						}
+						if (m_Core.m_Pos.x > pChr->m_Pos.x + 1 && pChr->IsGrounded() && m_Core.m_Vel.x < -0.002f)
+						{
+							m_Input.m_Fire++;
+							m_LatestInput.m_Fire++;
+							m_Input.m_Direction = -1;
+						}
+					}
+				}
+			}
+			else if (m_Dummy_32balance == 3) //right
+			{
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				if (pChr && pChr->IsAlive())
+				{
+					m_Input.m_TargetX = -2;
+					m_Input.m_TargetY = 200;
+					m_LatestInput.m_TargetX = -2;
+					m_LatestInput.m_TargetY = 200;
+
+					if (pChr->m_Pos.y > m_Core.m_Pos.y)
+					{
+						m_Input.m_Direction = -1;
+						if (pChr->m_Pos.x > m_Core.m_Pos.x + 3)
+						{
+							m_Input.m_Direction = 1;
+						}
+						if (pChr->m_Pos.x < m_Core.m_Pos.x - 1)
+						{
+							m_Input.m_Direction = -1;
+						}
+						if (m_Core.m_Pos.x < pChr->m_Pos.x - 1 && pChr->IsGrounded() && m_Core.m_Vel.x > 0.002f)
+						{
+							m_Input.m_Fire++;
+							m_LatestInput.m_Fire++;
+							m_Input.m_Direction = 1;
+						}
+					}
+				}
+			}
+
+
 		}
 		else if (m_pPlayer->m_DummyMode == 33) //ChillBlock5 left block area
 		{
@@ -13043,6 +13227,15 @@ void CCharacter::MoneyTile2()
 		//show msg
 		if (m_pPlayer->m_xpmsg)
 		{
+			//skip if other broadcasts activated:
+			if (!m_pPlayer->m_hidejailmsg)
+			{
+				if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+				{
+					return;
+				}
+			}
+
 			if (m_pPlayer->m_PoliceRank > 0)
 			{
 				if (m_survivexpvalue == 0)
@@ -13110,7 +13303,7 @@ void CCharacter::MoneyTile()
 			GameServer()->SendBroadcast("You need an account to use this moneytile. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 			return;
 		}
-		else if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+		if (m_pPlayer->m_level > m_pPlayer->m_max_level)
 		{
 			if (m_pPlayer->m_xpmsg)
 			{
@@ -13118,6 +13311,7 @@ void CCharacter::MoneyTile()
 			}
 			return;
 		}
+
 
 
 		//flag extra xp
@@ -13157,8 +13351,18 @@ void CCharacter::MoneyTile()
 		}
 
 		//show msg
-		if (m_pPlayer->m_xpmsg) 
+		if (m_pPlayer->m_xpmsg)
 		{
+			//skip if other broadcasts activated:
+			if (!m_pPlayer->m_hidejailmsg)
+			{
+				if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+				{
+					return;
+				}
+			}
+
+
 			if (m_survivexpvalue == 0)
 			{
 				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)

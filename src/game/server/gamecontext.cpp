@@ -1334,73 +1334,239 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//##########
 			//if (pMsg->m_pMessage[0] == apNames)
 
-			//const char *pNames[] = { //Array für die Namen
-			//	"flappy.*",
-			//	"Chillingo.*",
-			//	"Fluffy.*",
-			//	"MLG_PRO.*",
-			//	"Enzym.*",
-			//	"ZillyDreck.*",
-			//	"ciliDR[HUN].*",
-			//	"fuzzle.*",
-			//	"Piko.*",
-			//	"10",
-			//	"11",
-			//	"12",
-			//	"13",
-			//	"14",
-			//	"15",
-			//	"16",
-			//	"17",
-			//	"18",
-			//	"19",
-			//	"20",
-			//	"21",
-			//	"22",
-			//	"23",
-			//	"24",
-			//	"25",
-			//	"26",
-			//	"27",
-			//	"28",
-			//	"29",
-			//	"30",
-			//	"31",
-			//	"32",
-			//	"33",
-			//	"34",
-			//	"35",
-			//	"36",
-			//	"37",
-			//	"38",
-			//	"39",
-			//	"40",
-			//	"41",
-			//	"42",
-			//	"43",
-			//	"44",
-			//	"45",
-			//	"46",
-			//	"47",
-			//	"48",
-			//	"49",
-			//	"50",
-			//	"51",
-			//	"52",
-			//	"53",
-			//	"54",
-			//	"55",
-			//	"56",
-			//	"57",
-			//	"58",
-			//	"59",
-			//	"60",
-			//	"61",
-			//	"62",
-			//	"63",
-			//	"64"
+			const char *pNames[] = { //Array für die Namen
+				"flappy.*",
+				"Chillingo.*",
+				"Fluffy.*",
+				"MLG_PRO.*",
+				"Enzym.*",
+				"ZillyDreck.*",
+				"ciliDR[HUN].*",
+				"fuzzle.*",
+				"Piko.*",
+				"chilliger.*",
+				"ChilligerDrago",
+				"GubbaFubba",
+				"fuZZle.*",
+				"<bot>",
+				"<noob>",
+				"<police>",
+				"<train>",
+				"<boat>",
+				"<blocker>",
+				"<racer>",
+				"<hyper>",
+				"sheep",
+				"jeep",
+				"chilluminatee.*",
+				"auftragschiller",
+				"abcJuhee",
+				"BANANA.*",
+				"POTATO.*",
+				"<cucumber>",
+				"<rape>",
+				"<_BoT__>",
+				"NotMyName",
+				"NotChiller",
+				"NotChiIIer",
+				"NotChlIer",
+				"fuckmesoon.*",
+				"DataNub",
+				"5.4.45.109.239",
+				"<hacker>",
+				"<cheater>",
+				"<glitcher>",
+				"__ERROR",
+				"404_kein_tier",
+				"ZitrusFRUCHT",
+				"BAUMKIND",
+				"KELLERKIND",
+				"KINDERKIND",
+				"einZug",
+				"<bob>",
+				"BezzyHill",
+				"BeckySkill",
+				"Skilli.*",
+				"UltraVa.",
+				"DONATE!",
+				"SUBSCRIBE!",
+				"SHARE!",
+				"#like",
+				"<#name_>",
+				"KRISTIAN-.",
+				".,-,08/524",
+				"3113pimml34",
+				"NotABot",
+				"Human",
+				"xxlddnnet64"
+			};
 
-			//};
+			//int c = 1; //Chillingo.*
+
+
+			//for (int c = 0; c < 65; c++)
+			for (int c = 0; c < 63; c++)
+			{
+				if (m_apPlayers[c] && GetPlayerChar(c)) //check if this player is existing and is alive
+				{
+					if (m_apPlayers[c]->m_DummyMode == 32) //check dummy mode
+					{
+						if (!strncmp(pMsg->m_pMessage, pNames[c], strlen(pNames[c]))) //search dummy name in message
+						{
+							if (!str_comp(Server()->ClientName(c), pNames[c])) //check if this is the rigth dummy name
+							{
+								if (pMsg->m_pMessage[strlen(pNames[c]) + 2] == '!') // COMMANDS
+								{
+									if (m_apPlayers[ClientID]->m_dummy_member || !str_comp(Server()->ClientName(ClientID), "ChillerDragon"))
+									{
+										if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "fire"))
+										{
+											GetPlayerChar(c)->m_Dummy_32fire = true;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "stop fire"))
+										{
+											GetPlayerChar(c)->m_Dummy_32fire = false;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "kill"))
+										{
+											GetPlayerChar(c)->m_Dummy_32kill = true;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "left"))
+										{
+											GetPlayerChar(c)->m_Dummy_32dir = -1;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance"))
+										{
+											GetPlayerChar(c)->m_Dummy_32balance = 1;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance left"))
+										{
+											GetPlayerChar(c)->m_Dummy_32balance = 2;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance right"))
+										{
+											GetPlayerChar(c)->m_Dummy_32balance = 3;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "hammer"))
+										{
+											GetPlayerChar(c)->m_Dummy_32weapon = 0;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "gun"))
+										{
+											GetPlayerChar(c)->m_Dummy_32weapon = 1;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "shotgun"))
+										{
+											GetPlayerChar(c)->m_Dummy_32weapon = 2;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "grenade"))
+										{
+											GetPlayerChar(c)->m_Dummy_32weapon = 3;
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "reset all"))
+										{
+											GetPlayerChar(c)->m_Dummy_32reset = true;
+										}
+										else if (!str_comp_nocase_num(pMsg->m_pMessage + 3, "script ", 9) == 0)
+										{
+											if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 10, "0 ", 11) == 0)
+											{
+									/*			if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 12, "step 0", 17) == 0)
+												{
+													SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
+												}
+												else
+												{
+													SendChat(c, CGameContext::CHAT_ALL, "error: wrong step. choose between 0, 1 and 2");
+												}*/
+												SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
+											}
+											else
+											{
+												SendChat(c, CGameContext::CHAT_ALL, "error: wrong script. choose between 0, 1 and 2");
+											}
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!script ?"))
+										{
+											SendChat(c, CGameContext::CHAT_ALL, "struct: !script <0/1/2> step <0/1/2> cmd <cmd> t <time> del <stepstartdelay>");
+										}
+										else if (str_comp_nocase_num(pMsg->m_pMessage + 3, "tick_script fire 0 ", 21) == 0)
+										{
+								/*			char aBuf[256];
+											char aUsername[MAX_NAME_LENGTH];
+											str_copy(aUsername, pMsg->m_pMessage + 15, MAX_NAME_LENGTH + 7);
+
+											dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);*/
+
+
+											if (pMsg->m_pMessage[strlen(pNames[c]) + 15] == '0' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '1' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '2' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '3' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '4' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '5' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '6' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '7' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '8' ||
+												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '9'
+												)
+											{
+												SendChat(c, CGameContext::CHAT_ALL, "digit found.");
+											}
+											else
+											{
+												SendChat(c, CGameContext::CHAT_ALL, "error: no digit found for <start_tick>");
+											}
+
+											dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, pMsg->m_pMessage[strlen(pNames[c]) + 15]);
+										}
+										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!tick_script ?"))
+										{
+											SendChat(c, CGameContext::CHAT_ALL, "struct: !tick_script <command> <command_id> <start_tick> <stop_tick>");
+										}
+										else
+										{
+											SendChat(c, CGameContext::CHAT_ALL, "unknown command.");
+										}
+									}
+									else //not trusted
+									{
+										char aBuf[128];
+										str_format(aBuf, sizeof(aBuf), "%s: I don't trust you --> I don't do what you say.", Server()->ClientName(ClientID));
+										SendChat(c, CGameContext::CHAT_ALL, aBuf);
+									}
+								}
+								else //NO COMMANDS (PUBLIC CHAT)
+								{
+									if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "hello :)"))
+									{
+										SendChat(c, CGameContext::CHAT_ALL, "Hellu :)");
+
+									}
+									else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "trust me"))
+									{
+										if (!str_comp(Server()->ClientName(ClientID) ,"Drag*"))
+										{
+											SendChat(c, CGameContext::CHAT_ALL, "my creator told me you are evil. I don't trust you.");
+										}
+										else
+										{
+											m_apPlayers[ClientID]->m_dummy_member = true;
+										}
+									}
+									else
+									{
+										SendChat(c, CGameContext::CHAT_ALL, "meaning of life.");
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+
 
 			//for (int c = 0; c < 65; c++)
 			//{
@@ -1709,6 +1875,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;
 					//pPlayer->m_PoliceRank++;
 					//pPlayer->m_PoliceHelper = true;
+					//pPlayer->m_cheats_aimbot ^= true;
 					SendBroadcast(g_Config.m_SvAdString, ClientID);
 
 					return;

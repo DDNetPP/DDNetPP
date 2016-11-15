@@ -828,6 +828,79 @@ int CControls::SnapInput(int *pData)
 				}
 			}
 		}
+		else if (g_Config.m_ClMovebot == 7 && GameClient()->m_Snap.m_pLocalCharacter) //blmapv3royal 
+		{
+			m_InputData[g_Config.m_ClDummy].m_Direction = 0;
+			m_InputData[g_Config.m_ClDummy].m_Jump = 0;
+			m_InputData[g_Config.m_ClDummy].m_Fire = 0;
+			m_InputData[g_Config.m_ClDummy].m_Hook = 0;
+			m_InputData[g_Config.m_ClDummy].m_WantedWeapon = 1;
+			m_InputData[g_Config.m_ClDummy].m_TargetX = 0;
+			m_InputData[g_Config.m_ClDummy].m_TargetY = 0;
+
+			//Selfkills
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 20 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 32 * 32) //spawn left
+			{
+				GameClient()->SendKill(g_Config.m_ClDummy);
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 35 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 132 * 32) //to far down on main way (v3 down) and sb left side
+			{
+				GameClient()->SendKill(g_Config.m_ClDummy);
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 62 * 32) //sb down
+			{
+				GameClient()->SendKill(g_Config.m_ClDummy);
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 141 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 76 * 32) //spawn hammerrun area
+			{
+				m_Fire_delay--;
+				if (m_Fire_delay < 1)
+				{
+					m_InputData[g_Config.m_ClDummy].m_Fire++;
+					m_Fire_delay = 10;
+				}
+
+				m_InputData[g_Config.m_ClDummy].m_TargetX = 200;
+				m_InputData[g_Config.m_ClDummy].m_TargetY = 0;
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 72 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 74 * 32 || GameClient()->m_Snap.m_pLocalCharacter->m_X > 82 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 84 * 32 || GameClient()->m_Snap.m_pLocalCharacter->m_X > 92 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 94 * 32) //3 jumps to v3 part
+			{
+				m_InputData[g_Config.m_ClDummy].m_Jump = 1;
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 105 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 112 * 32 || GameClient()->m_Snap.m_pLocalCharacter->m_X > 114 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 119 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Jump = 1;
+			}
+
+			//stuck in island go down
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 35 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_Y < 41 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_VelY == 0.0f)
+			{
+				if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 146 * 32)
+				{
+					m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+				}
+				else
+				{
+					m_InputData[g_Config.m_ClDummy].m_Direction = -1;
+				}
+			}
+
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 157 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
+			}
+
+		}
 
 		//Movebot END
 		// E N D

@@ -22,6 +22,8 @@ public:
 	int m_JumpTicker;
 	int m_LifetimeTT; //lifetime on teetown
 	int m_AntiAfkTicker;
+	//royal
+	int m_Fire_delay;
 
 
 	vec2 m_MousePos[2];

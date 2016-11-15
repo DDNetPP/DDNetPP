@@ -370,7 +370,7 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 //ChillerDragon
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 1, CFGFLAG_SERVER, "Kick chilli members with wrong skin")
 
-MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte jail")
+MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte jail")
 MACRO_CONFIG_INT(SvBankState, sv_bankstate, 0, 0, 1, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte bank")
 MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte room")
 MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "use 1 to activate pvp arena")
@@ -386,4 +386,5 @@ MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, 
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
 
 MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "activate account stuff?")
+//MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "chattin dummy")
 #endif

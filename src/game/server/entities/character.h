@@ -325,6 +325,23 @@ public:
 
 
 	
+	//dummymode 32 vars
+	bool m_Dummy_32reset;
+	int m_Dummy_32dir;
+	bool m_Dummy_32fire;
+	bool m_Dummy_32jump;
+	bool m_Dummy_32hook;
+	bool m_Dummy_32kill;
+	int m_Dummy_32balance; //0 off 1 on 2 left 3 right
+	int m_Dummy_32weapon;
+
+	int m_Dummy_32script_s1_x; //Dummy Dummymode 32 user created script step1 x coordinate
+	int m_Dummy_32script_s1_y;
+
+	//TickTimeScrips
+	int m_Dummy_32tick;
+	int m_Dummy_32fire0_start;
+	int m_Dummy_32fire0_stop;
 
 
 	//dummymode 31 vars (ChillBlock5 police guard)
