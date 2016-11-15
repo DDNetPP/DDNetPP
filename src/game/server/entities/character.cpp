@@ -926,9 +926,11 @@ void CCharacter::Tick()
 
 		if (m_pvp_arena_exit_request_time == 0)
 		{
+			m_pPlayer->m_pvp_arena_tickets++;
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "succsesfully teleported out of arena.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got your ticket back because you survived :)");
 		}
 
 		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || !m_Core.m_Vel.y == 0.0f)

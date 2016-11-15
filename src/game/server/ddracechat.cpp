@@ -2716,3 +2716,34 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
 	//pSelf->SendChatTarget(pResult->m_ClientID, "Tipp: name and password shoudl be different");
 }
+
+void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Profile Info ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+	pSelf->SendChatTarget(pResult->m_ClientID, "VIEW PROFILES:");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile (playername)");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Info: The player needs to be on the server and logged in");
+	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+	pSelf->SendChatTarget(pResult->m_ClientID, "PROFILE SETTINGS:");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_style (style) - changes your profile style");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_status (status) - changes your status");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_skype (skype) - changes your skype");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_youtube (youtube) - changes your youtube");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_email (email) - changes your email");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
+}

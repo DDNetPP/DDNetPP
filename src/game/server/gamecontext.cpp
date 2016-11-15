@@ -1869,7 +1869,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
 					//pPlayer->m_money = pPlayer->m_money + 300;
-					//pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
+					pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
 					//pPlayer->m_level++;
 					//pPlayer->GetCharacter()->m_IsHammerarena = false;
 					//pPlayer->m_xp = pPlayer->m_xp + 250000;

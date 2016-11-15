@@ -396,6 +396,8 @@ private:
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);
