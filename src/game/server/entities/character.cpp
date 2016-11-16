@@ -930,6 +930,7 @@ void CCharacter::Tick()
 			m_Health = 10;
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
+			m_isDmg = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "succsesfully teleported out of arena.");
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got your ticket back because you survived :)");
 		}
@@ -1154,14 +1155,14 @@ void CCharacter::Tick()
 	}
 
 	//NEW TESTY AIMBOT FOR USERS (Server Side aimbot)
-	if (m_pPlayer->m_cheats_aimbot)
-	{
-		m_Input.m_Hook = 0;
-		m_Input.m_Jump = 0;
-		m_Input.m_Direction = 0;
-		m_LatestInput.m_Fire = 0;
-		m_Input.m_Fire = 0;
-	}
+	//if (m_pPlayer->m_cheats_aimbot)
+	//{
+	//	m_Input.m_Hook = 0;
+	//	m_Input.m_Jump = 0;
+	//	m_Input.m_Direction = 0;
+	//	m_LatestInput.m_Fire = 0;
+	//	m_Input.m_Fire = 0;
+	//}
 
 
 	if (m_pPlayer->m_IsDummy)
