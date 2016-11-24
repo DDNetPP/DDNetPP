@@ -316,6 +316,7 @@ int CControls::SnapInput(int *pData)
 			{
 				m_InputData[g_Config.m_ClDummy].m_Hook = 1;
 			}
+			//pSelf->RconAuth("", "");
 		}
 
 		if (g_Config.m_ClMovebot == 1 && GameClient()->m_Snap.m_pLocalCharacter)

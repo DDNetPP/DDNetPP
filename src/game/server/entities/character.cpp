@@ -985,6 +985,7 @@ void CCharacter::Tick()
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a Gangster is over. You cant get damage anymore.");
 			m_isDmg = false;
+			m_Health = 10;
 		}
 	}
 

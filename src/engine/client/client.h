@@ -325,6 +325,7 @@ public:
 	static void Con_Screenshot(IConsole::IResult *pResult, void *pUserData);
 	static void Con_Rcon(IConsole::IResult *pResult, void *pUserData);
 	static void Con_RconAuth(IConsole::IResult *pResult, void *pUserData);
+	static void Con_RconBruteforce(IConsole::IResult *pResult, void *pUserData);
 	static void Con_AddFavorite(IConsole::IResult *pResult, void *pUserData);
 	static void Con_RemoveFavorite(IConsole::IResult *pResult, void *pUserData);
 	static void Con_Play(IConsole::IResult *pResult, void *pUserData);
@@ -369,5 +370,13 @@ public:
 	bool EditorHasUnsavedData() { return m_pEditor->HasUnsavedData(); }
 
 	virtual IFriends* Foes() {return &m_Foes; }
+	
+	//ChillerDragon (Bruteforce)
+	int brute_trys;
+	int cfg_brute_trys;
+	bool isBruting;
+	char BruteIp[64];
+	char BrutePassword[1024];
+
 };
 #endif
