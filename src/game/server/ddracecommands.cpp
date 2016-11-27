@@ -122,7 +122,7 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 		str_format(aBuf, sizeof(aBuf), "%s has been given full health.", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "your health is now at 10HP! Say thanks to %s", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Your health is now at 10HP! Say thanks to %s", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 
@@ -201,7 +201,7 @@ void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Your Hammer has been %s for your next respawn by %s", pPlayer->m_disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Hammer has been %s for your next respawn by %s", pPlayer->m_disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 		
 	}
@@ -429,7 +429,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "you were jailed by %s for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
+		str_format(aBuf, sizeof(aBuf), "You were jailed by %s for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 	}
@@ -448,10 +448,8 @@ void CGameContext::ConUnJail(IConsole::IResult *pResult, void *pUserData)
 	{
 		pPlayer->m_JailTime = 0;
 
-
-
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "you were released by %s", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "You were released by %s", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 	}
@@ -472,10 +470,10 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "damage has been %s for %s", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "damage was %s by %s", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 }
@@ -503,10 +501,10 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 		pChr->m_hammerfight ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "for %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientID), pChr->m_hammerfight ? "ON" : "OFF");
+		str_format(aBuf, sizeof(aBuf), "For %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientID), pChr->m_hammerfight ? "ON" : "OFF");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "your were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "You were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 

@@ -51,8 +51,8 @@ void CQueryRegister::OnData()
 		pQuery->Query(m_pDatabase, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 
-		m_pGameServer->SendChatTarget(m_ClientID, "Account registered successfully.");
-		m_pGameServer->SendChatTarget(m_ClientID, "Login with: /login (name) (pass)");
+		m_pGameServer->SendChatTarget(m_ClientID, "Account has been registered.");
+		m_pGameServer->SendChatTarget(m_ClientID, "Login with: /login <name> <pass>");
 	}
 }
 
@@ -107,11 +107,11 @@ void CQueryLogin::OnData()
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
-			m_pGameServer->SendChatTarget(m_ClientID, "Login successfull");
+			m_pGameServer->SendChatTarget(m_ClientID, "Login successful.");
 		}
 	}
 	else
-		m_pGameServer->SendChatTarget(m_ClientID, "Login failed");
+		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.");
 }
 
 bool CGameContext::CheckAccounts(int AccountID)
@@ -1479,11 +1479,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 												{
 													SendChat(c, CGameContext::CHAT_ALL, "error: wrong step. choose between 0, 1 and 2");
 												}*/
-												SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
+												SendChat(c, CGameContext::CHAT_ALL, "Test failed!!!");
 											}
 											else
 											{
-												SendChat(c, CGameContext::CHAT_ALL, "error: wrong script. choose between 0, 1 and 2");
+												SendChat(c, CGameContext::CHAT_ALL, "ERROR: Wrong script. choose between 0, 1 and 2");
 											}
 										}
 										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!script ?"))
@@ -1526,7 +1526,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 										}
 										else
 										{
-											SendChat(c, CGameContext::CHAT_ALL, "unknown command.");
+											SendChat(c, CGameContext::CHAT_ALL, "Unknown command.");
 										}
 									}
 									else //not trusted
@@ -1538,7 +1538,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 								}
 								else //NO COMMANDS (PUBLIC CHAT)
 								{
-									if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "hello :)"))
+									if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "Hello :)"))
 									{
 										SendChat(c, CGameContext::CHAT_ALL, "Hellu :)");
 
@@ -1547,7 +1547,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 									{
 										if (!str_comp(Server()->ClientName(ClientID) ,"Drag*"))
 										{
-											SendChat(c, CGameContext::CHAT_ALL, "my creator told me you are evil. I don't trust you.");
+											SendChat(c, CGameContext::CHAT_ALL, "My creator told me you are evil. I don't trust you.");
 										}
 										else
 										{
@@ -1556,7 +1556,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 									}
 									else
 									{
-										SendChat(c, CGameContext::CHAT_ALL, "meaning of life.");
+										SendChat(c, CGameContext::CHAT_ALL, "Meaning of life.");
 									}
 								}
 							}
@@ -1742,7 +1742,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					int r = rand() % 100;
 					if (r < m_apPlayers[ClientID]->m_escape_skill) //escape succes
 					{
-						SendChatTarget(ClientID, "you escaped from jail! Watch out the police is searching you! WARNING you can now get damage from these weapons: hammer, grenade and laser!");
+						SendChatTarget(ClientID, "You escaped from jail! Watch out! The police is searching you! WARNING! You can now get damage from these weapons: hammer, grenade and laser!");
 						m_apPlayers[ClientID]->m_JailTime = 0;
 						m_apPlayers[ClientID]->m_EscapeTime = Server()->TickSpeed() * 600; //10 min
 						m_apPlayers[ClientID]->m_escape_plan = false;
@@ -1752,7 +1752,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "%s escaped from Jail! Help the police to catch him!", Server()->ClientName(ClientID));
+						str_format(aBuf, sizeof(aBuf), "%s escaped from jail! Help the police to catch him!", Server()->ClientName(ClientID));
 
 						for (int i = 0; i < MAX_CLIENTS; i++)
 						{
@@ -1761,7 +1761,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else //escape failed
 					{
-						SendChatTarget(ClientID, "escape failed ._.");
+						SendChatTarget(ClientID, "Escape failed ._.!");
 						m_apPlayers[ClientID]->m_failed_escapes++;
 					}
 
@@ -1775,39 +1775,39 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_escape_plan == false)
 					{
-						SendChatTarget(ClientID, "you planned a plan A to escape out of jail.");
+						SendChatTarget(ClientID, "You created a plan A to escape out of jail.");
 						m_apPlayers[ClientID]->m_escape_plan = true;
 						m_apPlayers[ClientID]->m_escape_skill += 10;
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you already have a plan!");
+						SendChatTarget(ClientID, "You already have a plan!");
 					}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_b") && m_apPlayers[ClientID]->m_JailTime > 0)
 				{
 					if (m_apPlayers[ClientID]->m_escape_plan_b == false)
 					{
-						SendChatTarget(ClientID, "you planned a plan B to escape out of jail.");
+						SendChatTarget(ClientID, "You created a plan B to escape out of jail.");
 						m_apPlayers[ClientID]->m_escape_plan_b = true;
 						m_apPlayers[ClientID]->m_escape_skill += 10;
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you already have a plan B!");
+						SendChatTarget(ClientID, "You already have a plan B!");
 					}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_c") && m_apPlayers[ClientID]->m_JailTime > 0)
 				{
 					if (m_apPlayers[ClientID]->m_escape_plan_c == false)
 					{
-						SendChatTarget(ClientID, "you planned a plan C to escape out of jail.");
+						SendChatTarget(ClientID, "You created a plan C to escape out of jail.");
 						m_apPlayers[ClientID]->m_escape_plan_c = true;
 						m_apPlayers[ClientID]->m_escape_skill += 10;
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you already have a plan C!");
+						SendChatTarget(ClientID, "You already have a plan C!");
 					}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "start_minigame"))
@@ -1884,7 +1884,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be loggend in to rob a bank.");
+						SendChatTarget(ClientID, "You need to be loggend in to rob the bank.");
 						return;
 					}
 
@@ -1899,28 +1899,28 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
 						{
-							SendChatTarget(ClientID, "you robbed the bank! +1000 money");
+							SendChatTarget(ClientID, "You robbed the bank! +1000 money.");
 							m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
 						}
 						else if (r > 900)
 						{
-							SendChatTarget(ClientID, "you robbed the bank! +10 money");
+							SendChatTarget(ClientID, "You robbed the bank! +10 money.");
 							m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
 						}
 						else if (r > 800)
 						{
-							SendChatTarget(ClientID, "you robbed the bank! +5 money");
+							SendChatTarget(ClientID, "You robbed the bank! +5 money.");
 							m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
 						}
 						else
 						{
-							SendChatTarget(ClientID, "you robbed the bank! ...and got caught by the police.");
+							SendChatTarget(ClientID, "You robbed the bank! ...and got caught by the police.");
 							m_apPlayers[ClientID]->m_JailTime = Server()->TickSpeed() * 240; //4 min
 						}
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need to be in bank");
+						SendChatTarget(ClientID, "You need to be in the bank.");
 					}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "hax_me_admin_mummy"))
@@ -1933,7 +1933,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (g_Config.m_SvFakeSuper == 0)
 					{
-						SendChatTarget(ClientID, "admin has diseabeld this command.");
+						SendChatTarget(ClientID, "Admin has disabled this command.");
 						return;
 					}
 
@@ -1953,7 +1953,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you don't have enough permission.");
+						SendChatTarget(ClientID, "You don't have enough permission.");
 					}
 
 					return;
@@ -2056,7 +2056,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							if (m_apPlayers[StatsID]->m_AccountID <= 0)
 							{
-								SendChatTarget(ClientID, "this player has no profile because he is not logged in.");
+								SendChatTarget(ClientID, "This player has no profile because he is not logged in.");
 								return;
 							}
 
@@ -2192,7 +2192,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "error: '%s'    is not a profile style. choose between following: default, shit, social, show-off and pvp", Input);
+						str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", Input);
 						SendChatTarget(ClientID, aBuf);
 					}
 
@@ -2211,7 +2211,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileStatus);
 
-					str_format(aBuf, sizeof(aBuf), "updated your profile status: %s", m_apPlayers[ClientID]->m_ProfileStatus);
+					str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", m_apPlayers[ClientID]->m_ProfileStatus);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2220,7 +2220,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in to acces your profile");
 						return;
 					}
 
@@ -2229,7 +2229,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileSkype);
 
-					str_format(aBuf, sizeof(aBuf), "updated your skype name: %s", m_apPlayers[ClientID]->m_ProfileSkype);
+					str_format(aBuf, sizeof(aBuf), "Updated your skype name: %s", m_apPlayers[ClientID]->m_ProfileSkype);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2247,7 +2247,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileYoutube);
 
-					str_format(aBuf, sizeof(aBuf), "updated your youtube name: %s", m_apPlayers[ClientID]->m_ProfileYoutube);
+					str_format(aBuf, sizeof(aBuf), "Updated your youtube name: %s", m_apPlayers[ClientID]->m_ProfileYoutube);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2265,7 +2265,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileEmail);
 
-					str_format(aBuf, sizeof(aBuf), "updated your email: %s", m_apPlayers[ClientID]->m_ProfileEmail);
+					str_format(aBuf, sizeof(aBuf), "Updated your email: %s", m_apPlayers[ClientID]->m_ProfileEmail);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2283,7 +2283,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileHomepage);
 
-					str_format(aBuf, sizeof(aBuf), "updated your homepage: %s", m_apPlayers[ClientID]->m_ProfileHomepage);
+					str_format(aBuf, sizeof(aBuf), "Updated your homepage: %s", m_apPlayers[ClientID]->m_ProfileHomepage);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2292,7 +2292,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "you need to be logged in to acces to your profile");
+						SendChatTarget(ClientID, "You need to be logged in to acces your profile");
 						return;
 					}
 
@@ -2301,7 +2301,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileTwitter);
 
-					str_format(aBuf, sizeof(aBuf), "updated your twitter: %s", m_apPlayers[ClientID]->m_ProfileTwitter);
+					str_format(aBuf, sizeof(aBuf), "Updated your twitter: %s", m_apPlayers[ClientID]->m_ProfileTwitter);
 					SendChatTarget(ClientID, aBuf);
 
 					return;
@@ -2339,14 +2339,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							{
 								if (m_apPlayers[RainbowID]->m_rainbow_offer)
 								{
-									SendChatTarget(ClientID, "This player has already an rainbow offer.");
+									SendChatTarget(ClientID, "This player already has a rainbow offer.");
 								}
 								else
 								{
 									if (ClientID == RainbowID)
 									{
 										GetPlayerChar(ClientID)->m_Rainbow = true;;
-										SendChatTarget(ClientID, "you gave rainbow to your self.");
+										SendChatTarget(ClientID, "You gave rainbow to your self.");
 									}
 									else
 									{
@@ -2370,7 +2370,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
@@ -2405,14 +2405,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							{
 								if (m_apPlayers[BloodyID]->m_bloody_offer)
 								{
-									SendChatTarget(ClientID, "This player has already an offer.");
+									SendChatTarget(ClientID, "This player already has an offer.");
 								}
 								else
 								{
 									if (ClientID == BloodyID)
 									{
 										GetPlayerChar(ClientID)->m_Bloody = true;;
-										SendChatTarget(ClientID, "you gave bloody to your self.");
+										SendChatTarget(ClientID, "You gave bloody to your self.");
 									}
 									else
 									{
@@ -2436,7 +2436,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 10) == 0)
@@ -2471,14 +2471,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							{
 								if (m_apPlayers[AtomID]->m_atom_offer)
 								{
-									SendChatTarget(ClientID, "This player has already an atom offer.");
+									SendChatTarget(ClientID, "This player already has an atom offer.");
 								}
 								else
 								{
 									if (ClientID == AtomID)
 									{
 										GetPlayerChar(ClientID)->m_Atom = true;;
-										SendChatTarget(ClientID, "you gave atom to your self.");
+										SendChatTarget(ClientID, "You gave atom to your self.");
 									}
 									else
 									{
@@ -2502,7 +2502,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 11) == 0)
@@ -2537,14 +2537,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							{
 								if (m_apPlayers[TrailID]->m_trail_offer)
 								{
-									SendChatTarget(ClientID, "This player has already an trail offer.");
+									SendChatTarget(ClientID, "This player already has a trail offer.");
 								}
 								else
 								{
 									if (ClientID == TrailID)
 									{
 										GetPlayerChar(ClientID)->m_Trail = true;;
-										SendChatTarget(ClientID, "you gave trail to your self.");
+										SendChatTarget(ClientID, "You gave trail to your self.");
 									}
 									else
 									{
@@ -2568,7 +2568,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need to be moderator or higher to use this command");
+						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
 					}
 				}
 				//else if (!str_comp(pMsg->m_pMessage + 1, "bloody off"))
@@ -2664,7 +2664,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 
 						SendChatTarget(ClientID, "*** Gift Info ***");
-						SendChatTarget(ClientID, "try /gift (playername)     to give someone 50money! you dont loose this money btw.");
+						SendChatTarget(ClientID, "try /gift <playername> to give someone 50 money! You don't give him your money.");
 
 						str_format(aBuf, sizeof(aBuf), "Nextgiftdelay: %d seconds", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
 						SendChatTarget(ClientID, aBuf);
@@ -2682,7 +2682,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						char aBuf[256];
 						if (m_apPlayers[ClientID]->m_LastGift && m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed() > Server()->Tick())
 						{
-							str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can send a gift again. more infos: /giftinfo", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
+							str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can send a gift again. More info: /giftinfo", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
 							SendChatTarget(ClientID, aBuf);
 							return;
 						}
@@ -2715,15 +2715,15 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 								Server()->GetClientAddr(giftID, aGiftIP, sizeof(aGiftIP));
 
 								if (!str_comp_nocase(aOwnIP, aGiftIP))
-									SendChatTarget(ClientID, "You can't give money to your dummy");
+									SendChatTarget(ClientID, "You can't give money to your dummy.");
 								else
 								{
 									m_apPlayers[giftID]->MoneyTransaction(+50, "+50 gift");
-									str_format(aBuf, sizeof(aBuf), "you gave %s 50 money!", Server()->ClientName(giftID));
+									str_format(aBuf, sizeof(aBuf), "You gave %s 50 money!", Server()->ClientName(giftID));
 									SendChatTarget(ClientID, aBuf);
 
 									char aBuf2[256];
-									str_format(aBuf2, sizeof(aBuf2), "%s gave you a gift!    +50money", Server()->ClientName(ClientID));
+									str_format(aBuf2, sizeof(aBuf2), "%s gave you a gift! +50 money.", Server()->ClientName(ClientID));
 									SendChatTarget(giftID, aBuf2);
 
 
@@ -2741,7 +2741,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need at least level 1 to use gifts.");
+						SendChatTarget(ClientID, "You need at least level 1 to use gifts.");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "add_policehelper ", 17) == 0)
@@ -2775,7 +2775,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							{
 								if (m_apPlayers[policehelperID]->m_PoliceHelper)
 								{
-									str_format(aBuf, sizeof(aBuf), "%s is already a PoliceHelper.", Server()->ClientName(policehelperID));
+									str_format(aBuf, sizeof(aBuf), "%s is already a policehelper.", Server()->ClientName(policehelperID));
 									SendChatTarget(ClientID, aBuf);
 									return;
 								}
@@ -2783,11 +2783,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 
 								m_apPlayers[policehelperID]->m_PoliceHelper = true;
-								str_format(aBuf, sizeof(aBuf), "you promoted %s to a PoliceHelper!", Server()->ClientName(policehelperID));
+								str_format(aBuf, sizeof(aBuf), "You promoted %s to a policehelper!", Server()->ClientName(policehelperID));
 								SendChatTarget(ClientID, aBuf);
 
 								char aBuf2[256];
-								str_format(aBuf2, sizeof(aBuf2), "you were promoted to a PoliceHelper by %s.", Server()->ClientName(ClientID));
+								str_format(aBuf2, sizeof(aBuf2), "You were promoted to a policehelper by %s.", Server()->ClientName(ClientID));
 								SendChatTarget(policehelperID, aBuf2);
 
 							}
@@ -2802,7 +2802,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need at least PoliceLevel 2 to promote others.");
+						SendChatTarget(ClientID, "You need at least Police level 2 to promote others.");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "remove_policehelper ", 20) == 0)
@@ -2844,11 +2844,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 
 								m_apPlayers[policehelperID]->m_PoliceHelper = false;
-								str_format(aBuf, sizeof(aBuf), "you removed %s policehelper rank!", Server()->ClientName(policehelperID));
+								str_format(aBuf, sizeof(aBuf), "You removed %s's policehelper rank!", Server()->ClientName(policehelperID));
 								SendChatTarget(ClientID, aBuf);
 
 								char aBuf2[256];
-								str_format(aBuf2, sizeof(aBuf2), "your policehelper rank was taken by %s.", Server()->ClientName(ClientID));
+								str_format(aBuf2, sizeof(aBuf2), "Your policehelper rank was removed by %s.", Server()->ClientName(ClientID));
 								SendChatTarget(policehelperID, aBuf2);
 
 							}
@@ -2863,7 +2863,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you need at least PoliceLevel 2 to promote others.");
+						SendChatTarget(ClientID, "You need at least PoliceLevel 2 to promote others.");
 					}
 				}
 				/*else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0) //old unfinished tilebased hammerfight system by FruchtiHD
@@ -2946,7 +2946,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you don't have enough permission to do this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
 					}
 					return;
 				}
@@ -2964,7 +2964,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you don't have enough permission to do this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
 					}
 					return;
 				}
@@ -2982,13 +2982,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							for (int i = 0; i < Value; i++)
 							{
 								CreateNewDummy();
-								SendChatTarget(ClientID, "bot added.");
+								SendChatTarget(ClientID, "Bot has been added.");
 							}
 						}
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you don't have enough permission to do this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
 					}
 					return;
 				}
@@ -3005,11 +3005,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 								//m_apPlayers[i] = 0x0;
 							}
 						}
-						SendChatTarget(ClientID, "all bots were removed."); //save? jo, muss aber normalerweise nicht sein kk
+						SendChatTarget(ClientID, "All bots have been removed."); //save? jo, muss aber normalerweise nicht sein kk
 					}
 					else
 					{
-						SendChatTarget(ClientID, "you don't have enough permission to do this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
 					}
 					return;
 				}
@@ -3026,7 +3026,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "taxi"))
 				{
-					SendChatTarget(ClientID, "you called a dummy! He is on his way to be your taxi :)");
+					SendChatTarget(ClientID, "You called a dummy! He is on his way to be your taxi!");
 					GetPlayerChar(ClientID)->m_taxi = true;
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "w ", 2) == 0)
@@ -3115,7 +3115,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(pPlayer->m_LastVoteCall && Timeleft > 0)
 			{
 				char aChatmsg[512] = {0};
-				str_format(aChatmsg, sizeof(aChatmsg), "You must wait %d seconds before making another vote", (Timeleft/Server()->TickSpeed())+1);
+				str_format(aChatmsg, sizeof(aChatmsg), "You must wait %d seconds before making another vote.", (Timeleft/Server()->TickSpeed())+1);
 				SendChatTarget(ClientID, aChatmsg);
 				return;
 			}

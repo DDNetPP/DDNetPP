@@ -160,7 +160,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"type /buy (itemname)");
+		"type /buy <itemname>");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -184,7 +184,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"taser          50 000 money | police3 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"pvp_arena_ticket     150 money | lvl0 | till use");
+		"pvp_arena_ticket     150 money | lvl0 | 1 use");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -222,10 +222,6 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 		"Based on DDRaceNetwork.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"DDRaceNetwork is maintained by deen.More infos on ddnet.tw");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Based on DDRace by the DDRace developers,");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"which is a mod of Teeworlds by the Teeworlds developers.");
 }
 
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
@@ -1597,13 +1593,13 @@ void CGameContext::ConPolicetaser(IConsole::IResult *pResult, void *pUserData)
 
 	if (pPlayer->m_TaserLevel < 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. You don't own a taser.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. type '/policetaser on' or '/policetaser off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
 		return;
 	}
 
@@ -1612,19 +1608,19 @@ void CGameContext::ConPolicetaser(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aInput, "on"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "taser activated. (your rifle is now a taser)");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Taser activated. (Your rifle is now a taser)");
 		pPlayer->m_TaserOn = true;
 		return;
 	}
 	else if (!str_comp_nocase(aInput, "off"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "taser deactivated. (your rifle unfreezes people)");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Taser deactivated. (Your rifle unfreezes people)");
 		pPlayer->m_TaserOn = false;
 		return;
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. type '/policetaser on' or '/policetaser off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
 		return;
 	}
 }
@@ -1646,7 +1642,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "unknow item. Type '/buy (itemname)' use '/shop' to see the full itemlist.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item. Type '/buy <itemname>' use '/shop' to see the full itemlist.");
 		return;
 	}
 
@@ -1664,7 +1660,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_level < 18)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 18 to buy police.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 18 to buy police.");
 				return;
 			}
 		}
@@ -1672,7 +1668,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_level < 25)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 25 to upgrade police to level 2.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 25 to upgrade police to level 2.");
 				return;
 			}
 		}
@@ -1680,7 +1676,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_level < 30)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 30 to upgrade police to level 3.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 30 to upgrade police to level 3.");
 				return;
 			}
 		}
@@ -1688,7 +1684,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_PoliceRank > 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You already bought maximum police lvl");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already bought maximum police lvl.");
 			return;
 		}
 
@@ -1701,7 +1697,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 100 000.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 100 000.");
 		}
 	}
 	else if (!str_comp_nocase(aItem, "taser"))
@@ -1716,7 +1712,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_PoliceRank < 3)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't own a weapon license.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a weapon license.");
 			return;
 		}
 
@@ -1750,13 +1746,13 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you already bought maximum taser level.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already bought maximum taser level.");
 			return;
 		}
 
 		if (pPlayer->m_money < pPlayer->m_TaserPrice)
 		{
-			str_format(aBuf, sizeof(aBuf), "you don't have enough money to buy/upgrade your taser. You need %d money", pPlayer->m_TaserPrice);
+			str_format(aBuf, sizeof(aBuf), "You don't have enough money to upgrade your taser. You need %d money", pPlayer->m_TaserPrice);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -1768,11 +1764,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_TaserLevel++;
 		if (pPlayer->m_TaserLevel == 1)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you bought a taser. (use '/policetaser on' to activate it)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought a taser. (use '/policetaser on' to activate it)");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you upgraded your taser.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You upgraded your taser.");
 		}
 	}
 	else if (!str_comp_nocase(aItem, "shit"))
@@ -1782,28 +1778,28 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pPlayer->MoneyTransaction(-5, "-5 you bought shit");
 
 			pPlayer->m_shit++;
-			pSelf->SendChatTarget(pResult->m_ClientID, "you bought shit.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought shit.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money!");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
 		}
 	}
 	else if (!str_comp_nocase(aItem, "room_key"))
 	{
 		if (pPlayer->m_level < 16)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you need level 16 or more to buy a key.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need level 16 or more to buy a key.");
 			return;
 		}
 		if (pPlayer->m_BoughtRoom)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you already own this item.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own this item.");
 			return;
 		}
 		if (g_Config.m_SvRoomState == 0)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "an admin has turned off the room.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "An admin has turned off the room.");
 			return;
 		}
 		if (pPlayer->m_money >= g_Config.m_SvRoomPrice)
@@ -1811,11 +1807,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			str_format(aBuf, sizeof(aBuf), "-%d bought room_key", g_Config.m_SvRoomPrice);
 			pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, aBuf);
 			pPlayer->m_BoughtRoom = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "you bought a key. You can now enter the bankroom until disconnect.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought a key. You can now enter the bankroom until disconnect.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 5 000.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 5 000.");
 		}
 	}
 	else if (!str_comp_nocase(aItem, "minigame"))
@@ -1829,20 +1825,20 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_BoughtGame)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You already have this game :)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own this game.");
 			return;
 		}
 
 
 		if (pPlayer->m_money >= 250)
 		{
-			pPlayer->MoneyTransaction(-250, "-250 bought minigame");
+			pPlayer->MoneyTransaction(-250, "-250 bought minigame.");
 			pPlayer->m_BoughtGame = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "you bought the minigame until disconnect. Check '/minigameinfo' for more informations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought the minigame until disconnect. Check '/minigameinfo' for more information.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 250.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 250.");
 		}
 	}
 	// buy cosmetic feature
@@ -1850,13 +1846,13 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->GetCharacter()->m_Rainbow)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you already own rainbow");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own rainbow");
 			return;
 		}
 
 		if (pPlayer->m_level < 5)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 5 to buy rainbow.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 5 to buy rainbow.");
 		}
 		else
 		{
@@ -1864,11 +1860,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->MoneyTransaction(-1500, "-1500 bought rainbow");
 				pPlayer->GetCharacter()->m_Rainbow = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you bought rainbow until death.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You bought rainbow until death.");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 1 500.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 1 500.");
 			}
 		}
 	}
@@ -1876,13 +1872,13 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->GetCharacter()->m_Bloody)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you already own bloody");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own bloody");
 			return;
 		}
 
 		if (pPlayer->m_level < 15)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 15 to buy bloody.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 15 to buy bloody.");
 		}
 		else
 		{
@@ -1890,11 +1886,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->MoneyTransaction(-3500, "-3500 bought bloody");
 				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you bought bloody until death.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You bought bloody until death.");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 3 500.");
 			}
 		}
 	}
@@ -1957,12 +1953,12 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pPlayer->MoneyTransaction(-150, "-150 bought pvp_arena_ticket");
 			pPlayer->m_pvp_arena_tickets++;
 
-			str_format(aBuf, sizeof(aBuf), "you bought a pvp_arena_ticket. you now have %d tickets.", pPlayer->m_pvp_arena_tickets);
+			str_format(aBuf, sizeof(aBuf), "You bought a pvp_arena_ticket. You have %d tickets.", pPlayer->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 150.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 150.");
 		}
 	}
 	//else if (!str_comp_nocase(aItem, "bloody"))
@@ -2007,7 +2003,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Please use '/register [name] [password] [password_repeat]'.");
+		pSelf->SendChatTarget(ClientID, "Please use '/register <name> <password> <password>'.");
 		return;
 	}
 
@@ -2038,7 +2034,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (str_comp_nocase(aPassword, aPassword2) != 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Passwords need to be the same.");
+		pSelf->SendChatTarget(ClientID, "Passwords needs to be the same.");
 		return;
 	}
 
@@ -2071,7 +2067,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "Please use '/login [name] [password]'.");
+		pSelf->SendChatTarget(ClientID, "Please use '/login <name> <password>'.");
 		return;
 	}
 
@@ -2211,7 +2207,7 @@ void CGameContext::ConMinigameUp(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (g_Config.m_SvAllowMinigame == 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "admin diseabeld the /up movement.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Admin disableld the /up movement.");
 		}
 		else
 		{
@@ -2247,7 +2243,7 @@ void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (g_Config.m_SvAllowMinigame == 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "admin diseabeld the /down movement.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Admin disabled the /down movement.");
 		}
 		else
 		{
@@ -2347,7 +2343,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/pvp_arena ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena ' + 'join' or 'leave'");
 		return;
 	}
 
@@ -2368,39 +2364,39 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 					pPlayer->m_pvp_arena_games_played++;
 					pPlayer->GetCharacter()->m_IsPVParena = true;
 					pPlayer->GetCharacter()->m_isDmg = true;
-					pSelf->SendChatTarget(pResult->m_ClientID, "teleporting to arena... good luck and have fun!");
+					pSelf->SendChatTarget(pResult->m_ClientID, "Teleporting to arena... good luck and have fun!");
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "you are already in the  PvP-arena");
+					pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the PvP-arena");
 				}
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have a ticket. Buy one first with '/buy pvp_arena_ticket'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy ticket first with '/buy pvp_arena_ticket'");
 			}
 		}
 		else //no arena configurated
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "no pvp-arena found.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "No pvp-arena found.");
 		}
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
 	{
 		if (pPlayer->GetCharacter()->m_IsPVParena)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "teleport request sent. Don't move 6 seconds.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Teleport request sent. Don't move for 6 seconds.");
 			pPlayer->GetCharacter()->m_pvp_arena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
 			pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are not in a arena.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in an arena.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/pvp_arena ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena ' + 'join' or 'leave'");
 	}
 
 }
@@ -2487,7 +2483,7 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/rainbow ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow ' + 'accept' or 'off'");
 		return;
 	}
 
@@ -2500,7 +2496,7 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	{
 		pPlayer->GetCharacter()->m_Rainbow = false;
 		pPlayer->m_InfRainbow = false;
-		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow turned off");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow turned off");
 	}
 	else if (!str_comp_nocase(aInput, "accept"))
 	{
@@ -2509,21 +2505,21 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 			if (!pPlayer->GetCharacter()->m_Rainbow)
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted rainbow. You can turn off rainbow agian with '/rainbow off'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted rainbow. You can turn off rainbow with '/rainbow off'");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Rainbow.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You already have rainbow.");
 			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you rainbow so you can't accept it :p");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you rainbow.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/rainbow ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow ' + 'accept' or 'off'");
 	}
 }
 
@@ -2543,7 +2539,7 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/bloody ' + 'accept' or 'off'");
 		return;
 	}
 
@@ -2565,21 +2561,21 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 			if (!pPlayer->GetCharacter()->m_Bloody)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted bloody. You can turn off bloody agian with '/bloody off'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted bloody. You can turn off bloody with '/bloody off'");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Bloody.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You already have bloody.");
 			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you bloody so you can't accept it :p");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you bloody.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/bloody ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/bloody ' + 'accept' or 'off'");
 	}
 }
 
@@ -2599,7 +2595,7 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/atom ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/atom ' + 'accept' or 'off'");
 		return;
 	}
 
@@ -2621,21 +2617,21 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 			if (!pPlayer->GetCharacter()->m_Atom)
 			{
 				pPlayer->GetCharacter()->m_Atom = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted atom. You can turn off atom agian with '/atom off'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted atom. You can turn off atom with '/atom off'");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Atom.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You already have atom.");
 			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you atom so you can't accept it :p");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you atom.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/atom ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/atom ' + 'accept' or 'off'");
 	}
 }
 
@@ -2655,7 +2651,7 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/trail ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/trail ' + 'accept' or 'off'");
 		return;
 	}
 
@@ -2677,21 +2673,21 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 			if (!pPlayer->GetCharacter()->m_Trail)
 			{
 				pPlayer->GetCharacter()->m_Trail = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "you accepted trail. You can turn off trail agian with '/trail off'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted trail. You can turn off trail with '/trail off'");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "you already have Trail.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You already have trail.");
 			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "nobody offerd you trail so you can't accept it :p");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you trail.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/trail ' + 'accept' or 'off'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/trail ' + 'accept' or 'off'");
 	}
 }
 
@@ -2712,9 +2708,9 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Account Info ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "How to register?");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/register (name) (password) (password)");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/register <name> <password> <password>");
 	pSelf->SendChatTarget(pResult->m_ClientID, "How to login?");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/login (name) (password)");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/login <name> <password>");
 	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
 	//pSelf->SendChatTarget(pResult->m_ClientID, "Tipp: name and password shoudl be different");
 }
