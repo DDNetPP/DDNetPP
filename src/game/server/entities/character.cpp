@@ -778,7 +778,7 @@ void CCharacter::ResetInput()
 
 void CCharacter::Tick()
 {
-	dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
+	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
 	//survivexp stuff
 	if (m_AliveTime)
 	{
@@ -1157,9 +1157,8 @@ void CCharacter::Tick()
 					if (Server()->Tick() % 30 == 0)
 					{
 						GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-					}y
+					}
 				}
-
 
 				m_pPlayer->m_ExitBank = true;
 			}
