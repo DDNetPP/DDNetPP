@@ -1709,7 +1709,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (Collision()->GetCustTile(pOwner->m_Pos.x, pOwner->m_Pos.y) != TILE_H_JOIN)
 					{
-						SendChatTarget(ClientID, "You need to be in the hammer lobby");
+						SendChatTarget(ClientID, "You need to be in the hammer lobby.");
 						return;
 					}
 
@@ -1978,7 +1978,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, aBuf);
 						str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ClientID]->m_money);
 						SendChatTarget(ClientID, aBuf);
-						SendChatTarget(ClientID, "want more money infos? ---> '/money'");
+						SendChatTarget(ClientID, "want more money info? ---> '/money'");
 						SendChatTarget(ClientID, "::Special::");
 						str_format(aBuf, sizeof(aBuf), "pvp_arena_tickets: %d", m_apPlayers[ClientID]->m_pvp_arena_tickets);
 						SendChatTarget(ClientID, aBuf);

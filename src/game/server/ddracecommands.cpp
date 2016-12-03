@@ -449,7 +449,7 @@ void CGameContext::ConUnJail(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_JailTime = 0;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "You were released by %s", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "You were released by %s,", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 	}
@@ -470,10 +470,10 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s.", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s.", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 }

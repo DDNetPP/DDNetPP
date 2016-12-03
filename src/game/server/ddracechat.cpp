@@ -1996,7 +1996,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		pSelf->SendChatTarget(ClientID, "Accounts are turned off on this server.");
 		return;
 	}
 

@@ -370,9 +370,9 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 //ChillerDragon
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 1, CFGFLAG_SERVER, "Kick chilli members with wrong skin")
 
-MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte jail")
-MACRO_CONFIG_INT(SvBankState, sv_bankstate, 0, 0, 1, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte bank")
-MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "use 1 to actiavte room")
+MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Cb5, 3=Blockdale")
+MACRO_CONFIG_INT(SvBankState, sv_bankstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Blockdale")
+MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Blockdale")
 MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "use 1 to activate pvp arena")
 
 MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "allow users to play minigames")
