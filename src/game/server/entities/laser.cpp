@@ -68,11 +68,11 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 			Temp.y = 0;
 		pHit->Core()->m_Vel = Temp;
 
-		if (pHit->GetPlayer()->m_DummyMode == 25 && pHit->m_Dummy_nn_ready)
-		{
-			pHit->m_Dummy_nn_touched_by_humans = true;
-			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "moved run to [TOUCHED] because of shotgun hit");
-		}
+		//if (pHit->GetPlayer()->m_DummyMode == 25 && pHit->m_Dummy_nn_ready)
+		//{
+		//	pHit->m_Dummy_nn_touched_by_humans = true;
+		//	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "moved run to [TOUCHED] because of shotgun hit");
+		//}
 	}
 	else if (m_Type == WEAPON_RIFLE)
 	{

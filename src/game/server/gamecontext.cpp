@@ -1329,241 +1329,512 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			//}
 
-			//##########
-			//DUMMY CHAT
-			//##########
-			//if (pMsg->m_pMessage[0] == apNames)
+			////##########
+			////DUMMY CHAT [comment_start][comment_reason: unused]
+			////##########
+			////if (pMsg->m_pMessage[0] == apNames)
 
-			const char *pNames[] = { //Array für die Namen
-				"flappy.*",
-				"Chillingo.*",
-				"Fluffy.*",
-				"MLG_PRO.*",
-				"Enzym.*",
-				"ZillyDreck.*",
-				"ciliDR[HUN].*",
-				"fuzzle.*",
-				"Piko.*",
-				"chilliger.*",
-				"ChilligerDrago",
-				"GubbaFubba",
-				"fuZZle.*",
-				"<bot>",
-				"<noob>",
-				"<police>",
-				"<train>",
-				"<boat>",
-				"<blocker>",
-				"<racer>",
-				"<hyper>",
-				"sheep",
-				"jeep",
-				"chilluminatee.*",
-				"auftragschiller",
-				"abcJuhee",
-				"BANANA.*",
-				"POTATO.*",
-				"<cucumber>",
-				"<rape>",
-				"<_BoT__>",
-				"NotMyName",
-				"NotChiller",
-				"NotChiIIer",
-				"NotChlIer",
-				"fuckmesoon.*",
-				"DataNub",
-				"5.4.45.109.239",
-				"<hacker>",
-				"<cheater>",
-				"<glitcher>",
-				"__ERROR",
-				"404_kein_tier",
-				"ZitrusFRUCHT",
-				"BAUMKIND",
-				"KELLERKIND",
-				"KINDERKIND",
-				"einZug",
-				"<bob>",
-				"BezzyHill",
-				"BeckySkill",
-				"Skilli.*",
-				"UltraVa.",
-				"DONATE!",
-				"SUBSCRIBE!",
-				"SHARE!",
-				"#like",
-				"<#name_>",
-				"KRISTIAN-.",
-				".,-,08/524",
-				"3113pimml34",
-				"NotABot",
-				"Human",
-				"xxlddnnet64"
-			};
+			//const char *pNames[] = { //Array für die Namen
+			//	"flappy.*",
+			//	"Chillingo.*",
+			//	"Fluffy.*",
+			//	"MLG_PRO.*",
+			//	"Enzym.*",
+			//	"ZillyDreck.*",
+			//	"ciliDR[HUN].*",
+			//	"fuzzle.*",
+			//	"Piko.*",
+			//	"chilliger.*",
+			//	"ChilligerDrago",
+			//	"GubbaFubba",
+			//	"fuZZle.*",
+			//	"<bot>",
+			//	"<noob>",
+			//	"<police>",
+			//	"<train>",
+			//	"<boat>",
+			//	"<blocker>",
+			//	"<racer>",
+			//	"<hyper>",
+			//	"sheep",
+			//	"jeep",
+			//	"chilluminatee.*",
+			//	"auftragschiller",
+			//	"abcJuhee",
+			//	"BANANA.*",
+			//	"POTATO.*",
+			//	"<cucumber>",
+			//	"<rape>",
+			//	"<_BoT__>",
+			//	"NotMyName",
+			//	"NotChiller",
+			//	"NotChiIIer",
+			//	"NotChlIer",
+			//	"fuckmesoon.*",
+			//	"DataNub",
+			//	"5.4.45.109.239",
+			//	"<hacker>",
+			//	"<cheater>",
+			//	"<glitcher>",
+			//	"__ERROR",
+			//	"404_kein_tier",
+			//	"ZitrusFRUCHT",
+			//	"BAUMKIND",
+			//	"KELLERKIND",
+			//	"KINDERKIND",
+			//	"einZug",
+			//	"<bob>",
+			//	"BezzyHill",
+			//	"BeckySkill",
+			//	"Skilli.*",
+			//	"UltraVa.",
+			//	"DONATE!",
+			//	"SUBSCRIBE!",
+			//	"SHARE!",
+			//	"#like",
+			//	"<#name_>",
+			//	"KRISTIAN-.",
+			//	".,-,08/524",
+			//	"3113pimml34",
+			//	"NotABot",
+			//	"Human",
+			//	"xxlddnnet64"
+			//};
 
-			//int c = 1; //Chillingo.*
-
-
-			//for (int c = 0; c < 65; c++)
-			for (int c = 0; c < 63; c++)
-			{
-				if (m_apPlayers[c] && GetPlayerChar(c)) //check if this player is existing and is alive
-				{
-					if (m_apPlayers[c]->m_DummyMode == 32) //check dummy mode
-					{
-						if (!strncmp(pMsg->m_pMessage, pNames[c], strlen(pNames[c]))) //search dummy name in message
-						{
-							if (!str_comp(Server()->ClientName(c), pNames[c])) //check if this is the rigth dummy name
-							{
-								if (pMsg->m_pMessage[strlen(pNames[c]) + 2] == '!') // COMMANDS
-								{
-									if (m_apPlayers[ClientID]->m_dummy_member || !str_comp(Server()->ClientName(ClientID), "ChillerDragon"))
-									{
-										if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "fire"))
-										{
-											GetPlayerChar(c)->m_Dummy_32fire = true;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "stop fire"))
-										{
-											GetPlayerChar(c)->m_Dummy_32fire = false;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "kill"))
-										{
-											GetPlayerChar(c)->m_Dummy_32kill = true;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "left"))
-										{
-											GetPlayerChar(c)->m_Dummy_32dir = -1;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance"))
-										{
-											GetPlayerChar(c)->m_Dummy_32balance = 1;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance left"))
-										{
-											GetPlayerChar(c)->m_Dummy_32balance = 2;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance right"))
-										{
-											GetPlayerChar(c)->m_Dummy_32balance = 3;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "hammer"))
-										{
-											GetPlayerChar(c)->m_Dummy_32weapon = 0;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "gun"))
-										{
-											GetPlayerChar(c)->m_Dummy_32weapon = 1;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "shotgun"))
-										{
-											GetPlayerChar(c)->m_Dummy_32weapon = 2;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "grenade"))
-										{
-											GetPlayerChar(c)->m_Dummy_32weapon = 3;
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "reset all"))
-										{
-											GetPlayerChar(c)->m_Dummy_32reset = true;
-										}
-										else if (!str_comp_nocase_num(pMsg->m_pMessage + 3, "script ", 9) == 0)
-										{
-											if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 10, "0 ", 11) == 0)
-											{
-									/*			if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 12, "step 0", 17) == 0)
-												{
-													SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
-												}
-												else
-												{
-													SendChat(c, CGameContext::CHAT_ALL, "error: wrong step. choose between 0, 1 and 2");
-												}*/
-												SendChat(c, CGameContext::CHAT_ALL, "Test failed!!!");
-											}
-											else
-											{
-												SendChat(c, CGameContext::CHAT_ALL, "ERROR: Wrong script. choose between 0, 1 and 2");
-											}
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!script ?"))
-										{
-											SendChat(c, CGameContext::CHAT_ALL, "struct: !script <0/1/2> step <0/1/2> cmd <cmd> t <time> del <stepstartdelay>");
-										}
-										else if (str_comp_nocase_num(pMsg->m_pMessage + 3, "tick_script fire 0 ", 21) == 0)
-										{
-								/*			char aBuf[256];
-											char aUsername[MAX_NAME_LENGTH];
-											str_copy(aUsername, pMsg->m_pMessage + 15, MAX_NAME_LENGTH + 7);
-
-											dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);*/
+			////int c = 1; //Chillingo.*
 
 
-											if (pMsg->m_pMessage[strlen(pNames[c]) + 15] == '0' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '1' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '2' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '3' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '4' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '5' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '6' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '7' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '8' ||
-												pMsg->m_pMessage[strlen(pNames[c]) + 15] == '9'
-												)
-											{
-												SendChat(c, CGameContext::CHAT_ALL, "digit found.");
-											}
-											else
-											{
-												SendChat(c, CGameContext::CHAT_ALL, "error: no digit found for <start_tick>");
-											}
+			////for (int c = 0; c < 65; c++)
+			//for (int c = 0; c < 63; c++)
+			//{
+			//	if (m_apPlayers[c] && GetPlayerChar(c)) //check if this player is existing and is alive
+			//	{
+			//		if (m_apPlayers[c]->m_DummyMode == 32) //check dummy mode
+			//		{
+			//			if (!strncmp(pMsg->m_pMessage, pNames[c], strlen(pNames[c]))) //search dummy name in message
+			//			{
+			//				if (!str_comp(Server()->ClientName(c), pNames[c])) //check if this is the rigth dummy name
+			//				{
+			//					if (pMsg->m_pMessage[strlen(pNames[c]) + 2] == '!') // COMMANDS
+			//					{
+			//						if (m_apPlayers[ClientID]->m_dummy_member || !str_comp(Server()->ClientName(ClientID), "ChillerDragon"))
+			//						{
+			//							if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "fire"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32fire = true;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "stop fire"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32fire = false;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "kill"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32kill = true;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "left"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32dir = -1;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "right"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32dir = 1;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32balance = 1;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance left"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32balance = 2;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "balance right"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32balance = 3;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "dummy"))
+			//							{
+			//								m_apPlayers[c]->m_Dummy_32dummy = true;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "look right"))
+			//							{
+			//								m_apPlayers[c]->m_Dummy_32look = 0;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "look down"))
+			//							{
+			//								m_apPlayers[c]->m_Dummy_32look = 1;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "look left"))
+			//							{
+			//								m_apPlayers[c]->m_Dummy_32look = 2;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "look up"))
+			//							{
+			//								m_apPlayers[c]->m_Dummy_32look = 3;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "hammer"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32weapon = 0;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "gun"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32weapon = 1;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "shotgun"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32weapon = 2;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "grenade"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32weapon = 3;
+			//							}
+			//							else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "reset all"))
+			//							{
+			//								GetPlayerChar(c)->m_Dummy_32reset = true;
+			//							}
+			//					//		else if (!str_comp_nocase_num(pMsg->m_pMessage + 3, "script ", 9) == 0)
+			//					//		{
+			//					//			if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 10, "0 ", 11) == 0)
+			//					//			{
+			//					//	/*			if (!str_comp_nocase_num(pMsg->m_pMessage + strlen(pNames[c]) + 12, "step 0", 17) == 0)
+			//					//				{
+			//					//					SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
+			//					//				}
+			//					//				else
+			//					//				{
+			//					//					SendChat(c, CGameContext::CHAT_ALL, "error: wrong step. choose between 0, 1 and 2");
+			//					//				}*/
+			//					//				SendChat(c, CGameContext::CHAT_ALL, "test failed.!!!!!!!!!!!!!!!!!!");
+			//					//			}
+			//					//			else
+			//					//			{
+			//					//				SendChat(c, CGameContext::CHAT_ALL, "error: wrong script. choose between 0, 1 and 2");
+			//					//			}
+			//					//		}
+			//					//		else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!script ?"))
+			//					//		{
+			//					//			SendChat(c, CGameContext::CHAT_ALL, "struct: !script <0/1/2> step <0/1/2> cmd <cmd> t <time> del <stepstartdelay>");
+			//					//		}
+			//					//		else if (str_comp_nocase_num(pMsg->m_pMessage + 3, "tick_script fire 0 ", 21) == 0)
+			//					//		{
+			//					///*			char aBuf[256];
+			//					//			char aUsername[MAX_NAME_LENGTH];
+			//					//			str_copy(aUsername, pMsg->m_pMessage + 15, MAX_NAME_LENGTH + 7);
 
-											dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, pMsg->m_pMessage[strlen(pNames[c]) + 15]);
-										}
-										else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!tick_script ?"))
-										{
-											SendChat(c, CGameContext::CHAT_ALL, "struct: !tick_script <command> <command_id> <start_tick> <stop_tick>");
-										}
-										else
-										{
-											SendChat(c, CGameContext::CHAT_ALL, "Unknown command.");
-										}
-									}
-									else //not trusted
-									{
-										char aBuf[128];
-										str_format(aBuf, sizeof(aBuf), "%s: I don't trust you --> I don't do what you say.", Server()->ClientName(ClientID));
-										SendChat(c, CGameContext::CHAT_ALL, aBuf);
-									}
-								}
-								else //NO COMMANDS (PUBLIC CHAT)
-								{
-									if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "Hello :)"))
-									{
-										SendChat(c, CGameContext::CHAT_ALL, "Hellu :)");
+			//					//			dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);*/
 
-									}
-									else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "trust me"))
-									{
-										if (!str_comp(Server()->ClientName(ClientID) ,"Drag*"))
-										{
-											SendChat(c, CGameContext::CHAT_ALL, "My creator told me you are evil. I don't trust you.");
-										}
-										else
-										{
-											m_apPlayers[ClientID]->m_dummy_member = true;
-										}
-									}
-									else
-									{
-										SendChat(c, CGameContext::CHAT_ALL, "Meaning of life.");
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+
+			//					//			if (pMsg->m_pMessage[strlen(pNames[c]) + 15] == '0' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '1' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '2' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '3' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '4' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '5' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '6' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '7' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '8' ||
+			//					//				pMsg->m_pMessage[strlen(pNames[c]) + 15] == '9'
+			//					//				)
+			//					//			{
+			//					//				SendChat(c, CGameContext::CHAT_ALL, "digit found.");
+			//					//			}
+			//					//			else
+			//					//			{
+			//					//				SendChat(c, CGameContext::CHAT_ALL, "error: no digit found for <start_tick>");
+			//					//			}
+
+			//					//			dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, pMsg->m_pMessage[strlen(pNames[c]) + 15]);
+			//					//		}
+			//					//		else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 3, "!tick_script ?"))
+			//					//		{
+			//					//			SendChat(c, CGameContext::CHAT_ALL, "struct: !tick_script <command> <command_id> <start_tick> <stop_tick>");
+			//					//		}
+			//							else
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "unknown command.");
+			//							}
+			//						}
+			//						else //not trusted
+			//						{
+			//							char aBuf[128];
+			//							str_format(aBuf, sizeof(aBuf), "%s: I don't trust you --> I don't do what you say.", Server()->ClientName(ClientID));
+			//							SendChat(c, CGameContext::CHAT_ALL, aBuf);
+			//						}
+			//					}
+			//					else //NO COMMANDS (PUBLIC CHAT)
+			//					{
+			//						if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "hello :)"))
+			//						{
+			//							SendChat(c, CGameContext::CHAT_ALL, "Hellu :)");
+
+
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "fuck you"))
+			//						{
+			//							SendChat(c, CGameContext::CHAT_ALL, "ouch :c");
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "trust me"))
+			//						{
+			//							if (!str_comp(Server()->ClientName(ClientID) ,"Drag*"))
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "my creator told me you are evil. I don't trust you.");
+			//							}
+			//							else
+			//							{
+			//								m_apPlayers[ClientID]->m_dummy_member = true;
+			//							}
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "fuck u"))
+			//						{
+			//							SendChat(c, CGameContext::CHAT_ALL, "dont say this plx.");
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "secret"))
+			//						{
+			//							int r = rand() % 10;
+
+			//							if (r == 0)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "top secret");
+			//							}
+			//							else if (r == 1)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "ye secret?");
+			//							}
+			//							else if (r == 2)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "o.O i love secrets wanna tell me one?");
+			//							}
+			//							else if (r == 3)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "what is secret? o.O");
+			//							}
+			//							else if (r == 4)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "kewl");
+			//							}
+			//							else if (r == 5)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "tree");
+			//							}
+			//							else if (r == 6)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "sdawdauhip");
+			//							}
+			//							else if (r == 7)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "wow");
+			//							}
+			//							else if (r == 8)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "and what is with this single word");
+			//							}
+			//							else
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "wanna tell me sumsin?");
+			//							}
+
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "hi"))
+			//						{
+			//							int r = rand() % 10;
+
+			//							if (r == 0)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "salve");
+			//							}
+			//							else if (r == 1)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "priviet");
+			//							}
+			//							else if (r == 2)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "HELLO!");
+			//							}
+			//							else if (r == 3)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "hey!");
+			//							}
+			//							else if (r == 4)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "hay");
+			//							}
+			//							else if (r == 5)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "hi");
+			//							}
+			//							else if (r == 6)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "sup");
+			//							}
+			//							else if (r == 7)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "yo");
+			//							}
+			//							else if (r == 8)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "ay");
+			//							}
+			//							else
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "hello.");
+			//							}
+			//							
+			//						}
+			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "y") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "ye") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "yas") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "yes") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "yap") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "ya") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "ja") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "js") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "yep") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "ok") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "allright") ||
+			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "allight"))
+			//						{
+			//							int r = rand() % 10;
+
+			//							if (r == 0)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "yes what?");
+			//							}
+			//							else if (r == 1)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "man you cant just say yes i dont know what we are talking about");
+			//							}
+			//							else if (r == 2)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I dont have a brain so i cant remember what we were talking baut.");
+			//							}
+			//							else if (r == 3)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "y what?");
+			//							}
+			//							else if (r == 4)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "NO!");
+			//							}
+			//							else if (r == 5)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Funfact: i have no idea what you are talking about but i can offer you a secret");
+			//							}
+			//							else if (r == 6)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "cool.");
+			//							}
+			//							else if (r == 7)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "ok lets get started");
+			//							}
+			//							else if (r == 8)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "ye right?");
+			//							}
+			//							else
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "ok.");
+			//							}
+
+			//						}
+			//						else
+			//						{
+			//							int r = rand() % 20;
+			//							
+			//							if (r == 0)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Imagine a train coudl fly.");
+			//							}
+			//							else if (r == 1)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "meaning of lyfe.");
+			//							}
+			//							else if (r == 2)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "lol.");
+			//							}
+			//							else if (r == 3)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "what?");
+			//							}
+			//							else if (r == 4)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I dont know the words you use please stay simple mate.");
+			//							}
+			//							else if (r == 5)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I prefer short sentences :)");
+			//							}
+			//							else if (r == 6)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "There is a boat at the other side of the sea. We have to get it as fast as we can oky?");
+			//							}
+			//							else if (r == 7)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Oh that is suprising isnt it?");
+			//							}
+			//							else if (r == 8)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I feel so dump");
+			//							}
+			//							else if (r == 9)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Wanna know a secret? feel free to ask me for a secret :)");
+			//							}
+			//							else if (r == 10)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I cant help you on that sry.");
+			//							}
+			//							else if (r == 11)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Do you eat fruits?");
+			//							}
+			//							else if (r == 12)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "haha. But what is 2x7^2?");
+			//							}
+			//							else if (r == 13)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I have no brain.");
+			//							}
+			//							else if (r == 14)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Fun fact im not a human xD");
+			//							}
+			//							else if (r == 15)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "Do you trust me ? Am not sure if i can trust you mate.");
+			//							}
+			//							else if (r == 16)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "BRASILIA!");
+			//							}
+			//							else if (r == 17)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "I am faster than you o.O");
+			//							}
+			//							else if (r == 18)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "wanna hear my secret?");
+			//							}
+			//							else if (r == 19)
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "i coudl tell you my secret but you have to ask for it.");
+			//							}
+			//							else
+			//							{
+			//								SendChat(c, CGameContext::CHAT_ALL, "meaning of life.");
+			//							}
+			//						}
+			//					}
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
+			//##############
+			//WORKING BUT UNUSED DUMMYCODE END
+			//[comment_end]
+			//################
 
 
 
@@ -1746,6 +2017,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						m_apPlayers[ClientID]->m_JailTime = 0;
 						m_apPlayers[ClientID]->m_EscapeTime = Server()->TickSpeed() * 600; //10 min
 						m_apPlayers[ClientID]->m_escape_plan = false;
+						m_apPlayers[ClientID]->m_escape_plan_b = false;
+						m_apPlayers[ClientID]->m_escape_plan_c = false;
 						m_apPlayers[ClientID]->m_escape_skill = 0;
 						m_apPlayers[ClientID]->m_failed_escapes = 0;
 						GetPlayerChar(ClientID)->m_isDmg = true;
@@ -1876,8 +2149,25 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_PoliceRank++;
 					//pPlayer->m_PoliceHelper = true;
 					//pPlayer->m_cheats_aimbot ^= true;
-					SendBroadcast(g_Config.m_SvAdString, ClientID);
+					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 
+					char aBuf[1024];
+
+					str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
+					SendBroadcast(aBuf, ClientID);
+
+					return;
+				}
+				else if (!str_comp(pMsg->m_pMessage + 1, "push val"))
+				{
+					m_CucumberShareValue++;
+					SendChatTarget(ClientID, "pushed val.");
+					return;
+				}
+				else if (!str_comp(pMsg->m_pMessage + 1, "pull val"))
+				{
+					m_CucumberShareValue--;
+					SendChatTarget(ClientID, "pulled val.");
 					return;
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "rob_bank"))
@@ -4271,6 +4561,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	// ChillerDragon
 	//Friends_counter = 0;
+	m_CucumberShareValue = 10;
 
 
 	m_pServer = Kernel()->RequestInterface<IServer>();

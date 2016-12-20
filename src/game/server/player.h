@@ -183,6 +183,10 @@ public:
 
 	bool m_IsDummy;
 
+	// dummy 32 vars
+	bool m_Dummy_32dummy;
+	int m_Dummy_32look;
+
 	//fluffypuffy (minigame)
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
@@ -221,7 +225,18 @@ public:
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_cheats_aimbot;
 	bool m_dummy_member; //trusted by dummy
+
+	//##########
+	//city stuff
+	//##########
+
 	int m_homing_missiles_ammo;
+
+
+	//money and traiding
+
+	int m_StockMarket_item_Cucumbers;
+
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];
 	char m_money_transaction2[512];
@@ -232,6 +247,9 @@ public:
 	char m_money_transaction7[512];
 	char m_money_transaction8[512];
 	char m_money_transaction9[512];
+
+	//other
+
 	bool m_TaserOn;
 	bool m_PoliceHelper;
 	int m_TaserLevel;

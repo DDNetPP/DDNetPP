@@ -265,13 +265,17 @@ public:
 	bool m_FreezeHammer;
 	bool m_fake_super;
 
+	//trading stuff (stock market)
+	//int m_StockMarket_item_Cucumbers; //player.h
+
+
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;
 	bool m_Atom;
 	bool m_Trail;
 
-	// atom vars (not to be confused with atom wars)
+	// atom vars (not to be confused with atom wars) <--- made chillidreghuhn giggle xd
 	std::vector<CStableProjectile *> m_AtomProjs;
 	int m_AtomPosition;
 
@@ -287,61 +291,8 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-	//Special Dummy vars
-	//char[] apFriends = new char[4];
-	//char *apFriends[4] = {}; //Array für die Namen der spieler mit denen der bot teamt (maximal 5 freunde)
-	//char m_Dummy_friend[128]; // eigentlich brauchste das dann auch nicht mehr
-	int m_Dummy_FriendID; // das wird jetzt benutzt um zu wissen ob der dummy einen freund hat oder nicht
 
 
-	//dummymode 99 vars (the special one)
-	//general
-	int m_Dummy_feelingsdiff;
-
-	int m_Dummy_happyness;
-	int m_Dummy_sadness;
-	int m_Dummy_boredness;
-	int m_Dummy_hypeness;
-	int m_Dummy_scaredness;
-	int m_Dummy_shockedness;
-	int m_Dummy_suprisedness;
-
-	int m_Dummy_pain;
-	int m_Dummy_adrenalin;
-
-	//brain
-
-	//future (hope/plans/ideas)
-
-	//future (fear)
-	//char m_Dummy_future_fear_what[1024];				//what scares the bot in the future
-	//char m_Dummy_future_fear_why_happen[1024];			//what makes the bot think this will or coudl happen
-	//char m_Dummy_future_fear_why_fear[1024];			//why is this scary for the bot
-	//int m_Dummy_future_fear_strength;					//how scared is the bot 
-	//int m_Dummy_future_fear_probability;				//how high is the chance that this coudl really happen
-
-	//future (realistic prediction)
-
-
-
-	
-	//dummymode 32 vars
-	bool m_Dummy_32reset;
-	int m_Dummy_32dir;
-	bool m_Dummy_32fire;
-	bool m_Dummy_32jump;
-	bool m_Dummy_32hook;
-	bool m_Dummy_32kill;
-	int m_Dummy_32balance; //0 off 1 on 2 left 3 right
-	int m_Dummy_32weapon;
-
-	int m_Dummy_32script_s1_x; //Dummy Dummymode 32 user created script step1 x coordinate
-	int m_Dummy_32script_s1_y;
-
-	//TickTimeScrips
-	int m_Dummy_32tick;
-	int m_Dummy_32fire0_start;
-	int m_Dummy_32fire0_stop;
 
 
 	//dummymode 31 vars (ChillBlock5 police guard)
@@ -353,18 +304,6 @@ public:
 	int m_Dummy_dmm31;
 	int m_Dummy_AttackMode;
 
-	//dummymode 24 vars
-	bool m_Dummy_survival_time;
-	bool m_Dummy_chat;
-
-
-
-	//dummy 102 vars (blmapTouchUp)
-	bool m_Dummy_swinghook; //activates the swing hook on toplane
-	bool m_Dummy_rocket_pos; //swaps direction
-	bool m_Dummy_swapdir; //swaps direction
-	bool m_Dummy_found_pos;
-	int m_Dummy_quickystyle;
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 	int m_DummyFreezeBlockTrick;
@@ -387,31 +326,6 @@ public:
 	//dummy 19 vars
 	int m_DummyDriveDuration = 0;
 
-	//dummymmode 26 vars
-
-	int m_Dummy_panic_correction;		//corrects the aim of the flybot in emergencys
-
-
-	//dummymode 25 vars
-	bool m_Dummy_nn_touched_by_humans;	//check for interaction with players
-	bool m_Dummy_nn_ready;				//is used to hardcode a start pos
-	int m_Dummy_nn_ready_time;			//check how long it takes
-
-/*	float m_Dummy_nn_latest_Distance;
-	float m_Dummy_nn_highest_Distance;
-	float m_Dummy_nn_latest_fitness;
-	float m_Dummy_nn_highest_fitness;
-	int m_Dummy_nn_time;
-	int m_Dummy_nn_Tick;*/		
-
-	bool m_Dummy_nn_write;
-
-	//dummymode 100 vars
-	bool m_Dummy_isSpawnArea;			//is used at start and to swap direction 
-	bool m_Dummy_100hook;
-	bool m_Dummy_1002p_hook;
-	int m_Dummy_100downstyle;
-	int m_Dummy_1002p_state;
 
 	//dummymode 23 vars
 

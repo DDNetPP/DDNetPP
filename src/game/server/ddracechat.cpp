@@ -2745,3 +2745,92 @@ void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
 	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
 }
+
+void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[128];
+
+	str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
+void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "buy"))
+	{
+		if (pPlayer->m_money < pSelf->m_CucumberShareValue)
+		{
+			str_format(aBuf, sizeof(aBuf), "You don't have enough money. You need %d money.", pSelf->m_CucumberShareValue);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			pPlayer->m_StockMarket_item_Cucumbers++;
+
+			str_format(aBuf, sizeof(aBuf), "-%d bought a cucumber stock", pSelf->m_CucumberShareValue);
+			pPlayer->MoneyTransaction(-pSelf->m_CucumberShareValue, aBuf);
+
+
+			pSelf->m_CucumberShareValue++; //push the gernerall share value
+		}
+
+	}
+	else if (!str_comp_nocase(aInput, "sell"))
+	{
+		if (pPlayer->m_StockMarket_item_Cucumbers > 0)
+		{
+			pPlayer->m_StockMarket_item_Cucumbers--;
+
+
+			str_format(aBuf, sizeof(aBuf), "+%d sold a cucumber stock", pSelf->m_CucumberShareValue);
+			pPlayer->MoneyTransaction(+pSelf->m_CucumberShareValue, aBuf);
+
+			pSelf->m_CucumberShareValue--; //pull the gernerall share value
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you dont have this stock");
+		}
+	}
+	else if (!str_comp_nocase(aInput, "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== PUBLIC STOCK MARKET ====");
+		str_format(aBuf, sizeof(aBuf), "Cucumbers %d money", pSelf->m_CucumberShareValue);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== PERSONAL STATS ====");
+		str_format(aBuf, sizeof(aBuf), "Cucumbers %d", pPlayer->m_StockMarket_item_Cucumbers);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/StockMarket ' + 'sell' or 'buy' or 'info'");
+	}
+}

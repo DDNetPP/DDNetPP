@@ -239,6 +239,11 @@ public:
 
 	//int Friends_counter;
 
+	//trading stuff (stock market)
+
+	//char aTestMsg[1024];
+	//int TestShareValue;
+	int m_CucumberShareValue;
 
 
 
@@ -397,6 +402,10 @@ private:
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
