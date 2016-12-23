@@ -310,7 +310,13 @@ public:
 	bool m_InBank;
 	bool m_ExitBank;
 
-	int m_points;
+	//BLOCK POINTS
+
+	int m_Points;
+	int m_Points_BO; //Block points (blocked others)
+	int m_Points_BBO; //Block -points (blocked by others)
+	int m_LastToucherID; //The id of the last person who touched this tee (if none -1)
+
 	//bool m_hammerfight;
 	//bool m_isHeal;
 	bool m_ninjasteam;

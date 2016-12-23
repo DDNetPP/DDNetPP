@@ -778,6 +778,43 @@ void CCharacter::ResetInput()
 
 void CCharacter::Tick()
 {
+	//Block points (check for last touched player)
+	//pikos hook check
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pChar = GameServer()->GetPlayerChar(i);
+
+		if (!pChar || !pChar->IsAlive() || pChar == this)
+			continue;
+		if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_LastToucherID = i;
+		}
+	}
+	//dont think this makes sense with block points
+	//if (m_Core.m_HookState == HOOK_GRABBED)
+	//{
+	//	m_Dummy_nn_touched_by_humans = true;
+	//	GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "dont get in my hook -.-");
+	//}
+
+	//selfmade noob code check if pChr is too near 	
+	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+	if (pChr && pChr->IsAlive())
+	{
+		if (pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
+		{
+			if (pChr->m_FreezeTime == 0) //only count touches from unfreezed tees
+			{
+				m_pPlayer->m_LastToucherID = pChr->GetPlayer()->GetCID();
+			}
+		}
+
+	}
+
+
+
+
 	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
 	//survivexp stuff
 	if (m_AliveTime)
@@ -8288,10 +8325,37 @@ void CCharacter::Die(int Killer, int Weapon)
 		}
 	}
 	
+	//Block points
+	if (m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+
+		if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+		{
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (g_Config.m_SvBlockBroadcast == 1)
+				{
+					GameServer()->SendBroadcast(aBuf, i);
+				}
+			}
+		}
+	}
+
+	m_pPlayer->m_LastToucherID = -1;
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
+	//Block points check for touchers (weapons)
+	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
+	{
+		m_pPlayer->m_LastToucherID = From;
+	}
+
+
+
 	////dragon test [FNN] isTouched check
 	//if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
 	//{

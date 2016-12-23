@@ -149,6 +149,8 @@ void CPlayer::Reset()
 	m_bloody_offer = false;
 	m_atom_offer = false;
 	m_trail_offer = false;
+	//Block points
+	m_LastToucherID = -1;
 }
 
 void CPlayer::Tick()
