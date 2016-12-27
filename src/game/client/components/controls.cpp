@@ -319,6 +319,17 @@ int CControls::SnapInput(int *pData)
 			//pSelf->RconAuth("", "");
 		}
 
+		if (g_Config.m_ClAutohook == 1 && GameClient()->m_Snap.m_pLocalCharacter)
+		{
+			m_InputData[g_Config.m_ClDummy].m_Hook = 1;
+			m_autohook_delay++;
+			if (m_autohook_delay > g_Config.m_ClAutohookSpeed)
+			{
+				m_autohook_delay = 0;
+				m_InputData[g_Config.m_ClDummy].m_Hook = 0;
+			}
+		}
+
 		if (g_Config.m_ClMovebot == 1 && GameClient()->m_Snap.m_pLocalCharacter)
 		{
 			//char aBuf[256];
@@ -901,6 +912,45 @@ int CControls::SnapInput(int *pData)
 				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
 			}
 
+		}
+		else if (g_Config.m_ClMovebot == 8 && GameClient()->m_Snap.m_pLocalCharacter) //Copy Love Box (boost bot)
+		{
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 50 * 32)
+			{
+				m_boost_kill_delay++;
+				if (m_boost_kill_delay > 11)
+				{
+					GameClient()->SendKill(g_Config.m_ClDummy);
+				}
+			}
+			else
+			{
+				m_boost_kill_delay = 0;
+			}
+
+
+			//left and right side (from spawns)
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 108 * 32 + 5)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+			}
+			else if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 127 * 32 - 5)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
+			}
+
+
+			//dodge the middle platform
+			//to the left
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 112 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 118 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
+			}
+			//to the right
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 117 * 32 + 20 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 123 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+			}
 		}
 
 		//Movebot END

@@ -24,6 +24,14 @@ public:
 	int m_AntiAfkTicker;
 	//royal
 	int m_Fire_delay;
+	//copy love box booster
+	int m_boost_kill_delay;
+
+
+
+
+	//Auto stuff
+	int m_autohook_delay;
 
 
 	vec2 m_MousePos[2];

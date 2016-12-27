@@ -4,9 +4,12 @@
 #define GAME_VARIABLES_H
 #undef GAME_VARIABLES_H // this file will be included several times
 
-// chilidrgehuhn
+// ChillerDragon
+//ChillerBot
 MACRO_CONFIG_INT(ClMovebot, cl_movebot, 0, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "hacky movement")
 MACRO_CONFIG_INT(ClFlybot, cl_flybot, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "flybot lele rofl")
+MACRO_CONFIG_INT(ClAutohook, cl_autohook, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "fast hookin")
+MACRO_CONFIG_INT(ClAutohookSpeed, cl_autohook_speed, 8, 2, 1000, CFGFLAG_CLIENT | CFGFLAG_SAVE, "how fast hookin")
 
 // client
 MACRO_CONFIG_INT(ClPredict, cl_predict, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Predict client movements")

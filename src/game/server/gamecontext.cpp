@@ -2152,11 +2152,19 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 
-					char aBuf[1024];
+					//char aBuf[1024];
 
-					str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
-					SendBroadcast(aBuf, ClientID);
+					//str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
+					//SendBroadcast(aBuf, ClientID);
 
+					str_format(aBroadcastMSG, sizeof(aBroadcastMSG), "Tournament!", aBroadcastMSG);
+					SendBroadcast(aBroadcastMSG, ClientID);
+					return;
+				}
+				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3001"))
+				{
+					str_format(aBroadcastMSG, sizeof(aBroadcastMSG), " ", aBroadcastMSG);
+					SendBroadcast(aBroadcastMSG, ClientID);
 					return;
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "push val"))

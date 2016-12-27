@@ -935,8 +935,9 @@ void CCharacter::Tick()
 						if (m_pPlayer->m_xpmsg)
 						{
 							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							//str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus\n%s", m_pPlayer->m_xp, m_pPlayer->m_neededxp, GameServer()->aBroadcastMSG);
+							//GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							GameServer()->SendBroadcast(GameServer()->aBroadcastMSG, m_pPlayer->GetCID());
 							m_pPlayer->m_xp++;
 						}
 					}

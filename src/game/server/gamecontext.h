@@ -244,6 +244,7 @@ public:
 	//char aTestMsg[1024];
 	//int TestShareValue;
 	int m_CucumberShareValue;
+	char aBroadcastMSG[128];
 
 
 
