@@ -6632,6 +6632,7 @@ void CCharacter::Tick()
 											{
 												m_Input.m_Jump = 1;
 												m_DummyFreezeBlockTrick = 1;
+												//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "trick1: hook to the left");
 											}
 										}
 										//wenn ein gegner links des bots is prepare für tick[3]
@@ -6644,6 +6645,7 @@ void CCharacter::Tick()
 											{
 												m_Input.m_Jump = 1;
 												m_DummyFreezeBlockTrick = 3;
+												//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "trick3: hook to the right");
 											}
 										}
 
@@ -6655,6 +6657,7 @@ void CCharacter::Tick()
 										if (pChr->m_Pos.x > 433 * 32 && pChr->m_FreezeTime > 0 && IsGrounded())
 										{
 											m_DummyFreezeBlockTrick = 2;
+											//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "trick2: swinger");
 										}
 									}
 
@@ -6881,10 +6884,19 @@ void CCharacter::Tick()
 									}
 
 
+									//STOPPER hook:
+									//hook the tee if he flys to much to the right
+									if (pChr->m_Pos.x > 433 * 32)
+									{
+										m_Input.m_Hook = 1;
+									}
+
 									//if he lands on the right plattform switch trick xD
+									//doesnt work anysways (now fixed by the stopper hook)
 									if (pChr->m_Pos.x > 433 * 32 && pChr->m_Core.m_Vel.y == 0.0f)
 									{
 										m_DummyFreezeBlockTrick = 2;
+										//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "trick gone wrong --> change trick");
 									}
 
 
