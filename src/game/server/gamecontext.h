@@ -403,6 +403,7 @@ private:
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 

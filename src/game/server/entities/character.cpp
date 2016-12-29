@@ -6884,10 +6884,19 @@ void CCharacter::Tick()
 									}
 
 
+
 									//STOPPER hook:
 									//hook the tee if he flys to much to the right
 									if (pChr->m_Pos.x > 433 * 32)
 									{
+										m_Input.m_Hook = 1;
+									}
+
+									//Hook the tee agian and go to the left -> drag him under block area
+									//-->Trick 5
+									if (pChr->m_Core.m_Vel.y > 6.1f && pChr->m_Pos.x > 429 * 32 + 1 && pChr->m_Pos.y > 209 * 32)
+									{
+										m_DummyFreezeBlockTrick = 5;
 										m_Input.m_Hook = 1;
 									}
 
@@ -6982,7 +6991,27 @@ void CCharacter::Tick()
 										}
 									}
 								}
+								else if (m_DummyFreezeBlockTrick == 5) //Hook under blockarea to the left (mostly the end of a trick)
+								{
+									//For now this trick only gets triggerd in trick 3 at the end
 
+									//TODO: this trick needs a tick
+
+
+									m_Input.m_Hook = 1;
+
+									if (m_Core.m_HookState == HOOK_GRABBED)
+									{
+										m_Input.m_Direction = -1;
+									}
+									else
+									{
+										if (m_Core.m_Pos.x < 428 * 32 + 20)
+										{
+											m_Input.m_Direction = 1;
+										}
+									}
+								}
 
 
 

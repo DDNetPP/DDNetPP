@@ -2151,6 +2151,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_PoliceHelper = true;
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
+					pPlayer->m_IsModerator = 1;
 
 					//char aBuf[1024];
 
@@ -2608,7 +2609,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				// give cosmetics
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
 				{
-					if (Server()->IsAuthed(ClientID))
+
+					if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
 					{
 
 
@@ -2636,27 +2638,33 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							if (m_apPlayers[RainbowID])
 							{
-								if (m_apPlayers[RainbowID]->m_rainbow_offer)
+								if (m_apPlayers[RainbowID]->m_rainbow_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
 								{
-									SendChatTarget(ClientID, "This player already has a rainbow offer.");
+									SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
+									return;
+								}
+
+								if (m_apPlayers[RainbowID]->m_rainbow_offer > 9)
+								{
+									SendChatTarget(ClientID, "This player already has 10 offer. Supermoderators can only send 10 offer.");
+									return;
+								}
+						
+								if (ClientID == RainbowID)
+								{
+									GetPlayerChar(ClientID)->m_Rainbow = true;;
+									SendChatTarget(ClientID, "You gave rainbow to your self.");
 								}
 								else
 								{
-									if (ClientID == RainbowID)
-									{
-										GetPlayerChar(ClientID)->m_Rainbow = true;;
-										SendChatTarget(ClientID, "You gave rainbow to your self.");
-									}
-									else
-									{
-										str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
-										SendChatTarget(ClientID, aBuf);
-										m_apPlayers[RainbowID]->m_rainbow_offer = true;
+									str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
+									SendChatTarget(ClientID, aBuf);
+									m_apPlayers[RainbowID]->m_rainbow_offer++;
 
-										str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
-										SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
-									}
+									str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
+									SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
 								}
+								
 							}
 						}
 						else
@@ -2667,14 +2675,23 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						return;
 					}
-					else
+					else //no permission
 					{
-						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+						if (Server()->IsAuthed(ClientID))
+						{
+							GetPlayerChar(ClientID)->m_Rainbow = true;;
+							SendChatTarget(ClientID, "You gave rainbow to your self.");
+						}
+						else
+						{
+							SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+						}
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
 				{
-					if (Server()->IsAuthed(ClientID))
+
+					if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
 					{
 
 
@@ -2702,27 +2719,33 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							if (m_apPlayers[BloodyID])
 							{
-								if (m_apPlayers[BloodyID]->m_bloody_offer)
+								if (m_apPlayers[BloodyID]->m_bloody_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
 								{
-									SendChatTarget(ClientID, "This player already has an offer.");
+									SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
+									return;
+								}
+
+								if (m_apPlayers[BloodyID]->m_bloody_offer > 4)
+								{
+									SendChatTarget(ClientID, "This player already has 5 offer. Supermoderators can only send 5 offer.");
+									return;
+								}
+
+								if (ClientID == BloodyID)
+								{
+									GetPlayerChar(ClientID)->m_Bloody = true;
+									SendChatTarget(ClientID, "You gave bloody to your self.");
 								}
 								else
 								{
-									if (ClientID == BloodyID)
-									{
-										GetPlayerChar(ClientID)->m_Bloody = true;;
-										SendChatTarget(ClientID, "You gave bloody to your self.");
-									}
-									else
-									{
-										str_format(aBuf, sizeof(aBuf), "Bloody offer sent to %s", aUsername);
-										SendChatTarget(ClientID, aBuf);
-										m_apPlayers[BloodyID]->m_bloody_offer = true;
+									str_format(aBuf, sizeof(aBuf), "Bloody offer sent to %s", aUsername);
+									SendChatTarget(ClientID, aBuf);
+									m_apPlayers[BloodyID]->m_bloody_offer++;
 
-										str_format(aBuf, sizeof(aBuf), "%s wants to give you bloody. Type '/bloody accept' to accept and activate bloody for you.", Server()->ClientName(ClientID));
-										SendChatTarget(m_apPlayers[BloodyID]->GetCID(), aBuf);
-									}
+									str_format(aBuf, sizeof(aBuf), "%s wants to give you bloody. Type '/bloody accept' to accept and activate bloody for you.", Server()->ClientName(ClientID));
+									SendChatTarget(m_apPlayers[BloodyID]->GetCID(), aBuf);
 								}
+
 							}
 						}
 						else
@@ -2733,9 +2756,17 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						return;
 					}
-					else
+					else //no permission
 					{
-						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+						if (Server()->IsAuthed(ClientID))
+						{
+							GetPlayerChar(ClientID)->m_Bloody = true;
+							SendChatTarget(ClientID, "You gave bloody to your self.");
+						}
+						else
+						{
+							SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+						}
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 10) == 0)

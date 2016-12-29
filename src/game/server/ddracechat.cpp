@@ -125,6 +125,38 @@ void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 }
 
+void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ OFFER INFO ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Police Ranks 3 or higher are allowed to carry a taser.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Use the taser to fight gangsters.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR OFFER STATS ~~~");
+	str_format(aBuf, sizeof(aBuf), "Rainbow: %d", pPlayer->m_rainbow_offer);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Bloody: %d", pPlayer->m_bloody_offer);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Trail. %d", pPlayer->m_trail_offer);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Atom: %d", pPlayer->m_atom_offer);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
+
 void CGameContext::ConMinigameinfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -2500,11 +2532,12 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aInput, "accept"))
 	{
-		if (pPlayer->m_rainbow_offer)
+		if (pPlayer->m_rainbow_offer > 0)
 		{
 			if (!pPlayer->GetCharacter()->m_Rainbow)
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
+				pPlayer->m_rainbow_offer--;
 				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted rainbow. You can turn off rainbow with '/rainbow off'");
 			}
 			else
@@ -2556,11 +2589,12 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aInput, "accept"))
 	{
-		if (pPlayer->m_bloody_offer)
+		if (pPlayer->m_bloody_offer > 0)
 		{
 			if (!pPlayer->GetCharacter()->m_Bloody)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
+				pPlayer->m_bloody_offer--;
 				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted bloody. You can turn off bloody with '/bloody off'");
 			}
 			else
@@ -2612,11 +2646,12 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aInput, "accept"))
 	{
-		if (pPlayer->m_atom_offer)
+		if (pPlayer->m_atom_offer > 0)
 		{
 			if (!pPlayer->GetCharacter()->m_Atom)
 			{
 				pPlayer->GetCharacter()->m_Atom = true;
+				pPlayer->m_atom_offer--;
 				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted atom. You can turn off atom with '/atom off'");
 			}
 			else
@@ -2668,11 +2703,12 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aInput, "accept"))
 	{
-		if (pPlayer->m_trail_offer)
+		if (pPlayer->m_trail_offer > 0)
 		{
 			if (!pPlayer->GetCharacter()->m_Trail)
 			{
 				pPlayer->GetCharacter()->m_Trail = true;
+				pPlayer->m_trail_offer--;
 				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted trail. You can turn off trail with '/trail off'");
 			}
 			else

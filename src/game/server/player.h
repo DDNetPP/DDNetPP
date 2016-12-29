@@ -230,7 +230,11 @@ public:
 	//city stuff
 	//##########
 
+
+	bool m_IsModerator;
+	bool m_IsSuperModerator;
 	int m_homing_missiles_ammo;
+
 
 
 	//money and traiding
@@ -299,10 +303,10 @@ public:
 	bool m_InfAtom;
 	bool m_InfTrail;
 	// cosmetic offers
-	bool m_rainbow_offer;
-	bool m_bloody_offer;
-	bool m_atom_offer;
-	bool m_trail_offer;
+	int m_rainbow_offer;
+	int m_bloody_offer;
+	int m_atom_offer;
+	int m_trail_offer;
 
 	int m_KillStreak;
 	bool m_IsJailed;
