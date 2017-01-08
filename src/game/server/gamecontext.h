@@ -117,7 +117,7 @@ public:
 
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
-
+	
 	//int m_LockTeams;
 
 	// voting
@@ -223,7 +223,8 @@ public:
 
 	// DDRace
  
-	void CreateNewDummy();
+	void CreateBasicDummys();
+	void CreateNewDummy(int dummymode);
 	int GetNextClientID();
 
 	int ProcessSpamProtection(int ClientID);

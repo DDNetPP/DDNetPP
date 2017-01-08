@@ -1209,9 +1209,15 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 	}
 }
 
+void CGameContext::CreateBasicDummys()
+{
+	CreateNewDummy(31);//police
+	CreateNewDummy(30);//taxi
+	CreateNewDummy(29);//blocker
+	CreateNewDummy(23);//racer
+}
 
-
-void CGameContext::CreateNewDummy()
+void CGameContext::CreateNewDummy(int dummymode)
 {
 	int DummyID = GetNextClientID();
 	if (DummyID < 0)
@@ -1230,6 +1236,7 @@ void CGameContext::CreateNewDummy()
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED);
 
 	m_apPlayers[DummyID]->m_IsDummy = true;
+	m_apPlayers[DummyID]->m_DummyMode = dummymode;
 	Server()->BotJoin(DummyID);
 
 	str_copy(m_apPlayers[DummyID]->m_TeeInfos.m_SkinName, "greensward", MAX_NAME_LENGTH);
@@ -3298,10 +3305,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					return;
 				}
+				else if (!str_comp(pMsg->m_pMessage + 1, "_"))
+				{
+					if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+						CreateBasicDummys();
+				}
 				//else if (!str_comp(pMsg->m_pMessage+1, "dummy"))
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "dummy ", 6) == 0) //hab den hier kopiert un dbissl abgeändert
 				{
-					if (Server()->IsAuthed(ClientID))
+					//if (Server()->IsAuthed(ClientID))
+					if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 					{
 						char pValue[32];
 						str_copy(pValue, pMsg->m_pMessage + 7, 32);
@@ -3311,7 +3324,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							for (int i = 0; i < Value; i++)
 							{
-								CreateNewDummy();
+								CreateNewDummy(0);
 								SendChatTarget(ClientID, "Bot has been added.");
 							}
 						}
@@ -3324,7 +3337,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage+1, "dcdummys"))
 				{
-					if (Server()->IsAuthed(ClientID))
+					//if (Server()->IsAuthed(ClientID))
+					if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 					{
 						for (int i = 0; i < MAX_CLIENTS; i++)
 						{
@@ -4604,6 +4618,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_CucumberShareValue = 10;
 
 
+
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 	m_World.SetGameServer(this);
@@ -4826,6 +4841,11 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	}
 
 	//game.world.insert_entity(game.Controller);
+
+
+	//ChillerDragon
+	//dummy_init
+	CreateBasicDummys();
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
