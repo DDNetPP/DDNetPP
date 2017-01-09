@@ -387,5 +387,8 @@ MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, 
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
 
 MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "activate account stuff?")
-//MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "chattin dummy")
+MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 0, 0, 1000, CFGFLAG_SERVER, "x koordinate for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 0, 0, 1000, CFGFLAG_SERVER, "y koordinate for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER, "start ddrace time on supermod spawn")
+
 #endif

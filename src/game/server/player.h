@@ -187,6 +187,14 @@ public:
 	bool m_Dummy_32dummy;
 	int m_Dummy_32look;
 
+	//###########
+	//minigames
+	//###########
+
+	//bomb
+	bool m_IsBombing;
+
+
 	//fluffypuffy (minigame)
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
@@ -221,6 +229,8 @@ public:
 	int m_pvp_arena_kills;
 	int m_pvp_arena_deaths;
 
+
+
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_cheats_aimbot;
@@ -230,9 +240,13 @@ public:
 	//city stuff
 	//##########
 
-
+	//Moderator and SuperModerator
 	bool m_IsModerator;
 	bool m_IsSuperModerator;
+	bool m_IsSuperModSpawn;
+
+
+
 	int m_homing_missiles_ammo;
 
 

@@ -67,6 +67,17 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 	m_Core.m_ActiveWeapon = WEAPON_GUN;
 	m_Core.m_Pos = m_Pos;
+
+	if (m_pPlayer->m_IsSuperModSpawn)
+	{
+		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
+		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
+	}
+	else
+	{
+		m_Core.m_Pos = m_Pos;
+	}
+
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = &m_Core;
 
 	m_ReckoningTick = 0;
@@ -91,6 +102,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	Server()->StartRecord(m_pPlayer->GetCID());
 
 	m_AliveTime = Server()->Tick();
+
+
+	if (m_pPlayer->m_IsSuperModSpawn && g_Config.m_SvSuperSpawnDDraceStart)
+	{
+		Teams()->OnCharacterStart(m_pPlayer->GetCID());
+		m_CpActive = -2;
+	}
+
 	return true;
 }
 
@@ -8386,6 +8405,7 @@ void CCharacter::Die(int Killer, int Weapon)
 	}
 
 	m_pPlayer->m_LastToucherID = -1;
+
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)

@@ -2137,6 +2137,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				//		}
 				//	}
 				//}
+				else if (!str_comp(pMsg->m_pMessage + 1, "bomb"))
+				{
+					pPlayer->m_IsBombing = true;
+				}
 				else if (!str_comp(pMsg->m_pMessage+1, "testcommand3000"))
 				{
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
@@ -2159,14 +2163,20 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 					pPlayer->m_IsModerator = 1;
+					pPlayer->m_IsSuperModSpawn ^= true;
 
-					//char aBuf[1024];
+					char aBuf[1024];
 
 					//str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
 					//SendBroadcast(aBuf, ClientID);
 
-					str_format(aBroadcastMSG, sizeof(aBroadcastMSG), "Tournament!", aBroadcastMSG);
-					SendBroadcast(aBroadcastMSG, ClientID);
+					
+
+					str_format(aBuf, sizeof(aBuf), "Bomb: %s", Server()->ClientName(FindNextBomb()));
+					SendBroadcast(aBuf, ClientID);
+
+					//str_format(aBroadcastMSG, sizeof(aBroadcastMSG), "Tournament! Bomb: %s", aBroadcastMSG, Server()->ClientName(FindNextBomb()));
+					//SendBroadcast(aBroadcastMSG, ClientID);
 					return;
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3001"))
@@ -5588,4 +5598,62 @@ void CGameContext::List(int ClientID, const char* filter)
 		SendChatTarget(ClientID, buf);
 	str_format(buf, sizeof(buf), "%d players online", total);
 	SendChatTarget(ClientID, buf);
+}
+
+int CGameContext::FindNextBomb()
+{
+	int AvX = 0;
+	int AvY = 0;
+	int CountBombers = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+		{
+			CountBombers++;
+			AvX += GetPlayerChar(i)->m_Pos.x; 
+			AvY += GetPlayerChar(i)->m_Pos.y;
+		}
+	}
+
+	AvX /= CountBombers;
+	AvY /= CountBombers;
+
+	//debug print the average bomb player pos
+	char aBuf[1024];
+	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
+	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+
+	//Check who is the furthest from the middle
+	int NextBombID = -1;
+	int MaxDist = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+		{
+			//check if the player is positive or negative
+			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
+			{
+				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
+				{
+					if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
+					{
+						MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
+						NextBombID = i;
+					}
+				}
+				else //negative
+				{
+					if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
+					{
+						MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+						NextBombID = i;
+					}
+				}
+			}
+			str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+			Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+		}
+	}
+	return NextBombID;
 }

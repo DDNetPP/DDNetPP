@@ -221,11 +221,13 @@ public:
 	virtual const char *Version();
 	virtual const char *NetVersion();
 
-	// DDRace
- 
+	// DDRace & DDnetPlusPlus
+	//ChillerDragon
+
 	void CreateBasicDummys();
 	void CreateNewDummy(int dummymode);
 	int GetNextClientID();
+	int FindNextBomb();
 
 	int ProcessSpamProtection(int ClientID);
 	int GetDDRaceTeam(int ClientID);
