@@ -2182,7 +2182,6 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 
 			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
 		}
-		else
 		else if (!str_comp_nocase(aCommand, "freeze_acc"))
 		{
 			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
@@ -2199,6 +2198,65 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		}
 	}
 
+}
+
+void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(ClientID, "Please use '/acc_info <name>'.");
+		return;
+	}
+
+	char aUsername[32];
+	int InfoID = -1;
+	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!str_comp_nocase(aUsername, pSelf->Server()->ClientName(i)))
+		{
+			InfoID = i;
+		}
+	}
+
+	if (InfoID > -1)
+	{
+		if (pSelf->m_apPlayers[InfoID]->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(ClientID, "This player is not logged in.");
+			return;
+		}
+
+		pSelf->SendChatTarget(ClientID, "--- Secret Infos ----");
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN);
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "Unkown player name.");
+	}
 }
 
 void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
@@ -2455,7 +2513,7 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
-	if (pSelf->Server()->IsAuthed(pResult->m_ClientID))
+	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 	{
 
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'namless rofl' entered and joined the game");

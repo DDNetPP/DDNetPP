@@ -247,6 +247,7 @@ public:
 	bool m_IsSuperModSpawn;
 
 	bool m_IsAccFrozen; //cant use the sql acc if true
+	char m_LastLogoutIGN[64]; //ikr 64 tu big but ... meh
 
 
 

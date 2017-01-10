@@ -114,6 +114,7 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN, GetText(GetID("LastLogoutIGN")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN));
 
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{

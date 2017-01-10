@@ -394,6 +394,7 @@ private:
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
+	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConMinigameLeft(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameRight(IConsole::IResult *pResult, void *pUserData);
