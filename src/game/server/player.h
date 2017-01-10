@@ -247,7 +247,12 @@ public:
 	bool m_IsSuperModSpawn;
 
 	bool m_IsAccFrozen; //cant use the sql acc if true
-	char m_LastLogoutIGN[64]; //ikr 64 tu big but ... meh
+
+	char m_LastLogoutIGN1[32]; 
+	char m_LastLogoutIGN2[32];
+	char m_LastLogoutIGN3[32];
+	char m_LastLogoutIGN4[32];
+	char m_LastLogoutIGN5[32];
 
 
 
@@ -314,6 +319,10 @@ public:
 	float m_Dummy_nn_latest_fitness;
 	float m_Dummy_nn_highest_fitness;
 	int m_Dummy_nn_time;
+
+	//########
+	//extras
+	//########
 
 	// infinite cosmetics
 	bool m_InfRainbow;

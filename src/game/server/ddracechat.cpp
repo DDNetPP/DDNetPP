@@ -175,8 +175,10 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ OFFER INFO ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Police Ranks 3 or higher are allowed to carry a taser.");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Use the taser to fight gangsters.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Users can accept offers with '/<extra> <accept>'");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Moderators can give all players one rainbow offer.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "SuperModerators can give all players more rainbow offers and one bloody.");
+	//pSelf->SendChatTarget(pResult->m_ClientID, "Admins can give all players much more of everything."); //admins can't do shit lul
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR OFFER STATS ~~~");
 	str_format(aBuf, sizeof(aBuf), "Rainbow: %d", pPlayer->m_rainbow_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -186,6 +188,71 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Atom: %d", pPlayer->m_atom_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
+void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"DDraceNetworkPlusPlus v.0.0.1");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added SuperModerator");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added Moderator");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added SuperModerator Spawn");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/logout' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* dummys now join automaticlly on server start");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* improved the blocker bot");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"page 1/2     '/changelog <page>'");
+	}
+	else
+	{
+		int page = 0;
+		page = pResult->GetInteger(0);
+
+		if (page == 1)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"DDraceNetworkPlusPlus v.0.0.1");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"+ added SuperModerator");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"+ added Moderator");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"+ added SuperModerator Spawn");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"+ added '/logout' command");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"* dummys now join automatically on server start");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"* improved the blocker bot");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"------------------------");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"page 1/2     '/changelog <page>'");
+		}
+		else if (page == 2)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"DDraceNetworkPlusPlus v.0.0.0");
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"page 2/2     '/changelog <page>'");
+		}
+		else
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+				"unknow page.");
+		}
+	}
 }
 
 
@@ -293,7 +360,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod. v.0.0.1");
+		"ChillerDragon's Block mod. v.0.0.1 (more infos '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on Teeworlds DDraceNetwork Version: " GAME_VERSION);
 //#if defined( GIT_SHORTREV_HASH )
@@ -2250,8 +2317,14 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 			return;
 		}
 
-		pSelf->SendChatTarget(ClientID, "--- Secret Infos ----");
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN);
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "==== Name: %s SQL: %d ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()), pSelf->m_apPlayers[InfoID]->m_AccountID);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN3);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN4);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN5);
 	}
 	else
 	{
@@ -3075,5 +3148,374 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/StockMarket ' + 'sell' or 'buy' or 'info'");
+	}
+}
+
+
+void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+
+	char aBuf[512];
+
+
+	//Ranks sorted DESC by power
+	//---> the highest rank gets triggerd
+
+	//the ASC problem is if a SuperModerator is also rcon_mod he only has rcon_mod powerZ
+
+
+
+	//COUDL DO:
+	//Im unsure to check if GiveID is logged in. 
+	//Pros:
+	//- moderators can make random players happy and they dont have to spend time to login
+	//Cons:
+	//- missing motivation to create an account
+
+
+	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	{
+		if (pResult->NumArguments() == 1) //only item no player --> give it ur self
+		{
+			char aItem[64];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			if (!str_comp_nocase(aItem, "bloody"))
+			{
+				pPlayer->GetCharacter()->m_Bloody = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "rainbow"))
+			{
+				pPlayer->GetCharacter()->m_Rainbow = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+			}
+			else if (!str_comp_nocase(aItem, "trail"))
+			{
+				pPlayer->GetCharacter()->m_Trail = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Trail on.");
+			}
+			else if (!str_comp_nocase(aItem, "atom"))
+			{
+				pPlayer->GetCharacter()->m_Atom = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Atom on.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+			}
+		}
+		else if (pResult->NumArguments() == 2) //give to other players
+		{
+			char aItem[64];
+			char aUsername[32];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+
+			int GiveID = -1;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i])
+				{
+					if (!str_comp(pSelf->Server()->ClientName(i), aUsername))
+					{
+						GiveID = i;
+						break;
+					}
+				}
+			}
+
+			if (GiveID != -1)
+			{
+				if (!str_comp_nocase(aItem, "bloody"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer > 4)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Admins can't give more than 5 bloody offer to the same player.");
+					}
+					else
+					{
+						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
+						str_format(aBuf, sizeof(aBuf), "Bloody offer given to the user: %s", aUsername);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+				else if (!str_comp_nocase(aItem, "rainbow"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 19)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Admins can't give more than 20 rainbow offers to the same player.");
+					}
+					else
+					{
+						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
+						str_format(aBuf, sizeof(aBuf), "Rainbow offer given to the user: %s", aUsername);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+				else if (!str_comp_nocase(aItem, "trail"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_trail_offer > 9)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Admins can't give more than 10 trail offers to the same player.");
+						return;
+					}
+
+					pSelf->m_apPlayers[GiveID]->m_trail_offer++;
+					str_format(aBuf, sizeof(aBuf), "Trail offer given to the user: %s", aUsername);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				}
+				else if (!str_comp_nocase(aItem, "atom"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_atom_offer > 9)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Admins can't give more than 10 atom offers to the same player.");
+						return;
+					}
+
+					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
+					str_format(aBuf, sizeof(aBuf), "Atom offer given to the user: %s", aUsername);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				}
+				else
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				}
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+	}
+	else if (pPlayer->m_IsSuperModerator)
+	{
+		if (pResult->NumArguments() == 1) //only item no player --> give it ur self
+		{
+			char aItem[64];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			if (!str_comp_nocase(aItem, "bloody"))
+			{
+				pPlayer->GetCharacter()->m_Bloody = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "rainbow"))
+			{
+				pPlayer->GetCharacter()->m_Rainbow = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+			}
+			else if (!str_comp_nocase(aItem, "trail"))
+			{
+				pPlayer->GetCharacter()->m_Trail = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Trail on.");
+			}
+			else if (!str_comp_nocase(aItem, "atom"))
+			{
+				pPlayer->GetCharacter()->m_Atom = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Atom on.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+			}
+		}
+		else if (pResult->NumArguments() == 2) //give to other players
+		{
+			char aItem[64];
+			char aUsername[32];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+
+			int GiveID = -1;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i])
+				{
+					if (!str_comp(pSelf->Server()->ClientName(i), aUsername))
+					{
+						GiveID = i;
+						break;
+					}
+				}
+			}
+
+			if (GiveID != -1)
+			{
+				if (!str_comp_nocase(aItem, "bloody"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. SuperModerators can't give more than one bloody offer to the same player.");
+					}
+					else
+					{
+						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
+						str_format(aBuf, sizeof(aBuf), "Bloody offer given to the user: %s", aUsername);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+				else if (!str_comp_nocase(aItem, "rainbow"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 9)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. SuperModerators can't give more than 10 rainbow offers to the same player.");
+					}
+					else
+					{
+						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
+						str_format(aBuf, sizeof(aBuf), "Rainbow offer given to the user: %s", aUsername);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+				else if (!str_comp_nocase(aItem, "trail"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
+				else if (!str_comp_nocase(aItem, "atom"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
+				else
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				}
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+	}
+	else if (pPlayer->m_IsModerator)
+	{
+		if (pResult->NumArguments() == 1) //only item no player --> give it ur self
+		{
+			char aItem[64];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			if (!str_comp_nocase(aItem, "bloody"))
+			{
+				pPlayer->GetCharacter()->m_Bloody = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "rainbow"))
+			{
+				pPlayer->GetCharacter()->m_Rainbow = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+			}
+			else if (!str_comp_nocase(aItem, "trail"))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			}
+			else if (!str_comp_nocase(aItem, "atom"))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+			}
+		}
+		else if (pResult->NumArguments() == 2) //give to other players
+		{
+			char aItem[64];
+			char aUsername[32];
+			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+
+			int GiveID = -1;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i])
+				{
+					if (!str_comp(pSelf->Server()->ClientName(i), aUsername))
+					{
+						GiveID = i;
+						break;
+					}
+				}
+			}
+
+			if (GiveID != -1)
+			{
+				if (!str_comp_nocase(aItem, "bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
+				else if (!str_comp_nocase(aItem, "rainbow"))
+				{
+					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Moderators can't give more than one offer to the same player.");
+					}
+					else
+					{
+						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
+						str_format(aBuf, sizeof(aBuf), "Rainbow offer given to the user: %s", aUsername);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+				else if (!str_comp_nocase(aItem, "trail"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
+				else if (!str_comp_nocase(aItem, "atom"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
+				else
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				}
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+	}
+	else if (pPlayer->m_Authed == CServer::AUTHED_MOD)
+	{
+		char aItem[64];
+		str_copy(aItem, pResult->GetString(0), sizeof(aItem));
+		if (!str_comp_nocase(aItem, "bloody"))
+		{
+			pPlayer->GetCharacter()->m_Bloody = true;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+		}
+		else if (!str_comp_nocase(aItem, "rainbow"))
+		{
+			pPlayer->GetCharacter()->m_Rainbow = true;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+		}
+		else if (!str_comp_nocase(aItem, "trail"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		}
+		else if (!str_comp_nocase(aItem, "atom"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+		}
+	}
+	else //no rank at all
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 	}
 }

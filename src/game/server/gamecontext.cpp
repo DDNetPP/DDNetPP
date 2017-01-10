@@ -114,7 +114,12 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN, GetText(GetID("LastLogoutIGN")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN));
+
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3, GetText(GetID("LastLogoutIGN3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5));
 
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{
@@ -2642,301 +2647,301 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					return;
 				}
-				// give cosmetics
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
-				{
+				// give cosmetics (moved to ddracechat.cpp)
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
+				//{
 
-					if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
-					{
-
-
-
-						char aBuf[256];
-						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
-
-						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-						int RainbowID = -1;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (!m_apPlayers[i])
-								continue;
-
-							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-							{
-								RainbowID = i;
-								break;
-							}
-						}
-
-						if (RainbowID >= 0 && RainbowID < MAX_CLIENTS)
-						{
-							if (m_apPlayers[RainbowID])
-							{
-								if (m_apPlayers[RainbowID]->m_rainbow_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
-								{
-									SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
-									return;
-								}
-
-								if (m_apPlayers[RainbowID]->m_rainbow_offer > 9)
-								{
-									SendChatTarget(ClientID, "This player already has 10 offer. Supermoderators can only send 10 offer.");
-									return;
-								}
-						
-								if (ClientID == RainbowID)
-								{
-									GetPlayerChar(ClientID)->m_Rainbow = true;;
-									SendChatTarget(ClientID, "You gave rainbow to your self.");
-								}
-								else
-								{
-									str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
-									SendChatTarget(ClientID, aBuf);
-									m_apPlayers[RainbowID]->m_rainbow_offer++;
-
-									str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
-									SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
-								}
-								
-							}
-						}
-						else
-						{
-							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-							SendChatTarget(ClientID, aBuf);
-						}
-
-						return;
-					}
-					else //no permission
-					{
-						if (Server()->IsAuthed(ClientID))
-						{
-							GetPlayerChar(ClientID)->m_Rainbow = true;;
-							SendChatTarget(ClientID, "You gave rainbow to your self.");
-						}
-						else
-						{
-							SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
-						}
-					}
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
-				{
-
-					if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
-					{
+				//	if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
+				//	{
 
 
 
-						char aBuf[256];
-						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 13, MAX_NAME_LENGTH + 7);
+				//		char aBuf[256];
+				//		char aUsername[MAX_NAME_LENGTH];
+				//		str_copy(aUsername, pMsg->m_pMessage + 14, MAX_NAME_LENGTH + 7);
 
-						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+				//		dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 
-						int BloodyID = -1;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (!m_apPlayers[i])
-								continue;
+				//		int RainbowID = -1;
+				//		for (int i = 0; i < MAX_CLIENTS; i++)
+				//		{
+				//			if (!m_apPlayers[i])
+				//				continue;
 
-							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-							{
-								BloodyID = i;
-								break;
-							}
-						}
+				//			if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+				//			{
+				//				RainbowID = i;
+				//				break;
+				//			}
+				//		}
 
-						if (BloodyID >= 0 && BloodyID < MAX_CLIENTS)
-						{
-							if (m_apPlayers[BloodyID])
-							{
-								if (m_apPlayers[BloodyID]->m_bloody_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
-								{
-									SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
-									return;
-								}
+				//		if (RainbowID >= 0 && RainbowID < MAX_CLIENTS)
+				//		{
+				//			if (m_apPlayers[RainbowID])
+				//			{
+				//				if (m_apPlayers[RainbowID]->m_rainbow_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
+				//					return;
+				//				}
 
-								if (m_apPlayers[BloodyID]->m_bloody_offer > 4)
-								{
-									SendChatTarget(ClientID, "This player already has 5 offer. Supermoderators can only send 5 offer.");
-									return;
-								}
+				//				if (m_apPlayers[RainbowID]->m_rainbow_offer > 9)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has 10 offer. Supermoderators can only send 10 offer.");
+				//					return;
+				//				}
+				//		
+				//				if (ClientID == RainbowID)
+				//				{
+				//					GetPlayerChar(ClientID)->m_Rainbow = true;;
+				//					SendChatTarget(ClientID, "You gave rainbow to your self.");
+				//				}
+				//				else
+				//				{
+				//					str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to %s", aUsername);
+				//					SendChatTarget(ClientID, aBuf);
+				//					m_apPlayers[RainbowID]->m_rainbow_offer++;
 
-								if (ClientID == BloodyID)
-								{
-									GetPlayerChar(ClientID)->m_Bloody = true;
-									SendChatTarget(ClientID, "You gave bloody to your self.");
-								}
-								else
-								{
-									str_format(aBuf, sizeof(aBuf), "Bloody offer sent to %s", aUsername);
-									SendChatTarget(ClientID, aBuf);
-									m_apPlayers[BloodyID]->m_bloody_offer++;
+				//					str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
+				//					SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
+				//				}
+				//				
+				//			}
+				//		}
+				//		else
+				//		{
+				//			str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+				//			SendChatTarget(ClientID, aBuf);
+				//		}
 
-									str_format(aBuf, sizeof(aBuf), "%s wants to give you bloody. Type '/bloody accept' to accept and activate bloody for you.", Server()->ClientName(ClientID));
-									SendChatTarget(m_apPlayers[BloodyID]->GetCID(), aBuf);
-								}
+				//		return;
+				//	}
+				//	else //no permission
+				//	{
+				//		if (Server()->IsAuthed(ClientID))
+				//		{
+				//			GetPlayerChar(ClientID)->m_Rainbow = true;;
+				//			SendChatTarget(ClientID, "You gave rainbow to your self.");
+				//		}
+				//		else
+				//		{
+				//			SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+				//		}
+				//	}
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give bloody ", 12) == 0)
+				//{
 
-							}
-						}
-						else
-						{
-							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-							SendChatTarget(ClientID, aBuf);
-						}
-
-						return;
-					}
-					else //no permission
-					{
-						if (Server()->IsAuthed(ClientID))
-						{
-							GetPlayerChar(ClientID)->m_Bloody = true;
-							SendChatTarget(ClientID, "You gave bloody to your self.");
-						}
-						else
-						{
-							SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
-						}
-					}
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 10) == 0)
-				{
-					if (Server()->IsAuthed(ClientID))
-					{
-
-
-
-						char aBuf[256];
-						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 11, MAX_NAME_LENGTH + 7);
-
-						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-						int AtomID = -1;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (!m_apPlayers[i])
-								continue;
-
-							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-							{
-								AtomID = i;
-								break;
-							}
-						}
-
-						if (AtomID >= 0 && AtomID < MAX_CLIENTS)
-						{
-							if (m_apPlayers[AtomID])
-							{
-								if (m_apPlayers[AtomID]->m_atom_offer)
-								{
-									SendChatTarget(ClientID, "This player already has an atom offer.");
-								}
-								else
-								{
-									if (ClientID == AtomID)
-									{
-										GetPlayerChar(ClientID)->m_Atom = true;;
-										SendChatTarget(ClientID, "You gave atom to your self.");
-									}
-									else
-									{
-										str_format(aBuf, sizeof(aBuf), "Atom offer sent to %s", aUsername);
-										SendChatTarget(ClientID, aBuf);
-										m_apPlayers[AtomID]->m_atom_offer = true;
-
-										str_format(aBuf, sizeof(aBuf), "%s wants to give you atom. Type '/atom accept' to accept and activate atom for you.", Server()->ClientName(ClientID));
-										SendChatTarget(m_apPlayers[AtomID]->GetCID(), aBuf);
-									}
-								}
-							}
-						}
-						else
-						{
-							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-							SendChatTarget(ClientID, aBuf);
-						}
-
-						return;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
-					}
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 11) == 0)
-				{
-					if (Server()->IsAuthed(ClientID))
-					{
+				//	if (m_apPlayers[ClientID]->m_IsModerator || m_apPlayers[ClientID]->m_IsSuperModerator)
+				//	{
 
 
 
-						char aBuf[256];
-						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 12, MAX_NAME_LENGTH + 7);
+				//		char aBuf[256];
+				//		char aUsername[MAX_NAME_LENGTH];
+				//		str_copy(aUsername, pMsg->m_pMessage + 13, MAX_NAME_LENGTH + 7);
 
-						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+				//		dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 
-						int TrailID = -1;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (!m_apPlayers[i])
-								continue;
+				//		int BloodyID = -1;
+				//		for (int i = 0; i < MAX_CLIENTS; i++)
+				//		{
+				//			if (!m_apPlayers[i])
+				//				continue;
 
-							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-							{
-								TrailID = i;
-								break;
-							}
-						}
+				//			if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+				//			{
+				//				BloodyID = i;
+				//				break;
+				//			}
+				//		}
 
-						if (TrailID >= 0 && TrailID < MAX_CLIENTS)
-						{
-							if (m_apPlayers[TrailID])
-							{
-								if (m_apPlayers[TrailID]->m_trail_offer)
-								{
-									SendChatTarget(ClientID, "This player already has a trail offer.");
-								}
-								else
-								{
-									if (ClientID == TrailID)
-									{
-										GetPlayerChar(ClientID)->m_Trail = true;;
-										SendChatTarget(ClientID, "You gave trail to your self.");
-									}
-									else
-									{
-										str_format(aBuf, sizeof(aBuf), "Trail offer sent to %s", aUsername);
-										SendChatTarget(ClientID, aBuf);
-										m_apPlayers[TrailID]->m_trail_offer = true;
+				//		if (BloodyID >= 0 && BloodyID < MAX_CLIENTS)
+				//		{
+				//			if (m_apPlayers[BloodyID])
+				//			{
+				//				if (m_apPlayers[BloodyID]->m_bloody_offer > 0 && !m_apPlayers[ClientID]->m_IsSuperModerator)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has an offer. Moderators can only send one offer.");
+				//					return;
+				//				}
 
-										str_format(aBuf, sizeof(aBuf), "%s wants to give you trail. Type '/trail accept' to accept and activate trail for you.", Server()->ClientName(ClientID));
-										SendChatTarget(m_apPlayers[TrailID]->GetCID(), aBuf);
-									}
-								}
-							}
-						}
-						else
-						{
-							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-							SendChatTarget(ClientID, aBuf);
-						}
+				//				if (m_apPlayers[BloodyID]->m_bloody_offer > 4)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has 5 offer. Supermoderators can only send 5 offer.");
+				//					return;
+				//				}
 
-						return;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
-					}
-				}
+				//				if (ClientID == BloodyID)
+				//				{
+				//					GetPlayerChar(ClientID)->m_Bloody = true;
+				//					SendChatTarget(ClientID, "You gave bloody to your self.");
+				//				}
+				//				else
+				//				{
+				//					str_format(aBuf, sizeof(aBuf), "Bloody offer sent to %s", aUsername);
+				//					SendChatTarget(ClientID, aBuf);
+				//					m_apPlayers[BloodyID]->m_bloody_offer++;
+
+				//					str_format(aBuf, sizeof(aBuf), "%s wants to give you bloody. Type '/bloody accept' to accept and activate bloody for you.", Server()->ClientName(ClientID));
+				//					SendChatTarget(m_apPlayers[BloodyID]->GetCID(), aBuf);
+				//				}
+
+				//			}
+				//		}
+				//		else
+				//		{
+				//			str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+				//			SendChatTarget(ClientID, aBuf);
+				//		}
+
+				//		return;
+				//	}
+				//	else //no permission
+				//	{
+				//		if (Server()->IsAuthed(ClientID))
+				//		{
+				//			GetPlayerChar(ClientID)->m_Bloody = true;
+				//			SendChatTarget(ClientID, "You gave bloody to your self.");
+				//		}
+				//		else
+				//		{
+				//			SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+				//		}
+				//	}
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give atom ", 10) == 0)
+				//{
+				//	if (Server()->IsAuthed(ClientID))
+				//	{
+
+
+
+				//		char aBuf[256];
+				//		char aUsername[MAX_NAME_LENGTH];
+				//		str_copy(aUsername, pMsg->m_pMessage + 11, MAX_NAME_LENGTH + 7);
+
+				//		dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+				//		int AtomID = -1;
+				//		for (int i = 0; i < MAX_CLIENTS; i++)
+				//		{
+				//			if (!m_apPlayers[i])
+				//				continue;
+
+				//			if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+				//			{
+				//				AtomID = i;
+				//				break;
+				//			}
+				//		}
+
+				//		if (AtomID >= 0 && AtomID < MAX_CLIENTS)
+				//		{
+				//			if (m_apPlayers[AtomID])
+				//			{
+				//				if (m_apPlayers[AtomID]->m_atom_offer)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has an atom offer.");
+				//				}
+				//				else
+				//				{
+				//					if (ClientID == AtomID)
+				//					{
+				//						GetPlayerChar(ClientID)->m_Atom = true;;
+				//						SendChatTarget(ClientID, "You gave atom to your self.");
+				//					}
+				//					else
+				//					{
+				//						str_format(aBuf, sizeof(aBuf), "Atom offer sent to %s", aUsername);
+				//						SendChatTarget(ClientID, aBuf);
+				//						m_apPlayers[AtomID]->m_atom_offer = true;
+
+				//						str_format(aBuf, sizeof(aBuf), "%s wants to give you atom. Type '/atom accept' to accept and activate atom for you.", Server()->ClientName(ClientID));
+				//						SendChatTarget(m_apPlayers[AtomID]->GetCID(), aBuf);
+				//					}
+				//				}
+				//			}
+				//		}
+				//		else
+				//		{
+				//			str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+				//			SendChatTarget(ClientID, aBuf);
+				//		}
+
+				//		return;
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+				//	}
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give trail ", 11) == 0)
+				//{
+				//	if (Server()->IsAuthed(ClientID))
+				//	{
+
+
+
+				//		char aBuf[256];
+				//		char aUsername[MAX_NAME_LENGTH];
+				//		str_copy(aUsername, pMsg->m_pMessage + 12, MAX_NAME_LENGTH + 7);
+
+				//		dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+
+				//		int TrailID = -1;
+				//		for (int i = 0; i < MAX_CLIENTS; i++)
+				//		{
+				//			if (!m_apPlayers[i])
+				//				continue;
+
+				//			if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+				//			{
+				//				TrailID = i;
+				//				break;
+				//			}
+				//		}
+
+				//		if (TrailID >= 0 && TrailID < MAX_CLIENTS)
+				//		{
+				//			if (m_apPlayers[TrailID])
+				//			{
+				//				if (m_apPlayers[TrailID]->m_trail_offer)
+				//				{
+				//					SendChatTarget(ClientID, "This player already has a trail offer.");
+				//				}
+				//				else
+				//				{
+				//					if (ClientID == TrailID)
+				//					{
+				//						GetPlayerChar(ClientID)->m_Trail = true;;
+				//						SendChatTarget(ClientID, "You gave trail to your self.");
+				//					}
+				//					else
+				//					{
+				//						str_format(aBuf, sizeof(aBuf), "Trail offer sent to %s", aUsername);
+				//						SendChatTarget(ClientID, aBuf);
+				//						m_apPlayers[TrailID]->m_trail_offer = true;
+
+				//						str_format(aBuf, sizeof(aBuf), "%s wants to give you trail. Type '/trail accept' to accept and activate trail for you.", Server()->ClientName(ClientID));
+				//						SendChatTarget(m_apPlayers[TrailID]->GetCID(), aBuf);
+				//					}
+				//				}
+				//			}
+				//		}
+				//		else
+				//		{
+				//			str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+				//			SendChatTarget(ClientID, aBuf);
+				//		}
+
+				//		return;
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You need to be moderator or higher to use this command");
+				//	}
+				//}
 				//else if (!str_comp(pMsg->m_pMessage + 1, "bloody off"))
 				//{
 				//	GetPlayerChar(ClientID)->m_Bloody = false;

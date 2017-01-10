@@ -120,7 +120,11 @@ CSql::CSql()
 		"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
 		"Username					VARCHAR(32)		NOT NULL," \
 		"Password					VARCHAR(128)	NOT NULL," \
-		"LastLogoutIGN				VARCHAR(128)	DEFAULT ''," \
+		"LastLogoutIGN1				VARCHAR(32)		DEFAULT ''," \
+		"LastLogoutIGN2				VARCHAR(32)		DEFAULT ''," \
+		"LastLogoutIGN3				VARCHAR(32)		DEFAULT ''," \
+		"LastLogoutIGN4				VARCHAR(32)		DEFAULT ''," \
+		"LastLogoutIGN5				VARCHAR(32)		DEFAULT ''," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
 		/* "Neededxp                INTEGER         DEFAULT 5000," \
