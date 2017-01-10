@@ -120,6 +120,7 @@ CSql::CSql()
 		"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
 		"Username					VARCHAR(32)		NOT NULL," \
 		"Password					VARCHAR(128)	NOT NULL," \
+		"LastLogoutIGN				VARCHAR(128)	DEFAULT ''," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
 		/* "Neededxp                INTEGER         DEFAULT 5000," \
@@ -150,6 +151,7 @@ CSql::CSql()
 		"IsModerator				INTEGER			DEFAULT 0," \
 		"IsSuperModerator			INTEGER			DEFAULT 0," \
 		"IsAccFrozen				INTEGER			DEFAULT 0);";
+
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 

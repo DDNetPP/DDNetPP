@@ -115,6 +115,13 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
 
+				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "Login failed. (Frozen account)");
+					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
+					return;
+				}
+
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
@@ -122,7 +129,7 @@ void CQueryLogin::OnData()
 		}
 	}
 	else
-		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.");
+		m_pGameServer->SendChatTarget(m_ClientID, "Login failed. (unknow error)");
 }
 
 bool CGameContext::CheckAccounts(int AccountID)

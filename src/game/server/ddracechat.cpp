@@ -2112,6 +2112,95 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	sqlite3_free(pQueryBuf);
 }
 
+void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
+	if (pResult->NumArguments() < 2)
+	{
+		pSelf->SendChatTarget(ClientID, "Error: si?i");
+		return;
+	}
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
+	{
+		pSelf->SendChatTarget(ClientID, "missing permission to use this command.");
+		return;
+	}
+
+	char aCommand[32];
+	int SQL_ID;
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	SQL_ID = pResult->GetInteger(1);
+
+
+	if (!str_comp_nocase(aCommand, "getid")) //2 argument commands
+	{
+		pSelf->SendChatTarget(ClientID, "coming soon...");
+	}
+	else //3 argument commands
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
+		}
+		int value;
+		value = pResult->GetInteger(2);
+
+
+		if (!str_comp_nocase(aCommand, "super_mod"))
+		{
+			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
+
+			CQuery *pQuery = new CQuery();
+			pQuery->Query(pSelf->m_Database, pQueryBuf);
+			sqlite3_free(pQueryBuf);
+
+			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+		}
+		else if (!str_comp_nocase(aCommand, "mod"))
+		{
+			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
+
+			CQuery *pQuery = new CQuery();
+			pQuery->Query(pSelf->m_Database, pQueryBuf);
+			sqlite3_free(pQueryBuf);
+
+			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+		}
+		else
+		else if (!str_comp_nocase(aCommand, "freeze_acc"))
+		{
+			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
+
+			CQuery *pQuery = new CQuery();
+			pQuery->Query(pSelf->m_Database, pQueryBuf);
+			sqlite3_free(pQueryBuf);
+
+			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "unknown command.");
+		}
+	}
+
+}
+
 void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
