@@ -390,6 +390,7 @@ private:
 
 	//ChillerDragon
 
+	static void ConLogout(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 
@@ -399,6 +400,7 @@ private:
 	static void ConMinigameDown(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
+	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 
@@ -407,6 +409,7 @@ private:
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
+
 
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 

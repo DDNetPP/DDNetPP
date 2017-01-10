@@ -240,10 +240,13 @@ public:
 	//city stuff
 	//##########
 
+	//Account stuff:
 	//Moderator and SuperModerator
 	bool m_IsModerator;
 	bool m_IsSuperModerator;
 	bool m_IsSuperModSpawn;
+
+	bool m_IsAccFrozen; //cant use the sql acc if true
 
 
 
@@ -330,9 +333,9 @@ public:
 
 	//BLOCK POINTS
 
-	int m_Points;
-	int m_Points_BO; //Block points (blocked others)
-	int m_Points_BBO; //Block -points (blocked by others)
+	int m_BlockPoints;
+	int m_BlockPoints_Kills; //Block points (blocked others)
+	int m_BlockPoints_Deaths; //Block -points (blocked by others)
 	int m_LastToucherID; //The id of the last person who touched this tee (if none -1)
 
 	//bool m_hammerfight;

@@ -68,27 +68,33 @@ void CQueryLogin::OnData()
 		{
 			if (m_pGameServer->m_apPlayers[m_ClientID])
 			{
+				//basic
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
-				//m_pGameServer->m_apPlayers[m_ClientID]->m_neededxp = GetInt(GetID("Neededxp"));
-				//m_pGameServer->m_apPlayers[m_ClientID]->m_plusxp = GetInt(GetID("Plusxp"));
+
+				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt(GetID("Money"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_LastGift = GetInt(GetID("LastGift"));
+
+				//police
 				m_pGameServer->m_apPlayers[m_ClientID]->m_PoliceRank = GetInt(GetID("PoliceRank"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel")); 
+
+				//pvp arena
 				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_tickets = GetInt(GetID("PvPArenaTickets"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_games_played = GetInt(GetID("PvPArenaGames"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_kills = GetInt(GetID("PvPArenaKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_deaths = GetInt(GetID("PvPArenaDeaths"));
 
-				//profiles
+				//profiles (int)
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileViews = GetInt(GetID("ProfileViews"));
 
+				//profiles (str)
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube));
@@ -96,14 +102,19 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter));
 
+				//Missiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_homing_missiles_ammo = GetInt(GetID("HomingMissiles"));
 
-				/*str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(CPlayer::m_ProfileStatus));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(CPlayer::m_ProfileSkype));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(CPlayer::m_ProfileYoutube));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, GetText(GetID("ProfileEmail")), sizeof(CPlayer::m_ProfileEmail));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(CPlayer::m_ProfileHomepage));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(CPlayer::m_ProfileTwitter));*/
+				//Block
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints = GetInt(GetID("BlockPoints"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Kills = GetInt(GetID("BlockKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Deaths = GetInt(GetID("BlockDeaths"));
+
+				//Accounts
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
@@ -2163,7 +2174,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 					pPlayer->m_IsModerator = 1;
-					pPlayer->m_IsSuperModSpawn ^= true;
+					pPlayer->m_IsSuperModerator ^= true;
 
 					char aBuf[1024];
 
@@ -5624,7 +5635,39 @@ int CGameContext::FindNextBomb()
 	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
 	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 
-	//Check who is the furthest from the middle
+	////Check who is the furthest from the middle (old)
+	//int NextBombID = -1;
+	//int MaxDist = 0;
+	//for (int i = 0; i < MAX_CLIENTS; i++)
+	//{
+	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+	//	{
+	//		//check if the player is positive or negative
+	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
+	//		{
+	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
+	//			{
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
+	//				{
+	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
+	//					NextBombID = i;
+	//				}
+	//			}
+	//			else //negative
+	//			{
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
+	//				{
+	//					MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+	//					NextBombID = i;
+	//				}
+	//			}
+	//		}
+	//		str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+	//		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+	//	}
+	//}
+
+	//Check who is the furthest from the middle 
 	int NextBombID = -1;
 	int MaxDist = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)

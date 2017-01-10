@@ -143,7 +143,13 @@ CSql::CSql()
 		"ProfileEmail				VARCHAR(128)	DEFAULT ''," \
 		"ProfileHomepage			VARCHAR(128)	DEFAULT ''," \
 		"ProfileTwitter				VARCHAR(128)	DEFAULT ''," \
-		"HomingMissiles				INTEGER			DEFAULT 0);";
+		"HomingMissiles				INTEGER			DEFAULT 0," \
+		"BlockPoints				INTEGER			DEFAULT 0," \
+		"BlockKills					INTEGER			DEFAULT 0," \
+		"BlockDeaths				INTEGER			DEFAULT 0," \
+		"IsModerator				INTEGER			DEFAULT 0," \
+		"IsSuperModerator			INTEGER			DEFAULT 0," \
+		"IsAccFrozen				INTEGER			DEFAULT 0);";
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 

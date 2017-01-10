@@ -41,6 +41,38 @@ bool CheckClientID(int ClientID);
 //	pPlayer->m_LastPlaytime = time_get() - time_freq()*g_Config.m_SvMaxAfkVoteTime;
 //}
 
+void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (!pPlayer->m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a SuperModerator.");
+		return;
+	}
+
+	pPlayer->m_IsSuperModSpawn ^= true;
+
+	if (pPlayer->m_IsSuperModSpawn)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "SuperModSpawn activated");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "SuperModSpawn deactivated");
+	}
+}
+
 void CGameContext::ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -2132,6 +2164,34 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	pQuery->m_pGameServer = pSelf;
 	pQuery->Query(pSelf->m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
+}
+
+void CGameContext::ConLogout(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
+
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(ClientID, "You are not logged in.");
+		return;
+	}
+
+	pPlayer->Logout();
+	pSelf->SendChatTarget(ClientID, "Logged out.");
 }
 
 void CGameContext::ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData)

@@ -54,6 +54,7 @@ CHAT_COMMAND("togglejailmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTogglejailms
 
 CHAT_COMMAND("register", "sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register")
 CHAT_COMMAND("login", "ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogin, this, "Login")
+CHAT_COMMAND("logout", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogout, this, "Logout")
 
 CHAT_COMMAND("buy", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBuy, this, "Buy something")
 CHAT_COMMAND("policetaser", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPolicetaser, this, "turn taser on/off")
@@ -69,6 +70,7 @@ CHAT_COMMAND("MinigameUp", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameUp, thi
 CHAT_COMMAND("MinigameDown", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameDown, this, "move down in the minigame. (/buy minigame)")
 
 CHAT_COMMAND("togglexpmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleXpMsg, this, "turns the xp/money messages you get from moneytiles/flags on or off")
+CHAT_COMMAND("togglespawn", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConToggleSpawn, this, "switches the spawnpoint between normal and supermod spawn")
 
 CHAT_COMMAND("money", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMoney, this, "shows your money and last transactions")
 
