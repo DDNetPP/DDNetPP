@@ -5626,29 +5626,34 @@ void CGameContext::List(int ClientID, const char* filter)
 
 int CGameContext::FindNextBomb()
 {
-	int AvX = 0;
-	int AvY = 0;
-	int CountBombers = 0;
+	//find Average middle
+	//int AvX = 0;
+	//int AvY = 0;
+	//int CountBombers = 0;
 
-	for (int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
-		{
-			CountBombers++;
-			AvX += GetPlayerChar(i)->m_Pos.x; 
-			AvY += GetPlayerChar(i)->m_Pos.y;
-		}
-	}
+	//for (int i = 0; i < MAX_CLIENTS; i++)
+	//{
+	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+	//	{
+	//		CountBombers++;
+	//		AvX += GetPlayerChar(i)->m_Pos.x; 
+	//		AvY += GetPlayerChar(i)->m_Pos.y;
+	//	}
+	//}
 
-	AvX /= CountBombers;
-	AvY /= CountBombers;
+	//AvX /= CountBombers;
+	//AvY /= CountBombers;
+
+
 
 	//debug print the average bomb player pos
 	char aBuf[1024];
 	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
 	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 
-	////Check who is the furthest from the middle (old)
+
+
+	////Check who is the furthest from the average middle (old)
 	//int NextBombID = -1;
 	//int MaxDist = 0;
 	//for (int i = 0; i < MAX_CLIENTS; i++)
@@ -5680,36 +5685,73 @@ int CGameContext::FindNextBomb()
 	//	}
 	//}
 
-	//Check who is the furthest from the middle 
-	int NextBombID = -1;
+	//Check who is the furthest from the average middle (old too)
+	//int NextBombID = -1;
+	//int MaxDist = 0;
+	//for (int i = 0; i < MAX_CLIENTS; i++)
+	//{
+	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+	//	{
+	//		//check if the player is positive or negative
+	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
+	//		{
+	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
+	//			{
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
+	//				{
+	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
+	//					NextBombID = i;
+	//				}
+	//			}
+	//			else //negative
+	//			{
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
+	//				{
+	//					MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+	//					NextBombID = i;
+	//				}
+	//			}
+	//		}
+	//		str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
+	//		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+	//	}
+	//}
+
+	//Check who has the furthest distance to all other players (no average middle needed)
+	//New version with pythagoras
 	int MaxDist = 0;
+	int NextBombID = -1;
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
 		{
-			//check if the player is positive or negative
-			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
+			int Dist = 0;
+			for (int i_comp = 0; i_comp < MAX_CLIENTS; i_comp++)
 			{
-				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
+				if (m_apPlayers[i_comp] && m_apPlayers[i_comp]->m_IsBombing)
 				{
-					if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
-					{
-						MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
-						NextBombID = i;
-					}
-				}
-				else //negative
-				{
-					if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
-					{
-						MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-						NextBombID = i;
-					}
+					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(i_comp)->m_Pos.x;
+					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
+
+					//fipp negative vals
+					if (a < 0)
+						a = -a;
+					if (b < 0)
+						b = -b;
+
+					int c = sqrt(a + b); //pythagoras rocks
+					Dist += c; //store all distances to all players 
 				}
 			}
-			str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-			Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+			if (Dist > MaxDist)
+			{
+				MaxDist = Dist;
+				NextBombID = i;
+			}
 		}
 	}
+
+
 	return NextBombID;
 }
