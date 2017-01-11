@@ -3220,6 +3220,87 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 {
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[512];
+	int Amount;
+	char aUsername[32];
+	Amount = pResult->GetInteger(0);
+	str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+	int PoopID = pSelf->GetCIDByName(aUsername);
+
+
+	//COUDL DO:
+	// add a blocker to poop ur self... but me funny mede it pozzible
+
+
+	if (Amount > pPlayer->m_shit)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have shit");
+		return;
+	}
+
+	if (Amount < 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you can't poop negative?! Imagine some1 is tring to push shit back in ur anus ... wtf");
+		return;
+	}
+
+	if (PoopID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		if (pSelf->m_apPlayers[PoopID]->m_AccountID < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info '/accountinfo'");
+			return;
+		}
+
+
+		//player give
+		str_format(aBuf, sizeof(aBuf), "You pooped %s %d times xd", aUsername, Amount);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "you lost %d shit ._.", Amount);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pPlayer->m_shit -= Amount;
+
+		//player get
+		if (g_Config.m_SvPoopMSG == 1) //normal
+		{
+			str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", aUsername, Amount);
+			pSelf->SendChatTarget(PoopID, aBuf);
+		}
+		else if (g_Config.m_SvPoopMSG == 2) //extreme
+		{
+			for (int i = 0; i < Amount; i++)
+			{
+				str_format(aBuf, sizeof(aBuf), "%s threw shit at you o.O", aUsername);
+				pSelf->SendChatTarget(PoopID, aBuf);
+
+				if (i > 30) //poop blocker o.O 30 lines of poop is the whole chat. Poor server has enough
+				{
+					str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", aUsername, Amount); //because it was more than the chatwindow can show inform the user how much poop it was
+					pSelf->SendChatTarget(PoopID, aBuf);
+					break;
+				}
+			}
+		}
+		pSelf->m_apPlayers[PoopID]->m_shit += Amount;
+	}
+
 }
 
 

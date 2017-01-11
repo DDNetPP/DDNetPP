@@ -391,4 +391,6 @@ MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 0, 0, 1000, CFGFLAG_SERVER, "x
 MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 0, 0, 1000, CFGFLAG_SERVER, "y koordinate for the supermod spawn")
 MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER, "start ddrace time on supermod spawn")
 
+MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(coudl fuck server but idk)")
+
 #endif
