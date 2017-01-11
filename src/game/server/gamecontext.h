@@ -228,6 +228,8 @@ public:
 	void CreateNewDummy(int dummymode);
 	int GetNextClientID();
 	int FindNextBomb();
+	int GetCIDByName(const char *pName);
+
 
 	int ProcessSpamProtection(int ClientID);
 	int GetDDRaceTeam(int ClientID);
@@ -405,9 +407,11 @@ private:
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
+	static void ConPay(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
@@ -419,6 +423,8 @@ private:
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);

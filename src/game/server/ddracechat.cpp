@@ -2746,6 +2746,73 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 }
 
+void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[512];
+	int Amount;
+	char aUsername[32];
+	Amount = pResult->GetInteger(0);
+	str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+	int PayID = pSelf->GetCIDByName(aUsername);
+
+
+	//COUDL DO:
+	// add a blocker to pay money to ur self... but me funny mede it pozzible
+
+
+	if (Amount > pPlayer->m_money)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have that much money mate -.-");
+		return;
+	}
+
+	if (Amount < 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "lel are u triin' to steal money?");
+		return;
+	}
+
+	if (PayID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		if (pSelf->m_apPlayers[PayID]->m_AccountID < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info '/accountinfo'");
+			return;
+		}
+
+
+		//player give
+		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "-%d paid to '%s'", Amount, aUsername);
+		pPlayer->MoneyTransaction(-Amount, aBuf);
+
+		//player get
+		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
+		pSelf->SendChatTarget(PayID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, aUsername);
+		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
+	}
+
+}
+
 void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -3149,6 +3216,10 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "error. Type '/StockMarket ' + 'sell' or 'buy' or 'info'");
 	}
+}
+
+void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
+{
 }
 
 

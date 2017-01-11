@@ -1233,6 +1233,23 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 	}
 }
 
+int CGameContext::GetCIDByName(const char * pName)
+{
+	int nameID = -1;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (!str_comp(pName, Server()->ClientName(i)))
+			{
+				nameID = i;
+				break;
+			}
+		}
+	}
+	return nameID;
+}
+
 void CGameContext::CreateBasicDummys()
 {
 	CreateNewDummy(31);//police
@@ -2188,6 +2205,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 					pPlayer->m_IsModerator = 1;
 					pPlayer->m_IsSuperModerator ^= true;
+					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
 
 					char aBuf[1024];
 
