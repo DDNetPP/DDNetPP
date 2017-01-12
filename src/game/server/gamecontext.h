@@ -326,6 +326,7 @@ private:
 	static void ConInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
 	static void ConTaserinfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoliceInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameinfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 	static void ConHelp(IConsole::IResult *pResult, void *pUserData);

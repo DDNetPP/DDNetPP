@@ -129,7 +129,7 @@ void CQueryLogin::OnData()
 
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "Login failed. (Frozen account)");
+					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
 					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
 					return;
 				}
@@ -141,7 +141,7 @@ void CQueryLogin::OnData()
 		}
 	}
 	else
-		m_pGameServer->SendChatTarget(m_ClientID, "Login failed. (unknow error)");
+		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Unknown Error)");
 }
 
 bool CGameContext::CheckAccounts(int AccountID)
@@ -536,7 +536,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 	{
 		if(ProcessSpamProtection(SpamProtectionClientID))
 		{
-			SendChatTarget(SpamProtectionClientID, "Stop Spam plis :)");
+			SendChatTarget(SpamProtectionClientID, "Stop spam plis :)");
 			//SendChatTarget(SpamProtectionClientID, pText);
 			return;
 		}
@@ -1087,7 +1087,7 @@ void CGameContext::OnTick()
 					{
 						SendChatTarget(i, "#######################################");
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "You are using the wrong Skin! Change Skin or clantag! Warnings [%d/3]", pPlayer->m_ChilliWarnings);
+						str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clantag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
 						SendChatTarget(i, aBuf);
 						SendChatTarget(i, "more infos about the clan: www.chillerdragon.weebly.com");
 						SendChatTarget(i, "#######################################");
@@ -1099,7 +1099,7 @@ void CGameContext::OnTick()
 						*/
 
 						char aBuf2[256];
-						str_format(aBuf2, sizeof(aBuf2), "YOU USE THE WRONG SKIN!\nCHANGE CLANTAG OR USE THE SKIN 'greensward'\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
+						str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
 						SendBroadcast(aBuf2, i);
 
 					}
@@ -2190,7 +2190,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					int r = rand() % 100;
 					if (r < m_apPlayers[ClientID]->m_escape_skill) //escape succes
 					{
-						SendChatTarget(ClientID, "You escaped from jail! Watch out! The police is searching you! WARNING! You can now get damage from these weapons: hammer, grenade and laser!");
+						SendChatTarget(ClientID, "You escaped from jail, watch out! The police is seeking you!\n WARNING: You can now get damage from these weapons: hammer, grenade and laser!");
 						m_apPlayers[ClientID]->m_JailTime = 0;
 						m_apPlayers[ClientID]->m_EscapeTime = Server()->TickSpeed() * 600; //10 min
 						m_apPlayers[ClientID]->m_escape_plan = false;
@@ -2231,7 +2231,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "You already have a plan!");
+						SendChatTarget(ClientID, "You already have a plan A!");
 					}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_b") && m_apPlayers[ClientID]->m_JailTime > 0)
@@ -2543,7 +2543,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							if (m_apPlayers[StatsID]->m_AccountID <= 0)
 							{
-								SendChatTarget(ClientID, "This player has no profile because he is not logged in.");
+								SendChatTarget(ClientID, "The requested player is not logged in.");
 								return;
 							}
 
@@ -2707,7 +2707,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "You need to be logged in to acces your profile");
+						SendChatTarget(ClientID, "You need to be logged in to access your profile");
 						return;
 					}
 
@@ -2779,7 +2779,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if (m_apPlayers[ClientID]->m_AccountID <= 0)
 					{
-						SendChatTarget(ClientID, "You need to be logged in to acces your profile");
+						SendChatTarget(ClientID, "You need to be logged in to access your profile");
 						return;
 					}
 
@@ -3181,7 +3181,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 
 						SendChatTarget(ClientID, "*** Gift Info ***");
-						SendChatTarget(ClientID, "try /gift <playername> to give someone 50 money! You don't give him your money.");
+						SendChatTarget(ClientID, "try '/gift <playername>' to give someone 50 money! You don't give him your money.");
 
 						str_format(aBuf, sizeof(aBuf), "Nextgiftdelay: %d seconds", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
 						SendChatTarget(ClientID, aBuf);
@@ -3240,7 +3240,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 									SendChatTarget(ClientID, aBuf);
 
 									char aBuf2[256];
-									str_format(aBuf2, sizeof(aBuf2), "%s gave you a gift! +50 money.", Server()->ClientName(ClientID));
+									str_format(aBuf2, sizeof(aBuf2), "%s has gifted you +50 money.", Server()->ClientName(ClientID));
 									SendChatTarget(giftID, aBuf2);
 
 
@@ -3319,7 +3319,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "You need at least Police level 2 to promote others.");
+						SendChatTarget(ClientID, "You need at least Policelevel 2 to promote others.");
 					}
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "remove_policehelper ", 20) == 0)

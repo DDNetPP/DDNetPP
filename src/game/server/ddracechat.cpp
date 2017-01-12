@@ -366,7 +366,7 @@ void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
 			"Police",
-			"you are not police.");
+			"You are not police.");
 }
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
@@ -3296,6 +3296,36 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
 	//pSelf->SendChatTarget(pResult->m_ClientID, "Tipp: name and password shoudl be different");
 }
+
+void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Policeinfo ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "What are the police benefits?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "The police can write in '/policechat' to get extra attention from players, announce policehelpers, get extra money per policerank from money-tiles and has a policetaser. ");
+	pSelf->SendChatTarget(pResult->m_ClientID, "How many policeranks are there?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Currently there are 3 policeranks, you get +1 extra money for each rank.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "How to become police?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "When you hit level 18, you can buy the first policerank in '/shop'");
+	pSelf->SendChatTarget(pResult->m_ClientID, "For more information about the policetaser, type '/taserinfo");
+
+}
+
 
 void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData)
 {
