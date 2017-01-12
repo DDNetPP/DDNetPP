@@ -3322,7 +3322,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "Currently there are 3 policeranks, you get +1 extra money for each rank.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "How to become police?");
 	pSelf->SendChatTarget(pResult->m_ClientID, "When you hit level 18, you can buy the first policerank in '/shop'");
-	pSelf->SendChatTarget(pResult->m_ClientID, "For more information about the policetaser, type '/taserinfo");
+	pSelf->SendChatTarget(pResult->m_ClientID, "For more information about the policetaser, type '/taserinfo'");
 
 }
 
