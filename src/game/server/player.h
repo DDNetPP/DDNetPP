@@ -192,7 +192,9 @@ public:
 	//###########
 
 	//bomb
+	bool m_IsBomb;
 	bool m_IsBombing;
+	bool m_IsBombReady;
 
 
 	//fluffypuffy (minigame)

@@ -518,7 +518,7 @@ void CPlayer::Snap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 
-	if (m_InfRainbow || (GetCharacter() && GetCharacter()->m_Rainbow))
+	if (m_InfRainbow || (GetCharacter() && GetCharacter()->m_Rainbow) || m_IsBomb)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;

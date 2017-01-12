@@ -10,24 +10,15 @@ bool CQuery::Next()
 }
 void CQuery::Query(CSql *pDatabase, char *pQuery)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pDatabase = pDatabase;
 	m_pDatabase->Query(this, pQuery);
 }
 void CQuery::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Next();
 }
 int CQuery::GetID(const char *pName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < GetColumnCount(); i++)
 	{
 		if (str_comp(GetName(i), pName) == 0)
@@ -38,9 +29,6 @@ int CQuery::GetID(const char *pName)
 
 void CSql::WorkerThread()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	while (m_Running)
 	{
 		lock_wait(m_Lock); //lock queue
@@ -77,18 +65,12 @@ void CSql::WorkerThread()
 
 void CSql::InitWorker(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSql *pSelf = (CSql *)pUser;
 	pSelf->WorkerThread();
 }
 
 CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pQuery->m_Query = QueryString;
 
 	lock_wait(m_Lock);
@@ -100,9 +82,6 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 
 CSql::CSql()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	sqlite3 *test;
 	int rc = sqlite3_open("accounts.db", &m_pDB);
 	if (rc)
@@ -190,9 +169,6 @@ CSql::CSql()
 
 CSql::~CSql()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Running = false;
 	lock_wait(m_Lock);
 	while (m_lpQueries.size())

@@ -6,8 +6,7 @@
 #include "message.h"
 #include <game/generated/protocol.h>
 #include <engine/shared/protocol.h>
-//#include <engine/debug/debug.h>
-//#include <engine/debug/debug.cpp>
+#include <game/server/debug.h>
 
 class IServer : public IInterface
 {

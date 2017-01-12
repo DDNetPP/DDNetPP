@@ -1110,6 +1110,11 @@ void CGameContext::OnTick()
 		}
 	}
 
+	if (m_BombGameState)
+	{
+		BombTick();
+	}
+
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
@@ -1410,6 +1415,94 @@ void CGameContext::CreateNewDummy(int dummymode)
 	dbg_msg("dummy", "Dummy connected: %d", DummyID);
 
 	OnClientEnter(DummyID);
+}
+
+
+void CGameContext::CheckStartBomb()
+{
+	bool AllReady = true;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && !m_apPlayers[i]->m_IsBombReady)
+		{
+			AllReady = false;
+			break;
+		}
+	}
+	if (AllReady)
+	{
+		m_BombGameState = 3;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
+			{
+				SendBroadcast("Bomb game started!", i);
+			}
+		}
+	}
+}
+
+void CGameContext::BombTick()
+{
+	//check start game
+	if (m_BombGameState < 3) //not ingame
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
+			{
+				if (Server()->Tick() % 40 == 0)
+				{
+					SendBroadcast("<bomb lobby> waiting for other players... \nwrite '/bomb start' to start", i);
+				}
+			}
+		}
+		CheckStartBomb();
+	}
+
+	//check end game (no players)
+	if (!CountBombPlayers())
+	{
+		m_BombGameState = 0;
+	}
+
+	//check for missing bomb
+	if (m_BombGameState == 3)
+	{
+		bool BombFound = false;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				if (m_apPlayers[i]->m_IsBomb)
+				{
+					BombFound = true;
+					break;
+				}
+			}
+		}
+		if (!BombFound) //nobody bomb? -> pick new1
+		{
+			//char aBuf[256];
+			//str_format(aBuf, sizeof(aBuf), "Bombfound: %d", FindNextBomb());
+			//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+
+			if (FindNextBomb() != -1)
+			{
+				m_apPlayers[FindNextBomb()]->m_IsBomb = true;
+				SendChatTarget(FindNextBomb(), "Server picked you as bomb.");
+			}
+			else
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "failed pick new bomb. Bombfound: %d", FindNextBomb());
+				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+			}
+		}
+	}
+
+
+
 }
 
 int CGameContext::GetNextClientID()
@@ -2306,10 +2399,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				//		}
 				//	}
 				//}
-				else if (!str_comp(pMsg->m_pMessage + 1, "bomb"))
+		/*		else if (!str_comp(pMsg->m_pMessage + 1, "bomb"))
 				{
 					pPlayer->m_IsBombing = true;
-				}
+				}*/
 				else if (!str_comp(pMsg->m_pMessage+1, "testcommand3000"))
 				{
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
@@ -5925,17 +6018,7 @@ int CGameContext::FindNextBomb()
 	//find Average middle
 	//int AvX = 0;
 	//int AvY = 0;
-	//int CountBombers = 0;
-
-	//for (int i = 0; i < MAX_CLIENTS; i++)
-	//{
-	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
-	//	{
-	//		CountBombers++;
-	//		AvX += GetPlayerChar(i)->m_Pos.x; 
-	//		AvY += GetPlayerChar(i)->m_Pos.y;
-	//	}
-	//}
+	//int CountBombers = CountBombPlayers();
 
 	//AvX /= CountBombers;
 	//AvY /= CountBombers;
@@ -6050,4 +6133,22 @@ int CGameContext::FindNextBomb()
 
 
 	return NextBombID;
+}
+
+int CGameContext::CountBombPlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int BombPlayers = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsBombing)
+			BombPlayers++;
+		}
+	}
+	return BombPlayers;
 }

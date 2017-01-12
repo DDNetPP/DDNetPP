@@ -473,6 +473,26 @@ void CCharacter::FireWeapon(bool Bot)
 				if(m_FreezeHammer)
 					pTarget->Freeze();
 
+				//Bomb
+				if (m_pPlayer->m_IsBombing && pTarget->GetPlayer()->m_IsBombing)
+				{
+					if (m_pPlayer->m_IsBomb) //if bomb hits others --> they get bomb
+					{
+						if (pTarget->m_FreezeTime > 0) //you cant bomb freezed players
+						{
+							m_pPlayer->m_IsBomb = false;
+							pTarget->GetPlayer()->m_IsBomb = true;
+
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+						}
+					}
+				}
+
+
+
+
 				Hits++;
 			}
 
@@ -797,6 +817,21 @@ void CCharacter::ResetInput()
 
 void CCharacter::Tick()
 {
+	////bomb
+	//if (m_pPlayer->m_IsBomb)
+	//{
+	//	if (m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360))
+	//	{
+	//		m_pPlayer->m_TeeInfos.m_ColorBody = (125 * 255 / 360);
+	//	}
+	//	else
+	//	{
+	//		m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+	//	}
+	//	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", "ima bomb");
+	//}
+
+
 	//Block points (check for last touched player)
 	//pikos hook check
 	for (int i = 0; i < MAX_CLIENTS; i++)

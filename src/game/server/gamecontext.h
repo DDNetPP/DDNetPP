@@ -224,11 +224,23 @@ public:
 	// DDRace & DDnetPlusPlus
 	//ChillerDragon
 
+	//dummy
 	void CreateBasicDummys();
 	void CreateNewDummy(int dummymode);
 	int GetNextClientID();
-	int FindNextBomb();
+
+	//usefull everywhere
 	int GetCIDByName(const char *pName);
+
+	//bomb
+	void CheckStartBomb();
+	void BombTick();
+	int FindNextBomb();
+	int CountBombPlayers();
+	int m_BombGameState; //0=no bomb game created 1=bomb game created (lobby) 2=bomb game created (lobby)(locked) 3=bomb game created and running (ingame)
+	int m_BombMoney;
+
+
 
 
 	int ProcessSpamProtection(int ClientID);
@@ -426,6 +438,8 @@ private:
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);

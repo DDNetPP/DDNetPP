@@ -100,6 +100,8 @@ CHAT_COMMAND("StockMarket", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStockMarket, 
 
 CHAT_COMMAND("poop", "ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoop, this, "throw shit at the player r. Warning: you loose that shit.")
 
+CHAT_COMMAND("bomb", "s?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBomb, this, "join, create and leave bomb games and more. more help at '/bomb help'")
+
 
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")
 //CHAT_COMMAND("remove_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRemovePolicehelper, this, "remove the policehelper rank from other players")
