@@ -39,6 +39,9 @@ enum
 
 void CQueryRegister::OnData()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Next())
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "Username already exists.");
@@ -58,6 +61,9 @@ void CQueryRegister::OnData()
 
 void CQueryLogin::OnData()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Next())
 	{
 		if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
@@ -140,6 +146,9 @@ void CQueryLogin::OnData()
 
 bool CGameContext::CheckAccounts(int AccountID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
@@ -153,6 +162,9 @@ bool CGameContext::CheckAccounts(int AccountID)
 
 void CGameContext::Construct(int Resetting)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Resetting = 0;
 	m_pServer = 0;
 
@@ -181,16 +193,25 @@ void CGameContext::Construct(int Resetting)
 
 CGameContext::CGameContext(int Resetting)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	Construct(Resetting);
 }
 
 CGameContext::CGameContext()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	Construct(NO_RESET);
 }
 
 CGameContext::~CGameContext()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		delete m_apPlayers[i];
 	if(!m_Resetting)
@@ -205,6 +226,9 @@ CGameContext::~CGameContext()
 
 void CGameContext::Clear()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CHeap *pVoteOptionHeap = m_pVoteOptionHeap;
 	CVoteOptionServer *pVoteOptionFirst = m_pVoteOptionFirst;
 	CVoteOptionServer *pVoteOptionLast = m_pVoteOptionLast;
@@ -226,6 +250,9 @@ void CGameContext::Clear()
 
 class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || !m_apPlayers[ClientID])
 		return 0;
 	return m_apPlayers[ClientID]->GetCharacter();
@@ -288,6 +315,9 @@ void CGameContext::TOOLLEKIOBERFLAECHE(vekator pi, pa po)
 
 void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
 	float s = a-pi/3;
@@ -307,6 +337,9 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Ma
 
 void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
 	if(pEvent)
@@ -319,6 +352,9 @@ void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 
 void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
 	if(pEvent)
@@ -376,6 +412,9 @@ void create_smoke(vec2 Pos)
 
 void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
 	if(ev)
@@ -388,6 +427,9 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 
 void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
 	if(pEvent)
@@ -400,6 +442,9 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 
 void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Sound < 0)
 		return;
 
@@ -415,6 +460,9 @@ void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 
 void CGameContext::CreateSoundGlobal(int Sound, int Target)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Sound < 0)
 		return;
 
@@ -433,6 +481,9 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 
 void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
@@ -453,6 +504,9 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 
 void CGameContext::SendChatTarget(int To, const char *pText)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_Chat Msg;
 	Msg.m_Team = 0;
 	Msg.m_ClientID = -1;
@@ -465,6 +519,9 @@ void CGameContext::SendChatTarget(int To, const char *pText)
 
 void CGameContext::SendChatTeam(int Team, const char *pText)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	for(int i = 0; i<MAX_CLIENTS; i++)
 		if(((CGameControllerDDRace*)m_pController)->m_Teams.m_Core.Team(i) == Team)
 			SendChatTarget(i, pText);
@@ -472,6 +529,9 @@ void CGameContext::SendChatTeam(int Team, const char *pText)
 
 void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, int SpamProtectionClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(SpamProtectionClientID >= 0 && SpamProtectionClientID < MAX_CLIENTS)
 	{
 		if(ProcessSpamProtection(SpamProtectionClientID))
@@ -548,6 +608,9 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 
 void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_Emoticon Msg;
 	Msg.m_ClientID = ClientID;
 	Msg.m_Emoticon = Emoticon;
@@ -556,6 +619,9 @@ void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 
 void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_WeaponPickup Msg;
 	Msg.m_Weapon = Weapon;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
@@ -564,6 +630,9 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 
 void CGameContext::SendBroadcast(const char *pText, int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_Broadcast Msg;
 	Msg.m_pMessage = pText;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
@@ -572,6 +641,9 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID)
 //
 void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char *pReason)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// reset votes
 	m_VoteEnforce = VOTE_ENFORCE_UNKNOWN;
 	m_VoteEnforcer = -1;
@@ -596,12 +668,18 @@ void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char
 
 void CGameContext::EndVote()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_VoteCloseTime = 0;
 	SendVoteSet(-1);
 }
 
 void CGameContext::SendVoteSet(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_VoteSet Msg;
 	if(m_VoteCloseTime)
 	{
@@ -620,6 +698,9 @@ void CGameContext::SendVoteSet(int ClientID)
 
 void CGameContext::SendVoteStatus(int ClientID, int Total, int Yes, int No)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Total > VANILLA_MAX_CLIENTS && m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_ClientVersion <= VERSION_DDRACE)
 	{
 		Yes = float(Yes) * VANILLA_MAX_CLIENTS / float(Total);
@@ -639,6 +720,9 @@ void CGameContext::SendVoteStatus(int ClientID, int Total, int Yes, int No)
 
 void CGameContext::AbortVoteKickOnDisconnect(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_VoteCloseTime && ((!str_comp_num(m_aVoteCommand, "kick ", 5) && str_toint(&m_aVoteCommand[5]) == ClientID) ||
 		(!str_comp_num(m_aVoteCommand, "set_team ", 9) && str_toint(&m_aVoteCommand[9]) == ClientID)))
 		m_VoteCloseTime = -1;
@@ -647,6 +731,9 @@ void CGameContext::AbortVoteKickOnDisconnect(int ClientID)
 
 void CGameContext::CheckPureTuning()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// might not be created yet during start up
 	if(!m_pController)
 		return;
@@ -666,6 +753,9 @@ void CGameContext::CheckPureTuning()
 
 void CGameContext::SendTuningParams(int ClientID, int Zone)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (ClientID == -1)
 	{
 			for(int i = 0; i < MAX_CLIENTS; ++i)
@@ -763,7 +853,9 @@ void CGameContext::SwapTeams()
 */
 void CGameContext::OnTick()
 {
-
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	
 	// check tuning
 	CheckPureTuning();
@@ -1034,18 +1126,27 @@ void CGameContext::OnTick()
 // Server hooks
 void CGameContext::OnClientDirectInput(int ClientID, void *pInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(!m_World.m_Paused)
 		m_apPlayers[ClientID]->OnDirectInput((CNetObj_PlayerInput *)pInput);
 }
 
 void CGameContext::OnClientPredictedInput(int ClientID, void *pInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(!m_World.m_Paused)
 		m_apPlayers[ClientID]->OnPredictedInput((CNetObj_PlayerInput *)pInput);
 }
 
 struct CVoteOptionServer *CGameContext::GetVoteOption(int Index)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CVoteOptionServer *pCurrent;
 	for (pCurrent = m_pVoteOptionFirst;
 			Index > 0 && pCurrent;
@@ -1058,6 +1159,9 @@ struct CVoteOptionServer *CGameContext::GetVoteOption(int Index)
 
 void CGameContext::ProgressVoteOptions(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CPlayer *pPl = m_apPlayers[ClientID];
 
 	if (pPl->m_SendVoteIndex == -1)
@@ -1132,6 +1236,9 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 
 void CGameContext::OnClientEnter(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
@@ -1176,6 +1283,9 @@ void CGameContext::OnClientEnter(int ClientID)
 
 void CGameContext::OnClientConnected(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// Check which team the player should be on
 	const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
 
@@ -1210,6 +1320,9 @@ void CGameContext::OnClientConnected(int ClientID)
 
 void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	AbortVoteKickOnDisconnect(ClientID);
 	m_apPlayers[ClientID]->OnDisconnect(pReason);
 	delete m_apPlayers[ClientID];
@@ -1235,6 +1348,9 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 
 int CGameContext::GetCIDByName(const char * pName)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int nameID = -1;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -1252,6 +1368,9 @@ int CGameContext::GetCIDByName(const char * pName)
 
 void CGameContext::CreateBasicDummys()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CreateNewDummy(31);//police
 	CreateNewDummy(30);//taxi
 	CreateNewDummy(29);//blocker
@@ -1260,6 +1379,9 @@ void CGameContext::CreateBasicDummys()
 
 void CGameContext::CreateNewDummy(int dummymode)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int DummyID = GetNextClientID();
 	if (DummyID < 0)
 	{
@@ -1292,6 +1414,9 @@ void CGameContext::CreateNewDummy(int dummymode)
 
 int CGameContext::GetNextClientID()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int ClientID = -1;
 	for (int i = 0; i < g_Config.m_SvMaxClients; i++)
 	{
@@ -1307,6 +1432,9 @@ int CGameContext::GetNextClientID()
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	void *pRawMsg = m_NetObjHandler.SecureUnpackMsg(MsgID, pUnpacker);
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 
@@ -4043,6 +4171,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 void CGameContext::ConTuneParam(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pParamName = pResult->GetString(0);
 	float NewValue = pResult->GetFloat(1);
@@ -4060,6 +4191,9 @@ void CGameContext::ConTuneParam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneReset(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	/*CTuningParams TuningParams;
 	*pSelf->Tuning() = TuningParams;
@@ -4071,6 +4205,9 @@ void CGameContext::ConTuneReset(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneDump(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aBuf[256];
 	for(int i = 0; i < pSelf->Tuning()->Num(); i++)
@@ -4084,6 +4221,9 @@ void CGameContext::ConTuneDump(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneZone(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int List = pResult->GetInteger(0);
 	const char *pParamName = pResult->GetString(1);
@@ -4105,6 +4245,9 @@ void CGameContext::ConTuneZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneDumpZone(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int List = pResult->GetInteger(0);
 	char aBuf[256];
@@ -4122,6 +4265,9 @@ void CGameContext::ConTuneDumpZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneResetZone(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CTuningParams TuningParams;
 	if (pResult->NumArguments())
@@ -4149,6 +4295,9 @@ void CGameContext::ConTuneResetZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneSetZoneMsgEnter(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (pResult->NumArguments())
 	{
@@ -4162,6 +4311,9 @@ void CGameContext::ConTuneSetZoneMsgEnter(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConTuneSetZoneMsgLeave(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (pResult->NumArguments())
 	{
@@ -4175,6 +4327,9 @@ void CGameContext::ConTuneSetZoneMsgLeave(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConSwitchOpen(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Switch = pResult->GetInteger(0);
 
@@ -4189,6 +4344,9 @@ void CGameContext::ConSwitchOpen(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	/*if(pSelf->m_pController->IsGameOver())
@@ -4199,12 +4357,18 @@ void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConChangeMap(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->m_pController->ChangeMap(pResult->NumArguments() ? pResult->GetString(0) : "");
 }
 
 void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	int stars = 0;
@@ -4216,6 +4380,9 @@ void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	int stars = 0;
@@ -4227,6 +4394,9 @@ void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConRestart(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(pResult->NumArguments())
 		pSelf->m_pController->DoWarmup(pResult->GetInteger(0));
@@ -4236,6 +4406,9 @@ void CGameContext::ConRestart(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBroadcast(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	char aBuf[1024];
@@ -4261,12 +4434,18 @@ void CGameContext::ConBroadcast(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSay(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->SendChat(-1, CGameContext::CHAT_ALL, pResult->GetString(0));
 }
 
 void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS-1);
 	int Team = clamp(pResult->GetInteger(1), -1, 1);
@@ -4287,6 +4466,9 @@ void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSetTeamAll(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Team = clamp(pResult->GetInteger(0), -1, 1);
 
@@ -4362,6 +4544,9 @@ void CGameContext::ConLockTeams(IConsole::IResult *pResult, void *pUserData)
 */
 void CGameContext::ConAddVote(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pDescription = pResult->GetString(0);
 	const char *pCommand = pResult->GetString(1);
@@ -4426,6 +4611,9 @@ void CGameContext::ConAddVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRemoveVote(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pDescription = pResult->GetString(0);
 
@@ -4498,6 +4686,9 @@ void CGameContext::ConRemoveVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pType = pResult->GetString(0);
 	const char *pValue = pResult->GetString(1);
@@ -4567,6 +4758,9 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "cleared votes");
@@ -4587,6 +4781,9 @@ void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	// check if there is a vote running
@@ -4607,6 +4804,9 @@ void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments())
 	{
@@ -4621,6 +4821,9 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 
 void CGameContext::OnConsoleInit()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
@@ -4664,6 +4867,9 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 
 	// ChillerDragon
 	//Friends_counter = 0;
@@ -4912,6 +5118,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 void CGameContext::DeleteTempfile()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_aDeleteTempfile[0] != 0)
 	{
 		IStorage *pStorage = Kernel()->RequestInterface<IStorage>();
@@ -4922,6 +5131,9 @@ void CGameContext::DeleteTempfile()
 
 void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	IStorage *pStorage = Kernel()->RequestInterface<IStorage>();
 
 	char aConfig[128];
@@ -5049,6 +5261,9 @@ void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 
 void CGameContext::OnShutdown()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	DeleteTempfile();
 	Console()->ResetServerGameSettings();
 	Layers()->Dest();
@@ -5060,6 +5275,9 @@ void CGameContext::OnShutdown()
 
 void CGameContext::LoadMapSettings()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	IMap *pMap = Kernel()->RequestInterface<IMap>();
 	int Start, Num;
 	pMap->GetType(MAPITEMTYPE_INFO, &Start, &Num);
@@ -5096,6 +5314,9 @@ void CGameContext::LoadMapSettings()
 
 void CGameContext::OnSnap(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// add tuning to demo
 	CTuningParams StandardTuning;
 	if(ClientID == -1 && Server()->DemoRecorder_IsRecording() && mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) != 0)
@@ -5124,16 +5345,25 @@ void CGameContext::OnSnap(int ClientID)
 void CGameContext::OnPreSnap() {}
 void CGameContext::OnPostSnap()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Events.Clear();
 }
 
 bool CGameContext::IsClientReady(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsReady ? true : false;
 }
 
 bool CGameContext::IsClientPlayer(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() == TEAM_SPECTATORS ? false : true;
 }
 
@@ -5145,6 +5375,9 @@ IGameServer *CreateGameServer() { return new CGameContext; }
 
 void CGameContext::SendChatResponseAll(const char *pLine, void *pUser) //TODO: schau das an sieht lustig aus
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUser;
 
 	static volatile int ReentryGuard = 0;
@@ -5166,6 +5399,9 @@ void CGameContext::SendChatResponseAll(const char *pLine, void *pUser) //TODO: s
 
 void CGameContext::SendChatResponse(const char *pLine, void *pUser, bool Highlighted)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUser;
 	int ClientID = pSelf->m_ChatResponseTargetID;
 
@@ -5192,6 +5428,9 @@ void CGameContext::SendChatResponse(const char *pLine, void *pUser, bool Highlig
 
 bool CGameContext::PlayerCollision()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	float Temp;
 	m_Tuning.Get("player_collision", &Temp);
 	return Temp != 0.0;
@@ -5199,6 +5438,9 @@ bool CGameContext::PlayerCollision()
 
 bool CGameContext::PlayerHooking()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	float Temp;
 	m_Tuning.Get("player_hooking", &Temp);
 	return Temp != 0.0;
@@ -5206,6 +5448,9 @@ bool CGameContext::PlayerHooking()
 
 float CGameContext::PlayerJetpack()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	float Temp;
 	m_Tuning.Get("player_jetpack", &Temp);
 	return Temp;
@@ -5213,6 +5458,9 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CServer* pServ = (CServer*)Server();
 	if(m_apPlayers[ClientID])
 	{
@@ -5230,6 +5478,9 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 
 void CGameContext::SendRecord(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CNetMsg_Sv_Record RecordsMsg;
 	RecordsMsg.m_PlayerTimeBest = Score()->PlayerData(ClientID)->m_BestTime * 100.0f;
 	RecordsMsg.m_ServerTimeBest = m_pController->m_CurrentRecord * 100.0f; //TODO: finish this
@@ -5238,6 +5489,9 @@ void CGameContext::SendRecord(int ClientID)
 
 int CGameContext::ProcessSpamProtection(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(!m_apPlayers[ClientID])
 		return 0;
 	if(g_Config.m_SvSpamprotection && m_apPlayers[ClientID]->m_LastChat
@@ -5275,12 +5529,18 @@ int CGameContext::ProcessSpamProtection(int ClientID)
 
 int CGameContext::GetDDRaceTeam(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameControllerDDRace* pController = (CGameControllerDDRace*)m_pController;
 	return pController->m_Teams.m_Core.Team(ClientID);
 }
 
 void CGameContext::ResetTuning()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CTuningParams TuningParams;
 	m_Tuning = TuningParams;
 	Tuning()->Set("gun_speed", 1400);
@@ -5293,6 +5553,9 @@ void CGameContext::ResetTuning()
 
 bool CheckClientID2(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
 			"The Client ID is wrong");
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
@@ -5302,6 +5565,9 @@ bool CheckClientID2(int ClientID)
 
 void CGameContext::Whisper(int ClientID, char *pStr)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	char *pName;
 	char *pMessage;
 	int Error = 0;
@@ -5535,6 +5801,9 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 
 void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (!CheckClientID2(ClientID))
 		return;
 
@@ -5586,6 +5855,9 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 
 void CGameContext::Converse(int ClientID, char *pStr)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 	if (!pPlayer)
 		return;
@@ -5603,6 +5875,9 @@ void CGameContext::Converse(int ClientID, char *pStr)
 
 void CGameContext::List(int ClientID, const char* filter)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int total = 0;
 	char buf[256];
 	int bufcnt = 0;
@@ -5644,6 +5919,9 @@ void CGameContext::List(int ClientID, const char* filter)
 
 int CGameContext::FindNextBomb()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//find Average middle
 	//int AvX = 0;
 	//int AvY = 0;
