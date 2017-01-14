@@ -21,6 +21,9 @@ IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
 CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
@@ -32,12 +35,18 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 
 CPlayer::~CPlayer()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	delete m_pCharacter;
 	m_pCharacter = 0;
 }
 
 void CPlayer::Reset()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
 	m_ScoreStartTick = Server()->Tick();
@@ -157,6 +166,7 @@ void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
+		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -483,6 +493,9 @@ void CPlayer::Tick()
 
 void CPlayer::PostTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// update latency value
 	if(m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
 	{
@@ -502,6 +515,7 @@ void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
+		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -518,7 +532,65 @@ void CPlayer::Snap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 
-	if (m_InfRainbow || (GetCharacter() && GetCharacter()->m_Rainbow) || m_IsBomb)
+
+
+	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		pClientInfo->m_UseCustomColor = true;
+
+
+		if (GameServer()->m_BombTick < 75) //red glowup right before explode
+		{
+			//if (GameServer()->m_bwff) //old not working blackwhite flick flack
+			//{
+			//	pClientInfo->m_ColorBody = (255 * 255 / 360);
+			//	pClientInfo->m_ColorFeet = (255 * 255 / 360);
+			//	GameServer()->m_bwff = false;
+			//}
+			//else
+			//{
+			//	pClientInfo->m_ColorBody = (0 * 255 / 360);
+			//	pClientInfo->m_ColorFeet = (0 * 255 / 360);
+			//	GameServer()->m_bwff = true;
+			//}
+
+			pClientInfo->m_ColorBody = (GameServer()->m_BombFinalColor * 255 / 1);
+			pClientInfo->m_ColorFeet = (GameServer()->m_BombFinalColor * 255 / 1);
+
+			GameServer()->m_BombFinalColor++;
+		}
+		else
+		{
+			int ColorChangeVal = (255000 - GameServer()->m_BombTick) * 0.0001;
+			if (!ColorChangeVal)
+			{
+				ColorChangeVal = 1;
+			}
+
+			if (GameServer()->m_BombColor > 254)
+			{
+				GameServer()->m_bwff = false;
+			}
+			if (GameServer()->m_BombColor < 1)
+			{
+				GameServer()->m_bwff = true;
+			}
+
+			if (GameServer()->m_bwff) //black -> white
+			{
+				GameServer()->m_BombColor += ColorChangeVal;
+			}
+			else //white -> black
+			{
+				GameServer()->m_BombColor -= ColorChangeVal;
+			}
+
+			pClientInfo->m_ColorBody = (GameServer()->m_BombColor * 255 / 360);
+			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
+		}
+	}
+	else if (m_InfRainbow || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -526,7 +598,14 @@ void CPlayer::Snap(int SnappingClient)
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
 		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
 	}
-	else if (m_StolenSkin && SnappingClient != m_ClientID && g_Config.m_SvSkinStealAction == 1)
+	else if (m_IsTest) //test color values
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		pClientInfo->m_UseCustomColor = true;
+		pClientInfo->m_ColorBody = (g_Config.m_SvTestValA * g_Config.m_SvTestValB / g_Config.m_SvTestValC);
+		pClientInfo->m_ColorFeet = (255 * 255 / 1);
+	}
+	else if (m_StolenSkin && SnappingClient != m_ClientID && g_Config.m_SvSkinStealAction == 1) //steal skin
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, "pinky");
 		pClientInfo->m_UseCustomColor = 0;
@@ -573,6 +652,9 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// This is problematic when it's sent before we know whether it's a non-64-player-client
 	// Then we can't spectate players at the start
 	IServer::CClientInfo info;
@@ -595,6 +677,9 @@ void CPlayer::FakeSnap(int SnappingClient)
 
 void CPlayer::OnDisconnect(const char *pReason)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	KillCharacter();
 
 	Logout();
@@ -617,6 +702,9 @@ void CPlayer::OnDisconnect(const char *pReason)
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// skip the input if chat is active
 	if((m_PlayerFlags&PLAYERFLAG_CHATTING) && (NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING))
 		return;
@@ -638,6 +726,9 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (AfkTimer(NewInput->m_TargetX, NewInput->m_TargetY))
 		return; // we must return if kicked, as player struct is already deleted
 	AfkVoteTimer(NewInput);
@@ -685,6 +776,9 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 CCharacter *CPlayer::GetCharacter()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return m_pCharacter;
 	return 0;
@@ -692,11 +786,17 @@ CCharacter *CPlayer::GetCharacter()
 
 void CPlayer::ThreadKillCharacter(int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_KillMe = Weapon;
 }
 
 void CPlayer::KillCharacter(int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter)
 	{
 		if (m_RespawnTick > Server()->Tick())
@@ -711,12 +811,18 @@ void CPlayer::KillCharacter(int Weapon)
 
 void CPlayer::Respawn()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_Team != TEAM_SPECTATORS)
 		m_Spawning = true;
 }
 
 CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Spawning = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, Pos);
@@ -726,6 +832,9 @@ CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// clamp the team
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
@@ -770,6 +879,9 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 
 void CPlayer::TryRespawn()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 SpawnPos;
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos))
@@ -798,6 +910,9 @@ void CPlayer::TryRespawn()
 
 bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	/*
 		afk timer (x, y = mouse coordinates)
 		Since a player has to move the mouse to play, this is a better method than checking
@@ -861,6 +976,9 @@ bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 
 void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(g_Config.m_SvMaxAfkVoteTime == 0)
 		return;
 
@@ -880,6 +998,9 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 
 void CPlayer::ProcessPause()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(!m_pCharacter)
 		return;
 
@@ -917,6 +1038,9 @@ void CPlayer::ProcessPause()
 
 bool CPlayer::IsPlaying()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return true;
 	return false;
@@ -924,6 +1048,9 @@ bool CPlayer::IsPlaying()
 
 void CPlayer::FindDuplicateSkins()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_TeeInfos.m_UseCustomColor == 0 && !m_StolenSkin) return;
 	m_StolenSkin = 0;
 	for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -946,6 +1073,9 @@ void CPlayer::FindDuplicateSkins()
 
 void CPlayer::Logout()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_AccountID <= 0)
 		return;
 
@@ -957,6 +1087,9 @@ void CPlayer::Logout()
 
 void CPlayer::Save()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_AccountID <= 0)
 		return;
 
@@ -974,11 +1107,11 @@ void CPlayer::Save()
 	}
 	else //new name --> add it in history and overwrite the oldest
 	{
-		str_copy(m_LastLogoutIGN5, m_LastLogoutIGN4, sizeof(m_LastLogoutIGN5));
-		str_copy(m_LastLogoutIGN4, m_LastLogoutIGN3, sizeof(m_LastLogoutIGN4));
-		str_copy(m_LastLogoutIGN3, m_LastLogoutIGN2, sizeof(m_LastLogoutIGN3));
-		str_copy(m_LastLogoutIGN2, m_LastLogoutIGN1, sizeof(m_LastLogoutIGN2));
-		str_copy(m_LastLogoutIGN1, aName, sizeof(m_LastLogoutIGN1));
+		str_format(m_LastLogoutIGN5, sizeof(m_LastLogoutIGN5), "%s", m_LastLogoutIGN4);
+		str_format(m_LastLogoutIGN4, sizeof(m_LastLogoutIGN4), "%s", m_LastLogoutIGN3);
+		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
+		str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", m_LastLogoutIGN1);
+		str_format(m_LastLogoutIGN1, sizeof(m_LastLogoutIGN1), "%s", aName);
 	}
 
 
@@ -991,8 +1124,17 @@ void CPlayer::Save()
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
 	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
 
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', 'LastLogoutIGN1' = '%s', 'LastLogoutIGN2' = '%s', 'LastLogoutIGN3' = '%s', 'LastLogoutIGN4' = '%s', 'LastLogoutIGN5' = '%s' WHERE `ID` = %i",
-		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN4, m_LastLogoutIGN5, m_AccountID);
+	//5 last names (broke :c)
+	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s' WHERE `ID` = %i",
+	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN4, m_LastLogoutIGN5, m_AccountID);
+
+	//1 last name (working)
+	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s' WHERE `ID` = %i",
+	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, Server()->ClientName(GetCID()), m_AccountID);
+
+	//test more last igns
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s' WHERE `ID` = %i",
+		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5, m_AccountID);
 
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);
@@ -1001,6 +1143,9 @@ void CPlayer::Save()
 
 void CPlayer::CalcExp()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//old dynamic shit rofl
 	//if (m_level < 1)
 	//	m_neededxp = 5000;
@@ -1354,6 +1499,9 @@ void CPlayer::CalcExp()
 
 void CPlayer::CheckLevel()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_level > m_max_level)
 		return;
 
@@ -1379,6 +1527,9 @@ void CPlayer::CheckLevel()
 
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_money += Amount;
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);

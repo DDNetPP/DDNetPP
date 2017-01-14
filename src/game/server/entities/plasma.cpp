@@ -13,6 +13,9 @@ CPlasma::CPlasma(CGameWorld *pGameWorld, vec2 Pos, vec2 Dir, bool Freeze,
 		bool Explosive, int ResponsibleTeam) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Pos = Pos;
 	m_Core = Dir;
 	m_Freeze = Freeze;
@@ -25,6 +28,9 @@ CPlasma::CPlasma(CGameWorld *pGameWorld, vec2 Pos, vec2 Dir, bool Freeze,
 
 bool CPlasma::HitCharacter()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 To2;
 	CCharacter *Hit = GameServer()->m_World.IntersectCharacter(m_Pos,
 			m_Pos + m_Core, 0.0f, To2);
@@ -43,17 +49,26 @@ bool CPlasma::HitCharacter()
 
 void CPlasma::Move()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Pos += m_Core;
 	m_Core *= ACCEL;
 }
 
 void CPlasma::Reset()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CPlasma::Tick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_LifeTime == 0)
 	{
 		Reset();
@@ -84,6 +99,9 @@ void CPlasma::Tick()
 
 void CPlasma::Snap(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (NetworkClipped(SnappingClient))
 		return;
 	CCharacter* SnapChar = GameServer()->GetPlayerChar(SnappingClient);

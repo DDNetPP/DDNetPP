@@ -269,6 +269,11 @@ public:
 	//int m_StockMarket_item_Cucumbers; //player.h
 
 
+	//bomb
+	bool m_IsBombing;
+	bool m_IsBomb;
+	bool m_IsBombReady;
+
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;

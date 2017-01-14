@@ -44,11 +44,17 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 
 void CCharacter::Reset()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	Destroy();
 }
 
 bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_EmoteStop = -1;
 	m_LastAction = -1;
 	m_LastNoAmmoSound = -1;
@@ -115,12 +121,18 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 void CCharacter::Destroy()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	m_Alive = false;
 }
 
 void CCharacter::SetWeapon(int W)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(W == m_Core.m_ActiveWeapon)
 		return;
 
@@ -135,6 +147,9 @@ void CCharacter::SetWeapon(int W)
 
 void CCharacter::SetSolo(bool Solo)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	Teams()->m_Core.SetSolo(m_pPlayer->GetCID(), Solo);
 
 	if(Solo)
@@ -147,6 +162,9 @@ void CCharacter::SetSolo(bool Solo)
 
 bool CCharacter::IsGrounded()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x+m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5))
 		return true;
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x-m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5))
@@ -167,6 +185,9 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::HandleJetpack()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
@@ -211,6 +232,9 @@ void CCharacter::HandleJetpack()
 
 void CCharacter::HandleNinja()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_Core.m_ActiveWeapon != WEAPON_NINJA)
 		return;
 
@@ -313,6 +337,9 @@ void CCharacter::HandleNinja()
 
 void CCharacter::DoWeaponSwitch()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// make sure we can switch
 	if(m_ReloadTimer != 0 || m_QueuedWeapon == -1 || m_aWeapons[WEAPON_NINJA].m_Got)
 		return;
@@ -323,6 +350,9 @@ void CCharacter::DoWeaponSwitch()
 
 void CCharacter::HandleWeaponSwitch()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int WantedWeapon = m_Core.m_ActiveWeapon;
 	if(m_QueuedWeapon != -1)
 		WantedWeapon = m_QueuedWeapon;
@@ -370,6 +400,9 @@ void CCharacter::HandleWeaponSwitch()
 
 void CCharacter::FireWeapon(bool Bot)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_ReloadTimer != 0)
 		return;
 
@@ -450,6 +483,26 @@ void CCharacter::FireWeapon(bool Bot)
 				/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
+
+				//Bomb (put it dat early cuz the unfreeze stuff)
+				if (m_IsBombing && pTarget->m_IsBombing)
+				{
+					if (m_IsBomb) //if bomb hits others --> they get bomb
+					{
+						if (!pTarget->isFreezed && !pTarget->m_FreezeTime) //you cant bomb freezed players
+						{
+							m_IsBomb = false;
+							pTarget->m_IsBomb = true;
+
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+						}
+					}
+				}
+
+
+
 				float Strength;
 				if (!m_TuneZone)
 					Strength = GameServer()->Tuning()->m_HammerStrength;
@@ -475,25 +528,6 @@ void CCharacter::FireWeapon(bool Bot)
 
 				if(m_FreezeHammer)
 					pTarget->Freeze();
-
-				//Bomb
-				if (m_pPlayer->m_IsBombing && pTarget->GetPlayer()->m_IsBombing)
-				{
-					if (m_pPlayer->m_IsBomb) //if bomb hits others --> they get bomb
-					{
-						if (pTarget->m_FreezeTime > 0) //you cant bomb freezed players
-						{
-							m_pPlayer->m_IsBomb = false;
-							pTarget->GetPlayer()->m_IsBomb = true;
-
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-						}
-					}
-				}
-
-
 
 
 				Hits++;
@@ -686,6 +720,9 @@ void CCharacter::FireWeapon(bool Bot)
 
 void CCharacter::HandleWeapons()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//ninja
 	HandleNinja();
 	HandleJetpack();
@@ -731,6 +768,9 @@ void CCharacter::HandleWeapons()
 
 bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
 	{
 		m_aWeapons[Weapon].m_Got = true;
@@ -755,6 +795,9 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 
 void CCharacter::GiveNinja()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Ninja.m_ActivationTick = Server()->Tick();
 	m_aWeapons[WEAPON_NINJA].m_Got = true;
 	if (!m_FreezeTime)
@@ -769,12 +812,18 @@ void CCharacter::GiveNinja()
 
 void CCharacter::SetEmote(int Emote, int Tick)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_EmoteType = Emote;
 	m_EmoteStop = Tick;
 }
 
 void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// check for changes
 	if(mem_comp(&m_Input, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
 		m_LastAction = Server()->Tick();
@@ -790,6 +839,9 @@ void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 
 void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 	mem_copy(&m_LatestInput, pNewInput, sizeof(m_LatestInput));
 
@@ -808,6 +860,9 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 
 void CCharacter::ResetInput()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Input.m_Direction = 0;
 	//m_Input.m_Hook = 0;
 	// simulate releasing the fire button
@@ -820,6 +875,9 @@ void CCharacter::ResetInput()
 
 void CCharacter::Tick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	////bomb
 	//if (m_pPlayer->m_IsBomb)
 	//{
@@ -8198,6 +8256,9 @@ void CCharacter::Tick()
 
 void CCharacter::TickDefered()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// advance the dummy
 	{
 		CWorldCore TempWorld;
@@ -8284,6 +8345,9 @@ void CCharacter::TickDefered()
 
 void CCharacter::TickPaused()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	++m_AttackTick;
 	++m_DamageTakenTick;
 	++m_Ninja.m_ActivationTick;
@@ -8298,6 +8362,9 @@ void CCharacter::TickPaused()
 
 bool CCharacter::IncreaseHealth(int Amount) 
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_Health >= 10)
 		return false;
 	m_Health = clamp(m_Health+Amount, 0, 10);
@@ -8306,6 +8373,9 @@ bool CCharacter::IncreaseHealth(int Amount)
 
 bool CCharacter::IncreaseArmor(int Amount)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_Armor >= 10)
 		return false;
 	m_Armor = clamp(m_Armor+Amount, 0, 10);
@@ -8314,6 +8384,9 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 void CCharacter::Die(int Killer, int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if ( ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this){
 
 		if ( m_Core.m_LastHookedPlayer != -1){
@@ -8430,6 +8503,12 @@ void CCharacter::Die(int Killer, int Weapon)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
 	}
+
+	//bomb
+	if (m_IsBombing)
+	{
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "you lost bomb because you died.");
+	}
 	
 	//Block points
 	if (m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
@@ -8455,6 +8534,9 @@ void CCharacter::Die(int Killer, int Weapon)
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//Block points check for touchers (weapons)
 	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
 	{
@@ -8599,6 +8681,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 void CCharacter::Snap(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	
 	int id = m_pPlayer->GetCID();
 
@@ -8773,11 +8858,17 @@ void CCharacter::Snap(int SnappingClient)
 
 int CCharacter::NetworkClipped(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return NetworkClipped(SnappingClient, m_Pos);
 }
 
 int CCharacter::NetworkClipped(int SnappingClient, vec2 CheckPos)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(SnappingClient == -1 || GameServer()->m_apPlayers[SnappingClient]->m_ShowAll)
 		return 0;
 
@@ -8796,25 +8887,40 @@ int CCharacter::NetworkClipped(int SnappingClient, vec2 CheckPos)
 
 bool CCharacter::CanCollide(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return Teams()->m_Core.CanCollide(GetPlayer()->GetCID(), ClientID);
 }
 bool CCharacter::SameTeam(int ClientID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return Teams()->m_Core.SameTeam(GetPlayer()->GetCID(), ClientID);
 }
 
 int CCharacter::Team()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return Teams()->m_Core.Team(m_pPlayer->GetCID());
 }
 
 CGameTeams* CCharacter::Teams()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams;
 }
 
 void CCharacter::HandleBroadcast()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
 
 	if(m_DDRaceState == DDRACE_STARTED && m_CpLastBroadcast != m_CpActive &&
@@ -8841,6 +8947,9 @@ void CCharacter::HandleBroadcast()
 
 void CCharacter::HandleSkippableTiles(int Index)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// handle death-tiles and leaving gamelayer
 	if((GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 			GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
@@ -8937,6 +9046,9 @@ void CCharacter::HandleSkippableTiles(int Index)
 
 void CCharacter::HandleTiles(int Index)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
 	int MapIndex = Index;
 	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
@@ -9667,6 +9779,9 @@ void CCharacter::HandleTiles(int Index)
 
 void CCharacter::HandleTuneLayer()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 
 	m_TuneZoneOld = m_TuneZone;
 	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_Pos);
@@ -9686,6 +9801,9 @@ void CCharacter::HandleTuneLayer()
 
 void CCharacter::SendZoneMsgs()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// send zone leave msg
 	if (m_TuneZoneOld >= 0 && GameServer()->m_ZoneLeaveMsg[m_TuneZoneOld]) // m_TuneZoneOld >= 0: avoid zone leave msgs on spawn
 	{
@@ -9720,6 +9838,9 @@ void CCharacter::SendZoneMsgs()
 
 void CCharacter::DDRaceTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Armor=(m_FreezeTime >= 0)?10-(m_FreezeTime/15):0;
 	if(m_Input.m_Direction != 0 || m_Input.m_Jump != 0)
 		m_LastMove = Server()->Tick();
@@ -9762,6 +9883,9 @@ void CCharacter::DDRaceTick()
 
 void CCharacter::DDRacePostCoreTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	isFreezed = false;
 	m_Time = (float)(Server()->Tick() - m_StartTime) / ((float)Server()->TickSpeed());
 
@@ -9819,6 +9943,9 @@ void CCharacter::DDRacePostCoreTick()
 
 bool CCharacter::Freeze(int Seconds)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	isFreezed = true;
 	if ((Seconds <= 0 || m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
 		 return false;
@@ -9844,11 +9971,17 @@ bool CCharacter::Freeze(int Seconds)
 
 bool CCharacter::Freeze()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	return Freeze(g_Config.m_SvFreezeDelay);
 }
 
 bool CCharacter::UnFreeze()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_FreezeTime > 0)
 	{
 		m_Armor=10;
@@ -9871,6 +10004,9 @@ bool CCharacter::UnFreeze()
 
 void CCharacter::MoneyTile2()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Server()->Tick() % 50 == 0)
 	{
 		if (m_pPlayer->m_AccountID <= 0)
@@ -10001,6 +10137,9 @@ void CCharacter::MoneyTile2()
 
 void CCharacter::MoneyTile()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Server()->Tick() % 50 == 0)
 	{
 		if (m_pPlayer->m_AccountID <= 0)
@@ -10104,6 +10243,9 @@ void CCharacter::MoneyTile()
 
 void CCharacter::MoneyTilePlus()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_pPlayer->m_MoneyTilePlus)
 	{
 		/*
@@ -10149,6 +10291,9 @@ void CCharacter::MoneyTilePlus()
 
 void CCharacter::GiveAllWeapons()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	for(int i=WEAPON_GUN;i<NUM_WEAPONS-1;i++)
 	{
 		m_aWeapons[i].m_Got = true;
@@ -10159,6 +10304,9 @@ void CCharacter::GiveAllWeapons()
 
 void CCharacter::Pause(bool Pause)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Paused = Pause;
 	if(Pause)
 	{
@@ -10182,6 +10330,9 @@ void CCharacter::Pause(bool Pause)
 
 void CCharacter::DDRaceInit()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Paused = false;
 	m_DDRaceState = DDRACE_NONE;
 	m_PrevPos = m_Pos;
@@ -10246,6 +10397,9 @@ void CCharacter::DDRaceInit()
 
 void CCharacter::Rescue()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_SetSavePos && !m_Super && !m_DeepFreeze && IsGrounded() && m_Pos == m_PrevPos) {
 		if (m_LastRescue + g_Config.m_SvRescueDelay * Server()->TickSpeed() > Server()->Tick())
 		{

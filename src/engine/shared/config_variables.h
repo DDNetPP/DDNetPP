@@ -392,5 +392,13 @@ MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 0, 0, 1000, CFGFLAG_SERVER, "y
 MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER, "start ddrace time on supermod spawn")
 
 MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(coudl fuck server but idk)")
+MACRO_CONFIG_INT(SvAllowBombSelfkill, sv_allow_bomb_selfkill, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=on suicide in '/bomb' games")
+//MACRO_CONFIG_INT(SvBombTicks, sv_bomb_ticks, 1500, 10, 255000, CFGFLAG_SERVER, "after how many ticks the bomb explodes")
+MACRO_CONFIG_INT(SvBombTicks, sv_bomb_ticks, 500, 10, 255000, CFGFLAG_SERVER, "after how many ticks the bomb explodes") //speed it up (only for testes)
+
+MACRO_CONFIG_INT(SvTestValA, sv_test_val_a, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
+MACRO_CONFIG_INT(SvTestValB, sv_test_val_b, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
+MACRO_CONFIG_INT(SvTestValC, sv_test_val_c, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
+
 
 #endif

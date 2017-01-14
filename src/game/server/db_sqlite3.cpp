@@ -2,9 +2,9 @@
 
 bool CQuery::Next()
 {
-	#if defined(CONF_DEBUG)
-		CALL_STACK_ADD();
-	#endif
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int Ret = sqlite3_step(m_pStatement);
 	return Ret == SQLITE_ROW;
 }
@@ -130,8 +130,6 @@ CSql::CSql()
 		"LastLogoutIGN5				VARCHAR(32)		DEFAULT ''," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
-		/* "Neededxp                INTEGER         DEFAULT 5000," \
-		"Plusxp                     INTEGER         DEFAULT 1000," \ */
 		"Exp						INTEGER			DEFAULT 0," \
 		"Shit						INTEGER			DEFAULT 0," \
 		"LastGift					INTEGER			DEFAULT 0," \

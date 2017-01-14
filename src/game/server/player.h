@@ -191,11 +191,13 @@ public:
 	//minigames
 	//###########
 
-	//bomb
-	bool m_IsBomb;
-	bool m_IsBombing;
-	bool m_IsBombReady;
-
+	//bomb (moved character.h)
+	//bool m_IsBomb;
+	//bool m_IsBombing;
+	//bool m_IsBombReady;
+	//moved to gamecontext.cpp
+	//int m_BombColor;
+	//bool m_bwff; //black whithe flip flip
 
 	//fluffypuffy (minigame)
 	int m_GoldRespawnDelay;
@@ -279,6 +281,7 @@ public:
 
 	//other
 
+	bool m_IsTest;
 	bool m_TaserOn;
 	bool m_PoliceHelper;
 	int m_TaserLevel;

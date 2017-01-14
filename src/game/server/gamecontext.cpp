@@ -31,6 +31,9 @@
 #include "score/sql_score.h"
 #endif
 
+//ChillerDragon (ddpp)
+#include <game/server/teams.h>
+
 enum
 {
 	RESET,
@@ -1418,12 +1421,59 @@ void CGameContext::CreateNewDummy(int dummymode)
 }
 
 
+void CGameContext::EndBombGame(int WinnerID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GetPlayerChar(i))
+		{
+			if (GetPlayerChar(i)->m_IsBombing)
+			{
+				GetPlayerChar(i)->m_IsBombing = false;
+			}
+			if (GetPlayerChar(i)->m_IsBomb)
+			{
+				GetPlayerChar(i)->m_IsBomb = false;
+			}
+			if (GetPlayerChar(i)->m_IsBombReady)
+			{
+				GetPlayerChar(i)->m_IsBombReady = false;
+			}
+		}
+	}
+	m_BombGameState = 0;
+	m_BombTick = g_Config.m_SvBombTicks;
+
+	if (WinnerID == -1)
+	{
+		return;
+	}
+	
+	//winner private
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
+	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
+	str_format(aBuf, sizeof(aBuf), "you won the bomb game. +%d money", m_BombMoney * m_BombStartPlayers);
+	SendChatTarget(WinnerID, aBuf);
+
+	//winner public
+	str_format(aBuf, sizeof(aBuf), "'%s' won +%d money in a bomb game.", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
+	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+}
+
 void CGameContext::CheckStartBomb()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
 	bool AllReady = true;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && !m_apPlayers[i]->m_IsBombReady)
+		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && !GetPlayerChar(i)->m_IsBombReady)
 		{
 			AllReady = false;
 			break;
@@ -1431,12 +1481,14 @@ void CGameContext::CheckStartBomb()
 	}
 	if (AllReady)
 	{
+		m_BombStartPlayers = CountBombPlayers();
 		m_BombGameState = 3;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
+			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 			{
-				SendBroadcast("Bomb game started!", i);
+				str_format(aBuf, sizeof(aBuf), "Bomb game started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
+				SendBroadcast(aBuf, i);
 			}
 		}
 	}
@@ -1444,12 +1496,38 @@ void CGameContext::CheckStartBomb()
 
 void CGameContext::BombTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[512];
+
+	//bomb tickin'
+	m_BombTick--;
+	if (m_BombTick == 0) //time over --> kill the bomb (bomb explode)
+	{
+		m_BombTick = g_Config.m_SvBombTicks;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (GetPlayerChar(i))
+			{
+				if (GetPlayerChar(i)->m_IsBomb)
+				{
+					CreateExplosion(GetPlayerChar(i)->m_Pos, i, WEAPON_GRENADE, false, 0, GetPlayerChar(i)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
+					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(i));
+					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+					GetPlayerChar(i)->Die(i, WEAPON_GAME);
+					break;
+				}
+			}
+		}
+	}
+
 	//check start game
 	if (m_BombGameState < 3) //not ingame
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
+			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 			{
 				if (Server()->Tick() % 40 == 0)
 				{
@@ -1461,9 +1539,25 @@ void CGameContext::BombTick()
 	}
 
 	//check end game (no players)
-	if (!CountBombPlayers())
+	if (!CountBombPlayers()) 
 	{
-		m_BombGameState = 0;
+		EndBombGame(-1);
+	}
+
+	//check end game (only 1 player -> winner)
+	if (CountBombPlayers() == 1 && m_BombGameState == 3)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (GetPlayerChar(i))
+			{
+				if (GetPlayerChar(i)->m_IsBombing)
+				{
+					EndBombGame(i);
+					break;
+				}
+			}
+		}
 	}
 
 	//check for missing bomb
@@ -1472,9 +1566,9 @@ void CGameContext::BombTick()
 		bool BombFound = false;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i])
+			if (GetPlayerChar(i))
 			{
-				if (m_apPlayers[i]->m_IsBomb)
+				if (GetPlayerChar(i)->m_IsBomb)
 				{
 					BombFound = true;
 					break;
@@ -1483,13 +1577,15 @@ void CGameContext::BombTick()
 		}
 		if (!BombFound) //nobody bomb? -> pick new1
 		{
-			//char aBuf[256];
+			m_BombTick = g_Config.m_SvBombTicks;
+			m_BombFinalColor = 180;
+
 			//str_format(aBuf, sizeof(aBuf), "Bombfound: %d", FindNextBomb());
 			//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 
 			if (FindNextBomb() != -1)
 			{
-				m_apPlayers[FindNextBomb()]->m_IsBomb = true;
+				GetPlayerChar(FindNextBomb())->m_IsBomb = true;
 				SendChatTarget(FindNextBomb(), "Server picked you as bomb.");
 			}
 			else
@@ -2407,12 +2503,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
 					//m_apPlayers[ClientID]->m_xp = m_apPlayers[ClientID]->m_xp + 5000;
-					//void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
-					//CreateExplosion(vec2(-1, -1), m_pPlayer->GetCID(), 3, true, 0, 300);
-					//CreateExplosion(( 408 * 32, 208 * 32), m_pPlayer->GetCID(), 3, true, 0, 300);
-					//CreateExplosion((408 * 32, 208 * 32), 1, 3, true, 0, 300);
-					//CreateExplosion(vec2(408 * 32, 208 * 32), 1, 3, true, 0, 300);
-					//CreateExplosion();
 					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
 					//pPlayer->m_money = pPlayer->m_money + 300;
@@ -2427,6 +2517,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					pPlayer->m_IsModerator = 1;
 					pPlayer->m_IsSuperModerator ^= true;
 					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
+					//pPlayer->m_IsTest ^= true;
+
+					//explode the player no matter what team he is it ll explode in team 0
+					//CreateExplosion(GetPlayerChar(pPlayer->GetCID())->m_Pos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
+
+					//vec2 DownPos(GetPlayerChar(pPlayer->GetCID())->m_Pos.x, GetPlayerChar(pPlayer->GetCID())->m_Pos.y + 10);
+					//CreateExplosion(DownPos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
+
+
+
 
 					char aBuf[1024];
 
@@ -2434,9 +2534,21 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//SendBroadcast(aBuf, ClientID);
 
 					
+					int BombID = -1;
+					for (int i = 0; i < MAX_CLIENTS; i++)
+					{
+						if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBomb)
+						{
+							BombID = i;
+							break;
+						}
+					}
 
-					str_format(aBuf, sizeof(aBuf), "Bomb: %s", Server()->ClientName(FindNextBomb()));
+					str_format(aBuf, sizeof(aBuf), "Version NEW\nBomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
 					SendBroadcast(aBuf, ClientID);
+
+			/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
+					SendBroadcast(aBuf, ClientID);*/
 
 					//str_format(aBroadcastMSG, sizeof(aBroadcastMSG), "Tournament! Bomb: %s", aBroadcastMSG, Server()->ClientName(FindNextBomb()));
 					//SendBroadcast(aBroadcastMSG, ClientID);
@@ -4198,6 +4310,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
+			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID)->m_IsBombing)
+			{
+				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game lead to money loose.");
+				return;
+			}
+
 			if(m_VoteCloseTime && m_VoteCreator == ClientID && GetDDRaceTeam(ClientID) && (m_VoteKick || m_VoteSpec))
 			{
 				SendChatTarget(ClientID, "You are running a vote please try again after the vote is done!");
@@ -4967,6 +5085,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	// ChillerDragon
 	//Friends_counter = 0;
 	m_CucumberShareValue = 10;
+	m_BombTick = g_Config.m_SvBombTicks;
 
 
 
@@ -6037,7 +6156,7 @@ int CGameContext::FindNextBomb()
 	//int MaxDist = 0;
 	//for (int i = 0; i < MAX_CLIENTS; i++)
 	//{
-	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+	//	if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i))
 	//	{
 	//		//check if the player is positive or negative
 	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
@@ -6069,7 +6188,7 @@ int CGameContext::FindNextBomb()
 	//int MaxDist = 0;
 	//for (int i = 0; i < MAX_CLIENTS; i++)
 	//{
-	//	if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing && GetPlayerChar(i))
+	//	if (GetPlayerChar(i) &&GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i))
 	//	{
 	//		//check if the player is positive or negative
 	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
@@ -6103,12 +6222,12 @@ int CGameContext::FindNextBomb()
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBombing)
+		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 		{
 			int Dist = 0;
 			for (int i_comp = 0; i_comp < MAX_CLIENTS; i_comp++)
 			{
-				if (m_apPlayers[i_comp] && m_apPlayers[i_comp]->m_IsBombing)
+				if (GetPlayerChar(i_comp) && GetPlayerChar(i_comp)->m_IsBombing)
 				{
 					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(i_comp)->m_Pos.x;
 					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
@@ -6144,10 +6263,12 @@ int CGameContext::CountBombPlayers()
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i])
+		if (GetPlayerChar(i))
 		{
-			if (m_apPlayers[i]->m_IsBombing)
-			BombPlayers++;
+			if (GetPlayerChar(i)->m_IsBombing)
+			{
+				BombPlayers++;
+			}
 		}
 	}
 	return BombPlayers;
