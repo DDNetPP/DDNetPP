@@ -2544,7 +2544,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						}
 					}
 
-					str_format(aBuf, sizeof(aBuf), "Bomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
+					str_format(aBuf, sizeof(aBuf), "Version NEW\nBomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
 					SendBroadcast(aBuf, ClientID);
 
 			/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
