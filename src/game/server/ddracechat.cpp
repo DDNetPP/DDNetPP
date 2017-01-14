@@ -4119,6 +4119,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Running games are locked automatically.");
 			return;
 		}
+		if (pSelf->CountBombPlayers() == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "More bomb players needed to lock the lobby.");
+			return;
+		}
 
 
 		if (pSelf->m_BombGameState == 1) //unlocked --> lock
@@ -4158,19 +4163,149 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
+	else if (!str_comp_nocase(aCmd, "status"))
+	{
+		if (!pSelf->m_BombGameState) //offline
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Currently no bomb game running.");
+			return;
+		}
+		else if (pSelf->m_BombGameState == 1) //lobby
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "------ Bomb Lobby ------");
+			str_format(aBuf, sizeof(aBuf), "[%d/%d] players ready", pSelf->CountReadyBombPlayers(), pSelf->CountBombPlayers());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "------------------------");
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->GetPlayerChar(i) && pSelf->GetPlayerChar(i)->m_IsBombing)
+				{
+					if (pSelf->GetPlayerChar(i)->m_IsBombReady)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' (ready)", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s'", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+			}
+			return;
+		}
+		else if (pSelf->m_BombGameState == 2) //lobby locked
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "------ Bomb Lobby (locked) ------");
+			str_format(aBuf, sizeof(aBuf), "[%d/%d] players ready", pSelf->CountReadyBombPlayers(), pSelf->CountBombPlayers());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "------------------------");
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->GetPlayerChar(i) && pSelf->GetPlayerChar(i)->m_IsBombing)
+				{
+					if (pSelf->GetPlayerChar(i)->m_IsBombReady)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' (ready)", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s'", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+			}
+			return;
+		}
+		else if (pSelf->m_BombGameState == 3) //ingame
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "------ Bomb (running game) ------");
+			str_format(aBuf, sizeof(aBuf), "[%d/%d] players ready", pSelf->CountReadyBombPlayers(), pSelf->CountBombPlayers());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "------------------------");
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->GetPlayerChar(i) && pSelf->GetPlayerChar(i)->m_IsBombing)
+				{
+					if (pSelf->GetPlayerChar(i)->m_IsBombReady)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' (ready)", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s'", pSelf->Server()->ClientName(i));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					}
+				}
+			}
+			return;
+		}
+	}
+	else if (!str_comp_nocase(aCmd, "ban"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR stick to following structure:");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <time> <player>'");
+			return;
+		}
+
+		if (pPlayer->m_Authed == CServer::AUTHED_ADMIN) //DESC power to use highest rank
+		{
+
+		}
+		else if (pPlayer->m_IsSuperModerator)
+		{
+
+		}
+		else if (pPlayer->m_IsModerator)
+		{
+
+		}
+		else if (pPlayer->m_Authed == CServer::AUTHED_MOD)
+		{
+
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+	}
 	else if (!str_comp_nocase(aCmd, "help"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "===================");
 		pSelf->SendChatTarget(pResult->m_ClientID, "->   B O M B   <-");
 		pSelf->SendChatTarget(pResult->m_ClientID, "===================");
-		pSelf->SendChatTarget(pResult->m_ClientID, "*** HOW? ***");
-		pSelf->SendChatTarget(pResult->m_ClientID, "hammer others if you are the bomb");
-		pSelf->SendChatTarget(pResult->m_ClientID, "*** Commands? ***");
-		pSelf->SendChatTarget(pResult->m_ClientID, "join, leave, start, lock and help.");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb create <money>' to create a game with <money> price for each player. The winner gets it all.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "HOW DOES THE GAME WORK?");
+		pSelf->SendChatTarget(pResult->m_ClientID, "One player get's choosen as bomb. He can give the bomb to other players with his hammer.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "If a player explodes as bomb he is out.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Last man standing is the winner.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "HOW TO START?");
+		pSelf->SendChatTarget(pResult->m_ClientID, "One player has to create a bomb lobby with '/bomb create <money>'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Then other players can join with '/bomb join'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "All players who join the game have to pay <money> money and the winner gets it all.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "---------------");
+		pSelf->SendChatTarget(pResult->m_ClientID, "more bomb commands at '/bomb cmdlist'");
+		return;
+	}
+	else if (!str_comp_nocase(aCmd, "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== BOMB COMMANDS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb create <money>' to create a bomb game.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb join' to join a bomb game.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb start' to start a game.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb lock' to lock a bomb lobby.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb status' to see some live bomb stats.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb help' for help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb cmdlist' for all bomb commands.");
+		return;
 	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown bomb command. More help at '/bomb help'");
+		return;
 	}
 }

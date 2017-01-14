@@ -598,13 +598,13 @@ void CPlayer::Snap(int SnappingClient)
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
 		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
 	}
-	else if (m_IsTest) //test color values
-	{
-		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
-		pClientInfo->m_UseCustomColor = true;
-		pClientInfo->m_ColorBody = (g_Config.m_SvTestValA * g_Config.m_SvTestValB / g_Config.m_SvTestValC);
-		pClientInfo->m_ColorFeet = (255 * 255 / 1);
-	}
+	//else if (m_IsTest) //test color values
+	//{
+	//	StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+	//	pClientInfo->m_UseCustomColor = true;
+	//	pClientInfo->m_ColorBody = (g_Config.m_SvTestValA * g_Config.m_SvTestValB / g_Config.m_SvTestValC);
+	//	pClientInfo->m_ColorFeet = (255 * 255 / 1);
+	//}
 	else if (m_StolenSkin && SnappingClient != m_ClientID && g_Config.m_SvSkinStealAction == 1) //steal skin
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, "pinky");

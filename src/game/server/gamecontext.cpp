@@ -1479,6 +1479,7 @@ void CGameContext::CheckStartBomb()
 			break;
 		}
 	}
+	//if (CountReadyBombPlayers() == CountBombPlayers()) //eats more ressources than the other way
 	if (AllReady)
 	{
 		m_BombStartPlayers = CountBombPlayers();
@@ -1487,6 +1488,9 @@ void CGameContext::CheckStartBomb()
 		{
 			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 			{
+				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2;
+				GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
+				GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
 				str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
 				SendBroadcast(aBuf, i);
 			}
@@ -1531,11 +1535,19 @@ void CGameContext::BombTick()
 			{
 				if (Server()->Tick() % 40 == 0)
 				{
-					SendBroadcast("<bomb lobby> waiting for other players... \nType '/bomb start' to start.", i);
+					str_format(aBuf, sizeof(aBuf), "<bomb lobby> waiting for other players... \n[%d/%d] players ready\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers());
+					SendBroadcast(aBuf, i);
 				}
 			}
 		}
-		CheckStartBomb();
+		if (CountBombPlayers() > 1) //2+ tees required to start a game
+		{
+			CheckStartBomb();
+		}
+		else
+		{
+			m_BombGameState = 1; //unlock bomb lobbys with only 1 tee
+		}
 	}
 
 	//check end game (no players)
@@ -6272,4 +6284,18 @@ int CGameContext::CountBombPlayers()
 		}
 	}
 	return BombPlayers;
+}
+
+int CGameContext::CountReadyBombPlayers()
+{
+	int RdyPlrs = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i)->m_IsBombReady)
+		{
+			RdyPlrs++;
+		}
+	}
+	return RdyPlrs;
 }

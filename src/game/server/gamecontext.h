@@ -238,6 +238,7 @@ public:
 	void BombTick();
 	int FindNextBomb();
 	int CountBombPlayers();
+	int CountReadyBombPlayers();
 	int m_BombGameState; //0=no bomb game created 1=bomb game created (lobby) 2=bomb game created (lobby)(locked) 3=bomb game created and running (ingame)
 	int m_BombMoney;
 	int m_BombStartPlayers;
