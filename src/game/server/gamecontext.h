@@ -304,6 +304,9 @@ private:
 	static void ConAddWeapon(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemoveWeapon(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
+
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);

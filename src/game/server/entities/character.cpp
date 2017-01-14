@@ -468,6 +468,9 @@ void CCharacter::FireWeapon(bool Bot)
 				Temp -= pTarget->m_Core.m_Vel;
 				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+
+				if(!pTarget->m_pPlayer->m_RconFreeze)
+
 				pTarget->UnFreeze();
 
 				if(m_FreezeHammer)
@@ -831,9 +834,16 @@ void CCharacter::Tick()
 	//	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", "ima bomb");
 	//}
 
-
 	//Block points (check for last touched player)
 	//pikos hook check
+
+	/* SarKro ist zu blöld    gez. SarKro
+	if (m_pPlayer->m_RconFreezed)
+	{
+		m_FreezeTime = 50;
+	}
+	*/
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		CCharacter *pChar = GameServer()->GetPlayerChar(i);
