@@ -1456,7 +1456,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
-	str_format(aBuf, sizeof(aBuf), "you won the bomb game. +%d money", m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
 
 	//winner public
@@ -1487,7 +1487,7 @@ void CGameContext::CheckStartBomb()
 		{
 			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 			{
-				str_format(aBuf, sizeof(aBuf), "Bomb game started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
+				str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
 				SendBroadcast(aBuf, i);
 			}
 		}
@@ -1531,7 +1531,7 @@ void CGameContext::BombTick()
 			{
 				if (Server()->Tick() % 40 == 0)
 				{
-					SendBroadcast("<bomb lobby> waiting for other players... \nwrite '/bomb start' to start", i);
+					SendBroadcast("<bomb lobby> waiting for other players... \nType '/bomb start' to start.", i);
 				}
 			}
 		}
@@ -1586,12 +1586,12 @@ void CGameContext::BombTick()
 			if (FindNextBomb() != -1)
 			{
 				GetPlayerChar(FindNextBomb())->m_IsBomb = true;
-				SendChatTarget(FindNextBomb(), "Server picked you as bomb.");
+				SendChatTarget(FindNextBomb(), "The server picked you as bomb.");
 			}
 			else
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "failed pick new bomb. Bombfound: %d", FindNextBomb());
+				str_format(aBuf, sizeof(aBuf), "Failed to pick new bomb. Bombfound: %d", FindNextBomb());
 				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 			}
 		}
@@ -4312,7 +4312,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID)->m_IsBombing)
 			{
-				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game lead to money loose.");
+				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
 				return;
 			}
 

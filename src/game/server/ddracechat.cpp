@@ -211,7 +211,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	if (pResult->NumArguments() == 0)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"=== Changelog (ddnet++ v.0.0.1) ===");
+			"=== Changelog (DDNet++ v.0.0.1) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added SuperModerator");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -245,7 +245,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		if (page == 1)
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (ddnet++ v.0.0.1) ===");
+				"=== Changelog (DDNet++ v.0.0.1) ===");
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 				"+ added SuperModerator");
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -274,7 +274,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		else if (page == 2)
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (ddnet++ v.0.0.1) ===");
+				"=== Changelog (DDNet++ v.0.0.1) ===");
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 				"page 2/2     '/changelog <page>'");
 		}
@@ -3984,12 +3984,12 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		if (pSelf->m_BombGameState)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: there is already a bomb game. you can join it with '/bomb join'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: there is already a bomb game. You can join it with '/bomb join'");
 			return;
 		}
 		if (pPlayer->m_AccountID < 1)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you have to be logged in to create a bomb game. more infos at '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to create a bomb game. More info at '/accountinfo'");
 			return;
 		}
 
@@ -3998,7 +3998,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 		if (BombMoney > pPlayer->m_money)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: you don't have that much money.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: you don't have enough much money.");
 			return;
 		}
 		if (BombMoney < 0)
@@ -4015,19 +4015,19 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->MoneyTransaction(-BombMoney, aBuf);
 
 
-		str_format(aBuf, sizeof(aBuf), "you created a bomb game. -%d money for joining this bomb game.", BombMoney);
+		str_format(aBuf, sizeof(aBuf), "You have created a bomb game. -%d money for joining this bomb game.", BombMoney);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCmd, "join"))
 	{
 		if (pPlayer->m_AccountID < 1)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you have to be logged in to join a bomb game. more infos at '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to join a bomb game. More info at '/accountinfo'");
 			return;
 		}
 		if (pChr->m_IsBombing)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are already in the bomb game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the bomb game.");
 			return;
 		}
 
@@ -4038,24 +4038,24 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if (pSelf->m_BombGameState == 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "this bomb lobby is locked.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "The bomb lobby is locked.");
 			return;
 		}
 		else if (pSelf->m_BombGameState == 3)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "this bomb game is already running.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "The bomb game is already running.");
 			return;
 		}
 		else if (pSelf->m_BombGameState == 1)
 		{
 			if (pPlayer->m_money < pSelf->m_BombMoney)
 			{
-				str_format(aBuf, sizeof(aBuf), "you need atleast %d money to join this game.", pSelf->m_BombMoney);
+				str_format(aBuf, sizeof(aBuf), "You need at least %d money to join this game.", pSelf->m_BombMoney);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 
-			str_format(aBuf, sizeof(aBuf), "-%d money for joining this game. You don't wanna risk that much money? -> '/bomb leave'", pSelf->m_BombMoney);
+			str_format(aBuf, sizeof(aBuf), "-%d money for joining this game. You don't want to risk that much money? -> '/bomb leave'", pSelf->m_BombMoney);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pChr->m_IsBombing = true;
 			str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", pSelf->m_BombMoney);
@@ -4063,7 +4063,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "something went horrible wrong lol. pls contact an admin.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Something went horrible wrong lol. Please contact an admin.");
 			return;
 		}
 	}
@@ -4071,16 +4071,16 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (!pChr->m_IsBombing)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are not in a bomb game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a bomb game.");
 			return;
 		}
 		if (pChr->m_IsBombing && pSelf->m_BombGameState == 3)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you can't leave a running game. (if you disconnect your money will be lost)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You can't leave a running game. (If you disconnect, your money will be lost.)");
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "you left the bomb game. (+%d money)", pSelf->m_BombMoney);
+		str_format(aBuf, sizeof(aBuf), "You left the bomb game. (+%d money)", pSelf->m_BombMoney);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "+%d bomb (leave)", pSelf->m_BombMoney);
 		pPlayer->MoneyTransaction(pSelf->m_BombMoney, aBuf);
@@ -4090,33 +4090,33 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (!pChr->m_IsBombing)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are not in a bomb game. Type '/bomb create <money>' or '/bomb join' first.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a bomb game. Type '/bomb create <money>' or '/bomb join' first.");
 			return;
 		}
 		if (pChr->m_IsBombReady)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are already ready to start. (if you aren't ready anymore try '/bomb leave')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already ready to start. (If you aren't ready anymore try '/bomb leave')");
 			return;
 		}
 		if (pChr->m_IsBombing && pSelf->m_BombGameState == 3) //shoudl be never triggerd but yolo xd
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "game already running...");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Game is already running...");
 			return;
 		}
 
-		pSelf->SendChatTarget(pResult->m_ClientID, "You are now ready to play. Wainting for others...");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are now ready to play. Waiting for other players...");
 		pChr->m_IsBombReady = true;
 	}
 	else if (!str_comp_nocase(aCmd, "lock")) 
 	{
 		if (!pChr->m_IsBombing)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "you are not in a bomb game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a bomb game.");
 			return;
 		}
 		if (pChr->m_IsBombing && pSelf->m_BombGameState == 3) 
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Running games are locked automatically");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Running games are locked automatically.");
 			return;
 		}
 
@@ -4164,13 +4164,13 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "->   B O M B   <-");
 		pSelf->SendChatTarget(pResult->m_ClientID, "===================");
 		pSelf->SendChatTarget(pResult->m_ClientID, "*** HOW? ***");
-		pSelf->SendChatTarget(pResult->m_ClientID, "hammer others if ur the bomb");
+		pSelf->SendChatTarget(pResult->m_ClientID, "hammer others if you are the bomb");
 		pSelf->SendChatTarget(pResult->m_ClientID, "*** Commands? ***");
 		pSelf->SendChatTarget(pResult->m_ClientID, "join, leave, start, lock and help.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb create <money>' to create a game with <money> price for each player. The winner gets it all.");
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "unknow bomb command. more help at '/bomb help'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown bomb command. More help at '/bomb help'");
 	}
 }
