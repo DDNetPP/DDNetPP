@@ -518,7 +518,65 @@ void CPlayer::Snap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 
-	if (m_InfRainbow || (GetCharacter() && GetCharacter()->m_Rainbow) || m_IsBomb)
+
+
+	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		pClientInfo->m_UseCustomColor = true;
+
+
+		if (GameServer()->m_BombTick < 75) //red glowup right before explode
+		{
+			//if (GameServer()->m_bwff) //old not working blackwhite flick flack
+			//{
+			//	pClientInfo->m_ColorBody = (255 * 255 / 360);
+			//	pClientInfo->m_ColorFeet = (255 * 255 / 360);
+			//	GameServer()->m_bwff = false;
+			//}
+			//else
+			//{
+			//	pClientInfo->m_ColorBody = (0 * 255 / 360);
+			//	pClientInfo->m_ColorFeet = (0 * 255 / 360);
+			//	GameServer()->m_bwff = true;
+			//}
+
+			pClientInfo->m_ColorBody = (GameServer()->m_BombFinalColor * 255 / 1);
+			pClientInfo->m_ColorFeet = (GameServer()->m_BombFinalColor * 255 / 1);
+
+			GameServer()->m_BombFinalColor++;
+		}
+		else
+		{
+			int ColorChangeVal = (255000 - GameServer()->m_BombTick) * 0.0001;
+			if (!ColorChangeVal)
+			{
+				ColorChangeVal = 1;
+			}
+
+			if (GameServer()->m_BombColor > 254)
+			{
+				GameServer()->m_bwff = false;
+			}
+			if (GameServer()->m_BombColor < 1)
+			{
+				GameServer()->m_bwff = true;
+			}
+
+			if (GameServer()->m_bwff) //black -> white
+			{
+				GameServer()->m_BombColor += ColorChangeVal;
+			}
+			else //white -> black
+			{
+				GameServer()->m_BombColor -= ColorChangeVal;
+			}
+
+			pClientInfo->m_ColorBody = (GameServer()->m_BombColor * 255 / 360);
+			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
+		}
+	}
+	else if (m_InfRainbow || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -526,7 +584,14 @@ void CPlayer::Snap(int SnappingClient)
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
 		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
 	}
-	else if (m_StolenSkin && SnappingClient != m_ClientID && g_Config.m_SvSkinStealAction == 1)
+	else if (m_IsTest) //test color values
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		pClientInfo->m_UseCustomColor = true;
+		pClientInfo->m_ColorBody = (g_Config.m_SvTestValA * g_Config.m_SvTestValB / g_Config.m_SvTestValC);
+		pClientInfo->m_ColorFeet = (255 * 255 / 1);
+	}
+	else if (m_StolenSkin && SnappingClient != m_ClientID && g_Config.m_SvSkinStealAction == 1) //steal skin
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, "pinky");
 		pClientInfo->m_UseCustomColor = 0;

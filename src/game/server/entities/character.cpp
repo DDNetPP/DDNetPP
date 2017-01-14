@@ -450,6 +450,26 @@ void CCharacter::FireWeapon(bool Bot)
 				/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
+
+				//Bomb (put it dat early cuz the unfreeze stuff)
+				if (m_IsBombing && pTarget->m_IsBombing)
+				{
+					if (m_IsBomb) //if bomb hits others --> they get bomb
+					{
+						if (!pTarget->isFreezed && !pTarget->m_FreezeTime) //you cant bomb freezed players
+						{
+							m_IsBomb = false;
+							pTarget->m_IsBomb = true;
+
+							char aBuf[128];
+							str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
+						}
+					}
+				}
+
+
+
 				float Strength;
 				if (!m_TuneZone)
 					Strength = GameServer()->Tuning()->m_HammerStrength;
@@ -472,25 +492,6 @@ void CCharacter::FireWeapon(bool Bot)
 
 				if(m_FreezeHammer)
 					pTarget->Freeze();
-
-				//Bomb
-				if (m_pPlayer->m_IsBombing && pTarget->GetPlayer()->m_IsBombing)
-				{
-					if (m_pPlayer->m_IsBomb) //if bomb hits others --> they get bomb
-					{
-						if (pTarget->m_FreezeTime > 0) //you cant bomb freezed players
-						{
-							m_pPlayer->m_IsBomb = false;
-							pTarget->GetPlayer()->m_IsBomb = true;
-
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-						}
-					}
-				}
-
-
 
 
 				Hits++;
@@ -8419,6 +8420,12 @@ void CCharacter::Die(int Killer, int Weapon)
 			str_format(aBuf, sizeof(aBuf), "You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
+	}
+
+	//bomb
+	if (m_IsBombing)
+	{
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "you lost bomb because you died.");
 	}
 	
 	//Block points
