@@ -9,6 +9,9 @@
 CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int Number)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Type = Type;
 	m_Subtype = SubType;
 	m_ProximityRadius = PickupPhysSize;
@@ -23,6 +26,9 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int N
 
 void CPickup::Reset()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	/*if (g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
 		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 	else
@@ -31,6 +37,9 @@ void CPickup::Reset()
 
 void CPickup::Tick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	Move();
 	/*// wait for respawn
 	if(m_SpawnTick > 0)
@@ -142,12 +151,18 @@ void CPickup::Tick()
 
 void CPickup::TickPaused()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	/*if(m_SpawnTick != -1)
 		++m_SpawnTick;*/
 }
 
 void CPickup::Snap(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	/*if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
 		return;*/
 
@@ -177,6 +192,9 @@ void CPickup::Snap(int SnappingClient)
 
 void CPickup::Move()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (Server()->Tick()%int(Server()->TickSpeed() * 0.15f) == 0)
 	{
 		int Flags;

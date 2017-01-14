@@ -2,9 +2,9 @@
 
 bool CQuery::Next()
 {
-	#if defined(CONF_DEBUG)
-		CALL_STACK_ADD();
-	#endif
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int Ret = sqlite3_step(m_pStatement);
 	return Ret == SQLITE_ROW;
 }

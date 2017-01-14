@@ -21,6 +21,9 @@ IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
 CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
@@ -32,12 +35,18 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 
 CPlayer::~CPlayer()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	delete m_pCharacter;
 	m_pCharacter = 0;
 }
 
 void CPlayer::Reset()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
 	m_ScoreStartTick = Server()->Tick();
@@ -157,6 +166,7 @@ void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
+		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -483,6 +493,9 @@ void CPlayer::Tick()
 
 void CPlayer::PostTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// update latency value
 	if(m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
 	{
@@ -502,6 +515,7 @@ void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
+		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -638,6 +652,9 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap(int SnappingClient)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// This is problematic when it's sent before we know whether it's a non-64-player-client
 	// Then we can't spectate players at the start
 	IServer::CClientInfo info;
@@ -660,6 +677,9 @@ void CPlayer::FakeSnap(int SnappingClient)
 
 void CPlayer::OnDisconnect(const char *pReason)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	KillCharacter();
 
 	Logout();
@@ -682,6 +702,9 @@ void CPlayer::OnDisconnect(const char *pReason)
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// skip the input if chat is active
 	if((m_PlayerFlags&PLAYERFLAG_CHATTING) && (NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING))
 		return;
@@ -703,6 +726,9 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (AfkTimer(NewInput->m_TargetX, NewInput->m_TargetY))
 		return; // we must return if kicked, as player struct is already deleted
 	AfkVoteTimer(NewInput);
@@ -750,6 +776,9 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 CCharacter *CPlayer::GetCharacter()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return m_pCharacter;
 	return 0;
@@ -757,11 +786,17 @@ CCharacter *CPlayer::GetCharacter()
 
 void CPlayer::ThreadKillCharacter(int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_KillMe = Weapon;
 }
 
 void CPlayer::KillCharacter(int Weapon)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter)
 	{
 		if (m_RespawnTick > Server()->Tick())
@@ -776,12 +811,18 @@ void CPlayer::KillCharacter(int Weapon)
 
 void CPlayer::Respawn()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_Team != TEAM_SPECTATORS)
 		m_Spawning = true;
 }
 
 CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Spawning = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, Pos);
@@ -791,6 +832,9 @@ CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	// clamp the team
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
@@ -835,6 +879,9 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 
 void CPlayer::TryRespawn()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 SpawnPos;
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos))
@@ -863,6 +910,9 @@ void CPlayer::TryRespawn()
 
 bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	/*
 		afk timer (x, y = mouse coordinates)
 		Since a player has to move the mouse to play, this is a better method than checking
@@ -926,6 +976,9 @@ bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 
 void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(g_Config.m_SvMaxAfkVoteTime == 0)
 		return;
 
@@ -945,6 +998,9 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 
 void CPlayer::ProcessPause()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(!m_pCharacter)
 		return;
 
@@ -982,6 +1038,9 @@ void CPlayer::ProcessPause()
 
 bool CPlayer::IsPlaying()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return true;
 	return false;
@@ -989,6 +1048,9 @@ bool CPlayer::IsPlaying()
 
 void CPlayer::FindDuplicateSkins()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_TeeInfos.m_UseCustomColor == 0 && !m_StolenSkin) return;
 	m_StolenSkin = 0;
 	for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -1011,6 +1073,9 @@ void CPlayer::FindDuplicateSkins()
 
 void CPlayer::Logout()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_AccountID <= 0)
 		return;
 
@@ -1022,6 +1087,9 @@ void CPlayer::Logout()
 
 void CPlayer::Save()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_AccountID <= 0)
 		return;
 
@@ -1066,6 +1134,9 @@ void CPlayer::Save()
 
 void CPlayer::CalcExp()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//old dynamic shit rofl
 	//if (m_level < 1)
 	//	m_neededxp = 5000;
@@ -1419,6 +1490,9 @@ void CPlayer::CalcExp()
 
 void CPlayer::CheckLevel()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_level > m_max_level)
 		return;
 
@@ -1444,6 +1518,9 @@ void CPlayer::CheckLevel()
 
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_money += Amount;
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
