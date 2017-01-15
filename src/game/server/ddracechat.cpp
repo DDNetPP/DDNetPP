@@ -391,7 +391,7 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"ChillerDragon's Block mod.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Created by ChillerDragon, timakro, FruchtiHD, Pikotee, \\toast & Blue");
+		"Created by ChillerDragon, timakro, FruchtiHD, Henritees, SarKro, Pikotee, \\toast & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRaceNetwork.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -3992,6 +3992,12 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to create a bomb game. More info at '/accountinfo'");
 			return;
 		}
+		if (pPlayer->m_BombBanTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "You are banned for %d seconds from bomb games.", pPlayer->m_BombBanTime / 60);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
 
 		int BombMoney;
 		BombMoney = pResult->GetInteger(1);
@@ -4023,6 +4029,12 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		if (pPlayer->m_AccountID < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to join a bomb game. More info at '/accountinfo'");
+			return;
+		}
+		if (pPlayer->m_BombBanTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "You are banned for %d seconds from bomb games.", pPlayer->m_BombBanTime / 60);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
 		if (pChr->m_IsBombing)
@@ -4248,30 +4260,347 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		if (pResult->NumArguments() < 3)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR stick to following structure:");
-			pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <time> <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <seconds> <player>'");
 			return;
 		}
 
 		if (pPlayer->m_Authed == CServer::AUTHED_ADMIN) //DESC power to use highest rank
 		{
+			//int Bantime = pResult->GetInteger(1) * pSelf->Server()->TickSpeed();
+			int Bantime = pResult->GetInteger(1);
+			char aBanname[32];
+			str_copy(aBanname, pResult->GetString(2), sizeof(aBanname));
+			int BanID = pSelf->GetCIDByName(aBanname);
 
+			if (BanID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user withe the name: '%s'", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+
+			if (Bantime > 900) //15 min ban limit
+			{
+				Bantime = 900;
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for 15 minutes (max).", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+			}
+			else if (Bantime < 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bantime has to be positive.");
+				return;
+			}
+			else
+			{
+				//BANNED PLAYER
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+
+				//BANNING PLAYER
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for %d seconds from bomb games.", aBanname, Bantime);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
+				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by admin '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+			}
 		}
 		else if (pPlayer->m_IsSuperModerator)
 		{
+			int Bantime = pResult->GetInteger(1);
+			char aBanname[32];
+			str_copy(aBanname, pResult->GetString(2), sizeof(aBanname));
+			int BanID = pSelf->GetCIDByName(aBanname);
 
+			if (BanID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user withe the name: '%s'", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
+				return;
+			}
+
+			if (Bantime > 300) //5 min ban limit
+			{
+				Bantime = 300;
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for 5 minutes (max).", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+			}
+			else if (Bantime < 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bantime has to be positive.");
+				return;
+			}
+			else
+			{
+				//BANNED PLAYER
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+
+				//BANNING PLAYER
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for %d seconds from bomb games.", aBanname, Bantime);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
+				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by supermoderator '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+			}
 		}
 		else if (pPlayer->m_IsModerator)
 		{
+			int Bantime = pResult->GetInteger(1);
+			char aBanname[32];
+			str_copy(aBanname, pResult->GetString(2), sizeof(aBanname));
+			int BanID = pSelf->GetCIDByName(aBanname);
 
+			if (BanID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user withe the name: '%s'", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
+				return;
+			}
+
+			if (Bantime > 60) //1 min ban limit
+			{
+				Bantime = 60;
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for 1 minutes (max).", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+			}
+			else if (Bantime < 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Bantime has to be positive.");
+				return;
+			}
+			else
+			{
+				//BANNED PLAYER
+
+				//off all bomb stuff for the player
+				pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+				//do the ban
+				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				str_format(aBuf, sizeof(aBuf), "You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				pSelf->SendChatTarget(BanID, aBuf);
+
+				//BANNING PLAYER
+				str_format(aBuf, sizeof(aBuf), "You banned '%s' for %d seconds from bomb games.", aBanname, Bantime);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
+				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by moderator '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+			}
 		}
 		else if (pPlayer->m_Authed == CServer::AUTHED_MOD)
 		{
+			int Bantime = pResult->GetInteger(1);
+			char aBanname[32];
+			str_copy(aBanname, pResult->GetString(2), sizeof(aBanname));
+			int BanID = pSelf->GetCIDByName(aBanname);
+
+			if (BanID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user withe the name: '%s'", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator || pSelf->m_apPlayers[BanID]->m_IsModerator)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
+				return;
+			}
+
+	
+			if (!pSelf->GetPlayerChar(BanID)->m_IsBombing)
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' is not in a bomb game.", aBanname);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+
+			//KICKED PLAYER
+
+			//off all bomb stuff for the player
+			pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
+			pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
+			pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+
+			//do the kick
+			pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+			str_format(aBuf, sizeof(aBuf), "You were kicked by rcon_mod '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(BanID, aBuf);
+
+			//KICKING PLAYER
+			str_format(aBuf, sizeof(aBuf), "You kicked '%s' from bomb games.", aBanname);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
+			//str_format(aBuf, sizeof(aBuf), "'%s' were kicked by rcon_mod '%s'.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID));
+			//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
 
 		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
+		}
+	}
+	else if (!str_comp_nocase(aCmd, "unban"))
+	{
+		int UnbanID = pResult->GetInteger(1);
+
+		if (pSelf->m_apPlayers[UnbanID])
+		{
+			if (pSelf->m_apPlayers[UnbanID]->m_BombBanTime)
+			{
+				//UNBANNING PLAYER
+				str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(UnbanID), pSelf->m_apPlayers[UnbanID]->m_BombBanTime / 60);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				//UNBANNED PLAYER
+				pSelf->m_apPlayers[UnbanID]->m_BombBanTime = 0;
+				str_format(aBuf, sizeof(aBuf), "You were unbanned from bomb games by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+				pSelf->SendChatTarget(pSelf->m_apPlayers[UnbanID]->GetCID(), aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' is not banned from bomb games.", pSelf->Server()->ClientName(UnbanID));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "There is no player with this ClientID.");
+			return;
+		}
+	}
+	else if (!str_comp_nocase(aCmd, "banlist")) //for now all dudes can see the banlist... not sure to make it rank only visible
+	{
+		if (!pSelf->CountBannedBombPlayers())
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "There are no banned bomb players yay.");
+			return;
+		}
+
+
+		//calcualte page amount
+		//float f_pages = pSelf->CountBannedBombPlayers() / 5;
+
+		//int pages = round(pSelf->CountBannedBombPlayers() / 5 + 0.5); //works as good as ++
+		int pages = (int)((float)pSelf->CountBannedBombPlayers() / 5.0f + 0.999999f);
+		int PlayersShownOnPage = 0;
+
+
+		if (pResult->NumArguments() > 1) //show pages
+		{
+			int page = pResult->GetInteger(1);
+			if (page > pages)
+			{
+				if (pages == 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "Error there is only %d page.", pages);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				}
+				else
+				{
+					str_format(aBuf, sizeof(aBuf), "Error there are only %d pages.", pages);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				}
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "=== (%d) Banned Bombers (page %d/%d) ===", pSelf->CountBannedBombPlayers(), page, pages);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				for (int i = page * 5; i < MAX_CLIENTS; i++)
+				{
+					if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' (%d seconds)", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+						PlayersShownOnPage++;
+					}
+					if (PlayersShownOnPage > 4) //show only 5 players on one site
+					{
+						break;
+					}
+				}
+			}
+		}
+		else //show page one
+		{
+			str_format(aBuf, sizeof(aBuf), "=== (%d) Banned Bombers (page %d/%d) ===", pSelf->CountBannedBombPlayers(), 1, pages);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+				{
+					str_format(aBuf, sizeof(aBuf), "'%s' (%d seconds)", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					PlayersShownOnPage++;
+				}
+				if (PlayersShownOnPage > 4) //show only 5 players on one site
+				{
+					break;
+				}
+			}
 		}
 	}
 	else if (!str_comp_nocase(aCmd, "help"))
@@ -4299,6 +4628,8 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb start' to start a game.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb lock' to lock a bomb lobby.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb status' to see some live bomb stats.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <seconds> <name>' to ban players.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb unban <ClientID>' to unban players.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb help' for help.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb cmdlist' for all bomb commands.");
 		return;

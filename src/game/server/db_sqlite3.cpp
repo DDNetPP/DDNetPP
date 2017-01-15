@@ -155,7 +155,10 @@ CSql::CSql()
 		"BlockDeaths				INTEGER			DEFAULT 0," \
 		"IsModerator				INTEGER			DEFAULT 0," \
 		"IsSuperModerator			INTEGER			DEFAULT 0," \
-		"IsAccFrozen				INTEGER			DEFAULT 0);";
+		"IsAccFrozen				INTEGER			DEFAULT 0," \
+		"BombGamesPlayed			INTEGER			DEFAULT 0," \
+		"BombGamesWon				INTEGER			DEFAULT 0," \
+		"BombBanTime				INTEGER			DEFAULT 0);";
 
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);

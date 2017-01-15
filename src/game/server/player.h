@@ -198,6 +198,11 @@ public:
 	//moved to gamecontext.cpp
 	//int m_BombColor;
 	//bool m_bwff; //black whithe flip flip
+	
+	//bomb stats
+	int m_BombGamesPlayed;
+	int m_BombGamesWon;
+	int m_BombBanTime;
 
 	//fluffypuffy (minigame)
 	int m_GoldRespawnDelay;

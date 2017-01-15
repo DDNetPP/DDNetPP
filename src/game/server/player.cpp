@@ -168,6 +168,17 @@ void CPlayer::Tick()
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
 		CALL_STACK_ADD();
 #endif
+
+	//bomb
+	if (m_BombBanTime)
+	{
+		m_BombBanTime--;
+		if (m_BombBanTime == 1)
+		{
+			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
+		}
+	}
+
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
 
@@ -1132,9 +1143,9 @@ void CPlayer::Save()
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s' WHERE `ID` = %i",
 	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, Server()->ClientName(GetCID()), m_AccountID);
 
-	//test more last igns
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s' WHERE `ID` = %i",
-		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5, m_AccountID);
+	//test more last igns (working)
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s', `BombGamesPlayed` = '%s', `BombGamesWon` = '%s', `BombBanTime` = '%s' WHERE `ID` = %i",
+		m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5, m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime, m_AccountID);
 
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);

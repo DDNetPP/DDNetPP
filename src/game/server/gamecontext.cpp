@@ -81,6 +81,24 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 
+				//Accounts
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3, GetText(GetID("LastLogoutIGN3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5));
+
+				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
+					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
+					return;
+				}
+
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt(GetID("Money"));
@@ -119,23 +137,10 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Kills = GetInt(GetID("BlockKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Deaths = GetInt(GetID("BlockDeaths"));
 
-				//Accounts
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
-
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3, GetText(GetID("LastLogoutIGN3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5));
-
-				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
-				{
-					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
-					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
-					return;
-				}
+				//bomb
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesPlayed = GetInt(GetID("BombGamesPlayed"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesWon = GetInt(GetID("BombGamesWon"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BombBanTime = GetInt(GetID("BombBanTime"));
 
 			}
 
@@ -6264,6 +6269,21 @@ int CGameContext::FindNextBomb()
 
 
 	return NextBombID;
+}
+
+int CGameContext::CountBannedBombPlayers()
+{
+	int BannedPlayers = 0;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_BombBanTime)
+		{
+			BannedPlayers++;
+		}
+	}
+
+	return BannedPlayers;
 }
 
 int CGameContext::CountBombPlayers()
