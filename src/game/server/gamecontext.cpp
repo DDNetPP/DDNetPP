@@ -109,7 +109,7 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_PoliceRank = GetInt(GetID("PoliceRank"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel")); 
+				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel"));
 
 				//pvp arena
 				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_tickets = GetInt(GetID("PvPArenaTickets"));
@@ -277,12 +277,12 @@ void CGameContext::TOOLLEKIOBERFLAECHE(vekator pi, pa po)
 	dies das so bla
 
 
-		
+
 		liste hilfreicher dinge
-		
 
 
-		//chillas spielraum 
+
+		//chillas spielraum
 
 
 
@@ -864,7 +864,7 @@ void CGameContext::OnTick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	
+
 	// check tuning
 	CheckPureTuning();
 
@@ -1456,7 +1456,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	{
 		return;
 	}
-	
+
 	//winner private
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
@@ -1556,7 +1556,7 @@ void CGameContext::BombTick()
 	}
 
 	//check end game (no players)
-	if (!CountBombPlayers()) 
+	if (!CountBombPlayers())
 	{
 		EndBombGame(-1);
 	}
@@ -2060,7 +2060,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//							{
 			//								SendChat(c, CGameContext::CHAT_ALL, "hello.");
 			//							}
-			//							
+			//
 			//						}
 			//						else if (!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "y") ||
 			//							!str_comp_nocase(pMsg->m_pMessage + strlen(pNames[c]) + 2, "ye") ||
@@ -2122,7 +2122,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//						else
 			//						{
 			//							int r = rand() % 20;
-			//							
+			//
 			//							if (r == 0)
 			//							{
 			//								SendChat(c, CGameContext::CHAT_ALL, "Imagine a train coudl fly.");
@@ -2233,8 +2233,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//			return;
 
 			//			//TODO:
-			//			//wenn man einen dummy anschreibt der nicht auf dem server ist und jemand anderes seine id hat antwortet er 
-			//			//mit der var hier unten könnte man prüfen ob der angeschriebenen auch den dummy namen hat 
+			//			//wenn man einen dummy anschreibt der nicht auf dem server ist und jemand anderes seine id hat antwortet er
+			//			//mit der var hier unten könnte man prüfen ob der angeschriebenen auch den dummy namen hat
 			//			//is nicht zu 100% perfekt aber besser
 			//			//SendChat(c, CGameContext::CHAT_ALL, Server()->ClientName(c));
 			//		}
@@ -2332,7 +2332,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//############
 			if(pMsg->m_pMessage[0]=='/')
 			{
-				// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp 
+				// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
 				// geb mal ein cmd /join spec   && /join fight (player)
 				if (!str_comp(pMsg->m_pMessage + 1, "leave"))
 				{
@@ -2550,7 +2550,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
 					//SendBroadcast(aBuf, ClientID);
 
-					
+
 					int BombID = -1;
 					for (int i = 0; i < MAX_CLIENTS; i++)
 					{
@@ -3058,7 +3058,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				//					SendChatTarget(ClientID, "This player already has 10 offer. Supermoderators can only send 10 offer.");
 				//					return;
 				//				}
-				//		
+				//
 				//				if (ClientID == RainbowID)
 				//				{
 				//					GetPlayerChar(ClientID)->m_Rainbow = true;;
@@ -3073,7 +3073,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				//					str_format(aBuf, sizeof(aBuf), "%s wants to give you rainbow. Type '/rainbow accept' to accept and activate rainbow for you.", Server()->ClientName(ClientID));
 				//					SendChatTarget(m_apPlayers[RainbowID]->GetCID(), aBuf);
 				//				}
-				//				
+				//
 				//			}
 				//		}
 				//		else
@@ -3395,8 +3395,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}*/
 				else if (!str_comp(pMsg->m_pMessage + 1, "giftinfo"))
 				{
-					
-					
+
+
 
 					char aBuf[256];
 					if (m_apPlayers[ClientID]->m_LastGift && m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed() > Server()->Tick())
@@ -3412,7 +3412,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						return;
 					}
 
-					
+
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "gift ", 5) == 0)
 				{
@@ -4327,7 +4327,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
-			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID)->m_IsBombing)
+			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
 			{
 				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
 				return;
@@ -6180,7 +6180,7 @@ int CGameContext::FindNextBomb()
 	//		{
 	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
 	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive
 	//				{
 	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
 	//					NextBombID = i;
@@ -6212,7 +6212,7 @@ int CGameContext::FindNextBomb()
 	//		{
 	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
 	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive 
+	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive
 	//				{
 	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
 	//					NextBombID = i;
@@ -6256,7 +6256,7 @@ int CGameContext::FindNextBomb()
 						b = -b;
 
 					int c = sqrt(a + b); //pythagoras rocks
-					Dist += c; //store all distances to all players 
+					Dist += c; //store all distances to all players
 				}
 			}
 			if (Dist > MaxDist)
@@ -6274,7 +6274,7 @@ int CGameContext::FindNextBomb()
 int CGameContext::CountBannedBombPlayers()
 {
 	int BannedPlayers = 0;
-	
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && m_apPlayers[i]->m_BombBanTime)
