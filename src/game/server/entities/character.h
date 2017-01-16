@@ -226,6 +226,8 @@ public:
 
 	bool m_taxi;
 
+	void DDPP_Tick();
+	void DummyTick();
 
 	void Pause(bool Pause);
 	bool Freeze(int Time);
