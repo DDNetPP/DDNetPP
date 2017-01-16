@@ -28,7 +28,7 @@ src/game/generated
 .project
 buildlog.txt
 /Debug
-/*.dll
+*.dll
 *.dtb
 *.log
 *.exe
