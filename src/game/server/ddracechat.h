@@ -57,6 +57,9 @@ CHAT_COMMAND("login", "ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogin, this, "Logi
 CHAT_COMMAND("logout", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogout, this, "Logout")
 CHAT_COMMAND("SQL", "si?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQL, this, "SQL admistration")
 CHAT_COMMAND("acc_info", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAcc_Info, this, "(admin-cmd) shows deeper information about accounts")
+CHAT_COMMAND("stats", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStats, this, "shows the stats of the player r")
+CHAT_COMMAND("profile", "s?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProfile, this, "player profiles more help at '/profile help'")
+
 
 //police
 CHAT_COMMAND("policechat", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoliceChat, this, "get more attention in chat with this command")
@@ -74,6 +77,7 @@ CHAT_COMMAND("money", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMoney, this, "shows 
 CHAT_COMMAND("pay", "ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPay, this, "give i amount of your '/money' to player r")
 
 //minigames
+CHAT_COMMAND("chidraqul", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChidraqul, this, "chidraqul2 (minigame) more info '/chidraqul info'")
 CHAT_COMMAND("MinigameLeft", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameLeft, this, "move left in the minigame. (/buy minigame)")
 CHAT_COMMAND("MinigameRight", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameRight, this, "move right in the minigame. (/buy minigame)")
 CHAT_COMMAND("MinigameUp", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMinigameUp, this, "move up in the minigame. (/buy minigame)")

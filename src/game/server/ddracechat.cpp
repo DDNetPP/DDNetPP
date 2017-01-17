@@ -342,7 +342,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"trail         3 500 money | lvl3 | dead");*/
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"minigame     250 money | lvl2 | disconnect");
+		"chidraqul     250 money | lvl2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"shit              5 money | lvl0 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -2096,11 +2096,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 5 000.");
 		}
 	}
-	else if (!str_comp_nocase(aItem, "minigame"))
+	else if (!str_comp_nocase(aItem, "chidraqul"))
 	{
 		if (pPlayer->m_level < 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You need level 2 or more to buy a minigame.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need level 2 or more to buy the minigame chidraqul.");
 			return;
 		}
 
@@ -2114,9 +2114,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_money >= 250)
 		{
-			pPlayer->MoneyTransaction(-250, "-250 bought minigame.");
+			pPlayer->MoneyTransaction(-250, "-250 bought chidraqul.");
 			pPlayer->m_BoughtGame = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought the minigame until disconnect. Check '/minigameinfo' for more information.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought the minigame chidraqul until disconnect. Check '/minigameinfo' for more information.");
 		}
 		else
 		{
@@ -2492,6 +2492,131 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 	}
 }
 
+void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[512];
+
+
+
+	if (pResult->NumArguments() > 0) //other players stats
+	{
+		char aStatsName[32];
+		str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
+		int StatsID = pSelf->GetCIDByName(aStatsName);
+		if (StatsID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
+		//{
+		//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
+		//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//	return;
+		//}
+
+		str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Money[%d]", pSelf->m_apPlayers[StatsID]->m_money);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+	}
+	else //own stats
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
+		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pPlayer->m_xp, pPlayer->m_neededxp);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	char aPara0[32];
+	str_copy(aPara0, pResult->GetString(0), sizeof(aPara0));
+
+	if (!str_comp_nocase(aPara0, "help"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
+	}
+	else if (!str_comp_nocase(aPara0, "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile Commands ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile view <playername>' to view a players profile.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile style <style>' to change profile style.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile status <status> to change status.'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile email <e-mail>' to change e-mail.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile homepage <homepage>' to change homepage.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile youtube <youtube>' to change youtube.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile skype <skype>' to change skype.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile twitter <twitter>' to change twitter.");
+	}
+	else if (!str_comp_nocase(aPara0, "view"))
+	{
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameters. Stick to struct: 'profile view <playername>'.");
+			return;
+		}
+
+		char aPara1[32];
+		str_copy(aPara1, pResult->GetString(1), sizeof(aPara1));
+		int ViewID = pSelf->GetCIDByName(aPara1);
+
+		if (ViewID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "Can't find user: '%s'", aPara1);
+			return;
+		}
+
+		pSelf->ShowProfile(pResult->m_ClientID, ViewID);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command. '/profile cmdlist' or '/profile help' might help.");
+	}
+}
+
 void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -2622,6 +2747,60 @@ void CGameContext::ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData)
 
 	pPlayer->m_hidejailmsg ^= true;
 	pSelf->SendBroadcast(" ", pResult->m_ClientID);
+}
+
+void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[512];
+	char aCommand[64];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+
+	if (!str_comp_nocase(aCommand, "help"))
+	{
+		//send help
+	}
+	else if (!str_comp_nocase(aCommand, "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul3 more help at '/chidraqul help'");
+	}
+	else if (!str_comp_nocase(aCommand, "start"))
+	{
+		if (pPlayer->m_BoughtGame)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul started.");
+			pPlayer->m_IsMinigame = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have this game. You can buy it with '/buy chidraqul'");
+		}
+	}
+	else if (!str_comp_nocase(aCommand, "stop") || !str_comp_nocase(aCommand, "quit"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul stopped.");
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_IsMinigame = false;
+		pSelf->SendBroadcast(" ", pResult->m_ClientID);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown chidraqul command. try '/chidraqul help'");
+	}
 }
 
 void CGameContext::ConMinigameLeft(IConsole::IResult *pResult, void *pUserData)

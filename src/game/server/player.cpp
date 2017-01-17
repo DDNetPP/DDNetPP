@@ -225,7 +225,7 @@ void CPlayer::Tick()
 
 
 
-		//ChillerDragon fluffypuffy the hash game
+		//ChillerDragon chidraqul3 the hash game
 		if (m_IsMinigame)
 		{
 			if (g_Config.m_SvAllowMinigame == 0)

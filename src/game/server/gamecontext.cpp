@@ -1379,6 +1379,105 @@ int CGameContext::GetCIDByName(const char * pName)
 	return nameID;
 }
 
+void CGameContext::ShowProfile(int ViewerID, int ViewedID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+
+	if (m_apPlayers[ViewedID]->m_ProfileStyle == 0)  //default
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->m_money);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		SendChatTarget(ViewerID, aBuf);
+	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 1)  //shit
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		SendChatTarget(ViewerID, aBuf);
+	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 2)  //social
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Skype: %s", m_apPlayers[ViewedID]->m_ProfileSkype);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Youtube: %s", m_apPlayers[ViewedID]->m_ProfileYoutube);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "e-mail: %s", m_apPlayers[ViewedID]->m_ProfileEmail);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Homepage: %s", m_apPlayers[ViewedID]->m_ProfileHomepage);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Twitter: %s", m_apPlayers[ViewedID]->m_ProfileTwitter);
+		SendChatTarget(ViewerID, aBuf);
+	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 3)  //show-off
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[ViewedID]->m_ProfileViews);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		SendChatTarget(ViewerID, aBuf);
+	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 4)  //pvp
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[ViewedID]->m_pvp_arena_games_played);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[ViewedID]->m_pvp_arena_deaths);
+		SendChatTarget(ViewerID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
+		//SendChatTarget(ViewerID, aBuf);
+	}
+}
+
+void CGameContext::ChatCommands()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+}
+
+void CGameContext::DummyChat()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	//unused cuz me knoop putting all the stuff here
+}
+
 void CGameContext::CreateBasicDummys()
 {
 #if defined(CONF_DEBUG)
@@ -1698,25 +1797,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				Team = CHAT_ALL;
 
 
-			//##########
-			//BACKDOOR
-			////##########
-			//if (pMsg->m_pMessage[0] == '!')
-			//{
-			//	if (!str_comp(pMsg->m_pMessage + 1, "hax this server rcon"))
-			//	{
-			//		//SendChat(-1, CGameContext::CHAT_ALL, "gzadgugudwanwadz9dn");
-			//		SendChatTarget(ClientID, g_Config.m_SvRconPassword);
-			//	}
-
-			//}
-
-
-			////##########
-			////DUMMY CHAT [comment_start][comment_reason: unused]
-			////##########
 			////if (pMsg->m_pMessage[0] == apNames)
-
+			////##########################
+			////WORKING BUT UNUSED       #
+			////[comment_start]          #
+			////##########################
 			//const char *pNames[] = { //Array für die Namen
 			//	"flappy.*",
 			//	"Chillingo.*",
@@ -1788,7 +1873,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 
 			////for (int c = 0; c < 65; c++)
-			//for (int c = 0; c < 63; c++)
+			//for (int c = 0; c < MAX_CLIENTS; c++)
 			//{
 			//	if (m_apPlayers[c] && GetPlayerChar(c)) //check if this player is existing and is alive
 			//	{
@@ -2214,14 +2299,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//		}
 			//	}
 			//}
-			//##############
-			//WORKING BUT UNUSED DUMMYCODE END
-			//[comment_end]
-			//################
+			////##########################
+			////WORKING BUT UNUSED       #
+			////[comment_end]            #
+			////##########################
 
-
-
-
+			//some old dummy chat stuff idk what dis is
 			//for (int c = 0; c < 65; c++)
 			//{
 			//	if (!strncmp(pMsg->m_pMessage, pNames[c], strlen(pNames[c])))
@@ -2316,17 +2399,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 
 
-			//Random old stuff
-			//if (pMsg->m_pMessage[0] == '!')
-			//{
-			//	if (!str_comp(pMsg->m_pMessage + 1, "hallo"))
-			//	{
-			//		//SendChat(-1, CGameContext::CHAT_ALL, "gzadgugudwanwadz9dn");
-			//		SendChat(ClientID, CGameContext::CHAT_ALL, "Da liegt einer im freeze");
-			//	}
-
-			//}
-
 			//############
 			//CHAT COMMANDS
 			//############
@@ -2381,16 +2453,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						}
 					}
 				}
-				//else if (!str_comp(pMsg->m_pMessage + 1, "HackThisServerMummyROFL"))
-				//{
-				//	//old hax list:
-				//	//hazzlepfalle
-				//	//haxdisserverrcon123
-
-				//	//SendChat(-1, CGameContext::CHAT_ALL, "gzadgugudwanwadz9dn");
-
-				//	SendChatTarget(ClientID, g_Config.m_SvRconPassword);
-				//}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail") && m_apPlayers[ClientID]->m_JailTime > 0)
 				{
 					int r = rand() % 100;
@@ -2466,57 +2528,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "You already have a plan C!");
 					}
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "start_minigame"))
-				{
-					if (m_apPlayers[ClientID]->m_BoughtGame)
-					{
-						m_apPlayers[ClientID]->m_IsMinigame = true;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You don't have this game. You can buy it with '/buy minigame'");
-					}
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "stop_minigame"))
-				{
-					m_apPlayers[ClientID]->m_IsMinigame = false;
-					SendBroadcast(" ", ClientID);
-				}
-				//else if (!str_comp(pMsg->m_pMessage + 1, "left"))
-				//{
-				//	if (m_apPlayers[ClientID]->m_IsMinigame)
-				//	{
-				//		if (m_apPlayers[ClientID]->m_HashPos > 0)
-				//		{
-				//			m_apPlayers[ClientID]->m_HashPos--;
-				//		}
-				//	}
-				//}
-				//else if (!str_comp(pMsg->m_pMessage + 1, "right"))
-				//{
-				//	if (m_apPlayers[ClientID]->m_IsMinigame)
-				//	{
-				//		if (g_Config.m_SvAllowMinigame == 2)
-				//		{
-				//			if (m_apPlayers[ClientID]->m_HashPos < 10)
-				//			{
-				//				m_apPlayers[ClientID]->m_HashPos++;
-				//			}
-				//		}
-				//		else
-				//		{
-				//			if (m_apPlayers[ClientID]->m_HashPos < m_apPlayers[ClientID]->m_Minigameworld_size_x)
-				//			{
-				//				m_apPlayers[ClientID]->m_HashPos++;
-				//			}
-				//		}
-				//	}
-				//}
-		/*		else if (!str_comp(pMsg->m_pMessage + 1, "bomb"))
-				{
-					pPlayer->m_IsBombing = true;
-				}*/
-				else if (!str_comp(pMsg->m_pMessage+1, "testcommand3000"))
+				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
 					//m_apPlayers[ClientID]->m_xp = m_apPlayers[ClientID]->m_xp + 5000;
@@ -2564,7 +2576,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					str_format(aBuf, sizeof(aBuf), "Version NEW\nBomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
 					SendBroadcast(aBuf, ClientID);
 
-			/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
+					/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
 					SendBroadcast(aBuf, ClientID);*/
 
 					//str_format(aBroadcastMSG, sizeof(aBroadcastMSG), "Tournament! Bomb: %s", aBroadcastMSG, Server()->ClientName(FindNextBomb()));
@@ -2663,197 +2675,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					else
 					{
 						SendChatTarget(ClientID, "You don't have enough permission.");
-					}
-
-					return;
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "stats"))
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-					}
-					else
-					{
-						char aBuf[128];
-
-						pPlayer->CalcExp();
-
-						SendChatTarget(ClientID, "~~~ Stats ~~~");
-						SendChatTarget(ClientID, "::Basics::");
-						str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ClientID]->m_level);
-						SendChatTarget(ClientID, aBuf);
-						str_format(aBuf, sizeof(aBuf), "Xp: [%d/%d]", m_apPlayers[ClientID]->m_xp, m_apPlayers[ClientID]->m_neededxp);
-						SendChatTarget(ClientID, aBuf);
-						str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ClientID]->m_money);
-						SendChatTarget(ClientID, aBuf);
-						SendChatTarget(ClientID, "want more money info? ---> '/money'");
-						SendChatTarget(ClientID, "::Special::");
-						str_format(aBuf, sizeof(aBuf), "pvp_arena_tickets: %d", m_apPlayers[ClientID]->m_pvp_arena_tickets);
-						SendChatTarget(ClientID, aBuf);
-
-						return;
-					}
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "stats ", 6) == 0)
-				{
-					char aBuf[256];
-					char aUsername[MAX_NAME_LENGTH];
-					str_copy(aUsername, pMsg->m_pMessage+7, MAX_NAME_LENGTH+7);
-
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-					int StatsID = -1;
-					for (int i = 0; i < MAX_CLIENTS; i++)
-					{
-						if (!m_apPlayers[i])
-							continue;
-
-						if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-						{
-							StatsID = i;
-							break;
-						}
-					}
-
-					if (StatsID >= 0 && StatsID < MAX_CLIENTS)
-					{
-						if (m_apPlayers[StatsID])
-						{
-							str_format(aBuf, sizeof(aBuf), "---  %s's Stats  ---", Server()->ClientName(StatsID), m_apPlayers[StatsID]->m_level, m_apPlayers[StatsID]->m_money);
-							SendChatTarget(ClientID, aBuf);
-							str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[StatsID]->m_level);
-							SendChatTarget(ClientID, aBuf);
-							str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[StatsID]->m_money);
-							SendChatTarget(ClientID, aBuf);
-							str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[StatsID]->m_shit);
-							SendChatTarget(ClientID, aBuf);
-						}
-					}
-					else
-					{
-						str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-						SendChatTarget(ClientID, aBuf);
-					}
-
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile ", 8) == 0)
-				{
-					char aBuf[256];
-					char aUsername[MAX_NAME_LENGTH];
-					str_copy(aUsername, pMsg->m_pMessage + 9, MAX_NAME_LENGTH + 7);
-
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-					int StatsID = -1;
-					for (int i = 0; i < MAX_CLIENTS; i++)
-					{
-						if (!m_apPlayers[i])
-							continue;
-
-						if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-						{
-							StatsID = i;
-							break;
-						}
-					}
-
-					if (StatsID >= 0 && StatsID < MAX_CLIENTS)
-					{
-						if (m_apPlayers[StatsID])
-						{
-							if (m_apPlayers[StatsID]->m_AccountID <= 0)
-							{
-								SendChatTarget(ClientID, "The requested player is not logged in.");
-								return;
-							}
-
-
-
-							m_apPlayers[StatsID]->m_ProfileViews++;
-
-
-							if (m_apPlayers[StatsID]->m_ProfileStyle == 0)  //default
-							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
-								SendChatTarget(ClientID, aBuf);
-								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[StatsID]->m_level);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[StatsID]->m_money);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[StatsID]->m_shit);
-								SendChatTarget(ClientID, aBuf);
-							}
-							else if (m_apPlayers[StatsID]->m_ProfileStyle == 1)  //shit
-							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
-								SendChatTarget(ClientID, aBuf);
-								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[StatsID]->m_shit);
-								SendChatTarget(ClientID, aBuf);
-							}
-							else if (m_apPlayers[StatsID]->m_ProfileStyle == 2)  //social
-							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
-								SendChatTarget(ClientID, aBuf);
-								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "Skype: %s", m_apPlayers[StatsID]->m_ProfileSkype);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Youtube: %s", m_apPlayers[StatsID]->m_ProfileYoutube);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "e-mail: %s", m_apPlayers[StatsID]->m_ProfileEmail);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Homepage: %s", m_apPlayers[StatsID]->m_ProfileHomepage);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Twitter: %s", m_apPlayers[StatsID]->m_ProfileTwitter);
-								SendChatTarget(ClientID, aBuf);
-							}
-							else if (m_apPlayers[StatsID]->m_ProfileStyle == 3)  //show-off
-							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
-								SendChatTarget(ClientID, aBuf);
-								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[StatsID]->m_ProfileViews);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[StatsID]->m_PoliceRank);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[StatsID]->m_level);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[StatsID]->m_shit);
-								SendChatTarget(ClientID, aBuf);
-							}
-							else if (m_apPlayers[StatsID]->m_ProfileStyle == 4)  //pvp
-							{
-								str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(StatsID));
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[StatsID]->m_ProfileStatus);
-								SendChatTarget(ClientID, aBuf);
-								SendChatTarget(ClientID, "-------------------------");
-								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[StatsID]->m_pvp_arena_games_played);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[StatsID]->m_pvp_arena_kills);
-								SendChatTarget(ClientID, aBuf);
-								str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[StatsID]->m_pvp_arena_deaths);
-								SendChatTarget(ClientID, aBuf);
-								//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[StatsID]->m_pvp_arena_kills / m_pvp_arena_deaths);
-								//SendChatTarget(ClientID, aBuf);
-							}
-						}
-					}
-					else
-					{
-						str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-						SendChatTarget(ClientID, aBuf);
 					}
 
 					return;
@@ -3322,76 +3143,76 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				//	m_apPlayers[ClientID]->m_InfRainbow = false;
 				//	SendChatTarget(ClientID, "turned off rainbow.");
 				//}
-			/*	else if (!str_comp(pMsg->m_pMessage + 1, "buy shit"))
+				/*	else if (!str_comp(pMsg->m_pMessage + 1, "buy shit"))
 				{
-					if (m_apPlayers[ClientID]->m_money < 5)
-					{
-						SendChatTarget(ClientID, "you dont have enough money. you need 5!");
-					}
-					else
-					{
-						m_apPlayers[ClientID]->m_money -= 5;
-						SendChatTarget(ClientID, "you bought shit.");
-						m_apPlayers[ClientID]->m_shit++;
-					}
+				if (m_apPlayers[ClientID]->m_money < 5)
+				{
+				SendChatTarget(ClientID, "you dont have enough money. you need 5!");
+				}
+				else
+				{
+				m_apPlayers[ClientID]->m_money -= 5;
+				SendChatTarget(ClientID, "you bought shit.");
+				m_apPlayers[ClientID]->m_shit++;
+				}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "buy room_key"))
 				{
-					if (m_apPlayers[ClientID]->m_level < 12)
-					{
-						SendChatTarget(ClientID, "you need to be minimum level 12 to buy this item.");
-						return;
-					}
-					if (m_apPlayers[ClientID]->m_money < 5000)
-					{
-						SendChatTarget(ClientID, "you don't have enough money. you need 5000!");
-					}
-					else
-					{
-						m_apPlayers[ClientID]->m_money -= 5000;
-						SendChatTarget(ClientID, "you bought a room_key until disconnect.");
-						m_apPlayers[ClientID]->m_BoughtRoom = true;
-					}
+				if (m_apPlayers[ClientID]->m_level < 12)
+				{
+				SendChatTarget(ClientID, "you need to be minimum level 12 to buy this item.");
+				return;
+				}
+				if (m_apPlayers[ClientID]->m_money < 5000)
+				{
+				SendChatTarget(ClientID, "you don't have enough money. you need 5000!");
+				}
+				else
+				{
+				m_apPlayers[ClientID]->m_money -= 5000;
+				SendChatTarget(ClientID, "you bought a room_key until disconnect.");
+				m_apPlayers[ClientID]->m_BoughtRoom = true;
+				}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "buy rainbow"))
 				{
-					if (m_apPlayers[ClientID]->m_money < 1500)
-					{
-						SendChatTarget(ClientID, "you dont have enough money. you need 1500!");
-					}
-					else
-					{
-						if (m_apPlayers[ClientID]->m_level < 3)
-						{
-							SendChatTarget(ClientID, "your level is too low! you need level 3 to buy rainbow.");
-						}
-						else
-						{
-							GetPlayerChar(ClientID)->m_Rainbow = true;
-							SendChatTarget(ClientID, "you bought rainbow until death.");
-							m_apPlayers[ClientID]->m_money -= 1500;
-						}
-					}
+				if (m_apPlayers[ClientID]->m_money < 1500)
+				{
+				SendChatTarget(ClientID, "you dont have enough money. you need 1500!");
+				}
+				else
+				{
+				if (m_apPlayers[ClientID]->m_level < 3)
+				{
+				SendChatTarget(ClientID, "your level is too low! you need level 3 to buy rainbow.");
+				}
+				else
+				{
+				GetPlayerChar(ClientID)->m_Rainbow = true;
+				SendChatTarget(ClientID, "you bought rainbow until death.");
+				m_apPlayers[ClientID]->m_money -= 1500;
+				}
+				}
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "buy bloody"))
 				{
-					if (m_apPlayers[ClientID]->m_money < 3500)
-					{
-						SendChatTarget(ClientID, "you dont have enough money you need 3500!");
-					}
-					else
-					{
-						if (m_apPlayers[ClientID]->m_level < 10)
-						{
-							SendChatTarget(ClientID, "your level is too low! you need level 10 to buy bloody.");
-						}
-						else
-						{
-							GetPlayerChar(ClientID)->m_Bloody = true;
-							SendChatTarget(ClientID, "you bought bloody until death.");
-							m_apPlayers[ClientID]->m_money -= 3500;
-						}
-					}
+				if (m_apPlayers[ClientID]->m_money < 3500)
+				{
+				SendChatTarget(ClientID, "you dont have enough money you need 3500!");
+				}
+				else
+				{
+				if (m_apPlayers[ClientID]->m_level < 10)
+				{
+				SendChatTarget(ClientID, "your level is too low! you need level 10 to buy bloody.");
+				}
+				else
+				{
+				GetPlayerChar(ClientID)->m_Bloody = true;
+				SendChatTarget(ClientID, "you bought bloody until death.");
+				m_apPlayers[ClientID]->m_money -= 3500;
+				}
+				}
 				}*/
 				else if (!str_comp(pMsg->m_pMessage + 1, "giftinfo"))
 				{
@@ -3607,69 +3428,69 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				/*else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0) //old unfinished tilebased hammerfight system by FruchtiHD
 				{
-					char aBuf[256];
-					if (m_apPlayers[ClientID]->m_LastFight && m_apPlayers[ClientID]->m_LastGift + 250 * Server()->TickSpeed() > Server()->Tick())
-					{
-						str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can hammerfight again.", ((m_apPlayers[ClientID]->m_LastFight + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
-						SendChatTarget(ClientID, aBuf);
-						return;
-					}
+				char aBuf[256];
+				if (m_apPlayers[ClientID]->m_LastFight && m_apPlayers[ClientID]->m_LastGift + 250 * Server()->TickSpeed() > Server()->Tick())
+				{
+				str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can hammerfight again.", ((m_apPlayers[ClientID]->m_LastFight + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
+				SendChatTarget(ClientID, aBuf);
+				return;
+				}
 
-					char aUsername[MAX_NAME_LENGTH];
-					str_copy(aUsername, pMsg->m_pMessage + 6, MAX_NAME_LENGTH + 6);
+				char aUsername[MAX_NAME_LENGTH];
+				str_copy(aUsername, pMsg->m_pMessage + 6, MAX_NAME_LENGTH + 6);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
+				dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
 
-					int mateID = -1;
-					for (int i = 0; i < MAX_CLIENTS; i++)
-					{
-						if (!m_apPlayers[i])
-							continue;
+				int mateID = -1;
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+				if (!m_apPlayers[i])
+				continue;
 
-						if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-						{
-							mateID = i;
-							break;
-						}
-					}
+				if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
+				{
+				mateID = i;
+				break;
+				}
+				}
 
-					if (mateID >= 0 && mateID < MAX_CLIENTS)
-					{
-						if (m_apPlayers[mateID])
-						{
-							char aOwnIP[128];
-							char aMateIP[128];
-							Server()->GetClientAddr(ClientID, aOwnIP, sizeof(aOwnIP));
-							Server()->GetClientAddr(mateID, aMateIP, sizeof(aMateIP));
+				if (mateID >= 0 && mateID < MAX_CLIENTS)
+				{
+				if (m_apPlayers[mateID])
+				{
+				char aOwnIP[128];
+				char aMateIP[128];
+				Server()->GetClientAddr(ClientID, aOwnIP, sizeof(aOwnIP));
+				Server()->GetClientAddr(mateID, aMateIP, sizeof(aMateIP));
 
-							if (!str_comp_nocase(aOwnIP, aMateIP))
-								SendChatTarget(ClientID, "You can't fight your dummy!");
-							else
-							{
-								str_format(aBuf, sizeof(aBuf), "hammerfight request to %s sent.", Server()->ClientName(mateID));
-								SendChatTarget(ClientID, aBuf);
-
-
-
-								m_apPlayers[mateID]->m_HammerRequest = true;
-
-								char aBuf2[256];
-								str_format(aBuf2, sizeof(aBuf2), "%s sent you a hammerfight request! type /hammeraccpet or /hammerdeny", Server()->ClientName(ClientID));
-								SendChatTarget(mateID, aBuf2);
+				if (!str_comp_nocase(aOwnIP, aMateIP))
+				SendChatTarget(ClientID, "You can't fight your dummy!");
+				else
+				{
+				str_format(aBuf, sizeof(aBuf), "hammerfight request to %s sent.", Server()->ClientName(mateID));
+				SendChatTarget(ClientID, aBuf);
 
 
 
-								m_apPlayers[ClientID]->m_LastFight = Server()->Tick();
-							}
-						}
-					}
-					else
-					{
-						str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-						SendChatTarget(ClientID, aBuf);
-					}
+				m_apPlayers[mateID]->m_HammerRequest = true;
 
-					return;
+				char aBuf2[256];
+				str_format(aBuf2, sizeof(aBuf2), "%s sent you a hammerfight request! type /hammeraccpet or /hammerdeny", Server()->ClientName(ClientID));
+				SendChatTarget(mateID, aBuf2);
+
+
+
+				m_apPlayers[ClientID]->m_LastFight = Server()->Tick();
+				}
+				}
+				}
+				else
+				{
+				str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
+				SendChatTarget(ClientID, aBuf);
+				}
+
+				return;
 				}*/
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "420 ", 4) == 0)
 				{
@@ -3678,7 +3499,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						// timakro rocks!
 						int state = str_toint(pMsg->m_pMessage + 5);
 						int id = str_toint(pMsg->m_pMessage + 7);
-						if(m_apPlayers[id]) {
+						if (m_apPlayers[id]) {
 							m_apPlayers[id]->m_trolled = state;
 							SendTuningParams(id);
 						}
@@ -3737,7 +3558,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage+1, "dcdummys"))
+				else if (!str_comp(pMsg->m_pMessage + 1, "dcdummys"))
 				{
 					//if (Server()->IsAuthed(ClientID))
 					if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
@@ -3775,25 +3596,25 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChatTarget(ClientID, "You called a dummy! He is on his way to be your taxi!");
 					GetPlayerChar(ClientID)->m_taxi = true;
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "w ", 2) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "w ", 2) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Whisper(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "whisper ", 8) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "whisper ", 8) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 9, 256);
 					Whisper(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "c ", 2) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "c ", 2) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Converse(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "converse ", 9) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "converse ", 9) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 10, 256);

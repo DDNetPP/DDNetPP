@@ -224,6 +224,11 @@ public:
 	// DDRace & DDnetPlusPlus
 	//ChillerDragon
 
+	void ShowProfile(int ViewerID, int ViewedID);
+
+	void ChatCommands();
+	void DummyChat();
+
 	//dummy
 	void CreateBasicDummys();
 	void CreateNewDummy(int dummymode);
@@ -417,13 +422,18 @@ private:
 
 	//ChillerDragon
 
+	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogout(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
+	static void ConStats(IConsole::IResult *pResult, void *pUserData);
+	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
 
+	//minigame (chidraqul)
+	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameLeft(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameRight(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameUp(IConsole::IResult *pResult, void *pUserData);
@@ -432,12 +442,14 @@ private:
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
+	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 	static void ConPay(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 
+	//info
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);

@@ -204,7 +204,7 @@ public:
 	int m_BombGamesWon;
 	int m_BombBanTime;
 
-	//fluffypuffy (minigame)
+	//chidraqul3 (minigame)
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
 	bool m_GoldAlive;
