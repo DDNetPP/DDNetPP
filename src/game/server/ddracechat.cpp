@@ -4819,3 +4819,78 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 }
+
+void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	char aCmd[64];
+	str_copy(aCmd, pResult->GetString(0), sizeof(aCmd));
+
+	if (!str_comp_nocase(aCmd, "help"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Help helps...");
+	}
+	else if (!str_comp_nocase(aCmd, "invite"))
+	{
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR stick struct: '/room invite <player>'.");
+			return;
+		}
+
+		char aInviteName[32];
+		str_copy(aInviteName, pResult->GetString(1), sizeof(aInviteName));
+		int InviteID = pSelf->GetCIDByName(aInviteName);
+
+		if (InviteID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "Can't find the player '%s'.", aInviteName);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		if (!pPlayer->m_IsSuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+		if (!pPlayer->m_BoughtRoom)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need a roomkey to invite others. ('/buy room_key')");
+			return;
+		}
+		if (pSelf->m_apPlayers[InviteID]->m_BoughtRoom)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player already bought a room key.");
+			return;
+		}
+		if (pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player already were given a key by a SuperModerator.");
+			return;
+		}
+
+
+		//GETTER
+		pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator = true;
+		str_format(aBuf, sizeof(aBuf), "'%s' invited you to the room c:", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//GIVER
+		str_format(aBuf, sizeof(aBuf), "You invited '%s' to the room", pSelf->Server()->ClientName(InviteID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command try '/room help' for more help.");
+	}
+}

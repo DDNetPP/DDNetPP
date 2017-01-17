@@ -2544,7 +2544,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
 					pPlayer->m_IsModerator = 1;
-					pPlayer->m_IsSuperModerator ^= true;
+					pPlayer->m_IsSuperModerator = true;
+					pPlayer->m_BoughtRoom = true;
+
 					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
 					//pPlayer->m_IsTest ^= true;
 

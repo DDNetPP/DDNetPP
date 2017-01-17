@@ -3160,29 +3160,11 @@ void CCharacter::DDPP_Tick()
 
 	if (g_Config.m_SvRoomState == 1) // ChillBlock5
 	{
-		//old
-		////exit
-		//if (m_pPlayer->m_TeleroomOut)
-		//{
-		//	if (m_Core.m_Pos.x > 356 * 32 + 10 && m_Core.m_Pos.x < 357 * 32 && m_Core.m_Pos.y > 229 * 32 && m_Core.m_Pos.y < 233 * 32)
-		//	{
-		//		m_Core.m_Pos.x = 359 * 32 + 5;
-		//		m_Core.m_Pos.y = 232 * 32 - 2;
-		//	}
-		//}
-
-		////enter
-		//if (m_pPlayer->m_TeleroomIn)
-		//{
-		//	if (m_Core.m_Pos.x > 357 * 32 && m_Core.m_Pos.x < 359 * 32 && m_Core.m_Pos.y > 229 * 32 && m_Core.m_Pos.y < 233 * 32)
-		//	{
-		//		m_Core.m_Pos.x = 355 * 32;
-		//		m_Core.m_Pos.y = 232 * 32 - 2;
-		//	}
-		//}
-
-		//new
-		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
+		if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) 
+		{
+			//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
+		}
+		else //tele back if no key
 		{
 			if (m_Core.m_Pos.x > 363 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 231 * 32 && m_Core.m_Pos.y < 233 * 32)
 			{

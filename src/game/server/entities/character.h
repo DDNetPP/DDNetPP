@@ -271,6 +271,9 @@ public:
 	//int m_StockMarket_item_Cucumbers; //player.h
 
 
+	//room by supermoderator invited
+	bool m_HasRoomKeyBySuperModerator;
+
 	//bomb
 	bool m_IsBombing;
 	bool m_IsBomb;

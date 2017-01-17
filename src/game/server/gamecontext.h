@@ -420,7 +420,7 @@ private:
 	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 
-	//ChillerDragon
+	//ChillerDragon (ddpp)
 
 	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
@@ -465,6 +465,8 @@ private:
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
