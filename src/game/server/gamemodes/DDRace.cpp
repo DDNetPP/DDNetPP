@@ -289,20 +289,21 @@ void CGameControllerDDRace::Tick()
 					apCloseCCharacters[i]->GetPlayer()->m_Rainbow = RAINBOW_BLACKWHITE;*/
 					apCloseCCharacters[i]->m_FirstFreezeTick = 0;
 
-					for(int c = 0; c < MAX_CLIENTS; c++)
+					if (g_Config.m_SvFlagSounds)
 					{
-						CPlayer *pPlayer = GameServer()->m_apPlayers[c];
-						if(!pPlayer)
-							continue;
+						for (int c = 0; c < MAX_CLIENTS; c++)
+						{
+							CPlayer *pPlayer = GameServer()->m_apPlayers[c];
+							if (!pPlayer)
+								continue;
 
-
-						//leave this sounds uncfgabel cuz not all players hear it
-						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorID] && GameServer()->m_apPlayers[pPlayer->m_SpectatorID]->GetTeam() == fi)
-							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
-						else if(pPlayer->GetTeam() == fi)
-							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
-						else
-							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, c);
+							if (pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorID] && GameServer()->m_apPlayers[pPlayer->m_SpectatorID]->GetTeam() == fi)
+								GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
+							else if (pPlayer->GetTeam() == fi)
+								GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
+							else
+								GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, c);
+						}
 					}
 					// demo record entry
 					GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, -2);
