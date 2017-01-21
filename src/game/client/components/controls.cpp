@@ -855,20 +855,21 @@ int CControls::SnapInput(int *pData)
 			{
 				GameClient()->SendKill(g_Config.m_ClDummy);
 			}
-
 			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 35 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 132 * 32) //to far down on main way (v3 down) and sb left side
 			{
 				GameClient()->SendKill(g_Config.m_ClDummy);
 			}
-
-			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 62 * 32) //sb down
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 67 * 32) //sb down
 			{
 				GameClient()->SendKill(g_Config.m_ClDummy);
 			}
-
-			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 141 * 32)
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 28 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X > 164 * 32) //dont go in race right side
 			{
-				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+				GameClient()->SendKill(g_Config.m_ClDummy);
+			}
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y < 16 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 116 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X > 41 * 32) //dont go up in v3 area
+			{
+				GameClient()->SendKill(g_Config.m_ClDummy);
 			}
 
 			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 76 * 32) //spawn hammerrun area
@@ -907,11 +908,42 @@ int CControls::SnapInput(int *pData)
 				}
 			}
 
-			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 157 * 32)
+			//left border protection (and main move impulse from spawn)
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X < 141 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+			}
+			//right border protection
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_X > 156 * 32 - 10)
 			{
 				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
 			}
 
+			//go on right down plattform from left side
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 47 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 154 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X > 148 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = 1;
+				m_InputData[g_Config.m_ClDummy].m_TargetX = 200;
+				m_InputData[g_Config.m_ClDummy].m_TargetY = 0;
+				m_InputData[g_Config.m_ClDummy].m_Hook = 1;
+			}
+
+			//go on left plattform from right side
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y < 53 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 147 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X > 143 * 32 + 1)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Direction = -1;
+			}
+
+			//Starblock down dj if under all plattforms
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_Y > 62 * 32)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Jump = 1;
+			}
+			//Starblock down too much vel down --> dj
+			if (GameClient()->m_Snap.m_pLocalCharacter->m_VelY > 8.6f && GameClient()->m_Snap.m_pLocalCharacter->m_Y > 55 * 32 && GameClient()->m_Snap.m_pLocalCharacter->m_X < 154 * 32 - 20)
+			{
+				m_InputData[g_Config.m_ClDummy].m_Jump = 1;
+			}
 		}
 		else if (g_Config.m_ClMovebot == 8 && GameClient()->m_Snap.m_pLocalCharacter) //Copy Love Box (boost bot)
 		{
