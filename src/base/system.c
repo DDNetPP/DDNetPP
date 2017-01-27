@@ -279,9 +279,38 @@ static void logger_debugger(const char *line)
 static IOHANDLE logfile = 0;
 static void logger_file(const char *line)
 {
+
 	io_write(logfile, line, strlen(line));
 	io_write_newline(logfile);
 	io_flush(logfile);
+
+	//log filter by ChillerDragon
+	//all rights reserved to ChillerBot.png 
+	//ChillerBot.png (c) Copyright 2017
+	//if (str_find(line, "test"))
+	//{
+	//	io_write(logfile, line, strlen(line));
+	//	io_write_newline(logfile);
+	//	io_flush(logfile);
+	//}
+	//if (str_find(line, "[demo_recorder]: Recording to")) //if starting demo record --> print cut in chat log
+	//{
+	//	time_t rawtime;
+	//	struct tm* timeinfo;
+	//	char timestr[80];
+
+	//	time(&rawtime);
+	//	timeinfo = localtime(&rawtime);
+
+	//	strftime(timestr, sizeof(timestr), "%y-%m-%d %H:%M:%S", timeinfo);
+
+	//	char aBuf[1024];
+	//	str_format(aBuf, sizeof(aBuf), "[%s]", timestr);
+	//	io_write(logfile, line, strlen(line));
+	//	io_write_newline(logfile);
+	//	io_flush(logfile);
+	//}
+
 }
 
 void dbg_logger_stdout() { dbg_logger(logger_stdout); }
@@ -289,7 +318,9 @@ void dbg_logger_stdout() { dbg_logger(logger_stdout); }
 void dbg_logger_debugger() { dbg_logger(logger_debugger); }
 void dbg_logger_file(const char *filename)
 {
-	logfile = io_open(filename, IOFLAG_WRITE);
+	//logfile = io_open(filename, IOFLAG_WRITE); //overwrite
+	logfile = io_open(filename, IOFLAG_APPEND);
+	//test dies 
 	if(logfile)
 		dbg_logger(logger_file);
 	else
@@ -429,6 +460,8 @@ IOHANDLE io_open(const char *filename, int flags)
 		return (IOHANDLE)fopen(filename, "rb");
 	if(flags == IOFLAG_WRITE)
 		return (IOHANDLE)fopen(filename, "wb");
+	if (flags == IOFLAG_APPEND)
+		return (IOHANDLE)fopen(filename, "ab");
 	return 0x0;
 }
 
