@@ -149,7 +149,7 @@ void CSnapIDPool::TimeoutIDs()
 
 void CServer::BotJoin(int BotID)
 {
-	const char *pNames[] = { //Array für die Namen
+	const char *pNames[] = { //Array fÃ¼r die Namen
 		"flappy.*",
 		"Chillingo.*",
 		"Fluffy.*",
@@ -216,7 +216,7 @@ void CServer::BotJoin(int BotID)
 		"xxlddnnet64"
 		
 	};
-	const char *pClans[] = { //Array für die Clans
+	const char *pClans[] = { //Array fÃ¼r die Clans
 		"Chilli.*",
 		"Chilli.*",
 		"Chilli.*",
