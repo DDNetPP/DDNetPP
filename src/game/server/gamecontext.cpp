@@ -1260,7 +1260,14 @@ void CGameContext::OnClientEnter(int ClientID)
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
 	Score()->PlayerData(ClientID)->Reset();
-	m_apPlayers[ClientID]->m_Score = -9999; //dürfen die dummys auch sowas  ? :3 was genau? -9999 score beinm connecten. sollten die jetz eigentlich k
+	if (g_Config.m_SvInstagibMode)
+	{
+		m_apPlayers[ClientID]->m_Score = 0;
+	}
+	else
+	{
+		m_apPlayers[ClientID]->m_Score = -9999; //dürfen die dummys auch sowas  ? :3 was genau? -9999 score beinm connecten. sollten die jetz eigentlich k
+	}
 
 	// Can't set score here as LoadScore() is threaded, run it in
 	// LoadScoreThreaded() instead
@@ -6114,11 +6121,9 @@ int CGameContext::FindNextBomb()
 					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(i_comp)->m_Pos.x;
 					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
 
-					//fipp negative vals
-					if (a < 0)
-						a = -a;
-					if (b < 0)
-						b = -b;
+					//|a| |b|
+					abs(a);
+					abs(b);
 
 					int c = sqrt(a + b); //pythagoras rocks
 					Dist += c; //store all distances to all players

@@ -1368,15 +1368,13 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//zCatch ChillerDragon
 	if (g_Config.m_SvInstagibMode) //in all instagib modes 1hit
 	{
-		//Save The Player in catch array
-		GameServer()->m_apPlayers[From]->aCatchedID[m_pPlayer->GetCID()] = 1;
-
-
-
 
 		if (From != m_pPlayer->GetCID())
 		{
 			Die(From, Weapon);
+
+			//do scoring (by ChillerDragon)
+			GameServer()->m_apPlayers[From]->m_Score++;
 		}
 
 		// set attacker's face to happy (taunt!)
@@ -1410,6 +1408,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			{
 				m_pPlayer->SetTeam(-1, 0);
 			}
+
+			//Save The Player in catch array
+			GameServer()->m_apPlayers[From]->aCatchedID[m_pPlayer->GetCID()] = 1;
 		}
 	}
 	else
