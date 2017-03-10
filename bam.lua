@@ -354,7 +354,7 @@ function build(settings)
 		engine, client, game_editor, zlib, pnglite, wavpack,
 		client_link_other, client_osxlaunch, jsonparser, libwebsockets, md5, client_notification)
 
-	server_exe = Link(server_settings, "DDNet-Server", engine, server,
+	server_exe = Link(server_settings, "DDNetPP", engine, server,
 		game_shared, game_server, zlib, server_link_other, libwebsockets, md5, sqlite3)
 
 	serverlaunch = {}

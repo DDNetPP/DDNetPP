@@ -7,7 +7,7 @@ src/game/generated
 
 
 /ChillerBot*
-/DDNet-Server*
+/DDNetPP*
 /crapnet*
 /config_store*
 /config_retrieve*
@@ -47,4 +47,3 @@ buildlog.txt
 *.cmd
 .settings
 *.opensdf
-*.pyc
