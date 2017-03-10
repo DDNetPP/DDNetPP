@@ -1122,6 +1122,10 @@ void CGameContext::OnTick()
 	{
 		BombTick();
 	}
+	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //zCatch grenade or zCatch rifle
+	{
+		zCatchTick();
+	}
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -1299,23 +1303,46 @@ void CGameContext::OnClientConnected(int ClientID)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	// Check which team the player should be on
-	const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
+	// Check which team the player should be on (copyed all the stuff cuz const int mukked)
+	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade zCatch and rifle zCatch
+	{
+		const int StartTeam = TEAM_SPECTATORS;
 
-	if (!m_apPlayers[ClientID])
-		m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
+		if (!m_apPlayers[ClientID])
+			m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
+		else
+		{
+			delete m_apPlayers[ClientID];
+			m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
+			//	//m_apPlayers[ClientID]->Reset();
+			//	//((CServer*)Server())->m_aClients[ClientID].Reset();
+			//	((CServer*)Server())->m_aClients[ClientID].m_State = 4;
+		}
+		//players[client_id].init(client_id);
+		//players[client_id].client_id = client_id;
+
+		//(void)m_pController->CheckTeamBalance();
+	}
 	else
 	{
-		delete m_apPlayers[ClientID];
-		m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
-	//	//m_apPlayers[ClientID]->Reset();
-	//	//((CServer*)Server())->m_aClients[ClientID].Reset();
-	//	((CServer*)Server())->m_aClients[ClientID].m_State = 4;
-	}
-	//players[client_id].init(client_id);
-	//players[client_id].client_id = client_id;
+		const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
 
-	//(void)m_pController->CheckTeamBalance();
+		if (!m_apPlayers[ClientID])
+			m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
+		else
+		{
+			delete m_apPlayers[ClientID];
+			m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
+			//	//m_apPlayers[ClientID]->Reset();
+			//	//((CServer*)Server())->m_aClients[ClientID].Reset();
+			//	((CServer*)Server())->m_aClients[ClientID].m_State = 4;
+		}
+		//players[client_id].init(client_id);
+		//players[client_id].client_id = client_id;
+
+		//(void)m_pController->CheckTeamBalance();
+	}
+
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -1478,6 +1505,17 @@ void CGameContext::DummyChat()
 	//unused cuz me knoop putting all the stuff here
 }
 
+void CGameContext::zCatchTick()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			//m_apPlayers[i]->SetTeam(0,0);
+		}
+	}
+}
+
 void CGameContext::CreateBasicDummys()
 {
 #if defined(CONF_DEBUG)
@@ -1592,9 +1630,9 @@ void CGameContext::CheckStartBomb()
 		{
 			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 			{
-				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2;
-				GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
-				GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
+				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
+				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
+				//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
 				str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
 				SendBroadcast(aBuf, i);
 			}
@@ -2546,6 +2584,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					pPlayer->m_IsModerator = 1;
 					pPlayer->m_IsSuperModerator = true;
 					pPlayer->m_BoughtRoom = true;
+					//sstr_format(aBuf, sizeof(aBuf), "adwhu");
 
 					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
 					//pPlayer->m_IsTest ^= true;

@@ -229,6 +229,13 @@ public:
 	void DDPP_Tick();
 	void DummyTick();
 
+	//Chillintelligenz
+	void CITick();
+	void CIRestart();
+	int CIGetDestDist();
+
+	int m_ci_freezetime = 0;
+
 	void Pause(bool Pause);
 	bool Freeze(int Time);
 	bool Freeze(); 
@@ -332,6 +339,7 @@ public:
 	bool m_Dummy_bored_cuz_nothing_happens;
 	bool m_Dummy_movement_to_block_area_style_window;  //yep dis is too long
 	bool m_Dummy_planned_movment; // belongs to:   m_Dummy_movement_to_block_area_style_window
+
 
 	//dummy 19 vars
 	int m_DummyDriveDuration = 0;

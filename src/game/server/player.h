@@ -180,12 +180,20 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
+	//zCatch ChillerDragon
+	int aCatchedID[64] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
 	bool m_IsDummy;
 
 	// dummy 32 vars
 	bool m_Dummy_32dummy;
 	int m_Dummy_32look;
+
+
+	//dummy 33 vars (Chillintelligenz)
+	long m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
+	long m_ci_latest_dest_dist = 0;
+
 
 	//###########
 	//minigames

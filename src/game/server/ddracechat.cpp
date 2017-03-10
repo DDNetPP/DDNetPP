@@ -4315,7 +4315,19 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "More bomb players needed to lock the lobby.");
 			return;
 		}
-
+		if (g_Config.m_SvBombLockable == 0) //off
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Locking bomblobbys is deactivated on this server.");
+			return;
+		}
+		else if (g_Config.m_SvBombLockable == 1) //mods and higher
+		{
+			if (!pPlayer->m_Authed)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Only rcon authed players can lock bomb games.");
+				return;
+			}
+		}
 
 		if (pSelf->m_BombGameState == 1) //unlocked --> lock
 		{

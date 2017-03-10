@@ -228,6 +228,8 @@ public:
 
 	void ChatCommands();
 	void DummyChat();
+	//zCatch
+	void zCatchTick();
 
 	//dummy
 	void CreateBasicDummys();
