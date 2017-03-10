@@ -181,7 +181,7 @@ public:
 	bool m_FirstPacket;
 
 	//zCatch ChillerDragon
-	int m_aCatchedID[64] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+	int m_aCatchedID[64];
 
 	bool m_IsDummy;
 
@@ -191,8 +191,8 @@ public:
 
 
 	//dummy 33 vars (Chillintelligenz)
-	long m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
-	long m_ci_latest_dest_dist = 0;
+	long m_ci_lowest_dest_dist; //max long len 2147483647
+	long m_ci_latest_dest_dist;
 
 
 	//###########

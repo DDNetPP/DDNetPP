@@ -8,6 +8,8 @@
 #include <game/version.h>
 #include <game/generated/nethash.cpp>
 #include <time.h>          //ChillerDragon
+#include <sqlite3/sqlite3.h>
+
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
@@ -2742,9 +2744,6 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	if (!pChr)
 		return;
 
-
-	char aBuf[512];
-
 	pSelf->SendChatTarget(pResult->m_ClientID, "dies das coming soon....");
 }
 
@@ -2818,7 +2817,6 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
-	char aBuf[512];
 	char aCommand[64];
 	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
 
@@ -3031,7 +3029,7 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'einFISCH' entered and joined the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'GAGAGA' entered and joined the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Steve-' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'GroßerDBC' entered and joined the game");
+		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Groï¿½erDBC' entered and joined the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'cB | Bashcord' entered and joined the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'LIVUS BAGGUGE' entered and joined the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'BoByBANK' entered and joined the game");
@@ -3100,7 +3098,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
-	char aBuf[256];
 	char aInput[32];
 	str_copy(aInput, pResult->GetString(0), 32);
 
@@ -3276,8 +3273,6 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
-	char aBuf[256];
-
 	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
 	if (g_Config.m_SvFinishEvent == 1)
 	{
@@ -3319,7 +3314,6 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
-	char aBuf[256];
 	char aInput[32];
 	str_copy(aInput, pResult->GetString(0), 32);
 
@@ -3379,7 +3373,6 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
-	char aBuf[256];
 	char aInput[32];
 	str_copy(aInput, pResult->GetString(0), 32);
 
@@ -3439,7 +3432,6 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
-	char aBuf[256];
 	char aInput[32];
 	str_copy(aInput, pResult->GetString(0), 32);
 
@@ -3499,7 +3491,6 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
-	char aBuf[256];
 	char aInput[32];
 	str_copy(aInput, pResult->GetString(0), 32);
 

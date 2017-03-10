@@ -181,31 +181,31 @@ private:
 	bool m_SetSavePos;
 	vec2 m_PrevSavePos;
 
-	// also: es gibt eine start- und endposition für die augen
+	// also: es gibt eine start- und endposition fï¿½r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
 
-	// z.B. startzeit wäre jetzt, die zeit wie lange die animation geht wäre 1 sekunde
-	// dann wäre m_AngleTickStart = Server()->Tick() // = die jetzige zeit
+	// z.B. startzeit wï¿½re jetzt, die zeit wie lange die animation geht wï¿½re 1 sekunde
+	// dann wï¿½re m_AngleTickStart = Server()->Tick() // = die jetzige zeit
 	// und m_AngleTickTime = Server()->TickSpeed() // eine sekunde
 
-	// m_AngleFrom ist die startposition, also z.B. 0° (dann guckt er glaub ich nach rechts)
-	// m_AngleTo dann z.B. 90° (guckt nach unten)
-	// d.h. er dreht sich von jetzt bis in einer sekunde um 90°
+	// m_AngleFrom ist die startposition, also z.B. 0ï¿½ (dann guckt er glaub ich nach rechts)
+	// m_AngleTo dann z.B. 90ï¿½ (guckt nach unten)
+	// d.h. er dreht sich von jetzt bis in einer sekunde um 90ï¿½
 	float m_AngleFrom; //
 	float m_AngleTo;
 	int m_AngleTickStart;
 	int m_AngleTickTime;
-	int m_AngleTickNext; // und das ist die zeit, wann die nächste animation beginnen soll
+	int m_AngleTickNext; // und das ist die zeit, wann die nï¿½chste animation beginnen soll
 
 	int m_EmoteTickNext;
 	int m_EmoteTickNextFast;
 	int m_HookTickNext;
 	//int m_AimbotSwitchTick;
-	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man weiß ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
+	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man weiï¿½ ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
 	bool m_MoveMode;
 	bool m_LeftMM;
 	
-	int count = 0; // testy 
+//	int count; // testy
 	int m_DummyFinishes;
 
 
@@ -234,7 +234,7 @@ public:
 	void CIRestart();
 	int CIGetDestDist();
 
-	int m_ci_freezetime = 0;
+	int m_ci_freezetime;
 
 	void Pause(bool Pause);
 	bool Freeze(int Time);
@@ -342,7 +342,7 @@ public:
 
 
 	//dummy 19 vars
-	int m_DummyDriveDuration = 0;
+	int m_DummyDriveDuration;
 
 
 	//dummymode 23 vars
@@ -353,7 +353,7 @@ public:
 	bool m_Dummy_help_before_fly;		//to help at the mate if he gets freeze before the hammerfly started
 	bool m_Dummy_2p_panic_while_helping;//if the bot falls of the platform while helping at the 2p part
 	bool m_Dummy_panic_balance;			//hammerhit part struggle -> balance
-	bool m_Dummy_mate_failed;			//a ´var which toggles the dummy_2p_state value -2
+	bool m_Dummy_mate_failed;			//a ï¿½var which toggles the dummy_2p_state value -2
 	bool m_Dummy_hh_hook;				//check for hook in hammerhit at end
 	bool m_Dummy_collected_weapons;		//ob er nochmal zu den waffen hochfliegen muss
 	bool m_Dummy_mate_collected_weapons;//ob auch der race mate waffen hat
@@ -389,9 +389,9 @@ public:
 	bool m_Dummy_get_speed;             //im tunnel anlauf holen wenn ausgebremst                     WARNING THIS VAR IS ALSO USED IN DUMMYMODE == 26
 	bool m_Dummy_bored;					//wenn dem bot langweilig wird wechselt er die wayblock taktik
 	bool m_Dummy_special_defend;        //dummy_mode18 mode bool
-	bool m_Dummy_special_defend_attack; //sub var für m_Dummy_special_defend die abfrägt ob der bot schon angreifen soll
+	bool m_Dummy_special_defend_attack; //sub var fï¿½r m_Dummy_special_defend die abfrï¿½gt ob der bot schon angreifen soll
 
-	int m_Dummy_bored_counter;          //zähl hoch bis dem dummy lw wird
+	int m_Dummy_bored_counter;          //zï¿½hl hoch bis dem dummy lw wird
 
 	int m_Dummy_mode18;                 //yes dummymode18 has his own modes o.O
 	//bool mode18_main_init;              //yep one of the randomesteztes booleans in ze world

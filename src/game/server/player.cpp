@@ -81,6 +81,9 @@ void CPlayer::Reset()
 	m_LastSetSpectatorMode = 0;
 	m_TimeoutCode[0] = '\0';
 
+	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
+		m_aCatchedID[i] = -1;
+
 	m_TuneZone = 0;
 	m_TuneZoneOld = m_TuneZone;
 	m_Halloween = false;
@@ -148,6 +151,9 @@ void CPlayer::Reset()
 	m_Dummy_nn_highest_Distance_touched = 0.0f;
 	m_Minigameworld_size_x = 30;
 	m_max_level = 99; //is actually 1 more
+	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
+	m_ci_latest_dest_dist = 0;
+
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
