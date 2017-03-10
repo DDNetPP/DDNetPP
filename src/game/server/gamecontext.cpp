@@ -5194,7 +5194,10 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	//ChillerDragon
 	//dummy_init
-	CreateBasicDummys();
+	if (g_Config.m_SvBasicDummys)
+	{
+		CreateBasicDummys();
+	}
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)

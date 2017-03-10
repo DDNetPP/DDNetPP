@@ -368,6 +368,8 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 
 
 //ChillerDragon
+MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=ChillBlock5")
+
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 1, CFGFLAG_SERVER, "Kick chilli members with wrong skin")
 
 MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Cb5, 3=Blockdale")
