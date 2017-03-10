@@ -395,6 +395,7 @@ MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, 
 
 MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(coudl fuck server but idk)")
 
+MACRO_CONFIG_INT(SvAllowBomb, sv_allow_bomb, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=on")
 MACRO_CONFIG_INT(SvAllowBombSelfkill, sv_allow_bomb_selfkill, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=on suicide in '/bomb' games")
 MACRO_CONFIG_INT(SvBombTicks, sv_bomb_ticks, 1500, 10, 255000, CFGFLAG_SERVER, "after how many ticks the bomb explodes")
 MACRO_CONFIG_INT(SvBombSpawnX, sv_bomb_spawn_x, 101, 0, 5000, CFGFLAG_SERVER, "x pos of the bomb arena spawn (players spawn at x+CID*2)")

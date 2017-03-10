@@ -4135,6 +4135,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4147,6 +4148,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
+	if (!g_Config.m_SvAllowBomb)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Bomb games are deactivated by an admin.");
+		return;
+	}
 
 	char aBuf[512];
 
@@ -4827,7 +4833,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown bomb command. More help at '/bomb help'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown bomb command. More help at '/bomb help' or 'bomb cmdlist'");
 		return;
 	}
 }
