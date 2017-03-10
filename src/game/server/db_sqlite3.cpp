@@ -158,7 +158,17 @@ CSql::CSql()
 		"IsAccFrozen				INTEGER			DEFAULT 0," \
 		"BombGamesPlayed			INTEGER			DEFAULT 0," \
 		"BombGamesWon				INTEGER			DEFAULT 0," \
-		"BombBanTime				INTEGER			DEFAULT 0);";
+		"BombBanTime				INTEGER			DEFAULT 0," \
+		"GrenadeKills				INTEGER			DEFAULT 0," \
+		"GrenadeDeaths				INTEGER			DEFAULT 0," \
+		"GrenadeSpree				INTEGER			DEFAULT 0," \
+		"GrenadeShots				INTEGER			DEFAULT 0," \
+		"GrenadeWins				INTEGER			DEFAULT 0," \
+		"RifleKills					INTEGER			DEFAULT 0," \
+		"RifleDeaths				INTEGER			DEFAULT 0," \
+		"RifleSpree					INTEGER			DEFAULT 0," \
+		"RifleShots					INTEGER			DEFAULT 0," \
+		"RifleWins					INTEGER			DEFAULT 0);";
 
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);

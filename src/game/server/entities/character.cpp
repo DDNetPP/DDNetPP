@@ -655,6 +655,12 @@ void CCharacter::FireWeapon(bool Bot)
 
 	case WEAPON_GRENADE:
 	{
+		if (g_Config.m_SvInstagibMode)
+		{
+			m_pPlayer->m_GrenadeShots++;
+		}
+
+
 		int Lifetime;
 		if (!m_TuneZone)
 			Lifetime = (int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GrenadeLifetime);
@@ -688,9 +694,13 @@ void CCharacter::FireWeapon(bool Bot)
 
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	} break;
-
 	case WEAPON_RIFLE:
 	{
+		if (g_Config.m_SvInstagibMode)
+		{
+			m_pPlayer->m_RifleShots++;
+		}
+
 		float LaserReach;
 		if (!m_TuneZone)
 			LaserReach = GameServer()->Tuning()->m_LaserReach;
@@ -1194,6 +1204,110 @@ void CCharacter::Die(int Killer, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	char aBuf[256];
+
+
+	//zCatch instagib 
+	if (g_Config.m_SvInstagibMode)
+	{
+		if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+		{
+			m_pPlayer->m_GrenadeDeaths++;
+		}
+		else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+		{
+			m_pPlayer->m_RifleDeaths++;
+		}
+
+		//killingspree system by FruchtiHD and ChillerDragon stolen from twlevel
+		CCharacter *pVictim = m_pPlayer->GetCharacter();
+		CPlayer *pKiller = GameServer()->m_apPlayers[Killer];
+
+
+		if (pVictim && pKiller)
+		{
+
+			if (Weapon == WEAPON_GAME)
+			{
+				if (pVictim->GetPlayer()->m_KillStreak >= 5)
+				{
+					//Check for new highscore
+					if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+					{
+						//dbg_msg("insta", "checking for highscore grenade");
+						if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
+						{
+							pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
+							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
+						}
+						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+						//dbg_msg("insta", aBuf);
+					}
+					else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+					{
+						//dbg_msg("insta", "checking for highscore rifle");
+						if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
+						{
+							pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
+							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
+						}
+						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+						//dbg_msg("insta", aBuf);
+					}
+
+					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pVictim->GetPlayer()->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+					pVictim->GetPlayer()->m_KillStreak = 0;
+					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+				}
+			}
+
+			if (pVictim->GetPlayer()->m_KillStreak >= 5)
+			{
+				//Check for new highscore
+				if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+				{
+					//dbg_msg("insta", "checking for highscore grenade");
+					if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
+					{
+						pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
+						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
+					}
+					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+					//dbg_msg("insta", aBuf);
+				}
+				else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+				{
+					//dbg_msg("insta", "checking for highscore rifle");
+					if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
+					{
+						pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
+						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
+					}
+					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+					//dbg_msg("insta", aBuf);
+				}
+
+				str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+				pVictim->GetPlayer()->m_KillStreak = 0;
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+			}
+
+			if (pKiller != pVictim->GetPlayer())
+			{
+				pKiller->m_KillStreak++;
+				pVictim->GetPlayer()->m_KillStreak = 0;
+				str_format(aBuf, sizeof(aBuf), "%s is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCID()), pKiller->m_KillStreak);
+
+				if (pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
+					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			}
+		}
+	}
+
+
+
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
 
 		if (m_Core.m_LastHookedPlayer != -1) {
@@ -1237,7 +1351,6 @@ void CCharacter::Die(int Killer, int Weapon)
 	m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 2;
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
-	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 		Killer, Server()->ClientName(Killer),
 		m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
@@ -1335,8 +1448,10 @@ void CCharacter::Die(int Killer, int Weapon)
 		}
 	}
 
-	m_pPlayer->m_LastToucherID = -1;
 
+
+
+	m_pPlayer->m_LastToucherID = -1;
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
@@ -1375,6 +1490,34 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 			//do scoring (by ChillerDragon)
 			GameServer()->m_apPlayers[From]->m_Score++;
+
+			//save the kill
+			if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+			{
+				GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+			}
+			else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+			{
+				GameServer()->m_apPlayers[From]->m_RifleKills++;
+			}
+
+			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
+			//GameServer()->m_apPlayers[From]->m_KillStreak++;
+			//char aBuf[256];
+			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak >= 5)
+			//{
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+			//}
+			//m_pPlayer->m_KillStreak = 0;
+			//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
+			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
+			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		
+
 		}
 
 		// set attacker's face to happy (taunt!)

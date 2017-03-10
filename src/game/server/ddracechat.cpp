@@ -2511,50 +2511,101 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 
 	char aBuf[512];
 
-
-
-	if (pResult->NumArguments() > 0) //other players stats
+	if (g_Config.m_SvInstagibMode) //pvp stats
 	{
-		char aStatsName[32];
-		str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
-		int StatsID = pSelf->GetCIDByName(aStatsName);
-		if (StatsID == -1)
+		if (pResult->NumArguments() > 0) //other players stats
 		{
-			str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+			char aStatsName[32];
+			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
+			int StatsID = pSelf->GetCIDByName(aStatsName);
+			if (StatsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
+			//{
+			//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
+			//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//	return;
+			//}
+
+			str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
+			str_format(aBuf, sizeof(aBuf), "Grenadekills: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Grenadedeaths: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeDeaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Grenadespree: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeSpree);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Grenadeshots: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeShots);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Riflekills: %d", pSelf->m_apPlayers[StatsID]->m_RifleKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Rifledeaths: %d", pSelf->m_apPlayers[StatsID]->m_RifleDeaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Riflespree: %d", pSelf->m_apPlayers[StatsID]->m_RifleSpree);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Rifleshots: %d", pSelf->m_apPlayers[StatsID]->m_RifleShots);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
 		}
-		//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
-		//{
-		//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
-		//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		//	return;
-		//}
-
-		str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money[%d]", pSelf->m_apPlayers[StatsID]->m_money);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
+		else //own stats
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
+			str_format(aBuf, sizeof(aBuf), "Grenadekills: %d", pPlayer->m_GrenadeKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Riflekills: %d", pPlayer->m_RifleKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
 	}
-	else //own stats
+	else //blockcity stats
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
-		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pPlayer->m_xp, pPlayer->m_neededxp);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		if (pResult->NumArguments() > 0) //other players stats
+		{
+			char aStatsName[32];
+			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
+			int StatsID = pSelf->GetCIDByName(aStatsName);
+			if (StatsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
+			//{
+			//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
+			//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//	return;
+			//}
+
+			str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Money[%d]", pSelf->m_apPlayers[StatsID]->m_money);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+		}
+		else //own stats
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
+			str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pPlayer->m_xp, pPlayer->m_neededxp);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
 	}
+	
 }
 
 void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)

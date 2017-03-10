@@ -246,7 +246,17 @@ public:
 	int m_pvp_arena_kills;
 	int m_pvp_arena_deaths;
 
-
+	//zCatch ChillerDragon (instagib)
+	int m_GrenadeKills;
+	int m_GrenadeDeaths;
+	int m_GrenadeSpree;
+	int m_GrenadeShots;
+	int m_GrenadeWins;
+	int m_RifleKills;
+	int m_RifleDeaths;
+	int m_RifleSpree;
+	int m_RifleShots;
+	int m_RifleWins;
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp

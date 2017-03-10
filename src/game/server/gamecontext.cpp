@@ -142,6 +142,17 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesWon = GetInt(GetID("BombGamesWon"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BombBanTime = GetInt(GetID("BombBanTime"));
 
+				//instagib
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeKills = GetInt(GetID("GrenadeKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeDeaths = GetInt(GetID("GrenadeDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeSpree = GetInt(GetID("GrenadeSpree"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeShots = GetInt(GetID("GrenadeShots"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeWins = GetInt(GetID("GrenadeWins")); //zCatch
+				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleKills = GetInt(GetID("RifleKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleSpree"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleShots = GetInt(GetID("RifleShots"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleWins = GetInt(GetID("RifleWins")); //zCatch
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");

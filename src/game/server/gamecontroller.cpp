@@ -648,7 +648,7 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 		{
 			pChr->GiveWeapon(WEAPON_GRENADE, -1);
 		}
-		else if (g_Config.m_SvInstagibMode == 3) //zCatch rifle
+		else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 		{
 			pChr->GiveWeapon(WEAPON_RIFLE, -1);
 		}
