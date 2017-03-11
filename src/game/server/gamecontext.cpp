@@ -1300,8 +1300,14 @@ void CGameContext::OnClientEnter(int ClientID)
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-		SendChatTarget(ClientID, "ChillerDragon's Block mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
+		if (g_Config.m_SvInstagibMode)
+		{
+			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
+		}
+		else
+		{
+			SendChatTarget(ClientID, "ChillerDragon's Block mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
+		}
 		SendChatTarget(ClientID, "please visit http://ddnet.tw or say /info for more info");
 
 		if(g_Config.m_SvWelcome[0]!=0)
