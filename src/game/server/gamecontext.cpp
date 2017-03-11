@@ -1144,9 +1144,9 @@ void CGameContext::OnTick()
 	{
 		BombTick();
 	}
-	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //zCatch grenade or zCatch rifle
+	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //Survival grenade or Survival rifle
 	{
-		zCatchTick();
+		SurvivalTick();
 	}
 
 #ifdef CONF_DEBUG
@@ -1339,7 +1339,8 @@ void CGameContext::OnClientConnected(int ClientID)
 	CALL_STACK_ADD();
 #endif
 	// Check which team the player should be on (copyed all the stuff cuz const int mukked)
-	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade zCatch and rifle zCatch
+	//if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade zCatch and rifle zCatch
+	if (m_survival_gamestate) //running survival game
 	{
 		const int StartTeam = TEAM_SPECTATORS;
 
@@ -1460,6 +1461,50 @@ int CGameContext::CountConnectedPlayers()
 	return cPlayers;
 }
 
+int CGameContext::CountIngameHumans()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int cPlayers = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && !m_apPlayers[i]->m_IsDummy)
+		{
+			cPlayers++;
+		}
+}
+	return cPlayers;
+}
+
+void CGameContext::SendBroadcastAll(const char * pText)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			SendBroadcast(pText, m_apPlayers[i]->GetCID());
+		}
+	}
+}
+
+void CGameContext::KillAll()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter()) //only kill alive dudes
+		{
+			GetPlayerChar(i)->Die(i, WEAPON_GAME);
+		}
+	}
+}
+
 void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 {
 #if defined(CONF_DEBUG)
@@ -1559,13 +1604,45 @@ void CGameContext::DummyChat()
 	//unused cuz me knoop putting all the stuff here
 }
 
-void CGameContext::zCatchTick()
+void CGameContext::SurvivalTick()
 {
-	for (int i = 0; i < MAX_CLIENTS; i++)
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+
+	if (!m_survival_gamestate) //lobby
 	{
-		if (m_apPlayers[i])
+		if (CountIngameHumans() < g_Config.m_SvMinSurvivalPlayers)
 		{
-			//m_apPlayers[i]->SetTeam(0,0);
+			str_format(aBuf, sizeof(aBuf), "[%d/%d] players left to start a survival round.", CountIngameHumans(), g_Config.m_SvMinSurvivalPlayers);
+		}
+		else
+		{
+			if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
+			{
+				str_format(aBuf, sizeof(aBuf), "Game starts in %d seconds.", m_survival_delay);
+				m_survival_delay--;
+			}
+		}
+
+		SendBroadcastAll(aBuf);
+
+		if (m_survival_delay < 1) //start game
+		{
+			SendBroadcastAll("Game started! Stay alive!");
+			KillAll();
+			m_survival_gamestate = 1;
+		}
+	}
+	else //running game
+	{
+		//check for end game
+		if (CountIngameHumans() < 2)
+		{
+			SendBroadcastAll("Good Game");
+			m_survival_gamestate = 0;
+			m_survival_delay = g_Config.m_SvSurvivalDelay;
 		}
 	}
 }
@@ -4030,6 +4107,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}*/
 
+			//zCatch survival LMS ChillerDragon Instagib grenade rifle
+			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //gLMS iLMS
+			{
+				SendChatTarget(ClientID, "You can't join running survival games. Wait until the round ends.");
+				return;
+			}
+
 			//Kill Protection
 			CCharacter* pChr = pPlayer->GetCharacter();
 			if(pChr)
@@ -5026,6 +5110,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//Friends_counter = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
+	m_survival_delay = g_Config.m_SvSurvivalDelay;
 
 
 

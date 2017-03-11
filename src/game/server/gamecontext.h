@@ -228,8 +228,10 @@ public:
 
 	void ChatCommands();
 	void DummyChat();
-	//zCatch
-	void zCatchTick();
+	//Instagib Survival
+	void SurvivalTick();
+	int m_survival_gamestate; //0=prepearing 1=running 2=deathmatch
+	int m_survival_delay;
 
 	//dummy
 	void CreateBasicDummys();
@@ -239,6 +241,9 @@ public:
 	//usefull everywhere
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
+	int CountIngameHumans();
+	void SendBroadcastAll(const char *pText);
+	void KillAll();
 
 	//bomb
 	void EndBombGame(int WinnerID);
