@@ -238,6 +238,7 @@ public:
 
 	//usefull everywhere
 	int GetCIDByName(const char *pName);
+	int CountConnectedPlayers();
 
 	//bomb
 	void EndBombGame(int WinnerID);

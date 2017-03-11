@@ -1424,6 +1424,25 @@ int CGameContext::GetCIDByName(const char * pName)
 	return nameID;
 }
 
+int CGameContext::CountConnectedPlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int cPlayers = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			cPlayers++;
+		}
+	}
+	//char aBuf[64];
+	//str_format(aBuf, sizeof(aBuf), "counted %d players", i);
+	//dbg_msg("count", aBuf);
+	return cPlayers;
+}
+
 void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 {
 #if defined(CONF_DEBUG)

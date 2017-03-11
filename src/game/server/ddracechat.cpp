@@ -2533,32 +2533,48 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			//	return;
 			//}
 
-			str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
+			str_format(aBuf, sizeof(aBuf), "====== %s's Stats ======", aStatsName);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Grenadekills: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Grenade instagib ~~~");
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeKills);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Grenadedeaths: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeDeaths);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeDeaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Grenadespree: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeSpree);
+			str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeSpree);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Grenadeshots: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeShots);
+			str_format(aBuf, sizeof(aBuf), "Total shots: %d", pSelf->m_apPlayers[StatsID]->m_GrenadeShots);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Riflekills: %d", pSelf->m_apPlayers[StatsID]->m_RifleKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Rifle instagib ~~~");
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[StatsID]->m_RifleKills);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Rifledeaths: %d", pSelf->m_apPlayers[StatsID]->m_RifleDeaths);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_RifleDeaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Riflespree: %d", pSelf->m_apPlayers[StatsID]->m_RifleSpree);
+			str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pSelf->m_apPlayers[StatsID]->m_RifleSpree);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Rifleshots: %d", pSelf->m_apPlayers[StatsID]->m_RifleShots);
+			str_format(aBuf, sizeof(aBuf), "Total shots: %d", pSelf->m_apPlayers[StatsID]->m_RifleShots);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		}
 		else //own stats
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
-			str_format(aBuf, sizeof(aBuf), "Grenadekills: %d", pPlayer->m_GrenadeKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, "====== Your Stats ======");
+			pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Grenade instagib ~~~");
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_GrenadeKills);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Riflekills: %d", pPlayer->m_RifleKills);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_GrenadeDeaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_GrenadeSpree);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_GrenadeShots);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Rifle instagib ~~~");
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_RifleKills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_RifleDeaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_RifleSpree);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_RifleShots);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}

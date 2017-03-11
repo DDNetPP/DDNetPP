@@ -415,5 +415,6 @@ MACRO_CONFIG_INT(SvCIfreezetime, sv_ci_freezetime, 300, 0, 10000, CFGFLAG_SERVER
 //zCatch ChillerDragon
 
 MACRO_CONFIG_INT(SvInstagibMode, sv_insta, 0, 0, 4, CFGFLAG_SERVER, "0=ddrace 1=gdm 2=zCatchGrenade 3=idm 4=zCatchRifle")
+MACRO_CONFIG_INT(SvSpreePlayers, sv_spree_players, 5, 1, 60, CFGFLAG_SERVER, "how many players have to be online to count killingsprees")
 
 #endif
