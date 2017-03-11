@@ -808,29 +808,40 @@ void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
-#if defined(CONF_SQL)
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		if(pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
-			return;
-#endif
-
-	if (g_Config.m_SvHideScore)
+	if (g_Config.m_SvInstagibMode)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top5",
-				"Showing the top 5 is not allowed on this server.");
-		return;
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"rank",
+			"Instagib ranks coming soon... check '/stats (name)' for now.");
 	}
-
-	if (pResult->NumArguments() > 0 && pResult->GetInteger(0) >= 0)
-		pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData,
-				pResult->GetInteger(0));
 	else
-		pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData);
+	{
 
 #if defined(CONF_SQL)
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+				return;
 #endif
+
+		if (g_Config.m_SvHideScore)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top5",
+				"Showing the top 5 is not allowed on this server.");
+			return;
+		}
+
+		if (pResult->NumArguments() > 0 && pResult->GetInteger(0) >= 0)
+			pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData,
+				pResult->GetInteger(0));
+		else
+			pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData);
+
+#if defined(CONF_SQL)
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
+#endif
+	}
 }
 
 #if defined(CONF_SQL)
@@ -1138,7 +1149,7 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CGameContext *pSelf = (CGameContext *) pUserData;
+	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
@@ -1146,29 +1157,40 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
+	if (g_Config.m_SvInstagibMode)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"rank",
+			"Instagib ranks coming soon... check '/stats (name)' for now.");
+	}
+	else
+	{
+
 #if defined(CONF_SQL)
-	if(g_Config.m_SvUseSQL)
-		if(pPlayer->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
-			return;
+		if (g_Config.m_SvUseSQL)
+			if (pPlayer->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+				return;
 #endif
 
 	if (pResult->NumArguments() > 0)
 		if (!g_Config.m_SvHideScore)
 			pSelf->Score()->ShowRank(pResult->m_ClientID, pResult->GetString(0),
-					true);
+				true);
 		else
 			pSelf->Console()->Print(
-					IConsole::OUTPUT_LEVEL_STANDARD,
-					"rank",
-					"Showing the rank of other players is not allowed on this server.");
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"rank",
+				"Showing the rank of other players is not allowed on this server.");
 	else
 		pSelf->Score()->ShowRank(pResult->m_ClientID,
-				pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->Server()->ClientName(pResult->m_ClientID));
 
 #if defined(CONF_SQL)
-	if(g_Config.m_SvUseSQL)
+	if (g_Config.m_SvUseSQL)
 		pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
 #endif
+}
 }
 
 
