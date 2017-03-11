@@ -153,6 +153,17 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleSpree"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleShots = GetInt(GetID("RifleShots"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleWins = GetInt(GetID("RifleWins")); //zCatch
+				if (g_Config.m_SvInstaScore) //load scoreboard scores
+				{
+					if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+					{
+						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("GrenadeKills"));
+					}
+					else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+					{
+						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("RifleKills"));
+					}
+				}
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
