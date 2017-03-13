@@ -10514,6 +10514,19 @@ void CCharacter::DummyTick()
 		}
 		else if (m_pPlayer->m_DummyMode == 33) //Chillintelligenz
 		{
+			//########################################
+			// YOUTUBE
+			// 800 likes top comment omg!
+			// https://www.youtube.com/watch?v=xjgd8dki_V4&google_comment_id=z13vxrwiqriytlq3023exlkr5n3sydpvs
+			// 100 likes top comment omg!
+			// https://www.youtube.com/watch?v=oDTO8j12CBI&google_comment_id=z12ojtqx3tmsxtq1u23exlkr5n3sydpvs
+			//#######################################
+			// American Ultra
+			// He never died
+			// watchmen
+			// deadpool
+			// Logan
+			// Hardcore (henry)
 			CITick(); //warning doesnt work with killtiles yet
 		}
 		else
@@ -10523,8 +10536,25 @@ void CCharacter::DummyTick()
 	}
 }
 
+void CCharacter::FreezeAll(int seconds)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCharacter())
+		{
+			GameServer()->m_apPlayers[i]->GetCharacter()->Freeze(seconds);
+		}
+	}
+}
+
 void CCharacter::CITick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//Check for stuck --> restart
 	if (isFreezed)
 	{
@@ -10542,6 +10572,9 @@ void CCharacter::CITick()
 
 void CCharacter::CIRestart()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	char aBuf[128];
 	m_pPlayer->m_ci_latest_dest_dist = CIGetDestDist();
 	str_format(aBuf, sizeof(aBuf), "Dist: %d", m_pPlayer->m_ci_latest_dest_dist);
@@ -10559,19 +10592,16 @@ void CCharacter::CIRestart()
 
 int CCharacter::CIGetDestDist()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	//pythagoras mate u rock c:
 	//a²+b²=c²
 	int a = m_Core.m_Pos.x - g_Config.m_SvCIdestX;
 	int b = m_Core.m_Pos.y - g_Config.m_SvCIdestY;
 	//|a| |b|
-	if (a < 0)
-	{
-		a = -a;
-	}
-	if (b < 0)
-	{
-		b = -b;
-	}
+	abs(a);
+	abs(b);
 
 	int c = sqrt(a + b);
 

@@ -2726,7 +2726,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//vec2 DownPos(GetPlayerChar(pPlayer->GetCID())->m_Pos.x, GetPlayerChar(pPlayer->GetCID())->m_Pos.y + 10);
 					//CreateExplosion(DownPos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
 
-
+					GetPlayerChar(ClientID)->FreezeAll(20);
 
 
 					char aBuf[1024];
@@ -4364,6 +4364,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastKill = Server()->Tick();
 			pPlayer->KillCharacter(WEAPON_SELF);
+			pPlayer->Respawn();
 		}
 	}
 	if (MsgID == NETMSGTYPE_CL_STARTINFO)

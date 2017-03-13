@@ -228,6 +228,9 @@ public:
 
 	void DDPP_Tick();
 	void DummyTick();
+	
+
+	void FreezeAll(int seconds);
 
 	//Chillintelligenz
 	void CITick();
