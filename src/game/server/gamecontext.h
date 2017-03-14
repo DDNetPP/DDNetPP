@@ -432,7 +432,7 @@ private:
 
 	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
-	static void ConLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConAccLogout(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);

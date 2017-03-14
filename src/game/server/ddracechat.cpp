@@ -2795,7 +2795,7 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	pSelf->SendChatTarget(pResult->m_ClientID, "dies das coming soon....");
 }
 
-void CGameContext::ConLogout(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
