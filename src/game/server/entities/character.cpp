@@ -662,6 +662,7 @@ void CCharacter::FireWeapon(bool Bot)
 		if (g_Config.m_SvInstagibMode)
 		{
 			m_pPlayer->m_GrenadeShots++;
+			m_pPlayer->m_GrenadeShotsNoRJ++;
 		}
 
 
@@ -1504,6 +1505,10 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//zCatch ChillerDragon
 	if (g_Config.m_SvInstagibMode) //in all instagib modes 1hit
 	{
+		if (From == m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_GrenadeShotsNoRJ--;
+		}
 
 		if (From != m_pPlayer->GetCID())
 		{

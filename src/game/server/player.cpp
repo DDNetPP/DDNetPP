@@ -1184,7 +1184,7 @@ void CPlayer::Save()
 											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i'"
 											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
-											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i', `GrenadeWins` = '%i'"
+											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
 											  " WHERE `ID` = %i",
 												m_level, m_xp, m_money, m_shit,
@@ -1199,7 +1199,7 @@ void CPlayer::Save()
 												m_IsModerator, m_IsSuperModerator, m_IsAccFrozen,
 												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
-												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeWins,
+												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins,
 												m_AccountID
 	);

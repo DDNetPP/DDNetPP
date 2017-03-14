@@ -251,6 +251,7 @@ public:
 	int m_GrenadeDeaths;
 	int m_GrenadeSpree;
 	int m_GrenadeShots;
+	int m_GrenadeShotsNoRJ;
 	int m_GrenadeWins;
 	int m_RifleKills;
 	int m_RifleDeaths;

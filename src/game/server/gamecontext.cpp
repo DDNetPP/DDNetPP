@@ -147,6 +147,7 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeDeaths = GetInt(GetID("GrenadeDeaths"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeSpree = GetInt(GetID("GrenadeSpree"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeShots = GetInt(GetID("GrenadeShots"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeShotsNoRJ = GetInt(GetID("GrenadeShotsNoRJ"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeWins = GetInt(GetID("GrenadeWins")); //zCatch
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleKills = GetInt(GetID("RifleKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleDeaths"));

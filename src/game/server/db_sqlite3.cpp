@@ -163,6 +163,7 @@ CSql::CSql()
 		"GrenadeDeaths				INTEGER			DEFAULT 0," \
 		"GrenadeSpree				INTEGER			DEFAULT 0," \
 		"GrenadeShots				INTEGER			DEFAULT 0," \
+		"GrenadeShotsNoRJ			INTEGER			DEFAULT 0," \
 		"GrenadeWins				INTEGER			DEFAULT 0," \
 		"RifleKills					INTEGER			DEFAULT 0," \
 		"RifleDeaths				INTEGER			DEFAULT 0," \
