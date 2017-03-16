@@ -449,8 +449,7 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 
 		if (Human && p->GetPlayer()->m_IsDummy)
 			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+
 
 		float Len = distance(Pos, p->m_Pos);
 

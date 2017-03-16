@@ -1301,7 +1301,10 @@ void CCharacter::Die(int Killer, int Weapon)
 
 				if (pKiller != pVictim->GetPlayer())
 				{
-					pKiller->m_KillStreak++;
+					if (!pVictim->GetPlayer()->m_IsDummy || pKiller->m_IsDummy)
+					{
+						pKiller->m_KillStreak++;
+					}
 					pVictim->GetPlayer()->m_KillStreak = 0;
 					str_format(aBuf, sizeof(aBuf), "%s is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCID()), pKiller->m_KillStreak);
 
@@ -1316,7 +1319,11 @@ void CCharacter::Die(int Killer, int Weapon)
 			//dbg_msg("insta", aBuf);
 			if (pKiller != pVictim->GetPlayer())
 			{
-				pKiller->m_KillStreak++;
+				if (!pVictim->GetPlayer()->m_IsDummy || pKiller->m_IsDummy)
+				{
+					pKiller->m_KillStreak++;
+				}
+
 				pVictim->GetPlayer()->m_KillStreak = 0;
 				if (pKiller->m_KillStreak == 5)
 				{
@@ -1507,7 +1514,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	{
 		if (From == m_pPlayer->GetCID())
 		{
-			m_pPlayer->m_GrenadeShotsNoRJ--;
+			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
 		}
 
 		if (From != m_pPlayer->GetCID())
@@ -10534,7 +10541,57 @@ void CCharacter::DummyTick()
 			// Hardcore (henry)
 			CITick(); //warning doesnt work with killtiles yet
 		}
-		else
+		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false);
+			if (pChr && pChr->IsAlive())
+			{
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+
+				m_Input.m_Fire++;
+				m_LatestInput.m_Fire++;
+
+				if (m_Core.m_Pos.y - 4 * 32 > pChr->m_Pos.y)
+				{
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+				if (m_Core.m_Pos.x > pChr->m_Pos.x)
+				{
+					m_Input.m_Direction = -1;
+					if (m_Core.m_Vel.x == 0.0f)
+					{
+						if (Server()->Tick() % 20 == 0)
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+					if (m_Core.m_Vel.x == 0.0f)
+					{
+						if (Server()->Tick() % 20 == 0)
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+				}
+			}
+		}
+		else // dummymode == end dummymode == last
 		{
 			m_pPlayer->m_DummyMode = 0;
 		} //DUMMY END
