@@ -1517,7 +1517,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
 		}
 
-		if (From != m_pPlayer->GetCID())
+		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 		{
 			Die(From, Weapon);
 
@@ -1550,43 +1550,41 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
 			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		
-
-		}
-
-		// set attacker's face to happy (taunt!)
-		if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-		{
-			CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
-			if (pChr)
+			// set attacker's face to happy (taunt!)
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 			{
-				pChr->m_EmoteType = EMOTE_HAPPY;
-				pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
-			}
-		}
-
-
-		// do damage Hit sound
-		if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-		{
-			int64_t Mask = CmaskOne(From);
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-					Mask |= CmaskOne(i);
-			}
-			GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
-		}
-
-		//if zCatch mode --> move to spec
-		if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
-		{
-			if (From != m_pPlayer->GetCID())
-			{
-				m_pPlayer->SetTeam(-1, 0);
+				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
+				if (pChr)
+				{
+					pChr->m_EmoteType = EMOTE_HAPPY;
+					pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+				}
 			}
 
-			//Save The Player in catch array
-			GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+
+			// do damage Hit sound
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			{
+				int64_t Mask = CmaskOne(From);
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+						Mask |= CmaskOne(i);
+				}
+				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+			}
+
+			//if zCatch mode --> move to spec
+			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+			{
+				if (From != m_pPlayer->GetCID())
+				{
+					m_pPlayer->SetTeam(-1, 0);
+				}
+
+				//Save The Player in catch array
+				GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+			}
 		}
 	}
 	else
