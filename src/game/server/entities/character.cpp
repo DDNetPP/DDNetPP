@@ -1310,6 +1310,13 @@ void CCharacter::Die(int Killer, int Weapon)
 
 					if (pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
 						GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+					//Finish time if cfg val reached
+					if (pKiller->m_KillStreak == g_Config.m_SvKillsToFinish)
+					{
+						CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
+						Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID());
+					}
 				}
 			}
 		}
@@ -2196,7 +2203,7 @@ void CCharacter::HandleTiles(int Index)
 	if (tcp)
 		m_TeleCheckpoint = tcp;
 
-	// start
+	// start                                                                                                                                                                                                                                                                                                                                   
 	if (((m_TileIndex == TILE_BEGIN) || (m_TileFIndex == TILE_BEGIN) || FTile1 == TILE_BEGIN || FTile2 == TILE_BEGIN || FTile3 == TILE_BEGIN || FTile4 == TILE_BEGIN || Tile1 == TILE_BEGIN || Tile2 == TILE_BEGIN || Tile3 == TILE_BEGIN || Tile4 == TILE_BEGIN) && (m_DDRaceState == DDRACE_NONE || m_DDRaceState == DDRACE_FINISHED || (m_DDRaceState == DDRACE_STARTED && !Team())))
 	{
 		m_pPlayer->m_MoneyTilePlus = true;
@@ -3326,7 +3333,7 @@ void CCharacter::GiveAllWeapons()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	for (int i = WEAPON_GUN; i<NUM_WEAPONS - 1; i++)
+	for (int i = WEAPON_HAMMER; i<NUM_WEAPONS - 1; i++)
 	{
 		m_aWeapons[i].m_Got = true;
 		if (!m_FreezeTime) m_aWeapons[i].m_Ammo = -1;

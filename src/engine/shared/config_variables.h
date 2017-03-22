@@ -420,5 +420,6 @@ MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count
 MACRO_CONFIG_INT(SvMinSurvivalPlayers, sv_min_survival_players, 0, 1, 60, CFGFLAG_SERVER, "how many players are required to start an instagib survival game")
 MACRO_CONFIG_INT(SvSurvivalDelay, sv_survival_delay, 0, 2, 500, CFGFLAG_SERVER, "how many seconds countdown if a game is ready")
 MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
+MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 5, 1, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 
 #endif

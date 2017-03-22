@@ -239,6 +239,10 @@ public:
 
 	int m_ci_freezetime;
 
+	//instagib 
+	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
+
+
 	void Pause(bool Pause);
 	bool Freeze(int Time);
 	bool Freeze(); 
