@@ -274,6 +274,30 @@ void CGameContext::Conninjasteam(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConGodmode(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_Godmode ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Godmode has been %s for %s", pChr->m_Godmode ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Godmode was %s by %s", pChr->m_Godmode ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
 
 // cosmetics
 

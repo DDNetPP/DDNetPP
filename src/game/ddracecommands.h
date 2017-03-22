@@ -78,6 +78,9 @@ CONSOLE_COMMAND("freeze", "v?i", CFGFLAG_SERVER | CMDFLAG_TEST, ConFreeze, this,
 
 //HACK COMMAND ChillerDragon
 //CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
+CONSOLE_COMMAND("godmode", "v", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
+
+
 #undef CONSOLE_COMMAND
 
 #endif

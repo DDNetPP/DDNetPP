@@ -477,6 +477,8 @@ private:
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
+
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);

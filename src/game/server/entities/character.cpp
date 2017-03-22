@@ -1519,78 +1519,85 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//zCatch ChillerDragon
 	if (g_Config.m_SvInstagibMode) //in all instagib modes 1hit
 	{
-		if (From == m_pPlayer->GetCID())
+		if (m_Godmode)
 		{
-			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
+			//CHEATER!!
 		}
-
-		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
+		else
 		{
-			Die(From, Weapon);
-
-			//do scoring (by ChillerDragon)
-			GameServer()->m_apPlayers[From]->m_Score++;
-
-			//save the kill
-			if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+			if (From == m_pPlayer->GetCID())
 			{
-				GameServer()->m_apPlayers[From]->m_GrenadeKills++;
-			}
-			else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
-			{
-				GameServer()->m_apPlayers[From]->m_RifleKills++;
+				m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
 			}
 
-			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
-			//GameServer()->m_apPlayers[From]->m_KillStreak++;
-			//char aBuf[256];
-			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
-			//if (m_pPlayer->m_KillStreak >= 5)
-			//{
-			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
-			//}
-			//m_pPlayer->m_KillStreak = 0;
-			//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
-			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
-			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
-			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
-			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		
-			// set attacker's face to happy (taunt!)
-			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 			{
-				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
-				if (pChr)
+				Die(From, Weapon);
+
+				//do scoring (by ChillerDragon)
+				GameServer()->m_apPlayers[From]->m_Score++;
+
+				//save the kill
+				if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
 				{
-					pChr->m_EmoteType = EMOTE_HAPPY;
-					pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+					GameServer()->m_apPlayers[From]->m_GrenadeKills++;
 				}
-			}
-
-
-			// do damage Hit sound
-			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-			{
-				int64_t Mask = CmaskOne(From);
-				for (int i = 0; i < MAX_CLIENTS; i++)
+				else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 				{
-					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-						Mask |= CmaskOne(i);
-				}
-				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
-			}
-
-			//if zCatch mode --> move to spec
-			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
-			{
-				if (From != m_pPlayer->GetCID())
-				{
-					m_pPlayer->SetTeam(-1, 0);
+					GameServer()->m_apPlayers[From]->m_RifleKills++;
 				}
 
-				//Save The Player in catch array
-				GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+				//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
+				//GameServer()->m_apPlayers[From]->m_KillStreak++;
+				//char aBuf[256];
+				//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+				//if (m_pPlayer->m_KillStreak >= 5)
+				//{
+				//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+				//}
+				//m_pPlayer->m_KillStreak = 0;
+				//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
+				//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
+				//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+				//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
+				//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+				// set attacker's face to happy (taunt!)
+				if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+				{
+					CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
+					if (pChr)
+					{
+						pChr->m_EmoteType = EMOTE_HAPPY;
+						pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+					}
+				}
+
+
+				// do damage Hit sound
+				if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+				{
+					int64_t Mask = CmaskOne(From);
+					for (int i = 0; i < MAX_CLIENTS; i++)
+					{
+						if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+							Mask |= CmaskOne(i);
+					}
+					GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+				}
+
+				//if zCatch mode --> move to spec
+				if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+				{
+					if (From != m_pPlayer->GetCID())
+					{
+						m_pPlayer->SetTeam(-1, 0);
+					}
+
+					//Save The Player in catch array
+					GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+				}
 			}
 		}
 	}

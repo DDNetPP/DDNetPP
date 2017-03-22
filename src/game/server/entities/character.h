@@ -280,6 +280,7 @@ public:
 	bool m_EndlessHook;
 	bool m_FreezeHammer;
 	bool m_fake_super;
+	bool m_Godmode;
 
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
