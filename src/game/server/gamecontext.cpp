@@ -1299,8 +1299,19 @@ void CGameContext::OnClientEnter(int ClientID)
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
-		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		if (g_Config.m_SvShowJoinLeaveMessages == 3 || g_Config.m_SvShowJoinLeaveMessages == 1)
+		{
+			if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(ClientID)))
+			{
+				str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", ClientID, Server()->ClientName(ClientID));
+				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
+				SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			}
+		}
 		if (g_Config.m_SvInstagibMode)
 		{
 			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);

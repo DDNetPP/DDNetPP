@@ -410,7 +410,8 @@ MACRO_CONFIG_INT(SvCIfreezetime, sv_ci_freezetime, 300, 0, 10000, CFGFLAG_SERVER
 //MACRO_CONFIG_INT(SvTestValB, sv_test_val_b, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 //MACRO_CONFIG_INT(SvTestValC, sv_test_val_c, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 
-
+MACRO_CONFIG_INT(SvShowJoinLeaveMessages, sv_show_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=both") //superusefull agianst reconnect trolls c:
+MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect")
 
 //zCatch ChillerDragon
 
