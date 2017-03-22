@@ -40,9 +40,13 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_Health = 0;
 	m_Armor = 0;
 
-	// variable initializations
+	// variable initializations constructor
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
+	//if (g_Config.m_SvInstagibMode)
+	//{
+	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
+	//}
 
 }
 
@@ -129,7 +133,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_AliveTime = Server()->Tick();
 
 
-	if (m_pPlayer->m_IsSuperModSpawn && g_Config.m_SvSuperSpawnDDraceStart)
+	if (g_Config.m_SvInstagibMode)
 	{
 		Teams()->OnCharacterStart(m_pPlayer->GetCID());
 		m_CpActive = -2;
@@ -1315,7 +1319,7 @@ void CCharacter::Die(int Killer, int Weapon)
 					if (pKiller->m_KillStreak == g_Config.m_SvKillsToFinish)
 					{
 						CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
-						Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID());
+						Controller->m_Teams.OnCharacterFinish(pKiller->GetCID());
 					}
 				}
 			}
@@ -1340,6 +1344,7 @@ void CCharacter::Die(int Killer, int Weapon)
 				}
 			}
 		}
+		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
 	}
 
 
