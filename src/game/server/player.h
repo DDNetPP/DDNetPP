@@ -233,7 +233,8 @@ public:
 	char m_ProfileEmail[50];
 	char m_ProfileHomepage[50];
 	char m_ProfileTwitter[50];
-
+	char m_LastViewedProfile[32];
+	bool m_IsProfileViewLoaded;
 
 
 	//PvP-arena ChillerDragon

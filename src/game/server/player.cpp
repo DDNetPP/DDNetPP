@@ -175,6 +175,13 @@ void CPlayer::Tick()
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
 		CALL_STACK_ADD();
 #endif
+	//profile views
+	if (Server()->Tick() % 1000 == 0)
+	{
+		m_IsProfileViewLoaded = true;
+		//GameServer()->SendChatTarget(m_ClientID, "View loaded");
+	}
+
 
 	//bomb
 	if (m_BombBanTime)

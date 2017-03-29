@@ -1539,11 +1539,32 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
+	int GiveView = 1;
 
 	if (m_apPlayers[ViewedID]->m_AccountID <= 0)
 	{
 		SendChatTarget(ViewerID, "Player has to be logged in to view his profile.");
 		return;
+	}
+
+	if (!str_comp(m_apPlayers[ViewerID]->m_LastViewedProfile, Server()->ClientName(ViewedID)) && !m_apPlayers[ViewerID]->m_IsProfileViewLoaded) //repeated same profile and view not loaded yet
+	{
+		GiveView = 0;
+	}
+	else
+	{
+		if (!str_comp(Server()->ClientName(ViewedID), Server()->ClientName(ViewerID))) //viewing own profile --> random xd
+		{
+			GiveView = rand() % 2;
+		}
+	}
+
+
+	if (GiveView)
+	{
+		m_apPlayers[ViewedID]->m_ProfileViews++;
+		str_copy(m_apPlayers[ViewerID]->m_LastViewedProfile, Server()->ClientName(ViewedID), 32);
+		m_apPlayers[ViewerID]->m_IsProfileViewLoaded = false;
 	}
 
 
