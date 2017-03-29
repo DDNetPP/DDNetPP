@@ -2531,9 +2531,9 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
+	//CCharacter* pChr = pPlayer->GetCharacter();
+	//if (!pChr)
+	//	return;
 
 	char aBuf[512];
 
