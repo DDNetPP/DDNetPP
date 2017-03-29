@@ -1540,6 +1540,13 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 #endif
 	char aBuf[128];
 
+	if (m_apPlayers[ViewedID]->m_AccountID <= 0)
+	{
+		SendChatTarget(ViewerID, "Player has to be logged in to view his profile.");
+		return;
+	}
+
+
 	if (m_apPlayers[ViewedID]->m_ProfileStyle == 0)  //default
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
@@ -2879,163 +2886,163 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					return;
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_style ", 14) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-						return;
-					}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_style ", 14) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					char Input[256];
+				//	char aBuf[256];
+				//	char Input[256];
 
-					str_copy(Input, pMsg->m_pMessage + 15, 50);
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, Input);
+				//	str_copy(Input, pMsg->m_pMessage + 15, 50);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, Input);
 
 
 
-					if (!str_comp_nocase(Input, "default"))
-					{
-						m_apPlayers[ClientID]->m_ProfileStyle = 0;
-						SendChatTarget(ClientID, "Changed profile-style to: default");
-					}
-					else if (!str_comp_nocase(Input, "shit"))
-					{
-						m_apPlayers[ClientID]->m_ProfileStyle = 1;
-						SendChatTarget(ClientID, "Changed profile-style to: shit");
-					}
-					else if (!str_comp_nocase(Input, "social"))
-					{
-						m_apPlayers[ClientID]->m_ProfileStyle = 2;
-						SendChatTarget(ClientID, "Changed profile-style to: social");
-					}
-					else if (!str_comp_nocase(Input, "show-off"))
-					{
-						m_apPlayers[ClientID]->m_ProfileStyle = 3;
-						SendChatTarget(ClientID, "Changed profile-style to: show-off");
-					}
-					else if (!str_comp_nocase(Input, "pvp"))
-					{
-						m_apPlayers[ClientID]->m_ProfileStyle = 4;
-						SendChatTarget(ClientID, "Changed profile-style to: pvp");
-					}
-					else
-					{
-						str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", Input);
-						SendChatTarget(ClientID, aBuf);
-					}
+				//	if (!str_comp_nocase(Input, "default"))
+				//	{
+				//		m_apPlayers[ClientID]->m_ProfileStyle = 0;
+				//		SendChatTarget(ClientID, "Changed profile-style to: default");
+				//	}
+				//	else if (!str_comp_nocase(Input, "shit"))
+				//	{
+				//		m_apPlayers[ClientID]->m_ProfileStyle = 1;
+				//		SendChatTarget(ClientID, "Changed profile-style to: shit");
+				//	}
+				//	else if (!str_comp_nocase(Input, "social"))
+				//	{
+				//		m_apPlayers[ClientID]->m_ProfileStyle = 2;
+				//		SendChatTarget(ClientID, "Changed profile-style to: social");
+				//	}
+				//	else if (!str_comp_nocase(Input, "show-off"))
+				//	{
+				//		m_apPlayers[ClientID]->m_ProfileStyle = 3;
+				//		SendChatTarget(ClientID, "Changed profile-style to: show-off");
+				//	}
+				//	else if (!str_comp_nocase(Input, "pvp"))
+				//	{
+				//		m_apPlayers[ClientID]->m_ProfileStyle = 4;
+				//		SendChatTarget(ClientID, "Changed profile-style to: pvp");
+				//	}
+				//	else
+				//	{
+				//		str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", Input);
+				//		SendChatTarget(ClientID, aBuf);
+				//	}
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_status ", 15) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_status ", 15) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileStatus, pMsg->m_pMessage + 16, 50);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileStatus, pMsg->m_pMessage + 16, 50);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileStatus);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileStatus);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", m_apPlayers[ClientID]->m_ProfileStatus);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", m_apPlayers[ClientID]->m_ProfileStatus);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_skype ", 14) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in to access your profile");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_skype ", 14) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in to access your profile");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileSkype, pMsg->m_pMessage + 15, 25);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileSkype, pMsg->m_pMessage + 15, 25);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileSkype);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileSkype);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your skype name: %s", m_apPlayers[ClientID]->m_ProfileSkype);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your skype name: %s", m_apPlayers[ClientID]->m_ProfileSkype);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_youtube ", 16) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_youtube ", 16) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileYoutube, pMsg->m_pMessage + 17, 25);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileYoutube, pMsg->m_pMessage + 17, 25);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileYoutube);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileYoutube);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your youtube name: %s", m_apPlayers[ClientID]->m_ProfileYoutube);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your youtube name: %s", m_apPlayers[ClientID]->m_ProfileYoutube);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_email ", 14) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_email ", 14) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileEmail, pMsg->m_pMessage + 15, 25);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileEmail, pMsg->m_pMessage + 15, 25);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileEmail);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileEmail);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your email: %s", m_apPlayers[ClientID]->m_ProfileEmail);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your email: %s", m_apPlayers[ClientID]->m_ProfileEmail);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_homepage ", 17) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_homepage ", 17) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in, use '/accountinfo'");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileHomepage, pMsg->m_pMessage + 18, 25);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileHomepage, pMsg->m_pMessage + 18, 25);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileHomepage);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileHomepage);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your homepage: %s", m_apPlayers[ClientID]->m_ProfileHomepage);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your homepage: %s", m_apPlayers[ClientID]->m_ProfileHomepage);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_twitter ", 16) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be logged in to access your profile");
-						return;
-					}
+				//	return;
+				//}
+				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "profile_twitter ", 16) == 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be logged in to access your profile");
+				//		return;
+				//	}
 
-					char aBuf[256];
-					str_copy(m_apPlayers[ClientID]->m_ProfileTwitter, pMsg->m_pMessage + 17, 25);
+				//	char aBuf[256];
+				//	str_copy(m_apPlayers[ClientID]->m_ProfileTwitter, pMsg->m_pMessage + 17, 25);
 
-					dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileTwitter);
+				//	dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, m_apPlayers[ClientID]->m_ProfileTwitter);
 
-					str_format(aBuf, sizeof(aBuf), "Updated your twitter: %s", m_apPlayers[ClientID]->m_ProfileTwitter);
-					SendChatTarget(ClientID, aBuf);
+				//	str_format(aBuf, sizeof(aBuf), "Updated your twitter: %s", m_apPlayers[ClientID]->m_ProfileTwitter);
+				//	SendChatTarget(ClientID, aBuf);
 
-					return;
-				}
+				//	return;
+				//}
 				// give cosmetics (moved to ddracechat.cpp)
 				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "give rainbow ", 13) == 0)
 				//{

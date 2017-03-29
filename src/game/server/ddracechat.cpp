@@ -2673,11 +2673,17 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 
 	char aBuf[128];
 	char aPara0[32];
+	char aPara1[32];
 	str_copy(aPara0, pResult->GetString(0), sizeof(aPara0));
+	str_copy(aPara1, pResult->GetString(1), sizeof(aPara1));
+	int ViewID = pSelf->GetCIDByName(aPara1);
 
 	if (!str_comp_nocase(aPara0, "help"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Profiles are connected with your account.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "More infos about accounts with '/accountinfo'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "--------------------");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
 	}
 	else if (!str_comp_nocase(aPara0, "cmdlist"))
@@ -2700,10 +2706,6 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 			return;
 		}
 
-		char aPara1[32];
-		str_copy(aPara1, pResult->GetString(1), sizeof(aPara1));
-		int ViewID = pSelf->GetCIDByName(aPara1);
-
 		if (ViewID == -1)
 		{
 			str_format(aBuf, sizeof(aBuf), "Can't find user: '%s'", aPara1);
@@ -2711,6 +2713,126 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		}
 
 		pSelf->ShowProfile(pResult->m_ClientID, ViewID);
+	}
+	else if (!str_comp_nocase(aPara0, "style"))
+	{
+
+
+
+		if (!str_comp_nocase(aPara1, "default"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 0;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: default");
+		}
+		else if (!str_comp_nocase(aPara1, "shit"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: shit");
+		}
+		else if (!str_comp_nocase(aPara1, "social"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 2;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: social");
+		}
+		else if (!str_comp_nocase(aPara1, "show-off"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 3;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: show-off");
+		}
+		else if (!str_comp_nocase(aPara1, "pvp"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", aPara1);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else if (!str_comp_nocase(aPara0, "status"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aPara0, "skype"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile skype: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aPara0, "youtube"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile youtube: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aPara0, "email") || !str_comp_nocase(aPara0, "e-mail"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile e-mail: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aPara0, "homepage") || !str_comp_nocase(aPara0, "website"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile homepage: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aPara0, "homepage"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			return;
+		}
+
+
+		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter, aPara1, 128);
+		str_format(aBuf, sizeof(aBuf), "Updated your profile twitter: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else
 	{
