@@ -4701,7 +4701,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
 			else if (Bantime < 0)
@@ -4720,7 +4720,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
 				//BANNING PLAYER
@@ -4764,7 +4764,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
 			else if (Bantime < 0)
@@ -4783,7 +4783,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by supermoderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
 				//BANNING PLAYER
@@ -4827,7 +4827,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
 			else if (Bantime < 0)
@@ -4846,7 +4846,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
 				//BANNING PLAYER
@@ -4894,7 +4894,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			//do the kick
 			pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-			str_format(aBuf, sizeof(aBuf), "You were kicked by rcon_mod '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[BOMB] You were kicked by rcon_mod '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(BanID, aBuf);
 
 			//KICKING PLAYER
@@ -5012,7 +5012,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if (!str_comp_nocase(aCmd, "help"))
+	else if (!str_comp_nocase(aCmd, "help") || !str_comp_nocase(aCmd, "info"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "===================");
 		pSelf->SendChatTarget(pResult->m_ClientID, "->   B O M B   <-");
@@ -5039,7 +5039,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb status' to see some live bomb stats.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <seconds> <name>' to ban players.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb unban <ClientID>' to unban players.");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb help' for help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb help' for help and info.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb cmdlist' for all bomb commands.");
 		return;
 	}
