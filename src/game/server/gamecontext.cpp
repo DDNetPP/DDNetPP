@@ -1091,7 +1091,7 @@ void CGameContext::OnTick()
 	// was genau willst du denn jetzt? m_xp hochzählen wenn man aufm money tile is da ich zu arm bin für moneytiles muss ich unfreezetiles nutzen^^
 
 
-	// chilli clan
+	// chilli clan protection
 	if (g_Config.m_SvKickChilliClan)
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -1110,9 +1110,18 @@ void CGameContext::OnTick()
 
 					if (pPlayer->m_ChilliWarnings >= 4)
 					{
-						char aRcon[128];
-						str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
-						Console()->ExecuteLine(aRcon);
+						if (g_Config.m_SvKickChilliClan == 1)
+						{
+							GetPlayerChar(i)->m_FreezeTime = 1000;
+							SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
+							SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change Skin or Clantag!");
+						}
+						else if (g_Config.m_SvKickChilliClan == 2)
+						{
+							char aRcon[128];
+							str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
+							Console()->ExecuteLine(aRcon);
+						}
 					}
 					else
 					{
@@ -1130,7 +1139,14 @@ void CGameContext::OnTick()
 						*/
 
 						char aBuf2[256];
-						str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
+						if (g_Config.m_SvKickChilliClan == 1)
+						{
+							str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL FREEZE[%d / 3]", pPlayer->m_ChilliWarnings);
+						}
+						else if (g_Config.m_SvKickChilliClan == 2)
+						{
+							str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
+						}
 						SendBroadcast(aBuf2, i);
 
 					}

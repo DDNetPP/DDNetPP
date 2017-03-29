@@ -5958,7 +5958,7 @@ void CCharacter::DummyTick()
 
 
 				//not falling in freeze is bad
-				if (m_Core.m_Vel.y < -0.01f && m_FreezeTime > 0)
+				if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
 				{
 					if (Server()->Tick() % 40 == 0)
 					{
@@ -8339,7 +8339,7 @@ void CCharacter::DummyTick()
 
 
 					//not falling in freeze is bad
-					if (m_Core.m_Vel.y < -0.01f && m_FreezeTime > 0)
+					if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
 					{
 						if (Server()->Tick() % 40 == 0)
 						{

@@ -273,7 +273,7 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvSpreePlayers);
+	str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvKillsToFinish);
 	pSelf->SendChatTarget(ClientID, aBuf);
 	for (int i = 0; i < 5; i++)
 	{
