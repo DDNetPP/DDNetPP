@@ -1811,17 +1811,38 @@ void CGameContext::CheckStartBomb()
 	//if (CountReadyBombPlayers() == CountBombPlayers()) //eats more ressources than the other way
 	if (AllReady)
 	{
-		m_BombStartPlayers = CountBombPlayers();
-		m_BombGameState = 3;
-		for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_BombStartCountDown > 1)
 		{
-			if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
-				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
-				//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
-				//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
-				str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
-				SendBroadcast(aBuf, i);
+				if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+				{
+					if (Server()->Tick() % 40 == 0)
+					{
+						str_format(aBuf, sizeof(aBuf), "[BOMB] game starts in %d ...", m_BombStartCountDown);
+						SendBroadcast(aBuf, i);
+						m_BombStartCountDown--;
+					}
+				}
+			}
+		}
+		else
+		{
+			m_BombStartPlayers = CountBombPlayers();
+			m_BombGameState = 3;
+			m_BombStartCountDown = g_Config.m_SvBombStartDelay;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+				{
+					//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
+					//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
+					//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
+					GetPlayerChar(i)->ChillTelePort(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY);
+					//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary) 
+					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
+					SendBroadcast(aBuf, i);
+				}
 			}
 		}
 	}
@@ -5163,12 +5184,12 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	CALL_STACK_ADD();
 #endif
 
-	// ChillerDragon
+	// ChillerDragon konst constructor
 	//Friends_counter = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_survival_delay = g_Config.m_SvSurvivalDelay;
-
+	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
 
 
 	m_pServer = Kernel()->RequestInterface<IServer>();

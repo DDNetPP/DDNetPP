@@ -228,7 +228,7 @@ public:
 
 	void DDPP_Tick();
 	void DummyTick();
-	
+	void ChillTelePort(int X, int Y);
 
 	void FreezeAll(int seconds);
 

@@ -4914,7 +4914,35 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aCmd, "unban"))
 	{
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter: ClientID to unban ('/bomb banlist' for IDs).");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Command structure: '/bomb unban <ClientID>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Unban all: '/bomb unban -1'");
+			return;
+		}
+
 		int UnbanID = pResult->GetInteger(1);
+
+		if (UnbanID == -1) //unban all
+		{
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+				{
+					//UNBANNING PLAYER
+					str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					//UNBANNED PLAYER
+					pSelf->m_apPlayers[i]->m_BombBanTime = 0;
+					str_format(aBuf, sizeof(aBuf), "You were unbanned from bomb games by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[i]->GetCID(), aBuf);
+				}
+			}
+			return;
+		}
+
 
 		if (pSelf->m_apPlayers[UnbanID])
 		{
@@ -4960,6 +4988,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 		if (pResult->NumArguments() > 1) //show pages
 		{
+			int PlayersShownOnPreviousPages = 0;
 			int page = pResult->GetInteger(1);
 			if (page > pages)
 			{
@@ -4978,19 +5007,32 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			{
 				str_format(aBuf, sizeof(aBuf), "=== (%d) Banned Bombers (page %d/%d) ===", pSelf->CountBannedBombPlayers(), page, pages);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-				for (int i = page * 5; i < MAX_CLIENTS; i++)
+				//for (int i = page * 5; i < MAX_CLIENTS; i++) yes it is an minor performance improvement but fuck it (did that cuz something didnt work) ((would be -1 anyways because human page 2 is computer page 1))
+				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
 					if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
 					{
-						str_format(aBuf, sizeof(aBuf), "'%s' (%d seconds)", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
-						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-						PlayersShownOnPage++;
+						if (PlayersShownOnPreviousPages >= (page - 1) * 5)
+						{
+							str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+							pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+							PlayersShownOnPage++;
+						}
+						else
+						{
+							//str_format(aBuf, sizeof(aBuf), "No list cuz  NOT Previous: %d > (page - 1) * 5: %d", PlayersShownOnPreviousPages, (page - 1) * 5);
+							//dbg_msg("bomb", aBuf);
+							PlayersShownOnPreviousPages++;
+						}
 					}
 					if (PlayersShownOnPage > 4) //show only 5 players on one site
 					{
+						//dbg_msg("bomb", "page limit reached");
 						break;
 					}
 				}
+				//str_format(aBuf, sizeof(aBuf), "Finished loop. Players on previous: %d", PlayersShownOnPreviousPages);
+				//dbg_msg("bomb", aBuf);
 			}
 		}
 		else //show page one
@@ -5001,7 +5043,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			{
 				if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
 				{
-					str_format(aBuf, sizeof(aBuf), "'%s' (%d seconds)", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+					str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					PlayersShownOnPage++;
 				}

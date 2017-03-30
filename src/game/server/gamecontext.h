@@ -257,6 +257,7 @@ public:
 	int m_BombMoney;
 	int m_BombStartPlayers;
 	int m_BombTick; //the ticking bomby ticker ticks until he flicks to zer0 then he kicks kaboooms!
+	int m_BombStartCountDown;
 
 	int m_BombFinalColor;
 	int m_BombColor;
