@@ -293,6 +293,8 @@ public:
 	bool m_IsBombing;
 	bool m_IsBomb;
 	bool m_IsBombReady;
+	int m_BombPosX;
+	int m_BombPosY;
 
 	// finite cosmetics
 	bool m_Rainbow;

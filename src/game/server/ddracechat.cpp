@@ -4419,10 +4419,15 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			{
 				str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "NoArena");
 			}
+			else if (!str_comp_nocase(aConfig, "Default"))
+			{
+				str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "Default");
+			}
 			else
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "--------[BOMB]--------");
 				pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: unknown map. Aviable maps: ");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Default");
 				pSelf->SendChatTarget(pResult->m_ClientID, "NoArena");
 				pSelf->SendChatTarget(pResult->m_ClientID, "----------------------");
 				return;
@@ -4490,6 +4495,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			str_format(aBuf, sizeof(aBuf), "-%d money for joining this game. You don't want to risk that much money? -> '/bomb leave'", pSelf->m_BombMoney);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "You will die in this game! So better leave if you want to keep weapons and stuff.");
 			pChr->m_IsBombing = true;
 			str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", pSelf->m_BombMoney);
 			pPlayer->MoneyTransaction(-pSelf->m_BombMoney, aBuf);

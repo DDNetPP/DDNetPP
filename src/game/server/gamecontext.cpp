@@ -1787,6 +1787,14 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
 	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
+	if (!str_comp_nocase(m_BombMap, "NoArena"))
+	{
+		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
+	}
+	else
+	{
+		GetPlayerChar(WinnerID)->ChillTelePort(GetPlayerChar(WinnerID)->m_BombPosX, GetPlayerChar(WinnerID)->m_BombPosY); //tele on pos where game started
+	}
 
 	//winner public
 	str_format(aBuf, sizeof(aBuf), "'%s' won +%d money in a bomb game.", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
@@ -1829,17 +1837,17 @@ void CGameContext::CheckStartBomb()
 	{
 		if (m_BombStartCountDown > 1)
 		{
-			for (int i = 0; i < MAX_CLIENTS; i++)
+			if (Server()->Tick() % 40 == 0)
 			{
-				if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
-					if (Server()->Tick() % 40 == 0)
+					if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 					{
 						str_format(aBuf, sizeof(aBuf), "[BOMB] game starts in %d ...", m_BombStartCountDown);
 						SendBroadcast(aBuf, i);
-						m_BombStartCountDown--;
 					}
 				}
+				m_BombStartCountDown--;
 			}
 		}
 		else
@@ -1861,6 +1869,8 @@ void CGameContext::CheckStartBomb()
 					}
 					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
 					SendBroadcast(aBuf, i);
+					GetPlayerChar(i)->m_BombPosX = GetPlayerChar(i)->m_Pos.x / 32;
+					GetPlayerChar(i)->m_BombPosY = GetPlayerChar(i)->m_Pos.y / 32;
 				}
 			}
 		}
@@ -1904,7 +1914,14 @@ void CGameContext::BombTick()
 			{
 				if (Server()->Tick() % 40 == 0)
 				{
-					str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s\n\n\nType '/bomb start' to start.", m_BombMap, CountReadyBombPlayers(), CountBombPlayers());
+					if (GetPlayerChar(i)->m_IsBombReady)
+					{
+						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+					}
 					SendBroadcast(aBuf, i);
 				}
 			}
