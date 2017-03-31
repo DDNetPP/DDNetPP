@@ -403,6 +403,7 @@ MACRO_CONFIG_INT(SvBombStartDelay, sv_bomb_start_delay, 5, 1, 20, CFGFLAG_SERVER
 MACRO_CONFIG_INT(SvBombSpawnX, sv_bomb_spawn_x, 101, 0, 5000, CFGFLAG_SERVER, "x pos of the bomb arena spawn (players spawn at x+CID*2)")
 MACRO_CONFIG_INT(SvBombSpawnY, sv_bomb_spawn_y, 459, 0, 5000, CFGFLAG_SERVER, "y pos of the bomb arena spawn")
 MACRO_CONFIG_INT(SvBombLockable, sv_bomb_lockable, 0, 0, 2, CFGFLAG_SERVER, "0=No 1=Mods 2=all")
+MACRO_CONFIG_INT(SvBombUnreadyKickDelay, sv_bomb_unready_kick_delay, 800, 520, 50000000, CFGFLAG_SERVER, "after how many ticks a unready player gets kicked out of lobby")
 
 MACRO_CONFIG_INT(SvCIdestX, sv_ci_dest_x, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz X tile destination")
 MACRO_CONFIG_INT(SvCIdestY, sv_ci_dest_y, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz Y tile destination")

@@ -211,6 +211,7 @@ public:
 	int m_BombGamesPlayed;
 	int m_BombGamesWon;
 	int m_BombBanTime;
+	int m_BombTicksUnready;
 
 	//chidraqul3 (minigame)
 	int m_GoldRespawnDelay;

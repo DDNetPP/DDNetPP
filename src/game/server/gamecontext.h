@@ -258,6 +258,7 @@ public:
 	int m_BombStartPlayers;
 	int m_BombTick; //the ticking bomby ticker ticks until he flicks to zer0 then he kicks kaboooms!
 	int m_BombStartCountDown;
+	char m_BombMap[32]; //0 = Default 1 = NoArena
 
 	int m_BombFinalColor;
 	int m_BombColor;

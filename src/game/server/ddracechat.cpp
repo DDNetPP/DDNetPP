@@ -4401,7 +4401,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 		if (BombMoney > pPlayer->m_money)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: you don't have enough much money.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: you don't have enough money.");
 			return;
 		}
 		if (BombMoney < 0)
@@ -4410,15 +4410,39 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
+		if (pResult->NumArguments() > 2) //config map
+		{
+			char aConfig[32];
+			str_copy(aConfig, pResult->GetString(2), sizeof(aConfig));
 
+			if (!str_comp_nocase(aConfig, "NoArena"))
+			{
+				str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "NoArena");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "--------[BOMB]--------");
+				pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: unknown map. Aviable maps: ");
+				pSelf->SendChatTarget(pResult->m_ClientID, "NoArena");
+				pSelf->SendChatTarget(pResult->m_ClientID, "----------------------");
+				return;
+			}
+		}
+		else //no config --> Default
+		{
+			str_format(pSelf->m_BombMap, sizeof(pSelf->m_BombMap), "Default");
+		}
+
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_BombTicksUnready = 0;
 		pSelf->m_BombMoney = BombMoney;
 		pSelf->m_BombGameState = 1;
 		pChr->m_IsBombing = true;
 		str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", BombMoney);
 		pPlayer->MoneyTransaction(-BombMoney, aBuf);
 
-
-		str_format(aBuf, sizeof(aBuf), "You have created a bomb game. -%d money for joining this bomb game.", BombMoney);
+		str_format(aBuf, sizeof(aBuf), "[BOMB] You have created a game lobby. Map: %s", pSelf->m_BombMap);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), " -%d money for joining this bomb game.", BombMoney);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCmd, "join"))
@@ -4469,6 +4493,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pChr->m_IsBombing = true;
 			str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", pSelf->m_BombMoney);
 			pPlayer->MoneyTransaction(-pSelf->m_BombMoney, aBuf);
+			pPlayer->m_BombTicksUnready = 0;
 		}
 		else
 		{
@@ -4493,7 +4518,10 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "+%d bomb (leave)", pSelf->m_BombMoney);
 		pPlayer->MoneyTransaction(pSelf->m_BombMoney, aBuf);
+		pSelf->SendBroadcast("", pResult->m_ClientID);
 		pChr->m_IsBombing = false;
+		pChr->m_IsBomb = false;
+		pChr->m_IsBombReady = false;
 	}
 	else if (!str_comp_nocase(aCmd, "start"))
 	{
@@ -4891,6 +4919,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->GetPlayerChar(BanID)->m_IsBombing = false;
 			pSelf->GetPlayerChar(BanID)->m_IsBomb = false;
 			pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
+			pSelf->SendBroadcast("", BanID);
 
 			//do the kick
 			pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
@@ -5075,6 +5104,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== BOMB COMMANDS ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb create <money>' to create a bomb game.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb create <money> <map>' also creates a bomb game.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb join' to join a bomb game.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb start' to start a game.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb lock' to lock a bomb lobby.");

@@ -1802,10 +1802,26 @@ void CGameContext::CheckStartBomb()
 	bool AllReady = true;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && !GetPlayerChar(i)->m_IsBombReady)
+		if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && !GetPlayerChar(i)->m_IsBombReady)
 		{
 			AllReady = false;
-			break;
+			//break; //back in the times this was an performance improvement but nowerdays we need all id's of the unready players to kick em
+
+			//Kick unready players
+			m_apPlayers[i]->m_BombTicksUnready++;
+			if (m_apPlayers[i]->m_BombTicksUnready + 500 == g_Config.m_SvBombUnreadyKickDelay)
+			{
+				SendChatTarget(i, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
+			}
+			if (m_apPlayers[i]->m_BombTicksUnready > g_Config.m_SvBombUnreadyKickDelay)
+			{
+				SendBroadcast("", i); //send empty broadcast to signalize lobby leave
+				SendChatTarget(i, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
+
+				GetPlayerChar(i)->m_IsBombing = false;
+				GetPlayerChar(i)->m_IsBomb = false;
+				GetPlayerChar(i)->m_IsBombReady = false;
+			}
 		}
 	}
 	//if (CountReadyBombPlayers() == CountBombPlayers()) //eats more ressources than the other way
@@ -1815,7 +1831,7 @@ void CGameContext::CheckStartBomb()
 		{
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
-				if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+				if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 				{
 					if (Server()->Tick() % 40 == 0)
 					{
@@ -1833,13 +1849,16 @@ void CGameContext::CheckStartBomb()
 			m_BombStartCountDown = g_Config.m_SvBombStartDelay;
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
-				if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+				if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 				{
-					//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
-					//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
-					//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
-					GetPlayerChar(i)->ChillTelePort(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY);
-					//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary) 
+					if (!str_comp_nocase(m_BombMap, "Default"))
+					{
+						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
+						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
+						//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
+						GetPlayerChar(i)->ChillTelePort(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY);
+						//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary) 
+					}
 					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
 					SendBroadcast(aBuf, i);
 				}
@@ -1885,7 +1904,7 @@ void CGameContext::BombTick()
 			{
 				if (Server()->Tick() % 40 == 0)
 				{
-					str_format(aBuf, sizeof(aBuf), "<bomb lobby> waiting for other players... \n[%d/%d] players ready\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers());
+					str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s\n\n\nType '/bomb start' to start.", m_BombMap, CountReadyBombPlayers(), CountBombPlayers());
 					SendBroadcast(aBuf, i);
 				}
 			}
