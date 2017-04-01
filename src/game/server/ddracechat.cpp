@@ -2379,11 +2379,11 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	if (pResult->NumArguments() < 2)
-	{
-		pSelf->SendChatTarget(ClientID, "Error: si?i");
-		return;
-	}
+	//if (pResult->NumArguments() < 2)
+	//{
+	//	pSelf->SendChatTarget(ClientID, "Error: si?i");
+	//	return;
+	//}
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
 	{
@@ -2391,6 +2391,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	char aBuf[128];
 	char aCommand[32];
 	int SQL_ID;
 	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
@@ -2399,9 +2400,34 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(aCommand, "getid")) //2 argument commands
 	{
-		pSelf->SendChatTarget(ClientID, "coming soon...");
+		if (!pSelf->m_apPlayers[SQL_ID])
+		{
+			str_format(aBuf, sizeof(aBuf), "No player with the id '%d' online.", SQL_ID);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		if (pSelf->m_apPlayers[SQL_ID]->m_AccountID <= 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(SQL_ID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		str_format(aBuf, sizeof(aBuf), "'%s' SQL-ID: %d", pSelf->Server()->ClientName(SQL_ID), pSelf->m_apPlayers[SQL_ID]->m_AccountID);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
-	else //3 argument commands
+	else if (!str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- commands -----");
+		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
+		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+	}
+	else if (!str_comp_nocase(aCommand, "super_mod"))
 	{
 		if (pResult->NumArguments() < 3)
 		{
@@ -2411,41 +2437,114 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
 
-		if (!str_comp_nocase(aCommand, "super_mod"))
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "You are now SuperModerator.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "You are no longer SuperModerator.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
 		}
-		else if (!str_comp_nocase(aCommand, "mod"))
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCommand, "mod"))
+	{
+		if (pResult->NumArguments() < 3)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
 		}
-		else if (!str_comp_nocase(aCommand, "freeze_acc"))
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsModerator = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "You are now Moderator.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "You are no longer Moderator.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
 		}
-		else
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCommand, "freeze_acc"))
+	{
+		if (pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientID, "unknown command.");
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
 		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsAccFrozen = value;
+					pSelf->m_apPlayers[i]->Logout(); //always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
+					pSelf->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else 
+	{
+		pSelf->SendChatTarget(ClientID, "Unknown SQL command. Try '/SQL help' for more help.");
 	}
 
 }
