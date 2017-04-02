@@ -332,9 +332,14 @@ public:
 	bool m_fake_admin;
 	int64 m_LastGift;
 	int64 m_LastFight;
-	int m_AccountID;
 	int64 m_neededxp;
 
+	char m_aAccountLoginName[32];
+	int m_AccountID;
+	char m_aChangePassword[32];
+	char m_aAccountPassword[32];
+
+	void ChangePassword();
 	void Save();
 	void Logout();
 	void CheckLevel();

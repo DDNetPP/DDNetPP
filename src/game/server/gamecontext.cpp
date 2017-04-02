@@ -77,7 +77,18 @@ void CQueryLogin::OnData()
 		{
 			if (m_pGameServer->m_apPlayers[m_ClientID])
 			{
+				//#####################################################
+				//       W A R N I N G
+				// if you add a new var here
+				// make sure to reset it in the Logout(); function   
+				// src/game/server/player.cpp
+				//#####################################################
+
+
+
 				//basic
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 
@@ -173,6 +184,26 @@ void CQueryLogin::OnData()
 	}
 	else
 		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Unknown Error)");
+}
+
+void CQueryChangePassword::OnData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (Next())
+	{
+		if (m_pGameServer->m_apPlayers[m_ClientID])
+		{
+			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
+			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
+			m_pGameServer->SendChatTarget(m_ClientID, "Changed pw");
+		}
+	}
+	else
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "Wrong old password.");
+	}
 }
 
 bool CGameContext::CheckAccounts(int AccountID)

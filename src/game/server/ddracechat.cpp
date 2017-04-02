@@ -221,7 +221,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added SuperModerator Spawn");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added '/logout' command");
+			"+ added '/acc_logout' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/poop <amount> <player>' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -233,7 +233,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added instagib modes (gdm, idm, gSurvival and iSurvival)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"* dummys now join automaticlly on server start");
+			"* dummys now join automatically on server start");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved the blocker bot");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -3013,7 +3013,46 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	if (!pChr)
 		return;
 
-	pSelf->SendChatTarget(pResult->m_ClientID, "dies das coming soon....");
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. (More info '/accountinfo')");
+		return;
+	}
+
+
+	char aOldPass[32];
+	char aNewPass[32];
+	char aNewPass2[32];
+	str_copy(aOldPass, pResult->GetString(0), sizeof(aOldPass));
+	str_copy(aNewPass, pResult->GetString(1), sizeof(aNewPass));
+	str_copy(aNewPass2, pResult->GetString(2), sizeof(aNewPass2));
+
+	if (str_length(aOldPass) > 20 || str_length(aOldPass) < 3)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your Oldpassword is too long or too short. Max length 20 Min length 3");
+		return;
+	}
+
+	if ((str_length(aNewPass) > 20 || str_length(aNewPass) < 3) || (str_length(aNewPass2) > 20 || str_length(aNewPass2) < 3))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your Password is too long or too short. Max length 20 Min length 3");
+		return;
+	}
+
+	if (str_comp_nocase(aNewPass, aNewPass2) != 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Passwords have to be the same.");
+		return;
+	}
+
+
+	str_format(pPlayer->m_aChangePassword, sizeof(pPlayer->m_aChangePassword), "%s", aNewPass); 
+	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pPlayer->m_aAccountLoginName, aOldPass);
+	CQueryChangePassword *pQuery = new CQueryChangePassword();
+	pQuery->m_ClientID = pResult->m_ClientID;
+	pQuery->m_pGameServer = pSelf;
+	pQuery->Query(pSelf->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
 }
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)

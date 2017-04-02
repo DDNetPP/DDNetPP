@@ -534,6 +534,12 @@ public:
 	CGameContext *m_pGameServer;
 };
 
+class CQueryChangePassword : public CQueryPlayer //ChillerDragon's testy test (no idea what im doing here xd)
+{
+	void OnData();
+public:
+};
+
 class CQueryRegister : public CQueryPlayer
 {
 	void OnData();
