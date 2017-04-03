@@ -3564,6 +3564,83 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 
 }
 
+void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT INFO ****");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/gift <player>' to send someone 150 money.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't loose this money. It is coming from the server.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT STATUS ****");
+		if (pPlayer->m_GiftDelay)
+		{
+			str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You can send gifts.");
+		}
+		return;
+	}
+
+	int GiftID = pSelf->GetCIDByName(pResult->GetString(0));
+
+	if (GiftID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "player '%s' is not online.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	if (pPlayer->m_GiftDelay)
+	{
+		str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	if (pPlayer->m_level < 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast level 1 to use gifts.");
+		return;
+	}
+
+	if (pSelf->m_apPlayers[GiftID])
+	{
+		char aOwnIP[128];
+		char aGiftIP[128];
+		pSelf->Server()->GetClientAddr(pResult->m_ClientID, aOwnIP, sizeof(aOwnIP));
+		pSelf->Server()->GetClientAddr(GiftID, aGiftIP, sizeof(aGiftIP));
+
+		if (!str_comp_nocase(aOwnIP, aGiftIP))
+			pSelf->SendChatTarget(pResult->m_ClientID, "You can't give money to your dummy.");
+		else
+		{
+			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, "+150 gift");
+			str_format(aBuf, sizeof(aBuf), "You gave %s 150 money!", pSelf->Server()->ClientName(GiftID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "%s has gifted you +150 money.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(GiftID, aBuf);
+
+
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_GiftDelay = pSelf->Server()->TickSpeed() * 180; //180 seconds == 3 minutes
+		}
+	}
+}
+
 void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)

@@ -1249,7 +1249,7 @@ void CPlayer::Save()
 	//test more last igns (working)
 	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET"
 											  "  `Password` = %s, `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
-											  ", `LastGift` = %i"
+											  ", `LastDelay` = %i" /*is actualy m_GiftDelay*/
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
@@ -1264,7 +1264,7 @@ void CPlayer::Save()
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
 											  " WHERE `ID` = %i",
 												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
-												m_LastGift,
+												m_GiftDelay,
 												m_PoliceRank,
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,

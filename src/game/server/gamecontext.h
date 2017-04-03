@@ -456,6 +456,7 @@ private:
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 	static void ConPay(IConsole::IResult *pResult, void *pUserData);
+	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);

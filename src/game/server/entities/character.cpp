@@ -3530,6 +3530,15 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
+	if (m_pPlayer->m_GiftDelay > 0)
+	{
+		m_pPlayer->m_GiftDelay--;
+		if (m_pPlayer->m_GiftDelay == 1)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Gift delay expired.");
+		}
+	}
+
 	if (m_pPlayer->m_JailTime > 0)
 	{
 		m_pPlayer->m_EscapeTime = 0;
@@ -3555,7 +3564,7 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \n!WARNING! DAMAGE IS ACTIAVTED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
