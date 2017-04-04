@@ -2856,13 +2856,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_PoliceHelper = true;
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
-					pPlayer->m_IsModerator = 1;
-					pPlayer->m_IsSuperModerator = true;
-					pPlayer->m_BoughtRoom = true;
+					//pPlayer->m_IsModerator = 1;
+					//pPlayer->m_IsSuperModerator = true;
+					//pPlayer->m_BoughtRoom = true;
 					//sstr_format(aBuf, sizeof(aBuf), "adwhu");
 
-					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
-					//pPlayer->m_IsTest ^= true;
+					//pPlayer->MoneyTransaction(+1000, "+1000 hacked");
+					//pPlayer->m_level++;
+					//pPlayer->m_PoliceRank++;
 
 					//explode the player no matter what team he is it ll explode in team 0
 					//CreateExplosion(GetPlayerChar(pPlayer->GetCID())->m_Pos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
@@ -2870,7 +2871,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//vec2 DownPos(GetPlayerChar(pPlayer->GetCID())->m_Pos.x, GetPlayerChar(pPlayer->GetCID())->m_Pos.y + 10);
 					//CreateExplosion(DownPos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
 
-					GetPlayerChar(ClientID)->FreezeAll(20);
+					//GetPlayerChar(ClientID)->FreezeAll(20);
 
 
 					char aBuf[1024];
@@ -3530,88 +3531,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				}
 				}*/
-				//else if (!str_comp(pMsg->m_pMessage + 1, "giftinfo"))
-				//{
-				//	char aBuf[256];
-
-
-				//	SendChatTarget(ClientID, "*** Gift Info ***");
-				//	SendChatTarget(ClientID, "try '/gift <playername>' to give someone 50 money! You don't give him your money.");
-
-				//	str_format(aBuf, sizeof(aBuf), "Nextgiftdelay: %d seconds", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
-				//	SendChatTarget(ClientID, aBuf);
-
-				//}
-				//else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "gift ", 5) == 0)
-				//{
-				//	if (m_apPlayers[ClientID]->m_level > 0)
-				//	{
-				//		char aBuf[256];
-				//		if (m_apPlayers[ClientID]->m_LastGift && m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed() > Server()->Tick())
-				//		{
-				//			str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can send a gift again. More info: /giftinfo", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
-				//			SendChatTarget(ClientID, aBuf);
-				//			return;
-				//		}
-
-				//		char aUsername[MAX_NAME_LENGTH];
-				//		str_copy(aUsername, pMsg->m_pMessage + 6, MAX_NAME_LENGTH + 6);
-
-				//		dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-				//		int giftID = -1;
-				//		for (int i = 0; i < MAX_CLIENTS; i++)
-				//		{
-				//			if (!m_apPlayers[i])
-				//				continue;
-
-				//			if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-				//			{
-				//				giftID = i;
-				//				break;
-				//			}
-				//		}
-
-				//		if (giftID >= 0 && giftID < MAX_CLIENTS)
-				//		{
-				//			if (m_apPlayers[giftID])
-				//			{
-				//				char aOwnIP[128];
-				//				char aGiftIP[128];
-				//				Server()->GetClientAddr(ClientID, aOwnIP, sizeof(aOwnIP));
-				//				Server()->GetClientAddr(giftID, aGiftIP, sizeof(aGiftIP));
-
-				//				if (!str_comp_nocase(aOwnIP, aGiftIP))
-				//					SendChatTarget(ClientID, "You can't give money to your dummy.");
-				//				else
-				//				{
-				//					m_apPlayers[giftID]->MoneyTransaction(+50, "+50 gift");
-				//					str_format(aBuf, sizeof(aBuf), "You gave %s 50 money!", Server()->ClientName(giftID));
-				//					SendChatTarget(ClientID, aBuf);
-
-				//					char aBuf2[256];
-				//					str_format(aBuf2, sizeof(aBuf2), "%s has gifted you +50 money.", Server()->ClientName(ClientID));
-				//					SendChatTarget(giftID, aBuf2);
-
-
-				//					m_apPlayers[ClientID]->m_LastGift = Server()->Tick();
-				//				}
-				//			}
-				//		}
-				//		else
-				//		{
-				//			str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-				//			SendChatTarget(ClientID, aBuf);
-				//		}
-
-				//		return;
-				//	}
-				//	else
-				//	{
-				//		SendChatTarget(ClientID, "You need at least level 1 to use gifts.");
-				//	}
-				//}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "add_policehelper ", 17) == 0)
+			/*	else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "add_policehelper ", 17) == 0)
 				{
 					if (m_apPlayers[ClientID]->m_PoliceRank > 1)
 					{
@@ -3732,7 +3652,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						SendChatTarget(ClientID, "You need at least PoliceLevel 2 to promote others.");
 					}
-				}
+				}*/
 				/*else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0) //old unfinished tilebased hammerfight system by FruchtiHD
 				{
 				char aBuf[256];

@@ -365,8 +365,6 @@ private:
 	static void ConCredits(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
-	static void ConTaserinfo(IConsole::IResult *pResult, void *pUserData);
-	static void ConPoliceInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameinfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 	static void ConHelp(IConsole::IResult *pResult, void *pUserData);
@@ -398,7 +396,6 @@ private:
 	static void ConJoinTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConLockTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConMe(IConsole::IResult *pResult, void *pUserData);
-	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
 	//static void ConPlayerinfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConWhisper(IConsole::IResult *pResult, void *pUserData);
 	static void ConConverse(IConsole::IResult *pResult, void *pUserData);
@@ -417,7 +414,6 @@ private:
 	static void ConProtectedKill(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
-	static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteID(IConsole::IResult *pResult, void *pUserData);
@@ -453,6 +449,13 @@ private:
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
+	//police
+	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
+	static void ConTaserinfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoliceInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
+
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 	static void ConPay(IConsole::IResult *pResult, void *pUserData);
@@ -481,6 +484,8 @@ private:
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
+
+
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
