@@ -77,7 +77,18 @@ void CQueryLogin::OnData()
 		{
 			if (m_pGameServer->m_apPlayers[m_ClientID])
 			{
+				//#####################################################
+				//       W A R N I N G
+				// if you add a new var here
+				// make sure to reset it in the Logout(); function   
+				// src/game/server/player.cpp
+				//#####################################################
+
+
+
 				//basic
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 
@@ -103,7 +114,7 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt(GetID("Money"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_LastGift = GetInt(GetID("LastGift"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
 
 				//police
 				m_pGameServer->m_apPlayers[m_ClientID]->m_PoliceRank = GetInt(GetID("PoliceRank"));
@@ -173,6 +184,26 @@ void CQueryLogin::OnData()
 	}
 	else
 		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Unknown Error)");
+}
+
+void CQueryChangePassword::OnData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (Next())
+	{
+		if (m_pGameServer->m_apPlayers[m_ClientID])
+		{
+			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
+			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
+			m_pGameServer->SendChatTarget(m_ClientID, "Changed pw");
+		}
+	}
+	else
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "Wrong old password.");
+	}
 }
 
 bool CGameContext::CheckAccounts(int AccountID)
@@ -2812,9 +2843,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
+					char aBuf[1024];
+					SendChatTarget(ClientID, "Test Failed.");
+
+					if (g_Config.m_SvTestingCommands)
+					{
+						pPlayer->m_PoliceRank = 1;
+					}
+
+
+
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
 					//m_apPlayers[ClientID]->m_xp = m_apPlayers[ClientID]->m_xp + 5000;
-					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
 					//pPlayer->m_money = pPlayer->m_money + 300;
 					//pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
@@ -2825,13 +2865,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//pPlayer->m_PoliceHelper = true;
 					//pPlayer->m_cheats_aimbot ^= true;
 					//SendBroadcast(g_Config.m_SvAdString, ClientID);
-					pPlayer->m_IsModerator = 1;
-					pPlayer->m_IsSuperModerator = true;
-					pPlayer->m_BoughtRoom = true;
+					//pPlayer->m_IsModerator = 1;
+					//pPlayer->m_IsSuperModerator = true;
+					//pPlayer->m_BoughtRoom = true;
 					//sstr_format(aBuf, sizeof(aBuf), "adwhu");
 
-					pPlayer->MoneyTransaction(+1000, "+1000 hacked");
-					//pPlayer->m_IsTest ^= true;
+					//pPlayer->MoneyTransaction(+1000, "+1000 hacked");
+					//pPlayer->m_level++;
+					//pPlayer->m_PoliceRank++;
 
 					//explode the player no matter what team he is it ll explode in team 0
 					//CreateExplosion(GetPlayerChar(pPlayer->GetCID())->m_Pos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
@@ -2839,16 +2880,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//vec2 DownPos(GetPlayerChar(pPlayer->GetCID())->m_Pos.x, GetPlayerChar(pPlayer->GetCID())->m_Pos.y + 10);
 					//CreateExplosion(DownPos, pPlayer->GetCID(), WEAPON_GRENADE, false, 0, GetPlayerChar(pPlayer->GetCID())->Teams()->TeamMask(0));
 
-					GetPlayerChar(ClientID)->FreezeAll(20);
+					//GetPlayerChar(ClientID)->FreezeAll(20);
 
-
-					char aBuf[1024];
 
 					//str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
 					//SendBroadcast(aBuf, ClientID);
 
 
-					int BombID = -1;
+	/*				int BombID = -1;
 					for (int i = 0; i < MAX_CLIENTS; i++)
 					{
 						if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBomb)
@@ -2859,7 +2898,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 
 					str_format(aBuf, sizeof(aBuf), "Version NEW\nBomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
-					SendBroadcast(aBuf, ClientID);
+					SendBroadcast(aBuf, ClientID);*/
 
 					/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
 					SendBroadcast(aBuf, ClientID);*/
@@ -2886,49 +2925,59 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChatTarget(ClientID, "pulled val.");
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "rob_bank"))
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be loggend in to rob the bank.");
-						return;
-					}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "rob_bank"))
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be loggend in to rob the bank.");
+				//		return;
+				//	}
+				//	if (!m_IsBankOpen)
+				//	{
+				//		SendChatTarget(ClientID, "Bank is closed.");
+				//		return;
+				//	}
 
-					if (m_apPlayers[ClientID]->m_InBank)
-					{
-						int r = rand() % 1000;
+				//	if (m_apPlayers[ClientID]->m_InBank)
+				//	{
+				//		int r = rand() % 1000;
 
-						//char aBuf[256];
-						//str_format(aBuf, sizeof(aBuf), "rand_rob: %d", r);
-						//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ciliDR", aBuf);
+				//		//char aBuf[256];
+				//		//str_format(aBuf, sizeof(aBuf), "rand_rob: %d", r);
+				//		//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ciliDR", aBuf);
 
 
-						if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +1000 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
-						}
-						else if (r > 900)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +10 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
-						}
-						else if (r > 800)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +5 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
-						}
-						else
-						{
-							SendChatTarget(ClientID, "You robbed the bank! ...and got caught by the police.");
-							m_apPlayers[ClientID]->m_JailTime = Server()->TickSpeed() * 240; //4 min
-						}
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You need to be in the bank.");
-					}
-				}
+				//		if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +1000 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 600; //+10 min
+
+				//		}
+				//		else if (r > 900)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +10 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 300; //+5 min
+				//		}
+				//		else if (r > 800)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +5 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 300; //+5 min
+				//		}
+				//		else
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! ...and lost the money during the action rofl.");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 60; //+1 min
+				//			//m_apPlayers[ClientID]->m_JailTime = Server()->TickSpeed() * 240; //4 min
+				//		}
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You need to be in the bank.");
+				//	}
+				//}
 				else if (!str_comp(pMsg->m_pMessage + 1, "hax_me_admin_mummy"))
 				{
 					m_apPlayers[ClientID]->m_fake_admin = true;
@@ -3499,97 +3548,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				}
 				}*/
-				else if (!str_comp(pMsg->m_pMessage + 1, "giftinfo"))
-				{
-
-
-
-					char aBuf[256];
-					if (m_apPlayers[ClientID]->m_LastGift && m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed() > Server()->Tick())
-					{
-
-						SendChatTarget(ClientID, "*** Gift Info ***");
-						SendChatTarget(ClientID, "try '/gift <playername>' to give someone 50 money! You don't give him your money.");
-
-						str_format(aBuf, sizeof(aBuf), "Nextgiftdelay: %d seconds", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
-						SendChatTarget(ClientID, aBuf);
-
-
-						return;
-					}
-
-
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "gift ", 5) == 0)
-				{
-					if (m_apPlayers[ClientID]->m_level > 0)
-					{
-						char aBuf[256];
-						if (m_apPlayers[ClientID]->m_LastGift && m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed() > Server()->Tick())
-						{
-							str_format(aBuf, sizeof(aBuf), "You need to wait %d seconds before you can send a gift again. More info: /giftinfo", ((m_apPlayers[ClientID]->m_LastGift + 300 * Server()->TickSpeed()) - Server()->Tick()) / Server()->TickSpeed());
-							SendChatTarget(ClientID, aBuf);
-							return;
-						}
-
-						char aUsername[MAX_NAME_LENGTH];
-						str_copy(aUsername, pMsg->m_pMessage + 6, MAX_NAME_LENGTH + 6);
-
-						dbg_msg("test", "'%s' -> '%s'", pMsg->m_pMessage, aUsername);
-
-						int giftID = -1;
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (!m_apPlayers[i])
-								continue;
-
-							if (!str_comp_nocase(aUsername, Server()->ClientName(i)))
-							{
-								giftID = i;
-								break;
-							}
-						}
-
-						if (giftID >= 0 && giftID < MAX_CLIENTS)
-						{
-							if (m_apPlayers[giftID])
-							{
-								char aOwnIP[128];
-								char aGiftIP[128];
-								Server()->GetClientAddr(ClientID, aOwnIP, sizeof(aOwnIP));
-								Server()->GetClientAddr(giftID, aGiftIP, sizeof(aGiftIP));
-
-								if (!str_comp_nocase(aOwnIP, aGiftIP))
-									SendChatTarget(ClientID, "You can't give money to your dummy.");
-								else
-								{
-									m_apPlayers[giftID]->MoneyTransaction(+50, "+50 gift");
-									str_format(aBuf, sizeof(aBuf), "You gave %s 50 money!", Server()->ClientName(giftID));
-									SendChatTarget(ClientID, aBuf);
-
-									char aBuf2[256];
-									str_format(aBuf2, sizeof(aBuf2), "%s has gifted you +50 money.", Server()->ClientName(ClientID));
-									SendChatTarget(giftID, aBuf2);
-
-
-									m_apPlayers[ClientID]->m_LastGift = Server()->Tick();
-								}
-							}
-						}
-						else
-						{
-							str_format(aBuf, sizeof(aBuf), "Can't find user with the name: %s", aUsername);
-							SendChatTarget(ClientID, aBuf);
-						}
-
-						return;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You need at least level 1 to use gifts.");
-					}
-				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "add_policehelper ", 17) == 0)
+			/*	else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "add_policehelper ", 17) == 0)
 				{
 					if (m_apPlayers[ClientID]->m_PoliceRank > 1)
 					{
@@ -3710,7 +3669,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						SendChatTarget(ClientID, "You need at least PoliceLevel 2 to promote others.");
 					}
-				}
+				}*/
 				/*else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "hammerfight ", 5) == 0) //old unfinished tilebased hammerfight system by FruchtiHD
 				{
 				char aBuf[256];
@@ -4224,6 +4183,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //gLMS iLMS
 			{
 				SendChatTarget(ClientID, "You can't join running survival games. Wait until the round ends.");
+				return;
+			}
+
+			if (pPlayer->m_GangsterBagMoney)
+			{
+				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will loose it.");
+				SendChatTarget(ClientID, "or clear it ur self with '/gangsterbag clear'");
 				return;
 			}
 

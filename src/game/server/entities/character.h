@@ -289,6 +289,9 @@ public:
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
 
+	//bank
+	bool m_InBank;
+
 	//bomb
 	bool m_IsBombing;
 	bool m_IsBomb;

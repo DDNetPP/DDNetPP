@@ -525,6 +525,39 @@ void CCharacter::FireWeapon(bool Bot)
 			}
 
 
+			//Police catch gangstazz
+			if (m_pPlayer->m_PoliceRank && pTarget->GetPlayer()->m_EscapeTime)
+			{
+				char aBuf[256];
+				if (pTarget->GetPlayer()->m_money < 500)
+				{
+					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+
+					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+					pTarget->GetPlayer()->m_EscapeTime = 0;
+					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+				}
+				else
+				{
+					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
+					m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+
+					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
+					pTarget->GetPlayer()->m_EscapeTime = 0;
+					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
+					m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
+
+				}
+			}
+
 
 			float Strength;
 			if (!m_TuneZone)
@@ -3477,7 +3510,7 @@ void CCharacter::DDPP_Tick()
 				}
 				else
 				{
-					if (m_pPlayer->m_InBank)
+					if (m_InBank && GameServer()->m_IsBankOpen)
 					{
 						if (m_pPlayer->m_xpmsg)
 						{
@@ -3497,9 +3530,8 @@ void CCharacter::DDPP_Tick()
 						if (m_pPlayer->m_xpmsg)
 						{
 							char aBuf[256];
-							//str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus\n%s", m_pPlayer->m_xp, m_pPlayer->m_neededxp, GameServer()->aBroadcastMSG);
-							//GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
-							GameServer()->SendBroadcast(GameServer()->aBroadcastMSG, m_pPlayer->GetCID());
+							str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 							m_pPlayer->m_xp++;
 						}
 					}
@@ -3530,6 +3562,15 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
+	if (m_pPlayer->m_GiftDelay > 0)
+	{
+		m_pPlayer->m_GiftDelay--;
+		if (m_pPlayer->m_GiftDelay == 1)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Gift delay expired.");
+		}
+	}
+
 	if (m_pPlayer->m_JailTime > 0)
 	{
 		m_pPlayer->m_EscapeTime = 0;
@@ -3555,7 +3596,7 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \n!WARNING! DAMAGE IS ACTIAVTED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
@@ -3571,7 +3612,7 @@ void CCharacter::DDPP_Tick()
 		}
 		if (m_pPlayer->m_EscapeTime == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You can't get damage anymore.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You can't get arrested anymore.");
 			m_isDmg = false;
 			m_Health = 10;
 		}
@@ -3715,7 +3756,7 @@ void CCharacter::DDPP_Tick()
 	{
 		if (m_Core.m_Pos.x > 359 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 224 * 32 && m_Core.m_Pos.y < 229 * 32) //in bank
 		{
-			m_pPlayer->m_InBank = true;
+			m_InBank = true;
 
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 			{
@@ -3723,7 +3764,7 @@ void CCharacter::DDPP_Tick()
 			}
 			else
 			{
-				if (Server()->Tick() % 30 == 0)
+				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
 				{
 					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
 				}
@@ -3734,7 +3775,7 @@ void CCharacter::DDPP_Tick()
 		}
 		else //if not in bank
 		{
-			m_pPlayer->m_InBank = false;
+			m_InBank = false;
 			if (m_pPlayer->m_ExitBank)
 			{
 				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
@@ -3746,7 +3787,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (m_Core.m_Pos.x > 77 * 32 && m_Core.m_Pos.x < 89 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
 			{
-				m_pPlayer->m_InBank = true;
+				m_InBank = true;
 
 				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 				{
@@ -3764,7 +3805,7 @@ void CCharacter::DDPP_Tick()
 			}
 			else //if not in bank
 			{
-				m_pPlayer->m_InBank = false;
+				m_InBank = false;
 				if (m_pPlayer->m_ExitBank)
 				{
 					GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());

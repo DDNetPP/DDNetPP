@@ -305,6 +305,8 @@ public:
 	char m_money_transaction8[512];
 	char m_money_transaction9[512];
 
+	int m_GangsterBagMoney;
+
 	//other
 
 	bool m_IsTest;
@@ -330,11 +332,17 @@ public:
 	bool m_hidejailmsg;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
-	int64 m_LastGift;
+	//int64 m_LastGift;
+	int64 m_GiftDelay; //is still in sql as LastGift
 	int64 m_LastFight;
-	int m_AccountID;
 	int64 m_neededxp;
 
+	char m_aAccountLoginName[32];
+	int m_AccountID;
+	char m_aChangePassword[32];
+	char m_aAccountPassword[32];
+
+	void ChangePassword();
 	void Save();
 	void Logout();
 	void CheckLevel();
@@ -369,7 +377,7 @@ public:
 	int m_KillStreak;
 	bool m_IsJailed;
 	int64 m_EscapeTime;
-	bool m_InBank;
+	//bool m_InBank; //moved character
 	bool m_ExitBank;
 
 	//BLOCK POINTS

@@ -91,12 +91,115 @@ void CGameContext::ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
 
 	pPlayer->m_xpmsg ^= true;
 	pSelf->SendBroadcast(" ", pResult->m_ClientID);
+}
+
+void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** POLICEHELPER ****");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Police[2] can add and remove some helpers.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/policehelper add <player>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/policehelper remove <player>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "These helpers have some police advantages.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "*** Personal Stats ***");
+		if (pPlayer->m_PoliceRank > 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Police[2]: true");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Police[2]: false");
+		}
+		if (pPlayer->m_PoliceHelper)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Policehelper: true");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Policehelper: false");
+		}
+		return;
+	}
+
+
+	if (pPlayer->m_PoliceRank < 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast Police[2] to use this command with parameters. Check '/policehelper' for more info.");
+		return;
+	}
+	if (pResult->NumArguments() == 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter: <player>");
+		return;
+	}
+
+	int helperID = pSelf->GetCIDByName(pResult->GetString(1));
+	if (helperID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "Player '%s' is not online.", pResult->GetString(1));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+
+	char aPara[32];
+	str_format(aPara, sizeof(aPara), "%s", pResult->GetString(0));
+	if (!str_comp_nocase(aPara, "add"))
+	{
+		if (pSelf->m_apPlayers[helperID])
+		{
+			if (pSelf->m_apPlayers[helperID]->m_PoliceHelper)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is already policehelper.");
+				return; 
+			}
+
+			pSelf->m_apPlayers[helperID]->m_PoliceHelper = true;
+			str_format(aBuf, sizeof(aBuf), "'%s' gave you the policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(helperID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' is now an policehelper.", pSelf->Server()->ClientName(helperID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else if (!str_comp_nocase(aPara, "remove"))
+	{
+		if (pSelf->m_apPlayers[helperID])
+		{
+			if (!pSelf->m_apPlayers[helperID]->m_PoliceHelper)
+			{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player is no policehelper.");
+			return;
+			}
+
+			pSelf->m_apPlayers[helperID]->m_PoliceHelper = false;
+			str_format(aBuf, sizeof(aBuf), "'%s' took your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(helperID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' is no longer an policehelper.", pSelf->Server()->ClientName(helperID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/policehelper' for help.");
+	}
 }
 
 void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
@@ -221,7 +324,9 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added SuperModerator Spawn");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added '/logout' command");
+			"+ added '/acc_logout' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/changepassword <old> <new> <new>' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/poop <amount> <player>' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -233,7 +338,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added instagib modes (gdm, idm, gSurvival and iSurvival)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"* dummys now join automaticlly on server start");
+			"* dummys now join automatically on server start");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved the blocker bot");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -2379,11 +2484,11 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	if (pResult->NumArguments() < 2)
-	{
-		pSelf->SendChatTarget(ClientID, "Error: si?i");
-		return;
-	}
+	//if (pResult->NumArguments() < 2)
+	//{
+	//	pSelf->SendChatTarget(ClientID, "Error: si?i");
+	//	return;
+	//}
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
 	{
@@ -2391,6 +2496,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	char aBuf[128];
 	char aCommand[32];
 	int SQL_ID;
 	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
@@ -2399,9 +2505,34 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(aCommand, "getid")) //2 argument commands
 	{
-		pSelf->SendChatTarget(ClientID, "coming soon...");
+		if (!pSelf->m_apPlayers[SQL_ID])
+		{
+			str_format(aBuf, sizeof(aBuf), "No player with the id '%d' online.", SQL_ID);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		if (pSelf->m_apPlayers[SQL_ID]->m_AccountID <= 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(SQL_ID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		str_format(aBuf, sizeof(aBuf), "'%s' SQL-ID: %d", pSelf->Server()->ClientName(SQL_ID), pSelf->m_apPlayers[SQL_ID]->m_AccountID);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
-	else //3 argument commands
+	else if (!str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- commands -----");
+		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
+		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+	}
+	else if (!str_comp_nocase(aCommand, "super_mod"))
 	{
 		if (pResult->NumArguments() < 3)
 		{
@@ -2411,41 +2542,114 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
 
-		if (!str_comp_nocase(aCommand, "super_mod"))
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "You are now SuperModerator.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "You are no longer SuperModerator.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
 		}
-		else if (!str_comp_nocase(aCommand, "mod"))
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCommand, "mod"))
+	{
+		if (pResult->NumArguments() < 3)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
 		}
-		else if (!str_comp_nocase(aCommand, "freeze_acc"))
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
-
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(pSelf->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-
-			pSelf->SendChatTarget(ClientID, "UPDATED value... warning: if the player is logged in he has to relog to get the update");
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsModerator = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "You are now Moderator.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "You are no longer Moderator.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
 		}
-		else
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCommand, "freeze_acc"))
+	{
+		if (pResult->NumArguments() < 3)
 		{
-			pSelf->SendChatTarget(ClientID, "unknown command.");
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
 		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsAccFrozen = value;
+					pSelf->m_apPlayers[i]->Logout(); //always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
+					pSelf->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else 
+	{
+		pSelf->SendChatTarget(ClientID, "Unknown SQL command. Try '/SQL help' for more help.");
 	}
 
 }
@@ -2914,7 +3118,46 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	if (!pChr)
 		return;
 
-	pSelf->SendChatTarget(pResult->m_ClientID, "dies das coming soon....");
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. (More info '/accountinfo')");
+		return;
+	}
+
+
+	char aOldPass[32];
+	char aNewPass[32];
+	char aNewPass2[32];
+	str_copy(aOldPass, pResult->GetString(0), sizeof(aOldPass));
+	str_copy(aNewPass, pResult->GetString(1), sizeof(aNewPass));
+	str_copy(aNewPass2, pResult->GetString(2), sizeof(aNewPass2));
+
+	if (str_length(aOldPass) > 20 || str_length(aOldPass) < 3)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your Oldpassword is too long or too short. Max length 20 Min length 3");
+		return;
+	}
+
+	if ((str_length(aNewPass) > 20 || str_length(aNewPass) < 3) || (str_length(aNewPass2) > 20 || str_length(aNewPass2) < 3))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your Password is too long or too short. Max length 20 Min length 3");
+		return;
+	}
+
+	if (str_comp_nocase(aNewPass, aNewPass2) != 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Passwords have to be the same.");
+		return;
+	}
+
+
+	str_format(pPlayer->m_aChangePassword, sizeof(pPlayer->m_aChangePassword), "%s", aNewPass); 
+	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pPlayer->m_aAccountLoginName, aOldPass);
+	CQueryChangePassword *pQuery = new CQueryChangePassword();
+	pQuery->m_ClientID = pResult->m_ClientID;
+	pQuery->m_pGameServer = pSelf;
+	pQuery->Query(pSelf->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
 }
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
@@ -3424,6 +3667,83 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
 	}
 
+}
+
+void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT INFO ****");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/gift <player>' to send someone 150 money.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't loose this money. It is coming from the server.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT STATUS ****");
+		if (pPlayer->m_GiftDelay)
+		{
+			str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You can send gifts.");
+		}
+		return;
+	}
+
+	int GiftID = pSelf->GetCIDByName(pResult->GetString(0));
+
+	if (GiftID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "player '%s' is not online.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	if (pPlayer->m_GiftDelay)
+	{
+		str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	if (pPlayer->m_level < 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast level 1 to use gifts.");
+		return;
+	}
+
+	if (pSelf->m_apPlayers[GiftID])
+	{
+		char aOwnIP[128];
+		char aGiftIP[128];
+		pSelf->Server()->GetClientAddr(pResult->m_ClientID, aOwnIP, sizeof(aOwnIP));
+		pSelf->Server()->GetClientAddr(GiftID, aGiftIP, sizeof(aGiftIP));
+
+		if (!str_comp_nocase(aOwnIP, aGiftIP))
+			pSelf->SendChatTarget(pResult->m_ClientID, "You can't give money to your dummy.");
+		else
+		{
+			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, "+150 gift");
+			str_format(aBuf, sizeof(aBuf), "You gave %s 150 money!", pSelf->Server()->ClientName(GiftID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "%s has gifted you +150 money. (more info '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(GiftID, aBuf);
+
+
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_GiftDelay = pSelf->Server()->TickSpeed() * 180; //180 seconds == 3 minutes
+		}
+	}
 }
 
 void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
@@ -5200,5 +5520,232 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command try '/room help' for more help.");
+	}
+}
+
+void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** BANK ****");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank close'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank open'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "banks are sensless af...");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "close"))
+	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+			return;
+		}
+
+		if (!pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is already closed.");
+			return;
+		}
+
+		pSelf->m_IsBankOpen = false;
+		pSelf->SendChatTarget(pResult->m_ClientID, "<bank> bye world!");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "open"))
+	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+			return;
+		}
+
+		if (pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is already open.");
+			return;
+		}
+
+		pSelf->m_IsBankOpen = true;
+		pSelf->SendChatTarget(pResult->m_ClientID, "<bank> hello world!");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "rob"))
+	{
+		if (!pChr->m_InBank)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in a bank.");
+			return;
+		}
+		if (!pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is closed.");
+			return;
+		}
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in more info at '/accountinfo'.");
+			return;
+		}
+
+		int policedudesfound = 0;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_PoliceRank && pSelf->m_apPlayers[i] != pPlayer)
+			{
+				policedudesfound++;
+			}
+		}
+
+		if (!policedudesfound)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You robbed the bank. (bank was empty)");
+			return;
+		}
+
+		pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 600; //+10 min
+		//str_format(aBuf, sizeof(aBuf), "+%d bank robbery", 5 * policedudesfound);
+		//pPlayer->MoneyTransaction(+5 * policedudesfound, aBuf);
+		pPlayer->m_GangsterBagMoney += 5 * policedudesfound;
+		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * policedudesfound);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %d minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown bank command check '/bank' for more help.");
+	}
+}
+
+void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas aren't dead or spectator.");
+		return;
+	}
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, ")&(%)59 GAng$st4 Bag (?=/(§");
+		str_format(aBuf, sizeof(aBuf), "%d gAng$sta coins in your bag m8 ", pPlayer->m_GangsterBagMoney);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "gangsta coins are rip on disconnect");
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangster play 24/7 or do illegal 7gangsterbag trade(s)-");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "trade"))
+	{
+		//todo: add trades with hammer to give gangsta coins to others
+
+		// cant send yourself
+
+		// can only trade if no escapetime
+
+		// use brain to find bugsis
+
+		if (!pPlayer->m_GangsterBagMoney)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you no coins mate");
+			return;
+		}
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "dude use: trade <gangsta broo>");
+			return;
+		}
+		if (pPlayer->m_EscapeTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %d seconds...", pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		int broID = pSelf->GetCIDByName(pResult->GetString(1));
+		if (broID == -1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "gettin crazy m8? Choose a real person...");
+			return;
+		}
+		if (pSelf->m_apPlayers[broID]->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "sure this is a trusty trade bro? He is not logged in -.-");
+			return;
+		}
+		if (broID == pResult->m_ClientID)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "real gangster only traderino w other ppls");
+			return;
+		}
+		char aOwnIP[128];
+		char aBroIP[128];
+		pSelf->Server()->GetClientAddr(pResult->m_ClientID, aOwnIP, sizeof(aOwnIP));
+		pSelf->Server()->GetClientAddr(broID, aBroIP, sizeof(aBroIP));
+
+		if (!str_comp_nocase(aOwnIP, aBroIP)) //send dummy money -> police traces ip -> dummy escape time 
+		{
+			//bro
+			pSelf->m_apPlayers[broID]->m_GangsterBagMoney += pPlayer->m_GangsterBagMoney;
+			pSelf->m_apPlayers[broID]->m_EscapeTime += pSelf->Server()->TickSpeed() * 180; // 180 secs == 3 minutes
+			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d gangster coins (police traced ip)", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
+			pSelf->SendChatTarget(broID, aBuf);
+
+			//trader
+			pSelf->SendChatTarget(pResult->m_ClientID, "Police recognized the illegal trade -.- (ip traced)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your bro has now gangster coins and is getting hunted by police.");
+			pPlayer->m_GangsterBagMoney = 0;
+			pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 60; // +1 minutes for illegal trades
+			return;
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d money (totally legal ^^)", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
+			pSelf->SendChatTarget(broID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "+%d (unknown source)", pPlayer->m_GangsterBagMoney);
+			pSelf->m_apPlayers[broID]->MoneyTransaction(+pPlayer->m_GangsterBagMoney, aBuf);
+
+			pPlayer->m_GangsterBagMoney = 0;
+			pSelf->SendChatTarget(pResult->m_ClientID, "traded gangsta coins !!!");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "clear"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "cleared gangsterbag ... rip coins ._.");
+		pPlayer->m_GangsterBagMoney = 0;
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas no makin typos");
 	}
 }

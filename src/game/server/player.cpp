@@ -1135,7 +1135,68 @@ void CPlayer::Logout()
 	Save();
 	dbg_msg("account", "Logged out: %d", m_AccountID);
 
+	//reset values to default to prevent cheating
 	m_AccountID = 0;
+	m_level = 0;
+	m_IsModerator = 0;
+	m_IsSuperModerator = 0;
+	m_IsAccFrozen = 0;
+	m_xp = 0;
+	m_money = 0;
+	m_shit = 0;
+	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
+	m_PoliceRank = 0;
+	//m_JailTime = 0; //logout doesnt release :p
+	//m_EscapeTime = 0;
+	m_TaserLevel = 0;
+	m_pvp_arena_tickets = 0;
+	m_pvp_arena_games_played = 0;
+	m_pvp_arena_kills = 0;
+	m_pvp_arena_deaths = 0;
+	m_ProfileStyle = 0;
+	m_ProfileViews = 0;
+	str_format(m_ProfileStatus, sizeof(m_ProfileStatus), "");
+	str_format(m_ProfileSkype, sizeof(m_ProfileSkype), "");
+	str_format(m_ProfileYoutube, sizeof(m_ProfileYoutube), "");
+	str_format(m_ProfileEmail, sizeof(m_ProfileEmail), "");
+	str_format(m_ProfileHomepage, sizeof(m_ProfileHomepage), "");
+	str_format(m_ProfileTwitter, sizeof(m_ProfileTwitter), "");
+	m_homing_missiles_ammo = 0;
+	m_BlockPoints = 0;
+	m_BlockPoints_Kills = 0;
+	m_BlockPoints_Deaths = 0;
+	m_BombGamesPlayed = 0;
+	m_BombGamesWon = 0;
+	//m_BombBanTime = 0; //could be set to 0 because you need to belogged in anyways to play bomb            ...but yolo comments are kewl and stuff
+	m_GrenadeKills = 0;
+	m_GrenadeDeaths = 0;
+	m_GrenadeSpree = 0;
+	m_GrenadeShots = 0;
+	m_GrenadeShotsNoRJ = 0;
+	m_GrenadeWins = 0;
+	m_RifleKills = 0;
+	m_RifleDeaths = 0;
+	m_RifleDeaths = 0;
+	m_RifleShots = 0;
+	m_RifleWins = 0;
+}
+
+void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_AccountID <= 0)
+		return;
+
+
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Password` = %s  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
+
+	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, m_AccountID);
+
+	CQuery *pQuery = new CQuery();
+	pQuery->Query(GameServer()->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
 }
 
 void CPlayer::Save()
@@ -1187,8 +1248,8 @@ void CPlayer::Save()
 
 	//test more last igns (working)
 	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET"
-											  "  `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
-											  ", `LastGift` = %i"
+											  "  `Password` = '%s', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
+											  ", `LastGift` = %i" /*is actualy m_GiftDelay*/
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
@@ -1202,8 +1263,8 @@ void CPlayer::Save()
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
 											  " WHERE `ID` = %i",
-												m_level, m_xp, m_money, m_shit,
-												m_LastGift,
+												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
+												m_GiftDelay,
 												m_PoliceRank,
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,
