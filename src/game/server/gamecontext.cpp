@@ -2843,9 +2843,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
+					char aBuf[1024];
+					SendChatTarget(ClientID, "Test Failed.");
+
+					if (g_Config.m_SvTestingCommands)
+					{
+						pPlayer->m_PoliceRank = 1;
+					}
+
+
+
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
 					//m_apPlayers[ClientID]->m_xp = m_apPlayers[ClientID]->m_xp + 5000;
-					SendChatTarget(ClientID, "Test Failed.");
 					//CreateSoundGlobal(SOUND_CTF_RETURN);
 					//pPlayer->m_money = pPlayer->m_money + 300;
 					//pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
@@ -2874,13 +2883,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					//GetPlayerChar(ClientID)->FreezeAll(20);
 
 
-					char aBuf[1024];
-
 					//str_format(aBuf , sizeof(aBuf), "Cucumber value: %d", m_CucumberShareValue);
 					//SendBroadcast(aBuf, ClientID);
 
 
-					int BombID = -1;
+	/*				int BombID = -1;
 					for (int i = 0; i < MAX_CLIENTS; i++)
 					{
 						if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBomb)
@@ -2891,7 +2898,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 
 					str_format(aBuf, sizeof(aBuf), "Version NEW\nBomb: %s\nBombTick: %d/%d", Server()->ClientName(BombID), m_BombTick, g_Config.m_SvBombTicks);
-					SendBroadcast(aBuf, ClientID);
+					SendBroadcast(aBuf, ClientID);*/
 
 					/*		str_format(aBuf, sizeof(aBuf), "FindNextBomb: %s", Server()->ClientName(FindNextBomb()));
 					SendBroadcast(aBuf, ClientID);*/
@@ -2918,49 +2925,59 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChatTarget(ClientID, "pulled val.");
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "rob_bank"))
-				{
-					if (m_apPlayers[ClientID]->m_AccountID <= 0)
-					{
-						SendChatTarget(ClientID, "You need to be loggend in to rob the bank.");
-						return;
-					}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "rob_bank"))
+				//{
+				//	if (m_apPlayers[ClientID]->m_AccountID <= 0)
+				//	{
+				//		SendChatTarget(ClientID, "You need to be loggend in to rob the bank.");
+				//		return;
+				//	}
+				//	if (!m_IsBankOpen)
+				//	{
+				//		SendChatTarget(ClientID, "Bank is closed.");
+				//		return;
+				//	}
 
-					if (m_apPlayers[ClientID]->m_InBank)
-					{
-						int r = rand() % 1000;
+				//	if (m_apPlayers[ClientID]->m_InBank)
+				//	{
+				//		int r = rand() % 1000;
 
-						//char aBuf[256];
-						//str_format(aBuf, sizeof(aBuf), "rand_rob: %d", r);
-						//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ciliDR", aBuf);
+				//		//char aBuf[256];
+				//		//str_format(aBuf, sizeof(aBuf), "rand_rob: %d", r);
+				//		//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ciliDR", aBuf);
 
 
-						if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +1000 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
-						}
-						else if (r > 900)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +10 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
-						}
-						else if (r > 800)
-						{
-							SendChatTarget(ClientID, "You robbed the bank! +5 money.");
-							m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
-						}
-						else
-						{
-							SendChatTarget(ClientID, "You robbed the bank! ...and got caught by the police.");
-							m_apPlayers[ClientID]->m_JailTime = Server()->TickSpeed() * 240; //4 min
-						}
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You need to be in the bank.");
-					}
-				}
+				//		if (r == 999 || r == 998 || r == 997 || r == 1000/*shoudlnt happen lol*/)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +1000 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+1000, "+1000 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 600; //+10 min
+
+				//		}
+				//		else if (r > 900)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +10 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+10, "+10 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 300; //+5 min
+				//		}
+				//		else if (r > 800)
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! +5 money.");
+				//			m_apPlayers[ClientID]->MoneyTransaction(+5, "+5 robbed bank");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 300; //+5 min
+				//		}
+				//		else
+				//		{
+				//			SendChatTarget(ClientID, "You robbed the bank! ...and lost the money during the action rofl.");
+				//			m_apPlayers[ClientID]->m_EscapeTime += Server()->TickSpeed() * 60; //+1 min
+				//			//m_apPlayers[ClientID]->m_JailTime = Server()->TickSpeed() * 240; //4 min
+				//		}
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You need to be in the bank.");
+				//	}
+				//}
 				else if (!str_comp(pMsg->m_pMessage + 1, "hax_me_admin_mummy"))
 				{
 					m_apPlayers[ClientID]->m_fake_admin = true;

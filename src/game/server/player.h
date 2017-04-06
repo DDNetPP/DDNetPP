@@ -305,6 +305,8 @@ public:
 	char m_money_transaction8[512];
 	char m_money_transaction9[512];
 
+	int m_GangsterBagMoney;
+
 	//other
 
 	bool m_IsTest;
@@ -375,7 +377,7 @@ public:
 	int m_KillStreak;
 	bool m_IsJailed;
 	int64 m_EscapeTime;
-	bool m_InBank;
+	//bool m_InBank; //moved character
 	bool m_ExitBank;
 
 	//BLOCK POINTS

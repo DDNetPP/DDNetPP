@@ -326,6 +326,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/acc_logout' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/changepassword <old> <new> <new>' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/poop <amount> <player>' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/pay <amount> <player>' command");
@@ -3735,7 +3737,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "You gave %s 150 money!", pSelf->Server()->ClientName(GiftID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "%s has gifted you +150 money.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "%s has gifted you +150 money. (more info '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(GiftID, aBuf);
 
 
@@ -5518,5 +5520,227 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command try '/room help' for more help.");
+	}
+}
+
+void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "**** BANK ****");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank close'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank open'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "banks are sensless af...");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "close"))
+	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+			return;
+		}
+
+		if (!pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is already closed.");
+			return;
+		}
+
+		pSelf->m_IsBankOpen = false;
+		pSelf->SendChatTarget(pResult->m_ClientID, "<bank> bye world!");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "open"))
+	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+			return;
+		}
+
+		if (pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is already open.");
+			return;
+		}
+
+		pSelf->m_IsBankOpen = true;
+		pSelf->SendChatTarget(pResult->m_ClientID, "<bank> hello world!");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "rob"))
+	{
+		if (!pChr->m_InBank)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in a bank.");
+			return;
+		}
+		if (!pSelf->m_IsBankOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is closed.");
+			return;
+		}
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in more info at '/accountinfo'.");
+			return;
+		}
+
+		int policedudesfound = 0;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_PoliceRank && pSelf->m_apPlayers[i] != pPlayer)
+			{
+				policedudesfound++;
+			}
+		}
+
+		if (!policedudesfound)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You robbed the bank. (bank was empty)");
+			return;
+		}
+
+		pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 600; //+10 min
+		//str_format(aBuf, sizeof(aBuf), "+%d bank robbery", 5 * policedudesfound);
+		//pPlayer->MoneyTransaction(+5 * policedudesfound, aBuf);
+		pPlayer->m_GangsterBagMoney += 5 * policedudesfound;
+		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * policedudesfound);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %d minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown bank command check '/bank' for more help.");
+	}
+}
+
+void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas aren't dead or spectator.");
+		return;
+	}
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, ")&(%)59 GAng$st4 Bag (?=/(§");
+		str_format(aBuf, sizeof(aBuf), "%d gAng$sta coins in your bag m8 ", pPlayer->m_GangsterBagMoney);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "gangsta coins are rip on disconnect");
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangster play 24/7 or do illegal 7gangsterbag trade(s)-");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "trade"))
+	{
+		//todo: add trades with hammer to give gangsta coins to others
+
+		// cant send yourself
+
+		// can only trade if no escapetime
+
+		// use brain to find bugsis
+
+		if (!pPlayer->m_GangsterBagMoney)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you no coins mate");
+			return;
+		}
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "dude use: trade <gangsta broo>");
+			return;
+		}
+		if (pPlayer->m_EscapeTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %d seconds...", pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+
+		int broID = pSelf->GetCIDByName(pResult->GetString(1));
+		if (broID == -1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "gettin crazy m8? Choose a real person...");
+			return;
+		}
+		if (pSelf->m_apPlayers[broID]->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "sure this is a trusty trade bro? He is not logged in -.-");
+			return;
+		}
+		if (broID == pResult->m_ClientID)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "real gangster only traderino w other ppls");
+			return;
+		}
+		char aOwnIP[128];
+		char aBroIP[128];
+		pSelf->Server()->GetClientAddr(pResult->m_ClientID, aOwnIP, sizeof(aOwnIP));
+		pSelf->Server()->GetClientAddr(broID, aBroIP, sizeof(aBroIP));
+
+		if (!str_comp_nocase(aOwnIP, aBroIP)) //send dummy money -> police traces ip -> dummy escape time 
+		{
+			//bro
+			pSelf->m_apPlayers[broID]->m_GangsterBagMoney += pPlayer->m_GangsterBagMoney;
+			pSelf->m_apPlayers[broID]->m_EscapeTime += pSelf->Server()->TickSpeed() * 180; // 180 secs == 3 minutes
+			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d gangster coins (police traced ip)", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
+			pSelf->SendChatTarget(broID, aBuf);
+
+			//trader
+			pSelf->SendChatTarget(pResult->m_ClientID, "Police recognized the illegal trade -.- (ip traced)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your bro has now gangster coins and is getting hunted by police.");
+			pPlayer->m_GangsterBagMoney = 0;
+			pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 60; // +1 minutes for illegal trades
+			return;
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d money (totally legal ^^)", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
+			pSelf->SendChatTarget(broID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "+%d (unknown source)", pPlayer->m_GangsterBagMoney);
+			pSelf->m_apPlayers[broID]->MoneyTransaction(+pPlayer->m_GangsterBagMoney, aBuf);
+
+			pPlayer->m_GangsterBagMoney = 0;
+			pSelf->SendChatTarget(pResult->m_ClientID, "traded gangsta coins !!!");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas no makin typos");
 	}
 }

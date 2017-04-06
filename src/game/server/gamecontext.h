@@ -245,6 +245,9 @@ public:
 	void SendBroadcastAll(const char *pText);
 	void KillAll();
 
+	//bank
+	bool m_IsBankOpen;
+
 	//bomb
 	void EndBombGame(int WinnerID);
 	void CheckStartBomb();
@@ -459,6 +462,8 @@ private:
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 	static void ConPay(IConsole::IResult *pResult, void *pUserData);
+	static void ConBank(IConsole::IResult *pResult, void *pUserData);
+	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
