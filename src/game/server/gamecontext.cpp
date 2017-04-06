@@ -567,7 +567,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 	{
 		if(ProcessSpamProtection(SpamProtectionClientID))
 		{
-			SendChatTarget(SpamProtectionClientID, "Stop spam plis :)");
+			SendChatTarget(SpamProtectionClientID, "Stop spamming!");
 			//SendChatTarget(SpamProtectionClientID, pText);
 			return;
 		}
@@ -1114,7 +1114,7 @@ void CGameContext::OnTick()
 						{
 							GetPlayerChar(i)->m_FreezeTime = 1000;
 							SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
-							SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change Skin or Clantag!");
+							SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change skin or clantag!");
 						}
 						else if (g_Config.m_SvKickChilliClan == 2)
 						{
@@ -1334,7 +1334,7 @@ void CGameContext::OnClientEnter(int ClientID)
 		}
 		else
 		{
-			SendChatTarget(ClientID, "ChillerDragon's Block mod based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
+			SendChatTarget(ClientID, "ChillerDragon's Block od based on DDraceNetwork mod.DDNet Version: " GAME_VERSION);
 		}
 		SendChatTarget(ClientID, "please visit http://ddnet.tw or say /info for more info");
 
@@ -1984,7 +1984,7 @@ void CGameContext::BombTick()
 			if (FindNextBomb() != -1)
 			{
 				GetPlayerChar(FindNextBomb())->m_IsBomb = true;
-				SendChatTarget(FindNextBomb(), "The server picked you as bomb.");
+				SendChatTarget(FindNextBomb(), "The server has picked you as bomb.");
 			}
 			else
 			{
@@ -2761,7 +2761,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else //escape failed
 					{
-						SendChatTarget(ClientID, "Escape failed ._.!");
+						SendChatTarget(ClientID, "Escape failed...!");
 						m_apPlayers[ClientID]->m_failed_escapes++;
 					}
 
