@@ -5739,6 +5739,11 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "traded gangsta coins !!!");
 		}
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "clear"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "cleared gangsterbag ... rip coins ._.");
+		pPlayer->m_GangsterBagMoney = 0;
+	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas no makin typos");

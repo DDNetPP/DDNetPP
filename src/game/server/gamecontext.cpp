@@ -4186,6 +4186,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
+			if (pPlayer->m_GangsterBagMoney)
+			{
+				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will loose it.");
+				SendChatTarget(ClientID, "or clear it ur self with '/gangsterbag clear'");
+				return;
+			}
+
 			//Kill Protection
 			CCharacter* pChr = pPlayer->GetCharacter();
 			if(pChr)
