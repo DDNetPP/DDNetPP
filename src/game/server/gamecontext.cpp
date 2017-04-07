@@ -1564,6 +1564,44 @@ void CGameContext::KillAll()
 	}
 }
 
+bool CGameContext::IsPosition(int playerID, int pos)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+
+	if (pos == 0) //cb5 jail release spot
+	{
+		if (GetPlayerChar(playerID)->m_Pos.x > 480 * 32
+			&& GetPlayerChar(playerID)->m_Pos.x < 500 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y > 229 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y < 237 * 32)
+		{
+			return true;	
+		}
+	}
+
+
+	return false;
+}
+
+void CGameContext::SendAllPolice(const char * pMessage)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "[POLICE-CHANNEL] %s", pMessage);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_PoliceRank)
+		{
+			SendChatTarget(i,aBuf);
+		}
+	}
+}
+
 void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 {
 #if defined(CONF_DEBUG)
@@ -2848,7 +2886,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						pPlayer->m_PoliceRank = 1;
+						//SendAllPolice("test");
+						pPlayer->m_PoliceRank = 5;
 					}
 
 
@@ -2911,6 +2950,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					str_format(aBroadcastMSG, sizeof(aBroadcastMSG), " ", aBroadcastMSG);
 					SendBroadcast(aBroadcastMSG, ClientID);
+					//SendAllPolice("test");
 					return;
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "push val"))

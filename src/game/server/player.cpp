@@ -1458,7 +1458,7 @@ void CPlayer::CalcExp()
 		m_neededxp = 950000;
 	else if (m_level == 24)					//150 000
 		m_neededxp = 1200000;
-	else if (m_level == 25)					//200 000			Police[2]		policehelper
+	else if (m_level == 25)					//200 000			Police[2]		policehelper && jail codes
 		m_neededxp = 1400000;
 	else if (m_level == 26)					//200 000
 		m_neededxp = 1600000;
@@ -1508,7 +1508,7 @@ void CPlayer::CalcExp()
 		m_neededxp = 16000000;
 	else if (m_level == 49)					//1 000 000
 		m_neededxp = 17000000;
-	else if (m_level == 50)					//1 000 000
+	else if (m_level == 50)					//1 000 000			Police[5]		'/jail arrest <time>' hammer command
 		m_neededxp = 18000000;
 	else if (m_level == 51)					//1 000 000
 		m_neededxp = 19000000;

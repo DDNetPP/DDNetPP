@@ -473,6 +473,17 @@ void CCharacter::FireWeapon(bool Bot)
 	{
 	case WEAPON_HAMMER:
 	{
+		//hammer delay on super jail hammer
+		if (m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "you have to wait %d minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			return;
+		}
+
+
+
 		// reset objects Hit
 		m_NumObjectsHit = 0;
 		GameServer()->CreateSound(m_Pos, SOUND_HAMMER_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
@@ -526,35 +537,57 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 			//Police catch gangstazz
-			if (m_pPlayer->m_PoliceRank && pTarget->GetPlayer()->m_EscapeTime)
+			if (m_pPlayer->m_PoliceRank && pTarget->m_FreezeTime > 1 && m_pPlayer->m_JailHammer)
 			{
 				char aBuf[256];
-				if (pTarget->GetPlayer()->m_money < 500)
-				{
-					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					pTarget->GetPlayer()->m_EscapeTime = 0;
-					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+				if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
+				{
+					if (pTarget->GetPlayer()->m_money < 500)
+					{
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+
+						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
+						m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+
+						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+						m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
+
+					}
 				}
-				else
+				else //super jail hammer
 				{
-					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
-					m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+					if (m_pPlayer->m_JailHammer > 1)
+					{
+						str_format(aBuf, sizeof(aBuf), "You jailed '%s' (arrest %d seconds).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
-					pTarget->GetPlayer()->m_EscapeTime = 0;
-					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
-					m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
-
+						str_format(aBuf, sizeof(aBuf), "You were arrested %d seconds by '%s'.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * m_pPlayer->m_JailHammer;
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+					}
 				}
 			}
 
