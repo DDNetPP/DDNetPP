@@ -1778,7 +1778,7 @@ void CGameContext::CreateBasicDummys()
 	CALL_STACK_ADD();
 #endif
 	CreateNewDummy(31);//police
-	CreateNewDummy(30);//taxi
+	//CreateNewDummy(30);//taxi (not needed in new cb5)
 	CreateNewDummy(29);//blocker
 	CreateNewDummy(23);//racer
 }

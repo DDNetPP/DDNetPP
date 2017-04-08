@@ -441,15 +441,20 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
 
+
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
 	for (; p; p = (CCharacter *)p->TypeNext())
 	{
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		float Len = distance(Pos, p->m_Pos);
 
@@ -478,10 +483,13 @@ CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *p
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 446 * 32 || p->m_Pos.y < 198 * 32) // wenn der spieler nicht in der ruler area gefunden wurde such weiter (hoff ich mal xD)
 			continue;
@@ -515,10 +523,13 @@ CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 417 * 32 || p->m_Pos.x > 444 * 32 || p->m_Pos.y < 198 * 32) // wenn der gegner im unfreeze bereich der ruler area ist
 			continue;
@@ -552,10 +563,13 @@ CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCh
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		//if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 415 * 32 || p->m_Pos.x > 416 * 32)
 		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 416 * 32 || p->m_Pos.x > 417 * 32 - 10 || p->m_Pos.y < 198 * 32) // wenn der spieler nicht in der ruler area (im linken freeze) gefunden wurde
@@ -589,10 +603,13 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 434 * 32 || p->m_Pos.x > 441 * 32 || p->m_Pos.y < 198 * 32) // nur der wb bereich [neu der Wbbereich hört bei x: 441 auf]
 			continue;
@@ -625,10 +642,13 @@ CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		if (p->m_Pos.y < 213 * 32 || p->m_Pos.x > 429 * 32 || p->m_Pos.x < 419 * 32 || p->m_Pos.y > 218 * 32 + 60) // nur der tunnel
 			continue;
@@ -661,10 +681,13 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		if (p->m_Pos.y > 218 * 32 || p->m_Pos.y < 215 * 32 || p->m_Pos.x < 435 * 32 || p->m_Pos.x > 439 * 32) // unter dem wb berreich
 			continue;
@@ -733,10 +756,13 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 		if (p == pNotThis)
 			continue;
 
-		if (Human && p->GetPlayer()->m_IsDummy)
-			continue;
-		else if (!Human && !p->GetPlayer()->m_IsDummy)
-			continue;
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
 
 		//if (p->m_Pos.y > 200 * 32 || p->m_Pos.x < 466 * 32 || p->m_Pos.x > 498 * 32) //so um den 2player part herum
 		//	continue;

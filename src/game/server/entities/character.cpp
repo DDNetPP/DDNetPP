@@ -3491,10 +3491,10 @@ void CCharacter::DDPP_Tick()
 		}
 		else //tele back if no key
 		{
-			if (m_Core.m_Pos.x > 363 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 231 * 32 && m_Core.m_Pos.y < 233 * 32)
+			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
 			{
-				m_Core.m_Pos.x = 367 * 32;
-				m_Core.m_Pos.y = 232 * 32 - 1;
+				m_Core.m_Pos.x = 325 * 32;
+				m_Core.m_Pos.y = 214 * 32;
 				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
 			}
 		}
@@ -3785,9 +3785,9 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvBankState == 1) // ChillBlock5 (on top of bankroom)
+	if (g_Config.m_SvBankState == 1) // ChillBlock5 (left of spawn)
 	{
-		if (m_Core.m_Pos.x > 359 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 224 * 32 && m_Core.m_Pos.y < 229 * 32) //in bank
+		if (m_Core.m_Pos.x > 287 * 32 && m_Core.m_Pos.x < 298 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
 		{
 			m_InBank = true;
 
@@ -4873,17 +4873,17 @@ void CCharacter::DummyTick()
 				//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
-				if (1 == 1)
-				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
-					if (pChr && pChr->IsAlive())
-					{
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
+				//if (1 == 1)
+				//{
+				//	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				//	if (pChr && pChr->IsAlive())
+				//	{
+				//		char aBuf[256];
+				//		str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
 
-						//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-					}
-				}
+				//		//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+				//	}
+				//}
 
 
 
@@ -4915,21 +4915,21 @@ void CCharacter::DummyTick()
 
 				//Selfkill
 
-				if (m_Core.m_Pos.x < 390 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 				}
-				else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-				}
-				else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-				}
+				//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+				//}
+				//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+				//}
 				else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -4956,6 +4956,21 @@ void CCharacter::DummyTick()
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 				}
 
+				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+				}
+
+				if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+					m_Input.m_Hook = 1;
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = 0;
+				}
 
 				// Movement
 				//CheckFatsOnSpawn
@@ -5679,9 +5694,9 @@ void CCharacter::DummyTick()
 									}
 
 									//debuggn special_defend
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
-									GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+									//char aBuf[256];
+									//str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
+									//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 									//m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 									//m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -5869,6 +5884,7 @@ void CCharacter::DummyTick()
 							m_Input.m_Direction = -1;
 							//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 						}
+						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 					}
 
 
@@ -6138,21 +6154,21 @@ void CCharacter::DummyTick()
 
 
 				//insta self kills
-				if (m_Core.m_Pos.x < 390 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 				}
-				else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-				}
-				else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-				}
+				//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+				//}
+				//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+				//}
 				else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -6164,6 +6180,12 @@ void CCharacter::DummyTick()
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze becken unter area");
 				}
 
+
+				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+				}
 
 				//Movement bis zur ruler area:
 				/*
@@ -6179,7 +6201,15 @@ void CCharacter::DummyTick()
 				*/
 				m_Dummy_movement_mode23 = 0;
 
-
+				if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+					m_Input.m_Hook = 1;
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = 0;
+				}
 
 
 				if (m_Dummy_movement_mode23 == 0)
@@ -8406,79 +8436,79 @@ void CCharacter::DummyTick()
 				//}
 
 
-				if (m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+				//if (m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unsued version (this code makes no sense at all)
+				//{
+				//	m_Input.m_TargetX = 200;
+				//	m_Input.m_TargetY = -80;
+
+
+				//	//not falling in freeze is bad
+				//	if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
+				//	{
+				//		if (Server()->Tick() % 40 == 0)
+				//		{
+				//			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//		}
+				//	}
+				//	if (m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
+				//	{
+				//		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	}
+
+				//	if (m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
+				//	{
+				//		if (m_Core.m_Vel.y > -1.0f)
+				//		{
+				//			m_Input.m_Hook = 1;
+				//		}
+				//	}
+
+				//	if (m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
+				//	{
+				//		m_Input.m_Direction = -1;
+				//	}
+				//	else
+				//	{
+				//		m_Input.m_Direction = 1;
+				//	}
+				//	if (m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
+				//	{
+				//		m_Input.m_Direction = 1;
+				//	}
+
+
+				//	if (m_Core.m_Pos.y > 128 * 32)
+				//	{
+				//		m_Input.m_Jump = 1;
+				//	}
+
+
+				//	//speeddown at end to avoid selfkill cuz to slow falling in freeze
+				//	if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
+				//	{
+				//		m_Input.m_TargetX = 200;
+				//		m_Input.m_TargetY = 300;
+				//		m_Input.m_Hook = 1;
+				//	}
+				//}
+				//else //under 193 (above 193 is new spawn)
 				{
-					m_Input.m_TargetX = 200;
-					m_Input.m_TargetY = -80;
 
-
-					//not falling in freeze is bad
-					if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
-					{
-						if (Server()->Tick() % 40 == 0)
-						{
-							Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						}
-					}
-					if (m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					}
-
-					if (m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
-					{
-						if (m_Core.m_Vel.y > -1.0f)
-						{
-							m_Input.m_Hook = 1;
-						}
-					}
-
-					if (m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
-					{
-						m_Input.m_Direction = -1;
-					}
-					else
-					{
-						m_Input.m_Direction = 1;
-					}
-					if (m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
-					{
-						m_Input.m_Direction = 1;
-					}
-
-
-					if (m_Core.m_Pos.y > 128 * 32)
-					{
-						m_Input.m_Jump = 1;
-					}
-
-
-					//speeddown at end to avoid selfkill cuz to slow falling in freeze
-					if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
-					{
-						m_Input.m_TargetX = 200;
-						m_Input.m_TargetY = 300;
-						m_Input.m_Hook = 1;
-					}
-				}
-				else //under 193 (above 193 is new spawn)
-				{
-
-					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 214 * 32)  //Links am spawn runter
+					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 					}
-					else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-					}
-					else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-					}
+					//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am old spawn
+					//{
+					//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am old spawn");
+					//}
+					//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+					//{
+					//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+					//}
 					else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -8505,6 +8535,13 @@ void CCharacter::DummyTick()
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 					}
 
+					if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+					{
+						Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+					}
+
+
 					// Movement
 					/*
 					NEW MOVEMENT TO BLOCK AREA STRUCTURE :)
@@ -8515,6 +8552,16 @@ void CCharacter::DummyTick()
 					if he thinks the tunnel is shit he goes trough the window
 
 					*/
+
+					if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+					{
+						m_Input.m_Jump = 1;
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+						m_Input.m_Hook = 1;
+						m_Input.m_TargetX = -200;
+						m_Input.m_TargetY = 0;
+					}
 
 					if (!m_Dummy_planned_movment)
 					{
@@ -8942,15 +8989,36 @@ void CCharacter::DummyTick()
 						//                                                      
 						//                                               --->   Ruler   <---    testy own class just search in ruler area
 
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);  //position anderer spieler mit pikus aimbot abfragen
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 						if (pChr && pChr->IsAlive())
 						{
 
 							if (pChr->m_FreezeTime == 0) //if enemy in ruler spot is unfreeze -->notstand panic
 							{
-								//m_Core.m_ActiveWeapon = WEAPON_HAMMER;
-								SetWeapon(0);
+								GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
 
+								if (Server()->Tick() % 30 == 0)  //angry emotes machen
+								{
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+								}
+
+
+								if (Server()->Tick() % 20 == 0)
+								{
+									SetWeapon(0);
+								}
+
+
+								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+								if (m_FreezeTime == 0)
+								{
+									m_LatestInput.m_Fire++;
+									m_Input.m_Fire++;
+								}
 
 								//testy sollte eig auch am anfang des modes passen
 								//m_Input.m_Direction = 0;
@@ -8962,8 +9030,8 @@ void CCharacter::DummyTick()
 								//else
 								//	m_Input.m_Hook = 0;
 
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "hookstate: %x", m_Input.m_Hook);
+								//char aBuf[256];
+								//str_format(aBuf, sizeof(aBuf), "hookstate: %x", m_Input.m_Hook);
 								//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 								m_Dummy_emergency = true;
@@ -9036,54 +9104,6 @@ void CCharacter::DummyTick()
 
 									}
 								}
-
-
-
-
-
-
-
-								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
-
-								if (Server()->Tick() % 30 == 0)  //angry emotes machen
-								{
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
-								}
-
-
-
-								CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true); //aimbot + hammerspam
-								if (pChr && pChr->IsAlive())
-								{
-
-									m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-									m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-									m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-									m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-
-
-									//schiess delay
-									if (Server()->Tick() >= m_EmoteTickNext)
-									{
-										m_pPlayer->m_LastEmote = Server()->Tick();
-
-
-										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
-
-										if (m_FreezeTick == 0) //nicht rum schrein
-										{
-											m_LatestInput.m_Fire++;
-											m_Input.m_Fire++;
-										}
-
-										m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() / 4;
-									}
-								}
-
-
-
-
-
 
 
 								//Blocke gefreezte gegner für immer 
@@ -9490,6 +9510,7 @@ void CCharacter::DummyTick()
 								m_Input.m_Direction = -1;
 								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 							}
+							//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 						}
 
 
@@ -10330,7 +10351,8 @@ void CCharacter::DummyTick()
 
 			//Basic Stuff:
 			//tele from spawn into police base
-			if (m_Core.m_Pos.x < 410 * 32 && m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.y < 219 * 32 && m_Core.m_Pos.y > 200 * 32) //spawn area
+			//if (m_Core.m_Pos.x < 410 * 32 && m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.y < 219 * 32 && m_Core.m_Pos.y > 200 * 32) //spawn area
+			if (m_Core.m_Pos.x < 460 * 32) //spawn
 			{
 				m_Core.m_Pos.x = 484 * 32;
 				m_Core.m_Pos.y = 234 * 32;
