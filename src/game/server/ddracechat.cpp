@@ -312,6 +312,12 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	//RELEASE NOTES:
+	//9.4.2017 RELEASED v.0.0.1
+
+
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (pResult->NumArguments() == 0)
 	{
@@ -3663,7 +3669,7 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 		//player get
 		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
 		pSelf->SendChatTarget(PayID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, aUsername);
+		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
 	}
 
