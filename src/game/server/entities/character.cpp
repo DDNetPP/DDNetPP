@@ -3812,35 +3812,34 @@ void CCharacter::DDPP_Tick()
 				m_pPlayer->m_ExitBank = false;
 			}
 		}
-
-		if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
+	}
+	else if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
+	{
+		if (m_Core.m_Pos.x > 77 * 32 && m_Core.m_Pos.x < 86 * 32 && m_Core.m_Pos.y > 198 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
 		{
-			if (m_Core.m_Pos.x > 77 * 32 && m_Core.m_Pos.x < 86 * 32 && m_Core.m_Pos.y > 198 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
+			m_InBank = true;
+
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 			{
-				m_InBank = true;
-
-				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-				{
-					//dont show the bank broadcast if the player has the flag this will be done in the flag code
-				}
-				else
-				{
-					if (Server()->Tick() % 30 == 0)
-					{
-						GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-					}
-				}
-
-				m_pPlayer->m_ExitBank = true;
+				//dont show the bank broadcast if the player has the flag this will be done in the flag code
 			}
-			else //if not in bank
+			else
 			{
-				m_InBank = false;
-				if (m_pPlayer->m_ExitBank)
+				if (Server()->Tick() % 30 == 0)
 				{
-					GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
-					m_pPlayer->m_ExitBank = false;
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
 				}
+			}
+
+			m_pPlayer->m_ExitBank = true;
+		}
+		else //if not in bank
+		{
+			m_InBank = false;
+			if (m_pPlayer->m_ExitBank)
+			{
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+				m_pPlayer->m_ExitBank = false;
 			}
 		}
 	}
