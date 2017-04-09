@@ -52,7 +52,7 @@ CHAT_COMMAND("kill", "", CFGFLAG_CHAT|CFGFLAG_SERVER, ConProtectedKill, this, "K
 
 //account stuff
 CHAT_COMMAND("changepassword", "sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChangePassword, this, "change your account password with '/password <old password> <new password> <new password repeate>'")
-CHAT_COMMAND("register", "sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register")
+CHAT_COMMAND("register", "?s?s?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register")
 CHAT_COMMAND("login", "ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogin, this, "Login")
 CHAT_COMMAND("acc_logout", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAccLogout, this, "Logout from your account.")
 CHAT_COMMAND("SQL", "s?i?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQL, this, "SQL admistration")

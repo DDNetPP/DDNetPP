@@ -183,7 +183,7 @@ void CQueryLogin::OnData()
 		}
 	}
 	else
-		m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Unknown Error)");
+		m_pGameServer->SendChatTarget(m_ClientID, "Login failed. Wrong password or username.");
 }
 
 void CQueryChangePassword::OnData()
