@@ -6038,7 +6038,7 @@ void CCharacter::DummyTick()
 
 
 
-			if (m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+			if (false && m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
 			{
 				m_Input.m_TargetX = 200;
 				m_Input.m_TargetY = -80;

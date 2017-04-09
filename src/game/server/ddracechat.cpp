@@ -3667,7 +3667,7 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 		pPlayer->MoneyTransaction(-Amount, aBuf);
 
 		//player get
-		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
+		str_format(aBuf, sizeof(aBuf), "'%s' paid you %d money", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(PayID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
@@ -4239,13 +4239,18 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 
 	if (Amount > pPlayer->m_shit)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have shit");
+		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough shit.");
 		return;
 	}
 
 	if (Amount < 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "you can't poop negative?! Imagine some1 is tring to push shit back in ur anus ... wtf");
+		return;
+	}
+	if (Amount == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have shit");
 		return;
 	}
 
