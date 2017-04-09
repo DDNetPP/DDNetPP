@@ -4915,7 +4915,7 @@ void CCharacter::DummyTick()
 
 				//Selfkill
 
-				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.x > 325 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
@@ -4956,7 +4956,7 @@ void CCharacter::DummyTick()
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 				}
 
-				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
@@ -6154,7 +6154,7 @@ void CCharacter::DummyTick()
 
 
 				//insta self kills
-				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.x > 325 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
@@ -6181,7 +6181,7 @@ void CCharacter::DummyTick()
 				}
 
 
-				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
@@ -8494,7 +8494,7 @@ void CCharacter::DummyTick()
 				//else //under 193 (above 193 is new spawn)
 				{
 
-					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
+					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.x > 325 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
@@ -8535,7 +8535,7 @@ void CCharacter::DummyTick()
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 					}
 
-					if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+					if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
@@ -8995,7 +8995,7 @@ void CCharacter::DummyTick()
 
 							if (pChr->m_FreezeTime == 0) //if enemy in ruler spot is unfreeze -->notstand panic
 							{
-								GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
+								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
 
 								if (Server()->Tick() % 30 == 0)  //angry emotes machen
 								{

@@ -2887,7 +2887,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					if (g_Config.m_SvTestingCommands)
 					{
 						//SendAllPolice("test");
-						pPlayer->m_PoliceRank = 5;
+						//pPlayer->m_PoliceRank = 5;
 					}
 
 
