@@ -244,6 +244,10 @@ public:
 	int CountIngameHumans();
 	void SendBroadcastAll(const char *pText);
 	void KillAll();
+	bool IsPosition(int playerID, int pos);
+
+	//police
+	void SendAllPolice(const char *pMessage);
 
 	//bank
 	bool m_IsBankOpen;
@@ -458,6 +462,7 @@ private:
 	static void ConPoliceInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
+	static void ConJail(IConsole::IResult *pResult, void *pUserData);
 
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);

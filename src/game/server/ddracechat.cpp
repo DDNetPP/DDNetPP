@@ -5626,6 +5626,9 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %d minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "'%s' robbed the bank.", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendAllPolice(aBuf);
 	}
 	else
 	{
@@ -5747,5 +5750,218 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "real gangstas no makin typos");
+	}
+}
+void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- JAIL ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "The police brings all the gangster here.");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "open"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameters. '/jail open <code> <player>'");
+			return;
+		}
+		if (!pSelf->IsPosition(pResult->m_ClientID, 0))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Get closer to the cell.");
+			return;
+		}
+		char aBuf[256];
+		int jailedID = pSelf->GetCIDByName(pResult->GetString(2));
+		if (!pSelf->m_apPlayers[jailedID])
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' is not online.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		if (!pSelf->m_apPlayers[jailedID]->m_JailTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' is not arrested.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		if (pResult->GetInteger(1) != pSelf->m_apPlayers[jailedID]->m_JailCode)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "wrong cell code.");
+			return;
+		}
+
+		str_format(aBuf, sizeof(aBuf), "you opend '%s' cell.", pResult->GetString(2));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		
+		pSelf->m_apPlayers[jailedID]->m_IsJailDoorOpen = true;
+		str_format(aBuf, sizeof(aBuf), "your cell door was opend by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(jailedID, aBuf);
+		pSelf->SendChatTarget(jailedID, "'/jail leave' to leave. (warning this might be illegal)");
+	}
+	//else if (!str_comp_nocase(pResult->GetString(0), "corrupt"))
+	//{
+	//	if (pResult->NumArguments() == 1)
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail corrupt <money> <player>'");
+	//		return;
+	//	}
+
+	//	int corruptID = pSelf->GetCIDByName(pResult->GetString(2));
+	//	if (corruptID == -1)
+	//	{
+	//		str_format(aBuf, sizeof(aBuf), "'%s' is not online.", pResult->GetString(2));
+	//		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//		return;
+	//	}
+	//	if (!pSelf->m_apPlayers[corruptID]->m_PoliceRank)
+	//	{
+	//		str_format(aBuf, sizeof(aBuf), "'%s' is no police officer.", pResult->GetString(2));
+	//		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//		return;
+	//	}
+
+	//	str_format(aBuf, sizeof(aBuf), "you offered %s %d money to reduce your jailtime.", pResult->GetString(2), pResult->GetInteger(1));
+	//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+	//	str_format(aBuf, sizeof(aBuf), "'%s' would pay %d money if you help with an escape.", pResult->GetString(2), pResult->GetInteger(1));
+	//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//	pSelf->SendChatTarget(pResult->m_ClientID, "'/jail release <jail code> %s' to take the money.");
+	//}
+	else if (!str_comp_nocase(pResult->GetString(0), "list")) //codes
+	{
+		if (pPlayer->m_JailTime || !pPlayer->m_PoliceRank)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+			return;
+		}
+
+		//list all jailed players with codes on several pages (steal bomb system)
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "code"))
+	{
+		if (pPlayer->m_PoliceRank < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you need police rank 2 or higher.");
+			return;
+		}
+		if (pPlayer->m_JailTime)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "you are arrested.");
+			return;
+		}
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "use '/jail code <client-id>'");
+			return;
+		}
+		if (!pSelf->m_apPlayers[pResult->GetInteger(1)])
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "No player with this ID online.");
+			return;
+		}
+		if (!pSelf->m_apPlayers[pResult->GetInteger(1)]->m_JailTime)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "this player is not arrested.");
+			return;
+		}
+
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "'%s' [%d]", pSelf->Server()->ClientName(pResult->GetInteger(1)), pSelf->m_apPlayers[pResult->GetInteger(1)]->m_JailCode);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
+	{
+		if (!pPlayer->m_JailTime)
+		{
+			//pSelf->SendChatTarget(pResult->m_ClientID, "you are not arrested.");
+			return;
+		}
+		if (!pPlayer->m_IsJailDoorOpen)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "cell door is closed.");
+			return;
+		}
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "You escaped the jail, run! The police will be searching you for 10 minutes.");
+		pPlayer->m_EscapeTime = pSelf->Server()->TickSpeed() * 600; // 10 minutes for escaping the jail
+		pPlayer->m_JailTime = 0;
+		pPlayer->m_IsJailDoorOpen = false;
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "hammer"))
+	{
+		if (!pPlayer->m_PoliceRank)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be police to use this command.");
+			return;
+		}
+		if (pResult->NumArguments() == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "++++ Jail Hammer ++++");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use this command to configurate your hammer.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use this hammer to move gangsters to jail.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Simply activate it and hammer escaping gangsters.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "(you can only use it on freezed gangsters)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "If you are police 5 or higher then you can activate jail all hammer.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Then you can jail also tees who are not known as gangsters.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "-- commands --");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer 1' to activate it.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer 0' to deactivate it.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer <seconds>' to activate jail all hammer.");
+			return;
+		}
+		if (pResult->GetInteger(1) < 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "value has to be positive.");
+			return;
+		}
+		if (pResult->GetInteger(1) == 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail hammer is now deactivated.");
+			pPlayer->m_JailHammer = false;
+			return;
+		}
+		if (pResult->GetInteger(1) == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail hammer is now activated. (hammer frozen gangsters)");
+			pPlayer->m_JailHammer = true;
+			return;
+		}
+		if (pResult->GetInteger(1) > 1)
+		{
+			if (pPlayer->m_PoliceRank < 5)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you have to be police 5 or higher to use this value.");
+				return;
+			}
+			if (pResult->GetInteger(1) > 600)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "you can't arrest longer than 10 minutes.");
+				return;
+			}
+
+			//pPlayer->m_JailHammerTime = pResult->GetInteger(1);
+			pPlayer->m_JailHammer = pResult->GetInteger(1);
+			str_format(aBuf, sizeof(aBuf), "you can now jail every freezed tee for %d seconds with your hammer.", pPlayer->m_JailHammer);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to judge who is criminal and who not.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "A lot of power brings even more responsibillity.");
+		}
 	}
 }

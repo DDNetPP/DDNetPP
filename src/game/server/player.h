@@ -307,20 +307,30 @@ public:
 
 	int m_GangsterBagMoney;
 
-	//other
 
-	bool m_IsTest;
-	bool m_TaserOn;
+	int m_PoliceRank;
 	bool m_PoliceHelper;
 	int m_TaserLevel;
 	int m_TaserPrice;
+	bool m_TaserOn;
 	int64 m_JailTime;
+	bool m_IsJailDoorOpen;
+	//bool m_IsJailHammer;
+	int m_JailHammer;
+	//int m_JailHammerTime;
+	int64 m_JailHammerDelay;
+	//int m_CorruptID;
+	//int m_CorruptMoney;
+	short m_JailCode;
+
+	//other
+
+	bool m_IsTest;
 	int m_failed_escapes;
 	int m_escape_skill;
 	bool m_escape_plan;
 	bool m_escape_plan_b;
 	bool m_escape_plan_c;
-	int m_PoliceRank;
 	bool m_BoughtRoom;
 	int m_aliveplusxp;
 	int m_shit;

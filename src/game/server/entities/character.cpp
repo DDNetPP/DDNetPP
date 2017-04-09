@@ -473,6 +473,17 @@ void CCharacter::FireWeapon(bool Bot)
 	{
 	case WEAPON_HAMMER:
 	{
+		//hammer delay on super jail hammer
+		if (m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "you have to wait %d minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			return;
+		}
+
+
+
 		// reset objects Hit
 		m_NumObjectsHit = 0;
 		GameServer()->CreateSound(m_Pos, SOUND_HAMMER_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
@@ -526,35 +537,57 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 			//Police catch gangstazz
-			if (m_pPlayer->m_PoliceRank && pTarget->GetPlayer()->m_EscapeTime)
+			if (m_pPlayer->m_PoliceRank && pTarget->m_FreezeTime > 1 && m_pPlayer->m_JailHammer)
 			{
 				char aBuf[256];
-				if (pTarget->GetPlayer()->m_money < 500)
-				{
-					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					pTarget->GetPlayer()->m_EscapeTime = 0;
-					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+				if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
+				{
+					if (pTarget->GetPlayer()->m_money < 500)
+					{
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+
+						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
+						m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+
+						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+						m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
+
+					}
 				}
-				else
+				else //super jail hammer
 				{
-					str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
-					m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+					if (m_pPlayer->m_JailHammer > 1)
+					{
+						str_format(aBuf, sizeof(aBuf), "You jailed '%s' (arrest %d seconds).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
-					pTarget->GetPlayer()->m_EscapeTime = 0;
-					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-					pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
-					m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
-
+						str_format(aBuf, sizeof(aBuf), "You were arrested %d seconds by '%s'.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						pTarget->GetPlayer()->m_EscapeTime = 0;
+						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * m_pPlayer->m_JailHammer;
+						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+					}
 				}
 			}
 
@@ -3412,7 +3445,7 @@ void CCharacter::DDPP_Tick()
 	//}
 
 	//selfmade noob code check if pChr is too near 	
-	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 	if (pChr && pChr->IsAlive())
 	{
 		if (pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
@@ -3458,10 +3491,10 @@ void CCharacter::DDPP_Tick()
 		}
 		else //tele back if no key
 		{
-			if (m_Core.m_Pos.x > 363 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 231 * 32 && m_Core.m_Pos.y < 233 * 32)
+			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
 			{
-				m_Core.m_Pos.x = 367 * 32;
-				m_Core.m_Pos.y = 232 * 32 - 1;
+				m_Core.m_Pos.x = 325 * 32;
+				m_Core.m_Pos.y = 214 * 32;
 				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
 			}
 		}
@@ -3752,9 +3785,9 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvBankState == 1) // ChillBlock5 (on top of bankroom)
+	if (g_Config.m_SvBankState == 1) // ChillBlock5 (left of spawn)
 	{
-		if (m_Core.m_Pos.x > 359 * 32 && m_Core.m_Pos.x < 366 * 32 && m_Core.m_Pos.y > 224 * 32 && m_Core.m_Pos.y < 229 * 32) //in bank
+		if (m_Core.m_Pos.x > 287 * 32 && m_Core.m_Pos.x < 298 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
 		{
 			m_InBank = true;
 
@@ -3854,7 +3887,7 @@ void CCharacter::DummyTick()
 
 			if (1 == 2) //just for debuggin
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -4519,7 +4552,7 @@ void CCharacter::DummyTick()
 			//man könnte das auch mit m_Dummy_happy abfragen aber mich nich ganz so viel sinn
 			if (m_Core.m_Pos.y > 214 * 32 && m_Core.m_Pos.x > 424 * 32)
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 
@@ -4552,7 +4585,7 @@ void CCharacter::DummyTick()
 				//testy wenn der dummy in den special defend mode gesetzt wird pusht das sein adrenalin und ihm is nicht mehr lw
 				m_Dummy_bored_counter = 0;
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 
@@ -4655,7 +4688,7 @@ void CCharacter::DummyTick()
 
 
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler2(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler2(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 					//Check ob an notstand mode18 = 0 übergeben
@@ -4735,7 +4768,7 @@ void CCharacter::DummyTick()
 				}
 				else
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (pChr->m_Pos.x < 436 * 32) //wenn er ganz weit über dem freeze auf der kante ist (hooke direkt)
@@ -4762,7 +4795,7 @@ void CCharacter::DummyTick()
 
 
 						//m_Input.m_Hook = 0;
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
 							//wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
@@ -4840,17 +4873,17 @@ void CCharacter::DummyTick()
 				//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
-				if (1 == 1)
-				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
-					if (pChr && pChr->IsAlive())
-					{
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
+				//if (1 == 1)
+				//{
+				//	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+				//	if (pChr && pChr->IsAlive())
+				//	{
+				//		char aBuf[256];
+				//		str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
 
-						//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-					}
-				}
+				//		//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+				//	}
+				//}
 
 
 
@@ -4864,7 +4897,7 @@ void CCharacter::DummyTick()
 
 				//Check ob jemand in der linken freeze wand is
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true);  //wenn jemand rechts im freeze liegt
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true, this);  //wenn jemand rechts im freeze liegt
 				if (pChr && pChr->IsAlive()) // wenn ein spieler rechts im freeze lebt
 				{  //----> versuche im notstand nicht den gegner auch da rein zu hauen da ist ja jetzt voll
 
@@ -4882,21 +4915,21 @@ void CCharacter::DummyTick()
 
 				//Selfkill
 
-				if (m_Core.m_Pos.x < 390 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 				}
-				else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-				}
-				else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-				}
+				//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+				//}
+				//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+				//}
 				else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -4923,13 +4956,28 @@ void CCharacter::DummyTick()
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 				}
 
+				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+				}
+
+				if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+					m_Input.m_Hook = 1;
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = 0;
+				}
 
 				// Movement
 				//CheckFatsOnSpawn
 
 				if (m_Core.m_Pos.x < 406 * 32)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 
@@ -4970,7 +5018,7 @@ void CCharacter::DummyTick()
 
 				if (m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y > 214 * 32) //wenn bot im tunnel ist
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (pChr->m_Core.m_Vel.x < 7.8f) //wenn der nächste spieler im tunnel ein slowdude is 
@@ -5151,7 +5199,7 @@ void CCharacter::DummyTick()
 					if (1 == 1)
 					{
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "debug");
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWBBottom(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWBBottom(m_Pos, true, this);
 						if (pChr && pChr->IsAlive() && !pChr->isFreezed) //wenn jemand da so im bereich lebt und unfreeze ist
 						{
 
@@ -5178,7 +5226,7 @@ void CCharacter::DummyTick()
 
 
 							//hooke 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								//Wenn der nächste spieler unter der wb area ist hook
@@ -5203,7 +5251,7 @@ void CCharacter::DummyTick()
 					//                                                      
 					//                                               --->   Ruler   <---    testy own class just search in ruler area
 
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);  //position anderer spieler mit pikus aimbot abfragen
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 					if (pChr && pChr->IsAlive())
 					{
 						//                                         old: 417 * 32
@@ -5316,7 +5364,7 @@ void CCharacter::DummyTick()
 
 
 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true); //aimbot + hammerspam
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this); //aimbot + hammerspam
 							if (pChr && pChr->IsAlive())
 							{
 
@@ -5635,7 +5683,7 @@ void CCharacter::DummyTick()
 
 
 								// normal wayblock
-								CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);  //position anderer spieler mit pikus aimbot abfragen
+								CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 								if (pChr && pChr->IsAlive())
 								{
 									//Check ob jemand special angeflogen kommt dann mode18 = 3 starten
@@ -5646,9 +5694,9 @@ void CCharacter::DummyTick()
 									}
 
 									//debuggn special_defend
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
-									GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+									//char aBuf[256];
+									//str_format(aBuf, sizeof(aBuf), "speed pChr:  x: %f y: %f", pChr->m_Core.m_Vel.x, pChr->m_Core.m_Vel.y);
+									//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 									//m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 									//m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -5693,7 +5741,7 @@ void CCharacter::DummyTick()
 
 
 
-										//CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);  //wenn jemand oben is
+										//CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //wenn jemand oben is
 										//if (pChr && pChr->IsAlive())
 										//{
 										//		m_Input.m_Hook = 1;
@@ -5708,7 +5756,7 @@ void CCharacter::DummyTick()
 
 										if (!m_Dummy_emergency) //wayblock stuff hook ja nein pipapo nicht im notfall
 										{
-											CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true);  //wenn jemand oben is (nur im wb bereich)
+											CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true, this);  //wenn jemand oben is (nur im wb bereich)
 											if (pChr && pChr->IsAlive())
 											{                                                                  // und er nicht zu tief ist (das is um unnötiges festgehalte zu verhindern) (bringt eh nichts weil das hier dann nicht mehr aufgerufen wird weil der dann nicht mehr in ClosesestCharTypeRulerWB ist -.-)
 												m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -5757,7 +5805,7 @@ void CCharacter::DummyTick()
 										//unnötiges festgehalte unten verhindern
 										if (!m_Dummy_emergency) //auch hier wieder nur wenn kein notfall is
 										{
-											CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+											CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 											if (pChr && pChr->IsAlive())
 											{
 												if (pChr->m_Pos.y > 213 * 32 - 5 && m_Core.m_HookState == HOOK_GRABBED && pChr->m_Pos.y < 213 * 32 + 5)
@@ -5836,6 +5884,7 @@ void CCharacter::DummyTick()
 							m_Input.m_Direction = -1;
 							//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 						}
+						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 					}
 
 
@@ -5883,7 +5932,7 @@ void CCharacter::DummyTick()
 
 				if (1 < 10)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (pChr->isFreezed && pChr->m_Pos.x < 417 * 32 - 30) //wenn ein gegner in der linken wand is
@@ -5897,7 +5946,7 @@ void CCharacter::DummyTick()
 
 				if (1 < 10)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{    // heieiie aber natürlich auch hoch genung is das der bot noch wayblocken kann
 						if (pChr->m_FreezeTime > 0 && pChr->m_Pos.x > 428 * 32 + 40 && pChr->m_Pos.y < 211 * 32) //wenn ein gegner in der linken wand is
@@ -5956,7 +6005,7 @@ void CCharacter::DummyTick()
 
 			if (1 == 1)
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 					//if (Server()->ClientName(pChr) == "ChillerDragon")
@@ -6058,7 +6107,7 @@ void CCharacter::DummyTick()
 					//schau wie weit der bot is wenn er weiter is als der ClosestCharTypeFarInRace bereich is schau das du rechtzeitig n anderen triggerst
 					//wie zumbeispiel ClosestCharTypeFinish und das wird getriggert wenn der bot rechts des 2p parts is oder so
 
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFarInRace(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFarInRace(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 					}
@@ -6077,7 +6126,7 @@ void CCharacter::DummyTick()
 				}
 				else //sonst normal relativ schnell killen
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (!isFreezed || m_Core.m_Vel.x < -0.5f || m_Core.m_Vel.x > 0.5f || m_Core.m_Vel.y != 0.000000f)
@@ -6105,21 +6154,21 @@ void CCharacter::DummyTick()
 
 
 				//insta self kills
-				if (m_Core.m_Pos.x < 390 * 32)  //Links am spawn runter
+				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 				}
-				else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-				}
-				else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-				}
+				//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+				//}
+				//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+				//}
 				else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -6131,6 +6180,12 @@ void CCharacter::DummyTick()
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze becken unter area");
 				}
 
+
+				if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+				}
 
 				//Movement bis zur ruler area:
 				/*
@@ -6146,7 +6201,15 @@ void CCharacter::DummyTick()
 				*/
 				m_Dummy_movement_mode23 = 0;
 
-
+				if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+					m_Input.m_Hook = 1;
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = 0;
+				}
 
 
 				if (m_Dummy_movement_mode23 == 0)
@@ -6430,7 +6493,7 @@ void CCharacter::DummyTick()
 
 				if (1 == 0.5 + 0.5)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (pChr->m_Pos.y < 165 * 32 && pChr->m_Pos.x > 451 * 32 - 10 && pChr->m_Pos.x < 454 * 32 + 10)
@@ -6443,7 +6506,7 @@ void CCharacter::DummyTick()
 				//Hammerfly
 				if (m_Core.m_Pos.x > 447 * 32)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						//unfreezemates on platform
@@ -6513,7 +6576,7 @@ void CCharacter::DummyTick()
 							{
 								SetWeapon(0);
 							}
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -6662,7 +6725,7 @@ void CCharacter::DummyTick()
 								SetWeapon(0);
 							}
 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -6774,7 +6837,7 @@ void CCharacter::DummyTick()
 
 				//if (m_Core.m_Pos.x > 466 * 32)
 				//{
-				//	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				//	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 				//	if (pChr && pChr->IsAlive())
 				//	{
 				//		m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -6846,7 +6909,7 @@ void CCharacter::DummyTick()
 				if (m_Core.m_Pos.y < 200 * 32)
 				{
 					//check ob der mate fail ist
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						//                                                                                      NEW: to recognize mates freeze in the freeze tunnel on the left
@@ -6871,7 +6934,7 @@ void CCharacter::DummyTick()
 					if (m_Core.m_Pos.x > 466 * 32)
 					{
 						static int LockedID;
-						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
 							m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -7497,7 +7560,7 @@ void CCharacter::DummyTick()
 								SetWeapon(0);
 							}
 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -7778,7 +7841,7 @@ void CCharacter::DummyTick()
 						if (m_Core.m_Pos.x > 491 * 32)
 						{
 							SetWeapon(0);
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -7876,7 +7939,7 @@ void CCharacter::DummyTick()
 
 			if (m_Dummy_bored_counter > 2)
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 
@@ -7959,7 +8022,7 @@ void CCharacter::DummyTick()
 			//man könnte das auch mit m_Dummy_happy abfragen aber mich nich ganz so viel sinn
 			if (m_Core.m_Pos.y > 214 * 32 && m_Core.m_Pos.x > 424 * 32)
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 
@@ -7992,7 +8055,7 @@ void CCharacter::DummyTick()
 				//testy wenn der dummy in den special defend mode gesetzt wird pusht das sein adrenalin und ihm is nicht mehr lw
 				m_Dummy_bored_counter = 0;
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 
@@ -8101,7 +8164,7 @@ void CCharacter::DummyTick()
 
 
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler2(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler2(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 					//Check ob an notstand mode18 = 0 übergeben
@@ -8183,7 +8246,7 @@ void CCharacter::DummyTick()
 				}
 				else
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWB(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						if (pChr->m_Pos.x < 436 * 32) //wenn er ganz weit über dem freeze auf der kante ist (hooke direkt)
@@ -8210,7 +8273,7 @@ void CCharacter::DummyTick()
 
 
 						//m_Input.m_Hook = 0;
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
 							//wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
@@ -8292,7 +8355,7 @@ void CCharacter::DummyTick()
 
 				if (1 == 2)
 				{
-					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
 						char aBuf[256];
@@ -8314,7 +8377,7 @@ void CCharacter::DummyTick()
 
 				//Check ob jemand in der linken freeze wand is
 
-				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true);  //wenn jemand rechts im freeze liegt
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(m_Pos, true, this);  //wenn jemand rechts im freeze liegt
 				if (pChr && pChr->IsAlive()) // wenn ein spieler rechts im freeze lebt
 				{  //----> versuche im notstand nicht den gegner auch da rein zu hauen da ist ja jetzt voll
 
@@ -8373,79 +8436,79 @@ void CCharacter::DummyTick()
 				//}
 
 
-				if (m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+				//if (m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //old spawn of unsued version (this code makes no sense at all)
+				//{
+				//	m_Input.m_TargetX = 200;
+				//	m_Input.m_TargetY = -80;
+
+
+				//	//not falling in freeze is bad
+				//	if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
+				//	{
+				//		if (Server()->Tick() % 40 == 0)
+				//		{
+				//			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//		}
+				//	}
+				//	if (m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
+				//	{
+				//		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//	}
+
+				//	if (m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
+				//	{
+				//		if (m_Core.m_Vel.y > -1.0f)
+				//		{
+				//			m_Input.m_Hook = 1;
+				//		}
+				//	}
+
+				//	if (m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
+				//	{
+				//		m_Input.m_Direction = -1;
+				//	}
+				//	else
+				//	{
+				//		m_Input.m_Direction = 1;
+				//	}
+				//	if (m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
+				//	{
+				//		m_Input.m_Direction = 1;
+				//	}
+
+
+				//	if (m_Core.m_Pos.y > 128 * 32)
+				//	{
+				//		m_Input.m_Jump = 1;
+				//	}
+
+
+				//	//speeddown at end to avoid selfkill cuz to slow falling in freeze
+				//	if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
+				//	{
+				//		m_Input.m_TargetX = 200;
+				//		m_Input.m_TargetY = 300;
+				//		m_Input.m_Hook = 1;
+				//	}
+				//}
+				//else //under 193 (above 193 is new spawn)
 				{
-					m_Input.m_TargetX = 200;
-					m_Input.m_TargetY = -80;
 
-
-					//not falling in freeze is bad
-					if (m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
-					{
-						if (Server()->Tick() % 40 == 0)
-						{
-							Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						}
-					}
-					if (m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					}
-
-					if (m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
-					{
-						if (m_Core.m_Vel.y > -1.0f)
-						{
-							m_Input.m_Hook = 1;
-						}
-					}
-
-					if (m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
-					{
-						m_Input.m_Direction = -1;
-					}
-					else
-					{
-						m_Input.m_Direction = 1;
-					}
-					if (m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
-					{
-						m_Input.m_Direction = 1;
-					}
-
-
-					if (m_Core.m_Pos.y > 128 * 32)
-					{
-						m_Input.m_Jump = 1;
-					}
-
-
-					//speeddown at end to avoid selfkill cuz to slow falling in freeze
-					if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
-					{
-						m_Input.m_TargetX = 200;
-						m_Input.m_TargetY = 300;
-						m_Input.m_Hook = 1;
-					}
-				}
-				else //under 193 (above 193 is new spawn)
-				{
-
-					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 214 * 32)  //Links am spawn runter
+					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Links am spawn runter");
 					}
-					else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am spawn
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am spawn");
-					}
-					else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
-					}
+					//else if ((m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x > 392 * 32 && m_Core.m_Pos.y > 190) || (m_Core.m_Pos.y < 204 * 32 && m_Core.m_Pos.x < 415 * 32 && m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.y > 190)) //freeze decke am old spawn
+					//{
+					//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze decke am old spawn");
+					//}
+					//else if (m_Core.m_Pos.y > 218 * 32 + 31 /* für tee balance*/ && m_Core.m_Pos.x < 415 * 32) //freeze boden am spawn
+					//{
+					//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					//	//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+					//}
 					else if (m_Core.m_Pos.y < 215 * 32 && m_Core.m_Pos.y > 213 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 428 * 32) //freeze decke im tunnel
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -8472,6 +8535,13 @@ void CCharacter::DummyTick()
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 					}
 
+					if (m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+					{
+						Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
+					}
+
+
 					// Movement
 					/*
 					NEW MOVEMENT TO BLOCK AREA STRUCTURE :)
@@ -8483,9 +8553,19 @@ void CCharacter::DummyTick()
 
 					*/
 
+					if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
+					{
+						m_Input.m_Jump = 1;
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+						m_Input.m_Hook = 1;
+						m_Input.m_TargetX = -200;
+						m_Input.m_TargetY = 0;
+					}
+
 					if (!m_Dummy_planned_movment)
 					{
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
 							if (pChr->m_Core.m_Vel.x < 3.3f) //found a slow bob in tunnel
@@ -8545,7 +8625,7 @@ void CCharacter::DummyTick()
 
 						if (m_Core.m_Pos.x < 406 * 32)
 						{
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 
@@ -8619,7 +8699,7 @@ void CCharacter::DummyTick()
 								SetWeapon(0);
 							}
 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								int r = rand() % 10 - 10;
@@ -8653,7 +8733,7 @@ void CCharacter::DummyTick()
 
 						if (m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y > 214 * 32) //wenn bot im tunnel ist
 						{
-							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								if (pChr->m_Core.m_Vel.x < 7.8f) //wenn der nächste spieler im tunnel ein slowdude is 
@@ -8861,7 +8941,7 @@ void CCharacter::DummyTick()
 
 						if (m_Dummy_bored_cuz_nothing_happens)
 						{
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive() && m_FreezeTime == 0)
 							{
 								if (pChr->m_Pos.x < 429 * 32 && pChr->m_Core.m_Vel.x < 4.3f)
@@ -8909,15 +8989,36 @@ void CCharacter::DummyTick()
 						//                                                      
 						//                                               --->   Ruler   <---    testy own class just search in ruler area
 
-						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);  //position anderer spieler mit pikus aimbot abfragen
+						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 						if (pChr && pChr->IsAlive())
 						{
 
 							if (pChr->m_FreezeTime == 0) //if enemy in ruler spot is unfreeze -->notstand panic
 							{
-								//m_Core.m_ActiveWeapon = WEAPON_HAMMER;
-								SetWeapon(0);
+								GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
 
+								if (Server()->Tick() % 30 == 0)  //angry emotes machen
+								{
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+								}
+
+
+								if (Server()->Tick() % 20 == 0)
+								{
+									SetWeapon(0);
+								}
+
+
+								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+								if (m_FreezeTime == 0)
+								{
+									m_LatestInput.m_Fire++;
+									m_Input.m_Fire++;
+								}
 
 								//testy sollte eig auch am anfang des modes passen
 								//m_Input.m_Direction = 0;
@@ -8929,8 +9030,8 @@ void CCharacter::DummyTick()
 								//else
 								//	m_Input.m_Hook = 0;
 
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "hookstate: %x", m_Input.m_Hook);
+								//char aBuf[256];
+								//str_format(aBuf, sizeof(aBuf), "hookstate: %x", m_Input.m_Hook);
 								//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 								m_Dummy_emergency = true;
@@ -9003,54 +9104,6 @@ void CCharacter::DummyTick()
 
 									}
 								}
-
-
-
-
-
-
-
-								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
-
-								if (Server()->Tick() % 30 == 0)  //angry emotes machen
-								{
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
-								}
-
-
-
-								CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true); //aimbot + hammerspam
-								if (pChr && pChr->IsAlive())
-								{
-
-									m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-									m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-									m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-									m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-
-
-									//schiess delay
-									if (Server()->Tick() >= m_EmoteTickNext)
-									{
-										m_pPlayer->m_LastEmote = Server()->Tick();
-
-
-										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
-
-										if (m_FreezeTick == 0) //nicht rum schrein
-										{
-											m_LatestInput.m_Fire++;
-											m_Input.m_Fire++;
-										}
-
-										m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() / 4;
-									}
-								}
-
-
-
-
-
 
 
 								//Blocke gefreezte gegner für immer 
@@ -9368,7 +9421,7 @@ void CCharacter::DummyTick()
 
 
 									// normal wayblock
-									CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);  //position anderer spieler mit pikus aimbot abfragen
+									CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 									if (pChr && pChr->IsAlive())
 									{
 
@@ -9457,6 +9510,7 @@ void CCharacter::DummyTick()
 								m_Input.m_Direction = -1;
 								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 							}
+							//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 						}
 
 
@@ -9480,7 +9534,7 @@ void CCharacter::DummyTick()
 						//TRICKS
 						if (1 == 1)
 						{
-							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
 								if (!m_Dummy_emergency && m_Core.m_Pos.x > 415 && m_Core.m_Pos.y < 213 * 32 && m_DummyFreezeBlockTrick != 0) //as long as no enemy is unfreeze in base --->  do some trickzz
@@ -9949,7 +10003,7 @@ void CCharacter::DummyTick()
 						{
 							m_Input.m_Jump = 1;
 						}
-						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
 							if (m_Core.m_Pos.x < 451 * 32)
@@ -10206,7 +10260,7 @@ void CCharacter::DummyTick()
 
 
 			//balance
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 			if (pChr && pChr->IsAlive())
 			{
 				//m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -10262,7 +10316,7 @@ void CCharacter::DummyTick()
 
 			if (m_Core.m_Pos.x < 314 * 32 - 10 && m_Core.m_Vel.x < -0.001f)
 			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
 					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -10297,7 +10351,8 @@ void CCharacter::DummyTick()
 
 			//Basic Stuff:
 			//tele from spawn into police base
-			if (m_Core.m_Pos.x < 410 * 32 && m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.y < 219 * 32 && m_Core.m_Pos.y > 200 * 32) //spawn area
+			//if (m_Core.m_Pos.x < 410 * 32 && m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.y < 219 * 32 && m_Core.m_Pos.y > 200 * 32) //spawn area
+			if (m_Core.m_Pos.x < 460 * 32) //spawn
 			{
 				m_Core.m_Pos.x = 484 * 32;
 				m_Core.m_Pos.y = 234 * 32;
@@ -10354,7 +10409,7 @@ void CCharacter::DummyTick()
 			*/
 
 
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 			if (pChr && pChr->IsAlive())
 			{
 				//for (int i = 0; i < MAX_CLIENTS; i++)
