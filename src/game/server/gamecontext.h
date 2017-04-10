@@ -245,7 +245,7 @@ public:
 	void SendBroadcastAll(const char *pText);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
-	void StartAsciiAnimation(int viewerID, int creatorID);
+	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -478,7 +478,7 @@ private:
 
 	//info
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
-	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);

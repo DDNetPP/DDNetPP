@@ -2502,6 +2502,18 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "---- commands -----");
+		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
+		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		return;
+	}
+
 	char aBuf[128];
 	char aCommand[32];
 	int SQL_ID;
@@ -2881,6 +2893,17 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Profiles are connected with your account.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "More infos about accounts with '/accountinfo'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "--------------------");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
+		return;
+	}
+
+
 	char aBuf[128];
 	char aPara0[32];
 	char aPara1[32];
@@ -2908,7 +2931,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile skype <skype>' to change skype.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile twitter <twitter>' to change twitter.");
 	}
-	else if (!str_comp_nocase(aPara0, "view"))
+	else if (!str_comp_nocase(aPara0, "view") || !str_comp_nocase(aPara0, "watch"))
 	{
 		if (pResult->NumArguments() < 2)
 		{
@@ -3129,7 +3152,11 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. (More info '/accountinfo')");
 		return;
 	}
-
+	if (pResult->NumArguments() != 3)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Please use: '/changepassword <old> <new> <new_repeate>'");
+		return;
+	}
 
 	char aOldPass[32];
 	char aNewPass[32];
@@ -4079,39 +4106,39 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 }
 
 
-void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Profile Info ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, " ");
-	pSelf->SendChatTarget(pResult->m_ClientID, "VIEW PROFILES:");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile (playername)");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Info: The player needs to be on the server and logged in");
-	pSelf->SendChatTarget(pResult->m_ClientID, " ");
-	pSelf->SendChatTarget(pResult->m_ClientID, "PROFILE SETTINGS:");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_style (style) - changes your profile style");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_status (status) - changes your status");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_skype (skype) - changes your skype");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_youtube (youtube) - changes your youtube");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_email (email) - changes your email");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
-}
+//void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData) //old
+//{
+//#if defined(CONF_DEBUG)
+//	CALL_STACK_ADD();
+//#endif
+//	CGameContext *pSelf = (CGameContext *)pUserData;
+//	if (!CheckClientID(pResult->m_ClientID))
+//		return;
+//
+//	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+//	if (!pPlayer)
+//		return;
+//
+//	CCharacter* pChr = pPlayer->GetCharacter();
+//	if (!pChr)
+//		return;
+//
+//
+//	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Profile Info ~~~");
+//	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "VIEW PROFILES:");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile view (playername)");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "Info: The player needs to be on the server and logged in");
+//	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "PROFILE SETTINGS:");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_style (style) - changes your profile style");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_status (status) - changes your status");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_skype (skype) - changes your skype");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_youtube (youtube) - changes your youtube");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_email (email) - changes your email");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
+//}
 
 void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 {
@@ -4696,6 +4723,13 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Bomb games are deactivated by an admin.");
 		return;
 	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter. Check '/bomb help' for more help.");
+		return;
+	}
+
 
 	char aBuf[512];
 
@@ -5991,6 +6025,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[256];
 
+
 	if (pResult->NumArguments() == 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "---- ascii art animation ----");
@@ -5999,13 +6034,142 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "---- commands ----");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view' to watch your animation");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii public <0/1>' private/publish animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view <client id>' to watch published animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view' to watch your animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii stop' to stop running animation you'r watching");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii stats' to see personal stats");
 		return;
 	}
 
-	if (!str_comp_nocase(pResult->GetString(0), "frame"))
+	if (!str_comp_nocase(pResult->GetString(0), "stats"))
 	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- ascii stats ----");
+		str_format(aBuf, sizeof(aBuf), "views: %d", pPlayer->m_AsciiViewsDefault + pPlayer->m_AsciiViewsProfile);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- specific ----");
+		str_format(aBuf, sizeof(aBuf), "ascii views: %d", pPlayer->m_AsciiViewsDefault);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "profile views: %d", pPlayer->m_AsciiViewsProfile);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
+	{
+		if (pPlayer->m_AsciiWatchingID == -1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not watching an ascii animation.");
+			return;
+		}
+
+		pPlayer->m_AsciiWatchingID = -1;
+		pPlayer->m_AsciiWatchFrame = 0;
+		pPlayer->m_AsciiWatchTicker = 0;
+		pSelf->SendBroadcast("", pResult->m_ClientID);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "profile"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			if (pPlayer->m_aAsciiPublishState[1] == '0')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/profile view <you>'");
+				pPlayer->m_aAsciiPublishState[1] = '0';
+			}
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			if (pPlayer->m_aAsciiPublishState[1] == '1')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public on your profile.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/profile view <you>'");
+				pPlayer->m_aAsciiPublishState[1] = '1';
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 0 to make your animation private.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 1 to make your animation public.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "public") || !str_comp_nocase(pResult->GetString(0), "publish"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii public <0/1>' private/publish animation");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			if (pPlayer->m_aAsciiPublishState[0] == '0')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/ascii view <your id>'");
+				pPlayer->m_aAsciiPublishState[0] = '0';
+			}
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			if (pPlayer->m_aAsciiPublishState[0] == '1')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/ascii view <your id>'");
+				pPlayer->m_aAsciiPublishState[0] = '1';
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 0 to make your animation private.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 1 to make your animation public.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "frame"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
 		if (pResult->NumArguments() < 2)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
@@ -6130,17 +6294,36 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
-	else if (!str_comp_nocase(pResult->GetString(0), "view"))
+	else if (!str_comp_nocase(pResult->GetString(0), "view") || !str_comp_nocase(pResult->GetString(0), "watch"))
 	{
-		pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->m_ClientID);
+		if (pResult->NumArguments() == 1) //show own
+		{
+			pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->m_ClientID, -1);
+			return;
+		}
+
+		pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->GetInteger(1), 0);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "speed"))
 	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
 		if (pResult->NumArguments() != 2)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
 			return;
 		}
+		if (pResult->GetInteger(1) < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Animation speed has to be 1 or higher.");
+			return;
+		}
+
 		pPlayer->m_AsciiAnimSpeed = pResult->GetInteger(1);
 		pSelf->SendChatTarget(pResult->m_ClientID, "updated animation speed.");
 	}

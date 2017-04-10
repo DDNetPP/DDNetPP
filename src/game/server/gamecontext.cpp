@@ -140,6 +140,27 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter));
 
+				//ascii animation
+				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsDefault = GetInt(GetID("AsciiViewsDefault"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsProfile = GetInt(GetID("AsciiViewsProfile"));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState, GetText(GetID("AsciiState")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0, GetText(GetID("AsciiFrame0")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1, GetText(GetID("AsciiFrame1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2, GetText(GetID("AsciiFrame2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3, GetText(GetID("AsciiFrame3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4, GetText(GetID("AsciiFrame4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5, GetText(GetID("AsciiFrame5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6, GetText(GetID("AsciiFrame6")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7, GetText(GetID("AsciiFrame7")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8, GetText(GetID("AsciiFrame8")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9, GetText(GetID("AsciiFrame9")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10, GetText(GetID("AsciiFrame10")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11, GetText(GetID("AsciiFrame11")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12, GetText(GetID("AsciiFrame12")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13, GetText(GetID("AsciiFrame13")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14, GetText(GetID("AsciiFrame14")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15, GetText(GetID("AsciiFrame15")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15));
+
 				//Missiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_homing_missiles_ammo = GetInt(GetID("HomingMissiles"));
 
@@ -1694,7 +1715,7 @@ bool CGameContext::IsPosition(int playerID, int pos)
 	return false;
 }
 
-void CGameContext::StartAsciiAnimation(int viewerID, int creatorID)
+void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -1706,11 +1727,48 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID)
 		SendChatTarget(viewerID, "player not found.");
 		return;
 	}
-
 	//dont start new animation while old is running
 	if (m_apPlayers[viewerID]->m_AsciiWatchingID != -1)
 	{
 		return;
+	}
+
+	if (medium == 0) // '/ascii view <cid>'
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[0] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not public.");
+			return;
+		}
+
+		m_apPlayers[creatorID]->m_AsciiViewsDefault++;
+		//COULDDO: code: cfv45
+	}
+	else if (medium == 1) // '/profile view <player>'
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[1] == '0')
+		{
+			//SendChatTarget(viewerID, "ascii art not published on profile");
+			return;
+		}
+
+		m_apPlayers[creatorID]->m_AsciiViewsProfile++;
+	}
+	else if (medium == 2) // not used yet
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[2] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not published on medium 2");
+			return;
+		}
+	}
+	else if (medium == 3) // not used yet
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[3] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not published on medium 3");
+			return;
+		}
 	}
 
 	m_apPlayers[viewerID]->m_AsciiWatchingID = creatorID;
@@ -1765,6 +1823,9 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_copy(m_apPlayers[ViewerID]->m_LastViewedProfile, Server()->ClientName(ViewedID), 32);
 		m_apPlayers[ViewerID]->m_IsProfileViewLoaded = false;
 	}
+
+	//ASCII - ANIMATIONS
+	StartAsciiAnimation(ViewerID, ViewedID, 1);
 
 
 	if (m_apPlayers[ViewedID]->m_ProfileStyle == 0)  //default

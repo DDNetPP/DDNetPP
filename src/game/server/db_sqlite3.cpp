@@ -169,7 +169,26 @@ CSql::CSql()
 		"RifleDeaths				INTEGER			DEFAULT 0," \
 		"RifleSpree					INTEGER			DEFAULT 0," \
 		"RifleShots					INTEGER			DEFAULT 0," \
-		"RifleWins					INTEGER			DEFAULT 0);";
+		"RifleWins					INTEGER			DEFAULT 0," \
+		"AsciiState					VARCHAR(3)		DEFAULT ''," \
+		"AsciiViewsDefault			INTEGER			DEFAULT 0," \
+		"AsciiViewsProfile			INTEGER			DEFAULT 0," \
+		"AsciiFrame0				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame1				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame2				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame3				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame4				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame5				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame6				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame7				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame8				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame9				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame10				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame11				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame12				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame13				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame14				VARCHAR(64)		DEFAULT ''," \
+		"AsciiFrame15				VARCHAR(64)		DEFAULT '');";
 
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);

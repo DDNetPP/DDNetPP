@@ -140,7 +140,28 @@ void CPlayer::Reset()
 #endif
 
 	//ChillerDragon constructor Konstructor init
+	if (g_Config.m_SvTestingCommands)
+	{
+		str_format(m_aAsciiFrame0, sizeof(m_aAsciiFrame0), "x");
+		str_format(m_aAsciiFrame1, sizeof(m_aAsciiFrame1), "+");
+		str_format(m_aAsciiFrame2, sizeof(m_aAsciiFrame2), "++");
+		str_format(m_aAsciiFrame3, sizeof(m_aAsciiFrame3), "xxx");
+		str_format(m_aAsciiFrame4, sizeof(m_aAsciiFrame4), "++++");
+		str_format(m_aAsciiFrame5, sizeof(m_aAsciiFrame5), "xxxxx");
+		str_format(m_aAsciiFrame6, sizeof(m_aAsciiFrame6), "++++++");
+		str_format(m_aAsciiFrame7, sizeof(m_aAsciiFrame7), "xxxxxxx");
+		str_format(m_aAsciiFrame8, sizeof(m_aAsciiFrame8), "++++++++");
+		str_format(m_aAsciiFrame9, sizeof(m_aAsciiFrame9), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame10, sizeof(m_aAsciiFrame10), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame11, sizeof(m_aAsciiFrame11), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame12, sizeof(m_aAsciiFrame12), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame13, sizeof(m_aAsciiFrame13), ".");
+		str_format(m_aAsciiFrame14, sizeof(m_aAsciiFrame14), ":");
+		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
+	}
 
+
+	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");
 	m_AsciiWatchingID = -1;
 	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
@@ -1245,6 +1266,8 @@ void CPlayer::Save()
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
+											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
+											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
 											  " WHERE `ID` = %i",
 												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
 												m_GiftDelay,
@@ -1260,6 +1283,8 @@ void CPlayer::Save()
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins,
+												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
+												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
 												m_AccountID
 	);
 
