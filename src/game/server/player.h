@@ -180,6 +180,31 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
+
+	//ascii animation frames
+	char m_aAsciiFrame0[64];
+	char m_aAsciiFrame1[64];
+	char m_aAsciiFrame2[64];
+	char m_aAsciiFrame3[64];
+	char m_aAsciiFrame4[64];
+	char m_aAsciiFrame5[64];
+	char m_aAsciiFrame6[64];
+	char m_aAsciiFrame7[64];
+	char m_aAsciiFrame8[64];
+	char m_aAsciiFrame9[64];
+	char m_aAsciiFrame10[64];
+	char m_aAsciiFrame11[64];
+	char m_aAsciiFrame12[64];
+	char m_aAsciiFrame13[64];
+	char m_aAsciiFrame14[64];
+	char m_aAsciiFrame15[64];
+
+	int m_AsciiAnimLen; //not used yet
+	int m_AsciiAnimSpeed;
+	int m_AsciiWatchFrame;
+	int m_AsciiWatchTicker;
+	int m_AsciiWatchingID;
+
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
 

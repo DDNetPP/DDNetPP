@@ -1197,6 +1197,114 @@ void CGameContext::OnTick()
 		SurvivalTick();
 	}
 
+	//ddpp loop check all players
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_AsciiWatchingID != -1)
+			{
+				if (!m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]) //creator left -> stop animation
+				{
+					//SendChatTarget(i, "Ascii animation stopped because the creator left the server.");
+					//SendBroadcast(" ERROR LOADING ANIMATION ", i);
+					m_apPlayers[i]->m_AsciiWatchingID = -1;
+					m_apPlayers[i]->m_AsciiWatchTicker = 0;
+					m_apPlayers[i]->m_AsciiWatchFrame = 0;
+				}
+				else
+				{
+					m_apPlayers[i]->m_AsciiWatchTicker++;
+					if (m_apPlayers[i]->m_AsciiWatchTicker >= m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_AsciiAnimSpeed) //new frame
+					{
+						m_apPlayers[i]->m_AsciiWatchTicker = 0;
+						m_apPlayers[i]->m_AsciiWatchFrame++;
+						if (m_apPlayers[i]->m_AsciiWatchFrame > 15) //animation over -> stop animation
+						{
+							//SendChatTarget(i, "Ascii animation is over.");
+							//SendBroadcast(" ANIMATION OVER ", i);
+							m_apPlayers[i]->m_AsciiWatchingID = -1;
+							m_apPlayers[i]->m_AsciiWatchTicker = 0;
+							m_apPlayers[i]->m_AsciiWatchFrame = 0;
+						}
+						else //display new frame
+						{
+							if (m_apPlayers[i]->m_AsciiWatchFrame == 0)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame0, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 1)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame1, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 2)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame2, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 3)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame3, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 4)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame4, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 5)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame5, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 6)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame6, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 7)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame7, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 8)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame8, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 9)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame9, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 10)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame10, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 11)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame11, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 12)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame12, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 13)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame13, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 14)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame14, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 15)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame15, i);
+							}
+							else
+							{
+								SendChatTarget(i, "error loading frame");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
@@ -1584,6 +1692,28 @@ bool CGameContext::IsPosition(int playerID, int pos)
 
 
 	return false;
+}
+
+void CGameContext::StartAsciiAnimation(int viewerID, int creatorID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[viewerID])
+		return;
+	if (!m_apPlayers[creatorID])
+	{
+		SendChatTarget(viewerID, "player not found.");
+		return;
+	}
+
+	//dont start new animation while old is running
+	if (m_apPlayers[viewerID]->m_AsciiWatchingID != -1)
+	{
+		return;
+	}
+
+	m_apPlayers[viewerID]->m_AsciiWatchingID = creatorID;
 }
 
 void CGameContext::SendAllPolice(const char * pMessage)

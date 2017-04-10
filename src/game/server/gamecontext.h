@@ -245,6 +245,7 @@ public:
 	void SendBroadcastAll(const char *pText);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
+	void StartAsciiAnimation(int viewerID, int creatorID);
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -445,6 +446,7 @@ private:
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
+	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
 
 	//minigame (chidraqul)
 	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);

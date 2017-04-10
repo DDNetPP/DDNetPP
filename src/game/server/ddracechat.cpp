@@ -5976,3 +5976,176 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		}
 	}
 }
+void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- ascii art animation ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Create your own animation with this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "And publish it on your profile to share it.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- commands ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view' to watch your animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "frame"))
+	{
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			str_format(pPlayer->m_aAsciiFrame0, sizeof(pPlayer->m_aAsciiFrame0), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame0);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame0, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			str_format(pPlayer->m_aAsciiFrame1, sizeof(pPlayer->m_aAsciiFrame1), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame1);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame1, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 2)
+		{
+			str_format(pPlayer->m_aAsciiFrame2, sizeof(pPlayer->m_aAsciiFrame2), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame2);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame2, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 3)
+		{
+			str_format(pPlayer->m_aAsciiFrame3, sizeof(pPlayer->m_aAsciiFrame3), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame3);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame3, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 4)
+		{
+			str_format(pPlayer->m_aAsciiFrame4, sizeof(pPlayer->m_aAsciiFrame4), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame4);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame4, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 5)
+		{
+			str_format(pPlayer->m_aAsciiFrame5, sizeof(pPlayer->m_aAsciiFrame5), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame5);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame5, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 6)
+		{
+			str_format(pPlayer->m_aAsciiFrame6, sizeof(pPlayer->m_aAsciiFrame6), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame6);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame6, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 7)
+		{
+			str_format(pPlayer->m_aAsciiFrame7, sizeof(pPlayer->m_aAsciiFrame7), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame7);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame7, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 8)
+		{
+			str_format(pPlayer->m_aAsciiFrame8, sizeof(pPlayer->m_aAsciiFrame8), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame8);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame8, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 9)
+		{
+			str_format(pPlayer->m_aAsciiFrame9, sizeof(pPlayer->m_aAsciiFrame9), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame9);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame9, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 10)
+		{
+			str_format(pPlayer->m_aAsciiFrame10, sizeof(pPlayer->m_aAsciiFrame10), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame10);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame10, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 11)
+		{
+			str_format(pPlayer->m_aAsciiFrame11, sizeof(pPlayer->m_aAsciiFrame11), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame11);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame11, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 12)
+		{
+			str_format(pPlayer->m_aAsciiFrame12, sizeof(pPlayer->m_aAsciiFrame12), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame12);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame12, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 13)
+		{
+			str_format(pPlayer->m_aAsciiFrame13, sizeof(pPlayer->m_aAsciiFrame13), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame13);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame13, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 14)
+		{
+			str_format(pPlayer->m_aAsciiFrame14, sizeof(pPlayer->m_aAsciiFrame14), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame14);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame14, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 15)
+		{
+			str_format(pPlayer->m_aAsciiFrame15, sizeof(pPlayer->m_aAsciiFrame15), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame15);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame15, pResult->m_ClientID);
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "%d is not a valid frame. choose between 0 and 15");
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "view"))
+	{
+		pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->m_ClientID);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "speed"))
+	{
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
+			return;
+		}
+		pPlayer->m_AsciiAnimSpeed = pResult->GetInteger(1);
+		pSelf->SendChatTarget(pResult->m_ClientID, "updated animation speed.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown ascii command check '/ascii' for command list.");
+	}
+}
