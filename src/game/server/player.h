@@ -420,10 +420,12 @@ public:
 
 	//BLOCK POINTS
 
-	int m_BlockPoints;
+	int m_BlockPoints; //KILLS + other stuff like block tournaments won 
 	int m_BlockPoints_Kills; //Block points (blocked others)
 	int m_BlockPoints_Deaths; //Block -points (blocked by others)
 	int m_LastToucherID; //The id of the last person who touched this tee (if none -1)
+	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
+	int m_LastTouchTicks;
 
 	//bool m_hammerfight;
 	//bool m_isHeal;

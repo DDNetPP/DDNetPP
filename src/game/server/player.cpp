@@ -160,7 +160,7 @@ void CPlayer::Reset()
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
 
-
+	m_JailHammer = true;
 	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");
 	m_AsciiWatchingID = -1;
 	m_AsciiAnimSpeed = 10;

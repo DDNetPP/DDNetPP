@@ -1451,6 +1451,31 @@ void CCharacter::Die(int Killer, int Weapon)
 		m_TrailProjs.clear();
 	}
 
+	//Block points
+	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+		Killer = m_pPlayer->m_LastToucherID; //kill message
+
+		m_pPlayer->m_BlockPoints_Deaths++;
+
+		GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+		GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+
+		if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+		{
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (g_Config.m_SvBlockBroadcast == 1)
+				{
+					GameServer()->SendBroadcast(aBuf, i);
+				}
+			}
+		}
+	}
+
+
 	if (Server()->IsRecording(m_pPlayer->GetCID()))
 		Server()->StopRecord(m_pPlayer->GetCID());
 
@@ -1537,27 +1562,6 @@ void CCharacter::Die(int Killer, int Weapon)
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "you lost bomb because you died.");
 	}
 
-	//Block points
-	if (m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-
-		if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
-		{
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (g_Config.m_SvBlockBroadcast == 1)
-				{
-					GameServer()->SendBroadcast(aBuf, i);
-				}
-			}
-		}
-	}
-
-
-
-
 	m_pPlayer->m_LastToucherID = -1;
 }
 
@@ -1570,6 +1574,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
 	{
 		m_pPlayer->m_LastToucherID = From;
+		m_pPlayer->m_LastTouchTicks = 0;
 	}
 
 
@@ -3424,6 +3429,40 @@ void CCharacter::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	//Block points (clear touchid on freeze and unfreeze agian)
+	//if (m_pPlayer->m_LastToucherID != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
+	//{
+	//	m_pPlayer->m_BlockWasTouchedAndFreezed = true;
+	//}
+	//if (m_pPlayer->m_BlockWasTouchedAndFreezed && m_FreezeTime == 0) //player got touched and freezed and unfreezed agian --> reset toucher because it isnt his kill anymore
+	//{
+	//	m_pPlayer->m_LastToucherID = -1;
+	//}
+	//Better system: Remove LastToucherID after some unfreeze time this has less bugs and works also good in other situations like: your racing with your mate and then you rush away solo and fail and suicide (this situation wont count as kill). 
+	if (m_pPlayer->m_LastToucherID != -1 && m_FreezeTime == 0)
+	{
+		//char aBuf[64];
+		//str_format(aBuf, sizeof(aBuf), "ID: %d is not -1", m_pPlayer->m_LastToucherID); //ghost debug
+		//dbg_msg("block", aBuf);
+
+		m_pPlayer->m_LastTouchTicks++;
+		if (m_pPlayer->m_LastTouchTicks > Server()->TickSpeed() * 3) //3 seconds unfreeze --> wont die block death on freeze suicide
+		{
+			//char aBuf[64];
+			//str_format(aBuf, sizeof(aBuf), "'%s' [ID: %d] touch removed", Server()->ClientName(m_pPlayer->m_LastToucherID), m_pPlayer->m_LastToucherID);
+			//GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			m_pPlayer->m_LastToucherID = -1;
+			m_pPlayer->m_LastTouchTicks = 0; //should be set with the TouchID but this will fix bugsis if i forgot it somewhere
+		}
+	}
+	
+	//clear last toucher on disconnect
+	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+	{
+		m_pPlayer->m_LastToucherID = 0;
+		m_pPlayer->m_LastTouchTicks = 0;
+	}
+
 	//Block points (check for last touched player)
 	//pikos hook check
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -3435,6 +3474,7 @@ void CCharacter::DDPP_Tick()
 		if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
 		{
 			m_pPlayer->m_LastToucherID = i;
+			m_pPlayer->m_LastTouchTicks = 0;
 		}
 	}
 	//dont think this makes sense with block points
@@ -3453,6 +3493,7 @@ void CCharacter::DDPP_Tick()
 			if (pChr->m_FreezeTime == 0) //only count touches from unfreezed tees
 			{
 				m_pPlayer->m_LastToucherID = pChr->GetPlayer()->GetCID();
+				m_pPlayer->m_LastTouchTicks = 0;
 			}
 		}
 

@@ -312,14 +312,32 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
 
 	//RELEASE NOTES:
 	//9.4.2017 RELEASED v.0.0.1
 
+	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
+	if (!page) { page = 1; }
+	int pages = 2;
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", page, pages);
 
-
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (pResult->NumArguments() == 0)
+	if (page == 1)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"=== Changelog (DDNet++ v.0.0.2) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/ascii' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added block stats check '/stats'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			aBuf);
+	}
+	else if (page == 2)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
@@ -350,55 +368,14 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"page 1/2     '/changelog <page>'");
+			aBuf);
 	}
 	else
 	{
-		int page = 0;
-		page = pResult->GetInteger(0);
-
-		if (page == 1)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (DDNet++ v.0.0.1) ===");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added SuperModerator");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added Moderator");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added SuperModerator Spawn");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/logout' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/poop <amount> <player>' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/pay <amount> <player>' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/policeinfo' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/bomb <command>' command more info '/bomb help'");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"* dummys now join automaticlly on server start");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"* improved the blocker bot");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"------------------------");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"page 1/2     '/changelog <page>'");
-		}
-		else if (page == 2)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (DDNet++ v.0.0.1) ===");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"page 2/2     '/changelog <page>'");
-		}
-		else
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"unknow page.");
-		}
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"unknow page.");
 	}
+	
 }
 
 
@@ -521,7 +498,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod. v.0.0.1 (more infos '/changelog')");
+		"ChillerDragon's Block mod. v.0.0.2 (more infos '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on Teeworlds DDraceNetwork Version: " GAME_VERSION);
 //#if defined( GIT_SHORTREV_HASH )
@@ -2862,6 +2839,13 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		}
 		else //own stats
@@ -2874,6 +2858,13 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -6009,6 +6000,10 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "A lot of power brings even more responsibillity.");
 		}
 	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown jail parameter check '/jail' for more info");
+	}
 }
 void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 {
@@ -6051,7 +6046,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "---- specific ----");
 		str_format(aBuf, sizeof(aBuf), "ascii views: %d", pPlayer->m_AsciiViewsDefault);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "profile views: %d", pPlayer->m_AsciiViewsProfile);
+		str_format(aBuf, sizeof(aBuf), "ascii views (profile): %d", pPlayer->m_AsciiViewsProfile);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
