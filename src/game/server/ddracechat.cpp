@@ -1904,38 +1904,110 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
-#if defined(CONF_SQL)
+//#if defined(CONF_SQL)
 void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *) pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		if(pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+	if (g_Config.m_SvPointsMode == 1) //ddnet
+	{
+#if defined(CONF_SQL)
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
 			return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+				return;
 
-	if (pResult->NumArguments() > 0)
-		if (!g_Config.m_SvHideScore)
-			pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		if (pResult->NumArguments() > 0)
+			if (!g_Config.m_SvHideScore)
+				pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
 					true);
-		else
-			pSelf->Console()->Print(
+			else
+				pSelf->Console()->Print(
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"points",
 					"Showing the global points of other players is not allowed on this server.");
-	else
-		pSelf->Score()->ShowPoints(pResult->m_ClientID,
+		else
+			pSelf->Score()->ShowPoints(pResult->m_ClientID,
 				pSelf->Server()->ClientName(pResult->m_ClientID));
 
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
-}
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
+#else
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"points",
+			"This is not an SQL server.");
 #endif
+	}
+	else if (g_Config.m_SvPointsMode == 2) //ddpp (blockpoints)
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		char aBuf[256];
+
+		if (pResult->NumArguments() > 0)
+		{
+			int pointsID = pSelf->GetCIDByName(pResult->GetString(0));
+			if (pointsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' is not online", pResult->GetString(0));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+
+
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else //points deactivated
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"points",
+			"showing points is deactivated on this DDnet++ server.");
+	}
+}
+//#endif
 
 #if defined(CONF_SQL)
 void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
@@ -6327,3 +6399,5 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown ascii command check '/ascii' for command list.");
 	}
 }
+
+

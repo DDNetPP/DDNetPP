@@ -118,7 +118,6 @@ CHAT_COMMAND("poop", "ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoop, this, "throw 
 
 CHAT_COMMAND("room", "s?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRoom, this, "supermoderator command '/room help' for help")
 
-
 CHAT_COMMAND("tcmd3000", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTCMD3000, this, "secret test command dont use")
 
 //CHAT_COMMAND("add_policehelper", "r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAddPolicehelper, this, "promote players to policehelper until disconnect.")
@@ -126,9 +125,10 @@ CHAT_COMMAND("tcmd3000", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTCMD3000, this, "
 //CHAT_COMMAND("afk", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAfk, this, "Shows others that you are away-from-keyboard")
 
 
+CHAT_COMMAND("points", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoints, this, "Shows the points of a player beginning with name r (your rank by default)")
 #if defined(CONF_SQL)
 CHAT_COMMAND("times", "?s?i", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTimes, this, "/times ?s?i shows last 5 times of the server or of a player beginning with name s starting with time i (i = 1 by default)")
-CHAT_COMMAND("points", "?r", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPoints, this, "Shows the global points of a player beginning with name r (your rank by default)")
+//CHAT_COMMAND("points", "?r", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPoints, this, "Shows the global points of a player beginning with name r (your rank by default)")
 CHAT_COMMAND("top5points", "?i", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTopPoints, this, "Shows five points of the global point ladder beginning with rank i (1 by default)")
 #endif
 #undef CHAT_COMMAND
