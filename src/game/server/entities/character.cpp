@@ -1454,24 +1454,32 @@ void CCharacter::Die(int Killer, int Weapon)
 	//Block points
 	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
 	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-		Killer = m_pPlayer->m_LastToucherID; //kill message
 
-		m_pPlayer->m_BlockPoints_Deaths++;
-
-		GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-		GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
-
-		if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
 		{
-			for (int i = 0; i < MAX_CLIENTS; i++)
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+			Killer = m_pPlayer->m_LastToucherID; //kill message
+
+			m_pPlayer->m_BlockPoints_Deaths++;
+
+			GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+			GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+
+			if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 			{
-				if (g_Config.m_SvBlockBroadcast == 1)
+				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
-					GameServer()->SendBroadcast(aBuf, i);
+					if (g_Config.m_SvBlockBroadcast == 1)
+					{
+						GameServer()->SendBroadcast(aBuf, i);
+					}
 				}
 			}
+		}
+		else
+		{
+			dbg_msg("block", "WARNING '%s' [ID: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->GetCID());
 		}
 	}
 
@@ -1573,8 +1581,11 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//Block points check for touchers (weapons)
 	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
 	{
-		m_pPlayer->m_LastToucherID = From;
-		m_pPlayer->m_LastTouchTicks = 0;
+		if (From != m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_LastToucherID = From;
+			m_pPlayer->m_LastTouchTicks = 0;
+		}
 	}
 
 
@@ -3456,10 +3467,10 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 	
-	//clear last toucher on disconnect
+	//clear last toucher on disconnect/unexistance
 	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 	{
-		m_pPlayer->m_LastToucherID = 0;
+		m_pPlayer->m_LastToucherID = -1;
 		m_pPlayer->m_LastTouchTicks = 0;
 	}
 

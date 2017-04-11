@@ -4055,17 +4055,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					return;
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "points"))
-				{
-					//SendChatTarget(ClientID, "you don't have enough permission to do this command");
-
-					//SendChatTarget(ClientID, pPlayer->m_points);
-					/*
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "your points: %s", pPlayer->m_points);
-					SendChatTarget(ClientID, aBuf);
-					*/
-				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "taxi"))
 				{
 					SendChatTarget(ClientID, "You called a dummy! He is on his way to be your taxi!");
