@@ -1710,6 +1710,16 @@ bool CGameContext::IsPosition(int playerID, int pos)
 			return true;	
 		}
 	}
+	else if (pos == 1) //cb5 spawn
+	{
+		if (GetPlayerChar(playerID)->m_Pos.x > 325 * 32
+			&& GetPlayerChar(playerID)->m_Pos.x < 362 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y > 191 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y < 206 * 32)
+		{
+			return true;
+		}
+	}
 
 
 	return false;

@@ -543,13 +543,15 @@ void CCharacter::FireWeapon(bool Bot)
 
 				if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
 				{
-					if (pTarget->GetPlayer()->m_money < 500)
+					if (pTarget->GetPlayer()->m_money < 200)
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes because he had no money");
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes because you didn't pay jail fees");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
@@ -557,19 +559,20 @@ void CCharacter::FireWeapon(bool Bot)
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
-						m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money");
+						str_format(aBuf, sizeof(aBuf), "+200 catched gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						m_pPlayer->MoneyTransaction(+200, aBuf);
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 jail fees");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
-						m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
+						m_pPlayer->MoneyTransaction(-200, "-200 jail");
 
 					}
 				}
@@ -1458,7 +1461,6 @@ void CCharacter::Die(int Killer, int Weapon)
 		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
 		{
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
 			Killer = m_pPlayer->m_LastToucherID; //kill message
 
 			m_pPlayer->m_BlockPoints_Deaths++;
@@ -1466,14 +1468,36 @@ void CCharacter::Die(int Killer, int Weapon)
 			GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
 			GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 
-			if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+
+
+			//punish spawn blockers
+			if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
 			{
-				for (int i = 0; i < MAX_CLIENTS; i++)
+				GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
+
+
+				if (g_Config.m_SvSpawnBlockProtection == 1)
 				{
-					if (g_Config.m_SvBlockBroadcast == 1)
+					GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
+					//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
+					//GameServer()->SendChatTarget(Killer, aBuf);
+
+					if (GameServer()->m_apPlayers[Killer]->m_SpawnBlocks > 2)
 					{
-						GameServer()->SendBroadcast(aBuf, i);
+						str_format(aBuf, sizeof(aBuf), "'%s' is spawnblocking. catch him!", Server()->ClientName(Killer));
+						GameServer()->SendAllPolice(aBuf);
+						GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
+						GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
 					}
+				}
+			}
+
+			if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //send kill message broadcast
+			{
+				if (g_Config.m_SvBlockBroadcast == 1)
+				{
+						str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+						GameServer()->SendBroadcastAll(aBuf);
 				}
 			}
 		}
@@ -3440,6 +3464,13 @@ void CCharacter::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	//spawnblock reducer
+	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
+	{
+		m_pPlayer->m_SpawnBlocks--;
+	}
+
+
 	//Block points (clear touchid on freeze and unfreeze agian)
 	//if (m_pPlayer->m_LastToucherID != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
 	//{
