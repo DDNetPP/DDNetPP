@@ -1697,8 +1697,17 @@ bool CGameContext::IsPosition(int playerID, int pos)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	dbg_msg("debug", "IsPosition(playerID = %d, pos = %d)", playerID, pos);
 #endif
 	char aBuf[256];
+	if (!m_apPlayers[playerID])
+	{
+		return false;
+	}
+	if (!GetPlayerChar(playerID))
+	{
+		return false;
+	}
 
 	if (pos == 0) //cb5 jail release spot
 	{
@@ -3124,8 +3133,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						//SendAllPolice("test");
 						//pPlayer->m_PoliceRank = 5;
+						GetPlayerChar(ClientID)->FreezeAll(10);
 					}
-
+					GetPlayerChar(ClientID)->FreezeAll(10);
 
 
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;

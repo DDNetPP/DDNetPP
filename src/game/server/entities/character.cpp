@@ -1281,7 +1281,11 @@ void CCharacter::Die(int Killer, int Weapon)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
+
+
+
 	char aBuf[256];
 
 
@@ -1462,44 +1466,48 @@ void CCharacter::Die(int Killer, int Weapon)
 		{
 			char aBuf[128];
 			Killer = m_pPlayer->m_LastToucherID; //kill message
-
 			m_pPlayer->m_BlockPoints_Deaths++;
 
-			GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-			GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
-
-
-
-			//punish spawn blockers
-			if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
+			if (GameServer()->m_apPlayers[Killer])
 			{
-				GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
+				GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 
-
-				if (g_Config.m_SvSpawnBlockProtection == 1)
+				if (GameServer()->m_apPlayers[Killer]->GetCharacter())
 				{
-					GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
-					//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
-					//GameServer()->SendChatTarget(Killer, aBuf);
-
-					if (GameServer()->m_apPlayers[Killer]->m_SpawnBlocks > 2)
+					//punish spawn blockers
+					if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
 					{
-						str_format(aBuf, sizeof(aBuf), "'%s' is spawnblocking. catch him!", Server()->ClientName(Killer));
-						GameServer()->SendAllPolice(aBuf);
-						GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
-						GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
+						GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
+
+
+						if (g_Config.m_SvSpawnBlockProtection == 1)
+						{
+							GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
+							//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
+							//GameServer()->SendChatTarget(Killer, aBuf);
+
+							if (GameServer()->m_apPlayers[Killer]->m_SpawnBlocks > 2)
+							{
+								str_format(aBuf, sizeof(aBuf), "'%s' is spawnblocking. catch him!", Server()->ClientName(Killer));
+								GameServer()->SendAllPolice(aBuf);
+								GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
+								GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
+							}
+						}
+					}
+
+					if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //send kill message broadcast
+					{
+						if (g_Config.m_SvBlockBroadcast == 1)
+						{
+							str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+							GameServer()->SendBroadcastAll(aBuf);
+						}
 					}
 				}
 			}
-
-			if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //send kill message broadcast
-			{
-				if (g_Config.m_SvBlockBroadcast == 1)
-				{
-						str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-						GameServer()->SendBroadcastAll(aBuf);
-				}
-			}
+			
 		}
 		else
 		{
