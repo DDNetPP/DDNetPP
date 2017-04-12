@@ -8654,6 +8654,46 @@ void CCharacter::DummyTick()
 
 					*/
 
+					//new spawn do something agianst hookers 
+					if (m_Core.m_Pos.x < 380 * 32 && m_Core.m_Pos.x > 322 * 32 && m_Core.m_Vel.x < -0.001f)
+					{
+						m_Input.m_Hook = 1;
+						if ((m_Core.m_Pos.x < 362 * 32 && IsGrounded()) || m_Core.m_Pos.x < 350 * 32)
+						{
+							if (Server()->Tick() % 10 == 0)
+							{
+								m_Input.m_Jump = 1;
+								SetWeapon(0);
+							}
+						}
+					}
+					if (m_Core.m_Pos.x < 415 * 32)
+					{
+						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this); //hammer player up in freeze if in right pos
+						if (pChr && pChr->IsAlive())
+						{
+							if (pChr->m_Core.m_Pos.x > m_Core.m_Pos.x - 100 && pChr->m_Core.m_Pos.x < m_Core.m_Pos.x + 100 && pChr->m_Core.m_Pos.y > m_Core.m_Pos.y - 100 && pChr->m_Core.m_Pos.y < m_Core.m_Pos.y + 100)
+							{
+								if (pChr->m_Core.m_Vel.y < -1.5f) //only boost and use existing up speed
+								{
+									m_Input.m_Fire++;
+									m_LatestInput.m_Fire++;
+								}
+							}
+							//old spawn do something agianst way blockers (roof protection)
+							if (m_Core.m_Pos.y > 206 * 32 + 4 && m_Core.m_Pos.y < 208 * 32 && m_Core.m_Vel.y < -4.4f)
+							{
+								m_Input.m_Jump = 1;
+							}
+							//old spawn roof protection / attack hook
+							if (pChr->m_Core.m_Pos.y > m_Core.m_Pos.y + 50)
+							{
+								m_Input.m_Hook = 1;
+							}
+						}
+					}
+
+
 					if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
 					{
 						m_Input.m_Jump = 1;
