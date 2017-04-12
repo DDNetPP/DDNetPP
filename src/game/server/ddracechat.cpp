@@ -3040,9 +3040,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
 			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
 		}
+		else if (!str_comp_nocase(aPara1, "bomber"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 5;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: bomber");
+		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", aPara1);
+			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off, pvp, bomber", aPara1);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -4314,6 +4319,14 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 		return;
+
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Throw shit at other players. Warning: you loose that shit.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "use '/poop <amount> <player>'");
+		return;
+	}
+
 
 	char aBuf[512];
 	int Amount;

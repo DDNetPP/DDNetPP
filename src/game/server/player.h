@@ -254,7 +254,7 @@ public:
 	bool m_IsMinigame;
 
 	//profiles
-	int m_ProfileStyle;
+	int m_ProfileStyle; // 0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber
 	int m_ProfileViews;
 	char m_ProfileStatus[50];
 	char m_ProfileSkype[50];

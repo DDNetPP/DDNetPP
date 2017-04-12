@@ -1912,6 +1912,20 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 5)  //bomber
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Played: %d", m_apPlayers[ViewedID]->m_BombGamesPlayed);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
+		SendChatTarget(ViewerID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
+		//SendChatTarget(ViewerID, aBuf);
+	}
 }
 
 void CGameContext::ChatCommands()
@@ -2057,6 +2071,8 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
 	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
+	m_apPlayers[WinnerID]->m_BombGamesWon++;
+	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
 	if (!str_comp_nocase(m_BombMap, "NoArena"))
 	{
 		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
@@ -2165,6 +2181,7 @@ void CGameContext::BombTick()
 			{
 				if (GetPlayerChar(i)->m_IsBomb)
 				{
+					m_apPlayers[i]->m_BombGamesPlayed++;
 					CreateExplosion(GetPlayerChar(i)->m_Pos, i, WEAPON_GRENADE, false, 0, GetPlayerChar(i)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
 					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(i));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
