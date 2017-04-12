@@ -3541,6 +3541,13 @@ void CCharacter::DDPP_Tick()
 
 	}
 
+	//hook extras
+	//if (m_pPlayer->m_IsHookRainbow)
+	//{
+
+	//}
+
+
 	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
 	//survivexp stuff
 	if (m_AliveTime)

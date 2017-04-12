@@ -1784,6 +1784,24 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	m_apPlayers[viewerID]->m_AsciiWatchingID = creatorID;
 }
 
+bool CGameContext::IsHooked(int hookedID, int power)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pChar = GetPlayerChar(i);
+
+		if (!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCID() == hookedID)
+			continue;
+		if (pChar->Core()->m_HookedPlayer == hookedID && pChar->GetPlayer()->m_HookPower == power)
+		{
+			return true;
+		}
+	}
+
+
+	return false;
+}
+
 void CGameContext::SendAllPolice(const char * pMessage)
 {
 #if defined(CONF_DEBUG)

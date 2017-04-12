@@ -247,6 +247,8 @@ public:
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 
+	bool IsHooked(int hookedID, int power);
+
 	//police
 	void SendAllPolice(const char *pMessage);
 
@@ -496,7 +498,7 @@ private:
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
-
+	static void ConHook(IConsole::IResult *pResult, void *pUserData);
 
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);

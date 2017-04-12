@@ -333,6 +333,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added block points check '/points'");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/hook <power>' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
@@ -1962,7 +1964,7 @@ void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 
 		char aBuf[256];
 
-		if (pResult->NumArguments() > 0)
+		if (pResult->NumArguments() > 0) //show others
 		{
 			int pointsID = pSelf->GetCIDByName(pResult->GetString(0));
 			if (pointsID == -1)
@@ -1981,7 +1983,7 @@ void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
-		else
+		else //show own
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
 			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
@@ -3717,6 +3719,13 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "use '/pay <amount> <player>' to send other players your '/money'");
+		return;
+	}
+
+
 	char aBuf[512];
 	int Amount;
 	char aUsername[32];
@@ -3738,6 +3747,12 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	if (Amount < 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "lel are u triin' to steal money?");
+		return;
+	}
+
+	if (Amount == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you paid nothing.");
 		return;
 	}
 
@@ -4421,6 +4436,17 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 		return;
+
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ GIVE COMMAND ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra>' to give it your self");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra> <player>' to give it <player>");
+		pSelf->SendChatTarget(pResult->m_ClientID, "-- EXTRAS --");
+		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, trail, atom");
+		return;
+	}
 
 
 	char aBuf[512];
@@ -6414,3 +6440,58 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 }
 
 
+
+void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== hook =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hook <power>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== powers =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "normal, rainbow, bloody");
+		return;
+	}
+
+
+	if (!str_comp_nocase(pResult->GetString(0), "normal"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You got normal hook.");
+		pPlayer->m_HookPower = 0;
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "rainbow"))
+	{
+		if (pPlayer->m_IsSuperModerator || pPlayer->m_IsModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You got rainbow hook.");
+			pPlayer->m_HookPower = 1;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "bloody"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+		//pPlayer->m_HookPower = 2;
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown power check '/hook' for a list of all powers.");
+	}
+}
