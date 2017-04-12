@@ -402,7 +402,7 @@ public:
 	//########
 
 	//hook
-	bool m_HookPower; // 0=off 1=rainbow 2=bloody
+	int m_HookPower; // 0=off 1=rainbow 2=bloody
 
 	// infinite cosmetics
 	bool m_InfRainbow;

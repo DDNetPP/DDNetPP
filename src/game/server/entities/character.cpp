@@ -1879,9 +1879,10 @@ void CCharacter::Snap(int SnappingClient)
 	// wenn du das jetzt oben hinschreibst dann passiert das vor den abfragen
 	// kann evtl. zu einem crash oder ähnlichem führen
 
-	if (m_Bloody || m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
+	if (m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) ||m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
 	{
-		for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
+		//for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
+		if (Server()->Tick() % 3 == 0)
 		{
 			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
 		}

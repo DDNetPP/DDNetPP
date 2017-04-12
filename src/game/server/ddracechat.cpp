@@ -6487,8 +6487,15 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "bloody"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
-		//pPlayer->m_HookPower = 2;
+		if (pPlayer->m_IsSuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You got bloody hook.");
+			pPlayer->m_HookPower = 2;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+		}
 	}
 	else
 	{
