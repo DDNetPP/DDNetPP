@@ -302,6 +302,7 @@ public:
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;
+	bool m_StrongBloody;
 	bool m_Atom;
 	bool m_Trail;
 

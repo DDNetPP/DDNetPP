@@ -3985,6 +3985,7 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 	if (!str_comp_nocase(aInput, "off"))
 	{
 			pPlayer->GetCharacter()->m_Bloody = false;
+			pPlayer->GetCharacter()->m_StrongBloody = false;
 			pPlayer->m_InfBloody = false;
 			pSelf->SendChatTarget(pResult->m_ClientID, "bloody turned off");
 	}
@@ -4444,7 +4445,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra>' to give it your self");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra> <player>' to give it <player>");
 		pSelf->SendChatTarget(pResult->m_ClientID, "-- EXTRAS --");
-		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, trail, atom");
+		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom");
 		return;
 	}
 
@@ -4477,6 +4478,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pPlayer->GetCharacter()->m_StrongBloody = true;
+				pPlayer->GetCharacter()->m_Bloody = false;
+				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -4532,6 +4539,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						str_format(aBuf, sizeof(aBuf), "Bloody offer given to the user: %s", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
+				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
@@ -4593,6 +4604,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
 			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pPlayer->GetCharacter()->m_StrongBloody = true;
+				pPlayer->GetCharacter()->m_Bloody = false;
+				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
+			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
@@ -4648,6 +4665,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 9)
@@ -4691,6 +4712,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -4736,6 +4761,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer)
@@ -4777,6 +4806,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		{
 			pPlayer->GetCharacter()->m_Bloody = true;
 			pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+		}
+		else if (!str_comp_nocase(aItem, "strong_bloody"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		}
 		else if (!str_comp_nocase(aItem, "rainbow"))
 		{

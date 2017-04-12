@@ -1881,13 +1881,19 @@ void CCharacter::Snap(int SnappingClient)
 
 	if (m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) ||m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
 	{
-		//for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
-		if (Server()->Tick() % 3 == 0)
+		if (Server()->Tick() % 3 == 0) //low bloody
 		{
 			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
 		}
 	}
 
+	if (m_StrongBloody) // wenn strong bloody aktiviert ist
+	{
+		for (int i = 0; i < 3; i++) //strong bloody
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+		}
+	}
 
 	if (m_pPlayer->m_ninjasteam) //wenn bloody aktiviert ist
 	{
