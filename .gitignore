@@ -47,3 +47,4 @@ buildlog.txt
 *.cmd
 .settings
 *.opensdf
+*.cfg

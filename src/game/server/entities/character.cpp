@@ -3501,7 +3501,7 @@ void CCharacter::DDPP_Tick()
 	{
 		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
 		{
-			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 92 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 189 * 32)
+			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
 			{
 				m_Core.m_Pos.x = 95 * 32;
 				m_Core.m_Pos.y = 189 * 32;
