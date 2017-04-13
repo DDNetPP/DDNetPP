@@ -1465,15 +1465,30 @@ void CCharacter::Die(int Killer, int Weapon)
 		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
 		{
 			char aBuf[128];
-			if (g_Config.m_SvDummyBlockPoints)
+			Killer = m_pPlayer->m_LastToucherID; //kill message
+			if (m_pPlayer->m_IsDummy)
 			{
-				Killer = m_pPlayer->m_LastToucherID; //kill message
+				if (g_Config.m_SvDummyBlockPoints)
+				{
+					m_pPlayer->m_BlockPoints_Deaths++;
+				}
+			}
+			else
+			{
 				m_pPlayer->m_BlockPoints_Deaths++;
 			}
 
 			if (GameServer()->m_apPlayers[Killer])
 			{
-				if (g_Config.m_SvDummyBlockPoints == 2)
+				if (m_pPlayer->m_IsDummy) //if dummy got killed make some exceptions
+				{
+					if (g_Config.m_SvDummyBlockPoints == 2 || g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2)) //only count dummy kills if configt       cfg:3 block area or further count kills 
+					{
+						GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+					}
+				}
+				else
 				{
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;

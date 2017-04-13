@@ -1729,6 +1729,13 @@ bool CGameContext::IsPosition(int playerID, int pos)
 			return true;
 		}
 	}
+	else if (pos == 2) //cb5 far in map (block area and race)
+	{
+		if (GetPlayerChar(playerID)->m_Pos.x > 415 * 32)
+		{
+			return true;
+		}
+	}
 
 
 	return false;
