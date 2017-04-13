@@ -180,6 +180,34 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
+
+	//ascii animation frames
+	char m_aAsciiFrame0[64];
+	char m_aAsciiFrame1[64];
+	char m_aAsciiFrame2[64];
+	char m_aAsciiFrame3[64];
+	char m_aAsciiFrame4[64];
+	char m_aAsciiFrame5[64];
+	char m_aAsciiFrame6[64];
+	char m_aAsciiFrame7[64];
+	char m_aAsciiFrame8[64];
+	char m_aAsciiFrame9[64];
+	char m_aAsciiFrame10[64];
+	char m_aAsciiFrame11[64];
+	char m_aAsciiFrame12[64];
+	char m_aAsciiFrame13[64];
+	char m_aAsciiFrame14[64];
+	char m_aAsciiFrame15[64];
+
+	char m_aAsciiPublishState[3]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
+	int m_AsciiAnimLen; //not used yet
+	int m_AsciiAnimSpeed;
+	int m_AsciiWatchFrame;
+	int m_AsciiWatchTicker;
+	int m_AsciiWatchingID;
+	int m_AsciiViewsDefault; //direct with ascii view command
+	int m_AsciiViewsProfile;
+
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
 
@@ -226,7 +254,7 @@ public:
 	bool m_IsMinigame;
 
 	//profiles
-	int m_ProfileStyle;
+	int m_ProfileStyle; // 0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber
 	int m_ProfileViews;
 	char m_ProfileStatus[50];
 	char m_ProfileSkype[50];
@@ -373,6 +401,9 @@ public:
 	//extras
 	//########
 
+	//hook
+	int m_HookPower; // 0=off 1=rainbow 2=bloody
+
 	// infinite cosmetics
 	bool m_InfRainbow;
 	bool m_InfBloody;
@@ -392,10 +423,13 @@ public:
 
 	//BLOCK POINTS
 
-	int m_BlockPoints;
+	int m_BlockPoints; //KILLS + other stuff like block tournaments won 
 	int m_BlockPoints_Kills; //Block points (blocked others)
 	int m_BlockPoints_Deaths; //Block -points (blocked by others)
 	int m_LastToucherID; //The id of the last person who touched this tee (if none -1)
+	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
+	int m_LastTouchTicks;
+	int m_SpawnBlocks;
 
 	//bool m_hammerfight;
 	//bool m_isHeal;

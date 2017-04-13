@@ -245,6 +245,9 @@ public:
 	void SendBroadcastAll(const char *pText);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
+	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
+
+	bool IsHooked(int hookedID, int power);
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -384,9 +387,10 @@ private:
 	static void ConForcePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConTeamTop5(IConsole::IResult *pResult, void *pUserData);
 	static void ConTop5(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoints(IConsole::IResult *pResult, void *pUserData);
 	#if defined(CONF_SQL)
 	static void ConTimes(IConsole::IResult *pResult, void *pUserData);
-	static void ConPoints(IConsole::IResult *pResult, void *pUserData);
+	//static void ConPoints(IConsole::IResult *pResult, void *pUserData);
 	static void ConTopPoints(IConsole::IResult *pResult, void *pUserData);
 	#endif
 
@@ -445,6 +449,7 @@ private:
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
+	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
 
 	//minigame (chidraqul)
 	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);
@@ -476,7 +481,7 @@ private:
 
 	//info
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
-	static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);
@@ -492,9 +497,8 @@ private:
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
-
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
-
+	static void ConHook(IConsole::IResult *pResult, void *pUserData);
 
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);

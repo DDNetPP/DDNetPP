@@ -312,14 +312,34 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
 
 	//RELEASE NOTES:
 	//9.4.2017 RELEASED v.0.0.1
 
+	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
+	if (!page) { page = 1; }
+	int pages = 2;
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", page, pages);
 
-
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (pResult->NumArguments() == 0)
+	if (page == 1)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"=== Changelog (DDNet++ v.0.0.2) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/ascii' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added block points check '/points'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/hook <power>' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			aBuf);
+	}
+	else if (page == 2)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
@@ -350,55 +370,14 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"page 1/2     '/changelog <page>'");
+			aBuf);
 	}
 	else
 	{
-		int page = 0;
-		page = pResult->GetInteger(0);
-
-		if (page == 1)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (DDNet++ v.0.0.1) ===");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added SuperModerator");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added Moderator");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added SuperModerator Spawn");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/logout' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/poop <amount> <player>' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/pay <amount> <player>' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/policeinfo' command");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"+ added '/bomb <command>' command more info '/bomb help'");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"* dummys now join automaticlly on server start");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"* improved the blocker bot");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"------------------------");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"page 1/2     '/changelog <page>'");
-		}
-		else if (page == 2)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"=== Changelog (DDNet++ v.0.0.1) ===");
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"page 2/2     '/changelog <page>'");
-		}
-		else
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-				"unknow page.");
-		}
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"unknow page.");
 	}
+	
 }
 
 
@@ -521,7 +500,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod. v.0.0.1 (more infos '/changelog')");
+		"ChillerDragon's Block mod. v.0.0.2 (more infos '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on Teeworlds DDraceNetwork Version: " GAME_VERSION);
 //#if defined( GIT_SHORTREV_HASH )
@@ -1927,38 +1906,110 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
-#if defined(CONF_SQL)
+//#if defined(CONF_SQL)
 void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *) pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		if(pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+	if (g_Config.m_SvPointsMode == 1) //ddnet
+	{
+#if defined(CONF_SQL)
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
 			return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+				return;
 
-	if (pResult->NumArguments() > 0)
-		if (!g_Config.m_SvHideScore)
-			pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		if (pResult->NumArguments() > 0)
+			if (!g_Config.m_SvHideScore)
+				pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
 					true);
-		else
-			pSelf->Console()->Print(
+			else
+				pSelf->Console()->Print(
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"points",
 					"Showing the global points of other players is not allowed on this server.");
-	else
-		pSelf->Score()->ShowPoints(pResult->m_ClientID,
+		else
+			pSelf->Score()->ShowPoints(pResult->m_ClientID,
 				pSelf->Server()->ClientName(pResult->m_ClientID));
 
-	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
-}
+		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
+#else
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"points",
+			"This is not an SQL server.");
 #endif
+	}
+	else if (g_Config.m_SvPointsMode == 2) //ddpp (blockpoints)
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		char aBuf[256];
+
+		if (pResult->NumArguments() > 0) //show others
+		{
+			int pointsID = pSelf->GetCIDByName(pResult->GetString(0));
+			if (pointsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' is not online", pResult->GetString(0));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+
+
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else //show own
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else //points deactivated
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return;
+
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"points",
+			"showing points is deactivated on this DDnet++ server.");
+	}
+}
+//#endif
 
 #if defined(CONF_SQL)
 void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
@@ -2502,6 +2553,18 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "---- commands -----");
+		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
+		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		return;
+	}
+
 	char aBuf[128];
 	char aCommand[32];
 	int SQL_ID;
@@ -2850,6 +2913,13 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		}
 		else //own stats
@@ -2862,6 +2932,13 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
+			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -2880,6 +2957,17 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if (!pPlayer)
 		return;
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Profiles are connected with your account.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "More infos about accounts with '/accountinfo'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "--------------------");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
+		return;
+	}
+
 
 	char aBuf[128];
 	char aPara0[32];
@@ -2908,7 +2996,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile skype <skype>' to change skype.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile twitter <twitter>' to change twitter.");
 	}
-	else if (!str_comp_nocase(aPara0, "view"))
+	else if (!str_comp_nocase(aPara0, "view") || !str_comp_nocase(aPara0, "watch"))
 	{
 		if (pResult->NumArguments() < 2)
 		{
@@ -2954,9 +3042,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
 			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
 		}
+		else if (!str_comp_nocase(aPara1, "bomber"))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 5;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: bomber");
+		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off and pvp", aPara1);
+			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off, pvp, bomber", aPara1);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -3129,7 +3222,11 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. (More info '/accountinfo')");
 		return;
 	}
-
+	if (pResult->NumArguments() != 3)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Please use: '/changepassword <old> <new> <new_repeate>'");
+		return;
+	}
 
 	char aOldPass[32];
 	char aNewPass[32];
@@ -3622,6 +3719,13 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "use '/pay <amount> <player>' to send other players your '/money'");
+		return;
+	}
+
+
 	char aBuf[512];
 	int Amount;
 	char aUsername[32];
@@ -3643,6 +3747,12 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	if (Amount < 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "lel are u triin' to steal money?");
+		return;
+	}
+
+	if (Amount == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "you paid nothing.");
 		return;
 	}
 
@@ -3875,6 +3985,7 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 	if (!str_comp_nocase(aInput, "off"))
 	{
 			pPlayer->GetCharacter()->m_Bloody = false;
+			pPlayer->GetCharacter()->m_StrongBloody = false;
 			pPlayer->m_InfBloody = false;
 			pSelf->SendChatTarget(pResult->m_ClientID, "bloody turned off");
 	}
@@ -4079,39 +4190,39 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 }
 
 
-void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Profile Info ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, " ");
-	pSelf->SendChatTarget(pResult->m_ClientID, "VIEW PROFILES:");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile (playername)");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Info: The player needs to be on the server and logged in");
-	pSelf->SendChatTarget(pResult->m_ClientID, " ");
-	pSelf->SendChatTarget(pResult->m_ClientID, "PROFILE SETTINGS:");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_style (style) - changes your profile style");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_status (status) - changes your status");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_skype (skype) - changes your skype");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_youtube (youtube) - changes your youtube");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_email (email) - changes your email");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
-	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
-}
+//void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData) //old
+//{
+//#if defined(CONF_DEBUG)
+//	CALL_STACK_ADD();
+//#endif
+//	CGameContext *pSelf = (CGameContext *)pUserData;
+//	if (!CheckClientID(pResult->m_ClientID))
+//		return;
+//
+//	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+//	if (!pPlayer)
+//		return;
+//
+//	CCharacter* pChr = pPlayer->GetCharacter();
+//	if (!pChr)
+//		return;
+//
+//
+//	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Profile Info ~~~");
+//	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "VIEW PROFILES:");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile view (playername)");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "Info: The player needs to be on the server and logged in");
+//	pSelf->SendChatTarget(pResult->m_ClientID, " ");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "PROFILE SETTINGS:");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_style (style) - changes your profile style");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_status (status) - changes your status");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_skype (skype) - changes your skype");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_youtube (youtube) - changes your youtube");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_email (email) - changes your email");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_homepage (homepage) - changes your homepage");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "/profile_twitter (twitter) - changes your twitter");
+//}
 
 void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 {
@@ -4225,6 +4336,14 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Throw shit at other players. Warning: you loose that shit.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "use '/poop <amount> <player>'");
+		return;
+	}
+
+
 	char aBuf[512];
 	int Amount;
 	char aUsername[32];
@@ -4320,6 +4439,17 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ GIVE COMMAND ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra>' to give it your self");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra> <player>' to give it <player>");
+		pSelf->SendChatTarget(pResult->m_ClientID, "-- EXTRAS --");
+		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom");
+		return;
+	}
+
+
 	char aBuf[512];
 
 
@@ -4348,6 +4478,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pPlayer->GetCharacter()->m_StrongBloody = true;
+				pPlayer->GetCharacter()->m_Bloody = false;
+				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -4403,6 +4539,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						str_format(aBuf, sizeof(aBuf), "Bloody offer given to the user: %s", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
+				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
@@ -4464,6 +4604,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
 			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pPlayer->GetCharacter()->m_StrongBloody = true;
+				pPlayer->GetCharacter()->m_Bloody = false;
+				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
+			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
@@ -4519,6 +4665,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 9)
@@ -4562,6 +4712,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			}
+			else if (!str_comp_nocase(aItem, "strong_bloody"))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -4607,6 +4761,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 				}
+				else if (!str_comp_nocase(aItem, "strong_bloody"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer)
@@ -4648,6 +4806,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		{
 			pPlayer->GetCharacter()->m_Bloody = true;
 			pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+		}
+		else if (!str_comp_nocase(aItem, "strong_bloody"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		}
 		else if (!str_comp_nocase(aItem, "rainbow"))
 		{
@@ -4696,6 +4858,13 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Bomb games are deactivated by an admin.");
 		return;
 	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter. Check '/bomb help' for more help.");
+		return;
+	}
+
 
 	char aBuf[512];
 
@@ -5974,5 +6143,395 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to judge who is criminal and who not.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "A lot of power brings even more responsibillity.");
 		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown jail parameter check '/jail' for more info");
+	}
+}
+void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- ascii art animation ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Create your own animation with this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "And publish it on your profile to share it.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- commands ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii public <0/1>' private/publish animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view <client id>' to watch published animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii view' to watch your animation");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii stop' to stop running animation you'r watching");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii stats' to see personal stats");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "stats"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- ascii stats ----");
+		str_format(aBuf, sizeof(aBuf), "views: %d", pPlayer->m_AsciiViewsDefault + pPlayer->m_AsciiViewsProfile);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- specific ----");
+		str_format(aBuf, sizeof(aBuf), "ascii views: %d", pPlayer->m_AsciiViewsDefault);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "ascii views (profile): %d", pPlayer->m_AsciiViewsProfile);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
+	{
+		if (pPlayer->m_AsciiWatchingID == -1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not watching an ascii animation.");
+			return;
+		}
+
+		pPlayer->m_AsciiWatchingID = -1;
+		pPlayer->m_AsciiWatchFrame = 0;
+		pPlayer->m_AsciiWatchTicker = 0;
+		pSelf->SendBroadcast("", pResult->m_ClientID);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "profile"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			if (pPlayer->m_aAsciiPublishState[1] == '0')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/profile view <you>'");
+				pPlayer->m_aAsciiPublishState[1] = '0';
+			}
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			if (pPlayer->m_aAsciiPublishState[1] == '1')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public on your profile.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/profile view <you>'");
+				pPlayer->m_aAsciiPublishState[1] = '1';
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 0 to make your animation private.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 1 to make your animation public.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "public") || !str_comp_nocase(pResult->GetString(0), "publish"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii public <0/1>' private/publish animation");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			if (pPlayer->m_aAsciiPublishState[0] == '0')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/ascii view <your id>'");
+				pPlayer->m_aAsciiPublishState[0] = '0';
+			}
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			if (pPlayer->m_aAsciiPublishState[0] == '1')
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/ascii view <your id>'");
+				pPlayer->m_aAsciiPublishState[0] = '1';
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 0 to make your animation private.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use 1 to make your animation public.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "frame"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
+			return;
+		}
+
+		if (pResult->GetInteger(1) == 0)
+		{
+			str_format(pPlayer->m_aAsciiFrame0, sizeof(pPlayer->m_aAsciiFrame0), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame0);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame0, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 1)
+		{
+			str_format(pPlayer->m_aAsciiFrame1, sizeof(pPlayer->m_aAsciiFrame1), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame1);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame1, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 2)
+		{
+			str_format(pPlayer->m_aAsciiFrame2, sizeof(pPlayer->m_aAsciiFrame2), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame2);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame2, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 3)
+		{
+			str_format(pPlayer->m_aAsciiFrame3, sizeof(pPlayer->m_aAsciiFrame3), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame3);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame3, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 4)
+		{
+			str_format(pPlayer->m_aAsciiFrame4, sizeof(pPlayer->m_aAsciiFrame4), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame4);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame4, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 5)
+		{
+			str_format(pPlayer->m_aAsciiFrame5, sizeof(pPlayer->m_aAsciiFrame5), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame5);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame5, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 6)
+		{
+			str_format(pPlayer->m_aAsciiFrame6, sizeof(pPlayer->m_aAsciiFrame6), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame6);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame6, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 7)
+		{
+			str_format(pPlayer->m_aAsciiFrame7, sizeof(pPlayer->m_aAsciiFrame7), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame7);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame7, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 8)
+		{
+			str_format(pPlayer->m_aAsciiFrame8, sizeof(pPlayer->m_aAsciiFrame8), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame8);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame8, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 9)
+		{
+			str_format(pPlayer->m_aAsciiFrame9, sizeof(pPlayer->m_aAsciiFrame9), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame9);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame9, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 10)
+		{
+			str_format(pPlayer->m_aAsciiFrame10, sizeof(pPlayer->m_aAsciiFrame10), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame10);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame10, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 11)
+		{
+			str_format(pPlayer->m_aAsciiFrame11, sizeof(pPlayer->m_aAsciiFrame11), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame11);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame11, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 12)
+		{
+			str_format(pPlayer->m_aAsciiFrame12, sizeof(pPlayer->m_aAsciiFrame12), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame12);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame12, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 13)
+		{
+			str_format(pPlayer->m_aAsciiFrame13, sizeof(pPlayer->m_aAsciiFrame13), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame13);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame13, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 14)
+		{
+			str_format(pPlayer->m_aAsciiFrame14, sizeof(pPlayer->m_aAsciiFrame14), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame14);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame14, pResult->m_ClientID);
+		}
+		else if (pResult->GetInteger(1) == 15)
+		{
+			str_format(pPlayer->m_aAsciiFrame15, sizeof(pPlayer->m_aAsciiFrame15), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame15);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame15, pResult->m_ClientID);
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "%d is not a valid frame. choose between 0 and 15");
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "view") || !str_comp_nocase(pResult->GetString(0), "watch"))
+	{
+		if (pResult->NumArguments() == 1) //show own
+		{
+			pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->m_ClientID, -1);
+			return;
+		}
+
+		pSelf->StartAsciiAnimation(pResult->m_ClientID, pResult->GetInteger(1), 0);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "speed"))
+	{
+		if (pPlayer->m_AccountID <= 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
+			return;
+		}
+
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
+			return;
+		}
+		if (pResult->GetInteger(1) < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Animation speed has to be 1 or higher.");
+			return;
+		}
+
+		pPlayer->m_AsciiAnimSpeed = pResult->GetInteger(1);
+		pSelf->SendChatTarget(pResult->m_ClientID, "updated animation speed.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown ascii command check '/ascii' for command list.");
+	}
+}
+
+
+
+void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== hook =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hook <power>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== powers =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "normal, rainbow, bloody");
+		return;
+	}
+
+
+	if (!str_comp_nocase(pResult->GetString(0), "normal"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You got normal hook.");
+		pPlayer->m_HookPower = 0;
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "rainbow"))
+	{
+		if (pPlayer->m_IsSuperModerator || pPlayer->m_IsModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You got rainbow hook.");
+			pPlayer->m_HookPower = 1;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "bloody"))
+	{
+		if (pPlayer->m_IsSuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You got bloody hook.");
+			pPlayer->m_HookPower = 2;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "unknown power check '/hook' for a list of all powers.");
 	}
 }

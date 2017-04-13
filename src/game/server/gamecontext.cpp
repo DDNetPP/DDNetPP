@@ -140,6 +140,27 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter));
 
+				//ascii animation
+				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsDefault = GetInt(GetID("AsciiViewsDefault"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsProfile = GetInt(GetID("AsciiViewsProfile"));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState, GetText(GetID("AsciiState")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0, GetText(GetID("AsciiFrame0")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1, GetText(GetID("AsciiFrame1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2, GetText(GetID("AsciiFrame2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3, GetText(GetID("AsciiFrame3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4, GetText(GetID("AsciiFrame4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5, GetText(GetID("AsciiFrame5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6, GetText(GetID("AsciiFrame6")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7, GetText(GetID("AsciiFrame7")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8, GetText(GetID("AsciiFrame8")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9, GetText(GetID("AsciiFrame9")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10, GetText(GetID("AsciiFrame10")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11, GetText(GetID("AsciiFrame11")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12, GetText(GetID("AsciiFrame12")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13, GetText(GetID("AsciiFrame13")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14, GetText(GetID("AsciiFrame14")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15, GetText(GetID("AsciiFrame15")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15));
+
 				//Missiles
 				m_pGameServer->m_apPlayers[m_ClientID]->m_homing_missiles_ammo = GetInt(GetID("HomingMissiles"));
 
@@ -1197,6 +1218,114 @@ void CGameContext::OnTick()
 		SurvivalTick();
 	}
 
+	//ddpp loop check all players
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_AsciiWatchingID != -1)
+			{
+				if (!m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]) //creator left -> stop animation
+				{
+					//SendChatTarget(i, "Ascii animation stopped because the creator left the server.");
+					//SendBroadcast(" ERROR LOADING ANIMATION ", i);
+					m_apPlayers[i]->m_AsciiWatchingID = -1;
+					m_apPlayers[i]->m_AsciiWatchTicker = 0;
+					m_apPlayers[i]->m_AsciiWatchFrame = 0;
+				}
+				else
+				{
+					m_apPlayers[i]->m_AsciiWatchTicker++;
+					if (m_apPlayers[i]->m_AsciiWatchTicker >= m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_AsciiAnimSpeed) //new frame
+					{
+						m_apPlayers[i]->m_AsciiWatchTicker = 0;
+						m_apPlayers[i]->m_AsciiWatchFrame++;
+						if (m_apPlayers[i]->m_AsciiWatchFrame > 15) //animation over -> stop animation
+						{
+							//SendChatTarget(i, "Ascii animation is over.");
+							//SendBroadcast(" ANIMATION OVER ", i);
+							m_apPlayers[i]->m_AsciiWatchingID = -1;
+							m_apPlayers[i]->m_AsciiWatchTicker = 0;
+							m_apPlayers[i]->m_AsciiWatchFrame = 0;
+						}
+						else //display new frame
+						{
+							if (m_apPlayers[i]->m_AsciiWatchFrame == 0)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame0, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 1)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame1, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 2)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame2, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 3)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame3, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 4)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame4, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 5)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame5, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 6)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame6, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 7)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame7, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 8)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame8, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 9)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame9, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 10)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame10, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 11)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame11, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 12)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame12, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 13)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame13, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 14)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame14, i);
+							}
+							else if (m_apPlayers[i]->m_AsciiWatchFrame == 15)
+							{
+								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame15, i);
+							}
+							else
+							{
+								SendChatTarget(i, "error loading frame");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
@@ -1568,8 +1697,17 @@ bool CGameContext::IsPosition(int playerID, int pos)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	dbg_msg("debug", "IsPosition(playerID = %d, pos = %d)", playerID, pos);
 #endif
 	char aBuf[256];
+	if (!m_apPlayers[playerID])
+	{
+		return false;
+	}
+	if (!GetPlayerChar(playerID))
+	{
+		return false;
+	}
 
 	if (pos == 0) //cb5 jail release spot
 	{
@@ -1579,6 +1717,93 @@ bool CGameContext::IsPosition(int playerID, int pos)
 			&& GetPlayerChar(playerID)->m_Pos.y < 237 * 32)
 		{
 			return true;	
+		}
+	}
+	else if (pos == 1) //cb5 spawn
+	{
+		if (GetPlayerChar(playerID)->m_Pos.x > 325 * 32
+			&& GetPlayerChar(playerID)->m_Pos.x < 362 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y > 191 * 32
+			&& GetPlayerChar(playerID)->m_Pos.y < 206 * 32)
+		{
+			return true;
+		}
+	}
+
+
+	return false;
+}
+
+void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[viewerID])
+		return;
+	if (!m_apPlayers[creatorID])
+	{
+		SendChatTarget(viewerID, "player not found.");
+		return;
+	}
+	//dont start new animation while old is running
+	if (m_apPlayers[viewerID]->m_AsciiWatchingID != -1)
+	{
+		return;
+	}
+
+	if (medium == 0) // '/ascii view <cid>'
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[0] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not public.");
+			return;
+		}
+
+		m_apPlayers[creatorID]->m_AsciiViewsDefault++;
+		//COULDDO: code: cfv45
+	}
+	else if (medium == 1) // '/profile view <player>'
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[1] == '0')
+		{
+			//SendChatTarget(viewerID, "ascii art not published on profile");
+			return;
+		}
+
+		m_apPlayers[creatorID]->m_AsciiViewsProfile++;
+	}
+	else if (medium == 2) // not used yet
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[2] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not published on medium 2");
+			return;
+		}
+	}
+	else if (medium == 3) // not used yet
+	{
+		if (m_apPlayers[creatorID]->m_aAsciiPublishState[3] == '0')
+		{
+			SendChatTarget(viewerID, "ascii art not published on medium 3");
+			return;
+		}
+	}
+
+	m_apPlayers[viewerID]->m_AsciiWatchingID = creatorID;
+}
+
+bool CGameContext::IsHooked(int hookedID, int power)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pChar = GetPlayerChar(i);
+
+		if (!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCID() == hookedID)
+			continue;
+		if (pChar->Core()->m_HookedPlayer == hookedID && pChar->GetPlayer()->m_HookPower == power)
+		{
+			return true;
 		}
 	}
 
@@ -1635,6 +1860,9 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_copy(m_apPlayers[ViewerID]->m_LastViewedProfile, Server()->ClientName(ViewedID), 32);
 		m_apPlayers[ViewerID]->m_IsProfileViewLoaded = false;
 	}
+
+	//ASCII - ANIMATIONS
+	StartAsciiAnimation(ViewerID, ViewedID, 1);
 
 
 	if (m_apPlayers[ViewedID]->m_ProfileStyle == 0)  //default
@@ -1711,6 +1939,20 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
+	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 5)  //bomber
+	{
+		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		SendChatTarget(ViewerID, aBuf);
+		SendChatTarget(ViewerID, "-------------------------");
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Played: %d", m_apPlayers[ViewedID]->m_BombGamesPlayed);
+		SendChatTarget(ViewerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
+		SendChatTarget(ViewerID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
+		//SendChatTarget(ViewerID, aBuf);
+	}
 }
 
 void CGameContext::ChatCommands()
@@ -1780,6 +2022,7 @@ void CGameContext::CreateBasicDummys()
 	CreateNewDummy(31);//police
 	//CreateNewDummy(30);//taxi (not needed in new cb5)
 	CreateNewDummy(29);//blocker
+	CreateNewDummy(29);//blocker 2
 	CreateNewDummy(23);//racer
 }
 
@@ -1856,6 +2099,8 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
 	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
+	m_apPlayers[WinnerID]->m_BombGamesWon++;
+	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
 	if (!str_comp_nocase(m_BombMap, "NoArena"))
 	{
 		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
@@ -1964,6 +2209,7 @@ void CGameContext::BombTick()
 			{
 				if (GetPlayerChar(i)->m_IsBomb)
 				{
+					m_apPlayers[i]->m_BombGamesPlayed++;
 					CreateExplosion(GetPlayerChar(i)->m_Pos, i, WEAPON_GRENADE, false, 0, GetPlayerChar(i)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
 					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(i));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
@@ -2888,8 +3134,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						//SendAllPolice("test");
 						//pPlayer->m_PoliceRank = 5;
+						GetPlayerChar(ClientID)->FreezeAll(10);
 					}
-
+					GetPlayerChar(ClientID)->FreezeAll(10);
 
 
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
@@ -3863,17 +4110,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
 					}
 					return;
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "points"))
-				{
-					//SendChatTarget(ClientID, "you don't have enough permission to do this command");
-
-					//SendChatTarget(ClientID, pPlayer->m_points);
-					/*
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "your points: %s", pPlayer->m_points);
-					SendChatTarget(ClientID, aBuf);
-					*/
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "taxi"))
 				{

@@ -133,12 +133,37 @@ void CPlayer::Reset()
 
 	m_NextPauseTick = 0;
 
-	// Variable initialized:
+	// Variable initialized: 
 	m_Last_Team = 0;
 #if defined(CONF_SQL)
 	m_LastSQLQuery = 0;
 #endif
 
+	//ChillerDragon constructor Konstructor init
+	if (g_Config.m_SvTestingCommands)
+	{
+		str_format(m_aAsciiFrame0, sizeof(m_aAsciiFrame0), "x");
+		str_format(m_aAsciiFrame1, sizeof(m_aAsciiFrame1), "+");
+		str_format(m_aAsciiFrame2, sizeof(m_aAsciiFrame2), "++");
+		str_format(m_aAsciiFrame3, sizeof(m_aAsciiFrame3), "xxx");
+		str_format(m_aAsciiFrame4, sizeof(m_aAsciiFrame4), "++++");
+		str_format(m_aAsciiFrame5, sizeof(m_aAsciiFrame5), "xxxxx");
+		str_format(m_aAsciiFrame6, sizeof(m_aAsciiFrame6), "++++++");
+		str_format(m_aAsciiFrame7, sizeof(m_aAsciiFrame7), "xxxxxxx");
+		str_format(m_aAsciiFrame8, sizeof(m_aAsciiFrame8), "++++++++");
+		str_format(m_aAsciiFrame9, sizeof(m_aAsciiFrame9), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame10, sizeof(m_aAsciiFrame10), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame11, sizeof(m_aAsciiFrame11), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame12, sizeof(m_aAsciiFrame12), "ChillerDragon's sample animation");
+		str_format(m_aAsciiFrame13, sizeof(m_aAsciiFrame13), ".");
+		str_format(m_aAsciiFrame14, sizeof(m_aAsciiFrame14), ":");
+		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
+	}
+
+	m_JailHammer = true;
+	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");
+	m_AsciiWatchingID = -1;
+	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
 	m_ChilliWarnings = 0;
 	m_xpmsg = true;
@@ -175,24 +200,6 @@ void CPlayer::Tick()
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
 		CALL_STACK_ADD();
 #endif
-	//profile views
-	if (Server()->Tick() % 1000 == 0)
-	{
-		m_IsProfileViewLoaded = true;
-		//GameServer()->SendChatTarget(m_ClientID, "View loaded");
-	}
-
-
-	//bomb
-	if (m_BombBanTime)
-	{
-		m_BombBanTime--;
-		if (m_BombBanTime == 1)
-		{
-			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
-		}
-	}
-
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
 
@@ -231,192 +238,6 @@ void CPlayer::Tick()
 			m_Latency.m_AccumMax = 0;
 		}
 
-
-
-
-
-
-
-
-
-		//ChillerDragon chidraqul3 the hash game
-		if (m_IsMinigame)
-		{
-			if (g_Config.m_SvAllowMinigame == 0)
-			{
-				GameServer()->SendChatTarget(m_ClientID, "Admin has disabled minigames.");
-				m_IsMinigame = false;
-			}
-			else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
-			{
-				char aBuf[512];
-				str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
-
-				char m_minigame_world[512];
-				str_format(m_minigame_world, sizeof(m_minigame_world), "");
-
-
-
-
-				//spawn gold
-				if (!m_GoldAlive)
-				{
-					m_GoldPos = -1;
-					if (m_GoldRespawnDelay <= 0)
-					{
-						m_GoldPos = rand() % 25 + 1;
-						m_GoldAlive = true;
-						m_GoldRespawnDelay = 100;
-					}
-					else
-					{
-						m_GoldRespawnDelay--;
-					}
-				}
-
-				//Check for hittin stuff
-				//collecting gold
-				if (m_GoldPos == m_HashPos && m_HashPosY == 0)
-				{
-					m_HashGold++;
-					m_GoldAlive = false;
-				}
-
-
-
-
-
-				//create world chararray
-				//y: 3
-				//y: 2
-				//y: 1
-				for (int i = 0; i < m_Minigameworld_size_x; i++)
-				{
-					char create_world[126];
-					if (i == m_HashPos && m_HashPosY == 1)
-					{
-						str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
-					}
-					else
-					{
-						str_format(create_world, sizeof(create_world), "_");
-					}
-
-					str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
-				}
-				str_format(m_minigame_world, sizeof(m_minigame_world), "%s\n", m_minigame_world);
-				//y: 0
-				for (int i = 0; i < m_Minigameworld_size_x; i++)
-				{
-					char create_world[126];
-					if (i == m_HashPos && m_HashPosY == 0)
-					{
-						str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
-					}
-					else if (i == m_GoldPos)
-					{
-						str_format(create_world, sizeof(create_world), "$");
-					}
-					else
-					{
-						str_format(create_world, sizeof(create_world), "_");
-					}
-
-					str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
-				}
-
-				//add stuff to the print string
-				str_format(aBuf, sizeof(aBuf), "\n\n\n%s\nPos: [%d/%d] Gold: %d", m_minigame_world, m_HashPos, m_HashPosY, m_HashGold);
-
-				//print all
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (g_Config.m_SvAllowMinigame == 2) //old hardcodet 
-			{
-				char aBuf[512];
-				str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
-
-
-				if (m_HashPos == 0)
-				{
-					str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 2)
-				{
-					str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 3)
-				{
-					str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 3)
-				{
-					str_format(aBuf, sizeof(aBuf), "____%s_______", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 4)
-				{
-					str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 5)
-				{
-					str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 6)
-				{
-					str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 7)
-				{
-					str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 8)
-				{
-					str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 9)
-				{
-					str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-				else if (m_HashPos == 10)
-				{
-					str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
-					GameServer()->SendBroadcast(aBuf, m_ClientID);
-				}
-			}
-		}
-
-
-
-
-		//dragon test chillers level system xp money usw am start :3
-		CheckLevel();
-		
-		/*
-		//new lvl system
-		if (m_level == 0)
-		{
-			m_neededxp = 5000;
-		}
-		else if (m_level > 0)
-		{
-
-		}
-		*/
 	}
 
 	if(((CServer *)Server())->m_NetServer.ErrorString(m_ClientID)[0])
@@ -509,11 +330,194 @@ void CPlayer::Tick()
 		}
 	}*/
 
+
+
+	//ChillerDragon chidraqul3 the hash game
+	if (m_IsMinigame)
+	{
+		if (g_Config.m_SvAllowMinigame == 0)
+		{
+			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled minigames.");
+			m_IsMinigame = false;
+		}
+		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
+		{
+			char aBuf[512];
+			str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
+
+			char m_minigame_world[512];
+			str_format(m_minigame_world, sizeof(m_minigame_world), "");
+
+
+
+
+			//spawn gold
+			if (!m_GoldAlive)
+			{
+				m_GoldPos = -1;
+				if (m_GoldRespawnDelay <= 0)
+				{
+					m_GoldPos = rand() % 25 + 1;
+					m_GoldAlive = true;
+					m_GoldRespawnDelay = 100;
+				}
+				else
+				{
+					m_GoldRespawnDelay--;
+				}
+			}
+
+			//Check for hittin stuff
+			//collecting gold
+			if (m_GoldPos == m_HashPos && m_HashPosY == 0)
+			{
+				m_HashGold++;
+				m_GoldAlive = false;
+			}
+
+
+
+
+
+			//create world chararray
+			//y: 3
+			//y: 2
+			//y: 1
+			for (int i = 0; i < m_Minigameworld_size_x; i++)
+			{
+				char create_world[126];
+				if (i == m_HashPos && m_HashPosY == 1)
+				{
+					str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
+				}
+				else
+				{
+					str_format(create_world, sizeof(create_world), "_");
+				}
+
+				str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
+			}
+			str_format(m_minigame_world, sizeof(m_minigame_world), "%s\n", m_minigame_world);
+			//y: 0
+			for (int i = 0; i < m_Minigameworld_size_x; i++)
+			{
+				char create_world[126];
+				if (i == m_HashPos && m_HashPosY == 0)
+				{
+					str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
+				}
+				else if (i == m_GoldPos)
+				{
+					str_format(create_world, sizeof(create_world), "$");
+				}
+				else
+				{
+					str_format(create_world, sizeof(create_world), "_");
+				}
+
+				str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
+			}
+
+			//add stuff to the print string
+			str_format(aBuf, sizeof(aBuf), "\n\n\n%s\nPos: [%d/%d] Gold: %d", m_minigame_world, m_HashPos, m_HashPosY, m_HashGold);
+
+			//print all
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (g_Config.m_SvAllowMinigame == 2) //old hardcodet 
+		{
+			char aBuf[512];
+			str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
+
+
+			if (m_HashPos == 0)
+			{
+				str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 3)
+			{
+				str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 3)
+			{
+				str_format(aBuf, sizeof(aBuf), "____%s_______", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 4)
+			{
+				str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 5)
+			{
+				str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 6)
+			{
+				str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 7)
+			{
+				str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 8)
+			{
+				str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 9)
+			{
+				str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			else if (m_HashPos == 10)
+			{
+				str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+		}
+	}
+
+	//profile views
+	if (Server()->Tick() % 1000 == 0)
+	{
+		m_IsProfileViewLoaded = true;
+		//GameServer()->SendChatTarget(m_ClientID, "View loaded");
+	}
+
+
+	//bomb
+	if (m_BombBanTime)
+	{
+		m_BombBanTime--;
+		if (m_BombBanTime == 1)
+		{
+			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
+		}
+	}
+
 	if (m_AccountID > 0)
 	{
 		if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
 			Save();
 	}
+	//dragon test chillers level system xp money usw am start :3
+	CheckLevel();
 }
 
 void CPlayer::PostTick()
@@ -615,7 +619,7 @@ void CPlayer::Snap(int SnappingClient)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if (m_InfRainbow || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
+	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -1262,6 +1266,8 @@ void CPlayer::Save()
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
+											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
+											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
 											  " WHERE `ID` = %i",
 												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
 												m_GiftDelay,
@@ -1277,6 +1283,8 @@ void CPlayer::Save()
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins,
+												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
+												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
 												m_AccountID
 	);
 

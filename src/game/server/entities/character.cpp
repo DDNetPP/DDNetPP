@@ -543,13 +543,15 @@ void CCharacter::FireWeapon(bool Bot)
 
 				if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
 				{
-					if (pTarget->GetPlayer()->m_money < 500)
+					if (pTarget->GetPlayer()->m_money < 200)
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes because he had no money");
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes because you didn't pay jail fees");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
@@ -557,19 +559,20 @@ void CCharacter::FireWeapon(bool Bot)
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 10 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "arrested only 5 minutes (+500 money)");
-						m_pPlayer->MoneyTransaction(+500, "+500 (unknown source)");
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money");
+						str_format(aBuf, sizeof(aBuf), "+200 catched gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						m_pPlayer->MoneyTransaction(+200, aBuf);
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 10 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "officer deminished your jail time by 5 minutes (-500 money)");
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 jail fees");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
-						m_pPlayer->MoneyTransaction(-500, "-500 (unknown destination)");
+						m_pPlayer->MoneyTransaction(-200, "-200 jail");
 
 					}
 				}
@@ -1278,7 +1281,11 @@ void CCharacter::Die(int Killer, int Weapon)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
+
+
+
 	char aBuf[256];
 
 
@@ -1451,6 +1458,64 @@ void CCharacter::Die(int Killer, int Weapon)
 		m_TrailProjs.clear();
 	}
 
+	//Block points
+	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
+	{
+
+		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
+		{
+			char aBuf[128];
+			Killer = m_pPlayer->m_LastToucherID; //kill message
+			m_pPlayer->m_BlockPoints_Deaths++;
+
+			if (GameServer()->m_apPlayers[Killer])
+			{
+				GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+
+				if (GameServer()->m_apPlayers[Killer]->GetCharacter())
+				{
+					//punish spawn blockers
+					if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
+					{
+						GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
+
+
+						if (g_Config.m_SvSpawnBlockProtection == 1)
+						{
+							GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
+							//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
+							//GameServer()->SendChatTarget(Killer, aBuf);
+
+							if (GameServer()->m_apPlayers[Killer]->m_SpawnBlocks > 2)
+							{
+								str_format(aBuf, sizeof(aBuf), "'%s' is spawnblocking. catch him!", Server()->ClientName(Killer));
+								GameServer()->SendAllPolice(aBuf);
+								GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
+								GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
+							}
+						}
+					}
+
+					if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //send kill message broadcast
+					{
+						if (g_Config.m_SvBlockBroadcast == 1)
+						{
+							str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
+							GameServer()->SendBroadcastAll(aBuf);
+						}
+					}
+				}
+			}
+			
+		}
+		else
+		{
+			dbg_msg("block", "WARNING '%s' [ID: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->GetCID());
+		}
+	}
+
+
 	if (Server()->IsRecording(m_pPlayer->GetCID()))
 		Server()->StopRecord(m_pPlayer->GetCID());
 
@@ -1537,27 +1602,6 @@ void CCharacter::Die(int Killer, int Weapon)
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "you lost bomb because you died.");
 	}
 
-	//Block points
-	if (m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-
-		if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
-		{
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (g_Config.m_SvBlockBroadcast == 1)
-				{
-					GameServer()->SendBroadcast(aBuf, i);
-				}
-			}
-		}
-	}
-
-
-
-
 	m_pPlayer->m_LastToucherID = -1;
 }
 
@@ -1569,7 +1613,11 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//Block points check for touchers (weapons)
 	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
 	{
-		m_pPlayer->m_LastToucherID = From;
+		if (From != m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_LastToucherID = From;
+			m_pPlayer->m_LastTouchTicks = 0;
+		}
 	}
 
 
@@ -1839,14 +1887,21 @@ void CCharacter::Snap(int SnappingClient)
 	// wenn du das jetzt oben hinschreibst dann passiert das vor den abfragen
 	// kann evtl. zu einem crash oder ähnlichem führen
 
-	if (m_Bloody || m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
+	if (m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) ||m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
 	{
-		for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
+		if (Server()->Tick() % 3 == 0) //low bloody
 		{
 			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
 		}
 	}
 
+	if (m_StrongBloody) // wenn strong bloody aktiviert ist
+	{
+		for (int i = 0; i < 3; i++) //strong bloody
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+		}
+	}
 
 	if (m_pPlayer->m_ninjasteam) //wenn bloody aktiviert ist
 	{
@@ -3424,6 +3479,47 @@ void CCharacter::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	//spawnblock reducer
+	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
+	{
+		m_pPlayer->m_SpawnBlocks--;
+	}
+
+
+	//Block points (clear touchid on freeze and unfreeze agian)
+	//if (m_pPlayer->m_LastToucherID != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
+	//{
+	//	m_pPlayer->m_BlockWasTouchedAndFreezed = true;
+	//}
+	//if (m_pPlayer->m_BlockWasTouchedAndFreezed && m_FreezeTime == 0) //player got touched and freezed and unfreezed agian --> reset toucher because it isnt his kill anymore
+	//{
+	//	m_pPlayer->m_LastToucherID = -1;
+	//}
+	//Better system: Remove LastToucherID after some unfreeze time this has less bugs and works also good in other situations like: your racing with your mate and then you rush away solo and fail and suicide (this situation wont count as kill). 
+	if (m_pPlayer->m_LastToucherID != -1 && m_FreezeTime == 0)
+	{
+		//char aBuf[64];
+		//str_format(aBuf, sizeof(aBuf), "ID: %d is not -1", m_pPlayer->m_LastToucherID); //ghost debug
+		//dbg_msg("block", aBuf);
+
+		m_pPlayer->m_LastTouchTicks++;
+		if (m_pPlayer->m_LastTouchTicks > Server()->TickSpeed() * 3) //3 seconds unfreeze --> wont die block death on freeze suicide
+		{
+			//char aBuf[64];
+			//str_format(aBuf, sizeof(aBuf), "'%s' [ID: %d] touch removed", Server()->ClientName(m_pPlayer->m_LastToucherID), m_pPlayer->m_LastToucherID);
+			//GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			m_pPlayer->m_LastToucherID = -1;
+			m_pPlayer->m_LastTouchTicks = 0; //should be set with the TouchID but this will fix bugsis if i forgot it somewhere
+		}
+	}
+	
+	//clear last toucher on disconnect/unexistance
+	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+	{
+		m_pPlayer->m_LastToucherID = -1;
+		m_pPlayer->m_LastTouchTicks = 0;
+	}
+
 	//Block points (check for last touched player)
 	//pikos hook check
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -3435,6 +3531,7 @@ void CCharacter::DDPP_Tick()
 		if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
 		{
 			m_pPlayer->m_LastToucherID = i;
+			m_pPlayer->m_LastTouchTicks = 0;
 		}
 	}
 	//dont think this makes sense with block points
@@ -3453,10 +3550,18 @@ void CCharacter::DDPP_Tick()
 			if (pChr->m_FreezeTime == 0) //only count touches from unfreezed tees
 			{
 				m_pPlayer->m_LastToucherID = pChr->GetPlayer()->GetCID();
+				m_pPlayer->m_LastTouchTicks = 0;
 			}
 		}
 
 	}
+
+	//hook extras
+	//if (m_pPlayer->m_IsHookRainbow)
+	//{
+
+	//}
+
 
 	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
 	//survivexp stuff
@@ -3626,11 +3731,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "You are legally free in %d seconds. \nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -8548,6 +8653,46 @@ void CCharacter::DummyTick()
 					if he thinks the tunnel is shit he goes trough the window
 
 					*/
+
+					//new spawn do something agianst hookers 
+					if (m_Core.m_Pos.x < 380 * 32 && m_Core.m_Pos.x > 322 * 32 && m_Core.m_Vel.x < -0.001f)
+					{
+						m_Input.m_Hook = 1;
+						if ((m_Core.m_Pos.x < 362 * 32 && IsGrounded()) || m_Core.m_Pos.x < 350 * 32)
+						{
+							if (Server()->Tick() % 10 == 0)
+							{
+								m_Input.m_Jump = 1;
+								SetWeapon(0);
+							}
+						}
+					}
+					if (m_Core.m_Pos.x < 415 * 32)
+					{
+						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this); //hammer player up in freeze if in right pos
+						if (pChr && pChr->IsAlive())
+						{
+							if (pChr->m_Core.m_Pos.x > m_Core.m_Pos.x - 100 && pChr->m_Core.m_Pos.x < m_Core.m_Pos.x + 100 && pChr->m_Core.m_Pos.y > m_Core.m_Pos.y - 100 && pChr->m_Core.m_Pos.y < m_Core.m_Pos.y + 100)
+							{
+								if (pChr->m_Core.m_Vel.y < -1.5f) //only boost and use existing up speed
+								{
+									m_Input.m_Fire++;
+									m_LatestInput.m_Fire++;
+								}
+							}
+							//old spawn do something agianst way blockers (roof protection)
+							if (m_Core.m_Pos.y > 206 * 32 + 4 && m_Core.m_Pos.y < 208 * 32 && m_Core.m_Vel.y < -4.4f)
+							{
+								m_Input.m_Jump = 1;
+							}
+							//old spawn roof protection / attack hook
+							if (pChr->m_Core.m_Pos.y > m_Core.m_Pos.y + 50)
+							{
+								m_Input.m_Hook = 1;
+							}
+						}
+					}
+
 
 					if (m_Core.m_Pos.x < 388 * 32 && m_Core.m_Pos.y > 213 * 32) //jump to old spawn
 					{
