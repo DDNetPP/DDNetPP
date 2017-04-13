@@ -1465,13 +1465,19 @@ void CCharacter::Die(int Killer, int Weapon)
 		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
 		{
 			char aBuf[128];
-			Killer = m_pPlayer->m_LastToucherID; //kill message
-			m_pPlayer->m_BlockPoints_Deaths++;
+			if (g_Config.m_SvDummyBlockPoints)
+			{
+				Killer = m_pPlayer->m_LastToucherID; //kill message
+				m_pPlayer->m_BlockPoints_Deaths++;
+			}
 
 			if (GameServer()->m_apPlayers[Killer])
 			{
-				GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+				if (g_Config.m_SvDummyBlockPoints == 2)
+				{
+					GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
+					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+				}
 
 				if (GameServer()->m_apPlayers[Killer]->GetCharacter())
 				{
@@ -3532,6 +3538,9 @@ void CCharacter::DDPP_Tick()
 		{
 			m_pPlayer->m_LastToucherID = i;
 			m_pPlayer->m_LastTouchTicks = 0;
+
+			//was debugging because somekills at spawn werent recongized. But now i know that the dummys just kill to fast even before getting freeze --> not a block kill. But im ok with it spawnblock farming bots isnt nice anyways
+			//dbg_msg("debug", "[%d:%s] hooked [%d:%s]", i, Server()->ClientName(i), m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 		}
 	}
 	//dont think this makes sense with block points
@@ -8678,6 +8687,10 @@ void CCharacter::DummyTick()
 								{
 									m_Input.m_Fire++;
 									m_LatestInput.m_Fire++;
+								}
+								if (Server()->Tick() % 3 == 0)
+								{
+									SetWeapon(0);
 								}
 							}
 							//old spawn do something agianst way blockers (roof protection)
