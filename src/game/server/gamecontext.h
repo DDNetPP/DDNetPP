@@ -246,8 +246,11 @@ public:
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
-
 	bool IsHooked(int hookedID, int power);
+
+	void DDPP_Tick();
+	void ChilliClanTick(int i);
+	void AsciiTick(int i);
 
 	//police
 	void SendAllPolice(const char *pMessage);

@@ -1136,195 +1136,8 @@ void CGameContext::OnTick()
 			}
 		}
 
-	//xp MoneyTile
-	//dachte hier kan man sowas machen ^^
-	//da specihern zu krass is hab ich mir n system bis disconnect überlegt^^
-	//city bis disconnect i know^^
-	// was genau willst du denn jetzt? m_xp hochzählen wenn man aufm money tile is da ich zu arm bin für moneytiles muss ich unfreezetiles nutzen^^
 
-
-	// chilli clan protection
-	if (g_Config.m_SvKickChilliClan)
-	{
-		for (int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if (!m_apPlayers[i])
-				continue;
-
-			CPlayer *pPlayer = m_apPlayers[i];
-
-			int AbstandWarnungen = 10;
-			if (str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_SkinName, "greensward") != 0)
-			{
-				if (pPlayer->m_LastWarning + AbstandWarnungen*Server()->TickSpeed() <= Server()->Tick())
-				{
-					pPlayer->m_ChilliWarnings++;
-
-					if (pPlayer->m_ChilliWarnings >= 4)
-					{
-						if (g_Config.m_SvKickChilliClan == 1)
-						{
-							GetPlayerChar(i)->m_FreezeTime = 1000;
-							SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
-							SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change skin or clantag!");
-						}
-						else if (g_Config.m_SvKickChilliClan == 2)
-						{
-							char aRcon[128];
-							str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
-							Console()->ExecuteLine(aRcon);
-						}
-					}
-					else
-					{
-						SendChatTarget(i, "#######################################");
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clantag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
-						SendChatTarget(i, aBuf);
-						SendChatTarget(i, "more infos about the clan: www.chillerdragon.weebly.com");
-						SendChatTarget(i, "#######################################");
-
-						/*
-						char aRcon[128];
-						str_format(aRcon, sizeof(aRcon), "broadcast YOU USE THE WRONG SKIN!\nCHANGE CLANTAG OR USE THE SKIN 'greensward'\n\nWARNINGS UNTIL KICK[%d/3]", pPlayer->m_ChilliWarnings);
-						Console()->ExecuteLine(aRcon);
-						*/
-
-						char aBuf2[256];
-						if (g_Config.m_SvKickChilliClan == 1)
-						{
-							str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL FREEZE[%d / 3]", pPlayer->m_ChilliWarnings);
-						}
-						else if (g_Config.m_SvKickChilliClan == 2)
-						{
-							str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
-						}
-						SendBroadcast(aBuf2, i);
-
-					}
-
-					pPlayer->m_LastWarning = Server()->Tick();
-				}
-			}
-		}
-	}
-
-	if (m_BombGameState)
-	{
-		BombTick();
-	}
-	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //Survival grenade or Survival rifle
-	{
-		SurvivalTick();
-	}
-
-	//ddpp loop check all players
-	for (int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (m_apPlayers[i])
-		{
-			if (m_apPlayers[i]->m_AsciiWatchingID != -1)
-			{
-				if (!m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]) //creator left -> stop animation
-				{
-					//SendChatTarget(i, "Ascii animation stopped because the creator left the server.");
-					//SendBroadcast(" ERROR LOADING ANIMATION ", i);
-					m_apPlayers[i]->m_AsciiWatchingID = -1;
-					m_apPlayers[i]->m_AsciiWatchTicker = 0;
-					m_apPlayers[i]->m_AsciiWatchFrame = 0;
-				}
-				else
-				{
-					m_apPlayers[i]->m_AsciiWatchTicker++;
-					if (m_apPlayers[i]->m_AsciiWatchTicker >= m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_AsciiAnimSpeed) //new frame
-					{
-						m_apPlayers[i]->m_AsciiWatchTicker = 0;
-						m_apPlayers[i]->m_AsciiWatchFrame++;
-						if (m_apPlayers[i]->m_AsciiWatchFrame > 15) //animation over -> stop animation
-						{
-							//SendChatTarget(i, "Ascii animation is over.");
-							//SendBroadcast(" ANIMATION OVER ", i);
-							m_apPlayers[i]->m_AsciiWatchingID = -1;
-							m_apPlayers[i]->m_AsciiWatchTicker = 0;
-							m_apPlayers[i]->m_AsciiWatchFrame = 0;
-						}
-						else //display new frame
-						{
-							if (m_apPlayers[i]->m_AsciiWatchFrame == 0)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame0, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 1)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame1, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 2)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame2, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 3)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame3, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 4)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame4, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 5)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame5, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 6)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame6, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 7)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame7, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 8)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame8, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 9)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame9, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 10)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame10, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 11)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame11, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 12)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame12, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 13)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame13, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 14)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame14, i);
-							}
-							else if (m_apPlayers[i]->m_AsciiWatchFrame == 15)
-							{
-								SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame15, i);
-							}
-							else
-							{
-								SendChatTarget(i, "error loading frame");
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
+	DDPP_Tick();
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -1816,6 +1629,208 @@ bool CGameContext::IsHooked(int hookedID, int power)
 
 
 	return false;
+}
+
+void CGameContext::DDPP_Tick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_BombGameState)
+	{
+		BombTick();
+	}
+	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //Survival grenade or Survival rifle
+	{
+		SurvivalTick();
+	}
+
+
+	for (int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
+	{
+		if (!m_apPlayers[i])
+			continue;
+
+		ChilliClanTick(i);
+		AsciiTick(i);
+	}
+}
+
+void CGameContext::ChilliClanTick(int i)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!g_Config.m_SvKickChilliClan)
+		return;
+
+	if (!m_apPlayers[i])
+		return;
+
+	CPlayer *pPlayer = m_apPlayers[i];
+
+	int AbstandWarnungen = 10;
+	if (str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_SkinName, "greensward") != 0)
+	{
+		if (pPlayer->m_LastWarning + AbstandWarnungen*Server()->TickSpeed() <= Server()->Tick())
+		{
+			pPlayer->m_ChilliWarnings++;
+
+			if (pPlayer->m_ChilliWarnings >= 4)
+			{
+				if (g_Config.m_SvKickChilliClan == 1)
+				{
+					GetPlayerChar(i)->m_FreezeTime = 1000;
+					SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
+					SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change skin or clantag!");
+				}
+				else if (g_Config.m_SvKickChilliClan == 2)
+				{
+					char aRcon[128];
+					str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
+					Console()->ExecuteLine(aRcon);
+				}
+			}
+			else
+			{
+				SendChatTarget(i, "#######################################");
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clantag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
+				SendChatTarget(i, aBuf);
+				SendChatTarget(i, "more infos about the clan: www.chillerdragon.weebly.com");
+				SendChatTarget(i, "#######################################");
+
+				/*
+				char aRcon[128];
+				str_format(aRcon, sizeof(aRcon), "broadcast YOU USE THE WRONG SKIN!\nCHANGE CLANTAG OR USE THE SKIN 'greensward'\n\nWARNINGS UNTIL KICK[%d/3]", pPlayer->m_ChilliWarnings);
+				Console()->ExecuteLine(aRcon);
+				*/
+
+				char aBuf2[256];
+				if (g_Config.m_SvKickChilliClan == 1)
+				{
+					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL FREEZE[%d / 3]", pPlayer->m_ChilliWarnings);
+				}
+				else if (g_Config.m_SvKickChilliClan == 2)
+				{
+					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
+				}
+				SendBroadcast(aBuf2, i);
+
+			}
+
+			pPlayer->m_LastWarning = Server()->Tick();
+		}
+	}
+}
+
+void CGameContext::AsciiTick(int i)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[i])
+		return;
+
+	if (m_apPlayers[i]->m_AsciiWatchingID != -1)
+	{
+		if (!m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]) //creator left -> stop animation
+		{
+			//SendChatTarget(i, "Ascii animation stopped because the creator left the server.");
+			//SendBroadcast(" ERROR LOADING ANIMATION ", i);
+			m_apPlayers[i]->m_AsciiWatchingID = -1;
+			m_apPlayers[i]->m_AsciiWatchTicker = 0;
+			m_apPlayers[i]->m_AsciiWatchFrame = 0;
+		}
+		else
+		{
+			m_apPlayers[i]->m_AsciiWatchTicker++;
+			if (m_apPlayers[i]->m_AsciiWatchTicker >= m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_AsciiAnimSpeed) //new frame
+			{
+				m_apPlayers[i]->m_AsciiWatchTicker = 0;
+				m_apPlayers[i]->m_AsciiWatchFrame++;
+				if (m_apPlayers[i]->m_AsciiWatchFrame > 15) //animation over -> stop animation
+				{
+					//SendChatTarget(i, "Ascii animation is over.");
+					//SendBroadcast(" ANIMATION OVER ", i);
+					m_apPlayers[i]->m_AsciiWatchingID = -1;
+					m_apPlayers[i]->m_AsciiWatchTicker = 0;
+					m_apPlayers[i]->m_AsciiWatchFrame = 0;
+				}
+				else //display new frame
+				{
+					if (m_apPlayers[i]->m_AsciiWatchFrame == 0)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame0, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 1)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame1, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 2)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame2, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 3)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame3, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 4)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame4, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 5)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame5, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 6)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame6, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 7)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame7, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 8)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame8, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 9)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame9, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 10)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame10, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 11)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame11, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 12)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame12, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 13)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame13, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 14)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame14, i);
+					}
+					else if (m_apPlayers[i]->m_AsciiWatchFrame == 15)
+					{
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame15, i);
+					}
+					else
+					{
+						SendChatTarget(i, "error loading frame");
+					}
+				}
+			}
+		}
+	}
 }
 
 void CGameContext::SendAllPolice(const char * pMessage)
