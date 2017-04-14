@@ -6535,3 +6535,73 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "unknown power check '/hook' for a list of all powers.");
 	}
 }
+
+void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+	
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "---- Report ----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/report <reason> <player>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- reasons ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "spawnblock, aimbot, flybot, spinbot, chat-spam, chat-insult");
+		return;
+	}
+
+	if (pResult->NumArguments() == 2)
+	{
+		int repID = pSelf->GetCIDByName(pResult->GetString(1));
+		if (repID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' is not online.", pResult->GetString(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "use '/report <reason> <player>'");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "spawnblock"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "aimbot"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "flybot"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "spinbot"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "chat-spam"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "chat-insult"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown reason. Check '/report' for all reasons.");
+	}
+}

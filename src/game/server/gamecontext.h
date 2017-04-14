@@ -471,6 +471,7 @@ private:
 	static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConReport(IConsole::IResult *pResult, void *pUserData);
 
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
