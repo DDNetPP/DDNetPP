@@ -361,6 +361,7 @@ public:
 
 	//dummymode 23 vars
 
+	int m_Dummy_help_m8_before_hf_hook; //yep a bool int timer
 	bool m_Dummy_help_emergency;		//activate if boot falls of platform while helping
 	bool m_Dummy_help_no_emergency;		//this is just used to check if the bot planned to be in this situation. this bool is just used for not activating m_Dummy_help_emergency
 	bool m_Dummy_hook_mate_after_hammer;//after unfreezing a mate with hammer hold him with hook

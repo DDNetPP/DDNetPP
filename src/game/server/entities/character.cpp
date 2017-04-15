@@ -6701,7 +6701,7 @@ void CCharacter::DummyTick()
 							{
 								SetWeapon(0);
 							}
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFreeze(m_Pos, true, this); //only search freezed tees --> so eveb if others gets closer he still has his mission 
 							if (pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -6817,25 +6817,53 @@ void CCharacter::DummyTick()
 								}
 								else if (pChr->m_Pos.x > 437 * 32 && pChr->m_Pos.x < 456 * 32 && pChr->m_Pos.y < 219 * 32 && pChr->m_Pos.y > 203 * 32) //left freeze becken
 								{
-									//if (m_Core.m_Jumped == 0)//has dj --> go left over the freeze and hook ze mate
-									//{
-									//	m_Input.m_Direction = -1;
-									//}
-									//else //no jump --> go back and get it
-									//{
-									//	m_Input.m_Direction = 1;
-									//}
+									if (m_aWeapons[2].m_Got && Server()->Tick() % 40 == 0)
+									{
+										SetWeapon(2);
+									}
 
-									//if (m_Core.m_Pos.y > 212 * 32)
-									//{
-									//	m_Input.m_Jump = 1;
-									//	GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "jump!");
-									//}
+
+									if (m_Core.m_Jumped == 0)//has dj --> go left over the freeze and hook ze mate
+									{
+										m_Input.m_Direction = -1;
+									}
+									else //no jump --> go back and get it
+									{
+										m_Input.m_Direction = 1;
+									}
+
+									if (m_Core.m_Pos.y > 211 * 32 + 21)
+									{
+										m_Input.m_Jump = 1;
+										m_Dummy_help_m8_before_hf_hook = true;
+										if (m_aWeapons[2].m_Got && m_FreezeTime == 0)
+										{
+											m_Input.m_Fire++;
+											m_LatestInput.m_Fire++;
+										}
+
+										//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "jump + hook");
+									}
+
+									if (m_Dummy_help_m8_before_hf_hook)
+									{
+										m_Input.m_Hook = 1;
+										m_Dummy_help_m8_before_hf_hook++;
+										if (m_Dummy_help_m8_before_hf_hook > 60 && m_Core.m_HookState != HOOK_GRABBED)
+										{
+											m_Dummy_help_m8_before_hf_hook = 0;
+											//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "stopped hook");
+										}
+									}
 								}
 								else //unknown area
 								{
 									m_Dummy_help_before_fly = false;
 								}
+							}
+							else //no freezed tee found
+							{
+								m_Dummy_help_before_fly = false;
 							}
 						}
 					}
@@ -8035,7 +8063,8 @@ void CCharacter::DummyTick()
 
 
 				//General bug protection resett hook in freeze
-				if (isFreezed)
+				//if (isFreezed)
+				if (m_FreezeTime > 0)
 				{
 					m_Input.m_Hook = 0; //resett hook in freeze to prevent bugs with no hooking at last part
 				}

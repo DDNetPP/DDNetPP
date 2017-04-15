@@ -782,3 +782,42 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 
 	return pClosest;
 }
+
+CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis)  //den nächsten frozen finden
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	float ClosestRange = 0.f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	for (; p; p = (CCharacter *)p->TypeNext())
+	{
+		if (p == pNotThis)
+			continue;
+
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
+
+
+		if (p->m_FreezeTime == 0) //freezed -> continue
+			continue;
+
+
+		float Len = distance(Pos, p->m_Pos);
+
+		if (Len < ClosestRange || !ClosestRange)
+		{
+			ClosestRange = Len;
+			pClosest = p;
+		}
+	}
+
+	return pClosest;
+}
