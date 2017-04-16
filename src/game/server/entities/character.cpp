@@ -6701,7 +6701,7 @@ void CCharacter::DummyTick()
 							{
 								SetWeapon(0);
 							}
-							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFreeze(m_Pos, true, this); //only search freezed tees --> so eveb if others gets closer he still has his mission 
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFreeze(m_Pos, true, this); //only search freezed tees --> so even if others get closer he still has his mission 
 							if (pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -7095,6 +7095,7 @@ void CCharacter::DummyTick()
 							m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 							m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
 
+							//if (m_Dummy_collected_weapons && m_FreezeTime == 0 && m_Core.m_Pos.x > 478 * 32 && m_Core.m_Pos.x < 492 * 32 + 10 && pChr->m_Pos.x > 476 * 32) //new testy
 							if (m_Dummy_collected_weapons && m_FreezeTime == 0 && m_Core.m_Pos.x > 478 * 32 && m_Core.m_Pos.x < 485 * 32 && pChr->m_Pos.x > 476 * 32)
 							{
 								//New direct in state
@@ -7162,12 +7163,6 @@ void CCharacter::DummyTick()
 										m_Dummy_2p_state = 4;
 									}
 
-									//state=? 5
-									if (m_FreezeTime == 0 && m_Core.m_Pos.x > 485 * 32 && pChr->m_Pos.x < 485 * 32) //wenn der bot rechts und unfreeze is und der mate noch links
-									{
-										m_Dummy_2p_state = 5;
-									}
-
 
 									if (pChr->m_Pos.y < 191 * 32 && pChr->m_Pos.x < 486 * 32) //resette auf state=0 wenn pChr springt
 									{
@@ -7184,6 +7179,11 @@ void CCharacter::DummyTick()
 
 								}
 
+								//state=? 5 //extern weil der bot woanders is
+								if (m_FreezeTime == 0 && m_Core.m_Pos.x > 485 * 32 && pChr->m_Pos.x < 485 * 32) //wenn der bot rechts und unfreeze is und der mate noch links
+								{
+									m_Dummy_2p_state = 5;
+								}
 
 
 								//STRUCT[2]: Let the bot do stuff depenging on m_Dummy_2p_state
@@ -9190,6 +9190,20 @@ void CCharacter::DummyTick()
 						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRuler(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 						if (pChr && pChr->IsAlive())
 						{
+							//sometimes walk to enemys.   to push them in freeze or super hammer them away
+							if (pChr->m_Pos.y < m_Core.m_Pos.y + 2 && pChr->m_Pos.y > m_Core.m_Pos.y - 9)
+							{
+								if (pChr->m_Pos.x > m_Core.m_Pos.x)
+								{
+									m_Input.m_Direction = 1;
+								}
+								else
+								{
+									m_Input.m_Direction = -1;
+								}
+							}
+
+
 
 							if (pChr->m_FreezeTime == 0) //if enemy in ruler spot is unfreeze -->notstand panic
 							{
