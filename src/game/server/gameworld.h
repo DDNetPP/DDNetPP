@@ -105,6 +105,8 @@ public:
 
 	class CCharacter *ClosestCharType(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //piku pro code
 
+	class CCharacter *ClosestCharTypeFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  
+
 	class CCharacter *ClosestCharTypeRuler(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //chiller was here o.O
 
 	class CCharacter *ClosestCharTypeRuler2(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //Ruler2 == Ruler (nur der unfreez bereieich ohne linke fwand)

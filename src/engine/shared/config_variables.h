@@ -429,5 +429,6 @@ MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER, "1 dummys see each other 0 they dont")
 MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=escape time")
 MACRO_CONFIG_INT(SvPointsMode, sv_points_mode, 2, 0, 2, CFGFLAG_SERVER, "0=/points is off 1=ddnet 2=ddpp(Blockpoints)")
+MACRO_CONFIG_INT(SvDummyBlockPoints, sv_dummy_block_points, 0, 0, 3, CFGFLAG_SERVER, "0=off 1=d 2=kd 3=kd (only in block area)")
 
 #endif

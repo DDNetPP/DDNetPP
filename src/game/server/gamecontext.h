@@ -246,8 +246,11 @@ public:
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
-
 	bool IsHooked(int hookedID, int power);
+
+	void DDPP_Tick();
+	void ChilliClanTick(int i);
+	void AsciiTick(int i);
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -468,6 +471,7 @@ private:
 	static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConReport(IConsole::IResult *pResult, void *pUserData);
 
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
