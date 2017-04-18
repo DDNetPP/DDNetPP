@@ -6119,6 +6119,7 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 			m_Dummy_mode23 = 0;
+			//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug agian xd
 
 			/*
 			Dummy23modes:
@@ -7181,13 +7182,11 @@ void CCharacter::DummyTick()
 
 								}
 
-								m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
 								//state=? 5 //extern weil der bot woanders is
 								if (m_FreezeTime == 0 && m_Core.m_Pos.x > 485 * 32 && pChr->m_Pos.x < 485 * 32) //wenn der bot rechts und unfreeze is und der mate noch links
 								{
 									m_Dummy_2p_state = 5;
-									m_pPlayer->m_TeeInfos.m_ColorBody = (255 * 255 / 360);
 									//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "set state 5");
 								}
 
@@ -7735,7 +7734,16 @@ void CCharacter::DummyTick()
 
 							if (m_Dummy_2p_state == 6) //extern af fuck the system
 							{
+								//m_pPlayer->m_TeeInfos.m_ColorBody = (255 * 255 / 360);
+
+
 								m_Input.m_Direction = 0;
+								m_Input.m_Jump = 0;
+								//m_Input.m_Jump = 1;
+								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+								m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
 
 								if (Server()->Tick() % 40 == 0 && m_aWeapons[2].m_Got)
 								{
@@ -7758,7 +7766,7 @@ void CCharacter::DummyTick()
 					{
 						if (m_Core.m_Pos.x > 491 * 32)
 						{
-							if (m_Core.m_Pos.x <= 514 * 32 - 5)
+							if (m_Core.m_Pos.x <= 514 * 32 - 5 && pChr->m_Pos.y < 198 * 32)
 							{
 								SetWeapon(0);
 							}
@@ -7766,7 +7774,8 @@ void CCharacter::DummyTick()
 							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 							if (pChr && pChr->IsAlive())
 							{
-								if (pChr->m_Pos.x > 485 * 32) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
+								//if (pChr->m_Pos.x > 485 * 32) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
+								if (pChr->m_Pos.x > 490 * 32 + 2) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
 								{
 									m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 									m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
