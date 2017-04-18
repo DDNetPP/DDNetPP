@@ -351,6 +351,13 @@ public:
 	//int m_CorruptMoney;
 	short m_JailCode;
 
+	// show/hide infos
+
+	bool m_ShowBlockPoints;
+	bool m_xpmsg;
+	bool m_hidejailmsg;
+
+
 	//other
 
 	bool m_IsTest;
@@ -366,8 +373,6 @@ public:
 	int m_level;
 	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
 	int64 m_xp;
-	bool m_xpmsg;
-	bool m_hidejailmsg;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;

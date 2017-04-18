@@ -6607,3 +6607,98 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown reason. Check '/report' for all reasons.");
 	}
 }
+
+void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== SHOW ======");
+		pSelf->SendChatTarget(pResult->m_ClientID, "activates infos.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/show <info>' to activate an info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hide <info>' to hide an info agian.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== SHOWABLE INFOS ===");
+		if (!pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
+		}
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "block_points"))
+	{
+		if (!pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are now activated.");
+			pPlayer->m_ShowBlockPoints = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already activated.");
+		}
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' is not an valid info.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== HIDE ======");
+		pSelf->SendChatTarget(pResult->m_ClientID, "deactivates infos.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hide <info>' to hide an info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/show <info>' to show an info agian.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== HIDABLE INFOS ===");
+		if (pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
+		}
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "block_points"))
+	{
+		if (pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are now hidden.");
+			pPlayer->m_ShowBlockPoints = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already hidden.");
+		}
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' is not an valid info.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+}
