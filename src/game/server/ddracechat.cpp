@@ -5953,7 +5953,11 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "---- JAIL ----");
 		pSelf->SendChatTarget(pResult->m_ClientID, "The police brings all the gangster here.");
-		//pSelf->SendChatTarget(pResult->m_ClientID, "");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail open <code> <player>' to open cells");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/jail list' list all jailed players"); //and for police2 list with codes
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail code <player>' to show an jailcode");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail leave' to leave the jail");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer' to config the polce jail hammer");
 		return;
 	}
 
@@ -6034,6 +6038,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
+		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon");
 		//list all jailed players with codes on several pages (steal bomb system)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "code"))
@@ -6605,5 +6610,164 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown reason. Check '/report' for all reasons.");
+	}
+}
+
+void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== SHOW ======");
+		pSelf->SendChatTarget(pResult->m_ClientID, "activates infos.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/show <info>' to activate an info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hide <info>' to hide an info agian.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== SHOWABLE INFOS ===");
+		if (!pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
+		}
+		if (!pPlayer->m_xpmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp");
+		}
+		if (!pPlayer->m_hidejailmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail");
+		}
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "block_points"))
+	{
+		if (!pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are now activated.");
+			pPlayer->m_ShowBlockPoints = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already activated.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "xp"))
+	{
+		if (!pPlayer->m_xpmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are now activated.");
+			pPlayer->m_xpmsg = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are already activated.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "jail"))
+	{
+		if (pPlayer->m_hidejailmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are now shown.");
+			pPlayer->m_hidejailmsg = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are already shown.");
+		}
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' is not an valid info.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== HIDE ======");
+		pSelf->SendChatTarget(pResult->m_ClientID, "deactivates infos.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/hide <info>' to hide an info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/show <info>' to show an info agian.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== HIDABLE INFOS ===");
+		if (pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
+		}
+		if (pPlayer->m_xpmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp");
+		}
+		if (!pPlayer->m_hidejailmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail");
+		}
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "block_points"))
+	{
+		if (pPlayer->m_ShowBlockPoints)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are now hidden.");
+			pPlayer->m_ShowBlockPoints = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "xp"))
+	{
+		if (pPlayer->m_xpmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are now hidden.");
+			pPlayer->m_xpmsg = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "jail"))
+	{
+		if (!pPlayer->m_hidejailmsg)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are now hidden.");
+			pPlayer->m_hidejailmsg = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are already hidden.");
+		}
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' is not an valid info.", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
