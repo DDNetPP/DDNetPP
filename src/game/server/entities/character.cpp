@@ -3944,7 +3944,7 @@ void CCharacter::DDPP_Tick()
 	}
 	else if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
 	{
-		if (m_Core.m_Pos.x > 77 * 32 && m_Core.m_Pos.x < 86 * 32 && m_Core.m_Pos.y > 198 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
+		if (m_Core.m_Pos.x > 78 * 32 && m_Core.m_Pos.x < 87 * 32 && m_Core.m_Pos.y > 200 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
 		{
 			m_InBank = true;
 

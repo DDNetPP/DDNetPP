@@ -2261,7 +2261,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->m_level < 16)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You need level 16 or more to buy a key.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be level 16 or higher to buy a key.");
 			return;
 		}
 		if (pPlayer->m_BoughtRoom)
@@ -2279,7 +2279,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			str_format(aBuf, sizeof(aBuf), "-%d bought room_key", g_Config.m_SvRoomPrice);
 			pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, aBuf);
 			pPlayer->m_BoughtRoom = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought a key. You can now enter the bankroom until disconnect.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought a key. You can now enter the bankroom until you disconnect.");
 		}
 		else
 		{
@@ -2290,7 +2290,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->m_level < 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You need level 2 or more to buy the minigame chidraqul.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be level 2 or higher to buy 'chidraqul'.");
 			return;
 		}
 
@@ -2306,7 +2306,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			pPlayer->MoneyTransaction(-250, "-250 bought chidraqul.");
 			pPlayer->m_BoughtGame = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought the minigame chidraqul until disconnect. Check '/minigameinfo' for more information.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought 'chidraqul' until you disconnect. Check '/minigameinfo' for more information.");
 		}
 		else
 		{
@@ -2324,7 +2324,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_level < 5)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 5 to buy rainbow.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need to be level 5 to buy rainbow.");
 		}
 		else
 		{
@@ -2350,7 +2350,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 		if (pPlayer->m_level < 15)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need level 15 to buy bloody.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Your level is too low! You need to be level 15 to buy bloody.");
 		}
 		else
 		{
@@ -2497,19 +2497,19 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Your Username is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(ClientID, "Your username is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if ((str_length(aPassword) > 20 || str_length(aPassword) < 3) || (str_length(aPassword2) > 20 || str_length(aPassword2) < 3))
 	{
-		pSelf->SendChatTarget(ClientID, "Your Password is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(ClientID, "Your password is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if (str_comp_nocase(aPassword, aPassword2) != 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Passwords needs to be the same.");
+		pSelf->SendChatTarget(ClientID, "Passwords need to be identical.");
 		return;
 	}
 
@@ -2578,7 +2578,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (!pSelf->m_apPlayers[SQL_ID])
 		{
-			str_format(aBuf, sizeof(aBuf), "No player with the id '%d' online.", SQL_ID);
+			str_format(aBuf, sizeof(aBuf), "Can't find player with ID: '%d'.", SQL_ID);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -2964,7 +2964,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Profiles are connected with your account.");
-		pSelf->SendChatTarget(pResult->m_ClientID, "More infos about accounts with '/accountinfo'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "More info about accounts with '/accountinfo'.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "--------------------");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
 		return;
@@ -2982,7 +2982,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "--- Profile help ---");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Profiles are connected with your account.");
-		pSelf->SendChatTarget(pResult->m_ClientID, "More infos about accounts with '/accountinfo'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "More info about accounts with '/accountinfo'.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "--------------------");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/profile cmdlist' for command list.");
 	}
@@ -3051,7 +3051,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between following: default, shit, social, show-off, pvp, bomber", aPara1);
+			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between the following: default, shit, social, show-off, pvp, bomber", aPara1);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -3060,7 +3060,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3074,7 +3074,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3088,7 +3088,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3102,7 +3102,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3116,7 +3116,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3130,7 +3130,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_AccountID <= 0)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All infos about accounts: '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
 			return;
 		}
 
@@ -3184,13 +3184,13 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Your Username is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(ClientID, "Your Username is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if (str_length(aPassword) > 20 || str_length(aPassword) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Your Password is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(ClientID, "Your Password is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
@@ -3226,7 +3226,7 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	}
 	if (pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Please use: '/changepassword <old> <new> <new_repeate>'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Please use: '/changepassword <old> <new> <repeat_new>'");
 		return;
 	}
 
@@ -3239,19 +3239,19 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 
 	if (str_length(aOldPass) > 20 || str_length(aOldPass) < 3)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Your Oldpassword is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your Oldpassword is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if ((str_length(aNewPass) > 20 || str_length(aNewPass) < 3) || (str_length(aNewPass2) > 20 || str_length(aNewPass2) < 3))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Your Password is too long or too short. Max length 20 Min length 3");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your password is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if (str_comp_nocase(aNewPass, aNewPass2) != 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Passwords have to be the same.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Passwords have to be identical.");
 		return;
 	}
 
@@ -3584,11 +3584,11 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(2)ChillerDrago' has left the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'hax0r' has left the game");
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(3)ChillerDrago' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Destin' has left the game");
+		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'SarKro' has left the game");
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough permissions to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough permission to use this command.");
 	}
 }
 
@@ -3640,7 +3640,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy ticket first with '/buy pvp_arena_ticket'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
 			}
 		}
 		else //no arena configurated
@@ -3723,7 +3723,7 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 
 	if (pResult->NumArguments() != 2)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "use '/pay <amount> <player>' to send other players your '/money'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Use '/pay <amount> <player>' to send money to other players'");
 		return;
 	}
 
@@ -3742,19 +3742,19 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 
 	if (Amount > pPlayer->m_money)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "you don't have that much money mate -.-");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have that much money.");
 		return;
 	}
 
 	if (Amount < 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "lel are u triin' to steal money?");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Are you trying to steal money?");
 		return;
 	}
 
 	if (Amount == 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "you paid nothing.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You paid nothing.");
 		return;
 	}
 
@@ -3806,7 +3806,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT INFO ****");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/gift <player>' to send someone 150 money.");
-		pSelf->SendChatTarget(pResult->m_ClientID, "You don't loose this money. It is coming from the server.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't lose this money. It is coming from the server.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT STATUS ****");
 		if (pPlayer->m_GiftDelay)
 		{
@@ -3836,7 +3836,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 	}
 	if (pPlayer->m_level < 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast level 1 to use gifts.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be at least level 1 to use gifts.");
 		return;
 	}
 
@@ -3889,7 +3889,7 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "no events running at the moment...");
+		pSelf->SendChatTarget(pResult->m_ClientID, "No events running at the moment...");
 	}
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
