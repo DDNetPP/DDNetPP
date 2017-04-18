@@ -1484,27 +1484,13 @@ void CCharacter::Die(int Killer, int Weapon)
 				{
 					if (g_Config.m_SvDummyBlockPoints == 2 || g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2)) //only count dummy kills if configt       cfg:3 block area or further count kills 
 					{
-						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-						{
-							GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-							if (GameServer()->m_apPlayers[Killer]->m_ShowBlockPoints)
-							{
-								GameServer()->SendChatTarget(Killer, "+1 point");
-							}
-						}
+						GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
 						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 					}
 				}
 				else
 				{
-					if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-					{
-						GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-						if (GameServer()->m_apPlayers[Killer]->m_ShowBlockPoints)
-						{
-							GameServer()->SendChatTarget(Killer, "+1 point");
-						}
-					}
+					GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 				}
 
@@ -3514,14 +3500,6 @@ void CCharacter::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-
-	//debugger
-	//if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-	//{
-	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
-	//}
-
-
 	//spawnblock reducer
 	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
 	{
@@ -3757,7 +3735,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_EscapeTime = 0;
 		m_pPlayer->m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds. \nType '/togglejailmsg' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
 		if (Server()->Tick() % 40 == 0)
 		{
 			if (!m_pPlayer->m_hidejailmsg)
@@ -3777,11 +3755,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/togglejailmsg' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)

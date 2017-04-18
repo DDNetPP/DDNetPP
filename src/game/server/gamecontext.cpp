@@ -3155,9 +3155,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					if (g_Config.m_SvTestingCommands)
 					{
 						//SendAllPolice("test");
-						pPlayer->m_PoliceRank = 5;
-						//GetPlayerChar(ClientID)->FreezeAll(10);
+						//pPlayer->m_PoliceRank = 5;
+						GetPlayerChar(ClientID)->FreezeAll(10);
 					}
+					GetPlayerChar(ClientID)->FreezeAll(10);
 
 
 					//m_apPlayers[ClientID]->m_money = m_apPlayers[ClientID]->m_money + 500;
