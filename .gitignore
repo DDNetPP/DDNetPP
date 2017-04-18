@@ -22,7 +22,6 @@ src/game/generated
 /twping*
 /versionsrv*
 
-*.cfg
 *.db
 *.bat
 .cproject
