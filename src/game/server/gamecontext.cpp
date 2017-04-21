@@ -2125,7 +2125,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
 	if (!str_comp_nocase(m_BombMap, "NoArena"))
 	{
-		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
+		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); 
 	}
 	else
 	{
