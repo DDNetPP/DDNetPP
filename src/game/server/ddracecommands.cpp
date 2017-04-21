@@ -453,6 +453,26 @@ void CGameContext::ConInfAtom(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConPullhammer(IConsole::IResult *pResult, void *pUserData) // give/remove pullhammer
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	if (pSelf->m_apPlayers[ClientID])
+	{
+		pSelf->m_apPlayers[ClientID]->GetCharacter()->m_Pullhammer ^= 1;
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), pSelf->m_apPlayers[ClientID]->GetCharacter()->m_Pullhammer ? "%s gave you pullhammer!" : "%s removed your pullhammer!", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -621,6 +641,9 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 
 void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -658,6 +681,9 @@ void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;

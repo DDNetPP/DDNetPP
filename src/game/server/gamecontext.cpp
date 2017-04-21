@@ -1697,7 +1697,7 @@ void CGameContext::ChilliClanTick(int i)
 				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clantag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
 				SendChatTarget(i, aBuf);
-				SendChatTarget(i, "more infos about the clan: www.chillerdragon.weebly.com");
+				SendChatTarget(i, "For more information about the clan visit: www.chillerdragon.weebly.com");
 				SendChatTarget(i, "#######################################");
 
 				/*
@@ -4485,8 +4485,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (pPlayer->m_GangsterBagMoney)
 			{
-				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will loose it.");
-				SendChatTarget(ClientID, "or clear it ur self with '/gangsterbag clear'");
+				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will lose it.");
+				SendChatTarget(ClientID, "or clear it yourself with '/gangsterbag clear'");
 				return;
 			}
 
@@ -5692,6 +5692,20 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					m_Tuning.Set("player_hooking", 0);
 					dbg_msg("Front Layer", "Found No Player Hooking Tile");
 				}
+				else if(Index == TILE_JAIL)
+				{
+					CJail Jail;
+					Jail.m_Center = vec2(x,y);
+					dbg_msg("game layer", "got Jail tile at (%.2f|%.2f)", Jail.m_Center.x, Jail.m_Center.y);
+					m_Jail.push_back(Jail);
+				}
+				else if(Index == TILE_JAILRELEASE)
+				{
+					CJailrelease Jailrelease;
+					Jailrelease.m_Center = vec2(x,y);
+					dbg_msg("game layer", "got Jailrelease tile at (%.2f|%.2f)", Jailrelease.m_Center.x, Jailrelease.m_Center.y);
+					m_Jailrelease.push_back(Jailrelease);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
@@ -6283,22 +6297,14 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 	WhisperID(ClientID, Victim, pMessage);
 }
 
-
 //TEST AREA START
 //TESTAREA51
 
-
 //DRAGON HUGE NUCLEAR TESTS
-
 
 //WARININGGG
 
-
 /*
-
-
-
-
 
 void CGameContext::Playerinfo(int ClientID, char *pStr)
 {
@@ -6400,10 +6406,7 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 	WhisperID(ClientID, Victim, pMessage);
 }
 
-
-
 */
-
 
 //TEST AREA 51
 
@@ -6411,16 +6414,8 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 
 //TESTARE END
 
-
-
-
-
-
 void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!CheckClientID2(ClientID))
 		return;
 
@@ -6438,10 +6433,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg.m_Team = CHAT_WHISPER_SEND;
 		Msg.m_ClientID = VictimID;
 		Msg.m_pMessage = pMessage;
-		if(g_Config.m_SvDemoChat)
+		if (g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 		else
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
 	}
 	else
 	{
@@ -6455,20 +6450,27 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg2.m_Team = CHAT_WHISPER_RECV;
 		Msg2.m_ClientID = ClientID;
 		Msg2.m_pMessage = pMessage;
-		if(g_Config.m_SvDemoChat)
+		if (g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL, VictimID);
 		else
-			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL|MSGFLAG_NORECORD, VictimID);
+			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL | MSGFLAG_NORECORD, VictimID);
 	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "[← %s] %s", Server()->ClientName(ClientID), pMessage);
 		SendChatTarget(VictimID, aBuf);
 	}
+
+	str_format(aBuf, sizeof(aBuf), "[%s → %s] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && i != VictimID && i != ClientID)
+		{
+			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
+				SendChatTarget(i, aBuf);
+		}
+	}
 }
-
-
-
 
 void CGameContext::Converse(int ClientID, char *pStr)
 {

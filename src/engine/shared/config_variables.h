@@ -372,10 +372,9 @@ MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER, "0
 //MACRO_CONFIG_INT(SvChillBlock5Version, sv_chillblock5_version, 0, 0, 1, CFGFLAG_SERVER, "0=old 1=upper spawn") //not needed yet because upper and lower spawn are dynamic anyways
 
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 2, CFGFLAG_SERVER, "Punish 'Chilli.*' members with wrong skin 0=off 1=freeze 2=kick")
-
+//STATES
 MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Cb5, 3=Blockdale")
-MACRO_CONFIG_INT(SvBankState, sv_bankstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Blockdale")
-MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 2, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Blockdale")
+MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=On, 2=Admins 4free")
 MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "use 1 to activate pvp arena")
 
 MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "allow users to play minigames")
@@ -403,7 +402,7 @@ MACRO_CONFIG_INT(SvBombStartDelay, sv_bomb_start_delay, 5, 1, 20, CFGFLAG_SERVER
 MACRO_CONFIG_INT(SvBombSpawnX, sv_bomb_spawn_x, 101, 0, 5000, CFGFLAG_SERVER, "x pos of the bomb arena spawn (players spawn at x+CID*2)")
 MACRO_CONFIG_INT(SvBombSpawnY, sv_bomb_spawn_y, 459, 0, 5000, CFGFLAG_SERVER, "y pos of the bomb arena spawn")
 MACRO_CONFIG_INT(SvBombLockable, sv_bomb_lockable, 0, 0, 2, CFGFLAG_SERVER, "0=No 1=Mods 2=all")
-MACRO_CONFIG_INT(SvBombUnreadyKickDelay, sv_bomb_unready_kick_delay, 800, 520, 50000000, CFGFLAG_SERVER, "after how many ticks a unready player gets kicked out of lobby")
+MACRO_CONFIG_INT(SvBombUnreadyKickDelay, sv_bomb_unready_kick_delay, 800, 520, 50000000, CFGFLAG_SERVER, "after how many ticks an unready player gets kicked out of lobby")
 
 MACRO_CONFIG_INT(SvCIdestX, sv_ci_dest_x, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz X tile destination")
 MACRO_CONFIG_INT(SvCIdestY, sv_ci_dest_y, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz Y tile destination")

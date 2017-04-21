@@ -301,6 +301,20 @@ public:
 	char aBroadcastMSG[128];
 
 
+	struct CJail // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CJail> m_Jail;
+	
+	struct CJailrelease // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CJailrelease> m_Jailrelease;
+	
 
 private:
 
@@ -344,6 +358,7 @@ private:
 
 	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
+	static void ConPullhammer(IConsole::IResult *pResult, void *pUserData);
 
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);

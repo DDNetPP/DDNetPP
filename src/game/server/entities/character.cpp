@@ -433,7 +433,7 @@ void CCharacter::FireWeapon(bool Bot)
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
-	if (m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	if (m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE || m_Pullhammer)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
@@ -446,11 +446,49 @@ void CCharacter::FireWeapon(bool Bot)
 	if (FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 		WillFire = true;
 
-	if (Bot)
-		WillFire = true;
-
-	if (!WillFire)
+	if (!WillFire && !m_Fire)
+	{
+		if (m_Pullhammer)
+			m_PullingID = -1;
 		return;
+	}
+
+	if (GetPlayer()->GetCharacter() && m_Pullhammer && m_Core.m_ActiveWeapon == WEAPON_HAMMER)
+	{
+		if (m_PullingID == -1 || !GameServer()->GetPlayerChar(m_PullingID)) //no one gets pulled, so search for one!
+		{
+			CCharacter * pTarget = GameWorld()->ClosestCharacter(MousePos(), 20.f, GetPlayer()->GetCharacter()); // Don't allow the user to use it on their self, Alot of people seem to be abusing and bugging themselves into walls... -.-
+			if (pTarget)
+				m_PullingID = pTarget->GetPlayer()->GetCID();
+		}
+		else
+		{
+			//crash prevention
+			CPlayer * pTargetPlayer = GameServer()->m_apPlayers[m_PullingID];
+
+			if (pTargetPlayer)
+			{
+				CCharacter *pTarget = GameServer()->m_apPlayers[m_PullingID]->GetCharacter();
+
+				if (pTarget->GetPlayer()->GetCharacter() && pTarget)
+				{
+					pTarget->Core()->m_Pos = MousePos();
+					pTarget->Core()->m_Vel.y = 0;
+				}
+				else
+				{
+					m_PullingID = -1;
+					return;
+				}
+			}
+			else
+			{
+				m_PullingID = -1;
+				return;
+			}
+		}
+		return;
+	}
 
 	// check for ammo
 	if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
@@ -477,7 +515,7 @@ void CCharacter::FireWeapon(bool Bot)
 		if (m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
 		{
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "you have to wait %d minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+			str_format(aBuf, sizeof(aBuf), "You have to wait %d minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			return;
 		}
@@ -545,13 +583,13 @@ void CCharacter::FireWeapon(bool Bot)
 				{
 					if (pTarget->GetPlayer()->m_money < 200)
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes because he had no money");
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes extra arrest: He had no money to corrupt you!");
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes because you didn't pay jail fees");
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
@@ -559,15 +597,15 @@ void CCharacter::FireWeapon(bool Bot)
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "You catched the gangster '%s' (arrest 5 minutes).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money");
-						str_format(aBuf, sizeof(aBuf), "+200 catched gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money (corruption)");
+						str_format(aBuf, sizeof(aBuf), "+200 caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 						m_pPlayer->MoneyTransaction(+200, aBuf);
 
 						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 jail fees");
+						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
@@ -580,11 +618,11 @@ void CCharacter::FireWeapon(bool Bot)
 				{
 					if (m_pPlayer->m_JailHammer > 1)
 					{
-						str_format(aBuf, sizeof(aBuf), "You jailed '%s' (arrest %d seconds).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
+						str_format(aBuf, sizeof(aBuf), "You jailed '%s' (%d seconds arrested).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
 						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 						m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested %d seconds by '%s'.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
@@ -994,6 +1032,11 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
+	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
+	{
+		m_WasInRoom = false;
+	}
+	
 	DummyTick();
 	DDPP_Tick();
 	DDRaceTick();
@@ -2403,11 +2446,7 @@ void CCharacter::HandleTiles(int Index)
 		else {
 
 		}
-
-
 	}
-
-
 	//dragon dummy tile test
 	// finish
 	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
@@ -2594,7 +2633,6 @@ void CCharacter::HandleTiles(int Index)
 
 	}
 
-
 	if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0) {
 
 		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
@@ -2617,7 +2655,6 @@ void CCharacter::HandleTiles(int Index)
 
 	//hammerfight tiles
 
-
 	//Money Tiles
 	if (((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
 	{
@@ -2634,7 +2671,6 @@ void CCharacter::HandleTiles(int Index)
 		MoneyTilePlus();
 	}
 
-
 	// jetpack gun
 	if (((m_TileIndex == TILE_JETPACK_START) || (m_TileFIndex == TILE_JETPACK_START)) && !m_Jetpack)
 	{
@@ -2647,6 +2683,52 @@ void CCharacter::HandleTiles(int Index)
 		m_Jetpack = false;
 	}
 
+	// ROOM POINT
+	bool Allowed = false;
+	if (g_Config.m_SvRoomState == 0)
+		Allowed = true;
+	else if (g_Config.m_SvRoomState == 1)
+			Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true:false;
+		else if(g_Config.m_SvRoomState == 2)
+			Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true:false;
+	
+	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
+	{
+		m_Core.m_Pos = m_PrevSavePos;
+		m_Pos = m_PrevSavePos;
+		m_PrevPos = m_PrevSavePos;
+		m_Core.m_Vel = vec2(0, 0);
+		m_Core.m_HookedPlayer = -1;
+		m_Core.m_HookState = HOOK_RETRACTED;
+		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+		GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+		m_Core.m_HookPos = m_Core.m_Pos;
+		if(!m_WasInRoom)
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+	
+		m_WasInRoom=true;
+	}
+	
+	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN)
+	{
+		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+		m_InBank = true;
+	}
+	else if(m_TileIndex == TILE_BANK_OUT || m_TileFIndex == TILE_BANK_OUT)
+	{
+		GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		m_InBank = false;
+	}
+
+	if (m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
+	{
+		GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID());
+	}
+	else if (m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
+	{
+		GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID());
+	}
+	
 	// solo part
 	if (((m_TileIndex == TILE_SOLO_START) || (m_TileFIndex == TILE_SOLO_START)) && !Teams()->m_Core.GetSolo(m_pPlayer->GetCID()))
 	{
@@ -3073,17 +3155,16 @@ void CCharacter::DDRaceTick()
 
 	HandleTuneLayer(); // need this before coretick
 
-					   // look for save position for rescue feature
-	if (g_Config.m_SvRescue) {
+	{
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
-		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
-			m_PrevSavePos = m_Pos;
-			m_SetSavePos = true;
-		}
+		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOMPOINT && ftile!= TILE_ROOMPOINT && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
+				m_PrevSavePos = m_Pos;
+				m_SetSavePos = true;
+			}
 	}
-
+	
 	m_Core.m_Id = GetPlayer()->GetCID();
 }
 
@@ -3631,36 +3712,6 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvRoomState == 1) // ChillBlock5
-	{
-		if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
-		{
-			//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
-		}
-		else //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
-			{
-				m_Core.m_Pos.x = 325 * 32;
-				m_Core.m_Pos.y = 214 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
-
-	}
-	else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
-	{
-		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
-			{
-				m_Core.m_Pos.x = 95 * 32;
-				m_Core.m_Pos.y = 189 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
-
-	}
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
@@ -3703,7 +3754,6 @@ void CCharacter::DDPP_Tick()
 						else
 						{
 							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-							GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");
 						}
 					}
 					else  //not in bank
@@ -3732,14 +3782,14 @@ void CCharacter::DDPP_Tick()
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
 			m_isDmg = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Succsesfully teleported out of arena.");
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got your ticket back because you survived.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Successfully teleported out of arena.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got your ticket back because you have survived.");
 		}
 
 		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || !m_Core.m_Vel.y == 0.0f)
 		{
 			m_pvp_arena_exit_request = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Teleport failed because you moved.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Teleport failed because you have moved.");
 		}
 	}
 
@@ -3757,7 +3807,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_EscapeTime = 0;
 		m_pPlayer->m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds.\nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
 		if (Server()->Tick() % 40 == 0)
 		{
 			if (!m_pPlayer->m_hidejailmsg)
@@ -3777,11 +3827,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds.\n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds.\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -3793,7 +3843,7 @@ void CCharacter::DDPP_Tick()
 		}
 		if (m_pPlayer->m_EscapeTime == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You can't get arrested anymore.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You are free now.");
 			m_isDmg = false;
 			m_Health = 10;
 		}
@@ -3848,7 +3898,6 @@ void CCharacter::DDPP_Tick()
 			}
 		}
 	}
-
 
 	if (g_Config.m_SvJailState == 1) // ChillBlock5 (old under spawn)
 	{
@@ -3929,68 +3978,6 @@ void CCharacter::DDPP_Tick()
 			{
 				m_Core.m_Pos.x = 133 * 32 + 10;
 				m_Core.m_Pos.y = 177 * 32 + 20;
-			}
-		}
-	}
-
-	if (g_Config.m_SvBankState == 1) // ChillBlock5 (left of spawn)
-	{
-		if (m_Core.m_Pos.x > 287 * 32 && m_Core.m_Pos.x < 298 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
-		{
-			m_InBank = true;
-
-			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-			{
-				//dont show the bank broadcast if the player has the flag this will be done in the flag code
-			}
-			else
-			{
-				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
-				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-				}
-			}
-
-
-			m_pPlayer->m_ExitBank = true;
-		}
-		else //if not in bank
-		{
-			m_InBank = false;
-			if (m_pPlayer->m_ExitBank)
-			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
-				m_pPlayer->m_ExitBank = false;
-			}
-		}
-	}
-	else if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
-	{
-		if (m_Core.m_Pos.x > 78 * 32 && m_Core.m_Pos.x < 87 * 32 && m_Core.m_Pos.y > 200 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
-		{
-			m_InBank = true;
-
-			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-			{
-				//dont show the bank broadcast if the player has the flag this will be done in the flag code
-			}
-			else
-			{
-				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
-				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-				}
-			}
-
-			m_pPlayer->m_ExitBank = true;
-		}
-		else //if not in bank
-		{
-			m_InBank = false;
-			if (m_pPlayer->m_ExitBank)
-			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
-				m_pPlayer->m_ExitBank = false;
 			}
 		}
 	}
@@ -8211,7 +8198,7 @@ void CCharacter::DummyTick()
 
 			/*
 			####################################################
-			#   I M P O R T A N T    I N F O R M A T I O N S   #
+			#   I M P O R T A N T    I N F O R M A T I O N    #
 			####################################################
 
 			DummyMode 29 is a very special mode cause it uses the mode18 as base
@@ -9342,7 +9329,7 @@ void CCharacter::DummyTick()
 
 									//                                                                                                          hier wird das schieben an das andere schieben 
 									//                                                                                                    übergeben weil er hier von weiter weg anfängt zu schieben 
-									//                                                                                                und das kürzere schieben macht dann den ganzen stuff das der bot nicht selber rein läuft  
+									//                                                                                                und das kürzere schieben macht dann den ganzen stuff dass der bot nicht selber rein läuft  
 									//                                                                                                ja ich weiss das ist ziemlich umständlich xD
 									//                                                                                                      aber das hat schon sinn das hier wird aufgerufen wenn der weit weg is und freezed und
 									//                                                                                                  übergibt dann an die abfrage die auch aufgerufen wird wenn jemand unfreeze is jedoch nir auf kurze distanz
@@ -9808,11 +9795,6 @@ void CCharacter::DummyTick()
 							}
 							//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 						}
-
-
-
-
-
 
 						// über das freeze springen wenn rechts der bevorzugenten camp stelle
 

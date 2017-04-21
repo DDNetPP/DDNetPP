@@ -225,6 +225,7 @@ public:
 	CGameTeams* Teams();
 
 	bool m_taxi;
+	bool m_WasInRoom;
 
 	void DDPP_Tick();
 	void DummyTick();
@@ -281,6 +282,9 @@ public:
 	bool m_FreezeHammer;
 	bool m_fake_super;
 	bool m_Godmode;
+	bool m_Pullhammer;// pullhammer
+	int m_PullingID; //Pullhammer added by sarkro
+	bool m_Fire;
 
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
@@ -491,6 +495,7 @@ public:
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Ninja.m_ActivationDir = ActivationDir; };
 	void SetNinjaActivationTick(int ActivationTick) { m_Ninja.m_ActivationTick = ActivationTick; };
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Ninja.m_CurrentMoveTime = CurrentMoveTime; };
+	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
 };
 
 enum
