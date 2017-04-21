@@ -994,6 +994,11 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
+	if (this && IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
+	{
+		m_WasInRoom = false;
+	}
+	
 	DummyTick();
 	DDPP_Tick();
 	DDRaceTick();
@@ -2647,6 +2652,43 @@ void CCharacter::HandleTiles(int Index)
 		m_Jetpack = false;
 	}
 
+	// ROOM POINT
+	bool Allowed = false;
+	if (g_Config.m_SvRoomState == 0)
+		Allowed = true;
+	else if (g_Config.m_SvRoomState == 1)
+			Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true:false;
+		else if(g_Config.m_SvRoomState == 2)
+			Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true:false;
+	
+	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
+	{
+		m_Core.m_Pos = m_PrevSavePos;
+		m_Pos = m_PrevSavePos;
+		m_PrevPos = m_PrevSavePos;
+		m_Core.m_Vel = vec2(0, 0);
+		m_Core.m_HookedPlayer = -1;
+		m_Core.m_HookState = HOOK_RETRACTED;
+		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+		GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+		m_Core.m_HookPos = m_Core.m_Pos;
+		if(!m_WasInRoom)
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+	
+		m_WasInRoom=true;
+	}
+	
+	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN)
+	{
+		GameServer()->SendBroadcast("~ BANK ~", m_pPlayer->GetCID());
+		m_InBank = true;
+	}
+	else if(m_TileIndex == TILE_BANK_OUT || m_TileFIndex == TILE_BANK_OUT)
+	{
+		GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		m_InBank = false;
+	}
+	
 	// solo part
 	if (((m_TileIndex == TILE_SOLO_START) || (m_TileFIndex == TILE_SOLO_START)) && !Teams()->m_Core.GetSolo(m_pPlayer->GetCID()))
 	{
@@ -3073,17 +3115,16 @@ void CCharacter::DDRaceTick()
 
 	HandleTuneLayer(); // need this before coretick
 
-					   // look for save position for rescue feature
-	if (g_Config.m_SvRescue) {
+	{
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
-		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
-			m_PrevSavePos = m_Pos;
-			m_SetSavePos = true;
-		}
+		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOMPOINT && ftile!= TILE_ROOMPOINT && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
+				m_PrevSavePos = m_Pos;
+				m_SetSavePos = true;
+			}
 	}
-
+	
 	m_Core.m_Id = GetPlayer()->GetCID();
 }
 
@@ -3631,36 +3672,6 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvRoomState == 1) // ChillBlock5
-	{
-		if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
-		{
-			//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
-		}
-		else //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
-			{
-				m_Core.m_Pos.x = 325 * 32;
-				m_Core.m_Pos.y = 214 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
-
-	}
-	else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
-	{
-		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
-			{
-				m_Core.m_Pos.x = 95 * 32;
-				m_Core.m_Pos.y = 189 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
-
-	}
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{

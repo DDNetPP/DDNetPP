@@ -156,6 +156,11 @@ enum
 	TILE_H_JOIN, // 115
 	TILE_H_SPAWN, // 116
 	TILE_H_SPAWN_SPEC, // 117
+	TILE_ROOMPOINT, //118
+	TILE_BANK_IN, //119
+	TILE_BANK_OUT, //120
+	TILE_JAIL, //121
+	TILE_JAILRELEASE, //123
 
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber!
 

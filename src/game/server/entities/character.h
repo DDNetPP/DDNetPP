@@ -225,6 +225,7 @@ public:
 	CGameTeams* Teams();
 
 	bool m_taxi;
+	bool m_WasInRoom;
 
 	void DDPP_Tick();
 	void DummyTick();
