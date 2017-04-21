@@ -1529,7 +1529,7 @@ void CCharacter::Die(int Killer, int Weapon)
 			{
 				if (m_pPlayer->m_IsDummy) //if dummy got killed make some exceptions
 				{
-					if (g_Config.m_SvDummyBlockPoints == 2 || g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2)) //only count dummy kills if configt       cfg:3 block area or further count kills 
+					if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
 					{
 						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 						{
@@ -3639,7 +3639,7 @@ void CCharacter::DDPP_Tick()
 			m_pPlayer->m_LastTouchTicks = 0; //should be set with the TouchID but this will fix bugsis if i forgot it somewhere
 		}
 	}
-	
+
 	//clear last toucher on disconnect/unexistance
 	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 	{
@@ -3820,7 +3820,7 @@ void CCharacter::DDPP_Tick()
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got your ticket back because you have survived.");
 		}
 
-		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || !m_Core.m_Vel.y == 0.0f)
+		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
 		{
 			m_pvp_arena_exit_request = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Teleport failed because you have moved.");
@@ -4017,67 +4017,12 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvBankState == 1) // ChillBlock5 (left of spawn)
+
+	if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
 	{
-		if (m_Core.m_Pos.x > 287 * 32 && m_Core.m_Pos.x < 298 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
-		{
-			m_InBank = true;
-
-			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_pPlayer->m_AccountID > 0) //only give it to flag code if the player is logged in (only logged in flag drops broadcasts)
-			{
-				//dont show the bank broadcast if the player has the flag this will be done in the flag code
-			}
-			else
-			{
-				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
-				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-				}
-			}
-
-
-			m_pPlayer->m_ExitBank = true;
-		}
-		else //if not in bank
-		{
-			m_InBank = false;
-			if (m_pPlayer->m_ExitBank)
-			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
-				m_pPlayer->m_ExitBank = false;
-			}
-		}
+		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
 	}
-	else if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
-	{
-		if (m_Core.m_Pos.x > 78 * 32 && m_Core.m_Pos.x < 87 * 32 && m_Core.m_Pos.y > 200 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
-		{
-			m_InBank = true;
 
-			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-			{
-				//dont show the bank broadcast if the player has the flag this will be done in the flag code
-			}
-			else
-			{
-				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
-				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-				}
-			}
-
-			m_pPlayer->m_ExitBank = true;
-		}
-		else //if not in bank
-		{
-			m_InBank = false;
-			if (m_pPlayer->m_ExitBank)
-			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
-				m_pPlayer->m_ExitBank = false;
-			}
-		}
-	}
 }
 
 void CCharacter::DummyTick()
@@ -5487,8 +5432,8 @@ void CCharacter::DummyTick()
 					{
 						//                                         old: 417 * 32
 						//                                                      Old: tee<bot      New: tee<pos.x                                     
-						if (pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5/* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 428 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32 ||  //wenn ein tee weiter links ist als der bot && der bot links vom mittelfreeze im rulerspot steht
-							pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5/* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 444 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32 && pChr->m_FreezeTime == 0)       //oder der tee auch rechts vom bot ist aber unfreeze
+						if ((pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5/* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 428 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32) ||  //wenn ein tee weiter links ist als der bot && der bot links vom mittelfreeze im rulerspot steht
+							(pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5/* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 444 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32 && pChr->m_FreezeTime == 0))       //oder der tee auch rechts vom bot ist aber unfreeze
 																																																																				//wenn dies ist -> notstand links ausrufen und versuchen gegner zu blocken
 						{
 							//m_Core.m_ActiveWeapon = WEAPON_HAMMER;
@@ -5676,7 +5621,7 @@ void CCharacter::DummyTick()
 
 							//freeze protection & schieberrei
 							//                                                                                                                                                                                                      old (417 * 32 - 60)
-							if (pChr->m_Pos.x + 10 < m_Core.m_Pos.x && pChr->m_Pos.y > 211 * 32 && pChr->m_Pos.x < 418 * 32 || pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 210 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Pos.x > 417 * 32 - 60) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
+							if ((pChr->m_Pos.x + 10 < m_Core.m_Pos.x && pChr->m_Pos.y > 211 * 32 && pChr->m_Pos.x < 418 * 32) || (pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 210 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Pos.x > 417 * 32 - 60)) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
 							{                                                                                            // oder wenn der spieler weiter weg liegt aber freeze is
 
 
@@ -7174,7 +7119,7 @@ void CCharacter::DummyTick()
 					if (pChr && pChr->IsAlive())
 					{
 						//                                                                                      NEW: to recognize mates freeze in the freeze tunnel on the left
-						if (pChr->m_Pos.y > 198 * 32 + 10 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f || pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f)
+						if ((pChr->m_Pos.y > 198 * 32 + 10 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f) || (pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f))
 						{
 							m_Dummy_mate_failed = true;
 						}
@@ -7194,7 +7139,6 @@ void CCharacter::DummyTick()
 
 					if (m_Core.m_Pos.x > 466 * 32)
 					{
-						static int LockedID;
 						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
@@ -7241,7 +7185,8 @@ void CCharacter::DummyTick()
 										//m_Dummy_2p_hook_grabbed = false;
 									}
 									//																								// NEW testy || stuff
-									if (m_Core.m_Pos.x > pChr->m_Pos.x && pChr->m_Pos.y == m_Core.m_Pos.y && m_Core.m_Pos.x > 481 * 32 || pChr->m_Pos.x > 476 * 32 - 10 && m_Core.m_Pos.x > pChr->m_Pos.x && pChr->m_Pos.y > 191 * 32 - 10 && m_Core.m_Pos.x < 482 * 32 + 10)
+									if ((m_Core.m_Pos.x > pChr->m_Pos.x && pChr->m_Pos.y == m_Core.m_Pos.y && m_Core.m_Pos.x > 481 * 32)
+										|| (pChr->m_Pos.x > 476 * 32 - 10 && m_Core.m_Pos.x > pChr->m_Pos.x && pChr->m_Pos.y > 191 * 32 - 10 && m_Core.m_Pos.x < 482 * 32 + 10))
 									{
 										m_Dummy_2p_state = 1; //starting to do the part->walking left and hammerin'
 										if (Server()->Tick() % 30 == 0 && m_Dummy_nothing_happens_counter == 0)
@@ -7251,7 +7196,7 @@ void CCharacter::DummyTick()
 										//m_Dummy_2p_hammer1 = false;
 									}
 									//                                                                                 NEW TESTY || stuff     wenn der schonmal ausgelöst wurde bleib da bis der nexte ausgelöst wird oder pChr runter füllt
-									if (m_Dummy_2p_state == 1 && pChr->m_Core.m_Vel.y > 0.5f && pChr->m_Pos.x < 479 * 32 || m_Dummy_2p_hook)
+									if ((m_Dummy_2p_state == 1 && pChr->m_Core.m_Vel.y > 0.5f && pChr->m_Pos.x < 479 * 32) || m_Dummy_2p_hook)
 									{
 										m_Dummy_2p_state = 2; //keep going doing the part->hookin' and walking to the right
 										m_Dummy_2p_hook = true;
@@ -7267,7 +7212,7 @@ void CCharacter::DummyTick()
 									}
 
 									//           NICHT NACH FREEZE ABRAGEN damit der bot auch ins freeze springt wenn das team fail ist und dann selfkill macht
-									if (pChr->m_Pos.x > 489 * 32 || pChr->m_Pos.x > 486 * 32 && pChr->m_Pos.y < 186 * 32) //Wenn grad gehammert und der tee weit genugn is spring rein
+									if (pChr->m_Pos.x > 489 * 32 || (pChr->m_Pos.x > 486 * 32 && pChr->m_Pos.y < 186 * 32)) //Wenn grad gehammert und der tee weit genugn is spring rein
 									{
 										m_Dummy_2p_state = 4;
 									}
@@ -7655,7 +7600,7 @@ void CCharacter::DummyTick()
 															m_LatestInput.m_TargetY = -2;
 															m_Dummy_2p_panic_while_helping = true;
 														}
-														if (m_Core.m_Pos.x > 480 * 32 && m_FreezeTime == 0 || m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
+														if ((m_Core.m_Pos.x > 480 * 32 && m_FreezeTime == 0) || m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
 														{
 															m_Dummy_2p_panic_while_helping = false;
 														}
@@ -7691,7 +7636,7 @@ void CCharacter::DummyTick()
 															m_LatestInput.m_TargetY = -2;
 															m_Dummy_2p_panic_while_helping = true;
 														}
-														if (m_Core.m_Pos.x > 480 * 32 && m_FreezeTime == 0 || m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
+														if ((m_Core.m_Pos.x > 480 * 32 && m_FreezeTime == 0) || m_FreezeTime > 0) //stop this mode if the bot made it back to the platform or failed
 														{
 															m_Dummy_2p_panic_while_helping = false;
 														}
@@ -7750,7 +7695,7 @@ void CCharacter::DummyTick()
 																m_Input.m_Jump = 1;
 															}
 
-															if (pChr->m_Pos.x < 486 * 32 && m_Core.m_Pos.y > 195 * 32 + 20 || pChr->m_Pos.x < 486 * 32 && m_Core.m_Pos.x < 477 * 32) //if mate is in range add a hook
+															if ((pChr->m_Pos.x < 486 * 32 && m_Core.m_Pos.y > 195 * 32 + 20) || (pChr->m_Pos.x < 486 * 32 && m_Core.m_Pos.x < 477 * 32)) //if mate is in range add a hook
 															{
 																m_Dummy_dd_helphook = true;
 															}
@@ -7797,11 +7742,11 @@ void CCharacter::DummyTick()
 
 								//Emergency takes over here if the bot got in a dangerous situation!
 								//if (m_Core.m_Pos.y > 196 * 32 + 30) //+25 is used for the jump help and with 30 it shoudlnt get any confusuion i hope
-								if (m_Core.m_Pos.y > 195 * 32 && !m_Dummy_help_no_emergency) //if the bot left the platform
+								if ((m_Core.m_Pos.y > 195 * 32 && !m_Dummy_help_no_emergency)) //if the bot left the platform
 								{
 									m_Dummy_help_emergency = true;
 								}
-								if (m_Core.m_Pos.x > 479 * 32 && m_Core.m_Jumped == 0 || isFreezed)
+								if ((m_Core.m_Pos.x > 479 * 32 && m_Core.m_Jumped == 0) || isFreezed)
 								{
 									m_Dummy_help_emergency = false;
 								}
@@ -7892,7 +7837,7 @@ void CCharacter::DummyTick()
 									//old shit cuz he cant rls because mate is unfreeze and dont check for later rlsing hook
 									//if (m_FreezeTime == 0 && pChr->m_FreezeTime > 0) //und der mate auch freeze is (damit der nich von edges oder aus dem ziel gehookt wird)
 									//                  fuck the edge only stop if finish lol
-									if (m_FreezeTime == 0 && pChr->m_Pos.x < 514 * 32 - 2 || m_FreezeTime == 0 && pChr->m_Pos.x > 521 * 32 + 2)
+									if ((m_FreezeTime == 0 && pChr->m_Pos.x < 514 * 32 - 2) || (m_FreezeTime == 0 && pChr->m_Pos.x > 521 * 32 + 2))
 									{
 										//get right hammer pos [rechte seite]
 										if (pChr->m_Pos.x < 515 * 32) //wenn der mate links des ziels ist
@@ -7923,7 +7868,7 @@ void CCharacter::DummyTick()
 										//deactivate bool for hook if mate is high enough or bot is freezed (but freezed is checked somewerhe else)
 										//                                                                                              NEW: just rls hook if mate is higher than bot (to prevent both falling added new ||)
 										//                                                                                                                                                                                oder wenn der mate unter dem bot ist und unfreeze
-										if (pChr->m_FreezeTime == 0 && pChr->m_Core.m_Vel.y > -1.5f && m_Core.m_Pos.y > pChr->m_Pos.y - 15 || pChr->m_Core.m_Vel.y > 3.4f || pChr->m_FreezeTime == 0 && pChr->m_Pos.y + 38 > m_Core.m_Pos.y || isFreezed)
+										if ((pChr->m_FreezeTime == 0 && pChr->m_Core.m_Vel.y > -1.5f && m_Core.m_Pos.y > pChr->m_Pos.y - 15) || pChr->m_Core.m_Vel.y > 3.4f || (pChr->m_FreezeTime == 0 && pChr->m_Pos.y + 38 > m_Core.m_Pos.y) || isFreezed)
 										{
 											m_Dummy_hh_hook = false;
 										}
@@ -7960,7 +7905,7 @@ void CCharacter::DummyTick()
 
 									//ReHook if mate flys to high
 
-									if (pChr->m_Pos.y < m_Core.m_Pos.y - 40 && pChr->m_Core.m_Vel.y < -4.4f || pChr->m_Pos.y < 183 * 32)
+									if ((pChr->m_Pos.y < m_Core.m_Pos.y - 40 && pChr->m_Core.m_Vel.y < -4.4f) || pChr->m_Pos.y < 183 * 32)
 									{
 										m_Input.m_Hook = 1;
 									}
@@ -7968,7 +7913,8 @@ void CCharacter::DummyTick()
 									//Check for panic balance cuz all went wrong lol
 									//if dummy is too much left and has no dj PANIC!
 									//                                                                                                                                           New Panic Trigger: if both fall fast an the bot is on top                                    
-									if (pChr->m_Pos.x < 516 * 32 && m_Core.m_Jumped >= 2 && m_Core.m_Pos.x < pChr->m_Pos.x - 5 && pChr->m_Pos.y > m_Core.m_Pos.y && m_Core.m_Pos.y > 192 * 32 && pChr->isFreezed || m_Core.m_Vel.y > 6.7f && pChr->m_Core.m_Vel.y > 7.4f && pChr->m_Pos.y > m_Core.m_Pos.y && m_Core.m_Pos.y > 192 * 32 && pChr->m_Pos.x < 516 * 32)
+									if ((pChr->m_Pos.x < 516 * 32 && m_Core.m_Jumped >= 2 && m_Core.m_Pos.x < pChr->m_Pos.x - 5 && pChr->m_Pos.y > m_Core.m_Pos.y && m_Core.m_Pos.y > 192 * 32 && pChr->isFreezed) ||
+											(m_Core.m_Vel.y > 6.7f && pChr->m_Core.m_Vel.y > 7.4f && pChr->m_Pos.y > m_Core.m_Pos.y && m_Core.m_Pos.y > 192 * 32 && pChr->m_Pos.x < 516 * 32))
 									{
 
 
@@ -8079,7 +8025,7 @@ void CCharacter::DummyTick()
 
 
 									//Go in finish if near enough
-									if (m_Core.m_Vel.y < 4.4f && m_Core.m_Pos.x > 511 * 32 || m_Core.m_Vel.y < 8.4f && m_Core.m_Pos.x > 512 * 32)
+									if ((m_Core.m_Vel.y < 4.4f && m_Core.m_Pos.x > 511 * 32) || (m_Core.m_Vel.y < 8.4f && m_Core.m_Pos.x > 512 * 32))
 									{
 										if (m_Core.m_Pos.x < 514 * 32 && !m_Dummy_panic_balance)
 										{
@@ -8090,7 +8036,7 @@ void CCharacter::DummyTick()
 									//If dummy made it till finish but mate is still freeze on the left side
 									//he automaiclly help. BUT if he fails the hook resett it!
 									//left side                                                                                      right side
-									if (m_Core.m_Pos.x > 514 * 32 - 5 && m_FreezeTime == 0 && pChr->isFreezed && pChr->m_Pos.x < 515 * 32 || m_Core.m_Pos.x > 519 * 32 - 5 && m_FreezeTime == 0 && pChr->isFreezed && pChr->m_Pos.x < 523 * 32)
+									if ((m_Core.m_Pos.x > 514 * 32 - 5 && m_FreezeTime == 0 && pChr->isFreezed && pChr->m_Pos.x < 515 * 32) || (m_Core.m_Pos.x > 519 * 32 - 5 && m_FreezeTime == 0 && pChr->isFreezed && pChr->m_Pos.x < 523 * 32))
 									{
 										if (Server()->Tick() % 70 == 0)
 										{
@@ -8130,10 +8076,12 @@ void CCharacter::DummyTick()
 									//if (m_Core.m_Vel.y < 6.4f) //Check if not falling to fast
 									if (!m_Dummy_panic_balance)
 									{
-										if (m_Core.m_Vel.y < 6.4f && m_Core.m_Pos.x > 512 * 32 && m_Core.m_Pos.x < 515 * 32 || m_Core.m_Pos.x > 512 * 32 + 30 && m_Core.m_Pos.x < 515 * 32) //left side
+										if ((m_Core.m_Vel.y < 6.4f && m_Core.m_Pos.x > 512 * 32 && m_Core.m_Pos.x < 515 * 32)
+											|| (m_Core.m_Pos.x > 512 * 32 + 30 && m_Core.m_Pos.x < 515 * 32)) //left side
 										{
 											m_Input.m_Direction = 1;
 										}
+
 										if (m_Core.m_Vel.y < 6.4f && m_Core.m_Pos.x > 520 * 32 && m_Core.m_Pos.x < 524 * 32 /* || too lazy rarly needed*/) //right side
 										{
 											m_Input.m_Direction = -1;
@@ -8186,7 +8134,7 @@ void CCharacter::DummyTick()
 
 									//deactivate bool for hook if mate is high enough or bot is freezed (but freezed is checked somewerhe else)
 									//                                                                                              NEW: just rls hook if mate is higher than bot (to prevent both falling added new ||)
-									if (/*m_Core.m_Pos.y - pChr->m_Pos.y > 15 ||*/ pChr->m_FreezeTime == 0 && pChr->m_Core.m_Vel.y < -2.5f && pChr->m_Pos.y < m_Core.m_Pos.y || pChr->m_Core.m_Vel.y > 3.4f)
+									if (/*m_Core.m_Pos.y - pChr->m_Pos.y > 15 ||*/ (pChr->m_FreezeTime == 0 && pChr->m_Core.m_Vel.y < -2.5f && pChr->m_Pos.y < m_Core.m_Pos.y) || pChr->m_Core.m_Vel.y > 3.4f)
 									{
 										m_Dummy_hh_hook = false;
 										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
@@ -8295,7 +8243,7 @@ void CCharacter::DummyTick()
 
 			/*
 			####################################################
-			#   I M P O R T A N T    I N F O R M A T I O N S   #
+			#    I M P O R T A N T    I N F O R M A T I O N    #
 			####################################################
 
 			DummyMode 29 is a very special mode cause it uses the mode18 as base
@@ -9078,7 +9026,7 @@ void CCharacter::DummyTick()
 									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
 								}
 
-								if (m_Core.m_HookState == HOOK_GRABBED || m_Core.m_Pos.y < 216 * 32 && pChr->m_Pos.x > 404 * 32 || pChr->m_Pos.x > 405 * 32 && m_Core.m_Pos.x > 404 * 32 + 20)
+								if (m_Core.m_HookState == HOOK_GRABBED || (m_Core.m_Pos.y < 216 * 32 && pChr->m_Pos.x > 404 * 32) || (pChr->m_Pos.x > 405 * 32 && m_Core.m_Pos.x > 404 * 32 + 20))
 								{
 									m_Input.m_Hook = 1;
 									if (Server()->Tick() % 10 == 0)
@@ -9533,7 +9481,8 @@ void CCharacter::DummyTick()
 
 								//freeze protection & schieberrei
 								//                                                                                                                                                                                                      old (417 * 32 - 60)
-								if (pChr->m_Pos.x + 10 < m_Core.m_Pos.x && pChr->m_Pos.y > 211 * 32 && pChr->m_Pos.x < 418 * 32 || pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 210 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Pos.x > 417 * 32 - 60) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
+								if ((pChr->m_Pos.x + 10 < m_Core.m_Pos.x && pChr->m_Pos.y > 211 * 32 && pChr->m_Pos.x < 418 * 32)
+									|| (pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 210 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Pos.x > 417 * 32 - 60)) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
 								{                                                                                            // oder wenn der spieler weiter weg liegt aber freeze is
 
 
@@ -10537,7 +10486,7 @@ void CCharacter::DummyTick()
 						}
 
 						//go home if its oky, oky?
-						if (m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->isFreezed || m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > m_Core.m_Pos.x + (10 * 32))
+						if ((m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->isFreezed) || (m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > m_Core.m_Pos.x + (10 * 32)))
 						{
 							m_Input.m_Direction = -1;
 						}
@@ -10798,7 +10747,7 @@ void CCharacter::DummyTick()
 				//}
 				m_Dummy_ClosestPolice = false;
 				//If a policerank escapes from jail he is treated like a non police
-				if (pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0 || pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0)
+				if ((pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0))
 				{
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hello officär");
 					m_Dummy_ClosestPolice = true;
@@ -10933,7 +10882,7 @@ void CCharacter::DummyTick()
 
 
 					//Dont Hook enemys back in safety
-					if (pChr->m_Pos.x < 460 * 32 && pChr->m_Pos.x >	457 * 32 || pChr->m_Pos.x < 469 * 32 && pChr->m_Pos.x >	466 * 32)
+					if ((pChr->m_Pos.x < 460 * 32 && pChr->m_Pos.x > 457 * 32) || (pChr->m_Pos.x < 469 * 32 && pChr->m_Pos.x > 466 * 32))
 					{
 						m_Input.m_Hook = 0;
 					}
