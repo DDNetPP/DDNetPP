@@ -1036,7 +1036,7 @@ void CCharacter::Tick()
 	{
 		m_WasInRoom = false;
 	}
-	
+
 	DummyTick();
 	DDPP_Tick();
 	DDRaceTick();
@@ -1327,9 +1327,13 @@ void CCharacter::Die(int Killer, int Weapon)
 	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
 
-
-
 	char aBuf[256];
+
+
+	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 33) //chillintelligenz
+	{
+		CIRestart();
+	}
 
 
 	//zCatch instagib 
@@ -1529,11 +1533,7 @@ void CCharacter::Die(int Killer, int Weapon)
 					{
 						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 						{
-							GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-							if (GameServer()->m_apPlayers[Killer]->m_ShowBlockPoints)
-							{
-								GameServer()->SendChatTarget(Killer, "+1 point");
-							}
+							GiveBlockPoints(Killer, 1);
 						}
 						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 					}
@@ -1542,11 +1542,7 @@ void CCharacter::Die(int Killer, int Weapon)
 				{
 					if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 					{
-						GameServer()->m_apPlayers[Killer]->m_BlockPoints++;
-						if (GameServer()->m_apPlayers[Killer]->m_ShowBlockPoints)
-						{
-							GameServer()->SendChatTarget(Killer, "+1 point");
-						}
+						GiveBlockPoints(Killer, 1);
 					}
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 				}
@@ -2446,7 +2442,11 @@ void CCharacter::HandleTiles(int Index)
 		else {
 
 		}
+
+
 	}
+
+
 	//dragon dummy tile test
 	// finish
 	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
@@ -2633,6 +2633,7 @@ void CCharacter::HandleTiles(int Index)
 
 	}
 
+
 	if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0) {
 
 		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
@@ -2655,6 +2656,7 @@ void CCharacter::HandleTiles(int Index)
 
 	//hammerfight tiles
 
+
 	//Money Tiles
 	if (((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
 	{
@@ -2670,6 +2672,7 @@ void CCharacter::HandleTiles(int Index)
 	{
 		MoneyTilePlus();
 	}
+
 
 	// jetpack gun
 	if (((m_TileIndex == TILE_JETPACK_START) || (m_TileFIndex == TILE_JETPACK_START)) && !m_Jetpack)
@@ -2691,7 +2694,7 @@ void CCharacter::HandleTiles(int Index)
 			Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true:false;
 		else if(g_Config.m_SvRoomState == 2)
 			Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true:false;
-	
+
 	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
 	{
 		m_Core.m_Pos = m_PrevSavePos;
@@ -2705,10 +2708,10 @@ void CCharacter::HandleTiles(int Index)
 		m_Core.m_HookPos = m_Core.m_Pos;
 		if(!m_WasInRoom)
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
-	
+
 		m_WasInRoom=true;
 	}
-	
+
 	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN)
 	{
 		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
@@ -2728,7 +2731,7 @@ void CCharacter::HandleTiles(int Index)
 	{
 		GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID());
 	}
-	
+
 	// solo part
 	if (((m_TileIndex == TILE_SOLO_START) || (m_TileFIndex == TILE_SOLO_START)) && !Teams()->m_Core.GetSolo(m_pPlayer->GetCID()))
 	{
@@ -3160,11 +3163,11 @@ void CCharacter::DDRaceTick()
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
 		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOMPOINT && ftile!= TILE_ROOMPOINT && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
-				m_PrevSavePos = m_Pos;
-				m_SetSavePos = true;
-			}
+			m_PrevSavePos = m_Pos;
+			m_SetSavePos = true;
+		}
 	}
-	
+
 	m_Core.m_Id = GetPlayer()->GetCID();
 }
 
@@ -3712,6 +3715,36 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
+	if (g_Config.m_SvRoomState == 1) // ChillBlock5
+	{
+		if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
+		{
+			//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
+		}
+		else //tele back if no key
+		{
+			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
+			{
+				m_Core.m_Pos.x = 325 * 32;
+				m_Core.m_Pos.y = 214 * 32;
+				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
+			}
+		}
+
+	}
+	else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
+	{
+		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
+		{
+			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
+			{
+				m_Core.m_Pos.x = 95 * 32;
+				m_Core.m_Pos.y = 189 * 32;
+				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
+			}
+		}
+
+	}
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
@@ -3754,6 +3787,7 @@ void CCharacter::DDPP_Tick()
 						else
 						{
 							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+							GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");
 						}
 					}
 					else  //not in bank
@@ -3807,7 +3841,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_EscapeTime = 0;
 		m_pPlayer->m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds.\nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
 		if (Server()->Tick() % 40 == 0)
 		{
 			if (!m_pPlayer->m_hidejailmsg)
@@ -3827,11 +3861,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds.\n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds.\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -3898,6 +3932,7 @@ void CCharacter::DDPP_Tick()
 			}
 		}
 	}
+
 
 	if (g_Config.m_SvJailState == 1) // ChillBlock5 (old under spawn)
 	{
@@ -3978,6 +4013,68 @@ void CCharacter::DDPP_Tick()
 			{
 				m_Core.m_Pos.x = 133 * 32 + 10;
 				m_Core.m_Pos.y = 177 * 32 + 20;
+			}
+		}
+	}
+
+	if (g_Config.m_SvBankState == 1) // ChillBlock5 (left of spawn)
+	{
+		if (m_Core.m_Pos.x > 287 * 32 && m_Core.m_Pos.x < 298 * 32 && m_Core.m_Pos.y > 199 * 32 && m_Core.m_Pos.y < 206 * 32) //in bank
+		{
+			m_InBank = true;
+
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_pPlayer->m_AccountID > 0) //only give it to flag code if the player is logged in (only logged in flag drops broadcasts)
+			{
+				//dont show the bank broadcast if the player has the flag this will be done in the flag code
+			}
+			else
+			{
+				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				}
+			}
+
+
+			m_pPlayer->m_ExitBank = true;
+		}
+		else //if not in bank
+		{
+			m_InBank = false;
+			if (m_pPlayer->m_ExitBank)
+			{
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+				m_pPlayer->m_ExitBank = false;
+			}
+		}
+	}
+	else if (g_Config.m_SvBankState == 2) // Blockdale by SarKro (bank)
+	{
+		if (m_Core.m_Pos.x > 78 * 32 && m_Core.m_Pos.x < 87 * 32 && m_Core.m_Pos.y > 200 * 32 && m_Core.m_Pos.y < 207 * 32) //in bank
+		{
+			m_InBank = true;
+
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+			{
+				//dont show the bank broadcast if the player has the flag this will be done in the flag code
+			}
+			else
+			{
+				if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				}
+			}
+
+			m_pPlayer->m_ExitBank = true;
+		}
+		else //if not in bank
+		{
+			m_InBank = false;
+			if (m_pPlayer->m_ExitBank)
+			{
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+				m_pPlayer->m_ExitBank = false;
 			}
 		}
 	}
@@ -8198,7 +8295,7 @@ void CCharacter::DummyTick()
 
 			/*
 			####################################################
-			#   I M P O R T A N T    I N F O R M A T I O N    #
+			#   I M P O R T A N T    I N F O R M A T I O N S   #
 			####################################################
 
 			DummyMode 29 is a very special mode cause it uses the mode18 as base
@@ -9329,7 +9426,7 @@ void CCharacter::DummyTick()
 
 									//                                                                                                          hier wird das schieben an das andere schieben 
 									//                                                                                                    übergeben weil er hier von weiter weg anfängt zu schieben 
-									//                                                                                                und das kürzere schieben macht dann den ganzen stuff dass der bot nicht selber rein läuft  
+									//                                                                                                und das kürzere schieben macht dann den ganzen stuff dass der bot nicht selber rein läuft
 									//                                                                                                ja ich weiss das ist ziemlich umständlich xD
 									//                                                                                                      aber das hat schon sinn das hier wird aufgerufen wenn der weit weg is und freezed und
 									//                                                                                                  übergibt dann an die abfrage die auch aufgerufen wird wenn jemand unfreeze is jedoch nir auf kurze distanz
@@ -9795,6 +9892,11 @@ void CCharacter::DummyTick()
 							}
 							//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
 						}
+
+
+
+
+
 
 						// über das freeze springen wenn rechts der bevorzugenten camp stelle
 
@@ -11088,7 +11190,7 @@ void CCharacter::DummyTick()
 			// deadpool
 			// Logan
 			// Hardcore (henry)
-			CITick(); //warning doesnt work with killtiles yet
+			CITick(); 
 		}
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 		{
@@ -11170,6 +11272,52 @@ void CCharacter::FreezeAll(int seconds)
 	}
 }
 
+void CCharacter::GiveBlockPoints(int ID, int points)
+{
+	char aBuf[128];
+
+	GameServer()->m_apPlayers[ID]->m_BlockPoints += points;
+	if (GameServer()->m_apPlayers[ID]->m_ShowBlockPoints)
+	{
+		if (GameServer()->m_apPlayers[ID]->m_AccountID > 0)
+		{
+			if (points == 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d point");
+			}
+			else if (points > 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d points");
+			}
+		}
+		else
+		{
+			if (points == 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d point (warning! use '/login' to save your '/points')", points);
+			}
+			else if (points > 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d points (warning! use '/login' to save your '/points')", points);
+			}
+		}
+
+		GameServer()->SendChatTarget(ID, aBuf);
+	}
+	else //chat info deactivated
+	{
+		if (GameServer()->m_apPlayers[ID]->m_AccountID <= 0)
+		{
+			if (GameServer()->m_apPlayers[ID]->m_BlockPoints == 5 || GameServer()->m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
+			{
+				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", GameServer()->m_apPlayers[ID]->m_BlockPoints);
+				GameServer()->SendChatTarget(ID, aBuf);
+				GameServer()->SendChatTarget(ID, "Use '/accountinfo' for more information.");
+			}
+		}
+	}
+}
+
 void CCharacter::CITick()
 {
 #if defined(CONF_DEBUG)
@@ -11184,9 +11332,9 @@ void CCharacter::CITick()
 	{
 		m_ci_freezetime = 0;
 	}
-	if (m_ci_freezetime > g_Config.m_SvCIfreezetime)
+	if (m_ci_freezetime > g_Config.m_SvCIfreezetime * Server()->TickSpeed())
 	{
-		CIRestart();
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD); //call CIRestart() there
 	}
 }
 
@@ -11196,6 +11344,17 @@ void CCharacter::CIRestart()
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
+
+	//str_format(aBuf, sizeof(aBuf), "%x", GameServer()->Score()->LoadCIData()); //linux compile error (doesnt work on win anyways)
+	//if (!str_comp(aBuf, "error"))
+	//{
+	//	dbg_msg("CI", "error loading data...");
+	//}
+	//else
+	//{
+	//	dbg_msg("CI", "loaded DIST [%x]", GameServer()->Score()->LoadCIData());
+	//}
+
 	m_pPlayer->m_ci_latest_dest_dist = CIGetDestDist();
 	str_format(aBuf, sizeof(aBuf), "Dist: %d", m_pPlayer->m_ci_latest_dest_dist);
 	dbg_msg("CI", aBuf);
@@ -11207,7 +11366,9 @@ void CCharacter::CIRestart()
 		m_pPlayer->m_ci_lowest_dest_dist = m_pPlayer->m_ci_latest_dest_dist;
 	}
 
-	Die(m_pPlayer->GetCID(), WEAPON_WORLD);
+	str_format(aBuf, sizeof(aBuf), "%d", m_pPlayer->m_ci_lowest_dest_dist);
+
+	GameServer()->Score()->SaveCIData(aBuf);
 }
 
 int CCharacter::CIGetDestDist()

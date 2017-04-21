@@ -263,6 +263,9 @@ void CFileScore::SaveTeamScore(int* ClientIDs, unsigned int Size, float Time)
 void CFileScore::SaveScore(int ClientID, float Time,
 		float CpTime[NUM_CHECKPOINTS])
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CConsole* pCon = (CConsole*) GameServer()->Console();
 	if (!pCon->m_Cheated || g_Config.m_SvRankCheats)
 		UpdatePlayer(ClientID, Time, CpTime);
@@ -271,6 +274,9 @@ void CFileScore::SaveScore(int ClientID, float Time,
 void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 		void *pUserData, int Debut)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvKillsToFinish);
@@ -291,6 +297,9 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 
 void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	CPlayerScore *pScore;
 	int Pos;
 	char aBuf[512];
@@ -408,4 +417,43 @@ void CFileScore::LoadTeam(const char* Code, int ClientID)
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Save-function not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
+}
+
+void CFileScore::SaveCIData(const char * ci_data) //chillintelligenz (not intelligent at all rofl)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	std::fstream f;
+	f.open("chillerbot.txt", std::ios::out);
+	if (!f.fail())
+	{
+		f << ci_data << std::endl;
+	}
+	f.close();
+}
+
+std::string CFileScore::LoadCIData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	std::fstream f;
+	f.open("chillerbot.txt", std::ios::in);
+
+	while (!f.eof() && !f.fail())
+	{
+		std::string Line;
+		//const char* Line;
+		std::getline(f, Line);
+		if (!f.eof() && Line != "")
+		{
+			//dbg_msg("CI", Line);
+			return Line;
+		}
+	}
+	f.close();
+
+	return "error";
 }

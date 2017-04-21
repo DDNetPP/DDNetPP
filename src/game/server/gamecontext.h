@@ -307,14 +307,14 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CJail> m_Jail;
-	
+
 	struct CJailrelease // probably doesn't belong here, but whatever
 	{
 		int m_NumContestants;
 		vec2 m_Center;
 	};
 	std::vector<CJailrelease> m_Jailrelease;
-	
+
 
 private:
 

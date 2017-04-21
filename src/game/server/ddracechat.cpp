@@ -141,7 +141,7 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 
 	if (pPlayer->m_PoliceRank < 2)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be at least Police[2] to use this command with parameters. Check '/policehelper' for more info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast Police[2] to use this command with parameters. Check '/policehelper' for more info.");
 		return;
 	}
 	if (pResult->NumArguments() == 1)
@@ -334,6 +334,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ added block points check '/points'");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/hook <power>' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/hide' and '/show' commands");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved the racer bot");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -1251,16 +1253,6 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	//if (g_Config.m_SvInstagibMode)
-	//{
-	//	pSelf->Console()->Print(
-	//		IConsole::OUTPUT_LEVEL_STANDARD,
-	//		"rank",
-	//		"Instagib ranks coming soon... check '/stats (name)' for now.");
-	//}
-	//else
-	{
-
 #if defined(CONF_SQL)
 		if (g_Config.m_SvUseSQL)
 			if (pPlayer->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
@@ -1284,7 +1276,6 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvUseSQL)
 		pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
 #endif
-}
 }
 
 
@@ -1977,22 +1968,28 @@ void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 			}
 
 
-			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
-			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			//pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			//str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsID]->m_BlockPoints, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else //show own
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
-			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+			//pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK STATS ----");
+			//str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			//str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_BlockPoints, pPlayer->m_BlockPoints_Kills, pPlayer->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -3168,6 +3165,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	if (pResult->NumArguments() != 2)
 	{
 		pSelf->SendChatTarget(ClientID, "Please use '/login <name> <password>'.");
+		pSelf->SendChatTarget(ClientID, "More info at '/accountinfo'.");
 		return;
 	}
 
@@ -4158,6 +4156,8 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "/register <name> <password> <password>");
 	pSelf->SendChatTarget(pResult->m_ClientID, "How to login?");
 	pSelf->SendChatTarget(pResult->m_ClientID, "/login <name> <password>");
+	pSelf->SendChatTarget(pResult->m_ClientID, "-------------------");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Accounts are used to save your stats on this server.");
 	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
 	//pSelf->SendChatTarget(pResult->m_ClientID, "Tipp: name and password shoudl be different");
 }
@@ -5729,6 +5729,7 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "**** BANK ****");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank close'");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bank open'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "banks are sensless af...");
 		return;
 	}
 
@@ -6642,7 +6643,7 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "xp");
 		}
-		if (!pPlayer->m_hidejailmsg)
+		if (pPlayer->m_hidejailmsg)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "jail");
 		}

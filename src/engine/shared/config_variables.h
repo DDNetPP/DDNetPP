@@ -406,7 +406,7 @@ MACRO_CONFIG_INT(SvBombUnreadyKickDelay, sv_bomb_unready_kick_delay, 800, 520, 5
 
 MACRO_CONFIG_INT(SvCIdestX, sv_ci_dest_x, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz X tile destination")
 MACRO_CONFIG_INT(SvCIdestY, sv_ci_dest_y, 10, -1000, 1000, CFGFLAG_SERVER, "Chillintelligenz Y tile destination")
-MACRO_CONFIG_INT(SvCIfreezetime, sv_ci_freezetime, 300, 0, 10000, CFGFLAG_SERVER, "Chillintelligenz killtickdelay")
+MACRO_CONFIG_INT(SvCIfreezetime, sv_ci_freezetime, 2, 0, 1000, CFGFLAG_SERVER, "Chillintelligenz kill delay in secs")
 
 //MACRO_CONFIG_INT(SvTestValA, sv_test_val_a, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 //MACRO_CONFIG_INT(SvTestValB, sv_test_val_b, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")

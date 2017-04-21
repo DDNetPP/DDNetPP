@@ -3074,7 +3074,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail") && m_apPlayers[ClientID]->m_JailTime > 0)
 				{
-					int r = rand() % 100;
+					int r = rand() % 1000;
 					if (r < m_apPlayers[ClientID]->m_escape_skill) //escape succes
 					{
 						SendChatTarget(ClientID, "You escaped from jail, watch out! The police is seeking you!\n WARNING: You can now get damage from these weapons: hammer, grenade and laser!");
@@ -6297,14 +6297,22 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 	WhisperID(ClientID, Victim, pMessage);
 }
 
+
 //TEST AREA START
 //TESTAREA51
 
+
 //DRAGON HUGE NUCLEAR TESTS
+
 
 //WARININGGG
 
+
 /*
+
+
+
+
 
 void CGameContext::Playerinfo(int ClientID, char *pStr)
 {
@@ -6406,7 +6414,10 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 	WhisperID(ClientID, Victim, pMessage);
 }
 
+
+
 */
+
 
 //TEST AREA 51
 
@@ -6414,8 +6425,16 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 
 //TESTARE END
 
+
+
+
+
+
 void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (!CheckClientID2(ClientID))
 		return;
 
@@ -6433,10 +6452,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg.m_Team = CHAT_WHISPER_SEND;
 		Msg.m_ClientID = VictimID;
 		Msg.m_pMessage = pMessage;
-		if (g_Config.m_SvDemoChat)
+		if(g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 		else
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);
 	}
 	else
 	{
@@ -6450,10 +6469,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg2.m_Team = CHAT_WHISPER_RECV;
 		Msg2.m_ClientID = ClientID;
 		Msg2.m_pMessage = pMessage;
-		if (g_Config.m_SvDemoChat)
+		if(g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL, VictimID);
 		else
-			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL | MSGFLAG_NORECORD, VictimID);
+			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL|MSGFLAG_NORECORD, VictimID);
 	}
 	else
 	{
@@ -6468,7 +6487,7 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		{
 			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
 				SendChatTarget(i, aBuf);
-		}
+}
 	}
 }
 

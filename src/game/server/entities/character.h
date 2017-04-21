@@ -229,9 +229,12 @@ public:
 
 	void DDPP_Tick();
 	void DummyTick();
-	void ChillTelePort(int X, int Y);
 
+	//usefull everywhere
+
+	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
+	void GiveBlockPoints(int ID, int points);
 
 	//Chillintelligenz
 	void CITick();

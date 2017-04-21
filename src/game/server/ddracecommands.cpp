@@ -141,7 +141,7 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
 	if (pChr)
 	{
-		//allles müll lolololol
+		//allles mÃ¼ll lolololol
 		//pChr->m_Health = 10;
 		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
 		//GameServer()->CreateDeath(Position, ClientID);
@@ -616,7 +616,7 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
 	if (pChr)
 	{
-		//allles müll lolololol
+		//allles mÃ¼ll lolololol
 		//pChr->m_Health = 10;
 		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
 		//GameServer()->CreateDeath(Position, ClientID);
