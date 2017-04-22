@@ -374,7 +374,7 @@ MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER, "0
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 2, CFGFLAG_SERVER, "Punish 'Chilli.*' members with wrong skin 0=off 1=freeze 2=kick")
 //STATES
 MACRO_CONFIG_INT(SvJailState, sv_jailstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=Cb5, 2=Cb5, 3=Blockdale")
-MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 0, 0, 3, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off, 1=On, 2=Admins 4free")
+MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 1, 0, 4, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off 1=buy 2=buy/invite 3=buy/admin 4=buy/admin/invite")
 MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "use 1 to activate pvp arena")
 
 MACRO_CONFIG_INT(SvAllowMinigame, sv_allow_minigame, 1, 0, 2, CFGFLAG_SERVER, "allow users to play minigames")

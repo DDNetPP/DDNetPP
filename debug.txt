@@ -11646,3 +11646,1578 @@
 [17-04-22 12:55:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
 [17-04-22 12:56:05][register]: ERROR: the master server reports that clients can not connect to this server.
 [17-04-22 12:56:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:56:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:56:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:57:15][conn]: closed reason=''
+[17-04-22 12:57:15][server]: client dropped. cid=0 addr=192.168.178.105:17247 reason=''
+[17-04-22 12:57:15][game]: kill killer='0:ChillerDragon' victim='0:ChillerDragon' weapon=-3 special=3
+[17-04-22 12:57:15][chat]: *** 'ChillerDragon' has left the game
+[17-04-22 12:57:15][game]: leave player='0:ChillerDragon'
+[17-04-22 12:57:21][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:57:21][engine]: job added
+[17-04-22 12:57:21][engine]: job added
+[17-04-22 12:57:21][engine]: job added
+[17-04-22 12:57:21][engine]: job added
+[17-04-22 12:57:21][register]: refreshing ip addresses
+[17-04-22 12:57:21][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:57:21][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:57:21][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:57:21][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:57:22][engine/mastersrv]: saving addresses
+[17-04-22 12:57:22][register]: fetching server counts
+[17-04-22 12:57:25][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:58:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:58:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:58:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:58:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:58:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:58:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:59:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:59:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:00:05][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:00:05][engine]: job added
+[17-04-22 13:00:05][engine]: job added
+[17-04-22 13:00:05][engine]: job added
+[17-04-22 13:00:05][engine]: job added
+[17-04-22 13:00:05][register]: refreshing ip addresses
+[17-04-22 13:00:05][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:00:05][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:00:05][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:00:05][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:00:06][engine/mastersrv]: saving addresses
+[17-04-22 13:00:06][register]: fetching server counts
+[17-04-22 13:00:09][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:01:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:01:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:01:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:01:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:01:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:01:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:01:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:01:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:02:50][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:02:50][engine]: job added
+[17-04-22 13:02:50][engine]: job added
+[17-04-22 13:02:50][engine]: job added
+[17-04-22 13:02:50][engine]: job added
+[17-04-22 13:02:50][register]: refreshing ip addresses
+[17-04-22 13:02:50][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:02:50][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:02:50][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:02:50][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:02:51][engine/mastersrv]: saving addresses
+[17-04-22 13:02:51][register]: fetching server counts
+[17-04-22 13:02:54][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:03:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:03:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:04:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:04:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:04:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:04:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:04:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:04:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:05:35][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:05:35][engine]: job added
+[17-04-22 13:05:35][engine]: job added
+[17-04-22 13:05:35][engine]: job added
+[17-04-22 13:05:35][engine]: job added
+[17-04-22 13:05:35][register]: refreshing ip addresses
+[17-04-22 13:05:35][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:05:35][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:05:35][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:05:35][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:05:36][engine/mastersrv]: saving addresses
+[17-04-22 13:05:36][register]: fetching server counts
+[17-04-22 13:05:39][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:06:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:06:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:06:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:06:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:07:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:07:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:07:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:07:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:08:20][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:08:20][engine]: job added
+[17-04-22 13:08:20][engine]: job added
+[17-04-22 13:08:20][engine]: job added
+[17-04-22 13:08:20][engine]: job added
+[17-04-22 13:08:20][register]: refreshing ip addresses
+[17-04-22 13:08:20][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:08:20][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:08:20][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:08:20][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:08:21][engine/mastersrv]: saving addresses
+[17-04-22 13:08:21][register]: fetching server counts
+[17-04-22 13:08:24][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:09:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:09:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:09:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:09:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:09:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:09:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:10:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:10:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:11:05][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:11:05][engine]: job added
+[17-04-22 13:11:05][engine]: job added
+[17-04-22 13:11:05][engine]: job added
+[17-04-22 13:11:05][engine]: job added
+[17-04-22 13:11:05][register]: refreshing ip addresses
+[17-04-22 13:11:05][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:11:05][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:11:05][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:11:05][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:11:06][engine/mastersrv]: saving addresses
+[17-04-22 13:11:06][register]: fetching server counts
+[17-04-22 13:11:09][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:12:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:12:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:12:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:12:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:12:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:12:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:12:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:12:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:13:50][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:13:50][engine]: job added
+[17-04-22 13:13:50][engine]: job added
+[17-04-22 13:13:50][engine]: job added
+[17-04-22 13:13:50][engine]: job added
+[17-04-22 13:13:50][register]: refreshing ip addresses
+[17-04-22 13:13:50][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:13:50][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:13:50][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:13:50][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:13:51][engine/mastersrv]: saving addresses
+[17-04-22 13:13:51][register]: fetching server counts
+[17-04-22 13:13:54][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:14:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:14:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:15:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:15:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:15:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:15:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:15:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:15:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:16:35][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:16:35][engine]: job added
+[17-04-22 13:16:35][engine]: job added
+[17-04-22 13:16:35][engine]: job added
+[17-04-22 13:16:35][engine]: job added
+[17-04-22 13:16:35][register]: refreshing ip addresses
+[17-04-22 13:16:35][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:16:35][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:16:35][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:16:35][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:16:36][engine/mastersrv]: saving addresses
+[17-04-22 13:16:36][register]: fetching server counts
+[17-04-22 13:16:39][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:17:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:17:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:17:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:17:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:18:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:18:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:18:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:18:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:19:20][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:19:20][engine]: job added
+[17-04-22 13:19:20][engine]: job added
+[17-04-22 13:19:20][engine]: job added
+[17-04-22 13:19:20][engine]: job added
+[17-04-22 13:19:20][register]: refreshing ip addresses
+[17-04-22 13:19:20][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:19:20][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:19:20][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:19:20][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:19:21][engine/mastersrv]: saving addresses
+[17-04-22 13:19:21][register]: fetching server counts
+[17-04-22 13:19:24][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:20:18][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:20:18][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:20:33][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:20:33][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:20:48][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:20:48][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:21:03][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:21:03][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:22:03][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:22:03][engine]: job added
+[17-04-22 13:22:03][engine]: job added
+[17-04-22 13:22:03][engine]: job added
+[17-04-22 13:22:03][engine]: job added
+[17-04-22 13:22:03][register]: refreshing ip addresses
+[17-04-22 13:22:03][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:22:03][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:22:03][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:22:03][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:22:04][engine/mastersrv]: saving addresses
+[17-04-22 13:22:04][register]: fetching server counts
+[17-04-22 13:22:07][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:23:03][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:23:03][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:23:18][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:23:18][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:23:33][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:23:33][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:23:48][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:23:48][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:24:48][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:24:48][engine]: job added
+[17-04-22 13:24:48][engine]: job added
+[17-04-22 13:24:48][engine]: job added
+[17-04-22 13:24:48][engine]: job added
+[17-04-22 13:24:48][register]: refreshing ip addresses
+[17-04-22 13:24:48][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:24:48][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:24:48][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:24:48][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:24:49][engine/mastersrv]: saving addresses
+[17-04-22 13:24:49][register]: fetching server counts
+[17-04-22 13:24:52][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:25:45][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:25:45][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:26:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:26:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:26:15][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:26:15][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:26:30][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:26:30][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:27:30][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:27:30][engine]: job added
+[17-04-22 13:27:30][engine]: job added
+[17-04-22 13:27:30][engine]: job added
+[17-04-22 13:27:30][engine]: job added
+[17-04-22 13:27:30][register]: refreshing ip addresses
+[17-04-22 13:27:30][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:27:30][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:27:30][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:27:30][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:27:31][engine/mastersrv]: saving addresses
+[17-04-22 13:27:31][register]: fetching server counts
+[17-04-22 13:27:34][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:28:28][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:28:28][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:28:43][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:28:43][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:28:58][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:28:58][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:29:13][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:29:13][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:30:13][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:30:13][engine]: job added
+[17-04-22 13:30:13][engine]: job added
+[17-04-22 13:30:13][engine]: job added
+[17-04-22 13:30:13][engine]: job added
+[17-04-22 13:30:13][register]: refreshing ip addresses
+[17-04-22 13:30:13][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:30:13][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:30:13][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:30:13][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:30:14][engine/mastersrv]: saving addresses
+[17-04-22 13:30:14][register]: fetching server counts
+[17-04-22 13:30:17][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:31:11][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:31:11][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:31:26][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:31:26][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:31:41][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:31:41][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:31:56][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:31:56][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:32:56][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:32:56][engine]: job added
+[17-04-22 13:32:56][engine]: job added
+[17-04-22 13:32:56][engine]: job added
+[17-04-22 13:32:56][engine]: job added
+[17-04-22 13:32:56][register]: refreshing ip addresses
+[17-04-22 13:32:56][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:32:56][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:32:56][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:32:56][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:32:57][engine/mastersrv]: saving addresses
+[17-04-22 13:32:57][register]: fetching server counts
+[17-04-22 13:33:00][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:33:56][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:33:56][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:34:11][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:34:11][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:34:26][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:34:26][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:34:41][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:34:41][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:35:41][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:35:41][engine]: job added
+[17-04-22 13:35:41][engine]: job added
+[17-04-22 13:35:41][engine]: job added
+[17-04-22 13:35:41][engine]: job added
+[17-04-22 13:35:41][register]: refreshing ip addresses
+[17-04-22 13:35:41][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:35:41][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:35:41][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:35:41][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:35:42][engine/mastersrv]: saving addresses
+[17-04-22 13:35:42][register]: fetching server counts
+[17-04-22 13:35:45][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:36:40][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:36:40][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:36:55][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:36:55][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:37:10][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:37:10][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:37:25][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:37:25][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:38:25][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:38:25][engine]: job added
+[17-04-22 13:38:25][engine]: job added
+[17-04-22 13:38:25][engine]: job added
+[17-04-22 13:38:25][engine]: job added
+[17-04-22 13:38:25][register]: refreshing ip addresses
+[17-04-22 13:38:25][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:38:25][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:38:25][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:38:25][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:38:26][engine/mastersrv]: saving addresses
+[17-04-22 13:38:26][register]: fetching server counts
+[17-04-22 13:38:29][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:39:23][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:39:23][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:39:38][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:39:38][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:39:53][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:39:53][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:40:08][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:40:08][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:41:08][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:41:08][engine]: job added
+[17-04-22 13:41:08][engine]: job added
+[17-04-22 13:41:08][engine]: job added
+[17-04-22 13:41:08][engine]: job added
+[17-04-22 13:41:08][register]: refreshing ip addresses
+[17-04-22 13:41:08][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:41:08][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:41:08][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:41:08][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:41:09][engine/mastersrv]: saving addresses
+[17-04-22 13:41:09][register]: fetching server counts
+[17-04-22 13:41:12][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:42:06][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:42:06][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:42:21][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:42:21][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:42:36][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:42:36][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:42:51][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:42:51][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:43:51][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:43:51][engine]: job added
+[17-04-22 13:43:51][engine]: job added
+[17-04-22 13:43:51][engine]: job added
+[17-04-22 13:43:51][engine]: job added
+[17-04-22 13:43:51][register]: refreshing ip addresses
+[17-04-22 13:43:51][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:43:51][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:43:51][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:43:51][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:43:52][engine/mastersrv]: saving addresses
+[17-04-22 13:43:52][register]: fetching server counts
+[17-04-22 13:43:55][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:44:48][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:44:48][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:45:03][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:45:03][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:45:18][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:45:18][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:45:33][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:45:33][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:46:33][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:46:33][engine]: job added
+[17-04-22 13:46:33][engine]: job added
+[17-04-22 13:46:33][engine]: job added
+[17-04-22 13:46:33][engine]: job added
+[17-04-22 13:46:33][register]: refreshing ip addresses
+[17-04-22 13:46:33][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:46:33][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:46:33][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:46:33][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:46:34][engine/mastersrv]: saving addresses
+[17-04-22 13:46:34][register]: fetching server counts
+[17-04-22 13:46:37][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:47:30][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:47:30][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:47:45][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:47:45][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:48:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:48:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:48:15][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:48:15][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:49:15][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:49:15][engine]: job added
+[17-04-22 13:49:15][engine]: job added
+[17-04-22 13:49:15][engine]: job added
+[17-04-22 13:49:15][engine]: job added
+[17-04-22 13:49:15][register]: refreshing ip addresses
+[17-04-22 13:49:15][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:49:15][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:49:15][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:49:15][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:49:16][engine/mastersrv]: saving addresses
+[17-04-22 13:49:16][register]: fetching server counts
+[17-04-22 13:49:19][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:50:15][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:50:15][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:50:30][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:50:30][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:50:45][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:50:45][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:51:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:51:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:52:00][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:52:00][engine]: job added
+[17-04-22 13:52:00][engine]: job added
+[17-04-22 13:52:00][engine]: job added
+[17-04-22 13:52:00][engine]: job added
+[17-04-22 13:52:00][register]: refreshing ip addresses
+[17-04-22 13:52:00][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:52:00][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:52:00][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:52:00][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:52:01][engine/mastersrv]: saving addresses
+[17-04-22 13:52:01][register]: fetching server counts
+[17-04-22 13:52:04][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:52:58][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:52:58][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:53:13][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:53:13][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:53:28][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:53:28][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:53:43][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:53:43][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:54:43][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:54:43][engine]: job added
+[17-04-22 13:54:43][engine]: job added
+[17-04-22 13:54:43][engine]: job added
+[17-04-22 13:54:43][engine]: job added
+[17-04-22 13:54:43][register]: refreshing ip addresses
+[17-04-22 13:54:43][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:54:44][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:54:44][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:54:44][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:54:44][engine/mastersrv]: saving addresses
+[17-04-22 13:54:44][register]: fetching server counts
+[17-04-22 13:54:48][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:55:43][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:55:43][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:55:58][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:55:58][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:56:13][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:56:13][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:56:28][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:56:28][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:57:29][engine/mastersrv]: refreshing master server addresses
+[17-04-22 13:57:29][engine]: job added
+[17-04-22 13:57:29][engine]: job added
+[17-04-22 13:57:29][engine]: job added
+[17-04-22 13:57:29][engine]: job added
+[17-04-22 13:57:29][register]: refreshing ip addresses
+[17-04-22 13:57:29][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 13:57:29][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 13:57:29][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 13:57:29][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 13:57:30][engine/mastersrv]: saving addresses
+[17-04-22 13:57:30][register]: fetching server counts
+[17-04-22 13:57:33][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 13:58:26][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:58:26][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:58:41][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:58:41][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:58:56][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:58:56][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 13:59:11][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 13:59:11][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:00:11][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:00:11][engine]: job added
+[17-04-22 14:00:11][engine]: job added
+[17-04-22 14:00:11][engine]: job added
+[17-04-22 14:00:11][engine]: job added
+[17-04-22 14:00:11][register]: refreshing ip addresses
+[17-04-22 14:00:11][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:00:11][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:00:11][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:00:11][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:00:12][engine/mastersrv]: saving addresses
+[17-04-22 14:00:12][register]: fetching server counts
+[17-04-22 14:00:15][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:01:09][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:01:09][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:01:24][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:01:24][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:01:39][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:01:39][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:01:54][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:01:54][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:02:54][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:02:54][engine]: job added
+[17-04-22 14:02:54][engine]: job added
+[17-04-22 14:02:54][engine]: job added
+[17-04-22 14:02:54][engine]: job added
+[17-04-22 14:02:54][register]: refreshing ip addresses
+[17-04-22 14:02:54][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:02:54][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:02:54][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:02:54][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:02:55][engine/mastersrv]: saving addresses
+[17-04-22 14:02:55][register]: fetching server counts
+[17-04-22 14:02:58][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:03:51][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:03:51][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:04:06][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:04:06][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:04:21][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:04:21][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:04:36][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:04:36][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:05:36][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:05:36][engine]: job added
+[17-04-22 14:05:36][engine]: job added
+[17-04-22 14:05:36][engine]: job added
+[17-04-22 14:05:36][engine]: job added
+[17-04-22 14:05:36][register]: refreshing ip addresses
+[17-04-22 14:05:36][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:05:36][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:05:36][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:05:36][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:05:37][engine/mastersrv]: saving addresses
+[17-04-22 14:05:37][register]: fetching server counts
+[17-04-22 14:05:40][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:06:36][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:06:36][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:06:51][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:06:51][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:07:06][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:07:06][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:07:21][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:07:21][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:08:21][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:08:21][engine]: job added
+[17-04-22 14:08:21][engine]: job added
+[17-04-22 14:08:21][engine]: job added
+[17-04-22 14:08:21][engine]: job added
+[17-04-22 14:08:21][register]: refreshing ip addresses
+[17-04-22 14:08:21][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:08:21][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:08:21][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:08:21][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:08:22][engine/mastersrv]: saving addresses
+[17-04-22 14:08:22][register]: fetching server counts
+[17-04-22 14:08:25][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:09:21][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:09:21][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:09:36][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:09:36][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:09:51][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:09:51][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:10:06][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:10:06][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:11:06][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:11:06][engine]: job added
+[17-04-22 14:11:06][engine]: job added
+[17-04-22 14:11:06][engine]: job added
+[17-04-22 14:11:06][engine]: job added
+[17-04-22 14:11:06][register]: refreshing ip addresses
+[17-04-22 14:11:06][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:11:06][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:11:06][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:11:06][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:11:07][engine/mastersrv]: saving addresses
+[17-04-22 14:11:07][register]: fetching server counts
+[17-04-22 14:11:10][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:12:04][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:12:04][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:12:19][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:12:19][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:12:34][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:12:34][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:12:49][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:12:49][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:13:49][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:13:49][engine]: job added
+[17-04-22 14:13:49][engine]: job added
+[17-04-22 14:13:49][engine]: job added
+[17-04-22 14:13:49][engine]: job added
+[17-04-22 14:13:49][register]: refreshing ip addresses
+[17-04-22 14:13:49][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:13:49][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:13:49][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:13:49][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:13:50][engine/mastersrv]: saving addresses
+[17-04-22 14:13:50][register]: fetching server counts
+[17-04-22 14:13:53][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:14:49][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:14:49][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:15:04][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:15:04][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:15:19][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:15:19][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:15:34][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:15:34][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:16:34][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:16:34][engine]: job added
+[17-04-22 14:16:34][engine]: job added
+[17-04-22 14:16:34][engine]: job added
+[17-04-22 14:16:34][engine]: job added
+[17-04-22 14:16:34][register]: refreshing ip addresses
+[17-04-22 14:16:34][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:16:34][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:16:34][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:16:34][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:16:35][engine/mastersrv]: saving addresses
+[17-04-22 14:16:35][register]: fetching server counts
+[17-04-22 14:16:38][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:17:34][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:17:34][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:17:49][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:17:49][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:18:04][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:18:04][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:18:19][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:18:19][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:19:19][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:19:19][engine]: job added
+[17-04-22 14:19:19][engine]: job added
+[17-04-22 14:19:19][engine]: job added
+[17-04-22 14:19:19][engine]: job added
+[17-04-22 14:19:19][register]: refreshing ip addresses
+[17-04-22 14:19:19][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:19:19][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:19:19][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:19:19][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:19:20][engine/mastersrv]: saving addresses
+[17-04-22 14:19:20][register]: fetching server counts
+[17-04-22 14:19:23][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:20:16][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:20:16][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:20:31][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:20:31][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:20:46][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:20:46][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:21:01][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:21:01][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:22:01][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:22:01][engine]: job added
+[17-04-22 14:22:01][engine]: job added
+[17-04-22 14:22:01][engine]: job added
+[17-04-22 14:22:01][engine]: job added
+[17-04-22 14:22:01][register]: refreshing ip addresses
+[17-04-22 14:22:01][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:22:01][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:22:01][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:22:01][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:22:02][engine/mastersrv]: saving addresses
+[17-04-22 14:22:02][register]: fetching server counts
+[17-04-22 14:22:05][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:23:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:23:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:23:15][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:23:15][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:23:30][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:23:30][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:23:45][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:23:45][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:24:45][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:24:45][engine]: job added
+[17-04-22 14:24:45][engine]: job added
+[17-04-22 14:24:45][engine]: job added
+[17-04-22 14:24:45][engine]: job added
+[17-04-22 14:24:45][register]: refreshing ip addresses
+[17-04-22 14:24:45][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:24:45][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:24:45][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:24:45][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:24:46][engine/mastersrv]: saving addresses
+[17-04-22 14:24:46][register]: fetching server counts
+[17-04-22 14:24:49][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:25:44][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:25:44][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:25:59][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:25:59][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:26:14][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:26:14][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:26:29][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:26:29][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:27:29][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:27:29][engine]: job added
+[17-04-22 14:27:29][engine]: job added
+[17-04-22 14:27:29][engine]: job added
+[17-04-22 14:27:29][engine]: job added
+[17-04-22 14:27:29][register]: refreshing ip addresses
+[17-04-22 14:27:29][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:27:29][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:27:29][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:27:29][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:27:30][engine/mastersrv]: saving addresses
+[17-04-22 14:27:30][register]: fetching server counts
+[17-04-22 14:27:33][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:28:29][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:28:29][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:28:44][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:28:44][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:28:59][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:28:59][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:29:14][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:29:14][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:30:14][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:30:14][engine]: job added
+[17-04-22 14:30:14][engine]: job added
+[17-04-22 14:30:14][engine]: job added
+[17-04-22 14:30:14][engine]: job added
+[17-04-22 14:30:14][register]: refreshing ip addresses
+[17-04-22 14:30:14][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:30:14][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:30:14][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:30:14][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:30:15][engine/mastersrv]: saving addresses
+[17-04-22 14:30:15][register]: fetching server counts
+[17-04-22 14:30:18][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:31:10][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:31:10][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:31:25][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:31:25][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:31:40][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:31:40][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:31:55][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:31:55][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:32:55][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:32:55][engine]: job added
+[17-04-22 14:32:55][engine]: job added
+[17-04-22 14:32:55][engine]: job added
+[17-04-22 14:32:55][engine]: job added
+[17-04-22 14:32:55][register]: refreshing ip addresses
+[17-04-22 14:32:55][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:32:55][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:32:55][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:32:55][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:32:56][engine/mastersrv]: saving addresses
+[17-04-22 14:32:56][register]: fetching server counts
+[17-04-22 14:32:59][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:33:54][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:33:54][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:34:09][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:34:09][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:34:24][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:34:24][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:34:39][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:34:39][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:35:39][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:35:39][engine]: job added
+[17-04-22 14:35:39][engine]: job added
+[17-04-22 14:35:39][engine]: job added
+[17-04-22 14:35:39][engine]: job added
+[17-04-22 14:35:39][register]: refreshing ip addresses
+[17-04-22 14:35:39][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:35:39][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:35:39][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:35:39][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:35:40][engine/mastersrv]: saving addresses
+[17-04-22 14:35:40][register]: fetching server counts
+[17-04-22 14:35:43][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:36:39][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:36:39][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:36:54][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:36:54][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:37:09][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:37:09][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:37:24][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:37:24][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:38:24][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:38:24][engine]: job added
+[17-04-22 14:38:24][engine]: job added
+[17-04-22 14:38:24][engine]: job added
+[17-04-22 14:38:24][engine]: job added
+[17-04-22 14:38:24][register]: refreshing ip addresses
+[17-04-22 14:38:24][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:38:24][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:38:24][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:38:24][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:38:25][engine/mastersrv]: saving addresses
+[17-04-22 14:38:25][register]: fetching server counts
+[17-04-22 14:38:28][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:39:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:39:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:39:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:39:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:39:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:39:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:40:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:40:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:41:05][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:41:05][engine]: job added
+[17-04-22 14:41:05][engine]: job added
+[17-04-22 14:41:05][engine]: job added
+[17-04-22 14:41:05][engine]: job added
+[17-04-22 14:41:05][register]: refreshing ip addresses
+[17-04-22 14:41:05][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:41:05][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:41:05][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:41:05][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:41:06][engine/mastersrv]: saving addresses
+[17-04-22 14:41:06][register]: fetching server counts
+[17-04-22 14:41:10][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:42:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:42:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:42:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:42:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:42:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:42:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:42:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:42:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:43:50][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:43:50][engine]: job added
+[17-04-22 14:43:50][engine]: job added
+[17-04-22 14:43:50][engine]: job added
+[17-04-22 14:43:50][engine]: job added
+[17-04-22 14:43:50][register]: refreshing ip addresses
+[17-04-22 14:43:50][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:43:51][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:43:51][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:43:51][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:43:51][engine/mastersrv]: saving addresses
+[17-04-22 14:43:51][register]: fetching server counts
+[17-04-22 14:43:55][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:44:46][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:44:46][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:45:01][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:45:01][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:45:16][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:45:16][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:45:31][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:45:31][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:46:31][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:46:31][engine]: job added
+[17-04-22 14:46:31][engine]: job added
+[17-04-22 14:46:31][engine]: job added
+[17-04-22 14:46:31][engine]: job added
+[17-04-22 14:46:31][register]: refreshing ip addresses
+[17-04-22 14:46:31][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:46:31][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:46:31][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:46:31][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:46:32][engine/mastersrv]: saving addresses
+[17-04-22 14:46:32][register]: fetching server counts
+[17-04-22 14:46:35][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:47:30][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:47:30][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:47:45][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:47:45][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:48:01][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:48:01][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:48:16][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:48:16][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:49:16][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:49:16][engine]: job added
+[17-04-22 14:49:16][engine]: job added
+[17-04-22 14:49:16][engine]: job added
+[17-04-22 14:49:16][engine]: job added
+[17-04-22 14:49:16][register]: refreshing ip addresses
+[17-04-22 14:49:16][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:49:16][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:49:16][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:49:16][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:49:17][engine/mastersrv]: saving addresses
+[17-04-22 14:49:17][register]: fetching server counts
+[17-04-22 14:49:20][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:49:33][server]: starting...
+[17-04-22 14:49:33][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 14:49:33][datafile]: allocsize=3328
+[17-04-22 14:49:33][datafile]: readsize=3100
+[17-04-22 14:49:33][datafile]: swaplen=3120
+[17-04-22 14:49:33][datafile]: item_size=2572
+[17-04-22 14:49:33][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 14:49:33][server]: maps/ChillBlock5.map crc is bf66e89e
+[17-04-22 14:49:33][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 14:49:33][datafile]: loading data index=23 size=5822 uncompressed=4054900
+[17-04-22 14:49:33][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 14:49:33][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 14:49:33][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 14:49:33][console]: failed to open 'reset.cfg'
+[17-04-22 14:49:33][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 14:49:33][console]: No such command: sv_bankstate.
+[17-04-22 14:49:33][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 14:49:33][server]: version 0.6 626fce9a778df4d4
+[17-04-22 14:49:33][server]: baseline memory usage 16585k
+[17-04-22 14:49:33][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:49:33][engine]: job added
+[17-04-22 14:49:33][engine]: job added
+[17-04-22 14:49:33][engine]: job added
+[17-04-22 14:49:33][engine]: job added
+[17-04-22 14:49:33][register]: refreshing ip addresses
+[17-04-22 14:49:33][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:49:33][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:49:33][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:49:33][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:49:34][engine/mastersrv]: saving addresses
+[17-04-22 14:49:34][register]: fetching server counts
+[17-04-22 14:49:37][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:49:49][security]: new client (ddnet token)
+[17-04-22 14:49:49][security]: Client accepted 192.168.178.105:17247
+[17-04-22 14:49:49][server]: sending chunk 0 with size 896
+[17-04-22 14:49:49][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 14:49:50][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:49:50][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 14:49:50][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 14:49:50][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 14:49:50][DDNet]: 0 using Custom Client 900
+[17-04-22 14:49:52][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 14:49:55][server]: ClientID=0 authed (admin)
+[17-04-22 14:49:56][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:56][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:56][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:56][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:56][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:57][server]: ClientID=0 rcon='down'
+[17-04-22 14:49:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:49:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:49:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:49:58][server]: ClientID=0 rcon='right'
+[17-04-22 14:49:58][server]: ClientID=0 rcon='right'
+[17-04-22 14:50:00][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:50:09][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:50:14][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:50:14][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:50:19][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:50:20][game]: kill killer='0:ChillerDragon' victim='0:ChillerDragon' weapon=-2 special=0
+[17-04-22 14:50:24][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:50:29][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:50:30][chat]: 0:-2:ChillerDragon: t
+[17-04-22 14:50:31][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:50:31][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:50:46][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:50:46][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:51:01][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:51:01][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:51:22][server]: starting...
+[17-04-22 14:51:22][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 14:51:22][datafile]: allocsize=3328
+[17-04-22 14:51:22][datafile]: readsize=3100
+[17-04-22 14:51:22][datafile]: swaplen=3120
+[17-04-22 14:51:22][datafile]: item_size=2572
+[17-04-22 14:51:22][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 14:51:22][server]: maps/ChillBlock5.map crc is bf66e89e
+[17-04-22 14:51:22][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 14:51:22][datafile]: loading data index=23 size=5822 uncompressed=4054900
+[17-04-22 14:51:22][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 14:51:22][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 14:51:22][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 14:51:22][console]: failed to open 'reset.cfg'
+[17-04-22 14:51:22][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 14:51:22][console]: No such command: sv_bankstate.
+[17-04-22 14:51:22][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 14:51:22][server]: version 0.6 626fce9a778df4d4
+[17-04-22 14:51:22][server]: baseline memory usage 16585k
+[17-04-22 14:51:22][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:51:22][engine]: job added
+[17-04-22 14:51:22][engine]: job added
+[17-04-22 14:51:22][engine]: job added
+[17-04-22 14:51:22][engine]: job added
+[17-04-22 14:51:22][register]: refreshing ip addresses
+[17-04-22 14:51:22][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:51:22][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:51:22][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:51:22][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:51:23][engine/mastersrv]: saving addresses
+[17-04-22 14:51:23][register]: fetching server counts
+[17-04-22 14:51:23][security]: new client (ddnet token)
+[17-04-22 14:51:23][security]: Client accepted 192.168.178.105:17247
+[17-04-22 14:51:23][server]: sending chunk 0 with size 896
+[17-04-22 14:51:23][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 14:51:24][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:51:24][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 14:51:24][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 14:51:24][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 14:51:24][DDNet]: 0 using Custom Client 900
+[17-04-22 14:51:25][server]: ClientID=0 authed (admin)
+[17-04-22 14:51:26][server]: ClientID=0 rcon='down'
+[17-04-22 14:51:26][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:51:26][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 14:51:26][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:27][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='down'
+[17-04-22 14:51:28][server]: ClientID=0 rcon='down'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='down'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='down'
+[17-04-22 14:51:29][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='right'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='right'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='right'
+[17-04-22 14:51:29][server]: ClientID=0 rcon='right'
+[17-04-22 14:51:30][server]: ClientID=0 rcon='right'
+[17-04-22 14:51:30][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:30][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:30][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:31][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:31][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:31][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:31][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:31][server]: ClientID=0 rcon='left'
+[17-04-22 14:51:35][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:51:41][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:51:44][server]: ClientID=0 rcon='up'
+[17-04-22 14:51:46][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:16][server]: ClientID=0 rcon='reload'
+[17-04-22 14:52:16][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 14:52:16][datafile]: allocsize=3328
+[17-04-22 14:52:16][datafile]: readsize=3100
+[17-04-22 14:52:16][datafile]: swaplen=3120
+[17-04-22 14:52:16][datafile]: item_size=2572
+[17-04-22 14:52:16][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 14:52:16][server]: maps/ChillBlock5.map crc is 4197abf2
+[17-04-22 14:52:16][datafile]: loading data index=23 size=5829 uncompressed=4054900
+[17-04-22 14:52:16][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 14:52:16][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 14:52:16][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 14:52:16][console]: failed to open 'reset.cfg'
+[17-04-22 14:52:16][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 14:52:16][console]: No such command: sv_bankstate.
+[17-04-22 14:52:16][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 14:52:16][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 14:52:16][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:16][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 14:52:17][DDNet]: 0 using Custom Client 900
+[17-04-22 14:52:18][server]: ClientID=0 rcon='super'
+[17-04-22 14:52:19][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 14:52:19][server]: ClientID=0 rcon='down'
+[17-04-22 14:52:19][server]: ClientID=0 rcon='down'
+[17-04-22 14:52:19][server]: ClientID=0 rcon='down'
+[17-04-22 14:52:19][server]: ClientID=0 rcon='down'
+[17-04-22 14:52:19][server]: ClientID=0 rcon='down'
+[17-04-22 14:52:20][server]: ClientID=0 rcon='super'
+[17-04-22 14:52:21][server]: ClientID=0 rcon='unsuper'
+[17-04-22 14:52:21][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:52:21][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:52:21][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:27][server]: ClientID=0 rcon='super'
+[17-04-22 14:52:27][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:28][server]: ClientID=0 rcon='unsuper'
+[17-04-22 14:52:33][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:36][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:52:36][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:52:38][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:43][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:48][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:51][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:52:51][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:52:53][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:52:58][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:53:04][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:53:06][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:53:06][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:53:10][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:06][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:54:06][engine]: job added
+[17-04-22 14:54:06][engine]: job added
+[17-04-22 14:54:06][engine]: job added
+[17-04-22 14:54:06][engine]: job added
+[17-04-22 14:54:06][register]: refreshing ip addresses
+[17-04-22 14:54:06][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:54:06][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:54:06][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:54:06][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:54:06][engine/mastersrv]: saving addresses
+[17-04-22 14:54:06][register]: fetching server counts
+[17-04-22 14:54:07][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:09][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:54:12][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:14][server]: ClientID=0 rcon='up'
+[17-04-22 14:54:14][server]: ClientID=0 rcon='up'
+[17-04-22 14:54:14][server]: ClientID=0 rcon='up'
+[17-04-22 14:54:15][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:17][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:17][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:18][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:19][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:19][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:19][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:19][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:19][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:20][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:20][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:21][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:21][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:21][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:21][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:22][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:24][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:25][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:25][server]: ClientID=0 rcon='up'
+[17-04-22 14:54:26][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:26][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:26][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:27][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:28][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:29][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:29][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:29][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:30][game]: kill killer='0:ChillerDragon' victim='0:ChillerDragon' weapon=-2 special=0
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:33][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:34][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:35][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:36][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:37][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:38][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:39][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:40][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:40][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:41][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:42][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:42][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:42][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:42][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:42][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:43][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:44][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:44][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:47][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:48][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:49][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:50][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:51][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='right'
+[17-04-22 14:54:52][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:53][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:54][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:54][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:54][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:54][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:56][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:57][server]: ClientID=0 rcon='left'
+[17-04-22 14:54:59][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:54:59][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:00][server]: ClientID=0 rcon='right'
+[17-04-22 14:55:01][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:55:01][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:55:04][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:55:16][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:55:16][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:55:31][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:55:31][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:55:46][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:55:46][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:56:04][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:56:04][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:05][server]: ClientID=0 rcon='left'
+[17-04-22 14:56:06][server]: ClientID=0 rcon='down'
+[17-04-22 14:56:06][server]: ClientID=0 rcon='down'
+[17-04-22 14:56:06][server]: ClientID=0 rcon='down'
+[17-04-22 14:56:07][server]: ClientID=0 rcon='down'
+[17-04-22 14:56:07][server]: ClientID=0 rcon='down'
+[17-04-22 14:56:11][server]: ClientID=0 rcon='sv_roomstate'
+[17-04-22 14:56:11][console]: Value: 1
+[17-04-22 14:56:16][server]: ClientID=0 rcon='sv_roomstate 0'
+[17-04-22 14:56:17][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:56:22][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:56:24][server]: ClientID=0 rcon='sv_roomstate 2'
+[17-04-22 14:56:28][server]: ClientID=0 rcon='sv_roomstate 1'
+[17-04-22 14:56:28][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:56:33][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 14:56:36][server]: ClientID=0 rcon='sv_roomstate 2'
+[17-04-22 14:56:46][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:56:46][engine]: job added
+[17-04-22 14:56:46][engine]: job added
+[17-04-22 14:56:46][engine]: job added
+[17-04-22 14:56:46][engine]: job added
+[17-04-22 14:56:46][register]: refreshing ip addresses
+[17-04-22 14:56:46][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:56:46][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:56:46][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:56:46][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:56:46][engine/mastersrv]: saving addresses
+[17-04-22 14:56:46][register]: fetching server counts
+[17-04-22 14:56:49][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 14:57:41][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:57:41][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:57:56][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:57:56][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:58:11][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:58:11][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:58:26][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 14:58:26][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 14:59:26][engine/mastersrv]: refreshing master server addresses
+[17-04-22 14:59:26][engine]: job added
+[17-04-22 14:59:26][engine]: job added
+[17-04-22 14:59:26][engine]: job added
+[17-04-22 14:59:26][engine]: job added
+[17-04-22 14:59:26][register]: refreshing ip addresses
+[17-04-22 14:59:26][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 14:59:26][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 14:59:26][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 14:59:26][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 14:59:26][engine/mastersrv]: saving addresses
+[17-04-22 14:59:26][register]: fetching server counts
+[17-04-22 14:59:29][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 15:00:24][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 15:00:24][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 15:00:39][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 15:00:39][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 15:00:54][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 15:00:54][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
