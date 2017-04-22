@@ -2520,6 +2520,62 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	sqlite3_free(pQueryBuf);
 }
 
+void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "account stuff is turned off on this server.");
+		return;
+	}
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
+	{
+		pSelf->SendChatTarget(ClientID, "missing permission to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "---- commands -----");
+		//pSelf->SendChatTarget(ClientID, "'/sql_name super_mod <acc_name> <true/false>'"); //coming soon...
+		//pSelf->SendChatTarget(ClientID, "'/sql_name mod <acc_name> <true/false>'"); //coming soon...
+		//pSelf->SendChatTarget(ClientID, "'/sql_name freeze_acc <acc_name> <true/false>'"); //coming soon...
+		pSelf->SendChatTarget(ClientID, "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		pSelf->SendChatTarget(ClientID, "'/sql' similiar command using sql ids");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "set_passwd"))
+	{
+		str_format(pPlayer->m_aSetPassword, sizeof(pPlayer->m_aSetPassword), "%s", pResult->GetString(2));
+		str_format(pPlayer->m_aSQLNameName, sizeof(pPlayer->m_aSQLNameName), "%s", pResult->GetString(1));
+		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pResult->GetString(1));
+		CQuerySetPassword *pQuery = new CQuerySetPassword();
+		pQuery->m_ClientID = pResult->m_ClientID;
+		pQuery->m_pGameServer = pSelf;
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "Unknown command try '/sql_name' for full list.");
+	}
+}
+
 void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -2561,6 +2617,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		pSelf->SendChatTarget(ClientID, "'/sql_name' similar command using account names");
 		return;
 	}
 

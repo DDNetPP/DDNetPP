@@ -227,6 +227,30 @@ void CQueryChangePassword::OnData()
 	}
 }
 
+void CQuerySetPassword::OnData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (Next())
+	{
+		//send acc infos on found
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[SQL] Updated '%s's password to [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName, m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword);
+		m_pGameServer->SendChatTarget(m_ClientID, aBuf);
+
+		//do the actual sql update
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET Password='%s' WHERE Username='%s'", m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword, m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName);
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(m_pDatabase, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+	}
+	else
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "Invalid account.");
+	}
+}
+
 bool CGameContext::CheckAccounts(int AccountID)
 {
 #if defined(CONF_DEBUG)
@@ -6726,3 +6750,5 @@ int CGameContext::CountReadyBombPlayers()
 	}
 	return RdyPlrs;
 }
+
+
