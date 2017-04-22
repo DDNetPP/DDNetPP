@@ -1032,11 +1032,6 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
-	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
-	{
-		m_WasInRoom = false;
-	}
-
 	DummyTick();
 	DDPP_Tick();
 	DDRaceTick();
@@ -2712,24 +2707,42 @@ void CCharacter::HandleTiles(int Index)
 		m_WasInRoom=true;
 	}
 
-	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN)
+	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN) //BANKTILES
 	{
-		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+		if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+		{
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+			{
+				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+					dbg_msg("debug", "banktile");
+				}
+			}
+			else // no flag --> print always
+			{
+				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				dbg_msg("debug", "banktile");
+			}
+		}
 		m_InBank = true;
 	}
 	else if(m_TileIndex == TILE_BANK_OUT || m_TileFIndex == TILE_BANK_OUT)
 	{
-		GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		if (m_InBank)
+		{
+			GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		}
 		m_InBank = false;
 	}
 
 	if (m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
 	{
-		GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID());
+		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID()); //dont spam people in jail this is just an tele tile
 	}
 	else if (m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
 	{
-		GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID());
+		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID()); //dont send the message here wtf this is just an to tele tile
 	}
 
 	// solo part
@@ -3605,7 +3618,6 @@ void CCharacter::DDPP_Tick()
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
 
-
 	//spawnblock reducer
 	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
 	{
@@ -3752,7 +3764,7 @@ void CCharacter::DDPP_Tick()
 		{
 			//GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 			//return;
-			//this retrun produces some funny stuff xD
+			//this retrun produces some funny stuff xD (produced back then when it was in character tick func now in ddpp tick it will just fuck ddpp features)
 		}
 		else if (m_pPlayer->m_level > m_pPlayer->m_max_level)
 		{
@@ -3787,7 +3799,7 @@ void CCharacter::DDPP_Tick()
 						else
 						{
 							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-							GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");
+							//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
 						}
 					}
 					else  //not in bank
@@ -4017,10 +4029,20 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-
-	if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+	//Marcella's room code
+	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
 	{
-		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+		m_WasInRoom = false;
+	}
+
+	//General var resetter by ChillerDragon [ I M P O R T A N T] leave var resetter last --> so it wont influence ddpp tick stuff
+	if (Server()->Tick() % 20 == 0)
+	{
+		if (m_TileIndex != TILE_BANK_IN && m_TileFIndex != TILE_BANK_IN)
+		{
+			GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+			m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
+		}
 	}
 
 }

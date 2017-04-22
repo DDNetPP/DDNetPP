@@ -10939,3 +10939,710 @@
 [17-04-21 15:00:07][account]: Logged out: 1
 [17-04-21 15:00:07][chat]: *** 'SarKro' has left the game
 [17-04-21 15:00:07][game]: leave player='0:SarKro'
+[17-04-22 12:29:03][server]: starting...
+[17-04-22 12:29:03][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:29:03][datafile]: allocsize=3328
+[17-04-22 12:29:03][datafile]: readsize=3100
+[17-04-22 12:29:03][datafile]: swaplen=3120
+[17-04-22 12:29:03][datafile]: item_size=2572
+[17-04-22 12:29:03][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:29:03][server]: maps/ChillBlock5.map crc is c1a00b92
+[17-04-22 12:29:03][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 12:29:03][datafile]: loading data index=23 size=5818 uncompressed=4054900
+[17-04-22 12:29:03][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:29:03][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:29:03][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:29:03][console]: failed to open 'reset.cfg'
+[17-04-22 12:29:03][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:29:03][console]: No such command: sv_bankstate.
+[17-04-22 12:29:03][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:29:03][server]: version 0.6 626fce9a778df4d4
+[17-04-22 12:29:03][server]: baseline memory usage 16585k
+[17-04-22 12:29:03][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:29:03][engine]: job added
+[17-04-22 12:29:03][engine]: job added
+[17-04-22 12:29:03][engine]: job added
+[17-04-22 12:29:03][engine]: job added
+[17-04-22 12:29:03][register]: refreshing ip addresses
+[17-04-22 12:29:03][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:29:03][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:29:03][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:29:03][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:29:04][engine/mastersrv]: saving addresses
+[17-04-22 12:29:04][register]: fetching server counts
+[17-04-22 12:29:07][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:29:13][security]: new client (ddnet token)
+[17-04-22 12:29:13][security]: Client accepted 192.168.178.105:17247
+[17-04-22 12:29:13][server]: sending chunk 0 with size 896
+[17-04-22 12:29:13][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:29:13][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:29:13][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:29:13][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 12:29:13][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 12:29:14][DDNet]: 0 using Custom Client 900
+[17-04-22 12:29:16][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:29:18][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:29:25][server]: ClientID=0 authed (admin)
+[17-04-22 12:29:27][chat-command]: 0 used /bank open
+[17-04-22 12:29:28][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:29:33][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:29:58][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:29:58][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:30:13][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:30:13][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:30:28][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:30:28][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:30:43][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:30:43][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:31:43][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:31:43][engine]: job added
+[17-04-22 12:31:43][engine]: job added
+[17-04-22 12:31:43][engine]: job added
+[17-04-22 12:31:43][engine]: job added
+[17-04-22 12:31:43][register]: refreshing ip addresses
+[17-04-22 12:31:43][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:31:43][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:31:43][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:31:43][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:31:43][engine/mastersrv]: saving addresses
+[17-04-22 12:31:43][register]: fetching server counts
+[17-04-22 12:31:46][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:32:38][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:32:38][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:32:53][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:32:53][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:33:08][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:33:08][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:33:23][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:33:23][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:33:46][server]: starting...
+[17-04-22 12:33:46][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:33:46][datafile]: allocsize=3328
+[17-04-22 12:33:46][datafile]: readsize=3100
+[17-04-22 12:33:46][datafile]: swaplen=3120
+[17-04-22 12:33:46][datafile]: item_size=2572
+[17-04-22 12:33:46][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:33:46][server]: maps/ChillBlock5.map crc is c1a00b92
+[17-04-22 12:33:46][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 12:33:46][datafile]: loading data index=23 size=5818 uncompressed=4054900
+[17-04-22 12:33:46][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:33:46][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:33:46][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:33:46][console]: failed to open 'reset.cfg'
+[17-04-22 12:33:46][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:33:46][console]: No such command: sv_bankstate.
+[17-04-22 12:33:46][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:33:46][server]: version 0.6 626fce9a778df4d4
+[17-04-22 12:33:46][server]: baseline memory usage 16585k
+[17-04-22 12:33:46][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:33:46][engine]: job added
+[17-04-22 12:33:46][engine]: job added
+[17-04-22 12:33:46][engine]: job added
+[17-04-22 12:33:46][engine]: job added
+[17-04-22 12:33:46][register]: refreshing ip addresses
+[17-04-22 12:33:46][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:33:46][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:33:46][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:33:46][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:33:46][engine/mastersrv]: saving addresses
+[17-04-22 12:33:46][register]: fetching server counts
+[17-04-22 12:33:49][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:33:50][security]: new client (ddnet token)
+[17-04-22 12:33:50][security]: Client accepted 192.168.178.105:17247
+[17-04-22 12:33:50][server]: sending chunk 0 with size 896
+[17-04-22 12:33:50][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:33:50][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:33:50][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:33:50][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 12:33:50][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 12:33:51][DDNet]: 0 using Custom Client 900
+[17-04-22 12:33:51][server]: ClientID=0 authed (admin)
+[17-04-22 12:33:53][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:33:54][chat-command]: 0 used /bank open
+[17-04-22 12:33:55][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:34:02][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:34:44][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:34:44][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:34:59][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:34:59][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:35:14][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:35:14][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:35:24][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:27][server]: ClientID=0 rcon='reload'
+[17-04-22 12:35:27][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:35:27][datafile]: allocsize=3328
+[17-04-22 12:35:27][datafile]: readsize=3100
+[17-04-22 12:35:27][datafile]: swaplen=3120
+[17-04-22 12:35:27][datafile]: item_size=2572
+[17-04-22 12:35:27][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:35:27][server]: maps/ChillBlock5.map crc is ebda24e3
+[17-04-22 12:35:27][datafile]: loading data index=23 size=5824 uncompressed=4054900
+[17-04-22 12:35:27][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:35:27][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:35:27][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:35:27][console]: failed to open 'reset.cfg'
+[17-04-22 12:35:27][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:35:27][console]: No such command: sv_bankstate.
+[17-04-22 12:35:27][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:35:27][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:35:27][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:27][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:35:28][DDNet]: 0 using Custom Client 900
+[17-04-22 12:35:29][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:35:29][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:35:30][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:35:32][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:35][chat-command]: 0 used /bank open
+[17-04-22 12:35:35][debug]: banktile
+[17-04-22 12:35:36][debug]: banktile
+[17-04-22 12:35:37][debug]: banktile
+[17-04-22 12:35:37][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:38][debug]: banktile
+[17-04-22 12:35:40][debug]: banktile
+[17-04-22 12:35:41][debug]: banktile
+[17-04-22 12:35:42][debug]: banktile
+[17-04-22 12:35:42][debug]: banktile
+[17-04-22 12:35:42][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:43][debug]: banktile
+[17-04-22 12:35:46][debug]: banktile
+[17-04-22 12:35:46][debug]: banktile
+[17-04-22 12:35:46][debug]: banktile
+[17-04-22 12:35:47][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:48][debug]: banktile
+[17-04-22 12:35:48][debug]: banktile
+[17-04-22 12:35:49][debug]: banktile
+[17-04-22 12:35:49][debug]: banktile
+[17-04-22 12:35:50][debug]: banktile
+[17-04-22 12:35:52][debug]: banktile
+[17-04-22 12:35:53][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:54][debug]: banktile
+[17-04-22 12:35:54][debug]: banktile
+[17-04-22 12:35:56][debug]: banktile
+[17-04-22 12:35:57][debug]: banktile
+[17-04-22 12:35:58][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:35:59][debug]: banktile
+[17-04-22 12:36:00][debug]: banktile
+[17-04-22 12:36:01][debug]: banktile
+[17-04-22 12:36:03][debug]: banktile
+[17-04-22 12:36:03][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:04][debug]: banktile
+[17-04-22 12:36:05][debug]: banktile
+[17-04-22 12:36:06][debug]: banktile
+[17-04-22 12:36:07][debug]: banktile
+[17-04-22 12:36:08][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:09][debug]: banktile
+[17-04-22 12:36:13][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:21][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:22][debug]: banktile
+[17-04-22 12:36:22][debug]: banktile
+[17-04-22 12:36:22][debug]: banktile
+[17-04-22 12:36:23][debug]: banktile
+[17-04-22 12:36:24][debug]: banktile
+[17-04-22 12:36:24][debug]: banktile
+[17-04-22 12:36:25][debug]: banktile
+[17-04-22 12:36:25][debug]: banktile
+[17-04-22 12:36:26][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:29][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:36:29][engine]: job added
+[17-04-22 12:36:29][engine]: job added
+[17-04-22 12:36:29][engine]: job added
+[17-04-22 12:36:29][engine]: job added
+[17-04-22 12:36:29][register]: refreshing ip addresses
+[17-04-22 12:36:29][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:36:29][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:36:30][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:36:30][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:36:30][engine/mastersrv]: saving addresses
+[17-04-22 12:36:30][register]: fetching server counts
+[17-04-22 12:36:30][server]: ClientID=0 rcon='super'
+[17-04-22 12:36:33][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:36:35][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:42][server]: ClientID=0 rcon='unsuper'
+[17-04-22 12:36:50][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:36:57][chat-command]: 0 used /login vag vag vag
+[17-04-22 12:37:25][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:37:25][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:37:40][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:37:40][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:37:55][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:37:55][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:38:10][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:38:10][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:39:10][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:39:10][engine]: job added
+[17-04-22 12:39:10][engine]: job added
+[17-04-22 12:39:10][engine]: job added
+[17-04-22 12:39:10][engine]: job added
+[17-04-22 12:39:10][register]: refreshing ip addresses
+[17-04-22 12:39:10][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:39:10][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:39:10][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:39:10][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:39:10][engine/mastersrv]: saving addresses
+[17-04-22 12:39:10][register]: fetching server counts
+[17-04-22 12:39:13][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:40:06][server]: starting...
+[17-04-22 12:40:06][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:40:06][datafile]: allocsize=3328
+[17-04-22 12:40:06][datafile]: readsize=3100
+[17-04-22 12:40:06][datafile]: swaplen=3120
+[17-04-22 12:40:06][datafile]: item_size=2572
+[17-04-22 12:40:06][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:40:06][server]: maps/ChillBlock5.map crc is ebda24e3
+[17-04-22 12:40:06][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 12:40:06][datafile]: loading data index=23 size=5824 uncompressed=4054900
+[17-04-22 12:40:06][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:40:06][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:40:06][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:40:06][console]: failed to open 'reset.cfg'
+[17-04-22 12:40:06][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:40:06][console]: No such command: sv_bankstate.
+[17-04-22 12:40:06][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:40:06][server]: version 0.6 626fce9a778df4d4
+[17-04-22 12:40:06][server]: baseline memory usage 16585k
+[17-04-22 12:40:06][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:40:06][engine]: job added
+[17-04-22 12:40:06][engine]: job added
+[17-04-22 12:40:06][engine]: job added
+[17-04-22 12:40:06][engine]: job added
+[17-04-22 12:40:06][register]: refreshing ip addresses
+[17-04-22 12:40:06][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:40:06][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:40:06][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:40:06][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:40:06][engine/mastersrv]: saving addresses
+[17-04-22 12:40:06][register]: fetching server counts
+[17-04-22 12:40:09][security]: new client (ddnet token)
+[17-04-22 12:40:09][security]: Client accepted 192.168.178.105:17247
+[17-04-22 12:40:09][server]: sending chunk 0 with size 896
+[17-04-22 12:40:09][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:40:09][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:40:10][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:10][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:40:10][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 12:40:10][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 12:40:10][DDNet]: 0 using Custom Client 900
+[17-04-22 12:40:12][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:40:15][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:16][server]: ClientID=0 authed (admin)
+[17-04-22 12:40:18][server]: ClientID=0 rcon='greande '
+[17-04-22 12:40:18][console]: No such command: greande.
+[17-04-22 12:40:19][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:40:19][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:40:20][server]: ClientID=0 rcon='grenade'
+[17-04-22 12:40:21][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:21][server]: ClientID=0 rcon='super'
+[17-04-22 12:40:26][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:32][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:34][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:40:34][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:40:36][chat-command]: 0 used /bank open
+[17-04-22 12:40:39][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:41][debug]: banktile
+[17-04-22 12:40:41][debug]: banktile
+[17-04-22 12:40:42][debug]: banktile
+[17-04-22 12:40:43][debug]: banktile
+[17-04-22 12:40:43][debug]: banktile
+[17-04-22 12:40:44][debug]: banktile
+[17-04-22 12:40:44][debug]: banktile
+[17-04-22 12:40:46][chat-command]: 0 used /login vag vag
+[17-04-22 12:40:46][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:49][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:40:49][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:40:53][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:40:58][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:41:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:41:03][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:08][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:15][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:23][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:28][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:33][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:38][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:41:43][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:42:00][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:42:00][engine]: job added
+[17-04-22 12:42:00][engine]: job added
+[17-04-22 12:42:00][engine]: job added
+[17-04-22 12:42:00][engine]: job added
+[17-04-22 12:42:00][register]: refreshing ip addresses
+[17-04-22 12:42:00][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:42:00][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:42:00][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:42:00][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:42:00][engine/mastersrv]: saving addresses
+[17-04-22 12:42:00][register]: fetching server counts
+[17-04-22 12:42:03][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:42:54][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:42:54][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:43:09][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:43:09][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:43:24][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:43:24][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:43:39][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:43:39][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:44:39][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:44:39][engine]: job added
+[17-04-22 12:44:39][engine]: job added
+[17-04-22 12:44:39][engine]: job added
+[17-04-22 12:44:39][engine]: job added
+[17-04-22 12:44:39][register]: refreshing ip addresses
+[17-04-22 12:44:39][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:44:40][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:44:40][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:44:40][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:44:40][engine/mastersrv]: saving addresses
+[17-04-22 12:44:40][register]: fetching server counts
+[17-04-22 12:44:43][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:45:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:45:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:45:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:45:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:46:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:46:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:46:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:46:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:46:42][server]: starting...
+[17-04-22 12:46:42][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:46:42][datafile]: allocsize=3328
+[17-04-22 12:46:42][datafile]: readsize=3100
+[17-04-22 12:46:42][datafile]: swaplen=3120
+[17-04-22 12:46:42][datafile]: item_size=2572
+[17-04-22 12:46:42][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:46:42][server]: maps/ChillBlock5.map crc is ebda24e3
+[17-04-22 12:46:42][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 12:46:42][datafile]: loading data index=23 size=5824 uncompressed=4054900
+[17-04-22 12:46:42][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:46:42][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:46:42][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:46:42][console]: failed to open 'reset.cfg'
+[17-04-22 12:46:42][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:46:42][console]: No such command: sv_bankstate.
+[17-04-22 12:46:42][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:46:42][server]: version 0.6 626fce9a778df4d4
+[17-04-22 12:46:42][server]: baseline memory usage 16585k
+[17-04-22 12:46:42][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:46:42][engine]: job added
+[17-04-22 12:46:42][engine]: job added
+[17-04-22 12:46:42][engine]: job added
+[17-04-22 12:46:42][engine]: job added
+[17-04-22 12:46:42][register]: refreshing ip addresses
+[17-04-22 12:46:42][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:46:42][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:46:42][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:46:42][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:46:43][engine/mastersrv]: saving addresses
+[17-04-22 12:46:43][register]: fetching server counts
+[17-04-22 12:46:45][security]: new client (ddnet token)
+[17-04-22 12:46:45][security]: Client accepted 192.168.178.105:17247
+[17-04-22 12:46:45][server]: sending chunk 0 with size 896
+[17-04-22 12:46:45][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:46:45][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:46:45][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:46:45][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 12:46:45][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 12:46:46][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:46:46][DDNet]: 0 using Custom Client 900
+[17-04-22 12:46:48][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:46:49][server]: ClientID=0 authed (admin)
+[17-04-22 12:46:52][server]: ClientID=0 rcon='grenade'
+[17-04-22 12:46:52][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:46:55][server]: ClientID=0 rcon='super'
+[17-04-22 12:46:56][server]: ClientID=0 rcon='unsuper'
+[17-04-22 12:46:57][server]: ClientID=0 rcon='super'
+[17-04-22 12:46:59][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:04][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:05][server]: ClientID=0 rcon='unsuper'
+[17-04-22 12:47:07][chat-command]: 0 used /bank open
+[17-04-22 12:47:07][debug]: banktile
+[17-04-22 12:47:07][debug]: banktile
+[17-04-22 12:47:08][debug]: banktile
+[17-04-22 12:47:09][debug]: banktile
+[17-04-22 12:47:09][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:09][debug]: banktile
+[17-04-22 12:47:10][debug]: banktile
+[17-04-22 12:47:10][debug]: banktile
+[17-04-22 12:47:11][debug]: banktile
+[17-04-22 12:47:12][debug]: banktile
+[17-04-22 12:47:12][debug]: banktile
+[17-04-22 12:47:13][debug]: banktile
+[17-04-22 12:47:14][debug]: banktile
+[17-04-22 12:47:15][debug]: banktile
+[17-04-22 12:47:15][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:15][debug]: banktile
+[17-04-22 12:47:16][debug]: banktile
+[17-04-22 12:47:17][debug]: banktile
+[17-04-22 12:47:18][debug]: banktile
+[17-04-22 12:47:18][debug]: banktile
+[17-04-22 12:47:19][debug]: banktile
+[17-04-22 12:47:19][debug]: banktile
+[17-04-22 12:47:20][chat-command]: 0 used /login vag vag
+[17-04-22 12:47:20][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:25][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:30][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:35][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:38][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:47:38][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:47:40][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:45][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:47:53][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:47:53][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:48:06][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:48:08][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:48:08][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:48:11][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:48:23][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:48:23][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:48:39][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:48:44][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:48:49][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:49:23][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:49:23][engine]: job added
+[17-04-22 12:49:23][engine]: job added
+[17-04-22 12:49:23][engine]: job added
+[17-04-22 12:49:23][engine]: job added
+[17-04-22 12:49:23][register]: refreshing ip addresses
+[17-04-22 12:49:23][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:49:23][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:49:23][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:49:23][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:49:23][engine/mastersrv]: saving addresses
+[17-04-22 12:49:23][register]: fetching server counts
+[17-04-22 12:49:26][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:50:20][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:50:20][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:50:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:50:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:50:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:50:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:51:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:51:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:52:05][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:52:05][engine]: job added
+[17-04-22 12:52:05][engine]: job added
+[17-04-22 12:52:05][engine]: job added
+[17-04-22 12:52:05][engine]: job added
+[17-04-22 12:52:05][register]: refreshing ip addresses
+[17-04-22 12:52:05][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:52:05][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:52:05][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:52:05][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:52:05][engine/mastersrv]: saving addresses
+[17-04-22 12:52:05][register]: fetching server counts
+[17-04-22 12:52:08][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:52:29][server]: starting...
+[17-04-22 12:52:29][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-22 12:52:29][datafile]: allocsize=3328
+[17-04-22 12:52:29][datafile]: readsize=3100
+[17-04-22 12:52:29][datafile]: swaplen=3120
+[17-04-22 12:52:29][datafile]: item_size=2572
+[17-04-22 12:52:29][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-22 12:52:29][server]: maps/ChillBlock5.map crc is 0c02a8ac
+[17-04-22 12:52:29][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-22 12:52:29][datafile]: loading data index=23 size=5822 uncompressed=4054900
+[17-04-22 12:52:29][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-22 12:52:30][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-22 12:52:30][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-22 12:52:30][console]: failed to open 'reset.cfg'
+[17-04-22 12:52:30][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-22 12:52:30][console]: No such command: sv_bankstate.
+[17-04-22 12:52:30][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-22 12:52:30][server]: version 0.6 626fce9a778df4d4
+[17-04-22 12:52:30][server]: baseline memory usage 16585k
+[17-04-22 12:52:30][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:52:30][engine]: job added
+[17-04-22 12:52:30][engine]: job added
+[17-04-22 12:52:30][engine]: job added
+[17-04-22 12:52:30][engine]: job added
+[17-04-22 12:52:30][register]: refreshing ip addresses
+[17-04-22 12:52:30][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:52:30][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:52:30][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:52:30][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:52:30][engine/mastersrv]: saving addresses
+[17-04-22 12:52:30][register]: fetching server counts
+[17-04-22 12:52:32][security]: new client (ddnet token)
+[17-04-22 12:52:32][security]: Client accepted 192.168.178.105:17247
+[17-04-22 12:52:32][server]: sending chunk 0 with size 896
+[17-04-22 12:52:32][server]: player is ready. ClientID=0 addr=192.168.178.105:17247 secure=yes
+[17-04-22 12:52:33][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:52:33][server]: player has entered the game. ClientID=0 addr=192.168.178.105:17247
+[17-04-22 12:52:33][chat]: *** 'ChillerDragon' entered and joined the game
+[17-04-22 12:52:33][game]: team_join player='0:ChillerDragon' team=0
+[17-04-22 12:52:33][DDNet]: 0 using Custom Client 900
+[17-04-22 12:52:33][register]: chose 'master3.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:52:35][server]: ClientID=0 authed (admin)
+[17-04-22 12:52:35][chat-command]: 0 used /timeout DLxfXogvCwVEjljK
+[17-04-22 12:52:37][server]: ClientID=0 rcon='grenade'
+[17-04-22 12:52:38][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:52:38][server]: ClientID=0 rcon='super'
+[17-04-22 12:52:43][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:52:56][chat-command]: 0 used /bank open
+[17-04-22 12:52:57][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:52:57][debug]: banktile
+[17-04-22 12:52:57][debug]: banktile
+[17-04-22 12:52:59][debug]: banktile
+[17-04-22 12:53:00][debug]: banktile
+[17-04-22 12:53:00][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:53:00][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:53:01][debug]: banktile
+[17-04-22 12:53:01][debug]: banktile
+[17-04-22 12:53:02][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:53:02][debug]: banktile
+[17-04-22 12:53:03][debug]: banktile
+[17-04-22 12:53:03][debug]: banktile
+[17-04-22 12:53:06][debug]: banktile
+[17-04-22 12:53:07][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:53:09][debug]: banktile
+[17-04-22 12:53:09][debug]: banktile
+[17-04-22 12:53:12][debug]: banktile
+[17-04-22 12:53:12][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:53:15][debug]: banktile
+[17-04-22 12:53:17][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:53:18][debug]: banktile
+[17-04-22 12:53:21][debug]: banktile
+[17-04-22 12:53:22][debug]: banktile
+[17-04-22 12:53:22][debug]: banktile
+[17-04-22 12:53:23][debug]: banktile
+[17-04-22 12:53:24][debug]: banktile
+[17-04-22 12:53:24][debug]: banktile
+[17-04-22 12:53:25][debug]: banktile
+[17-04-22 12:53:25][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:53:25][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:53:25][debug]: banktile
+[17-04-22 12:53:26][debug]: banktile
+[17-04-22 12:53:27][debug]: banktile
+[17-04-22 12:53:27][debug]: banktile
+[17-04-22 12:53:28][debug]: banktile
+[17-04-22 12:53:28][debug]: banktile
+[17-04-22 12:53:29][debug]: banktile
+[17-04-22 12:53:30][debug]: banktile
+[17-04-22 12:53:30][debug]: banktile
+[17-04-22 12:53:31][debug]: banktile
+[17-04-22 12:53:31][debug]: banktile
+[17-04-22 12:53:32][debug]: banktile
+[17-04-22 12:53:33][debug]: banktile
+[17-04-22 12:53:33][debug]: banktile
+[17-04-22 12:53:34][debug]: banktile
+[17-04-22 12:53:34][debug]: banktile
+[17-04-22 12:53:35][debug]: banktile
+[17-04-22 12:53:36][debug]: banktile
+[17-04-22 12:53:36][debug]: banktile
+[17-04-22 12:53:37][debug]: banktile
+[17-04-22 12:53:37][debug]: banktile
+[17-04-22 12:53:38][debug]: banktile
+[17-04-22 12:53:39][debug]: banktile
+[17-04-22 12:53:39][debug]: banktile
+[17-04-22 12:53:40][debug]: banktile
+[17-04-22 12:53:40][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:53:40][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:53:40][debug]: banktile
+[17-04-22 12:53:41][debug]: banktile
+[17-04-22 12:53:42][debug]: banktile
+[17-04-22 12:53:42][debug]: banktile
+[17-04-22 12:53:43][debug]: banktile
+[17-04-22 12:53:43][debug]: banktile
+[17-04-22 12:53:44][debug]: banktile
+[17-04-22 12:53:45][debug]: banktile
+[17-04-22 12:53:45][debug]: banktile
+[17-04-22 12:53:46][debug]: banktile
+[17-04-22 12:53:46][debug]: banktile
+[17-04-22 12:53:47][debug]: banktile
+[17-04-22 12:53:48][debug]: banktile
+[17-04-22 12:53:48][debug]: banktile
+[17-04-22 12:53:49][debug]: banktile
+[17-04-22 12:53:49][debug]: banktile
+[17-04-22 12:53:50][debug]: banktile
+[17-04-22 12:53:51][debug]: banktile
+[17-04-22 12:53:51][debug]: banktile
+[17-04-22 12:53:52][debug]: banktile
+[17-04-22 12:53:52][debug]: banktile
+[17-04-22 12:53:53][debug]: banktile
+[17-04-22 12:53:54][debug]: banktile
+[17-04-22 12:53:54][debug]: banktile
+[17-04-22 12:53:55][debug]: banktile
+[17-04-22 12:53:55][debug]: banktile
+[17-04-22 12:53:56][debug]: banktile
+[17-04-22 12:53:57][debug]: banktile
+[17-04-22 12:53:57][debug]: banktile
+[17-04-22 12:53:58][debug]: banktile
+[17-04-22 12:53:58][debug]: banktile
+[17-04-22 12:53:59][debug]: banktile
+[17-04-22 12:54:00][debug]: banktile
+[17-04-22 12:54:00][debug]: banktile
+[17-04-22 12:54:01][debug]: banktile
+[17-04-22 12:54:01][debug]: banktile
+[17-04-22 12:54:02][debug]: banktile
+[17-04-22 12:54:03][debug]: banktile
+[17-04-22 12:54:03][debug]: banktile
+[17-04-22 12:54:04][debug]: banktile
+[17-04-22 12:54:04][debug]: banktile
+[17-04-22 12:54:05][debug]: banktile
+[17-04-22 12:54:06][debug]: banktile
+[17-04-22 12:54:06][debug]: banktile
+[17-04-22 12:54:06][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:10][debug]: banktile
+[17-04-22 12:54:14][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:19][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:24][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:29][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:34][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:39][debug]: banktile
+[17-04-22 12:54:39][debug]: banktile
+[17-04-22 12:54:39][debug]: banktile
+[17-04-22 12:54:40][debug]: banktile
+[17-04-22 12:54:40][engine/mastersrv]: refreshing master server addresses
+[17-04-22 12:54:40][engine]: job added
+[17-04-22 12:54:40][engine]: job added
+[17-04-22 12:54:40][engine]: job added
+[17-04-22 12:54:40][engine]: job added
+[17-04-22 12:54:40][register]: refreshing ip addresses
+[17-04-22 12:54:40][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-22 12:54:40][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-22 12:54:40][debug]: banktile
+[17-04-22 12:54:40][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-22 12:54:40][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-22 12:54:40][engine/mastersrv]: saving addresses
+[17-04-22 12:54:40][register]: fetching server counts
+[17-04-22 12:54:41][debug]: banktile
+[17-04-22 12:54:42][debug]: banktile
+[17-04-22 12:54:42][debug]: banktile
+[17-04-22 12:54:43][debug]: banktile
+[17-04-22 12:54:43][debug]: banktile
+[17-04-22 12:54:43][register]: chose 'master4.teeworlds.com' as master, sending heartbeats
+[17-04-22 12:54:44][debug]: banktile
+[17-04-22 12:54:45][debug]: banktile
+[17-04-22 12:54:45][debug]: banktile
+[17-04-22 12:54:46][debug]: banktile
+[17-04-22 12:54:46][debug]: banktile
+[17-04-22 12:54:47][debug]: banktile
+[17-04-22 12:54:48][debug]: banktile
+[17-04-22 12:54:48][debug]: banktile
+[17-04-22 12:54:49][debug]: banktile
+[17-04-22 12:54:49][debug]: banktile
+[17-04-22 12:54:50][debug]: banktile
+[17-04-22 12:54:51][debug]: banktile
+[17-04-22 12:54:51][debug]: banktile
+[17-04-22 12:54:51][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:52][debug]: banktile
+[17-04-22 12:54:52][debug]: banktile
+[17-04-22 12:54:53][debug]: banktile
+[17-04-22 12:54:54][debug]: banktile
+[17-04-22 12:54:54][debug]: banktile
+[17-04-22 12:54:55][debug]: banktile
+[17-04-22 12:54:56][debug]: banktile
+[17-04-22 12:54:56][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:54:57][debug]: banktile
+[17-04-22 12:54:57][debug]: banktile
+[17-04-22 12:54:58][debug]: banktile
+[17-04-22 12:54:59][debug]: banktile
+[17-04-22 12:55:01][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:55:07][debug]: banktile
+[17-04-22 12:55:07][server]: 'ChillerDragon' -> 'ChillerDragon'
+[17-04-22 12:55:35][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:55:35][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:55:50][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:55:50][register]: ERROR: configure your firewall/nat to let through udp on port 8303.
+[17-04-22 12:56:05][register]: ERROR: the master server reports that clients can not connect to this server.
+[17-04-22 12:56:05][register]: ERROR: configure your firewall/nat to let through udp on port 8303.

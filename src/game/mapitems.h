@@ -162,7 +162,7 @@ enum
 	TILE_JAIL, //121
 	TILE_JAILRELEASE, //122
 
-	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber!
+	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
 
 	//End of higher tiles
 	//Layers
