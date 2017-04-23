@@ -4458,19 +4458,19 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 		//player get
 		if (g_Config.m_SvPoopMSG == 1) //normal
 		{
-			str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", aUsername, Amount);
+			str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", pSelf->Server()->ClientName(pResult->m_ClientID), Amount);
 			pSelf->SendChatTarget(PoopID, aBuf);
 		}
 		else if (g_Config.m_SvPoopMSG == 2) //extreme
 		{
 			for (int i = 0; i < Amount; i++)
 			{
-				str_format(aBuf, sizeof(aBuf), "%s threw shit at you o.O", aUsername);
+				str_format(aBuf, sizeof(aBuf), "%s threw shit at you o.O", pSelf->Server()->ClientName(pResult->m_ClientID));
 				pSelf->SendChatTarget(PoopID, aBuf);
 
 				if (i > 30) //poop blocker o.O 30 lines of poop is the whole chat. Poor server has enough
 				{
-					str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", aUsername, Amount); //because it was more than the chatwindow can show inform the user how much poop it was
+					str_format(aBuf, sizeof(aBuf), "%s threw %d shit at you o.O", pSelf->Server()->ClientName(pResult->m_ClientID), Amount); //because it was more than the chatwindow can show inform the user how much poop it was
 					pSelf->SendChatTarget(PoopID, aBuf);
 					break;
 				}
@@ -6014,7 +6014,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "The police brings all the gangster here.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail open <code> <player>' to open cells");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/jail list' list all jailed players"); //and for police2 list with codes
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail code <player>' to show a certain jailcode");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail code <client id>' to show a certain jailcode");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail leave' to leave the jail");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer' to config the polce jail hammer");
 		return;
@@ -6124,7 +6124,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		}
 		if (!pSelf->m_apPlayers[pResult->GetInteger(1)]->m_JailTime)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Player is not arrested.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Player is not arrested. (make sure you use client id not player name)");
 			return;
 		}
 
