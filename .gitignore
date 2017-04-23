@@ -32,6 +32,8 @@ buildlog.txt
 *.dtb
 *.log
 *.exe
+*.cfg
+*.txt
 *.res
 *.patch
 *.prefs
@@ -47,4 +49,3 @@ buildlog.txt
 *.cmd
 .settings
 *.opensdf
-*.cfg
