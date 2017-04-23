@@ -466,6 +466,7 @@ private:
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
@@ -576,6 +577,12 @@ public:
 };
 
 class CQueryChangePassword : public CQueryPlayer //ChillerDragon's testy test (no idea what im doing here xd)
+{
+	void OnData();
+public:
+};
+
+class CQuerySetPassword : public CQueryPlayer //ChillerDragon's testy test (no idea what im doing here xd)
 {
 	void OnData();
 public:

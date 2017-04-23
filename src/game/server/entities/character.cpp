@@ -1032,11 +1032,6 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
-	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
-	{
-		m_WasInRoom = false;
-	}
-
 	DummyTick();
 	DDPP_Tick();
 	DDRaceTick();
@@ -2688,13 +2683,28 @@ void CCharacter::HandleTiles(int Index)
 
 	// ROOM POINT
 	bool Allowed = false;
-	if (g_Config.m_SvRoomState == 0)
+	if (g_Config.m_SvRoomState == 0) //all
+	{
 		Allowed = true;
-	else if (g_Config.m_SvRoomState == 1)
-			Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true:false;
-		else if(g_Config.m_SvRoomState == 2)
-			Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true:false;
+	}
+	else if (g_Config.m_SvRoomState == 1) //buy
+	{
+		Allowed = (m_pPlayer->m_BoughtRoom) ? true : false;
+	}
+	else if (g_Config.m_SvRoomState == 2) //buy invite
+	{
+		Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true : false;
+	}
+	else if (g_Config.m_SvRoomState == 3) //buy admin
+	{
+		Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true : false;
+	}
+	else if (g_Config.m_SvRoomState == 4) //buy admin invite
+	{
+		Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID()) || m_HasRoomKeyBySuperModerator) ? true : false;
+	}
 
+	//ROOMTILE
 	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
 	{
 		m_Core.m_Pos = m_PrevSavePos;
@@ -2712,24 +2722,42 @@ void CCharacter::HandleTiles(int Index)
 		m_WasInRoom=true;
 	}
 
-	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN)
+	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN) //BANKTILES
 	{
-		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+		if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+		{
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+			{
+				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+					dbg_msg("debug", "banktile");
+				}
+			}
+			else // no flag --> print always
+			{
+				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				dbg_msg("debug", "banktile");
+			}
+		}
 		m_InBank = true;
 	}
 	else if(m_TileIndex == TILE_BANK_OUT || m_TileFIndex == TILE_BANK_OUT)
 	{
-		GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		if (m_InBank)
+		{
+			GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+		}
 		m_InBank = false;
 	}
 
 	if (m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
 	{
-		GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID());
+		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID()); //dont spam people in jail this is just an tele tile
 	}
 	else if (m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
 	{
-		GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID());
+		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID()); //dont send the message here wtf this is just an to tele tile
 	}
 
 	// solo part
@@ -3605,7 +3633,6 @@ void CCharacter::DDPP_Tick()
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
 
-
 	//spawnblock reducer
 	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
 	{
@@ -3715,36 +3742,36 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvRoomState == 1) // ChillBlock5
-	{
-		if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
-		{
-			//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
-		}
-		else //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
-			{
-				m_Core.m_Pos.x = 325 * 32;
-				m_Core.m_Pos.y = 214 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
+	//if (g_Config.m_SvRoomState == 1) // ChillBlock5
+	//{
+	//	if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
+	//	{
+	//		//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
+	//	}
+	//	else //tele back if no key
+	//	{
+	//		if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
+	//		{
+	//			m_Core.m_Pos.x = 325 * 32;
+	//			m_Core.m_Pos.y = 214 * 32;
+	//			GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
+	//		}
+	//	}
 
-	}
-	else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
-	{
-		if (!m_pPlayer->m_BoughtRoom) //tele back if no key
-		{
-			if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
-			{
-				m_Core.m_Pos.x = 95 * 32;
-				m_Core.m_Pos.y = 189 * 32;
-				GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-			}
-		}
+	//}
+	//else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
+	//{
+	//	if (!m_pPlayer->m_BoughtRoom) //tele back if no key
+	//	{
+	//		if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
+	//		{
+	//			m_Core.m_Pos.x = 95 * 32;
+	//			m_Core.m_Pos.y = 189 * 32;
+	//			GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
+	//		}
+	//	}
 
-	}
+	//}
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
@@ -3752,7 +3779,7 @@ void CCharacter::DDPP_Tick()
 		{
 			//GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 			//return;
-			//this retrun produces some funny stuff xD
+			//this retrun produces some funny stuff xD (produced back then when it was in character tick func now in ddpp tick it will just fuck ddpp features)
 		}
 		else if (m_pPlayer->m_level > m_pPlayer->m_max_level)
 		{
@@ -3787,7 +3814,7 @@ void CCharacter::DDPP_Tick()
 						else
 						{
 							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
-							GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");
+							//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
 						}
 					}
 					else  //not in bank
@@ -4017,10 +4044,23 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-
-	if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
+	//Marcella's room code (used to slow down chat message spam)
+	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)
 	{
-		GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+		m_WasInRoom = false;
+	}
+
+	//General var resetter by ChillerDragon [ I M P O R T A N T] leave var resetter last --> so it wont influence ddpp tick stuff
+	if (Server()->Tick() % 20 == 0)
+	{
+		if (m_InBank)
+		{
+			if (m_TileIndex != TILE_BANK_IN && m_TileFIndex != TILE_BANK_IN)
+			{
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
+			}
+		}
 	}
 
 }

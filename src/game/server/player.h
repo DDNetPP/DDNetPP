@@ -385,6 +385,9 @@ public:
 	char m_aChangePassword[32];
 	char m_aAccountPassword[32];
 
+	char m_aSetPassword[32]; //admin sql save string (used to resett passwords)
+	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
+
 	void ChangePassword();
 	void Save();
 	void Logout();
