@@ -3832,12 +3832,14 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "-%d paid to '%s'", Amount, aUsername);
 		pPlayer->MoneyTransaction(-Amount, aBuf);
+		//dbg_msg("pay", "survived give"); //survives
 
 		//player get
-		str_format(aBuf, sizeof(aBuf), "'%s' paid you %d money", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "'%s' paid you %d money", pSelf->Server()->ClientName(pResult->m_ClientID), Amount);
 		pSelf->SendChatTarget(PayID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
+		dbg_msg("pay", "survived get");
 	}
 
 }
