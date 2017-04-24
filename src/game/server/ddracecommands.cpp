@@ -464,6 +464,10 @@ void CGameContext::ConPullhammer(IConsole::IResult *pResult, void *pUserData) //
 
 	int ClientID = pResult->GetVictim();
 
+	pSelf->SendChatTarget(ClientID, "deactivated command.");
+	return;
+
+
 	if (pSelf->m_apPlayers[ClientID])
 	{
 		pSelf->m_apPlayers[ClientID]->GetCharacter()->m_Pullhammer ^= 1;
