@@ -1146,6 +1146,7 @@ void CPlayer::Logout()
 	m_IsSuperModerator = 0;
 	m_IsAccFrozen = 0;
 	m_xp = 0;
+	m_neededxp = 0;
 	m_money = 0;
 	m_shit = 0;
 	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
@@ -1211,12 +1212,15 @@ void CPlayer::Save()
 	if (m_AccountID <= 0)
 		return;
 
+	//char aIP[32];
+	//Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
 
 	//Proccess IngameName Data...
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	if (aName == m_LastLogoutIGN1 || aName == m_LastLogoutIGN2 || aName == m_LastLogoutIGN3 || aName == m_LastLogoutIGN4 || aName == m_LastLogoutIGN5)
+	//if (aName == m_LastLogoutIGN1 || aName == m_LastLogoutIGN2 || aName == m_LastLogoutIGN3 || aName == m_LastLogoutIGN4 || aName == m_LastLogoutIGN5)
+	if (!str_comp(aName, m_LastLogoutIGN1), !str_comp(aName, m_LastLogoutIGN2), !str_comp(aName, m_LastLogoutIGN3), !str_comp(aName, m_LastLogoutIGN4), !str_comp(aName, m_LastLogoutIGN5))
 	{
 		//found name in history 
 		//ignore for now...
@@ -1225,6 +1229,13 @@ void CPlayer::Save()
 	}
 	else //new name --> add it in history and overwrite the oldest
 	{
+		//dbg_msg("debug", "'%s' was not equal to...", aName);
+		//dbg_msg("debug", "'%s'", m_LastLogoutIGN1);
+		//dbg_msg("debug", "'%s'", m_LastLogoutIGN2);
+		//dbg_msg("debug", "'%s'", m_LastLogoutIGN3);
+		//dbg_msg("debug", "'%s'", m_LastLogoutIGN4);
+		//dbg_msg("debug", "'%s'", m_LastLogoutIGN5);
+
 		str_format(m_LastLogoutIGN5, sizeof(m_LastLogoutIGN5), "%s", m_LastLogoutIGN4);
 		str_format(m_LastLogoutIGN4, sizeof(m_LastLogoutIGN4), "%s", m_LastLogoutIGN3);
 		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
