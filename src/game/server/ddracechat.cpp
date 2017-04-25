@@ -415,7 +415,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 #endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "room_key     %d money | lvl16 | disconnect", g_Config.m_SvRoomPrice);
+	str_format(aBuf, sizeof(aBuf), "room_key     %d | lvl16 | disconnect", g_Config.m_SvRoomPrice);
 
 
 
@@ -426,31 +426,31 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"type /buy <itemname>");
+		"Type '/buy <itemname>'");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ItemName | Price | Needed Level | OwnTime:");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"rainbow       1 500 money | lvl8 | dead");
+		"rainbow       1 500 | lvl8 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"bloody         3 500 money | lvl3 | dead");
+		"bloody         3 500 | lvl3 | dead");
 	/*pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"atom         3 500 money | lvl3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"trail         3 500 money | lvl3 | dead");*/
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"chidraqul     250 money | lvl2 | disconnect");
+		"chidraqul     250 | lvl2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"shit              5 money | lvl0 | forever");
+		"shit              5 | lvl0 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		aBuf);
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"police          100 000 money | lvl18 | forever");
+		"police          100 000 | lvl18 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"taser          50 000 money | police3 | forever");
+		"taser          50 000 | police3 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"pvp_arena_ticket     150 money | lvl0 | 1 use");
+		"pvp_arena_ticket     150 | lvl0 | 1 use");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -487,13 +487,11 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod.");
+		"ChillerDragon's Block Mod.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Created by ChillerDragon, timakro, FruchtiHD, Henritees, SarKro, Pikotee, \\toast & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRaceNetwork.");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"DDRaceNetwork is maintained by deen.More info on ddnet.tw");
 }
 
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
@@ -506,7 +504,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"ChillerDragon's Block mod. v.0.0.2 (more info '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"Based on Teeworlds DDraceNetwork Version: " GAME_VERSION);
+			"Based on DDraceNetwork Version: " GAME_VERSION);
 //#if defined( GIT_SHORTREV_HASH )
 //	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 //			"Git revision hash: " GIT_SHORTREV_HASH);

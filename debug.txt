@@ -11843,3 +11843,643 @@
 [17-04-21 18:09:49][game]: kill killer='1:SarKlon' victim='1:SarKlon' weapon=-3 special=0
 [17-04-21 18:09:49][chat]: *** 'SarKlon' has left the game (Server shutdown)
 [17-04-21 18:09:49][game]: leave player='1:SarKlon'
+[17-04-23 17:32:20][server]: starting...
+[17-04-23 17:32:20][datafile]: loading. filename='maps/ChillBlock5.map'
+[17-04-23 17:32:20][datafile]: allocsize=3328
+[17-04-23 17:32:20][datafile]: readsize=3100
+[17-04-23 17:32:20][datafile]: swaplen=3120
+[17-04-23 17:32:20][datafile]: item_size=2572
+[17-04-23 17:32:20][datafile]: loading done. datafile='maps/ChillBlock5.map'
+[17-04-23 17:32:21][server]: maps/ChillBlock5.map crc is aa221ac3
+[17-04-23 17:32:21][server]: server name is 'Official DDnet++ Testing Server'
+[17-04-23 17:32:21][datafile]: loading data index=23 size=5829 uncompressed=4054900
+[17-04-23 17:32:21][datafile]: loading data index=36 size=2010 uncompressed=2027450
+[17-04-23 17:32:21][datafile]: loading data index=32 size=6083 uncompressed=6082350
+[17-04-23 17:32:21][datafile]: loading data index=34 size=4028 uncompressed=4054900
+[17-04-23 17:32:21][console]: failed to open 'reset.cfg'
+[17-04-23 17:32:21][datafile]: loading data index=0 size=51 uncompressed=63
+[17-04-23 17:32:21][console]: No such command: sv_bankstate.
+[17-04-23 17:32:21][console]: failed to open 'maps/ChillBlock5.map.cfg'
+[17-04-23 17:32:21][server]: version 0.6 626fce9a778df4d4
+[17-04-23 17:32:21][server]: baseline memory usage 16585k
+[17-04-23 17:32:21][engine/mastersrv]: refreshing master server addresses
+[17-04-23 17:32:21][engine]: job added
+[17-04-23 17:32:21][engine]: job added
+[17-04-23 17:32:21][engine]: job added
+[17-04-23 17:32:21][engine]: job added
+[17-04-23 17:32:21][register]: refreshing ip addresses
+[17-04-23 17:32:21][host lookup]: host='master1.teeworlds.com' port=0 3
+[17-04-23 17:32:21][host lookup]: host='master2.teeworlds.com' port=0 3
+[17-04-23 17:32:21][host lookup]: host='master3.teeworlds.com' port=0 3
+[17-04-23 17:32:21][host lookup]: host='master4.teeworlds.com' port=0 3
+[17-04-23 17:32:22][engine/mastersrv]: saving addresses
+[17-04-23 17:32:22][register]: fetching server counts
+[17-04-23 17:32:25][register]: chose 'master2.teeworlds.com' as master, sending heartbeats
+[17-04-23 17:32:27][register]: no firewall/nat problems detected
+[17-04-23 17:32:27][register]: server registered
+[17-04-23 17:32:39][security]: new client (ddnet token)
+[17-04-23 17:32:39][security]: Client accepted 192.168.2.101:28112
+[17-04-23 17:32:39][server]: sending chunk 0 with size 896
+[17-04-23 17:32:39][server]: sending chunk 1 with size 896
+[17-04-23 17:32:39][server]: sending chunk 2 with size 896
+[17-04-23 17:32:39][server]: sending chunk 3 with size 896
+[17-04-23 17:32:39][server]: sending chunk 4 with size 896
+[17-04-23 17:32:39][server]: sending chunk 5 with size 896
+[17-04-23 17:32:39][server]: sending chunk 6 with size 896
+[17-04-23 17:32:39][server]: sending chunk 7 with size 896
+[17-04-23 17:32:39][server]: sending chunk 8 with size 896
+[17-04-23 17:32:39][server]: sending chunk 9 with size 896
+[17-04-23 17:32:39][server]: sending chunk 0 with size 896
+[17-04-23 17:32:39][server]: sending chunk 1 with size 896
+[17-04-23 17:32:39][server]: sending chunk 2 with size 896
+[17-04-23 17:32:39][server]: sending chunk 3 with size 896
+[17-04-23 17:32:39][server]: sending chunk 4 with size 896
+[17-04-23 17:32:39][server]: sending chunk 5 with size 896
+[17-04-23 17:32:39][server]: sending chunk 6 with size 896
+[17-04-23 17:32:39][server]: sending chunk 7 with size 896
+[17-04-23 17:32:39][server]: sending chunk 8 with size 896
+[17-04-23 17:32:39][server]: sending chunk 9 with size 896
+[17-04-23 17:32:39][server]: sending chunk 10 with size 896
+[17-04-23 17:32:39][server]: sending chunk 11 with size 896
+[17-04-23 17:32:39][server]: sending chunk 12 with size 896
+[17-04-23 17:32:39][server]: sending chunk 13 with size 896
+[17-04-23 17:32:39][server]: sending chunk 14 with size 896
+[17-04-23 17:32:39][server]: sending chunk 15 with size 896
+[17-04-23 17:32:39][server]: sending chunk 16 with size 896
+[17-04-23 17:32:39][server]: sending chunk 17 with size 896
+[17-04-23 17:32:39][server]: sending chunk 18 with size 896
+[17-04-23 17:32:39][server]: sending chunk 19 with size 896
+[17-04-23 17:32:39][server]: sending chunk 20 with size 896
+[17-04-23 17:32:39][server]: sending chunk 21 with size 896
+[17-04-23 17:32:39][server]: sending chunk 22 with size 896
+[17-04-23 17:32:39][server]: sending chunk 23 with size 896
+[17-04-23 17:32:39][server]: sending chunk 24 with size 896
+[17-04-23 17:32:39][server]: sending chunk 25 with size 896
+[17-04-23 17:32:39][server]: sending chunk 26 with size 896
+[17-04-23 17:32:39][server]: sending chunk 27 with size 896
+[17-04-23 17:32:39][server]: sending chunk 28 with size 896
+[17-04-23 17:32:39][server]: sending chunk 29 with size 896
+[17-04-23 17:32:39][server]: sending chunk 30 with size 896
+[17-04-23 17:32:39][server]: sending chunk 31 with size 896
+[17-04-23 17:32:39][server]: sending chunk 32 with size 896
+[17-04-23 17:32:39][server]: sending chunk 33 with size 896
+[17-04-23 17:32:39][server]: sending chunk 34 with size 896
+[17-04-23 17:32:39][server]: sending chunk 35 with size 896
+[17-04-23 17:32:39][server]: sending chunk 36 with size 896
+[17-04-23 17:32:39][server]: sending chunk 37 with size 896
+[17-04-23 17:32:39][server]: sending chunk 38 with size 896
+[17-04-23 17:32:39][server]: sending chunk 39 with size 896
+[17-04-23 17:32:39][server]: sending chunk 40 with size 896
+[17-04-23 17:32:39][server]: sending chunk 41 with size 896
+[17-04-23 17:32:39][server]: sending chunk 42 with size 896
+[17-04-23 17:32:39][server]: sending chunk 43 with size 896
+[17-04-23 17:32:39][server]: sending chunk 44 with size 896
+[17-04-23 17:32:39][server]: sending chunk 45 with size 896
+[17-04-23 17:32:39][server]: sending chunk 46 with size 896
+[17-04-23 17:32:39][server]: sending chunk 47 with size 896
+[17-04-23 17:32:39][server]: sending chunk 48 with size 896
+[17-04-23 17:32:39][server]: sending chunk 49 with size 896
+[17-04-23 17:32:39][server]: sending chunk 50 with size 896
+[17-04-23 17:32:39][server]: sending chunk 51 with size 896
+[17-04-23 17:32:39][server]: sending chunk 52 with size 896
+[17-04-23 17:32:39][server]: sending chunk 53 with size 896
+[17-04-23 17:32:39][server]: sending chunk 54 with size 896
+[17-04-23 17:32:39][server]: sending chunk 55 with size 896
+[17-04-23 17:32:39][server]: sending chunk 56 with size 896
+[17-04-23 17:32:39][server]: sending chunk 57 with size 896
+[17-04-23 17:32:39][server]: sending chunk 58 with size 896
+[17-04-23 17:32:39][server]: sending chunk 59 with size 896
+[17-04-23 17:32:39][server]: sending chunk 60 with size 896
+[17-04-23 17:32:39][server]: sending chunk 61 with size 896
+[17-04-23 17:32:39][server]: sending chunk 62 with size 896
+[17-04-23 17:32:39][server]: sending chunk 63 with size 896
+[17-04-23 17:32:39][server]: sending chunk 64 with size 896
+[17-04-23 17:32:39][server]: sending chunk 65 with size 896
+[17-04-23 17:32:39][server]: sending chunk 66 with size 896
+[17-04-23 17:32:39][server]: sending chunk 67 with size 896
+[17-04-23 17:32:39][server]: sending chunk 68 with size 896
+[17-04-23 17:32:39][server]: sending chunk 69 with size 896
+[17-04-23 17:32:39][server]: sending chunk 70 with size 896
+[17-04-23 17:32:39][server]: sending chunk 71 with size 896
+[17-04-23 17:32:39][server]: sending chunk 72 with size 896
+[17-04-23 17:32:39][server]: sending chunk 73 with size 896
+[17-04-23 17:32:39][server]: sending chunk 74 with size 896
+[17-04-23 17:32:39][server]: sending chunk 75 with size 896
+[17-04-23 17:32:39][server]: sending chunk 76 with size 896
+[17-04-23 17:32:39][server]: sending chunk 77 with size 896
+[17-04-23 17:32:39][server]: sending chunk 78 with size 896
+[17-04-23 17:32:39][server]: sending chunk 79 with size 896
+[17-04-23 17:32:39][server]: sending chunk 80 with size 896
+[17-04-23 17:32:39][server]: sending chunk 81 with size 896
+[17-04-23 17:32:39][server]: sending chunk 82 with size 896
+[17-04-23 17:32:39][server]: sending chunk 83 with size 896
+[17-04-23 17:32:39][server]: sending chunk 84 with size 896
+[17-04-23 17:32:39][server]: sending chunk 85 with size 896
+[17-04-23 17:32:39][server]: sending chunk 86 with size 896
+[17-04-23 17:32:39][server]: sending chunk 87 with size 896
+[17-04-23 17:32:39][server]: sending chunk 88 with size 896
+[17-04-23 17:32:39][server]: sending chunk 89 with size 896
+[17-04-23 17:32:39][server]: sending chunk 90 with size 896
+[17-04-23 17:32:39][server]: sending chunk 91 with size 896
+[17-04-23 17:32:39][server]: sending chunk 92 with size 896
+[17-04-23 17:32:39][server]: sending chunk 93 with size 896
+[17-04-23 17:32:39][server]: sending chunk 94 with size 896
+[17-04-23 17:32:39][server]: sending chunk 95 with size 896
+[17-04-23 17:32:39][server]: sending chunk 96 with size 896
+[17-04-23 17:32:39][server]: sending chunk 97 with size 896
+[17-04-23 17:32:39][server]: sending chunk 98 with size 896
+[17-04-23 17:32:39][server]: sending chunk 99 with size 896
+[17-04-23 17:32:39][server]: sending chunk 100 with size 896
+[17-04-23 17:32:39][server]: sending chunk 101 with size 896
+[17-04-23 17:32:39][server]: sending chunk 102 with size 896
+[17-04-23 17:32:39][server]: sending chunk 103 with size 896
+[17-04-23 17:32:39][server]: sending chunk 104 with size 896
+[17-04-23 17:32:39][server]: sending chunk 105 with size 896
+[17-04-23 17:32:39][server]: sending chunk 106 with size 896
+[17-04-23 17:32:39][server]: sending chunk 107 with size 896
+[17-04-23 17:32:39][server]: sending chunk 108 with size 896
+[17-04-23 17:32:39][server]: sending chunk 109 with size 896
+[17-04-23 17:32:39][server]: sending chunk 110 with size 896
+[17-04-23 17:32:39][server]: sending chunk 111 with size 896
+[17-04-23 17:32:39][server]: sending chunk 112 with size 896
+[17-04-23 17:32:39][server]: sending chunk 113 with size 896
+[17-04-23 17:32:39][server]: sending chunk 114 with size 896
+[17-04-23 17:32:39][server]: sending chunk 115 with size 896
+[17-04-23 17:32:39][server]: sending chunk 116 with size 896
+[17-04-23 17:32:39][server]: sending chunk 117 with size 896
+[17-04-23 17:32:39][server]: sending chunk 118 with size 896
+[17-04-23 17:32:39][server]: sending chunk 119 with size 896
+[17-04-23 17:32:39][server]: sending chunk 120 with size 896
+[17-04-23 17:32:39][server]: sending chunk 121 with size 896
+[17-04-23 17:32:39][server]: sending chunk 122 with size 896
+[17-04-23 17:32:39][server]: sending chunk 123 with size 896
+[17-04-23 17:32:39][server]: sending chunk 124 with size 896
+[17-04-23 17:32:39][server]: sending chunk 125 with size 896
+[17-04-23 17:32:39][server]: sending chunk 126 with size 896
+[17-04-23 17:32:39][server]: sending chunk 127 with size 896
+[17-04-23 17:32:39][server]: sending chunk 128 with size 896
+[17-04-23 17:32:39][server]: sending chunk 129 with size 896
+[17-04-23 17:32:39][server]: sending chunk 130 with size 896
+[17-04-23 17:32:39][server]: sending chunk 131 with size 896
+[17-04-23 17:32:39][server]: sending chunk 132 with size 896
+[17-04-23 17:32:39][server]: sending chunk 133 with size 896
+[17-04-23 17:32:39][server]: sending chunk 134 with size 896
+[17-04-23 17:32:39][server]: sending chunk 135 with size 896
+[17-04-23 17:32:39][server]: sending chunk 136 with size 896
+[17-04-23 17:32:39][server]: sending chunk 137 with size 896
+[17-04-23 17:32:39][server]: sending chunk 138 with size 896
+[17-04-23 17:32:39][server]: sending chunk 139 with size 896
+[17-04-23 17:32:39][server]: sending chunk 140 with size 896
+[17-04-23 17:32:39][server]: sending chunk 141 with size 896
+[17-04-23 17:32:39][server]: sending chunk 142 with size 896
+[17-04-23 17:32:39][server]: sending chunk 143 with size 896
+[17-04-23 17:32:39][server]: sending chunk 144 with size 896
+[17-04-23 17:32:39][server]: sending chunk 145 with size 896
+[17-04-23 17:32:39][server]: sending chunk 146 with size 896
+[17-04-23 17:32:39][server]: sending chunk 147 with size 896
+[17-04-23 17:32:39][server]: sending chunk 148 with size 896
+[17-04-23 17:32:39][server]: sending chunk 149 with size 896
+[17-04-23 17:32:39][server]: sending chunk 150 with size 896
+[17-04-23 17:32:39][server]: sending chunk 151 with size 896
+[17-04-23 17:32:39][server]: sending chunk 152 with size 896
+[17-04-23 17:32:39][server]: sending chunk 153 with size 896
+[17-04-23 17:32:39][server]: sending chunk 154 with size 896
+[17-04-23 17:32:39][server]: sending chunk 155 with size 896
+[17-04-23 17:32:39][server]: sending chunk 156 with size 896
+[17-04-23 17:32:39][server]: sending chunk 157 with size 896
+[17-04-23 17:32:39][server]: sending chunk 158 with size 896
+[17-04-23 17:32:39][server]: sending chunk 159 with size 896
+[17-04-23 17:32:39][server]: sending chunk 160 with size 896
+[17-04-23 17:32:39][server]: sending chunk 161 with size 896
+[17-04-23 17:32:39][server]: sending chunk 162 with size 896
+[17-04-23 17:32:39][server]: sending chunk 163 with size 896
+[17-04-23 17:32:39][server]: sending chunk 164 with size 896
+[17-04-23 17:32:39][server]: sending chunk 165 with size 896
+[17-04-23 17:32:39][server]: sending chunk 166 with size 896
+[17-04-23 17:32:39][server]: sending chunk 167 with size 896
+[17-04-23 17:32:39][server]: sending chunk 168 with size 896
+[17-04-23 17:32:39][server]: sending chunk 169 with size 896
+[17-04-23 17:32:39][server]: sending chunk 170 with size 896
+[17-04-23 17:32:39][server]: sending chunk 171 with size 896
+[17-04-23 17:32:39][server]: sending chunk 172 with size 896
+[17-04-23 17:32:39][server]: sending chunk 173 with size 896
+[17-04-23 17:32:39][server]: sending chunk 174 with size 896
+[17-04-23 17:32:39][server]: sending chunk 175 with size 896
+[17-04-23 17:32:39][server]: sending chunk 176 with size 896
+[17-04-23 17:32:39][server]: sending chunk 177 with size 896
+[17-04-23 17:32:39][server]: sending chunk 178 with size 896
+[17-04-23 17:32:39][server]: sending chunk 179 with size 896
+[17-04-23 17:32:39][server]: sending chunk 180 with size 896
+[17-04-23 17:32:39][server]: sending chunk 181 with size 896
+[17-04-23 17:32:39][server]: sending chunk 182 with size 896
+[17-04-23 17:32:39][server]: sending chunk 183 with size 896
+[17-04-23 17:32:39][server]: sending chunk 184 with size 896
+[17-04-23 17:32:39][server]: sending chunk 185 with size 896
+[17-04-23 17:32:39][server]: sending chunk 186 with size 896
+[17-04-23 17:32:39][server]: sending chunk 187 with size 896
+[17-04-23 17:32:39][server]: sending chunk 188 with size 896
+[17-04-23 17:32:39][server]: sending chunk 189 with size 896
+[17-04-23 17:32:39][server]: sending chunk 190 with size 896
+[17-04-23 17:32:39][server]: sending chunk 191 with size 896
+[17-04-23 17:32:39][server]: sending chunk 192 with size 896
+[17-04-23 17:32:40][server]: sending chunk 193 with size 896
+[17-04-23 17:32:40][server]: sending chunk 194 with size 896
+[17-04-23 17:32:40][server]: sending chunk 195 with size 896
+[17-04-23 17:32:40][server]: sending chunk 196 with size 896
+[17-04-23 17:32:40][server]: sending chunk 197 with size 896
+[17-04-23 17:32:40][server]: sending chunk 198 with size 896
+[17-04-23 17:32:40][server]: sending chunk 199 with size 896
+[17-04-23 17:32:40][server]: sending chunk 200 with size 896
+[17-04-23 17:32:40][server]: sending chunk 201 with size 896
+[17-04-23 17:32:40][server]: sending chunk 202 with size 896
+[17-04-23 17:32:40][server]: sending chunk 203 with size 896
+[17-04-23 17:32:40][server]: sending chunk 204 with size 896
+[17-04-23 17:32:40][server]: sending chunk 205 with size 896
+[17-04-23 17:32:40][server]: sending chunk 206 with size 896
+[17-04-23 17:32:40][server]: sending chunk 207 with size 896
+[17-04-23 17:32:40][server]: sending chunk 208 with size 896
+[17-04-23 17:32:40][server]: sending chunk 209 with size 896
+[17-04-23 17:32:40][server]: sending chunk 210 with size 896
+[17-04-23 17:32:40][server]: sending chunk 211 with size 896
+[17-04-23 17:32:40][server]: sending chunk 212 with size 896
+[17-04-23 17:32:40][server]: sending chunk 213 with size 896
+[17-04-23 17:32:40][server]: sending chunk 214 with size 896
+[17-04-23 17:32:40][server]: sending chunk 215 with size 896
+[17-04-23 17:32:40][server]: sending chunk 216 with size 896
+[17-04-23 17:32:40][server]: sending chunk 217 with size 896
+[17-04-23 17:32:40][server]: sending chunk 218 with size 896
+[17-04-23 17:32:40][server]: sending chunk 219 with size 896
+[17-04-23 17:32:40][server]: sending chunk 220 with size 896
+[17-04-23 17:32:40][server]: sending chunk 221 with size 896
+[17-04-23 17:32:40][server]: sending chunk 222 with size 896
+[17-04-23 17:32:40][server]: sending chunk 223 with size 896
+[17-04-23 17:32:40][server]: sending chunk 224 with size 896
+[17-04-23 17:32:40][server]: sending chunk 225 with size 896
+[17-04-23 17:32:40][server]: sending chunk 226 with size 896
+[17-04-23 17:32:40][server]: sending chunk 227 with size 896
+[17-04-23 17:32:40][server]: sending chunk 228 with size 896
+[17-04-23 17:32:40][server]: sending chunk 229 with size 896
+[17-04-23 17:32:40][server]: sending chunk 230 with size 896
+[17-04-23 17:32:40][server]: sending chunk 231 with size 896
+[17-04-23 17:32:40][server]: sending chunk 232 with size 896
+[17-04-23 17:32:40][server]: sending chunk 233 with size 896
+[17-04-23 17:32:40][server]: sending chunk 234 with size 896
+[17-04-23 17:32:40][server]: sending chunk 235 with size 896
+[17-04-23 17:32:40][server]: sending chunk 236 with size 896
+[17-04-23 17:32:40][server]: sending chunk 237 with size 896
+[17-04-23 17:32:40][server]: sending chunk 238 with size 896
+[17-04-23 17:32:40][server]: sending chunk 239 with size 896
+[17-04-23 17:32:40][server]: sending chunk 240 with size 896
+[17-04-23 17:32:40][server]: sending chunk 241 with size 896
+[17-04-23 17:32:40][server]: sending chunk 242 with size 896
+[17-04-23 17:32:40][server]: sending chunk 243 with size 896
+[17-04-23 17:32:40][server]: sending chunk 244 with size 896
+[17-04-23 17:32:40][server]: sending chunk 245 with size 896
+[17-04-23 17:32:40][server]: sending chunk 246 with size 896
+[17-04-23 17:32:40][server]: sending chunk 247 with size 896
+[17-04-23 17:32:40][server]: sending chunk 248 with size 896
+[17-04-23 17:32:40][server]: sending chunk 249 with size 896
+[17-04-23 17:32:40][server]: sending chunk 250 with size 896
+[17-04-23 17:32:40][server]: sending chunk 251 with size 896
+[17-04-23 17:32:40][server]: sending chunk 252 with size 896
+[17-04-23 17:32:40][server]: sending chunk 253 with size 896
+[17-04-23 17:32:40][server]: sending chunk 254 with size 896
+[17-04-23 17:32:40][server]: sending chunk 255 with size 896
+[17-04-23 17:32:40][server]: sending chunk 256 with size 896
+[17-04-23 17:32:40][server]: sending chunk 257 with size 896
+[17-04-23 17:32:40][server]: sending chunk 258 with size 896
+[17-04-23 17:32:40][server]: sending chunk 259 with size 896
+[17-04-23 17:32:40][server]: sending chunk 260 with size 896
+[17-04-23 17:32:40][server]: sending chunk 261 with size 896
+[17-04-23 17:32:40][server]: sending chunk 262 with size 896
+[17-04-23 17:32:40][server]: sending chunk 263 with size 896
+[17-04-23 17:32:40][server]: sending chunk 264 with size 896
+[17-04-23 17:32:40][server]: sending chunk 265 with size 896
+[17-04-23 17:32:40][server]: sending chunk 266 with size 896
+[17-04-23 17:32:40][server]: sending chunk 267 with size 896
+[17-04-23 17:32:40][server]: sending chunk 268 with size 896
+[17-04-23 17:32:40][server]: sending chunk 269 with size 896
+[17-04-23 17:32:40][server]: sending chunk 270 with size 896
+[17-04-23 17:32:40][server]: sending chunk 271 with size 896
+[17-04-23 17:32:40][server]: sending chunk 272 with size 896
+[17-04-23 17:32:40][server]: sending chunk 273 with size 896
+[17-04-23 17:32:40][server]: sending chunk 274 with size 896
+[17-04-23 17:32:40][server]: sending chunk 275 with size 896
+[17-04-23 17:32:40][server]: sending chunk 276 with size 896
+[17-04-23 17:32:40][server]: sending chunk 277 with size 896
+[17-04-23 17:32:40][server]: sending chunk 278 with size 896
+[17-04-23 17:32:40][server]: sending chunk 279 with size 896
+[17-04-23 17:32:40][server]: sending chunk 280 with size 896
+[17-04-23 17:32:40][server]: sending chunk 281 with size 896
+[17-04-23 17:32:40][server]: sending chunk 282 with size 896
+[17-04-23 17:32:40][server]: sending chunk 283 with size 896
+[17-04-23 17:32:40][server]: sending chunk 284 with size 896
+[17-04-23 17:32:40][server]: sending chunk 285 with size 896
+[17-04-23 17:32:40][server]: sending chunk 286 with size 896
+[17-04-23 17:32:40][server]: sending chunk 287 with size 896
+[17-04-23 17:32:40][server]: sending chunk 288 with size 896
+[17-04-23 17:32:40][server]: sending chunk 289 with size 896
+[17-04-23 17:32:40][server]: sending chunk 290 with size 896
+[17-04-23 17:32:40][server]: sending chunk 291 with size 896
+[17-04-23 17:32:40][server]: sending chunk 292 with size 896
+[17-04-23 17:32:40][server]: sending chunk 293 with size 896
+[17-04-23 17:32:40][server]: sending chunk 294 with size 896
+[17-04-23 17:32:40][server]: sending chunk 295 with size 896
+[17-04-23 17:32:40][server]: sending chunk 296 with size 896
+[17-04-23 17:32:40][server]: sending chunk 297 with size 896
+[17-04-23 17:32:40][server]: sending chunk 298 with size 896
+[17-04-23 17:32:40][server]: sending chunk 299 with size 896
+[17-04-23 17:32:40][server]: sending chunk 300 with size 896
+[17-04-23 17:32:40][server]: sending chunk 301 with size 896
+[17-04-23 17:32:40][server]: sending chunk 302 with size 896
+[17-04-23 17:32:40][server]: sending chunk 303 with size 896
+[17-04-23 17:32:40][server]: sending chunk 304 with size 896
+[17-04-23 17:32:40][server]: sending chunk 305 with size 896
+[17-04-23 17:32:40][server]: sending chunk 306 with size 896
+[17-04-23 17:32:40][server]: sending chunk 307 with size 896
+[17-04-23 17:32:40][server]: sending chunk 308 with size 896
+[17-04-23 17:32:40][server]: sending chunk 309 with size 896
+[17-04-23 17:32:40][server]: sending chunk 310 with size 896
+[17-04-23 17:32:40][server]: sending chunk 311 with size 896
+[17-04-23 17:32:40][server]: sending chunk 312 with size 896
+[17-04-23 17:32:40][server]: sending chunk 313 with size 896
+[17-04-23 17:32:40][server]: sending chunk 314 with size 896
+[17-04-23 17:32:40][server]: sending chunk 315 with size 896
+[17-04-23 17:32:40][server]: sending chunk 316 with size 896
+[17-04-23 17:32:40][server]: sending chunk 317 with size 896
+[17-04-23 17:32:40][server]: sending chunk 318 with size 896
+[17-04-23 17:32:40][server]: sending chunk 319 with size 896
+[17-04-23 17:32:40][server]: sending chunk 320 with size 896
+[17-04-23 17:32:40][server]: sending chunk 321 with size 896
+[17-04-23 17:32:40][server]: sending chunk 322 with size 896
+[17-04-23 17:32:40][server]: sending chunk 323 with size 896
+[17-04-23 17:32:40][server]: sending chunk 324 with size 896
+[17-04-23 17:32:40][server]: sending chunk 325 with size 896
+[17-04-23 17:32:40][server]: sending chunk 326 with size 896
+[17-04-23 17:32:40][server]: sending chunk 327 with size 896
+[17-04-23 17:32:40][server]: sending chunk 328 with size 896
+[17-04-23 17:32:40][server]: sending chunk 329 with size 896
+[17-04-23 17:32:40][server]: sending chunk 330 with size 896
+[17-04-23 17:32:40][server]: sending chunk 331 with size 896
+[17-04-23 17:32:40][server]: sending chunk 332 with size 896
+[17-04-23 17:32:40][server]: sending chunk 333 with size 896
+[17-04-23 17:32:40][server]: sending chunk 334 with size 896
+[17-04-23 17:32:40][server]: sending chunk 335 with size 896
+[17-04-23 17:32:40][server]: sending chunk 336 with size 896
+[17-04-23 17:32:40][server]: sending chunk 337 with size 896
+[17-04-23 17:32:40][server]: sending chunk 338 with size 896
+[17-04-23 17:32:40][server]: sending chunk 339 with size 896
+[17-04-23 17:32:40][server]: sending chunk 340 with size 896
+[17-04-23 17:32:40][server]: sending chunk 341 with size 896
+[17-04-23 17:32:40][server]: sending chunk 342 with size 896
+[17-04-23 17:32:40][server]: sending chunk 343 with size 896
+[17-04-23 17:32:40][server]: sending chunk 344 with size 896
+[17-04-23 17:32:40][server]: sending chunk 345 with size 896
+[17-04-23 17:32:40][server]: sending chunk 346 with size 896
+[17-04-23 17:32:40][server]: sending chunk 347 with size 896
+[17-04-23 17:32:40][server]: sending chunk 348 with size 896
+[17-04-23 17:32:40][server]: sending chunk 349 with size 896
+[17-04-23 17:32:40][server]: sending chunk 350 with size 896
+[17-04-23 17:32:40][server]: sending chunk 351 with size 896
+[17-04-23 17:32:40][server]: sending chunk 352 with size 896
+[17-04-23 17:32:40][server]: sending chunk 353 with size 896
+[17-04-23 17:32:40][server]: sending chunk 354 with size 896
+[17-04-23 17:32:40][server]: sending chunk 355 with size 896
+[17-04-23 17:32:40][server]: sending chunk 356 with size 896
+[17-04-23 17:32:40][server]: sending chunk 357 with size 896
+[17-04-23 17:32:40][server]: sending chunk 358 with size 896
+[17-04-23 17:32:40][server]: sending chunk 359 with size 896
+[17-04-23 17:32:40][server]: sending chunk 360 with size 896
+[17-04-23 17:32:40][server]: sending chunk 361 with size 896
+[17-04-23 17:32:40][server]: sending chunk 362 with size 896
+[17-04-23 17:32:40][server]: sending chunk 363 with size 896
+[17-04-23 17:32:40][server]: sending chunk 364 with size 896
+[17-04-23 17:32:40][server]: sending chunk 365 with size 896
+[17-04-23 17:32:40][server]: sending chunk 366 with size 896
+[17-04-23 17:32:40][server]: sending chunk 367 with size 896
+[17-04-23 17:32:40][server]: sending chunk 368 with size 896
+[17-04-23 17:32:40][server]: sending chunk 369 with size 896
+[17-04-23 17:32:40][server]: sending chunk 370 with size 896
+[17-04-23 17:32:40][server]: sending chunk 371 with size 896
+[17-04-23 17:32:40][server]: sending chunk 372 with size 896
+[17-04-23 17:32:40][server]: sending chunk 373 with size 896
+[17-04-23 17:32:40][server]: sending chunk 374 with size 896
+[17-04-23 17:32:40][server]: sending chunk 375 with size 896
+[17-04-23 17:32:40][server]: sending chunk 376 with size 896
+[17-04-23 17:32:40][server]: sending chunk 377 with size 896
+[17-04-23 17:32:40][server]: sending chunk 378 with size 896
+[17-04-23 17:32:40][server]: sending chunk 379 with size 896
+[17-04-23 17:32:40][server]: sending chunk 380 with size 896
+[17-04-23 17:32:40][server]: sending chunk 381 with size 896
+[17-04-23 17:32:40][server]: sending chunk 382 with size 896
+[17-04-23 17:32:40][server]: sending chunk 383 with size 896
+[17-04-23 17:32:40][server]: sending chunk 384 with size 896
+[17-04-23 17:32:40][server]: sending chunk 385 with size 896
+[17-04-23 17:32:40][server]: sending chunk 386 with size 896
+[17-04-23 17:32:40][server]: sending chunk 387 with size 896
+[17-04-23 17:32:40][server]: sending chunk 388 with size 896
+[17-04-23 17:32:40][server]: sending chunk 389 with size 896
+[17-04-23 17:32:40][server]: sending chunk 390 with size 896
+[17-04-23 17:32:40][server]: sending chunk 391 with size 896
+[17-04-23 17:32:40][server]: sending chunk 392 with size 896
+[17-04-23 17:32:40][server]: sending chunk 393 with size 896
+[17-04-23 17:32:40][server]: sending chunk 394 with size 896
+[17-04-23 17:32:40][server]: sending chunk 395 with size 896
+[17-04-23 17:32:40][server]: sending chunk 396 with size 896
+[17-04-23 17:32:40][server]: sending chunk 397 with size 896
+[17-04-23 17:32:40][server]: sending chunk 398 with size 896
+[17-04-23 17:32:40][server]: sending chunk 399 with size 896
+[17-04-23 17:32:40][server]: sending chunk 400 with size 896
+[17-04-23 17:32:40][server]: sending chunk 401 with size 896
+[17-04-23 17:32:40][server]: sending chunk 402 with size 896
+[17-04-23 17:32:40][server]: sending chunk 403 with size 896
+[17-04-23 17:32:40][server]: sending chunk 404 with size 896
+[17-04-23 17:32:40][server]: sending chunk 405 with size 896
+[17-04-23 17:32:40][server]: sending chunk 406 with size 896
+[17-04-23 17:32:40][server]: sending chunk 407 with size 896
+[17-04-23 17:32:40][server]: sending chunk 408 with size 896
+[17-04-23 17:32:40][server]: sending chunk 409 with size 896
+[17-04-23 17:32:40][server]: sending chunk 410 with size 896
+[17-04-23 17:32:40][server]: sending chunk 411 with size 896
+[17-04-23 17:32:40][server]: sending chunk 412 with size 896
+[17-04-23 17:32:40][server]: sending chunk 413 with size 896
+[17-04-23 17:32:40][server]: sending chunk 414 with size 896
+[17-04-23 17:32:40][server]: sending chunk 415 with size 896
+[17-04-23 17:32:40][server]: sending chunk 416 with size 896
+[17-04-23 17:32:40][server]: sending chunk 417 with size 896
+[17-04-23 17:32:40][server]: sending chunk 418 with size 896
+[17-04-23 17:32:40][server]: sending chunk 419 with size 896
+[17-04-23 17:32:40][server]: sending chunk 420 with size 896
+[17-04-23 17:32:40][server]: sending chunk 421 with size 896
+[17-04-23 17:32:40][server]: sending chunk 422 with size 896
+[17-04-23 17:32:40][server]: sending chunk 423 with size 896
+[17-04-23 17:32:40][server]: sending chunk 424 with size 896
+[17-04-23 17:32:40][server]: sending chunk 425 with size 896
+[17-04-23 17:32:40][server]: sending chunk 426 with size 896
+[17-04-23 17:32:40][server]: sending chunk 427 with size 896
+[17-04-23 17:32:40][server]: sending chunk 428 with size 896
+[17-04-23 17:32:40][server]: sending chunk 429 with size 896
+[17-04-23 17:32:40][server]: sending chunk 430 with size 896
+[17-04-23 17:32:40][server]: sending chunk 431 with size 896
+[17-04-23 17:32:40][server]: sending chunk 432 with size 896
+[17-04-23 17:32:40][server]: sending chunk 433 with size 896
+[17-04-23 17:32:40][server]: sending chunk 434 with size 896
+[17-04-23 17:32:40][server]: sending chunk 435 with size 896
+[17-04-23 17:32:40][server]: sending chunk 436 with size 896
+[17-04-23 17:32:40][server]: sending chunk 437 with size 896
+[17-04-23 17:32:40][server]: sending chunk 438 with size 896
+[17-04-23 17:32:40][server]: sending chunk 439 with size 896
+[17-04-23 17:32:40][server]: sending chunk 440 with size 896
+[17-04-23 17:32:40][server]: sending chunk 441 with size 896
+[17-04-23 17:32:40][server]: sending chunk 442 with size 896
+[17-04-23 17:32:40][server]: sending chunk 443 with size 896
+[17-04-23 17:32:40][server]: sending chunk 444 with size 896
+[17-04-23 17:32:40][server]: sending chunk 445 with size 896
+[17-04-23 17:32:40][server]: sending chunk 446 with size 896
+[17-04-23 17:32:40][server]: sending chunk 447 with size 896
+[17-04-23 17:32:40][server]: sending chunk 448 with size 896
+[17-04-23 17:32:40][server]: sending chunk 449 with size 896
+[17-04-23 17:32:40][server]: sending chunk 450 with size 896
+[17-04-23 17:32:40][server]: sending chunk 451 with size 896
+[17-04-23 17:32:40][server]: sending chunk 452 with size 896
+[17-04-23 17:32:40][server]: sending chunk 453 with size 896
+[17-04-23 17:32:40][server]: sending chunk 454 with size 896
+[17-04-23 17:32:40][server]: sending chunk 455 with size 896
+[17-04-23 17:32:40][server]: sending chunk 456 with size 896
+[17-04-23 17:32:40][server]: sending chunk 457 with size 896
+[17-04-23 17:32:40][server]: sending chunk 458 with size 896
+[17-04-23 17:32:40][server]: sending chunk 459 with size 896
+[17-04-23 17:32:40][server]: sending chunk 460 with size 896
+[17-04-23 17:32:40][server]: sending chunk 461 with size 896
+[17-04-23 17:32:40][server]: sending chunk 462 with size 896
+[17-04-23 17:32:40][server]: sending chunk 463 with size 896
+[17-04-23 17:32:40][server]: sending chunk 464 with size 896
+[17-04-23 17:32:40][server]: sending chunk 465 with size 896
+[17-04-23 17:32:40][server]: sending chunk 466 with size 896
+[17-04-23 17:32:40][server]: sending chunk 467 with size 896
+[17-04-23 17:32:40][server]: sending chunk 468 with size 896
+[17-04-23 17:32:40][server]: sending chunk 469 with size 896
+[17-04-23 17:32:40][server]: sending chunk 470 with size 896
+[17-04-23 17:32:40][server]: sending chunk 471 with size 896
+[17-04-23 17:32:40][server]: sending chunk 472 with size 896
+[17-04-23 17:32:40][server]: sending chunk 473 with size 896
+[17-04-23 17:32:40][server]: sending chunk 474 with size 896
+[17-04-23 17:32:40][server]: sending chunk 475 with size 896
+[17-04-23 17:32:40][server]: sending chunk 476 with size 896
+[17-04-23 17:32:40][server]: sending chunk 477 with size 896
+[17-04-23 17:32:40][server]: sending chunk 478 with size 896
+[17-04-23 17:32:40][server]: sending chunk 479 with size 896
+[17-04-23 17:32:40][server]: sending chunk 480 with size 896
+[17-04-23 17:32:40][server]: sending chunk 481 with size 896
+[17-04-23 17:32:40][server]: sending chunk 482 with size 896
+[17-04-23 17:32:40][server]: sending chunk 483 with size 896
+[17-04-23 17:32:40][server]: sending chunk 484 with size 896
+[17-04-23 17:32:40][server]: sending chunk 485 with size 896
+[17-04-23 17:32:40][server]: sending chunk 486 with size 896
+[17-04-23 17:32:40][server]: sending chunk 487 with size 896
+[17-04-23 17:32:40][server]: sending chunk 488 with size 896
+[17-04-23 17:32:40][server]: sending chunk 489 with size 896
+[17-04-23 17:32:40][server]: sending chunk 490 with size 896
+[17-04-23 17:32:40][server]: sending chunk 491 with size 896
+[17-04-23 17:32:40][server]: sending chunk 492 with size 896
+[17-04-23 17:32:40][server]: sending chunk 493 with size 896
+[17-04-23 17:32:40][server]: sending chunk 494 with size 896
+[17-04-23 17:32:40][server]: sending chunk 495 with size 896
+[17-04-23 17:32:40][server]: sending chunk 496 with size 896
+[17-04-23 17:32:40][server]: sending chunk 497 with size 896
+[17-04-23 17:32:40][server]: sending chunk 498 with size 896
+[17-04-23 17:32:40][server]: sending chunk 499 with size 896
+[17-04-23 17:32:40][server]: sending chunk 500 with size 896
+[17-04-23 17:32:40][server]: sending chunk 501 with size 896
+[17-04-23 17:32:40][server]: sending chunk 502 with size 896
+[17-04-23 17:32:40][server]: sending chunk 503 with size 896
+[17-04-23 17:32:40][server]: sending chunk 504 with size 896
+[17-04-23 17:32:40][server]: sending chunk 505 with size 896
+[17-04-23 17:32:40][server]: sending chunk 506 with size 896
+[17-04-23 17:32:40][server]: sending chunk 507 with size 896
+[17-04-23 17:32:40][server]: sending chunk 508 with size 896
+[17-04-23 17:32:40][server]: sending chunk 509 with size 896
+[17-04-23 17:32:40][server]: sending chunk 510 with size 896
+[17-04-23 17:32:40][server]: sending chunk 511 with size 896
+[17-04-23 17:32:40][server]: sending chunk 512 with size 896
+[17-04-23 17:32:40][server]: sending chunk 513 with size 896
+[17-04-23 17:32:40][server]: sending chunk 514 with size 896
+[17-04-23 17:32:40][server]: sending chunk 515 with size 896
+[17-04-23 17:32:40][server]: sending chunk 516 with size 896
+[17-04-23 17:32:40][server]: sending chunk 517 with size 896
+[17-04-23 17:32:40][server]: sending chunk 518 with size 896
+[17-04-23 17:32:40][server]: sending chunk 519 with size 896
+[17-04-23 17:32:40][server]: sending chunk 520 with size 896
+[17-04-23 17:32:40][server]: sending chunk 521 with size 896
+[17-04-23 17:32:40][server]: sending chunk 522 with size 896
+[17-04-23 17:32:40][server]: sending chunk 523 with size 896
+[17-04-23 17:32:40][server]: sending chunk 524 with size 896
+[17-04-23 17:32:40][server]: sending chunk 525 with size 896
+[17-04-23 17:32:40][server]: sending chunk 526 with size 896
+[17-04-23 17:32:40][server]: sending chunk 527 with size 518
+[17-04-23 17:32:40][server]: player is ready. ClientID=0 addr=192.168.2.101:28112 secure=yes
+[17-04-23 17:32:40][server]: 'SarKro' -> 'SarKro'
+[17-04-23 17:32:40][server]: player has entered the game. ClientID=0 addr=192.168.2.101:28112
+[17-04-23 17:32:40][chat]: *** 'SarKro' entered and joined the game
+[17-04-23 17:32:40][game]: team_join player='0:SarKro' team=0
+[17-04-23 17:32:41][DDNet]: 0 using Custom Client 900
+[17-04-23 17:32:43][chat-command]: 0 used /timeout SarKroIstDerCoolste
+[17-04-23 17:32:50][server]: ClientID=0 authed (admin)
+[17-04-23 17:32:54][server]: ClientID=0 rcon='change_map Blockdale'
+[17-04-23 17:32:54][datafile]: loading. filename='maps/Blockdale.map'
+[17-04-23 17:32:54][datafile]: allocsize=6396
+[17-04-23 17:32:54][datafile]: readsize=6148
+[17-04-23 17:32:54][datafile]: swaplen=6168
+[17-04-23 17:32:54][datafile]: item_size=5480
+[17-04-23 17:32:54][datafile]: loading done. datafile='maps/Blockdale.map'
+[17-04-23 17:32:54][server]: maps/Blockdale.map crc is ffca9133
+[17-04-23 17:32:54][datafile]: loading data index=26 size=2833 uncompressed=360000
+[17-04-23 17:32:54][datafile]: loading data index=36 size=402 uncompressed=360000
+[17-04-23 17:32:54][datafile]: loading data index=33 size=431 uncompressed=360000
+[17-04-23 17:32:54][console]: failed to open 'reset.cfg'
+[17-04-23 17:32:54][console]: failed to open 'maps/Blockdale.map.cfg'
+[17-04-23 17:32:54][server]: sending chunk 0 with size 896
+[17-04-23 17:32:54][server]: sending chunk 1 with size 896
+[17-04-23 17:32:54][server]: player is ready. ClientID=0 addr=192.168.2.101:28112 secure=yes
+[17-04-23 17:32:54][server]: 'SarKro' -> 'SarKro'
+[17-04-23 17:32:54][server]: player has entered the game. ClientID=0 addr=192.168.2.101:28112
+[17-04-23 17:32:55][DDNet]: 0 using Custom Client 900
+[17-04-23 17:32:57][chat-command]: 0 used /timeout SarKroIstDerCoolste
+[17-04-23 17:33:08][server]: ClientID=0 rcon='sv_roomstate'
+[17-04-23 17:33:08][console]: Value: 2
+[17-04-23 17:33:59][server]: ClientID=0 rcon='down'
+[17-04-23 17:33:59][server]: ClientID=0 rcon='down'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='right'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:01][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:02][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:02][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:02][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:02][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:03][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:04][server]: ClientID=0 rcon='up'
+[17-04-23 17:34:04][server]: ClientID=0 rcon='left'
+[17-04-23 17:34:13][chat-command]: 0 used /login 123 123
+[17-04-23 17:34:16][chat-command]: 0 used /register 123 123
+[17-04-23 17:34:18][chat-command]: 0 used /register 123 123 123
+[17-04-23 17:34:21][chat-command]: 0 used /login 123 123
+[17-04-23 17:34:32][conn]: closed reason=''
+[17-04-23 17:34:32][server]: client dropped. cid=0 addr=192.168.2.101:28112 reason=''
+[17-04-23 17:34:32][game]: kill killer='0:SarKro' victim='0:SarKro' weapon=-3 special=3
+[17-04-23 17:34:32][account]: Logged out: 4
+[17-04-23 17:34:32][chat]: *** 'SarKro' has left the game
+[17-04-23 17:34:32][game]: leave player='0:SarKro'
