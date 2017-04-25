@@ -2838,6 +2838,10 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN3);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN4);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN5);
+		pSelf->SendChatTarget(ClientID, "======== IP ========");
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_3);
 	}
 	else
 	{

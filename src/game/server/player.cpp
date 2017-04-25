@@ -731,7 +731,7 @@ void CPlayer::OnDisconnect(const char *pReason)
 	KillCharacter();
 
 	Logout();
-	if(Server()->ClientIngame(m_ClientID) && (g_Config.m_SvShowJoinLeaveMessages == 3 || g_Config.m_SvShowJoinLeaveMessages == 2) && (g_Config.m_SvHideJoinLeaveMessagesPlayer != Server()->ClientName(m_ClientID)))
+	if(Server()->ClientIngame(m_ClientID) && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 2) && (g_Config.m_SvHideJoinLeaveMessagesPlayer != Server()->ClientName(m_ClientID)))
 	{
 		char aBuf[512];
 		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(m_ClientID)))
@@ -899,8 +899,19 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	char aBuf[512];
 	if(DoChatMsg)
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(GetCID())))
+		{
+			//send it in admin console
+		}
+		else if (g_Config.m_SvHideJoinLeaveMessages < 3)
+		{
+			//send it in admin console
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
+			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		}
 	}
 
 	if(Team == TEAM_SPECTATORS)
@@ -1211,8 +1222,14 @@ void CPlayer::Save()
 	if (m_AccountID <= 0)
 		return;
 
-	//char aIP[32];
-	//Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
+	//Proccess IP ADDR...
+	char aIP[32];
+	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
+
+	str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
+	str_format(m_aIP_2, sizeof(m_aIP_2), "%s", m_aIP_1);
+	str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);
+
 
 	//Proccess IngameName Data...
 	char aName[32];
@@ -1273,6 +1290,7 @@ void CPlayer::Save()
 											  ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i'"
 											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i'"
 											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
+											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
@@ -1290,6 +1308,7 @@ void CPlayer::Save()
 												m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths,
 												m_IsModerator, m_IsSuperModerator, m_IsAccFrozen,
 												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
+												m_aIP_1, m_aIP_2, m_aIP_3,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins,

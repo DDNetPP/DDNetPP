@@ -312,6 +312,9 @@ public:
 	char m_LastLogoutIGN4[32];
 	char m_LastLogoutIGN5[32];
 
+	char m_aIP_1[32];
+	char m_aIP_2[32];
+	char m_aIP_3[32];
 
 
 	int m_homing_missiles_ammo;

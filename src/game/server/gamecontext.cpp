@@ -103,6 +103,10 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5));
 
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_1, GetText(GetID("IP_1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2, GetText(GetID("IP_2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3, GetText(GetID("IP_3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3));
+
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
@@ -1312,7 +1316,7 @@ void CGameContext::OnClientEnter(int ClientID)
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
 		char aBuf[512];
-		if (g_Config.m_SvShowJoinLeaveMessages == 3 || g_Config.m_SvShowJoinLeaveMessages == 1)
+		if (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 1)
 		{
 			if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(ClientID)))
 			{
