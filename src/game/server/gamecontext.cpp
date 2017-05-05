@@ -4562,7 +4562,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SendBroadcast(aBuf, ClientID);
 			}
 		}
-		else if (MsgID == NETMSGTYPE_CL_ISDDNET)
+		/*else if (MsgID == NETMSGTYPE_CL_ISDDNET)
 		{
 			int Version = pUnpacker->GetInt();
 
@@ -4618,7 +4618,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//tell known bot clients that they're botting and we know it
 			if (((Version >= 15 && Version < 100) || Version == 502) && g_Config.m_SvClientSuggestionBot[0] != '\0')
 				SendBroadcast(g_Config.m_SvClientSuggestionBot, ClientID);
-		}
+		}*/
 		else if (MsgID == NETMSGTYPE_CL_SHOWOTHERS)
 		{
 			if(g_Config.m_SvShowOthers && !g_Config.m_SvShowOthersDefault)
