@@ -128,7 +128,6 @@ CSql::CSql()
 		"LastLogoutIGN3				VARCHAR(32)		DEFAULT ''," \
 		"LastLogoutIGN4				VARCHAR(32)		DEFAULT ''," \
 		"LastLogoutIGN5				VARCHAR(32)		DEFAULT ''," \
-		"LastLogoutIGN5				VARCHAR(32)		DEFAULT ''," \
 		"IP_1						VARCHAR(32)		DEFAULT ''," \
 		"IP_2						VARCHAR(32)		DEFAULT ''," \
 		"IP_3						VARCHAR(32)		DEFAULT ''," \
