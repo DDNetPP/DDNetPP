@@ -228,13 +228,13 @@ public:
 	bool m_WasInRoom;
 
 	void DDPP_Tick();
+	int DDPP_DIE(int Killer, int Weapon);
 	void DummyTick();
 
 	//usefull everywhere
 
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
-	void GiveBlockPoints(int ID, int points);
 
 	//Chillintelligenz
 	void CITick();
@@ -243,8 +243,19 @@ public:
 
 	int m_ci_freezetime;
 
+	//Block
+	void GiveBlockPoints(int ID, int points);
+	int BlockPointsMain(int Killer);
+	void BlockSpawnProt(int Killer);
+	void BlockQuestSubDieFuncBlockKill(int Killer);
+	void BlockQuestSubDieFuncDeath(int Killer);
+	void BlockKillingSpree(int Killer);
+
+
 	//instagib 
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
+	void InstagibSubDieFunc(int Killer, int Weapon);
+	void InstagibKillingSpree(int KillerID, int Weapon);
 
 
 	void Pause(bool Pause);
@@ -288,6 +299,7 @@ public:
 	bool m_Pullhammer;// pullhammer
 	int m_PullingID; //Pullhammer added by sarkro
 	bool m_Fire;
+	bool m_DDPP_Finished;
 
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h

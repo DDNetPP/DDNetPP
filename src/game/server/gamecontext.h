@@ -247,10 +247,22 @@ public:
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
+	bool IsSameIP(int ID_1, int ID_2);
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
+
+	//QUESTS
+
+	void QuestReset(int playerID);
+	void QuestFailed(int playerID);
+	void QuestFailed2(int playerID); //sets fail bool and doest restart
+	bool QuestAddProgress(int playerID, int globalMAX, int localMAX = -1);
+	void QuestCompleted(int playerID);
+	//void PickNextQuest(int playerID); //includeded in QuestComplete
+	void StartQuest(int playerID);
+	int PickQuestPlayer(int playerID);
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -467,6 +479,7 @@ private:
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
@@ -521,6 +534,7 @@ private:
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHook(IConsole::IResult *pResult, void *pUserData);
+	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
 
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);

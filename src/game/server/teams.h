@@ -81,6 +81,7 @@ public:
 	void SetCpActive(CPlayer* Player, int CpActive);
 	void OnTeamFinish(CPlayer** Players, unsigned int Size);
 	void OnFinish(CPlayer* Player);
+	void OnQuestFinish(CPlayer* Player);
 	void KillSavedTeam(int Team);
 
 	bool TeeFinished(int ClientID)

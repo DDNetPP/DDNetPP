@@ -3592,10 +3592,6 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
 	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 	{
 
@@ -4207,10 +4203,6 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Account Info ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "How to register?");
@@ -4234,10 +4226,6 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
 		return;
 
 
@@ -4307,7 +4295,19 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[128];
 
 	str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+	if (g_Config.m_SvTestingCommands)
+	{
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
+		}
+
+		pPlayer->m_QuestState = pResult->GetInteger(0);
+		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
+		pSelf->StartQuest(pPlayer->GetCID());
+	}
 }
 
 void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
@@ -4395,9 +4395,6 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
 
 	if (pResult->NumArguments() != 2)
 	{
@@ -5680,6 +5677,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb status' to see some live bomb stats.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb ban <seconds> <name>' to ban players.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb unban <ClientID>' to unban players.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb banlist' to see all banned players.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb help' for help and info.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/bomb cmdlist' for all bomb commands.");
 		return;
@@ -5708,9 +5706,21 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 	char aCmd[64];
 	str_copy(aCmd, pResult->GetString(0), sizeof(aCmd));
 
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing paramaters... Check '/room help'");
+		return;
+	}
+
+
 	if (!str_comp_nocase(aCmd, "help"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Help helps...");
+		pSelf->SendChatTarget(pResult->m_ClientID, "*** room ***");
+		pSelf->SendChatTarget(pResult->m_ClientID, "The room is a specia place on the map.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Where special people can chill...");
+		pSelf->SendChatTarget(pResult->m_ClientID, "This command allows SuperModerators to invite tees to this room.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "*** commands ***");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/room invite <player>'");
 	}
 	else if (!str_comp_nocase(aCmd, "invite"))
 	{
@@ -5750,6 +5760,11 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "This player already were given a key by a SuperModerator.");
 			return;
 		}
+		if (!pSelf->GetPlayerChar(InviteID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player is not alive... try agian later.");
+			return;
+		}
 
 
 		//GETTER
@@ -5758,6 +5773,59 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		//GIVER
 		str_format(aBuf, sizeof(aBuf), "You invited '%s' to the room", pSelf->Server()->ClientName(InviteID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCmd, "kick"))
+	{
+		if (pResult->NumArguments() < 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR stick struct: '/room kick <player>'.");
+			return;
+		}
+
+		char aInviteName[32];
+		str_copy(aInviteName, pResult->GetString(1), sizeof(aInviteName));
+		int InviteID = pSelf->GetCIDByName(aInviteName);
+
+		if (InviteID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "Can't find the player '%s'.", aInviteName);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		if (!pPlayer->m_IsSuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+		if (!pPlayer->m_BoughtRoom)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You need a roomkey to kick others. ('/buy room_key')");
+			return;
+		}
+		if (pSelf->m_apPlayers[InviteID]->m_BoughtRoom)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: This player bought a room key.");
+			return;
+		}
+		if (!pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player wasn't given a key by a SuperModerator.");
+			return;
+		}
+		if (!pSelf->GetPlayerChar(InviteID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player is not alive... try agian later.");
+			return;
+		}
+
+
+		//TAKEN
+		pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator = false;
+		str_format(aBuf, sizeof(aBuf), "'%s' kicked you out of room", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//TAKER
+		str_format(aBuf, sizeof(aBuf), "You kicked '%s' out of room", pSelf->Server()->ClientName(InviteID));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else
@@ -6830,5 +6898,112 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid info.", pResult->GetString(0));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be alive to use this command.");
+		return;
+	}
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== Q U E S T =====");
+		if (pPlayer->m_QuestState == 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "No running quest...");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/quest start' to start one.");
+		}
+		else 
+		{
+			str_format(aBuf, sizeof(aBuf), "===QUEST[%d]==LEVEL[%d]===", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel);
+			pSelf->SendChatTarget(pPlayer->GetCID(), aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_aQuestString);
+			if (pPlayer->m_aQuestProgress[0] != -1 && pPlayer->m_aQuestProgress[1] != -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Quest progress %d/%d completed.", pPlayer->m_aQuestProgress[0], pPlayer->m_aQuestProgress[1]);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			if (pPlayer->m_QuestFailed)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "WARNING Quest is failed. Start agian.");
+			}
+		}
+		pSelf->SendChatTarget(pResult->m_ClientID, "========================");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest help' for more help.");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info") || !str_comp_nocase(pResult->GetString(0), "cmdlist") || !str_comp_nocase(pResult->GetString(0), "man") || !str_comp_nocase(pResult->GetString(0), "?"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== Q U E S T =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Complete quests and get rewards c:");
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== commands ====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest' to get quest status");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest start' to start a quest");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest stop' to stop a quest");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest skip' to skip a quest");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest level' to change difficulty");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "start") || !str_comp_nocase(pResult->GetString(0), "begin"))
+	{
+		if (pPlayer->m_QuestState)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest already running");
+			return;
+		}
+		//load / activate QuestState
+		if (pPlayer->m_QuestUnlocked) //if saved stats --> load stats
+		{
+			pPlayer->m_QuestState = pPlayer->m_QuestUnlocked;
+		}
+		else //no saved stats --> start quest1
+		{
+			pPlayer->m_QuestState = 1;
+		}
+		//load Quest Level
+		pPlayer->m_QuestStateLevel = pPlayer->m_QuestLevelUnlocked;
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "[QUEST] started ..."); //print this before the actual start because the start can drop an error and we dont want this log : "[QUEST] ERROR STOPPED [QUEST] Started.." we want this log: "[QUEST] Started.. [QUEST] ERROR STOPPED"
+		pSelf->StartQuest(pResult->m_ClientID);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "level"))
+	{
+		if (pPlayer->m_QuestLevelUnlocked < pResult->GetInteger(1))
+		{
+			str_format(aBuf, sizeof(aBuf), "Unlock this level first by completing level %d.", pResult->GetInteger(1) - 1);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		if (pResult->GetInteger(1) < 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are to unexperienced to play these kind of quests...");
+			return;
+		}
+
+		pPlayer->m_QuestState = pResult->GetInteger(1);
+		str_format(aBuf, sizeof(aBuf), "Updated quest difficulty to %d.", pResult->GetInteger(1));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command check '/quest help' for more help.");
 	}
 }

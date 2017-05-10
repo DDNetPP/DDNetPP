@@ -425,10 +425,21 @@ MACRO_CONFIG_INT(SvSurvivalDelay, sv_survival_delay, 0, 2, 500, CFGFLAG_SERVER, 
 MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 
+MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER, "1 dummys see each other 0 they dont")
 MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=escape time")
 MACRO_CONFIG_INT(SvPointsMode, sv_points_mode, 2, 0, 2, CFGFLAG_SERVER, "0=/points is off 1=ddnet 2=ddpp(Blockpoints)")
 MACRO_CONFIG_INT(SvPointsFarmProtection, sv_points_farm_prot, 20, 0, 600, CFGFLAG_SERVER, "after how many alive seconds block points count")
 MACRO_CONFIG_INT(SvDummyBlockPoints, sv_dummy_block_points, 2, 0, 3, CFGFLAG_SERVER, "0=off 1=d 2=kd 3=kd (only in block area)")
+
+//Quests
+MACRO_CONFIG_INT(SvQuestCountBots, sv_quest_count_bots, 0, 0, 1, CFGFLAG_SERVER, "if server side bots can be the quest <specific player>") //could do ignore bots at all also in quests like "Hammer 3 tees"
+MACRO_CONFIG_INT(SvQuestNeededPlayers, sv_quest_needed_players, 3, 1, 60, CFGFLAG_SERVER, "if less players online you cant play quests where you need specific players")
+//MACRO_CONFIG_INT(SvQuestRifleSeconds, sv_quest_rifl_seconds, 280, 10, 6000, CFGFLAG_SERVER, "how much seconds players have to rifle <player> or 15 freezed players")
+MACRO_CONFIG_INT(SvQuestRaceTime1, sv_quest_race_time1, 100, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/1")
+MACRO_CONFIG_INT(SvQuestRaceTime2, sv_quest_race_time2, 60, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/2")
+MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time2, 30, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/4")
+MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 20, 5, 6000, CFGFLAG_SERVER, "how much seconds to finish the specialrace in q3/8")
+MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG_SERVER, "what condition to finish the race q3/9 check player.h too see what each value does")
 
 #endif

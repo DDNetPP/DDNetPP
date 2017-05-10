@@ -532,6 +532,8 @@ void CGameTeams::OnFinish(CPlayer* Player)
 	else
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
+	OnQuestFinish(Player);
+
 	float diff = fabs(time - pData->m_BestTime);
 
 	if (time - pData->m_BestTime < 0)
@@ -662,6 +664,70 @@ void CGameTeams::OnFinish(CPlayer* Player)
 	if (Player->m_Score < TTime)
 		Player->m_Score = TTime;
 
+}
+
+void CGameTeams::OnQuestFinish(CPlayer * Player)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	float time = (float)(Server()->Tick() - GetStartTime(Player))
+		/ ((float)Server()->TickSpeed());
+	if (time < 0.000001f)
+		return;
+	//str_format(aBuf, sizeof(aBuf),
+	//	"'%s' [%d:%5.2f] total (int)[%d] (int) / 60[%d]", 
+	//	Server()->ClientName(Player->GetCID()), (int)time / 60,
+	//	time - ((int)time / 60 * 60), 
+	//(int)time, //<---- seconds (total)
+	//(int)time / 60); //<--- minutes (total)
+	//GameServer()->SendChatTarget(Player->GetCID(), aBuf);
+
+	if (Player->m_QuestState == 3) //QUEST RACE
+	{
+		if (Player->m_QuestStateLevel == 0)
+		{
+			GameServer()->QuestCompleted(Player->GetCID());
+		}
+		else if (Player->m_QuestStateLevel == 1)
+		{
+			if ((int)time <= g_Config.m_SvQuestRaceTime1)
+			{
+				GameServer()->QuestCompleted(Player->GetCID());
+			}
+			else
+			{
+				GameServer()->QuestFailed(Player->GetCID());
+			}
+		}
+		else if (Player->m_QuestStateLevel == 2)
+		{
+			if ((int)time <= g_Config.m_SvQuestRaceTime2)
+			{
+				GameServer()->QuestCompleted(Player->GetCID());
+			}
+			else
+			{
+				GameServer()->QuestFailed(Player->GetCID());
+			}
+		}
+		else if (Player->m_QuestStateLevel == 3)
+		{
+			GameServer()->QuestAddProgress(Player->GetCID(), 2, 1); //finish and go back to start
+		}
+		else if (Player->m_QuestStateLevel == 4)
+		{
+			if ((int)time <= g_Config.m_SvQuestRaceTime3)
+			{
+				GameServer()->QuestCompleted(Player->GetCID());
+			}
+			else
+			{
+				GameServer()->QuestFailed(Player->GetCID());
+			}
+		}
+	}
 }
 
 void CGameTeams::OnCharacterSpawn(int ClientID)

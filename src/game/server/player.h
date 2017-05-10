@@ -361,6 +361,87 @@ public:
 	bool m_hidejailmsg;
 
 
+	//quests
+	int m_QuestUnlocked; //maybe save this in sql and later people can choose all quests untill unlocked
+	int m_QuestLevelUnlocked; //maybe save this in sql and later people can choose all levels untill unlocked
+	int m_QuestState; //current quest 0 = not questing
+	int m_QuestStateLevel; //current quest level (difficulty)
+	int m_QuestLastQuestedPlayerID; //store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
+	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
+	int m_QuestProgressValue2;
+	bool m_QuestProgressBool;
+	int m_QuestPlayerID; //the id of the player which is the quest
+	char m_aQuestString[512]; //stores the quest information
+	int m_aQuestProgress[2]; //stores the quest progress information
+	bool m_QuestFailed;
+	//handled in gamecontext.cpp LoadQuest()
+	//              QUEST         QUEST LEVEL
+	//              0                                = Not Questing
+
+	//              1             0                  = Hammer 1 tee [LEVEL 0]
+	//              1             1                  = Hammer 2 tees [LEVEL 1]
+	//              1             2                  = Hammer 3 tees [LEVEL 2]
+	//              1             3                  = Hammer 5 tees [LEVEL 3]
+	//              1             4                  = Hammer 10 freezed tees [LEVEL 4]
+	//              1             5                  = Hammer <specific player> 20 times [LEVEL 5]
+	//              1             6                  = Hammer freezed <specific player> 3 times [LEVEL 6]
+	//              1             7                  = Hammer <specfifc player> 10 times and then block him [LEVEL 7]
+	//              1             8                  = Hammer 2 tees in one hit [LEVEL 8]
+	//              1             9                  = Hammer 10 freezed tees in a row while holding the flag [LEVEL 9]  
+
+	//              2             0                  = Block 1 tee [LEVEL 0]
+	//              2             1                  = Block 2 tees [LEVEL 1]
+	//              2             2                  = Block 3 tees [LEVEL 2]
+	//              2             3                  = Block 5 tees [LEVEL 3]
+	//              2             4                  = Block 10 tees without using a weapon [LEVEL 4]
+	//              2             5                  = Block 5 tees and then block <specific player> [LEVEL 5]               
+	//              2             6                  = Block a tee which is on a 5 tees blocking spree [LEVEL 6]
+	//              2             7                  = Block 11 tees without getting blocked [LEVEL 7]
+	//              2             8                  = Block 3 tees without using hook [LEVEL 8]
+	//              2             9                  = Block 11 tees whithout dieing while holding the flag [LEVEL 9]   //TODO: die = fail 
+
+	//              3             0                  = Finish race [LEVEL 0]
+	//              3             1                  = Finish race under cfg_time1 [LEVEL 1]
+	//              3             2                  = Finish race under cfg_time2 [LEVEL 2]
+	//              3             3                  = Finish race backwards (hit start line after touching finish line) [LEVEL 3]
+	//              3             4                  = Finish race under cfg_time3 [LEVEL 4]
+	//              3             5                  = Finish race with the flag [LEVEL 5]
+	//              3             6                  = Finish special race (touching event tile) [LEVEL 6]
+	//              3             7                  = Finish special race under cfg_longracetime1 [LEVEL 7]
+	//              3             8                  = Finish special race backwards [LEVEL 8]
+	//              3             9                  = Finish race cfg_condition(No Hammer, No Gun (including jetpack), No Shotgun, No Grenade, No Rifle, No Ninja, without getting unfreeze, without getting freeze, without looking down,without looking up, no doublejump) [LEVEL 9]
+
+	//              4             0                  = Rifle 1 tee [LEVEL 0]
+	//              4             1                  = Rifle <specific player> 5 times [LEVEL 1]
+	//              4             2                  = Rifle freezed <specific player> 5 times [LEVEL 2]
+	//              4             3                  = Rilfe 10 tees and <specific player> [LEVEL 3]  //TODO2: decide if it should be <specific player> last or also count mittendrinn if count mittendrinn use a bool made_it and only if (made_it) {QuestAddProgress(id, full);} else {QuestAddProgress(id, full - 1);}
+	//              4             4                  = Rifle 10 freezed tees [LEVEL 4]
+	//              4             5                  = Rifle yourself while being freezed [LEVEL 5]
+	//              4             6                  = Rifle yourself while being freezed 10 times [LEVEL 6]
+	//              4             7                  = Rifle <specific player> and then block him [LEVEL 7]
+	//              4             8                  = Rifle 5 tees before blocking them [LEVEL 8]
+	//              4             9                  = Rifle 20 freezed tees while having the flag [LEVEL 9]
+
+	//              5             0                  = Farm 10 money on a moneytile [LEVEL 0]
+	//              5             1                  = Farm 20 money on a moneytile [LEVEL 1]
+	//              5             2                  = Farm 30 money on a moneytile [LEVEL 2]
+	//              5             3                  = Farm 40 money on a moneytile [LEVEL 3]
+	//              5             4                  = Farm 50 money on a moneytile [LEVEL 4]
+	//              5             5                  = Farm 60 money on a moneytile [LEVEL 5]
+	//              5             6                  = Farm 70 money on a moneytile [LEVEL 6]
+	//              5             7                  = Farm 100 money on a police moneytile [LEVEL 7]
+	//              5             8                  = Farm 100 money on a moneytile [LEVEL 8]
+	//              5             9                  = Farm 200 xp with a flag [LEVEL 9]
+
+	//#################
+	// WARNING
+	// update quest num 
+	// in gamecontext.cpp
+	// QuestCompleted()
+	// if you add new quests
+	//#################
+
+
 	//other
 
 	bool m_IsTest;
@@ -441,6 +522,7 @@ public:
 	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
 	int m_LastTouchTicks;
 	int m_SpawnBlocks;
+	int m_BlockSpreeHighscore;
 
 	//bool m_hammerfight;
 	//bool m_isHeal;

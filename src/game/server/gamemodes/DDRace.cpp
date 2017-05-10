@@ -90,28 +90,31 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 	if ( (m_apFlags[0]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)) || (m_apFlags[1]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)) ){
 
 	}
-	else{
-	F->m_AtStand = 0;
-
-	if (g_Config.m_SvFlagSounds)
+	else
 	{
-		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
-	}
-	/*
-	F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+		F->m_AtStand = 0;
 
-	F->m_pCarryingCharacter = GameServer()->m_apPlayers[character]->GetCharacter();
-	/*
-	if (!F->m_pCarryingCharacter->GetPlayer()->m_Rainbow){
+		if (g_Config.m_SvFlagSounds)
+		{
+			GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+		}
+		/*
+		F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
+		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
+		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+
+		if (GameServer()->m_apPlayers[character] && GameServer()->m_apPlayers[character]->GetCharacter()) 	//ChillerDragon's crashbug protection //didnt understand the bug didnt test the portection better comment it out //uncommented agian yolo
+		{
+			F->m_pCarryingCharacter = GameServer()->m_apPlayers[character]->GetCharacter();
+			/*
+			if (!F->m_pCarryingCharacter->GetPlayer()->m_Rainbow){
 			F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld = F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody;
 			F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld = F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet;
+			}
+			F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = RAINBOW_BLACKWHITE;*/
+			F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
+		}
 	}
-	F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = RAINBOW_BLACKWHITE;*/
-	F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->m_FirstFreezeTick = 0;
-	}
-	
 }
 
 int CGameControllerDDRace::HasFlag(CCharacter *character)
