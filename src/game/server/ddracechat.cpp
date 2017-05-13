@@ -6965,8 +6965,8 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest' to get quest status");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest start' to start a quest");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest stop' to stop a quest");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest skip' to skip a quest");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest level' to change difficulty");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/quest skip' to skip a quest");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/quest level' to change difficulty");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "start") || !str_comp_nocase(pResult->GetString(0), "begin"))
 	{
@@ -6990,24 +6990,36 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[QUEST] started ..."); //print this before the actual start because the start can drop an error and we dont want this log : "[QUEST] ERROR STOPPED [QUEST] Started.." we want this log: "[QUEST] Started.. [QUEST] ERROR STOPPED"
 		pSelf->StartQuest(pResult->m_ClientID);
 	}
-	else if (!str_comp_nocase(pResult->GetString(0), "level"))
+	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
 	{
-		if (pPlayer->m_QuestLevelUnlocked < pResult->GetInteger(1))
+		if (!pPlayer->m_QuestState)
 		{
-			str_format(aBuf, sizeof(aBuf), "Unlock this level first by completing level %d.", pResult->GetInteger(1) - 1);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-		if (pResult->GetInteger(1) < 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are to unexperienced to play these kind of quests...");
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest already stopped");
 			return;
 		}
 
-		pPlayer->m_QuestState = pResult->GetInteger(1);
-		str_format(aBuf, sizeof(aBuf), "Updated quest difficulty to %d.", pResult->GetInteger(1));
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pPlayer->m_QuestState = 0;
+		pPlayer->m_QuestStateLevel = 0;
+		pSelf->SendChatTarget(pResult->m_ClientID, "quest stopped.");
 	}
+	//else if (!str_comp_nocase(pResult->GetString(0), "level"))
+	//{
+	//	if (pPlayer->m_QuestLevelUnlocked < pResult->GetInteger(1))
+	//	{
+	//		str_format(aBuf, sizeof(aBuf), "Unlock this level first by completing level %d.", pResult->GetInteger(1) - 1);
+	//		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//		return;
+	//	}
+	//	if (pResult->GetInteger(1) < 0)
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are to unexperienced to play these kind of quests...");
+	//		return;
+	//	}
+
+	//	pPlayer->m_QuestState = pResult->GetInteger(1);
+	//	str_format(aBuf, sizeof(aBuf), "Updated quest difficulty to %d.", pResult->GetInteger(1));
+	//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	//}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command check '/quest help' for more help.");
