@@ -3408,6 +3408,21 @@ void CCharacter::MoneyTile2()
 			m_pPlayer->m_money += 4;
 		}
 
+		//FARM QUEST
+		if (m_pPlayer->m_QuestState == 5)
+		{
+			if (m_pPlayer->m_QuestStateLevel == 7)
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				m_pPlayer->m_QuestDebugValue++;
+				if (m_pPlayer->m_QuestProgressValue2 > 10)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+		}
+
 		//show msg
 		if (m_pPlayer->m_xpmsg)
 		{
@@ -3537,7 +3552,30 @@ void CCharacter::MoneyTile()
 		//FARM QUEST
 		if (m_pPlayer->m_QuestState == 5)
 		{
-			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestStateLevel < 7) //10 money
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				m_pPlayer->m_QuestDebugValue++;
+				if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+			else if (m_pPlayer->m_QuestStateLevel == 7)
+			{
+				//moneytile2
+			}
+			else if (m_pPlayer->m_QuestStateLevel == 8)
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				m_pPlayer->m_QuestDebugValue++;
+				if (m_pPlayer->m_QuestProgressValue2 > 10)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
 		}
 
 		//show msg
@@ -3860,6 +3898,22 @@ void CCharacter::DDPP_Tick()
 							str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
 							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 							m_pPlayer->m_xp++;
+						}
+					}
+				}
+
+				//no matter where (bank, moneytile, ...) quests are external
+				//FARM QUEST
+				if (m_pPlayer->m_QuestState == 5)
+				{
+					if (m_pPlayer->m_QuestStateLevel == 9)
+					{
+						m_pPlayer->m_QuestProgressValue2++;
+						m_pPlayer->m_QuestDebugValue++;
+						if (m_pPlayer->m_QuestProgressValue2 > 20)
+						{
+							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+							m_pPlayer->m_QuestProgressValue2 = 0;
 						}
 					}
 				}

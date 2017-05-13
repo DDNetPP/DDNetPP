@@ -81,6 +81,11 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		//	pHit->m_Dummy_nn_touched_by_humans = true;
 		//	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "moved run to [TOUCHED] because of shotgun hit");
 		//}
+		if (pHit->GetPlayer()->GetCID() != GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->GetCID())
+		{
+			GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_LastToucherID = pHit->GetPlayer()->GetCID();
+			GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_LastTouchTicks = 0;
+		}
 	}
 	else if (m_Type == WEAPON_RIFLE)
 	{

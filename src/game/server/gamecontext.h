@@ -260,6 +260,7 @@ public:
 	void QuestFailed2(int playerID); //sets fail bool and doest restart
 	bool QuestAddProgress(int playerID, int globalMAX, int localMAX = -1);
 	void QuestCompleted(int playerID);
+	int QuestReward(int playerID);
 	//void PickNextQuest(int playerID); //includeded in QuestComplete
 	void StartQuest(int playerID);
 	int PickQuestPlayer(int playerID);

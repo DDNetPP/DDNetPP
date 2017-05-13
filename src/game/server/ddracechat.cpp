@@ -6921,6 +6921,12 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command. (type '/accountinfo' for more info)");
+		return;
+	}
+
 	char aBuf[128];
 
 	if (pResult->NumArguments() == 0)

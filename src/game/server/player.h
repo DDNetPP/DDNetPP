@@ -369,6 +369,7 @@ public:
 	int m_QuestLastQuestedPlayerID; //store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
 	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
 	int m_QuestProgressValue2;
+	int m_QuestDebugValue;         //TODO: remove this var everywhere in code if finished debugging farm quest
 	bool m_QuestProgressBool;
 	int m_QuestPlayerID; //the id of the player which is the quest
 	char m_aQuestString[512]; //stores the quest information
@@ -414,7 +415,7 @@ public:
 	//              4             0                  = Rifle 1 tee [LEVEL 0]
 	//              4             1                  = Rifle <specific player> 5 times [LEVEL 1]
 	//              4             2                  = Rifle freezed <specific player> 5 times [LEVEL 2]
-	//              4             3                  = Rilfe 10 tees and <specific player> [LEVEL 3]  //TODO2: decide if it should be <specific player> last or also count mittendrinn if count mittendrinn use a bool made_it and only if (made_it) {QuestAddProgress(id, full);} else {QuestAddProgress(id, full - 1);}
+	//              4             3                  = Rilfe 10 tees and <specific player> [LEVEL 3]  
 	//              4             4                  = Rifle 10 freezed tees [LEVEL 4]
 	//              4             5                  = Rifle yourself while being freezed [LEVEL 5]
 	//              4             6                  = Rifle yourself while being freezed 10 times [LEVEL 6]

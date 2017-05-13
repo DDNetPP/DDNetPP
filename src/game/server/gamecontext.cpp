@@ -1985,6 +1985,7 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 	{
 		return false;
 	}
+
 	m_apPlayers[playerID]->m_QuestProgressValue++;
 	m_apPlayers[playerID]->m_aQuestProgress[0] = m_apPlayers[playerID]->m_QuestProgressValue;
 	m_apPlayers[playerID]->m_aQuestProgress[1] = globalMAX;
@@ -2018,9 +2019,29 @@ void CGameContext::QuestCompleted(int playerID)
 		return;
 	}
 
+	//REMOVE ME
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed.", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel);
-	SendChatTarget(playerID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "debug value: %d", m_apPlayers[playerID]->m_QuestDebugValue);
+	//SendChatTarget(playerID, aBuf);
+	m_apPlayers[playerID]->m_QuestDebugValue = 0;
+	//REMOVE ME
+
+
+	//char aBuf[256]; //uncomment me
+	if (!m_apPlayers[playerID]->m_QuestStateLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+50 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
+		SendChatTarget(playerID, aBuf);
+		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
+		m_apPlayers[playerID]->MoneyTransaction(+50, "+50 (quest)");
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+100 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
+		SendChatTarget(playerID, aBuf);
+		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
+		m_apPlayers[playerID]->MoneyTransaction(+100, "+100 (quest)");
+	}
 	QuestReset(playerID);
 	m_apPlayers[playerID]->m_QuestState++;
 	m_apPlayers[playerID]->m_QuestUnlocked = m_apPlayers[playerID]->m_QuestState; //save highscore
@@ -2031,6 +2052,8 @@ void CGameContext::QuestCompleted(int playerID)
 		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", m_apPlayers[playerID]->m_QuestStateLevel);
 		if (m_apPlayers[playerID]->m_QuestStateLevel > 9) //<--- update value depending on how many questlevels
 		{
+			m_apPlayers[playerID]->m_QuestState = 0;
+			m_apPlayers[playerID]->m_QuestStateLevel = 0;
 			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests !!!");
 			return;
 		}
@@ -2040,6 +2063,26 @@ void CGameContext::QuestCompleted(int playerID)
 
 
 	StartQuest(playerID);
+}
+
+int CGameContext::QuestReward(int playerID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[playerID])
+	{
+		return 0;
+	}
+
+	if (!m_apPlayers[playerID]->m_QuestStateLevel)
+	{
+		return 10;
+	}
+	else
+	{
+		return m_apPlayers[playerID]->m_QuestStateLevel * 100;
+	}
 }
 
 //void CGameContext::PickNextQuest(int playerID)
