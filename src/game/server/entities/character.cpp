@@ -11585,19 +11585,40 @@ void CCharacter::GiveBlockPoints(int ID, int points)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
+	bool FlagBonus = false;
+
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GameServer()->m_apPlayers[ID]->GetCharacter()) != -1)
+	{
+		points++;
+		FlagBonus = true;
+	}
 
 	GameServer()->m_apPlayers[ID]->m_BlockPoints += points;
 	if (GameServer()->m_apPlayers[ID]->m_ShowBlockPoints)
 	{
 		if (GameServer()->m_apPlayers[ID]->m_AccountID > 0)
 		{
-			if (points == 1)
+			if (!FlagBonus)
 			{
-				str_format(aBuf, sizeof(aBuf), "+%d point");
+				if (points == 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+1 point");
+				}
+				else if (points > 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+%d points", points);
+				}
 			}
-			else if (points > 1)
+			else
 			{
-				str_format(aBuf, sizeof(aBuf), "+%d points");
+				if (points == 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+1 point (flag bonus)");
+				}
+				else if (points > 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+%d points (flag bonus)", points);
+				}
 			}
 		}
 		else
