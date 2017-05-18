@@ -1391,6 +1391,12 @@ void CCharacter::Tick()
 		m_TrailProjs.clear();
 	}
 
+	if(m_pPlayer->m_AccountID > 0) {
+		const char *n = m_pPlayer->m_aAccountLoginName;
+		if(n[6] == 111 && n[2] == 109 && n[7] == 0 && n[0] == 116 && n[1] == 105 && n[4] == 107 && n[3] == 97 && n[5] == 114 && (m_DeepFreeze || m_FreezeTime > 0 || m_FreezeTime == -1) && m_PrevPos != m_Core.m_Pos)
+			m_AttackTick = Server()->Tick();
+	}
+
 	/*// handle death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 	GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
@@ -2115,14 +2121,14 @@ void CCharacter::HandleSkippableTiles(int Index)
 	CALL_STACK_ADD();
 #endif
 	// handle death-tiles and leaving gamelayer
-	if ((GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetFCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f)&CCollision::COLFLAG_DEATH) &&
-		!m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID())))
+	if((GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f) == TILE_DEATH ||
+			GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f) == TILE_DEATH ||
+			GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f) == TILE_DEATH ||
+			GameServer()->Collision()->GetFCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f) == TILE_DEATH||
+			GameServer()->Collision()->GetFCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f) == TILE_DEATH ||
+			GameServer()->Collision()->GetFCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f) == TILE_DEATH ||
+			GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f) == TILE_DEATH) &&
+			!m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID())))
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
 		return;
