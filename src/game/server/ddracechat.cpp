@@ -6355,7 +6355,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if (pResult->NumArguments() != 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii profile <0/1>' private/publish animation on profile");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Type '/ascii profile <0/1>' to private/publish animation on yourprofile");
 			return;
 		}
 
@@ -6368,7 +6368,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
-				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/profile view <you>'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can no longer be viewed with '/profile view <you>'");
 				pPlayer->m_aAsciiPublishState[1] = '0';
 			}
 		}
@@ -6381,7 +6381,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
-				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/profile view <you>'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be viewed with '/profile view <you>'");
 				pPlayer->m_aAsciiPublishState[1] = '1';
 			}
 		}
@@ -6402,7 +6402,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if (pResult->NumArguments() != 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii public <0/1>' private/publish animation");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Type '/ascii public <0/1>' to private/publish animation");
 			return;
 		}
 
@@ -6415,7 +6415,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
-				pSelf->SendChatTarget(pResult->m_ClientID, "It can be no longer watched with '/ascii view <your id>'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can no longer be viewed with '/ascii view <your id>'");
 				pPlayer->m_aAsciiPublishState[0] = '0';
 			}
 		}
@@ -6428,7 +6428,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
-				pSelf->SendChatTarget(pResult->m_ClientID, "It can be watched with '/ascii view <your id>'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "It can be viewed with '/ascii view <your id>'");
 				pPlayer->m_aAsciiPublishState[0] = '1';
 			}
 		}
@@ -6449,7 +6449,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if (pResult->NumArguments() < 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Type '/ascii frame <frame number> <ascii art>' to edit a frame from 0-15");
 			return;
 		}
 
@@ -6567,7 +6567,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "%d is not a valid frame. choose between 0 and 15");
+			str_format(aBuf, sizeof(aBuf), "'%d' is no valid frame. Choose between 0 and 15.");
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -6592,7 +6592,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if (pResult->NumArguments() != 2)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "'/ascii speed <speed>' to change the animation speed");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Type '/ascii speed <speed>' to change the animation's speed");
 			return;
 		}
 		if (pResult->GetInteger(1) < 1)
@@ -6602,11 +6602,11 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		pPlayer->m_AsciiAnimSpeed = pResult->GetInteger(1);
-		pSelf->SendChatTarget(pResult->m_ClientID, "updated animation speed.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Updated animation speed.");
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown ascii command check '/ascii' for command list.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown ascii command. Type '/ascii' for command list.");
 	}
 }
 
@@ -6653,7 +6653,7 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "bloody"))
@@ -6665,12 +6665,12 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "missing permission.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "unknown power check '/hook' for a list of all powers.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown power. Type '/hook' for a list of all powers.");
 	}
 }
 
@@ -6693,7 +6693,7 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "---- Report ----");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/report <reason> <player>'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "--- reasons ---");
+		pSelf->SendChatTarget(pResult->m_ClientID, "--- Reasons ---");
 		pSelf->SendChatTarget(pResult->m_ClientID, "spawnblock, aimbot, flybot, spinbot, chat-spam, chat-insult");
 		return;
 	}
@@ -6797,24 +6797,24 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (!pPlayer->m_xpmsg)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are now activated.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "XP-messages are now activated.");
 			pPlayer->m_xpmsg = true;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are already activated.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "XP-messages are already activated.");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "jail"))
 	{
 		if (pPlayer->m_hidejailmsg)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are now shown.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are now shown.");
 			pPlayer->m_hidejailmsg = false;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are already shown.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are already shown.");
 		}
 	}
 	else
@@ -6876,24 +6876,24 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->m_xpmsg)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are now hidden.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "XP-messages are now hidden.");
 			pPlayer->m_xpmsg = false;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "xp messages are already hidden.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "XP-messages are already hidden.");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "jail"))
 	{
 		if (!pPlayer->m_hidejailmsg)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are now hidden.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are now hidden.");
 			pPlayer->m_hidejailmsg = true;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "jail messages are already hidden.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are already hidden.");
 		}
 	}
 	else
@@ -6951,22 +6951,22 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 			}
 			if (pPlayer->m_QuestFailed)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "WARNING Quest is failed. Start agian.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "WARNING: Quest has failed. Start agian.");
 			}
 		}
 		pSelf->SendChatTarget(pResult->m_ClientID, "========================");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest help' for more help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest help' for more info.");
 		return;
 	}
 
 	if (!str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info") || !str_comp_nocase(pResult->GetString(0), "cmdlist") || !str_comp_nocase(pResult->GetString(0), "man") || !str_comp_nocase(pResult->GetString(0), "?"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "====== Q U E S T =====");
-		pSelf->SendChatTarget(pResult->m_ClientID, "Complete quests and get rewards c:");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Complete quests and get rewards.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "==== commands ====");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest' to get quest status");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest start' to start a quest");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest stop' to stop a quest");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest' to get quest status.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest start' to start a quest.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/quest stop' to stop a quest.");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/quest skip' to skip a quest");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/quest level' to change difficulty");
 	}
@@ -6974,7 +6974,7 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_QuestState)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "quest already running");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Quest is already running.");
 			return;
 		}
 		//load / activate QuestState
@@ -6996,13 +6996,13 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (!pPlayer->m_QuestState)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "quest already stopped");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Quest already stopped.");
 			return;
 		}
 
 		pPlayer->m_QuestState = 0;
 		pPlayer->m_QuestStateLevel = 0;
-		pSelf->SendChatTarget(pResult->m_ClientID, "quest stopped.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Quest stopped.");
 	}
 	//else if (!str_comp_nocase(pResult->GetString(0), "level"))
 	//{
@@ -7024,6 +7024,6 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	//}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command check '/quest help' for more help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command. Type '/quest help' for more info.");
 	}
 }
