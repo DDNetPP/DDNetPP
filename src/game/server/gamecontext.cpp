@@ -1712,12 +1712,12 @@ void CGameContext::DDPP_Tick()
 			{
 				if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
 				{
-					SendChatTarget(i, "[QUEST] looks like your quest destination left the server.");
+					SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
 					QuestFailed(i);
 				}
 				else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
 				{
-					SendChatTarget(i, "[QUEST] looks like your quest destination is a spectator.");
+					SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
 					QuestFailed(i);
 				}
 			}
@@ -1909,7 +1909,7 @@ void CGameContext::QuestReset(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player resettet the quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player. Quest has been reset.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	m_apPlayers[playerID]->m_QuestProgressValue = 0;
@@ -1928,16 +1928,16 @@ void CGameContext::QuestFailed(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (!m_apPlayers[playerID]->m_QuestState)
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] you failed the quest.");
+	SendChatTarget(playerID, "[QUEST] You failed the quest.");
 	StartQuest(playerID);
 }
 
@@ -1953,7 +1953,7 @@ void CGameContext::QuestFailed2(int playerID)
 	}
 	if (!m_apPlayers[playerID]->m_QuestState)
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (m_apPlayers[playerID]->m_QuestFailed)
@@ -1963,7 +1963,7 @@ void CGameContext::QuestFailed2(int playerID)
 	m_apPlayers[playerID]->m_QuestFailed = true;
 	//str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] you failed the quest.");
+	SendChatTarget(playerID, "[QUEST] You failed the quest.");
 }
 
 bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
@@ -1974,7 +1974,7 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 	char aBuf[256];
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player added progress", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player added progress.", playerID, Server()->ClientName(playerID));
 		return false;
 	}
 	if (localMAX == -1)
@@ -2101,7 +2101,7 @@ void CGameContext::StartQuest(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player started the quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player has started the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 
@@ -2113,50 +2113,50 @@ void CGameContext::StartQuest(int playerID)
 
 	if (quest == 0)
 	{
-		dbg_msg("debug", "WARNING: QuestPicker Triggered on non questing player [%d][%s] [QUEST=%d LEVEL=%d]", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()), quest, level);
+		dbg_msg("debug", "WARNING: QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()), quest, level);
 		return;
 	}
 	else if (quest == 1)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer a tee");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 1 tee.");
 		}
 		else if (level == 1)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 2 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 2 tees.");
 		}
 		else if (level == 2)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 3 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 3 tees.");
 		}
 		else if (level == 3)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 5 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 5 tees.");
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 10 freezed tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 10 freezed tees.");
 		}
 		else if (level == 5)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer '%s' 20 times", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer '%s' 20 times.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer freezed '%s' 3 times", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer freezed '%s' 3 times.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 7)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer '%s' 10 times and then block him", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer '%s' 10 times and then block him.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 8)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 2 tees in one hit");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 2 tees with one hit.");
 		}
 		else if (level == 9)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 10 freezed tees while holding the flag");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Hammer 10 freezed tees while holding the flag.");
 		}
 		else
 		{
@@ -2168,43 +2168,43 @@ void CGameContext::StartQuest(int playerID)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block a tee");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 1 tee.");
 		}
 		else if (level == 1)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 2 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 2 tees.");
 		}
 		else if (level == 2)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 3 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 3 tees.");
 		}
 		else if (level == 3)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 5 tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 5 tees.");
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 10 tees without using any weapons");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 10 tees without using any weapons.");
 		}
 		else if (level == 5)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 5 tees and then block '%s'", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 5 tees and then block '%s'.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block a tee which is on a 5 blockingspree");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block a tee which is on a 5 blockingspree.");
 		}
 		else if (level == 7)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 11 tees without getting blocked");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 11 tees without getting blocked.");
 		}
 		else if (level == 8)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 3 tees without using hook");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 3 tees without using hook.");
 		}
 		else if (level == 9)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 11 tees whithout dieing while holding the flag");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block 11 tees while holding the flag without dying.");
 		}
 		else
 		{
@@ -2216,65 +2216,65 @@ void CGameContext::StartQuest(int playerID)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race.");
 		}
 		else if (level == 1)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds", g_Config.m_SvQuestRaceTime1);
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime1);
 		}
 		else if (level == 2)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds", g_Config.m_SvQuestRaceTime2); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime2); 
 		}
 		else if (level == 3)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race backwards"); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race backwards."); 
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds", g_Config.m_SvQuestRaceTime2);
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime2);
 		}
 		else if (level == 5)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race with the flag"); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race with the flag."); 
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race"); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race."); 
 		}
 		else if (level == 7)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race under %d seconds", g_Config.m_SvQuestSpecialRaceTime); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race in under %d seconds.", g_Config.m_SvQuestSpecialRaceTime); 
 		}
 		else if (level == 8)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race backwards"); 
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the special race backwards."); 
 		}
 		else if (level == 9)
 		{
 			if (g_Config.m_SvQuestRaceCondition == 0)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using hammer");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using hammer.");
 			}
 			else if (g_Config.m_SvQuestRaceCondition == 1)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using gun");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using gun.");
 			}
 			else if (g_Config.m_SvQuestRaceCondition == 2)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using shotgun");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using shotgun.");
 			}
 			else if (g_Config.m_SvQuestRaceCondition == 3)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using grenade");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using grenade.");
 			}
 			else if (g_Config.m_SvQuestRaceCondition == 4)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using rifle");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using rifle.");
 			}
 			else if (g_Config.m_SvQuestRaceCondition == 5)
 			{
-				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using ninja");
+				str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race without using ninja.");
 			}
 			else
 			{
@@ -2292,7 +2292,7 @@ void CGameContext::StartQuest(int playerID)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle a tee");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 1 tee");
 		}
 		else if (level == 1)
 		{
