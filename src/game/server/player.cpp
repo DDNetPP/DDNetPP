@@ -774,11 +774,11 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 		m_pCharacter->OnPredictedInput(NewInput);
 
 	// Magic number when we can hope that client has successfully identified itself
-	if(m_NumInputs == 20)
+	/*if(m_NumInputs == 20)
 	{
 		if(g_Config.m_SvClientSuggestion[0] != '\0' && m_ClientVersion <= VERSION_DDNET_OLD)
 			GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
-	}
+	}*/
 }
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
