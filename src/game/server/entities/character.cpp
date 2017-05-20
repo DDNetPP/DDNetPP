@@ -8,6 +8,7 @@
 #include "character.h"
 #include "laser.h"
 #include "projectile.h"
+#include "meteor.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -860,6 +861,9 @@ void CCharacter::FireWeapon(bool Bot)
 				-1,//SoundImpact
 				WEAPON_GUN//Weapon
 			);
+
+			// summon meteor
+			//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
 
 			// pack the Projectile and send it to the client Directly
 			CNetObj_Projectile p;
