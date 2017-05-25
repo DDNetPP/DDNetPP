@@ -3713,6 +3713,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a grenade instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
 			pPlayer->m_IsInstaArena_gdm = true;
 		}
 	}

@@ -118,7 +118,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 	}
 }
 
-bool IGameController::CanSpawn(int Team, vec2 *pOutPos)
+bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -144,9 +144,25 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos)
 	}
 	else
 	{*/
-	EvaluateSpawnType(&Eval, 0);
-	EvaluateSpawnType(&Eval, 1);
-	EvaluateSpawnType(&Eval, 2);
+	if (g_Config.m_SvSpawntilesMode == 1)
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			EvaluateSpawnType(&Eval, 2); //blue
+		}
+		else
+		{
+			EvaluateSpawnType(&Eval, 0); //default
+		}
+
+		//EvaluateSpawnType(&Eval, 1); //red (rainbow)
+	}
+	else
+	{
+		EvaluateSpawnType(&Eval, 0); //default
+		EvaluateSpawnType(&Eval, 1); //red (rainbow)
+		EvaluateSpawnType(&Eval, 2); //blue
+	}
 	//}
 
 	*pOutPos = Eval.m_Pos;

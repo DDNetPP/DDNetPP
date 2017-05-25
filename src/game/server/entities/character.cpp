@@ -3090,7 +3090,7 @@ void CCharacter::HandleTiles(int Index)
 		}
 		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
 		vec2 SpawnPos;
-		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos))
+		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
 		{
 			m_Core.m_HookedPlayer = -1;
 			m_Core.m_HookState = HOOK_RETRACTED;
@@ -3122,7 +3122,7 @@ void CCharacter::HandleTiles(int Index)
 		}
 		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
 		vec2 SpawnPos;
-		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos))
+		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
 		{
 			m_Core.m_HookedPlayer = -1;
 			m_Core.m_HookState = HOOK_RETRACTED;
