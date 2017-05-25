@@ -767,7 +767,7 @@ void CCharacter::FireWeapon(bool Bot)
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
-						m_pPlayer->MoneyTransaction(-200, "-200 jail");
+						pTarget->GetPlayer()->MoneyTransaction(-200, "-200 jail");
 
 					}
 				}

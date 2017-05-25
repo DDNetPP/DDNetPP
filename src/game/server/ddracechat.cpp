@@ -3669,6 +3669,12 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in more info at '/accountinfo'.");
+		return;
+	}
+
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB HELP ===");
