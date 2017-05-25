@@ -339,6 +339,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added quests ('/quest' for more info)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/insta' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved the racer bot");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
@@ -3644,6 +3646,95 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough permission to use this command.");
+	}
+}
+
+void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB HELP ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "kill people with one shot in a special arena");
+		pSelf->SendChatTarget(pResult->m_ClientID, "check '/insta cmdlist' for a list of all commands");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB COMMANDS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta leave' to leave any kind of instagib game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta gdm' to join grenade deathmatch instagib game");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta idm' to join rifle deathmatch instagib game"); //comming soon dies das
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta help' for help and info");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You left grenade deathmatch.");
+			pPlayer->m_IsInstaArena_gdm = false;
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You left rifle deathmatch.");
+			pPlayer->m_IsInstaArena_idm = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "gdm"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a grenade instagib game.");
+			pPlayer->m_IsInstaArena_gdm = true;
+		}
+	}
+	//else if (!str_comp_nocase(pResult->GetString(0), "idm"))
+	//{
+	//	if (pPlayer->m_IsInstaArena_gdm)
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+	//	}
+	//	else if (pPlayer->m_IsInstaArena_idm)
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+	//	}
+	//	else
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
+	//		pPlayer->m_IsInstaArena_idm = true;
+	//	}
+	//}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/insta cmdlist' for all commands");
 	}
 }
 

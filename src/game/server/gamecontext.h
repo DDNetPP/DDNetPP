@@ -512,6 +512,7 @@ private:
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 

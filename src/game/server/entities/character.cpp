@@ -81,24 +81,24 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode)
+	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaArena_gdm) //gdm & zCatch grenade
 	{
-		if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
-		{
-			m_Core.m_ActiveWeapon = WEAPON_GRENADE;
-		}
-		else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) //idm & zCatch rifle
-		{
-			m_Core.m_ActiveWeapon = WEAPON_RIFLE;
-		}
+		m_Core.m_ActiveWeapon = WEAPON_GRENADE;
+	}
+	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaArena_idm) //idm & zCatch rifle
+	{
+		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
 	}
 	else
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GUN;
 	}
 	m_Core.m_Pos = m_Pos;
-
-	if (m_pPlayer->m_IsSuperModSpawn)
+	
+	/*if (m_pPlayer->m_IsInstaArena_gdm)
+	{
+	}
+	else */if (m_pPlayer->m_IsSuperModSpawn)
 	{
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
 		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
@@ -1639,7 +1639,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode) //in all instagib modes 1hit
+	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_apPlayers[From]->m_IsInstaArena_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
 	{
 		if (m_Godmode)
 		{
@@ -1657,14 +1657,17 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 				Die(From, Weapon);
 
 				//do scoring (by ChillerDragon)
-				GameServer()->m_apPlayers[From]->m_Score++;
+				if (g_Config.m_SvInstagibMode)
+				{
+					GameServer()->m_apPlayers[From]->m_Score++;
+				}
 
 				//save the kill
-				if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+				if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
 				{
 					GameServer()->m_apPlayers[From]->m_GrenadeKills++;
 				}
-				else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+				else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
 				{
 					GameServer()->m_apPlayers[From]->m_RifleKills++;
 				}
@@ -11558,7 +11561,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 				//Finish time if cfg val reached
-				if (pKiller->m_KillStreak == g_Config.m_SvKillsToFinish)
+				if (pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
 				{
 					CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
 					Controller->m_Teams.OnCharacterFinish(pKiller->GetCID());

@@ -588,7 +588,11 @@ void CGameTeams::OnFinish(CPlayer* Player)
 		// update the score
 		pData->Set(time, GetCpCurrent(Player));
 		CallSaveScore = true;
+		//dbg_msg("cBug", "======= SCORE UPDATED ======="); //gets triggerd if filescore is beaten
+		//dbg_msg("cBug", "time %d", time); // 536870912 = 0 minute(s) 23.28
 	}
+
+	//dbg_msg("cBug", "trigger at al == On Finish == teams.cpp"); //got triggerd on every finish
 
 	if (CallSaveScore)
 		if (g_Config.m_SvNamelessScore || str_comp_num(Server()->ClientName(Player->GetCID()), "nameless tee",
@@ -613,8 +617,10 @@ void CGameTeams::OnFinish(CPlayer* Player)
 
 	SetDDRaceState(Player, DDRACE_FINISHED);
 	// set player score
+	//if (!pData->m_CurrentTime || pData->m_CurrentTime > time /*|| pData->m_CurrentTime == 0*/) //trash by ChillerDragon
 	if (!pData->m_CurrentTime || pData->m_CurrentTime > time)
 	{
+		//dbg_msg("cBug", "Updated [%f] to [%f]", pData->m_CurrentTime, time);
 		pData->m_CurrentTime = time;
 		NeedToSendNewRecord = true;
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -661,7 +667,14 @@ void CGameTeams::OnFinish(CPlayer* Player)
 	}
 
 	int TTime = 0 - (int) time;
-	if (Player->m_Score < TTime)
+	//dbg_msg("cBug", "TTime [%d] (int) time [%d]", TTime, (int) time); // TTime [-15326] (int) time [15326] ----------- TTime [-30650] (int) time [30650] ---------------
+	//dbg_msg("cBug", "m_Score = %d", Player->m_Score); // -9999
+	//dbg_msg("cBug", "BestTime [%d] float besttime [%f]", pData->m_BestTime, pData->m_BestTime ); // BestTime [1073741824] float besttime [2.000000] ------------- BestTime [1073741824] float besttime [2.000000] ------------- BestTime [-1073741824] float besttime [-2.000000] (changed if statement in next line to !BestTime) ------------ BestTime [-2147483648] float besttime [-0.000000] (changed if statement below abs(pData->m_BestTime) == 1073741824)
+	//if (!pData->m_BestTime)
+	//{
+	//	dbg_msg("cBug", "gimmi oscar");
+	//}
+	if (Player->m_Score < TTime || Player->m_Score == -9999)
 		Player->m_Score = TTime;
 
 }

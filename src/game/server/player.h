@@ -276,6 +276,9 @@ public:
 	int m_pvp_arena_kills;
 	int m_pvp_arena_deaths;
 
+	bool m_IsInstaArena_gdm;
+	bool m_IsInstaArena_idm;
+
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;
 	int m_GrenadeDeaths;
