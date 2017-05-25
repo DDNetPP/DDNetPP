@@ -317,6 +317,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 
 	//RELEASE NOTES:
 	//9.4.2017 RELEASED v.0.0.1
+	//25.5.2017 RELEASED v.0.0.2
 
 	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
 	if (!page) { page = 1; }
