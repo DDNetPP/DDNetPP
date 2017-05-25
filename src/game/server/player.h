@@ -537,7 +537,8 @@ public:
 
 	int64 m_LastWarning;
 	int m_ChilliWarnings;
-	bool m_trolled;
+	bool m_TROLL166;
+	bool m_TROLL420;
 	bool m_RconFreeze;
 };
 

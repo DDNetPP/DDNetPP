@@ -7027,3 +7027,42 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command. Type '/quest help' for more info.");
 	}
 }
+
+void CGameContext::ConTROLL166(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
+		return;
+
+	int VictimCID = pResult->GetVictim();
+	CPlayer *pPlayer = pSelf->m_apPlayers[VictimCID];
+	if (pPlayer) {
+		pPlayer->m_TROLL166 = pResult->GetInteger(0);
+	}
+}
+
+void CGameContext::ConTROLL420(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
+		return;
+
+	int VictimCID = pResult->GetVictim();
+	CPlayer *pPlayer = pSelf->m_apPlayers[VictimCID];
+	if (pPlayer) {
+		pPlayer->m_TROLL420 = pResult->GetInteger(0);
+		pSelf->SendTuningParams(VictimCID);
+	}
+}

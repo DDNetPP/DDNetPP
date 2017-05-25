@@ -168,7 +168,8 @@ void CPlayer::Reset()
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
 	m_ChilliWarnings = 0;
 	m_xpmsg = true;
-	m_trolled = false;
+	m_TROLL166 = false;
+	m_TROLL420 = false;
 	m_Dummy_nn_time = 0;
 	m_Dummy_nn_latest_fitness = 0.0f;
 	m_Dummy_nn_highest_fitness = 0.0f;

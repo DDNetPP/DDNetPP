@@ -931,7 +931,7 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 					Msg.AddInt(0);
 				}
 				else if((i==12) // gravity for 420 trolling
-				&& m_apPlayers[ClientID]->m_trolled)
+				&& m_apPlayers[ClientID]->m_TROLL420)
 				{
 					Msg.AddInt(-1000000);
 				}
@@ -4735,24 +4735,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				return;
 				}*/
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "420 ", 4) == 0)
-				{
-					if (Server()->IsAuthed(ClientID))
-					{
-						// timakro rocks!
-						int state = str_toint(pMsg->m_pMessage + 5);
-						int id = str_toint(pMsg->m_pMessage + 7);
-						if (m_apPlayers[id]) {
-							m_apPlayers[id]->m_trolled = state;
-							SendTuningParams(id);
-						}
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
-					}
-					return;
-				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "dmm25 ", 6) == 0)
 				{
 					if (Server()->IsAuthed(ClientID))

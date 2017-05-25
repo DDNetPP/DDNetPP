@@ -536,6 +536,8 @@ private:
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
 	static void ConHook(IConsole::IResult *pResult, void *pUserData);
 	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
+	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
+	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
 
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
