@@ -2232,7 +2232,7 @@ void CGameContext::StartQuest(int playerID)
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime2);
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Finish the race in under %d seconds.", g_Config.m_SvQuestRaceTime3);
 		}
 		else if (level == 5)
 		{

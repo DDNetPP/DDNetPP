@@ -439,7 +439,7 @@ MACRO_CONFIG_INT(SvQuestNeededPlayers, sv_quest_needed_players, 3, 1, 60, CFGFLA
 //MACRO_CONFIG_INT(SvQuestRifleSeconds, sv_quest_rifl_seconds, 280, 10, 6000, CFGFLAG_SERVER, "how much seconds players have to rifle <player> or 15 freezed players")
 MACRO_CONFIG_INT(SvQuestRaceTime1, sv_quest_race_time1, 100, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/1")
 MACRO_CONFIG_INT(SvQuestRaceTime2, sv_quest_race_time2, 60, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/2")
-MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time2, 30, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/4")
+MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time3, 30, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/4")
 MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 20, 5, 6000, CFGFLAG_SERVER, "how much seconds to finish the specialrace in q3/8")
 MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG_SERVER, "what condition to finish the race q3/9 check player.h too see what each value does")
 
