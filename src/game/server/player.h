@@ -278,6 +278,7 @@ public:
 
 	bool m_IsInstaArena_gdm;
 	bool m_IsInstaArena_idm;
+	bool m_IsInstaArena_fng; //depends on gdm or idm can be boomfng and fng
 
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;

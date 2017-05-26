@@ -809,8 +809,7 @@ void CCharacter::FireWeapon(bool Bot)
 			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 				m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 
-			if (!pTarget->m_pPlayer->m_RconFreeze)
-
+			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaArena_fng)
 				pTarget->UnFreeze();
 
 			if (m_FreezeHammer)
@@ -962,7 +961,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 	case WEAPON_GRENADE:
 	{
-		if (g_Config.m_SvInstagibMode)
+		if (g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaArena_gdm)
 		{
 			m_pPlayer->m_GrenadeShots++;
 			m_pPlayer->m_GrenadeShotsNoRJ++;
@@ -1623,7 +1622,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 	}
 
-
+	bool fake_return = false;
 
 	////dragon test [FNN] isTouched check
 	//if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
@@ -1654,74 +1653,93 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 			if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 			{
-				Die(From, Weapon);
-
-				//do scoring (by ChillerDragon)
-				if (g_Config.m_SvInstagibMode)
+				if (m_pPlayer->m_IsInstaArena_fng || GameServer()->m_apPlayers[From]->m_IsInstaArena_fng)
 				{
-					GameServer()->m_apPlayers[From]->m_Score++;
-				}
-
-				//save the kill
-				if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
-				{
-					GameServer()->m_apPlayers[From]->m_GrenadeKills++;
-				}
-				else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
-				{
-					GameServer()->m_apPlayers[From]->m_RifleKills++;
-				}
-
-				//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
-				//GameServer()->m_apPlayers[From]->m_KillStreak++;
-				//char aBuf[256];
-				//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
-				//if (m_pPlayer->m_KillStreak >= 5)
-				//{
-				//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
-				//}
-				//m_pPlayer->m_KillStreak = 0;
-				//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
-				//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
-				//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
-				//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
-				//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-				// set attacker's face to happy (taunt!)
-				if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-				{
-					CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
-					if (pChr)
+					if (!m_FreezeTime)
 					{
-						pChr->m_EmoteType = EMOTE_HAPPY;
-						pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+						Freeze(3);
+					}
+					else
+					{
+						//return false; //dont count freezed tee shots (no score or sound or happy emote)
+						//dont return because we loose hammer vel then
+						fake_return = true;
 					}
 				}
-
-
-				// do damage Hit sound
-				if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+				else
 				{
-					int64_t Mask = CmaskOne(From);
-					for (int i = 0; i < MAX_CLIENTS; i++)
-					{
-						if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-							Mask |= CmaskOne(i);
-					}
-					GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+					Die(From, Weapon);
 				}
 
-				//if zCatch mode --> move to spec
-				if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+				if (!fake_return)
 				{
-					if (From != m_pPlayer->GetCID())
+					//do scoring (by ChillerDragon)
+					if (g_Config.m_SvInstagibMode)
 					{
-						m_pPlayer->SetTeam(-1, 0);
+						GameServer()->m_apPlayers[From]->m_Score++;
 					}
 
-					//Save The Player in catch array
-					GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+					//save the kill
+					if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+					{
+						GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+					}
+					else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
+					{
+						GameServer()->m_apPlayers[From]->m_RifleKills++;
+					}
+
+					//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
+					//GameServer()->m_apPlayers[From]->m_KillStreak++;
+					//char aBuf[256];
+					//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+					//if (m_pPlayer->m_KillStreak >= 5)
+					//{
+					//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+					//}
+					//m_pPlayer->m_KillStreak = 0;
+					//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
+					//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
+					//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+					//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
+					//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+					// set attacker's face to happy (taunt!)
+					if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+					{
+						CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
+						if (pChr)
+						{
+							pChr->m_EmoteType = EMOTE_HAPPY;
+							pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+						}
+					}
+
+
+					// do damage Hit sound
+					if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+					{
+						int64_t Mask = CmaskOne(From);
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+								Mask |= CmaskOne(i);
+						}
+						GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+					}
+
+					//if zCatch mode --> move to spec
+					if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+					{
+						if (From != m_pPlayer->GetCID())
+						{
+							m_pPlayer->SetTeam(-1, 0);
+						}
+
+						//Save The Player in catch array
+						GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+					}
 				}
 			}
 		}
@@ -11911,13 +11929,13 @@ void CCharacter::BlockQuestSubDieFuncDeath(int Killer)
 	}
 }
 
-void CCharacter::BlockKillingSpree(int Killer)
+void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0 minigames like gdm idm fng etc
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
-	//Somehow inspiration by //toast killingspree system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon) //stolen from DDnet++ instagib and edited agian by ChillerDragon //rewritten by ChillerDragon cuz tw bug
+	//Somehow inspiration by //toast killingspree system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon) //stolen from DDnet++ instagib and edited agian by ChillerDragon //rewritten by ChillerDragon cuz tw bug //upgraded to handle instagib agian
 	CCharacter *pVictim = m_pPlayer->GetCharacter();
 	//CPlayer *pKiller = GameServer()->m_apPlayers[Killer]; //removed pointer alien code and used the long way to have less bugsis with left players
 
@@ -11931,9 +11949,9 @@ void CCharacter::BlockKillingSpree(int Killer)
 
 	if (pVictim && GameServer()->m_apPlayers[Killer])
 	{
-		//#################
-		// KILLED (blocked)
-		//#################
+		//##############################################
+		// KILLED (blocked) or (gdm idm fng killed(NEW))
+		//##############################################
 		//Quest (leave it first because it doesnt reset something and needs the values)
 		if (pVictim->GetPlayer()->m_QuestState == 2 && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
 		{
@@ -11942,13 +11960,37 @@ void CCharacter::BlockKillingSpree(int Killer)
 		if (pVictim->GetPlayer()->m_KillStreak >= 5)
 		{
 			//Check for new highscore
-			if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_BlockSpreeHighscore)
+
+			//could add fng sprees here too...
+			if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
 			{
-				pVictim->GetPlayer()->m_BlockSpreeHighscore = pVictim->GetPlayer()->m_KillStreak;
-				GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New Blockspree record!");
+				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
+				{
+					pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
+					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade spree record!");
+				}
+				str_format(aBuf, sizeof(aBuf), "'%s's grenade spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
+			{
+				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
+				{
+					pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
+					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle spree record!");
+				}
+				str_format(aBuf, sizeof(aBuf), "'%s's rifle spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+			}
+			else //no insta at all
+			{
+				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_BlockSpreeHighscore)
+				{
+					pVictim->GetPlayer()->m_BlockSpreeHighscore = pVictim->GetPlayer()->m_KillStreak;
+					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New Blockspree record!");
+				}
+				str_format(aBuf, sizeof(aBuf), "'%s's blockingspree was ended by '%s' (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 			}
 
-			str_format(aBuf, sizeof(aBuf), "'%s's blockingspree was ended by '%s' (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+
 			pVictim->GetPlayer()->m_KillStreak = 0; 
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
@@ -11967,7 +12009,33 @@ void CCharacter::BlockKillingSpree(int Killer)
 					GameServer()->m_apPlayers[Killer]->m_KillStreak++;
 				}
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				str_format(aBuf, sizeof(aBuf), "'%s' is on a blocking spree with %d Blocks!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+				if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng)
+				{
+					if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' is on a boomfng spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+					}
+					else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' is on a fng spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+					}
+				}
+				else if (!GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng)
+				{
+					if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' is on a grenade spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+					}
+					else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
+					{
+						str_format(aBuf, sizeof(aBuf), "'%s' is on a rifle spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+					}
+				}
+				else //no insta at all
+				{
+					str_format(aBuf, sizeof(aBuf), "'%s' is on a blocking spree with %d blocks!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
+				}
+
 
 				if (GameServer()->m_apPlayers[Killer]->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[Killer]->m_KillStreak >= 5)
 				{

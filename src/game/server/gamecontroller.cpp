@@ -658,6 +658,10 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 	pChr->IncreaseHealth(10);
 
 	//zCatch ChillerDragon
+	if (pChr->GetPlayer()->m_IsInstaArena_fng)
+	{
+		pChr->GiveWeapon(WEAPON_HAMMER, -1);
+	}
 
 	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || pChr->GetPlayer()->m_IsInstaArena_gdm) //gdm & zCatch grenade
 	{

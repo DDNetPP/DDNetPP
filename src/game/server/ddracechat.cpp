@@ -328,6 +328,19 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	if (page == 1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"=== Changelog (DDNet++ v.0.0.3) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/insta boomfng' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added '/insta stats' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			aBuf);
+	}
+	else if (page == 2)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/ascii' command");
@@ -348,7 +361,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 2)
+	else if (page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
@@ -507,7 +520,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod. v.0.0.2 (more info '/changelog')");
+		"ChillerDragon's Block mod. v.0.0.3 (more info '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on DDraceNetwork Version: " GAME_VERSION);
 //#if defined( GIT_SHORTREV_HASH )
@@ -3676,6 +3689,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
+	char aBuf[256];
+
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB HELP ===");
@@ -3692,20 +3707,70 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
-		if (pPlayer->m_IsInstaArena_gdm)
+		if (pPlayer->m_IsInstaArena_fng)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You left grenade deathmatch.");
-			pPlayer->m_IsInstaArena_gdm = false;
-		}
-		else if (pPlayer->m_IsInstaArena_idm)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You left rifle deathmatch.");
-			pPlayer->m_IsInstaArena_idm = false;
+			if (pPlayer->m_IsInstaArena_gdm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You left boomfng.");
+				pPlayer->m_IsInstaArena_gdm = false;
+				pPlayer->m_IsInstaArena_fng = false;
+			}
+			else if (pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You left fng.");
+				pPlayer->m_IsInstaArena_idm = false;
+				pPlayer->m_IsInstaArena_fng = false;
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+			if (pPlayer->m_IsInstaArena_gdm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You left grenade deathmatch.");
+				pPlayer->m_IsInstaArena_gdm = false;
+			}
+			else if (pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You left rifle deathmatch.");
+				pPlayer->m_IsInstaArena_idm = false;
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+			}
 		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "stats"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "====== Your Stats ======");
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Grenade instagib ~~~");
+		str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_GrenadeKills);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_GrenadeDeaths);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_GrenadeSpree);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_GrenadeShots);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_GrenadeShotsNoRJ);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
+		//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Rifle instagib ~~~");
+		str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_RifleKills);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_RifleDeaths);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_RifleSpree);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_RifleShots);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "gdm"))
 	{
@@ -3740,6 +3805,24 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	//		pPlayer->m_IsInstaArena_idm = true;
 	//	}
 	//}
+	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
+			pPlayer->m_IsInstaArena_gdm = true;
+			pPlayer->m_IsInstaArena_fng = true;
+		}
+	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/insta cmdlist' for all commands");
