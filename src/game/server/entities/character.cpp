@@ -95,10 +95,21 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	m_Core.m_Pos = m_Pos;
 	
-	/*if (m_pPlayer->m_IsInstaArena_gdm)
+	if (m_pPlayer->m_JailTime)
 	{
+		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
+
+		if (JailPlayerSpawn != vec2(-1, -1))
+		{
+			SetPosition(JailPlayerSpawn);
+		}
+		else //no jailplayer
+		{
+			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
+		}
 	}
-	else */if (m_pPlayer->m_IsSuperModSpawn)
+	else if (m_pPlayer->m_IsSuperModSpawn)
 	{
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
 		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
@@ -749,7 +760,7 @@ void CCharacter::FireWeapon(bool Bot)
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 600; //10 minutes jail
+						pTarget->GetPlayer()->JailPlayer(600); //10 minutes jail
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
 					}
 					else
@@ -765,7 +776,7 @@ void CCharacter::FireWeapon(bool Bot)
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * 300; //5 minutes jail
+						pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
 						pTarget->GetPlayer()->MoneyTransaction(-200, "-200 jail");
 
@@ -783,7 +794,7 @@ void CCharacter::FireWeapon(bool Bot)
 						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
 						pTarget->GetPlayer()->m_EscapeTime = 0;
 						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->m_JailTime = Server()->TickSpeed() * m_pPlayer->m_JailHammer;
+						pTarget->GetPlayer()->JailPlayer(Server()->TickSpeed() * m_pPlayer->m_JailHammer);
 						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
 					}
 				}
@@ -3999,6 +4010,18 @@ void CCharacter::DDPP_Tick()
 		if (m_pPlayer->m_JailTime == 1)
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You were released from jail.");
+			vec2 JailReleaseSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAILRELEASE);
+			//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
+
+			if (JailReleaseSpawn != vec2(-1, -1))
+			{
+				SetPosition(JailReleaseSpawn);
+			}
+			else //no jailrelease
+			{
+				//SetPosition(DefaultSpawn); //crashbug for mod stealer
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "gibts nich");
+			}
 		}
 	}
 
@@ -4008,11 +4031,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers in the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -4081,88 +4104,90 @@ void CCharacter::DDPP_Tick()
 	}
 
 
-	if (g_Config.m_SvJailState == 1) // ChillBlock5 (old under spawn)
-	{
-		if (m_pPlayer->m_JailTime > 0)
-		{
-			//if (g_Config.m_SvMap == "ChillBlock5")
-			//{
-			if (m_Core.m_Pos.x > 400 * 32 || m_Core.m_Pos.x < 393 * 32 || m_Core.m_Pos.y > 223 * 32 || m_Core.m_Pos.y < 220 * 32)
-			{
-				m_Core.m_Pos.x = 396 * 32 + 10;
-				m_Core.m_Pos.y = 222 * 32 + 10;
-			}
-			//}
-			//else
-			//{
-			//	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "error: there is no jail on this map.");
-			//	m_pPlayer->m_IsJailed = false;
-			//}
-		}
-		else //if not jailed 
-		{
-			//if (g_Config.m_SvMap == "ChillBlock5")
-			//{
-			if (m_Core.m_Pos.x > 400 * 32 || m_Core.m_Pos.x < 393 * 32 || m_Core.m_Pos.y > 223 * 32 || m_Core.m_Pos.y < 220 * 32)
-			{
 
-			}
-			else //if the player is not jailed but in jail tp him out 
-			{
-				m_Core.m_Pos.x = 391 * 32;
-				m_Core.m_Pos.y = 179 * 32;
-			}
-			//}
-		}
-	}
-	else if (g_Config.m_SvJailState == 2) // ChillBlock5 (new in police base)
-	{
-		if (m_pPlayer->m_JailTime > 0)
-		{
-			if (m_Core.m_Pos.x > 486 * 32 && m_Core.m_Pos.x < 495 * 32 && m_Core.m_Pos.y > 230 * 32 && m_Core.m_Pos.y < 236 * 32)
-			{
-				//im jail
-			}
-			else
-			{
-				m_Core.m_Pos.x = 488 * 32 + 10;
-				m_Core.m_Pos.y = 234 * 32 + 10;
-			}
-		}
-		else //if not jailed 
-		{
-			//if the player is not jailed but in jail tp him out 
-			if (m_Core.m_Pos.x > 486 * 32 && m_Core.m_Pos.x < 495 * 32 && m_Core.m_Pos.y > 230 * 32 && m_Core.m_Pos.y < 236 * 32)
-			{
-				m_Core.m_Pos.x = 484 * 32 + 10;
-				m_Core.m_Pos.y = 234 * 32 + 20;
-			}
-		}
-	}
-	else if (g_Config.m_SvJailState == 3) // Blockdale by SarKro (right side of spawn)
-	{
-		if (m_pPlayer->m_JailTime > 0)
-		{
-			if (m_Core.m_Pos.x > 143 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 174 * 32 && m_Core.m_Pos.y < 179 * 32)
-			{
-				//im jail
-			}
-			else
-			{
-				m_Core.m_Pos.x = 144 * 32 + 10;
-				m_Core.m_Pos.y = 177 * 32;
-			}
-		}
-		else //if not jailed 
-		{
-			//if the player is not jailed but in jail tp him out 
-			if (m_Core.m_Pos.x > 142 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 173 * 32 && m_Core.m_Pos.y < 179 * 32)
-			{
-				m_Core.m_Pos.x = 133 * 32 + 10;
-				m_Core.m_Pos.y = 177 * 32 + 20;
-			}
-		}
-	}
+
+	//if (g_Config.m_SvJailState == 1) // ChillBlock5 (old under spawn)
+	//{
+	//	if (m_pPlayer->m_JailTime > 0)
+	//	{
+	//		//if (g_Config.m_SvMap == "ChillBlock5")
+	//		//{
+	//		if (m_Core.m_Pos.x > 400 * 32 || m_Core.m_Pos.x < 393 * 32 || m_Core.m_Pos.y > 223 * 32 || m_Core.m_Pos.y < 220 * 32)
+	//		{
+	//			m_Core.m_Pos.x = 396 * 32 + 10;
+	//			m_Core.m_Pos.y = 222 * 32 + 10;
+	//		}
+	//		//}
+	//		//else
+	//		//{
+	//		//	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "error: there is no jail on this map.");
+	//		//	m_pPlayer->m_IsJailed = false;
+	//		//}
+	//	}
+	//	else //if not jailed 
+	//	{
+	//		//if (g_Config.m_SvMap == "ChillBlock5")
+	//		//{
+	//		if (m_Core.m_Pos.x > 400 * 32 || m_Core.m_Pos.x < 393 * 32 || m_Core.m_Pos.y > 223 * 32 || m_Core.m_Pos.y < 220 * 32)
+	//		{
+
+	//		}
+	//		else //if the player is not jailed but in jail tp him out 
+	//		{
+	//			m_Core.m_Pos.x = 391 * 32;
+	//			m_Core.m_Pos.y = 179 * 32;
+	//		}
+	//		//}
+	//	}
+	//}
+	//else if (g_Config.m_SvJailState == 2) // ChillBlock5 (new in police base)
+	//{
+	//	if (m_pPlayer->m_JailTime > 0)
+	//	{
+	//		if (m_Core.m_Pos.x > 486 * 32 && m_Core.m_Pos.x < 495 * 32 && m_Core.m_Pos.y > 230 * 32 && m_Core.m_Pos.y < 236 * 32)
+	//		{
+	//			//im jail
+	//		}
+	//		else
+	//		{
+	//			m_Core.m_Pos.x = 488 * 32 + 10;
+	//			m_Core.m_Pos.y = 234 * 32 + 10;
+	//		}
+	//	}
+	//	else //if not jailed 
+	//	{
+	//		//if the player is not jailed but in jail tp him out 
+	//		if (m_Core.m_Pos.x > 486 * 32 && m_Core.m_Pos.x < 495 * 32 && m_Core.m_Pos.y > 230 * 32 && m_Core.m_Pos.y < 236 * 32)
+	//		{
+	//			m_Core.m_Pos.x = 484 * 32 + 10;
+	//			m_Core.m_Pos.y = 234 * 32 + 20;
+	//		}
+	//	}
+	//}
+	//else if (g_Config.m_SvJailState == 3) // Blockdale by SarKro (right side of spawn)
+	//{
+	//	if (m_pPlayer->m_JailTime > 0)
+	//	{
+	//		if (m_Core.m_Pos.x > 143 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 174 * 32 && m_Core.m_Pos.y < 179 * 32)
+	//		{
+	//			//im jail
+	//		}
+	//		else
+	//		{
+	//			m_Core.m_Pos.x = 144 * 32 + 10;
+	//			m_Core.m_Pos.y = 177 * 32;
+	//		}
+	//	}
+	//	else //if not jailed 
+	//	{
+	//		//if the player is not jailed but in jail tp him out 
+	//		if (m_Core.m_Pos.x > 142 * 32 && m_Core.m_Pos.x < 151 * 32 && m_Core.m_Pos.y > 173 * 32 && m_Core.m_Pos.y < 179 * 32)
+	//		{
+	//			m_Core.m_Pos.x = 133 * 32 + 10;
+	//			m_Core.m_Pos.y = 177 * 32 + 20;
+	//		}
+	//	}
+	//}
 
 	//Marcella's room code (used to slow down chat message spam)
 	if (IsAlive() && (Server()->Tick() % 80) == 0 && m_WasInRoom)

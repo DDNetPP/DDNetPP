@@ -342,7 +342,7 @@ public:
 
 	int m_GangsterBagMoney;
 
-
+	void JailPlayer(int seconds);
 	int m_PoliceRank;
 	bool m_PoliceHelper;
 	int m_TaserLevel;

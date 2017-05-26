@@ -349,8 +349,8 @@ private:
 	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
 	static void Conheal(IConsole::IResult *pResult, void *pUserData);
 	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
-	//static void ConUnJail(IConsole::IResult *pResult, void *pUserData);
-	//static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
 	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);

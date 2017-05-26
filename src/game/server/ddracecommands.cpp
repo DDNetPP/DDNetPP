@@ -528,55 +528,69 @@ void CGameContext::ConInfTrail(IConsole::IResult *pResult, void *pUserData)
 }
 
 
-//void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
-//{
-//#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
-//#endif
-//	CGameContext *pSelf = (CGameContext *)pUserData;
-//	if (!CheckClientID(pResult->m_ClientID))
-//		return;
-//
-//	int ClientID = pResult->GetVictim();
-//
-//
-//
-//	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-//	if (pPlayer)
-//	{
-//		pPlayer->m_JailTime = pSelf->Server()->TickSpeed() * pResult->GetInteger(0);
-//
-//
-//
-//		char aBuf[256];
-//		str_format(aBuf, sizeof(aBuf), "You were jailed by %s for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
-//		pSelf->SendChatTarget(ClientID, aBuf);
-//
-//	}
-//}
-//
-//void CGameContext::ConUnJail(IConsole::IResult *pResult, void *pUserData)
-//{
-//#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
-//#endif
-//	CGameContext *pSelf = (CGameContext *)pUserData;
-//	if (!CheckClientID(pResult->m_ClientID))
-//		return;
-//
-//	int ClientID = pResult->GetVictim();
-//
-//	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-//	if (pPlayer)
-//	{
-//		pPlayer->m_JailTime = 0;
-//
-//		char aBuf[256];
-//		str_format(aBuf, sizeof(aBuf), "You were released by %s,", pSelf->Server()->ClientName(pResult->m_ClientID));
-//		pSelf->SendChatTarget(ClientID, aBuf);
-//
-//	}
-//}
+void CGameContext::ConForceJail(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		pPlayer->JailPlayer(pResult->GetInteger(0));
+
+
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
+		pSelf->SendChatTarget(ClientID, aBuf);
+
+	}
+}
+
+void CGameContext::ConForceUnJail(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		pPlayer->m_JailTime = 0;
+
+		if (pSelf->m_apPlayers[pResult->GetVictim()]->GetCharacter())
+		{
+			vec2 JailReleaseSpawn = pSelf->Collision()->GetRandomTile(TILE_JAILRELEASE);
+
+			if (JailReleaseSpawn != vec2(-1, -1))
+			{
+				pSelf->m_apPlayers[pResult->GetVictim()]->GetCharacter()->SetPosition(JailReleaseSpawn);
+			}
+			else //no jailrelease
+			{
+				pSelf->SendChatTarget(pPlayer->GetCID(), "gibts nich");
+			}
+		}
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "You were released by the kind admin '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+
+	}
+}
 
 void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 {

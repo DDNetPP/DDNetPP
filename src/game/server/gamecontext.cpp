@@ -3834,8 +3834,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//SendAllPolice("test");
 						//pPlayer->m_PoliceRank = 5;
 						//GetPlayerChar(ClientID)->FreezeAll(10);
-
-						QuestCompleted(pPlayer->GetCID());
+						//pPlayer->m_IsJailed = true;
+						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
+						//QuestCompleted(pPlayer->GetCID());
+						pPlayer->JailPlayer(10);
 					}
 
 					//char aIP_1[64];

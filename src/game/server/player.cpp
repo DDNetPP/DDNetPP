@@ -1198,6 +1198,30 @@ void CPlayer::Logout()
 	m_RifleWins = 0;
 }
 
+void CPlayer::JailPlayer(int seconds)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
+	//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
+
+	m_JailTime = Server()->TickSpeed() * seconds;
+
+	if (GetCharacter())
+	{
+		if (JailPlayerSpawn != vec2(-1, -1))
+		{
+			GetCharacter()->SetPosition(JailPlayerSpawn);
+		}
+		else //no jailplayer
+		{
+			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
+			GameServer()->SendChatTarget(GetCID(), "No jail set.");
+		}
+	}
+}
+
 void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
 {
 #if defined(CONF_DEBUG)

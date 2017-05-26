@@ -86,7 +86,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 	// get spawn point
 	for (int i = 0; i < m_aNumSpawnPoints[Type]; i++)
 	{
-		// check if the position is occupado
+		// check if the position is avocado
 		CCharacter *aEnts[MAX_CLIENTS];
 		int Num = GameServer()->m_World.FindEntities(m_aaSpawnPoints[Type][i], 64, (CEntity**)aEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 		vec2 Positions[5] = { vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f) };	// start, left, up, right, down
@@ -144,25 +144,42 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 	}
 	else
 	{*/
-	if (g_Config.m_SvSpawntilesMode == 1)
-	{
-		if (pPlayer->m_IsInstaArena_gdm)
+
+	//if (pPlayer->m_JailTime)
+	//{
+	//	vec2 JailSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
+
+	//	if (JailSpawn != vec2(-1, -1))
+	//	{
+	//		pPlayer->GetCharacter()->SetPosition(JailSpawn);
+	//	}
+	//	else //no jailrelease
+	//	{
+	//		EvaluateSpawnType(&Eval, 0); //tele to spawn
+	//	}
+	//}
+	//else
+	//{
+		if (g_Config.m_SvSpawntilesMode == 1)
 		{
-			EvaluateSpawnType(&Eval, 2); //blue
+			if (pPlayer->m_IsInstaArena_gdm)
+			{
+				EvaluateSpawnType(&Eval, 2); //blue
+			}
+			else
+			{
+				EvaluateSpawnType(&Eval, 0); //default
+			}
+
+			//EvaluateSpawnType(&Eval, 1); //red (bloody)
 		}
 		else
 		{
 			EvaluateSpawnType(&Eval, 0); //default
+			EvaluateSpawnType(&Eval, 1); //red (bloody)
+			EvaluateSpawnType(&Eval, 2); //blue
 		}
-
-		//EvaluateSpawnType(&Eval, 1); //red (rainbow)
-	}
-	else
-	{
-		EvaluateSpawnType(&Eval, 0); //default
-		EvaluateSpawnType(&Eval, 1); //red (rainbow)
-		EvaluateSpawnType(&Eval, 2); //blue
-	}
+	//}
 	//}
 
 	*pOutPos = Eval.m_Pos;
