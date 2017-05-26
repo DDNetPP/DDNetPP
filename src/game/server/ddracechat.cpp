@@ -6926,6 +6926,37 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+		return;
+	}
+
+	char aMsg[256];
+	str_format(aMsg, sizeof(aMsg), "[%s]: %s", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetString(0));
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN) 
+		{
+			pSelf->SendChatTarget(i, aMsg);
+		}
+	}
+}
+
 void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)

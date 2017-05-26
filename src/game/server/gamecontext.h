@@ -412,6 +412,7 @@ private:
 	static void ConSettings(IConsole::IResult *pResult, void *pUserData);
 	static void ConRules(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData);
