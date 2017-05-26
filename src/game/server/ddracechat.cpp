@@ -202,74 +202,74 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 	}
 }
 
-void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	if (pPlayer->m_TaserLevel == 0)
-	{
-		pPlayer->m_TaserPrice = 50000;
-	}
-	else if (pPlayer->m_TaserLevel == 1)
-	{
-		pPlayer->m_TaserPrice = 75000;
-	}
-	else if (pPlayer->m_TaserLevel == 2)
-	{
-		pPlayer->m_TaserPrice = 100000;
-	}
-	else if (pPlayer->m_TaserLevel == 3)
-	{
-		pPlayer->m_TaserPrice = 150000;
-	}
-	else if (pPlayer->m_TaserLevel == 4)
-	{
-		pPlayer->m_TaserPrice = 200000;
-	}
-	else if (pPlayer->m_TaserLevel == 5)
-	{
-		pPlayer->m_TaserPrice = 200000;
-	}
-	else if (pPlayer->m_TaserLevel == 6)
-	{
-		pPlayer->m_TaserPrice = 200000;
-	}
-	else
-	{
-		pPlayer->m_TaserPrice = 0;
-	}
-
-
-	char aBuf[256];
-
-
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TASER INFO ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Police Ranks 3 or higher are allowed to carry a taser.");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Use the taser to fight gangsters.");
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR TASER STATS ~~~");
-	str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_TaserLevel);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 5);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "FailRate: %d%", 0);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-}
+//void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
+//{
+//#if defined(CONF_DEBUG)
+//	CALL_STACK_ADD();
+//#endif
+//	CGameContext *pSelf = (CGameContext *)pUserData;
+//	if (!CheckClientID(pResult->m_ClientID))
+//		return;
+//
+//	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+//	if (!pPlayer)
+//		return;
+//
+//	CCharacter* pChr = pPlayer->GetCharacter();
+//	if (!pChr)
+//		return;
+//
+//
+//	if (pPlayer->m_TaserLevel == 0)
+//	{
+//		pPlayer->m_TaserPrice = 50000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 1)
+//	{
+//		pPlayer->m_TaserPrice = 75000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 2)
+//	{
+//		pPlayer->m_TaserPrice = 100000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 3)
+//	{
+//		pPlayer->m_TaserPrice = 150000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 4)
+//	{
+//		pPlayer->m_TaserPrice = 200000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 5)
+//	{
+//		pPlayer->m_TaserPrice = 200000;
+//	}
+//	else if (pPlayer->m_TaserLevel == 6)
+//	{
+//		pPlayer->m_TaserPrice = 200000;
+//	}
+//	else
+//	{
+//		pPlayer->m_TaserPrice = 0;
+//	}
+//
+//
+//	char aBuf[256];
+//
+//
+//	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TASER INFO ~~~");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "Police Ranks 3 or higher are allowed to carry a taser.");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "Use the taser to fight gangsters.");
+//	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR TASER STATS ~~~");
+//	str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_TaserLevel);
+//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+//	str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
+//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+//	str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 5);
+//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+//	str_format(aBuf, sizeof(aBuf), "FailRate: %d%", 0);
+//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+//}
 
 void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 {
@@ -2056,56 +2056,56 @@ void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
 #endif
 
 
-void CGameContext::ConPolicetaser(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-	if (pPlayer->m_TaserLevel < 1)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
-		return;
-	}
-
-	if (pResult->NumArguments() != 1)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
-		return;
-	}
-
-	char aInput[32];
-	str_copy(aInput, pResult->GetString(0), 32);
-
-	if (!str_comp_nocase(aInput, "on"))
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Taser activated. (Your rifle is now a taser)");
-		pPlayer->m_TaserOn = true;
-		return;
-	}
-	else if (!str_comp_nocase(aInput, "off"))
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Taser deactivated. (Your rifle unfreezes people)");
-		pPlayer->m_TaserOn = false;
-		return;
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
-		return;
-	}
-}
+//void CGameContext::ConPolicetaser(IConsole::IResult *pResult, void *pUserData)
+//{
+//#if defined(CONF_DEBUG)
+//	CALL_STACK_ADD();
+//#endif
+//	CGameContext *pSelf = (CGameContext *)pUserData;
+//	if (!CheckClientID(pResult->m_ClientID))
+//		return;
+//
+//	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+//	if (!pPlayer)
+//		return;
+//
+//	CCharacter* pChr = pPlayer->GetCharacter();
+//	if (!pChr)
+//		return;
+//
+//	if (pPlayer->m_TaserLevel < 1)
+//	{
+//		pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
+//		return;
+//	}
+//
+//	if (pResult->NumArguments() != 1)
+//	{
+//		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
+//		return;
+//	}
+//
+//	char aInput[32];
+//	str_copy(aInput, pResult->GetString(0), 32);
+//
+//	if (!str_comp_nocase(aInput, "on"))
+//	{
+//		pSelf->SendChatTarget(pResult->m_ClientID, "Taser activated. (Your rifle is now a taser)");
+//		pPlayer->m_TaserOn = true;
+//		return;
+//	}
+//	else if (!str_comp_nocase(aInput, "off"))
+//	{
+//		pSelf->SendChatTarget(pResult->m_ClientID, "Taser deactivated. (Your rifle unfreezes people)");
+//		pPlayer->m_TaserOn = false;
+//		return;
+//	}
+//	else
+//	{
+//		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/policetaser on' or '/policetaser off'");
+//		return;
+//	}
+//}
 
 void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 {
@@ -6924,6 +6924,104 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown reason. Check '/report' for all reasons.");
 	}
+}
+
+void CGameContext::ConTaser(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		if (pPlayer->m_TaserLevel == 0)
+		{
+			pPlayer->m_TaserPrice = 50000;
+		}
+		else if (pPlayer->m_TaserLevel == 1)
+		{
+			pPlayer->m_TaserPrice = 75000;
+		}
+		else if (pPlayer->m_TaserLevel == 2)
+		{
+			pPlayer->m_TaserPrice = 100000;
+		}
+		else if (pPlayer->m_TaserLevel == 3)
+		{
+			pPlayer->m_TaserPrice = 150000;
+		}
+		else if (pPlayer->m_TaserLevel == 4)
+		{
+			pPlayer->m_TaserPrice = 200000;
+		}
+		else if (pPlayer->m_TaserLevel == 5)
+		{
+			pPlayer->m_TaserPrice = 200000;
+		}
+		else if (pPlayer->m_TaserLevel == 6)
+		{
+			pPlayer->m_TaserPrice = 200000;
+		}
+		else
+		{
+			pPlayer->m_TaserPrice = 0;
+		}
+
+		char aBuf[256];
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TASER INFO ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Police with rank 3 or higher are allowed to carry a taser.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Taser makes rifle freeze players.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR TASER STATS ~~~");
+		str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_TaserLevel);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "FreezeTime: %.4f seconds", (pPlayer->m_TaserLevel * 5) / pSelf->Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 5);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "FailRate: %d%", 0);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TASER COMMANDS ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/taser <on/off>' to activate/deactivate it.");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/taser <upgrade>' to level up you taser.");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "on"))
+	{
+		if (pPlayer->m_TaserLevel < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
+			return;
+		}
+		
+		pSelf->SendChatTarget(pResult->m_ClientID, "Taser activated. (Your rifle is now a taser)");
+		pPlayer->m_TaserOn = true;
+		return;
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "off"))
+	{
+		if (pPlayer->m_TaserLevel < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
+			return;
+		}
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "Taser deactivated. (Your rifle unfreezes again.)");
+		pPlayer->m_TaserOn = false;
+		return;
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid argument. Try '/taser info' for info about taser.");
+	}
+
 }
 
 void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)

@@ -3837,7 +3837,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->JailPlayer(10);
+						pPlayer->m_TaserLevel = 4;
 					}
 
 					//char aIP_1[64];
