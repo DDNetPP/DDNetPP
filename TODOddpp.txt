@@ -1,0 +1,86 @@
+~~~ BUGS ~~~
+
+## commands ##
+Almost all chat commands added require a character to be executed or it returns.
+But for example /shop doesnt need it change it but be carefull it can cause crashbugs
+
+## instagib killingspree ##
+if you get killed by a player who left the game things get crazy even in vanilla
+so stick to the blockkillingspreesystem and all is fine c:
+
+and also if players are missing for killingsprees make it possible to end killingsprees but end how? better think of it good and maybe look ad the blockklinningspree system
+
+## IsSameIP ##
+behaves weird on local server with dummys check if it works online
+
+##  1on1 insta dc ##
+check if some1 disconnects if he was in insta 1on1. If he was... let the other dude win
+
+~~~ ADD ~~~
+
+## logout protection ##
+disallow logout in insta 1on1s in the pvp_arena and in bomb games and in all the other places where logout can be used as cheat ur cause bugs
+
+## king of hill ##
+Capturing areas with bloody tiles which show the current leading tee
+
+## block points dummy check ##
+im very insecure baut diz. But maybe add a check where only non equal ips can collect block points
+
+## waveblock bot sub mod ##
+add something like monster where you have to hold a position
+and if all humans are freezed round restarts
+and add upgrades only for this sub mod like
+weapons (with ammo)
+jetpack
+endless
+
+## quest todo ##
+inform a player of all the progress in chat if actiavted (/show /hide)
+
+## ip und clan speichern ##
+mehr daten über den user sammeln und last names mal gut testen und wenn nötig fixxen
+Name Fix [ ]
+IP [x]
+Clan [ ]
+Skin [ ]
+Country [ ]
+last login date [ ]
+
+
+## SQL COMMAND ##
+ALTER TABLE Accounts
+ADD <name> VARCHAR(64) DEFAULT '';
+add this commadn '/sql_add <name> <char16 char32 char64 char128 int> <default>'
+so tables can be updated ingame
+or add it as a rcon so it can be executed via file executer code
+
+## Homing Missiles ##
+Die Waffe selber kann ab police lvl 4 erworben werden.
+Monition kann jedoch jeder an den munition spawner tiles sammeln (die dort random spawnen)
+
+## jail ##
+add reasons why people get arrested (bankrob, spawnblock, report)
+and add a report command
+"/report (player) (reason)" to report a player
+und dann ein paar reasons:
+- spawnblocking
+- hacking
+- insulting
+und wenn dann genung reports der selben reason ankamen wird die police auf den geschickt
+
+## police ##
+add a list of gangsters their gangsta reason and escape time
+
+## warps ##
+add warps like in minecraft
+/tele_create (name)
+/tele (name)
+works ingame
+supermoderators can create some for much money but only if x < cfgrated (to avoid race cheats)
+and all tele there for some money
+
+COULD AND TO DOS:
+
+//gamecontext.cpp code: cfv45
+COULD inform creator live if some1 watched if he has this feed activated (use new show command)

@@ -4251,7 +4251,24 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	BlockKillingSpree(Killer);
 
-
+	//insta 1on1
+	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID()) //is in 1on1
+	{
+		GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
+		str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_Insta1on1_score);
+		if (!GameServer()->m_apPlayers[Killer]->m_HideInsta1on1_killmessages)
+		{
+			GameServer()->SendChatTarget(Killer, aBuf);
+		}
+		if (!m_pPlayer->m_HideInsta1on1_killmessages)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		}
+		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
+		{
+			GameServer()->WinInsta1on1(Killer);
+		}
+	}
 
 
 	//ChillerDragon pvparena code

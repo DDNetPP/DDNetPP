@@ -2670,6 +2670,112 @@ void CGameContext::DummyChat()
 	//unused cuz me knoop putting all the stuff here
 }
 
+void CGameContext::WinInsta1on1(int WinnerID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int LooserID = m_apPlayers[WinnerID]->m_Insta1on1_id;
+
+	//WINNER
+	if (m_apPlayers[WinnerID])
+	{
+		SendChatTarget(WinnerID, "==== Insta 1on1 WON ====");
+		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerID), m_apPlayers[WinnerID]->m_Insta1on1_score);
+		SendChatTarget(WinnerID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
+		SendChatTarget(WinnerID, aBuf);
+		SendChatTarget(WinnerID, "==================");
+		SendChatTarget(WinnerID, "+200 money for winning 1on1"); //actually it is only +100 because you have to pay to start an 1on1
+		m_apPlayers[WinnerID]->MoneyTransaction(+200,"+200 (won insta 1on1)"); 
+
+		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
+		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
+		m_apPlayers[WinnerID]->m_IsInstaArena_fng = false;
+		if (m_apPlayers[WinnerID]->GetCharacter())
+		{
+			m_apPlayers[WinnerID]->GetCharacter()->Die(WinnerID, WEAPON_SELF);
+		}
+	}
+
+	//LOOSER
+	if (LooserID != -1)
+	{
+		SendChatTarget(LooserID, "==== Insta 1on1 LOST ====");
+		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerID), m_apPlayers[WinnerID]->m_Insta1on1_score);
+		SendChatTarget(LooserID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
+		SendChatTarget(LooserID, aBuf);
+		SendChatTarget(LooserID, "==================");
+
+		m_apPlayers[LooserID]->m_IsInstaArena_gdm = false;
+		m_apPlayers[LooserID]->m_IsInstaArena_idm = false;
+		m_apPlayers[LooserID]->m_IsInstaArena_fng = false;
+		//m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //should be dead anyways... so this might cause buggy (tested it and nothing evil happend but better dont do it)
+	}
+}
+
+bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int cPlayer = 0;
+
+	if (grenade)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				if (m_apPlayers[i]->m_IsInstaArena_gdm)
+				{
+					cPlayer++;
+					if (m_apPlayers[i]->m_Insta1on1_id != -1) //if some1 is in 1on1
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		if (cPlayer >= g_Config.m_SvGrenadeArenaSlots)
+		{
+			return false;
+		}
+	}
+	else //rifle
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				if (m_apPlayers[i]->m_IsInstaArena_idm)
+				{
+					cPlayer++;
+					if (m_apPlayers[i]->m_Insta1on1_id != -1) //if some1 is in 1on1
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		if (cPlayer >= g_Config.m_SvRifleArenaSlots)
+		{
+			return false;
+		}
+	}
+
+	if (cPlayer && PrivateMatch)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void CGameContext::SurvivalTick()
 {
 #if defined(CONF_DEBUG)

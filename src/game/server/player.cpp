@@ -180,6 +180,7 @@ void CPlayer::Reset()
 	m_max_level = 99; //is actually 1 more
 	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
 	m_ci_latest_dest_dist = 0;
+	m_Insta1on1_id = -1;
 
 
 	// disable infinite cosmetics by default

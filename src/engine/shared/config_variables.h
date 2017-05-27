@@ -425,6 +425,9 @@ MACRO_CONFIG_INT(SvSurvivalDelay, sv_survival_delay, 0, 2, 500, CFGFLAG_SERVER, 
 MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 
+MACRO_CONFIG_INT(SvGrenadeArenaSlots, sv_grenade_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for grenade")
+MACRO_CONFIG_INT(SvRifleArenaSlots, sv_rifle_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for rifle")
+
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys see each other 0 they dont")
 MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time")
