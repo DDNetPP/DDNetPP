@@ -86,7 +86,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 	// get spawn point
 	for (int i = 0; i < m_aNumSpawnPoints[Type]; i++)
 	{
-		// check if the position is avocado
+		// check if the position is occupado
 		CCharacter *aEnts[MAX_CLIENTS];
 		int Num = GameServer()->m_World.FindEntities(m_aaSpawnPoints[Type][i], 64, (CEntity**)aEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 		vec2 Positions[5] = { vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f) };	// start, left, up, right, down
@@ -164,6 +164,10 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 		{
 			if (pPlayer->m_IsInstaArena_gdm)
 			{
+				EvaluateSpawnType(&Eval, 1); //red (not bloody anymore bloody)
+			}
+			else if (pPlayer->m_IsInstaArena_idm)
+			{
 				EvaluateSpawnType(&Eval, 2); //blue
 			}
 			else
@@ -216,7 +220,8 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	if (Index == ENTITY_SPAWN)
 		m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
 	else if (Index == ENTITY_SPAWN_RED)
-		m_FunPoint = Pos;
+		m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
+		//m_FunPoint = Pos; //Blue redspawn rainbow tile rainbowtile
 	else if (Index == ENTITY_SPAWN_BLUE)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
 

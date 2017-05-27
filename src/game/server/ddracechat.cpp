@@ -3789,22 +3789,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			pPlayer->m_IsInstaArena_gdm = true;
 		}
 	}
-	//else if (!str_comp_nocase(pResult->GetString(0), "idm"))
-	//{
-	//	if (pPlayer->m_IsInstaArena_gdm)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
-	//	}
-	//	else if (pPlayer->m_IsInstaArena_idm)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
-	//	}
-	//	else
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
-	//		pPlayer->m_IsInstaArena_idm = true;
-	//	}
-	//}
+	else if (!str_comp_nocase(pResult->GetString(0), "idm"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
+			pPlayer->m_IsInstaArena_idm = true;
+		}
+	}
 	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
@@ -3820,6 +3821,24 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng game.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
 			pPlayer->m_IsInstaArena_gdm = true;
+			pPlayer->m_IsInstaArena_fng = true;
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "fng"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a fng game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
+			pPlayer->m_IsInstaArena_idm = true;
 			pPlayer->m_IsInstaArena_fng = true;
 		}
 	}

@@ -1668,7 +1668,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 				{
 					if (!m_FreezeTime)
 					{
-						Freeze(3);
+						Freeze(10);
 					}
 					else
 					{
