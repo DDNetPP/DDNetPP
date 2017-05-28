@@ -13,13 +13,7 @@ and also if players are missing for killingsprees make it possible to end killin
 ## IsSameIP ##
 behaves weird on local server with dummys check if it works online
 
-##  1on1 insta dc ##
-check if some1 disconnects if he was in insta 1on1. If he was... let the other dude win
-
 ~~~ ADD ~~~
-
-## logout protection ##
-disallow logout in insta 1on1s in the pvp_arena and in bomb games and in all the other places where logout can be used as cheat ur cause bugs
 
 ## king of hill ##
 Capturing areas with bloody tiles which show the current leading tee

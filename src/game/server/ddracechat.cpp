@@ -3365,6 +3365,32 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pPlayer->m_Insta1on1_id != -1)
+	{
+		pSelf->SendChatTarget(ClientID, "You can't logout in 1on1. ('/insta leave' to leave)");
+		return;
+	}
+
+	if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+	{
+		pSelf->SendChatTarget(ClientID, "You can't logout in insta matches. ('/insta leave' to leave)");
+		return;
+	}
+
+	if (pPlayer->GetCharacter())
+	{
+		if (pPlayer->GetCharacter()->m_IsBombing) 
+		{
+			pSelf->SendChatTarget(ClientID, "You can't logout in bomb games. ('/bomb leave' to leave)");
+			return;
+		}
+		if (pPlayer->GetCharacter()->m_IsPVParena)
+		{
+			pSelf->SendChatTarget(ClientID, "You can't logout in pvp_arena. ('/pvp_arena leave' to leave)");
+			return;
+		}
+	}
+
 	pPlayer->Logout();
 	pSelf->SendChatTarget(ClientID, "Logged out.");
 }
@@ -3707,6 +3733,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
+		if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
+		{
+			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id);
+			pSelf->SendChatTarget(pResult->m_ClientID, "You left the 1on1.");
+			return;
+		}
+
 		if (pPlayer->m_IsInstaArena_fng)
 		{
 			if (pPlayer->m_IsInstaArena_gdm)

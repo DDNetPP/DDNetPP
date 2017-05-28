@@ -731,6 +731,12 @@ void CPlayer::OnDisconnect(const char *pReason)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
+	{
+		GameServer()->WinInsta1on1(m_Insta1on1_id);
+	}
+
 	KillCharacter();
 
 	Logout();
@@ -1197,6 +1203,16 @@ void CPlayer::Logout()
 	m_RifleDeaths = 0;
 	m_RifleShots = 0;
 	m_RifleWins = 0;
+	str_format(m_money_transaction9, sizeof(m_money_transaction9), "");
+	str_format(m_money_transaction8, sizeof(m_money_transaction8), "");
+	str_format(m_money_transaction7, sizeof(m_money_transaction7), "");
+	str_format(m_money_transaction6, sizeof(m_money_transaction6), "");
+	str_format(m_money_transaction5, sizeof(m_money_transaction5), "");
+	str_format(m_money_transaction4, sizeof(m_money_transaction4), "");
+	str_format(m_money_transaction3, sizeof(m_money_transaction3), "");
+	str_format(m_money_transaction2, sizeof(m_money_transaction2), "");
+	str_format(m_money_transaction1, sizeof(m_money_transaction1), "");
+	str_format(m_money_transaction0, sizeof(m_money_transaction0), "");
 }
 
 void CPlayer::JailPlayer(int seconds)

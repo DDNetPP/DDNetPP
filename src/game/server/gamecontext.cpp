@@ -2693,6 +2693,8 @@ void CGameContext::WinInsta1on1(int WinnerID)
 		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_fng = false;
+		m_apPlayers[WinnerID]->m_Insta1on1_id = -1;
+		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
 		if (m_apPlayers[WinnerID]->GetCharacter())
 		{
 			m_apPlayers[WinnerID]->GetCharacter()->Die(WinnerID, WEAPON_SELF);
@@ -2712,7 +2714,12 @@ void CGameContext::WinInsta1on1(int WinnerID)
 		m_apPlayers[LooserID]->m_IsInstaArena_gdm = false;
 		m_apPlayers[LooserID]->m_IsInstaArena_idm = false;
 		m_apPlayers[LooserID]->m_IsInstaArena_fng = false;
-		//m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //should be dead anyways... so this might cause buggy (tested it and nothing evil happend but better dont do it)
+		m_apPlayers[LooserID]->m_Insta1on1_id = -1;
+		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
+		if (m_apPlayers[LooserID]->GetCharacter())
+		{
+			m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //should be dead anyways... so this might cause buggy (tested it and nothing evil happend but better dont do it) //uncommented agian because we need it if some1 does '/insta leave' (which causes a loose without dead)
+		}
 	}
 }
 
@@ -3943,7 +3950,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->m_TaserLevel = 4;
+						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
 					}
 
 					//char aIP_1[64];
