@@ -4252,7 +4252,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 	BlockKillingSpree(Killer);
 
 	//insta 1on1
-	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID()) //is in 1on1
+	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
 	{
 		GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
 		str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_Insta1on1_score);

@@ -3908,10 +3908,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "The winner gets 100 money from the looser.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "=== commands ===");
 			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 gdm <player>'");
-			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 idm <player>'");
-			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 boomfng <player>'");
-			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 fng <player>'");
-			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 accept <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 idm <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 boomfng <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 fng <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 accept <player>'");
 
 			//description is too long and goes newline --> lukz ugly af
 
@@ -3951,7 +3951,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a gdm 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a gdm 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a gdm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "idm"))
@@ -3984,7 +3984,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a idm 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a idm 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a idm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "boomfng"))
@@ -4017,7 +4017,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a boomfng 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a boomfng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "fng"))
@@ -4050,7 +4050,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a fng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a fng 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a fng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "accept"))
