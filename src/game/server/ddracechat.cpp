@@ -3954,15 +3954,105 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a gdm 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
-		//else if (!str_comp_nocase(pResult->GetString(1), "idm"))
-		//{
-		//}
-		//else if (!str_comp_nocase(pResult->GetString(1), "fng"))
-		//{
-		//}
-		//else if (!str_comp_nocase(pResult->GetString(1), "boomfng"))
-		//{
-		//}
+		else if (!str_comp_nocase(pResult->GetString(1), "idm"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 1; //idm
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a idm 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a idm 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "boomfng"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 2; //boomfng
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a boomfng 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "fng"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 3; //fng
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a fng 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a fng 1on1.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
 		else if (!str_comp_nocase(pResult->GetString(1), "accept"))
 		{
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
@@ -4038,7 +4128,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 							pSelf->m_apPlayers[mateID]->m_IsInstaArena_fng = true;
 						}
 
-						pSelf->m_apPlayers[mateID]->m_IsInstaArena_gdm = true;
+						pSelf->m_apPlayers[mateID]->m_IsInstaArena_idm = true;
 						pSelf->m_apPlayers[mateID]->m_Insta1on1_score = 0;
 						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pSelf->m_apPlayers[mateID]->GetCharacter()->Die(mateID, WEAPON_SELF);
