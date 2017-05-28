@@ -3945,6 +3945,11 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
 			
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 0; //gdm
@@ -3976,6 +3981,11 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
 				return;
 			}
 
@@ -4011,6 +4021,11 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
 
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 2; //boomfng
@@ -4044,6 +4059,11 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
 
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 3; //fng
@@ -4068,6 +4088,16 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't accept while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your 1on1 mate doesn't have enough money to start a game.");
 				return;
 			}
 			else
