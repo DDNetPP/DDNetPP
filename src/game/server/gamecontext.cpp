@@ -1331,13 +1331,12 @@ void CGameContext::OnClientEnter(int ClientID)
 		}
 		if (g_Config.m_SvInstagibMode)
 		{
-			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDraceNetwork");
+			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDNet");
 		}
 		else
 		{
-			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod based on DDraceNetwork");
+			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod based on DDNet");
 		}
-		SendChatTarget(ClientID, "Have fun and enjoy your stay.");
 
 		if(g_Config.m_SvWelcome[0]!=0)
 			SendChatTarget(ClientID,g_Config.m_SvWelcome);
