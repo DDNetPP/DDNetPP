@@ -34,7 +34,6 @@ buildlog.txt
 *.log
 *.exe
 *.cfg
-*.txt
 *.res
 *.patch
 *.prefs

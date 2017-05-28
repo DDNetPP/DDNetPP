@@ -368,8 +368,8 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 
 
 //ChillerDragon
-MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=ChillBlock5")
-MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER, "0=all 1=blue(insta)def(ddr)red(none)")
+MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")
+MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=all 1=blue(insta)def(ddr)red(none)")
 //MACRO_CONFIG_INT(SvChillBlock5Version, sv_chillblock5_version, 0, 0, 1, CFGFLAG_SERVER, "0=old 1=upper spawn") //not needed yet because upper and lower spawn are dynamic anyways
 
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 2, CFGFLAG_SERVER, "Punish 'Chilli.*' members with wrong skin 0=off 1=freeze 2=kick")
@@ -389,18 +389,18 @@ MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, 
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
 
 MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=blockcity 2=instagib(coming soon)")
-MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 393, 0, 1000, CFGFLAG_SERVER, "x koordinate for the supermod spawn")
-MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 212, 0, 1000, CFGFLAG_SERVER, "y koordinate for the supermod spawn")
-MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER, "start ddrace time on supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 393, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x koordinate for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 212, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y koordinate for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "start ddrace time on supermod spawn")
 
 MACRO_CONFIG_INT(SvPoopMSG, sv_poop_msg, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=on 2=extreme(coudl fuck server but idk)")
 
-MACRO_CONFIG_INT(SvAllowBomb, sv_allow_bomb, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=on")
-MACRO_CONFIG_INT(SvAllowBombSelfkill, sv_allow_bomb_selfkill, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=on suicide in '/bomb' games")
+MACRO_CONFIG_INT(SvAllowBomb, sv_allow_bomb, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=on")
+MACRO_CONFIG_INT(SvAllowBombSelfkill, sv_allow_bomb_selfkill, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=on suicide in '/bomb' games")
 MACRO_CONFIG_INT(SvBombTicks, sv_bomb_ticks, 1500, 10, 255000, CFGFLAG_SERVER, "after how many ticks the bomb explodes")
 MACRO_CONFIG_INT(SvBombStartDelay, sv_bomb_start_delay, 5, 1, 20, CFGFLAG_SERVER, "after how many % 40 == 0 the game starts")
-MACRO_CONFIG_INT(SvBombSpawnX, sv_bomb_spawn_x, 101, 0, 5000, CFGFLAG_SERVER, "x pos of the bomb arena spawn (players spawn at x+CID*2)")
-MACRO_CONFIG_INT(SvBombSpawnY, sv_bomb_spawn_y, 459, 0, 5000, CFGFLAG_SERVER, "y pos of the bomb arena spawn")
+MACRO_CONFIG_INT(SvBombSpawnX, sv_bomb_spawn_x, 101, 0, 5000, CFGFLAG_SERVER | CFGFLAG_GAME, "x pos of the bomb arena spawn (players spawn at x+CID*2)")
+MACRO_CONFIG_INT(SvBombSpawnY, sv_bomb_spawn_y, 459, 0, 5000, CFGFLAG_SERVER | CFGFLAG_GAME, "y pos of the bomb arena spawn")
 MACRO_CONFIG_INT(SvBombLockable, sv_bomb_lockable, 0, 0, 2, CFGFLAG_SERVER, "0=No 1=Mods 2=all")
 MACRO_CONFIG_INT(SvBombUnreadyKickDelay, sv_bomb_unready_kick_delay, 800, 520, 50000000, CFGFLAG_SERVER, "after how many ticks an unready player gets kicked out of lobby")
 
@@ -425,22 +425,25 @@ MACRO_CONFIG_INT(SvSurvivalDelay, sv_survival_delay, 0, 2, 500, CFGFLAG_SERVER, 
 MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
 
+MACRO_CONFIG_INT(SvGrenadeArenaSlots, sv_grenade_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for grenade")
+MACRO_CONFIG_INT(SvRifleArenaSlots, sv_rifle_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for rifle")
+
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
-MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER, "1 dummys see each other 0 they dont")
-MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=escape time")
+MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys see each other 0 they dont")
+MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time")
 MACRO_CONFIG_INT(SvPointsMode, sv_points_mode, 2, 0, 2, CFGFLAG_SERVER, "0=/points is off 1=ddnet 2=ddpp(Blockpoints)")
-MACRO_CONFIG_INT(SvPointsFarmProtection, sv_points_farm_prot, 20, 0, 600, CFGFLAG_SERVER, "after how many alive seconds block points count")
-MACRO_CONFIG_INT(SvDummyBlockPoints, sv_dummy_block_points, 2, 0, 3, CFGFLAG_SERVER, "0=off 1=d 2=kd 3=kd (only in block area)")
+MACRO_CONFIG_INT(SvPointsFarmProtection, sv_points_farm_prot, 20, 0, 600, CFGFLAG_SERVER | CFGFLAG_GAME, "after how many alive seconds block points count")
+MACRO_CONFIG_INT(SvDummyBlockPoints, sv_dummy_block_points, 2, 0, 3, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=d 2=kd 3=kd (only in block area)")
 
 //Quests
 MACRO_CONFIG_INT(SvQuestCountBots, sv_quest_count_bots, 0, 0, 1, CFGFLAG_SERVER, "if server side bots can be the quest <specific player>") //could do ignore bots at all also in quests like "Hammer 3 tees"
 MACRO_CONFIG_INT(SvQuestNeededPlayers, sv_quest_needed_players, 3, 1, 60, CFGFLAG_SERVER, "if less players online you cant play quests where you need specific players")
 //MACRO_CONFIG_INT(SvQuestRifleSeconds, sv_quest_rifl_seconds, 280, 10, 6000, CFGFLAG_SERVER, "how much seconds players have to rifle <player> or 15 freezed players")
-MACRO_CONFIG_INT(SvQuestRaceTime1, sv_quest_race_time1, 100, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/1")
-MACRO_CONFIG_INT(SvQuestRaceTime2, sv_quest_race_time2, 60, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/2")
-MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time3, 30, 5, 3000, CFGFLAG_SERVER, "how much seconds to finish the race in q3/4")
-MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 20, 5, 6000, CFGFLAG_SERVER, "how much seconds to finish the specialrace in q3/8")
-MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG_SERVER, "what condition to finish the race q3/9 check player.h too see what each value does")
+MACRO_CONFIG_INT(SvQuestRaceTime1, sv_quest_race_time1, 100, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/1")
+MACRO_CONFIG_INT(SvQuestRaceTime2, sv_quest_race_time2, 60, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/2")
+MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time3, 30, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/4")
+MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 20, 5, 6000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the specialrace in q3/8")
+MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG_SERVER | CFGFLAG_GAME, "what condition to finish the race q3/9 check player.h too see what each value does")
 
 // meteor
 MACRO_CONFIG_INT(SvMeteorFriction, sv_meteor_friction, 5000, 0, 1000000, CFGFLAG_SERVER, "meteor friction")

@@ -329,9 +329,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added '/insta boomfng' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added '/insta stats' command");
+			"+ added new '/insta' commands and gametypes");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -352,7 +350,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added quests ('/quest' for more info)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added '/insta' command");
+			"+ added '/insta gdm' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved the racer bot");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -3243,6 +3241,32 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pPlayer->m_Insta1on1_id != -1)
+	{
+		pSelf->SendChatTarget(ClientID, "You can't logout in 1on1. ('/insta leave' to leave)");
+		return;
+	}
+
+	if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+	{
+		pSelf->SendChatTarget(ClientID, "You can't logout in insta matches. ('/insta leave' to leave)");
+		return;
+	}
+
+	if (pPlayer->GetCharacter())
+	{
+		if (pPlayer->GetCharacter()->m_IsBombing) 
+		{
+			pSelf->SendChatTarget(ClientID, "You can't logout in bomb games. ('/bomb leave' to leave)");
+			return;
+		}
+		if (pPlayer->GetCharacter()->m_IsPVParena)
+		{
+			pSelf->SendChatTarget(ClientID, "You can't logout in pvp_arena. ('/pvp_arena leave' to leave)");
+			return;
+		}
+	}
+
 	pPlayer->Logout();
 	pSelf->SendChatTarget(ClientID, "Logged out.");
 }
@@ -3574,11 +3598,20 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB COMMANDS ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta leave' to leave any kind of instagib game");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta gdm' to join grenade deathmatch instagib game");
-		//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta idm' to join rifle deathmatch instagib game"); //comming soon dies das
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta boomfng' to join grenade fng game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta idm' to join rifle deathmatch instagib game"); 
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta fng' to join rifle fng game");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta help' for help and info");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
+		if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
+		{
+			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id);
+			pSelf->SendChatTarget(pResult->m_ClientID, "You left the 1on1.");
+			return;
+		}
+
 		if (pPlayer->m_IsInstaArena_fng)
 		{
 			if (pPlayer->m_IsInstaArena_gdm)
@@ -3586,12 +3619,14 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "You left boomfng.");
 				pPlayer->m_IsInstaArena_gdm = false;
 				pPlayer->m_IsInstaArena_fng = false;
+				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else if (pPlayer->m_IsInstaArena_idm)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You left fng.");
 				pPlayer->m_IsInstaArena_idm = false;
 				pPlayer->m_IsInstaArena_fng = false;
+				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else
 			{
@@ -3604,11 +3639,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You left grenade deathmatch.");
 				pPlayer->m_IsInstaArena_gdm = false;
+				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else if (pPlayer->m_IsInstaArena_idm)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You left rifle deathmatch.");
 				pPlayer->m_IsInstaArena_idm = false;
+				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else
 			{
@@ -3648,51 +3685,368 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (!pSelf->CanJoinInstaArena(true, false))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
 		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a grenade instagib game.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
+			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_gdm = true;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		}
 	}
-	//else if (!str_comp_nocase(pResult->GetString(0), "idm"))
-	//{
-	//	if (pPlayer->m_IsInstaArena_gdm)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
-	//	}
-	//	else if (pPlayer->m_IsInstaArena_idm)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
-	//	}
-	//	else
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
-	//		pPlayer->m_IsInstaArena_idm = true;
-	//	}
-	//}
+	else if (!str_comp_nocase(pResult->GetString(0), "idm"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (!pSelf->CanJoinInstaArena(false, false))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
+			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
+			pPlayer->m_IsInstaArena_idm = true;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		}
+	}
 	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (!pSelf->CanJoinInstaArena(true, false))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
 		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng game.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "Selfkill to start.");
+			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_gdm = true;
 			pPlayer->m_IsInstaArena_fng = true;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "fng"))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+		}
+		else if (pPlayer->m_IsInstaArena_idm)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (!pSelf->CanJoinInstaArena(false, false))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a fng game.");
+			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
+			pPlayer->m_IsInstaArena_idm = true;
+			pPlayer->m_IsInstaArena_fng = true;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "1on1"))
+	{
+		if (pResult->NumArguments() == 1 || !str_comp_nocase(pResult->GetString(1), "help") || !str_comp_nocase(pResult->GetString(1), "info"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "=== Insta 1on1 ===");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Battle 1 vs 1 in gdm, idm, fng or boomfng.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "The winner gets 100 money from the looser.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "=== commands ===");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 gdm <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 idm <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 boomfng <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 fng <player>'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 accept <player>'");
+
+			//description is too long and goes newline --> lukz ugly af
+
+			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 gdm <player>' to send a gdm 1on1 request to <player>");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 idm <player>' to send a idm 1on1 request to <player>");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 boomfng <player>' to send a boomfng 1on1 request to <player>");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 fng <player>' to send a fng 1on1 request to <player>");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 accept <player>' to accept <player>'s 1on1 request");
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "gdm"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+			
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 0; //gdm
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a gdm 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a gdm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "idm"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 1; //idm
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a idm 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a idm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "boomfng"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 2; //boomfng
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a boomfng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "fng"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+			else if (mateID == pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				return;
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+
+			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
+			pPlayer->m_Insta1on1_mode = 3; //fng
+			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a fng 1on1.", pResult->GetString(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a fng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "accept"))
+		{
+			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (mateID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_Insta1on1_id != pResult->m_ClientID)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "This player didn't invite you.");
+			}
+			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't accept while being ingame. Do '/insta leave' first.");
+				return;
+			}
+			else if (pPlayer->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				return;
+			}
+			else if (pSelf->m_apPlayers[mateID]->m_money < 100)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Your 1on1 mate doesn't have enough money to start a game.");
+				return;
+			}
+			else
+			{
+				if (pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 0 || pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 2) //grenade
+				{
+					if (!pSelf->CanJoinInstaArena(true, true))
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start an 1on1.");
+					}
+					else //everything succeded! yay --> start 1on1
+					{
+						if (pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 0)
+						{
+							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a gdm 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "You joined a gdm 1on1 (-100 money)");
+						}
+						else
+						{
+							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng 1on1 (-100 money)");
+							pPlayer->m_IsInstaArena_fng = true;
+
+							pSelf->SendChatTarget(mateID, "You joined a boomfng 1on1 (-100 money)");
+							pSelf->m_apPlayers[mateID]->m_IsInstaArena_fng = true;
+						}
+
+						pSelf->m_apPlayers[mateID]->m_IsInstaArena_gdm = true;
+						pSelf->m_apPlayers[mateID]->m_Insta1on1_score = 0;
+						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pSelf->m_apPlayers[mateID]->GetCharacter()->Die(mateID, WEAPON_SELF);
+
+						pPlayer->m_IsInstaArena_gdm = true;
+						pPlayer->m_Insta1on1_score = 0;
+						pPlayer->m_Insta1on1_id = mateID;
+						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+					}
+				}
+				else //rifle
+				{
+					if (!pSelf->CanJoinInstaArena(false, true))
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start an 1on1.");
+					}
+					else //everything succeded! yay --> start 1on1
+					{
+						if (pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 1)
+						{
+							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a idm 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "You joined a idm 1on1 (-100 money)");
+						}
+						else
+						{
+							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a fng 1on1 (-100 money)");
+							pPlayer->m_IsInstaArena_fng = true;
+
+							pSelf->SendChatTarget(mateID, "You joined a fng 1on1 (-100 money)");
+							pSelf->m_apPlayers[mateID]->m_IsInstaArena_fng = true;
+						}
+
+						pSelf->m_apPlayers[mateID]->m_IsInstaArena_idm = true;
+						pSelf->m_apPlayers[mateID]->m_Insta1on1_score = 0;
+						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pSelf->m_apPlayers[mateID]->GetCharacter()->Die(mateID, WEAPON_SELF);
+
+						pPlayer->m_IsInstaArena_idm = true;
+						pPlayer->m_Insta1on1_score = 0;
+						pPlayer->m_Insta1on1_id = mateID;
+						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+					}
+				}
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Unknown 1on1 parameter. Check '/insta 1on1 help' for more help");
 		}
 	}
 	else
@@ -6952,6 +7306,10 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "jail");
 		}
+		if (pPlayer->m_HideInsta1on1_killmessages)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
+		}
 		return;
 	}
 
@@ -6989,6 +7347,18 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are already shown.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "insta_killfeed"))
+	{
+		if (pPlayer->m_HideInsta1on1_killmessages)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are now shown.");
+			pPlayer->m_HideInsta1on1_killmessages = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already shown.");
 		}
 	}
 	else
@@ -7031,6 +7401,10 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "jail");
 		}
+		if (!pPlayer->m_HideInsta1on1_killmessages)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
+		}
 		return;
 	}
 
@@ -7068,6 +7442,18 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Jail-messages are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "insta_killfeed"))
+	{
+		if (!pPlayer->m_HideInsta1on1_killmessages)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are now hidden.");
+			pPlayer->m_HideInsta1on1_killmessages = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already hidden.");
 		}
 	}
 	else
