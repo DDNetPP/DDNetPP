@@ -2688,13 +2688,12 @@ void CGameContext::WinInsta1on1(int WinnerID)
 		SendChatTarget(WinnerID, aBuf);
 		SendChatTarget(WinnerID, "==================");
 		SendChatTarget(WinnerID, "+200 money for winning 1on1"); //actually it is only +100 because you have to pay to start an 1on1
-		m_apPlayers[WinnerID]->MoneyTransaction(+200,"+200 (won insta 1on1)"); 
+		m_apPlayers[WinnerID]->MoneyTransaction(+200, "+200 (won insta 1on1)");
 
 		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_fng = false;
 		m_apPlayers[WinnerID]->m_Insta1on1_id = -1;
-		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
 		if (m_apPlayers[WinnerID]->GetCharacter())
 		{
 			m_apPlayers[WinnerID]->GetCharacter()->Die(WinnerID, WEAPON_SELF);
@@ -2721,6 +2720,11 @@ void CGameContext::WinInsta1on1(int WinnerID)
 			m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //should be dead anyways... so this might cause buggy (tested it and nothing evil happend but better dont do it) //uncommented agian because we need it if some1 does '/insta leave' (which causes a loose without dead)
 		}
 	}
+
+
+	//RESET SCORE LAST CUZ SCOREBOARD
+	m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
+	m_apPlayers[LooserID]->m_Insta1on1_score = 0;
 }
 
 bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
