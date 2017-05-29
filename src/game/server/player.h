@@ -34,7 +34,7 @@ public:
 
 	void OnDirectInput(CNetObj_PlayerInput *NewInput);
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
-	void OnDisconnect(const char *pReason);
+	void OnDisconnect(const char *pReason, bool silent = false);
 
 	void ThreadKillCharacter(int Weapon = WEAPON_GAME);
 	void KillCharacter(int Weapon = WEAPON_GAME);
@@ -283,6 +283,11 @@ public:
 	int m_Insta1on1_mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
 	int m_Insta1on1_score;
 	bool m_HideInsta1on1_killmessages;
+
+	int m_BalanceBattle_id;
+	bool m_IsBalanceBatteling;
+	bool m_IsBalanceBattlePlayer1;
+	bool m_IsBalanceBattleDummy;
 
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;

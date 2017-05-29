@@ -233,6 +233,7 @@ public:
 
 	//usefull everywhere
 
+	void MoveTee(int x, int y);
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
 

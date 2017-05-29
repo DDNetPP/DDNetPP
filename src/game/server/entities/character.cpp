@@ -109,6 +109,37 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
 		}
 	}
+	else if (m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
+	{
+		if (m_pPlayer->m_IsBalanceBattlePlayer1)
+		{
+			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_1);
+
+			if (BalanceBattleSpawn != vec2(-1, -1))
+			{
+				SetPosition(BalanceBattleSpawn);
+			}
+			else //no balance battle spawn tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				m_pPlayer->m_IsBalanceBatteling = false;
+			}
+		}
+		else
+		{
+			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_2);
+
+			if (BalanceBattleSpawn != vec2(-1, -1))
+			{
+				SetPosition(BalanceBattleSpawn);
+			}
+			else //no balance battle spawn tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				m_pPlayer->m_IsBalanceBatteling = false;
+			}
+		}
+	}
 	else if (m_pPlayer->m_IsSuperModSpawn)
 	{
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
@@ -801,7 +832,7 @@ void CCharacter::FireWeapon(bool Bot)
 			}
 
 
-			float Strength;
+			float Strength; //hammer bounce code (marked by ChillerDragon)
 			if (!m_TuneZone)
 				Strength = GameServer()->Tuning()->m_HammerStrength;
 			else
@@ -2565,6 +2596,10 @@ void CCharacter::HandleTiles(int Index)
 		{
 			Freeze();
 			m_DummyFreezed = true;
+			if ((m_pPlayer->GetCID() == GameServer()->m_BalanceID1 || m_pPlayer->GetCID() == GameServer()->m_BalanceID2) && GameServer()->m_BalanceBattleState == 2)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
 		}
 	}
 	else if (((m_TileIndex == TILE_UNFREEZE) || (m_TileFIndex == TILE_UNFREEZE)) && !m_DeepFreeze)
@@ -4270,6 +4305,60 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		}
 	}
 
+	//balance battel
+	if (m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) //ingame in a balance battle
+	{
+		if (GameServer()->m_BalanceID1 == m_pPlayer->GetCID())
+		{
+			if (GameServer()->m_apPlayers[GameServer()->m_BalanceID2])
+			{
+				GameServer()->SendChatTarget(GameServer()->m_BalanceID2, "[balance] you won!");
+				GameServer()->SendChatTarget(GameServer()->m_BalanceID1, "[balance] you lost!");
+				GameServer()->m_apPlayers[GameServer()->m_BalanceID1]->m_IsBalanceBatteling = false;
+				GameServer()->m_apPlayers[GameServer()->m_BalanceID2]->m_IsBalanceBatteling = false;
+				GameServer()->m_BalanceBattleState = 0;
+				if (GameServer()->GetPlayerChar(GameServer()->m_BalanceID2))
+				{
+					GameServer()->GetPlayerChar(GameServer()->m_BalanceID2)->Die(GameServer()->m_BalanceID2, WEAPON_SELF);
+				}
+				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1, Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2);
+				GameServer()->m_BalanceID1 = -1;
+				GameServer()->m_BalanceID2 = -1;
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_IsBalanceBattleDummy)
+					{
+						Server()->BotLeave(i, true);
+					}
+				}
+			}
+		}
+		else if (GameServer()->m_BalanceID2 == m_pPlayer->GetCID())
+		{
+			if (GameServer()->m_apPlayers[GameServer()->m_BalanceID1])
+			{
+				GameServer()->SendChatTarget(GameServer()->m_BalanceID1, "[balance] you won!");
+				GameServer()->SendChatTarget(GameServer()->m_BalanceID2, "[balance] you lost!");
+				GameServer()->m_apPlayers[GameServer()->m_BalanceID1]->m_IsBalanceBatteling = false;
+				GameServer()->m_apPlayers[GameServer()->m_BalanceID2]->m_IsBalanceBatteling = false;
+				GameServer()->m_BalanceBattleState = 0;
+				if (GameServer()->GetPlayerChar(GameServer()->m_BalanceID1))
+				{
+					GameServer()->GetPlayerChar(GameServer()->m_BalanceID1)->Die(GameServer()->m_BalanceID1, WEAPON_SELF);
+				}
+				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2, Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1);
+				GameServer()->m_BalanceID1 = -1;
+				GameServer()->m_BalanceID2 = -1;
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_IsBalanceBattleDummy)
+					{
+						Server()->BotLeave(i, true);
+					}
+				}
+			}
+		}
+	}
 
 	//ChillerDragon pvparena code
 
@@ -11501,6 +11590,15 @@ void CCharacter::DummyTick()
 			m_pPlayer->m_DummyMode = 0;
 		} //DUMMY END
 	}
+}
+
+void CCharacter::MoveTee(int x, int y)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_Core.m_Pos.x += x;
+	m_Core.m_Pos.y += y;
 }
 
 void CCharacter::ChillTelePort(int X, int Y)

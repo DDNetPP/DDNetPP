@@ -181,6 +181,7 @@ void CPlayer::Reset()
 	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
 	m_ci_latest_dest_dist = 0;
 	m_Insta1on1_id = -1;
+	m_BalanceBattle_id = -1;
 
 
 	// disable infinite cosmetics by default
@@ -726,7 +727,7 @@ void CPlayer::FakeSnap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 }
 
-void CPlayer::OnDisconnect(const char *pReason)
+void CPlayer::OnDisconnect(const char *pReason, bool silent)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -740,7 +741,7 @@ void CPlayer::OnDisconnect(const char *pReason)
 	KillCharacter();
 
 	Logout();
-	if(Server()->ClientIngame(m_ClientID) && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 2) && (g_Config.m_SvHideJoinLeaveMessagesPlayer != Server()->ClientName(m_ClientID)))
+	if(Server()->ClientIngame(m_ClientID) && !silent && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 2) && (g_Config.m_SvHideJoinLeaveMessagesPlayer != Server()->ClientName(m_ClientID)))
 	{
 		char aBuf[512];
 		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(m_ClientID)))
