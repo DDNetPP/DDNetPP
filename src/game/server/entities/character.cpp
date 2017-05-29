@@ -322,7 +322,10 @@ void CCharacter::HandleNinja()
 		GameServer()->CreateDamageInd(m_Pos, 0, NinjaTime / Server()->TickSpeed(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	}
 
-	m_Armor = 10 - (NinjaTime / 15);
+	if (!m_pPlayer->m_IsVanillaDmg)
+	{
+		m_Armor = 10 - (NinjaTime / 15);
+	}
 
 	// force ninja Weapon
 	SetWeapon(WEAPON_NINJA);
@@ -536,14 +539,20 @@ void CCharacter::FireWeapon(bool Bot)
 	// check for ammo
 	if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 	{
-		/*// 125ms is a magical limit of how fast a human can click
-		m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);*/
-		// Timer stuff to avoid shrieking orchestra caused by unfreeze-plasma
-		if (m_PainSoundTimer <= 0)
+		if (m_pPlayer->m_IsVanillaWeapons)
 		{
-			m_PainSoundTimer = 1 * Server()->TickSpeed();
-			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			// 125ms is a magical limit of how fast a human can click
+			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
+		}
+		else
+		{
+			// Timer stuff to avoid shrieking orchestra caused by unfreeze-plasma
+			if (m_PainSoundTimer <= 0)
+			{
+				m_PainSoundTimer = 1 * Server()->TickSpeed();
+				GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
 		}
 		return;
 	}
@@ -934,12 +943,8 @@ void CCharacter::FireWeapon(bool Bot)
 	case WEAPON_SHOTGUN:
 	{
 
-		//dragon test freezeshotgun
-
-
-		if (m_freezeShotgun) //freezeshotgun
+		if (m_freezeShotgun || m_pPlayer->m_IsVanillaWeapons) //freezeshotgun
 		{
-
 			int ShotSpread = 2;
 
 			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
@@ -970,12 +975,9 @@ void CCharacter::FireWeapon(bool Bot)
 			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
 
 			GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);
-
-		} // dragon test
-		else
+		}
+		else //normal ddnet (no freezshotgun etc)
 		{
-
-
 			float LaserReach;
 			if (!m_TuneZone)
 				LaserReach = GameServer()->Tuning()->m_LaserReach;
@@ -984,11 +986,10 @@ void CCharacter::FireWeapon(bool Bot)
 
 			new CLaser(&GameServer()->m_World, m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_SHOTGUN);
 			GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-
-
 		}
-		//dragon test
 
+
+		//race quest (shotgun)
 		if (m_pPlayer->m_QuestState == 3) //race
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
@@ -1116,8 +1117,11 @@ void CCharacter::FireWeapon(bool Bot)
 
 	m_AttackTick = Server()->Tick();
 
-	/*if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
-	m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;*/
+	if (m_pPlayer->m_IsVanillaWeapons)
+	{
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
+			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+	}
 
 	if (!m_ReloadTimer)
 	{
@@ -1151,29 +1155,32 @@ void CCharacter::HandleWeapons()
 
 	// fire Weapon, if wanted
 	FireWeapon();
-	/*
-	// ammo regen
-	int AmmoRegenTime = g_pData->m_Weapons.m_aId[m_Core.m_ActiveWeapon].m_Ammoregentime;
-	if(AmmoRegenTime)
-	{
-	// If equipped and not active, regen ammo?
-	if (m_ReloadTimer <= 0)
-	{
-	if (m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart < 0)
-	m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = Server()->Tick();
 
-	if ((Server()->Tick() - m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart) >= AmmoRegenTime * Server()->TickSpeed() / 1000)
+	if (m_pPlayer->m_IsVanillaWeapons && !m_FreezeTime)
 	{
-	// Add some ammo
-	m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = min(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
-	m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
+		// ammo regen
+		int AmmoRegenTime = g_pData->m_Weapons.m_aId[m_Core.m_ActiveWeapon].m_Ammoregentime;
+		if (AmmoRegenTime)
+		{
+			// If equipped and not active, regen ammo?
+			if (m_ReloadTimer <= 0)
+			{
+				if (m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart < 0)
+					m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = Server()->Tick();
+
+				if ((Server()->Tick() - m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart) >= AmmoRegenTime * Server()->TickSpeed() / 1000)
+				{
+					// Add some ammo
+					m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = min(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
+					m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
+				}
+			}
+			else
+			{
+				m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
+			}
+		}
 	}
-	}
-	else
-	{
-	m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
-	}
-	}*/
 
 	return;
 }
@@ -1664,8 +1671,6 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 	}
 
-	bool fake_return = false;
-
 	////dragon test [FNN] isTouched check
 	//if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
 	//{
@@ -1682,117 +1687,13 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	//zCatch ChillerDragon
 	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_apPlayers[From]->m_IsInstaArena_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
 	{
-		if (m_Godmode)
-		{
-			//CHEATER!!
-		}
-		else
-		{
-			if (From == m_pPlayer->GetCID())
-			{
-				m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
-			}
-
-			if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
-			{
-				if (m_pPlayer->m_IsInstaArena_fng || GameServer()->m_apPlayers[From]->m_IsInstaArena_fng)
-				{
-					if (!m_FreezeTime)
-					{
-						Freeze(10);
-					}
-					else
-					{
-						//return false; //dont count freezed tee shots (no score or sound or happy emote)
-						//dont return because we loose hammer vel then
-						fake_return = true;
-					}
-				}
-				else
-				{
-					Die(From, Weapon);
-				}
-
-				if (!fake_return)
-				{
-					//do scoring (by ChillerDragon)
-					if (g_Config.m_SvInstagibMode)
-					{
-						GameServer()->m_apPlayers[From]->m_Score++;
-					}
-
-					//save the kill
-					if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
-					{
-						GameServer()->m_apPlayers[From]->m_GrenadeKills++;
-					}
-					else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
-					{
-						GameServer()->m_apPlayers[From]->m_RifleKills++;
-					}
-
-					//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
-					//GameServer()->m_apPlayers[From]->m_KillStreak++;
-					//char aBuf[256];
-					//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
-					//if (m_pPlayer->m_KillStreak >= 5)
-					//{
-					//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-					//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
-					//}
-					//m_pPlayer->m_KillStreak = 0;
-					//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
-					//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
-					//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
-					//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
-					//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-					// set attacker's face to happy (taunt!)
-					if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-					{
-						CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
-						if (pChr)
-						{
-							pChr->m_EmoteType = EMOTE_HAPPY;
-							pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
-						}
-					}
-
-
-					// do damage Hit sound
-					if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
-					{
-						int64_t Mask = CmaskOne(From);
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-								Mask |= CmaskOne(i);
-						}
-						GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
-					}
-
-					//if zCatch mode --> move to spec
-					if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
-					{
-						if (From != m_pPlayer->GetCID())
-						{
-							m_pPlayer->SetTeam(-1, 0);
-						}
-
-						//Save The Player in catch array
-						GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
-					}
-				}
-			}
-		}
+		DDPP_TakeDamageInstagib(Dmg, From, Weapon);
 	}
 	else
 	{
-		//dragon test
-
-		if (m_isDmg)
+		if (m_isDmg || m_pPlayer->m_IsVanillaDmg)
 		{
-			m_Core.m_Vel += Force;
+			//m_Core.m_Vel += Force;
 
 			//  dragon      if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 			//	dragon      return false;
@@ -1882,8 +1783,14 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			else
 				GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_SHORT);
 
+			if (!m_Jetpack)
+			{
+				m_EmoteType = EMOTE_PAIN;
+				m_EmoteStop = Server()->Tick() + 500 * Server()->TickSpeed() / 1000;
+			}
+
 		}
-		else //dragon test
+		else //normal ddnet code (else to IsDmg)
 		{
 
 
@@ -1895,6 +1802,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 	}
 
+	//force external af because we always want some nice moving tees after taking damage
 	vec2 Temp = m_Core.m_Vel + Force;
 	if (Temp.x > 0 && ((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_270) || (m_TileIndexL == TILE_STOP && m_TileFlagsL == ROTATION_270) || (m_TileIndexL == TILE_STOPS && (m_TileFlagsL == ROTATION_90 || m_TileFlagsL == ROTATION_270)) || (m_TileIndexL == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_270) || (m_TileFIndexL == TILE_STOP && m_TileFFlagsL == ROTATION_270) || (m_TileFIndexL == TILE_STOPS && (m_TileFFlagsL == ROTATION_90 || m_TileFFlagsL == ROTATION_270)) || (m_TileFIndexL == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_270) || (m_TileSIndexL == TILE_STOP && m_TileSFlagsL == ROTATION_270) || (m_TileSIndexL == TILE_STOPS && (m_TileSFlagsL == ROTATION_90 || m_TileSFlagsL == ROTATION_270)) || (m_TileSIndexL == TILE_STOPA)))
 		Temp.x = 0;
@@ -1907,6 +1815,114 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	m_Core.m_Vel = Temp;
 
 	return true;
+}
+
+void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_Godmode)
+	{
+		//CHEATER!!
+	}
+	else
+	{
+		if (From == m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
+		}
+
+		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
+		{
+			if (m_pPlayer->m_IsInstaArena_fng || GameServer()->m_apPlayers[From]->m_IsInstaArena_fng)
+			{
+				if (!m_FreezeTime)
+				{
+					Freeze(10);
+				}
+				else
+				{
+					//return false; //dont count freezed tee shots (no score or sound or happy emote)
+					//dont return because we loose hammer vel then
+					return; //we can return agian because the instagib stuff has his own func and got moved out of TakeDamage();
+				}
+			}
+			else
+			{
+				Die(From, Weapon);
+			}
+
+
+			//do scoring (by ChillerDragon)
+			if (g_Config.m_SvInstagibMode)
+			{
+				GameServer()->m_apPlayers[From]->m_Score++;
+			}
+
+			//save the kill
+			if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+			{
+				GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+			}
+			else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
+			{
+				GameServer()->m_apPlayers[From]->m_RifleKills++;
+			}
+
+			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
+			//GameServer()->m_apPlayers[From]->m_KillStreak++;
+			//char aBuf[256];
+			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak >= 5)
+			//{
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+			//}
+			//m_pPlayer->m_KillStreak = 0;
+			//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
+			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
+			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+			// set attacker's face to happy (taunt!)
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			{
+				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
+				if (pChr)
+				{
+					pChr->m_EmoteType = EMOTE_HAPPY;
+					pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+				}
+			}
+
+
+			// do damage Hit sound
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			{
+				int64_t Mask = CmaskOne(From);
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+						Mask |= CmaskOne(i);
+				}
+				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+			}
+
+			//if zCatch mode --> move to spec
+			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+			{
+				if (From != m_pPlayer->GetCID())
+				{
+					m_pPlayer->SetTeam(-1, 0);
+				}
+
+				//Save The Player in catch array
+				GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+			}
+		}
+	}
 }
 
 void CCharacter::Snap(int SnappingClient)
@@ -2069,8 +2085,16 @@ void CCharacter::Snap(int SnappingClient)
 		pCharacter->m_Health = m_Health;
 		pCharacter->m_Armor = m_Armor;
 		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0)
-			//pCharacter->m_AmmoCount = m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo;
-			pCharacter->m_AmmoCount = (!m_FreezeTime) ? m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
+		{
+			if (m_pPlayer->m_IsVanillaWeapons)
+			{
+				pCharacter->m_AmmoCount = m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo;
+			}
+			else
+			{
+				pCharacter->m_AmmoCount = (!m_FreezeTime) ? m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
+			}
+		}
 	}
 
 	if (GetPlayer()->m_Afk || GetPlayer()->m_Paused)
@@ -3262,7 +3286,10 @@ void CCharacter::DDRaceTick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	m_Armor = (m_FreezeTime >= 0) ? 10 - (m_FreezeTime / 15) : 0;
+	if (!m_pPlayer->m_IsVanillaDmg)
+	{
+		m_Armor = (m_FreezeTime >= 0) ? 10 - (m_FreezeTime / 15) : 0;
+	}
 	if (m_Input.m_Direction != 0 || m_Input.m_Jump != 0)
 		m_LastMove = Server()->Tick();
 
@@ -3371,12 +3398,24 @@ bool CCharacter::Freeze(int Seconds)
 		return false;
 	if (m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
 	{
-		for (int i = 0; i < NUM_WEAPONS; i++)
-			if (m_aWeapons[i].m_Got)
+		if (!m_WeaponsBackupped) //only save once
+		{
+			for (int i = 0; i < NUM_WEAPONS; i++)
 			{
-				m_aWeapons[i].m_Ammo = 0;
+				if (m_aWeapons[i].m_Got)
+				{
+					m_aWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
+					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
+					m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
+				}
 			}
-		m_Armor = 0;
+			m_WeaponsBackupped = true;
+		}
+
+		if (!m_pPlayer->m_IsVanillaWeapons)
+		{
+			m_Armor = 0;
+		}
 
 		if (m_FreezeTick == 0 || m_FirstFreezeTick == 0) {
 			m_FirstFreezeTick = Server()->Tick();
@@ -3404,12 +3443,30 @@ bool CCharacter::UnFreeze()
 #endif
 	if (m_FreezeTime > 0)
 	{
-		m_Armor = 10;
-		for (int i = 0; i<NUM_WEAPONS; i++)
-			if (m_aWeapons[i].m_Got)
+		if (!m_pPlayer->m_IsVanillaDmg)
+		{
+			m_Armor = 10;
+		}
+		if (m_WeaponsBackupped) //only load once
+		{
+			for (int i = 0; i < NUM_WEAPONS; i++)
 			{
-				m_aWeapons[i].m_Ammo = -1;
+				if (m_aWeapons[i].m_Got)
+				{
+					if (m_pPlayer->m_IsVanillaWeapons)
+					{
+						m_aWeapons[i].m_Ammo = m_aWeaponsBackup[i][1];
+						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_aWeapons[i].m_Ammo);
+					}
+					else
+					{
+						m_aWeapons[i].m_Ammo = -1;
+						//dbg_msg("not vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_aWeapons[i].m_Ammo);
+					}
+				}
 			}
+			m_WeaponsBackupped = false;
+		}
 		if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Got)
 			m_Core.m_ActiveWeapon = WEAPON_GUN;
 		m_FreezeTime = 0;

@@ -116,6 +116,9 @@ private:
 
 	} m_aWeapons[NUM_WEAPONS];
 
+	int m_aWeaponsBackup[NUM_WEAPONS][2];
+	bool m_WeaponsBackupped;
+
 	int m_LastWeapon;
 	int m_QueuedWeapon;
 
@@ -232,7 +235,7 @@ public:
 	void DummyTick();
 
 	//usefull everywhere
-
+	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
 	void MoveTee(int x, int y);
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);

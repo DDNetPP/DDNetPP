@@ -4070,6 +4070,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
+						pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
+						pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 					}
 
 					//char aIP_1[64];
@@ -6424,12 +6426,24 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	CTuningParams TuningParams;
 	for (int i = 0; i < NUM_TUNINGZONES; i++)
 	{
+		//-- start comment for m_IsVanillaWeapons --
+		//TuningList()[i] = TuningParams;
+		//TuningList()[i].Set("gun_curvature", 0);
+		//TuningList()[i].Set("gun_speed", 1400);
+		//TuningList()[i].Set("shotgun_curvature", 0);
+		//TuningList()[i].Set("shotgun_speed", 500);
+		//TuningList()[i].Set("shotgun_speeddiff", 0);
+		//-- end comment for m_IsVanillaWeapons --
+
+		//-- start add code for m_IsVanillaWeapons --
 		TuningList()[i] = TuningParams;
 		TuningList()[i].Set("gun_curvature", 0);
 		TuningList()[i].Set("gun_speed", 1400);
-		TuningList()[i].Set("shotgun_curvature", 0);
-		TuningList()[i].Set("shotgun_speed", 500);
-		TuningList()[i].Set("shotgun_speeddiff", 0);
+		Tuning()->Set("shotgun_speed", 2750.00);
+		Tuning()->Set("shotgun_speeddiff", 0.80);
+		Tuning()->Set("shotgun_curvature", 7.00);
+		Tuning()->Set("shotgun_lifetime", 0.20);
+		//-- end add code for m_IsVanillaWeapons --
 	}
 
 	for (int i = 0; i < NUM_TUNINGZONES; i++) // decided to send no text on changing Tunezones for now
@@ -6437,6 +6451,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		str_format(m_ZoneEnterMsg[i], sizeof(m_ZoneEnterMsg[i]), "", i);
 		str_format(m_ZoneLeaveMsg[i], sizeof(m_ZoneLeaveMsg[i]), "", i);
 	}
+
 	// Reset Tuning
 	if(g_Config.m_SvTuneReset)
 	{
@@ -6444,11 +6459,23 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	}
 	else
 	{
+		//-- start2 comment for m_IsVanillaWeapons --
+		//Tuning()->Set("gun_speed", 1400);
+		//Tuning()->Set("gun_curvature", 0);
+		//Tuning()->Set("shotgun_speed", 500);
+		//Tuning()->Set("shotgun_speeddiff", 0);
+		//Tuning()->Set("shotgun_curvature", 0);
+		//-- end2 comment for m_IsVanillaWeapons --
+
+		//-- start2 add code for m_IsVanillaWeapons --
 		Tuning()->Set("gun_speed", 1400);
 		Tuning()->Set("gun_curvature", 0);
-		Tuning()->Set("shotgun_speed", 500);
-		Tuning()->Set("shotgun_speeddiff", 0);
-		Tuning()->Set("shotgun_curvature", 0);
+		//Shotgun tuning by chiller
+		Tuning()->Set("shotgun_speed", 2750.00);
+		Tuning()->Set("shotgun_speeddiff", 0.80);
+		Tuning()->Set("shotgun_curvature", 7.00);
+		Tuning()->Set("shotgun_lifetime", 0.20);
+		//-- end2 add code for m_IsVanillaWeapons --
 	}
 
 	if(g_Config.m_SvDDRaceTuneReset)
@@ -7095,14 +7122,39 @@ void CGameContext::ResetTuning()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	//-- start comment for m_IsVanillaWeapons --
+	//CTuningParams TuningParams;
+	//m_Tuning = TuningParams;
+	//Tuning()->Set("gun_speed", 1400);
+	//Tuning()->Set("gun_curvature", 0);
+	//Tuning()->Set("shotgun_speed", 500);
+	//Tuning()->Set("shotgun_speeddiff", 0);
+	//Tuning()->Set("shotgun_curvature", 0);
+	//SendTuningParams(-1);
+	//-- end comment for m_IsVanillaWeapons --
+
+	//-- start add code for m_IsVanillaWeapons --
+	//CTuningParams TuningParams;
+	//m_Tuning = TuningParams;
+	//Tuning()->Set("gun_speed", 1400);
+	//Tuning()->Set("gun_curvature", 0);
+	//Tuning()->Set("shotgun_speed", 2750.00);
+	//Tuning()->Set("shotgun_speeddiff", 0.80);
+	//Tuning()->Set("shotgun_curvature", 7.00);
+	//Tuning()->Set("shotgun_lifetime", 0.14);
+	//SendTuningParams(-1);
+
+	//test value copied from vanilla src (New test from 29.05.2017) looks pretty ok
 	CTuningParams TuningParams;
 	m_Tuning = TuningParams;
 	Tuning()->Set("gun_speed", 1400);
 	Tuning()->Set("gun_curvature", 0);
-	Tuning()->Set("shotgun_speed", 500);
-	Tuning()->Set("shotgun_speeddiff", 0);
-	Tuning()->Set("shotgun_curvature", 0);
+	Tuning()->Set("shotgun_speed", 2750.00f);
+	Tuning()->Set("shotgun_speeddiff", 0.80f);
+	Tuning()->Set("shotgun_curvature", 1.25f);
+	Tuning()->Set("shotgun_lifetime", 0.20f);
 	SendTuningParams(-1);
+	//-- end add code for m_IsVanillaWeapons --
 }
 
 bool CheckClientID2(int ClientID)

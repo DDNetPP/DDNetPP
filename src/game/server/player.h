@@ -181,6 +181,10 @@ public:
 	bool m_FirstPacket;
 
 
+	//usefull everywhere
+	bool m_IsVanillaDmg;
+	bool m_IsVanillaWeapons; //also used for pickups
+
 	//ascii animation frames
 	char m_aAsciiFrame0[64];
 	char m_aAsciiFrame1[64];
