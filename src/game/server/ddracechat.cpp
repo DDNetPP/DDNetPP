@@ -3798,13 +3798,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
@@ -3819,7 +3819,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
 				return;
 			}
 			
@@ -3836,13 +3836,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
@@ -3857,7 +3857,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
 				return;
 			}
 
@@ -3874,13 +3874,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
@@ -3895,7 +3895,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
 				return;
 			}
 
@@ -3912,13 +3912,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite your self.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
@@ -3950,7 +3950,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_Insta1on1_id != pResult->m_ClientID)
@@ -3964,7 +3964,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_money < 100)
@@ -3978,7 +3978,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				{
 					if (!pSelf->CanJoinInstaArena(true, true))
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start an 1on1.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start 1on1.");
 					}
 					else //everything succeded! yay --> start 1on1
 					{
@@ -4012,7 +4012,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				{
 					if (!pSelf->CanJoinInstaArena(false, true))
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start an 1on1.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start 1on1.");
 					}
 					else //everything succeded! yay --> start 1on1
 					{
@@ -4074,7 +4074,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena <join/leave>'.");
 		return;
 	}
 
@@ -4126,7 +4126,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena ' + 'join' or 'leave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena <join/leave>'.");
 	}
 
 }
@@ -4223,14 +4223,14 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 
 	if (PayID == -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "Can't find a user with the name: %s", aUsername);
+		str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", aUsername);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else
 	{
 		if (pSelf->m_apPlayers[PayID]->m_AccountID < 1)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info '/accountinfo'");
+			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info: '/accountinfo'.");
 			return;
 		}
 
@@ -4289,7 +4289,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 
 	if (GiftID == -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "player '%s' is not online.", pResult->GetString(0));
+		str_format(aBuf, sizeof(aBuf), "'%s' is not online.", pResult->GetString(0));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
@@ -4317,10 +4317,10 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, "+150 gift");
-			str_format(aBuf, sizeof(aBuf), "You gave %s 150 money!", pSelf->Server()->ClientName(GiftID));
+			str_format(aBuf, sizeof(aBuf), "You gave '%s' 150 money!", pSelf->Server()->ClientName(GiftID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "%s has gifted you 150 money. (more info '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "'%s' has gifted you 150 money. (more info: '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(GiftID, aBuf);
 
 
