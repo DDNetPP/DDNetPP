@@ -209,8 +209,8 @@ public:
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
 	virtual void OnClientConnected(int ClientID);
-	virtual void OnClientEnter(int ClientID);
-	virtual void OnClientDrop(int ClientID, const char *pReason);
+	virtual void OnClientEnter(int ClientID, bool silent = false);
+	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false);
 	virtual void OnClientDirectInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
 
@@ -237,7 +237,7 @@ public:
 
 	//dummy
 	void CreateBasicDummys();
-	void CreateNewDummy(int dummymode);
+	int CreateNewDummy(int dummymode, bool silent = false);
 	int GetNextClientID();
 
 	//usefull everywhere
@@ -272,6 +272,16 @@ public:
 
 	//bank
 	bool m_IsBankOpen;
+
+	//balance battels
+	void StartBalanceBattle(int ID1, int ID2);
+	void BalanceBattleTick();
+	int m_BalanceBattleCountdown;
+	int m_BalanceBattleState; // 0=offline 1=preparing 2=ingame
+	int m_BalanceID1;
+	int m_BalanceID2;
+	int m_BalanceDummyID1;
+	int m_BalanceDummyID2;
 
 	//bomb
 	void EndBombGame(int WinnerID);
@@ -329,6 +339,20 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CJailrelease> m_Jailrelease;
+
+	struct CBalanceBattleTile1 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBalanceBattleTile1> m_BalanceBattleTile1;
+
+	struct CBalanceBattleTile2 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBalanceBattleTile2> m_BalanceBattleTile2;
 
 
 private:
@@ -516,6 +540,7 @@ private:
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);

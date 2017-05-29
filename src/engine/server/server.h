@@ -290,7 +290,7 @@ public:
 	virtual int* GetIdMap(int ClientID);
 
 	void BotJoin(int BotID);
-	void BotLeave(int BotID);
+	void BotLeave(int BotID, bool silet = false);
 };
 
 #endif

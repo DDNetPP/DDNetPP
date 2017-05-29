@@ -329,6 +329,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added balance battles (check '/balance')");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added new '/insta' commands and gametypes");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
@@ -3556,6 +3558,109 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
+	}
+}
+
+void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		return;
+	}
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== BALANCE HELP ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Battle friends in a tee balance 1on1");
+		pSelf->SendChatTarget(pResult->m_ClientID, "check '/balance cmdlist' for a list of all commands");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== INSTAGIB COMMANDS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/balance battle <player>' to invite a player");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/balance accept <player>' to accept a battle");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/balance help' to show some help and info");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "battle"))
+	{
+		vec2 BalanceBattleSpawn1 = pSelf->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_1);
+		vec2 BalanceBattleSpawn2 = pSelf->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_2);
+		int mateID = pSelf->GetCIDByName(pResult->GetString(1));
+		if (mateID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "[balance] Can't find the user '%s'", pResult->GetString(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		else if (mateID == pResult->m_ClientID)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] You can't invite your self.");
+			return;
+		}
+		else if (BalanceBattleSpawn1 == vec2(-1, -1) || BalanceBattleSpawn2 == vec2(-1, -1))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] no battle arena found.");
+			return;
+		}
+		//else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+		//{
+		//	pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+		//	return;
+		//}
+		//else if (pPlayer->m_money < 10)
+		//{
+		//	pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 10 money to start a game.");
+		//	return;
+		//}
+		else
+		{
+			pPlayer->m_BalanceBattle_id = mateID;
+			str_format(aBuf, sizeof(aBuf), "[balance] Invited '%s' to a battle", pResult->GetString(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			str_format(aBuf, sizeof(aBuf), "[balance] '%s' invited you to a battle.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "('/balance accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID));
+			pSelf->SendChatTarget(mateID, aBuf);
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "accept")) 
+	{ 
+		int mateID = pSelf->GetCIDByName(pResult->GetString(1));
+		if (mateID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "[balance] Can't find the user '%s'", pResult->GetString(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		else if (pSelf->m_apPlayers[mateID]->m_BalanceBattle_id != pResult->m_ClientID)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] This player didn't invite you.");
+			return;
+		}
+		else
+		{
+			pSelf->StartBalanceBattle(mateID, pResult->m_ClientID);
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[balance] Unknown paramter. Check '/balance cmdlist' for all commands.");
 	}
 }
 
