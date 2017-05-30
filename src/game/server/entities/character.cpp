@@ -4338,10 +4338,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 	}
 
 	Killer = BlockPointsMain(Killer);
-	//BlockSpawnProt(Killer); 
+	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
-	BlockKillingSpree(Killer);
+	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
 
 	//insta 1on1
 	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
@@ -11954,8 +11954,6 @@ void CCharacter::BlockSpawnProt(int Killer)
 		if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
 		{
 			GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
-
-
 			if (g_Config.m_SvSpawnBlockProtection == 1)
 			{
 				GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
