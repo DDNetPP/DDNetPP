@@ -241,6 +241,7 @@ public:
 	int GetNextClientID();
 
 	//usefull everywhere
+	int IsMinigame(int playerID);
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountIngameHumans();
@@ -519,6 +520,8 @@ private:
 	static void ConMinigameRight(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameUp(IConsole::IResult *pResult, void *pUserData);
 	static void ConMinigameDown(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConMinigames(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);

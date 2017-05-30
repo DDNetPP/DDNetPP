@@ -337,12 +337,12 @@ void CPlayer::Tick()
 
 
 	//ChillerDragon chidraqul3 the hash game
-	if (m_IsMinigame)
+	if (m_Ischidraqul3)
 	{
 		if (g_Config.m_SvAllowMinigame == 0)
 		{
 			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled minigames.");
-			m_IsMinigame = false;
+			m_Ischidraqul3 = false;
 		}
 		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
 		{

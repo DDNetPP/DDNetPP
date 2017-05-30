@@ -255,7 +255,7 @@ public:
 	int m_HashPos;
 	int m_HashPosY;
 	bool m_BoughtGame;
-	bool m_IsMinigame;
+	bool m_Ischidraqul3;
 
 	//profiles
 	int m_ProfileStyle; // 0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber

@@ -1450,6 +1450,52 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 	}
 }
 
+int CGameContext::IsMinigame(int playerID) //if you update this function please also update the '/minigames' chat command
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[playerID];
+	CCharacter *pChr = GetPlayerChar(playerID);
+
+	if (pPlayer)
+	{
+		if (pPlayer->m_JailTime)
+		{
+			return -1;
+		}
+		if (pPlayer->m_IsInstaArena_gdm)
+		{
+			return 1;
+		}
+		if (pPlayer->m_IsInstaArena_idm)
+		{
+			return 2;
+		}
+		if (pPlayer->m_IsBalanceBatteling)
+		{
+			return 3;
+		}
+		//if (pPlayer->m_Ischidraqul3) //dont return the broadcast only game because it doesnt make too much trouble. You can play chidraqul in jail or while being in insta no problem.
+		//{
+		//	return x;
+		//}
+		if (pChr)
+		{
+			if (pChr->m_IsBombing)
+			{
+				return 4;
+			}
+			if (pChr->m_IsPVParena)
+			{
+				return 5;
+			}
+		}
+	}
+
+	return 0;
+}
+
 int CGameContext::GetCIDByName(const char * pName)
 {
 #if defined(CONF_DEBUG)
@@ -3936,24 +3982,28 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				// geb mal ein cmd /join spec   && /join fight (player)
 				if (!str_comp(pMsg->m_pMessage + 1, "leave"))
 				{
-					CCharacter *pOwner = GetPlayerChar(ClientID);
-					if (!pOwner)
-						return;
+					SendChatTarget(ClientID, "leave what? xd");
+					SendChatTarget(ClientID, "Do you want to leave the minigame you are playing?");
+					SendChatTarget(ClientID, "then type '/<minigame> leave'");
+					SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
+					//CCharacter *pOwner = GetPlayerChar(ClientID);
+					//if (!pOwner)
+					//	return;
 
-					if (pOwner->m_IsSpecHF)
-					{
-						vec2 LobbySpawn = Collision()->GetRandomTile(TILE_H_JOIN);
+					//if (pOwner->m_IsSpecHF)
+					//{
+					//	vec2 LobbySpawn = Collision()->GetRandomTile(TILE_H_JOIN);
 
-						if (LobbySpawn != vec2(-1, -1))
-						{
-							pOwner->SetPosition(LobbySpawn);
-							pOwner->m_IsSpecHF = false;
-						}
-						else // can't find lobby spawn. Just kill the player
-							pOwner->Die(ClientID, WEAPON_GAME);
-					}
-					else
-						SendChatTarget(ClientID, "Bla bla muss spec sein");
+					//	if (LobbySpawn != vec2(-1, -1))
+					//	{
+					//		pOwner->SetPosition(LobbySpawn);
+					//		pOwner->m_IsSpecHF = false;
+					//	}
+					//	else // can't find lobby spawn. Just kill the player
+					//		pOwner->Die(ClientID, WEAPON_GAME);
+					//}
+					//else
+					//	SendChatTarget(ClientID, "Bla bla muss spec sein");
 				}
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "join ", 5) == 0)
 				{

@@ -329,6 +329,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added minigames overview (check '/minigames')");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added balance battles (check '/balance')");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added new '/insta' commands and gametypes");
@@ -3328,7 +3330,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_BoughtGame)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul started.");
-			pPlayer->m_IsMinigame = true;
+			pPlayer->m_Ischidraqul3 = true;
 		}
 		else
 		{
@@ -3338,7 +3340,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 	else if (!str_comp_nocase(aCommand, "stop") || !str_comp_nocase(aCommand, "quit"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul stopped.");
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_IsMinigame = false;
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_Ischidraqul3 = false;
 		pSelf->SendBroadcast(" ", pResult->m_ClientID);
 	}
 	else
@@ -3365,7 +3367,7 @@ void CGameContext::ConMinigameLeft(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 
-	if (pPlayer->m_IsMinigame)
+	if (pPlayer->m_Ischidraqul3)
 	{
 		if (pPlayer->m_HashPos > 0)
 		{
@@ -3397,7 +3399,7 @@ void CGameContext::ConMinigameRight(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 
-	if (pPlayer->m_IsMinigame)
+	if (pPlayer->m_Ischidraqul3)
 	{
 		if (g_Config.m_SvAllowMinigame == 2)
 		{
@@ -3439,7 +3441,7 @@ void CGameContext::ConMinigameUp(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 
-	if (pPlayer->m_IsMinigame)
+	if (pPlayer->m_Ischidraqul3)
 	{
 		if (g_Config.m_SvAllowMinigame == 2)
 		{
@@ -3478,7 +3480,7 @@ void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 
-	if (pPlayer->m_IsMinigame)
+	if (pPlayer->m_Ischidraqul3)
 	{
 		if (g_Config.m_SvAllowMinigame == 2)
 		{
@@ -3497,6 +3499,100 @@ void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigamedown' command");
 	}
 
+}
+
+void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		return;
+	}
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== MINIGAMES ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "This command gives you overview");
+		pSelf->SendChatTarget(pResult->m_ClientID, "off all minigames!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Btw we also have quests. Check '/quest'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "");
+		pSelf->SendChatTarget(pResult->m_ClientID, "check '/minigames cmdlist' for all commands");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== MINIGAMES COMMANDS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/minigames status' gives life minigame status");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/minigames list' lists all minigames");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/minigames info' shows some info about the command");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "list"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=========================");
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== LIST OF ALL MINIGAMES =====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=========================");
+		pSelf->SendChatTarget(pResult->m_ClientID, "GAME:          COMMAND:");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB]           '/bomb'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE]      '/balance'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB]      '/insta'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP]               '/pvp_arena'");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "status"))
+	{
+		int gameID = pSelf->IsMinigame(pResult->m_ClientID);
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "===== MINIGAME STATUS =====");
+
+		if (!gameID)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You aren't currently minigaming.");
+		}
+		else if (gameID == -1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You are not allowed to play mingames.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "because you are jailed.");
+		}
+		else if (gameID == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB] gdm (check '/insta' for more info)");
+		}
+		else if (gameID == 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB] idm (check '/insta' for more info)");
+		}
+		else if (gameID == 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] (check '/balance' for more info)");
+		}
+		else if (gameID == 4)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB] (check '/bomb' for more info)");
+		}
+		else if (gameID == 5)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] (check '/pvp_arena' for more info)");
+		}
+		else 
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[UNKNOWN] you are playing an unknown game.");
+		}
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "======================");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown minigames argument (Check '/minigames cmdlist').");
+	}
 }
 
 void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
@@ -3617,6 +3713,10 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] no battle arena found.");
 			return;
 		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+		}
 		//else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
 		//{
 		//	pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
@@ -3652,6 +3752,10 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] This player didn't invite you.");
 			return;
+		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else
 		{
@@ -3796,6 +3900,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
 		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+		}
 		else if (!pSelf->CanJoinInstaArena(true, false))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
@@ -3817,6 +3925,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
@@ -3840,6 +3952,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
 		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+		}
 		else if (!pSelf->CanJoinInstaArena(true, false))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
@@ -3862,6 +3978,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+		}
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
@@ -3907,6 +4027,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
+			else if (pSelf->IsMinigame(pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			}
 			else if (mateID == pResult->m_ClientID)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
@@ -3944,6 +4068,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
+			}
+			else if (pSelf->IsMinigame(pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
@@ -3983,6 +4111,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
+			else if (pSelf->IsMinigame(pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			}
 			else if (mateID == pResult->m_ClientID)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
@@ -4021,6 +4153,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
+			else if (pSelf->IsMinigame(pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			}
 			else if (mateID == pResult->m_ClientID)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
@@ -4057,6 +4193,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			{
 				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			else if (pSelf->IsMinigame(pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_Insta1on1_id != pResult->m_ClientID)
 			{
@@ -4189,31 +4329,38 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aInput, "join"))
 	{
-		if (g_Config.m_SvPvpArenaState)
+		if (!pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			if (pPlayer->m_pvp_arena_tickets > 0)
+			if (g_Config.m_SvPvpArenaState)
 			{
-				if (!pPlayer->GetCharacter()->m_IsPVParena)
+				if (pPlayer->m_pvp_arena_tickets > 0)
 				{
-					pPlayer->m_pvp_arena_tickets--;
-					pPlayer->m_pvp_arena_games_played++;
-					pPlayer->GetCharacter()->m_IsPVParena = true;
-					pPlayer->GetCharacter()->m_isDmg = true;
-					pSelf->SendChatTarget(pResult->m_ClientID, "Teleporting to arena... good luck and have fun!");
+					if (!pPlayer->GetCharacter()->m_IsPVParena)
+					{
+						pPlayer->m_pvp_arena_tickets--;
+						pPlayer->m_pvp_arena_games_played++;
+						pPlayer->GetCharacter()->m_IsPVParena = true;
+						pPlayer->GetCharacter()->m_isDmg = true;
+						pSelf->SendChatTarget(pResult->m_ClientID, "Teleporting to arena... good luck and have fun!");
+					}
+					else
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the PvP-arena");
+					}
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the PvP-arena");
+					pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
 				}
 			}
-			else
+			else //no arena configurated
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
+				pSelf->SendChatTarget(pResult->m_ClientID, "No pvp-arena found.");
 			}
 		}
-		else //no arena configurated
+		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "No pvp-arena found.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
@@ -5461,6 +5608,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
+		if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			return;
+		}
 
 		int BombMoney;
 		BombMoney = pResult->GetInteger(1);
@@ -5532,6 +5684,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		if (pChr->m_IsBombing)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the bomb game.");
+			return;
+		}
+		if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			return;
 		}
 

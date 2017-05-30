@@ -16,6 +16,10 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## Minigames command ##
+a complete overview off all minigames (bomb, insta, pvp_arena, balance battle, chidraqul3)
+show some infos and the commands for more info
+
 ## spread gun ##
 add spreading guns for supermoderators and admins to showoff only WEAPON_GUN
 and maybe speedup the shootingspeed and fullauto and stuff all other weapons would be cheaty
@@ -25,9 +29,6 @@ every spree message (5,10.. kills ) give +50 money and +50 xp
 
 ## AddSurvival ##
 add the famous survival mod into ddpp
-
-## IsVanillaDmg ##
-pretty similar to IsDmg but vanilla damage and also vanilla weapons and pickups
 
 ## IsMinigaming() ##
 add a gamecontext func which takes an id and returns an int representing the minigame type the id is in
