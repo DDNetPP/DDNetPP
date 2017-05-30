@@ -4338,7 +4338,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 	}
 
 	Killer = BlockPointsMain(Killer);
-	//BlockSpawnProt(Killer);
+	//BlockSpawnProt(Killer); 
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	BlockKillingSpree(Killer);

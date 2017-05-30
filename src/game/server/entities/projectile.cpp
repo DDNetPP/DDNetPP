@@ -132,8 +132,11 @@ void CProjectile::Tick()
 	if (m_Owner >= 0)
 		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
-	if (pOwnerChar && pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
+	if (pOwnerChar && pOwnerChar->GetPlayer() && pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
 	{
+		//dbg_msg("cBug", "WARNING DETECTED m_IsVanillaWeapons MODE");
+		//dbg_msg("cBug", "VANILLA WEAPONS '%s:%d'", Server()->ClientName(pOwnerChar->GetPlayer()->GetCID()), pOwnerChar->GetPlayer()->GetCID());
+
 
 		CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, ColPos, pOwnerChar);
 
@@ -171,6 +174,7 @@ void CProjectile::Tick()
 	}
 	else
 	{
+
 		if (m_Owner >= 0)
 			pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
@@ -229,7 +233,7 @@ void CProjectile::Tick()
 			}
 			else if (m_Weapon == WEAPON_GUN)
 			{
-				if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsVanillaDmg)
+				if (GameServer()->GetPlayerChar(m_Owner) && GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsVanillaDmg)
 				{
 					if (pTargetChr)
 					{

@@ -3810,6 +3810,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta boomfng' to join grenade fng game");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta idm' to join rifle deathmatch instagib game"); 
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta fng' to join rifle fng game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta 1on1 <mode> <player>' to 1on1 <player> (+100 money for the winner)");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/insta help' for help and info");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
