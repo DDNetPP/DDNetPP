@@ -129,12 +129,10 @@ void CProjectile::Tick()
 	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos);
 	CCharacter *pOwnerChar = 0;
 
-
-
 	if (m_Owner >= 0)
 		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
-	if (pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
+	if (pOwnerChar && pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
 	{
 
 		CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, ColPos, pOwnerChar);

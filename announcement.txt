@@ -1,0 +1,14 @@
+[INFO] don't have an account yet? register one with '/register'!
+[INFO] check out www.chillerdragon.weebly.com for some info about Chilli.* and the server
+[INFO] checkout our youtube channel Prudrugtiq ( https://www.youtube.com/c/Prudrugtiq )
+[INFO] Blocking is allowed on this server
+[INFO] check '/minigames list' for a full list of all minigames
+[INFO] check '/quest' to play some quests and get some money and xp
+[INFO] you can only get money and xp if you are logged in ('/accountinfo')
+[INFO] you can farm money on money tiles on the map
+[INFO] you get xp for finishing the map
+[INFO] check '/shop' for items you can buy
+[INFO] feel free to play some '/insta' instagib matches
+[INFO] do you know bomb? Grab some friends and create a bomb game ('/bomb')
+[INFO] do you want to annoy the admin private? His skype is BloodWork131
+[INFO] this mod has a lot of features you can explore some in '/cmdlist'

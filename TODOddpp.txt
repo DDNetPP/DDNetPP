@@ -16,10 +16,6 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
-## Minigames command ##
-a complete overview off all minigames (bomb, insta, pvp_arena, balance battle, chidraqul3)
-show some infos and the commands for more info
-
 ## spread gun ##
 add spreading guns for supermoderators and admins to showoff only WEAPON_GUN
 and maybe speedup the shootingspeed and fullauto and stuff all other weapons would be cheaty
@@ -29,15 +25,6 @@ every spree message (5,10.. kills ) give +50 money and +50 xp
 
 ## AddSurvival ##
 add the famous survival mod into ddpp
-
-## IsMinigaming() ##
-add a gamecontext func which takes an id and returns an int representing the minigame type the id is in
-and use this func to check if the player is minigaming and what game he plays
-and only allow to join minigames if this func returns 0
-
-Maybe add jail as a minigame ^^ xd it wouldnt make much sense but you shouldnt be abel to start a minigame in jail too
-
-the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to kill all the ddpp stuff running (minigames and stuff)
 
 ## king of hill ##
 Capturing areas with bloody tiles which show the current leading tee
@@ -62,6 +49,7 @@ more doodads and some gernric tiles missing and stuff like this.
 then code something which changes spawns to this spawns
 and init it with something crazy (for example combine all stuff 166 420 and maybe send some sounds and or a broadcast saying "rip world")
 then kill all player.. and plopp they are in a Apocalypse version of the server o.O
+the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to kill all the ddpp stuff running (minigames and stuff)
 
 ## ip und clan speichern ##
 mehr daten über den user sammeln und last names mal gut testen und wenn nötig fixxen
@@ -91,6 +79,7 @@ und dann ein paar reasons:
 - spawnblocking
 - hacking
 - insulting
+- scamming
 und wenn dann genung reports der selben reason ankamen wird die police auf den geschickt
 
 ## police ##
