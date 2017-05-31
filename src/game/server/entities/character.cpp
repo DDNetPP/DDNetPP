@@ -4379,15 +4379,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 					GameServer()->GetPlayerChar(GameServer()->m_BalanceID2)->Die(GameServer()->m_BalanceID2, WEAPON_SELF);
 				}
 				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1, Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2);
-				GameServer()->m_BalanceID1 = -1;
-				GameServer()->m_BalanceID2 = -1;
-				for (int i = 0; i < MAX_CLIENTS; i++)
-				{
-					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_IsBalanceBattleDummy)
-					{
-						Server()->BotLeave(i, true);
-					}
-				}
+				GameServer()->StopBalanceBattle();
 			}
 		}
 		else if (GameServer()->m_BalanceID2 == m_pPlayer->GetCID())
@@ -4404,15 +4396,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 					GameServer()->GetPlayerChar(GameServer()->m_BalanceID1)->Die(GameServer()->m_BalanceID1, WEAPON_SELF);
 				}
 				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2, Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1);
-				GameServer()->m_BalanceID1 = -1;
-				GameServer()->m_BalanceID2 = -1;
-				for (int i = 0; i < MAX_CLIENTS; i++)
-				{
-					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_IsBalanceBattleDummy)
-					{
-						Server()->BotLeave(i, true);
-					}
-				}
+				GameServer()->StopBalanceBattle();
 			}
 		}
 	}

@@ -275,6 +275,7 @@ public:
 	bool m_IsBankOpen;
 
 	//balance battels
+	void StopBalanceBattle();
 	void StartBalanceBattle(int ID1, int ID2);
 	void BalanceBattleTick();
 	int m_BalanceBattleCountdown;

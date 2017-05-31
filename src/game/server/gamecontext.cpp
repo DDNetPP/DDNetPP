@@ -2941,6 +2941,23 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent)
 }
 
 
+void CGameContext::StopBalanceBattle()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBalanceBattleDummy)
+		{
+			Server()->BotLeave(i, true);
+		}
+	}
+	m_BalanceID1 = -1;
+	m_BalanceID2 = -1;
+	m_BalanceBattleState = 0; //set offline
+}
+
 void CGameContext::StartBalanceBattle(int ID1, int ID2)
 {
 #if defined(CONF_DEBUG)
@@ -3009,17 +3026,34 @@ void CGameContext::BalanceBattleTick()
 				m_apPlayers[m_BalanceDummyID2]->GetCharacter()->MoveTee(-4, -2);
 			}
 
-			m_apPlayers[m_BalanceID1]->m_IsBalanceBatteling = true;
-			m_apPlayers[m_BalanceID2]->m_IsBalanceBatteling = true; 
-			m_apPlayers[m_BalanceID1]->m_IsBalanceBattlePlayer1 = true;
-			m_apPlayers[m_BalanceID2]->m_IsBalanceBattlePlayer1 = false;
-			SendChatTarget(m_BalanceID1, "[balance] BATTLE STARTED!");
-			SendChatTarget(m_BalanceID2, "[balance] BATTLE STARTED!");
-			m_apPlayers[m_BalanceID1]->GetCharacter()->Die(m_BalanceID1, WEAPON_SELF);
-			m_apPlayers[m_BalanceID2]->GetCharacter()->Die(m_BalanceID2, WEAPON_SELF);
-			SendBroadcast("[balance] BATTLE STARTED", m_BalanceID1);
-			SendBroadcast("[balance] BATTLE STARTED", m_BalanceID2);
-			m_BalanceBattleState = 2; //set ingame
+			if (m_apPlayers[m_BalanceID1] && m_apPlayers[m_BalanceID2]) //both on server
+			{
+				m_apPlayers[m_BalanceID1]->m_IsBalanceBatteling = true;
+				m_apPlayers[m_BalanceID2]->m_IsBalanceBatteling = true;
+				m_apPlayers[m_BalanceID1]->m_IsBalanceBattlePlayer1 = true;
+				m_apPlayers[m_BalanceID2]->m_IsBalanceBattlePlayer1 = false;
+				SendChatTarget(m_BalanceID1, "[balance] BATTLE STARTED!");
+				SendChatTarget(m_BalanceID2, "[balance] BATTLE STARTED!");
+				m_apPlayers[m_BalanceID1]->GetCharacter()->Die(m_BalanceID1, WEAPON_SELF);
+				m_apPlayers[m_BalanceID2]->GetCharacter()->Die(m_BalanceID2, WEAPON_SELF);
+				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID1);
+				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID2);
+				m_BalanceBattleState = 2; //set ingame
+			}
+			else if (m_apPlayers[m_BalanceID1])
+			{
+				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID1);
+				StopBalanceBattle();
+			}
+			else if (m_apPlayers[m_BalanceID2])
+			{
+				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID2);
+				StopBalanceBattle();
+			}
+			else
+			{
+				StopBalanceBattle();
+			}
 		}
 	}
 	//else if (m_BalanceBattleState == 2) //ingame //moved to die(); because it is less ressource to avoid it in tick functions
