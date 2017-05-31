@@ -1310,26 +1310,6 @@ void CCharacter::Tick()
 	if (m_Paused)
 		return;
 
-	DummyTick();
-	DDPP_Tick();
-	DDRaceTick();
-
-	m_Core.m_Input = m_Input;
-
-	int carry1 = 1; int carry2 = 1;
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL) { carry1 = 0; }
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL) { carry2 = 0; }
-
-	m_Core.setFlagPos(((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry1, carry2);
-
-	m_Core.Tick(true, false);
-	if (m_Core.m_updateFlagVel == 98) {
-		((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel = m_Core.m_UFlagVel;
-	}
-	else if (m_Core.m_updateFlagVel == 99) {
-		((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
-	}
-
 	if (m_Atom || m_pPlayer->m_InfAtom)
 	{
 		if (m_AtomProjs.empty())
@@ -1441,6 +1421,26 @@ void CCharacter::Tick()
 			GameServer()->m_World.DestroyEntity(*it);
 		}
 		m_TrailProjs.clear();
+	}
+
+	DummyTick();
+	DDPP_Tick();
+	DDRaceTick();
+
+	m_Core.m_Input = m_Input;
+
+	int carry1 = 1; int carry2 = 1;
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL) { carry1 = 0; }
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL) { carry2 = 0; }
+
+	m_Core.setFlagPos(((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry1, carry2);
+
+	m_Core.Tick(true, false);
+	if (m_Core.m_updateFlagVel == 98) {
+		((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel = m_Core.m_UFlagVel;
+	}
+	else if (m_Core.m_updateFlagVel == 99) {
+		((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
 	}
 
 	if(m_pPlayer->m_AccountID > 0) {
