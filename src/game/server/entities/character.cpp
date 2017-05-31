@@ -3574,25 +3574,25 @@ void CCharacter::MoneyTile2()
 				if (m_survivexpvalue == 0)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d] +%d Police Bonus\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1 +%d Police\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 1)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d] +%d Police Bonus\nXP [%d/%d] +2 +1 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1 +%d Police\nXP [%d/%d] +2 +1 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 2)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d] +%d Police Bonus\nXP [%d/%d  +2 +2 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1 %d Police\nXP [%d/%d  +2 +2 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 3)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d] +%d Police Bonus\nXP [%d/%d] +2 +3 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1 +%d Police\nXP [%d/%d] +2 +3 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 			}
@@ -3601,25 +3601,25 @@ void CCharacter::MoneyTile2()
 				if (m_survivexpvalue == 0)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 1)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +2 +1 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +2 +1 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 2)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +2 +2 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +2 +2 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else if (m_survivexpvalue == 3)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +2 +3 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +2 +3 survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 			}
@@ -3730,13 +3730,13 @@ void CCharacter::MoneyTile()
 				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +1 +1 flag\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +1 +1 flag\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +1\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +1\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 			}
@@ -3745,13 +3745,13 @@ void CCharacter::MoneyTile()
 				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +1 +1 flag +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +1 +1 flag +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 				else
 				{
 					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d] +1 +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
+					str_format(aBuf, sizeof(aBuf), "Money [%d] +1\nXP [%d/%d] +1 +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
 				}
 			}

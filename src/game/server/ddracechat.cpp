@@ -6739,6 +6739,13 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		return;
+	}
+
 	char aBuf[256];
 
 	if (pResult->NumArguments() == 0)
@@ -6882,6 +6889,17 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_EscapeTime = pSelf->Server()->TickSpeed() * 600; // 10 minutes for escaping the jail
 		pPlayer->m_JailTime = 0;
 		pPlayer->m_IsJailDoorOpen = false;
+
+		vec2 JailReleaseSpawn = pSelf->Collision()->GetRandomTile(TILE_JAILRELEASE);
+
+		if (JailReleaseSpawn != vec2(-1, -1))
+		{
+			pChr->SetPosition(JailReleaseSpawn);
+		}
+		else //no jailrelease tile
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "No jailrelease tile on this map.");
+		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "hammer"))
 	{
