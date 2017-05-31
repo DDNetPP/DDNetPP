@@ -12,3 +12,4 @@
 [INFO] do you know bomb? Grab some friends and create a bomb game ('/bomb')
 [INFO] do you want to annoy the admin private? His skype is BloodWork131
 [INFO] this mod has a lot of features you can explore some in '/cmdlist'
+
