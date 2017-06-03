@@ -12176,7 +12176,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 
 			pVictim->GetPlayer()->m_KillStreak = 0; 
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			dbg_msg("cBug", "SendChat(-1) blocking spree ended");
+			//dbg_msg("cBug", "SendChat(-1) blocking spree ended");
 			GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 		}
 
@@ -12227,26 +12227,25 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 				{
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 					//dbg_msg("cBug", "SendChat(-1) blocking spree status");
+					//dbg_msg("cBug", "msg: %s", aBuf);
 				}
 			}
 		}
 		else //not enough players
 		{
-			//dbg_msg("insta", "not enough tees %d/%d spree (%d)", GameServer()->CountConnectedPlayers(), g_Config.m_SvSpreePlayers, GameServer()->m_apPlayers[Killer]->m_KillStreak);
-			//if (Killer != m_pPlayer->GetCID())
+			//dbg_msg("spree", "not enough tees %d/%d spree (%d)", GameServer()->CountConnectedPlayers(), g_Config.m_SvSpreePlayers, GameServer()->m_apPlayers[Killer]->m_KillStreak);
+			if ((pVictim->GetPlayer()->m_IsDummy && g_Config.m_SvSpreeCountBots) ||  //only count bots if configurated
+				(!pVictim->GetPlayer()->m_IsDummy)) //count all humans in killingsprees
 			{
-				if ((pVictim->GetPlayer()->m_IsDummy && g_Config.m_SvSpreeCountBots) ||  //only count bots if configurated
-					(!pVictim->GetPlayer()->m_IsDummy)) //count all humans in killingsprees
-				{
-					GameServer()->m_apPlayers[Killer]->m_KillStreak++;
-				}
+				GameServer()->m_apPlayers[Killer]->m_KillStreak++;
+				dbg_msg("cBug", "(not enough tees) still increment streak to %d", GameServer()->m_apPlayers[Killer]->m_KillStreak);
+			}
 
-				if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5)
-				{
-					str_format(aBuf, sizeof(aBuf), "%d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
-					GameServer()->SendChatTarget(GameServer()->m_apPlayers[Killer]->GetCID(), aBuf);
-					GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
-				}
+			if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5)
+			{
+				str_format(aBuf, sizeof(aBuf), "%d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
+				GameServer()->SendChatTarget(GameServer()->m_apPlayers[Killer]->GetCID(), aBuf);
+				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
 		}
 		//Quest (external because it has nothing to do with spree needed players)
@@ -12257,6 +12256,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 	}
 	else if (pVictim) //if killer left the game
 	{
+		//dbg_msg("spree", "Killer left the game");
 		//Quest (leave it first because it doesnt reset something and needs the values)
 		if (pVictim->GetPlayer()->m_QuestState == 2 && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
 		{
@@ -12297,7 +12297,7 @@ void CCharacter::CITick()
 	}
 	if (m_ci_freezetime > g_Config.m_SvCIfreezetime * Server()->TickSpeed())
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD); //call CIRestart() there
+		Die(m_pPlayer->GetCID(), WEAPON_SELF); //call CIRestart() there
 	}
 }
 
