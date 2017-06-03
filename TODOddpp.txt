@@ -25,6 +25,7 @@ every spree message (5,10.. kills ) give +50 money and +50 xp
 
 ## AddSurvival ##
 add the famous survival mod into ddpp
+hide names in player.cpp ::Snap()
 
 ## king of hill ##
 Capturing areas with bloody tiles which show the current leading tee
