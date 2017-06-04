@@ -2436,7 +2436,8 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
 	{
-		pSelf->SendChatTarget(ClientID, "No such command: sql_name.");
+		//pSelf->SendChatTarget(ClientID, "No such command: sql_name.");
+		pSelf->SendChatTarget(ClientID, "Missing permission.");
 		return;
 	}
 
@@ -2498,7 +2499,8 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
 	{
-		pSelf->SendChatTarget(ClientID, "No such command: sql.");
+		//pSelf->SendChatTarget(ClientID, "No such command: sql.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		return;
 	}
 
@@ -2696,7 +2698,8 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
+		pSelf->SendChatTarget(ClientID, "Missing permission.");
 		return;
 	}
 
@@ -3653,7 +3656,8 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 	}
 }
 
@@ -6529,7 +6533,8 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank close.");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank close.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
 		}
 
@@ -6546,7 +6551,8 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank open.");
+			//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank open.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
 		}
 
