@@ -293,6 +293,10 @@ public:
 	bool m_IsBalanceBattlePlayer1;
 	bool m_IsBalanceBattleDummy;
 
+	//survival
+
+	bool m_IsSurviveling;
+
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;
 	int m_GrenadeDeaths;

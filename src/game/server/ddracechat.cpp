@@ -3549,6 +3549,7 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE]      '/balance'");
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB]      '/insta'");
 		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP]               '/pvp_arena'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL]     '/survival'");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "status"))
 	{
@@ -3579,9 +3580,13 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		}
 		else if (gameID == 4)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB] (check '/bomb' for more info)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] (check '/survival' for more info)");
 		}
 		else if (gameID == 5)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB] (check '/bomb' for more info)");
+		}
+		else if (gameID == 6)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] (check '/pvp_arena' for more info)");
 		}
@@ -6354,6 +6359,93 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown bomb command. More help at '/bomb help' or 'bomb cmdlist'.");
 		return;
+	}
+}
+
+void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be alive to use this command.");
+		return;
+	}
+
+	//if (pPlayer->m_AccountID <= 0) //we want 10000 survival players so no annoying login
+	//{
+	//	pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command. (type '/accountinfo' for more info)");
+	//	return;
+	//}
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=========> [SURVIVAL] <=========");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Don't die or you'r out!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Last man standing wins the game.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "check '/survival cmdlist' for a list of all commands");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== SURVIVAL COMMANDS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/survival join' to join the survival lobby");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/survival leave' to leave survival");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/survival stats' to show your stats");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
+	{
+		if (pPlayer->m_IsSurviveling)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you left the game. (bye c:)");
+			pPlayer->m_IsSurviveling = false;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you currently aren't playing survival.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "join"))
+	{
+		if (pSelf->IsMinigame(pResult->m_ClientID) == 4)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you already joined the survival game.");
+			return;
+		}
+		if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			return;
+		}
+
+
+		vec2 SurvialLobbySpawnTile = pSelf->Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+		if (SurvialLobbySpawnTile != vec2(-1, -1))
+		{
+			pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(SurvialLobbySpawnTile);
+			pPlayer->m_IsSurviveling = true;
+		}
+		else //no TestToTeleTile
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] no survival arena set.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown survival paramter. Check '/survival cmdlist' for all commands.");
 	}
 }
 

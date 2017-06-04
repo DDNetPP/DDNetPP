@@ -1476,6 +1476,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		{
 			return 3;
 		}
+		if (pPlayer->m_IsSurviveling)
+		{
+			return 4;
+		}
 		//if (pPlayer->m_Ischidraqul3) //dont return the broadcast only game because it doesnt make too much trouble. You can play chidraqul in jail or while being in insta no problem.
 		//{
 		//	return x;
@@ -1484,11 +1488,11 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		{
 			if (pChr->m_IsBombing)
 			{
-				return 4;
+				return 5;
 			}
 			if (pChr->m_IsPVParena)
 			{
-				return 5;
+				return 6;
 			}
 		}
 	}
@@ -4161,9 +4165,26 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
-						Server()->SetClientName(ClientID, "dad");
+						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
+
+						if (!m_apPlayers[ClientID]->GetCharacter())
+						{
+							SendChatTarget(ClientID, "real testers are alive");
+							return;
+						}
+
+						vec2 TestToTeleTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+						if (TestToTeleTile != vec2(-1, -1))
+						{
+							m_apPlayers[ClientID]->GetCharacter()->SetPosition(TestToTeleTile);
+						}
+						else //no TestToTeleTile
+						{
+							SendChatTarget(ClientID, "gibts nich");
+						}
 					}
 
 					//char aIP_1[64];

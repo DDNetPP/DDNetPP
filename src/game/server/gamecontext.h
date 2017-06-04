@@ -585,6 +585,7 @@ private:
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
+	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
