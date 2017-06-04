@@ -561,10 +561,41 @@ void CPlayer::Snap(int SnappingClient)
 	if(!pClientInfo)
 		return;
 
-	StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
+	//survival nameplate system (not too dope yet needs some fine tuning)
+	bool ShowName = false;
+
+	if (m_PlayerFlags&PLAYERFLAG_CHATTING)
+	{
+		ShowName = true;
+	}
+
+	CPlayer *pSnapping = GameServer()->m_apPlayers[SnappingClient];
+	
+	if (pSnapping)
+	{
+		if (pSnapping->GetTeam() == TEAM_SPECTATORS) //could add a bool is dead here too to activate name agian
+		{
+			ShowName = true;
+		}
+	}
+
+	if (g_Config.m_SvNameplates)
+	{
+		ShowName = true;
+	}
+
+	if (ShowName)
+	{
+		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
+	}
+	else
+	{
+		StrToInts(&pClientInfo->m_Name0, 4, " ");
+	}
+
+
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
-
 
 
 	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)

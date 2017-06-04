@@ -442,13 +442,17 @@ MACRO_CONFIG_INT(SvQuestNeededPlayers, sv_quest_needed_players, 3, 1, 60, CFGFLA
 MACRO_CONFIG_INT(SvQuestRaceTime1, sv_quest_race_time1, 100, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/1")
 MACRO_CONFIG_INT(SvQuestRaceTime2, sv_quest_race_time2, 60, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/2")
 MACRO_CONFIG_INT(SvQuestRaceTime3, sv_quest_race_time3, 30, 5, 3000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the race in q3/4")
-MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 20, 5, 6000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the specialrace in q3/8")
+MACRO_CONFIG_INT(SvQuestSpecialRaceTime, sv_quest_specialrace_time, 60, 5, 6000, CFGFLAG_SERVER | CFGFLAG_GAME, "how much seconds to finish the specialrace in q3/7")
 MACRO_CONFIG_INT(SvQuestRaceCondition, sv_quest_race_condition, 3, 0, 4, CFGFLAG_SERVER | CFGFLAG_GAME, "what condition to finish the race q3/9 check player.h too see what each value does")
 
 // meteor
 MACRO_CONFIG_INT(SvMeteorFriction, sv_meteor_friction, 5000, 0, 1000000, CFGFLAG_SERVER, "meteor friction")
 MACRO_CONFIG_INT(SvMeteorMaxAccel, sv_meteor_max_accel, 2000, 0, 1000000, CFGFLAG_SERVER, "max meteor acceleration per player in pixel/tick^2")
 MACRO_CONFIG_INT(SvMeteorAccelPreserve, sv_meteor_accel_preserve, 100000, 0, 1000000, CFGFLAG_SERVER, "how much acceleration is preserved with growing distance to the player")
+
+
+//survival
+MACRO_CONFIG_INT(SvNameplates, sv_nameplates, 0, 0, 1, CFGFLAG_SERVER, "hide or show nameplates in survival games")
 
 
 #endif

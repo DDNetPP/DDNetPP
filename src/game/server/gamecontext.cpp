@@ -2948,9 +2948,16 @@ void CGameContext::StopBalanceBattle()
 #endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBalanceBattleDummy)
+		if (m_apPlayers[i])
 		{
-			Server()->BotLeave(i, true);
+			if (m_apPlayers[i]->m_IsBalanceBattleDummy)
+			{
+				Server()->BotLeave(i, true);
+			}
+			if (m_apPlayers[i]->m_BalanceBattle_id != -1)
+			{
+				m_apPlayers[i]->m_BalanceBattle_id = -1;
+			}
 		}
 	}
 	m_BalanceID1 = -1;
@@ -4154,8 +4161,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
-						pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
-						pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
+						Server()->SetClientName(ClientID, "dad");
+						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
+						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 					}
 
 					//char aIP_1[64];

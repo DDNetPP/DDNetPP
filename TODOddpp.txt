@@ -16,6 +16,9 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## flag drops ##
+the eye pos has influence on flag drop direction 
+
 ## spread gun ##
 add spreading guns for supermoderators and admins to showoff only WEAPON_GUN
 and maybe speedup the shootingspeed and fullauto and stuff all other weapons would be cheaty
@@ -49,7 +52,7 @@ rework map and copy paste the whole map and then edit it to a broken version
 more doodads and some gernric tiles missing and stuff like this.
 then code something which changes spawns to this spawns
 and init it with something crazy (for example combine all stuff 166 420 and maybe send some sounds and or a broadcast saying "rip world")
-then kill all player.. and plopp they are in a Apocalypse version of the server o.O
+then kill all player.. and *plopp* they are in a Apocalypse version of the server o.O
 the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to kill all the ddpp stuff running (minigames and stuff)
 
 ## ip und clan speichern ##
