@@ -6748,6 +6748,27 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got balancebattle2 tile at (%.2f|%.2f)", Balancebattle.m_Center.x, Balancebattle.m_Center.y);
 					m_BalanceBattleTile2.push_back(Balancebattle);
 				}
+				else if (Index == TILE_SURVIVAL_LOBBY)
+				{
+					CSurvivalLobbyTile Survivallobby;
+					Survivallobby.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got survival lobby tile at (%.2f|%.2f)", Survivallobby.m_Center.x, Survivallobby.m_Center.y);
+					m_SurvivalLobby.push_back(Survivallobby);
+				}
+				else if (Index == TILE_SURVIVAL_SPAWN)
+				{
+					CSurvivalSpawnTile Survivalspawn;
+					Survivalspawn.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got survival spawn tile at (%.2f|%.2f)", Survivalspawn.m_Center.x, Survivalspawn.m_Center.y);
+					m_SurvivalSpawn.push_back(Survivalspawn);
+				}
+				else if (Index == TILE_SURVIVAL_DEATHMATCH)
+				{
+					CSurvivalDeathmatchTile Survivaldeathmatch;
+					Survivaldeathmatch.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got survival deathmatch tile at (%.2f|%.2f)", Survivaldeathmatch.m_Center.x, Survivaldeathmatch.m_Center.y);
+					m_SurvivalDeathmatch.push_back(Survivaldeathmatch);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);

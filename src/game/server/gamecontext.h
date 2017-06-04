@@ -356,6 +356,26 @@ public:
 	};
 	std::vector<CBalanceBattleTile2> m_BalanceBattleTile2;
 
+	struct CSurvivalLobbyTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CSurvivalLobbyTile> m_SurvivalLobby;
+
+	struct CSurvivalSpawnTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CSurvivalSpawnTile> m_SurvivalSpawn;
+
+	struct CSurvivalDeathmatchTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CSurvivalDeathmatchTile> m_SurvivalDeathmatch;
 
 private:
 
