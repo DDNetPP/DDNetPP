@@ -256,6 +256,19 @@ public:
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
 
+	//survival
+
+	void SurvivalLobbyTick();
+	void SurvivalStartGame();
+	void SendSurvivalChat(const char *pMsg);
+	void SendSurvivalBroadcast(const char *pMsg);
+	void SetPlayerSurvival(int id,int mode); //0=off 1=lobby 2=ingame 3=die
+	int CountSurvivalPlayers(bool Alive = false);
+	void SurvivalSetGameState(int state);
+	bool SurvivalPickWinner();
+	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch
+	int m_survivallobbycountdown;
+
 	//QUESTS
 
 	void QuestReset(int playerID);

@@ -1476,7 +1476,7 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		{
 			return 3;
 		}
-		if (pPlayer->m_IsSurviveling)
+		if (pPlayer->m_IsSurvivaling)
 		{
 			return 4;
 		}
@@ -1578,7 +1578,7 @@ void CGameContext::KillAll()
 	{
 		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter()) //only kill alive dudes
 		{
-			GetPlayerChar(i)->Die(i, WEAPON_GAME);
+			GetPlayerChar(i)->Die(i, WEAPON_WORLD);
 		}
 	}
 }
@@ -1745,6 +1745,11 @@ void CGameContext::DDPP_Tick()
 		SurvivalTick();
 	}
 
+	if (m_survivalgamestate == 1)
+	{
+		SurvivalLobbyTick();
+	}
+
 
 	for (int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
 	{
@@ -1757,6 +1762,7 @@ void CGameContext::DDPP_Tick()
 
 	if (Server()->Tick() % 300 == 0) //slow ddpp sub tick
 	{
+		bool StopSurvival = true;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (!m_apPlayers[i])
@@ -1775,6 +1781,14 @@ void CGameContext::DDPP_Tick()
 					QuestFailed(i);
 				}
 			}
+			if (m_apPlayers[i]->m_IsSurvivaling)
+			{
+				StopSurvival = false;
+			}
+		}
+		if (StopSurvival)
+		{
+			m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
 		}
 	}
 }
@@ -1954,6 +1968,249 @@ void CGameContext::AsciiTick(int i)
 			}
 		}
 	}
+}
+
+void CGameContext::SurvivalLobbyTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+
+	if (CountSurvivalPlayers() >= g_Config.m_SvSurvivalStartPlayers)
+	{
+		m_survivallobbycountdown--;
+		if (m_survivallobbycountdown % Server()->TickSpeed() == 0 && m_survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
+		{
+			str_format(aBuf, sizeof(aBuf), "[SURVIVAL] game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			SendSurvivalBroadcast(aBuf);
+
+			if (m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
+			{
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalWinner)
+					{
+						vec2 SurvivalLobbySpawnTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+						if (SurvivalLobbySpawnTile == vec2(-1, -1)) //no survival lobby
+						{
+							SendSurvivalChat("[SURVIVAL] no survival lobby set.");
+						}
+						else
+						{
+							m_apPlayers[i]->GetCharacter()->SetPosition(SurvivalLobbySpawnTile);
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] %d/%d players to start a game", CountSurvivalPlayers(), g_Config.m_SvSurvivalStartPlayers);
+		if (Server()->Tick() % 30 == 0)
+		{
+			SendSurvivalBroadcast(aBuf);
+		}
+		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+	}
+
+	if (!m_survivallobbycountdown)
+	{
+		SurvivalStartGame();
+	}
+}
+
+void CGameContext::SurvivalStartGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	vec2 SurvivalGameSpawnTile = Collision()->GetRandomTile(TILE_SURVIVAL_SPAWN);
+
+	if (SurvivalGameSpawnTile == vec2(-1, -1)) //no survival arena
+	{
+		SurvivalSetGameState(1); //set lobby
+		SendSurvivalChat("[SURVIVAL] no survival arena set.");
+		return;
+	}
+	else
+	{
+		SurvivalSetGameState(2); //set ingame
+		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
+	}
+}
+
+void CGameContext::SendSurvivalChat(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsSurvivaling)
+			{
+				SendChatTarget(i, pMsg);
+			}
+		}
+	}
+}
+
+
+void CGameContext::SendSurvivalBroadcast(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsSurvivaling)
+			{
+				SendBroadcast(pMsg, i);
+			}
+		}
+	}
+}
+
+void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 3=die
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_apPlayers[id])
+	{
+		if (mode == 0) //off
+		{
+			m_apPlayers[id]->m_IsSurvivaling = false;
+			m_apPlayers[id]->m_IsVanillaDmg = false;
+			m_apPlayers[id]->m_IsVanillaWeapons = false;
+			m_apPlayers[id]->m_IsSurvivalAlive = false;
+		}
+		else if (mode == 1) //lobby
+		{
+			m_apPlayers[id]->m_IsSurvivalAlive = false;
+			m_apPlayers[id]->m_IsSurvivaling = true;
+			m_apPlayers[id]->m_IsVanillaDmg = true;
+			m_apPlayers[id]->m_IsVanillaWeapons = true;
+			m_apPlayers[id]->m_IsSurvivalLobby = true;
+			if (!m_survivalgamestate) //no game running --> start lobby
+			{
+				SurvivalSetGameState(1);
+				dbg_msg("survival", "lobby started");
+			}
+		}
+		else if (mode == 2) //on
+		{
+			m_apPlayers[id]->m_IsSurvivalAlive = true;
+			m_apPlayers[id]->m_IsSurvivaling = true;
+			m_apPlayers[id]->m_IsVanillaDmg = true;
+			m_apPlayers[id]->m_IsVanillaWeapons = true;
+			m_apPlayers[id]->m_IsSurvivalLobby = false;
+			m_apPlayers[id]->m_IsSurvivalWinner = false;
+			//dbg_msg("cBug", "[%s] lost winner", Server()->ClientName(id));
+		}
+		else if (mode == 3) //die
+		{
+			m_apPlayers[id]->m_IsSurvivalAlive = false;
+			m_apPlayers[id]->m_IsSurvivalLobby = true;
+		}
+		else
+		{
+			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
+		}
+	}
+}
+
+int CGameContext::CountSurvivalPlayers(bool Alive)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int x = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsSurvivaling && (!Alive || m_apPlayers[i]->m_IsSurvivalAlive))
+			{
+				x++;
+			}
+		}
+	}
+	return x;
+}
+
+void CGameContext::SurvivalSetGameState(int state)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (state == 0) //off
+	{
+		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		m_survivalgamestate = 0;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				SetPlayerSurvival(i, 0);
+			}
+		}
+	}
+	else if (state == 1) //lobby
+	{
+		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		m_survivalgamestate = 1;
+	}
+	else if (state == 2) //ingame
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+			{
+				if (m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
+				{
+					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+				}
+				m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+				m_survivalgamestate = 2;
+				SetPlayerSurvival(i, 2);
+			}
+		}
+	}
+}
+
+bool CGameContext::SurvivalPickWinner()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int winnerID = -1;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
+		{
+			winnerID = i;
+			break;
+		}
+	}
+	if (winnerID == -1) { return false; }
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(winnerID));
+	SendSurvivalChat(aBuf);
+	SendSurvivalBroadcast(aBuf);
+	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
+	//dbg_msg("cBug", "[%s] became winner", Server()->ClientName(winnerID));
+
+	SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
+	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
+	m_apPlayers[winnerID]->m_xp += 50;
+	return true;
 }
 
 void CGameContext::QuestReset(int playerID)
@@ -5735,6 +5992,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
 			{
 				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
+				return;
+			}
+
+			if (m_apPlayers[ClientID]->m_IsSurvivaling)
+			{
+				SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
 				return;
 			}
 

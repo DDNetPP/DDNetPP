@@ -6406,10 +6406,10 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
-		if (pPlayer->m_IsSurviveling)
+		if (pPlayer->m_IsSurvivaling)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you left the game. (bye c:)");
-			pPlayer->m_IsSurviveling = false;
+			pPlayer->m_IsSurvivaling = false;
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		}
 		else
@@ -6436,7 +6436,8 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 		if (SurvialLobbySpawnTile != vec2(-1, -1))
 		{
 			pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(SurvialLobbySpawnTile);
-			pPlayer->m_IsSurviveling = true;
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you joined survival.");
+			pSelf->SetPlayerSurvival(pResult->m_ClientID, 1);
 		}
 		else //no TestToTeleTile
 		{

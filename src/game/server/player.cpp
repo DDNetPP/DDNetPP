@@ -573,7 +573,7 @@ void CPlayer::Snap(int SnappingClient)
 	
 	if (pSnapping)
 	{
-		if (pSnapping->GetTeam() == TEAM_SPECTATORS) //could add a bool is dead here too to activate name agian
+		if (pSnapping->GetTeam() == TEAM_SPECTATORS || !pSnapping->m_IsSurvivaling || !pSnapping->m_IsSurvivalAlive) //could add a bool is dead here too to activate name agian
 		{
 			ShowName = true;
 		}

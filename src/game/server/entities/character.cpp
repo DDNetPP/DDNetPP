@@ -109,6 +109,37 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
 		}
 	}
+	else if (m_pPlayer->m_IsSurvivaling)
+	{
+		if (m_pPlayer->m_IsSurvivalAlive)
+		{
+			vec2 SurvivalSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_SURVIVAL_SPAWN);
+
+			if (SurvivalSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(SurvivalSpawnTile);
+			}
+			else //no SurvivalSpawnTile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] No arena set.");
+				GameServer()->m_survivalgamestate = 0;
+			}
+		}
+		else
+		{
+			vec2 SurvivalLobbyTile = GameServer()->Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+			if (SurvivalLobbyTile != vec2(-1, -1))
+			{
+				SetPosition(SurvivalLobbyTile);
+			}
+			else //no SurvivalLobbyTile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] No lobby set.");
+				GameServer()->SurvivalSetGameState(0);
+			}
+		}
+	}
 	else if (m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
 	{
 		if (m_pPlayer->m_IsBalanceBattlePlayer1)
@@ -180,6 +211,13 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		Teams()->OnCharacterStart(m_pPlayer->GetCID());
 		m_CpActive = -2;
+	}
+
+	m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
+
+	if (m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
+	{
+		m_aWeapons[1].m_Ammo = 0;
 	}
 
 	return true;
@@ -1691,7 +1729,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 	else
 	{
-		if (m_isDmg || m_pPlayer->m_IsVanillaDmg)
+		if ((m_isDmg || m_pPlayer->m_IsVanillaDmg) /*&& !m_pPlayer->m_IsSurvivalLobby*/)
 		{
 			//m_Core.m_Vel += Force;
 
@@ -4359,6 +4397,23 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
 		{
 			GameServer()->WinInsta1on1(Killer);
+		}
+	}
+
+	//survival
+	if (m_pPlayer->m_IsSurvivaling)
+	{
+		if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_survivalgamestate == 2) //if alive and game running
+		{
+			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
+			int AliveTees = GameServer()->CountSurvivalPlayers(true);
+			if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
+			{
+				//GameServer()->SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
+				if (!GameServer()->SurvivalPickWinner()) { GameServer()->SendSurvivalChat("[SURVIVAL] Nobody won."); }
+				GameServer()->SurvivalSetGameState(1);
+			}
 		}
 	}
 

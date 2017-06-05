@@ -108,7 +108,8 @@ void CGameContext::ConKillPlayer(IConsole::IResult *pResult, void *pUserData)
 
 	if (pSelf->m_apPlayers[Victim])
 	{
-		pSelf->m_apPlayers[Victim]->KillCharacter(WEAPON_GAME);
+		//pSelf->m_apPlayers[Victim]->KillCharacter(WEAPON_GAME); //only survival is allowed to use weapon game o.O
+		pSelf->m_apPlayers[Victim]->KillCharacter(WEAPON_WORLD);
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "%s was killed by %s",
 				pSelf->Server()->ClientName(Victim),
