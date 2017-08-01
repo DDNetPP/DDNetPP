@@ -16,6 +16,12 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## killban ##
+if spawnblock value is higher than 7 or something
+selfkilling is not allowed or going to spectator
+
+## hitman blocker ##
+'/bounty <money> <player>' and who ever blocks this tee first gets all the <money>
 ## sell weapons ##
 '/sell grenade' to loose grenade and get some money from the server
 
