@@ -78,6 +78,29 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (!pPlayer->m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be supermoderator to execute this command.");
+		return;
+	}
+
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
+	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+}
+
 void CGameContext::ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)

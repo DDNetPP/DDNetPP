@@ -559,6 +559,7 @@ private:
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
+	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
 
 	//police
 	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
