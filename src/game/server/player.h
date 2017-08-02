@@ -275,6 +275,7 @@ public:
 	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
 	int m_PVP_return_posX;
 	int m_PVP_return_posY;
+	int m_pvp_arena_last_kill_id;
 
 	int m_pvp_arena_games_played;
 	int m_pvp_arena_kills;

@@ -4464,7 +4464,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 
 		if (GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
 		{
-			if (GameServer()->m_apPlayers[Killer]->m_level > GameServer()->m_apPlayers[Killer]->m_max_level)
+			if (GameServer()->m_apPlayers[Killer]->m_level > GameServer()->m_apPlayers[Killer]->m_max_level || //dont give xp on max lvl
+				GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || //dont give xp on dummy kill
+				GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) //dont give xp on killing same ip twice in a row
+				)
 			{
 				GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
 				GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
@@ -4488,7 +4491,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 				GameServer()->m_apPlayers[Killer]->m_pvp_arena_tickets++;
 				GameServer()->SendChatTarget(Killer, "+1 pvp_arena_ticket        (special random drop for kill)");
 			}
-
+			GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
 		}
 	}
 	if (m_pPlayer) //victim
