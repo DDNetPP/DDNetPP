@@ -430,7 +430,7 @@ MACRO_CONFIG_INT(SvRifleArenaSlots, sv_rifle_arena_slots, 16, 0, 64, CFGFLAG_SER
 
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys see each other 0 they dont")
-MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time")
+MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time 2=esctime+killban")
 MACRO_CONFIG_INT(SvPointsMode, sv_points_mode, 2, 0, 2, CFGFLAG_SERVER, "0=/points is off 1=ddnet 2=ddpp(Blockpoints)")
 MACRO_CONFIG_INT(SvPointsFarmProtection, sv_points_farm_prot, 20, 0, 600, CFGFLAG_SERVER | CFGFLAG_GAME, "after how many alive seconds block points count")
 MACRO_CONFIG_INT(SvDummyBlockPoints, sv_dummy_block_points, 2, 0, 3, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=d 2=kd 3=kd (only in block area)")
