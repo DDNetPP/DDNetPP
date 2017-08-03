@@ -4562,12 +4562,12 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT STATUS ****");
 		if (pPlayer->m_GiftDelay)
 		{
-			str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You can send gifts.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIFT] You can send gifts.");
 		}
 		return;
 	}
@@ -4576,19 +4576,19 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 
 	if (GiftID == -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' is not online.", pResult->GetString(0));
+		str_format(aBuf, sizeof(aBuf), "[GIFT] '%s' is not online.", pResult->GetString(0));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
 	if (pPlayer->m_GiftDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
 	if (pPlayer->m_level < 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be at least Lv.1 to use gifts.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIFT] You have to be at least lvl 1 to use gifts.");
 		return;
 	}
 
@@ -4600,15 +4600,17 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Server()->GetClientAddr(GiftID, aGiftIP, sizeof(aGiftIP));
 
 		if (!str_comp_nocase(aOwnIP, aGiftIP))
-			pSelf->SendChatTarget(pResult->m_ClientID, "You can't give money to your dummy.");
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIFT] You can't give money to your dummy.");
+		}
 		else
 		{
 			str_format(aBuf, sizeof(aBuf), "+150 gift (%s)", pSelf->Server()->ClientName(pResult->m_ClientID));
-			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, "+150 gift");
-			str_format(aBuf, sizeof(aBuf), "You gave '%s' 150 money!", pSelf->Server()->ClientName(GiftID));
+			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, aBuf);
+			str_format(aBuf, sizeof(aBuf), "[GIFT] You gave '%s' 150 money!", pSelf->Server()->ClientName(GiftID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' has gifted you 150 money. (more info: '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[GIFT] '%s' has gifted you 150 money. (more info: '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(GiftID, aBuf);
 
 
