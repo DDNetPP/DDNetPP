@@ -11965,12 +11965,23 @@ int CCharacter::BlockPointsMain(int Killer)
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 				}
 
-				if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //send kill message broadcast
+				if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //if killer(blocker) exists
 				{
-					if (g_Config.m_SvBlockBroadcast == 1)
+					if (g_Config.m_SvBlockBroadcast == 1)  //send kill message broadcast
 					{
 						str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
 						GameServer()->SendBroadcastAll(aBuf);
+					}
+
+					//give xp reward to the blocker
+					if (m_pPlayer->m_KillStreak > 4)
+					{
+						if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_HideBlockXp)
+						{
+							str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
+							GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
+						}
+						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_xp += m_pPlayer->m_KillStreak;
 					}
 				}
 				BlockQuestSubDieFuncBlockKill(Killer);

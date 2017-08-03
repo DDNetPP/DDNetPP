@@ -7701,6 +7701,10 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
 		}
+		if (pPlayer->m_HideBlockXp)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp");
+		}
 		if (!pPlayer->m_xpmsg)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "xp");
@@ -7726,6 +7730,18 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already activated.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "block_xp"))
+	{
+		if (pPlayer->m_HideBlockXp)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp are now shown.");
+			pPlayer->m_HideBlockXp = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp are already activated.");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "xp"))
@@ -7796,6 +7812,10 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "block_points");
 		}
+		if (!pPlayer->m_HideBlockXp)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp");
+		}
 		if (pPlayer->m_xpmsg)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "xp");
@@ -7821,6 +7841,18 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "block_points are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "block_xp"))
+	{
+		if (!pPlayer->m_HideBlockXp)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp are now hidden.");
+			pPlayer->m_HideBlockXp = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "block_xp are already hidden.");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "xp"))
