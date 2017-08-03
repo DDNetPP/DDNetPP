@@ -669,7 +669,7 @@ void CCharacter::FireWeapon(bool Bot)
 				char aBuf[256];
 				if (GameServer()->IsSameIP(m_pPlayer->GetCID(), pTarget->GetPlayer()->GetCID()))
 				{
-					if (m_pPlayer->m_QuestStateLevel == 4 && pTarget->m_FreezeTime == 0 || // freezed quest
+					if ((m_pPlayer->m_QuestStateLevel == 4 && pTarget->m_FreezeTime == 0) || // freezed quest
 						m_pPlayer->m_QuestStateLevel == 5 || // <specific player> quest
 						m_pPlayer->m_QuestStateLevel == 6 || // <specific player> quest
 						m_pPlayer->m_QuestStateLevel == 7) // <specific player> quest
@@ -11982,6 +11982,15 @@ int CCharacter::BlockPointsMain(int Killer)
 							GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
 						}
 						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_xp += m_pPlayer->m_KillStreak;
+					}
+					//bounty money reward to the blocker
+					if (m_pPlayer->m_BlockBounty)
+					{
+						str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
+						str_format(aBuf, sizeof(aBuf), "+%d bounty (%s)", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
+						m_pPlayer->m_BlockBounty = 0;
 					}
 				}
 				BlockQuestSubDieFuncBlockKill(Killer);

@@ -323,7 +323,7 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Bloody: %d", pPlayer->m_bloody_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Trail. %d", pPlayer->m_trail_offer);
+	str_format(aBuf, sizeof(aBuf), "Trail: %d", pPlayer->m_trail_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Atom: %d", pPlayer->m_atom_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -357,6 +357,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ added balance battles (check '/balance')");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added new '/insta' commands and gametypes");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added new '/bounty' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -4601,6 +4603,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You can't give money to your dummy.");
 		else
 		{
+			str_format(aBuf, sizeof(aBuf), "+150 gift (%s)", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, "+150 gift");
 			str_format(aBuf, sizeof(aBuf), "You gave '%s' 150 money!", pSelf->Server()->ClientName(GiftID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -8020,6 +8023,116 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown quest command. Type '/quest help' for more info.");
+	}
+}
+
+void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "----> Bounty <----");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Use the bounty command to pay money in a pricepool.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "And then choose a player.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "And the tee who blocks your choosen player");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Gets all the money from the pool.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "write '/bounty cmdlist' for all commands");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== BOUNTY COMMANDS ====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bounty cmdlist' shows this list");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bounty help' shows some general info");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bounty add <amount> <player>' to add a bounty to a player");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/bounty check <clientID>' to check the total bounty amount");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "add"))
+	{
+		if (pResult->NumArguments() == 3)
+		{
+			if (pPlayer->m_money < pResult->GetInteger(1))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] You don't have that much money.");
+				return;
+			}
+
+			int ID = pSelf->GetCIDByName(pResult->GetString(2));
+			if (ID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "[BOUNTY] Player '%s' not found.", pResult->GetString(2));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			else if (pSelf->IsSameIP(ID, pResult->m_ClientID))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] You can't add bounty to your dummy.");
+			}
+			else if (pResult->GetInteger(1) < 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] You can't add less than 1 money as bounty.");
+			}
+			else
+			{
+				pSelf->m_apPlayers[ID]->m_BlockBounty += pResult->GetInteger(1);
+				str_format(aBuf, sizeof(aBuf), "-%d bounty (%s)", pResult->GetInteger(1), pSelf->Server()->ClientName(ID));
+				pPlayer->MoneyTransaction(-pResult->GetInteger(1), aBuf);
+				str_format(aBuf, sizeof(aBuf), "[BOUNTY] added %d money to '%s' (%d total)", pResult->GetInteger(1), pSelf->Server()->ClientName(ID), pSelf->m_apPlayers[ID]->m_BlockBounty);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] Use: '/bounty add <amount> <player>'");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "check"))
+	{
+		if (pResult->NumArguments() == 2)
+		{
+
+			int ID = -1;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (pSelf->m_apPlayers[i])
+				{
+					if (i == pResult->GetInteger(1))
+					{
+						ID = i;
+						break;
+					}
+				}
+			}
+
+			if (ID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "[BOUNTY] Player with id %d not found.", pResult->GetInteger(1));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "[BOUNTY] '%s' has a bounty of %d money", pSelf->Server()->ClientName(ID), pSelf->m_apPlayers[ID]->m_BlockBounty);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] Use: '/bounty check <clientID>'");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] Unknown command. write '/bounty cmdlist' for all commands");
 	}
 }
 

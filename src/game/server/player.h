@@ -551,6 +551,8 @@ public:
 	int m_SpawnBlocks;
 	int m_BlockSpreeHighscore;
 
+	int m_BlockBounty;
+
 	//bool m_hammerfight;
 	//bool m_isHeal;
 	bool m_ninjasteam;
