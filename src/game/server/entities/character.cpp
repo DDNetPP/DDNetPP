@@ -4457,41 +4457,43 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 	}
 
 	//ChillerDragon pvparena code
-
-	if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME && Weapon != WEAPON_SELF)
+	if (GameServer()->m_apPlayers[Killer])
 	{
-		//GameServer()->GetPlayerChar(Killer)->m_Bloody = true;
-
-		if (GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
+		if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME && Weapon != WEAPON_SELF)
 		{
-			if (GameServer()->m_apPlayers[Killer]->m_level > GameServer()->m_apPlayers[Killer]->m_max_level || //dont give xp on max lvl
-				GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || //dont give xp on dummy kill
-				GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) //dont give xp on killing same ip twice in a row
-				)
-			{
-				GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
+			//GameServer()->GetPlayerChar(Killer)->m_Bloody = true;
 
-				str_format(aBuf, sizeof(aBuf), "+150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
-				GameServer()->SendChatTarget(Killer, aBuf);
-			}
-			else
+			if (GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
 			{
-				GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
-				GameServer()->m_apPlayers[Killer]->m_xp += 100;
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
+				if (GameServer()->m_apPlayers[Killer]->m_level > GameServer()->m_apPlayers[Killer]->m_max_level || //dont give xp on max lvl
+					GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || //dont give xp on dummy kill
+					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) //dont give xp on killing same ip twice in a row
+					)
+				{
+					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
+					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
-				str_format(aBuf, sizeof(aBuf), "+100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
-				GameServer()->SendChatTarget(Killer, aBuf);
-			}
+					str_format(aBuf, sizeof(aBuf), "+150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendChatTarget(Killer, aBuf);
+				}
+				else
+				{
+					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
+					GameServer()->m_apPlayers[Killer]->m_xp += 100;
+					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
-			int r = rand() % 100;
-			if (r > 92)
-			{
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_tickets++;
-				GameServer()->SendChatTarget(Killer, "+1 pvp_arena_ticket        (special random drop for kill)");
+					str_format(aBuf, sizeof(aBuf), "+100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendChatTarget(Killer, aBuf);
+				}
+
+				int r = rand() % 100;
+				if (r > 92)
+				{
+					GameServer()->m_apPlayers[Killer]->m_pvp_arena_tickets++;
+					GameServer()->SendChatTarget(Killer, "+1 pvp_arena_ticket        (special random drop for kill)");
+				}
+				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
 			}
-			GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
 		}
 	}
 	if (m_pPlayer) //victim

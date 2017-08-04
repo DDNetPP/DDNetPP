@@ -3207,6 +3207,7 @@ void CGameContext::StopBalanceBattle()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	dbg_msg("cBug", "StopBalanceBatlle INIT");
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
@@ -3220,6 +3221,7 @@ void CGameContext::StopBalanceBattle()
 				m_apPlayers[i]->m_BalanceBattle_id = -1;
 			}
 		}
+		dbg_msg("cBug", "tick %d", i);
 	}
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;

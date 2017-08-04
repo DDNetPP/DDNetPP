@@ -1,5 +1,12 @@
 ~~~ BUGS ~~~
 
+
+#### BALANCE BATTLE #######
+BALANCE BATTLES CRASHE THE SERVER EVERYTIME!
+
+
+
+
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.
 But for example /shop doesnt need it change it but be carefull it can cause crashbugs

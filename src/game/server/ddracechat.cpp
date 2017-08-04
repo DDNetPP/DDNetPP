@@ -3707,9 +3707,17 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] You have to be ingame to use this command.");
 		return;
 	}
+
+
+	if (!g_Config.m_SvAllowBalance)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] this command is deactivated by an administrator");
+		return;
+	}
+
 
 	char aBuf[128];
 
@@ -3733,18 +3741,18 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		int mateID = pSelf->GetCIDByName(pResult->GetString(1));
 		if (mateID == -1)
 		{
-			str_format(aBuf, sizeof(aBuf), "[balance] Can't find the user '%s'", pResult->GetString(1));
+			str_format(aBuf, sizeof(aBuf), "[BALANCE] Can't find the user '%s'", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
 		else if (mateID == pResult->m_ClientID)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] You can't invite your self.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] You can't invite your self.");
 			return;
 		}
 		else if (BalanceBattleSpawn1 == vec2(-1, -1) || BalanceBattleSpawn2 == vec2(-1, -1))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] no battle arena found.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] no battle arena found.");
 			return;
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
@@ -3764,10 +3772,10 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pPlayer->m_BalanceBattle_id = mateID;
-			str_format(aBuf, sizeof(aBuf), "[balance] Invited '%s' to a battle", pResult->GetString(1));
+			str_format(aBuf, sizeof(aBuf), "[BALANCE] Invited '%s' to a battle", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "[balance] '%s' invited you to a battle.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[BALANCE] '%s' invited you to a battle.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "('/balance accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
@@ -3778,13 +3786,13 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		int mateID = pSelf->GetCIDByName(pResult->GetString(1));
 		if (mateID == -1)
 		{
-			str_format(aBuf, sizeof(aBuf), "[balance] Can't find the user '%s'", pResult->GetString(1));
+			str_format(aBuf, sizeof(aBuf), "[BALANCE] Can't find the user '%s'", pResult->GetString(1));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
 		else if (pSelf->m_apPlayers[mateID]->m_BalanceBattle_id != pResult->m_ClientID)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[balance] This player didn't invite you.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] This player didn't invite you.");
 			return;
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
@@ -3798,7 +3806,7 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[balance] Unknown paramter. Check '/balance cmdlist' for all commands.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE] Unknown paramter. Check '/balance cmdlist' for all commands.");
 	}
 }
 
