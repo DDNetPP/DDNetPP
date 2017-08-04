@@ -292,7 +292,6 @@ void CServer::BotJoin(int BotID)
 
 void CServer::BotLeave(int BotID, bool silent)
 {
-	dbg_msg("cBug", "BotLeave INIT");
 	GameServer()->OnClientDrop(BotID, "", silent);
 
 	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
@@ -303,8 +302,6 @@ void CServer::BotLeave(int BotID, bool silent)
 	m_aClients[BotID].m_AuthTries = 0;
 	m_aClients[BotID].m_pRconCmdToSend = 0;
 	m_aClients[BotID].m_Snapshots.PurgeAll();
-
-	dbg_msg("cBug", "botleave status");
 
 	m_NetServer.BotDelete(BotID);
 }

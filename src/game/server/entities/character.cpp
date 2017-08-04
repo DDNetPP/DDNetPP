@@ -3561,6 +3561,10 @@ void CCharacter::MoneyTile2()
 		{
 			m_pPlayer->m_xp = m_pPlayer->m_xp + 5;
 		}
+		else if (m_survivexpvalue == 4) //100 min
+		{
+			m_pPlayer->m_xp = m_pPlayer->m_xp + 6;
+		}
 
 		//give money
 		if (m_pPlayer->m_PoliceRank == 0)
@@ -3718,6 +3722,10 @@ void CCharacter::MoneyTile()
 		else if (m_survivexpvalue == 3)
 		{
 			m_pPlayer->m_xp = m_pPlayer->m_xp + 4;
+		}
+		else if (m_survivexpvalue == 4) //100 min
+		{
+			m_pPlayer->m_xp = m_pPlayer->m_xp + 6;
 		}
 		m_pPlayer->m_money++;
 
@@ -12318,7 +12326,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 				(!pVictim->GetPlayer()->m_IsDummy)) //count all humans in killingsprees
 			{
 				GameServer()->m_apPlayers[Killer]->m_KillStreak++;
-				dbg_msg("cBug", "(not enough tees) still increment streak to %d", GameServer()->m_apPlayers[Killer]->m_KillStreak);
+				//dbg_msg("cBug", "(not enough tees) still increment streak to %d", GameServer()->m_apPlayers[Killer]->m_KillStreak);
 			}
 
 			if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5)
