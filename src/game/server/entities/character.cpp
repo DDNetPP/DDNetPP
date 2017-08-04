@@ -11996,7 +11996,7 @@ int CCharacter::BlockPointsMain(int Killer)
 					}
 
 					//give xp reward to the blocker
-					if (m_pPlayer->m_KillStreak > 4)
+					if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->m_level <= m_pPlayer->m_max_level)
 					{
 						if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_HideBlockXp)
 						{
