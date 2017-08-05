@@ -3737,7 +3737,7 @@ void CCharacter::MoneyTile()
 		}
 		else if (m_survivexpvalue == 4) //100 min
 		{
-			m_pPlayer->m_xp = m_pPlayer->m_xp + 6;
+			m_pPlayer->m_xp = m_pPlayer->m_xp + 5;
 		}
 		m_pPlayer->m_money++;
 
