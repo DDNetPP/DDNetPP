@@ -245,6 +245,10 @@ public:
 	int m_BombBanTime;
 	int m_BombTicksUnready;
 
+	//blockwave
+
+	bool m_IsBlockWaving;
+
 	//chidraqul3 (minigame)
 	int m_GoldRespawnDelay;
 	int m_GoldPos;

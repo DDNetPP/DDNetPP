@@ -1495,6 +1495,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 				return 6;
 			}
 		}
+		if (pPlayer->m_IsBlockWaving)
+		{
+			return 7;
+		}
 	}
 
 	return 0;
@@ -5997,6 +6001,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
+			if (m_apPlayers[ClientID]->m_IsBlockWaving)
+			{
+				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
+				return;
+			}
+
 			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection)
 			{
 				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");

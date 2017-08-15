@@ -3577,6 +3577,7 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB]      '/insta'");
 		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP]               '/pvp_arena'");
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL]     '/survival'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCKWAVE]   '/blockwave'");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "status"))
 	{
@@ -3616,6 +3617,10 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		else if (gameID == 6)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] (check '/pvp_arena' for more info)");
+		}
+		else if (gameID == 7)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCKWAVE] (check '/blockwave' for more info)");
 		}
 		else 
 		{
@@ -6416,7 +6421,7 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be alive to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] You have to be alive to use this command.");
 		return;
 	}
 
@@ -8202,7 +8207,10 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you have to be alive to use this command.");
 		return;
+	}
 
 	if (!g_Config.m_SvAllowTrade)
 	{
@@ -8472,3 +8480,77 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 
 
 
+
+void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] you have to be alive to use this command.");
+		return;
+	}
+
+	if (!str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info") || pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== Block Wave ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Block minigame by ChillerDragon.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Survive waves of blocker bots.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "start with '/blockwave join'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "check all cmds with ''/blockwave cmdlist'");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== BlockWave cmds ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave help' for info and help");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave cmdlist' to show this list");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave join' to join the game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave leave' to leave the game");
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave stats' to check your stats"); //coming soon...
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave shop' to show list of items"); //coming soon...
+		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave buy <item>' to buy shop items"); //coming soon...
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "join"))
+	{
+		/*if (ROUND RUNNING)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] round running... you will join automatically when a new round starts.");
+		}
+		else */if (pSelf->IsMinigame(pResult->m_ClientID))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] joined the arena! hf & gl staying alive.");
+			pPlayer->m_IsBlockWaving = true;
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
+	{
+		if (pPlayer->m_IsBlockWaving)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] you left the game.");
+			pPlayer->m_IsBlockWaving = false;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] you currently aren't playing BlockWave.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] uknown parameter. check '/blockwave cmdlist'");
+	}
+}

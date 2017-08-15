@@ -601,6 +601,7 @@ private:
 
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
 	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
+	static void ConBlockWave(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
