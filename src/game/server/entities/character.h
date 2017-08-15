@@ -239,6 +239,7 @@ public:
 	void MoveTee(int x, int y);
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
+	bool HasWeapon(int weapon);
 
 	//Chillintelligenz
 	void CITick();

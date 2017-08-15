@@ -577,6 +577,7 @@ private:
 	static void ConBank(IConsole::IResult *pResult, void *pUserData);
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrade(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);

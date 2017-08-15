@@ -182,7 +182,9 @@ void CPlayer::Reset()
 	m_ci_latest_dest_dist = 0;
 	m_Insta1on1_id = -1;
 	m_BalanceBattle_id = -1;
-
+	m_TradeItem = -1;
+	m_TradeMoney = -1;
+	m_TradeID = -1;
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -1787,6 +1789,12 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	CALL_STACK_ADD();
 #endif
 	m_money += Amount;
+#if defined(CONF_DEBUG)
+	if (m_money < 0)
+	{
+		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID), m_money);
+	}
+#endif
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
 	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);

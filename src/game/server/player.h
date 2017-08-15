@@ -361,6 +361,9 @@ public:
 	char m_money_transaction8[512];
 	char m_money_transaction9[512];
 
+	int m_TradeMoney;
+	int m_TradeItem;
+	int m_TradeID;
 	int m_GangsterBagMoney;
 
 	void JailPlayer(int seconds);

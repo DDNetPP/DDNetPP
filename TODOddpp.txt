@@ -4,7 +4,9 @@
 #### BALANCE BATTLE #######
 BALANCE BATTLES CRASHE THE SERVER EVERYTIME!
 
-
+### ascii animations ###
+asci animations drop some compiler warnings they look dangerous
+might crash the server
 
 
 ## commands ##
@@ -32,7 +34,7 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 ## trade command ##
 '/trade invite <item> <price> <player>'
 '/trade save_accept <item> <price> <player>' #i know this command is long but it is anti scam
-'/trade accept <player>' #totally insecure but fasttyping
+#'/trade accept <player>' #totally insecure but fasttyping #doesnt work with spaces in name
 Items: grenade,shotgun,rifle, homing missiles ammo
 
 ## flag drops ##

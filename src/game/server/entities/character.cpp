@@ -11745,6 +11745,18 @@ void CCharacter::FreezeAll(int seconds)
 	}
 }
 
+bool CCharacter::HasWeapon(int weapon)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_aWeapons[weapon].m_Got)
+	{
+		return true;
+	}
+	return false;
+}
+
 void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 {
 #if defined(CONF_DEBUG)

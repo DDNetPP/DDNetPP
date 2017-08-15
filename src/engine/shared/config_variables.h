@@ -409,6 +409,7 @@ MACRO_CONFIG_INT(SvCIdestY, sv_ci_dest_y, 10, -1000, 1000, CFGFLAG_SERVER, "Chil
 MACRO_CONFIG_INT(SvCIfreezetime, sv_ci_freezetime, 2, 0, 1000, CFGFLAG_SERVER, "Chillintelligenz kill delay in secs")
 
 MACRO_CONFIG_INT(SvAllowBalance, sv_allow_balance, 0, 0, 1, CFGFLAG_SERVER, "Allow balance battles or not 0=no 1=allow")
+MACRO_CONFIG_INT(SvAllowTrade, sv_allow_trade, 0, 0, 1, CFGFLAG_SERVER, "Allow trade command (can be cheaty in races) 0=no 1=allow")
 
 //MACRO_CONFIG_INT(SvTestValA, sv_test_val_a, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 //MACRO_CONFIG_INT(SvTestValB, sv_test_val_b, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
