@@ -8,6 +8,10 @@ BALANCE BATTLES CRASHE THE SERVER EVERYTIME!
 asci animations drop some compiler warnings they look dangerous
 might crash the server
 
+### taser bug ###
+if policetaser is activated and accounts logs out the taser
+unfreezes for some secs in freeze
+remove the bug and add this as a feature
 
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.
