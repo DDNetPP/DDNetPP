@@ -169,6 +169,8 @@ enum
 	TILE_SURVIVAL_LOBBY, //125
 	TILE_SURVIVAL_SPAWN, //126
 	TILE_SURVIVAL_DEATHMATCH, //127
+	TILE_BLOCKWAVE_HUMAN, //128
+	TILE_BLOCKWAVE_BOT, //129
 
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
 

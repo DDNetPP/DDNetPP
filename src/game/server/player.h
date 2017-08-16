@@ -248,6 +248,7 @@ public:
 	//blockwave
 
 	bool m_IsBlockWaving;
+	bool m_IsBlockWaveDead;
 
 	//chidraqul3 (minigame)
 	int m_GoldRespawnDelay;

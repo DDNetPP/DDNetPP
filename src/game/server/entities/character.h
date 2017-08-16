@@ -88,7 +88,7 @@ public:
 	void Rescue();
 
 	int NeededFaketuning() {return m_NeededFaketuning;}
-	bool IsAlive() const { return m_Alive; }
+	/*inline*/ bool IsAlive() const { return m_Alive; } //testy inline by chillerdragon //doesnt crash but still scary
 	bool IsPaused() const { return m_Paused; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
@@ -509,7 +509,7 @@ public:
 	void SetWeaponGot(int Type, bool Value) { m_aWeapons[Type].m_Got = Value; };
 	int GetWeaponAmmo(int Type) { return m_aWeapons[Type].m_Ammo; };
 	void SetWeaponAmmo(int Type, int Value) { m_aWeapons[Type].m_Ammo = Value; };
-	bool IsAlive() { return m_Alive; };
+	/*inline*/ bool IsAlive() { return m_Alive; }; //testy inline by ChillerDragon
 	void SetEmoteType(int EmoteType) { m_EmoteType = EmoteType; };
 	void SetEmoteStop(int EmoteStop) { m_EmoteStop = EmoteStop; };
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Ninja.m_ActivationDir = ActivationDir; };

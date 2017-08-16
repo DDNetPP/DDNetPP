@@ -4476,6 +4476,15 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		}
 	}
 
+	//blockwave minigame
+	if (m_pPlayer->m_IsBlockWaving)
+	{
+		if (GameServer()->CountBlockWavePlayers() < 2)
+		{
+			GameServer()->m_BlockWaveGameState = 0; //stop blockwaving game
+		}
+	}
+
 	//ChillerDragon pvparena code
 	if (GameServer()->m_apPlayers[Killer])
 	{

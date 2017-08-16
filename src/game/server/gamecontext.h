@@ -269,6 +269,17 @@ public:
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch
 	int m_survivallobbycountdown;
 
+	//blockwave
+	
+	void BlockWaveGameTick();
+	void BlockWaveEndGame();
+	void BlockWaveStartNewGame();
+	void SendBlockWaveBroadcast(const char *pMsg);
+	int CountBlockWavePlayers();
+	int m_BlockWaveGameState; // 0=offline 1=preparing 2=round running
+	int m_BlockWavePrepareDelay;
+	int m_BlockWaveRound;
+
 	//QUESTS
 
 	void QuestReset(int playerID);
@@ -390,6 +401,19 @@ public:
 	};
 	std::vector<CSurvivalDeathmatchTile> m_SurvivalDeathmatch;
 
+	struct CBlockWaveBotTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockWaveBotTile> m_BlockWaveBot;
+
+	struct CBlockWaveHumanTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockWaveHumanTile> m_BlockWaveHuman;
 private:
 
 	bool m_VoteWillPass;

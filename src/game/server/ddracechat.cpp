@@ -8522,11 +8522,16 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "join"))
 	{
-		/*if (ROUND RUNNING)
+		if (!pSelf->m_BlockWaveGameState) //no game? --> start one
+		{
+			pSelf->m_BlockWaveGameState = 1;
+		}
+
+		if (pSelf->m_BlockWaveGameState == 2)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] round running... you will join automatically when a new round starts.");
 		}
-		else */if (pSelf->IsMinigame(pResult->m_ClientID))
+		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}

@@ -37,7 +37,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 CPlayer::~CPlayer()
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
+	CALL_STACK_ADD()
 #endif
 	delete m_pCharacter;
 	m_pCharacter = 0;

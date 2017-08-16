@@ -1754,6 +1754,10 @@ void CGameContext::DDPP_Tick()
 		SurvivalLobbyTick();
 	}
 
+	if (m_BlockWaveGameState)
+	{
+		BlockWaveGameTick();
+	}
 
 	for (int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
 	{
@@ -2215,6 +2219,97 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
 	m_apPlayers[winnerID]->m_xp += 50;
 	return true;
+}
+
+void CGameContext::BlockWaveGameTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+
+	if (m_BlockWaveGameState == 1)
+	{
+		m_BlockWavePrepareDelay--;
+		if (m_BlockWavePrepareDelay % Server()->TickSpeed() == 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "[BlockWave] round starts in %d seconds", m_BlockWavePrepareDelay / Server()->TickSpeed());
+			SendBlockWaveBroadcast(aBuf);
+		}
+		if (m_BlockWavePrepareDelay < 0)
+		{
+			m_BlockWaveGameState = 2; //start round!
+			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
+		}
+	}
+	else //running round
+	{
+		//check for rip
+		if (Server()->Tick() % 60 == 0)
+		{
+			bool ripall = true;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaveDead)
+				{
+					ripall = false;
+					break;
+				}
+			}
+			if (ripall)
+			{
+				BlockWaveStartNewGame();
+			}
+		}
+	}
+}
+
+void CGameContext::BlockWaveEndGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
+	SendBlockWaveBroadcast(aBuf);
+}
+
+void CGameContext::BlockWaveStartNewGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockWaveRound = 0;
+}
+
+int CGameContext::CountBlockWavePlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		{
+			c++;
+		}
+	}
+	return c;
+}
+
+void CGameContext::SendBlockWaveBroadcast(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		{
+			SendBroadcast(pMsg, i);
+		}
+	}
 }
 
 void CGameContext::QuestReset(int playerID)
@@ -5767,6 +5862,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
+			if (m_apPlayers[ClientID]->m_IsBlockWaving)
+			{
+				SendChatTarget(ClientID, "[BlockWave] you can't change team while block waving. Try '/blockwave leave'");
+				return;
+			}
+
 			//zCatch survival LMS ChillerDragon Instagib grenade rifle
 			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //gLMS iLMS
 			{
@@ -7076,6 +7177,20 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					Survivaldeathmatch.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got survival deathmatch tile at (%.2f|%.2f)", Survivaldeathmatch.m_Center.x, Survivaldeathmatch.m_Center.y);
 					m_SurvivalDeathmatch.push_back(Survivaldeathmatch);
+				}
+				else if (Index == TILE_BLOCKWAVE_BOT)
+				{
+					CBlockWaveBotTile BlockWaveBot;
+					BlockWaveBot.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got blockwave bot spawn tile at (%.2f|%.2f)", BlockWaveBot.m_Center.x, BlockWaveBot.m_Center.y);
+					m_BlockWaveBot.push_back(BlockWaveBot);
+				}
+				else if (Index == TILE_BLOCKWAVE_HUMAN)
+				{
+					CBlockWaveHumanTile BlockWaveHuman;
+					BlockWaveHuman.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got blockwave Human spawn tile at (%.2f|%.2f)", BlockWaveHuman.m_Center.x, BlockWaveHuman.m_Center.y);
+					m_BlockWaveHuman.push_back(BlockWaveHuman);
 				}
 				if(Index >= ENTITY_OFFSET)
 				{
