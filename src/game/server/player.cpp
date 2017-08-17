@@ -37,7 +37,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 CPlayer::~CPlayer()
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD()
+	CALL_STACK_ADD();
 #endif
 	delete m_pCharacter;
 	m_pCharacter = 0;
@@ -1792,7 +1792,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if (m_money < 0)
 	{
-		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID), m_money);
+		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
