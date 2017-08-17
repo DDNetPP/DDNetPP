@@ -666,7 +666,6 @@ void CCharacter::FireWeapon(bool Bot)
 			//Quests  (before police so no confusion i hope)
 			if (m_pPlayer->m_QuestState == 1) //if is questing and hammer quest
 			{
-				char aBuf[256];
 				if (GameServer()->IsSameIP(m_pPlayer->GetCID(), pTarget->GetPlayer()->GetCID()))
 				{
 					if ((m_pPlayer->m_QuestStateLevel == 4 && pTarget->m_FreezeTime == 0) || // freezed quest
@@ -12478,7 +12477,6 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	char aBuf[128];
 	//zCatch instagib 
 	if (g_Config.m_SvInstagibMode)
 	{

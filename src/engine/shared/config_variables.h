@@ -460,6 +460,8 @@ MACRO_CONFIG_INT(SvSurvivalStartPlayers, sv_survival_start_players, 4, 2, 64, CF
 MACRO_CONFIG_INT(SvSurvivalGunAmmo, sv_survival_gun_ammo, 0, 0, 1, CFGFLAG_SERVER, "whether the tees have gun ammo on spawn or not")
 MACRO_CONFIG_INT(SvSurvivalLobbyDelay, sv_survival_lobby_delay, 10, 5, 300, CFGFLAG_SERVER, "lobby start delay")
 
+//blockwave
+MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame")
 
 
 #endif

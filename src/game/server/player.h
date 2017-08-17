@@ -203,7 +203,7 @@ public:
 	char m_aAsciiFrame14[64];
 	char m_aAsciiFrame15[64];
 
-	char m_aAsciiPublishState[3]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
+	char m_aAsciiPublishState[4]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
 	int m_AsciiAnimLen; //not used yet
 	int m_AsciiAnimSpeed;
 	int m_AsciiWatchFrame;

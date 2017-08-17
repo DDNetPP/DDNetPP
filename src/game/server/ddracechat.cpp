@@ -3548,8 +3548,6 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	char aBuf[128];
-
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== MINIGAMES ===");
@@ -6431,7 +6429,6 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	//	return;
 	//}
 
-	char aBuf[128];
 
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
 	{
@@ -8498,6 +8495,12 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] you have to be alive to use this command.");
+		return;
+	}
+
+	if (!g_Config.m_SvAllowBlockWave)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] this command is diseabled by an administator.");
 		return;
 	}
 

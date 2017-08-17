@@ -656,7 +656,7 @@ void CPlayer::Snap(int SnappingClient)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
+	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;

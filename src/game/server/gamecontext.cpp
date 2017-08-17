@@ -1593,7 +1593,6 @@ bool CGameContext::IsPosition(int playerID, int pos)
 	CALL_STACK_ADD();
 	//dbg_msg("debug", "IsPosition(playerID = %d, pos = %d)", playerID, pos);
 #endif
-	char aBuf[256];
 	if (!m_apPlayers[playerID])
 	{
 		return false;
@@ -4511,7 +4510,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
-					char aBuf[1024];
 					SendChatTarget(ClientID, "Test Failed.");
 
 					if (g_Config.m_SvTestingCommands)
@@ -8082,7 +8080,7 @@ int CGameContext::FindNextBomb()
 
 
 	//debug print the average bomb player pos
-	char aBuf[1024];
+	//char aBuf[1024];
 	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
 	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 

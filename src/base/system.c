@@ -167,7 +167,7 @@ void dbg_msg_thread(void *v)
 void dbg_enable_threaded()
 {
 	Queue *q;
-	void *Thread;
+	void *Thread; 
 
 	q = &log_queue;
 	q->begin = 0;
@@ -314,6 +314,7 @@ static void logger_file(const char *line)
 }
 
 void dbg_logger_stdout() { dbg_logger(logger_stdout); }
+
 
 void dbg_logger_debugger() { dbg_logger(logger_debugger); }
 void dbg_logger_file(const char *filename)
