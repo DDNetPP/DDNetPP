@@ -1313,12 +1313,28 @@ void CPlayer::Save()
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
 	//if (aName == m_LastLogoutIGN1 || aName == m_LastLogoutIGN2 || aName == m_LastLogoutIGN3 || aName == m_LastLogoutIGN4 || aName == m_LastLogoutIGN5)
-	if (!str_comp(aName, m_LastLogoutIGN1), !str_comp(aName, m_LastLogoutIGN2), !str_comp(aName, m_LastLogoutIGN3), !str_comp(aName, m_LastLogoutIGN4), !str_comp(aName, m_LastLogoutIGN5))
+	if (!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
 	{
-		//found name in history 
-		//ignore for now...
-
-		//TODO: add a counter for this name to save how many times this name was used
+		if (!str_comp(aName, m_LastLogoutIGN1))
+		{
+			m_iLastLogoutIGN1_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN2))
+		{
+			m_iLastLogoutIGN2_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN3))
+		{
+			m_iLastLogoutIGN3_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN4))
+		{
+			m_iLastLogoutIGN4_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN5))
+		{
+			m_iLastLogoutIGN5_usage++;
+		}
 	}
 	else //new name --> add it in history and overwrite the oldest
 	{
@@ -1334,6 +1350,12 @@ void CPlayer::Save()
 		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
 		str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", m_LastLogoutIGN1);
 		str_format(m_LastLogoutIGN1, sizeof(m_LastLogoutIGN1), "%s", aName);
+
+		m_iLastLogoutIGN5_usage = m_iLastLogoutIGN4_usage;
+		m_iLastLogoutIGN4_usage = m_iLastLogoutIGN3_usage;
+		m_iLastLogoutIGN3_usage = m_iLastLogoutIGN2_usage;
+		m_iLastLogoutIGN2_usage = m_iLastLogoutIGN1_usage;
+		m_iLastLogoutIGN1_usage = 0;
 	}
 
 

@@ -8239,6 +8239,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "shotgun");
 		pSelf->SendChatTarget(pResult->m_ClientID, "grenade");
 		pSelf->SendChatTarget(pResult->m_ClientID, "rifle");
+		pSelf->SendChatTarget(pResult->m_ClientID, "all_weapons");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "homing missiles ammo"); //coming soon...
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "sell"))
@@ -8280,6 +8281,18 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 			if (pChr->HasWeapon(4))
 			{
 				weapon = 4;
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you don't own this item.");
+				return;
+			}
+		}
+		else if (!str_comp_nocase(pResult->GetString(1), "all_weapons"))
+		{
+			if (pChr->HasWeapon(4) && pChr->HasWeapon(3) && pChr->HasWeapon(2))
+			{
+				weapon = 5;
 			}
 			else
 			{
@@ -8330,6 +8343,10 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		else if (weapon == 4)
 		{
 			str_format(aWeaponName, sizeof(aWeaponName), "rifle");
+		}
+		else if (weapon == 5)
+		{
+			str_format(aWeaponName, sizeof(aWeaponName), "all_weapons");
 		}
 		else
 		{
@@ -8397,7 +8414,10 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		{
 				weapon = 4;
 		}
-
+		else if (!str_comp_nocase(pResult->GetString(1), "all_weapons"))
+		{
+			weapon = 5;
+		}
 
 		if (pSelf->m_apPlayers[TradeID]->m_TradeItem != weapon ||
 			pSelf->m_apPlayers[TradeID]->m_TradeMoney != pResult->GetInteger(2))
@@ -8432,7 +8452,11 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		if (!pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(weapon))
+		if (pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(weapon) || (weapon == 5 && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(2) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(3) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(4)))
+		{
+			//has the weapons
+		}
+		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the seller doesn't own the item right now. try agian later.");
 			return;
@@ -8454,6 +8478,12 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		{
 			pChr->GiveWeapon(weapon, -1);
 		}
+		else if (weapon == 5)
+		{
+			pChr->GiveWeapon(2, -1);
+			pChr->GiveWeapon(3, -1);
+			pChr->GiveWeapon(4, -1);
+		}
 
 		//seller
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you sucessfully sold [ %s ] for [ %d ] to player '%s'.", pResult->GetString(1), pSelf->m_apPlayers[TradeID]->m_TradeMoney, pSelf->Server()->ClientName(pPlayer->GetCID()));
@@ -8467,6 +8497,13 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
 			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetWeaponGot(weapon, false);
+		}
+		else if (weapon == 5)
+		{
+			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
+			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetWeaponGot(2, false);
+			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetWeaponGot(3, false);
+			pSelf->m_apPlayers[TradeID]->GetCharacter()->SetWeaponGot(4, false);
 		}
 	}
 	else

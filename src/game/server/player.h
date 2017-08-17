@@ -342,6 +342,12 @@ public:
 	char m_LastLogoutIGN4[32];
 	char m_LastLogoutIGN5[32];
 
+	int m_iLastLogoutIGN1_usage;
+	int m_iLastLogoutIGN2_usage;
+	int m_iLastLogoutIGN3_usage;
+	int m_iLastLogoutIGN4_usage;
+	int m_iLastLogoutIGN5_usage;
+
 	char m_aIP_1[32];
 	char m_aIP_2[32];
 	char m_aIP_3[32];
