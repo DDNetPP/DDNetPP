@@ -318,8 +318,8 @@ void dbg_logger_stdout() { dbg_logger(logger_stdout); }
 void dbg_logger_debugger() { dbg_logger(logger_debugger); }
 void dbg_logger_file(const char *filename)
 {
-	//logfile = io_open(filename, IOFLAG_WRITE); //overwrite
-	logfile = io_open(filename, IOFLAG_APPEND);
+	logfile = io_open(filename, IOFLAG_WRITE); //overwrite
+	//logfile = io_open(filename, IOFLAG_APPEND);
 	//test dies 
 	if(logfile)
 		dbg_logger(logger_file);
