@@ -6571,7 +6571,7 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 		//GETTER
 		pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator = true;
 		str_format(aBuf, sizeof(aBuf), "'%s' invited you to the room c:.", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(InviteID, aBuf);
 		//GIVER
 		str_format(aBuf, sizeof(aBuf), "You invited '%s' to the room.", pSelf->Server()->ClientName(InviteID));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
