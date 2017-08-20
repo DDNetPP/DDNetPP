@@ -8168,8 +8168,8 @@ int CGameContext::FindNextBomb()
 					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
 
 					//|a| |b|
-					abs(a);
-					abs(b);
+					a = abs(a);
+					b = abs(b); 
 
 					int c = sqrt(a + b); //pythagoras rocks
 					Dist += c; //store all distances to all players
