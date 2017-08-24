@@ -8599,3 +8599,33 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] uknown parameter. check '/blockwave cmdlist'");
 	}
 }
+
+void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (!pPlayer->m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a SuperModerator.");
+		return;
+	}
+
+	if (pSelf->m_iBroadcastDelay)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[broadcast_srv] could't sent broadcast because someone recived an important broadcast latley");
+		return;
+	}
+
+
+	//str_format(pSelf->aBroadcastMSG, sizeof(pSelf->aBroadcastMSG), pResult->GetString(0));
+	pSelf->SendBroadcastAll(pResult->GetString(0), true);
+}

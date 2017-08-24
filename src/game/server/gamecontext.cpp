@@ -739,14 +739,32 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 }
 
 
-void CGameContext::SendBroadcast(const char *pText, int ClientID)
+void CGameContext::SendBroadcast(const char *pText, int ClientID, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 	CNetMsg_Sv_Broadcast Msg;
-	Msg.m_pMessage = pText;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	if (supermod)
+	{
+		if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
+		//char aText[256];																//supermod broadcast with advertisement attached
+		//str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
+		//Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
+
+		Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	}
+	else
+	{
+		Msg.m_pMessage = pText; //default broadcast
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+
+		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+	}
+
+
+	//Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 //
@@ -1559,7 +1577,7 @@ int CGameContext::CountIngameHumans()
 	return cPlayers;
 }
 
-void CGameContext::SendBroadcastAll(const char * pText)
+void CGameContext::SendBroadcastAll(const char * pText, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -1568,7 +1586,7 @@ void CGameContext::SendBroadcastAll(const char * pText)
 	{
 		if (m_apPlayers[i])
 		{
-			SendBroadcast(pText, m_apPlayers[i]->GetCID());
+			SendBroadcast(pText, m_apPlayers[i]->GetCID(), supermod);
 		}
 	}
 }
@@ -1734,6 +1752,12 @@ void CGameContext::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_iBroadcastDelay > 0)
+	{
+		m_iBroadcastDelay--;
+	}
+
+
 	if (m_BalanceBattleState == 1)
 	{
 		BalanceBattleTick();

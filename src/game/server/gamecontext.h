@@ -179,7 +179,7 @@ public:
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID);
+	void SendBroadcast(const char *pText, int ClientID, bool supermod = false);
 
 	void List(int ClientID, const char* filter);
 
@@ -245,7 +245,7 @@ public:
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountIngameHumans();
-	void SendBroadcastAll(const char *pText);
+	void SendBroadcastAll(const char *pText, bool supermod = false);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
@@ -349,8 +349,10 @@ public:
 	//char aTestMsg[1024];
 	//int TestShareValue;
 	int m_CucumberShareValue;
-	char aBroadcastMSG[128];
 
+
+	char aBroadcastMSG[128];
+	int m_iBroadcastDelay;
 
 	struct CJail // probably doesn't belong here, but whatever
 	{
@@ -583,7 +585,10 @@ private:
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
+
+	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
+	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
 
 	//police
 	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
