@@ -90,9 +90,9 @@ void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (!pPlayer->m_IsSuperModerator)
+	if (!pPlayer->m_IsSuperModerator && !pPlayer->m_IsModerator)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be supermoderator to execute this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		return;
 	}
 

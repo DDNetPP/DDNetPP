@@ -521,6 +521,8 @@ void CCharacter::FireWeapon(bool Bot)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
+	if (m_pPlayer->m_autospreadgun)
+		FullAuto = true;
 
 	// check if we gonna fire
 	bool WillFire = false;
@@ -934,35 +936,143 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				Lifetime = (int)(Server()->TickSpeed()*GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
-			CProjectile *pProj = new CProjectile
-			(
-				GameWorld(),
-				WEAPON_GUN,//Type
-				m_pPlayer->GetCID(),//Owner
-				ProjStartPos,//Pos
-				Direction,//Dir
-				Lifetime,//Span
-				0,//Freeze
-				0,//Explosive
-				0,//Force
-				-1,//SoundImpact
-				WEAPON_GUN//Weapon
-			);
+			if (m_pPlayer->m_autospreadgun)
+			{
+				//idk if this is the right place to set some shooting speed but yolo
+				//just copied the general code for all weapons and put it here
+				if (!m_ReloadTimer)
+				{
+					float FireDelay;
+					if (!m_TuneZone)
+						GameServer()->Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+					else
+						GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+					m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
+				}
 
-			// summon meteor
-			//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
+				//----- ChillerDragon tried to create 2nd projectile -----
+				//Just copy and pasted the whole code agian
+				float a = GetAngle(Direction);
+				a += (0, 0.070f) * 2;
 
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
+				CProjectile *pProj_test = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a), sinf(a)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
 
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
+				CProjectile *pProj_test2 = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a - 0.070f), sinf(a - 0.070f)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
 
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+				CProjectile *pProj_test3 = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a - 0.170f), sinf(a - 0.170f)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
+
+				CProjectile *pProj = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						Direction,//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
+
+				// pack the Projectile and send it to the client Directly
+				CNetObj_Projectile p;
+				pProj->FillInfo(&p);
+
+				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+				Msg.AddInt(1);
+				for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
+					Msg.AddInt(((int *)&p)[i]);
+
+				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
+			else if (m_pPlayer->m_lasergun)
+			{
+				int RifleSpread = 1;
+				float Spreading[] = { -0.070f, 0, 0.070f };
+				for (int i = -RifleSpread; i <= RifleSpread; ++i)
+				{
+					float a = GetAngle(Direction);
+					a += Spreading[i + 1];
+					new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), 0);
+				}
+
+
+				// summon meteor
+				//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
+			}
+			else
+			{
+				CProjectile *pProj = new CProjectile
+				(
+					GameWorld(),
+					WEAPON_GUN,//Type
+					m_pPlayer->GetCID(),//Owner
+					ProjStartPos,//Pos
+					Direction,//Dir
+					Lifetime,//Span
+					0,//Freeze
+					0,//Explosive
+					0,//Force
+					-1,//SoundImpact
+					WEAPON_GUN//Weapon
+				);
+
+				// pack the Projectile and send it to the client Directly
+				CNetObj_Projectile p;
+				pProj->FillInfo(&p);
+
+				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+				Msg.AddInt(1);
+				for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
+					Msg.AddInt(((int *)&p)[i]);
+
+				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
+
+
 		}
 
 		if (m_pPlayer->m_QuestState == 3) //race
@@ -1168,6 +1278,14 @@ void CCharacter::FireWeapon(bool Bot)
 		else
 			GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		//if (m_pPlayer->m_autospreadgun) //ddpp faster shooting
+		//{
+		//	m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
+		//}
+		//else
+		//{
+		//	m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		//}
 	}
 }
 
@@ -12464,8 +12582,8 @@ int CCharacter::CIGetDestDist()
 	int a = m_Core.m_Pos.x - g_Config.m_SvCIdestX;
 	int b = m_Core.m_Pos.y - g_Config.m_SvCIdestY;
 	//|a| |b|
-	abs(a);
-	abs(b);
+	a = abs(a);
+	b = abs(b);
 
 	int c = sqrt(a + b);
 

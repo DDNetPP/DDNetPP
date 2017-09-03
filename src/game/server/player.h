@@ -534,6 +534,10 @@ public:
 	//extras
 	//########
 
+	//miscelallaouos
+	bool m_autospreadgun;
+	bool m_lasergun;
+
 	//hook
 	int m_HookPower; // 0=off 1=rainbow 2=bloody
 

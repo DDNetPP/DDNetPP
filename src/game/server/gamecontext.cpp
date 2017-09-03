@@ -4549,22 +4549,27 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 
-						if (!m_apPlayers[ClientID]->GetCharacter())
-						{
-							SendChatTarget(ClientID, "real testers are alive");
-							return;
-						}
+						m_apPlayers[ClientID]->m_autospreadgun = true;
 
-						vec2 TestToTeleTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+						//##########
+						//survival tests
+						//##########
+						//if (!m_apPlayers[ClientID]->GetCharacter())
+						//{
+						//	SendChatTarget(ClientID, "real testers are alive");
+						//	return;
+						//}
 
-						if (TestToTeleTile != vec2(-1, -1))
-						{
-							m_apPlayers[ClientID]->GetCharacter()->SetPosition(TestToTeleTile);
-						}
-						else //no TestToTeleTile
-						{
-							SendChatTarget(ClientID, "gibts nich");
-						}
+						//vec2 TestToTeleTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+						//if (TestToTeleTile != vec2(-1, -1))
+						//{
+						//	m_apPlayers[ClientID]->GetCharacter()->SetPosition(TestToTeleTile);
+						//}
+						//else //no TestToTeleTile
+						//{
+						//	SendChatTarget(ClientID, "gibts nich");
+						//}
 					}
 
 					//char aIP_1[64];
