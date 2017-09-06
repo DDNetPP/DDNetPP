@@ -3864,7 +3864,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
 		{
-			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id);
+			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id,  pResult->m_ClientID);
 			pSelf->SendChatTarget(pResult->m_ClientID, "You left the 1on1.");
 			return;
 		}

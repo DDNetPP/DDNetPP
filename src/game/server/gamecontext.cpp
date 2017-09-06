@@ -3103,13 +3103,15 @@ void CGameContext::DummyChat()
 	//unused cuz me knoop putting all the stuff here
 }
 
-void CGameContext::WinInsta1on1(int WinnerID)
+void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	if (!m_apPlayers[WinnerID])
+		dbg_msg("cBug", "[WARNING] WinInsta1on1() at gamecontext.cpp");
 #endif
+
 	char aBuf[128];
-	int LooserID = m_apPlayers[WinnerID]->m_Insta1on1_id;
 
 	//WINNER
 	if (m_apPlayers[WinnerID])
@@ -3156,8 +3158,10 @@ void CGameContext::WinInsta1on1(int WinnerID)
 
 
 	//RESET SCORE LAST CUZ SCOREBOARD
-	m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
-	m_apPlayers[LooserID]->m_Insta1on1_score = 0;
+	if (m_apPlayers[WinnerID])
+		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
+	if (m_apPlayers[LooserID])
+		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
 }
 
 bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)

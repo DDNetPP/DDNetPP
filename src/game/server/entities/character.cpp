@@ -4533,7 +4533,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		}
 		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
 		{
-			GameServer()->WinInsta1on1(Killer);
+			GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
 		}
 	}
 

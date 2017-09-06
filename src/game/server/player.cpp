@@ -768,7 +768,7 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 
 	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
-		GameServer()->WinInsta1on1(m_Insta1on1_id);
+		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
 	}
 
 	KillCharacter();
