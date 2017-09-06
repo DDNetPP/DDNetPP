@@ -3333,21 +3333,20 @@ void CGameContext::StopBalanceBattle()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	dbg_msg("cBug", "StopBalanceBatlle INIT");
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
+		int subtick = 0;
 		if (m_apPlayers[i])
 		{
-			if (m_apPlayers[i]->m_IsBalanceBattleDummy)
-			{
-				Server()->BotLeave(i, true);
-			}
 			if (m_apPlayers[i]->m_BalanceBattle_id != -1)
 			{
 				m_apPlayers[i]->m_BalanceBattle_id = -1;
 			}
+			if (m_apPlayers[i]->m_IsBalanceBattleDummy)
+			{
+				Server()->BotLeave(i, true);
+			}
 		}
-		dbg_msg("cBug", "tick %d", i);
 	}
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
