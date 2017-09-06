@@ -20,6 +20,7 @@
 #include "gamemodes/ctf.h"
 #include "gamemodes/mod.h"*/
 
+#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
 #include <stdio.h>
 #include <string.h>
 #include <engine/server/server.h>
@@ -3335,7 +3336,6 @@ void CGameContext::StopBalanceBattle()
 #endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		int subtick = 0;
 		if (m_apPlayers[i])
 		{
 			if (m_apPlayers[i]->m_BalanceBattle_id != -1)
@@ -4553,6 +4553,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 
 						m_apPlayers[ClientID]->m_autospreadgun = true;
+
+
+						//CBlackHole test;
 
 						//##########
 						//survival tests
