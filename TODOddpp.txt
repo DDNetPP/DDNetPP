@@ -1,17 +1,11 @@
 ~~~ BUGS ~~~
 
-
-#### BALANCE BATTLE #######
-BALANCE BATTLES CRASHE THE SERVER EVERYTIME!
-
-### ascii animations ###
-asci animations drop some compiler warnings they look dangerous
-might crash the server
-
 ### taser bug ###
 if policetaser is activated and accounts logs out the taser
 unfreezes for some secs in freeze
-remove the bug and add this as a feature
+remove the bug and add this as a feature (but lower the unfreeze time because fokkonaut developed some crazy skills with it walking thorugh cb5 like using super)
+
+~~~ LESS IMPORTANT BUGS ~~~
 
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.

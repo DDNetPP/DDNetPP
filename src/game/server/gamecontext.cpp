@@ -4547,12 +4547,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
+						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->m_xp += 10000000;
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 
-						m_apPlayers[ClientID]->m_autospreadgun = true;
+						m_apPlayers[ClientID]->m_autospreadgun ^= true;
 
 
 						//CBlackHole test;
@@ -7979,6 +7980,7 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
 	if (!CheckClientID2(ClientID))
 		return;
 
@@ -7996,10 +7998,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg.m_Team = CHAT_WHISPER_SEND;
 		Msg.m_ClientID = VictimID;
 		Msg.m_pMessage = pMessage;
-		if(g_Config.m_SvDemoChat)
+		if (g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 		else
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
 	}
 	else
 	{
@@ -8013,10 +8015,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		Msg2.m_Team = CHAT_WHISPER_RECV;
 		Msg2.m_ClientID = ClientID;
 		Msg2.m_pMessage = pMessage;
-		if(g_Config.m_SvDemoChat)
+		if (g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL, VictimID);
 		else
-			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL|MSGFLAG_NORECORD, VictimID);
+			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL | MSGFLAG_NORECORD, VictimID);
 	}
 	else
 	{
@@ -8024,15 +8026,67 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		SendChatTarget(VictimID, aBuf);
 	}
 
-	str_format(aBuf, sizeof(aBuf), "[%s → %s] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
-	for (int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (m_apPlayers[i] && i != VictimID && i != ClientID)
-		{
-			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
-				SendChatTarget(i, aBuf);
-}
-	}
+
+
+//#########################################################
+//weird whisper using server messages (broken with dummys)#
+//#########################################################
+//	if (!CheckClientID2(ClientID))
+//		return;
+//
+//	if (!CheckClientID2(VictimID))
+//		return;
+//
+//	if (m_apPlayers[ClientID])
+//		m_apPlayers[ClientID]->m_LastWhisperTo = VictimID;
+//
+//	char aBuf[256];
+//
+//	if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_ClientVersion >= VERSION_DDNET_WHISPER)
+//	{
+//		CNetMsg_Sv_Chat Msg;
+//		Msg.m_Team = CHAT_WHISPER_SEND;
+//		Msg.m_ClientID = VictimID;
+//		Msg.m_pMessage = pMessage;
+//		if(g_Config.m_SvDemoChat)
+//			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+//		else
+//			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);
+//	}
+//	else
+//	{
+//		str_format(aBuf, sizeof(aBuf), "[→ %s] %s", Server()->ClientName(VictimID), pMessage);
+//		SendChatTarget(ClientID, aBuf);
+//	}
+//
+//	if (m_apPlayers[VictimID] && m_apPlayers[VictimID]->m_ClientVersion >= VERSION_DDNET_WHISPER)
+//	{
+//		CNetMsg_Sv_Chat Msg2;
+//		Msg2.m_Team = CHAT_WHISPER_RECV;
+//		Msg2.m_ClientID = ClientID;
+//		Msg2.m_pMessage = pMessage;
+//		if(g_Config.m_SvDemoChat)
+//			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL, VictimID);
+//		else
+//			Server()->SendPackMsg(&Msg2, MSGFLAG_VITAL|MSGFLAG_NORECORD, VictimID);
+//	}
+//	else
+//	{
+//		str_format(aBuf, sizeof(aBuf), "[← %s] %s", Server()->ClientName(ClientID), pMessage);
+//		SendChatTarget(VictimID, aBuf);
+//	}
+//
+//	str_format(aBuf, sizeof(aBuf), "[%s → %s] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
+//	for (int i = 0; i < MAX_CLIENTS; i++)
+//	{
+//		if (m_apPlayers[i] && i != VictimID && i != ClientID)
+//		{
+//			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
+//			{
+//				SendChatTarget(i, aBuf);
+//			}
+//		}
+//	}
 }
 
 void CGameContext::Converse(int ClientID, char *pStr)

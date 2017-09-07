@@ -521,7 +521,7 @@ void CCharacter::FireWeapon(bool Bot)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
-	if (m_pPlayer->m_autospreadgun)
+	if (m_pPlayer->m_autospreadgun && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
 
 	// check if we gonna fire
