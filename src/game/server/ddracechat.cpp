@@ -3287,6 +3287,12 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pSelf->IsMinigame(pResult->m_ClientID) > 0) //all minigames no jail returns bigger than zero
+	{
+		pSelf->SendChatTarget(ClientID, "You can't logout during minigames try '/leave'");
+		return;
+	}
+
 	if (pPlayer->GetCharacter())
 	{
 		if (pPlayer->GetCharacter()->m_IsBombing) 
@@ -8218,6 +8224,12 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 	if (!g_Config.m_SvAllowTrade)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] this command is deactivated by an administrator.");
+		return;
+	}
+
+	if (pSelf->IsMinigame(pResult->m_ClientID))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you can't use this command in minigames or jail.");
 		return;
 	}
 
