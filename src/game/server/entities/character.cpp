@@ -93,7 +93,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GUN;
 	}
-	m_Core.m_Pos = m_Pos;
 	
 	if (m_pPlayer->m_JailTime)
 	{
@@ -171,7 +170,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			}
 		}
 	}
-	else if (m_pPlayer->m_IsSuperModSpawn)
+	else if (m_pPlayer->m_IsSuperModSpawn && !g_Config.m_SvInstagibMode)
 	{
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
 		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
