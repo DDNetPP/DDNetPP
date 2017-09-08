@@ -6416,6 +6416,12 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
+	if (!g_Config.m_SvAllowSurvival)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] command not allowed.");
+		return;
+	}
+
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 	{
