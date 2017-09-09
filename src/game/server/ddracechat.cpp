@@ -3834,16 +3834,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
+
+	if (!g_Config.m_SvAllowInsta)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] this command is deactivated by an administator.");
+		return;
+	}
+
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You have to be ingame to use this command.");
 		return;
 	}
 
 	if (pPlayer->m_AccountID <= 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. Use  '/accountinfo' or more info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not logged in. Use  '/accountinfo' or more info.");
 		return;
 	}
 
@@ -3871,7 +3878,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
 		{
 			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id,  pResult->m_ClientID);
-			pSelf->SendChatTarget(pResult->m_ClientID, "You left the 1on1.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left the 1on1.");
 			return;
 		}
 
@@ -3879,40 +3886,40 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pPlayer->m_IsInstaArena_gdm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You left boomfng.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left boomfng.");
 				pPlayer->m_IsInstaArena_gdm = false;
 				pPlayer->m_IsInstaArena_fng = false;
 				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else if (pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You left fng.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left fng.");
 				pPlayer->m_IsInstaArena_idm = false;
 				pPlayer->m_IsInstaArena_fng = false;
 				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not in a instagib game.");
 			}
 		}
 		else
 		{
 			if (pPlayer->m_IsInstaArena_gdm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You left grenade deathmatch.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left grenade deathmatch.");
 				pPlayer->m_IsInstaArena_gdm = false;
 				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else if (pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You left rifle deathmatch.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left rifle deathmatch.");
 				pPlayer->m_IsInstaArena_idm = false;
 				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You are not in a instagib game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not in a instagib game.");
 			}
 		}
 	}
@@ -3948,23 +3955,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a grenade game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a rifle game. ('/insta leave' to leave)");
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(true, false))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a grenade instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
 			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_gdm = true;
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
@@ -3974,23 +3981,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a grenade game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a rifle game. ('/insta leave' to leave)");
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a rifle instagib game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a rifle game.");
 			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_idm = true;
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
@@ -4000,23 +4007,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a grenade game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a rifle game. ('/insta leave' to leave)");
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(true, false))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
 			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_gdm = true;
 			pPlayer->m_IsInstaArena_fng = true;
@@ -4027,23 +4034,23 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a grenade instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a grenade game. ('/insta leave' to leave)");
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are already in a rifle instagib game. ('/insta leave' to leave)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are already in a rifle game. ('/insta leave' to leave)");
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Arena is full.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You joined a fng game.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng game.");
 			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
 			pPlayer->m_IsInstaArena_idm = true;
 			pPlayer->m_IsInstaArena_fng = true;
@@ -4077,41 +4084,41 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (pSelf->IsMinigame(pResult->m_ClientID))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
 			}
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
 			}
 			
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 0; //gdm
-			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a gdm 1on1.", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a gdm 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a gdm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a gdm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "idm"))
@@ -4119,41 +4126,41 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (pSelf->IsMinigame(pResult->m_ClientID))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
 			}
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
 			}
 
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 1; //idm
-			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a idm 1on1.", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a idm 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a idm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a idm 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "boomfng"))
@@ -4161,41 +4168,41 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (pSelf->IsMinigame(pResult->m_ClientID))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
 			}
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
 			}
 
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 2; //boomfng
-			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a boomfng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a boomfng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a boomfng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "fng"))
@@ -4203,41 +4210,41 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 			else if (pSelf->IsMinigame(pResult->m_ClientID))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (mateID == pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite yourself.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
 			}
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't invite while being ingame. Do '/insta leave' first.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You don't have 100 money to start a game.");
 				return;
 			}
 
 			pPlayer->m_Insta1on1_id = mateID; //set this id to -1 if you join any kind of insta game which is not 1on1
 			pPlayer->m_Insta1on1_mode = 3; //fng
-			str_format(aBuf, sizeof(aBuf), "Invited '%s' to a fng 1on1.", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] Invited '%s' to a fng 1on1.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' invited you to a fng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' invited you to a fng 1on1. ('/insta 1on1 accept %s' to accept)", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(mateID, aBuf);
 		}
 		else if (!str_comp_nocase(pResult->GetString(1), "accept"))
@@ -4245,30 +4252,30 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 			int mateID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (mateID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", pResult->GetString(2));
+				str_format(aBuf, sizeof(aBuf), "[INSTA] Can't find playername: '%s'.", pResult->GetString(2));
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 			else if (pSelf->IsMinigame(pResult->m_ClientID))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_Insta1on1_id != pResult->m_ClientID)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player didn't invite you.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player didn't invite you.");
 			}
 			else if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You can't accept while being ingame. Do '/insta leave' first.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't accept while being ingame. Do '/insta leave' first.");
 				return;
 			}
 			else if (pPlayer->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You need at least 100 money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
 			}
 			else if (pSelf->m_apPlayers[mateID]->m_money < 100)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Your 1on1 mate doesn't have enough money to start a game.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Your 1on1 mate doesn't have enough money to start a game.");
 				return;
 			}
 			else
@@ -4277,21 +4284,21 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				{
 					if (!pSelf->CanJoinInstaArena(true, true))
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start 1on1.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA]Arena is too full to start 1on1.");
 					}
 					else //everything succeded! yay --> start 1on1
 					{
 						if (pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 0)
 						{
-							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a gdm 1on1 (-100 money)");
-							pSelf->SendChatTarget(mateID, "You joined a gdm 1on1 (-100 money)");
+							pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a gdm 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "[INSTA] You joined a gdm 1on1 (-100 money)");
 						}
 						else
 						{
-							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a boomfng 1on1 (-100 money)");
+							pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng 1on1 (-100 money)");
 							pPlayer->m_IsInstaArena_fng = true;
 
-							pSelf->SendChatTarget(mateID, "You joined a boomfng 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "[INSTA] You joined a boomfng 1on1 (-100 money)");
 							pSelf->m_apPlayers[mateID]->m_IsInstaArena_fng = true;
 						}
 
@@ -4311,21 +4318,21 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				{
 					if (!pSelf->CanJoinInstaArena(false, true))
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Arena is too full to start 1on1.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is too full to start 1on1.");
 					}
 					else //everything succeded! yay --> start 1on1
 					{
 						if (pSelf->m_apPlayers[mateID]->m_Insta1on1_mode == 1)
 						{
-							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a idm 1on1 (-100 money)");
-							pSelf->SendChatTarget(mateID, "You joined a idm 1on1 (-100 money)");
+							pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a idm 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "[INSTA] You joined a idm 1on1 (-100 money)");
 						}
 						else
 						{
-							pSelf->SendChatTarget(pResult->m_ClientID, "You joined a fng 1on1 (-100 money)");
+							pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng 1on1 (-100 money)");
 							pPlayer->m_IsInstaArena_fng = true;
 
-							pSelf->SendChatTarget(mateID, "You joined a fng 1on1 (-100 money)");
+							pSelf->SendChatTarget(mateID, "[INSTA] You joined a fng 1on1 (-100 money)");
 							pSelf->m_apPlayers[mateID]->m_IsInstaArena_fng = true;
 						}
 
@@ -4345,12 +4352,12 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Unknown 1on1 parameter. Check '/insta 1on1 help' for more help");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown 1on1 parameter. Check '/insta 1on1 help' for more help");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/insta cmdlist' for all commands");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown parameter. Check '/insta cmdlist' for all commands");
 	}
 }
 

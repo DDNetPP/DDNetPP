@@ -1828,3 +1828,10 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
 	str_format(m_money_transaction0, sizeof(m_money_transaction0), Description);
 }
+
+bool CPlayer::IsInstagibMinigame()
+{
+	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
+		return true;
+	return false;
+}

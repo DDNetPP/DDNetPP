@@ -231,7 +231,6 @@ public:
 	//Instagib Survival
 	void WinInsta1on1(int WinnerID, int LooserID);
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);
-	void SurvivalTick();
 	int m_survival_gamestate; //0=prepearing 1=running 2=deathmatch
 	int m_survival_delay;
 

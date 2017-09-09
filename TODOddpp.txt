@@ -23,6 +23,11 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+
+## drop weapons ##
+on vote (f4/f3) drop the current active weapon if not gun or hammer
+drop them in the map (like in survival) and all people can collect it
+
 ## hitman blocker ##
 '/bounty add <money> <player>' and who ever blocks this tee first gets all the <money>
 '/bounty check <player>' to check how much money u get

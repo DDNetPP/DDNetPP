@@ -418,19 +418,22 @@ MACRO_CONFIG_INT(SvAllowTrade, sv_allow_trade, 0, 0, 1, CFGFLAG_SERVER, "Allow t
 MACRO_CONFIG_INT(SvHideJoinLeaveMessages, sv_hide_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec") //superusefull agianst reconnect trolls c:
 MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect/spec")
 
-//zCatch ChillerDragon
-
-MACRO_CONFIG_INT(SvInstagibMode, sv_insta, 0, 0, 4, CFGFLAG_SERVER, "0=ddrace 1=gdm 2=LMSGrenade 3=idm 4=LMSRifle")
-MACRO_CONFIG_INT(SvSpreePlayers, sv_spree_players, 5, 1, 60, CFGFLAG_SERVER, "how many players have to be online to count killingsprees")
+//#######################
+//Instagib ChillerDragon#
+//#######################
+//Server/Config side
+MACRO_CONFIG_INT(SvInstagibMode, sv_insta, 0, 0, 4, CFGFLAG_SERVER, "0=ddrace 1=gdm 2=undefined 3=idm 4=undefined") //undefined were LMSgrenade and LMSrifle but got removed because it was unfinished and only confused the real vanilla survival
 MACRO_CONFIG_INT(SvInstaScore, sv_insta_score, 0, 0, 1, CFGFLAG_SERVER, "0=count from 0 on reconnect in scoreboard 1=load sql scores in scoreboard")
-MACRO_CONFIG_INT(SvMinSurvivalPlayers, sv_min_survival_players, 0, 1, 60, CFGFLAG_SERVER, "how many players are required to start an instagib survival game")
-MACRO_CONFIG_INT(SvSurvivalDelay, sv_survival_delay, 0, 2, 500, CFGFLAG_SERVER, "how many seconds countdown if a game is ready")
-MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER, "After how much kills a player gets finish (instagib)")
-
+//Player/Minigame side
 MACRO_CONFIG_INT(SvGrenadeArenaSlots, sv_grenade_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for grenade")
 MACRO_CONFIG_INT(SvRifleArenaSlots, sv_rifle_arena_slots, 16, 0, 64, CFGFLAG_SERVER, "extra arena slots for rifle")
+MACRO_CONFIG_INT(SvAllowInsta, sv_allow_insta, 1, 0, 1, CFGFLAG_SERVER, "allow the '/insta' command 1=allow 0=off")
+//General Configs for both Server/Config && Player/Minigame
+MACRO_CONFIG_INT(SvSpreePlayers, sv_spree_players, 5, 1, 60, CFGFLAG_SERVER, "how many players have to be online to count killingsprees")
+MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 
+//Farm and Dummy Stuff
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys see each other 0 they dont")
 MACRO_CONFIG_INT(SvSpawnBlockProtection, sv_spawnblock_prot, 0, 0, 2, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=escape time 2=esctime+killban")

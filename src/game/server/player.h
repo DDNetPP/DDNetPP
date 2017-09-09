@@ -182,6 +182,7 @@ public:
 
 
 	//usefull everywhere
+	bool IsInstagibMinigame();
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 

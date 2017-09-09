@@ -1768,10 +1768,6 @@ void CGameContext::DDPP_Tick()
 	{
 		BombTick();
 	}
-	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //Survival grenade or Survival rifle
-	{
-		SurvivalTick();
-	}
 
 	if (m_survivalgamestate == 1)
 	{
@@ -3223,49 +3219,6 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 	}
 
 	return true;
-}
-
-void CGameContext::SurvivalTick()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	char aBuf[256];
-
-	if (!m_survival_gamestate) //lobby
-	{
-		if (CountIngameHumans() < g_Config.m_SvMinSurvivalPlayers)
-		{
-			str_format(aBuf, sizeof(aBuf), "[%d/%d] players left to start a survival round.", CountIngameHumans(), g_Config.m_SvMinSurvivalPlayers);
-		}
-		else
-		{
-			if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
-			{
-				str_format(aBuf, sizeof(aBuf), "Game starts in %d seconds.", m_survival_delay);
-				m_survival_delay--;
-			}
-		}
-
-		SendBroadcastAll(aBuf);
-
-		if (m_survival_delay < 1) //start game
-		{
-			SendBroadcastAll("Game started! Stay alive!");
-			KillAll();
-			m_survival_gamestate = 1;
-		}
-	}
-	else //running game
-	{
-		//check for end game
-		if (CountIngameHumans() < 2)
-		{
-			SendBroadcastAll("Good Game");
-			m_survival_gamestate = 0;
-			m_survival_delay = g_Config.m_SvSurvivalDelay;
-		}
-	}
 }
 
 void CGameContext::CreateBasicDummys()
@@ -6933,7 +6886,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_BalanceID2 = -1;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
-	m_survival_delay = g_Config.m_SvSurvivalDelay;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
 
 
