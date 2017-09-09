@@ -1773,6 +1773,8 @@ void CPlayer::CalcExp()
 		update this var if u increase the level sys
 
 
+		TODO: add a makro for max lvl
+
 		*/
 
 }
