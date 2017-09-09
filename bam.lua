@@ -228,7 +228,7 @@ function build(settings)
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
 			settings.link.libs:Add("dl")
-			settings.link.libs:Add("crypto")
+			-- settings.link.libs:Add("crypto")
 		else
 			settings.link.libs:Add("pthread")
 			settings.link.libs:Add("dl")
