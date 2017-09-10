@@ -7,6 +7,16 @@ remove the bug and add this as a feature (but lower the unfreeze time because fo
 
 ~~~ LESS IMPORTANT BUGS ~~~
 
+## pChr != this ##
+while working on FNN i expirienced a bug after touching the bot
+and then selfkilling. The bot keeps spamming in chat "stup touch me" 
+and then i added to this line:
+	if (pChr && pChr->IsAlive())
+this:
+	if (pChr && pChr->IsAlive() && pChr != this)
+what fixed it. idk if this also causes some selfblock points or something like that or if this error is catched somewhere else.
+this can also fuck some dummymodes idk better check it on time
+
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.
 But for example /shop doesnt need it change it but be carefull it can cause crashbugs

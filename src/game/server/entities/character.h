@@ -346,8 +346,12 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-
-
+	//dummymode 25 FNN vars
+	bool m_Dummy_nn_ready;
+	bool m_Dummy_nn_touched_by_humans;
+	int m_Dummy_nn_ready_time;
+	int m_FNN_CurrentMoveIndex;
+	int m_aRecMove[32768];
 
 
 	//dummymode 31 vars (ChillBlock5 police guard)

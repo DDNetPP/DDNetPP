@@ -18,6 +18,9 @@
 #include "light.h"
 #include "flag.h"
 
+#include <fstream> //ChillerDragon saving bot move records
+#include <string> //ChillerDragon std::getline
+
 //following testy libaries mede by chillidrgehiun!   they caused some errors and i did some testy changes
 //if remvove this libs remove nuclear tests 
 //testycode: 2gf43
@@ -1826,16 +1829,16 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	//if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
-	//{
-	//	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
-	//	{
-	//		m_Dummy_nn_touched_by_humans = true;
-	//		GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "DONT TOUCH ME WEAPON OMG");
-	//	}
+	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
+	{
+		if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
+		{
+			m_Dummy_nn_touched_by_humans = true;
+			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "DONT TOUCH ME WEAPON OMG");
+		}
 
-	//	//return false; //removes hammer knockback
-	//}
+		//return false; //removes hammer knockback
+	}
 
 
 	//zCatch ChillerDragon
@@ -8835,6 +8838,272 @@ void CCharacter::DummyTick()
 			else
 			{
 				m_Dummy_sent_chat_msg = 0;
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == 25) //ChillerDraguns testy fake nural network lol (2.0 revived)
+		{
+			/*
+			######################################################
+			#     DummyMode 25      The    FNN    Mode           #
+			#           [FNN] == [FAKENEURALNETWORK]             #
+			######################################################
+			ModeStructure:
+			
+			* Spawn -> goto hardcodet spawn pos.x 353 * 32
+			
+			* Check for human interactions and save them in the var m_Dummy_nn_touched_by_humans
+	
+			*/
+			char aBuf[256];
+
+			if (!m_Dummy_nn_ready) //first get the right start pos
+			{
+				m_Input.m_Hook = 0;
+				m_Input.m_Jump = 0;
+				m_Input.m_Direction = 0;
+				m_LatestInput.m_Fire = 0;
+				m_Input.m_Fire = 0;
+
+
+
+				if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 + 1)
+				{
+					if (IsGrounded()) //only walk on ground because air is unpredictable
+					{
+						if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 + 10) //in 1tile nähe langsam laufen 
+						{
+							if (m_Core.m_Vel.x > -0.04f)
+							{
+								m_Input.m_Direction = -1;
+							}
+						}
+						else
+						{
+							m_Input.m_Direction = -1;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 - 1)
+				{
+					if (IsGrounded()) //only walk on ground because air is unpredictable
+					{
+						if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 - 10) //in 1tile nähe langsam laufen 
+						{
+							if (m_Core.m_Vel.x < 0.04f)
+							{
+								m_Input.m_Direction = 1;
+							}
+						}
+						else
+						{
+							m_Input.m_Direction = 1;
+						}
+					}
+				}
+				else //correct position
+				{
+					if (IsGrounded()) //only start on ground because air is unpredictable
+					{
+						m_Dummy_nn_ready = true;
+						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Found start position -> starting process");
+					}
+				}
+
+				//Catch errors
+				if (m_Dummy_nn_ready_time > 300)
+				{
+					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Starting process failed. Get in start position took too long -> restarting...");
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+				m_Dummy_nn_ready_time++;
+				//char aBuf[256];
+				//str_format(aBuf, sizeof(aBuf), "time: %d", m_Dummy_nn_ready_time);
+				//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+
+			}
+			else //if the bot has the right start pos start doing random stuff 
+			{
+				/*
+
+
+				dummy sub mode structure:
+
+				old used a bool (m_Dummy_nn_write) which has to be changed manually in the source.
+
+				new system uses chat command /dmm25 = dummmymodemode25 to choose submodes.
+				submodes:
+				0					write
+				1					read highest fitness
+				2					read highest distance
+
+				*/
+
+
+				int m_aMoveID = -1;
+				int Hooked = false;
+				int PullID = -1;
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					CCharacter *pChar = GameServer()->GetPlayerChar(i);
+
+					if (!pChar || !pChar->IsAlive() || pChar == this)
+						continue;
+
+					if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
+					{
+						Hooked = true;
+						m_aMoveID = i;
+						m_Dummy_nn_touched_by_humans = true;
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] DONT TOUCH ME HOOK WTF");
+					}
+				}
+				if (m_Core.m_HookState == HOOK_GRABBED)
+				{
+					m_Dummy_nn_touched_by_humans = true;
+					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont get in my hook -.-");
+				}
+				//selfmade noob code check if pChr is too near and coudl touched the bot
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				if (pChr && pChr->IsAlive() && pChr != this)
+				{
+					if (pChr->m_Pos.x < m_Core.m_Pos.x + 60 && pChr->m_Pos.x > m_Core.m_Pos.x - 60 && pChr->m_Pos.y < m_Core.m_Pos.y + 60 && pChr->m_Pos.y > m_Core.m_Pos.y - 60)
+					{
+						m_Dummy_nn_touched_by_humans = true;
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont touch my body with yours pls");
+					}
+
+				}
+
+
+				if (m_pPlayer->m_dmm25 == 0) //submode[0] write
+				{
+					//m_pPlayer->m_TeeInfos.m_Name = "writing...";
+					//m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
+
+
+					m_pPlayer->m_Dummy_nn_time++;
+
+					int rand_Direction = rand() % 3 - 1; //-1 0 1
+					int rand_Fire = rand() % 2; // 1 0
+					int rand_Jump = rand() % 2;
+					int rand_Hook = rand() % 2;
+					int rand_Weapon = rand() % 4;
+					int rand_TargetX = rand() % 401 - 200;
+					int rand_TargetY = rand() % 401 - 200;
+
+					m_Input.m_Direction = rand_Direction;
+					m_Input.m_Jump = rand_Jump;
+					m_Input.m_Hook = rand_Hook;
+					m_Input.m_TargetX = rand_TargetX;
+					m_Input.m_TargetY = rand_TargetY;
+					m_LatestInput.m_TargetX = rand_TargetX;
+					m_LatestInput.m_TargetY = rand_TargetY;
+
+					//save values in array
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Direction;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Jump;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Hook;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetX;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetY;
+					m_FNN_CurrentMoveIndex++;
+
+					if (rand_Weapon == 0)
+					{
+						SetWeapon(0); //hammer
+					}
+					else if (rand_Weapon == 1)
+					{
+						SetWeapon(1); //gun
+					}
+					else if (rand_Weapon == 2)
+					{
+						if (m_aWeapons[WEAPON_SHOTGUN].m_Got)
+						{
+							SetWeapon(2); //shotgun
+						}
+					}
+					else if (rand_Weapon == 3)
+					{
+						if (m_aWeapons[WEAPON_GRENADE].m_Got)
+						{
+							SetWeapon(3); //grenade
+						}
+					}
+					else if (rand_Weapon == 4)
+					{
+						if (m_aWeapons[WEAPON_RIFLE].m_Got)
+						{
+							SetWeapon(4); //laser
+						}
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "Error unknown weapon:", rand_Weapon);
+						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+					}
+					if (rand_Fire == 1 && m_FreezeTime == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+
+
+
+
+
+					if (m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed)
+					{
+						if (Server()->Tick() % 10 == 0)
+						{
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+						}
+						if (Server()->Tick() % 40 == 0)
+						{
+							if (m_Dummy_nn_touched_by_humans) 
+							{
+								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Got touched by Humans --> DELETE RUN");
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+							}
+							else //no interaction with humans --> save normal
+							{
+								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+
+								//saving run to file
+								std::ofstream savefile;
+								char aFilePath[512];
+								str_format(aFilePath, sizeof(aFilePath), "FNN/move.txt");
+								savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
+								if (savefile.is_open())
+								{
+									//for (int i = 0; i < 32768; i++)
+									for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+									{
+										savefile << m_aRecMove[i];
+										savefile << std::endl;
+									}
+								}
+								else
+								{
+									dbg_msg("FNN","failed to save record. failed to open file '%s'", aFilePath);
+								}
+								savefile.close();
+								m_FNN_CurrentMoveIndex = 0;
+							}
+						}
+					}
+				}
+				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read
+				{
+
+				}
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 29) //mode 18 (tryhardwayblocker cb5)    with some more human wayblock style not so try hard a cool chillblock5 blocker mode

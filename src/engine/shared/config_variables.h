@@ -467,5 +467,8 @@ MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "a
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame")
 
+//FNN fake neural network
+MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")
+
 
 #endif
