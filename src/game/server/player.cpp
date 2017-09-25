@@ -1207,6 +1207,7 @@ void CPlayer::Logout()
 	//m_JailTime = 0; //logout doesnt release :p
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
+	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
 	m_pvp_arena_kills = 0;
