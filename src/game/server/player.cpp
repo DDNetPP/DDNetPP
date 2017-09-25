@@ -343,7 +343,7 @@ void CPlayer::Tick()
 	{
 		if (g_Config.m_SvAllowMinigame == 0)
 		{
-			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled minigames.");
+			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
 			m_Ischidraqul3 = false;
 		}
 		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
@@ -1833,7 +1833,11 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 
 bool CPlayer::IsInstagibMinigame()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
 }
+

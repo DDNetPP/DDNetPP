@@ -23,7 +23,7 @@
 #include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
 #include <stdio.h>
 #include <string.h>
-#include <engine/server/server.h>
+#include <engine/server/server.h> // ddpp imported for dummys
 #include "gamemodes/DDRace.h"
 #include "score.h"
 #include "score/file_score.h"

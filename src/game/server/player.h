@@ -42,8 +42,6 @@ public:
 
 	void FindDuplicateSkins();
 
-	void MoneyTransaction(int Amount, const char *Description);
-
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -182,6 +180,7 @@ public:
 
 
 	//usefull everywhere
+	void MoneyTransaction(int Amount, const char *Description);
 	bool IsInstagibMinigame();
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups

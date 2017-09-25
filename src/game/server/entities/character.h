@@ -88,7 +88,7 @@ public:
 	void Rescue();
 
 	int NeededFaketuning() {return m_NeededFaketuning;}
-	/*inline*/ bool IsAlive() const { return m_Alive; } //testy inline by chillerdragon //doesnt crash but still scary
+	bool IsAlive() const { return m_Alive; } 
 	bool IsPaused() const { return m_Paused; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
@@ -187,13 +187,13 @@ private:
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
 
-	// z.B. startzeit w�re jetzt, die zeit wie lange die animation geht w�re 1 sekunde
-	// dann w�re m_AngleTickStart = Server()->Tick() // = die jetzige zeit
+	// z.B. startzeit waere jetzt, die zeit wie lange die animation geht w�re 1 sekunde
+	// dann waere m_AngleTickStart = Server()->Tick() // = die jetzige zeit
 	// und m_AngleTickTime = Server()->TickSpeed() // eine sekunde
 
-	// m_AngleFrom ist die startposition, also z.B. 0� (dann guckt er glaub ich nach rechts)
-	// m_AngleTo dann z.B. 90� (guckt nach unten)
-	// d.h. er dreht sich von jetzt bis in einer sekunde um 90�
+	// m_AngleFrom ist die startposition, also z.B. 0(grad) (dann guckt er glaub ich nach rechts)
+	// m_AngleTo dann z.B. 90(grad) (guckt nach unten)
+	// d.h. er dreht sich von jetzt bis in einer sekunde um 90(grad)
 	float m_AngleFrom; //
 	float m_AngleTo;
 	int m_AngleTickStart;
@@ -204,11 +204,10 @@ private:
 	int m_EmoteTickNextFast;
 	int m_HookTickNext;
 	//int m_AimbotSwitchTick;
-	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man wei� ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
+	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man weiss ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
 	bool m_MoveMode;
 	bool m_LeftMM;
 	
-//	int count; // testy
 	int m_DummyFinishes;
 
 
