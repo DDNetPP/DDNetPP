@@ -473,6 +473,12 @@ private:
 	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
 
+	//SQL
+	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	//rcon api
+	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
+
 	//HACK ChillerDragon
 	//static void ConHack(IConsole::IResult *pResult, void *pUserData);
 
@@ -558,7 +564,11 @@ private:
 	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 
+	//====================
 	//ChillerDragon (ddpp)
+	//====================
+
+	//chat commands
 
 	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
@@ -567,7 +577,6 @@ private:
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);

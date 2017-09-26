@@ -1,11 +1,11 @@
 ~~~ BUGS ~~~
 
-### taser bug ###
-if policetaser is activated and accounts logs out the taser
-unfreezes for some secs in freeze
-remove the bug and add this as a feature (but lower the unfreeze time because fokkonaut developed some crazy skills with it walking thorugh cb5 like using super)
 
 ~~~ LESS IMPORTANT BUGS ~~~
+
+## Jail ##
+there is a crashbug with the jail command
+(check crash logs)
 
 ## pChr != this ##
 while working on FNN i expirienced a bug after touching the bot

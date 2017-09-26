@@ -1366,3 +1366,27 @@ void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
 	//char aBuf[128];
 
 }
+
+void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+	{
+		dbg_msg("RCON_API","some non client executed an api command");
+
+		int ClientID = pResult->GetVictim();
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+	else
+	{
+		dbg_msg("RCON_API", "some ingame admin tried to abuse the api");
+		return;
+	}
+}

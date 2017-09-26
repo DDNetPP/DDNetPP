@@ -73,9 +73,6 @@ CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives
 CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")
 CONSOLE_COMMAND("unfreezehammer", "v", CFGFLAG_SERVER, ConUnFreezeHammer, this, "Removes Freeze Hammer from a player")
 
-//ddpp sql
-CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSQL_ADD, this, "adds an new column to the table")
-
 //SarKro
 CONSOLE_COMMAND("unfreeze", "v", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
 CONSOLE_COMMAND("freeze", "v?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
@@ -85,6 +82,11 @@ CONSOLE_COMMAND("pullhammer_pl", "v", CFGFLAG_SERVER, ConPullhammer, this, "give
 //CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")
 CONSOLE_COMMAND("godmode", "v", CFGFLAG_SERVER, ConGodmode, this, "gives player i godmode (no damage in instagib)")
 
+//ddpp sql
+CONSOLE_COMMAND("sql_add", "?sss", CFGFLAG_SERVER, ConSQL_ADD, this, "adds an new column to the table")
+
+//rcon api commands
+CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayID, this, "RCON API command dont use it")
 
 #undef CONSOLE_COMMAND
 
