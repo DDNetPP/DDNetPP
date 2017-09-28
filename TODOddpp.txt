@@ -3,6 +3,11 @@
 
 ~~~ LESS IMPORTANT BUGS ~~~
 
+## Blockpoints ##
+people can logout in freeze and kill and relog in.
+so they get a nice K/D without deaths in their acc.
+do something like adding blockdeath on logout in freeze or disallow it completly or stuff idk
+
 ## Jail ##
 there is a crashbug with the jail command
 (check crash logs)
