@@ -20,9 +20,10 @@
 #include "gamemodes/ctf.h"
 #include "gamemodes/mod.h"*/
 
+#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
 #include <stdio.h>
 #include <string.h>
-#include <engine/server/server.h>
+#include <engine/server/server.h> // ddpp imported for dummys
 #include "gamemodes/DDRace.h"
 #include "score.h"
 #include "score/file_score.h"
@@ -739,14 +740,32 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 }
 
 
-void CGameContext::SendBroadcast(const char *pText, int ClientID)
+void CGameContext::SendBroadcast(const char *pText, int ClientID, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 	CNetMsg_Sv_Broadcast Msg;
-	Msg.m_pMessage = pText;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	if (supermod)
+	{
+		if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
+		//char aText[256];																//supermod broadcast with advertisement attached
+		//str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
+		//Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
+
+		Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	}
+	else
+	{
+		Msg.m_pMessage = pText; //default broadcast
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+
+		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+	}
+
+
+	//Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 //
@@ -1495,6 +1514,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 				return 6;
 			}
 		}
+		if (pPlayer->m_IsBlockWaving)
+		{
+			return 7;
+		}
 	}
 
 	return 0;
@@ -1555,7 +1578,7 @@ int CGameContext::CountIngameHumans()
 	return cPlayers;
 }
 
-void CGameContext::SendBroadcastAll(const char * pText)
+void CGameContext::SendBroadcastAll(const char * pText, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -1564,7 +1587,7 @@ void CGameContext::SendBroadcastAll(const char * pText)
 	{
 		if (m_apPlayers[i])
 		{
-			SendBroadcast(pText, m_apPlayers[i]->GetCID());
+			SendBroadcast(pText, m_apPlayers[i]->GetCID(), supermod);
 		}
 	}
 }
@@ -1589,7 +1612,6 @@ bool CGameContext::IsPosition(int playerID, int pos)
 	CALL_STACK_ADD();
 	//dbg_msg("debug", "IsPosition(playerID = %d, pos = %d)", playerID, pos);
 #endif
-	char aBuf[256];
 	if (!m_apPlayers[playerID])
 	{
 		return false;
@@ -1731,6 +1753,12 @@ void CGameContext::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_iBroadcastDelay > 0)
+	{
+		m_iBroadcastDelay--;
+	}
+
+
 	if (m_BalanceBattleState == 1)
 	{
 		BalanceBattleTick();
@@ -1740,16 +1768,16 @@ void CGameContext::DDPP_Tick()
 	{
 		BombTick();
 	}
-	if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 2) //Survival grenade or Survival rifle
-	{
-		SurvivalTick();
-	}
 
 	if (m_survivalgamestate == 1)
 	{
 		SurvivalLobbyTick();
 	}
 
+	if (m_BlockWaveGameState)
+	{
+		BlockWaveGameTick();
+	}
 
 	for (int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
 	{
@@ -2211,6 +2239,97 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
 	m_apPlayers[winnerID]->m_xp += 50;
 	return true;
+}
+
+void CGameContext::BlockWaveGameTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+
+	if (m_BlockWaveGameState == 1)
+	{
+		m_BlockWavePrepareDelay--;
+		if (m_BlockWavePrepareDelay % Server()->TickSpeed() == 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "[BlockWave] round starts in %d seconds", m_BlockWavePrepareDelay / Server()->TickSpeed());
+			SendBlockWaveBroadcast(aBuf);
+		}
+		if (m_BlockWavePrepareDelay < 0)
+		{
+			m_BlockWaveGameState = 2; //start round!
+			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
+		}
+	}
+	else //running round
+	{
+		//check for rip
+		if (Server()->Tick() % 60 == 0)
+		{
+			bool ripall = true;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaveDead)
+				{
+					ripall = false;
+					break;
+				}
+			}
+			if (ripall)
+			{
+				BlockWaveStartNewGame();
+			}
+		}
+	}
+}
+
+void CGameContext::BlockWaveEndGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
+	SendBlockWaveBroadcast(aBuf);
+}
+
+void CGameContext::BlockWaveStartNewGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockWaveRound = 0;
+}
+
+int CGameContext::CountBlockWavePlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		{
+			c++;
+		}
+	}
+	return c;
+}
+
+void CGameContext::SendBlockWaveBroadcast(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		{
+			SendBroadcast(pMsg, i);
+		}
+	}
 }
 
 void CGameContext::QuestReset(int playerID)
@@ -2981,13 +3100,15 @@ void CGameContext::DummyChat()
 	//unused cuz me knoop putting all the stuff here
 }
 
-void CGameContext::WinInsta1on1(int WinnerID)
+void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	if (!m_apPlayers[WinnerID])
+		dbg_msg("cBug", "[WARNING] WinInsta1on1() at gamecontext.cpp");
 #endif
+
 	char aBuf[128];
-	int LooserID = m_apPlayers[WinnerID]->m_Insta1on1_id;
 
 	//WINNER
 	if (m_apPlayers[WinnerID])
@@ -3034,8 +3155,10 @@ void CGameContext::WinInsta1on1(int WinnerID)
 
 
 	//RESET SCORE LAST CUZ SCOREBOARD
-	m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
-	m_apPlayers[LooserID]->m_Insta1on1_score = 0;
+	if (m_apPlayers[WinnerID])
+		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
+	if (m_apPlayers[LooserID])
+		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
 }
 
 bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
@@ -3096,49 +3219,6 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 	}
 
 	return true;
-}
-
-void CGameContext::SurvivalTick()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	char aBuf[256];
-
-	if (!m_survival_gamestate) //lobby
-	{
-		if (CountIngameHumans() < g_Config.m_SvMinSurvivalPlayers)
-		{
-			str_format(aBuf, sizeof(aBuf), "[%d/%d] players left to start a survival round.", CountIngameHumans(), g_Config.m_SvMinSurvivalPlayers);
-		}
-		else
-		{
-			if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
-			{
-				str_format(aBuf, sizeof(aBuf), "Game starts in %d seconds.", m_survival_delay);
-				m_survival_delay--;
-			}
-		}
-
-		SendBroadcastAll(aBuf);
-
-		if (m_survival_delay < 1) //start game
-		{
-			SendBroadcastAll("Game started! Stay alive!");
-			KillAll();
-			m_survival_gamestate = 1;
-		}
-	}
-	else //running game
-	{
-		//check for end game
-		if (CountIngameHumans() < 2)
-		{
-			SendBroadcastAll("Good Game");
-			m_survival_gamestate = 0;
-			m_survival_delay = g_Config.m_SvSurvivalDelay;
-		}
-	}
 }
 
 void CGameContext::CreateBasicDummys()
@@ -3207,21 +3287,19 @@ void CGameContext::StopBalanceBattle()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	dbg_msg("cBug", "StopBalanceBatlle INIT");
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
 		{
-			if (m_apPlayers[i]->m_IsBalanceBattleDummy)
-			{
-				Server()->BotLeave(i, true);
-			}
 			if (m_apPlayers[i]->m_BalanceBattle_id != -1)
 			{
 				m_apPlayers[i]->m_BalanceBattle_id = -1;
 			}
+			if (m_apPlayers[i]->m_IsBalanceBattleDummy)
+			{
+				Server()->BotLeave(i, true);
+			}
 		}
-		dbg_msg("cBug", "tick %d", i);
 	}
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
@@ -4412,7 +4490,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
-					char aBuf[1024];
 					SendChatTarget(ClientID, "Test Failed.");
 
 					if (g_Config.m_SvTestingCommands)
@@ -4423,27 +4500,36 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+50000, "+50000 test cmd3000");
+						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->m_xp += 10000000;
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 
-						if (!m_apPlayers[ClientID]->GetCharacter())
-						{
-							SendChatTarget(ClientID, "real testers are alive");
-							return;
-						}
+						m_apPlayers[ClientID]->m_autospreadgun ^= true;
 
-						vec2 TestToTeleTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
 
-						if (TestToTeleTile != vec2(-1, -1))
-						{
-							m_apPlayers[ClientID]->GetCharacter()->SetPosition(TestToTeleTile);
-						}
-						else //no TestToTeleTile
-						{
-							SendChatTarget(ClientID, "gibts nich");
-						}
+						//CBlackHole test;
+
+						//##########
+						//survival tests
+						//##########
+						//if (!m_apPlayers[ClientID]->GetCharacter())
+						//{
+						//	SendChatTarget(ClientID, "real testers are alive");
+						//	return;
+						//}
+
+						//vec2 TestToTeleTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+
+						//if (TestToTeleTile != vec2(-1, -1))
+						//{
+						//	m_apPlayers[ClientID]->GetCharacter()->SetPosition(TestToTeleTile);
+						//}
+						//else //no TestToTeleTile
+						//{
+						//	SendChatTarget(ClientID, "gibts nich");
+						//}
 					}
 
 					//char aIP_1[64];
@@ -5763,6 +5849,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
+			if (m_apPlayers[ClientID]->m_IsBlockWaving)
+			{
+				SendChatTarget(ClientID, "[BlockWave] you can't change team while block waving. Try '/blockwave leave'");
+				return;
+			}
+
 			//zCatch survival LMS ChillerDragon Instagib grenade rifle
 			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //gLMS iLMS
 			{
@@ -5997,6 +6089,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
+			if (m_apPlayers[ClientID]->m_IsBlockWaving)
+			{
+				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
+				return;
+			}
+
 			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection)
 			{
 				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");
@@ -6788,7 +6886,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_BalanceID2 = -1;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
-	m_survival_delay = g_Config.m_SvSurvivalDelay;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
 
 
@@ -7066,6 +7163,20 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					Survivaldeathmatch.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got survival deathmatch tile at (%.2f|%.2f)", Survivaldeathmatch.m_Center.x, Survivaldeathmatch.m_Center.y);
 					m_SurvivalDeathmatch.push_back(Survivaldeathmatch);
+				}
+				else if (Index == TILE_BLOCKWAVE_BOT)
+				{
+					CBlockWaveBotTile BlockWaveBot;
+					BlockWaveBot.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got blockwave bot spawn tile at (%.2f|%.2f)", BlockWaveBot.m_Center.x, BlockWaveBot.m_Center.y);
+					m_BlockWaveBot.push_back(BlockWaveBot);
+				}
+				else if (Index == TILE_BLOCKWAVE_HUMAN)
+				{
+					CBlockWaveHumanTile BlockWaveHuman;
+					BlockWaveHuman.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got blockwave Human spawn tile at (%.2f|%.2f)", BlockWaveHuman.m_Center.x, BlockWaveHuman.m_Center.y);
+					m_BlockWaveHuman.push_back(BlockWaveHuman);
 				}
 				if(Index >= ENTITY_OFFSET)
 				{
@@ -7821,6 +7932,11 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+//#####################################################################
+//weird whisper using server messages (broken with dummys)            #
+//the weird whisper bcs it doesnt send client that its an ddnet server#
+//#####################################################################
+
 	if (!CheckClientID2(ClientID))
 		return;
 
@@ -7872,8 +7988,10 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		if (m_apPlayers[i] && i != VictimID && i != ClientID)
 		{
 			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
+			{
 				SendChatTarget(i, aBuf);
-}
+			}
+		}
 	}
 }
 
@@ -7957,7 +8075,7 @@ int CGameContext::FindNextBomb()
 
 
 	//debug print the average bomb player pos
-	char aBuf[1024];
+	//char aBuf[1024];
 	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
 	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 
@@ -8045,8 +8163,8 @@ int CGameContext::FindNextBomb()
 					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
 
 					//|a| |b|
-					abs(a);
-					abs(b);
+					a = abs(a);
+					b = abs(b); 
 
 					int c = sqrt(a + b); //pythagoras rocks
 					Dist += c; //store all distances to all players

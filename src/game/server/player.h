@@ -42,8 +42,6 @@ public:
 
 	void FindDuplicateSkins();
 
-	void MoneyTransaction(int Amount, const char *Description);
-
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -182,6 +180,8 @@ public:
 
 
 	//usefull everywhere
+	void MoneyTransaction(int Amount, const char *Description);
+	bool IsInstagibMinigame();
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 
@@ -203,7 +203,7 @@ public:
 	char m_aAsciiFrame14[64];
 	char m_aAsciiFrame15[64];
 
-	char m_aAsciiPublishState[3]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
+	char m_aAsciiPublishState[4]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
 	int m_AsciiAnimLen; //not used yet
 	int m_AsciiAnimSpeed;
 	int m_AsciiWatchFrame;
@@ -244,6 +244,11 @@ public:
 	int m_BombGamesWon;
 	int m_BombBanTime;
 	int m_BombTicksUnready;
+
+	//blockwave
+
+	bool m_IsBlockWaving;
+	bool m_IsBlockWaveDead;
 
 	//chidraqul3 (minigame)
 	int m_GoldRespawnDelay;
@@ -337,6 +342,12 @@ public:
 	char m_LastLogoutIGN4[32];
 	char m_LastLogoutIGN5[32];
 
+	int m_iLastLogoutIGN1_usage;
+	int m_iLastLogoutIGN2_usage;
+	int m_iLastLogoutIGN3_usage;
+	int m_iLastLogoutIGN4_usage;
+	int m_iLastLogoutIGN5_usage;
+
 	char m_aIP_1[32];
 	char m_aIP_2[32];
 	char m_aIP_3[32];
@@ -361,6 +372,9 @@ public:
 	char m_money_transaction8[512];
 	char m_money_transaction9[512];
 
+	int m_TradeMoney;
+	int m_TradeItem;
+	int m_TradeID;
 	int m_GangsterBagMoney;
 
 	void JailPlayer(int seconds);
@@ -519,6 +533,10 @@ public:
 	//########
 	//extras
 	//########
+
+	//miscelallaouos
+	bool m_autospreadgun;
+	bool m_lasergun;
 
 	//hook
 	int m_HookPower; // 0=off 1=rainbow 2=bloody

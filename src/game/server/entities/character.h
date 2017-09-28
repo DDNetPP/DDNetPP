@@ -88,7 +88,7 @@ public:
 	void Rescue();
 
 	int NeededFaketuning() {return m_NeededFaketuning;}
-	bool IsAlive() const { return m_Alive; }
+	bool IsAlive() const { return m_Alive; } 
 	bool IsPaused() const { return m_Paused; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
@@ -187,13 +187,13 @@ private:
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
 
-	// z.B. startzeit w�re jetzt, die zeit wie lange die animation geht w�re 1 sekunde
-	// dann w�re m_AngleTickStart = Server()->Tick() // = die jetzige zeit
+	// z.B. startzeit waere jetzt, die zeit wie lange die animation geht w�re 1 sekunde
+	// dann waere m_AngleTickStart = Server()->Tick() // = die jetzige zeit
 	// und m_AngleTickTime = Server()->TickSpeed() // eine sekunde
 
-	// m_AngleFrom ist die startposition, also z.B. 0� (dann guckt er glaub ich nach rechts)
-	// m_AngleTo dann z.B. 90� (guckt nach unten)
-	// d.h. er dreht sich von jetzt bis in einer sekunde um 90�
+	// m_AngleFrom ist die startposition, also z.B. 0(grad) (dann guckt er glaub ich nach rechts)
+	// m_AngleTo dann z.B. 90(grad) (guckt nach unten)
+	// d.h. er dreht sich von jetzt bis in einer sekunde um 90(grad)
 	float m_AngleFrom; //
 	float m_AngleTo;
 	int m_AngleTickStart;
@@ -204,11 +204,10 @@ private:
 	int m_EmoteTickNextFast;
 	int m_HookTickNext;
 	//int m_AimbotSwitchTick;
-	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man wei� ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
+	bool m_AimbotMode; // wenn true, dann ist aimbot aktiviert, bei false halt nicht wozu? damit man weiss ob der bot den aimbot an hat oder halt random durch die gegend guckt? ne brauchts eig nich oder? lass erstmal ohne
 	bool m_MoveMode;
 	bool m_LeftMM;
 	
-//	int count; // testy
 	int m_DummyFinishes;
 
 
@@ -239,6 +238,7 @@ public:
 	void MoveTee(int x, int y);
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
+	bool HasWeapon(int weapon);
 
 	//Chillintelligenz
 	void CITick();
@@ -345,8 +345,12 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-
-
+	//dummymode 25 FNN vars
+	bool m_Dummy_nn_ready;
+	bool m_Dummy_nn_touched_by_humans;
+	int m_Dummy_nn_ready_time;
+	int m_FNN_CurrentMoveIndex;
+	int m_aRecMove[32768];
 
 
 	//dummymode 31 vars (ChillBlock5 police guard)
@@ -508,7 +512,7 @@ public:
 	void SetWeaponGot(int Type, bool Value) { m_aWeapons[Type].m_Got = Value; };
 	int GetWeaponAmmo(int Type) { return m_aWeapons[Type].m_Ammo; };
 	void SetWeaponAmmo(int Type, int Value) { m_aWeapons[Type].m_Ammo = Value; };
-	bool IsAlive() { return m_Alive; };
+	/*inline*/ bool IsAlive() { return m_Alive; }; //testy inline by ChillerDragon
 	void SetEmoteType(int EmoteType) { m_EmoteType = EmoteType; };
 	void SetEmoteStop(int EmoteStop) { m_EmoteStop = EmoteStop; };
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Ninja.m_ActivationDir = ActivationDir; };

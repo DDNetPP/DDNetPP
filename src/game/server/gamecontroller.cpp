@@ -710,8 +710,6 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 			pChr->GiveWeapon(WEAPON_GUN, -1);
 		}
 	}
-
-
 }
 
 void IGameController::DoWarmup(int Seconds)

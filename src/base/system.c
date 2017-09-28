@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-
+ 
 #include "system.h"
 #include "confusables.h"
 
@@ -167,7 +167,7 @@ void dbg_msg_thread(void *v)
 void dbg_enable_threaded()
 {
 	Queue *q;
-	void *Thread;
+	void *Thread; 
 
 	q = &log_queue;
 	q->begin = 0;
@@ -315,11 +315,12 @@ static void logger_file(const char *line)
 
 void dbg_logger_stdout() { dbg_logger(logger_stdout); }
 
+
 void dbg_logger_debugger() { dbg_logger(logger_debugger); }
 void dbg_logger_file(const char *filename)
 {
-	//logfile = io_open(filename, IOFLAG_WRITE); //overwrite
-	logfile = io_open(filename, IOFLAG_APPEND);
+	logfile = io_open(filename, IOFLAG_WRITE); //overwrite
+	//logfile = io_open(filename, IOFLAG_APPEND);
 	//test dies 
 	if(logfile)
 		dbg_logger(logger_file);

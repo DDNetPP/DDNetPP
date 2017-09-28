@@ -18,6 +18,9 @@
 #include "light.h"
 #include "flag.h"
 
+#include <fstream> //ChillerDragon saving bot move records
+#include <string> //ChillerDragon std::getline
+
 //following testy libaries mede by chillidrgehiun!   they caused some errors and i did some testy changes
 //if remvove this libs remove nuclear tests 
 //testycode: 2gf43
@@ -93,7 +96,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GUN;
 	}
-	m_Core.m_Pos = m_Pos;
 	
 	if (m_pPlayer->m_JailTime)
 	{
@@ -171,7 +173,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			}
 		}
 	}
-	else if (m_pPlayer->m_IsSuperModSpawn)
+	else if (m_pPlayer->m_IsSuperModSpawn && !m_pPlayer->IsInstagibMinigame())
 	{
 		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
 		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
@@ -521,6 +523,8 @@ void CCharacter::FireWeapon(bool Bot)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
+	if (m_pPlayer->m_autospreadgun && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		FullAuto = true;
 
 	// check if we gonna fire
 	bool WillFire = false;
@@ -666,7 +670,6 @@ void CCharacter::FireWeapon(bool Bot)
 			//Quests  (before police so no confusion i hope)
 			if (m_pPlayer->m_QuestState == 1) //if is questing and hammer quest
 			{
-				char aBuf[256];
 				if (GameServer()->IsSameIP(m_pPlayer->GetCID(), pTarget->GetPlayer()->GetCID()))
 				{
 					if ((m_pPlayer->m_QuestStateLevel == 4 && pTarget->m_FreezeTime == 0) || // freezed quest
@@ -935,35 +938,143 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				Lifetime = (int)(Server()->TickSpeed()*GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
-			CProjectile *pProj = new CProjectile
-			(
-				GameWorld(),
-				WEAPON_GUN,//Type
-				m_pPlayer->GetCID(),//Owner
-				ProjStartPos,//Pos
-				Direction,//Dir
-				Lifetime,//Span
-				0,//Freeze
-				0,//Explosive
-				0,//Force
-				-1,//SoundImpact
-				WEAPON_GUN//Weapon
-			);
+			if (m_pPlayer->m_autospreadgun)
+			{
+				//idk if this is the right place to set some shooting speed but yolo
+				//just copied the general code for all weapons and put it here
+				if (!m_ReloadTimer)
+				{
+					float FireDelay;
+					if (!m_TuneZone)
+						GameServer()->Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+					else
+						GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+					m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
+				}
 
-			// summon meteor
-			//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
+				//----- ChillerDragon tried to create 2nd projectile -----
+				//Just copy and pasted the whole code agian
+				float a = GetAngle(Direction);
+				a += (0, 0.070f) * 2;
 
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
+				CProjectile *pProj_test = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a), sinf(a)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
 
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
+				CProjectile *pProj_test2 = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a - 0.070f), sinf(a - 0.070f)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
 
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+				CProjectile *pProj_test3 = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						vec2(cosf(a - 0.170f), sinf(a - 0.170f)),//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
+
+				CProjectile *pProj = new CProjectile
+					(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						Direction,//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1,//SoundImpact
+						WEAPON_GUN//Weapon
+						);
+
+				// pack the Projectile and send it to the client Directly
+				CNetObj_Projectile p;
+				pProj->FillInfo(&p);
+
+				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+				Msg.AddInt(1);
+				for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
+					Msg.AddInt(((int *)&p)[i]);
+
+				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
+			else if (m_pPlayer->m_lasergun)
+			{
+				int RifleSpread = 1;
+				float Spreading[] = { -0.070f, 0, 0.070f };
+				for (int i = -RifleSpread; i <= RifleSpread; ++i)
+				{
+					float a = GetAngle(Direction);
+					a += Spreading[i + 1];
+					new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), 0);
+				}
+
+
+				// summon meteor
+				//CMeteor *pMeteor = new CMeteor(GameWorld(), ProjStartPos);
+			}
+			else
+			{
+				CProjectile *pProj = new CProjectile
+				(
+					GameWorld(),
+					WEAPON_GUN,//Type
+					m_pPlayer->GetCID(),//Owner
+					ProjStartPos,//Pos
+					Direction,//Dir
+					Lifetime,//Span
+					0,//Freeze
+					0,//Explosive
+					0,//Force
+					-1,//SoundImpact
+					WEAPON_GUN//Weapon
+				);
+
+				// pack the Projectile and send it to the client Directly
+				CNetObj_Projectile p;
+				pProj->FillInfo(&p);
+
+				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+				Msg.AddInt(1);
+				for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
+					Msg.AddInt(((int *)&p)[i]);
+
+				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
+
+
 		}
 
 		if (m_pPlayer->m_QuestState == 3) //race
@@ -1169,6 +1280,14 @@ void CCharacter::FireWeapon(bool Bot)
 		else
 			GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		//if (m_pPlayer->m_autospreadgun) //ddpp faster shooting
+		//{
+		//	m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
+		//}
+		//else
+		//{
+		//	m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		//}
 	}
 }
 
@@ -1710,16 +1829,16 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	//if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
-	//{
-	//	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
-	//	{
-	//		m_Dummy_nn_touched_by_humans = true;
-	//		GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "DONT TOUCH ME WEAPON OMG");
-	//	}
+	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
+	{
+		if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
+		{
+			m_Dummy_nn_touched_by_humans = true;
+			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "DONT TOUCH ME WEAPON OMG");
+		}
 
-	//	//return false; //removes hammer knockback
-	//}
+		//return false; //removes hammer knockback
+	}
 
 
 	//zCatch ChillerDragon
@@ -2878,17 +2997,43 @@ void CCharacter::HandleTiles(int Index)
 	//ROOMTILE
 	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
 	{
-		m_Core.m_Pos = m_PrevSavePos;
-		m_Pos = m_PrevSavePos;
-		m_PrevPos = m_PrevSavePos;
-		m_Core.m_Vel = vec2(0, 0);
-		m_Core.m_HookedPlayer = -1;
-		m_Core.m_HookState = HOOK_RETRACTED;
-		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
-		GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
-		m_Core.m_HookPos = m_Core.m_Pos;
-		if(!m_WasInRoom)
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+		//ChillerDragon upgrade to not cheat the map or stuff and tele too far
+
+		//if (distance(m_Core.m_Pos, m_PrevSavePos) > 10 * 32)
+		//{
+			//dbg_msg("debug","Player's last pos too nearby distance: INT %d FLOAT %2.f", distance(m_Core.m_Pos, m_PrevSavePos), distance(m_Core.m_Pos, m_PrevSavePos));
+			if (m_Core.m_Vel.x > 0)
+			{
+				m_Core.m_Pos = vec2(m_Core.m_Pos.x - 1 * 32, m_Core.m_Pos.y);
+				m_Pos = vec2(m_Pos.x - 1 * 32,m_Pos.y);
+				m_Core.m_Vel = vec2(-3, 0);
+			}
+			else
+			{
+				m_Core.m_Pos = vec2(m_Core.m_Pos.x + 1 * 32, m_Core.m_Pos.y);
+				m_Pos = vec2(m_Pos.x + 1 * 32, m_Pos.y);
+				m_Core.m_Vel = vec2(+3, 0);
+			}
+		//}
+		//else
+		//{
+		//	dbg_msg("debug","distance ok loading PrevSavePos distance: INT %d FLOAT %2.f", distance(m_Core.m_Pos, m_PrevSavePos), distance(m_Core.m_Pos, m_PrevSavePos));
+
+		//	m_Core.m_Pos = m_PrevSavePos;
+		//	m_Pos = m_PrevSavePos;
+		//	m_PrevPos = m_PrevSavePos;
+		//	m_Core.m_Vel = vec2(0, 0);
+		//	m_Core.m_HookedPlayer = -1;
+		//	m_Core.m_HookState = HOOK_RETRACTED;
+		//	m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+		//	GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+		//	m_Core.m_HookPos = m_Core.m_Pos;
+		//}
+
+		if (!m_WasInRoom)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+		}
 
 		m_WasInRoom=true;
 	}
@@ -4416,7 +4561,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		}
 		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
 		{
-			GameServer()->WinInsta1on1(Killer);
+			GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
 		}
 	}
 
@@ -4473,6 +4618,15 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2, Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1);
 				GameServer()->StopBalanceBattle();
 			}
+		}
+	}
+
+	//blockwave minigame
+	if (m_pPlayer->m_IsBlockWaving)
+	{
+		if (GameServer()->CountBlockWavePlayers() < 2)
+		{
+			GameServer()->m_BlockWaveGameState = 0; //stop blockwaving game
 		}
 	}
 
@@ -8712,6 +8866,272 @@ void CCharacter::DummyTick()
 				m_Dummy_sent_chat_msg = 0;
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 25) //ChillerDraguns testy fake nural network lol (2.0 revived)
+		{
+			/*
+			######################################################
+			#     DummyMode 25      The    FNN    Mode           #
+			#           [FNN] == [FAKENEURALNETWORK]             #
+			######################################################
+			ModeStructure:
+			
+			* Spawn -> goto hardcodet spawn pos.x 353 * 32
+			
+			* Check for human interactions and save them in the var m_Dummy_nn_touched_by_humans
+	
+			*/
+			char aBuf[256];
+
+			if (!m_Dummy_nn_ready) //first get the right start pos
+			{
+				m_Input.m_Hook = 0;
+				m_Input.m_Jump = 0;
+				m_Input.m_Direction = 0;
+				m_LatestInput.m_Fire = 0;
+				m_Input.m_Fire = 0;
+
+
+
+				if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 + 1)
+				{
+					if (IsGrounded()) //only walk on ground because air is unpredictable
+					{
+						if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 + 10) //in 1tile nähe langsam laufen 
+						{
+							if (m_Core.m_Vel.x > -0.04f)
+							{
+								m_Input.m_Direction = -1;
+							}
+						}
+						else
+						{
+							m_Input.m_Direction = -1;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 - 1)
+				{
+					if (IsGrounded()) //only walk on ground because air is unpredictable
+					{
+						if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 - 10) //in 1tile nähe langsam laufen 
+						{
+							if (m_Core.m_Vel.x < 0.04f)
+							{
+								m_Input.m_Direction = 1;
+							}
+						}
+						else
+						{
+							m_Input.m_Direction = 1;
+						}
+					}
+				}
+				else //correct position
+				{
+					if (IsGrounded()) //only start on ground because air is unpredictable
+					{
+						m_Dummy_nn_ready = true;
+						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Found start position -> starting process");
+					}
+				}
+
+				//Catch errors
+				if (m_Dummy_nn_ready_time > 300)
+				{
+					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Starting process failed. Get in start position took too long -> restarting...");
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+				m_Dummy_nn_ready_time++;
+				//char aBuf[256];
+				//str_format(aBuf, sizeof(aBuf), "time: %d", m_Dummy_nn_ready_time);
+				//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+
+			}
+			else //if the bot has the right start pos start doing random stuff 
+			{
+				/*
+
+
+				dummy sub mode structure:
+
+				old used a bool (m_Dummy_nn_write) which has to be changed manually in the source.
+
+				new system uses chat command /dmm25 = dummmymodemode25 to choose submodes.
+				submodes:
+				0					write
+				1					read highest fitness
+				2					read highest distance
+
+				*/
+
+
+				int m_aMoveID = -1;
+				int Hooked = false;
+				int PullID = -1;
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					CCharacter *pChar = GameServer()->GetPlayerChar(i);
+
+					if (!pChar || !pChar->IsAlive() || pChar == this)
+						continue;
+
+					if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
+					{
+						Hooked = true;
+						m_aMoveID = i;
+						m_Dummy_nn_touched_by_humans = true;
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] DONT TOUCH ME HOOK WTF");
+					}
+				}
+				if (m_Core.m_HookState == HOOK_GRABBED)
+				{
+					m_Dummy_nn_touched_by_humans = true;
+					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont get in my hook -.-");
+				}
+				//selfmade noob code check if pChr is too near and coudl touched the bot
+				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+				if (pChr && pChr->IsAlive() && pChr != this)
+				{
+					if (pChr->m_Pos.x < m_Core.m_Pos.x + 60 && pChr->m_Pos.x > m_Core.m_Pos.x - 60 && pChr->m_Pos.y < m_Core.m_Pos.y + 60 && pChr->m_Pos.y > m_Core.m_Pos.y - 60)
+					{
+						m_Dummy_nn_touched_by_humans = true;
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont touch my body with yours pls");
+					}
+
+				}
+
+
+				if (m_pPlayer->m_dmm25 == 0) //submode[0] write
+				{
+					//m_pPlayer->m_TeeInfos.m_Name = "writing...";
+					//m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
+
+
+					m_pPlayer->m_Dummy_nn_time++;
+
+					int rand_Direction = rand() % 3 - 1; //-1 0 1
+					int rand_Fire = rand() % 2; // 1 0
+					int rand_Jump = rand() % 2;
+					int rand_Hook = rand() % 2;
+					int rand_Weapon = rand() % 4;
+					int rand_TargetX = rand() % 401 - 200;
+					int rand_TargetY = rand() % 401 - 200;
+
+					m_Input.m_Direction = rand_Direction;
+					m_Input.m_Jump = rand_Jump;
+					m_Input.m_Hook = rand_Hook;
+					m_Input.m_TargetX = rand_TargetX;
+					m_Input.m_TargetY = rand_TargetY;
+					m_LatestInput.m_TargetX = rand_TargetX;
+					m_LatestInput.m_TargetY = rand_TargetY;
+
+					//save values in array
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Direction;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Jump;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Hook;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetX;
+					m_FNN_CurrentMoveIndex++;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetY;
+					m_FNN_CurrentMoveIndex++;
+
+					if (rand_Weapon == 0)
+					{
+						SetWeapon(0); //hammer
+					}
+					else if (rand_Weapon == 1)
+					{
+						SetWeapon(1); //gun
+					}
+					else if (rand_Weapon == 2)
+					{
+						if (m_aWeapons[WEAPON_SHOTGUN].m_Got)
+						{
+							SetWeapon(2); //shotgun
+						}
+					}
+					else if (rand_Weapon == 3)
+					{
+						if (m_aWeapons[WEAPON_GRENADE].m_Got)
+						{
+							SetWeapon(3); //grenade
+						}
+					}
+					else if (rand_Weapon == 4)
+					{
+						if (m_aWeapons[WEAPON_RIFLE].m_Got)
+						{
+							SetWeapon(4); //laser
+						}
+					}
+					else
+					{
+						str_format(aBuf, sizeof(aBuf), "Error unknown weapon:", rand_Weapon);
+						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+					}
+					if (rand_Fire == 1 && m_FreezeTime == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+
+
+
+
+
+					if (m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed)
+					{
+						if (Server()->Tick() % 10 == 0)
+						{
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+						}
+						if (Server()->Tick() % 40 == 0)
+						{
+							if (m_Dummy_nn_touched_by_humans) 
+							{
+								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Got touched by Humans --> DELETE RUN");
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+							}
+							else //no interaction with humans --> save normal
+							{
+								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
+								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+
+								//saving run to file
+								std::ofstream savefile;
+								char aFilePath[512];
+								str_format(aFilePath, sizeof(aFilePath), "FNN/move.txt");
+								savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
+								if (savefile.is_open())
+								{
+									//for (int i = 0; i < 32768; i++)
+									for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+									{
+										savefile << m_aRecMove[i];
+										savefile << std::endl;
+									}
+								}
+								else
+								{
+									dbg_msg("FNN","failed to save record. failed to open file '%s'", aFilePath);
+								}
+								savefile.close();
+								m_FNN_CurrentMoveIndex = 0;
+							}
+						}
+					}
+				}
+				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read
+				{
+
+				}
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 29) //mode 18 (tryhardwayblocker cb5)    with some more human wayblock style not so try hard a cool chillblock5 blocker mode
 		{
 			m_Input.m_Hook = 0;
@@ -11745,6 +12165,18 @@ void CCharacter::FreezeAll(int seconds)
 	}
 }
 
+bool CCharacter::HasWeapon(int weapon)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_aWeapons[weapon].m_Got)
+	{
+		return true;
+	}
+	return false;
+}
+
 void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 {
 #if defined(CONF_DEBUG)
@@ -12444,8 +12876,8 @@ int CCharacter::CIGetDestDist()
 	int a = m_Core.m_Pos.x - g_Config.m_SvCIdestX;
 	int b = m_Core.m_Pos.y - g_Config.m_SvCIdestY;
 	//|a| |b|
-	abs(a);
-	abs(b);
+	a = abs(a);
+	b = abs(b);
 
 	int c = sqrt(a + b);
 
@@ -12457,7 +12889,6 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	char aBuf[128];
 	//zCatch instagib 
 	if (g_Config.m_SvInstagibMode)
 	{

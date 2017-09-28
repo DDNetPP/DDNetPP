@@ -684,7 +684,7 @@ void CGameTeams::OnQuestFinish(CPlayer * Player)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	char aBuf[256];
+	//char aBuf[256];
 	float time = (float)(Server()->Tick() - GetStartTime(Player))
 		/ ((float)Server()->TickSpeed());
 	if (time < 0.000001f)

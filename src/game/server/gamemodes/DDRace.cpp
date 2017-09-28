@@ -33,10 +33,10 @@ bool CGameControllerDDRace::OnEntity(int Index, vec2 Pos)
 	//if(IGameController::OnEntityOld(Index, Pos))
 	//	return true;
 
-int Team = -1;
-	if(Index == ENTITY_FLAGSTAND_RED) Team = TEAM_RED;
-	if(Index == ENTITY_FLAGSTAND_BLUE) Team = TEAM_BLUE;
-	if(Team == -1 || m_apFlags[Team])
+	int Team = -1;
+	if (Index == ENTITY_FLAGSTAND_RED) Team = TEAM_RED;
+	if (Index == ENTITY_FLAGSTAND_BLUE) Team = TEAM_BLUE;
+	if (Team == -1 || m_apFlags[Team])
 		return false;
 
 	CFlag *F = new CFlag(&GameServer()->m_World, Team);

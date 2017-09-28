@@ -1,11 +1,21 @@
 ~~~ BUGS ~~~
 
 
-#### BALANCE BATTLE #######
-BALANCE BATTLES CRASHE THE SERVER EVERYTIME!
+~~~ LESS IMPORTANT BUGS ~~~
 
+## Jail ##
+there is a crashbug with the jail command
+(check crash logs)
 
-
+## pChr != this ##
+while working on FNN i expirienced a bug after touching the bot
+and then selfkilling. The bot keeps spamming in chat "stup touch me" 
+and then i added to this line:
+	if (pChr && pChr->IsAlive())
+this:
+	if (pChr && pChr->IsAlive() && pChr != this)
+what fixed it. idk if this also causes some selfblock points or something like that or if this error is catched somewhere else.
+this can also fuck some dummymodes idk better check it on time
 
 ## commands ##
 Almost all chat commands added require a character to be executed or it returns.
@@ -23,6 +33,11 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+
+## drop weapons ##
+on vote (f4/f3) drop the current active weapon if not gun or hammer
+drop them in the map (like in survival) and all people can collect it
+
 ## hitman blocker ##
 '/bounty add <money> <player>' and who ever blocks this tee first gets all the <money>
 '/bounty check <player>' to check how much money u get
@@ -32,7 +47,7 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 ## trade command ##
 '/trade invite <item> <price> <player>'
 '/trade save_accept <item> <price> <player>' #i know this command is long but it is anti scam
-'/trade accept <player>' #totally insecure but fasttyping
+#'/trade accept <player>' #totally insecure but fasttyping #doesnt work with spaces in name
 Items: grenade,shotgun,rifle, homing missiles ammo
 
 ## flag drops ##

@@ -182,7 +182,9 @@ void CPlayer::Reset()
 	m_ci_latest_dest_dist = 0;
 	m_Insta1on1_id = -1;
 	m_BalanceBattle_id = -1;
-
+	m_TradeItem = -1;
+	m_TradeMoney = -1;
+	m_TradeID = -1;
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -341,7 +343,7 @@ void CPlayer::Tick()
 	{
 		if (g_Config.m_SvAllowMinigame == 0)
 		{
-			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled minigames.");
+			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
 			m_Ischidraqul3 = false;
 		}
 		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
@@ -654,7 +656,7 @@ void CPlayer::Snap(int SnappingClient)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing) //rainbow (hide finit rainbow if in bomb game)
+	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -766,7 +768,7 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 
 	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
-		GameServer()->WinInsta1on1(m_Insta1on1_id);
+		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
 	}
 
 	KillCharacter();
@@ -1205,6 +1207,7 @@ void CPlayer::Logout()
 	//m_JailTime = 0; //logout doesnt release :p
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
+	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
 	m_pvp_arena_kills = 0;
@@ -1311,12 +1314,28 @@ void CPlayer::Save()
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
 	//if (aName == m_LastLogoutIGN1 || aName == m_LastLogoutIGN2 || aName == m_LastLogoutIGN3 || aName == m_LastLogoutIGN4 || aName == m_LastLogoutIGN5)
-	if (!str_comp(aName, m_LastLogoutIGN1), !str_comp(aName, m_LastLogoutIGN2), !str_comp(aName, m_LastLogoutIGN3), !str_comp(aName, m_LastLogoutIGN4), !str_comp(aName, m_LastLogoutIGN5))
+	if (!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
 	{
-		//found name in history 
-		//ignore for now...
-
-		//TODO: add a counter for this name to save how many times this name was used
+		if (!str_comp(aName, m_LastLogoutIGN1))
+		{
+			m_iLastLogoutIGN1_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN2))
+		{
+			m_iLastLogoutIGN2_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN3))
+		{
+			m_iLastLogoutIGN3_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN4))
+		{
+			m_iLastLogoutIGN4_usage++;
+		}
+		else if (!str_comp(aName, m_LastLogoutIGN5))
+		{
+			m_iLastLogoutIGN5_usage++;
+		}
 	}
 	else //new name --> add it in history and overwrite the oldest
 	{
@@ -1332,6 +1351,12 @@ void CPlayer::Save()
 		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
 		str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", m_LastLogoutIGN1);
 		str_format(m_LastLogoutIGN1, sizeof(m_LastLogoutIGN1), "%s", aName);
+
+		m_iLastLogoutIGN5_usage = m_iLastLogoutIGN4_usage;
+		m_iLastLogoutIGN4_usage = m_iLastLogoutIGN3_usage;
+		m_iLastLogoutIGN3_usage = m_iLastLogoutIGN2_usage;
+		m_iLastLogoutIGN2_usage = m_iLastLogoutIGN1_usage;
+		m_iLastLogoutIGN1_usage = 0;
 	}
 
 
@@ -1749,6 +1774,8 @@ void CPlayer::CalcExp()
 		update this var if u increase the level sys
 
 
+		TODO: add a makro for max lvl
+
 		*/
 
 }
@@ -1787,6 +1814,12 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	CALL_STACK_ADD();
 #endif
 	m_money += Amount;
+#if defined(CONF_DEBUG)
+	if (m_money < 0)
+	{
+		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
+	}
+#endif
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
 	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);
@@ -1798,3 +1831,14 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
 	str_format(m_money_transaction0, sizeof(m_money_transaction0), Description);
 }
+
+bool CPlayer::IsInstagibMinigame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
+		return true;
+	return false;
+}
+

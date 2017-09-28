@@ -179,7 +179,7 @@ public:
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID);
+	void SendBroadcast(const char *pText, int ClientID, bool supermod = false);
 
 	void List(int ClientID, const char* filter);
 
@@ -229,9 +229,8 @@ public:
 	void ChatCommands();
 	void DummyChat();
 	//Instagib Survival
-	void WinInsta1on1(int WinnerID);
+	void WinInsta1on1(int WinnerID, int LooserID);
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);
-	void SurvivalTick();
 	int m_survival_gamestate; //0=prepearing 1=running 2=deathmatch
 	int m_survival_delay;
 
@@ -245,7 +244,7 @@ public:
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountIngameHumans();
-	void SendBroadcastAll(const char *pText);
+	void SendBroadcastAll(const char *pText, bool supermod = false);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
@@ -268,6 +267,17 @@ public:
 	bool SurvivalPickWinner();
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch
 	int m_survivallobbycountdown;
+
+	//blockwave
+	
+	void BlockWaveGameTick();
+	void BlockWaveEndGame();
+	void BlockWaveStartNewGame();
+	void SendBlockWaveBroadcast(const char *pMsg);
+	int CountBlockWavePlayers();
+	int m_BlockWaveGameState; // 0=offline 1=preparing 2=round running
+	int m_BlockWavePrepareDelay;
+	int m_BlockWaveRound;
 
 	//QUESTS
 
@@ -338,8 +348,10 @@ public:
 	//char aTestMsg[1024];
 	//int TestShareValue;
 	int m_CucumberShareValue;
-	char aBroadcastMSG[128];
 
+
+	char aBroadcastMSG[128];
+	int m_iBroadcastDelay;
 
 	struct CJail // probably doesn't belong here, but whatever
 	{
@@ -390,6 +402,19 @@ public:
 	};
 	std::vector<CSurvivalDeathmatchTile> m_SurvivalDeathmatch;
 
+	struct CBlockWaveBotTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockWaveBotTile> m_BlockWaveBot;
+
+	struct CBlockWaveHumanTile // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockWaveHumanTile> m_BlockWaveHuman;
 private:
 
 	bool m_VoteWillPass;
@@ -447,6 +472,12 @@ private:
 	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
+
+	//SQL
+	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	//rcon api
+	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
 
 	//HACK ChillerDragon
 	//static void ConHack(IConsole::IResult *pResult, void *pUserData);
@@ -533,7 +564,11 @@ private:
 	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 
+	//====================
 	//ChillerDragon (ddpp)
+	//====================
+
+	//chat commands
 
 	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
@@ -542,7 +577,6 @@ private:
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
@@ -559,7 +593,10 @@ private:
 
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
+
+	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
+	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
 
 	//police
 	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
@@ -577,6 +614,7 @@ private:
 	static void ConBank(IConsole::IResult *pResult, void *pUserData);
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrade(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
@@ -600,6 +638,7 @@ private:
 
 	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
 	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
+	static void ConBlockWave(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
 	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
