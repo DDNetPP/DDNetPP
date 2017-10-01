@@ -506,8 +506,54 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 				return -1;
 		}
 
-	// set the client name
-	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//ChillerDragons Badname protection
+	//const int BadNamesLen = 8;
+	//char aBadNames[BadNamesLen][16] = {"ChillerDragon","NotNice","FokPutin","Dumpfbacke","doofman","gemeini","hirsemensch","ziegenfokker"};
+	//bool IsBadName = false;
+
+	//for (int i = 0; i < BadNamesLen; i++)
+	//{
+	//	if (!str_comp(aBadNames[i], pName))
+	//	{
+	//		IsBadName = true;
+	//		break;
+	//	}
+	//}
+
+	//// set the client name
+	//if (IsBadName)
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
+
+	//ChillerDragons Clan Protection (for real clans not Chilli.* xd)
+	//const int MembersLen = 8;
+	//char aMembers[MembersLen][16] = { "ChillerDragon","NotNice","FokPutin","Dumpfbacke","doofman","gemeini","hirsemensch","ziegenfokker" };
+	//bool IsMember = false;
+
+	//for (int i = 0; i < MembersLen; i++)
+	//{
+	//	if (!str_comp(aMembers[i], pName))
+	//	{
+	//		IsMember = true;
+	//		break;
+	//	}
+	//}
+
+	//// set the client name
+	//if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "test"))
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
+
 	return 0;
 }
 
