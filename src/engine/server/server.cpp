@@ -42,6 +42,11 @@
 	#include <windows.h>
 #endif
 
+// DDPP ( ChillerDragon )
+#include <string>
+#include <fstream>
+
+
 static const char *StrLtrim(const char *pStr)
 {
 	while(*pStr)
@@ -553,6 +558,50 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 	//{
 	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
 	//}
+
+	//Clan Protection with textfiles by PeBox
+
+	bool IsMember = false;
+	std::vector<std::string> vFileData;
+
+	std::string line;
+	std::ifstream sNameData("ddpp_scripts/member.txt");
+
+	if (sNameData.is_open())
+	{
+		while (!sNameData.eof())
+		{
+			getline(sNameData, line);
+			vFileData.push_back(line);
+		}
+		sNameData.close();
+	}
+	else
+	{
+		dbg_msg("File", "Unable to open ddpp_scripts/member.txt");
+	}
+
+	for (int i = 0; i < vFileData.size(); i++)
+	{
+
+
+		if (!str_comp(vFileData[i].c_str(), pName))
+		{
+			IsMember = true;
+			break;
+		}
+
+	}
+
+	// set the client name
+	if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "RIXP"))
+	{
+		str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	}
+	else
+	{
+		str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	}
 
 	return 0;
 }
