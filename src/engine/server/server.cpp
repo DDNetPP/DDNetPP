@@ -559,49 +559,50 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
 	//}
 
-	//Clan Protection with textfiles by PeBox
+	//Clan Protection with textfiles by PeBox //TODO: this system has massive bugs it works delayed and uses the old clan:
+	//I can join as "ChillerDragon" with the clantag "RIXP" and nothing happens but when i change the name to "ChillerDragon2" i get named "fekerdregun"
 
-	bool IsMember = false;
-	std::vector<std::string> vFileData;
+	//bool IsMember = false;
+	//std::vector<std::string> vFileData;
 
-	std::string line;
-	std::ifstream sNameData("ddpp_scripts/member.txt");
+	//std::string line;
+	//std::ifstream sNameData("ddpp_scripts/member.txt");
 
-	if (sNameData.is_open())
-	{
-		while (!sNameData.eof())
-		{
-			getline(sNameData, line);
-			vFileData.push_back(line);
-		}
-		sNameData.close();
-	}
-	else
-	{
-		dbg_msg("File", "Unable to open ddpp_scripts/member.txt");
-	}
+	//if (sNameData.is_open())
+	//{
+	//	while (!sNameData.eof())
+	//	{
+	//		getline(sNameData, line);
+	//		vFileData.push_back(line);
+	//	}
+	//	sNameData.close();
+	//}
+	//else
+	//{
+	//	dbg_msg("File", "Unable to open ddpp_scripts/member.txt");
+	//}
 
-	for (int i = 0; i < vFileData.size(); i++)
-	{
+	//for (int i = 0; i < vFileData.size(); i++)
+	//{
 
 
-		if (!str_comp(vFileData[i].c_str(), pName))
-		{
-			IsMember = true;
-			break;
-		}
+	//	if (!str_comp(vFileData[i].c_str(), pName))
+	//	{
+	//		IsMember = true;
+	//		break;
+	//	}
 
-	}
+	//}
 
-	// set the client name
-	if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "RIXP"))
-	{
-		str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
-	}
-	else
-	{
-		str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
-	}
+	//// set the client name
+	//if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "RIXP"))
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
 
 	return 0;
 }
