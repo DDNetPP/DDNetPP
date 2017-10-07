@@ -8680,72 +8680,69 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] broken command");
-	return;
 
-
-	//if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
-	//{
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG INFO ===");
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "Configurate some settings for the fng minigame.");
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "Use '/insta fng' or '/insta boomfng' to play fng.");
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "For all possible settings check '/fng cmdlist'");
-	//}
-	//else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
-	//{
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG SETTINGS ===");
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "'/fng autojoin <value>' 0=off 1=join fng 2=join boomfng on login");
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "'/fng hammertune <value>' 0=vanilla 1=fng");
-	//}
-	//else if (!str_comp_nocase(pResult->GetString(0), "autojoin"))
-	//{
-	//	if (pResult->NumArguments() > 1)
-	//	{
-	//		if (pResult->GetInteger(1) == 0)
-	//		{
-	//			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are no longer joining games on account login.");
-	//			pPlayer->m_aFngConfig[0] = '0';
-	//			return;
-	//		}
-	//		else if (pResult->GetInteger(1) == 1)
-	//		{
-	//			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining fng on account login.");
-	//			pPlayer->m_aFngConfig[0] = '1';
-	//			dbg_msg("cBug", "updated value to %c",pPlayer->m_aFngConfig[0]);
-	//			return;
-	//		}
-	//		else if (pResult->GetInteger(1) == 2)
-	//		{
-	//			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining boomfng on account login.");
-	//			pPlayer->m_aFngConfig[0] = '2';
-	//			return;
-	//		}
-	//	}
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] use '/fng autojoin <value>' and <value> has to be between 0 and 2");
-	//	return;
-	//}
-	//else if (!str_comp_nocase(pResult->GetString(0), "hammertune"))
-	//{
-	//	if (pResult->NumArguments() > 1)
-	//	{
-	//		if (pResult->GetInteger(1) == 0)
-	//		{
-	//			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using VANILLA hammer.");
-	//			pPlayer->m_aFngConfig[1] = '0';
-	//			return;
-	//		}
-	//		else if (pResult->GetInteger(1) == 1)
-	//		{
-	//			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using FNG hammer.");
-	//			pPlayer->m_aFngConfig[1] = '1';
-	//			return;
-	//		}
-	//	}
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] use '/fng hammertune <value>' and <value> has to be 1 or 0");
-	//	return;
-	//}
-	//else
-	//{
-	//	pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] unknown command check '/fng help' or '/fng cmdlist'.");
-	//}
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG INFO ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Configurate some settings for the fng minigame.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Use '/insta fng' or '/insta boomfng' to play fng.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "For all possible settings check '/fng cmdlist'");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "cmdlist"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG SETTINGS ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng autojoin <value>' 0=off 1=join fng 2=join boomfng on login");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng hammertune <value>' 0=vanilla 1=fng");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "autojoin"))
+	{
+		if (pResult->NumArguments() > 1)
+		{
+			if (pResult->GetInteger(1) == 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are no longer joining games on account login.");
+				pPlayer->m_aFngConfig[0] = '0';
+				return;
+			}
+			else if (pResult->GetInteger(1) == 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining fng on account login.");
+				pPlayer->m_aFngConfig[0] = '1';
+				dbg_msg("cBug", "updated value to %c",pPlayer->m_aFngConfig[0]);
+				return;
+			}
+			else if (pResult->GetInteger(1) == 2)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining boomfng on account login.");
+				pPlayer->m_aFngConfig[0] = '2';
+				return;
+			}
+		}
+		pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] use '/fng autojoin <value>' and <value> has to be between 0 and 2");
+		return;
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "hammertune"))
+	{
+		if (pResult->NumArguments() > 1)
+		{
+			if (pResult->GetInteger(1) == 0)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using VANILLA hammer.");
+				pPlayer->m_aFngConfig[1] = '0';
+				return;
+			}
+			else if (pResult->GetInteger(1) == 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using FNG hammer.");
+				pPlayer->m_aFngConfig[1] = '1';
+				return;
+			}
+		}
+		pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] use '/fng hammertune <value>' and <value> has to be 1 or 0");
+		return;
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] unknown command check '/fng help' or '/fng cmdlist'.");
+	}
 }

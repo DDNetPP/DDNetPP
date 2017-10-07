@@ -294,7 +294,7 @@ public:
 	int m_Insta1on1_score;
 	bool m_HideInsta1on1_killmessages;
 
-	//char m_aFngConfig[4]; //[0] = autojoin [1] = hammertune [2] = coming soon [3] = coming soon
+	char m_aFngConfig[4]; //[0] = autojoin [1] = hammertune [2] = coming soon [3] = coming soon
 
 	int m_BalanceBattle_id;
 	bool m_IsBalanceBatteling;

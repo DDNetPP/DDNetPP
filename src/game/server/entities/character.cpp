@@ -643,12 +643,11 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 			vec2 Dir;
-			//if (m_pPlayer->m_IsInstaArena_fng && m_pPlayer->m_aFngConfig[1] == 1)
-			//if (m_pPlayer->m_IsInstaArena_fng)
-			//{
-			//	pTarget->TakeHammerHit(this);
-			//}
-			//else
+			if (m_pPlayer->m_IsInstaArena_fng && m_pPlayer->m_aFngConfig[1] == '1')
+			{
+				pTarget->TakeHammerHit(this);
+			}
+			else
 			{
 				if (length(pTarget->m_Pos - m_Pos) > 0.0f)
 					Dir = normalize(pTarget->m_Pos - m_Pos);

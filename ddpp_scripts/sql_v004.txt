@@ -1,0 +1,2 @@
+ALTER TABLE Accounts
+ADD FngConfig VARCHAR(4) DEFAULT '';

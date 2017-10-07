@@ -173,7 +173,8 @@ CSql::CSql()
 		"RifleSpree					INTEGER			DEFAULT 0," \
 		"RifleShots					INTEGER			DEFAULT 0," \
 		"RifleWins					INTEGER			DEFAULT 0," \
-		"AsciiState					VARCHAR(3)		DEFAULT ''," \
+		"FngConfig					VARCHAR(4)		DEFAULT ''," \
+		"AsciiState					VARCHAR(4)		DEFAULT ''," \
 		"AsciiViewsDefault			INTEGER			DEFAULT 0," \
 		"AsciiViewsProfile			INTEGER			DEFAULT 0," \
 		"AsciiFrame0				VARCHAR(64)		DEFAULT ''," \

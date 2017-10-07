@@ -189,7 +189,7 @@ void CPlayer::Reset()
 	//m_aFngConfig[1] = '0';
 	//m_aFngConfig[2] = '0';
 	//m_aFngConfig[3] = '0';
-	//str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
+	str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -1398,7 +1398,7 @@ void CPlayer::Save()
 											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
+											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
 											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
 											  " WHERE `ID` = %i",
@@ -1416,7 +1416,7 @@ void CPlayer::Save()
 												m_aIP_1, m_aIP_2, m_aIP_3,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
-												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins,
+												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
 												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
 												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
 												m_AccountID
