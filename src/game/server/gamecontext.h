@@ -653,6 +653,7 @@ private:
 	static void ConHook(IConsole::IResult *pResult, void *pUserData);
 	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
 	static void ConBounty(IConsole::IResult *pResult, void *pUserData);
+	static void ConFng(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
 

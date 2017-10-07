@@ -202,10 +202,32 @@ void CQueryLogin::OnData()
 						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("RifleKills"));
 					}
 				}
+				//str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
 			m_pGameServer->SendChatTarget(m_ClientID, "Login successful.");
+
+			//Totally broken stuff it resets the values of ascii views ('/ascii stats') and behaves really weird. Before reviving this project make some intense tests
+			//dbg_msg("cBug", m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig);
+			//dbg_msg("cBug", "%c %c %c %c   - %s", m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0], m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[1], m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[2], m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[3], m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig);
+
+			//if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
+			//{
+			//	m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
+			//	m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
+			//	m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_idm = true;
+			//	if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+			//		m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+			//}
+			//else if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '2') //auto boomfng join
+			//{
+			//	m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
+			//	m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
+			//	m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_gdm = true;
+			//	if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+			//		m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+			//}
 		}
 	}
 	else

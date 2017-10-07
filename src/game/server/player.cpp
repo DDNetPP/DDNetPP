@@ -185,6 +185,11 @@ void CPlayer::Reset()
 	m_TradeItem = -1;
 	m_TradeMoney = -1;
 	m_TradeID = -1;
+	//m_aFngConfig[0] = '0';
+	//m_aFngConfig[1] = '0';
+	//m_aFngConfig[2] = '0';
+	//m_aFngConfig[3] = '0';
+	//str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -1380,7 +1385,7 @@ void CPlayer::Save()
 	//test more last igns (working)
 	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET"
 											  "  `Password` = '%s', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
-											  ", `LastGift` = %i" /*is actualy m_GiftDelay*/
+											  ", `LastGift` = %i" /*is actually m_GiftDelay*/
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
