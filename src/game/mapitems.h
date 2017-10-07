@@ -171,6 +171,7 @@ enum
 	TILE_SURVIVAL_DEATHMATCH, //127
 	TILE_BLOCKWAVE_HUMAN, //128
 	TILE_BLOCKWAVE_BOT, //129
+	TILE_FNG_SCORE, //130
 
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
 

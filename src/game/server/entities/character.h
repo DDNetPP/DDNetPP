@@ -71,7 +71,7 @@ public:
 	void ResetInput();
 	void FireWeapon(bool Bot = false);
 
-	void Die(int Killer, int Weapon);
+	void Die(int Killer, int Weapon, bool fngscore = false);
 	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon);
 
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);
@@ -94,6 +94,7 @@ public:
 
 	bool m_IsSpecHF;
 	void SetPosition(vec2 Pos) { m_Core.m_Pos = Pos; }
+	void TakeHammerHit(CCharacter* pFrom); //ddpp implemented from fng2
 
 private:
 	// player controlling this character
@@ -230,7 +231,7 @@ public:
 	bool m_WasInRoom;
 
 	void DDPP_Tick();
-	int DDPP_DIE(int Killer, int Weapon);
+	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
 	void DummyTick();
 
 	//usefull everywhere
@@ -249,7 +250,7 @@ public:
 
 	//Block
 	void GiveBlockPoints(int ID, int points);
-	int BlockPointsMain(int Killer);
+	int BlockPointsMain(int Killer, bool fngscore = false);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
 	void BlockQuestSubDieFuncDeath(int Killer);

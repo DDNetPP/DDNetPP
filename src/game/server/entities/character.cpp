@@ -641,11 +641,20 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				GameServer()->CreateHammerHit(ProjStartPos, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
+
 			vec2 Dir;
-			if (length(pTarget->m_Pos - m_Pos) > 0.0f)
-				Dir = normalize(pTarget->m_Pos - m_Pos);
+			if (m_pPlayer->m_IsInstaArena_fng)
+			{
+				pTarget->TakeHammerHit(this);
+			}
 			else
-				Dir = vec2(0.f, -1.f);
+			{
+				if (length(pTarget->m_Pos - m_Pos) > 0.0f)
+					Dir = normalize(pTarget->m_Pos - m_Pos);
+				else
+					Dir = vec2(0.f, -1.f);
+			}
+
 			/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 			m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
@@ -1756,14 +1765,14 @@ bool CCharacter::IncreaseArmor(int Amount)
 	return true;
 }
 
-void CCharacter::Die(int Killer, int Weapon)
+void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
 	char aBuf[256];
-	Killer = DDPP_DIE(Killer, Weapon);
+	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
 
@@ -2382,6 +2391,21 @@ void CCharacter::HandleSkippableTiles(int Index)
 		return;
 	}
 
+	//// handle fng score tiles (mede by ChillerDragon hehe)
+	//if ((GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
+	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE) &&
+	//	!m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID()))) //yolo leave super cheats also activated in fng cuz whatever
+	//{
+	//	dbg_msg("fok","fak"); //doesnt get triggerd
+	//	Die(m_pPlayer->GetCID(), WEAPON_WORLD, true);
+	//	return;
+	//}
+
 	if (GameLayerClipped(m_Pos))
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
@@ -2958,6 +2982,10 @@ void CCharacter::HandleTiles(int Index)
 		MoneyTilePlus();
 	}
 
+	if (((m_TileIndex == TILE_FNG_SCORE) || (m_TileFIndex == TILE_FNG_SCORE)))
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD, true);
+	}
 
 	// jetpack gun
 	if (((m_TileIndex == TILE_JETPACK_START) || (m_TileFIndex == TILE_JETPACK_START)) && !m_Jetpack)
@@ -4505,7 +4533,7 @@ void CCharacter::DDPP_Tick()
 
 }
 
-int CCharacter::DDPP_DIE(int Killer, int Weapon)
+int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -4540,7 +4568,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon)
 		m_TrailProjs.clear();
 	}
 
-	Killer = BlockPointsMain(Killer);
+	Killer = BlockPointsMain(Killer, fngscore);
 	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
@@ -12294,7 +12322,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 			pVictim->GetPlayer()->m_KillStreak = 0;
 			if (pKiller->m_KillStreak == 5)
 			{
-				str_format(aBuf, sizeof(aBuf), "%d players needed to start a spree.", g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), "[SPREE] %d players needed to start a spree.", g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(pKiller->GetCID(), aBuf);
 				pKiller->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
@@ -12373,7 +12401,7 @@ void CCharacter::GiveBlockPoints(int ID, int points)
 	}
 }
 
-int CCharacter::BlockPointsMain(int Killer)
+int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -12381,6 +12409,11 @@ int CCharacter::BlockPointsMain(int Killer)
 	//Block points
 	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
 	{
+		if (m_pPlayer->m_IsInstaArena_fng && !fngscore)
+		{
+			return Killer; //Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
+		}
+
 		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
 		{
 			char aBuf[128];
@@ -12775,7 +12808,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 
 			if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5)
 			{
-				str_format(aBuf, sizeof(aBuf), "%d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
+				str_format(aBuf, sizeof(aBuf), "[SPREE] %d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
 				GameServer()->SendChatTarget(GameServer()->m_apPlayers[Killer]->GetCID(), aBuf);
 				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
@@ -13027,4 +13060,35 @@ void CCharacter::Rescue()
 			UnFreeze();
 		}
 	}
+}
+
+//======================
+//                     =
+//  DDNet++            =
+//     (ddpp funcs)    =
+//                     =
+//======================
+
+void CCharacter::TakeHammerHit(CCharacter* pFrom)
+{
+	vec2 Dir;
+	if (length(m_Pos - pFrom->m_Pos) > 0.0f)
+		Dir = normalize(m_Pos - pFrom->m_Pos);
+	else
+		Dir = vec2(0.f, -1.f);
+
+	vec2 Push = vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f;
+	//if (GameServer()->m_pController->IsTeamplay() && pFrom->GetPlayer() && m_pPlayer->GetTeam() == pFrom->GetPlayer()->GetTeam() && IsFreezed()) 
+	if (false)
+	{
+		Push.x *= g_Config.m_SvMeltHammerScaleX*0.01f;
+		Push.y *= g_Config.m_SvMeltHammerScaleY*0.01f;
+	}
+	else 
+	{
+		Push.x *= g_Config.m_SvHammerScaleX*0.01f;
+		Push.y *= g_Config.m_SvHammerScaleY*0.01f;
+	}
+
+	m_Core.m_Vel += Push;
 }

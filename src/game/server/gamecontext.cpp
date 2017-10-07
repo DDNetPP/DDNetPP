@@ -7178,6 +7178,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got blockwave Human spawn tile at (%.2f|%.2f)", BlockWaveHuman.m_Center.x, BlockWaveHuman.m_Center.y);
 					m_BlockWaveHuman.push_back(BlockWaveHuman);
 				}
+				else if (Index == TILE_FNG_SCORE)
+				{
+					CFngScore FngScore;
+					FngScore.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", FngScore.m_Center.x, FngScore.m_Center.y);
+					m_FngScore.push_back(FngScore);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);

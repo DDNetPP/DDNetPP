@@ -604,6 +604,8 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
 	//}
 
+	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+
 	return 0;
 }
 

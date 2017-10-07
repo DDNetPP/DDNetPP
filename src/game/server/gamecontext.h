@@ -415,6 +415,14 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CBlockWaveHumanTile> m_BlockWaveHuman;
+
+	struct CFngScore // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CFngScore> m_FngScore;
+
 private:
 
 	bool m_VoteWillPass;
