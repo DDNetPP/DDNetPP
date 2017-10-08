@@ -1308,7 +1308,6 @@ void CPlayer::Save()
 	//Proccess Clan Data...
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
-	dbg_msg("debug","Clan '%s' - '%s'", aClan, Server()->ClientClan(m_ClientID));
 
 	if (str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
 	{

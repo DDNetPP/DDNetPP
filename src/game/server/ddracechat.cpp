@@ -2402,44 +2402,78 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Accounts are turned off..");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Please use '/register <name> <password> <password>'.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register <name> <password> <password>'.");
 		return;
 	}
 
 	if (pPlayer->m_AccountID > 0)
 	{
-		pSelf->SendChatTarget(ClientID, "You are already logged in.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
 		return;
 	}
 
 	char aUsername[32];
-	char aPassword[128];
-	char aPassword2[128];
+	char aPassword[32];
+	char aPassword2[32];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 	str_copy(aPassword2, pResult->GetString(2), sizeof(aPassword2));
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if ((str_length(aPassword) > 20 || str_length(aPassword) < 3) || (str_length(aPassword2) > 20 || str_length(aPassword2) < 3))
 	{
-		pSelf->SendChatTarget(ClientID, "Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if (str_comp_nocase(aPassword, aPassword2) != 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Passwords need to be identical.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Passwords need to be identical.");
+		return;
+	}
+
+	//                                                                                                  \\ Escaping the escape seceqnze
+	char aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
+	bool EvilChar = false;
+
+	for (int i = 0; i < str_length(aUsername); i++)
+	{
+		bool IsOk = false;
+
+		for (int j = 0; j < str_length(aAllowedCharSet); j++)
+		{
+			if (aUsername[i] == aAllowedCharSet[j])
+			{
+				//dbg_msg("account","found valid char '%c' - '%c'", aUsername[i], aAllowedCharSet[j]);
+				IsOk = true;
+				break;
+			}
+		}
+
+		if (!IsOk)
+		{
+			//dbg_msg("account", "found evil char '%c'", aUsername[i]);
+			EvilChar = true;
+			break;
+		}
+	}
+
+	if (EvilChar)
+	{
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", aAllowedCharSet);
+		pSelf->SendChatTarget(ClientID, aBuf);
 		return;
 	}
 

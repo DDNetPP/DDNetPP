@@ -48,7 +48,7 @@ void CQueryRegister::OnData()
 #endif
 	if (Next())
 	{
-		m_pGameServer->SendChatTarget(m_ClientID, "Username already exists.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Username already exists.");
 	}
 	else
 	{
@@ -58,8 +58,8 @@ void CQueryRegister::OnData()
 		pQuery->Query(m_pDatabase, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 
-		m_pGameServer->SendChatTarget(m_ClientID, "Account has been registered.");
-		m_pGameServer->SendChatTarget(m_ClientID, "Login with: /login <name> <pass>");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Account has been registered.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login with: /login <name> <pass>");
 	}
 }
 
@@ -214,24 +214,38 @@ void CQueryLogin::OnData()
 
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
 			{
-				m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_idm = true;
-				if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
-					m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+				if (!g_Config.m_SvAllowInsta)
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] fng autojoin failed because fng is deactivated by an admin.");
+				}
+				else
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
+					m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
+					m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_idm = true;
+					if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+						m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+				}
 			}
 			else if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '2') //auto boomfng join
 			{
-				m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_gdm = true;
-				if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
-					m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+				if (!g_Config.m_SvAllowInsta)
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] boomfng autojoin failed because fng is deactivated by an admin.");
+				}
+				else
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
+					m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_fng = true;
+					m_pGameServer->m_apPlayers[m_ClientID]->m_IsInstaArena_gdm = true;
+					if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+						m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->Die(m_ClientID, WEAPON_SELF);
+				}
 			}
 		}
 	}
 	else
-		m_pGameServer->SendChatTarget(m_ClientID, "Login failed. Wrong password or username.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 }
 
 void CQueryChangePassword::OnData()
@@ -245,12 +259,12 @@ void CQueryChangePassword::OnData()
 		{
 			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
 			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
-			m_pGameServer->SendChatTarget(m_ClientID, "Changed pw");
+			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Changed password.");
 		}
 	}
 	else
 	{
-		m_pGameServer->SendChatTarget(m_ClientID, "Wrong old password.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Wrong old password.");
 	}
 }
 
@@ -274,7 +288,7 @@ void CQuerySetPassword::OnData()
 	}
 	else
 	{
-		m_pGameServer->SendChatTarget(m_ClientID, "Invalid account.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Invalid account.");
 	}
 }
 

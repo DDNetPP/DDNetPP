@@ -95,7 +95,7 @@ the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to k
 mehr daten über den user sammeln und last names mal gut testen und wenn nötig fixxen
 Name Fix [x]
 IP [x]
-Clan [ ]
+Clan [x]
 Skin [ ]
 Country [ ]
 last login date [ ]
