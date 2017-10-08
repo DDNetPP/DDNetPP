@@ -1930,24 +1930,9 @@ void CGameContext::CheckInstaWin(int ID)
 	{
 		if (m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvRifleScorelimit)
 		{
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game", Server()->ClientName(ID));
-			//SayInsta(aBuf, 5); //used own loop cuz performance increase
-
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (m_apPlayers[i] && m_apPlayers[i]->m_IsInstaArena_idm)
-				{
-					SendChatTarget(i, aBuf);
-					str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(ID));
-					SendBroadcast(aBuf, i);
-					m_apPlayers[i]->m_InstaScore = 0;
-					if (m_apPlayers[i]->GetCharacter())
-					{
-						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
-					}
-				}
-			}
+			m_InstaRifleRoundEndDelay = Server()->TickSpeed() * 5; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
+			m_InstaRifleRoundEndTickTicker = m_InstaRifleRoundEndDelay; //start grenade round end tick
+			m_InstaRifleWinnerID = ID;
 		}
 	}
 }
@@ -1973,6 +1958,50 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		//dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
 	}
 	if (m_InstaGrenadeRoundEndTickTicker == 1)
+	{
+		//reset stats
+		m_apPlayers[ID]->m_InstaScore = 0;
+
+		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
+		SendChatTarget(ID, "[INSTA] new round new luck.");
+	}
+
+	if (m_apPlayers[ID]->GetCharacter())
+	{
+		if (!m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		{
+			m_apPlayers[ID]->m_InstaRoundEndPos = m_apPlayers[ID]->GetCharacter()->GetPosition();
+			m_apPlayers[ID]->m_HasInstaRoundEndPos = true;
+		}
+
+		if (m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		{
+			m_apPlayers[ID]->GetCharacter()->SetPosition(m_apPlayers[ID]->m_InstaRoundEndPos);
+		}
+	}
+}
+
+void CGameContext::InstaRifleRoundEndTick(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_InstaRifleRoundEndTickTicker) { return; }
+	if (!m_apPlayers[ID]->m_IsInstaArena_idm) { return; }
+
+	char aBuf[256];
+
+	if (m_InstaRifleRoundEndTickTicker == m_InstaRifleRoundEndDelay)
+	{
+		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
+		SendChatTarget(ID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
+		SendBroadcast(aBuf, ID);
+
+		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
+		//dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
+	}
+	if (m_InstaRifleRoundEndTickTicker == 1)
 	{
 		//reset stats
 		m_apPlayers[ID]->m_InstaScore = 0;
@@ -2035,8 +2064,10 @@ void CGameContext::DDPP_Tick()
 		ChilliClanTick(i);
 		AsciiTick(i);
 		InstaGrenadeRoundEndTick(i);
+		InstaRifleRoundEndTick(i);
 	}
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
+	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
 
 	if (Server()->Tick() % 300 == 0) //slow ddpp sub tick
 	{
@@ -6346,6 +6377,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
 			if (m_InstaGrenadeRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_gdm)
+			{
+				return; //yy evil silent return
+			}
+			if (m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_idm)
 			{
 				return; //yy evil silent return
 			}

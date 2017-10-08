@@ -259,6 +259,10 @@ public:
 	int m_InstaGrenadeRoundEndTickTicker;
 	int m_InstaGrenadeRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaGrenadeWinnerID;
+	void InstaRifleRoundEndTick(int ID);
+	int m_InstaRifleRoundEndTickTicker;
+	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
+	int m_InstaRifleWinnerID;
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
