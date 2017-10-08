@@ -1784,6 +1784,7 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	CALL_STACK_ADD();
 #endif
 	//reset values
+	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 	m_apPlayers[ID]->m_IsInstaArena_idm = false;
 	m_apPlayers[ID]->m_IsInstaArena_gdm = false;
 	m_apPlayers[ID]->m_InstaScore = 0;
@@ -1968,12 +1969,17 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
 		SendBroadcast(aBuf, ID);
 
+		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
+		//dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
+	}
+	if (m_InstaGrenadeRoundEndTickTicker == 1)
+	{
 		//reset stats
 		m_apPlayers[ID]->m_InstaScore = 0;
-		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
-		dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
-	}
 
+		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
+		SendChatTarget(ID, "[INSTA] new round new luck.");
+	}
 
 	if (m_apPlayers[ID]->GetCharacter())
 	{
@@ -6339,6 +6345,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
+			if (m_InstaGrenadeRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_gdm)
+			{
+				return; //yy evil silent return
+			}
+
 			if (m_apPlayers[ClientID]->m_IsBlockWaving)
 			{
 				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
