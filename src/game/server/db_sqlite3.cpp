@@ -131,6 +131,9 @@ CSql::CSql()
 		"IP_1						VARCHAR(32)		DEFAULT ''," \
 		"IP_2						VARCHAR(32)		DEFAULT ''," \
 		"IP_3						VARCHAR(32)		DEFAULT ''," \
+		"Clan1						VARCHAR(32)		DEFAULT ''," \
+		"Clan2						VARCHAR(32)		DEFAULT ''," \
+		"Clan3						VARCHAR(32)		DEFAULT ''," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
 		"Exp						INTEGER			DEFAULT 0," \

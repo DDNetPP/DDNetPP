@@ -1305,20 +1305,35 @@ void CPlayer::Save()
 	if (m_AccountID <= 0)
 		return;
 
+	//Proccess Clan Data...
+	char aClan[32];
+	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
+	dbg_msg("debug","Clan '%s' - '%s'", aClan, Server()->ClientClan(m_ClientID));
+
+	if (str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
+	{
+		dbg_msg("save", "update clan '%s'", aClan);
+		str_format(m_aClan3, sizeof(m_aClan3), "%s", m_aClan2);
+		str_format(m_aClan2, sizeof(m_aClan2), "%s", m_aClan1);
+		str_format(m_aClan1, sizeof(m_aClan1), "%s", aClan);
+	}
+
 	//Proccess IP ADDR...
 	char aIP[32];
 	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
 
-	str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
-	str_format(m_aIP_2, sizeof(m_aIP_2), "%s", m_aIP_1);
-	str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);
-
+	if (str_comp(aIP, m_aIP_1) && str_comp(aIP, m_aIP_2) && str_comp(aIP, m_aIP_3))
+	{
+		dbg_msg("save", "updated ip '%s'", aIP);
+		str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
+		str_format(m_aIP_2, sizeof(m_aIP_2), "%s", m_aIP_1);
+		str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);
+	}
 
 	//Proccess IngameName Data...
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	//if (aName == m_LastLogoutIGN1 || aName == m_LastLogoutIGN2 || aName == m_LastLogoutIGN3 || aName == m_LastLogoutIGN4 || aName == m_LastLogoutIGN5)
 	if (!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
 	{
 		if (!str_comp(aName, m_LastLogoutIGN1))
@@ -1396,6 +1411,7 @@ void CPlayer::Save()
 											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i'"
 											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
 											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
+											  ", `Clan1` = '%s', `Clan2` = '%s', `Clan3` = '%s'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
@@ -1414,6 +1430,7 @@ void CPlayer::Save()
 												m_IsModerator, m_IsSuperModerator, m_IsAccFrozen,
 												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
 												m_aIP_1, m_aIP_2, m_aIP_3,
+												m_aClan1, m_aClan2, m_aClan3,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,

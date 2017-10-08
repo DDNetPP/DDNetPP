@@ -354,6 +354,9 @@ public:
 	char m_aIP_2[32];
 	char m_aIP_3[32];
 
+	char m_aClan1[32];
+	char m_aClan2[32];
+	char m_aClan3[32];
 
 	int m_homing_missiles_ammo;
 

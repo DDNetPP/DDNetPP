@@ -108,6 +108,10 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2, GetText(GetID("IP_2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3, GetText(GetID("IP_3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3));
 
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1, GetText(GetID("Clan1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2, GetText(GetID("Clan2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3, GetText(GetID("Clan3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3));
+
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
