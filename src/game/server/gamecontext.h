@@ -250,6 +250,15 @@ public:
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
 	bool IsSameIP(int ID_1, int ID_2);
+	void JoinInstagib(int weapon, bool fng, int ID);
+	void LeaveInstagib(int ID);
+	void SayInsta(const char *pMsg, int weapon);
+	void DoInstaScore(int score, int id);
+	void CheckInstaWin(int ID);
+	void InstaGrenadeRoundEndTick(int ID);
+	int m_InstaGrenadeRoundEndTickTicker;
+	int m_InstaGrenadeRoundEndDelay; //never set this value directly it is only a storage variable
+	int m_InstaGrenadeWinnerID;
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);

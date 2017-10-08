@@ -3926,53 +3926,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
-		if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
-		{
-			pSelf->WinInsta1on1(pPlayer->m_Insta1on1_id,  pResult->m_ClientID);
-			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left the 1on1.");
-			return;
-		}
-
-		if (pPlayer->m_IsInstaArena_fng)
-		{
-			if (pPlayer->m_IsInstaArena_gdm)
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left boomfng.");
-				pPlayer->m_IsInstaArena_gdm = false;
-				pPlayer->m_IsInstaArena_fng = false;
-				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
-			}
-			else if (pPlayer->m_IsInstaArena_idm)
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left fng.");
-				pPlayer->m_IsInstaArena_idm = false;
-				pPlayer->m_IsInstaArena_fng = false;
-				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not in a instagib game.");
-			}
-		}
-		else
-		{
-			if (pPlayer->m_IsInstaArena_gdm)
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left grenade deathmatch.");
-				pPlayer->m_IsInstaArena_gdm = false;
-				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
-			}
-			else if (pPlayer->m_IsInstaArena_idm)
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You left rifle deathmatch.");
-				pPlayer->m_IsInstaArena_idm = false;
-				pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not in a instagib game.");
-			}
-		}
+		pSelf->LeaveInstagib(pResult->m_ClientID);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stats"))
 	{
@@ -8763,7 +8717,6 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining fng on account login.");
 				pPlayer->m_aFngConfig[0] = '1';
-				dbg_msg("cBug", "updated value to %c",pPlayer->m_aFngConfig[0]);
 				return;
 			}
 			else if (pResult->GetInteger(1) == 2)

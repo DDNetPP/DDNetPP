@@ -2025,6 +2025,8 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			{
 				GameServer()->m_apPlayers[From]->m_Score++;
 			}
+			GameServer()->DoInstaScore(1, From);
+
 
 			//save the kill
 			if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
@@ -4056,6 +4058,7 @@ void CCharacter::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	char aBuf[256];
 
 	//debugger
 	//if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
@@ -4518,6 +4521,26 @@ void CCharacter::DDPP_Tick()
 		m_WasInRoom = false;
 	}
 
+	if (Server()->Tick() % 200 == 0) //ddpp public slow tick
+	{
+		m_UpdateInstaScoreBoard = true;
+	}
+
+	if (m_UpdateInstaScoreBoard) //gets printed on update or every 200 % whatever modulo ticks
+	{
+		if (m_pPlayer->m_IsInstaArena_gdm)
+		{
+			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvGrenadeScorelimit);
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+		}
+		if (m_pPlayer->m_IsInstaArena_idm)
+		{
+			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvRifleScorelimit);
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+		}
+	}
+	m_UpdateInstaScoreBoard = false;
+
 	//General var resetter by ChillerDragon [ I M P O R T A N T] leave var resetter last --> so it wont influence ddpp tick stuff
 	if (Server()->Tick() % 20 == 0)
 	{
@@ -4573,6 +4596,12 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
+
+	//insta kills //TODO: combine with insta 1on1
+	if (Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
+	{
+		GameServer()->DoInstaScore(3, Killer);
+	}
 
 	//insta 1on1
 	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1

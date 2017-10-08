@@ -292,7 +292,10 @@ public:
 	int m_Insta1on1_id; //also used as Is1on1ing bool (id != -1 ---> is in 1on1)
 	int m_Insta1on1_mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
 	int m_Insta1on1_score;
+	int m_InstaScore;
 	bool m_HideInsta1on1_killmessages;
+	vec2 m_InstaRoundEndPos;
+	bool m_HasInstaRoundEndPos;
 
 	char m_aFngConfig[4]; //[0] = autojoin [1] = hammertune [2] = coming soon [3] = coming soon
 

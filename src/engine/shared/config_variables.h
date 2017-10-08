@@ -431,6 +431,8 @@ MACRO_CONFIG_INT(SvRifleArenaSlots, sv_rifle_arena_slots, 16, 0, 64, CFGFLAG_SER
 MACRO_CONFIG_INT(SvAllowInsta, sv_allow_insta, 1, 0, 1, CFGFLAG_SERVER, "allow the '/insta' command 1=allow 0=off")
 MACRO_CONFIG_INT(SvAllowGrenade, sv_allow_grenade, 2, 0, 3, CFGFLAG_SERVER, "0=none 1=gdm 2=boomfng 3=gdm/boomfng")
 MACRO_CONFIG_INT(SvAllowRifle, sv_allow_rifle, 2, 0, 3, CFGFLAG_SERVER, "0=none 1=idm 2=fng 3=idm/fng")
+MACRO_CONFIG_INT(SvRifleScorelimit, sv_rifle_scorelimit, 100, 0, 9999, CFGFLAG_SERVER, "set the scorelimit for fng and idm insta minigames")
+MACRO_CONFIG_INT(SvGrenadeScorelimit, sv_grenade_scorelimit, 100, 0, 9999, CFGFLAG_SERVER, "set the scorelimit for boomfng and gdm insta minigames")
 MACRO_CONFIG_INT(SvHammerScaleX, sv_hammer_scale_x, 320, 1, 1000, CFGFLAG_SERVER, "linearly scale up hammer x power, percentage, for hammering enemies and unfrozen teammates") //importet from fng2
 MACRO_CONFIG_INT(SvHammerScaleY, sv_hammer_scale_y, 120, 1, 1000, CFGFLAG_SERVER, "linearly scale up hammer y power, percentage, for hammering enemies and unfrozen teammates") //importet from fng2
 MACRO_CONFIG_INT(SvMeltHammerScaleX, sv_melt_hammer_scale_x, 50, 1, 1000, CFGFLAG_SERVER, "linearly scale up hammer x power, percentage, for hammering frozen teammates") //importet from fng2

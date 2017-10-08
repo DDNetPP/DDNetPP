@@ -94,6 +94,7 @@ public:
 
 	bool m_IsSpecHF;
 	void SetPosition(vec2 Pos) { m_Core.m_Pos = Pos; }
+	vec2 GetPosition() { return m_Core.m_Pos;  } //proudly mede by ChillerDragon
 	void TakeHammerHit(CCharacter* pFrom); //ddpp implemented from fng2
 
 private:
@@ -261,7 +262,7 @@ public:
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
 	void InstagibSubDieFunc(int Killer, int Weapon);
 	void InstagibKillingSpree(int KillerID, int Weapon);
-
+	bool m_UpdateInstaScoreBoard;
 
 	void Pause(bool Pause);
 	bool Freeze(int Time);
