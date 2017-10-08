@@ -4020,6 +4020,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
+		else if (g_Config.m_SvAllowGrenade == 2 || g_Config.m_SvAllowGrenade == 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] gdm is currently deactivated by an admin.");
+		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
@@ -4045,6 +4049,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
+		}
+		else if (g_Config.m_SvAllowRifle == 2 || g_Config.m_SvAllowRifle == 0)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] idm is currently deactivated by an admin.");
 		}
 		else
 		{
@@ -4072,6 +4080,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
 		}
+		else if (g_Config.m_SvAllowGrenade == 0 || g_Config.m_SvAllowGrenade == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] boomfng is currently deactivated by an admin.");
+		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
@@ -4098,6 +4110,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else if (!pSelf->CanJoinInstaArena(false, false))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Arena is full.");
+		}
+		else if (g_Config.m_SvAllowRifle == 0 || g_Config.m_SvAllowRifle == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] fng is currently deactivated by an admin.");
 		}
 		else
 		{

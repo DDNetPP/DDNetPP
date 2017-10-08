@@ -210,7 +210,7 @@ void CQueryLogin::OnData()
 			}
 
 			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
-			m_pGameServer->SendChatTarget(m_ClientID, "Login successful.");
+			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
 			{
