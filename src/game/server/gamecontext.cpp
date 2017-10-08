@@ -5879,6 +5879,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}*/
 
+			if (IsMinigame(ClientID))
+			{
+				SendChatTarget(ClientID, "[MINIGAMES] You can't change team while playing minigames or being in jail.");
+				return;
+			}
+
 			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3)
 			{
 				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try agian later.");
@@ -6168,6 +6174,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == DDRACE_STARTED)
 			{
 				SendChatTarget(ClientID, "Kill Protection enabled. If you really want to kill, type /kill");
+				return;
+			}
+
+			if (m_apPlayers[ClientID]->m_IsInstaArena_fng && pChr->m_FreezeTime)
+			{
+				SendChatTarget(ClientID, "[INSTA] You can't suicide in fng games while being frozen.");
 				return;
 			}
 
