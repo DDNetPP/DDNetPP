@@ -473,7 +473,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 #endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "room_key     %d | lvl16 | disconnect", g_Config.m_SvRoomPrice);
+	str_format(aBuf, sizeof(aBuf), "room_key     %d | 16 | disconnect", g_Config.m_SvRoomPrice);
 
 
 
@@ -488,27 +488,27 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"ItemName | Price | Needed Lv. | OwnTime:");
+		"ItemName | Price | Needed Level | OwnTime:");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"rainbow       1 500 | Lv.8 | dead");
+		"rainbow       1 500 | 5 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"bloody         3 500 | Lv.3 | dead");
+		"bloody         3 500 | 15 | dead");
 	/*pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"atom         3 500 money | lvl3 | dead");
+		"atom         3 500 money | 3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"trail         3 500 money | lvl3 | dead");*/
+		"trail         3 500 money | 3 | dead");*/
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"chidraqul     250 | Lv.2 | disconnect");
+		"chidraqul     250 | 2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"shit              5 | Lv.0 | forever");
+		"shit              5 | 0 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		aBuf);
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"police		   100 000 | Lv.18 | forever");
+		"police		   100 000 | 18 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"taser		  50 000 | Police[3] | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"pvp_arena_ticket     150 | Lv.0 | 1 use");
+		"pvp_arena_ticket     150 | 0 | 1 use");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -2522,7 +2522,7 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 		//pSelf->SendChatTarget(ClientID, "'/sql_name freeze_acc <acc_name> <true/false>'"); //coming soon...
 		pSelf->SendChatTarget(ClientID, "'/sql_name set_passwd <acc_name> <passwd>' to reset password");
 		pSelf->SendChatTarget(ClientID, "----------------------");
-		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <name>' additional info");
 		pSelf->SendChatTarget(ClientID, "'/sql' similiar command using sql ids");
 		return;
 	}
@@ -2764,21 +2764,20 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 
 	if (g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Account stuff is turned off.");
 		return;
 	}
 
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
 	{
-		//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: %s.");
-		pSelf->SendChatTarget(ClientID, "Missing permission.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(ClientID, "Use '/acc_info <name>'.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Use '/acc_info <name>'.");
 		return;
 	}
 
@@ -2798,12 +2797,14 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pSelf->m_apPlayers[InfoID]->m_AccountID <= 0)
 		{
-			pSelf->SendChatTarget(ClientID, "This player is not logged in.");
+			pSelf->SendChatTarget(ClientID, "[SQL] This player is not logged in.");
 			return;
 		}
 
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "==== Name: %s SQL: %d ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()), pSelf->m_apPlayers[InfoID]->m_AccountID);
+		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()));
+		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "==== Username: %s SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN2);
@@ -2814,10 +2815,14 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_2);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_3);
+		pSelf->SendChatTarget(ClientID, "======== Clan ========");
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan3);
 	}
 	else
 	{
-		pSelf->SendChatTarget(ClientID, "Unkown player name.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Unkown player name.");
 	}
 }
 
