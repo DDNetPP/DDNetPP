@@ -1988,7 +1988,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_Godmode)
+	if (m_Godmode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_InstaGrenadeRoundEndTickTicker) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_InstaRifleRoundEndTickTicker))
 	{
 		//CHEATER!!
 	}

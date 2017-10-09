@@ -1499,6 +1499,18 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 	}
 }
 
+void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	// send motd
+	CNetMsg_Sv_Motd Msg;
+	Msg.m_pMessage = pMsg;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+}
+
 int CGameContext::IsMinigame(int playerID) //if you update this function please also update the '/minigames' chat command
 {
 #if defined(CONF_DEBUG)
@@ -1921,7 +1933,7 @@ void CGameContext::CheckInstaWin(int ID)
 	{
 		if (m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvGrenadeScorelimit)
 		{
-			m_InstaGrenadeRoundEndDelay = Server()->TickSpeed() * 5; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
+			m_InstaGrenadeRoundEndDelay = Server()->TickSpeed() * 20; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
 			m_InstaGrenadeRoundEndTickTicker = m_InstaGrenadeRoundEndDelay; //start grenade round end tick
 			m_InstaGrenadeWinnerID = ID;
 		}
@@ -1930,7 +1942,7 @@ void CGameContext::CheckInstaWin(int ID)
 	{
 		if (m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvRifleScorelimit)
 		{
-			m_InstaRifleRoundEndDelay = Server()->TickSpeed() * 5; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
+			m_InstaRifleRoundEndDelay = Server()->TickSpeed() * 20; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
 			m_InstaRifleRoundEndTickTicker = m_InstaRifleRoundEndDelay; //start grenade round end tick
 			m_InstaRifleWinnerID = ID;
 		}
@@ -1953,9 +1965,55 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		SendChatTarget(ID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
 		SendBroadcast(aBuf, ID);
-
 		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
-		//dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
+
+		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
+		int aaScorePlayers[MAX_CLIENTS][2];
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //prepare array
+		{
+			//aaScorePlayers[i][1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
+			aaScorePlayers[i][0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
+		}
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //fill array
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsInstaArena_gdm)
+			{
+				aaScorePlayers[i][1] = m_apPlayers[i]->m_InstaScore;
+				aaScorePlayers[i][0] = i;
+			}
+		}
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //sort array (bubble mubble)
+		{
+			for (int k = 0; k < MAX_CLIENTS - 1; k++)
+			{
+				if (aaScorePlayers[k][1] < aaScorePlayers[k + 1][1])
+				{
+					//move ids
+					int tmp = aaScorePlayers[k][0];
+					aaScorePlayers[k][0] = aaScorePlayers[k + 1][0];
+					aaScorePlayers[k + 1][0] = tmp;
+					//move score
+					tmp = aaScorePlayers[k][1];
+					aaScorePlayers[k][1] = aaScorePlayers[k + 1][1];
+					aaScorePlayers[k + 1][1] = tmp;
+				}
+			}
+		}
+
+		str_format(m_aInstaGrenadeScoreboard, sizeof(m_aInstaGrenadeScoreboard), "==== Scoreboard [GRENADE] ====\n");
+		int Rank = 1;
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //print array in scoreboard
+		{
+			if (aaScorePlayers[i][0] != -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aaScorePlayers[i][0]), aaScorePlayers[i][1]);
+				strcat(m_aInstaGrenadeScoreboard, aBuf);
+			}
+		}
 	}
 	if (m_InstaGrenadeRoundEndTickTicker == 1)
 	{
@@ -1979,6 +2037,8 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 			m_apPlayers[ID]->GetCharacter()->SetPosition(m_apPlayers[ID]->m_InstaRoundEndPos);
 		}
 	}
+
+	AbuseMotd(m_aInstaGrenadeScoreboard, ID); //send the scoreboard every fokin tick hehe
 }
 
 void CGameContext::InstaRifleRoundEndTick(int ID)
@@ -1997,9 +2057,55 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 		SendChatTarget(ID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
 		SendBroadcast(aBuf, ID);
-
 		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
-		//dbg_msg("cBug","updated player '%s' [%d]", Server()->ClientName(ID), ID);
+
+		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
+		int aaScorePlayers[MAX_CLIENTS][2];
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //prepare array
+		{
+			//aaScorePlayers[i][1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
+			aaScorePlayers[i][0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
+		}
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //fill array
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsInstaArena_idm)
+			{
+				aaScorePlayers[i][1] = m_apPlayers[i]->m_InstaScore;
+				aaScorePlayers[i][0] = i;
+			}
+		}
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //sort array (bubble mubble)
+		{
+			for (int k = 0; k < MAX_CLIENTS - 1; k++)
+			{
+				if (aaScorePlayers[k][1] < aaScorePlayers[k + 1][1])
+				{
+					//move ids
+					int tmp = aaScorePlayers[k][0];
+					aaScorePlayers[k][0] = aaScorePlayers[k + 1][0];
+					aaScorePlayers[k + 1][0] = tmp;
+					//move score
+					tmp = aaScorePlayers[k][1];
+					aaScorePlayers[k][1] = aaScorePlayers[k + 1][1];
+					aaScorePlayers[k + 1][1] = tmp;
+				}
+			}
+		}
+
+		str_format(m_aInstaRifleScoreboard, sizeof(m_aInstaRifleScoreboard), "==== Scoreboard [Rifle] ====\n");
+		int Rank = 1;
+
+		for (int i = 0; i < MAX_CLIENTS; i++) //print array in scoreboard
+		{
+			if (aaScorePlayers[i][0] != -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aaScorePlayers[i][0]), aaScorePlayers[i][1]);
+				strcat(m_aInstaRifleScoreboard, aBuf);
+			}
+		}
 	}
 	if (m_InstaRifleRoundEndTickTicker == 1)
 	{
@@ -2023,6 +2129,8 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 			m_apPlayers[ID]->GetCharacter()->SetPosition(m_apPlayers[ID]->m_InstaRoundEndPos);
 		}
 	}
+
+	AbuseMotd(m_aInstaRifleScoreboard, ID); //send the scoreboard every fokin tick hehe
 }
 
 void CGameContext::DDPP_Tick()

@@ -240,6 +240,7 @@ public:
 	int GetNextClientID();
 
 	//usefull everywhere
+	void AbuseMotd(const char *pMsg, int ClientID);
 	int IsMinigame(int playerID);
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
@@ -259,10 +260,12 @@ public:
 	int m_InstaGrenadeRoundEndTickTicker;
 	int m_InstaGrenadeRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaGrenadeWinnerID;
+	char m_aInstaGrenadeScoreboard[1024];
 	void InstaRifleRoundEndTick(int ID);
 	int m_InstaRifleRoundEndTickTicker;
 	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaRifleWinnerID;
+	char m_aInstaRifleScoreboard[1024];
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
