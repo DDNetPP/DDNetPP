@@ -478,4 +478,5 @@ MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 1, CFGFLAG_SERVER,
 //FNN fake neural network
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")
 
+
 #endif

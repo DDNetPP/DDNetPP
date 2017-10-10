@@ -1,4 +1,7 @@
 #include "db_sqlite3.h"
+#include <base/system.h> //ChillerDragon needs for str_len func
+#include <fstream> //ChillerDragon much wow shitty filestream usage -.-
+#include <string> //ChillerDragon ikr no kewl C style stuff
 
 bool CQuery::Next()
 {
@@ -109,10 +112,28 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 CSql::CSql()
 {
 	sqlite3 *test;
-	int rc = sqlite3_open("accounts.db", &m_pDB);
+	//char aUserInputLoL[128];
+	//fgets(aUserInputLoL, 128, stdin);
+	//fgets(aUserInputLoL, sizeof(aUserInputLoL) - 1, stdin);
+	//size_t newbuflen = str_length(aUserInputLoL);
+	//if (aUserInputLoL[newbuflen - 1] == '\n') aUserInputLoL[newbuflen - 1] = '\0';
+	//dbg_msg("SQLite","connecting to '%s' ", aUserInputLoL);
+	//dbg_msg("SQLite", aUserInputLoL);
+
+	std::ifstream f;
+	std::string aUserInputLoL;
+
+	f.open("database_path.txt", std::ios::in);
+	if (getline(f, aUserInputLoL))
+		dbg_msg("SQLite", "successfully loaded path '%s'", aUserInputLoL.c_str());
+	else
+		dbg_msg("SQLite","error reading database pathfile 'database_path.txt'");
+	f.close();
+	dbg_msg("SQLite", "connecting to '%s' ", aUserInputLoL.c_str());
+	int rc = sqlite3_open(aUserInputLoL.c_str(), &m_pDB);
 	if (rc)
 	{
-		dbg_msg("SQLite", "Can't open database");
+		dbg_msg("SQLite", "Can't open database error: %d", rc);
 		sqlite3_close(m_pDB);
 	}
 
