@@ -114,7 +114,7 @@ void CQueryLogin::OnData()
 
 				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "Login failed.(Account is frozen)");
+					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
 					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
 					return;
 				}

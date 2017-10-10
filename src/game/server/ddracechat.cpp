@@ -3315,32 +3315,32 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
 
 
 	if (pPlayer->m_AccountID <= 0)
 	{
-		pSelf->SendChatTarget(ClientID, "You are not logged in.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are not logged in.");
 		return;
 	}
 
 	if (pPlayer->m_Insta1on1_id != -1)
 	{
-		pSelf->SendChatTarget(ClientID, "You can't logout in 1on1. ('/insta leave' to leave)");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You can't logout in 1on1. ('/insta leave' to leave)");
 		return;
 	}
 
 	if (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm)
 	{
-		pSelf->SendChatTarget(ClientID, "You can't logout in insta matches. ('/insta leave' to leave)");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You can't logout in insta matches. ('/insta leave' to leave)");
 		return;
 	}
 
 	if (pSelf->IsMinigame(pResult->m_ClientID) > 0) //all minigames no jail returns bigger than zero
 	{
-		pSelf->SendChatTarget(ClientID, "You can't logout during minigames try '/leave'");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You can't logout during minigames try '/leave'");
 		return;
 	}
 
@@ -3348,18 +3348,18 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pPlayer->GetCharacter()->m_IsBombing) 
 		{
-			pSelf->SendChatTarget(ClientID, "You can't logout in bomb games. ('/bomb leave' to leave)");
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] You can't logout in bomb games. ('/bomb leave' to leave)");
 			return;
 		}
 		if (pPlayer->GetCharacter()->m_IsPVParena)
 		{
-			pSelf->SendChatTarget(ClientID, "You can't logout in pvp_arena. ('/pvp_arena leave' to leave)");
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] You can't logout in pvp_arena. ('/pvp_arena leave' to leave)");
 			return;
 		}
 	}
 
 	pPlayer->Logout();
-	pSelf->SendChatTarget(ClientID, "Logged out.");
+	pSelf->SendChatTarget(ClientID, "[ACCOUNT] Logged out.");
 }
 
 void CGameContext::ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData)
