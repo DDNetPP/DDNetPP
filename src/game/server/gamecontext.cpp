@@ -107,13 +107,6 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 
-				if (GetInt(GetID("IsLoggedIn")) == 1)
-				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
-					m_pGameServer->m_apPlayers[m_ClientID]->Logout(1); //Set IsLoggedIn to 1 to keep the account logged in on this logout
-					return;
-				}
-
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
@@ -132,13 +125,6 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1, GetText(GetID("Clan1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2, GetText(GetID("Clan2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3, GetText(GetID("Clan3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3));
-
-				if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
-				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
-					m_pGameServer->m_apPlayers[m_ClientID]->Logout();
-					return;
-				}
 
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
@@ -228,6 +214,24 @@ void CQueryLogin::OnData()
 					}
 				}
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
+			}
+
+			//================================
+			// ABORT LOGIN AFTER LOADING DATA
+			//================================
+
+			if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
+			{
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
+				m_pGameServer->m_apPlayers[m_ClientID]->Logout();
+				return;
+			}
+
+			if (GetInt(GetID("IsLoggedIn")) == 1)
+			{
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
+				m_pGameServer->m_apPlayers[m_ClientID]->Logout(1); //Set IsLoggedIn to 1 to keep the account logged in on this logout
+				return;
 			}
 
 			//==========================
