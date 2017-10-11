@@ -49,7 +49,7 @@ void CQueryChillExecute::OnData()
 	}
 	else
 	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] Player(s) logged out.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] Command executed. (No garuantee that the accounts exist or stuff like that)");
 	}
 }
 
@@ -1686,6 +1686,22 @@ void CGameContext::KillAll()
 			GetPlayerChar(i)->Die(i, WEAPON_WORLD);
 		}
 	}
+}
+
+void CGameContext::SQLPortLogout(int port)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `LastLoginPort` = '%i'", 0, g_Config.m_SvPort);
+#if defined(CONF_DEBUG)
+	dbg_msg("SQL", "Reset all Accounts: %s", aBuf);
+#endif
+	char *pQueryBuf = sqlite3_mprintf(aBuf);
+	CQuery *pQuery = new CQuery();
+	pQuery->Query(m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
 }
 
 bool CGameContext::IsPosition(int playerID, int pos)
