@@ -601,6 +601,8 @@ private:
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLLogoutAll(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
@@ -737,6 +739,13 @@ class CQuerySetPassword : public CQueryPlayer //ChillerDragon's testy test (no i
 {
 	void OnData();
 public:
+};
+
+class CQueryChillExecute : public CQueryPlayer //ChillerDragon made proudly some random shit where ppl can execute random sql stuff (hope nothing explodes)
+{
+	void OnData();
+public:
+	//std::string m_Username;
 };
 
 class CQueryRegister : public CQueryPlayer

@@ -57,6 +57,8 @@ CHAT_COMMAND("login", "?ss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLogin, this, "Log
 CHAT_COMMAND("acc_logout", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAccLogout, this, "Logout from your account.")
 CHAT_COMMAND("SQL", "?s?i?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQL, this, "SQL admistration (using sql id)")
 CHAT_COMMAND("SQL_name", "?sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQLName, this, "SQL admistration (using acc name)")
+CHAT_COMMAND("SQL_logout", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQLLogout, this, "SQL admistration (doesnt really log out the player but sets his sql state to loggedout)")
+CHAT_COMMAND("SQL_logout_all", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSQLLogoutAll, this, "SQL admistration (doesnt really log out the player but sets his sql state to loggedout)")
 CHAT_COMMAND("acc_info", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAcc_Info, this, "(admin-cmd) shows deeper information about accounts")
 CHAT_COMMAND("stats", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConStats, this, "shows the stats of the player r")
 CHAT_COMMAND("profile", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProfile, this, "player profiles more help at '/profile help'")

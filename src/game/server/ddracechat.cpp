@@ -8754,3 +8754,81 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] unknown command check '/fng help' or '/fng cmdlist'.");
 	}
 }
+
+
+
+void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+		return;
+	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== SQL logout ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/sql_logout <playername>' to execute an command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "The command will be executed and the output is only a True or False.");
+	}
+
+	char aUsername[32];
+	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+	char *pQueryBuf = sqlite3_mprintf(aBuf);
+	CQueryChillExecute *pQuery = new CQueryChillExecute();
+	pQuery->m_ClientID = ClientID;
+	pQuery->m_pGameServer = pSelf;
+	pQuery->Query(pSelf->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+
+	//str_format(aBuf, sizeof(aBuf), "[SQL] %s", aBuf);
+	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
+void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+		return;
+	}
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0");
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+	char *pQueryBuf = sqlite3_mprintf(aBuf);
+	CQueryChillExecute *pQuery = new CQueryChillExecute();
+	pQuery->m_ClientID = ClientID;
+	pQuery->m_pGameServer = pSelf;
+	pQuery->Query(pSelf->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+}

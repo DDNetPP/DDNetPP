@@ -41,6 +41,18 @@ enum
 	NO_RESET
 };
 
+void CQueryChillExecute::OnData()
+{
+	if (Next())
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] This message normally doesnt get printed idk.");
+	}
+	else
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] Player(s) logged out.");
+	}
+}
+
 void CQueryRegister::OnData()
 {
 #if defined(CONF_DEBUG)
@@ -218,7 +230,12 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
 			}
 
-			//m_pGameServer->SendChatTarget(m_ClientID, "Successfully logged in you son of a bitch.");
+			//==========================
+			// Done loading stuff
+			// Start to do something...
+			//==========================
+
+
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
@@ -246,12 +263,16 @@ void CQueryLogin::OnData()
 				}
 			}
 
-
+			//========================================
 			//LEAVE THIS CODE LAST!!!!
-			dbg_msg("cBug","Setting Account to LoggedIn");
-			//m_pGameServer->m_apPlayers[m_ClientID]->Save(1); //Set LoggedIn to true
-
-			char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `ID` = '%i'", 1, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
+			//multiple server account protection stuff
+			//========================================
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
+#if defined(CONF_DEBUG)
+			dbg_msg("SQL", "Login execution: %s", aBuf);
+#endif
+			char *pQueryBuf = sqlite3_mprintf(aBuf);
 			CQuery *pQuery = new CQuery();
 			pQuery->Query(m_pGameServer->m_Database, pQueryBuf);
 			sqlite3_free(pQueryBuf);

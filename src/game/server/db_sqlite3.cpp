@@ -171,6 +171,7 @@ CSql::CSql()
 		"Username					VARCHAR(32)		NOT NULL," \
 		"Password					VARCHAR(128)	NOT NULL," \
 		"IsLoggedIn					INTEGER			DEFAULT 0," \
+		"LastLoginPort				INTEGER			DEFAULT 0," \
 		"LastLogoutIGN1				VARCHAR(32)		DEFAULT ''," \
 		"LastLogoutIGN2				VARCHAR(32)		DEFAULT ''," \
 		"LastLogoutIGN3				VARCHAR(32)		DEFAULT ''," \
