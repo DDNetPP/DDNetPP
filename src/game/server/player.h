@@ -523,8 +523,8 @@ public:
 	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
 
 	void ChangePassword();
-	void Save();
-	void Logout();
+	void Save(int SetLoggedIn);
+	void Logout(int SetLoggedIn = 0);
 	void CheckLevel();
 	void CalcExp();
 

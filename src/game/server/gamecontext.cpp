@@ -72,7 +72,7 @@ void CQueryLogin::OnData()
 	{
 		if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
 		{
-			m_pGameServer->SendChatTarget(m_ClientID, "This account is already logged in.");
+			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
 		}
 		else
 		{
@@ -84,14 +84,23 @@ void CQueryLogin::OnData()
 				// make sure to reset it in the Logout(); function   
 				// src/game/server/player.cpp
 				//#####################################################
-
-
+#if defined(CONF_DEBUG)
+				dbg_msg("cBug","gamecontext.cpp '%s' CID=%d loading data...", m_pGameServer->Server()->ClientName(m_ClientID), m_ClientID);
+#endif
+				
 
 				//basic
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
+
+				if (GetInt(GetID("IsLoggedIn")) == 1)
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
+					m_pGameServer->m_apPlayers[m_ClientID]->Logout(1); //Set IsLoggedIn to 1 to keep the account logged in on this logout
+					return;
+				}
 
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
@@ -236,6 +245,16 @@ void CQueryLogin::OnData()
 					m_pGameServer->JoinInstagib(4, true, m_ClientID);
 				}
 			}
+
+
+			//LEAVE THIS CODE LAST!!!!
+			dbg_msg("cBug","Setting Account to LoggedIn");
+			//m_pGameServer->m_apPlayers[m_ClientID]->Save(1); //Set LoggedIn to true
+
+			char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `ID` = '%i'", 1, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
+			CQuery *pQuery = new CQuery();
+			pQuery->Query(m_pGameServer->m_Database, pQueryBuf);
+			sqlite3_free(pQueryBuf);
 		}
 	}
 	else
