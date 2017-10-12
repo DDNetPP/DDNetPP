@@ -271,6 +271,8 @@ void CQueryLogin::OnData()
 			//LEAVE THIS CODE LAST!!!!
 			//multiple server account protection stuff
 			//========================================
+			//works how it should but is possible crashing the server
+			/*
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
 #if defined(CONF_DEBUG)
@@ -280,6 +282,7 @@ void CQueryLogin::OnData()
 			CQuery *pQuery = new CQuery();
 			pQuery->Query(m_pGameServer->m_Database, pQueryBuf);
 			sqlite3_free(pQueryBuf);
+			*/
 		}
 	}
 	else
