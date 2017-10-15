@@ -9022,9 +9022,8 @@ void CCharacter::DummyTick()
 				*/
 
 
-				int m_aMoveID = -1;
-				int Hooked = false;
-				int PullID = -1;
+				//int m_aMoveID = -1;
+				//int Hooked = false;
 				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
 					CCharacter *pChar = GameServer()->GetPlayerChar(i);
@@ -9034,8 +9033,8 @@ void CCharacter::DummyTick()
 
 					if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
 					{
-						Hooked = true;
-						m_aMoveID = i;
+						//Hooked = true;
+						//m_aMoveID = i;
 						m_Dummy_nn_touched_by_humans = true;
 						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] DONT TOUCH ME HOOK WTF");
 					}
