@@ -272,7 +272,7 @@ void CQueryLogin::OnData()
 			//multiple server account protection stuff
 			//========================================
 			//works how it should but is possible crashing the server
-			/*
+
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
 #if defined(CONF_DEBUG)
@@ -282,7 +282,7 @@ void CQueryLogin::OnData()
 			CQuery *pQuery = new CQuery();
 			pQuery->Query(m_pGameServer->m_Database, pQueryBuf);
 			sqlite3_free(pQueryBuf);
-			*/
+			//delete pQuery; //compiler says undefinded behaviour wtf... so a lonley new without delete
 		}
 	}
 	else
@@ -1857,7 +1857,9 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
 #endif
+
 	//reset values
 	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 	m_apPlayers[ID]->m_IsInstaArena_idm = false;
@@ -1895,7 +1897,11 @@ void CGameContext::LeaveInstagib(int ID)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' left the game.", Server()->ClientName(ID));
-	if (pPlayer->m_IsInstaArena_gdm) { SayInsta(aBuf, 4); } else if (pPlayer->m_IsInstaArena_idm) { SayInsta(aBuf, 5); }
+	if (pPlayer->m_IsInstaArena_gdm) 
+	{ SayInsta(aBuf, 4);}
+	else if (pPlayer->m_IsInstaArena_idm) 
+	{ SayInsta(aBuf, 5);}
+
 
 
 	if ((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
@@ -1951,6 +1957,7 @@ void CGameContext::SayInsta(const char * pMsg, int weapon)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
+	//dbg_msg("cBug", "SayInsta got called with weapon %d and message '%s'", weapon, pMsg);
 #endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{

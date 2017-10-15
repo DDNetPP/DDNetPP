@@ -3981,9 +3981,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
-			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
-			pPlayer->m_IsInstaArena_gdm = true;
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pSelf->JoinInstagib(4, false, pResult->m_ClientID);
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "idm"))
@@ -4011,9 +4009,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a rifle game.");
-			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
-			pPlayer->m_IsInstaArena_idm = true;
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pSelf->JoinInstagib(5, false, pResult->m_ClientID);
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
@@ -4041,10 +4037,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
-			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
-			pPlayer->m_IsInstaArena_gdm = true;
-			pPlayer->m_IsInstaArena_fng = true;
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pSelf->JoinInstagib(4, true, pResult->m_ClientID);
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "fng"))
@@ -4072,10 +4065,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng game.");
-			pPlayer->m_Insta1on1_id = -1; //reset invitation (and set 1on1 to false)
-			pPlayer->m_IsInstaArena_idm = true;
-			pPlayer->m_IsInstaArena_fng = true;
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pSelf->JoinInstagib(5, true, pResult->m_ClientID);
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "1on1"))
@@ -5044,16 +5034,25 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
 	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-	if (g_Config.m_SvTestingCommands)
-	{
-		if (pResult->NumArguments() != 2)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
-		}
+	//if (g_Config.m_SvTestingCommands)
+	//{
+	//	if (pResult->NumArguments() != 2)
+	//	{
+	//		pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
+	//	}
 
-		pPlayer->m_QuestState = pResult->GetInteger(0);
-		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
-		pSelf->StartQuest(pPlayer->GetCID());
+	//	pPlayer->m_QuestState = pResult->GetInteger(0);
+	//	pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
+	//	pSelf->StartQuest(pPlayer->GetCID());
+	//}
+
+	if (pPlayer->m_IsInstaArena_gdm)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "NOT IN BOOMFNG");
 	}
 }
 
