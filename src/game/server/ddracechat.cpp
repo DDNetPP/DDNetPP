@@ -8601,15 +8601,36 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave cmdlist' to show this list");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave join' to join the game");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave leave' to leave the game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave status' to show cureent game status");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave stats' to check your stats"); //coming soon...
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave shop' to show list of items"); //coming soon...
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/blockwave buy <item>' to buy shop items"); //coming soon...
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "status"))
+	{
+		if (!pSelf->m_BlockWaveGameState)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] No game running right now. Feel free to create one with '/blockwave join'");
+		}
+		else if (pSelf->m_BlockWaveGameState == 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] Game starting right now. Feel free to join with '/blockwave join'");
+		}
+		else if (pSelf->m_BlockWaveGameState == 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] Game running right now. Feel free to join with '/blockwave join'");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] unknown status.");
+		}
+	}
 	else if (!str_comp_nocase(pResult->GetString(0), "join"))
 	{
-		if (!pSelf->m_BlockWaveGameState) //no game? --> start one
+		if (pPlayer->m_IsBlockWaving)
 		{
-			pSelf->m_BlockWaveGameState = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] you already joined a game.");
+			return;
 		}
 
 		if (pSelf->m_BlockWaveGameState == 2)
@@ -8618,12 +8639,17 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] error. maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
 		else
 		{
+			if (!pSelf->m_BlockWaveGameState) //no game? --> start one
+			{
+				pSelf->StartBlockWaveGame();
+			}
 			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] joined the arena! hf & gl staying alive.");
 			pPlayer->m_IsBlockWaving = true;
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))

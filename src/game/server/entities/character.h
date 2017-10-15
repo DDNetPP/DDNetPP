@@ -257,6 +257,8 @@ public:
 	void BlockQuestSubDieFuncDeath(int Killer);
 	void BlockKillingSpree(int Killer);
 
+	//blockwave
+	int BlockWaveFreezeTicks;
 
 	//instagib 
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)

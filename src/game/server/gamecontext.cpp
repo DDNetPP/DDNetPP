@@ -2700,6 +2700,58 @@ bool CGameContext::SurvivalPickWinner()
 	return true;
 }
 
+void CGameContext::BlockWaveWonRound()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockWaveRound++;
+	SendBlockWaveSay("[BlockWave] round survived.");
+	m_BlockWaveGameState = 1;
+
+	//respawn all humans
+	vec2 BlockWaveSpawnTile = Collision()->GetRandomTile(TILE_BLOCKWAVE_HUMAN);
+
+	if (BlockWaveSpawnTile != vec2(-1, -1))
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter())
+			{
+				m_apPlayers[i]->GetCharacter()->SetPosition(BlockWaveSpawnTile);
+			}
+		}
+	}
+	else //no BlockWaveSpawnTile
+	{
+		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+		m_BlockWaveGameState = 0;
+	}
+
+	for (int i = 0; i < MAX_CLIENTS; i++) //noboy is dead on new round
+	{
+		if (m_apPlayers[i])
+		{
+			m_apPlayers[i]->m_IsBlockWaveDead = false;
+		}
+	}
+}
+
+void CGameContext::StartBlockWaveGame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("Blockwave", "Game started.");
+#endif
+	if (m_BlockWaveGameState) { return; } //no resatrt only start if not started yet
+	m_BlockWaveGameState = 1;
+	m_BlockWavePrepareDelay = (10 * Server()->TickSpeed());
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		m_apPlayers[i]->m_IsBlockWaveDead = false;
+	}
+}
+
 void CGameContext::BlockWaveGameTick()
 {
 #if defined(CONF_DEBUG)
@@ -2712,32 +2764,47 @@ void CGameContext::BlockWaveGameTick()
 		m_BlockWavePrepareDelay--;
 		if (m_BlockWavePrepareDelay % Server()->TickSpeed() == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "[BlockWave] round starts in %d seconds", m_BlockWavePrepareDelay / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[BlockWave] round %d starts in %d seconds", m_BlockWaveRound, m_BlockWavePrepareDelay / Server()->TickSpeed());
 			SendBlockWaveBroadcast(aBuf);
 		}
 		if (m_BlockWavePrepareDelay < 0)
 		{
+			SendBlockWaveBroadcast("[BlockWave] Have fun and good luck!");
 			m_BlockWaveGameState = 2; //start round!
 			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
+			CreateNewDummy(-3, true);
 		}
 	}
 	else //running round
 	{
-		//check for rip
+		//check for rip round or win round
 		if (Server()->Tick() % 60 == 0)
 		{
 			bool ripall = true;
+			bool won = true;
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
-				if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaveDead)
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsBlockWaveDead && !m_apPlayers[i]->m_IsDummy)
 				{
 					ripall = false;
+					break;
+				}
+			}
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsBlockWaveDead && m_apPlayers[i]->m_IsDummy)
+				{
+					won = false;
 					break;
 				}
 			}
 			if (ripall)
 			{
 				BlockWaveStartNewGame();
+			}
+			if (won)
+			{
+				BlockWaveWonRound();
 			}
 		}
 	}
@@ -2750,7 +2817,7 @@ void CGameContext::BlockWaveEndGame()
 #endif
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
-	SendBlockWaveBroadcast(aBuf);
+	SendBlockWaveSay(aBuf);
 }
 
 void CGameContext::BlockWaveStartNewGame()
@@ -2758,7 +2825,17 @@ void CGameContext::BlockWaveStartNewGame()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	m_BlockWaveRound = 0;
+	BlockWaveEndGame(); //send message to all players
+	m_BlockWaveRound = 0; //reset rounds
+	m_BlockWaveGameState = 0; //end old game
+	StartBlockWaveGame(); //start new game
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
+		{
+			m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+		}
+	}
 }
 
 int CGameContext::CountBlockWavePlayers()
@@ -2787,6 +2864,20 @@ void CGameContext::SendBlockWaveBroadcast(const char * pMsg)
 		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
 		{
 			SendBroadcast(pMsg, i);
+		}
+	}
+}
+
+void CGameContext::SendBlockWaveSay(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		{
+			SendChatTarget(i, pMsg);
 		}
 	}
 }
@@ -3733,6 +3824,10 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent)
 	{
 		m_apPlayers[DummyID]->m_IsBalanceBattlePlayer1 = false;
 		m_apPlayers[DummyID]->m_IsBalanceBattleDummy = true;
+	}
+	else if (dummymode == -3) //blockwavebot
+	{
+		m_apPlayers[DummyID]->m_IsBlockWaving = true;
 	}
 
 	OnClientEnter(DummyID, silent);

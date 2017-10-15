@@ -111,6 +111,37 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
 		}
 	}
+	else if (m_pPlayer->m_IsBlockWaving)
+	{
+		if (m_pPlayer->m_IsDummy)
+		{
+			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_BOT);
+
+			if (BlockWaveSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(BlockWaveSpawnTile);
+			}
+			else //no BlockWaveSpawnTile
+			{
+				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				GameServer()->m_BlockWaveGameState = 0;
+			}
+		}
+		else
+		{
+			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_HUMAN);
+
+			if (BlockWaveSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(BlockWaveSpawnTile);
+			}
+			else //no BlockWaveSpawnTile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				GameServer()->m_BlockWaveGameState = 0;
+			}
+		}
+	}
 	else if (m_pPlayer->m_IsSurvivaling)
 	{
 		if (m_pPlayer->m_IsSurvivalAlive)
@@ -3656,6 +3687,10 @@ bool CCharacter::UnFreeze()
 #endif
 	if (m_FreezeTime > 0)
 	{
+		//BlockWave
+		BlockWaveFreezeTicks = 0;
+		m_pPlayer->m_IsBlockWaveDead = false;
+
 		if (!m_pPlayer->m_IsVanillaDmg)
 		{
 			m_Armor = 10;
@@ -4065,6 +4100,23 @@ void CCharacter::DDPP_Tick()
 	//{
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
+
+	if (GameServer()->m_BlockWaveGameState)
+	{
+		if (m_pPlayer->m_IsBlockWaving)
+		{
+			if (m_FreezeTime > 0 && !m_pPlayer->m_IsBlockWaveDead)
+			{
+				BlockWaveFreezeTicks++; //gets set to zer0 in Unfreeze() func
+				if (BlockWaveFreezeTicks > Server()->TickSpeed() * 4)
+				{
+					str_format(aBuf, sizeof(aBuf), "[BlockWave] '%s' died.", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendBlockWaveSay(aBuf);
+					m_pPlayer->m_IsBlockWaveDead = true; //also gets set to zer0 on Unfreezefunc
+				}
+			}
+		}
+	}
 
 	//spawnblock reducer
 	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
@@ -4679,6 +4731,8 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	}
 
 	//blockwave minigame
+	//commented out cuz idk why people shouldnt be able to play alone lol
+	/*
 	if (m_pPlayer->m_IsBlockWaving)
 	{
 		if (GameServer()->CountBlockWavePlayers() < 2)
@@ -4686,6 +4740,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 			GameServer()->m_BlockWaveGameState = 0; //stop blockwaving game
 		}
 	}
+	*/
 
 	//ChillerDragon pvparena code
 	if (GameServer()->m_apPlayers[Killer])
@@ -4860,6 +4915,56 @@ void CCharacter::DummyTick()
 				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
 
 				m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 10 + Server()->TickSpeed() * (rand() % 21);
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == -3)
+		{
+			//rest dummy (zuruecksetzten)
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			if (pChr && pChr->IsAlive())
+			{
+				if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+				{
+					m_Input.m_Direction = 1;
+				}
+				else
+				{
+					m_Input.m_Direction = -1;
+				}
+			}
+
+			if (m_Core.m_Pos.y > 262 * 32 && m_Core.m_Pos.x > 404 * 32 && m_Core.m_Pos.x < 415 * 32 && !IsGrounded()) //Likely to fail in the leftest freeze becken
+			{
+				m_Input.m_Jump = 1;
+				if (m_Input.m_Direction == 0) //never stand still here
+				{
+					if (m_Core.m_Pos.x > 410 * 32)
+					{
+						m_Input.m_Direction = 1;
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+					}
+				}
+			}
+
+			if (m_Core.m_Pos.x < 392 * 32) //dont walk in the freeze wall on the leftest side
+			{
+				m_Input.m_Direction = 1;
+			}
+
+			if (m_Core.m_Pos.y < 257 * 32 && m_Core.m_Vel.y < -4.4f) //avoid hitting freeze roof
+			{
+				m_Input.m_Jump = 1;
+				m_Input.m_Hook = 1;
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 3)

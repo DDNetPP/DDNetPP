@@ -287,10 +287,13 @@ public:
 
 	//blockwave
 	
+	void BlockWaveWonRound();
+	void StartBlockWaveGame();
 	void BlockWaveGameTick();
 	void BlockWaveEndGame();
 	void BlockWaveStartNewGame();
 	void SendBlockWaveBroadcast(const char *pMsg);
+	void SendBlockWaveSay(const char *pMsg);
 	int CountBlockWavePlayers();
 	int m_BlockWaveGameState; // 0=offline 1=preparing 2=round running
 	int m_BlockWavePrepareDelay;
