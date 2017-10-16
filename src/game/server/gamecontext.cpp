@@ -2700,6 +2700,49 @@ bool CGameContext::SurvivalPickWinner()
 	return true;
 }
 
+void CGameContext::BlockWaveAddBots()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int OccSlots = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			OccSlots++;
+	}
+}
+	int FreeSlots = MAX_CLIENTS - OccSlots;
+
+
+
+	if (m_BlockWaveRound < 15 + 1) //max 15 bots
+	{
+		for (int i = 1; i < m_BlockWaveRound + 1; i++)
+		{
+			CreateNewDummy(-3, true);
+			if (i > FreeSlots - 5) //always leave 5 slots free for people to join
+			{
+				dbg_msg("BlockWave", "Stopped connecting at %d/%d bots because server has only %d free slots", i, m_BlockWaveRound + 1, FreeSlots);
+				break;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 1; i < 15 + 1; i++)
+		{
+			CreateNewDummy(-3, true);
+			if (i > FreeSlots - 5) //always leave 5 slots free for people to join
+			{
+				dbg_msg("BlockWave", "Stopped connecting at %d/15 + 1 bots because server has only %d free slots", i, FreeSlots);
+				break;
+			}
+		}
+	}
+}
+
 void CGameContext::BlockWaveWonRound()
 {
 #if defined(CONF_DEBUG)
@@ -2709,14 +2752,14 @@ void CGameContext::BlockWaveWonRound()
 	SendBlockWaveSay("[BlockWave] round survived.");
 	m_BlockWaveGameState = 1;
 
-	//respawn all humans
+	//respawn all dead humans
 	vec2 BlockWaveSpawnTile = Collision()->GetRandomTile(TILE_BLOCKWAVE_HUMAN);
 
 	if (BlockWaveSpawnTile != vec2(-1, -1))
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter())
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->m_FreezeTime)
 			{
 				m_apPlayers[i]->GetCharacter()->SetPosition(BlockWaveSpawnTile);
 			}
@@ -2728,11 +2771,15 @@ void CGameContext::BlockWaveWonRound()
 		m_BlockWaveGameState = 0;
 	}
 
-	for (int i = 0; i < MAX_CLIENTS; i++) //noboy is dead on new round
+	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
 		{
-			m_apPlayers[i]->m_IsBlockWaveDead = false;
+			m_apPlayers[i]->m_IsBlockWaveDead = false; //noboy is dead on new round
+			if (m_apPlayers[i]->m_IsBlockWaving && m_apPlayers[i]->m_IsDummy) //disconnect dummys
+			{
+				Server()->BotLeave(i, true);
+			}
 		}
 	}
 }
@@ -2745,10 +2792,14 @@ void CGameContext::StartBlockWaveGame()
 #endif
 	if (m_BlockWaveGameState) { return; } //no resatrt only start if not started yet
 	m_BlockWaveGameState = 1;
+	m_BlockWaveRound = 1; //reset rounds 
 	m_BlockWavePrepareDelay = (10 * Server()->TickSpeed());
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		m_apPlayers[i]->m_IsBlockWaveDead = false;
+		if (m_apPlayers[i])
+		{
+			m_apPlayers[i]->m_IsBlockWaveDead = false;
+		}
 	}
 }
 
@@ -2772,7 +2823,7 @@ void CGameContext::BlockWaveGameTick()
 			SendBlockWaveBroadcast("[BlockWave] Have fun and good luck!");
 			m_BlockWaveGameState = 2; //start round!
 			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
-			CreateNewDummy(-3, true);
+			BlockWaveAddBots();
 		}
 	}
 	else //running round
@@ -2826,12 +2877,11 @@ void CGameContext::BlockWaveStartNewGame()
 	CALL_STACK_ADD();
 #endif
 	BlockWaveEndGame(); //send message to all players
-	m_BlockWaveRound = 0; //reset rounds
 	m_BlockWaveGameState = 0; //end old game
 	StartBlockWaveGame(); //start new game
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && m_apPlayers[i]->GetCharacter())
 		{
 			m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 		}

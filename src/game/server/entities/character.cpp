@@ -4930,7 +4930,18 @@ void CCharacter::DummyTick()
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 			if (pChr && pChr->IsAlive())
 			{
-				if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (m_Core.m_Pos.y < pChr->m_Core.m_Pos.y - 60)
+				{
+					m_Input.m_Hook = 1;
+				}
+
+
+				if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x - 40)
 				{
 					m_Input.m_Direction = 1;
 				}

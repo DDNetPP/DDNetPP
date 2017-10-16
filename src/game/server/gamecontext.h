@@ -287,6 +287,7 @@ public:
 
 	//blockwave
 	
+	void BlockWaveAddBots();
 	void BlockWaveWonRound();
 	void StartBlockWaveGame();
 	void BlockWaveGameTick();
