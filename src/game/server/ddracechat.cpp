@@ -62,7 +62,7 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 
 	if (!pPlayer->m_IsSuperModerator)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a SuperModerator.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a VIP+.");
 		return;
 	}
 
@@ -70,11 +70,11 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 
 	if (pPlayer->m_IsSuperModSpawn)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "SuperModSpawn activated");
+		pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ Spawn activated");
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "SuperModSpawn deactivated");
+		pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ Spawn deactivated");
 	}
 }
 
@@ -315,8 +315,8 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ OFFER INFO ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "Users can accept offers with '/<extra> <accept>'");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Moderators can give all players one rainbow offer.");
-	pSelf->SendChatTarget(pResult->m_ClientID, "SuperModerators can give all players more rainbow offers and one bloody.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "VIPs can give all players one rainbow offer.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ can give all players more rainbow offers and one bloody.");
 	//pSelf->SendChatTarget(pResult->m_ClientID, "Admins can give all players much more of everything."); //admins can't do shit lul
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR OFFER STATS (Extras) ~~~");
 	str_format(aBuf, sizeof(aBuf), "Rainbow: %d", pPlayer->m_rainbow_offer);
@@ -406,11 +406,11 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added SuperModerator");
+			"+ added VIP+");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added Moderator");
+			"+ added VIP");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
-			"+ added SuperModerator Spawn");
+			"+ added VIP+ Spawn");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/acc_logout' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
@@ -2652,11 +2652,11 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
 					if (value == 1)
 					{
-						pSelf->SendChatTarget(i, "You are now SuperModerator.");
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+.");
 					}
 					else
 					{
-						pSelf->SendChatTarget(i, "You are no longer SuperModerator.");
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+.");
 					}
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
 					pSelf->SendChatTarget(ClientID, aBuf);
@@ -2692,11 +2692,11 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 					pSelf->m_apPlayers[i]->m_IsModerator = value;
 					if (value == 1)
 					{
-						pSelf->SendChatTarget(i, "You are now Moderator.");
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
 					}
 					else
 					{
-						pSelf->SendChatTarget(i, "You are no longer Moderator.");
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP.");
 					}
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is logged in)", value);
 					pSelf->SendChatTarget(ClientID, aBuf);
@@ -5453,7 +5453,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "SuperModerators can't offer bloody to the same player more than once.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ can't offer bloody to the same player more than once.");
 					}
 					else
 					{
@@ -5470,7 +5470,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "SuperModerators can't offer rainbow to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ can't offer rainbow to the same player more than 10 times.");
 					}
 					else
 					{
@@ -5566,7 +5566,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Moderators can't offer rainbow to the same player more than once.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "VIPs can't offer rainbow to the same player more than once.");
 					}
 					else
 					{
@@ -6105,7 +6105,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by SuperModerator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP+ '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
 			else if (Bantime < 0)
@@ -6124,7 +6124,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by SuperModerator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP+ '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
 				//BANNING PLAYER
@@ -6168,7 +6168,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by Moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
 			else if (Bantime < 0)
@@ -6187,7 +6187,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//do the ban
 				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
-				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by Moderator '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
 				//BANNING PLAYER
@@ -6195,7 +6195,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
-				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by moderator '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
+				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by vip '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
 			}
 		}
@@ -6558,7 +6558,7 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "*** ROOM ***");
 		pSelf->SendChatTarget(pResult->m_ClientID, "The room is a special place on the map.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Where special people can chill...");
-		pSelf->SendChatTarget(pResult->m_ClientID, "This command allows SuperModerators to invite tees to this room.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "This command allows VIP+ to invite tees to this room.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "*** USAGE ***");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/room invite <player>'.");
 	}
@@ -6597,7 +6597,7 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 		}
 		if (pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "This player was already invited by a SuperModerator.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player was already invited by a VIP+.");
 			return;
 		}
 		if (!pSelf->GetPlayerChar(InviteID))
@@ -6650,7 +6650,7 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 		}
 		if (!pSelf->GetPlayerChar(InviteID)->m_HasRoomKeyBySuperModerator)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "This player wasn't given a key by a SuperModerator.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "This player wasn't given a key by a VIP+.");
 			return;
 		}
 		if (!pSelf->GetPlayerChar(InviteID))
@@ -8686,7 +8686,7 @@ void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserD
 
 	if (!pPlayer->m_IsSuperModerator)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a SuperModerator.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a VIP+.");
 		return;
 	}
 
