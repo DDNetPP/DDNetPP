@@ -97,6 +97,8 @@ public:
 	vec2 GetPosition() { return m_Core.m_Pos;  } //proudly mede by ChillerDragon
 	void TakeHammerHit(CCharacter* pFrom); //ddpp implemented from fng2
 
+	bool isFreezed;
+
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
@@ -128,7 +130,7 @@ private:
 	int m_AttackTick;
 
 	int m_DamageTaken;
-	bool isFreezed;
+	//bool isFreezed; //ChillerDragon moved this public
 
 	int m_EmoteType;
 	int m_EmoteStop;

@@ -4927,7 +4927,7 @@ void CCharacter::DummyTick()
 			m_Input.m_Fire = 0;
 
 
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharTypeNotInFreeze(m_Pos, true, this, false);
 			if (pChr && pChr->IsAlive())
 			{
 				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -4949,6 +4949,60 @@ void CCharacter::DummyTick()
 				{
 					m_Input.m_Direction = -1;
 				}
+
+				if (m_Core.m_Pos.x > 411 * 32 && m_Core.m_Pos.x < 420 * 32) //hookbattle left entry
+				{
+					if (pChr->m_Core.m_Pos.x < m_Core.m_Pos.x + 8 * 32) //8 tiles hookrange
+					{
+						m_Input.m_Hook = 1;
+					}
+
+					if (m_Core.m_HookState == HOOK_GRABBED)
+					{
+						m_Input.m_Direction = -1;
+					}
+
+					//rehook
+					if (Server()->Tick() % 15 == 0 && m_Core.m_HookState != HOOK_GRABBED)
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+
+				if (pChr->m_FreezeTime) //go full yolo and ignore all freeze just hook the enemy into freeze (kamikaze style)
+				{
+					m_Input.m_Hook = 1;
+
+					if (m_Core.m_Pos.x > 446 * 32) //right side of main area and right spawn
+					{
+						m_Input.m_Direction = 1;
+					}
+					else if (m_Core.m_Pos.x > 425 * 32 && m_Core.m_Pos.x < 434 * 32) //left side of the base prefer the freeze hole cuz its less kamikaze
+					{
+						m_Input.m_Direction = 1;
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+					}
+
+					if (Server()->Tick() % 9 == 0)
+					{
+						m_Input.m_Jump = 1;
+					}
+
+					if (Server()->Tick() % 15 == 0 && m_Core.m_HookState != HOOK_GRABBED)
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+				else //no frozen enemy --> dont run into freeze
+				{
+					if (m_Core.m_Pos.x > 453 * 32 && m_Core.m_Pos.x < 457 * 32)
+					{
+						m_Input.m_Direction = -1; //dont run into right entry of main area
+					}
+				}
 			}
 
 			if (m_Core.m_Pos.y > 262 * 32 && m_Core.m_Pos.x > 404 * 32 && m_Core.m_Pos.x < 415 * 32 && !IsGrounded()) //Likely to fail in the leftest freeze becken
@@ -4967,15 +5021,84 @@ void CCharacter::DummyTick()
 				}
 			}
 
+
+			//basic map dodigen
+
 			if (m_Core.m_Pos.x < 392 * 32) //dont walk in the freeze wall on the leftest side
 			{
 				m_Input.m_Direction = 1;
 			}
 
-			if (m_Core.m_Pos.y < 257 * 32 && m_Core.m_Vel.y < -4.4f) //avoid hitting freeze roof
+			if (m_Core.m_Pos.y < 257 * 32 && m_Core.m_Vel.y < -4.4f && m_Core.m_Pos.x < 456 * 32) //avoid hitting freeze roof
 			{
 				m_Input.m_Jump = 1;
 				m_Input.m_Hook = 1;
+			}
+
+
+			if (m_Core.m_Pos.x > 428 * 32 && m_Core.m_Pos.x < 437 * 32) //freeze loch im main becken dodgen
+			{
+				if (m_Core.m_Pos.y > 263 * 32 && !IsGrounded())
+				{
+					m_Input.m_Jump = 1;
+				}
+
+
+				//position predefines
+				if (m_Core.m_Pos.x > 423 * 32)
+				{
+					m_Input.m_Direction = 1;
+				}
+				else
+				{
+					m_Input.m_Direction = -1;
+				}
+
+				//velocity ovrrides
+				if (m_Core.m_Vel.x > 2.6f)
+				{
+					m_Input.m_Direction = 1;
+				}
+				if (m_Core.m_Vel.x < -2.6f)
+				{
+					m_Input.m_Direction = -1;
+				}
+			}
+
+			if (m_Core.m_Pos.x > 418 * 32 && m_Core.m_Pos.x < 422 * 32) //passing the freeze on the left side
+			{
+				if (m_Core.m_Pos.x < 420 * 32)
+				{
+					if (m_Core.m_Vel.x > 0.6f)
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+				else
+				{
+					if (m_Core.m_Vel.x < -0.6f)
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+			}
+
+			if (m_Core.m_Pos.x > 457 * 32) //right spawn --->
+			{
+				m_Input.m_Direction = -1;
+				if (m_Core.m_Pos.x < 470 * 32 && IsGrounded()) //start border jump
+				{
+					m_Input.m_Jump = 1;
+				}
+				else if (m_Core.m_Pos.x < 470 * 32 && !IsGrounded() && m_Core.m_Pos.y > 260 * 32)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+
+			if (m_Core.m_Pos.y < 254 * 32 && m_Core.m_Pos.x < 401 * 32 && m_Core.m_Pos.x > 397 * 32) //left spawn upper right freeze wall
+			{
+				m_Input.m_Direction = -1;
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 3)
