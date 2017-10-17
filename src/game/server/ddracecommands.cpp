@@ -1367,6 +1367,11 @@ void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
 
 }
 
+//=============
+// DDNet++
+// rcon api
+//=============
+
 void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -1382,6 +1387,74 @@ void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
 		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+	else
+	{
+		dbg_msg("RCON_API", "some ingame admin tried to abuse the api");
+		return;
+	}
+}
+
+void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+	{
+		dbg_msg("RCON_API", "some non client executed an api command");
+
+		char aBuf[256];
+		char aSQL[256];
+		int Type = pResult->GetInteger(0);
+
+		if (Type == 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type INTEGER", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` INTEGER DEFAULT 0", pResult->GetString(1));
+		}
+		else if (Type == 1)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(4)", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(4) DEFAULT ''", pResult->GetString(1));
+		}
+		else if (Type == 2)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(16)", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(16) DEFAULT ''", pResult->GetString(1));
+		}
+		else if (Type == 3)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(32)", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(32) DEFAULT ''", pResult->GetString(1));
+		}
+		else if (Type == 4)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(64)", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(64) DEFAULT ''", pResult->GetString(1));
+		}
+		else if (Type == 5)
+		{
+			str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(128)", pResult->GetString(1));
+			str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(128) DEFAULT ''", pResult->GetString(1));
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "failed to add column '%s' of unsupported type %d", pResult->GetString(1), Type);
+			return;
+		}
+
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RCON_API", aBuf);
+
+#if defined(CONF_DEBUG)
+		dbg_msg("SQL", "RCON_API: %s", aSQL);
+#endif
+		char *pQueryBuf = sqlite3_mprintf(aSQL);
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
 		return;
 	}
 	else

@@ -507,6 +507,7 @@ private:
 
 	//rcon api
 	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
 
 	//HACK ChillerDragon
 	//static void ConHack(IConsole::IResult *pResult, void *pUserData);
