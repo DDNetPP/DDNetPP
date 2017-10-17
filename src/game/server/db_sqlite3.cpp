@@ -183,6 +183,7 @@ CSql::CSql()
 		"Clan1						VARCHAR(32)		DEFAULT ''," \
 		"Clan2						VARCHAR(32)		DEFAULT ''," \
 		"Clan3						VARCHAR(32)		DEFAULT ''," \
+		"Skin						VARCHAR(32)		DEFAULT ''," \
 		"Level						INTEGER			DEFAULT 0," \
 		"Money						INTEGER			DEFAULT 0," \
 		"Exp						INTEGER			DEFAULT 0," \

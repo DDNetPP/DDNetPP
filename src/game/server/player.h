@@ -362,6 +362,8 @@ public:
 	char m_aClan2[32];
 	char m_aClan3[32];
 
+	char m_aAccSkin[32];
+
 	int m_homing_missiles_ammo;
 
 

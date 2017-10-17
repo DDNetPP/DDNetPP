@@ -1412,6 +1412,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
 											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
 											  ", `Clan1` = '%s', `Clan2` = '%s', `Clan3` = '%s'"
+											  ", `Skin` = '%s'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
@@ -1431,6 +1432,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
 												m_aIP_1, m_aIP_2, m_aIP_3,
 												m_aClan1, m_aClan2, m_aClan3,
+												m_TeeInfos.m_SkinName,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
