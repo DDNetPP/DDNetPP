@@ -8859,3 +8859,34 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	pQuery->Query(pSelf->m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
 }
+
+void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	int gangster = 0;
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "=== Wanted Players ===");
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_EscapeTime)
+		{
+			gangster++;
+			str_format(aBuf, sizeof(aBuf), "'%s' - %d seconds", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	str_format(aBuf, sizeof(aBuf), "=== %d gangster wanted ===", gangster);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}

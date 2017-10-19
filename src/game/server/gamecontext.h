@@ -639,6 +639,7 @@ private:
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConReport(IConsole::IResult *pResult, void *pUserData);
 	static void ConTaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConWanted(IConsole::IResult *pResult, void *pUserData);
 
 	//money 
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);

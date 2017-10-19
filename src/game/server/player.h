@@ -567,6 +567,7 @@ public:
 	int m_KillStreak;
 	bool m_IsJailed;
 	int64 m_EscapeTime;
+	char m_aEscapeReason[256];
 	//bool m_InBank; //moved character
 	bool m_ExitBank;
 

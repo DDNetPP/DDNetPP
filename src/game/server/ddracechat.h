@@ -72,7 +72,7 @@ CHAT_COMMAND("jail", "?s?i?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConJail, this, "po
 CHAT_COMMAND("report", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConReport, this, "report players and police will arrest em")
 
 CHAT_COMMAND("taser", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTaser, this, "everything about taser")
-
+CHAT_COMMAND("wanted", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConWanted, this, "shows a list of wanted players. help the police to catch em")
 
 //toggles
 CHAT_COMMAND("togglejailmsg", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTogglejailmsg, this, "turns the information about arrest and escape time on/off")
