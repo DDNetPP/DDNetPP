@@ -160,6 +160,8 @@ void CPlayer::Reset()
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
 
+	str_copy(m_aEscapeReason, "unknown", 16);
+
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
 	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");

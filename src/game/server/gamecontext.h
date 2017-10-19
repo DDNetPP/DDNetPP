@@ -314,6 +314,7 @@ public:
 
 	//police
 	void SendAllPolice(const char *pMessage);
+	void AddEscapeReason(int ID, const char *pReason);
 
 	//bank
 	bool m_IsBankOpen;

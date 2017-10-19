@@ -4426,6 +4426,7 @@ void CCharacter::DDPP_Tick()
 		if (m_pPlayer->m_EscapeTime == 1)
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You are free now.");
+			GameServer()->AddEscapeReason(GetPlayer()->GetCID(), "unknown");
 			m_isDmg = false;
 			m_Health = 10;
 		}
@@ -12782,6 +12783,7 @@ void CCharacter::BlockSpawnProt(int Killer)
 					GameServer()->SendAllPolice(aBuf);
 					GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
 					GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
+					GameServer()->AddEscapeReason(Killer, "spawnblock");
 				}
 			}
 		}

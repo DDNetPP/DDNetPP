@@ -3576,6 +3576,47 @@ void CGameContext::SendAllPolice(const char * pMessage)
 	}
 }
 
+void CGameContext::AddEscapeReason(int ID, const char * pReason)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	//dbg_msg("cBug", "current reaso is %s", m_apPlayers[ID]->m_aEscapeReason);
+
+	//dont add already exsisting reasons agian
+	if (str_find(m_apPlayers[ID]->m_aEscapeReason, pReason))
+	{
+		//dbg_msg("cBug", "skipping exsisting reason %s", pReason);
+		return;
+	}
+	//reset all 
+	if (!str_comp(pReason, "unknown"))
+	{
+		str_format(m_apPlayers[ID]->m_aEscapeReason, sizeof(m_apPlayers[ID]->m_aEscapeReason), "%s", pReason);
+		//dbg_msg("cBug", "resetting to reason %s", pReason);
+		return;
+	}
+
+	if (!str_comp(m_apPlayers[ID]->m_aEscapeReason, "unknown")) //keine vorstrafen
+	{
+		str_format(m_apPlayers[ID]->m_aEscapeReason, sizeof(m_apPlayers[ID]->m_aEscapeReason), "%s", pReason);
+		dbg_msg("cBug", "set escape reason to %s -> %s", pReason, m_apPlayers[ID]->m_aEscapeReason);
+	}
+	else
+	{
+		str_format(m_apPlayers[ID]->m_aEscapeReason, sizeof(m_apPlayers[ID]->m_aEscapeReason), "%s, %s",m_apPlayers[ID]->m_aEscapeReason, pReason);
+	}
+	//wtf doesnt work with the seconds first then the reason always gets printed as (null) wtf !)!)!)!
+	/*
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "'%s' seconds [%d] reason [%s]", Server()->ClientName(ID), m_apPlayers[ID]->m_EscapeTime / Server()->TickSpeed(), m_apPlayers[ID]->m_aEscapeReason);
+	dbg_msg("DEBUG", aBuf);
+	dbg_msg("cBug", "set escape reason to %s -> %s", pReason, m_apPlayers[ID]->m_aEscapeReason);
+	str_format(aBuf, sizeof(aBuf), " seconds [%d] reason [%s]", m_apPlayers[ID]->m_EscapeTime / Server()->TickSpeed(), m_apPlayers[ID]->m_aEscapeReason);
+	SendChatTarget(ID, aBuf);
+	*/
+}
+
 void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 {
 #if defined(CONF_DEBUG)
@@ -5134,6 +5175,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
+
+						//AddEscapeReason(ClientID, "testc");
+						//pPlayer->m_EscapeTime = 400;
 
 						m_apPlayers[ClientID]->m_autospreadgun ^= true;
 						//m_apPlayers[ClientID]->m_IsSupporter ^= true;

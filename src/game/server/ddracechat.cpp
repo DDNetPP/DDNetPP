@@ -8883,7 +8883,7 @@ void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
 		if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_EscapeTime)
 		{
 			gangster++;
-			str_format(aBuf, sizeof(aBuf), "'%s' - %d seconds", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%d]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
