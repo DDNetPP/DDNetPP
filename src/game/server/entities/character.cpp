@@ -12772,7 +12772,7 @@ void CCharacter::BlockSpawnProt(int Killer)
 			GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
 			if (g_Config.m_SvSpawnBlockProtection == 1)
 			{
-				GameServer()->SendChatTarget(Killer, "spawnblocking is illegal");
+				GameServer()->SendChatTarget(Killer, "[WARNING] spawnblocking is illegal.");
 				//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
 				//GameServer()->SendChatTarget(Killer, aBuf);
 

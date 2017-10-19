@@ -2804,7 +2804,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()));
 		pSelf->SendChatTarget(ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d Skin: '%s' ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID, pSelf->m_apPlayers[InfoID]->m_aAccSkin);
+		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN2);
@@ -2819,6 +2819,8 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan2);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan3);
+		str_format(aBuf, sizeof(aBuf), "========= Skin '%s' =========", pSelf->m_apPlayers[InfoID]->m_aAccSkin);
+		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else
 	{

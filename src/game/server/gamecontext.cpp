@@ -110,6 +110,7 @@ void CQueryLogin::OnData()
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSupporter = GetInt(GetID("IsSupporter"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
 
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1));
@@ -1516,7 +1517,29 @@ void CGameContext::OnClientConnected(int ClientID)
 
 	// send motd
 	CNetMsg_Sv_Motd Msg;
-	Msg.m_pMessage = g_Config.m_SvMotd;
+	char aBuf[256]; //unser guter alter buffer
+	bool IsSupporterOnline = false;
+	//lass mal durch alle spieler iterieren und schauen ob n mod online is
+	for (int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is lass mal der einfachheit halber erstmal nur 1 mod anzeigen 
+		{
+			str_format(aBuf, sizeof(aBuf), "%s \n [SUPPORTER] %s", g_Config.m_SvMotd, Server()->ClientName(i)); //jedes %s wird durch einen string ersetzt  das erste %s durch den ersten string der hinten angegeben wird also hier g_Config.m_SvModt und als zweites wird das %s durch den spielernamen erstezt der supporter ist
+			//das ganze wird dann in aBuf gesteckt
+			IsSupporterOnline = true;
+			break; //aufhören wenn supporter gefunden wurde
+		}
+	}
+
+	if (IsSupporterOnline) // so wenn ein mod online ist schicken wir die modifizierte message of the day mit dem namen des sup 
+	{
+		Msg.m_pMessage = aBuf;
+	}
+	else //sonst schicken wir die normale 
+	{
+		Msg.m_pMessage = g_Config.m_SvMotd; //hier wird der string aus der config variable in die message geklatscht du meinst das was man in der autoexec eingibt? yes oder ngame mit sv_modt yy also lass das mal modifizieren davo
+	}
+	
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
@@ -5113,7 +5136,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
 
 						m_apPlayers[ClientID]->m_autospreadgun ^= true;
-
+						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
 
 						//CBlackHole test;
 

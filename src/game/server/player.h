@@ -339,6 +339,7 @@ public:
 	bool m_IsModerator;
 	bool m_IsSuperModerator;
 	bool m_IsSuperModSpawn;
+	bool m_IsSupporter;
 
 	bool m_IsAccFrozen; //cant use the sql acc if true
 

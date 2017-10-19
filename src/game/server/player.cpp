@@ -1408,7 +1408,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s'"
 											  ", `HomingMissiles` = '%i'"
 											  ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i'"
-											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
+											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
 											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
 											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
 											  ", `Clan1` = '%s', `Clan2` = '%s', `Clan3` = '%s'"
@@ -1428,7 +1428,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 												m_homing_missiles_ammo,
 												m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths,
-												m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, SetLoggedIn,
+												m_IsModerator, m_IsSuperModerator, m_IsSupporter, m_IsAccFrozen, SetLoggedIn,
 												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
 												m_aIP_1, m_aIP_2, m_aIP_3,
 												m_aClan1, m_aClan2, m_aClan3,

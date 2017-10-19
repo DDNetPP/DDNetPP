@@ -211,6 +211,7 @@ CSql::CSql()
 		"BlockDeaths				INTEGER			DEFAULT 0," \
 		"IsModerator				INTEGER			DEFAULT 0," \
 		"IsSuperModerator			INTEGER			DEFAULT 0," \
+		"IsSupporter				INTEGER			DEFAULT 0," \
 		"IsAccFrozen				INTEGER			DEFAULT 0," \
 		"BombGamesPlayed			INTEGER			DEFAULT 0," \
 		"BombGamesWon				INTEGER			DEFAULT 0," \
