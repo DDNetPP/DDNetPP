@@ -706,7 +706,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 }
 
 
-CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, bool Human, CCharacter *pNotThis)  //den nächsten dummy finden
+CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  //den nächsten dummy finden
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -726,8 +726,8 @@ CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, bool Human, CCharacter *p
 		//else if (!Human && !p->GetPlayer()->m_IsDummy)
 		//	continue;
 
-
-
+		if (!p->GetPlayer()->m_IsDummy)
+			continue;
 
 		float Len = distance(Pos, p->m_Pos);
 

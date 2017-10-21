@@ -121,7 +121,7 @@ public:
 
 	class CCharacter *ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //chiller was here o.O 2
 
-	class CCharacter *ClosestCharTypeDummy(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
+	class CCharacter *ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis = 0);
 
 	class CCharacter *ClosestCharTypeFarInRace(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
 

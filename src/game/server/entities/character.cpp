@@ -4101,16 +4101,6 @@ void CCharacter::DDPP_Tick()
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
 
-	//debug spawn area
-	if (GameServer()->IsPosition(m_pPlayer->GetCID(), 3))
-	{
-		m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
-	}
-	else
-	{
-		m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
-	}
-
 	if (GameServer()->m_BlockWaveGameState)
 	{
 		if (m_pPlayer->m_IsBlockWaving)
@@ -4937,7 +4927,6 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 
-
 			CCharacter *pChr = GameServer()->m_World.ClosestCharTypeNotInFreeze(m_Pos, true, this, false);
 			if (pChr && pChr->IsAlive())
 			{
@@ -5015,6 +5004,32 @@ void CCharacter::DummyTick()
 					}
 				}
 			}
+
+
+			//Care your bot mates c:
+			CCharacter *pBot = GameServer()->m_World.ClosestCharTypeDummy(m_Pos, this);
+			if (pBot && pBot->IsAlive())
+			{
+				//chill dont push all at once
+				if (m_Core.m_Pos.x < 404 * 32 && m_Core.m_Pos.x > 393 * 32 && pBot->m_Core.m_Pos.x > m_Core.m_Pos.x + 5 && !pBot->isFreezed) //left side of map
+				{
+					if (pBot->m_Core.m_Pos.x < m_Core.m_Pos.x + 8 * 32) //8 tiles distance
+					{
+						m_Input.m_Direction = -1;
+					}
+				}
+
+				//get dj if mates block the fastlane on entering from left side
+				if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 420 * 32 && !IsGrounded())
+				{
+					if (pBot->m_Core.m_Pos.x > 420 * 32 && pBot->m_Core.m_Pos.x < 423 * 32 + 20 && pBot->m_FreezeTime)
+					{
+						m_Input.m_Direction = -1;
+					}
+				}
+			}
+
+
 
 			if (m_Core.m_Pos.y > 262 * 32 && m_Core.m_Pos.x > 404 * 32 && m_Core.m_Pos.x < 415 * 32 && !IsGrounded()) //Likely to fail in the leftest freeze becken
 			{
