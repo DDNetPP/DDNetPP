@@ -2591,6 +2591,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
 		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql supporter <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
@@ -2633,6 +2634,47 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+	}
+	else if (!str_comp_nocase(aCommand, "supporter"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
+		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSupporter='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_IsSupporter = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer Supporter.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCommand, "super_mod"))
 	{
