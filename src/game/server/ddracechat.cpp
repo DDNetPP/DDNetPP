@@ -9,6 +9,8 @@
 #include <game/generated/nethash.cpp>
 #include <time.h>          //ChillerDragon
 #include <sqlite3/sqlite3.h>
+//#include <stdio.h> //strcat
+#include <string.h> //strcat
 
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
@@ -8889,4 +8891,51 @@ void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
 	}
 	str_format(aBuf, sizeof(aBuf), "=== %d gangster wanted ===", gangster);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
+void CGameContext::ConViewers(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[32];
+	char aMsg[128];
+	int viewers = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_SpectatorID == pResult->m_ClientID)
+		{
+			viewers++;
+			if (viewers == 1)
+			{
+				str_format(aMsg, sizeof(aMsg), "'%s'", pSelf->Server()->ClientName(i));
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), ", '%s'", pSelf->Server()->ClientName(i));
+				strcat(aMsg, aBuf);
+			}
+		}
+	}
+
+	if (viewers)
+	{
+		str_format(aBuf, sizeof(aBuf), "You have [%d] fangrills:", viewers);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		pSelf->SendChatTarget(pResult->m_ClientID, aMsg);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "nobody is watching u ._.");
+	}
 }

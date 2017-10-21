@@ -1761,16 +1761,16 @@ bool CGameContext::IsPosition(int playerID, int pos)
 			return true;	
 		}
 	}
-	else if (pos == 1) //cb5 spawn
-	{
-		if (GetPlayerChar(playerID)->m_Pos.x > 325 * 32
-			&& GetPlayerChar(playerID)->m_Pos.x < 362 * 32
-			&& GetPlayerChar(playerID)->m_Pos.y > 191 * 32
-			&& GetPlayerChar(playerID)->m_Pos.y < 206 * 32)
-		{
-			return true;
-		}
-	}
+	//else if (pos == 1) //cb5 spawn
+	//{
+	//	if (GetPlayerChar(playerID)->m_Pos.x > 325 * 32
+	//		&& GetPlayerChar(playerID)->m_Pos.x < 362 * 32
+	//		&& GetPlayerChar(playerID)->m_Pos.y > 191 * 32
+	//		&& GetPlayerChar(playerID)->m_Pos.y < 206 * 32)
+	//	{
+	//		return true;
+	//	}
+	//}
 	else if (pos == 2) //cb5 far in map (block area and race)
 	{
 		if (GetPlayerChar(playerID)->m_Pos.x > 415 * 32)
@@ -1778,7 +1778,16 @@ bool CGameContext::IsPosition(int playerID, int pos)
 			return true;
 		}
 	}
-
+	else if (pos == 3) //configurated spawn area
+	{
+		if (GetPlayerChar(playerID)->m_Pos.x > g_Config.m_SvSpawnareaLowX * 32
+			&& GetPlayerChar(playerID)->m_Pos.x < g_Config.m_SvSpawnareaHighX * 32
+			&& GetPlayerChar(playerID)->m_Pos.y > g_Config.m_SvSpawnareaLowY * 32
+			&& GetPlayerChar(playerID)->m_Pos.y < g_Config.m_SvSpawnareaHighY * 32)
+		{
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -5160,7 +5169,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
-					SendChatTarget(ClientID, "Test Failed.");
+					SendChatTarget(ClientID, "Test Failed. ====");
 
 					if (g_Config.m_SvTestingCommands)
 					{
@@ -6783,7 +6792,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
-			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection)
+			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection == 2)
 			{
 				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");
 				return;

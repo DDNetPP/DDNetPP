@@ -659,6 +659,7 @@ private:
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConViewers(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);
 

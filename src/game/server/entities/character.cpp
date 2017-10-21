@@ -4101,6 +4101,16 @@ void CCharacter::DDPP_Tick()
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
 
+	//debug spawn area
+	if (GameServer()->IsPosition(m_pPlayer->GetCID(), 3))
+	{
+		m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+	}
+	else
+	{
+		m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+	}
+
 	if (GameServer()->m_BlockWaveGameState)
 	{
 		if (m_pPlayer->m_IsBlockWaving)
@@ -12768,10 +12778,10 @@ void CCharacter::BlockSpawnProt(int Killer)
 	if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->GetCharacter() && m_pPlayer->GetCID() != Killer)
 	{
 		//punish spawn blockers
-		if (GameServer()->IsPosition(Killer, 1)) //if killer is in spawn area
+		if (GameServer()->IsPosition(Killer, 3)) //if killer is in spawn area
 		{
 			GameServer()->m_apPlayers[Killer]->m_SpawnBlocks++;
-			if (g_Config.m_SvSpawnBlockProtection == 1)
+			if (g_Config.m_SvSpawnBlockProtection == 1 || g_Config.m_SvSpawnBlockProtection == 2)
 			{
 				GameServer()->SendChatTarget(Killer, "[WARNING] spawnblocking is illegal.");
 				//str_format(aBuf, sizeof(aBuf), "[debug] spawnblocks: %d", GameServer()->m_apPlayers[Killer]->m_SpawnBlocks);
