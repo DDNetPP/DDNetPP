@@ -23,6 +23,7 @@ src/game/generated
 /versionsrv*
 
 debug.txt
+*.acc
 *.db
 *.bat
 .cproject
