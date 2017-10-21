@@ -1517,23 +1517,27 @@ void CGameContext::OnClientConnected(int ClientID)
 
 	// send motd
 	CNetMsg_Sv_Motd Msg;
-	char aBuf[256]; //unser guter alter buffer
+	char aBuf[128]; 
+	char aBroad[2048];
 	bool IsSupporterOnline = false;
+	str_format(aBroad, sizeof(aBroad), "%s\n[ONLINE SUPPORTER]:\n", g_Config.m_SvMotd);
+
 	//lass mal durch alle spieler iterieren und schauen ob n mod online is
 	for (int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is lass mal der einfachheit halber erstmal nur 1 mod anzeigen 
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is
 		{
-			str_format(aBuf, sizeof(aBuf), "%s \n [SUPPORTER] %s", g_Config.m_SvMotd, Server()->ClientName(i)); //jedes %s wird durch einen string ersetzt  das erste %s durch den ersten string der hinten angegeben wird also hier g_Config.m_SvModt und als zweites wird das %s durch den spielernamen erstezt der supporter ist
-			//das ganze wird dann in aBuf gesteckt
+			str_format(aBuf, sizeof(aBuf), "• '%s'\n", Server()->ClientName(i));
+			str_append(aBroad, aBuf, sizeof(aBroad));
+			dbg_msg("aBuf", aBuf);
+			dbg_msg("aBroad", aBroad);
 			IsSupporterOnline = true;
-			break; //aufhören wenn supporter gefunden wurde
 		}
 	}
 
 	if (IsSupporterOnline) // so wenn ein mod online ist schicken wir die modifizierte message of the day mit dem namen des sup 
 	{
-		Msg.m_pMessage = aBuf;
+		Msg.m_pMessage = aBroad;
 	}
 	else //sonst schicken wir die normale 
 	{
@@ -5201,7 +5205,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_EscapeTime = 400;
 
 						m_apPlayers[ClientID]->m_autospreadgun ^= true;
-						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
+						m_apPlayers[ClientID]->m_IsSupporter ^= true;
 
 						//CBlackHole test;
 
