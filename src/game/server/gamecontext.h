@@ -606,6 +606,8 @@ private:
 	static void ConAccLogout(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
+	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLLogout(IConsole::IResult *pResult, void *pUserData);

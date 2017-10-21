@@ -8,9 +8,12 @@
 #include <game/version.h>
 #include <game/generated/nethash.cpp>
 #include <time.h>          //ChillerDragon
+#include <fstream> //ChillerDragon acc sys2
+#include <limits> //ChillerDragon acc sys2 get specific line
 #include <sqlite3/sqlite3.h>
 //#include <stdio.h> //strcat
 #include <string.h> //strcat
+
 
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
@@ -8989,4 +8992,220 @@ void CGameContext::ConViewers(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "nobody is watching u ._.");
 	}
+}
+
+void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(ClientID, "Use '/login <name> <password>'.");
+		pSelf->SendChatTarget(ClientID, "Use '/accountinfo' for help.");
+		return;
+	}
+
+	if (pPlayer->m_AccountID > 0)
+	{
+		pSelf->SendChatTarget(ClientID, "You are already logged in.");
+		return;
+	}
+
+	char aUsername[32];
+	char aPassword[128];
+	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
+	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
+
+	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
+	{
+		pSelf->SendChatTarget(ClientID, "Username is too long or too short. Max. length 20, min. length 3");
+		return;
+	}
+
+	if (str_length(aPassword) > 20 || str_length(aPassword) < 3)
+	{
+		pSelf->SendChatTarget(ClientID, "Password is too long or too short. Max. length 20, min. length 3");
+		return;
+	}
+
+	//===========
+	// FILE BASED
+	//===========
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aUsername);
+	std::fstream Acc2File(aBuf);
+
+	if (std::ifstream(aBuf))
+	{
+		std::string data;
+		char aPasswd[32];
+
+		getline(Acc2File, data);
+		//dbg_msg("acc2", data.c_str());
+		str_copy(aPasswd, data.c_str(), sizeof(aPasswd));
+
+		
+		if (!str_comp(aPassword, aPasswd))
+		{
+
+			//getline(Acc2File, data); //more data
+			//dbg_msg("acc2", data.c_str());
+
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] wrong password.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] login failed.");
+	}
+
+	Acc2File.close();
+}
+
+void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 3)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register <name> <password> <password>'.");
+		return;
+	}
+
+	if (pPlayer->m_AccountID > 0)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
+		return;
+	}
+
+	char aBuf[512];
+	char aUsername[32];
+	char aPassword[32];
+	char aPassword2[32];
+	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
+	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
+	str_copy(aPassword2, pResult->GetString(2), sizeof(aPassword2));
+
+	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
+		return;
+	}
+
+	if ((str_length(aPassword) > 20 || str_length(aPassword) < 3) || (str_length(aPassword2) > 20 || str_length(aPassword2) < 3))
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+		return;
+	}
+
+	if (str_comp_nocase(aPassword, aPassword2) != 0)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Passwords need to be identical.");
+		return;
+	}
+
+	//                                                                                                  \\ Escaping the escape seceqnze
+	char aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
+	bool EvilChar = false;
+
+	for (int i = 0; i < str_length(aUsername); i++)
+	{
+		bool IsOk = false;
+
+		for (int j = 0; j < str_length(aAllowedCharSet); j++)
+		{
+			if (aUsername[i] == aAllowedCharSet[j])
+			{
+				//dbg_msg("account","found valid char '%c' - '%c'", aUsername[i], aAllowedCharSet[j]);
+				IsOk = true;
+				break;
+			}
+		}
+
+		if (!IsOk)
+		{
+			//dbg_msg("account", "found evil char '%c'", aUsername[i]);
+			EvilChar = true;
+			break;
+		}
+	}
+
+	if (EvilChar)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", aAllowedCharSet);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+
+
+	//===========
+	// FILE BASED
+	//===========
+
+
+	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aUsername);
+
+	if (std::ifstream(aBuf))
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] username already exsists.");
+		return;
+	}
+	std::ofstream Account2File(aBuf);
+	if (!Account2File)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] an error occured. pls report to an admin.");
+		dbg_msg("acc2", "error1 writing file 'file_accounts/%s.acc'", aUsername);
+		Account2File.close();
+		return;
+	}
+
+	if (Account2File.is_open())
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] sucessfully registered an account.");
+		Account2File << aPassword << "\n" << "random data 01010100101010";
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] an error occured. pls report to an admin.");
+		dbg_msg("acc2","error2 writing file 'file_accounts/%s.acc'", aUsername);
+	}
+
+	Account2File.close();
 }
