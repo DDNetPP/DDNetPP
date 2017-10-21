@@ -12696,23 +12696,37 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		{
 			char aBuf[128];
 			Killer = m_pPlayer->m_LastToucherID; //kill message
-			if (m_pPlayer->m_IsDummy)
+			if (!m_pPlayer->m_IsBlockWaving) //dont count block deaths in blockwave minigame
 			{
-				if (g_Config.m_SvDummyBlockPoints)
+				if (m_pPlayer->m_IsDummy)
+				{
+					if (g_Config.m_SvDummyBlockPoints)
+					{
+						m_pPlayer->m_BlockPoints_Deaths++;
+					}
+				}
+				else
 				{
 					m_pPlayer->m_BlockPoints_Deaths++;
 				}
 			}
-			else
-			{
-				m_pPlayer->m_BlockPoints_Deaths++;
-			}
 
 			if (GameServer()->m_apPlayers[Killer])
 			{
-				if (m_pPlayer->m_IsDummy) //if dummy got killed make some exceptions
+				if (!m_pPlayer->m_IsBlockWaving) //dont count block kills and points in blockwave minigame (would be too op lol)
 				{
-					if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
+					if (m_pPlayer->m_IsDummy) //if dummy got killed make some exceptions
+					{
+						if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
+						{
+							if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+							{
+								GiveBlockPoints(Killer, 1);
+							}
+							GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+						}
+					}
+					else
 					{
 						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 						{
@@ -12720,14 +12734,6 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 						}
 						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 					}
-				}
-				else
-				{
-					if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-					{
-						GiveBlockPoints(Killer, 1);
-					}
-					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 				}
 
 				if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //if killer(blocker) exists

@@ -2926,6 +2926,10 @@ void CGameContext::BlockWaveStartNewGame()
 		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && m_apPlayers[i]->GetCharacter())
 		{
 			m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+			if (m_apPlayers[i]->m_IsDummy)
+			{
+				Server()->BotLeave(i, true);
+			}
 		}
 	}
 }
