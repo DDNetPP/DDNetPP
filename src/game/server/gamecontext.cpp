@@ -2702,11 +2702,11 @@ void CGameContext::SurvivalSetGameState(int state)
 				{
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
-				m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-				m_survivalgamestate = 2;
 				SetPlayerSurvival(i, 2);
 			}
 		}
+		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		m_survivalgamestate = 2;
 	}
 }
 

@@ -38,6 +38,12 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## livestreams ##
+add '/livestream host' command to host a livestream
+a hoster gets printed all '/livestream view'ers in broadcast
+and the viewers get paused and focused on the tee.
+there is an extra stream chat and idk totally useless feature
+
 ## drop weapons ##
 on vote (f4/f3) drop the current active weapon if not gun or hammer
 drop them in the map (like in survival) and all people can collect it
