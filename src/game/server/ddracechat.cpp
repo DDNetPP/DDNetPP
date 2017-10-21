@@ -8640,6 +8640,8 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 		if (pSelf->m_BlockWaveGameState == 2)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] round running... you will join automatically when a new round starts.");
+			pPlayer->m_IsBlockWaving = true;
+			pPlayer->m_IsBlockWaveWaiting = true;
 		}
 		else if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
@@ -8653,6 +8655,7 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 			}
 			pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] joined the arena! hf & gl staying alive.");
 			pPlayer->m_IsBlockWaving = true;
+			pPlayer->m_IsBlockWaveWaiting = false;
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		}
 	}

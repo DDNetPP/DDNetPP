@@ -2793,9 +2793,17 @@ void CGameContext::BlockWaveWonRound()
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->m_FreezeTime)
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
 			{
-				m_apPlayers[i]->GetCharacter()->SetPosition(BlockWaveSpawnTile);
+				if ((!m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter())
+					&& (m_apPlayers[i]->GetCharacter()->m_FreezeTime || m_apPlayers[i]->m_IsBlockWaveWaiting)) //queue dudes waiting to join on new round or frozen ingames
+				{
+					m_apPlayers[i]->GetCharacter()->SetPosition(BlockWaveSpawnTile);
+				}
+				if (!m_apPlayers[i]->GetCharacter() || m_apPlayers[i]->m_IsBlockWaveWaiting) //if some queue dude is dead while waiting to join set him unqueue --> so on respawn he will enter the area
+				{
+					m_apPlayers[i]->m_IsBlockWaveWaiting = false;
+				}
 			}
 		}
 	}
@@ -6786,7 +6794,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return; //yy evil silent return
 			}
 
-			if (m_apPlayers[ClientID]->m_IsBlockWaving)
+			if (m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 			{
 				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
 				return;

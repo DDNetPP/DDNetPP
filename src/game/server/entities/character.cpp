@@ -111,7 +111,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
 		}
 	}
-	else if (m_pPlayer->m_IsBlockWaving)
+	else if (m_pPlayer->m_IsBlockWaving && !m_pPlayer->m_IsBlockWaveWaiting)
 	{
 		if (m_pPlayer->m_IsDummy)
 		{
