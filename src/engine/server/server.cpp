@@ -1305,6 +1305,15 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 				m_aClients[ClientID].m_State = CClient::STATE_READY;
 				m_aClients[ClientID].m_IsDummy = false;
+				//char aIP[32];
+				//for (int i = 0; i < MAX_CLIENTS; i++)
+				//{
+				//	if (!str_comp(GetClientAddr(i, aIP, sizeof(aIP)), aAddrStr))
+				//	{
+				//		m_aClients[ClientID].m_IsClientDummy = true;
+				//		break;
+				//	}
+				//}
 				GameServer()->OnClientConnected(ClientID);
 			}
 

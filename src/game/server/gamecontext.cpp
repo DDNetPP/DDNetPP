@@ -270,6 +270,11 @@ void CQueryLogin::OnData()
 				}
 			}
 
+			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, ""))
+			{
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' to restore your password if you forget it.");
+			}
+
 			//========================================
 			//LEAVE THIS CODE LAST!!!!
 			//multiple server account protection stuff

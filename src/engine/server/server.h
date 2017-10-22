@@ -147,6 +147,7 @@ public:
 
 		NETADDR m_Addr;
 		bool m_IsDummy;
+		bool m_IsClientDummy; //ddnet++ hide dummy in master
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
