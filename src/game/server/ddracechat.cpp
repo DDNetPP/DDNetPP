@@ -9010,20 +9010,20 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvAccountStuff == 0)
 	{
-		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "Use '/login <name> <password>'.");
-		pSelf->SendChatTarget(ClientID, "Use '/accountinfo' for help.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Use '/login2 <name> <password>'.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Use '/accountinfo' for help.");
 		return;
 	}
 
 	if (pPlayer->m_AccountID > 0)
 	{
-		pSelf->SendChatTarget(ClientID, "You are already logged in.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
 		return;
 	}
 
@@ -9034,13 +9034,13 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
 	if (str_length(aPassword) > 20 || str_length(aPassword) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
 		return;
 	}
 
@@ -9048,39 +9048,66 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	// FILE BASED
 	//===========
 
+	std::string data;
+	char aData[32];
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aUsername);
 	std::fstream Acc2File(aBuf);
 
-	if (std::ifstream(aBuf))
-	{
-		std::string data;
-		char aPasswd[32];
-
-		getline(Acc2File, data);
-		//dbg_msg("acc2", data.c_str());
-		str_copy(aPasswd, data.c_str(), sizeof(aPasswd));
-
-		
-		if (!str_comp(aPassword, aPasswd))
-		{
-
-			//getline(Acc2File, data); //more data
-			//dbg_msg("acc2", data.c_str());
-
-			pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
-		}
-		else
-		{
-			pSelf->SendChatTarget(ClientID, "[ACCOUNT] wrong password.");
-		}
-	}
-	else
+	if (!std::ifstream(aBuf))
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] login failed.");
+		Acc2File.close();
+		return;
+	}
+	
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+
+
+	if (str_comp(aData, aData))
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] wrong password.");
+		Acc2File.close();
+		return;
 	}
 
-	Acc2File.close();
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded login state '%s'", aData);
+
+	if (aData[0] == '1')
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] error. Account is already logged in.");
+		Acc2File.close();
+		return;
+	}
+
+	//==============================
+	//ALL CHECKS DONE --> load stats
+	//==============================
+
+	str_copy(pPlayer->m_aAccountLoginName, aUsername, sizeof(pPlayer->m_aAccountLoginName));
+	pPlayer->m_AccountID = 1; //could be confusing maybe set it to -1 but this needs some total code rework
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded money '%d'", atoi(aData));
+	pPlayer->m_money = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded level '%d'", atoi(aData));
+	pPlayer->m_level = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded xp '%d'", atoi(aData));
+	pPlayer->m_xp = atoi(aData);
+
+	pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
+
 }
 
 void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)

@@ -1453,6 +1453,9 @@ void CPlayer::CalcExp()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	dbg_msg("debug", "caling exp");
+
 	//old dynamic shit rofl
 	//if (m_level < 1)
 	//	m_neededxp = 5000;
