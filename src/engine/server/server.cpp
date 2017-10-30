@@ -1305,15 +1305,22 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 				m_aClients[ClientID].m_State = CClient::STATE_READY;
 				m_aClients[ClientID].m_IsDummy = false;
-				//char aIP[32];
-				//for (int i = 0; i < MAX_CLIENTS; i++)
-				//{
-				//	if (!str_comp(GetClientAddr(i, aIP, sizeof(aIP)), aAddrStr))
-				//	{
-				//		m_aClients[ClientID].m_IsClientDummy = true;
-				//		break;
-				//	}
-				//}
+				char aIP[32];
+				char aCheckIP[32];
+				net_addr_str(m_NetServer.ClientAddr(ClientID), aCheckIP, sizeof(aCheckIP), false);
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (i != ClientID && (m_aClients[i].m_State == CClient::STATE_READY || m_aClients[i].m_State == CClient::STATE_INGAME)) //dont comepare with own ip AND only check ingame clients no data leichen
+					{
+						net_addr_str(m_NetServer.ClientAddr(i), aIP, sizeof(aIP), false);
+						if (!str_comp(aIP, aCheckIP))
+						{
+							m_aClients[ClientID].m_IsClientDummy = true;
+							//dbg_msg("cBug", "'%s' ID=%d NAME='%s' == '%s' ID=%d NAME='%s' clientdummy", aIP, i, ClientName(i),aCheckIP, ClientID, ClientName(ClientID));
+							break;
+						}
+					}
+				}
 				GameServer()->OnClientConnected(ClientID);
 			}
 
@@ -1536,7 +1543,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	int PlayerCount = 0, ClientCount = 0;
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT)
+		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
 			if(GameServer()->IsClientPlayer(i))
 				PlayerCount++;
@@ -1612,7 +1619,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT)
+		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
 			if (Skip-- > 0)
 				continue;
