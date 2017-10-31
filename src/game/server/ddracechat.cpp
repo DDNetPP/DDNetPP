@@ -13,6 +13,8 @@
 #include <sqlite3/sqlite3.h>
 //#include <stdio.h> //strcat
 #include <string.h> //strcat
+#include <stdio.h> //acc2 to_str()
+#include <stdlib.h>  //acc2 to_str()
 
 
 #if defined(CONF_SQL)
@@ -9084,12 +9086,40 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded frozen state '%s'", aData);
+
+	if (aData[0] == '1')
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] error. Account is frozen.");
+		Acc2File.close();
+		return;
+	}
+
 	//==============================
 	//ALL CHECKS DONE --> load stats
 	//==============================
 
-	str_copy(pPlayer->m_aAccountLoginName, aUsername, sizeof(pPlayer->m_aAccountLoginName));
+	str_copy(pPlayer->m_aAccountLoginName, aUsername, sizeof(pPlayer->m_aAccountLoginName)); 
+	str_copy(pPlayer->m_aAccountPassword, aPassword, sizeof(pPlayer->m_aAccountPassword));
 	pPlayer->m_AccountID = 1; //could be confusing maybe set it to -1 but this needs some total code rework
+	pPlayer->m_IsFileAcc = true;
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded vip '%d'", atoi(aData));
+	pPlayer->m_IsModerator = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded vip++ '%d'", atoi(aData));
+	pPlayer->m_IsSuperModerator = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded supporter '%d'", atoi(aData));
+	pPlayer->m_IsSupporter = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
@@ -9105,6 +9135,21 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded xp '%d'", atoi(aData));
 	pPlayer->m_xp = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded shit '%d'", atoi(aData));
+	pPlayer->m_shit = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded policerank '%d'", atoi(aData));
+	pPlayer->m_PoliceRank = atoi(aData);
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded taserlevel '%d'", atoi(aData));
+	pPlayer->m_TaserLevel = atoi(aData);
 
 	pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
 
@@ -9226,7 +9271,19 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	if (Account2File.is_open())
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] sucessfully registered an account.");
-		Account2File << aPassword << "\n" << "random data 01010100101010";
+		Account2File
+			<< aPassword << "\n"		/* 0 password */
+			<< "0" << "\n"				/* 1 login state */
+			<< "0" << "\n"				/* 2 IsFrozen */
+			<< "0" << "\n"				/* 3 IsModerator */
+			<< "0" << "\n"				/* 4 IsSuperModerator */
+			<< "0" << "\n"				/* 5 IsSupporter */
+			<< "0" << "\n"				/* 6 money */
+			<< "0" << "\n"				/* 7 level */
+			<< "0" << "\n"				/* 8 xp */
+			<< "0" << "\n"				/* 9 shit */
+			<< "0" << "\n"				/* 10 policerank */
+			<< "0" << "\n";				/* 11 taserlevel */
 	}
 	else
 	{
@@ -9235,4 +9292,144 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	Account2File.close();
+}
+
+void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (g_Config.m_SvAccountStuff == 0)
+	{
+		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
+		return;
+	}
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		return;
+	}
+
+	char aBuf[128];
+	char aCommand[32];
+	char aName[32];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	str_copy(aName, pResult->GetString(1), sizeof(aName));
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		pSelf->SendChatTarget(ClientID, "'/acc2 super_mod <name> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/acc2 mod <name> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/acc2 supporter <name> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/acc2 freeze_acc <name> <val>'");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
+		pSelf->SendChatTarget(ClientID, "'/sql' similar cmd using sql acc sys");
+		return;
+	}
+
+
+	if (!str_comp_nocase(aCommand, "supporter"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(ClientID, "Error: acc2 <command> <name> <value>");
+			return;
+		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				{
+					pSelf->m_apPlayers[i]->m_IsSupporter = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer Supporter.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+
+		//ONLY WRITE TO FILE IF ACCOUNT NOT LOGGED IN ON SERVER
+
+		char val_str[16];
+		sprintf(val_str, "%d", value);
+		printf("%s\n", val_str);
+
+		str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aName);
+		pSelf->ChillWriteToLine(aBuf, 5, val_str);
+
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else if (!str_comp_nocase(aCommand, "super_mod"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(ClientID, "Error: acc2 <command> <name> <value>");
+			return;
+		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				{
+					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+
+		//ONLY WRITE TO FILE IF ACCOUNT NOT LOGGED IN ON SERVER
+
+		char val_str[16];
+		sprintf(val_str, "%d", value);
+		printf("%s\n", val_str);
+
+		str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aName);
+		pSelf->ChillWriteToLine(aBuf, 4, val_str);
+
+		str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "Unknown ACC2 command. Try '/acc2 help' for more help.");
+	}
 }

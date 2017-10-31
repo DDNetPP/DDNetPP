@@ -267,6 +267,7 @@ public:
 	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaRifleWinnerID;
 	char m_aInstaRifleScoreboard[1024];
+	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
@@ -608,6 +609,7 @@ private:
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
+	static void ConACC2(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
 	static void ConSQLLogout(IConsole::IResult *pResult, void *pUserData);

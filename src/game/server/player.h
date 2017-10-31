@@ -336,6 +336,8 @@ public:
 	//##########
 
 	//Account stuff:
+	bool m_IsFileAcc;
+
 	//Moderator and SuperModerator
 	bool m_IsModerator;
 	bool m_IsSuperModerator;
@@ -528,6 +530,7 @@ public:
 
 	void ChangePassword();
 	void Save(int SetLoggedIn);
+	void SaveFileBased(int SetLoggedIn);
 	void Logout(int SetLoggedIn = 0);
 	void CheckLevel();
 	void CalcExp();

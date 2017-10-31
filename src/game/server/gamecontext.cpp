@@ -34,6 +34,8 @@
 
 //ChillerDragon (ddpp)
 #include <game/server/teams.h>
+#include <fstream> //acc2 sys
+#include <limits> //acc2 sys
 
 enum
 {
@@ -2244,6 +2246,32 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 	}
 
 	AbuseMotd(m_aInstaRifleScoreboard, ID); //send the scoreboard every fokin tick hehe
+}
+
+bool CGameContext::ChillWriteToLine(char const * filename, unsigned lineNo, char const * data)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	std::fstream file(filename);
+	if (!file)
+		return false;
+
+	unsigned currentLine = 0;
+	while (currentLine < lineNo)
+	{
+		// We don't actually care about the lines we're reading,
+		// so just discard them.
+		file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		++currentLine;
+	}
+
+	// Position the put pointer -- switching from reading to writing.
+	file.seekp(file.tellg());
+
+	dbg_msg("acc2", "writing [%s] to line [%d]", data, currentLine);
+
+	return file << data;
 }
 
 void CGameContext::DDPP_Tick()
@@ -5190,6 +5218,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
+					char aBuf[256];
 					SendChatTarget(ClientID, "Test Failed. ====");
 
 					if (g_Config.m_SvTestingCommands)
@@ -5200,8 +5229,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
-						pPlayer->m_xp += 10000000;
+						//pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						//pPlayer->m_xp += 10000000;
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
@@ -5209,8 +5238,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//AddEscapeReason(ClientID, "testc");
 						//pPlayer->m_EscapeTime = 400;
 
-						m_apPlayers[ClientID]->m_autospreadgun ^= true;
-						m_apPlayers[ClientID]->m_IsSupporter ^= true;
+						//m_apPlayers[ClientID]->m_autospreadgun ^= true;
+						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
+
+						str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", pPlayer->m_aAccountLoginName);
+						if (ChillWriteToLine(aBuf, 1, "1"))
+						{
+							SendChatTarget(ClientID, "succesfully written to acc");
+						}
+						else
+						{
+							SendChatTarget(ClientID, "writing to acc failed");
+						}
 
 						//CBlackHole test;
 

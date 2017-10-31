@@ -15,6 +15,9 @@
 #include "gamecontext.h"
 #include "player.h"
 
+#include <fstream> //ChillerDragon acc sys2
+#include <limits> //ChillerDragon acc sys2 get specific line
+
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -1308,6 +1311,12 @@ void CPlayer::Save(int SetLoggedIn)
 	if (m_AccountID <= 0)
 		return;
 
+	if (m_IsFileAcc)
+	{
+		SaveFileBased(SetLoggedIn);
+		return;
+	}
+
 	//Proccess Clan Data...
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
@@ -1446,6 +1455,43 @@ void CPlayer::Save(int SetLoggedIn)
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(GameServer()->m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
+}
+
+void CPlayer::SaveFileBased(int SetLoggedIn)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	std::string data;
+	char aData[32];
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", m_aAccountLoginName);
+	std::ofstream Acc2File(aBuf);
+
+	if (Acc2File.is_open())
+	{
+		dbg_msg("acc2", "saved acc '%s'", m_aAccountLoginName);
+
+		Acc2File << m_aAccountPassword << "\n";
+		Acc2File << SetLoggedIn << "\n";
+		Acc2File << m_IsAccFrozen << "\n";
+		Acc2File << m_IsModerator << "\n";
+		Acc2File << m_IsSuperModerator << "\n";
+		Acc2File << m_IsSupporter << "\n";
+		Acc2File << m_money << "\n";
+		Acc2File << m_level << "\n";
+		Acc2File << m_xp << "\n";
+		Acc2File << m_shit << "\n";
+		Acc2File << m_PoliceRank << "\n";
+		Acc2File << m_TaserLevel << "\n";
+
+		Acc2File.close();
+	}
+	else
+	{
+		dbg_msg("acc2","[WARNING] account '%s' (%s) failed to save", m_aAccountLoginName, aBuf);
+	}
 }
 
 void CPlayer::CalcExp()
