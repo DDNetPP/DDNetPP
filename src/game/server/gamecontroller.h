@@ -24,8 +24,8 @@ class IGameController
 {
 	friend class CSaveTeam; // need acces to GameServer() and Server()
 
-	vec2 m_aaSpawnPoints[3][64];
-	int m_aNumSpawnPoints[3];
+	vec2 m_aaSpawnPoints[4][64];
+	int m_aNumSpawnPoints[4];
 
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
@@ -51,7 +51,7 @@ protected:
 
 	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos);
 	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
-	bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos);
+	//bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos); //ChillerDragon commented it out cuz it is just a soul of an empty function the mod runs fine without i guess :p
 
 	//void CycleMap();
 	void ResetGame();

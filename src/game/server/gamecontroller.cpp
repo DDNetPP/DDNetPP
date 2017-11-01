@@ -164,12 +164,18 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 		{
 			if (pPlayer->m_IsInstaArena_gdm)
 			{
-				EvaluateSpawnType(&Eval, 1); //red (not bloody anymore bloody)
+				EvaluateSpawnType(&Eval, 1); //red (not bloody anymore)
 			}
 			else if (pPlayer->m_IsInstaArena_idm)
 			{
 				EvaluateSpawnType(&Eval, 2); //blue
 			}
+			/* doesnt work yet no spawning like there were no spawntiles set
+			else if (pPlayer->m_IsSurvivaling && pPlayer->m_IsSurvivalAlive)
+			{
+				EvaluateSpawnType(&Eval, 3); //survival spawntile
+			}
+			*/
 			else
 			{
 				EvaluateSpawnType(&Eval, 0); //default
@@ -224,6 +230,9 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		//m_FunPoint = Pos; //Blue redspawn rainbow tile rainbowtile
 	else if (Index == ENTITY_SPAWN_BLUE)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
+	else if (Index == TILE_SURVIVAL_SPAWN) //testy ddnet++ by ChillerDragon use spawn system for survival spawns
+		m_aaSpawnPoints[3][m_aNumSpawnPoints[3]++] = Pos;
+
 
 	else if (Index == ENTITY_DOOR)
 	{

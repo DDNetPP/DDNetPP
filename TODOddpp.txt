@@ -135,3 +135,6 @@ COULD AND TO DOS:
 
 //gamecontext.cpp code: cfv45
 COULD inform creator live if some1 watched if he has this feed activated (use new show command)
+
+//character.cpp code: 6gta8w
+TODO move this check if there is an survival spawn somewhere in gamecontext to the gamestart or soemthign like that

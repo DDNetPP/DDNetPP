@@ -150,7 +150,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 			if (SurvivalSpawnTile != vec2(-1, -1))
 			{
-				SetPosition(SurvivalSpawnTile);
+				//temporary uncommented agian because the new system doesnt work yet
+				SetPosition(SurvivalSpawnTile); //used vanilla spawn sys to get as far as possible from other tees. could remove the whole if (IsSurvivalAlive) branch because it eats performance but its nice execption if there is no survival arena but would be better to check it on game start (TODO code: 6gta8w)
 			}
 			else //no SurvivalSpawnTile
 			{
