@@ -2768,6 +2768,7 @@ bool CGameContext::SurvivalPickWinner()
 	SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
 	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
 	m_apPlayers[winnerID]->m_xp += 50;
+	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }
 
