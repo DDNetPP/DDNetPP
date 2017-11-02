@@ -2321,6 +2321,65 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 	getline(Acc2File, data[index]);
 	dbg_msg("acc2", "[%d] taser: '%s'", index, data[index++].c_str());
 
+	if (data[1] == "1")
+	{
+		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is logged in on port '%s'", account, data[2].c_str());
+		SendChatTarget(requestingID, aBuf);
+		Acc2File.close();
+		return -2;
+	}
+
+	if (line != 3 && data[3] == "1") //only can update the frozen value if acc is frozen
+	{
+		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is frozen cant set line '%d'", account, line);
+		SendChatTarget(requestingID, aBuf);
+		Acc2File.close();
+		return -3;
+	}
+
+	//===============
+	//finish reading
+	//start writing
+	//===============
+
+	//set new data
+	data[line] = value;
+
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, account);
+	std::ofstream Acc2FileW(aBuf);
+
+	if (Acc2FileW.is_open())
+	{
+		dbg_msg("acc2", "write acc '%s'", account);
+		index = 0;
+
+		Acc2FileW << data[index++] << "\n";			//0 password
+		Acc2FileW << data[index++] << "\n";			//1 loggedin
+		Acc2FileW << data[index++] << "\n";			//2 port
+		Acc2FileW << data[index++] << "\n";			//3 frozen
+		Acc2FileW << data[index++] << "\n";			//4 vip
+		Acc2FileW << data[index++] << "\n";			//5 vip+
+		Acc2FileW << data[index++] << "\n";			//6 sup
+		Acc2FileW << data[index++] << "\n";			//7 money
+		Acc2FileW << data[index++] << "\n";			//8 level
+		Acc2FileW << data[index++] << "\n";			//9 xp
+		Acc2FileW << data[index++] << "\n";			//10 shit
+		Acc2FileW << data[index++] << "\n";			//11 police
+		Acc2FileW << data[index++] << "\n";			//12 taser
+
+		Acc2FileW.close();
+	}
+	else
+	{
+		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", account, aBuf);
+		Acc2FileW.close();
+		return -4;
+	}
+
+
+	str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' updated line [%d] to value [%s]", account, line, value);
+	SendChatTarget(requestingID, aBuf);
+
 	Acc2File.close();
 	return 0; //all clean no errors --> return false
 }

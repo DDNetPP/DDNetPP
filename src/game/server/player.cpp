@@ -1492,6 +1492,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 	else
 	{
 		dbg_msg("acc2","[WARNING] account '%s' (%s) failed to save", m_aAccountLoginName, aBuf);
+		Acc2File.close();
 	}
 }
 

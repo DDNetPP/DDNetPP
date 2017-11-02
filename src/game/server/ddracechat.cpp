@@ -15,7 +15,9 @@
 #include <string.h> //strcat
 #include <stdio.h> //acc2 to_str()
 #include <stdlib.h>  //acc2 to_str()
-
+//#include <string> //acc2 std::to_string
+//#include <iostream> //acc2 std::to_string
+//#include <sstream> //acc2 std::to_string
 
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
@@ -5103,7 +5105,7 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	//	pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
 	//	pSelf->StartQuest(pPlayer->GetCID());
 
-		pSelf->ChillUpdateFileAcc(pResult->GetString(0), 2, "test", pResult->m_ClientID);
+		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientID); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}
 
 	/*
@@ -9360,6 +9362,8 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 			return;
 		}
 		int value;
+		char str_value[16];
+		str_format(str_value, sizeof(str_value), "%d", value);
 		value = pResult->GetInteger(2);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -9386,15 +9390,15 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 
 		//ONLY WRITE TO FILE IF ACCOUNT NOT LOGGED IN ON SERVER
 
-		char val_str[16];
-		sprintf(val_str, "%d", value);
-		printf("%s\n", val_str);
-
-		str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aName);
-		pSelf->ChillWriteToLine(aBuf, 5, val_str);
-
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		if (!pSelf->ChillUpdateFileAcc(aName, 6, str_value, pResult->m_ClientID))
+		{
+			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSupporter = %d (account is not logged in)", value);
+			pSelf->SendChatTarget(ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[ACC2] command failed.");
+		}
 	}
 	else if (!str_comp_nocase(aCommand, "super_mod"))
 	{
@@ -9404,6 +9408,8 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 			return;
 		}
 		int value;
+		char str_value[16];
+		str_format(str_value, sizeof(str_value), "%d", value);
 		value = pResult->GetInteger(2);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -9430,15 +9436,15 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 
 		//ONLY WRITE TO FILE IF ACCOUNT NOT LOGGED IN ON SERVER
 
-		char val_str[16];
-		sprintf(val_str, "%d", value);
-		printf("%s\n", val_str);
-
-		str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aName);
-		pSelf->ChillWriteToLine(aBuf, 4, val_str);
-
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		if (!pSelf->ChillUpdateFileAcc(aName, 5, str_value, pResult->m_ClientID))
+		{
+			str_format(aBuf, sizeof(aBuf), "[ACC2] UPDATED IsSuperModerator = %d (account is not logged in)", value);
+			pSelf->SendChatTarget(ClientID, aBuf);
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[ACC2] command failed.");
+		}
 	}
 	else
 	{
