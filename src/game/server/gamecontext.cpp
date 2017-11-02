@@ -2271,10 +2271,61 @@ bool CGameContext::ChillWriteToLine(char const * filename, unsigned lineNo, char
 
 	dbg_msg("acc2", "writing [%s] to line [%d]", data, currentLine);
 
-	return file << data;
+	//return file << data; //doesnt compile with MinGW
+	return false;
 }
 
-void CGameContext::DDPP_Tick()
+int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, const char * value, int requestingID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, account);
+	std::fstream Acc2File(aBuf);
+
+	if (!std::ifstream(aBuf))
+	{
+		SendChatTarget(requestingID, "[ACCOUNT] username not found.");
+		Acc2File.close();
+		return -1; //return error code -1
+	}
+
+	std::string data[32];
+	int index = 0;
+
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] password: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] loggedin: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] port: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] frozen: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] vip: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] vip+: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] sup: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] money: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] level: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] xp: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] shit: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] police: '%s'", index, data[index++].c_str());
+	getline(Acc2File, data[index]);
+	dbg_msg("acc2", "[%d] taser: '%s'", index, data[index++].c_str());
+
+	Acc2File.close();
+	return 0; //all clean no errors --> return false
+}
+
+void CGameContext::DDPP_Tick()	
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -5242,6 +5293,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//m_apPlayers[ClientID]->m_autospreadgun ^= true;
 						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
 
+						//ChillUpdateFileAcc(,);
+
+						/*
 						str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", pPlayer->m_aAccountLoginName);
 						if (ChillWriteToLine(aBuf, 1, "1"))
 						{
@@ -5251,6 +5305,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						{
 							SendChatTarget(ClientID, "writing to acc failed");
 						}
+						*/
 
 						//CBlackHole test;
 

@@ -5088,11 +5088,12 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[128];
 
-	str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
+	//str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
 	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-	//if (g_Config.m_SvTestingCommands)
-	//{
+
+	if (g_Config.m_SvTestingCommands)
+	{
 	//	if (pResult->NumArguments() != 2)
 	//	{
 	//		pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
@@ -5101,8 +5102,11 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	//	pPlayer->m_QuestState = pResult->GetInteger(0);
 	//	pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
 	//	pSelf->StartQuest(pPlayer->GetCID());
-	//}
 
+		pSelf->ChillUpdateFileAcc(pResult->GetString(0), 2, "test", pResult->m_ClientID);
+	}
+
+	/*
 	if (pPlayer->m_IsInstaArena_gdm)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -5111,6 +5115,7 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "NOT IN BOOMFNG");
 	}
+	*/
 }
 
 void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
@@ -9053,7 +9058,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	std::string data;
 	char aData[32];
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aUsername);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, aUsername);
 	std::fstream Acc2File(aBuf);
 
 	if (!std::ifstream(aBuf))
@@ -9085,6 +9090,10 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 		Acc2File.close();
 		return;
 	}
+
+	getline(Acc2File, data);
+	str_copy(aData, data.c_str(), sizeof(aData));
+	dbg_msg("acc2", "loaded port '%s'", aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
@@ -9153,6 +9162,9 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
 
+
+	//save the acc with the new data and set islogged in to true
+	pPlayer->SaveFileBased(1);
 }
 
 void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
@@ -9251,8 +9263,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	// FILE BASED
 	//===========
 
-
-	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", aUsername);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, aUsername);
 
 	if (std::ifstream(aBuf))
 	{
@@ -9274,16 +9285,17 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 		Account2File
 			<< aPassword << "\n"		/* 0 password */
 			<< "0" << "\n"				/* 1 login state */
-			<< "0" << "\n"				/* 2 IsFrozen */
-			<< "0" << "\n"				/* 3 IsModerator */
-			<< "0" << "\n"				/* 4 IsSuperModerator */
-			<< "0" << "\n"				/* 5 IsSupporter */
-			<< "0" << "\n"				/* 6 money */
-			<< "0" << "\n"				/* 7 level */
-			<< "0" << "\n"				/* 8 xp */
-			<< "0" << "\n"				/* 9 shit */
-			<< "0" << "\n"				/* 10 policerank */
-			<< "0" << "\n";				/* 11 taserlevel */
+			<< "0" << "\n"				/* 2 last port */
+			<< "0" << "\n"				/* 3 IsFrozen */
+			<< "0" << "\n"				/* 4 IsModerator */
+			<< "0" << "\n"				/* 5 IsSuperModerator */
+			<< "0" << "\n"				/* 6 IsSupporter */
+			<< "0" << "\n"				/* 7 money */
+			<< "0" << "\n"				/* 8 level */
+			<< "0" << "\n"				/* 9 xp */
+			<< "0" << "\n"				/* 10 shit */
+			<< "0" << "\n"				/* 11 policerank */
+			<< "0" << "\n";				/* 12 taserlevel */
 	}
 	else
 	{

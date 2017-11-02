@@ -484,4 +484,8 @@ MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 1, CFGFLAG_SERVER,
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")
 
 
+//FileBased Accounts
+MACRO_CONFIG_STR(SvFileAccPath, sv_file_acc_path, 128, "file_accounts", CFGFLAG_SERVER, "the path were the server searches the .acc files (no / after last directory)")
+
+
 #endif

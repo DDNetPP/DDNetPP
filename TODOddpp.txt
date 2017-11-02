@@ -48,9 +48,6 @@ there is an extra stream chat and idk totally useless feature
 on vote (f4/f3) drop the current active weapon if not gun or hammer
 drop them in the map (like in survival) and all people can collect it
 
-## hitman blocker ##
-'/bounty add <money> <player>' and who ever blocks this tee first gets all the <money>
-'/bounty check <player>' to check how much money u get
 ## sell weapons ##
 '/sell grenade' to loose grenade and get some money from the server
 

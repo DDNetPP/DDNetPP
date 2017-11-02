@@ -144,7 +144,7 @@ CHAT_COMMAND("poop", "?ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoop, this, "throw
 
 CHAT_COMMAND("room", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRoom, this, "supermoderator command '/room help' for help")
 
-CHAT_COMMAND("tcmd3000", "?ii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTCMD3000, this, "secret test command dont use")
+CHAT_COMMAND("tcmd3000", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTCMD3000, this, "secret test command dont use")
 CHAT_COMMAND("hook", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHook, this, "modify your hook with this command")
 CHAT_COMMAND("quest", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConQuest, this, "play little quest and earn rewards.")
 CHAT_COMMAND("bounty", "?sii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBounty, this, "blocker hitman command")

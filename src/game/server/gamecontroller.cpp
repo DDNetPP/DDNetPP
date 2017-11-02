@@ -105,7 +105,10 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 				}
 		}
 		if (Result == -1)
+		{
+			//dbg_msg("cBug", "try next spawn");
 			continue;	// try next spawn point
+		}
 
 		vec2 P = m_aaSpawnPoints[Type][i] + Positions[Result];
 		float S = EvaluateSpawnPos(pEval, P);
@@ -114,6 +117,10 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 			pEval->m_Got = true;
 			pEval->m_Score = S;
 			pEval->m_Pos = P;
+		}
+		else
+		{
+			//dbg_msg("cBug", "spawn failed");
 		}
 	}
 }

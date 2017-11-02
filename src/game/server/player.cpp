@@ -1466,7 +1466,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 	std::string data;
 	char aData[32];
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", m_aAccountLoginName);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, m_aAccountLoginName);
 	std::ofstream Acc2File(aBuf);
 
 	if (Acc2File.is_open())
@@ -1475,6 +1475,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 
 		Acc2File << m_aAccountPassword << "\n";
 		Acc2File << SetLoggedIn << "\n";
+		Acc2File << g_Config.m_SvPort << "\n";
 		Acc2File << m_IsAccFrozen << "\n";
 		Acc2File << m_IsModerator << "\n";
 		Acc2File << m_IsSuperModerator << "\n";

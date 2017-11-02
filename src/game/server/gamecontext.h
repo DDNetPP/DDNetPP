@@ -268,6 +268,7 @@ public:
 	int m_InstaRifleWinnerID;
 	char m_aInstaRifleScoreboard[1024];
 	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
+	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
