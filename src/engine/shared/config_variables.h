@@ -417,6 +417,9 @@ MACRO_CONFIG_INT(SvAllowTrade, sv_allow_trade, 0, 0, 1, CFGFLAG_SERVER, "Allow t
 
 MACRO_CONFIG_INT(SvHideJoinLeaveMessages, sv_hide_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec") //superusefull agianst reconnect trolls c:
 MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect/spec")
+MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPattern, sv_hide_connection_msg_pattern, 64, "ninjahack3k", CFGFLAG_SERVER, "Given patter in name won't appear in chat on connect/disconnect/spec")
+MACRO_CONFIG_INT(SvActivatePatternFilter, sv_activate_patter_filter, 1, 0, 1, CFGFLAG_SERVER, "0=deactivates patter filter 1=activates patern filter (sv_hide_connection_msg_pattern)")
+
 MACRO_CONFIG_INT(SvShowClientDummysInMaster, sv_show_client_dummys_in_master, 1, 0, 1, CFGFLAG_SERVER, "0=hides clientdummys in master 1=shows clientdummys in master")
 
 //#######################

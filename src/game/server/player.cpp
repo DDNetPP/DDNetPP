@@ -789,8 +789,26 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 		char aBuf[512];
 		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(m_ClientID)))
 		{
-			str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "player='%d:%s' leave (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		}
+		else if (g_Config.m_SvActivatePatternFilter)
+		{
+			if (str_find(Server()->ClientName(GetCID()), g_Config.m_SvHideJoinLeaveMessagesPattern))
+			{
+				//hide pattern
+			}
+			else
+			{
+				if (pReason && *pReason)
+					str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
+				else
+					str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
+				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
+			}
 		}
 		else
 		{
@@ -959,6 +977,18 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 		else if (g_Config.m_SvHideJoinLeaveMessages < 3)
 		{
 			//send it in admin console
+		}
+		else if (g_Config.m_SvActivatePatternFilter)
+		{
+			if (str_find(Server()->ClientName(GetCID()), g_Config.m_SvHideJoinLeaveMessagesPattern))
+			{
+				//hide pattern
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			}
 		}
 		else
 		{

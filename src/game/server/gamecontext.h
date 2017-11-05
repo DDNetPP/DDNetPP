@@ -670,7 +670,6 @@ private:
 
 	static void ConGive(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 
@@ -686,9 +685,12 @@ private:
 	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
 	static void ConBounty(IConsole::IResult *pResult, void *pUserData);
 	static void ConFng(IConsole::IResult *pResult, void *pUserData);
+
+	//admin
 	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
-
+	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
+	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);

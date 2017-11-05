@@ -5120,6 +5120,29 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 	*/
 }
 
+void CGameContext::ConAntiFlood(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		return;
+	}
+
+	pSelf->AbuseMotd("=== anti flood ===\n\nsv_hide_connection_msg\n(0=none 1=join 2=leave 3=join/leave/spec)\n\nsv_hide_connection_msg_name\n(hides connection name)\n\nsv_hide_connection_msg_pattern\n(hides connection pattern)\n\nsv_activate_patter_filter\n(activates pattern filter)", pResult->m_ClientID);
+}
+
 void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
