@@ -8130,7 +8130,7 @@ void CCharacter::DummyTick()
 
 					if (m_Core.m_Pos.x > 466 * 32)
 					{
-						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+						CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this); 
 						if (pChr && pChr->IsAlive())
 						{
 							m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -8813,7 +8813,7 @@ void CCharacter::DummyTick()
 								SetWeapon(0);
 							}
 
-							CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+							CCharacter *pChr = GameServer()->m_World.ClosestCharTypeFreeze(m_Pos, true, this); //new 11.11.2017 Updated from ClosestCharType to TypeFreeze
 							if (pChr && pChr->IsAlive())
 							{
 								//if (pChr->m_Pos.x > 485 * 32) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
