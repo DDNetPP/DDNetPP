@@ -272,9 +272,9 @@ void CQueryLogin::OnData()
 				}
 			}
 
-			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, ""))
+			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
 			{
-				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' to restore your password if you forget it.");
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
 
 			//========================================
