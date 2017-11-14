@@ -38,6 +38,11 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## SendBroadcast int parameter ##
+default 0 does what vanilla broadcast does and marks broadcast as important
+para 1 only broadcasts if no recent important broadcast was send marks as important (broadcast_srv)
+para 2 only broadcast if no recent important broadcast was send marks as unimportant (xp)
+
 ## livestreams ##
 add '/livestream host' command to host a livestream
 a hoster gets printed all '/livestream view'ers in broadcast
