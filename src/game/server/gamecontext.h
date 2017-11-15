@@ -287,6 +287,13 @@ public:
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch
 	int m_survivallobbycountdown;
 
+	//block tourna
+
+	void BlockTournaTick(); //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
+	int m_BlockTournaState;
+	int m_BlockTournaLobbyTick;
+	int CountBlockTournaAlive();
+
 	//blockwave
 	
 	void BlockWaveAddBots();
@@ -446,6 +453,13 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CFngScore> m_FngScore;
+
+	struct CBlockTournaSpawn // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockTournaSpawn> m_BlockTournaSpawn;
 
 private:
 
@@ -657,6 +671,7 @@ private:
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
+	static void ConJoin(IConsole::IResult *pResult, void *pUserData); //join the current event
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 

@@ -4119,6 +4119,22 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
+	if (m_pPlayer->m_IsBlockTourning)
+	{
+		if (m_FreezeTime)
+		{
+			m_BlockTournaDeadTicks++;
+			if (m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_GAME);
+			}
+		}
+		else
+		{
+			m_BlockTournaDeadTicks = 0;
+		}
+	}
+
 	//spawnblock reducer
 	if (Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)
 	{
@@ -4616,6 +4632,52 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[256];
+
+
+	//Block tourna
+	if (GameServer()->m_BlockTournaState == 2) //ingame
+	{
+		if (m_pPlayer->m_IsBlockTourning)
+		{
+			m_pPlayer->m_IsBlockTourning = false;
+			int wonID = GameServer()->CountBlockTournaAlive();
+
+			if (wonID == -404)
+			{
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->m_BlockTournaState = 0;
+			}
+			else if (wonID < 0 || wonID == -420)
+			{
+				if (wonID == -420)
+				{
+					wonID = 0;
+				}
+				wonID *= -1;
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament.", Server()->ClientName(wonID));
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->m_BlockTournaState = 3; //set end state
+			}
+			else if (wonID == 0)
+			{
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
+				GameServer()->m_BlockTournaState = 0;
+			}
+			else if (wonID > 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID);
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->m_BlockTournaState = 0;
+			}
+		}
+	}
+
 
 
 	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 33) //chillintelligenz

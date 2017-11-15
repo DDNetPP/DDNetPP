@@ -246,6 +246,10 @@ public:
 	int m_BombBanTime;
 	int m_BombTicksUnready;
 
+	//block tourna
+
+	bool m_IsBlockTourning;
+
 	//blockwave
 
 	bool m_IsBlockWaving;

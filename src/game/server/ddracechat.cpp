@@ -4440,6 +4440,54 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	}
 }
 
+void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this command joins the currently running event... for now only Block tournaments
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you have to be alive to use this command");
+		return;
+	}
+
+
+	/***********************************
+	*                                  *
+	*          BLOCK TOURNAMENT        *
+	*                                  *
+	************************************/
+
+	if (pSelf->m_BlockTournaState == 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
+		return;
+	}
+	else if (pSelf->m_BlockTournaState == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
+		pPlayer->m_IsBlockTourning = true;
+		pSelf->m_BlockTournaState = 1;
+		pSelf->m_BlockTournaLobbyTick = 10 * pSelf->Server()->TickSpeed();
+		return;
+	}
+	else if (pSelf->m_BlockTournaState == 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you joined a block tournament.");
+		pPlayer->m_IsBlockTourning = true;
+		return;
+	}
+}
+
 void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)

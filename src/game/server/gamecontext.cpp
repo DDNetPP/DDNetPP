@@ -1657,6 +1657,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		{
 			return 7;
 		}
+		if (pPlayer->m_IsBlockTourning)
+		{
+			return 8;
+		}
 	}
 
 	return 0;
@@ -2409,6 +2413,11 @@ void CGameContext::DDPP_Tick()
 	}
 
 
+	if (m_BlockTournaState == 1) //only tick in lobby
+	{
+		BlockTournaTick();
+	}
+
 	if (m_BalanceBattleState == 1)
 	{
 		BalanceBattleTick();
@@ -2442,7 +2451,7 @@ void CGameContext::DDPP_Tick()
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
 
-	if (Server()->Tick() % 300 == 0) //slow ddpp sub tick
+	if (Server()->Tick() % 500 == 0) //slow ddpp sub tick
 	{
 		bool StopSurvival = true;
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -2471,6 +2480,25 @@ void CGameContext::DDPP_Tick()
 		if (StopSurvival)
 		{
 			m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
+		}
+
+		if (m_BlockTournaState == 3)
+		{
+			m_BlockTournaState = 0;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i])
+				{
+					if (m_apPlayers[i]->m_IsBlockTourning)
+					{
+						m_apPlayers[i]->m_IsBlockTourning = false;
+						if (m_apPlayers[i]->GetCharacter())
+						{
+							m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -2894,6 +2922,84 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->m_xp += 50;
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
+}
+
+void CGameContext::BlockTournaTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+
+
+	m_BlockTournaLobbyTick--;
+	if (m_BlockTournaLobbyTick % Server()->TickSpeed() == 0)
+	{
+		str_format(aBuf, sizeof(aBuf), "[EVENT] block tournament starts in %d seconds\nuse '/join' to join", m_BlockTournaLobbyTick / Server()->TickSpeed());
+		SendBroadcastAll(aBuf);
+	}
+
+
+	if (m_BlockTournaLobbyTick < 0)
+	{
+		SendBroadcastAll("[EVENT] Block tournament started!");
+		m_BlockTournaState = 2;
+
+		//teleport all
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
+			{
+				vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
+
+				if (BlockPlayerSpawn != vec2(-1, -1))
+				{
+					m_apPlayers[i]->GetCharacter()->SetPosition(BlockPlayerSpawn);
+				}
+				else //no tile found
+				{
+					SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.");
+					m_BlockTournaState = 0;
+					break;
+				}
+			}
+		}
+	}
+}
+
+int CGameContext::CountBlockTournaAlive()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = 0;
+	int id = -404;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsBlockTourning)
+			{
+				c++;
+				id = i;
+			}
+		}
+	}
+
+	if (c == 1) //one alive? --> return his id negative
+	{
+		if (id == 0)
+		{
+			return -420;
+		}
+		else
+		{
+			return id * -1;
+		}
+	}
+
+	return c;
 }
 
 void CGameContext::BlockWaveAddBots()
@@ -6975,6 +7081,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return; //yy evil silent return
 			}
 
+
+			if (m_apPlayers[ClientID]->m_IsBlockTourning)
+			{
+				if (Server()->TickSpeed() * 5 > m_BlockTournaLobbyTick)
+				{
+					//silent return selfkill in last 5 secs of lobby tick to prevent the char being dead on tourna start
+					return;
+				}
+			}
+
 			if (m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 			{
 				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
@@ -6989,7 +7105,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
 			{
-				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
+				SendChatTarget(ClientID, "[BOMB] selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
 				return;
 			}
 
@@ -8076,6 +8192,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					FngScore.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", FngScore.m_Center.x, FngScore.m_Center.y);
 					m_FngScore.push_back(FngScore);
+				}
+				else if (Index == TILE_BLOCK_TOURNA_SPAWN)
+				{
+					CBlockTournaSpawn BlockTournaSpawn;
+					BlockTournaSpawn.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
+					m_BlockTournaSpawn.push_back(BlockTournaSpawn);
 				}
 				if(Index >= ENTITY_OFFSET)
 				{
