@@ -3379,6 +3379,15 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 	}
 
 
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (pChr)
+	{
+		if (pChr->m_FreezeTime)
+		{
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout while being frozen.");
+		}
+	}
+
 	if (pPlayer->m_AccountID <= 0)
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are not logged in.");
