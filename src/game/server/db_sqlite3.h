@@ -39,8 +39,13 @@ private:
 	void WorkerThread();
 	static void InitWorker(void *pSelf);
 	LOCK m_Lock;
+	LOCK m_CallbackLock;
 
+    // Queries which are not executed yet
 	std::queue<CQuery *>m_lpQueries;
+
+	// Queries which are executed but not processed yet
+	std::queue<CQuery *>m_lpExecutedQueries;
 
 	bool m_Running;
 
@@ -50,6 +55,8 @@ public:
 	CSql();
 	~CSql();
 	CQuery *Query(CQuery *pQuery, std::string QueryString);
+
+	void Tick();
 
 };
 

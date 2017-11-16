@@ -11,6 +11,7 @@ bool CQuery::Next()
 	int Ret = sqlite3_step(m_pStatement);
 	return Ret == SQLITE_ROW;
 }
+
 void CQuery::Query(CSql *pDatabase, char *pQuery)
 {
 #if defined(CONF_DEBUG)
@@ -22,6 +23,7 @@ void CQuery::Query(CSql *pDatabase, char *pQuery)
 	m_pDatabase = pDatabase;
 	m_pDatabase->Query(this, pQuery);
 }
+
 void CQuery::OnData()
 {
 #if defined(CONF_DEBUG)
@@ -29,6 +31,7 @@ void CQuery::OnData()
 #endif
 	Next();
 }
+
 int CQuery::GetID(const char *pName)
 {
 #if defined(CONF_DEBUG)
@@ -62,14 +65,19 @@ void CSql::WorkerThread()
 			{
 				if (!m_Running) //last check
 					break;
-				pQuery->OnData();
 
-				sqlite3_finalize(pQuery->m_pStatement);
+                // pQuery->OnData()
+
+                lock_wait(m_CallbackLock);
+                m_lpExecutedQueries.push(pQuery);
+                lock_unlock(m_CallbackLock);
+
+				// sqlite3_finalize(pQuery->m_pStatement);
 			}
 			else
 				dbg_msg("SQLite", "%s", sqlite3_errmsg(m_pDB));
 
-			delete pQuery;
+			// delete pQuery;
 		}
 		else
 		{
@@ -79,6 +87,27 @@ void CSql::WorkerThread()
 
 		thread_sleep(10);
 	}
+}
+
+void CSql::Tick()
+{
+    while(true) {
+        lock_wait(m_CallbackLock);
+        if(!m_lpExecutedQueries.size()) {
+            lock_unlock(m_CallbackLock);
+            break;
+        }
+
+        CQuery *pQuery = m_lpExecutedQueries.front();
+        m_lpExecutedQueries.pop();
+
+        pQuery->OnData();
+
+        sqlite3_finalize(pQuery->m_pStatement);
+
+        lock_unlock(m_CallbackLock);
+        delete pQuery;
+    }
 }
 
 void CSql::InitWorker(void *pUser)
@@ -112,13 +141,6 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 CSql::CSql()
 {
 	sqlite3 *test;
-	//char aUserInputLoL[128];
-	//fgets(aUserInputLoL, 128, stdin);
-	//fgets(aUserInputLoL, sizeof(aUserInputLoL) - 1, stdin);
-	//size_t newbuflen = str_length(aUserInputLoL);
-	//if (aUserInputLoL[newbuflen - 1] == '\n') aUserInputLoL[newbuflen - 1] = '\0';
-	//dbg_msg("SQLite","connecting to '%s' ", aUserInputLoL);
-	//dbg_msg("SQLite", aUserInputLoL);
 
 	std::ifstream f;
 	std::string aUserInputLoL;
@@ -136,35 +158,6 @@ CSql::CSql()
 		dbg_msg("SQLite", "Can't open database error: %d", rc);
 		sqlite3_close(m_pDB);
 	}
-
-	//char *Query = "CREATE TABLE IF NOT EXISTS Accounts (" \
-	//	"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
-	//	"Username					VARCHAR(32)		NOT NULL," \
-	//	"Password					VARCHAR(128)	NOT NULL," \
-	//	"Level						INTEGER			DEFAULT 0," \
-	//	"Money						INTEGER			DEFAULT 0," \
-	//	/* "Neededxp                   INTEGER         DEFAULT 5000," \
-	//	"Plusxp                     INTEGER         DEFAULT 1000," \ */
-	//	"Exp						INTEGER			DEFAULT 0," \
-	//	"Shit						INTEGER			DEFAULT 0," \
-	//	"LastGift					INTEGER			DEFAULT 0," \
-	//	"PoliceRank					INTEGER			DEFAULT 0," \
-	//	"JailTime					INTEGER			DEFAULT 0," \
-	//	"EscapeTime					INTEGER			DEFAULT 0," \
-	//	"TaserLevel					INTEGER			DEFAULT 0," \
-	//	"PvPArenaTickets			INTEGER			DEFAULT 0," \
-	//	"PvPArenaGames				INTEGER			DEFAULT 0," \
-	//	"PvPArenaKills				INTEGER			DEFAULT 0," \
-	//	"PvPArenaDeaths				INTEGER			DEFAULT 0," \
-	//	"ProfileStyle				INTEGER			DEFAULT 0," \
-	//	"ProfileViews				INTEGER			DEFAULT 0);";
-	//	//"ProfileStatus				VARCHAR(128)	NOT NULL," \
-	//	//"ProfileSkype				VARCHAR(128)	NOT NULL," \
-	//	//"ProfileYoutube				VARCHAR(128)	NOT NULL," \
-	//	//"ProfileEmail				VARCHAR(128)	NOT NULL," \
-	//	//"ProfileHomepage			VARCHAR(128)	NOT NULL," \
-	//	//"ProfileTwitter				VARCHAR(128)	NOT NULL);";
-
 
 	char *Query = "CREATE TABLE IF NOT EXISTS Accounts (" \
 		"ID							INTEGER			PRIMARY KEY		AUTOINCREMENT," \
@@ -252,6 +245,7 @@ CSql::CSql()
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 
 	m_Lock = lock_create();
+	m_CallbackLock = lock_create();
 	m_Running = true;
 	thread_init(InitWorker, this);
 }
@@ -263,12 +257,25 @@ CSql::~CSql()
 #endif
 	m_Running = false;
 	lock_wait(m_Lock);
+
 	while (m_lpQueries.size())
 	{
 		CQuery *pQuery = m_lpQueries.front();
 		m_lpQueries.pop();
 		delete pQuery;
 	}
+
 	lock_unlock(m_Lock);
 	lock_destroy(m_Lock);
+
+	lock_wait(m_CallbackLock);
+
+		while (m_lpExecutedQueries.size()) {
+    	    CQuery *pQuery = m_lpExecutedQueries.front();
+            m_lpExecutedQueries.pop();
+            delete pQuery;
+    	}
+
+    lock_unlock(m_CallbackLock);
+    lock_destroy(m_CallbackLock);
 }
