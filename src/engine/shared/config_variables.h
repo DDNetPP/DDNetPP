@@ -480,6 +480,11 @@ MACRO_CONFIG_INT(SvSurvivalGunAmmo, sv_survival_gun_ammo, 0, 0, 1, CFGFLAG_SERVE
 MACRO_CONFIG_INT(SvSurvivalLobbyDelay, sv_survival_lobby_delay, 10, 5, 300, CFGFLAG_SERVER, "lobby start delay")
 MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "allow survival command")
 
+//block tourna
+MACRO_CONFIG_INT(SvAllowBlockTourna, sv_allow_block_tourna, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blocktournaments minigame")
+MACRO_CONFIG_INT(SvBlockTournaPlayers, sv_block_tourna_players, 5, 0, 64, CFGFLAG_SERVER, "players needed to start an block tournament")
+MACRO_CONFIG_INT(SvBlockTournaDelay, sv_block_tourna_delay, 30, 5, 360, CFGFLAG_SERVER, "how long players can '/join' block tournaments (lobby time)")
+
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame")
 

@@ -290,6 +290,7 @@ public:
 	//block tourna
 
 	void BlockTournaTick(); //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
+	void EndBlockTourna(); //sets all player bools to false and the state
 	int m_BlockTournaState;
 	int m_BlockTournaLobbyTick;
 	int CountBlockTournaAlive();

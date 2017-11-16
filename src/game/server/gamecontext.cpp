@@ -2935,42 +2935,79 @@ void CGameContext::BlockTournaTick()
 	m_BlockTournaLobbyTick--;
 	if (m_BlockTournaLobbyTick % Server()->TickSpeed() == 0)
 	{
-		str_format(aBuf, sizeof(aBuf), "[EVENT] block tournament starts in %d seconds\nuse '/join' to join", m_BlockTournaLobbyTick / Server()->TickSpeed());
+		int blockers = CountBlockTournaAlive();
+		if (blockers < 0)
+		{
+			blockers = 1;
+		}
+		str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
 		SendBroadcastAll(aBuf);
 	}
 
 
 	if (m_BlockTournaLobbyTick < 0)
 	{
+		if (CountBlockTournaAlive() < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
+		{
+			SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.");
+			EndBlockTourna();
+			return;
+		}
+
+
 		SendBroadcastAll("[EVENT] Block tournament started!");
 		m_BlockTournaState = 2;
 
 		//ready all players
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockTourning)
 			{
-				//delete weapons
-				m_apPlayers[i]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
-				m_apPlayers[i]->GetCharacter()->SetWeaponGot(2, false);
-				m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
-				m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
-
-
-				//teleport
-				vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
-
-				if (BlockPlayerSpawn != vec2(-1, -1))
+				if (m_apPlayers[i]->GetCharacter())
 				{
-					m_apPlayers[i]->GetCharacter()->SetPosition(BlockPlayerSpawn);
+					//delete weapons
+					m_apPlayers[i]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(2, false);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
+
+
+					//teleport
+					vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
+
+					if (BlockPlayerSpawn != vec2(-1, -1))
+					{
+						m_apPlayers[i]->GetCharacter()->SetPosition(BlockPlayerSpawn);
+					}
+					else //no tile found
+					{
+						SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.");
+						EndBlockTourna();
+						return;
+					}
 				}
-				else //no tile found
+				else
 				{
-					SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.");
-					m_BlockTournaState = 0;
-					break;
+					m_apPlayers[i]->m_IsBlockTourning = false;
+					SendChatTarget(i, "[BLOCK] you didn't join because you were dead on tournament start.");
 				}
 			}
+		}
+	}
+}
+
+void CGameContext::EndBlockTourna()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockTournaState = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			m_apPlayers[i]->m_IsBlockTourning = false;
 		}
 	}
 }

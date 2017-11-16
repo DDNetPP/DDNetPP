@@ -4467,7 +4467,12 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	*                                  *
 	************************************/
 
-	if (pSelf->m_BlockTournaState == 2)
+	if (!g_Config.m_SvAllowBlockTourna)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournaments are deactivated by an admin.");
+		return;
+	}
+	else if (pSelf->m_BlockTournaState == 2)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
 		return;
@@ -4477,7 +4482,7 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
 		pPlayer->m_IsBlockTourning = true;
 		pSelf->m_BlockTournaState = 1;
-		pSelf->m_BlockTournaLobbyTick = 10 * pSelf->Server()->TickSpeed();
+		pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
 		return;
 	}
 	else if (pSelf->m_BlockTournaState == 1)
