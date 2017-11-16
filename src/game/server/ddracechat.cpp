@@ -4479,11 +4479,14 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 	else if (pSelf->m_BlockTournaState == 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
-		pPlayer->m_IsBlockTourning = true;
-		pSelf->m_BlockTournaState = 1;
-		pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] no block tournament running.");
 		return;
+
+		//pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
+		//pPlayer->m_IsBlockTourning = true;
+		//pSelf->m_BlockTournaState = 1;
+		//pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
+		//return;
 	}
 	else if (pSelf->m_BlockTournaState == 1)
 	{

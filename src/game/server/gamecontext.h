@@ -224,6 +224,8 @@ public:
 	// DDRace & DDnetPlusPlus
 	//ChillerDragon
 
+	virtual void OnStartBlockTournament();
+
 	void ShowProfile(int ViewerID, int ViewedID);
 
 	void ChatCommands();

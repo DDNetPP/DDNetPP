@@ -272,6 +272,10 @@ public:
 	static void ConchainRconPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
+	//ddnet++
+
+	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
+
 	void RegisterCommands();
 
 

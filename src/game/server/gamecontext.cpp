@@ -1596,6 +1596,15 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 	}
 }
 
+void CGameContext::OnStartBlockTournament()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockTournaState = 1;
+	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+}
+
 void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 {
 #if defined(CONF_DEBUG)
@@ -5495,6 +5504,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "empty mepty");
 					SendChatTarget(ClientID, "Test Failed. ====");
 
 					if (g_Config.m_SvTestingCommands)
