@@ -2945,11 +2945,19 @@ void CGameContext::BlockTournaTick()
 		SendBroadcastAll("[EVENT] Block tournament started!");
 		m_BlockTournaState = 2;
 
-		//teleport all
+		//ready all players
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
 			{
+				//delete weapons
+				m_apPlayers[i]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
+				m_apPlayers[i]->GetCharacter()->SetWeaponGot(2, false);
+				m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
+				m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
+
+
+				//teleport
 				vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
 
 				if (BlockPlayerSpawn != vec2(-1, -1))
