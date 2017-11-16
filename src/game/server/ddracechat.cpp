@@ -4472,6 +4472,11 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournaments are deactivated by an admin.");
 		return;
 	}
+	else if (g_Config.m_SvAllowBlockTourna == 2 && pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
+		return;
+	}
 	else if (pSelf->m_BlockTournaState == 2)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
@@ -9537,5 +9542,49 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(ClientID, "Unknown ACC2 command. Try '/acc2 help' for more help.");
+	}
+}
+void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
+		return;
+	}
+
+	char aBuf[128];
+	char aCommand[32];
+	char aName[32];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	str_copy(aName, pResult->GetString(1), sizeof(aName));
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		pSelf->SendChatTarget(ClientID, "'/admin vote_delay' reset vote delay to allow votes agian");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		return;
+	}
+
+	if (!str_comp_nocase(aCommand, "vote_delay"))
+	{
+		pSelf->m_LastVoteCallAll = 0;
+		pSelf->SendChatTarget(ClientID, "[ADMIN] votes can be used agian.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "[ADMIN] unknown parameter");
 	}
 }

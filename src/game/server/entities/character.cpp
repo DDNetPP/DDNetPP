@@ -4655,9 +4655,62 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					wonID = 0;
 				}
 				wonID *= -1;
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament.", Server()->ClientName(wonID));
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 				GameServer()->m_BlockTournaState = 3; //set end state
+
+
+				//give price to the winner
+				int xp_rew;
+				int points_rew;
+				int money_rew;
+				if (GameServer()->m_BlockTournaStartPlayers <= 5) //depending on how many tees participated
+				{
+					xp_rew = 100;
+					points_rew = 3;
+					money_rew = 50;
+				}
+				else if (GameServer()->m_BlockTournaStartPlayers <= 10)
+				{
+					xp_rew = 150;
+					points_rew = 5;
+					money_rew = 100;
+				}
+				else if (GameServer()->m_BlockTournaStartPlayers <= 15)
+				{
+					xp_rew = 300;
+					points_rew = 10;
+					money_rew = 200;
+				}
+				else if (GameServer()->m_BlockTournaStartPlayers <= 32)
+				{
+					xp_rew = 700;
+					points_rew = 25;
+					money_rew = 500;
+				}
+				else if (GameServer()->m_BlockTournaStartPlayers <= 44)
+				{
+					xp_rew = 1200;
+					points_rew = 30;
+					money_rew = 1000;
+				}
+				else
+				{
+					xp_rew = 25000;
+					points_rew = 100;
+					money_rew = 15000;
+				}
+
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", xp_rew);
+				GameServer()->SendChatTarget(wonID, aBuf);
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", money_rew);
+				GameServer()->SendChatTarget(wonID, aBuf);
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
+				GameServer()->SendChatTarget(wonID, aBuf);
+
+				GameServer()->m_apPlayers[wonID]->m_xp += xp_rew;
+				GameServer()->m_apPlayers[wonID]->m_money += money_rew;
+				GameServer()->m_apPlayers[wonID]->m_BlockPoints += points_rew;
 			}
 			else if (wonID == 0)
 			{

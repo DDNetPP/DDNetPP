@@ -699,6 +699,7 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 	pPlayer->m_VotePos = m_VotePos = 1;
 	m_VoteCreator = ClientID;
 	pPlayer->m_LastVoteCall = Now;
+	m_LastVoteCallAll = Now;
 }
 
 void CGameContext::SendChatTarget(int To, const char *pText)
@@ -1601,6 +1602,12 @@ void CGameContext::OnStartBlockTournament()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_BlockTournaState)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		return;
+	}
+
 	m_BlockTournaState = 1;
 	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
 }
@@ -2956,7 +2963,8 @@ void CGameContext::BlockTournaTick()
 
 	if (m_BlockTournaLobbyTick < 0)
 	{
-		if (CountBlockTournaAlive() < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
+		m_BlockTournaStartPlayers = CountBlockTournaAlive();
+		if (m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
 		{
 			SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.");
 			EndBlockTourna();
@@ -6623,6 +6631,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			{
 				char aChatmsg[512] = {0};
 				str_format(aChatmsg, sizeof(aChatmsg), "You must wait %d seconds before making another vote.", (Timeleft/Server()->TickSpeed())+1);
+				SendChatTarget(ClientID, aChatmsg);
+				return;
+			}
+
+			Timeleft = m_LastVoteCallAll + Server()->TickSpeed() * g_Config.m_SvVoteDelayAll - Now;
+
+			if (Timeleft > 0)
+			{
+				char aChatmsg[512] = { 0 };
+				str_format(aChatmsg, sizeof(aChatmsg), "there is a %d seconds delay between votes.", (Timeleft / Server()->TickSpeed()) + 1);
 				SendChatTarget(ClientID, aChatmsg);
 				return;
 			}

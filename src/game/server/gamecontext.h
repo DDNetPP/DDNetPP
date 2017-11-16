@@ -271,6 +271,7 @@ public:
 	char m_aInstaRifleScoreboard[1024];
 	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
+	int m_LastVoteCallAll;
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
@@ -296,6 +297,7 @@ public:
 	int m_BlockTournaState;
 	int m_BlockTournaLobbyTick;
 	int CountBlockTournaAlive();
+	int m_BlockTournaStartPlayers;
 
 	//blockwave
 	
@@ -709,6 +711,7 @@ private:
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
