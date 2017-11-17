@@ -5547,8 +5547,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						//pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
-						//pPlayer->m_xp += 10000000;
+						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->m_xp += 10000000;
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
