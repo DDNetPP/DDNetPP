@@ -4708,7 +4708,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
 				GameServer()->SendChatTarget(wonID, aBuf);
 
-				GameServer()->m_apPlayers[wonID]->m_xp += xp_rew;
+				GameServer()->m_apPlayers[wonID]->m_xp += xp_rew;		//TODO: code: hz78
 				GameServer()->m_apPlayers[wonID]->m_money += money_rew; //use MoneyTransaction(); func
 				GameServer()->m_apPlayers[wonID]->m_BlockPoints += points_rew; //use GiveBlockPoints(); func and move it to player so it can be used on dead tees too
 			}
