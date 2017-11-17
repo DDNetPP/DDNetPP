@@ -1631,6 +1631,11 @@ void CGameContext::OnStartBlockTournament()
 		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
 		return;
 	}
+	if (g_Config.m_SvAllowBlockTourna == 0)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		return;
+	}
 
 	m_BlockTournaState = 1;
 	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();

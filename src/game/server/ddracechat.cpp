@@ -3400,7 +3400,14 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		if (pChr->m_FreezeTime)
 		{
 			pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout while being frozen.");
+			return;
 		}
+	}
+
+	if (pPlayer->m_JailTime)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout in jail.");
+		return;
 	}
 
 	if (pPlayer->m_AccountID <= 0)
