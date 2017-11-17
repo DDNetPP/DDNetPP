@@ -247,6 +247,26 @@ void CQueryLogin::OnData()
 
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
+
+			//jail
+			if (m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
+			{
+				if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+				{
+					vec2 JailPlayerSpawn = m_pGameServer->Collision()->GetRandomTile(TILE_JAIL);
+
+					if (JailPlayerSpawn != vec2(-1, -1))
+					{
+						m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->SetPosition(JailPlayerSpawn);
+					}
+					else //no jailplayer
+					{
+						m_pGameServer->SendChatTarget(m_ClientID, "No jail set.");
+					}
+				}
+			}
+
+			//auto joins
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
 			{
 				if (!g_Config.m_SvAllowInsta)
@@ -272,10 +292,14 @@ void CQueryLogin::OnData()
 				}
 			}
 
+
+			//account reset info
 			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
+
+
 
 			//========================================
 			//LEAVE THIS CODE LAST!!!!
