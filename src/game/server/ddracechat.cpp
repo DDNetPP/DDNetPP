@@ -2420,6 +2420,11 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
 		return;
 	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off. (try '/register2')");
+		return;
+	}
 
 	if (pResult->NumArguments() != 3)
 	{
@@ -3256,6 +3261,11 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
 		return;
 	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off. (try '/login2')");
+		return;
+	}
 
 	if (pResult->NumArguments() != 2)
 	{
@@ -3375,6 +3385,11 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvAccountStuff == 0)
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
+		return;
+	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off.");
 		return;
 	}
 
@@ -9110,9 +9125,9 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (g_Config.m_SvAccountStuff == 0)
+	if (g_Config.m_SvAccountStuff != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
 	}
 
@@ -9276,15 +9291,15 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (g_Config.m_SvAccountStuff == 0)
+	if (g_Config.m_SvAccountStuff != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register <name> <password> <password>'.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register2 <name> <password> <password>'.");
 		return;
 	}
 
@@ -9435,7 +9450,14 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
-		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		if (g_Config.m_SvAccountStuff != 2)
+		{
+			pSelf->SendChatTarget(ClientID, "---- COMMANDS [WARNING FILEBASED SYS IS DEACTIVATED]-----");
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		}
 		pSelf->SendChatTarget(ClientID, "'/acc2 super_mod <name> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/acc2 mod <name> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/acc2 supporter <name> <val>'");

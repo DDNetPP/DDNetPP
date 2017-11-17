@@ -389,7 +389,7 @@ MACRO_CONFIG_INT(SvFinishEvent, sv_finish_event, 0, 0, 1, CFGFLAG_SERVER, "xp ev
 MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, "changes the price for the '/shop' item 'room_key'")
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
 
-MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=blockcity 2=instagib(coming soon)")
+MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=sqlite 2=filebased"   /*"0=off 1=blockcity 2=instagib(coming soon)"*/)
 MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 393, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x koordinate for the supermod spawn")
 MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 212, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y koordinate for the supermod spawn")
 MACRO_CONFIG_INT(SvSuperSpawnDDraceStart, sv_super_spawn_ddrace_start, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "start ddrace time on supermod spawn")
