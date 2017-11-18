@@ -2368,6 +2368,16 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 	}
 }
 
+void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
+	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);
+	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2395,6 +2405,11 @@ void CServer::RegisterCommands()
 
 	Console()->Chain("sv_rcon_password", ConchainRconPasswordChange, this);
 	Console()->Chain("sv_rcon_mod_password", ConchainRconModPasswordChange, this);
+
+
+	//DDraceNetwork++ (ChillerDragon) ddpp
+
+	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Reload the map");
 
 	// register console commands in sub parts
 	m_ServerBan.InitServerBan(Console(), Storage(), this);

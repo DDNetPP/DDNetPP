@@ -204,6 +204,10 @@ public:
 	// DDRace
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
+
+	// DDNet++
+
+	virtual void OnStartBlockTournament() = 0;
 };
 
 extern IGameServer *CreateGameServer();

@@ -259,6 +259,10 @@ public:
 	void BlockQuestSubDieFuncDeath(int Killer);
 	void BlockKillingSpree(int Killer);
 
+	//block tourna
+
+	int m_BlockTournaDeadTicks;
+
 	//blockwave
 	int BlockWaveFreezeTicks;
 

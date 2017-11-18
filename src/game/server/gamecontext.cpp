@@ -247,6 +247,26 @@ void CQueryLogin::OnData()
 
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
+
+			//jail
+			if (m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
+			{
+				if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+				{
+					vec2 JailPlayerSpawn = m_pGameServer->Collision()->GetRandomTile(TILE_JAIL);
+
+					if (JailPlayerSpawn != vec2(-1, -1))
+					{
+						m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->SetPosition(JailPlayerSpawn);
+					}
+					else //no jailplayer
+					{
+						m_pGameServer->SendChatTarget(m_ClientID, "No jail set.");
+					}
+				}
+			}
+
+			//auto joins
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
 			{
 				if (!g_Config.m_SvAllowInsta)
@@ -272,10 +292,14 @@ void CQueryLogin::OnData()
 				}
 			}
 
+
+			//account reset info
 			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
+
+
 
 			//========================================
 			//LEAVE THIS CODE LAST!!!!
@@ -699,6 +723,7 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 	pPlayer->m_VotePos = m_VotePos = 1;
 	m_VoteCreator = ClientID;
 	pPlayer->m_LastVoteCall = Now;
+	m_LastVoteCallAll = Now;
 }
 
 void CGameContext::SendChatTarget(int To, const char *pText)
@@ -1599,6 +1624,26 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 	}
 }
 
+void CGameContext::OnStartBlockTournament()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_BlockTournaState)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		return;
+	}
+	if (g_Config.m_SvAllowBlockTourna == 0)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		return;
+	}
+
+	m_BlockTournaState = 1;
+	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+}
+
 void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 {
 #if defined(CONF_DEBUG)
@@ -1659,6 +1704,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		if (pPlayer->m_IsBlockWaving)
 		{
 			return 7;
+		}
+		if (pPlayer->m_IsBlockTourning)
+		{
+			return 8;
 		}
 	}
 
@@ -2412,6 +2461,11 @@ void CGameContext::DDPP_Tick()
 	}
 
 
+	if (m_BlockTournaState == 1) //only tick in lobby
+	{
+		BlockTournaTick();
+	}
+
 	if (m_BalanceBattleState == 1)
 	{
 		BalanceBattleTick();
@@ -2445,7 +2499,7 @@ void CGameContext::DDPP_Tick()
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
 
-	if (Server()->Tick() % 300 == 0) //slow ddpp sub tick
+	if (Server()->Tick() % 500 == 0) //slow ddpp sub tick
 	{
 		bool StopSurvival = true;
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -2474,6 +2528,25 @@ void CGameContext::DDPP_Tick()
 		if (StopSurvival)
 		{
 			m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
+		}
+
+		if (m_BlockTournaState == 3)
+		{
+			m_BlockTournaState = 0;
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i])
+				{
+					if (m_apPlayers[i]->m_IsBlockTourning)
+					{
+						m_apPlayers[i]->m_IsBlockTourning = false;
+						if (m_apPlayers[i]->GetCharacter())
+						{
+							m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -2897,6 +2970,130 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->m_xp += 50;
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
+}
+
+void CGameContext::BlockTournaTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+
+
+	m_BlockTournaLobbyTick--;
+	if (m_BlockTournaLobbyTick % Server()->TickSpeed() == 0)
+	{
+		int blockers = CountBlockTournaAlive();
+		if (blockers < 0)
+		{
+			blockers = 1;
+		}
+		str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
+		SendBroadcastAll(aBuf);
+	}
+
+
+	if (m_BlockTournaLobbyTick < 0)
+	{
+		m_BlockTournaStartPlayers = CountBlockTournaAlive();
+		if (m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
+		{
+			SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.");
+			EndBlockTourna();
+			return;
+		}
+
+
+		SendBroadcastAll("[EVENT] Block tournament started!");
+		m_BlockTournaState = 2;
+
+		//ready all players
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockTourning)
+			{
+				if (m_apPlayers[i]->GetCharacter())
+				{
+					//delete weapons
+					m_apPlayers[i]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(2, false);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
+					m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
+
+
+					//teleport
+					vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
+
+					if (BlockPlayerSpawn != vec2(-1, -1))
+					{
+						m_apPlayers[i]->GetCharacter()->SetPosition(BlockPlayerSpawn);
+					}
+					else //no tile found
+					{
+						SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.");
+						EndBlockTourna();
+						return;
+					}
+				}
+				else
+				{
+					m_apPlayers[i]->m_IsBlockTourning = false;
+					SendChatTarget(i, "[BLOCK] you didn't join because you were dead on tournament start.");
+				}
+			}
+		}
+	}
+}
+
+void CGameContext::EndBlockTourna()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_BlockTournaState = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			m_apPlayers[i]->m_IsBlockTourning = false;
+		}
+	}
+}
+
+int CGameContext::CountBlockTournaAlive()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = 0;
+	int id = -404;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_IsBlockTourning)
+			{
+				c++;
+				id = i;
+			}
+		}
+	}
+
+	if (c == 1) //one alive? --> return his id negative
+	{
+		if (id == 0)
+		{
+			return -420;
+		}
+		else
+		{
+			return id * -1;
+		}
+	}
+
+	return c;
 }
 
 void CGameContext::BlockWaveAddBots()
@@ -5347,6 +5544,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "empty mepty");
 					SendChatTarget(ClientID, "Test Failed. ====");
 
 					if (g_Config.m_SvTestingCommands)
@@ -5357,8 +5555,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						//pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
-						//pPlayer->m_xp += 10000000;
+						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->m_xp += 10000000;
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
@@ -6469,6 +6667,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
+			Timeleft = m_LastVoteCallAll + Server()->TickSpeed() * g_Config.m_SvVoteDelayAll - Now;
+
+			if (Timeleft > 0)
+			{
+				char aChatmsg[512] = { 0 };
+				str_format(aChatmsg, sizeof(aChatmsg), "there is a %d seconds delay between votes.", (Timeleft / Server()->TickSpeed()) + 1);
+				SendChatTarget(ClientID, aChatmsg);
+				return;
+			}
+
 			char aChatmsg[512] = {0};
 			char aDesc[VOTE_DESC_LENGTH] = {0};
 			char aCmd[VOTE_CMD_LENGTH] = {0};
@@ -6978,6 +7186,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return; //yy evil silent return
 			}
 
+
+			if (m_apPlayers[ClientID]->m_IsBlockTourning)
+			{
+				if (Server()->TickSpeed() * 5 > m_BlockTournaLobbyTick)
+				{
+					//silent return selfkill in last 5 secs of lobby tick to prevent the char being dead on tourna start
+					return;
+				}
+			}
+
 			if (m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 			{
 				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
@@ -6992,7 +7210,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
 			{
-				SendChatTarget(ClientID, "Bomb selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
+				SendChatTarget(ClientID, "[BOMB] selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
 				return;
 			}
 
@@ -8079,6 +8297,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					FngScore.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", FngScore.m_Center.x, FngScore.m_Center.y);
 					m_FngScore.push_back(FngScore);
+				}
+				else if (Index == TILE_BLOCK_TOURNA_SPAWN)
+				{
+					CBlockTournaSpawn BlockTournaSpawn;
+					BlockTournaSpawn.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
+					m_BlockTournaSpawn.push_back(BlockTournaSpawn);
 				}
 				if(Index >= ENTITY_OFFSET)
 				{

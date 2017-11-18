@@ -224,6 +224,8 @@ public:
 	// DDRace & DDnetPlusPlus
 	//ChillerDragon
 
+	virtual void OnStartBlockTournament();
+
 	void ShowProfile(int ViewerID, int ViewedID);
 
 	void ChatCommands();
@@ -269,6 +271,7 @@ public:
 	char m_aInstaRifleScoreboard[1024];
 	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
+	int m_LastVoteCallAll;
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
@@ -286,6 +289,15 @@ public:
 	bool SurvivalPickWinner();
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch
 	int m_survivallobbycountdown;
+
+	//block tourna
+
+	void BlockTournaTick(); //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
+	void EndBlockTourna(); //sets all player bools to false and the state
+	int m_BlockTournaState;
+	int m_BlockTournaLobbyTick;
+	int CountBlockTournaAlive();
+	int m_BlockTournaStartPlayers;
 
 	//blockwave
 	
@@ -446,6 +458,13 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CFngScore> m_FngScore;
+
+	struct CBlockTournaSpawn // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockTournaSpawn> m_BlockTournaSpawn;
 
 private:
 
@@ -657,6 +676,7 @@ private:
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
+	static void ConJoin(IConsole::IResult *pResult, void *pUserData); //join the current event
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 
@@ -691,6 +711,7 @@ private:
 	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);

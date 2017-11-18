@@ -1336,7 +1336,7 @@ void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("cBug", "saving acc '%s' CID=%d", Server()->ClientName(GetCID()), GetCID());
+	//dbg_msg("cBug", "saving acc '%s' CID=%d", Server()->ClientName(GetCID()), GetCID());
 #endif
 	if (m_AccountID <= 0)
 		return;
@@ -1353,7 +1353,7 @@ void CPlayer::Save(int SetLoggedIn)
 
 	if (str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
 	{
-		dbg_msg("save", "update clan '%s'", aClan);
+		//dbg_msg("save", "update clan '%s'", aClan);
 		str_format(m_aClan3, sizeof(m_aClan3), "%s", m_aClan2);
 		str_format(m_aClan2, sizeof(m_aClan2), "%s", m_aClan1);
 		str_format(m_aClan1, sizeof(m_aClan1), "%s", aClan);
@@ -1365,7 +1365,7 @@ void CPlayer::Save(int SetLoggedIn)
 
 	if (str_comp(aIP, m_aIP_1) && str_comp(aIP, m_aIP_2) && str_comp(aIP, m_aIP_3))
 	{
-		dbg_msg("save", "updated ip '%s'", aIP);
+		//dbg_msg("save", "updated ip '%s'", aIP);
 		str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
 		str_format(m_aIP_2, sizeof(m_aIP_2), "%s", m_aIP_1);
 		str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);

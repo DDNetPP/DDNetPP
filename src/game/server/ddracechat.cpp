@@ -362,6 +362,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added block tournaments");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added fng settings (check '/fng')");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added '/wanted' command");
@@ -2420,6 +2422,11 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
 		return;
 	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off. (try '/register2')");
+		return;
+	}
 
 	if (pResult->NumArguments() != 3)
 	{
@@ -3256,6 +3263,17 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "Account stuff is turned off.");
 		return;
 	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off. (try '/login2')");
+		return;
+	}
+
+	if (pPlayer->m_JailTime)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't login in jail.");
+		return;
+	}
 
 	if (pResult->NumArguments() != 2)
 	{
@@ -3377,7 +3395,28 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
+	if (g_Config.m_SvAccountStuff == 2) //filebased
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off.");
+		return;
+	}
 
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (pChr)
+	{
+		if (pChr->m_FreezeTime)
+		{
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout while being frozen.");
+			return;
+		}
+	}
+
+	if (pPlayer->m_JailTime)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout in jail.");
+		return;
+	}
 
 	if (pPlayer->m_AccountID <= 0)
 	{
@@ -4428,6 +4467,67 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown parameter. Check '/insta cmdlist' for all commands");
+	}
+}
+
+void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this command joins the currently running event... for now only Block tournaments
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you have to be alive to use this command");
+		return;
+	}
+
+
+	/***********************************
+	*                                  *
+	*          BLOCK TOURNAMENT        *
+	*                                  *
+	************************************/
+
+	if (!g_Config.m_SvAllowBlockTourna)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournaments are deactivated by an admin.");
+		return;
+	}
+	else if (g_Config.m_SvAllowBlockTourna == 2 && pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
+		return;
+	}
+	else if (pSelf->m_BlockTournaState == 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
+		return;
+	}
+	else if (pSelf->m_BlockTournaState == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] no block tournament running.");
+		return;
+
+		//pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
+		//pPlayer->m_IsBlockTourning = true;
+		//pSelf->m_BlockTournaState = 1;
+		//pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
+		//return;
+	}
+	else if (pSelf->m_BlockTournaState == 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you joined a block tournament.");
+		pPlayer->m_IsBlockTourning = true;
+		return;
 	}
 }
 
@@ -9040,9 +9140,9 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (g_Config.m_SvAccountStuff == 0)
+	if (g_Config.m_SvAccountStuff != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
 	}
 
@@ -9206,15 +9306,15 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (g_Config.m_SvAccountStuff == 0)
+	if (g_Config.m_SvAccountStuff != 2)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Accounts are turned off.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Filebased accounts are turned off.");
 		return;
 	}
 
 	if (pResult->NumArguments() != 3)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register <name> <password> <password>'.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Please use '/register2 <name> <password> <password>'.");
 		return;
 	}
 
@@ -9365,7 +9465,14 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
-		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		if (g_Config.m_SvAccountStuff != 2)
+		{
+			pSelf->SendChatTarget(ClientID, "---- COMMANDS [WARNING FILEBASED SYS IS DEACTIVATED]-----");
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		}
 		pSelf->SendChatTarget(ClientID, "'/acc2 super_mod <name> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/acc2 mod <name> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/acc2 supporter <name> <val>'");
@@ -9472,5 +9579,49 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(ClientID, "Unknown ACC2 command. Try '/acc2 help' for more help.");
+	}
+}
+void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
+		return;
+	}
+
+	char aBuf[128];
+	char aCommand[32];
+	char aName[32];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	str_copy(aName, pResult->GetString(1), sizeof(aName));
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		pSelf->SendChatTarget(ClientID, "'/admin vote_delay' reset vote delay to allow votes agian");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		return;
+	}
+
+	if (!str_comp_nocase(aCommand, "vote_delay"))
+	{
+		pSelf->m_LastVoteCallAll = 0;
+		pSelf->SendChatTarget(ClientID, "[ADMIN] votes can be used agian.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "[ADMIN] unknown parameter");
 	}
 }
