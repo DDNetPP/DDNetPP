@@ -3267,6 +3267,12 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pPlayer->m_JailTime)
+	{
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't login in jail.");
+		return;
+	}
+
 	if (pResult->NumArguments() != 2)
 	{
 		pSelf->SendChatTarget(ClientID, "Use '/login <name> <password>'.");
