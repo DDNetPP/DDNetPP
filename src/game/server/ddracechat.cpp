@@ -3775,6 +3775,10 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCKWAVE] (check '/blockwave' for more info)");
 		}
+		else if (gameID == 8)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[EVENT] block (check '/event' for more info)");
+		}
 		else 
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[UNKNOWN] you are playing an unknown game.");
@@ -4491,6 +4495,8 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 
 
+
+
 	/***********************************
 	*                                  *
 	*          BLOCK TOURNAMENT        *
@@ -4500,6 +4506,16 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	if (!g_Config.m_SvAllowBlockTourna)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournaments are deactivated by an admin.");
+		return;
+	}
+	else if (pPlayer->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You already joined the block tournament.");
+		return;
+	}
+	else if (pSelf->IsMinigame(pResult->m_ClientID))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] this command is not allowed in jail or minigames. try '/leave' first.");
 		return;
 	}
 	else if (g_Config.m_SvAllowBlockTourna == 2 && pPlayer->m_AccountID <= 0)
@@ -4832,13 +4848,23 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
+	bool IsEvent = false;
+
 	pSelf->SendChatTarget(pResult->m_ClientID, "###########################");
 	if (g_Config.m_SvFinishEvent == 1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Race Event ~~~");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Info: You get more xp for finishing the map!");
+		IsEvent = true;
 	}
-	else
+	if (pSelf->m_BlockTournaState)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Block Event ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Info: last ma standing fight in a block tournament use '/join' to join");
+		IsEvent = true;
+	}
+
+	if (!IsEvent)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "No events running at the moment...");
 	}
@@ -5431,6 +5457,13 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra> <playername>' to give to others.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "-- EXTRAS --");
 		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom");
+		return;
+	}
+
+
+	else if (pPlayer->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during block tournaments.");
 		return;
 	}
 
