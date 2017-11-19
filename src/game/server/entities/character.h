@@ -243,6 +243,7 @@ public:
 	void ChillTelePort(int X, int Y);
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);
+	void KillSpeed();
 
 	//Chillintelligenz
 	void CITick();
@@ -273,6 +274,9 @@ public:
 	bool m_UpdateInstaScoreBoard;
 
 	void Pause(bool Pause);
+	bool ForceFreeze(int Seconds); //mede by ChillerDragon too freeze no matter what used for freezing while freezed (for example for tournaments to have all same freeze time even if some wer freezed at tourna start)
+	//WARNING FORCE FREEZE ISNT ABLE TO OVERWRITE FREEZE AS IT SHOULD!!!
+	//it can still be used to bypass super but thats all i guess
 	bool Freeze(int Time);
 	bool Freeze(); 
 	bool UnFreeze();

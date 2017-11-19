@@ -3636,6 +3636,46 @@ void CCharacter::DDRacePostCoreTick()
 	HandleBroadcast();
 }
 
+bool CCharacter::ForceFreeze(int Seconds)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	isFreezed = true;
+	if (Seconds <= 0 || m_FreezeTime == -1 )
+		return false;
+	if (m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
+	{
+		if (!m_WeaponsBackupped) //only save once
+		{
+			for (int i = 0; i < NUM_WEAPONS; i++)
+			{
+				if (m_aWeapons[i].m_Got)
+				{
+					m_aWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
+																   //dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
+					m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
+				}
+			}
+			m_WeaponsBackupped = true;
+		}
+
+		if (!m_pPlayer->m_IsVanillaWeapons)
+		{
+			m_Armor = 0;
+		}
+
+		if (m_FreezeTick == 0 || m_FirstFreezeTick == 0) {
+			m_FirstFreezeTick = Server()->Tick();
+		}
+
+		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
+		m_FreezeTick = Server()->Tick();
+		return true;
+	}
+	return false;
+}
+
 bool CCharacter::Freeze(int Seconds)
 {
 #if defined(CONF_DEBUG)
@@ -4124,17 +4164,20 @@ void CCharacter::DDPP_Tick()
 
 	if (m_pPlayer->m_IsBlockTourning)
 	{
-		if (m_FreezeTime)
+		if (GameServer()->m_BlockTournaState == 2) //only do it ingame
 		{
-			m_BlockTournaDeadTicks++;
-			if (m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
+			if (m_FreezeTime)
 			{
-				Die(m_pPlayer->GetCID(), WEAPON_GAME);
+				m_BlockTournaDeadTicks++;
+				if (m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
 			}
-		}
-		else
-		{
-			m_BlockTournaDeadTicks = 0;
+			else
+			{
+				m_BlockTournaDeadTicks = 0;
+			}
 		}
 	}
 
@@ -12914,6 +12957,15 @@ bool CCharacter::HasWeapon(int weapon)
 		return true;
 	}
 	return false;
+}
+
+void CCharacter::KillSpeed()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_Core.m_Vel.x = 0.0f;
+	m_Core.m_Vel.y = 0.0f;
 }
 
 void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)

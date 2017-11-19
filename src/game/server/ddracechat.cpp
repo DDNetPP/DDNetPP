@@ -3777,7 +3777,7 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		}
 		else if (gameID == 8)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[EVENT] block (check '/event' for more info)");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[EVENT] Block (check '/event' for more info)");
 		}
 		else 
 		{
@@ -4515,7 +4515,7 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 	else if (pSelf->IsMinigame(pResult->m_ClientID))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] this command is not allowed in jail or minigames. try '/leave' first.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] This command is not allowed in jail or minigames. try '/leave' first.");
 		return;
 	}
 	else if (g_Config.m_SvAllowBlockTourna == 2 && pPlayer->m_AccountID <= 0)
@@ -4530,7 +4530,7 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 	else if (pSelf->m_BlockTournaState == 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] no block tournament running.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] No block tournament running.");
 		return;
 
 		//pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
@@ -4541,7 +4541,7 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 	else if (pSelf->m_BlockTournaState == 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you joined a block tournament.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You joined a block tournament.");
 		pPlayer->m_IsBlockTourning = true;
 		return;
 	}
@@ -6735,12 +6735,12 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 		if (SurvialLobbySpawnTile != vec2(-1, -1))
 		{
 			pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(SurvialLobbySpawnTile);
-			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you joined survival.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] You joined survival.");
 			pSelf->SetPlayerSurvival(pResult->m_ClientID, 1);
 		}
 		else //no TestToTeleTile
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] no survival arena set.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] No survival arena set.");
 		}
 	}
 	else

@@ -485,6 +485,7 @@ MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "a
 MACRO_CONFIG_INT(SvAllowBlockTourna, sv_allow_block_tourna, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blocktournaments minigame")
 MACRO_CONFIG_INT(SvBlockTournaPlayers, sv_block_tourna_players, 5, 0, 64, CFGFLAG_SERVER, "players needed to start an block tournament")
 MACRO_CONFIG_INT(SvBlockTournaDelay, sv_block_tourna_delay, 60, 5, 360, CFGFLAG_SERVER, "how long players can '/join' block tournaments (lobby time)")
+MACRO_CONFIG_INT(SvBlockTournaGameTime, sv_block_tourna_game_time, 10, 1, 5000, CFGFLAG_SERVER, "how long block tournas can take in minutes (if after this time nobody won its draw)")
 
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame 2=only logged in")
