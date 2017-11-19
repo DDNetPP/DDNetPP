@@ -869,55 +869,58 @@ void CCharacter::FireWeapon(bool Bot)
 			{
 				char aBuf[256];
 
-				if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
+				if (!GameServer()->IsMinigame(pTarget->GetPlayer()->GetCID()))
 				{
-					if (pTarget->GetPlayer()->m_money < 200)
+					if (pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
 					{
-						str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes extra arrest: He had no money to corrupt you!");
+						if (pTarget->GetPlayer()->m_money < 200)
+						{
+							str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes extra arrest: He had no money to corrupt you!");
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
-						pTarget->GetPlayer()->m_EscapeTime = 0;
-						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->JailPlayer(600); //10 minutes jail
-						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+							str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+							GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+							GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
+							pTarget->GetPlayer()->m_EscapeTime = 0;
+							pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+							pTarget->GetPlayer()->JailPlayer(600); //10 minutes jail
+							pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+						}
+						else
+						{
+							str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money (corruption)");
+							str_format(aBuf, sizeof(aBuf), "+200 caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							m_pPlayer->MoneyTransaction(+200, aBuf);
+
+							str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
+							GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+							GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
+							pTarget->GetPlayer()->m_EscapeTime = 0;
+							pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+							pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
+							pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+							pTarget->GetPlayer()->MoneyTransaction(-200, "-200 jail");
+
+						}
 					}
-					else
+					else //super jail hammer
 					{
-						str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money (corruption)");
-						str_format(aBuf, sizeof(aBuf), "+200 caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-						m_pPlayer->MoneyTransaction(+200, aBuf);
+						if (m_pPlayer->m_JailHammer > 1)
+						{
+							str_format(aBuf, sizeof(aBuf), "You jailed '%s' (%d seconds arrested).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+							m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-						str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
-						pTarget->GetPlayer()->m_EscapeTime = 0;
-						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
-						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
-						pTarget->GetPlayer()->MoneyTransaction(-200, "-200 jail");
-
-					}
-				}
-				else //super jail hammer
-				{
-					if (m_pPlayer->m_JailHammer > 1)
-					{
-						str_format(aBuf, sizeof(aBuf), "You jailed '%s' (%d seconds arrested).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-						m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
-
-						str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
-						GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-						pTarget->GetPlayer()->m_EscapeTime = 0;
-						pTarget->GetPlayer()->m_GangsterBagMoney = 0;
-						pTarget->GetPlayer()->JailPlayer(Server()->TickSpeed() * m_pPlayer->m_JailHammer);
-						pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+							str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
+							GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+							pTarget->GetPlayer()->m_EscapeTime = 0;
+							pTarget->GetPlayer()->m_GangsterBagMoney = 0;
+							pTarget->GetPlayer()->JailPlayer(Server()->TickSpeed() * m_pPlayer->m_JailHammer);
+							pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
+						}
 					}
 				}
 			}

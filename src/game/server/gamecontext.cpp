@@ -3020,6 +3020,8 @@ void CGameContext::BlockTournaTick()
 					m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
 					m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
 
+					//unfreeze
+					m_apPlayers[i]->GetCharacter()->UnFreeze();
 
 					//teleport
 					vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
