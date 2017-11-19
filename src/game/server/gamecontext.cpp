@@ -3020,8 +3020,15 @@ void CGameContext::BlockTournaTick()
 					m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
 					m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
 
-					//unfreeze
-					m_apPlayers[i]->GetCharacter()->UnFreeze();
+					//delete cosmentics (they are not competetive)
+					m_apPlayers[i]->GetCharacter()->m_Rainbow = false;
+					m_apPlayers[i]->GetCharacter()->m_Bloody = false;
+					m_apPlayers[i]->GetCharacter()->m_StrongBloody = false;
+					m_apPlayers[i]->GetCharacter()->m_Atom = false;
+					m_apPlayers[i]->GetCharacter()->m_Trail = false;
+
+					//freeze to get a fair start nobody should be surprised
+					m_apPlayers[i]->GetCharacter()->Freeze(4);
 
 					//teleport
 					vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
