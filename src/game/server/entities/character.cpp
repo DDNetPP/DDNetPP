@@ -7310,6 +7310,7 @@ void CCharacter::DummyTick()
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "BeckyHill") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Blue") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Amol") ||
+						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "fokkonaut") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "pro")
 						)
 					{
@@ -7323,8 +7324,156 @@ void CCharacter::DummyTick()
 			}
 
 
+			if (m_Core.m_Pos.x > 241 * 32 && m_Core.m_Pos.x < 418 * 32 && m_Core.m_Pos.y > 121 * 32 && m_Core.m_Pos.y < 192 * 32) //new spawn ChillBlock5 (tourna edition (the on with the gores stuff))
+			{
+				//dieser code wird also nur ausgeführt wenn der bot gerade im neuen bereich ist
+				if (m_Core.m_Pos.x > 319 * 32 && m_Core.m_Pos.y < 161 * 32) //top right spawn
+				{
+					//look up left
+					if (m_Core.m_Pos.x < 372 * 32 && m_Core.m_Vel.y > 3.1f)
+					{
+						m_Input.m_TargetX = -30;
+						m_Input.m_TargetY = -80;
+					}
+					else
+					{
+						m_Input.m_TargetX = -100;
+						m_Input.m_TargetY = -80;
+					}
 
-			if (false && m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+					if (m_Core.m_Pos.x > 331 * 32 && isFreezed)
+					{
+						Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					}
+
+					if (m_Core.m_Pos.x < 327 * 32) //dont klatsch in ze wand
+					{
+						m_Input.m_Direction = 1; //nach rechts laufen
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+					}
+
+					if (IsGrounded() && m_Core.m_Pos.x < 408 * 32) //initial jump from spawnplatform
+					{
+						m_Input.m_Jump = 1;
+					}
+
+					if (m_Core.m_Pos.x > 330 * 32) //only hook in tunnel and let fall at the end
+					{
+						if (m_Core.m_Pos.y > 147 * 32 || (m_Core.m_Pos.y > 143 * 32 && m_Core.m_Vel.y > 3.3f)) //gores pro hook up
+						{
+							m_Input.m_Hook = 1;
+						}
+						else if (m_Core.m_Pos.y < 143 * 32 && m_Core.m_Pos.x < 372 * 32) //hook down (if too high and in tunnel)
+						{
+							m_Input.m_TargetX = -42;
+							m_Input.m_TargetY = 100;
+							m_Input.m_Hook = 1;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.x < 317 * 32) //top left spawn
+				{
+					if (m_Core.m_Pos.y < 158 * 32) //spawn area find down
+					{
+						//selfkill
+						if (isFreezed)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+
+						if (m_Core.m_Pos.x < 276 * 32 + 20) //is die mitte von beiden linken spawns also da wo es runter geht
+						{
+							m_Input.m_TargetX = 57;
+							m_Input.m_TargetY = -100;
+							m_Input.m_Direction = 1;
+						}
+						else
+						{
+							m_Input.m_TargetX = -57;
+							m_Input.m_TargetY = -100;
+							m_Input.m_Direction = -1;
+						}
+
+						if (m_Core.m_Pos.y > 147 * 32)
+						{
+							//dbg_msg("fok","will hooken");
+							m_Input.m_Hook = 1;
+							if (m_Core.m_Pos.x > 272 * 32 && m_Core.m_Pos.x < 279 * 32) //let fall in the hole
+							{
+								//dbg_msg("fok", "lass ma des");
+								m_Input.m_Hook = 0;
+								m_Input.m_TargetX = 2;
+								m_Input.m_TargetY = 100;
+							}
+						}
+					}
+					else if (m_Core.m_Pos.y > 162 * 32) //managed it to go down --> go left
+					{
+						//selfkill
+						if (isFreezed)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+
+						if (m_Core.m_Pos.x < 283 * 32)
+						{
+							m_Input.m_TargetX = 200;
+							m_Input.m_TargetY = -136;
+							if (m_Core.m_Pos.y > 164 * 32 + 10)
+							{
+								m_Input.m_Hook = 1;
+							}
+						}
+						else
+						{
+							m_Input.m_TargetX = 80;
+							m_Input.m_TargetY = -100;
+							if (m_Core.m_Pos.y > 171 * 32 - 10)
+							{
+								m_Input.m_Hook = 1;
+							}
+						}
+
+						m_Input.m_Direction = 1;
+					}
+					else //freeze unfreeze bridge only 2 tiles do nothing here
+					{
+
+					}
+				}
+				else //lower end area of new spawn --> entering old spawn by walling and walking right
+				{
+					m_Input.m_Direction = 1;
+					m_Input.m_TargetX = 200;
+					m_Input.m_TargetY = -84;
+
+					//Selfkills
+					if (isFreezed && IsGrounded()) //should never lie in freeze at the ground
+					{
+						Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					}
+
+
+					if (m_Core.m_Pos.y < 166 * 32 - 20)
+					{
+						m_Input.m_Hook = 1;
+					}
+
+					if (m_Core.m_Pos.x > 332 * 32 && m_Core.m_Pos.x < 337 * 32 && m_Core.m_Pos.y > 182 * 32) //wont hit the wall --> jump
+					{
+						m_Input.m_Jump = 1;
+					}
+
+					if (m_Core.m_Pos.x > 336 * 32 + 20 && m_Core.m_Pos.y > 180 * 32) //stop moving if walled
+					{
+						m_Input.m_Direction = 0;
+					}
+				}
+			}
+			else if (false && m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
 			{
 				m_Input.m_TargetX = 200;
 				m_Input.m_TargetY = -80;
@@ -7464,7 +7613,7 @@ void CCharacter::DummyTick()
 				}
 
 
-				if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+				if ((m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) && (m_Core.m_Pos.x > 350 * 32)) //always suicide on freeze if not reached teh block area yet             (new) AND not coming from the new spawn and falling through the freeze
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");
@@ -10123,7 +10272,6 @@ void CCharacter::DummyTick()
 				//		m_Input.m_Jump = 1;
 				//	}
 
-
 				//	//speeddown at end to avoid selfkill cuz to slow falling in freeze
 				//	if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
 				//	{
@@ -10133,6 +10281,157 @@ void CCharacter::DummyTick()
 				//	}
 				//}
 				//else //under 193 (above 193 is new spawn)
+
+				if (m_Core.m_Pos.x > 241 * 32 && m_Core.m_Pos.x < 418 * 32 && m_Core.m_Pos.y > 121 * 32 && m_Core.m_Pos.y < 192 * 32) //new spawn ChillBlock5 (tourna edition (the on with the gores stuff))
+				{
+					//dieser code wird also nur ausgeführt wenn der bot gerade im neuen bereich ist
+					if (m_Core.m_Pos.x > 319 * 32 && m_Core.m_Pos.y < 161 * 32) //top right spawn
+					{
+						//look up left
+						if (m_Core.m_Pos.x < 372 * 32 && m_Core.m_Vel.y > 3.1f)
+						{
+							m_Input.m_TargetX = -30;
+							m_Input.m_TargetY = -80;
+						}
+						else
+						{
+							m_Input.m_TargetX = -100;
+							m_Input.m_TargetY = -80;
+						}
+
+						if (m_Core.m_Pos.x > 331 * 32 && isFreezed)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+
+						if (m_Core.m_Pos.x < 327 * 32) //dont klatsch in ze wand
+						{
+							m_Input.m_Direction = 1; //nach rechts laufen
+						}
+						else
+						{
+							m_Input.m_Direction = -1;
+						}
+
+						if (IsGrounded() && m_Core.m_Pos.x < 408 * 32) //initial jump from spawnplatform
+						{
+							m_Input.m_Jump = 1;
+						}
+
+						if (m_Core.m_Pos.x > 330 * 32) //only hook in tunnel and let fall at the end
+						{
+							if (m_Core.m_Pos.y > 147 * 32 || (m_Core.m_Pos.y > 143 * 32 && m_Core.m_Vel.y > 3.3f)) //gores pro hook up
+							{
+								m_Input.m_Hook = 1;
+							}
+							else if (m_Core.m_Pos.y < 143 * 32 && m_Core.m_Pos.x < 372 * 32) //hook down (if too high and in tunnel)
+							{
+								m_Input.m_TargetX = -42;
+								m_Input.m_TargetY = 100;
+								m_Input.m_Hook = 1;
+							}
+						}
+					}
+					else if (m_Core.m_Pos.x < 317 * 32) //top left spawn
+					{
+						if (m_Core.m_Pos.y < 158 * 32) //spawn area find down
+						{
+							//selfkill
+							if (isFreezed)
+							{
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+							}
+
+							if (m_Core.m_Pos.x < 276 * 32 + 20) //is die mitte von beiden linken spawns also da wo es runter geht
+							{
+								m_Input.m_TargetX = 57;
+								m_Input.m_TargetY = -100;
+								m_Input.m_Direction = 1;
+							}
+							else
+							{
+								m_Input.m_TargetX = -57;
+								m_Input.m_TargetY = -100;
+								m_Input.m_Direction = -1;
+							}
+
+							if (m_Core.m_Pos.y > 147 * 32)
+							{
+								//dbg_msg("fok","will hooken");
+								m_Input.m_Hook = 1;
+								if (m_Core.m_Pos.x > 272 * 32 && m_Core.m_Pos.x < 279 * 32) //let fall in the hole
+								{
+									//dbg_msg("fok", "lass ma des");
+									m_Input.m_Hook = 0;
+									m_Input.m_TargetX = 2;
+									m_Input.m_TargetY = 100;
+								}
+							}
+						}
+						else if (m_Core.m_Pos.y > 162 * 32) //managed it to go down --> go left
+						{
+							//selfkill
+							if (isFreezed)
+							{
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+							}
+
+							if (m_Core.m_Pos.x < 283 * 32)
+							{
+								m_Input.m_TargetX = 200;
+								m_Input.m_TargetY = -136;
+								if (m_Core.m_Pos.y > 164 * 32 + 10)
+								{
+									m_Input.m_Hook = 1;
+								}
+							}
+							else
+							{
+								m_Input.m_TargetX = 80;
+								m_Input.m_TargetY = -100;
+								if (m_Core.m_Pos.y > 171 * 32 - 10)
+								{
+									m_Input.m_Hook = 1;
+								}
+							}
+
+							m_Input.m_Direction = 1;
+						}
+						else //freeze unfreeze bridge only 2 tiles do nothing here
+						{
+
+						}
+					}
+					else //lower end area of new spawn --> entering old spawn by walling and walking right
+					{
+						m_Input.m_Direction = 1;
+						m_Input.m_TargetX = 200;
+						m_Input.m_TargetY = -84;
+
+						//Selfkills
+						if (isFreezed && IsGrounded()) //should never lie in freeze at the ground
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+
+
+						if (m_Core.m_Pos.y < 166 * 32 - 20)
+						{
+							m_Input.m_Hook = 1;
+						}
+
+						if (m_Core.m_Pos.x > 332 * 32 && m_Core.m_Pos.x < 337 * 32 && m_Core.m_Pos.y > 182 * 32) //wont hit the wall --> jump
+						{
+							m_Input.m_Jump = 1;
+						}
+
+						if (m_Core.m_Pos.x > 336 * 32 + 20 && m_Core.m_Pos.y > 180 * 32) //stop moving if walled
+						{
+							m_Input.m_Direction = 0;
+						}
+					}
+				}
+				else
 				{
 
 					if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.x > 325 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
@@ -10176,7 +10475,7 @@ void CCharacter::DummyTick()
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
 					}
 
-					if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
+					if (m_Core.m_Pos.y < 220 * 32 && m_Core.m_Pos.x < 415 * 32 && m_FreezeTime > 1 && m_Core.m_Pos.x > 352 * 32) //always suicide on freeze if not reached teh block area yet AND dont suicide in spawn area because new spawn sys can get pretty freezy
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "freeze und links der block area");

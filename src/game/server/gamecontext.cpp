@@ -5466,81 +5466,81 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						}
 					}
 				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail") && m_apPlayers[ClientID]->m_JailTime > 0)
-				{
-					int r = rand() % 1000;
-					if (r < m_apPlayers[ClientID]->m_escape_skill) //escape succes
-					{
-						SendChatTarget(ClientID, "You escaped from jail, watch out! The police is seeking you!\n WARNING: You can now get damage from these weapons: hammer, grenade and laser!");
-						m_apPlayers[ClientID]->m_JailTime = 0;
-						m_apPlayers[ClientID]->m_EscapeTime = Server()->TickSpeed() * 600; //10 min
-						m_apPlayers[ClientID]->m_escape_plan = false;
-						m_apPlayers[ClientID]->m_escape_plan_b = false;
-						m_apPlayers[ClientID]->m_escape_plan_c = false;
-						m_apPlayers[ClientID]->m_escape_skill = 0;
-						m_apPlayers[ClientID]->m_failed_escapes = 0;
-						GetPlayerChar(ClientID)->m_isDmg = true;
+				//else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail") && m_apPlayers[ClientID]->m_JailTime > 0)
+				//{
+				//	int r = rand() % 1000;
+				//	if (r < m_apPlayers[ClientID]->m_escape_skill) //escape succes
+				//	{
+				//		SendChatTarget(ClientID, "You escaped from jail, watch out! The police is seeking you!\n WARNING: You can now get damage from these weapons: hammer, grenade and laser!");
+				//		m_apPlayers[ClientID]->m_JailTime = 0;
+				//		m_apPlayers[ClientID]->m_EscapeTime = Server()->TickSpeed() * 600; //10 min
+				//		m_apPlayers[ClientID]->m_escape_plan = false;
+				//		m_apPlayers[ClientID]->m_escape_plan_b = false;
+				//		m_apPlayers[ClientID]->m_escape_plan_c = false;
+				//		m_apPlayers[ClientID]->m_escape_skill = 0;
+				//		m_apPlayers[ClientID]->m_failed_escapes = 0;
+				//		GetPlayerChar(ClientID)->m_isDmg = true;
 
 
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "%s escaped from jail! Help the police to catch him!", Server()->ClientName(ClientID));
+				//		char aBuf[128];
+				//		str_format(aBuf, sizeof(aBuf), "%s escaped from jail! Help the police to catch him!", Server()->ClientName(ClientID));
 
-						for (int i = 0; i < MAX_CLIENTS; i++)
-						{
-							SendBroadcast(aBuf, i);
-						}
-					}
-					else //escape failed
-					{
-						SendChatTarget(ClientID, "Escape failed...!");
-						m_apPlayers[ClientID]->m_failed_escapes++;
-					}
+				//		for (int i = 0; i < MAX_CLIENTS; i++)
+				//		{
+				//			SendBroadcast(aBuf, i);
+				//		}
+				//	}
+				//	else //escape failed
+				//	{
+				//		SendChatTarget(ClientID, "Escape failed...!");
+				//		m_apPlayers[ClientID]->m_failed_escapes++;
+				//	}
 
-					if (m_apPlayers[ClientID]->m_failed_escapes > 10)
-					{
-						m_apPlayers[ClientID]->m_failed_escapes = 0;
-						m_apPlayers[ClientID]->m_escape_skill++;
-					}
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan") && m_apPlayers[ClientID]->m_JailTime > 0)
-				{
-					if (m_apPlayers[ClientID]->m_escape_plan == false)
-					{
-						SendChatTarget(ClientID, "You created a plan A to escape out of jail.");
-						m_apPlayers[ClientID]->m_escape_plan = true;
-						m_apPlayers[ClientID]->m_escape_skill += 10;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You already have a plan A!");
-					}
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_b") && m_apPlayers[ClientID]->m_JailTime > 0)
-				{
-					if (m_apPlayers[ClientID]->m_escape_plan_b == false)
-					{
-						SendChatTarget(ClientID, "You created a plan B to escape out of jail.");
-						m_apPlayers[ClientID]->m_escape_plan_b = true;
-						m_apPlayers[ClientID]->m_escape_skill += 10;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You already have a plan B!");
-					}
-				}
-				else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_c") && m_apPlayers[ClientID]->m_JailTime > 0)
-				{
-					if (m_apPlayers[ClientID]->m_escape_plan_c == false)
-					{
-						SendChatTarget(ClientID, "You created a plan C to escape out of jail.");
-						m_apPlayers[ClientID]->m_escape_plan_c = true;
-						m_apPlayers[ClientID]->m_escape_skill += 10;
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You already have a plan C!");
-					}
-				}
+				//	if (m_apPlayers[ClientID]->m_failed_escapes > 10)
+				//	{
+				//		m_apPlayers[ClientID]->m_failed_escapes = 0;
+				//		m_apPlayers[ClientID]->m_escape_skill++;
+				//	}
+				//}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan") && m_apPlayers[ClientID]->m_JailTime > 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_escape_plan == false)
+				//	{
+				//		SendChatTarget(ClientID, "You created a plan A to escape out of jail.");
+				//		m_apPlayers[ClientID]->m_escape_plan = true;
+				//		m_apPlayers[ClientID]->m_escape_skill += 10;
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You already have a plan A!");
+				//	}
+				//}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_b") && m_apPlayers[ClientID]->m_JailTime > 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_escape_plan_b == false)
+				//	{
+				//		SendChatTarget(ClientID, "You created a plan B to escape out of jail.");
+				//		m_apPlayers[ClientID]->m_escape_plan_b = true;
+				//		m_apPlayers[ClientID]->m_escape_skill += 10;
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You already have a plan B!");
+				//	}
+				//}
+				//else if (!str_comp(pMsg->m_pMessage + 1, "escape_jail_plan_c") && m_apPlayers[ClientID]->m_JailTime > 0)
+				//{
+				//	if (m_apPlayers[ClientID]->m_escape_plan_c == false)
+				//	{
+				//		SendChatTarget(ClientID, "You created a plan C to escape out of jail.");
+				//		m_apPlayers[ClientID]->m_escape_plan_c = true;
+				//		m_apPlayers[ClientID]->m_escape_skill += 10;
+				//	}
+				//	else
+				//	{
+				//		SendChatTarget(ClientID, "You already have a plan C!");
+				//	}
+				//}
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];

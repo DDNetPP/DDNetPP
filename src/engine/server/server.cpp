@@ -282,7 +282,7 @@ void CServer::BotJoin(int BotID)
 		"i_fokmen_i",
 		"noobScout24",
 		"geneticual",
-		"algoriytimy"
+		"fokkoNUT"
 
 		
 	};
