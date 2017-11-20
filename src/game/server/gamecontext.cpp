@@ -5664,85 +5664,102 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				if (pMsg->m_pMessage[0] == '@' && pMsg->m_pMessage[1] == 'a' && pMsg->m_pMessage[2] == 'l' && pMsg->m_pMessage[3] == 'l')
 				{
 					char aBuf[1024];
+					char aBuf2[1024];
 					std::string msg_format = pMsg->m_pMessage;
 
-					if (msg_format.length() > 7) //ignore too short messages
+					if (msg_format.length() > 6) //ignore too short messages
 					{
-						//check if all servers confirmed the previous message before adding a new one
-						std::fstream ChatReadFile(g_Config.m_SvGlobalChatFile);
+						msg_format.erase(0, 4);
 
-						if (!std::ifstream(g_Config.m_SvGlobalChatFile))
+						//dont send messages twice
+						str_format(aBuf, sizeof(aBuf), "%s", m_aLastPrintedGlobalChatMessage);
+						str_format(aBuf2, sizeof(aBuf2), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
+						aBuf[0] = ' '; //ignore confirms on double check
+						aBuf2[0] = ' '; //ignore confirms on double check
+						if (!str_comp(aBuf, aBuf2))
 						{
-							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
-							g_Config.m_SvAllowGlobalChat = 0;
-							ChatReadFile.close();
+							SendChatTarget(ClientID, "[CHAT] global chat ignores doublicated messages");
 							return;
-						}
-
-						std::string data;
-						getline(ChatReadFile, data);
-						int confirms = 0;
-						if (data[0] == '1')
-							confirms = 1;
-						else if (data[0] == '2')
-							confirms = 2;
-						else if (data[0] == '3')
-							confirms = 3;
-						else if (data[0] == '4')
-							confirms = 4;
-						else if (data[0] == '5')
-							confirms = 5;
-						else if (data[0] == '6')
-							confirms = 6;
-						else if (data[0] == '7')
-							confirms = 7;
-						else if (data[0] == '8')
-							confirms = 8;
-						else if (data[0] == '9')
-							confirms = 9;
-
-						if (confirms < g_Config.m_SvGlobalChatServers)
-						{
-							SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try agian later.");
-							ChatReadFile.close();
-							return; //idk if this is too good ._. better check if it skips any spam protections
-						}
-
-
-
-
-
-
-
-
-						//std::ofstream ChatFile(g_Config.m_SvGlobalChatFile, std::ios_base::app);
-						std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
-						if (!ChatFile)
-						{
-							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
-							dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
-							g_Config.m_SvAllowGlobalChat = 0;
-							ChatFile.close();
-							return;
-						}
-
-						if (ChatFile.is_open())
-						{
-							//SendChat(-1, CGameContext::CHAT_ALL, "global chat");
-							msg_format.erase(0, 4);
-
-							str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
-							dbg_msg("global_chat", "msg [ %s ]", aBuf);
-							ChatFile << aBuf << "\n";
 						}
 						else
 						{
-							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
-							dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
-							g_Config.m_SvAllowGlobalChat = 0;
-						}
+							dbg_msg("global_chat", "'%s' != '%s'", aBuf, aBuf2);
 
-						ChatFile.close();
+							//check if all servers confirmed the previous message before adding a new one
+							std::fstream ChatReadFile(g_Config.m_SvGlobalChatFile);
+
+							if (!std::ifstream(g_Config.m_SvGlobalChatFile))
+							{
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+								g_Config.m_SvAllowGlobalChat = 0;
+								ChatReadFile.close();
+								return;
+							}
+
+							std::string data;
+							getline(ChatReadFile, data);
+							int confirms = 0;
+							if (data[0] == '1')
+								confirms = 1;
+							else if (data[0] == '2')
+								confirms = 2;
+							else if (data[0] == '3')
+								confirms = 3;
+							else if (data[0] == '4')
+								confirms = 4;
+							else if (data[0] == '5')
+								confirms = 5;
+							else if (data[0] == '6')
+								confirms = 6;
+							else if (data[0] == '7')
+								confirms = 7;
+							else if (data[0] == '8')
+								confirms = 8;
+							else if (data[0] == '9')
+								confirms = 9;
+
+							if (confirms < g_Config.m_SvGlobalChatServers)
+							{
+								SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try agian later.");
+								ChatReadFile.close();
+								return; //idk if this is too good ._. better check if it skips any spam protections
+							}
+
+
+
+
+
+
+
+
+							//std::ofstream ChatFile(g_Config.m_SvGlobalChatFile, std::ios_base::app);
+							std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
+							if (!ChatFile)
+							{
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+								dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
+								g_Config.m_SvAllowGlobalChat = 0;
+								ChatFile.close();
+								return;
+							}
+
+							if (ChatFile.is_open())
+							{
+								//SendChat(-1, CGameContext::CHAT_ALL, "global chat");
+
+								str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
+								dbg_msg("global_chat", "msg [ %s ]", aBuf);
+								ChatFile << aBuf << "\n";
+							}
+							else
+							{
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+								dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
+								g_Config.m_SvAllowGlobalChat = 0;
+							}
+
+							ChatFile.close();
+						}
 					}
 				}
 			}
