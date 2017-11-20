@@ -277,6 +277,11 @@ public:
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
 
+	//global chat
+	void GlobalChatPrintMessage();
+	void GlobalChatUpdateConfirms(const char * pStr);
+	char m_aLastPrintedGlobalChatMessage[1024];
+
 	//survival
 
 	void SurvivalLobbyTick();

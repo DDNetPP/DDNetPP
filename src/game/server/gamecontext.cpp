@@ -2499,7 +2499,7 @@ void CGameContext::DDPP_Tick()
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
 
-	if (Server()->Tick() % 500 == 0) //slow ddpp sub tick
+	if (Server()->Tick() % 600 == 0) //slow ddpp sub tick
 	{
 		bool StopSurvival = true;
 		for (int i = 0; i < MAX_CLIENTS; i++)
@@ -2524,29 +2524,31 @@ void CGameContext::DDPP_Tick()
 			{
 				StopSurvival = false;
 			}
+			if (m_BlockTournaState == 3)
+			{
+				if (m_apPlayers[i]->m_IsBlockTourning)
+				{
+					m_apPlayers[i]->m_IsBlockTourning = false;
+					if (m_apPlayers[i]->GetCharacter())
+					{
+						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+					}
+				}
+			}
 		}
+
+
 		if (StopSurvival)
 		{
 			m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
 		}
-
 		if (m_BlockTournaState == 3)
 		{
 			m_BlockTournaState = 0;
-			for (int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if (m_apPlayers[i])
-				{
-					if (m_apPlayers[i]->m_IsBlockTourning)
-					{
-						m_apPlayers[i]->m_IsBlockTourning = false;
-						if (m_apPlayers[i]->GetCharacter())
-						{
-							m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
-						}
-					}
-				}
-			}
+		}
+		if (g_Config.m_SvAllowGlobalChat)
+		{
+			GlobalChatPrintMessage();
 		}
 	}
 }
@@ -2726,6 +2728,100 @@ void CGameContext::AsciiTick(int i)
 			}
 		}
 	}
+}
+
+void CGameContext::GlobalChatPrintMessage()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[1024];
+	char aData[1024];
+	std::string data;
+
+
+	std::fstream ChatReadFile(g_Config.m_SvGlobalChatFile);
+
+	if (!std::ifstream(g_Config.m_SvGlobalChatFile))
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+		g_Config.m_SvAllowGlobalChat = 0;
+		ChatReadFile.close();
+		return;
+	}
+
+
+	getline(ChatReadFile, data);
+	str_format(aData, sizeof(aData), "%s", data.c_str());
+	aData[0] = ' '; //remove the confirms before print in chat
+
+	if (!str_comp(m_aLastPrintedGlobalChatMessage, aData))
+	{
+		//SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] no new global message");
+		ChatReadFile.close();
+		return;
+	}
+
+	GlobalChatUpdateConfirms(data.c_str());
+	str_format(m_aLastPrintedGlobalChatMessage, sizeof(m_aLastPrintedGlobalChatMessage), "%s", aData);
+	SendChat(-1, CGameContext::CHAT_ALL, aData);
+	//str_format(aBuf, sizeof(aBuf), "[CHAT] '%s'", aData);
+	//SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+	ChatReadFile.close();
+}
+
+void CGameContext::GlobalChatUpdateConfirms(const char * pStr)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[1024];
+	str_format(aBuf, sizeof(aBuf), "%s", pStr);
+	int confirms = 0;
+	if (pStr[0] == '1')
+		confirms = 1;
+	else if (pStr[0] == '2')
+		confirms = 2;
+	else if (pStr[0] == '3')
+		confirms = 3;
+	else if (pStr[0] == '4')
+		confirms = 4;
+	else if (pStr[0] == '5')
+		confirms = 5;
+	else if (pStr[0] == '6')
+		confirms = 6;
+	else if (pStr[0] == '7')
+		confirms = 7;
+	else if (pStr[0] == '8')
+		confirms = 8;
+	else if (pStr[0] == '9')
+		confirms = 9;
+
+	std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
+	if (!ChatFile)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
+		g_Config.m_SvAllowGlobalChat = 0;
+		ChatFile.close();
+		return;
+	}
+
+	if (ChatFile.is_open())
+	{
+		confirms++;
+		aBuf[0] = confirms + '0';
+		ChatFile << aBuf << "\n";
+	}
+	else
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
+		g_Config.m_SvAllowGlobalChat = 0;
+	}
+
+	ChatFile.close();
 }
 
 void CGameContext::SurvivalLobbyTick()
@@ -5443,7 +5539,97 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			//	}
 			//}
 
+			//############
+			//GLOBAL CHAT
+			//############
 
+			if (g_Config.m_SvAllowGlobalChat)
+			{
+				if (pMsg->m_pMessage[0] == '@' && pMsg->m_pMessage[1] == 'a' && pMsg->m_pMessage[2] == 'l' && pMsg->m_pMessage[3] == 'l')
+				{
+					char aBuf[1024];
+					std::string msg_format = pMsg->m_pMessage;
+
+					if (msg_format.length() > 7) //ignore too short messages
+					{
+						//check if all servers confirmed the previous message before adding a new one
+						std::fstream ChatReadFile(g_Config.m_SvGlobalChatFile);
+
+						if (!std::ifstream(g_Config.m_SvGlobalChatFile))
+						{
+							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+							g_Config.m_SvAllowGlobalChat = 0;
+							ChatReadFile.close();
+							return;
+						}
+
+						std::string data;
+						getline(ChatReadFile, data);
+						int confirms = 0;
+						if (data[0] == '1')
+							confirms = 1;
+						else if (data[0] == '2')
+							confirms = 2;
+						else if (data[0] == '3')
+							confirms = 3;
+						else if (data[0] == '4')
+							confirms = 4;
+						else if (data[0] == '5')
+							confirms = 5;
+						else if (data[0] == '6')
+							confirms = 6;
+						else if (data[0] == '7')
+							confirms = 7;
+						else if (data[0] == '8')
+							confirms = 8;
+						else if (data[0] == '9')
+							confirms = 9;
+
+						if (confirms < g_Config.m_SvGlobalChatServers)
+						{
+							SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try agian later.");
+							ChatReadFile.close();
+							return; //idk if this is too good ._. better check if it skips any spam protections
+						}
+
+
+
+
+
+
+
+
+						//std::ofstream ChatFile(g_Config.m_SvGlobalChatFile, std::ios_base::app);
+						std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
+						if (!ChatFile)
+						{
+							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+							dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
+							g_Config.m_SvAllowGlobalChat = 0;
+							ChatFile.close();
+							return;
+						}
+
+						if (ChatFile.is_open())
+						{
+							//SendChat(-1, CGameContext::CHAT_ALL, "global chat");
+							msg_format.erase(0, 4);
+
+							str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
+							dbg_msg("global_chat", "msg [ %s ]", aBuf);
+							ChatFile << aBuf << "\n";
+						}
+						else
+						{
+							SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+							dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
+							g_Config.m_SvAllowGlobalChat = 0;
+						}
+
+						ChatFile.close();
+					}
+				}
+			}
 
 			//############
 			//CHAT COMMANDS

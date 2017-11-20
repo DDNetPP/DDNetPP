@@ -9233,7 +9233,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aData, data.c_str(), sizeof(aData));
 
 
-	if (str_comp(aData, aData))
+	if (str_comp(aData, aPassword))
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] wrong password.");
 		Acc2File.close();
@@ -9385,8 +9385,8 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	//                                                                                                  \\ Escaping the escape seceqnze
-	char aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
+	//                                                                                                  \\ Escaping the escape seceqnze //unallow escape char because u can add newline i guess
+	char aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/-_";
 	bool EvilChar = false;
 
 	for (int i = 0; i < str_length(aUsername); i++)
