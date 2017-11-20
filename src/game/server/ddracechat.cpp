@@ -3022,8 +3022,8 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			//new testy
-			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(StatsID), pSelf->m_apPlayers[StatsID]->m_BlockSkill);
+			//str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(StatsID), pSelf->m_apPlayers[StatsID]->m_BlockSkill);
+			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", pSelf->GetBlockSkillGroup(StatsID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		}
@@ -3046,8 +3046,8 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-			//new testy
-			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(pPlayer->GetCID()), pPlayer->m_BlockSkill);
+			//str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(pPlayer->GetCID()), pPlayer->m_BlockSkill);
+			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", pSelf->GetBlockSkillGroup(pPlayer->GetCID()));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
