@@ -7448,8 +7448,8 @@ void CCharacter::DummyTick()
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Starkiller") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "rqza") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "timakro") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "destin T'nP") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Destin") ||
+						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Nudelsaft c:") ||
+						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Destom") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ante") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ama") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Forris") ||
