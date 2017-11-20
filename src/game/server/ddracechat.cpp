@@ -2920,7 +2920,7 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			int StatsID = pSelf->GetCIDByName(aStatsName);
 			if (StatsID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -2993,7 +2993,7 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			int StatsID = pSelf->GetCIDByName(aStatsName);
 			if (StatsID == -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", aStatsName);
+				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -3022,6 +3022,10 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
+			//new testy
+			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(StatsID), pSelf->m_apPlayers[StatsID]->m_BlockSkill);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
 		}
 		else //own stats
 		{
@@ -3040,6 +3044,10 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+			//new testy
+			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(pPlayer->GetCID()), pPlayer->m_BlockSkill);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}

@@ -3229,6 +3229,122 @@ int CGameContext::CountBlockTournaAlive()
 	return c;
 }
 
+char * CGameContext::GetBlockSkillGroup(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return "error";
+
+	if (pPlayer->m_BlockSkill < 1000)
+	{
+		return "nameless tee";
+	}
+	else if (pPlayer->m_BlockSkill < 3000)
+	{
+		return "brainless tee";
+	}
+	else if (pPlayer->m_BlockSkill < 6000)
+	{
+		return "novice tee";
+	}
+	else if (pPlayer->m_BlockSkill < 9000)
+	{
+		return "moderate tee";
+	}
+	else if (pPlayer->m_BlockSkill < 15000)
+	{
+		return "brutal tee";
+	}
+	else if (pPlayer->m_BlockSkill >= 20000)
+	{
+		return "insane tee";
+	}
+	else
+	{
+		return "unranked";
+	}
+}
+
+int CGameContext::GetBlockSkillGroupInt(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return -1;
+
+	if (pPlayer->m_BlockSkill < 1000)
+	{
+		return 1;
+	}
+	else if (pPlayer->m_BlockSkill < 3000)
+	{
+		return 2;
+	}
+	else if (pPlayer->m_BlockSkill < 6000)
+	{
+		return 3;
+	}
+	else if (pPlayer->m_BlockSkill < 9000)
+	{
+		return 4;
+	}
+	else if (pPlayer->m_BlockSkill < 15000)
+	{
+		return 5;
+	}
+	else if (pPlayer->m_BlockSkill >= 20000)
+	{
+		return 6;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void CGameContext::UpdateBlockSkill(int value, int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+
+	int oldrank = GetBlockSkillGroupInt(id);
+	pPlayer->m_BlockSkill += value; //update skill
+	if (pPlayer->m_BlockSkill < 0)
+	{
+		pPlayer->m_BlockSkill = 0; //never go less than zero
+	}
+	else if (pPlayer->m_BlockSkill > 25000)
+	{
+		pPlayer->m_BlockSkill = 25000; //max skill lvl
+	}
+	int newrank = GetBlockSkillGroupInt(id);
+	if (newrank != oldrank)
+	{
+		char aBuf[128];
+		if (newrank < oldrank) //downrank
+		{
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (downrank)", GetBlockSkillGroup(id));
+			SendChatTarget(id, aBuf);
+			UpdateBlockSkill(-590, id); //lower skill agian to not get an uprank too fast agian
+		}
+		else //uprank
+		{
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (uprank)", GetBlockSkillGroup(id));
+			SendChatTarget(id, aBuf);
+			UpdateBlockSkill(+590, id); //push skill agian to not get an downrank too fast agian
+		}
+	}
+}
+
 void CGameContext::BlockWaveAddBots()
 {
 #if defined(CONF_DEBUG)
@@ -5791,6 +5907,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
 
 						//ChillUpdateFileAcc(,);
+
+						UpdateBlockSkill(+200, ClientID);
 
 						/*
 						str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", pPlayer->m_aAccountLoginName);

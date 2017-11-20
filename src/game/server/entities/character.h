@@ -235,6 +235,7 @@ public:
 
 	void DDPP_Tick();
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
+	void BlockTourna_Die(int Killer);
 	void DummyTick();
 
 	//usefull everywhere

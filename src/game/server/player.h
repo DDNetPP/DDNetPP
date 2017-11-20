@@ -581,6 +581,7 @@ public:
 
 	//BLOCK POINTS
 
+	int m_BlockSkill;
 	int m_BlockPoints; //KILLS + other stuff like block tournaments won 
 	int m_BlockPoints_Kills; //Block points (blocked others)
 	int m_BlockPoints_Deaths; //Block -points (blocked by others)

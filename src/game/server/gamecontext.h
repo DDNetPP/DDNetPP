@@ -304,6 +304,10 @@ public:
 	int m_BlockTournaTick;
 	int CountBlockTournaAlive();
 	int m_BlockTournaStartPlayers;
+	
+	char* GetBlockSkillGroup(int id);
+	int GetBlockSkillGroupInt(int id);
+	void UpdateBlockSkill(int value, int id);
 
 	//blockwave
 	
