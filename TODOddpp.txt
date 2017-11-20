@@ -1,6 +1,23 @@
 ~~~ BUGS ~~~
 
 
+
+
+
+
+
+## skillgroup ##
+block skill groups arent added to sql yet
+
+
+
+
+
+
+
+
+
+
 ~~~ LESS IMPORTANT BUGS ~~~
 
 ## Blockpoints ##
