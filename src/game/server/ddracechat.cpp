@@ -4562,11 +4562,13 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
-		return;
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You have to be alive to use this command.");
+	}
 
 	if (pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena <join/leave>'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Invalid. Type '/pvp_arena <join/leave>'.");
 		return;
 	}
 
@@ -4588,44 +4590,44 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 						pPlayer->m_pvp_arena_games_played++;
 						pPlayer->GetCharacter()->m_IsPVParena = true;
 						pPlayer->GetCharacter()->m_isDmg = true;
-						pSelf->SendChatTarget(pResult->m_ClientID, "Teleporting to arena... good luck and have fun!");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleporting to arena... good luck and have fun!");
 					}
 					else
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "You are already in the PvP-arena");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You are already in the PvP-arena");
 					}
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
 				}
 			}
 			else //no arena configurated
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "No pvp-arena found.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] No pvp-arena found.");
 			}
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You can't join becasue your are in another mingame or jail (check '/minigames status')");
 		}
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
 	{
 		if (pPlayer->GetCharacter()->m_IsPVParena)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Teleport request sent. Don't move for 6 seconds.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleport request sent. Don't move for 6 seconds.");
 			pPlayer->GetCharacter()->m_pvp_arena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
 			pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are not in an arena.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You are not in an arena.");
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/pvp_arena <join/leave>'.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Invalid. Type '/pvp_arena <join/leave>'.");
 	}
 
 }

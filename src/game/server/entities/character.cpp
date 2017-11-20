@@ -4415,14 +4415,14 @@ void CCharacter::DDPP_Tick()
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
 			m_isDmg = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Successfully teleported out of arena.");
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got your ticket back because you have survived.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Successfully teleported out of arena.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] You got your ticket back because you have survived.");
 		}
 
 		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
 		{
 			m_pvp_arena_exit_request = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Teleport failed because you have moved.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleport failed because you have moved.");
 		}
 	}
 
@@ -4431,7 +4431,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_GiftDelay--;
 		if (m_pPlayer->m_GiftDelay == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Gift delay expired.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[GIFT] delay expired.");
 		}
 	}
 
@@ -4450,7 +4450,7 @@ void CCharacter::DDPP_Tick()
 		}
 		if (m_pPlayer->m_JailTime == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You were released from jail.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[JAIL] You were released from jail.");
 			vec2 JailReleaseSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAILRELEASE);
 			//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
 
@@ -4461,7 +4461,7 @@ void CCharacter::DDPP_Tick()
 			else //no jailrelease
 			{
 				//SetPosition(DefaultSpawn); //crashbug for mod stealer
-				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "gibts nich");
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[JAIL] no jail release spot found.");
 			}
 		}
 	}
@@ -4495,55 +4495,108 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvPvpArenaState == 1) // ChillBlock5
+	if (g_Config.m_SvPvpArenaState)
 	{
-		if (m_IsPVParena)
+		if (g_Config.m_SvPvpArenaState == 1) // ChillBlock5 pvp
 		{
-			if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
+			if (m_IsPVParena)
 			{
+				if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
+				{
 
+				}
+				else //not in arena
+				{
+
+					m_pPlayer->m_PVP_return_posX = m_Core.m_Pos.x;
+					m_pPlayer->m_PVP_return_posY = m_Core.m_Pos.y;
+
+
+					//if not in arena tele to random arena spawn:
+
+					int r = rand() % 3; // 0 1 2
+					if (r == 0)
+					{
+						m_Core.m_Pos.x = 420 * 32;
+						m_Core.m_Pos.y = 166 * 32 - 5;
+					}
+					else if (r == 1)
+					{
+						m_Core.m_Pos.x = 430 * 32;
+						m_Core.m_Pos.y = 170 * 32;
+					}
+					else if (r == 2)
+					{
+						m_Core.m_Pos.x = 440 * 32;
+						m_Core.m_Pos.y = 166 * 32 - 5;
+					}
+
+				}
 			}
-			else //not in arena
+			else //not in pvp mode
 			{
-
-				m_pPlayer->m_PVP_return_posX = m_Core.m_Pos.x;
-				m_pPlayer->m_PVP_return_posY = m_Core.m_Pos.y;
-
-
-				//if not in arena tele to random arena spawn:
-
-				int r = rand() % 3; // 0 1 2
-				if (r == 0)
+				if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
 				{
-					m_Core.m_Pos.x = 420 * 32;
-					m_Core.m_Pos.y = 166 * 32 - 5;
+					m_Core.m_Pos.x = m_pPlayer->m_PVP_return_posX;
+					m_Core.m_Pos.y = m_pPlayer->m_PVP_return_posY;
 				}
-				else if (r == 1)
+				else //not in arena
 				{
-					m_Core.m_Pos.x = 430 * 32;
-					m_Core.m_Pos.y = 170 * 32;
-				}
-				else if (r == 2)
-				{
-					m_Core.m_Pos.x = 440 * 32;
-					m_Core.m_Pos.y = 166 * 32 - 5;
-				}
 
+				}
 			}
 		}
-		else //not in pvp mode
+		else if (g_Config.m_SvPvpArenaState == 2) // BlmapChill pvp
 		{
-			if (m_Core.m_Pos.x > 414 * 32 && m_Core.m_Pos.x < 447 * 32 && m_Core.m_Pos.y < 175 * 32 && m_Core.m_Pos.y > 160 * 32) //in arena
+			if (m_IsPVParena)
 			{
-				m_Core.m_Pos.x = m_pPlayer->m_PVP_return_posX;
-				m_Core.m_Pos.y = m_pPlayer->m_PVP_return_posY;
-			}
-			else //not in arena
-			{
+				if (m_Core.m_Pos.x > 357 * 32 && m_Core.m_Pos.x < 369 * 32 && m_Core.m_Pos.y < 380 * 32 && m_Core.m_Pos.y > 364 * 32) //in arena
+				{
 
+				}
+				else //not in arena
+				{
+
+					m_pPlayer->m_PVP_return_posX = m_Core.m_Pos.x;
+					m_pPlayer->m_PVP_return_posY = m_Core.m_Pos.y;
+
+
+					//if not in arena tele to random arena spawn:
+
+					int r = rand() % 3; // 0 1 2
+					if (r == 0)
+					{
+						m_Core.m_Pos.x = 360 * 32 + 44;
+						m_Core.m_Pos.y = 379 * 32;
+					}
+					else if (r == 1)
+					{
+						m_Core.m_Pos.x = 366 * 32 + 53;
+						m_Core.m_Pos.y = 379 * 32;
+					}
+					else if (r == 2)
+					{
+						m_Core.m_Pos.x = 363 * 32 + 53;
+						m_Core.m_Pos.y = 373 * 32;
+					}
+
+				}
+			}
+			else //not in pvp mode
+			{
+				if (m_Core.m_Pos.x > 357 * 32 && m_Core.m_Pos.x < 369 * 32 && m_Core.m_Pos.y < 380 * 32 && m_Core.m_Pos.y > 364 * 32) //in arena
+				{
+					m_Core.m_Pos.x = m_pPlayer->m_PVP_return_posX;
+					m_Core.m_Pos.y = m_pPlayer->m_PVP_return_posY;
+				}
+				else //not in arena
+				{
+
+				}
 			}
 		}
 	}
+
 
 
 
@@ -4919,10 +4972,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) //dont give xp on killing same ip twice in a row
 					)
 				{
-					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
+					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "[PVP] +150 pvp_arena kill");
 					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
-					str_format(aBuf, sizeof(aBuf), "+150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(Killer, aBuf);
 				}
 				else
@@ -4931,7 +4984,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					GameServer()->m_apPlayers[Killer]->m_xp += 100;
 					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
-					str_format(aBuf, sizeof(aBuf), "+100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "[PVP] +100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(Killer, aBuf);
 				}
 
@@ -4939,7 +4992,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				if (r > 92)
 				{
 					GameServer()->m_apPlayers[Killer]->m_pvp_arena_tickets++;
-					GameServer()->SendChatTarget(Killer, "+1 pvp_arena_ticket        (special random drop for kill)");
+					GameServer()->SendChatTarget(Killer, "[PVP] +1 pvp_arena_ticket        (special random drop for kill)");
 				}
 				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
 			}
@@ -4952,7 +5005,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		{
 			m_pPlayer->m_pvp_arena_deaths++;
 
-			str_format(aBuf, sizeof(aBuf), "You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
+			str_format(aBuf, sizeof(aBuf), "[PVP] You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
 	}
@@ -4960,7 +5013,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	//bomb
 	if (m_IsBombing)
 	{
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "you lost bomb because you died.");
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BOMB] you lost bomb because you died.");
 	}
 
 	m_pPlayer->m_LastToucherID = -1;
