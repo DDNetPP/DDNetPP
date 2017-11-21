@@ -249,6 +249,8 @@ public:
 	int CountIngameHumans();
 	void SendBroadcastAll(const char *pText, bool supermod = false);
 	void KillAll();
+	void GiveBlockPoints(int ID, int points);
+	void GiveXp(int id, int value);
 	void SQLPortLogout(int port);
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'

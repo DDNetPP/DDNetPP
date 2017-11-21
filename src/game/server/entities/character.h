@@ -254,7 +254,6 @@ public:
 	int m_ci_freezetime;
 
 	//Block
-	void GiveBlockPoints(int ID, int points);
 	int BlockPointsMain(int Killer, bool fngscore = false);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);

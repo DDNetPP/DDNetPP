@@ -5049,9 +5049,10 @@ void CCharacter::BlockTourna_Die(int Killer)
 				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
 				GameServer()->SendChatTarget(wonID, aBuf);
 
-				GameServer()->m_apPlayers[wonID]->m_xp += xp_rew;		//TODO: code: hz78
-				GameServer()->m_apPlayers[wonID]->m_money += money_rew; //use MoneyTransaction(); func
-				GameServer()->m_apPlayers[wonID]->m_BlockPoints += points_rew; //use GiveBlockPoints(); func and move it to player so it can be used on dead tees too
+				str_format(aBuf, sizeof(aBuf), "+%d (block tournament)", money_rew);
+				GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, aBuf);
+				GameServer()->GiveXp(wonID, xp_rew);
+				GameServer()->GiveBlockPoints(wonID, points_rew);
 				GameServer()->UpdateBlockSkill(+skill_rew, wonID);
 			}
 			else if (wonID == 0)
@@ -13201,76 +13202,6 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 	pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
 }
 
-void CCharacter::GiveBlockPoints(int ID, int points)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	char aBuf[128];
-	bool FlagBonus = false;
-
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GameServer()->m_apPlayers[ID]->GetCharacter()) != -1)
-	{
-		points++;
-		FlagBonus = true;
-	}
-
-	GameServer()->m_apPlayers[ID]->m_BlockPoints += points;
-	if (GameServer()->m_apPlayers[ID]->m_ShowBlockPoints)
-	{
-		if (GameServer()->m_apPlayers[ID]->m_AccountID > 0)
-		{
-			if (!FlagBonus)
-			{
-				if (points == 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+1 point");
-				}
-				else if (points > 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+%d points", points);
-				}
-			}
-			else
-			{
-				if (points == 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+1 point (flag bonus)");
-				}
-				else if (points > 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+%d points (flag bonus)", points);
-				}
-			}
-		}
-		else
-		{
-			if (points == 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "+%d point (warning! use '/login' to save your '/points')", points);
-			}
-			else if (points > 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "+%d points (warning! use '/login' to save your '/points')", points);
-			}
-		}
-
-		GameServer()->SendChatTarget(ID, aBuf);
-	}
-	else //chat info deactivated
-	{
-		if (GameServer()->m_apPlayers[ID]->m_AccountID <= 0)
-		{
-			if (GameServer()->m_apPlayers[ID]->m_BlockPoints == 5 || GameServer()->m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
-			{
-				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", GameServer()->m_apPlayers[ID]->m_BlockPoints);
-				GameServer()->SendChatTarget(ID, aBuf);
-				GameServer()->SendChatTarget(ID, "Use '/accountinfo' for more information.");
-			}
-		}
-	}
-}
-
 int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 {
 #if defined(CONF_DEBUG)
@@ -13313,7 +13244,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 						{
 							if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 							{
-								GiveBlockPoints(Killer, 1);
+								GameServer()->GiveBlockPoints(Killer, 1);
 							}
 							GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 						}
@@ -13322,7 +13253,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 					{
 						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 						{
-							GiveBlockPoints(Killer, 1);
+							GameServer()->GiveBlockPoints(Killer, 1);
 						}
 						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 					}

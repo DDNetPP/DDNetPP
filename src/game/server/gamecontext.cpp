@@ -1797,6 +1797,95 @@ void CGameContext::KillAll()
 	}
 }
 
+void CGameContext::GiveBlockPoints(int ID, int points)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[ID])
+		return;
+
+	char aBuf[128];
+	bool FlagBonus = false;
+
+	if (m_apPlayers[ID]->GetCharacter())
+	{
+		if (((CGameControllerDDRace*)m_pController)->HasFlag(m_apPlayers[ID]->GetCharacter()) != -1)
+		{
+			points++;
+			FlagBonus = true;
+		}
+	}
+
+	m_apPlayers[ID]->m_BlockPoints += points;
+	if (m_apPlayers[ID]->m_ShowBlockPoints)
+	{
+		if (m_apPlayers[ID]->m_AccountID > 0)
+		{
+			if (!FlagBonus)
+			{
+				if (points == 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+1 point");
+				}
+				else if (points > 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+%d points", points);
+				}
+			}
+			else
+			{
+				if (points == 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+1 point (flag bonus)");
+				}
+				else if (points > 1)
+				{
+					str_format(aBuf, sizeof(aBuf), "+%d points (flag bonus)", points);
+				}
+			}
+		}
+		else
+		{
+			if (points == 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d point (warning! use '/login' to save your '/points')", points);
+			}
+			else if (points > 1)
+			{
+				str_format(aBuf, sizeof(aBuf), "+%d points (warning! use '/login' to save your '/points')", points);
+			}
+		}
+
+		SendChatTarget(ID, aBuf);
+	}
+	else //chat info deactivated
+	{
+		if (m_apPlayers[ID]->m_AccountID <= 0)
+		{
+			if (m_apPlayers[ID]->m_BlockPoints == 5 || m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
+			{
+				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_apPlayers[ID]->m_BlockPoints);
+				SendChatTarget(ID, aBuf);
+				SendChatTarget(ID, "Use '/accountinfo' for more information.");
+			}
+		}
+	}
+}
+
+void CGameContext::GiveXp(int id, int value)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[id])
+		return;
+	if (m_apPlayers[id]->m_level >= m_apPlayers[id]->m_max_level)
+		return;
+
+	m_apPlayers[id]->m_xp += value;
+}
+
 void CGameContext::SQLPortLogout(int port)
 {
 #if defined(CONF_DEBUG)
