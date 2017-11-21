@@ -1556,6 +1556,32 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						else
 							m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientID), g_Config.m_SvRconBantime*60, "Too many remote console authentication tries");
 					}
+
+					if (g_Config.m_SvSaveWrongRcon)
+					{
+						std::ofstream RconFile("wrong_rcon.txt", std::ios::app);
+						if (!RconFile)
+						{
+							dbg_msg("rcon_sniff", "ERROR1 writing file '%s'", "wrong_rcon.txt");
+							g_Config.m_SvSaveWrongRcon = 0;
+							RconFile.close();
+							return;
+						}
+
+						if (RconFile.is_open())
+						{
+							dbg_msg("rcon_sniff", "sniffed rcon [ %s ]", pPw);
+							RconFile << pPw << "\n";
+						}
+						else
+						{
+
+							dbg_msg("rcon_sniff", "ERROR2 writing file '%s'", "wrong_rcon.txt");
+							g_Config.m_SvSaveWrongRcon = 0;
+						}
+
+						RconFile.close();
+					}
 				}
 				else
 				{
