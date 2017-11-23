@@ -202,6 +202,7 @@ CSql::CSql()
 		"BlockPoints				INTEGER			DEFAULT 0," \
 		"BlockKills					INTEGER			DEFAULT 0," \
 		"BlockDeaths				INTEGER			DEFAULT 0," \
+		"BlockSkill					INTEGER			DEFAULT 0," \
 		"IsModerator				INTEGER			DEFAULT 0," \
 		"IsSuperModerator			INTEGER			DEFAULT 0," \
 		"IsSupporter				INTEGER			DEFAULT 0," \

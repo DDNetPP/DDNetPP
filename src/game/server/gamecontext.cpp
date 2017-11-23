@@ -189,6 +189,7 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints = GetInt(GetID("BlockPoints"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Kills = GetInt(GetID("BlockKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Deaths = GetInt(GetID("BlockDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockSkill = GetInt(GetID("BlockSkill"));
 
 				//bomb
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesPlayed = GetInt(GetID("BombGamesPlayed"));
