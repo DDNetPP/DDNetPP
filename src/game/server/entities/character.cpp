@@ -13275,7 +13275,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 							str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
 							GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
 						}
-						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_xp += m_pPlayer->m_KillStreak;
+						GameServer()->GiveXp(m_pPlayer->m_LastToucherID, m_pPlayer->m_KillStreak);
 					}
 					//bounty money reward to the blocker
 					if (m_pPlayer->m_BlockBounty)
