@@ -506,4 +506,5 @@ MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", 
 
 //hacky
 MACRO_CONFIG_INT(SvSaveWrongRcon, sv_save_wrong_rcon, 0, 0, 1, CFGFLAG_SERVER, "saves wrong rcons in the wrong_rcon.txt file")
+MACRO_CONFIG_INT(SvSaveWrongLogin, sv_save_wrong_login, 0, 0, 1, CFGFLAG_SERVER, "saves wrong '/login's in the wrong_login.txt file")
 #endif

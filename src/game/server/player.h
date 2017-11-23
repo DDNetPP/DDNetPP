@@ -599,6 +599,10 @@ public:
 	bool m_disarm;
 	//bool m_freezeShotgun;
 	int m_RainbowColor;
+
+
+	char m_aWrongLogin[256];
+
 #if defined(CONF_SQL)
 	int64 m_LastSQLQuery;
 #endif

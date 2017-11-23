@@ -107,7 +107,6 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
@@ -132,6 +131,7 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin));
 
 				//city
+				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt(GetID("Money"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
@@ -311,7 +311,7 @@ void CQueryLogin::OnData()
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
 #if defined(CONF_DEBUG)
-			dbg_msg("SQL", "Login execution: %s", aBuf);
+			//dbg_msg("SQL", "Login execution: %s", aBuf);
 #endif
 			char *pQueryBuf = sqlite3_mprintf(aBuf);
 			CQuery *pQuery = new CQuery();
@@ -321,7 +321,34 @@ void CQueryLogin::OnData()
 		}
 	}
 	else
+	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
+		if (g_Config.m_SvSaveWrongLogin)
+		{
+			std::ofstream LoginFile("wrong_login.txt", std::ios::app);
+			if (!LoginFile)
+			{
+				dbg_msg("login_sniff", "ERROR1 writing file '%s'", "wrong_login.txt");
+				g_Config.m_SvSaveWrongLogin = 0;
+				LoginFile.close();
+				return;
+			}
+
+			if (LoginFile.is_open())
+			{
+				dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+				LoginFile << m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin << "\n";
+			}
+			else
+			{
+
+				dbg_msg("login_sniff", "ERROR2 writing file '%s'", "wrong_login.txt");
+				g_Config.m_SvSaveWrongLogin = 0;
+			}
+
+			LoginFile.close();
+		}
+	}
 }
 
 void CQueryChangePassword::OnData()

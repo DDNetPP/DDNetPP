@@ -3315,6 +3315,12 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (g_Config.m_SvSaveWrongLogin)
+	{
+		str_format(pPlayer->m_aWrongLogin, sizeof(pPlayer->m_aWrongLogin), "[%s] '%s' '%s'", pSelf->Server()->ClientName(pResult->m_ClientID), aUsername, aPassword);
+	}
+
+
 	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", aUsername, aPassword);
 	CQueryLogin *pQuery = new CQueryLogin();
 	pQuery->m_ClientID = ClientID;
