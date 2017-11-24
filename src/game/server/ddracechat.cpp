@@ -775,7 +775,7 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvDDRaceRules)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rules",
-				"Don't use bots!");
+				"[RULES] admin is boss.");
 		Printed = true;
 	}
 	if (g_Config.m_SvRulesLine1[0])
@@ -840,7 +840,7 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 	}
 	if (!Printed)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rules",
-				"Don't use bots!!!");
+			"[RULES] admin is boss.");
 }
 
 void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
