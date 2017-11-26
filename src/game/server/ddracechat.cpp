@@ -9088,6 +9088,18 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	}
 
 	char aBuf[512];
+	
+	
+	//for (int i = 0; i < MAX_CLIENTS; i++)
+	//{
+	//	if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_AccountID > 0)
+	//	{
+	//		pSelf->m_aPlayers[i]->Logout(0);
+	//		pSelf->SendChatTarget(i,"[ACC] you were logged out by an administrator. (logout all)");
+	//	}
+	//}
+	
+	
 	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0");
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 

@@ -37,10 +37,10 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
-## global chat ##
-messages starting with @all get printed in chat on all ddpp servers
-possible idea: textfile
-and only check it every 5 secs to keep performance
+## LogoutAccs ##
+logout accs with acc name
+if one acc gets stuck in IsLoggedIn admins should be abel to manually
+logout the account by username
 
 ## SendBroadcast int parameter ##
 default 0 does what vanilla broadcast does and marks broadcast as important

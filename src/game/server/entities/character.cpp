@@ -5062,7 +5062,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 			}
 			else if (wonID > 1)
 			{
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID);
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID + 1);
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			}
 			else
