@@ -2514,31 +2514,31 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 	int index = 0;
 
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] password: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] password: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] loggedin: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] loggedin: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] port: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] port: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] frozen: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] frozen: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] vip: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] vip: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] vip+: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] vip+: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] sup: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] sup: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] money: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] money: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] level: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] level: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] xp: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] xp: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] shit: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] shit: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] police: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] police: '%s'", index, data[index].c_str()); index++;
 	getline(Acc2File, data[index]);
-	dbg_msg("acc2", "[%d] taser: '%s'", index, data[index++].c_str());
+	dbg_msg("acc2", "[%d] taser: '%s'", index, data[index].c_str()); index++;
 
 	if (data[1] == "1")
 	{
@@ -2888,7 +2888,6 @@ void CGameContext::GlobalChatPrintMessage()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	char aBuf[1024];
 	char aData[1024];
 	std::string data;
 
@@ -3382,7 +3381,7 @@ int CGameContext::CountBlockTournaAlive()
 	return c;
 }
 
-char * CGameContext::GetBlockSkillGroup(int id)
+const char * CGameContext::GetBlockSkillGroup(int id)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
