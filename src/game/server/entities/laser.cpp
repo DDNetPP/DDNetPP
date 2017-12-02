@@ -289,15 +289,27 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 				}
 			}
 		}
-
-		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_TaserOn)
+		
+		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsInstaArena_fng)
 		{
-			pHit->m_FreezeTime = 5 * GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_TaserLevel;
+			//handeld in take damage
+			//if (pHit->m_FreezeTime == 0)
+			//{
+			//	pHit->Freeze(10);
+			//}
+			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
 		}
 		else
 		{
-			pHit->UnFreeze();
-			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
+			if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_TaserOn)
+			{
+				pHit->m_FreezeTime = 5 * GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_TaserLevel;
+			}
+			else
+			{
+				pHit->UnFreeze();
+				pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
+			}
 		}
 	}
 	return true;
