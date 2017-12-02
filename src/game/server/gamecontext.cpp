@@ -912,33 +912,41 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 
 		if (m_apPlayers[ClientID]->m_LastBroadcastImportance) //only care if last broadcast was important
 		{
-			if (importance == 0 && m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
+			if (m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
-				return;
+				if (importance == 0)
+				{
+					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					return;
+				}
+				else if (importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
+				{
+					SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					return;
+				}
 			}
 		}
 
 		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", importance, m_apPlayers[ClientID]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientID]->m_LastBroadcast);
 
 		CNetMsg_Sv_Broadcast Msg;
-		if (supermod)
-		{
-			if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
-											   //char aText[256];																//supermod broadcast with advertisement attached
-											   //str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
-											   //Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
+		//if (supermod)
+		//{
+		//	if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
+		//									   //char aText[256];																//supermod broadcast with advertisement attached
+		//									   //str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
+		//									   //Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
 
-			Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-		}
-		else
-		{
+		//	Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
+		//	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		//}
+		//else
+		//{
 			Msg.m_pMessage = pText; //default broadcast
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 
 			m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
-		}
+		//}
 
 		m_apPlayers[ClientID]->m_LastBroadcast = Server()->Tick();
 		m_apPlayers[ClientID]->m_LastBroadcastImportance = importance;
@@ -3259,7 +3267,7 @@ void CGameContext::BlockTournaTick()
 				blockers = 1;
 			}
 			str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
-			SendBroadcastAll(aBuf);
+			SendBroadcastAll(aBuf, 2);
 		}
 
 
@@ -3268,13 +3276,13 @@ void CGameContext::BlockTournaTick()
 			m_BlockTournaStartPlayers = CountBlockTournaAlive();
 			if (m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
 			{
-				SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.");
+				SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.", 2);
 				EndBlockTourna();
 				return;
 			}
 
 
-			SendBroadcastAll("[EVENT] Block tournament started!");
+			SendBroadcastAll("[EVENT] Block tournament started!", 2);
 			m_BlockTournaState = 2;
 			m_BlockTournaTick = 0;
 
@@ -3310,7 +3318,7 @@ void CGameContext::BlockTournaTick()
 						}
 						else //no tile found
 						{
-							SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.");
+							SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.", 2);
 							EndBlockTourna();
 							return;
 						}

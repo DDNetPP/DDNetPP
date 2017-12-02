@@ -8932,12 +8932,13 @@ void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserD
 		return;
 	}
 
+	/*
 	if (pSelf->m_iBroadcastDelay)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[broadcast_srv] could't sent broadcast because someone recived an important broadcast latley");
 		return;
 	}
-
+	*/
 
 	//str_format(pSelf->aBroadcastMSG, sizeof(pSelf->aBroadcastMSG), pResult->GetString(0));
 	pSelf->SendBroadcastAll(pResult->GetString(0), 1, true); //send as important broadcast
