@@ -2077,14 +2077,18 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 
 			//save the kill
-			if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
-			{
-				GameServer()->m_apPlayers[From]->m_GrenadeKills++;
-			}
-			else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
-			{
-				GameServer()->m_apPlayers[From]->m_RifleKills++;
-			}
+			//if (!m_pPlayer->m_IsInstaArena_fng) //damage is only a hit not a kill in insta ---> well move it complety al to kill makes more performance sense
+			//{
+			//	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+			//	{
+			//		GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+			//	}
+			//	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
+			//	{
+			//		GameServer()->m_apPlayers[From]->m_RifleKills++;
+			//	}
+			//}
+
 
 			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
 			//GameServer()->m_apPlayers[From]->m_KillStreak++;
@@ -4745,8 +4749,6 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		CIRestart();
 	}
 
-	InstagibSubDieFunc(Killer, Weapon);
-
 	// remove atom projectiles on death
 	if (!m_AtomProjs.empty())
 	{
@@ -4773,6 +4775,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
 	BlockTourna_Die(Killer);
+	InstagibSubDieFunc(Killer, Weapon);
 
 	//insta kills //TODO: combine with insta 1on1
 	if (Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
@@ -13748,7 +13751,7 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	//zCatch instagib 
+	//=== DEATHS ===
 	if (g_Config.m_SvInstagibMode)
 	{
 		if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
@@ -13769,6 +13772,16 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 	else if (m_pPlayer->m_IsInstaArena_idm)
 	{
 		m_pPlayer->m_RifleDeaths++;
+	}
+
+	//=== KILLS ===
+	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+	{
+		GameServer()->m_apPlayers[Killer]->m_GrenadeKills++;
+	}
+	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // idm & zCatch rifle
+	{
+		GameServer()->m_apPlayers[Killer]->m_RifleKills++;
 	}
 }
 
