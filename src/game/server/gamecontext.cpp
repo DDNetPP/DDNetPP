@@ -2164,8 +2164,52 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	SayInsta(aBuf, weapon);
 }
 
+void CGameContext::ShowInstaStats(int requestID, int requestedID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[requestID])
+		return;
+	CPlayer *pPlayer = m_apPlayers[requestedID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Grenade instagib ~~~", Server()->ClientName(pPlayer->GetCID()));
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_GrenadeKills);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_GrenadeDeaths);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_GrenadeSpree);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_GrenadeShots);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_GrenadeShotsNoRJ);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ);
+	SendChatTarget(requestID, aBuf);
+	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
+	//SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Rifle instagib ~~~", Server()->ClientName(pPlayer->GetCID()));
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_RifleKills);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_RifleDeaths);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_RifleSpree);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_RifleShots);
+	SendChatTarget(requestID, aBuf);
+}
+
 void CGameContext::LeaveInstagib(int ID)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
 	CPlayer *pPlayer = m_apPlayers[ID];
 	CCharacter* pChr = pPlayer->GetCharacter();
 	char aBuf[128];

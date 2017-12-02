@@ -257,6 +257,7 @@ public:
 	bool IsHooked(int hookedID, int power);
 	bool IsSameIP(int ID_1, int ID_2);
 	void JoinInstagib(int weapon, bool fng, int ID);
+	void ShowInstaStats(int requestID, int requestedID);
 	void LeaveInstagib(int ID);
 	void SayInsta(const char *pMsg, int weapon);
 	void DoInstaScore(int score, int id);
