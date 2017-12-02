@@ -5234,7 +5234,7 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[128];
 
-	//str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
+	str_format(aBuf, sizeof(aBuf), "Cucumber value: %d", pSelf->m_CucumberShareValue);
 	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 
@@ -9577,8 +9577,8 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		}
 		int value;
 		char str_value[16];
-		str_format(str_value, sizeof(str_value), "%d", value);
 		value = pResult->GetInteger(2);
+		str_format(str_value, sizeof(str_value), "%d", value);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -9623,8 +9623,8 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		}
 		int value;
 		char str_value[16];
-		str_format(str_value, sizeof(str_value), "%d", value);
 		value = pResult->GetInteger(2);
+		str_format(str_value, sizeof(str_value), "%d", value);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -9685,7 +9685,6 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	char aBuf[128];
 	char aCommand[32];
 	char aName[32];
 	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
