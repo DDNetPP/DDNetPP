@@ -7302,6 +7302,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		pSelf->SendChatTarget(pResult->m_ClientID, "You escaped the jail, run! The police will be hunting you for 10 minutes.");
+		pSelf->AddEscapeReason(pResult->m_ClientID,"jail escape");
 		pPlayer->m_EscapeTime = pSelf->Server()->TickSpeed() * 600; // 10 minutes for escaping the jail
 		pPlayer->m_JailTime = 0;
 		pPlayer->m_IsJailDoorOpen = false;
