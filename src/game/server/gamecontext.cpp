@@ -2132,6 +2132,12 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
 #endif
 
+	//die first to not count death
+	if (m_apPlayers[ID]->GetCharacter())
+	{
+		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_SELF);
+	}
+
 	//reset values
 	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 	m_apPlayers[ID]->m_IsInstaArena_idm = false;
@@ -2156,11 +2162,6 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(ID));
 	SayInsta(aBuf, weapon);
-
-	if (m_apPlayers[ID]->GetCharacter())
-	{
-		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_SELF);
-	}
 }
 
 void CGameContext::LeaveInstagib(int ID)
