@@ -1494,7 +1494,6 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 #endif
 
 	std::string data;
-	char aData[32];
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, m_aAccountLoginName);
 	std::ofstream Acc2File(aBuf);
