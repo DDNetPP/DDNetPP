@@ -13228,16 +13228,27 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 			Killer = m_pPlayer->m_LastToucherID; //kill message
 			if (!m_pPlayer->m_IsBlockWaving) //dont count block deaths in blockwave minigame
 			{
-				if (m_pPlayer->m_IsDummy)
+				if (m_pPlayer->m_IsInstaArena_gdm)
 				{
-					if (g_Config.m_SvDummyBlockPoints)
-					{
-						m_pPlayer->m_BlockPoints_Deaths++;
-					}
+					//m_pPlayer->m_GrenadeDeaths++; //probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
+				}
+				else if (m_pPlayer->m_IsInstaArena_idm)
+				{
+					//m_pPlayer->m_RifleDeaths++; //probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
 				}
 				else
 				{
-					m_pPlayer->m_BlockPoints_Deaths++;
+					if (m_pPlayer->m_IsDummy)
+					{
+						if (g_Config.m_SvDummyBlockPoints)
+						{
+							m_pPlayer->m_BlockPoints_Deaths++;
+						}
+					}
+					else
+					{
+						m_pPlayer->m_BlockPoints_Deaths++;
+					}
 				}
 			}
 
@@ -13750,6 +13761,14 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 		}
 
 		InstagibKillingSpree(Killer, Weapon);
+	}
+	else if (m_pPlayer->m_IsInstaArena_gdm)
+	{
+		m_pPlayer->m_GrenadeDeaths++;
+	}
+	else if (m_pPlayer->m_IsInstaArena_idm)
+	{
+		m_pPlayer->m_RifleDeaths++;
 	}
 }
 
