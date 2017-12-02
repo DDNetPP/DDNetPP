@@ -923,7 +923,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 
 		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", importance, m_apPlayers[ClientID]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientID]->m_LastBroadcast);
 
-		CNetMsg_imiSv_Broadcast Msg;
+		CNetMsg_Sv_Broadcast Msg;
 		if (supermod)
 		{
 			if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
