@@ -885,7 +885,6 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-
 	if (ClientID == -1) //classical rcon broadcast
 	{
 		CNetMsg_Sv_Broadcast Msg;
@@ -902,7 +901,6 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 				//dbg_msg("broadcast","[%s] importance is %d", Server()->ClientName(i), m_apPlayers[i]->m_LastBroadcastImportance);
 			}
 		}
-		//dbg_msg("broadcast","important broadcast sent");
 	}
 	else //non rcon broadcast
 	{
@@ -923,7 +921,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 
 		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", importance, m_apPlayers[ClientID]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientID]->m_LastBroadcast);
 
-		CNetMsg_imiSv_Broadcast Msg;
+		CNetMsg_Sv_Broadcast Msg;
 		if (supermod)
 		{
 			if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
@@ -944,13 +942,9 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 
 		m_apPlayers[ClientID]->m_LastBroadcast = Server()->Tick();
 		m_apPlayers[ClientID]->m_LastBroadcastImportance = importance;
-
-
-		//Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 	}
 }
 
-//
 void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char *pReason)
 {
 #if defined(CONF_DEBUG)
