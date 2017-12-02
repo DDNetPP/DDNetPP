@@ -942,8 +942,17 @@ void CCharacter::FireWeapon(bool Bot)
 			if (Temp.y > 0 && ((pTarget->m_TileIndex == TILE_STOP && pTarget->m_TileFlags == ROTATION_0) || (pTarget->m_TileIndexT == TILE_STOP && pTarget->m_TileFlagsT == ROTATION_0) || (pTarget->m_TileIndexT == TILE_STOPS && (pTarget->m_TileFlagsT == ROTATION_0 || pTarget->m_TileFlagsT == ROTATION_180)) || (pTarget->m_TileIndexT == TILE_STOPA) || (pTarget->m_TileFIndex == TILE_STOP && pTarget->m_TileFFlags == ROTATION_0) || (pTarget->m_TileFIndexT == TILE_STOP && pTarget->m_TileFFlagsT == ROTATION_0) || (pTarget->m_TileFIndexT == TILE_STOPS && (pTarget->m_TileFFlagsT == ROTATION_0 || pTarget->m_TileFFlagsT == ROTATION_180)) || (pTarget->m_TileFIndexT == TILE_STOPA) || (pTarget->m_TileSIndex == TILE_STOP && pTarget->m_TileSFlags == ROTATION_0) || (pTarget->m_TileSIndexT == TILE_STOP && pTarget->m_TileSFlagsT == ROTATION_0) || (pTarget->m_TileSIndexT == TILE_STOPS && (pTarget->m_TileSFlagsT == ROTATION_0 || pTarget->m_TileSFlagsT == ROTATION_180)) || (pTarget->m_TileSIndexT == TILE_STOPA)))
 				Temp.y = 0;
 			Temp -= pTarget->m_Core.m_Vel;
-			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
-				m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+
+			if (m_pPlayer->m_IsInstaArena_fng) //dont damage with hammer in fng
+			{
+				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
+					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+			}
+			else
+			{
+				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
+					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+			}
 
 			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaArena_fng)
 				pTarget->UnFreeze();
@@ -2040,10 +2049,14 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			{
 				if (!m_FreezeTime)
 				{
+					//char aBuf[256];
+					//str_format(aBuf, sizeof(aBuf), "freezetime %d", m_FreezeTime);
+					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 					Freeze(10);
 				}
 				else
 				{
+					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "returned cuz freeze time");
 					//return false; //dont count freezed tee shots (no score or sound or happy emote)
 					//dont return because we loose hammer vel then
 					return; //we can return agian because the instagib stuff has his own func and got moved out of TakeDamage();
