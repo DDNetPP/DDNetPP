@@ -674,7 +674,7 @@ void CCharacter::FireWeapon(bool Bot)
 				GameServer()->CreateHammerHit(ProjStartPos, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 
-			vec2 Dir;
+			vec2 Dir = vec2(0.f, 0.f);
 			if (m_pPlayer->m_IsInstaArena_fng && m_pPlayer->m_aFngConfig[1] == '1')
 			{
 				pTarget->TakeHammerHit(this);
@@ -999,7 +999,7 @@ void CCharacter::FireWeapon(bool Bot)
 				//----- ChillerDragon tried to create 2nd projectile -----
 				//Just copy and pasted the whole code agian
 				float a = GetAngle(Direction);
-				a += (0, 0.070f) * 2;
+				a += (0.070f) * 2;
 
 				CProjectile *pProj_test = new CProjectile
 					(
@@ -1583,7 +1583,7 @@ void CCharacter::Tick()
 		for (int i = 0; i<NUM_TRAILS; i++)
 		{
 			float Length = (i + 1)*TRAIL_DIST;
-			float NextDist;
+			float NextDist = 0.0f;
 			while (1)
 			{
 				// in case floating point arithmetic errors should fuck us up
