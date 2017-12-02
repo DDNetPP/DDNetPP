@@ -185,6 +185,8 @@ public:
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	//bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
+	int m_LastBroadcast;
+	int m_LastBroadcastImportance;
 
 	//ascii animation frames
 	char m_aAsciiFrame0[64];

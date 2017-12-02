@@ -8940,7 +8940,7 @@ void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserD
 
 
 	//str_format(pSelf->aBroadcastMSG, sizeof(pSelf->aBroadcastMSG), pResult->GetString(0));
-	pSelf->SendBroadcastAll(pResult->GetString(0), true);
+	pSelf->SendBroadcastAll(pResult->GetString(0), 1, true); //send as important broadcast
 }
 
 void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)

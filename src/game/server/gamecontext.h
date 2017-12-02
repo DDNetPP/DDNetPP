@@ -179,7 +179,7 @@ public:
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID, bool supermod = false);
+	void SendBroadcast(const char *pText, int ClientID, int importance = 1,  bool supermod = false);
 
 	void List(int ClientID, const char* filter);
 
@@ -247,7 +247,7 @@ public:
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountIngameHumans();
-	void SendBroadcastAll(const char *pText, bool supermod = false);
+	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
 	void GiveBlockPoints(int ID, int points);
 	void GiveXp(int id, int value);

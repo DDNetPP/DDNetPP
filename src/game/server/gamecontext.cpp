@@ -880,32 +880,74 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 }
 
 
-void CGameContext::SendBroadcast(const char *pText, int ClientID, bool supermod)
+void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CNetMsg_Sv_Broadcast Msg;
-	if (supermod)
-	{
-		if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
-		//char aText[256];																//supermod broadcast with advertisement attached
-		//str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
-		//Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
 
-		Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-	}
-	else
+	if (ClientID == -1) //classical rcon broadcast
 	{
+		CNetMsg_Sv_Broadcast Msg;
 		Msg.m_pMessage = pText; //default broadcast
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 
-		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+		//set important broadcast for all
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				m_apPlayers[i]->m_LastBroadcastImportance = 1;
+				m_apPlayers[i]->m_LastBroadcast = Server()->Tick();
+				//dbg_msg("broadcast","[%s] importance is %d", Server()->ClientName(i), m_apPlayers[i]->m_LastBroadcastImportance);
+			}
+		}
+		//dbg_msg("broadcast","important broadcast sent");
 	}
+	else //non rcon broadcast
+	{
+		if (!m_apPlayers[ClientID]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
+		{
+			//dbg_msg("cBug", "returned id=%d", ClientID);
+			return;
+		}
+
+		if (m_apPlayers[ClientID]->m_LastBroadcastImportance) //only care if last broadcast was important
+		{
+			if (importance == 0 && m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
+			{
+				SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+				return;
+			}
+		}
+
+		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", importance, m_apPlayers[ClientID]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientID]->m_LastBroadcast);
+
+		CNetMsg_Sv_Broadcast Msg;
+		if (supermod)
+		{
+			if (m_iBroadcastDelay) { return; } //only send supermod broadcasts if no other broadcast recencly was sent
+											   //char aText[256];																//supermod broadcast with advertisement attached
+											   //str_format(aText, sizeof(aText), "%s\n[%s]", pText, aBroadcastMSG);			//supermod broadcast with advertisement attached
+											   //Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
+
+			Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		}
+		else
+		{
+			Msg.m_pMessage = pText; //default broadcast
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+
+			m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+		}
+
+		m_apPlayers[ClientID]->m_LastBroadcast = Server()->Tick();
+		m_apPlayers[ClientID]->m_LastBroadcastImportance = importance;
 
 
-	//Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		//Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	}
 }
 
 //
@@ -1797,7 +1839,7 @@ int CGameContext::CountIngameHumans()
 	return cPlayers;
 }
 
-void CGameContext::SendBroadcastAll(const char * pText, bool supermod)
+void CGameContext::SendBroadcastAll(const char * pText, int importance, bool supermod)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -1806,7 +1848,7 @@ void CGameContext::SendBroadcastAll(const char * pText, bool supermod)
 	{
 		if (m_apPlayers[i])
 		{
-			SendBroadcast(pText, m_apPlayers[i]->GetCID(), supermod);
+			SendBroadcast(pText, m_apPlayers[i]->GetCID(), importance, supermod);
 		}
 	}
 }
