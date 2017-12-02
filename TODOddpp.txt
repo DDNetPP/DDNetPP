@@ -8,6 +8,11 @@ so they get a nice K/D without deaths in their acc.
 do something like adding blockdeath on logout in freeze or disallow it completly or stuff idk
 
 ## Jail ##
+there was this one case i guess it was player with client id 0
+he always gets jail code 0 
+could also be a feature xd idk yet
+
+## Jail ##
 there is a crashbug with the jail command
 (check crash logs)
 
