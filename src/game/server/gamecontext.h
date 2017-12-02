@@ -307,7 +307,7 @@ public:
 	int CountBlockTournaAlive();
 	int m_BlockTournaStartPlayers;
 	
-	char* GetBlockSkillGroup(int id);
+	const char* GetBlockSkillGroup(int id);
 	int GetBlockSkillGroupInt(int id);
 	void UpdateBlockSkill(int value, int id);
 
