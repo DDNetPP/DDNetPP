@@ -6042,6 +6042,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						//ChillUpdateFileAcc(,);
 
+						time_t seconds;
+
+						seconds = time(NULL);
+
+						str_format(aBuf, sizeof(aBuf), "%d", seconds);
+
+						SendChatTarget(ClientID, aBuf);
+
 						UpdateBlockSkill(+200, ClientID);
 
 						/*
