@@ -121,9 +121,6 @@ und dann ein paar reasons:
 - scamming
 und wenn dann genung reports der selben reason ankamen wird die police auf den geschickt
 
-## police ##
-add a list of gangsters their gangsta reason and escape time
-
 ## warps ##
 add warps like in minecraft
 /tele_create (name)
