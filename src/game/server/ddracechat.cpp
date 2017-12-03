@@ -362,6 +362,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added spreading guns for VIP+");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added global chat (@all)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added block tournaments");
@@ -5464,7 +5466,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] You have to be alive to use this command.");
 		return;
+	}
 
 	if (pResult->NumArguments() == 0)
 	{
@@ -5472,7 +5477,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra>' to get it for yourself.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/give <extra> <playername>' to give to others.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "-- EXTRAS --");
-		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom");
+		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom, spread_gun");
 		return;
 	}
 
@@ -5510,32 +5515,37 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			if (!str_comp_nocase(aItem, "bloody"))
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "strong_bloody"))
 			{
 				pPlayer->GetCharacter()->m_StrongBloody = true;
 				pPlayer->GetCharacter()->m_Bloody = false;
-				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] strong_bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Rainbow on.");
 			}
 			else if (!str_comp_nocase(aItem, "trail"))
 			{
 				pPlayer->GetCharacter()->m_Trail = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Trail on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Trail on.");
 			}
 			else if (!str_comp_nocase(aItem, "atom"))
 			{
 				pPlayer->GetCharacter()->m_Atom = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Atom on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Atom on.");
+			}
+			else if (!str_comp_nocase(aItem, "spread_gun"))
+			{
+				pChr->m_autospreadgun = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spreading gun on.");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 			}
 		}
 		else if (pResult->NumArguments() == 2) //give to other players
@@ -5564,12 +5574,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer > 4)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Admins can't offer bloody to the same player more than 5 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer bloody to the same player more than 5 times.");
 					}
 					else
 					{
 						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						str_format(aBuf, sizeof(aBuf), "Bloody offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to player: '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
@@ -5581,12 +5591,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 19)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Admins can't offer rainbow to the same player more than 20 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer rainbow to the same player more than 20 times.");
 					}
 					else
 					{
 						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "Rainbow offer given to the player: %s", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer given to the player: %s", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
@@ -5594,7 +5604,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_trail_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Admins can't offer trail to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer trail to the same player more than 10 times.");
 						return;
 					}
 
@@ -5606,22 +5616,26 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_atom_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "Admins can't offer atom to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer atom to the same player more than 10 times.");
 						return;
 					}
 
 					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
-					str_format(aBuf, sizeof(aBuf), "Atom offer sent to player: '%s'.", aUsername);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Atom offer sent to player: '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				}
+				else if (!str_comp_nocase(aItem, "spread_gun"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] giving spreadgun to others isn't supported yet.");
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 				}
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", aUsername);
+				str_format(aBuf, sizeof(aBuf), "[GIVE] Can't find playername: '%s'.", aUsername);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 		}
@@ -5635,32 +5649,37 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			if (!str_comp_nocase(aItem, "bloody"))
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "strong_bloody"))
 			{
 				pPlayer->GetCharacter()->m_StrongBloody = true;
 				pPlayer->GetCharacter()->m_Bloody = false;
-				pSelf->SendChatTarget(pResult->m_ClientID, "strong_bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] strong_bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Rainbow on.");
 			}
 			else if (!str_comp_nocase(aItem, "trail"))
 			{
 				pPlayer->GetCharacter()->m_Trail = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Trail on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Trail on.");
 			}
 			else if (!str_comp_nocase(aItem, "atom"))
 			{
 				pPlayer->GetCharacter()->m_Atom = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Atom on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Atom on.");
+			}
+			else if (!str_comp_nocase(aItem, "spread_gun"))
+			{
+				pChr->m_autospreadgun = true;
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spreading gun on.");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 			}
 		}
 		else if (pResult->NumArguments() == 2) //give to other players
@@ -5689,48 +5708,48 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ can't offer bloody to the same player more than once.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] VIP+ can't offer bloody to the same player more than once.");
 					}
 					else
 					{
 						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						str_format(aBuf, sizeof(aBuf), "Bloody offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to player: '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "VIP+ can't offer rainbow to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] VIP+ can't offer rainbow to the same player more than 10 times.");
 					}
 					else
 					{
 						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer sent to player: '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "atom"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 				}
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", aUsername);
+				str_format(aBuf, sizeof(aBuf), "[GIVE] Can't find playername: '%s'.", aUsername);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 		}
@@ -5744,28 +5763,32 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			if (!str_comp_nocase(aItem, "bloody"))
 			{
 				pPlayer->GetCharacter()->m_Bloody = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "strong_bloody"))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
 				pPlayer->GetCharacter()->m_Rainbow = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Rainbow on.");
 			}
 			else if (!str_comp_nocase(aItem, "trail"))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 			}
 			else if (!str_comp_nocase(aItem, "atom"))
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
+			}
+			else if (!str_comp_nocase(aItem, "spread_gun"))
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 			}
 			else
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 			}
 		}
 		else if (pResult->NumArguments() == 2) //give to other players
@@ -5792,41 +5815,45 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				if (!str_comp_nocase(aItem, "bloody"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "rainbow"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "VIPs can't offer rainbow to the same player more than once.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] VIPs can't offer rainbow to the same player more than once.");
 					}
 					else
 					{
 						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "Rainbow offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer sent to player: '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else if (!str_comp_nocase(aItem, "atom"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
+				}
+				else if (!str_comp_nocase(aItem, "spread_gun"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
 				else
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 				}
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "Can't find playername: '%s'.", aUsername);
+				str_format(aBuf, sizeof(aBuf), "[GIVE] Can't find playername: '%s'.", aUsername);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 		}
@@ -5838,33 +5865,37 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		if (!str_comp_nocase(aItem, "bloody"))
 		{
 			pPlayer->GetCharacter()->m_Bloody = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Bloody on.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Bloody on.");
 		}
 		else if (!str_comp_nocase(aItem, "strong_bloody"))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 		}
 		else if (!str_comp_nocase(aItem, "rainbow"))
 		{
 			pPlayer->GetCharacter()->m_Rainbow = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow on.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Rainbow on.");
 		}
 		else if (!str_comp_nocase(aItem, "trail"))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 		}
 		else if (!str_comp_nocase(aItem, "atom"))
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
+		}
+		else if (!str_comp_nocase(aItem, "spread_gun"))
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 		}
 		else
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");
 		}
 	}
 	else //no rank at all
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 	}
 }
 

@@ -557,7 +557,6 @@ public:
 	//########
 
 	//miscelallaouos
-	bool m_autospreadgun;
 	bool m_lasergun;
 
 	//hook
