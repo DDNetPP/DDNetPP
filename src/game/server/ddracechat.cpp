@@ -5480,13 +5480,17 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "rainbow, bloody, strong_bloody, trail, atom, spread_gun");
 		return;
 	}
-
-
 	else if (pPlayer->m_IsBlockTourning)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during block tournaments.");
 		return;
 	}
+	else if (pPlayer->m_IsSurvivaling)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during survival games.");
+		return;
+	}
+
 
 	char aBuf[512];
 
