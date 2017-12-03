@@ -1010,7 +1010,7 @@ void CCharacter::FireWeapon(bool Bot)
 				float a = GetAngle(Direction);
 				a += (0.070f) * 2;
 
-				CProjectile *pProj_test = new CProjectile
+				new CProjectile
 					(
 						GameWorld(),
 						WEAPON_GUN,//Type
@@ -1025,7 +1025,7 @@ void CCharacter::FireWeapon(bool Bot)
 						WEAPON_GUN//Weapon
 						);
 
-				CProjectile *pProj_test2 = new CProjectile
+				new CProjectile
 					(
 						GameWorld(),
 						WEAPON_GUN,//Type
@@ -1040,7 +1040,7 @@ void CCharacter::FireWeapon(bool Bot)
 						WEAPON_GUN//Weapon
 						);
 
-				CProjectile *pProj_test3 = new CProjectile
+				new CProjectile
 					(
 						GameWorld(),
 						WEAPON_GUN,//Type
