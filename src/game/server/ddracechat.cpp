@@ -9102,6 +9102,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== SQL logout ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/sql_logout <playername>' to execute an command");
 		pSelf->SendChatTarget(pResult->m_ClientID, "The command will be executed and the output is only a True or False.");
+		return;
 	}
 
 	char aUsername[32];
