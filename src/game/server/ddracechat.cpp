@@ -9072,10 +9072,29 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
-		return;
+		//admins are allowed
+	}
+	else
+	{
+		if (g_Config.m_SvSupAccReset > 0) // 1 or 2 are allowed to use this
+		{
+			if (pPlayer->m_IsSupporter)
+			{
+				//supporters are allowed
+			}
+			else
+			{
+				pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+				return;
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+			return;
+		}
 	}
 
 	if (pResult->NumArguments() == 0)
@@ -9123,7 +9142,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	}
 	else
 	{
-		if (g_Config.m_SvSupAccReset == 1)
+		if (g_Config.m_SvSupAccReset == 2)
 		{
 			if (pPlayer->m_IsSupporter)
 			{
