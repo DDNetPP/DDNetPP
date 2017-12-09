@@ -2748,7 +2748,7 @@ void CCharacter::HandleTiles(int Index)
 		/*
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", m_pPlayer->m_xp);
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		*/
 
 		//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got +100 xp for finishing the map :) see your stats with /stats.");
@@ -3128,13 +3128,13 @@ void CCharacter::HandleTiles(int Index)
 			{
 				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
 					dbg_msg("debug", "banktile");
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
 				dbg_msg("debug", "banktile");
 			}
 		}
@@ -3143,11 +3143,11 @@ void CCharacter::HandleTiles(int Index)
 
 	if (m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
 	{
-		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID()); //dont spam people in jail this is just an tele tile
+		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID(), 0); //dont spam people in jail this is just an tele tile
 	}
 	else if (m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
 	{
-		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID()); //dont send the message here wtf this is just an to tele tile
+		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID(), 0); //dont send the message here wtf this is just an to tele tile
 	}
 
 	// solo part
@@ -4119,7 +4119,7 @@ void CCharacter::MoneyTilePlus()
 			{
 				char aBuf[128];
 				str_format(aBuf, sizeof(aBuf), "Money [%d]\nXP [%d/%d]\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 1);
 			}
 		}
 
@@ -4313,7 +4313,7 @@ void CCharacter::DDPP_Tick()
 	//{
 	//	if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
 	//	{
-	//		//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID());
+	//		//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID(), 0);
 	//	}
 	//	else //tele back if no key
 	//	{
@@ -4352,7 +4352,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (m_pPlayer->m_xpmsg)
 			{
-				GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID());
+				GameServer()->SendBroadcast("[FLAG] You reached the maximum level.", m_pPlayer->GetCID(), 0);
 			}
 		}
 		else
@@ -4375,12 +4375,12 @@ void CCharacter::DDPP_Tick()
 						{
 							char aBuf[256];
 							str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 							m_pPlayer->m_xp++;
 						}
 						else
 						{
-							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID());
+							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
 							//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
 						}
 					}
@@ -4390,7 +4390,7 @@ void CCharacter::DDPP_Tick()
 						{
 							char aBuf[256];
 							str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 							m_pPlayer->m_xp++;
 						}
 					}
@@ -4456,7 +4456,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (!m_pPlayer->m_hidejailmsg)
 			{
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 			}
 		}
 		if (m_pPlayer->m_JailTime == 1)
@@ -4494,7 +4494,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (!m_pPlayer->m_hidejailmsg)
 			{
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 			}
 		}
 		if (m_pPlayer->m_EscapeTime == 1)
@@ -4711,12 +4711,12 @@ void CCharacter::DDPP_Tick()
 		if (m_pPlayer->m_IsInstaArena_gdm)
 		{
 			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvGrenadeScorelimit);
-			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		}
 		if (m_pPlayer->m_IsInstaArena_idm)
 		{
 			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvRifleScorelimit);
-			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID());
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		}
 	}
 	m_UpdateInstaScoreBoard = false;
@@ -4728,7 +4728,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (m_TileIndex != TILE_BANK_IN && m_TileFIndex != TILE_BANK_IN)
 			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID());
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID(), 0);
 				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
 			}
 		}
@@ -13285,7 +13285,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 					if (g_Config.m_SvBlockBroadcast == 1)  //send kill message broadcast
 					{
 						str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-						GameServer()->SendBroadcastAll(aBuf);
+						GameServer()->SendBroadcastAll(aBuf, 0);
 					}
 
 					//give xp reward to the blocker
