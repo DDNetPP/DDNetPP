@@ -101,7 +101,7 @@ void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 
 	if (!pPlayer->m_IsSuperModerator && !pPlayer->m_IsModerator)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SAY] Missing permission.");
 		return;
 	}
 
@@ -172,19 +172,19 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 
 	if (pPlayer->m_PoliceRank < 2)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast Police[2] to use this command. Check '/policehelper' for more info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] You have to be atleast Police[2] to use this command. Check '/policehelper' for more info.");
 		return;
 	}
 	if (pResult->NumArguments() == 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter: <player>");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] Missing parameter: <player>");
 		return;
 	}
 
 	int helperID = pSelf->GetCIDByName(pResult->GetString(1));
 	if (helperID == -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "Player '%s' is not online.", pResult->GetString(1));
+		str_format(aBuf, sizeof(aBuf), "[POLICE] Player '%s' is not online.", pResult->GetString(1));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
@@ -197,15 +197,15 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 		{
 			if (pSelf->m_apPlayers[helperID]->m_PoliceHelper)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is already a policehelper.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] This player is already a policehelper.");
 				return; 
 			}
 
 			pSelf->m_apPlayers[helperID]->m_PoliceHelper = true;
-			str_format(aBuf, sizeof(aBuf), "'%s' promoted you to policehelper.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' promoted you to policehelper.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(helperID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' is now a policehelper.", pSelf->Server()->ClientName(helperID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is now a policehelper.", pSelf->Server()->ClientName(helperID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -215,21 +215,21 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 		{
 			if (!pSelf->m_apPlayers[helperID]->m_PoliceHelper)
 			{
-			pSelf->SendChatTarget(pResult->m_ClientID, "This player is not a policehelper.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] This player is not a policehelper.");
 			return;
 			}
 
 			pSelf->m_apPlayers[helperID]->m_PoliceHelper = false;
-			str_format(aBuf, sizeof(aBuf), "'%s' removed your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' removed your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(helperID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' is no longer a policehelper.", pSelf->Server()->ClientName(helperID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is no longer a policehelper.", pSelf->Server()->ClientName(helperID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/policehelper' for help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] Unknown parameter. Check '/policehelper' for help.");
 	}
 }
 
