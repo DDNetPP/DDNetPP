@@ -21,7 +21,7 @@ public:
 	virtual bool OnEntity(int Index, vec2 Pos);
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 
-	void DropFlag(int id);
+	void DropFlag(int id, int dir = 1);
 	void ChangeFlagOwner(int id, int character);
 	int HasFlag(CCharacter *character);
 
