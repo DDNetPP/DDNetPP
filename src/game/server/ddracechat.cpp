@@ -8049,6 +8049,10 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
 		}
+		if (pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
+		}
 		return;
 	}
 
@@ -8124,6 +8128,18 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already shown.");
 		}
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_warning"))
+	{
+		if (pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is now shown.");
+			pPlayer->m_HideQuestWarning = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already shown.");
+		}
+	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid info.", pResult->GetString(0));
@@ -8175,6 +8191,10 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		if (!pPlayer->m_HideQuestProgress)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
+		}
+		if (!pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
 		}
 		return;
 	}
@@ -8249,6 +8269,18 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_warning"))
+	{
+		if (!pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is now hidden.");
+			pPlayer->m_HideQuestWarning = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already hidden.");
 		}
 	}
 	else

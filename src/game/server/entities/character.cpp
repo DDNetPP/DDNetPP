@@ -722,7 +722,10 @@ void CCharacter::FireWeapon(bool Bot)
 					}
 					else
 					{
-						GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesnt count.");
+						if (!m_pPlayer->m_HideQuestWarning)
+						{
+							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesnt count.");
+						}
 					}
 				}
 				else
@@ -735,7 +738,10 @@ void CCharacter::FireWeapon(bool Bot)
 					{
 						if (m_pPlayer->m_QuestLastQuestedPlayerID == pTarget->GetPlayer()->GetCID())
 						{
-							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							if (!m_pPlayer->m_HideQuestWarning)
+							{
+								GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							}
 						}
 						else
 						{
@@ -747,7 +753,10 @@ void CCharacter::FireWeapon(bool Bot)
 					{
 						if (m_pPlayer->m_QuestLastQuestedPlayerID == pTarget->GetPlayer()->GetCID())
 						{
-							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							if (!m_pPlayer->m_HideQuestWarning)
+							{
+								GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							}
 						}
 						else
 						{
@@ -759,7 +768,10 @@ void CCharacter::FireWeapon(bool Bot)
 					{
 						if (m_pPlayer->m_QuestLastQuestedPlayerID == pTarget->GetPlayer()->GetCID())
 						{
-							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							if (!m_pPlayer->m_HideQuestWarning)
+							{
+								GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							}
 						}
 						else
 						{
@@ -775,7 +787,10 @@ void CCharacter::FireWeapon(bool Bot)
 						}
 						else if (m_pPlayer->m_QuestLastQuestedPlayerID == pTarget->GetPlayer()->GetCID())
 						{
-							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							if (!m_pPlayer->m_HideQuestWarning)
+							{
+								GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+							}
 						}
 						else
 						{
@@ -829,7 +844,10 @@ void CCharacter::FireWeapon(bool Bot)
 						{
 							if (m_pPlayer->m_QuestLastQuestedPlayerID == pTarget->GetPlayer()->GetCID())
 							{
-								GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+								if (!m_pPlayer->m_HideQuestWarning)
+								{
+									GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] hammer a different tee.");
+								}
 							}
 							else if (pTarget->m_FreezeTime == 0)
 							{
@@ -13377,8 +13395,11 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 		{
 			if (GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
 			{
-				GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+				if (!m_pPlayer->m_HideQuestWarning)
+				{
+					GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
+					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+				}
 			}
 			else
 			{
@@ -13413,7 +13434,10 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 						if (m_pPlayer->GetCID() != GameServer()->m_apPlayers[Killer]->m_QuestPlayerID)
 						{
 							str_format(aBuf, sizeof(aBuf), "[QUEST] You have to block '%s' to complete the quest.", Server()->ClientName(GameServer()->m_apPlayers[Killer]->m_QuestPlayerID));
-							GameServer()->SendChatTarget(Killer, aBuf);
+							if (!m_pPlayer->m_HideQuestWarning)
+							{
+								GameServer()->SendChatTarget(Killer, aBuf);
+							}
 						}
 						else
 						{
@@ -13426,7 +13450,10 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 					if (m_pPlayer->m_KillStreak < 5)
 					{
 						str_format(aBuf, sizeof(aBuf), "[QUEST] '%s' is only on a %d tee blockingspree", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_KillStreak);
-						GameServer()->SendChatTarget(Killer, aBuf);
+						if (!m_pPlayer->m_HideQuestWarning)
+						{
+							GameServer()->SendChatTarget(Killer, aBuf);
+						}
 					}
 					else
 					{
@@ -13450,7 +13477,10 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 					}
 					else
 					{
-						GameServer()->SendChatTarget(Killer, "[QUEST] You need the flag.");
+						if (!m_pPlayer->m_HideQuestWarning)
+						{
+							GameServer()->SendChatTarget(Killer, "[QUEST] You need the flag.");
+						}
 					}
 				}
 			}
@@ -13483,7 +13513,10 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 					}
 					else
 					{
-						GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
+						if (!m_pPlayer->m_HideQuestWarning)
+						{
+							GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
+						}
 					}
 				}
 			}
