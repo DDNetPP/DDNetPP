@@ -56,9 +56,6 @@ drop them in the map (like in survival) and all people can collect it
 #'/trade accept <player>' #totally insecure but fasttyping #doesnt work with spaces in name
 Items: grenade,shotgun,rifle, homing missiles ammo
 
-## flag drops ##
-the eye pos has influence on flag drop direction 
-
 ## AddSurvival ##
 add the famous survival mod into ddpp
 Keep in mind that nobody should be abel to die in lobby or he wont be teleported in the arena while being dead
@@ -77,9 +74,6 @@ weapons (with ammo)
 jetpack
 endless
 
-## quest todo ##
-inform a player of all the progress in chat if actiavted (/show /hide)
-
 ## Apocalypse ##
 rework map and copy paste the whole map and then edit it to a broken version
 more doodads and some gernric tiles missing and stuff like this.
@@ -96,7 +90,7 @@ Clan [x]
 Skin [x]
 Country [ ]
 last login date [ ]
-account registration data [ ]
+account registration date [ ]
 
 ## Homing Missiles ##
 Die Waffe selber kann ab police lvl 4 erworben werden.

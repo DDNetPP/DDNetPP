@@ -3881,17 +3881,19 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 	m_apPlayers[playerID]->m_QuestProgressValue++;
 	m_apPlayers[playerID]->m_aQuestProgress[0] = m_apPlayers[playerID]->m_QuestProgressValue;
 	m_apPlayers[playerID]->m_aQuestProgress[1] = globalMAX;
+
+	
 	//dbg_msg("QUEST", "Progress updated: %d/%d", m_apPlayers[playerID]->m_aQuestProgress[0], m_apPlayers[playerID]->m_aQuestProgress[1]);
 	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d", m_apPlayers[playerID]->m_QuestProgressValue, globalMAX);
+
+	if (!m_apPlayers[playerID]->m_HideQuestProgress)
+		SendChatTarget(playerID, aBuf);
+
 	if (m_apPlayers[playerID]->m_QuestProgressValue >= globalMAX)
 	{
-		SendChatTarget(playerID, aBuf);
 		QuestCompleted(playerID);
 	}
-	else
-	{
-		SendChatTarget(playerID, aBuf);
-	}
+	
 	return true;
 }
 
