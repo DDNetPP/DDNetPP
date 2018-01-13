@@ -13916,6 +13916,15 @@ void CCharacter::Rescue()
 //                     =
 //======================
 
+int CCharacter::GetAimDir()
+{
+	if (m_Input.m_TargetX < 0)
+		return -1;
+	else
+		return 1;
+	return 0;
+}
+
 void CCharacter::TakeHammerHit(CCharacter* pFrom)
 {
 	vec2 Dir;

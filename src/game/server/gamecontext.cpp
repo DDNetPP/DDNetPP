@@ -7455,13 +7455,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
 		{
+			if (pPlayer->GetCharacter())
+			{
 				IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-				if ( ((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()){
-					((CGameControllerDDRace*) ControllerDDrace)->DropFlag(0);
+				if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pPlayer->GetCharacter()->GetAimDir()); //red
+					//SendChatTarget(ClientID, "you dropped red flag");
 				}
-				else if (((CGameControllerDDRace*) ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()){
-					((CGameControllerDDRace*) ControllerDDrace)->DropFlag(1);
+				else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pPlayer->GetCharacter()->GetAimDir()); //blue
+					//SendChatTarget(ClientID, "you dropped blue flag");
 				}
+			}
 
 			if(!m_VoteCloseTime)
 				return;
