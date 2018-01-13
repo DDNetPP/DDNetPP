@@ -5240,14 +5240,14 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
-	//	if (pResult->NumArguments() != 2)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
-	//	}
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
+		}
 
-	//	pPlayer->m_QuestState = pResult->GetInteger(0);
-	//	pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
-	//	pSelf->StartQuest(pPlayer->GetCID());
+		pPlayer->m_QuestState = pResult->GetInteger(0);
+		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
+		pSelf->StartQuest(pPlayer->GetCID());
 
 		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientID); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}
@@ -8045,6 +8045,10 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
 		}
+		if (pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
+		}
 		return;
 	}
 
@@ -8108,6 +8112,18 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already shown.");
 		}
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_progress"))
+	{
+		if (pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is now shown.");
+			pPlayer->m_HideQuestProgress = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already shown.");
+		}
+	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid info.", pResult->GetString(0));
@@ -8155,6 +8171,10 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		if (!pPlayer->m_HideInsta1on1_killmessages)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
+		}
+		if (!pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
 		}
 		return;
 	}
@@ -8217,6 +8237,18 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_progress"))
+	{
+		if (!pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is now hidden.");
+			pPlayer->m_HideQuestProgress = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already hidden.");
 		}
 	}
 	else
