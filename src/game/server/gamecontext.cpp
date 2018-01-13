@@ -3829,7 +3829,10 @@ void CGameContext::QuestFailed(int playerID)
 		return;
 	}
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	if (!m_apPlayers[playerID]->m_HideQuestWarning)
+	{
+		SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	}
 	StartQuest(playerID);
 }
 
@@ -3855,7 +3858,10 @@ void CGameContext::QuestFailed2(int playerID)
 	m_apPlayers[playerID]->m_QuestFailed = true;
 	//str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	if (!m_apPlayers[playerID]->m_HideQuestWarning)
+	{
+		SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	}
 }
 
 bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
