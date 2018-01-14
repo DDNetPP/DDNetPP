@@ -9882,6 +9882,41 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 27) //BlmapChill police
+		{
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			if (m_Core.m_Pos.x > 448 * 32 && m_Core.m_Pos.x < 480 * 32 && m_Core.m_Pos.y > 60 * 32 && m_Core.m_Pos.y < 85 * 32) //the whole spawn area
+			{
+				m_Input.m_Direction = -1;
+				if (m_Core.m_Vel.y > 0.01f && !(m_Core.m_Pos.x < 474 * 32 && m_Core.m_Pos.y > 77 * 32)) //jump when falling down
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+
+			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 473 * 32 + 10 && m_Core.m_Pos.y > 77 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn cave
+			{
+				//prepare for the up swing
+				m_Input.m_TargetX = 86;
+				m_Input.m_TargetY = -200;
+
+				m_Input.m_Direction = 1; //walk --> at spawn
+				if (m_Core.m_Pos.x > 468 * 32 && IsGrounded()) //jump if far enough -->
+				{
+					m_Input.m_Jump = 1;
+				}
+
+				if (m_Core.m_Pos.x > 469 * 32 && m_Core.m_Pos.y > 80 * 32 + 10) //far enough --> swing hook up
+				{
+					m_Input.m_Hook = 1;
+				}
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 29) //mode 18 (tryhardwayblocker cb5)    with some more human wayblock style not so try hard a cool chillblock5 blocker mode
 		{
 			m_Input.m_Hook = 0;
