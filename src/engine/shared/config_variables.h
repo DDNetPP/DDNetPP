@@ -506,7 +506,7 @@ MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", 
 
 //TODO: move me to sql data or somehting
 //Supporter permissions
-MACRO_CONFIG_INT(SvSupAccReset, sv_sup_acc_reset, 0, 0, 1, CFGFLAG_SERVER, "allow supporters the '/sql_logout' command")
+MACRO_CONFIG_INT(SvSupAccReset, sv_sup_acc_reset, 0, 0, 2, CFGFLAG_SERVER, "allow supporters cmds 1='/sql_logout' 2=1 and '/sql_logout_all'")
 
 //hacky
 MACRO_CONFIG_INT(SvSaveWrongRcon, sv_save_wrong_rcon, 0, 0, 1, CFGFLAG_SERVER, "saves wrong rcons in the wrong_rcon.txt file")

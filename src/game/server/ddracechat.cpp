@@ -101,7 +101,7 @@ void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 
 	if (!pPlayer->m_IsSuperModerator && !pPlayer->m_IsModerator)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SAY] Missing permission.");
 		return;
 	}
 
@@ -172,19 +172,19 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 
 	if (pPlayer->m_PoliceRank < 2)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be atleast Police[2] to use this command. Check '/policehelper' for more info.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] You have to be atleast Police[2] to use this command. Check '/policehelper' for more info.");
 		return;
 	}
 	if (pResult->NumArguments() == 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameter: <player>");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] Missing parameter: <player>");
 		return;
 	}
 
 	int helperID = pSelf->GetCIDByName(pResult->GetString(1));
 	if (helperID == -1)
 	{
-		str_format(aBuf, sizeof(aBuf), "Player '%s' is not online.", pResult->GetString(1));
+		str_format(aBuf, sizeof(aBuf), "[POLICE] Player '%s' is not online.", pResult->GetString(1));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
@@ -197,15 +197,15 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 		{
 			if (pSelf->m_apPlayers[helperID]->m_PoliceHelper)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "This player is already a policehelper.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] This player is already a policehelper.");
 				return; 
 			}
 
 			pSelf->m_apPlayers[helperID]->m_PoliceHelper = true;
-			str_format(aBuf, sizeof(aBuf), "'%s' promoted you to policehelper.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' promoted you to policehelper.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(helperID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' is now a policehelper.", pSelf->Server()->ClientName(helperID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is now a policehelper.", pSelf->Server()->ClientName(helperID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -215,21 +215,21 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 		{
 			if (!pSelf->m_apPlayers[helperID]->m_PoliceHelper)
 			{
-			pSelf->SendChatTarget(pResult->m_ClientID, "This player is not a policehelper.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] This player is not a policehelper.");
 			return;
 			}
 
 			pSelf->m_apPlayers[helperID]->m_PoliceHelper = false;
-			str_format(aBuf, sizeof(aBuf), "'%s' removed your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' removed your policehelper rank.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(helperID, aBuf);
 
-			str_format(aBuf, sizeof(aBuf), "'%s' is no longer a policehelper.", pSelf->Server()->ClientName(helperID));
+			str_format(aBuf, sizeof(aBuf), "[POLICE] '%s' is no longer a policehelper.", pSelf->Server()->ClientName(helperID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown parameter. Check '/policehelper' for help.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] Unknown parameter. Check '/policehelper' for help.");
 	}
 }
 
@@ -5240,14 +5240,14 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
-	//	if (pResult->NumArguments() != 2)
-	//	{
-	//		pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
-	//	}
+		if (pResult->NumArguments() != 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
+		}
 
-	//	pPlayer->m_QuestState = pResult->GetInteger(0);
-	//	pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
-	//	pSelf->StartQuest(pPlayer->GetCID());
+		pPlayer->m_QuestState = pResult->GetInteger(0);
+		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
+		pSelf->StartQuest(pPlayer->GetCID());
 
 		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientID); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}
@@ -8045,6 +8045,14 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
 		}
+		if (pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
+		}
+		if (pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
+		}
 		return;
 	}
 
@@ -8108,6 +8116,30 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already shown.");
 		}
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_progress"))
+	{
+		if (pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is now shown.");
+			pPlayer->m_HideQuestProgress = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already shown.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_warning"))
+	{
+		if (pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is now shown.");
+			pPlayer->m_HideQuestWarning = false;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already shown.");
+		}
+	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid info.", pResult->GetString(0));
@@ -8155,6 +8187,14 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		if (!pPlayer->m_HideInsta1on1_killmessages)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "insta_killfeed");
+		}
+		if (!pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_progress");
+		}
+		if (!pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
 		}
 		return;
 	}
@@ -8217,6 +8257,30 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "instagib kills are already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_progress"))
+	{
+		if (!pPlayer->m_HideQuestProgress)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is now hidden.");
+			pPlayer->m_HideQuestProgress = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest progress is already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "quest_warning"))
+	{
+		if (!pPlayer->m_HideQuestWarning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is now hidden.");
+			pPlayer->m_HideQuestWarning = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already hidden.");
 		}
 	}
 	else
@@ -9072,10 +9136,29 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
-		return;
+		//admins are allowed
+	}
+	else
+	{
+		if (g_Config.m_SvSupAccReset > 0) // 1 or 2 are allowed to use this
+		{
+			if (pPlayer->m_IsSupporter)
+			{
+				//supporters are allowed
+			}
+			else
+			{
+				pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+				return;
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+			return;
+		}
 	}
 
 	if (pResult->NumArguments() == 0)
@@ -9083,6 +9166,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== SQL logout ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/sql_logout <playername>' to execute an command");
 		pSelf->SendChatTarget(pResult->m_ClientID, "The command will be executed and the output is only a True or False.");
+		return;
 	}
 
 	char aUsername[32];
@@ -9123,7 +9207,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	}
 	else
 	{
-		if (g_Config.m_SvSupAccReset == 1)
+		if (g_Config.m_SvSupAccReset == 2)
 		{
 			if (pPlayer->m_IsSupporter)
 			{

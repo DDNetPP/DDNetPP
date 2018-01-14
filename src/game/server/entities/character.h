@@ -245,6 +245,7 @@ public:
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);
 	void KillSpeed();
+	int GetAimDir();
 
 	//Chillintelligenz
 	void CITick();

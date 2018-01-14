@@ -3829,7 +3829,10 @@ void CGameContext::QuestFailed(int playerID)
 		return;
 	}
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	if (!m_apPlayers[playerID]->m_HideQuestWarning)
+	{
+		SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	}
 	StartQuest(playerID);
 }
 
@@ -3855,7 +3858,10 @@ void CGameContext::QuestFailed2(int playerID)
 	m_apPlayers[playerID]->m_QuestFailed = true;
 	//str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Quest failed."); //dont overwrite info what to do and how to start agian. I added a questfailed info in ddracechat.cpp
 	QuestReset(playerID);
-	SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	if (!m_apPlayers[playerID]->m_HideQuestWarning)
+	{
+		SendChatTarget(playerID, "[QUEST] You failed the quest.");
+	}
 }
 
 bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
@@ -3881,17 +3887,19 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 	m_apPlayers[playerID]->m_QuestProgressValue++;
 	m_apPlayers[playerID]->m_aQuestProgress[0] = m_apPlayers[playerID]->m_QuestProgressValue;
 	m_apPlayers[playerID]->m_aQuestProgress[1] = globalMAX;
+
+	
 	//dbg_msg("QUEST", "Progress updated: %d/%d", m_apPlayers[playerID]->m_aQuestProgress[0], m_apPlayers[playerID]->m_aQuestProgress[1]);
 	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d", m_apPlayers[playerID]->m_QuestProgressValue, globalMAX);
+
+	if (!m_apPlayers[playerID]->m_HideQuestProgress)
+		SendChatTarget(playerID, aBuf);
+
 	if (m_apPlayers[playerID]->m_QuestProgressValue >= globalMAX)
 	{
-		SendChatTarget(playerID, aBuf);
 		QuestCompleted(playerID);
 	}
-	else
-	{
-		SendChatTarget(playerID, aBuf);
-	}
+	
 	return true;
 }
 
@@ -7455,13 +7463,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
 		{
+			if (pPlayer->GetCharacter())
+			{
 				IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-				if ( ((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()){
-					((CGameControllerDDRace*) ControllerDDrace)->DropFlag(0);
+				if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pPlayer->GetCharacter()->GetAimDir()); //red
+					//SendChatTarget(ClientID, "you dropped red flag");
 				}
-				else if (((CGameControllerDDRace*) ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()){
-					((CGameControllerDDRace*) ControllerDDrace)->DropFlag(1);
+				else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pPlayer->GetCharacter()->GetAimDir()); //blue
+					//SendChatTarget(ClientID, "you dropped blue flag");
 				}
+			}
 
 			if(!m_VoteCloseTime)
 				return;
