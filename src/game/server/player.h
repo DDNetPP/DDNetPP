@@ -417,6 +417,8 @@ public:
 	// show/hide infos
 
 	bool m_HideBlockXp;
+	bool m_HideQuestProgress;
+	bool m_HideQuestWarning;
 	bool m_ShowBlockPoints;
 	bool m_xpmsg;
 	bool m_hidejailmsg;

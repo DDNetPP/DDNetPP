@@ -132,12 +132,12 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 	return -1;
 }
 
-void CGameControllerDDRace::DropFlag(int id)
+void CGameControllerDDRace::DropFlag(int id, int dir)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CFlag *F = m_apFlags[id];
+	CFlag *F = m_apFlags[id]; //red=0 blue=1
 	
 	if (g_Config.m_SvFlagSounds)
 	{
@@ -150,7 +150,7 @@ void CGameControllerDDRace::DropFlag(int id)
 	F->m_DropFreezeTick = Server()->Tick();
 	F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
 	F->m_pCarryingCharacter = 0;
-	F->m_Vel = vec2(5,-5);
+	F->m_Vel = vec2(5*dir,-5);
 }
 
 void CGameControllerDDRace::Snap(int SnappingClient)
