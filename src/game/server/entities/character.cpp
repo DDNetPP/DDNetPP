@@ -9908,15 +9908,60 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 
-			if (m_Core.m_Pos.x > 448 * 32 && m_Core.m_Pos.x < 480 * 32 && m_Core.m_Pos.y > 60 * 32 && m_Core.m_Pos.y < 85 * 32) //the whole spawn area
+			//selfkills
+			if (m_FreezeTime)
 			{
-				m_Input.m_Direction = -1;
-				if (m_Core.m_Vel.y > 0.01f && !(m_Core.m_Pos.x < 474 * 32 && m_Core.m_Pos.y > 77 * 32)) //jump when falling down
+				if (m_Core.m_Pos.y < 338 * 32) //upper map area all over the bottom floor and pvp arena
 				{
-					m_Input.m_Jump = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						if (m_Core.m_Vel.y == 0.000f && m_Core.m_Vel.x < 0.02f && m_Core.m_Vel.x > -0.02f)
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+					}
+				}
+				else if (m_Core.m_Pos.y < 376 * 32) //pvp arena and jail entry
+				{
+					if (Server()->Tick() % 300 == 0)
+					{
+						if (IsGrounded())
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+					}
 				}
 			}
 
+			if (m_Core.m_Pos.x > 448 * 32 && m_Core.m_Pos.x < 480 * 32 && m_Core.m_Pos.y > 60 * 32 && m_Core.m_Pos.y < 85 * 32) //the whole spawn area
+			{
+				m_Input.m_Direction = -1;
+				if (((m_Core.m_Vel.y > 0.01f) || //jump when falling down
+					(m_Core.m_Vel.x > -0.1f && IsGrounded() && Server()->Tick() % 26 == 0)) && //getting stuck
+					!(m_Core.m_Pos.x < 469 * 32)) //but not if too far left (at spawn spawn and before jump <--)
+				{
+					m_Input.m_Jump = 1;
+				}
+
+				if (m_Core.m_Pos.y < 75 * 32) //upper area above spawn
+				{
+					//aim on floor to get speed
+					m_Input.m_TargetX = -90;
+					m_Input.m_TargetY = 100;
+
+					if (m_Core.m_Pos.x < 459 * 32) //jump through the freeze to fall of down the left side 
+					{
+						m_Input.m_Jump = 1;
+					}
+					if (m_Core.m_Pos.x < 458 * 32 && m_Core.m_Pos.y < 71 * 32 - 10) //last boost hook before jump
+					{
+						m_Input.m_Hook = 1;
+					}
+				}
+			}
+
+			/*
+			//bad code hooking from the left side
 			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 473 * 32 + 10 && m_Core.m_Pos.y > 77 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn cave
 			{
 				//prepare for the up swing
@@ -9932,6 +9977,81 @@ void CCharacter::DummyTick()
 				if (m_Core.m_Pos.x > 469 * 32 && m_Core.m_Pos.y > 80 * 32 + 10) //far enough --> swing hook up
 				{
 					m_Input.m_Hook = 1;
+				}
+			}
+			*/
+
+			//hook from the right side
+			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 500 * 32 && m_Core.m_Pos.y > 77 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn cave + a lot space to the left (until the entry to the other cave)
+			{
+				//prepare for the up swing
+				m_Input.m_TargetX = -90;
+				m_Input.m_TargetY = -170;
+				if (m_Core.m_Pos.x > 474 * 32)
+				{
+					m_Input.m_TargetX = -90;
+					m_Input.m_TargetY = -140;
+				}
+
+				m_Input.m_Direction = 1; //walk --> at spawn
+				if (m_Core.m_Pos.x > 468 * 32 && IsGrounded()) //jump if far enough -->
+				{
+					m_Input.m_Jump = 1;
+				}
+
+				if (m_Core.m_Pos.x > 472 * 32 && m_Core.m_Pos.y > 80 * 32 + 10) //far enough --> swing hook up
+				{
+					m_Input.m_Hook = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+				if (m_Core.m_Pos.x > 476 * 32) //left the spawn and too far -->
+				{
+					m_Input.m_Direction = -1;
+				}
+			}
+
+			if (m_Core.m_Pos.y < 338 * 32 && m_Core.m_Pos.y > 90 * 32) //falling down area
+			{
+				if (m_Core.m_Pos.x > 406 * 32)
+				{
+					m_Input.m_Direction = -1;
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+				}
+
+				if (m_Core.m_Vel.y > 0.04f && m_Core.m_Vel.y < 16.6f && m_Core.m_Pos.x < 420 * 32) //slowly falling (sliding of platforms)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+			else if (m_Core.m_Pos.y > 338 * 32 && m_Core.m_Pos.y < 380 * 32) //entering the police hole area (pvp arena)
+			{
+				if (!m_Dummy27_IsReadyToEnterPolice)
+				{
+					m_Input.m_Direction = -1;
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+				}
+
+				if (m_Core.m_Pos.x < 395 * 32)
+				{
+					m_Dummy27_IsReadyToEnterPolice = true;
+				}
+
+				if (m_Core.m_Pos.x > 402 * 32 && IsGrounded()) //jump into the tunnel -->
+				{
+					m_Input.m_Jump = 1;
+				}
+				if (m_Core.m_Pos.x > 402 * 32 && m_Core.m_Pos.y > 371 * 32)
+				{
+					m_Input.m_Jump = 1;
 				}
 			}
 		}
