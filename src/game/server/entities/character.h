@@ -368,6 +368,8 @@ public:
 	int m_FNN_CurrentMoveIndex;
 	int m_aRecMove[32768];
 
+	//dummymode 27 vars (BlmapChill police guard)
+	bool m_Dummy27_IsReadyToEnterPolice;
 
 	//dummymode 31 vars (ChillBlock5 police guard)
 	bool m_Dummy_SpawnAnimation;
