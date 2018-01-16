@@ -783,6 +783,45 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 	return pClosest;
 }
 
+CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis)  //BlmapChill right police freeze
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	// Find Humans
+	float ClosestRange = 0.f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	for (; p; p = (CCharacter *)p->TypeNext())
+	{
+		if (p == pNotThis)
+			continue;
+
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
+
+		if (p->m_FreezeTime == 0 || p->m_Pos.y > 438 * 32 || p->m_Pos.x < 430 * 32 || p->m_Pos.x > 445 * 32 || p->m_Pos.y < 423 * 32) // only freezed tees in the hole coming from short entry into blmapchill police base
+			continue;
+
+
+		float Len = distance(Pos, p->m_Pos);
+
+		if (Len < ClosestRange || !ClosestRange)
+		{
+			ClosestRange = Len;
+			pClosest = p;
+		}
+	}
+
+	return pClosest;
+}
+
 CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  //den nächsten frozen finden
 {
 #if defined(CONF_DEBUG)

@@ -125,6 +125,8 @@ public:
 
 	class CCharacter *ClosestCharTypeFarInRace(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
 
+	class CCharacter *ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis = 0);
+
 	class CCharacter *ClosestCharacter(vec2 Pos, float Radius, CEntity *ppNotThis);
 
 	/*

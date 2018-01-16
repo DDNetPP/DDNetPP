@@ -4737,11 +4737,25 @@ void CGameContext::CreateBasicDummys()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CreateNewDummy(31);//police
-	//CreateNewDummy(30);//taxi (not needed in new cb5)
-	CreateNewDummy(29);//blocker
-	CreateNewDummy(29);//blocker 2
-	CreateNewDummy(23);//racer
+	if (!str_comp(g_Config.m_SvMap, "ChillBlock5"))
+	{
+		CreateNewDummy(31);//police
+		//CreateNewDummy(30);//taxi (not needed in new cb5)
+		CreateNewDummy(29);//blocker
+		CreateNewDummy(29);//blocker 2
+		CreateNewDummy(23);//racer
+	}
+	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
+	{
+		CreateNewDummy(27);//police
+		//CreateNewDummy(28);//racer
+	}
+	else
+	{
+		CreateNewDummy(0); //dummy
+		dbg_msg("basic_dummys", "waring map=%s not supported", g_Config.m_SvMap);
+	}
+	dbg_msg("basic_dummys","map=%s", g_Config.m_SvMap);
 }
 
 int CGameContext::CreateNewDummy(int dummymode, bool silent)
