@@ -9958,6 +9958,9 @@ void CCharacter::DummyTick()
 						m_Input.m_Hook = 1;
 					}
 				}
+
+				m_Dummy27_loved_x = 0; //clean brain at spawn
+				m_Dummy27_speed = 70;
 			}
 
 			/*
@@ -10028,6 +10031,20 @@ void CCharacter::DummyTick()
 				{
 					m_Input.m_Jump = 1;
 				}
+
+				if (!m_Dummy27_loved_x) //think of a destination while falling
+				{
+					if (rand() % 2 == 0)
+					{
+						m_Dummy27_loved_x = 420 * 32;
+						m_Dummy27_loved_y = 430 * 32;
+					}
+					else
+					{
+						m_Dummy27_loved_x = 394 * 32;
+						m_Dummy27_loved_y = 430 * 32;
+					}
+				}
 			}
 			else if (m_Core.m_Pos.y > 338 * 32 && m_Core.m_Pos.y < 380 * 32) //entering the police hole area (pvp arena)
 			{
@@ -10053,6 +10070,337 @@ void CCharacter::DummyTick()
 				{
 					m_Input.m_Jump = 1;
 				}
+			}
+			else if (m_Core.m_Pos.x > 282 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area
+			{
+				//detect lower panic (accedentally fall into the lower police base 
+				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
+				{
+					m_Dummy27_lower_panic = 1;
+				}
+
+				if (m_Dummy27_lower_panic)
+				{
+					//Check for end panic
+					if (m_Core.m_Pos.y < 434 * 32)
+					{
+						if (IsGrounded())
+						{
+							m_Dummy27_lower_panic = 0; //made it up yay
+						}
+					}
+
+					if (m_Dummy27_lower_panic == 1)//position to jump on stairs
+					{
+						if (m_Core.m_Pos.x < 400 * 32)
+						{
+							m_Input.m_Direction = 1;
+						}
+						else if (m_Core.m_Pos.x > 401 * 32)
+						{
+							m_Input.m_Direction = -1;
+						}
+						else
+						{
+							m_Dummy27_lower_panic = 2;
+						}
+					}
+					else if (m_Dummy27_lower_panic == 2) //jump on the left starblock element
+					{
+						if (IsGrounded())
+						{
+							m_Input.m_Jump = 1;
+							if (Server()->Tick() % 20 == 0)
+							{
+								m_Input.m_Jump = 0;
+							}
+						}
+
+						//navigate to platform
+						if (m_Core.m_Pos.y < 435 * 32 - 10)
+						{
+							m_Input.m_Direction = -1;
+							if (m_Core.m_Pos.y < 433 * 32)
+							{
+								if (m_Core.m_Vel.y > 0.01f)
+								{
+									m_Input.m_Jump = 1; //double jump	
+								}
+							}
+						}
+						else if (m_Core.m_Pos.y < 438 * 32) //only if high enough focus on the first lower platform
+						{
+							if (m_Core.m_Pos.x < 403 * 32)
+							{
+								m_Input.m_Direction = 1;
+							}
+							else if (m_Core.m_Pos.x > 404 * 32 + 20)
+							{
+								m_Input.m_Direction = -1;
+							}
+						}
+
+						if ((m_Core.m_Pos.y > 441 * 32 + 10 && (m_Core.m_Pos.x > 402 * 32 || m_Core.m_Pos.x < 399 * 32 + 10)) || isFreezed) //check for fail position
+						{
+							m_Dummy27_lower_panic = 1; //lower panic mode to reposition
+						}
+					}
+				}
+				else //no dummy lower panic
+				{
+					m_Dummy27_help_mode = 0;
+					//check if officer needs help
+					CCharacter *pChr = GameServer()->m_World.ClosestCharTypePoliceFreezeHole(m_Pos, true, this);
+					if (pChr && pChr->IsAlive())
+					{
+						//aimbot on heuzeueu
+						m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+						m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+						m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+						m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+						m_Dummy_ClosestPolice = false;
+						//If a policerank escapes from jail he is treated like a non police
+						if ((pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0))
+						{
+							m_Dummy_ClosestPolice = true;
+						}
+
+						m_Dummy27_help_mode = 1;
+
+						if (m_Core.m_Pos.x > 431 * 32 + 10)
+						{
+							m_Input.m_Direction = -1;
+						}
+						else if (m_Core.m_Pos.x < 430 * 32)
+						{
+							m_Input.m_Direction = 1;
+						}
+						else
+						{
+							if (IsGrounded() && !m_Dummy27_help_hook && m_Dummy_ClosestPolice)
+							{
+								m_Dummy27_help_hook = true;
+								m_Input.m_Jump = 1;
+								m_Input.m_Hook = 1;
+							}
+							if (Server()->Tick() % 8 == 0)
+							{
+								m_Input.m_Direction = 1;
+							}
+						}
+
+						if (m_Dummy27_help_hook)
+						{
+							m_Input.m_Hook = 1;
+							if (Server()->Tick() % 100 == 0)
+							{
+								m_Dummy27_help_hook = false; //timeout hook maybe failed
+								m_Input.m_Hook = 0;
+								m_Input.m_Direction = 1;
+							}
+						}
+					}
+
+
+					if (!m_Dummy27_help_mode)
+					{
+						//==============
+						//NOTHING TO DO
+						//==============
+						//basic walk to destination
+						if (m_Core.m_Pos.x < m_Dummy27_loved_x - 32)
+						{
+							m_Input.m_Direction = 1;
+						}
+						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32)
+						{
+							m_Input.m_Direction = -1;
+						}
+
+						//change changing speed
+						if (Server()->Tick() % m_Dummy27_speed == 0)
+						{
+							if (rand() % 2 == 0)
+							{
+								m_Dummy27_speed = rand() % 8000 + 2;
+							}
+						}
+
+						//choose beloved destination
+						if (Server()->Tick() % 40 == 0)
+						{
+							if ((rand() % 2) == 0)
+							{
+								if ((rand() % 3) == 0)
+								{
+									m_Dummy27_loved_x = 420 * 32 + rand() % 69;
+									m_Dummy27_loved_y = 430 * 32;
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+								}
+								else
+								{
+									m_Dummy27_loved_x = (392 + rand() % 2) * 32;
+									m_Dummy27_loved_y = 430 * 32;
+								}
+								if ((rand() % 2) == 0)
+								{
+									m_Dummy27_loved_x = 384 * 32 + rand() % 128;
+									m_Dummy27_loved_y = 430 * 32;
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 5);
+								}
+								else
+								{
+									if (rand() % 3 == 0)
+									{
+										m_Dummy27_loved_x = 420 * 32 + rand() % 128;
+										m_Dummy27_loved_y = 430 * 32;
+										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
+									}
+									else if (rand() % 4 == 0)
+									{
+										m_Dummy27_loved_x = 429 * 32 + rand() % 64;
+										m_Dummy27_loved_y = 430 * 32;
+										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
+									}
+								}
+								if (rand() % 5 == 0)
+								{
+									m_Dummy27_loved_x = 410 * 32 + rand() % 64;
+									m_Dummy27_loved_y = 442 * 32;
+								}
+							}
+							else
+							{
+								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+							}
+						}
+					}
+				}
+
+				//=====================
+				// all importat backups
+				// all dodges and moves
+				// which are needed all
+				// the time
+				// police base only
+				//=====================
+
+
+				//dont walk into the lower police base entry freeze
+				if (m_Core.m_Pos.x > 425 * 32 && m_Core.m_Pos.x < 429 * 32) //right side
+				{
+					if (m_Core.m_Vel.x < -0.02f && IsGrounded())
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+				else if (m_Core.m_Pos.x > 389 * 32 && m_Core.m_Pos.x < 391 * 32) //left side
+				{
+					if (m_Core.m_Vel.x > 0.02f && IsGrounded())
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+
+				//jump over the police underground from entry to enty
+				if (m_Core.m_Pos.y > m_Dummy27_loved_y) //only if beloved place is an upper one
+				{
+					if (m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 418 * 32) //right side
+					{
+						if (m_Core.m_Vel.x < -0.02f && IsGrounded())
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+					else if (m_Core.m_Pos.x > 398 * 32 && m_Core.m_Pos.x < 401 * 32) //left side
+					{
+						if (m_Core.m_Vel.x > 0.02f && IsGrounded())
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+
+					//do the doublejump
+					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32) //falling and not too high to hit roof with head
+					{
+						m_Input.m_Jump = 1;
+						//m_LatestInput.m_Fire++;
+						//m_Input.m_Fire++;
+					}
+				}
+			}
+			else //unknown area //it isnt it is spawn area and stuff not a random area
+			{
+				////walk towards police station
+				//if (m_Core.m_Pos.x < 400 * 32)
+				//{
+				//	m_Input.m_Direction = 1;
+				//}
+				//else
+				//{
+				//	m_Input.m_Direction = -1;
+				//}
+
+
+				//if (Server()->Tick() % 420 == 0)
+				//{
+				//	m_Input.m_Jump = 1;
+				//	//ask public chat for help
+				//	if (rand() % 2 == 0)
+				//	{
+				//		int rand_message = rand() % 10;
+				//		if (rand_message == 0)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "where am i?");
+				//		}
+				//		else if (rand_message == 1)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hello is there anybody?");
+				//		}
+				//		else if (rand_message == 2)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "guys! i need help!!!11");
+				//		}
+				//		else if (rand_message == 3)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "I think i am lost.");
+				//		}
+				//		else if (rand_message == 4)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "officer needs help!");
+				//		}
+				//		else if (rand_message == 5)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Where is the police base?");
+				//		}
+				//		else if (rand_message == 6)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Can someone bring me to the police base?");
+				//		}
+				//		else if (rand_message == 7)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "I AM LOST!");
+				//		}
+				//		else if (rand_message == 8)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "where the fuck am i?");
+				//		}
+				//		else if (rand_message == 9)
+				//		{
+				//			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hello sir? can you bring me to the police base?");
+				//		}
+				//	}
+				//}
+
+				//if (Server()->Tick() % 2000 == 0 && isFreezed && IsGrounded())
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//}
+				//if (Server()->Tick() % 9000 == 0)
+				//{
+				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				//}
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 28)

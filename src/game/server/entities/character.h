@@ -370,6 +370,12 @@ public:
 
 	//dummymode 27 vars (BlmapChill police guard)
 	bool m_Dummy27_IsReadyToEnterPolice;
+	int m_Dummy27_loved_x;
+	int m_Dummy27_loved_y;
+	int m_Dummy27_lower_panic;
+	int m_Dummy27_speed;
+	int m_Dummy27_help_mode; //0=off 1=right side
+	bool m_Dummy27_help_hook;
 
 	//dummymode 31 vars (ChillBlock5 police guard)
 	bool m_Dummy_SpawnAnimation;
