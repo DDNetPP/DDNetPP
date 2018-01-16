@@ -8229,6 +8229,7 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "XP-messages are now hidden.");
 			pPlayer->m_xpmsg = false;
+			pSelf->SendBroadcast("", pPlayer->GetCID(), 0); //send empty broadcast without importance to delete last xp message
 		}
 		else
 		{
