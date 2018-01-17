@@ -10178,11 +10178,26 @@ void CCharacter::DummyTick()
 						}
 						else
 						{
-							if (IsGrounded() && !m_Dummy27_help_hook && m_Dummy_ClosestPolice)
+							if (!m_Dummy27_help_hook && m_Dummy_ClosestPolice)
 							{
-								m_Dummy27_help_hook = true;
-								m_Input.m_Jump = 1;
-								m_Input.m_Hook = 1;
+								if (pChr->m_Pos.x > 439 * 32)
+								{
+									if (IsGrounded())
+									{
+										m_Dummy27_help_hook = true;
+										m_Input.m_Jump = 1;
+										m_Input.m_Hook = 1;
+									}
+								}
+								else
+								{
+									if (m_Core.m_Vel.y < -4.20f && m_Core.m_Pos.y < 431 * 32)
+									{
+										m_Dummy27_help_hook = true;
+										m_Input.m_Jump = 1;
+										m_Input.m_Hook = 1;
+									}
+								}
 							}
 							if (Server()->Tick() % 8 == 0)
 							{
@@ -10199,6 +10214,17 @@ void CCharacter::DummyTick()
 								m_Input.m_Hook = 0;
 								m_Input.m_Direction = 1;
 							}
+						}
+
+						//dont wait on ground
+						if (IsGrounded() && Server()->Tick() % 69 == 0)
+						{
+							m_Input.m_Jump = 1;
+						}
+						//backup reset jump
+						if (Server()->Tick() % 100 == 0)
+						{
+							m_Input.m_Jump = 1;
 						}
 					}
 
@@ -10401,6 +10427,17 @@ void CCharacter::DummyTick()
 				//{
 				//	Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				//}
+			}
+
+
+			//reset in freeze ( W A R N I N G!!! Keep this code last in dummymode)
+			if (m_FreezeTime)
+			{
+				m_Input.m_Hook = 0;
+				m_Input.m_Jump = 0;
+				m_Input.m_Direction = 0;
+				m_LatestInput.m_Fire = 0;
+				m_Input.m_Fire = 0;
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 28)
