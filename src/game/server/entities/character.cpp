@@ -10077,6 +10077,7 @@ void CCharacter::DummyTick()
 				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
 				{
 					m_Dummy27_lower_panic = 1;
+					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9); //angry emote
 				}
 
 				if (m_Dummy27_lower_panic)
@@ -10289,12 +10290,12 @@ void CCharacter::DummyTick()
 						{
 							if (rand() % 2 == 0)
 							{
-								m_Dummy27_speed = rand() % 8000 + 2;
+								m_Dummy27_speed = rand() % 10000 + 420;
 							}
 						}
 
 						//choose beloved destination
-						if (Server()->Tick() % 40 == 0)
+						if (Server()->Tick() % m_Dummy27_speed == 0)
 						{
 							if ((rand() % 2) == 0)
 							{
