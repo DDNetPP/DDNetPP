@@ -10166,13 +10166,44 @@ void CCharacter::DummyTick()
 							m_Dummy_ClosestPolice = true;
 						}
 
-						m_Dummy27_help_mode = 1;
+						if (pChr->m_Pos.x > 444 * 32 - 10) //police dude failed too far --> to be reached by hook (set too help mode extream to leave save area)
+						{
+							m_Dummy27_help_mode = 2;
+							if (m_Core.m_Jumped > 1 && m_Core.m_Pos.x > 431 * 32) //double jumped and above the freeze
+							{
+								m_Input.m_Direction = -1;
+							}
+							else
+							{
+								m_Input.m_Direction = 1;
+							}
+							//doublejump before falling in freeze
+							if ((m_Core.m_Pos.x > 432 * 32 && m_Core.m_Pos.y > 432 * 32) || m_Core.m_Pos.x > 437 * 32) //over the freeze and too low
+							{
+								m_Input.m_Jump = 1;
+								m_Dummy27_help_hook = true;
+								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "catch hook jump!");
+							}
+							if (IsGrounded() && m_Core.m_Pos.x > 430 * 32 && Server()->Tick() % 60 == 0)
+							{
+								m_Input.m_Jump = 1;
+								//if (Server()->Tick() % 60 == 0)
+								//{
+								//	m_Input.m_Jump = 0;
+								//}
+							}
+						}
+						else
+						{
+							m_Dummy27_help_mode = 1;
+						}
 
-						if (m_Core.m_Pos.x > 431 * 32 + 10)
+
+						if (m_Dummy27_help_mode == 1 && m_Core.m_Pos.x > 431 * 32 + 10)
 						{
 							m_Input.m_Direction = -1;
 						}
-						else if (m_Core.m_Pos.x < 430 * 32)
+						else if (m_Dummy27_help_mode == 1 && m_Core.m_Pos.x < 430 * 32)
 						{
 							m_Input.m_Direction = 1;
 						}
@@ -10180,16 +10211,25 @@ void CCharacter::DummyTick()
 						{
 							if (!m_Dummy27_help_hook && m_Dummy_ClosestPolice)
 							{
-								if (pChr->m_Pos.x > 439 * 32)
+								if (m_Dummy27_help_mode == 2) //police dude failed too far --> to be reached by hook
 								{
+									//if (m_Core.m_Pos.x > 435 * 32) //moved too double jump
+									//{
+									//	m_Dummy27_help_hook = true;
+									//}
+								}
+								else if (pChr->m_Pos.x > 439 * 32) //police dude in the middle
+								{
+									//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "middle");
 									if (IsGrounded())
 									{
 										m_Dummy27_help_hook = true;
 										m_Input.m_Jump = 1;
 										m_Input.m_Hook = 1;
+										//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "HOOOK");
 									}
 								}
-								else
+								else //police dude failed too near to hook from ground
 								{
 									if (m_Core.m_Vel.y < -4.20f && m_Core.m_Pos.y < 431 * 32)
 									{
@@ -10208,7 +10248,7 @@ void CCharacter::DummyTick()
 						if (m_Dummy27_help_hook)
 						{
 							m_Input.m_Hook = 1;
-							if (Server()->Tick() % 100 == 0)
+							if (Server()->Tick() % 200 == 0)
 							{
 								m_Dummy27_help_hook = false; //timeout hook maybe failed
 								m_Input.m_Hook = 0;
@@ -10217,14 +10257,14 @@ void CCharacter::DummyTick()
 						}
 
 						//dont wait on ground
-						if (IsGrounded() && Server()->Tick() % 69 == 0)
+						if (IsGrounded() && Server()->Tick() % 900 == 0)
 						{
 							m_Input.m_Jump = 1;
 						}
 						//backup reset jump
-						if (Server()->Tick() % 100 == 0)
+						if (Server()->Tick() % 1337 == 0)
 						{
-							m_Input.m_Jump = 1;
+							m_Input.m_Jump = 0;
 						}
 					}
 
@@ -10337,6 +10377,10 @@ void CCharacter::DummyTick()
 						if (m_Core.m_Vel.x < -0.02f && IsGrounded())
 						{
 							m_Input.m_Jump = 1;
+							if (Server()->Tick() % 5 == 0)
+							{
+								m_Input.m_Jump = 0;
+							}
 						}
 					}
 					else if (m_Core.m_Pos.x > 398 * 32 && m_Core.m_Pos.x < 401 * 32) //left side
@@ -10344,11 +10388,15 @@ void CCharacter::DummyTick()
 						if (m_Core.m_Vel.x > 0.02f && IsGrounded())
 						{
 							m_Input.m_Jump = 1;
+							if (Server()->Tick() % 5 == 0)
+							{
+								m_Input.m_Jump = 0;
+							}
 						}
 					}
 
 					//do the doublejump
-					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32) //falling and not too high to hit roof with head
+					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32) //falling and not too high to hit roof with head
 					{
 						m_Input.m_Jump = 1;
 						//m_LatestInput.m_Fire++;

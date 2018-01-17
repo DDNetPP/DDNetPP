@@ -374,7 +374,7 @@ public:
 	int m_Dummy27_loved_y;
 	int m_Dummy27_lower_panic;
 	int m_Dummy27_speed;
-	int m_Dummy27_help_mode; //0=off 1=right side
+	int m_Dummy27_help_mode; //0=off 1=right side 2=right_side_extreme
 	bool m_Dummy27_help_hook;
 
 	//dummymode 31 vars (ChillBlock5 police guard)
