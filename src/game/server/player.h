@@ -289,6 +289,7 @@ public:
 	int m_PVP_return_posX;
 	int m_PVP_return_posY;
 	int m_pvp_arena_last_kill_id;
+	vec2 m_PVP_return_pos;
 
 	int m_pvp_arena_games_played;
 	int m_pvp_arena_kills;

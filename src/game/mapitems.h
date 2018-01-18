@@ -173,6 +173,7 @@ enum
 	TILE_BLOCKWAVE_BOT, //129
 	TILE_FNG_SCORE, //130
 	TILE_BLOCK_TOURNA_SPAWN, //131
+	TILE_PVP_ARENA_SPAWN, //132
 
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
 
