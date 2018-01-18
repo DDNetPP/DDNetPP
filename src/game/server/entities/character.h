@@ -330,6 +330,9 @@ public:
 	//bank
 	bool m_InBank;
 
+	//jail
+	bool m_InJailOpenArea;
+
 	//bomb
 	bool m_IsBombing;
 	bool m_IsBomb;
