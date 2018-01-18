@@ -4444,6 +4444,12 @@ void CCharacter::DDPP_Tick()
 			m_pvp_arena_exit_request = false;
 			m_IsPVParena = false;
 			m_isDmg = false;
+
+			if (g_Config.m_SvPvpArenaState == 3) //tilebased and not hardcodet
+			{
+				m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
+			}
+
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Successfully teleported out of arena.");
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] You got your ticket back because you have survived.");
 		}
@@ -4524,7 +4530,7 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (g_Config.m_SvPvpArenaState)
+	if (g_Config.m_SvPvpArenaState == 1 || g_Config.m_SvPvpArenaState == 2) //the two old hardcodet maps ChillBlock5 and BlmapChill (new system uses tiles)
 	{
 		if (g_Config.m_SvPvpArenaState == 1) // ChillBlock5 pvp
 		{

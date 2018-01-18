@@ -479,6 +479,13 @@ public:
 	};
 	std::vector<CBlockTournaSpawn> m_BlockTournaSpawn;
 
+	struct CPVPArenaSpawn // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CPVPArenaSpawn> m_PVPArenaSpawn;
+
 private:
 
 	bool m_VoteWillPass;

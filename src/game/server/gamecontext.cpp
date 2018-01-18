@@ -8903,6 +8903,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
 					m_BlockTournaSpawn.push_back(BlockTournaSpawn);
 				}
+				else if (Index == TILE_PVP_ARENA_SPAWN)
+				{
+					CPVPArenaSpawn PVPArenaSpawn;
+					PVPArenaSpawn.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got pvp arena spawn tile at (%.2f|%.2f)", PVPArenaSpawn.m_Center.x, PVPArenaSpawn.m_Center.y);
+					m_PVPArenaSpawn.push_back(PVPArenaSpawn);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);

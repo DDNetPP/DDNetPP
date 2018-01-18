@@ -4602,6 +4602,28 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (!pPlayer->GetCharacter()->m_IsPVParena)
 					{
+						//save position before tele
+						//pPlayer->m_PVP_return_posX = pChr->GetPosition().x;
+						//pPlayer->m_PVP_return_posY = pChr->GetPosition().y;
+						pPlayer->m_PVP_return_pos = pChr->GetPosition();
+
+
+						if (g_Config.m_SvPvpArenaState == 3) //tilebased tele to spawns
+						{
+							vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
+
+							if (PvPArenaSpawnTile != vec2(-1, -1))
+							{
+								pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
+							}
+							else
+							{
+								pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] error, this map has no arena!");
+								return;
+							}
+						}
+
+						//update stats and gamestats only if tele worked
 						pPlayer->m_pvp_arena_tickets--;
 						pPlayer->m_pvp_arena_games_played++;
 						pPlayer->GetCharacter()->m_IsPVParena = true;
