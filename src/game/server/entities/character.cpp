@@ -29,9 +29,7 @@
 
 //rip 25
 //#include <iostream> 
-//#include <fstream> 
-//
-//using namespace std; 
+//#include <fstream>
 
 
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
@@ -3166,6 +3164,8 @@ void CCharacter::HandleTiles(int Index)
 	else if (m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
 	{
 		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID(), 0); //dont send the message here wtf this is just an to tele tile
+		m_InJailOpenArea = true;
+		//dbg_msg("ddpp-tiles", "in jail release area");
 	}
 
 	// solo part
@@ -4751,6 +4751,8 @@ void CCharacter::DDPP_Tick()
 			}
 		}
 	}
+	//fast resets
+	m_InJailOpenArea = false;
 
 }
 

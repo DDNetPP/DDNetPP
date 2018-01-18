@@ -5230,7 +5230,9 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
-		return;
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[TCMD3000] you have to be alive to do tests");
+	}
 
 	char aBuf[128];
 
@@ -5240,6 +5242,7 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
+		/*
 		if (pResult->NumArguments() != 2)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
@@ -5248,6 +5251,10 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_QuestState = pResult->GetInteger(0);
 		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
 		pSelf->StartQuest(pPlayer->GetCID());
+		*/
+
+		str_format(aBuf, sizeof(aBuf), "InJailReleaseArea=%d", pChr->m_InJailOpenArea);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientID); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}
@@ -7216,7 +7223,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing parameters. '/jail open <code> <player>'");
 			return;
 		}
-		if (!pSelf->IsPosition(pResult->m_ClientID, 0))
+		if (!pPlayer->GetCharacter()->m_InJailOpenArea)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Get closer to the cell.");
 			return;
