@@ -13631,6 +13631,141 @@ void CCharacter::DummyTick()
 				//no basic moves for this submode
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 32) // fun spawn swing grenade thing blmappchill
+		{
+			//RestOnChange (zuruecksetzten)
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 472 * 32 && m_Core.m_Pos.y > 74 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn bereich
+			{
+				m_Input.m_Direction = -1;
+
+				if (m_Core.m_Pos.x > 454 * 32 && m_Core.m_Pos.x < 458 * 32) //linke seite des spawn bereiches
+				{
+					m_Input.m_Jump = 1;
+					if (Server()->Tick() % 10 == 0) 
+					{
+						m_Input.m_Jump = 0; 
+					}
+				}
+			}
+			else if (m_Core.m_Pos.x < 240 * 32) // the complete zone in the map intselfs. its for resetting the dummy when he is back in spawn using tp
+			{
+				if (m_Core.m_Pos.x > 25 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x < 33 * 32) // if wrong tp he will kill
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+				else if (m_Core.m_Pos.y > 35 * 32 && m_Core.m_Pos.x < 43 * 32) // area bottom right from spawn, if he fall, he will kill
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+				else if (m_Core.m_Pos.x < 16 * 32) // area left of new tee spawn, he will kill too
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+				else if (m_Core.m_Pos.y > 25 * 32) // after unfreeze hold hook to the right and walk right.
+				{
+					m_Input.m_TargetX = 100;
+					m_Input.m_TargetY = 1;
+					m_Input.m_Direction = 1;
+					m_Input.m_Hook = 1;
+					if (m_Core.m_Pos.x > 25 * 32 && m_Core.m_Pos.x < 33 * 32 && m_Core.m_Pos.y > 30 * 32) //set weapon and aim down
+					{
+						if (Server()->Tick() % 5 == 0)
+						{
+							SetWeapon(3);
+						}
+						m_Input.m_TargetX = 210;
+						m_Input.m_TargetY = 100;
+						m_LatestInput.m_TargetX = 210;
+						m_LatestInput.m_TargetY = 100;
+						if (m_Core.m_Pos.x > 31 * 32)
+						{
+							m_Input.m_Jump = 1;
+							m_LatestInput.m_Fire++;
+							m_Input.m_Fire++;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.x > 33 * 32 && m_Core.m_Pos.x < 50 * 32 && m_Core.m_Pos.y > 18 * 32)
+				{
+					m_Input.m_Direction = 1;
+					if (m_Core.m_Pos.x > 33 * 32 && m_Core.m_Pos.x < 42 * 32 && m_Core.m_Pos.y > 20 * 32 && m_Core.m_Pos.y < 25 * 32)
+					{	
+						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 14); //happy emote when successfully did the grenaede jump
+						if (Server()->Tick() % 1 == 0) //change to gun
+						{
+							SetWeapon(1);
+						}
+					}
+					if (m_Core.m_Pos.x > 47 * 32 && m_Core.m_Pos.x < 48 * 32) // jumping up on the plateu
+					{
+						m_Input.m_Direction = 0;
+						m_Input.m_Jump = 1;
+					}
+				}
+				else if (m_Core.m_Pos.y < 16 * 32 && m_Core.m_Pos.x < 75 * 32 && m_Core.m_Pos.x > 40 * 32) // walking right on it
+				{
+					m_Input.m_Direction = 1;
+					m_Input.m_Jump = 0;
+					if (m_Core.m_Pos.x > 55 * 32 && m_Core.m_Pos.x < 56 * 32) //jumping over gap
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
+				else if (m_Core.m_Pos.x > 75 * 32 && m_Core.m_Pos.x < 135 * 32) //gores stuff (the thign with freeze spikes from top and bottom)
+				{
+					m_Input.m_Jump = 0;
+					m_Input.m_Direction = 1;
+					if (m_Core.m_Pos.x > 77 * 32) //start jump into gores
+					{
+						m_Input.m_Jump = 1;
+					}
+					if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.y > 12.5 * 32) // hooking stuff from now on
+					{
+						m_Input.m_TargetX = 100;
+						m_Input.m_TargetY = -100;
+						m_Input.m_Hook = 1;
+						if (m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 100 * 32 && m_Core.m_Pos.x < 110 * 32)
+						{
+							m_Input.m_Hook = 0;
+						}
+					}
+					if (m_Core.m_Pos.x > 120 * 32)
+					{
+						if (m_Core.m_Pos.y < 13 * 32)
+						{
+							m_Input.m_Hook = 0;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.x > 135 * 32)
+				{
+					m_Input.m_Direction = 1;
+					if (m_Core.m_Pos.y > 12 * 32) // gores (the long way to 5 jumps)
+					{
+						m_Input.m_TargetX = 100;
+						m_Input.m_TargetY = -200;
+						m_Input.m_Hook = 1;
+						if (m_Core.m_Pos.y < 12 * 32)
+						{
+							m_Input.m_Hook = 0;
+						}
+						if (m_Core.m_Pos.x > 212 * 32)
+						{
+							m_Input.m_Hook = 1;
+							m_Input.m_TargetX = 100;
+							m_Input.m_TargetY = -75;
+							m_Input.m_Jump = 1;
+						}
+					}
+				}
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 33) //Chillintelligenz
 		{
 			//########################################
