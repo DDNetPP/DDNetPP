@@ -371,6 +371,11 @@ public:
 	int m_FNN_CurrentMoveIndex;
 	int m_aRecMove[32768];
 
+	//dummymode 104 vars
+	bool m_Dummy104_panic_hook;
+	int m_Dummy104_angry;
+	bool m_Dummy104_rj_failed;
+
 	//dummymode 27 vars (BlmapChill police guard)
 	bool m_Dummy27_IsReadyToEnterPolice;
 	int m_Dummy27_loved_x;

@@ -5224,6 +5224,17 @@ void CCharacter::DummyTick()
 				m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 10 + Server()->TickSpeed() * (rand() % 21);
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 1)
+		{
+			m_Input.m_TargetX = 2;
+			m_Input.m_TargetY = 2;
+			m_LatestInput.m_TargetX = 2;
+			m_LatestInput.m_TargetY = 2;
+			if (Server()->Tick() % 100 == 0)
+				SetWeapon(3);
+			m_LatestInput.m_Fire++;
+			m_Input.m_Fire++;
+		}
 		else if (m_pPlayer->m_DummyMode == -3)
 		{
 			//rest dummy (zuruecksetzten)
@@ -6509,7 +6520,7 @@ void CCharacter::DummyTick()
 								m_Input.m_Fire++;
 							}
 
-							if (Server()->Tick() % 10 == 0)  //angry emotes machen
+							if (Server()->Tick() % 10 == 0)  //do angry emotes
 							{
 								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
 							}
@@ -13665,7 +13676,7 @@ void CCharacter::DummyTick()
 			m_Input.m_Hook = 0;
 			m_Input.m_Direction = 0;
 
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
 			if (pChr && pChr->IsAlive())
 			{
 				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
@@ -13704,6 +13715,272 @@ void CCharacter::DummyTick()
 							m_Input.m_Jump = 1;
 						}
 					}
+				}
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == 104) //blmapV5 lower areas blocker
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			if (Server()->Tick() % 5000 == 0 && isFreezed)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
+
+			if (m_Core.m_Pos.y < 38 * 32) //spawn
+			{
+				if (m_Core.m_Pos.x < 13 * 32 + 10)
+				{
+					m_Input.m_Direction = 1;
+				}
+				else if (m_Core.m_Pos.x > 14 * 32 + 16)
+				{
+					m_Input.m_Direction = -1;
+				}
+				else
+				{
+					if (m_Core.m_Pos.x > 1.2f)
+					{
+						m_Input.m_Direction = -1;
+					}
+					else if (m_Core.m_Pos.x < -1.2f)
+					{
+						m_Input.m_Direction = 1;
+					}
+				}
+			}
+			else if (m_Core.m_Pos.y < 46 * 32) //block area 1
+			{
+				if (IsGrounded() || m_Core.m_Pos.x > 14 * 32 + 10)
+				{
+					m_Input.m_Direction = -1;
+				}
+				if (m_Core.m_Pos.x < 14 * 32 + 5 && m_Core.m_Pos.y < 40 * 32 + 30)
+				{
+					m_Input.m_Direction = 1;
+				}
+				if (Server()->Tick() % 60 == 0)
+				{
+					SetWeapon(3); //switch to grenade
+				}
+			}
+			else if (m_Core.m_Pos.y < 61 * 32) //block area 2
+			{
+				if (m_Core.m_Pos.y < 52 * 32)
+				{
+					m_Input.m_Direction = -1;
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+					m_Input.m_TargetX = -100;
+					m_Input.m_TargetY = 19;
+					m_LatestInput.m_TargetX = -100;
+					m_LatestInput.m_TargetY = 19;
+					if (m_FreezeTime == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+			}
+			else if (m_Core.m_Pos.y < 74 * 32) //block area 3
+			{
+				if (m_Core.m_Pos.x > 16 * 32)
+				{
+					m_Input.m_Direction = -1;
+					m_Input.m_TargetX = 100;
+					m_Input.m_TargetY = 19;
+					m_LatestInput.m_TargetX = 100;
+					m_LatestInput.m_TargetY = 19;
+					if (m_FreezeTime == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+				}
+			}
+			else if (m_Core.m_Pos.y < 84 * 32) //block area 4
+			{
+				m_Input.m_Direction = 1;
+				m_Input.m_TargetX = -200;
+				m_Input.m_TargetY = 90;
+				m_LatestInput.m_TargetX = -200;
+				m_LatestInput.m_TargetY = 90;
+
+				if (IsGrounded() && m_Core.m_Pos.x > 23 * 32)
+				{
+					m_Input.m_Jump = 1;
+				}
+				if (m_Core.m_Vel.y < -0.05f && m_FreezeTime == 0)
+				{
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+				}
+
+				if (m_Core.m_Pos.x > 22 * 32 && m_Core.m_Vel.x < 7.1f)
+				{
+					m_Dummy104_rj_failed = true;
+				}
+
+				if (m_Dummy104_rj_failed)
+				{
+					m_Input.m_Direction = -1;
+					if (m_Core.m_Pos.x < 18 * 32)
+					{
+						m_Dummy104_rj_failed = false;
+					}
+				}
+			}
+			else //block area 5
+			{
+
+				if (m_Core.m_Pos.x > 15 * 32 && m_Core.m_Pos.x < 22 * 32) //never stay still over the middle freeze
+				{
+					m_Dummy104_panic_hook = true;
+					if (m_Core.m_Pos.x > 19 * 32)
+					{
+						m_Input.m_Direction = 1;
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+						//dbg_msg("dummy","walk left to dodge the freeze");
+					}
+					if (m_Core.m_Pos.y > 92 * 32)
+					{
+						m_Input.m_Jump = 1;
+						if (Server()->Tick() % 19 == 0)
+						{
+							m_Input.m_Jump = 0;
+						}
+					}
+				}
+
+				//block others:
+				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeUnfreezedArea5(m_Pos, false, this);
+				if (pChr && pChr->IsAlive())
+				{
+					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+					m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+					if ((pChr->m_Core.m_Pos.y > m_Core.m_Pos.y + 64 || (m_Dummy104_panic_hook && pChr->m_Core.m_Pos.y < m_Core.m_Pos.y)) && //hook enemys up in freeze or hook enemys down to get speed up and avoid falkling in freeze
+						!(m_Core.m_Pos.y < 88 * 32 && m_Core.m_Vel.y < -0.1f))   //but dont do it when the bot is looking but to do a roof nade
+					{
+						m_Input.m_Hook = 1;
+					}
+
+					if (m_Dummy104_angry)
+					{
+						if (pChr->m_Core.m_Pos.x - 60 > m_Core.m_Pos.x)
+						{
+							m_Input.m_Direction = 1;
+						}
+						else if (pChr->m_Core.m_Pos.x - 40 < m_Core.m_Pos.x)
+						{
+							m_Input.m_Direction = -1;
+							//dbg_msg("dummy", "walk left to get better enemy positioning enemypos=%f", pChr->m_Core.m_Pos.x);
+						}
+						else //near enough to hammer
+						{
+							if (Server()->Tick() % 8 == 0)
+							{
+								SetWeapon(0);
+							}
+							if (pChr->m_Core.m_Pos.y > m_Core.m_Pos.y && pChr->m_Core.m_Pos.y < m_Core.m_Pos.y + 50)
+							{
+								if (pChr->m_Core.m_Vel.y < -0.1f && m_FreezeTime == 0)
+								{
+									m_Input.m_Fire++;
+									m_LatestInput.m_Fire++;
+								}
+							}
+						}
+
+						if (IsGrounded())
+						{
+							int rand_val = rand() % 7;
+
+							if (rand_val == 1)
+							{
+								m_Input.m_Jump = 1;
+							}
+							else if (rand_val == 2 || rand_val == 4 || rand_val == 6)
+							{
+								if (distance(pChr->m_Core.m_Pos, m_Core.m_Pos) < 60)
+								{
+									m_Input.m_Fire++;
+									m_LatestInput.m_Fire++;
+								}
+							}
+						}
+					}
+				}
+
+				m_Dummy104_panic_hook = false;
+
+
+				//angry checker
+				if (m_Dummy104_angry)
+				{
+					if (m_FreezeTime == 0)
+					{
+						m_Dummy104_angry--;
+					}
+					if (Server()->Tick() % 10 == 0)  //angry emotes machen
+					{
+						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+					}
+				}
+				if (m_Core.m_Vel.y < -1.2f && m_Core.m_Pos.y < 88 * 32)
+				{
+					if (Server()->Tick() % 10 == 0 && m_Dummy104_angry == 0)
+					{
+						m_Dummy104_angry = Server()->TickSpeed() * 20;
+					}
+				}
+
+				if (m_Core.m_Pos.x < 5 * 32) //lower left freeze
+				{
+					m_Input.m_Direction = 1;
+				}
+
+				if (m_Core.m_Pos.y > 90 * 32 + 16 && m_Core.m_Vel.y < -6.4f) //slow down speed with dj when flying to fast up
+				{
+					m_Input.m_Jump = 1;
+				}
+
+				if (m_Core.m_Pos.y < 89 * 32 - 20) //high
+				{
+					if (Server()->Tick() % 3 == 0)
+					{
+						SetWeapon(3);
+					}
+					if (m_Core.m_Pos.y < 88 * 32 && m_Core.m_Vel.y < -0.1f) // near roof
+					{
+						m_Input.m_TargetX = 1;
+						m_Input.m_TargetY = -200;
+						m_LatestInput.m_TargetX = 1;
+						m_LatestInput.m_TargetY = -200;
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+
+				//dont enter the freeze exit on the right side
+				if (m_Core.m_Pos.x > 34 * 32 && m_Core.m_Pos.y < 91 * 32 && m_Core.m_Vel.x > 0.0f)
+				{
+					m_Input.m_Direction = -1;
 				}
 			}
 		}

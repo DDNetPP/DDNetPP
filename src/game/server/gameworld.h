@@ -127,6 +127,8 @@ public:
 
 	class CCharacter *ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis = 0);
 
+	class CCharacter *ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true);
+
 	class CCharacter *ClosestCharacter(vec2 Pos, float Radius, CEntity *ppNotThis);
 
 	/*
