@@ -4750,6 +4750,10 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(27);//police
 		//CreateNewDummy(28);//racer
 	}
+	else if (!str_comp(g_Config.m_SvMap, "blmapV5"))
+	{
+		CreateNewDummy(104);//lower blocker
+	}
 	else
 	{
 		CreateNewDummy(0); //dummy
