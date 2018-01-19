@@ -899,3 +899,45 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 
 	return pClosest;
 }
+
+CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  //blmapV5 potential enemys in area5
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	float ClosestRange = 0.f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	for (; p; p = (CCharacter *)p->TypeNext())
+	{
+		if (p == pNotThis)
+			continue;
+
+		if (p->m_Pos.y < 84 * 32 || p->m_Pos.y > 104 * 32 || p->m_Pos.x < 32 || p->m_Pos.x > 36 * 32)
+			continue;
+
+		if (!SeeAll)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
+
+
+		if (p->isFreezed) //freezed -> continue
+			continue;
+
+
+		float Len = distance(Pos, p->m_Pos);
+
+		if (Len < ClosestRange || !ClosestRange)
+		{
+			ClosestRange = Len;
+			pClosest = p;
+		}
+	}
+
+	return pClosest;
+}
