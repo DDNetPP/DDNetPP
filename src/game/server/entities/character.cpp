@@ -9931,7 +9931,7 @@ void CCharacter::DummyTick()
 									GameServer()->m_FNN_best_distance = newest_distance;
 									std::ofstream statsfile;
 									char aFilePath[512];
-									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
 									statsfile.open(aFilePath);
 									if (statsfile.is_open())
 									{
@@ -9948,7 +9948,7 @@ void CCharacter::DummyTick()
 
 									//saving the run
 									std::ofstream savefile;
-									str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.txt");
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.fnn");
 									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
 									if (savefile.is_open())
 									{
@@ -9982,7 +9982,7 @@ void CCharacter::DummyTick()
 									GameServer()->m_FNN_best_fitness = newest_fitness;
 									std::ofstream statsfile;
 									char aFilePath[512];
-									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
 									statsfile.open(aFilePath);
 									if (statsfile.is_open())
 									{
@@ -9999,7 +9999,7 @@ void CCharacter::DummyTick()
 
 									//saving the run
 									std::ofstream savefile;
-									str_format(aFilePath, sizeof(aFilePath), "FNN/move_fitness.txt");
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_fitness.fnn");
 									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
 									if (savefile.is_open())
 									{
@@ -10041,7 +10041,7 @@ void CCharacter::DummyTick()
 					//load run
 					std::ifstream readfile;
 					char aFilePath[512];
-					str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.txt");
+					str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.fnn");
 					readfile.open(aFilePath);
 					if (readfile.is_open())
 					{
