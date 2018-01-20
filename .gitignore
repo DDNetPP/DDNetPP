@@ -4,7 +4,7 @@ datasrc/__pycache__
 datasrc/*.pyc
 objs
 src/game/generated
-
+FNN/*.fnn
 
 /ChillerBot*
 /DDNetPP*
