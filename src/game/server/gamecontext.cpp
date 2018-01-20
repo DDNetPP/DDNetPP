@@ -1965,7 +1965,7 @@ void CGameContext::LoadFNNvalues()
 #endif
 	std::ifstream readfile;
 	char aFilePath[512];
-	str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+	str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
 	readfile.open(aFilePath);
 	if (readfile.is_open())
 	{
