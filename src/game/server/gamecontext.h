@@ -255,6 +255,7 @@ public:
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
 	bool IsSameIP(int ID_1, int ID_2);
+	vec2 GetFinishTile();
 	void JoinInstagib(int weapon, bool fng, int ID);
 	void ShowInstaStats(int requestID, int requestedID);
 	void LeaveInstagib(int ID);

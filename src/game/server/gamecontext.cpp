@@ -2152,6 +2152,75 @@ bool CGameContext::IsSameIP(int ID_1, int ID_2)
 	return false;
 }
 
+vec2 CGameContext::GetFinishTile()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	/*
+	int BIG_NUMBER = 0;
+	BIG_NUMBER = ~BIG_NUMBER; //binary lyfe hacks with chiller
+	int TODO = BIG_NUMBER; //find a better way maybe actual map index size or something
+
+	for (int i = 0; i < TODO; i++)
+	{
+		if (Collision()->TileExists(i))
+		{
+			if (Collision()->GetTileIndex(i) == TILE_END)
+			{
+				dbg_msg("tile-finder","found finish tile at index=%d",i);
+				return i;
+			}
+		}
+	}
+	*/
+
+	/*
+	for (int i = 0; i < Collision()->GetWidth() * Collision()->GetHeight(); i++)
+	{
+		if (GameServer()->m_pTiles[i].m_Index == TILE_END)
+		{
+			dbg_msg("tile-finder", "found finish tile at index=%d", i);
+			return i;
+		}
+	}
+	*/
+
+	/*
+	int Width = Collision()->GetWidth();
+	int Height = Collision()->GetHeight();
+	for (int i = 0; i < Width; i++)
+	{
+		for (int j = 0; j < Height; i++)
+		{
+			if (Collision()->GetTile(i, j) == TILE_END || Collision()->GetFTile(i, j) == TILE_END)
+			{
+				dbg_msg("tile-finder", "found finish tile at (%d/%d)", i,j);
+				return vec2(i, j);
+			}
+		}
+	}
+	*/
+
+
+	int Width = Collision()->GetWidth();
+	int Height = Collision()->GetHeight();
+	for (int i = 0; i < Width*Height; i++)
+	{
+		if (Collision()->GetTileIndex(i) == TILE_END || Collision()->GetFTileIndex(i) == TILE_END)
+		{
+			dbg_msg("tile-finder", "found finish tile at index=%d", i);
+			dbg_msg("tile-finder", "height: %d", Height);
+			dbg_msg("tile-finder", "width: %d", Width);
+			dbg_msg("tile-finder", "x: %d", i % Width);
+			dbg_msg("tile-finder", "y: %d", int(i / Width));
+			return vec2(i % Width, int(i / Width));
+		}
+	}
+
+	return vec2(0,0);
+}
+
 void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 {
 #if defined(CONF_DEBUG)
@@ -6158,8 +6227,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "empty mepty");
-					SendChatTarget(ClientID, "Test Failed. ====");
+					vec2 vec_finish = GetFinishTile();
+					str_format(aBuf, sizeof(aBuf), "finish at %.2f/%.2f", vec_finish.x, vec_finish.y);
+					SendChatTarget(ClientID, aBuf);
 
 					if (g_Config.m_SvTestingCommands)
 					{
@@ -6189,9 +6259,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						str_format(aBuf, sizeof(aBuf), "%d", seconds);
 
-						SendChatTarget(ClientID, aBuf);
-
-						UpdateBlockSkill(+200, ClientID);
+						//SendChatTarget(ClientID, aBuf);
 
 						/*
 						str_format(aBuf, sizeof(aBuf), "file_accounts/%s.acc", pPlayer->m_aAccountLoginName);
