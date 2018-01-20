@@ -9856,3 +9856,73 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "[ADMIN] unknown parameter");
 	}
 }
+
+void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[FNN] Missing permission.");
+		return;
+	}
+
+	char aBuf[128];
+	char aCommand[32];
+	char aName[32];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	str_copy(aName, pResult->GetString(1), sizeof(aName));
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		pSelf->SendChatTarget(ClientID, "'/fnn train' does random moves and writes highscores to file");
+		pSelf->SendChatTarget(ClientID, "'/fnn play_distance' replays the best distance");
+		pSelf->SendChatTarget(ClientID, "'/fnn play_fitness' replays best distance in best time");
+		pSelf->SendChatTarget(ClientID, "----------------------");
+		return;
+	}
+
+	if (!str_comp_nocase(aCommand, "train"))
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			{
+				pSelf->m_apPlayers[i]->m_dmm25 = 0;
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to training for '%s'", pSelf->Server()->ClientName(i));
+				pSelf->SendChatTarget(ClientID, aBuf);
+			}
+		}
+	}
+	else if (!str_comp_nocase(aCommand, "play_distance"))
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			{
+				pSelf->m_apPlayers[i]->m_dmm25 = 1; //load distance
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance for '%s'", pSelf->Server()->ClientName(i));
+				pSelf->SendChatTarget(ClientID, aBuf);
+			}
+		}
+	}
+	else if (!str_comp_nocase(aCommand, "play_fitness"))
+	{
+		pSelf->SendChatTarget(ClientID, "[FNN] coming soon ...");
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "[FNN] unknown parameter");
+	}
+}
