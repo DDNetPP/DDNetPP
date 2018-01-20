@@ -15,6 +15,8 @@
 #define NUM_TRAILS 20
 #define TRAIL_DIST 20
 
+#define FNN_MOVE_LEN 32768
+
 class CGameTeams;
 
 enum
@@ -369,7 +371,9 @@ public:
 	bool m_Dummy_nn_touched_by_humans;
 	int m_Dummy_nn_ready_time;
 	int m_FNN_CurrentMoveIndex;
-	int m_aRecMove[32768];
+	int m_aRecMove[FNN_MOVE_LEN];
+	int m_FNN_ticks_loaded_run;
+	vec2 m_StartPos;
 
 	//dummymode 104 vars
 	bool m_Dummy104_panic_hook;

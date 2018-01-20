@@ -251,7 +251,6 @@ public:
 	void KillAll();
 	void GiveBlockPoints(int ID, int points);
 	void GiveXp(int id, int value);
-	void SQLPortLogout(int port);
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
@@ -275,6 +274,12 @@ public:
 	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
+
+	//ddpp init
+	float m_FNN_best_fitness;
+	float m_FNN_best_distance;
+	void LoadFNNvalues();
+	void SQLPortLogout(int port);
 
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
@@ -732,6 +737,7 @@ private:
 	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
 	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
 	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
+	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);

@@ -1958,6 +1958,33 @@ void CGameContext::GiveXp(int id, int value)
 	m_apPlayers[id]->m_xp += value;
 }
 
+void CGameContext::LoadFNNvalues()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	std::ifstream readfile;
+	char aFilePath[512];
+	str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+	readfile.open(aFilePath);
+	if (readfile.is_open())
+	{
+		std::string line;
+
+		std::getline(readfile, line); //distance
+		m_FNN_best_distance = atoi(line.c_str());
+
+		std::getline(readfile, line); //fitness
+		m_FNN_best_fitness = atoi(line.c_str());
+	}
+	else
+	{
+		m_FNN_best_distance = 0;
+		m_FNN_best_fitness = -9999;
+		dbg_msg("FNN", "LoadFNNvalues() error failed to load best stats. failed to open '%s'", aFilePath);
+	}
+}
+
 void CGameContext::SQLPortLogout(int port)
 {
 #if defined(CONF_DEBUG)
@@ -7098,24 +7125,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				return;
 				}*/
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "dmm25 ", 6) == 0)
-				{
-					if (Server()->IsAuthed(ClientID))
-					{
-						char pValue[32];
-						str_copy(pValue, pMsg->m_pMessage + 7, 32);
-						dbg_msg("lol", "%s -> '%s'", pMsg->m_pMessage, pValue);
-						int Value = str_toint(pValue);
-
-						m_apPlayers[ClientID]->m_dmm25 = Value;
-
-					}
-					else
-					{
-						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
-					}
-					return;
-				}
 				else if (!str_comp(pMsg->m_pMessage + 1, "_"))
 				{
 					if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)

@@ -1898,12 +1898,14 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready)
+	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
 	{
 		if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
 		{
 			m_Dummy_nn_touched_by_humans = true;
-			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "DONT TOUCH ME WEAPON OMG");
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
+			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 		}
 
 		//return false; //removes hammer knockback
@@ -9719,7 +9721,8 @@ void CCharacter::DummyTick()
 					if (IsGrounded()) //only start on ground because air is unpredictable
 					{
 						m_Dummy_nn_ready = true;
-						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "Found start position -> starting process");
+						m_StartPos = m_Core.m_Pos;
+						dbg_msg("FNN", "Found start position (%.2f/%.2f) -> starting process", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
 					}
 				}
 
@@ -9746,9 +9749,14 @@ void CCharacter::DummyTick()
 
 				new system uses chat command /dmm25 = dummmymodemode25 to choose submodes.
 				submodes:
+				-1					error/offline
+
 				0					write
-				1					read highest fitness
-				2					read highest distance
+				1					read/load highest distance
+				2					play highest distance
+
+				3					read/load highest fitness
+				4					play highest fitness
 
 				*/
 
@@ -9769,12 +9777,18 @@ void CCharacter::DummyTick()
 						m_Dummy_nn_touched_by_humans = true;
 						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] DONT TOUCH ME HOOK WTF");
 					}
+
+					if (Core()->m_HookedPlayer != -1)
+					{
+						str_format(aBuf, sizeof(aBuf), "[FNN] dont get in my hook %s", Server()->ClientName(Core()->m_HookedPlayer));
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+					}
 				}
-				if (m_Core.m_HookState == HOOK_GRABBED)
-				{
-					m_Dummy_nn_touched_by_humans = true;
-					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont get in my hook -.-");
-				}
+				//if (m_Core.m_HookState == HOOK_GRABBED) //this includes normal collision hooks
+				//{
+				//	m_Dummy_nn_touched_by_humans = true;
+				//	GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "[FNN] dont get in my hook -.-");
+				//}
 				//selfmade noob code check if pChr is too near and coudl touched the bot
 				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
 				if (pChr && pChr->IsAlive() && pChr != this)
@@ -9787,8 +9801,19 @@ void CCharacter::DummyTick()
 
 				}
 
+				//always set to black
+				m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
-				if (m_pPlayer->m_dmm25 == 0) //submode[0] write
+				if (m_pPlayer->m_dmm25 == -1) //error
+				{
+					m_Input.m_Hook = 0;
+					m_Input.m_Jump = 0;
+					m_Input.m_Direction = 0;
+					m_LatestInput.m_Fire = 0;
+					m_Input.m_Fire = 0;
+					m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
+				}
+				else if (m_pPlayer->m_dmm25 == 0) //submode[0] write
 				{
 					//m_pPlayer->m_TeeInfos.m_Name = "writing...";
 					//m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
@@ -9865,9 +9890,6 @@ void CCharacter::DummyTick()
 					}
 
 
-
-
-
 					if (m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed)
 					{
 						if (Server()->Tick() % 10 == 0)
@@ -9876,6 +9898,7 @@ void CCharacter::DummyTick()
 						}
 						if (Server()->Tick() % 40 == 0)
 						{
+							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "======================================");
 							if (m_Dummy_nn_touched_by_humans) 
 							{
 								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
@@ -9887,33 +9910,199 @@ void CCharacter::DummyTick()
 							{
 								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
 								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
-								Die(m_pPlayer->GetCID(), WEAPON_SELF);
+								//Die(m_pPlayer->GetCID(), WEAPON_SELF); //moved to the end because we use character variables but im not sure.. maybe it had a sense its here
 
-								//saving run to file
-								std::ofstream savefile;
-								char aFilePath[512];
-								str_format(aFilePath, sizeof(aFilePath), "FNN/move.txt");
-								savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
-								if (savefile.is_open())
+								//prepare data
+								if (m_FNN_CurrentMoveIndex > FNN_MOVE_LEN) //dont overload arraylength
 								{
-									//for (int i = 0; i < 32768; i++)
-									for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+									m_FNN_CurrentMoveIndex = FNN_MOVE_LEN;
+								}
+
+								float newest_distance = distance(m_StartPos, m_Core.m_Pos);
+								float newest_fitness = newest_distance / m_FNN_CurrentMoveIndex;
+								dbg_msg("FNN", "distance=%.2f", newest_distance);
+								dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
+								dbg_msg("FNN", "fitness=%.2f", newest_fitness);
+								
+								if (newest_distance > GameServer()->m_FNN_best_distance)
+								{
+									//saving the distance
+									dbg_msg("FNN","new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, newest_distance);
+									GameServer()->m_FNN_best_distance = newest_distance;
+									std::ofstream statsfile;
+									char aFilePath[512];
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+									statsfile.open(aFilePath);
+									if (statsfile.is_open())
 									{
-										savefile << m_aRecMove[i];
-										savefile << std::endl;
+										statsfile << newest_distance; //distance
+										statsfile << std::endl;
+										statsfile << GameServer()->m_FNN_best_fitness; //fitness
+										statsfile << std::endl;
 									}
+									else
+									{
+										dbg_msg("FNN", "failed to update stats. failed to open file '%s'", aFilePath);
+									}
+									statsfile.close();
+
+									//saving the run
+									std::ofstream savefile;
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.txt");
+									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
+									if (savefile.is_open())
+									{
+										//first tree lines are stats
+										savefile << m_FNN_CurrentMoveIndex; //moveticks
+										savefile << std::endl;
+										savefile << newest_distance; //distance
+										savefile << std::endl;
+										savefile << newest_fitness; //fitness
+										savefile << std::endl;
+
+										//for (int i = 0; i < 32768; i++)
+										for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+										{
+											savefile << m_aRecMove[i];
+											savefile << std::endl;
+										}
+									}
+									else
+									{
+										dbg_msg("FNN", "failed to save record. failed to open file '%s'", aFilePath);
+									}
+									savefile.close();
 								}
-								else
+
+
+								if (newest_fitness > GameServer()->m_FNN_best_fitness)
 								{
-									dbg_msg("FNN","failed to save record. failed to open file '%s'", aFilePath);
+									//saving the fitness
+									dbg_msg("FNN", "new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
+									GameServer()->m_FNN_best_fitness = newest_fitness;
+									std::ofstream statsfile;
+									char aFilePath[512];
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.txt");
+									statsfile.open(aFilePath);
+									if (statsfile.is_open())
+									{
+										statsfile << GameServer()->m_FNN_best_distance; //distance
+										statsfile << std::endl;
+										statsfile << newest_fitness; //fitness
+										statsfile << std::endl;
+									}
+									else
+									{
+										dbg_msg("FNN", "failed to update stats. failed to open file '%s'", aFilePath);
+									}
+									statsfile.close();
+
+									//saving the run
+									std::ofstream savefile;
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_fitness.txt");
+									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
+									if (savefile.is_open())
+									{
+										//first tree lines are stats
+										savefile << m_FNN_CurrentMoveIndex; //moveticks
+										savefile << std::endl;
+										savefile << newest_distance; //distance
+										savefile << std::endl;
+										savefile << newest_fitness; //fitness
+										savefile << std::endl;
+
+										//for (int i = 0; i < 32768; i++)
+										for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+										{
+											savefile << m_aRecMove[i];
+											savefile << std::endl;
+										}
+									}
+									else
+									{
+										dbg_msg("FNN", "failed to save record. failed to open file '%s'", aFilePath);
+									}
+									savefile.close();
 								}
-								savefile.close();
 								m_FNN_CurrentMoveIndex = 0;
+								Die(m_pPlayer->GetCID(), WEAPON_SELF);
 							}
+							GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", "======================================");
 						}
 					}
 				}
-				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read
+				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read/load distance
+				{
+					//reset values
+					m_FNN_CurrentMoveIndex = 0;
+					float loaded_distance = 0;
+					float loaded_fitness = 0;
+
+					//load run
+					std::ifstream readfile;
+					char aFilePath[512];
+					str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.txt");
+					readfile.open(aFilePath);
+					if (readfile.is_open())
+					{
+						std::string line;
+						int i = 0;
+
+						//first tree lines are stats:
+
+						std::getline(readfile, line); //moveticks
+						m_FNN_ticks_loaded_run = atoi(line.c_str());
+
+						std::getline(readfile, line); //distance
+						loaded_distance = atoi(line.c_str());
+
+						std::getline(readfile, line); //fitness
+						loaded_fitness = atoi(line.c_str());
+
+						while (std::getline(readfile, line))
+						{
+							m_aRecMove[i] = atoi(line.c_str());
+							i++;
+						}
+					}
+					else
+					{
+						dbg_msg("FNN", "failed to load move. failed to open '%s'", aFilePath);
+						m_pPlayer->m_dmm25 = -1;
+					}
+
+					//start run
+					m_pPlayer->m_dmm25 = 2;
+					str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f", m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness);
+					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+				}
+				else if (m_pPlayer->m_dmm25 == 2) //submode[2] play distance
+				{
+					m_Input.m_Direction = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_Input.m_Jump = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_Input.m_Hook = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_Input.m_TargetX = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_Input.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_LatestInput.m_TargetX = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+					m_LatestInput.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
+					m_FNN_CurrentMoveIndex++;
+
+					if (m_FNN_CurrentMoveIndex > 32768)
+					{
+						m_pPlayer->m_dmm25 = -1; //stop bot
+					}
+				}
+				else if (m_pPlayer->m_dmm25 == 3) //submode[3] read/load fitness
+				{
+
+				}
+				else if (m_pPlayer->m_dmm25 == 4) //submode[4] play fitness
 				{
 
 				}
