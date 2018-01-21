@@ -14446,6 +14446,84 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == 105) //blmapV5 upper blocker
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+			m_Input.m_TargetX = 45;
+			m_Input.m_TargetY = 45;
+			m_LatestInput.m_TargetX = 45;
+			m_LatestInput.m_TargetY = 45;
+			int bot_x = m_Core.m_Pos.x + g_Config.m_SvDummyMapOffsetX * 32;
+
+			if (m_Core.m_Pos.y > 38 * 32) //too low
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			}
+
+			if (bot_x > 16 * 32 && m_Core.m_Pos.y < 27 * 32) //lovley wayblock spot
+			{
+			}
+			else //not at lovley wayblock spot
+			{
+				if (Server()->Tick() % 420 == 0)
+				{
+					if (m_FreezeTime && IsGrounded()) //stuck ?
+					{
+						Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					}
+				}
+
+
+				if (m_Dummy105_move_left)
+				{
+					m_Input.m_Direction = -1;
+
+					//failed?
+					if (bot_x < 22 * 32)
+					{
+						m_Dummy105_move_left = false;
+					}
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+
+					if (bot_x > 10 * 32 && bot_x < 17 * 32) //jump in tunnel
+					{
+						m_Input.m_Jump = 1;
+						if (Server()->Tick() % 20 == 0)
+						{
+							SetWeapon(3);
+						}
+					}
+
+					if (bot_x > 28 * 32 && IsGrounded())
+					{
+						m_Input.m_Jump = 1;
+					}
+
+					if (m_Core.m_Pos.y < 31 * 32 - 10) //dont touch the roof
+					{
+						m_Input.m_Hook = 1;
+					}
+					if (bot_x > 35 * 32 && m_Core.m_Vel.x == 0.000000f) //hit the rocketjump wall
+					{
+						m_Input.m_Jump = 1;
+						
+						if (m_Core.m_Vel.y < -1.1f && m_FreezeTime == 0)
+						{
+							m_Input.m_Fire++;
+							m_LatestInput.m_Fire++;
+							m_Dummy105_move_left = true;
+						}
+					}
+				}
+			}
+		}
 		else // dummymode == end dummymode == last
 		{
 			m_pPlayer->m_DummyMode = 0;

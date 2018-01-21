@@ -376,6 +376,9 @@ public:
 	int m_FNN_ticks_loaded_run;
 	vec2 m_StartPos;
 
+	//dummymode 105 vars
+	bool m_Dummy105_move_left;
+
 	//dummymode 104 vars
 	bool m_Dummy104_panic_hook;
 	int m_Dummy104_angry;
