@@ -255,7 +255,6 @@ public:
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
 	bool IsSameIP(int ID_1, int ID_2);
-	vec2 GetFinishTile();
 	void JoinInstagib(int weapon, bool fng, int ID);
 	void ShowInstaStats(int requestID, int requestedID);
 	void LeaveInstagib(int ID);
@@ -276,9 +275,15 @@ public:
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
 
+	//FNN
+	void FNN_LoadRun(const char * path, int botID);
+	vec2 m_FinishTilePos;
+	vec2 GetFinishTile();
+
 	//ddpp init
-	float m_FNN_best_fitness;
 	float m_FNN_best_distance;
+	float m_FNN_best_fitness;
+	float m_FNN_best_distance_finish;
 	void LoadFNNvalues();
 	void SQLPortLogout(int port);
 

@@ -9889,6 +9889,8 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/fnn train' does random moves and writes highscores to file");
 		pSelf->SendChatTarget(ClientID, "'/fnn play_distance' replays the best distance");
 		pSelf->SendChatTarget(ClientID, "'/fnn play_fitness' replays best distance in best time");
+		pSelf->SendChatTarget(ClientID, "'/fnn play_distance_finish' replays best distance to finish");
+		pSelf->SendChatTarget(ClientID, "'/fnn stats' prints current highscores");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		return;
 	}
@@ -9904,6 +9906,9 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(ClientID, aBuf);
 			}
 		}
+		pSelf->m_FinishTilePos = pSelf->GetFinishTile();
+		str_format(aBuf, sizeof(aBuf), "[FNN] found finish tile at (%.2f/%.2f)", pSelf->m_FinishTilePos.x, pSelf->m_FinishTilePos.y);
+		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCommand, "play_distance"))
 	{
@@ -9914,12 +9919,54 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 				pSelf->m_apPlayers[i]->m_dmm25 = 1; //load distance
 				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance for '%s'", pSelf->Server()->ClientName(i));
 				pSelf->SendChatTarget(ClientID, aBuf);
+				if (pSelf->m_apPlayers[i]->GetCharacter())
+				{
+					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+				}
 			}
 		}
 	}
 	else if (!str_comp_nocase(aCommand, "play_fitness"))
 	{
-		pSelf->SendChatTarget(ClientID, "[FNN] coming soon ...");
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			{
+				pSelf->m_apPlayers[i]->m_dmm25 = 2; //load fitness
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best fitness for '%s'", pSelf->Server()->ClientName(i));
+				pSelf->SendChatTarget(ClientID, aBuf);
+				if (pSelf->m_apPlayers[i]->GetCharacter())
+				{
+					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+				}
+			}
+		}
+	}
+	else if (!str_comp_nocase(aCommand, "play_distance_finish"))
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			{
+				pSelf->m_apPlayers[i]->m_dmm25 = 3; //load distance_finish
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance_finish for '%s'", pSelf->Server()->ClientName(i));
+				pSelf->SendChatTarget(ClientID, aBuf);
+				if (pSelf->m_apPlayers[i]->GetCharacter())
+				{
+					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+				}
+			}
+		}
+	}
+	else if (!str_comp_nocase(aCommand, "stats"))
+	{
+		pSelf->SendChatTarget(ClientID, "========== FNN Stats ==========");
+		str_format(aBuf, sizeof(aBuf), "distance=%.2f", pSelf->m_FNN_best_distance);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "fitness=%.2f", pSelf->m_FNN_best_fitness);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "distance_finish=%.2f", pSelf->m_FNN_best_distance_finish);
+		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else
 	{

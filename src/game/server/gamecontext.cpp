@@ -1734,7 +1734,11 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 	CALL_STACK_ADD();
 #endif
 	CPlayer *pPlayer = m_apPlayers[playerID];
+	if (!pPlayer)
+		return 0;
 	CCharacter *pChr = GetPlayerChar(playerID);
+	if (!pChr)
+		return 0;
 
 	if (pPlayer)
 	{
@@ -1976,11 +1980,15 @@ void CGameContext::LoadFNNvalues()
 
 		std::getline(readfile, line); //fitness
 		m_FNN_best_fitness = atoi(line.c_str());
+
+		std::getline(readfile, line); //distance_finish
+		m_FNN_best_distance_finish = atoi(line.c_str());
 	}
 	else
 	{
 		m_FNN_best_distance = 0;
 		m_FNN_best_fitness = -9999;
+		m_FNN_best_distance_finish = 9999999;
 		dbg_msg("FNN", "LoadFNNvalues() error failed to load best stats. failed to open '%s'", aFilePath);
 	}
 }
@@ -2152,6 +2160,73 @@ bool CGameContext::IsSameIP(int ID_1, int ID_2)
 	return false;
 }
 
+void CGameContext::FNN_LoadRun(const char * path, int botID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[botID];
+	if (!pPlayer)
+	{
+		dbg_msg("FNN","failed to load run player with id=%d doesn't exist", botID);
+		return;
+	}
+	CCharacter *pChr = GetPlayerChar(botID);
+	if (!pChr)
+	{
+		dbg_msg("FNN", "failed to load run character with id=%d, name=%s doesn't exist", botID, Server()->ClientName(botID));
+		return;
+	}
+
+	//reset values
+	pChr->m_FNN_CurrentMoveIndex = 0;
+	float loaded_distance = 0;
+	float loaded_fitness = 0;
+	float loaded_distance_finish = 0;
+	char aBuf[128];
+
+	//load run
+	std::ifstream readfile;
+	char aFilePath[512];
+	str_format(aFilePath, sizeof(aFilePath), path);
+	readfile.open(aFilePath);
+	if (readfile.is_open())
+	{
+		std::string line;
+		int i = 0;
+
+		//first four lines are stats:
+
+		std::getline(readfile, line); //moveticks
+		pChr->m_FNN_ticks_loaded_run = atoi(line.c_str());
+
+		std::getline(readfile, line); //distance
+		loaded_distance = atoi(line.c_str());
+
+		std::getline(readfile, line); //fitness
+		loaded_fitness = atoi(line.c_str());
+
+		std::getline(readfile, line); //distance_finish
+		loaded_distance_finish = atoi(line.c_str());
+
+		while (std::getline(readfile, line))
+		{
+			pChr->m_aRecMove[i] = atoi(line.c_str());
+			i++;
+		}
+	}
+	else
+	{
+		dbg_msg("FNN", "failed to load move. failed to open '%s'", aFilePath);
+		pPlayer->m_dmm25 = -1;
+	}
+
+	//start run
+	pPlayer->m_dmm25 = 4; //replay submode
+	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pChr->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
+	SendChat(botID, CGameContext::CHAT_ALL, aBuf);
+}
+
 vec2 CGameContext::GetFinishTile()
 {
 #if defined(CONF_DEBUG)
@@ -2209,11 +2284,13 @@ vec2 CGameContext::GetFinishTile()
 	{
 		if (Collision()->GetTileIndex(i) == TILE_END || Collision()->GetFTileIndex(i) == TILE_END)
 		{
+			/*
 			dbg_msg("tile-finder", "found finish tile at index=%d", i);
 			dbg_msg("tile-finder", "height: %d", Height);
 			dbg_msg("tile-finder", "width: %d", Width);
 			dbg_msg("tile-finder", "x: %d", i % Width);
 			dbg_msg("tile-finder", "y: %d", int(i / Width));
+			*/
 			return vec2(i % Width, int(i / Width));
 		}
 	}

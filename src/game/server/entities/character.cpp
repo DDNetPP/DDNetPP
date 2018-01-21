@@ -9753,10 +9753,10 @@ void CCharacter::DummyTick()
 
 				0					write
 				1					read/load highest distance
-				2					play highest distance
+				2					read/load highest fitness
+				3					read/load lowest distance_finish
 
-				3					read/load highest fitness
-				4					play highest fitness
+				4					play loaded run
 
 				*/
 
@@ -9920,10 +9920,21 @@ void CCharacter::DummyTick()
 
 								float newest_distance = distance(m_StartPos, m_Core.m_Pos);
 								float newest_fitness = newest_distance / m_FNN_CurrentMoveIndex;
+								float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
 								dbg_msg("FNN", "distance=%.2f", newest_distance);
 								dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
 								dbg_msg("FNN", "fitness=%.2f", newest_fitness);
+								dbg_msg("FNN", "distance_finish=%.2f", newest_distance_finish);
 								
+
+								/***************************************
+								*                                      *
+								*                                      *
+								*         D I S T A N C E              *
+								*                                      *
+								*                                      *
+								****************************************/
+
 								if (newest_distance > GameServer()->m_FNN_best_distance)
 								{
 									//saving the distance
@@ -9939,6 +9950,8 @@ void CCharacter::DummyTick()
 										statsfile << std::endl;
 										statsfile << GameServer()->m_FNN_best_fitness; //fitness
 										statsfile << std::endl;
+										statsfile << GameServer()->m_FNN_best_distance_finish; //distance_finish
+										statsfile << std::endl;
 									}
 									else
 									{
@@ -9952,15 +9965,16 @@ void CCharacter::DummyTick()
 									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
 									if (savefile.is_open())
 									{
-										//first tree lines are stats
+										//first four lines are stats
 										savefile << m_FNN_CurrentMoveIndex; //moveticks
 										savefile << std::endl;
 										savefile << newest_distance; //distance
 										savefile << std::endl;
 										savefile << newest_fitness; //fitness
 										savefile << std::endl;
+										savefile << newest_distance_finish; //distance_finish
+										savefile << std::endl;
 
-										//for (int i = 0; i < 32768; i++)
 										for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
 										{
 											savefile << m_aRecMove[i];
@@ -9973,7 +9987,14 @@ void CCharacter::DummyTick()
 									}
 									savefile.close();
 								}
-
+								
+								/***************************************
+								*                                      *
+								*                                      *
+								*         F I T T N E S S              *
+								*                                      *
+								*                                      *
+								****************************************/
 
 								if (newest_fitness > GameServer()->m_FNN_best_fitness)
 								{
@@ -9990,6 +10011,8 @@ void CCharacter::DummyTick()
 										statsfile << std::endl;
 										statsfile << newest_fitness; //fitness
 										statsfile << std::endl;
+										statsfile << GameServer()->m_FNN_best_distance_finish; //distance_finish
+										statsfile << std::endl;
 									}
 									else
 									{
@@ -10000,18 +10023,19 @@ void CCharacter::DummyTick()
 									//saving the run
 									std::ofstream savefile;
 									str_format(aFilePath, sizeof(aFilePath), "FNN/move_fitness.fnn");
-									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
+									savefile.open(aFilePath);
 									if (savefile.is_open())
 									{
-										//first tree lines are stats
+										//first four lines are stats
 										savefile << m_FNN_CurrentMoveIndex; //moveticks
 										savefile << std::endl;
 										savefile << newest_distance; //distance
 										savefile << std::endl;
 										savefile << newest_fitness; //fitness
 										savefile << std::endl;
+										savefile << newest_distance_finish; //distance_finish
+										savefile << std::endl;
 
-										//for (int i = 0; i < 32768; i++)
 										for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
 										{
 											savefile << m_aRecMove[i];
@@ -10024,6 +10048,68 @@ void CCharacter::DummyTick()
 									}
 									savefile.close();
 								}
+
+								/***************************************
+								*                                      *
+								*                                      *
+								*         D I S T A N C E              *
+								*         F I N I S H                  *
+								*                                      *
+								****************************************/
+
+								if (newest_distance_finish < GameServer()->m_FNN_best_distance_finish)
+								{
+									//saving the distance_finish
+									dbg_msg("FNN", "new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
+									GameServer()->m_FNN_best_distance_finish = newest_distance_finish;
+									std::ofstream statsfile;
+									char aFilePath[512];
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
+									statsfile.open(aFilePath);
+									if (statsfile.is_open())
+									{
+										statsfile << GameServer()->m_FNN_best_distance; //distance
+										statsfile << std::endl;
+										statsfile << GameServer()->m_FNN_best_fitness; //fitness
+										statsfile << std::endl;
+										statsfile << newest_distance_finish; //distance_finish
+										statsfile << std::endl;
+									}
+									else
+									{
+										dbg_msg("FNN", "failed to update stats. failed to open file '%s'", aFilePath);
+									}
+									statsfile.close();
+
+									//saving the run
+									std::ofstream savefile;
+									str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance_finish.fnn");
+									savefile.open(aFilePath);
+									if (savefile.is_open())
+									{
+										//first four lines are stats
+										savefile << m_FNN_CurrentMoveIndex; //moveticks
+										savefile << std::endl;
+										savefile << newest_distance; //distance
+										savefile << std::endl;
+										savefile << newest_fitness; //fitness
+										savefile << std::endl;
+										savefile << newest_distance_finish; //distance_finish
+										savefile << std::endl;
+
+										for (int i = 0; i < m_FNN_CurrentMoveIndex; i++)
+										{
+											savefile << m_aRecMove[i];
+											savefile << std::endl;
+										}
+									}
+									else
+									{
+										dbg_msg("FNN", "failed to save record. failed to open file '%s'", aFilePath);
+									}
+									savefile.close();
+								}
+
 								m_FNN_CurrentMoveIndex = 0;
 								Die(m_pPlayer->GetCID(), WEAPON_SELF);
 							}
@@ -10033,6 +10119,7 @@ void CCharacter::DummyTick()
 				}
 				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read/load distance
 				{
+					/*
 					//reset values
 					m_FNN_CurrentMoveIndex = 0;
 					float loaded_distance = 0;
@@ -10075,8 +10162,18 @@ void CCharacter::DummyTick()
 					m_pPlayer->m_dmm25 = 2;
 					str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f", m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness);
 					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+					*/
+					GameServer()->FNN_LoadRun("FNN/move_distance.fnn", m_pPlayer->GetCID());
 				}
-				else if (m_pPlayer->m_dmm25 == 2) //submode[2] play distance
+				else if (m_pPlayer->m_dmm25 == 2) //submode[2] read/load fitness
+				{
+					GameServer()->FNN_LoadRun("FNN/move_fitness.fnn", m_pPlayer->GetCID());
+				}
+				else if (m_pPlayer->m_dmm25 == 3) //submode[3] read/load lowest distance_finish
+				{
+					GameServer()->FNN_LoadRun("FNN/move_distance_finish.fnn", m_pPlayer->GetCID());
+				}
+				else if (m_pPlayer->m_dmm25 == 4) //submode[4] play loaded run
 				{
 					m_Input.m_Direction = m_aRecMove[m_FNN_CurrentMoveIndex];
 					m_FNN_CurrentMoveIndex++;
@@ -10093,7 +10190,7 @@ void CCharacter::DummyTick()
 					m_LatestInput.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
 					m_FNN_CurrentMoveIndex++;
 
-					if (m_FNN_CurrentMoveIndex > 32768)
+					if (m_FNN_CurrentMoveIndex > m_FNN_ticks_loaded_run)
 					{
 						m_pPlayer->m_dmm25 = -1; //stop bot
 					}
