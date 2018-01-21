@@ -14184,6 +14184,8 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Hook = 0;
 			m_Input.m_Direction = 0;
+			int offset_x = g_Config.m_SvDummyMapOffsetX * 32;
+			//dbg_msg("debug","cfg=%d cfg*32=%d offset=%d mcore=%d offset+mcore=%d", g_Config.m_SvDummyMapOffsetX, g_Config.m_SvDummyMapOffsetX * 32, offset_x, m_Core.m_Pos.x, offset_x + m_Core.m_Pos.x);
 
 			if (Server()->Tick() % 5000 == 0 && isFreezed)
 			{
@@ -14192,21 +14194,22 @@ void CCharacter::DummyTick()
 
 			if (m_Core.m_Pos.y < 38 * 32) //spawn
 			{
-				if (m_Core.m_Pos.x < 13 * 32 + 10)
+				if (m_Core.m_Pos.x + offset_x < 13 * 32 + 10)
 				{
 					m_Input.m_Direction = 1;
 				}
-				else if (m_Core.m_Pos.x > 14 * 32 + 16)
+				else if (m_Core.m_Pos.x + offset_x > 14 * 32 + 16)
 				{
 					m_Input.m_Direction = -1;
+					//dbg_msg("debug", "walking lefte because %d > %d", offset_x + m_Core.m_Pos.x, 14 * 32 + 16);
 				}
 				else
 				{
-					if (m_Core.m_Pos.x > 1.2f)
+					if (m_Core.m_Pos.x + offset_x > 1.2f)
 					{
 						m_Input.m_Direction = -1;
 					}
-					else if (m_Core.m_Pos.x < -1.2f)
+					else if (m_Core.m_Pos.x + offset_x < -1.2f)
 					{
 						m_Input.m_Direction = 1;
 					}
@@ -14214,11 +14217,11 @@ void CCharacter::DummyTick()
 			}
 			else if (m_Core.m_Pos.y < 46 * 32) //block area 1
 			{
-				if (IsGrounded() || m_Core.m_Pos.x > 14 * 32 + 10)
+				if (IsGrounded() || m_Core.m_Pos.x + offset_x > 14 * 32 + 10)
 				{
 					m_Input.m_Direction = -1;
 				}
-				if (m_Core.m_Pos.x < 14 * 32 + 5 && m_Core.m_Pos.y < 40 * 32 + 30)
+				if (m_Core.m_Pos.x + offset_x < 14 * 32 + 5 && m_Core.m_Pos.y < 40 * 32 + 30)
 				{
 					m_Input.m_Direction = 1;
 				}
@@ -14249,7 +14252,7 @@ void CCharacter::DummyTick()
 			}
 			else if (m_Core.m_Pos.y < 74 * 32) //block area 3
 			{
-				if (m_Core.m_Pos.x > 16 * 32)
+				if (m_Core.m_Pos.x + offset_x > 16 * 32)
 				{
 					m_Input.m_Direction = -1;
 					m_Input.m_TargetX = 100;
@@ -14275,7 +14278,7 @@ void CCharacter::DummyTick()
 				m_LatestInput.m_TargetX = -200;
 				m_LatestInput.m_TargetY = 90;
 
-				if (IsGrounded() && m_Core.m_Pos.x > 23 * 32)
+				if (IsGrounded() && m_Core.m_Pos.x + offset_x > 23 * 32)
 				{
 					m_Input.m_Jump = 1;
 				}
@@ -14285,7 +14288,7 @@ void CCharacter::DummyTick()
 					m_LatestInput.m_Fire++;
 				}
 
-				if (m_Core.m_Pos.x > 22 * 32 && m_Core.m_Vel.x < 7.1f)
+				if (m_Core.m_Pos.x + offset_x > 22 * 32 && m_Core.m_Vel.x < 7.1f)
 				{
 					m_Dummy104_rj_failed = true;
 				}
@@ -14293,7 +14296,7 @@ void CCharacter::DummyTick()
 				if (m_Dummy104_rj_failed)
 				{
 					m_Input.m_Direction = -1;
-					if (m_Core.m_Pos.x < 18 * 32)
+					if (m_Core.m_Pos.x + offset_x < 18 * 32)
 					{
 						m_Dummy104_rj_failed = false;
 					}
@@ -14302,10 +14305,10 @@ void CCharacter::DummyTick()
 			else //block area 5
 			{
 
-				if (m_Core.m_Pos.x > 15 * 32 && m_Core.m_Pos.x < 22 * 32) //never stay still over the middle freeze
+				if (m_Core.m_Pos.x + offset_x > 15 * 32 && m_Core.m_Pos.x + offset_x < 22 * 32) //never stay still over the middle freeze
 				{
 					m_Dummy104_panic_hook = true;
-					if (m_Core.m_Pos.x > 19 * 32)
+					if (m_Core.m_Pos.x + offset_x > 19 * 32)
 					{
 						m_Input.m_Direction = 1;
 					}
@@ -14341,14 +14344,14 @@ void CCharacter::DummyTick()
 
 					if (m_Dummy104_angry)
 					{
-						if (pChr->m_Core.m_Pos.x - 60 > m_Core.m_Pos.x)
+						if (pChr->m_Core.m_Pos.x + offset_x - 60 > m_Core.m_Pos.x + offset_x)
 						{
 							m_Input.m_Direction = 1;
 						}
-						else if (pChr->m_Core.m_Pos.x - 40 < m_Core.m_Pos.x)
+						else if (pChr->m_Core.m_Pos.x + offset_x - 40 < m_Core.m_Pos.x + offset_x)
 						{
 							m_Input.m_Direction = -1;
-							//dbg_msg("dummy", "walk left to get better enemy positioning enemypos=%f", pChr->m_Core.m_Pos.x);
+							//dbg_msg("dummy", "walk left to get better enemy positioning enemypos=%f", pChr->m_Core.m_Pos.x + offset_x);
 						}
 						else //near enough to hammer
 						{
@@ -14409,7 +14412,7 @@ void CCharacter::DummyTick()
 					}
 				}
 
-				if (m_Core.m_Pos.x < 5 * 32) //lower left freeze
+				if (m_Core.m_Pos.x + offset_x < 5 * 32) //lower left freeze
 				{
 					m_Input.m_Direction = 1;
 				}
@@ -14437,7 +14440,7 @@ void CCharacter::DummyTick()
 				}
 
 				//dont enter the freeze exit on the right side
-				if (m_Core.m_Pos.x > 34 * 32 && m_Core.m_Pos.y < 91 * 32 && m_Core.m_Vel.x > 0.0f)
+				if (m_Core.m_Pos.x + offset_x > 34 * 32 && m_Core.m_Pos.y < 91 * 32 && m_Core.m_Vel.x > 0.0f)
 				{
 					m_Input.m_Direction = -1;
 				}
