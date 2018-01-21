@@ -9892,7 +9892,10 @@ void CCharacter::DummyTick()
 					if (m_FNN_CurrentMoveIndex > FNN_MOVE_LEN - 12) //minus inputs because every tick the index gets incremented by 5
 					{
 						float newest_distance = distance(m_StartPos, m_Core.m_Pos);
-						float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+						vec2 current_pos(0,0);
+						current_pos.x = m_Core.m_Pos.x / 32;
+						current_pos.y = m_Core.m_Pos.y / 32;
+						float newest_distance_finish = distance(current_pos, GameServer()->m_FinishTilePos);
 						float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
 						str_format(aBuf, sizeof(aBuf), "[FNN] ran out of memory ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, newest_distance, newest_fitness, newest_distance_finish);
 						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
@@ -9939,7 +9942,10 @@ void CCharacter::DummyTick()
 								}
 
 								float newest_distance = distance(m_StartPos, m_Core.m_Pos);
-								float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+								vec2 current_pos(0, 0);
+								current_pos.x = m_Core.m_Pos.x / 32;
+								current_pos.y = m_Core.m_Pos.y / 32;
+								float newest_distance_finish = distance(current_pos, GameServer()->m_FinishTilePos);
 								float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
 								dbg_msg("FNN", "distance=%.2f", newest_distance);
 								dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
@@ -10214,7 +10220,10 @@ void CCharacter::DummyTick()
 					{
 						m_pPlayer->m_dmm25 = -1; //stop bot
 						float newest_distance = distance(m_StartPos, m_Core.m_Pos);
-						float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+						vec2 current_pos(0, 0);
+						current_pos.x = m_Core.m_Pos.x / 32;
+						current_pos.y = m_Core.m_Pos.y / 32;
+						float newest_distance_finish = distance(current_pos, GameServer()->m_FinishTilePos);
 						float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
 						dbg_msg("FNN", "distance=%.2f", newest_distance);
 						dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
