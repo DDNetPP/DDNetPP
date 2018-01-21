@@ -1986,8 +1986,8 @@ void CGameContext::LoadFNNvalues()
 	}
 	else
 	{
-		m_FNN_best_distance = 0;
-		m_FNN_best_fitness = -9999;
+		m_FNN_best_distance = -9999999;
+		m_FNN_best_fitness = -9999999;
 		m_FNN_best_distance_finish = 9999999;
 		dbg_msg("FNN", "LoadFNNvalues() error failed to load best stats. failed to open '%s'", aFilePath);
 	}
@@ -6305,7 +6305,23 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					char aBuf[256];
 					vec2 vec_finish = GetFinishTile();
-					str_format(aBuf, sizeof(aBuf), "finish at %.2f/%.2f", vec_finish.x, vec_finish.y);
+					vec2 your_pos(0,0);
+					float newest_distance_finish = 4.20;
+					if (pPlayer->GetCharacter())
+					{
+						your_pos.x = pPlayer->GetCharacter()->GetPosition().x / 32;
+						your_pos.y = pPlayer->GetCharacter()->GetPosition().y / 32;
+						newest_distance_finish = distance(your_pos, m_FinishTilePos);
+					}
+					str_format(aBuf, sizeof(aBuf), "finish at (%.2f/%.2f) your position (%.2f/%.2f)  distance to finish: %.2f", vec_finish.x, vec_finish.y, your_pos.x, your_pos.y, newest_distance_finish);
+					SendChatTarget(ClientID, aBuf);
+
+
+					vec2 vector1(10, 10);
+					vec2 vector2(200, 20);
+					float vv_distance = distance(vector1, vector2);
+
+					str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
 					SendChatTarget(ClientID, aBuf);
 
 					if (g_Config.m_SvTestingCommands)
