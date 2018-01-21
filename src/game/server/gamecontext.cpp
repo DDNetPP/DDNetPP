@@ -4927,6 +4927,11 @@ void CGameContext::CreateBasicDummys()
 	{
 		CreateNewDummy(104);//lower blocker
 	}
+	else if (!str_comp(g_Config.m_SvMap, "blmapV5_ddpp"))
+	{
+		CreateNewDummy(104);//lower blocker
+		g_Config.m_SvDummyMapOffsetX = -226;
+	}
 	else
 	{
 		CreateNewDummy(0); //dummy
