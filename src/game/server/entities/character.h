@@ -369,6 +369,7 @@ public:
 	//dummymode 25 FNN vars
 	bool m_Dummy_nn_ready;
 	bool m_Dummy_nn_touched_by_humans;
+	bool m_Dummy_nn_stop;
 	int m_Dummy_nn_ready_time;
 	int m_FNN_CurrentMoveIndex;
 	int m_aRecMove[FNN_MOVE_LEN];

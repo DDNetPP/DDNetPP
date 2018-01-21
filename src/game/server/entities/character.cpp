@@ -9819,7 +9819,7 @@ void CCharacter::DummyTick()
 					//m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
 
 
-					m_pPlayer->m_Dummy_nn_time++;
+					//m_pPlayer->m_Dummy_nn_time++; //maybe use it some day to analys each tick stuff or total trainign time idk
 
 					int rand_Direction = rand() % 3 - 1; //-1 0 1
 					int rand_Fire = rand() % 2; // 1 0
@@ -9889,8 +9889,28 @@ void CCharacter::DummyTick()
 						m_LatestInput.m_Fire++;
 					}
 
+					if (m_FNN_CurrentMoveIndex > FNN_MOVE_LEN - 12) //minus inputs because every tick the index gets incremented by 5
+					{
+						float newest_distance = distance(m_StartPos, m_Core.m_Pos);
+						float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+						float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
+						str_format(aBuf, sizeof(aBuf), "[FNN] ran out of memory ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, newest_distance, newest_fitness, newest_distance_finish);
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+						//Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						m_Dummy_nn_stop = true;
+					}
 
-					if (m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed)
+					if (g_Config.m_SvFNNtimeout && !m_Dummy_nn_stop)
+					{
+						if (m_FNN_CurrentMoveIndex > g_Config.m_SvFNNtimeout)
+						{
+							str_format(aBuf, sizeof(aBuf), "[FNN] timeouted after ticks=%d", m_FNN_CurrentMoveIndex);
+							GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+							m_Dummy_nn_stop = true;
+						}
+					}
+
+					if ((m_Core.m_Vel.y == 0.000000f && m_Core.m_Vel.x < 0.01f && m_Core.m_Vel.x > -0.01f && isFreezed) || m_Dummy_nn_stop)
 					{
 						if (Server()->Tick() % 10 == 0)
 						{
@@ -9919,8 +9939,8 @@ void CCharacter::DummyTick()
 								}
 
 								float newest_distance = distance(m_StartPos, m_Core.m_Pos);
-								float newest_fitness = newest_distance / m_FNN_CurrentMoveIndex;
 								float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+								float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
 								dbg_msg("FNN", "distance=%.2f", newest_distance);
 								dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
 								dbg_msg("FNN", "fitness=%.2f", newest_fitness);
@@ -10193,6 +10213,15 @@ void CCharacter::DummyTick()
 					if (m_FNN_CurrentMoveIndex > m_FNN_ticks_loaded_run)
 					{
 						m_pPlayer->m_dmm25 = -1; //stop bot
+						float newest_distance = distance(m_StartPos, m_Core.m_Pos);
+						float newest_distance_finish = distance(m_Core.m_Pos, GameServer()->m_FinishTilePos);
+						float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
+						dbg_msg("FNN", "distance=%.2f", newest_distance);
+						dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
+						dbg_msg("FNN", "fitness=%.2f", newest_fitness);
+						dbg_msg("FNN", "distance_finish=%.2f", newest_distance_finish);
+						str_format(aBuf, sizeof(aBuf), "[FNN] finished replay ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, newest_distance, newest_fitness, newest_distance_finish);
+						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 					}
 				}
 				else if (m_pPlayer->m_dmm25 == 3) //submode[3] read/load fitness
