@@ -399,6 +399,11 @@ public:
 	int m_Dummy_dmm31;
 	int m_Dummy_AttackMode;
 
+	//dummymode 32 (Blampchill police racer)
+	int m_DummyGrenadeJump;
+	bool m_DummyTouchedGround;
+	bool m_DummyAlreadyBeenHere;
+	bool m_DummyStartGrenade;
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 	int m_DummyFreezeBlockTrick;
