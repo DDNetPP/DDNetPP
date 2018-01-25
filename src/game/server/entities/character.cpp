@@ -10746,20 +10746,6 @@ void CCharacter::DummyTick()
 					}
 				}
 			}
-			if (m_Core.m_Pos.x > 290 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y > 415 * 32 && m_Core.m_Pos.y < 450 * 32)
-			{
-				if (isFreezed) // kills when in freeze in policebase or left of it (takes longer that he kills bcs the way is so long he wait a bit longer for help)
-				{
-					if (Server()->Tick() % 60 == 0)
-					{
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
-					}
-					if (Server()->Tick() % 3000 == 0) // kill when freeze
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					}
-				}
-			}
 			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 363 * 32) // walking right again to get into the tunnel at the bottom
 			{
 				m_Input.m_Direction = 1;
@@ -10771,11 +10757,11 @@ void CCharacter::DummyTick()
 			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 382 * 32 && m_Core.m_Pos.x > 363 * 32)
 			{
 				m_Input.m_Direction = 1;
-				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32)
+				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32 && IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
-				if (m_Core.m_Pos.y > 431.9 * 32)
+				if (m_Core.m_Pos.y > 433.7 * 32)
 				{
 					m_Input.m_Jump = 1;
 				}
@@ -14807,11 +14793,11 @@ void CCharacter::DummyTick()
 			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 382 * 32 && m_Core.m_Pos.x > 363 * 32)
 			{
 				m_Input.m_Direction = 1;
-				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32)
+				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32 && IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
-				if (m_Core.m_Pos.y > 431.9 * 32)
+				if (m_Core.m_Pos.y > 433.7 * 32)
 				{
 					m_Input.m_Jump = 1;
 				}
