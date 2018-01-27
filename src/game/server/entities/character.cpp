@@ -10412,7 +10412,7 @@ void CCharacter::DummyTick()
 					m_Input.m_Jump = 1;
 				}
 			}
-			else if (m_Core.m_Pos.x > 382 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 27
+			else if (m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 27
 			{
 				//detect lower panic (accedentally fall into the lower police base 
 				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
@@ -10621,7 +10621,7 @@ void CCharacter::DummyTick()
 						{
 							m_Input.m_Direction = 1;
 						}
-						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32)
+						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32 && m_Core.m_Pos.x > 384 * 32)
 						{
 							m_Input.m_Direction = -1;
 						}
@@ -10754,7 +10754,7 @@ void CCharacter::DummyTick()
 					m_Input.m_Jump = 1;
 				}
 			}
-			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 382 * 32 && m_Core.m_Pos.x > 363 * 32)
+			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 381 * 32 && m_Core.m_Pos.x > 363 * 32)
 			{
 				m_Input.m_Direction = 1;
 				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32 && IsGrounded())
@@ -14003,7 +14003,6 @@ void CCharacter::DummyTick()
 
 			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 472 * 32 && m_Core.m_Pos.y > 74 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn bereich  // walk into the left SPAWN tp
 			{
-				m_Dummy27_loved_x = 0; // fix for crashbug (DONT REMOVE)
 				m_Dummy27_speed = 70; // fix for crashbug (DONT REMOVE)
 
 				m_Input.m_Direction = -1;
@@ -14434,7 +14433,7 @@ void CCharacter::DummyTick()
 			{
 				m_Input.m_Direction = 0;
 			}
-			if (m_Core.m_Pos.x > 382 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 32
+			if (m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 32
 			{
 				//detect lower panic (accedentally fall into the lower police base 
 				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
@@ -14643,7 +14642,7 @@ void CCharacter::DummyTick()
 						{
 							m_Input.m_Direction = 1;
 						}
-						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32)
+						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32 && m_Core.m_Pos.x > 383 * 32)
 						{
 							m_Input.m_Direction = -1;
 						}
@@ -14790,7 +14789,7 @@ void CCharacter::DummyTick()
 					m_Input.m_Jump = 1;
 				}
 			}
-			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 382 * 32 && m_Core.m_Pos.x > 363 * 32)
+			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 380 * 32 && m_Core.m_Pos.x > 363 * 32)
 			{
 				m_Input.m_Direction = 1;
 				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32 && IsGrounded())
