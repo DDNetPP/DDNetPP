@@ -9958,6 +9958,22 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 			}
 		}
 	}
+	else if (!str_comp_nocase(aCommand, "stop"))
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			{
+				pSelf->m_apPlayers[i]->m_dmm25 = -2; //set to stop all
+				str_format(aBuf, sizeof(aBuf), "[FNN] stopped '%s'", pSelf->Server()->ClientName(i));
+				pSelf->SendChatTarget(ClientID, aBuf);
+				if (pSelf->m_apPlayers[i]->GetCharacter())
+				{
+					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+				}
+			}
+		}
+	}
 	else if (!str_comp_nocase(aCommand, "stats"))
 	{
 		pSelf->SendChatTarget(ClientID, "========== FNN Stats ==========");

@@ -279,6 +279,8 @@ public:
 	void FNN_LoadRun(const char * path, int botID);
 	vec2 m_FinishTilePos;
 	vec2 GetFinishTile();
+	void TestPrintTiles(int botID);
+	bool m_IsDebug;
 
 	//ddpp init
 	float m_FNN_best_distance;
