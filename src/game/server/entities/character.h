@@ -375,6 +375,7 @@ public:
 	int m_aRecMove[FNN_MOVE_LEN];
 	int m_FNN_ticks_loaded_run;
 	vec2 m_StartPos;
+	void TestPrintTiles(int Index);
 
 	//dummymode 105 vars
 	bool m_Dummy105_move_left;

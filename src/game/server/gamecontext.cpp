@@ -2227,6 +2227,21 @@ void CGameContext::FNN_LoadRun(const char * path, int botID)
 	SendChat(botID, CGameContext::CHAT_ALL, aBuf);
 }
 
+void CGameContext::TestPrintTiles(int botID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[botID];
+	if (!pPlayer)
+		return;
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	//moved to character
+}
+
 vec2 CGameContext::GetFinishTile()
 {
 #if defined(CONF_DEBUG)
@@ -2384,7 +2399,11 @@ void CGameContext::LeaveInstagib(int ID)
 #endif
 
 	CPlayer *pPlayer = m_apPlayers[ID];
+	if (!pPlayer)
+		return;
 	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' left the game.", Server()->ClientName(ID));
 	if (pPlayer->m_IsInstaArena_gdm) 
@@ -6313,29 +6332,28 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];
-					vec2 vec_finish = GetFinishTile();
-					vec2 your_pos(0,0);
-					float newest_distance_finish = 4.20;
-					if (pPlayer->GetCharacter())
-					{
-						your_pos.x = pPlayer->GetCharacter()->GetPosition().x / 32;
-						your_pos.y = pPlayer->GetCharacter()->GetPosition().y / 32;
-						newest_distance_finish = distance(your_pos, m_FinishTilePos);
-					}
-					str_format(aBuf, sizeof(aBuf), "finish at (%.2f/%.2f) your position (%.2f/%.2f)  distance to finish: %.2f", vec_finish.x, vec_finish.y, your_pos.x, your_pos.y, newest_distance_finish);
-					SendChatTarget(ClientID, aBuf);
-
-
-					vec2 vector1(10, 10);
-					vec2 vector2(200, 20);
-					float vv_distance = distance(vector1, vector2);
-
-					str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
-					SendChatTarget(ClientID, aBuf);
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						//SendAllPolice("test");
+						vec2 vec_finish = GetFinishTile();
+						vec2 your_pos(0, 0);
+						float newest_distance_finish = 4.20;
+						if (pPlayer->GetCharacter())
+						{
+							your_pos.x = pPlayer->GetCharacter()->GetPosition().x / 32;
+							your_pos.y = pPlayer->GetCharacter()->GetPosition().y / 32;
+							newest_distance_finish = distance(your_pos, m_FinishTilePos);
+						}
+						str_format(aBuf, sizeof(aBuf), "finish at (%.2f/%.2f) your position (%.2f/%.2f)  distance to finish: %.2f", vec_finish.x, vec_finish.y, your_pos.x, your_pos.y, newest_distance_finish);
+						SendChatTarget(ClientID, aBuf);
+
+
+						vec2 vector1(10, 10);
+						vec2 vector2(200, 20);
+						float vv_distance = distance(vector1, vector2);
+
+						str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
+						SendChatTarget(ClientID, aBuf);
 						//pPlayer->m_PoliceRank = 5;
 						//GetPlayerChar(ClientID)->FreezeAll(10);
 						//pPlayer->m_IsJailed = true;
@@ -6354,6 +6372,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//m_apPlayers[ClientID]->m_IsSupporter ^= true;
 
 						//ChillUpdateFileAcc(,);
+
+						m_IsDebug = !m_IsDebug;
+						str_format(aBuf, sizeof(aBuf), "fnn 25 debug mode updated to %d", m_IsDebug);
+						SendChatTarget(ClientID, aBuf);
 
 						time_t seconds;
 

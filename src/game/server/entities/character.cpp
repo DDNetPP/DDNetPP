@@ -2399,6 +2399,45 @@ bool CCharacter::SameTeam(int ClientID)
 	return Teams()->m_Core.SameTeam(GetPlayer()->GetCID(), ClientID);
 }
 
+void CCharacter::TestPrintTiles(int Index)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
+	int MapIndex = Index;
+	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
+	float Offset = 4.0f;
+	int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
+	int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
+	int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
+	int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
+	//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
+	m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
+	m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
+	m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
+	m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
+	m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
+
+	if (m_TileIndexR == TILE_BEGIN)
+	{
+		dbg_msg("FNN","finish tile on the right");
+	}
+	else  if (m_TileIndex == TILE_BEGIN)
+	{
+		dbg_msg("FNN","in startline");
+	}
+	else if (m_TileIndexR == TILE_FREEZE)
+	{
+		dbg_msg("FNN", "freeze spottedt at the right freeze=%d",m_TileIndexR);
+	}
+	else
+	{
+		if (GameServer()->m_IsDebug)
+			dbg_msg("FNN","tile=%d tileR=%d", m_TileIndex, m_TileIndexR);
+	}
+}
+
 int CCharacter::Team()
 {
 #if defined(CONF_DEBUG)
@@ -3661,6 +3700,10 @@ void CCharacter::DDRacePostCoreTick()
 	else
 	{
 		HandleTiles(CurrentIndex);
+		if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25)
+		{
+			TestPrintTiles(CurrentIndex);
+		}
 		//dbg_msg("Running","%d", CurrentIndex);
 	}
 
@@ -9672,7 +9715,16 @@ void CCharacter::DummyTick()
 			*/
 			char aBuf[256];
 
-			if (!m_Dummy_nn_ready) //first get the right start pos
+			if (m_pPlayer->m_dmm25 == -2) //stopped
+			{
+				m_Input.m_Hook = 0;
+				m_Input.m_Jump = 0;
+				m_Input.m_Direction = 0;
+				m_LatestInput.m_Fire = 0;
+				m_Input.m_Fire = 0;
+				m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 260);
+			}
+			else if (!m_Dummy_nn_ready) //first get the right start pos
 			{
 				m_Input.m_Hook = 0;
 				m_Input.m_Jump = 0;
@@ -9749,6 +9801,7 @@ void CCharacter::DummyTick()
 
 				new system uses chat command /dmm25 = dummmymodemode25 to choose submodes.
 				submodes:
+				-2					stop all
 				-1					error/offline
 
 				0					write
