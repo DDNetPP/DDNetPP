@@ -4185,7 +4185,7 @@ void CGameContext::StartQuest(int playerID)
 	str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "[ERROR] invalid quest loaded.");
 
 	if (quest == 0)
-	{1
+	{
 		dbg_msg("debug", "[WARNING] QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]!", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()), quest, level);
 		return;
 	}
