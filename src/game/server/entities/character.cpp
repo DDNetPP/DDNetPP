@@ -14812,11 +14812,19 @@ void CCharacter::DummyTick()
 					}
 
 					//do the doublejump
-					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32) //falling and not too high to hit roof with head
+					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32 && m_DummyUsedDJ == false) //falling and not too high to hit roof with head
 					{
 						m_Input.m_Jump = 1;
 						//m_LatestInput.m_Fire++;
 						//m_Input.m_Fire++;
+						if (!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
+						{
+							m_DummyUsedDJ = true;
+						}
+					}
+					if (m_DummyUsedDJ == true && IsGrounded())
+					{
+						m_DummyUsedDJ = false;
 					}
 				}
 			}
