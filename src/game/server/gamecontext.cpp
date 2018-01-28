@@ -47,7 +47,7 @@ void CQueryChillExecute::OnData()
 {
 	if (Next())
 	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] This message normally doesnt get printed idk.");
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] This message doesn't get printed normally.");
 	}
 	else
 	{
@@ -228,7 +228,7 @@ void CQueryLogin::OnData()
 
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 			{
-				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed (Account is frozen).");
 				m_pGameServer->m_apPlayers[m_ClientID]->Logout();
 				return;
 			}
@@ -272,11 +272,11 @@ void CQueryLogin::OnData()
 			{
 				if (!g_Config.m_SvAllowInsta)
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] fng autojoin failed because fng is deactivated by an admin.");
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] Fng auto join failed, fng is deactivated.");
 				}
 				else
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] You automatically joined a fng game. Type '/fng' to change this setting.");
 					m_pGameServer->JoinInstagib(5, true, m_ClientID);
 				}
 			}
@@ -284,11 +284,11 @@ void CQueryLogin::OnData()
 			{
 				if (!g_Config.m_SvAllowInsta)
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] boomfng autojoin failed because fng is deactivated by an admin.");
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] Boomfng auto join failed, fng is deactivated..");
 				}
 				else
 				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
+					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] You automatically joined an boomfng game. Type '/fng' to change this setting.");
 					m_pGameServer->JoinInstagib(4, true, m_ClientID);
 				}
 			}
@@ -297,7 +297,7 @@ void CQueryLogin::OnData()
 			//account reset info
 			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
 			{
-				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
+				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Set a '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
 
 
@@ -921,7 +921,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 				}
 				else if (importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
-					SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					SendChat(-1, CGameContext::CHAT_ALL, "Broadcast got ignored.");
 					return;
 				}
 			}
@@ -1512,7 +1512,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	}
 	else
 	{
-		m_apPlayers[ClientID]->m_Score = -9999; //dürfen die dummys auch sowas  ? :3 was genau? -9999 score beinm connecten. sollten die jetz eigentlich k
+		m_apPlayers[ClientID]->m_Score = -9999; //dürfen die dummys auch sowas? :3 was genau? -9999 score beinm connecten. sollten die jetz eigentlich k
 	}
 
 	// Can't set score here as LoadScore() is threaded, run it in
@@ -1555,7 +1555,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		else
 		{
-			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod based on DDNet");
+			SendChatTarget(ClientID, "Welcome to ChillerDragon's BlockMod based on DDNet");
 		}
 
 		if(g_Config.m_SvWelcome[0]!=0)
@@ -1641,7 +1641,7 @@ void CGameContext::OnClientConnected(int ClientID)
 	char aBuf[128]; 
 	char aBroad[2048];
 	bool IsSupporterOnline = false;
-	str_format(aBroad, sizeof(aBroad), "%s\n[ONLINE SUPPORTER]:\n", g_Config.m_SvMotd);
+	str_format(aBroad, sizeof(aBroad), "%s\n[SUPPORTER ONLINE]:\n", g_Config.m_SvMotd);
 
 	//lass mal durch alle spieler iterieren und schauen ob n mod online is
 	for (int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
@@ -1703,12 +1703,12 @@ void CGameContext::OnStartBlockTournament()
 #endif
 	if (m_BlockTournaState)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Tournament already running.");
 		return;
 	}
 	if (g_Config.m_SvAllowBlockTourna == 0)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Tournaments are deactivated.");
 		return;
 	}
 
@@ -1925,11 +1925,11 @@ void CGameContext::GiveBlockPoints(int ID, int points)
 		{
 			if (points == 1)
 			{
-				str_format(aBuf, sizeof(aBuf), "+%d point (warning! use '/login' to save your '/points')", points);
+				str_format(aBuf, sizeof(aBuf), "+%d point [WARNING] Use '/login' to save your '/points'.", points);
 			}
 			else if (points > 1)
 			{
-				str_format(aBuf, sizeof(aBuf), "+%d points (warning! use '/login' to save your '/points')", points);
+				str_format(aBuf, sizeof(aBuf), "+%d points [WARNING] Use '/login' to save your '/points'.", points);
 			}
 		}
 
@@ -1941,7 +1941,7 @@ void CGameContext::GiveBlockPoints(int ID, int points)
 		{
 			if (m_apPlayers[ID]->m_BlockPoints == 5 || m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
 			{
-				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_apPlayers[ID]->m_BlockPoints);
+				str_format(aBuf, sizeof(aBuf), "You have %d unsaved block points. Use '/login' to save your '/points'.", m_apPlayers[ID]->m_BlockPoints);
 				SendChatTarget(ID, aBuf);
 				SendChatTarget(ID, "Use '/accountinfo' for more information.");
 			}
@@ -2108,7 +2108,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	{
 		if (m_apPlayers[creatorID]->m_aAsciiPublishState[2] == '0')
 		{
-			SendChatTarget(viewerID, "ascii art not published on medium 2");
+			SendChatTarget(viewerID, "ascii art not published on medium 2.");
 			return;
 		}
 	}
@@ -2116,7 +2116,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	{
 		if (m_apPlayers[creatorID]->m_aAsciiPublishState[3] == '0')
 		{
-			SendChatTarget(viewerID, "ascii art not published on medium 3");
+			SendChatTarget(viewerID, "ascii art not published on medium 3.");
 			return;
 		}
 	}
@@ -2328,7 +2328,7 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	}
 	else
 	{
-		SendChatTarget(ID, "[WARNING] Something went horrible wrong please report an admin");
+		SendChatTarget(ID, "[WARNING] Something went horribly wrong please contact an admin.");
 		return;
 	}
 
@@ -2361,7 +2361,7 @@ void CGameContext::ShowInstaStats(int requestID, int requestedID)
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_GrenadeShotsNoRJ);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ);
+	str_format(aBuf, sizeof(aBuf), "Rocket jumps: %d", pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ);
 	SendChatTarget(requestID, aBuf);
 	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
 	//SendChatTarget(requestID, aBuf);
@@ -2419,7 +2419,7 @@ void CGameContext::LeaveInstagib(int ID)
 		}
 		else
 		{
-			SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
+			SendChatTarget(ID, "[INSTA] You are not in an instagib game.");
 		}
 	}
 	else
@@ -2438,7 +2438,7 @@ void CGameContext::LeaveInstagib(int ID)
 		}
 		else
 		{
-			SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
+			SendChatTarget(ID, "[INSTA] You are not in an instagib game.");
 		}
 	}
 }
@@ -2521,9 +2521,9 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 
 	if (m_InstaGrenadeRoundEndTickTicker == m_InstaGrenadeRoundEndDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
+		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the grenade game.", Server()->ClientName(m_InstaGrenadeWinnerID));
 		SendChatTarget(ID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
+		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game.", Server()->ClientName(m_InstaGrenadeWinnerID));
 		SendBroadcast(aBuf, ID);
 		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 
@@ -2581,7 +2581,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		m_apPlayers[ID]->m_InstaScore = 0;
 
 		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
-		SendChatTarget(ID, "[INSTA] new round new luck.");
+		SendChatTarget(ID, "[INSTA] New round new luck!");
 	}
 
 	if (m_apPlayers[ID]->GetCharacter())
@@ -2613,9 +2613,9 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 
 	if (m_InstaRifleRoundEndTickTicker == m_InstaRifleRoundEndDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
+		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game.", Server()->ClientName(m_InstaRifleWinnerID));
 		SendChatTarget(ID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
+		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game.", Server()->ClientName(m_InstaRifleWinnerID));
 		SendBroadcast(aBuf, ID);
 		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 
@@ -2673,7 +2673,7 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 		m_apPlayers[ID]->m_InstaScore = 0;
 
 		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
-		SendChatTarget(ID, "[INSTA] new round new luck.");
+		SendChatTarget(ID, "[INSTA] New round new luck!");
 	}
 
 	if (m_apPlayers[ID]->GetCharacter())
@@ -2731,7 +2731,7 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 
 	if (!std::ifstream(aBuf))
 	{
-		SendChatTarget(requestingID, "[ACCOUNT] username not found.");
+		SendChatTarget(requestingID, "[ACCOUNT] Username not found.");
 		Acc2File.close();
 		return -1; //return error code -1
 	}
@@ -2776,7 +2776,7 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 
 	if (line != 3 && data[3] == "1") //only can update the frozen value if acc is frozen
 	{
-		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is frozen cant set line '%d'", account, line);
+		str_format(aBuf, sizeof(aBuf), "[ACC2] '%s' is frozen can't set line '%d'", account, line);
 		SendChatTarget(requestingID, aBuf);
 		Acc2File.close();
 		return -3;
@@ -2816,7 +2816,7 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 	}
 	else
 	{
-		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", account, aBuf);
+		dbg_msg("acc2", "[WARNING] Account '%s' (%s) failed to save", account, aBuf);
 		Acc2FileW.close();
 		return -4;
 	}
@@ -2957,13 +2957,13 @@ void CGameContext::ChilliClanTick(int i)
 				if (g_Config.m_SvKickChilliClan == 1)
 				{
 					GetPlayerChar(i)->m_FreezeTime = 1000;
-					SendBroadcast("WARNING! You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
-					SendChatTarget(i, "You got freezed by Chilli.* clanportection. Change skin or clantag!");
+					SendBroadcast("[WARNING] You are using the wrong 'Chilli.*' clanskin.\n Leave the clan or change skin.", i);
+					SendChatTarget(i, "You got frozen by Chilli.* clan protection. Change skin or clan tag!");
 				}
 				else if (g_Config.m_SvKickChilliClan == 2)
 				{
 					char aRcon[128];
-					str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clanfake", i);
+					str_format(aRcon, sizeof(aRcon), "kick %d Chilli.* clan fake", i);
 					Console()->ExecuteLine(aRcon);
 				}
 			}
@@ -2971,7 +2971,7 @@ void CGameContext::ChilliClanTick(int i)
 			{
 				SendChatTarget(i, "#######################################");
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clantag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
+				str_format(aBuf, sizeof(aBuf), "You are using the wrong skin! Change skin or clan tag! Warning: [%d/3]", pPlayer->m_ChilliWarnings);
 				SendChatTarget(i, aBuf);
 				SendChatTarget(i, "For more information about the clan visit: www.chillerdragon.weebly.com");
 				SendChatTarget(i, "#######################################");
@@ -2985,11 +2985,11 @@ void CGameContext::ChilliClanTick(int i)
 				char aBuf2[256];
 				if (g_Config.m_SvKickChilliClan == 1)
 				{
-					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL FREEZE[%d / 3]", pPlayer->m_ChilliWarnings);
+					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clan tag or use skin 'greensward'!\n\nWARNINGS UNTIL FREEZE[%d / 3]", pPlayer->m_ChilliWarnings);
 				}
 				else if (g_Config.m_SvKickChilliClan == 2)
 				{
-					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clantag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
+					str_format(aBuf2, sizeof(aBuf2), "Your are using the wrong skin!\nChange you clan tag or use skin 'greensward'!\n\nWARNINGS UNTIL KICK[%d / 3]", pPlayer->m_ChilliWarnings);
 				}
 				SendBroadcast(aBuf2, i);
 
@@ -3101,7 +3101,7 @@ void CGameContext::AsciiTick(int i)
 					}
 					else
 					{
-						SendChatTarget(i, "error loading frame");
+						SendChatTarget(i, "[ASCII] Error loading frame.");
 					}
 				}
 			}
@@ -3122,7 +3122,7 @@ void CGameContext::GlobalChatPrintMessage()
 
 	if (!std::ifstream(g_Config.m_SvGlobalChatFile))
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat stopped working.");
 		g_Config.m_SvAllowGlobalChat = 0;
 		ChatReadFile.close();
 		return;
@@ -3179,7 +3179,7 @@ void CGameContext::GlobalChatUpdateConfirms(const char * pStr)
 	std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
 	if (!ChatFile)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat failed... deactivating...");
 		dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
 		g_Config.m_SvAllowGlobalChat = 0;
 		ChatFile.close();
@@ -3194,7 +3194,7 @@ void CGameContext::GlobalChatUpdateConfirms(const char * pStr)
 	}
 	else
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat failed... deactivating...");
 		dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
 		g_Config.m_SvAllowGlobalChat = 0;
 	}
@@ -3214,7 +3214,7 @@ void CGameContext::SurvivalLobbyTick()
 		m_survivallobbycountdown--;
 		if (m_survivallobbycountdown % Server()->TickSpeed() == 0 && m_survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
 		{
-			str_format(aBuf, sizeof(aBuf), "[SURVIVAL] game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[SURVIVAL] Game starts in %d seconds!", m_survivallobbycountdown / Server()->TickSpeed());
 			SendSurvivalBroadcast(aBuf);
 
 			if (m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
@@ -3227,7 +3227,7 @@ void CGameContext::SurvivalLobbyTick()
 
 						if (SurvivalLobbySpawnTile == vec2(-1, -1)) //no survival lobby
 						{
-							SendSurvivalChat("[SURVIVAL] no survival lobby set.");
+							SendSurvivalChat("[SURVIVAL] No survival lobby set.");
 						}
 						else
 						{
@@ -3240,7 +3240,7 @@ void CGameContext::SurvivalLobbyTick()
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] %d/%d players to start a game", CountSurvivalPlayers(), g_Config.m_SvSurvivalStartPlayers);
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] %d/%d players to start a game.", CountSurvivalPlayers(), g_Config.m_SvSurvivalStartPlayers);
 		if (Server()->Tick() % 30 == 0)
 		{
 			SendSurvivalBroadcast(aBuf);
@@ -3264,13 +3264,13 @@ void CGameContext::SurvivalStartGame()
 	if (SurvivalGameSpawnTile == vec2(-1, -1)) //no survival arena
 	{
 		SurvivalSetGameState(1); //set lobby
-		SendSurvivalChat("[SURVIVAL] no survival arena set.");
+		SendSurvivalChat("[SURVIVAL] No survival arena set.");
 		return;
 	}
 	else
 	{
 		SurvivalSetGameState(2); //set ingame
-		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
+		SendSurvivalChat("[SURVIVAL] GAME STARTED!!!");
 	}
 }
 
@@ -3353,7 +3353,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 		}
 		else
 		{
-			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
+			dbg_msg("survival", "[SURVIVAL] Undefined mode set: %d", mode);
 		}
 	}
 }
@@ -3439,7 +3439,7 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
 	//dbg_msg("cBug", "[%s] became winner", Server()->ClientName(winnerID));
 
-	SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
+	SendChatTarget(winnerID, "[SURVIVAL] You won! [+50xp] [+50money]");
 	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
 	m_apPlayers[winnerID]->m_xp += 50;
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
@@ -3470,7 +3470,7 @@ void CGameContext::BlockTournaTick()
 					}
 				}
 			}
-			SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
+			SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped, time was over.");
 			m_BlockTournaState = 0;
 		}
 	}
@@ -3484,7 +3484,7 @@ void CGameContext::BlockTournaTick()
 			{
 				blockers = 1;
 			}
-			str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
+			str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already.", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
 			SendBroadcastAll(aBuf, 2);
 		}
 
@@ -3536,7 +3536,7 @@ void CGameContext::BlockTournaTick()
 						}
 						else //no tile found
 						{
-							SendBroadcastAll("[EVENT] Block tournament failed! No spawntiles found.", 2);
+							SendBroadcastAll("[EVENT] Block tournament failed! No spawn tiles found.", 2);
 							EndBlockTourna();
 							return;
 						}
@@ -3548,7 +3548,7 @@ void CGameContext::BlockTournaTick()
 					else
 					{
 						m_apPlayers[i]->m_IsBlockTourning = false;
-						SendChatTarget(i, "[BLOCK] you didn't join because you were dead on tournament start.");
+						SendChatTarget(i, "[BLOCK] You didn't join, because you were dead on tournament start.");
 					}
 				}
 			}
@@ -3710,13 +3710,13 @@ void CGameContext::UpdateBlockSkill(int value, int id)
 		char aBuf[128];
 		if (newrank < oldrank) //downrank
 		{
-			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (downrank)", GetBlockSkillGroup(id));
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skill group '%s' (downrank).", GetBlockSkillGroup(id));
 			SendChatTarget(id, aBuf);
 			UpdateBlockSkill(-590, id); //lower skill agian to not get an uprank too fast agian
 		}
 		else //uprank
 		{
-			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skillgroup '%s' (uprank)", GetBlockSkillGroup(id));
+			str_format(aBuf, sizeof(aBuf), "[BLOCK] New skill group '%s' (uprank).", GetBlockSkillGroup(id));
 			SendChatTarget(id, aBuf);
 			UpdateBlockSkill(+590, id); //push skill agian to not get an downrank too fast agian
 		}
@@ -3747,7 +3747,7 @@ void CGameContext::BlockWaveAddBots()
 			CreateNewDummy(-3, true);
 			if (i > FreeSlots - 5) //always leave 5 slots free for people to join
 			{
-				dbg_msg("BlockWave", "Stopped connecting at %d/%d bots because server has only %d free slots", i, m_BlockWaveRound + 1, FreeSlots);
+				dbg_msg("BlockWave", "Stopped connecting at %d/%d bots, server has only %d free slots.", i, m_BlockWaveRound + 1, FreeSlots);
 				break;
 			}
 		}
@@ -3759,7 +3759,7 @@ void CGameContext::BlockWaveAddBots()
 			CreateNewDummy(-3, true);
 			if (i > FreeSlots - 5) //always leave 5 slots free for people to join
 			{
-				dbg_msg("BlockWave", "Stopped connecting at %d/15 + 1 bots because server has only %d free slots", i, FreeSlots);
+				dbg_msg("BlockWave", "Stopped connecting at %d/15 + 1 bots, server has only %d free slots.", i, FreeSlots);
 				break;
 			}
 		}
@@ -3772,7 +3772,7 @@ void CGameContext::BlockWaveWonRound()
 	CALL_STACK_ADD();
 #endif
 	m_BlockWaveRound++;
-	SendBlockWaveSay("[BlockWave] round survived.");
+	SendBlockWaveSay("[BLOCKWAVE] Round survived.");
 	m_BlockWaveGameState = 1;
 
 	//respawn all dead humans
@@ -3846,12 +3846,12 @@ void CGameContext::BlockWaveGameTick()
 		m_BlockWavePrepareDelay--;
 		if (m_BlockWavePrepareDelay % Server()->TickSpeed() == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "[BlockWave] round %d starts in %d seconds", m_BlockWaveRound, m_BlockWavePrepareDelay / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[BLOCKWAVE] Round %d starts in %d seconds!", m_BlockWaveRound, m_BlockWavePrepareDelay / Server()->TickSpeed());
 			SendBlockWaveBroadcast(aBuf);
 		}
 		if (m_BlockWavePrepareDelay < 0)
 		{
-			SendBlockWaveBroadcast("[BlockWave] Have fun and good luck!");
+			SendBlockWaveBroadcast("[BLOCKWAVE] Have fun and good luck!");
 			m_BlockWaveGameState = 2; //start round!
 			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
 			BlockWaveAddBots();
@@ -3898,7 +3898,7 @@ void CGameContext::BlockWaveEndGame()
 	CALL_STACK_ADD();
 #endif
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
+	str_format(aBuf, sizeof(aBuf), "[BLOCKWAVE] You died! Survived %d rounds.", m_BlockWaveRound);
 	SendBlockWaveSay(aBuf);
 }
 
@@ -3974,7 +3974,7 @@ void CGameContext::QuestReset(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player. Quest has been reset.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[QUEST] [%d][%s] invalid player. Quest has been reset.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	m_apPlayers[playerID]->m_QuestProgressValue = 0;
@@ -3993,12 +3993,12 @@ void CGameContext::QuestFailed(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] invalid player failed the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (!m_apPlayers[playerID]->m_QuestState)
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	QuestReset(playerID);
@@ -4016,12 +4016,12 @@ void CGameContext::QuestFailed2(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] invalid player failed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (!m_apPlayers[playerID]->m_QuestState)
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (m_apPlayers[playerID]->m_QuestFailed)
@@ -4045,7 +4045,7 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 	char aBuf[256];
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player added progress.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] invalid player added progress.", playerID, Server()->ClientName(playerID));
 		return false;
 	}
 	if (localMAX == -1)
@@ -4063,7 +4063,7 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 
 	
 	//dbg_msg("QUEST", "Progress updated: %d/%d", m_apPlayers[playerID]->m_aQuestProgress[0], m_apPlayers[playerID]->m_aQuestProgress[1]);
-	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d", m_apPlayers[playerID]->m_QuestProgressValue, globalMAX);
+	str_format(aBuf, sizeof(aBuf), "[QUEST] progress %d/%d.", m_apPlayers[playerID]->m_QuestProgressValue, globalMAX);
 
 	if (!m_apPlayers[playerID]->m_HideQuestProgress)
 		SendChatTarget(playerID, aBuf);
@@ -4083,12 +4083,12 @@ void CGameContext::QuestCompleted(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] invalid player completed the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 	if (!m_apPlayers[playerID]->m_QuestState)
 	{
-		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] completed quest without having it activated.", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()));
 		return;
 	}
 
@@ -4122,12 +4122,12 @@ void CGameContext::QuestCompleted(int playerID)
 	{
 		m_apPlayers[playerID]->m_QuestState = 1; //start at quest 1 in the next level
 		m_apPlayers[playerID]->m_QuestStateLevel++;
-		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", m_apPlayers[playerID]->m_QuestStateLevel);
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Level up... you are now level %d!", m_apPlayers[playerID]->m_QuestStateLevel);
 		if (m_apPlayers[playerID]->m_QuestStateLevel > 9) //<--- update value depending on how many questlevels
 		{
 			m_apPlayers[playerID]->m_QuestState = 0;
 			m_apPlayers[playerID]->m_QuestStateLevel = 0;
-			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests !!!");
+			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests!!!");
 			return;
 		}
 		m_apPlayers[playerID]->m_QuestLevelUnlocked = m_apPlayers[playerID]->m_QuestStateLevel; //save highscore
@@ -4174,7 +4174,7 @@ void CGameContext::StartQuest(int playerID)
 #endif
 	if (!m_apPlayers[playerID])
 	{
-		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player has started the quest.", playerID, Server()->ClientName(playerID));
+		dbg_msg("QUEST", "[WARNING] [%d][%s] invalid player has started the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
 
@@ -4182,11 +4182,11 @@ void CGameContext::StartQuest(int playerID)
 	QuestReset(playerID); //not needed but save clearup (should already be cleared up on every quest exit but save is save)
 	int level = m_apPlayers[playerID]->m_QuestStateLevel;
 	int quest = m_apPlayers[playerID]->m_QuestState; //old and bad because with many quests this can take forever and easts ressources of server or players have to do quests over and over agian rand() % 4 + 1; //valid quests + 1
-	str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "ERROR invalid quest loaded");
+	str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "[ERROR] invalid quest loaded.");
 
 	if (quest == 0)
-	{
-		dbg_msg("debug", "WARNING: QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()), quest, level);
+	{1
+		dbg_msg("debug", "[WARNING] QuestPicker triggered on non-questing player [%d][%s] [QUEST=%d LEVEL=%d]!", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()), quest, level);
 		return;
 	}
 	else if (quest == 1)
@@ -4233,7 +4233,7 @@ void CGameContext::StartQuest(int playerID)
 		}
 		else
 		{
-			dbg_msg("debug", "ERROR: invalid quest level [QUEST=%d LEVEL=%d]", quest, level);
+			dbg_msg("debug", "[ERROR] Invalid quest level [QUEST=%d LEVEL=%d]!", quest, level);
 			quest = 0;
 		}
 	}
@@ -4265,7 +4265,7 @@ void CGameContext::StartQuest(int playerID)
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block a tee which is on a 5 blockingspree.");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Block a tee which is on a 5 blocking spree.");
 		}
 		else if (level == 7)
 		{
@@ -4281,7 +4281,7 @@ void CGameContext::StartQuest(int playerID)
 		}
 		else
 		{
-			dbg_msg("debug", "ERROR: invalid quest level [QUEST=%d LEVEL=%d]", quest, level);
+			dbg_msg("debug", "[ERROR] Invalid quest level [QUEST=%d LEVEL=%d]!", quest, level);
 			quest = 0;
 		}
 	}
@@ -4351,13 +4351,13 @@ void CGameContext::StartQuest(int playerID)
 			}
 			else
 			{
-				dbg_msg("debug", "ERROR: invalid race condition [%d] at [QUEST=%d LEVEL=%d]", g_Config.m_SvQuestRaceCondition, quest, level);
+				dbg_msg("debug", "[ERROR] Invalid race condition [%d] at [QUEST=%d LEVEL=%d]!", g_Config.m_SvQuestRaceCondition, quest, level);
 				quest = 0;	
 			}
 		}
 		else
 		{
-			dbg_msg("debug", "ERROR: invalid quest level [QUEST=%d LEVEL=%d]", quest, level);
+			dbg_msg("debug", "[ERROR] Invalid quest level [QUEST=%d LEVEL=%d]!", quest, level);
 			quest = 0;
 		}
 	}
@@ -4365,47 +4365,47 @@ void CGameContext::StartQuest(int playerID)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 1 tee");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 1 tee.");
 		}
 		else if (level == 1)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' 5 times", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' 5 times.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 2)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle freezed '%s' 5 times", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle freezed '%s' 5 times.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 3)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' and 10 others", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' and 10 others.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 10 freezed tees");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 10 freezed tees.");
 		}
 		else if (level == 5)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle yourself while being freezed");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle yourself while being freezed.");
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle yourself while being freezed 10 times");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle yourself while being freezed 10 times.");
 		}
 		else if (level == 7)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' and then block him", Server()->ClientName(PickQuestPlayer(playerID)));
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle '%s' and then block him.", Server()->ClientName(PickQuestPlayer(playerID)));
 		}
 		else if (level == 8)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 5 tees before blocking them");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 5 tees before blocking them.");
 		}
 		else if (level == 9)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 20 freezed tees while having the flag");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Rifle 20 freezed tees while having the flag.");
 		}
 		else
 		{
-			dbg_msg("debug", "ERROR: invalid quest level [QUEST=%d LEVEL=%d]", quest, level);
+			dbg_msg("debug", "[ERROR] Invalid quest level [QUEST=%d LEVEL=%d]!", quest, level);
 			quest = 0;
 		}
 	}
@@ -4413,53 +4413,53 @@ void CGameContext::StartQuest(int playerID)
 	{
 		if (level == 0)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 10 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 10 money on a money tile.");
 		}
 		else if (level == 1)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 20 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 20 money on a money tile.");
 		}
 		else if (level == 2)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 30 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 30 money on a money tile.");
 		}
 		else if (level == 3)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 40 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 40 money on a money tile.");
 		}
 		else if (level == 4)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 50 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 50 money on a money tile.");
 		}
 		else if (level == 5)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 60 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 60 money on a money tile.");
 		}
 		else if (level == 6)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 70 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 70 money on a money tile.");
 		}
 		else if (level == 7)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 100 money on a police moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 100 money on a police money tile.");
 		}
 		else if (level == 8)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 100 money on a moneytile");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 100 money on a money tile.");
 		}
 		else if (level == 9)
 		{
-			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 200 xp with the flag");
+			str_format(m_apPlayers[playerID]->m_aQuestString, sizeof(m_apPlayers[playerID]->m_aQuestString), "Farm 200 xp with the flag.");
 		}
 		else
 		{
-			dbg_msg("debug", "ERROR: invalid quest level [QUEST=%d LEVEL=%d]", quest, level);
+			dbg_msg("debug", "[ERROR] Invalid quest level [QUEST=%d LEVEL=%d]!", quest, level);
 			quest = 0;
 		}
 	}
 	else
 	{
-		dbg_msg("debug", "ERROR: invalid quest [QUEST=%d LEVEL=%d]", quest, level);
+		dbg_msg("debug", "[ERROR] Invalid quest [QUEST=%d LEVEL=%d]!", quest, level);
 		quest = 0;
 	}
 
@@ -4468,13 +4468,13 @@ void CGameContext::StartQuest(int playerID)
 	{
 		str_format(aBuf, sizeof(aBuf), "[QUEST] %s", m_apPlayers[playerID]->m_aQuestString);
 		SendBroadcast(aBuf, m_apPlayers[playerID]->GetCID());
-		str_format(aBuf, sizeof(aBuf), "[QUEST] New Quest: %s", m_apPlayers[playerID]->m_aQuestString);
+		str_format(aBuf, sizeof(aBuf), "[QUEST] New quest: %s", m_apPlayers[playerID]->m_aQuestString);
 		SendChatTarget(m_apPlayers[playerID]->GetCID(), aBuf);
 		return;
 	}
 
 	//quest stopped during the next quest election
-	SendBroadcast("[QUEST] stopped", m_apPlayers[playerID]->GetCID());
+	SendBroadcast("[QUEST] Stopped...", m_apPlayers[playerID]->GetCID());
 	m_apPlayers[playerID]->m_QuestState = 0;
  }
 
@@ -4485,7 +4485,7 @@ void CGameContext::StartQuest(int playerID)
 #endif
 	 if (!m_apPlayers[playerID])
 	 {
-		 dbg_msg("QUEST", "WARNING! [%d][%s] invalid player picked a quest", playerID, Server()->ClientName(playerID));
+		 dbg_msg("QUEST", "[WARNING] [%d][%s] Invalid player picked a quest.", playerID, Server()->ClientName(playerID));
 		 return -1;
 	 }
 
@@ -4504,19 +4504,19 @@ void CGameContext::StartQuest(int playerID)
 		 }
 		 if (m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS)
 		 {
-			 dbg_msg("QUEST", "<PickPlayer> warning spec player found");
+			 dbg_msg("QUEST", "<PickPlayer> warning spec player found!");
 			 continue;
 		 }
 		 if (IsSameIP(i, playerID))
 		 {
 			 //dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
-			 dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(i)); //this will be triggerd for all serverside dummys if ur playing local -.-
+			 dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]!", Server()->ClientName(i)); //this will be triggerd for all serverside dummys if ur playing local -.-
 			 continue;
 		 }
 		 if (m_apPlayers[i]->m_IsDummy && !g_Config.m_SvQuestCountBots)
 		 {
 			 //server side bot found
-			 dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]", Server()->ClientName(i));
+			 dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]!", Server()->ClientName(i));
 			 continue;
 		 }
 
@@ -4543,7 +4543,7 @@ void CGameContext::StartQuest(int playerID)
 		 if (Index + IndexDead < g_Config.m_SvQuestNeededPlayers) //not enough dead or alive valid tees --> stop quest
 		 {
 			 m_apPlayers[playerID]->m_QuestState = 0;
-			 SendChatTarget(playerID, "[QUEST] Quest stopped because there are not enough tees on the server.");
+			 SendChatTarget(playerID, "[QUEST] Quest stopped, there are not enough tees on the server.");
 			 //dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
 			 return -1;
 		 }
@@ -4552,10 +4552,10 @@ void CGameContext::StartQuest(int playerID)
 			 ID = FoundDeadTees[rand() % IndexDead]; //choose random one of the valid tees
 			 if (!ID)
 			 {
-				 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
+				 dbg_msg("QUEST", "[WARNING] Player [%d][%s] got invalid player [%d][%s] as specific quest!", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
 				 m_apPlayers[playerID]->m_QuestState = 0;
-				 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-				 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+				 SendChatTarget(playerID, "[QUEST] Quest stopped, something went wrong. Please contact an admin!");
+				 SendChatTarget(playerID, "[QUEST] Try '/quest start' to load and start your quest again.");
 				 return -1;
 			 }
 
@@ -4567,10 +4567,10 @@ void CGameContext::StartQuest(int playerID)
 	 ID = FoundTees[rand() % Index]; //choose random one of the valid alive tees
 	 if (!ID)
 	 {
-		 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
+		 dbg_msg("QUEST", "[WARNING] Player [%d][%s] got invalid player [%d][%s] as specific quest!", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
 		 m_apPlayers[playerID]->m_QuestState = 0;
-		 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
-		 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
+		 SendChatTarget(playerID, "[QUEST] Quest stopped, something went wrong. Please contact an admin.");
+		 SendChatTarget(playerID, "[QUEST] Try '/quest start' to load and start your quest again.");
 		 return -1;
 	 }
 
@@ -4680,7 +4680,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 
 	if (m_apPlayers[ViewedID]->m_ProfileStyle == 0)  //default
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
@@ -4694,7 +4694,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	}
 	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 1)  //shit
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
@@ -4704,14 +4704,14 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	}
 	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 2)  //social
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Skype: %s", m_apPlayers[ViewedID]->m_ProfileSkype);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Youtube: %s", m_apPlayers[ViewedID]->m_ProfileYoutube);
+		str_format(aBuf, sizeof(aBuf), "YouTube: %s", m_apPlayers[ViewedID]->m_ProfileYoutube);
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "e-mail: %s", m_apPlayers[ViewedID]->m_ProfileEmail);
 		SendChatTarget(ViewerID, aBuf);
@@ -4722,14 +4722,14 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	}
 	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 3)  //show-off
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[ViewedID]->m_ProfileViews);
+		str_format(aBuf, sizeof(aBuf), "Profile views: %d", m_apPlayers[ViewedID]->m_ProfileViews);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
+		str_format(aBuf, sizeof(aBuf), "Police rank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
 		SendChatTarget(ViewerID, aBuf);
@@ -4738,30 +4738,30 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	}
 	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 4)  //pvp
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[ViewedID]->m_pvp_arena_games_played);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA games: %d", m_apPlayers[ViewedID]->m_pvp_arena_games_played);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA kills: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[ViewedID]->m_pvp_arena_deaths);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA deaths: %d", m_apPlayers[ViewedID]->m_pvp_arena_deaths);
 		SendChatTarget(ViewerID, aBuf);
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
 	else if (m_apPlayers[ViewedID]->m_ProfileStyle == 5)  //bomber
 	{
-		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
+		str_format(aBuf, sizeof(aBuf), "---  %s's profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Bomb Games Played: %d", m_apPlayers[ViewedID]->m_BombGamesPlayed);
+		str_format(aBuf, sizeof(aBuf), "Bomb games played: %d", m_apPlayers[ViewedID]->m_BombGamesPlayed);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
+		str_format(aBuf, sizeof(aBuf), "Bomb games won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
 		SendChatTarget(ViewerID, aBuf);
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
 		//SendChatTarget(ViewerID, aBuf);
@@ -4803,7 +4803,7 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
 		SendChatTarget(WinnerID, aBuf);
 		SendChatTarget(WinnerID, "==================");
-		SendChatTarget(WinnerID, "+200 money for winning 1on1"); //actually it is only +100 because you have to pay to start an 1on1
+		SendChatTarget(WinnerID, "+200 money for winning 1on1."); //actually it is only +100 because you have to pay to start an 1on1
 		m_apPlayers[WinnerID]->MoneyTransaction(+200, "+200 (won insta 1on1)");
 
 		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
@@ -4939,7 +4939,7 @@ void CGameContext::CreateBasicDummys()
 	else
 	{
 		CreateNewDummy(0); //dummy
-		dbg_msg("basic_dummys", "waring map=%s not supported", g_Config.m_SvMap);
+		dbg_msg("basic_dummys", "warning map=%s not supported", g_Config.m_SvMap);
 	}
 	dbg_msg("basic_dummys","map=%s", g_Config.m_SvMap);
 }
@@ -5029,16 +5029,16 @@ void CGameContext::StartBalanceBattle(int ID1, int ID2)
 
 	if (m_apPlayers[ID1] && !m_apPlayers[ID2])
 	{
-		SendChatTarget(ID1, "[balance] can't start a battle because your mate left.");
+		SendChatTarget(ID1, "[BALANCE] Can't start battle, your mate left.");
 	}
 	else if (!m_apPlayers[ID1] && m_apPlayers[ID2])
 	{
-		SendChatTarget(ID2, "[balance] can't start a battle because your mate left.");
+		SendChatTarget(ID2, "[BALANCE] Can't start battle, your mate left.");
 	}
 	else if (m_BalanceBattleState)
 	{
-		SendChatTarget(ID1, "[balance] can't start a battle because arena is full.");
-		SendChatTarget(ID2, "[balance] can't start a battle because arena is full.");
+		SendChatTarget(ID1, "[BALANCE] Can't start battle, arena is full.");
+		SendChatTarget(ID2, "[BALANCE] Can't start battle, arena is full.");
 	}
 	else if (m_apPlayers[ID1] && m_apPlayers[ID2])
 	{
@@ -5073,7 +5073,7 @@ void CGameContext::BalanceBattleTick()
 		m_BalanceBattleCountdown--;
 		if (m_BalanceBattleCountdown % Server()->TickSpeed() == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "[balance] battle starts in %d seconds", m_BalanceBattleCountdown / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[BALANCE] Battle starts in %d seconds.", m_BalanceBattleCountdown / Server()->TickSpeed());
 			SendBroadcast(aBuf, m_BalanceID1);
 			SendBroadcast(aBuf, m_BalanceID2);
 		}
@@ -5095,22 +5095,22 @@ void CGameContext::BalanceBattleTick()
 				m_apPlayers[m_BalanceID2]->m_IsBalanceBatteling = true;
 				m_apPlayers[m_BalanceID1]->m_IsBalanceBattlePlayer1 = true;
 				m_apPlayers[m_BalanceID2]->m_IsBalanceBattlePlayer1 = false;
-				SendChatTarget(m_BalanceID1, "[balance] BATTLE STARTED!");
-				SendChatTarget(m_BalanceID2, "[balance] BATTLE STARTED!");
+				SendChatTarget(m_BalanceID1, "[BALANCE] BATTLE STARTED!");
+				SendChatTarget(m_BalanceID2, "[BALANCE] BATTLE STARTED!");
 				m_apPlayers[m_BalanceID1]->GetCharacter()->Die(m_BalanceID1, WEAPON_SELF);
 				m_apPlayers[m_BalanceID2]->GetCharacter()->Die(m_BalanceID2, WEAPON_SELF);
-				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID1);
-				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID2);
+				SendBroadcast("[BALANCE] BATTLE STARTED", m_BalanceID1);
+				SendBroadcast("[BALANCE] BATTLE STARTED", m_BalanceID2);
 				m_BalanceBattleState = 2; //set ingame
 			}
 			else if (m_apPlayers[m_BalanceID1])
 			{
-				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID1);
+				SendBroadcast("[BALANCE] BATTLE STOPPED (1 player left)", m_BalanceID1);
 				StopBalanceBattle();
 			}
 			else if (m_apPlayers[m_BalanceID2])
 			{
-				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID2);
+				SendBroadcast("[BALANCE] BATTLE STOPPED (1 player left)", m_BalanceID2);
 				StopBalanceBattle();
 			}
 			else
@@ -5169,7 +5169,7 @@ void CGameContext::EndBombGame(int WinnerID)
 
 	//winner private
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "+%d money (won)", m_BombMoney * m_BombStartPlayers);
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
 	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
@@ -5185,7 +5185,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	}
 
 	//winner public
-	str_format(aBuf, sizeof(aBuf), "'%s' won +%d money in a bomb game.", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "'%s' won %d money in a bomb game.", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 }
 
@@ -5207,12 +5207,12 @@ void CGameContext::CheckStartBomb()
 			m_apPlayers[i]->m_BombTicksUnready++;
 			if (m_apPlayers[i]->m_BombTicksUnready + 500 == g_Config.m_SvBombUnreadyKickDelay)
 			{
-				SendChatTarget(i, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
+				SendChatTarget(i, "[BOMB] Type '/bomb start' or you will be kicked out of the bomb game.");
 			}
 			if (m_apPlayers[i]->m_BombTicksUnready > g_Config.m_SvBombUnreadyKickDelay)
 			{
 				SendBroadcast("", i); //send empty broadcast to signalize lobby leave
-				SendChatTarget(i, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
+				SendChatTarget(i, "[BOMB] You got kicked out of lobby (Reason: too late '/bomb start').");
 
 				GetPlayerChar(i)->m_IsBombing = false;
 				GetPlayerChar(i)->m_IsBomb = false;
@@ -5231,7 +5231,7 @@ void CGameContext::CheckStartBomb()
 				{
 					if (m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
 					{
-						str_format(aBuf, sizeof(aBuf), "[BOMB] game starts in %d ...", m_BombStartCountDown);
+						str_format(aBuf, sizeof(aBuf), "[BOMB] Game starts in %d...", m_BombStartCountDown);
 						SendBroadcast(aBuf, i);
 					}
 				}
@@ -5305,11 +5305,11 @@ void CGameContext::BombTick()
 				{
 					if (GetPlayerChar(i)->m_IsBombReady)
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(aBuf, sizeof(aBuf), "--== Bomb lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(aBuf, sizeof(aBuf), "--== Bomb lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %d\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
 					}
 					SendBroadcast(aBuf, i);
 				}
@@ -5373,7 +5373,7 @@ void CGameContext::BombTick()
 			if (FindNextBomb() != -1)
 			{
 				GetPlayerChar(FindNextBomb())->m_IsBomb = true;
-				SendChatTarget(FindNextBomb(), "The server has picked you as bomb.");
+				SendChatTarget(FindNextBomb(), "You have been picked as bomb.");
 			}
 			else
 			{
@@ -6091,7 +6091,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						aBuf2[0] = ' '; //ignore confirms on double check
 						if (!str_comp(aBuf, aBuf2))
 						{
-							SendChatTarget(ClientID, "[CHAT] global chat ignores doublicated messages");
+							SendChatTarget(ClientID, "[CHAT] Global chat ignores spam messages.");
 							return;
 						}
 						else
@@ -6103,7 +6103,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 							if (!std::ifstream(g_Config.m_SvGlobalChatFile))
 							{
-								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat stopped working.");
 								g_Config.m_SvAllowGlobalChat = 0;
 								ChatReadFile.close();
 								return;
@@ -6133,7 +6133,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 							if (confirms < g_Config.m_SvGlobalChatServers)
 							{
-								SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try agian later.");
+								SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try again later.");
 								ChatReadFile.close();
 								return; //idk if this is too good ._. better check if it skips any spam protections
 							}
@@ -6149,7 +6149,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
 							if (!ChatFile)
 							{
-								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat failed... deactivating...");
 								dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
 								g_Config.m_SvAllowGlobalChat = 0;
 								ChatFile.close();
@@ -6166,7 +6166,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							}
 							else
 							{
-								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+								SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] Global chat failed... deactivating...");
 								dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
 								g_Config.m_SvAllowGlobalChat = 0;
 							}
@@ -6188,8 +6188,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					SendChatTarget(ClientID, "leave what? xd");
 					SendChatTarget(ClientID, "Do you want to leave the minigame you are playing?");
-					SendChatTarget(ClientID, "then type '/<minigame> leave'");
-					SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
+					SendChatTarget(ClientID, "Type '/<minigame> leave'");
+					SendChatTarget(ClientID, "Check '/minigames status' for the minigame command you need.");
 					//CCharacter *pOwner = GetPlayerChar(ClientID);
 					//if (!pOwner)
 					//	return;
@@ -6567,7 +6567,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "You don't have enough permission.");
+						SendChatTarget(ClientID, "You don't have enough permissions.");
 					}
 
 					return;
@@ -7321,7 +7321,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permissions."); //passt erstmal so
 					}
 					return;
 				}
@@ -7343,7 +7343,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 					else
 					{
-						SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
+						SendChatTarget(ClientID, "You don't have enough permissions."); //passt erstmal so
 					}
 					return;
 				}
@@ -7378,7 +7378,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else
 				{
-					if(g_Config.m_SvSpamprotection && str_comp_nocase_num(pMsg->m_pMessage+1, "timeout ", 8) != 0
+					if(g_Config.m_SvSpamprotection && str_comp_nocase_num(pMsg->m_pMessage+1, "timeout", 8) != 0
 						&& pPlayer->m_LastCommands[0] && pPlayer->m_LastCommands[0]+Server()->TickSpeed() > Server()->Tick()
 						&& pPlayer->m_LastCommands[1] && pPlayer->m_LastCommands[1]+Server()->TickSpeed() > Server()->Tick()
 						&& pPlayer->m_LastCommands[2] && pPlayer->m_LastCommands[2]+Server()->TickSpeed() > Server()->Tick()
@@ -7714,13 +7714,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3)
 			{
-				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try agian later.");
+				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try again later.");
 				return;
 			}
 
 			if (m_apPlayers[ClientID]->m_IsBlockWaving)
 			{
-				SendChatTarget(ClientID, "[BlockWave] you can't change team while block waving. Try '/blockwave leave'");
+				SendChatTarget(ClientID, "[BLOCKWAVE] You can't change team while block waving. Try '/blockwave leave'.");
 				return;
 			}
 
@@ -7733,8 +7733,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (pPlayer->m_GangsterBagMoney)
 			{
-				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will lose it.");
-				SendChatTarget(ClientID, "or clear it yourself with '/gangsterbag clear'");
+				SendChatTarget(ClientID, "Make sure to empty your gangster bag before disconnecting/spectating or you will lose it.");
+				SendChatTarget(ClientID, "Or clear it yourself with '/gangsterbag clear'.");
 				return;
 			}
 
@@ -7745,7 +7745,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				int CurrTime = (Server()->Tick() - pChr->m_StartTime) / Server()->TickSpeed();
 				if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == DDRACE_STARTED)
 				{
-					SendChatTarget(ClientID, "Kill Protection enabled. If you really want to join the spectators, first type /kill");
+					SendChatTarget(ClientID, "Kill protection enabled. If you really want to join the spectators, first type /kill");
 					return;
 				}
 			}
@@ -7979,25 +7979,25 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 			{
-				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
+				SendChatTarget(ClientID, "[BLOCKWAVE] You can't selfkill while block waving. Try '/blockwave leave'.");
 				return;
 			}
 
 			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection == 2)
 			{
-				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");
+				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill, you spawnblock too much. Try again later.");
 				return;
 			}
 
 			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
 			{
-				SendChatTarget(ClientID, "[BOMB] selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
+				SendChatTarget(ClientID, "[BOMB] Selfkill protection. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
 				return;
 			}
 
 			if (m_apPlayers[ClientID]->m_IsSurvivaling)
 			{
-				SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
+				SendChatTarget(ClientID, "[SURVIVAL] Kill protection. Try '/survival leave' to kill.");
 				return;
 			}
 
@@ -8019,7 +8019,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			int CurrTime = (Server()->Tick() - pChr->m_StartTime) / Server()->TickSpeed();
 			if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == DDRACE_STARTED)
 			{
-				SendChatTarget(ClientID, "Kill Protection enabled. If you really want to kill, type /kill");
+				SendChatTarget(ClientID, "Kill protection enabled. If you really want to kill, type /kill");
 				return;
 			}
 
