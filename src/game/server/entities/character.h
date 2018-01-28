@@ -408,6 +408,7 @@ public:
 	bool m_DummyTouchedGround;
 	bool m_DummyAlreadyBeenHere;
 	bool m_DummyStartGrenade;
+	bool m_DummyUsedDJ;
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 	int m_DummyFreezeBlockTrick;
