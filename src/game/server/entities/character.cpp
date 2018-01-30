@@ -10330,6 +10330,10 @@ void CCharacter::DummyTick()
 			}
 			if (m_Core.m_Pos.x > 448 * 32 && m_Core.m_Pos.x < 480 * 32 && m_Core.m_Pos.y > 60 * 32 && m_Core.m_Pos.y < 85 * 32) //the whole spawn area
 			{
+				if (m_pPlayer->m_DummyModeSpawn == 32)
+				{
+					m_pPlayer->m_DummyMode = 32;
+				}
 				m_Input.m_Direction = -1;
 				if (((m_Core.m_Vel.y > 0.01f) || //jump when falling down
 					(m_Core.m_Vel.x > -0.1f && IsGrounded() && Server()->Tick() % 26 == 0)) && //getting stuck
@@ -10791,11 +10795,19 @@ void CCharacter::DummyTick()
 					}
 
 					//do the doublejump
-					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32) //falling and not too high to hit roof with head
+					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32 && m_DummyUsedDJ == false) //falling and not too high to hit roof with head
 					{
 						m_Input.m_Jump = 1;
 						//m_LatestInput.m_Fire++;
 						//m_Input.m_Fire++;
+						if (!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
+						{
+							m_DummyUsedDJ = true;
+						}
+					}
+					if (m_DummyUsedDJ == true && IsGrounded())
+					{
+						m_DummyUsedDJ = false;
 					}
 				}
 			}
@@ -10817,6 +10829,23 @@ void CCharacter::DummyTick()
 				if (m_Core.m_Pos.y > 433.7 * 32)
 				{
 					m_Input.m_Jump = 1;
+				}
+			}
+			if (m_pPlayer->m_DummyModeSpawn == 32)
+			{
+				if (m_Core.m_Pos.x > 290 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y > 415 * 32 && m_Core.m_Pos.y < 450 * 32)
+				{
+					if (isFreezed) // kills when in freeze in policebase or left of it (takes longer that he kills bcs the way is so long he wait a bit longer for help)
+					{
+						if (Server()->Tick() % 60 == 0)
+						{
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
+						}
+						if (Server()->Tick() % 3000 == 0) // kill when freeze
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+						}
+					}
 				}
 			}
 			else //unknown area //it isnt it is spawn area and stuff not a random area
@@ -14047,6 +14076,7 @@ void CCharacter::DummyTick()
 		}
 		else if (m_pPlayer->m_DummyMode == 32) // solo police base bot using 5 jumps and insane grenade jump
 		{
+			m_pPlayer->m_DummyModeSpawn = 32;
 			//RestOnChange (zuruecksetzten)
 			m_Input.m_Hook = 0;
 			m_Input.m_Jump = 0;
@@ -14057,7 +14087,7 @@ void CCharacter::DummyTick()
 			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 472 * 32 && m_Core.m_Pos.y > 74 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn bereich  // walk into the left SPAWN tp
 			{
 				m_Dummy27_speed = 70; // fix for crashbug (DONT REMOVE)
-
+			
 				m_Input.m_Direction = -1;
 				if (m_Core.m_Pos.x > 454 * 32 && m_Core.m_Pos.x < 458 * 32) //linke seite des spawn bereiches
 				{
@@ -14486,381 +14516,9 @@ void CCharacter::DummyTick()
 			{
 				m_Input.m_Direction = 0;
 			}
-			if (m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 32
+			if (m_Core.m_Pos.x > 290 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 32
 			{
-				//detect lower panic (accedentally fall into the lower police base 
-				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
-				{
-					m_Dummy27_lower_panic = 1;
-					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9); //angry emote
-				}
-
-				if (m_Dummy27_lower_panic)
-				{
-					//Check for end panic
-					if (m_Core.m_Pos.y < 434 * 32)
-					{
-						if (IsGrounded())
-						{
-							m_Dummy27_lower_panic = 0; //made it up yay
-						}
-					}
-
-					if (m_Dummy27_lower_panic == 1)//position to jump on stairs
-					{
-						if (m_Core.m_Pos.x < 400 * 32)
-						{
-							m_Input.m_Direction = 1;
-						}
-						else if (m_Core.m_Pos.x > 401 * 32)
-						{
-							m_Input.m_Direction = -1;
-						}
-						else
-						{
-							m_Dummy27_lower_panic = 2;
-						}
-					}
-					else if (m_Dummy27_lower_panic == 2) //jump on the left starblock element
-					{
-						if (IsGrounded())
-						{
-							m_Input.m_Jump = 1;
-							if (Server()->Tick() % 20 == 0)
-							{
-								m_Input.m_Jump = 0;
-							}
-						}
-
-						//navigate to platform
-						if (m_Core.m_Pos.y < 435 * 32 - 10)
-						{
-							m_Input.m_Direction = -1;
-							if (m_Core.m_Pos.y < 433 * 32)
-							{
-								if (m_Core.m_Vel.y > 0.01f)
-								{
-									m_Input.m_Jump = 1; //double jump	
-								}
-							}
-						}
-						else if (m_Core.m_Pos.y < 438 * 32) //only if high enough focus on the first lower platform
-						{
-							if (m_Core.m_Pos.x < 403 * 32)
-							{
-								m_Input.m_Direction = 1;
-							}
-							else if (m_Core.m_Pos.x > 404 * 32 + 20)
-							{
-								m_Input.m_Direction = -1;
-							}
-						}
-
-						if ((m_Core.m_Pos.y > 441 * 32 + 10 && (m_Core.m_Pos.x > 402 * 32 || m_Core.m_Pos.x < 399 * 32 + 10)) || isFreezed) //check for fail position
-						{
-							m_Dummy27_lower_panic = 1; //lower panic mode to reposition
-						}
-					}
-				}
-				else //no dummy lower panic
-				{
-					m_Dummy27_help_mode = 0;
-					//check if officer needs help
-					CCharacter *pChr = GameServer()->m_World.ClosestCharTypePoliceFreezeHole(m_Pos, true, this);
-					if (pChr && pChr->IsAlive())
-					{
-						//aimbot on heuzeueu
-						m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-						m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-						m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-						m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-
-						m_Dummy_ClosestPolice = false;
-						//If a policerank escapes from jail he is treated like a non police
-						if ((pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0))
-						{
-							m_Dummy_ClosestPolice = true;
-						}
-
-						if (pChr->m_Pos.x > 444 * 32 - 10) //police dude failed too far --> to be reached by hook (set too help mode extream to leave save area)
-						{
-							m_Dummy27_help_mode = 2;
-							if (m_Core.m_Jumped > 1 && m_Core.m_Pos.x > 431 * 32) //double jumped and above the freeze
-							{
-								m_Input.m_Direction = -1;
-							}
-							else
-							{
-								m_Input.m_Direction = 1;
-							}
-							//doublejump before falling in freeze
-							if ((m_Core.m_Pos.x > 432 * 32 && m_Core.m_Pos.y > 432 * 32) || m_Core.m_Pos.x > 437 * 32) //over the freeze and too low
-							{
-								m_Input.m_Jump = 1;
-								m_Dummy27_help_hook = true;
-								//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "catch hook jump!");
-							}
-							if (IsGrounded() && m_Core.m_Pos.x > 430 * 32 && Server()->Tick() % 60 == 0)
-							{
-								m_Input.m_Jump = 1;
-								//if (Server()->Tick() % 60 == 0)
-								//{
-								//	m_Input.m_Jump = 0;
-								//}
-							}
-						}
-						else
-						{
-							m_Dummy27_help_mode = 1;
-						}
-
-
-						if (m_Dummy27_help_mode == 1 && m_Core.m_Pos.x > 431 * 32 + 10)
-						{
-							m_Input.m_Direction = -1;
-						}
-						else if (m_Dummy27_help_mode == 1 && m_Core.m_Pos.x < 430 * 32)
-						{
-							m_Input.m_Direction = 1;
-						}
-						else
-						{
-							if (!m_Dummy27_help_hook && m_Dummy_ClosestPolice)
-							{
-								if (m_Dummy27_help_mode == 2) //police dude failed too far --> to be reached by hook
-								{
-									//if (m_Core.m_Pos.x > 435 * 32) //moved too double jump
-									//{
-									//	m_Dummy27_help_hook = true;
-									//}
-								}
-								else if (pChr->m_Pos.x > 439 * 32) //police dude in the middle
-								{
-									//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "middle");
-									if (IsGrounded())
-									{
-										m_Dummy27_help_hook = true;
-										m_Input.m_Jump = 1;
-										m_Input.m_Hook = 1;
-										//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "HOOOK");
-									}
-								}
-								else //police dude failed too near to hook from ground
-								{
-									if (m_Core.m_Vel.y < -4.20f && m_Core.m_Pos.y < 431 * 32)
-									{
-										m_Dummy27_help_hook = true;
-										m_Input.m_Jump = 1;
-										m_Input.m_Hook = 1;
-									}
-								}
-							}
-							if (Server()->Tick() % 8 == 0)
-							{
-								m_Input.m_Direction = 1;
-							}
-						}
-
-						if (m_Dummy27_help_hook)
-						{
-							m_Input.m_Hook = 1;
-							if (Server()->Tick() % 200 == 0)
-							{
-								m_Dummy27_help_hook = false; //timeout hook maybe failed
-								m_Input.m_Hook = 0;
-								m_Input.m_Direction = 1;
-							}
-						}
-
-						//dont wait on ground
-						if (IsGrounded() && Server()->Tick() % 900 == 0)
-						{
-							m_Input.m_Jump = 1;
-						}
-						//backup reset jump
-						if (Server()->Tick() % 1337 == 0)
-						{
-							m_Input.m_Jump = 0;
-						}
-					}
-
-
-					if (!m_Dummy27_help_mode)
-					{
-						//==============
-						//NOTHING TO DO
-						//==============
-						//basic walk to destination
-						if (m_Core.m_Pos.x < m_Dummy27_loved_x - 32)
-						{
-							m_Input.m_Direction = 1;
-						}
-						else if (m_Core.m_Pos.x > m_Dummy27_loved_x + 32 && m_Core.m_Pos.x > 383 * 32)
-						{
-							m_Input.m_Direction = -1;
-						}
-
-						//change changing speed
-						if (Server()->Tick() % m_Dummy27_speed == 0)
-						{
-							if (rand() % 2 == 0)
-							{
-								m_Dummy27_speed = rand() % 10000 + 420;
-							}
-						}
-
-						//choose beloved destination
-						if (Server()->Tick() % m_Dummy27_speed == 0)
-						{
-							if ((rand() % 2) == 0)
-							{
-								if ((rand() % 3) == 0)
-								{
-									m_Dummy27_loved_x = 420 * 32 + rand() % 69;
-									m_Dummy27_loved_y = 430 * 32;
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
-								}
-								else
-								{
-									m_Dummy27_loved_x = (392 + rand() % 2) * 32;
-									m_Dummy27_loved_y = 430 * 32;
-								}
-								if ((rand() % 2) == 0)
-								{
-									m_Dummy27_loved_x = 384 * 32 + rand() % 128;
-									m_Dummy27_loved_y = 430 * 32;
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 5);
-								}
-								else
-								{
-									if (rand() % 3 == 0)
-									{
-										m_Dummy27_loved_x = 420 * 32 + rand() % 128;
-										m_Dummy27_loved_y = 430 * 32;
-										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
-									}
-									else if (rand() % 4 == 0)
-									{
-										m_Dummy27_loved_x = 429 * 32 + rand() % 64;
-										m_Dummy27_loved_y = 430 * 32;
-										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
-									}
-								}
-								if (rand() % 5 == 0) //lower middel base
-								{
-									m_Dummy27_loved_x = 410 * 32 + rand() % 64;
-									m_Dummy27_loved_y = 443 * 32;
-								}
-							}
-							else
-							{
-								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
-							}
-						}
-					}
-				}
-
-				//=====================
-				// all importat backups
-				// all dodges and moves
-				// which are needed all
-				// the time
-				// police base only
-				//=====================
-
-
-				//dont walk into the lower police base entry freeze
-				if (m_Core.m_Pos.x > 425 * 32 && m_Core.m_Pos.x < 429 * 32) //right side
-				{
-					if (m_Core.m_Vel.x < -0.02f && IsGrounded())
-					{
-						m_Input.m_Jump = 1;
-					}
-				}
-				else if (m_Core.m_Pos.x > 389 * 32 && m_Core.m_Pos.x < 391 * 32) //left side
-				{
-					if (m_Core.m_Vel.x > 0.02f && IsGrounded())
-					{
-						m_Input.m_Jump = 1;
-					}
-				}
-
-				//jump over the police underground from entry to enty
-				if (m_Core.m_Pos.y > m_Dummy27_loved_y) //only if beloved place is an upper one
-				{
-					if (m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.x < 418 * 32) //right side
-					{
-						if (m_Core.m_Vel.x < -0.02f && IsGrounded())
-						{
-							m_Input.m_Jump = 1;
-							if (Server()->Tick() % 5 == 0)
-							{
-								m_Input.m_Jump = 0;
-							}
-						}
-					}
-					else if (m_Core.m_Pos.x > 398 * 32 && m_Core.m_Pos.x < 401 * 32) //left side
-					{
-						if (m_Core.m_Vel.x > 0.02f && IsGrounded())
-						{
-							m_Input.m_Jump = 1;
-							if (Server()->Tick() % 5 == 0)
-							{
-								m_Input.m_Jump = 0;
-							}
-						}
-					}
-
-					//do the doublejump
-					if (m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32 && m_DummyUsedDJ == false) //falling and not too high to hit roof with head
-					{
-						m_Input.m_Jump = 1;
-						//m_LatestInput.m_Fire++;
-						//m_Input.m_Fire++;
-						if (!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
-						{
-							m_DummyUsedDJ = true;
-						}
-					}
-					if (m_DummyUsedDJ == true && IsGrounded())
-					{
-						m_DummyUsedDJ = false;
-					}
-				}
-			}
-			if (m_Core.m_Pos.x > 290 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y > 415 * 32 && m_Core.m_Pos.y < 450 * 32)
-			{
-				if (isFreezed) // kills when in freeze in policebase or left of it (takes longer that he kills bcs the way is so long he wait a bit longer for help)
-				{
-					if (Server()->Tick() % 60 == 0)
-					{
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
-					}
-					if (Server()->Tick() % 3000 == 0) // kill when freeze
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					}
-				}
-			}
-			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 363 * 32) // walking right again to get into the tunnel at the bottom
-			{
-				m_Input.m_Direction = 1;
-				if (IsGrounded())
-				{
-					m_Input.m_Jump = 1;
-				}
-			}
-			if (m_Core.m_Pos.y > 380 * 32 && m_Core.m_Pos.x < 380 * 32 && m_Core.m_Pos.x > 363 * 32)
-			{
-				m_Input.m_Direction = 1;
-				if (m_Core.m_Pos.x > 367 * 32 && m_Core.m_Pos.x < 368 * 32 && IsGrounded())
-				{
-					m_Input.m_Jump = 1;
-				}
-				if (m_Core.m_Pos.y > 433.7 * 32)
-				{
-					m_Input.m_Jump = 1;
-				}
+				m_pPlayer->m_DummyMode = 27;
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 33) //Chillintelligenz
