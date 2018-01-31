@@ -224,6 +224,8 @@ public:
 	bool m_Dummy_32dummy;
 	int m_Dummy_32look;
 
+	//REAL DUMMY 32 VARS blmapchill police
+	int m_DummyModeSpawn;
 
 	//dummy 33 vars (Chillintelligenz)
 	long m_ci_lowest_dest_dist; //max long len 2147483647
