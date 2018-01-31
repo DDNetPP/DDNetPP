@@ -4939,7 +4939,7 @@ void CGameContext::CreateBasicDummys()
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{
-		CreateNewDummy(27);//police
+		CreateNewDummy(32);//police
 		//CreateNewDummy(28);//racer
 	}
 	else if (!str_comp(g_Config.m_SvMap, "blmapV5"))
