@@ -10521,12 +10521,21 @@ void CCharacter::DummyTick()
 							m_Input.m_Direction = -1;
 							if (m_Core.m_Pos.y < 433 * 32)
 							{
-								if (m_Core.m_Vel.y > 0.01f)
+								if (m_Core.m_Vel.y > 0.01f && m_DummyUsedDJ == false)
 								{
-									m_Input.m_Jump = 1; //double jump	
+									m_Input.m_Jump = 1; //double jump
+									if (!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
+									{
+										m_DummyUsedDJ = true;
+									}
 								}
 							}
+							if (m_DummyUsedDJ == true && IsGrounded())
+							{
+								m_DummyUsedDJ = false;
+							}
 						}
+			
 						else if (m_Core.m_Pos.y < 438 * 32) //only if high enough focus on the first lower platform
 						{
 							if (m_Core.m_Pos.x < 403 * 32)
