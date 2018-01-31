@@ -1196,17 +1196,6 @@ void CGameContext::OnTick()
 		}
 	}
 
-	if (CountIngameHumans() >= 9 && MoreThanNinePlayersIngame == true) // MoneyTileDouble();  bla bla 
-	{
-		SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
-		MoreThanNinePlayersIngame = false;
-	}
-	if (CountIngameHumans() <= 8 && MoreThanNinePlayersIngame == false)
-	{
-		SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
-		MoreThanNinePlayersIngame = true;
-	}
-
 	// update voting
 	if(m_VoteCloseTime)
 	{
@@ -2958,6 +2947,16 @@ void CGameContext::DDPP_Tick()
 		if (g_Config.m_SvAllowGlobalChat)
 		{
 			GlobalChatPrintMessage();
+		}
+		if (CountIngameHumans() >= 9 && MoreThanNinePlayersIngame == true) // MoneyTileDouble();  bla bla 
+		{
+			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
+			MoreThanNinePlayersIngame = false;
+		}
+		if (CountIngameHumans() <= 8 && MoreThanNinePlayersIngame == false)
+		{
+			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
+			MoreThanNinePlayersIngame = true;
 		}
 	}
 }
