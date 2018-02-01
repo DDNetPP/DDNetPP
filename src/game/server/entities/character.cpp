@@ -4161,7 +4161,7 @@ void CCharacter::MoneyTileDouble()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (GameServer()->CountIngameHumans() >= 9)
+	if (GameServer()->CountIngameHumans() >= 11)
 	{
 		if (Server()->Tick() % 50 == 0)
 		{
@@ -4187,14 +4187,6 @@ void CCharacter::MoneyTileDouble()
 				m_pPlayer->m_xp += 1;
 			}
 
-			/*
-			//moderator and admin extra xp
-			if (GameServer()->Server()->IsAuthed(m_pPlayer->GetCID()))
-			{
-				m_pPlayer->m_xp++;
-			}
-			*/
-
 			//give money & xp
 			if (m_survivexpvalue == 0)
 			{
@@ -4216,7 +4208,7 @@ void CCharacter::MoneyTileDouble()
 			{
 				m_pPlayer->m_xp = m_pPlayer->m_xp + 10;
 			}
-			m_pPlayer->m_money += 2;
+			m_pPlayer->m_money += 4;
 
 			//FARM QUEST
 			if (m_pPlayer->m_QuestState == 5)
@@ -4265,13 +4257,13 @@ void CCharacter::MoneyTileDouble()
 					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 					{
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%d] +2\nXP [%d/%d] +2 +2 flag\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+						str_format(aBuf, sizeof(aBuf), "Money [%d] +4\nXP [%d/%d] +2 +2 flag\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					}
 					else
 					{
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%d] +2\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
+						str_format(aBuf, sizeof(aBuf), "Money [%d] +4\nXP [%d/%d] +2\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_pPlayer->m_level);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					}
 				}
@@ -4280,13 +4272,13 @@ void CCharacter::MoneyTileDouble()
 					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 					{
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%d] +2\nXP [%d/%d] +2 +2 flag +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
+						str_format(aBuf, sizeof(aBuf), "Money [%d] +4\nXP [%d/%d] +2 +2 flag +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					}
 					else
 					{
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%d] +2\nXP [%d/%d] +2 +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
+						str_format(aBuf, sizeof(aBuf), "Money [%d] +4\nXP [%d/%d] +2 +%d survival\nLevel [%d]", m_pPlayer->m_money, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					}
 				}
@@ -4295,7 +4287,7 @@ void CCharacter::MoneyTileDouble()
 	}
 	else
 	{
-		GameServer()->SendBroadcast("This double-moneytile will activate if there are 8 or more tees ingame.", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast("This double-moneytile will activate if there are 10 or more tees ingame.", m_pPlayer->GetCID(), 0);
 		return;
 	}
 }
