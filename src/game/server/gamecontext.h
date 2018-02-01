@@ -283,7 +283,7 @@ public:
 	bool m_IsDebug;
 
 	// double moneytile announcement
-	bool MoreThanNinePlayersIngame;
+	bool MoneyDoubleEnoughPlayers;
 
 	//ddpp init
 	float m_FNN_best_distance;
