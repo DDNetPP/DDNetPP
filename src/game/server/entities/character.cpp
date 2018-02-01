@@ -4161,9 +4161,9 @@ void CCharacter::MoneyTileDouble()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (GameServer()->CountIngameHumans() >= 11)
+	if (Server()->Tick() % 50 == 0)
 	{
-		if (Server()->Tick() % 50 == 0)
+		if (GameServer()->CountIngameHumans() >= 11)
 		{
 			if (m_pPlayer->m_AccountID <= 0)
 			{
@@ -4284,11 +4284,11 @@ void CCharacter::MoneyTileDouble()
 				}
 			}
 		}
-	}
-	else
-	{
-		GameServer()->SendBroadcast("This double-moneytile will activate if there are 10 or more tees ingame.", m_pPlayer->GetCID(), 0);
-		return;
+		else
+		{
+			GameServer()->SendBroadcast("This double-moneytile will activate if there are 10 or more tees ingame.", m_pPlayer->GetCID(), 0);
+			return;
+		}
 	}
 }
 

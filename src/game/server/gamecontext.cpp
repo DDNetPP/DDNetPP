@@ -2948,15 +2948,17 @@ void CGameContext::DDPP_Tick()
 		{
 			GlobalChatPrintMessage();
 		}
-		if (CountIngameHumans() >= 11 && MoreThanNinePlayersIngame == true) // MoneyTileDouble();  bla bla 
+
+
+		if (CountIngameHumans() >= 11 && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
-			MoreThanNinePlayersIngame = false;
+			MoneyDoubleEnoughPlayers = false;
 		}
-		if (CountIngameHumans() <= 10 && MoreThanNinePlayersIngame == false)
+		if (CountIngameHumans() <= 10 && MoneyDoubleEnoughPlayers == false)
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
-			MoreThanNinePlayersIngame = true;
+			MoneyDoubleEnoughPlayers = true;
 		}
 	}
 }
