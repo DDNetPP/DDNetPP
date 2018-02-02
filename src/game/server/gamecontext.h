@@ -282,6 +282,9 @@ public:
 	void TestPrintTiles(int botID);
 	bool m_IsDebug;
 
+	// double moneytile announcement
+	bool MoneyDoubleEnoughPlayers;
+
 	//ddpp init
 	float m_FNN_best_distance;
 	float m_FNN_best_fitness;

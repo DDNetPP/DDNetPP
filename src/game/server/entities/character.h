@@ -286,6 +286,7 @@ public:
 	void MoneyTile();
 	void MoneyTile2();
 	void MoneyTilePlus();
+	void MoneyTileDouble();
 	void GiveAllWeapons();
 	int m_DDRaceState;
 	int Team();
