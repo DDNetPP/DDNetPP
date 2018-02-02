@@ -2950,12 +2950,12 @@ void CGameContext::DDPP_Tick()
 		}
 
 
-		if (CountIngameHumans() >= 11 && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
+		if (CountIngameHumans() >= g_Config.m_MinDoubleTilePlayers && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
 			MoneyDoubleEnoughPlayers = false;
 		}
-		if (CountIngameHumans() <= 10 && MoneyDoubleEnoughPlayers == false)
+		if (CountIngameHumans() < g_Config.m_MinDoubleTilePlayers && MoneyDoubleEnoughPlayers == false)
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
 			MoneyDoubleEnoughPlayers = true;

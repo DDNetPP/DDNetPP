@@ -373,6 +373,10 @@ MACRO_CONFIG_INT(SvDummyMapOffsetX, sv_dummy_map_offset_x, 0, -99999, 99999, CFG
 MACRO_CONFIG_INT(SvDummyMapOffsetY, sv_dummy_map_offset_y, 0, -99999, 99999, CFGFLAG_SERVER | CFGFLAG_GAME, "move the dummyhardcoded moves y tiles (only for supported modes)")
 MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")
 MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=all 1=blue(insta)def(ddr)red(none)")
+
+//minimum players for double money tile
+MACRO_CONFIG_INT(MinDoubleTilePlayers, min_double_tile_players, 12, 0, 64, CFGFLAG_SERVER | CFGFLAG_GAME, "minimum players for the double money tile to activate")
+
 //MACRO_CONFIG_INT(SvChillBlock5Version, sv_chillblock5_version, 0, 0, 1, CFGFLAG_SERVER, "0=old 1=upper spawn") //not needed yet because upper and lower spawn are dynamic anyways
 
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 2, CFGFLAG_SERVER, "Punish 'Chilli.*' members with wrong skin 0=off 1=freeze 2=kick")
