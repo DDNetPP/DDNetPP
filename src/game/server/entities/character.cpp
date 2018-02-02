@@ -10884,7 +10884,7 @@ void CCharacter::DummyTick()
 										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
 									}
 								}
-								if (rand() % 1 == 0) //lower middel base
+								if (rand() % 5 == 0) //lower middel base
 								{
 									m_Dummy27_loved_x = 410 * 32 + rand() % 64;
 									m_Dummy27_loved_y = 443 * 32;
