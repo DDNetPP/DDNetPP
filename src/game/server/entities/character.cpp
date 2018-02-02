@@ -10702,6 +10702,11 @@ void CCharacter::DummyTick()
 					CCharacter *pChr = GameServer()->m_World.ClosestCharTypePoliceFreezeHole(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
+						if (m_Core.m_Pos.y > 435 * 32) // setting the destination of dummy to top left police entry bcs otherwise bot fails when trying to help --> walks into jail wall xd
+						{
+							m_Dummy27_loved_x = (392 + rand() % 2) * 32;
+							m_Dummy27_loved_y = 430 * 32;
+						}
 						//aimbot on heuzeueu
 						m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 						m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -10879,7 +10884,7 @@ void CCharacter::DummyTick()
 										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
 									}
 								}
-								if (rand() % 5 == 0) //lower middel base
+								if (rand() % 1 == 0) //lower middel base
 								{
 									m_Dummy27_loved_x = 410 * 32 + rand() % 64;
 									m_Dummy27_loved_y = 443 * 32;
