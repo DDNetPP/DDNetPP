@@ -554,6 +554,9 @@ private:
 	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
 	static void ConAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldAtom(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfAtom(IConsole::IResult *pResult, void *pUserData);
 	static void ConTrail(IConsole::IResult *pResult, void *pUserData);

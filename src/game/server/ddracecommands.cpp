@@ -454,6 +454,56 @@ void CGameContext::ConInfAtom(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer)
+	{
+		pPlayer->m_InfAutoSpreadGun ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Infinite spread gun has been %s for %s", pPlayer->m_InfAutoSpreadGun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Infinite spread gun was %s by %s", pPlayer->m_InfAutoSpreadGun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_autospreadgun ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Spread gun has been %s for %s", pChr->m_autospreadgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Spread Gun was %s by %s", pChr->m_autospreadgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConPullhammer(IConsole::IResult *pResult, void *pUserData) // give/remove pullhammer
 {
 #if defined(CONF_DEBUG)

@@ -2949,16 +2949,18 @@ void CGameContext::DDPP_Tick()
 			GlobalChatPrintMessage();
 		}
 
-
-		if (CountIngameHumans() >= 11 && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
+		if (g_Config.m_SvMinDoubleTilePlayers > 0)
 		{
-			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
-			MoneyDoubleEnoughPlayers = false;
-		}
-		if (CountIngameHumans() <= 10 && MoneyDoubleEnoughPlayers == false)
-		{
-			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
-			MoneyDoubleEnoughPlayers = true;
+			if (CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
+			{
+				SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
+				MoneyDoubleEnoughPlayers = false;
+			}
+			if (CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == false)
+			{
+				SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
+				MoneyDoubleEnoughPlayers = true;
+			}
 		}
 	}
 }
@@ -3554,6 +3556,7 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->m_StrongBloody = false;
 						m_apPlayers[i]->GetCharacter()->m_Atom = false;
 						m_apPlayers[i]->GetCharacter()->m_Trail = false;
+						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
 
 						//kill speed
 						m_apPlayers[i]->GetCharacter()->KillSpeed();
