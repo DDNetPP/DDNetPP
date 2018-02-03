@@ -4165,7 +4165,7 @@ void CCharacter::MoneyTileDouble()
 #endif
 	if (Server()->Tick() % 50 == 0)
 	{
-		if (GameServer()->CountIngameHumans() >= g_Config.m_MinDoubleTilePlayers)
+		if (GameServer()->CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers)
 		{
 			if (m_pPlayer->m_AccountID <= 0)
 			{
@@ -4328,7 +4328,7 @@ void CCharacter::MoneyTileDouble()
 		else
 		{
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "[%d/%d] players to activate the double-moneytile", GameServer()->CountIngameHumans(), g_Config.m_MinDoubleTilePlayers);
+			str_format(aBuf, sizeof(aBuf), "[%d/%d] players to activate the double-moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
 			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		}
 	}
