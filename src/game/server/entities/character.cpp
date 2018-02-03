@@ -555,6 +555,8 @@ void CCharacter::FireWeapon(bool Bot)
 		FullAuto = true;
 	if (m_autospreadgun && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
+	if (m_pPlayer->m_InfAutoSpreadGun && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		FullAuto = true;
 
 	// check if we gonna fire
 	bool WillFire = false;
@@ -1007,7 +1009,7 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				Lifetime = (int)(Server()->TickSpeed()*GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
-			if (m_autospreadgun)
+			if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			{
 				//idk if this is the right place to set some shooting speed but yolo
 				//just copied the general code for all weapons and put it here

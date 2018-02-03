@@ -30,6 +30,8 @@ CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) act
 CONSOLE_COMMAND("InfBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
 CONSOLE_COMMAND("OldAtom", "v", CFGFLAG_SERVER, ConOldAtom, this, "(old) activates atom until death")
 CONSOLE_COMMAND("InfAtom", "v", CFGFLAG_SERVER, ConInfAtom, this, "activates atom until disconnect")
+CONSOLE_COMMAND("OldAutoSpreadGun", "v", CFGFLAG_SERVER, ConOldAutoSpreadGun, this, "activates spread gun until death")
+CONSOLE_COMMAND("InfAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, this, "activates spread gun until disconnect")
 CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
 CONSOLE_COMMAND("InfTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
 

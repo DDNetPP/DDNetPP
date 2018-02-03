@@ -572,11 +572,14 @@ public:
 	bool m_InfBloody;
 	bool m_InfAtom;
 	bool m_InfTrail;
+	bool m_InfAutoSpreadGun;
+
 	// cosmetic offers
 	int m_rainbow_offer;
 	int m_bloody_offer;
 	int m_atom_offer;
 	int m_trail_offer;
+	int m_autospreadgun_offer;
 
 	int m_KillStreak;
 	bool m_IsJailed;
