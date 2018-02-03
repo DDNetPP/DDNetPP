@@ -336,6 +336,8 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Atom: %d", pPlayer->m_atom_offer);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Spread gun: %d", pPlayer->m_autospreadgun_offer);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 }
 
 void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
@@ -5093,6 +5095,65 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/spread_gun <accept/off>'.");
+		return;
+	}
+
+
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "off"))
+	{
+		pPlayer->GetCharacter()->m_autospreadgun = false;
+		pPlayer->m_InfAutoSpreadGun = false;
+		pSelf->SendChatTarget(pResult->m_ClientID, "Spread gun turned off.");
+	}
+	else if (!str_comp_nocase(aInput, "accept"))
+	{
+		if (pPlayer->m_autospreadgun_offer > 0)
+		{
+			if (!pPlayer->GetCharacter()->m_autospreadgun)
+			{
+				pPlayer->GetCharacter()->m_autospreadgun = true;
+				pPlayer->m_autospreadgun_offer--;
+				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted spread gun. You can turn it off with '/spread_gun off'.");
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You already have spread gun.");
+			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you spread gun.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/spread_gun <accept/off>'.");
+	}
+}
+
 void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -5659,7 +5720,15 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				}
 				else if (!str_comp_nocase(aItem, "spread_gun"))
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] giving spreadgun to others isn't supported yet.");
+					if (pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer > 9)
+					{
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer spread gun to the same player more than 10 times.");
+						return;
+					}
+
+					pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer++;
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Spread gun offer sent to player: '%s'.", aUsername);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				}
 				else
 				{

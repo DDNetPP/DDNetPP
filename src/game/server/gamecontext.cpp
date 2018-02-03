@@ -3554,6 +3554,7 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->m_StrongBloody = false;
 						m_apPlayers[i]->GetCharacter()->m_Atom = false;
 						m_apPlayers[i]->GetCharacter()->m_Trail = false;
+						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
 
 						//kill speed
 						m_apPlayers[i]->GetCharacter()->KillSpeed();

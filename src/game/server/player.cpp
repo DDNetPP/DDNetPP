@@ -202,11 +202,13 @@ void CPlayer::Reset()
 	m_InfBloody = false;
 	m_InfAtom = false;
 	m_InfTrail = false;
+	m_InfAutoSpreadGun = false;
 	// disable cosmetic offers by default
 	m_rainbow_offer = false;
 	m_bloody_offer = false;
 	m_atom_offer = false;
 	m_trail_offer = false;
+	m_autospreadgun_offer = false;
 	//Block points
 	m_LastToucherID = -1;
 }
