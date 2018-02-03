@@ -176,7 +176,21 @@ enum
 	TILE_PVP_ARENA_SPAWN, //132
 	TILE_DOUBLE_MONEY = 133,
 
+	// cosmetics
+	TILE_RAINBOW_START = 144,
+	TILE_RAINBOW_END = 160,
+	TILE_BLOODY_START = 145,
+	TILE_BLOODY_END = 161,
+	TILE_STRONG_BLOODY_START = 146,
+	TILE_ATOM_START = 147,
+	TILE_ATOM_END = 163,
+	TILE_TRAIL_START = 148,
+	TILE_TRAIL_END = 164,
+	TILE_SPREAD_GUN_START = 149,
+	TILE_SPREAD_GUN_END = 165,
+
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
+
 
 	//End of higher tiles
 	//Layers
