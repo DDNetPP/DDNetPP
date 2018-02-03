@@ -375,7 +375,7 @@ MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | C
 MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=all 1=blue(insta)def(ddr)red(none)")
 
 //minimum players for double money tile
-MACRO_CONFIG_INT(MinDoubleTilePlayers, min_double_tile_players, 12, 0, 64, CFGFLAG_SERVER | CFGFLAG_GAME, "minimum players for the double money tile to activate")
+MACRO_CONFIG_INT(SvMinDoubleTilePlayers, sv_min_double_tile_players, 12, 0, 64, CFGFLAG_SERVER | CFGFLAG_GAME, "minimum players for the double money tile to activate")
 
 //MACRO_CONFIG_INT(SvChillBlock5Version, sv_chillblock5_version, 0, 0, 1, CFGFLAG_SERVER, "0=old 1=upper spawn") //not needed yet because upper and lower spawn are dynamic anyways
 
