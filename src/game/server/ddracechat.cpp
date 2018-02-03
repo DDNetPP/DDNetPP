@@ -5244,23 +5244,136 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 	CALL_STACK_ADD();
 #endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
+	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
+	if (!page) { page = 1; }
+	int pages = 4;
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "-- page %d/%d --", page, pages);
 
-
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Policeinfo ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, "What are the police benefits?");
-	pSelf->SendChatTarget(pResult->m_ClientID, "The police can write in '/policechat' to get extra attention from players, add/remove policehelpers, get extra money per policerank from moneytiles and can buy a taser. ");
-	pSelf->SendChatTarget(pResult->m_ClientID, "How many policeranks are there?");
-	pSelf->SendChatTarget(pResult->m_ClientID, "Currently there are 3 policeranks, you get +1 extra money for each rank on police moneytiles.");
-	pSelf->SendChatTarget(pResult->m_ClientID, "How to become police?");
-	pSelf->SendChatTarget(pResult->m_ClientID, "When you reach Lv.18, you can buy the first policerank in '/shop'");
-	pSelf->SendChatTarget(pResult->m_ClientID, "For more info about the policetaser, type '/taser info'");
-
+	if (page == 1)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[GENERAL INFORMATION]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Police can be bought in shop using '/buy police'.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"There are multiple police ranks, each cost 100 000 money.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"The policebot will help every police officer.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Every police rank will give you more benefits.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
+	else if (page == 2)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 1]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 18]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- '/policechat'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
+	else if (page == 3)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 2]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 25]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- full access to '/jail' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- '/policehelper'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
+	else if (page == 4)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 3]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 30]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- taser license ('/taser')");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
+	/*else if (page == 5)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 4]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 40]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- PASTE FEATURES HERE");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
+	else if (page == 6)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 5]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 50]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- PASTE FEATURES HERE");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}*/
+	else
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Unknow page.");
+	}
 }
 
 
