@@ -545,6 +545,9 @@ public:
 
 	int64 m_AliveTime;
 
+	int m_LastIndexTile;
+	int m_LastIndexFrontTile;
+
 	// Setters/Getters because i don't want to modify vanilla vars access modifiers
 	int GetLastWeapon() { return m_LastWeapon; };
 	void SetLastWeapon(int LastWeap) {m_LastWeapon = LastWeap; };
