@@ -2081,13 +2081,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
-
 	if (pResult->NumArguments() != 1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item. Type '/buy <itemname>' use '/shop' to see the full itemlist.");
 		return;
 	}
-
 
 	char aBuf[256];
 	char aItem[32];
@@ -2095,14 +2093,11 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aItem, "police"))
 	{
-		//pSelf->SendChatTarget(pResult->m_ClientID, "PoliceRank isnt available yet.");
-		//return;
-
 		if (pPlayer->m_PoliceRank == 0)
 		{
 			if (pPlayer->m_level < 18)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need Lv.18 to buy police.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 18 to buy police.");
 				return;
 			}
 		}
@@ -2110,7 +2105,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_level < 25)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need Lv.25 to upgrade police to level 2.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 25 to upgrade police to level 2.");
 				return;
 			}
 		}
@@ -2118,7 +2113,23 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			if (pPlayer->m_level < 30)
 			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need Lv.30 to upgrade police to level 3.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 30 to upgrade police to level 3.");
+				return;
+			}
+		}
+		else if (pPlayer->m_PoliceRank == 3)
+		{
+			if (pPlayer->m_level < 40)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 40 to upgrade police to level 4.");
+				return;
+			}
+		}
+		else if (pPlayer->m_PoliceRank == 4)
+		{
+			if (pPlayer->m_level < 50)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 50 to upgrade police to level 5.");
 				return;
 			}
 		}
@@ -2144,14 +2155,6 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "taser"))
 	{
-		//TODO / coming soon...:
-		//add taser levels...
-		//make taster shitty and sometimes dont work and higher levels lower the shitty risk
-
-		//pSelf->SendChatTarget(pResult->m_ClientID, "coming soon...");
-		//return;
-
-
 		if (pPlayer->m_PoliceRank < 3)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a weapon license.");
