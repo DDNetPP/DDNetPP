@@ -3078,76 +3078,98 @@ void CCharacter::HandleTiles(int Index)
 
 	// cosmetic tiles
 	//rainbow
-	if (((m_TileIndex == TILE_RAINBOW_START) || (m_TileFIndex == TILE_RAINBOW_START)) && !m_Rainbow)
+	if (((m_TileIndex == TILE_RAINBOW) || (m_TileFIndex == TILE_RAINBOW)))
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got rainbow!");
-		m_Rainbow = true;
+		if (((m_LastIndexTile == TILE_RAINBOW) || (m_LastIndexFrontTile == TILE_RAINBOW)))
+			return;
+
+		if (m_Rainbow)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost rainbow!");
+			m_Rainbow = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got rainbow!");
+			m_Rainbow = true;
+		}
 	}
 
-	if (((m_TileIndex == TILE_RAINBOW_END) || (m_TileFIndex == TILE_RAINBOW_END)) && m_Rainbow)
+	//bloody
+	if (((m_TileIndex == TILE_BLOODY) || (m_TileFIndex == TILE_BLOODY)))
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost rainbow!");
-		m_Rainbow = false;
+		if (((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
+			return;
+
+		if (m_Bloody || m_StrongBloody)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost bloody!");
+			m_Bloody = false;
+			m_StrongBloody = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got bloody!");
+			m_Bloody = true;
+		}
 	}
 
-	// bloody
-	if (((m_TileIndex == TILE_BLOODY_START) || (m_TileFIndex == TILE_BLOODY_START)) && !m_Bloody)
+	// atom
+	if (((m_TileIndex == TILE_ATOM) || (m_TileFIndex == TILE_ATOM)))
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got bloody!");
-		m_Bloody = true;
+		if (((m_LastIndexTile == TILE_ATOM) || (m_LastIndexFrontTile == TILE_ATOM)))
+			return;
+
+		if (m_Atom)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost atom!");
+			m_Atom = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got atom!");
+			m_Atom = true;
+		}
 	}
 
-	if (((m_TileIndex == TILE_BLOODY_END) || (m_TileFIndex == TILE_BLOODY_END)) && (m_Bloody || m_StrongBloody))
+	// trail
+	if (((m_TileIndex == TILE_TRAIL) || (m_TileFIndex == TILE_TRAIL)))
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost bloody!");
-		m_Bloody = false;
-		m_StrongBloody = false;
+		if (((m_LastIndexTile == TILE_TRAIL) || (m_LastIndexFrontTile == TILE_TRAIL)))
+			return;
+
+		if (m_Trail)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost trail!");
+			m_Trail = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got trail!");
+			m_Trail = true;
+		}
 	}
 
-	if (((m_TileIndex == TILE_STRONG_BLOODY_START) || (m_TileFIndex == TILE_STRONG_BLOODY_START)) && !m_StrongBloody)
+	// spread gun
+	if (((m_TileIndex == TILE_SPREAD_GUN) || (m_TileFIndex == TILE_SPREAD_GUN)))
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got strong bloody!");
-		m_StrongBloody = true;
+		if (((m_LastIndexTile == TILE_SPREAD_GUN) || (m_LastIndexFrontTile == TILE_SPREAD_GUN)))
+			return;
+
+		if (m_autospreadgun)
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost spread gun!");
+			m_autospreadgun = false;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got spread gun!");
+			m_autospreadgun = true;
+		}
 	}
 
-	//atom
-	if (((m_TileIndex == TILE_ATOM_START) || (m_TileFIndex == TILE_ATOM_START)) && !m_Atom)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got atom!");
-		m_Atom = true;
-	}
-
-	if (((m_TileIndex == TILE_ATOM_END) || (m_TileFIndex == TILE_ATOM_END)) && m_Atom)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost atom!");
-		m_Atom = false;
-	}
-
-	//trail
-	if (((m_TileIndex == TILE_TRAIL_START) || (m_TileFIndex == TILE_TRAIL_START)) && !m_Trail)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got trail!");
-		m_Trail = true;
-	}
-
-	if (((m_TileIndex == TILE_TRAIL_END) || (m_TileFIndex == TILE_TRAIL_END)) && m_Trail)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost trail!");
-		m_Trail = false;
-	}
-
-	//spread gun
-	if (((m_TileIndex == TILE_SPREAD_GUN_START) || (m_TileFIndex == TILE_SPREAD_GUN_START)) && !m_autospreadgun)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got spread gun!");
-		m_autospreadgun = true;
-	}
-
-	if (((m_TileIndex == TILE_SPREAD_GUN_END) || (m_TileFIndex == TILE_SPREAD_GUN_END)) && m_autospreadgun)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost spread gun!");
-		m_autospreadgun = false;
-	}
+	m_LastIndexTile = m_TileIndex; // do not remove
+	m_LastIndexFrontTile = m_TileFIndex; // do not remove
 
 
 	//hammerfight tiles
@@ -3781,6 +3803,8 @@ void CCharacter::DDRacePostCoreTick()
 	else
 	{
 		HandleTiles(CurrentIndex);
+		m_LastIndexTile = 0;
+		m_LastIndexFrontTile = 0;
 		if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25)
 		{
 			TestPrintTiles(CurrentIndex);
