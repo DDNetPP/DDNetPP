@@ -5105,7 +5105,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] Rrror: %d", wonID);
+				str_format(aBuf, sizeof(aBuf), "[BLOCK] Error: %d", wonID);
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 				GameServer()->m_BlockTournaState = 0;
 			}
