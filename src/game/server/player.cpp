@@ -163,6 +163,12 @@ void CPlayer::Reset()
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
 
+	if (g_Config.m_SvDDPPgametype == 1) //fly
+	{
+		m_IsVanillaDmg = true;
+		m_IsVanillaWeapons = true;
+	}
+
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
 
