@@ -360,12 +360,12 @@ void CPlayer::Tick()
 	//ChillerDragon chidraqul3 the hash game
 	if (m_Ischidraqul3)
 	{
-		if (g_Config.m_SvAllowMinigame == 0)
+		if (g_Config.m_SvAllowChidraqul == 0)
 		{
 			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
 			m_Ischidraqul3 = false;
 		}
-		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
+		else if (g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
 		{
 			char aBuf[512];
 
@@ -448,10 +448,9 @@ void CPlayer::Tick()
 			//print all
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (g_Config.m_SvAllowMinigame == 2) //old hardcodet 
+		else if (g_Config.m_SvAllowChidraqul == 2) //old hardcodet 
 		{
 			char aBuf[512];
-			str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
 
 
 			if (m_HashPos == 0)
@@ -515,18 +514,27 @@ void CPlayer::Tick()
 				GameServer()->SendBroadcast(aBuf, m_ClientID);
 			}
 		}
-		else if (g_Config.m_SvAllowMinigame == 3) //next generation
+		else if (g_Config.m_SvAllowChidraqul == 3) //next generation
 		{
-			char aWorld[10];
-
-			for (int i = 0; i < 10; i++)
+			if (Server()->Tick() % 10 == 0)
 			{
-				aWorld[i] = '_';
+				char aBuf[128];
+				char aHUD[64];
+				char aWorld[64]; //max world size
+
+				for (int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
+				{
+					aWorld[i] = '_';
+				}
+
+				aWorld[m_HashPos] = m_HashSkin[0];
+				aWorld[g_Config.m_SvChidraqulWorldX] = '\0';
+
+				str_format(aHUD, sizeof(aHUD), "\n\nPos: %d", m_HashPos);
+				str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
+
+				GameServer()->SendBroadcast(aWorld, m_ClientID, 0);
 			}
-
-			aWorld[m_HashPos] = m_HashSkin[0];
-
-			GameServer()->SendBroadcast(aWorld, m_ClientID);
 		}
 	}
 

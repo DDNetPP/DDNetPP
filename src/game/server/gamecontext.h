@@ -589,7 +589,6 @@ private:
 	static void ConCredits(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
-	static void ConMinigameinfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 	static void ConHelp(IConsole::IResult *pResult, void *pUserData);
 	static void ConSettings(IConsole::IResult *pResult, void *pUserData);
@@ -680,10 +679,6 @@ private:
 
 	//minigame (chidraqul)
 	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);
-	static void ConMinigameLeft(IConsole::IResult *pResult, void *pUserData);
-	static void ConMinigameRight(IConsole::IResult *pResult, void *pUserData);
-	static void ConMinigameUp(IConsole::IResult *pResult, void *pUserData);
-	static void ConMinigameDown(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConMinigames(IConsole::IResult *pResult, void *pUserData);
 

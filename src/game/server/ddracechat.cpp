@@ -465,30 +465,6 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	
 }
 
-
-void CGameContext::ConMinigameinfo(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"Minigame made by ChillerDragon.");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"If you buy the game you can play it until disconnect");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"Controls & Commands:");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/start_minigame'      Starts the game...");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/stop_minigame'      Stops the game...");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/Minigameleft'           move left.");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Info",
-		"'/Minigameright'           move right.");
-}
-
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -2279,7 +2255,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			pPlayer->MoneyTransaction(-250, "-250 money. (bought 'chidraqul')");
 			pPlayer->m_BoughtGame = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought 'chidraqul' until you disconnect. Check '/minigameinfo' for more information.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought 'chidraqul' until you disconnect. Check '/chidraqul info' for more information.");
 		}
 		else
 		{
@@ -3546,20 +3522,27 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 	char aCommand[64];
 	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
 
-	if (!str_comp_nocase(aCommand, "help"))
+	if (!str_comp_nocase(aCommand, "info") || !str_comp_nocase(aCommand, "help"))
 	{
-		//send help
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== chidraqul3 ====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "The chidraqul minigame in his third generation.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Buy the game in '/shop' with '/buy chidraqul' and you can use it until disconnect.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/chidraqul cmdlist' for a list of all commands");
 	}
-	else if (!str_comp_nocase(aCommand, "info"))
+	else if (!str_comp_nocase(aCommand, "cmdlist"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul3 more help at '/chidraqul help'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "=== chirdraqul3 commands ===");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/chidraqul start' to start the game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/chidraqul stop' to stop the game");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/chidraqul r' to move right");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/chidraqul l' to move left");
 	}
 	else if (!str_comp_nocase(aCommand, "start"))
 	{
 		if (pPlayer->m_BoughtGame)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul started.");
-			str_format(pPlayer->m_HashSkin, sizeof(pPlayer->m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
+			str_format(pPlayer->m_HashSkin, sizeof(pPlayer->m_HashSkin), "%s", g_Config.m_SvChidraqulDefaultSkin);
 			pPlayer->m_Ischidraqul3 = true;
 		}
 		else
@@ -3573,31 +3556,14 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		pSelf->m_apPlayers[pResult->m_ClientID]->m_Ischidraqul3 = false;
 		pSelf->SendBroadcast(" ", pResult->m_ClientID);
 	}
-	else
+	else if (!str_comp_nocase(aCommand, "r"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown chidraqul command. try '/chidraqul help'");
+		if (pPlayer->m_HashPos < g_Config.m_SvChidraqulWorldX - 1) //space for the string delimiter
+		{
+			pPlayer->m_HashPos++;
+		}
 	}
-}
-
-void CGameContext::ConMinigameLeft(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	if (pPlayer->m_Ischidraqul3)
+	else if (!str_comp_nocase(aCommand, "l"))
 	{
 		if (pPlayer->m_HashPos > 0)
 		{
@@ -3606,129 +3572,8 @@ void CGameContext::ConMinigameLeft(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameleft' command");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown chidraqul command. try '/chidraqul help'");
 	}
-
-}
-
-void CGameContext::ConMinigameRight(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	if (pPlayer->m_Ischidraqul3)
-	{
-		if (g_Config.m_SvAllowMinigame == 2)
-		{
-			if (pPlayer->m_HashPos < 10)
-			{
-				pPlayer->m_HashPos++;
-			}
-		}
-		else
-		{
-			if (pPlayer->m_HashPos < pPlayer->m_Minigameworld_size_x - 1)
-			{
-				pPlayer->m_HashPos++;
-			}
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameright' command");
-	}
-
-}
-
-void CGameContext::ConMinigameUp(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	if (pPlayer->m_Ischidraqul3)
-	{
-		if (g_Config.m_SvAllowMinigame == 2)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Admin disableld the /up movement.");
-		}
-		else
-		{
-			if (pPlayer->m_HashPosY < 1)
-			{
-				pPlayer->m_HashPosY++;
-			}
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigameup' command");
-	}
-
-}
-
-void CGameContext::ConMinigameDown(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-
-	if (pPlayer->m_Ischidraqul3)
-	{
-		if (g_Config.m_SvAllowMinigame == 2)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Admin disabled the /down movement.");
-		}
-		else
-		{
-			if (pPlayer->m_HashPosY > 0)
-			{
-				pPlayer->m_HashPosY--;
-			}
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You need to start a minigame first with '/start_minigame' to use the '/Minigamedown' command");
-	}
-
 }
 
 void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
