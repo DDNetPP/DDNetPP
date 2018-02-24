@@ -3559,6 +3559,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_BoughtGame)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul started.");
+			str_format(pPlayer->m_HashSkin, sizeof(pPlayer->m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
 			pPlayer->m_Ischidraqul3 = true;
 		}
 		else
