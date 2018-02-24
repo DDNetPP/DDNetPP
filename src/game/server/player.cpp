@@ -368,7 +368,6 @@ void CPlayer::Tick()
 		else if (g_Config.m_SvAllowMinigame == 1) //dynamic but resourcy way (doesnt work on linux)
 		{
 			char aBuf[512];
-			str_format(m_HashSkin, sizeof(m_HashSkin), "%s", g_Config.m_SvMinigameDefaultSkin);
 
 			char m_minigame_world[512];
 			str_format(m_minigame_world, sizeof(m_minigame_world), "");
@@ -515,6 +514,19 @@ void CPlayer::Tick()
 				str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
 				GameServer()->SendBroadcast(aBuf, m_ClientID);
 			}
+		}
+		else if (g_Config.m_SvAllowMinigame == 3) //next generation
+		{
+			char aWorld[10];
+
+			for (int i = 0; i < 10; i++)
+			{
+				aWorld[i] = '_';
+			}
+
+			aWorld[m_HashPos] = m_HashSkin[0];
+
+			GameServer()->SendBroadcast(aWorld, m_ClientID);
 		}
 	}
 
