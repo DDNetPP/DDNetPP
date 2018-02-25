@@ -5452,112 +5452,73 @@ void CCharacter::DummyTick()
 #endif
 	if (m_pPlayer->m_IsDummy)
 	{
-		if (m_pPlayer->m_DummyMode == 0)
-		{
-			//rest dummy (zuruecksetzten)
-			m_Input.m_Hook = 0;
-			m_Input.m_Jump = 0;
-			m_Input.m_Direction = 0;
-			m_LatestInput.m_Fire = 0;
-			m_Input.m_Fire = 0;
-
-
-			//Selfkills
-			if (isFreezed)
-			{
-				//wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
-				if (Server()->Tick() % 300 == 0)
-				{
-					//Die(m_pPlayer->GetCID(), WEAPON_SELF);
-				}
-			}
-
-
-
-
-			char aBuf[256];
-			//str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f", m_Core.m_Vel.x, m_Core.m_Vel.y);
-			//str_format(aBuf, sizeof(aBuf), "target:  x: %d y: %d", m_Input.m_TargetX, m_Input.m_TargetY);
-			str_format(aBuf, sizeof(aBuf), "pos.x %.2f pos.y %.2f", m_Core.m_Pos.x, m_Core.m_Pos.y);
-			//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-
-			if (1 == 2) //just for debuggin
-			{
-				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-				if (pChr && pChr->IsAlive())
-				{
-					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-					m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-					m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-					m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-				}
-			}
-			else //normal
-			{
-				float Angle = m_AngleTo;
-
-				if (Server()->Tick() > m_AngleTickStart + m_AngleTickTime)
-				{
-					if (Server()->Tick() >= m_AngleTickNext)
-					{
-						m_AngleFrom = m_AngleTo;
-
-						m_AngleTo += (rand() % 360) - 180;
-						m_AngleTickTime = Server()->TickSpeed() / 2 + (rand() % (Server()->TickSpeed() / 2));
-
-						m_AngleTickStart = Server()->Tick();
-						m_AngleTickNext = m_AngleTickStart + m_AngleTickTime + Server()->TickSpeed() * 2 + Server()->TickSpeed() / 2 * (rand() % 10);
-
-						// wann sollen die emotes gemacht werden? oder willst du das nachher machen? bei dem default mode is alles random bei dem anderen sollte es gefühle usw geben hier nich
-						// pChr->m_EmoteType = EMOTE_HAPPY; 
-						// pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed(); // = emote bleibt eine sekunde
-						// tja, dachte das wär hier drin. schade
-					}
-				}
-				else
-				{
-					Angle = m_AngleFrom + (m_AngleTo - m_AngleFrom) * (Server()->Tick() - m_AngleTickStart) / m_AngleTickTime;
-				}
-
-				float AngleRad = Angle * pi / 180.f;
-				m_Input.m_TargetX = cosf(AngleRad) * 100;
-				m_Input.m_TargetY = sinf(AngleRad) * 100;
-			}
-
-
-
-
-
-
-			// wenn targetX > 0 ist, guckt er nach rechts. bei < 0 halt nach links
-			// bei targetY ist es so, wenn das > 0 ist guckt er nach UNTEN. bei < 0 nach OBEN
-
-			// ok alles schön und gut aber wie lass ich den jetzt moven? also die augen nicht springen sondern bewegen
-
-			// m_Input.m_TargetX = 1;
-			// m_Input.m_TargetY = 0; // so guckt er halt z.B. nach rechts. da kannste jetzt mit rumrechnen (lass da pls) [steht doch oben ._.] egal
-
-			// wenn du was mit der zeit rechnen willst, nimm den server tick. Server()->Tick() und Server()->TickSpeed() [das sollte eigentlich immer 50 sein]
-
-			// m_Input.m_TargetX = Server()->Tick() % Server()->TickSpeed; // würde z.B. machen, dass m_TargetX zwischen 0 und 49 liegt (rechnet ja Modulo 50). nur so als beispiel. bringt in dem fall jetzt wenig
-
-			//float Angle = (float)Server()->Tick(); // teste mal
-			//float Angle = Server()->Tick() / (float)Server()->TickSpeed() * 360; // player dreht sich jede sekunde einmal
-			//float Angle = (float)Server()->Tick() / (float)Server()->TickSpeed() * 720.f; // player dreht sich jede sekunde zwei mal (720 = 360*2)schon kla skype
-
-			//float AngleRad = Angle * pi / 180.f;
-			//m_Input.m_TargetX = cosf(AngleRad) * 100;
-			//m_Input.m_TargetY = sinf(AngleRad) * 100; // probier das mal aus. sollte sich eigentlich alle 2 sekunden einmal komplett gedreht haben. (bin etwas müde ._.) :c
-
-			if (Server()->Tick() >= m_EmoteTickNext)
-			{
-				m_pPlayer->m_LastEmote = Server()->Tick();
-				int r = rand() % 100;
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
-
-				m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 10 + Server()->TickSpeed() * (rand() % 21);
-			}
-		}
+        if (m_pPlayer->m_DummyMode == 0) //default and sample mode
+        {
+            /********************************
+             *           weapons            *
+             ********************************/
+            //SetWeapon(0); // hammer
+            //SetWeapon(1); // gun
+            //SetWeapon(2); // shotgun
+            //SetWeapon(3); // grenade
+            //SetWeapon(4); // rifle
+            
+            /********************************
+             *           aiming             *
+             ********************************/
+            //right and down:
+            //m_Input.m_TargetX = 200;
+            //m_Input.m_TargetY = 200;
+            //m_LatestInput.m_TargetX = 200;
+            //m_LatestInput.m_TargetY = 200;
+            
+            //left and up:
+            //m_Input.m_TargetX = -200;
+            //m_Input.m_TargetY = -200;
+            //m_LatestInput.m_TargetX = -200;
+            //m_LatestInput.m_TargetY = -200;
+            
+            //up:
+            //m_Input.m_TargetX = 1; // straight up would be 0 but we better avoid using 0 (can cause bugs)
+            //m_Input.m_TargetY = -200;
+            //m_LatestInput.m_TargetX = 1;
+            //m_LatestInput.m_TargetY = -200;
+            
+            /********************************
+             *           moving             *
+             ********************************/
+            //m_Input.m_Hook = 0; //don't hook
+            //m_Input.m_Hook = 1; //hook
+            //m_Input.m_Jump = 0; //don't jump
+            //m_Input.m_Jump = 1; //jump
+            //m_Input.m_Direction = 0; //don't walk
+            //m_Input.m_Direction = -1; //walk left
+            //m_Input.m_Direction = 1; //walk right
+            
+            /********************************
+             *           shooting           *
+             ********************************/
+            //m_LatestInput.m_Fire++; //fire!
+            //m_Input.m_Fire++; //fire!
+            //m_LatestInput.m_Fire = 0; //stop fire
+            //m_Input.m_Fire = 0; //stop fire
+            
+            //
+            
+            /********************************
+             *           conditions         *
+             ********************************/
+            if (m_Core.m_Pos.x < 10 * 32)
+            {
+                //this code gets executed if the bot is in the first 10 left tiles of the map
+                //m_Input.m_Direction = 1; //the bot walks to the right until he reaches the x coordinate 10
+            }
+            else
+            {
+                //this code gets executed if the bot is at x == 10 or higher
+                //m_Input.m_Direction = -1; //the bot would go back to 10 if he is too far
+            }
+        }
 		else if (m_pPlayer->m_DummyMode == 1)
 		{
 			m_Input.m_TargetX = 2;
@@ -5569,6 +5530,107 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire++;
 			m_Input.m_Fire++;
 		}
+        else if (m_pPlayer->m_DummyMode == 2)
+        {
+            //rest dummy (zuruecksetzten)
+            m_Input.m_Hook = 0;
+            m_Input.m_Jump = 0;
+            m_Input.m_Direction = 0;
+            m_LatestInput.m_Fire = 0;
+            m_Input.m_Fire = 0;
+            
+            
+            //Selfkills
+            if (isFreezed)
+            {
+                //wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
+                if (Server()->Tick() % 300 == 0)
+                {
+                    //Die(m_pPlayer->GetCID(), WEAPON_SELF);
+                }
+            }
+            
+            
+            
+            
+            char aBuf[256];
+            //str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f", m_Core.m_Vel.x, m_Core.m_Vel.y);
+            //str_format(aBuf, sizeof(aBuf), "target:  x: %d y: %d", m_Input.m_TargetX, m_Input.m_TargetY);
+            str_format(aBuf, sizeof(aBuf), "pos.x %.2f pos.y %.2f", m_Core.m_Pos.x, m_Core.m_Pos.y);
+            //GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+            
+            if (1 == 2) //just for debuggin
+            {
+                CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+                if (pChr && pChr->IsAlive())
+                {
+                    m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+                    m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+                    m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+                    m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+                }
+            }
+            else //normal
+            {
+                float Angle = m_AngleTo;
+                
+                if (Server()->Tick() > m_AngleTickStart + m_AngleTickTime)
+                {
+                    if (Server()->Tick() >= m_AngleTickNext)
+                    {
+                        m_AngleFrom = m_AngleTo;
+                        
+                        m_AngleTo += (rand() % 360) - 180;
+                        m_AngleTickTime = Server()->TickSpeed() / 2 + (rand() % (Server()->TickSpeed() / 2));
+                        
+                        m_AngleTickStart = Server()->Tick();
+                        m_AngleTickNext = m_AngleTickStart + m_AngleTickTime + Server()->TickSpeed() * 2 + Server()->TickSpeed() / 2 * (rand() % 10);
+                        
+                        // wann sollen die emotes gemacht werden? oder willst du das nachher machen? bei dem default mode is alles random bei dem anderen sollte es gefühle usw geben hier nich
+                        // pChr->m_EmoteType = EMOTE_HAPPY;
+                        // pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed(); // = emote bleibt eine sekunde
+                        // tja, dachte das wär hier drin. schade
+                    }
+                }
+                else
+                {
+                    Angle = m_AngleFrom + (m_AngleTo - m_AngleFrom) * (Server()->Tick() - m_AngleTickStart) / m_AngleTickTime;
+                }
+                
+                float AngleRad = Angle * pi / 180.f;
+                m_Input.m_TargetX = cosf(AngleRad) * 100;
+                m_Input.m_TargetY = sinf(AngleRad) * 100;
+            }
+            
+            // wenn targetX > 0 ist, guckt er nach rechts. bei < 0 halt nach links
+            // bei targetY ist es so, wenn das > 0 ist guckt er nach UNTEN. bei < 0 nach OBEN
+            
+            // ok alles schön und gut aber wie lass ich den jetzt moven? also die augen nicht springen sondern bewegen
+            
+            // m_Input.m_TargetX = 1;
+            // m_Input.m_TargetY = 0; // so guckt er halt z.B. nach rechts. da kannste jetzt mit rumrechnen (lass da pls) [steht doch oben ._.] egal
+            
+            // wenn du was mit der zeit rechnen willst, nimm den server tick. Server()->Tick() und Server()->TickSpeed() [das sollte eigentlich immer 50 sein]
+            
+            // m_Input.m_TargetX = Server()->Tick() % Server()->TickSpeed; // würde z.B. machen, dass m_TargetX zwischen 0 und 49 liegt (rechnet ja Modulo 50). nur so als beispiel. bringt in dem fall jetzt wenig
+            
+            //float Angle = (float)Server()->Tick(); // teste mal
+            //float Angle = Server()->Tick() / (float)Server()->TickSpeed() * 360; // player dreht sich jede sekunde einmal
+            //float Angle = (float)Server()->Tick() / (float)Server()->TickSpeed() * 720.f; // player dreht sich jede sekunde zwei mal (720 = 360*2)schon kla skype
+            
+            //float AngleRad = Angle * pi / 180.f;
+            //m_Input.m_TargetX = cosf(AngleRad) * 100;
+            //m_Input.m_TargetY = sinf(AngleRad) * 100; // probier das mal aus. sollte sich eigentlich alle 2 sekunden einmal komplett gedreht haben. (bin etwas müde ._.) :c
+            
+            if (Server()->Tick() >= m_EmoteTickNext)
+            {
+                m_pPlayer->m_LastEmote = Server()->Tick();
+                int r = rand() % 100;
+                GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
+                
+                m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 10 + Server()->TickSpeed() * (rand() % 21);
+            }
+        }
 		else if (m_pPlayer->m_DummyMode == -3)
 		{
 			//rest dummy (zuruecksetzten)
