@@ -2972,6 +2972,10 @@ void CGameContext::DDPP_Tick()
 	{
 		SurvivalLobbyTick();
 	}
+	else if (m_survivalgamestate == 3) //deathmatch countdown
+	{
+		SurvivalDeathmatchTick();
+	}
 
 	if (m_BlockWaveGameState)
 	{
@@ -3376,9 +3380,35 @@ void CGameContext::SurvivalLobbyTick()
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 	}
 
-	if (!m_survivallobbycountdown)
+	if (m_survivallobbycountdown < 1)
 	{
 		SurvivalStartGame();
+	}
+}
+
+void CGameContext::SurvivalDeathmatchTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[256];
+	m_survival_dm_countdown--;
+
+	if (m_survival_dm_countdown % Server()->TickSpeed() == 0 && m_survival_dm_countdown - 10 < Server()->TickSpeed() * 10) //every second if seconds < 10
+	{
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d seconds", m_survival_dm_countdown / Server()->TickSpeed());
+		SendSurvivalBroadcast(aBuf);
+	}
+	else if (m_survival_dm_countdown % (Server()->TickSpeed() * 60) == 0 && m_survival_dm_countdown - 10 < (Server()->TickSpeed() * 60) * 5) //every minute if minutes < 5
+	{
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+		SendSurvivalChat(aBuf);
+	}
+
+	if (m_survival_dm_countdown < 1)
+	{
+		//start deathmatch
+		SurvivalSetGameState(4);
 	}
 }
 
@@ -3542,6 +3572,35 @@ void CGameContext::SurvivalSetGameState(int state)
 		}
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 		m_survivalgamestate = 2;
+	}
+	else if (state == 3) //deathmatch countdown
+	{
+		m_survival_dm_countdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
+		m_survivalgamestate = 3;
+	}
+	else if (state == 4) //deathmatch
+	{
+		SendSurvivalChat("[SURVIVAL] teleporting survivors to deathmatch arena.");
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
+			{
+				vec2 SurvivalSpawn = Collision()->GetRandomTile(TILE_SURVIVAL_DEATHMATCH);
+
+				if (SurvivalSpawn != vec2(-1, -1))
+				{
+					m_apPlayers[i]->GetCharacter()->SetPosition(SurvivalSpawn);
+				}
+				else //no dm spawn tile
+				{
+					SendSurvivalChat("[SURVIVAL] error no deathmatch arena found.");
+					break;
+				}
+			}
+		}
+
+		m_survivalgamestate = 4;
 	}
 }
 
@@ -6465,7 +6524,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
 						*/
-						str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d", pPlayer->m_C3_GameState);
+						str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d deathmatch %d mins %d seconds", pPlayer->m_C3_GameState, m_survival_dm_countdown / (Server()->TickSpeed() * 60), (m_survival_dm_countdown % (Server()->TickSpeed() * 60)) / Server()->TickSpeed());
 						SendChatTarget(ClientID, aBuf);
 						//pPlayer->m_PoliceRank = 5;
 						//GetPlayerChar(ClientID)->FreezeAll(10);
