@@ -386,6 +386,7 @@ MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 3, CFGFLAG_SERVER | 
 
 MACRO_CONFIG_INT(SvAllowChidraqul, sv_allow_chidraqul, 3, 0, 3, CFGFLAG_SERVER, "allow users to play chidraqul")
 MACRO_CONFIG_INT(SvChidraqulWorldX, sv_chidraqul_world_x, 10, 1, 64, CFGFLAG_SERVER, "chidraqul world size (x)")
+MACRO_CONFIG_INT(SvChidraqulSlots, sv_chidraqul_slots, 3, 0, 10, CFGFLAG_SERVER, "how many slots the chidraqul multiplayer allows")
 MACRO_CONFIG_STR(SvChidraqulDefaultSkin, sv_chidraqul_default_skin, 12, "#", CFGFLAG_SERVER, "Change default skin in chidraqul")
 
 MACRO_CONFIG_INT(SvBlockBroadcast, sv_block_broadcast, 0, 0, 1, CFGFLAG_SERVER, "shows all blocks in broadcast")

@@ -3541,9 +3541,9 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pPlayer->m_BoughtGame)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul started.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[chidraqul] started.");
 			str_format(pPlayer->m_HashSkin, sizeof(pPlayer->m_HashSkin), "%s", g_Config.m_SvChidraqulDefaultSkin);
-			pPlayer->m_Ischidraqul3 = true;
+			pPlayer->m_C3_GameState = 1; //singleplayer
 		}
 		else
 		{
@@ -3552,8 +3552,8 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "stop") || !str_comp_nocase(aCommand, "quit"))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "chidraqul stopped.");
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_Ischidraqul3 = false;
+		pSelf->SendChatTarget(pResult->m_ClientID, "[chidraqul] stopped.");
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_C3_GameState = false;
 		pSelf->SendBroadcast(" ", pResult->m_ClientID);
 	}
 	else if (!str_comp_nocase(aCommand, "r"))
@@ -3561,7 +3561,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_HashPos < g_Config.m_SvChidraqulWorldX - 1) //space for the string delimiter
 		{
 			pPlayer->m_HashPos++;
-			pPlayer->m_c3_UpdateFrame = true;
+			pPlayer->m_C3_UpdateFrame = true;
 		}
 	}
 	else if (!str_comp_nocase(aCommand, "l"))
@@ -3569,12 +3569,22 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_HashPos > 0)
 		{
 			pPlayer->m_HashPos--;
-			pPlayer->m_c3_UpdateFrame = true;
+			pPlayer->m_C3_UpdateFrame = true;
 		}
+	}
+	else if (!str_comp_nocase(aCommand, "multiplayer"))
+	{
+		if (!pPlayer->m_BoughtGame)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have this game. You can buy it with '/buy chidraqul'");
+			return;
+		}
+
+		pPlayer->JoinMultiplayer();
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown chidraqul command. try '/chidraqul help'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[chidraqul] Unknown command. try '/chidraqul help'");
 	}
 }
 
