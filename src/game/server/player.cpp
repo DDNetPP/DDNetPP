@@ -360,182 +360,7 @@ void CPlayer::Tick()
 	//ChillerDragon chidraqul3 the hash game
 	if (m_Ischidraqul3)
 	{
-		if (g_Config.m_SvAllowChidraqul == 0)
-		{
-			GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
-			m_Ischidraqul3 = false;
-		}
-		else if (g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
-		{
-			char aBuf[512];
-
-			char m_minigame_world[512];
-			str_format(m_minigame_world, sizeof(m_minigame_world), "");
-
-
-
-
-			//spawn gold
-			if (!m_GoldAlive)
-			{
-				m_GoldPos = -1;
-				if (m_GoldRespawnDelay <= 0)
-				{
-					m_GoldPos = rand() % 25 + 1;
-					m_GoldAlive = true;
-					m_GoldRespawnDelay = 100;
-				}
-				else
-				{
-					m_GoldRespawnDelay--;
-				}
-			}
-
-			//Check for hittin stuff
-			//collecting gold
-			if (m_GoldPos == m_HashPos && m_HashPosY == 0)
-			{
-				m_HashGold++;
-				m_GoldAlive = false;
-			}
-
-
-
-
-
-			//create world chararray
-			//y: 3
-			//y: 2
-			//y: 1
-			for (int i = 0; i < m_Minigameworld_size_x; i++)
-			{
-				char create_world[126];
-				if (i == m_HashPos && m_HashPosY == 1)
-				{
-					str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
-				}
-				else
-				{
-					str_format(create_world, sizeof(create_world), "_");
-				}
-
-				str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
-			}
-			str_format(m_minigame_world, sizeof(m_minigame_world), "%s\n", m_minigame_world);
-			//y: 0
-			for (int i = 0; i < m_Minigameworld_size_x; i++)
-			{
-				char create_world[126];
-				if (i == m_HashPos && m_HashPosY == 0)
-				{
-					str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
-				}
-				else if (i == m_GoldPos)
-				{
-					str_format(create_world, sizeof(create_world), "$");
-				}
-				else
-				{
-					str_format(create_world, sizeof(create_world), "_");
-				}
-
-				str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
-			}
-
-			//add stuff to the print string
-			str_format(aBuf, sizeof(aBuf), "\n\n\n%s\nPos: [%d/%d] Gold: %d", m_minigame_world, m_HashPos, m_HashPosY, m_HashGold);
-
-			//print all
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
-		}
-		else if (g_Config.m_SvAllowChidraqul == 2) //old hardcodet 
-		{
-			char aBuf[512];
-
-
-			if (m_HashPos == 0)
-			{
-				str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 2)
-			{
-				str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 3)
-			{
-				str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 3)
-			{
-				str_format(aBuf, sizeof(aBuf), "____%s_______", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 4)
-			{
-				str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 5)
-			{
-				str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 6)
-			{
-				str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 7)
-			{
-				str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 8)
-			{
-				str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 9)
-			{
-				str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-			else if (m_HashPos == 10)
-			{
-				str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
-				GameServer()->SendBroadcast(aBuf, m_ClientID);
-			}
-		}
-		else if (g_Config.m_SvAllowChidraqul == 3) //next generation
-		{
-			if (Server()->Tick() % 10 == 0)
-			{
-				char aBuf[128];
-				char aHUD[64];
-				char aWorld[64]; //max world size
-
-				for (int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
-				{
-					aWorld[i] = '_';
-				}
-
-				aWorld[m_HashPos] = m_HashSkin[0];
-				aWorld[g_Config.m_SvChidraqulWorldX] = '\0';
-
-				str_format(aHUD, sizeof(aHUD), "\n\nPos: %d", m_HashPos);
-				str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
-
-				GameServer()->SendBroadcast(aWorld, m_ClientID, 0);
-			}
-		}
+		chidraqul3_GameTick();
 	}
 
 	//profile views
@@ -1975,5 +1800,193 @@ bool CPlayer::IsInstagibMinigame()
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
+}
+
+void CPlayer::chidraqul3_GameTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (g_Config.m_SvAllowChidraqul == 0)
+	{
+		GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
+		m_Ischidraqul3 = false;
+	}
+	else if (g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
+	{
+		char aBuf[512];
+
+		char m_minigame_world[512];
+		str_format(m_minigame_world, sizeof(m_minigame_world), "");
+
+
+
+
+		//spawn gold
+		if (!m_GoldAlive)
+		{
+			m_GoldPos = -1;
+			if (m_GoldRespawnDelay <= 0)
+			{
+				m_GoldPos = rand() % 25 + 1;
+				m_GoldAlive = true;
+				m_GoldRespawnDelay = 100;
+			}
+			else
+			{
+				m_GoldRespawnDelay--;
+			}
+		}
+
+		//Check for hittin stuff
+		//collecting gold
+		if (m_GoldPos == m_HashPos && m_HashPosY == 0)
+		{
+			m_HashGold++;
+			m_GoldAlive = false;
+		}
+
+
+
+
+
+		//create world chararray
+		//y: 3
+		//y: 2
+		//y: 1
+		for (int i = 0; i < m_Minigameworld_size_x; i++)
+		{
+			char create_world[126];
+			if (i == m_HashPos && m_HashPosY == 1)
+			{
+				str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
+			}
+			else
+			{
+				str_format(create_world, sizeof(create_world), "_");
+			}
+
+			str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
+		}
+		str_format(m_minigame_world, sizeof(m_minigame_world), "%s\n", m_minigame_world);
+		//y: 0
+		for (int i = 0; i < m_Minigameworld_size_x; i++)
+		{
+			char create_world[126];
+			if (i == m_HashPos && m_HashPosY == 0)
+			{
+				str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
+			}
+			else if (i == m_GoldPos)
+			{
+				str_format(create_world, sizeof(create_world), "$");
+			}
+			else
+			{
+				str_format(create_world, sizeof(create_world), "_");
+			}
+
+			str_format(m_minigame_world, sizeof(m_minigame_world), "%s%s", m_minigame_world, create_world);
+		}
+
+		//add stuff to the print string
+		str_format(aBuf, sizeof(aBuf), "\n\n\n%s\nPos: [%d/%d] Gold: %d", m_minigame_world, m_HashPos, m_HashPosY, m_HashGold);
+
+		//print all
+		GameServer()->SendBroadcast(aBuf, m_ClientID);
+	}
+	else if (g_Config.m_SvAllowChidraqul == 2) //old hardcodet 
+	{
+		char aBuf[512];
+
+
+		if (m_HashPos == 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 1)
+		{
+			str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 2)
+		{
+			str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 3)
+		{
+			str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 3)
+		{
+			str_format(aBuf, sizeof(aBuf), "____%s_______", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 4)
+		{
+			str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 5)
+		{
+			str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 6)
+		{
+			str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 7)
+		{
+			str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 8)
+		{
+			str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 9)
+		{
+			str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+		else if (m_HashPos == 10)
+		{
+			str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
+			GameServer()->SendBroadcast(aBuf, m_ClientID);
+		}
+	}
+	else if (g_Config.m_SvAllowChidraqul == 3) //next generation
+	{
+		if (m_c3_UpdateFrame)
+		{
+			m_c3_UpdateFrame = false;
+			char aBuf[128];
+			char aHUD[64];
+			char aWorld[64]; //max world size
+
+			for (int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
+			{
+				aWorld[i] = '_';
+			}
+
+			aWorld[m_HashPos] = m_HashSkin[0];
+			aWorld[g_Config.m_SvChidraqulWorldX] = '\0';
+
+			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d", m_HashPos);
+			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
+
+			GameServer()->SendBroadcast(aWorld, m_ClientID, 0);
+		}
+		if (Server()->Tick() % 120 == 0)
+		{
+			m_c3_UpdateFrame = true;
+		}
+	}
 }
 

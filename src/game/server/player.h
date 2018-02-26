@@ -261,6 +261,8 @@ public:
 	bool m_IsBlockWaveWaiting;
 
 	//chidraqul3 (minigame)
+	void chidraqul3_GameTick();
+	bool m_c3_UpdateFrame;
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
 	bool m_GoldAlive;
