@@ -488,6 +488,8 @@ MACRO_CONFIG_INT(SvNameplates, sv_nameplates, 0, 0, 1, CFGFLAG_SERVER, "hide or 
 MACRO_CONFIG_INT(SvSurvivalStartPlayers, sv_survival_start_players, 4, 2, 64, CFGFLAG_SERVER, "how many players are needed to start a survival game")
 MACRO_CONFIG_INT(SvSurvivalGunAmmo, sv_survival_gun_ammo, 0, 0, 1, CFGFLAG_SERVER, "whether the tees have gun ammo on spawn or not")
 MACRO_CONFIG_INT(SvSurvivalLobbyDelay, sv_survival_lobby_delay, 10, 5, 300, CFGFLAG_SERVER, "lobby start delay")
+MACRO_CONFIG_INT(SvSurvivalDmPlayers, sv_survival_dm_players, 3, 3, 64, CFGFLAG_SERVER, "if less than x players start the deathmatch countdown")
+MACRO_CONFIG_INT(SvSurvivalDmDelay, sv_survival_dm_delay, 5, 0, 60, CFGFLAG_SERVER, "after how many minutes the deathmatch should start 0=off")
 MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "allow survival command")
 
 //block tourna

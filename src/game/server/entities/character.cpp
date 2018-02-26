@@ -5165,7 +5165,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	//survival
 	if (m_pPlayer->m_IsSurvivaling)
 	{
-		if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_survivalgamestate == 2) //if alive and game running
+		if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_survivalgamestate > 1) //if alive and game running
 		{
 			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
@@ -5175,6 +5175,12 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				//GameServer()->SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
 				if (!GameServer()->SurvivalPickWinner()) { GameServer()->SendSurvivalChat("[SURVIVAL] Nobody won."); }
 				GameServer()->SurvivalSetGameState(1);
+			}
+			else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
+			{
+				GameServer()->SurvivalSetGameState(3); //dm count down tick
+				str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", GameServer()->m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+				GameServer()->SendSurvivalChat(aBuf);
 			}
 		}
 	}
