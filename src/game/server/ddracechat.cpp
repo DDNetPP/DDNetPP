@@ -3561,6 +3561,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_HashPos < g_Config.m_SvChidraqulWorldX - 1) //space for the string delimiter
 		{
 			pPlayer->m_HashPos++;
+			pPlayer->m_c3_UpdateFrame = true;
 		}
 	}
 	else if (!str_comp_nocase(aCommand, "l"))
@@ -3568,6 +3569,7 @@ void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_HashPos > 0)
 		{
 			pPlayer->m_HashPos--;
+			pPlayer->m_c3_UpdateFrame = true;
 		}
 	}
 	else
