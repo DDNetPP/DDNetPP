@@ -262,7 +262,8 @@ public:
 
 	//chidraqul3 (minigame)
 	void chidraqul3_GameTick();
-	bool m_c3_UpdateFrame;
+	bool JoinMultiplayer();
+	bool m_C3_UpdateFrame;
 	int m_GoldRespawnDelay;
 	int m_GoldPos;
 	bool m_GoldAlive;
@@ -272,7 +273,7 @@ public:
 	int m_HashPos;
 	int m_HashPosY;
 	bool m_BoughtGame;
-	bool m_Ischidraqul3;
+	int m_C3_GameState; //0=off 1=singleplayer 2=multiplayer
 
 	//profiles
 	int m_ProfileStyle; // 0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber

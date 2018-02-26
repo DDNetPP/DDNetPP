@@ -275,6 +275,13 @@ public:
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
 
+
+	//chidraqul3 multiplayer
+	int C3_GetFreeSlots();
+	int C3_GetOnlinePlayers();
+	void C3_MultiPlayer_GameTick(int id);
+	void C3_RenderFrame();
+
 	//FNN
 	void FNN_LoadRun(const char * path, int botID);
 	vec2 m_FinishTilePos;

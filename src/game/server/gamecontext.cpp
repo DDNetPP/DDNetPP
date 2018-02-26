@@ -2160,6 +2160,101 @@ bool CGameContext::IsSameIP(int ID_1, int ID_2)
 	return false;
 }
 
+int CGameContext::C3_GetFreeSlots()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = g_Config.m_SvChidraqulSlots;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		{
+			c--;
+		}
+	}
+	return c;
+}
+
+int CGameContext::C3_GetOnlinePlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int c = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		{
+			c++;
+		}
+	}
+	return c;
+}
+
+void CGameContext::C3_MultiPlayer_GameTick(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_apPlayers[id]->m_C3_UpdateFrame || Server()->Tick() % 120 == 0)
+	{
+		C3_RenderFrame();
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i])
+			{
+				m_apPlayers[i]->m_C3_UpdateFrame = false; //only render once a tick
+			}
+		}
+	}
+}
+
+void CGameContext::C3_RenderFrame()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	char aBuf[128];
+	char aHUD[64];
+	char aWorld[64]; //max world size
+	int players = C3_GetOnlinePlayers();
+
+	//init world
+	for (int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
+	{
+		aWorld[i] = '_';
+	}
+	
+	//place players
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		{
+			aWorld[m_apPlayers[i]->m_HashPos] = m_apPlayers[i]->m_HashSkin[0];
+		}
+	}
+	
+	//finish string
+	aWorld[g_Config.m_SvChidraqulWorldX] = '\0';
+
+
+	//add hud and send to players
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		{
+			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", m_apPlayers[i]->m_HashPos, players, g_Config.m_SvChidraqulSlots);
+			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
+
+			//dbg_msg("debug", "printing: %s", aBuf);
+
+			SendBroadcast(aBuf, i, 0);
+		}
+	}
+}
+
 void CGameContext::FNN_LoadRun(const char * path, int botID)
 {
 #if defined(CONF_DEBUG)
@@ -2858,7 +2953,6 @@ void CGameContext::DDPP_Tick()
 		m_iBroadcastDelay--;
 	}
 
-
 	if (m_BlockTournaState)
 	{
 		BlockTournaTick();
@@ -2893,6 +2987,7 @@ void CGameContext::DDPP_Tick()
 		AsciiTick(i);
 		InstaGrenadeRoundEndTick(i);
 		InstaRifleRoundEndTick(i);
+		C3_MultiPlayer_GameTick(i);
 	}
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
@@ -6350,6 +6445,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
+						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
 						float newest_distance_finish = 4.20;
@@ -6368,6 +6464,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						float vv_distance = distance(vector1, vector2);
 
 						str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
+						*/
+						str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d", pPlayer->m_C3_GameState);
 						SendChatTarget(ClientID, aBuf);
 						//pPlayer->m_PoliceRank = 5;
 						//GetPlayerChar(ClientID)->FreezeAll(10);
@@ -6375,7 +6473,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
-						pPlayer->m_xp += 10000000;
+						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;

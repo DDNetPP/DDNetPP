@@ -358,7 +358,7 @@ void CPlayer::Tick()
 
 
 	//ChillerDragon chidraqul3 the hash game
-	if (m_Ischidraqul3)
+	if (m_C3_GameState == 1) //singleplayer
 	{
 		chidraqul3_GameTick();
 	}
@@ -1807,10 +1807,14 @@ void CPlayer::chidraqul3_GameTick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	//if (m_C3_GameState == 2) //multiplayer
+	//	return; //handled in gamecontext
+
+
 	if (g_Config.m_SvAllowChidraqul == 0)
 	{
 		GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
-		m_Ischidraqul3 = false;
+		m_C3_GameState = false;
 	}
 	else if (g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
 	{
@@ -1963,9 +1967,9 @@ void CPlayer::chidraqul3_GameTick()
 	}
 	else if (g_Config.m_SvAllowChidraqul == 3) //next generation
 	{
-		if (m_c3_UpdateFrame)
+		if (m_C3_UpdateFrame)
 		{
-			m_c3_UpdateFrame = false;
+			m_C3_UpdateFrame = false;
 			char aBuf[128];
 			char aHUD[64];
 			char aWorld[64]; //max world size
@@ -1985,8 +1989,21 @@ void CPlayer::chidraqul3_GameTick()
 		}
 		if (Server()->Tick() % 120 == 0)
 		{
-			m_c3_UpdateFrame = true;
+			m_C3_UpdateFrame = true;
 		}
 	}
+}
+
+bool CPlayer::JoinMultiplayer()
+{
+	if (GameServer()->C3_GetFreeSlots() > 0)
+	{
+		GameServer()->SendChatTarget(GetCID(), "[chidraqul] joined multiplayer.");
+		m_C3_UpdateFrame = true;
+		m_C3_GameState = 2;
+		return true;
+	}
+	GameServer()->SendChatTarget(GetCID(), "[chidraqul] multiplayer is full.");
+	return false;
 }
 
