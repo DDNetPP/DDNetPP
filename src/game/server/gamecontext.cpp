@@ -1555,7 +1555,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		else
 		{
-			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod based on DDNet");
+			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod (" DDNETPP_VERSION ") based on DDNet");
 		}
 
 		if(g_Config.m_SvWelcome[0]!=0)
