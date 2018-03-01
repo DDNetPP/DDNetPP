@@ -362,6 +362,21 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	if (page == 1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"=== Changelog (DDNet++ v.0.0.5) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* drop flags in aim direction");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* fixed the chidraqul minigame");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added dummymodes for BlmapChill and blmapV5");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			aBuf);
+	}
+	else if (page == 2)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added spreading guns for VIP+");
@@ -382,7 +397,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 2)
+	else if (page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
@@ -401,7 +416,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 3)
+	else if (page == 4)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
@@ -424,7 +439,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 4)
+	else if (page == 5)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
