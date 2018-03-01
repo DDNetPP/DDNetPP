@@ -10205,6 +10205,7 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 }
 
 
+
 //TEST AREA START
 //TESTAREA51
 

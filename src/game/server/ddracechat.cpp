@@ -728,8 +728,16 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 		"ChillerDragon's Block mod. " DDNETPP_VERSION " (more info '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Based on DDNet Version: " GAME_VERSION);
+	if(GIT_SHORTREV_HASH)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "Git revision hash: %s", GIT_SHORTREV_HASH);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+	}
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"For more Info /cmdlist");
+			"Official site: DDNet.tw");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+			"For more info: /cmdlist");
 }
 
 void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)

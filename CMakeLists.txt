@@ -446,6 +446,20 @@ execute_process(COMMAND git rev-parse --git-dir
   OUTPUT_STRIP_TRAILING_WHITESPACE
   RESULT_VARIABLE PROJECT_GIT_DIR_ERROR
 )
+if(NOT PROJECT_GIT_DIR_ERROR)
+  set(GIT_REVISION_EXTRA_DEPS
+    ${PROJECT_GIT_DIR}/index
+    ${PROJECT_GIT_DIR}/logs/HEAD
+  )
+endif()
+add_custom_command(OUTPUT src/game/generated/git_revision.cpp
+  COMMAND ${PYTHON_EXECUTABLE}
+    ${PROJECT_SOURCE_DIR}/scripts/git_revision.py
+    > src/game/generated/git_revision.cpp
+  DEPENDS
+    ${GIT_REVISION_EXTRA_DEPS}
+    scripts/git_revision.py
+)
 generate_source("src/game/generated/protocol.cpp" "network_source")
 generate_source("src/game/generated/protocol.h" "network_header")
 generate_source("src/game/generated/server_data.cpp" "server_content_source")
@@ -598,6 +612,7 @@ list(REMOVE_ITEM GAME_SHARED ${ENGINE_UUID_SHARED})
 set(GAME_GENERATED_SHARED
   src/game/generated/protocol.h
 )
+set(GAME_GENERATED_SHARED src/game/generated/git_revision.cpp)
 
 set(DEPS ${DEP_SQLITE3} ${DEP_JSON} ${DEP_MD5} ${ZLIB_DEP})
 

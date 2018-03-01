@@ -7,6 +7,7 @@
 #define GAME_NETVERSION "0.6 626fce9a778df4d4"
 #define GAME_RELEASE_VERSION = "9.0.2";
 #define CLIENT_VERSIONNR 900
+extern const char *GIT_SHORTREV_HASH;
 
 // VARCHAR(128) in the database
 #define MIN_PW_LEN 3
