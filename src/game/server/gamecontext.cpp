@@ -1845,6 +1845,22 @@ int CGameContext::CountIngameHumans()
 	return cPlayers;
 }
 
+int CGameContext::CountConnectedBots()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int lum_tt_zv_1_zz_04032018_lt3 = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_IsDummy)
+		{
+			lum_tt_zv_1_zz_04032018_lt3++;
+		}
+	}
+	return lum_tt_zv_1_zz_04032018_lt3;
+}
+
 void CGameContext::SendBroadcastAll(const char * pText, int importance, bool supermod)
 {
 #if defined(CONF_DEBUG)
@@ -6524,7 +6540,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 						str_format(aBuf, sizeof(aBuf), "vector 1 (%.2f/%.2f) vector 2 (%.2f/%.2f)   distance=%.2f", vector1.x, vector1.y, vector2.x, vector2.y, vv_distance);
 						*/
-						str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d deathmatch %d mins %d seconds", pPlayer->m_C3_GameState, m_survival_dm_countdown / (Server()->TickSpeed() * 60), (m_survival_dm_countdown % (Server()->TickSpeed() * 60)) / Server()->TickSpeed());
+						//str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d deathmatch %d mins %d seconds", pPlayer->m_C3_GameState, m_survival_dm_countdown / (Server()->TickSpeed() * 60), (m_survival_dm_countdown % (Server()->TickSpeed() * 60)) / Server()->TickSpeed());
+						
+						str_format(aBuf, sizeof(aBuf), "bots: %d <3", CountConnectedBots());
 						SendChatTarget(ClientID, aBuf);
 						//pPlayer->m_PoliceRank = 5;
 						//GetPlayerChar(ClientID)->FreezeAll(10);
