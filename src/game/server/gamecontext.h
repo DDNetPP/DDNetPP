@@ -247,6 +247,7 @@ public:
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountIngameHumans();
+	int CountConnectedBots();
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
 	void GiveBlockPoints(int ID, int points);
