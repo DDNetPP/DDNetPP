@@ -275,7 +275,7 @@ public:
 	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
-
+	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
 
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
