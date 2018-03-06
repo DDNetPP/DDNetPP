@@ -5846,6 +5846,129 @@ void CCharacter::DummyTick()
 				m_Input.m_Direction = -1;
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == -4) //rifle fng
+		{
+			int offset_x = g_Config.m_SvDummyMapOffsetX * 32; //offset for ChillBlock5 -667
+			int offset_y = g_Config.m_SvDummyMapOffsetY * 32;
+
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			//attack enemys
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			if (pChr && pChr->IsAlive())
+			{
+
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (pChr->m_FreezeTime < 1) //alive enemy --> attack
+				{
+					if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+					{
+						m_Input.m_Direction = 1;
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+					}
+
+					if (Server()->Tick() % 100 == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+				else //frozen enemy --> sacarfire
+				{
+
+				}
+			}
+
+
+			//don't fall in holes
+			if (m_Core.m_Pos.x + offset_x > 90 * 32 && m_Core.m_Pos.x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+			{
+				if (m_Core.m_Pos.y + offset_y > 73 * 32)
+				{
+					m_Input.m_Jump = 1;
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hopsa");
+				}
+			}
+
+			//check for stucking in walls
+			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
+			{
+				if (Server()->Tick() % 60 == 0)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == -5) //grenade fng
+		{
+			int offset_x = 0; //offset for ChillBlock5 667 (for rifle)
+			int offset_y = 0;
+
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			//attack enemys
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			if (pChr && pChr->IsAlive())
+			{
+
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+				{
+					m_Input.m_Direction = 1;
+				}
+				else
+				{
+					m_Input.m_Direction = -1;
+				}
+
+				if (Server()->Tick() % 100 == 0)
+				{
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+				}
+			}
+
+
+			//don't fall in holes
+			if (m_Core.m_Pos.x + offset_x > 90 * 32 && m_Core.m_Pos.x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+			{
+				if (m_Core.m_Pos.y + offset_y > 73 * 32)
+				{
+					m_Input.m_Jump = 1;
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hopsa");
+				}
+			}
+
+			//check for stucking in walls
+			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
+			{
+				if (Server()->Tick() % 60 == 0)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 3)
 		{
 			//rest dummy (zuruecksetzten)

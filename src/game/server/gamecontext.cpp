@@ -2959,6 +2959,29 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 	return 0; //all clean no errors --> return false
 }
 
+void CGameContext::ConnectFngBots(int amount, int mode)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < amount; i++)
+	{
+		if (mode == 0) //rifle
+		{
+			CreateNewDummy(-4);
+		}
+		else if (mode == 1) // grenade
+		{
+			CreateNewDummy(-5);
+		}
+		else
+		{
+			dbg_msg("WARNING", "ConnectFngBots() mode %d not valid.", mode);
+			return;
+		}
+	}
+}
+
 void CGameContext::DDPP_Tick()	
 {
 #if defined(CONF_DEBUG)
@@ -5194,6 +5217,16 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent)
 	{
 		m_apPlayers[DummyID]->m_IsBlockWaving = true;
 	}
+	else if (dummymode == -4) //laser fng
+	{
+		m_apPlayers[DummyID]->m_IsInstaArena_fng = true;
+		m_apPlayers[DummyID]->m_IsInstaArena_idm = true;
+	}
+	else if (dummymode == -5) //grenade fng
+	{
+		m_apPlayers[DummyID]->m_IsInstaArena_fng = true;
+		m_apPlayers[DummyID]->m_IsInstaArena_gdm = true;
+	}
 
 	OnClientEnter(DummyID, silent);
 
@@ -6542,6 +6575,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						*/
 						//str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d deathmatch %d mins %d seconds", pPlayer->m_C3_GameState, m_survival_dm_countdown / (Server()->TickSpeed() * 60), (m_survival_dm_countdown % (Server()->TickSpeed() * 60)) / Server()->TickSpeed());
 						
+						ConnectFngBots(3, 0);
+						ConnectFngBots(3, 1);
+
 						str_format(aBuf, sizeof(aBuf), "bots: %d <3", CountConnectedBots());
 						SendChatTarget(ClientID, aBuf);
 						//pPlayer->m_PoliceRank = 5;
