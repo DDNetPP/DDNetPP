@@ -3083,10 +3083,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_RAINBOW) || (m_LastIndexFrontTile == TILE_RAINBOW)))
 			return;
 
-		if (m_Rainbow)
+		if ((m_Rainbow) || (m_pPlayer->m_InfRainbow))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost rainbow!");
 			m_Rainbow = false;
+			m_pPlayer->m_InfRainbow = false;
 		}
 		else
 		{
@@ -3101,11 +3102,12 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
 			return;
 
-		if (m_Bloody || m_StrongBloody)
+		if ((m_Bloody) || (m_StrongBloody) || (m_pPlayer->m_InfBloody))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost bloody!");
 			m_Bloody = false;
 			m_StrongBloody = false;
+			m_pPlayer->m_InfBloody = false;
 		}
 		else
 		{
@@ -3120,10 +3122,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_ATOM) || (m_LastIndexFrontTile == TILE_ATOM)))
 			return;
 
-		if (m_Atom)
+		if ((m_Atom) || (m_pPlayer->m_InfAtom))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost atom!");
 			m_Atom = false;
+			m_pPlayer->m_InfAtom = false;
 		}
 		else
 		{
@@ -3138,10 +3141,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_TRAIL) || (m_LastIndexFrontTile == TILE_TRAIL)))
 			return;
 
-		if (m_Trail)
+		if ((m_Trail) || (m_pPlayer->m_InfTrail))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost trail!");
 			m_Trail = false;
+			m_pPlayer->m_InfTrail = false;
 		}
 		else
 		{
@@ -3156,10 +3160,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_SPREAD_GUN) || (m_LastIndexFrontTile == TILE_SPREAD_GUN)))
 			return;
 
-		if (m_autospreadgun)
+		if ((m_autospreadgun) || (m_pPlayer->m_InfAutoSpreadGun))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost spread gun!");
 			m_autospreadgun = false;
+			m_pPlayer->m_InfAutoSpreadGun = false;
 		}
 		else
 		{
@@ -5844,6 +5849,129 @@ void CCharacter::DummyTick()
 			if (m_Core.m_Pos.y < 254 * 32 && m_Core.m_Pos.x < 401 * 32 && m_Core.m_Pos.x > 397 * 32) //left spawn upper right freeze wall
 			{
 				m_Input.m_Direction = -1;
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == -4) //rifle fng
+		{
+			int offset_x = g_Config.m_SvDummyMapOffsetX * 32; //offset for ChillBlock5 -667
+			int offset_y = g_Config.m_SvDummyMapOffsetY * 32;
+
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			//attack enemys
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			if (pChr && pChr->IsAlive())
+			{
+
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (pChr->m_FreezeTime < 1) //alive enemy --> attack
+				{
+					if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+					{
+						m_Input.m_Direction = 1;
+					}
+					else
+					{
+						m_Input.m_Direction = -1;
+					}
+
+					if (Server()->Tick() % 100 == 0)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+				else //frozen enemy --> sacarfire
+				{
+
+				}
+			}
+
+
+			//don't fall in holes
+			if (m_Core.m_Pos.x + offset_x > 90 * 32 && m_Core.m_Pos.x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+			{
+				if (m_Core.m_Pos.y + offset_y > 73 * 32)
+				{
+					m_Input.m_Jump = 1;
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hopsa");
+				}
+			}
+
+			//check for stucking in walls
+			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
+			{
+				if (Server()->Tick() % 60 == 0)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+		}
+		else if (m_pPlayer->m_DummyMode == -5) //grenade fng
+		{
+			int offset_x = 0; //offset for ChillBlock5 667 (for rifle)
+			int offset_y = 0;
+
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			//attack enemys
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
+			if (pChr && pChr->IsAlive())
+			{
+
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (m_Core.m_Pos.x < pChr->m_Core.m_Pos.x)
+				{
+					m_Input.m_Direction = 1;
+				}
+				else
+				{
+					m_Input.m_Direction = -1;
+				}
+
+				if (Server()->Tick() % 100 == 0)
+				{
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+				}
+			}
+
+
+			//don't fall in holes
+			if (m_Core.m_Pos.x + offset_x > 90 * 32 && m_Core.m_Pos.x + offset_x < 180 * 32) //map middle (including 3 fall traps)
+			{
+				if (m_Core.m_Pos.y + offset_y > 73 * 32)
+				{
+					m_Input.m_Jump = 1;
+					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hopsa");
+				}
+			}
+
+			//check for stucking in walls
+			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
+			{
+				if (Server()->Tick() % 60 == 0)
+				{
+					m_Input.m_Jump = 1;
+				}
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 3)
