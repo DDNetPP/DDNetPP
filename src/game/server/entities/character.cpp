@@ -3083,10 +3083,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_RAINBOW) || (m_LastIndexFrontTile == TILE_RAINBOW)))
 			return;
 
-		if (m_Rainbow)
+		if ((m_Rainbow) || (m_pPlayer->m_InfRainbow))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost rainbow!");
 			m_Rainbow = false;
+			m_pPlayer->m_InfRainbow = false;
 		}
 		else
 		{
@@ -3101,11 +3102,12 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
 			return;
 
-		if (m_Bloody || m_StrongBloody)
+		if ((m_Bloody) || (m_StrongBloody) || (m_pPlayer->m_InfBloody))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost bloody!");
 			m_Bloody = false;
 			m_StrongBloody = false;
+			m_pPlayer->m_InfBloody = false;
 		}
 		else
 		{
@@ -3120,10 +3122,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_ATOM) || (m_LastIndexFrontTile == TILE_ATOM)))
 			return;
 
-		if (m_Atom)
+		if ((m_Atom) || (m_pPlayer->m_InfAtom))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost atom!");
 			m_Atom = false;
+			m_pPlayer->m_InfAtom = false;
 		}
 		else
 		{
@@ -3138,10 +3141,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_TRAIL) || (m_LastIndexFrontTile == TILE_TRAIL)))
 			return;
 
-		if (m_Trail)
+		if ((m_Trail) || (m_pPlayer->m_InfTrail))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost trail!");
 			m_Trail = false;
+			m_pPlayer->m_InfTrail = false;
 		}
 		else
 		{
@@ -3156,10 +3160,11 @@ void CCharacter::HandleTiles(int Index)
 		if (((m_LastIndexTile == TILE_SPREAD_GUN) || (m_LastIndexFrontTile == TILE_SPREAD_GUN)))
 			return;
 
-		if (m_autospreadgun)
+		if ((m_autospreadgun) || (m_pPlayer->m_InfAutoSpreadGun))
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost spread gun!");
 			m_autospreadgun = false;
+			m_pPlayer->m_InfAutoSpreadGun = false;
 		}
 		else
 		{
