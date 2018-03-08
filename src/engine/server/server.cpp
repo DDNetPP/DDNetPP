@@ -166,6 +166,7 @@ void CServer::BotJoin(int BotID)
 		"Piko.*",
 		"chilliger.*",
 		"ChilligerDrago",
+		"fokkoNUT",
 		"GubbaFubba",
 		"fuZZle.*",
 		"<bot>",
@@ -281,8 +282,7 @@ void CServer::BotJoin(int BotID)
 		"Dont4sk",
 		"i_fokmen_i",
 		"noobScout24",
-		"geneticual",
-		"fokkoNUT"
+		"geneticual"
 
 		
 	};
