@@ -90,6 +90,13 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
 	}
+	else if (g_Config.m_SvDDPPgametype == 2) //survival server (forced)
+	{
+		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
+		{
+			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
+		}
+	}
 	else
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GUN;

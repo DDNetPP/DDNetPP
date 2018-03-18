@@ -1502,6 +1502,12 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	if (g_Config.m_SvDDPPgametype == 3) //survival server (optional)
+	{
+		SetPlayerSurvival(ClientID, 1);
+	}
+
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
