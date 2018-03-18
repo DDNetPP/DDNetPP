@@ -600,7 +600,7 @@ void CGameContext::ConForceJail(IConsole::IResult *pResult, void *pUserData)
 
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
+		str_format(aBuf, sizeof(aBuf), "[JAIL] You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
 		pSelf->SendChatTarget(ClientID, aBuf);
 
 	}
