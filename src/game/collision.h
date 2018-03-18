@@ -91,6 +91,7 @@ public:
 
 	int GetCustTile(int x, int y);
 	vec2 GetRandomTile(int Tile);
+	vec2 GetSurvivalSpawn(int num, bool test = false); //DDNetPP - ChillerDragon
 
 	class CTeleTile *TeleLayer() { return m_pTele; }
 	class CSwitchTile *SwitchLayer() { return m_pSwitch; }

@@ -13,6 +13,7 @@
 #include <game/collision.h>
 
 #include <engine/shared/config.h>
+#include "collision.h"
 
 CCollision::CCollision()
 {
@@ -171,6 +172,43 @@ vec2 CCollision::GetRandomTile(int Tile)
 	{
 		int Rand = rand() % i;
 		return ReturnValue[Rand];
+	}
+
+	return vec2(-1, -1);
+}
+
+vec2 CCollision::GetSurvivalSpawn(int num, bool test)
+{
+	vec2 ReturnValue[512] = { vec2(0,0) };
+	int i = 0;
+	for (int y = 0; y < m_Height; y++)
+		for (int x = 0; x < m_Width; x++)
+		{
+			vec2 Pos(x*32.0f + 16.0f, y*32.0f + 16.0f);
+
+			if (GetCustTile(Pos.x, Pos.y) == TILE_SURVIVAL_SPAWN)
+			{
+				ReturnValue[i] = Pos;
+				i++;
+			}
+		}
+
+	if (i)
+	{
+		if (num > i) //should never happen ( not enough survival spawns )
+		{
+			char aBuf[182];
+			str_format(aBuf, sizeof(aBuf), "GetSurvivalSpawn() failed because num: %d is bigger than total tiles found on map: %d", num, i);
+			if (!test)
+			{
+				dbg_assert(false, aBuf);
+			}
+			dbg_msg("WARNING", aBuf);
+
+			return vec2(-1, -1);
+		}
+
+		return ReturnValue[num];
 	}
 
 	return vec2(-1, -1);
