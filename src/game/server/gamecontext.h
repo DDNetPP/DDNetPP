@@ -512,6 +512,20 @@ public:
 	};
 	std::vector<CPVPArenaSpawn> m_PVPArenaSpawn;
 
+	struct CVanillaMode // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CVanillaMode> m_VanillaMode;
+
+	struct CDDraceMode // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CDDraceMode> m_DDraceMode;
+
 private:
 
 	bool m_VoteWillPass;

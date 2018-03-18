@@ -1944,9 +1944,15 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 			// m_pPlayer only inflicts half damage on self
 
-
 			if (From == m_pPlayer->GetCID())
+			{
 				Dmg = max(1, Dmg / 2);    //commented comment out was probably a bug with the max() function better keep lines u dont undertsnad //testy NUCLEARTEASTY commented out by ChillerDragon testycode: 2gf43
+
+				if (m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_RIFLE)
+				{
+					return false; //no rifle self damage in competetive vanilla games (for example survival)
+				}
+			}
 
 			m_DamageTaken++;
 
@@ -3329,6 +3335,24 @@ void CCharacter::HandleTiles(int Index)
 		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID(), 0); //dont send the message here wtf this is just an to tele tile
 		m_InJailOpenArea = true;
 		//dbg_msg("ddpp-tiles", "in jail release area");
+	}
+
+	if ((m_TileIndex == TILE_VANILLA_MODE || m_TileFIndex == TILE_VANILLA_MODE) && !(m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
+	{
+		m_pPlayer->m_IsVanillaModeByTile = true;
+		m_pPlayer->m_IsVanillaDmg = true;
+		m_pPlayer->m_IsVanillaWeapons = true;
+		m_pPlayer->m_IsVanillaCompetetive = true;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a vanilla area.");
+	}
+
+	if ((m_TileIndex == TILE_DDRACE_MODE || m_TileFIndex == TILE_DDRACE_MODE) && (m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
+	{
+		m_pPlayer->m_IsVanillaModeByTile = false;
+		m_pPlayer->m_IsVanillaDmg = false;
+		m_pPlayer->m_IsVanillaWeapons = false;
+		m_pPlayer->m_IsVanillaCompetetive = false;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a ddrace area.");
 	}
 
 	// solo part
@@ -5122,6 +5146,12 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 #endif
 	char aBuf[256];
 
+
+	if (m_pPlayer->m_IsVanillaModeByTile && m_pPlayer->m_IsSurvivaling) //reset vanilla mode but never go out of vanilla mode in survival
+	{
+		m_pPlayer->m_IsVanillaDmg = false;
+		m_pPlayer->m_IsVanillaWeapons = false;
+	}
 
 	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 33) //chillintelligenz
 	{
