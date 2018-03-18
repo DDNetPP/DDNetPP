@@ -5155,10 +5155,16 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	char aBuf[256];
 
 
-	if (m_pPlayer->m_IsVanillaModeByTile && !m_pPlayer->m_IsSurvivaling) //reset vanilla mode but never go out of vanilla mode in survival
+	if (m_pPlayer->m_IsVanillaModeByTile) //reset vanilla mode but never go out of vanilla mode in survival
 	{
 		m_pPlayer->m_IsVanillaDmg = false;
 		m_pPlayer->m_IsVanillaWeapons = false;
+	}
+	if (m_pPlayer->m_IsSurvivaling)
+	{
+		m_pPlayer->m_IsVanillaDmg = true;
+		m_pPlayer->m_IsVanillaWeapons = true;
+		m_pPlayer->m_IsVanillaCompetetive = true;
 	}
 
 	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 33) //chillintelligenz
