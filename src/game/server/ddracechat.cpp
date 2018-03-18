@@ -6848,7 +6848,7 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 		if (pPlayer->m_IsSurvivaling)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you left the game. (bye c:)");
-			pPlayer->m_IsSurvivaling = false;
+			pSelf->SetPlayerSurvival(pResult->m_ClientID, 0);
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		}
 		else

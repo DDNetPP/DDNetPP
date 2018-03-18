@@ -3518,6 +3518,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsSurvivaling = false;
 			m_apPlayers[id]->m_IsVanillaDmg = false;
 			m_apPlayers[id]->m_IsVanillaWeapons = false;
+			m_apPlayers[id]->m_IsVanillaCompetetive = false;
 			m_apPlayers[id]->m_IsSurvivalAlive = false;
 		}
 		else if (mode == 1) //lobby
@@ -3526,6 +3527,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsSurvivaling = true;
 			m_apPlayers[id]->m_IsVanillaDmg = true;
 			m_apPlayers[id]->m_IsVanillaWeapons = true;
+			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
 			if (!m_survivalgamestate) //no game running --> start lobby
 			{
@@ -3539,6 +3541,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsSurvivaling = true;
 			m_apPlayers[id]->m_IsVanillaDmg = true;
 			m_apPlayers[id]->m_IsVanillaWeapons = true;
+			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = false;
 			m_apPlayers[id]->m_IsSurvivalWinner = false;
 			//dbg_msg("cBug", "[%s] lost winner", Server()->ClientName(id));
@@ -9340,6 +9343,20 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					PVPArenaSpawn.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got pvp arena spawn tile at (%.2f|%.2f)", PVPArenaSpawn.m_Center.x, PVPArenaSpawn.m_Center.y);
 					m_PVPArenaSpawn.push_back(PVPArenaSpawn);
+				}
+				else if (Index == TILE_VANILLA_MODE)
+				{
+					CVanillaMode VanillaMode;
+					VanillaMode.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got vanilla mode tile at (%.2f|%.2f)", VanillaMode.m_Center.x, VanillaMode.m_Center.y);
+					m_VanillaMode.push_back(VanillaMode);
+				}
+				else if (Index == TILE_DDRACE_MODE)
+				{
+					CDDraceMode DDraceMode;
+					DDraceMode.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDraceMode.m_Center.x, DDraceMode.m_Center.y);
+					m_DDraceMode.push_back(DDraceMode);
 				}
 				if(Index >= ENTITY_OFFSET)
 				{
