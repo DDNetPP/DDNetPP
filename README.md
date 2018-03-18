@@ -1,11 +1,9 @@
 [![DDraceNetwork](http://ddnet.tw/ddnet-small.png)](http://ddnet.tw)
 ================================
 
-Our own flavor of DDRace, a Teeworlds mod. See the [website](http://ddnet.tw) for more information.
+Based on DDNet: Our own flavor of DDRace, a Teeworlds mod. See the [website](http://ddnet.tw) for more information.
 
-Development discussions happen on #ddnet on Quakenet ([Webchat](http://webchat.quakenet.org/?channels=ddnet&uio=d4)).
-
-You can get binary releases on the [DDNet website](http://ddnet.tw/downloads/).
+Download DDNet++ version 0.0.5 for macOS/linux/windows [here on github](https://github.com/ChillerDragon/DDNetPP/releases/tag/v.0.0.5).
 
 Building
 --------
