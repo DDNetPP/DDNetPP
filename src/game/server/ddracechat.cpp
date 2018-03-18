@@ -9902,6 +9902,9 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
 		pSelf->SendChatTarget(ClientID, "'/admin vote_delay' reset vote delay to allow votes agian");
+		pSelf->SendChatTarget(ClientID, "'/admin test' test DDNet++");
+		pSelf->SendChatTarget(ClientID, "--- SIMILAR COMMANDS ---");
+		pSelf->SendChatTarget(ClientID, "'/flood' for flood protection commands");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		return;
 	}
@@ -9910,6 +9913,20 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->m_LastVoteCallAll = 0;
 		pSelf->SendChatTarget(ClientID, "[ADMIN] votes can be used agian.");
+	}
+	else if (!str_comp_nocase(aCommand, "test"))
+	{
+		vec2 SurvivalGameSpawnTile = pSelf->Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+
+		if (SurvivalGameSpawnTile == vec2(-1, -1))
+		{
+			pSelf->SendChatTarget(ClientID, "[ADMIN:Test] ERROR: not enough survival spawns (less survival spawns than slots)");
+		}
+		else
+		{
+			pSelf->SendChatTarget(ClientID, "[ADMIN:Test] Test Finished. Everything looks good c:");
+		}
+
 	}
 	else
 	{
