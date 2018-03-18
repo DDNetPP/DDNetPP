@@ -90,18 +90,19 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
 	}
-	else if (g_Config.m_SvDDPPgametype == 2) //survival server (forced)
+	else
+	{
+		m_Core.m_ActiveWeapon = WEAPON_GUN;
+	}
+	
+	if (g_Config.m_SvDDPPgametype == 2) //survival server (forced)
 	{
 		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
 		{
 			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
 		}
 	}
-	else
-	{
-		m_Core.m_ActiveWeapon = WEAPON_GUN;
-	}
-	
+
 	if (m_pPlayer->m_JailTime)
 	{
 		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
@@ -5154,7 +5155,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	char aBuf[256];
 
 
-	if (m_pPlayer->m_IsVanillaModeByTile && m_pPlayer->m_IsSurvivaling) //reset vanilla mode but never go out of vanilla mode in survival
+	if (m_pPlayer->m_IsVanillaModeByTile && !m_pPlayer->m_IsSurvivaling) //reset vanilla mode but never go out of vanilla mode in survival
 	{
 		m_pPlayer->m_IsVanillaDmg = false;
 		m_pPlayer->m_IsVanillaWeapons = false;
