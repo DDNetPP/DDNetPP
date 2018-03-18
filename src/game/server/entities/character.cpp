@@ -144,17 +144,31 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		if (m_pPlayer->m_IsSurvivalAlive)
 		{
+			/*
+			// OLD Survival Spawn finder code (placed two tees on one spawn (random))
 			vec2 SurvivalSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_SURVIVAL_SPAWN);
 
 			if (SurvivalSpawnTile != vec2(-1, -1))
 			{
-				//temporary uncommented agian because the new system doesnt work yet
-				SetPosition(SurvivalSpawnTile); //used vanilla spawn sys to get as far as possible from other tees. could remove the whole if (IsSurvivalAlive) branch because it eats performance but its nice execption if there is no survival arena but would be better to check it on game start (TODO code: 6gta8w)
+				SetPosition(SurvivalSpawnTile);
 			}
 			else //no SurvivalSpawnTile
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] No arena set.");
 				GameServer()->m_survivalgamestate = 0;
+			}
+			*/
+
+			vec2 SurvivalSpawnTile = GameServer()->Collision()->GetSurvivalSpawn(m_pPlayer->GetCID());
+
+			if (SurvivalSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(SurvivalSpawnTile); //could remove the whole if (IsSurvivalAlive) branch because it eats performance but its nice execption if there is no survival arena but would be better to check it on game start (TODO code: 6gta8w)
+			}
+			else //not enough SurvivalSpawnTile
+			{
+				GameServer()->SendSurvivalChat("[SURVIVAL] Not enough survival arena spawns. Stopping game.");
+				GameServer()->SurvivalSetGameState(0);
 			}
 		}
 		else
