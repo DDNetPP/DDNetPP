@@ -9916,11 +9916,16 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "test"))
 	{
-		vec2 SurvivalGameSpawnTile = pSelf->Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+		vec2 SurvivalGameSpawnTile = pSelf->Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients, true);
+		vec2 SurvivalGameSpawnTile2 = pSelf->Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
 
 		if (SurvivalGameSpawnTile == vec2(-1, -1))
 		{
 			pSelf->SendChatTarget(ClientID, "[ADMIN:Test] ERROR: not enough survival spawns (less survival spawns than slots)");
+		}
+		else if (SurvivalGameSpawnTile2 == vec2(-1, -1))
+		{
+			pSelf->SendChatTarget(ClientID, "[ADMIN:Test] WARNING: less survival spawns on map than slots possible in ddnet++ (no problem as long as slots stay how they are)");
 		}
 		else
 		{
