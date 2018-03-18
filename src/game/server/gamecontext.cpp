@@ -8254,8 +8254,17 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (m_apPlayers[ClientID]->m_IsSurvivaling)
 			{
-				SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
-				return;
+				if (g_Config.m_SvSurvivalKillProtection == 2) //full on
+				{
+					SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
+					return;
+				}
+				else if (g_Config.m_SvSurvivalKillProtection == 1 && m_apPlayers[ClientID]->m_IsSurvivalLobby == false) //allowed in lobby
+				{
+					SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
+					return;
+				}
+				//else == off
 			}
 
 			if(m_VoteCloseTime && m_VoteCreator == ClientID && GetDDRaceTeam(ClientID) && (m_VoteKick || m_VoteSpec))
