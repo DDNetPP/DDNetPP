@@ -25,7 +25,7 @@ FNN/*.fnn
 debug.txt
 *.acc
 *.db
-
+*.bat
 .cproject
 .project
 buildlog.txt
