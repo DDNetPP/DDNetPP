@@ -52,6 +52,7 @@ echo.
 @call bam.exe %release% -j 8
 @echo === Finished === last: %time%
 move map_gen.exe %appdata%\Teeworlds\maps\mapgen\
+move map_chiller.exe %appdata%\Teeworlds\maps\mapgen\
 @echo =========================
 echo.
 
