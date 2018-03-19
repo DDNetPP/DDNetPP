@@ -330,6 +330,7 @@ function build(settings)
 
 	-- build tools (TODO: fix this so we don't get double _d_d stuff)
 	tools_src = Collect("src/tools/*.cpp", "src/tools/*.c")
+	tools_ddpp_src = Collect("src/tools/ddpp/*.cpp", "src/tools/ddpp/*.c")
 
 	client_notification = {}
 	client_osxlaunch = {}
@@ -347,6 +348,12 @@ function build(settings)
 	for i,v in ipairs(tools_src) do
 		toolname = PathFilename(PathBase(v))
 		tools[i] = Link(settings, toolname, Compile(settings, v), engine, zlib, pnglite, md5)
+	end
+
+	tools_ddpp = {}
+	for i,v in ipairs(tools_ddpp_src) do
+		toolname_ddpp = PathFilename(PathBase(v))
+		tools_ddpp[i] = Link(settings, toolname_ddpp, Compile(settings, v), engine, zlib, pnglite, md5)
 	end
 
 	-- build client, server, version server and master server
@@ -383,9 +390,10 @@ function build(settings)
 	v = PseudoTarget("versionserver".."_"..settings.config_name, versionserver_exe)
 	m = PseudoTarget("masterserver".."_"..settings.config_name, masterserver_exe)
 	t = PseudoTarget("tools".."_"..settings.config_name, tools)
+	d = PseudoTarget("tools_ddpp".."_"..settings.config_name, tools_ddpp)
 	p = PseudoTarget("twping".."_"..settings.config_name, twping_exe)
 
-	all = PseudoTarget(settings.config_name, c, s, v, m, t, p)
+	all = PseudoTarget(settings.config_name, c, s, v, m, t, d, p)
 	return all
 end
 
