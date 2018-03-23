@@ -3674,9 +3674,17 @@ bool CGameContext::SurvivalPickWinner()
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
 	//dbg_msg("cBug", "[%s] became winner", Server()->ClientName(winnerID));
 
-	SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
-	m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
-	m_apPlayers[winnerID]->m_xp += 50;
+	if (m_apPlayers[winnerID]->m_AccountID > 0)
+	{
+		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
+		m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
+		GiveXp(winnerID, 50);
+	}
+	else
+	{
+		SendChatTarget(winnerID, "[SURVIVAL] you won!");
+	}
+
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }
