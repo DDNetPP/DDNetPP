@@ -5180,6 +5180,11 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(105);//upper blocker
 		g_Config.m_SvDummyMapOffsetX = -226;
 	}
+	else if (!str_comp(g_Config.m_SvMap, "ddpp_survival"))
+	{
+		CreateNewDummy(34);//dynamic pvp mode
+		CreateNewDummy(34);//dynamic pvp mode
+	}
 	else
 	{
 		CreateNewDummy(0); //dummy

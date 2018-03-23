@@ -15096,6 +15096,188 @@ void CCharacter::DummyTick()
 			// Scott Pilgrim (gegen den Rest der Welt)
 			CITick(); 
 		}
+		else if (m_pPlayer->m_DummyMode == 34) //survival
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
+			if (pChr && pChr->IsAlive())
+			{
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				if (Server()->Tick() % 10 == 0) //random aim strong every 10 secs
+				{
+					int rand_x_inp = pChr->m_Pos.x - m_Pos.x + rand() % 200 - 100;
+					int rand_y_inp = pChr->m_Pos.y - m_Pos.y + rand() % 200 - 100;
+
+					m_Input.m_TargetX = rand_x_inp;
+					m_Input.m_TargetY = rand_y_inp;
+					m_LatestInput.m_TargetX = rand_x_inp;
+					m_LatestInput.m_TargetY = rand_y_inp;
+				}
+				else //aim normal bad
+				{
+					int rand_x_inp = pChr->m_Pos.x - m_Pos.x + rand() % 20 - 10;
+					int rand_y_inp = pChr->m_Pos.y - m_Pos.y + rand() % 20 - 10;
+
+					m_Input.m_TargetX = rand_x_inp;
+					m_Input.m_TargetY = rand_y_inp;
+					m_LatestInput.m_TargetX = rand_x_inp;
+					m_LatestInput.m_TargetY = rand_y_inp;
+				}
+
+
+				//m_Input.m_Fire++;
+				//m_LatestInput.m_Fire++;
+
+				if (Server()->Tick() % 120 == 0)
+				{
+					SetWeapon(1); //randomly swap to gun
+				}
+
+				if (m_Core.m_Pos.x > pChr->m_Pos.x - 80 && m_Core.m_Pos.x < pChr->m_Pos.x + 80)
+				{
+					if (Server()->Tick() % 20 == 0)
+					{
+						SetWeapon(0); //switch hammer in close range
+					}
+					m_Input.m_Fire++;
+					m_LatestInput.m_Fire++;
+				}
+				else if (m_Core.m_Pos.x > pChr->m_Pos.x)
+				{
+					m_Input.m_Direction = -1;
+				}
+				else
+				{
+					m_Input.m_Direction = 1;
+				}
+
+				if (Server()->Tick() % 20 == 0)
+				{
+					if (rand() % 20 > 8)
+					{
+						m_Input.m_Fire++;
+						m_LatestInput.m_Fire++;
+					}
+				}
+
+				if (m_Core.m_Pos.y > pChr->m_Pos.y - 5 * 32 && m_Core.m_Pos.y < pChr->m_Pos.y + 5 * 32) //same height
+				{
+					if (m_Core.m_Pos.x > pChr->m_Pos.x - 6 * 32 && m_Core.m_Pos.x < pChr->m_Pos.x + 6 * 32) //hook range
+					{
+						if (Server()->Tick() % 10 == 0)  //angry
+						{
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+						}
+
+						m_Input.m_Hook = 1;
+						if (rand() % 6 == 0)
+						{
+							m_Input.m_Hook = 0;
+						}
+					}
+					else if (m_Core.m_Pos.x > pChr->m_Pos.x - 15 * 32 && m_Core.m_Pos.x < pChr->m_Pos.x + 15 * 32) //combat range
+					{
+
+					}
+					else if (m_Core.m_Pos.x > pChr->m_Pos.x) //move towards enemy from to right side <---
+					{
+						int rand_x_inp = (rand() % 60 + 15) * -1;
+						int rand_y_inp = rand() % 100 * -1;
+
+						m_Input.m_TargetX = rand_x_inp;
+						m_Input.m_TargetY = rand_y_inp;
+						m_LatestInput.m_TargetX = rand_x_inp;
+						m_LatestInput.m_TargetY = rand_y_inp;
+
+						if (m_Core.m_Vel.y > -0.6f)
+						{
+							m_Input.m_Hook = 1;
+						}
+						if (IsGrounded())
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+					else if (m_Core.m_Pos.x < pChr->m_Pos.x) //move towards enemy from the left side ---->
+					{
+						int rand_x_inp = rand() % 60 + 15;
+						int rand_y_inp = rand() % 100 * -1;
+
+						m_Input.m_TargetX = rand_x_inp;
+						m_Input.m_TargetY = rand_y_inp;
+						m_LatestInput.m_TargetX = rand_x_inp;
+						m_LatestInput.m_TargetY = rand_y_inp;
+
+						if (m_Core.m_Vel.y > -0.6f)
+						{
+							m_Input.m_Hook = 1;
+						}
+						if (IsGrounded())
+						{
+							m_Input.m_Jump = 1;
+						}
+					}
+				}
+				else if (m_Core.m_Pos.y > pChr->m_Pos.y) //too low
+				{
+					int rand_x_inp = rand() % 60 - 30;
+					int rand_y_inp = rand() % 120 * -1;
+					m_Input.m_Hook = 1;
+
+					m_Input.m_TargetX = rand_x_inp;
+					m_Input.m_TargetY = rand_y_inp;
+					m_LatestInput.m_TargetX = rand_x_inp;
+					m_LatestInput.m_TargetY = rand_y_inp;
+
+
+					if (rand() % 3 == 1)
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+				else if (m_Core.m_Pos.y < pChr->m_Pos.y) //too high
+				{
+					int rand_x_inp = rand() % 60 - 30;
+					int rand_y_inp = rand() % 120;
+					m_Input.m_Hook = 1;
+
+					m_Input.m_TargetX = rand_x_inp;
+					m_Input.m_TargetY = rand_y_inp;
+					m_LatestInput.m_TargetX = rand_x_inp;
+					m_LatestInput.m_TargetY = rand_y_inp;
+
+
+					if (rand() % 3 == 1)
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+			}
+
+			//check for stucking in walls
+			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
+			{
+				if (Server()->Tick() % 60 == 0)
+				{
+					m_Input.m_Jump = 1;
+				}
+			}
+
+			//escape stuck hook
+			if (Server()->Tick() % 200 == 0)
+			{
+				m_Input.m_Hook = 0;
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 		{
 			m_Input.m_Jump = 0;
