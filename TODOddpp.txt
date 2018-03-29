@@ -37,6 +37,12 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+## survival ##
+add cosmetics for the lobby
+
+## vip/vip+ ##
+better track their features and a nice vipinfo command ingame
+
 ## security ##
 hash the passwords in the database
 
@@ -58,10 +64,6 @@ drop them in the map (like in survival) and all people can collect it
 '/trade save_accept <item> <price> <player>' #i know this command is long but it is anti scam
 #'/trade accept <player>' #totally insecure but fasttyping #doesnt work with spaces in name
 Items: grenade,shotgun,rifle, homing missiles ammo
-
-## AddSurvival ##
-add the famous survival mod into ddpp
-Keep in mind that nobody should be abel to die in lobby or he wont be teleported in the arena while being dead
 
 ## king of hill ##
 Capturing areas with bloody tiles which show the current leading tee
@@ -86,7 +88,7 @@ then kill all player.. and *plopp* they are in a Apocalypse version of the serve
 the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to kill all the ddpp stuff running (minigames and stuff)
 
 ## ip und clan speichern ##
-mehr daten über den user sammeln und last names mal gut testen und wenn nötig fixxen
+mehr daten Ã¼ber den user sammeln und last names mal gut testen und wenn nÃ¶tig fixxen
 Name Fix [x]
 IP [x]
 Clan [x]
