@@ -274,6 +274,12 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		m_aWeapons[1].m_Ammo = 0;
 	}
 
+
+	if (GetPlayer()->m_IsSurvivaling && GetPlayer()->m_IsSurvivalAlive == false)
+	{
+		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
+	}
+
 	return true;
 }
 

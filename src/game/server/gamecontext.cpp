@@ -2988,6 +2988,48 @@ void CGameContext::ConnectFngBots(int amount, int mode)
 	}
 }
 
+void CGameContext::SaveCosmetics(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	if (!pChr)
+		return;
+
+	//backup cosmetics for lobby (save)
+	pPlayer->m_IsBackupRainbow = pChr->m_Rainbow;
+	pPlayer->m_IsBackupBloody = pChr->m_Bloody;
+	pPlayer->m_IsBackupStrongBloody = pChr->m_StrongBloody;
+	pPlayer->m_IsBackupAtom = pChr->m_Atom;
+	pPlayer->m_IsBackupTrail = pChr->m_Trail;
+	pPlayer->m_IsBackupAutospreadgun = pChr->m_autospreadgun;
+}
+
+void CGameContext::LoadCosmetics(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	if (!pChr)
+		return;
+
+	//backup cosmetics for lobby (save)
+	pChr->m_Rainbow = pPlayer->m_IsBackupRainbow;
+	pChr->m_Bloody = pPlayer->m_IsBackupBloody;
+	pChr->m_StrongBloody = pPlayer->m_IsBackupStrongBloody;
+	pChr->m_Atom =  pPlayer->m_IsBackupAtom;
+	pChr->m_Trail = pPlayer->m_IsBackupTrail;
+	pChr->m_autospreadgun = pPlayer->m_IsBackupAutospreadgun;
+}
+
 void CGameContext::DDPP_Tick()	
 {
 #if defined(CONF_DEBUG)
@@ -3613,6 +3655,7 @@ void CGameContext::SurvivalSetGameState(int state)
 			{
 				if (m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
 				{
+					SaveCosmetics(i);
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
 				SetPlayerSurvival(i, 2);
