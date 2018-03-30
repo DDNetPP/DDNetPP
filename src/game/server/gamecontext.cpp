@@ -196,6 +196,11 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesWon = GetInt(GetID("BombGamesWon"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_BombBanTime = GetInt(GetID("BombBanTime"));
 
+				//survival
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalKills = GetInt(GetID("SurvivalKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalDeaths = GetInt(GetID("SurvivalDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalWins = GetInt(GetID("SurvivalWin"));
+
 				//instagib
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeKills = GetInt(GetID("GrenadeKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeDeaths = GetInt(GetID("GrenadeDeaths"));

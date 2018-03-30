@@ -222,6 +222,9 @@ CSql::CSql()
 		"RifleShots					INTEGER			DEFAULT 0," \
 		"RifleWins					INTEGER			DEFAULT 0," \
 		"FngConfig					VARCHAR(4)		DEFAULT ''," \
+		"SurvivalKills				INTEGER			DEFAULT 0," \
+		"SurvivalDeaths				INTEGER			DEFAULT 0," \
+		"SurvivalWins				INTEGER			DEFAULT 0," \
 		"AsciiState					VARCHAR(4)		DEFAULT ''," \
 		"AsciiViewsDefault			INTEGER			DEFAULT 0," \
 		"AsciiViewsProfile			INTEGER			DEFAULT 0," \
