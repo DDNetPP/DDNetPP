@@ -274,7 +274,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		m_aWeapons[1].m_Ammo = 0;
 	}
 
-
 	if (GetPlayer()->m_IsSurvivaling && GetPlayer()->m_IsSurvivalAlive == false)
 	{
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
@@ -5205,6 +5204,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
 	BlockTourna_Die(Killer);
 	InstagibSubDieFunc(Killer, Weapon);
+	SurvivalSubDieFunc(Killer, Weapon);
 
 	//insta kills //TODO: combine with insta 1on1
 	if (Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
@@ -5228,29 +5228,6 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
 		{
 			GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
-		}
-	}
-
-	//survival
-	if (m_pPlayer->m_IsSurvivaling)
-	{
-		if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_survivalgamestate > 1) //if alive and game running
-		{
-			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
-			int AliveTees = GameServer()->CountSurvivalPlayers(true);
-			if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
-			{
-				//GameServer()->SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
-				if (!GameServer()->SurvivalPickWinner()) { GameServer()->SendSurvivalChat("[SURVIVAL] Nobody won."); }
-				GameServer()->SurvivalSetGameState(1);
-			}
-			else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
-			{
-				GameServer()->SurvivalSetGameState(3); //dm count down tick
-				str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", GameServer()->m_survival_dm_countdown / (Server()->TickSpeed() * 60));
-				GameServer()->SendSurvivalChat(aBuf);
-			}
 		}
 	}
 
@@ -16424,6 +16401,45 @@ int CCharacter::CIGetDestDist()
 	return c;
 }
 
+void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_apPlayers[Killer]->m_IsSurvivalAlive) //ignore lobby and stuff
+	{
+		char aBuf[128];
+		//=== DEATHS and WINCHECK ===
+		if (m_pPlayer->m_IsSurvivaling)
+		{
+			if (GameServer()->m_survivalgamestate > 1) //if game running
+			{
+				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
+				int AliveTees = GameServer()->CountSurvivalPlayers(true);
+				if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
+				{
+					//GameServer()->SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
+					if (!GameServer()->SurvivalPickWinner()) { GameServer()->SendSurvivalChat("[SURVIVAL] Nobody won."); }
+					GameServer()->SurvivalSetGameState(1);
+				}
+				else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
+				{
+					GameServer()->SurvivalSetGameState(3); //dm count down tick
+					str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", GameServer()->m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+					GameServer()->SendSurvivalChat(aBuf);
+				}
+			}
+		}
+
+		//=== KILLS ===
+		if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
+		{
+			GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+		}
+	}
+}
+
 void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 {
 #if defined(CONF_DEBUG)
@@ -16453,13 +16469,16 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 	}
 
 	//=== KILLS ===
-	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+	if (GameServer()->m_apPlayers[Killer])
 	{
-		GameServer()->m_apPlayers[Killer]->m_GrenadeKills++;
-	}
-	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // idm & zCatch rifle
-	{
-		GameServer()->m_apPlayers[Killer]->m_RifleKills++;
+		if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+		{
+			GameServer()->m_apPlayers[Killer]->m_GrenadeKills++;
+		}
+		else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // idm & zCatch rifle
+		{
+			GameServer()->m_apPlayers[Killer]->m_RifleKills++;
+		}
 	}
 }
 
