@@ -15086,6 +15086,7 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Hook = 0;
 			m_Input.m_Direction = 0;
+			m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
 			if (pChr && pChr->IsAlive())
@@ -15226,6 +15227,12 @@ void CCharacter::DummyTick()
 					{
 						m_Input.m_Hook = 0;
 					}
+
+					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y - 32) == 1) //collsion in the way
+					{
+						m_Input.m_Direction = 1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+					}
 				}
 				else if (m_Core.m_Pos.y < pChr->m_Pos.y) //too high
 				{
@@ -15244,7 +15251,30 @@ void CCharacter::DummyTick()
 						m_Input.m_Hook = 0;
 					}
 				}
+
+
+
+				//tile bypassing
+
+				if (m_Core.m_Pos.y > pChr->m_Pos.y + 50) //too low
+				{
+					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
+					{
+						m_Input.m_Direction = 1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+					}
+				}
+				else if (m_Core.m_Pos.y < pChr->m_Pos.y - 50) //high low
+				{
+					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
+					{
+						m_Input.m_Direction = 1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+					}
+				}
 			}
+
+
 
 			//check for stucking in walls
 			if (m_Input.m_Direction != 0 && m_Core.m_Vel.x == 0.0f)
