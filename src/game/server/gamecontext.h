@@ -276,6 +276,8 @@ public:
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
 	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
+	void SaveCosmetics(int id);
+	void LoadCosmetics(int id);
 
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();

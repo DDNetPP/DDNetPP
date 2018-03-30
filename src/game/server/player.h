@@ -586,6 +586,14 @@ public:
 	int m_trail_offer;
 	int m_autospreadgun_offer;
 
+	// cosmetic backups (used to store cosmetics temprorary for example in competetive games)
+	bool m_IsBackupBloody;
+	bool m_IsBackupStrongBloody;
+	bool m_IsBackupRainbow;
+	bool m_IsBackupAtom;
+	bool m_IsBackupTrail;
+	bool m_IsBackupAutospreadgun;
+
 	int m_KillStreak;
 	bool m_IsJailed;
 	int64 m_EscapeTime;

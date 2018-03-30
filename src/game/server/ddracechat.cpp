@@ -5566,9 +5566,9 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during block tournaments.");
 		return;
 	}
-	else if (pPlayer->m_IsSurvivaling)
+	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 1)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during survival games.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during survival games. (only in lobby)");
 		return;
 	}
 
