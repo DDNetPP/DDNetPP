@@ -16221,6 +16221,10 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 				}
 				str_format(aBuf, sizeof(aBuf), "'%s's rifle spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 			}
+			else if (GameServer()->m_apPlayers[Killer]->m_IsVanillaDmg)
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s's killing spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+			}
 			else //no insta at all
 			{
 				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_BlockSpreeHighscore)
@@ -16228,7 +16232,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 					pVictim->GetPlayer()->m_BlockSpreeHighscore = pVictim->GetPlayer()->m_KillStreak;
 					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New Blockspree record!");
 				}
-				str_format(aBuf, sizeof(aBuf), "'%s's blockingspree was ended by '%s' (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+				str_format(aBuf, sizeof(aBuf), "'%s's blocking spree was ended by '%s' (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 			}
 
 
@@ -16274,6 +16278,10 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 					{
 						str_format(aBuf, sizeof(aBuf), "'%s' is on a rifle spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
 					}
+				}
+				else if (GameServer()->m_apPlayers[Killer]->m_IsVanillaDmg)
+				{
+					str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
 				}
 				else //no insta at all
 				{
