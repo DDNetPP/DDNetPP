@@ -327,6 +327,10 @@ public:
 	bool m_IsSurvivalLobby;
 	bool m_IsSurvivalWinner;
 
+	int m_SurvivalKills;
+	int m_SurvivalDeaths;
+	int m_SurvivalWins;
+
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;
 	int m_GrenadeDeaths;

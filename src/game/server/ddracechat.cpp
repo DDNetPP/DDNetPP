@@ -3007,6 +3007,27 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->ShowInstaStats(pResult->m_ClientID, pResult->m_ClientID);
 		}
 	}
+	else if (pPlayer->m_IsSurvivaling)
+	{
+		if (pResult->NumArguments() > 0) //other players stats
+		{
+			char aStatsName[32];
+			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
+			int StatsID = pSelf->GetCIDByName(aStatsName);
+			if (StatsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return;
+			}
+
+			pSelf->ShowSurvivalStats(pResult->m_ClientID, StatsID);
+		}
+		else
+		{
+			pSelf->ShowSurvivalStats(pResult->m_ClientID, pResult->m_ClientID);
+		}
+	}
 	else //blockcity stats
 	{
 		if (pResult->NumArguments() > 0) //other players stats

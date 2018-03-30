@@ -270,6 +270,9 @@ public:
 	//blockwave
 	int BlockWaveFreezeTicks;
 
+	//survival
+	void SurvivalSubDieFunc(int Killer, int weapon);
+
 	//instagib 
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
 	void InstagibSubDieFunc(int Killer, int Weapon);

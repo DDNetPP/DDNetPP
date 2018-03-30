@@ -2509,6 +2509,28 @@ void CGameContext::ShowInstaStats(int requestID, int requestedID)
 	SendChatTarget(requestID, aBuf);
 }
 
+void CGameContext::ShowSurvivalStats(int requestID, int requestedID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[requestID])
+		return;
+	CPlayer *pPlayer = m_apPlayers[requestedID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "~~~ '%s's survival stats ~~~", Server()->ClientName(pPlayer->GetCID()));
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_SurvivalKills);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_SurvivalDeaths);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Wins: %d", pPlayer->m_SurvivalWins);
+	SendChatTarget(requestID, aBuf);
+}
+
 void CGameContext::LeaveInstagib(int ID)
 {
 #if defined(CONF_DEBUG)
@@ -3598,6 +3620,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 		{
 			m_apPlayers[id]->m_IsSurvivalAlive = false;
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
+			m_apPlayers[id]->m_SurvivalDeaths++;
 		}
 		else
 		{
@@ -3728,6 +3751,8 @@ bool CGameContext::SurvivalPickWinner()
 		SendChatTarget(winnerID, "[SURVIVAL] you won!");
 	}
 
+	m_apPlayers[winnerID]->m_SurvivalWins++;
+	m_apPlayers[winnerID]->m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }
