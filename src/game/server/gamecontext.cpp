@@ -199,7 +199,7 @@ void CQueryLogin::OnData()
 				//survival
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalKills = GetInt(GetID("SurvivalKills"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalDeaths = GetInt(GetID("SurvivalDeaths"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalWins = GetInt(GetID("SurvivalWin"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalWins = GetInt(GetID("SurvivalWins"));
 
 				//instagib
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeKills = GetInt(GetID("GrenadeKills"));
