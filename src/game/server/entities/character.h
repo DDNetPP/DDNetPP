@@ -370,6 +370,9 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
+	//dummymode public vars (used by survival 34)
+	int m_DummyDir;
+
 	//dummymode 25 FNN vars
 	bool m_Dummy_nn_ready;
 	bool m_Dummy_nn_touched_by_humans;
