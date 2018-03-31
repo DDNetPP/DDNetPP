@@ -15086,7 +15086,7 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Hook = 0;
 			m_Input.m_Direction = 0;
-			m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+			//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
 
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
 			if (pChr && pChr->IsAlive())
@@ -15231,7 +15231,7 @@ void CCharacter::DummyTick()
 					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y - 32) == 1) //collsion in the way
 					{
 						m_Input.m_Direction = 1;
-						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+						//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					}
 				}
 				else if (m_Core.m_Pos.y < pChr->m_Pos.y) //too high
@@ -15261,7 +15261,7 @@ void CCharacter::DummyTick()
 					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
 					{
 						m_Input.m_Direction = m_DummyDir;
-						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+						//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					}
 				}
 				else if (m_Core.m_Pos.y < pChr->m_Pos.y - 50) //high low
@@ -15269,26 +15269,10 @@ void CCharacter::DummyTick()
 					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
 					{
 						m_Input.m_Direction = m_DummyDir;
-						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+						//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					}
 				}
 			}
-
-
-			//anti stuck whatever
-			if (m_DummyDir == 1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 3))
-			{
-				m_DummyDir = -1;
-			}
-			else if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 3))
-			{
-				m_DummyDir = 1;
-			}
-			else
-			{
-				m_DummyDir = 1;
-			}
-
 
 			//avoid killtiles
 			if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 60, m_Core.m_Pos.y) == 2 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 60, m_Core.m_Pos.y + 30) == 2) //deathtiles on the left side
@@ -15310,10 +15294,53 @@ void CCharacter::DummyTick()
 				}
 			}
 
-			//escape stuck hook
+			//slow tick
 			if (Server()->Tick() % 200 == 0)
 			{
+				//escape stuck hook
 				m_Input.m_Hook = 0;
+
+				//anti stuck whatever
+				if (m_DummyDir == 1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 3))
+				{
+					m_DummyDir = -1;
+				}
+				else if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 3))
+				{
+					m_DummyDir = 1;
+				}
+				else
+				{
+					m_DummyDir = 1;
+				}
+
+				//end game if all humans dead
+				if (GameServer()->m_survivalgamestate > 1) //survival game running
+				{
+					if (m_pPlayer->m_IsSurvivalAlive)
+					{
+						int AliveHumans = 0;
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (GameServer()->m_apPlayers[i] && !GameServer()->m_apPlayers[i]->m_IsDummy) //check all humans
+							{
+								if (GameServer()->m_apPlayers[i]->m_IsSurvivaling && GameServer()->m_apPlayers[i]->m_IsSurvivalAlive) // surival alive
+								{
+									AliveHumans++;
+								}
+							}
+						}
+						if (!AliveHumans) //all humans dead --> suicide to get new round running
+						{
+							Die(m_pPlayer->GetCID(), WEAPON_SELF);
+							//dbg_msg("survival", "all humans dead suicide");
+						}
+						//else
+						//{
+						//	dbg_msg("survival","%d humans alive", AliveHumans);
+						//}
+					}
+				}
 			}
 		}
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
