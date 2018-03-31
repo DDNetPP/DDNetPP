@@ -15283,6 +15283,25 @@ void CCharacter::DummyTick()
 			{
 				m_Input.m_Direction = -1;
 			}
+			if (!IsGrounded()) //flybot for fly parts (working in 10% of the cases)
+			{
+				if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 5 * 32) == 2) //falling on killtiles
+				{
+					m_Input.m_TargetX = 2;
+					m_LatestInput.m_TargetX = 2;
+					m_Input.m_TargetY = -200;
+					m_LatestInput.m_TargetY = -200;
+					if (m_Core.m_Vel.y > 0.0f)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else
+					{
+						m_Input.m_Hook = 0;
+					}
+				}
+				
+			}
 
 
 			//check for stucking in walls
