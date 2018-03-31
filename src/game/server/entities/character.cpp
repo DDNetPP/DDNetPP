@@ -15260,7 +15260,7 @@ void CCharacter::DummyTick()
 				{
 					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
 					{
-						m_Input.m_Direction = 1;
+						m_Input.m_Direction = m_DummyDir;
 						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					}
 				}
@@ -15268,12 +15268,37 @@ void CCharacter::DummyTick()
 				{
 					if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x, m_Core.m_Pos.y + 32) == 3) //collsion in the way
 					{
-						m_Input.m_Direction = 1;
+						m_Input.m_Direction = m_DummyDir;
 						m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
 					}
 				}
 			}
 
+
+			//anti stuck whatever
+			if (m_DummyDir == 1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 20, m_Core.m_Pos.y) == 3))
+			{
+				m_DummyDir = -1;
+			}
+			else if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 3))
+			{
+				m_DummyDir = 1;
+			}
+			else
+			{
+				m_DummyDir = 1;
+			}
+
+
+			//avoid killtiles
+			if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 60, m_Core.m_Pos.y) == 2 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 60, m_Core.m_Pos.y + 30) == 2) //deathtiles on the left side
+			{
+				m_Input.m_Direction = 1;
+			}
+			else if (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 60, m_Core.m_Pos.y) == 2 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x + 60, m_Core.m_Pos.y + 30) == 2) //deathtiles on the right side
+			{
+				m_Input.m_Direction = -1;
+			}
 
 
 			//check for stucking in walls
