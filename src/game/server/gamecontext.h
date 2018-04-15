@@ -529,6 +529,34 @@ public:
 	};
 	std::vector<CDDraceMode> m_DDraceMode;
 
+	struct CBotSpawn1 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBotSpawn1> m_BotSpawn1;
+
+	struct CBotSpawn2 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBotSpawn2> m_BotSpawn2;
+
+	struct CBotSpawn3 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBotSpawn3> m_BotSpawn3;
+
+	struct CBotSpawn4 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBotSpawn4> m_BotSpawn4;
+
 private:
 
 	bool m_VoteWillPass;

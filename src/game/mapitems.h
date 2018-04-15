@@ -178,6 +178,12 @@ enum
 	TILE_VANILLA_MODE, //134
 	TILE_DDRACE_MODE, //135
 
+	// botspawns planned for survival and singleplayer levels
+	TILE_BOTSPAWN_1 = 144,
+	TILE_BOTSPAWN_2 = 145,
+	TILE_BOTSPAWN_3 = 146,
+	TILE_BOTSPAWN_4 = 147,
+
 	// cosmetics
 	TILE_RAINBOW = 176,
 	TILE_BLOODY = 177,

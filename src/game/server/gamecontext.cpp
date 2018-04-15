@@ -9481,6 +9481,34 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDraceMode.m_Center.x, DDraceMode.m_Center.y);
 					m_DDraceMode.push_back(DDraceMode);
 				}
+				else if (Index == TILE_BOTSPAWN_1)
+				{
+					CBotSpawn1 BotSpawn1;
+					BotSpawn1.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got botspawn1 tile at (%.2f|%.2f)", BotSpawn1.m_Center.x, BotSpawn1.m_Center.y);
+					m_BotSpawn1.push_back(BotSpawn1);
+				}
+				else if (Index == TILE_BOTSPAWN_2)
+				{
+					CBotSpawn2 BotSpawn2;
+					BotSpawn2.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got botspawn2 tile at (%.2f|%.2f)", BotSpawn2.m_Center.x, BotSpawn2.m_Center.y);
+					m_BotSpawn2.push_back(BotSpawn2);
+				}
+				else if (Index == TILE_BOTSPAWN_3)
+				{
+					CBotSpawn3 BotSpawn3;
+					BotSpawn3.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got botspawn3 tile at (%.2f|%.2f)", BotSpawn3.m_Center.x, BotSpawn3.m_Center.y);
+					m_BotSpawn3.push_back(BotSpawn3);
+				}
+				else if (Index == TILE_BOTSPAWN_4)
+				{
+					CBotSpawn4 BotSpawn4;
+					BotSpawn4.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got botspawn4 tile at (%.2f|%.2f)", BotSpawn4.m_Center.x, BotSpawn4.m_Center.y);
+					m_BotSpawn4.push_back(BotSpawn4);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
