@@ -194,6 +194,28 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			}
 		}
 	}
+	else if (m_pPlayer->m_DummySpawnTile)
+	{
+		vec2 SpawnTile;
+		if (m_pPlayer->m_DummySpawnTile == 1)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_1);
+		else if (m_pPlayer->m_DummySpawnTile == 2)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_2);
+		else if (m_pPlayer->m_DummySpawnTile == 3)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_3);
+		else if (m_pPlayer->m_DummySpawnTile == 4)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_4);
+
+		if (SpawnTile != vec2(-1, -1))
+		{
+			SetPosition(SpawnTile);
+		}
+		else //no botspawn tile
+		{
+			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d", m_pPlayer->m_DummySpawnTile);
+			m_pPlayer->m_DummySpawnTile = 0;
+		}
+	}
 	else if (m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
 	{
 		if (m_pPlayer->m_IsBalanceBattlePlayer1)
