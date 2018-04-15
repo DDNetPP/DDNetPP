@@ -1512,6 +1512,15 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	{
 		SetPlayerSurvival(ClientID, 1);
 	}
+	else if (g_Config.m_SvDDPPgametype == 4) //vanilla
+	{
+		if (m_apPlayers[ClientID])
+		{
+			m_apPlayers[ClientID]->m_IsVanillaDmg = true;
+			m_apPlayers[ClientID]->m_IsVanillaWeapons = true;
+			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
+		}
+	}
 
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
