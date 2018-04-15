@@ -320,6 +320,9 @@ public:
 	bool m_IsBalanceBattlePlayer1;
 	bool m_IsBalanceBattleDummy;
 
+	// botspawn tiles
+	int m_DummySpawnTile;
+
 	//survival
 
 	bool m_IsSurvivaling;

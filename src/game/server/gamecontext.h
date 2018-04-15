@@ -238,7 +238,7 @@ public:
 
 	//dummy
 	void CreateBasicDummys();
-	int CreateNewDummy(int dummymode, bool silent = false);
+	int CreateNewDummy(int dummymode, bool silent = false, int tile = 0);
 	int GetNextClientID();
 
 	//usefull everywhere

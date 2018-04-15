@@ -5275,7 +5275,7 @@ void CGameContext::CreateBasicDummys()
 	dbg_msg("basic_dummys","map=%s", g_Config.m_SvMap);
 }
 
-int CGameContext::CreateNewDummy(int dummymode, bool silent)
+int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -5304,6 +5304,7 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent)
 	m_apPlayers[DummyID]->m_TeeInfos.m_UseCustomColor = true;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorFeet = 0;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorBody = 0;
+	m_apPlayers[DummyID]->m_DummySpawnTile = tile;
 
 	dbg_msg("dummy", "Dummy connected: %d", DummyID);
 
@@ -6657,6 +6658,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
+						CreateNewDummy(0, true, 1);
 						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
