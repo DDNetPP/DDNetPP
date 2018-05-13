@@ -14673,11 +14673,19 @@ void CCharacter::DummyTick()
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					}
 				}
-				if (m_Core.m_Pos.y > 21 * 32 && m_Core.m_Pos.x > 43 * 32 && m_Core.m_Pos.y < 35 * 32) // kill 
+				if (m_Core.m_Pos.x < 24 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 23 * 32) // looking for tp and setting different aims for the swing
 				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					m_DummySpawnTeleporter = 1;
 				}
-				if (m_Core.m_Pos.x > 25 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x < 33 * 32) // if wrong tp he will kill
+				if (m_Core.m_Pos.x < 25 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 24 * 32) // looking for tp and setting different aims for the swing
+				{
+					m_DummySpawnTeleporter = 2;
+				}
+				if (m_Core.m_Pos.x < 26 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 25	 * 32) // looking for tp and setting different aims for the swing
+				{
+					m_DummySpawnTeleporter = 3;
+				}
+				if (m_Core.m_Pos.y > 21 * 32 && m_Core.m_Pos.x > 43 * 32 && m_Core.m_Pos.y < 35 * 32) // kill 
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
@@ -14701,10 +14709,27 @@ void CCharacter::DummyTick()
 						{
 							SetWeapon(3);
 						}
-						m_Input.m_TargetX = 210;
-						m_Input.m_TargetY = 100;
-						m_LatestInput.m_TargetX = 210;
-						m_LatestInput.m_TargetY = 100;
+						if (m_DummySpawnTeleporter == 1)
+						{
+							m_Input.m_TargetX = 190;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 190;
+							m_LatestInput.m_TargetY = 100;
+						}
+						else if (m_DummySpawnTeleporter == 2)
+						{
+							m_Input.m_TargetX = 205;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 205;
+							m_LatestInput.m_TargetY = 100;
+						}
+						else if (m_DummySpawnTeleporter == 3)
+						{
+							m_Input.m_TargetX = 190;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 190;
+							m_LatestInput.m_TargetY = 100;
+						}
 						if (m_Core.m_Pos.x > 31 * 32)
 						{
 							m_Input.m_Jump = 1;
