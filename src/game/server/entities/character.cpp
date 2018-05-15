@@ -11403,7 +11403,7 @@ void CCharacter::DummyTick()
 						{
 							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 						}
-						if (Server()->Tick() % 3000 == 0) // kill when freeze
+						if (Server()->Tick() % 3000 == 0 && IsGrounded()) // kill when freeze
 						{
 							Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						}
@@ -14668,7 +14668,7 @@ void CCharacter::DummyTick()
 					{
 						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 					}
-					if (Server()->Tick() % 500 == 0) // kill when freeze
+					if (Server()->Tick() % 500 == 0 && IsGrounded()) // kill when freeze
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					}
@@ -14826,7 +14826,7 @@ void CCharacter::DummyTick()
 				{
 					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 				}
-				if (Server()->Tick() % 500 == 0) // kill when freeze
+				if (Server()->Tick() % 500 == 0 && IsGrounded()) // kill when freeze
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
