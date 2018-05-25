@@ -5680,13 +5680,15 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer > 4)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer bloody to the same player more than 5 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer bloody to the same player more than 5 times.");
 					}
-					else
+					else 
 					{
-						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[OFFER] Bloody offer sent to player: '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Bloody was offered to you by a moderator. Turn it on using '/bloody accept'. You can turn it off with '/bloody off'.");
 					}
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
@@ -5697,26 +5699,30 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 19)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer rainbow to the same player more than 20 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer rainbow to the same player more than 20 times.");
 					}
 					else
 					{
-						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer given to the player: %s", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[OFFER] Rainbow offer given to the player: %s", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Rainbow was offered to you by a moderator. Turn it on using '/rainbow accept'. You can turn it off with '/rainbow off'.");
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_trail_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer trail to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer trail to the same player more than 10 times.");
 						return;
 					}
 
-					pSelf->m_apPlayers[GiveID]->m_trail_offer++;
 					str_format(aBuf, sizeof(aBuf), "Trail offer sent to player: '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					pSelf->m_apPlayers[GiveID]->m_trail_offer++;
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Trail was offered to you by a moderator. Turn it on using '/trail accept'. You can turn it off with '/trail off'.");
 				}
 				else if (!str_comp_nocase(aItem, "atom"))
 				{
@@ -5726,9 +5732,11 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						return;
 					}
 
-					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
 					str_format(aBuf, sizeof(aBuf), "[GIVE] Atom offer sent to player: '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Atom was offered to you by a moderator. Turn it on using '/atom accept'. You can turn it off with '/atom off'.");
 				}
 				else if (!str_comp_nocase(aItem, "spread_gun"))
 				{
@@ -5738,9 +5746,11 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						return;
 					}
 
-					pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer++;
 					str_format(aBuf, sizeof(aBuf), "[GIVE] Spread gun offer sent to player: '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer++;
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Spread gun was offered to you by a moderator. Turn it on using '/spread_gun accept'. You can turn it off with '/spread_gun off'.");
 				}
 				else
 				{
