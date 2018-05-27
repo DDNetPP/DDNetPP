@@ -5688,7 +5688,8 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Bloody was offered to you by a moderator. Turn it on using '/bloody accept'. You can turn it off with '/bloody off'.");
+						str_format(aBuf, sizeof(aBuf), "[OFFER] Bloody was offered to you by '%s'. Turn it on using '/bloody accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
@@ -5707,7 +5708,8 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Rainbow was offered to you by a moderator. Turn it on using '/rainbow accept'. You can turn it off with '/rainbow off'.");
+						str_format(aBuf, sizeof(aBuf), "[OFFER] Rainbow was offered to you by '%s'. Turn it on using '/rainbow accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
@@ -5722,7 +5724,8 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_trail_offer++;
-					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Trail was offered to you by a moderator. Turn it on using '/trail accept'. You can turn it off with '/trail off'.");
+					str_format(aBuf, sizeof(aBuf), "[OFFER] Trail was offered to you by '%s'. Turn it on using '/trail accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				}
 				else if (!str_comp_nocase(aItem, "atom"))
 				{
@@ -5736,7 +5739,8 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
-					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Atom was offered to you by a moderator. Turn it on using '/atom accept'. You can turn it off with '/atom off'.");
+					str_format(aBuf, sizeof(aBuf), "[OFFER] Atom was offered to you by '%s'. Turn it on using '/atom accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				}
 				else if (!str_comp_nocase(aItem, "spread_gun"))
 				{
@@ -5750,7 +5754,8 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer++;
-					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), "[OFFER] Spread gun was offered to you by a moderator. Turn it on using '/spread_gun accept'. You can turn it off with '/spread_gun off'.");
+					str_format(aBuf, sizeof(aBuf), "[OFFER] Spread gun was offered to you by '%s'. Turn it on using '/spread_gun accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				}
 				else
 				{
