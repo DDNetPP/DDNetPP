@@ -5627,7 +5627,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_StrongBloody = true;
 				pPlayer->GetCharacter()->m_Bloody = false;
-				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] strong_bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Strong bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -5647,7 +5647,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			else if (!str_comp_nocase(aItem, "spread_gun"))
 			{
 				pChr->m_autospreadgun = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spreading gun on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spread gun on.");
 			}
 			else
 			{
@@ -5680,16 +5680,16 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_bloody_offer > 4)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer bloody to the same player more than 5 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer bloody to the same player more than 5 times.");
 					}
 					else 
 					{
-						str_format(aBuf, sizeof(aBuf), "[OFFER] Bloody offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						str_format(aBuf, sizeof(aBuf), "[OFFER] Bloody was offered to you by '%s'. Turn it on using '/bloody accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody was offered to you by '%s'. Turn it on using '/bloody accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
@@ -5700,32 +5700,32 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_rainbow_offer > 19)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer rainbow to the same player more than 20 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer rainbow to the same player more than 20 times.");
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "[OFFER] Rainbow offer given to the player: %s", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer sent to '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "[OFFER] Rainbow was offered to you by '%s'. Turn it on using '/rainbow accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow was offered to you by '%s'. Turn it on using '/rainbow accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
 				{
 					if (pSelf->m_apPlayers[GiveID]->m_trail_offer > 9)
 					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[OFFER] Admins can't offer trail to the same player more than 10 times.");
+						pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Admins can't offer trail to the same player more than 10 times.");
 						return;
 					}
 
-					str_format(aBuf, sizeof(aBuf), "Trail offer sent to player: '%s'.", aUsername);
+					str_format(aBuf, sizeof(aBuf), "Trail offer sent to '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_trail_offer++;
-					str_format(aBuf, sizeof(aBuf), "[OFFER] Trail was offered to you by '%s'. Turn it on using '/trail accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Trail was offered to you by '%s'. Turn it on using '/trail accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 				}
 				else if (!str_comp_nocase(aItem, "atom"))
 				{
@@ -5735,12 +5735,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						return;
 					}
 
-					str_format(aBuf, sizeof(aBuf), "[GIVE] Atom offer sent to player: '%s'.", aUsername);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Atom offer sent to '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_atom_offer++;
-					str_format(aBuf, sizeof(aBuf), "[OFFER] Atom was offered to you by '%s'. Turn it on using '/atom accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Atom was offered to you by '%s'. Turn it on using '/atom accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 				}
 				else if (!str_comp_nocase(aItem, "spread_gun"))
 				{
@@ -5750,12 +5750,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 						return;
 					}
 
-					str_format(aBuf, sizeof(aBuf), "[GIVE] Spread gun offer sent to player: '%s'.", aUsername);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Spread gun offer sent to '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[GiveID]->m_autospreadgun_offer++;
-					str_format(aBuf, sizeof(aBuf), "[OFFER] Spread gun was offered to you by '%s'. Turn it on using '/spread_gun accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+					str_format(aBuf, sizeof(aBuf), "[GIVE] Spread gun was offered to you by '%s'. Turn it on using '/spread_gun accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 				}
 				else
 				{
@@ -5784,7 +5784,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			{
 				pPlayer->GetCharacter()->m_StrongBloody = true;
 				pPlayer->GetCharacter()->m_Bloody = false;
-				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] strong_bloody on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Strong bloody on.");
 			}
 			else if (!str_comp_nocase(aItem, "rainbow"))
 			{
@@ -5804,7 +5804,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			else if (!str_comp_nocase(aItem, "spread_gun"))
 			{
 				pChr->m_autospreadgun = true;
-				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spreading gun on.");
+				pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Spread gun on.");
 			}
 			else
 			{
@@ -5841,9 +5841,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 					}
 					else
 					{
-						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
-						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody offer sent to '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+						pSelf->m_apPlayers[GiveID]->m_bloody_offer++;
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Bloody was offered to you by '%s'. Turn it on using '/bloody accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "strong_bloody"))
@@ -5858,9 +5861,12 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 					}
 					else
 					{
-						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
-						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer sent to player: '%s'.", aUsername);
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow offer sent to '%s'.", aUsername);
 						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+						pSelf->m_apPlayers[GiveID]->m_rainbow_offer++;
+						str_format(aBuf, sizeof(aBuf), "[GIVE] Rainbow was offered to you by '%s'. Turn it on using '/rainbow accept'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+						pSelf->SendChatTarget(pSelf->m_apPlayers[GiveID]->GetCID(), aBuf);
 					}
 				}
 				else if (!str_comp_nocase(aItem, "trail"))
@@ -5878,7 +5884,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "[GIVE] Can't find playername: '%s'.", aUsername);
+				str_format(aBuf, sizeof(aBuf), "[GIVE] Can't find player '%s'.", aUsername);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			}
 		}
