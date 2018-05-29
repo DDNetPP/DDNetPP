@@ -622,6 +622,19 @@ void CCharacter::FireWeapon(bool Bot)
 		return;
 	}
 
+	/*
+	// Used to debug the ddnet client dummy bug
+	// could be usefull in the future maybe
+	if (m_LatestInput.m_Fire != m_LatestPrevInput.m_Fire + 1 || m_LatestInput.m_Fire != m_Input.m_Fire + 1)
+	{
+	dbg_msg("ddpp-inp", "latestinp: %d latestprevinp: %d inp: %d name: '%s'     (BROKEN INPUT)", m_LatestInput.m_Fire, m_LatestPrevInput.m_Fire, m_Input.m_Fire, Server()->ClientName(m_pPlayer->GetCID()));
+	}
+	else
+	{
+	dbg_msg("ddpp-inp", "latestinp: %d latestprevinp: %d inp: %d name: '%s'", m_LatestInput.m_Fire, m_LatestPrevInput.m_Fire, m_Input.m_Fire, Server()->ClientName(m_pPlayer->GetCID()));
+	}
+	*/
+
 	if (GetPlayer()->GetCharacter() && m_Pullhammer && m_Core.m_ActiveWeapon == WEAPON_HAMMER)
 	{
 		if (m_PullingID == -1 || !GameServer()->GetPlayerChar(m_PullingID)) //no one gets pulled, so search for one!
