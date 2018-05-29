@@ -204,6 +204,12 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 
 	strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
 
+	/* TODO: add a filter str config var*/
+	/*
+	if (str_comp_nocase(sys, "filter-string"))
+		return;
+	*/
+
 #if !defined(CONF_PLATFORM_MACOSX)
 	if(dbg_msg_threaded)
 	{
