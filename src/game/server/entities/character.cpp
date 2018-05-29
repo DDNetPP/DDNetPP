@@ -14646,6 +14646,17 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 
+			if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			// +
+			{																								//  +
+				m_Rainbow = true;																			//   +
+				m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							//    +
+			}																								//		Copy this block of code in front of any dummymode to enable
+			else if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)		//		giving him rainbow and turning it off using /give rainbow <dummyname>
+			{																								//    +
+				m_Rainbow = false;																			//   +
+				m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							//  +
+			}																								// +
+
 			if (m_Core.m_Pos.x > 451 * 32 && m_Core.m_Pos.x < 472 * 32 && m_Core.m_Pos.y > 74 * 32 && m_Core.m_Pos.y < 85 * 32) //spawn bereich  // walk into the left SPAWN tp
 			{
 				m_Dummy27_speed = 70; // fix for crashbug (DONT REMOVE)
