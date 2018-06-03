@@ -593,6 +593,9 @@ public:
 	int m_trail_offer;
 	int m_autospreadgun_offer;
 
+	//dummy rainbow
+	int m_DummyRainbowOfferAmount;
+
 	// cosmetic backups (used to store cosmetics temprorary for example in competetive games)
 	bool m_IsBackupBloody;
 	bool m_IsBackupStrongBloody;
