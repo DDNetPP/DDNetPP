@@ -5877,6 +5877,10 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 				{
 					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
 				}
+				else if (!str_comp_nocase(aItem, "spread_gun"))
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
+				}
 				else
 				{
 					pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Unknown item.");

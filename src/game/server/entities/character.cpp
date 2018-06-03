@@ -5539,6 +5539,17 @@ void CCharacter::DummyTick()
 #endif
 	if (m_pPlayer->m_IsDummy)
 	{
+		if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			 
+		{																								
+			m_Rainbow = true;																			
+			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
+		}																								
+		else if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)			
+		{																								
+			m_Rainbow = false;																			
+			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
+		}																								
+
 		if (m_pPlayer->m_DummyMode == 0) //default and sample mode
 		{
 			/********************************
@@ -10857,7 +10868,7 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
-		else if (m_pPlayer->m_DummyMode == 27) //BlmapChill police
+		else if (m_pPlayer->m_DummyMode == 27 ) //BlmapChill police
 		{
 			m_Input.m_Hook = 0;
 			m_Input.m_Jump = 0;
@@ -11032,6 +11043,14 @@ void CCharacter::DummyTick()
 			}
 			else if (m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 27
 			{
+				if (m_Core.m_Pos.x < 397 * 32 && m_Core.m_Pos.y > 436 * 32 && m_Core.m_Pos.x > 388 * 32) // on the money tile jump loop, to prevent blocking flappy there
+				{
+					m_Input.m_Jump = 0;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
 				//detect lower panic (accedentally fall into the lower police base 
 				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
 				{
