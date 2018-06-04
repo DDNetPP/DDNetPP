@@ -926,7 +926,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 				}
 				else if (importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
-					SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
 				}
 			}
