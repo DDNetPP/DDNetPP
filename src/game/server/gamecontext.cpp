@@ -2593,6 +2593,8 @@ void CGameContext::LeaveInstagib(int ID)
 			SendChatTarget(ID, "[INSTA] You left boomfng.");
 			pPlayer->m_IsInstaArena_gdm = false;
 			pPlayer->m_IsInstaArena_fng = false;
+			pPlayer->m_IsInstaMode_gdm = false;
+			pPlayer->m_IsInstaMode_fng = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
@@ -2600,6 +2602,8 @@ void CGameContext::LeaveInstagib(int ID)
 			SendChatTarget(ID, "[INSTA] You left fng.");
 			pPlayer->m_IsInstaArena_idm = false;
 			pPlayer->m_IsInstaArena_fng = false;
+			pPlayer->m_IsInstaMode_idm = false;
+			pPlayer->m_IsInstaMode_fng = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
@@ -2613,12 +2617,14 @@ void CGameContext::LeaveInstagib(int ID)
 		{
 			SendChatTarget(ID, "[INSTA] You left grenade deathmatch.");
 			pPlayer->m_IsInstaArena_gdm = false;
+			pPlayer->m_IsInstaMode_gdm = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			SendChatTarget(ID, "[INSTA] You left rifle deathmatch.");
 			pPlayer->m_IsInstaArena_idm = false;
+			pPlayer->m_IsInstaMode_idm = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
