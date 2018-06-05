@@ -1521,12 +1521,20 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
 		}
 	}
+	else if (g_Config.m_SvDDPPgametype == 5) //fng
+	{
+		if (m_apPlayers[ClientID])
+		{
+			m_apPlayers[ClientID]->m_IsInstaMode_idm = true;
+			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
+		}
+	}
 
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
 	Score()->PlayerData(ClientID)->Reset();
-	if (g_Config.m_SvInstagibMode)
+	if (g_Config.m_SvDDPPscore == 0)
 	{
 		m_apPlayers[ClientID]->m_Score = 0;
 	}
@@ -1571,7 +1579,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		if (g_Config.m_SvInstagibMode)
 		{
-			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDNet");
+			SendChatTarget(ClientID, "Welcome to ChillerDragon's Instagib Mod (" DDNETPP_VERSION ") based on DDNet");
 		}
 		else
 		{
@@ -2461,16 +2469,21 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 	m_apPlayers[ID]->m_IsInstaArena_idm = false;
 	m_apPlayers[ID]->m_IsInstaArena_gdm = false;
+	m_apPlayers[ID]->m_IsInstaMode_idm = false;
+	m_apPlayers[ID]->m_IsInstaMode_gdm = false;
 	m_apPlayers[ID]->m_InstaScore = 0;
 
 	m_apPlayers[ID]->m_IsInstaArena_fng = fng;
+	m_apPlayers[ID]->m_IsInstaMode_fng = fng;
 	if (weapon == 5)
 	{
 		m_apPlayers[ID]->m_IsInstaArena_idm = true;
+		m_apPlayers[ID]->m_IsInstaMode_idm = true;
 	}
 	else if (weapon == 4)
 	{
 		m_apPlayers[ID]->m_IsInstaArena_gdm = true;
+		m_apPlayers[ID]->m_IsInstaMode_gdm = true;
 	}
 	else
 	{

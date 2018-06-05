@@ -305,6 +305,9 @@ public:
 	bool m_IsInstaArena_gdm;
 	bool m_IsInstaArena_idm;
 	bool m_IsInstaArena_fng; //depends on gdm or idm can be boomfng and fng
+	bool m_IsInstaMode_gdm; // THESE MODES ARE USED FOR THE INSTAGIB
+	bool m_IsInstaMode_idm; // SERVER AND ARE DIFFERENT FROM THE MINIGAME
+	bool m_IsInstaMode_fng; // THEY USE THE SCOARBOARD AND A BIT DIFFERENT RESTRICTIONS
 	int m_Insta1on1_id; //also used as Is1on1ing bool (id != -1 ---> is in 1on1)
 	int m_Insta1on1_mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
 	int m_Insta1on1_score;
