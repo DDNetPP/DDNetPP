@@ -82,11 +82,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaArena_gdm) //gdm & zCatch grenade
+	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GRENADE;
 	}
-	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaArena_idm) //idm & zCatch rifle
+	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaMode_idm) //idm & zCatch rifle
 	{
 		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
 	}
@@ -737,7 +737,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 			vec2 Dir = vec2(0.f, 0.f);
-			if (m_pPlayer->m_IsInstaArena_fng && m_pPlayer->m_aFngConfig[1] == '1')
+			if (m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_aFngConfig[1] == '1')
 			{
 				pTarget->TakeHammerHit(this);
 			}
@@ -1023,7 +1023,7 @@ void CCharacter::FireWeapon(bool Bot)
 				Temp.y = 0;
 			Temp -= pTarget->m_Core.m_Vel;
 
-			if (m_pPlayer->m_IsInstaArena_fng) //dont damage with hammer in fng
+			if (m_pPlayer->m_IsInstaMode_fng) //dont damage with hammer in fng
 			{
 				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
@@ -1034,7 +1034,7 @@ void CCharacter::FireWeapon(bool Bot)
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 			}
 
-			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaArena_fng)
+			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
 				pTarget->UnFreeze();
 
 			if (m_FreezeHammer)
@@ -1286,7 +1286,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 	case WEAPON_GRENADE:
 	{
-		if (g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaArena_gdm)
+		if (g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaMode_gdm)
 		{
 			m_pPlayer->m_GrenadeShots++;
 			m_pPlayer->m_GrenadeShotsNoRJ++;
@@ -1977,7 +1977,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_apPlayers[From]->m_IsInstaArena_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
+	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaMode_gdm && GameServer()->m_apPlayers[From]->m_IsInstaMode_gdm) || (m_pPlayer->m_IsInstaMode_idm && GameServer()->m_apPlayers[From]->m_IsInstaMode_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
 	{
 		DDPP_TakeDamageInstagib(Dmg, From, Weapon);
 	}
@@ -2133,7 +2133,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 		{
-			if (m_pPlayer->m_IsInstaArena_fng || GameServer()->m_apPlayers[From]->m_IsInstaArena_fng)
+			if (m_pPlayer->m_IsInstaMode_fng || GameServer()->m_apPlayers[From]->m_IsInstaMode_fng)
 			{
 				if (!m_FreezeTime)
 				{
@@ -2157,7 +2157,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 
 			//do scoring (by ChillerDragon)
-			if (g_Config.m_SvInstagibMode)
+			if (g_Config.m_SvInstagibMode || g_Config.m_SvDDPPscore == 0)
 			{
 				GameServer()->m_apPlayers[From]->m_Score++;
 			}
@@ -5242,9 +5242,16 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	SurvivalSubDieFunc(Killer, Weapon);
 
 	//insta kills //TODO: combine with insta 1on1
-	if (Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
+	if (Killer != m_pPlayer->GetCID())
 	{
-		GameServer()->DoInstaScore(3, Killer);
+		if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
+		{
+			GameServer()->DoInstaScore(3, Killer);
+		}
+		else if (g_Config.m_SvDDPPscore == 0)
+		{
+			GameServer()->m_apPlayers[Killer]->m_Score += 3;
+		}
 	}
 
 	//insta 1on1
@@ -16032,7 +16039,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 	//Block points
 	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
 	{
-		if (m_pPlayer->m_IsInstaArena_fng && !fngscore)
+		if (m_pPlayer->m_IsInstaMode_fng && !fngscore)
 		{
 			return Killer; //Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 		}

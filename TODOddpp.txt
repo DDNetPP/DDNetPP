@@ -121,6 +121,9 @@ works ingame
 supermoderators can create some for much money but only if x < cfgrated (to avoid race cheats)
 and all tele there for some money
 
+## dppgametype 5 (full fng server) ##
+add sv_scorelimit back agian
+
 COULD AND TO DOS:
 
 //gamecontext.cpp code: cfv45
