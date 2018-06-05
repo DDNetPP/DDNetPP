@@ -34,3 +34,8 @@ We added all the features missing in ddnet. For example:
 - police
 - jail
 - and much more
+
+Known bugs
+--------
+
+The map needs the blue and the red flag from CTF gametype or the server crashes.
