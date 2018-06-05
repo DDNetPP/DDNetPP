@@ -5548,12 +5548,14 @@ void CCharacter::DummyTick()
 	{
 		if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			 
 		{																								
-			m_Rainbow = true;																			
+			m_Rainbow = true;	
+			m_pPlayer->m_rainbow_offer = 0;
 			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
 		}																								
 		else if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)			
 		{																								
-			m_Rainbow = false;																			
+			m_Rainbow = false;	
+			m_pPlayer->m_rainbow_offer = 0;
 			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
 		}																								
 
