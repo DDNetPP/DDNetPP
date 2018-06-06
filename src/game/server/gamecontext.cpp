@@ -130,6 +130,9 @@ void CQueryLogin::OnData()
 
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin));
 
+				//ninjajetpack
+				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
+
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));

@@ -536,6 +536,8 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"taser		  50 000 | Police[3] | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"pvp_arena_ticket     150 | 0 | 1 use");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"ninjajetpack     10000 | 21 | forever");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -1650,10 +1652,18 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if (!pPlayer)
 		return;
-	if (pResult->NumArguments())
-		pPlayer->m_NinjaJetpack = pResult->GetInteger(0);
+	if (pPlayer->m_NinjaJetpackBought)
+	{
+		if (pResult->NumArguments())
+			pPlayer->m_NinjaJetpack = pResult->GetInteger(0);
+		else
+			pPlayer->m_NinjaJetpack = !pPlayer->m_NinjaJetpack;
+	}
 	else
-		pPlayer->m_NinjaJetpack = !pPlayer->m_NinjaJetpack;
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		return;
+	}
 }
 
 void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
@@ -2408,6 +2418,20 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money! You need 150 money.");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "ninjajetpack"))
+	{
+		if (pPlayer->m_money >= 10000)
+		{
+			pPlayer->MoneyTransaction(-10000, "-10000 money. (bought 'ninjajetpack')");
+
+			pPlayer->m_NinjaJetpackBought = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought ninjajetpack.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
 		}
 	}
 	else

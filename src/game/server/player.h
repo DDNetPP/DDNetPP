@@ -350,6 +350,9 @@ public:
 	int m_RifleShots;
 	int m_RifleWins;
 
+	//ninjajetpack
+	int m_NinjaJetpackBought;
+
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_cheats_aimbot;

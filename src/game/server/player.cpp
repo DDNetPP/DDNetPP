@@ -1102,6 +1102,7 @@ void CPlayer::Logout(int SetLoggedIn)
 	//m_JailTime = 0; //logout doesnt release :p
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
+	m_NinjaJetpackBought = 0;
 	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
@@ -1300,6 +1301,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
+										      ", `NinjaJetpackBought` = %i"
 											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
 											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s'"
 											  ", `HomingMissiles` = '%i'"
@@ -1321,6 +1323,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_PoliceRank,
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,
+												m_NinjaJetpackBought,
 												m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
 												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 												m_homing_missiles_ammo,
@@ -1550,7 +1553,7 @@ void CPlayer::CalcExp()
 		m_neededxp = 600000;
 	else if (m_level == 20)					//80 000
 		m_neededxp = 680000;
-	else if (m_level == 21)					//80 000
+	else if (m_level == 21)					//80 000			Ninja jetpack
 		m_neededxp = 760000;
 	else if (m_level == 22)					//90 000
 		m_neededxp = 850000;
