@@ -405,7 +405,18 @@ public:
 	int m_BombColor;
 	bool m_bwff; //black whithe flip flip
 
+	/*****************
+	*     TRADE      *
+	******************/
+	//selll
+	int TradePrepareSell(const char *pToName, int FromID, const char *pItemName, int Price, bool IsPublic);
+	int TradeSellCheckUser(const char *pToName, int FromID);
+	//int TradeSellCheckItem(const char *pItemName, int FromID); //unused! keept just as backup if the new system isnt good
 
+	//base
+	int TradeItemToInt(const char *pItemName);
+	const char * TradeItemToStr(int ItemID);
+	int TradeHasItem(int ItemID, int ID);
 
 
 	int ProcessSpamProtection(int ClientID);
@@ -762,6 +773,7 @@ private:
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 	static void ConTrade(IConsole::IResult *pResult, void *pUserData);
+	static void ConTr(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
