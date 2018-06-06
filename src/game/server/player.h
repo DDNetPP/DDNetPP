@@ -414,7 +414,9 @@ public:
 	int m_TradeMoney;
 	int m_TradeItem;
 	int m_TradeID;
+	int64 m_TradeTick;
 	int m_GangsterBagMoney;
+	char m_aTradeOffer[256];
 
 	void JailPlayer(int seconds);
 	int m_PoliceRank;

@@ -93,6 +93,7 @@ CHAT_COMMAND("money", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMoney, this, "shows 
 CHAT_COMMAND("pay", "?ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPay, this, "give i amount of your '/money' to player r")
 CHAT_COMMAND("gift", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGift, this, "send the player r money more info at '/gift'")
 CHAT_COMMAND("trade", "?ssir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTrade, this, "trade weapons and other items with players on the server")
+CHAT_COMMAND("tr", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTr, this, "the unsave short command for trade (warning don't use if you don't know what you are doing)")
 
 //minigames
 CHAT_COMMAND("chidraqul", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChidraqul, this, "chidraqul3 (minigame) more info '/chidraqul info'")
