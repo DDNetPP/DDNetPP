@@ -1661,7 +1661,7 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have ninjajetpack. Buy it using '/buy ninjajetpack'.");
 		return;
 	}
 }
