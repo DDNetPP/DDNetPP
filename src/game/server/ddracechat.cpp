@@ -2491,16 +2491,23 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn shotgun.");
 			return;
 		}
-		else if (pPlayer->m_SpawnWeaponShotgun)
+		else if (pPlayer->m_SpawnWeaponShotgun == 5)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn shotgun.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn shotgun.");
 		}
 		else if (pPlayer->m_money >= 1000000)
 		{
 			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_shotgun')");
 
-			pPlayer->m_SpawnWeaponShotgun = 1;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn shotgun. Turn it on using '/spawnweapons'.");
+			pPlayer->m_SpawnWeaponShotgun++;
+			if (pPlayer->m_SpawnWeaponShotgun == 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn shotgun. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (pPlayer->m_SpawnWeaponShotgun > 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Spawn shotgun upgraded.");
+			}
 		}
 		else
 		{
@@ -2514,16 +2521,23 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn grenade.");
 			return;
 		}
-		else if (pPlayer->m_SpawnWeaponGrenade)
+		else if (pPlayer->m_SpawnWeaponGrenade == 5)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn grenade.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn grenade.");
 		}
 		else if (pPlayer->m_money >= 1000000)
 		{
 			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_grenade')");
 
-			pPlayer->m_SpawnWeaponGrenade = 1;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn grenade. Turn it on using '/spawnweapons'.");
+			pPlayer->m_SpawnWeaponGrenade++;
+			if (pPlayer->m_SpawnWeaponGrenade == 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn grenade. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (pPlayer->m_SpawnWeaponGrenade > 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Spawn grenade upgraded.");
+			}
 		}
 		else
 		{
@@ -2537,16 +2551,23 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn rifle.");
 			return;
 		}
-		else if (pPlayer->m_SpawnWeaponRifle)
+		else if (pPlayer->m_SpawnWeaponRifle == 5)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn rifle.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn rifle.");
 		}
 		else if (pPlayer->m_money >= 1000000)
 		{
 			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_rifle')");
 
-			pPlayer->m_SpawnWeaponRifle = 1;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn rifle. Turn it on using '/spawnweapons'.");
+			pPlayer->m_SpawnWeaponRifle++;
+			if (pPlayer->m_SpawnWeaponRifle == 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn rifle. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (pPlayer->m_SpawnWeaponRifle > 1)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Spawn rifle upgraded.");
+			}
 		}
 		else
 		{
@@ -8259,6 +8280,37 @@ void CGameContext::ConTaser(IConsole::IResult * pResult, void * pUserData)
 	}
 
 
+}
+
+void CGameContext::ConSpawnWeaponsInfo(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ SPAWN WEAPONS INFO ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "You can buy spawn weapons in the '/shop'.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "You will have the bought weapon on spawn.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "You can have max. 5 bullets per weapon.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Each bullet costs 600.000 money.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR SPAWN WEAPON STATS ~~~");
+	str_format(aBuf, sizeof(aBuf), "Spawn shotgun bullets: %d", pPlayer->m_SpawnWeaponShotgun);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Spawn grenade bullets: %d", pPlayer->m_SpawnWeaponGrenade);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Spawn rifle bullets: %d", pPlayer->m_SpawnWeaponRifle);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ SPAWN WEAPON COMMANDS ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "'/spawnweapons to activate/deactivate it.");
 }
 
 void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)

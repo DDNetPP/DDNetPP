@@ -1416,7 +1416,6 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnShotgunActive = 0;
 			SetWeaponGot(WEAPON_SHOTGUN, false);
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Spawn shotgun is now out of ammo");
 			SetWeapon(0);
 		}
 	}
@@ -1428,7 +1427,6 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnGrenadeActive = 0;
 			SetWeaponGot(WEAPON_GRENADE, false);
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Spawn grenade is now out of ammo");
 			SetWeapon(0);
 		}
 	}
@@ -1440,7 +1438,6 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnRifleActive = 0;
 			SetWeaponGot(WEAPON_RIFLE, false);
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Spawn rifle is now out of ammo");
 			SetWeapon(0);
 		}
 	}
@@ -4650,21 +4647,21 @@ void CCharacter::SetSpawnWeapons()
 		if (m_pPlayer->m_SpawnWeaponShotgun)
 		{
 			m_aWeapons[2].m_Got = true;
-			m_aWeapons[2].m_Ammo = 5;
+			m_aWeapons[2].m_Ammo = m_pPlayer->m_SpawnWeaponShotgun;
 			m_pPlayer->m_SpawnShotgunActive = 1;
 		}
 
 		if (m_pPlayer->m_SpawnWeaponGrenade)
 		{
 			m_aWeapons[3].m_Got = true;
-			m_aWeapons[3].m_Ammo = 5;
+			m_aWeapons[3].m_Ammo = m_pPlayer->m_SpawnWeaponGrenade;
 			m_pPlayer->m_SpawnGrenadeActive = 1;
 		}
 
 		if (m_pPlayer->m_SpawnWeaponRifle)
 		{
 			m_aWeapons[4].m_Got = true;
-			m_aWeapons[4].m_Ammo = 5;
+			m_aWeapons[4].m_Ammo = m_pPlayer->m_SpawnWeaponRifle;
 			m_pPlayer->m_SpawnRifleActive = 1;
 		}
 	}
