@@ -574,11 +574,11 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ninjajetpack     10000 | 21 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_shotgun     1000000 | 38 | forever");
+		"spawn_shotgun     600000 | 38 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_grenade     1000000 | 38 | forever");
+		"spawn_grenade     600000 | 38 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_rifle     1000000 | 38 | forever");
+		"spawn_rifle     600000 | 38 | forever");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -2495,9 +2495,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn shotgun.");
 		}
-		else if (pPlayer->m_money >= 1000000)
+		else if (pPlayer->m_money >= 600000)
 		{
-			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_shotgun')");
+			pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_shotgun')");
 
 			pPlayer->m_SpawnWeaponShotgun++;
 			if (pPlayer->m_SpawnWeaponShotgun == 1)
@@ -2525,9 +2525,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn grenade.");
 		}
-		else if (pPlayer->m_money >= 1000000)
+		else if (pPlayer->m_money >= 600000)
 		{
-			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_grenade')");
+			pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_grenade')");
 
 			pPlayer->m_SpawnWeaponGrenade++;
 			if (pPlayer->m_SpawnWeaponGrenade == 1)
@@ -2555,9 +2555,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the maximum level for spawn rifle.");
 		}
-		else if (pPlayer->m_money >= 1000000)
+		else if (pPlayer->m_money >= 600000)
 		{
-			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_rifle')");
+			pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_rifle')");
 
 			pPlayer->m_SpawnWeaponRifle++;
 			if (pPlayer->m_SpawnWeaponRifle == 1)
