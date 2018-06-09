@@ -751,6 +751,9 @@ private:
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
+	//spawn weapons
+	static void ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData);
+
 	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
 	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
