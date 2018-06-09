@@ -753,6 +753,7 @@ private:
 
 	//spawn weapons
 	static void ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData);
+	static void ConSpawnWeaponsInfo(IConsole::IResult *pResult, void *pUserData);
 
 	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
