@@ -227,6 +227,10 @@ CSql::CSql()
 		"SurvivalDeaths				INTEGER			DEFAULT 0," \
 		"SurvivalWins				INTEGER			DEFAULT 0," \
 		"NinjaJetpackBought			INTEGER			DEFAULT 0," \
+		"UseSpawnWeapons			INTEGER			DEFAULT 0," \
+		"SpawnWeaponShotgun			INTEGER			DEFAULT 0," \
+		"SpawnWeaponGrenade 		INTEGER			DEFAULT 0," \
+		"SpawnWeaponRifle			INTEGER			DEFAULT 0," \
 		"AsciiState					VARCHAR(4)		DEFAULT ''," \
 		"AsciiViewsDefault			INTEGER			DEFAULT 0," \
 		"AsciiViewsProfile			INTEGER			DEFAULT 0," \

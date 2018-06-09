@@ -133,6 +133,12 @@ void CQueryLogin::OnData()
 				//ninjajetpack
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
 
+				//spawn weapons
+				m_pGameServer->m_apPlayers[m_ClientID]->m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
+
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
@@ -6756,7 +6762,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						CreateNewDummy(0, true, 1);
+						//CreateNewDummy(0, true, 1);
 						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
@@ -6802,7 +6808,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->MoneyTransaction(+5000000, "+5000000 test cmd3000");
 						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
@@ -10050,6 +10056,12 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
 	{
 		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		return -1;
+	}
+
+	if ((pPlayer->m_SpawnShotgunActive) || (pPlayer->m_SpawnGrenadeActive) || (pPlayer->m_SpawnRifleActive)) //ARE WEAPONS SPAWN WEAPONS ???
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade while your spawn weapons are active.");
 		return -1;
 	}
 

@@ -353,6 +353,15 @@ public:
 	//ninjajetpack
 	int m_NinjaJetpackBought;
 
+	//spawn weapons
+	int m_UseSpawnWeapons;
+	int m_SpawnWeaponShotgun;
+	int m_SpawnWeaponGrenade;
+	int m_SpawnWeaponRifle;
+	int m_SpawnShotgunActive;
+	int m_SpawnGrenadeActive;
+	int m_SpawnRifleActive;
+
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_cheats_aimbot;
