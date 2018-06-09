@@ -228,6 +228,10 @@ void CQueryLogin::OnData()
 					}
 				}
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
+
+				//ShowHide config
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig));
+				m_pGameServer->ShowHideConfigCharToBool(m_ClientID); //update the actual bools used ingame
 			}
 
 			//================================
@@ -2300,6 +2304,78 @@ void CGameContext::C3_RenderFrame()
 			SendBroadcast(aBuf, i, 0);
 		}
 	}
+}
+
+char CGameContext::BoolToChar(bool b)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (b)
+		return '1';
+	return '0';
+}
+
+bool CGameContext::CharToBool(char c)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (c == '0')
+		return false;
+	return true;
+}
+
+void CGameContext::ShowHideConfigBoolToChar(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
+	pPlayer->m_aShowHideConfig[0] = BoolToChar(pPlayer->m_ShowBlockPoints);
+	pPlayer->m_aShowHideConfig[1] = BoolToChar(pPlayer->m_HideBlockXp);
+	pPlayer->m_aShowHideConfig[2] = BoolToChar(pPlayer->m_xpmsg);
+	pPlayer->m_aShowHideConfig[3] = BoolToChar(pPlayer->m_hidejailmsg);
+	pPlayer->m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1_killmessages);
+	pPlayer->m_aShowHideConfig[5] = BoolToChar(pPlayer->m_HideQuestProgress);
+	pPlayer->m_aShowHideConfig[6] = BoolToChar(pPlayer->m_HideQuestWarning);
+	pPlayer->m_aShowHideConfig[7] = '\0';
+#if defined(CONF_DEBUG)
+	//dbg_msg("BoolToChar", "UPDATED ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+#endif
+}
+
+void CGameContext::ShowHideConfigCharToBool(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
+	pPlayer->m_ShowBlockPoints = CharToBool(pPlayer->m_aShowHideConfig[0]);
+	pPlayer->m_HideBlockXp = CharToBool(pPlayer->m_aShowHideConfig[1]);
+	pPlayer->m_xpmsg = CharToBool(pPlayer->m_aShowHideConfig[2]);
+	pPlayer->m_hidejailmsg = CharToBool(pPlayer->m_aShowHideConfig[3]);
+	pPlayer->m_HideInsta1on1_killmessages = CharToBool(pPlayer->m_aShowHideConfig[4]);
+	pPlayer->m_HideQuestProgress = CharToBool(pPlayer->m_aShowHideConfig[5]);
+	pPlayer->m_HideQuestWarning = CharToBool(pPlayer->m_aShowHideConfig[6]);
+#if defined(CONF_DEBUG)
+	/*
+	dbg_msg("CharToBool", "ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+	dbg_msg("ShowHide", "BlockPoints	: %d", pPlayer->m_ShowBlockPoints);
+	dbg_msg("ShowHide", "BlockXp		: %d", pPlayer->m_HideBlockXp);
+	dbg_msg("ShowHide", "Xp				: %d", pPlayer->m_xpmsg);
+	dbg_msg("ShowHide", "Jail			: %d", pPlayer->m_hidejailmsg);
+	dbg_msg("ShowHide", "insta1n1		: %d", pPlayer->m_HideInsta1on1_killmessages);
+	dbg_msg("ShowHide", "questprogress	: %d", pPlayer->m_HideQuestProgress);
+	dbg_msg("ShowHide", "questwarning	: %d", pPlayer->m_HideQuestWarning);
+	*/
+#endif
 }
 
 void CGameContext::FNN_LoadRun(const char * path, int botID)

@@ -445,6 +445,7 @@ public:
 	bool m_ShowBlockPoints;
 	bool m_xpmsg;
 	bool m_hidejailmsg;
+	char m_aShowHideConfig[16]; //[0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning
 
 
 	//quests

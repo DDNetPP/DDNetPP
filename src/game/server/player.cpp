@@ -180,7 +180,6 @@ void CPlayer::Reset()
 	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
 	m_ChilliWarnings = 0;
-	m_xpmsg = true;
 	m_TROLL166 = false;
 	m_TROLL420 = false;
 	m_Dummy_nn_time = 0;
@@ -203,6 +202,22 @@ void CPlayer::Reset()
 	//m_aFngConfig[2] = '0';
 	//m_aFngConfig[3] = '0';
 	str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
+
+	//ShowHideConfig
+
+	str_copy(m_aShowHideConfig, "0010000000", sizeof(m_aShowHideConfig));
+	//dbg_msg("debug", "init player showhide='%s'", m_aShowHideConfig);
+	m_ShowBlockPoints = GameServer()->CharToBool(m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
+	m_HideBlockXp = GameServer()->CharToBool(m_aShowHideConfig[1]);
+	m_xpmsg = GameServer()->CharToBool(m_aShowHideConfig[2]);
+	m_hidejailmsg = GameServer()->CharToBool(m_aShowHideConfig[3]);
+	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_aShowHideConfig[4]);
+	m_HideQuestProgress = GameServer()->CharToBool(m_aShowHideConfig[5]);
+	m_HideQuestWarning = GameServer()->CharToBool(m_aShowHideConfig[6]);
+	//GameServer()->ShowHideConfigCharToBool(this->GetCID()); //cant be called because somehow players doesnt exist for gameconext idk
+	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
+	//m_xpmsg = true;
+
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -1276,7 +1291,8 @@ void CPlayer::Save(int SetLoggedIn)
 		m_iLastLogoutIGN1_usage = 0;
 	}
 
-
+	//read showhide bools to char array that is being saved
+	GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
 	//not working
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
@@ -1314,6 +1330,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
+											  ", `ShowHideConfig` = '%s'"
 											  ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
 											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
@@ -1336,6 +1353,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
+												m_aShowHideConfig,
 												m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
 												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
 												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,

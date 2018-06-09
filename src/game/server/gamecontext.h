@@ -286,6 +286,12 @@ public:
 	void C3_MultiPlayer_GameTick(int id);
 	void C3_RenderFrame();
 
+	//ShowHide load/save configs
+	char BoolToChar(bool b);
+	bool CharToBool(char c);
+	void ShowHideConfigBoolToChar(int id); // full side effect function which stores all showhide bools into the char array
+	void ShowHideConfigCharToBool(int id); // full side effect function which loads all the showhide bools from the char array
+
 	//FNN
 	void FNN_LoadRun(const char * path, int botID);
 	vec2 m_FinishTilePos;
