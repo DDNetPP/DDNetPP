@@ -301,6 +301,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
 	}
 
+	SetSpawnWeapons();
+
 	return true;
 }
 
@@ -1405,6 +1407,41 @@ void CCharacter::FireWeapon(bool Bot)
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
+	//spawn weapons
+
+	if (m_pPlayer->m_SpawnShotgunActive && m_Core.m_ActiveWeapon == WEAPON_SHOTGUN) 
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnShotgunActive = 0;
+			SetWeaponGot(WEAPON_SHOTGUN, false);
+			SetWeapon(0);
+		}
+	}
+
+	if (m_pPlayer->m_SpawnGrenadeActive && m_Core.m_ActiveWeapon == WEAPON_GRENADE)
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnGrenadeActive = 0;
+			SetWeaponGot(WEAPON_GRENADE, false);
+			SetWeapon(0);
+		}
+	}
+
+	if (m_pPlayer->m_SpawnRifleActive && m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnRifleActive = 0;
+			SetWeaponGot(WEAPON_RIFLE, false);
+			SetWeapon(0);
+		}
+	}
+
 	if (!m_ReloadTimer)
 	{
 		float FireDelay;
@@ -1495,6 +1532,7 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 
 
 			//m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // testycode: 2gf43
+
 			m_aWeapons[Weapon].m_Ammo = 10;
 		}
 		return true;
@@ -4021,7 +4059,7 @@ bool CCharacter::UnFreeze()
 			{
 				if (m_aWeapons[i].m_Got)
 				{
-					if (m_pPlayer->m_IsVanillaWeapons)
+					if (m_pPlayer->m_IsVanillaWeapons || m_pPlayer->m_SpawnShotgunActive || m_pPlayer->m_SpawnGrenadeActive || m_pPlayer->m_SpawnRifleActive)
 					{
 						m_aWeapons[i].m_Ammo = m_aWeaponsBackup[i][1];
 						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_aWeapons[i].m_Ammo);
@@ -4583,6 +4621,38 @@ void CCharacter::GiveAllWeapons()
 		m_aWeapons[i].m_Got = true;
 		if (!m_FreezeTime) m_aWeapons[i].m_Ammo = -1;
 	}
+	return;
+}
+
+void CCharacter::SetSpawnWeapons()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame())
+	{
+		if (m_pPlayer->m_SpawnWeaponShotgun)
+		{
+			m_aWeapons[2].m_Got = true;
+			m_aWeapons[2].m_Ammo = m_pPlayer->m_SpawnWeaponShotgun;
+			m_pPlayer->m_SpawnShotgunActive = 1;
+		}
+
+		if (m_pPlayer->m_SpawnWeaponGrenade)
+		{
+			m_aWeapons[3].m_Got = true;
+			m_aWeapons[3].m_Ammo = m_pPlayer->m_SpawnWeaponGrenade;
+			m_pPlayer->m_SpawnGrenadeActive = 1;
+		}
+
+		if (m_pPlayer->m_SpawnWeaponRifle)
+		{
+			m_aWeapons[4].m_Got = true;
+			m_aWeapons[4].m_Ammo = m_pPlayer->m_SpawnWeaponRifle;
+			m_pPlayer->m_SpawnRifleActive = 1;
+		}
+	}
+
 	return;
 }
 
