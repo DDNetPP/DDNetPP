@@ -6686,7 +6686,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						CreateNewDummy(0, true, 1);
+						//CreateNewDummy(0, true, 1);
 						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
@@ -6732,7 +6732,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->MoneyTransaction(+5000000, "+5000000 test cmd3000");
 						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
