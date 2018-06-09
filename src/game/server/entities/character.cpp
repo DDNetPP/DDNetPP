@@ -1533,19 +1533,6 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 
 			//m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // testycode: 2gf43
 
-			if (Weapon == WEAPON_SHOTGUN)
-			{
-				m_pPlayer->m_SpawnShotgunActive = 0;
-			}
-			else if (Weapon == WEAPON_GRENADE)
-			{
-				m_pPlayer->m_SpawnGrenadeActive = 0;
-			}
-			else if (Weapon == WEAPON_RIFLE)
-			{
-				m_pPlayer->m_SpawnRifleActive = 0;
-			}
-
 			m_aWeapons[Weapon].m_Ammo = 10;
 		}
 		return true;
