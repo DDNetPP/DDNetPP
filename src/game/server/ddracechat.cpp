@@ -87,6 +87,41 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if ((!pPlayer->m_SpawnWeaponShotgun) && (!pPlayer->m_SpawnWeaponGrenade) && (!pPlayer->m_SpawnWeaponRifle))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have any spawn weapons.");
+		return;
+	}
+
+	if (!pPlayer->m_UseSpawnWeapons)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons activated");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons deactivated");
+	}
+
+	pPlayer->m_UseSpawnWeapons ^= true;
+}
+
 void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -538,6 +573,12 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"pvp_arena_ticket     150 | 0 | 1 use");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ninjajetpack     10000 | 21 | forever");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"spawn_shotgun     1000000 | 38 | forever");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"spawn_grenade     1000000 | 38 | forever");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		"spawn_rifle     1000000 | 38 | forever");
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -1661,7 +1702,7 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have ninjajetpack. Buy it using '/buy ninjajetpack'.");
 		return;
 	}
 }
@@ -2422,12 +2463,90 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "ninjajetpack"))
 	{
-		if (pPlayer->m_money >= 10000)
+		if (pPlayer->m_level < 21)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 21 to buy ninjajetpack.");
+			return;
+		}
+		else if (pPlayer->m_NinjaJetpackBought)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own ninjajetpack.");
+		}
+		else if (pPlayer->m_money >= 10000)
 		{
 			pPlayer->MoneyTransaction(-10000, "-10000 money. (bought 'ninjajetpack')");
 
 			pPlayer->m_NinjaJetpackBought = 1;
-			pSelf->SendChatTarget(pResult->m_ClientID, "You bought ninjajetpack.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought ninjajetpack. Turn it on using '/ninjajetpack'.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "spawn_shotgun"))
+	{
+		if (pPlayer->m_level < 38)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn shotgun.");
+			return;
+		}
+		else if (pPlayer->m_SpawnWeaponShotgun)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn shotgun.");
+		}
+		else if (pPlayer->m_money >= 1000000)
+		{
+			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_shotgun')");
+
+			pPlayer->m_SpawnWeaponShotgun = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn shotgun. Turn it on using '/spawnweapons'.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "spawn_grenade"))
+	{
+		if (pPlayer->m_level < 38)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn grenade.");
+			return;
+		}
+		else if (pPlayer->m_SpawnWeaponGrenade)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn grenade.");
+		}
+		else if (pPlayer->m_money >= 1000000)
+		{
+			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_grenade')");
+
+			pPlayer->m_SpawnWeaponGrenade = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn grenade. Turn it on using '/spawnweapons'.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "spawn_rifle"))
+	{
+		if (pPlayer->m_level < 38)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn rifle.");
+			return;
+		}
+		else if (pPlayer->m_SpawnWeaponRifle)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own spawn rifle.");
+		}
+		else if (pPlayer->m_money >= 1000000)
+		{
+			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spawn_rifle')");
+
+			pPlayer->m_SpawnWeaponRifle = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought spawn rifle. Turn it on using '/spawnweapons'.");
 		}
 		else
 		{

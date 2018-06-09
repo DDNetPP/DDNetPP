@@ -1103,6 +1103,10 @@ void CPlayer::Logout(int SetLoggedIn)
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
 	m_NinjaJetpackBought = 0;
+	m_UseSpawnWeapons = 0;
+	m_SpawnWeaponShotgun = 0;
+	m_SpawnWeaponGrenade = 0;
+	m_SpawnWeaponRifle = 0;
 	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
@@ -1302,6 +1306,10 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
 										      ", `NinjaJetpackBought` = %i"
+											  ", `UseSpawnWeapons` = %i"
+											  ", `SpawnWeaponShotgun` = %i"
+											  ", `SpawnWeaponGrenade` = %i"
+											  ", `SpawnWeaponRifle` = %i"
 											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
 											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s'"
 											  ", `HomingMissiles` = '%i'"
@@ -1324,6 +1332,10 @@ void CPlayer::Save(int SetLoggedIn)
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,
 												m_NinjaJetpackBought,
+												m_UseSpawnWeapons,
+												m_SpawnWeaponShotgun,
+												m_SpawnWeaponGrenade,
+												m_SpawnWeaponRifle,
 												m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
 												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 												m_homing_missiles_ammo,
@@ -1581,13 +1593,13 @@ void CPlayer::CalcExp()
 		m_neededxp = 3150000;
 	else if (m_level == 34)					//350 000                      
 		m_neededxp = 3500000;
-	else if (m_level == 35)					//450 000
+	else if (m_level == 35)					//450 000			
 		m_neededxp = 3950000;
 	else if (m_level == 36)					//550 000
 		m_neededxp = 4500000;
 	else if (m_level == 37)					//750 000
 		m_neededxp = 5250000;
-	else if (m_level == 38)					//850 000
+	else if (m_level == 38)					//850 000			spawn weapons
 		m_neededxp = 6100000;
 	else if (m_level == 39)					//900 000
 		m_neededxp = 7000000;

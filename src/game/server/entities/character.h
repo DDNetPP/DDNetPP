@@ -329,6 +329,8 @@ public:
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
 
+	//spawn weapons
+	void SetSpawnWeapons();
 
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;

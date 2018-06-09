@@ -133,6 +133,12 @@ void CQueryLogin::OnData()
 				//ninjajetpack
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
 
+				//spawn weapons
+				m_pGameServer->m_apPlayers[m_ClientID]->m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
+
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
@@ -9974,6 +9980,12 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
 	{
 		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		return -1;
+	}
+
+	if ((pPlayer->m_SpawnShotgunActive) || (pPlayer->m_SpawnGrenadeActive) || (pPlayer->m_SpawnRifleActive)) //ARE WEAPONS SPAWN WEAPONS ???
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade while your spawn weapons are active.");
 		return -1;
 	}
 
