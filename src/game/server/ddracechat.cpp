@@ -3643,6 +3643,11 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout while being frozen.");
 			return;
 		}
+		if (pChr->GetPlayer()->m_SpawnShotgunActive || pChr->GetPlayer()->m_SpawnGrenadeActive || pChr->GetPlayer()->m_SpawnRifleActive)
+		{
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout while your spawn weapons are active.");
+			return;
+		}
 	}
 
 	if (pPlayer->m_JailTime)
