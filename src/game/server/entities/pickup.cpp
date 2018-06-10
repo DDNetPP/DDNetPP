@@ -166,6 +166,14 @@ void CPickup::Tick()
 									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							}
 						}
+						else
+						{
+							if (pChr->GiveWeapon(m_Subtype, -1))
+							{
+								if (pChr->GetPlayer())
+									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
+							}
+						}
 					}
 					else if (pChr->GetPlayer()->m_SpawnWeaponGrenade && m_Subtype == WEAPON_GRENADE)
 					{
@@ -179,6 +187,14 @@ void CPickup::Tick()
 									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							}
 						}
+						else
+						{
+							if (pChr->GiveWeapon(m_Subtype, -1))
+							{
+								if (pChr->GetPlayer())
+									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
+							}
+						}
 					}
 					else if (pChr->GetPlayer()->m_SpawnWeaponRifle && m_Subtype == WEAPON_RIFLE)
 					{
@@ -188,6 +204,14 @@ void CPickup::Tick()
 							if (pChr->GiveWeapon(m_Subtype, -1))
 							{
 								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
+								if (pChr->GetPlayer())
+									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
+							}
+						}
+						else
+						{
+							if (pChr->GiveWeapon(m_Subtype, -1))
+							{
 								if (pChr->GetPlayer())
 									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							}
