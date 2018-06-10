@@ -236,8 +236,10 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
 
 				//ShowHide config
+                /*
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig));
 				m_pGameServer->ShowHideConfigCharToBool(m_ClientID); //update the actual bools used ingame
+                */
 			}
 
 			//================================
