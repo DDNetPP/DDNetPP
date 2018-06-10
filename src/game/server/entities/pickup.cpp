@@ -117,6 +117,9 @@ void CPickup::Tick()
 								}
 							}
 						}
+						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
+						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
+						pChr->GetPlayer()->m_SpawnRifleActive = 0;
 						pChr->SetNinjaActivationDir(vec2(0, 0));
 						pChr->SetNinjaActivationTick(-500);
 						pChr->SetNinjaCurrentMoveTime(0);
