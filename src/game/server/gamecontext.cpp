@@ -3878,6 +3878,11 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->m_Trail = false;
 						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
 
+						//delete "cheats" from the race
+						m_apPlayers[i]->GetCharacter()->m_Jetpack = false;
+						m_apPlayers[i]->GetCharacter()->m_EndlessHook = false;
+						m_apPlayers[i]->GetCharacter()->m_SuperJump = false;
+
 						//kill speed
 						m_apPlayers[i]->GetCharacter()->KillSpeed();
 
