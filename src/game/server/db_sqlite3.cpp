@@ -17,7 +17,7 @@ void CQuery::Query(CSql *pDatabase, char *pQuery)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 	if (!pQuery) {
-		dbg_msg("cBug","[WARNING] no pQuery found in Query() function line 11.");
+		dbg_msg("SQLite","[WARNING] no pQuery found in CQuery::Query()");
 	}
 #endif
 	m_pDatabase = pDatabase;
@@ -75,7 +75,9 @@ void CSql::WorkerThread()
 				// sqlite3_finalize(pQuery->m_pStatement);
 			}
 			else
-				dbg_msg("SQLite", "%s", sqlite3_errmsg(m_pDB));
+			{
+				dbg_msg("SQLite", "WorkerError: %s", sqlite3_errmsg(m_pDB));
+			}
 
 			// delete pQuery;
 		}
@@ -124,7 +126,7 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 	if (!pQuery) {
-		dbg_msg("cBug", "[WARNING] no pQuery found in CQuery *CSql::Query(CQuery *pQuery, std::string QueryString) function line 90.");
+		dbg_msg("SQLite", "[WARNING] no pQuery found in CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)");
 		return NULL;
 	}
 #endif
@@ -157,6 +159,7 @@ CSql::CSql()
 	{
 		dbg_msg("SQLite", "Can't open database error: %d", rc);
 		sqlite3_close(m_pDB);
+		return;
 	}
 
 	char *Query = "CREATE TABLE IF NOT EXISTS Accounts (" \
@@ -280,11 +283,12 @@ CSql::~CSql()
 
 	lock_wait(m_CallbackLock);
 
-		while (m_lpExecutedQueries.size()) {
-    	    CQuery *pQuery = m_lpExecutedQueries.front();
-            m_lpExecutedQueries.pop();
-            delete pQuery;
-    	}
+	while (m_lpExecutedQueries.size())
+	{
+		CQuery *pQuery = m_lpExecutedQueries.front();
+		m_lpExecutedQueries.pop();
+		delete pQuery;
+	}
 
     lock_unlock(m_CallbackLock);
     lock_destroy(m_CallbackLock);
