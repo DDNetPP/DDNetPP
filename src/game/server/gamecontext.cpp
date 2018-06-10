@@ -9988,12 +9988,6 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		return -1;
 	}
 
-	if ((pPlayer->m_SpawnShotgunActive) || (pPlayer->m_SpawnGrenadeActive) || (pPlayer->m_SpawnRifleActive)) //ARE WEAPONS SPAWN WEAPONS ???
-	{
-		SendChatTarget(FromID, "[TRADE] you can't trade while your spawn weapons are active.");
-		return -1;
-	}
-
 	int item = TradeItemToInt(pItemName); // ITEM EXIST ???
 	if (item == -1)
 	{
@@ -10002,6 +9996,29 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		SendChatTarget(FromID, aBuf);
 		return -1;
 	}
+
+	if (item == 2 && pPlayer->m_SpawnShotgunActive)				// are items spawn weapons?
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn shotgun.");
+		return -1;
+	}
+	if (item == 3 && pPlayer->m_SpawnGrenadeActive)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn grenade.");
+		return -1;
+	}
+	if (item == 4 && pPlayer->m_SpawnRifleActive)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn rifle.");
+		return -1;
+	}
+	if (item == 5 && (pPlayer->m_SpawnShotgunActive || pPlayer->m_SpawnGrenadeActive || pPlayer->m_SpawnRifleActive))
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn weapons.");
+		return -1;
+	}
+
+
 	int HasItem = TradeHasItem(item, FromID); // ITEM OWNED ???
 	if (HasItem == -1)
 	{
