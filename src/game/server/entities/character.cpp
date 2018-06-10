@@ -301,6 +301,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
 	}
 
+	m_pPlayer->m_SpawnShotgunActive = 0;
+	m_pPlayer->m_SpawnGrenadeActive = 0;
+	m_pPlayer->m_SpawnRifleActive = 0;
+
 	SetSpawnWeapons();
 
 	return true;
