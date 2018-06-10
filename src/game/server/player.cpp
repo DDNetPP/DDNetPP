@@ -1296,7 +1296,7 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	//read showhide bools to char array that is being saved
-	GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
 	//not working
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
