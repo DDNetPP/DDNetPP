@@ -90,6 +90,14 @@ void CQueryLogin::OnData()
 		}
 		else
 		{
+			if (g_Config.m_SvSpeedLogin)
+			{
+				if (m_pGameServer->m_apPlayers[m_ClientID])
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] speed login success.");
+				}
+				return;
+			}
 			if (m_pGameServer->m_apPlayers[m_ClientID])
 			{
 				//#####################################################
@@ -356,7 +364,7 @@ void CQueryLogin::OnData()
 
 			if (LoginFile.is_open())
 			{
-				dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+				//dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 				LoginFile << m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin << "\n";
 			}
 			else
