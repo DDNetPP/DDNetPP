@@ -18,7 +18,6 @@
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
 
-
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
@@ -142,6 +141,10 @@ void CPlayer::Reset()
 	m_LastSQLQuery = 0;
 #endif
 
+	/*****************************
+	*        DDNetPP             *
+	******************************/
+
 	//ChillerDragon constructor Konstructor init
 	if (g_Config.m_SvTestingCommands)
 	{
@@ -172,6 +175,7 @@ void CPlayer::Reset()
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
+	m_pLoginData = NULL;
 
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
@@ -404,6 +408,8 @@ void CPlayer::Tick()
 	}
 	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
+
+	ThreadLoginDone();
 }
 
 void CPlayer::PostTick()
@@ -1836,6 +1842,84 @@ bool CPlayer::IsInstagibMinigame()
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
+}
+
+//void CPlayer::ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL) //starts the thread gets called on login
+void CPlayer::ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	dbg_msg("cBug", "login0");
+	m_pLoginData = (struct CLoginData*)malloc(sizeof(struct CLoginData));
+	dbg_msg("cBug", "login1");
+	//m_pLoginData->m_pGameContext = pGameContext;
+	dbg_msg("cBug", "login2");
+	m_pLoginData->m_pTmpPlayer = this; //new CPlayer(GameServer(), GetCID(), m_Team);
+	dbg_msg("cBug", "login3");
+	m_pLoginData->m_pSQL = pSQL;
+	dbg_msg("cBug", "login4");
+	m_pLoginData->m_Done = false;
+	dbg_msg("cBug", "login5");
+	m_pLoginData->m_Lock = lock_create();
+	void *pt = thread_init(*ThreadLoginWorker, m_pLoginData); //setzte die werte von pTmpPlayer
+	dbg_msg("cBug", "login6");
+
+	m_pLoginData->m_Done = true; //the thread result gets catched in ThreadLoginDone function called everytick by checking this var
+	dbg_msg("cBug", "loginDONE");
+}
+
+void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	dbg_msg("cBug", "worker0");
+	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
+	dbg_msg("cBug", "worker1");
+	//CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
+	dbg_msg("cBug", "worker2");
+	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->m_pSQL);
+	dbg_msg("cBug", "worker3");
+	CPlayer *pPlayer = static_cast<CPlayer*>(pData->m_pTmpPlayer);
+	dbg_msg("cBug", "worker4");
+	dbg_msg("cBug", "worker5");
+	//str_format(aBuf, sizeof(aBuf), "[THREAD] hello world4 your id=%d should be id=%d", pPlayer->GetCID(), /*GetCID() //doesnt work cuz static*/ 404);
+	dbg_msg("cBug", "worker6");
+	//pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	dbg_msg("cBug", "worker7");
+	pPlayer->m_money = 420;
+	dbg_msg("cBug", "workerDONE");
+}
+
+void CPlayer::ThreadLoginDone() //get called every tick
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_pLoginData)
+		return;
+
+	dbg_msg("cBug", "done0");
+	lock_wait(m_pLoginData->m_Lock);
+	dbg_msg("cBug", "done1");
+	if (!m_pLoginData->m_Done)
+		return;
+
+	dbg_msg("cBug", "done2");
+	char aBuf[128];
+	dbg_msg("cBug", "done3");
+	str_format(aBuf, sizeof(aBuf), "[THREAD] login done");
+	dbg_msg("cBug", "done4");
+	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	delete m_pLoginData->m_pTmpPlayer;
+	dbg_msg("cBug", "done5");
+	lock_unlock(m_pLoginData->m_Lock);
+	dbg_msg("cBug", "done6");
+
+	lock_destroy(m_pLoginData->m_Lock);
+	free(m_pLoginData);
+	dbg_msg("cBug", "doneDONE");
 }
 
 void CPlayer::chidraqul3_GameTick()
