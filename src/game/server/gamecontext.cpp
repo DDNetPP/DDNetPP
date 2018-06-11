@@ -36,7 +36,8 @@
 #include <game/server/teams.h>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
-
+//#include <stdio.h> //neded for pthreads on windows
+//#include <pthread.h> //login threads
 enum
 {
 	RESET,
@@ -77,6 +78,38 @@ void CQueryRegister::OnData()
 	}
 }
 
+/*
+void CGameContext::LoginThread(void * pArg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	struct LoginData *pData = static_cast<struct LoginData*>(pArg);
+	CGameContext *pGS = static_cast<CGameContext*>(pData->pGameContext);
+	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->pSQL);
+	CPlayer *pPlayer = static_cast<CPlayer*>(pData->pTmpPlayer);
+	int id = pData->id;
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[THREAD] hello world3 your id=%d", id);
+	pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	pPlayer->m_money = 420;
+}
+
+void CGameContext::Login(void *pArg, int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	struct LoginData *pData = (struct LoginData*)malloc(sizeof(struct LoginData));
+	pData->id = id;
+	pData->pGameContext = this;
+	pData->pSQL = pArg;
+	pData->pTmpPlayer = m_apPlayers[id];
+	void *pt = thread_init(*LoginThread, pData); //setzte die werte von pTmpPlayer
+	//the thread result gets catched in LoginDone function called everytick
+}
+*/
+
 void CQueryLogin::OnData()
 {
 #if defined(CONF_DEBUG)
@@ -95,6 +128,7 @@ void CQueryLogin::OnData()
 				if (m_pGameServer->m_apPlayers[m_ClientID])
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] speed login success.");
+					//m_pGameServer->m_apPlayers[m_ClientID]->ThreadLoginStart(this); //crashes the server still in work
 				}
 				return;
 			}

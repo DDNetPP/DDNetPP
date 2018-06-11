@@ -7,6 +7,8 @@
 #include "entities/character.h"
 #include "gamecontext.h"
 
+#include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
+
 // player object
 class CPlayer
 {
@@ -178,7 +180,6 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
-
 	//usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description);
 	bool IsInstagibMinigame();
@@ -189,6 +190,22 @@ public:
 	//bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	int m_LastBroadcast;
 	int m_LastBroadcastImportance;
+
+	//login and threads
+	//void ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL);
+	void ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL);
+	static void ThreadLoginWorker(void * pArg);
+	void ThreadLoginDone();
+
+
+	struct CLoginData {
+		LOCK m_Lock;
+		bool m_Done;
+		//CGameContext *m_pGameContext;
+		void *m_pSQL;
+		CPlayer *m_pTmpPlayer;
+	};
+	CLoginData *m_pLoginData;
 
 	//ascii animation frames
 	char m_aAsciiFrame0[64];

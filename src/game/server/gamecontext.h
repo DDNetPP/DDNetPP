@@ -280,6 +280,20 @@ public:
 	void SaveCosmetics(int id);
 	void LoadCosmetics(int id);
 
+	//login and threads (moved to player.h)
+	/*
+	static void LoginThread(void * pArg);
+	void Login(void *pArg, int id);
+	struct LoginData {
+		LOCK m_Lock;
+		bool m_Done;
+		void *pGameContext;
+		void *pSQL;
+		int id;
+		CPlayer *pTmpPlayer;
+	};
+	*/
+
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
 	int C3_GetOnlinePlayers();
