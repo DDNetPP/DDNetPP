@@ -4660,6 +4660,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You have to be alive to use this command.");
+		return;
 	}
 
 	if (pResult->NumArguments() != 1)
