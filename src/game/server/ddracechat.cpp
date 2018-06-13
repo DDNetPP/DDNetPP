@@ -401,6 +401,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved trade command and added public trades");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ added spawnweapons to shop");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
@@ -9040,76 +9042,15 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "buy"))
 	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
-			return;
-		}
-
-
-		int TradeID = pSelf->GetCIDByName(pResult->GetString(3));       //USER ONLINE ???
-		if (TradeID == -1)
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online", pResult->GetString(3));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_AccountID <= 0)    //USER LOGGED IN ???
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pResult->GetString(3));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		if (pResult->GetInteger(2) < 1) // TRADE MONEY TOO LOW ???
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the trade price has to be higher than zer0.");
-			return;
-		}
-
+		int TradeID = pSelf->GetCIDByName(pResult->GetString(3));
 		int weapon = pSelf->TradeItemToInt(pResult->GetString(1));
+
+		if (pSelf->TradePrepareBuy(pResult->m_ClientID, pResult->GetString(3), weapon)) { return; }
 
 		if (pSelf->m_apPlayers[TradeID]->m_TradeItem != weapon ||
 			pSelf->m_apPlayers[TradeID]->m_TradeMoney != pResult->GetInteger(2))
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the trade you accepted doesn't exist.");
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_TradeMoney > pPlayer->m_money)
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pPlayer->m_money, pSelf->m_apPlayers[TradeID]->m_TradeMoney);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_TradeID != -1 && //private trade
-			pSelf->m_apPlayers[TradeID]->m_TradeID != pResult->m_ClientID) //wrong private trade mate
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] error, this trade is private.");
-			return;
-		}
-
-		if (TradeID == pPlayer->GetCID())
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you can't trade alone, lol");
-			return;
-		}
-
-		if (!pSelf->m_apPlayers[TradeID]->GetCharacter() || !pChr)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] both players have to be alive.");
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(weapon) || (weapon == 5 && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(2) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(3) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(4)))
-		{
-			//has the weapons
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the seller doesn't own the item right now. try agian later.");
 			return;
 		}
 
@@ -9227,91 +9168,16 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (pResult->NumArguments() == 1)
 	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
-			return;
-		}
+		int TradeID = pSelf->GetCIDByName(pResult->GetString(0));
+		int weapon = pSelf->m_apPlayers[TradeID] ? pSelf->m_apPlayers[TradeID]->m_TradeItem : -1;
+		char aWeaponName[64]; //calculate trading string
+		str_format(aWeaponName, sizeof(aWeaponName), pSelf->TradeItemToStr(weapon));
 
-		int TradeID = pSelf->GetCIDByName(pResult->GetString(0));       //USER ONLINE ???
-		if (TradeID == -1)
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online", pResult->GetString(3));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_AccountID <= 0)    //USER LOGGED IN ???
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pResult->GetString(3));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		int weapon = pSelf->m_apPlayers[TradeID]->m_TradeItem;
-
-		char aWeaponName[64];
-		//calculate trading string
-		if (weapon == 2)
-		{
-			str_format(aWeaponName, sizeof(aWeaponName), "shotgun");
-		}
-		else if (weapon == 3)
-		{
-			str_format(aWeaponName, sizeof(aWeaponName), "grenade");
-		}
-		else if (weapon == 4)
-		{
-			str_format(aWeaponName, sizeof(aWeaponName), "rifle");
-		}
-		else if (weapon == 5)
-		{
-			str_format(aWeaponName, sizeof(aWeaponName), "all_weapons");
-		}
-		else
-		{
-			str_format(aWeaponName, sizeof(aWeaponName), "unknown");
-		}
+		if (pSelf->TradePrepareBuy(pResult->m_ClientID, pResult->GetString(0), weapon)) { return; }
 
 		if (pSelf->m_apPlayers[TradeID]->m_TradeMoney > 5000)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] use the '/trade' command for trades with over 5000 money.");
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_TradeMoney > pPlayer->m_money)
-		{
-			str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pPlayer->m_money, pSelf->m_apPlayers[TradeID]->m_TradeMoney);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->m_TradeID != -1 && //private trade
-			pSelf->m_apPlayers[TradeID]->m_TradeID != pResult->m_ClientID) //wrong private trade mate
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] error, this trade is private.");
-			return;
-		}
-
-		if (TradeID == pPlayer->GetCID())
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you can't trade alone, lol");
-			return;
-		}
-
-		if (!pSelf->m_apPlayers[TradeID]->GetCharacter() || !pChr)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] both players have to be alive.");
-			return;
-		}
-
-		if (pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(weapon) || (weapon == 5 && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(2) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(3) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(4)))
-		{
-			//has the weapons
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the seller doesn't own the item right now. try agian later.");
 			return;
 		}
 
