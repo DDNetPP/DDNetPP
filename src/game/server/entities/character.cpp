@@ -16696,9 +16696,12 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		}
 
 		//=== KILLS ===
-		if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
+		if (Killer != m_pPlayer->GetCID()) // don't count selfkills as kills
 		{
-			GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+			if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
+			{
+				GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+			}
 		}
 	}
 }
