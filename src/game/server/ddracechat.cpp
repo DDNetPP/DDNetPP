@@ -614,12 +614,14 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CGameContext *pSelf = (CGameContext *) pUserData;
+	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"ChillerDragon's Block Mod (" DDNETPP_VERSION ").");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Created by ChillerDragon, timakro, FruchtiHD, Henritees, fokkonaut, heinrich5991, QshaR, SarKro, Pikotee, toast & Blue");
+		"Created by ChillerDragon, timakro, FruchtiHD, Henritees, fokkonaut");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"heinrich5991, QshaR, Teecloud, SarKro, Pikotee, toast & Blue");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDNet.");
 }
