@@ -10189,6 +10189,96 @@ int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
 	return TradeID;
 }
 
+int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pBPlayer = m_apPlayers[BuyerID];       // BUYER ONLINE ??
+	if (!pBPlayer)
+		return -1;
+
+	char aBuf[128];
+	int SellerID = GetCIDByName(pSellerName);       // SELLER ONLINE ??
+	if (SellerID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online.", pSellerName);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	CPlayer *pSPlayer = m_apPlayers[SellerID];
+	if (!pSPlayer)
+		return -1;
+
+	CCharacter *pBChr = GetPlayerChar(BuyerID);
+	CCharacter *pSChr = GetPlayerChar(SellerID);
+
+	if (pBPlayer->m_AccountID <= 0)					// BUYER LOGGED IN ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		return -1;
+	}
+
+	if (pSPlayer->m_AccountID <= 0)					// SELLER LOGGED IN ??
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pSellerName);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	if (!pBChr || !pSChr)							// BOTH ALIVE ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] both players have to be alive.");
+		return -1;
+	}
+
+	if (BuyerID == SellerID)						// SAME TEE ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] you can't trade alone, lol");
+		return -1;
+	}
+
+	if (pSPlayer->m_TradeMoney > pBPlayer->m_money)	// ENOUGH MONEY ??
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->m_money, pSPlayer->m_TradeMoney);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	if (pSPlayer->m_TradeID != -1 &&				// PRIVATE TRADE ??
+		pSPlayer->m_TradeID != BuyerID)				// wrong private trade mate
+	{
+		SendChatTarget(BuyerID, "[TRADE] error, this trade is private.");
+		return -1;
+	}
+
+	if (pSChr->HasWeapon(ItemID) || (ItemID == 5 && pSChr->HasWeapon(2) && pSChr->HasWeapon(3) && pSChr->HasWeapon(4)))
+	{
+		//has the weapons
+	}
+	else
+	{
+		SendChatTarget(BuyerID, "[TRADE] the seller doesn't own the item right now. try agian later.");
+		return -1;
+	}
+
+	if (IsMinigame(SellerID))
+	{
+		SendChatTarget(BuyerID, "[TRADE] trade failed because seller is in jail or minigame.");
+		return -1;
+	}
+
+	if (IsMinigame(BuyerID))
+	{
+		SendChatTarget(BuyerID, "[TRADE] trade failed because you are in jail or minigame.");
+		return -1;
+	}
+
+
+	return 0;
+}
+
 /*
 int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 {
