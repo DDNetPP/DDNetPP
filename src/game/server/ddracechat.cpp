@@ -8333,7 +8333,7 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "missing permission to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN-CHAT] missing permission to use this command.");
 		return;
 	}
 
@@ -8346,6 +8346,139 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(i, aMsg);
 		}
+	}
+}
+
+void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[LIVE] missing permission to use this command.");
+		return;
+	}
+
+	char aBuf[128];
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== LIVE ====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "shows live stats about players");
+		pSelf->SendChatTarget(pResult->m_ClientID, "usage: '/live (playername)'");
+		return;
+	}
+
+	char aLiveName[32];
+	str_format(aLiveName, sizeof(aLiveName), "%s", pResult->GetString(0));
+	str_format(aBuf, sizeof(aBuf), "==== [LIVE] '%s' ====", aLiveName);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	int liveID = pSelf->GetCIDByName(aLiveName);
+	if (liveID == -1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Status: OFFLINE");
+		return;
+	}
+	pSelf->SendChatTarget(pResult->m_ClientID, "Status: ONLINE");
+	CPlayer *pLive = pSelf->m_apPlayers[liveID];
+	if (!pLive)
+		return;
+	if (pLive->m_Authed)
+	{
+		str_format(aBuf, sizeof(aBuf), "Authed: %d", pLive->m_Authed);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
+	if (pLive->m_AccountID > 0)
+	{
+		str_format(aBuf, sizeof(aBuf), "Account: %s", pLive->m_aAccountLoginName);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "AccountID: %d", pLive->m_AccountID);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+		if (pLive->m_QuestState == 0)
+		{
+			//pSelf->SendChatTarget(pResult->m_ClientID, "Quest: FALSE"); //useless info
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "Quest: %d (level %d)", pLive->m_QuestState, pLive->m_QuestStateLevel);
+			pSelf->SendChatTarget(pPlayer->GetCID(), aBuf);
+			str_format(aBuf, sizeof(aBuf), "QuestStr: %s", pLive->m_aQuestString);
+			pSelf->SendChatTarget(pPlayer->GetCID(), aBuf);
+			if (pLive->m_aQuestProgress[0] != -1 && pLive->m_aQuestProgress[1] != -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "QuestProgress: %d/%d", pLive->m_aQuestProgress[0], pLive->m_aQuestProgress[1]);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			}
+			if (pLive->m_QuestFailed)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "QuestFailed: TRUE");
+			}
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Account: NOT LOGGED IN");
+	}
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Char: DEAD");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Char: ALIVE");
+		if (pChr->m_DeepFreeze)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: DEEP");
+		}
+		else if (pChr->m_FreezeTime)
+		{
+			str_format(aBuf, sizeof(aBuf), "Frozen: %d", pChr->m_FreezeTime);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else if (pChr->isFreezed)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: IsFreezed (tile)");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: FALSE");
+		}
+
+		if (pChr->m_SuperJump)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "SuperJump: TRUE");
+		}
+		if (pChr->m_EndlessHook)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Endless: TRUE");
+		}
+		str_format(aBuf, sizeof(aBuf), "Hammer[%d] Gun[%d] Ninja[%d]", pChr->HasWeapon(0), pChr->HasWeapon(1), pChr->HasWeapon(5));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Shotgun[%d] Grenade[%d] Rifle[%d]", pChr->HasWeapon(2), pChr->HasWeapon(3), pChr->HasWeapon(4));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+		/*
+	WEAPON_HAMMER=0,
+	WEAPON_GUN,
+	WEAPON_SHOTGUN,
+	WEAPON_GRENADE,
+	WEAPON_RIFLE,
+	WEAPON_NINJA,
+	NUM_WEAPONS
+		*/
+
 	}
 }
 

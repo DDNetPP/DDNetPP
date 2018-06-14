@@ -682,7 +682,6 @@ private:
 	static void ConSettings(IConsole::IResult *pResult, void *pUserData);
 	static void ConRules(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
-	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData);
@@ -840,6 +839,8 @@ private:
 	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
 	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
 	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
+	static void ConLive(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
