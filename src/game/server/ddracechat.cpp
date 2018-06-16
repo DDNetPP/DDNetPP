@@ -9190,6 +9190,24 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnShotgunActive && weapon == 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnGrenadeActive && weapon == 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnRifleActive && weapon == 4)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
 		//##############
 		// TRADE SUCCESS
 		//##############
@@ -9314,6 +9332,24 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		if (pSelf->m_apPlayers[TradeID]->m_TradeMoney > 5000)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] use the '/trade' command for trades with over 5000 money.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnShotgunActive && weapon == 2)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnGrenadeActive && weapon == 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnRifleActive && weapon == 4)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
 			return;
 		}
 
