@@ -9103,6 +9103,24 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnShotgunActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnGrenadeActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnRifleActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
 		if (pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(weapon) || (weapon == 5 && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(2) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(3) && pSelf->m_apPlayers[TradeID]->GetCharacter()->HasWeapon(4)))
 		{
 			//has the weapons
@@ -9302,6 +9320,24 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		if (!pSelf->m_apPlayers[TradeID]->GetCharacter() || !pChr)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] both players have to be alive.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnShotgunActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnGrenadeActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+			return;
+		}
+
+		if (pSelf->m_apPlayers[TradeID]->m_SpawnRifleActive)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
 			return;
 		}
 
