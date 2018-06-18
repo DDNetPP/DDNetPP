@@ -10275,6 +10275,23 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 		return -1;
 	}
 
+	if (pSPlayer->m_SpawnShotgunActive && ItemID == 2)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+	if (pSPlayer->m_SpawnGrenadeActive && ItemID == 3)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+	if (pSPlayer->m_SpawnRifleActive && ItemID == 4)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
 
 	return 0;
 }
