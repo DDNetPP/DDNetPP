@@ -8460,6 +8460,10 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "SuperJump: TRUE");
 		}
+		if (pChr->m_Jetpack)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Jetpack: TRUE");
+		}
 		if (pChr->m_EndlessHook)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Endless: TRUE");
@@ -8469,16 +8473,21 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "Shotgun[%d] Grenade[%d] Rifle[%d]", pChr->HasWeapon(2), pChr->HasWeapon(3), pChr->HasWeapon(4));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-		/*
-	WEAPON_HAMMER=0,
-	WEAPON_GUN,
-	WEAPON_SHOTGUN,
-	WEAPON_GRENADE,
-	WEAPON_RIFLE,
-	WEAPON_NINJA,
-	NUM_WEAPONS
-		*/
-
+		int viewers = 0;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_SpectatorID == liveID)
+			{
+				viewers++;
+			}
+		}
+		if (viewers)
+		{
+			str_format(aBuf, sizeof(aBuf), "Viewers: %d", viewers);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		str_format(aBuf, sizeof(aBuf), "Position: (%.2f/%.2f)", pChr->GetPosition().x / 32, pChr->GetPosition().y / 32);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
 
