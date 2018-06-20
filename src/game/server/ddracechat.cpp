@@ -23,7 +23,7 @@
 #include <game/server/score/sql_score.h>
 #endif
 
-bool CheckClientID(int ClientID);
+bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
 //void CGameContext::ConAfk(IConsole::IResult *pResult, void *pUserData)
 //{
@@ -3506,7 +3506,23 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pResult->NumArguments() != 2)
+	char aUsername[32];
+	char aPassword[128];
+
+	if (pResult->NumArguments() == 1)
+	{
+		char aBuf[128];
+		pSelf->SendChatTarget(ClientID, aBuf);
+		str_copy(aUsername, pSelf->Server()->ClientName(ClientID), sizeof(aUsername));
+		str_copy(aPassword, pResult->GetString(0), sizeof(aPassword));
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] WARNING no username given. (trying '%s')", aUsername);
+	}
+	else if (pResult->NumArguments() == 2)
+	{
+		str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
+		str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
+	}
+	else
 	{
 		pSelf->SendChatTarget(ClientID, "Use '/login <name> <password>'.");
 		pSelf->SendChatTarget(ClientID, "Use '/accountinfo' for help.");
@@ -3518,11 +3534,6 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "You are already logged in.");
 		return;
 	}
-
-	char aUsername[32];
-	char aPassword[128];
-	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
-	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
