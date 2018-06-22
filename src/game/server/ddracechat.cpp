@@ -8373,7 +8373,7 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[LIVE] missing permission to use this command.");
 		return;
