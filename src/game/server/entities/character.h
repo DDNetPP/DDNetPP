@@ -332,6 +332,13 @@ public:
 	//spawn weapons
 	void SetSpawnWeapons();
 
+
+	void BulletAmounts();
+	int m_GunBullets;
+	int m_ShotgunBullets;
+	int m_GrenadeBullets;
+	int m_RifleBullets;
+
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
 
