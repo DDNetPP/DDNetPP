@@ -8441,47 +8441,47 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Account: NOT LOGGED IN");
 	}
 
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if (!pChr)
+	if (!pLive->GetCharacter())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Char: DEAD");
 	}
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Char: ALIVE");
-		if (pChr->m_DeepFreeze)
+		if (pLive->GetCharacter()->m_DeepFreeze)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: DEEP");
 		}
-		else if (pChr->m_FreezeTime)
+		else if (pLive->GetCharacter()->isFreezed)
 		{
-			str_format(aBuf, sizeof(aBuf), "Frozen: %d", pChr->m_FreezeTime);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: TRUE");
 		}
-		else if (pChr->isFreezed)
+		else if (pLive->GetCharacter()->m_FreezeTime)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: IsFreezed (tile)");
+			str_format(aBuf, sizeof(aBuf), "Frozen: Freezetime: %d", pLive->GetCharacter()->m_FreezeTime);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: FALSE");
 		}
 
-		if (pChr->m_SuperJump)
+		if (pLive->GetCharacter()->m_SuperJump)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "SuperJump: TRUE");
 		}
-		if (pChr->m_Jetpack)
+		if (pLive->GetCharacter()->m_Jetpack)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Jetpack: TRUE");
 		}
-		if (pChr->m_EndlessHook)
+		if (pLive->GetCharacter()->m_EndlessHook)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Endless: TRUE");
 		}
-		str_format(aBuf, sizeof(aBuf), "Hammer[%d] Gun[%d] Ninja[%d]", pChr->HasWeapon(0), pChr->HasWeapon(1), pChr->HasWeapon(5));
+		pLive->GetCharacter()->BulletAmounts();
+		str_format(aBuf, sizeof(aBuf), "Hammer[%d] Gun[%d] Ninja[%d]", pLive->GetCharacter()->HasWeapon(0), pLive->GetCharacter()->m_GunBullets, pLive->GetCharacter()->HasWeapon(5));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Shotgun[%d] Grenade[%d] Rifle[%d]", pChr->HasWeapon(2), pChr->HasWeapon(3), pChr->HasWeapon(4));
+		str_format(aBuf, sizeof(aBuf), "Shotgun[%d] Grenade[%d] Rifle[%d]", pLive->GetCharacter()->m_ShotgunBullets, pLive->GetCharacter()->m_GrenadeBullets, pLive->GetCharacter()->m_RifleBullets);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		int viewers = 0;
@@ -8497,7 +8497,7 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Viewers: %d", viewers);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
-		str_format(aBuf, sizeof(aBuf), "Position: (%.2f/%.2f)", pChr->GetPosition().x / 32, pChr->GetPosition().y / 32);
+		str_format(aBuf, sizeof(aBuf), "Position: (%.2f/%.2f)", pLive->GetCharacter()->GetPosition().x / 32, pLive->GetCharacter()->GetPosition().y / 32);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
