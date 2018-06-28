@@ -306,6 +306,17 @@ public:
 	void DDPP_Tick();
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
+    
+    // missions (singleplayer)
+    int m_MissionUnlockedLevel;
+    int m_MissionCurrentLevel;
+    void LoadSinglePlayer();
+    void SaveSinglePlayer();
+    
+    struct CBinaryStorage
+    {
+        int x,space1,space2;
+    };
 
 	//global chat
 	void GlobalChatPrintMessage();

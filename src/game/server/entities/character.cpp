@@ -15384,6 +15384,33 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
+        else if (m_pPlayer->m_DummyMode == 35) // weak singleplayer guardian
+        {
+            m_Input.m_Jump = 0;
+            m_Input.m_Fire = 0;
+            m_LatestInput.m_Fire = 0;
+            m_Input.m_Hook = 0;
+            m_Input.m_Direction = 0;
+            
+            CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
+            if (pChr && pChr->IsAlive())
+            {
+                m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+                m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+                m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+                m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+                
+                // don't shoot walls
+                if (!GameServer()->Collision()->IntersectLine(m_Pos, pChr->m_Pos, 0x0, 0))
+                {
+                    if (Server()->Tick() % 77 == 0 && m_FreezeTime < 1)
+                    {
+                        m_Input.m_Fire++;
+                        m_LatestInput.m_Fire++;
+                    }
+                }
+            }
+        }
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 		{
 			m_Input.m_Jump = 0;
