@@ -37,6 +37,17 @@ and also behaved weird on official server (not local). i did '/gift Chillingo.*'
 
 ~~~ ADD ~~~
 
+##  mail ##
+add a new database only for mails
+and add some '/mail send (username) (title) (content)' command
+and '/mail list' and '/mail read (id of the mail)'
+
+## fng ##
+add multis
+
+## bounty ##
+add message for all players when a bounty gets set
+
 ## survival ##
 add cosmetics for the lobby
 gun curvature (needed for the whole vanilla mode nor only for survival)
@@ -45,6 +56,8 @@ gun curvature (needed for the whole vanilla mode nor only for survival)
 better track their features and a nice vipinfo command ingame
 
 ## security ##
+add pins which are needed for passwords change
+add backup questions to restore password without email
 hash the passwords in the database
 
 ## livestreams ##
@@ -57,14 +70,10 @@ there is an extra stream chat and idk totally useless feature
 on vote (f4/f3) drop the current active weapon if not gun or hammer
 drop them in the map (like in survival) and all people can collect it
 
-## sell weapons ##
-'/sell grenade' to loose grenade and get some money from the server
-
 ## trade command ##
-'/trade invite <item> <price> <player>'
-'/trade save_accept <item> <price> <player>' #i know this command is long but it is anti scam
-#'/trade accept <player>' #totally insecure but fasttyping #doesnt work with spaces in name
-Items: grenade,shotgun,rifle, homing missiles ammo
+add trade delay levels to shop
+default level 0 has a delay of 20 minutes and max speed is 20 seconds
+add Items: homing missiles ammo
 
 ## king of hill ##
 Capturing areas with bloody tiles which show the current leading tee
@@ -120,6 +129,9 @@ add warps like in minecraft
 works ingame
 supermoderators can create some for much money but only if x < cfgrated (to avoid race cheats)
 and all tele there for some money
+
+## dppgametype 5 (full fng server) ##
+add sv_scorelimit back agian
 
 COULD AND TO DOS:
 

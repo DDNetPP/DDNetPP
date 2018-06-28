@@ -18,7 +18,6 @@
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
 
-
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
@@ -142,6 +141,10 @@ void CPlayer::Reset()
 	m_LastSQLQuery = 0;
 #endif
 
+	/*****************************
+	*        DDNetPP             *
+	******************************/
+
 	//ChillerDragon constructor Konstructor init
 	if (g_Config.m_SvTestingCommands)
 	{
@@ -169,8 +172,10 @@ void CPlayer::Reset()
 		m_IsVanillaWeapons = true;
 	}
 
+	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
+	m_pLoginData = NULL;
 
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
@@ -179,7 +184,6 @@ void CPlayer::Reset()
 	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
 	m_ChilliWarnings = 0;
-	m_xpmsg = true;
 	m_TROLL166 = false;
 	m_TROLL420 = false;
 	m_Dummy_nn_time = 0;
@@ -202,6 +206,22 @@ void CPlayer::Reset()
 	//m_aFngConfig[2] = '0';
 	//m_aFngConfig[3] = '0';
 	str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
+
+	//ShowHideConfig
+
+	str_copy(m_aShowHideConfig, "0010000000", sizeof(m_aShowHideConfig));
+	//dbg_msg("debug", "init player showhide='%s'", m_aShowHideConfig);
+	m_ShowBlockPoints = GameServer()->CharToBool(m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
+	m_HideBlockXp = GameServer()->CharToBool(m_aShowHideConfig[1]);
+	m_xpmsg = GameServer()->CharToBool(m_aShowHideConfig[2]);
+	m_hidejailmsg = GameServer()->CharToBool(m_aShowHideConfig[3]);
+	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_aShowHideConfig[4]);
+	m_HideQuestProgress = GameServer()->CharToBool(m_aShowHideConfig[5]);
+	m_HideQuestWarning = GameServer()->CharToBool(m_aShowHideConfig[6]);
+	//GameServer()->ShowHideConfigCharToBool(this->GetCID()); //cant be called because somehow players doesnt exist for gameconext idk
+	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
+	//m_xpmsg = true;
+
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -388,6 +408,8 @@ void CPlayer::Tick()
 	}
 	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
+
+	ThreadLoginDone();
 }
 
 void CPlayer::PostTick()
@@ -1101,6 +1123,11 @@ void CPlayer::Logout(int SetLoggedIn)
 	//m_JailTime = 0; //logout doesnt release :p
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
+	m_NinjaJetpackBought = 0;
+	m_UseSpawnWeapons = 0;
+	m_SpawnWeaponShotgun = 0;
+	m_SpawnWeaponGrenade = 0;
+	m_SpawnWeaponRifle = 0;
 	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
@@ -1274,7 +1301,8 @@ void CPlayer::Save(int SetLoggedIn)
 		m_iLastLogoutIGN1_usage = 0;
 	}
 
-
+	//read showhide bools to char array that is being saved
+	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
 	//not working
 	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
@@ -1299,6 +1327,11 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
+										      ", `NinjaJetpackBought` = %i"
+											  ", `UseSpawnWeapons` = %i"
+											  ", `SpawnWeaponShotgun` = %i"
+											  ", `SpawnWeaponGrenade` = %i"
+											  ", `SpawnWeaponRifle` = %i"
 											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
 											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s'"
 											  ", `HomingMissiles` = '%i'"
@@ -1311,6 +1344,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
+											  ", `ShowHideConfig` = '%s'"
 											  ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
 											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
@@ -1320,6 +1354,11 @@ void CPlayer::Save(int SetLoggedIn)
 												m_PoliceRank,
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,
+												m_NinjaJetpackBought,
+												m_UseSpawnWeapons,
+												m_SpawnWeaponShotgun,
+												m_SpawnWeaponGrenade,
+												m_SpawnWeaponRifle,
 												m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
 												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 												m_homing_missiles_ammo,
@@ -1332,6 +1371,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
+												m_aShowHideConfig,
 												m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
 												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
 												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
@@ -1549,7 +1589,7 @@ void CPlayer::CalcExp()
 		m_neededxp = 600000;
 	else if (m_level == 20)					//80 000
 		m_neededxp = 680000;
-	else if (m_level == 21)					//80 000
+	else if (m_level == 21)					//80 000			Ninja jetpack
 		m_neededxp = 760000;
 	else if (m_level == 22)					//90 000
 		m_neededxp = 850000;
@@ -1577,13 +1617,13 @@ void CPlayer::CalcExp()
 		m_neededxp = 3150000;
 	else if (m_level == 34)					//350 000                      
 		m_neededxp = 3500000;
-	else if (m_level == 35)					//450 000
+	else if (m_level == 35)					//450 000			
 		m_neededxp = 3950000;
 	else if (m_level == 36)					//550 000
 		m_neededxp = 4500000;
 	else if (m_level == 37)					//750 000
 		m_neededxp = 5250000;
-	else if (m_level == 38)					//850 000
+	else if (m_level == 38)					//850 000			spawn weapons
 		m_neededxp = 6100000;
 	else if (m_level == 39)					//900 000
 		m_neededxp = 7000000;
@@ -1802,6 +1842,84 @@ bool CPlayer::IsInstagibMinigame()
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
+}
+
+//void CPlayer::ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL) //starts the thread gets called on login
+void CPlayer::ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	dbg_msg("cBug", "login0");
+	m_pLoginData = (struct CLoginData*)malloc(sizeof(struct CLoginData));
+	dbg_msg("cBug", "login1");
+	//m_pLoginData->m_pGameContext = pGameContext;
+	dbg_msg("cBug", "login2");
+	m_pLoginData->m_pTmpPlayer = this; //new CPlayer(GameServer(), GetCID(), m_Team);
+	dbg_msg("cBug", "login3");
+	m_pLoginData->m_pSQL = pSQL;
+	dbg_msg("cBug", "login4");
+	m_pLoginData->m_Done = false;
+	dbg_msg("cBug", "login5");
+	m_pLoginData->m_Lock = lock_create();
+	void *pt = thread_init(*ThreadLoginWorker, m_pLoginData); //setzte die werte von pTmpPlayer
+	dbg_msg("cBug", "login6");
+
+	m_pLoginData->m_Done = true; //the thread result gets catched in ThreadLoginDone function called everytick by checking this var
+	dbg_msg("cBug", "loginDONE");
+}
+
+void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	dbg_msg("cBug", "worker0");
+	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
+	dbg_msg("cBug", "worker1");
+	//CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
+	dbg_msg("cBug", "worker2");
+	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->m_pSQL);
+	dbg_msg("cBug", "worker3");
+	CPlayer *pPlayer = static_cast<CPlayer*>(pData->m_pTmpPlayer);
+	dbg_msg("cBug", "worker4");
+	dbg_msg("cBug", "worker5");
+	//str_format(aBuf, sizeof(aBuf), "[THREAD] hello world4 your id=%d should be id=%d", pPlayer->GetCID(), /*GetCID() //doesnt work cuz static*/ 404);
+	dbg_msg("cBug", "worker6");
+	//pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	dbg_msg("cBug", "worker7");
+	pPlayer->m_money = 420;
+	dbg_msg("cBug", "workerDONE");
+}
+
+void CPlayer::ThreadLoginDone() //get called every tick
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_pLoginData)
+		return;
+
+	dbg_msg("cBug", "done0");
+	lock_wait(m_pLoginData->m_Lock);
+	dbg_msg("cBug", "done1");
+	if (!m_pLoginData->m_Done)
+		return;
+
+	dbg_msg("cBug", "done2");
+	char aBuf[128];
+	dbg_msg("cBug", "done3");
+	str_format(aBuf, sizeof(aBuf), "[THREAD] login done");
+	dbg_msg("cBug", "done4");
+	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	delete m_pLoginData->m_pTmpPlayer;
+	dbg_msg("cBug", "done5");
+	lock_unlock(m_pLoginData->m_Lock);
+	dbg_msg("cBug", "done6");
+
+	lock_destroy(m_pLoginData->m_Lock);
+	free(m_pLoginData);
+	dbg_msg("cBug", "doneDONE");
 }
 
 void CPlayer::chidraqul3_GameTick()

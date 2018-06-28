@@ -36,7 +36,8 @@
 #include <game/server/teams.h>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
-
+//#include <stdio.h> //neded for pthreads on windows
+//#include <pthread.h> //login threads
 enum
 {
 	RESET,
@@ -77,6 +78,38 @@ void CQueryRegister::OnData()
 	}
 }
 
+/*
+void CGameContext::LoginThread(void * pArg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	struct LoginData *pData = static_cast<struct LoginData*>(pArg);
+	CGameContext *pGS = static_cast<CGameContext*>(pData->pGameContext);
+	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->pSQL);
+	CPlayer *pPlayer = static_cast<CPlayer*>(pData->pTmpPlayer);
+	int id = pData->id;
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[THREAD] hello world3 your id=%d", id);
+	pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	pPlayer->m_money = 420;
+}
+
+void CGameContext::Login(void *pArg, int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	struct LoginData *pData = (struct LoginData*)malloc(sizeof(struct LoginData));
+	pData->id = id;
+	pData->pGameContext = this;
+	pData->pSQL = pArg;
+	pData->pTmpPlayer = m_apPlayers[id];
+	void *pt = thread_init(*LoginThread, pData); //setzte die werte von pTmpPlayer
+	//the thread result gets catched in LoginDone function called everytick
+}
+*/
+
 void CQueryLogin::OnData()
 {
 #if defined(CONF_DEBUG)
@@ -90,6 +123,15 @@ void CQueryLogin::OnData()
 		}
 		else
 		{
+			if (g_Config.m_SvSpeedLogin)
+			{
+				if (m_pGameServer->m_apPlayers[m_ClientID])
+				{
+					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] speed login success.");
+					//m_pGameServer->m_apPlayers[m_ClientID]->ThreadLoginStart(this); //crashes the server still in work
+				}
+				return;
+			}
 			if (m_pGameServer->m_apPlayers[m_ClientID])
 			{
 				//#####################################################
@@ -129,6 +171,15 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3, GetText(GetID("Clan3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3));
 
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin));
+
+				//ninjajetpack
+				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
+
+				//spawn weapons
+				m_pGameServer->m_apPlayers[m_ClientID]->m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
 
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
@@ -225,6 +276,12 @@ void CQueryLogin::OnData()
 					}
 				}
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
+
+				//ShowHide config
+                /*
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig));
+				m_pGameServer->ShowHideConfigCharToBool(m_ClientID); //update the actual bools used ingame
+                */
 			}
 
 			//================================
@@ -341,7 +398,7 @@ void CQueryLogin::OnData()
 
 			if (LoginFile.is_open())
 			{
-				dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+				//dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 				LoginFile << m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin << "\n";
 			}
 			else
@@ -926,7 +983,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 				}
 				else if (importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
-					SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
 				}
 			}
@@ -1521,12 +1578,20 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
 		}
 	}
+	else if (g_Config.m_SvDDPPgametype == 5) //fng
+	{
+		if (m_apPlayers[ClientID])
+		{
+			m_apPlayers[ClientID]->m_IsInstaMode_idm = true;
+			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
+		}
+	}
 
 	//world.insert_entity(&players[client_id]);
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
 	Score()->PlayerData(ClientID)->Reset();
-	if (g_Config.m_SvInstagibMode)
+	if (g_Config.m_SvDDPPscore == 0)
 	{
 		m_apPlayers[ClientID]->m_Score = 0;
 	}
@@ -1571,7 +1636,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		if (g_Config.m_SvInstagibMode)
 		{
-			SendChatTarget(ClientID, "ChillerDragon's Instagib mod based on DDNet");
+			SendChatTarget(ClientID, "Welcome to ChillerDragon's Instagib Mod (" DDNETPP_VERSION ") based on DDNet");
 		}
 		else
 		{
@@ -2291,6 +2356,78 @@ void CGameContext::C3_RenderFrame()
 	}
 }
 
+char CGameContext::BoolToChar(bool b)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (b)
+		return '1';
+	return '0';
+}
+
+bool CGameContext::CharToBool(char c)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (c == '0')
+		return false;
+	return true;
+}
+
+void CGameContext::ShowHideConfigBoolToChar(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
+	pPlayer->m_aShowHideConfig[0] = BoolToChar(pPlayer->m_ShowBlockPoints);
+	pPlayer->m_aShowHideConfig[1] = BoolToChar(pPlayer->m_HideBlockXp);
+	pPlayer->m_aShowHideConfig[2] = BoolToChar(pPlayer->m_xpmsg);
+	pPlayer->m_aShowHideConfig[3] = BoolToChar(pPlayer->m_hidejailmsg);
+	pPlayer->m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1_killmessages);
+	pPlayer->m_aShowHideConfig[5] = BoolToChar(pPlayer->m_HideQuestProgress);
+	pPlayer->m_aShowHideConfig[6] = BoolToChar(pPlayer->m_HideQuestWarning);
+	pPlayer->m_aShowHideConfig[7] = '\0';
+#if defined(CONF_DEBUG)
+	//dbg_msg("BoolToChar", "UPDATED ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+#endif
+}
+
+void CGameContext::ShowHideConfigCharToBool(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
+	pPlayer->m_ShowBlockPoints = CharToBool(pPlayer->m_aShowHideConfig[0]);
+	pPlayer->m_HideBlockXp = CharToBool(pPlayer->m_aShowHideConfig[1]);
+	pPlayer->m_xpmsg = CharToBool(pPlayer->m_aShowHideConfig[2]);
+	pPlayer->m_hidejailmsg = CharToBool(pPlayer->m_aShowHideConfig[3]);
+	pPlayer->m_HideInsta1on1_killmessages = CharToBool(pPlayer->m_aShowHideConfig[4]);
+	pPlayer->m_HideQuestProgress = CharToBool(pPlayer->m_aShowHideConfig[5]);
+	pPlayer->m_HideQuestWarning = CharToBool(pPlayer->m_aShowHideConfig[6]);
+#if defined(CONF_DEBUG)
+	/*
+	dbg_msg("CharToBool", "ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+	dbg_msg("ShowHide", "BlockPoints	: %d", pPlayer->m_ShowBlockPoints);
+	dbg_msg("ShowHide", "BlockXp		: %d", pPlayer->m_HideBlockXp);
+	dbg_msg("ShowHide", "Xp				: %d", pPlayer->m_xpmsg);
+	dbg_msg("ShowHide", "Jail			: %d", pPlayer->m_hidejailmsg);
+	dbg_msg("ShowHide", "insta1n1		: %d", pPlayer->m_HideInsta1on1_killmessages);
+	dbg_msg("ShowHide", "questprogress	: %d", pPlayer->m_HideQuestProgress);
+	dbg_msg("ShowHide", "questwarning	: %d", pPlayer->m_HideQuestWarning);
+	*/
+#endif
+}
+
 void CGameContext::FNN_LoadRun(const char * path, int botID)
 {
 #if defined(CONF_DEBUG)
@@ -2461,16 +2598,21 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
 	m_apPlayers[ID]->m_IsInstaArena_idm = false;
 	m_apPlayers[ID]->m_IsInstaArena_gdm = false;
+	m_apPlayers[ID]->m_IsInstaMode_idm = false;
+	m_apPlayers[ID]->m_IsInstaMode_gdm = false;
 	m_apPlayers[ID]->m_InstaScore = 0;
 
 	m_apPlayers[ID]->m_IsInstaArena_fng = fng;
+	m_apPlayers[ID]->m_IsInstaMode_fng = fng;
 	if (weapon == 5)
 	{
 		m_apPlayers[ID]->m_IsInstaArena_idm = true;
+		m_apPlayers[ID]->m_IsInstaMode_idm = true;
 	}
 	else if (weapon == 4)
 	{
 		m_apPlayers[ID]->m_IsInstaArena_gdm = true;
+		m_apPlayers[ID]->m_IsInstaMode_gdm = true;
 	}
 	else
 	{
@@ -2580,6 +2722,8 @@ void CGameContext::LeaveInstagib(int ID)
 			SendChatTarget(ID, "[INSTA] You left boomfng.");
 			pPlayer->m_IsInstaArena_gdm = false;
 			pPlayer->m_IsInstaArena_fng = false;
+			pPlayer->m_IsInstaMode_gdm = false;
+			pPlayer->m_IsInstaMode_fng = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
@@ -2587,6 +2731,8 @@ void CGameContext::LeaveInstagib(int ID)
 			SendChatTarget(ID, "[INSTA] You left fng.");
 			pPlayer->m_IsInstaArena_idm = false;
 			pPlayer->m_IsInstaArena_fng = false;
+			pPlayer->m_IsInstaMode_idm = false;
+			pPlayer->m_IsInstaMode_fng = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
@@ -2600,12 +2746,14 @@ void CGameContext::LeaveInstagib(int ID)
 		{
 			SendChatTarget(ID, "[INSTA] You left grenade deathmatch.");
 			pPlayer->m_IsInstaArena_gdm = false;
+			pPlayer->m_IsInstaMode_gdm = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			SendChatTarget(ID, "[INSTA] You left rifle deathmatch.");
 			pPlayer->m_IsInstaArena_idm = false;
+			pPlayer->m_IsInstaMode_idm = false;
 			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
@@ -3891,6 +4039,11 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->m_Atom = false;
 						m_apPlayers[i]->GetCharacter()->m_Trail = false;
 						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
+
+						//delete "cheats" from the race
+						m_apPlayers[i]->GetCharacter()->m_Jetpack = false;
+						m_apPlayers[i]->GetCharacter()->m_EndlessHook = false;
+						m_apPlayers[i]->GetCharacter()->m_SuperJump = false;
 
 						//kill speed
 						m_apPlayers[i]->GetCharacter()->KillSpeed();
@@ -6700,10 +6853,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						CreateNewDummy(35, true, 1);
+						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
-                        str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
-                        SendChatTarget(ClientID, aBuf);
+                        //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
+                        //SendChatTarget(ClientID, aBuf);
 						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
@@ -6749,7 +6902,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+500000, "+500000 test cmd3000");
+						pPlayer->MoneyTransaction(+5000000, "+5000000 test cmd3000");
 						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
@@ -9967,6 +10120,384 @@ void CGameContext::SendRecord(int ClientID)
 	RecordsMsg.m_PlayerTimeBest = Score()->PlayerData(ClientID)->m_BestTime * 100.0f;
 	RecordsMsg.m_ServerTimeBest = m_pController->m_CurrentRecord * 100.0f; //TODO: finish this
 	Server()->SendPackMsg(&RecordsMsg, MSGFLAG_VITAL, ClientID);
+}
+
+int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char * pItemName, int Price, bool IsPublic)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[FromID];
+	if (!pPlayer)
+		return -1;
+
+	CCharacter *pChr = GetPlayerChar(FromID);
+	if (!pChr)
+	{
+		SendChatTarget(FromID, "[TRADE] you have to be alive to use this command.");
+		return -1;
+	}
+
+	char aBuf[256];
+
+	if (pPlayer->m_TradeTick > Server()->Tick())
+	{
+		int TimeLeft = (pPlayer->m_TradeTick - Server()->Tick()) / Server()->TickSpeed();
+		str_format(aBuf, sizeof(aBuf), "[TRADE] delay: %02d:%02d", TimeLeft / 60, TimeLeft % 60);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+
+	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
+	{
+		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		return -1;
+	}
+
+	int item = TradeItemToInt(pItemName); // ITEM EXIST ???
+	if (item == -1)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+
+	if (item == 2 && pPlayer->m_SpawnShotgunActive)				// are items spawn weapons?
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn shotgun.");
+		return -1;
+	}
+	if (item == 3 && pPlayer->m_SpawnGrenadeActive)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn grenade.");
+		return -1;
+	}
+	if (item == 4 && pPlayer->m_SpawnRifleActive)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn rifle.");
+		return -1;
+	}
+	if (item == 5 && (pPlayer->m_SpawnShotgunActive || pPlayer->m_SpawnGrenadeActive || pPlayer->m_SpawnRifleActive))
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade your spawn weapons.");
+		return -1;
+	}
+
+
+	int HasItem = TradeHasItem(item, FromID); // ITEM OWNED ???
+	if (HasItem == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] you don't own the item [ %s ]", pItemName);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+
+	if (Price < 1) // TRADE MONEY TOO LOW ???
+	{
+		SendChatTarget(FromID, "[TRADE] the trade price has to be higher than zer0.");
+		return -1;
+	}
+
+	if (!IsPublic) // private trade
+	{
+		return TradeSellCheckUser(pToName, FromID); // DOES THE USER EXIST ??? AND IS HE LOGGED IN ???
+	}
+
+	return 1;
+}
+
+int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int TradeID = GetCIDByName(pToName);       //USER ONLINE ???
+	if (TradeID == -1)
+	{
+		if (!str_comp_nocase(pToName, ""))
+		{
+			SendChatTarget(FromID, "[TRADE] Error: Missing username");
+			return -1;
+		}
+		str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online", pToName);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+
+	if (m_apPlayers[TradeID]->m_AccountID <= 0)    //USER LOGGED IN ???
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pToName);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+	return TradeID;
+}
+
+int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pBPlayer = m_apPlayers[BuyerID];       // BUYER ONLINE ??
+	if (!pBPlayer)
+		return -1;
+
+	char aBuf[128];
+	int SellerID = GetCIDByName(pSellerName);       // SELLER ONLINE ??
+	if (SellerID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online.", pSellerName);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	CPlayer *pSPlayer = m_apPlayers[SellerID];
+	if (!pSPlayer)
+		return -1;
+
+	CCharacter *pBChr = GetPlayerChar(BuyerID);
+	CCharacter *pSChr = GetPlayerChar(SellerID);
+
+	if (pBPlayer->m_AccountID <= 0)					// BUYER LOGGED IN ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		return -1;
+	}
+
+	if (pSPlayer->m_AccountID <= 0)					// SELLER LOGGED IN ??
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pSellerName);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	if (!pBChr || !pSChr)							// BOTH ALIVE ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] both players have to be alive.");
+		return -1;
+	}
+
+	if (BuyerID == SellerID)						// SAME TEE ??
+	{
+		SendChatTarget(BuyerID, "[TRADE] you can't trade alone, lol");
+		return -1;
+	}
+
+	if (pSPlayer->m_TradeMoney > pBPlayer->m_money)	// ENOUGH MONEY ??
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->m_money, pSPlayer->m_TradeMoney);
+		SendChatTarget(BuyerID, aBuf);
+		return -1;
+	}
+
+	if (pSPlayer->m_TradeID != -1 &&				// PRIVATE TRADE ??
+		pSPlayer->m_TradeID != BuyerID)				// wrong private trade mate
+	{
+		SendChatTarget(BuyerID, "[TRADE] error, this trade is private.");
+		return -1;
+	}
+
+	if (pSChr->HasWeapon(ItemID) || (ItemID == 5 && pSChr->HasWeapon(2) && pSChr->HasWeapon(3) && pSChr->HasWeapon(4)))
+	{
+		//has the weapons
+	}
+	else
+	{
+		SendChatTarget(BuyerID, "[TRADE] the seller doesn't own the item right now. try agian later.");
+		return -1;
+	}
+
+	if (IsMinigame(SellerID))
+	{
+		SendChatTarget(BuyerID, "[TRADE] trade failed because seller is in jail or minigame.");
+		return -1;
+	}
+
+	if (IsMinigame(BuyerID))
+	{
+		SendChatTarget(BuyerID, "[TRADE] trade failed because you are in jail or minigame.");
+		return -1;
+	}
+
+	if (pSPlayer->m_SpawnShotgunActive && ItemID == 2)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+	if (pSPlayer->m_SpawnGrenadeActive && ItemID == 3)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+	if (pSPlayer->m_SpawnRifleActive && ItemID == 4)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	if (!str_comp_nocase(pItemName, "shotgun"))   // OWN TRADE ITEM ???
+	{
+		if (pChr->HasWeapon(2))
+		{
+			item = 2;
+		}
+		else
+		{
+			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			return -1;
+		}
+	}
+	else if (!str_comp_nocase(pItemName, "grenade"))
+	{
+		if (pChr->HasWeapon(3))
+		{
+			item = 3;
+		}
+		else
+		{
+			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			return -1;
+		}
+	}
+	else if (!str_comp_nocase(pItemName, "rifle"))
+	{
+		if (pChr->HasWeapon(4))
+		{
+			item = 4;
+		}
+		else
+		{
+			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			return -1;
+		}
+	}
+	else if (!str_comp_nocase(pItemName, "all_weapons"))
+	{
+		if (pChr->HasWeapon(4) && pChr->HasWeapon(3) && pChr->HasWeapon(2))
+		{
+			item = 5;
+		}
+		else
+		{
+			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			return -1;
+		}
+	}
+
+	if (item == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
+		SendChatTarget(FromID, aBuf);
+		return -1;
+	}
+
+	return item;
+}
+*/
+
+int CGameContext::TradeItemToInt(const char * pItemName)
+{
+	int item = -1;
+
+	if (!str_comp_nocase(pItemName, "shotgun"))
+	{
+		item = 2;
+	}
+	else if (!str_comp_nocase(pItemName, "grenade"))
+	{
+		item = 3;
+	}
+	else if (!str_comp_nocase(pItemName, "rifle"))
+	{
+		item = 4;
+	}
+	else if (!str_comp_nocase(pItemName, "all_weapons"))
+	{
+		item = 5;
+	}
+	return item;
+}
+
+const char * CGameContext::TradeItemToStr(int ItemID)
+{
+	if (ItemID == 2)
+	{
+		return "shotgun";
+	}
+	else if (ItemID == 3)
+	{
+		return "grenade";
+	}
+	else if (ItemID == 4)
+	{
+		return "rifle";
+	}
+	else if (ItemID == 5)
+	{
+		return "all_weapons";
+	}
+	return "(null)";
+}
+
+int CGameContext::TradeHasItem(int ItemID, int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[ID];
+	if (!pPlayer)
+		return -1;
+
+	CCharacter *pChr = GetPlayerChar(ID);
+	if (!pChr)
+		return -1;
+
+	int item = -1;
+
+	if (ItemID == 2) // shotgun
+	{
+		if (pChr->HasWeapon(2))
+		{
+			item = 2;
+		}
+	}
+	else if (ItemID == 3) // grenade
+	{
+		if (pChr->HasWeapon(3))
+		{
+			item = 3;
+		}
+	}
+	else if (ItemID == 4) // rifle
+	{
+		if (pChr->HasWeapon(4))
+		{
+			item = 4;
+		}
+	}
+	else if (ItemID == 5) // all_weapons
+	{
+		if (pChr->HasWeapon(4) && pChr->HasWeapon(3) && pChr->HasWeapon(2))
+		{
+			item = 5;
+		}
+	}
+
+	return item;
 }
 
 int CGameContext::ProcessSpamProtection(int ClientID)

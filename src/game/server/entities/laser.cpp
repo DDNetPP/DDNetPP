@@ -290,7 +290,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 			}
 		}
 		
-		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsInstaArena_fng)
+		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsInstaMode_fng)
 		{
 			//handeld in take damage
 			//if (pHit->m_FreezeTime == 0)

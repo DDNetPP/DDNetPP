@@ -82,11 +82,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaArena_gdm) //gdm & zCatch grenade
+	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{
 		m_Core.m_ActiveWeapon = WEAPON_GRENADE;
 	}
-	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaArena_idm) //idm & zCatch rifle
+	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaMode_idm) //idm & zCatch rifle
 	{
 		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
 	}
@@ -291,6 +291,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
 
+	if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsVanillaWeapons)
+	{
+		m_aWeapons[1].m_Ammo = -1; // added by fokkonaut to have -1 (infinite) bullets of gun at spawn and not 10. after freeze you would have -1 anyways so why not when spawning
+	}
+
 	if (m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
 	{
 		m_aWeapons[1].m_Ammo = 0;
@@ -300,6 +305,12 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
 	}
+
+	m_pPlayer->m_SpawnShotgunActive = 0;
+	m_pPlayer->m_SpawnGrenadeActive = 0;
+	m_pPlayer->m_SpawnRifleActive = 0;
+
+	SetSpawnWeapons();
 
 	return true;
 }
@@ -622,6 +633,19 @@ void CCharacter::FireWeapon(bool Bot)
 		return;
 	}
 
+	/*
+	// Used to debug the ddnet client dummy bug
+	// could be usefull in the future maybe
+	if (m_LatestInput.m_Fire != m_LatestPrevInput.m_Fire + 1 || m_LatestInput.m_Fire != m_Input.m_Fire + 1)
+	{
+	dbg_msg("ddpp-inp", "latestinp: %d latestprevinp: %d inp: %d name: '%s'     (BROKEN INPUT)", m_LatestInput.m_Fire, m_LatestPrevInput.m_Fire, m_Input.m_Fire, Server()->ClientName(m_pPlayer->GetCID()));
+	}
+	else
+	{
+	dbg_msg("ddpp-inp", "latestinp: %d latestprevinp: %d inp: %d name: '%s'", m_LatestInput.m_Fire, m_LatestPrevInput.m_Fire, m_Input.m_Fire, Server()->ClientName(m_pPlayer->GetCID()));
+	}
+	*/
+
 	if (GetPlayer()->GetCharacter() && m_Pullhammer && m_Core.m_ActiveWeapon == WEAPON_HAMMER)
 	{
 		if (m_PullingID == -1 || !GameServer()->GetPlayerChar(m_PullingID)) //no one gets pulled, so search for one!
@@ -724,7 +748,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 			vec2 Dir = vec2(0.f, 0.f);
-			if (m_pPlayer->m_IsInstaArena_fng && m_pPlayer->m_aFngConfig[1] == '1')
+			if (m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_aFngConfig[1] == '1')
 			{
 				pTarget->TakeHammerHit(this);
 			}
@@ -1010,7 +1034,7 @@ void CCharacter::FireWeapon(bool Bot)
 				Temp.y = 0;
 			Temp -= pTarget->m_Core.m_Vel;
 
-			if (m_pPlayer->m_IsInstaArena_fng) //dont damage with hammer in fng
+			if (m_pPlayer->m_IsInstaMode_fng) //dont damage with hammer in fng
 			{
 				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
@@ -1021,7 +1045,7 @@ void CCharacter::FireWeapon(bool Bot)
 					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 			}
 
-			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaArena_fng)
+			if (!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
 				pTarget->UnFreeze();
 
 			if (m_FreezeHammer)
@@ -1273,7 +1297,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 	case WEAPON_GRENADE:
 	{
-		if (g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaArena_gdm)
+		if (g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaMode_gdm)
 		{
 			m_pPlayer->m_GrenadeShots++;
 			m_pPlayer->m_GrenadeShotsNoRJ++;
@@ -1392,6 +1416,41 @@ void CCharacter::FireWeapon(bool Bot)
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
+	//spawn weapons
+
+	if (m_pPlayer->m_SpawnShotgunActive && m_Core.m_ActiveWeapon == WEAPON_SHOTGUN) 
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnShotgunActive = 0;
+			SetWeaponGot(WEAPON_SHOTGUN, false);
+			SetWeapon(1);
+		}
+	}
+
+	if (m_pPlayer->m_SpawnGrenadeActive && m_Core.m_ActiveWeapon == WEAPON_GRENADE)
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnGrenadeActive = 0;
+			SetWeaponGot(WEAPON_GRENADE, false);
+			SetWeapon(1);
+		}
+	}
+
+	if (m_pPlayer->m_SpawnRifleActive && m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		{
+			m_pPlayer->m_SpawnRifleActive = 0;
+			SetWeaponGot(WEAPON_RIFLE, false);
+			SetWeapon(1);
+		}
+	}
+
 	if (!m_ReloadTimer)
 	{
 		float FireDelay;
@@ -1482,6 +1541,7 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 
 
 			//m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // testycode: 2gf43
+
 			m_aWeapons[Weapon].m_Ammo = 10;
 		}
 		return true;
@@ -1964,7 +2024,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 
 	//zCatch ChillerDragon
-	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_apPlayers[From]->m_IsInstaArena_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
+	if (g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaMode_gdm && GameServer()->m_apPlayers[From]->m_IsInstaMode_gdm) || (m_pPlayer->m_IsInstaMode_idm && GameServer()->m_apPlayers[From]->m_IsInstaMode_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
 	{
 		DDPP_TakeDamageInstagib(Dmg, From, Weapon);
 	}
@@ -2120,7 +2180,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 		{
-			if (m_pPlayer->m_IsInstaArena_fng || GameServer()->m_apPlayers[From]->m_IsInstaArena_fng)
+			if (m_pPlayer->m_IsInstaMode_fng || GameServer()->m_apPlayers[From]->m_IsInstaMode_fng)
 			{
 				if (!m_FreezeTime)
 				{
@@ -2144,7 +2204,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 
 			//do scoring (by ChillerDragon)
-			if (g_Config.m_SvInstagibMode)
+			if (g_Config.m_SvInstagibMode || g_Config.m_SvDDPPscore == 0)
 			{
 				GameServer()->m_apPlayers[From]->m_Score++;
 			}
@@ -4008,7 +4068,7 @@ bool CCharacter::UnFreeze()
 			{
 				if (m_aWeapons[i].m_Got)
 				{
-					if (m_pPlayer->m_IsVanillaWeapons)
+					if (m_pPlayer->m_IsVanillaWeapons || m_pPlayer->m_SpawnShotgunActive || m_pPlayer->m_SpawnGrenadeActive || m_pPlayer->m_SpawnRifleActive)
 					{
 						m_aWeapons[i].m_Ammo = m_aWeaponsBackup[i][1];
 						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_aWeapons[i].m_Ammo);
@@ -4570,6 +4630,50 @@ void CCharacter::GiveAllWeapons()
 		m_aWeapons[i].m_Got = true;
 		if (!m_FreezeTime) m_aWeapons[i].m_Ammo = -1;
 	}
+	return;
+}
+
+void CCharacter::SetSpawnWeapons()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame())
+	{
+		if (m_pPlayer->m_SpawnWeaponShotgun)
+		{
+			m_aWeapons[2].m_Got = true;
+			m_aWeapons[2].m_Ammo = m_pPlayer->m_SpawnWeaponShotgun;
+			m_pPlayer->m_SpawnShotgunActive = 1;
+		}
+
+		if (m_pPlayer->m_SpawnWeaponGrenade)
+		{
+			m_aWeapons[3].m_Got = true;
+			m_aWeapons[3].m_Ammo = m_pPlayer->m_SpawnWeaponGrenade;
+			m_pPlayer->m_SpawnGrenadeActive = 1;
+		}
+
+		if (m_pPlayer->m_SpawnWeaponRifle)
+		{
+			m_aWeapons[4].m_Got = true;
+			m_aWeapons[4].m_Ammo = m_pPlayer->m_SpawnWeaponRifle;
+			m_pPlayer->m_SpawnRifleActive = 1;
+		}
+	}
+
+	return;
+}
+
+void CCharacter::BulletAmounts()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_GunBullets = m_aWeapons[1].m_Ammo;
+	m_ShotgunBullets = m_aWeapons[2].m_Ammo;
+	m_GrenadeBullets = m_aWeapons[3].m_Ammo;
+	m_RifleBullets = m_aWeapons[4].m_Ammo;
 	return;
 }
 
@@ -5229,9 +5333,16 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	SurvivalSubDieFunc(Killer, Weapon);
 
 	//insta kills //TODO: combine with insta 1on1
-	if (Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
+	if (Killer != m_pPlayer->GetCID())
 	{
-		GameServer()->DoInstaScore(3, Killer);
+		if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
+		{
+			GameServer()->DoInstaScore(3, Killer);
+		}
+		else if (g_Config.m_SvDDPPscore == 0)
+		{
+			GameServer()->m_apPlayers[Killer]->m_Score += 3;
+		}
 	}
 
 	//insta 1on1
@@ -5526,6 +5637,19 @@ void CCharacter::DummyTick()
 #endif
 	if (m_pPlayer->m_IsDummy)
 	{
+		if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			 
+		{																								
+			m_Rainbow = true;	
+			m_pPlayer->m_rainbow_offer = 0;
+			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
+		}																								
+		else if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && m_Rainbow)			
+		{																								
+			m_Rainbow = false;	
+			m_pPlayer->m_rainbow_offer = 0;
+			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
+		}																								
+
 		if (m_pPlayer->m_DummyMode == 0) //default and sample mode
 		{
 			/********************************
@@ -10844,7 +10968,7 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
-		else if (m_pPlayer->m_DummyMode == 27) //BlmapChill police
+		else if (m_pPlayer->m_DummyMode == 27 ) //BlmapChill police
 		{
 			m_Input.m_Hook = 0;
 			m_Input.m_Jump = 0;
@@ -11019,6 +11143,14 @@ void CCharacter::DummyTick()
 			}
 			else if (m_Core.m_Pos.x > 380 * 32 && m_Core.m_Pos.x < 450 * 32 && m_Core.m_Pos.y < 450 * 32 && m_Core.m_Pos.y > 380 * 32) //police area // 27
 			{
+				if (m_Core.m_Pos.x < 397 * 32 && m_Core.m_Pos.y > 436 * 32 && m_Core.m_Pos.x > 388 * 32) // on the money tile jump loop, to prevent blocking flappy there
+				{
+					m_Input.m_Jump = 0;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Jump = 1;
+					}
+				}
 				//detect lower panic (accedentally fall into the lower police base 
 				if (!m_Dummy27_lower_panic && m_Core.m_Pos.y > 437 * 32 && m_Core.m_Pos.y > m_Dummy27_loved_y)
 				{
@@ -11403,7 +11535,7 @@ void CCharacter::DummyTick()
 						{
 							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 						}
-						if (Server()->Tick() % 3000 == 0) // kill when freeze
+						if (Server()->Tick() % 3000 == 0 && IsGrounded()) // kill when freeze
 						{
 							Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						}
@@ -14668,16 +14800,24 @@ void CCharacter::DummyTick()
 					{
 						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 					}
-					if (Server()->Tick() % 500 == 0) // kill when freeze
+					if (Server()->Tick() % 500 == 0 && IsGrounded()) // kill when freeze
 					{
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					}
 				}
-				if (m_Core.m_Pos.y > 21 * 32 && m_Core.m_Pos.x > 43 * 32 && m_Core.m_Pos.y < 35 * 32) // kill 
+				if (m_Core.m_Pos.x < 24 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 23 * 32) // looking for tp and setting different aims for the swing
 				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+					m_DummySpawnTeleporter = 1;
 				}
-				if (m_Core.m_Pos.x > 25 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x < 33 * 32) // if wrong tp he will kill
+				if (m_Core.m_Pos.x < 25 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 24 * 32) // looking for tp and setting different aims for the swing
+				{
+					m_DummySpawnTeleporter = 2;
+				}
+				if (m_Core.m_Pos.x < 26 * 32 && m_Core.m_Pos.y < 14 * 32 && m_Core.m_Pos.x > 25	 * 32) // looking for tp and setting different aims for the swing
+				{
+					m_DummySpawnTeleporter = 3;
+				}
+				if (m_Core.m_Pos.y > 21 * 32 && m_Core.m_Pos.x > 43 * 32 && m_Core.m_Pos.y < 35 * 32) // kill 
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
@@ -14701,10 +14841,27 @@ void CCharacter::DummyTick()
 						{
 							SetWeapon(3);
 						}
-						m_Input.m_TargetX = 210;
-						m_Input.m_TargetY = 100;
-						m_LatestInput.m_TargetX = 210;
-						m_LatestInput.m_TargetY = 100;
+						if (m_DummySpawnTeleporter == 1)
+						{
+							m_Input.m_TargetX = 190;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 190;
+							m_LatestInput.m_TargetY = 100;
+						}
+						else if (m_DummySpawnTeleporter == 2)
+						{
+							m_Input.m_TargetX = 205;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 205;
+							m_LatestInput.m_TargetY = 100;
+						}
+						else if (m_DummySpawnTeleporter == 3)
+						{
+							m_Input.m_TargetX = 190;
+							m_Input.m_TargetY = 100;
+							m_LatestInput.m_TargetX = 190;
+							m_LatestInput.m_TargetY = 100;
+						}
 						if (m_Core.m_Pos.x > 31 * 32)
 						{
 							m_Input.m_Jump = 1;
@@ -14801,7 +14958,7 @@ void CCharacter::DummyTick()
 				{
 					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 				}
-				if (Server()->Tick() % 500 == 0) // kill when freeze
+				if (Server()->Tick() % 500 == 0 && IsGrounded()) // kill when freeze
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
@@ -16002,7 +16159,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 	//Block points
 	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
 	{
-		if (m_pPlayer->m_IsInstaArena_fng && !fngscore)
+		if (m_pPlayer->m_IsInstaMode_fng && !fngscore)
 		{
 			return Killer; //Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 		}
@@ -16583,9 +16740,12 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		}
 
 		//=== KILLS ===
-		if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
+		if (Killer != m_pPlayer->GetCID()) // don't count selfkills as kills
 		{
-			GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+			if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
+			{
+				GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+			}
 		}
 	}
 }

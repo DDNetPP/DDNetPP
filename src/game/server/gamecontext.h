@@ -280,11 +280,31 @@ public:
 	void SaveCosmetics(int id);
 	void LoadCosmetics(int id);
 
+	//login and threads (moved to player.h)
+	/*
+	static void LoginThread(void * pArg);
+	void Login(void *pArg, int id);
+	struct LoginData {
+		LOCK m_Lock;
+		bool m_Done;
+		void *pGameContext;
+		void *pSQL;
+		int id;
+		CPlayer *pTmpPlayer;
+	};
+	*/
+
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
 	int C3_GetOnlinePlayers();
 	void C3_MultiPlayer_GameTick(int id);
 	void C3_RenderFrame();
+
+	//ShowHide load/save configs
+	char BoolToChar(bool b);
+	bool CharToBool(char c);
+	void ShowHideConfigBoolToChar(int id); // full side effect function which stores all showhide bools into the char array
+	void ShowHideConfigCharToBool(int id); // full side effect function which loads all the showhide bools from the char array
 
 	//FNN
 	void FNN_LoadRun(const char * path, int botID);
@@ -416,7 +436,20 @@ public:
 	int m_BombColor;
 	bool m_bwff; //black whithe flip flip
 
+	/*****************
+	*     TRADE      *
+	******************/
+	//  --- selll
+	int TradePrepareSell(const char *pToName, int FromID, const char *pItemName, int Price, bool IsPublic);
+	int TradeSellCheckUser(const char *pToName, int FromID);
+	//int TradeSellCheckItem(const char *pItemName, int FromID); //unused! keept just as backup if the new system isnt good
+	//  --- buy
+	int TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID);
 
+	//  --- base
+	int TradeItemToInt(const char *pItemName);
+	const char * TradeItemToStr(int ItemID);
+	int TradeHasItem(int ItemID, int ID);
 
 
 	int ProcessSpamProtection(int ClientID);
@@ -660,7 +693,6 @@ private:
 	static void ConSettings(IConsole::IResult *pResult, void *pUserData);
 	static void ConRules(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
-	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData);
@@ -751,6 +783,10 @@ private:
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
+	//spawn weapons
+	static void ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData);
+	static void ConSpawnWeaponsInfo(IConsole::IResult *pResult, void *pUserData);
+
 	//supermod
 	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
 	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
@@ -773,6 +809,7 @@ private:
 	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
 	static void ConGift(IConsole::IResult *pResult, void *pUserData);
 	static void ConTrade(IConsole::IResult *pResult, void *pUserData);
+	static void ConTr(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
@@ -813,6 +850,8 @@ private:
 	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
 	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
 	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
+	static void ConLive(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
@@ -867,13 +906,13 @@ public:
 	CGameContext *m_pGameServer;
 };
 
-class CQueryChangePassword : public CQueryPlayer //ChillerDragon's testy test (no idea what im doing here xd)
+class CQueryChangePassword : public CQueryPlayer
 {
 	void OnData();
 public:
 };
 
-class CQuerySetPassword : public CQueryPlayer //ChillerDragon's testy test (no idea what im doing here xd)
+class CQuerySetPassword : public CQueryPlayer
 {
 	void OnData();
 public:
