@@ -5337,6 +5337,13 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
+        pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
+        pSelf->m_MissionCurrentLevel = pResult->GetInteger(1);
+        str_format(aBuf, sizeof(aBuf), "updated level unlocked=%d current=%d", pSelf->m_MissionUnlockedLevel, pSelf->m_MissionCurrentLevel);
+        pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        pSelf->SaveSinglePlayer();
+        
+        
 		/*
 		if (pResult->NumArguments() != 2)
 		{
@@ -5348,8 +5355,8 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 		pSelf->StartQuest(pPlayer->GetCID());
 		*/
 
-		str_format(aBuf, sizeof(aBuf), "InJailReleaseArea=%d", pChr->m_InJailOpenArea);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "InJailReleaseArea=%d", pChr->m_InJailOpenArea);
+		//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		//pSelf->ChillUpdateFileAcc(pResult->GetString(0), pResult->GetInteger(1), pResult->GetString(2), pResult->m_ClientID); //a fully working set all values of acc2 files but its a bit op maybe add it to the rcon api but not as normal admin cmd
 	}

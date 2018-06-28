@@ -3364,6 +3364,48 @@ void CGameContext::AsciiTick(int i)
 	}
 }
 
+void CGameContext::LoadSinglePlayer()
+{
+    FILE *pFile;
+    struct CBinaryStorage statsBuff;
+    
+    pFile = fopen("ddpp-stats.dat","rb");
+    if (!pFile)
+    {
+        dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+        return;
+    }
+    
+    fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
+    dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", statsBuff.x);
+    m_MissionUnlockedLevel = statsBuff.x;
+    fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
+    dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", statsBuff.x);
+    m_MissionCurrentLevel = statsBuff.x;
+    
+    fclose(pFile);
+}
+
+void CGameContext::SaveSinglePlayer()
+{
+    FILE *pFile;
+    struct CBinaryStorage statsBuff;
+    
+    pFile = fopen("ddpp-stats.dat","wb");
+    if (!pFile)
+    {
+        dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+        return;
+    }
+    statsBuff.x = m_MissionUnlockedLevel;
+    fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+    statsBuff.x = m_MissionCurrentLevel;
+    fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+    
+    fclose(pFile);
+}
+
+ 
 void CGameContext::GlobalChatPrintMessage()
 {
 #if defined(CONF_DEBUG)
@@ -6658,7 +6700,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						CreateNewDummy(0, true, 1);
+						CreateNewDummy(35, true, 1);
+                        //LoadSinglePlayer();
+                        str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
+                        SendChatTarget(ClientID, aBuf);
 						/*
 						vec2 vec_finish = GetFinishTile();
 						vec2 your_pos(0, 0);
@@ -9151,6 +9196,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 #endif
 
 	// ChillerDragon konst constructor
+    LoadSinglePlayer();
 	//Friends_counter = 0;
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
