@@ -329,6 +329,15 @@ public:
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
 
+	//spawn weapons
+	void SetSpawnWeapons();
+
+
+	void BulletAmounts();
+	int m_GunBullets;
+	int m_ShotgunBullets;
+	int m_GrenadeBullets;
+	int m_RifleBullets;
 
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
@@ -416,6 +425,7 @@ public:
 	bool m_DummyAlreadyBeenHere;
 	bool m_DummyStartGrenade;
 	bool m_DummyUsedDJ;
+	int m_DummySpawnTeleporter; // 1 = left, 2 = middle, 3 = right (the totele 9 at spawn)s
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 	int m_DummyFreezeBlockTrick;

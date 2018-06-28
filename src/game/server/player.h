@@ -7,6 +7,8 @@
 #include "entities/character.h"
 #include "gamecontext.h"
 
+#include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
+
 // player object
 class CPlayer
 {
@@ -178,7 +180,6 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
-
 	//usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description);
 	bool IsInstagibMinigame();
@@ -189,6 +190,22 @@ public:
 	//bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	int m_LastBroadcast;
 	int m_LastBroadcastImportance;
+
+	//login and threads
+	//void ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL);
+	void ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL);
+	static void ThreadLoginWorker(void * pArg);
+	void ThreadLoginDone();
+
+
+	struct CLoginData {
+		LOCK m_Lock;
+		bool m_Done;
+		//CGameContext *m_pGameContext;
+		void *m_pSQL;
+		CPlayer *m_pTmpPlayer;
+	};
+	CLoginData *m_pLoginData;
 
 	//ascii animation frames
 	char m_aAsciiFrame0[64];
@@ -305,6 +322,9 @@ public:
 	bool m_IsInstaArena_gdm;
 	bool m_IsInstaArena_idm;
 	bool m_IsInstaArena_fng; //depends on gdm or idm can be boomfng and fng
+	bool m_IsInstaMode_gdm; // THESE MODES ARE USED FOR THE INSTAGIB
+	bool m_IsInstaMode_idm; // SERVER AND ARE DIFFERENT FROM THE MINIGAME
+	bool m_IsInstaMode_fng; // THEY USE THE SCOARBOARD AND A BIT DIFFERENT RESTRICTIONS
 	int m_Insta1on1_id; //also used as Is1on1ing bool (id != -1 ---> is in 1on1)
 	int m_Insta1on1_mode; //0 = gdm 1 = idm 2 = boomfng 3 = fng
 	int m_Insta1on1_score;
@@ -346,6 +366,18 @@ public:
 	int m_RifleSpree;
 	int m_RifleShots;
 	int m_RifleWins;
+
+	//ninjajetpack
+	int m_NinjaJetpackBought;
+
+	//spawn weapons
+	int m_UseSpawnWeapons;
+	int m_SpawnWeaponShotgun;
+	int m_SpawnWeaponGrenade;
+	int m_SpawnWeaponRifle;
+	int m_SpawnShotgunActive;
+	int m_SpawnGrenadeActive;
+	int m_SpawnRifleActive;
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
@@ -411,7 +443,9 @@ public:
 	int m_TradeMoney;
 	int m_TradeItem;
 	int m_TradeID;
+	int64 m_TradeTick;
 	int m_GangsterBagMoney;
+	char m_aTradeOffer[256];
 
 	void JailPlayer(int seconds);
 	int m_PoliceRank;
@@ -437,6 +471,7 @@ public:
 	bool m_ShowBlockPoints;
 	bool m_xpmsg;
 	bool m_hidejailmsg;
+	char m_aShowHideConfig[16]; //[0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning
 
 
 	//quests
@@ -592,6 +627,9 @@ public:
 	int m_atom_offer;
 	int m_trail_offer;
 	int m_autospreadgun_offer;
+
+	//dummy rainbow
+	int m_DummyRainbowOfferAmount;
 
 	// cosmetic backups (used to store cosmetics temprorary for example in competetive games)
 	bool m_IsBackupBloody;
