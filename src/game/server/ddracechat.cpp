@@ -401,6 +401,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* improved trade command and added public trades");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* new shop");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ added spawnweapons to shop");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"------------------------");
@@ -536,11 +538,12 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	CALL_STACK_ADD();
 #endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "room_key     %d | 16 | disconnect", g_Config.m_SvRoomPrice);
+	str_format(aBuf, sizeof(aBuf), "room_key | %d | 16 | disconnect", g_Config.m_SvRoomPrice);
 
-
-
+	/*
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -557,10 +560,10 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"rainbow       1 500 | 5 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"bloody         3 500 | 15 | dead");
-	/*pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"atom         3 500 money | 3 | dead");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"trail         3 500 money | 3 | dead");*/
+	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+	//	"atom         3 500 money | 3 | dead");
+	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+	//	"trail         3 500 money | 3 | dead");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"chidraqul     250 | 2 | disconnect");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
@@ -574,13 +577,38 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"pvp_arena_ticket     150 | 0 | 1 use");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"ninjajetpack     10000 | 21 | forever");
+		"ninjajetpack     10 000 | 21 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_shotgun     600000 | 38 | forever");
+		"spawn_shotgun     600 000 | 38 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_grenade     600000 | 38 | forever");
+		"spawn_grenade     600 000 | 38 | forever");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_rifle     600000 | 38 | forever");
+		"spawn_rifle     600 000 | 38 | forever");
+	*/
+
+	char aShop[2048];
+	str_format(aShop, sizeof(aShop),
+		"***************************\n"
+		"        ~  S H O P  ~      \n"
+		"***************************\n"
+		"Usage: '/buy (itemname)'\n"
+		"***************************\n"
+		"Item | Price | Level | Time:\n"
+		"-------+------+--------+-------\n"
+		"rainbow  | 1 500 | 5 | dead\n"
+		"bloody    | 3 500 | 15 | dead\n"
+		"chidraqul | 250 | 2 | disconnect\n"
+		"shit   | 5 | 0 | forever\n"
+		"%s\n"
+		"police | 100 000 | 18 | forever\n"
+		"taser | 50 000 | Police[3] | forever\n"
+		"pvp_arena_ticket | 150 | 0 | forever\n"
+		"ninjajetpack | 10 000 | 21 | forever\n"
+		"spawn_shotgun | 600 000 | 38 | forever\n"
+		"spawn_grenade | 600 000 | 38 | forever\n"
+		"spawn_rifle | 600 000 | 38 | forever\n", aBuf);
+
+	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)

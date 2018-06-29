@@ -36,8 +36,7 @@
 #include <game/server/teams.h>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
-//#include <stdio.h> //neded for pthreads on windows
-//#include <pthread.h> //login threads
+
 enum
 {
 	RESET,
