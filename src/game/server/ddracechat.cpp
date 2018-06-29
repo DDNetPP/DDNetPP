@@ -9013,6 +9013,8 @@ void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 				pPlayer->MoneyTransaction(-pResult->GetInteger(1), aBuf);
 				str_format(aBuf, sizeof(aBuf), "[BOUNTY] added %d money to '%s' (%d total)", pResult->GetInteger(1), pSelf->Server()->ClientName(ID), pSelf->m_apPlayers[ID]->m_BlockBounty);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				str_format(aBuf, sizeof(aBuf), "[BOUNTY] '%s' added %d money to '%s's bounty (%d total)", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(1), pSelf->Server()->ClientName(ID), pSelf->m_apPlayers[ID]->m_BlockBounty);
+				pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			}
 		}
 		else
