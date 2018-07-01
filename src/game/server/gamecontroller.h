@@ -63,7 +63,7 @@ protected:
 	int m_GameOverTick;
 	int m_SuddenDeath;
 
-	//int m_aTeamscore[2];
+	int m_aTeamscore[2];
 
 	int m_Warmup;
 	int m_RoundCount;
@@ -78,13 +78,13 @@ public:
 
 	vec2 m_FunPoint;
 
-	//bool IsTeamplay() const;
-	//bool IsGameOver() const { return m_GameOverTick != -1; }
+	bool IsTeamplay() const;
+	bool IsGameOver() const { return m_GameOverTick != -1; }
 
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
 
-	// virtual void DoWincheck();
+	virtual void DoWincheck();
 
 	void DoWarmup(int Seconds);
 
