@@ -5518,13 +5518,11 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	}
 	else if (dummymode == -4) //laser fng
 	{
-		m_apPlayers[DummyID]->m_IsInstaArena_fng = true;
-		m_apPlayers[DummyID]->m_IsInstaArena_idm = true;
+		JoinInstagib(5, true, DummyID);
 	}
 	else if (dummymode == -5) //grenade fng
 	{
-		m_apPlayers[DummyID]->m_IsInstaArena_fng = true;
-		m_apPlayers[DummyID]->m_IsInstaArena_gdm = true;
+		JoinInstagib(4, true, DummyID);
 	}
 
 	OnClientEnter(DummyID, silent);
@@ -6879,7 +6877,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//str_format(aBuf, sizeof(aBuf), "chidraqul3 gametstate: %d deathmatch %d mins %d seconds", pPlayer->m_C3_GameState, m_survival_dm_countdown / (Server()->TickSpeed() * 60), (m_survival_dm_countdown % (Server()->TickSpeed() * 60)) / Server()->TickSpeed());
 						
 						//ConnectFngBots(3, 0);
-						//ConnectFngBots(3, 1);
+						ConnectFngBots(3, 1);
 
 						//str_format(aBuf, sizeof(aBuf), "bots: %d <3", CountConnectedBots());
 

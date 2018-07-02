@@ -16789,6 +16789,44 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 		{
 			GameServer()->m_apPlayers[Killer]->m_RifleKills++;
 		}
+
+		//=== MULTIS (credit to noby) ===
+		if (Killer != m_pPlayer->GetCID()) // don't count selkills as multi
+		{
+			time_t ttmp = time(NULL);
+			if ((ttmp - GameServer()->m_apPlayers[Killer]->m_lastkilltime) <= 5)
+			{
+				GameServer()->m_apPlayers[Killer]->m_multi++;
+				if (GameServer()->m_apPlayers[Killer]->m_max_multi < GameServer()->m_apPlayers[Killer]->m_multi)
+				{
+					GameServer()->m_apPlayers[Killer]->m_max_multi = GameServer()->m_apPlayers[Killer]->m_multi;
+				}
+				char aBuf[128];
+				if (g_Config.m_SvDDPPgametype == 5)
+				{
+					str_format(aBuf, sizeof(aBuf), "'%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				}
+				if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng)
+				{
+					if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) // grenade
+					{
+						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+						GameServer()->SayInsta(aBuf, 4);
+					}
+					else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // rifle
+					{
+						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
+						GameServer()->SayInsta(aBuf, 5);
+					}
+				}
+			}
+			else
+			{
+				GameServer()->m_apPlayers[Killer]->m_multi = 1;
+			}
+			GameServer()->m_apPlayers[Killer]->m_lastkilltime = ttmp;
+		}
 	}
 }
 
