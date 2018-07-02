@@ -46,7 +46,7 @@ and '/mail list' and '/mail read (id of the mail)'
 add multis
 
 ## bounty ##
-add message for all players when a bounty gets set
+add minimum amount for bountys to make spamming expensive
 
 ## survival ##
 add cosmetics for the lobby

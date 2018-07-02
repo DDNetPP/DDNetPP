@@ -332,6 +332,9 @@ public:
 	bool m_HideInsta1on1_killmessages;
 	vec2 m_InstaRoundEndPos;
 	bool m_HasInstaRoundEndPos;
+	int m_lastkilltime;
+	int m_multi;
+	int m_max_multi;
 
 	char m_aFngConfig[4]; //[0] = autojoin [1] = hammertune [2] = coming soon [3] = coming soon
 
