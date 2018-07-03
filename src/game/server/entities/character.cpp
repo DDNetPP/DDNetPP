@@ -603,7 +603,12 @@ void CCharacter::FireWeapon(bool Bot)
 	CALL_STACK_ADD();
 #endif
 	if (m_ReloadTimer != 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "'%s' reloadtimer=%d", Server()->ClientName(m_pPlayer->GetCID()), m_ReloadTimer);
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		return;
+	}
 
 	DoWeaponSwitch();
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -1459,6 +1464,11 @@ void CCharacter::FireWeapon(bool Bot)
 		else
 			GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
 		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		if (m_OnFire)
+		{
+			m_OnFire = false;
+			m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
+		}
 		//if (m_pPlayer->m_autospreadgun) //ddpp faster shooting
 		//{
 		//	m_ReloadTimer = FireDelay * Server()->TickSpeed() / 5000;
@@ -2188,6 +2198,14 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 					//str_format(aBuf, sizeof(aBuf), "freezetime %d", m_FreezeTime);
 					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 					Freeze(10);
+					// on fire mode
+					if (g_Config.m_SvOnFireMode == 1)
+					{
+						if (GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter())
+						{
+							GameServer()->m_apPlayers[From]->GetCharacter()->m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
+						}
+					}
 				}
 				else
 				{

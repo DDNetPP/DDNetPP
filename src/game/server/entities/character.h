@@ -100,6 +100,7 @@ public:
 	void TakeHammerHit(CCharacter* pFrom); //ddpp implemented from fng2
 
 	bool isFreezed;
+	bool m_OnFire;
 
 private:
 	// player controlling this character
@@ -128,7 +129,7 @@ private:
 	int m_LastWeapon;
 	int m_QueuedWeapon;
 
-	int m_ReloadTimer;
+	int m_ReloadTimer; // moved to public for onfire mode
 	int m_AttackTick;
 
 	int m_DamageTaken;

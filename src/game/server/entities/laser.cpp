@@ -292,11 +292,10 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		
 		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsInstaMode_fng)
 		{
-			//handeld in take damage
-			//if (pHit->m_FreezeTime == 0)
-			//{
-			//	pHit->Freeze(10);
-			//}
+			if (g_Config.m_SvOnFireMode == 1 && pHit->m_FreezeTime == 0)
+			{
+				GameServer()->GetPlayerChar(m_Owner)->m_OnFire = true;
+			}
 			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
 		}
 		else
