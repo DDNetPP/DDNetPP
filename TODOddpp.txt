@@ -42,12 +42,6 @@ add a new database only for mails
 and add some '/mail send (username) (title) (content)' command
 and '/mail list' and '/mail read (id of the mail)'
 
-## fng ##
-add multis
-
-## bounty ##
-add minimum amount for bountys to make spamming expensive
-
 ## survival ##
 add cosmetics for the lobby
 gun curvature (needed for the whole vanilla mode nor only for survival)

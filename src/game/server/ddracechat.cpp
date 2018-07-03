@@ -8992,6 +8992,12 @@ void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 				return;
 			}
 
+			if (pResult->GetInteger(1) < 200)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] Minimum amount for bountys is 200.");
+				return;
+			}
+
 			int ID = pSelf->GetCIDByName(pResult->GetString(2));
 			if (ID == -1)
 			{
