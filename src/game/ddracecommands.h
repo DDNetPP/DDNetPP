@@ -39,6 +39,8 @@ CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil t
 CONSOLE_COMMAND("dummymode", "vi", CFGFLAG_SERVER, Condummymode, this, "0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)")
 CONSOLE_COMMAND("dummy_color", "vi", CFGFLAG_SERVER, ConDummyColor, this, "changes the color of a specific dummy")
 CONSOLE_COMMAND("dummy_skin", "vr", CFGFLAG_SERVER, ConDummySkin, this, "changes the skin of a specific dummy")
+CONSOLE_COMMAND("force_color", "vi", CFGFLAG_SERVER, ConForceColor, this, "changes the color of a specific player")
+CONSOLE_COMMAND("force_skin", "vr", CFGFLAG_SERVER, ConForceSkin, this, "changes the skin of a specific player")
 CONSOLE_COMMAND("heal", "v", CFGFLAG_SERVER, Conheal, this, "heals a tee's Health to 10 hp")
 CONSOLE_COMMAND("ForceUnJail", "v", CFGFLAG_SERVER, ConForceUnJail, this, "unjails player instantly")
 CONSOLE_COMMAND("ForceJail", "vi", CFGFLAG_SERVER, ConForceJail, this, "jails player by adminforce")

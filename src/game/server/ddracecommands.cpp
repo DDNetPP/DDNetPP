@@ -163,8 +163,6 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-
-
 void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -181,7 +179,6 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_DummyMode = pResult->GetInteger(0);
 }
 
-
 void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -194,7 +191,7 @@ void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 	int ClientID = pResult->GetVictim();
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if (pPlayer && pResult->GetInteger(0))
+	if (pPlayer && pResult->GetInteger(0) && pPlayer->m_IsDummy)
 	{
 		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
 		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
@@ -214,10 +211,45 @@ void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 	int ClientID = pResult->GetVictim();
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if (pPlayer && pResult->GetString(0)[0])
+	if (pPlayer && pResult->GetString(0)[0] && pPlayer->m_IsDummy)
 		str_copy(pPlayer->m_TeeInfos.m_SkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_SkinName));
 }
 
+void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer && pResult->GetInteger(0) && !pPlayer->m_IsDummy)
+	{
+		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
+		pPlayer->m_TeeInfos.m_ColorBody = pResult->GetInteger(0);
+		pPlayer->m_TeeInfos.m_ColorFeet = pResult->GetInteger(0);
+	}
+}
+
+void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
+		str_copy(pPlayer->m_TeeInfos.m_SkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_SkinName));
+}
 
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 {
