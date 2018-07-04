@@ -603,12 +603,7 @@ void CCharacter::FireWeapon(bool Bot)
 	CALL_STACK_ADD();
 #endif
 	if (m_ReloadTimer != 0)
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "'%s' reloadtimer=%d", Server()->ClientName(m_pPlayer->GetCID()), m_ReloadTimer);
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		return;
-	}
 
 	DoWeaponSwitch();
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
