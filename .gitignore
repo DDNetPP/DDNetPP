@@ -23,6 +23,7 @@ FNN/*.fnn
 /versionsrv*
 
 debug.txt
+*.dat
 *.acc
 *.db
 *.bat
