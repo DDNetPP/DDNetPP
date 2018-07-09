@@ -9390,7 +9390,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
-
+    str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
