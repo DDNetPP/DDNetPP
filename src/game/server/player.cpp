@@ -1203,8 +1203,7 @@ void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" 
 	if (m_AccountID <= 0)
 		return;
 
-
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Password` = %s  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
+	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
 
 	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, m_AccountID);
 
@@ -1322,7 +1321,7 @@ void CPlayer::Save(int SetLoggedIn)
 
 	//test more last igns (working)
 	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET"
-											  "  `Password` = '%s', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
+											  "  `Password` = '%q', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
 											  ", `LastGift` = %i" /*is actually m_GiftDelay*/
 											  ", `PoliceRank` = %i"
 											  ", `JailTime` = %i, `EscapeTime` = %i"
@@ -1333,21 +1332,21 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `SpawnWeaponGrenade` = %i"
 											  ", `SpawnWeaponRifle` = %i"
 											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
-											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s'"
+											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
 											  ", `HomingMissiles` = '%i'"
 											  ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
 											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
-											  ", `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s'"
-											  ", `IP_1` = '%s', `IP_2` = '%s', `IP_3` = '%s'"
-											  ", `Clan1` = '%s', `Clan2` = '%s', `Clan3` = '%s'"
-											  ", `Skin` = '%s'"
+											  ", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
+											  ", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
+											  ", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
+											  ", `Skin` = '%q'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%s'"
-											  ", `ShowHideConfig` = '%s'"
+											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
+											  ", `ShowHideConfig` = '%q'"
 											  ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
-											  ", `AsciiState` = '%s', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
-											  ", `AsciiFrame0` = '%s', `AsciiFrame1` = '%s', `AsciiFrame2` = '%s', `AsciiFrame3` = '%s', `AsciiFrame4` = '%s', `AsciiFrame5` = '%s', `AsciiFrame6` = '%s', `AsciiFrame7` = '%s', `AsciiFrame8` = '%s', `AsciiFrame9` = '%s', `AsciiFrame10` = '%s', `AsciiFrame11` = '%s', `AsciiFrame12` = '%s', `AsciiFrame13` = '%s', `AsciiFrame14` = '%s', `AsciiFrame15` = '%s'"
+											  ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
+											  ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
 											  " WHERE `ID` = %i",
 												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
 												m_GiftDelay,
