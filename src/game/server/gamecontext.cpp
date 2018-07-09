@@ -445,7 +445,7 @@ void CQuerySetPassword::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, aBuf);
 
 		//do the actual sql update
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET Password='%s' WHERE Username='%s'", m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword, m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName);
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET Password='%q' WHERE Username='%q'", m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword, m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName);
 		CQuery *pQuery = new CQuery();
 		pQuery->Query(m_pDatabase, pQueryBuf);
 		sqlite3_free(pQueryBuf);
