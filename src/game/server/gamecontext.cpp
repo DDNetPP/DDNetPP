@@ -1929,6 +1929,43 @@ int CGameContext::CountIngameHumans()
 	return cPlayers;
 }
 
+bool CGameContext::IsAllowedCharSet(const char *pStr)
+{
+#if defined(CONF_DEBUG)
+    CALL_STACK_ADD();
+#endif
+    int i = 0;
+    bool IsOk = false;
+    //dbg_msg("AllowedChar", "checking str '%s'", pStr);
+    
+    while (true)
+    {
+        IsOk = false;
+        for (int j = 0; j < str_length(m_aAllowedCharSet); j++)
+        {
+            if (pStr[i] == m_aAllowedCharSet[j])
+            {
+                //dbg_msg("AllowedChar","found valid char '%c' - '%c'", pStr[i], m_aAllowedCharSet[j]);
+                IsOk = true;
+                break;
+            }
+        }
+        
+        if (!IsOk)
+        {
+            //dbg_msg("AllowedChar", "found evil char '%c'", pStr[i]);
+            return false;
+        }
+        i++;
+        if (pStr[i] == '\0')
+        {
+            //dbg_msg("AllowedChar", "string ends at %d", i);
+            return true;
+        }
+    }
+    return true;
+}
+
 int CGameContext::CountConnectedBots()
 {
 #if defined(CONF_DEBUG)

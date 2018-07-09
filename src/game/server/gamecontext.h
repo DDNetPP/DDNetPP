@@ -248,6 +248,9 @@ public:
 	int CountConnectedPlayers();
 	int CountIngameHumans();
 	int CountConnectedBots();
+    bool IsAllowedCharSet(const char *pStr);
+    //                                                                                                    \\ Escaping the escape seceqnze
+    char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
 	void GiveBlockPoints(int ID, int points);

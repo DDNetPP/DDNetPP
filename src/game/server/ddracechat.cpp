@@ -2673,9 +2673,10 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Passwords need to be identical.");
 		return;
 	}
-
+    
+    /*
 	//                                                                                                  \\ Escaping the escape seceqnze
-	char aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
+	char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
 	bool EvilChar = false;
 
 	for (int i = 0; i < str_length(aUsername); i++)
@@ -2699,11 +2700,13 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 			break;
 		}
 	}
+     */
 
-	if (EvilChar)
+	//if (EvilChar)
+    if (pSelf->IsAllowedCharSet(aUsername) == false)
 	{
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", aAllowedCharSet);
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", pSelf->m_aAllowedCharSet);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		return;
 	}
@@ -3372,135 +3375,143 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 
 		pSelf->ShowProfile(pResult->m_ClientID, ViewID);
 	}
-	else if (!str_comp_nocase(aPara0, "style"))
-	{
-
-
-
-		if (!str_comp_nocase(aPara1, "default"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 0;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: default");
-		}
-		else if (!str_comp_nocase(aPara1, "shit"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 1;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: shit");
-		}
-		else if (!str_comp_nocase(aPara1, "social"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 2;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: social");
-		}
-		else if (!str_comp_nocase(aPara1, "show-off"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 3;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: show-off");
-		}
-		else if (!str_comp_nocase(aPara1, "pvp"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
-		}
-		else if (!str_comp_nocase(aPara1, "bomber"))
-		{
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 5;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: bomber");
-		}
-		else
-		{
-			str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between the following: default, shit, social, show-off, pvp, bomber", aPara1);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		}
-	}
-	else if (!str_comp_nocase(aPara0, "status"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else if (!str_comp_nocase(aPara0, "skype"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile skype: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else if (!str_comp_nocase(aPara0, "youtube"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile youtube: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else if (!str_comp_nocase(aPara0, "email") || !str_comp_nocase(aPara0, "e-mail"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile e-mail: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else if (!str_comp_nocase(aPara0, "homepage") || !str_comp_nocase(aPara0, "website"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile homepage: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else if (!str_comp_nocase(aPara0, "homepage"))
-	{
-		if (pPlayer->m_AccountID <= 0)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
-			pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
-			return;
-		}
-
-
-		str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter, aPara1, 128);
-		str_format(aBuf, sizeof(aBuf), "Updated your profile twitter: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command. '/profile cmdlist' or '/profile help' might help.");
-	}
+    else
+    {
+        if (pPlayer->m_AccountID <= 0) //also gets triggerd on unknown commands but whatever if logged in all works fine
+        {
+            //pSelf->SendChatTarget(pResult->m_ClientID, "Unknown command or:");
+            pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
+            pSelf->SendChatTarget(pResult->m_ClientID, "All info about accounts: '/accountinfo'");
+            return;
+        }
+        
+        if (!str_comp_nocase(aPara0, "style"))
+        {
+            if (!str_comp_nocase(aPara1, "default"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 0;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: default");
+            }
+            else if (!str_comp_nocase(aPara1, "shit"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 1;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: shit");
+            }
+            else if (!str_comp_nocase(aPara1, "social"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 2;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: social");
+            }
+            else if (!str_comp_nocase(aPara1, "show-off"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 3;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: show-off");
+            }
+            else if (!str_comp_nocase(aPara1, "pvp"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
+            }
+            else if (!str_comp_nocase(aPara1, "bomber"))
+            {
+                pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 5;
+                pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: bomber");
+            }
+            else
+            {
+                str_format(aBuf, sizeof(aBuf), "error: '%s' is not a profile style. Choose between the following: default, shit, social, show-off, pvp, bomber", aPara1);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+            }
+        }
+        else if (!str_comp_nocase(aPara0, "status"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your status '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else if (!str_comp_nocase(aPara0, "skype"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your skype '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile skype: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else if (!str_comp_nocase(aPara0, "youtube"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your youtube '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile youtube: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else if (!str_comp_nocase(aPara0, "email") || !str_comp_nocase(aPara0, "e-mail"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your email '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile e-mail: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else if (!str_comp_nocase(aPara0, "homepage") || !str_comp_nocase(aPara0, "website"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your homepage '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile homepage: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else if (!str_comp_nocase(aPara0, "twitter"))
+        {
+            if (pSelf->IsAllowedCharSet(aPara1) == false)
+            {
+                char aBuf[512];
+                str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your twitter '%s'", pSelf->m_aAllowedCharSet);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+            }
+            
+            str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter));
+            str_format(aBuf, sizeof(aBuf), "Updated your profile twitter: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter);
+            pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+        }
+        else
+        {
+            pSelf->SendChatTarget(pResult->m_ClientID, "Unknow command. '/profile cmdlist' or '/profile help' might help.");
+        }
+    }
 }
 
 void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
