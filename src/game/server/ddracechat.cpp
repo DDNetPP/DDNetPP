@@ -9627,6 +9627,43 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG SETTINGS ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng autojoin <value>' 0=off 1=join fng 2=join boomfng on login");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng hammertune <value>' 0=vanilla 1=fng");
+		if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "'/fng bots <amount> <mode 4/5>' to connect bots for 4=grenade 5=rifle");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "bots"))
+	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] missing permission.");
+			return;
+		}
+		if (pResult->NumArguments() != 3)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] 3 arguments required.");
+			return;
+		}
+		if (pResult->GetInteger(2) == 4)
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "[FNG] connecting %d grenade bots", pResult->GetInteger(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else if (pResult->GetInteger(2) == 5)
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "[FNG] connecting %d rifle bots", pResult->GetInteger(1));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "[FNG] %d is an unspported mode (choose between 4 and 5)", pResult->GetInteger(2));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		pSelf->ConnectFngBots(pResult->GetInteger(1), pResult->GetInteger(2));
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "autojoin"))
 	{
