@@ -7,6 +7,7 @@
 
 #include "character.h"
 #include "laser.h"
+#include "plasmabullet.h"
 #include "projectile.h"
 #include "meteor.h"
 
@@ -311,6 +312,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_pPlayer->m_SpawnRifleActive = 0;
 
 	SetSpawnWeapons();
+
+	SaveRealInfos();
+
+	UnsetSpookyGhost();
 
 	return true;
 }
@@ -704,7 +709,7 @@ void CCharacter::FireWeapon(bool Bot)
 		return;
 	}
 
-	vec2 ProjStartPos = m_Pos + Direction*m_ProximityRadius*0.75f;
+	vec2 ProjStartPos = m_Pos + Direction*m_ProximityRadius*0.75;
 
 	switch (m_Core.m_ActiveWeapon)
 	{
@@ -1082,7 +1087,59 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				Lifetime = (int)(Server()->TickSpeed()*GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
-			if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
+			if (m_pPlayer->m_SpookyGhostActive && (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
+			{
+				float a = GetAngle(Direction);
+				a += (0.070f) * 2;
+
+				new CPlasmaBullet
+				(
+					GameWorld(),
+					m_pPlayer->GetCID(),	//owner
+					ProjStartPos,			//pos
+					Direction,				//dir
+					0,						//freeze
+					1,						//explosive
+					0,						//unfreeze
+					Team(),					//responibleteam
+					6,						//lifetime
+					1.0f,					//accel
+					10.0f					//speed
+				);
+					
+				new CPlasmaBullet
+				(
+					GameWorld(),
+					m_pPlayer->GetCID(),						//owner
+					ProjStartPos,								//pos
+					vec2(cosf(a - 0.200f), sinf(a - 0.200f)),	//dir
+					0,											//freeze
+					0,											//explosive
+					0,											//unfreeze
+					Team(),										//responibleteam
+					6,											//lifetime
+					1.0f,										//accel
+					10.0f										//speed
+					);
+
+				new CPlasmaBullet
+				(
+					GameWorld(),
+					m_pPlayer->GetCID(),						//owner
+					ProjStartPos,								//pos
+					vec2(cosf(a - 0.040f), sinf(a - 0.040f)),	//dir
+					0,											//freeze
+					0,											//explosive
+					0,											//unfreeze
+					Team(),										//responibleteam
+					6,											//lifetime
+					1.0f,										//accel
+					10.0f										//speed
+				);
+
+				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
+			else if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			{
 				//idk if this is the right place to set some shooting speed but yolo
 				//just copied the general code for all weapons and put it here
@@ -1173,6 +1230,24 @@ void CCharacter::FireWeapon(bool Bot)
 				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
 				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 			}
+			else if (m_pPlayer->m_SpookyGhostActive)
+			{
+				new CPlasmaBullet
+				(
+					GameWorld(), 
+					m_pPlayer->GetCID(),	//owner
+					ProjStartPos,			//pos
+					Direction,				//dir
+					0,						//freeze
+					1,						//explosive
+					0,						//unfreeze
+					Team(),					//responibleteam
+					6,						//lifetime
+					1.0f,					//accel
+					10.0f					//speed
+				);
+				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			}
 			else if (m_pPlayer->m_lasergun)
 			{
 				int RifleSpread = 1;
@@ -1231,6 +1306,22 @@ void CCharacter::FireWeapon(bool Bot)
 				}
 			}
 		}
+
+		if (m_pPlayer->m_PlayerFlags&PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost)
+		{
+			m_TimesShot++;
+			if ((m_TimesShot == 2) && !m_pPlayer->m_SpookyGhostActive)
+			{
+				SetSpookyGhost();
+				m_TimesShot = 0;
+			}
+			else if ((m_TimesShot == 2) && m_pPlayer->m_SpookyGhostActive)
+			{
+				UnsetSpookyGhost();
+				m_TimesShot = 0;
+			}
+		}
+
 	} break;
 
 	case WEAPON_SHOTGUN:
@@ -4673,6 +4764,80 @@ void CCharacter::SetSpawnWeapons()
 			m_aWeapons[4].m_Ammo = m_pPlayer->m_SpawnWeaponRifle;
 			m_pPlayer->m_SpawnRifleActive = 1;
 		}
+	}
+
+	return;
+}
+
+void CCharacter::SetSpookyGhost()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_SpookyGhostWeaponsBackupped)
+	{
+
+		for (int i = 0; i < NUM_WEAPONS; i++)
+		{
+			m_aSpookyGhostWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo;
+			m_aSpookyGhostWeaponsBackupGot[i][1] = m_aWeapons[i].m_Got;
+			m_aWeapons[i].m_Ammo = 0;
+			m_aWeapons[i].m_Got = false;
+		}
+		m_SpookyGhostWeaponsBackupped = true;
+		m_aWeapons[1].m_Got = 1;
+		m_aWeapons[1].m_Ammo = -1;
+	}
+
+	str_copy(m_pPlayer->m_TeeInfos.m_SkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_SkinName));
+	m_pPlayer->m_TeeInfos.m_UseCustomColor = 0;
+
+	m_pPlayer->m_SpookyGhostActive = 1;
+
+	return;
+}
+
+void CCharacter::UnsetSpookyGhost()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_SpookyGhostWeaponsBackupped)
+	{
+		for (int i = 0; i < NUM_WEAPONS; i++)
+		{
+			m_aWeapons[i].m_Got = m_aSpookyGhostWeaponsBackupGot[i][1];
+			if (m_pPlayer->m_IsVanillaWeapons || m_pPlayer->m_SpawnShotgunActive || m_pPlayer->m_SpawnGrenadeActive || m_pPlayer->m_SpawnRifleActive)
+			{
+				m_aWeapons[i].m_Ammo = m_aSpookyGhostWeaponsBackup[i][1];
+			}
+			else
+			{
+				m_aWeapons[i].m_Ammo = -1;
+			}
+		}
+		m_SpookyGhostWeaponsBackupped = false;
+	}
+
+	str_copy(m_pPlayer->m_TeeInfos.m_SkinName, m_pPlayer->m_RealSkinName, sizeof(m_pPlayer->m_TeeInfos.m_SkinName));
+	m_pPlayer->m_TeeInfos.m_UseCustomColor = m_pPlayer->m_RealUseCustomColor;
+
+	m_pPlayer->m_SpookyGhostActive = 0;
+
+	return;
+}
+
+void CCharacter::SaveRealInfos()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_pPlayer->m_SpookyGhostActive)
+	{
+		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->m_TeeInfos.m_SkinName, sizeof(m_pPlayer->m_RealSkinName));
+		m_pPlayer->m_RealUseCustomColor = m_pPlayer->m_TeeInfos.m_UseCustomColor;
+		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealClan));
+		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealName));
 	}
 
 	return;

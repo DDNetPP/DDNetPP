@@ -119,6 +119,14 @@ void CPlayer::Reset()
 		{
 			m_DefEmote = EMOTE_NORMAL;
 		}
+		if (((dd == 5) || (dd == 10) || (dd == 15) || dd == 20 || (dd == 25)) && GameServer()->m_CanBuySpookyGhost == false)
+		{	//for allowing to buy the spooky_ghost
+			GameServer()->m_CanBuySpookyGhost = true;
+		}
+		else
+		{
+			GameServer()->m_CanBuySpookyGhost = false;
+		}
 	}
 	m_DefEmoteReset = -1;
 
@@ -485,6 +493,31 @@ void CPlayer::Snap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 
+	//spooky ghost
+	const char *pClan;
+	if (m_SpookyGhostActive)
+		pClan = m_RealName;
+	else
+		pClan = m_RealClan;
+	StrToInts(&pClientInfo->m_Clan0, 3, pClan);
+
+
+	const char *pName;
+	if (m_PlayerFlags&PLAYERFLAG_CHATTING || !m_SpookyGhostActive)
+		pName = Server()->ClientName(m_ClientID);
+	else
+		pName = "";	
+	StrToInts(&pClientInfo->m_Name0, 4, pName);
+
+
+	if (m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
+	{
+		//
+	}
+	else
+	{
+		GetCharacter()->m_TimesShot = 0;
+	}
 
 	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
 	{
@@ -1124,6 +1157,7 @@ void CPlayer::Logout(int SetLoggedIn)
 	//m_EscapeTime = 0;
 	m_TaserLevel = 0;
 	m_NinjaJetpackBought = 0;
+	m_SpookyGhost = 0;
 	m_UseSpawnWeapons = 0;
 	m_SpawnWeaponShotgun = 0;
 	m_SpawnWeaponGrenade = 0;
@@ -1327,6 +1361,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `JailTime` = %i, `EscapeTime` = %i"
 											  ", `TaserLevel` = %i"
 										      ", `NinjaJetpackBought` = %i"
+											  ", `SpookyGhost` = %i"
 											  ", `UseSpawnWeapons` = %i"
 											  ", `SpawnWeaponShotgun` = %i"
 											  ", `SpawnWeaponGrenade` = %i"
@@ -1354,6 +1389,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_JailTime, m_EscapeTime,
 												m_TaserLevel,
 												m_NinjaJetpackBought,
+												m_SpookyGhost,
 												m_UseSpawnWeapons,
 												m_SpawnWeaponShotgun,
 												m_SpawnWeaponGrenade,

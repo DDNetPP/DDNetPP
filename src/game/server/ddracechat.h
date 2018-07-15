@@ -88,6 +88,9 @@ CHAT_COMMAND("hide", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHide, this, "hides 
 CHAT_COMMAND("spawnweapons", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawnWeapons, this, "toggles using spawnweapons or not")
 CHAT_COMMAND("spawnweaponsinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawnWeaponsInfo, this, "shows level of spawn weapons")
 
+// spooky ghost
+CHAT_COMMAND("spookyghostinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpookyGhostInfo, this, "help for spooky ghost")
+
 //money
 CHAT_COMMAND("shop", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShop, this, "Shows the list of items that you can '/buy'")
 CHAT_COMMAND("buy", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBuy, this, "Buy something. To see all buyable items check '/shop'")
