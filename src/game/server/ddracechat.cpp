@@ -2711,12 +2711,23 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	//char buf[128];
+	char time_str[64];
+	time_t rawtime;
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	str_format(time_str, sizeof(time_str), "%d-%d-%d_%d:%d:%d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+	//str_format(buf, sizeof(buf), "current time: %s", time_str);
+	//pSelf->SendChatTarget(ClientID, buf);
+
 	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", aUsername);
 	CQueryRegister *pQuery = new CQueryRegister();
 	pQuery->m_ClientID = ClientID;
 	pQuery->m_pGameServer = pSelf;
 	pQuery->m_Name = aUsername;
 	pQuery->m_Password = aPassword;
+	pQuery->m_Date = time_str;
 	pQuery->Query(pSelf->m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
 }
@@ -3079,6 +3090,8 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()));
+		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Registered on %s", pSelf->m_apPlayers[InfoID]->m_aAccountRegDate);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID);
 		pSelf->SendChatTarget(ClientID, aBuf);
