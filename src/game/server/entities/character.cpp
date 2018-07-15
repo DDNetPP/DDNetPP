@@ -709,7 +709,7 @@ void CCharacter::FireWeapon(bool Bot)
 		return;
 	}
 
-	vec2 ProjStartPos = m_Pos + Direction*m_ProximityRadius*0.75;
+	vec2 ProjStartPos = m_Pos + Direction*m_ProximityRadius*0.75f;
 
 	switch (m_Core.m_ActiveWeapon)
 	{
