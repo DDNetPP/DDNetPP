@@ -119,14 +119,6 @@ void CPlayer::Reset()
 		{
 			m_DefEmote = EMOTE_NORMAL;
 		}
-		if ((dd == 5) || (dd == 10) || (dd == 15) || (dd == 20) || (dd == 25))
-		{	//for allowing to buy the spooky_ghost
-			GameServer()->m_CanBuySpookyGhost = true;
-		}
-		else
-		{
-			GameServer()->m_CanBuySpookyGhost = false;
-		}
 	}
 	m_DefEmoteReset = -1;
 

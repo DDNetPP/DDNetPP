@@ -2609,12 +2609,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "spooky_ghost"))
 	{
-		if (!pSelf->m_CanBuySpookyGhost)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You can only buy the spooky ghost every fifth day (5th, 10th, 15th, 20th, 25th).");
-			return;
-		}
-		else if (pPlayer->m_level < 1)
+		if (pPlayer->m_level < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 1 to buy the spooky ghost.");
 			return;
