@@ -174,6 +174,9 @@ void CQueryLogin::OnData()
 				//ninjajetpack
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
 
+				//spooky ghost
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpookyGhost = GetInt(GetID("SpookyGhost"));
+
 				//spawn weapons
 				m_pGameServer->m_apPlayers[m_ClientID]->m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
@@ -926,7 +929,10 @@ void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 #endif
 	CNetMsg_Sv_Emoticon Msg;
 	Msg.m_ClientID = ClientID;
-	Msg.m_Emoticon = Emoticon;
+	if (m_apPlayers[ClientID]->m_SpookyGhostActive)
+		Msg.m_Emoticon = 7; // ghost emote only
+	else
+		Msg.m_Emoticon = Emoticon;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 }
 
@@ -3385,7 +3391,7 @@ void CGameContext::ChilliClanTick(int i)
 	CPlayer *pPlayer = m_apPlayers[i];
 
 	int AbstandWarnungen = 10;
-	if (str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_SkinName, "greensward") != 0)
+	if ((str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_SkinName, "greensward") != 0) && (!pPlayer->m_SpookyGhostActive))
 	{
 		if (pPlayer->m_LastWarning + AbstandWarnungen*Server()->TickSpeed() <= Server()->Tick())
 		{
@@ -8469,43 +8475,48 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_CHANGEINFO)
 		{
-			if(g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo && pPlayer->m_LastChangeInfo+Server()->TickSpeed()*g_Config.m_SvInfoChangeDelay > Server()->Tick())
-				return;
-
-			CNetMsg_Cl_ChangeInfo *pMsg = (CNetMsg_Cl_ChangeInfo *)pRawMsg;
-			pPlayer->m_LastChangeInfo = Server()->Tick();
-
-			// set infos
-			char aOldName[MAX_NAME_LENGTH];
-			str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));
-			Server()->SetClientName(ClientID, pMsg->m_pName);
-			if(str_comp(aOldName, Server()->ClientName(ClientID)) != 0)
+			if (!pPlayer->m_SpookyGhostActive)
 			{
-				char aChatText[256];
-				str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientID));
-				SendChat(-1, CGameContext::CHAT_ALL, aChatText);
+				if (g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo && pPlayer->m_LastChangeInfo + Server()->TickSpeed()*g_Config.m_SvInfoChangeDelay > Server()->Tick())
+					return;
 
-				// reload scores
+				CNetMsg_Cl_ChangeInfo *pMsg = (CNetMsg_Cl_ChangeInfo *)pRawMsg;
+				pPlayer->m_LastChangeInfo = Server()->Tick();
 
-				Score()->PlayerData(ClientID)->Reset();
-				Score()->LoadScore(ClientID);
-				Score()->PlayerData(ClientID)->m_CurrentTime = Score()->PlayerData(ClientID)->m_BestTime;
-				if (g_Config.m_SvInstagibMode)
+				// set infos
+				char aOldName[MAX_NAME_LENGTH];
+				str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));
+				Server()->SetClientName(ClientID, pMsg->m_pName);
+				if (str_comp(aOldName, Server()->ClientName(ClientID)) != 0)
 				{
-					m_apPlayers[ClientID]->m_Score = 0;
+					char aChatText[256];
+					str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientID));
+					SendChat(-1, CGameContext::CHAT_ALL, aChatText);
+
+					// reload scores
+
+					Score()->PlayerData(ClientID)->Reset();
+					Score()->LoadScore(ClientID);
+					Score()->PlayerData(ClientID)->m_CurrentTime = Score()->PlayerData(ClientID)->m_BestTime;
+					if (g_Config.m_SvInstagibMode)
+					{
+						m_apPlayers[ClientID]->m_Score = 0;
+					}
+					else
+					{
+						m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
+					}
 				}
-				else
-				{
-					m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
-				}
+				Server()->SetClientClan(ClientID, pMsg->m_pClan);
+				Server()->SetClientCountry(ClientID, pMsg->m_Country);
+				str_copy(pPlayer->m_TeeInfos.m_SkinName, pMsg->m_pSkin, sizeof(pPlayer->m_TeeInfos.m_SkinName));
+				pPlayer->m_TeeInfos.m_UseCustomColor = pMsg->m_UseCustomColor;
+				pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
+				pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
+				//m_pController->OnPlayerInfoChange(pPlayer);
+
+				pPlayer->GetCharacter()->SaveRealInfos();
 			}
-			Server()->SetClientClan(ClientID, pMsg->m_pClan);
-			Server()->SetClientCountry(ClientID, pMsg->m_Country);
-			str_copy(pPlayer->m_TeeInfos.m_SkinName, pMsg->m_pSkin, sizeof(pPlayer->m_TeeInfos.m_SkinName));
-			pPlayer->m_TeeInfos.m_UseCustomColor = pMsg->m_UseCustomColor;
-			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
-			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
-			//m_pController->OnPlayerInfoChange(pPlayer);
 		}
 		else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
 		{
@@ -8551,6 +8562,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					default:
 						pChr->SetEmoteType(EMOTE_NORMAL);
 						break;
+				}
+				if (pPlayer->m_SpookyGhostActive)
+				{
+					pChr->SetEmoteType(EMOTE_SURPRISE);
 				}
 				pChr->SetEmoteStop(Server()->Tick() + 2 * Server()->TickSpeed());
 			}

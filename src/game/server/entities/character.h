@@ -340,6 +340,17 @@ public:
 	int m_GrenadeBullets;
 	int m_RifleBullets;
 
+	//spooky ghost
+	void SetSpookyGhost();
+	void UnsetSpookyGhost();
+	void SaveRealInfos();
+
+	int m_TimesShot;
+
+	int m_aSpookyGhostWeaponsBackup[NUM_WEAPONS][2];
+	bool m_SpookyGhostWeaponsBackupped;
+	int m_aSpookyGhostWeaponsBackupGot[NUM_WEAPONS][2];
+
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
 
