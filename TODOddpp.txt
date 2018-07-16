@@ -99,7 +99,7 @@ Clan [x]
 Skin [x]
 Country [ ]
 last login date [ ]
-account registration date [ ]
+account registration date [x]
 
 ## Homing Missiles ##
 Die Waffe selber kann ab police lvl 4 erworben werden.
