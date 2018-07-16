@@ -2822,6 +2822,8 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
 		pSelf->SendChatTarget(ClientID, "'/sql_name' similar command using account names");
+        pSelf->SendChatTarget(ClientID, "'/sql_logout <playername>' to reset acc");
+        pSelf->SendChatTarget(ClientID, "'/sql_logout_all' to reset all accs");
 		return;
 	}
 
