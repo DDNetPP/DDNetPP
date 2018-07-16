@@ -166,6 +166,7 @@ CSql::CSql()
 		ID							INTEGER			PRIMARY KEY		AUTOINCREMENT,\n\
 		Username					VARCHAR(32)		NOT NULL,\n\
 		Password					VARCHAR(128)	NOT NULL,\n\
+		RegisterDate				VARCHAR(32)		DEFAULT '',\n\
 		IsLoggedIn					INTEGER			DEFAULT 0,\n\
 		LastLoginPort				INTEGER			DEFAULT 0,\n\
 		LastLogoutIGN1				VARCHAR(32)		DEFAULT '',\n\

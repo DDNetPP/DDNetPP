@@ -937,6 +937,7 @@ class CQueryRegister : public CQueryPlayer
 public:
 	std::string m_Name;
 	std::string m_Password;
+	std::string m_Date;
 };
 
 class CQueryLogin : public CQueryPlayer

@@ -66,7 +66,7 @@ void CQueryRegister::OnData()
 	}
 	else
 	{
-		char *pQueryBuf = sqlite3_mprintf("INSERT INTO Accounts (Username, Password) VALUES ('%q', '%q');", m_Name.c_str(), m_Password.c_str());
+		char *pQueryBuf = sqlite3_mprintf("INSERT INTO Accounts (Username, Password, RegisterDate) VALUES ('%q', '%q', '%q');", m_Name.c_str(), m_Password.c_str(), m_Date.c_str());
 
 		CQuery *pQuery = new CQuery();
 		pQuery->Query(m_pDatabase, pQueryBuf);
@@ -147,6 +147,7 @@ void CQueryLogin::OnData()
 				//basic
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
 
 				//Accounts
