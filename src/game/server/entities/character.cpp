@@ -2231,6 +2231,10 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			}
 
 		}
+		else if (GameServer()->m_apPlayers[From]->m_SpookyGhostActive)
+		{
+			// dont do emote pain if the shooter has spooky ghost and shoot plasma projectile
+		}
 		else //normal ddnet code (else to IsDmg)
 		{
 
