@@ -626,7 +626,23 @@ void CCharacter::FireWeapon(bool Bot)
 	// check if we gonna fire
 	bool WillFire = false;
 	if (CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
+	{
 		WillFire = true;
+		if (m_pPlayer->m_PlayerFlags&PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		{
+			m_TimesShot++;
+			if ((m_TimesShot == 2) && !m_pPlayer->m_SpookyGhostActive)
+			{
+				SetSpookyGhost();
+				m_TimesShot = 0;
+			}
+			else if ((m_TimesShot == 2) && m_pPlayer->m_SpookyGhostActive)
+			{
+				UnsetSpookyGhost();
+				m_TimesShot = 0;
+			}
+		}
+	}
 
 	if (FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 		WillFire = true;
@@ -1306,22 +1322,6 @@ void CCharacter::FireWeapon(bool Bot)
 				}
 			}
 		}
-
-		if (m_pPlayer->m_PlayerFlags&PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost)
-		{
-			m_TimesShot++;
-			if ((m_TimesShot == 2) && !m_pPlayer->m_SpookyGhostActive)
-			{
-				SetSpookyGhost();
-				m_TimesShot = 0;
-			}
-			else if ((m_TimesShot == 2) && m_pPlayer->m_SpookyGhostActive)
-			{
-				UnsetSpookyGhost();
-				m_TimesShot = 0;
-			}
-		}
-
 	} break;
 
 	case WEAPON_SHOTGUN:
