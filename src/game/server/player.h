@@ -373,7 +373,7 @@ public:
 	//ninjajetpack
 	int m_NinjaJetpackBought;
 
-	//halloween spooky ghost
+	//spooky ghost
 	int m_SpookyGhost;
 	int m_SpookyGhostActive;
 

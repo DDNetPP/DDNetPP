@@ -607,7 +607,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"spawn_shotgun | 600 000 | 38 | forever\n"
 		"spawn_grenade | 600 000 | 38 | forever\n"
 		"spawn_rifle | 600 000 | 38 | forever\n"
-		"spooky_ghost | 2 000 000 | 1 | forever\n", aBuf);
+		"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
 
 	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
 }
@@ -8417,9 +8417,10 @@ void CGameContext::ConSpookyGhostInfo(IConsole::IResult * pResult, void * pUserD
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ THE SPOOKY GHOST ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "You can buy the spooky ghost in the '/shop'.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "The spooky ghost costs 1.000.000 money.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "If you don't have the ghost skin yet download it from 'https://ddnet.tw/skins/skin/ghost.png' and put it in your skins folder.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TOGGLE ON AND OFF ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "You can activate and deactivate the spooky ghost by");
-	pSelf->SendChatTarget(pResult->m_ClientID, "holding TAB and shoot 2 times with the pistol.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "holding TAB and shooting 2 times with the pistol.");
 }
 
 void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
