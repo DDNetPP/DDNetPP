@@ -344,6 +344,7 @@ public:
 	void SetSpookyGhost();
 	void UnsetSpookyGhost();
 	void SaveRealInfos();
+	bool m_CountSpookyGhostInputs;
 
 	int m_TimesShot;
 
