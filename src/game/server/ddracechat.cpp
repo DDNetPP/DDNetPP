@@ -3093,7 +3093,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()));
 		pSelf->SendChatTarget(ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Registered on %s", pSelf->m_apPlayers[InfoID]->m_aAccountRegDate);
+		str_format(aBuf, sizeof(aBuf), "Register date [%s]", pSelf->m_apPlayers[InfoID]->m_aAccountRegDate);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID);
 		pSelf->SendChatTarget(ClientID, aBuf);
