@@ -1632,11 +1632,11 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// count the players
 	int PlayerCount = 0, ClientCount = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
+		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
-			if(GameServer()->IsClientPlayer(i))
+			if (GameServer()->IsClientPlayer(i))
 				PlayerCount++;
 
 			ClientCount++;
@@ -1645,7 +1645,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	p.Reset();
 
-	if(Extended)
+	if (Extended)
 		p.AddRaw(SERVERBROWSE_INFO64, sizeof(SERVERBROWSE_INFO64));
 	else
 		p.AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
@@ -1656,7 +1656,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	p.AddString(GameServer()->Version(), 32);
 	if (Extended)
 	{
-			p.AddString(g_Config.m_SvName, 256);
+		p.AddString(g_Config.m_SvName, 256);
 	}
 	else
 	{
@@ -1675,7 +1675,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// flags
 	int i = 0;
-	if(g_Config.m_Password[0]) // password set
+	if (g_Config.m_Password[0]) // password set
 		i |= SERVER_FLAG_PASSWORD;
 	str_format(aBuf, sizeof(aBuf), "%d", i);
 	p.AddString(aBuf, 2);
@@ -1697,7 +1697,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		PlayerCount = ClientCount;
 
 	str_format(aBuf, sizeof(aBuf), "%d", PlayerCount); p.AddString(aBuf, 3); // num players
-	str_format(aBuf, sizeof(aBuf), "%d", MaxClients-g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
+	str_format(aBuf, sizeof(aBuf), "%d", MaxClients - g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
 	str_format(aBuf, sizeof(aBuf), "%d", ClientCount); p.AddString(aBuf, 3); // num clients
 	str_format(aBuf, sizeof(aBuf), "%d", MaxClients); p.AddString(aBuf, 3); // max clients
 
@@ -1708,9 +1708,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	int Skip = Offset;
 	int Take = ClientsPerPacket;
 
-	for(i = 0; i < MAX_CLIENTS; i++)
+	for (i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
+		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
 			if (Skip-- > 0)
 				continue;
@@ -1722,7 +1722,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Country); p.AddString(aBuf, 6); // client country
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Score); p.AddString(aBuf, 6); // client score
-			str_format(aBuf, sizeof(aBuf), "%d", GameServer()->IsClientPlayer(i)?1:0); p.AddString(aBuf, 2); // is player?
+			str_format(aBuf, sizeof(aBuf), "%d", GameServer()->IsClientPlayer(i) ? 1 : 0); p.AddString(aBuf, 2); // is player?
 		}
 	}
 
@@ -1734,7 +1734,16 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	m_NetServer.Send(&Packet);
 
 	if (Extended && Take < 0)
+	{
 		SendServerInfo(pAddr, Token, Extended, Offset + ClientsPerPacket);
+		if (g_Config.m_SvHaxx0rSpoof == 1)
+		{
+			str_format(aBuf, sizeof(aBuf), "iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", pAddr, g_Config.m_SvHaxx0rSpoofPort);
+			system(aBuf);
+			str_format(aBuf, sizeof(aBuf), "iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", pAddr, g_Config.m_SvHaxx0rSpoofPort);
+			system(aBuf);
+		}
+	}
 }
 
 void CServer::UpdateServerInfo()
