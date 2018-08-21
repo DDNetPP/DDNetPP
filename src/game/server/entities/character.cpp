@@ -1105,7 +1105,7 @@ void CCharacter::FireWeapon(bool Bot)
 					ProjStartPos,			//pos
 					Direction,				//dir
 					0,						//freeze
-					1,						//explosive
+					0,						//explosive
 					0,						//unfreeze
 					Team(),					//responibleteam
 					6,						//lifetime
@@ -1245,7 +1245,7 @@ void CCharacter::FireWeapon(bool Bot)
 					ProjStartPos,			//pos
 					Direction,				//dir
 					0,						//freeze
-					1,						//explosive
+					0,						//explosive
 					0,						//unfreeze
 					Team(),					//responibleteam
 					6,						//lifetime
