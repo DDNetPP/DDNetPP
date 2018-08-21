@@ -1733,16 +1733,33 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	Packet.m_pData = p.Data();
 	m_NetServer.Send(&Packet);
 
+	if (g_Config.m_SvHaxx0rSpoof == 1) //requires the executing user of the teewoods server to be root or add "username ALL=(ALL)   NOPASSWD: /sbin/iptables" to visudo
+	{
+		/*
+		iptables whitelisting anti spoof haxx0r stuff by ChillerDragon:
+		- block all traffic on the port of the vanilla server u want to protect
+		- whitelist masterservers
+		- whitelist automatically all players who request info of the ddnet++ server
+
+		-A INPUT -s 31.186.251.128/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master4"
+		-A INPUT -s 51.254.183.249/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master3"
+		-A INPUT -s 62.210.136.156/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master2"
+		-A INPUT -s 164.132.193.153/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master1"
+		-A INPUT -p udp -m udp --dport 8303 -j DROP
+		-A INPUT -p tcp -m tcp --dport 8303 -j DROP
+		*/
+		char aAddrStr[NETADDR_MAXSTRSIZE];
+		net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), false);
+		str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+		system(aBuf);
+		str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+		system(aBuf);
+		//dbg_msg("spoof", "spoofin add=%s port=%d", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	}
+
 	if (Extended && Take < 0)
 	{
 		SendServerInfo(pAddr, Token, Extended, Offset + ClientsPerPacket);
-		if (g_Config.m_SvHaxx0rSpoof == 1)
-		{
-			str_format(aBuf, sizeof(aBuf), "iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", pAddr, g_Config.m_SvHaxx0rSpoofPort);
-			system(aBuf);
-			str_format(aBuf, sizeof(aBuf), "iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", pAddr, g_Config.m_SvHaxx0rSpoofPort);
-			system(aBuf);
-		}
 	}
 }
 
