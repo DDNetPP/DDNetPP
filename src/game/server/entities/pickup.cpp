@@ -96,7 +96,20 @@ void CPickup::Tick()
 				case POWERUP_ARMOR:
 					if (pChr->GetPlayer()->m_SpookyGhostActive)
 					{
-						//
+						if (pChr->m_aSpookyGhostWeaponsBackupGot[2][1] || pChr->m_aSpookyGhostWeaponsBackupGot[3][1] || pChr->m_aSpookyGhostWeaponsBackupGot[4][1])
+							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
+
+						pChr->m_aSpookyGhostWeaponsBackup[2][1] = -1;
+						pChr->m_aSpookyGhostWeaponsBackup[3][1] = -1;
+						pChr->m_aSpookyGhostWeaponsBackup[4][1] = -1;
+
+						pChr->m_aSpookyGhostWeaponsBackupGot[2][1] = false;
+						pChr->m_aSpookyGhostWeaponsBackupGot[3][1] = false;
+						pChr->m_aSpookyGhostWeaponsBackupGot[4][1] = false;
+
+						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
+						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
+						pChr->GetPlayer()->m_SpawnRifleActive = 0;
 					}
 					else if (pChr->GetPlayer()->m_IsVanillaWeapons)
 					{
