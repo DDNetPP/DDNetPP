@@ -313,6 +313,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	SetSpawnWeapons();
 
+	SaveRealInfos();
+
+	UnsetSpookyGhost();
+
 	return true;
 }
 
@@ -2041,11 +2045,6 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	CALL_STACK_ADD();
 	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
-
-	SaveRealInfos();
-
-	UnsetSpookyGhost();
-
 	char aBuf[256];
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
