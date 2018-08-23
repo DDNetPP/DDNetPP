@@ -80,6 +80,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	m_IsSpecHF = false;
 
+	SaveRealInfos();
+
+	UnsetSpookyGhost();
+
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 	//zCatch ChillerDragon
@@ -312,10 +316,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_pPlayer->m_SpawnRifleActive = 0;
 
 	SetSpawnWeapons();
-
-	SaveRealInfos();
-
-	UnsetSpookyGhost();
 
 	return true;
 }
