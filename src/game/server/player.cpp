@@ -508,7 +508,10 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	else
 	{
-		GetCharacter()->m_TimesShot = 0;
+		if (GetCharacter())
+		{
+			GetCharacter()->m_TimesShot = 0;
+		}
 	}
 
 	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
