@@ -8,7 +8,7 @@
 #include "plasmabullet.h"
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
-		bool Explosive, bool Unfreeze, int ResponsibleTeam, int Lifetime, float Accel, float Speed) :
+		bool Explosive, bool Unfreeze, bool Bloody, int ResponsibleTeam, int Lifetime, float Accel, float Speed) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 #if defined(CONF_DEBUG)
@@ -20,6 +20,7 @@ CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 D
 	m_Freeze = Freeze;
 	m_Explosive = Explosive;
 	m_Unfreeze = Unfreeze;
+	m_Bloody = Bloody;
 	m_EvalTick = Server()->Tick();
 	m_LifeTime = Server()->TickSpeed() * Lifetime;
 	m_ResponsibleTeam = ResponsibleTeam;
@@ -49,6 +50,9 @@ bool CPlasmaBullet::HitCharacter()
 		Hit->SetEmote(3, Server()->Tick() + 2 * Server()->TickSpeed()); // eyeemote surprise
 		GameServer()->SendEmoticon(Hit->GetPlayer()->GetCID(), 7);		//emoticon ghost
 	}
+
+	if (m_Bloody)
+		GameServer()->CreateDeath(m_Pos, Hit->GetPlayer()->GetCID());
 
 	if (m_Freeze)
 		Hit->Freeze();
@@ -108,6 +112,10 @@ void CPlasmaBullet::Tick()
 					m_ResponsibleTeam,
 					((CGameControllerDDRace*) GameServer()->m_pController)->m_Teams.TeamMask(
 							m_ResponsibleTeam));
+
+		if (m_Bloody)
+			GameServer()->CreateDeath(m_Pos, m_Owner);
+
 		Reset();
 	}
 
