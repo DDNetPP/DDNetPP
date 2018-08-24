@@ -2755,32 +2755,25 @@ void CGameContext::LeaveInstagib(int ID)
 	{
 		WinInsta1on1(pPlayer->m_Insta1on1_id, ID);
 		SendChatTarget(ID, "[INSTA] You left the 1on1.");
+		SendBroadcast("", ID);
 		return;
 	}
+
+	bool left = true;
 
 	if (pPlayer->m_IsInstaArena_fng)
 	{
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
 			SendChatTarget(ID, "[INSTA] You left boomfng.");
-			pPlayer->m_IsInstaArena_gdm = false;
-			pPlayer->m_IsInstaArena_fng = false;
-			pPlayer->m_IsInstaMode_gdm = false;
-			pPlayer->m_IsInstaMode_fng = false;
-			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			SendChatTarget(ID, "[INSTA] You left fng.");
-			pPlayer->m_IsInstaArena_idm = false;
-			pPlayer->m_IsInstaArena_fng = false;
-			pPlayer->m_IsInstaMode_idm = false;
-			pPlayer->m_IsInstaMode_fng = false;
-			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
 		{
-			SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
+			left = false;
 		}
 	}
 	else
@@ -2788,21 +2781,29 @@ void CGameContext::LeaveInstagib(int ID)
 		if (pPlayer->m_IsInstaArena_gdm)
 		{
 			SendChatTarget(ID, "[INSTA] You left grenade deathmatch.");
-			pPlayer->m_IsInstaArena_gdm = false;
-			pPlayer->m_IsInstaMode_gdm = false;
-			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else if (pPlayer->m_IsInstaArena_idm)
 		{
 			SendChatTarget(ID, "[INSTA] You left rifle deathmatch.");
-			pPlayer->m_IsInstaArena_idm = false;
-			pPlayer->m_IsInstaMode_idm = false;
-			if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
 		}
 		else
 		{
-			SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
+			left = false;
 		}
+	}
+
+	if (left)
+	{
+		pPlayer->m_IsInstaArena_gdm = false;
+		pPlayer->m_IsInstaArena_fng = false;
+		pPlayer->m_IsInstaMode_gdm = false;
+		pPlayer->m_IsInstaMode_fng = false;
+		if (pChr) { pChr->Die(pPlayer->GetCID(), WEAPON_SELF); }
+		SendBroadcast("", ID); //clear score
+	}
+	else
+	{
+		SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
 	}
 }
 
@@ -5397,7 +5398,7 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
 		if (m_apPlayers[LooserID]->GetCharacter())
 		{
-			m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //should be dead anyways... so this might cause buggy (tested it and nothing evil happend but better dont do it) //uncommented agian because we need it if some1 does '/insta leave' (which causes a loose without dead)
+			m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //needed for /insta leave where the looser culd be alive
 		}
 	}
 
