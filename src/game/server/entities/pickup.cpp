@@ -94,7 +94,24 @@ void CPickup::Tick()
 					break;
 
 				case POWERUP_ARMOR:
-					if (pChr->GetPlayer()->m_IsVanillaWeapons)
+					if (pChr->GetPlayer()->m_SpookyGhostActive)
+					{
+						if (pChr->m_aSpookyGhostWeaponsBackupGot[2][1] || pChr->m_aSpookyGhostWeaponsBackupGot[3][1] || pChr->m_aSpookyGhostWeaponsBackupGot[4][1])
+							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
+
+						pChr->m_aSpookyGhostWeaponsBackup[2][1] = -1;
+						pChr->m_aSpookyGhostWeaponsBackup[3][1] = -1;
+						pChr->m_aSpookyGhostWeaponsBackup[4][1] = -1;
+
+						pChr->m_aSpookyGhostWeaponsBackupGot[2][1] = false;
+						pChr->m_aSpookyGhostWeaponsBackupGot[3][1] = false;
+						pChr->m_aSpookyGhostWeaponsBackupGot[4][1] = false;
+
+						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
+						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
+						pChr->GetPlayer()->m_SpawnRifleActive = 0;
+					}
+					else if (pChr->GetPlayer()->m_IsVanillaWeapons)
 					{
 						if (pChr->IncreaseArmor(1))
 						{
@@ -134,7 +151,11 @@ void CPickup::Tick()
 					break;
 
 				case POWERUP_WEAPON:
-					if (pChr->GetPlayer()->m_IsVanillaWeapons)
+					if (pChr->GetPlayer()->m_SpookyGhostActive)
+					{
+						//
+					}
+					else if (pChr->GetPlayer()->m_IsVanillaWeapons)
 					{
 						if (m_Subtype >= 0 && m_Subtype < NUM_WEAPONS && (!pChr->GetWeaponGot(m_Subtype) || (pChr->GetWeaponAmmo(m_Subtype) != -1 && !pChr->m_FreezeTime)))
 						{
@@ -241,17 +262,24 @@ void CPickup::Tick()
 
 			case POWERUP_NINJA:
 				{
-					// activate ninja on target player
-					pChr->GiveNinja();
-					//RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-
-					/*// loop through all players, setting their emotes
-					CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
-					for(; pC; pC = (CCharacter *)pC->TypeNext())
+					if (pChr->GetPlayer()->m_SpookyGhostActive)
 					{
-						if (pC != pChr)
-							pC->SetEmote(EMOTE_SURPRISE, Server()->Tick() + Server()->TickSpeed());
-					}*/
+						//
+					}
+					else
+					{
+						// activate ninja on target player
+						pChr->GiveNinja();
+						//RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
+
+						/*// loop through all players, setting their emotes
+						CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
+						for(; pC; pC = (CCharacter *)pC->TypeNext())
+						{
+							if (pC != pChr)
+								pC->SetEmote(EMOTE_SURPRISE, Server()->Tick() + Server()->TickSpeed());
+						}*/
+					}
 					break;
 				}
 				default:

@@ -231,6 +231,7 @@ CSql::CSql()
 		SurvivalDeaths				INTEGER			DEFAULT 0,\n\
 		SurvivalWins				INTEGER			DEFAULT 0,\n\
 		NinjaJetpackBought			INTEGER			DEFAULT 0,\n\
+		SpookyGhost				INTEGER			DEFAULT 0,\n\
 		UseSpawnWeapons			INTEGER			DEFAULT 0,\n\
 		SpawnWeaponShotgun			INTEGER			DEFAULT 0,\n\
 		SpawnWeaponGrenade 		INTEGER			DEFAULT 0,\n\

@@ -373,6 +373,17 @@ public:
 	//ninjajetpack
 	int m_NinjaJetpackBought;
 
+	//spooky ghost
+	int m_SpookyGhost;
+	int m_SpookyGhostActive;
+
+	int m_RealUseCustomColor;
+	char m_RealSkinName[64];
+	char m_RealName[64];
+	char m_RealClan[64];
+	int m_RealColorBody;
+	int m_RealColorFeet;
+
 	//spawn weapons
 	int m_UseSpawnWeapons;
 	int m_SpawnWeaponShotgun;
