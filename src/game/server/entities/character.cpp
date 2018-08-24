@@ -1108,6 +1108,7 @@ void CCharacter::FireWeapon(bool Bot)
 					0,						//explosive
 					0,						//unfreeze
 					1,						//bloody
+					1,						//ghost
 					Team(),					//responibleteam
 					6,						//lifetime
 					1.0f,					//accel
@@ -1124,6 +1125,7 @@ void CCharacter::FireWeapon(bool Bot)
 					0,											//explosive
 					0,											//unfreeze
 					1,											//bloody
+					1,											//ghost
 					Team(),										//responibleteam
 					6,											//lifetime
 					1.0f,										//accel
@@ -1140,6 +1142,7 @@ void CCharacter::FireWeapon(bool Bot)
 					0,											//explosive
 					0,											//unfreeze
 					1,											//bloody
+					1,											//ghost
 					Team(),										//responibleteam
 					6,											//lifetime
 					1.0f,										//accel
@@ -1251,6 +1254,7 @@ void CCharacter::FireWeapon(bool Bot)
 					0,						//explosive
 					0,						//unfreeze
 					1,						//bloody
+					1,						//ghost
 					Team(),					//responibleteam
 					6,						//lifetime
 					1.0f,					//accel
