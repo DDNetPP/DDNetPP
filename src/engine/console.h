@@ -62,6 +62,7 @@ public:
 		const char *m_pName;
 		const char *m_pHelp;
 		const char *m_pParams;
+		int m_ddpp_access_level;
 
 		virtual const CCommandInfo *NextCommandInfo(int AccessLevel, int FlagMask) const = 0;
 
@@ -78,7 +79,7 @@ public:
 	virtual void PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPossibleCallback pfnCallback, void *pUser) = 0;
 	virtual void ParseArguments(int NumArgs, const char **ppArguments) = 0;
 
-	virtual void Register(const char *pName, const char *pParams, int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp) = 0;
+	virtual void Register(const char *pName, const char *pParams, int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp, int ddpp_al=0) = 0;
 	virtual void RegisterTemp(const char *pName, const char *pParams, int Flags, const char *pHelp) = 0;
 	virtual void DeregisterTemp(const char *pName) = 0;
 	virtual void DeregisterTempAll() = 0;

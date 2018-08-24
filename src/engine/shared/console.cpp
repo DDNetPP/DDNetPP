@@ -12,6 +12,9 @@
 #include "console.h"
 #include "linereader.h"
 
+#include <game/server/gamecontext.h> //ddpp for cmdlist permissions
+#include <engine/server/server.h> // ddpp for cmdlist permissions
+
 // todo: rework this
 
 const char *CConsole::CResult::GetString(unsigned Index)
@@ -831,7 +834,7 @@ void CConsole::AddCommandSorted(CCommand *pCommand)
 }
 
 void CConsole::Register(const char *pName, const char *pParams,
-	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp)
+	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp, int ddpp_al)
 {
 	CCommand *pCommand = FindCommand(pName, Flags);
 	bool DoAdd = false;
@@ -846,6 +849,7 @@ void CConsole::Register(const char *pName, const char *pParams,
 	pCommand->m_pName = pName;
 	pCommand->m_pHelp = pHelp;
 	pCommand->m_pParams = pParams;
+	pCommand->m_ddpp_access_level = ddpp_al;
 
 	pCommand->m_Flags = Flags;
 	pCommand->m_Temp = false;
@@ -1009,28 +1013,57 @@ void CConsole::ConUserCommandStatus(IResult *pResult, void *pUser)
 	char aBuf[240];
 	mem_zero(aBuf, sizeof(aBuf));
 	int Used = 0;
+	//int al = 0; //ddpp user access level
+	//CGameContext *pSelf = (CGameContext *)pUser;
+	//int ClientID = pResult->m_ClientID;
+	//dbg_msg("cBug", "cmdlist id=%d", ClientID);
+	//dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
+	//	"The Client ID is wrong");
+	//if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+	//	return;
+
+	//CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	//if (!pPlayer)
+	//{
+	//	dbg_msg("cBug", "no player"); //gets executed
+	//	return;
+	//}
+
+	//if (pPlayer->m_IsModerator)
+	//	al = 1;
+	//if (pPlayer->m_IsSuperModerator)
+	//	al = 2;
+	//if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	//	al = 3;
+
+	//dbg_msg("cBug", "surjiawdn");
+
+	int al = 9999;
 
 	for(CCommand *pCommand = pConsole->m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
 	{
-		if(pCommand->m_Flags&pConsole->m_FlagMask && pCommand->GetAccessLevel() == ACCESS_LEVEL_USER)
+		if (al >= pCommand->m_ddpp_access_level)
 		{
-			int Length = str_length(pCommand->m_pName);
-			if(Used + Length + 2 < (int)(sizeof(aBuf)))
+			if (pCommand->m_Flags&pConsole->m_FlagMask && pCommand->GetAccessLevel() == ACCESS_LEVEL_USER)
 			{
-				if(Used > 0)
+				int Length = str_length(pCommand->m_pName);
+				if (Used + Length + 2 < (int)(sizeof(aBuf)))
 				{
-					Used += 2;
-					str_append(aBuf, ", ", sizeof(aBuf));
+					if (Used > 0)
+					{
+						Used += 2;
+						str_append(aBuf, ", ", sizeof(aBuf));
+					}
+					str_append(aBuf, pCommand->m_pName, sizeof(aBuf));
+					Used += Length;
 				}
-				str_append(aBuf, pCommand->m_pName, sizeof(aBuf));
-				Used += Length;
-			}
-			else
-			{
-				pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
-				mem_zero(aBuf, sizeof(aBuf));
-				str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
-				Used = Length;
+				else
+				{
+					pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+					mem_zero(aBuf, sizeof(aBuf));
+					str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
+					Used = Length;
+				}
 			}
 		}
 	}
