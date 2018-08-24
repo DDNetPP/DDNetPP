@@ -22,7 +22,7 @@ class CPlasmaBullet: public CEntity
 	float m_Accel;
 	float m_Speed;
 
-	int m_PassedOneBlock;
+	int m_IsInsideWall;
 
 	bool m_Explosive;
 	bool HitCharacter();
