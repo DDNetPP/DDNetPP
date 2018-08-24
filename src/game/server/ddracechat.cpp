@@ -606,7 +606,8 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"ninjajetpack | 10 000 | 21 | forever\n"
 		"spawn_shotgun | 600 000 | 38 | forever\n"
 		"spawn_grenade | 600 000 | 38 | forever\n"
-		"spawn_rifle | 600 000 | 38 | forever\n", aBuf);
+		"spawn_rifle | 600 000 | 38 | forever\n"
+		"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
 
 	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
 }
@@ -2600,6 +2601,29 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Spawn rifle upgraded.");
 			}
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "spooky_ghost"))
+	{
+		if (pPlayer->m_level < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 1 to buy the spooky ghost.");
+			return;
+		}
+		else if (pPlayer->m_SpookyGhost)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already have the spooky ghost.");
+		}
+		else if (pPlayer->m_money >= 1000000)
+		{
+			pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spooky_ghost')");
+
+			pPlayer->m_SpookyGhost = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought the spooky ghost. For more infos check '/spookyghostinfo'.");
 		}
 		else
 		{
@@ -8390,6 +8414,30 @@ void CGameContext::ConSpawnWeaponsInfo(IConsole::IResult * pResult, void * pUser
 	pSelf->SendChatTarget(pResult->m_ClientID, "'/spawnweapons to activate/deactivate it.");
 }
 
+void CGameContext::ConSpookyGhostInfo(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[256];
+
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ THE SPOOKY GHOST ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "You can buy the spooky ghost in the '/shop'.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "The spooky ghost costs 1.000.000 money.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "If you don't have the ghost skin yet download it from 'https://ddnet.tw/skins/skin/ghost.png' and put it in your skins folder.");
+	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ TOGGLE ON AND OFF ~~~");
+	pSelf->SendChatTarget(pResult->m_ClientID, "You can activate and deactivate the spooky ghost by");
+	pSelf->SendChatTarget(pResult->m_ClientID, "holding TAB and shooting 2 times with the pistol.");
+}
+
 void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -9153,6 +9201,12 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pPlayer->m_SpookyGhostActive)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you can't trade as the spooky ghost.");
+		return;
+	}
+
 	if (!g_Config.m_SvAllowTrade)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] this command is deactivated by an administrator.");
@@ -9361,6 +9415,12 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you have to be alive to use this command.");
+		return;
+	}
+
+	if (pPlayer->m_SpookyGhostActive)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[TRADE] you can't trade as the spooky ghost.");
 		return;
 	}
 
