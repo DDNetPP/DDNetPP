@@ -116,7 +116,7 @@ void CPlasmaBullet::Tick()
 
 		if (m_Bloody)
 		{
-			if (m_PassedOneBlock == 1)
+			if (m_IsInsideWall == 1)
 			{
 				if (Server()->Tick() % 5 == 0)
 				{
@@ -131,18 +131,18 @@ void CPlasmaBullet::Tick()
 
 
 
-		if (m_Ghost && m_PassedOneBlock == 0)
-			m_PassedOneBlock = 1;
+		if (m_Ghost && m_IsInsideWall == 0)
+			m_IsInsideWall = 1; // enteres the wall, collides the first time
 
 
 
-		if (m_PassedOneBlock == 2 || !m_Ghost)
+		if (m_IsInsideWall == 2 || !m_Ghost) // collides second time with a wall
 			Reset();
 	}
 	else
 	{
-		if (m_Ghost && m_PassedOneBlock == 1)
-			m_PassedOneBlock = 2;
+		if (m_Ghost && m_IsInsideWall == 1)
+			m_IsInsideWall = 2; // leaves the wall
 	}
 }
 
