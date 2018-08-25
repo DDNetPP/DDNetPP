@@ -8,7 +8,7 @@
 #include "plasmabullet.h"
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
-		bool Explosive, bool Unfreeze, bool Bloody, int ResponsibleTeam, int Lifetime, float Accel, float Speed) :
+		bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, int Lifetime, float Accel, float Speed) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 #if defined(CONF_DEBUG)
@@ -21,6 +21,7 @@ CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 D
 	m_Explosive = Explosive;
 	m_Unfreeze = Unfreeze;
 	m_Bloody = Bloody;
+	m_Ghost = Ghost;
 	m_EvalTick = Server()->Tick();
 	m_LifeTime = Server()->TickSpeed() * Lifetime;
 	m_ResponsibleTeam = ResponsibleTeam;
@@ -114,11 +115,35 @@ void CPlasmaBullet::Tick()
 							m_ResponsibleTeam));
 
 		if (m_Bloody)
-			GameServer()->CreateDeath(m_Pos, m_Owner);
+		{
+			if (m_IsInsideWall == 1)
+			{
+				if (Server()->Tick() % 5 == 0)
+				{
+					GameServer()->CreateDeath(m_Pos, m_Owner);
+				}
+			}
+			else
+			{
+				GameServer()->CreateDeath(m_Pos, m_Owner);
+			}
+		}
 
-		Reset();
+
+
+		if (m_Ghost && m_IsInsideWall == 0)
+			m_IsInsideWall = 1; // enteres the wall, collides the first time
+
+
+
+		if (m_IsInsideWall == 2 || !m_Ghost) // collides second time with a wall
+			Reset();
 	}
-
+	else
+	{
+		if (m_Ghost && m_IsInsideWall == 1)
+			m_IsInsideWall = 2; // leaves the wall
+	}
 }
 
 void CPlasmaBullet::Snap(int SnappingClient)
