@@ -313,6 +313,13 @@ void CQueryLogin::OnData()
 
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
+			//nobo spawn
+			if (m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop > m_pGameServer->Server()->Tick())
+			{
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = false;
+				m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop = 0;
+				m_pGameServer->SendChatTarget(m_ClientID, "[NoboSpawn] Real spawn unlocked due to login.");
+			}
 
 			//jail
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
@@ -5535,6 +5542,7 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED);
 
+	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
 	m_apPlayers[DummyID]->m_IsDummy = true;
 	m_apPlayers[DummyID]->m_DummyMode = dummymode;
 	Server()->BotJoin(DummyID);
