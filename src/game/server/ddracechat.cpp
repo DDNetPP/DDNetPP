@@ -8427,8 +8427,6 @@ void CGameContext::ConSpookyGhostInfo(IConsole::IResult * pResult, void * pUserD
 	if (!pPlayer)
 		return;
 
-	char aBuf[256];
-
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ THE SPOOKY GHOST ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "You can buy the spooky ghost in the '/shop'.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "The spooky ghost costs 1.000.000 money.");
