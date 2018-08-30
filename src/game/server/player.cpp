@@ -177,6 +177,11 @@ void CPlayer::Reset()
 	m_dmm25 = -1; //set to offline default
 	m_pLoginData = NULL;
 
+	if (g_Config.m_SvNoboSpawnTime)
+	{
+		m_IsNoboSpawn = true;
+	}
+	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
 	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");
