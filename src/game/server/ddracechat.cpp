@@ -3054,6 +3054,47 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in)", value);
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
+	else if (!str_comp_nocase(aCommand, "speedfly"))
+	{
+		if (pResult->NumArguments() < 3)
+		{
+			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
+			return;
+		}
+		int value;
+		value = pResult->GetInteger(2);
+
+		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET SpeedflyWithBot='%d' WHERE ID='%d'", value, SQL_ID);
+
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(pSelf->m_Database, pQueryBuf);
+		sqlite3_free(pQueryBuf);
+
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				{
+					pSelf->m_apPlayers[i]->m_SpeedflyWithBot = value;
+					if (value == 1)
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You can now speedfly with the hammerfly bot.");
+					}
+					else
+					{
+						pSelf->SendChatTarget(i, "[ACCOUNT] You can no longer speedfly with the hammerfly bot.");
+					}
+					str_format(aBuf, sizeof(aBuf), "UPDATED SpeedflyWithBot = %d (account is logged in)", value);
+					pSelf->SendChatTarget(ClientID, aBuf);
+					return;
+				}
+			}
+		}
+		str_format(aBuf, sizeof(aBuf), "UPDATED SpeedflyWithBot = %d (account is not logged in)", value);
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
 	else 
 	{
 		pSelf->SendChatTarget(ClientID, "Unknown SQL command. Try '/SQL help' for more help.");

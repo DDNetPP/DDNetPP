@@ -236,6 +236,7 @@ CSql::CSql()
 		SpawnWeaponShotgun			INTEGER			DEFAULT 0,\n\
 		SpawnWeaponGrenade 		INTEGER			DEFAULT 0,\n\
 		SpawnWeaponRifle			INTEGER			DEFAULT 0,\n\
+		SpeedflyWithBot			INTEGER			DEFAULT 0,\n\
 		AsciiState					VARCHAR(4)		DEFAULT '',\n\
 		AsciiViewsDefault			INTEGER			DEFAULT 0,\n\
 		AsciiViewsProfile			INTEGER			DEFAULT 0,\n\

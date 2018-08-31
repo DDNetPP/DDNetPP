@@ -1162,6 +1162,7 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_SpawnWeaponShotgun = 0;
 	m_SpawnWeaponGrenade = 0;
 	m_SpawnWeaponRifle = 0;
+	m_SpeedflyWithBot = 0;
 	m_TaserOn = false;
 	m_pvp_arena_tickets = 0;
 	m_pvp_arena_games_played = 0;
@@ -1366,6 +1367,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `SpawnWeaponShotgun` = %i"
 											  ", `SpawnWeaponGrenade` = %i"
 											  ", `SpawnWeaponRifle` = %i"
+											  ", `SpeedflyWithBot` = %i"
 											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
 											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
 											  ", `HomingMissiles` = '%i'"
@@ -1394,6 +1396,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_SpawnWeaponShotgun,
 												m_SpawnWeaponGrenade,
 												m_SpawnWeaponRifle,
+												m_SpeedflyWithBot,
 												m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
 												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 												m_homing_missiles_ammo,
