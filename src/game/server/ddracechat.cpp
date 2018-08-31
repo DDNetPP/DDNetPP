@@ -2221,9 +2221,17 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 		}
+		else if (pPlayer->m_PoliceRank == 5)
+		{
+			if (pPlayer->m_level < 60)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 60 to upgrade police to level 6.");
+				return;
+			}
+		}
 
 
-		if (pPlayer->m_PoliceRank > 2)
+		if (pPlayer->m_PoliceRank > 5)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You already bought maximum police lvl.");
 			return;
@@ -2854,6 +2862,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/sql supporter <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
+		pSelf->SendChatTarget(ClientID, "'/sql speedfly <sqlid> <val>'");
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
 		pSelf->SendChatTarget(ClientID, "'/sql_name' similar command using account names");
@@ -5867,6 +5876,99 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 		pSelf->m_apPlayers[PoopID]->m_shit += Amount;
 	}
 
+}
+
+void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] You have to be alive to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ NOBO SPAWN ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/nobospawn <value> <playername>' to set the players");
+		pSelf->SendChatTarget(pResult->m_ClientID, "spawn to NoboSpawn.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "-- VALUES --");
+		pSelf->SendChatTarget(pResult->m_ClientID, "0 (off), 1 (on)");
+		return;
+	}
+	else if (pPlayer->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during block tournaments.");
+		return;
+	}
+	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during survival games");
+		return;
+	}
+
+	else if (pResult->NumArguments() == 2)
+	{
+		char aValue[64];
+		char aUsername[32];
+		str_copy(aValue, pResult->GetString(0), sizeof(aValue));
+		str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+
+		int NoboID = -1;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (!str_comp(pSelf->Server()->ClientName(i), aUsername))
+				{
+					NoboID = i;
+					break;
+				}
+			}
+		}
+
+		char aBuf[512];
+
+		if ((pPlayer->m_PoliceRank >= 6) && (NoboID != -1))
+		{
+			if (!str_comp_nocase(aValue, "1"))
+			{
+				if (pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn)
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "[NOBO] This player already has the NoboSpawn.");
+				}
+				else
+				{
+					str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was given to '%s'.", aUsername);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 1;
+					str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was given to you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
+				}
+			}
+			else if (!str_comp_nocase(aValue, "0"))
+			{
+				str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was removed from '%s'.", aUsername);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 0;
+				str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was removed from you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+				pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
+			}
+		}
+	}
 }
 
 

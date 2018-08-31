@@ -837,6 +837,8 @@ private:
 
 	static void ConGive(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConNoboSpawn(IConsole::IResult *pResult, void *pUserData);
+
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 
