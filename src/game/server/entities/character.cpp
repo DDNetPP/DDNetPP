@@ -258,7 +258,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		char aBuf[128];
 		if (pPlayer->m_IsNoboSpawn == 2) //forced by the nobospawn command
 		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] You are forced to the nobo spawn by a supporter.");
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] You are forced to the nobo spawn by a police officer.\n[NoboSpawn] Time until real spawn is unlocked: %d sec", (pPlayer->m_NoboSpawnStopForced - Server()->Tick()) / Server()->TickSpeed());
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
 			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
