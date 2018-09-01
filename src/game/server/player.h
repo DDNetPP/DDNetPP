@@ -402,8 +402,9 @@ public:
 	//city stuff
 	//##########
 
-	bool m_IsNoboSpawn;
+	int m_IsNoboSpawn;
 	int64 m_NoboSpawnStop;
+	int64 m_NoboSpawnStopForced;
 
 	//Account stuff:
 	bool m_IsFileAcc;

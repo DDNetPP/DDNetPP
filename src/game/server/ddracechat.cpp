@@ -2221,9 +2221,17 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 		}
+		else if (pPlayer->m_PoliceRank == 5)
+		{
+			if (pPlayer->m_level < 60)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 60 to upgrade police to level 6.");
+				return;
+			}
+		}
 
 
-		if (pPlayer->m_PoliceRank > 2)
+		if (pPlayer->m_PoliceRank > 5)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You already bought maximum police lvl.");
 			return;
@@ -5499,7 +5507,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			aBuf);
 	}
-	/*else if (page == 5)
+	else if (page == 5)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"~~~ Police Info ~~~");
@@ -5510,7 +5518,7 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"Benefits:");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
-			"- PASTE FEATURES HERE");
+			"- Nothing yet.");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
@@ -5529,14 +5537,33 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"Benefits:");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
-			"- PASTE FEATURES HERE");
+			"- Nothing yet.");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"------------------------");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
 			aBuf);
-	}*/
+	}
+	else if (page == 7)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"~~~ Police Info ~~~");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"[POLICE 6]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Level needed to buy: [LVL 60]");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Benefits:");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"- force nobospawns ('/nobospawn')");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"------------------------");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			"Use '/policeinfo <page>' to check out what other police ranks can do.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+			aBuf);
+	}
 	else
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
@@ -5826,6 +5853,94 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 		pSelf->m_apPlayers[PoopID]->m_shit += Amount;
 	}
 
+}
+
+void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+
+	if (pPlayer->m_PoliceRank < 6)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You have to be police 6 to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ NOBO SPAWN ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/nobospawn <value> <playername>' to set the players");
+		pSelf->SendChatTarget(pResult->m_ClientID, "spawn to NoboSpawn.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "-- VALUES --");
+		pSelf->SendChatTarget(pResult->m_ClientID, "0 (off), 1 (on, for 2 min)");
+		return;
+	}
+	else if (pResult->NumArguments() == 2)
+	{
+		int value = pResult->GetInteger(0);
+		char aUsername[32];
+		str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
+
+		int NoboID = -1;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (pSelf->m_apPlayers[i])
+			{
+				if (!str_comp(pSelf->Server()->ClientName(i), aUsername))
+				{
+					NoboID = i;
+					break;
+				}
+			}
+		}
+
+		char aBuf[512];
+
+		if ((pPlayer->m_PoliceRank >= 6) && (NoboID != -1))
+		{
+			if (pSelf->m_apPlayers[NoboID]->m_IsDummy)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You can't give the NoboSpawn to bots.");
+			}
+			else if (value == 1)
+			{
+				if (pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn == 2)
+				{
+					pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] This player already has the forced NoboSpawn.");
+				}
+				else
+				{
+					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Forced NoboSpawn was given to '%s'.", aUsername);
+					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+					pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 2;
+					pSelf->m_apPlayers[NoboID]->m_NoboSpawnStopForced = Server()->Tick() + Server()->TickSpeed() * (60 * 2);
+					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Forced NoboSpawn was given to you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
+				}
+			}
+			else if (value == 0)
+			{
+				str_format(aBuf, sizeof(aBuf), "[NoboSpawn] NoboSpawn was removed from '%s'.", aUsername);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
+				pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 0;
+				pSelf->m_apPlayers[NoboID]->m_NoboSpawnStopForced = 0;
+				str_format(aBuf, sizeof(aBuf), "[NoboSpawn] NoboSpawn was removed from you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+				pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
+			}
+		}
+	}
 }
 
 
