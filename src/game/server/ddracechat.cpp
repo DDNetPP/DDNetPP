@@ -5876,12 +5876,6 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (!pChr)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You have to be alive to use this command.");
-		return;
-	}
-
 	if (pResult->NumArguments() == 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ NOBO SPAWN ~~~");
@@ -5891,17 +5885,6 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "0 (off), 1 (on)");
 		return;
 	}
-	else if (pPlayer->m_IsBlockTourning)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] you can't use that command during block tournaments.");
-		return;
-	}
-	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 0)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] you can't use that command during survival games");
-		return;
-	}
-
 	else if (pResult->NumArguments() == 2)
 	{
 		int value = pResult->GetInteger(0);
