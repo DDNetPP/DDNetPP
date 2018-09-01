@@ -393,6 +393,10 @@ public:
 	int m_SpawnGrenadeActive;
 	int m_SpawnRifleActive;
 
+	//speedfly with hammerfly bot
+	bool m_SpeedflyWithBotBought;
+	bool m_SpeedflyWithBot;
+
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
 	bool m_cheats_aimbot;
