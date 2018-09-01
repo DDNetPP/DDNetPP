@@ -5924,7 +5924,7 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 2;
-					pSelf->m_apPlayers[NoboID]->m_NoboSpawnStopForced = Server()->Tick() + Server()->TickSpeed() * (60 * 120);
+					pSelf->m_apPlayers[NoboID]->m_NoboSpawnStopForced = Server()->Tick() + Server()->TickSpeed() * (60 * 2);
 					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Forced NoboSpawn was given to you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 					pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
 				}
