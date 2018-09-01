@@ -316,7 +316,7 @@ void CQueryLogin::OnData()
 			//nobo spawn
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop > m_pGameServer->Server()->Tick())
 			{
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = false;
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = 0;
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop = 0;
 				m_pGameServer->SendChatTarget(m_ClientID, "[NoboSpawn] Real spawn unlocked due to login.");
 			}
