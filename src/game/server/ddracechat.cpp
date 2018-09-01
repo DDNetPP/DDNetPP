@@ -2847,14 +2847,20 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	//	return;
 	//}
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter) //after Arguments check to troll curious users
 	{
 		//pSelf->SendChatTarget(ClientID, "No such command: sql.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		return;
 	}
 
-	if (pResult->NumArguments() == 0)
+	char aBuf[128];
+	char aCommand[32];
+	int SQL_ID;
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+	SQL_ID = pResult->GetInteger(1);
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
 		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
 		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
@@ -2866,16 +2872,10 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
 		pSelf->SendChatTarget(ClientID, "'/sql_name' similar command using account names");
-        pSelf->SendChatTarget(ClientID, "'/sql_logout <playername>' to reset acc");
-        pSelf->SendChatTarget(ClientID, "'/sql_logout_all' to reset all accs");
+		pSelf->SendChatTarget(ClientID, "'/sql_logout <playername>' to reset acc");
+		pSelf->SendChatTarget(ClientID, "'/sql_logout_all' to reset all accs");
 		return;
 	}
-
-	char aBuf[128];
-	char aCommand[32];
-	int SQL_ID;
-	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
-	SQL_ID = pResult->GetInteger(1);
 
 
 	if (!str_comp_nocase(aCommand, "getid")) //2 argument commands
@@ -2897,18 +2897,14 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "'%s' SQL-ID: %d", pSelf->Server()->ClientName(SQL_ID), pSelf->m_apPlayers[SQL_ID]->m_AccountID);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
-	else if (!str_comp_nocase(aCommand, "help"))
-	{
-		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
-		pSelf->SendChatTarget(ClientID, "'/sql getid <clientid>' to get sql id");
-		pSelf->SendChatTarget(ClientID, "'/sql super_mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientID, "'/sql mod <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientID, "'/sql freeze_acc <sqlid> <val>'");
-		pSelf->SendChatTarget(ClientID, "----------------------");
-		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
-	}
 	else if (!str_comp_nocase(aCommand, "supporter"))
 	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+
 		if (pResult->NumArguments() < 3)
 		{
 			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
@@ -2950,6 +2946,12 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "super_mod"))
 	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+
 		if (pResult->NumArguments() < 3)
 		{
 			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
@@ -2991,6 +2993,12 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "mod"))
 	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+
 		if (pResult->NumArguments() < 3)
 		{
 			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
@@ -3031,6 +3039,12 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "freeze_acc"))
 	{
+		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+			return;
+		}
+
 		if (pResult->NumArguments() < 3)
 		{
 			pSelf->SendChatTarget(ClientID, "Error: sql <command> <id> <value>");
@@ -3104,7 +3118,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "UPDATED SpeedflyWithBot = %d (account is not logged in)", value);
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
-	else 
+	else
 	{
 		pSelf->SendChatTarget(ClientID, "Unknown SQL command. Try '/SQL help' for more help.");
 	}
