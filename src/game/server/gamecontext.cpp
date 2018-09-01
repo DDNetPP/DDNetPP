@@ -8275,17 +8275,29 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
 		{
-			if (pPlayer->GetCharacter())
+			CNetMsg_Cl_Vote *pMsg = (CNetMsg_Cl_Vote *)pRawMsg;
+
+			if (pMsg->m_Vote == 1) //vote yes (f3)
 			{
-				IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-				if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
-					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pPlayer->GetCharacter()->GetAimDir()); //red
-					//SendChatTarget(ClientID, "you dropped red flag");
+				if (pPlayer->GetCharacter())
+				{
+					//SendChatTarget(ClientID, "you pressed f3");
+					IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
+					if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+						((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pPlayer->GetCharacter()->GetAimDir()); //red
+						//SendChatTarget(ClientID, "you dropped red flag");
+					}
+					else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
+						((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pPlayer->GetCharacter()->GetAimDir()); //blue
+						//SendChatTarget(ClientID, "you dropped blue flag");
+					}
 				}
-				else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
-					((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pPlayer->GetCharacter()->GetAimDir()); //blue
-					//SendChatTarget(ClientID, "you dropped blue flag");
-				}
+			}
+			else if (pMsg->m_Vote == -1) //vote no (f4)
+			{
+				//SendChatTarget(ClientID, "you pressed f4");
+
+				//place drop weapon code here
 			}
 
 			if(!m_VoteCloseTime)
@@ -8298,7 +8310,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastVoteTry = Now;
 
-			CNetMsg_Cl_Vote *pMsg = (CNetMsg_Cl_Vote *)pRawMsg;
 			if(!pMsg->m_Vote)
 				return;
 
