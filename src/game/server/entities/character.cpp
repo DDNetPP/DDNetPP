@@ -256,7 +256,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	else if (m_pPlayer->m_IsNoboSpawn)
 	{
 		char aBuf[128];
-		if (pPlayer->m_NoboSpawnStop > Server()->Tick())
+		if (pPlayer->m_IsNoboSpawn == 2) //forced by the nobospawn command
+		{
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] You are forced to the nobo spawn by a supporter.");
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
+			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
+		}
+		else if (pPlayer->m_NoboSpawnStop > Server()->Tick())
 		{
 			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %d sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
@@ -266,7 +273,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		else
 		{
 			m_Core.m_Pos = m_Pos;
-			m_pPlayer->m_IsNoboSpawn = false;
+			m_pPlayer->m_IsNoboSpawn = 0;
 			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Welcome to the real spawn!");
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
@@ -8424,28 +8431,7 @@ void CCharacter::DummyTick()
 				if (pChr && pChr->IsAlive())
 				{
 					//if (Server()->ClientName(pChr) == "ChillerDragon")
-					if (
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Starkiller") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "rqza") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "timakro") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Nudelsaft c:") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Destom") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ante") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ama") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Forris") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Aoe") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Spyker") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Waschlappen") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), ".:Mivv") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "nealson T'nP") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "ChillerDragon") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "ChillerDragon.*") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "BeckyHill") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Blue") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Amol") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "fokkonaut") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "pro")
-						)
+					if (pChr->GetPlayer()->m_SpeedflyWithBot)
 					{
 						m_Dummy_mode23 = 2;
 					}

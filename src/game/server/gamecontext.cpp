@@ -184,6 +184,9 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
 
+				//speedfly with hammerfly bot
+				m_pGameServer->m_apPlayers[m_ClientID]->m_SpeedflyWithBot = GetInt(GetID("SpeedflyWithBot"));
+
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
@@ -316,7 +319,7 @@ void CQueryLogin::OnData()
 			//nobo spawn
 			if (m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop > m_pGameServer->Server()->Tick())
 			{
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = false;
+				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = 0;
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop = 0;
 				m_pGameServer->SendChatTarget(m_ClientID, "[NoboSpawn] Real spawn unlocked due to login.");
 			}

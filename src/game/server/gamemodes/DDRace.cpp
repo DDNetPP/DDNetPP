@@ -238,19 +238,20 @@ void CGameControllerDDRace::Tick()
 				GameServer()->SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), aBuf);*/
 
 				if ( Server()->Tick() > F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8){
-						
-					if (g_Config.m_SvFlagSounds)
-					{
-						GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
-					}
 					/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-					F->m_DropTick = Server()->Tick();
-					F->m_DropFreezeTick = Server()->Tick();
-					F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
-					F->m_pCarryingCharacter = 0;
-					F->m_Vel = vec2(5,-5);
+
+					if (m_apFlags[0]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					{
+						DropFlag(0, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
+						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped red flag");
+					}
+					else if (m_apFlags[1]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					{
+						DropFlag(1, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
+						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped blue flag");
+					}
 				}
 
 			}

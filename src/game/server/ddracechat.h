@@ -124,6 +124,9 @@ CHAT_COMMAND("spread_gun", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAutoSpreadGun
 
 CHAT_COMMAND("give", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGive, this, "give extras to others or yourself.", 1)
 
+//nobo spawn
+CHAT_COMMAND("nobospawn", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConNoboSpawn, this, "set the players spawn to nobospawn.", 1)
+
 //info
 //CHAT_COMMAND("taserinfo", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTaserinfo, this, "Shows info about the taser")
 CHAT_COMMAND("policeinfo", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoliceInfo, this, "Get all info about police", 0)
