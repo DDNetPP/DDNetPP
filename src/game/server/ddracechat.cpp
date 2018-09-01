@@ -607,7 +607,8 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"spawn_shotgun | 600 000 | 38 | forever\n"
 		"spawn_grenade | 600 000 | 38 | forever\n"
 		"spawn_rifle | 600 000 | 38 | forever\n"
-		"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
+		"spooky_ghost | 1 000 000 | 1 | forever\n"
+		"speedfly_with_bot | 1 000 | 5 | disconnect\n", aBuf);
 
 	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
 }
@@ -2511,6 +2512,29 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 			pPlayer->m_NinjaJetpackBought = 1;
 			pSelf->SendChatTarget(pResult->m_ClientID, "You bought ninjajetpack. Turn it on using '/ninjajetpack'.");
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money!");
+		}
+	}
+	else if (!str_comp_nocase(aItem, "speedfly_with_bot"))
+	{
+		if (pPlayer->m_level < 5)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 5 to buy speedfly with the bot.");
+			return;
+		}
+		else if (pPlayer->m_SpeedflyWithBotBought)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "You already own this item.");
+		}
+		else if (pPlayer->m_money >= 1000)
+		{
+			pPlayer->MoneyTransaction(-1000, "-1000 money. (bought 'SpeedflyWithBot')");
+
+			pPlayer->m_SpeedflyWithBotBought = 1;
+			pSelf->SendChatTarget(pResult->m_ClientID, "You bought speedfly with bot. Turn it on using '/speedfly'.");
 		}
 		else
 		{
@@ -6311,6 +6335,44 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 	else //no rank at all
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] Missing permission.");
+	}
+}
+
+void CGameContext::ConSpeedfly(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (pPlayer->m_SpeedflyWithBotBought && !pPlayer->m_SpeedflyWithBot)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Speedfly] You can now speedfly with the hammerfly bot.");
+		pPlayer->m_SpeedflyWithBot = true;
+		return;
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Speedfly] You can no longer speedfly with the hammerfly bot.");
+		pPlayer->m_SpeedflyWithBot = false;
+		return;
+	}
+
+	if (!pPlayer->m_SpeedflyWithBotBought)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. Buy it in the '/shop' first.");
+		return;
 	}
 }
 

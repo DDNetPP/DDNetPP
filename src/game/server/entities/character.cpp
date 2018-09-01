@@ -8424,28 +8424,7 @@ void CCharacter::DummyTick()
 				if (pChr && pChr->IsAlive())
 				{
 					//if (Server()->ClientName(pChr) == "ChillerDragon")
-					if (
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Starkiller") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "rqza") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "timakro") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Nudelsaft c:") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Destom") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ante") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Ama") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Forris") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Aoe") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Spyker") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Waschlappen") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), ".:Mivv") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "nealson T'nP") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "ChillerDragon") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "ChillerDragon.*") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "BeckyHill") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Blue") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Amol") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "fokkonaut") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "pro")
-						)
+					if (pChr->GetPlayer()->m_SpeedflyWithBot)
 					{
 						m_Dummy_mode23 = 2;
 					}
