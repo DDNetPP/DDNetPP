@@ -20,6 +20,8 @@ CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	m_apFlags[0] = 0;
 	m_apFlags[1] = 0;
 
+	m_GameFlags = GAMEFLAG_FLAGS;
+
 	m_pGameType = g_Config.m_SvTestingCommands ? TEST_NAME : GAME_NAME;
 
 	InitTeleporter();
