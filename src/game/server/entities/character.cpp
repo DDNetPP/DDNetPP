@@ -713,7 +713,7 @@ void CCharacter::FireWeapon(bool Bot)
 	}
 
 	// check for ammo
-	if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
 	{
 		if (m_pPlayer->m_IsVanillaWeapons)
 		{
