@@ -5962,7 +5962,11 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 
 		if ((pPlayer->m_PoliceRank >= 6) && (NoboID != -1))
 		{
-			if (value == 1)
+			if (pSelf->m_apPlayers[NoboID]->m_IsDummy)
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You can't give the NoboSpawn to bots.");
+			}
+			else if (value == 1)
 			{
 				if (pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn == 2)
 				{
