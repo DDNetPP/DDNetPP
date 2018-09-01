@@ -404,8 +404,8 @@ MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, 
 MACRO_CONFIG_STR(SvAdString, sv_ad_string, 128, "chillerdragon.tk\ntest", CFGFLAG_SERVER, "advertisement shown at adv places xd")
 
 MACRO_CONFIG_INT(SvAccountStuff, sv_account_stuff, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=sqlite 2=filebased"   /*"0=off 1=blockcity 2=instagib(coming soon)"*/)
-MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 393, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x coord for the supermod spawn")
-MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 212, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y coord for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnX, sv_super_spawn_x, 395, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x coord for the supermod spawn")
+MACRO_CONFIG_INT(SvSuperSpawnY, sv_super_spawn_y, 210, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y coord for the supermod spawn")
 MACRO_CONFIG_INT(SvNoboSpawnX, sv_nobo_spawn_x, 328, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "x coord for the nobo spawn")
 MACRO_CONFIG_INT(SvNoboSpawnY, sv_nobo_spawn_y, 160, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "y coord for the nobo spawn")
 MACRO_CONFIG_INT(SvNoboSpawnTime, sv_nobo_spawn_time, 0, 0, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "how many minutes the nobo spawn lasts 0=off")
