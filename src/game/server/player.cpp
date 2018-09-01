@@ -179,7 +179,7 @@ void CPlayer::Reset()
 
 	if (g_Config.m_SvNoboSpawnTime)
 	{
-		m_IsNoboSpawn = true;
+		m_IsNoboSpawn = 1;
 	}
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
 	m_QuestPlayerID = -1;

@@ -5906,9 +5906,16 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CCharacter* pChr = pPlayer->GetCharacter();
+
+	if (pPlayer->m_PoliceRank < 6)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You have to be police 6 to use this command.");
+		return;
+	}
+
 	if (!pChr)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] You have to be alive to use this command.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] You have to be alive to use this command.");
 		return;
 	}
 
@@ -5923,20 +5930,19 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (pPlayer->m_IsBlockTourning)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during block tournaments.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] you can't use that command during block tournaments.");
 		return;
 	}
 	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[GIVE] you can't use that command during survival games");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] you can't use that command during survival games");
 		return;
 	}
 
 	else if (pResult->NumArguments() == 2)
 	{
-		char aValue[64];
+		int value = pResult->GetInteger(0);
 		char aUsername[32];
-		str_copy(aValue, pResult->GetString(0), sizeof(aValue));
 		str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 
 		int NoboID = -1;
@@ -5956,29 +5962,29 @@ void CGameContext::ConNoboSpawn(IConsole::IResult *pResult, void *pUserData)
 
 		if ((pPlayer->m_PoliceRank >= 6) && (NoboID != -1))
 		{
-			if (!str_comp_nocase(aValue, "1"))
+			if (value == 1)
 			{
-				if (pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn)
+				if (pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn == 2)
 				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "[NOBO] This player already has the NoboSpawn.");
+					pSelf->SendChatTarget(pResult->m_ClientID, "[NoboSpawn] This player already has the forced NoboSpawn.");
 				}
 				else
 				{
-					str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was given to '%s'.", aUsername);
+					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Forced NoboSpawn was given to '%s'.", aUsername);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-					pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 1;
-					str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was given to you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+					pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 2;
+					str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Forced NoboSpawn was given to you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 					pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
 				}
 			}
-			else if (!str_comp_nocase(aValue, "0"))
+			else if (value == 0)
 			{
-				str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was removed from '%s'.", aUsername);
+				str_format(aBuf, sizeof(aBuf), "[NoboSpawn] NoboSpawn was removed from '%s'.", aUsername);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 				pSelf->m_apPlayers[NoboID]->m_IsNoboSpawn = 0;
-				str_format(aBuf, sizeof(aBuf), "[NOBO] NoboSpawn was removed from you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
+				str_format(aBuf, sizeof(aBuf), "[NoboSpawn] NoboSpawn was removed from you by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 				pSelf->SendChatTarget(pSelf->m_apPlayers[NoboID]->GetCID(), aBuf);
 			}
 		}
