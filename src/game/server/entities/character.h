@@ -330,6 +330,10 @@ public:
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
 
+	//drop weapons
+	void DropWeapon();
+
+
 	//spawn weapons
 	void SetSpawnWeapons();
 
