@@ -19,6 +19,8 @@
 #include "light.h"
 #include "flag.h"
 
+#include "weapon.h"
+
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
 
@@ -4889,6 +4891,41 @@ void CCharacter::BulletAmounts()
 	m_ShotgunBullets = m_aWeapons[2].m_Ammo;
 	m_GrenadeBullets = m_aWeapons[3].m_Ammo;
 	m_RifleBullets = m_aWeapons[4].m_Ammo;
+	return;
+}
+
+void CCharacter::DropWeapon()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	
+	if (
+		(isFreezed)
+		|| (m_FreezeTime)
+		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack)
+		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER)
+		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
+		)
+	{
+		//
+	}
+	else if (m_Core.m_ActiveWeapon == WEAPON_GUN && m_Jetpack)
+	{
+		m_Jetpack = false;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), 1);
+	}
+	else
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
+		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), 0);
+		SetWeapon(1);
+	}
+
 	return;
 }
 

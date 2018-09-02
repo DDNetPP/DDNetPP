@@ -343,7 +343,7 @@ void CGameControllerDDRace::Tick()
 					}
 
 					//Gravity
-					F->m_Vel.y += 0.5f;
+					F->m_Vel.y += GameServer()->Tuning()->m_Gravity;
 
 					//Speedups
 					if (GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(F->m_Pos))) {
