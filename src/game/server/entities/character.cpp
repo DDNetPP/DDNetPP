@@ -4911,7 +4911,14 @@ void CCharacter::DropWeapon()
 	}
 
 	
-	if ((isFreezed) || (m_FreezeTime) || (m_Core.m_ActiveWeapon == WEAPON_NINJA))
+	if (
+		(isFreezed)
+		|| (m_FreezeTime)
+		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
+		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
+		)
 	{
 		return;
 	}
