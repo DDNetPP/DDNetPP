@@ -6,13 +6,15 @@
 class CWeapon : public CEntity
 {
 public:
-	CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, bool Jetpack);
+	CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack = false);
 
 	virtual void Reset();
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
 
 	int IsCharacterNear();
+
+	void Pickup();
 
 private:
 	vec2 m_Vel;
@@ -21,6 +23,7 @@ private:
 	int m_ResponsibleTeam;
 	int m_Type;
 	int m_Lifetime;
+	int m_Bullets;
 
 	int m_PickupDelay;
 

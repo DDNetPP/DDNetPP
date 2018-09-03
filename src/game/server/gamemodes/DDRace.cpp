@@ -360,7 +360,7 @@ void CGameControllerDDRace::Tick()
 						else
 						{
 					if(MaxSpeed > 0 && MaxSpeed < 5) MaxSpeed = 5;
-					dbg_msg("speedup tile start","Direction %f %f, Force %d, Max Speed %d", (Direction).x,(Direction).y, Force, MaxSpeed);
+					//dbg_msg("speedup tile start","Direction %f %f, Force %d, Max Speed %d", (Direction).x,(Direction).y, Force, MaxSpeed);
 					if(MaxSpeed > 0)
 					{
 					if(Direction.x > 0.0000001f)
@@ -391,7 +391,7 @@ void CGameControllerDDRace::Tick()
 
 				DiffAngle = SpeederAngle - TeeAngle;
 				SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
-				dbg_msg("speedup tile debug","MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
+				//dbg_msg("speedup tile debug","MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
 				if(abs(SpeedLeft) > Force && SpeedLeft > 0.0000001f)
 					TempVel += Direction * Force;
 				else if(abs(SpeedLeft) > Force)

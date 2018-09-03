@@ -6,7 +6,7 @@
 
 #include <game/server/teams.h>
 
-CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, bool Jetpack)
+CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
 #if defined(CONF_DEBUG)
@@ -18,6 +18,7 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 	m_ResponsibleTeam = ResponsibleTeam;
 	m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
 	m_Jetpack = Jetpack;
+	m_Bullets = Bullets;
 
 	m_Vel = vec2(5*Direction, -5);
 
@@ -52,6 +53,59 @@ int CWeapon::IsCharacterNear()
 	return -1;
 }
 
+void CWeapon::Pickup()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	
+	int CharID = IsCharacterNear();
+	if (CharID != -1 && m_PickupDelay <= 0)
+	{
+		CCharacter* pChar = GameServer()->GetPlayerChar(CharID);
+
+		if (pChar->GetPlayer()->m_SpookyGhostActive && m_Type != WEAPON_GUN)
+			return;
+
+		if (pChar->GetWeaponGot(m_Type) && !m_Jetpack)
+			return;
+
+		if (m_Jetpack && pChar->m_Jetpack)
+			return;
+
+		if (m_Jetpack && !pChar->GetWeaponGot(WEAPON_GUN))
+			return;
+
+
+		pChar->GiveWeapon(m_Type, m_Bullets);
+
+		pChar->SetActiveWeapon(m_Type);
+
+		if (m_Jetpack)
+		{
+			pChar->m_Jetpack = true;
+			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a jetpack gun");
+		}
+
+		if (pChar->GetPlayer()->m_SpawnGrenadeActive && m_Type == WEAPON_GRENADE)
+			pChar->GetPlayer()->m_SpawnGrenadeActive = 0;
+		if (pChar->GetPlayer()->m_SpawnShotgunActive && m_Type == WEAPON_SHOTGUN)
+			pChar->GetPlayer()->m_SpawnShotgunActive = 0;
+		if (pChar->GetPlayer()->m_SpawnRifleActive && m_Type == WEAPON_RIFLE)
+			pChar->GetPlayer()->m_SpawnRifleActive = 0;
+
+		if (m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_RIFLE)
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChar->Teams()->TeamMask(pChar->Team()));
+		else if (m_Type == WEAPON_GRENADE)
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));
+		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
+
+		Reset();
+		return;
+	}
+}
+
 void CWeapon::Tick()
 {
 #if defined(CONF_DEBUG)
@@ -78,42 +132,7 @@ void CWeapon::Tick()
 	if (m_PickupDelay > 0)
 		m_PickupDelay--;
 
-	int CharID = IsCharacterNear();
-	if (CharID != -1 && m_PickupDelay <= 0)
-	{
-		CCharacter* pChar = GameServer()->GetPlayerChar(CharID);
-
-		if (pChar->GetPlayer()->m_SpookyGhostActive && m_Type != WEAPON_GUN)
-			return;
-
-		if (pChar->GetWeaponGot(m_Type) && m_Type != WEAPON_GUN)
-			return;
-
-		if (pChar->m_Jetpack && m_Type == WEAPON_GUN)
-			return;
-
-		if (m_Type != WEAPON_GUN)
-		{
-			pChar->GiveWeapon(m_Type, -1);
-		}
-		else if (!pChar->m_Jetpack)
-		{
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
-			pChar->SetWeapon(1);
-			pChar->m_Jetpack = 1;
-			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a jetpack gun");
-		}
-
-		if (m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_RIFLE)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChar->Teams()->TeamMask(pChar->Team()));
-		else if (m_Type == WEAPON_GRENADE)
-			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));
-
-		pChar->SetActiveWeapon(m_Type);
-
-		Reset();
-		return;
-	}
+	Pickup();
 
 
 	m_Vel.y += GameServer()->Tuning()->m_Gravity;
@@ -148,7 +167,7 @@ void CWeapon::Tick()
 		else
 		{
 			if (MaxSpeed > 0 && MaxSpeed < 5) MaxSpeed = 5;
-			dbg_msg("speedup tile start", "Direction %f %f, Force %d, Max Speed %d", (Direction).x, (Direction).y, Force, MaxSpeed);
+			//dbg_msg("speedup tile start", "Direction %f %f, Force %d, Max Speed %d", (Direction).x, (Direction).y, Force, MaxSpeed);
 			if (MaxSpeed > 0)
 			{
 				if (Direction.x > 0.0000001f)
@@ -179,7 +198,7 @@ void CWeapon::Tick()
 
 				DiffAngle = SpeederAngle - TeeAngle;
 				SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
-				dbg_msg("speedup tile debug", "MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
+				//dbg_msg("speedup tile debug", "MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
 				if (abs(SpeedLeft) > Force && SpeedLeft > 0.0000001f)
 					TempVel += Direction * Force;
 				else if (abs(SpeedLeft) > Force)
