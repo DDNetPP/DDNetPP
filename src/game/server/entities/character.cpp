@@ -409,6 +409,9 @@ void CCharacter::HandleJetpack()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (isFreezed || m_FreezeTime)
+		return;
+
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
@@ -1660,8 +1663,10 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 	if (m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
 	{
 		m_aWeapons[Weapon].m_Got = true;
-		if (!m_FreezeTime)
-		{
+		m_aWeapons[Weapon].m_Ammo = Ammo;
+		if (m_FreezeTime)
+			Freeze(0);
+
 			//testy testy af 
 			//NUCLEARTEASTY over here omg      rofl
 			//7ChilliDRGEHUHn was here and commented a line out he was like yolo omg
@@ -1672,9 +1677,6 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 
 
 			//m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // testycode: 2gf43
-
-			m_aWeapons[Weapon].m_Ammo = 10;
-		}
 		return true;
 	}
 	return false;
@@ -3465,7 +3467,7 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 	// jetpack gun
-	if (((m_TileIndex == TILE_JETPACK_START) || (m_TileFIndex == TILE_JETPACK_START)) && !m_Jetpack)
+	if (((m_TileIndex == TILE_JETPACK_START) || (m_TileFIndex == TILE_JETPACK_START)) && !m_Jetpack && m_aWeapons[WEAPON_GUN].m_Got)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You have a jetpack gun");
 		m_Jetpack = true;
@@ -4899,32 +4901,43 @@ void CCharacter::DropWeapon()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	
-	if (
-		(isFreezed)
-		|| (m_FreezeTime)
-		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack)
-		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER)
-		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
-		)
+
+	int m_CountWeapons = 0;
+
+	for (int i = 5; i > -1; i--) // instead of NUM_WEAPONS fokkonaut used 5, because ninja isnt used for drop weapons anyways and there was a bug with a 7th weapon which destroyed the counting.
 	{
-		//
+		if (m_aWeapons[i].m_Got)
+			m_CountWeapons++;
+	}
+
+	
+	if ((isFreezed) || (m_FreezeTime) || (m_Core.m_ActiveWeapon == WEAPON_NINJA))
+	{
+		return;
 	}
 	else if (m_Core.m_ActiveWeapon == WEAPON_GUN && m_Jetpack)
 	{
 		m_Jetpack = false;
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
-		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), 1);
+		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo, true);
 	}
-	else
+	else if (m_CountWeapons > 1)
 	{
 		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
-		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), 0);
-		SetWeapon(1);
+		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo);
 	}
+
+
+	if (m_aWeapons[WEAPON_GUN].m_Got) // tryed with a for loop, but decided to use if's because i wanted gun and hammer as primary option to set the weapon.
+		SetWeapon(WEAPON_GUN);
+	else if (m_aWeapons[WEAPON_HAMMER].m_Got)
+		SetWeapon(WEAPON_HAMMER);
+	else if (m_aWeapons[WEAPON_GRENADE].m_Got)
+		SetWeapon(WEAPON_GRENADE);
+	else if (m_aWeapons[WEAPON_SHOTGUN].m_Got)
+		SetWeapon(WEAPON_SHOTGUN);
+	else if (m_aWeapons[WEAPON_RIFLE].m_Got)
+		SetWeapon(WEAPON_RIFLE);
 
 	return;
 }
