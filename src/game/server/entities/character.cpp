@@ -321,6 +321,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	if (m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
 	{
 		m_aWeapons[1].m_Got = false;
+		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
 	if (GetPlayer()->m_IsSurvivaling && GetPlayer()->m_IsSurvivalAlive == false)
@@ -4970,6 +4971,9 @@ void CCharacter::DropWeapon()
 		m_Jetpack = false;
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
 
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
+
 		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo, true);
 
 		m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
@@ -4978,12 +4982,13 @@ void CCharacter::DropWeapon()
 	{
 		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
+
 		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo);
 
 		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].push_back(Weapon);
 	}
-
-	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 	SetWeaponThatChrHas();
 
