@@ -70,6 +70,8 @@ void CPlayer::Reset()
 
 	// DDRace
 
+	m_vWeaponLimit.resize(5);
+
 	m_LastCommandPos = 0;
 	m_LastPlaytime = time_get();
 	m_Sent1stAfkWarning = 0;

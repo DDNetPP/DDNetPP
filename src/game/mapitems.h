@@ -88,6 +88,9 @@ enum
 	ENTITY_DRAGGER_STRONG_NW,
 	//Doors
 	ENTITY_DOOR=49,
+
+	ENTITY_WEAPON_GUN,
+	ENTITY_WEAPON_HAMMER,
 	//End Of Lower Tiles
 	NUM_ENTITIES,
 	//Start From Top Left

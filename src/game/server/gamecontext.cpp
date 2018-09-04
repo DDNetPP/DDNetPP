@@ -8296,7 +8296,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if (pMsg->m_Vote == -1) //vote no (f4)
 			{
 				//SendChatTarget(ClientID, "you pressed f4");
-				pPlayer->GetCharacter()->DropWeapon();
+
+				if (g_Config.m_SvAllowDroppingWeapons)
+				{
+					pPlayer->GetCharacter()->DropWeapon();
+				}
 			}
 
 			if(!m_VoteCloseTime)

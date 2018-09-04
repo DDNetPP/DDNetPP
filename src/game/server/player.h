@@ -9,6 +9,8 @@
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
+#include <vector>
+
 // player object
 class CPlayer
 {
@@ -392,6 +394,8 @@ public:
 	int m_SpawnShotgunActive;
 	int m_SpawnGrenadeActive;
 	int m_SpawnRifleActive;
+
+	std::vector< std::vector<CWeapon*> > m_vWeaponLimit;
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp

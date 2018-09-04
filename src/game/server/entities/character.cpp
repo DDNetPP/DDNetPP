@@ -81,6 +81,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Pos = Pos;
 
 	m_IsSpecHF = false;
+	
 
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
@@ -319,7 +320,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	if (m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
 	{
-		m_aWeapons[1].m_Ammo = 0;
+		m_aWeapons[1].m_Got = false;
 	}
 
 	if (GetPlayer()->m_IsSurvivaling && GetPlayer()->m_IsSurvivalAlive == false)
@@ -331,7 +332,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_pPlayer->m_SpawnGrenadeActive = 0;
 	m_pPlayer->m_SpawnRifleActive = 0;
 
-	SetSpawnWeapons();
+	if (g_Config.m_SvAllowSpawnWeapons)
+	{
+		SetSpawnWeapons();
+	}
 
 	SaveRealInfos();
 
@@ -1172,7 +1176,7 @@ void CCharacter::FireWeapon(bool Bot)
 					10.0f										//speed
 				);
 
-				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+				GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 			}
 			else if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			{
@@ -1283,7 +1287,7 @@ void CCharacter::FireWeapon(bool Bot)
 					1.0f,					//accel
 					10.0f					//speed
 				);
-				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+				GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 			}
 			else if (m_pPlayer->m_lasergun)
 			{
@@ -1543,6 +1547,18 @@ void CCharacter::FireWeapon(bool Bot)
 	{
 		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+	}
+
+	if (m_aDecreaseAmmo[m_Core.m_ActiveWeapon]) // picked up a dropped weapon without infinite bullets (-1)
+	{
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 1)
+		{
+			m_aDecreaseAmmo[m_Core.m_ActiveWeapon] = false;
+			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
+			SetWeaponThatChrHas();
+		}
+
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
 	//spawn weapons
@@ -4896,46 +4912,12 @@ void CCharacter::BulletAmounts()
 	return;
 }
 
-void CCharacter::DropWeapon()
+void CCharacter::SetWeaponThatChrHas()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-
-	int m_CountWeapons = 0;
-
-	for (int i = 5; i > -1; i--) // instead of NUM_WEAPONS fokkonaut used 5, because ninja isnt used for drop weapons anyways and there was a bug with a 7th weapon which destroyed the counting.
-	{
-		if (m_aWeapons[i].m_Got)
-			m_CountWeapons++;
-	}
-
-	
-	if (
-		(isFreezed)
-		|| (m_FreezeTime)
-		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
-		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
-		)
-	{
-		return;
-	}
-	else if (m_Core.m_ActiveWeapon == WEAPON_GUN && m_Jetpack)
-	{
-		m_Jetpack = false;
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
-		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo, true);
-	}
-	else if (m_CountWeapons > 1)
-	{
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
-		new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo);
-	}
-
-
-	if (m_aWeapons[WEAPON_GUN].m_Got) // tryed with a for loop, but decided to use if's because i wanted gun and hammer as primary option to set the weapon.
+	if (m_aWeapons[WEAPON_GUN].m_Got)
 		SetWeapon(WEAPON_GUN);
 	else if (m_aWeapons[WEAPON_HAMMER].m_Got)
 		SetWeapon(WEAPON_HAMMER);
@@ -4945,6 +4927,65 @@ void CCharacter::DropWeapon()
 		SetWeapon(WEAPON_SHOTGUN);
 	else if (m_aWeapons[WEAPON_RIFLE].m_Got)
 		SetWeapon(WEAPON_RIFLE);
+
+	return;
+}
+
+void CCharacter::DropWeapon()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	if ((isFreezed) || (m_FreezeTime)
+		|| (m_pPlayer->m_SpookyGhostActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling)
+		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
+		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
+		)
+	{
+		return;
+	}
+
+	if(m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].size() == 5)
+	{
+		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon][0]->Reset();
+		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].erase(m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].begin());
+	}
+
+
+	int m_CountWeapons = 0;
+
+	for (int i = 5; i > -1; i--)
+	{
+		if (m_aWeapons[i].m_Got)
+			m_CountWeapons++;
+	}
+	
+	if (m_Core.m_ActiveWeapon == WEAPON_GUN && m_Jetpack)
+	{
+		m_Jetpack = false;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo, true);
+
+		m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
+	}
+	else if (m_CountWeapons > 1)
+	{
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
+
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo);
+
+		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].push_back(Weapon);
+	}
+
+	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
+	SetWeaponThatChrHas();
 
 	return;
 }
