@@ -240,6 +240,9 @@ void CPickup::Tick()
 					}
 					else
 					{
+						if (pChr->m_aDecreaseAmmo[m_Subtype])
+							pChr->m_aDecreaseAmmo[m_Subtype] = false;
+
 						if (m_Subtype >= 0 && m_Subtype < NUM_WEAPONS && (!pChr->GetWeaponGot(m_Subtype) || (pChr->GetWeaponAmmo(m_Subtype) != -1 && !pChr->m_FreezeTime)))
 						{
 							if (pChr->GiveWeapon(m_Subtype, -1))
