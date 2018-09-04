@@ -11,6 +11,10 @@
 
 #include <game/gamecore.h>
 
+#include <vector>
+
+#include "weapon.h"
+
 #define NUM_ATOMS 6
 #define NUM_TRAILS 20
 #define TRAIL_DIST 20
@@ -332,6 +336,9 @@ public:
 
 	//drop weapons
 	void DropWeapon();
+	bool m_aDecreaseAmmo[NUM_WEAPONS];
+
+	void SetWeaponThatChrHas();
 
 
 	//spawn weapons

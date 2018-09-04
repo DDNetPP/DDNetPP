@@ -104,6 +104,12 @@ void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 	if (!pChr)
 		return;
 
+	if (!g_Config.m_SvAllowSpawnWeapons)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons are deactivated by an administrator.");
+		return;
+	}
+
 	if ((!pPlayer->m_SpawnWeaponShotgun) && (!pPlayer->m_SpawnWeaponGrenade) && (!pPlayer->m_SpawnWeaponRifle))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have any spawn weapons.");

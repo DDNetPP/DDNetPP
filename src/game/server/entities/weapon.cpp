@@ -19,6 +19,7 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 	m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
 	m_Jetpack = Jetpack;
 	m_Bullets = Bullets;
+	m_Owner = Owner;
 
 	m_Vel = vec2(5*Direction, -5);
 
@@ -60,7 +61,7 @@ void CWeapon::Pickup()
 #endif
 	
 	int CharID = IsCharacterNear();
-	if (CharID != -1 && m_PickupDelay <= 0)
+	if (CharID != -1)
 	{
 		CCharacter* pChar = GameServer()->GetPlayerChar(CharID);
 
@@ -81,6 +82,9 @@ void CWeapon::Pickup()
 
 		pChar->SetActiveWeapon(m_Type);
 
+		if ((m_Bullets != -1) && !pChar->GetPlayer()->m_IsSurvivaling)
+			pChar->m_aDecreaseAmmo[m_Type] = true;
+
 		if (m_Jetpack)
 		{
 			pChar->m_Jetpack = true;
@@ -93,6 +97,14 @@ void CWeapon::Pickup()
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
+
+		for(unsigned i = 0; i < pChar->GetPlayer()->m_vWeaponLimit[m_Type].size(); i++)
+		{
+			if(pChar->GetPlayer()->m_vWeaponLimit[m_Type][i] == this)
+			{
+				pChar->GetPlayer()->m_vWeaponLimit[m_Type].erase(pChar->GetPlayer()->m_vWeaponLimit[m_Type].begin() + i);
+			}
+		}
 
 		Reset();
 		return;
@@ -113,19 +125,21 @@ void CWeapon::Tick()
 		return;
 	}
 
-	if (m_Lifetime < 0)
+	if (m_Lifetime == 0)
 	{
 		Reset();
 		return;
 	}
 
-	m_Lifetime--;
+	if (m_Lifetime != -1)
+		m_Lifetime--;
 
 
 	if (m_PickupDelay > 0)
 		m_PickupDelay--;
 
-	Pickup();
+	if (m_PickupDelay <= 0)
+		Pickup();
 
 
 	m_Vel.y += GameServer()->Tuning()->m_Gravity;
