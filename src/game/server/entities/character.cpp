@@ -4800,7 +4800,7 @@ void CCharacter::SetSpawnWeapons()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame())
+	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->IsSurvivaling)
 	{
 		if (m_pPlayer->m_SpawnWeaponShotgun)
 		{
@@ -4940,12 +4940,12 @@ void CCharacter::DropWeapon()
 
 	if ((isFreezed) || (m_FreezeTime)
 		|| (m_pPlayer->m_SpookyGhostActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling)
 		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
-		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive)
+		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		)
 	{
 		return;
