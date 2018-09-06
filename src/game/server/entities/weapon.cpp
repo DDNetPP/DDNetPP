@@ -98,11 +98,13 @@ void CWeapon::Pickup()
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
-		for(unsigned i = 0; i < pChar->GetPlayer()->m_vWeaponLimit[m_Type].size(); i++)
+		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+		for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 		{
-			if(pChar->GetPlayer()->m_vWeaponLimit[m_Type][i] == this)
+			if(pOwner->m_vWeaponLimit[m_Type][i] == this)
 			{
-				pChar->GetPlayer()->m_vWeaponLimit[m_Type].erase(pChar->GetPlayer()->m_vWeaponLimit[m_Type].begin() + i);
+				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
 			}
 		}
 
