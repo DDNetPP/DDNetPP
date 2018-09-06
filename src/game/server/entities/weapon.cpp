@@ -140,7 +140,7 @@ void CWeapon::Tick()
 	if (m_PickupDelay > 0)
 		m_PickupDelay--;
 
-	if (m_PickupDelay <= 0)
+	if (m_PickupDelay <= 0 || IsCharacterNear() != m_Owner)
 		Pickup();
 
 
