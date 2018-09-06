@@ -4802,7 +4802,7 @@ void CCharacter::SetSpawnWeapons()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->IsSurvivaling)
+	if (m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->m_IsSurvivaling)
 	{
 		if (m_pPlayer->m_SpawnWeaponShotgun)
 		{
