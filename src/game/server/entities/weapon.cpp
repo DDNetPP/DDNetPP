@@ -68,7 +68,15 @@ void CWeapon::Pickup()
 		if (pChar->GetPlayer()->m_SpookyGhostActive && m_Type != WEAPON_GUN)
 			return;
 
-		if (pChar->GetWeaponGot(m_Type) && !m_Jetpack)
+		if (
+			(pChar->GetPlayer()->m_SpawnRifleActive && m_Type == WEAPON_RIFLE)
+			|| (pChar->GetPlayer()->m_SpawnShotgunActive && m_Type == WEAPON_SHOTGUN)
+			|| (pChar->GetPlayer()->m_SpawnGrenadeActive && m_Type == WEAPON_GRENADE)
+			)
+		{
+			//
+		}
+		else if (pChar->GetWeaponGot(m_Type) && !m_Jetpack)
 			return;
 
 		if (m_Jetpack && pChar->m_Jetpack)
@@ -76,6 +84,13 @@ void CWeapon::Pickup()
 
 		if (m_Jetpack && !pChar->GetWeaponGot(WEAPON_GUN))
 			return;
+
+		if (m_Type == WEAPON_RIFLE)
+			pChar->GetPlayer()->m_SpawnRifleActive = 0;
+		else if (m_Type == WEAPON_SHOTGUN)
+			pChar->GetPlayer()->m_SpawnShotgunActive = 0;
+		else if (m_Type == WEAPON_GRENADE)
+			pChar->GetPlayer()->m_SpawnGrenadeActive = 0;
 
 
 		pChar->GiveWeapon(m_Type, m_Bullets);
