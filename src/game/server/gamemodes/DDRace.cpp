@@ -47,7 +47,6 @@ bool CGameControllerDDRace::OnEntity(int Index, vec2 Pos)
 	m_apFlags[Team] = F;
 	GameServer()->m_World.InsertEntity(F);
 	return true;
-	return true;
 }
 
 int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID)
@@ -126,6 +125,10 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 #endif
 	for(int i=0; i<2; i++)
 	{
+		/*
+		if (!m_apFlags[i])
+			continue;
+		*/
 		if(m_apFlags[i]->m_pCarryingCharacter == character)
 		{
 			return i;
