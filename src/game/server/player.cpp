@@ -246,6 +246,21 @@ void CPlayer::Reset()
 	m_LastToucherID = -1;
 }
 
+void CPlayer::HideBotsInScoreboard()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -5 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+	{
+		m_Team = TEAM_BLUE;
+	}
+	else
+	{
+		m_Team = TEAM_RED;
+	}
+}
+
 void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG

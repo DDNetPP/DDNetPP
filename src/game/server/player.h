@@ -82,7 +82,7 @@ public:
 	int m_SendVoteIndex;
 
 
-
+	void HideBotsInScoreboard();
 
 
 	// TODO: clean this up
