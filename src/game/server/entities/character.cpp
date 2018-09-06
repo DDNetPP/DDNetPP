@@ -1681,8 +1681,8 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 	{
 		m_aWeapons[Weapon].m_Got = true;
 		m_aWeapons[Weapon].m_Ammo = Ammo;
-		if (m_FreezeTime)
-			Freeze(0);
+		if (m_FreezeTime)	//dont remove this
+			Freeze(0);		//dont remove this
 
 			//testy testy af 
 			//NUCLEARTEASTY over here omg      rofl
