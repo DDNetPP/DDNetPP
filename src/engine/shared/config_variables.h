@@ -402,7 +402,7 @@ MACRO_CONFIG_INT(SvFlagSounds, sv_flag_sounds, 0, 0, 1, CFGFLAG_SERVER, "blockfl
 MACRO_CONFIG_INT(SvAllowSpawnWeapons, sv_allow_spawn_weapons, 1, 0, 1, CFGFLAG_SERVER, "0 to deactivate spawnweapons")
 MACRO_CONFIG_INT(SvAllowDroppingWeapons, sv_allow_dropping_weapons, 4, 0, 4, CFGFLAG_SERVER, "0=off, 1=all (+spawnweaps), 2=normal weaps+hammer+gun, 3=normal weaps+spawnweaps, 4=normal weaps")
 
-MACRO_CONFIG_INT(SvShowBotsInScoreboard, sv_show_bots_in_scoreboard, 2, 0, 2, CFGFLAG_SERVER, "0=hide, 1=hide minigame bots only, 2=show all bots")
+MACRO_CONFIG_INT(SvShowBotsInScoreboard, sv_show_bots_in_scoreboard, 2, 0, 2, CFGFLAG_SERVER, "0=hide, 1=hide minigame bots only, 2=show all bots (it takes some seconds to update)")
 
 MACRO_CONFIG_INT(SvFinishEvent, sv_finish_event, 0, 0, 1, CFGFLAG_SERVER, "xp event gives more xp for finishing a map")
 MACRO_CONFIG_INT(SvRoomPrice, sv_room_price, 5000, 250, 500000, CFGFLAG_SERVER, "changes the price for the '/shop' item 'room_key'")

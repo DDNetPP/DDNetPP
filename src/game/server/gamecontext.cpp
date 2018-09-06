@@ -3326,6 +3326,8 @@ void CGameContext::DDPP_Tick()
 			if (!m_apPlayers[i])
 				continue;
 
+			m_apPlayers[i]->HideBotsInScoreboard();
+
 			if (m_apPlayers[i]->m_QuestState && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
 			{
 				if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
