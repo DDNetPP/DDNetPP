@@ -3,6 +3,6 @@
 #ifndef GAME_MODE_H
 #define GAME_MODE_H
 
-#define GAME_NAME "DDrace"
-#define TEST_NAME "TestDDrace"
+#define GAME_NAME "DDNet++"
+#define TEST_NAME "TestDDNet++"
 #endif
