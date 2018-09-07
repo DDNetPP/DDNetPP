@@ -2487,6 +2487,41 @@ void CCharacter::Snap(int SnappingClient)
 	// ob das game nicht pausiert ist und so.
 	// wenn du das jetzt oben hinschreibst dann passiert das vor den abfragen
 	// kann evtl. zu einem crash oder ähnlichem führen
+	if (m_WaveBloody)
+	{
+		if (m_WaveBloodyStrength < 1 || Server()->Tick() % m_WaveBloodyStrength == 0)
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+			if (m_WaveBloodyStrength < -5)
+			{
+				for (int i = 0; i < 3; i++) //strong bloody
+				{
+					GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+				}
+			}
+		}
+
+		if (Server()->Tick() % 11 == 0) // wave speed
+		{
+			if (m_WaveBloodyGrow)
+			{
+				m_WaveBloodyStrength++;
+			}
+			else
+			{
+				m_WaveBloodyStrength--;
+			}
+		}
+
+		if (m_WaveBloodyStrength > 12)
+		{
+			m_WaveBloodyGrow = false;
+		}
+		else if (m_WaveBloodyStrength < -10)
+		{
+			m_WaveBloodyGrow = true;
+		}
+	}
 
 	if (m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) ||m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
 	{

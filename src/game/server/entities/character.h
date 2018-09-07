@@ -383,6 +383,9 @@ public:
 	bool m_Rainbow;
 	bool m_Bloody;
 	bool m_StrongBloody;
+	bool m_WaveBloody;
+	bool m_WaveBloodyGrow;
+	int m_WaveBloodyStrength;
 	bool m_Atom;
 	bool m_Trail;
 	bool m_autospreadgun;
