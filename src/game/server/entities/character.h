@@ -389,6 +389,8 @@ public:
 	bool m_Atom;
 	bool m_Trail;
 	bool m_autospreadgun;
+	bool m_ninjasteam;
+	bool m_RandomCosmetics;
 
 	// atom vars (not to be confused with atom wars) <--- made chillidreghuhn giggle xd
 	std::vector<CStableProjectile *> m_AtomProjs;

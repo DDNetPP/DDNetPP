@@ -2539,7 +2539,7 @@ void CCharacter::Snap(int SnappingClient)
 		}
 	}
 
-	if (m_pPlayer->m_ninjasteam) //wenn bloody aktiviert ist
+	if (m_pPlayer->m_ninjasteam || m_ninjasteam)
 	{
 		for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
 		{
@@ -5044,6 +5044,48 @@ void CCharacter::DDPP_Tick()
 	//{
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
+
+	if (m_RandomCosmetics)
+	{
+		if (Server()->Tick() % 22 == 0)
+		{
+			int r = rand() % 10;
+			if (r == 0)
+			{
+				m_Rainbow ^= true;
+			}
+			else if (r == 1)
+			{
+				//m_StrongBloody ^= true;
+			}
+			else if (r == 2)
+			{
+				m_Bloody ^= true;
+			}
+			else if (r == 3)
+			{
+				m_Atom ^= true;
+			}
+			else if (r == 4)
+			{
+				m_Trail ^= true;
+			}
+			else if (r == 5)
+			{
+				m_autospreadgun ^= true;
+			}
+			else if (r > 8)
+			{
+				m_ninjasteam = true;
+			}
+
+
+			if (Server()->Tick() % 5 == 0 && m_ninjasteam)
+			{
+				m_ninjasteam = false;
+			}
+		}
+	}
 
 	if (GameServer()->m_BlockWaveGameState)
 	{
