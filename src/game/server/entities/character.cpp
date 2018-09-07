@@ -8548,7 +8548,7 @@ void CCharacter::DummyTick()
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "BeckyHill") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Blue") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Amol") ||
-						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "fokkonaut") ||
+						//!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "fokkonaut") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "pro")
 						)
 					{
