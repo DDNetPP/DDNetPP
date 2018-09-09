@@ -1,6 +1,40 @@
-dependencies:
-    pre:
-        - sudo apt-get install libsdl2-dev libfreetype6-dev
-test:
-    override:
-        - ./bam server_release
+version: 2
+defaults: &defaults
+  working_directory: ~/ChillerDragon/DDNetPP
+  docker:
+    - image: buildpack-deps:stretch
+
+defignore: &defignore
+  filters:
+    branches:
+      ignore:
+        - /.*\.tmp/
+
+jobs:
+  build:
+    <<: *defaults
+    parallelism: 1
+
+    steps:
+      - checkout
+      - run: |
+          apt-get update
+          apt-get install -y build-essential \
+            python3 \
+            libcurl4-openssl-dev \
+            libfreetype6-dev \
+            libsdl2-dev \
+            libglew-dev
+      # Compile
+      - run: |
+          ./bam server_release
+      - persist-to-workspace:
+          root: ./
+          paths: ./*
+
+workflows:
+    version: 2
+    build_and_test:
+        jobs:
+            - build:
+                <<: *defignore
