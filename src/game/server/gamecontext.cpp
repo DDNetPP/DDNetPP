@@ -3242,6 +3242,7 @@ void CGameContext::SaveCosmetics(int id)
 	pPlayer->m_IsBackupAtom = pChr->m_Atom;
 	pPlayer->m_IsBackupTrail = pChr->m_Trail;
 	pPlayer->m_IsBackupAutospreadgun = pChr->m_autospreadgun;
+	pPlayer->m_IsBackupWaveBloody = pChr->m_WaveBloody;
 }
 
 void CGameContext::LoadCosmetics(int id)
@@ -3263,6 +3264,7 @@ void CGameContext::LoadCosmetics(int id)
 	pChr->m_Atom =  pPlayer->m_IsBackupAtom;
 	pChr->m_Trail = pPlayer->m_IsBackupTrail;
 	pChr->m_autospreadgun = pPlayer->m_IsBackupAutospreadgun;
+	pChr->m_WaveBloody = pPlayer->m_IsBackupWaveBloody;
 }
 
 void CGameContext::DeleteCosmetics(int id)
