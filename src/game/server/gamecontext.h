@@ -362,6 +362,7 @@ public:
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch countdown 4=deathmatch
 	int m_survivallobbycountdown;
 	int m_survival_dm_countdown;
+	char m_aLastSurvivalWinnerName[32];
 
 	//block tourna
 
