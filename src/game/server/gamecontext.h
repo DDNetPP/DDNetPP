@@ -284,6 +284,7 @@ public:
 	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
 	void SaveCosmetics(int id);
 	void LoadCosmetics(int id);
+	void DeleteCosmetics(int id);
 
 	//login and threads (moved to player.h)
 	/*
