@@ -1,0 +1,3 @@
+test:
+  override:
+    - ./bam server_debug

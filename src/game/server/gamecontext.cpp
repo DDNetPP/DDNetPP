@@ -3822,7 +3822,6 @@ void CGameContext::SendSurvivalChat(const char * pMsg)
 	}
 }
 
-
 void CGameContext::SendSurvivalBroadcast(const char * pMsg)
 {
 #if defined(CONF_DEBUG)
