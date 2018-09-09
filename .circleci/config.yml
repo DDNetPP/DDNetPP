@@ -1,3 +1,6 @@
+dependencies:
+    pre:
+        - sudo apt-get install libsdl2-dev libfreetype6-dev
 test:
-  override:
-    - ./bam server_debug
+    override:
+        - ./bam server_release
