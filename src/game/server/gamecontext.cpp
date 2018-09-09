@@ -3265,6 +3265,28 @@ void CGameContext::LoadCosmetics(int id)
 	pChr->m_autospreadgun = pPlayer->m_IsBackupAutospreadgun;
 }
 
+void CGameContext::DeleteCosmetics(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	if (!pChr)
+		return;
+
+	pChr->m_Rainbow = false;
+	pChr->m_Bloody = false;
+	pChr->m_StrongBloody = false;
+	pChr->m_Atom = false;
+	pChr->m_Trail = false;
+	pChr->m_autospreadgun = false;
+	pChr->m_RandomCosmetics = false;
+	pChr->m_WaveBloody = false;
+}
+
 void CGameContext::DDPP_Tick()	
 {
 #if defined(CONF_DEBUG)
@@ -3862,6 +3884,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsVanillaWeapons = true;
 			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
+			DeleteCosmetics(id);
 			if (!m_survivalgamestate) //no game running --> start lobby
 			{
 				SurvivalSetGameState(1);
@@ -4091,12 +4114,7 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
 
 						//delete cosmentics (they are not competetive)
-						m_apPlayers[i]->GetCharacter()->m_Rainbow = false;
-						m_apPlayers[i]->GetCharacter()->m_Bloody = false;
-						m_apPlayers[i]->GetCharacter()->m_StrongBloody = false;
-						m_apPlayers[i]->GetCharacter()->m_Atom = false;
-						m_apPlayers[i]->GetCharacter()->m_Trail = false;
-						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
+						DeleteCosmetics(i);
 
 						//delete "cheats" from the race
 						m_apPlayers[i]->GetCharacter()->m_Jetpack = false;
