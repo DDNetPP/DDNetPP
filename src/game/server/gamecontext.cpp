@@ -3884,7 +3884,6 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsVanillaWeapons = true;
 			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			DeleteCosmetics(id);
 			if (!m_survivalgamestate) //no game running --> start lobby
 			{
 				SurvivalSetGameState(1);
