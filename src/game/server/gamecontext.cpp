@@ -8541,7 +8541,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 				//m_pController->OnPlayerInfoChange(pPlayer);
 
-				pPlayer->GetCharacter()->SaveRealInfos();
+				if (pPlayer->GetCharacter())
+				{
+					pPlayer->GetCharacter()->SaveRealInfos();
+				}
 			}
 		}
 		else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
