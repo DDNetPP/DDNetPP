@@ -3710,7 +3710,14 @@ void CGameContext::SurvivalLobbyTick()
 		m_survivallobbycountdown--;
 		if (m_survivallobbycountdown % Server()->TickSpeed() == 0 && m_survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
 		{
-			str_format(aBuf, sizeof(aBuf), "[SURVIVAL] game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			if (!str_comp_nocase(m_aLastSurvivalWinnerName, ""))
+			{
+				str_format(aBuf, sizeof(aBuf), "survival game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "Winner: %s\nsurvival game starts in %d seconds", m_aLastSurvivalWinnerName, m_survivallobbycountdown / Server()->TickSpeed());
+			}
 			SendSurvivalBroadcast(aBuf);
 
 			if (m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
@@ -3793,6 +3800,8 @@ void CGameContext::SurvivalStartGame()
 	{
 		SurvivalSetGameState(2); //set ingame
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
+		//SendSurvivalBroadcast("STAY ALIVE!!!");
+		SendSurvivalBroadcast(""); // clear countdown
 	}
 }
 
@@ -3869,7 +3878,6 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = false;
 			m_apPlayers[id]->m_IsSurvivalWinner = false;
-			//dbg_msg("cBug", "[%s] lost winner", Server()->ClientName(id));
 		}
 		else if (mode == 3) //die
 		{
@@ -3993,7 +4001,6 @@ bool CGameContext::SurvivalPickWinner()
 	SendSurvivalChat(aBuf);
 	SendSurvivalBroadcast(aBuf);
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
-	//dbg_msg("cBug", "[%s] became winner", Server()->ClientName(winnerID));
 
 	if (m_apPlayers[winnerID]->m_AccountID > 0)
 	{
@@ -4006,6 +4013,7 @@ bool CGameContext::SurvivalPickWinner()
 		SendChatTarget(winnerID, "[SURVIVAL] you won!");
 	}
 
+	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerID), sizeof(m_aLastSurvivalWinnerName));
 	m_apPlayers[winnerID]->m_SurvivalWins++;
 	m_apPlayers[winnerID]->m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
@@ -9437,6 +9445,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
     str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
+	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
