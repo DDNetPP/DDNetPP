@@ -479,15 +479,6 @@ void CPlayer::Snap(int SnappingClient)
 		ShowName = true;
 	}
 
-	if (ShowName)
-	{
-		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
-	}
-	else
-	{
-		StrToInts(&pClientInfo->m_Name0, 4, " ");
-	}
-
 
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
@@ -502,7 +493,7 @@ void CPlayer::Snap(int SnappingClient)
 
 
 	const char *pName;
-	if (m_PlayerFlags&PLAYERFLAG_CHATTING || !m_SpookyGhostActive)
+	if ((m_PlayerFlags&PLAYERFLAG_CHATTING || !m_SpookyGhostActive) && ShowName)
 		pName = Server()->ClientName(m_ClientID);
 	else
 		pName = "";	
