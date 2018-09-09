@@ -39,3 +39,8 @@ Known bugs
 --------
 
 The map needs the blue and the red flag from CTF gametype or the server crashes.
+
+The survival minigame needs as many spawns as the server has slots.
+Use ``/admin test`` command to check if your map has enough spawn.
+If it throws an error your server will crash if a survival game starts.
+Warnings mean that increasing your slots will crash the server.
