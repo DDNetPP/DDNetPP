@@ -503,7 +503,7 @@ void CPlayer::Snap(int SnappingClient)
 	const char *pName;
 	if (!m_IsSurvivaling && (m_PlayerFlags&PLAYERFLAG_CHATTING || !m_SpookyGhostActive))
 		pName = Server()->ClientName(m_ClientID);
-	else
+	else if (!m_IsSurvivaling)
 		pName = "";	
 	StrToInts(&pClientInfo->m_Name0, 4, pName);
 
