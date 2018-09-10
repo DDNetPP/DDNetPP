@@ -1552,14 +1552,14 @@ void CCharacter::FireWeapon(bool Bot)
 
 	if (m_aDecreaseAmmo[m_Core.m_ActiveWeapon]) // picked up a dropped weapon without infinite bullets (-1)
 	{
-		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 1)
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_aDecreaseAmmo[m_Core.m_ActiveWeapon] = false;
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 			SetWeaponThatChrHas();
 		}
-
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
 	//spawn weapons

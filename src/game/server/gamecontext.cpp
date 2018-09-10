@@ -10291,6 +10291,27 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		return -1;
 	}
 
+	if (item == 2 && pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN])				// do items have infinite ammo? (not a pickep up spawn weapon)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 3 && pChr->m_aDecreaseAmmo[WEAPON_GRENADE])
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 4 && pChr->m_aDecreaseAmmo[WEAPON_RIFLE])
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_RIFLE]))
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
+		return -1;
+	}
+
 
 	int HasItem = TradeHasItem(item, FromID); // ITEM OWNED ???
 	if (HasItem == -1)
@@ -10443,6 +10464,25 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 	if (pSPlayer->m_SpawnRifleActive && ItemID == 4)
 	{
 		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] && ItemID == 2)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		return -1;
+	}
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_GRENADE] && ItemID == 3)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		return -1;
+	}
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_RIFLE] && ItemID == 4)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;
 	}
 
