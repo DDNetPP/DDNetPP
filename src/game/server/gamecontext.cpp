@@ -3287,6 +3287,7 @@ void CGameContext::DeleteCosmetics(int id)
 	pChr->m_autospreadgun = false;
 	pChr->m_RandomCosmetics = false;
 	pChr->m_WaveBloody = false;
+	pChr->UnsetSpookyGhost();
 }
 
 void CGameContext::DDPP_Tick()	

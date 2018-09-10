@@ -4869,6 +4869,9 @@ void CCharacter::SetSpookyGhost()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && m_pPlayer->m_IsSurvivalLobby == false)) // no ghost in competetive minigames
+		return;
+
 	if (!m_SpookyGhostWeaponsBackupped)
 	{
 
@@ -4888,8 +4891,6 @@ void CCharacter::SetSpookyGhost()
 	m_pPlayer->m_TeeInfos.m_UseCustomColor = 0;
 
 	m_pPlayer->m_SpookyGhostActive = 1;
-
-	return;
 }
 
 void CCharacter::UnsetSpookyGhost()
