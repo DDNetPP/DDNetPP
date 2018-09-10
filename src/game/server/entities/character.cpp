@@ -1552,14 +1552,14 @@ void CCharacter::FireWeapon(bool Bot)
 
 	if (m_aDecreaseAmmo[m_Core.m_ActiveWeapon]) // picked up a dropped weapon without infinite bullets (-1)
 	{
-		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 1)
+		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+
+		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_aDecreaseAmmo[m_Core.m_ActiveWeapon] = false;
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 			SetWeaponThatChrHas();
 		}
-
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
 	//spawn weapons
@@ -4980,9 +4980,9 @@ void CCharacter::DropWeapon()
 		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
 		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && m_pPlayer->m_SpawnRifleActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_pPlayer->m_SpawnShotgunActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && m_pPlayer->m_SpawnGrenadeActive && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_RIFLE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		)
 	{
 		return;
