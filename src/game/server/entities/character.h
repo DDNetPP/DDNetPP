@@ -335,7 +335,7 @@ public:
 	//int m_StockMarket_item_Cucumbers; //player.h
 
 	//drop weapons
-	void DropWeapon();
+	void DropWeapon(int WeaponID);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
 	bool SetWeaponThatChrHas();
