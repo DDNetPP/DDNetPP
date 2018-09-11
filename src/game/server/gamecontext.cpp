@@ -3242,6 +3242,7 @@ void CGameContext::SaveCosmetics(int id)
 	pPlayer->m_IsBackupAtom = pChr->m_Atom;
 	pPlayer->m_IsBackupTrail = pChr->m_Trail;
 	pPlayer->m_IsBackupAutospreadgun = pChr->m_autospreadgun;
+	pPlayer->m_IsBackupWaveBloody = pChr->m_WaveBloody;
 }
 
 void CGameContext::LoadCosmetics(int id)
@@ -3263,6 +3264,30 @@ void CGameContext::LoadCosmetics(int id)
 	pChr->m_Atom =  pPlayer->m_IsBackupAtom;
 	pChr->m_Trail = pPlayer->m_IsBackupTrail;
 	pChr->m_autospreadgun = pPlayer->m_IsBackupAutospreadgun;
+	pChr->m_WaveBloody = pPlayer->m_IsBackupWaveBloody;
+}
+
+void CGameContext::DeleteCosmetics(int id)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
+	CCharacter *pChr = m_apPlayers[id]->GetCharacter();
+	if (!pChr)
+		return;
+
+	pChr->m_Rainbow = false;
+	pChr->m_Bloody = false;
+	pChr->m_StrongBloody = false;
+	pChr->m_Atom = false;
+	pChr->m_Trail = false;
+	pChr->m_autospreadgun = false;
+	pChr->m_RandomCosmetics = false;
+	pChr->m_WaveBloody = false;
+	pChr->UnsetSpookyGhost();
 }
 
 void CGameContext::DDPP_Tick()	
@@ -3710,7 +3735,14 @@ void CGameContext::SurvivalLobbyTick()
 		m_survivallobbycountdown--;
 		if (m_survivallobbycountdown % Server()->TickSpeed() == 0 && m_survivallobbycountdown - 10 < Server()->TickSpeed() * 10) //only start to print last 10 seconds
 		{
-			str_format(aBuf, sizeof(aBuf), "[SURVIVAL] game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			if (!str_comp_nocase(m_aLastSurvivalWinnerName, ""))
+			{
+				str_format(aBuf, sizeof(aBuf), "survival game starts in %d seconds", m_survivallobbycountdown / Server()->TickSpeed());
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "Winner: %s\nsurvival game starts in %d seconds", m_aLastSurvivalWinnerName, m_survivallobbycountdown / Server()->TickSpeed());
+			}
 			SendSurvivalBroadcast(aBuf);
 
 			if (m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
@@ -3793,6 +3825,8 @@ void CGameContext::SurvivalStartGame()
 	{
 		SurvivalSetGameState(2); //set ingame
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
+		//SendSurvivalBroadcast("STAY ALIVE!!!");
+		SendSurvivalBroadcast(""); // clear countdown
 	}
 }
 
@@ -3812,7 +3846,6 @@ void CGameContext::SendSurvivalChat(const char * pMsg)
 		}
 	}
 }
-
 
 void CGameContext::SendSurvivalBroadcast(const char * pMsg)
 {
@@ -3869,7 +3902,6 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsVanillaCompetetive = true;
 			m_apPlayers[id]->m_IsSurvivalLobby = false;
 			m_apPlayers[id]->m_IsSurvivalWinner = false;
-			//dbg_msg("cBug", "[%s] lost winner", Server()->ClientName(id));
 		}
 		else if (mode == 3) //die
 		{
@@ -3993,7 +4025,6 @@ bool CGameContext::SurvivalPickWinner()
 	SendSurvivalChat(aBuf);
 	SendSurvivalBroadcast(aBuf);
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
-	//dbg_msg("cBug", "[%s] became winner", Server()->ClientName(winnerID));
 
 	if (m_apPlayers[winnerID]->m_AccountID > 0)
 	{
@@ -4006,6 +4037,7 @@ bool CGameContext::SurvivalPickWinner()
 		SendChatTarget(winnerID, "[SURVIVAL] you won!");
 	}
 
+	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerID), sizeof(m_aLastSurvivalWinnerName));
 	m_apPlayers[winnerID]->m_SurvivalWins++;
 	m_apPlayers[winnerID]->m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
@@ -4084,12 +4116,7 @@ void CGameContext::BlockTournaTick()
 						m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
 
 						//delete cosmentics (they are not competetive)
-						m_apPlayers[i]->GetCharacter()->m_Rainbow = false;
-						m_apPlayers[i]->GetCharacter()->m_Bloody = false;
-						m_apPlayers[i]->GetCharacter()->m_StrongBloody = false;
-						m_apPlayers[i]->GetCharacter()->m_Atom = false;
-						m_apPlayers[i]->GetCharacter()->m_Trail = false;
-						m_apPlayers[i]->GetCharacter()->m_autospreadgun = false;
+						DeleteCosmetics(i);
 
 						//delete "cheats" from the race
 						m_apPlayers[i]->GetCharacter()->m_Jetpack = false;
@@ -6905,6 +6932,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						if (pPlayer->GetCharacter())
 							pPlayer->GetCharacter()->m_RandomCosmetics ^= true;
+						str_format(aBuf, sizeof(aBuf), "survival alive: %d", pPlayer->m_IsSurvivalAlive);
+						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
                         //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
@@ -8541,7 +8570,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 				//m_pController->OnPlayerInfoChange(pPlayer);
 
-				pPlayer->GetCharacter()->SaveRealInfos();
+				if (pPlayer->GetCharacter())
+				{
+					pPlayer->GetCharacter()->SaveRealInfos();
+				}
 			}
 		}
 		else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
@@ -9432,6 +9464,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
     str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
+	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -10266,6 +10299,27 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		return -1;
 	}
 
+	if (item == 2 && pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN])				// do items have infinite ammo? (not a pickep up spawn weapon)
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 3 && pChr->m_aDecreaseAmmo[WEAPON_GRENADE])
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 4 && pChr->m_aDecreaseAmmo[WEAPON_RIFLE])
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		return -1;
+	}
+	if (item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_RIFLE]))
+	{
+		SendChatTarget(FromID, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
+		return -1;
+	}
+
 
 	int HasItem = TradeHasItem(item, FromID); // ITEM OWNED ???
 	if (HasItem == -1)
@@ -10418,6 +10472,25 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 	if (pSPlayer->m_SpawnRifleActive && ItemID == 4)
 	{
 		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		return -1;
+	}
+
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] && ItemID == 2)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		return -1;
+	}
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_GRENADE] && ItemID == 3)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		return -1;
+	}
+
+	if (pSChr->m_aDecreaseAmmo[WEAPON_RIFLE] && ItemID == 4)
+	{
+		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;
 	}
 

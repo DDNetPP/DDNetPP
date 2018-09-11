@@ -390,7 +390,7 @@ public:
 	bool m_Trail;
 	bool m_autospreadgun;
 	bool m_ninjasteam;
-	bool m_RandomCosmetics;
+	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
 
 	// atom vars (not to be confused with atom wars) <--- made chillidreghuhn giggle xd
 	std::vector<CStableProjectile *> m_AtomProjs;

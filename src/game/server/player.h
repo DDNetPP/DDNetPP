@@ -660,6 +660,7 @@ public:
 	bool m_IsBackupAtom;
 	bool m_IsBackupTrail;
 	bool m_IsBackupAutospreadgun;
+	bool m_IsBackupWaveBloody;
 
 	int m_KillStreak;
 	bool m_IsJailed;
