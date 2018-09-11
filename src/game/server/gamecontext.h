@@ -606,6 +606,12 @@ public:
 	};
 	std::vector<CBotSpawn4> m_BotSpawn4;
 
+	struct CNoHammer // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CNoHammer> m_NoHammer;
 private:
 
 	bool m_VoteWillPass;
