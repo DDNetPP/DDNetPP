@@ -4981,7 +4981,7 @@ bool CCharacter::SetWeaponThatChrHas()
 	return true;
 }
 
-void CCharacter::DropWeapon()
+void CCharacter::DropWeapon(int WeaponID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -4989,21 +4989,21 @@ void CCharacter::DropWeapon()
 
 	if ((isFreezed) || (m_FreezeTime)
 		|| (m_pPlayer->m_SpookyGhostActive)
-		|| (m_Core.m_ActiveWeapon == WEAPON_NINJA)
-		|| (m_Core.m_ActiveWeapon == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-		|| (m_Core.m_ActiveWeapon == WEAPON_RIFLE && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_RIFLE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		|| (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		|| (m_Core.m_ActiveWeapon == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (WeaponID == WEAPON_NINJA)
+		|| (WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+		|| (WeaponID == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+		|| (WeaponID == WEAPON_RIFLE && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_RIFLE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		)
 	{
 		return;
 	}
 
-	if(m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].size() == 5)
+	if (m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
 	{
-		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon][0]->Reset();
-		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].erase(m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].begin());
+		m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
+		m_pPlayer->m_vWeaponLimit[WeaponID].erase(m_pPlayer->m_vWeaponLimit[WeaponID].begin());
 	}
 
 
@@ -5014,8 +5014,8 @@ void CCharacter::DropWeapon()
 		if (m_aWeapons[i].m_Got)
 			m_CountWeapons++;
 	}
-	
-	if (m_Core.m_ActiveWeapon == WEAPON_GUN && m_Jetpack)
+
+	if (WeaponID == WEAPON_GUN && m_Jetpack)
 	{
 		m_Jetpack = false;
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
@@ -5023,20 +5023,20 @@ void CCharacter::DropWeapon()
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo, true);
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true);
 
 		m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 	}
 	else if (m_CountWeapons > 1)
 	{
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
+		m_aWeapons[WeaponID].m_Got = false;
 
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, m_Core.m_ActiveWeapon, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo);
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo);
 
-		m_pPlayer->m_vWeaponLimit[m_Core.m_ActiveWeapon].push_back(Weapon);
+		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
 	}
 
 	SetWeaponThatChrHas();

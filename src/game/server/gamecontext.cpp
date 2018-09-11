@@ -8330,7 +8330,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if (g_Config.m_SvAllowDroppingWeapons)
 				{
-					pPlayer->GetCharacter()->DropWeapon();
+					pPlayer->GetCharacter()->DropWeapon(pPlayer->GetCharacter()->GetActiveWeapon()); // drop the weapon youre holding.
 				}
 			}
 
