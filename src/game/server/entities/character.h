@@ -338,7 +338,7 @@ public:
 	void DropWeapon();
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
-	void SetWeaponThatChrHas();
+	bool SetWeaponThatChrHas();
 
 
 	//spawn weapons

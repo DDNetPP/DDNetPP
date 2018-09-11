@@ -194,6 +194,8 @@ enum
 	TILE_TRAIL = 179,
 	TILE_SPREAD_GUN = 180,
 
+	TILE_NO_HAMMER = 181,
+
 	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
 
 

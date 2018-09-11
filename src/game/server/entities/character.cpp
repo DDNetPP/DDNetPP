@@ -3491,7 +3491,16 @@ void CCharacter::HandleTiles(int Index)
 	m_LastIndexFrontTile = m_TileFIndex; // do not remove
 
 
-	//hammerfight tiles
+	//hammer tiles
+	if (((m_TileIndex == TILE_NO_HAMMER) || (m_TileFIndex == TILE_NO_HAMMER)))
+	{
+		m_aWeapons[WEAPON_HAMMER].m_Got = false;
+		if (!SetWeaponThatChrHas()) // Cheat gun if hammer was last weapon
+		{
+			m_aWeapons[WEAPON_GUN].m_Got = true;
+		}
+		SetWeaponThatChrHas();
+	}
 
 
 	//Money Tiles
@@ -4950,7 +4959,7 @@ void CCharacter::BulletAmounts()
 	return;
 }
 
-void CCharacter::SetWeaponThatChrHas()
+bool CCharacter::SetWeaponThatChrHas()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -4965,8 +4974,10 @@ void CCharacter::SetWeaponThatChrHas()
 		SetWeapon(WEAPON_SHOTGUN);
 	else if (m_aWeapons[WEAPON_RIFLE].m_Got)
 		SetWeapon(WEAPON_RIFLE);
+	else
+		return false;
 
-	return;
+	return true;
 }
 
 void CCharacter::DropWeapon()

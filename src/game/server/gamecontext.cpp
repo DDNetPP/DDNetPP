@@ -9785,6 +9785,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got botspawn4 tile at (%.2f|%.2f)", BotSpawn4.m_Center.x, BotSpawn4.m_Center.y);
 					m_BotSpawn4.push_back(BotSpawn4);
 				}
+				else if (Index == TILE_NO_HAMMER)
+				{
+					CNoHammer NoHammer;
+					NoHammer.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got no hammer tile at (%.2f|%.2f)", NoHammer.m_Center.x, NoHammer.m_Center.y);
+					m_NoHammer.push_back(NoHammer);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
