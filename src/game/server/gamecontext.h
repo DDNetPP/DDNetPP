@@ -284,6 +284,7 @@ public:
 	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
 	void SaveCosmetics(int id);
 	void LoadCosmetics(int id);
+	void DeleteCosmetics(int id);
 
 	//login and threads (moved to player.h)
 	/*
@@ -362,6 +363,7 @@ public:
 	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch countdown 4=deathmatch
 	int m_survivallobbycountdown;
 	int m_survival_dm_countdown;
+	char m_aLastSurvivalWinnerName[32];
 
 	//block tourna
 
