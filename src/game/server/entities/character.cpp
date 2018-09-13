@@ -4991,7 +4991,7 @@ void CCharacter::DropWeapon(int WeaponID)
 		|| (m_pPlayer->m_SpookyGhostActive)
 		|| (WeaponID == WEAPON_NINJA)
 		|| (WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-		|| (WeaponID == WEAPON_GUN && !m_Jetpack && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+		|| (WeaponID == WEAPON_GUN && !m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		|| (WeaponID == WEAPON_RIFLE && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_RIFLE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		|| (WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		|| (WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
@@ -5015,17 +5015,48 @@ void CCharacter::DropWeapon(int WeaponID)
 			m_CountWeapons++;
 	}
 
-	if (WeaponID == WEAPON_GUN && m_Jetpack)
+	if (WeaponID == WEAPON_GUN && (m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
 	{
-		m_Jetpack = false;
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+		if (m_Jetpack && (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
+		{
+			m_Jetpack = false;
+			m_autospreadgun = false;
+			m_pPlayer->m_InfAutoSpreadGun = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
 
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true);
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true, true);
 
-		m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
+			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
+		}
+		else if (m_Jetpack)
+		{
+			m_Jetpack = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
+
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true);
+
+			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
+		}
+		else if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
+		{
+			m_autospreadgun = false;
+			m_pPlayer->m_InfAutoSpreadGun = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
+
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+
+
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, false, true);
+
+			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
+		}
 	}
 	else if (m_CountWeapons > 1)
 	{
