@@ -275,13 +275,9 @@ void CWeapon::Snap(int SnappingClient)
 	pP->m_Type = POWERUP_WEAPON;
 	pP->m_Subtype = m_Type;
 
-	int m_JetpackIndicatorHeight;
-	int m_SpreadGunIndicatorHeight;
 
-	if (m_SpreadGun)
-	{
-		m_SpreadGunIndicatorHeight = 25;
-	}
+	int m_JetpackIndicatorHeight;
+
 	if (m_Jetpack && !m_SpreadGun)
 	{
 		m_JetpackIndicatorHeight = 25;
@@ -309,7 +305,7 @@ void CWeapon::Snap(int SnappingClient)
 		if (pSpreadGunIndicator1)
 		{
 			pSpreadGunIndicator1->m_X = pP->m_X;
-			pSpreadGunIndicator1->m_Y = pP->m_Y - m_SpreadGunIndicatorHeight;
+			pSpreadGunIndicator1->m_Y = pP->m_Y - 25;
 			pSpreadGunIndicator1->m_Type = WEAPON_SHOTGUN;
 			pSpreadGunIndicator1->m_StartTick = Server()->Tick();
 		}
@@ -318,7 +314,7 @@ void CWeapon::Snap(int SnappingClient)
 		if (pSpreadGunIndicator2)
 		{
 			pSpreadGunIndicator2->m_X = pP->m_X - 20;
-			pSpreadGunIndicator2->m_Y = pP->m_Y - m_SpreadGunIndicatorHeight;
+			pSpreadGunIndicator2->m_Y = pP->m_Y - 25;
 			pSpreadGunIndicator2->m_Type = WEAPON_SHOTGUN;
 			pSpreadGunIndicator2->m_StartTick = Server()->Tick();
 		}
@@ -327,7 +323,7 @@ void CWeapon::Snap(int SnappingClient)
 		if (pSpreadGunIndicator3)
 		{
 			pSpreadGunIndicator3->m_X = pP->m_X + 20;
-			pSpreadGunIndicator3->m_Y = pP->m_Y - m_SpreadGunIndicatorHeight;
+			pSpreadGunIndicator3->m_Y = pP->m_Y - 25;
 			pSpreadGunIndicator3->m_Type = WEAPON_SHOTGUN;
 			pSpreadGunIndicator3->m_StartTick = Server()->Tick();
 		}
