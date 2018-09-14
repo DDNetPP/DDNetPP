@@ -1481,7 +1481,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 					m_RconClientID = IServer::RCON_CID_SERV;
 					m_RconAuthLevel = AUTHED_ADMIN;
-					m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
+					m_aClients[ClientID].m_LastAuthed = AUTHED_ADMIN;	//!!!!!!!!!!!! this was AUTHED_NO for default, but that means youre not authed. i dont know why but i tested it and with the old AUTHED_NO stuff you technically got logged out as its used for rcon logout aswell. keep this for isddnet support and by that also the good whisper 
 				}
 			}
 		}
