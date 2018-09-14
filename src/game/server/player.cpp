@@ -417,6 +417,18 @@ void CPlayer::Tick()
 	CheckLevel();
 
 	ThreadLoginDone();
+
+	if (Server()->Tick() % 600 == 0)
+	{
+		if (m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -5 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+		{
+			m_Team = TEAM_BLUE;
+		}
+		else
+		{
+			m_Team = TEAM_RED;
+		}
+	}
 }
 
 void CPlayer::PostTick()
