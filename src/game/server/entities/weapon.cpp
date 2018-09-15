@@ -39,6 +39,17 @@ void CWeapon::Reset()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+	for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+	{
+		if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+		{
+			pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+		}
+	}
+
 	Server()->SnapFreeID(m_ID2);
 	GameServer()->m_World.DestroyEntity(this);
 }
@@ -129,16 +140,6 @@ void CWeapon::Pickup()
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
-
-		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-		for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-		{
-			if(pOwner->m_vWeaponLimit[m_Type][i] == this)
-			{
-				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-			}
-		}
 
 		Reset();
 		return;
