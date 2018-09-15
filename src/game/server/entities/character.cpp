@@ -329,6 +329,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
 	}
 
+	m_LastHitWeapon = -1;
+
 	m_pPlayer->m_SpawnShotgunActive = 0;
 	m_pPlayer->m_SpawnGrenadeActive = 0;
 	m_pPlayer->m_SpawnRifleActive = 0;
@@ -1957,6 +1959,14 @@ void CCharacter::Tick()
 	m_PrevInput = m_Input;
 
 	m_PrevPos = m_Core.m_Pos;
+
+
+	if (m_Core.m_LastHookedPlayer != m_OldLastHookedPlayer)
+	{
+		m_LastHitWeapon = -1;
+	}
+	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
+
 	return;
 }
 
@@ -2128,7 +2138,10 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	CNetMsg_Sv_KillMsg Msg;
 	Msg.m_Killer = Killer;
 	Msg.m_Victim = m_pPlayer->GetCID();
-	Msg.m_Weapon = Weapon;
+	if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
+		Msg.m_Weapon = m_LastHitWeapon;
+	else
+		Msg.m_Weapon = Weapon;
 	Msg.m_ModeSpecial = ModeSpecial;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 
@@ -2157,6 +2170,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		{
 			m_pPlayer->m_LastToucherID = From;
 			m_pPlayer->m_LastTouchTicks = 0;
+			m_LastHitWeapon = Weapon;
 		}
 	}
 
@@ -2293,7 +2307,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 		else //normal ddnet code (else to IsDmg)
 		{
-
+			
 
 			if (!m_Jetpack || m_Core.m_ActiveWeapon != WEAPON_GUN)
 			{
@@ -4290,6 +4304,7 @@ bool CCharacter::UnFreeze()
 			}
 			m_WeaponsBackupped = false;
 		}
+		m_LastHitWeapon = -1;
 		if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Got)
 			m_Core.m_ActiveWeapon = WEAPON_GUN;
 		m_FreezeTime = 0;
