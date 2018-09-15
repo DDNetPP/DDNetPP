@@ -85,6 +85,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		{
 			pHit->GetPlayer()->m_LastToucherID = GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->GetCID();
 			pHit->GetPlayer()->m_LastTouchTicks = 0;
+			pHit->m_LastHitWeapon = WEAPON_SHOTGUN;
 		}
 	}
 	else if (m_Type == WEAPON_RIFLE)
