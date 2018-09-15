@@ -623,9 +623,9 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"taser | 50 000 | Police[3] | forever\n"
 		"pvp_arena_ticket | 150 | 0 | forever\n"
 		"ninjajetpack | 10 000 | 21 | forever\n"
-		"spawn_shotgun | 600 000 | 38 | forever\n"
-		"spawn_grenade | 600 000 | 38 | forever\n"
-		"spawn_rifle | 600 000 | 38 | forever\n"
+		"spawn_shotgun | 600 000 | 33 | forever\n"
+		"spawn_grenade | 600 000 | 33 | forever\n"
+		"spawn_rifle | 600 000 | 33 | forever\n"
 		"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
 
 	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
@@ -2538,9 +2538,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "spawn_shotgun"))
 	{
-		if (pPlayer->m_level < 38)
+		if (pPlayer->m_level < 33)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn shotgun.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 33 to buy spawn shotgun.");
 			return;
 		}
 		else if (pPlayer->m_SpawnWeaponShotgun == 5)
@@ -2568,9 +2568,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "spawn_grenade"))
 	{
-		if (pPlayer->m_level < 38)
+		if (pPlayer->m_level < 33)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn grenade.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 33 to buy spawn grenade.");
 			return;
 		}
 		else if (pPlayer->m_SpawnWeaponGrenade == 5)
@@ -2598,9 +2598,9 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aItem, "spawn_rifle"))
 	{
-		if (pPlayer->m_level < 38)
+		if (pPlayer->m_level < 33)
 		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 38 to buy spawn rifle.");
+			pSelf->SendChatTarget(pResult->m_ClientID, "Level is too low! You need lvl 33 to buy spawn rifle.");
 			return;
 		}
 		else if (pPlayer->m_SpawnWeaponRifle == 5)
