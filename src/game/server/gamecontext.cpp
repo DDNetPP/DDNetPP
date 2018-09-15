@@ -8496,12 +8496,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if (Version >= VERSION_DDNET_EXTRATUNES)
 				SendTuningParams(ClientID, pPlayer->m_TuneZone);
 
-			//tell old clients to update
+			/*//tell old clients to update
 			if (Version < VERSION_DDNET_UPDATER_FIXED && g_Config.m_SvClientSuggestionOld[0] != '\0')
 				SendBroadcast(g_Config.m_SvClientSuggestionOld, ClientID);
 			//tell known bot clients that they're botting and we know it
 			if (((Version >= 15 && Version < 100) || Version == 502) && g_Config.m_SvClientSuggestionBot[0] != '\0')
-				SendBroadcast(g_Config.m_SvClientSuggestionBot, ClientID);
+				SendBroadcast(g_Config.m_SvClientSuggestionBot, ClientID);*/
 		}
 		else if (MsgID == NETMSGTYPE_CL_SHOWOTHERS)
 		{
