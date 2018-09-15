@@ -9255,7 +9255,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "==== TRADE commands ====");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/trade sell <item> <price> <player>' to send a player a trade offer");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/trade sell_public <item> <price>' to create an public sell offer everybody could accept");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/trade sell_public <item> <price>' to create a public sell offer everybody could accept");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/trade buy <item> <price> <player>' to accept a trade offer");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/tr <player>' fast accept latest trade (WARNING YOU COULD BE SCAMMED!)");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/trade items' for a full list of tradable items");
@@ -9281,7 +9281,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		if (TradeID == -1) { return; }
 
 		//send trade info to the invited player
-		str_format(aBuf, sizeof(aBuf), "[TRADE] '%s' created an public offer [ %s ] for [ %d ] money (use '/trade' command to accept it)", pSelf->Server()->ClientName(pResult->m_ClientID), aWeaponName, pResult->GetInteger(2));
+		str_format(aBuf, sizeof(aBuf), "[TRADE] '%s' created a public offer [ %s ] for [ %d ] money (use '/trade' command to accept it)", pSelf->Server()->ClientName(pResult->m_ClientID), aWeaponName, pResult->GetInteger(2));
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		//and save it for all players so it can be seen later in '/trade'
 		for (int i = 0; i < MAX_CLIENTS; i++)
