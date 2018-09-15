@@ -334,6 +334,10 @@ public:
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
 
+	int m_LastHitWeapon;
+
+	int m_OldLastHookedPlayer;
+
 	//drop weapons
 	void DropWeapon(int WeaponID);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
