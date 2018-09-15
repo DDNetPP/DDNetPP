@@ -2953,7 +2953,10 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		//reset stats
 		m_apPlayers[ID]->m_InstaScore = 0;
 
-		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
+		if (m_apPlayers[ID]->GetCharacter())
+		{
+			m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
+		}
 		SendChatTarget(ID, "[INSTA] new round new luck.");
 	}
 
