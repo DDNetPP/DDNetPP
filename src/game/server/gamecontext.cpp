@@ -10266,13 +10266,13 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 
 	char aBuf[256];
 
-	if (pPlayer->m_TradeTick > Server()->Tick())
+	/*if (pPlayer->m_TradeTick > Server()->Tick())
 	{
 		int TimeLeft = (pPlayer->m_TradeTick - Server()->Tick()) / Server()->TickSpeed();
 		str_format(aBuf, sizeof(aBuf), "[TRADE] delay: %02d:%02d", TimeLeft / 60, TimeLeft % 60);
 		SendChatTarget(FromID, aBuf);
 		return -1;
-	}
+	}*/
 
 	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
 	{
