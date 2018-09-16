@@ -10498,7 +10498,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (!(pPlayer->m_Authed == CServer::AUTHED_ADMIN || (pSelf->Server()->IsAuthed(ClientID) && pPlayer->m_IsSupporter)))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
 		return;
