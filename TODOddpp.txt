@@ -56,10 +56,6 @@ a hoster gets printed all '/livestream view'ers in broadcast
 and the viewers get paused and focused on the tee.
 there is an extra stream chat and idk totally useless feature
 
-## drop weapons ##
-on vote (f4/f3) drop the current active weapon if not gun or hammer
-drop them in the map (like in survival) and all people can collect it
-
 ## trade command ##
 add trade delay levels to shop
 default level 0 has a delay of 20 minutes and max speed is 20 seconds
