@@ -5790,7 +5790,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
-	str_format(aBuf, sizeof(aBuf), "You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
 	m_apPlayers[WinnerID]->m_BombGamesWon++;
 	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
@@ -5804,7 +5804,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	}
 
 	//winner public
-	str_format(aBuf, sizeof(aBuf), "'%s' won +%d money in a bomb game.", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %d money!", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 }
 
