@@ -5796,11 +5796,11 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
 	if (!str_comp_nocase(m_BombMap, "NoArena"))
 	{
-		//GetPlayerChar(i)->ChillTelePort(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
+		//GetPlayerChar(i)->ChillTelePortTile(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
 	}
 	else
 	{
-		GetPlayerChar(WinnerID)->ChillTelePort(GetPlayerChar(WinnerID)->m_BombPosX, GetPlayerChar(WinnerID)->m_BombPosY); //tele on pos where game started
+		GetPlayerChar(WinnerID)->ChillTelePortTile(GetPlayerChar(WinnerID)->m_BombPosX, GetPlayerChar(WinnerID)->m_BombPosY); //tele on pos where game started
 	}
 
 	//winner public
@@ -5871,7 +5871,7 @@ void CGameContext::CheckStartBomb()
 						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
 						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
 						//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
-						GetPlayerChar(i)->ChillTelePort(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY);
+						GetPlayerChar(i)->ChillTelePort((g_Config.m_SvBombSpawnX * 32) + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY * 32);
 						//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary) 
 					}
 					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%d money for the winner!", m_BombMoney * m_BombStartPlayers);
