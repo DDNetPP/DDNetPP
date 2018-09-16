@@ -249,6 +249,7 @@ public:
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
 	void MoveTee(int x, int y);
 	void ChillTelePort(int X, int Y);
+	void ChillTelePortTile(int X, int Y);
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);
 	void KillSpeed();

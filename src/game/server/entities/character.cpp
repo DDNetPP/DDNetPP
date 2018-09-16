@@ -16446,6 +16446,15 @@ void CCharacter::ChillTelePort(int X, int Y)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	m_Core.m_Pos.x = X;
+	m_Core.m_Pos.y = Y;
+}
+
+void CCharacter::ChillTelePortTile(int X, int Y)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	m_Core.m_Pos.x = X * 32;
 	m_Core.m_Pos.y = Y * 32;
 }
