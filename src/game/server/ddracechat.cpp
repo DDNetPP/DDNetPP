@@ -10514,6 +10514,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
 		pSelf->SendChatTarget(ClientID, "'/admin vote_delay' reset vote delay to allow votes agian");
 		pSelf->SendChatTarget(ClientID, "'/admin test' test DDNet++");
+		pSelf->SendChatTarget(ClientID, "'/admin acc' test for illegal chars in account names");
 		pSelf->SendChatTarget(ClientID, "--- SIMILAR COMMANDS ---");
 		pSelf->SendChatTarget(ClientID, "'/flood' for flood protection commands");
 		pSelf->SendChatTarget(ClientID, "----------------------");
@@ -10542,7 +10543,13 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(ClientID, "[ADMIN:Test] Test Finished. Everything looks good c:");
 		}
-
+	}
+	else if (!str_comp_nocase(aCommand, "acc"))
+	{
+		if (pSelf->PrintSpecialCharUsers(ClientID) == 0)
+		{
+			pSelf->SendChatTarget(ClientID, "All users have allowed char set usernames.");
+		}
 	}
 	else
 	{

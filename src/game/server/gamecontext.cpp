@@ -5372,6 +5372,83 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	}
 }
 
+void CGameContext::ShowAdminWelcome(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	SendChatTarget(ID, "============= admin login =============");
+	int surv_error = TestSurvivalSpawns();
+	if (surv_error == -1)
+	{
+		SendChatTarget(ID, "[ADMIN:Test] WARNING: less survival spawns on map than slots possible in ddnet++ (no problem as long as slots stay how they are)");
+	}
+	else if (surv_error == -2)
+	{
+		SendChatTarget(ID, "[ADMIN:Test] ERROR: not enough survival spawns (less survival spawns than slots)");
+	}
+	PrintSpecialCharUsers(ID);
+}
+
+int CGameContext::PrintSpecialCharUsers(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aUsers[2048]; //wont show all users if too many special char users are there but this shouldnt be the case
+	int users = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_AccountID > 0)
+		{
+			if (IsAllowedCharSet(m_apPlayers[i]->m_aAccountLoginName) == false)
+			{
+				if (!users)
+				{
+					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", i, m_apPlayers[i]->m_aAccountLoginName);
+				}
+				else
+				{
+					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, i, m_apPlayers[i]->m_aAccountLoginName);
+				}
+				users++;
+			}
+		}
+	}
+
+	if (users)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[#########] %d special char user online [#########]", users);
+		SendChatTarget(ID, aBuf);
+		SendChatTarget(ID, aUsers);
+	}
+	return users;
+}
+
+int CGameContext::TestSurvivalSpawns()
+{
+	vec2 SurvivalGameSpawnTile = Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients, true);
+	vec2 SurvivalGameSpawnTile2 = Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+
+	if (SurvivalGameSpawnTile == vec2(-1, -1))
+	{
+		//SendChatTarget(ClientID, "[ADMIN:Test] ERROR: not enough survival spawns (less survival spawns than slots)");
+		return -2;
+	}
+	else if (SurvivalGameSpawnTile2 == vec2(-1, -1))
+	{
+		//SendChatTarget(ClientID, "[ADMIN:Test] WARNING: less survival spawns on map than slots possible in ddnet++ (no problem as long as slots stay how they are)");
+		return -1;
+	}
+	else
+	{
+		//SendChatTarget(ClientID, "[ADMIN:Test] Test Finished. Everything looks good c:");
+		return 0;
+	}
+	return 0;
+}
+
 void CGameContext::ChatCommands()
 {
 #if defined(CONF_DEBUG)
@@ -10234,6 +10311,7 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 			m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO_ADMIN;
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "CGameContext", "Aborted vote by admin login.");
 		}
+		ShowAdminWelcome(ClientID);
 	}
 }
 

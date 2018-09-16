@@ -221,12 +221,15 @@ public:
 	virtual const char *Version();
 	virtual const char *NetVersion();
 
-	// DDRace & DDnetPlusPlus
+	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
 	virtual void OnStartBlockTournament();
 
 	void ShowProfile(int ViewerID, int ViewedID);
+	void ShowAdminWelcome(int ID);
+	int PrintSpecialCharUsers(int ID);
+	int TestSurvivalSpawns();
 
 	void ChatCommands();
 	void DummyChat();
