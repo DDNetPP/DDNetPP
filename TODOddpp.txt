@@ -3,13 +3,9 @@
 ~~~ LESS IMPORTANT BUGS ~~~
 
 ## Jail ##
-there was this one case i guess it was player with client id 0
+there was this one case i guess it was player with client id 0 (fokko says: doesnt depend on id)
 he always gets jail code 0 
 could also be a feature xd idk yet
-
-## Jail ##
-there is a crashbug with the jail command
-(check crash logs)
 
 ## pChr != this ##
 while working on FNN i expirienced a bug after touching the bot
