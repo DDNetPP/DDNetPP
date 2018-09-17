@@ -2104,6 +2104,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
 #endif
 	char aBuf[256];
+	ClearFakeMotd();
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
@@ -2779,6 +2780,19 @@ int CCharacter::Team()
 	CALL_STACK_ADD();
 #endif
 	return Teams()->m_Core.Team(m_pPlayer->GetCID());
+}
+
+void CCharacter::ClearFakeMotd()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_pPlayer->m_IsFakeMotd)
+	{
+		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCID());
+		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "updated fake motd");
+		m_pPlayer->m_IsFakeMotd = false;
+	}
 }
 
 CGameTeams* CCharacter::Teams()

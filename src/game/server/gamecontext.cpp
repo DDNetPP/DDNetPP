@@ -1819,7 +1819,10 @@ void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-
+	if (m_apPlayers[ClientID])
+	{
+		m_apPlayers[ClientID]->m_IsFakeMotd = true;
+	}
 	// send motd
 	CNetMsg_Sv_Motd Msg;
 	Msg.m_pMessage = pMsg;
