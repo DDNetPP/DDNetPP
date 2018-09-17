@@ -2431,6 +2431,14 @@ void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
 	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
 }
 
+void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	((CServer *)pUser)->GameServer()->OnDDPPshutdown();
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2462,7 +2470,8 @@ void CServer::RegisterCommands()
 
 	//DDraceNetwork++ (ChillerDragon) ddpp
 
-	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Reload the map");
+	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");
+	Console()->Register("ddpp_shutdown", "", CFGFLAG_SERVER, ConDDPPshutdown, this, "Shutdown the server");
 
 	// register console commands in sub parts
 	m_ServerBan.InitServerBan(Console(), Storage(), this);

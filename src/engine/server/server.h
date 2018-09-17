@@ -275,6 +275,7 @@ public:
 	//ddnet++
 
 	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
+	static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
 
 	void RegisterCommands();
 

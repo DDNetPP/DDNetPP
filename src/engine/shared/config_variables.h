@@ -383,7 +383,7 @@ MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER |
 
 // DDNet++ shutdown if not veto at confuig time if less than x players online
 MACRO_CONFIG_INT(SvDDPPshutdown, sv_ddpp_shutdown, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "shutdown srv if players<sv_ddpp_shutdown_players and hour=sv_ddpp_shutdown_hour")
-MACRO_CONFIG_INT(SvDDPPshutdownHour, sv_ddpp_shutdown_hour, 0, 0, 24, CFGFLAG_SERVER | CFGFLAG_GAME, "at this hour the server will restart if sv_ddpp_restart is 1")
+MACRO_CONFIG_INT(SvDDPPshutdownHour, sv_ddpp_shutdown_hour, 4, 0, 24, CFGFLAG_SERVER | CFGFLAG_GAME, "at this hour the server will restart if sv_ddpp_restart is 1")
 MACRO_CONFIG_INT(SvDDPPshutdownPlayers, sv_ddpp_shutdown_players, 3, 0, MAX_CLIENTS, CFGFLAG_SERVER | CFGFLAG_GAME, "less than x players needed to successfully pass a sv_ddpp_shutdown")
 
 //minimum players for double money tile

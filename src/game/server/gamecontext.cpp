@@ -812,18 +812,27 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 		return;
 
 	int64 Now = Server()->Tick();
-	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (ClientID == -1) //Server vote
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, aChatmsg);
+		StartVote(aDesc, aCmd, pReason);
+		m_VoteCreator = ClientID;
+		m_LastVoteCallAll = Now;
+	}
+	else
+	{
+		CPlayer *pPlayer = m_apPlayers[ClientID];
+		if (!pPlayer)
+			return;
 
-	if(!pPlayer)
-		return;
-
-	SendChat(-1, CGameContext::CHAT_ALL, aChatmsg);
-	StartVote(aDesc, aCmd, pReason);
-	pPlayer->m_Vote = 1;
-	pPlayer->m_VotePos = m_VotePos = 1;
-	m_VoteCreator = ClientID;
-	pPlayer->m_LastVoteCall = Now;
-	m_LastVoteCallAll = Now;
+		SendChat(-1, CGameContext::CHAT_ALL, aChatmsg);
+		StartVote(aDesc, aCmd, pReason);
+		pPlayer->m_Vote = 1;
+		pPlayer->m_VotePos = m_VotePos = 1;
+		m_VoteCreator = ClientID;
+		pPlayer->m_LastVoteCall = Now;
+		m_LastVoteCallAll = Now;
+	}
 }
 
 void CGameContext::SendChatTarget(int To, const char *pText)
@@ -1301,10 +1310,15 @@ void CGameContext::OnTick()
 									aVoteChecked[i])	// don't count in votes by spectators if the admin doesn't want it
 						continue;
 
-					if((m_VoteKick || m_VoteSpec) && ((!m_apPlayers[i] || m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS) ||
-						 (GetPlayerChar(m_VoteCreator) && GetPlayerChar(i) &&
-						  GetPlayerChar(m_VoteCreator)->Team() != GetPlayerChar(i)->Team())))
+					if((m_VoteKick || m_VoteSpec) && ((!m_apPlayers[i] || m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS)))
 						continue;
+
+					if (m_VoteCreator != -1) // Ignore Server Votes
+					{
+						if (GetPlayerChar(m_VoteCreator) && GetPlayerChar(i) &&
+							GetPlayerChar(m_VoteCreator)->Team() != GetPlayerChar(i)->Team())
+							continue;
+					}
 
 					if(m_apPlayers[i]->m_Afk && i != m_VoteCreator)
 						continue;
@@ -1373,8 +1387,11 @@ void CGameContext::OnTick()
 				EndVote();
 				SendChat(-1, CGameContext::CHAT_ALL, "Vote passed");
 
-				if(m_apPlayers[m_VoteCreator])
-					m_apPlayers[m_VoteCreator]->m_LastVoteCall = 0;
+				if (m_VoteCreator != -1) // Ignore server votes
+				{
+					if (m_apPlayers[m_VoteCreator])
+						m_apPlayers[m_VoteCreator]->m_LastVoteCall = 0;
+				}
 			}
 			else if(m_VoteEnforce == VOTE_ENFORCE_YES_ADMIN)
 			{
@@ -1812,6 +1829,15 @@ void CGameContext::OnStartBlockTournament()
 
 	m_BlockTournaState = 1;
 	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+}
+
+void CGameContext::OnDDPPshutdown()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] server shutdown!");
+	//CallVote(-1, aDesc, aCmd, pReason, aChatmsg);
 }
 
 void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
@@ -3336,7 +3362,7 @@ void CGameContext::CheckDDPPshutdown()
 			}
 			else
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online.");
+				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online."); // TODO: this gets spammed the whole hour  every slow tick or until players leave
 			}
 		}
 	}
@@ -9100,6 +9126,12 @@ void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 	if (pResult->NumArguments())
 		stars = pResult->GetInteger(0);
 
+	if (pSelf->m_VoteCreator == -1)
+	{
+		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] error server can't vote random map.");
+		return;
+	}
+
 	pSelf->m_pScore->RandomMap(pSelf->m_VoteCreator, stars);
 }
 
@@ -9113,6 +9145,12 @@ void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUse
 	int stars = 0;
 	if (pResult->NumArguments())
 		stars = pResult->GetInteger(0);
+
+	if (pSelf->m_VoteCreator == -1)
+	{
+		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] error server can't vote random map.");
+		return;
+	}
 
 	pSelf->m_pScore->RandomUnfinishedMap(pSelf->m_VoteCreator, stars);
 }
