@@ -3608,11 +3608,11 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() == 1)
 	{
-		char aBuf[128];
-		pSelf->SendChatTarget(ClientID, aBuf);
 		str_copy(aUsername, pSelf->Server()->ClientName(ClientID), sizeof(aUsername));
 		str_copy(aPassword, pResult->GetString(0), sizeof(aPassword));
-		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] WARNING no username given. (trying '%s')", aUsername);
+		//char aBuf[128];
+		//pSelf->SendChatTarget(ClientID, aBuf);
+		//str_format(aBuf, sizeof(aBuf), "[ACCOUNT] WARNING no username given. (trying '%s')", aUsername);
 	}
 	else if (pResult->NumArguments() == 2)
 	{
