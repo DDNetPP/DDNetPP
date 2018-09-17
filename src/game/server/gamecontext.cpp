@@ -802,7 +802,7 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 	}
 }
 
-void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg)
+void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -810,6 +810,8 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
+
+	m_IsDDPPVetoVote = IsDDPPVetoVote; // Veto votes only pass if nobody voted agianst it (vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 
 	int64 Now = Server()->Tick();
 	if (ClientID == -1) //Server vote
@@ -1365,19 +1367,23 @@ void CGameContext::OnTick()
 						(m_VoteKick || m_VoteSpec))
 					Total = g_Config.m_SvVoteMaxTotal;
 
-				if((Yes > Total / (100.0 / g_Config.m_SvVoteYesPercentage)) && !Veto)
+				if((Yes > Total / (100.0 / g_Config.m_SvVoteYesPercentage)) && !Veto && !m_IsDDPPVetoVote)
 					m_VoteEnforce = VOTE_ENFORCE_YES;
 				else if(No >= Total - Total / (100.0 / g_Config.m_SvVoteYesPercentage))
 					m_VoteEnforce = VOTE_ENFORCE_NO;
 
 				if(VetoStop)
 					m_VoteEnforce = VOTE_ENFORCE_NO;
+				else if (m_IsDDPPVetoVote && No)
+					m_VoteEnforce = VOTE_ENFORCE_NO;
 
 				m_VoteWillPass = Yes > (Yes + No) / (100.0 / g_Config.m_SvVoteYesPercentage);
 			}
 
 			if(time_get() > m_VoteCloseTime && !g_Config.m_SvVoteMajority)
-				m_VoteEnforce = (m_VoteWillPass && !Veto) ? VOTE_ENFORCE_YES : VOTE_ENFORCE_NO;
+				m_VoteEnforce = (m_VoteWillPass && !Veto && !m_IsDDPPVetoVote) ? VOTE_ENFORCE_YES : VOTE_ENFORCE_NO;
+			if (time_get() > m_VoteCloseTime && m_IsDDPPVetoVote && !No) // pass vote even if nobody votes yes
+				m_VoteEnforce = VOTE_ENFORCE_YES;
 
 			if(m_VoteEnforce == VOTE_ENFORCE_YES)
 			{
@@ -1385,7 +1391,14 @@ void CGameContext::OnTick()
 				Console()->ExecuteLine(m_aVoteCommand);
 				Server()->SetRconCID(IServer::RCON_CID_SERV);
 				EndVote();
-				SendChat(-1, CGameContext::CHAT_ALL, "Vote passed");
+				if (m_IsDDPPVetoVote)
+				{
+					SendChat(-1, CGameContext::CHAT_ALL, "Vote passed because nobody used veto (Veto Vote)");
+				}
+				else
+				{
+					SendChat(-1, CGameContext::CHAT_ALL, "Vote passed");
+				}
 
 				if (m_VoteCreator != -1) // Ignore server votes
 				{
@@ -1414,6 +1427,8 @@ void CGameContext::OnTick()
 				EndVote();
 				if(VetoStop || (m_VoteWillPass && Veto))
 					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because of veto. Find an empty server instead");
+				else if (m_IsDDPPVetoVote)
+					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because someone voted agianst it. (Veto Vote)");
 				else
 					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed");
 			}
@@ -3358,7 +3373,7 @@ void CGameContext::CheckDDPPshutdown()
 			if (players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
-				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?");
+				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", true); // TODO: also this gets called agian if the vote fails
 			}
 			else
 			{
