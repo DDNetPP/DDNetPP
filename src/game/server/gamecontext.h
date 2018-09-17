@@ -128,6 +128,7 @@ public:
 	void AbortVoteKickOnDisconnect(int ClientID);
 
 	int m_VoteCreator;
+	bool m_IsDDPPVetoVote;
 	int64 m_VoteCloseTime;
 	bool m_VoteUpdate;
 	int m_VotePos;
@@ -173,7 +174,7 @@ public:
 	};
 
 	// network
-	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg);
+	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote = false);
 	void SendChatTarget(int To, const char *pText);
 	void SendChatTeam(int Team, const char *pText);
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1);
