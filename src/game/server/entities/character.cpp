@@ -2125,7 +2125,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	if (Server()->IsRecording(m_pPlayer->GetCID()))
 		Server()->StopRecord(m_pPlayer->GetCID());
 
-	//m_pPlayer->m_RespawnTick = Server()->Tick(); //FOKIN FINALLY DISEABLED KILL DELAY. ChillerDragon archived this very proudly!!11elf
+	m_pPlayer->m_RespawnTick = Server()->Tick(); // comment that line out to have instant respawn without scoreboard ( but it is needed for invisible motd updates )
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
 	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
