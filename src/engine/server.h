@@ -208,6 +208,7 @@ public:
 	// DDNet++
 
 	virtual void OnStartBlockTournament() = 0;
+	virtual void OnDDPPshutdown() = 0;
 };
 
 extern IGameServer *CreateGameServer();
