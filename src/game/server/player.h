@@ -579,6 +579,7 @@ public:
 
 	//other
 
+	bool m_IsFakeMotd;
 	bool m_IsTest;
 	int m_failed_escapes;
 	int m_escape_skill;

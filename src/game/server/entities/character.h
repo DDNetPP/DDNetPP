@@ -233,6 +233,7 @@ private:
 	int m_MoveTick;
 	int m_LastMoveDirection;
 	int m_StopMoveTick;
+	void ClearFakeMotd();
 
 public:
 	CGameTeams* Teams();
