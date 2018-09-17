@@ -1831,14 +1831,13 @@ void CGameContext::OnStartBlockTournament()
 	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
 }
 
-void CGameContext::OnDDPPshutdown()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] server shutdown!");
-	//CallVote(-1, aDesc, aCmd, pReason, aChatmsg);
-}
+//void CGameContext::OnDDPPshutdown()
+//{
+//#if defined(CONF_DEBUG)
+//	CALL_STACK_ADD();
+//#endif
+//	SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] server shutdown!");
+//}
 
 void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 {
@@ -3358,7 +3357,8 @@ void CGameContext::CheckDDPPshutdown()
 		{
 			if (players < g_Config.m_SvDDPPshutdownPlayers)
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
+				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
+				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?");
 			}
 			else
 			{
