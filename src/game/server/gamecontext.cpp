@@ -3365,19 +3365,21 @@ void CGameContext::CheckDDPPshutdown()
 		time_t now;
 		struct tm *now_tm;
 		int hour;
+		int min;
 		now = time(NULL);
 		now_tm = localtime(&now);
 		hour = now_tm->tm_hour;
-		if (hour == g_Config.m_SvDDPPshutdownHour)
+		min = now_tm->tm_min;
+		if (hour == g_Config.m_SvDDPPshutdownHour && (min == 0 || min == 5 || min == 10)) //Try it 3 times (slow tick shouldnt trigger it multiple times a minute)
 		{
 			if (players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
-				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", true); // TODO: also this gets called agian if the vote fails
+				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", true);
 			}
 			else
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online."); // TODO: this gets spammed the whole hour  every slow tick or until players leave
+				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online.");
 			}
 		}
 	}
