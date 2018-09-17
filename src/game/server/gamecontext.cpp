@@ -1930,6 +1930,22 @@ int CGameContext::CountConnectedPlayers()
 	return cPlayers;
 }
 
+int CGameContext::CountConnectedHumans()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int cPlayers = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && !m_apPlayers[i]->m_IsDummy)
+		{
+			cPlayers++;
+		}
+	}
+	return cPlayers;
+}
+
 int CGameContext::CountIngameHumans()
 {
 #if defined(CONF_DEBUG)
@@ -3305,7 +3321,7 @@ void CGameContext::CheckDDPPshutdown()
 #endif
 	if (g_Config.m_SvDDPPshutdown)
 	{
-		int players = CountConnectedPlayers();
+		int players = CountConnectedHumans();
 		time_t now;
 		struct tm *now_tm;
 		int hour;

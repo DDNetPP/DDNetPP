@@ -249,6 +249,7 @@ public:
 	int IsMinigame(int playerID);
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
+	int CountConnectedHumans();
 	int CountIngameHumans();
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
