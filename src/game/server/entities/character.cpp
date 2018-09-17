@@ -2790,7 +2790,7 @@ void CCharacter::ClearFakeMotd()
 	if (m_pPlayer->m_IsFakeMotd)
 	{
 		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCID());
-		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "updated fake motd");
+		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "clear fake motd");
 		m_pPlayer->m_IsFakeMotd = false;
 	}
 }

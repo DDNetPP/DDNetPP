@@ -288,6 +288,7 @@ public:
 	void SaveCosmetics(int id);
 	void LoadCosmetics(int id);
 	void DeleteCosmetics(int id);
+	void CheckDDPPshutdown();
 
 	//login and threads (moved to player.h)
 	/*
@@ -333,6 +334,7 @@ public:
 	void SQLPortLogout(int port);
 
 	void DDPP_Tick();
+	void DDPP_SlowTick();
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
     
