@@ -3298,6 +3298,34 @@ void CGameContext::DeleteCosmetics(int id)
 	pChr->UnsetSpookyGhost();
 }
 
+void CGameContext::CheckDDPPshutdown()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (g_Config.m_SvDDPPshutdown)
+	{
+		int players = CountConnectedPlayers();
+		time_t now;
+		struct tm *now_tm;
+		int hour;
+		now = time(NULL);
+		now_tm = localtime(&now);
+		hour = now_tm->tm_hour;
+		if (hour == g_Config.m_SvDDPPshutdownHour)
+		{
+			if (players < g_Config.m_SvDDPPshutdownPlayers)
+			{
+				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
+			}
+			else
+			{
+				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online.");
+			}
+		}
+	}
+}
+
 void CGameContext::DDPP_Tick()	
 {
 #if defined(CONF_DEBUG)
@@ -3353,70 +3381,76 @@ void CGameContext::DDPP_Tick()
 
 	if (Server()->Tick() % 600 == 0) //slow ddpp sub tick
 	{
-		bool StopSurvival = true;
-		for (int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if (!m_apPlayers[i])
-				continue;
+		DDPP_SlowTick();
+	}
+}
 
-			if (m_apPlayers[i]->m_QuestState && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+void CGameContext::DDPP_SlowTick()
+{
+	bool StopSurvival = true;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+
+		if (m_apPlayers[i]->m_QuestState && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+		{
+			if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
 			{
-				if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
-				{
-					SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
-					QuestFailed(i);
-				}
-				else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
-				{
-					SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
-					QuestFailed(i);
-				}
+				SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
+				QuestFailed(i);
 			}
-			if (m_apPlayers[i]->m_IsSurvivaling)
+			else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
 			{
-				StopSurvival = false;
-			}
-			if (m_BlockTournaState == 3)
-			{
-				if (m_apPlayers[i]->m_IsBlockTourning)
-				{
-					m_apPlayers[i]->m_IsBlockTourning = false;
-					if (m_apPlayers[i]->GetCharacter())
-					{
-						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
-					}
-				}
+				SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
+				QuestFailed(i);
 			}
 		}
-
-
-		if (StopSurvival)
+		if (m_apPlayers[i]->m_IsSurvivaling)
 		{
-			m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
+			StopSurvival = false;
 		}
 		if (m_BlockTournaState == 3)
 		{
-			m_BlockTournaState = 0;
-		}
-		if (g_Config.m_SvAllowGlobalChat)
-		{
-			GlobalChatPrintMessage();
-		}
-
-		if (g_Config.m_SvMinDoubleTilePlayers > 0)
-		{
-			if (CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
+			if (m_apPlayers[i]->m_IsBlockTourning)
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
-				MoneyDoubleEnoughPlayers = false;
-			}
-			if (CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == false)
-			{
-				SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
-				MoneyDoubleEnoughPlayers = true;
+				m_apPlayers[i]->m_IsBlockTourning = false;
+				if (m_apPlayers[i]->GetCharacter())
+				{
+					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+				}
 			}
 		}
 	}
+
+
+	if (StopSurvival)
+	{
+		m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
+	}
+	if (m_BlockTournaState == 3)
+	{
+		m_BlockTournaState = 0;
+	}
+	if (g_Config.m_SvAllowGlobalChat)
+	{
+		GlobalChatPrintMessage();
+	}
+
+	if (g_Config.m_SvMinDoubleTilePlayers > 0)
+	{
+		if (CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla 
+		{
+			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
+			MoneyDoubleEnoughPlayers = false;
+		}
+		if (CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == false)
+		{
+			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
+			MoneyDoubleEnoughPlayers = true;
+		}
+	}
+	CheckDDPPshutdown();
 }
 
 void CGameContext::ChilliClanTick(int i)
