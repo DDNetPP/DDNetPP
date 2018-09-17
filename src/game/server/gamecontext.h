@@ -225,7 +225,7 @@ public:
 	//ChillerDragon
 
 	virtual void OnStartBlockTournament();
-	virtual void OnDDPPshutdown();
+	//virtual void OnDDPPshutdown();
 
 	void ShowProfile(int ViewerID, int ViewedID);
 	void ShowAdminWelcome(int ID);
