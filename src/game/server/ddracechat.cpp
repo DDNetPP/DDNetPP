@@ -4751,6 +4751,39 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 	}
 }
 
+void CGameContext::ConBlock(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] you have to be alive to use this command");
+		return;
+	}
+
+	if (pPlayer->m_IsBlockDeathmatch)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] you are already in deathmatch mode.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] you joined the deathmatch arena!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] type /leave to leave");
+		pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		pPlayer->m_IsBlockDeathmatch = true;
+	}
+}
+
 void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
