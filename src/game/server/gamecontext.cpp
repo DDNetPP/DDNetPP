@@ -1926,6 +1926,10 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		{
 			return 8;
 		}
+		if (pPlayer->m_IsBlockDeathmatch)
+		{
+			return 9;
+		}
 	}
 
 	return 0;
@@ -7108,8 +7112,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						if (pPlayer->GetCharacter())
-							pPlayer->GetCharacter()->m_RandomCosmetics ^= true;
+						pPlayer->m_IsBlockDeathmatch ^= true;
 						str_format(aBuf, sizeof(aBuf), "survival alive: %d", pPlayer->m_IsSurvivalAlive);
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);

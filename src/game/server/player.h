@@ -275,6 +275,8 @@ public:
 
 	bool m_IsBlockTourning;
 
+	bool m_IsBlockDeathmatch;
+
 	//blockwave
 
 	bool m_IsBlockWaving;
