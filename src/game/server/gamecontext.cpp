@@ -10021,6 +10021,20 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					dbg_msg("game layer", "got no hammer tile at (%.2f|%.2f)", NoHammer.m_Center.x, NoHammer.m_Center.y);
 					m_NoHammer.push_back(NoHammer);
 				}
+				else if (Index == TILE_BLOCK_DM_A1)
+				{
+					CBlockDMA1 BlockDMA1;
+					BlockDMA1.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got block deathmatch(1) tile at (%.2f|%.2f)", BlockDMA1.m_Center.x, BlockDMA1.m_Center.y);
+					m_BlockDMA1.push_back(BlockDMA1);
+				}
+				else if (Index == TILE_BLOCK_DM_A2)
+				{
+					CBlockDMA2 BlockDMA2;
+					BlockDMA2.m_Center = vec2(x, y);
+					dbg_msg("game layer", "got block deathmatch(2) tile at (%.2f|%.2f)", BlockDMA2.m_Center.x, BlockDMA2.m_Center.y);
+					m_BlockDMA2.push_back(BlockDMA2);
+				}
 				if(Index >= ENTITY_OFFSET)
 				{
 					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
