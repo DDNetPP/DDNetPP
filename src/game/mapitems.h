@@ -190,6 +190,7 @@ enum
 	// block deathmath spawns
 	TILE_BLOCK_DM_A1 = 148, //arena 1
 	TILE_BLOCK_DM_A2 = 149, //arena 2
+	TILE_BLOCK_DM_JOIN = 150, //join block dm mode
 
 	// cosmetics
 	TILE_RAINBOW = 176,

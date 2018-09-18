@@ -6982,10 +6982,19 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				// geb mal ein cmd /join spec   && /join fight (player)
 				if (!str_comp(pMsg->m_pMessage + 1, "leave"))
 				{
-					SendChatTarget(ClientID, "leave what? xd");
-					SendChatTarget(ClientID, "Do you want to leave the minigame you are playing?");
-					SendChatTarget(ClientID, "then type '/<minigame> leave'");
-					SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
+					if (pPlayer->m_IsBlockDeathmatch)
+					{
+						SendChatTarget(ClientID, "[BLOCK] you left the deathmatch arena!");
+						SendChatTarget(ClientID, "[BLOCK] now kys :p");
+						pPlayer->m_IsBlockDeathmatch = false;
+					}
+					else
+					{
+						SendChatTarget(ClientID, "leave what? xd");
+						SendChatTarget(ClientID, "Do you want to leave the minigame you are playing?");
+						SendChatTarget(ClientID, "then type '/<minigame> leave'");
+						SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
+					}
 					//CCharacter *pOwner = GetPlayerChar(ClientID);
 					//if (!pOwner)
 					//	return;

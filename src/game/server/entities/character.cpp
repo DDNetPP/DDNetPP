@@ -3678,6 +3678,16 @@ void CCharacter::HandleTiles(int Index)
 		m_WasInRoom=true;
 	}
 
+	if (m_TileIndex == TILE_BLOCK_DM_JOIN || m_TileFIndex == TILE_BLOCK_DM_JOIN)
+	{
+		if (!m_pPlayer->m_IsBlockDeathmatch)
+		{
+			m_pPlayer->m_IsBlockDeathmatch = true;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[BLOCK] you joined the deathmatch arena!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[BLOCK] type /leave to leave");
+		}
+	}
+
 	if(m_TileIndex == TILE_BANK_IN || m_TileFIndex == TILE_BANK_IN) //BANKTILES
 	{
 		if (Server()->Tick() % 30 == 0 && GameServer()->m_IsBankOpen)
