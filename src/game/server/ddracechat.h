@@ -111,6 +111,7 @@ CHAT_COMMAND("pvp_arena", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPvpArena, this
 CHAT_COMMAND("bomb", "?s?i?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBomb, this, "join, create and leave bomb games and more. more help at '/bomb help'", 0)
 CHAT_COMMAND("insta", "?ssr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConInsta, this, "play instagib games like gdm or idm", 0)
 CHAT_COMMAND("join", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConJoin, this, "join the current event", 0)
+CHAT_COMMAND("block", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBlock, this, "join block deathmatch", 0)
 CHAT_COMMAND("balance", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBalance, this, "battle other players in tee balancing", 0)
 CHAT_COMMAND("survival", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSurvival, this, "play infamous survival mod", 0)
 CHAT_COMMAND("blockwave", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBlockWave, this, "play block agianst bot waves", 0)

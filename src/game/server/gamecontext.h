@@ -855,6 +855,7 @@ private:
 	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
 	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
 	static void ConJoin(IConsole::IResult *pResult, void *pUserData); //join the current event
+	static void ConBlock(IConsole::IResult *pResult, void *pUserData);
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 
