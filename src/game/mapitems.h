@@ -187,6 +187,10 @@ enum
 	TILE_BOTSPAWN_3 = 146,
 	TILE_BOTSPAWN_4 = 147,
 
+	// block deathmath spawns
+	TILE_BLOCK_DM_A1 = 148, //arena 1
+	TILE_BLOCK_DM_A2 = 149, //arena 2
+
 	// cosmetics
 	TILE_RAINBOW = 176,
 	TILE_BLOODY = 177,

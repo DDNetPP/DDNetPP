@@ -622,6 +622,21 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CNoHammer> m_NoHammer;
+
+	struct CBlockDMA1 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockDMA1> m_BlockDMA1;
+
+	struct CBlockDMA2 // probably doesn't belong here, but whatever
+	{
+		int m_NumContestants;
+		vec2 m_Center;
+	};
+	std::vector<CBlockDMA2> m_BlockDMA2;
+
 private:
 
 	bool m_VoteWillPass;
