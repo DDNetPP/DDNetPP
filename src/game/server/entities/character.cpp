@@ -220,6 +220,41 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			m_pPlayer->m_DummySpawnTile = 0;
 		}
 	}
+	else if (m_pPlayer->m_IsBlockDeathmatch)
+	{
+		if (g_Config.m_SvBlockDMarena == 1)
+		{
+			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A1);
+			if (BlockDMSpawn != vec2(-1, -1))
+			{
+				SetPosition(BlockDMSpawn);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 1 found.");
+				m_pPlayer->m_IsBlockDeathmatch = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+		else if (g_Config.m_SvBlockDMarena == 2)
+		{
+			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A2);
+			if (BlockDMSpawn != vec2(-1, -1))
+			{
+				SetPosition(BlockDMSpawn);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 2 found.");
+				m_pPlayer->m_IsBlockDeathmatch = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+		else
+		{
+			dbg_msg("WARNING", "Invalid block deathmatch arena");
+		}
+	}
 	else if (m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
 	{
 		if (m_pPlayer->m_IsBalanceBattlePlayer1)
@@ -234,6 +269,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
 				m_pPlayer->m_IsBalanceBatteling = false;
+				m_Core.m_Pos = m_Pos;
 			}
 		}
 		else
@@ -248,6 +284,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
 				m_pPlayer->m_IsBalanceBatteling = false;
+				m_Core.m_Pos = m_Pos;
 			}
 		}
 	}
