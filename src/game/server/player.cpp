@@ -420,7 +420,7 @@ void CPlayer::Tick()
 
 	if (Server()->Tick() % 600 == 0)
 	{
-		if (m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -5 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+		if (m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
 		{
 			m_Team = TEAM_BLUE;
 		}
