@@ -6749,11 +6749,11 @@ void CCharacter::DummyTick()
 				}
 
 				//Starty movement
-				if (m_Core.m_Pos.x < 112 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.x > 121 * 32 + V3_OFFSET_X && IsGrounded() && pChr->IsGrounded())
+				if (m_Core.m_Pos.x < 389 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.x > 398 * 32 + V3_OFFSET_X && IsGrounded() && pChr->IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
-				if (m_Core.m_Pos.x < 112 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 30 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 121 * 32 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x < 389 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 307 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 398 * 32 + V3_OFFSET_X)
 				{
 					m_Input.m_Direction = 1;
 				}
@@ -6763,7 +6763,7 @@ void CCharacter::DummyTick()
 				//important freeze doges leave them last!:
 
 				//freeze prevention mainpart down right
-				if (m_Core.m_Pos.x > 120 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 124 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				if (m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 401 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
 				{
 					m_Input.m_Jump = 1;
 					m_Input.m_Hook = 1;
@@ -6778,7 +6778,7 @@ void CCharacter::DummyTick()
 				}
 
 				//freeze prevention mainpart down left
-				if (m_Core.m_Pos.x > 110 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 114 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				if (m_Core.m_Pos.x > 387 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
 				{
 					m_Input.m_Jump = 1;
 					m_Input.m_Hook = 1;
@@ -6793,7 +6793,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention top left
-				if (m_Core.m_Pos.x < 114 * 32 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 110 * 32 - 10 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 387 * 32 - 10 + V3_OFFSET_X)
 				{
 					m_Input.m_Direction = -1;
 					m_Input.m_Hook = 1;
@@ -6811,7 +6811,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention top right
-				if (m_Core.m_Pos.x < 125 * 32 + 10 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 120 * 32 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x < 402 * 32 + 10 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X)
 				{
 					m_Input.m_Direction = 1;
 					m_Input.m_Hook = 1;
@@ -6829,7 +6829,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention mid
-				if (m_Core.m_Pos.x > 116 * 32 - 7 + V3_OFFSET_X && m_Core.m_Pos.x < 119 * 32 + 7 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x > 393 * 32 - 7 + V3_OFFSET_X && m_Core.m_Pos.x < 396 * 32 + 7 + V3_OFFSET_X)
 				{
 					if (m_Core.m_Vel.x < 0.0f)
 					{
@@ -6855,12 +6855,12 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention left 
-				if (m_Core.m_Pos.x < 103 * 32 + V3_OFFSET_X || m_Core.m_Pos.x < 105 * 32 + V3_OFFSET_X && m_Core.m_Vel.x < -8.4f)
+				if (m_Core.m_Pos.x < 380 * 32 + V3_OFFSET_X || m_Core.m_Pos.x < 382 * 32 + V3_OFFSET_X && m_Core.m_Vel.x < -8.4f)
 				{
 					m_Input.m_Direction = 1;
 				}
 				//Freeze prevention right
-				if (m_Core.m_Pos.x > 131 * 32 + V3_OFFSET_X || m_Core.m_Pos.x > 129 * 32 + V3_OFFSET_X && m_Core.m_Vel.x > 8.4f)
+				if (m_Core.m_Pos.x > 408 * 32 + V3_OFFSET_X || m_Core.m_Pos.x > 406 * 32 + V3_OFFSET_X && m_Core.m_Vel.x > 8.4f)
 				{
 					m_Input.m_Direction = -1;
 				}
