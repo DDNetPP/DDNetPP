@@ -6780,6 +6780,66 @@ void CCharacter::DummyTick()
 					}
 				}
 
+				// attack throw into left freeze wall
+				if (m_Core.m_Pos.x < 383 * 32 + V3_OFFSET_X)
+				{
+					if (pChr->m_Pos.y > m_Core.m_Pos.y + 190)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else if (pChr->m_Pos.y < m_Core.m_Pos.y - 190)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else
+					{
+						if (pChr->m_Core.m_Vel.x < -1.6f)
+						{
+							if (pChr->m_Pos.x < m_Core.m_Pos.x - 7 && pChr->m_Pos.x > m_Core.m_Pos.x - 90) //enemy on the left side
+							{
+								if (pChr->m_Pos.y < m_Core.m_Pos.y + 90 && pChr->m_Pos.y > m_Core.m_Pos.y - 90)
+								{
+									if (m_FreezeTime == 0)
+									{
+										m_LatestInput.m_Fire++;
+										m_Input.m_Fire++;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				// attack throw into right freeze wall
+				if (m_Core.m_Pos.x > 404 * 32 + V3_OFFSET_X)
+				{
+					if (pChr->m_Pos.y > m_Core.m_Pos.y + 190)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else if (pChr->m_Pos.y < m_Core.m_Pos.y - 190)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else
+					{
+						if (pChr->m_Core.m_Vel.x > 1.6f)
+						{
+							if (pChr->m_Pos.x > m_Core.m_Pos.x + 7 && pChr->m_Pos.x < m_Core.m_Pos.x + 90) //enemy on the right side
+							{
+								if (pChr->m_Pos.y > m_Core.m_Pos.y - 90 && pChr->m_Pos.y < m_Core.m_Pos.y + 90)
+								{
+									if (m_FreezeTime == 0)
+									{
+										m_LatestInput.m_Fire++;
+										m_Input.m_Fire++;
+									}
+								}
+							}
+						}
+					}
+				}
+
 				/*************************************************
 				*                                                *
 				*                D E F E N D (move)              *
