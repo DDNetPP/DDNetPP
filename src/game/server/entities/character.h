@@ -21,6 +21,9 @@
 
 #define FNN_MOVE_LEN 32768
 
+#define V3_OFFSET_X 277 * 32
+#define V3_OFFSET_Y 48 * 32
+
 class CGameTeams;
 
 enum

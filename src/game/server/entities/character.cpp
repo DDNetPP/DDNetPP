@@ -6682,6 +6682,191 @@ void CCharacter::DummyTick()
 				}
 			}
 		}
+		else if (m_pPlayer->m_DummyMode == -6)  //ChillBlock5 blmapv3 1o1 mode
+		{
+			//rest dummy 
+			m_Input.m_Hook = 0;
+			m_Input.m_Jump = 0;
+			m_Input.m_Direction = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Fire = 0;
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+			if (pChr && pChr->IsAlive())
+			{
+
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+
+				/*************************************************
+				*                                                *
+				*                A T T A C K                     *
+				*                                                *
+				**************************************************/
+
+				//TODO: add me
+
+				/*************************************************
+				*                                                *
+				*                D E F E N D (move)              *
+				*                                                *
+				**************************************************/
+
+				//########################################
+				//Worst hammer switch code eu west rofl! #
+				//########################################
+				//switch to hammer if enemy is near enough
+				if (pChr->m_Pos.x > m_Core.m_Pos.x + 130)
+				{
+					//default is gun
+					SetWeapon(1);
+				}
+				else if (pChr->m_Pos.x < m_Core.m_Pos.x - 130)
+				{
+					//default is gun
+					SetWeapon(1);
+				}
+				else
+				{
+					//switch to hammer if enemy is near enough
+					if (pChr->m_Pos.y > m_Core.m_Pos.y + 130)
+					{
+						//default is gun
+						SetWeapon(1);
+					}
+					else if (pChr->m_Pos.y < m_Core.m_Pos.y - 130)
+					{
+						//default is gun
+						SetWeapon(1);
+					}
+					else
+					{
+						//near --> hammer
+						SetWeapon(0);
+					}
+				}
+
+				//Starty movement
+				if (m_Core.m_Pos.x < 112 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.x > 121 * 32 + V3_OFFSET_X && IsGrounded() && pChr->IsGrounded())
+				{
+					m_Input.m_Jump = 1;
+				}
+				if (m_Core.m_Pos.x < 112 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 30 * 32 + V3_OFFSET_X && pChr->m_Pos.x > 121 * 32 + V3_OFFSET_X)
+				{
+					m_Input.m_Direction = 1;
+				}
+
+
+
+				//important freeze doges leave them last!:
+
+				//freeze prevention mainpart down right
+				if (m_Core.m_Pos.x > 120 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 124 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Hook = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Hook = 0;
+						m_Input.m_Jump = 0;
+					}
+					m_Input.m_Direction = 1;
+					m_Input.m_TargetX = 200;
+					m_Input.m_TargetY = 80;
+				}
+
+				//freeze prevention mainpart down left
+				if (m_Core.m_Pos.x > 110 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 114 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				{
+					m_Input.m_Jump = 1;
+					m_Input.m_Hook = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Hook = 0;
+						m_Input.m_Jump = 0;
+					}
+					m_Input.m_Direction = -1;
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = 80;
+				}
+
+				//Freeze prevention top left
+				if (m_Core.m_Pos.x < 114 * 32 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 110 * 32 - 10 + V3_OFFSET_X)
+				{
+					m_Input.m_Direction = -1;
+					m_Input.m_Hook = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Hook = 0;
+					}
+					m_Input.m_TargetX = -200;
+					m_Input.m_TargetY = -87;
+					if (m_Core.m_Pos.y > 19 * 32 + 20)
+					{
+						m_Input.m_TargetX = -200;
+						m_Input.m_TargetY = -210;
+					}
+				}
+
+				//Freeze prevention top right
+				if (m_Core.m_Pos.x < 125 * 32 + 10 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 120 * 32 + V3_OFFSET_X)
+				{
+					m_Input.m_Direction = 1;
+					m_Input.m_Hook = 1;
+					if (Server()->Tick() % 20 == 0)
+					{
+						m_Input.m_Hook = 0;
+					}
+					m_Input.m_TargetX = 200;
+					m_Input.m_TargetY = -87;
+					if (m_Core.m_Pos.y > 19 * 32 + 20 + V3_OFFSET_Y)
+					{
+						m_Input.m_TargetX = 200;
+						m_Input.m_TargetY = -210;
+					}
+				}
+
+				//Freeze prevention mid
+				if (m_Core.m_Pos.x > 116 * 32 - 7 + V3_OFFSET_X && m_Core.m_Pos.x < 119 * 32 + 7 + V3_OFFSET_X)
+				{
+					if (m_Core.m_Vel.x < 0.0f)
+					{
+						m_Input.m_Direction = -1;
+					}
+					else
+					{
+						m_Input.m_Direction = 1;
+					}
+
+					if (m_Core.m_Pos.y > 29 * 32 - 1 + V3_OFFSET_Y && IsGrounded() == false)
+					{
+						m_Input.m_Jump = 1;
+						if (m_Core.m_Jumped > 2) //no jumps == rip   --> panic hook
+						{
+							m_Input.m_Hook = 1;
+							if (Server()->Tick() % 15 == 0)
+							{
+								m_Input.m_Hook = 0;
+							}
+						}
+					}
+				}
+
+				//Freeze prevention left 
+				if (m_Core.m_Pos.x < 103 * 32 + V3_OFFSET_X || m_Core.m_Pos.x < 105 * 32 + V3_OFFSET_X && m_Core.m_Vel.x < -8.4f)
+				{
+					m_Input.m_Direction = 1;
+				}
+				//Freeze prevention right
+				if (m_Core.m_Pos.x > 131 * 32 + V3_OFFSET_X || m_Core.m_Pos.x > 129 * 32 + V3_OFFSET_X && m_Core.m_Vel.x > 8.4f)
+				{
+					m_Input.m_Direction = -1;
+				}
+			}
+
+		}
 		else if (m_pPlayer->m_DummyMode == 3)
 		{
 			//rest dummy (zuruecksetzten)
@@ -12147,7 +12332,7 @@ void CCharacter::DummyTick()
 				m_Input.m_Fire = 0;
 			}
 		}
-		else if (m_pPlayer->m_DummyMode == 28)
+		else if (m_pPlayer->m_DummyMode == 28) // some BlmapChill
 		{
 			//RestOnChange (zuruecksetzten)
 			m_Input.m_Hook = 0;

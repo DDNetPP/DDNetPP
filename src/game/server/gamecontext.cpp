@@ -5698,6 +5698,7 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(29);//blocker
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer
+		CreateNewDummy(-6);//blocker dm v3
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{
@@ -5785,6 +5786,10 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	else if (dummymode == -5) //grenade fng
 	{
 		JoinInstagib(4, true, DummyID);
+	}
+	else if (dummymode == -6) //ChillBlock5 v3 deathmatch
+	{
+		m_apPlayers[DummyID]->m_IsBlockDeathmatch = true;
 	}
 
 	OnClientEnter(DummyID, silent);
