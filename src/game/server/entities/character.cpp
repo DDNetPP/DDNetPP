@@ -6738,6 +6738,48 @@ void CCharacter::DummyTick()
 					}
 				}
 
+				//attack bot in the middle and enemy in the air -> try to hook down
+				/* quick ascii art xd
+                              #    #
+                          #   #    #   #
+                 enemy    #####    #####
+  
+
+                           bot
+                          #####    #####
+                          #   #    #   #
+                              #
+                 ###########################
+				*/
+				if (m_Core.m_Pos.y < 78 * 32 + V3_OFFSET_Y && m_Core.m_Pos.y > 70 * 32 + V3_OFFSET_Y && IsGrounded()) // if bot is in position
+				{
+					if (pChr->m_Pos.x < 389 * 32 + V3_OFFSET_X || pChr->m_Pos.x > 400 * 32 + V3_OFFSET_X) //enemy on the left side
+					{
+						if (pChr->m_Pos.y < 76 * 32 + V3_OFFSET_Y && pChr->m_Core.m_Vel.y > 4.2f)
+						{
+							m_Input.m_Hook = 1;
+						}
+					}
+
+					if (m_Core.m_HookState == HOOK_FLYING)
+					{
+						m_Input.m_Hook = 1;
+					}
+					else if (m_Core.m_HookState == HOOK_GRABBED)
+					{
+						m_Input.m_Hook = 1;
+						//stay strong and walk agianst hook pull
+						if (m_Core.m_Pos.x < 392 * 32 + V3_OFFSET_X) //left side
+						{
+							m_Input.m_Direction = 1;
+						}
+						else if (m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X) //right side
+						{
+							m_Input.m_Direction = -1;
+						}
+					}
+				}
+
 				/*************************************************
 				*                                                *
 				*                D E F E N D (move)              *
