@@ -6706,6 +6706,36 @@ void CCharacter::DummyTick()
 				*                                                *
 				**************************************************/
 
+				//swing enemy up
+				if (m_Core.m_Pos.y < pChr->m_Pos.y - 20 && !IsGrounded() && !pChr->isFreezed)
+				{
+					m_Input.m_Hook = 1;
+					float dist = distance(pChr->m_Pos, m_Core.m_Pos);
+					if (dist < 250.f)
+					{
+						if (m_Core.m_Pos.x < pChr->m_Pos.x)
+						{
+							m_Input.m_Direction = -1;
+						}
+						else
+						{
+							m_Input.m_Direction = 1;
+						}
+						if (dist < 80.f) // hammer dist
+						{
+							if (abs(pChr->m_Core.m_Vel.x) > 2.6f)
+							{
+								if (m_FreezeTime == 0)
+								{
+									m_LatestInput.m_Fire++;
+									m_Input.m_Fire++;
+								}
+							}
+						}
+					}
+				}
+
+
 				//attack in mid
 				if (pChr->m_Pos.x > 393 * 32 - 7 + V3_OFFSET_X && pChr->m_Pos.x < 396 * 32 + 7 + V3_OFFSET_X)
 				{
@@ -6732,9 +6762,13 @@ void CCharacter::DummyTick()
 						}
 					}
 
-					if (pChr->m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && pChr->IsGrounded() == false && pChr->isFreezed)
+					//if (pChr->m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && pChr->IsGrounded() == false && pChr->isFreezed)
+					//{
+					//	m_Input.m_Hook = 0; //rekt -> let him fall
+					//}
+					if (pChr->isFreezed)
 					{
-						m_Input.m_Hook = 0; //rekt -> let him fall
+						m_Input.m_Hook = 0;
 					}
 				}
 
