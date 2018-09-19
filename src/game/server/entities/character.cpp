@@ -6749,7 +6749,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Starty movement
-				if (m_Core.m_Pos.x < 389 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.y > 31 * 32 + V3_OFFSET_Y && pChr->m_Pos.x > 398 * 32 + V3_OFFSET_X && IsGrounded() && pChr->IsGrounded())
+				if (m_Core.m_Pos.x < 389 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 79 * 32 + V3_OFFSET_Y && pChr->m_Pos.y > 79 * 32 + V3_OFFSET_Y && pChr->m_Pos.x > 398 * 32 + V3_OFFSET_X && IsGrounded() && pChr->IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
@@ -6763,7 +6763,7 @@ void CCharacter::DummyTick()
 				//important freeze doges leave them last!:
 
 				//freeze prevention mainpart down right
-				if (m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 401 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				if (m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 401 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 78 * 32 + V3_OFFSET_Y)
 				{
 					m_Input.m_Jump = 1;
 					m_Input.m_Hook = 1;
@@ -6778,7 +6778,7 @@ void CCharacter::DummyTick()
 				}
 
 				//freeze prevention mainpart down left
-				if (m_Core.m_Pos.x > 387 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 30 * 32 + V3_OFFSET_Y)
+				if (m_Core.m_Pos.x > 387 * 32 + V3_OFFSET_X && m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y > 78 * 32 + V3_OFFSET_Y)
 				{
 					m_Input.m_Jump = 1;
 					m_Input.m_Hook = 1;
@@ -6821,7 +6821,7 @@ void CCharacter::DummyTick()
 					}
 					m_Input.m_TargetX = 200;
 					m_Input.m_TargetY = -87;
-					if (m_Core.m_Pos.y > 19 * 32 + 20 + V3_OFFSET_Y)
+					if (m_Core.m_Pos.y > 67 * 32 + 20 + V3_OFFSET_Y)
 					{
 						m_Input.m_TargetX = 200;
 						m_Input.m_TargetY = -210;
@@ -6840,7 +6840,7 @@ void CCharacter::DummyTick()
 						m_Input.m_Direction = 1;
 					}
 
-					if (m_Core.m_Pos.y > 29 * 32 - 1 + V3_OFFSET_Y && IsGrounded() == false)
+					if (m_Core.m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && IsGrounded() == false)
 					{
 						m_Input.m_Jump = 1;
 						if (m_Core.m_Jumped > 2) //no jumps == rip   --> panic hook

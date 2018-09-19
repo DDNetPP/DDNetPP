@@ -22,7 +22,7 @@
 #define FNN_MOVE_LEN 32768
 
 #define V3_OFFSET_X 0 * 32 //was 277
-#define V3_OFFSET_Y 48 * 32
+#define V3_OFFSET_Y 0 * 32 //was 48
 
 class CGameTeams;
 
