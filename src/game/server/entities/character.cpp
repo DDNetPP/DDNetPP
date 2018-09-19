@@ -6691,7 +6691,7 @@ void CCharacter::DummyTick()
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
 
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 			if (pChr && pChr->IsAlive())
 			{
 
@@ -6706,7 +6706,37 @@ void CCharacter::DummyTick()
 				*                                                *
 				**************************************************/
 
-				//TODO: add me
+				//attack in mid
+				if (pChr->m_Pos.x > 393 * 32 - 7 + V3_OFFSET_X && pChr->m_Pos.x < 396 * 32 + 7 + V3_OFFSET_X)
+				{
+					if (pChr->m_Pos.x < m_Core.m_Pos.x) // bot on the left
+					{
+						if (pChr->m_Core.m_Vel.x < 0.0f)
+						{
+							m_Input.m_Hook = 1;
+						}
+						else
+						{
+							m_Input.m_Hook = 0;
+						}
+					}
+					else // bot on the right
+					{
+						if (pChr->m_Core.m_Vel.x < 0.0f)
+						{
+							m_Input.m_Hook = 0;
+						}
+						else
+						{
+							m_Input.m_Hook = 1;
+						}
+					}
+
+					if (pChr->m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && pChr->IsGrounded() == false && pChr->isFreezed)
+					{
+						m_Input.m_Hook = 0; //rekt -> let him fall
+					}
+				}
 
 				/*************************************************
 				*                                                *
@@ -6793,7 +6823,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention top left
-				if (m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 387 * 32 - 10 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x < 391 * 32 + V3_OFFSET_X && m_Core.m_Pos.y < 71 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 387 * 32 - 10 + V3_OFFSET_X)
 				{
 					m_Input.m_Direction = -1;
 					m_Input.m_Hook = 1;
@@ -6811,7 +6841,7 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention top right
-				if (m_Core.m_Pos.x < 402 * 32 + 10 + V3_OFFSET_X && m_Core.m_Pos.y < 23 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X)
+				if (m_Core.m_Pos.x < 402 * 32 + 10 + V3_OFFSET_X && m_Core.m_Pos.y < 71 * 32 + V3_OFFSET_Y && m_Core.m_Pos.x > 397 * 32 + V3_OFFSET_X)
 				{
 					m_Input.m_Direction = 1;
 					m_Input.m_Hook = 1;
