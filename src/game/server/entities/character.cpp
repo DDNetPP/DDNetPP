@@ -4323,7 +4323,12 @@ bool CCharacter::UnFreeze()
 			}
 			m_WeaponsBackupped = false;
 		}
-		m_LastHitWeapon = -1;
+
+		if (!m_GotTasered)
+			m_LastHitWeapon = -1;
+		else
+			m_GotTasered = false;
+
 		if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Got)
 			m_Core.m_ActiveWeapon = WEAPON_GUN;
 		m_FreezeTime = 0;
