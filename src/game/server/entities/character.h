@@ -339,9 +339,11 @@ public:
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h
 
-	int m_LastHitWeapon;
+	//weapons in kill messages
 
+	int m_LastHitWeapon;
 	int m_OldLastHookedPlayer;
+	bool m_GotTasered;
 
 	//drop weapons
 	void DropWeapon(int WeaponID);
