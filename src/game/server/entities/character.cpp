@@ -4362,18 +4362,27 @@ void CCharacter::MoneyTile2()
 			return;
 		}
 
-		//vip gives +1 bonus
-		if (m_pPlayer->m_IsModerator)
-		{
-			m_pPlayer->m_xp++;
-			m_pPlayer->m_money++;
-		}
+		int VIPBonus = 0;
+		bool IsVIP = false;
 
 		//vip+ gives +2 bonus
 		if (m_pPlayer->m_IsSuperModerator)
 		{
 			m_pPlayer->m_xp += 2;
 			m_pPlayer->m_money += 2;
+
+			VIPBonus = 2;
+			IsVIP = true;
+		}
+
+		//vip gives +1 bonus
+		if (m_pPlayer->m_IsModerator)
+		{
+			m_pPlayer->m_xp++;
+			m_pPlayer->m_money++;
+
+			VIPBonus = 1;
+			IsVIP = true;
 		}
 
 		//give xp
@@ -4441,20 +4450,6 @@ void CCharacter::MoneyTile2()
 				{
 					return;
 				}
-			}
-
-			int VIPBonus = 0;
-			bool IsVIP = false;
-
-			if (m_pPlayer->m_IsSuperModerator)
-			{
-				VIPBonus = 2;
-				IsVIP = true;
-			}
-			else if (m_pPlayer->m_IsModerator)
-			{
-				VIPBonus = 1;
-				IsVIP = true;
 			}
 
 			if (m_pPlayer->m_PoliceRank > 0)
@@ -4556,21 +4551,28 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_xp++;
 		}
 
+		int VIPBonus = 0;
+		bool IsVIP = false;
+
+		//vip+ gives +2 bonus
+		if (m_pPlayer->m_IsSuperModerator)
+		{
+			m_pPlayer->m_xp += 2;
+			m_pPlayer->m_money += 2;
+
+			VIPBonus = 2;
+			IsVIP = true;
+		}
 
 		//vip gives +1 bonus
 		if (m_pPlayer->m_IsModerator)
 		{
 			m_pPlayer->m_xp++;
 			m_pPlayer->m_money++;
-		}
 
-		//vip+ gives +2 bonus
-		if (m_pPlayer->m_IsSuperModerator)
-		{
-			m_pPlayer->m_xp+=2;
-			m_pPlayer->m_money+=2;
+			VIPBonus = 1;
+			IsVIP = true;
 		}
-
 
 		//give money & xp
 		if (m_survivexpvalue == 0)
@@ -4635,20 +4637,6 @@ void CCharacter::MoneyTile()
 					return;
 				}
 			}
-
-			int VIPBonus = 0;
-			bool IsVIP = false;
-
-			if (m_pPlayer->m_IsSuperModerator)
-			{
-				VIPBonus = 2;
-				IsVIP = true;
-			}
-			else if (m_pPlayer->m_IsModerator)
-			{
-				VIPBonus = 1;
-				IsVIP = true;
-			}	
 
 			if (m_survivexpvalue == 0)
 			{
