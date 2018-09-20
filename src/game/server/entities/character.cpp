@@ -4409,10 +4409,18 @@ void CCharacter::MoneyTile2()
 			return;
 		}
 
-		if (GameServer()->Server()->IsAuthed(m_pPlayer->GetCID()))
+		//vip+ get 2 bonus
+		if (m_pPlayer->m_IsSuperModerator)
+		{
+			m_pPlayer->m_xp += 2;
+			m_pPlayer->m_money += 2;
+		}
+
+		//vip get 1 bonus
+		else if (m_pPlayer->m_IsModerator)
 		{
 			m_pPlayer->m_xp++;
-			//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "test");
+			m_pPlayer->m_money++;
 		}
 
 		//give xp
@@ -4582,10 +4590,18 @@ void CCharacter::MoneyTile()
 		}
 
 
-		//moderator and admin extra xp
-		if (GameServer()->Server()->IsAuthed(m_pPlayer->GetCID()))
+		//vip+ get 2 bonus
+		if (m_pPlayer->m_IsSuperModerator)
+		{
+			m_pPlayer->m_xp+=2;
+			m_pPlayer->m_money+=2;
+		}
+
+		//vip get 1 bonus
+		else if (m_pPlayer->m_IsModerator)
 		{
 			m_pPlayer->m_xp++;
+			m_pPlayer->m_money++;
 		}
 
 
