@@ -4520,7 +4520,7 @@ void CCharacter::MoneyTile2()
 					else if (m_survivexpvalue > 0)
 					{
 						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%d] +1 +%d Police +%d vip\nXP [%d/%d] +2 +%d survival\nLevel [%d]%s", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue, m_pPlayer->m_level, FixBroadcast);
+						str_format(aBuf, sizeof(aBuf), "Money [%d] +1 +%d Police +%d vip\nXP [%d/%d] +2 +%d vip +%d survival\nLevel [%d]%s", m_pPlayer->m_money, m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue, m_pPlayer->m_level, FixBroadcast);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					}
 				}
