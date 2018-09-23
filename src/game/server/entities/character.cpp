@@ -1610,7 +1610,7 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnShotgunActive = 0;
 			SetWeaponGot(WEAPON_SHOTGUN, false);
-			SetWeapon(1);
+			SetWeaponThatChrHas();
 		}
 	}
 
@@ -1621,7 +1621,7 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnGrenadeActive = 0;
 			SetWeaponGot(WEAPON_GRENADE, false);
-			SetWeapon(1);
+			SetWeaponThatChrHas();
 		}
 	}
 
@@ -1632,7 +1632,7 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_pPlayer->m_SpawnRifleActive = 0;
 			SetWeaponGot(WEAPON_RIFLE, false);
-			SetWeapon(1);
+			SetWeaponThatChrHas();
 		}
 	}
 
