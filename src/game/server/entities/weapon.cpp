@@ -159,6 +159,18 @@ void CWeapon::Tick()
 	if (GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y) == TILE_DEATH || GameLayerClipped(m_Pos))
 	{
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
+
+
+		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+		for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+		{
+			if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+			{
+				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+			}
+		}
+
 		Reset();
 		return;
 	}
