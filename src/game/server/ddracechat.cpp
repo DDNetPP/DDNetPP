@@ -556,79 +556,95 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
+	// if you add something to the shop make sure to also add extend the list here and add a page to ShopWindow() and BuyItem() in character.cpp
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "room_key | %d | 16 | disconnect", g_Config.m_SvRoomPrice);
 
-	/*
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+	if (!str_comp_nocase(pResult->GetString(0), "help"))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ SHOP HELP ~~~");
+		pSelf->SendChatTarget(pResult->m_ClientID, "If you're in the shop you can open the shop menu using f4.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "By shooting to the right you go one site forward,");
+		pSelf->SendChatTarget(pResult->m_ClientID, "and by shooting left you go one site backwards.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "If you want to buy an item you have to press f3.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Then a confirmation will pop up and you have to press f3 again to confirm.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "NOTICE: f3 and f4 may not work for you, you have to press VOTE YES for f3 and VOTE NO for f4.");
+	}
+	else
+	{
+		/*
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"          ~ SHOP ~");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"Type '/buy <itemname>'");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"***************************");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ItemName | Price | Needed Level | OwnTime:");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"rainbow       1 500 | 5 | dead");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"bloody         3 500 | 15 | dead");
-	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-	//	"atom         3 500 money | 3 | dead");
-	//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-	//	"trail         3 500 money | 3 | dead");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		//	"atom         3 500 money | 3 | dead");
+		//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		//	"trail         3 500 money | 3 | dead");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"chidraqul     250 | 2 | disconnect");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"shit              5 | 0 | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		aBuf);
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"police		   100 000 | 18 | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"taser		  50 000 | Police[3] | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"pvp_arena_ticket     150 | 0 | 1 use");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"ninjajetpack     10 000 | 21 | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"spawn_shotgun     600 000 | 38 | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"spawn_grenade     600 000 | 38 | forever");
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
 		"spawn_rifle     600 000 | 38 | forever");
-	*/
+		*/
 
-	char aShop[2048];
-	str_format(aShop, sizeof(aShop),
-		"***************************\n"
-		"        ~  S H O P  ~      \n"
-		"***************************\n"
-		"Usage: '/buy (itemname)'\n"
-		"***************************\n"
-		"Item | Price | Level | Time:\n"
-		"-------+------+--------+-------\n"
-		"rainbow  | 1 500 | 5 | dead\n"
-		"bloody    | 3 500 | 15 | dead\n"
-		"chidraqul | 250 | 2 | disconnect\n"
-		"shit   | 5 | 0 | forever\n"
-		"%s\n"
-		"police | 100 000 | 18 | forever\n"
-		"taser | 50 000 | Police[3] | forever\n"
-		"pvp_arena_ticket | 150 | 0 | forever\n"
-		"ninjajetpack | 10 000 | 21 | forever\n"
-		"spawn_shotgun | 600 000 | 33 | forever\n"
-		"spawn_grenade | 600 000 | 33 | forever\n"
-		"spawn_rifle | 600 000 | 33 | forever\n"
-		"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
+		char aShop[2048];
+		str_format(aShop, sizeof(aShop),
+			"***************************\n"
+			"        ~  S H O P  ~      \n"
+			"***************************\n"
+			"Usage: '/buy (itemname)'\n"
+			"***************************\n"
+			"Item | Price | Level | Time:\n"
+			"-------+------+--------+-------\n"
+			"rainbow  | 1 500 | 5 | dead\n"
+			"bloody    | 3 500 | 15 | dead\n"
+			"chidraqul | 250 | 2 | disconnect\n"
+			"shit   | 5 | 0 | forever\n"
+			"%s\n"
+			"police | 100 000 | 18 | forever\n"
+			"taser | 50 000 | Police[3] | forever\n"
+			"pvp_arena_ticket | 150 | 0 | forever\n"
+			"ninjajetpack | 10 000 | 21 | forever\n"
+			"spawn_shotgun | 600 000 | 33 | forever\n"
+			"spawn_grenade | 600 000 | 33 | forever\n"
+			"spawn_rifle | 600 000 | 33 | forever\n"
+			"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
 
-	pSelf->AbuseMotd(aShop, pResult->m_ClientID);
+		pSelf->AbuseMotd(aShop, pResult->m_ClientID);
+	}
 }
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
@@ -2176,6 +2192,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2187,6 +2204,79 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (!pChr)
 		return;
+
+	if ((g_Config.m_SvShopState == 1) && !pChr->m_InShop)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in the shop to buy some items.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item. Type '/buy <itemname>' use '/shop' to see the full itemlist.");
+		return;
+	}
+
+	int ItemID = -1;
+
+	char aItem[32];
+	str_copy(aItem, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aItem, "rainbow"))
+		ItemID = 1;
+	else if (!str_comp_nocase(aItem, "bloody"))
+		ItemID = 2;
+	else if (!str_comp_nocase(aItem, "chidraqul"))
+		ItemID = 3;
+	else if (!str_comp_nocase(aItem, "shit"))
+		ItemID = 4;
+	else if (!str_comp_nocase(aItem, "room_key"))
+		ItemID = 5;
+	else if (!str_comp_nocase(aItem, "police"))
+		ItemID = 6;
+	else if (!str_comp_nocase(aItem, "taser"))
+		ItemID = 7;
+	else if (!str_comp_nocase(aItem, "pvp_arena_ticket"))
+		ItemID = 8;
+	else if (!str_comp_nocase(aItem, "ninjajetpack"))
+		ItemID = 9;
+	else if (!str_comp_nocase(aItem, "spawn_shotgun"))
+		ItemID = 10;
+	else if (!str_comp_nocase(aItem, "spawn_grenade"))
+		ItemID = 11;
+	else if (!str_comp_nocase(aItem, "spawn_rifle"))
+		ItemID = 12;
+	else if (!str_comp_nocase(aItem, "spooky_ghost"))
+		ItemID = 13;
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid shop item. Choose another one.");
+		return;
+	}
+
+	pChr->BuyItem(ItemID);
+
+	return;
+
+	//moved the buy system to Character.cpp ----> BuyItem()
+
+	/*CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if ((g_Config.m_SvShopState == 1) && !pChr->m_InShop)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in the shop to buy some items.");
+		return;
+	}
 
 	if (pResult->NumArguments() != 1)
 	{
@@ -2497,7 +2587,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
 			}
 		}
-	}*/
+	}*//*
 	else if (!str_comp_nocase(aItem, "pvp_arena_ticket"))
 	{
 		if (pPlayer->m_money >= 150)
@@ -2652,7 +2742,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid shop item. Choose another one.");
-	}
+	}*/
 }
 
 void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
