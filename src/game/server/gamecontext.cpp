@@ -5786,10 +5786,7 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED);
 
-	if (m_apPlayers[DummyID]->m_DummyMode != 99) // shop bot (to not get into the speedup and fly away from his chair
-	{
-		m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
-	}
+	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
 	m_apPlayers[DummyID]->m_IsDummy = true;
 	m_apPlayers[DummyID]->m_DummyMode = dummymode;
 	Server()->BotJoin(DummyID);
