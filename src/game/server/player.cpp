@@ -518,7 +518,10 @@ void CPlayer::Snap(int SnappingClient)
 
 	if (m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
 	{
-		//
+		if (GetCharacter())
+		{
+			GetCharacter()->m_ShopMotdTick = 0;
+		}
 	}
 	else
 	{

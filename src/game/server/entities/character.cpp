@@ -107,7 +107,21 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 
-	if (m_pPlayer->m_JailTime)
+
+	if (m_pPlayer->m_DummyMode == 99)
+	{
+		vec2 ShopSpawn = GameServer()->Collision()->GetRandomTile(TILE_SHOP_SPAWN);
+		
+		if (ShopSpawn != vec2(-1, -1))
+		{
+			SetPosition(ShopSpawn);
+		}
+		else //no shop spawn tile
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+		}
+	}
+	else if (m_pPlayer->m_JailTime)
 	{
 		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
 
@@ -1601,6 +1615,12 @@ void CCharacter::FireWeapon(bool Bot)
 		}
 	}
 
+	// shop window
+	if ((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
+	{
+		ShopWindow(GetAimDir());
+	}
+
 	//spawn weapons
 
 	if (m_pPlayer->m_SpawnShotgunActive && m_Core.m_ActiveWeapon == WEAPON_SHOTGUN) 
@@ -2002,6 +2022,14 @@ void CCharacter::Tick()
 		m_LastHitWeapon = -1;
 	}
 	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
+
+
+	if (m_ShopMotdTick < Server()->Tick())
+	{
+		m_ShopWindowPage = -1;
+		m_PurchaseState = 0;
+	}	
+
 
 	return;
 }
@@ -3709,6 +3737,33 @@ void CCharacter::HandleTiles(int Index)
 		m_InBank = true;
 	}
 
+	if (m_TileIndex == TILE_SHOP || m_TileFIndex == TILE_SHOP) // SHOP
+	{
+		if (!m_InShop)
+		{
+			m_EnteredShop = true;
+			m_InShop = true;
+		}
+		if (m_EnteredShop)
+		{
+			if (m_pPlayer->m_ShopBotAntiSpamTick > Server()->Tick())
+			{
+				m_EnteredShop = false;
+			}
+			else if (m_EnteredShop)
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! If you need help with the shop, use '/shop help' and I will help you.", Server()->ClientName(m_pPlayer->GetCID()));
+				GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
+				m_EnteredShop = false;
+			}
+		}
+
+		if (Server()->Tick() % 50 == 0)
+			GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+	}
+
+
 	if (m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
 	{
 		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID(), 0); //dont spam people in jail this is just an tele tile
@@ -5152,6 +5207,747 @@ bool CCharacter::SetWeaponThatChrHas()
 	return true;
 }
 
+void CCharacter::ShopWindow(int Dir)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	m_ShopMotdTick = 0;
+
+	// if you add something to the shop make sure to also add pages here and extend conshop in ddracechat.cpp.
+
+	int m_MaxShopPage = 13; // UPDATE THIS WITH EVERY PAGE YOU ADD!!!!!
+
+	if (Dir == 0)
+	{
+		m_ShopWindowPage = 0;
+	}
+	else if (Dir == 1)
+	{
+		m_ShopWindowPage++;
+		if (m_ShopWindowPage > m_MaxShopPage)
+		{
+			m_ShopWindowPage = 0;
+		}
+	}
+	else if (Dir == -1)
+	{
+		m_ShopWindowPage--;
+		if (m_ShopWindowPage < 0)
+		{
+			m_ShopWindowPage = m_MaxShopPage;
+		}
+	}
+
+	
+	char aItem[256];
+	char aLevelTmp[128];
+	char aPriceTmp[16];
+	char aTimeTmp[256];
+	char aInfo[1028];
+
+	if (m_ShopWindowPage == 0)
+	{
+		str_format(aItem, sizeof(aItem), "Welcome to the shop! If you need help, use '/shop help'.\n"
+			"By shooting to the right you go one site forward,\n"
+			"and by shooting left you go one site backwards.");
+	}
+	else if (m_ShopWindowPage == 1)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  R A I N B O W  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "5");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "1.500");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until you're dead.");
+		str_format(aInfo, sizeof(aInfo), "Rainbow will make your tee change the color very fast.");
+	}
+	else if (m_ShopWindowPage == 2)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  B L O O D Y  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "15");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "3.500");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until you're dead.");
+		str_format(aInfo, sizeof(aInfo), "Bloody will give your tee a permanent kill effect.");
+	}
+	else if (m_ShopWindowPage == 3)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  C H I D R A Q U L  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "2");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "250");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until\n"
+			"you disconnect.");
+		str_format(aInfo, sizeof(aInfo), "Chidraqul is a minigame by ChillerDragon.\n"
+			"More information about this game coming soon.");
+	}
+	else if (m_ShopWindowPage == 4)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  S H I T  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "0");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "5");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "Shit is a fun item. You can use to '/poop' on other players.\n"
+			"You can also see your shit amount in your '/profile'.");
+	}
+	else if (m_ShopWindowPage == 5)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  R O O M K E Y  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "16");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "%d", g_Config.m_SvRoomPrice);
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until\n"
+			"you disconnect.");
+		str_format(aInfo, sizeof(aInfo), "If you have the room key you can enter the bank room.\n"
+			"It's under the spawn and there is a money tile.");
+	}
+	else if (m_ShopWindowPage == 6)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  P O L I C E  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "18");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "100.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "Police officers get help from flappy.*, the police bot.\n"
+			"For more information about the specific police ranks\n"
+			"please visit '/policeinfo'.");
+	}
+	else if (m_ShopWindowPage == 7)
+	{
+		str_format(aItem, sizeof(aItem), "        ~  T A S E R  ~      ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "30");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "50.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "Taser replaces your unfreeze rifle with a rifle that freezes\n"
+			"other tees. You can toggle it using '/taser <on/off>'.\n"
+			"For more information about the taser and your taser stats,\n"
+			"plase visit '/taser info'.");
+	}
+	else if (m_ShopWindowPage == 8)
+	{
+		str_format(aItem, sizeof(aItem), "    ~  P V P A R E N A T I C K E T  ~  ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "0");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "150");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "You can join the pvp arena using '/pvp_arena join' if you have a ticket.");
+	}
+	else if (m_ShopWindowPage == 9)
+	{
+		str_format(aItem, sizeof(aItem), "       ~  N I N J A J E T P A C K  ~     ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "21");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "10.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "It will make your jetpack gun be a ninja.\n"
+			"Toggle it using '/ninjajetpack'.");
+	}
+	else if (m_ShopWindowPage == 10)
+	{
+		str_format(aItem, sizeof(aItem), "     ~  S P A W N S H O T G U N  ~   ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "You will have shotgun if you respawn.\n"
+			"For more information about spawn weapons,\n"
+			"please visit '/spawnweaponsinfo'.");
+	}
+	else if (m_ShopWindowPage == 11)
+	{
+		str_format(aItem, sizeof(aItem), "      ~  S P A W N G R E N A D E  ~    ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "You will have grenade if you respawn.\n"
+			"For more information about spawn weapons,\n"
+			"please visit '/spawnweaponsinfo'.");
+	}
+	else if (m_ShopWindowPage == 12)
+	{
+		str_format(aItem, sizeof(aItem), "       ~  S P A W N R I F L E  ~       ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "You will have rifle if you respawn.\n"
+			"For more information about spawn weapons,\n"
+			"please visit '/spawnweaponsinfo'.");
+	}
+	else if (m_ShopWindowPage == 13)
+	{
+		str_format(aItem, sizeof(aItem), "       ~  S P O O K Y G H O S T  ~     ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "1");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "1.000.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "Using this item you can hide from other players behind bushes.\n"
+			"If your ghost is activated you will be able to shoot plasma\n"
+			"projectiles. For more information please visit '/spookyghostinfo'.");
+	}
+	else
+	{
+		str_format(aItem, sizeof(aItem), "");
+	}
+	//////////////////// UPDATE m_MaxShopPage ON TOP OF THIS FUNCTION!!! /////////////////////////
+
+
+	char aLevel[128];
+	str_format(aLevel, sizeof(aLevel), "Needed level: %s", aLevelTmp);
+	char aPrice[16];
+	str_format(aPrice, sizeof(aPrice), "Price: %s", aPriceTmp);
+	char aTime[256];
+	str_format(aTime, sizeof(aTime), "Time: %s", aTimeTmp);
+
+
+	char aBase[512];
+	if (m_ShopWindowPage > 0)
+	{
+		str_format(aBase, sizeof(aBase),
+			"***************************\n"
+			"        ~  S H O P  ~      \n"
+			"***************************\n\n"
+			"%s\n\n"
+			"%s\n"
+			"%s\n"
+			"%s\n\n"
+			"%s\n\n"
+			"***************************\n"
+			"If you want to buy an item press f3.\n\n\n"
+			"              ~ %d ~              ", aItem, aLevel, aPrice, aTime, aInfo, m_ShopWindowPage);
+	}
+	else
+	{
+		str_format(aBase, sizeof(aBase),
+			"***************************\n"
+			"        ~  S H O P  ~      \n"
+			"***************************\n\n"
+			"%s\n\n"
+			"***************************\n"
+			"If you want to buy an item press f3.", aItem);
+	}
+
+	GameServer()->AbuseMotd(aBase, GetPlayer()->GetCID());
+
+	m_ShopMotdTick = Server()->Tick() + Server()->TickSpeed() * 10; // motd is there for 10 sec
+
+	return;
+}
+
+void CCharacter::ConfirmPurchase()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf),
+		"***************************\n"
+		"        ~  S H O P  ~      \n"
+		"***************************\n\n"
+		"Are you sure you want to buy this item?\n\n"
+		"f3 - yes\n"
+		"f4 - no\n\n"
+		"***************************\n");
+
+	GameServer()->AbuseMotd(aBuf, GetPlayer()->GetCID());
+
+	m_PurchaseState = 2;
+
+	return;
+}
+
+void CCharacter::PurchaseEnd(bool canceled)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	char aResult[256];
+	if (canceled)
+	{
+		char aBuf[256];
+		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
+		str_format(aBuf, sizeof(aBuf),
+			"***************************\n"
+			"        ~  S H O P  ~      \n"
+			"***************************\n\n"
+			"%s\n\n"
+			"***************************\n", aResult);
+
+		GameServer()->AbuseMotd(aBuf, GetPlayer()->GetCID());
+	}
+	else
+	{
+		BuyItem(m_ShopWindowPage);
+		ShopWindow(0);
+	}
+
+	m_PurchaseState = 1;
+
+	return;
+}
+
+void CCharacter::BuyItem(int ItemID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	if ((g_Config.m_SvShopState == 1) && !m_InShop)
+	{
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You have to be in the shop to buy some items.");
+		return;
+	}
+
+	char aBuf[256];
+
+	if (ItemID == 1)
+	{
+		if (m_Rainbow)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own rainbow.");
+			return;
+		}
+
+		if (m_pPlayer->m_level < 5)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Your level is too low! You need to be Lv.5 to buy rainbow.");
+		}
+		else
+		{
+			if (m_pPlayer->m_money >= 1500)
+			{
+				m_pPlayer->MoneyTransaction(-1500, "-1.500 money. (bought 'rainbow')");
+				m_Rainbow = true;
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought rainbow until death.");
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 1.500 money.");
+			}
+		}
+	}
+	else if (ItemID == 2)
+	{
+		if (m_Bloody)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own bloody.");
+			return;
+		}
+
+		if (m_pPlayer->m_level < 15)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Your level is too low! You need to be Lv.15 to buy bloody.");
+		}
+		else
+		{
+			if (m_pPlayer->m_money >= 3500)
+			{
+				m_pPlayer->MoneyTransaction(-3500, "-3.500 money. (bought 'bloody')");
+				m_Bloody = true;
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought bloody until death.");
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 3 500.");
+			}
+		}
+	}
+	else if (ItemID == 3)
+	{
+		if (m_pPlayer->m_level < 2)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You need to be Lv.2 or higher to buy 'chidraqul'.");
+			return;
+		}
+		if (m_pPlayer->m_BoughtGame)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own this game.");
+			return;
+		}
+		if (m_pPlayer->m_money >= 250)
+		{
+			m_pPlayer->MoneyTransaction(-250, "-250 money. (bought 'chidraqul')");
+			m_pPlayer->m_BoughtGame = true;
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought 'chidraqul' until you disconnect. Check '/chidraqul info' for more information.");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 250 money.");
+		}
+	}
+	else if (ItemID == 4)
+	{
+		if (m_pPlayer->m_money >= 5)
+		{
+			m_pPlayer->MoneyTransaction(-5, "-5 money. (bought 'shit')");
+
+			m_pPlayer->m_shit++;
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought shit.");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else if (ItemID == 5)
+	{
+		if (m_pPlayer->m_level < 16)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You need to be Lv.16 or higher to buy a key.");
+			return;
+		}
+		if (m_pPlayer->m_BoughtRoom)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own this item.");
+			return;
+		}
+		if (g_Config.m_SvRoomState == 0)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Room has been turned off by admin.");
+			return;
+		}
+		if (m_pPlayer->m_money >= g_Config.m_SvRoomPrice)
+		{
+			str_format(aBuf, sizeof(aBuf), "-%d money. (bought 'room_key')", g_Config.m_SvRoomPrice);
+			m_pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, aBuf);
+			m_pPlayer->m_BoughtRoom = true;
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a key. You can now enter the bankroom until you disconnect.");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 5.000 money.");
+		}
+	}
+	else if (ItemID == 6)
+	{
+		if (m_pPlayer->m_PoliceRank == 0)
+		{
+			if (m_pPlayer->m_level < 18)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 18 to buy police.");
+				return;
+			}
+		}
+		else if (m_pPlayer->m_PoliceRank == 1)
+		{
+			if (m_pPlayer->m_level < 25)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 25 to upgrade police to level 2.");
+				return;
+			}
+		}
+		else if (m_pPlayer->m_PoliceRank == 2)
+		{
+			if (m_pPlayer->m_level < 30)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 30 to upgrade police to level 3.");
+				return;
+			}
+		}
+		else if (m_pPlayer->m_PoliceRank == 3)
+		{
+			if (m_pPlayer->m_level < 40)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 40 to upgrade police to level 4.");
+				return;
+			}
+		}
+		else if (m_pPlayer->m_PoliceRank == 4)
+		{
+			if (m_pPlayer->m_level < 50)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 50 to upgrade police to level 5.");
+				return;
+			}
+		}
+
+
+		if (m_pPlayer->m_PoliceRank > 2)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already bought maximum police lvl.");
+			return;
+		}
+
+		if (m_pPlayer->m_money >= 100000)
+		{
+			m_pPlayer->MoneyTransaction(-100000, "-100.000 money. (bought 'police')");
+			m_pPlayer->m_PoliceRank++;
+			str_format(aBuf, sizeof(aBuf), "You bought PoliceRank[%d]!", m_pPlayer->m_PoliceRank);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Not enough money! You need 100.000 money.");
+		}
+	}
+	else if (ItemID == 7)
+	{
+		if (m_pPlayer->m_PoliceRank < 3)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't own a weapon license.");
+			return;
+		}
+
+		if (m_pPlayer->m_TaserLevel == 0)
+		{
+			m_pPlayer->m_TaserPrice = 50000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 1)
+		{
+			m_pPlayer->m_TaserPrice = 75000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 2)
+		{
+			m_pPlayer->m_TaserPrice = 100000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 3)
+		{
+			m_pPlayer->m_TaserPrice = 150000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 4)
+		{
+			m_pPlayer->m_TaserPrice = 200000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 5)
+		{
+			m_pPlayer->m_TaserPrice = 200000;
+		}
+		else if (m_pPlayer->m_TaserLevel == 6)
+		{
+			m_pPlayer->m_TaserPrice = 200000;
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Taser already max level.");
+			return;
+		}
+
+		if (m_pPlayer->m_money < m_pPlayer->m_TaserPrice)
+		{
+			str_format(aBuf, sizeof(aBuf), "Not enough money to upgrade taser. You need %d money.", m_pPlayer->m_TaserPrice);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			return;
+		}
+
+		str_format(aBuf, sizeof(aBuf), "-%d money. (bought 'taser')", m_pPlayer->m_TaserPrice);
+		m_pPlayer->MoneyTransaction(-m_pPlayer->m_TaserPrice, aBuf);
+
+
+		m_pPlayer->m_TaserLevel++;
+		if (m_pPlayer->m_TaserLevel == 1)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a taser. (Type '/taser help' for all cmds)");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Taser has been upgraded.");
+		}
+	}
+	else if (ItemID == 8)
+	{
+		if (m_pPlayer->m_money >= 150)
+		{
+			m_pPlayer->MoneyTransaction(-150, "-150 money. (bought 'pvp_arena_ticket')");
+			m_pPlayer->m_pvp_arena_tickets++;
+
+			str_format(aBuf, sizeof(aBuf), "You bought a pvp_arena_ticket. You have %d tickets.", m_pPlayer->m_pvp_arena_tickets);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 150 money.");
+		}
+	}
+	else if (ItemID == 9)
+	{
+		if (m_pPlayer->m_level < 21)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 21 to buy ninjajetpack.");
+			return;
+		}
+		else if (m_pPlayer->m_NinjaJetpackBought)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own ninjajetpack.");
+		}
+		else if (m_pPlayer->m_money >= 10000)
+		{
+			m_pPlayer->MoneyTransaction(-10000, "-10000 money. (bought 'ninjajetpack')");
+
+			m_pPlayer->m_NinjaJetpackBought = 1;
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought ninjajetpack. Turn it on using '/ninjajetpack'.");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else if (ItemID == 10)
+	{
+		if (m_pPlayer->m_level < 33)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn shotgun.");
+			return;
+		}
+		else if (m_pPlayer->m_SpawnWeaponShotgun == 5)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn shotgun.");
+		}
+		else if (m_pPlayer->m_money >= 600000)
+		{
+			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_shotgun')");
+
+			m_pPlayer->m_SpawnWeaponShotgun++;
+			if (m_pPlayer->m_SpawnWeaponShotgun == 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn shotgun. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (m_pPlayer->m_SpawnWeaponShotgun > 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn shotgun upgraded.");
+			}
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else if (ItemID == 11)
+	{
+		if (m_pPlayer->m_level < 33)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn grenade.");
+			return;
+		}
+		else if (m_pPlayer->m_SpawnWeaponGrenade == 5)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn grenade.");
+		}
+		else if (m_pPlayer->m_money >= 600000)
+		{
+			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_grenade')");
+
+			m_pPlayer->m_SpawnWeaponGrenade++;
+			if (m_pPlayer->m_SpawnWeaponGrenade == 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn grenade. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (m_pPlayer->m_SpawnWeaponGrenade > 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn grenade upgraded.");
+			}
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else if (ItemID == 12)
+	{
+		if (m_pPlayer->m_level < 33)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn rifle.");
+			return;
+		}
+		else if (m_pPlayer->m_SpawnWeaponRifle == 5)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn rifle.");
+		}
+		else if (m_pPlayer->m_money >= 600000)
+		{
+			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_rifle')");
+
+			m_pPlayer->m_SpawnWeaponRifle++;
+			if (m_pPlayer->m_SpawnWeaponRifle == 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn rifle. For more infos check '/spawnweaponsinfo'.");
+			}
+			else if (m_pPlayer->m_SpawnWeaponRifle > 1)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn rifle upgraded.");
+			}
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else if (ItemID == 13)
+	{
+		if (m_pPlayer->m_level < 1)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 1 to buy the spooky ghost.");
+			return;
+		}
+		else if (m_pPlayer->m_SpookyGhost)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the spooky ghost.");
+		}
+		else if (m_pPlayer->m_money >= 1000000)
+		{
+			m_pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spooky_ghost')");
+
+			m_pPlayer->m_SpookyGhost = 1;
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought the spooky ghost. For more infos check '/spookyghostinfo'.");
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
+		}
+	}
+	else
+	{
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Invalid shop item. Choose another one.");
+	}
+	
+	/*else if (!str_comp_nocase(aItem, "atom"))
+	{
+	if (pPlayer->GetCharacter()->m_Atom)
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "You already own atom");
+	return;
+	}
+
+	if (pPlayer->m_level < 15)
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 15 to buy atom.");
+	}
+	else
+	{
+	if (pPlayer->m_money >= 3500)
+	{
+	pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
+	pPlayer->GetCharacter()->m_Atom = true;
+	pSelf->SendChatTarget(pResult->m_ClientID, "you bought atom until death.");
+	}
+	else
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
+	}
+	}
+	}
+	else if (!str_comp_nocase(aItem, "trail"))
+	{
+	if (pPlayer->GetCharacter()->m_Trail)
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "you already own trail");
+	return;
+	}
+
+	if (pPlayer->m_level < 15)
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "your level is too low! you need level 15 to buy trail.");
+	}
+	else
+	{
+	if (pPlayer->m_money >= 3500)
+	{
+	pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
+	pPlayer->GetCharacter()->m_Trail = true;
+	pSelf->SendChatTarget(pResult->m_ClientID, "you bought trail until death.");
+	}
+	else
+	{
+	pSelf->SendChatTarget(pResult->m_ClientID, "you don't have enough money! You need 3 500.");
+	}
+	}
+	}*/
+
+	return;
+}
+
 void CCharacter::DropWeapon(int WeaponID)
 {
 #if defined(CONF_DEBUG)
@@ -5881,6 +6677,36 @@ void CCharacter::DDPP_Tick()
 			{
 				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID(), 0);
 				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
+			}
+		}
+		if (m_InShop)
+		{
+			if (m_TileIndex != TILE_SHOP && m_TileFIndex != TILE_SHOP)
+			{
+				if (m_pPlayer->m_ShopBotAntiSpamTick > Server()->Tick())
+				{
+					//
+				}
+				else
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "Bye %s! Come back if you need something.", Server()->ClientName(m_pPlayer->GetCID()));
+					GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
+
+					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
+				}
+
+				if (m_ShopWindowPage != -1)
+				{
+					GameServer()->AbuseMotd("", GetPlayer()->GetCID());
+				}
+
+				GameServer()->SendBroadcast("", m_pPlayer->GetCID(), 0);
+
+				m_PurchaseState = 0;
+				m_ShopWindowPage = -1;
+
+				m_InShop = false;
 			}
 		}
 	}
@@ -16530,6 +17356,23 @@ void CCharacter::DummyTick()
                 }
             }
         }
+		else if (m_pPlayer->m_DummyMode == 99) // shop bot
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
+			if (pChr && pChr->IsAlive() && pChr->m_InShop)
+			{
+				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
+			}
+		}
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 		{
 			m_Input.m_Jump = 0;
