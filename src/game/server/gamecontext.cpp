@@ -1493,6 +1493,12 @@ void CGameContext::OnTick()
 		}
 
 
+	if (m_CreateShopBot && (Server()->Tick() % 10 == 0))
+	{
+		CreateNewDummy(99);//shop bot
+		m_CreateShopBot = false;
+	}
+
 	DDPP_Tick();
 
 #ifdef CONF_DEBUG
@@ -3427,12 +3433,6 @@ void CGameContext::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_CreateShopBot && (Server()->Tick() % 10 == 0))
-	{
-		CreateNewDummy(99);//shop bot
-		m_CreateShopBot = false;
-	}
-
 	if (m_iBroadcastDelay > 0)
 	{
 		m_iBroadcastDelay--;
