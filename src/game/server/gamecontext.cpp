@@ -5726,13 +5726,13 @@ void CGameContext::CreateBasicDummys()
 #endif
 	if (!str_comp(g_Config.m_SvMap, "ChillBlock5"))
 	{
+		CreateNewDummy(99);//shop bot
 		CreateNewDummy(31);//police
 		//CreateNewDummy(30);//taxi (not needed in new cb5)
 		CreateNewDummy(29);//blocker
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer
 		CreateNewDummy(-6);//blocker dm v3
-		CreateNewDummy(99);//shop bot
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{
