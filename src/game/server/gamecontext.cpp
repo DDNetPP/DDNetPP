@@ -3427,6 +3427,12 @@ void CGameContext::DDPP_Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_CreateShopBot && (Server()->Tick() % 10 == 0))
+	{
+		CreateNewDummy(99);//shop bot
+		m_CreateShopBot = false;
+	}
+
 	if (m_iBroadcastDelay > 0)
 	{
 		m_iBroadcastDelay--;
@@ -5726,13 +5732,13 @@ void CGameContext::CreateBasicDummys()
 #endif
 	if (!str_comp(g_Config.m_SvMap, "ChillBlock5"))
 	{
-		CreateNewDummy(99);//shop bot
 		CreateNewDummy(31);//police
 		//CreateNewDummy(30);//taxi (not needed in new cb5)
 		CreateNewDummy(29);//blocker
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer
 		CreateNewDummy(-6);//blocker dm v3
+		m_CreateShopBot = true;
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{

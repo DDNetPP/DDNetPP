@@ -5304,7 +5304,7 @@ void CCharacter::ShopWindow(int Dir)
 		str_format(aLevelTmp, sizeof(aLevelTmp), "18");
 		str_format(aPriceTmp, sizeof(aPriceTmp), "100.000");
 		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "Police officers get help from flappy.*, the police bot.\n"
+		str_format(aInfo, sizeof(aInfo), "Police officers get help from the police bot.\n"
 			"For more information about the specific police ranks\n"
 			"please visit '/policeinfo'.");
 	}
