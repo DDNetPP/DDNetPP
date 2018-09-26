@@ -377,6 +377,24 @@ public:
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
 
+	// shop
+	bool m_InShop;
+	bool m_EnteredShop;
+	bool m_LeftShop;
+
+	void ShopWindow(int Dir);
+	int m_ShopWindowPage;
+
+	int64 m_ShopMotdTick;
+
+	void BuyItem(int ItemID);
+	void ConfirmPurchase();
+
+	int m_PurchaseState;
+
+	void PurchaseEnd(bool canceled);
+
+
 	//bank
 	bool m_InBank;
 
