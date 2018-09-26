@@ -170,14 +170,15 @@ public:
 		CHAT_RED=0,
 		CHAT_BLUE=1,
 		CHAT_WHISPER_SEND=2,
-		CHAT_WHISPER_RECV=3
+		CHAT_WHISPER_RECV=3,
+		CHAT_TO_ONE_CLIENT=4
 	};
 
 	// network
 	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote = false);
 	void SendChatTarget(int To, const char *pText);
 	void SendChatTeam(int Team, const char *pText);
-	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1);
+	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int ToClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID, int importance = 1,  bool supermod = false);
@@ -255,6 +256,11 @@ public:
 	int CountIngameHumans();
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
+
+
+	//shop
+	int GetShopBot();
+	bool m_CreateShopBot;
 
     //                                                                                                    \\ Escaping the escape seceqnze
     //char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)

@@ -862,7 +862,7 @@ void CGameContext::SendChatTeam(int Team, const char *pText)
 			SendChatTarget(i, pText);
 }
 
-void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, int SpamProtectionClientID)
+void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, int SpamProtectionClientID, int ToClientID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -910,6 +910,21 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 			}
 		}
+	}
+	else if (Team == CHAT_TO_ONE_CLIENT)
+	{
+		CNetMsg_Sv_Chat Msg;
+		Msg.m_Team = 0;
+		Msg.m_ClientID = ChatterClientID;
+		Msg.m_pMessage = aText;
+
+		// pack one for the recording only
+		if (g_Config.m_SvDemoChat)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
+
+		// send to the clients
+		if (!m_apPlayers[ToClientID]->m_DND)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientID);
 	}
 	else
 	{
@@ -1478,6 +1493,12 @@ void CGameContext::OnTick()
 		}
 
 
+	if (m_CreateShopBot && (Server()->Tick() % 10 == 0))
+	{
+		CreateNewDummy(99);//shop bot
+		m_CreateShopBot = false;
+	}
+
 	DDPP_Tick();
 
 #ifdef CONF_DEBUG
@@ -1953,6 +1974,24 @@ int CGameContext::GetCIDByName(const char * pName)
 		}
 	}
 	return nameID;
+}
+
+int CGameContext::GetShopBot()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i])
+		{
+			if (m_apPlayers[i]->m_DummyMode == 99)
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 int CGameContext::CountConnectedPlayers()
@@ -5699,6 +5738,7 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer
 		CreateNewDummy(-6);//blocker dm v3
+		m_CreateShopBot = true;
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{
@@ -8502,20 +8542,39 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
 		{
 			CNetMsg_Cl_Vote *pMsg = (CNetMsg_Cl_Vote *)pRawMsg;
+			CCharacter *pChr = pPlayer->GetCharacter();
 
 			if (pMsg->m_Vote == 1) //vote yes (f3)
 			{
-				if (pPlayer->GetCharacter())
+				//SendChatTarget(ClientID, "you pressed f3");
+
+				if (pChr)
 				{
-					//SendChatTarget(ClientID, "you pressed f3");
-					IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-					if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
-						((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pPlayer->GetCharacter()->GetAimDir()); //red
-						//SendChatTarget(ClientID, "you dropped red flag");
+					if (pChr->m_PurchaseState == 2)
+					{
+						pChr->PurchaseEnd(false);
 					}
-					else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter()) {
-						((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pPlayer->GetCharacter()->GetAimDir()); //blue
-						//SendChatTarget(ClientID, "you dropped blue flag");
+					else if (pChr->m_InShop && pChr->m_PurchaseState == 1)
+					{
+						if ((pChr->m_ShopWindowPage != -1) && (pChr->m_ShopWindowPage != 0))
+						{
+							pChr->ConfirmPurchase();
+						}
+					}
+					else
+					{
+						if (pChr)
+						{
+							IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
+							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pChr) {
+								((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
+								//SendChatTarget(ClientID, "you dropped red flag");
+							}
+							else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pChr) {
+								((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
+								//SendChatTarget(ClientID, "you dropped blue flag");
+							}
+						}
 					}
 				}
 			}
@@ -8523,9 +8582,27 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			{
 				//SendChatTarget(ClientID, "you pressed f4");
 
-				if (g_Config.m_SvAllowDroppingWeapons)
+				if (pChr)
 				{
-					pPlayer->GetCharacter()->DropWeapon(pPlayer->GetCharacter()->GetActiveWeapon()); // drop the weapon youre holding.
+					if (pChr->m_PurchaseState == 2)
+					{
+						pChr->PurchaseEnd(true);
+					}
+					else if (pChr->m_InShop)
+					{
+						if (pChr->m_ShopWindowPage == -1)
+						{
+							pChr->ShopWindow(0);
+							pChr->m_PurchaseState = 1;
+						}
+					}
+					else
+					{
+						if (g_Config.m_SvAllowDroppingWeapons)
+						{
+							pChr->DropWeapon(pChr->GetActiveWeapon()); // drop the weapon youre holding.
+						}
+					}
 				}
 			}
 

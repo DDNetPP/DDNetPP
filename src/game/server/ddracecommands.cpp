@@ -176,7 +176,17 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if (pPlayer)
-		pPlayer->m_DummyMode = pResult->GetInteger(0);
+	{
+		if (pResult->GetInteger(0) == 99 && pSelf->GetShopBot() != -1) // there can only be one shop bot
+		{
+			char aBuf[256];
+			str_format(aBuf, sizeof(aBuf), "There is already a shop bot: '%s'", pSelf->Server()->ClientName(pSelf->GetShopBot()));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		else
+			pPlayer->m_DummyMode = pResult->GetInteger(0);
+	}
 }
 
 void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
