@@ -393,6 +393,8 @@ MACRO_CONFIG_INT(SvMinDoubleTilePlayers, sv_min_double_tile_players, 0, 0, 64, C
 
 MACRO_CONFIG_INT(SvKickChilliClan, sv_kick_chilli_clan, 1, 0, 2, CFGFLAG_SERVER, "Punish 'Chilli.*' members with wrong skin 0=off 1=freeze 2=kick")
 //STATES
+MACRO_CONFIG_INT(SvShopState, sv_shop_state, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=can buy from everywhere, 1=need to be in shop to buy smth")
+
 MACRO_CONFIG_INT(SvRoomState, sv_roomstate, 1, 0, 4, CFGFLAG_SERVER|CFGFLAG_GAME, "0=off 1=buy 2=buy/invite 3=buy/admin 4=buy/admin/invite")
 MACRO_CONFIG_INT(SvPvpArenaState, sv_pvp_arena_state, 0, 0, 3, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5 2=BlmapChill 3=tilebased")
 
