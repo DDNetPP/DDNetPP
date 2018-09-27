@@ -3760,7 +3760,7 @@ void CCharacter::HandleTiles(int Index)
 			else if (m_EnteredShop)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping. If you need help with the shop, use '/shop help' and I will help you.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
 				GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
 				m_EnteredShop = false;
 			}
@@ -5258,7 +5258,8 @@ void CCharacter::ShopWindow(int Dir)
 	{
 		str_format(aItem, sizeof(aItem), "Welcome to the shop! If you need help, use '/shop help'.\n\n"
 			"By shooting to the right you go one site forward,\n"
-			"and by shooting left you go one site backwards.");
+			"and by shooting left you go one site backwards.\n\n"
+			"If you need more help, visit '/shop help'.");
 	}
 	else if (m_ShopWindowPage == 1)
 	{
