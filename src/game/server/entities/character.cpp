@@ -1402,6 +1402,7 @@ void CCharacter::FireWeapon(bool Bot)
 			}
 		}
 
+		//spooky ghost
 		if (m_pPlayer->m_PlayerFlags&PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN && m_CountSpookyGhostInputs)
 		{
 			m_TimesShot++;
@@ -1416,6 +1417,12 @@ void CCharacter::FireWeapon(bool Bot)
 				m_TimesShot = 0;
 			}
 			m_CountSpookyGhostInputs = false;
+		}
+
+		// shop window
+		if ((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
+		{
+			ShopWindow(GetAimDir());
 		}
 
 	} break;
@@ -1613,12 +1620,6 @@ void CCharacter::FireWeapon(bool Bot)
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 			SetWeaponThatChrHas();
 		}
-	}
-
-	// shop window
-	if ((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
-	{
-		ShopWindow(GetAimDir());
 	}
 
 	//spawn weapons
@@ -3753,7 +3754,7 @@ void CCharacter::HandleTiles(int Index)
 			else if (m_EnteredShop)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! If you need help with the shop, use '/shop help' and I will help you.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping. If you need help with the shop, use '/shop help' and I will help you.", Server()->ClientName(m_pPlayer->GetCID()));
 				GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
 				m_EnteredShop = false;
 			}
@@ -5249,7 +5250,7 @@ void CCharacter::ShopWindow(int Dir)
 
 	if (m_ShopWindowPage == 0)
 	{
-		str_format(aItem, sizeof(aItem), "Welcome to the shop! If you need help, use '/shop help'.\n"
+		str_format(aItem, sizeof(aItem), "Welcome to the shop! If you need help, use '/shop help'.\n\n"
 			"By shooting to the right you go one site forward,\n"
 			"and by shooting left you go one site backwards.");
 	}
@@ -6689,9 +6690,7 @@ void CCharacter::DDPP_Tick()
 				}
 				else
 				{
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "Bye %s! Come back if you need something.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
+					GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, "Bye! Come back if you need something.", -1, m_pPlayer->GetCID());
 
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
