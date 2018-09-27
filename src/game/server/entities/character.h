@@ -394,6 +394,8 @@ public:
 
 	void PurchaseEnd(bool canceled);
 
+	bool m_ChangeShopPage;
+
 
 	//bank
 	bool m_InBank;
