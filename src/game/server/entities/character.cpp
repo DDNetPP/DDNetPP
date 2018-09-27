@@ -713,6 +713,11 @@ void CCharacter::FireWeapon(bool Bot)
 		{
 			m_CountSpookyGhostInputs = true;
 		}
+		
+		if ((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
+		{
+			m_ChangeShopPage = true;
+		}
 	}
 
 	if (FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
@@ -1419,12 +1424,6 @@ void CCharacter::FireWeapon(bool Bot)
 			m_CountSpookyGhostInputs = false;
 		}
 
-		// shop window
-		if ((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
-		{
-			ShopWindow(GetAimDir());
-		}
-
 	} break;
 
 	case WEAPON_SHOTGUN:
@@ -1620,6 +1619,13 @@ void CCharacter::FireWeapon(bool Bot)
 			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 			SetWeaponThatChrHas();
 		}
+	}
+
+	// shop window
+	if ((m_ChangeShopPage) && (m_ShopWindowPage != -1) && (m_PurchaseState == 1))
+	{
+		ShopWindow(GetAimDir());
+		m_ChangeShopPage = false;
 	}
 
 	//spawn weapons
