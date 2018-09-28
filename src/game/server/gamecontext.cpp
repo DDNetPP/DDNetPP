@@ -1737,6 +1737,8 @@ void CGameContext::OnClientConnected(int ClientID)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	m_ClientLeftServer[ClientID] = false;
+
 	// Check which team the player should be on (copyed all the stuff cuz const int mukked)
 	//if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade zCatch and rifle zCatch
 	if (m_survival_gamestate) //running survival game
@@ -1824,6 +1826,7 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	m_ClientLeftServer[ClientID] = true;
 	AbortVoteKickOnDisconnect(ClientID);
 	m_apPlayers[ClientID]->OnDisconnect(pReason, silent);
 	delete m_apPlayers[ClientID];
