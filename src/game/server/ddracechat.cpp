@@ -1000,8 +1000,22 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spec", aBuf);
 		return;
 	}
-
-	pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_PAUSED) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_PAUSED;
+	if ((pResult->NumArguments() > 0) && (pSelf->GetCIDByName(pResult->GetString(0)) != pPlayer->m_SpectatorID))
+	{
+		if (pSelf->GetCIDByName(pResult->GetString(0)) == pResult->m_ClientID)
+		{
+			pPlayer->m_SpectatorID = SPEC_FREEVIEW;
+		}
+		else
+		{
+			pPlayer->m_SpectatorID = pSelf->GetCIDByName(pResult->GetString(0));
+			pPlayer->m_Paused = CPlayer::PAUSED_PAUSED;
+		}
+	}
+	else
+	{
+		pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_PAUSED) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_PAUSED;
+	}
 }
 
 void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
@@ -1030,8 +1044,22 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "pause", aBuf);
 		return;
 	}
-
-	pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_SPEC) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_SPEC;
+	if ((pResult->NumArguments() > 0) && (pSelf->GetCIDByName(pResult->GetString(0)) != pPlayer->m_SpectatorID))
+	{
+		if (pSelf->GetCIDByName(pResult->GetString(0)) == pResult->m_ClientID)
+		{
+			pPlayer->m_SpectatorID = SPEC_FREEVIEW;
+		}
+		else
+		{
+			pPlayer->m_SpectatorID = pSelf->GetCIDByName(pResult->GetString(0));
+			pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
+		}
+	}
+	else
+	{
+		pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_SPEC) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_SPEC;
+	}
 }
 
 void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
