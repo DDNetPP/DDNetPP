@@ -257,6 +257,7 @@ public:
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
 
+	bool m_ClientLeftServer[MAX_CLIENTS];
 
 	//shop
 	int GetShopBot();

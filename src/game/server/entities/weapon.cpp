@@ -134,13 +134,16 @@ void CWeapon::Pickup()
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
-		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-		for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+		if (m_Owner != -1)
 		{
-			if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
-				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+				{
+					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				}
 			}
 		}
 
@@ -154,6 +157,10 @@ void CWeapon::Tick()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
+	{
+		m_Owner = -1;
+	}
 
 	// weapon hits death-tile or left the game layer, reset it
 	if (GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y) == TILE_DEATH || GameLayerClipped(m_Pos))
@@ -161,13 +168,16 @@ void CWeapon::Tick()
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
 
 
-		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-		for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+		if (m_Owner != -1)
 		{
-			if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
-				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+				{
+					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				}
 			}
 		}
 
@@ -177,13 +187,16 @@ void CWeapon::Tick()
 
 	if (m_Lifetime == 0)
 	{
-		CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-		for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+		if (m_Owner != -1)
 		{
-			if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
-				pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+				{
+					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				}
 			}
 		}
 
