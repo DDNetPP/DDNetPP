@@ -574,6 +574,14 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "If you want to buy an item you have to press f3.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Then a confirmation will pop up and you have to press f3 again to confirm.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "NOTICE: f3 and f4 may not work for you, you have to press VOTE YES for f3 and VOTE NO for f4.");
+
+		if (pSelf->GetShopBot() != -1)
+		{
+			char aShopBot[128];
+			str_format(aShopBot, sizeof(aShopBot), "If you want to see the shop, watch '%s' in '/pause'.", pSelf->Server()->ClientName(pSelf->GetShopBot()));
+			pSelf->SendChatTarget(pResult->m_ClientID, "-----------------------------");
+			pSelf->SendChatTarget(pResult->m_ClientID, aShopBot);
+		}
 	}
 	else
 	{
