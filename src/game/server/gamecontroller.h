@@ -76,7 +76,7 @@ protected:
 public:
 	const char *m_pGameType;
 
-	vec2 m_FunPoint;
+	//vec2 m_FunPoint;
 
 	bool IsTeamplay() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }

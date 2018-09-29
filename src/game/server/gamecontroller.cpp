@@ -798,7 +798,7 @@ void IGameController::Tick()
 	CALL_STACK_ADD();
 #endif
 
-	if (m_FunPoint) {
+	/*if (m_FunPoint) {
 
 		CCharacter *apCloseCCharacters[MAX_CLIENTS];
 		int Num = m_pGameServer->m_World.FindEntities(m_FunPoint, 140, (CEntity**)apCloseCCharacters, 1, CGameWorld::ENTTYPE_CHARACTER);
@@ -809,7 +809,7 @@ void IGameController::Tick()
 
 		}
 
-	}
+	}*/
 
 	// do warmup
 	if (m_Warmup)
