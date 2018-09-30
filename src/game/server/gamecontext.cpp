@@ -880,19 +880,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 	char aBuf[256], aText[256];
 	str_copy(aText, pText, sizeof(aText));
 	if(ChatterClientID >= 0 && ChatterClientID < MAX_CLIENTS)
-	{
-		/*if (!m_apPlayers[ChatterClientID]->m_ShowName)
-		{
-			m_apPlayers[ChatterClientID]->m_SetRealName = true;
-			m_apPlayers[ChatterClientID]->m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed();
-			/*char aNoNameText[256];
-			str_copy(aNoNameText, aText, sizeof(aNoNameText));
-			str_format(aNoNameText, sizeof(aNoNameText), "<%s>: %s", Server()->ClientName(ChatterClientID), aText);
-			str_copy(aText, aNoNameText, sizeof(aText));*/
-		//}
-
 		str_format(aBuf, sizeof(aBuf), "%d:%d:%s: %s", ChatterClientID, Team, Server()->ClientName(ChatterClientID), aText);
-	}
 	else if(ChatterClientID == -2)
 	{
 		str_format(aBuf, sizeof(aBuf), "### %s", aText);
