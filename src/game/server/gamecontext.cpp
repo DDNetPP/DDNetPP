@@ -880,7 +880,17 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 	char aBuf[256], aText[256];
 	str_copy(aText, pText, sizeof(aText));
 	if(ChatterClientID >= 0 && ChatterClientID < MAX_CLIENTS)
+	{
 		str_format(aBuf, sizeof(aBuf), "%d:%d:%s: %s", ChatterClientID, Team, Server()->ClientName(ChatterClientID), aText);
+
+		if (!m_apPlayers[ChatterClientID]->m_ShowName)
+		{
+			char aNoNameText[256];
+			str_copy(aNoNameText, aText, sizeof(aNoNameText));
+			str_format(aNoNameText, sizeof(aNoNameText), "<%s>: %s", Server()->ClientName(ChatterClientID), aText);
+			str_copy(aText, aNoNameText, sizeof(aText));
+		}
+	}
 	else if(ChatterClientID == -2)
 	{
 		str_format(aBuf, sizeof(aBuf), "### %s", aText);

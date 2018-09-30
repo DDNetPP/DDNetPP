@@ -352,6 +352,8 @@ public:
 
 	//survival
 
+	bool m_ShowName; //also used for spookyghost
+
 	bool m_IsSurvivaling;
 	bool m_IsSurvivalAlive;
 	bool m_IsSurvivalLobby;

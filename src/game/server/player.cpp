@@ -469,11 +469,11 @@ void CPlayer::Snap(int SnappingClient)
 		return;
 
 	//survival nameplate system (not too dope yet needs some fine tuning)
-	bool ShowName = false;
+	m_ShowName = false;
 
 	if (m_PlayerFlags&PLAYERFLAG_CHATTING)
 	{
-		ShowName = true;
+		m_ShowName = true;
 	}
 
 	CPlayer *pSnapping = GameServer()->m_apPlayers[SnappingClient];
@@ -482,13 +482,13 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (pSnapping->GetTeam() == TEAM_SPECTATORS || !pSnapping->m_IsSurvivaling || !pSnapping->m_IsSurvivalAlive) //could add a bool is dead here too to activate name agian
 		{
-			ShowName = true;
+			m_ShowName = true;
 		}
 	}
 
 	if (g_Config.m_SvNameplates)
 	{
-		ShowName = true;
+		m_ShowName = true;
 	}
 
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
@@ -504,10 +504,10 @@ void CPlayer::Snap(int SnappingClient)
 
 	if (m_SpookyGhostActive)
 	{
-		ShowName = false;
+		m_ShowName = false;
 	}
 
-	if (ShowName)
+	if (m_ShowName)
 	{
 		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
 	}
