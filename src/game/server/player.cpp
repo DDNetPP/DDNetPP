@@ -480,11 +480,6 @@ void CPlayer::Snap(int SnappingClient)
 	//survival nameplate system (not too dope yet needs some fine tuning)
 	m_ShowName = false;
 
-	if (m_PlayerFlags&PLAYERFLAG_CHATTING)
-	{
-		m_ShowName = true;
-	}
-
 	CPlayer *pSnapping = GameServer()->m_apPlayers[SnappingClient];
 	
 	if (pSnapping)
