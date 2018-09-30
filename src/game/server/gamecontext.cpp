@@ -881,15 +881,17 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 	str_copy(aText, pText, sizeof(aText));
 	if(ChatterClientID >= 0 && ChatterClientID < MAX_CLIENTS)
 	{
-		str_format(aBuf, sizeof(aBuf), "%d:%d:%s: %s", ChatterClientID, Team, Server()->ClientName(ChatterClientID), aText);
-
-		if (!m_apPlayers[ChatterClientID]->m_ShowName)
+		/*if (!m_apPlayers[ChatterClientID]->m_ShowName)
 		{
-			char aNoNameText[256];
+			m_apPlayers[ChatterClientID]->m_SetRealName = true;
+			m_apPlayers[ChatterClientID]->m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed();
+			/*char aNoNameText[256];
 			str_copy(aNoNameText, aText, sizeof(aNoNameText));
 			str_format(aNoNameText, sizeof(aNoNameText), "<%s>: %s", Server()->ClientName(ChatterClientID), aText);
-			str_copy(aText, aNoNameText, sizeof(aText));
-		}
+			str_copy(aText, aNoNameText, sizeof(aText));*/
+		//}
+
+		str_format(aBuf, sizeof(aBuf), "%d:%d:%s: %s", ChatterClientID, Team, Server()->ClientName(ChatterClientID), aText);
 	}
 	else if(ChatterClientID == -2)
 	{
@@ -8306,7 +8308,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 			}
 			else
-				SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION
+			{
+				if (!m_apPlayers[ClientID]->m_ShowName)
+				{
+					m_apPlayers[ClientID]->m_SetRealName = true;
+					m_apPlayers[ClientID]->m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
+					m_apPlayers[ClientID]->m_ChatClientID = ClientID;
+					m_apPlayers[ClientID]->m_ChatTeam = Team;
+					str_copy(m_apPlayers[ClientID]->m_ChatText, pMsg->m_pMessage, sizeof(m_apPlayers[ClientID]->m_ChatText));
+				}
+				else
+					SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION
+			}
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{

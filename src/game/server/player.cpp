@@ -429,6 +429,15 @@ void CPlayer::Tick()
 			m_Team = TEAM_RED;
 		}
 	}
+
+	if (m_SetRealName)
+	{
+		if (m_SetRealNameTick < Server()->Tick())
+		{
+			GameServer()->SendChat(m_ChatClientID, m_ChatTeam, m_ChatText, m_ChatClientID);
+			m_SetRealName = false;
+		}
+	}
 }
 
 void CPlayer::PostTick()
@@ -507,7 +516,7 @@ void CPlayer::Snap(int SnappingClient)
 		m_ShowName = false;
 	}
 
-	if (m_ShowName)
+	if (m_SetRealName || m_ShowName)
 	{
 		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
 	}
