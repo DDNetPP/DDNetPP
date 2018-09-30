@@ -351,9 +351,6 @@ public:
 	int m_DummySpawnTile;
 
 	//survival
-
-	bool m_ShowName; //also used for spookyghost
-
 	bool m_IsSurvivaling;
 	bool m_IsSurvivalAlive;
 	bool m_IsSurvivalLobby;
@@ -362,6 +359,14 @@ public:
 	int m_SurvivalKills;
 	int m_SurvivalDeaths;
 	int m_SurvivalWins;
+
+	//no name chat fix
+	bool m_ShowName;
+	bool m_SetRealName;
+	int64 m_SetRealNameTick;
+	int m_ChatClientID;
+	int m_ChatTeam;
+	char m_ChatText[256];
 
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;
