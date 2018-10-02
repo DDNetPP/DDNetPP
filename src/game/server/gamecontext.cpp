@@ -1493,7 +1493,7 @@ void CGameContext::OnTick()
 		}
 
 
-	if (m_CreateShopBot && (Server()->Tick() % 10 == 0))
+	if (m_CreateShopBot && (Server()->Tick() % 50 == 0))
 	{
 		CreateNewDummy(99);//shop bot
 		m_CreateShopBot = false;
@@ -5741,7 +5741,6 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer
 		CreateNewDummy(-6);//blocker dm v3
-		m_CreateShopBot = true;
 	}
 	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
 	{
@@ -5770,6 +5769,10 @@ void CGameContext::CreateBasicDummys()
 	{
 		CreateNewDummy(0); //dummy
 		dbg_msg("basic_dummys", "waring map=%s not supported", g_Config.m_SvMap);
+	}
+	if (m_ShopBotTileExists)
+	{
+		m_CreateShopBot = true;
 	}
 	dbg_msg("basic_dummys","map=%s", g_Config.m_SvMap);
 }
@@ -9958,6 +9961,11 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			{
 				m_Tuning.Set("player_hooking", 0);
 				dbg_msg("Game Layer", "Found No Player Hooking Tile");
+			}
+			else if (Index == TILE_SHOP_SPAWN)
+			{
+				m_ShopBotTileExists = true;
+				dbg_msg("Game Layer", "Found Shop Spawn Tile");
 			}
 
 			if(Index >= ENTITY_OFFSET)
