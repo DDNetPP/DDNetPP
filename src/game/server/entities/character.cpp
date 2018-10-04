@@ -3732,13 +3732,11 @@ void CCharacter::HandleTiles(int Index)
 				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
 				{
 					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-					dbg_msg("debug", "banktile");
 				}
 			}
 			else // no flag --> print always
 			{
 				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-				dbg_msg("debug", "banktile");
 			}
 		}
 		m_InBank = true;
@@ -3773,13 +3771,11 @@ void CCharacter::HandleTiles(int Index)
 				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
 				{
 					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
-					dbg_msg("debug", "shoptile");
 				}
 			}
 			else // no flag --> print always
 			{
 				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
-				dbg_msg("debug", "shoptile");
 			}
 		}
 	}
