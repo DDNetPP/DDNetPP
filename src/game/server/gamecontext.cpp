@@ -8300,13 +8300,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else
 			{
-				if (!m_apPlayers[ClientID]->m_ShowName)
+				if (!pPlayer->m_ShowName)
 				{
-					m_apPlayers[ClientID]->m_SetRealName = true;
-					m_apPlayers[ClientID]->m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
-					m_apPlayers[ClientID]->m_ChatClientID = ClientID;
-					m_apPlayers[ClientID]->m_ChatTeam = Team;
-					str_copy(m_apPlayers[ClientID]->m_ChatText, pMsg->m_pMessage, sizeof(m_apPlayers[ClientID]->m_ChatText));
+					str_copy(pPlayer->m_ChatText, pMsg->m_pMessage, sizeof(pPlayer->m_ChatText));
+					pPlayer->m_ChatTeam = Team;
+					pPlayer->FixForNoName(1);
 				}
 				else
 					SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION

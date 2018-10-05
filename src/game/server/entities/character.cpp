@@ -2213,15 +2213,28 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	}
 
 	// send the kill message
-	CNetMsg_Sv_KillMsg Msg;
-	Msg.m_Killer = Killer;
-	Msg.m_Victim = m_pPlayer->GetCID();
-	if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
-		Msg.m_Weapon = m_LastHitWeapon;
+	if (!m_pPlayer->m_ShowName)
+	{
+		m_pPlayer->m_MsgKiller = Killer;
+		if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
+			m_pPlayer->m_MsgWeapon = m_LastHitWeapon;
+		else
+			m_pPlayer->m_MsgWeapon = Weapon;
+		m_pPlayer->m_MsgModeSpecial = ModeSpecial;
+		m_pPlayer->FixForNoName(2);
+	}
 	else
-		Msg.m_Weapon = Weapon;
-	Msg.m_ModeSpecial = ModeSpecial;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+	{
+		CNetMsg_Sv_KillMsg Msg;
+		Msg.m_Killer = Killer;
+		Msg.m_Victim = m_pPlayer->GetCID();
+		if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
+			Msg.m_Weapon = m_LastHitWeapon;
+		else
+			Msg.m_Weapon = Weapon;
+		Msg.m_ModeSpecial = ModeSpecial;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+	}
 
 	// a nice sound
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
