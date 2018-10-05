@@ -5973,6 +5973,7 @@ void CCharacter::DropWeapon(int WeaponID)
 #endif
 
 	if ((isFreezed) || (m_FreezeTime)
+		|| (m_pPlayer->IsInstagibMinigame())
 		|| (m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
 		|| (WeaponID == WEAPON_NINJA)
 		|| (WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
