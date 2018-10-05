@@ -434,10 +434,33 @@ void CPlayer::Tick()
 	{
 		if (m_SetRealNameTick < Server()->Tick())
 		{
-			GameServer()->SendChat(m_ChatClientID, m_ChatTeam, m_ChatText, m_ChatClientID);
+			if (m_FixNameID == 1)
+				GameServer()->SendChat(m_ClientID, m_ChatTeam, m_ChatText, m_ClientID);
+			else if (m_FixNameID == 2)
+			{
+				CNetMsg_Sv_KillMsg Msg;
+				Msg.m_Killer = m_MsgKiller;
+				Msg.m_Victim = GetCID();
+				Msg.m_Weapon = m_MsgWeapon;
+				Msg.m_ModeSpecial = m_MsgModeSpecial;
+				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+			}
+
 			m_SetRealName = false;
 		}
 	}
+}
+
+void CPlayer::FixForNoName(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_FixNameID = ID;
+	m_SetRealName = true;
+	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
+
+	return;
 }
 
 void CPlayer::PostTick()

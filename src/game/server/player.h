@@ -361,12 +361,18 @@ public:
 	int m_SurvivalWins;
 
 	//no name chat fix
+	void FixForNoName(int ID);
+	int m_FixNameID;
 	bool m_ShowName;
 	bool m_SetRealName;
 	int64 m_SetRealNameTick;
-	int m_ChatClientID;
+	//ID == 1 // chat message
 	int m_ChatTeam;
 	char m_ChatText[256];
+	//ID == 2 // kill message
+	int m_MsgKiller;
+	int m_MsgWeapon;
+	int m_MsgModeSpecial;
 
 	//zCatch ChillerDragon (instagib)
 	int m_GrenadeKills;
