@@ -3732,13 +3732,11 @@ void CCharacter::HandleTiles(int Index)
 				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
 				{
 					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-					dbg_msg("debug", "banktile");
 				}
 			}
 			else // no flag --> print always
 			{
 				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-				dbg_msg("debug", "banktile");
 			}
 		}
 		m_InBank = true;
@@ -3767,7 +3765,19 @@ void CCharacter::HandleTiles(int Index)
 		}
 
 		if (Server()->Tick() % 50 == 0)
-			GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+		{
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
+			{
+				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
+				{
+					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				}
+			}
+			else // no flag --> print always
+			{
+				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+			}
+		}
 	}
 
 
@@ -6331,6 +6341,16 @@ void CCharacter::DDPP_Tick()
 						{
 							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
 							//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+						}
+					}
+					else if (m_InShop)
+					{
+						if (m_pPlayer->m_xpmsg)
+						{
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+							m_pPlayer->m_xp++;
 						}
 					}
 					else  //not in bank
