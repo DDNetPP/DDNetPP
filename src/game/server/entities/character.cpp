@@ -2213,8 +2213,11 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	}
 
 	// send the kill message
-	if (!m_pPlayer->m_ShowName)
+	if (!m_pPlayer->m_ShowName || !GameServer()->m_apPlayers[Killer]->m_ShowName)
 	{
+		if (!GameServer()->m_apPlayers[Killer]->m_ShowName)
+			GameServer()->m_apPlayers[Killer]->FixForNoName(0);	// just for the name to appear because otherwise there would be no name in the kill msg
+
 		m_pPlayer->m_MsgKiller = Killer;
 		if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
 			m_pPlayer->m_MsgWeapon = m_LastHitWeapon;
