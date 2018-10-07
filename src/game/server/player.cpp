@@ -456,7 +456,7 @@ void CPlayer::FixForNoName(int ID)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	m_FixNameID = ID;
+	m_FixNameID = ID;	// 0 for just to display the name in the right moment (e.g. kill msg killer)
 	m_SetRealName = true;
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
 

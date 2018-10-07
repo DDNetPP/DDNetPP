@@ -2198,7 +2198,11 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	if (Server()->IsRecording(m_pPlayer->GetCID()))
 		Server()->StopRecord(m_pPlayer->GetCID());
 
-	m_pPlayer->m_RespawnTick = Server()->Tick(); // comment that line out to have instant respawn without scoreboard ( but it is needed for invisible motd updates )
+	if (!m_pPlayer->m_ShowName && m_pPlayer->m_SpookyGhostActive)
+		m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
+	else
+		m_pPlayer->m_RespawnTick = Server()->Tick(); // comment that line out to have instant respawn without scoreboard ( but it is needed for invisible motd updates )
+
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
 	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
@@ -2213,8 +2217,11 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	}
 
 	// send the kill message
-	if (!m_pPlayer->m_ShowName)
+	if (!m_pPlayer->m_ShowName || !GameServer()->m_apPlayers[Killer]->m_ShowName)
 	{
+		if (!GameServer()->m_apPlayers[Killer]->m_ShowName)
+			GameServer()->m_apPlayers[Killer]->FixForNoName(0);	// just for the name to appear because otherwise there would be no name in the kill msg
+
 		m_pPlayer->m_MsgKiller = Killer;
 		if (!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
 			m_pPlayer->m_MsgWeapon = m_LastHitWeapon;
