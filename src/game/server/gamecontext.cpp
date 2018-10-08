@@ -1670,6 +1670,8 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	// LoadScoreThreaded() instead
 	Score()->LoadScore(ClientID);
 
+	m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
+
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
 		char aBuf[512];
