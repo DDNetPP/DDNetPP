@@ -75,20 +75,8 @@ void CWeapon::IsShieldNear()
 
 		if (pShield->GetType() == POWERUP_ARMOR)
 		{
-			if (m_Owner != -1)
-			{
-				CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-				for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-				{
-					if (pOwner->m_vWeaponLimit[m_Type][i] == this)
-					{
-						pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-					}
-				}
-			}
-
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
+			m_EreaseWeapon = true;
 			Reset();
 		}
 	}
