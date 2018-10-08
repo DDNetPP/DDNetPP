@@ -2202,8 +2202,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	{
 		m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
 
-		if (m_pPlayer->m_CanClearFakeMotd)
-			m_pPlayer->m_CanClearFakeMotd = false;
+		m_pPlayer->m_CanClearFakeMotd = false;
 	}
 
 	//m_pPlayer->m_RespawnTick = Server()->Tick();
@@ -2888,8 +2887,8 @@ void CCharacter::ClearFakeMotd()
 	{
 		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCID());
 		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "clear fake motd");
-		m_pPlayer->m_IsFakeMotd = false;
 		m_pPlayer->m_CanClearFakeMotd = true;
+		m_pPlayer->m_IsFakeMotd = false;
 	}
 }
 
