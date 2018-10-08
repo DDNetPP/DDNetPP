@@ -221,7 +221,7 @@ public:
 	void Tick(bool UseInput, bool IsClient);
 	void Move();
 
-	void setFlagPos(vec2 Pos1, vec2 Pos2, int Stand1, int Stand2, vec2 Vel1, vec2 Vel2, int carry1, int carry2);
+	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
 
 	vec2 m_FlagPos1;
 	vec2 m_FlagPos2;
