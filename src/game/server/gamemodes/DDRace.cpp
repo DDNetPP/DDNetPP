@@ -151,7 +151,7 @@ void CGameControllerDDRace::DropFlag(int id, int dir)
 	/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-	F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlagDrop = true;
+	F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
 	F->m_DropTick = Server()->Tick();
 	F->m_DropFreezeTick = Server()->Tick();
 	F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
@@ -291,7 +291,7 @@ void CGameControllerDDRace::Tick()
 
 					F->m_AtStand = 0;
 					F->m_pCarryingCharacter = apCloseCCharacters[i];
-					F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlagDrop = true;
+					F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
 					/*if (!apCloseCCharacters[i]->GetPlayer()->m_Rainbow){
 					apCloseCCharacters[i]->GetPlayer()->m_ColorBodyOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorBody;
 					apCloseCCharacters[i]->GetPlayer()->m_ColorFeetOld = apCloseCCharacters[i]->GetPlayer()->m_TeeInfos.m_ColorFeet;
