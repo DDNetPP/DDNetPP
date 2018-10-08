@@ -422,7 +422,7 @@ public:
 	//##########
 
 	//to update scoreboard immediately
-	bool m_ChangeTeamOnFlagDrop;
+	bool m_ChangeTeamOnFlag;
 
 	bool m_IsNoboSpawn;
 	int64 m_NoboSpawnStop;
