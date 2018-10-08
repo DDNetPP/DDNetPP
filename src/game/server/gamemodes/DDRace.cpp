@@ -71,6 +71,7 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 			/*pVictim->GetPlayer()->m_Rainbow = false;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorBody = pVictim->GetPlayer()->m_ColorBodyOld;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorFeet = pVictim->GetPlayer()->m_ColorFeetOld;*/
+			F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
 			F->m_DropTick = Server()->Tick();
 			F->m_pCarryingCharacter = 0;
 			F->m_Vel = vec2(0,0);
