@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="266.936mm"
+   height="61.832001mm"
+   viewBox="0 0 266.936 61.832001"
    version="1.1"
    id="svg8"
    sodipodi:docname="ddnet++.svg"
@@ -77,7 +77,7 @@
        id="filter4589"
        x="-0.014185599"
        width="1.0283712"
-       y="-0.077885824"
+       y="-0.077885821"
        height="1.1557716">
       <feGaussianBlur
          inkscape:collect="always"
@@ -88,10 +88,10 @@
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
        id="filter4684"
-       x="-0.0070927996"
-       width="1.0141856"
-       y="-0.038942912"
-       height="1.0778858">
+       x="-0.0070927995"
+       width="1.0141855"
+       y="-0.038942911"
+       height="1.0778857">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.7920512"
@@ -208,13 +208,13 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="201.27957"
-     inkscape:cy="353.89204"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="472.34816"
+     inkscape:cy="198.99127"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     units="px"
+     units="mm"
      inkscape:window-width="1366"
      inkscape:window-height="705"
      inkscape:window-x="-8"
@@ -236,12 +236,13 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(0,-235.168)">
     <g
        id="g5105"
        inkscape:export-xdpi="190.30771"
        inkscape:export-ydpi="190.30771"
-       transform="translate(359.59319,-93.513797)">
+       transform="translate(388.06119,24.070204)">
       <rect
          y="213.45847"
          x="-381.57291"
