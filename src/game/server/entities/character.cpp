@@ -393,7 +393,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	SaveRealInfos();
 
-	UnsetSpookyGhost();
+	UnsetGhost();
 
 	return true;
 }
@@ -2220,7 +2220,9 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	if (Server()->IsRecording(m_pPlayer->GetCID()))
 		Server()->StopRecord(m_pPlayer->GetCID());
 
-	if ((!m_pPlayer->m_ShowName && m_pPlayer->m_SpookyGhostActive) || m_pPlayer->m_CanClearFakeMotd) // to have invis motd updates OR to have the spooky ghost skin in the kill msg (because it was too fast otherwise and the normal skin would be there if its a selfkill and not a death tile kill)
+	// to have invis motd updates OR to have the spooky ghost skin in the kill msg 
+	// (because it was too fast otherwise and the normal skin would be there if its a selfkill and not a death tile kill)
+	if ((!m_pPlayer->m_ShowName && m_pPlayer->m_SpookyGhostActive) || m_pPlayer->m_CanClearFakeMotd)
 	{
 		m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
 
