@@ -30,7 +30,7 @@ private:
 	bool m_Jetpack;
 	bool m_SpreadGun;
 
-	bool m_VectorPushBack;
+	bool m_EreaseWeapon;
 
 	static int const ms_PhysSize = 14;
 

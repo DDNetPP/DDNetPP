@@ -40,7 +40,7 @@ void CWeapon::Reset()
 	CALL_STACK_ADD();
 #endif
 
-	if (m_VectorPushBack)
+	if (m_EreaseWeapon)
 	{
 		if (m_Owner != -1)
 		{
@@ -150,7 +150,7 @@ void CWeapon::Pickup()
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
-		m_VectorPushBack = true;
+		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
@@ -171,14 +171,14 @@ void CWeapon::Tick()
 	{
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
 
-		m_VectorPushBack = true;
+		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
 
 	if (m_Lifetime == 0)
 	{
-		m_VectorPushBack = true;
+		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
