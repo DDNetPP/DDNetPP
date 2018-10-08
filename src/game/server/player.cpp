@@ -418,9 +418,9 @@ void CPlayer::Tick()
 
 	ThreadLoginDone();
 
-	if (Server()->Tick() % 600 == 0)
+	if (m_ChangeTeamOnFlagDrop || (Server()->Tick() % 600 == 0))
 	{
-		if (m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+		if ((((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GetCharacter()) == -1) && m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
 		{
 			m_Team = TEAM_BLUE;
 		}
@@ -428,6 +428,7 @@ void CPlayer::Tick()
 		{
 			m_Team = TEAM_RED;
 		}
+		m_ChangeTeamOnFlagDrop = false;
 	}
 
 	if (m_SetRealName)
