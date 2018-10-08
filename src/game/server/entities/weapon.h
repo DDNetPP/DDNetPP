@@ -14,6 +14,8 @@ public:
 
 	int IsCharacterNear();
 
+	void IsShieldNear();
+
 	void Pickup();
 
 private:

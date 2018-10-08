@@ -17,6 +17,8 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
+	int GetType() { return m_Type; }
+
 private:
 
 	int m_Type;
