@@ -395,6 +395,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	UnsetSpookyGhost();
 
+	GetPlayer()->m_ChangeTeamOnFlag = true;
+
 	return true;
 }
 
