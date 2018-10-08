@@ -393,7 +393,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	SaveRealInfos();
 
-	UnsetGhost();
+	UnsetSpookyGhost();
 
 	return true;
 }
