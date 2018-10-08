@@ -1,6 +1,8 @@
-[![DDraceNetwork](http://ddnet.tw/ddnet-small.png)](http://ddnet.tw)
+[![DDraceNetwork++](./data/ddnetpp.svg)](http://ddnet.tw)
 [![CircleCI Build Status](https://circleci.com/gh/ChillerDragon/DDNetPP/tree/master.png)](https://circleci.com/gh/ChillerDragon/DDNetPP)
 ================================
+
+<img src="./data/ddnetpp.svg" height="500" width="10000">
 
 Based on DDNet: Our own flavor of DDRace, a Teeworlds mod. See the [website](http://ddnet.tw) for more information.
 
