@@ -104,19 +104,22 @@ void CCharacterCore::Reset()
 	m_Collision = true;
 }
 
-void CCharacterCore::setFlagPos(vec2 Pos1, vec2 Pos2, int Stand1, int Stand2, vec2 Vel1, vec2 Vel2, int carry1, int carry2){
-
-	m_FlagPos1 = Pos1;
-	m_FlagPos2 = Pos2;
-
-	m_AtStand1 = Stand1;
-	m_AtStand2 = Stand2;
-
-	m_FlagVel1 = Vel1;
-	m_FlagVel2 = Vel2;
-
-	m_carryFlagChar1 = carry1;
-	m_carryFlagChar2 = carry2;
+void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry)
+{
+	if (id == 0)
+	{
+		m_FlagPos1 = Pos;
+		m_AtStand1 = Stand;
+		m_FlagVel1 = Vel;
+		m_carryFlagChar1 = carry;
+	}
+	else if (id == 1)
+	{
+		m_FlagPos2 = Pos;
+		m_AtStand2 = Stand;
+		m_FlagVel2 = Vel;
+		m_carryFlagChar2 = carry;
+	}
 }
 
 void CCharacterCore::Tick(bool UseInput, bool IsClient)

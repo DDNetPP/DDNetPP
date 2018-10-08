@@ -1983,12 +1983,28 @@ void CCharacter::Tick()
 	m_Core.m_Input = m_Input;
 
 	int carry1 = 1; int carry2 = 1;
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL) { carry1 = 0; }
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL) { carry2 = 0; }
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0])
+	{
+		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL)
+		{
+			carry1 = 0;
+		}
+
+		m_Core.setFlagPos(0, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel, carry1);
+	}
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1])
+	{
+		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL)
+		{
+			carry2 = 0;
+		}
+
+		m_Core.setFlagPos(1, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry2);
+	}
 	//if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0] != NULL) { if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL) { carry1 = 0; } }
 	//if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1] != NULL) { if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL) { carry2 = 0; } }
 
-	m_Core.setFlagPos(((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry1, carry2);
+	//m_Core.setFlagPos(((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_Vel, ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry1, carry2);
 
 	m_Core.Tick(true, false);
 	if (m_Core.m_updateFlagVel == 98) {
@@ -2179,20 +2195,26 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	ClearFakeMotd();
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0])
+	{
+		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
 
-		if (m_Core.m_LastHookedPlayer != -1) {
-			((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(0, m_Core.m_LastHookedPlayer);
+			if (m_Core.m_LastHookedPlayer != -1) {
+				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(0, m_Core.m_LastHookedPlayer);
+			}
+
 		}
-
 	}
 
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this) {
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1])
+	{
+		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this) {
 
-		if (m_Core.m_LastHookedPlayer != -1) {
-			((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(1, m_Core.m_LastHookedPlayer);
+			if (m_Core.m_LastHookedPlayer != -1) {
+				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(1, m_Core.m_LastHookedPlayer);
+			}
+
 		}
-
 	}
 
 	if (Server()->IsRecording(m_pPlayer->GetCID()))

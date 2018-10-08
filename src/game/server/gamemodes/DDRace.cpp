@@ -125,10 +125,8 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 #endif
 	for(int i=0; i<2; i++)
 	{
-		/*
 		if (!m_apFlags[i])
 			continue;
-		*/
 		if(m_apFlags[i]->m_pCarryingCharacter == character)
 		{
 			return i;
@@ -278,8 +276,23 @@ void CGameControllerDDRace::Tick()
 			{
 				if(!apCloseCCharacters[i]->IsAlive() || apCloseCCharacters[i]->GetPlayer()->GetTeam() == TEAM_SPECTATORS || GameServer()->Collision()->IntersectLine(F->m_Pos, apCloseCCharacters[i]->m_Pos, NULL, NULL) )
 					continue;
-				if(m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || ( F->m_pLastCarryingCharacter == apCloseCCharacters[i] && (F->m_DropFreezeTick + Server()->TickSpeed()*4) > Server()->Tick()) ){
-					continue;
+				if (m_apFlags[0] && m_apFlags[1])
+				{
+					if (m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (F->m_pLastCarryingCharacter == apCloseCCharacters[i] && (F->m_DropFreezeTick + Server()->TickSpeed() * 4) > Server()->Tick()))
+						continue;
+				}
+				else
+				{
+					if (m_apFlags[0])
+					{
+						if (m_apFlags[0]->m_pCarryingCharacter == apCloseCCharacters[i] || (m_apFlags[0]->m_pLastCarryingCharacter == apCloseCCharacters[i] && (m_apFlags[0]->m_DropFreezeTick + Server()->TickSpeed() * 4) > Server()->Tick()))
+							continue;
+					}
+					if (m_apFlags[1])
+					{
+						if (m_apFlags[1]->m_pCarryingCharacter == apCloseCCharacters[i] || (m_apFlags[1]->m_pLastCarryingCharacter == apCloseCCharacters[i] && (m_apFlags[1]->m_DropFreezeTick + Server()->TickSpeed() * 4) > Server()->Tick()))
+							continue;
+					}
 				}
 
 				// take the flag
