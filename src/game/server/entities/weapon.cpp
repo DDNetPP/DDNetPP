@@ -3,6 +3,7 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "weapon.h"
+#include "pickup.h"
 
 #include <game/server/teams.h>
 
@@ -45,6 +46,38 @@ void CWeapon::Reset()
 	Server()->SnapFreeID(m_ID4);
 	Server()->SnapFreeID(m_ID5);
 	GameServer()->m_World.DestroyEntity(this);
+}
+
+void CWeapon::IsShieldNear()
+{
+	CPickup *apEnts[9];
+	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity**)apEnts, 9, CGameWorld::ENTTYPE_PICKUP);
+
+	for (int i = 0; i < Num; i++)
+	{
+		CPickup *pShield = apEnts[i];
+
+		if (pShield->GetType() == POWERUP_ARMOR)
+		{
+			if (m_Owner != -1)
+			{
+				CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+				for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+				{
+					if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+					{
+						pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+					}
+				}
+			}
+
+			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
+			Reset();
+		}
+	}
+
+	return;
 }
 
 int CWeapon::IsCharacterNear()
@@ -213,6 +246,8 @@ void CWeapon::Tick()
 
 	if (m_PickupDelay <= 0 || IsCharacterNear() != m_Owner)
 		Pickup();
+
+	IsShieldNear();
 
 
 	m_Vel.y += GameServer()->Tuning()->m_Gravity;
