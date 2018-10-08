@@ -8581,13 +8581,19 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						if (pChr)
 						{
 							IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pChr) {
-								((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
-								//SendChatTarget(ClientID, "you dropped red flag");
+							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0])
+							{
+								if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pChr) {
+									((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
+									//SendChatTarget(ClientID, "you dropped red flag");
+								}
 							}
-							else if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pChr) {
-								((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
-								//SendChatTarget(ClientID, "you dropped blue flag");
+							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1])
+							{
+								if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pChr) {
+									((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
+									//SendChatTarget(ClientID, "you dropped blue flag");
+								}
 							}
 						}
 					}
