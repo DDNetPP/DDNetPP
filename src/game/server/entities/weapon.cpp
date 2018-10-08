@@ -40,6 +40,22 @@ void CWeapon::Reset()
 	CALL_STACK_ADD();
 #endif
 
+	if (m_VectorPushBack)
+	{
+		if (m_Owner != -1)
+		{
+			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+
+			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+			{
+				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
+				{
+					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+				}
+			}
+		}
+	}
+
 	Server()->SnapFreeID(m_ID2);
 	Server()->SnapFreeID(m_ID3);
 	Server()->SnapFreeID(m_ID4);
@@ -134,19 +150,7 @@ void CWeapon::Pickup()
 		else if (m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
-		if (m_Owner != -1)
-		{
-			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-			{
-				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
-				{
-					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-				}
-			}
-		}
-
+		m_VectorPushBack = true;
 		Reset();
 		return;
 	}
@@ -167,39 +171,14 @@ void CWeapon::Tick()
 	{
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
 
-
-		if (m_Owner != -1)
-		{
-			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-			{
-				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
-				{
-					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-				}
-			}
-		}
-
+		m_VectorPushBack = true;
 		Reset();
 		return;
 	}
 
 	if (m_Lifetime == 0)
 	{
-		if (m_Owner != -1)
-		{
-			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
-			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-			{
-				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
-				{
-					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-				}
-			}
-		}
-
+		m_VectorPushBack = true;
 		Reset();
 		return;
 	}
