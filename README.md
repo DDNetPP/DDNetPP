@@ -21,7 +21,7 @@ DDNet++
 --------
 
 DDnet++ is the upgrade on top of the teeworlds mod ddracenetwork.
-Mainly maintained by ChillerDragon.
+Mainly maintained by ChillerDragon and fokkonaut.
 We added all the features missing in ddnet. For example:
 - bloody
 - rainbow
