@@ -397,11 +397,22 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 
 	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
 	if (!page) { page = 1; }
-	int pages = 6;
+	int pages = 7;
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "page %d/%d		'/changelog <page>'", page, pages);
 
 	if (page == 1)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"=== Changelog (DDNet++ v.0.0.7) ===");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* fix flag crashbug");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* finally own gametype name");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add new shop (map/motd/dummy)");
+	}
+	else if (page == 2)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.6) ===");
@@ -428,7 +439,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 2)
+	else if (page == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.5) ===");
@@ -445,7 +456,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 3)
+	else if (page == 4)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
@@ -468,7 +479,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 4)
+	else if (page == 5)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
@@ -487,7 +498,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 5)
+	else if (page == 6)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
@@ -510,7 +521,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			aBuf);
 	}
-	else if (page == 6)
+	else if (page == 7)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
