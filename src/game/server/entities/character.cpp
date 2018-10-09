@@ -395,7 +395,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	UnsetSpookyGhost();
 
-	GetPlayer()->m_ChangeTeamOnFlag = true;
+	if (m_pPlayer->m_HadFlagOnDeath)
+	{
+		m_pPlayer->m_ChangeTeamOnFlag = true;
+		m_pPlayer->m_HadFlagOnDeath = false;
+	}
 
 	return true;
 }
@@ -2201,6 +2205,8 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	{
 		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
 
+			m_pPlayer->m_HadFlagOnDeath = true;
+
 			if (m_Core.m_LastHookedPlayer != -1) {
 				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(0, m_Core.m_LastHookedPlayer);
 			}
@@ -2211,6 +2217,8 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1])
 	{
 		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this) {
+
+			m_pPlayer->m_HadFlagOnDeath = true;
 
 			if (m_Core.m_LastHookedPlayer != -1) {
 				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(1, m_Core.m_LastHookedPlayer);
