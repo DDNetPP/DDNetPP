@@ -829,6 +829,9 @@ private:
 	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
+	//display score
+	static void ConScore(IConsole::IResult *pResult, void *pUserData);
+
 	//spooky ghost
 	static void ConSpookyGhostInfo(IConsole::IResult *pResult, void *pUserData);
 

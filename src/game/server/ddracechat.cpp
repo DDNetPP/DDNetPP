@@ -551,6 +551,38 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	
 }
 
+void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+
+	if (!str_comp_nocase(pResult->GetString(0), "time"))
+	{
+		pPlayer->m_DisplayScore = 0;
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'time'.");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "level"))
+	{
+		pPlayer->m_DisplayScore = 1;
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "blockpoints"))
+	{
+		pPlayer->m_DisplayScore = 2;
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
+		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, blockpoints");
+	}
+
+	return;
+}
+
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
