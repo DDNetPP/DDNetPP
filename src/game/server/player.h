@@ -600,7 +600,7 @@ public:
 
 	//other
 
-	bool m_IsDDNetClient;
+	bool m_IsSupportedDDNet;
 
 	int m_DisplayScore;
 
