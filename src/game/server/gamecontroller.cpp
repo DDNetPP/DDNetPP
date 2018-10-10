@@ -456,6 +456,9 @@ void IGameController::EndRound()
 	if (m_Warmup) // game can't end when we are running warmup
 		return;
 
+	if (g_Config.m_SvDDPPgametype != 5)
+		return;
+
 	dbg_msg("cBug", "round end");
 	GameServer()->m_World.m_Paused = true;
 	m_GameOverTick = Server()->Tick();
@@ -999,8 +1002,18 @@ void IGameController::Snap(int SnappingClient)
 		}
 	}
 
-	if (g_Config.m_SvDDPPgametype == 5 || pPlayer->IsInstagibMinigame())
+	if (g_Config.m_SvDDPPgametype == 5)
 		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
+	else if (pPlayer->IsInstagibMinigame())
+	{
+		if (pPlayer->m_IsInstaMode_fng)
+		{
+			if (pPlayer->m_IsInstaMode_idm)
+				pGameInfoObj->m_ScoreLimit = g_Config.m_SvRifleScorelimit;
+			else if (pPlayer->m_IsInstaMode_gdm)
+				pGameInfoObj->m_ScoreLimit = g_Config.m_SvGrenadeScorelimit;
+		}
+	}
 	else
 		pGameInfoObj->m_ScoreLimit = 0;
 }
