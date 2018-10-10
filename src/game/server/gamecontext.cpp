@@ -8745,51 +8745,49 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			int Version = pUnpacker->GetInt();
 
-			if (Version >= 11043)
+			if (pUnpacker->Error())
 			{
+				if (pPlayer->m_ClientVersion < VERSION_DDRACE && Version >= 11043)
+					pPlayer->m_ClientVersion = VERSION_DDRACE;
+			}
+			else if(pPlayer->m_ClientVersion < Version)
+				pPlayer->m_ClientVersion = Version;
+
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
+			dbg_msg("DDNet", aBuf);
+
+			if (Version >= 11043)
 				m_apPlayers[ClientID]->m_IsSupportedDDNet = true;
 
-				if (pUnpacker->Error())
+			//first update his teams state
+			((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
+
+			//second give him records
+			SendRecord(ClientID);
+
+			//third give him others current time for table score
+			if(g_Config.m_SvHideScore) return;
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(m_apPlayers[i] && Score()->PlayerData(i)->m_CurrentTime > 0)
 				{
-					if (pPlayer->m_ClientVersion < VERSION_DDRACE)
-						pPlayer->m_ClientVersion = VERSION_DDRACE;
-				}
-				else if (pPlayer->m_ClientVersion < Version)
-					pPlayer->m_ClientVersion = Version;
-
-				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
-				dbg_msg("DDNet", aBuf);
-
-				//first update his teams state
-				((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
-
-				//second give him records
-				SendRecord(ClientID);
-
-				//third give him others current time for table score
-				if (g_Config.m_SvHideScore) return;
-				for (int i = 0; i < MAX_CLIENTS; i++)
-				{
-					if (m_apPlayers[i] && Score()->PlayerData(i)->m_CurrentTime > 0)
-					{
-						CNetMsg_Sv_PlayerTime Msg;
-						Msg.m_Time = Score()->PlayerData(i)->m_CurrentTime * 100;
-						Msg.m_ClientID = i;
-						Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-						//also send its time to others
-
-					}
-				}
-				//also send its time to others
-				if (Score()->PlayerData(ClientID)->m_CurrentTime > 0)
-				{
-					//TODO: make function for this fucking steps
 					CNetMsg_Sv_PlayerTime Msg;
-					Msg.m_Time = Score()->PlayerData(ClientID)->m_CurrentTime * 100;
-					Msg.m_ClientID = ClientID;
-					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+					Msg.m_Time = Score()->PlayerData(i)->m_CurrentTime * 100;
+					Msg.m_ClientID = i;
+					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+					//also send its time to others
+
 				}
+			}
+			//also send its time to others
+			if(Score()->PlayerData(ClientID)->m_CurrentTime > 0)
+			{
+				//TODO: make function for this fucking steps
+				CNetMsg_Sv_PlayerTime Msg;
+				Msg.m_Time = Score()->PlayerData(ClientID)->m_CurrentTime * 100;
+				Msg.m_ClientID = ClientID;
+				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 			}
 
 			//and give him correct tunings
