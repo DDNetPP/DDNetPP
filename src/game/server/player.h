@@ -600,6 +600,10 @@ public:
 
 	//other
 
+	bool m_IsDDNetClient;
+
+	int m_DisplayScore;
+
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;
 	bool m_IsTest;
