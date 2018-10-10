@@ -8747,7 +8747,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (pUnpacker->Error())
 			{
-				if (pPlayer->m_ClientVersion < VERSION_DDRACE && Version >= 11043)
+				if (pPlayer->m_ClientVersion < VERSION_DDRACE)
 					pPlayer->m_ClientVersion = VERSION_DDRACE;
 			}
 			else if(pPlayer->m_ClientVersion < Version)
@@ -8758,7 +8758,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			dbg_msg("DDNet", aBuf);
 
 			if (Version >= 11043)
+			{
 				m_apPlayers[ClientID]->m_IsSupportedDDNet = true;
+				dbg_msg("SUPPORTED", "%s, %d", Server()->ClientName(ClientID), Version);
+			}
+			else
+				dbg_msg("UNSUPPORTED", "%s, %d", Server()->ClientName(ClientID), Version);
 
 			//first update his teams state
 			((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
