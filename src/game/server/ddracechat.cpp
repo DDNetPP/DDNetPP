@@ -411,6 +411,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"* finally own gametype name");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add new shop (map/motd/dummy)");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/score' command")
 	}
 	else if (page == 2)
 	{
