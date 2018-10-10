@@ -998,6 +998,11 @@ void IGameController::Snap(int SnappingClient)
 			pGameInfoObj->m_RoundStartTick = (pChr->m_DDRaceState == DDRACE_STARTED) ? pChr->m_StartTime : m_RoundStartTick;
 		}
 	}
+
+	if (g_Config.m_SvDDPPgametype == 5 || pPlayer->IsInstagibMinigame())
+		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
+	else
+		pGameInfoObj->m_ScoreLimit = 0;
 }
 
 int IGameController::GetAutoTeam(int NotThisID)
