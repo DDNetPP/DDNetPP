@@ -8745,21 +8745,21 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			int Version = pUnpacker->GetInt();
 
-			if (pUnpacker->Error())
-			{
-				if (pPlayer->m_ClientVersion < VERSION_DDRACE)
-					pPlayer->m_ClientVersion = VERSION_DDRACE;
-			}
-			else if(pPlayer->m_ClientVersion < Version)
-				pPlayer->m_ClientVersion = Version;
-
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
-			dbg_msg("DDNet", aBuf);
-
 			if (Version >= 11043)
 			{
 				m_apPlayers[ClientID]->m_IsSupportedDDNet = true;
+
+				if (pUnpacker->Error())
+				{
+					if (pPlayer->m_ClientVersion < VERSION_DDRACE)
+						pPlayer->m_ClientVersion = VERSION_DDRACE;
+				}
+				else if (pPlayer->m_ClientVersion < Version)
+					pPlayer->m_ClientVersion = Version;
+
+				char aBuf[128];
+				str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
+				dbg_msg("DDNet", aBuf);
 
 				//first update his teams state
 				((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
