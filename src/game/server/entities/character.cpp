@@ -2870,7 +2870,6 @@ void CCharacter::TestPrintTiles(int Index)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
 	int MapIndex = Index;
 	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 	float Offset = 4.0f;
