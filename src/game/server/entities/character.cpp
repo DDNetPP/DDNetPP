@@ -8023,12 +8023,12 @@ void CCharacter::DummyTick()
 				}
 
 				//Freeze prevention left 
-				if (m_Core.m_Pos.x < 380 * 32 + V3_OFFSET_X || m_Core.m_Pos.x < 382 * 32 + V3_OFFSET_X && m_Core.m_Vel.x < -8.4f)
+				if (m_Core.m_Pos.x < 380 * 32 + V3_OFFSET_X || (m_Core.m_Pos.x < 382 * 32 + V3_OFFSET_X && m_Core.m_Vel.x < -8.4f))
 				{
 					m_Input.m_Direction = 1;
 				}
 				//Freeze prevention right
-				if (m_Core.m_Pos.x > 408 * 32 + V3_OFFSET_X || m_Core.m_Pos.x > 406 * 32 + V3_OFFSET_X && m_Core.m_Vel.x > 8.4f)
+				if (m_Core.m_Pos.x > 408 * 32 + V3_OFFSET_X || (m_Core.m_Pos.x > 406 * 32 + V3_OFFSET_X && m_Core.m_Vel.x > 8.4f))
 				{
 					m_Input.m_Direction = -1;
 				}
