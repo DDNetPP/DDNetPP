@@ -8758,36 +8758,38 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			dbg_msg("DDNet", aBuf);
 
 			if (Version >= 11043)
+			{
 				m_apPlayers[ClientID]->m_IsSupportedDDNet = true;
 
-			//first update his teams state
-			((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
+				//first update his teams state
+				((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
 
-			//second give him records
-			SendRecord(ClientID);
+				//second give him records
+				SendRecord(ClientID);
 
-			//third give him others current time for table score
-			if(g_Config.m_SvHideScore) return;
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(m_apPlayers[i] && Score()->PlayerData(i)->m_CurrentTime > 0)
+				//third give him others current time for table score
+				if (g_Config.m_SvHideScore) return;
+				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
-					CNetMsg_Sv_PlayerTime Msg;
-					Msg.m_Time = Score()->PlayerData(i)->m_CurrentTime * 100;
-					Msg.m_ClientID = i;
-					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-					//also send its time to others
+					if (m_apPlayers[i] && Score()->PlayerData(i)->m_CurrentTime > 0)
+					{
+						CNetMsg_Sv_PlayerTime Msg;
+						Msg.m_Time = Score()->PlayerData(i)->m_CurrentTime * 100;
+						Msg.m_ClientID = i;
+						Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+						//also send its time to others
 
+					}
 				}
-			}
-			//also send its time to others
-			if(Score()->PlayerData(ClientID)->m_CurrentTime > 0)
-			{
-				//TODO: make function for this fucking steps
-				CNetMsg_Sv_PlayerTime Msg;
-				Msg.m_Time = Score()->PlayerData(ClientID)->m_CurrentTime * 100;
-				Msg.m_ClientID = ClientID;
-				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+				//also send its time to others
+				if (Score()->PlayerData(ClientID)->m_CurrentTime > 0)
+				{
+					//TODO: make function for this fucking steps
+					CNetMsg_Sv_PlayerTime Msg;
+					Msg.m_Time = Score()->PlayerData(ClientID)->m_CurrentTime * 100;
+					Msg.m_ClientID = ClientID;
+					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+				}
 			}
 
 			//and give him correct tunings
