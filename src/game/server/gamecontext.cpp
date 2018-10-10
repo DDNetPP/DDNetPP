@@ -8747,7 +8747,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (pUnpacker->Error())
 			{
-				if (pPlayer->m_ClientVersion < VERSION_DDRACE && Version >= 11043)
+				if (pPlayer->m_ClientVersion < VERSION_DDRACE)
 					pPlayer->m_ClientVersion = VERSION_DDRACE;
 			}
 			else if(pPlayer->m_ClientVersion < Version)
