@@ -580,7 +580,7 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 		pPlayer->m_DisplayScore = 1;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
 	}
-	else if (!str_comp_nocase(pResult->GetString(0), "blockpoints"))
+	else if (!str_comp_nocase(pResult->GetString(0), "block"))
 	{
 		pPlayer->m_DisplayScore = 2;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
@@ -588,7 +588,7 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
-		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, blockpoints");
+		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, block");
 	}
 
 	return;
