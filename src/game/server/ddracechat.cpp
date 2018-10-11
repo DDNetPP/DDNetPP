@@ -570,18 +570,23 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 
+	int AllowDDRaceScore = 1;
+
 	if (!str_comp_nocase(pResult->GetString(0), "time"))
 	{
+		AllowDDRaceScore = 1;
 		pPlayer->m_DisplayScore = 0;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'time'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "level"))
 	{
+		AllowDDRaceScore = 0;
 		pPlayer->m_DisplayScore = 1;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "blockpoints"))
 	{
+		AllowDDRaceScore = 0;
 		pPlayer->m_DisplayScore = 2;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
 	}
@@ -590,6 +595,10 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
 		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, blockpoints");
 	}
+
+	CMsgPacker Msg(NETMSG_DDRACE_SCORE);
+	Msg.AddInt(AllowDDRaceScore);
+	pSelf->Server()->SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
 
 	return;
 }
