@@ -684,7 +684,7 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (IsInstagibMinigame())
 		{
-			if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			if (GameServer()->m_apPlayers[SnappingClient]->m_PartlySupportedDDNet)
 				pPlayerInfo->m_Score = m_InstaScore * 60;
 			else
 				pPlayerInfo->m_Score = m_InstaScore;
@@ -698,12 +698,12 @@ void CPlayer::Snap(int SnappingClient)
 		{
 			if (m_level > 0)
 			{
-				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+				if (GameServer()->m_apPlayers[SnappingClient]->m_PartlySupportedDDNet)
 					pPlayerInfo->m_Score = m_level * 60;
 				else
 					pPlayerInfo->m_Score = m_level;
 			}
-			else if (!GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			else if (!GameServer()->m_apPlayers[SnappingClient]->m_PartlySupportedDDNet)
 				pPlayerInfo->m_Score = 0;
 			else
 				pPlayerInfo->m_Score = -9999;
@@ -712,12 +712,12 @@ void CPlayer::Snap(int SnappingClient)
 		{
 			if (m_BlockPoints > 0)
 			{
-				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+				if (GameServer()->m_apPlayers[SnappingClient]->m_PartlySupportedDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
 				else
 					pPlayerInfo->m_Score = m_BlockPoints;
 			}
-			else if (!GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			else if (!GameServer()->m_apPlayers[SnappingClient]->m_PartlySupportedDDNet)
 				pPlayerInfo->m_Score = 0;
 			else
 				pPlayerInfo->m_Score = -9999;

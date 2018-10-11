@@ -8757,8 +8757,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
 			dbg_msg("DDNet", aBuf);
 
-			if (Version >= 11043)
-				m_apPlayers[ClientID]->m_IsSupportedDDNet = true;
+			if (Version >= 11043 && Version < 11045)
+				m_apPlayers[ClientID]->m_PartlySupportedDDNet = true;
 
 			//first update his teams state
 			((CGameControllerDDRace*)m_pController)->m_Teams.SendTeamsState(ClientID);
