@@ -570,7 +570,7 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 
-	int AllowDDRaceScore = 1;
+	int AllowDDRaceScore;
 
 	if (!str_comp_nocase(pResult->GetString(0), "time"))
 	{
