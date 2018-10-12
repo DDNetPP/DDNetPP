@@ -601,7 +601,7 @@ public:
 	//other
 
 	bool m_PartlySupportedDDNet;
-
+	int m_AllowDDRaceScore;
 	int m_DisplayScore;
 
 	bool m_CanClearFakeMotd;

@@ -570,23 +570,21 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 
-	int AllowDDRaceScore;
-
 	if (!str_comp_nocase(pResult->GetString(0), "time"))
 	{
-		AllowDDRaceScore = 1;
+		pPlayer->m_AllowDDRaceScore = 1;
 		pPlayer->m_DisplayScore = 0;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'time'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "level"))
 	{
-		AllowDDRaceScore = 0;
+		pPlayer->m_AllowDDRaceScore = 0;
 		pPlayer->m_DisplayScore = 1;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "blockpoints"))
 	{
-		AllowDDRaceScore = 0;
+		pPlayer->m_AllowDDRaceScore = 0;
 		pPlayer->m_DisplayScore = 2;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
 	}
@@ -597,7 +595,7 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	}
 
 	CMsgPacker Msg(NETMSG_DDRACE_SCORE);
-	Msg.AddInt(AllowDDRaceScore);
+	Msg.AddInt(pPlayer->m_AllowDDRaceScore);
 	pSelf->Server()->SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
 
 	return;
@@ -4392,6 +4390,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
+	bool AllowDDRaceScore;
 
 	if (!g_Config.m_SvAllowInsta)
 	{
@@ -4435,6 +4434,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
 		pSelf->LeaveInstagib(pResult->m_ClientID);
+
+		CMsgPacker Msg(NETMSG_DDRACE_SCORE);
+		Msg.AddInt(pPlayer->m_AllowDDRaceScore);
+		pSelf->Server()->SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stats"))
 	{
@@ -4466,6 +4469,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
 			pSelf->JoinInstagib(4, false, pResult->m_ClientID);
+
+			AllowDDRaceScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "idm"))
@@ -4494,6 +4499,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a rifle game.");
 			pSelf->JoinInstagib(5, false, pResult->m_ClientID);
+
+			AllowDDRaceScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
@@ -4522,6 +4529,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
 			pSelf->JoinInstagib(4, true, pResult->m_ClientID);
+
+			AllowDDRaceScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "fng"))
@@ -4550,6 +4559,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng game.");
 			pSelf->JoinInstagib(5, true, pResult->m_ClientID);
+
+			AllowDDRaceScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "1on1"))
@@ -4807,6 +4818,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->m_Insta1on1_id = mateID;
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+
+						AllowDDRaceScore = false;
 					}
 				}
 				else //rifle
@@ -4841,6 +4854,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->m_Insta1on1_id = mateID;
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+
+						AllowDDRaceScore = false;
 					}
 				}
 			}
@@ -4853,6 +4868,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown parameter. Check '/insta cmdlist' for all commands");
+	}
+
+	if (!AllowDDRaceScore)
+	{
+		CMsgPacker Msg(NETMSG_DDRACE_SCORE);
+		Msg.AddInt(0);
+		pSelf->Server()->SendMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
 }
 
