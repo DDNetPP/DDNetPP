@@ -4390,7 +4390,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	bool AllowDDRaceScore;
+	bool AllowDDRaceScore = true;
 
 	if (!g_Config.m_SvAllowInsta)
 	{
