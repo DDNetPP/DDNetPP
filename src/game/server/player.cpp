@@ -696,31 +696,31 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (GameServer()->m_apPlayers[SnappingClient]->m_DisplayScore == 1) // level
 		{
-			if (m_level > 0)
+			if (m_AccountID > 0)
 			{
 				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
 					pPlayerInfo->m_Score = m_level * 60;
 				else
 					pPlayerInfo->m_Score = m_level;
 			}
-			else if (!GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
-				pPlayerInfo->m_Score = 0;
-			else
+			else if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
 				pPlayerInfo->m_Score = -9999;
+			else
+				pPlayerInfo->m_Score = 0;
 		}
 		else if (GameServer()->m_apPlayers[SnappingClient]->m_DisplayScore == 2) // block points
 		{
-			if (m_BlockPoints > 0)
+			if (m_AccountID > 0)
 			{
 				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
 				else
 					pPlayerInfo->m_Score = m_BlockPoints;
 			}
-			else if (!GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
-				pPlayerInfo->m_Score = 0;
-			else
+			else if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
 				pPlayerInfo->m_Score = -9999;
+			else
+				pPlayerInfo->m_Score = 0;
 		}
 	}
 	else
