@@ -411,6 +411,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"* finally own gametype name");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add new shop (map/motd/dummy)");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/score' command");
 	}
 	else if (page == 2)
 	{
@@ -1842,10 +1844,18 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 		return;
 	if (pPlayer->m_NinjaJetpackBought)
 	{
-		if (pResult->NumArguments())
-			pPlayer->m_NinjaJetpack = pResult->GetInteger(0);
+		if (pPlayer->m_NinjaJetpack)
+		{
+			pPlayer->m_NinjaJetpack = false;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Ninjajetpack disabled");
+			return;
+		}
 		else
-			pPlayer->m_NinjaJetpack = !pPlayer->m_NinjaJetpack;
+		{
+			pPlayer->m_NinjaJetpack = true;
+			pSelf->SendChatTarget(pResult->m_ClientID, "Ninjajetpack enabled");
+			return;
+		}
 	}
 	else
 	{
