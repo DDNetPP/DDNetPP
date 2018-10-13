@@ -680,11 +680,11 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		pPlayerInfo->m_Score = -9999;
 	}
-	else if (GameServer()->m_apPlayers[SnappingClient]->IsInstagibMinigame())
+	else if (pSnapping->IsInstagibMinigame())
 	{
 		if (IsInstagibMinigame())
 		{
-			if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			if (pSnapping->m_IsSupportedDDNet)
 				pPlayerInfo->m_Score = m_InstaScore * 60;
 			else
 				pPlayerInfo->m_Score = m_InstaScore;
@@ -692,32 +692,44 @@ void CPlayer::Snap(int SnappingClient)
 		else
 			pPlayerInfo->m_Score = -9999;
 	}
-	else if (GameServer()->m_apPlayers[SnappingClient]->m_DisplayScore != 0) // race time
+	else if (pSnapping->m_IsSurvivaling)
 	{
-		if (GameServer()->m_apPlayers[SnappingClient]->m_DisplayScore == 1) // level
+		if (m_IsSurvivaling)
+		{
+			if (pSnapping->m_IsSupportedDDNet)
+				pPlayerInfo->m_Score = m_SurvivalKills * 60;
+			else
+				pPlayerInfo->m_Score = m_SurvivalKills;
+		}
+		else
+			pPlayerInfo->m_Score = -9999;
+	}
+	else if (pSnapping->m_DisplayScore != 0) // race time
+	{
+		if (pSnapping->m_DisplayScore == 1) // level
 		{
 			if (m_AccountID > 0)
 			{
-				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+				if (pSnapping->m_IsSupportedDDNet)
 					pPlayerInfo->m_Score = m_level * 60;
 				else
 					pPlayerInfo->m_Score = m_level;
 			}
-			else if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			else if (pSnapping->m_IsSupportedDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
 		}
-		else if (GameServer()->m_apPlayers[SnappingClient]->m_DisplayScore == 2) // block points
+		else if (pSnapping->m_DisplayScore == 2) // block points
 		{
 			if (m_AccountID > 0)
 			{
-				if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+				if (pSnapping->m_IsSupportedDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
 				else
 					pPlayerInfo->m_Score = m_BlockPoints;
 			}
-			else if (GameServer()->m_apPlayers[SnappingClient]->m_IsSupportedDDNet)
+			else if (pSnapping->m_IsSupportedDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
@@ -733,7 +745,6 @@ void CPlayer::Snap(int SnappingClient)
 		{
 			pPlayerInfo->m_Score = abs(m_Score) * -1;
 		}
-		
 	}
 }
 
