@@ -1383,50 +1383,15 @@ void CPlayer::Save(int SetLoggedIn)
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	if (!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
+	if (!str_comp(m_LastLogoutIGN2, m_LastLogoutIGN3) && !str_comp(m_LastLogoutIGN3, m_LastLogoutIGN4) && !str_comp(m_LastLogoutIGN4, m_LastLogoutIGN5))
 	{
-		if (!str_comp(aName, m_LastLogoutIGN1))
-		{
-			m_iLastLogoutIGN1_usage++;
-		}
-		else if (!str_comp(aName, m_LastLogoutIGN2))
-		{
-			m_iLastLogoutIGN2_usage++;
-		}
-		else if (!str_comp(aName, m_LastLogoutIGN3))
-		{
-			m_iLastLogoutIGN3_usage++;
-		}
-		else if (!str_comp(aName, m_LastLogoutIGN4))
-		{
-			m_iLastLogoutIGN4_usage++;
-		}
-		else if (!str_comp(aName, m_LastLogoutIGN5))
-		{
-			m_iLastLogoutIGN5_usage++;
-		}
-	}
-	else //new name --> add it in history and overwrite the oldest
-	{
-		//dbg_msg("debug", "'%s' was not equal to...", aName);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN1);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN2);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN3);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN4);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN5);
-
-		str_format(m_LastLogoutIGN5, sizeof(m_LastLogoutIGN5), "%s", m_LastLogoutIGN4);
-		str_format(m_LastLogoutIGN4, sizeof(m_LastLogoutIGN4), "%s", m_LastLogoutIGN3);
-		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
-		str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", m_LastLogoutIGN1);
 		str_format(m_LastLogoutIGN1, sizeof(m_LastLogoutIGN1), "%s", aName);
-
-		m_iLastLogoutIGN5_usage = m_iLastLogoutIGN4_usage;
-		m_iLastLogoutIGN4_usage = m_iLastLogoutIGN3_usage;
-		m_iLastLogoutIGN3_usage = m_iLastLogoutIGN2_usage;
-		m_iLastLogoutIGN2_usage = m_iLastLogoutIGN1_usage;
-		m_iLastLogoutIGN1_usage = 0;
 	}
+
+	str_format(m_LastLogoutIGN5, sizeof(m_LastLogoutIGN5), "%s", m_LastLogoutIGN4);
+	str_format(m_LastLogoutIGN4, sizeof(m_LastLogoutIGN4), "%s", m_LastLogoutIGN3);
+	str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
+	str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", aName);
 
 	//read showhide bools to char array that is being saved
 	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
