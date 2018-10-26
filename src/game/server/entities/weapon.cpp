@@ -57,7 +57,8 @@ void CWeapon::Reset()
 		}
 	}
 
-	GameServer()->CreateDeath(m_Pos, -1);
+	if (m_DeathEffect)
+		GameServer()->CreateDeath(m_Pos, -1);
 
 	Server()->SnapFreeID(m_ID2);
 	Server()->SnapFreeID(m_ID3);
@@ -79,6 +80,7 @@ void CWeapon::IsShieldNear()
 		{
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 			m_EreaseWeapon = true;
+			m_DeathEffect = true;
 			Reset();
 		}
 	}
@@ -195,6 +197,7 @@ void CWeapon::Tick()
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
 
 		m_EreaseWeapon = true;
+		m_DeathEffect = true;
 		Reset();
 		return;
 	}
@@ -202,6 +205,7 @@ void CWeapon::Tick()
 	if (m_Lifetime == 0)
 	{
 		m_EreaseWeapon = true;
+		m_DeathEffect = true;
 		Reset();
 		return;
 	}
