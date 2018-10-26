@@ -18,8 +18,6 @@ public:
 
 	void Pickup();
 
-	bool m_DeathEffect;
-
 private:
 	vec2 m_Vel;
 

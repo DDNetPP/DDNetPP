@@ -6046,7 +6046,6 @@ void CCharacter::DropWeapon(int WeaponID)
 
 	if (m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
 	{
-		m_pPlayer->m_vWeaponLimit[WeaponID][0]->m_DeathEffect = true;
 		m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 		m_pPlayer->m_vWeaponLimit[WeaponID].erase(m_pPlayer->m_vWeaponLimit[WeaponID].begin());
 	}
