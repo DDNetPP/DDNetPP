@@ -57,7 +57,8 @@ void CWeapon::Reset()
 		}
 	}
 
-	GameServer()->CreateDeath(m_Pos, -1);
+	if (IsCharacterNear() == -1)
+		GameServer()->CreateDeath(m_Pos, -1);
 
 	Server()->SnapFreeID(m_ID2);
 	Server()->SnapFreeID(m_ID3);
