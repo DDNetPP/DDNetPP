@@ -77,6 +77,8 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 
 			HadFlag |= 1;
 		}
+		if (F && F->m_pLastCarryingCharacter == pVictim)
+			F->m_pLastCarryingCharacter = 0;
 	}
 
 	return HadFlag;
