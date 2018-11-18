@@ -16836,6 +16836,13 @@ void CCharacter::DummyTick()
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
 			}
+			if (isFreezed && m_Core.m_Pos.x < 41 * 32 && m_Core.m_Pos.x > 33 * 32 && m_Core.m_Pos.y < 10 * 32) // kills when on speedup right next to the newtee spawn to prevent infinite flappy blocking
+			{
+				if (Server()->Tick() % 500 == 0) // kill when freeze
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+			}
 			if (m_Core.m_Pos.x > 368 * 32 && m_Core.m_Pos.y < 340 * 32) //new spawn going left and hopping over the gap under the CFRM.  (the jump over the freeze gap before falling down is not here, its in line 13647)
 			{
 				m_Input.m_Direction = -1;
