@@ -1469,6 +1469,7 @@ void CPlayer::Save(int SetLoggedIn)
 											  ", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
 											  ", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
 											  ", `Skin` = '%q'"
+											  ", `TimeoutCode` = '%q'"
 											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
 											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
@@ -1497,6 +1498,7 @@ void CPlayer::Save(int SetLoggedIn)
 												m_aIP_1, m_aIP_2, m_aIP_3,
 												m_aClan1, m_aClan2, m_aClan3,
 												m_TeeInfos.m_SkinName,
+												m_TimeoutCode,
 												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
 												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,

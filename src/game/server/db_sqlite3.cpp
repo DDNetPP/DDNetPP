@@ -181,6 +181,7 @@ CSql::CSql()
 		Clan2						VARCHAR(32)		DEFAULT '',\n\
 		Clan3						VARCHAR(32)		DEFAULT '',\n\
 		Skin						VARCHAR(32)		DEFAULT '',\n\
+		TimeoutCode					VARCHAR(64)		DEFAULT '',\n\
 		Level						INTEGER			DEFAULT 0,\n\
 		Money						INTEGER			DEFAULT 0,\n\
 		Exp						INTEGER			DEFAULT 0,\n\
