@@ -13408,7 +13408,7 @@ void CCharacter::DummyTick()
 						{
 							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3); // tear emote before killing
 						}
-						if (Server()->Tick() % 3000 == 0) // kill when freeze
+						if (Server()->Tick() % 3000 == 0 && (IsGrounded() || m_Core.m_Pos.x > 430 * 32)) // kill when freeze
 						{
 							Die(m_pPlayer->GetCID(), WEAPON_SELF);
 						}
