@@ -11072,7 +11072,7 @@ void CGameContext::ResetTuning()
 	m_Tuning = TuningParams;
 	Tuning()->Set("gun_speed", 1400);
 	Tuning()->Set("gun_curvature", 0);
-	Tuning()->Set("shotgun_speed", 2750.00f);
+	Tuning()->Set("shotgun_speed", 500.0f);	//ddrace value for shotgun speed is 500.0f, not 2750.0f :D
 	Tuning()->Set("shotgun_speeddiff", 0.80f);
 	Tuning()->Set("shotgun_curvature", 1.25f);
 	Tuning()->Set("shotgun_lifetime", 0.20f);
