@@ -6387,39 +6387,113 @@ void CCharacter::DDPP_Tick()
 				}
 				else
 				{
+					int VIPBonus = 0;
+					bool IsVIP = false;
+
+					//vip+ get 2 bonus
+					if (m_pPlayer->m_IsSuperModerator)
+					{
+						m_pPlayer->m_xp += 2;
+						m_pPlayer->m_money += 2;
+
+						VIPBonus = 2;
+						IsVIP = true;
+					}
+
+					//vip get 1 bonus
+					else if (m_pPlayer->m_IsModerator)
+					{
+						m_pPlayer->m_xp++;
+						m_pPlayer->m_money++;
+
+						VIPBonus = 1;
+						IsVIP = true;
+					}
+
 					if (m_InBank && GameServer()->m_IsBankOpen)
 					{
-						if (m_pPlayer->m_xpmsg)
+						if (IsVIP)
 						{
-							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							m_pPlayer->m_xp++;
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%d/%d] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
+							else
+							{
+								GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+								//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+							}
 						}
 						else
 						{
-							GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-							//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%d/%d] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
+							else
+							{
+								GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+							}
 						}
 					}
 					else if (m_InShop)
 					{
-						if (m_pPlayer->m_xpmsg)
+						if (IsVIP)
 						{
-							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							m_pPlayer->m_xp++;
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%d/%d] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
+							else
+							{
+								GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+							}
+						}
+						else
+						{
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%d/%d] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
+							else
+							{
+								GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+							}
 						}
 					}
 					else  //not in bank
 					{
-						if (m_pPlayer->m_xpmsg)
+						if (IsVIP)
 						{
-							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 FlagBonus", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							m_pPlayer->m_xp++;
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
+						}
+						else
+						{
+							if (m_pPlayer->m_xpmsg)
+							{
+								char aBuf[256];
+								str_format(aBuf, sizeof(aBuf), "XP [%d/%d] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+								m_pPlayer->m_xp++;
+							}
 						}
 					}
 				}
