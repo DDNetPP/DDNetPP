@@ -10065,7 +10065,6 @@ void CCharacter::DummyTick()
 			m_Input.m_Direction = 0;
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
-			m_Dummy_mode23 = 0;
 			//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug agian xd
 
 			/*
@@ -10076,12 +10075,12 @@ void CCharacter::DummyTick()
 
 			*/
 
-			if (1 == 1)
+			if (Server()->Tick() % 50 == 0)
 			{
+        m_Dummy_mode23 = 0;
 				CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 				if (pChr && pChr->IsAlive())
 				{
-					//if (Server()->ClientName(pChr) == "ChillerDragon")
 					if (
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "Starkiller") ||
 						!str_comp(Server()->ClientName(pChr->GetPlayer()->GetCID()), "rqza") ||
