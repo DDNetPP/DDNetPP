@@ -10,7 +10,7 @@ class CPlasma: public CEntity
 {
 	vec2 m_Core;
 	int m_EvalTick;
-	int m_LifeTime;
+	float m_LifeTime;
 
 	int m_ResponsibleTeam;
 	int m_Freeze;
