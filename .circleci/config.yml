@@ -1,6 +1,6 @@
 version: 2
 defaults: &defaults
-  working_directory: ~/ChillerDragon/DDNetPP
+  working_directory: ~/DDNetPP/DDNetPP
   docker:
     - image: buildpack-deps:stretch
 
