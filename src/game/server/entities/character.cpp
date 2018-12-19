@@ -4541,7 +4541,6 @@ void CCharacter::MoneyTile2()
 
 
 		int VIPBonus = 0;
-		bool IsVIP = false;
 
 		//vip+ get 2 bonus
 		if (m_pPlayer->m_IsSuperModerator)
@@ -4550,7 +4549,6 @@ void CCharacter::MoneyTile2()
 			m_pPlayer->m_money += 2;
 
 			VIPBonus = 2;
-			IsVIP = true;
 		}
 
 		//vip get 1 bonus
@@ -4560,7 +4558,6 @@ void CCharacter::MoneyTile2()
 			m_pPlayer->m_money++;
 
 			VIPBonus = 1;
-			IsVIP = true;
 		}
 
 		//give xp
@@ -4639,7 +4636,7 @@ void CCharacter::MoneyTile2()
 
 			if (m_pPlayer->m_PoliceRank > 0)
 			{
-				if (IsVIP)
+				if (VIPBonus)
 				{
 					if (m_survivexpvalue == 0)
 					{
@@ -4672,7 +4669,7 @@ void CCharacter::MoneyTile2()
 			}
 			else
 			{
-				if (IsVIP)
+				if (VIPBonus)
 				{
 					if (m_survivexpvalue == 0)
 					{
@@ -4738,7 +4735,6 @@ void CCharacter::MoneyTile()
 
 
 		int VIPBonus = 0;
-		bool IsVIP = false;
 
 		//vip+ get 2 bonus
 		if (m_pPlayer->m_IsSuperModerator)
@@ -4747,7 +4743,6 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_money+=2;
 
 			VIPBonus = 2;
-			IsVIP = true;
 		}
 
 		//vip get 1 bonus
@@ -4757,7 +4752,6 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_money++;
 
 			VIPBonus = 1;
-			IsVIP = true;
 		}
 
 
@@ -4835,7 +4829,7 @@ void CCharacter::MoneyTile()
 
 			if (m_survivexpvalue == 0)
 			{
-				if (IsVIP)
+				if (VIPBonus)
 				{
 					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 					{
@@ -4868,7 +4862,7 @@ void CCharacter::MoneyTile()
 			}
 			else if (m_survivexpvalue > 0)
 			{
-				if (IsVIP)
+				if (VIPBonus)
 				{
 					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 					{
@@ -6388,7 +6382,6 @@ void CCharacter::DDPP_Tick()
 				else
 				{
 					int VIPBonus = 0;
-					bool IsVIP = false;
 
 					//vip+ get 2 bonus
 					if (m_pPlayer->m_IsSuperModerator)
@@ -6397,7 +6390,6 @@ void CCharacter::DDPP_Tick()
 						m_pPlayer->m_money += 2;
 
 						VIPBonus = 2;
-						IsVIP = true;
 					}
 
 					//vip get 1 bonus
@@ -6407,12 +6399,11 @@ void CCharacter::DDPP_Tick()
 						m_pPlayer->m_money++;
 
 						VIPBonus = 1;
-						IsVIP = true;
 					}
 
 					if (m_InBank && GameServer()->m_IsBankOpen)
 					{
-						if (IsVIP)
+						if (VIPBonus)
 						{
 							if (m_pPlayer->m_xpmsg)
 							{
@@ -6444,7 +6435,7 @@ void CCharacter::DDPP_Tick()
 					}
 					else if (m_InShop)
 					{
-						if (IsVIP)
+						if (VIPBonus)
 						{
 							if (m_pPlayer->m_xpmsg)
 							{
@@ -6475,7 +6466,7 @@ void CCharacter::DDPP_Tick()
 					}
 					else  //not in bank
 					{
-						if (IsVIP)
+						if (VIPBonus)
 						{
 							if (m_pPlayer->m_xpmsg)
 							{
