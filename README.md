@@ -1,5 +1,5 @@
 [![DDNet++](./data/ddnetpp.svg)](./data/ddnetpp.svg)
-[![CircleCI Build Status](https://circleci.com/gh/ChillerDragon/DDNetPP/tree/master.png)](https://circleci.com/gh/ChillerDragon/DDNetPP)
+[![CircleCI Build Status](https://circleci.com/gh/DDNetPP/DDNetPP/tree/master.png)](https://circleci.com/gh/DDNetPP/DDNetPP)
 ================================
 
 Based on DDNet: Our own flavor of DDRace, a Teeworlds mod. See the [website](http://ddnet.tw) for more information.
