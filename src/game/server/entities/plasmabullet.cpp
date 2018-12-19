@@ -8,7 +8,7 @@
 #include "plasmabullet.h"
 
 CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
-		bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, int Lifetime, float Accel, float Speed) :
+		bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime, float Accel, float Speed) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 #if defined(CONF_DEBUG)
