@@ -12115,15 +12115,12 @@ void CCharacter::DummyTick()
 											}
 										}
 
-
-
 										m_Dummy_panic_balance = true;
 									}
 									if (pChr->m_FreezeTime == 0 || isFreezed || pChr->m_Pos.x > 512 * 32 + 5) //if mate gets unfreezed or dummy freezed stop balance
 									{
 										m_Dummy_panic_balance = false;
 									}
-
 
 									if (m_Dummy_panic_balance)
 									{
@@ -12189,8 +12186,6 @@ void CCharacter::DummyTick()
 											}
 										}
 									}
-
-
 
 									//Important dont walk of finish plattform check
 									//if (m_Core.m_Vel.y < 6.4f) //Check if not falling to fast
