@@ -10246,7 +10246,6 @@ void CCharacter::DummyTick()
 						Die(m_pPlayer->GetCID(), WEAPON_SELF);
 					}
 
-
 					if (m_Core.m_Pos.y < 166 * 32 - 20)
 					{
 						m_Input.m_Hook = 1;
@@ -10303,12 +10302,10 @@ void CCharacter::DummyTick()
 					m_Input.m_Direction = 1;
 				}
 
-
 				if (m_Core.m_Pos.y > 128 * 32)
 				{
 					m_Input.m_Jump = 1;
 				}
-
 
 				//speeddown at end to avoid selfkill cuz to slow falling in freeze
 				if (m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
@@ -10371,11 +10368,7 @@ void CCharacter::DummyTick()
 				}
 
 
-
-
-
-
-				//insta self kills
+				//instant self kills
 				if (m_Core.m_Pos.x < 390 * 32 && m_Core.m_Pos.x > 325 * 32 && m_Core.m_Pos.y > 215 * 32)  //Links am spawn runter
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
@@ -10433,7 +10426,6 @@ void CCharacter::DummyTick()
 					m_Input.m_TargetY = 0;
 				}
 
-
 				if (m_Dummy_movement_mode23 == 0)
 				{
 					if (m_Core.m_Pos.x < 415 * 32) //bis zum tunnel laufen
@@ -10470,9 +10462,7 @@ void CCharacter::DummyTick()
 						}
 					}
 
-
 					//externe if abfrage weil laufen während sprinegn xD
-
 					if (m_Core.m_Pos.x > 413 * 32 && m_Core.m_Pos.x < 415 * 32) // in den tunnel springen
 					{
 						m_Input.m_Jump = 1;
@@ -10484,26 +10474,19 @@ void CCharacter::DummyTick()
 						m_Input.m_Jump = 1;
 					}
 
-
-
 					// externen springen aufhören für dj
-
 					if (m_Core.m_Pos.x > 428 * 32 && m_Core.m_Pos.y > 213 * 32) // im tunnel springen nicht mehr springen
 					{
 						m_Input.m_Jump = 0;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "triggerd");
 					}
 
-
 					//nochmal extern weil springen während springen
-
 					if (m_Core.m_Pos.x > 430 * 32 && m_Core.m_Pos.y > 213 * 32) // im tunnel springen springen
 					{
 						m_Input.m_Jump = 1;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "triggerd");
 					}
-
-
 
 					if (m_Core.m_Pos.x > 431 * 32 && m_Core.m_Pos.y > 213 * 32) //jump refillen für wayblock spot
 					{
@@ -10542,15 +10525,12 @@ void CCharacter::DummyTick()
 						m_Input.m_Jump = 1;
 					}
 
-
-					//nochmal extern weil springen während springen
-
-
 					if (m_Core.m_Pos.x > 429 * 32 - 18)
 					{
 						m_Input.m_Direction = -1;
 					}
 
+					//nochmal extern weil springen während springen
 					if (m_Core.m_Pos.y < 217 * 32 && m_Core.m_Pos.x > 420 * 32 && m_Core.m_Pos.y > 213 * 32 + 20)
 					{
 						//m_Input.m_Direction = -1;
@@ -10559,11 +10539,6 @@ void CCharacter::DummyTick()
 							m_Input.m_Jump = 1;
 						}
 					}
-
-					//originaly made for a yt video but is ok to keep it there
-					//if (m_Core.m_Pos.y > 2)
-
-
 				}
 
 				//MoVement ab dem ruler spot weiter laufen
@@ -10572,7 +10547,6 @@ void CCharacter::DummyTick()
 				{
 					m_Input.m_Jump = 1;
 				}
-
 
 				if (m_Core.m_Pos.x > 417 * 32 && m_Core.m_Pos.y < 213 * 32 && m_Core.m_Pos.x < 450 * 32) //vom ruler nach rechts nachm unfreeze werden
 				{
@@ -10597,7 +10571,6 @@ void CCharacter::DummyTick()
 
 
 
-				//Jetzt kommt der schwierige rocketjump part o.O mal sehen wie gut das hinhaut xD
 				//TODO:
 				//aufpassen dass er das ganze nur macht wenn er nicht schon beim 2p part ist
 				if (m_Dummy_collected_weapons)
@@ -10649,13 +10622,9 @@ void CCharacter::DummyTick()
 								m_LatestInput.m_Fire++;
 								m_Input.m_Fire++;
 							}
-
-
 						}
 					}
 				}
-
-
 
 				if (m_Core.m_Pos.x > 448 * 32 && m_Core.m_Pos.x < 458 * 32 && m_Core.m_Pos.y > 209 * 32) //wenn der bot auf der platform is
 				{
@@ -10689,7 +10658,6 @@ void CCharacter::DummyTick()
 				{
 					m_Input.m_Direction = 1;
 
-
 					if (m_Core.m_Pos.x > 461 * 32 && m_Core.m_Pos.y > 192 * 32 + 20)
 					{
 						m_Input.m_Jump = 1;
@@ -10701,9 +10669,7 @@ void CCharacter::DummyTick()
 					}
 				}
 
-
 				//Check ob der dummy schon waffen hat
-				//if (m_Core.m_Pos.y < 165 * 32 && m_Core.m_Pos.x > 451 * 32 - 10 && m_Core.m_Pos.x < 454 * 32 + 10)
 				if (m_aWeapons[3].m_Got && m_aWeapons[2].m_Got)
 				{
 					m_Dummy_collected_weapons = true;
@@ -10919,7 +10885,6 @@ void CCharacter::DummyTick()
 										SetWeapon(2);
 									}
 
-
 									if (m_Core.m_Jumped == 0)//has dj --> go left over the freeze and hook ze mate
 									{
 										m_Input.m_Direction = -1;
@@ -10997,8 +10962,6 @@ void CCharacter::DummyTick()
 										if (Server()->Tick() >= m_EmoteTickNext && pChr->m_Pos.y < 212 * 32 - 5)
 										{
 											m_pPlayer->m_LastEmote = Server()->Tick();
-
-
 											GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
 
 											m_LatestInput.m_Fire++;
@@ -11174,13 +11137,11 @@ void CCharacter::DummyTick()
 						}
 					}
 
-
 					//schau ob der bot den part geschafft hat und auf state -1 gehen soll
 					if (m_Core.m_Pos.x > 485 * 32)
 					{
 						m_Dummy_2p_state = -1; //part geschafft --> mach aus 
 					}
-
 
 					if (m_Core.m_Pos.x > 466 * 32)
 					{
@@ -11949,7 +11910,6 @@ void CCharacter::DummyTick()
 
 
 									//ReHook if mate flys to high
-
 									if ((pChr->m_Pos.y < m_Core.m_Pos.y - 40 && pChr->m_Core.m_Vel.y < -4.4f) || pChr->m_Pos.y < 183 * 32)
 									{
 										m_Input.m_Hook = 1;
@@ -12068,7 +12028,6 @@ void CCharacter::DummyTick()
 										}
 									}
 
-
 									//Go in finish if near enough
 									if ((m_Core.m_Vel.y < 4.4f && m_Core.m_Pos.x > 511 * 32) || (m_Core.m_Vel.y < 8.4f && m_Core.m_Pos.x > 512 * 32))
 									{
@@ -12133,22 +12092,9 @@ void CCharacter::DummyTick()
 										}
 									}
 
-
 								}
 							}
 						}
-
-
-
-
-
-
-
-
-
-
-
-
 					}
 					else if (m_Dummy_mode23 == 1) //tricky hammerhit (harder)
 					{
@@ -12189,8 +12135,6 @@ void CCharacter::DummyTick()
 									{
 										m_Dummy_hh_hook = true;
 									}
-
-
 
 									//jump if too low && if mate is freeze otherwise it woudl be annoying af
 									if (m_Core.m_Pos.y > 191 * 32 && pChr->m_FreezeTime > 0)
