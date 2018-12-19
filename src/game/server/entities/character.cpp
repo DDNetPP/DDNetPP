@@ -7724,7 +7724,7 @@ void CCharacter::DummyTick()
 						}
 						if (dist < 80.f) // hammer dist
 						{
-							if (abs(pChr->m_Core.m_Vel.x) > 2.6f)
+							if (absolute(pChr->m_Core.m_Vel.x) > 2.6f)
 							{
 								if (m_FreezeTime == 0)
 								{
