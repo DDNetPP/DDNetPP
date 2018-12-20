@@ -6,6 +6,7 @@ objs
 src/game/generated
 FNN/*.fnn
 
+src/.vscode/
 .vs/
 /ChillerBot*
 /DDNetPP*
