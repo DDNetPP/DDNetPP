@@ -3739,43 +3739,49 @@ void CGameContext::AsciiTick(int i)
 
 void CGameContext::LoadSinglePlayer()
 {
-    FILE *pFile;
-    struct CBinaryStorage statsBuff;
-    
-    pFile = fopen("ddpp-stats.dat","rb");
-    if (!pFile)
-    {
-        dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
-        return;
-    }
-    
-    fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
-    dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", statsBuff.x);
-    m_MissionUnlockedLevel = statsBuff.x;
-    fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
-    dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", statsBuff.x);
-    m_MissionCurrentLevel = statsBuff.x;
-    
-    fclose(pFile);
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	FILE *pFile;
+	struct CBinaryStorage statsBuff;
+
+	pFile = fopen("ddpp-stats.dat","rb");
+	if (!pFile)
+	{
+			dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+			return;
+	}
+
+	fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
+	dbg_msg("ddpp-stats", "loaded data UnlockedLevel=%d", statsBuff.x);
+	m_MissionUnlockedLevel = statsBuff.x;
+	fread(&statsBuff,sizeof(struct CBinaryStorage), 1, pFile);
+	dbg_msg("ddpp-stats", "loaded data CurrentLevel=%d", statsBuff.x);
+	m_MissionCurrentLevel = statsBuff.x;
+
+	fclose(pFile);
 }
 
 void CGameContext::SaveSinglePlayer()
 {
-    FILE *pFile;
-    struct CBinaryStorage statsBuff;
-    
-    pFile = fopen("ddpp-stats.dat","wb");
-    if (!pFile)
-    {
-        dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
-        return;
-    }
-    statsBuff.x = m_MissionUnlockedLevel;
-    fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
-    statsBuff.x = m_MissionCurrentLevel;
-    fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
-    
-    fclose(pFile);
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	FILE *pFile;
+	struct CBinaryStorage statsBuff;
+
+	pFile = fopen("ddpp-stats.dat","wb");
+	if (!pFile)
+	{
+			dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+			return;
+	}
+	statsBuff.x = m_MissionUnlockedLevel;
+	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+	statsBuff.x = m_MissionCurrentLevel;
+	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
+
+	fclose(pFile);
 }
 
  
