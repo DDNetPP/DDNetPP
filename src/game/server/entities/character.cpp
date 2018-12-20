@@ -11242,8 +11242,8 @@ void CCharacter::DummyTick()
 					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
-						if ((pChr->m_Pos.y > 198 * 32 + 10 && pChr->m_Core.m_Vel.y == 0.000000f) ||
-						(pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->m_Core.m_Vel.y == 0.000000f) || // recognize mates freeze in the freeze tunnel on the left
+						if ((pChr->m_Pos.y > 198 * 32 + 10 && pChr->IsGrounded()) ||
+						(pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->IsGrounded()) || // recognize mates freeze in the freeze tunnel on the left
 						(m_Dummy_mate_help_mode == 3)) // yolo hook swing mode handles mate as failed until he is unfreeze
 						{
 							if (pChr->isFreezed)
@@ -11892,6 +11892,24 @@ void CCharacter::DummyTick()
 														}
 													}
 												}
+											}
+										}
+									}
+								}
+
+								if (pChr->m_Pos.x < 475 * 32) // mate failed in left tunnel
+								{
+									int dist = distance(pChr->m_Pos, m_Core.m_Pos);
+									if (dist < 11 * 32)
+									{
+										m_Input.m_Hook = 1;
+										m_Dummy_mate_help_mode = 3;
+										if (Server()->Tick() % 100 == 0) // reset hook to not get stuck
+										{
+											m_Input.m_Hook = 0;
+											if (IsGrounded())
+											{
+												m_Input.m_Jump = 1; // idk do something
 											}
 										}
 									}
