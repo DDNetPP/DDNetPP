@@ -10181,7 +10181,7 @@ void CCharacter::DummyTick()
 			m_Input.m_Direction = 0;
 			m_LatestInput.m_Fire = 0;
 			m_Input.m_Fire = 0;
-			//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug agian xd
+			// m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360); //remove this if u ever want to debug agian xd
 
 			/*
 			Dummy23modes:
@@ -10378,7 +10378,7 @@ void CCharacter::DummyTick()
 					}
 				}
 			}
-			else if (false && m_Core.m_Pos.y < 193 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+			else if (false && m_Core.m_Pos.y < 193 * 32 && m_Core.m_Pos.x < 450 * 32/*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
 			{
 				m_Input.m_TargetX = 200;
 				m_Input.m_TargetY = -80;
@@ -11242,14 +11242,17 @@ void CCharacter::DummyTick()
 					CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
 					if (pChr && pChr->IsAlive())
 					{
-						//                                                                                      NEW: to recognize mates freeze in the freeze tunnel on the left
-						if ((pChr->m_Pos.y > 198 * 32 + 10 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f) || (pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->isFreezed && pChr->m_Core.m_Vel.y == 0.000000f))
+						if ((pChr->m_Pos.y > 198 * 32 + 10 && pChr->m_Core.m_Vel.y == 0.000000f) ||
+						(pChr->m_Pos.y < 198 * 32 + 10 && pChr->m_Pos.x < 472 * 32 && pChr->m_Core.m_Vel.y == 0.000000f) || // recognize mates freeze in the freeze tunnel on the left
+						(m_Dummy_mate_help_mode == 3)) // yolo hook swing mode handles mate as failed until he is unfreeze
 						{
-							m_Dummy_mate_failed = true;
+							if (pChr->isFreezed)
+								m_Dummy_mate_failed = true;
 						}
 						if (pChr->m_FreezeTime == 0)
 						{
 							m_Dummy_mate_failed = false;
+							m_Dummy_mate_help_mode = 2; // set it to something not 3 because help mode 3 cant do the part (cant play if not failed)
 						}
 					}
 
@@ -11583,7 +11586,7 @@ void CCharacter::DummyTick()
 
 								//Get mate with shotgun in right position:
 								//if (pChr->m_Pos.x < 479 * 32 + 6) //if the mate is left enough to get shotgunned from the edge
-								if (pChr->m_Pos.x < 478 * 32)
+								if (pChr->m_Pos.x < 478 * 32 && (m_Dummy_mate_help_mode != 3)) // if currently in yolo fly save mode -> goto else branch to keep yolo flying
 								{
 									if (Server()->Tick() % 30 == 0)
 									{
@@ -11598,7 +11601,7 @@ void CCharacter::DummyTick()
 								}
 								else //if right enough to stop sg
 								{
-									if (pChr->m_Pos.x < 479 * 32)
+									if (pChr->m_Pos.x < 479 * 32 && (m_Dummy_mate_help_mode != 3))
 									{
 										if (pChr->m_Pos.y > 194 * 32)
 										{
@@ -11641,7 +11644,6 @@ void CCharacter::DummyTick()
 												m_Dummy_nothing_happens_counter = 0;
 											}
 										}
-
 									}
 									else
 									{
@@ -11651,7 +11653,7 @@ void CCharacter::DummyTick()
 										}
 										if (m_Core.m_ActiveWeapon == WEAPON_SHOTGUN && m_FreezeTime == 0)
 										{
-											if (pChr->m_Pos.y < 198 * 32) //if mate is high enough
+											if (pChr->m_Pos.y < 198 * 32 && (m_Dummy_mate_help_mode != 3)) //if mate is high enough and not in yolo hook help mode
 											{
 												m_Input.m_TargetX = -200;
 												m_Input.m_TargetY = 30;
@@ -11677,18 +11679,75 @@ void CCharacter::DummyTick()
 
 													1				Old way of helping try to wallshot staright down (doesnt work)
 													2				New alternative! wallshot the left wall while jumping
+													3				2018 new yolo move with jumping in the air
 
 													*/
-													m_Dummy_mate_help_mode = 2;
+													if (m_Dummy_mate_help_mode == 0) // start with good mode and increase chance of using it in the rand 0-3 range
+													{
+														m_Dummy_mate_help_mode = 3;
+													}
+													else if (Server()->Tick() % 400 == 0)
+													{
+														m_Dummy_mate_help_mode = rand() % 4;
+													}
 
-													if (m_Dummy_mate_help_mode == 2) //new (jump and wallshot the left wall)
+													if (m_Dummy_mate_help_mode == 3) // 2018 new yolo move with jumping in the air
+													{
+														if (m_Core.m_Jumped < 2)
+														{
+															if (m_Core.m_Pos.x > 476 * 32)
+															{
+																m_Input.m_Direction = -1;
+																if (IsGrounded() && m_Core.m_Pos.x < 481 * 32)
+																{
+																	m_Input.m_Jump = 1;
+																}
+
+																if (m_Core.m_Pos.x < 477 * 32)
+																{
+																	m_Input.m_Hook = 1; // start hook
+																}
+																if (m_Core.m_HookState == HOOK_GRABBED)
+																{
+																	m_Input.m_Hook = 1; // hold hook
+																	m_Input.m_Direction = 1;
+																	m_Input.m_TargetX = 200;
+																	m_Input.m_TargetY = 7;
+																	if (!m_FreezeTime)
+																	{
+																		m_Input.m_Fire++;
+																		m_LatestInput.m_Fire++;
+																	}
+																}
+															}
+
+															// anti stuck on edge
+															if (Server()->Tick() % 80 == 0)
+															{
+																if (m_Core.m_Vel.x < 0.0f && m_Core.m_Vel.y < 0.0f)
+																{
+																	m_Input.m_Direction = -1;
+																	if (m_Core.m_Pos.y > 193 * 32 + 18) // don't jump in the freeze roof
+																	{
+																		m_Input.m_Jump = 1;
+																	}
+																	m_Input.m_Hook = 1;
+																	if (!m_FreezeTime)
+																	{
+																		m_Input.m_Fire++;
+																		m_LatestInput.m_Fire++;
+																	}
+																}
+															}
+														}
+													}
+													else if (m_Dummy_mate_help_mode == 2) //new (jump and wallshot the left wall)
 													{
 														if (m_Core.m_Pos.y > 193 * 32 && m_Core.m_Vel.y == 0.000000f)
 														{
 															if (Server()->Tick() % 30 == 0)
 															{
 																m_Input.m_Jump = 1;
-																SetWeapon(2); //switch to sg
 															}
 														}
 
@@ -11868,6 +11927,7 @@ void CCharacter::DummyTick()
 								{
 									m_Dummy_help_emergency = true;
 								}
+
 								if ((m_Core.m_Pos.x > 479 * 32 && m_Core.m_Jumped == 0) || isFreezed)
 								{
 									m_Dummy_help_emergency = false;
@@ -11903,6 +11963,25 @@ void CCharacter::DummyTick()
 									}
 								}
 
+								if (m_Core.m_Pos.x < 475 * 32 && m_Core.m_Vel.x < -2.2f)
+								{
+									if (m_Core.m_Vel.y > 1.1f) // falling -> sg roof
+									{
+										m_Input.m_TargetX = 10;
+										m_Input.m_TargetY = -120;
+										if (!m_FreezeTime)
+										{
+											m_Input.m_Fire++;
+											m_LatestInput.m_Fire++;
+										}
+									}
+									if (m_Core.m_Pos.y > 193 * 32 + 18) // don't jump in the freeze roof
+									{
+										m_Input.m_Jump = 1;
+									}
+									m_Input.m_Direction = 1;
+									m_Dummy_help_emergency = true;
+								}
 							} //dummy_mate_failed end
 
 							if (m_Dummy_2p_state == 6) //extern af fuck the system
