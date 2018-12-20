@@ -9778,14 +9778,14 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 #endif
 
 	// ChillerDragon konst constructor
-    LoadSinglePlayer();
+  LoadSinglePlayer();
 	//Friends_counter = 0;
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
-    str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
+  str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();
@@ -9921,7 +9921,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pScore = new CSqlScore(this);
 	else
 #endif
-		m_pScore = new CFileScore(this);
+	m_pScore = new CFileScore(this);
 	// setup core world
 	//for(int i = 0; i < MAX_CLIENTS; i++)
 	//	game.players[i].core.world = &game.world.core;
