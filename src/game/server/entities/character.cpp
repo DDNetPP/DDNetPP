@@ -12638,16 +12638,26 @@ void CCharacter::DummyTick()
 						m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
 					}
 
+					// if (m_FNN_CurrentMoveIndex == 0)
+					// {
+					// 	dbg_msg("FNN", "starting record on x=%f y=%f", m_Core.m_Pos.x, m_Core.m_Pos.y);
+					// }
+
 					//save values in array
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Direction;
+					// dbg_msg("fnn", "dir: %d", m_Input.m_Direction);
 					m_FNN_CurrentMoveIndex++;
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Jump;
+					// dbg_msg("fnn", "jump: %d", m_Input.m_Jump);
 					m_FNN_CurrentMoveIndex++;
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Hook;
+					// dbg_msg("fnn", "hook: %d", m_Input.m_Hook);
 					m_FNN_CurrentMoveIndex++;
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_TargetX;
+					// dbg_msg("fnn", "targetX: %d", m_Input.m_TargetX);
 					m_FNN_CurrentMoveIndex++;
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_TargetY;
+					// dbg_msg("fnn", "targetY: %d", m_Input.m_TargetY);
 					m_FNN_CurrentMoveIndex++;
 
 					if (rand_Weapon == 0)
@@ -12958,50 +12968,6 @@ void CCharacter::DummyTick()
 				}
 				else if (m_pPlayer->m_dmm25 == 1) //submode[1] read/load distance
 				{
-					/*
-					//reset values
-					m_FNN_CurrentMoveIndex = 0;
-					float loaded_distance = 0;
-					float loaded_fitness = 0;
-
-					//load run
-					std::ifstream readfile;
-					char aFilePath[512];
-					str_format(aFilePath, sizeof(aFilePath), "FNN/move_distance.fnn");
-					readfile.open(aFilePath);
-					if (readfile.is_open())
-					{
-						std::string line;
-						int i = 0;
-
-						//first tree lines are stats:
-
-						std::getline(readfile, line); //moveticks
-						m_FNN_ticks_loaded_run = atoi(line.c_str());
-
-						std::getline(readfile, line); //distance
-						loaded_distance = atoi(line.c_str());
-
-						std::getline(readfile, line); //fitness
-						loaded_fitness = atoi(line.c_str());
-
-						while (std::getline(readfile, line))
-						{
-							m_aRecMove[i] = atoi(line.c_str());
-							i++;
-						}
-					}
-					else
-					{
-						dbg_msg("FNN", "failed to load move. failed to open '%s'", aFilePath);
-						m_pPlayer->m_dmm25 = -1;
-					}
-
-					//start run
-					m_pPlayer->m_dmm25 = 2;
-					str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f", m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness);
-					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
-					*/
 					GameServer()->FNN_LoadRun("FNN/move_distance.fnn", m_pPlayer->GetCID());
 				}
 				else if (m_pPlayer->m_dmm25 == 2) //submode[2] read/load fitness
@@ -13014,20 +12980,34 @@ void CCharacter::DummyTick()
 				}
 				else if (m_pPlayer->m_dmm25 == 4) //submode[4] play loaded run
 				{
+					// if (m_FNN_CurrentMoveIndex == 0)
+					// {
+					// 	dbg_msg("FNN", "starting play on x=%f y=%f", m_Core.m_Pos.x, m_Core.m_Pos.y);
+					// }
+
 					m_Input.m_Direction = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "dir: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					m_FNN_CurrentMoveIndex++;
 					m_Input.m_Jump = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "jump: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					m_FNN_CurrentMoveIndex++;
 					m_Input.m_Hook = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "hook: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					m_FNN_CurrentMoveIndex++;
 					m_Input.m_TargetX = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "targetX: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					m_FNN_CurrentMoveIndex++;
 					m_Input.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "targetY: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					m_FNN_CurrentMoveIndex++;
-					m_LatestInput.m_TargetX = m_aRecMove[m_FNN_CurrentMoveIndex];
-					m_FNN_CurrentMoveIndex++;
-					m_LatestInput.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
-					m_FNN_CurrentMoveIndex++;
+
+					// ignore latest input for now
+					// m_LatestInput.m_TargetX = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "r: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
+					// m_FNN_CurrentMoveIndex++;
+					// m_LatestInput.m_TargetY = m_aRecMove[m_FNN_CurrentMoveIndex];
+					// dbg_msg("fnn", "r: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
+					// m_FNN_CurrentMoveIndex++;
 
 					if (m_FNN_CurrentMoveIndex > m_FNN_ticks_loaded_run)
 					{
@@ -13045,14 +13025,6 @@ void CCharacter::DummyTick()
 						str_format(aBuf, sizeof(aBuf), "[FNN] finished replay ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", m_FNN_CurrentMoveIndex, newest_distance, newest_fitness, newest_distance_finish);
 						GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 					}
-				}
-				else if (m_pPlayer->m_dmm25 == 3) //submode[3] read/load fitness
-				{
-
-				}
-				else if (m_pPlayer->m_dmm25 == 4) //submode[4] play fitness
-				{
-
 				}
 			}
 		}
