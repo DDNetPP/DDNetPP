@@ -13009,7 +13009,7 @@ void CCharacter::DummyTick()
 					// dbg_msg("fnn", "r: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
 					// m_FNN_CurrentMoveIndex++;
 
-					if (m_FNN_CurrentMoveIndex > m_FNN_ticks_loaded_run)
+					if (m_FNN_CurrentMoveIndex >= m_FNN_ticks_loaded_run)
 					{
 						m_pPlayer->m_dmm25 = -1; //stop bot
 						float newest_distance = distance(m_StartPos, m_Core.m_Pos);
