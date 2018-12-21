@@ -5,7 +5,11 @@ import os.path
 ln = 0
 file_path = "FNN/move_distance_finish.fnn"
 jumps = 0
+actual_jumps = 0
+last_jump = 0
 hooks = 0
+actual_hooks = 0
+last_hook = 0
 directions = [0,0,0]
 targetXs = []
 targetYs = []
@@ -46,16 +50,22 @@ with open(file_path, "r") as f:
       elif (ln + 3) % 5 == 0:
         # print("hook: " + str(line))
         hooks += int(line)
+        if last_hook == 0 and int(line) == 1:
+          actual_hooks += 1
+        last_hook = int(line)
       elif (ln + 4) % 5 == 0:
         # print("jump: " + str(line))
         jumps += int(line)
+        if last_jump == 0 and int(line) == 1:
+          actual_jumps += 1
+        last_jump = int(line)
       # print("line[" + str(ln) + "] " + str(line))
     # print("line[" + str(ln) + "] " + str(line))
     ln += 1
 
 print("=== total imputs ===")
-print("jumps: " + str(jumps))
-print("hooks: " + str(hooks))
+print("jumps: " + str(actual_jumps) + " (ticks " + str(jumps) + ")")
+print("hooks: " + str(actual_hooks) + " (ticks " + str(hooks) + ")")
 print("avg(targX): " + str(round((sum(targetXs) / float(len(targetXs))), 2)))
 print("avg(targY): " + str(round((sum(targetYs) / float(len(targetYs))), 2)))
 print("left: " + str(directions[0]) + " stand: " + str(directions[1]) + " right: " + str(directions[2]))
