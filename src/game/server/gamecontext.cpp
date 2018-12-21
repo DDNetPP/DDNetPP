@@ -2627,13 +2627,13 @@ void CGameContext::FNN_LoadRun(const char * path, int botID)
 		pChr->m_FNN_ticks_loaded_run = atoi(line.c_str());
 
 		std::getline(readfile, line); //distance
-		loaded_distance = atoi(line.c_str());
+		loaded_distance = atof(line.c_str());
 
 		std::getline(readfile, line); //fitness
-		loaded_fitness = atoi(line.c_str());
+		loaded_fitness = atof(line.c_str());
 
 		std::getline(readfile, line); //distance_finish
-		loaded_distance_finish = atoi(line.c_str());
+		loaded_distance_finish = atof(line.c_str());
 
 		while (std::getline(readfile, line))
 		{
