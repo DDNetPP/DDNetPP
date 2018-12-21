@@ -12773,6 +12773,8 @@ void CCharacter::DummyTick()
 									statsfile.open(aFilePath);
 									if (statsfile.is_open())
 									{
+										// statsfile << "-- total stats --";
+										// statsfile << std::endl;
 										statsfile << newest_distance; //distance
 										statsfile << std::endl;
 										statsfile << GameServer()->m_FNN_best_fitness; //fitness
@@ -12792,7 +12794,9 @@ void CCharacter::DummyTick()
 									savefile.open(aFilePath/*, std::ios::app*/); //dont append rewrite
 									if (savefile.is_open())
 									{
-										//first four lines are stats
+										//first five lines are stats
+										savefile << "-- stats distance --";
+										savefile << std::endl;
 										savefile << m_FNN_CurrentMoveIndex; //moveticks
 										savefile << std::endl;
 										savefile << newest_distance; //distance
@@ -12834,6 +12838,8 @@ void CCharacter::DummyTick()
 									statsfile.open(aFilePath);
 									if (statsfile.is_open())
 									{
+										// statsfile << "-- total stats --";
+										// statsfile << std::endl;
 										statsfile << GameServer()->m_FNN_best_distance; //distance
 										statsfile << std::endl;
 										statsfile << newest_fitness; //fitness
@@ -12853,7 +12859,9 @@ void CCharacter::DummyTick()
 									savefile.open(aFilePath);
 									if (savefile.is_open())
 									{
-										//first four lines are stats
+										//first five lines are stats
+										savefile << "-- stats fitness --";
+										savefile << std::endl;
 										savefile << m_FNN_CurrentMoveIndex; //moveticks
 										savefile << std::endl;
 										savefile << newest_distance; //distance
@@ -12895,6 +12903,8 @@ void CCharacter::DummyTick()
 									statsfile.open(aFilePath);
 									if (statsfile.is_open())
 									{
+										// statsfile << "-- total stats --";
+										// statsfile << std::endl;
 										statsfile << GameServer()->m_FNN_best_distance; //distance
 										statsfile << std::endl;
 										statsfile << GameServer()->m_FNN_best_fitness; //fitness
@@ -12914,7 +12924,9 @@ void CCharacter::DummyTick()
 									savefile.open(aFilePath);
 									if (savefile.is_open())
 									{
-										//first four lines are stats
+										//first five lines are stats
+										savefile << "-- stats distance finish --";
+										savefile << std::endl;
 										savefile << m_FNN_CurrentMoveIndex; //moveticks
 										savefile << std::endl;
 										savefile << newest_distance; //distance
