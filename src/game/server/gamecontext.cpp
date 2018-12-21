@@ -3749,7 +3749,7 @@ void CGameContext::LoadSinglePlayer()
 	pFile = fopen("ddpp-stats.dat","rb");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+			dbg_msg("ddpp-stats", "[load] failed to open ddpp singleplayer stats");
 			return;
 	}
 
@@ -3774,7 +3774,7 @@ void CGameContext::SaveSinglePlayer()
 	pFile = fopen("ddpp-stats.dat","wb");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-stats", "failed to load ddpp singleplayer stats");
+			dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
 			return;
 	}
 	statsBuff.x = m_MissionUnlockedLevel;
