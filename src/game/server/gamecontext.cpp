@@ -2620,7 +2620,8 @@ void CGameContext::FNN_LoadRun(const char * path, int botID)
 		std::string line;
 		int i = 0;
 
-		//first four lines are stats:
+		//first four five are stats:
+		std::getline(readfile, line); // read but ignore header
 
 		std::getline(readfile, line); //moveticks
 		pChr->m_FNN_ticks_loaded_run = atoi(line.c_str());
