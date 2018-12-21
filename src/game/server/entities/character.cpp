@@ -12564,19 +12564,22 @@ void CCharacter::DummyTick()
 				}
 				else if (m_pPlayer->m_dmm25 == 0) //submode[0] write
 				{
-					//m_pPlayer->m_TeeInfos.m_Name = "writing...";
-					//m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
+					// m_pPlayer->m_TeeInfos.m_Name = "writing...";
+					// m_pPlayer->m_TeeInfos.m_ColorBody = (180 * 255 / 360);
 
 
 					//m_pPlayer->m_Dummy_nn_time++; //maybe use it some day to analys each tick stuff or total trainign time idk
 
-					int rand_Direction = rand() % 3 - 1; //-1 0 1
+					// random inputs
 					int rand_Fire = rand() % 2; // 1 0
-					int rand_Jump = rand() % 2;
+					int rand_Jump = 0; //rand() % 2;
 					int rand_Hook = rand() % 2;
 					int rand_Weapon = rand() % 4;
 					int rand_TargetX = rand() % 401 - 200;
 					int rand_TargetY = rand() % 401 - 200;
+					static int rand_Direction = rand() % 3 - 1; //-1 0 1
+					if (Server()->Tick() % 77 == 0)
+						rand_Direction = rand() % 3 - 1; //-1 0 1
 
 					m_Input.m_Direction = rand_Direction;
 					m_Input.m_Jump = rand_Jump;
@@ -12586,16 +12589,65 @@ void CCharacter::DummyTick()
 					m_LatestInput.m_TargetX = rand_TargetX;
 					m_LatestInput.m_TargetY = rand_TargetY;
 
+					// read world inputs
+					float Offset = 4.0f;
+					int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
+					int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
+					int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
+					int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
+					//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
+					m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
+					m_TileFlagsL = GameServer()->Collision()->GetTileFlags(MapIndexL);
+					m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
+					m_TileFlagsR = GameServer()->Collision()->GetTileFlags(MapIndexR);
+					m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
+					m_TileFlagsB = GameServer()->Collision()->GetTileFlags(MapIndexB);
+					m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
+
+					if (Server()->Tick() % 100 == 0)
+					{
+						dbg_msg("fnn-debug", "------ TEST --------");
+						dbg_msg("fnn-debug", "left: %d", m_TileIndexL);
+						dbg_msg("fnn-debug", "right: %d", m_TileIndexR);
+						dbg_msg("fnn-debug", "up: %d", m_TileIndexT);
+						dbg_msg("fnn-debug", "down: %d", m_TileIndexB);
+					}
+
+					if (m_TileIndexL == TILE_FREEZE)
+					{
+						m_Input.m_Direction = 1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+					}
+					else 	if (m_TileIndexR == TILE_FREEZE)
+					{
+						m_Input.m_Direction = -1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+					}
+					else
+					{
+						m_Input.m_Direction = rand_Direction;
+					}
+					if (m_TileIndexB == TILE_FREEZE)
+					{
+						m_Input.m_Jump = 1;
+						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
+					}
+
+					if (m_TileIndexB == TILE_NOHOOK)
+					{
+						m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
+					}
+
 					//save values in array
-					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Direction;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Direction;
 					m_FNN_CurrentMoveIndex++;
-					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Jump;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Jump;
 					m_FNN_CurrentMoveIndex++;
-					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_Hook;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Hook;
 					m_FNN_CurrentMoveIndex++;
-					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetX;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_TargetX;
 					m_FNN_CurrentMoveIndex++;
-					m_aRecMove[m_FNN_CurrentMoveIndex] = rand_TargetY;
+					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_TargetY;
 					m_FNN_CurrentMoveIndex++;
 
 					if (rand_Weapon == 0)
