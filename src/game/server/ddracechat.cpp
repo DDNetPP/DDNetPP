@@ -10798,12 +10798,26 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
 		pSelf->SendChatTarget(ClientID, "---- COMMANDS -----");
+		pSelf->SendChatTarget(ClientID, "'/fnn init' loads the finish tile pos");
 		pSelf->SendChatTarget(ClientID, "'/fnn train' does random moves and writes highscores to file");
 		pSelf->SendChatTarget(ClientID, "'/fnn play_distance' replays the best distance");
 		pSelf->SendChatTarget(ClientID, "'/fnn play_fitness' replays best distance in best time");
 		pSelf->SendChatTarget(ClientID, "'/fnn play_distance_finish' replays best distance to finish");
 		pSelf->SendChatTarget(ClientID, "'/fnn stats' prints current highscores");
 		pSelf->SendChatTarget(ClientID, "----------------------");
+		return;
+	}
+
+	if (!str_comp_nocase(aCommand, "init"))
+	{
+		pSelf->m_FinishTilePos = pSelf->GetFinishTile();
+		str_format(aBuf, sizeof(aBuf), "[FNN] found finish tile at (%.2f/%.2f)", pSelf->m_FinishTilePos.x, pSelf->m_FinishTilePos.y);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+	else if (pSelf->m_FinishTilePos.x == 0.000000f && pSelf->m_FinishTilePos.y == 0.000000f)
+	{
+		pSelf->SendChatTarget(ClientID, "[FNN] ERROR no finish tile loaded try '/fnn init'");
 		return;
 	}
 
@@ -10818,9 +10832,6 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(ClientID, aBuf);
 			}
 		}
-		pSelf->m_FinishTilePos = pSelf->GetFinishTile();
-		str_format(aBuf, sizeof(aBuf), "[FNN] found finish tile at (%.2f/%.2f)", pSelf->m_FinishTilePos.x, pSelf->m_FinishTilePos.y);
-		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCommand, "play_distance"))
 	{
