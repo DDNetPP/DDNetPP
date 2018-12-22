@@ -12430,13 +12430,13 @@ void CCharacter::DummyTick()
 
 
 
-				if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 + 1)
+				if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32)
 				{
 					if (IsGrounded()) //only walk on ground because air is unpredictable
 					{
 						if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 + 10) //in 1tile nähe langsam laufen 
 						{
-							if (m_Core.m_Vel.x > -0.04f)
+							if (m_Core.m_Vel.x > -0.009f)
 							{
 								m_Input.m_Direction = -1;
 							}
@@ -12447,13 +12447,13 @@ void CCharacter::DummyTick()
 						}
 					}
 				}
-				else if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32 - 1)
+				else if (m_Core.m_Pos.x < g_Config.m_SvFNNstartX * 32)
 				{
 					if (IsGrounded()) //only walk on ground because air is unpredictable
 					{
 						if (m_Core.m_Pos.x > g_Config.m_SvFNNstartX * 32 - 10) //in 1tile nähe langsam laufen 
 						{
-							if (m_Core.m_Vel.x < 0.04f)
+							if (m_Core.m_Vel.x < 0.009f)
 							{
 								m_Input.m_Direction = 1;
 							}
@@ -12587,7 +12587,7 @@ void CCharacter::DummyTick()
 						rand_Direction = rand() % 3 - 1; //-1 0 1
 						if (!(rand() % 3 == 0)) // increase chance of walking towards finish
 						{
-							dbg_msg("fnn", "finish: %.2f pos: %.2f", GameServer()->m_FinishTilePos.x, m_Core.m_Pos.x / 32);
+							// dbg_msg("fnn", "finish: %.2f pos: %.2f", GameServer()->m_FinishTilePos.x, m_Core.m_Pos.x / 32);
 							if (GameServer()->m_FinishTilePos.x > m_Core.m_Pos.x / 32)
 							{
 								rand_Direction = 1;
@@ -12623,14 +12623,14 @@ void CCharacter::DummyTick()
 					m_TileFlagsB = GameServer()->Collision()->GetTileFlags(MapIndexB);
 					m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
 
-					if (Server()->Tick() % 100 == 0)
-					{
-						dbg_msg("fnn-debug", "------ TEST --------");
-						dbg_msg("fnn-debug", "left: %d mapindex: %d", m_TileIndexL, MapIndexL);
-						dbg_msg("fnn-debug", "right: %d mapindex: %d", m_TileIndexR, MapIndexR);
-						dbg_msg("fnn-debug", "up: %d mapindex: %d", m_TileIndexT, MapIndexT);
-						dbg_msg("fnn-debug", "down: %d mapindex: %d", m_TileIndexB, MapIndexB);
-					}
+					// if (Server()->Tick() % 100 == 0)
+					// {
+					// 	dbg_msg("fnn-debug", "------ TEST --------");
+					// 	dbg_msg("fnn-debug", "left: %d mapindex: %d", m_TileIndexL, MapIndexL);
+					// 	dbg_msg("fnn-debug", "right: %d mapindex: %d", m_TileIndexR, MapIndexR);
+					// 	dbg_msg("fnn-debug", "up: %d mapindex: %d", m_TileIndexT, MapIndexT);
+					// 	dbg_msg("fnn-debug", "down: %d mapindex: %d", m_TileIndexB, MapIndexB);
+					// }
 
 					if (m_TileIndexL == TILE_FREEZE)
 					{
@@ -12661,10 +12661,11 @@ void CCharacter::DummyTick()
 					// m_Input.m_Jump = 0;
 					// rand_Fire = 0;
 
-					// if (m_FNN_CurrentMoveIndex == 0)
-					// {
-					// 	dbg_msg("FNN", "starting record on x=%f y=%f", m_Core.m_Pos.x, m_Core.m_Pos.y);
-					// }
+					if (m_FNN_CurrentMoveIndex == 0)
+					{
+						m_FNN_start_servertick = Server()->Tick();
+						dbg_msg("FNN", "starting record on x=%f y=%f servertick=%d", m_Core.m_Pos.x, m_Core.m_Pos.y, m_FNN_start_servertick);
+					}
 
 					//save values in array
 					m_aRecMove[m_FNN_CurrentMoveIndex] = m_Input.m_Direction;
@@ -12766,6 +12767,8 @@ void CCharacter::DummyTick()
 							else //no interaction with humans --> save normal
 							{
 								str_format(aBuf, sizeof(aBuf), "Failed at (%.2f/%.2f) --> RESTARTING", m_Core.m_Pos.x / 32, m_Core.m_Pos.y / 32);
+								m_FNN_stop_servertick = Server()->Tick();
+								dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FNN_stop_servertick, m_FNN_stop_servertick - m_FNN_start_servertick);
 								GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
 								//Die(m_pPlayer->GetCID(), WEAPON_SELF); //moved to the end because we use character variables but im not sure.. maybe it had a sense its here
 
@@ -12798,7 +12801,9 @@ void CCharacter::DummyTick()
 								if (newest_distance > GameServer()->m_FNN_best_distance)
 								{
 									//saving the distance
-									dbg_msg("FNN","new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, newest_distance);
+									// dbg_msg("FNN","new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, newest_distance);
+									str_format(aBuf, sizeof(aBuf), "[FNN] new distance highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance, newest_distance);
+									GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 									GameServer()->m_FNN_best_distance = newest_distance;
 									std::ofstream statsfile;
 									char aFilePath[512];
@@ -12863,7 +12868,9 @@ void CCharacter::DummyTick()
 								if (newest_fitness > GameServer()->m_FNN_best_fitness)
 								{
 									//saving the fitness
-									dbg_msg("FNN", "new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
+									// dbg_msg("FNN", "new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
+									str_format(aBuf, sizeof(aBuf), "[FNN] new fitness highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_fitness, newest_fitness);
+									GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 									GameServer()->m_FNN_best_fitness = newest_fitness;
 									std::ofstream statsfile;
 									char aFilePath[512];
@@ -12928,7 +12935,9 @@ void CCharacter::DummyTick()
 								if (newest_distance_finish < GameServer()->m_FNN_best_distance_finish)
 								{
 									//saving the distance_finish
-									dbg_msg("FNN", "new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
+									// dbg_msg("FNN", "new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
+									str_format(aBuf, sizeof(aBuf), "[FNN] new distance_finish highscore Old=%.2f -> New=%.2f", GameServer()->m_FNN_best_distance_finish, newest_distance_finish);
+									GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 									GameServer()->m_FNN_best_distance_finish = newest_distance_finish;
 									std::ofstream statsfile;
 									char aFilePath[512];
@@ -13003,10 +13012,11 @@ void CCharacter::DummyTick()
 				}
 				else if (m_pPlayer->m_dmm25 == 4) //submode[4] play loaded run
 				{
-					// if (m_FNN_CurrentMoveIndex == 0)
-					// {
-					// 	dbg_msg("FNN", "starting play on x=%f y=%f", m_Core.m_Pos.x, m_Core.m_Pos.y);
-					// }
+					if (m_FNN_CurrentMoveIndex == 0)
+					{
+						m_FNN_start_servertick = Server()->Tick();
+						dbg_msg("FNN", "starting play on x=%f y=%f servertick=%d", m_Core.m_Pos.x, m_Core.m_Pos.y, m_FNN_start_servertick);
+					}
 
 					m_Input.m_Direction = m_aRecMove[m_FNN_CurrentMoveIndex];
 					// dbg_msg("fnn", "dir: %d", m_aRecMove[m_FNN_CurrentMoveIndex]);
@@ -13041,6 +13051,8 @@ void CCharacter::DummyTick()
 						current_pos.y = m_Core.m_Pos.y / 32;
 						float newest_distance_finish = distance(current_pos, GameServer()->m_FinishTilePos);
 						float newest_fitness = newest_distance_finish / m_FNN_CurrentMoveIndex;
+						m_FNN_stop_servertick = Server()->Tick();
+						dbg_msg("FNN", "stop servertick=%d totaltickdiff=%d", m_FNN_stop_servertick, m_FNN_stop_servertick - m_FNN_start_servertick);
 						dbg_msg("FNN", "distance=%.2f", newest_distance);
 						dbg_msg("FNN", "moveticks=%d", m_FNN_CurrentMoveIndex);
 						dbg_msg("FNN", "fitness=%.2f", newest_fitness);
