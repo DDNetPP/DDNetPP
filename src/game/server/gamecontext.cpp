@@ -7182,7 +7182,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					if (g_Config.m_SvTestingCommands)
 					{
 						pPlayer->m_IsBlockDeathmatch ^= true;
-						str_format(aBuf, sizeof(aBuf), "survival alive: %d", pPlayer->m_IsSurvivalAlive);
+						str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
