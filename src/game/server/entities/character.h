@@ -450,6 +450,8 @@ public:
 	int m_FNN_CurrentMoveIndex;
 	int m_aRecMove[FNN_MOVE_LEN];
 	int m_FNN_ticks_loaded_run;
+	int m_FNN_start_servertick;
+	int m_FNN_stop_servertick;
 	vec2 m_StartPos;
 	// void TestPrintTiles(int Index);
 
