@@ -2865,43 +2865,43 @@ bool CCharacter::SameTeam(int ClientID)
 	return Teams()->m_Core.SameTeam(GetPlayer()->GetCID(), ClientID);
 }
 
-void CCharacter::TestPrintTiles(int Index)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	int MapIndex = Index;
-	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
-	float Offset = 4.0f;
-	int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
-	int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
-	int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
-	int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
-	//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
-	m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
-	m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
-	m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
-	m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
-	m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
+// void CCharacter::TestPrintTiles(int Index)
+// {
+// #if defined(CONF_DEBUG)
+// 	CALL_STACK_ADD();
+// #endif
+// 	int MapIndex = Index;
+// 	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
+// 	float Offset = 4.0f;
+// 	int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
+// 	int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
+// 	int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
+// 	int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
+// 	//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
+// 	m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
+// 	m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
+// 	m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
+// 	m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
+// 	m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
 
-	if (m_TileIndexR == TILE_BEGIN)
-	{
-		dbg_msg("FNN","finish tile on the right");
-	}
-	else  if (m_TileIndex == TILE_BEGIN)
-	{
-		dbg_msg("FNN","in startline");
-	}
-	else if (m_TileIndexR == TILE_FREEZE)
-	{
-		dbg_msg("FNN", "freeze spottedt at the right freeze=%d",m_TileIndexR);
-	}
-	else
-	{
-		if (GameServer()->m_IsDebug)
-			dbg_msg("FNN","tile=%d tileR=%d", m_TileIndex, m_TileIndexR);
-	}
-}
+// 	if (m_TileIndexR == TILE_BEGIN)
+// 	{
+// 		dbg_msg("FNN","finish tile on the right");
+// 	}
+// 	else  if (m_TileIndex == TILE_BEGIN)
+// 	{
+// 		dbg_msg("FNN","in startline");
+// 	}
+// 	else if (m_TileIndexR == TILE_FREEZE)
+// 	{
+// 		dbg_msg("FNN", "freeze spottedt at the right freeze=%d",m_TileIndexR);
+// 	}
+// 	else
+// 	{
+// 		if (GameServer()->m_IsDebug)
+// 			dbg_msg("FNN","tile=%d tileR=%d", m_TileIndex, m_TileIndexR);
+// 	}
+// }
 
 int CCharacter::Team()
 {
@@ -4361,10 +4361,10 @@ void CCharacter::DDRacePostCoreTick()
 		HandleTiles(CurrentIndex);
 		m_LastIndexTile = 0;
 		m_LastIndexFrontTile = 0;
-		if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25)
-		{
-			TestPrintTiles(CurrentIndex);
-		}
+		// if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25)
+		// {
+		// 	TestPrintTiles(CurrentIndex);
+		// }
 		//dbg_msg("Running","%d", CurrentIndex);
 	}
 
@@ -12572,14 +12572,33 @@ void CCharacter::DummyTick()
 
 					// random inputs
 					int rand_Fire = rand() % 2; // 1 0
-					int rand_Jump = 0; //rand() % 2;
+					int rand_Jump = 0;
+					if (rand() % 32 - (IsGrounded() * 6) == 0) // more likley to jump if grounded to avoid spamming dj
+					{
+						rand_Jump = 1;
+					}
 					int rand_Hook = rand() % 2;
 					int rand_Weapon = rand() % 4;
 					int rand_TargetX = rand() % 401 - 200;
 					int rand_TargetY = rand() % 401 - 200;
 					static int rand_Direction = rand() % 3 - 1; //-1 0 1
 					if (Server()->Tick() % 77 == 0)
+					{
 						rand_Direction = rand() % 3 - 1; //-1 0 1
+						if (!(rand() % 3 == 0)) // increase chance of walking towards finish
+						{
+							dbg_msg("fnn", "finish: %.2f pos: %.2f", GameServer()->m_FinishTilePos.x, m_Core.m_Pos.x / 32);
+							if (GameServer()->m_FinishTilePos.x > m_Core.m_Pos.x / 32)
+							{
+								rand_Direction = 1;
+							}
+							else
+							{
+								rand_Direction = -1;
+							}
+						}
+					}
+
 
 					m_Input.m_Direction = rand_Direction;
 					m_Input.m_Jump = rand_Jump;
@@ -12590,9 +12609,9 @@ void CCharacter::DummyTick()
 					m_LatestInput.m_TargetY = rand_TargetY;
 
 					// read world inputs
-					float Offset = 4.0f;
-					int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
-					int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
+					float Offset = 16.0f;
+					int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
+					int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
 					int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
 					int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
 					//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
@@ -12607,10 +12626,10 @@ void CCharacter::DummyTick()
 					if (Server()->Tick() % 100 == 0)
 					{
 						dbg_msg("fnn-debug", "------ TEST --------");
-						dbg_msg("fnn-debug", "left: %d", m_TileIndexL);
-						dbg_msg("fnn-debug", "right: %d", m_TileIndexR);
-						dbg_msg("fnn-debug", "up: %d", m_TileIndexT);
-						dbg_msg("fnn-debug", "down: %d", m_TileIndexB);
+						dbg_msg("fnn-debug", "left: %d mapindex: %d", m_TileIndexL, MapIndexL);
+						dbg_msg("fnn-debug", "right: %d mapindex: %d", m_TileIndexR, MapIndexR);
+						dbg_msg("fnn-debug", "up: %d mapindex: %d", m_TileIndexT, MapIndexT);
+						dbg_msg("fnn-debug", "down: %d mapindex: %d", m_TileIndexB, MapIndexB);
 					}
 
 					if (m_TileIndexL == TILE_FREEZE)
@@ -12637,6 +12656,10 @@ void CCharacter::DummyTick()
 					{
 						m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
 					}
+					// m_Input.m_Direction = 0;
+					// m_Input.m_Hook = 0;
+					// m_Input.m_Jump = 0;
+					// rand_Fire = 0;
 
 					// if (m_FNN_CurrentMoveIndex == 0)
 					// {
