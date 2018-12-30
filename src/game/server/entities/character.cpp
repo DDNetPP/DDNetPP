@@ -2208,7 +2208,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 			m_pPlayer->m_HadFlagOnDeath = true;
 
 			if (m_Core.m_LastHookedPlayer != -1) {
-				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(0, m_Core.m_LastHookedPlayer);
+				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(0, Killer);
 			}
 
 		}
@@ -2221,7 +2221,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 			m_pPlayer->m_HadFlagOnDeath = true;
 
 			if (m_Core.m_LastHookedPlayer != -1) {
-				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(1, m_Core.m_LastHookedPlayer);
+				((CGameControllerDDRace*)GameServer()->m_pController)->ChangeFlagOwner(1, Killer);
 			}
 
 		}
