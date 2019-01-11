@@ -684,7 +684,7 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (IsInstagibMinigame())
 		{
-			if (pSnapping->m_IsSupportedDDNet)
+			if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = m_InstaScore * 60;
 			else
 				pPlayerInfo->m_Score = m_InstaScore;
@@ -696,7 +696,7 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (m_IsSurvivaling)
 		{
-			if (pSnapping->m_IsSupportedDDNet)
+			if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = m_SurvivalKills * 60;
 			else
 				pPlayerInfo->m_Score = m_SurvivalKills;
@@ -710,12 +710,12 @@ void CPlayer::Snap(int SnappingClient)
 		{
 			if (m_AccountID > 0)
 			{
-				if (pSnapping->m_IsSupportedDDNet)
+				if (pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_level * 60;
 				else
 					pPlayerInfo->m_Score = m_level;
 			}
-			else if (pSnapping->m_IsSupportedDDNet)
+			else if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
@@ -724,12 +724,12 @@ void CPlayer::Snap(int SnappingClient)
 		{
 			if (m_AccountID > 0)
 			{
-				if (pSnapping->m_IsSupportedDDNet)
+				if (pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
 				else
 					pPlayerInfo->m_Score = m_BlockPoints;
 			}
-			else if (pSnapping->m_IsSupportedDDNet)
+			else if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;

@@ -600,8 +600,8 @@ public:
 
 	//other
 
-	bool m_IsSupportedDDNet;
-
+	bool m_ScoreFixForDDNet;
+	int m_AllowTimeScore;
 	int m_DisplayScore;
 
 	bool m_CanClearFakeMotd;
