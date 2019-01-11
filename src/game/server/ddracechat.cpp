@@ -4878,7 +4878,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown parameter. Check '/insta cmdlist' for all commands");
 	}
 
-	if (!AllowDDRaceScore)
+	if (!AllowTimeScore)
 	{
 		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 		ScoreMsg.AddInt(0);
