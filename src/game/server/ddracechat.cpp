@@ -5058,7 +5058,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 						pPlayer->m_pvp_arena_games_played++;
 						pPlayer->GetCharacter()->m_IsPVParena = true;
 						pPlayer->GetCharacter()->m_isDmg = true;
-						pPlayer->GetCharacter()->m_DeepFreeze = false;
 						pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleporting to arena... good luck and have fun!");
 					}
 					else
