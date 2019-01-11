@@ -574,16 +574,19 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(pResult->GetString(0), "time"))
 	{
+		pPlayer->m_AllowTimeScore = 1;
 		pPlayer->m_DisplayScore = 0;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'time'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "level"))
 	{
+		pPlayer->m_AllowTimeScore = 0;
 		pPlayer->m_DisplayScore = 1;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "block"))
 	{
+		pPlayer->m_AllowTimeScore = 0;
 		pPlayer->m_DisplayScore = 2;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
 	}
@@ -592,6 +595,10 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
 		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, block");
 	}
+
+	CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+	ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
+	pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 
 	return;
 }
@@ -4393,6 +4400,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
+	bool AllowTimeScore = true;
 
 	if (!g_Config.m_SvAllowInsta)
 	{
@@ -4436,6 +4444,10 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
 		pSelf->LeaveInstagib(pResult->m_ClientID);
+
+		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+		ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
+		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stats"))
 	{
@@ -4467,6 +4479,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
 			pSelf->JoinInstagib(4, false, pResult->m_ClientID);
+
+			AllowTimeScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "idm"))
@@ -4495,6 +4509,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a rifle game.");
 			pSelf->JoinInstagib(5, false, pResult->m_ClientID);
+
+			AllowTimeScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "boomfng"))
@@ -4523,6 +4539,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
 			pSelf->JoinInstagib(4, true, pResult->m_ClientID);
+
+			AllowTimeScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "fng"))
@@ -4808,6 +4826,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->m_Insta1on1_id = mateID;
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+
+						AllowTimeScore = false;
 					}
 				}
 				else //rifle
@@ -4842,6 +4862,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->m_Insta1on1_id = mateID;
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+
+						AllowTimeScore = false;
 					}
 				}
 			}
@@ -4854,6 +4876,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Unknown parameter. Check '/insta cmdlist' for all commands");
+	}
+
+	if (!AllowDDRaceScore)
+	{
+		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+		ScoreMsg.AddInt(0);
+		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
 }
 

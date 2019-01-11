@@ -218,7 +218,7 @@ public:
 	bool ClientIngame(int ClientID);
 	int MaxClients() const;
 
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID);
+	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false);
 	int SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System);
 
 	void DoSnapshot();
