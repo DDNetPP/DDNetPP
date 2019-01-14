@@ -30,7 +30,7 @@
 
 enum
 {
-	NETMSG_NULL=0,
+	NETMSG_EX=0,
 
 	// the first thing sent by the client
 	// contains the version info for the client
