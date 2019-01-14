@@ -596,7 +596,9 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, block");
 	}
 
-	CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+	CMsgPacker ScoreMsg(NETMSG_EX);
+	static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+	ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
 	ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
 	pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 
@@ -4445,7 +4447,9 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->LeaveInstagib(pResult->m_ClientID);
 
-		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+		CMsgPacker ScoreMsg(NETMSG_EX);
+		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
 		ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
 		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
@@ -4569,6 +4573,8 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng game.");
 			pSelf->JoinInstagib(5, true, pResult->m_ClientID);
+
+			AllowTimeScore = false;
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "1on1"))
@@ -4827,7 +4833,14 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 
+
 						AllowTimeScore = false;
+
+						CMsgPacker ScoreMsg(NETMSG_EX);
+						static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+						ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+						ScoreMsg.AddInt(0);
+						pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, mateID, true);
 					}
 				}
 				else //rifle
@@ -4863,7 +4876,14 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 
+
 						AllowTimeScore = false;
+
+						CMsgPacker ScoreMsg(NETMSG_EX);
+						static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+						ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+						ScoreMsg.AddInt(0);
+						pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, mateID, true);
 					}
 				}
 			}
@@ -4880,7 +4900,9 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 	if (!AllowTimeScore)
 	{
-		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
+		CMsgPacker ScoreMsg(NETMSG_EX);
+		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
 		ScoreMsg.AddInt(0);
 		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
