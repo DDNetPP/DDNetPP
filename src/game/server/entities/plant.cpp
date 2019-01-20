@@ -1,19 +1,18 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "plant.h"
 
-#include <game/server/teams.h>
-
-CPlant::CPlant(CGameWorld *pGameWorld)
+CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	m_ProximityRadius = PickupPhysSize;
-	Reset();
+
+	m_Pos = Pos;
+	m_Pos.y += 15;
+	m_GrowDelay = rand() % 100 + 50;
+	m_LastResetTick = Server()->Tick();
+	m_CalculatedVel = false;
 
 	GameWorld()->InsertEntity(this);
 }
@@ -23,260 +22,139 @@ void CPlant::Reset()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	GameServer()->m_World.DestroyEntity(this);
+}
 
-	if (g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
-		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
-	else
-		m_SpawnTick = -1;
+void CPlant::TickDefered()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if(Server()->Tick()%4 == 1)
+	{
+		m_LastResetPos = m_Pos;
+		m_LastResetTick = Server()->Tick();
+	}
+	m_CalculatedVel = false;
+}
+
+void CPlant::CalculateVel()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	float Time = (Server()->Tick()-m_LastResetTick)/(float)Server()->TickSpeed();
+	float Curvature = 0;
+	float Speed = 0;
+
+	Curvature = GameServer()->Tuning()->m_ShotgunCurvature;
+	Speed = GameServer()->Tuning()->m_ShotgunSpeed;
+
+	m_VelX = ((m_Pos.x - m_LastResetPos.x)/Time/Speed) * 100;
+	m_VelY = ((m_Pos.y - m_LastResetPos.y)/Time/Speed - Time*Speed*Curvature/10000) * 100;
+
+	m_CalculatedVel = true;
+}
+
+int CPlant::IsCharacterNear()
+{
+	CCharacter *apEnts[MAX_CLIENTS];
+	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+	
+	for (int i = 0; i < Num; ++i)
+	{
+		CCharacter * pChr = apEnts[i];
+
+		if (pChr && pChr->IsAlive())
+			return pChr->GetPlayer()->GetCID(); 
+	}
+
+	return -1;
+}
+
+void CPlant::ResetProjectiles()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	for (unsigned i = 0; i < MAX_PLANT_PROJS; i++)
+	{
+		if (m_apPlantProj[i])
+		{
+			m_apPlantProj[i]->Reset();
+			m_apPlantProj[i] = NULL;
+			// delete m_apPlantProj[i];
+		}
+	}
+}
+
+void CPlant::Harvest()
+{
+#if defined(CONF_DEBUG)
+CALL_STACK_ADD();
+#endif
+	int CharID = IsCharacterNear();
+	if (CharID != -1)
+	{
+		CCharacter* pChr = GameServer()->GetPlayerChar(CharID);
+		pChr->m_CanHarvestPlant = true;		
+
+		if (!pChr->m_HarvestPlant)
+			return;
+				
+		//pChr->GiveMoney oder GiveSeeds oder son dreck xD		
+
+		pChr->m_HarvestPlant = false;
+		pChr->m_CanHarvestPlant = false;
+		ResetProjectiles();
+		m_GrowState = 0;
+		return;
+	}
 }
 
 void CPlant::Tick()
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
+CALL_STACK_ADD();
 #endif
-	Move();
-	//--start uncommented for m_IsVanillaWeapons --
-	// wait for respawn
-	if(m_SpawnTick > 0)
+	if (m_GrowState != 0 && IsCharacterNear() != -1)
+		Harvest();
+
+	if (Server()->Tick() % m_GrowDelay == 0)
 	{
-		if(Server()->Tick() > m_SpawnTick)
-		{
-			// respawn
-			m_SpawnTick = -1;
+		m_GrowDelay = rand() % 100 + 50;
+		m_GrowState++;
 
-			if(m_Type == POWERUP_WEAPON)
-				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);
+		if (m_GrowState == 1)
+		{
+			m_apPlantProj[0] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 10));
 		}
-		else
-			return;
-	}
-	//--end uncommented for m_IsVanillaWeapons --
-
-	// Check if a player intersected us
-	CCharacter *apEnts[MAX_CLIENTS];
-	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-	for(int i = 0; i < Num; ++i) {
-		CCharacter * pChr = apEnts[i];
-		if(pChr && pChr->IsAlive())
+		else if (m_GrowState == 2)
 		{
-			if(m_Layer == LAYER_SWITCH && !GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pChr->Team()]) continue;
-			bool sound = false;
-			// player picked us up, is someone was hooking us, let them go
-			int RespawnTime = -1; //needed for m_IsVanillaWeapons
-			switch (m_Type)
-			{
-				case POWERUP_HEALTH:
-					if (pChr->GetPlayer()->m_IsVanillaWeapons)
-					{
-						if (pChr->IncreaseHealth(1))
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
-							RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-						}
-					}
-					else
-					{
-						if (pChr->Freeze())
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, pChr->Teams()->TeamMask(pChr->Team()));
-						}
-					}
-					break;
-
-				case POWERUP_ARMOR:
-					if (pChr->GetPlayer()->m_SpookyGhostActive)
-					{
-						if (pChr->m_aSpookyGhostWeaponsBackupGot[2][1] || pChr->m_aSpookyGhostWeaponsBackupGot[3][1] || pChr->m_aSpookyGhostWeaponsBackupGot[4][1])
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
-
-						pChr->m_aSpookyGhostWeaponsBackup[2][1] = -1;
-						pChr->m_aSpookyGhostWeaponsBackup[3][1] = -1;
-						pChr->m_aSpookyGhostWeaponsBackup[4][1] = -1;
-
-						pChr->m_aSpookyGhostWeaponsBackupGot[2][1] = false;
-						pChr->m_aSpookyGhostWeaponsBackupGot[3][1] = false;
-						pChr->m_aSpookyGhostWeaponsBackupGot[4][1] = false;
-
-						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
-						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
-						pChr->GetPlayer()->m_SpawnRifleActive = 0;
-					}
-					else if (pChr->GetPlayer()->m_IsVanillaWeapons)
-					{
-						if (pChr->IncreaseArmor(1))
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
-							RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-						}
-					}
-					else
-					{
-						if (pChr->Team() == TEAM_SUPER) continue;
-						for (int i = WEAPON_SHOTGUN; i < NUM_WEAPONS; i++)
-						{
-							if (pChr->GetWeaponGot(i))
-							{
-								if (!(pChr->m_FreezeTime && i == WEAPON_NINJA))
-								{
-									pChr->SetWeaponGot(i, false);
-									pChr->SetWeaponAmmo(i, 0);
-									sound = true;
-								}
-							}
-						}
-						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
-						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
-						pChr->GetPlayer()->m_SpawnRifleActive = 0;
-						pChr->SetNinjaActivationDir(vec2(0, 0));
-						pChr->SetNinjaActivationTick(-500);
-						pChr->SetNinjaCurrentMoveTime(0);
-						if (sound)
-						{
-							pChr->SetLastWeapon(WEAPON_GUN);
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
-						}
-						if (!pChr->m_FreezeTime && pChr->GetActiveWeapon() >= WEAPON_SHOTGUN)
-							pChr->SetActiveWeapon(WEAPON_HAMMER);
-					}
-					break;
-
-				case POWERUP_WEAPON:
-					if (pChr->GetPlayer()->m_SpookyGhostActive)
-					{
-						//
-					}
-					else if (pChr->GetPlayer()->m_IsVanillaWeapons)
-					{
-						if (m_Subtype >= 0 && m_Subtype < NUM_WEAPONS && (!pChr->GetWeaponGot(m_Subtype) || (pChr->GetWeaponAmmo(m_Subtype) != -1 && !pChr->m_FreezeTime)))
-						{
-							if (pChr->GiveWeapon(m_Subtype, 10))
-							{
-								RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-
-								if (m_Subtype == WEAPON_GRENADE)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_SHOTGUN)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_RIFLE)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_GUN || m_Subtype == WEAPON_HAMMER)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
-
-								if (pChr->GetPlayer())
-									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-							}
-						}
-					}
-					else if (pChr->GetPlayer()->m_SpawnShotgunActive && m_Subtype == WEAPON_SHOTGUN)
-					{
-						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-		
-							if (pChr->GetPlayer())
-								GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-						}
-					}
-					else if (pChr->GetPlayer()->m_SpawnGrenadeActive && m_Subtype == WEAPON_GRENADE)
-					{
-						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChr->Teams()->TeamMask(pChr->Team()));
-
-							if (pChr->GetPlayer())
-								GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-						}
-					}
-					else if (pChr->GetPlayer()->m_SpawnRifleActive && m_Subtype == WEAPON_RIFLE)
-					{
-						pChr->GetPlayer()->m_SpawnRifleActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
-						{
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-
-							if (pChr->GetPlayer())
-								GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-						}
-					}
-					else
-					{
-						if (pChr->m_aDecreaseAmmo[m_Subtype])
-							pChr->m_aDecreaseAmmo[m_Subtype] = false;
-
-						if (m_Subtype >= 0 && m_Subtype < NUM_WEAPONS && (!pChr->GetWeaponGot(m_Subtype) || (pChr->GetWeaponAmmo(m_Subtype) != -1 && !pChr->m_FreezeTime)))
-						{
-							if (pChr->GiveWeapon(m_Subtype, -1))
-							{
-								//RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-
-								if (m_Subtype == WEAPON_GRENADE)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_SHOTGUN)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_RIFLE)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-								else if (m_Subtype == WEAPON_GUN || m_Subtype == WEAPON_HAMMER)
-									GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
-
-								if (pChr->GetPlayer())
-									GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-							}
-						}
-					}
-					break;
-
-			case POWERUP_NINJA:
-				{
-					if (pChr->GetPlayer()->m_SpookyGhostActive)
-					{
-						//
-					}
-					else
-					{
-						// activate ninja on target player
-						pChr->GiveNinja();
-						//RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-
-						/*// loop through all players, setting their emotes
-						CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
-						for(; pC; pC = (CCharacter *)pC->TypeNext())
-						{
-							if (pC != pChr)
-								pC->SetEmote(EMOTE_SURPRISE, Server()->Tick() + Server()->TickSpeed());
-						}*/
-					}
-					break;
-				}
-				default:
-					break;
-			};
-
-			//--start2 uncommented for m_IsVanillaWeapons --
-			if (RespawnTime >= 0)
-			{
-				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "pickup player='%d:%s' item=%d/%d",
-					pChr->GetPlayer()->GetCID(), Server()->ClientName(pChr->GetPlayer()->GetCID()), m_Type, m_Subtype);
-				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-				m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * RespawnTime;
-			}
-			//--end2 uncommented for m_IsVanillaWeapons --
+			m_apPlantProj[1] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 28));
+		}
+		else if (m_GrowState == 3)
+		{
+			m_apPlantProj[2] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 45));
+		}
+		else if (m_GrowState == 4)
+		{
+			m_apPlantProj[3] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + (rand() % 4) - 8, m_Pos.y - 56));
+		}
+		else if (m_GrowState == 5)
+		{
+			m_apPlantProj[4] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 63));
+			m_apPlantProj[5] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x - 5, m_Pos.y - 65));
+			m_apPlantProj[6] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + 8, m_Pos.y - 65));
+		}
+		else if (m_GrowState == 6)
+		{
+			m_apPlantProj[7] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x, m_Pos.y - 68));
+			m_apPlantProj[8] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x - 8, m_Pos.y - 72));
+			m_apPlantProj[9] = new CStableProjectile(&GameServer()->m_World, WEAPON_SHOTGUN, vec2(m_Pos.x + 10, m_Pos.y - 73));
 		}
 	}
-}
-
-void CPlant::TickPaused()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	//--start3 uncommented for m_IsVanillaWeapons --
-	if(m_SpawnTick != -1)
-		++m_SpawnTick;
-	//--end2 uncommented for m_IsVanillaWeapons --
 }
 
 void CPlant::Snap(int SnappingClient)
@@ -284,48 +162,20 @@ void CPlant::Snap(int SnappingClient)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	//--start4 uncommented for m_IsVanillaWeapons --
-	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
-		return;
-	//--end4 uncommented for m_IsVanillaWeapons --
-
-	CCharacter *Char = GameServer()->GetPlayerChar(SnappingClient);
-
-	if(SnappingClient > -1 && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == -1
-				|| GameServer()->m_apPlayers[SnappingClient]->m_Paused)
-			&& GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID != SPEC_FREEVIEW)
-		Char = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID);
-
-	int Tick = (Server()->Tick()%Server()->TickSpeed())%11;
-	if (Char && Char->IsAlive() &&
-			(m_Layer == LAYER_SWITCH &&
-					!GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[Char->Team()])
-					&& (!Tick))
+	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));
-	if(!pP)
+	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID, sizeof(CNetObj_Projectile)));
+	if(!pProj)
 		return;
 
-	pP->m_X = (int)m_Pos.x;
-	pP->m_Y = (int)m_Pos.y;
-	pP->m_Type = m_Type;
-	pP->m_Subtype = m_Subtype;
-}
+	if(!m_CalculatedVel)
+		CalculateVel();
 
-void CPlant::Move()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (Server()->Tick()%int(Server()->TickSpeed() * 0.15f) == 0)
-	{
-		int Flags;
-		int index = GameServer()->Collision()->IsMover(m_Pos.x,m_Pos.y, &Flags);
-		if (index)
-		{
-			m_Core=GameServer()->Collision()->CpSpeed(index, Flags);
-		}
-		m_Pos += m_Core;
-	}
+	pProj->m_X = (int)m_LastResetPos.x;
+	pProj->m_Y = (int)m_LastResetPos.y;
+	pProj->m_VelX = m_VelX;
+	pProj->m_VelY = m_VelY;
+	pProj->m_StartTick = m_LastResetTick;
+	pProj->m_Type = WEAPON_SHOTGUN;
 }

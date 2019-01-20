@@ -1,34 +1,36 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#ifndef GAME_SERVER_ENTITIES_PICKUP_H
-#define GAME_SERVER_ENTITIES_PICKUP_H
+#ifndef GAME_SERVER_ENTITIES_PLANT_H
+#define GAME_SERVER_ENTITIES_PLANT_H
 
 #include <game/server/entity.h>
 
-const int PickupPhysSize = 14;
+#define MAX_PLANT_PROJS 10
 
 class CPlant : public CEntity
 {
+	vec2 m_LastResetPos;
+	int m_LastResetTick;
+	bool m_CalculatedVel;
+	int m_VelX;
+	int m_VelY;
+	int m_GrowState;
+	int m_GrowDelay;
+
+	int IsCharacterNear();
+	void Harvest();
+
+	void CalculateVel();
+
+	CStableProjectile *m_apPlantProj[MAX_PLANT_PROJS];
+	CStableProjectile *pPlant;
+	void ResetProjectiles();
+
 public:
-	CPlant(CGameWorld *pGameWorld);
+	CPlant(CGameWorld *pGameWorld, vec2 Pos=vec2());
 
-	virtual void Reset();
 	virtual void Tick();
-	virtual void TickPaused();
+	virtual void Reset();
+	virtual void TickDefered();
 	virtual void Snap(int SnappingClient);
-
-	int GetType() { return m_Type; }
-
-private:
-
-	int m_Type;
-	int m_Subtype;
-	int m_SpawnTick;
-
-	// DDRace
-
-	void Move();
-	vec2 m_Core;
 };
 
 #endif
