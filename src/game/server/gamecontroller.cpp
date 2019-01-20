@@ -15,6 +15,7 @@
 #include "entities/dragger.h"
 #include "entities/gun.h"
 #include "entities/projectile.h"
+#include "entities/plant.h"
 #include "entities/plasma.h"
 #include "entities/door.h"
 #include <game/layers.h>
@@ -435,6 +436,10 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	else if (Index == ENTITY_PLASMAU)
 	{
 		new CGun(&GameServer()->m_World, Pos, false, false, Layer, Number);
+	}
+	else if (Index == ENTITY_PLANT)
+	{
+		// new CPlant(&GameServer()->m_World, Pos);
 	}
 
 	if (Type != -1)

@@ -91,6 +91,8 @@ enum
 
 	ENTITY_WEAPON_GUN,
 	ENTITY_WEAPON_HAMMER,
+	ENTITY_PLANT, //243
+
 	//End Of Lower Tiles
 	NUM_ENTITIES,
 	//Start From Top Left
@@ -203,7 +205,7 @@ enum
 
 	TILE_NO_HAMMER = 181,
 
-	TILE_END_CUSTOM, // pack alle neuen tiles hier drüber! (all new tiles on top of this line pls)
+	TILE_END_CUSTOM, // pack alle neuen tiles hier drï¿½ber! (all new tiles on top of this line pls)
 
 
 	//End of higher tiles
