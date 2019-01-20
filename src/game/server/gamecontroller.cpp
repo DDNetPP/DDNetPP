@@ -439,7 +439,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	}
 	else if (Index == ENTITY_PLANT)
 	{
-		// new CPlant(&GameServer()->m_World, Pos);
+		new CPlant(&GameServer()->m_World, Pos);
 	}
 
 	if (Type != -1)

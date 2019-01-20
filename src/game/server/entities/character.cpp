@@ -1173,6 +1173,11 @@ void CCharacter::FireWeapon(bool Bot)
 			}
 		}
 
+		if (m_CanHarvestPlant)
+		{
+			m_HarvestPlant = true;
+		}
+
 	} break;
 
 	case WEAPON_GUN:

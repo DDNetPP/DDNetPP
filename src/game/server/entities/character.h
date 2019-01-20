@@ -377,6 +377,11 @@ public:
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
 
+
+	//harvest plant
+	bool m_CanHarvestPlant;
+	bool m_HarvestPlant;
+
 	// shop
 	bool m_InShop;
 	bool m_EnteredShop;
