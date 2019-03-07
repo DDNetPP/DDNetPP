@@ -572,6 +572,9 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 
+
+	bool ChangedScore = true;
+
 	if (!str_comp_nocase(pResult->GetString(0), "time"))
 	{
 		pPlayer->m_AllowTimeScore = 1;
@@ -594,13 +597,17 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
 		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, block");
+		ChangedScore = false;
 	}
 
-	CMsgPacker ScoreMsg(NETMSG_EX);
-	static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-	ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
-	ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
-	pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
+	if (ChangedScore)
+	{
+		CMsgPacker ScoreMsg(NETMSG_EX);
+		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+		ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
+		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
+	}
 
 	return;
 }
