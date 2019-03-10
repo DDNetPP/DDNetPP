@@ -177,8 +177,24 @@ vec2 CCollision::GetRandomTile(int Tile)
 	return vec2(-1, -1);
 }
 
+int CCollision::CountSurvivalSpawns()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int i = 0;
+	for (int y = 0; y < m_Height; y++)
+		for (int x = 0; x < m_Width; x++)
+			if (GetCustTile(x*32.0f + 16.0f, y*32.0f + 16.0f) == TILE_SURVIVAL_SPAWN)
+				i++;
+	return i;
+}
+
 vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 ReturnValue[512] = { vec2(0,0) };
 	int i = 0;
 	for (int y = 0; y < m_Height; y++)
@@ -203,7 +219,7 @@ vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 			{
 				dbg_assert(false, aBuf);
 			}
-			dbg_msg("WARNING", aBuf);
+			dbg_msg("ERROR", aBuf);
 
 			return vec2(-1, -1);
 		}

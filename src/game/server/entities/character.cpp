@@ -187,16 +187,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			*/
 
 			vec2 SurvivalSpawnTile = GameServer()->Collision()->GetSurvivalSpawn(m_pPlayer->GetCID());
-
-			if (SurvivalSpawnTile != vec2(-1, -1))
-			{
-				SetPosition(SurvivalSpawnTile); //could remove the whole if (IsSurvivalAlive) branch because it eats performance but its nice execption if there is no survival arena but would be better to check it on game start (TODO code: 6gta8w)
-			}
-			else //not enough SurvivalSpawnTile
-			{
-				GameServer()->SendSurvivalChat("[SURVIVAL] Not enough survival arena spawns. Stopping game.");
-				GameServer()->SurvivalSetGameState(0);
-			}
+			SetPosition(SurvivalSpawnTile);
 		}
 		else
 		{

@@ -5531,7 +5531,7 @@ void CGameContext::ShowAdminWelcome(int ID)
 	}
 	else if (surv_error == -2)
 	{
-		SendChatTarget(ID, "[ADMIN:Test] ERROR: not enough survival spawns (less survival spawns than slots)");
+		SendChatTarget(ID, "[ADMIN:Test] WARNING: not enough survival spawns (less survival spawns than slots)");
 	}
 	PrintSpecialCharUsers(ID);
 }
@@ -7177,7 +7177,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					if (g_Config.m_SvTestingCommands)
 					{
 						// pPlayer->m_IsBlockDeathmatch ^= true;
-						str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
+						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
+						str_format(aBuf, sizeof(aBuf), "survival spawns %d", Collision()->CountSurvivalSpawns());
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
