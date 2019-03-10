@@ -5052,61 +5052,56 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aInput, "join"))
 	{
-		if (!pSelf->IsMinigame(pResult->m_ClientID))
+		if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			if (g_Config.m_SvPvpArenaState)
-			{
-				if (pPlayer->m_pvp_arena_tickets > 0)
-				{
-					if (!pPlayer->GetCharacter()->m_IsPVParena)
-					{
-						//save position before tele
-						//pPlayer->m_PVP_return_posX = pChr->GetPosition().x;
-						//pPlayer->m_PVP_return_posY = pChr->GetPosition().y;
-						pPlayer->m_PVP_return_pos = pChr->GetPosition();
-
-
-						if (g_Config.m_SvPvpArenaState == 3) //tilebased tele to spawns
-						{
-							vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
-
-							if (PvPArenaSpawnTile != vec2(-1, -1))
-							{
-								pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
-							}
-							else
-							{
-								pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] error, this map has no arena!");
-								return;
-							}
-						}
-
-						//update stats and gamestats only if tele worked
-						pPlayer->m_pvp_arena_tickets--;
-						pPlayer->m_pvp_arena_games_played++;
-						pPlayer->GetCharacter()->m_IsPVParena = true;
-						pPlayer->GetCharacter()->m_isDmg = true;
-						pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleporting to arena... good luck and have fun!");
-					}
-					else
-					{
-						pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You are already in the PvP-arena");
-					}
-				}
-				else
-				{
-					pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
-				}
-			}
-			else //no arena configurated
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] No pvp-arena found.");
-			}
-		}
-		else
-		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "ur in game: %d", pSelf->IsMinigame(pResult->m_ClientID));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You can't join becasue your are in another mingame or jail (check '/minigames status')");
+			return;
 		}
+		if (!g_Config.m_SvPvpArenaState)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] No pvp-arena found.");
+			return;
+		}
+		if (pPlayer->m_pvp_arena_tickets < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
+			return;
+		}
+		if (pPlayer->GetCharacter()->m_IsPVParena)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You are already in the PvP-arena");
+			return;
+		}
+		//save position before tele
+		//pPlayer->m_PVP_return_posX = pChr->GetPosition().x;
+		//pPlayer->m_PVP_return_posY = pChr->GetPosition().y;
+		pPlayer->m_PVP_return_pos = pChr->GetPosition();
+
+
+		if (g_Config.m_SvPvpArenaState == 3) //tilebased tele to spawns
+		{
+			vec2 PvPArenaSpawnTile = pSelf->Collision()->GetRandomTile(TILE_PVP_ARENA_SPAWN);
+
+			if (PvPArenaSpawnTile != vec2(-1, -1))
+			{
+				pSelf->m_apPlayers[pResult->m_ClientID]->GetCharacter()->SetPosition(PvPArenaSpawnTile);
+			}
+			else
+			{
+				pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] error, this map has no arena!");
+				return;
+			}
+		}
+
+		//update stats and gamestats only if tele worked
+		pPlayer->m_pvp_arena_tickets--;
+		pPlayer->m_pvp_arena_games_played++;
+		pPlayer->GetCharacter()->m_IsPVParena = true;
+		pPlayer->GetCharacter()->m_isDmg = true;
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleporting to arena... good luck and have fun!");
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
 	{
@@ -5125,7 +5120,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Invalid. Type '/pvp_arena <join/leave>'.");
 	}
-
 }
 
 void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
