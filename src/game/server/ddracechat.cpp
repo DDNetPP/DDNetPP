@@ -4145,13 +4145,15 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=========================");
 		pSelf->SendChatTarget(pResult->m_ClientID, "===== LIST OF ALL MINIGAMES =====");
 		pSelf->SendChatTarget(pResult->m_ClientID, "=========================");
-		pSelf->SendChatTarget(pResult->m_ClientID, "GAME:          COMMAND:");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB]           '/bomb'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE]      '/balance'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB]      '/insta'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP]               '/pvp_arena'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL]     '/survival'");
-		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCKWAVE]   '/blockwave'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "GAME:             COMMAND:");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTAGIB]        '/insta'"); 			// 1=grenade 2=rifle
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BALANCE]        '/balance'"); 			// 3
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL]       '/survival'");			// 4
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BOMB]             '/bomb'");			// 5
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP]                 '/pvp_arena'");	// 6
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCKWAVE]   '/blockwave'");			// 7
+		// block tournament										/join						// 8
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK]            '/block'");			// 9
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "status"))
 	{
@@ -4199,6 +4201,11 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 		else if (gameID == 8)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[EVENT] Block (check '/event' for more info)");
+		}
+		else if (gameID == 9)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] '/block' to join");
+			pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] '/leave' to leave block deathmatch");
 		}
 		else 
 		{
