@@ -48,6 +48,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	// variable initializations constructor
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
+	m_pvp_arena_tele_request_time = 0;
 	//if (g_Config.m_SvInstagibMode)
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -6118,6 +6119,49 @@ void CCharacter::DropWeapon(int WeaponID)
 	return;
 }
 
+void CCharacter::PvPArenaTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_pvp_arena_tele_request_time < 0)
+		return;
+	m_pvp_arena_tele_request_time--;
+
+	if (m_pvp_arena_tele_request_time == 1)
+	{
+		if (m_pvp_arena_exit_request)
+		{
+			m_pPlayer->m_pvp_arena_tickets++;
+			m_Health = 10;
+			m_IsPVParena = false;
+			m_isDmg = false;
+
+			if (g_Config.m_SvPvpArenaState == 3) //tilebased and not hardcodet
+			{
+				m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
+			}
+
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Successfully teleported out of arena.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] You got your ticket back because you have survived.");
+		}
+		else // join request
+		{
+			m_pPlayer->m_pvp_arena_tickets--;
+			m_pPlayer->m_pvp_arena_games_played++;
+			m_IsPVParena = true;
+			m_isDmg = true;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleporting to arena... good luck and have fun!");
+		}
+	}
+
+	if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleport failed because you have moved.");
+		m_pvp_arena_tele_request_time = -1;
+	}
+}
+
 void CCharacter::DDPP_Tick()
 {
 #if defined(CONF_DEBUG)
@@ -6130,6 +6174,8 @@ void CCharacter::DDPP_Tick()
 	//{
 	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
 	//}
+
+	PvPArenaTick();
 
 	if (m_RandomCosmetics)
 	{
@@ -6561,34 +6607,6 @@ void CCharacter::DDPP_Tick()
 					}
 				}
 			}
-		}
-	}
-
-	if (m_pvp_arena_exit_request)
-	{
-		m_pvp_arena_exit_request_time--;
-
-		if (m_pvp_arena_exit_request_time == 0)
-		{
-			m_pPlayer->m_pvp_arena_tickets++;
-			m_Health = 10;
-			m_pvp_arena_exit_request = false;
-			m_IsPVParena = false;
-			m_isDmg = false;
-
-			if (g_Config.m_SvPvpArenaState == 3) //tilebased and not hardcodet
-			{
-				m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
-			}
-
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Successfully teleported out of arena.");
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] You got your ticket back because you have survived.");
-		}
-
-		if (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
-		{
-			m_pvp_arena_exit_request = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleport failed because you have moved.");
 		}
 	}
 
