@@ -1907,55 +1907,52 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 	if (!pChr)
 		return 0;
 
-	if (pPlayer)
+	if (pPlayer->m_JailTime)
 	{
-		if (pPlayer->m_JailTime)
+		return -1;
+	}
+	if (pPlayer->m_IsInstaArena_gdm)
+	{
+		return 1;
+	}
+	if (pPlayer->m_IsInstaArena_idm)
+	{
+		return 2;
+	}
+	if (pPlayer->m_IsBalanceBatteling)
+	{
+		return 3;
+	}
+	if (pPlayer->m_IsSurvivaling)
+	{
+		return 4;
+	}
+	//if (pPlayer->m_Ischidraqul3) //dont return the broadcast only game because it doesnt make too much trouble. You can play chidraqul in jail or while being in insta no problem.
+	//{
+	//	return x;
+	//}
+	if (pChr)
+	{
+		if (pChr->m_IsBombing)
 		{
-			return -1;
+			return 5;
 		}
-		if (pPlayer->m_IsInstaArena_gdm)
+		if (pChr->m_IsPVParena)
 		{
-			return 1;
+			return 6;
 		}
-		if (pPlayer->m_IsInstaArena_idm)
-		{
-			return 2;
-		}
-		if (pPlayer->m_IsBalanceBatteling)
-		{
-			return 3;
-		}
-		if (pPlayer->m_IsSurvivaling)
-		{
-			return 4;
-		}
-		//if (pPlayer->m_Ischidraqul3) //dont return the broadcast only game because it doesnt make too much trouble. You can play chidraqul in jail or while being in insta no problem.
-		//{
-		//	return x;
-		//}
-		if (pChr)
-		{
-			if (pChr->m_IsBombing)
-			{
-				return 5;
-			}
-			if (pChr->m_IsPVParena)
-			{
-				return 6;
-			}
-		}
-		if (pPlayer->m_IsBlockWaving)
-		{
-			return 7;
-		}
-		if (pPlayer->m_IsBlockTourning)
-		{
-			return 8;
-		}
-		if (pPlayer->m_IsBlockDeathmatch)
-		{
-			return 9;
-		}
+	}
+	if (pPlayer->m_IsBlockWaving)
+	{
+		return 7;
+	}
+	if (pPlayer->m_IsBlockTourning)
+	{
+		return 8;
+	}
+	if (pPlayer->m_IsBlockDeathmatch)
+	{
+		return 9;
 	}
 
 	return 0;
@@ -7181,7 +7178,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						pPlayer->m_IsBlockDeathmatch ^= true;
+						// pPlayer->m_IsBlockDeathmatch ^= true;
 						str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
