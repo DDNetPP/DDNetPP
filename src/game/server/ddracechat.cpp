@@ -7473,6 +7473,13 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 			return;
 		}
+		int spawns = pSelf->Collision()->CountSurvivalSpawns();
+		int survivalplayers = pSelf->CountSurvivalPlayers();
+		if (survivalplayers >= spawns)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] The survival lobby is full try agian later.");
+			return;
+		}
 
 
 		vec2 SurvialLobbySpawnTile = pSelf->Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
