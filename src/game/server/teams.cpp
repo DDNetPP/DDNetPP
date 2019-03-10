@@ -667,16 +667,8 @@ void CGameTeams::OnFinish(CPlayer* Player)
 	}
 
 	int TTime = 0 - (int) time;
-	//dbg_msg("cBug", "TTime [%d] (int) time [%d]", TTime, (int) time); // TTime [-15326] (int) time [15326] ----------- TTime [-30650] (int) time [30650] ---------------
-	//dbg_msg("cBug", "m_Score = %d", Player->m_Score); // -9999
-	//dbg_msg("cBug", "BestTime [%d] float besttime [%f]", pData->m_BestTime, pData->m_BestTime ); // BestTime [1073741824] float besttime [2.000000] ------------- BestTime [1073741824] float besttime [2.000000] ------------- BestTime [-1073741824] float besttime [-2.000000] (changed if statement in next line to !BestTime) ------------ BestTime [-2147483648] float besttime [-0.000000] (changed if statement below abs(pData->m_BestTime) == 1073741824)
-	//if (!pData->m_BestTime)
-	//{
-	//	dbg_msg("cBug", "gimmi oscar");
-	//}
 	if (Player->m_Score < TTime || Player->m_Score == -9999)
 		Player->m_Score = TTime;
-
 }
 
 void CGameTeams::OnQuestFinish(CPlayer * Player)
