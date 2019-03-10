@@ -5054,9 +5054,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 	{
 		if (pSelf->IsMinigame(pResult->m_ClientID))
 		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "ur in game: %d", pSelf->IsMinigame(pResult->m_ClientID));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You can't join becasue your are in another mingame or jail (check '/minigames status')");
 			return;
 		}
@@ -5096,19 +5093,16 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 
-		//update stats and gamestats only if tele worked
-		pPlayer->m_pvp_arena_tickets--;
-		pPlayer->m_pvp_arena_games_played++;
-		pPlayer->GetCharacter()->m_IsPVParena = true;
-		pPlayer->GetCharacter()->m_isDmg = true;
-		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleporting to arena... good luck and have fun!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleport request sent. Don't move for 4 seconds.");
+		pPlayer->GetCharacter()->m_pvp_arena_tele_request_time = pSelf->Server()->TickSpeed() * 4;
+		pPlayer->GetCharacter()->m_pvp_arena_exit_request = false; // join request
 	}
 	else if (!str_comp_nocase(aInput, "leave"))
 	{
 		if (pPlayer->GetCharacter()->m_IsPVParena)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] Teleport request sent. Don't move for 6 seconds.");
-			pPlayer->GetCharacter()->m_pvp_arena_exit_request_time = pSelf->Server()->TickSpeed() * 6; //6 sekunden
+			pPlayer->GetCharacter()->m_pvp_arena_tele_request_time = pSelf->Server()->TickSpeed() * 6;
 			pPlayer->GetCharacter()->m_pvp_arena_exit_request = true;
 		}
 		else

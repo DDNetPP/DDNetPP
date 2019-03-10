@@ -248,6 +248,7 @@ public:
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
 	void BlockTourna_Die(int Killer);
 	void DummyTick();
+	void PvPArenaTick();
 
 	//usefull everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
@@ -314,7 +315,7 @@ public:
 	//int m_Hammerarena_exit_request_time;
 	bool m_IsPVParena;
 	bool m_pvp_arena_exit_request;
-	int m_pvp_arena_exit_request_time;
+	int m_pvp_arena_tele_request_time;
 	bool m_isHeal;
 	bool m_Jetpack;
 	bool m_freezeShotgun;
