@@ -494,6 +494,7 @@ public:
 	bool m_DummyStartGrenade;
 	bool m_DummyUsedDJ;
 	int m_DummySpawnTeleporter; // 1 = left, 2 = middle, 3 = right (the totele 9 at spawn)s
+	bool m_ReachedCinemaEntrance;
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 	int m_DummyFreezeBlockTrick;

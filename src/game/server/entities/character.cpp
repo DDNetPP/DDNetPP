@@ -17138,6 +17138,7 @@ void CCharacter::DummyTick()
 			{
 				if (IsGrounded())
 				{
+					m_ReachedCinemaEntrance = true;
 					m_Input.m_Jump = 1;
 				}
 				else if (m_Core.m_Pos.y < 313 * 32 && m_Core.m_Pos.y > 312 * 32 && m_Core.m_Pos.x < 367 * 32)
@@ -17147,6 +17148,10 @@ void CCharacter::DummyTick()
 				else if (m_Core.m_Pos.x > 367 * 32)
 				{
 					m_Input.m_Direction = -1;
+				}
+				if (!m_ReachedCinemaEntrance && m_Core.m_Pos.x < 370 * 32)
+				{
+					m_Input.m_Direction = 0;
 				}
 				if (m_Core.m_Vel.y > 0.0000001f && m_Core.m_Pos.y < 310 * 32)
 				{
@@ -17280,6 +17285,7 @@ void CCharacter::DummyTick()
 			}
 			if (m_Core.m_Pos.x < 339 * 32 && m_Core.m_Pos.x > 315 * 32 && m_Core.m_Pos.y > 40 * 32 && m_Core.m_Pos.y < 53 * 32) // top of grenade jump the thing to go through the wall
 			{
+				m_Input.m_Hook = 0;
 				m_Input.m_TargetX = 100;
 				m_Input.m_TargetY = 50;
 				m_LatestInput.m_TargetX = 100;
