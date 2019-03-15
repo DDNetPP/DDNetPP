@@ -249,6 +249,7 @@ public:
 	void BlockTourna_Die(int Killer);
 	void DummyTick();
 	void PvPArenaTick();
+	void LoungeTick();
 
 	//usefull everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
@@ -336,6 +337,12 @@ public:
 	int m_PullingID; //Pullhammer added by sarkro
 	bool m_Fire;
 	bool m_DDPP_Finished;
+
+	//lounge
+	bool m_IsLounge;
+	int m_LoungeTeleTime;
+	bool m_LoungeExit;
+
 
 	//trading stuff (stock market)
 	//int m_StockMarket_item_Cucumbers; //player.h

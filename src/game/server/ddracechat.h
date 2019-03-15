@@ -106,6 +106,9 @@ CHAT_COMMAND("gift", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGift, this, "send t
 CHAT_COMMAND("trade", "?ssir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTrade, this, "trade weapons and other items with players on the server", 0)
 CHAT_COMMAND("tr", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTr, this, "the unsave short command for trade (warning don't use if you don't know what you are doing)", 0)
 
+//lounge
+CHAT_COMMAND("lounge", "?s", CFGFLAG_CHAT|CFGFLAG_SERVER, ConLounge, this, "teleports you in the lounge (you can die there)", 0)
+
 //minigames
 CHAT_COMMAND("chidraqul", "s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChidraqul, this, "chidraqul3 (minigame) more info '/chidraqul info'", 0)
 

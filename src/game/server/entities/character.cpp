@@ -49,6 +49,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
 	m_pvp_arena_tele_request_time = 0;
+	m_LoungeTeleTime = 0;
 	//if (g_Config.m_SvInstagibMode)
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -5283,7 +5284,7 @@ void CCharacter::ShopWindow(int Dir)
 
 	// if you add something to the shop make sure to also add pages here and extend conshop in ddracechat.cpp.
 
-	int m_MaxShopPage = 13; // UPDATE THIS WITH EVERY PAGE YOU ADD!!!!!
+	int m_MaxShopPage = 14; // UPDATE THIS WITH EVERY PAGE YOU ADD!!!!!
 
 	if (Dir == 0)
 	{
@@ -5442,6 +5443,14 @@ void CCharacter::ShopWindow(int Dir)
 		str_format(aInfo, sizeof(aInfo), "Using this item you can hide from other players behind bushes.\n"
 			"If your ghost is activated you will be able to shoot plasma\n"
 			"projectiles. For more information please visit '/spookyghostinfo'.");
+	}
+	else if (m_ShopWindowPage == 14)
+	{
+		str_format(aItem, sizeof(aItem), "    ~  L O U N G E C A R D  ~  ");
+		str_format(aLevelTmp, sizeof(aLevelTmp), "30");
+		str_format(aPriceTmp, sizeof(aPriceTmp), "75.000");
+		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
+		str_format(aInfo, sizeof(aInfo), "You can join the lounge using '/lounge join' if you have a card.");
 	}
 	else
 	{
@@ -5954,6 +5963,26 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money!");
 		}
 	}
+	else if (ItemID == 14)
+	{
+		if (m_pPlayer->m_level < 30)
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 30 to buy a lounge card.");
+			return;
+		}
+		else if (m_pPlayer->m_money >= 75000)
+		{
+			m_pPlayer->MoneyTransaction(-75000, "-75000 money. (bought 'lounge_card')");
+			m_pPlayer->m_LoungeCards++;
+
+			str_format(aBuf, sizeof(aBuf), "You bought a lounge card. You have %d cards.", m_pPlayer->m_LoungeCards);
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		}
+		else
+		{
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 75.000 money.");
+		}
+	}
 	else
 	{
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Invalid shop item. Choose another one.");
@@ -6110,6 +6139,72 @@ void CCharacter::DropWeapon(int WeaponID)
 	return;
 }
 
+void CCharacter::LoungeTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_LoungeTeleTime < 0)
+		return;
+	m_LoungeTeleTime--;
+
+	if (m_LoungeTeleTime == 1)
+	{
+		if (m_LoungeExit)
+		{
+			m_pPlayer->m_LoungeCards++;
+			m_Health = 10;
+			m_IsLounge = false;
+			m_isDmg = false;
+			m_pPlayer->m_IsVanillaWeapons = false;
+
+			m_Core.m_Pos = m_pPlayer->m_LoungeReturnPos;
+
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[LOUNGE] Successfully teleported out of the lounge.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[LOUNGE] You got your card back because you didn't die.");
+			m_LoungeTeleTime = -1;
+		}
+		else // join request
+		{
+			m_pPlayer->m_LoungeCards--;
+			m_IsLounge = true;
+			m_isDmg = false;
+			m_pPlayer->m_IsVanillaWeapons = true;
+
+			for (int i = 0; i < NUM_WEAPONS; i++)
+			{
+				m_aWeapons[i].m_Got = false;
+			}
+			m_aWeapons[WEAPON_HAMMER].m_Got = true;
+			m_aWeapons[WEAPON_GUN].m_Got = true;
+			m_Core.m_ActiveWeapon = WEAPON_GUN;
+
+
+			m_pPlayer->m_LoungeReturnPos = GetPosition();
+
+			vec2 LoungeSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_LOUNGE_SPAWN);
+			if (LoungeSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(LoungeSpawnTile);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[LOUNGE] Error, this map has no lounge!");
+				return;
+			}
+
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[LOUNGE] Teleporting to the lounge...");
+			m_LoungeTeleTime = -1;
+		}
+	}
+
+	if (m_LoungeTeleTime != -1 && (m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f))
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[LOUNGE] Teleport failed because you have moved.");
+		m_LoungeTeleTime = -1;
+	}
+}
+
 void CCharacter::PvPArenaTick()
 {
 #if defined(CONF_DEBUG)
@@ -6167,6 +6262,8 @@ void CCharacter::DDPP_Tick()
 	//}
 
 	PvPArenaTick();
+	LoungeTick();
+
 
 	if (m_RandomCosmetics)
 	{

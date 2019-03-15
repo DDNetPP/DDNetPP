@@ -184,6 +184,7 @@ enum
 	TILE_DDRACE_MODE, //135
 	TILE_SHOP, // 136
 	TILE_SHOP_SPAWN, //137
+	TILE_LOUNGE_SPAWN, //138
 
 	// botspawns planned for survival and singleplayer levels
 	TILE_BOTSPAWN_1 = 144,

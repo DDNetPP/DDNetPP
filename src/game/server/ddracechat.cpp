@@ -709,7 +709,8 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 			"spawn_shotgun | 600 000 | 33 | forever\n"
 			"spawn_grenade | 600 000 | 33 | forever\n"
 			"spawn_rifle | 600 000 | 33 | forever\n"
-			"spooky_ghost | 1 000 000 | 1 | forever\n", aBuf);
+			"spooky_ghost | 1 000 000 | 1 | forever\n"
+			"lounge_card | 75.000 | 30 | forever\n", aBuf);
 
 		pSelf->AbuseMotd(aShop, pResult->m_ClientID);
 	}
@@ -2352,6 +2353,8 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 		ItemID = 12;
 	else if (!str_comp_nocase(aItem, "spooky_ghost"))
 		ItemID = 13;
+	else if (!str_comp_nocase(aItem, "lounge_card"))
+		ItemID = 14;
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid shop item. Choose another one.");
@@ -3520,6 +3523,8 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Lounge Cards[%d]", pSelf->m_apPlayers[StatsID]->m_LoungeCards);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
 			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -3543,6 +3548,8 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			str_format(aBuf, sizeof(aBuf), "Lounge Cards[%d]", pPlayer->m_LoungeCards);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
 			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
@@ -5024,6 +5031,72 @@ void CGameContext::ConBlock(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[BLOCK] type /leave to leave");
 		pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 		pPlayer->m_IsBlockDeathmatch = true;
+	}
+}
+
+void CGameContext::ConLounge(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] You have to be alive to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] Invalid. Type '/lounge <join/leave>'.");
+		return;
+	}
+
+	char aInput[32];
+	str_copy(aInput, pResult->GetString(0), 32);
+
+	if (!str_comp_nocase(aInput, "join"))
+	{
+		if (pPlayer->m_LoungeCards < 1)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] You don't have a lounge card. Buy one first with '/buy lounge_card'");
+			return;
+		}
+		if (pPlayer->GetCharacter()->m_IsLounge)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] You are already in the lounge");
+			return;
+		}
+
+		pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] Teleport request sent. Don't move for 3 seconds.");
+		pPlayer->GetCharacter()->m_LoungeTeleTime = pSelf->Server()->TickSpeed() * 3;
+		pPlayer->GetCharacter()->m_LoungeExit = false; // join request
+	}
+	else if (!str_comp_nocase(aInput, "leave"))
+	{
+		if (pPlayer->GetCharacter()->m_IsLounge)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] Teleport request sent. Don't move for 3 seconds.");
+			pPlayer->GetCharacter()->m_LoungeTeleTime = pSelf->Server()->TickSpeed() * 3;
+			pPlayer->GetCharacter()->m_LoungeExit = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] You are not in the lounge.");
+		}
+	}
+	else
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[LOUNGE] Invalid. Type '/lounge <join/leave>'.");
 	}
 }
 

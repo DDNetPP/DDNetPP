@@ -870,6 +870,8 @@ private:
 	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
 	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConLounge(IConsole::IResult *pResult, void *pUserData);
+
 	//info
 	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
 	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);

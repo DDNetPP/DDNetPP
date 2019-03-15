@@ -310,6 +310,10 @@ public:
 	char m_LastViewedProfile[32];
 	bool m_IsProfileViewLoaded;
 
+	//lounge
+	int m_LoungeCards;
+	vec2 m_LoungeReturnPos;
+
 
 	//PvP-arena ChillerDragon
 	int m_pvp_arena_tickets;

@@ -190,6 +190,7 @@ CSql::CSql()
 		JailTime					INTEGER			DEFAULT 0,\n\
 		EscapeTime					INTEGER			DEFAULT 0,\n\
 		TaserLevel					INTEGER			DEFAULT 0,\n\
+		LoungeCards				INTEGER			DEFAULT 0,\n\
 		PvPArenaTickets			INTEGER			DEFAULT 0,\n\
 		PvPArenaGames				INTEGER			DEFAULT 0,\n\
 		PvPArenaKills				INTEGER			DEFAULT 0,\n\
