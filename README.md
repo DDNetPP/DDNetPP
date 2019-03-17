@@ -36,3 +36,7 @@ We added all the features missing in ddnet. For example:
 - jail
 - and much more
 
+Known Bugs
+----------
+
+Teams (/team num) crash the server if teammembers kill after passing the startline.
