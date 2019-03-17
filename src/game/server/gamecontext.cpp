@@ -7178,7 +7178,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
-						str_format(aBuf, sizeof(aBuf), "survival spawns %d", Collision()->CountSurvivalSpawns());
+						str_format(aBuf, sizeof(aBuf), "is authed %d", Server()->IsAuthed(pPlayer->GetCID()));
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
@@ -8477,7 +8477,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					return;
 				}
 				//if(Server()->IsAuthed(KickID))
-				if(m_apPlayers[KickID]->m_Authed > 0 && m_apPlayers[KickID]->m_Authed >= pPlayer->m_Authed)
+				if((m_apPlayers[KickID]->m_Authed != CServer::AUTHED_HONEY) && // always allow kicking honeypot users
+					(m_apPlayers[KickID]->m_Authed > 0 && m_apPlayers[KickID]->m_Authed >= pPlayer->m_Authed))
 				{
 					SendChatTarget(ClientID, "You can't kick moderators");
 					m_apPlayers[ClientID]->m_Last_KickVote = time_get();

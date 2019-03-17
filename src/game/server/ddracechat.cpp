@@ -6846,7 +6846,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if (g_Config.m_SvBombLockable == 1) //mods and higher
 		{
-			if (!pPlayer->m_Authed)
+			if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Only authed players can lock bomb games.");
 				return;

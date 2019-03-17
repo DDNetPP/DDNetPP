@@ -785,6 +785,8 @@ void CServer::SetRconCID(int ClientID)
 
 bool CServer::IsAuthed(int ClientID)
 {
+	if (m_aClients[ClientID].m_Authed == -1)
+		return 0;
 	return m_aClients[ClientID].m_Authed;
 }
 
@@ -1541,6 +1543,41 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 						// DDRace
 						GameServer()->OnSetAuthed(ClientID, AUTHED_MOD);
+					}
+				}
+				else if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
+				{
+					CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+					Msg.AddInt(1);	//authed
+					Msg.AddInt(1);	//cmdlist
+					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+				}
+				else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
+				{
+					CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+					Msg.AddInt(1);	//authed
+					Msg.AddInt(1);	//cmdlist
+					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+					int SendRconCmds = Unpacker.GetInt();
+					m_aClients[ClientID].m_LastAuthed = AUTHED_HONEY;
+					if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
+					{
+						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+						Msg.AddInt(1);	//authed
+						Msg.AddInt(1);	//cmdlist
+						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+
+						m_aClients[ClientID].m_Authed = AUTHED_HONEY;
+						int SendRconCmds = Unpacker.GetInt();
+						if(Unpacker.Error() == 0 && SendRconCmds)
+							m_aClients[ClientID].m_pRconCmdToSend = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_ADMIN, CFGFLAG_SERVER);
+						SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
+						Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+
+						// DDRace
+						GameServer()->OnSetAuthed(ClientID, AUTHED_HONEY);
 					}
 				}
 				else if(g_Config.m_SvRconMaxTries)
