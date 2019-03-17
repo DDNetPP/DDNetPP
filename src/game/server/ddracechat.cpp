@@ -7906,7 +7906,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/jail list' list all jailed players"); //and for police2 list with codes
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail code <client id>' to show a certain jailcode");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail leave' to leave the jail");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer' to config the polce jail hammer");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer' to config the police jail hammer");
 		return;
 	}
 
