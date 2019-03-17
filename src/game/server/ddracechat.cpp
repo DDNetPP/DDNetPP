@@ -10300,6 +10300,29 @@ void CGameContext::ConViewers(IConsole::IResult * pResult, void * pUserData)
 	}
 }
 
+void CGameContext::ConIp(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(ClientID, &Addr);
+	char aAddrStr[NETADDR_MAXSTRSIZE];
+	net_addr_str(&Addr, aAddrStr, sizeof(aAddrStr), true);
+	char aBuf[32];
+	str_format(aBuf, sizeof(aBuf), "your ip: %s", aAddrStr);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
 void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
