@@ -11,6 +11,7 @@
 #include <game/mapitems.h>
 #include <game/layers.h>
 #include <game/collision.h>
+#include <game/server/debug.h>
 
 #include <engine/shared/config.h>
 #include "collision.h"
