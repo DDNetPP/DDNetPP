@@ -148,7 +148,7 @@ CCharacter* CHomingMissile::CharacterNear()
 #endif
 
 	CCharacter* pOwner  = GameServer()->GetPlayerChar(m_Owner);
-	CCharacter* pTarget = GameWorld()->ClosestCharacter(m_Pos, 2000.f, pOwner);
+	CCharacter* pTarget = GameWorld()->ClosestCharacter(m_Pos, 2000.f, pOwner ? pOwner : 0);
 
 	if(pTarget)
 		return pTarget;
@@ -190,8 +190,10 @@ bool CHomingMissile::Hit(CCharacter* pHitTarget)
 	{
 		pHitTarget->TakeDamage(m_Direction * max(0.001f, m_Force), 1, m_Owner, WEAPON_GRENADE);
 
-		GameServer()->CreateExplosion(m_Pos, m_Owner, WEAPON_GRENADE, true, 0, GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0));
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE, GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0));
+		CCharacter* pOwner = GameServer()->GetPlayerChar(m_Owner);
+
+		GameServer()->CreateExplosion(m_Pos, m_Owner, WEAPON_GRENADE, true, 0, pOwner ? GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0) : -1LL);
+		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE, pOwner ? GameServer()->GetPlayerChar(m_Owner)->Teams()->TeamMask(0) : -1LL);
 
 		return true;
 	}
