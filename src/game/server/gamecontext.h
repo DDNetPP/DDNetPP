@@ -708,6 +708,8 @@ private:
 	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
+
 	//SQL
 	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
 

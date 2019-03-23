@@ -10,6 +10,7 @@
 #include "plasmabullet.h"
 #include "projectile.h"
 #include "meteor.h"
+#include "homing_missile.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -1507,30 +1508,37 @@ void CCharacter::FireWeapon(bool Bot)
 		else
 			Lifetime = (int)(Server()->TickSpeed()*GameServer()->TuningList()[m_TuneZone].m_GrenadeLifetime);
 
-		CProjectile *pProj = new CProjectile
-		(
-			GameWorld(),
-			WEAPON_GRENADE,//Type
-			m_pPlayer->GetCID(),//Owner
-			ProjStartPos,//Pos
-			Direction,//Dir
-			Lifetime,//Span
-			0,//Freeze
-			true,//Explosive
-			0,//Force
-			SOUND_GRENADE_EXPLODE,//SoundImpact
-			WEAPON_GRENADE//Weapon
-		);//SoundImpact
+		if (m_HomingMissile)
+		{
+			CHomingMissile *pMissile = new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCID());
+		}
+		else
+		{
+			CProjectile *pProj = new CProjectile
+			(
+				GameWorld(),
+				WEAPON_GRENADE,//Type
+				m_pPlayer->GetCID(),//Owner
+				ProjStartPos,//Pos
+				Direction,//Dir
+				Lifetime,//Span
+				0,//Freeze
+				true,//Explosive
+				0,//Force
+				SOUND_GRENADE_EXPLODE,//SoundImpact
+				WEAPON_GRENADE//Weapon
+			);//SoundImpact
 
-		  // pack the Projectile and send it to the client Directly
-		CNetObj_Projectile p;
-		pProj->FillInfo(&p);
+			  // pack the Projectile and send it to the client Directly
+			CNetObj_Projectile p;
+			pProj->FillInfo(&p);
 
-		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(1);
-		for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-			Msg.AddInt(((int *)&p)[i]);
-		Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+			Msg.AddInt(1);
+			for (unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
+				Msg.AddInt(((int *)&p)[i]);
+			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+		}
 
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
