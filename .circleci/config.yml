@@ -25,6 +25,7 @@ jobs:
       # Compile
       - run: |
           ./bam server_release
+          ./bam server_debug
       - persist-to-workspace:
           root: ./
           paths: ./*
