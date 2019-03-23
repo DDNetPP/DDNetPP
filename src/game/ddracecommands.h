@@ -35,6 +35,8 @@ CONSOLE_COMMAND("InfAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, th
 CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
 CONSOLE_COMMAND("InfTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
 
+CONSOLE_COMMAND("HomingMissile", "v", CFGFLAG_SERVER, ConHomingMissile, this, "toggles homing missile activate/deactive (grenade launcher)")
+
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")
 CONSOLE_COMMAND("dummymode", "vi", CFGFLAG_SERVER, Condummymode, this, "0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)")
 CONSOLE_COMMAND("dummy_color", "vi", CFGFLAG_SERVER, ConDummyColor, this, "changes the color of a specific dummy")
