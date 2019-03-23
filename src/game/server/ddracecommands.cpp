@@ -546,6 +546,31 @@ void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	}
 }
 
+void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter* pChr = pSelf->GetPlayerChar(ClientID);
+	if (pChr)
+	{
+		pChr->m_HomingMissile ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Homing Missile has been %s for %s", pChr->m_HomingMissile ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Homing Missile was %s by %s", pChr->m_HomingMissile ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConPullhammer(IConsole::IResult *pResult, void *pUserData) // give/remove pullhammer
 {
 #if defined(CONF_DEBUG)
