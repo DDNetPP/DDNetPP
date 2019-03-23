@@ -167,13 +167,13 @@ void CHomingMissile::Move(CCharacter* pTarget)
 	//add pathfinding here
 
 	if (m_Pos.x > TargetPos.x)
-		m_Pos.x -= 10;
+		m_Pos.x -= 5;
 	if (m_Pos.x < TargetPos.x)
-		m_Pos.x += 10;
+		m_Pos.x += 5;
 	if (m_Pos.y > TargetPos.y)
-		m_Pos.y -= 10;
+		m_Pos.y -= 5;
 	if (m_Pos.y < TargetPos.y)
-		m_Pos.y += 10;
+		m_Pos.y += 5;
 
 	return;
 }
