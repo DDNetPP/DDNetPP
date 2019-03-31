@@ -236,6 +236,7 @@ public:
 
 	void ChatCommands();
 	void DummyChat();
+	void SaveWrongLogin(const char *pLogin);
 	//Instagib Survival
 	void WinInsta1on1(int WinnerID, int LooserID);
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);

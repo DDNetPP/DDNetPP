@@ -1596,10 +1596,10 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 					if (g_Config.m_SvSaveWrongRcon)
 					{
-						std::ofstream RconFile("wrong_rcon.txt", std::ios::app);
+						std::ofstream RconFile(g_Config.m_SvWrongRconFile, std::ios::app);
 						if (!RconFile)
 						{
-							dbg_msg("rcon_sniff", "ERROR1 writing file '%s'", "wrong_rcon.txt");
+							dbg_msg("rcon_sniff", "ERROR1 writing file '%s'", g_Config.m_SvWrongRconFile);
 							g_Config.m_SvSaveWrongRcon = 0;
 							RconFile.close();
 							return;
@@ -1613,7 +1613,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						else
 						{
 
-							dbg_msg("rcon_sniff", "ERROR2 writing file '%s'", "wrong_rcon.txt");
+							dbg_msg("rcon_sniff", "ERROR2 writing file '%s'", g_Config.m_SvWrongRconFile);
 							g_Config.m_SvSaveWrongRcon = 0;
 						}
 
