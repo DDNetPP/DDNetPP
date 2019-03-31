@@ -395,31 +395,7 @@ void CQueryLogin::OnData()
 	else
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
-		if (g_Config.m_SvSaveWrongLogin)
-		{
-			std::ofstream LoginFile("wrong_login.txt", std::ios::app);
-			if (!LoginFile)
-			{
-				dbg_msg("login_sniff", "ERROR1 writing file '%s'", "wrong_login.txt");
-				g_Config.m_SvSaveWrongLogin = 0;
-				LoginFile.close();
-				return;
-			}
-
-			if (LoginFile.is_open())
-			{
-				//dbg_msg("login_sniff", "sniffed msg [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
-				LoginFile << m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin << "\n";
-			}
-			else
-			{
-
-				dbg_msg("login_sniff", "ERROR2 writing file '%s'", "wrong_login.txt");
-				g_Config.m_SvSaveWrongLogin = 0;
-			}
-
-			LoginFile.close();
-		}
+		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 	}
 }
 
@@ -11585,6 +11561,9 @@ int CGameContext::FindNextBomb()
 
 int CGameContext::CountBannedBombPlayers()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	int BannedPlayers = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -11630,6 +11609,37 @@ int CGameContext::CountReadyBombPlayers()
 		}
 	}
 	return RdyPlrs;
+}
+
+void CGameContext::SaveWrongLogin(const char *pLogin)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+		if (!g_Config.m_SvSaveWrongLogin)
+			return;
+
+		std::ofstream LoginFile(g_Config.m_SvWrongLoginFile, std::ios::app);
+		if (!LoginFile)
+		{
+			dbg_msg("login_sniff", "ERROR1 writing file '%s'", g_Config.m_SvWrongLoginFile);
+			g_Config.m_SvSaveWrongLogin = 0;
+			LoginFile.close();
+			return;
+		}
+
+		if (LoginFile.is_open())
+		{
+			//dbg_msg("login_sniff", "sniffed msg [ %s ]", pLogin);
+			LoginFile << pLogin << "\n";
+		}
+		else
+		{
+			dbg_msg("login_sniff", "ERROR2 writing file '%s'", g_Config.m_SvWrongLoginFile);
+			g_Config.m_SvSaveWrongLogin = 0;
+		}
+
+		LoginFile.close();
 }
 
 

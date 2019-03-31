@@ -25,6 +25,8 @@ src/.vscode/
 /versionsrv*
 
 debug.txt
+wrong_rcon.txt
+wrong_login.txt
 *.dat
 *.acc
 *.db
