@@ -34,6 +34,7 @@ We added all the features missing in ddnet. For example:
 - shop
 - police
 - jail
+- drop weapons and flags
 - and much more
 
 Known Bugs
