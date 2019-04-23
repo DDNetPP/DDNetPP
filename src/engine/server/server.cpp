@@ -1498,7 +1498,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else if(g_Config.m_SvRconPassword[0] && str_comp(pPw, g_Config.m_SvRconPassword) == 0)
 				{
-					m_aClients[ClientID].m_LastAuthed = AUTHED_ADMIN;
 					if(m_aClients[ClientID].m_Authed != AUTHED_ADMIN)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
@@ -1555,7 +1554,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Msg.AddInt(1);	//cmdlist
 					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
 					int SendRconCmds = Unpacker.GetInt();
-					m_aClients[ClientID].m_LastAuthed = AUTHED_HONEY;
 					if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
@@ -2409,7 +2407,6 @@ void CServer::ConchainRconPasswordChange(IConsole::IResult *pResult, void *pUser
 				pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, i, true);
 
 				pServer->m_aClients[i].m_Authed = AUTHED_NO;
-				pServer->m_aClients[i].m_LastAuthed = AUTHED_NO;
 				pServer->m_aClients[i].m_AuthTries = 0;
 				pServer->m_aClients[i].m_pRconCmdToSend = 0;
 
@@ -2440,7 +2437,6 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 				pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, i, true);
 
 				pServer->m_aClients[i].m_Authed = AUTHED_NO;
-				pServer->m_aClients[i].m_LastAuthed = AUTHED_NO;
 				pServer->m_aClients[i].m_AuthTries = 0;
 				pServer->m_aClients[i].m_pRconCmdToSend = 0;
 
