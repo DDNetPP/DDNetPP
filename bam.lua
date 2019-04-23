@@ -473,8 +473,6 @@ if platform == "macosx" then
 		debug_settings_x86 = debug_settings:Copy()
 		debug_settings_x86.config_name = "debug_x86"
 		debug_settings_x86.config_ext = "_x86_d"
-		debug_settings_x86.cc.flags:Add("-arch i386")
-		debug_settings_x86.link.flags:Add("-arch i386")
 		debug_settings_x86.cc.defines:Add("CONF_DEBUG")
 
 		debug_sql_settings_x86 = debug_sql_settings:Copy()
@@ -487,8 +485,6 @@ if platform == "macosx" then
 		release_settings_x86 = release_settings:Copy()
 		release_settings_x86.config_name = "release_x86"
 		release_settings_x86.config_ext = "_x86"
-		release_settings_x86.cc.flags:Add("-arch i386")
-		release_settings_x86.link.flags:Add("-arch i386")
 		release_settings_x86.cc.defines:Add("CONF_RELEASE")
 	
 		release_sql_settings_x86 = release_sql_settings:Copy()
