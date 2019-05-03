@@ -7,7 +7,7 @@ CCrashHandler gCrashHandler;
 
 void Stacktrace(IOHANDLE ErrorFile)
 {
-	for (int i = 0; i < gCallStack.size(); i++)
+	for (unsigned int i = 0; i < gCallStack.size(); i++)
 	{
 		char aLine[1024];
 		str_format(aLine, sizeof(aLine), "#%i - %s:%i:%s - %s", i, gCallStack[i].m_pFile, gCallStack[i].m_Line, gCallStack[i].m_pFunction, gCallStack[i].m_aBuffer);

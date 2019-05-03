@@ -162,7 +162,7 @@ CSql::CSql()
 		//return; //causes broken db idk why it said "no such column: UseSpawnWeapons" i have no idea why it picked this one and not the first or last
 	}
 
-	char *Query = "CREATE TABLE IF NOT EXISTS Accounts (\n\
+	char const *Query = "CREATE TABLE IF NOT EXISTS Accounts (\n\
 		ID							INTEGER			PRIMARY KEY		AUTOINCREMENT,\n\
 		Username					VARCHAR(32)		NOT NULL,\n\
 		Password					VARCHAR(128)	NOT NULL,\n\
