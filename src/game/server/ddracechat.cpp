@@ -959,12 +959,6 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 #endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	bool Printed = false;
-	if (g_Config.m_SvDDRaceRules)
-	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rules",
-				"[RULES] admin is boss.");
-		Printed = true;
-	}
 	if (g_Config.m_SvRulesLine1[0])
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rules",
@@ -1027,7 +1021,7 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 	}
 	if (!Printed)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "rules",
-			"[RULES] admin is boss.");
+			"[RULES] No Rules Defined, Kill em all!!");
 }
 
 void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
