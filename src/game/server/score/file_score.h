@@ -46,6 +46,9 @@ class CFileScore: public IScore
 
 	CPlayerScore *SearchScore(int ID, int *pPosition)
 	{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 		return SearchName(Server()->ClientName(ID), pPosition, 0);
 	}
 	;
