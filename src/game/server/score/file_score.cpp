@@ -177,6 +177,10 @@ void CFileScore::Init()
 CFileScore::CPlayerScore *CFileScore::SearchName(const char *pName,
 		int *pPosition, bool NoCase)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("debug", "score search name '%s'", pName);
+#endif
 	CPlayerScore *pPlayer = 0;
 	int Pos = 1;
 	int Found = 0;
