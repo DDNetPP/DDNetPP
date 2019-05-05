@@ -16887,6 +16887,8 @@ void CCharacter::DummyTick()
 		}
 		else if (m_pPlayer->m_DummyMode == 32) // solo police base bot using 5 jumps and insane grenade jump
 		{
+			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			Die(m_pPlayer->GetCID(), WEAPON_SELF);
 			m_pPlayer->m_DummyModeSpawn = 32;
 			//RestOnChange (zuruecksetzten)
 			m_Input.m_Hook = 0;
