@@ -227,7 +227,6 @@ MACRO_CONFIG_INT(SvSaveGames, sv_savegames, 1, 0, 1, CFGFLAG_SERVER, "Enables sa
 MACRO_CONFIG_INT(SvSaveGamesDelay, sv_savegames_delay, 60, 0, 10000, CFGFLAG_SERVER, "Delay in seconds for loading a savegame")
 #endif
 
-MACRO_CONFIG_INT(SvDDRaceRules, sv_ddrace_rules, 0, 0, 1, CFGFLAG_SERVER, "Whether the default mod rules are displayed or not") //rules are for pussys heueueu this is ddpp
 MACRO_CONFIG_STR(SvRulesLine1, sv_rules_line1, 40, "", CFGFLAG_SERVER, "Rules line 1")
 MACRO_CONFIG_STR(SvRulesLine2, sv_rules_line2, 40, "", CFGFLAG_SERVER, "Rules line 2")
 MACRO_CONFIG_STR(SvRulesLine3, sv_rules_line3, 40, "", CFGFLAG_SERVER, "Rules line 3")
