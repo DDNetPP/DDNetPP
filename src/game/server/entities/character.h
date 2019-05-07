@@ -416,6 +416,10 @@ public:
 	int m_BombPosX;
 	int m_BombPosY;
 
+	//battlegores
+	int64 m_FreezeEnterTick;
+	void KillFreeze(bool unfreeze);
+
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;

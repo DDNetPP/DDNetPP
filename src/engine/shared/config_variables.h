@@ -480,6 +480,9 @@ MACRO_CONFIG_INT(SvSpreePlayers, sv_spree_players, 5, 1, 60, CFGFLAG_SERVER, "ho
 MACRO_CONFIG_INT(SvNeededDamage2NadeKill, sv_needed_damage_2_nadekill, 3, 1, 5, CFGFLAG_SERVER, "how much nade damage is needed for a instagib grenade kill")
 MACRO_CONFIG_INT(SvOnFireMode, sv_on_fire_mode, 1, 0, 1, CFGFLAG_SERVER, "no reload delay after hitting an enemy with rifle")
 
+//battlegores (but could be used for ddnet++ as well)
+MACRO_CONFIG_INT(SvFreezeKillDelay, sv_freeze_kill_delay, 0, 0, 1000, CFGFLAG_SERVER, "kill tees after being freeze x seconds (0=off)")
+
 //Farm and Dummy Stuff
 MACRO_CONFIG_INT(SvSpreeCountBots, sv_spree_count_bots, 1, 0, 1, CFGFLAG_SERVER, "0=bots dont count 1=bots count")
 MACRO_CONFIG_INT(SvDummySeeDummy, sv_dummy_see_dummy, 1, 1, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "1 dummys can see each other 0 they dont")
