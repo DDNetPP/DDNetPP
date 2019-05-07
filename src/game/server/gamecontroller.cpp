@@ -461,7 +461,7 @@ void IGameController::EndRound()
 	if (m_Warmup) // game can't end when we are running warmup
 		return;
 
-	if (g_Config.m_SvDDPPgametype != 5)
+	if (!GameServer()->IsDDPPgametype("fng"))
 		return;
 
 	dbg_msg("cBug", "round end");
@@ -1007,7 +1007,7 @@ void IGameController::Snap(int SnappingClient)
 		}
 	}
 
-	if (g_Config.m_SvDDPPgametype == 5)
+	if (GameServer()->IsDDPPgametype("fng"))
 		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
 	else if (pPlayer->IsInstagibMinigame())
 	{
