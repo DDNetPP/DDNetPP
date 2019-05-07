@@ -6994,6 +6994,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 
+	if (GameServer()->IsDDPPgametype("battlegores"))
+		if (GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
+			GameServer()->m_apPlayers[Killer]->m_Score++;
+
 	//insta kills //TODO: combine with insta 1on1
 	if (Killer != m_pPlayer->GetCID())
 	{
@@ -7001,7 +7005,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		{
 			GameServer()->DoInstaScore(3, Killer);
 		}
-		else if (g_Config.m_SvDDPPscore == 0)
+		else if (GameServer()->IsDDPPgametype("fng"))
 		{
 			GameServer()->m_apPlayers[Killer]->m_Score += 3;
 		}

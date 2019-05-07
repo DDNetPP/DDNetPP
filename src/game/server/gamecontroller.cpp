@@ -461,13 +461,12 @@ void IGameController::EndRound()
 	if (m_Warmup) // game can't end when we are running warmup
 		return;
 
-	if (!GameServer()->IsDDPPgametype("fng"))
-		return;
-
-	dbg_msg("cBug", "round end");
-	GameServer()->m_World.m_Paused = true;
-	m_GameOverTick = Server()->Tick();
-	m_SuddenDeath = 0;
+	if (GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores"))
+	{
+		GameServer()->m_World.m_Paused = true;
+		m_GameOverTick = Server()->Tick();
+		m_SuddenDeath = 0;
+	}
 }
 
 void IGameController::ResetGame()
@@ -623,7 +622,8 @@ void IGameController::PostReset()
 		if (GameServer()->m_apPlayers[i])
 		{
 			GameServer()->m_apPlayers[i]->Respawn();
-			//GameServer()->m_apPlayers[i]->m_Score = 0;
+			if (g_Config.m_SvDDPPscore == 0)
+				GameServer()->m_apPlayers[i]->m_Score = 0;
 			//GameServer()->m_apPlayers[i]->m_ScoreStartTick = Server()->Tick();
 			//GameServer()->m_apPlayers[i]->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
 		}
@@ -1007,7 +1007,7 @@ void IGameController::Snap(int SnappingClient)
 		}
 	}
 
-	if (GameServer()->IsDDPPgametype("fng"))
+	if (GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores"))
 		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
 	else if (pPlayer->IsInstagibMinigame())
 	{
