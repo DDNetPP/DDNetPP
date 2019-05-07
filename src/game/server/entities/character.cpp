@@ -101,13 +101,15 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_GUN;
 	}
 	
-	if (g_Config.m_SvDDPPgametype == 2) //survival server (forced)
+	/*
+	if ("ddpp gametype survival forced") //survival server (forced)
 	{
 		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
 		{
 			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
 		}
 	}
+	*/
 
 
 	if (m_pPlayer->m_DummyMode == 99)
@@ -6992,6 +6994,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 
+	if (GameServer()->IsDDPPgametype("battlegores"))
+		if (GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
+			GameServer()->m_apPlayers[Killer]->m_Score++;
+
 	//insta kills //TODO: combine with insta 1on1
 	if (Killer != m_pPlayer->GetCID())
 	{
@@ -6999,7 +7005,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		{
 			GameServer()->DoInstaScore(3, Killer);
 		}
-		else if (g_Config.m_SvDDPPscore == 0)
+		else if (GameServer()->IsDDPPgametype("fng"))
 		{
 			GameServer()->m_apPlayers[Killer]->m_Score += 3;
 		}
@@ -18954,7 +18960,7 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 					GameServer()->m_apPlayers[Killer]->m_max_multi = GameServer()->m_apPlayers[Killer]->m_multi;
 				}
 				char aBuf[128];
-				if (g_Config.m_SvDDPPgametype == 5)
+				if (GameServer()->IsDDPPgametype("fng"))
 				{
 					str_format(aBuf, sizeof(aBuf), "'%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
