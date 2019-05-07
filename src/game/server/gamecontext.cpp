@@ -1633,20 +1633,24 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	m_apPlayers[ClientID]->Respawn();
 	// init the player
 	Score()->PlayerData(ClientID)->Reset();
-	if (g_Config.m_SvDDPPscore == 0)
-	{
-		m_apPlayers[ClientID]->m_Score = 0;
-	}
-	else
-	{
-		m_apPlayers[ClientID]->m_Score = -9999; //dürfen die dummys auch sowas  ? :3 was genau? -9999 score beinm connecten. sollten die jetz eigentlich k
-	}
+	m_apPlayers[ClientID]->m_Score = -9999;
 
 	// Can't set score here as LoadScore() is threaded, run it in
 	// LoadScoreThreaded() instead
 	Score()->LoadScore(ClientID);
 
 	m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
+
+	if (g_Config.m_SvDDPPscore == 0)
+	{
+		m_apPlayers[ClientID]->m_Score = 0;
+		m_apPlayers[ClientID]->m_AllowTimeScore = 0;
+		CMsgPacker ScoreMsg(NETMSG_EX);
+		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
+		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+		ScoreMsg.AddInt(m_apPlayers[ClientID]->m_AllowTimeScore);
+		Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID, true);
+	}
 
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
@@ -7164,7 +7168,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					{
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
-						str_format(aBuf, sizeof(aBuf), "is authed %d", Server()->IsAuthed(pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "is authed %d score %d", Server()->IsAuthed(pPlayer->GetCID()), pPlayer->m_Score);
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
@@ -8847,7 +8851,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					Score()->PlayerData(ClientID)->Reset();
 					Score()->LoadScore(ClientID);
 					Score()->PlayerData(ClientID)->m_CurrentTime = Score()->PlayerData(ClientID)->m_BestTime;
-					if (g_Config.m_SvInstagibMode)
+					if (g_Config.m_SvInstagibMode || g_Config.m_SvDDPPscore == 0)
 					{
 						m_apPlayers[ClientID]->m_Score = 0;
 					}

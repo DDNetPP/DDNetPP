@@ -737,7 +737,7 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	else
 	{
-		if (g_Config.m_SvInstagibMode)
+		if (g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
 		{
 			pPlayerInfo->m_Score = m_Score;
 		}
