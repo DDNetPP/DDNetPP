@@ -251,6 +251,7 @@ public:
 	//usefull everywhere
 	void AbuseMotd(const char *pMsg, int ClientID);
 	int IsMinigame(int playerID);
+	bool IsDDPPgametype(const char * pGametype);
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountConnectedHumans();
