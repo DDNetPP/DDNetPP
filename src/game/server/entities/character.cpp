@@ -50,6 +50,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
 	m_pvp_arena_tele_request_time = 0;
+	m_FreezeEnterTick = 0;
 	//if (g_Config.m_SvInstagibMode)
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -4429,6 +4430,7 @@ bool CCharacter::Freeze(int Seconds)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	KillFreeze(false);
 	isFreezed = true;
 	if ((Seconds <= 0 || m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
 		return false;
@@ -4472,11 +4474,36 @@ bool CCharacter::Freeze()
 	return Freeze(g_Config.m_SvFreezeDelay);
 }
 
+void CCharacter::KillFreeze(bool unfreeze)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!g_Config.m_SvFreezeKillDelay)
+		return;
+	if (unfreeze) // stop counting
+	{
+		m_FreezeEnterTick = 0;
+		return;
+	}
+	if (!m_FreezeEnterTick) // start counting
+	{
+		m_FreezeEnterTick = Server()->Tick();
+		return;
+	}
+	if (Server()->Tick() - m_FreezeEnterTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+		m_FreezeEnterTick = 0;
+	}
+}
+
 bool CCharacter::UnFreeze()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	KillFreeze(true);
 	if (m_FreezeTime > 0)
 	{
 		//BlockWave
