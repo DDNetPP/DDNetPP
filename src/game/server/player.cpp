@@ -168,7 +168,7 @@ void CPlayer::Reset()
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
 
-	if (g_Config.m_SvDDPPgametype == 1) //fly
+	if (GameServer()->IsDDPPgametype("fly"))
 	{
 		m_IsVanillaDmg = true;
 		m_IsVanillaWeapons = true;

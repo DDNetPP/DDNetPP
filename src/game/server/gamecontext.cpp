@@ -1607,11 +1607,11 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	CALL_STACK_ADD();
 #endif
 
-	if (g_Config.m_SvDDPPgametype == 3) //survival server (optional)
+	if (IsDDPPgametype("survival"))
 	{
 		SetPlayerSurvival(ClientID, 1);
 	}
-	else if (g_Config.m_SvDDPPgametype == 4) //vanilla
+	else if (IsDDPPgametype("vanilla"))
 	{
 		if (m_apPlayers[ClientID])
 		{
@@ -1620,7 +1620,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
 		}
 	}
-	else if (g_Config.m_SvDDPPgametype == 5) //fng
+	else if (IsDDPPgametype("fng"))
 	{
 		if (m_apPlayers[ClientID])
 		{
@@ -1680,11 +1680,13 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		if (g_Config.m_SvInstagibMode)
 		{
-			SendChatTarget(ClientID, "Welcome to ChillerDragon's Instagib Mod (" DDNETPP_VERSION ") based on DDNet");
+			SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSION ") based on DDNet 9.0.2");
 		}
 		else
 		{
-			SendChatTarget(ClientID, "Welcome to ChillerDragon's Block Mod (" DDNETPP_VERSION ") based on DDNet");
+			char aWelcome[128];
+			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet 9.0.2", g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
+			SendChatTarget(ClientID, aWelcome);
 		}
 
 		if(g_Config.m_SvWelcome[0]!=0)
@@ -1930,6 +1932,14 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 	}
 
 	return 0;
+}
+
+bool CGameContext::IsDDPPgametype(const char * pGametype)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	return !str_comp_nocase(g_Config.m_SvDDPPgametype, pGametype);
 }
 
 int CGameContext::GetCIDByName(const char * pName)
