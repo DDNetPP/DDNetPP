@@ -326,7 +326,7 @@ public:
 	int m_TeamBeforeSuper;
 	int m_FreezeTime;
 	int m_FreezeTick;
-	int m_FirstFreezeTick;
+	int64 m_FirstFreezeTick;
 	bool m_DeepFreeze;
 	bool m_EndlessHook;
 	bool m_FreezeHammer;
@@ -417,7 +417,6 @@ public:
 	int m_BombPosY;
 
 	//battlegores
-	int64 m_FreezeEnterTick;
 	void KillFreeze(bool unfreeze);
 
 	// finite cosmetics

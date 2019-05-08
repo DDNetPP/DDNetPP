@@ -50,7 +50,6 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
 	m_pvp_arena_tele_request_time = 0;
-	m_FreezeEnterTick = 0;
 	//if (g_Config.m_SvInstagibMode)
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -4483,18 +4482,18 @@ void CCharacter::KillFreeze(bool unfreeze)
 		return;
 	if (unfreeze) // stop counting
 	{
-		m_FreezeEnterTick = 0;
+		m_FirstFreezeTick = 0;
 		return;
 	}
-	if (!m_FreezeEnterTick) // start counting
+	if (!m_FirstFreezeTick) // start counting
 	{
-		m_FreezeEnterTick = Server()->Tick();
+		m_FirstFreezeTick = Server()->Tick();
 		return;
 	}
-	if (Server()->Tick() - m_FreezeEnterTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
+	if (Server()->Tick() - m_FirstFreezeTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_SELF);
-		m_FreezeEnterTick = 0;
+		m_FirstFreezeTick = 0;
 	}
 }
 
