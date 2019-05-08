@@ -9766,6 +9766,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 #endif
 
 	// ChillerDragon konst constructor
+	m_Database->CreateDatabase();
   LoadSinglePlayer();
 	//Friends_counter = 0;
 	m_BalanceID1 = -1;

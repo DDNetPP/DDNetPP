@@ -1,7 +1,5 @@
 #include "db_sqlite3.h"
-#include <base/system.h> //ChillerDragon needs for str_len func
-#include <fstream> //ChillerDragon much wow shitty filestream usage -.-
-#include <string> //ChillerDragon ikr no kewl C style stuff
+#include <engine/shared/config.h>
 
 bool CQuery::Next()
 {
@@ -142,19 +140,12 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 
 CSql::CSql()
 {
-	sqlite3 *test;
+}
 
-	std::ifstream f;
-	std::string aUserInputLoL;
-
-	f.open("database_path.txt", std::ios::in);
-	if (getline(f, aUserInputLoL))
-		dbg_msg("SQLite", "successfully loaded path '%s'", aUserInputLoL.c_str());
-	else
-		dbg_msg("SQLite","error reading database pathfile 'database_path.txt'");
-	f.close();
-	dbg_msg("SQLite", "connecting to '%s' ", aUserInputLoL.c_str());
-	int rc = sqlite3_open(aUserInputLoL.c_str(), &m_pDB);
+void CSql::CreateDatabase()
+{
+	dbg_msg("SQLite", "connecting to '%s' ", g_Config.m_SvDatabasePath);
+	int rc = sqlite3_open(g_Config.m_SvDatabasePath, &m_pDB);
 	if (rc)
 	{
 		dbg_msg("SQLite", "Can't open database error: %d", rc);
