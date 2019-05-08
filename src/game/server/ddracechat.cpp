@@ -10811,7 +10811,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(aCommand, "vote_delay"))
 	{
-		pSelf->m_LastVoteCallAll = 0;
+		pSelf->m_LastVoteCallAll = -9999999;
 		pSelf->SendChatTarget(ClientID, "[ADMIN] votes can be used agian.");
 	}
 	else if (!str_comp_nocase(aCommand, "test"))
