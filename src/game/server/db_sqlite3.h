@@ -56,8 +56,8 @@ public:
 	~CSql();
 	CQuery *Query(CQuery *pQuery, std::string QueryString);
 
+	void CreateDatabase();
 	void Tick();
-
 };
 
 #endif
