@@ -4457,30 +4457,6 @@ bool CCharacter::Freeze()
 	return Freeze(g_Config.m_SvFreezeDelay);
 }
 
-void CCharacter::KillFreeze(bool unfreeze)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (!g_Config.m_SvFreezeKillDelay)
-		return;
-	if (unfreeze) // stop counting
-	{
-		m_FirstFreezeTick = 0;
-		return;
-	}
-	if (!m_FirstFreezeTick) // start counting
-	{
-		m_FirstFreezeTick = Server()->Tick();
-		return;
-	}
-	if (Server()->Tick() - m_FirstFreezeTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
-	{
-		Die(m_pPlayer->GetCID(), WEAPON_SELF);
-		m_FirstFreezeTick = 0;
-	}
-}
-
 bool CCharacter::UnFreeze()
 {
 #if defined(CONF_DEBUG)
@@ -7417,15 +7393,11 @@ void CCharacter::DummyTick()
 			//Selfkills
 			if (isFreezed)
 			{
-				//wenn der bot freeze is warte erstmal n paar sekunden und dann kill dich
 				if (Server()->Tick() % 300 == 0)
 				{
 					//Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}
 			}
-
-
-
 
 			char aBuf[256];
 			//str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f", m_Core.m_Vel.x, m_Core.m_Vel.y);
@@ -7459,11 +7431,6 @@ void CCharacter::DummyTick()
 
 						m_AngleTickStart = Server()->Tick();
 						m_AngleTickNext = m_AngleTickStart + m_AngleTickTime + Server()->TickSpeed() * 2 + Server()->TickSpeed() / 2 * (rand() % 10);
-
-						// wann sollen die emotes gemacht werden? oder willst du das nachher machen? bei dem default mode is alles random bei dem anderen sollte es gefühle usw geben hier nich
-						// pChr->m_EmoteType = EMOTE_HAPPY;
-						// pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed(); // = emote bleibt eine sekunde
-						// tja, dachte das wär hier drin. schade
 					}
 				}
 				else
@@ -7475,26 +7442,6 @@ void CCharacter::DummyTick()
 				m_Input.m_TargetX = cosf(AngleRad) * 100;
 				m_Input.m_TargetY = sinf(AngleRad) * 100;
 			}
-
-			// wenn targetX > 0 ist, guckt er nach rechts. bei < 0 halt nach links
-			// bei targetY ist es so, wenn das > 0 ist guckt er nach UNTEN. bei < 0 nach OBEN
-
-			// ok alles schön und gut aber wie lass ich den jetzt moven? also die augen nicht springen sondern bewegen
-
-			// m_Input.m_TargetX = 1;
-			// m_Input.m_TargetY = 0; // so guckt er halt z.B. nach rechts. da kannste jetzt mit rumrechnen (lass da pls) [steht doch oben ._.] egal
-
-			// wenn du was mit der zeit rechnen willst, nimm den server tick. Server()->Tick() und Server()->TickSpeed() [das sollte eigentlich immer 50 sein]
-
-			// m_Input.m_TargetX = Server()->Tick() % Server()->TickSpeed; // würde z.B. machen, dass m_TargetX zwischen 0 und 49 liegt (rechnet ja Modulo 50). nur so als beispiel. bringt in dem fall jetzt wenig
-
-			//float Angle = (float)Server()->Tick(); // teste mal
-			//float Angle = Server()->Tick() / (float)Server()->TickSpeed() * 360; // player dreht sich jede sekunde einmal
-			//float Angle = (float)Server()->Tick() / (float)Server()->TickSpeed() * 720.f; // player dreht sich jede sekunde zwei mal (720 = 360*2)schon kla skype
-
-			//float AngleRad = Angle * pi / 180.f;
-			//m_Input.m_TargetX = cosf(AngleRad) * 100;
-			//m_Input.m_TargetY = sinf(AngleRad) * 100; // probier das mal aus. sollte sich eigentlich alle 2 sekunden einmal komplett gedreht haben. (bin etwas müde ._.) :c
 
 			if (Server()->Tick() >= m_EmoteTickNext)
 			{
@@ -7616,8 +7563,6 @@ void CCharacter::DummyTick()
 				}
 			}
 
-
-
 			if (m_Core.m_Pos.y > 262 * 32 && m_Core.m_Pos.x > 404 * 32 && m_Core.m_Pos.x < 415 * 32 && !IsGrounded()) //Likely to fail in the leftest freeze becken
 			{
 				m_Input.m_Jump = 1;
@@ -7634,9 +7579,7 @@ void CCharacter::DummyTick()
 				}
 			}
 
-
 			//basic map dodigen
-
 			if (m_Core.m_Pos.x < 392 * 32) //dont walk in the freeze wall on the leftest side
 			{
 				m_Input.m_Direction = 1;
@@ -7648,14 +7591,12 @@ void CCharacter::DummyTick()
 				m_Input.m_Hook = 1;
 			}
 
-
 			if (m_Core.m_Pos.x > 428 * 32 && m_Core.m_Pos.x < 437 * 32) //freeze loch im main becken dodgen
 			{
 				if (m_Core.m_Pos.y > 263 * 32 && !IsGrounded())
 				{
 					m_Input.m_Jump = 1;
 				}
-
 
 				//position predefines
 				if (m_Core.m_Pos.x > 423 * 32)
@@ -8295,36 +8236,21 @@ void CCharacter::DummyTick()
 			}
 
 			// moving eyes
-
 			float Angle = m_AngleTo;
 
-			// überprüfen ob die animation schon vorbei ist (also um z.B. 90° schon gedreht wurde)
 			if (Server()->Tick() > m_AngleTickStart + m_AngleTickTime)
 			{
-				// danach überprüfen, ob es auch schon zeit ist, um die nächste animation zu starten
 				if (Server()->Tick() >= m_AngleTickNext)
 				{
-					m_AngleFrom = m_AngleTo; // erst mal die startrotation auf die vorherige endrotation setzen
-
-					m_AngleTo += (rand() % 360) - 180; // dann die neue endrotation setzen (= die vorherige rotation + irgendeine zufällige zahl zwischen -180 und + 180)
-					m_AngleTickTime = Server()->TickSpeed() / 15 + (rand() % (Server()->TickSpeed() / 15)); // wie lange die animation geht, hier also eine halbe sekunde + 
-
-					m_AngleTickStart = Server()->Tick() / 10; // startzeit für die nächste animation setzen
+					m_AngleFrom = m_AngleTo;
+					m_AngleTo += (rand() % 360) - 180;
+					m_AngleTickTime = Server()->TickSpeed() / 15 + (rand() % (Server()->TickSpeed() / 15));
+					m_AngleTickStart = Server()->Tick() / 10;
 					m_AngleTickNext = m_AngleTickStart + m_AngleTickTime + Server()->TickSpeed() * 2 + Server()->TickSpeed() / 2 * (rand() % 10);
-
-
-					//jup alles ganz gut erkärt auch halbwegs verstanden aber selber umwenden hmmmm
-
-
-					// wann sollen die emotes gemacht werden? oder willst du das nachher machen? bei dem default mode is alles random bei dem anderen sollte es gefühle usw geben hier nich
-					// pChr->m_EmoteType = EMOTE_HAPPY; 
-					// pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed(); // = emote bleibt eine sekunde
-					// tja, dachte das wär hier drin. schade
 				}
 			}
 			else
 			{
-				// wenn die animation noch nicht vorbei ist, dann wird die rotation entsprechend auf einen wert zwischen z.B. 0° und 90° (also start und endrotation) gesetzt
 				Angle = m_AngleFrom + (m_AngleTo - m_AngleFrom) * (Server()->Tick() - m_AngleTickStart) / m_AngleTickTime;
 			}
 
@@ -8332,10 +8258,6 @@ void CCharacter::DummyTick()
 			m_Input.m_TargetX = cosf(AngleRad) * 100;
 			m_Input.m_TargetY = sinf(AngleRad) * 100;
 
-			//moving eyes end
-
-			//shot schiessen schissen
-			//im freeze nicht schiessen
 			if (m_FreezeTime == 0)
 			{
 				m_LatestInput.m_TargetX = cosf(AngleRad) * 100;
@@ -8347,12 +8269,12 @@ void CCharacter::DummyTick()
 			}
 
 
-			//hooken
+			// hook
 			if (m_Core.m_HookState == HOOK_FLYING)
 				m_Input.m_Hook = 1;
 			else if (m_Core.m_HookState == HOOK_GRABBED)
 			{
-				if (frandom() * 250 < 1) //hmm hä xD ich will das er selten ganz lange hookt isses dass? sehr wsaelten. was stand da vorher
+				if (frandom() * 250 < 1)
 				{
 					if (frandom() * 250 == 1)
 						m_Input.m_Hook = 0;
@@ -8377,7 +8299,7 @@ void CCharacter::DummyTick()
 					m_Input.m_Hook = 0;
 			}
 
-			//laufen (move xD)
+			// walk
 			if (m_StopMoveTick && Server()->Tick() >= m_StopMoveTick)
 			{
 				m_LastMoveDirection = m_Input.m_Direction;
@@ -8405,7 +8327,7 @@ void CCharacter::DummyTick()
 				m_MoveTick = Server()->Tick() + Server()->TickSpeed() * 3 + Server()->TickSpeed() * (rand() % 6);
 			}
 		}
-		else if (m_pPlayer->m_DummyMode == 4) //mode 3 + selfkill
+		else if (m_pPlayer->m_DummyMode == 4) // mode 3 + selfkill
 		{
 			//rest dummy (zuruecksetzten)
 			//m_Input.m_Hook = 0;
@@ -8450,7 +8372,7 @@ void CCharacter::DummyTick()
 
 
 
-			//emotes
+			// emotes
 
 			if (Server()->Tick() >= m_EmoteTickNext)
 			{
@@ -8462,36 +8384,21 @@ void CCharacter::DummyTick()
 			}
 
 			// moving eyes
-
 			float Angle = m_AngleTo;
 
-			// überprüfen ob die animation schon vorbei ist (also um z.B. 90° schon gedreht wurde)
 			if (Server()->Tick() > m_AngleTickStart + m_AngleTickTime)
 			{
-				// danach überprüfen, ob es auch schon zeit ist, um die nächste animation zu starten
 				if (Server()->Tick() >= m_AngleTickNext)
 				{
-					m_AngleFrom = m_AngleTo; // erst mal die startrotation auf die vorherige endrotation setzen
-
-					m_AngleTo += (rand() % 360) - 180; // dann die neue endrotation setzen (= die vorherige rotation + irgendeine zufällige zahl zwischen -180 und + 180)
-					m_AngleTickTime = Server()->TickSpeed() / 15 + (rand() % (Server()->TickSpeed() / 15)); // wie lange die animation geht, hier also eine halbe sekunde + 
-
-					m_AngleTickStart = Server()->Tick() / 10; // startzeit für die nächste animation setzen
+					m_AngleFrom = m_AngleTo;
+					m_AngleTo += (rand() % 360) - 180;
+					m_AngleTickTime = Server()->TickSpeed() / 15 + (rand() % (Server()->TickSpeed() / 15));
+					m_AngleTickStart = Server()->Tick() / 10;
 					m_AngleTickNext = m_AngleTickStart + m_AngleTickTime + Server()->TickSpeed() * 2 + Server()->TickSpeed() / 2 * (rand() % 10);
-
-
-					//jup alles ganz gut erkärt auch halbwegs verstanden aber selber umwenden hmmmm
-
-
-					// wann sollen die emotes gemacht werden? oder willst du das nachher machen? bei dem default mode is alles random bei dem anderen sollte es gefühle usw geben hier nich
-					// pChr->m_EmoteType = EMOTE_HAPPY; 
-					// pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed(); // = emote bleibt eine sekunde
-					// tja, dachte das wär hier drin. schade
 				}
 			}
 			else
 			{
-				// wenn die animation noch nicht vorbei ist, dann wird die rotation entsprechend auf einen wert zwischen z.B. 0° und 90° (also start und endrotation) gesetzt
 				Angle = m_AngleFrom + (m_AngleTo - m_AngleFrom) * (Server()->Tick() - m_AngleTickStart) / m_AngleTickTime;
 			}
 
@@ -8499,11 +8406,8 @@ void CCharacter::DummyTick()
 			m_Input.m_TargetX = cosf(AngleRad) * 100;
 			m_Input.m_TargetY = sinf(AngleRad) * 100;
 
-			//moving eyes end
-
-			//shot schiessen schissen
+			// fire
 			if (frandom() * 25 < 3)// probier mal jetzt ob sich was ändert
-
 			{
 				m_LatestInput.m_TargetX = cosf(AngleRad) * 100;
 				m_LatestInput.m_TargetY = sinf(AngleRad) * 100;
@@ -8514,12 +8418,12 @@ void CCharacter::DummyTick()
 			}
 
 
-			//hooken
+			// hook
 			if (m_Core.m_HookState == HOOK_FLYING)
 				m_Input.m_Hook = 1;
 			else if (m_Core.m_HookState == HOOK_GRABBED)
 			{
-				if (frandom() * 250 < 1) //hmm hä xD ich will das er selten ganz lange hookt isses dass? sehr wsaelten. was stand da vorher
+				if (frandom() * 250 < 1)
 				{
 					if (frandom() * 250 == 1)
 						m_Input.m_Hook = 0;
@@ -8544,7 +8448,7 @@ void CCharacter::DummyTick()
 					m_Input.m_Hook = 0;
 			}
 
-			//laufen (move xD)
+			// walk
 			if (m_StopMoveTick && Server()->Tick() >= m_StopMoveTick)
 			{
 				m_LastMoveDirection = m_Input.m_Direction;
@@ -8599,7 +8503,6 @@ void CCharacter::DummyTick()
 
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "speed:  x: %f y: %f", m_Core.m_Vel.x, m_Core.m_Vel.y);
-
 			//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 			//rest dummy (zuruecksetzten)
@@ -8695,17 +8598,10 @@ void CCharacter::DummyTick()
 			m_Input.m_TargetX = 0;
 			m_Input.m_TargetY = -1;
 
-
-
 			if (m_Core.m_Vel.y > 0)
-			{
 				m_Input.m_Hook = 1;
-			}
 			else
-			{
 				m_Input.m_Hook = 0;
-			}
-
 		}
 		else if (m_pPlayer->m_DummyMode == 15)  // fly bot right
 		{
@@ -8722,14 +8618,9 @@ void CCharacter::DummyTick()
 
 
 			if (m_Core.m_Vel.y > 0)
-			{
 				m_Input.m_Hook = 1;
-			}
 			else
-			{
 				m_Input.m_Hook = 0;
-			}
-
 		}                                //this mode <3 18 reks em all
 		else if (m_pPlayer->m_DummyMode == 18)//pathlaufing system (become ze ruler xD) // ich bin der mode um den es hier geht
 		{
@@ -8925,9 +8816,6 @@ void CCharacter::DummyTick()
 						m_Dummy_mode18 = 0;
 					}
 
-
-
-
 					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 					m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
 
@@ -9005,7 +8893,7 @@ void CCharacter::DummyTick()
 							m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 							m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
 						}
-						else //wenn der Gegner weiter hinter dem unhook ist (hook über den Gegner um ihn trozdem zu treffen und das unhook zu umgehen)
+						else // wenn der Gegner weiter hinter dem unhook ist (hook über den Gegner um ihn trozdem zu treffen und das unhook zu umgehen)
 						{
 							m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x - 50;
 							m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -9017,14 +8905,14 @@ void CCharacter::DummyTick()
 
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "targX: %d = %d - %d", m_Input.m_TargetX, pChr->m_Pos.x, m_Pos.x);
-						//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+						// GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
-						//m_Input.m_Hook = 0;
+						// m_Input.m_Hook = 0;
 						CCharacter *pChr = GameServer()->m_World.ClosestCharTypeTunnel(m_Pos, true, this);
 						if (pChr && pChr->IsAlive())
 						{
-							//wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
+							// wenn jemand im tunnel is check ob du nicht ausversehen den hookst anstatt des ziels in der WB area
 							if (pChr->m_Pos.x < m_Core.m_Pos.x) //hooke nur wenn kein Gegner rechts von dem bot im tunnel is (da er sonst ziemlich wahrscheinlich den hooken würde)
 							{
 								m_Input.m_Hook = 1;
@@ -9033,12 +8921,12 @@ void CCharacter::DummyTick()
 						}
 						else
 						{
-							//wenn eh keiner im tunnel is hau raus dat ding
+							// wenn eh keiner im tunnel is hau raus dat ding
 							m_Input.m_Hook = 1;
 						}
 
-						//schau ob sich der gegner bewegt und der bot grad nicht mehr am angreifen iss dann resette falls er davor halt misshookt hat
-						//geht nich -.-
+						// schau ob sich der gegner bewegt und der bot grad nicht mehr am angreifen iss dann resette falls er davor halt misshookt hat
+						// geht nich -.-
 						/*	if (!m_Core.m_HookState == HOOK_FLYING && !m_Core.m_HookState == HOOK_GRABBED)
 						{
 						if (Server()->Tick() % 10 == 0)
@@ -9308,9 +9196,7 @@ void CCharacter::DummyTick()
 
 					}
 
-
 					//externe if abfrage weil laufen während sprinegn xD
-
 					if (m_Core.m_Pos.x > 413 * 32 && m_Core.m_Pos.x < 415 * 32) // in den tunnel springen
 					{
 						m_Input.m_Jump = 1;
@@ -9322,26 +9208,19 @@ void CCharacter::DummyTick()
 						m_Input.m_Jump = 1;
 					}
 
-
-
 					// externen springen aufhören für dj
-
 					if (m_Core.m_Pos.x > 428 * 32 && m_Core.m_Pos.y > 213 * 32) // im tunnel springen nicht mehr springen
 					{
 						m_Input.m_Jump = 0;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "triggerd");
 					}
 
-
 					//nochmal extern weil springen während springen
-
 					if (m_Core.m_Pos.x > 430 * 32 && m_Core.m_Pos.y > 213 * 32) // im tunnel springen springen
 					{
 						m_Input.m_Jump = 1;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "triggerd");
 					}
-
-
 
 					if (m_Core.m_Pos.x > 431 * 32 && m_Core.m_Pos.y > 213 * 32) //jump refillen für wayblock spot
 					{
@@ -9466,14 +9345,9 @@ void CCharacter::DummyTick()
 					}
 
 
-
-
 					//TODO(1): keep this structur in mind this makes not much sence
 					// the bool m_Dummy_happy is just true if a enemy is in the ruler area because all code below depends on a enemy in ruler area
 					// maybe rework this shit
-
-
-
 					//                                                      
 					//                                               --->   Ruler   <---    testy own class just search in ruler area
 
@@ -9620,10 +9494,6 @@ void CCharacter::DummyTick()
 
 
 
-
-
-
-
 							//Blocke gefreezte gegner für immer 
 
 
@@ -9669,7 +9539,7 @@ void CCharacter::DummyTick()
 
 
 
-							//freeze protection & schieberrei
+							// freeze protection & schieberrei (pushing)
 							//                                                                                                                                                                                                      old (417 * 32 - 60)
 							if ((pChr->m_Pos.x + 10 < m_Core.m_Pos.x && pChr->m_Pos.y > 211 * 32 && pChr->m_Pos.x < 418 * 32) || (pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 210 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Pos.x > 417 * 32 - 60)) // wenn der spieler neben der linken wand linken freeze wand liegt schiebt ihn der bot rein
 							{                                                                                            // oder wenn der spieler weiter weg liegt aber freeze is
@@ -9905,9 +9775,6 @@ void CCharacter::DummyTick()
 								//stuff im toleranz bereich doon
 
 
-
-
-
 								// normal wayblock
 								CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);  //position anderer spieler mit pikus aimbot abfragen
 								if (pChr && pChr->IsAlive())
@@ -10129,13 +9996,6 @@ void CCharacter::DummyTick()
 						m_Input.m_Jump = 0;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "refilling jump");
 					}
-
-
-
-
-
-
-
 				}
 
 
@@ -19160,4 +19020,28 @@ void CCharacter::TakeHammerHit(CCharacter* pFrom)
 	}
 
 	m_Core.m_Vel += Push;
+}
+
+void CCharacter::KillFreeze(bool unfreeze)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!g_Config.m_SvFreezeKillDelay)
+		return;
+	if (unfreeze) // stop counting
+	{
+		m_FirstFreezeTick = 0;
+		return;
+	}
+	if (!m_FirstFreezeTick) // start counting
+	{
+		m_FirstFreezeTick = Server()->Tick();
+		return;
+	}
+	if (Server()->Tick() - m_FirstFreezeTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+		m_FirstFreezeTick = 0;
+	}
 }
