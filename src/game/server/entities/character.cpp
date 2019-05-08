@@ -6359,37 +6359,6 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	//if (g_Config.m_SvRoomState == 1) // ChillBlock5
-	//{
-	//	if (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator)
-	//	{
-	//		//GameServer()->SendBroadcast("Welcome in the room c:", m_pPlayer->GetCID(), 0);
-	//	}
-	//	else //tele back if no key
-	//	{
-	//		if (m_Core.m_Pos.x > 323 * 32 && m_Core.m_Pos.x < 324 * 32 && m_Core.m_Pos.y > 210 * 32 && m_Core.m_Pos.y < 215 * 32)
-	//		{
-	//			m_Core.m_Pos.x = 325 * 32;
-	//			m_Core.m_Pos.y = 214 * 32;
-	//			GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-	//		}
-	//	}
-
-	//}
-	//else if (g_Config.m_SvRoomState == 2) // Blockdale by SarKro
-	//{
-	//	if (!m_pPlayer->m_BoughtRoom) //tele back if no key
-	//	{
-	//		if (m_Core.m_Pos.x > 92 * 32 && m_Core.m_Pos.x < 93 * 32 && m_Core.m_Pos.y > 189 * 32 && m_Core.m_Pos.y < 190 * 32)
-	//		{
-	//			m_Core.m_Pos.x = 95 * 32;
-	//			m_Core.m_Pos.y = 189 * 32;
-	//			GameServer()->SendBroadcast("You need a key to enter this area!\nTry '/buy room_key' to enter this area.", m_pPlayer->GetCID());
-	//		}
-	//	}
-
-	//}
-
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
 		if (m_pPlayer->m_AccountID <= 0)
