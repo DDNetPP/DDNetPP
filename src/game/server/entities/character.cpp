@@ -25,12 +25,6 @@
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
 
-//following testy libaries mede by chillidrgehiun!   they caused some errors and i did some testy changes
-//if remvove this libs remove nuclear tests 
-//testycode: 2gf43
-
-
-
 //rip 25
 //#include <iostream> 
 //#include <fstream>
@@ -1762,17 +1756,7 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 		m_aWeapons[Weapon].m_Ammo = Ammo;
 		if (m_FreezeTime)	//dont remove this
 			Freeze(0);		//dont remove this
-
-			//testy testy af 
-			//NUCLEARTEASTY over here omg      rofl
-			//7ChilliDRGEHUHn was here and commented a line out he was like yolo omg
-			//if the mod dies unmark this code xD
-			//OK
-			//LETS
-			//GO!
-
-
-			//m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // testycode: 2gf43
+			// m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
 		return true;
 	}
 	return false;
@@ -2350,7 +2334,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 			if (From == m_pPlayer->GetCID())
 			{
-				Dmg = max(1, Dmg / 2);    //commented comment out was probably a bug with the max() function better keep lines u dont undertsnad //testy NUCLEARTEASTY commented out by ChillerDragon testycode: 2gf43
+				Dmg = max(1, Dmg / 2);
 
 				if (m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_RIFLE)
 				{
