@@ -159,7 +159,10 @@ CSql::CSql()
 	{
 		dbg_msg("SQLite", "Can't open database error: %d", rc);
 		sqlite3_close(m_pDB);
-		//return; //causes broken db idk why it said "no such column: UseSpawnWeapons" i have no idea why it picked this one and not the first or last
+		return;
+		// the return; used to make trouble but I think it makes sense...
+		// the comment that reported the trouble:
+		// causes broken db idk why it said "no such column: UseSpawnWeapons" i have no idea why it picked this one and not the first or last
 	}
 
 	char const *Query = "CREATE TABLE IF NOT EXISTS Accounts (\n\
