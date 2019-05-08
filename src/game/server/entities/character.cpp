@@ -6315,19 +6315,19 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	//selfmade noob code check if pChr is too near 	
+	// selfmade nobo code check if pChr is too near
 	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-	if (pChr && pChr->IsAlive())
+	if (pChr && pChr->IsAlive() && pChr->m_Input.m_Direction) // no afk killers pls
 	{
-		if (pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
+		// only count touches from unfreezed & grounded tees
+		if (pChr->m_FreezeTime == 0 && pChr->IsGrounded())
 		{
-			if (pChr->m_FreezeTime == 0) //only count touches from unfreezed tees
+			if (pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
 			{
 				m_pPlayer->m_LastToucherID = pChr->GetPlayer()->GetCID();
 				m_pPlayer->m_LastTouchTicks = 0;
 			}
 		}
-
 	}
 
 	//hook extras
