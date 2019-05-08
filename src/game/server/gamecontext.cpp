@@ -9767,14 +9767,14 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	// ChillerDragon konst constructor
 	m_Database->CreateDatabase();
-  LoadSinglePlayer();
+	LoadSinglePlayer();
 	//Friends_counter = 0;
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
-  str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
+	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ ", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();

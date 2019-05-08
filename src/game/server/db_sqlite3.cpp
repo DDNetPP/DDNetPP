@@ -177,14 +177,14 @@ void CSql::CreateDatabase()
 		Skin						VARCHAR(32)		DEFAULT '',\n\
 		Level						INTEGER			DEFAULT 0,\n\
 		Money						INTEGER			DEFAULT 0,\n\
-		Exp						INTEGER			DEFAULT 0,\n\
+		Exp							INTEGER			DEFAULT 0,\n\
 		Shit						INTEGER			DEFAULT 0,\n\
 		LastGift					INTEGER			DEFAULT 0,\n\
 		PoliceRank					INTEGER			DEFAULT 0,\n\
 		JailTime					INTEGER			DEFAULT 0,\n\
 		EscapeTime					INTEGER			DEFAULT 0,\n\
 		TaserLevel					INTEGER			DEFAULT 0,\n\
-		PvPArenaTickets			INTEGER			DEFAULT 0,\n\
+		PvPArenaTickets				INTEGER			DEFAULT 0,\n\
 		PvPArenaGames				INTEGER			DEFAULT 0,\n\
 		PvPArenaKills				INTEGER			DEFAULT 0,\n\
 		PvPArenaDeaths				INTEGER			DEFAULT 0,\n\
@@ -194,28 +194,28 @@ void CSql::CreateDatabase()
 		ProfileSkype				VARCHAR(128)	DEFAULT '',\n\
 		ProfileYoutube				VARCHAR(128)	DEFAULT '',\n\
 		ProfileEmail				VARCHAR(128)	DEFAULT '',\n\
-		ProfileHomepage			VARCHAR(128)	DEFAULT '',\n\
+		ProfileHomepage				VARCHAR(128)	DEFAULT '',\n\
 		ProfileTwitter				VARCHAR(128)	DEFAULT '',\n\
 		HomingMissiles				INTEGER			DEFAULT 0,\n\
-		BlockPoints				INTEGER			DEFAULT 0,\n\
+		BlockPoints					INTEGER			DEFAULT 0,\n\
 		BlockKills					INTEGER			DEFAULT 0,\n\
-		BlockDeaths				INTEGER			DEFAULT 0,\n\
+		BlockDeaths					INTEGER			DEFAULT 0,\n\
 		BlockSkill					INTEGER			DEFAULT 0,\n\
-		IsModerator				INTEGER			DEFAULT 0,\n\
+		IsModerator					INTEGER			DEFAULT 0,\n\
 		IsSuperModerator			INTEGER			DEFAULT 0,\n\
-		IsSupporter				INTEGER			DEFAULT 0,\n\
-		IsAccFrozen				INTEGER			DEFAULT 0,\n\
-		BombGamesPlayed			INTEGER			DEFAULT 0,\n\
+		IsSupporter					INTEGER			DEFAULT 0,\n\
+		IsAccFrozen					INTEGER			DEFAULT 0,\n\
+		BombGamesPlayed				INTEGER			DEFAULT 0,\n\
 		BombGamesWon				INTEGER			DEFAULT 0,\n\
-		BombBanTime				INTEGER			DEFAULT 0,\n\
+		BombBanTime					INTEGER			DEFAULT 0,\n\
 		GrenadeKills				INTEGER			DEFAULT 0,\n\
 		GrenadeDeaths				INTEGER			DEFAULT 0,\n\
 		GrenadeSpree				INTEGER			DEFAULT 0,\n\
 		GrenadeShots				INTEGER			DEFAULT 0,\n\
 		GrenadeShotsNoRJ			INTEGER			DEFAULT 0,\n\
-		GrenadeWins				INTEGER			DEFAULT 0,\n\
+		GrenadeWins					INTEGER			DEFAULT 0,\n\
 		RifleKills					INTEGER			DEFAULT 0,\n\
-		RifleDeaths				INTEGER			DEFAULT 0,\n\
+		RifleDeaths					INTEGER			DEFAULT 0,\n\
 		RifleSpree					INTEGER			DEFAULT 0,\n\
 		RifleShots					INTEGER			DEFAULT 0,\n\
 		RifleWins					INTEGER			DEFAULT 0,\n\
@@ -225,24 +225,24 @@ void CSql::CreateDatabase()
 		SurvivalDeaths				INTEGER			DEFAULT 0,\n\
 		SurvivalWins				INTEGER			DEFAULT 0,\n\
 		NinjaJetpackBought			INTEGER			DEFAULT 0,\n\
-		SpookyGhost				INTEGER			DEFAULT 0,\n\
-		UseSpawnWeapons			INTEGER			DEFAULT 0,\n\
+		SpookyGhost					INTEGER			DEFAULT 0,\n\
+		UseSpawnWeapons				INTEGER			DEFAULT 0,\n\
 		SpawnWeaponShotgun			INTEGER			DEFAULT 0,\n\
-		SpawnWeaponGrenade 		INTEGER			DEFAULT 0,\n\
+		SpawnWeaponGrenade 			INTEGER			DEFAULT 0,\n\
 		SpawnWeaponRifle			INTEGER			DEFAULT 0,\n\
 		AsciiState					VARCHAR(4)		DEFAULT '',\n\
 		AsciiViewsDefault			INTEGER			DEFAULT 0,\n\
 		AsciiViewsProfile			INTEGER			DEFAULT 0,\n\
-		AsciiFrame0				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame1				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame2				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame3				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame4				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame5				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame6				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame7				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame8				VARCHAR(64)		DEFAULT '',\n\
-		AsciiFrame9				VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame0					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame1					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame2					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame3					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame4					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame5					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame6					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame7					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame8					VARCHAR(64)		DEFAULT '',\n\
+		AsciiFrame9					VARCHAR(64)		DEFAULT '',\n\
 		AsciiFrame10				VARCHAR(64)		DEFAULT '',\n\
 		AsciiFrame11				VARCHAR(64)		DEFAULT '',\n\
 		AsciiFrame12				VARCHAR(64)		DEFAULT '',\n\
