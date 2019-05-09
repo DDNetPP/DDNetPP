@@ -261,6 +261,8 @@ public:
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
 
+	bool AdminChatPing(const char * pMsg);
+
 	//shop
 	int GetShopBot();
 	bool m_CreateShopBot;
