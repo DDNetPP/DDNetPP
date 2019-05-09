@@ -382,6 +382,8 @@ MACRO_CONFIG_INT(SvDummyMapOffsetY, sv_dummy_map_offset_y, 0, -99999, 99999, CFG
 MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")
 MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=all 1=blue(insta)def(ddr)red(none)")
 
+MACRO_CONFIG_INT(SvMinAdminPing, sv_min_admin_ping, 0, 0, 1024, CFGFLAG_SERVER, "remove admin ping from messages that are shorter than x (0=allow all admin pings)")
+
 // DDNet++ shutdown if not veto at confuig time if less than x players online
 MACRO_CONFIG_INT(SvDDPPshutdown, sv_ddpp_shutdown, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "shutdown srv if players<sv_ddpp_shutdown_players and hour=sv_ddpp_shutdown_hour")
 MACRO_CONFIG_INT(SvDDPPshutdownHour, sv_ddpp_shutdown_hour, 4, 0, 24, CFGFLAG_SERVER | CFGFLAG_GAME, "at this hour the server will restart if sv_ddpp_restart is 1")

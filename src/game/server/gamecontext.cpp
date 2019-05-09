@@ -8295,14 +8295,24 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else
 			{
-				if (!pPlayer->m_ShowName)
+				if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
 				{
-					str_copy(pPlayer->m_ChatText, pMsg->m_pMessage, sizeof(pPlayer->m_ChatText));
-					pPlayer->m_ChatTeam = Team;
-					pPlayer->FixForNoName(1);
+					if (g_Config.m_SvMinAdminPing > 256)
+						SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
+					else
+						SendChatTarget(ClientID, "your message is too short to bother an admin with that.");
 				}
 				else
-					SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION
+				{
+					if (!pPlayer->m_ShowName)
+					{
+						str_copy(pPlayer->m_ChatText, pMsg->m_pMessage, sizeof(pPlayer->m_ChatText));
+						pPlayer->m_ChatTeam = Team;
+						pPlayer->FixForNoName(1);
+					}
+					else
+						SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION
+				}
 			}
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
@@ -11657,4 +11667,26 @@ void CGameContext::SaveWrongLogin(const char *pLogin)
 		LoginFile.close();
 }
 
-
+bool CGameContext::AdminChatPing(const char * pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!g_Config.m_SvMinAdminPing)
+		return false;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_Authed)
+			continue;
+		if (str_find(pMsg, Server()->ClientName(i)))
+		{
+			int len_name = str_length(Server()->ClientName(i));
+			int len_msg = str_length(pMsg);
+			if (len_msg - len_name - 2 < g_Config.m_SvMinAdminPing)
+				return true;
+		}
+	}
+	return false;
+}
