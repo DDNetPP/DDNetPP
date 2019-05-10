@@ -1995,7 +1995,8 @@ void CPlayer::ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL)
 	m_pLoginData->m_Done = false;
 	dbg_msg("cBug", "login5");
 	m_pLoginData->m_Lock = lock_create();
-	void *pt = thread_init(*ThreadLoginWorker, m_pLoginData); //setzte die werte von pTmpPlayer
+	// doesnt compile with visual studio 2015
+	// void *pt = thread_init(*ThreadLoginWorker, m_pLoginData); //setzte die werte von pTmpPlayer
 	dbg_msg("cBug", "login6");
 
 	m_pLoginData->m_Done = true; //the thread result gets catched in ThreadLoginDone function called everytick by checking this var
