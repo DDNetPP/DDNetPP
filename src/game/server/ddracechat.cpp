@@ -10137,19 +10137,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 
 	char aUsername[32];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
-	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
-	char *pQueryBuf = sqlite3_mprintf(aBuf);
-	CQueryChillExecute *pQuery = new CQueryChillExecute();
-	pQuery->m_ClientID = ClientID;
-	pQuery->m_pGameServer = pSelf;
-	pQuery->Query(pSelf->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
-
-	//str_format(aBuf, sizeof(aBuf), "[SQL] %s", aBuf);
-	//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	pSelf->ExecuteSQLf(pResult->m_ClientID, "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
 }
 
 void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData)
@@ -10192,9 +10180,6 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 		}
 	}
 
-	char aBuf[512];
-	
-	
 	//for (int i = 0; i < MAX_CLIENTS; i++)
 	//{
 	//	if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_AccountID > 0)
@@ -10204,16 +10189,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	//	}
 	//}
 	
-	
-	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0");
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
-	char *pQueryBuf = sqlite3_mprintf(aBuf);
-	CQueryChillExecute *pQuery = new CQueryChillExecute();
-	pQuery->m_ClientID = ClientID;
-	pQuery->m_pGameServer = pSelf;
-	pQuery->Query(pSelf->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	pSelf->ExecuteSQL(ClientID, "UPDATE Accounts SET IsLoggedIn = 0");
 }
 
 void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)

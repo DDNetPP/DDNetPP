@@ -259,8 +259,16 @@ public:
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
 
-	bool m_ClientLeftServer[MAX_CLIENTS];
+	// sql
+	void ExecuteSQLf(const char *pSQL, ...);
+	void ExecuteSQL(const char *pSQL);
+	void ExecuteSQL(int VerboseID, const char *pSQL);
+	void ExecuteSQLf(int VerboseID, const char *pSQL, ...);
+	enum {
+		NOT_VERBOSE = -1
+	};
 
+	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char * pMsg);
 
 	//shop
@@ -966,25 +974,26 @@ public:
 	CGameContext *m_pGameServer;
 };
 
+// TODO: remove
 class CQueryChangePassword : public CQueryPlayer
 {
 	void OnData();
 public:
 };
 
+// TODO: remove
 class CQuerySetPassword : public CQueryPlayer
 {
 	void OnData();
 public:
 };
 
-class CQueryChillExecute : public CQueryPlayer //ChillerDragon made proudly some random shit where ppl can execute random sql stuff (hope nothing explodes)
+class CQuerySQLstatus : public CQueryPlayer
 {
 	void OnData();
-public:
-	//std::string m_Username;
 };
 
+// TODO: remove
 class CQueryRegister : public CQueryPlayer
 {
 	void OnData();
@@ -994,6 +1003,7 @@ public:
 	std::string m_Date;
 };
 
+// TODO: remove
 class CQueryLogin : public CQueryPlayer
 {
 	void OnData();

@@ -43,16 +43,12 @@ enum
 	NO_RESET
 };
 
-void CQueryChillExecute::OnData()
+void CQuerySQLstatus::OnData()
 {
 	if (Next())
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] This message normally doesnt get printed idk.");
-	}
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: got rows.");
 	else
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] Command executed. (No garuantee that the accounts exist or stuff like that)");
-	}
+		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
 }
 
 void CQueryRegister::OnData()
@@ -11694,4 +11690,61 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 		}
 	}
 	return false;
+}
+
+
+void CGameContext::ExecuteSQLf(const char *pSQL, ...)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	va_list ap;
+	va_start(ap, pSQL);
+	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
+	va_end(ap);
+	ExecuteSQL(NOT_VERBOSE, pQueryBuf);
+}
+
+void CGameContext::ExecuteSQL(const char *pSQL)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	ExecuteSQL(NOT_VERBOSE, pSQL);
+}
+
+void CGameContext::ExecuteSQLf(int VerboseID, const char *pSQL, ...)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	va_list ap;
+	va_start(ap, pSQL);
+	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
+	va_end(ap);
+	ExecuteSQL(VerboseID, pQueryBuf);
+}
+
+void CGameContext::ExecuteSQL(int VerboseID, const char *pSQL)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char *pQueryBuf = sqlite3_mprintf(pSQL);
+	if (VerboseID != -1) // provided id => verbose sql
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pSQL);
+		SendChatTarget(VerboseID, aBuf);
+		CQuerySQLstatus *pQuery;
+		pQuery = new CQuerySQLstatus();
+		pQuery->m_ClientID = VerboseID;
+		pQuery->m_pGameServer = this;
+	}
+	else
+	{
+		CQuery *pQuery = new CQuery();
+		pQuery->Query(m_Database, pQueryBuf);
+	}
+	sqlite3_free(pQueryBuf);
 }
