@@ -376,16 +376,7 @@ void CQueryLogin::OnData()
 			//========================================
 			//works how it should but is possible crashing the server
 
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
-#if defined(CONF_DEBUG)
-			//dbg_msg("SQL", "Login execution: %s", aBuf);
-#endif
-			char *pQueryBuf = sqlite3_mprintf(aBuf);
-			CQuery *pQuery = new CQuery();
-			pQuery->Query(m_pGameServer->m_Database, pQueryBuf);
-			sqlite3_free(pQueryBuf);
-			//delete pQuery; //compiler says undefinded behaviour wtf... so a lonley new without delete
+			m_pGameServer->ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
 		}
 	}
 	else
@@ -2237,15 +2228,7 @@ void CGameContext::SQLPortLogout(int port)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `LastLoginPort` = '%i'", 0, g_Config.m_SvPort);
-#if defined(CONF_DEBUG)
-	dbg_msg("SQL", "Reset all Accounts: %s", aBuf);
-#endif
-	char *pQueryBuf = sqlite3_mprintf(aBuf);
-	CQuery *pQuery = new CQuery();
-	pQuery->Query(m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `LastLoginPort` = '%i'", 0, g_Config.m_SvPort);
 }
 
 bool CGameContext::IsPosition(int playerID, int pos)
