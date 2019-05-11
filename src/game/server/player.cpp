@@ -1335,13 +1335,8 @@ void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" 
 	if (m_AccountID <= 0)
 		return;
 
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
-
 	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, m_AccountID);
-
-	CQuery *pQuery = new CQuery();
-	pQuery->Query(GameServer()->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
 }
 
 void CPlayer::Save(int SetLoggedIn)
@@ -1359,7 +1354,7 @@ void CPlayer::Save(int SetLoggedIn)
 		return;
 	}
 
-	//Proccess Clan Data...
+	// Proccess Clan Data...
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
 
@@ -1371,7 +1366,7 @@ void CPlayer::Save(int SetLoggedIn)
 		str_format(m_aClan1, sizeof(m_aClan1), "%s", aClan);
 	}
 
-	//Proccess IP ADDR...
+	// Proccess IP ADDR...
 	char aIP[32];
 	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
 
@@ -1383,7 +1378,7 @@ void CPlayer::Save(int SetLoggedIn)
 		str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);
 	}
 
-	//Proccess IngameName Data...
+	// Proccess IngameName Data...
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
@@ -1410,7 +1405,7 @@ void CPlayer::Save(int SetLoggedIn)
 			m_iLastLogoutIGN5_usage++;
 		}
 	}
-	else //new name --> add it in history and overwrite the oldest
+	else // new name --> add it in history and overwrite the oldest
 	{
 		//dbg_msg("debug", "'%s' was not equal to...", aName);
 		//dbg_msg("debug", "'%s'", m_LastLogoutIGN1);
@@ -1432,88 +1427,67 @@ void CPlayer::Save(int SetLoggedIn)
 		m_iLastLogoutIGN1_usage = 0;
 	}
 
-	//read showhide bools to char array that is being saved
+	// read showhide bools to char array that is being saved
 	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
-	//not working
-	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = %s, `ProfileSkype` = %s, `ProfileYoutube` = %s, `ProfileEmail` = %s, `ProfileHomepage` = %s, `ProfileTwitter` = %s WHERE `ID` = %i",
-	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_AccountID);
-
-	//working without txt
-	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i, `ProfileStyle` = %i, `ProfileViews` = %i WHERE `ID` = %i",
-	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_AccountID);
-
-	//5 last names (broke :c)
-	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s', `LastLogoutIGN2` = '%s', `LastLogoutIGN3` = '%s', `LastLogoutIGN4` = '%s', `LastLogoutIGN5` = '%s' WHERE `ID` = %i",
-	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN4, m_LastLogoutIGN5, m_AccountID);
-
-	//1 last name (working)
-	//char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i, `LastGift` = %i, `PoliceRank` = %i, `JailTime` = %i, `EscapeTime` = %i, `TaserLevel` = %i, `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i,`ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%s', `ProfileSkype` = '%s', `ProfileYoutube` = '%s', `ProfileEmail` = '%s', `ProfileHomepage` = '%s', `ProfileTwitter` = '%s', `HomingMissiles` = '%i', `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsAccFrozen` = '%i', `LastLogoutIGN1` = '%s' WHERE `ID` = %i",
-	//	m_level, m_xp, m_money, m_shit, m_LastGift, m_PoliceRank, m_JailTime, m_EscapeTime, m_TaserLevel, m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths, m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter, m_homing_missiles_ammo, m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_IsModerator, m_IsSuperModerator, m_IsAccFrozen, Server()->ClientName(GetCID()), m_AccountID);
-
-	//test more last igns (working)
-	char *pQueryBuf = sqlite3_mprintf("UPDATE `Accounts` SET"
-											  "  `Password` = '%q', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
-											  ", `LastGift` = %i" /*is actually m_GiftDelay*/
-											  ", `PoliceRank` = %i"
-											  ", `JailTime` = %i, `EscapeTime` = %i"
-											  ", `TaserLevel` = %i"
-										      ", `NinjaJetpackBought` = %i"
-											  ", `SpookyGhost` = %i"
-											  ", `UseSpawnWeapons` = %i"
-											  ", `SpawnWeaponShotgun` = %i"
-											  ", `SpawnWeaponGrenade` = %i"
-											  ", `SpawnWeaponRifle` = %i"
-											  ", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
-											  ", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
-											  ", `HomingMissiles` = '%i'"
-											  ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
-											  ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
-											  ", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
-											  ", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
-											  ", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
-											  ", `Skin` = '%q'"
-											  ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
-											  ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-											  ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
-											  ", `ShowHideConfig` = '%q'"
-											  ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
-											  ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
-											  ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
-											  " WHERE `ID` = %i",
-												m_aAccountPassword, m_level, m_xp, m_money, m_shit,
-												m_GiftDelay,
-												m_PoliceRank,
-												m_JailTime, m_EscapeTime,
-												m_TaserLevel,
-												m_NinjaJetpackBought,
-												m_SpookyGhost,
-												m_UseSpawnWeapons,
-												m_SpawnWeaponShotgun,
-												m_SpawnWeaponGrenade,
-												m_SpawnWeaponRifle,
-												m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
-												m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
-												m_homing_missiles_ammo,
-												m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_BlockSkill,
-												m_IsModerator, m_IsSuperModerator, m_IsSupporter, m_IsAccFrozen, SetLoggedIn,
-												m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
-												m_aIP_1, m_aIP_2, m_aIP_3,
-												m_aClan1, m_aClan2, m_aClan3,
-												m_TeeInfos.m_SkinName,
-												m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
-												m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
-												m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
-												m_aShowHideConfig,
-												m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
-												m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
-												m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
-												m_AccountID
+	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET"
+		"  `Password` = '%q', `Level` = %i, `Exp` = %i, `Money` = %i, `Shit` = %i"
+		", `LastGift` = %i" /*is actually m_GiftDelay*/
+		", `PoliceRank` = %i"
+		", `JailTime` = %i, `EscapeTime` = %i"
+		", `TaserLevel` = %i"
+		", `NinjaJetpackBought` = %i"
+		", `SpookyGhost` = %i"
+		", `UseSpawnWeapons` = %i"
+		", `SpawnWeaponShotgun` = %i"
+		", `SpawnWeaponGrenade` = %i"
+		", `SpawnWeaponRifle` = %i"
+		", `PvPArenaTickets` = %i, `PvPArenaGames` = %i, `PvPArenaKills` = %i, `PvPArenaDeaths` = %i"
+		", `ProfileStyle` = %i, `ProfileViews` = %i, `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
+		", `HomingMissiles` = '%i'"
+		", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
+		", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
+		", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
+		", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
+		", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
+		", `Skin` = '%q'"
+		", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
+		", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
+		", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
+		", `ShowHideConfig` = '%q'"
+		", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
+		", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
+		", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
+		" WHERE `ID` = %i",
+		m_aAccountPassword, m_level, m_xp, m_money, m_shit,
+		m_GiftDelay,
+		m_PoliceRank,
+		m_JailTime, m_EscapeTime,
+		m_TaserLevel,
+		m_NinjaJetpackBought,
+		m_SpookyGhost,
+		m_UseSpawnWeapons,
+		m_SpawnWeaponShotgun,
+		m_SpawnWeaponGrenade,
+		m_SpawnWeaponRifle,
+		m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
+		m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
+		m_homing_missiles_ammo,
+		m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_BlockSkill,
+		m_IsModerator, m_IsSuperModerator, m_IsSupporter, m_IsAccFrozen, SetLoggedIn,
+		m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
+		m_aIP_1, m_aIP_2, m_aIP_3,
+		m_aClan1, m_aClan2, m_aClan3,
+		m_TeeInfos.m_SkinName,
+		m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
+		m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
+		m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
+		m_aShowHideConfig,
+		m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
+		m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
+		m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
+		m_AccountID
 	);
-
-	CQuery *pQuery = new CQuery();
-	pQuery->Query(GameServer()->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
 }
 
 void CPlayer::SaveFileBased(int SetLoggedIn)

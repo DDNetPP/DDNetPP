@@ -3115,12 +3115,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSupporter='%d' WHERE ID='%d'", value, SQL_ID);
-
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(pSelf->m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-
+		pSelf->ExecuteSQLf("UPDATE Accounts SET IsSupporter='%d' WHERE ID='%d'", value, SQL_ID);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -3156,12 +3151,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(pSelf->m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-
+		pSelf->ExecuteSQLf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -3197,11 +3187,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(pSelf->m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
+		pSelf->ExecuteSQLf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -3237,11 +3223,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
-
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(pSelf->m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
+		pSelf->ExecuteSQLf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
 
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
