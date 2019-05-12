@@ -355,6 +355,7 @@ void CServer::BotJoin(int BotID)
 
 	m_NetServer.BotInit(BotID);
 	m_aClients[BotID].m_State = CClient::STATE_BOT;
+	m_aClients[BotID].m_Authed = AUTHED_NO;
 
 	str_copy(m_aClients[BotID].m_aName, pNames[BotID], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
 	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
