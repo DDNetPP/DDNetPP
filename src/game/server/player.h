@@ -615,16 +615,16 @@ public:
 	bool m_BoughtRoom;
 	int m_aliveplusxp;
 	int m_shit;
-	int m_money;
 	int m_level;
 	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
-	int64 m_xp;
+	sqlite3_uint64 m_xp;
+	sqlite3_uint64 m_neededxp;
+	sqlite3_uint64 m_money;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;
 	int64 m_GiftDelay; //is still in sql as LastGift
 	int64 m_LastFight;
-	int64 m_neededxp;
 
 	char m_aAccountLoginName[32];
 	int m_AccountID;
