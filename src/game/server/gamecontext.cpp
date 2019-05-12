@@ -8805,6 +8805,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//Friends_counter = 0;
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
+	m_BlockWaveGameState = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
