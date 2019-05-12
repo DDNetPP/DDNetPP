@@ -153,9 +153,11 @@ int CCollision::GetCustTile(int x, int y)
 	return m_pTiles[pos].m_Index;
 }
 
+#define MAX_RANDOM_TILE 1024
+
 vec2 CCollision::GetRandomTile(int Tile)
 {
-	vec2 ReturnValue[512] = { vec2(0,0) };
+	vec2 ReturnValue[MAX_RANDOM_TILE] = { vec2(0,0) };
 	int i = 0;
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
@@ -164,6 +166,8 @@ vec2 CCollision::GetRandomTile(int Tile)
 
 			if (GetCustTile(Pos.x, Pos.y) == Tile)
 			{
+				if (i >= MAX_RANDOM_TILE)
+					return vec2(-1, -1);
 				ReturnValue[i] = Pos;
 				i++;
 			}
@@ -196,7 +200,7 @@ vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	vec2 ReturnValue[512] = { vec2(0,0) };
+	vec2 ReturnValue[MAX_RANDOM_TILE] = { vec2(0,0) };
 	int i = 0;
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
@@ -205,6 +209,8 @@ vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 
 			if (GetCustTile(Pos.x, Pos.y) == TILE_SURVIVAL_SPAWN)
 			{
+				if (i >= MAX_RANDOM_TILE)
+					return vec2(-1, -1);
 				ReturnValue[i] = Pos;
 				i++;
 			}
