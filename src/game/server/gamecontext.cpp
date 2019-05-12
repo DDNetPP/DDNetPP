@@ -11682,7 +11682,7 @@ void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 #endif
 	va_list ap;
 	va_start(ap, pSQL);
-	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
+	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
 	CQuery *pQuery = new CQuery();
 	pQuery->Query(m_Database, pQueryBuf);
@@ -11696,7 +11696,7 @@ void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 #endif
 	va_list ap;
 	va_start(ap, pSQL);
-	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
+	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pSQL);
