@@ -182,8 +182,8 @@ void CQueryLogin::OnData()
 
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt(GetID("Exp"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt(GetID("Money"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt64(GetID("Exp"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
 
