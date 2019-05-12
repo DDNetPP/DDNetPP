@@ -90,6 +90,11 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	}
 	else if (m_Type == WEAPON_RIFLE)
 	{
+		if (!pOwnerChar)
+		{
+			pHit->UnFreeze();
+			return true;
+		}
 		//quests (before unfreeze to have information about the tee was being frozzn)
 		char aBuf[256];
 		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_QuestState == 4)
