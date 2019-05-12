@@ -495,7 +495,10 @@ public:
 	int m_TaserLevel;
 	int m_TaserPrice;
 	bool m_TaserOn;
-	int64 m_JailTime;
+	bool m_IsJailed;
+	sqlite3_uint64 m_JailTime;
+	sqlite3_uint64 m_EscapeTime;
+	char m_aEscapeReason[256];
 	bool m_IsJailDoorOpen;
 	//bool m_IsJailHammer;
 	int m_JailHammer;
@@ -690,9 +693,6 @@ public:
 	bool m_IsBackupWaveBloody;
 
 	int m_KillStreak;
-	bool m_IsJailed;
-	int64 m_EscapeTime;
-	char m_aEscapeReason[256];
 	//bool m_InBank; //moved character
 	bool m_ExitBank;
 
