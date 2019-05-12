@@ -1987,7 +1987,7 @@ void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 	dbg_msg("cBug", "worker1");
 	//CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
 	dbg_msg("cBug", "worker2");
-	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->m_pSQL);
+	// CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->m_pSQL);
 	dbg_msg("cBug", "worker3");
 	CPlayer *pPlayer = static_cast<CPlayer*>(pData->m_pTmpPlayer);
 	dbg_msg("cBug", "worker4");

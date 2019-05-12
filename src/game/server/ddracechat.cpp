@@ -10119,7 +10119,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 
 	char aUsername[32];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
-	pSelf->ExecuteSQLf(pResult->m_ClientID, "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
+	pSelf->ExecuteSQLvf(pResult->m_ClientID, "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
 }
 
 void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData)
@@ -10171,7 +10171,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	//	}
 	//}
 	
-	pSelf->ExecuteSQL(ClientID, "UPDATE Accounts SET IsLoggedIn = 0");
+	pSelf->ExecuteSQLvf(ClientID, "UPDATE Accounts SET IsLoggedIn = 0");
 }
 
 void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
