@@ -261,9 +261,7 @@ public:
 
 	// sql
 	void ExecuteSQLf(const char *pSQL, ...);
-	void ExecuteSQL(const char *pSQL);
-	void ExecuteSQL(int VerboseID, const char *pSQL);
-	void ExecuteSQLf(int VerboseID, const char *pSQL, ...);
+	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
 	enum {
 		NOT_VERBOSE = -1
 	};

@@ -11675,7 +11675,6 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 	return false;
 }
 
-
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 {
 #if defined(CONF_DEBUG)
@@ -11685,18 +11684,12 @@ void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
 	va_end(ap);
-	ExecuteSQL(NOT_VERBOSE, pQueryBuf);
+	CQuery *pQuery = new CQuery();
+	pQuery->Query(m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
 }
 
-void CGameContext::ExecuteSQL(const char *pSQL)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	ExecuteSQL(NOT_VERBOSE, pSQL);
-}
-
-void CGameContext::ExecuteSQLf(int VerboseID, const char *pSQL, ...)
+void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -11705,29 +11698,12 @@ void CGameContext::ExecuteSQLf(int VerboseID, const char *pSQL, ...)
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_mprintf(pSQL, ap);
 	va_end(ap);
-	ExecuteSQL(VerboseID, pQueryBuf);
-}
-
-void CGameContext::ExecuteSQL(int VerboseID, const char *pSQL)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	char *pQueryBuf = sqlite3_mprintf(pSQL);
-	if (VerboseID != -1) // provided id => verbose sql
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pSQL);
-		SendChatTarget(VerboseID, aBuf);
-		CQuerySQLstatus *pQuery;
-		pQuery = new CQuerySQLstatus();
-		pQuery->m_ClientID = VerboseID;
-		pQuery->m_pGameServer = this;
-	}
-	else
-	{
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(m_Database, pQueryBuf);
-	}
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pSQL);
+	SendChatTarget(VerboseID, aBuf);
+	CQuerySQLstatus *pQuery;
+	pQuery = new CQuerySQLstatus();
+	pQuery->m_ClientID = VerboseID;
+	pQuery->m_pGameServer = this;
 	sqlite3_free(pQueryBuf);
 }
