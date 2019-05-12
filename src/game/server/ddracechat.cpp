@@ -2942,25 +2942,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	//char buf[128];
-	char time_str[64];
-	time_t rawtime;
-	struct tm * timeinfo;
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	str_format(time_str, sizeof(time_str), "%d-%d-%d_%d:%d:%d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
-	//str_format(buf, sizeof(buf), "current time: %s", time_str);
-	//pSelf->SendChatTarget(ClientID, buf);
-
-	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", aUsername);
-	CQueryRegister *pQuery = new CQueryRegister();
-	pQuery->m_ClientID = ClientID;
-	pQuery->m_pGameServer = pSelf;
-	pQuery->m_Name = aUsername;
-	pQuery->m_Password = aPassword;
-	pQuery->m_Date = time_str;
-	pQuery->Query(pSelf->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	pSelf->SQLaccount(pSelf->SQL_REGISTER, ClientID, aUsername, aPassword);
 }
 
 void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
@@ -3007,12 +2989,7 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 	{
 		str_format(pPlayer->m_aSetPassword, sizeof(pPlayer->m_aSetPassword), "%s", pResult->GetString(2));
 		str_format(pPlayer->m_aSQLNameName, sizeof(pPlayer->m_aSQLNameName), "%s", pResult->GetString(1));
-		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pResult->GetString(1));
-		CQuerySetPassword *pQuery = new CQuerySetPassword();
-		pQuery->m_ClientID = pResult->m_ClientID;
-		pQuery->m_pGameServer = pSelf;
-		pQuery->Query(pSelf->m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
+		pSelf->SQLaccount(pSelf->SQL_SET_PASSWORD, pResult->m_ClientID, pResult->GetString(1));
 	}
 	else
 	{
@@ -3819,13 +3796,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		str_format(pPlayer->m_aWrongLogin, sizeof(pPlayer->m_aWrongLogin), "[%s] '%s' '%s'", pSelf->Server()->ClientName(pResult->m_ClientID), aUsername, aPassword);
 	}
 
-
-	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", aUsername, aPassword);
-	CQueryLogin *pQuery = new CQueryLogin();
-	pQuery->m_ClientID = ClientID;
-	pQuery->m_pGameServer = pSelf;
-	pQuery->Query(pSelf->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	pSelf->SQLaccount(pSelf->SQL_LOGIN, ClientID, aUsername, aPassword);
 }
 
 void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserData)
@@ -3881,14 +3852,8 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 		return;
 	}
 
-
 	str_format(pPlayer->m_aChangePassword, sizeof(pPlayer->m_aChangePassword), "%s", aNewPass); 
-	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pPlayer->m_aAccountLoginName, aOldPass);
-	CQueryChangePassword *pQuery = new CQueryChangePassword();
-	pQuery->m_ClientID = pResult->m_ClientID;
-	pQuery->m_pGameServer = pSelf;
-	pQuery->Query(pSelf->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
+	pSelf->SQLaccount(pSelf->SQL_CHANGE_PASSWORD, pResult->m_ClientID, pPlayer->m_aAccountLoginName, aOldPass);
 }
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)

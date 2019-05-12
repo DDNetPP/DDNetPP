@@ -260,10 +260,14 @@ public:
     bool IsAllowedCharSet(const char *pStr);
 
 	// sql
+	void SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword = "");
 	void ExecuteSQLf(const char *pSQL, ...);
 	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
 	enum {
-		NOT_VERBOSE = -1
+		SQL_REGISTER,
+		SQL_LOGIN,
+		SQL_CHANGE_PASSWORD,
+		SQL_SET_PASSWORD
 	};
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
