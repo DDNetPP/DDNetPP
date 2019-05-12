@@ -2987,6 +2987,11 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(pResult->GetString(0), "set_passwd"))
 	{
+		if ((str_length(pResult->GetString(2)) > 20 || str_length(pResult->GetString(2)) < 3) || (str_length(pResult->GetString(2)) > 20 || str_length(pResult->GetString(2)) < 3))
+		{
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+			return;
+		}
 		str_format(pPlayer->m_aSetPassword, sizeof(pPlayer->m_aSetPassword), "%s", pResult->GetString(2));
 		str_format(pPlayer->m_aSQLNameName, sizeof(pPlayer->m_aSQLNameName), "%s", pResult->GetString(1));
 		pSelf->SQLaccount(pSelf->SQL_SET_PASSWORD, pResult->m_ClientID, pResult->GetString(1));
