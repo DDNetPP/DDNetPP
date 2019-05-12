@@ -623,7 +623,7 @@ public:
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;
-	int64 m_GiftDelay; //is still in sql as LastGift
+	int m_GiftDelay; //is still in sql as LastGift
 	int64 m_LastFight;
 
 	char m_aAccountLoginName[32];

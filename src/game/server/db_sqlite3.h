@@ -24,6 +24,7 @@ public:
 
 	int GetID(const char *pName);
 	int GetInt(int i) { return sqlite3_column_int(m_pStatement, i); }
+	int GetInt64(int i) { return sqlite3_column_int64(m_pStatement, i); }
 	float GetFloat(int i) { return sqlite3_column_double(m_pStatement, i); }
 	const char *GetText(int i) { return (const char *)sqlite3_column_text(m_pStatement, i); }
 	const void *GetBlob(int i) { return sqlite3_column_blob(m_pStatement, i); }
