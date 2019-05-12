@@ -11705,5 +11705,6 @@ void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 	pQuery = new CQuerySQLstatus();
 	pQuery->m_ClientID = VerboseID;
 	pQuery->m_pGameServer = this;
+	pQuery->Query(m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
 }
