@@ -2892,9 +2892,9 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
+			str_format(aBuf, sizeof(aBuf), "Xp[%lld/%lld]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Money[%d]", pSelf->m_apPlayers[StatsID]->m_money);
+			str_format(aBuf, sizeof(aBuf), "Money[%lld]", pSelf->m_apPlayers[StatsID]->m_money);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -2916,9 +2916,9 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
 			str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Xp[%d/%d]", pPlayer->m_xp, pPlayer->m_neededxp);
+			str_format(aBuf, sizeof(aBuf), "Xp[%lld/%lld]", pPlayer->m_xp, pPlayer->m_neededxp);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Money[%d]", pPlayer->m_money);
+			str_format(aBuf, sizeof(aBuf), "Money[%lld]", pPlayer->m_money);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
