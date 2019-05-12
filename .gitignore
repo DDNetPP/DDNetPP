@@ -30,6 +30,7 @@ wrong_login.txt
 *.dat
 *.acc
 *.db
+*.opendb
 *.bat
 .cproject
 .project
