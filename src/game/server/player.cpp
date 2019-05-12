@@ -1434,7 +1434,7 @@ void CPlayer::Save(int SetLoggedIn)
 		"  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
 		", `LastGift` = '%i'" /*is actually m_GiftDelay*/
 		", `PoliceRank` = '%i'"
-		", `JailTime` = '%i', `EscapeTime` = '%i'"
+		", `JailTime` = '%llu', `EscapeTime` = '%llu'"
 		", `TaserLevel` = '%i'"
 		", `NinjaJetpackBought` = '%i'"
 		", `SpookyGhost` = '%i'"
