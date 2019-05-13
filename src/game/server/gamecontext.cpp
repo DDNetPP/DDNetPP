@@ -7015,6 +7015,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
+						pPlayer->GetCharacter()->SetPosition(Collision()->GetRandomTile(TILE_SURVIVAL_DEATHMATCH));
+						return;
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "is authed %d score %d", Server()->IsAuthed(pPlayer->GetCID()), pPlayer->m_Score);
