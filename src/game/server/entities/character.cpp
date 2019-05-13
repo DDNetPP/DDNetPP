@@ -3030,7 +3030,7 @@ void CCharacter::HandleSkippableTiles(int Index)
 				if (TeeAngle < 0)
 					TeeAngle = 4.0f * asin(1.0f) + TeeAngle;
 
-				TeeSpeed = sqrt(pow(TempVel.x, 2) + pow(TempVel.y, 2));
+				TeeSpeed = sqrt((double)(pow(TempVel.x, 2) + pow(TempVel.y, 2)));
 
 				DiffAngle = SpeederAngle - TeeAngle;
 				SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
@@ -7897,7 +7897,7 @@ int CCharacter::CIGetDestDist()
 	a = abs(a);
 	b = abs(b);
 
-	int c = sqrt(a + b);
+	int c = sqrt((double)(a + b));
 
 	return c;
 }

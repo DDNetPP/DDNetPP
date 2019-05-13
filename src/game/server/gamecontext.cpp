@@ -10594,7 +10594,7 @@ int CGameContext::FindNextBomb()
 					a = abs(a);
 					b = abs(b); 
 
-					int c = sqrt(a + b); //pythagoras rocks
+					int c = sqrt((double)(a + b)); //pythagoras rocks
 					Dist += c; //store all distances to all players
 				}
 			}
