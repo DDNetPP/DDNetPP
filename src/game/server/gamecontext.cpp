@@ -6964,25 +6964,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						SendChatTarget(ClientID, "then type '/<minigame> leave'");
 						SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
 					}
-					//CCharacter *pOwner = GetPlayerChar(ClientID);
-					//if (!pOwner)
-					//	return;
-
-					//if (pOwner->m_IsSpecHF)
-					//{
-					//	vec2 LobbySpawn = Collision()->GetRandomTile(TILE_H_JOIN);
-
-					//	if (LobbySpawn != vec2(-1, -1))
-					//	{
-					//		pOwner->SetPosition(LobbySpawn);
-					//		pOwner->m_IsSpecHF = false;
-					//	}
-					//	else // can't find lobby spawn. Just kill the player
-					//		pOwner->Die(ClientID, WEAPON_GAME);
-					//}
-					//else
-					//	SendChatTarget(ClientID, "Bla bla muss spec sein");
 				}
+				/*
 				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "join ", 5) == 0)
 				{
 					CCharacter *pOwner = GetPlayerChar(ClientID);
@@ -7009,6 +6992,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						}
 					}
 				}
+				*/
 				else if (!str_comp(pMsg->m_pMessage + 1, "testcommand3000"))
 				{
 					char aBuf[256];
