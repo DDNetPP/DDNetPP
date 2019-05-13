@@ -26,6 +26,8 @@ jobs:
       - run: |
           ./bam server_release
           ./bam server_debug
+          ./DDNetPP shutdown
+          ./DDNetPP_d shutdown
       - persist-to-workspace:
           root: ./
           paths: ./*
