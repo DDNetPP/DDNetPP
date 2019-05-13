@@ -206,32 +206,35 @@ vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 
 			if (GetCustTile(Pos.x, Pos.y) == TILE_SURVIVAL_SPAWN)
 			{
-				if (i >= MAX_RANDOM_TILE)
-					return vec2(-1, -1);
 				ReturnValue[i] = Pos;
 				i++;
+				if (i >= MAX_RANDOM_TILE)
+					goto error_too_many_tiles;
 			}
 		}
 
 	if (i)
 	{
-		if (num > i) //should never happen ( not enough survival spawns )
-		{
-			char aBuf[182];
-			str_format(aBuf, sizeof(aBuf), "GetSurvivalSpawn() failed because num: %d is bigger than total tiles found on map: %d", num, i);
-			if (!test)
-			{
-				dbg_assert(false, aBuf);
-			}
-			dbg_msg("ERROR", aBuf);
-
-			return vec2(-1, -1);
-		}
-
+		if (num > i) // mapper fault ( not enough survival spawns )
+			goto error_too_few_tiles;
 		return ReturnValue[num];
 	}
 
+	dbg_msg("ERROR", "no survival spawns on map to return index=%d", num);
 	return vec2(-1, -1);
+
+	error_too_many_tiles:;
+	if (num < MAX_RANDOM_TILE)
+		return ReturnValue[num];
+	dbg_msg("ERROR", "too many survival tiles on map more than MAX=%d", MAX_RANDOM_TILE);
+	return ReturnValue[i - 1];
+
+	error_too_few_tiles:;
+	// better stack tees at one tile and return highest found
+	// than aborting the game or teleporting to (-1, -1)
+	// mapper should then realize what is going on
+	dbg_msg("ERROR", "not enough survival spawns on map to return index=%d", num);
+	return ReturnValue[i-1];
 }
 
 /*
