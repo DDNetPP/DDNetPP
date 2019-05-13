@@ -166,20 +166,17 @@ vec2 CCollision::GetRandomTile(int Tile)
 
 			if (GetCustTile(Pos.x, Pos.y) == Tile)
 			{
-				if (i >= MAX_RANDOM_TILE)
-					return vec2(-1, -1);
+				if (i >= MAX_RANDOM_TILE - 1)
+					goto success; // choose one of the MAX_RANDOM_TILES already found
 				ReturnValue[i] = Pos;
 				i++;
 			}
 		}
-
-	if (i)
-	{
-		int Rand = rand() % i;
-		return ReturnValue[Rand];
-	}
-
-	return vec2(-1, -1);
+	if (!i)
+		return vec2(-1, -1);
+	success:;
+	int Rand = rand() % i;
+	return ReturnValue[Rand];
 }
 
 int CCollision::CountSurvivalSpawns()
