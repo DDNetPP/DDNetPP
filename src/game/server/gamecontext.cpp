@@ -10492,87 +10492,6 @@ int CGameContext::FindNextBomb()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	//find Average middle
-	//int AvX = 0;
-	//int AvY = 0;
-	//int CountBombers = CountBombPlayers();
-
-	//AvX /= CountBombers;
-	//AvY /= CountBombers;
-
-
-
-	//debug print the average bomb player pos
-	//char aBuf[1024];
-	//str_format(aBuf, sizeof(aBuf), "Middle x: %d y: %d", AvX/32, AvY/32);
-	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-
-
-
-	////Check who is the furthest from the average middle (old)
-	//int NextBombID = -1;
-	//int MaxDist = 0;
-	//for (int i = 0; i < MAX_CLIENTS; i++)
-	//{
-	//	if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i))
-	//	{
-	//		//check if the player is positive or negative
-	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
-	//		{
-	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
-	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive
-	//				{
-	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
-	//					NextBombID = i;
-	//				}
-	//			}
-	//			else //negative
-	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
-	//				{
-	//					MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-	//					NextBombID = i;
-	//				}
-	//			}
-	//		}
-	//		str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-	//		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-	//	}
-	//}
-
-	//Check who is the furthest from the average middle (old too)
-	//int NextBombID = -1;
-	//int MaxDist = 0;
-	//for (int i = 0; i < MAX_CLIENTS; i++)
-	//{
-	//	if (GetPlayerChar(i) &&GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i))
-	//	{
-	//		//check if the player is positive or negative
-	//		if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y) //not null
-	//		{
-	//			if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > 0) //positive
-	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > MaxDist) //positive
-	//				{
-	//					MaxDist = GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y;
-	//					NextBombID = i;
-	//				}
-	//			}
-	//			else //negative
-	//			{
-	//				if (GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y > -MaxDist) //negative
-	//				{
-	//					MaxDist = -(GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-	//					NextBombID = i;
-	//				}
-	//			}
-	//		}
-	//		str_format(aBuf, sizeof(aBuf), "%s dist: %d", Server()->ClientName(i), GetPlayerChar(i)->m_Pos.x * GetPlayerChar(i)->m_Pos.x + GetPlayerChar(i)->m_Pos.y * GetPlayerChar(i)->m_Pos.y);
-	//		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-	//	}
-	//}
-
 	//Check who has the furthest distance to all other players (no average middle needed)
 	//New version with pythagoras
 	int MaxDist = 0;
@@ -10605,8 +10524,6 @@ int CGameContext::FindNextBomb()
 			}
 		}
 	}
-
-
 	return NextBombID;
 }
 
