@@ -524,6 +524,8 @@ MACRO_CONFIG_INT(SvSurvivalDmDelay, sv_survival_dm_delay, 5, 0, 60, CFGFLAG_SERV
 MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "allow survival command")
 MACRO_CONFIG_INT(SvSurvivalKillProtection, sv_survival_kill_protection, 2, 0, 2, CFGFLAG_SERVER, "0=off 1=allowed in lobby 2=full on")
 
+MACRO_CONFIG_INT(SvVanillaShotgun, sv_vanilla_shotgun, 0, 0, 1, CFGFLAG_SERVER|CFGFLAG_GAME, "Fix tunings for vanilla shotgun (breaks bullet tiles)")
+
 //block tourna
 MACRO_CONFIG_INT(SvAllowBlockTourna, sv_allow_block_tourna, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=allow blocktournaments minigame")
 MACRO_CONFIG_INT(SvBlockTournaPlayers, sv_block_tourna_players, 5, 0, 64, CFGFLAG_SERVER, "players needed to start an block tournament")
