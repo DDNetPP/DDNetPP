@@ -7015,8 +7015,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					if (g_Config.m_SvTestingCommands)
 					{
-						pPlayer->GetCharacter()->SetPosition(Collision()->GetRandomTile(TILE_SURVIVAL_DEATHMATCH));
-						return;
+						/*
+						static int t = 0;
+						t = !t ? 999999 : 0;
+						vec2 post = Collision()->GetSurvivalSpawn(t, false);
+						str_format(aBuf, sizeof(aBuf), "got t=%d pos %f %f",t, post.x / 32, post.y / 32);
+						SendChatTarget(ClientID, aBuf);
+						pPlayer->GetCharacter()->SetPosition(post);
+						*/
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "is authed %d score %d", Server()->IsAuthed(pPlayer->GetCID()), pPlayer->m_Score);
