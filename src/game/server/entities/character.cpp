@@ -6004,6 +6004,26 @@ void CCharacter::BuyItem(int ItemID)
 	return;
 }
 
+void CCharacter::DropLoot()
+{
+	if (m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)
+	{
+		// survival weapon, health and weapon drops
+		DropArmor(rand() % 6);
+		DropHealth(rand() % 6);
+		DropWeapon(WEAPON_GUN);
+		DropWeapon(WEAPON_SHOTGUN);
+		DropWeapon(WEAPON_GRENADE);
+		DropWeapon(WEAPON_RIFLE);
+	}
+	else if (!GameServer()->IsMinigame(m_pPlayer->GetCID()))
+	{
+		// block drop 0-2 weapons
+		DropWeapon(rand() % (NUM_WEAPONS - 1) + 1); // no hammer or ninja
+		DropWeapon(rand() % (NUM_WEAPONS - 1) + 1);
+	}
+}
+
 void CCharacter::DropHealth(int amount)
 {
 #if defined(CONF_DEBUG)
@@ -6060,7 +6080,7 @@ void CCharacter::DropWeapon(int WeaponID)
 	CALL_STACK_ADD();
 #endif
 
-	if ((isFreezed) || (m_FreezeTime)
+	if ((isFreezed) || (m_FreezeTime) || (!m_aWeapons[WeaponID].m_Got)
 		|| (m_pPlayer->IsInstagibMinigame())
 		|| (m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
 		|| (WeaponID == WEAPON_NINJA)
@@ -6097,24 +6117,18 @@ void CCharacter::DropWeapon(int WeaponID)
 			m_pPlayer->m_InfAutoSpreadGun = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
-
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-
 			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true, true);
-
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 		else if (m_Jetpack)
 		{
 			m_Jetpack = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
-
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-
 			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true);
-
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 		else if (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
@@ -6122,24 +6136,18 @@ void CCharacter::DropWeapon(int WeaponID)
 			m_autospreadgun = false;
 			m_pPlayer->m_InfAutoSpreadGun = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
-
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-
 			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, false, true);
-
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 	}
 	else if (m_CountWeapons > 1)
 	{
 		m_aWeapons[WeaponID].m_Got = false;
-
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-
 		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo);
-
 		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
 	}
 
@@ -6900,6 +6908,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
 	BlockTourna_Die(Killer);
+	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 

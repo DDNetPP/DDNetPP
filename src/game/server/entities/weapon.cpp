@@ -43,7 +43,7 @@ void CWeapon::Reset()
 	{
 		if (m_Owner != -1)
 		{
-			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
+			CPlayer* pOwner = GameServer()->m_apPlayers[m_Owner];
 			if (!pOwner)
 				return;
 			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
