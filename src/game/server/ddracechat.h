@@ -125,6 +125,8 @@ CHAT_COMMAND("bloody", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBloody, this, "ac
 CHAT_COMMAND("atom", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAtom, this, "accep/turn-off atom", 0)
 CHAT_COMMAND("trail", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTrail, this, "accep/turn-off trail", 0)
 CHAT_COMMAND("spread_gun", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConAutoSpreadGun, this, "accep/turn-off spread_gun", 0)
+CHAT_COMMAND("drop_health", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDropHealth, this, "cosmetic staff command to drop health", 0)
+CHAT_COMMAND("drop_armor", "?i", CFGFLAG_CHAT | CFGFLAG_SERVER, ConDropArmor, this, "cosmetic staff command to drop armor", 0)
 
 CHAT_COMMAND("give", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConGive, this, "give extras to others or yourself.", 1)
 

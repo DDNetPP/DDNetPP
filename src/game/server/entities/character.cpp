@@ -6004,6 +6004,56 @@ void CCharacter::BuyItem(int ItemID)
 	return;
 }
 
+void CCharacter::DropHealth(int amount)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < amount; i++)
+	{
+		if (GameServer()->m_vDropLimit[POWERUP_HEALTH].size() > g_Config.m_SvMaxDrops)
+		{
+			GameServer()->m_vDropLimit[POWERUP_HEALTH][0]->Reset();
+			GameServer()->m_vDropLimit[POWERUP_HEALTH].erase(GameServer()->m_vDropLimit[POWERUP_HEALTH].begin());
+		}
+		CDropPickup *p = new CDropPickup(
+			&GameServer()->m_World,
+			POWERUP_HEALTH,
+			300, // lifetime
+			m_pPlayer->GetCID(),
+			rand() % 3 - 1, // direction
+			(float)(amount / 5), // force
+			Team()
+		);
+		GameServer()->m_vDropLimit[POWERUP_HEALTH].push_back(p);
+	}
+}
+
+void CCharacter::DropArmor(int amount)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < amount; i++)
+	{
+		if (GameServer()->m_vDropLimit[POWERUP_ARMOR].size() > g_Config.m_SvMaxDrops)
+		{
+			GameServer()->m_vDropLimit[POWERUP_ARMOR][0]->Reset();
+			GameServer()->m_vDropLimit[POWERUP_ARMOR].erase(GameServer()->m_vDropLimit[POWERUP_ARMOR].begin());
+		}
+		CDropPickup *p = new CDropPickup(
+			&GameServer()->m_World,
+			POWERUP_ARMOR,
+			300, // lifetime
+			m_pPlayer->GetCID(),
+			rand() % 3 - 1, // direction
+			(float)(amount / 5), // force
+			Team()
+		);
+		GameServer()->m_vDropLimit[POWERUP_ARMOR].push_back(p);
+	}
+}
+
 void CCharacter::DropWeapon(int WeaponID)
 {
 #if defined(CONF_DEBUG)
@@ -6029,7 +6079,6 @@ void CCharacter::DropWeapon(int WeaponID)
 		m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 		m_pPlayer->m_vWeaponLimit[WeaponID].erase(m_pPlayer->m_vWeaponLimit[WeaponID].begin());
 	}
-
 
 	int m_CountWeapons = 0;
 
@@ -6095,7 +6144,6 @@ void CCharacter::DropWeapon(int WeaponID)
 	}
 
 	SetWeaponThatChrHas();
-
 	return;
 }
 
