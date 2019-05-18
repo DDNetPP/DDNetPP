@@ -4971,6 +4971,64 @@ void CGameContext::ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (!pPlayer->m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
+		return;
+	}
+
+	int amount = 1;
+	if (pResult->NumArguments() > 0)
+		amount = pResult->GetInteger(0);
+	pChr->DropHealth(amount);
+}
+
+void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	if (!pPlayer->m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
+		return;
+	}
+
+	int amount = 1;
+	if (pResult->NumArguments() > 0)
+		amount = pResult->GetInteger(0);
+	pChr->DropArmor(amount);
+}
+
 void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)

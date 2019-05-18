@@ -44,7 +44,8 @@ void CWeapon::Reset()
 		if (m_Owner != -1)
 		{
 			CPlayer* pOwner = GameServer()->GetPlayerChar(m_Owner)->GetPlayer();
-
+			if (!pOwner)
+				return;
 			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
 				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
@@ -93,7 +94,6 @@ int CWeapon::IsCharacterNear()
 	for (int i = 0; i < Num; ++i)
 	{
 		CCharacter * pChr = apEnts[i];
-
 		if (pChr && pChr->IsAlive())
 			return pChr->GetPlayer()->GetCID(); 
 	}
@@ -111,7 +111,8 @@ void CWeapon::Pickup()
 	if (CharID != -1)
 	{
 		CCharacter* pChar = GameServer()->GetPlayerChar(CharID);
-
+		if (!pChar)
+			return;
 		if (pChar->GetPlayer()->m_SpookyGhostActive && m_Type != WEAPON_GUN)
 			return;
 

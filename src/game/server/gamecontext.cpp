@@ -8795,6 +8795,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_Database->CreateDatabase();
 	LoadSinglePlayer();
 	//Friends_counter = 0;
+	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
 	m_BlockWaveGameState = 0;

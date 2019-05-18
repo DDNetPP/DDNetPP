@@ -473,6 +473,9 @@ public:
 	int m_BombColor;
 	bool m_bwff; //black whithe flip flip
 
+	// drop pickups
+	std::vector< std::vector<CDropPickup*> > m_vDropLimit;
+
 	/*****************
 	*     TRADE      *
 	******************/
@@ -721,6 +724,8 @@ private:
 	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
 

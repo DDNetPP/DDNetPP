@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "weapon.h"
+#include "drop_pickup.h"
 
 #define NUM_ATOMS 6
 #define NUM_TRAILS 20
@@ -346,7 +347,9 @@ public:
 	int m_OldLastHookedPlayer;
 	bool m_GotTasered;
 
-	//drop weapons
+	// drop pickups
+	void DropHealth(int amount = 1);
+	void DropArmor(int amount = 1);
 	void DropWeapon(int WeaponID);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
