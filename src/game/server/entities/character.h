@@ -353,6 +353,8 @@ public:
 	void DropWeapon(int WeaponID);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
+	void DropLoot();
+
 	bool SetWeaponThatChrHas();
 
 

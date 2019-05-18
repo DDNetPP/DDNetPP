@@ -1657,7 +1657,7 @@ void CGameContext::OnClientConnected(int ClientID)
 
 	// Check which team the player should be on (copyed all the stuff cuz const int mukked)
 	//if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade zCatch and rifle zCatch
-	if (m_survival_gamestate) //running survival game
+	if (m_insta_survival_gamestate) //running survival game
 	{
 		const int StartTeam = TEAM_SPECTATORS;
 
@@ -8798,8 +8798,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
+	m_survivalgamestate = 0;
 	m_BlockWaveGameState = 0;
-	m_survival_gamestate = 0;
+	m_insta_survival_gamestate = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
