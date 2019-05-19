@@ -10765,7 +10765,7 @@ void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pSQL);
+	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
 	SendChatTarget(VerboseID, aBuf);
 	CQuerySQLstatus *pQuery;
 	pQuery = new CQuerySQLstatus();
