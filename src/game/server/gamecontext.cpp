@@ -105,6 +105,61 @@ void CGameContext::Login(void *pArg, int id)
 }
 */
 
+void CQueryLoginThreaded::OnData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
+	if (!pPlayer)
+		return;
+	if (!Next())
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
+		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+		pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_OFF;
+		return;
+	}
+	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
+	{
+		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
+		pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_OFF;
+		return;
+	}
+	//#####################################################
+	//       W A R N I N G
+	// if you add a new var here
+	// make sure to reset it in the Logout(); function
+	// src/game/server/player.cpp
+	//#####################################################
+
+	/*
+	//basic
+	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
+	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
+	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
+
+	//Accounts
+	m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_IsSupporter = GetInt(GetID("IsSupporter"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+
+	//city
+	m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt64(GetID("Exp"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
+	m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
+	*/
+
+	m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login success");
+
+
+	pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_DONE;
+}
+
 void CQueryLogin::OnData()
 {
 #if defined(CONF_DEBUG)
@@ -132,13 +187,12 @@ void CQueryLogin::OnData()
 				//#####################################################
 				//       W A R N I N G
 				// if you add a new var here
-				// make sure to reset it in the Logout(); function   
+				// make sure to reset it in the Logout(); function
 				// src/game/server/player.cpp
 				//#####################################################
 #if defined(CONF_DEBUG)
 				dbg_msg("cBug","gamecontext.cpp '%s' CID=%d loading data...", m_pGameServer->Server()->ClientName(m_ClientID), m_ClientID);
 #endif
-				
 
 				//basic
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
@@ -10638,6 +10692,15 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->m_pGameServer = this;
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
+	}
+	else if (mode == SQL_LOGIN_THREADED)
+	{
+		CPlayer *pPlayer = m_apPlayers[ClientID];
+		if (!pPlayer)
+			return;
+		if (pPlayer->m_LoginData.m_LoginState != CPlayer::LOGIN_OFF)
+			return;
+		pPlayer->ThreadLoginStart(pUsername, pPassword);
 	}
 	else if (mode == SQL_REGISTER)
 	{
