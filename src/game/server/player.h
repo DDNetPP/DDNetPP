@@ -199,11 +199,27 @@ public:
 	void ThreadLoginDone();
 
 	struct CLoginData {
+		// meta
 		CGameContext *m_pGameContext;
 		int m_LoginState;
 		int m_ClientID;
+		int m_AccountID;
 		char m_aUsername[64];
 		char m_aPassword[64];
+		char m_aAccountRegDate[64];
+
+		// acc
+		bool m_IsModerator;
+		bool m_IsSuperModerator;
+		bool m_IsSupporter;
+		bool m_IsAccFrozen;
+
+		// city
+		sqlite3_uint64 m_level;
+		sqlite3_uint64 m_xp;
+		sqlite3_uint64 m_money;
+		int m_shit;
+		int m_GiftDelay;
 	};
 	CLoginData m_LoginData;
 	enum {
