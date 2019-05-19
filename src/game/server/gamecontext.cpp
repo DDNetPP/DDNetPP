@@ -113,17 +113,20 @@ void CQueryLoginThreaded::OnData()
 	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
 	if (!pPlayer)
 		return;
+	CPlayer::CLoginData *pData = &pPlayer->m_LoginData;
+	if (!pData)
+		return;
 	if (!Next())
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
-		pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_OFF;
+		pData->m_LoginState = CPlayer::LOGIN_OFF;
 		return;
 	}
 	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
-		pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_OFF;
+		pData->m_LoginState = CPlayer::LOGIN_OFF;
 		return;
 	}
 	//#####################################################
@@ -133,31 +136,28 @@ void CQueryLoginThreaded::OnData()
 	// src/game/server/player.cpp
 	//#####################################################
 
-	/*
 	//basic
-	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
-	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
-	str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
+	str_copy(pData->m_aUsername, GetText(GetID("Username")), sizeof(pData->m_aUsername));
+	str_copy(pData->m_aPassword, GetText(GetID("Password")), sizeof(pData->m_aPassword));
+	str_copy(pData->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(pData->m_aAccountRegDate));
+	pData->m_AccountID = GetInt(GetID("ID"));
 
 	//Accounts
-	m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_IsSupporter = GetInt(GetID("IsSupporter"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+	pData->m_IsModerator = GetInt(GetID("IsModerator"));
+	pData->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+	pData->m_IsSupporter = GetInt(GetID("IsSupporter"));
+	pData->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
 
 	//city
-	m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt64(GetID("Exp"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
-	m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
-	*/
+	pData->m_level = GetInt(GetID("Level"));
+	pData->m_xp = GetInt64(GetID("Exp"));
+	pData->m_money = GetInt64(GetID("Money"));
+	pData->m_shit = GetInt(GetID("Shit"));
+	pData->m_GiftDelay = GetInt(GetID("LastGift"));
 
 	m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login success");
 
-
-	pPlayer->m_LoginData.m_LoginState = CPlayer::LOGIN_DONE;
+	pData->m_LoginState = CPlayer::LOGIN_DONE;
 }
 
 void CQueryLogin::OnData()

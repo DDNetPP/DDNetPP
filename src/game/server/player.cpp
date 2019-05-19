@@ -1989,9 +1989,26 @@ void CPlayer::ThreadLoginDone() //get called every tick
 	if (m_LoginData.m_LoginState != LOGIN_DONE)
 		return;
 
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[THREAD] login done");
-	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	//basic
+	str_copy(m_aAccountLoginName, m_LoginData.m_aUsername, sizeof(m_aAccountLoginName));
+	str_copy(m_aAccountPassword, m_LoginData.m_aPassword, sizeof(m_aAccountPassword));
+	str_copy(m_aAccountRegDate, m_LoginData.m_aAccountRegDate, sizeof(m_aAccountRegDate));
+	m_AccountID = m_LoginData.m_AccountID;
+
+	//Accounts
+	m_IsModerator = m_LoginData.m_IsModerator;
+	m_IsSuperModerator = m_LoginData.m_IsSuperModerator;
+	m_IsSupporter = m_LoginData.m_IsSupporter;
+	m_IsAccFrozen = m_LoginData.m_IsAccFrozen;
+
+	//city
+	m_level = m_LoginData.m_level;
+	m_xp = m_LoginData.m_xp;
+	m_money = m_LoginData.m_money;
+	m_shit = m_LoginData.m_shit;
+	m_GiftDelay = m_LoginData.m_GiftDelay;
+
+	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[THREAD] login done");
 	m_LoginData.m_LoginState = LOGIN_OFF;
 }
 
