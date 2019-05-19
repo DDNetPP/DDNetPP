@@ -266,6 +266,7 @@ public:
 	enum {
 		SQL_REGISTER,
 		SQL_LOGIN,
+		SQL_LOGIN_THREADED,
 		SQL_CHANGE_PASSWORD,
 		SQL_SET_PASSWORD
 	};
@@ -314,20 +315,6 @@ public:
 	void LoadCosmetics(int id);
 	void DeleteCosmetics(int id);
 	void CheckDDPPshutdown();
-
-	//login and threads (moved to player.h)
-	/*
-	static void LoginThread(void * pArg);
-	void Login(void *pArg, int id);
-	struct LoginData {
-		LOCK m_Lock;
-		bool m_Done;
-		void *pGameContext;
-		void *pSQL;
-		int id;
-		CPlayer *pTmpPlayer;
-	};
-	*/
 
 	//chidraqul3 multiplayer
 	int C3_GetFreeSlots();
@@ -1012,6 +999,13 @@ public:
 
 // TODO: remove
 class CQueryLogin : public CQueryPlayer
+{
+	void OnData();
+public:
+};
+
+// TODO: remove
+class CQueryLoginThreaded : public CQueryPlayer
 {
 	void OnData();
 public:

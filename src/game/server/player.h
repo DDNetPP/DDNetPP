@@ -194,20 +194,23 @@ public:
 	int m_LastBroadcastImportance;
 
 	//login and threads
-	//void ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL);
-	void ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL);
+	void ThreadLoginStart(const char * pUsername, const char * pPassword);
 	static void ThreadLoginWorker(void * pArg);
 	void ThreadLoginDone();
 
-
 	struct CLoginData {
-		LOCK m_Lock;
-		bool m_Done;
-		//CGameContext *m_pGameContext;
-		void *m_pSQL;
-		CPlayer *m_pTmpPlayer;
+		CGameContext *m_pGameContext;
+		int m_LoginState;
+		int m_ClientID;
+		char m_aUsername[64];
+		char m_aPassword[64];
 	};
-	CLoginData *m_pLoginData;
+	CLoginData m_LoginData;
+	enum {
+		LOGIN_OFF,
+		LOGIN_WAIT,
+		LOGIN_DONE
+	};
 
 	//ascii animation frames
 	char m_aAsciiFrame0[64];

@@ -177,7 +177,6 @@ void CPlayer::Reset()
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
-	m_pLoginData = NULL;
 
 	if (g_Config.m_SvNoboSpawnTime)
 	{
@@ -229,6 +228,7 @@ void CPlayer::Reset()
 	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
 	//m_xpmsg = true;
 
+	m_LoginData.m_LoginState = LOGIN_OFF;
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -1951,30 +1951,17 @@ bool CPlayer::IsInstagibMinigame()
 	return false;
 }
 
-//void CPlayer::ThreadLoginStart(CGameContext * pGameContext, CQueryLogin * pSQL) //starts the thread gets called on login
-void CPlayer::ThreadLoginStart(/*CGameContext * pGameContext, */void * pSQL)
+void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	dbg_msg("cBug", "login0");
-	m_pLoginData = (struct CLoginData*)malloc(sizeof(struct CLoginData));
-	dbg_msg("cBug", "login1");
-	//m_pLoginData->m_pGameContext = pGameContext;
-	dbg_msg("cBug", "login2");
-	m_pLoginData->m_pTmpPlayer = this; //new CPlayer(GameServer(), GetCID(), m_Team);
-	dbg_msg("cBug", "login3");
-	m_pLoginData->m_pSQL = pSQL;
-	dbg_msg("cBug", "login4");
-	m_pLoginData->m_Done = false;
-	dbg_msg("cBug", "login5");
-	m_pLoginData->m_Lock = lock_create();
-	// doesnt compile with visual studio 2015
-	// void *pt = thread_init(*ThreadLoginWorker, m_pLoginData); //setzte die werte von pTmpPlayer
-	dbg_msg("cBug", "login6");
-
-	m_pLoginData->m_Done = true; //the thread result gets catched in ThreadLoginDone function called everytick by checking this var
-	dbg_msg("cBug", "loginDONE");
+	m_LoginData.m_pGameContext = GameServer();
+	m_LoginData.m_LoginState = LOGIN_WAIT;
+	m_LoginData.m_ClientID = GetCID();
+	str_copy(m_LoginData.m_aUsername, pUsername, sizeof(m_LoginData.m_aUsername));
+	str_copy(m_LoginData.m_aPassword, pPassword, sizeof(m_LoginData.m_aPassword));
+	thread_init(*ThreadLoginWorker, &m_LoginData); //setzte die werte von pTmpPlayer
 }
 
 void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
@@ -1982,22 +1969,16 @@ void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	dbg_msg("cBug", "worker0");
 	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
-	dbg_msg("cBug", "worker1");
-	//CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
-	dbg_msg("cBug", "worker2");
-	// CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->m_pSQL);
-	dbg_msg("cBug", "worker3");
-	CPlayer *pPlayer = static_cast<CPlayer*>(pData->m_pTmpPlayer);
-	dbg_msg("cBug", "worker4");
-	dbg_msg("cBug", "worker5");
-	//str_format(aBuf, sizeof(aBuf), "[THREAD] hello world4 your id=%d should be id=%d", pPlayer->GetCID(), /*GetCID() //doesnt work cuz static*/ 404);
-	dbg_msg("cBug", "worker6");
-	//pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	dbg_msg("cBug", "worker7");
-	pPlayer->m_money = 420;
-	dbg_msg("cBug", "workerDONE");
+	CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
+	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
+	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pData->m_aUsername, pData->m_aPassword);
+	CQueryLoginThreaded *pQuery = new CQueryLoginThreaded();
+	pQuery->m_ClientID = pData->m_ClientID;
+	pQuery->m_pGameServer = pGS;
+	pQuery->Query(pGS->m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+	pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
 }
 
 void CPlayer::ThreadLoginDone() //get called every tick
@@ -2005,29 +1986,13 @@ void CPlayer::ThreadLoginDone() //get called every tick
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (!m_pLoginData)
+	if (m_LoginData.m_LoginState != LOGIN_DONE)
 		return;
 
-	dbg_msg("cBug", "done0");
-	lock_wait(m_pLoginData->m_Lock);
-	dbg_msg("cBug", "done1");
-	if (!m_pLoginData->m_Done)
-		return;
-
-	dbg_msg("cBug", "done2");
 	char aBuf[128];
-	dbg_msg("cBug", "done3");
 	str_format(aBuf, sizeof(aBuf), "[THREAD] login done");
-	dbg_msg("cBug", "done4");
 	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	delete m_pLoginData->m_pTmpPlayer;
-	dbg_msg("cBug", "done5");
-	lock_unlock(m_pLoginData->m_Lock);
-	dbg_msg("cBug", "done6");
-
-	lock_destroy(m_pLoginData->m_Lock);
-	free(m_pLoginData);
-	dbg_msg("cBug", "doneDONE");
+	m_LoginData.m_LoginState = LOGIN_OFF;
 }
 
 void CPlayer::chidraqul3_GameTick()
