@@ -382,6 +382,8 @@ MACRO_CONFIG_INT(SvDummyMapOffsetY, sv_dummy_map_offset_y, 0, -99999, 99999, CFG
 MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")
 MACRO_CONFIG_INT(SvSpawntilesMode, sv_spawntiles_mode, 1, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=all 1=blue(insta)def(ddr)red(none)")
 MACRO_CONFIG_INT(SvMaxDrops, sv_max_drops, 600, 5, 800, CFGFLAG_SERVER, "Maximum amount of dropped healt and ammo (used for survival and admin commands)")
+MACRO_CONFIG_INT(SvDestroyTeleOffsetX, sv_destroy_tele_offset_x, 0, -4000, 4000, CFGFLAG_SERVER, "")
+MACRO_CONFIG_INT(SvDestroyTeleOffsetY, sv_destroy_tele_offset_y, 127, -4000, 4000, CFGFLAG_SERVER, "")
 
 MACRO_CONFIG_INT(SvMinAdminPing, sv_min_admin_ping, 0, 0, 1024, CFGFLAG_SERVER, "remove admin ping from messages that are shorter than x (0=allow all admin pings)")
 

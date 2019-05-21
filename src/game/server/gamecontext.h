@@ -273,6 +273,8 @@ public:
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char * pMsg);
+	void DestroyTele(int ClientID);
+	bool m_DestroyTeled;
 
 	//shop
 	int GetShopBot();

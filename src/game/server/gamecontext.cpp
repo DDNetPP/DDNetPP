@@ -8846,6 +8846,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 #endif
 
 	// ChillerDragon konst constructor
+	m_DestroyTeled = false;
 	m_Database->CreateDatabase();
 	LoadSinglePlayer();
 	//Friends_counter = 0;
@@ -10680,6 +10681,29 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 		}
 	}
 	return false;
+}
+
+void CGameContext::DestroyTele(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+	// SendChatTarget(ClientID, "destroy tele");
+	int dir = m_DestroyTeled ? -1 : 1;
+	m_DestroyTeled = !m_DestroyTeled;
+	vec2 p = pChr->GetPosition();
+	p.x = p.x + (g_Config.m_SvDestroyTeleOffsetX * 32 * dir);
+	p.y = p.y + (g_Config.m_SvDestroyTeleOffsetY * 32 * dir);
+	pChr->ChillTelePort(p.x, p.y);
+
+	// TODO: use fake snap
+	((CGameControllerDDRace*)m_pController)->m_Teams.SetStartTime(pPlayer, Server()->Tick());
 }
 
 void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword)
