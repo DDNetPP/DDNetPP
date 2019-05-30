@@ -10,7 +10,7 @@
 #include <game/version.h>
 #include <game/gamecore.h>
 #include <game/server/teams.h>
-#include <sqlite3/sqlite3.h>
+#include <engine/external/sqlite3/sqlite3.h>
 #include "gamemodes/DDRace.h"
 #include "gamecontext.h"
 #include "player.h"

@@ -3,7 +3,7 @@
 #ifndef GAME_SERVER_SQLITE3_H
 #define GAME_SERVER_SQLITE3_H
 #include "base/system.h"
-#include <sqlite3.h>
+#include <engine/external/sqlite3/sqlite3.h>
 #include <vector>
 #include <queue>
 #include <string>
