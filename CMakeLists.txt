@@ -645,10 +645,10 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   entities/pickup.h
   entities/plant.cpp
   entities/plant.h
-  entities/plasmabullet.cpp
-  entities/plasmabullet.h
   entities/plasma.cpp
   entities/plasma.h
+  entities/plasmabullet.cpp
+  entities/plasmabullet.h
   entities/projectile.cpp
   entities/projectile.h
   entities/stable_projectile.cpp
@@ -663,10 +663,10 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   gamecontext.h
   gamecontroller.cpp
   gamecontroller.h
-  gamemodes/ctf.cpp
-  gamemodes/ctf.h
   gamemodes/DDRace.cpp
   gamemodes/DDRace.h
+  gamemodes/ctf.cpp
+  gamemodes/ctf.h
   gamemodes/dm.cpp
   gamemodes/dm.h
   gamemodes/gamemode.h
@@ -680,9 +680,9 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   player.h
   save.cpp
   save.h
+  score.h
   score/file_score.cpp
   score/file_score.h
-  score.h
   score/sql_score.cpp
   score/sql_score.h
   teams.cpp
