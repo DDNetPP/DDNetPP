@@ -402,7 +402,7 @@ set_glob(DEP_MD5_SRC GLOB src/engine/external/md5 md5.c md5.h)
 add_library(md5 EXCLUDE_FROM_ALL OBJECT ${DEP_MD5_SRC})
 
 list(APPEND TARGETS_DEP sqlite3 json md5)
-set(DEP_SQLITE3)
+set(DEP_SQLITE3 $<TARGET_OBJECTS:sqlite3>)
 set(DEP_JSON $<TARGET_OBJECTS:json>)
 set(DEP_MD5)
 if(NOT CRYPTO_FOUND)
@@ -598,6 +598,7 @@ set(LIBS
   # Add pthreads (on non-Windows) at the end, so that other libraries can depend
   # on it.
   ${CMAKE_THREAD_LIBS_INIT}
+  -ldl
 )
 
 # Targets
@@ -759,7 +760,6 @@ set_glob(TOOLS GLOB src/tools
   config_retrieve.cpp
   config_store.cpp
   crapnet.cpp
-  dilate.cpp
   fake_server.cpp
   map_resave.cpp
   map_version.cpp
@@ -771,11 +771,6 @@ foreach(ABS_T ${TOOLS})
     string(REGEX REPLACE "\\.cpp$" "" TOOL "${T}")
     set(TOOL_DEPS ${DEPS})
     set(TOOL_LIBS ${LIBS})
-    if(TOOL MATCHES "^(dilate)$")
-      list(APPEND TOOL_DEPS ${PNGLITE_DEP})
-      list(APPEND TOOL_LIBS ${PNGLITE_LIBRARIES})
-      list(APPEND TOOL_INCLUDE_DIRS ${PNGLITE_INCLUDE_DIRS})
-    endif()
     if(TOOL MATCHES "^config_")
       list(APPEND EXTRA_TOOL_SRC "src/tools/config_common.h")
     endif()
@@ -952,7 +947,6 @@ set(CPACK_TARGETS
   ${TARGET_SERVER}
   config_retrieve
   config_store
-  dilate
 )
 set(CPACK_DIRS data)
 set(CPACK_FILES
