@@ -16,6 +16,7 @@
 #include <engine/shared/mapchecker.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/netban.h>
+#include <engine/shared/uuid_manager.h>
 
 class CSnapIDPool
 {
