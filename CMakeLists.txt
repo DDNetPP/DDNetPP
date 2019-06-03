@@ -497,6 +497,7 @@ set_glob(ENGINE_INTERFACE GLOB src/engine
   storage.h
   textrender.h
   updater.h
+  uuid.h
 )
 set_glob(ENGINE_SHARED GLOB src/engine/shared
   compression.cpp
@@ -517,6 +518,7 @@ set_glob(ENGINE_SHARED GLOB src/engine/shared
   fifoconsole.h
   filecollection.cpp
   filecollection.h
+  global_uuid_manager.cpp
   huffman.cpp
   huffman.h
   jobs.cpp
@@ -543,6 +545,9 @@ set_glob(ENGINE_SHARED GLOB src/engine/shared
   packer.cpp
   packer.h
   protocol.h
+  protocol_ex.cpp
+  protocol_ex.h
+  protocol_ex_msgs.h
   ringbuffer.cpp
   ringbuffer.h
   serverbrowser.cpp
@@ -550,6 +555,8 @@ set_glob(ENGINE_SHARED GLOB src/engine/shared
   snapshot.h
   storage.cpp
   storage.h
+  uuid_manager.cpp
+  uuid_manager.h
   websockets.cpp
   websockets.h
 )
@@ -764,6 +771,7 @@ set_glob(TOOLS GLOB src/tools
   map_resave.cpp
   map_version.cpp
   packetgen.cpp
+  uuid.cpp
 )
 foreach(ABS_T ${TOOLS})
   file(RELATIVE_PATH T "${PROJECT_SOURCE_DIR}/src/tools/" ${ABS_T})

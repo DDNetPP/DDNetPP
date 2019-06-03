@@ -601,11 +601,9 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 
 	if (ChangedScore)
 	{
-		CMsgPacker ScoreMsg(NETMSG_EX);
-		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 		ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
-		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, pResult->m_ClientID, true);
+		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
 
 	return;
@@ -3827,9 +3825,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->LeaveInstagib(pResult->m_ClientID);
 
-		CMsgPacker ScoreMsg(NETMSG_EX);
-		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 		ScoreMsg.AddInt(pPlayer->m_AllowTimeScore);
 		pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, pResult->m_ClientID, true);
 	}
@@ -4216,9 +4212,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 						AllowTimeScore = false;
 
-						CMsgPacker ScoreMsg(NETMSG_EX);
-						static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-						ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+						CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 						ScoreMsg.AddInt(0);
 						pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, mateID, true);
 					}
@@ -4259,9 +4253,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 						AllowTimeScore = false;
 
-						CMsgPacker ScoreMsg(NETMSG_EX);
-						static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-						ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+						CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 						ScoreMsg.AddInt(0);
 						pSelf->Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, mateID, true);
 					}

@@ -22,6 +22,7 @@ src/.vscode/
 /serverlaunch_*
 /tileset_border*
 /twping*
+/uuid*
 /versionsrv*
 
 debug.txt

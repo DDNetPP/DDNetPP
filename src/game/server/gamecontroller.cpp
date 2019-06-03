@@ -1021,6 +1021,13 @@ void IGameController::Snap(int SnappingClient)
 	}
 	else
 		pGameInfoObj->m_ScoreLimit = 0;
+
+	CNetObj_DDNetGameInfo *pGameInfoEx = (CNetObj_DDNetGameInfo *)Server()->SnapNewItem(NETOBJTYPE_DDNETGAMEINFO, 0, sizeof(CNetObj_DDNetGameInfo));
+	if (!pGameInfoEx)
+		return;
+
+	if (pPlayer->m_DisplayScore == 0 && !GameServer()->IsMinigame(SnappingClient)) // time score
+		pGameInfoEx->m_Flags = GAMEINFOFLAG_TIMESCORE;
 }
 
 int IGameController::GetAutoTeam(int NotThisID)
