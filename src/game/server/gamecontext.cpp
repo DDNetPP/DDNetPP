@@ -1631,11 +1631,9 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	{
 		m_apPlayers[ClientID]->m_Score = 0;
 		m_apPlayers[ClientID]->m_AllowTimeScore = 0;
-		CMsgPacker ScoreMsg(NETMSG_EX);
-		static const unsigned char NETMSG_TIME_SCORE[16] = { 0x72, 0x39, 0xa0, 0x81, 0xd5, 0x64, 0x37, 0xa9, 0x86, 0xde, 0x4e, 0x0e, 0xfd, 0xa7, 0xa0, 0xe2 };
-		ScoreMsg.AddRaw(NETMSG_TIME_SCORE, sizeof(NETMSG_TIME_SCORE));
+		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
 		ScoreMsg.AddInt(m_apPlayers[ClientID]->m_AllowTimeScore);
-		Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID, true);
+		Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID, true);
 	}
 
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)

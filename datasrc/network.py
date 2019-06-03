@@ -5,6 +5,8 @@ PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM"]
 GameFlags = ["TEAMS", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
+GameInfoFlags = ["TIMESCORE"]
+
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
 Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA"]
@@ -12,6 +14,7 @@ Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA"]
 RawHeader = '''
 
 #include <engine/message.h>
+#include <engine/shared/protocol_ex.h>
 
 enum
 {
@@ -47,7 +50,8 @@ Enums = [
 Flags = [
 	Flags("PLAYERFLAG", PlayerFlags),
 	Flags("GAMEFLAG", GameFlags),
-	Flags("GAMESTATEFLAG", GameStateFlags)
+	Flags("GAMESTATEFLAG", GameStateFlags),
+	Flags("GAMEINFOFLAG", GameInfoFlags)
 ]
 
 Objects = [
@@ -189,6 +193,14 @@ Objects = [
 		NetIntAny("m_Y"),
 	]),
 
+	NetObjectEx("MyOwnObject", "my-own-object@heinrich5991.de", [
+		NetIntAny("m_Test"),
+	]),
+
+	NetObjectEx("DDNetGameInfo", "gameinfo@netobj.ddnet.tw", [
+		NetIntAny("m_Flags"),
+	]),
+
 	## Events
 
 	NetEvent("Common", [
@@ -215,6 +227,10 @@ Objects = [
 
 	NetEvent("DamageInd:Common", [
 		NetIntAny("m_Angle"),
+	]),
+
+	NetObjectEx("MyOwnEvent", "my-own-event@heinrich5991.de", [
+		NetIntAny("m_Test"),
 	]),
 ]
 
@@ -364,6 +380,10 @@ Messages = [
 
 	NetMessage("Cl_ShowOthers", [
 		NetBool("m_Show"),
-	])
+	]),
 # Can't add any NetMessages here!
+
+	NetMessageEx("Sv_MyOwnMessage", "my-own-message@heinrich5991.de", [
+		NetIntAny("m_Test"),
+	]),
 ]
