@@ -216,8 +216,8 @@ function build(settings)
 			settings.link.flags:Add("-mmacosx-version-min=10.7")
 
 			if config.minmacosxsdk.value == 1 then
-				settings.cc.flags:Add("-isysroot /Developer/SDKs/MacOSX10.7.sdk")
-				settings.link.flags:Add("-isysroot /Developer/SDKs/MacOSX10.7.sdk")
+				settings.cc.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
+				settings.link.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
 			end
 		elseif config.stackprotector.value == 1 then
 			settings.cc.flags:Add("-fstack-protector", "-fstack-protector-all")
