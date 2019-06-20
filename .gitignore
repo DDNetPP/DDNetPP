@@ -41,6 +41,10 @@ FNN/*.fnn
 
 ChillerBot
 DDNetPP
+DDNetPP_x86
+DDNetPP_x86_64
+serverlaunch_x86
+serverlaunch_x86_64
 config_retrieve
 config_store
 crapnet
