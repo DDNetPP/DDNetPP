@@ -1,54 +1,40 @@
 version: 2
-defaults: &defaults
-  working_directory: ~/DDNetPP/DDNetPP
-  docker:
-    - image: buildpack-deps:stretch
-
-defignore: &defignore
-  filters:
-    branches:
-      ignore:
-        - /.*\.tmp/
-
 jobs:
   build:
-    <<: *defaults
-    parallelism: 1
-
+    docker:
+      - image: buildpack-deps:stretch
     steps:
       - checkout
-      - run: |
-          apt-get update
-          apt-get install -y build-essential \
-            cmake \
-            python3 \
-            libcurl4-openssl-dev
-      # Compile
       - run:
-        name: build bam debug
-        command: |
-          ./bam server_debug
-          ./DDNetPP_d shutdown
+          name: Prepare
+          command: |
+            apt-get update -y
+            apt-get install -y cmake \
+            build-essential \
+            libcurl4-openssl-dev \
+            python3
       - run:
-        name: build bam release
-        command: |
-          ./bam server_release
-          ./DDNetPP shutdown
+          name: Build bam
+          command: |
+            git clone https://github.com/matricks/bam.git ~/bam
+            cd ~/bam/
+            git reset --hard f012dd9a3e38295b8a45af5a101d29573381f169
+            ./make_unix.sh
       - run:
-        name: build cmake
-        command: |
-          mkdir -p build
-          cd build
-          cmake ..
-          make
-          ./DDNetPP
-      - persist-to-workspace:
-          root: ./
-          paths: ./*
-
-workflows:
-    version: 2
-    build_and_test:
-        jobs:
-            - build:
-                <<: *defignore
+          name: Build DDNet++ with bam (debug)
+          command: |
+            ~/bam/bam server_debug
+            ./DDNetPP_d shutdown
+      - run:
+          name: Build DDNet++ with bam (release)
+          command: |
+            ~/bam/bam server_release
+            ./DDNetPP shutdown
+      - run:
+          name: Build DDNet++ with cmake
+          command: |
+            mkdir -p build
+            cd build
+            cmake ..
+            make
+            ./DDNetPP shutdown
