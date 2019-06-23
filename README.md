@@ -84,7 +84,7 @@ cmake --build .
 DDNet++
 --------
 
-DDnet++ is the upgrade on top of the teeworlds mod ddracenetwork.
+DDNet++ is the upgrade on top of the teeworlds mod ddracenetwork.
 Mainly maintained by ChillerDragon and fokkonaut.
 We added all the features missing in ddnet. For example:
 - bloody
