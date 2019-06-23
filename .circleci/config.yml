@@ -25,18 +25,18 @@ jobs:
             libcurl4-openssl-dev
       # Compile
       - run:
-        -name: build bam debug
-        -command: |
+        name: build bam debug
+        command: |
           ./bam server_debug
           ./DDNetPP_d shutdown
       - run:
-        -name: build bam release
-        -command: |
+        name: build bam release
+        command: |
           ./bam server_release
           ./DDNetPP shutdown
       - run:
-        -name: build cmake
-        -command: |
+        name: build cmake
+        command: |
           mkdir -p build
           cd build
           cmake ..
