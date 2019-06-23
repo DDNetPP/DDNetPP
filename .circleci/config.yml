@@ -20,14 +20,28 @@ jobs:
       - run: |
           apt-get update
           apt-get install -y build-essential \
+            cmake \
             python3 \
             libcurl4-openssl-dev
       # Compile
-      - run: |
-          ./bam server_release
+      - run:
+        -name: build bam debug
+        -command: |
           ./bam server_debug
-          ./DDNetPP shutdown
           ./DDNetPP_d shutdown
+      - run:
+        -name: build bam release
+        -command: |
+          ./bam server_release
+          ./DDNetPP shutdown
+      - run:
+        -name: build cmake
+        -command: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+          ./DDNetPP
       - persist-to-workspace:
           root: ./
           paths: ./*
