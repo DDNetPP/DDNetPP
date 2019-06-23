@@ -462,6 +462,12 @@ set_glob(BASE GLOB_RECURSE src/base
   confusables.c
   confusables.h
   detect.h
+  hash.c
+  hash.h
+  hash_bundled.c
+  hash_ctxt.h
+  hash_libtomcrypt.c
+  hash_openssl.c
   math.h
   system.c
   system.h
