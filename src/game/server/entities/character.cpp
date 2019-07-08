@@ -107,9 +107,19 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		{
 			SetPosition(ShopSpawn);
 		}
-		else //no shop spawn tile
+		else // no shop spawn tile -> fallback to shop tile
 		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+			vec2 ShopTile = GameServer()->Collision()->GetRandomTile(TILE_SHOP);
+
+			if (ShopTile != vec2(-1, -1))
+			{
+				SetPosition(ShopTile);
+				m_IsFreeShopBot = true;
+			}
+			else // no shop tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+			}
 		}
 	}
 	else if (m_pPlayer->m_JailTime)
@@ -848,6 +858,14 @@ void CCharacter::FireWeapon(bool Bot)
 			/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 			m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
+			// shop bot
+			if (pTarget->m_pPlayer->m_IsDummy)
+			{
+				if (pTarget->m_pPlayer->m_DummyMode == 99)
+				{
+					StartShop();
+				}
+			}
 
 			//Bomb (put it dat early cuz the unfreeze stuff)
 			if (m_IsBombing && pTarget->m_IsBombing)
@@ -3791,22 +3809,7 @@ void CCharacter::HandleTiles(int Index)
 			m_EnteredShop = true;
 			m_InShop = true;
 		}
-		if (m_EnteredShop)
-		{
-			if (m_pPlayer->m_ShopBotAntiSpamTick > Server()->Tick())
-			{
-				m_EnteredShop = false;
-			}
-			else if (m_EnteredShop)
-			{
-				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
-				GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, aBuf, -1, m_pPlayer->GetCID());
-				m_EnteredShop = false;
-			}
-		}
-
-		if (Server()->Tick() % 50 == 0)
+		if (Server()->Tick() % 450 == 0 || m_EnteredShop)
 		{
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
 			{
@@ -3819,6 +3822,16 @@ void CCharacter::HandleTiles(int Index)
 			{
 				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
 			}
+		}
+		if (m_EnteredShop)
+		{
+			if (m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
+				SendShopMessage(aBuf);
+			}
+			m_EnteredShop = false;
 		}
 	}
 
@@ -5481,11 +5494,29 @@ void CCharacter::ShopWindow(int Dir)
 	return;
 }
 
+void CCharacter::StartShop()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_InShop)
+		return;
+	if (m_PurchaseState == 2) // already in buy confirmation state
+		return;
+	if (m_ShopWindowPage != -1)
+		return;
+
+	ShopWindow(0);
+	m_PurchaseState = 1;
+}
+
 void CCharacter::ConfirmPurchase()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if ((m_ShopWindowPage == -1) || (m_ShopWindowPage == 0))
+		return;
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf),
@@ -5509,6 +5540,8 @@ void CCharacter::PurchaseEnd(bool canceled)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_PurchaseState != 2) // nothing to end here
+		return;
 
 	char aResult[256];
 	if (canceled)
@@ -6827,14 +6860,9 @@ void CCharacter::DDPP_Tick()
 		{
 			if (m_TileIndex != TILE_SHOP && m_TileFIndex != TILE_SHOP)
 			{
-				if (m_pPlayer->m_ShopBotAntiSpamTick > Server()->Tick())
+				if (m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 				{
-					//
-				}
-				else
-				{
-					GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, "Bye! Come back if you need something.", -1, m_pPlayer->GetCID());
-
+					SendShopMessage("Bye! Come back if you need something.");
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
 
@@ -8212,8 +8240,24 @@ void CCharacter::Rescue()
 //                     =
 //======================
 
+void CCharacter::SendShopMessage(const char *pMsg)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int recv = m_pPlayer->m_ShopBotMesssagesRecieved / 2; // 2 messages = enter + leave
+	if (g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= recv)
+		return;
+
+	GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, m_pPlayer->GetCID());
+	m_pPlayer->m_ShopBotMesssagesRecieved++;
+}
+
 int CCharacter::GetAimDir()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (m_Input.m_TargetX < 0)
 		return -1;
 	else
@@ -8223,6 +8267,9 @@ int CCharacter::GetAimDir()
 
 void CCharacter::TakeHammerHit(CCharacter* pFrom)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	vec2 Dir;
 	if (length(m_Pos - pFrom->m_Pos) > 0.0f)
 		Dir = normalize(m_Pos - pFrom->m_Pos);
