@@ -3809,22 +3809,7 @@ void CCharacter::HandleTiles(int Index)
 			m_EnteredShop = true;
 			m_InShop = true;
 		}
-		if (m_EnteredShop)
-		{
-			if (m_pPlayer->m_ShopBotAntiSpamTick > Server()->Tick())
-			{
-				m_EnteredShop = false;
-			}
-			else if (m_EnteredShop)
-			{
-				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
-				SendShopMessage(aBuf);
-				m_EnteredShop = false;
-			}
-		}
-
-		if (Server()->Tick() % 50 == 0)
+		if (Server()->Tick() % 450 == 0 || m_EnteredShop)
 		{
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
 			{
@@ -3837,6 +3822,16 @@ void CCharacter::HandleTiles(int Index)
 			{
 				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
 			}
+		}
+		if (m_EnteredShop)
+		{
+			if (m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
+				SendShopMessage(aBuf);
+			}
+			m_EnteredShop = false;
 		}
 	}
 
