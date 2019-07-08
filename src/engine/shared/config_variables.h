@@ -377,6 +377,8 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 **************************************/
 //ChillerDragon
 
+MACRO_CONFIG_INT(SvMaxShopMessages, sv_max_shop_messages, 3, -1, 1000, CFGFLAG_SERVER | CFGFLAG_GAME, "How many times the shopbot greets per player. (-1=infinite 0=off)")
+
 MACRO_CONFIG_INT(SvDummyMapOffsetX, sv_dummy_map_offset_x, 0, -99999, 99999, CFGFLAG_SERVER | CFGFLAG_GAME, "move the dummyhardcoded moves x tiles (only for supported modes)")
 MACRO_CONFIG_INT(SvDummyMapOffsetY, sv_dummy_map_offset_y, 0, -99999, 99999, CFGFLAG_SERVER | CFGFLAG_GAME, "move the dummyhardcoded moves y tiles (only for supported modes)")
 MACRO_CONFIG_INT(SvBasicDummys, sv_autoconnect_bots, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "0=off 1=ChillBlock5")

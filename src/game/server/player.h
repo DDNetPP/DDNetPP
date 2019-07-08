@@ -507,6 +507,7 @@ public:
 	char m_aTradeOffer[256];
 
 	int64 m_ShopBotAntiSpamTick;
+	int m_ShopBotMesssagesRecieved;
 
 	void JailPlayer(int seconds);
 	int m_PoliceRank;
