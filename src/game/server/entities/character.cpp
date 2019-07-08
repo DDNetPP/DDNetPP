@@ -107,9 +107,19 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		{
 			SetPosition(ShopSpawn);
 		}
-		else //no shop spawn tile
+		else // no shop spawn tile -> fallback to shop tile
 		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+			vec2 ShopTile = GameServer()->Collision()->GetRandomTile(TILE_SHOP);
+
+			if (ShopTile != vec2(-1, -1))
+			{
+				SetPosition(ShopTile);
+				m_IsFreeShopBot = true;
+			}
+			else // no shop tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+			}
 		}
 	}
 	else if (m_pPlayer->m_JailTime)

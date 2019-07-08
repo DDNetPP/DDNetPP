@@ -9053,6 +9053,11 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				m_ShopBotTileExists = true;
 				dbg_msg("Game Layer", "Found Shop Spawn Tile");
 			}
+			else if (Index == TILE_SHOP)
+			{
+				m_ShopBotTileExists = true;
+				dbg_msg("Game Layer", "Found Shop Tile");
+			}
 
 			if(Index >= ENTITY_OFFSET)
 			{
