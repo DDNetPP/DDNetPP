@@ -858,6 +858,14 @@ void CCharacter::FireWeapon(bool Bot)
 			/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 			m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
+			// shop bot
+			if (pTarget->m_pPlayer->m_IsDummy)
+			{
+				if (pTarget->m_pPlayer->m_DummyMode == 99)
+				{
+					StartShop();
+				}
+			}
 
 			//Bomb (put it dat early cuz the unfreeze stuff)
 			if (m_IsBombing && pTarget->m_IsBombing)
@@ -5491,11 +5499,29 @@ void CCharacter::ShopWindow(int Dir)
 	return;
 }
 
+void CCharacter::StartShop()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_InShop)
+		return;
+	if (m_PurchaseState == 2) // already in buy confirmation state
+		return;
+	if (m_ShopWindowPage != -1)
+		return;
+
+	ShopWindow(0);
+	m_PurchaseState = 1;
+}
+
 void CCharacter::ConfirmPurchase()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if ((m_ShopWindowPage == -1) || (m_ShopWindowPage == 0))
+		return;
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf),
@@ -5519,6 +5545,8 @@ void CCharacter::PurchaseEnd(bool canceled)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (m_PurchaseState != 2) // nothing to end here
+		return;
 
 	char aResult[256];
 	if (canceled)

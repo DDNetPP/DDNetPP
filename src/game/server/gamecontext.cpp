@@ -7639,18 +7639,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if (pChr)
 				{
-					if (pChr->m_InShop && pChr->m_PurchaseState == 2)
+					if (pChr->m_InShop)
 					{
-						pChr->PurchaseEnd(false);
-					}
-					else if (pChr->m_InShop && pChr->m_PurchaseState == 1)
-					{
-						if ((pChr->m_ShopWindowPage != -1) && (pChr->m_ShopWindowPage != 0))
+						if (pChr->m_PurchaseState == 1)
 						{
 							pChr->ConfirmPurchase();
 						}
+						else if (pChr->m_PurchaseState == 2)
+						{
+							pChr->PurchaseEnd(false);
+						}
 					}
-					else if (!pChr->m_InShop)
+					else
 					{
 						if (pChr)
 						{
@@ -7679,19 +7679,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if (pChr)
 				{
-					if (pChr->m_InShop && pChr->m_PurchaseState == 2)
+					if (pChr->m_InShop)
 					{
-						pChr->PurchaseEnd(true);
-					}
-					else if (pChr->m_InShop)
-					{
-						if (pChr->m_ShopWindowPage == -1)
+						if (pChr->m_PurchaseState == 2)
 						{
-							pChr->ShopWindow(0);
-							pChr->m_PurchaseState = 1;
+							pChr->PurchaseEnd(true);
+						}
+						else if (pChr->m_ShopWindowPage == -1)
+						{
+							pChr->StartShop();
 						}
 					}
-					else if (!pChr->m_InShop)
+					else
 					{
 						if (g_Config.m_SvAllowDroppingWeapons)
 						{

@@ -402,6 +402,7 @@ public:
 
 	void BuyItem(int ItemID);
 	void ConfirmPurchase();
+	void StartShop();
 
 	int m_PurchaseState;
 
