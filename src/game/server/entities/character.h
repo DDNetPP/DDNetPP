@@ -237,6 +237,7 @@ private:
 	int m_MoveTick;
 	int m_LastMoveDirection;
 	int m_StopMoveTick;
+	bool m_IsFreeShopBot;
 	void ClearFakeMotd();
 	void SendShopMessage(const char *pMsg);
 
