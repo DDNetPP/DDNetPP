@@ -10315,6 +10315,14 @@ void CCharacter::DummyTick()
 				m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 				m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
 			}
+
+			if (m_IsFreeShopBot)
+			{
+				if (Server()->Tick() % 500 == 0 && !m_InShop)
+				{
+					Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				}
+			}
 		}
 		else if (m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 		{
