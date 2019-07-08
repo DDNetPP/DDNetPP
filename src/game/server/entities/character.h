@@ -238,6 +238,7 @@ private:
 	int m_LastMoveDirection;
 	int m_StopMoveTick;
 	void ClearFakeMotd();
+	void SendShopMessage(const char *pMsg);
 
 public:
 	CGameTeams* Teams();
