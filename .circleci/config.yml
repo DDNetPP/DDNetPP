@@ -5,6 +5,7 @@ jobs:
       - image: buildpack-deps:stretch
     steps:
       - checkout
+      - run: git submodule update --init
       - run:
           name: Prepare
           command: |
