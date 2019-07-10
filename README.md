@@ -27,7 +27,7 @@ cd bam
 ```
 build DDNet++:
 ```
-git clone https://github.com/DDNetPP/DDNetPP.git
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
 /tmp/bam server_release
 ```
@@ -44,7 +44,7 @@ make_win32_mingw.bat
 ```
 build DDNet++:
 ```
-git clone https://github.com/DDNetPP/DDNetPP.git
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
 bam.exe server_release
 ```
@@ -52,7 +52,7 @@ bam.exe server_release
 ### linux
 ```
 sudo apt install cmake
-git clone https://github.com/DDNetPP/DDNetPP.git
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
 mkdir build && cd build
 cmake ..
@@ -64,7 +64,7 @@ make
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 # install cmake
 brew install cmake
-git clone https://github.com/DDNetPP/DDNetPP.git
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
 mkdir build && cd build
 cmake ..
@@ -73,7 +73,7 @@ make
 ### windows
 Download and install cmake from https://cmake.org/download/
 ```
-git clone https://github.com/DDNetPP/DDNetPP.git
+git clone --recursive https://github.com/DDNetPP/DDNetPP.git
 cd DDNetPP
 mkdir build
 cd build
