@@ -1,0 +1,3 @@
+[submodule "maps"]
+	path = maps
+	url = https://github.com/DDNetPP/maps.git
