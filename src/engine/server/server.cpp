@@ -2645,7 +2645,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// run the server
 	dbg_msg("server", "starting...");
-	pServer->Run();
+	int ret = pServer->Run();
 
 	// free
 #if defined(CONF_FAMILY_UNIX)
@@ -2659,7 +2659,7 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pEngineMasterServer;
 	delete pStorage;
 	delete pConfig;
-	return 0;
+	return ret;
 }
 
 // DDRace
