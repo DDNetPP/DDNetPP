@@ -2960,7 +2960,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	}
 
 
-	char aBuf[128];
+	char aBuf[512];
 	char aPara0[32];
 	char aPara1[32];
 	str_copy(aPara0, pResult->GetString(0), sizeof(aPara0));
@@ -3053,9 +3053,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "status"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] status: %s", pPlayer->m_ProfileStatus);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your status '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
@@ -3067,9 +3072,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "skype"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] skype: %s", pPlayer->m_ProfileSkype);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your skype '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
@@ -3081,9 +3091,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "youtube"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] youtube: %s", pPlayer->m_ProfileYoutube);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your youtube '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
@@ -3095,9 +3110,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "email") || !str_comp_nocase(aPara0, "e-mail"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] email: %s", pPlayer->m_ProfileEmail);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your email '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
@@ -3109,9 +3129,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "homepage") || !str_comp_nocase(aPara0, "website"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] homepage: %s", pPlayer->m_ProfileHomepage);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your homepage '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
@@ -3123,9 +3148,14 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
         }
         else if (!str_comp_nocase(aPara0, "twitter"))
         {
+			if (pResult->NumArguments() < 2)
+			{
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] twitter: %s", pPlayer->m_ProfileTwitter);
+                pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+                return;
+			}
             if (pSelf->IsAllowedCharSet(aPara1) == false)
             {
-                char aBuf[512];
                 str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your twitter '%s'", pSelf->m_aAllowedCharSet);
                 pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
                 return;
