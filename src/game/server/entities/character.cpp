@@ -6065,7 +6065,7 @@ void CCharacter::DropHealth(int amount)
 	if (amount > 64) { amount = 64; }
 	for (int i = 0; i < amount; i++)
 	{
-		if (GameServer()->m_vDropLimit[POWERUP_HEALTH].size() > g_Config.m_SvMaxDrops)
+		while (GameServer()->m_vDropLimit[POWERUP_HEALTH].size() > g_Config.m_SvMaxDrops)
 		{
 			GameServer()->m_vDropLimit[POWERUP_HEALTH][0]->Reset();
 			GameServer()->m_vDropLimit[POWERUP_HEALTH].erase(GameServer()->m_vDropLimit[POWERUP_HEALTH].begin());
@@ -6091,7 +6091,7 @@ void CCharacter::DropArmor(int amount)
 	if (amount > 64) { amount = 64; }
 	for (int i = 0; i < amount; i++)
 	{
-		if (GameServer()->m_vDropLimit[POWERUP_ARMOR].size() > g_Config.m_SvMaxDrops)
+		while (GameServer()->m_vDropLimit[POWERUP_ARMOR].size() > g_Config.m_SvMaxDrops)
 		{
 			GameServer()->m_vDropLimit[POWERUP_ARMOR][0]->Reset();
 			GameServer()->m_vDropLimit[POWERUP_ARMOR].erase(GameServer()->m_vDropLimit[POWERUP_ARMOR].begin());
