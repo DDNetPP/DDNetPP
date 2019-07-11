@@ -567,7 +567,8 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "'%s' -> '%s'", pName, aTrimmedName);
-	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
+	if (g_Config.m_SvShowRenameMessages)
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 	pName = aTrimmedName;
 
 	// make sure that two clients doesn't have the same name
