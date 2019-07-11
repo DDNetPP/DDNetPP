@@ -413,6 +413,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ add new shop (map/motd/dummy)");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add '/score' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/drop_armor' and '/drop_health' commands");
 	}
 	else if (page == 2)
 	{
@@ -5016,6 +5018,21 @@ void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
 		return;
 	}
+	if (pPlayer->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command during block tournaments.");
+		return;
+	}
+	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command during survival games. (only in lobby)");
+		return;
+	}
+	else if (pSelf->m_survivalgamestate > 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command while a survival game is running.");
+		return;
+	}
 
 	int amount = 1;
 	if (pResult->NumArguments() > 0)
@@ -5043,6 +5060,21 @@ void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer->m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
+		return;
+	}
+	if (pPlayer->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command during block tournaments.");
+		return;
+	}
+	else if (pPlayer->m_IsSurvivaling && pSelf->m_survivalgamestate != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command during survival games. (only in lobby)");
+		return;
+	}
+	else if (pSelf->m_survivalgamestate > 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] you can't use that command while a survival game is running.");
 		return;
 	}
 
