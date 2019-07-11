@@ -6062,6 +6062,7 @@ void CCharacter::DropHealth(int amount)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (amount > 64) { amount = 64; }
 	for (int i = 0; i < amount; i++)
 	{
 		if (GameServer()->m_vDropLimit[POWERUP_HEALTH].size() > g_Config.m_SvMaxDrops)
@@ -6087,6 +6088,7 @@ void CCharacter::DropArmor(int amount)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (amount > 64) { amount = 64; }
 	for (int i = 0; i < amount; i++)
 	{
 		if (GameServer()->m_vDropLimit[POWERUP_ARMOR].size() > g_Config.m_SvMaxDrops)
