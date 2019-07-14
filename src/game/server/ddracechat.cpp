@@ -8428,6 +8428,10 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
 		}
+		if (!pPlayer->m_ShowInstaScoreBroadcast)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta_score");
+		}
 		return;
 	}
 
@@ -8515,6 +8519,20 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already shown.");
 		}
 	}
+	else if (!str_comp_nocase(pResult->GetString(0), "insta_score"))
+	{
+		if (!pPlayer->m_ShowInstaScoreBroadcast)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta score is now shown.");
+			pPlayer->m_ShowInstaScoreBroadcast = true;
+			if (pPlayer->GetCharacter())
+				pPlayer->GetCharacter()->m_UpdateInstaScoreBoard = true;
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta score is already shown.");
+		}
+	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' is not a valid info.", pResult->GetString(0));
@@ -8570,6 +8588,10 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		if (!pPlayer->m_HideQuestWarning)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest_warning");
+		}
+		if (pPlayer->m_ShowInstaScoreBroadcast)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta_score");
 		}
 		return;
 	}
@@ -8657,6 +8679,19 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "quest warning is already hidden.");
+		}
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "insta_score"))
+	{
+		if (pPlayer->m_ShowInstaScoreBroadcast)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta score is now hidden.");
+			pPlayer->m_ShowInstaScoreBroadcast = false;
+			pSelf->SendBroadcast("", pPlayer->GetCID(), 0);
+		}
+		else
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "insta score is already hidden.");
 		}
 	}
 	else

@@ -6829,7 +6829,8 @@ void CCharacter::DDPP_Tick()
 
 	if (Server()->Tick() % 200 == 0) //ddpp public slow tick
 	{
-		m_UpdateInstaScoreBoard = true;
+		if (m_pPlayer->m_ShowInstaScoreBroadcast)
+			m_UpdateInstaScoreBoard = true;
 	}
 
 	if (m_UpdateInstaScoreBoard) //gets printed on update or every 200 % whatever modulo ticks
