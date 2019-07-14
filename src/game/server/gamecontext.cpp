@@ -10460,7 +10460,8 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 		SendChatTarget(VictimID, aBuf);
 	}
 
-	str_format(aBuf, sizeof(aBuf), "[%s → %s] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
+	str_format(aBuf, sizeof(aBuf), "['%s' -> '%s'] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
+	dbg_msg("whisper", "%s", aBuf);
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && i != VictimID && i != ClientID)
