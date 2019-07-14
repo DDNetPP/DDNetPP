@@ -9020,6 +9020,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	if(m_Layers.SwitchLayer())
 		pSwitch = (CSwitchTile *)Kernel()->RequestInterface<IMap>()->GetData(m_Layers.SwitchLayer()->m_Switch);
 
+	int ShopTiles = 0;
+
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
@@ -9059,7 +9061,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			else if (Index == TILE_SHOP)
 			{
 				m_ShopBotTileExists = true;
-				dbg_msg("Game Layer", "Found Shop Tile");
+				ShopTiles++;
 			}
 
 			if(Index >= ENTITY_OFFSET)
@@ -9264,6 +9266,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			}
 		}
 	}
+	dbg_msg("Game Layer", "Found Shop Tiles (%d)", ShopTiles);
+
 
 	//game.world.insert_entity(game.Controller);
 
