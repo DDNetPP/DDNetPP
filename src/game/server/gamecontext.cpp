@@ -2919,10 +2919,14 @@ void CGameContext::DoInstaScore(int score, int id)
 	CALL_STACK_ADD();
 	dbg_msg("insta", "'%s' scored %d in instagib [score: %d]", Server()->ClientName(id), score, m_apPlayers[id]->m_InstaScore);
 #endif
+	CPlayer *pPlayer = m_apPlayers[id];
+	if (!pPlayer)
+		return;
 
-	m_apPlayers[id]->m_InstaScore += score;
-	if (m_apPlayers[id]->GetCharacter())
-		m_apPlayers[id]->GetCharacter()->m_UpdateInstaScoreBoard = true;
+	pPlayer->m_InstaScore += score;
+	if (pPlayer->GetCharacter())
+		if (pPlayer->m_ShowInstaScoreBroadcast)
+			pPlayer->GetCharacter()->m_UpdateInstaScoreBoard = true;
 	CheckInstaWin(id);
 }
 
