@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# script that takes multiple race record files (.dtb) and merges them together
+# written by heinrich5991
+
 import sys
 
 from collections import namedtuple
