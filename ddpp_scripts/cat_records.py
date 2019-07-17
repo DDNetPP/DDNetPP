@@ -64,7 +64,7 @@ def main():
             else:
                 merged_records[record.name] = record
 
-    for entry in merged_records.values():
+    for entry in sorted(merged_records.values(), key=lambda e: e.time):
         print(entry.unparse(), end="")
 
     if args.stats:
