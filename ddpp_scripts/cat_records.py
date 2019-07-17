@@ -61,7 +61,8 @@ def main():
                     merged_records[record.name] = record
                 else:
                     num_rev_overridden += 1
-            merged_records[record.name] = record
+            else:
+                merged_records[record.name] = record
 
     for entry in merged_records.values():
         print(entry.unparse(), end="")
@@ -78,3 +79,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
