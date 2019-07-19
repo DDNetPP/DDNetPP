@@ -6240,12 +6240,6 @@ void CCharacter::DDPP_Tick()
 #endif
 	char aBuf[256];
 
-	//debugger
-	//if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-	//{
-	//	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "blockable");
-	//}
-
 	PvPArenaTick();
 
 	if (m_RandomCosmetics)
