@@ -10682,7 +10682,7 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 			continue;
 		if (!m_apPlayers[i]->m_Authed)
 			continue;
-		if (str_find(pMsg, Server()->ClientName(i)))
+		if (str_find_nocase(pMsg, Server()->ClientName(i)))
 		{
 			int len_name = str_length(Server()->ClientName(i));
 			int len_msg = str_length(pMsg);
