@@ -1237,7 +1237,7 @@ void CPlayer::Logout(int SetLoggedIn)
 		return;
 
 	Save(SetLoggedIn);
-	dbg_msg("account", "Logged out: %d", m_AccountID);
+	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", m_AccountID, SetLoggedIn);
 
 	//reset values to default to prevent cheating
 	m_AccountID = 0;
@@ -1343,7 +1343,7 @@ void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	//dbg_msg("cBug", "saving acc '%s' CID=%d", Server()->ClientName(GetCID()), GetCID());
+	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), m_AccountID, SetLoggedIn);
 #endif
 	if (m_AccountID <= 0)
 		return;
