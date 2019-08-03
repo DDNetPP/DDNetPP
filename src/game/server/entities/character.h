@@ -384,6 +384,7 @@ public:
 
 	//room by supermoderator invited
 	bool m_HasRoomKeyBySuperModerator;
+	bool DDPP_Respawn();
 
 
 	//harvest plant

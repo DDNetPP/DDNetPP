@@ -6882,6 +6882,24 @@ void CCharacter::DDPP_Tick()
 
 }
 
+bool CCharacter::DDPP_Respawn()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+
+	vec2 SpawnPos;
+
+	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
+		return false;
+
+	if (Server()->IsRecording(m_pPlayer->GetCID()))
+		Server()->StopRecord(m_pPlayer->GetCID());
+
+	SetPosition(SpawnPos);
+	return true;
+}
+
 int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 {
 #if defined(CONF_DEBUG)

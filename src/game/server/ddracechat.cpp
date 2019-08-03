@@ -6980,6 +6980,45 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	}
 }
 
+void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+		return;
+
+	char aBuf[128];
+	if (pPlayer->m_AccountID <= 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you have to be logged in to use this command '/accountinfo'.");
+		return;
+	}
+	if (pPlayer->m_money < 1000000)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you need at least 1 million money to use this command.");
+		return;
+	}
+	if (pSelf->IsMinigame(pResult->m_ClientID))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you can't use this command in minigames or jail.");
+		return;
+	}
+
+	if (pChr->DDPP_Respawn())
+		pPlayer->MoneyTransaction(-500, "-500 (teleport to spawn)");
+	else
+		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] teleport to spawn failed. Try again later.");
+}
+
 void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
