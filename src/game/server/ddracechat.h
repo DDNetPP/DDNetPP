@@ -155,6 +155,7 @@ CHAT_COMMAND("poop", "?ir", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoop, this, "throw
 
 
 CHAT_COMMAND("room", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRoom, this, "supermoderator command '/room help' for help", 0)
+CHAT_COMMAND("spawn", "?sr", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSpawn, this, "teleport to spawn without dieing (costs money)", 0)
 
 CHAT_COMMAND("quest", "?si", CFGFLAG_CHAT | CFGFLAG_SERVER, ConQuest, this, "play little quest and earn rewards.", 0)
 CHAT_COMMAND("bounty", "?sii", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBounty, this, "blocker hitman command", 0)
