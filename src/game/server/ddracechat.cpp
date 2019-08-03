@@ -5158,10 +5158,12 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Account Info ~~~");
-	pSelf->SendChatTarget(pResult->m_ClientID, "How to register?");
+	pSelf->SendChatTarget(pResult->m_ClientID, "*** register & login ***");
 	pSelf->SendChatTarget(pResult->m_ClientID, "/register <name> <password> <password>");
-	pSelf->SendChatTarget(pResult->m_ClientID, "How to login?");
 	pSelf->SendChatTarget(pResult->m_ClientID, "/login <name> <password>");
+	pSelf->SendChatTarget(pResult->m_ClientID, "*** other commands ***");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/acc_logout");
+	pSelf->SendChatTarget(pResult->m_ClientID, "/changepassword");
 	pSelf->SendChatTarget(pResult->m_ClientID, "-------------------");
 	pSelf->SendChatTarget(pResult->m_ClientID, "Accounts are used to save your stats on this server.");
 	//pSelf->SendChatTarget(pResult->m_ClientID, " ");
