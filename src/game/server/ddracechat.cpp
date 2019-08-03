@@ -151,24 +151,6 @@ void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 }
 
-void CGameContext::ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-
-	pPlayer->m_xpmsg ^= true;
-	pSelf->SendBroadcast(" ", pResult->m_ClientID);
-}
-
 void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -3396,27 +3378,6 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 	pPlayer->Logout();
 	pSelf->SendChatTarget(ClientID, "[ACCOUNT] Logged out.");
-}
-
-void CGameContext::ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if (!pPlayer)
-		return;
-
-	CCharacter* pChr = pPlayer->GetCharacter();
-	if (!pChr)
-		return;
-
-	pPlayer->m_hidejailmsg ^= true;
-	pSelf->SendBroadcast(" ", pResult->m_ClientID);
 }
 
 void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)

@@ -749,7 +749,6 @@ private:
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
-	static void ConTogglejailmsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpec(IConsole::IResult *pResult, void *pUserData);
 	static void ConForcePause(IConsole::IResult *pResult, void *pUserData);
@@ -834,7 +833,6 @@ private:
 
 	static void ConMinigames(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConToggleXpMsg(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
 
 	//display score
