@@ -751,12 +751,14 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	GameServer()->m_apPlayers[ClientID]->Respawn(); // queue the spawn as kill tiles don't
+
 	m_Core.SetSolo(ClientID, false);
 
 	int Team = m_Core.Team(ClientID);
 	bool Locked = TeamLocked(Team) && Weapon != WEAPON_GAME;
 
-	if (!Locked)
+	if(!Locked)
 	{
 		SetForceCharacterTeam(ClientID, 0);
 		CheckTeamFinished(Team);
@@ -765,12 +767,26 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 	{
 		SetForceCharacterTeam(ClientID, Team);
 
-		if (GetTeamState(Team) != TEAMSTATE_OPEN)
-			for (int i = 0; i < MAX_CLIENTS; i++)
-				if(m_Core.Team(i) == Team && i != ClientID && GameServer()->m_apPlayers[i])
-					GameServer()->m_apPlayers[i]->KillCharacter(-2);
+		if(GetTeamState(Team) != TEAMSTATE_OPEN)
+		{
+			ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
 
-		ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "Everyone in your locked team was killed because '%s' %s.", Server()->ClientName(ClientID), Weapon == WEAPON_SELF ? "killed" : "died");
+
+			for(int i = 0; i < MAX_CLIENTS; i++)
+				if(m_Core.Team(i) == Team && GameServer()->m_apPlayers[i])
+				{
+					if(i != ClientID)
+					{
+						GameServer()->m_apPlayers[i]->KillCharacter(WEAPON_SELF);
+						if (Weapon == WEAPON_SELF)
+							GameServer()->m_apPlayers[i]->Respawn();
+					}
+					if(m_MembersCount[Team] > 1)
+						GameServer()->SendChatTarget(i, aBuf);
+				}
+		}
 	}
 }
 

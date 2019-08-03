@@ -101,7 +101,3 @@ We added all the features missing in ddnet. For example:
 - drop weapons and flags
 - and much more
 
-Known Bugs
-----------
-
-Teams (/team num) crash the server if teammembers kill after passing the startline.
