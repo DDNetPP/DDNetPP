@@ -392,8 +392,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 	//RELEASE NOTES:
 	//7.9.2018 RELEASED v.0.0.6
 	//7.10.2017 RELEASED v.0.0.3
-	//9.4.2017 RELEASED v.0.0.1
 	//25.5.2017 RELEASED v.0.0.2
+	//9.4.2017 RELEASED v.0.0.1
 
 	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
 	if (!page) { page = 1; }
@@ -415,6 +415,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ add '/score' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add '/drop_armor' and '/drop_health' commands");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/spawn' command");
 	}
 	else if (page == 2)
 	{
