@@ -7018,7 +7018,7 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 	}
 
 	if (pChr->DDPP_Respawn())
-		pPlayer->MoneyTransaction(-500, "-500 (teleport to spawn)");
+		pPlayer->MoneyTransaction(-50000, "-50 000 (teleport to spawn)");
 	else
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] teleport to spawn failed. Try again later.");
 }
