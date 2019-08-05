@@ -6961,7 +6961,6 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
-	char aBuf[128];
 	if (pPlayer->m_AccountID <= 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you have to be logged in to use this command '/accountinfo'.");

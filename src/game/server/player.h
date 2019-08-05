@@ -215,9 +215,9 @@ public:
 		bool m_IsAccFrozen;
 
 		// city
-		sqlite3_uint64 m_level;
-		sqlite3_uint64 m_xp;
-		sqlite3_uint64 m_money;
+		int64 m_level;
+		int64 m_xp;
+		int64 m_money;
 		int m_shit;
 		int m_GiftDelay;
 	};
@@ -516,8 +516,8 @@ public:
 	int m_TaserPrice;
 	bool m_TaserOn;
 	bool m_IsJailed;
-	sqlite3_uint64 m_JailTime;
-	sqlite3_uint64 m_EscapeTime;
+	int64 m_JailTime;
+	int64 m_EscapeTime;
 	char m_aEscapeReason[256];
 	bool m_IsJailDoorOpen;
 	//bool m_IsJailHammer;
@@ -641,9 +641,9 @@ public:
 	int m_shit;
 	int m_level;
 	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
-	sqlite3_uint64 m_xp;
-	sqlite3_uint64 m_neededxp;
-	sqlite3_uint64 m_money;
+	int64 m_xp;
+	int64 m_neededxp;
+	int64 m_money;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;
