@@ -450,7 +450,7 @@ public:
 	int CountBombPlayers();
 	int CountReadyBombPlayers();
 	int m_BombGameState; //0=no bomb game created 1=bomb game created (lobby) 2=bomb game created (lobby)(locked) 3=bomb game created and running (ingame)
-	int m_BombMoney;
+	int64 m_BombMoney;
 	int m_BombStartPlayers;
 	int m_BombTick; //the ticking bomby ticker ticks until he flicks to zer0 then he kicks kaboooms!
 	int m_BombStartCountDown;
