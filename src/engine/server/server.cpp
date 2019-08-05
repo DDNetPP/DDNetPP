@@ -1565,7 +1565,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Msg.AddInt(1);	//authed
 					Msg.AddInt(1);	//cmdlist
 					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
-					int SendRconCmds = Unpacker.GetInt();
 					if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
