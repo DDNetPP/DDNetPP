@@ -8268,6 +8268,33 @@ void CCharacter::SendShopMessage(const char *pMsg)
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
 }
 
+bool CCharacter::InputActive()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	static bool IsWalk = false;
+	// static bool IsFire = false;
+	static bool IsJump = false;
+	static bool IsHook = false;
+	if (m_Input.m_Direction)
+		IsWalk = true;
+	// if (m_Input.m_Fire)
+		// IsFire = true;
+	if (m_Input.m_Jump)
+		IsJump = true;
+	if (m_Input.m_Hook)
+		IsHook = true;
+	if (IsWalk && IsJump && IsHook)
+	{
+		IsWalk = false;
+		IsJump = false;
+		IsHook = false;
+		return true;
+	}
+	return false;
+}
+
 int CCharacter::GetAimDir()
 {
 #if defined(CONF_DEBUG)

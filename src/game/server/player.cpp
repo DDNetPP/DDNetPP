@@ -182,6 +182,8 @@ void CPlayer::Reset()
 	{
 		m_IsNoboSpawn = true;
 	}
+	m_PlayerHumanLevel = 0;
+	m_HumanLevelTime = 0;
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
@@ -449,6 +451,102 @@ void CPlayer::Tick()
 			}
 
 			m_SetRealName = false;
+		}
+	}
+	PlayerHumanLevelTick();
+}
+
+void CPlayer::PlayerHumanLevelTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_HumanLevelTime >= 1)
+	{
+		m_HumanLevelTime--;
+	}
+
+	if (m_PlayerHumanLevel == 0)
+	{
+		if (GetCharacter() && GetCharacter()->InputActive())
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 60; // 60 sec
+		}
+	}
+	else if (m_PlayerHumanLevel == 1)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 2)
+	{
+		if (Server()->Tick() % 40 == 0)
+		{
+			if (GetCharacter() && GetCharacter()->InputActive())
+			{
+				m_PlayerHumanLevelState++;
+			}
+		}
+		if (m_PlayerHumanLevelState > 3)
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 60 * 10; // 10 min
+		}
+	}
+	else if (m_PlayerHumanLevel == 3)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 4)
+	{
+		if (GetCharacter())
+		{
+			if (GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
+				m_BlockPoints > 5 ||
+				m_AccountID > 0)
+			{
+				m_PlayerHumanLevel++;
+				m_HumanLevelTime = Server()->TickSpeed() * 60 * 15; // 15 min
+			}
+		}
+	}
+	else if (m_PlayerHumanLevel == 5)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 6)
+	{
+		if (m_QuestStateLevel > 2) // difficulty 3+ (finish all quests in the first 3 difficulty stages 0-2)
+		{
+			m_PlayerHumanLevel++;
+		}
+	}
+	else if (m_PlayerHumanLevel == 7)
+	{
+		if (true) // TODO: add trivia ccheck
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 60 * 60; // 1 hour
+		}
+	}
+	else if (m_PlayerHumanLevel == 8)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
 		}
 	}
 }
