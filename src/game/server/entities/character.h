@@ -262,6 +262,7 @@ public:
 	bool HasWeapon(int weapon);
 	void KillSpeed();
 	int GetAimDir();
+	bool InputActive();
 
 	//Chillintelligenz
 	void CITick();

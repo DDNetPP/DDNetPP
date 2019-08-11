@@ -480,6 +480,31 @@ public:
 
 	char m_aAccSkin[32];
 
+	/*
+		PlayerHumanLevel
+
+		The higher the value the less likley it is that this player is a robot.
+		To unlock the next level a player has to master all previous ones.
+
+		This human level then can be used to unlock features like registering an account or uing the chat
+		or showing connection messages. In case those basic features are blocked due to spam attacks.
+
+		0  freshly connected
+		1  sent a few movement inputs
+		2  on the server for 1 minute
+		3  a few movement or chat inputs ( messages or commands )
+		4  on the server for 10 minutes
+		5  be somewhat active: finish race/get block points/login to account/ TODO: send chat messages that recieve responses
+		6  be on the server 15 minutes
+		7  get to quest level x
+		8  solve the antibot trivia (TODO: implement)
+		9  stay on server for 1 hour in total
+	*/
+	int m_PlayerHumanLevel;
+	int m_PlayerHumanLevelState; // if the level has sublevels
+	int64 m_HumanLevelTime;
+	void PlayerHumanLevelTick();
+
 	int m_homing_missiles_ammo;
 
 

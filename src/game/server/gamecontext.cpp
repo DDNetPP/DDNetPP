@@ -6288,6 +6288,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else
 				Team = CHAT_ALL;
 
+			pPlayer->m_PlayerHumanLevelState++;
 
 			////if (pMsg->m_pMessage[0] == apNames)
 			////##########################
@@ -7066,6 +7067,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "is authed %d score %d", Server()->IsAuthed(pPlayer->GetCID()), pPlayer->m_Score);
+						str_format(aBuf, sizeof(aBuf), "human level: %d", pPlayer->m_PlayerHumanLevel);
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
