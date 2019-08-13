@@ -1258,7 +1258,8 @@ int str_toint(const char *str);
 int str_toint_base(const char *str, int base);
 float str_tofloat(const char *str);
 int str_isspace(char c);
-char str_uppercase(char c);
+char ch_uppercase(char c);
+void str_uppercase(char *str);
 unsigned str_quickhash(const char *str);
 
 /*

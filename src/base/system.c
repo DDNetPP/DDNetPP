@@ -2249,11 +2249,17 @@ void gui_messagebox(const char *title, const char *message)
 
 int str_isspace(char c) { return c == ' ' || c == '\n' || c == '\t'; }
 
-char str_uppercase(char c)
+char ch_uppercase(char c)
 {
 	if(c >= 'a' && c <= 'z')
 		return 'A' + (c-'a');
 	return c;
+}
+
+void str_uppercase(char *str)
+{
+	for(int i = 0;str[i] != '\0';i++)
+		str[i] = ch_uppercase(str[i]);
 }
 
 int str_toint(const char *str) { return atoi(str); }

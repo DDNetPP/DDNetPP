@@ -570,6 +570,7 @@ MACRO_CONFIG_STR(SvWrongLoginFile, sv_wrong_login_file, 128, "wrong_login.txt", 
 //ddnet++ anti spoof
 MACRO_CONFIG_INT(SvHaxx0rSpoof, sv_haxx0r_spoof, 0, 0, 1, CFGFLAG_SERVER, "dont touch if ur knoop (chillers anti spoof) 1=on 0=off")
 MACRO_CONFIG_INT(SvHaxx0rSpoofPort, sv_haxx0r_spoof_port, 8303, 8300, 65534, CFGFLAG_SERVER, "used for sv_haxx0r_spoof 1 (don't touch if ur knoop)")
+MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "how high the captcha score has to be to verfiy humans ('/captcha')'")
 
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")

@@ -3,6 +3,7 @@
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <engine/server/server.h>
+#include <game/server/captcha.h>
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
@@ -5462,6 +5463,25 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/StockMarket <buy/sell/info>'.");
 	}
+}
+
+void CGameContext::ConCaptcha(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+	CCaptcha *pCap = pPlayer->m_pCaptcha;
+	if (!pCap)
+		return;
+
+	pCap->Prompt(pResult->GetString(0));
 }
 
 void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
