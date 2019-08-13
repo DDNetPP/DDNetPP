@@ -697,6 +697,8 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   gamemodes/tdm.h
   gameworld.cpp
   gameworld.h
+  letters.cpp
+  letters.h
   player.cpp
   player.h
   save.cpp

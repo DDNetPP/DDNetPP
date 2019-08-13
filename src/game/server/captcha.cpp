@@ -16,7 +16,7 @@ CCaptcha::CCaptcha(CGameContext *pGameServer, int ClientID)
     m_aAnswer[0] = '\0';
     m_aBigText[0] = '\0';
     m_Score = 0;
-    m_Human = false;
+    m_IsHuman = false;
 }
 
 bool CCaptcha::CheckGenerate()
@@ -86,7 +86,7 @@ bool CCaptcha::Score(int value)
         return false;
 
     SendChat("YOU SOLVED THE CAPTCHA! Seems like you are a human.");
-    m_Human = true;
+    m_IsHuman = true;
     return true;
 }
 
