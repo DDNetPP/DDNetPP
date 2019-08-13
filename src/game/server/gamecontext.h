@@ -894,6 +894,7 @@ private:
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
+	static void ConHumanLevel(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 

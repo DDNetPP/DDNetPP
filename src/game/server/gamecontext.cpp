@@ -7364,7 +7364,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else
 			{
-				if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
+				if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
+					SendChatTarget(ClientID, aBuf);
+				}
+				else if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
 				{
 					if (g_Config.m_SvMinAdminPing > 256)
 						SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
