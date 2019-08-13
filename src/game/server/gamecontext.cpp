@@ -8894,21 +8894,21 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	{
 		//-- start comment for m_IsVanillaWeapons --
 		//TuningList()[i] = TuningParams;
-		//TuningList()[i].Set("gun_curvature", 0);
-		//TuningList()[i].Set("gun_speed", 1400);
-		//TuningList()[i].Set("shotgun_curvature", 0);
-		//TuningList()[i].Set("shotgun_speed", 500);
-		//TuningList()[i].Set("shotgun_speeddiff", 0);
+		//TuningList()[i].Set("gun_curvature", 0.0f);
+		//TuningList()[i].Set("gun_speed", 1400.0f);
+		//TuningList()[i].Set("shotgun_curvature", 0.0f);
+		//TuningList()[i].Set("shotgun_speed", 500.0f);
+		//TuningList()[i].Set("shotgun_speeddiff", 0.0f);
 		//-- end comment for m_IsVanillaWeapons --
 
 		//-- start add code for m_IsVanillaWeapons --
 		TuningList()[i] = TuningParams;
-		TuningList()[i].Set("gun_curvature", 0);
-		TuningList()[i].Set("gun_speed", 1400);
-		Tuning()->Set("shotgun_speed", 2750.00);
-		Tuning()->Set("shotgun_speeddiff", 0.80);
-		Tuning()->Set("shotgun_curvature", 7.00);
-		Tuning()->Set("shotgun_lifetime", 0.20);
+		TuningList()[i].Set("gun_curvature", 0.0f);
+		TuningList()[i].Set("gun_speed", 1400.0f);
+		Tuning()->Set("shotgun_speed", 2750.00f);
+		Tuning()->Set("shotgun_speeddiff", 0.80f);
+		Tuning()->Set("shotgun_curvature", 7.00f);
+		Tuning()->Set("shotgun_lifetime", 0.20f);
 		//-- end add code for m_IsVanillaWeapons --
 	}
 
@@ -8926,21 +8926,21 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	else
 	{
 		//-- start2 comment for m_IsVanillaWeapons --
-		//Tuning()->Set("gun_speed", 1400);
-		//Tuning()->Set("gun_curvature", 0);
-		//Tuning()->Set("shotgun_speed", 500);
-		//Tuning()->Set("shotgun_speeddiff", 0);
-		//Tuning()->Set("shotgun_curvature", 0);
+		//Tuning()->Set("gun_speed", 1400.0f);
+		//Tuning()->Set("gun_curvature", 0.0f);
+		//Tuning()->Set("shotgun_speed", 500.0f);
+		//Tuning()->Set("shotgun_speeddiff", 0.0f);
+		//Tuning()->Set("shotgun_curvature", 0.0f);
 		//-- end2 comment for m_IsVanillaWeapons --
 
 		//-- start2 add code for m_IsVanillaWeapons --
-		Tuning()->Set("gun_speed", 1400);
-		Tuning()->Set("gun_curvature", 0);
+		Tuning()->Set("gun_speed", 1400.0f);
+		Tuning()->Set("gun_curvature", 0.0f);
 		//Shotgun tuning by chiller
-		Tuning()->Set("shotgun_speed", 2750.00);
-		Tuning()->Set("shotgun_speeddiff", 0.80);
-		Tuning()->Set("shotgun_curvature", 7.00);
-		Tuning()->Set("shotgun_lifetime", 0.20);
+		Tuning()->Set("shotgun_speed", 2750.00f);
+		Tuning()->Set("shotgun_speeddiff", 0.80f);
+		Tuning()->Set("shotgun_curvature", 7.00f);
+		Tuning()->Set("shotgun_lifetime", 0.20f);
 		//-- end2 add code for m_IsVanillaWeapons --
 	}
 
