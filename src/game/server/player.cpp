@@ -33,6 +33,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_pCharacter = 0;
 	m_NumInputs = 0;
 	m_KillMe = 0;
+	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
 	Reset();
 }
 

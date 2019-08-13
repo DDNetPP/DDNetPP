@@ -5,6 +5,7 @@
 
 // this include should perhaps be removed
 #include "entities/character.h"
+#include "captcha.h"
 #include "gamecontext.h"
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
@@ -497,7 +498,7 @@ public:
 		5  be somewhat active: finish race/get block points/login to account/ TODO: send chat messages that recieve responses
 		6  be on the server 15 minutes
 		7  get to quest level x
-		8  solve the antibot trivia (TODO: implement)
+		8  solve the antibot captcha command (TODO: implement)
 		9  stay on server for 1 hour in total
 	*/
 	int m_PlayerHumanLevel;
@@ -505,6 +506,7 @@ public:
 	int64 m_HumanLevelTime;
 	void PlayerHumanLevelTick();
 
+	CCaptcha *m_pCaptcha;
 	int m_homing_missiles_ammo;
 
 

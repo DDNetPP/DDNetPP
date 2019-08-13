@@ -10,6 +10,8 @@
 #include <game/layers.h>
 #include <game/voting.h>
 
+#include <game/server/letters.h>
+
 #include "eventhandler.h"
 #include "gamecontroller.h"
 #include "gameworld.h"
@@ -258,6 +260,8 @@ public:
 	int CountIngameHumans();
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
+
+	CLetters *m_pLetters;
 
 	// sql
 	void SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword = "");
@@ -889,6 +893,7 @@ private:
 
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
+	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 
