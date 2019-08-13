@@ -472,7 +472,7 @@ void CPlayer::PlayerHumanLevelTick()
 		if (GetCharacter() && GetCharacter()->InputActive())
 		{
 			m_PlayerHumanLevel++;
-			m_HumanLevelTime = Server()->TickSpeed() * 60; // 60 sec
+			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
 		}
 	}
 	else if (m_PlayerHumanLevel == 1)
@@ -495,7 +495,7 @@ void CPlayer::PlayerHumanLevelTick()
 		if (m_PlayerHumanLevelState > 3)
 		{
 			m_PlayerHumanLevel++;
-			m_HumanLevelTime = Server()->TickSpeed() * 60 * 10; // 10 min
+			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
 		}
 	}
 	else if (m_PlayerHumanLevel == 3)
@@ -515,7 +515,7 @@ void CPlayer::PlayerHumanLevelTick()
 				m_AccountID > 0)
 			{
 				m_PlayerHumanLevel++;
-				m_HumanLevelTime = Server()->TickSpeed() * 60 * 15; // 15 min
+				m_HumanLevelTime = Server()->TickSpeed() * 20; // 20 sec
 			}
 		}
 	}
@@ -529,17 +529,18 @@ void CPlayer::PlayerHumanLevelTick()
 	}
 	else if (m_PlayerHumanLevel == 6)
 	{
-		if (m_QuestStateLevel > 2) // difficulty 3+ (finish all quests in the first 3 difficulty stages 0-2)
+		if (m_pCaptcha->IsHuman())
 		{
 			m_PlayerHumanLevel++;
 		}
 	}
 	else if (m_PlayerHumanLevel == 7)
 	{
-		if (true) // TODO: add trivia ccheck
+		if ((m_QuestLevelUnlocked > 0 || m_QuestUnlocked > 2) || // played quest until finish map
+			m_BlockPoints > 10)
 		{
 			m_PlayerHumanLevel++;
-			m_HumanLevelTime = Server()->TickSpeed() * 60 * 60; // 1 hour
+			m_HumanLevelTime = Server()->TickSpeed() * 60; // 1 min
 		}
 	}
 	else if (m_PlayerHumanLevel == 8)

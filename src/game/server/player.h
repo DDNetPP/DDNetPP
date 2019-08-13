@@ -492,14 +492,14 @@ public:
 
 		0  freshly connected
 		1  sent a few movement inputs
-		2  on the server for 1 minute
+		2  wait 10 sec
 		3  a few movement or chat inputs ( messages or commands )
-		4  on the server for 10 minutes
+		4  wait 10 sec
 		5  be somewhat active: finish race/get block points/login to account/ TODO: send chat messages that recieve responses
-		6  be on the server 15 minutes
-		7  get to quest level x
-		8  solve the antibot captcha command (TODO: implement)
-		9  stay on server for 1 hour in total
+		6  wait 20 sec
+		7  solve the antibot captcha command
+		8  played quest until finish map/make more than 10 block points
+		9  wait 1 minute
 	*/
 	int m_PlayerHumanLevel;
 	int m_PlayerHumanLevelState; // if the level has sublevels

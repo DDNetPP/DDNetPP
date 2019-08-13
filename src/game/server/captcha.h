@@ -20,7 +20,7 @@ class CCaptcha
 
     int m_ClientID;
     int m_Score;
-    bool m_Human;
+    bool m_IsHuman;
     char m_aBigText[7];
     char m_aQuestion[128];
     char m_aAnswer[128];
@@ -45,6 +45,7 @@ class CCaptcha
     bool Prompt(const char * pAnswer);
 
     int GetScore() { return m_Score; }
+    bool IsHuman() { return m_IsHuman; }
 };
 
 #endif
