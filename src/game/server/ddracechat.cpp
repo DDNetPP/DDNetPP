@@ -2327,6 +2327,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	char aBuf[512];
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2356,6 +2357,13 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	if (pPlayer->m_AccountID > 0)
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
+		return;
+	}
+
+	if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvRegisterHumanLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] your '/human_level' is too low %d/%d to use this command.", pPlayer->m_PlayerHumanLevel, g_Config.m_SvRegisterHumanLevel);
+		pSelf->SendChatTarget(ClientID, aBuf);
 		return;
 	}
 
@@ -2415,7 +2423,6 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	//if (EvilChar)
     if (pSelf->IsAllowedCharSet(aUsername) == false)
 	{
-		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", pSelf->m_aAllowedCharSet);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		return;
@@ -5482,6 +5489,30 @@ void CGameContext::ConCaptcha(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	pCap->Prompt(pResult->GetString(0));
+}
+
+void CGameContext::ConHumanLevel(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[==== Human Level %d/9 ====]", pPlayer->m_PlayerHumanLevel);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	pSelf->SendChatTarget(pResult->m_ClientID, "\
+		The server trys to detect if you are a active human or a robot.\
+		Some things might be blocked if your human level is too low.\
+	");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Play active use the chat and do quests ('/quest').");
+	pSelf->SendChatTarget(pResult->m_ClientID, "Block others, login to your account and use the '/captcha' command.");
 }
 
 void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
