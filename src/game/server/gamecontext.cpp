@@ -3429,9 +3429,33 @@ void CGameContext::DDPP_Tick()
 	{
 		SurvivalLobbyTick();
 	}
-	else if (m_survivalgamestate == 3) //deathmatch countdown
+	else
 	{
-		SurvivalDeathmatchTick();
+		if (m_survival_game_countdown > 0)
+		{
+			m_survival_game_countdown--;
+		}
+		if (m_survival_game_countdown <= 0)
+		{
+			SendSurvivalChat("[SURVIVAL] Game ended due to timeout. Nobody won.");
+			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+				{
+					SetPlayerSurvival(i, SURVIVAL_LOBBY);
+					if (m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
+					{
+						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+					}
+				}
+			}
+			SurvivalSetGameState(SURVIVAL_LOBBY);
+		}
+		if (m_survivalgamestate == SURVIVAL_DM_COUNTDOWN)
+		{
+			SurvivalDeathmatchTick();
+		}
 	}
 
 	if (m_BlockWaveGameState)
@@ -3925,8 +3949,7 @@ void CGameContext::SurvivalDeathmatchTick()
 
 	if (m_survival_dm_countdown < 1)
 	{
-		//start deathmatch
-		SurvivalSetGameState(4);
+		SurvivalSetGameState(SURVIVAL_DM);
 	}
 }
 
@@ -3941,11 +3964,11 @@ void CGameContext::SurvivalCheckWinnerAndDeathMatch()
 	{
 		//SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
 		if (!SurvivalPickWinner()) { SendSurvivalChat("[SURVIVAL] Nobody won."); }
-		SurvivalSetGameState(1);
+		SurvivalSetGameState(SURVIVAL_LOBBY);
 	}
 	else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
 	{
-		SurvivalSetGameState(3); //dm count down tick
+		SurvivalSetGameState(SURVIVAL_DM_COUNTDOWN);
 		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
 		SendSurvivalChat(aBuf);
 	}
@@ -3960,13 +3983,13 @@ void CGameContext::SurvivalStartGame()
 
 	if (SurvivalGameSpawnTile == vec2(-1, -1)) //no survival arena
 	{
-		SurvivalSetGameState(1); //set lobby
+		SurvivalSetGameState(SURVIVAL_LOBBY);
 		SendSurvivalChat("[SURVIVAL] no survival arena set.");
 		return;
 	}
 	else
 	{
-		SurvivalSetGameState(2); //set ingame
+		SurvivalSetGameState(SURVIVAL_INGAME);
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
 		//SendSurvivalBroadcast("STAY ALIVE!!!");
 		SendSurvivalBroadcast(""); // clear countdown
@@ -4084,25 +4107,24 @@ void CGameContext::SurvivalSetGameState(int state)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (state == 0) //off
+	m_survivalgamestate = state;
+	if (state == SURVIVAL_OFF)
 	{
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 0;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i])
 			{
-				SetPlayerSurvival(i, 0);
+				SetPlayerSurvival(i, SURVIVAL_OFF);
 			}
 		}
 	}
-	else if (state == 1) //lobby
+	else if (state == SURVIVAL_LOBBY)
 	{
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 1;
 	}
-	else if (state == 2) //ingame
+	else if (state == SURVIVAL_INGAME)
 	{
+		m_survival_game_countdown = Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60);
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
@@ -4112,18 +4134,15 @@ void CGameContext::SurvivalSetGameState(int state)
 					SaveCosmetics(i);
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
-				SetPlayerSurvival(i, 2);
+				SetPlayerSurvival(i, SURVIVAL_INGAME);
 			}
 		}
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 2;
 	}
-	else if (state == 3) //deathmatch countdown
+	else if (state == SURVIVAL_DM_COUNTDOWN)
 	{
 		m_survival_dm_countdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
-		m_survivalgamestate = 3;
 	}
-	else if (state == 4) //deathmatch
+	else if (state == SURVIVAL_DM)
 	{
 		SendSurvivalChat("[SURVIVAL] teleporting survivors to deathmatch arena.");
 
@@ -4144,8 +4163,6 @@ void CGameContext::SurvivalSetGameState(int state)
 				}
 			}
 		}
-
-		m_survivalgamestate = 4;
 	}
 }
 
@@ -8884,6 +8901,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
 	m_survivalgamestate = 0;
+	m_survival_game_countdown = 0;
 	m_BlockWaveGameState = 0;
 	m_insta_survival_gamestate = 0;
 	m_CucumberShareValue = 10;

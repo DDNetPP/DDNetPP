@@ -377,15 +377,49 @@ public:
 	void SurvivalStartGame();
 	void SendSurvivalChat(const char *pMsg);
 	void SendSurvivalBroadcast(const char *pMsg);
-	void SetPlayerSurvival(int id,int mode); //0=off 1=lobby 2=ingame 3=die
+	/*
+		SetPlayerSurvival()
+		0	SURVIVAL_OFF
+		1	SURVIVAL_LOBBY
+		2	SURVIVAL_INGAME
+		3	SURVIVAL_DIE
+	*/
+	void SetPlayerSurvival(int id, int mode);
 	int CountSurvivalPlayers(bool Alive = false);
+	/*
+		SurvivalSetGameState()
+		SURVIVAL_OFF
+		SURVIVAL_LOBBY
+		SURVIVAL_INGAME
+		SURVIVAL_DM_COUNTDOWN
+		SURVIVAL_DM
+	*/
 	void SurvivalSetGameState(int state);
 	void SurvivalCheckWinnerAndDeathMatch();
 	bool SurvivalPickWinner();
-	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch countdown 4=deathmatch
+	/*
+		m_survivalgamestate
+		0	SURVIVAL_OFF
+		1	SURVIVAL_LOBBY
+		2	SURVIVAL_INGAME
+		3	SURVIVAL_DM_COUNTDOWN
+		4	SURVIVAL_DM
+		should only be set by SurvivalSetGameState()
+	*/
+	int m_survivalgamestate;
 	int m_survivallobbycountdown;
 	int m_survival_dm_countdown;
+	int m_survival_game_countdown;
 	char m_aLastSurvivalWinnerName[32];
+	enum {
+		SURVIVAL_OFF,				// gamestate	playerstate
+		SURVIVAL_LOBBY,				// gamestate	playerstate
+		SURVIVAL_INGAME,			// gamestate	playerstate
+		SURVIVAL_DM_COUNTDOWN,		// gamestate
+		SURVIVAL_DM,				// gamestate
+
+		SURVIVAL_DIE=3				// playerstate
+	};
 
 	//block tourna
 

@@ -400,6 +400,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ add '/drop_armor' and '/drop_health' commands");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add '/spawn' command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/survival' minigame");
 	}
 	else if (page == 2)
 	{
@@ -6931,7 +6933,34 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== SURVIVAL COMMANDS ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/survival join' to join the survival lobby");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/survival leave' to leave survival");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/survival status' to show current game status");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/survival stats' to show your stats");
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "status"))
+	{
+		char aBuf[128];
+		char aGameState[32];
+		char aDM[16];
+		str_copy(aDM, "", sizeof(aDM));
+		switch (pSelf->m_survivalgamestate) {
+			case SURVIVAL_OFF:
+			str_copy(aGameState, "off", sizeof(aGameState));
+			break;
+			case SURVIVAL_LOBBY:
+			str_copy(aGameState, "in lobby phase", sizeof(aGameState));
+			break;
+			case SURVIVAL_DM_COUNTDOWN:
+			case SURVIVAL_DM:
+			str_copy(aDM, "deathmatch", sizeof(aDM));
+			case SURVIVAL_INGAME:
+			str_format(aGameState, sizeof(aGameState), "running %s (%d seconds left max)", aDM, pSelf->m_survival_game_countdown / pSelf->Server()->TickSpeed());
+			break;
+			default:
+			str_copy(aGameState, "unkown", sizeof(aGameState));
+			break;
+		}
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] Game is %s", aGameState);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
