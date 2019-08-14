@@ -70,6 +70,8 @@ void CQueryRegister::OnData()
 
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Account has been registered.");
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login with: /login <name> <pass>");
+
+		m_pGameServer->RegisterBanCheck(m_ClientID);
 	}
 }
 
@@ -10550,6 +10552,99 @@ void CGameContext::List(int ClientID, const char* filter)
 		SendChatTarget(ClientID, buf);
 	str_format(buf, sizeof(buf), "%d players online", total);
 	SendChatTarget(ClientID, buf);
+}
+
+void CGameContext::RegisterBanCheck(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	char aBuf[128];
+	int Found = 0;
+	int regs = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		{
+			regs = ++m_aRegisterBans[i].m_NumRegisters;
+			Found = 1;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumRegisterBans < MAX_REGISTER_BANS)
+		{
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
+			regs = m_aRegisterBans[m_NumRegisterBans].m_NumRegisters = 1;
+			m_NumRegisterBans++;
+			Found = 1;
+		}
+	}
+
+	if (regs >= g_Config.m_SvMaxRegisterPerIp)
+	{
+		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has registered %d/%d accounts.", ClientID, regs, g_Config.m_SvMaxRegisterPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvRegisterHumanLevel < 9)
+			g_Config.m_SvRegisterHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int Found = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, Addr) == 0)
+		{
+			m_aRegisterBans[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumRegisterBans < MAX_REGISTER_BANS)
+		{
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = *Addr;
+			m_aRegisterBans[m_NumRegisterBans].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumRegisterBans++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been banned from account system for %d seconds.",
+				pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvRegisterHumanLevel < 9)
+			g_Config.m_SvRegisterHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
 }
 
 int CGameContext::FindNextBomb()

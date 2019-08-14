@@ -803,6 +803,12 @@ private:
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
@@ -927,21 +933,33 @@ private:
 	enum
 	{
 		MAX_MUTES=32,
+		MAX_REGISTER_BANS=128
 	};
 	struct CMute
 	{
 		NETADDR m_Addr;
 		int m_Expire;
 	};
+	struct CRegisterBan
+	{
+		NETADDR m_Addr;
+		int m_Expire;
+		int m_NumRegisters;
+	};
 
-	CMute m_aMutes[MAX_MUTES];
+	CRegisterBan m_aMutes[MAX_MUTES];
+	CRegisterBan m_aRegisterBans[MAX_REGISTER_BANS];
 	int m_NumMutes;
+	int m_NumRegisterBans;
 	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
+	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void Whisper(int ClientID, char *pStr);
 	void WhisperID(int ClientID, int VictimID, char *pMessage);
 	void Converse(int ClientID, char *pStr);
 
 public:
+	void RegisterBanCheck(int ClientID);
+
 	CLayers *Layers() { return &m_Layers; }
 	class IScore *Score() { return m_pScore; }
 	bool m_VoteKick;
