@@ -2367,6 +2367,24 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(ClientID, &Addr);
+	int RegBanned = 0;
+
+	for(int i = 0; i < pSelf->m_NumRegisterBans && !RegBanned; i++)
+	{
+		if(!net_addr_comp(&Addr, &pSelf->m_aRegisterBans[i].m_Addr))
+			RegBanned = (pSelf->m_aRegisterBans[i].m_Expire - pSelf->Server()->Tick()) / pSelf->Server()->TickSpeed();
+	}
+
+	if (RegBanned > 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof aBuf, "[ACCOUNT] you have to wait %d seconds before you can register again.", RegBanned);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+
 	char aUsername[32];
 	char aPassword[32];
 	char aPassword2[32];
@@ -2391,34 +2409,6 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Passwords need to be identical.");
 		return;
 	}
-    
-    /*
-	//                                                                                                  \\ Escaping the escape seceqnze
-	char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_";
-	bool EvilChar = false;
-
-	for (int i = 0; i < str_length(aUsername); i++)
-	{
-		bool IsOk = false;
-
-		for (int j = 0; j < str_length(aAllowedCharSet); j++)
-		{
-			if (aUsername[i] == aAllowedCharSet[j])
-			{
-				//dbg_msg("account","found valid char '%c' - '%c'", aUsername[i], aAllowedCharSet[j]);
-				IsOk = true;
-				break;
-			}
-		}
-
-		if (!IsOk)
-		{
-			//dbg_msg("account", "found evil char '%c'", aUsername[i]);
-			EvilChar = true;
-			break;
-		}
-	}
-     */
 
 	//if (EvilChar)
     if (pSelf->IsAllowedCharSet(aUsername) == false)

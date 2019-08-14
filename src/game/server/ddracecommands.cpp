@@ -1370,6 +1370,99 @@ void CGameContext::ConMutes(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConRegisterBan(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"RegisterBans",
+			"Use either 'register_ban_id <client_id> <seconds>' or 'register_ban_ip <ip> <seconds>'");
+}
+
+// RegisterBan through client id
+void CGameContext::ConRegisterBanID(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	int Victim = pResult->GetVictim();
+
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(Victim, &Addr);
+
+	pSelf->RegisterBan(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+			pSelf->Server()->ClientName(Victim));
+}
+
+// RegisterBan through ip, arguments reversed to workaround parsing
+void CGameContext::ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	NETADDR Addr;
+	if (net_addr_from_str(&Addr, pResult->GetString(0)))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RegisterBans",
+				"Invalid network address to RegisterBan");
+	}
+	pSelf->RegisterBan(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+			pResult->GetString(0));
+}
+
+// unRegisterBan by RegisterBan list index
+void CGameContext::ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[64];
+	int Victim = pResult->GetVictim();
+
+	if (Victim < 0 || Victim >= pSelf->m_NumRegisterBans)
+		return;
+
+	pSelf->m_NumRegisterBans--;
+	pSelf->m_aRegisterBans[Victim] = pSelf->m_aRegisterBans[pSelf->m_NumRegisterBans];
+
+	net_addr_str(&pSelf->m_aRegisterBans[Victim].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+	str_format(aBuf, sizeof(aBuf), "UnRegisterBand %s", aIpBuf);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RegisterBans", aBuf);
+}
+
+// list RegisterBans
+void CGameContext::ConRegisterBans(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[128];
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RegisterBans",
+			"Active RegisterBans:");
+	for (int i = 0; i < pSelf->m_NumRegisterBans; i++)
+	{
+		net_addr_str(&pSelf->m_aRegisterBans[i].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+		str_format(
+				aBuf,
+				sizeof aBuf,
+				"%d: \"%s\", %d seconds left",
+				i,
+				aIpBuf,
+				(pSelf->m_aRegisterBans[i].m_Expire - pSelf->Server()->Tick())
+				/ pSelf->Server()->TickSpeed());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RegisterBans", aBuf);
+	}
+}
+
 void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
