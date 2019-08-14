@@ -1772,8 +1772,6 @@ void CGameContext::OnClientConnected(int ClientID)
 		{
 			str_format(aBuf, sizeof(aBuf), "• '%s'\n", Server()->ClientName(i));
 			str_append(aBroad, aBuf, sizeof(aBroad));
-			dbg_msg("aBuf", aBuf);
-			dbg_msg("aBroad", aBroad);
 			IsSupporterOnline = true;
 		}
 	}
