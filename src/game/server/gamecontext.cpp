@@ -3930,6 +3930,27 @@ void CGameContext::SurvivalDeathmatchTick()
 	}
 }
 
+void CGameContext::SurvivalCheckWinnerAndDeathMatch()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int AliveTees = CountSurvivalPlayers(true);
+	if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
+	{
+		//SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
+		if (!SurvivalPickWinner()) { SendSurvivalChat("[SURVIVAL] Nobody won."); }
+		SurvivalSetGameState(1);
+	}
+	else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
+	{
+		SurvivalSetGameState(3); //dm count down tick
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+		SendSurvivalChat(aBuf);
+	}
+}
+
 void CGameContext::SurvivalStartGame()
 {
 #if defined(CONF_DEBUG)
@@ -3949,6 +3970,7 @@ void CGameContext::SurvivalStartGame()
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
 		//SendSurvivalBroadcast("STAY ALIVE!!!");
 		SendSurvivalBroadcast(""); // clear countdown
+		SurvivalCheckWinnerAndDeathMatch();
 	}
 }
 

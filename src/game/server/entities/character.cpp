@@ -8017,19 +8017,7 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 			{
 				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
-				int AliveTees = GameServer()->CountSurvivalPlayers(true);
-				if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
-				{
-					//GameServer()->SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
-					if (!GameServer()->SurvivalPickWinner()) { GameServer()->SendSurvivalChat("[SURVIVAL] Nobody won."); }
-					GameServer()->SurvivalSetGameState(1);
-				}
-				else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
-				{
-					GameServer()->SurvivalSetGameState(3); //dm count down tick
-					str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", GameServer()->m_survival_dm_countdown / (Server()->TickSpeed() * 60));
-					GameServer()->SendSurvivalChat(aBuf);
-				}
+				GameServer()->SurvivalCheckWinnerAndDeathMatch();
 			}
 		}
 
