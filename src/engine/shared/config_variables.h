@@ -520,7 +520,7 @@ MACRO_CONFIG_INT(SvMeteorAccelPreserve, sv_meteor_accel_preserve, 100000, 0, 100
 
 //survival
 MACRO_CONFIG_INT(SvNameplates, sv_nameplates, 0, 0, 1, CFGFLAG_SERVER, "hide or show nameplates in survival games")
-MACRO_CONFIG_INT(SvSurvivalStartPlayers, sv_survival_start_players, 4, 2, 64, CFGFLAG_SERVER, "how many players are needed to start a survival game")
+MACRO_CONFIG_INT(SvSurvivalStartPlayers, sv_survival_start_players, 4, 3, 64, CFGFLAG_SERVER, "how many players are needed to start a survival game")
 MACRO_CONFIG_INT(SvSurvivalGunAmmo, sv_survival_gun_ammo, 0, 0, 1, CFGFLAG_SERVER, "whether the tees have gun ammo on spawn or not")
 MACRO_CONFIG_INT(SvSurvivalLobbyDelay, sv_survival_lobby_delay, 10, 5, 300, CFGFLAG_SERVER, "lobby start delay")
 MACRO_CONFIG_INT(SvSurvivalDmPlayers, sv_survival_dm_players, 3, 3, 64, CFGFLAG_SERVER, "if less than x players start the deathmatch countdown")
