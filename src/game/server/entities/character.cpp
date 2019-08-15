@@ -3234,7 +3234,7 @@ void CCharacter::HandleTiles(int Index)
 			}
 		}
 
-		//ddpp (external because we need the starttile also if the race isnt starting)
+		// ddpp (external because we need the starttile also if the race isnt starting)
 		m_pPlayer->m_MoneyTilePlus = true;
 		if (m_pPlayer->m_QuestState == 3)
 		{
@@ -3244,7 +3244,7 @@ void CCharacter::HandleTiles(int Index)
 			}
 			else if (m_pPlayer->m_QuestStateLevel == 9 && m_pPlayer->m_QuestFailed)
 			{
-				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] running agian.");
+				// GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] running agian.");
 				m_pPlayer->m_QuestFailed = false;
 			}
 		}
@@ -3252,11 +3252,11 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 
-	//chillerdragon dummy tile test
+	// chillerdragon dummy tile test
 	// finish tile finishtile
 	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
 	{
-		Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID()); //Quest 3 lvl 0-4 is handled in here teams.cpp
+		Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID()); // Quest 3 lvl 0-4 is handled in here teams.cpp
 		if (m_pPlayer->m_QuestState == 3)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 5)
@@ -3281,7 +3281,6 @@ void CCharacter::HandleTiles(int Index)
 
 		m_DummyFinished = true;
 		m_DummyFinishes++;
-		//m_pPlayer->m_points++;
 
 		/*
 		char aBuf[128];
@@ -3289,11 +3288,11 @@ void CCharacter::HandleTiles(int Index)
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		*/
 
-		//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got +100 xp for finishing the map :) see your stats with /stats.");
+		// GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got +100 xp for finishing the map :) see your stats with /stats.");
 		if (m_pPlayer->m_level > m_pPlayer->m_max_level)
 		{
-			//message woudl be here annoying
-			//but made it like this because i made it like this everywhere (lower confusing risk)
+			// a message here woudl be annoying
+			// but made it like this because i made it like this everywhere (lower confusing risk)
 		}
 		else
 		{
@@ -3311,7 +3310,7 @@ void CCharacter::HandleTiles(int Index)
 		}
 	}
 
-	//DDnet++ finish tile
+	// DDNet++ finish tile
 	if (((m_TileIndex == TILE_DDPP_END) || (m_TileFIndex == TILE_DDPP_END)) && !m_DDPP_Finished)
 	{
 		char aBuf[256];
@@ -3324,7 +3323,7 @@ void CCharacter::HandleTiles(int Index)
 			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCID()), (int)time / 60, time - ((int)time / 60 * 60));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
-			//quest
+			// quest
 			if (m_pPlayer->m_QuestState == 3)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 7)
@@ -3342,11 +3341,11 @@ void CCharacter::HandleTiles(int Index)
 		}
 		else
 		{
-			//str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCID()), m_AliveTime / Server()->TickSpeed()); //prints server up time in sec
+			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCID()), m_AliveTime / Server()->TickSpeed()); //prints server up time in sec
 			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
-			//quest
+			// quest
 			if (m_pPlayer->m_QuestState == 3)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 7)
