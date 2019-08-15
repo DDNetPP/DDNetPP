@@ -3953,11 +3953,12 @@ void CGameContext::SurvivalDeathmatchTick()
 	}
 }
 
-void CGameContext::SurvivalCheckWinnerAndDeathMatch(int AliveTees)
+void CGameContext::SurvivalCheckWinnerAndDeathMatch()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	int AliveTees = CountSurvivalPlayers(true);
 	char aBuf[128];
 	if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
 	{
@@ -3991,8 +3992,7 @@ void CGameContext::SurvivalStartGame()
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
 		//SendSurvivalBroadcast("STAY ALIVE!!!");
 		SendSurvivalBroadcast(""); // clear countdown
-		int AliveTees = CountSurvivalPlayers(true);
-		SurvivalCheckWinnerAndDeathMatch(AliveTees);
+		SurvivalCheckWinnerAndDeathMatch();
 	}
 }
 
@@ -4101,6 +4101,43 @@ int CGameContext::SurvivalGetRandomAliveID(int NotThis)
 		}
 	}
 	return -1;
+}
+
+void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[UpdateID];
+	if (!pPlayer)
+		return;
+
+	int AliveTees = CountSurvivalPlayers(true);
+	if (AliveTees > 1)
+	{
+		pPlayer->m_SpectatorID = UpdateID == KillerID ? SurvivalGetRandomAliveID() : KillerID;
+		pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
+	}
+	else
+	{
+		pPlayer->m_Paused = CPlayer::PAUSED_NONE;
+	}
+}
+
+void CGameContext::SurvivalUpdateSpectators(int DiedID, int KillerID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i] || !m_apPlayers[i]->m_IsSurvivaling)
+			continue;
+		if (m_apPlayers[i]->m_SpectatorID == DiedID)
+		{
+			SurvivalGetNextSpectator(i, KillerID);
+		}
+	}
 }
 
 int CGameContext::CountSurvivalPlayers(bool Alive)

@@ -8018,13 +8018,9 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 			{
 				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), GameServer()->SURVIVAL_DIE);
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
-				int AliveTees = GameServer()->CountSurvivalPlayers(true);
-				GameServer()->SurvivalCheckWinnerAndDeathMatch(AliveTees);
-				if (AliveTees > 1)
-				{
-					m_pPlayer->m_SpectatorID = selfkill ? GameServer()->SurvivalGetRandomAliveID() : Killer;
-					m_pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
-				}
+				GameServer()->SurvivalCheckWinnerAndDeathMatch();
+				GameServer()->SurvivalGetNextSpectator(m_pPlayer->GetCID(), Killer);
+				GameServer()->SurvivalUpdateSpectators(m_pPlayer->GetCID(), Killer);
 			}
 		}
 
