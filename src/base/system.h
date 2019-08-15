@@ -518,10 +518,16 @@ int net_init();
 		Does a hostname lookup by name and fills out the passed
 		NETADDR struct with the recieved details.
 
+	Parameters:
+		hostname - name
+		addr	 - address
+		types	 - net type
+		logtype	 - 0=ddnet++ logs 1=default console output
+
 	Returns:
 		0 on success.
 */
-int net_host_lookup(const char *hostname, NETADDR *addr, int types);
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype);
 
 /*
 	Function: net_addr_comp

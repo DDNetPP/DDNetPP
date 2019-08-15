@@ -462,6 +462,8 @@ set_glob(BASE GLOB_RECURSE src/base
   color.h
   confusables.c
   confusables.h
+  ddpp_logs.c
+  ddpp_logs.h
   detect.h
   hash.c
   hash.h

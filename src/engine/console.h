@@ -13,7 +13,8 @@ public:
 	//	TODO: rework/cleanup
 	enum
 	{
-		OUTPUT_LEVEL_STANDARD=0,
+		OUTPUT_LEVEL_DDPP_LOGS=0,
+		OUTPUT_LEVEL_STANDARD,
 		OUTPUT_LEVEL_ADDINFO,
 		OUTPUT_LEVEL_DEBUG,
 
@@ -104,6 +105,9 @@ public:
 
 	bool m_Cheated;
 	virtual void SetFlagMask(int FlagMask) = 0;
+
+	// DDNet++
+	virtual void PrintDDPPLogs(int type) = 0;
 };
 
 extern IConsole *CreateConsole(int FlagMask);

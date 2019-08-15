@@ -6,6 +6,7 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
 #include <game/generated/nethash.cpp>
+#include <base/ddpp_logs.h>
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
@@ -1579,8 +1580,43 @@ void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
 
 //=============
 // DDNet++
-// rcon api
 //=============
+
+void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->Console()->Print(
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"ddpp_logs",
+				"usage: logs (type)");
+		pSelf->Console()->Print(
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"ddpp_logs",
+				"types: mastersrv");
+		return;
+	}
+	if (!str_comp_nocase(pResult->GetString(0), "mastersrv"))
+	{
+		pSelf->m_pConsole->PrintDDPPLogs(DDPP_LOG_MASTER);
+	}
+	else
+	{
+		pSelf->Console()->Print(
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"ddpp_logs",
+				"Error: invalid type.");
+		pSelf->Console()->Print(
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"ddpp_logs",
+				"valid types: mastersrv");
+	}
+}
 
 void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
 {
