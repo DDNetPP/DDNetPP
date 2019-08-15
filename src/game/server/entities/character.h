@@ -248,6 +248,7 @@ public:
 	bool m_WasInRoom;
 
 	void DDPP_Tick();
+	void DDPP_FlagTick();
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
 	void BlockTourna_Die(int Killer);
 	void DummyTick();

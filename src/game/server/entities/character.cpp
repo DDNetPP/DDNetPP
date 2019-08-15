@@ -4528,6 +4528,19 @@ void CCharacter::MoneyTile2()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
+		//FARM QUEST
+		if (m_pPlayer->m_QuestState == 5)
+		{
+			if (m_pPlayer->m_QuestStateLevel == 7)
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				if (m_pPlayer->m_QuestProgressValue2 > 10)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+		}
 		else if (m_pPlayer->IsMaxLevel())
 		{
 			if (m_pPlayer->m_xpmsg)
@@ -4596,21 +4609,6 @@ void CCharacter::MoneyTile2()
 		else if (m_pPlayer->m_PoliceRank == 3)
 		{
 			m_pPlayer->m_money += 4;
-		}
-
-		//FARM QUEST
-		if (m_pPlayer->m_QuestState == 5)
-		{
-			if (m_pPlayer->m_QuestStateLevel == 7)
-			{
-				m_pPlayer->m_QuestProgressValue2++;
-				m_pPlayer->m_QuestDebugValue++;
-				if (m_pPlayer->m_QuestProgressValue2 > 10)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
 		}
 
 		//show msg
@@ -4714,6 +4712,32 @@ void CCharacter::MoneyTile()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
+		//FARM QUEST
+		if (m_pPlayer->m_QuestState == 5)
+		{
+			if (m_pPlayer->m_QuestStateLevel < 7) //10 money
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+			else if (m_pPlayer->m_QuestStateLevel == 7)
+			{
+				//moneytile2
+			}
+			else if (m_pPlayer->m_QuestStateLevel == 8)
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				if (m_pPlayer->m_QuestProgressValue2 > 10)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+		}
 		if (m_pPlayer->IsMaxLevel())
 		{
 			if (m_pPlayer->m_xpmsg)
@@ -4775,35 +4799,6 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_xp = m_pPlayer->m_xp + 5;
 		}
 		m_pPlayer->m_money++;
-
-		//FARM QUEST
-		if (m_pPlayer->m_QuestState == 5)
-		{
-			if (m_pPlayer->m_QuestStateLevel < 7) //10 money
-			{
-				m_pPlayer->m_QuestProgressValue2++;
-				m_pPlayer->m_QuestDebugValue++;
-				if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
-			else if (m_pPlayer->m_QuestStateLevel == 7)
-			{
-				//moneytile2
-			}
-			else if (m_pPlayer->m_QuestStateLevel == 8)
-			{
-				m_pPlayer->m_QuestProgressValue2++;
-				m_pPlayer->m_QuestDebugValue++;
-				if (m_pPlayer->m_QuestProgressValue2 > 10)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
-		}
 
 		//show msg
 		if (m_pPlayer->m_xpmsg)
@@ -4911,6 +4906,32 @@ void CCharacter::MoneyTileDouble()
 					GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 					return;
 				}
+				//FARM QUEST
+				if (m_pPlayer->m_QuestState == 5)
+				{
+					if (m_pPlayer->m_QuestStateLevel < 7) //10 money
+					{
+						m_pPlayer->m_QuestProgressValue2++;
+						if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
+						{
+							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+							m_pPlayer->m_QuestProgressValue2 = 0;
+						}
+					}
+					else if (m_pPlayer->m_QuestStateLevel == 7)
+					{
+						//moneytile2
+					}
+					else if (m_pPlayer->m_QuestStateLevel == 8)
+					{
+						m_pPlayer->m_QuestProgressValue2++;
+						if (m_pPlayer->m_QuestProgressValue2 > 10)
+						{
+							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+							m_pPlayer->m_QuestProgressValue2 = 0;
+						}
+					}
+				}
 				if (m_pPlayer->IsMaxLevel())
 				{
 					if (m_pPlayer->m_xpmsg)
@@ -4950,35 +4971,6 @@ void CCharacter::MoneyTileDouble()
 					m_pPlayer->m_xp = m_pPlayer->m_xp + 10;
 				}
 				m_pPlayer->m_money += 4;
-
-				//FARM QUEST
-				if (m_pPlayer->m_QuestState == 5)
-				{
-					if (m_pPlayer->m_QuestStateLevel < 7) //10 money
-					{
-						m_pPlayer->m_QuestProgressValue2++;
-						m_pPlayer->m_QuestDebugValue++;
-						if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
-						{
-							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-							m_pPlayer->m_QuestProgressValue2 = 0;
-						}
-					}
-					else if (m_pPlayer->m_QuestStateLevel == 7)
-					{
-						//moneytile2
-					}
-					else if (m_pPlayer->m_QuestStateLevel == 8)
-					{
-						m_pPlayer->m_QuestProgressValue2++;
-						m_pPlayer->m_QuestDebugValue++;
-						if (m_pPlayer->m_QuestProgressValue2 > 10)
-						{
-							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-							m_pPlayer->m_QuestProgressValue2 = 0;
-						}
-					}
-				}
 
 				//show msg
 				if (m_pPlayer->m_xpmsg)
@@ -6436,212 +6428,7 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-	{
-		if (m_pPlayer->m_AccountID <= 0)
-		{
-			//GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
-			//return;
-			//this retrun produces some funny stuff xD (produced back then when it was in character tick func now in ddpp tick it will just fuck ddpp features)
-		}
-		else if (m_pPlayer->IsMaxLevel())
-		{
-			if (m_pPlayer->m_xpmsg)
-			{
-				GameServer()->SendBroadcast("[FLAG] You reached the maximum level.", m_pPlayer->GetCID(), 0);
-			}
-		}
-		else
-		{
-			if (Server()->Tick() % 50 == 0)
-			{
-				if (((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
-				{
-					//only need the else xD
-				}
-				else if (((m_TileIndex == TILE_MONEY_2) || (m_TileFIndex == TILE_MONEY_2)))
-				{
-					//only need the else xD
-				}
-				else
-				{
-					int VIPBonus = 0;
-
-					//vip+ get 2 bonus
-					if (m_pPlayer->m_IsSuperModerator)
-					{
-						m_pPlayer->m_xp += 2;
-						m_pPlayer->m_money += 2;
-
-						VIPBonus = 2;
-					}
-
-					//vip get 1 bonus
-					else if (m_pPlayer->m_IsModerator)
-					{
-						m_pPlayer->m_xp++;
-						m_pPlayer->m_money++;
-
-						VIPBonus = 1;
-					}
-
-					if (m_InBank && GameServer()->m_IsBankOpen)
-					{
-						if (VIPBonus)
-						{
-							if (!m_pPlayer->m_xpmsg)
-							{
-								GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-								//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
-							}
-							else if (m_survivexpvalue == 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++;
-							}
-							else if (m_survivexpvalue > 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++; //flag
-								m_pPlayer->m_xp += m_survivexpvalue; // survival
-							}
-						}
-						else
-						{
-							if (!m_pPlayer->m_xpmsg)
-							{
-								GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-							}
-							else if (m_survivexpvalue == 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++;
-							}
-							else if (m_survivexpvalue > 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++; //flag
-								m_pPlayer->m_xp += m_survivexpvalue; // survival
-							}
-						}
-					}
-					else if (m_InShop)
-					{
-						if (!m_pPlayer->m_xpmsg)
-						{
-							GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
-						}
-						else if (m_survivexpvalue == 0)
-						{
-							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							m_pPlayer->m_xp++;
-						}
-						else if (m_survivexpvalue > 0)
-						{
-							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							m_pPlayer->m_xp++; //flag
-							m_pPlayer->m_xp += m_survivexpvalue; // survival
-						}
-						else
-						{
-							if (!m_pPlayer->m_xpmsg)
-							{
-								GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
-							}
-							else if (m_survivexpvalue == 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++;
-							}
-							else if (m_survivexpvalue > 0)
-							{
-								char aBuf[256];
-								str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-								m_pPlayer->m_xp++; //flag
-								m_pPlayer->m_xp += m_survivexpvalue; // survival
-							}
-						}
-					}
-					else  //not in bank
-					{
-						if (VIPBonus)
-						{
-							if (m_pPlayer->m_xpmsg)
-							{
-								if (m_survivexpvalue == 0)
-								{
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
-									GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-									m_pPlayer->m_xp++;
-								}
-								else if (m_survivexpvalue > 0)
-								{
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
-									GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-									m_pPlayer->m_xp++; //flag
-									m_pPlayer->m_xp += m_survivexpvalue; // survival
-								}
-							}
-						}
-						else
-						{
-							if (m_pPlayer->m_xpmsg)
-							{
-								if (m_survivexpvalue == 0)
-								{
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
-									GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-									m_pPlayer->m_xp++;
-								}
-								else if (m_survivexpvalue > 0)
-								{
-									char aBuf[256];
-									str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
-									GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-									m_pPlayer->m_xp++; //flag
-									m_pPlayer->m_xp += m_survivexpvalue; // survival
-								}
-							}
-						}
-					}
-				}
-
-				//no matter where (bank, moneytile, ...) quests are external
-				//FARM QUEST
-				if (m_pPlayer->m_QuestState == 5)
-				{
-					if (m_pPlayer->m_QuestStateLevel == 9)
-					{
-						m_pPlayer->m_QuestProgressValue2++;
-						m_pPlayer->m_QuestDebugValue++;
-						if (m_pPlayer->m_QuestProgressValue2 > 20)
-						{
-							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-							m_pPlayer->m_QuestProgressValue2 = 0;
-						}
-					}
-				}
-			}
-		}
-	}
+	DDPP_FlagTick();
 
 	if (m_pPlayer->m_GiftDelay > 0)
 	{
@@ -6879,6 +6666,208 @@ void CCharacter::DDPP_Tick()
 	//fast resets
 	m_InJailOpenArea = false;
 
+}
+
+void CCharacter::DDPP_FlagTick()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) == -1)
+		return;
+
+	if (m_pPlayer->m_AccountID <= 0)
+		return; // GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
+
+	if (Server()->Tick() % 50 == 0)
+	{
+		if (((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
+			return;
+		if (((m_TileIndex == TILE_MONEY_2) || (m_TileFIndex == TILE_MONEY_2)))
+			return;
+
+		// no matter where (bank, moneytile, ...) quests are independent
+		//FARM QUEST
+		if (m_pPlayer->m_QuestState == 5)
+		{
+			if (m_pPlayer->m_QuestStateLevel == 9)
+			{
+				m_pPlayer->m_QuestProgressValue2++;
+				if (m_pPlayer->m_QuestProgressValue2 > 20)
+				{
+					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					m_pPlayer->m_QuestProgressValue2 = 0;
+				}
+			}
+		}
+
+		if (m_pPlayer->IsMaxLevel())
+		{
+			if (m_pPlayer->m_xpmsg)
+			{
+				GameServer()->SendBroadcast("[FLAG] You reached the maximum level.", m_pPlayer->GetCID(), 0);
+			}
+			return;
+		}
+
+		int VIPBonus = 0;
+
+		//vip+ get 2 bonus
+		if (m_pPlayer->m_IsSuperModerator)
+		{
+			m_pPlayer->m_xp += 2;
+			m_pPlayer->m_money += 2;
+
+			VIPBonus = 2;
+		}
+
+		//vip get 1 bonus
+		else if (m_pPlayer->m_IsModerator)
+		{
+			m_pPlayer->m_xp++;
+			m_pPlayer->m_money++;
+
+			VIPBonus = 1;
+		}
+
+		if (m_InBank && GameServer()->m_IsBankOpen)
+		{
+			if (VIPBonus)
+			{
+				if (!m_pPlayer->m_xpmsg)
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+					//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+				}
+				else if (m_survivexpvalue == 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++;
+				}
+				else if (m_survivexpvalue > 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++; //flag
+					m_pPlayer->m_xp += m_survivexpvalue; // survival
+				}
+			}
+			else
+			{
+				if (!m_pPlayer->m_xpmsg)
+				{
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+				}
+				else if (m_survivexpvalue == 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++;
+				}
+				else if (m_survivexpvalue > 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++; //flag
+					m_pPlayer->m_xp += m_survivexpvalue; // survival
+				}
+			}
+		}
+		else if (m_InShop)
+		{
+			if (!m_pPlayer->m_xpmsg)
+			{
+				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+			}
+			else if (m_survivexpvalue == 0)
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				m_pPlayer->m_xp++;
+			}
+			else if (m_survivexpvalue > 0)
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				m_pPlayer->m_xp++; //flag
+				m_pPlayer->m_xp += m_survivexpvalue; // survival
+			}
+			else
+			{
+				if (!m_pPlayer->m_xpmsg)
+				{
+					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				}
+				else if (m_survivexpvalue == 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++;
+				}
+				else if (m_survivexpvalue > 0)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					m_pPlayer->m_xp++; //flag
+					m_pPlayer->m_xp += m_survivexpvalue; // survival
+				}
+			}
+		}
+		else  //not in bank
+		{
+			if (VIPBonus)
+			{
+				if (m_pPlayer->m_xpmsg)
+				{
+					if (m_survivexpvalue == 0)
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						m_pPlayer->m_xp++;
+					}
+					else if (m_survivexpvalue > 0)
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, VIPBonus, m_survivexpvalue);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						m_pPlayer->m_xp++; //flag
+						m_pPlayer->m_xp += m_survivexpvalue; // survival
+					}
+				}
+			}
+			else
+			{
+				if (m_pPlayer->m_xpmsg)
+				{
+					if (m_survivexpvalue == 0)
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag", m_pPlayer->m_xp, m_pPlayer->m_neededxp);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						m_pPlayer->m_xp++;
+					}
+					else if (m_survivexpvalue > 0)
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d survival", m_pPlayer->m_xp, m_pPlayer->m_neededxp, m_survivexpvalue);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						m_pPlayer->m_xp++; //flag
+						m_pPlayer->m_xp += m_survivexpvalue; // survival
+					}
+				}
+			}
+		}
+	}
 }
 
 bool CCharacter::DDPP_Respawn()
