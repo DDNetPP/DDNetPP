@@ -4,6 +4,7 @@
 
 #include <new>
 #include <base/math.h>
+#include <base/ddpp_logs.h>
 #include <engine/shared/config.h>
 #include <engine/map.h>
 #include <engine/console.h>

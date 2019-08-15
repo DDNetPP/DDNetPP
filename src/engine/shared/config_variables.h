@@ -579,6 +579,7 @@ MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_S
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
 //MACRO_CONFIG_STR(SvFilterLogString, sv_filter_log_str, 256, "", CFGFLAG_SERVER, "Is used to filter the server log depending on sv_filter_log_state")
+MACRO_CONFIG_INT(SvMasterServerLogs, sv_mastersrv_logs, 1, 0, 1, CFGFLAG_SERVER, "1=on: show firewall/mastersrv msgs in console 0=off: save to ddnet++ variable (rcon cmd 'logs')")
 
 //test
 MACRO_CONFIG_INT(SvSpeedLogin, sv_speed_login, 0, 0, 1, CFGFLAG_SERVER, "only for testing login speed")

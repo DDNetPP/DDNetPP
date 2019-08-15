@@ -9,6 +9,7 @@
  
 #include "system.h"
 #include "confusables.h"
+#include "ddpp_logs.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -867,7 +868,7 @@ static int priv_net_extract(const char *hostname, char *host, int max_host, int 
 	return 0;
 }
 
-int net_host_lookup(const char *hostname, NETADDR *addr, int types)
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 {
 	struct addrinfo hints;
 	struct addrinfo *result = NULL;
@@ -878,7 +879,16 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types)
 	if(priv_net_extract(hostname, host, sizeof(host), &port))
 		return -1;
 
-	dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	if (logtype == 1)
+	{
+		dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	}
+	else
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[host lookup] host='%s' port=%d %d", host, port, types);
+		ddpp_log(DDPP_LOG_MASTER, aBuf);
+	}
 
 	mem_zero(&hints, sizeof(hints));
 

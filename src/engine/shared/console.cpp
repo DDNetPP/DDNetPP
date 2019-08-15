@@ -4,6 +4,7 @@
 
 #include <base/math.h>
 #include <base/system.h>
+#include <base/ddpp_logs.h>
 
 #include <engine/storage.h>
 #include <engine/shared/protocol.h>
@@ -220,15 +221,30 @@ void CConsole::SetPrintOutputLevel(int Index, int OutputLevel)
 		m_aPrintCB[Index].m_OutputLevel = clamp(OutputLevel, (int)(OUTPUT_LEVEL_STANDARD), (int)(OUTPUT_LEVEL_DEBUG));
 }
 
+void CConsole::PrintDDPPLogs(int type)
+{
+    for (int i = 0; i < DDPP_LOG_SIZE; i++)
+    {
+        if (!aDDPPLogs[type][i][0])
+            continue;
+		Print(OUTPUT_LEVEL_STANDARD, "ddpp_logs", aDDPPLogs[type][i]);
+    }
+}
+
 void CConsole::Print(int Level, const char *pFrom, const char *pStr, bool Highlighted)
 {
+	char aBuf[1024];
+	str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
+	if (Level == OUTPUT_LEVEL_DDPP_LOGS)
+	{
+		ddpp_log(DDPP_LOG_MASTER, aBuf);
+		return;
+	}
 	dbg_msg(pFrom ,"%s", pStr);
 	for(int i = 0; i < m_NumPrintCB; ++i)
 	{
 		if(Level <= m_aPrintCB[i].m_OutputLevel && m_aPrintCB[i].m_pfnPrintCallback)
 		{
-			char aBuf[1024];
-			str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
 			m_aPrintCB[i].m_pfnPrintCallback(aBuf, m_aPrintCB[i].m_pPrintCallbackUserdata, Highlighted);
 		}
 	}

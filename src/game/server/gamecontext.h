@@ -933,6 +933,7 @@ private:
 	static void ConIp(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);
+	static void ConDDPPLogs(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConGive(IConsole::IResult *pResult, void *pUserData);
 
