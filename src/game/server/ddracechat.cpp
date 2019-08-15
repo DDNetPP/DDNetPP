@@ -6939,8 +6939,10 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 	else if (!str_comp_nocase(pResult->GetString(0), "status"))
 	{
 		char aBuf[128];
-		char aGameState[32];
+		char aGameState[128];
 		char aDM[16];
+		char aTimeLimit[64];
+		str_copy(aTimeLimit, "", sizeof(aTimeLimit));
 		str_copy(aDM, "", sizeof(aDM));
 		switch (pSelf->m_survivalgamestate) {
 			case SURVIVAL_OFF:
@@ -6949,11 +6951,16 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 			case SURVIVAL_LOBBY:
 			str_copy(aGameState, "in lobby phase", sizeof(aGameState));
 			break;
-			case SURVIVAL_DM_COUNTDOWN:
 			case SURVIVAL_DM:
 			str_copy(aDM, "deathmatch", sizeof(aDM));
+			case SURVIVAL_DM_COUNTDOWN:
 			case SURVIVAL_INGAME:
-			str_format(aGameState, sizeof(aGameState), "running %s (%d seconds left max)", aDM, pSelf->m_survival_game_countdown / pSelf->Server()->TickSpeed());
+			if (pSelf->m_survival_game_countdown != -1)
+			{
+				float time = pSelf->m_survival_game_countdown / pSelf->Server()->TickSpeed();
+				str_format(aTimeLimit, sizeof(aTimeLimit),"(%d min %5.2f sec left max)", (int) time / 60, time - ((int) time / 60 * 60));
+			}
+			str_format(aGameState, sizeof(aGameState), "running %s %d/%d alive %s", aDM, pSelf->CountSurvivalPlayers(true), pSelf->m_survival_start_players, aTimeLimit);
 			break;
 			default:
 			str_copy(aGameState, "unkown", sizeof(aGameState));

@@ -3435,7 +3435,7 @@ void CGameContext::DDPP_Tick()
 		{
 			m_survival_game_countdown--;
 		}
-		if (m_survival_game_countdown <= 0)
+		if (m_survival_game_countdown == 0)
 		{
 			SendSurvivalChat("[SURVIVAL] Game ended due to timeout. Nobody won.");
 			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
@@ -4038,7 +4038,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 #endif
 	if (m_apPlayers[id])
 	{
-		if (mode == 0) //off
+		if (mode == SURVIVAL_OFF)
 		{
 			m_apPlayers[id]->m_IsSurvivaling = false;
 			m_apPlayers[id]->m_IsVanillaDmg = false;
@@ -4046,7 +4046,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsVanillaCompetetive = false;
 			m_apPlayers[id]->m_IsSurvivalAlive = false;
 		}
-		else if (mode == 1) //lobby
+		else if (mode == SURVIVAL_LOBBY)
 		{
 			m_apPlayers[id]->m_IsSurvivalAlive = false;
 			m_apPlayers[id]->m_IsSurvivaling = true;
@@ -4060,7 +4060,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 				dbg_msg("survival", "lobby started");
 			}
 		}
-		else if (mode == 2) //on
+		else if (mode == SURVIVAL_INGAME)
 		{
 			m_apPlayers[id]->m_IsSurvivalAlive = true;
 			m_apPlayers[id]->m_IsSurvivaling = true;
@@ -4070,7 +4070,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsSurvivalLobby = false;
 			m_apPlayers[id]->m_IsSurvivalWinner = false;
 		}
-		else if (mode == 3) //die
+		else if (mode == SURVIVAL_DIE)
 		{
 			m_apPlayers[id]->m_IsSurvivalAlive = false;
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
@@ -4124,7 +4124,7 @@ void CGameContext::SurvivalSetGameState(int state)
 	}
 	else if (state == SURVIVAL_INGAME)
 	{
-		m_survival_game_countdown = Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60);
+		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
@@ -4137,6 +4137,7 @@ void CGameContext::SurvivalSetGameState(int state)
 				SetPlayerSurvival(i, SURVIVAL_INGAME);
 			}
 		}
+		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
 	}
 	else if (state == SURVIVAL_DM_COUNTDOWN)
 	{
