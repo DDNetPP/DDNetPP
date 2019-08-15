@@ -2188,7 +2188,7 @@ void CGameContext::GiveXp(int id, int value)
 	if (m_apPlayers[id]->IsMaxLevel())
 		return;
 
-	m_apPlayers[id]->m_xp += value;
+	m_apPlayers[id]->m_xp += value; // TODO: clamp to max needed level if max level reached
 }
 
 void CGameContext::LoadFNNvalues()
@@ -4908,56 +4908,48 @@ void CGameContext::QuestCompleted(int playerID)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (!m_apPlayers[playerID])
+	CPlayer *pPlayer = m_apPlayers[playerID];
+	if (!pPlayer)
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!pPlayer->m_QuestState)
 	{
-		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()));
+		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", pPlayer->GetCID(), Server()->ClientName(pPlayer->GetCID()));
 		return;
 	}
 
-	//REMOVE ME
+	// reward
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "debug value: %d", m_apPlayers[playerID]->m_QuestDebugValue);
-	//SendChatTarget(playerID, aBuf);
-	m_apPlayers[playerID]->m_QuestDebugValue = 0;
-	//REMOVE ME
+	int RewardMoney = pPlayer->m_QuestStateLevel ? 100 : 50;
+	int RewardXP = QuestReward(playerID);
+	if (pPlayer->IsMaxLevel())
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
+	else // xp msg only if not max lvl
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
+	SendChatTarget(playerID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "+%d (quest)", RewardMoney);
+	pPlayer->MoneyTransaction(+100, aBuf);
+	GiveXp(playerID, RewardXP);
 
-
-	//char aBuf[256]; //uncomment me
-	if (!m_apPlayers[playerID]->m_QuestStateLevel)
-	{
-		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+50 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
-		SendChatTarget(playerID, aBuf);
-		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
-		m_apPlayers[playerID]->MoneyTransaction(+50, "+50 (quest)");
-	}
-	else
-	{
-		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+100 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
-		SendChatTarget(playerID, aBuf);
-		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
-		m_apPlayers[playerID]->MoneyTransaction(+100, "+100 (quest)");
-	}
+	// next quest
 	QuestReset(playerID);
-	m_apPlayers[playerID]->m_QuestState++;
-	m_apPlayers[playerID]->m_QuestUnlocked = m_apPlayers[playerID]->m_QuestState; //save highscore
-	if (m_apPlayers[playerID]->m_QuestState > 5) //<--- update value depending on how many quests
+	pPlayer->m_QuestState++;
+	pPlayer->m_QuestUnlocked = pPlayer->m_QuestState; //save highscore
+	if (pPlayer->m_QuestState > 5) // <--- update value depending on how many quests TODO: add a constant that replaces this magic number
 	{
-		m_apPlayers[playerID]->m_QuestState = 1; //start at quest 1 in the next level
-		m_apPlayers[playerID]->m_QuestStateLevel++;
-		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", m_apPlayers[playerID]->m_QuestStateLevel);
-		if (m_apPlayers[playerID]->m_QuestStateLevel > 9) //<--- update value depending on how many questlevels
+		pPlayer->m_QuestState = 1; // start at quest 1 in the next level
+		pPlayer->m_QuestStateLevel++;
+		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", pPlayer->m_QuestStateLevel);
+		if (pPlayer->m_QuestStateLevel > 9) // <--- update value depending on how many questlevels TODO: add a constant that replaces this magic number
 		{
-			m_apPlayers[playerID]->m_QuestState = 0;
-			m_apPlayers[playerID]->m_QuestStateLevel = 0;
+			pPlayer->m_QuestState = 0;
+			pPlayer->m_QuestStateLevel = 0;
 			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests !!!");
 			return;
 		}
-		m_apPlayers[playerID]->m_QuestLevelUnlocked = m_apPlayers[playerID]->m_QuestStateLevel; //save highscore
+		pPlayer->m_QuestLevelUnlocked = pPlayer->m_QuestStateLevel; // save highscore
 		SendChatTarget(playerID, aBuf);
 	}
 

@@ -219,6 +219,7 @@ public:
 		bool m_IsAccFrozen;
 
 		// city
+		// TODO: make all those variables private and use protected getters and setters (issue #269)
 		int64 m_level;
 		int64 m_xp;
 		int64 m_money;
@@ -578,7 +579,6 @@ public:
 	int m_QuestLastQuestedPlayerID; //store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
 	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
 	int m_QuestProgressValue2;
-	int m_QuestDebugValue;         //TODO: remove this var everywhere in code if finished debugging farm quest
 	bool m_QuestProgressBool;
 	int m_QuestPlayerID; //the id of the player which is the quest
 	char m_aQuestString[512]; //stores the quest information
