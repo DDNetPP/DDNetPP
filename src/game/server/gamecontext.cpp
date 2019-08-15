@@ -2188,7 +2188,7 @@ void CGameContext::GiveXp(int id, int value)
 	if (m_apPlayers[id]->IsMaxLevel())
 		return;
 
-	m_apPlayers[id]->m_xp += value; // TODO: clamp to max needed level if max level reached
+	m_apPlayers[id]->m_xp += value;
 }
 
 void CGameContext::LoadFNNvalues()
