@@ -10668,6 +10668,7 @@ void CGameContext::RegisterBanCheck(int ClientID)
 #endif
 	NETADDR Addr;
 	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
 	int regs = 0;
@@ -10717,10 +10718,12 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 #endif
 	char aBuf[128];
 	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for (int i = 0; i < m_NumRegisterBans; i++)
 	{
-		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, Addr) == 0)
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &NoPortAddr) == 0)
 		{
 			m_aRegisterBans[i].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
@@ -10732,7 +10735,7 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	{
 		if (m_NumRegisterBans < MAX_REGISTER_BANS)
 		{
-			m_aRegisterBans[m_NumRegisterBans].m_Addr = *Addr;
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = NoPortAddr;
 			m_aRegisterBans[m_NumRegisterBans].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
 			m_NumRegisterBans++;
