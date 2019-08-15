@@ -410,6 +410,7 @@ public:
 	int m_survivallobbycountdown;
 	int m_survival_dm_countdown;
 	int m_survival_game_countdown;
+	int m_survival_start_players;
 	char m_aLastSurvivalWinnerName[32];
 	enum {
 		SURVIVAL_OFF,				// gamestate	playerstate
