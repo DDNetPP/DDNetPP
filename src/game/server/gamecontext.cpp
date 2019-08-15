@@ -3953,16 +3953,14 @@ void CGameContext::SurvivalDeathmatchTick()
 	}
 }
 
-void CGameContext::SurvivalCheckWinnerAndDeathMatch()
+void CGameContext::SurvivalCheckWinnerAndDeathMatch(int AliveTees)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
-	int AliveTees = CountSurvivalPlayers(true);
 	if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
 	{
-		//SendSurvivalChat("[SURVIVAL] Good Game some1 won!");
 		if (!SurvivalPickWinner()) { SendSurvivalChat("[SURVIVAL] Nobody won."); }
 		SurvivalSetGameState(SURVIVAL_LOBBY);
 	}
@@ -3993,7 +3991,8 @@ void CGameContext::SurvivalStartGame()
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
 		//SendSurvivalBroadcast("STAY ALIVE!!!");
 		SendSurvivalBroadcast(""); // clear countdown
-		SurvivalCheckWinnerAndDeathMatch();
+		int AliveTees = CountSurvivalPlayers(true);
+		SurvivalCheckWinnerAndDeathMatch(AliveTees);
 	}
 }
 
@@ -4056,7 +4055,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			m_apPlayers[id]->m_IsSurvivalLobby = true;
 			if (!m_survivalgamestate) //no game running --> start lobby
 			{
-				SurvivalSetGameState(1);
+				SurvivalSetGameState(SURVIVAL_LOBBY);
 				dbg_msg("survival", "lobby started");
 			}
 		}
@@ -4081,6 +4080,27 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
 		}
 	}
+}
+
+int CGameContext::SurvivalGetRandomAliveID(int NotThis)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int r = rand() % CountSurvivalPlayers(true);
+	int x = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (i == NotThis)
+			continue;
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
+		{
+			if (x++ == r) { return i; }
+		}
+	}
+	return -1;
 }
 
 int CGameContext::CountSurvivalPlayers(bool Alive)
@@ -4121,6 +4141,13 @@ void CGameContext::SurvivalSetGameState(int state)
 	else if (state == SURVIVAL_LOBBY)
 	{
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+			{
+				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
+			}
+		}
 	}
 	else if (state == SURVIVAL_INGAME)
 	{
@@ -4134,6 +4161,7 @@ void CGameContext::SurvivalSetGameState(int state)
 					SaveCosmetics(i);
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
+				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
 				SetPlayerSurvival(i, SURVIVAL_INGAME);
 			}
 		}
