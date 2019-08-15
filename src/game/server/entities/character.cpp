@@ -8007,6 +8007,7 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	bool selfkill = Killer == m_pPlayer->GetCID();
 	if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_apPlayers[Killer]->m_IsSurvivalAlive) //ignore lobby and stuff
 	{
 		char aBuf[128];
@@ -8015,14 +8016,20 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		{
 			if (GameServer()->m_survivalgamestate > 1) //if game running
 			{
-				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 3); //set player to dead
+				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), GameServer()->SURVIVAL_DIE);
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
-				GameServer()->SurvivalCheckWinnerAndDeathMatch();
+				int AliveTees = GameServer()->CountSurvivalPlayers(true);
+				GameServer()->SurvivalCheckWinnerAndDeathMatch(AliveTees);
+				if (AliveTees > 1)
+				{
+					m_pPlayer->m_SpectatorID = selfkill ? GameServer()->SurvivalGetRandomAliveID() : Killer;
+					m_pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
+				}
 			}
 		}
 
 		//=== KILLS ===
-		if (Killer != m_pPlayer->GetCID()) // don't count selfkills as kills
+		if (!selfkill)
 		{
 			if (GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
 			{

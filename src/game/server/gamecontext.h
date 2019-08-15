@@ -395,8 +395,9 @@ public:
 		SURVIVAL_DM
 	*/
 	void SurvivalSetGameState(int state);
-	void SurvivalCheckWinnerAndDeathMatch();
+	void SurvivalCheckWinnerAndDeathMatch(int AliveTees);
 	bool SurvivalPickWinner();
+	int SurvivalGetRandomAliveID(int NotThis = -1);
 	/*
 		m_survivalgamestate
 		0	SURVIVAL_OFF
