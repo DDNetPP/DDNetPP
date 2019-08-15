@@ -8303,6 +8303,11 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN-CHAT] missing permission to use this command.");
 		return;
 	}
+	if (pResult->NumArguments() == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN-CHAT] write a chat message that is only visible to admins.");
+		return;
+	}
 
 	char aMsg[256];
 	str_format(aMsg, sizeof(aMsg), "[%s]: %s", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetString(0));
