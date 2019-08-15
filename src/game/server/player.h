@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#define ACC_MAX_LEVEL 99 // WARNING!!! if you increase this value make sure to append needexp in player.cpp:CalcExp()
+
 // player object
 class CPlayer
 {
@@ -183,18 +185,19 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
-	//usefull everywhere
+	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description);
 	bool IsInstagibMinigame();
+	bool IsMaxLevel() { return m_level >= ACC_MAX_LEVEL; }
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetetive;
-	//bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
+	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	int m_LastBroadcast;
 	int m_LastBroadcastImportance;
 
-	//login and threads
+	// login and threads
 	void ThreadLoginStart(const char * pUsername, const char * pPassword);
 	static void ThreadLoginWorker(void * pArg);
 	void ThreadLoginDone();
@@ -667,7 +670,6 @@ public:
 	int m_aliveplusxp;
 	int m_shit;
 	int m_level;
-	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
 	int64 m_xp;
 	int64 m_neededxp;
 	int64 m_money;

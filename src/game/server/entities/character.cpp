@@ -3289,7 +3289,7 @@ void CCharacter::HandleTiles(int Index)
 		*/
 
 		// GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got +100 xp for finishing the map :) see your stats with /stats.");
-		if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+		if (m_pPlayer->IsMaxLevel())
 		{
 			// a message here woudl be annoying
 			// but made it like this because i made it like this everywhere (lower confusing risk)
@@ -4528,7 +4528,7 @@ void CCharacter::MoneyTile2()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
-		else if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+		else if (m_pPlayer->IsMaxLevel())
 		{
 			if (m_pPlayer->m_xpmsg)
 			{
@@ -4714,7 +4714,7 @@ void CCharacter::MoneyTile()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
-		if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+		if (m_pPlayer->IsMaxLevel())
 		{
 			if (m_pPlayer->m_xpmsg)
 			{
@@ -4911,7 +4911,7 @@ void CCharacter::MoneyTileDouble()
 					GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 					return;
 				}
-				if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+				if (m_pPlayer->IsMaxLevel())
 				{
 					if (m_pPlayer->m_xpmsg)
 					{
@@ -5094,7 +5094,7 @@ void CCharacter::MoneyTilePlus()
 		}
 		*/
 
-		if (m_pPlayer->m_level > m_pPlayer->m_max_level) //dont give xp for max level dudes
+		if (m_pPlayer->IsMaxLevel())
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile!  +500money");
 			m_pPlayer->m_money += 500;
@@ -6444,7 +6444,7 @@ void CCharacter::DDPP_Tick()
 			//return;
 			//this retrun produces some funny stuff xD (produced back then when it was in character tick func now in ddpp tick it will just fuck ddpp features)
 		}
-		else if (m_pPlayer->m_level > m_pPlayer->m_max_level)
+		else if (m_pPlayer->IsMaxLevel())
 		{
 			if (m_pPlayer->m_xpmsg)
 			{
@@ -7050,9 +7050,9 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 
 			if (GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
 			{
-				if (GameServer()->m_apPlayers[Killer]->m_level > GameServer()->m_apPlayers[Killer]->m_max_level || //dont give xp on max lvl
-					GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || //dont give xp on dummy kill
-					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) //dont give xp on killing same ip twice in a row
+				if (GameServer()->m_apPlayers[Killer]->IsMaxLevel() ||
+					GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || // dont give xp on dummy kill
+					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
 					)
 				{
 					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "[PVP] +150 pvp_arena kill");
@@ -7521,7 +7521,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 					}
 
 					//give xp reward to the blocker
-					if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->m_level <= m_pPlayer->m_max_level)
+					if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
 					{
 						if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_HideBlockXp)
 						{
