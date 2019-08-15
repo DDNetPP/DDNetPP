@@ -2371,6 +2371,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	NETADDR Addr;
 	pSelf->Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
 	int RegBanned = 0;
 
 	for(int i = 0; i < pSelf->m_NumRegisterBans && !RegBanned; i++)
