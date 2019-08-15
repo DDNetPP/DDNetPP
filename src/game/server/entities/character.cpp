@@ -8010,7 +8010,6 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 	bool selfkill = Killer == m_pPlayer->GetCID();
 	if (m_pPlayer->m_IsSurvivalAlive && GameServer()->m_apPlayers[Killer]->m_IsSurvivalAlive) //ignore lobby and stuff
 	{
-		char aBuf[128];
 		//=== DEATHS and WINCHECK ===
 		if (m_pPlayer->m_IsSurvivaling)
 		{
