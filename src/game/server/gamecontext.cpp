@@ -2185,7 +2185,7 @@ void CGameContext::GiveXp(int id, int value)
 #endif
 	if (!m_apPlayers[id])
 		return;
-	if (m_apPlayers[id]->m_level >= m_apPlayers[id]->m_max_level)
+	if (m_apPlayers[id]->IsMaxLevel())
 		return;
 
 	m_apPlayers[id]->m_xp += value;

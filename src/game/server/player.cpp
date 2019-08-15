@@ -202,7 +202,6 @@ void CPlayer::Reset()
 	m_Dummy_nn_highest_Distance = 0.0f;
 	m_Dummy_nn_highest_Distance_touched = 0.0f;
 	m_Minigameworld_size_x = 30;
-	m_max_level = 99; //is actually 1 more
 	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
 	m_ci_latest_dest_dist = 0;
 	m_Insta1on1_id = -1;
@@ -1633,8 +1632,12 @@ void CPlayer::CalcExp()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-
-	dbg_msg("debug", "caling exp");
+	if (IsMaxLevel())
+	{
+		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
+		return;
+	}
+	dbg_msg("account", "calculate needed xp");
 
 	//old dynamic shit rofl
 	//if (m_level < 1)
@@ -1957,36 +1960,7 @@ void CPlayer::CalcExp()
 	else
 		m_neededxp = 404000000000000;    //404 error         
 
-
-
-		//WARNING!
-		/*
-
-		OLD!!!
-
-		by increasing max level you need to change the hardcodet max level 99:
-		you need to make some changes in the following places:
-
-		player.ccp (CheckLevel())
-		character.cpp(HasFlag)
-		character.cpp(Moneytile)
-		character.cpp(Moneytile2)
-		character.cpp(Moneytileplus)
-		character.cpp(Finish)
-		character.cpp(void CCharacter::Die(int Killer, int Weapon))  (hammerfight)
-
-
-		NEW!!!
-
-		made it dynamic!
-		there is a var called m_max_level
-		update this var if u increase the level sys
-
-
-		TODO: add a makro for max lvl
-
-		*/
-
+	// make sure to update ACC_MAX_LEVEL when adding more level (neededxp has only to be defined until max level - 1)
 }
 
 void CPlayer::CheckLevel()
@@ -1994,10 +1968,9 @@ void CPlayer::CheckLevel()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_level > m_max_level)
-		return;
-
 	if (m_AccountID <= 0)
+		return;
+	if (IsMaxLevel())
 		return;
 
 	if (m_neededxp <= 0)
