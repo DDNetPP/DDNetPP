@@ -1632,129 +1632,8 @@ void CPlayer::CalcExp()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (IsMaxLevel())
-	{
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
-		return;
-	}
-	dbg_msg("account", "calculate needed xp");
-
-	//old dynamic shit rofl
-	//if (m_level < 1)
-	//	m_neededxp = 5000;
-	//else
-	//	//m_neededxp = 5000 * (m_level * 5.5);
-	//	//old fucked the account system because neededxp wasnt saved and if u disconnect u need more xp
-	//	//m_neededxp = m_xp + (m_level * 2500);   <-- old one had the xp value in it what changes so the neededxp changes on account load -.-
-	//	m_neededxp = (m_level * 3500) + (m_level-- * 3500);
-
-	//new cuz hardcode is best
-	//Old is a bit too exponential
-	//								//Collected xp
-	//if (m_level == 0)
-	//	m_neededxp = 5000;			
-	//else if (m_level == 1)			//5 000
-	//	m_neededxp = 10000;			
-	//else if (m_level == 2)			//15 000
-	//	m_neededxp = 20000;
-	//else if (m_level == 3)			//35 000			Rainbow
-	//	m_neededxp = 40000;
-	//else if (m_level == 4)			//75 000
-	//	m_neededxp = 50000;
-	//else if (m_level == 5)			//125 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 6)			//225 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 7)			//325 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 8)			//425 000			Bloody
-	//	m_neededxp = 100000;
-	//else if (m_level == 9)			//525 000			room_key
-	//	m_neededxp = 200000;
-	//else if (m_level == 10)			//625 000			
-	//	m_neededxp = 300000;
-	//else if (m_level == 11)			//925 000			Police[1]
-	//	m_neededxp = 400000;
-	//else if (m_level == 12)			//1 325 000
-	//	m_neededxp = 500000;
-	//else if (m_level == 13)			//1 825 000
-	//	m_neededxp = 800000;
-	//else if (m_level == 14)			//2 625 000
-	//	m_neededxp = 1000000;
-	//else if (m_level == 15)			//3 625 000			Police[2]			Taser
-	//	m_neededxp = 2000000;
-	//else if (m_level == 16)			//5 625 000
-	//	m_neededxp = 3000000;
-	//else if (m_level == 17)			//8 625 000
-	//	m_neededxp = 4000000;
-	//else if (m_level == 18)			//12 625 000
-	//	m_neededxp = 5000000;
-	//else if (m_level == 19)			//17 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 20)			//27 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 21)			//37 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 22)			//47 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 23)			//57 625 000
-	//	m_neededxp = 10500000;
-	//else if (m_level == 24)			//68 125 000
-	//	m_neededxp = 15000000;
-	//else if (m_level == 25)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 26)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 27)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 28)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 29)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 30)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 31)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 32)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 33)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 34)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 35)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 36)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 37)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 38)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 39)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 40)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 41)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 42)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 43)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 44)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 45)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 46)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 47)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 48)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 49)
-	//	m_neededxp = 100000000;
-	//else if (m_level == 50)
-	//	m_neededxp = 100000000;
-
-	//New less exponential
+	int OldNeededXp = m_neededxp;
+	dbg_msg("account", "CalcExp() neededxp=%d xp=%d", OldNeededXp, m_xp);
 
 	//										xp diff
 	if (m_level == 0)
@@ -1961,6 +1840,13 @@ void CPlayer::CalcExp()
 		m_neededxp = 404000000000000;    //404 error         
 
 	// make sure to update ACC_MAX_LEVEL when adding more level (neededxp has only to be defined until max level - 1)
+
+	if (IsMaxLevel())
+	{
+		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
+		m_xp = OldNeededXp;
+		// m_neededxp = OldNeededXp; // covered by the 404 else if ACC_MAX_LEVEL is if branch limit if it is less it uses next levels neededxp which doesnt hurt either
+	}
 }
 
 void CPlayer::CheckLevel()

@@ -2855,6 +2855,24 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 	}
 	else //blockcity stats
 	{
+		/*
+		TODO: !!!!!!!
+ _____ ___  ____   ___            _   _                __                  
+|_   _/ _ \|  _ \ / _ \ _    ___ | |_| |__   ___ _ __ / /____      ___ __  
+  | || | | | | | | | | (_)  / _ \| __| '_ \ / _ \ '__/ / _ \ \ /\ / / '_ \ 
+  | || |_| | |_| | |_| |_  | (_) | |_| | | |  __/ | / / (_) \ V  V /| | | |
+  |_| \___/|____/ \___/(_)  \___/ \__|_| |_|\___|_|/_/ \___/ \_/\_/ |_| |_|
+                                                                           
+                     _                     
+ _ __ ___   __ _  __| |_ __   ___  ___ ___ 
+| '_ ` _ \ / _` |/ _` | '_ \ / _ \/ __/ __|
+| | | | | | (_| | (_| | | | |  __/\__ \__ \
+|_| |_| |_|\__,_|\__,_|_| |_|\___||___/___/
+                                           
+
+										   me really sometimes hate i older self sometimes, like wtf!?!
+										   well also my current self didnt want to fix the shit so hfgl future me ;/
+		*/
 		if (pResult->NumArguments() > 0) //other players stats
 		{
 			char aStatsName[32];
@@ -2866,6 +2884,7 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
+			// TODO: make not logged in acc stats better ( write somewhere that acc is not logged in instead of showing bugged neededxp )
 			//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
 			//{
 			//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
@@ -2875,7 +2894,10 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 
 			str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
+			if (pSelf->m_apPlayers[StatsID]->m_level == ACC_MAX_LEVEL)
+				str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pSelf->m_apPlayers[StatsID]->m_level);
+			else
+				str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -2899,7 +2921,10 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 		else //own stats
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
-			str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
+			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_level == ACC_MAX_LEVEL)
+				str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pSelf->m_apPlayers[pResult->m_ClientID]->m_level);
+			else
+				str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[pResult->m_ClientID]->m_level);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->m_xp, pPlayer->m_neededxp);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
