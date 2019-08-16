@@ -186,7 +186,7 @@ public:
 	bool m_FirstPacket;
 
 	// usefull everywhere
-	void MoneyTransaction(int Amount, const char *Description);
+	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame();
 	bool IsMaxLevel() { return m_level >= ACC_MAX_LEVEL; }
 	bool IsLoggedIn() { return m_AccountID != 0; } // -1 filebased acc >0 sql id
@@ -208,6 +208,16 @@ public:
 	void SetXP(int xp);
 	int GetXP() { return m_xp; }
 	int GetNeededXP() { return m_neededxp; }
+	int GetLevel() { return m_level; }
+	void SetLevel(int level);
+	int GetMoney() { return m_money; }
+	/*
+		SetMoney()
+
+		WARNING you probably want to use MoneyTransaction(int Amount, char* Desc) instead!
+		This is only used for specific cases! Dont touch it if you have no idea how it works xd
+	*/
+	void SetMoney(int money);
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
@@ -700,9 +710,6 @@ public:
 	bool m_BoughtRoom;
 	int m_aliveplusxp;
 	int m_shit;
-	int m_level;
-	int64 m_neededxp;
-	int64 m_money;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;
@@ -811,7 +818,10 @@ public:
 
 	private: // private ddnet+++
 	int m_AccountID;
+	int m_level;
 	int64 m_xp;
+	int64 m_neededxp;
+	int64 m_money;
 };
 
 #endif

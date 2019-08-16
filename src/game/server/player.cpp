@@ -814,9 +814,9 @@ void CPlayer::Snap(int SnappingClient)
 			if (IsLoggedIn())
 			{
 				if (pSnapping->m_ScoreFixForDDNet)
-					pPlayerInfo->m_Score = m_level * 60;
+					pPlayerInfo->m_Score = GetLevel() * 60;
 				else
-					pPlayerInfo->m_Score = m_level;
+					pPlayerInfo->m_Score = GetLevel();
 			}
 			else if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
@@ -1888,6 +1888,8 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
+	if (!str_comp(Description, ""))
+		return;
 	char aDesc[64];
 	str_format(aDesc, sizeof(aDesc), "%s%d (%s)", Amount > 0 ? "+" : "", Amount, Description);
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
@@ -2208,4 +2210,22 @@ void CPlayer::SetXP(int xp)
 	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", ID, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_xp = xp;
+}
+
+void CPlayer::SetLevel(int level)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", ID, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_level = level;
+}
+
+void CPlayer::SetMoney(int money)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", ID, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_money = money;
 }
