@@ -2802,150 +2802,35 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	int ClientID = pResult->m_ClientID;
+	int StatsID = ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if (!pPlayer)
 		return;
-
-	//CCharacter* pChr = pPlayer->GetCharacter();
-	//if (!pChr)
-	//	return;
+	CPlayer *pStats = pPlayer;
 
 	char aBuf[512];
+
+	if (pResult->NumArguments() > 0) //other players stats
+	{
+		char aStatsName[32];
+		str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
+		StatsID = pSelf->GetCIDByName(aStatsName);
+		if (StatsID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
+		pStats = pSelf->m_apPlayers[StatsID];
+	}
+
 	if (pPlayer->m_IsInstaArena_idm || pPlayer->m_IsInstaArena_gdm || g_Config.m_SvInstagibMode)
-	{
-		if (pResult->NumArguments() > 0) //other players stats
-		{
-			char aStatsName[32];
-			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
-			int StatsID = pSelf->GetCIDByName(aStatsName);
-			if (StatsID == -1)
-			{
-				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
-				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-				return;
-			}
-
-			pSelf->ShowInstaStats(pResult->m_ClientID, StatsID);
-		}
-		else
-		{
-			pSelf->ShowInstaStats(pResult->m_ClientID, pResult->m_ClientID);
-		}
-	}
+		pSelf->ShowInstaStats(ClientID, StatsID);
 	else if (pPlayer->m_IsSurvivaling)
-	{
-		if (pResult->NumArguments() > 0) //other players stats
-		{
-			char aStatsName[32];
-			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
-			int StatsID = pSelf->GetCIDByName(aStatsName);
-			if (StatsID == -1)
-			{
-				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
-				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-				return;
-			}
-
-			pSelf->ShowSurvivalStats(pResult->m_ClientID, StatsID);
-		}
-		else
-		{
-			pSelf->ShowSurvivalStats(pResult->m_ClientID, pResult->m_ClientID);
-		}
-	}
-	else //blockcity stats
-	{
-		/*
-		TODO: !!!!!!!
- _____ ___  ____   ___            _   _                __                  
-|_   _/ _ \|  _ \ / _ \ _    ___ | |_| |__   ___ _ __ / /____      ___ __  
-  | || | | | | | | | | (_)  / _ \| __| '_ \ / _ \ '__/ / _ \ \ /\ / / '_ \ 
-  | || |_| | |_| | |_| |_  | (_) | |_| | | |  __/ | / / (_) \ V  V /| | | |
-  |_| \___/|____/ \___/(_)  \___/ \__|_| |_|\___|_|/_/ \___/ \_/\_/ |_| |_|
-                                                                           
-                     _                     
- _ __ ___   __ _  __| |_ __   ___  ___ ___ 
-| '_ ` _ \ / _` |/ _` | '_ \ / _ \/ __/ __|
-| | | | | | (_| | (_| | | | |  __/\__ \__ \
-|_| |_| |_|\__,_|\__,_|_| |_|\___||___/___/
-                                           
-
-										   me really sometimes hate i older self sometimes, like wtf!?!
-										   well also my current self didnt want to fix the shit so hfgl future me ;/
-		*/
-		if (pResult->NumArguments() > 0) //other players stats
-		{
-			char aStatsName[32];
-			str_copy(aStatsName, pResult->GetString(0), sizeof(aStatsName));
-			int StatsID = pSelf->GetCIDByName(aStatsName);
-			if (StatsID == -1)
-			{
-				str_format(aBuf, sizeof(aBuf), "[STATS] Can't find user '%s'", aStatsName);
-				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-				return;
-			}
-			// TODO: make not logged in acc stats better ( write somewhere that acc is not logged in instead of showing bugged neededxp )
-			//if (pSelf->m_apPlayers[StatsID]->m_AccountID < 1)
-			//{
-			//	str_format(aBuf, sizeof(aBuf), "'%s' is not logged in.", aStatsName);
-			//	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			//	return;
-			//}
-
-			str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", aStatsName);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			if (pSelf->m_apPlayers[StatsID]->m_level == ACC_MAX_LEVEL)
-				str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pSelf->m_apPlayers[StatsID]->m_level);
-			else
-				str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[StatsID]->m_level);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pSelf->m_apPlayers[StatsID]->m_xp, pSelf->m_apPlayers[StatsID]->m_neededxp);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Money[%llu]", pSelf->m_apPlayers[StatsID]->m_money);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pSelf->m_apPlayers[StatsID]->m_pvp_arena_tickets);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
-			str_format(aBuf, sizeof(aBuf), "Points: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Kills: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Kills);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pSelf->m_apPlayers[StatsID]->m_BlockPoints_Deaths);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
-			//str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(StatsID), pSelf->m_apPlayers[StatsID]->m_BlockSkill);
-			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", pSelf->GetBlockSkillGroup(StatsID));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
-		}
-		else //own stats
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "--- Your Stats ---");
-			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_level == ACC_MAX_LEVEL)
-				str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pSelf->m_apPlayers[pResult->m_ClientID]->m_level);
-			else
-				str_format(aBuf, sizeof(aBuf), "Level[%d]", pSelf->m_apPlayers[pResult->m_ClientID]->m_level);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->m_xp, pPlayer->m_neededxp);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->m_money);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendChatTarget(pResult->m_ClientID, "---- BLOCK ----");
-			str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-
-			//str_format(aBuf, sizeof(aBuf), "Skillgroup: %s %d", pSelf->GetBlockSkillGroup(pPlayer->GetCID()), pPlayer->m_BlockSkill);
-			str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", pSelf->GetBlockSkillGroup(pPlayer->GetCID()));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		}
-	}
-	
+		pSelf->ShowSurvivalStats(ClientID, StatsID);
+	else // blockcity stats
+		pSelf->ShowDDPPStats(ClientID, StatsID);
 }
 
 void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
