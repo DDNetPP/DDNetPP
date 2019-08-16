@@ -461,6 +461,11 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
+	enum {
+		DUMMYMODE_DEFAULT=0,
+		DUMMYMODE_QUEST=36
+	};
+
 	//dummymode public vars (used by survival 34)
 	int m_DummyDir;
 

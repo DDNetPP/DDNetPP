@@ -8770,19 +8770,20 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Quest is already running.");
 			return;
 		}
-		//load / activate QuestState
-		if (pPlayer->m_QuestUnlocked) //if saved stats --> load stats
+		pSelf->CheckConnectQuestBot();
+		// load / activate QuestState
+		if (pPlayer->m_QuestUnlocked) // if saved stats --> load stats
 		{
 			pPlayer->m_QuestState = pPlayer->m_QuestUnlocked;
 		}
-		else //no saved stats --> start quest1
+		else // no saved stats --> start quest1
 		{
 			pPlayer->m_QuestState = 1;
 		}
-		//load Quest Level
+		// load Quest Level
 		pPlayer->m_QuestStateLevel = pPlayer->m_QuestLevelUnlocked;
 
-		pSelf->SendChatTarget(pResult->m_ClientID, "[QUEST] started ..."); //print this before the actual start because the start can drop an error and we dont want this log : "[QUEST] ERROR STOPPED [QUEST] Started.." we want this log: "[QUEST] Started.. [QUEST] ERROR STOPPED"
+		pSelf->SendChatTarget(pResult->m_ClientID, "[QUEST] started ..."); // print this before the actual start because the start can drop an error and we dont want this log : "[QUEST] ERROR STOPPED [QUEST] Started.." we want this log: "[QUEST] Started.. [QUEST] ERROR STOPPED"
 		pSelf->StartQuest(pResult->m_ClientID);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
@@ -8795,7 +8796,7 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 
 		pPlayer->m_QuestState = CPlayer::QUEST_OFF;
 		pPlayer->m_QuestStateLevel = 0;
-		pSelf->SendChatTarget(pResult->m_ClientID, "Quest stopped.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[QUEST] Quest stopped.");
 	}
 	//else if (!str_comp_nocase(pResult->GetString(0), "level"))
 	//{

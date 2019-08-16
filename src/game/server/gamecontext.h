@@ -466,6 +466,7 @@ public:
 	//void PickNextQuest(int playerID); //includeded in QuestComplete
 	void StartQuest(int playerID);
 	int PickQuestPlayer(int playerID);
+	void CheckConnectQuestBot();
 
 	//police
 	void SendAllPolice(const char *pMessage);

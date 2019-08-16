@@ -3528,22 +3528,29 @@ void CGameContext::DDPP_Tick()
 void CGameContext::DDPP_SlowTick()
 {
 	bool StopSurvival = true;
+	int NumQuesting = 0;
+	int TotalPlayers = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
 			continue;
 
-		if (m_apPlayers[i]->IsQuesting() && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+		TotalPlayers++;
+		if (m_apPlayers[i]->IsQuesting())
 		{
-			if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
+			NumQuesting++;
+			if (m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
 			{
-				SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
-				QuestFailed(i);
-			}
-			else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
-			{
-				SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
-				QuestFailed(i);
+				if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
+				{
+					SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
+					QuestFailed(i);
+				}
+				else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
+				{
+					SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
+					QuestFailed(i);
+				}
 			}
 		}
 		if (m_apPlayers[i]->m_IsSurvivaling)
@@ -3563,6 +3570,19 @@ void CGameContext::DDPP_SlowTick()
 		}
 	}
 
+	if (TotalPlayers + 3 > g_Config.m_SvMaxClients ||
+		NumQuesting == 0)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (!m_apPlayers[i])
+				continue;
+			if (!m_apPlayers[i]->m_IsDummy)
+				continue;
+			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+				Server()->BotLeave(i);
+		}
+	}
 
 	if (StopSurvival)
 	{
@@ -5434,7 +5454,49 @@ void CGameContext::StartQuest(int playerID)
 
 	 m_apPlayers[playerID]->m_QuestPlayerID = ID - 1;
 	 return ID - 1; //before we stored id + 1 to have an better handling with false values
- }
+}
+
+void CGameContext::CheckConnectQuestBot()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int NumQuestBots = 0;
+	int NumQuestPlayers = 0;
+	int NumConnectedPlayers = 0;
+	int NumIngamePlayers = 0;
+	int NumIngameHumans = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+
+		NumConnectedPlayers++;
+		if (m_apPlayers[i]->IsQuesting())
+			NumQuestPlayers++;
+
+		if (!m_apPlayers[i]->GetCharacter())
+			continue;
+
+		NumIngamePlayers++;
+
+		if (!m_apPlayers[i]->m_IsDummy)
+			NumIngameHumans++;
+		else if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+			NumQuestBots++;
+	}
+
+	if (NumQuestBots > NumQuestPlayers)
+		return;
+	if (NumQuestBots > 3)
+		return;
+	if (NumIngameHumans > 3)
+		return;
+	if (NumConnectedPlayers + 3 > g_Config.m_SvMaxClients)
+		return;
+
+	CreateNewDummy(CCharacter::DUMMYMODE_QUEST);
+}
 
 void CGameContext::SendAllPolice(const char * pMessage)
 {
