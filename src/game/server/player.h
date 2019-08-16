@@ -192,6 +192,22 @@ public:
 	bool IsLoggedIn() { return m_AccountID != 0; } // -1 filebased acc >0 sql id
 	int GetAccID() { return m_AccountID; }
 	void SetAccID(int ID);
+	/*
+		GiveXP(int value)
+
+		Use this function to add value xp to a players stats
+		It takes care of max level.
+	*/
+	void GiveXP(int value);
+	/*
+		SetXP(int xp)
+
+		WARNING you probably want to use GiveXp(int value); instead!
+		SetXP() should only be used if it is really needed
+	*/
+	void SetXP(int xp);
+	int GetXP() { return m_xp; }
+	int GetNeededXP() { return m_neededxp; }
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
@@ -685,7 +701,6 @@ public:
 	int m_aliveplusxp;
 	int m_shit;
 	int m_level;
-	int64 m_xp;
 	int64 m_neededxp;
 	int64 m_money;
 	bool m_MoneyTilePlus;
@@ -796,6 +811,7 @@ public:
 
 	private: // private ddnet+++
 	int m_AccountID;
+	int64 m_xp;
 };
 
 #endif

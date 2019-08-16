@@ -289,7 +289,6 @@ public:
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
 	void GiveBlockPoints(int ID, int points); // TODO: move to player
-	void GiveXp(int id, int value); // TODO: move to player
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);

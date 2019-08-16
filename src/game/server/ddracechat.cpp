@@ -9942,7 +9942,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded xp '%d'", atoi(aData));
-	pPlayer->m_xp = atoi(aData);
+	pPlayer->SetXP(atoi(aData));
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
