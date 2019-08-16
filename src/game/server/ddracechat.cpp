@@ -2807,7 +2807,6 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if (!pPlayer)
 		return;
-	CPlayer *pStats = pPlayer;
 
 	char aBuf[512];
 
@@ -2822,7 +2821,6 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
-		pStats = pSelf->m_apPlayers[StatsID];
 	}
 
 	if (pPlayer->m_IsInstaArena_idm || pPlayer->m_IsInstaArena_gdm || g_Config.m_SvInstagibMode)
