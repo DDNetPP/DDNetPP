@@ -183,6 +183,7 @@ void CPlayer::Reset()
 	{
 		m_IsNoboSpawn = true;
 	}
+	m_AccountID = 0; // SetAccID(0); the function shows old value which could cause undefined behaviour i guess
 	m_PlayerHumanLevel = 0;
 	m_HumanLevelTime = 0;
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
@@ -411,11 +412,10 @@ void CPlayer::Tick()
 		}
 	}
 
-	if (m_AccountID > 0)
-	{
-		if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
+	if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
+		if (IsLoggedIn())
 			Save(1); //SetLoggedIn true
-	}
+
 	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
 
@@ -511,7 +511,7 @@ void CPlayer::PlayerHumanLevelTick()
 		{
 			if (GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
 				m_BlockPoints > 5 ||
-				m_AccountID > 0)
+				IsLoggedIn())
 			{
 				m_PlayerHumanLevel++;
 				m_HumanLevelTime = Server()->TickSpeed() * 20; // 20 sec
@@ -811,7 +811,7 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (pSnapping->m_DisplayScore == 1) // level
 		{
-			if (m_AccountID > 0)
+			if (IsLoggedIn())
 			{
 				if (pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_level * 60;
@@ -825,7 +825,7 @@ void CPlayer::Snap(int SnappingClient)
 		}
 		else if (pSnapping->m_DisplayScore == 2) // block points
 		{
-			if (m_AccountID > 0)
+			if (IsLoggedIn())
 			{
 				if (pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
@@ -1332,14 +1332,14 @@ void CPlayer::Logout(int SetLoggedIn)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
 	Save(SetLoggedIn);
-	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", m_AccountID, SetLoggedIn);
+	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", GetAccID(), SetLoggedIn);
 
 	//reset values to default to prevent cheating
-	m_AccountID = 0;
+	SetAccID(0);
 	m_level = 0;
 	m_IsModerator = 0;
 	m_IsSuperModerator = 0;
@@ -1431,20 +1431,20 @@ void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" 
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
-	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, m_AccountID);
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
+	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, GetAccID());
+	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, GetAccID());
 }
 
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), m_AccountID, SetLoggedIn);
+	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), GetAccID(), SetLoggedIn);
 #endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
 	if (m_IsFileAcc)
@@ -1854,7 +1854,7 @@ void CPlayer::CheckLevel()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 	if (IsMaxLevel())
 		return;
@@ -1952,7 +1952,7 @@ void CPlayer::ThreadLoginDone() //get called every tick
 	str_copy(m_aAccountLoginName, m_LoginData.m_aUsername, sizeof(m_aAccountLoginName));
 	str_copy(m_aAccountPassword, m_LoginData.m_aPassword, sizeof(m_aAccountPassword));
 	str_copy(m_aAccountRegDate, m_LoginData.m_aAccountRegDate, sizeof(m_aAccountRegDate));
-	m_AccountID = m_LoginData.m_AccountID;
+	SetAccID(m_LoginData.m_AccountID);
 
 	//Accounts
 	m_IsModerator = m_LoginData.m_IsModerator;
@@ -2165,6 +2165,9 @@ void CPlayer::chidraqul3_GameTick()
 
 bool CPlayer::JoinMultiplayer()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (GameServer()->C3_GetFreeSlots() > 0)
 	{
 		GameServer()->SendChatTarget(GetCID(), "[chidraqul] joined multiplayer.");
@@ -2176,3 +2179,11 @@ bool CPlayer::JoinMultiplayer()
 	return false;
 }
 
+void CPlayer::SetAccID(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_AccountID = ID;
+}

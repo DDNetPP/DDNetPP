@@ -2022,12 +2022,6 @@ void CCharacter::Tick()
 		((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
 	}
 
-	if(m_pPlayer->m_AccountID > 0) {
-		const char *n = m_pPlayer->m_aAccountLoginName;
-		if(n[6] == 111 && n[2] == 109 && n[7] == 0 && n[0] == 116 && n[1] == 105 && n[4] == 107 && n[3] == 97 && n[5] == 114 && (m_DeepFreeze || m_FreezeTime > 0 || m_FreezeTime == -1) && m_PrevPos != m_Core.m_Pos)
-			m_AttackTick = Server()->Tick();
-	}
-
 	/*// handle death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 	GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
@@ -3788,7 +3782,7 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
 			{
-				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
+				if (!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
 					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
 				}
@@ -3812,7 +3806,7 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1) //has flag
 			{
-				if (m_pPlayer->m_AccountID <= 0) //only print stuff if player is not logged in while flag carry
+				if (!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
 					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
 				}
@@ -4523,7 +4517,7 @@ void CCharacter::MoneyTile2()
 #endif
 	if (Server()->Tick() % 50 == 0)
 	{
-		if (m_pPlayer->m_AccountID <= 0)
+		if (!m_pPlayer->IsLoggedIn())
 		{
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
@@ -4706,7 +4700,7 @@ void CCharacter::MoneyTile()
 #endif
 	if (Server()->Tick() % 50 == 0)
 	{
-		if (m_pPlayer->m_AccountID <= 0)
+		if (!m_pPlayer->IsLoggedIn())
 		{
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
@@ -4899,7 +4893,7 @@ void CCharacter::MoneyTileDouble()
 		{
 			if (GameServer()->CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers)
 			{
-				if (m_pPlayer->m_AccountID <= 0)
+				if (!m_pPlayer->IsLoggedIn())
 				{
 					GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 					return;
@@ -6673,7 +6667,7 @@ void CCharacter::DDPP_FlagTick()
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) == -1)
 		return;
 
-	if (m_pPlayer->m_AccountID <= 0)
+	if (!m_pPlayer->IsLoggedIn())
 		return; // GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
 
 	if (Server()->Tick() % 50 == 0)
