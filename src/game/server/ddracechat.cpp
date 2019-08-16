@@ -8287,7 +8287,7 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "AccountID: %d", pLive->m_AccountID);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-		if (pLive->m_QuestState == 0)
+		if (!pLive->IsQuesting())
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientID, "Quest: FALSE"); //useless info
 		}
@@ -8728,7 +8728,7 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	if (pResult->NumArguments() == 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "====== Q U E S T =====");
-		if (pPlayer->m_QuestState == 0)
+		if (!pPlayer->IsQuesting())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "No running quest...");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/quest start' to start one.");
@@ -8766,7 +8766,7 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "start") || !str_comp_nocase(pResult->GetString(0), "begin"))
 	{
-		if (pPlayer->m_QuestState)
+		if (pPlayer->IsQuesting())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Quest is already running.");
 			return;
@@ -8788,13 +8788,13 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "stop"))
 	{
-		if (!pPlayer->m_QuestState)
+		if (!pPlayer->IsQuesting())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Quest already stopped.");
 			return;
 		}
 
-		pPlayer->m_QuestState = 0;
+		pPlayer->m_QuestState = CPlayer::QUEST_OFF;
 		pPlayer->m_QuestStateLevel = 0;
 		pSelf->SendChatTarget(pResult->m_ClientID, "Quest stopped.");
 	}

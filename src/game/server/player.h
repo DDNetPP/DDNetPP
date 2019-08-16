@@ -568,23 +568,36 @@ public:
 	bool m_xpmsg;
 	bool m_hidejailmsg;
 	bool m_ShowInstaScoreBroadcast;
-	char m_aShowHideConfig[16]; //[0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
+	char m_aShowHideConfig[16]; // [0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
 
 
-	//quests
-	int m_QuestUnlocked; //maybe save this in sql and later people can choose all quests untill unlocked
-	int m_QuestLevelUnlocked; //maybe save this in sql and later people can choose all levels untill unlocked
-	int m_QuestState; //current quest 0 = not questing
-	int m_QuestStateLevel; //current quest level (difficulty)
-	int m_QuestLastQuestedPlayerID; //store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
+	// quests
+	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests untill unlocked
+	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels untill unlocked
+	int m_QuestState; // current quest 0 = not questing
+	int m_QuestStateLevel; // current quest level (difficulty)
+	int m_QuestLastQuestedPlayerID; // store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
 	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
 	int m_QuestProgressValue2;
 	bool m_QuestProgressBool;
-	int m_QuestPlayerID; //the id of the player which is the quest
-	char m_aQuestString[512]; //stores the quest information
-	int m_aQuestProgress[2]; //stores the quest progress information
+	int m_QuestPlayerID; // the id of the player which is the quest
+	char m_aQuestString[512]; // stores the quest information
+	int m_aQuestProgress[2]; // stores the quest progress information
 	bool m_QuestFailed;
-	//handled in gamecontext.cpp LoadQuest()
+	bool IsQuesting() { return m_QuestState != QUEST_OFF; }
+	enum {
+		QUEST_OFF		= 0,
+		QUEST_HAMMER	= 1,
+		QUEST_BLOCK		= 2,
+		QUEST_RACE		= 3,
+		QUEST_RIFLE		= 4,
+		QUEST_FARM		= 5,
+		QUEST_NUM_PLUS_ONE,
+		QUEST_NUM		= QUEST_NUM_PLUS_ONE - 1,
+
+		QUEST_NUM_LEVEL	= 9
+	};
+	// handled in gamecontext.cpp LoadQuest()
 	//              QUEST         QUEST LEVEL
 	//              0                                = Not Questing
 
@@ -646,13 +659,12 @@ public:
 	//#################
 	// WARNING
 	// update quest num 
-	// in gamecontext.cpp
-	// QuestCompleted()
-	// if you add new quests
+	// QUEST_NUM_LEVEL
+	// if you add new quest level
 	//#################
 
 
-	//other
+	// other
 
 	bool m_ScoreFixForDDNet;
 	int m_AllowTimeScore;
