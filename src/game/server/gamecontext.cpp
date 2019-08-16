@@ -90,7 +90,7 @@ void CGameContext::LoginThread(void * pArg)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[THREAD] hello world3 your id=%d", id);
 	pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	pPlayer->m_money = 420;
+	pPlayer->SetMoney(420);
 }
 
 void CGameContext::Login(void *pArg, int id)
@@ -238,9 +238,9 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
 
 				//city
-				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetLevel(GetInt(GetID("Level")));
 				m_pGameServer->m_apPlayers[m_ClientID]->SetXP(GetInt64(GetID("Exp")));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetMoney(GetInt64(GetID("Money")));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
 
@@ -2810,17 +2810,17 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 
 	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(requestedID));
 	SendChatTarget(requestID, aBuf);
-	if (pPlayer->m_level == ACC_MAX_LEVEL)
-		str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pPlayer->m_level);
+	if (pPlayer->GetLevel() == ACC_MAX_LEVEL)
+		str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pPlayer->GetLevel());
 	else
-		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
+		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
 	SendChatTarget(requestID, aBuf);
 	if (!pPlayer->IsLoggedIn())
 		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->GetXP());
 	else
-		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->GetXP(), pPlayer->m_neededxp);
+		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->GetXP(), pPlayer->GetNeededXP());
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->m_money);
+	str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->GetMoney());
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
 	SendChatTarget(requestID, aBuf);
@@ -5591,9 +5591,9 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->m_money);
+		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);
@@ -5637,7 +5637,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);
@@ -10039,9 +10039,9 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 		return -1;
 	}
 
-	if (pSPlayer->m_TradeMoney > pBPlayer->m_money)	// ENOUGH MONEY ??
+	if (pSPlayer->m_TradeMoney > pBPlayer->GetMoney())	// ENOUGH MONEY ??
 	{
-		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->m_money, pSPlayer->m_TradeMoney);
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
 		SendChatTarget(BuyerID, aBuf);
 		return -1;
 	}

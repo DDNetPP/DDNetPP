@@ -3625,7 +3625,7 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		//	pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
 		//	return;
 		//}
-		//else if (pPlayer->m_money < 10)
+		//else if (pPlayer->GetMoney() < 10)
 		//{
 		//	pSelf->SendChatTarget(pResult->m_ClientID, "You don't have 10 money to start a game.");
 		//	return;
@@ -3907,7 +3907,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
-			else if (pPlayer->m_money < 100)
+			else if (pPlayer->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
@@ -3949,7 +3949,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
-			else if (pPlayer->m_money < 100)
+			else if (pPlayer->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
@@ -3991,7 +3991,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
-			else if (pPlayer->m_money < 100)
+			else if (pPlayer->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
@@ -4033,7 +4033,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite while being ingame. Do '/insta leave' first.");
 				return;
 			}
-			else if (pPlayer->m_money < 100)
+			else if (pPlayer->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You don't have 100 money to start a game.");
 				return;
@@ -4068,12 +4068,12 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't accept while being ingame. Do '/insta leave' first.");
 				return;
 			}
-			else if (pPlayer->m_money < 100)
+			else if (pPlayer->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You need at least 100 money to start a game.");
 				return;
 			}
-			else if (pSelf->m_apPlayers[mateID]->m_money < 100)
+			else if (pSelf->m_apPlayers[mateID]->GetMoney() < 100)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] Your 1on1 mate doesn't have enough money to start a game.");
 				return;
@@ -4406,7 +4406,7 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[256];
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
-	str_format(aBuf, sizeof(aBuf), "Money: %d", pPlayer->m_money);
+	str_format(aBuf, sizeof(aBuf), "Money: %d", pPlayer->GetMoney());
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction0);
@@ -4458,7 +4458,7 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	// add a blocker to pay money to ur self... but me funny mede it pozzible
 
 
-	if (Amount > pPlayer->m_money)
+	if (Amount > pPlayer->GetMoney())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough money.");
 		return;
@@ -4553,7 +4553,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
-	if (pPlayer->m_level < 1)
+	if (pPlayer->GetLevel() < 1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[GIFT] You have to be at least lvl 1 to use gifts.");
 		return;
@@ -5323,7 +5323,7 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 
 	if (!str_comp_nocase(aInput, "buy"))
 	{
-		if (pPlayer->m_money < pSelf->m_CucumberShareValue)
+		if (pPlayer->GetMoney() < pSelf->m_CucumberShareValue)
 		{
 			str_format(aBuf, sizeof(aBuf), "You don't have enough money. You need %d money.", pSelf->m_CucumberShareValue);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -6056,7 +6056,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		int BombMoney;
 		BombMoney = pResult->GetInteger(1);
 
-		if (BombMoney > pPlayer->m_money)
+		if (BombMoney > pPlayer->GetMoney())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: You don't have enough money.");
 			return;
@@ -6147,7 +6147,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if (pSelf->m_BombGameState == 1)
 		{
-			if (pPlayer->m_money < pSelf->m_BombMoney)
+			if (pPlayer->GetMoney() < pSelf->m_BombMoney)
 			{
 				str_format(aBuf, sizeof(aBuf), "You need at least %d money to join this game.", pSelf->m_BombMoney);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -6943,7 +6943,7 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you have to be logged in to use this command '/accountinfo'.");
 		return;
 	}
-	if (pPlayer->m_money < 1000000)
+	if (pPlayer->GetMoney() < 1000000)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you need at least 1 million money to use this command.");
 		return;
@@ -8849,7 +8849,7 @@ void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 	{
 		if (pResult->NumArguments() == 3)
 		{
-			if (pPlayer->m_money < pResult->GetInteger(1))
+			if (pPlayer->GetMoney() < pResult->GetInteger(1))
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[BOUNTY] You don't have that much money.");
 				return;
@@ -9932,12 +9932,12 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded money '%d'", atoi(aData));
-	pPlayer->m_money = atoi(aData);
+	pPlayer->SetMoney(atoi(aData));
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded level '%d'", atoi(aData));
-	pPlayer->m_level = atoi(aData);
+	pPlayer->SetLevel(atoi(aData));
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
