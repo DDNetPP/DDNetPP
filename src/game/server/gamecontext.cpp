@@ -239,7 +239,7 @@ void CQueryLogin::OnData()
 
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt64(GetID("Exp"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetXP(GetInt64(GetID("Exp")));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
@@ -2178,19 +2178,6 @@ void CGameContext::GiveBlockPoints(int ID, int points)
 	}
 }
 
-void CGameContext::GiveXp(int id, int value)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (!m_apPlayers[id])
-		return;
-	if (m_apPlayers[id]->IsMaxLevel())
-		return;
-
-	m_apPlayers[id]->m_xp += value;
-}
-
 void CGameContext::LoadFNNvalues()
 {
 #if defined(CONF_DEBUG)
@@ -2829,9 +2816,9 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
 	SendChatTarget(requestID, aBuf);
 	if (!pPlayer->IsLoggedIn())
-		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->m_xp);
+		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->GetXP());
 	else
-		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->m_xp, pPlayer->m_neededxp);
+		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->GetXP(), pPlayer->m_neededxp);
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->m_money);
 	SendChatTarget(requestID, aBuf);
@@ -4319,7 +4306,7 @@ bool CGameContext::SurvivalPickWinner()
 	{
 		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
 		m_apPlayers[winnerID]->MoneyTransaction(+50, "survival win");
-		GiveXp(winnerID, 50);
+		m_apPlayers[winnerID]->GiveXP(50);
 	}
 	else
 	{
@@ -4991,7 +4978,7 @@ void CGameContext::QuestCompleted(int playerID)
 		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
 	SendChatTarget(playerID, aBuf);
 	pPlayer->MoneyTransaction(+100, "quest reward");
-	GiveXp(playerID, RewardXP);
+	pPlayer->GiveXP(RewardXP);
 
 	// next quest
 	QuestReset(playerID);
@@ -7316,7 +7303,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+5000000, "test cmd3000");
-						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
+						pPlayer->SetXP(100000000); //max level 100 (so the annoying level up message show up only once (not rly xd))
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;

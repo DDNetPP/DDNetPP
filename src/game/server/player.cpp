@@ -2189,3 +2189,23 @@ void CPlayer::SetAccID(int ID)
 #endif
 	m_AccountID = ID;
 }
+
+void CPlayer::GiveXP(int value)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (IsMaxLevel())
+		return;
+
+	m_xp += value;
+}
+
+void CPlayer::SetXP(int xp)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", ID, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_xp = xp;
+}
