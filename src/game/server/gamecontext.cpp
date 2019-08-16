@@ -4318,7 +4318,7 @@ bool CGameContext::SurvivalPickWinner()
 	if (m_apPlayers[winnerID]->IsLoggedIn())
 	{
 		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
-		m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
+		m_apPlayers[winnerID]->MoneyTransaction(+50, "survival win");
 		GiveXp(winnerID, 50);
 	}
 	else
@@ -4990,8 +4990,7 @@ void CGameContext::QuestCompleted(int playerID)
 	else // xp msg only if not max lvl
 		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
 	SendChatTarget(playerID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "+%d (quest)", RewardMoney);
-	pPlayer->MoneyTransaction(+100, aBuf);
+	pPlayer->MoneyTransaction(+100, "quest reward");
 	GiveXp(playerID, RewardXP);
 
 	// next quest
@@ -5800,8 +5799,8 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
 		SendChatTarget(WinnerID, aBuf);
 		SendChatTarget(WinnerID, "==================");
-		SendChatTarget(WinnerID, "+200 money for winning 1on1"); //actually it is only +100 because you have to pay to start an 1on1
-		m_apPlayers[WinnerID]->MoneyTransaction(+200, "+200 (won insta 1on1)");
+		SendChatTarget(WinnerID, "+200 money for winning 1on1"); // actually it is only +100 because you have to pay to start an 1on1
+		m_apPlayers[WinnerID]->MoneyTransaction(+200, "won insta 1on1");
 
 		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
@@ -6190,8 +6189,7 @@ void CGameContext::EndBombGame(int WinnerID)
 
 	//winner private
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
-	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
+	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
 	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
 	m_apPlayers[WinnerID]->m_BombGamesWon++;
@@ -7317,7 +7315,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+5000000, "+5000000 test cmd3000");
+						pPlayer->MoneyTransaction(+5000000, "test cmd3000");
 						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;

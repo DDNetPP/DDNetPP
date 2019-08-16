@@ -4104,13 +4104,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 						pSelf->m_apPlayers[mateID]->m_IsInstaArena_gdm = true;
 						pSelf->m_apPlayers[mateID]->m_Insta1on1_score = 0;
-						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "join insta 1on1");
 						pSelf->m_apPlayers[mateID]->GetCharacter()->Die(mateID, WEAPON_SELF);
 
 						pPlayer->m_IsInstaArena_gdm = true;
 						pPlayer->m_Insta1on1_score = 0;
 						pPlayer->m_Insta1on1_id = mateID;
-						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pPlayer->MoneyTransaction(-100, "join insta 1on1");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 
 
@@ -4145,13 +4145,13 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 						pSelf->m_apPlayers[mateID]->m_IsInstaArena_idm = true;
 						pSelf->m_apPlayers[mateID]->m_Insta1on1_score = 0;
-						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pSelf->m_apPlayers[mateID]->MoneyTransaction(-100, "join insta 1on1");
 						pSelf->m_apPlayers[mateID]->GetCharacter()->Die(mateID, WEAPON_SELF);
 
 						pPlayer->m_IsInstaArena_idm = true;
 						pPlayer->m_Insta1on1_score = 0;
 						pPlayer->m_Insta1on1_id = mateID;
-						pPlayer->MoneyTransaction(-100, "-100 (join insta 1on1)");
+						pPlayer->MoneyTransaction(-100, "join insta 1on1");
 						pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 
 
@@ -4492,14 +4492,14 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 		//player give
 		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "-%d paid to '%s'", Amount, aUsername);
+		str_format(aBuf, sizeof(aBuf), "paid to '%s'", aUsername);
 		pPlayer->MoneyTransaction(-Amount, aBuf);
 		//dbg_msg("pay", "survived give"); //survives
 
 		//player get
 		str_format(aBuf, sizeof(aBuf), "'%s' paid you %d money", pSelf->Server()->ClientName(pResult->m_ClientID), Amount);
 		pSelf->SendChatTarget(PayID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "+%d paid by '%s'", Amount, pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "paid by '%s'", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->m_apPlayers[PayID]->MoneyTransaction(Amount, aBuf);
 		dbg_msg("pay", "survived get");
 	}
@@ -4572,7 +4572,7 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "+150 gift (%s)", pSelf->Server()->ClientName(pResult->m_ClientID));
+			str_format(aBuf, sizeof(aBuf), "gift (%s)", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->m_apPlayers[GiftID]->MoneyTransaction(+150, aBuf);
 			str_format(aBuf, sizeof(aBuf), "[GIFT] You gave '%s' 150 money!", pSelf->Server()->ClientName(GiftID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -5331,12 +5331,10 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pPlayer->m_StockMarket_item_Cucumbers++;
-
-			str_format(aBuf, sizeof(aBuf), "-%d money. (bought 'cucumber stock')", pSelf->m_CucumberShareValue);
-			pPlayer->MoneyTransaction(-pSelf->m_CucumberShareValue, aBuf);
+			pPlayer->MoneyTransaction(-pSelf->m_CucumberShareValue, "bought 'cucumber stock'");
 
 
-			pSelf->m_CucumberShareValue++; //push the gernerall share value
+			pSelf->m_CucumberShareValue++; // push the gernerall share value
 		}
 
 	}
@@ -5345,12 +5343,9 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 		if (pPlayer->m_StockMarket_item_Cucumbers > 0)
 		{
 			pPlayer->m_StockMarket_item_Cucumbers--;
+			pPlayer->MoneyTransaction(+pSelf->m_CucumberShareValue, "sold a 'cucumber stock'");
 
-
-			str_format(aBuf, sizeof(aBuf), "+%d money. (sold a 'cucumber stock')", pSelf->m_CucumberShareValue);
-			pPlayer->MoneyTransaction(+pSelf->m_CucumberShareValue, aBuf);
-
-			pSelf->m_CucumberShareValue--; //pull the gernerall share value
+			pSelf->m_CucumberShareValue--; // pull the gernerall share value
 		}
 		else
 		{
@@ -6104,8 +6099,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		pSelf->m_BombMoney = BombMoney;
 		pSelf->m_BombGameState = 1;
 		pChr->m_IsBombing = true;
-		str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", BombMoney);
-		pPlayer->MoneyTransaction(-BombMoney, aBuf);
+		pPlayer->MoneyTransaction(-BombMoney, "bomb join");
 
 		str_format(aBuf, sizeof(aBuf), "[BOMB] You have created a game lobby. Map: '%s'.", pSelf->m_BombMap);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -6164,8 +6158,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "You will die in this game! So better leave if you want to keep weapons and stuff.");
 			pChr->m_IsBombing = true;
-			str_format(aBuf, sizeof(aBuf), "-%d bomb (join)", pSelf->m_BombMoney);
-			pPlayer->MoneyTransaction(-pSelf->m_BombMoney, aBuf);
+			pPlayer->MoneyTransaction(-pSelf->m_BombMoney, "bomb join");
 			pPlayer->m_BombTicksUnready = 0;
 		}
 		else
@@ -6189,8 +6182,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 		str_format(aBuf, sizeof(aBuf), "You left the bomb game. (+%d money)", pSelf->m_BombMoney);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "+%d bomb (leave)", pSelf->m_BombMoney);
-		pPlayer->MoneyTransaction(pSelf->m_BombMoney, aBuf);
+		pPlayer->MoneyTransaction(pSelf->m_BombMoney, "bomb leave");
 		pSelf->SendBroadcast("", pResult->m_ClientID);
 		pChr->m_IsBombing = false;
 		pChr->m_IsBomb = false;
@@ -6963,7 +6955,7 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 	}
 
 	if (pChr->DDPP_Respawn())
-		pPlayer->MoneyTransaction(-50000, "-50 000 (teleport to spawn)");
+		pPlayer->MoneyTransaction(-50000, "teleport to spawn");
 	else
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] teleport to spawn failed. Try again later.");
 }
@@ -7326,8 +7318,7 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d money.", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
 			pSelf->SendChatTarget(broID, aBuf);
-			str_format(aBuf, sizeof(aBuf), "+%d (unknown source)", pPlayer->m_GangsterBagMoney);
-			pSelf->m_apPlayers[broID]->MoneyTransaction(+pPlayer->m_GangsterBagMoney, aBuf);
+			pSelf->m_apPlayers[broID]->MoneyTransaction(+pPlayer->m_GangsterBagMoney, "unkown source");
 
 			pPlayer->m_GangsterBagMoney = 0;
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have traded coins!");
@@ -9138,7 +9129,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		//buyer
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you sucessfully bought [ %s ] for [ %d ] from player '%s'.", pResult->GetString(1), pSelf->m_apPlayers[TradeID]->m_TradeMoney, pSelf->Server()->ClientName(TradeID));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "-%d trade [%s] from [%s]", pSelf->m_apPlayers[TradeID]->m_TradeMoney, pResult->GetString(1), pSelf->Server()->ClientName(TradeID));
+		str_format(aBuf, sizeof(aBuf), "trade [%s] from [%s]", pResult->GetString(1), pSelf->Server()->ClientName(TradeID));
 		pPlayer->MoneyTransaction(-pSelf->m_apPlayers[TradeID]->m_TradeMoney, aBuf);
 		pPlayer->m_TradeItem = -1;
 		pPlayer->m_TradeMoney = -1;
@@ -9178,7 +9169,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		//seller
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you sucessfully sold [ %s ] for [ %d ] to player '%s'.", pResult->GetString(1), pSelf->m_apPlayers[TradeID]->m_TradeMoney, pSelf->Server()->ClientName(pPlayer->GetCID()));
 		pSelf->SendChatTarget(TradeID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "+%d trade [%s] to [%s]", pSelf->m_apPlayers[TradeID]->m_TradeMoney, pResult->GetString(1), pSelf->Server()->ClientName(pPlayer->GetCID()));
+		str_format(aBuf, sizeof(aBuf), "trade [%s] to [%s]", pResult->GetString(1), pSelf->Server()->ClientName(pPlayer->GetCID()));
 		pSelf->m_apPlayers[TradeID]->MoneyTransaction(+pSelf->m_apPlayers[TradeID]->m_TradeMoney, aBuf);
 		pSelf->m_apPlayers[TradeID]->m_TradeItem = -1;
 		pSelf->m_apPlayers[TradeID]->m_TradeMoney = -1;
@@ -9277,7 +9268,7 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		//buyer
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you sucessfully bought [ %s ] for [ %d ] from player '%s'.", aWeaponName, pSelf->m_apPlayers[TradeID]->m_TradeMoney, pSelf->Server()->ClientName(TradeID));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "-%d trade [%s] from [%s]", pSelf->m_apPlayers[TradeID]->m_TradeMoney, aWeaponName, pSelf->Server()->ClientName(TradeID));
+		str_format(aBuf, sizeof(aBuf), "trade [%s] from [%s]", aWeaponName, pSelf->Server()->ClientName(TradeID));
 		pPlayer->MoneyTransaction(-pSelf->m_apPlayers[TradeID]->m_TradeMoney, aBuf);
 		pPlayer->m_TradeItem = -1;
 		pPlayer->m_TradeMoney = -1;
@@ -9317,7 +9308,7 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		//seller
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you sucessfully sold [ %s ] for [ %d ] to player '%s'.", aWeaponName, pSelf->m_apPlayers[TradeID]->m_TradeMoney, pSelf->Server()->ClientName(pPlayer->GetCID()));
 		pSelf->SendChatTarget(TradeID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "+%d trade [%s] to [%s]", pSelf->m_apPlayers[TradeID]->m_TradeMoney, aWeaponName, pSelf->Server()->ClientName(pPlayer->GetCID()));
+		str_format(aBuf, sizeof(aBuf), "trade [%s] to [%s]", aWeaponName, pSelf->Server()->ClientName(pPlayer->GetCID()));
 		pSelf->m_apPlayers[TradeID]->MoneyTransaction(+pSelf->m_apPlayers[TradeID]->m_TradeMoney, aBuf);
 		pSelf->m_apPlayers[TradeID]->m_TradeItem = -1;
 		pSelf->m_apPlayers[TradeID]->m_TradeMoney = -1;

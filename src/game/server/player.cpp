@@ -1869,7 +1869,7 @@ void CPlayer::CheckLevel()
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", m_level);
 		GameServer()->SendChatTarget(m_ClientID, aBuf);  //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
-		MoneyTransaction(+50, "+50 level up");
+		MoneyTransaction(+50, "level up");
 
 		CalcExp();
 	}
@@ -1885,9 +1885,11 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if (m_money < 0)
 	{
-		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
+	char aDesc[64];
+	str_format(aDesc, sizeof(aDesc), "%s%d (%s)", Amount > 0 ? "+" : "", Amount, Description);
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
 	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);
@@ -1897,7 +1899,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction3, sizeof(m_money_transaction3), "%s", m_money_transaction2);
 	str_format(m_money_transaction2, sizeof(m_money_transaction2), "%s", m_money_transaction1);
 	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
-	str_format(m_money_transaction0, sizeof(m_money_transaction0), Description);
+	str_format(m_money_transaction0, sizeof(m_money_transaction0), aDesc);
 }
 
 bool CPlayer::IsInstagibMinigame()

@@ -1086,7 +1086,7 @@ void CCharacter::FireWeapon(bool Bot)
 							str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 							GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 							GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money (corruption)");
-							str_format(aBuf, sizeof(aBuf), "+200 caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+							str_format(aBuf, sizeof(aBuf), "caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
 							m_pPlayer->MoneyTransaction(+200, aBuf);
 
 							str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
@@ -1096,7 +1096,7 @@ void CCharacter::FireWeapon(bool Bot)
 							pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 							pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
 							pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
-							pTarget->GetPlayer()->MoneyTransaction(-200, "-200 jail");
+							pTarget->GetPlayer()->MoneyTransaction(-200, "jail");
 
 						}
 					}
@@ -5580,7 +5580,7 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			if (m_pPlayer->m_money >= 1500)
 			{
-				m_pPlayer->MoneyTransaction(-1500, "-1.500 money. (bought 'rainbow')");
+				m_pPlayer->MoneyTransaction(-1500, "bought 'rainbow'");
 				m_Rainbow = true;
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought rainbow until death.");
 			}
@@ -5606,7 +5606,7 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			if (m_pPlayer->m_money >= 3500)
 			{
-				m_pPlayer->MoneyTransaction(-3500, "-3.500 money. (bought 'bloody')");
+				m_pPlayer->MoneyTransaction(-3500, "bought 'bloody'");
 				m_Bloody = true;
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought bloody until death.");
 			}
@@ -5630,7 +5630,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		if (m_pPlayer->m_money >= 250)
 		{
-			m_pPlayer->MoneyTransaction(-250, "-250 money. (bought 'chidraqul')");
+			m_pPlayer->MoneyTransaction(-250, "bought 'chidraqul'");
 			m_pPlayer->m_BoughtGame = true;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought 'chidraqul' until you disconnect. Check '/chidraqul info' for more information.");
 		}
@@ -5643,7 +5643,7 @@ void CCharacter::BuyItem(int ItemID)
 	{
 		if (m_pPlayer->m_money >= 5)
 		{
-			m_pPlayer->MoneyTransaction(-5, "-5 money. (bought 'shit')");
+			m_pPlayer->MoneyTransaction(-5, "bought 'shit'");
 
 			m_pPlayer->m_shit++;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought shit.");
@@ -5672,8 +5672,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		if (m_pPlayer->m_money >= g_Config.m_SvRoomPrice)
 		{
-			str_format(aBuf, sizeof(aBuf), "-%d money. (bought 'room_key')", g_Config.m_SvRoomPrice);
-			m_pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, aBuf);
+			m_pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, "bought 'room_key'");
 			m_pPlayer->m_BoughtRoom = true;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a key. You can now enter the bankroom until you disconnect.");
 		}
@@ -5734,7 +5733,7 @@ void CCharacter::BuyItem(int ItemID)
 
 		if (m_pPlayer->m_money >= 100000)
 		{
-			m_pPlayer->MoneyTransaction(-100000, "-100.000 money. (bought 'police')");
+			m_pPlayer->MoneyTransaction(-100000, "bought 'police'");
 			m_pPlayer->m_PoliceRank++;
 			str_format(aBuf, sizeof(aBuf), "You bought PoliceRank[%d]!", m_pPlayer->m_PoliceRank);
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
@@ -5793,9 +5792,7 @@ void CCharacter::BuyItem(int ItemID)
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "-%d money. (bought 'taser')", m_pPlayer->m_TaserPrice);
-		m_pPlayer->MoneyTransaction(-m_pPlayer->m_TaserPrice, aBuf);
-
+		m_pPlayer->MoneyTransaction(-m_pPlayer->m_TaserPrice, "bought 'taser'");
 
 		m_pPlayer->m_TaserLevel++;
 		if (m_pPlayer->m_TaserLevel == 1)
@@ -5811,7 +5808,7 @@ void CCharacter::BuyItem(int ItemID)
 	{
 		if (m_pPlayer->m_money >= 150)
 		{
-			m_pPlayer->MoneyTransaction(-150, "-150 money. (bought 'pvp_arena_ticket')");
+			m_pPlayer->MoneyTransaction(-150, "bought 'pvp_arena_ticket'");
 			m_pPlayer->m_pvp_arena_tickets++;
 
 			str_format(aBuf, sizeof(aBuf), "You bought a pvp_arena_ticket. You have %d tickets.", m_pPlayer->m_pvp_arena_tickets);
@@ -5835,7 +5832,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		else if (m_pPlayer->m_money >= 10000)
 		{
-			m_pPlayer->MoneyTransaction(-10000, "-10000 money. (bought 'ninjajetpack')");
+			m_pPlayer->MoneyTransaction(-10000, "bought 'ninjajetpack'");
 
 			m_pPlayer->m_NinjaJetpackBought = 1;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought ninjajetpack. Turn it on using '/ninjajetpack'.");
@@ -5858,7 +5855,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		else if (m_pPlayer->m_money >= 600000)
 		{
-			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_shotgun')");
+			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_shotgun'");
 
 			m_pPlayer->m_SpawnWeaponShotgun++;
 			if (m_pPlayer->m_SpawnWeaponShotgun == 1)
@@ -5888,7 +5885,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		else if (m_pPlayer->m_money >= 600000)
 		{
-			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_grenade')");
+			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_grenade'");
 
 			m_pPlayer->m_SpawnWeaponGrenade++;
 			if (m_pPlayer->m_SpawnWeaponGrenade == 1)
@@ -5918,7 +5915,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		else if (m_pPlayer->m_money >= 600000)
 		{
-			m_pPlayer->MoneyTransaction(-600000, "-600000 money. (bought 'spawn_rifle')");
+			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_rifle'");
 
 			m_pPlayer->m_SpawnWeaponRifle++;
 			if (m_pPlayer->m_SpawnWeaponRifle == 1)
@@ -5948,7 +5945,7 @@ void CCharacter::BuyItem(int ItemID)
 		}
 		else if (m_pPlayer->m_money >= 1000000)
 		{
-			m_pPlayer->MoneyTransaction(-1000000, "-1000000 money. (bought 'spooky_ghost')");
+			m_pPlayer->MoneyTransaction(-1000000, "bought 'spooky_ghost'");
 
 			m_pPlayer->m_SpookyGhost = 1;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought the spooky ghost. For more infos check '/spookyghostinfo'.");
@@ -5979,7 +5976,7 @@ void CCharacter::BuyItem(int ItemID)
 	{
 	if (pPlayer->m_money >= 3500)
 	{
-	pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
+	pPlayer->MoneyTransaction(-3500, "bought pvp_arena_ticket");
 	pPlayer->GetCharacter()->m_Atom = true;
 	pSelf->SendChatTarget(pResult->m_ClientID, "you bought atom until death.");
 	}
@@ -6005,7 +6002,7 @@ void CCharacter::BuyItem(int ItemID)
 	{
 	if (pPlayer->m_money >= 3500)
 	{
-	pPlayer->MoneyTransaction(-3500, "-3500 bought pvp_arena_ticket");
+	pPlayer->MoneyTransaction(-3500, "bought pvp_arena_ticket");
 	pPlayer->GetCharacter()->m_Trail = true;
 	pSelf->SendChatTarget(pResult->m_ClientID, "you bought trail until death.");
 	}
@@ -7034,7 +7031,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
 					)
 				{
-					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "[PVP] +150 pvp_arena kill");
+					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
 					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
 					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
@@ -7042,7 +7039,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				}
 				else
 				{
-					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "+150 pvp_arena kill");
+					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
 					GameServer()->m_apPlayers[Killer]->m_xp += 100;
 					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
 
@@ -7209,8 +7206,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
 				GameServer()->SendChatTarget(wonID, aBuf);
 
-				str_format(aBuf, sizeof(aBuf), "+%d (block tournament)", money_rew);
-				GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, aBuf);
+				GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "block tournament");
 				GameServer()->GiveXp(wonID, xp_rew);
 				GameServer()->GiveBlockPoints(wonID, points_rew);
 				GameServer()->UpdateBlockSkill(+skill_rew, wonID);
@@ -7514,7 +7510,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 					{
 						str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
-						str_format(aBuf, sizeof(aBuf), "+%d bounty (%s)", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+						str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
 						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
 						m_pPlayer->m_BlockBounty = 0;
 					}
