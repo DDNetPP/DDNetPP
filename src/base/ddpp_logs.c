@@ -4,11 +4,22 @@
 
 #include "ddpp_logs.h"
 
+/*
+    aDDPPLogs
+
+    array of log arrays (all types)
+    index 0 is the newest log line
+*/
 char aDDPPLogs[DDPP_NUM_LOGS][DDPP_LOG_SIZE][128] = {{{0}}};
 
 void ddpp_log_print(int type)
 {
-    for (int i = 0; i < DDPP_LOG_SIZE; i++)
+    /*
+        start from the oldest log
+        so the last line printed in the console is the latest log
+        scroll up to go in the past
+    */
+    for (int i = DDPP_LOG_SIZE; i > 0; i--)
     {
         if (!aDDPPLogs[type][i][0])
             continue;
@@ -31,11 +42,9 @@ void ddpp_log(int type, const char *pMsg)
 
 void ddpp_log_append(int type, const char *pMsg)
 {
-    for (int i = 0; i < DDPP_LOG_SIZE; i++)
+    for (int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
     {
-        if (aDDPPLogs[type][i][0])
-            continue;
-        str_copy(aDDPPLogs[type][i], pMsg, sizeof(aDDPPLogs[type][i]));
-        return;
+        str_copy(aDDPPLogs[type][i], aDDPPLogs[type][i-1], sizeof(aDDPPLogs[type][i]));
     }
+    str_copy(aDDPPLogs[type][0], pMsg, sizeof(aDDPPLogs[type][0]));
 }
