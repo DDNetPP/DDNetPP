@@ -223,7 +223,12 @@ void CConsole::SetPrintOutputLevel(int Index, int OutputLevel)
 
 void CConsole::PrintDDPPLogs(int type)
 {
-    for (int i = 0; i < DDPP_LOG_SIZE; i++)
+    /*
+        start from the oldest log
+        so the last line printed in the console is the latest log
+        scroll up to go in the past
+    */
+    for (int i = DDPP_LOG_SIZE; i > 0; i--)
     {
         if (!aDDPPLogs[type][i][0])
             continue;
