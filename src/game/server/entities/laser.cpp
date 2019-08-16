@@ -97,7 +97,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		}
 		//quests (before unfreeze to have information about the tee was being frozzn)
 		char aBuf[256];
-		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_QuestState == 4)
+		if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_QuestState == CPlayer::QUEST_RIFLE)
 		{
 			if (GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_QuestStateLevel == 0)
 			{

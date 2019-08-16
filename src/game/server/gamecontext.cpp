@@ -3533,7 +3533,7 @@ void CGameContext::DDPP_SlowTick()
 		if (!m_apPlayers[i])
 			continue;
 
-		if (m_apPlayers[i]->m_QuestState && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+		if (m_apPlayers[i]->IsQuesting() && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
 		{
 			if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
 			{
@@ -4864,7 +4864,7 @@ void CGameContext::QuestFailed(int playerID)
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!m_apPlayers[playerID]->IsQuesting())
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
@@ -4887,7 +4887,7 @@ void CGameContext::QuestFailed2(int playerID)
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!m_apPlayers[playerID]->IsQuesting())
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
@@ -4955,7 +4955,7 @@ void CGameContext::QuestCompleted(int playerID)
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!pPlayer->m_QuestState)
+	if (!pPlayer->IsQuesting())
 	{
 		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", pPlayer->GetCID(), Server()->ClientName(pPlayer->GetCID()));
 		return;
@@ -4978,14 +4978,14 @@ void CGameContext::QuestCompleted(int playerID)
 	QuestReset(playerID);
 	pPlayer->m_QuestState++;
 	pPlayer->m_QuestUnlocked = pPlayer->m_QuestState; //save highscore
-	if (pPlayer->m_QuestState > 5) // <--- update value depending on how many quests TODO: add a constant that replaces this magic number
+	if (pPlayer->m_QuestState > CPlayer::QUEST_NUM)
 	{
-		pPlayer->m_QuestState = 1; // start at quest 1 in the next level
+		pPlayer->m_QuestState = CPlayer::QUEST_HAMMER; // start at quest 1 in the next level
 		pPlayer->m_QuestStateLevel++;
 		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", pPlayer->m_QuestStateLevel);
-		if (pPlayer->m_QuestStateLevel > 9) // <--- update value depending on how many questlevels TODO: add a constant that replaces this magic number
+		if (pPlayer->m_QuestStateLevel > CPlayer::QUEST_NUM_LEVEL)
 		{
-			pPlayer->m_QuestState = 0;
+			pPlayer->m_QuestState = CPlayer::QUEST_OFF;
 			pPlayer->m_QuestStateLevel = 0;
 			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests !!!");
 			return;
@@ -4993,8 +4993,6 @@ void CGameContext::QuestCompleted(int playerID)
 		pPlayer->m_QuestLevelUnlocked = pPlayer->m_QuestStateLevel; // save highscore
 		SendChatTarget(playerID, aBuf);
 	}
-
-
 	StartQuest(playerID);
 }
 
@@ -5324,7 +5322,7 @@ void CGameContext::StartQuest(int playerID)
 	}
 
 
-	if (m_apPlayers[playerID]->m_QuestState && quest)
+	if (m_apPlayers[playerID]->IsQuesting() && quest)
 	{
 		str_format(aBuf, sizeof(aBuf), "[QUEST] %s", m_apPlayers[playerID]->m_aQuestString);
 		SendBroadcast(aBuf, m_apPlayers[playerID]->GetCID());
@@ -5335,7 +5333,7 @@ void CGameContext::StartQuest(int playerID)
 
 	//quest stopped during the next quest election
 	SendBroadcast("[QUEST] stopped", m_apPlayers[playerID]->GetCID());
-	m_apPlayers[playerID]->m_QuestState = 0;
+	m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
  }
 
  int CGameContext::PickQuestPlayer(int playerID)
@@ -5402,7 +5400,7 @@ void CGameContext::StartQuest(int playerID)
 	 {
 		 if (Index + IndexDead < g_Config.m_SvQuestNeededPlayers) //not enough dead or alive valid tees --> stop quest
 		 {
-			 m_apPlayers[playerID]->m_QuestState = 0;
+			 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 			 SendChatTarget(playerID, "[QUEST] Quest stopped because there are not enough tees on the server.");
 			 //dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
 			 return -1;
@@ -5413,7 +5411,7 @@ void CGameContext::StartQuest(int playerID)
 			 if (!ID)
 			 {
 				 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
-				 m_apPlayers[playerID]->m_QuestState = 0;
+				 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 				 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
 				 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 				 return -1;
@@ -5428,7 +5426,7 @@ void CGameContext::StartQuest(int playerID)
 	 if (!ID)
 	 {
 		 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
-		 m_apPlayers[playerID]->m_QuestState = 0;
+		 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 		 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
 		 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 		 return -1;

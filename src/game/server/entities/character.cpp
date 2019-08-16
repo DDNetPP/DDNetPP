@@ -885,7 +885,7 @@ void CCharacter::FireWeapon(bool Bot)
 			}
 
 			//Quests  (before police so no confusion i hope)
-			if (m_pPlayer->m_QuestState == 1) //if is questing and hammer quest
+			if (m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER) //if is questing and hammer quest
 			{
 				if (GameServer()->IsSameIP(m_pPlayer->GetCID(), pTarget->GetPlayer()->GetCID()))
 				{
@@ -1046,7 +1046,7 @@ void CCharacter::FireWeapon(bool Bot)
 					}
 				}
 			}
-			else if (m_pPlayer->m_QuestState == 3) //race
+			else if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
 				{
@@ -1164,7 +1164,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 		if (Hits > 1)
 		{
-			if (m_pPlayer->m_QuestState == 1) // hammer quest
+			if (m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 8) // Hammer 2+ tees in one hit
 				{
@@ -1407,7 +1407,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 		}
 
-		if (m_pPlayer->m_QuestState == 3) //race
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
 			{
@@ -1487,7 +1487,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 
 		//race quest (shotgun)
-		if (m_pPlayer->m_QuestState == 3) //race
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
 			{
@@ -1548,7 +1548,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-		if (m_pPlayer->m_QuestState == 3) //race
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
 			{
@@ -1575,7 +1575,7 @@ void CCharacter::FireWeapon(bool Bot)
 		new CLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_RIFLE);
 		GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-		if (m_pPlayer->m_QuestState == 3) //race
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
 			{
@@ -1597,11 +1597,11 @@ void CCharacter::FireWeapon(bool Bot)
 		m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
 
 		GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-		if (m_pPlayer->m_QuestState == 3) //race
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
-			if (m_pPlayer->m_QuestStateLevel == 9) //race with conditions
+			if (m_pPlayer->m_QuestStateLevel == 9) // race with conditions
 			{
-				if (g_Config.m_SvQuestRaceCondition == 5) //no ninja
+				if (g_Config.m_SvQuestRaceCondition == 5) // no ninja
 				{
 					GameServer()->QuestFailed2(m_pPlayer->GetCID());
 				}
@@ -1611,9 +1611,9 @@ void CCharacter::FireWeapon(bool Bot)
 
 	}
 
-	if (m_pPlayer->m_QuestState == 2) //Block Quest
+	if (m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK)
 	{
-		if (m_pPlayer->m_QuestStateLevel == 4) //Block 10 tees without fireing a weapon 
+		if (m_pPlayer->m_QuestStateLevel == 4) // Block 10 tees without fireing a weapon 
 		{
 			GameServer()->QuestFailed(m_pPlayer->GetCID());
 		}
@@ -3236,7 +3236,7 @@ void CCharacter::HandleTiles(int Index)
 
 		// ddpp (external because we need the starttile also if the race isnt starting)
 		m_pPlayer->m_MoneyTilePlus = true;
-		if (m_pPlayer->m_QuestState == 3)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if ((m_pPlayer->m_QuestStateLevel == 3 || m_pPlayer->m_QuestStateLevel == 8) && m_pPlayer->m_QuestProgressValue)
 			{
@@ -3257,7 +3257,7 @@ void CCharacter::HandleTiles(int Index)
 	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
 	{
 		Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID()); // Quest 3 lvl 0-4 is handled in here teams.cpp
-		if (m_pPlayer->m_QuestState == 3)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 5)
 			{
@@ -3324,7 +3324,7 @@ void CCharacter::HandleTiles(int Index)
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 			// quest
-			if (m_pPlayer->m_QuestState == 3)
+			if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 7)
 				{
@@ -3346,7 +3346,7 @@ void CCharacter::HandleTiles(int Index)
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 			// quest
-			if (m_pPlayer->m_QuestState == 3)
+			if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 			{
 				if (m_pPlayer->m_QuestStateLevel == 7)
 				{
@@ -3365,7 +3365,7 @@ void CCharacter::HandleTiles(int Index)
 
 
 
-		if (m_pPlayer->m_QuestState == 3)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 6)
 			{
@@ -4528,8 +4528,7 @@ void CCharacter::MoneyTile2()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
-		//FARM QUEST
-		if (m_pPlayer->m_QuestState == 5)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 7)
 			{
@@ -4712,8 +4711,7 @@ void CCharacter::MoneyTile()
 			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 			return;
 		}
-		//FARM QUEST
-		if (m_pPlayer->m_QuestState == 5)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
 		{
 			if (m_pPlayer->m_QuestStateLevel < 7) //10 money
 			{
@@ -4906,8 +4904,7 @@ void CCharacter::MoneyTileDouble()
 					GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
 					return;
 				}
-				//FARM QUEST
-				if (m_pPlayer->m_QuestState == 5)
+				if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
 				{
 					if (m_pPlayer->m_QuestStateLevel < 7) //10 money
 					{
@@ -6374,7 +6371,7 @@ void CCharacter::DDPP_Tick()
 		//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "dont get in my hook -.-");
 
 		//Quest 2 level 8 Block 3 tees without using hook
-		if (m_pPlayer->m_QuestState == 2 && m_pPlayer->m_QuestStateLevel == 8)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 8)
 		{
 			if (m_pPlayer->m_QuestProgressValue)
 			{
@@ -6687,8 +6684,7 @@ void CCharacter::DDPP_FlagTick()
 			return;
 
 		// no matter where (bank, moneytile, ...) quests are independent
-		//FARM QUEST
-		if (m_pPlayer->m_QuestState == 5)
+		if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
 		{
 			if (m_pPlayer->m_QuestStateLevel == 9)
 			{
@@ -7580,7 +7576,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 	{
 		char aBuf[128];
 		//QUEST
-		if (GameServer()->m_apPlayers[Killer]->m_QuestState == 1) //HAMMER QUEST
+		if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_HAMMER)
 		{
 			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
 			{
@@ -7594,7 +7590,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 				}
 			}
 		}
-		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == 2) //BLOCK QUEST
+		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK)
 		{
 			if (GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
 			{
@@ -7688,9 +7684,9 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 				}
 			}
 		}
-		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == 4) //RIFLE QUEST
+		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_RIFLE)
 		{
-			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7) //Rifle <specific player> and then block him [LEVEL 7]
+			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7) // Rifle <specific player> and then block him [LEVEL 7]
 			{
 				if (GameServer()->m_apPlayers[Killer]->m_QuestPlayerID == m_pPlayer->GetCID())
 				{
@@ -7701,10 +7697,10 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 				}
 				else
 				{
-					//GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
+					// GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
 				}
 			}
-			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8) //Rifle 5 tees before blocking them [LEVEL 8]
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8) // Rifle 5 tees before blocking them [LEVEL 8]
 			{
 				if (GameServer()->m_apPlayers[Killer]->m_QuestProgressBool)
 				{
@@ -7732,7 +7728,7 @@ void CCharacter::BlockQuestSubDieFuncDeath(int Killer)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_pPlayer->m_QuestStateLevel == 9 && m_pPlayer->m_QuestState == 1)
+	if (m_pPlayer->m_QuestStateLevel == 9 && m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
 	{
 		GameServer()->QuestFailed(m_pPlayer->GetCID());
 	}
@@ -7762,7 +7758,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 		// KILLED (blocked) or (gdm idm fng killed(NEW))
 		//##############################################
 		//Quest (leave it first because it doesnt reset something and needs the values)
-		if (/*Killer != m_pPlayer->GetCID() &&*/ pVictim->GetPlayer()->m_QuestState == 2 && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
+		if (/*Killer != m_pPlayer->GetCID() &&*/ pVictim->GetPlayer()->m_QuestState == CPlayer::QUEST_BLOCK && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
 		{
 			GameServer()->QuestFailed(pVictim->GetPlayer()->GetCID());
 		}
@@ -7887,7 +7883,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 			}
 		}
 		//Quest (external because it has nothing to do with spree needed players)
-		if (/*Killer != m_pPlayer->GetCID() &&*/ GameServer()->m_apPlayers[Killer]->m_QuestState == 2 && GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
+		if (/*Killer != m_pPlayer->GetCID() &&*/ GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK && GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
 		{
 			GameServer()->QuestAddProgress(GameServer()->m_apPlayers[Killer]->GetCID(), 11);
 		}
@@ -7896,7 +7892,7 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 	{
 		//dbg_msg("spree", "Killer left the game");
 		//Quest (leave it first because it doesnt reset something and needs the values)
-		if (pVictim->GetPlayer()->m_QuestState == 2 && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
+		if (pVictim->GetPlayer()->m_QuestState == CPlayer::QUEST_BLOCK && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
 		{
 			GameServer()->QuestFailed(pVictim->GetPlayer()->GetCID());
 		}

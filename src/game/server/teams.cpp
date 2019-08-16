@@ -689,7 +689,7 @@ void CGameTeams::OnQuestFinish(CPlayer * Player)
 	//(int)time / 60); //<--- minutes (total)
 	//GameServer()->SendChatTarget(Player->GetCID(), aBuf);
 
-	if (Player->m_QuestState == 3) //QUEST RACE
+	if (Player->m_QuestState == CPlayer::QUEST_RACE)
 	{
 		if (Player->m_QuestStateLevel == 0)
 		{
