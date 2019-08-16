@@ -2356,7 +2356,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID > 0)
+	if (pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
 		return;
@@ -2546,14 +2546,14 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 			return;
 		}
 
-		if (pSelf->m_apPlayers[SQL_ID]->m_AccountID <= 0)
+		if (!pSelf->m_apPlayers[SQL_ID]->IsLoggedIn())
 		{
 			str_format(aBuf, sizeof(aBuf), "Player '%s' is not logged in.", pSelf->Server()->ClientName(SQL_ID));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "'%s' SQL-ID: %d", pSelf->Server()->ClientName(SQL_ID), pSelf->m_apPlayers[SQL_ID]->m_AccountID);
+		str_format(aBuf, sizeof(aBuf), "'%s' SQL-ID: %d", pSelf->Server()->ClientName(SQL_ID), pSelf->m_apPlayers[SQL_ID]->GetAccID());
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(aCommand, "help"))
@@ -2582,7 +2582,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				if (pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
 					pSelf->m_apPlayers[i]->m_IsSupporter = value;
 					if (value == 1)
@@ -2618,7 +2618,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				if (pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
 					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
 					if (value == 1)
@@ -2654,7 +2654,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				if (pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
 					pSelf->m_apPlayers[i]->m_IsModerator = value;
 					if (value == 1)
@@ -2690,7 +2690,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID == SQL_ID)
+				if (pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
 					pSelf->m_apPlayers[i]->m_IsAccFrozen = value;
 					pSelf->m_apPlayers[i]->Logout(); //always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
@@ -2758,7 +2758,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 
 	if (InfoID > -1)
 	{
-		if (pSelf->m_apPlayers[InfoID]->m_AccountID <= 0)
+		if (!pSelf->m_apPlayers[InfoID]->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(ClientID, "[SQL] This player is not logged in.");
 			return;
@@ -2769,7 +2769,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Register date [%s]", pSelf->m_apPlayers[InfoID]->m_aAccountRegDate);
 		pSelf->SendChatTarget(ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->m_AccountID);
+		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->GetAccID());
 		pSelf->SendChatTarget(ClientID, aBuf);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN2);
@@ -2900,7 +2900,7 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 	}
 	else
 	{
-		if (pPlayer->m_AccountID <= 0) //also gets triggerd on unknown commands but whatever if logged in all works fine
+		if (!pPlayer->IsLoggedIn()) //also gets triggerd on unknown commands but whatever if logged in all works fine
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientID, "Unknown command or:");
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command.");
@@ -3121,7 +3121,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID > 0)
+	if (pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(ClientID, "You are already logged in.");
 		return;
@@ -3165,7 +3165,7 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	if (!pChr)
 		return;
 
-	if (pPlayer->m_AccountID <= 0)
+	if (!pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in. (More info '/accountinfo')");
 		return;
@@ -3247,7 +3247,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID <= 0)
+	if (!pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are not logged in.");
 		return;
@@ -3620,7 +3620,7 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Error: maybe you are already in a minigame or jail. (check '/minigames status')");
 		}
-		//else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+		//else if (!pSelf->m_apPlayers[mateID]->IsLoggedIn())
 		//{
 		//	pSelf->SendChatTarget(pResult->m_ClientID, "This player is not logged in.");
 		//	return;
@@ -3699,7 +3699,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID <= 0)
+	if (!pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You are not logged in. Use  '/accountinfo' or more info.");
 		return;
@@ -3897,7 +3897,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			else if (!pSelf->m_apPlayers[mateID]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
@@ -3939,7 +3939,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			else if (!pSelf->m_apPlayers[mateID]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
@@ -3981,7 +3981,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			else if (!pSelf->m_apPlayers[mateID]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
@@ -4023,7 +4023,7 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You can't invite yourself.");
 				return;
 			}
-			else if (pSelf->m_apPlayers[mateID]->m_AccountID <= 0)
+			else if (!pSelf->m_apPlayers[mateID]->IsLoggedIn())
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] This player is not logged in.");
 				return;
@@ -4228,7 +4228,7 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] This command is not allowed in jail or minigames. try '/leave' first.");
 		return;
 	}
-	else if (g_Config.m_SvAllowBlockTourna == 2 && pPlayer->m_AccountID <= 0)
+	else if (g_Config.m_SvAllowBlockTourna == 2 && !pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
 		return;
@@ -4483,12 +4483,11 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 	}
 	else
 	{
-		if (pSelf->m_apPlayers[PayID]->m_AccountID < 1)
+		if (!pSelf->m_apPlayers[PayID]->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info: '/accountinfo'.");
 			return;
 		}
-
 
 		//player give
 		str_format(aBuf, sizeof(aBuf), "You paid %d money to the player '%s'", Amount, aUsername);
@@ -5467,7 +5466,7 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 	}
 	else
 	{
-		if (pSelf->m_apPlayers[PoopID]->m_AccountID < 1)
+		if (!pSelf->m_apPlayers[PoopID]->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: This player is not logged in. More info '/accountinfo'.");
 			return;
@@ -6042,7 +6041,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "ERROR: There is already a bomb game. You can join it with '/bomb join'.");
 			return;
 		}
-		if (pPlayer->m_AccountID < 1)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to create a bomb game. More info at '/accountinfo'.");
 			return;
@@ -6115,7 +6114,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(aCmd, "join"))
 	{
-		if (pPlayer->m_AccountID < 1)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to join a bomb game. More info at '/accountinfo'.");
 			return;
@@ -6823,7 +6822,7 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	//if (pPlayer->m_AccountID <= 0) //we want 10000 survival players so no annoying login
+	//if (!pPlayer->IsLoggedIn()) //we want 10000 survival players so no annoying login
 	//{
 	//	pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to use this command. (type '/accountinfo' for more info)");
 	//	return;
@@ -6947,7 +6946,7 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 	if (!pChr)
 		return;
 
-	if (pPlayer->m_AccountID <= 0)
+	if (!pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SPAWN] you have to be logged in to use this command '/accountinfo'.");
 		return;
@@ -7189,7 +7188,7 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Bank is closed.");
 			return;
 		}
-		if (pPlayer->m_AccountID <= 0)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You are not logged in more info at '/accountinfo'.");
 			return;
@@ -7293,7 +7292,7 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Getting crazy? Choose a real person...");
 			return;
 		}
-		if (pSelf->m_apPlayers[broID]->m_AccountID <= 0)
+		if (!pSelf->m_apPlayers[broID]->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Sure this is a trusty trade? He is not logged in...");
 			return;
@@ -7644,7 +7643,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "profile"))
 	{
-		if (pPlayer->m_AccountID <= 0)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
@@ -7691,7 +7690,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "public") || !str_comp_nocase(pResult->GetString(0), "publish"))
 	{
-		if (pPlayer->m_AccountID <= 0)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
@@ -7738,7 +7737,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "frame"))
 	{
-		if (pPlayer->m_AccountID <= 0)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
@@ -7881,7 +7880,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "speed"))
 	{
-		if (pPlayer->m_AccountID <= 0)
+		if (!pPlayer->IsLoggedIn())
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be logged in to create ascii animations.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/accountinfo' for more help about accounts.");
@@ -8278,11 +8277,11 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "Authed: %d", pLive->m_Authed);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
-	if (pLive->m_AccountID > 0)
+	if (pLive->IsLoggedIn())
 	{
 		str_format(aBuf, sizeof(aBuf), "Account: %s", pLive->m_aAccountLoginName);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "AccountID: %d", pLive->m_AccountID);
+		str_format(aBuf, sizeof(aBuf), "AccountID: %d", pLive->GetAccID());
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		if (!pLive->IsQuesting())
@@ -9698,7 +9697,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 
 	//for (int i = 0; i < MAX_CLIENTS; i++)
 	//{
-	//	if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_AccountID > 0)
+	//	if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->IsLoggedIn())
 	//	{
 	//		pSelf->m_aPlayers[i]->Logout(0);
 	//		pSelf->SendChatTarget(i,"[ACC] you were logged out by an administrator. (logout all)");
@@ -9836,7 +9835,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID > 0)
+	if (pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
 		return;
@@ -9920,7 +9919,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 	str_copy(pPlayer->m_aAccountLoginName, aUsername, sizeof(pPlayer->m_aAccountLoginName)); 
 	str_copy(pPlayer->m_aAccountPassword, aPassword, sizeof(pPlayer->m_aAccountPassword));
-	pPlayer->m_AccountID = 1; //could be confusing maybe set it to -1 but this needs some total code rework
+	pPlayer->SetAccID(-1);
 	pPlayer->m_IsFileAcc = true;
 
 	getline(Acc2File, data);
@@ -10001,7 +10000,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (pPlayer->m_AccountID > 0)
+	if (pPlayer->IsLoggedIn())
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] You are already logged in.");
 		return;
@@ -10183,7 +10182,7 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				if (pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
 				{
 					pSelf->m_apPlayers[i]->m_IsSupporter = value;
 					if (value == 1)
@@ -10229,7 +10228,7 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		{
 			if (pSelf->m_apPlayers[i])
 			{
-				if (pSelf->m_apPlayers[i]->m_AccountID && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				if (pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
 				{
 					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
 					if (value == 1)

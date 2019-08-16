@@ -201,7 +201,7 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetAccID(GetInt(GetID("ID")));
 
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
@@ -433,7 +433,7 @@ void CQueryLogin::OnData()
 			//========================================
 			//works how it should but is possible crashing the server
 
-			m_pGameServer->ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
+			m_pGameServer->ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->GetAccID());
 		}
 	}
 	else
@@ -497,7 +497,7 @@ bool CGameContext::CheckAccounts(int AccountID)
 		if (!m_apPlayers[i])
 			continue;
 
-		if (m_apPlayers[i]->m_AccountID == AccountID)
+		if (m_apPlayers[i]->GetAccID() == AccountID)
 			return true;
 	}
 	return false;
@@ -2125,7 +2125,7 @@ void CGameContext::GiveBlockPoints(int ID, int points)
 	m_apPlayers[ID]->m_BlockPoints += points;
 	if (m_apPlayers[ID]->m_ShowBlockPoints)
 	{
-		if (m_apPlayers[ID]->m_AccountID > 0)
+		if (m_apPlayers[ID]->IsLoggedIn())
 		{
 			if (!FlagBonus)
 			{
@@ -2166,7 +2166,7 @@ void CGameContext::GiveBlockPoints(int ID, int points)
 	}
 	else //chat info deactivated
 	{
-		if (m_apPlayers[ID]->m_AccountID <= 0)
+		if (m_apPlayers[ID]->IsLoggedIn())
 		{
 			if (m_apPlayers[ID]->m_BlockPoints == 5 || m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
 			{
@@ -2828,7 +2828,7 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 	else
 		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->m_level);
 	SendChatTarget(requestID, aBuf);
-	if (pPlayer->m_AccountID < 1)
+	if (!pPlayer->IsLoggedIn())
 		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->m_xp);
 	else
 		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->m_xp, pPlayer->m_neededxp);
@@ -4295,7 +4295,7 @@ bool CGameContext::SurvivalPickWinner()
 	SendSurvivalBroadcast(aBuf);
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
 
-	if (m_apPlayers[winnerID]->m_AccountID > 0)
+	if (m_apPlayers[winnerID]->IsLoggedIn())
 	{
 		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
 		m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
@@ -5506,7 +5506,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		return;
 	}
 
-	if (m_apPlayers[ViewedID]->m_AccountID <= 0)
+	if (m_apPlayers[ViewedID]->IsLoggedIn())
 	{
 		SendChatTarget(ViewerID, "Player has to be logged in to view his profile.");
 		return;
@@ -5653,7 +5653,7 @@ int CGameContext::PrintSpecialCharUsers(int ID)
 	int users = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_AccountID > 0)
+		if (m_apPlayers[i] && m_apPlayers[i]->IsLoggedIn())
 		{
 			if (IsAllowedCharSet(m_apPlayers[i]->m_aAccountLoginName) == false)
 			{
@@ -9834,7 +9834,7 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		return -1;
 	}
 
-	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
+	if (pPlayer->IsLoggedIn()) //LOGGED IN ???
 	{
 		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
@@ -9933,7 +9933,7 @@ int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
 		return -1;
 	}
 
-	if (m_apPlayers[TradeID]->m_AccountID <= 0)    //USER LOGGED IN ???
+	if (m_apPlayers[TradeID]->IsLoggedIn())    //USER LOGGED IN ???
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pToName);
 		SendChatTarget(FromID, aBuf);
@@ -9967,13 +9967,13 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 	CCharacter *pBChr = GetPlayerChar(BuyerID);
 	CCharacter *pSChr = GetPlayerChar(SellerID);
 
-	if (pBPlayer->m_AccountID <= 0)					// BUYER LOGGED IN ??
+	if (pBPlayer->IsLoggedIn())					// BUYER LOGGED IN ??
 	{
 		SendChatTarget(BuyerID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
 	}
 
-	if (pSPlayer->m_AccountID <= 0)					// SELLER LOGGED IN ??
+	if (pSPlayer->IsLoggedIn())					// SELLER LOGGED IN ??
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pSellerName);
 		SendChatTarget(BuyerID, aBuf);

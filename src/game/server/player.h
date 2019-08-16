@@ -189,6 +189,9 @@ public:
 	void MoneyTransaction(int Amount, const char *Description);
 	bool IsInstagibMinigame();
 	bool IsMaxLevel() { return m_level >= ACC_MAX_LEVEL; }
+	bool IsLoggedIn() { return m_AccountID != 0; } // -1 filebased acc >0 sql id
+	int GetAccID() { return m_AccountID; }
+	void SetAccID(int ID);
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
@@ -692,7 +695,6 @@ public:
 	int64 m_LastFight;
 
 	char m_aAccountLoginName[32];
-	int m_AccountID;
 	char m_aChangePassword[32];
 	char m_aAccountPassword[32];
 	char m_aAccountRegDate[32];
@@ -791,6 +793,9 @@ public:
 	bool m_TROLL166;
 	bool m_TROLL420;
 	bool m_RconFreeze;
+
+	private: // private ddnet+++
+	int m_AccountID;
 };
 
 #endif
