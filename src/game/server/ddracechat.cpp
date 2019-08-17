@@ -5297,11 +5297,21 @@ void CGameContext::ConAntiFlood(IConsole::IResult * pResult, void * pUserData)
 
 	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[FLOOD] Missing permission.");
 		return;
 	}
 
-	pSelf->AbuseMotd("=== anti flood ===\n\nsv_hide_connection_msg\n(0=none 1=join 2=leave 3=join/leave/spec)\n\nsv_hide_connection_msg_name\n(hides connection name)\n\nsv_hide_connection_msg_pattern\n(hides connection pattern)\n\nsv_activate_patter_filter\n(activates pattern filter)", pResult->m_ClientID);
+	pSelf->AbuseMotd(
+"*~~~~~~~~* ANTI FLOOD *~~~~~~~~*\n\n\
+\
+sv_hide_connection_msg\n\
+(0=none 1=join 2=leave 3=join/leave/spec)\n\n\
+\
+sv_hide_connection_msg_pattern\n\
+(hides connection pattern check '/regex')\n\n\
+\
+"
+	, pResult->m_ClientID);
 }
 
 void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
@@ -8267,6 +8277,13 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 	CPlayer *pLive = pSelf->m_apPlayers[liveID];
 	if (!pLive)
 		return;
+
+	str_format(aBuf, sizeof(aBuf), "Messages join=%s leave=%s team=%s",
+		pSelf->ShowJoinMessage(pLive->GetCID()) ? "shown" : "hidden",
+		pSelf->ShowLeaveMessage(pLive->GetCID()) ? "shown" : "hidden",
+		pSelf->ShowTeamSwitchMessage(pLive->GetCID()) ? "shown" : "hidden");
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
 	if (pLive->m_Authed)
 	{
 		str_format(aBuf, sizeof(aBuf), "Authed: %d", pLive->m_Authed);

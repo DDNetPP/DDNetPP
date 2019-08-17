@@ -570,10 +570,8 @@ MACRO_CONFIG_INT(SvRegisterHumanLevel, sv_register_human_level, 0, 0, 9, CFGFLAG
 MACRO_CONFIG_INT(SvChatHumanLevel, sv_chat_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use the chat")
 MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_SERVER, "how many accounts one ip can register before getting rate limited")
 MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
-MACRO_CONFIG_INT(SvHideJoinLeaveMessages, sv_hide_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec") //superusefull agianst reconnect trolls c:
-MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect/spec")
-MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPattern, sv_hide_connection_msg_pattern, 64, "ninjahack3k", CFGFLAG_SERVER, "Given patter in name won't appear in chat on connect/disconnect/spec")
-MACRO_CONFIG_INT(SvActivatePatternFilter, sv_activate_patter_filter, 1, 0, 1, CFGFLAG_SERVER, "0=deactivates patter filter 1=activates patern filter (sv_hide_connection_msg_pattern)")
+MACRO_CONFIG_INT(SvShowConnectionMessages, sv_show_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)") // superusefull agianst reconnect trolls c:
+MACRO_CONFIG_STR(SvHideConnectionMessagesPattern, sv_hide_connection_msg_pattern, 64, "", CFGFLAG_SERVER, "Names matching this regex pattern won't appear in chat on connect/disconnect/spec (\"\"=off))")
 
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
