@@ -228,7 +228,7 @@ void CConsole::PrintDDPPLogs(int type)
         so the last line printed in the console is the latest log
         scroll up to go in the past
     */
-    for (int i = DDPP_LOG_SIZE; i > 0; i--)
+    for (int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
     {
         if (!aDDPPLogs[type][i][0])
             continue;

@@ -19,7 +19,7 @@ void ddpp_log_print(int type)
         so the last line printed in the console is the latest log
         scroll up to go in the past
     */
-    for (int i = DDPP_LOG_SIZE; i > 0; i--)
+    for (int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
     {
         if (!aDDPPLogs[type][i][0])
             continue;
@@ -27,17 +27,23 @@ void ddpp_log_print(int type)
     }
 }
 
+void ddpp_log_print_all()
+{
+    for (int i = 0; i < DDPP_NUM_LOGS; i++)
+    {
+        // printf("[ddpp_logs] printing type=%d\n", i);
+        ddpp_log_print(i);
+    }
+}
+
 void ddpp_log(int type, const char *pMsg)
 {
-    if (type == DDPP_LOG_MASTER)
+    if (type < 0 || type > DDPP_NUM_LOGS)
     {
-        ddpp_log_append(type, pMsg);
-    }
-    else
-    {
-        printf("[ddpp_logs] Error: invalid log type=%d\n", type);
+        printf("[ddpp_logs] Error: invalid log type=%d (max %d)\n", type, DDPP_NUM_LOGS);
         *((volatile unsigned*)0) = 0x0;
     }
+    ddpp_log_append(type, pMsg);
 }
 
 void ddpp_log_append(int type, const char *pMsg)

@@ -5680,6 +5680,12 @@ void CGameContext::ShowAdminWelcome(int ID)
 	CALL_STACK_ADD();
 #endif
 	SendChatTarget(ID, "============= admin login =============");
+	if (aDDPPLogs[DDPP_LOG_RCON][1][0]) // index 1 because index 0 is current login
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_RCON][1]);
+		Server()->SendRconLine(ID, aBuf);
+	}
 	int surv_error = TestSurvivalSpawns();
 	if (surv_error == -1)
 	{
@@ -9840,6 +9846,17 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 			m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO_ADMIN;
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "CGameContext", "Aborted vote by admin login.");
 		}
+		time_t rawtime;
+		struct tm* timeinfo;
+		char timestr [80];
+
+		time ( &rawtime );
+		timeinfo = localtime ( &rawtime );
+
+		strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
+		str_format(aBuf, sizeof(aBuf), "[%s] level=%d id=%d ip=%s name=%s", timestr, Level, ClientID, aIP, pServ->ClientName(ClientID));
+		ddpp_log(DDPP_LOG_RCON, aBuf);
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
 	}
 }

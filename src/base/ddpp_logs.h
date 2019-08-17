@@ -10,6 +10,7 @@ extern "C" {
 
 enum {
     DDPP_LOG_MASTER,
+    DDPP_LOG_RCON,
     DDPP_NUM_LOGS,
 
     DDPP_LOG_SIZE=8
@@ -22,6 +23,12 @@ extern char aDDPPLogs[DDPP_NUM_LOGS][DDPP_LOG_SIZE][128];
     print all log lines of a given type to stdout
 */
 void ddpp_log_print(int type);
+
+/*
+    ddpp_log_print_all()
+    print all log lines of all types
+*/
+void ddpp_log_print_all();
 
 /*
     ddpp_log(type, message)
