@@ -1409,6 +1409,23 @@ int secure_random_init();
 */
 void secure_random_fill(void *bytes, size_t length);
 
+/* * * * * * * * * * *
+ *                   *
+ *      DDNet++      *
+ *                   *
+ * * * * * * * * * * */
+
+/*
+	Function: regex_compile
+		checks if a regex pattern matches
+
+	Retrurns:
+	   -1 - on error
+		0 - if pattern matches
+		1 - if pattern doesn't match
+*/
+int regex_compile(const char *pPattern, const char *pStr);
+
 #ifdef __cplusplus
 }
 #endif
