@@ -404,6 +404,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ add '/spawn' command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add '/survival' minigame");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/regex' staff command");
 	}
 	else if (page == 2)
 	{
@@ -8362,6 +8364,57 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "Position: (%.2f/%.2f)", pLive->GetCharacter()->GetPosition().x / 32, pLive->GetCharacter()->GetPosition().y / 32);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
+}
+
+void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	/*
+		Since regex can be used as denial of service attack vector
+		it is probably safer to make it staff only command
+	*/
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] missing permission to use this command.");
+		return;
+	}
+
+	if (pResult->NumArguments() != 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "==== Regex ====");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Train your POSIX regex skills or test patterns used for anti flood commands.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "usage: '/regex \"pattern\" \"string\"'");
+		pSelf->SendChatTarget(pResult->m_ClientID, "example: '/regex \"[0-9]\" \"123\"' (match numeric)");
+		pSelf->SendChatTarget(pResult->m_ClientID, "example: '/regex \"^[0-9]*x$\" \"123x\"' (match numbers followed by x)");
+		return;
+	}
+	int ret = regex_compile(pResult->GetString(0), pResult->GetString(1));
+	if (ret == -1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] Error: pattern compile failed.");
+		return;
+	}
+	if (ret == 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] (-) pattern does not match.");
+		return;
+	}
+	if (ret == 0)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] (+) pattern matches.");
+		return;
+	}
+	pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] Error: something went horribly wrong.");
 }
 
 void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
