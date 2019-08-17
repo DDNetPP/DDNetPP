@@ -1598,12 +1598,16 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"ddpp_logs",
-				"types: mastersrv");
+				"types: mastersrv, rcon");
 		return;
 	}
 	if (!str_comp_nocase(pResult->GetString(0), "mastersrv"))
 	{
 		pSelf->m_pConsole->PrintDDPPLogs(DDPP_LOG_MASTER);
+	}
+	else if (!str_comp_nocase(pResult->GetString(0), "rcon"))
+	{
+		pSelf->m_pConsole->PrintDDPPLogs(DDPP_LOG_RCON);
 	}
 	else
 	{
@@ -1614,7 +1618,7 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"ddpp_logs",
-				"valid types: mastersrv");
+				"valid types: mastersrv, rcon");
 	}
 }
 
