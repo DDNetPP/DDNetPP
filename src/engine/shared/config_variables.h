@@ -453,12 +453,6 @@ MACRO_CONFIG_INT(SvAllowTrade, sv_allow_trade, 0, 0, 1, CFGFLAG_SERVER, "Allow t
 //MACRO_CONFIG_INT(SvTestValB, sv_test_val_b, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 //MACRO_CONFIG_INT(SvTestValC, sv_test_val_c, 255, 0, 255000, CFGFLAG_SERVER, "chiller's secret test cfgs atm used for color exploration")
 
-MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
-MACRO_CONFIG_INT(SvHideJoinLeaveMessages, sv_hide_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec") //superusefull agianst reconnect trolls c:
-MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect/spec")
-MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPattern, sv_hide_connection_msg_pattern, 64, "ninjahack3k", CFGFLAG_SERVER, "Given patter in name won't appear in chat on connect/disconnect/spec")
-MACRO_CONFIG_INT(SvActivatePatternFilter, sv_activate_patter_filter, 1, 0, 1, CFGFLAG_SERVER, "0=deactivates patter filter 1=activates patern filter (sv_hide_connection_msg_pattern)")
-
 MACRO_CONFIG_INT(SvShowClientDummysInMaster, sv_show_client_dummys_in_master, 1, 0, 1, CFGFLAG_SERVER, "0=hides clientdummys in master 1=shows clientdummys in master")
 
 //#######################
@@ -568,13 +562,18 @@ MACRO_CONFIG_STR(SvWrongRconFile, sv_wrong_rcon_file, 128, "wrong_rcon.txt", CFG
 MACRO_CONFIG_STR(SvWrongLoginFile, sv_wrong_login_file, 128, "wrong_login.txt", CFGFLAG_SERVER, "path/to/file.txt where the wrong account logins are stored")
 
 
-//ddnet++ anti spoof
+//ddnet++ anti spoof/flood
 MACRO_CONFIG_INT(SvHaxx0rSpoof, sv_haxx0r_spoof, 0, 0, 1, CFGFLAG_SERVER, "dont touch if ur knoop (chillers anti spoof) 1=on 0=off")
 MACRO_CONFIG_INT(SvHaxx0rSpoofPort, sv_haxx0r_spoof_port, 8303, 8300, 65534, CFGFLAG_SERVER, "used for sv_haxx0r_spoof 1 (don't touch if ur knoop)")
 MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "how high the captcha score has to be to verfiy humans ('/captcha')")
 MACRO_CONFIG_INT(SvRegisterHumanLevel, sv_register_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use register command")
 MACRO_CONFIG_INT(SvChatHumanLevel, sv_chat_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use the chat")
 MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_SERVER, "how many accounts one ip can register before getting rate limited")
+MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
+MACRO_CONFIG_INT(SvHideJoinLeaveMessages, sv_hide_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec") //superusefull agianst reconnect trolls c:
+MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPlayer, sv_hide_connection_msg_name, 64, "ninjahack3k", CFGFLAG_SERVER, "Given playername won't appear in chat on connect/disconnect/spec")
+MACRO_CONFIG_STR(SvHideJoinLeaveMessagesPattern, sv_hide_connection_msg_pattern, 64, "ninjahack3k", CFGFLAG_SERVER, "Given patter in name won't appear in chat on connect/disconnect/spec")
+MACRO_CONFIG_INT(SvActivatePatternFilter, sv_activate_patter_filter, 1, 0, 1, CFGFLAG_SERVER, "0=deactivates patter filter 1=activates patern filter (sv_hide_connection_msg_pattern)")
 
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
