@@ -2169,7 +2169,7 @@ void CPlayer::SetXP(int xp)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", ID, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_xp = xp;
 }
@@ -2178,7 +2178,7 @@ void CPlayer::SetLevel(int level)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", ID, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+	dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_level = level;
 }
@@ -2187,7 +2187,7 @@ void CPlayer::SetMoney(int money)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", ID, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+	dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_money = money;
 }
