@@ -391,6 +391,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* fix flag crashbug");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"* fix account system (database) on windows");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"* finally own gametype name");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add new shop (map/motd/dummy)");
