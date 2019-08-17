@@ -966,6 +966,7 @@ private:
 	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
 	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConLive(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
