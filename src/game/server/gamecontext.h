@@ -261,6 +261,17 @@ public:
 	int CountConnectedBots();
     bool IsAllowedCharSet(const char *pStr);
 
+	bool ShowJoinMessage(int ClientID);
+	bool ShowLeaveMessage(int ClientID);
+	bool ShowTeamSwitchMessage(int ClientID);
+
+	enum {
+		CON_SHOW_NONE,
+		CON_SHOW_JOIN,
+		CON_SHOW_JOIN_LEAVE,
+		CON_SHOW_ALL,
+	};
+
 	CLetters *m_pLetters;
 
 	// sql

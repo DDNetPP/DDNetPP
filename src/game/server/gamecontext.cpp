@@ -1643,31 +1643,17 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
 		char aBuf[512];
-		if (!silent && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 1))
+		if (!silent)
 		{
-			if (g_Config.m_SvActivatePatternFilter)
-			{
-				if (str_find(Server()->ClientName(ClientID), g_Config.m_SvHideJoinLeaveMessagesPattern))
-				{
-					//hide pattern
-					str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", ClientID, Server()->ClientName(ClientID));
-					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-				}
-				else
-				{
-					str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
-					SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				}
-			}
-			else if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(ClientID)))
-			{
-				str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", ClientID, Server()->ClientName(ClientID));
-				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-			}
-			else
+			if (ShowJoinMessage(ClientID))
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 				SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
+				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
 		if (g_Config.m_SvInstagibMode)
@@ -10997,6 +10983,53 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 		}
 	}
 	return false;
+}
+
+bool CGameContext::ShowJoinMessage(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowLeaveMessage(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_JOIN)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowTeamSwitchMessage(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
 }
 
 void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword)
