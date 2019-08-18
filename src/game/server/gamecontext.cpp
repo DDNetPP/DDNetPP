@@ -46,7 +46,10 @@ enum
 
 void CQuerySQLstatus::OnData()
 {
-	if (Next())
+	int n = Next();
+	if (m_ClientID == -1)
+		return;
+	if (n)
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: got rows.");
 	else
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
@@ -3584,6 +3587,8 @@ void CGameContext::DDPP_SlowTick()
 		}
 	}
 	CheckDDPPshutdown();
+	if (g_Config.m_SvAutoFixBrokenAccs)
+		SQLcleanZombieAccounts(-1);
 }
 
 void CGameContext::ChilliClanTick(int i)
@@ -11032,8 +11037,49 @@ bool CGameContext::ShowTeamSwitchMessage(int ClientID)
 	return true;
 }
 
+void CGameContext::SQLcleanZombieAccounts(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128+(MAX_CLIENTS*2)];
+	bool IsLoggedIns = false;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			IsLoggedIns = true;
+			break;
+		}
+	}
+	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE LastLoginPort = '%i' ", g_Config.m_SvPort);
+	if (IsLoggedIns)
+	{
+		str_append(aBuf, " AND ID NOT IN (", sizeof(aBuf));
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (!m_apPlayers[i])
+				continue;
+			if (!m_apPlayers[i]->IsLoggedIn())
+				continue;
+			char aBufBuf[3];
+			str_format(aBufBuf, sizeof(aBufBuf), "%d,", m_apPlayers[i]->GetAccID());
+			str_append(aBuf, aBufBuf, sizeof(aBuf));
+		}
+		aBuf[strlen(aBuf)-1] = '\0'; // chop of the last comma
+		str_append(aBuf, ")", sizeof(aBuf));
+	}
+	dbg_msg("zombieAcc", "%s", aBuf);
+	ExecuteSQLvf(ClientID, aBuf);
+}
+
 void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword)
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	if (mode == SQL_LOGIN)
 	{
 		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pUsername, pPassword);
@@ -11114,9 +11160,12 @@ void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
-	SendChatTarget(VerboseID, aBuf);
+	if (VerboseID != -1)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
+		SendChatTarget(VerboseID, aBuf);
+	}
 	CQuerySQLstatus *pQuery;
 	pQuery = new CQuerySQLstatus();
 	pQuery->m_ClientID = VerboseID;

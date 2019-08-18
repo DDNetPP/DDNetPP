@@ -2529,8 +2529,8 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "----------------------");
 		pSelf->SendChatTarget(ClientID, "'/acc_info <clientID>' additional info");
 		pSelf->SendChatTarget(ClientID, "'/sql_name' similar command using account names");
-        pSelf->SendChatTarget(ClientID, "'/sql_logout <playername>' to reset acc");
-        pSelf->SendChatTarget(ClientID, "'/sql_logout_all' to reset all accs");
+        pSelf->SendChatTarget(ClientID, "'/sql_logout <playername>' sets logout state (risky)");
+        pSelf->SendChatTarget(ClientID, "'/sql_logout_all' sets logout state only for current port (save)");
 		return;
 	}
 
@@ -9767,8 +9767,8 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 	//		pSelf->SendChatTarget(i,"[ACC] you were logged out by an administrator. (logout all)");
 	//	}
 	//}
-	
-	pSelf->ExecuteSQLvf(ClientID, "UPDATE Accounts SET IsLoggedIn = 0");
+
+	pSelf->SQLcleanZombieAccounts(ClientID);
 }
 
 void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
