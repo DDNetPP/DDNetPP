@@ -33,6 +33,7 @@
 #include <vector>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
+#include <base/ddpp_logs.h>
 
 #include "register.h"
 #include "server.h"
@@ -1607,6 +1608,11 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					}
 
 					GameServer()->IncrementWrongRconAttempts();
+					char aAddrStr[NETADDR_MAXSTRSIZE];
+					net_addr_str(m_NetServer.ClientAddr(ClientID), aAddrStr, sizeof(aAddrStr), true);
+					char aBuf[128];
+					str_format(aBuf, sizeof(aBuf), "ip=%s name='%s'", aAddrStr, ClientName(ClientID));
+					ddpp_log(DDPP_LOG_WRONG_RCON, aBuf);
 					if (g_Config.m_SvSaveWrongRcon)
 					{
 						std::ofstream RconFile(g_Config.m_SvWrongRconFile, std::ios::app);

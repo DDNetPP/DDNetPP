@@ -10,7 +10,8 @@ extern "C" {
 
 enum {
     DDPP_LOG_MASTER,
-    DDPP_LOG_RCON,
+    DDPP_LOG_AUTH_RCON,
+    DDPP_LOG_WRONG_RCON,
     DDPP_NUM_LOGS,
 
     DDPP_LOG_SIZE=8
