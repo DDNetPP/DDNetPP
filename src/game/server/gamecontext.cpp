@@ -5671,9 +5671,9 @@ void CGameContext::ShowAdminWelcome(int ID)
 	CALL_STACK_ADD();
 #endif
 	SendChatTarget(ID, "============= admin login =============");
+	char aBuf[128];
 	if (aDDPPLogs[DDPP_LOG_RCON][1][0]) // index 1 because index 0 is current login
 	{
-		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_RCON][1]);
 		Server()->SendRconLine(ID, aBuf);
 	}
@@ -5685,6 +5685,39 @@ void CGameContext::ShowAdminWelcome(int ID)
 	else if (surv_error == -2)
 	{
 		SendChatTarget(ID, "[ADMIN:Test] WARNING: not enough survival spawns (less survival spawns than slots)");
+	}
+	int protections = 0;
+	if (g_Config.m_SvRegisterHumanLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_register_human_level = %d", g_Config.m_SvRegisterHumanLevel);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvChatHumanLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_chat_human_level = %d", g_Config.m_SvChatHumanLevel);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_show_connection_msg = %d", g_Config.m_SvShowConnectionMessages);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvHideConnectionMessagesPattern[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_hide_connection_msg_pattern = %s", g_Config.m_SvHideConnectionMessagesPattern);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (protections)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning you have %d protective systems running!", protections);
+		SendChatTarget(ID, aBuf);
+		SendChatTarget(ID, "[ADMIN:Prot] As effective those are under attack and as good protection sounds.");
+		SendChatTarget(ID, "[ADMIN:Prot] Those should not run if there is no attack since they lower UX.");
+		protections++;
 	}
 	PrintSpecialCharUsers(ID);
 }
