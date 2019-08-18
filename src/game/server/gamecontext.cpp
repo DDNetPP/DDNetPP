@@ -5674,12 +5674,12 @@ void CGameContext::ShowAdminWelcome(int ID)
 	char aBuf[128];
 	if (m_WrongRconAttempts >= g_Config.m_SvRconAttemptReport)
 	{
-		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login!", m_WrongRconAttempts);
+		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login! 'logs wrong_rcon'", m_WrongRconAttempts);
 		Server()->SendRconLine(ID, aBuf);
 	}
-	if (aDDPPLogs[DDPP_LOG_RCON][1][0]) // index 1 because index 0 is current login
+	if (aDDPPLogs[DDPP_LOG_AUTH_RCON][1][0]) // index 1 because index 0 is current login
 	{
-		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_RCON][1]);
+		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_AUTH_RCON][1]);
 		Server()->SendRconLine(ID, aBuf);
 	}
 	int surv_error = TestSurvivalSpawns();
@@ -9900,7 +9900,7 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		if (m_apPlayers[ClientID]->IsLoggedIn())
 			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
 		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, pServ->ClientName(ClientID));
-		ddpp_log(DDPP_LOG_RCON, aBuf);
+		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
 		m_WrongRconAttempts = 0;
