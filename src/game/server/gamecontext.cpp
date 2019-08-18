@@ -5672,6 +5672,11 @@ void CGameContext::ShowAdminWelcome(int ID)
 #endif
 	SendChatTarget(ID, "============= admin login =============");
 	char aBuf[128];
+	if (m_WrongRconAttempts >= g_Config.m_SvRconAttemptReport)
+	{
+		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login!", m_WrongRconAttempts);
+		Server()->SendRconLine(ID, aBuf);
+	}
 	if (aDDPPLogs[DDPP_LOG_RCON][1][0]) // index 1 because index 0 is current login
 	{
 		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_RCON][1]);
@@ -9091,6 +9096,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
+	m_WrongRconAttempts = 0;
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
@@ -9871,6 +9877,8 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 	if(m_apPlayers[ClientID])
 	{
 		m_apPlayers[ClientID]->m_Authed = Level;
+		if (Level == CServer::AUTHED_HONEY)
+			return;
 		char aBuf[512], aIP[NETADDR_MAXSTRSIZE];
 		pServ->GetClientAddr(ClientID, aIP, sizeof(aIP));
 		str_format(aBuf, sizeof(aBuf), "ban %s %d Banned by vote", aIP, g_Config.m_SvVoteKickBantime);
@@ -9895,6 +9903,7 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		ddpp_log(DDPP_LOG_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
+		m_WrongRconAttempts = 0;
 	}
 }
 
@@ -10791,6 +10800,14 @@ void CGameContext::List(int ClientID, const char* filter)
 		SendChatTarget(ClientID, buf);
 	str_format(buf, sizeof(buf), "%d players online", total);
 	SendChatTarget(ClientID, buf);
+}
+
+void CGameContext::IncrementWrongRconAttempts()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	m_WrongRconAttempts++;
 }
 
 void CGameContext::RegisterBanCheck(int ClientID)

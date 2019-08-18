@@ -272,6 +272,8 @@ public:
 		CON_SHOW_ALL,
 	};
 
+	int m_WrongRconAttempts;
+
 	CLetters *m_pLetters;
 
 	// sql
@@ -1048,6 +1050,10 @@ public:
 
 	int m_ChatResponseTargetID;
 	int m_ChatPrintCBIndex;
+
+	// ddnet++
+
+	virtual void IncrementWrongRconAttempts();
 };
 
 class CQueryPlayer : public CQuery

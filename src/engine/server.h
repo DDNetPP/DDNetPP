@@ -208,6 +208,7 @@ public:
 
 	// DDNet++
 
+	virtual void IncrementWrongRconAttempts() = 0;
 	virtual void OnStartBlockTournament() = 0;
 	//virtual void OnDDPPshutdown() = 0;
 };

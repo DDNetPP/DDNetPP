@@ -83,10 +83,10 @@ public:
 
 	enum
 	{
+		AUTHED_HONEY=-1,
 		AUTHED_NO=0,
 		AUTHED_MOD,
 		AUTHED_ADMIN,
-		AUTHED_HONEY=-1,
 
 		MAX_RCONCMD_SEND=16,
 	};
