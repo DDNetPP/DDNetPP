@@ -861,6 +861,12 @@ private:
 	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConNameChangeMute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
@@ -994,25 +1000,31 @@ private:
 		NETADDR m_Addr;
 		int m_Expire;
 	};
-	struct CRegisterBan
+	struct CGenericBan
 	{
 		NETADDR m_Addr;
 		int m_Expire;
-		int m_NumRegisters;
+		int64 m_LastAttempt;
+		int m_NumAttempts;
 	};
 
-	CRegisterBan m_aMutes[MAX_MUTES];
-	CRegisterBan m_aRegisterBans[MAX_REGISTER_BANS];
+	CMute m_aMutes[MAX_MUTES];
+	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
+	CGenericBan m_aNameChangeMutes[MAX_MUTES];
 	int m_NumMutes;
 	int m_NumRegisterBans;
+	int m_NumNameChangeMutes;
 	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
 	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
+	int64 NameChangeMuteTime(int ClientID);
 	void Whisper(int ClientID, char *pStr);
 	void WhisperID(int ClientID, int VictimID, char *pMessage);
 	void Converse(int ClientID, char *pStr);
 
 public:
 	void RegisterBanCheck(int ClientID);
+	int64 NameChangeMuteCheck(int ClientID);
 
 	CLayers *Layers() { return &m_Layers; }
 	class IScore *Score() { return m_pScore; }
