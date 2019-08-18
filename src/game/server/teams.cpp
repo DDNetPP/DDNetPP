@@ -520,19 +520,19 @@ void CGameTeams::OnFinish(CPlayer* Player)
 			/ ((float) Server()->TickSpeed());
 	if (time < 0.000001f)
 		return;
+	int mins = (int) time / 60;
+	float secs = time - mins * 60;
+	OnFinishDDPP(Player, mins, secs);
 	CPlayerData *pData = GameServer()->Score()->PlayerData(Player->GetCID());
-	char aBuf[128];
 	SetCpActive(Player, -2);
+	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf),
 			"%s finished in: %d minute(s) %5.2f second(s)",
-			Server()->ClientName(Player->GetCID()), (int) time / 60,
-			time - ((int) time / 60 * 60));
+			Server()->ClientName(Player->GetCID()), mins, secs);
 	if (g_Config.m_SvHideScore || !g_Config.m_SvSaveWorseScores)
 		GameServer()->SendChatTarget(Player->GetCID(), aBuf);
 	else
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-	OnQuestFinish(Player);
 
 	float diff = fabs(time - pData->m_BestTime);
 
@@ -669,6 +669,27 @@ void CGameTeams::OnFinish(CPlayer* Player)
 	int TTime = 0 - (int) time;
 	if (Player->m_Score < TTime || Player->m_Score == -9999)
 		Player->m_Score = TTime;
+}
+
+void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, int mins, float secs)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	OnQuestFinish(pPlayer);
+	if (mins > 0) // only give xp if race was at least 1 minute
+	{
+		if (!pPlayer->IsMaxLevel())
+		{
+			pPlayer->GiveXP(250);
+			GameServer()->SendChatTarget(pPlayer->GetCID(), "+250 xp (finish race)");
+			if (g_Config.m_SvFinishEvent == 1)
+			{
+				pPlayer->GiveXP(500);
+				GameServer()->SendChatTarget(pPlayer->GetCID(), "+500 xp (Event-bonus)");
+			}
+		}
+	}
 }
 
 void CGameTeams::OnQuestFinish(CPlayer * Player)

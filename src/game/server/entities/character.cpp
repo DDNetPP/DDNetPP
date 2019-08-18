@@ -3281,18 +3281,6 @@ void CCharacter::HandleTiles(int Index)
 		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", m_pPlayer->GetXP());
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		*/
-
-		// GameServer()->SendChatTarget(GetPlayer()->GetCID(), "you got +100 xp for finishing the map :) see your stats with /stats.");
-		if (!m_pPlayer->IsMaxLevel())
-		{
-			m_pPlayer->GiveXP(250);
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+250 xp");
-			if (g_Config.m_SvFinishEvent == 1)
-			{
-				m_pPlayer->GiveXP(500);
-				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "+500 xp (Event-bonus)");
-			}
-		}
 	}
 
 	// DDNet++ finish tile
