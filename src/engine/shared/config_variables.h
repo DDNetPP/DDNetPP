@@ -575,6 +575,7 @@ MACRO_CONFIG_INT(SvMaxNameChangesPerIp, sv_max_namechanges_per_ip, 2, 1, 120, CF
 MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
 MACRO_CONFIG_INT(SvShowConnectionMessages, sv_show_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)") // superusefull agianst reconnect trolls c:
 MACRO_CONFIG_STR(SvHideConnectionMessagesPattern, sv_hide_connection_msg_pattern, 64, "", CFGFLAG_SERVER, "Names matching this regex pattern won't appear in chat on connect/disconnect/spec (\"\"=off))")
+MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLAG_SERVER, "after how many failed rcon attempts in a row should it be reported")
 
 //unused bcs no cfgs in system.c ._.
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
