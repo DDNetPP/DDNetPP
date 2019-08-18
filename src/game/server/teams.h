@@ -82,6 +82,7 @@ public:
 	void OnTeamFinish(CPlayer** Players, unsigned int Size);
 	void OnFinish(CPlayer* Player);
 	void OnQuestFinish(CPlayer* Player);
+	void OnFinishDDPP(CPlayer* Player, int mins, float secs);
 	void KillSavedTeam(int Team);
 
 	bool TeeFinished(int ClientID)
