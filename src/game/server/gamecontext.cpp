@@ -9878,7 +9878,11 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		timeinfo = localtime ( &rawtime );
 
 		strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
-		str_format(aBuf, sizeof(aBuf), "[%s] level=%d id=%d ip=%s name=%s", timestr, Level, ClientID, aIP, pServ->ClientName(ClientID));
+		char aAccID[32];
+		aAccID[0] = '\0';
+		if (m_apPlayers[ClientID]->IsLoggedIn())
+			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
+		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, pServ->ClientName(ClientID));
 		ddpp_log(DDPP_LOG_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
