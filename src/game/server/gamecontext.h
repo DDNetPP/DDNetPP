@@ -285,6 +285,7 @@ public:
 		SQL_CHANGE_PASSWORD,
 		SQL_SET_PASSWORD
 	};
+	void SQLcleanZombieAccounts(int ClientID);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char * pMsg);
