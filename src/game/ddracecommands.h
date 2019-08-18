@@ -80,6 +80,12 @@ CONSOLE_COMMAND("register_ban_ip", "si", CFGFLAG_SERVER, ConRegisterBanIP, this,
 CONSOLE_COMMAND("unregister_ban", "v", CFGFLAG_SERVER, ConUnRegisterBan, this, "");
 CONSOLE_COMMAND("register_bans", "", CFGFLAG_SERVER, ConRegisterBans, this, "");
 
+CONSOLE_COMMAND("namechange_mute", "", CFGFLAG_SERVER, ConNameChangeMute, this, "");
+CONSOLE_COMMAND("namechange_mute_id", "vi", CFGFLAG_SERVER, ConNameChangeMuteID, this, "");
+CONSOLE_COMMAND("namechange_mute_ip", "si", CFGFLAG_SERVER, ConNameChangeMuteIP, this, "");
+CONSOLE_COMMAND("namechange_unmute", "v", CFGFLAG_SERVER, ConNameChangeUnmute, this, "");
+CONSOLE_COMMAND("namechange_mutes", "", CFGFLAG_SERVER, ConNameChangeMutes, this, "");
+
 CONSOLE_COMMAND("destroylaser", "v", CFGFLAG_SERVER, ConDestroyLaser, this, "Gives a player Destroy Laser")
 CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives a player Freeze Laser")
 CONSOLE_COMMAND("freezehammer", "v", CFGFLAG_SERVER, ConFreezeHammer, this, "Gives a player Freeze Hammer")

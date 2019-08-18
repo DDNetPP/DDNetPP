@@ -571,6 +571,7 @@ MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "ho
 MACRO_CONFIG_INT(SvRegisterHumanLevel, sv_register_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use register command")
 MACRO_CONFIG_INT(SvChatHumanLevel, sv_chat_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use the chat")
 MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_SERVER, "how many accounts one ip can register before getting rate limited")
+MACRO_CONFIG_INT(SvMaxNameChangesPerIp, sv_max_namechanges_per_ip, 2, 1, 120, CFGFLAG_SERVER, "how many times one ip can change the name (hourly) before the msg gets hidden")
 MACRO_CONFIG_INT(SvShowRenameMessages, sv_hide_rename_msg, 0, 0, 1, CFGFLAG_SERVER, "show the '%s' -> '%s' message in logs (can get really spammy if players have rainbow skin/clan)")
 MACRO_CONFIG_INT(SvShowConnectionMessages, sv_show_connection_msg, 3, 0, 3, CFGFLAG_SERVER, "0=none 1=join 2=leave 3=join/leave/spec (specified messages are shown)") // superusefull agianst reconnect trolls c:
 MACRO_CONFIG_STR(SvHideConnectionMessagesPattern, sv_hide_connection_msg_pattern, 64, "", CFGFLAG_SERVER, "Names matching this regex pattern won't appear in chat on connect/disconnect/spec (\"\"=off))")

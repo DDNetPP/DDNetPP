@@ -1464,6 +1464,99 @@ void CGameContext::ConRegisterBans(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConNameChangeMute(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"NameChangeMutes",
+			"Use either 'namechange_mute_id <client_id> <seconds>' or 'namechange_mute_ip <ip> <seconds>'");
+}
+
+// NameChangeMute through client id
+void CGameContext::ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	int Victim = pResult->GetVictim();
+
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(Victim, &Addr);
+
+	pSelf->NameChangeMute(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+			pSelf->Server()->ClientName(Victim));
+}
+
+// NameChangeMute through ip, arguments reversed to workaround parsing
+void CGameContext::ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	NETADDR Addr;
+	if (net_addr_from_str(&Addr, pResult->GetString(0)))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "NameChangeMutes",
+				"Invalid network address to NameChangeMute");
+	}
+	pSelf->NameChangeMute(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+			pResult->GetString(0));
+}
+
+// unNameChangeMute by NameChangeMute list index
+void CGameContext::ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[64];
+	int Victim = pResult->GetVictim();
+
+	if (Victim < 0 || Victim >= pSelf->m_NumNameChangeMutes)
+		return;
+
+	pSelf->m_NumNameChangeMutes--;
+	pSelf->m_aNameChangeMutes[Victim] = pSelf->m_aNameChangeMutes[pSelf->m_NumNameChangeMutes];
+
+	net_addr_str(&pSelf->m_aNameChangeMutes[Victim].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+	str_format(aBuf, sizeof(aBuf), "UnNameChangeMuted %s", aIpBuf);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "NameChangeMutes", aBuf);
+}
+
+// list NameChangeMutes
+void CGameContext::ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[128];
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "NameChangeMutes",
+			"Active NameChangeMutes:");
+	for (int i = 0; i < pSelf->m_NumNameChangeMutes; i++)
+	{
+		net_addr_str(&pSelf->m_aNameChangeMutes[i].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+		str_format(
+				aBuf,
+				sizeof aBuf,
+				"%d: \"%s\", %d seconds left",
+				i,
+				aIpBuf,
+				(pSelf->m_aNameChangeMutes[i].m_Expire - pSelf->Server()->Tick())
+				/ pSelf->Server()->TickSpeed());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "NameChangeMutes", aBuf);
+	}
+}
+
 void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -1479,7 +1572,6 @@ void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
 	else
 		pSelf->List(ClientID, &zerochar);
 }
-
 
 void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 {
