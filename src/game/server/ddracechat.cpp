@@ -9712,8 +9712,9 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 	if (pResult->NumArguments() == 0)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== SQL logout ===");
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/sql_logout <playername>' to execute an command");
-		pSelf->SendChatTarget(pResult->m_ClientID, "The command will be executed and the output is only a True or False.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/sql_logout <account_name>' to set acc logged out in db");
+		pSelf->SendChatTarget(pResult->m_ClientID, "WARNING!!! this command can mess things up!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "try '/sql_logout_all' first because it is more save.");
 		return;
 	}
 
