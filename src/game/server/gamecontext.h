@@ -292,6 +292,13 @@ public:
 	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char * pMsg);
 
+	/*
+		m_LastAccountMode
+		keeps track of changes of the sv_account_stuff config
+		it is used to logout all players
+	*/
+	int m_LastAccountMode;
+
 	//shop
 	int GetShopBot();
 	bool m_CreateShopBot;

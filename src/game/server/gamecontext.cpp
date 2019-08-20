@@ -3486,6 +3486,15 @@ void CGameContext::DDPP_Tick()
 		if (!m_apPlayers[i])
 			continue;
 
+		if (m_LastAccountMode != g_Config.m_SvAccountStuff)
+		{
+			if (m_apPlayers[i]->IsLoggedIn())
+			{
+				SendChatTarget(i, "[ACCOUNT] you have been logged out due to changes in the system");
+				m_apPlayers[i]->Logout();
+			}
+		}
+
 		ChilliClanTick(i);
 		AsciiTick(i);
 		InstaGrenadeRoundEndTick(i);
@@ -3494,6 +3503,7 @@ void CGameContext::DDPP_Tick()
 	}
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
+	m_LastAccountMode = g_Config.m_SvAccountStuff;
 
 	if (Server()->Tick() % 600 == 0) //slow ddpp sub tick
 	{
