@@ -876,16 +876,28 @@ void CPlayer::FakeSnap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 }
 
+void CPlayer::OnDisconnectDDPP()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
+	{
+		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
+	}
+	if (m_JailTime)
+	{
+		GameServer()->SetIpJailed(GetCID());
+	}
+}
+
 void CPlayer::OnDisconnect(const char *pReason, bool silent)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 
-	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
-	{
-		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
-	}
+	OnDisconnectDDPP();
 
 	KillCharacter();
 

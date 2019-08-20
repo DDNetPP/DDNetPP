@@ -184,6 +184,7 @@ public:
 	int m_DefEmoteReset;
 	bool m_Halloween;
 	bool m_FirstPacket;
+	void OnDisconnectDDPP();
 
 	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
