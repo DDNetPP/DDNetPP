@@ -3228,12 +3228,13 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Account stuff is turned off.");
 		return;
 	}
+	/*
 	if (g_Config.m_SvAccountStuff == 2) //filebased
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] SQLite accounts are turned off.");
 		return;
 	}
-
+	*/
 
 	CCharacter* pChr = pPlayer->GetCharacter();
 	if (pChr)
