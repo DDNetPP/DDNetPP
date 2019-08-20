@@ -1631,6 +1631,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	// Can't set score here as LoadScore() is threaded, run it in
 	// LoadScoreThreaded() instead
 	Score()->LoadScore(ClientID);
+	CheckIpJailed(ClientID);
 
 	m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
 
@@ -11027,6 +11028,67 @@ void CGameContext::NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayN
 		str_format(aBuf, sizeof aBuf, "'%s' has been name change muted for %d seconds.",
 				pDisplayName, Secs);
 		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "name change mute array is full!");
+	}
+}
+
+bool CGameContext::CheckIpJailed(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (!m_apPlayers[ClientID])
+		return false;
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	for(int i = 0; i < m_NumJailIPs; i++)
+	{
+		if(!net_addr_comp(&Addr, &m_aJailIPs[i]))
+		{
+			SendChatTarget(ClientID, "[JAIL] you have been jailed for 2 minutes.");
+			m_apPlayers[ClientID]->JailPlayer(120);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CGameContext::SetIpJailed(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr;
+	Server()->GetClientAddr(ClientID, &NoPortAddr);
+	NoPortAddr.port = 0;
+	// find a matching Mute for this ip, update expiration time if found
+	for (int i = 0; i < m_NumJailIPs; i++)
+	{
+		if (net_addr_comp(&m_aJailIPs[i], &NoPortAddr) == 0)
+		{
+			Found = 1;
+			break;
+		}
+	}
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumJailIPs < MAX_MUTES)
+		{
+			m_aJailIPs[m_NumJailIPs] = NoPortAddr;
+			m_NumJailIPs++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been ip jailed.", Server()->ClientName(ClientID));
+		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 	}
 	else // no free slot found
 	{
