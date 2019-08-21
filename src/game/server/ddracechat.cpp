@@ -5246,18 +5246,19 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
+		pSelf->LoadMapPlayerData();
 		/*
         pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
         pSelf->m_MissionCurrentLevel = pResult->GetInteger(1);
         str_format(aBuf, sizeof(aBuf), "updated level unlocked=%d current=%d", pSelf->m_MissionUnlockedLevel, pSelf->m_MissionCurrentLevel);
         pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
         pSelf->SaveSinglePlayer();
-		*/
 
 		pSelf->m_BlockWaveRound = pResult->GetInteger(0);
 		str_format(aBuf, sizeof(aBuf), "set blockwave level %d", pSelf->m_BlockWaveRound);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		pSelf->BlockWaveWonRound();
+		*/
 
 		/*
 		if (pResult->NumArguments() != 2)

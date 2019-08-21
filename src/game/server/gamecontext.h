@@ -259,6 +259,7 @@ public:
 	int CountConnectedHumans();
 	int CountIngameHumans();
 	int CountConnectedBots();
+	int CountTimeoutCodePlayers();
     bool IsAllowedCharSet(const char *pStr);
 
 	bool ShowJoinMessage(int ClientID);
@@ -385,6 +386,9 @@ public:
     {
         int x,space1,space2;
     };
+
+	void SaveMapPlayerData();
+	void LoadMapPlayerData();
 
 	//global chat
 	void GlobalChatPrintMessage();
