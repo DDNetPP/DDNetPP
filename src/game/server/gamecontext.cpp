@@ -2064,6 +2064,23 @@ int CGameContext::CountConnectedBots()
 	return lum_tt_zv_1_zz_04032018_lt3;
 }
 
+int CGameContext::CountTimeoutCodePlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int p = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		p++;
+	}
+	return p;
+}
+
 void CGameContext::SendBroadcastAll(const char * pText, int importance, bool supermod)
 {
 #if defined(CONF_DEBUG)
@@ -3826,7 +3843,87 @@ void CGameContext::SaveSinglePlayer()
 	fclose(pFile);
 }
 
- 
+void CGameContext::SaveMapPlayerData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"wb");
+	if (!pFile)
+	{
+			dbg_msg("ddpp-mapsave", "failed to write ddpp player data file '%s'.", aSaveFile);
+			return;
+	}
+	int saved = 0;
+	int players = CountTimeoutCodePlayers();
+	fwrite(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		if (!m_apPlayers[i]->GetCharacter())
+			continue;
+		fwrite(&m_apPlayers[i]->m_TimeoutCode, sizeof(m_apPlayers[i]->m_TimeoutCode), 1, pFile);
+		float x = m_apPlayers[i]->GetCharacter()->GetPosition().x;
+		float y = m_apPlayers[i]->GetCharacter()->GetPosition().y;
+		fwrite(&x, sizeof(x), 1, pFile);
+		fwrite(&y, sizeof(y), 1, pFile);
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), m_apPlayers[i]->m_TimeoutCode, x, y);
+		saved++;
+	}
+	fclose(pFile);
+	dbg_msg("ddpp-mapsave", "saved %d/%d players", saved, players);
+}
+
+void CGameContext::LoadMapPlayerData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"rb");
+	if (!pFile)
+	{
+			dbg_msg("ddpp-mapload", "failed to write ddpp player data file '%s'.", aSaveFile);
+			return;
+	}
+	int loaded = 0;
+	int players = 0;
+	fread(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		if (!m_apPlayers[i]->GetCharacter())
+			continue;
+		char aTimeoutCode[64];
+		fread(&aTimeoutCode, sizeof(aTimeoutCode), 1, pFile);
+		if (str_comp(aTimeoutCode, m_apPlayers[i]->m_TimeoutCode))
+		{
+			dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", m_apPlayers[i]->m_TimeoutCode, aTimeoutCode);
+			continue;
+		}
+		float x;
+		float y;
+		fread(&x, sizeof(x), 1, pFile);
+		fread(&y, sizeof(y), 1, pFile);
+		m_apPlayers[i]->GetCharacter()->ChillTelePort(x, y);
+		dbg_msg("ddpp-mapload", "load player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), m_apPlayers[i]->m_TimeoutCode, x, y);
+		loaded++;
+	}
+	fclose(pFile);
+	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
+}
+
 void CGameContext::GlobalChatPrintMessage()
 {
 #if defined(CONF_DEBUG)
@@ -7299,6 +7396,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "human level: %d captcha score: %d", pPlayer->m_PlayerHumanLevel, pPlayer->m_pCaptcha->GetScore());
 						SendChatTarget(ClientID, aBuf);
+						SaveMapPlayerData();
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
                         //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
