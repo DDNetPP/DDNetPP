@@ -463,7 +463,8 @@ public:
 
 	enum {
 		DUMMYMODE_DEFAULT=0,
-		DUMMYMODE_QUEST=36
+		DUMMYMODE_ADVENTURE=-7,
+		DUMMYMODE_QUEST=36,
 	};
 
 	//dummymode public vars (used by survival 34)
