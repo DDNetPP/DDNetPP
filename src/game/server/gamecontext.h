@@ -273,7 +273,7 @@ public:
 	};
 
 	int m_WrongRconAttempts;
-
+	void ConnectAdventureBots();
 	CLetters *m_pLetters;
 
 	// sql

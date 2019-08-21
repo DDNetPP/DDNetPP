@@ -3512,11 +3512,23 @@ void CGameContext::DDPP_Tick()
 	}
 }
 
+void CGameContext::ConnectAdventureBots()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CreateNewDummy(CCharacter::DUMMYMODE_ADVENTURE, true, 1);
+}
+
 void CGameContext::DDPP_SlowTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	bool StopSurvival = true;
 	int NumQuesting = 0;
 	int TotalPlayers = 0;
+	int NumAdventureBots = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
@@ -3555,6 +3567,11 @@ void CGameContext::DDPP_SlowTick()
 				}
 			}
 		}
+		if (m_apPlayers[i]->m_IsDummy)
+		{
+			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
+				NumAdventureBots++;
+		}
 	}
 
 	if (TotalPlayers + 3 > g_Config.m_SvMaxClients ||
@@ -3569,6 +3586,10 @@ void CGameContext::DDPP_SlowTick()
 			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
 				Server()->BotLeave(i);
 		}
+	}
+	if (NumAdventureBots < g_Config.m_SvAdventureBots)
+	{
+		ConnectAdventureBots();
 	}
 
 	if (StopSurvival)
@@ -6042,6 +6063,12 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	else if (dummymode == -6) //ChillBlock5 v3 deathmatch
 	{
 		m_apPlayers[DummyID]->m_IsBlockDeathmatch = true;
+	}
+	else if (dummymode == -7) // vanilla based mode
+	{
+		m_apPlayers[DummyID]->m_IsVanillaDmg = true;
+		m_apPlayers[DummyID]->m_IsVanillaWeapons = true;
+		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
 	}
 
 	OnClientEnter(DummyID, silent);

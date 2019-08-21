@@ -222,7 +222,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 		else //no botspawn tile
 		{
-			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d", m_pPlayer->m_DummySpawnTile);
+			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d",
+				m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_DummySpawnTile);
 			m_pPlayer->m_DummySpawnTile = 0;
 		}
 	}
@@ -3821,20 +3822,30 @@ void CCharacter::HandleTiles(int Index)
 
 	if ((m_TileIndex == TILE_VANILLA_MODE || m_TileFIndex == TILE_VANILLA_MODE) && !(m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
 	{
-		m_pPlayer->m_IsVanillaModeByTile = true;
-		m_pPlayer->m_IsVanillaDmg = true;
-		m_pPlayer->m_IsVanillaWeapons = true;
-		m_pPlayer->m_IsVanillaCompetetive = true;
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a vanilla area.");
+		if (m_pPlayer->m_DummyMode != DUMMYMODE_ADVENTURE)
+		{
+			m_pPlayer->m_IsVanillaModeByTile = true;
+			m_pPlayer->m_IsVanillaDmg = true;
+			m_pPlayer->m_IsVanillaWeapons = true;
+			m_pPlayer->m_IsVanillaCompetetive = true;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a vanilla area.");
+		}
 	}
 
 	if ((m_TileIndex == TILE_DDRACE_MODE || m_TileFIndex == TILE_DDRACE_MODE) && (m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
 	{
-		m_pPlayer->m_IsVanillaModeByTile = false;
-		m_pPlayer->m_IsVanillaDmg = false;
-		m_pPlayer->m_IsVanillaWeapons = false;
-		m_pPlayer->m_IsVanillaCompetetive = false;
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a ddrace area.");
+		if (m_pPlayer->m_DummyMode == DUMMYMODE_ADVENTURE)
+		{
+			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+		}
+		else
+		{
+			m_pPlayer->m_IsVanillaModeByTile = false;
+			m_pPlayer->m_IsVanillaDmg = false;
+			m_pPlayer->m_IsVanillaWeapons = false;
+			m_pPlayer->m_IsVanillaCompetetive = false;
+			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a ddrace area.");
+		}
 	}
 
 	// solo part

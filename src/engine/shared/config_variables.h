@@ -539,6 +539,8 @@ MACRO_CONFIG_INT(SvBlockDMarena, sv_block_dm_arena, 1, 1, 2, CFGFLAG_SERVER, "1=
 //blockwave
 MACRO_CONFIG_INT(SvAllowBlockWave, sv_allow_block_wave, 0, 0, 2, CFGFLAG_SERVER, "0=off 1=allow blockwave minigame 2=only logged in")
 
+MACRO_CONFIG_INT(SvAdventureBots, sv_adventure_bots, 0, 0, 2, CFGFLAG_SERVER, "number of vanilla pvp bots to spawn at TILE_BOTSPAWN_1")
+
 //FNN fake neural network
 MACRO_CONFIG_INT(SvFNNstartX, sv_fnn_start_x, 353, 0, 5000, CFGFLAG_SERVER, "where the dmm25 start because spawn points differ")
 MACRO_CONFIG_INT(SvFNNtimeout, sv_fnn_timeout, 0, 0, 500000, CFGFLAG_SERVER, "after how many ticks the bot should restart 0=never")
