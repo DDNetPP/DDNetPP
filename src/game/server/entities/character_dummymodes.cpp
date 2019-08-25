@@ -880,7 +880,7 @@ void CCharacter::DummyTick()
 				m_LatestInput.m_Fire++;
 			}
 
-			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this, false);
 			if (pChr && pChr->IsAlive())
 			{
 				static bool IsAimbot = false;
