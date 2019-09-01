@@ -7347,6 +7347,62 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Try again with a real command.");
 	}
 }
+
+void CGameContext::ConJailCode(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+
+	CCharacter* pChr = pPlayer->GetCharacter();
+	if (!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be ingame to use this command.");
+		return;
+	}
+
+	char aBuf[256];
+	if (pResult->NumArguments() != 1)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Usage: '/jail_code <playername>'");
+		return;
+	}
+	if (pPlayer->m_PoliceRank < 2)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You need police rank 2 or higher.");
+		return;
+	}
+	if (pPlayer->m_JailTime)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "You are arrested.");
+		return;
+	}
+
+	int jailedID = -1;
+	jailedID = pSelf->GetCIDByName(pResult->GetString(0));
+	if (jailedID == -1)
+	{
+		str_format(aBuf, sizeof(aBuf), "Can't find user '%s'", pResult->GetString(0));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	if (!pSelf->m_apPlayers[jailedID]->m_JailTime)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Player is not arrested.");
+		return;
+	}
+
+	str_format(aBuf, sizeof(aBuf), "'%s' [%d]", pResult->GetString(0), pSelf->m_apPlayers[jailedID]->m_JailCode);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
 void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -7375,9 +7431,9 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "The police brings all the gangster here.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail open <code> <player>' to open cells");
 		//pSelf->SendChatTarget(pResult->m_ClientID, "'/jail list' list all jailed players"); //and for police2 list with codes
-		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail code <client id>' to show a certain jailcode");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail leave' to leave the jail");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail hammer' to config the police jail hammer");
+		pSelf->SendChatTarget(pResult->m_ClientID, "'/jail_code <player>' to show a certain jailcode");
 		return;
 	}
 
@@ -7460,38 +7516,6 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 
 		pSelf->SendChatTarget(pResult->m_ClientID, "coming soon");
 		//list all jailed players with codes on several pages (steal bomb system)
-	}
-	else if (!str_comp_nocase(pResult->GetString(0), "code"))
-	{
-		if (pPlayer->m_PoliceRank < 2)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You need police rank 2 or higher.");
-			return;
-		}
-		if (pPlayer->m_JailTime)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "You are arrested.");
-			return;
-		}
-		if (pResult->NumArguments() < 2)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Use '/jail code <client-id>'");
-			return;
-		}
-		if (!pSelf->m_apPlayers[pResult->GetInteger(1)])
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "No player with this ID online.");
-			return;
-		}
-		if (!pSelf->m_apPlayers[pResult->GetInteger(1)]->m_JailTime)
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Player is not arrested. (make sure you use client id not player name)");
-			return;
-		}
-
-		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "'%s' [%d]", pSelf->Server()->ClientName(pResult->GetInteger(1)), pSelf->m_apPlayers[pResult->GetInteger(1)]->m_JailCode);
-		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
