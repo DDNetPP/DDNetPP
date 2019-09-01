@@ -933,6 +933,7 @@ private:
 	//static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConJailCode(IConsole::IResult *pResult, void *pUserData);
 	static void ConReport(IConsole::IResult *pResult, void *pUserData);
 	static void ConTaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConWanted(IConsole::IResult *pResult, void *pUserData);
