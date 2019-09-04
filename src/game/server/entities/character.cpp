@@ -5057,42 +5057,27 @@ void CCharacter::MoneyTilePlus()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_pPlayer->m_MoneyTilePlus)
+	if (!m_pPlayer->m_MoneyTilePlus)
+		return;		
+	m_pPlayer->m_MoneyTilePlus = false;
+
+	if (m_pPlayer->IsMaxLevel())
 	{
-		/*
-		if (GameServer()->Server()->IsAuthed(m_pPlayer->GetCID()))
-		{
-		m_pPlayer->GiveXP(1);
-		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "test");
-		}
-		*/
-
-		if (m_pPlayer->IsMaxLevel())
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile!  +500money");
-			m_pPlayer->MoneyTransaction(+500);
-		}
-		else
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile! +2500xp  +500money");
-
-			m_pPlayer->GiveXP(2500);  //for (i < 2500; i++)
-			m_pPlayer->MoneyTransaction(+500);
-
-			if (m_pPlayer->m_xpmsg)
-			{
-				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "Money [%llu]\nXP [%llu/%llu]\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 1);
-			}
-		}
-
-
-		m_pPlayer->m_MoneyTilePlus = false;
-
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile Plus!  +500money");
 	}
+	else
+	{
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile Plus! +2500xp  +500money");
+		m_pPlayer->GiveXP(2500);
+	}
+	if (m_pPlayer->m_xpmsg && m_pPlayer->IsLoggedIn())
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "Money [%llu]\nXP [%llu/%llu]\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 1);
+	}
+	m_pPlayer->MoneyTransaction(+500, "moneytile plus");
 }
-
 
 void CCharacter::GiveAllWeapons()
 {
