@@ -3647,7 +3647,7 @@ void CCharacter::HandleTiles(int Index)
 		MoneyTile();
 	}
 
-	if (((m_TileIndex == TILE_MONEY_2) || (m_TileFIndex == TILE_MONEY_2)))
+	if (((m_TileIndex == TILE_MONEY_POLICE) || (m_TileFIndex == TILE_MONEY_POLICE)))
 	{
 		MoneyTile2();
 	}
@@ -3662,7 +3662,7 @@ void CCharacter::HandleTiles(int Index)
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD, true);
 	}
 
-	if (((m_TileIndex == TILE_DOUBLE_MONEY) || (m_TileFIndex == TILE_DOUBLE_MONEY)))
+	if (((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))
 	{
 		MoneyTileDouble();
 	}
@@ -4499,376 +4499,293 @@ bool CCharacter::UnFreeze()
 	return false;
 }
 
+void CCharacter::MoneyTile()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	if (Server()->Tick() % 50)
+		return;
+	if (!m_pPlayer->IsLoggedIn())
+	{
+		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		return;
+	}
+	if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
+	{
+		if (m_pPlayer->m_QuestStateLevel < 7) // 10 money
+		{
+			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
+			{
+				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				m_pPlayer->m_QuestProgressValue2 = 0;
+			}
+		}
+		else if (m_pPlayer->m_QuestStateLevel == 7)
+		{
+			// moneytile2
+		}
+		else if (m_pPlayer->m_QuestStateLevel == 8)
+		{
+			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestProgressValue2 > 10)
+			{
+				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				m_pPlayer->m_QuestProgressValue2 = 0;
+			}
+		}
+	}
+	if (m_pPlayer->IsMaxLevel())
+	{
+		if (m_pPlayer->m_xpmsg)
+		{
+			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+		}
+		return;
+	}
+
+	// flag extra xp
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+	{
+		m_pPlayer->GiveXP(1);
+	}
+
+	int VIPBonus = 0;
+
+	// vip+ get 2 bonus
+	if (m_pPlayer->m_IsSuperModerator)
+	{
+		m_pPlayer->GiveXP(2);
+		m_pPlayer->MoneyTransaction(+2);
+
+		VIPBonus = 2;
+	}
+
+	// vip get 1 bonus
+	else if (m_pPlayer->m_IsModerator)
+	{
+		m_pPlayer->GiveXP(1);
+		m_pPlayer->MoneyTransaction(+1);
+
+		VIPBonus = 1;
+	}
+
+
+	// give money & xp
+	if (m_survivexpvalue == 0)
+	{
+		m_pPlayer->GiveXP(1);
+	}
+	else if (m_survivexpvalue == 1)
+	{
+		m_pPlayer->GiveXP(2);
+	}
+	else if (m_survivexpvalue == 2)
+	{
+		m_pPlayer->GiveXP(3);
+	}
+	else if (m_survivexpvalue == 3)
+	{
+		m_pPlayer->GiveXP(4);
+	}
+	else if (m_survivexpvalue == 4) // 100 min
+	{
+		m_pPlayer->GiveXP(5);
+	}
+	m_pPlayer->MoneyTransaction(+1);
+
+	// show msg
+	if (m_pPlayer->m_xpmsg)
+	{
+		// skip if other broadcasts activated:
+		if (!m_pPlayer->m_hidejailmsg)
+		{
+			if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+			{
+				return;
+			}
+		}
+
+		char FixBroadcast[32];
+		if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
+			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
+		else
+			str_format(FixBroadcast, sizeof(FixBroadcast), "");
+
+		char aBuf[128];
+		if (m_survivexpvalue == 0)
+		{
+			if (VIPBonus)
+			{
+				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +1 flag +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+				else
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+			}
+			else
+			{
+				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +1 flag\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+			}
+		}
+		else if (m_survivexpvalue > 0)
+		{
+			if (VIPBonus)
+			{
+				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +1 flag +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
+				else
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+			else
+			{
+				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +1 flag +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
+				else
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+		}
+		str_append(aBuf, FixBroadcast, sizeof(aBuf));
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+	}
+}
 
 void CCharacter::MoneyTile2()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (Server()->Tick() % 50 == 0)
+	if (Server()->Tick() % 50)
+		return;
+	if (!m_pPlayer->IsLoggedIn())
 	{
-		if (!m_pPlayer->IsLoggedIn())
+		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		return;
+	}
+	if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
+	{
+		if (m_pPlayer->m_QuestStateLevel == 7)
 		{
-			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
-			return;
-		}
-		if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
-		{
-			if (m_pPlayer->m_QuestStateLevel == 7)
+			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestProgressValue2 > 10)
 			{
-				m_pPlayer->m_QuestProgressValue2++;
-				if (m_pPlayer->m_QuestProgressValue2 > 10)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
-		}
-		else if (m_pPlayer->IsMaxLevel())
-		{
-			if (m_pPlayer->m_xpmsg)
-			{
-				GameServer()->SendBroadcast("You have reached the maximum level.", m_pPlayer->GetCID(), 0);
-			}
-			return;
-		}
-
-
-		int VIPBonus = 0;
-
-		//vip+ get 2 bonus
-		if (m_pPlayer->m_IsSuperModerator)
-		{
-			m_pPlayer->GiveXP(2);
-			m_pPlayer->MoneyTransaction(+2);
-
-			VIPBonus = 2;
-		}
-
-		//vip get 1 bonus
-		else if (m_pPlayer->m_IsModerator)
-		{
-			m_pPlayer->GiveXP(1);
-			m_pPlayer->MoneyTransaction(+1);
-
-			VIPBonus = 1;
-		}
-
-		//give xp
-		if (m_survivexpvalue == 0)
-		{
-			m_pPlayer->GiveXP(2);
-		}
-		else if (m_survivexpvalue == 1)
-		{
-			m_pPlayer->GiveXP(3);
-		}
-		else if (m_survivexpvalue == 2)
-		{
-			m_pPlayer->GiveXP(4);
-		}
-		else if (m_survivexpvalue == 3)
-		{
-			m_pPlayer->GiveXP(5);
-		}
-		else if (m_survivexpvalue == 4) //100 min
-		{
-			m_pPlayer->GiveXP(6);
-		}
-
-		//give money
-		if (m_pPlayer->m_PoliceRank == 0)
-		{
-			m_pPlayer->MoneyTransaction(+1);
-		}
-		else if (m_pPlayer->m_PoliceRank == 1)
-		{
-			m_pPlayer->MoneyTransaction(+2);
-		}
-		else if (m_pPlayer->m_PoliceRank == 2)
-		{
-			m_pPlayer->MoneyTransaction(+3);
-		}
-		else if (m_pPlayer->m_PoliceRank == 3)
-		{
-			m_pPlayer->MoneyTransaction(+4);
-		}
-
-		//show msg
-		if (m_pPlayer->m_xpmsg)
-		{
-			//skip if other broadcasts activated:
-			if (!m_pPlayer->m_hidejailmsg)
-			{
-				if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
-				{
-					return;
-				}
-			}
-
-
-			char FixBroadcast[64];
-			if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
-				str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
-			else
-				str_format(FixBroadcast, sizeof(FixBroadcast), "");
-
-			if (m_pPlayer->m_PoliceRank > 0)
-			{
-				if (VIPBonus)
-				{
-					if (m_survivexpvalue == 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police +%d vip\nXP [%llu/%llu] +2 +%d vip\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else if (m_survivexpvalue > 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police +%d vip\nXP [%llu/%llu] +2 +%d vip +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-				else
-				{
-					if (m_survivexpvalue == 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police\nXP [%llu/%llu] +2\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else if (m_survivexpvalue > 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police\nXP [%llu/%llu] +2 +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-			}
-			else
-			{
-				if (VIPBonus)
-				{
-					if (m_survivexpvalue == 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +2 +%d vip\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else if (m_survivexpvalue > 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +2 + %d vip +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-				else
-				{
-					if (m_survivexpvalue == 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +2\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else if (m_survivexpvalue > 0)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +2 +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
+				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
 	}
-}
-
-void CCharacter::MoneyTile()
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (Server()->Tick() % 50 == 0)
+	if (m_pPlayer->IsMaxLevel())
 	{
-		if (!m_pPlayer->IsLoggedIn())
-		{
-			GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
-			return;
-		}
-		if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
-		{
-			if (m_pPlayer->m_QuestStateLevel < 7) //10 money
-			{
-				m_pPlayer->m_QuestProgressValue2++;
-				if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
-			else if (m_pPlayer->m_QuestStateLevel == 7)
-			{
-				//moneytile2
-			}
-			else if (m_pPlayer->m_QuestStateLevel == 8)
-			{
-				m_pPlayer->m_QuestProgressValue2++;
-				if (m_pPlayer->m_QuestProgressValue2 > 10)
-				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-					m_pPlayer->m_QuestProgressValue2 = 0;
-				}
-			}
-		}
-		if (m_pPlayer->IsMaxLevel())
-		{
-			if (m_pPlayer->m_xpmsg)
-			{
-				GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
-			}
-			return;
-		}
-
-
-
-		//flag extra xp
-		if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-		{
-			m_pPlayer->GiveXP(1);
-		}
-
-
-		int VIPBonus = 0;
-
-		// vip+ get 2 bonus
-		if (m_pPlayer->m_IsSuperModerator)
-		{
-			m_pPlayer->GiveXP(2);
-			m_pPlayer->MoneyTransaction(+2);
-
-			VIPBonus = 2;
-		}
-
-		// vip get 1 bonus
-		else if (m_pPlayer->m_IsModerator)
-		{
-			m_pPlayer->GiveXP(1);
-			m_pPlayer->MoneyTransaction(+1);
-
-			VIPBonus = 1;
-		}
-
-
-		// give money & xp
-		if (m_survivexpvalue == 0)
-		{
-			m_pPlayer->GiveXP(1);
-		}
-		else if (m_survivexpvalue == 1)
-		{
-			m_pPlayer->GiveXP(2);
-		}
-		else if (m_survivexpvalue == 2)
-		{
-			m_pPlayer->GiveXP(3);
-		}
-		else if (m_survivexpvalue == 3)
-		{
-			m_pPlayer->GiveXP(4);
-		}
-		else if (m_survivexpvalue == 4) //100 min
-		{
-			m_pPlayer->GiveXP(5);
-		}
-		m_pPlayer->MoneyTransaction(+1);
-
-		// show msg
 		if (m_pPlayer->m_xpmsg)
 		{
-			//skip if other broadcasts activated:
-			if (!m_pPlayer->m_hidejailmsg)
+			GameServer()->SendBroadcast("You have reached the maximum level.", m_pPlayer->GetCID(), 0);
+		}
+		return;
+	}
+
+
+	int VIPBonus = 0;
+
+	// vip+ get 2 bonus
+	if (m_pPlayer->m_IsSuperModerator)
+	{
+		m_pPlayer->GiveXP(2);
+		m_pPlayer->MoneyTransaction(+2);
+
+		VIPBonus = 2;
+	}
+	// vip get 1 bonus
+	else if (m_pPlayer->m_IsModerator)
+	{
+		m_pPlayer->GiveXP(1);
+		m_pPlayer->MoneyTransaction(+1);
+
+		VIPBonus = 1;
+	}
+
+	// give xp
+	if (m_survivexpvalue == 0)
+	{
+		m_pPlayer->GiveXP(2);
+	}
+	else if (m_survivexpvalue == 1)
+	{
+		m_pPlayer->GiveXP(3);
+	}
+	else if (m_survivexpvalue == 2)
+	{
+		m_pPlayer->GiveXP(4);
+	}
+	else if (m_survivexpvalue == 3)
+	{
+		m_pPlayer->GiveXP(5);
+	}
+	else if (m_survivexpvalue == 4) // 100 min
+	{
+		m_pPlayer->GiveXP(6);
+	}
+
+	// give money
+	m_pPlayer->MoneyTransaction(1 + m_pPlayer->m_PoliceRank);
+
+	// show msg
+	if (m_pPlayer->m_xpmsg)
+	{
+		// skip if other broadcasts activated:
+		if (!m_pPlayer->m_hidejailmsg)
+		{
+			if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
 			{
-				if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
-				{
-					return;
-				}
-			}
-
-
-			char FixBroadcast[32];
-			if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
-				str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
-			else
-				str_format(FixBroadcast, sizeof(FixBroadcast), "");
-
-
-			if (m_survivexpvalue == 0)
-			{
-				if (VIPBonus)
-				{
-					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +1 flag +%d vip\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +%d vip\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-				else
-				{
-					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +1 flag\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-			}
-			else if (m_survivexpvalue > 0)
-			{
-				if (VIPBonus)
-				{
-					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +1 flag +%d vip +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +1 +%d vip +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
-				else
-				{
-					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +1 flag +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-					else
-					{
-						char aBuf[128];
-						str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +1 +%d survival\nLevel [%d]%s", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel(), FixBroadcast);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-					}
-				}
+				return;
 			}
 		}
+
+		char FixBroadcast[64];
+		if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
+			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
+		else
+			str_format(FixBroadcast, sizeof(FixBroadcast), "");
+
+		char aBuf[128];
+		if (m_pPlayer->m_PoliceRank > 0)
+		{
+			if (VIPBonus)
+			{
+				if (m_survivexpvalue == 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police +%d vip\nXP [%llu/%llu] +2 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+				else if (m_survivexpvalue > 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police +%d vip\nXP [%llu/%llu] +2 +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+			else
+			{
+				if (m_survivexpvalue == 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police\nXP [%llu/%llu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue > 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d police\nXP [%llu/%llu] +2 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+		}
+		else
+		{
+			if (VIPBonus)
+			{
+				if (m_survivexpvalue == 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +2 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+				else if (m_survivexpvalue > 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1 +%d vip\nXP [%llu/%llu] +2 +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+			else
+			{
+				if (m_survivexpvalue == 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue > 0)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +1\nXP [%llu/%llu] +2 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
+			}
+		}
+		str_append(aBuf, FixBroadcast, sizeof(aBuf));
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 	}
 }
 
@@ -4877,178 +4794,134 @@ void CCharacter::MoneyTileDouble()
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (Server()->Tick() % 50 == 0)
+	if (Server()->Tick() % 50)
+		return;
+	if (g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
-		if (g_Config.m_SvMinDoubleTilePlayers > 0)
+		GameServer()->SendBroadcast("double moneytiles have been deactivated by an administrator", m_pPlayer->GetCID(), 0);
+		return;
+	}
+	if (GameServer()->CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[%llu/%llu] players to activate the double moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+		return;
+	}
+	if (!m_pPlayer->IsLoggedIn())
+	{
+		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		return;
+	}
+	if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
+	{
+		if (m_pPlayer->m_QuestStateLevel < 7) // 10 money
 		{
-			if (GameServer()->CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers)
+			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
 			{
-				if (!m_pPlayer->IsLoggedIn())
-				{
-					GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
-					return;
-				}
-				if (m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
-				{
-					if (m_pPlayer->m_QuestStateLevel < 7) //10 money
-					{
-						m_pPlayer->m_QuestProgressValue2++;
-						if (m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
-						{
-							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-							m_pPlayer->m_QuestProgressValue2 = 0;
-						}
-					}
-					else if (m_pPlayer->m_QuestStateLevel == 7)
-					{
-						//moneytile2
-					}
-					else if (m_pPlayer->m_QuestStateLevel == 8)
-					{
-						m_pPlayer->m_QuestProgressValue2++;
-						if (m_pPlayer->m_QuestProgressValue2 > 10)
-						{
-							GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
-							m_pPlayer->m_QuestProgressValue2 = 0;
-						}
-					}
-				}
-				if (m_pPlayer->IsMaxLevel())
-				{
-					if (m_pPlayer->m_xpmsg)
-					{
-						GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
-					}
-					return;
-				}
+				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				m_pPlayer->m_QuestProgressValue2 = 0;
+			}
+		}
+		else if (m_pPlayer->m_QuestStateLevel == 7)
+		{
+			// moneytile2
+		}
+		else if (m_pPlayer->m_QuestStateLevel == 8)
+		{
+			m_pPlayer->m_QuestProgressValue2++;
+			if (m_pPlayer->m_QuestProgressValue2 > 10)
+			{
+				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				m_pPlayer->m_QuestProgressValue2 = 0;
+			}
+		}
+	}
+	if (m_pPlayer->IsMaxLevel())
+	{
+		if (m_pPlayer->m_xpmsg)
+		{
+			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+		}
+		return;
+	}
 
+	// flag extra xp
+	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+	{
+		m_pPlayer->GiveXP(2);
+	}
 
+	// give money & xp
+	if (m_survivexpvalue == 0)
+	{
+		m_pPlayer->GiveXP(2);
+	}
+	else if (m_survivexpvalue == 1)
+	{
+		m_pPlayer->GiveXP(4);
+	}
+	else if (m_survivexpvalue == 2)
+	{
+		m_pPlayer->GiveXP(6);
+	}
+	else if (m_survivexpvalue == 3)
+	{
+		m_pPlayer->GiveXP(8);
+	}
+	else if (m_survivexpvalue == 4) // 100 min
+	{
+		m_pPlayer->GiveXP(10);
+	}
+	m_pPlayer->MoneyTransaction(+4);
 
-				//flag extra xp
-				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-				{
-					m_pPlayer->GiveXP(1);
-				}
+	// show msg
+	if (m_pPlayer->m_xpmsg)
+	{
+		// skip if other broadcasts activated:
+		if (!m_pPlayer->m_hidejailmsg)
+		{
+			if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+			{
+				return;
+			}
+		}
 
-				//give money & xp
-				if (m_survivexpvalue == 0)
-				{
-					m_pPlayer->GiveXP(2);
-				}
-				else if (m_survivexpvalue == 1)
-				{
-					m_pPlayer->GiveXP(4);
-				}
+		char aBuf[128];
+		if (m_survivexpvalue == 0)
+		{
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+				str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+			else
+				str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+		}
+		else if (m_survivexpvalue > 0)
+		{
+			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
+			{
+				if (m_survivexpvalue == 1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 				else if (m_survivexpvalue == 2)
-				{
-					m_pPlayer->GiveXP(6);
-				}
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 				else if (m_survivexpvalue == 3)
-				{
-					m_pPlayer->GiveXP(8);
-				}
-				else if (m_survivexpvalue == 4) //100 min
-				{
-					m_pPlayer->GiveXP(10);
-				}
-				m_pPlayer->MoneyTransaction(+4);
-
-				//show msg
-				if (m_pPlayer->m_xpmsg)
-				{
-					//skip if other broadcasts activated:
-					if (!m_pPlayer->m_hidejailmsg)
-					{
-						if (m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
-						{
-							return;
-						}
-					}
-
-
-					if (m_survivexpvalue == 0)
-					{
-						if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-						else
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-					}
-					else if (m_survivexpvalue > 0)
-					{
-						if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_survivexpvalue == 1)
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-						if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_survivexpvalue == 2)
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-						if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_survivexpvalue == 3)
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-						if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1 && m_survivexpvalue == 4)
-						{
-							char aBuf[128];
-							str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-							GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-						}
-						else
-						{
-							if (m_survivexpvalue == 1)
-							{
-								char aBuf[128];
-								str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							}
-							else if (m_survivexpvalue == 2)
-							{
-								char aBuf[128];
-								str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							}
-							else if (m_survivexpvalue == 3)
-							{
-								char aBuf[128];
-								str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							}
-							else if (m_survivexpvalue == 4)
-							{
-								char aBuf[128];
-								str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-								GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
-							}
-						}
-					}
-				}
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue == 4)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 			}
 			else
 			{
-				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "[%llu/%llu] players to activate the double-moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				if (m_survivexpvalue == 1)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue == 2)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue == 3)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+				else if (m_survivexpvalue == 4)
+					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 			}
 		}
-		else
-		{
-			GameServer()->SendBroadcast("Double-moneytiles have been deactivated by an administrator", m_pPlayer->GetCID(), 0);
-			return;
-		}
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 	}
 }
 
@@ -6646,7 +6519,9 @@ void CCharacter::DDPP_FlagTick()
 	{
 		if (((m_TileIndex == TILE_MONEY) || (m_TileFIndex == TILE_MONEY)))
 			return;
-		if (((m_TileIndex == TILE_MONEY_2) || (m_TileFIndex == TILE_MONEY_2)))
+		if (((m_TileIndex == TILE_MONEY_POLICE) || (m_TileFIndex == TILE_MONEY_POLICE)))
+			return;
+		if (((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))
 			return;
 
 		// no matter where (bank, moneytile, ...) quests are independent
@@ -6674,7 +6549,7 @@ void CCharacter::DDPP_FlagTick()
 
 		int VIPBonus = 0;
 
-		//vip+ get 2 bonus
+		// vip+ get 2 bonus
 		if (m_pPlayer->m_IsSuperModerator)
 		{
 			m_pPlayer->GiveXP(2);
@@ -6683,7 +6558,7 @@ void CCharacter::DDPP_FlagTick()
 			VIPBonus = 2;
 		}
 
-		//vip get 1 bonus
+		// vip get 1 bonus
 		else if (m_pPlayer->m_IsModerator)
 		{
 			m_pPlayer->GiveXP(1);
@@ -6699,7 +6574,7 @@ void CCharacter::DDPP_FlagTick()
 				if (!m_pPlayer->m_xpmsg)
 				{
 					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-					//GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+					// GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
 				}
 				else if (m_survivexpvalue == 0)
 				{
