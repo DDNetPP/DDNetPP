@@ -127,6 +127,7 @@ void CQueryLoginThreaded::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 		pData->m_LoginState = CPlayer::LOGIN_OFF;
+		m_pGameServer->LoginBanCheck(m_ClientID);
 		return;
 	}
 	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
@@ -443,6 +444,7 @@ void CQueryLogin::OnData()
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+		m_pGameServer->LoginBanCheck(m_ClientID);
 	}
 }
 
@@ -10891,8 +10893,9 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	}
 	else // no free slot found
 	{
-		if (g_Config.m_SvRegisterHumanLevel < 9)
-			g_Config.m_SvRegisterHumanLevel++;
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
 		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
@@ -10931,15 +10934,129 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	}
 	if (Found)
 	{
-		str_format(aBuf, sizeof aBuf, "'%s' has been banned from account system for %d seconds.",
+		str_format(aBuf, sizeof aBuf, "'%s' has been banned from register system for %d seconds.",
 				pDisplayName, Secs);
 		SendChat(-1, CHAT_ALL, aBuf);
 	}
 	else // no free slot found
 	{
-		if (g_Config.m_SvRegisterHumanLevel < 9)
-			g_Config.m_SvRegisterHumanLevel++;
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
 		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::LoginBanCheck(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	char aBuf[128];
+	int Found = 0;
+	int atts = 0;
+	int64 BanTime = 0;
+	static const int LOGIN_FAIL_DELAY = 60 * 60 * 12; // reset login attempts counter every day
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * LOGIN_FAIL_DELAY) < time_get())
+			{
+				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
+				// dbg_msg("mutes", "login attempt counter reset for player=%d:'%s'", ClientID, Server()->ClientName(ClientID));
+			}
+			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			atts = ++m_aLoginBans[i].m_NumAttempts;
+			Found = 1;
+			dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			m_aLoginBans[m_NumLoginBans].m_Addr = Addr;
+			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
+			m_NumLoginBans++;
+			Found = 1;
+			dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
+		}
+	}
+
+	if (atts >= g_Config.m_SvMaxLoginPerIp)
+		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	else if (atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
+		LoginBan(&Addr, 60, Server()->ClientName(ClientID));
+
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has %d/%d failed account login attempts.", ClientID, atts, g_Config.m_SvMaxLoginPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &NoPortAddr) == 0)
+		{
+			m_aLoginBans[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_Addr = NoPortAddr;
+			m_aLoginBans[m_NumLoginBans].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumLoginBans++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		if (Secs == 0)
+			str_format(aBuf, sizeof aBuf, "'%s' has been unbanned from login system.", pDisplayName);
+		else
+			str_format(aBuf, sizeof aBuf, "'%s' has been banned from login system for %d seconds.", pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 }

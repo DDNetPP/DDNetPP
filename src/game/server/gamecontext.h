@@ -870,6 +870,12 @@ private:
 	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBans(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConNameChangeMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
@@ -1004,6 +1010,7 @@ private:
 	{
 		MAX_MUTES=32,
 		MAX_REGISTER_BANS=128,
+		MAX_LOGIN_BANS=128,
 		MAX_JAILS=16
 	};
 	struct CMute
@@ -1021,14 +1028,17 @@ private:
 
 	CMute m_aMutes[MAX_MUTES];
 	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
+	CGenericBan m_aLoginBans[MAX_LOGIN_BANS]; // TODO: clear this array in some slowtick if attempts is low and last try is old.
 	CGenericBan m_aNameChangeMutes[MAX_MUTES];
 	NETADDR m_aJailIPs[MAX_JAILS];
 	int m_NumMutes;
 	int m_NumRegisterBans;
+	int m_NumLoginBans;
 	int m_NumNameChangeMutes;
 	int m_NumJailIPs;
 	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
 	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
 	int64 NameChangeMuteTime(int ClientID);
 	void Whisper(int ClientID, char *pStr);
@@ -1037,6 +1047,7 @@ private:
 
 public:
 	void RegisterBanCheck(int ClientID);
+	void LoginBanCheck(int ClientID);
 	int64 NameChangeMuteCheck(int ClientID);
 	void SetIpJailed(int ClientID);
 	bool CheckIpJailed(int ClientID);

@@ -1464,6 +1464,99 @@ void CGameContext::ConRegisterBans(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConLoginBan(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"LoginBans",
+			"Use either 'login_ban_id <client_id> <seconds>' or 'login_ban_ip <ip> <seconds>'");
+}
+
+// LoginBan through client id
+void CGameContext::ConLoginBanID(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	int Victim = pResult->GetVictim();
+
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(Victim, &Addr);
+
+	pSelf->LoginBan(&Addr, clamp(pResult->GetInteger(0), 1, 86400),
+			pSelf->Server()->ClientName(Victim));
+}
+
+// LoginBan through ip, arguments reversed to workaround parsing
+void CGameContext::ConLoginBanIP(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	NETADDR Addr;
+	if (net_addr_from_str(&Addr, pResult->GetString(0)))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "login_ban",
+				"Invalid network address to LoginBan");
+	}
+	pSelf->LoginBan(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+			pResult->GetString(0));
+}
+
+// unLoginBan by LoginBan list index
+void CGameContext::ConUnLoginBan(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[64];
+	int Victim = pResult->GetVictim();
+
+	if (Victim < 0 || Victim >= pSelf->m_NumLoginBans)
+		return;
+
+	pSelf->m_NumLoginBans--;
+	pSelf->m_aLoginBans[Victim] = pSelf->m_aLoginBans[pSelf->m_NumLoginBans];
+
+	net_addr_str(&pSelf->m_aLoginBans[Victim].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+	str_format(aBuf, sizeof(aBuf), "UnLoginBand %s", aIpBuf);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "login_ban", aBuf);
+}
+
+// list LoginBans
+void CGameContext::ConLoginBans(IConsole::IResult *pResult, void *pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	char aIpBuf[64];
+	char aBuf[128];
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "login_ban",
+			"Active LoginBans:");
+	for (int i = 0; i < pSelf->m_NumLoginBans; i++)
+	{
+		net_addr_str(&pSelf->m_aLoginBans[i].m_Addr, aIpBuf, sizeof(aIpBuf), false);
+		str_format(
+				aBuf,
+				sizeof aBuf,
+				"%d: \"%s\", %d seconds left",
+				i,
+				aIpBuf,
+				(pSelf->m_aLoginBans[i].m_Expire - pSelf->Server()->Tick())
+				/ pSelf->Server()->TickSpeed());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "login_ban", aBuf);
+	}
+}
+
 void CGameContext::ConNameChangeMute(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
