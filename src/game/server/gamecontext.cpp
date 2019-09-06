@@ -3538,6 +3538,8 @@ void CGameContext::DDPP_SlowTick()
 
 		TotalPlayers++;
 		CheckDeleteLoginBanEntry(i);
+		CheckDeleteRegisterBanEntry(i);
+		CheckDeleteNamechangeMuteEntry(i);
 		if (m_apPlayers[i]->IsQuesting())
 		{
 			NumQuesting++;
@@ -10867,6 +10869,7 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	{
 		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
 		{
+			m_aRegisterBans[i].m_LastAttempt = time_get();
 			regs = ++m_aRegisterBans[i].m_NumAttempts;
 			Found = 1;
 			break;
@@ -10877,6 +10880,7 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	{
 		if (m_NumRegisterBans < MAX_REGISTER_BANS)
 		{
+			m_aRegisterBans[m_NumRegisterBans].m_LastAttempt = time_get();
 			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
 			regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
 			m_NumRegisterBans++;
@@ -10967,7 +10971,7 @@ void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
 			int64 BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if (BanTime > 0)
 				return;
-			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * LOGIN_FAIL_DELAY) < time_get())
+			if (m_aLoginBans[i].m_LastAttempt + (time_freq() * LOGIN_BAN_DELAY) < time_get())
 			{
 				// TODO: be consistent with log types... sometimes its "bans", "mutes", "login_bans", "account" like wtf?
 				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
@@ -10977,6 +10981,68 @@ void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
 
 				m_NumLoginBans--;
 				m_aLoginBans[ClientID] = m_aLoginBans[m_NumLoginBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * REGISTER_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete register ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumRegisterBans)
+					return;
+
+				m_NumRegisterBans--;
+				m_aRegisterBans[ClientID] = m_aRegisterBans[m_NumRegisterBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumNameChangeMutes; i++)
+	{
+		if (net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAMECHANGE_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete namechange mute entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumNameChangeMutes)
+					return;
+
+				m_NumNameChangeMutes--;
+				m_aNameChangeMutes[ClientID] = m_aNameChangeMutes[m_NumNameChangeMutes];
 				return;
 			}
 		}
@@ -11000,11 +11066,6 @@ void CGameContext::LoginBanCheck(int ClientID)
 	{
 		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
 		{
-			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * LOGIN_FAIL_DELAY) < time_get())
-			{
-				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
-				// dbg_msg("mutes", "login attempt counter reset for player=%d:'%s'", ClientID, Server()->ClientName(ClientID));
-			}
 			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
 			atts = ++m_aLoginBans[i].m_NumAttempts;
@@ -11145,8 +11206,6 @@ int64 CGameContext::NameChangeMuteCheck(int ClientID)
 	{
 		if (!muteTime)
 			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
-		else
-			dbg_msg("mute", "name change mute time %lld", muteTime);
 	}
 	if (Found)
 	{
