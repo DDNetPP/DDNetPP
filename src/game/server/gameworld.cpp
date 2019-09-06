@@ -286,8 +286,6 @@ void CGameWorld::Tick()
 
 	if(!m_Paused)
 	{
-		if(GameServer()->m_pController->IsForceBalanced())
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Teams have been balanced");
 		// update all objects
 		for(int i = 0; i < NUM_ENTTYPES; i++)
 			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
@@ -468,7 +466,7 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *pNotThis)  //Chilidreghuns class stolen from piku 
+CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *pNotThis)  // Chilidreghuns function stolen from piku 
 {   
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -508,7 +506,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *p
 }
 
 
-CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *pNotThis)  //Ruler2 is nur im ruler bereich ohne linke freeze wand  (gemacht für mode18 == 2)
+CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *pNotThis)  // Ruler2 is nur im ruler bereich ohne linke freeze wand  (gemacht fï¿½r mode18 == 2)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -548,7 +546,7 @@ CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *
 }
 
 
-CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCharacter *pNotThis)  //Chilidreghuns class stolen from piku 
+CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCharacter *pNotThis) 
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -588,7 +586,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCh
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter *pNotThis)  //Chilidreghuns class stolen from piku 
+CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter *pNotThis) 
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -611,7 +609,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 				continue;
 		}
 
-		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 434 * 32 || p->m_Pos.x > 441 * 32 || p->m_Pos.y < 198 * 32) // nur der wb bereich [neu der Wbbereich hört bei x: 441 auf]
+		if (p->m_Pos.y > 213 * 32 || p->m_Pos.x < 434 * 32 || p->m_Pos.x > 441 * 32 || p->m_Pos.y < 198 * 32) // nur der wb bereich [neu der Wbbereich hï¿½rt bei x: 441 auf]
 			continue;
 
 
@@ -627,7 +625,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *pNotThis)  //Chilidreghuns class stolen from piku 
+CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *pNotThis)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -666,7 +664,11 @@ CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CCharacter *pNotThis)  //Unter WB zum abfragen ob da einer von der edge den bot hooken will
+/*
+	Lower wayblock to check if its a potential attacker
+	who wants to hook the bot from below
+*/
+CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CCharacter *pNotThis)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -689,7 +691,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 				continue;
 		}
 
-		if (p->m_Pos.y > 218 * 32 || p->m_Pos.y < 215 * 32 || p->m_Pos.x < 435 * 32 || p->m_Pos.x > 439 * 32) // unter dem wb berreich
+		if (p->m_Pos.y > 218 * 32 || p->m_Pos.y < 215 * 32 || p->m_Pos.x < 435 * 32 || p->m_Pos.x > 439 * 32) // lower wayblock area
 			continue;
 
 
@@ -706,7 +708,7 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 }
 
 
-CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  //den nächsten dummy finden
+CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  // find closest dummy
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -741,7 +743,7 @@ CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  //
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacter *pNotThis)  //den nächsten dummy finden
+CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacter *pNotThis)  // find closest dummy far in race
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -764,7 +766,7 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 				continue;
 		}
 
-		//if (p->m_Pos.y > 200 * 32 || p->m_Pos.x < 466 * 32 || p->m_Pos.x > 498 * 32) //so um den 2player part herum
+		//if (p->m_Pos.y > 200 * 32 || p->m_Pos.x < 466 * 32 || p->m_Pos.x > 498 * 32) // around the 2player part
 		//	continue;
 
 		if (p->m_Pos.y > 200 * 32 || p->m_Pos.x < 466 * 32) //ab weit
@@ -783,7 +785,7 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis)  //BlmapChill right police freeze
+CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis)  // BlmapChill right police freeze
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -822,7 +824,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CC
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  //den nächsten frozen finden
+CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -861,7 +863,7 @@ CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  //den nächsten finden der nicht in einem freezetile chillt
+CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -883,10 +885,8 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 				continue;
 		}
 
-
-		if (p->isFreezed) //freezed -> continue
+		if (p->isFreezed)
 			continue;
-
 
 		float Len = distance(Pos, p->m_Pos);
 
@@ -900,7 +900,7 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  //blmapV5 potential enemys in area5
+CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  // blmapV5 potential enemys in area5
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
