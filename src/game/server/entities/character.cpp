@@ -4577,6 +4577,7 @@ void CCharacter::MoneyTile()
 	// give money & xp
 	m_pPlayer->GiveXP(XP);
 	m_pPlayer->MoneyTransaction(Money);
+	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)
@@ -4695,6 +4696,7 @@ void CCharacter::MoneyTilePolice()
 	// give money & xp
 	m_pPlayer->GiveXP(XP);
 	m_pPlayer->MoneyTransaction(Money);
+	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)
@@ -4829,6 +4831,7 @@ void CCharacter::MoneyTileDouble()
 	// give money & xp
 	m_pPlayer->GiveXP(XP);
 	m_pPlayer->MoneyTransaction(Money);
+	m_pPlayer->m_MoneyTilesMoney += Money;
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)

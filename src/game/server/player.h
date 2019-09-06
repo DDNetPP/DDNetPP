@@ -548,6 +548,7 @@ public:
 	//money and traiding
 
 	int m_StockMarket_item_Cucumbers;
+	int m_MoneyTilesMoney;
 
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];
