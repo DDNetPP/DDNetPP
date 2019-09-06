@@ -3649,7 +3649,7 @@ void CCharacter::HandleTiles(int Index)
 
 	if (((m_TileIndex == TILE_MONEY_POLICE) || (m_TileFIndex == TILE_MONEY_POLICE)))
 	{
-		MoneyTile2();
+		MoneyTilePolice();
 	}
 
 	if (((m_TileIndex == TILE_MONEY_PLUS) || (m_TileFIndex == TILE_MONEY_PLUS)))
@@ -4524,7 +4524,7 @@ void CCharacter::MoneyTile()
 		}
 		else if (m_pPlayer->m_QuestStateLevel == 7)
 		{
-			// moneytile2
+			// moneytile police
 		}
 		else if (m_pPlayer->m_QuestStateLevel == 8)
 		{
@@ -4545,55 +4545,38 @@ void CCharacter::MoneyTile()
 		return;
 	}
 
+	int XP = 0;
+	int Money = 0;
+	int VIPBonus = 0;
+
 	// flag extra xp
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
-		m_pPlayer->GiveXP(1);
+		XP += 1;
 	}
-
-	int VIPBonus = 0;
 
 	// vip+ get 2 bonus
 	if (m_pPlayer->m_IsSuperModerator)
 	{
-		m_pPlayer->GiveXP(2);
-		m_pPlayer->MoneyTransaction(+2);
-
-		VIPBonus = 2;
+		XP += 2;
+		Money += 2;
+		VIPBonus = 2; // only for broadcast not used in calculation
 	}
-
 	// vip get 1 bonus
 	else if (m_pPlayer->m_IsModerator)
 	{
-		m_pPlayer->GiveXP(1);
-		m_pPlayer->MoneyTransaction(+1);
-
-		VIPBonus = 1;
+		XP += 1;
+		Money += 1;
+		VIPBonus = 1; // only for broadcast not used in calculation
 	}
 
+	// tile gain and survival bonus
+	XP += 1 + m_survivexpvalue;
+	Money += 1;
 
 	// give money & xp
-	if (m_survivexpvalue == 0)
-	{
-		m_pPlayer->GiveXP(1);
-	}
-	else if (m_survivexpvalue == 1)
-	{
-		m_pPlayer->GiveXP(2);
-	}
-	else if (m_survivexpvalue == 2)
-	{
-		m_pPlayer->GiveXP(3);
-	}
-	else if (m_survivexpvalue == 3)
-	{
-		m_pPlayer->GiveXP(4);
-	}
-	else if (m_survivexpvalue == 4) // 100 min
-	{
-		m_pPlayer->GiveXP(5);
-	}
-	m_pPlayer->MoneyTransaction(+1);
+	m_pPlayer->GiveXP(XP);
+	m_pPlayer->MoneyTransaction(Money);
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)
@@ -4653,7 +4636,7 @@ void CCharacter::MoneyTile()
 	}
 }
 
-void CCharacter::MoneyTile2()
+void CCharacter::MoneyTilePolice()
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -4686,50 +4669,32 @@ void CCharacter::MoneyTile2()
 		return;
 	}
 
-
+	int XP = 0;
+	int Money = 0;
 	int VIPBonus = 0;
 
 	// vip+ get 2 bonus
 	if (m_pPlayer->m_IsSuperModerator)
 	{
-		m_pPlayer->GiveXP(2);
-		m_pPlayer->MoneyTransaction(+2);
-
-		VIPBonus = 2;
+		XP += 2;
+		Money += 2;
+		VIPBonus = 2; // only for broadcast not used in calculation
 	}
 	// vip get 1 bonus
 	else if (m_pPlayer->m_IsModerator)
 	{
-		m_pPlayer->GiveXP(1);
-		m_pPlayer->MoneyTransaction(+1);
-
-		VIPBonus = 1;
+		XP += 1;
+		Money += 1;
+		VIPBonus = 1; // only for broadcast not used in calculation
 	}
 
-	// give xp
-	if (m_survivexpvalue == 0)
-	{
-		m_pPlayer->GiveXP(2);
-	}
-	else if (m_survivexpvalue == 1)
-	{
-		m_pPlayer->GiveXP(3);
-	}
-	else if (m_survivexpvalue == 2)
-	{
-		m_pPlayer->GiveXP(4);
-	}
-	else if (m_survivexpvalue == 3)
-	{
-		m_pPlayer->GiveXP(5);
-	}
-	else if (m_survivexpvalue == 4) // 100 min
-	{
-		m_pPlayer->GiveXP(6);
-	}
+	// tile gain and survival bonus
+	XP += 2 + m_survivexpvalue;
+	Money += 1 + m_pPlayer->m_PoliceRank;
 
-	// give money
-	m_pPlayer->MoneyTransaction(1 + m_pPlayer->m_PoliceRank);
+	// give money & xp
+	m_pPlayer->GiveXP(XP);
+	m_pPlayer->MoneyTransaction(Money);
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)
@@ -4826,7 +4791,7 @@ void CCharacter::MoneyTileDouble()
 		}
 		else if (m_pPlayer->m_QuestStateLevel == 7)
 		{
-			// moneytile2
+			// moneytile police
 		}
 		else if (m_pPlayer->m_QuestStateLevel == 8)
 		{
@@ -4847,34 +4812,23 @@ void CCharacter::MoneyTileDouble()
 		return;
 	}
 
+	int XP = 0;
+	int Money = 0;
+
 	// flag extra xp
 	if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
 	{
-		m_pPlayer->GiveXP(2);
+		XP += 2;
 	}
 
+	// tile gain and survival bonus
+	int Survival = (m_survivexpvalue + 1);
+	XP += 2 * Survival;
+	Money += 4;
+
 	// give money & xp
-	if (m_survivexpvalue == 0)
-	{
-		m_pPlayer->GiveXP(2);
-	}
-	else if (m_survivexpvalue == 1)
-	{
-		m_pPlayer->GiveXP(4);
-	}
-	else if (m_survivexpvalue == 2)
-	{
-		m_pPlayer->GiveXP(6);
-	}
-	else if (m_survivexpvalue == 3)
-	{
-		m_pPlayer->GiveXP(8);
-	}
-	else if (m_survivexpvalue == 4) // 100 min
-	{
-		m_pPlayer->GiveXP(10);
-	}
-	m_pPlayer->MoneyTransaction(+4);
+	m_pPlayer->GiveXP(XP);
+	m_pPlayer->MoneyTransaction(Money);
 
 	// show msg
 	if (m_pPlayer->m_xpmsg)
@@ -4899,27 +4853,9 @@ void CCharacter::MoneyTileDouble()
 		else if (m_survivexpvalue > 0)
 		{
 			if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(this) != -1)
-			{
-				if (m_survivexpvalue == 1)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 2)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 3)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 4)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-			}
+				str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 flag +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), Survival, m_pPlayer->GetLevel());
 			else
-			{
-				if (m_survivexpvalue == 1)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +2 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 2)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +4 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 3)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +6 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-				else if (m_survivexpvalue == 4)
-					str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +8 survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
-			}
+				str_format(aBuf, sizeof(aBuf), "Money [%llu] +4\nXP [%llu/%llu] +2 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), Survival, m_pPlayer->GetLevel());
 		}
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 	}
