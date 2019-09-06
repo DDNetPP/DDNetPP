@@ -3102,6 +3102,33 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
+	if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvLoginHumanLevel)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] your '/human_level' is too low %d/%d to use this command.", pPlayer->m_PlayerHumanLevel, g_Config.m_SvLoginHumanLevel);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+
+	NETADDR Addr;
+	pSelf->Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	int Banned = 0;
+
+	for(int i = 0; i < pSelf->m_NumLoginBans && !Banned; i++)
+	{
+		if(!net_addr_comp(&Addr, &pSelf->m_aLoginBans[i].m_Addr))
+			Banned = (pSelf->m_aLoginBans[i].m_Expire - pSelf->Server()->Tick()) / pSelf->Server()->TickSpeed();
+	}
+
+	if (Banned > 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof aBuf, "[ACCOUNT] you have to wait %d seconds before you can login again.", Banned);
+		pSelf->SendChatTarget(ClientID, aBuf);
+		return;
+	}
+
 	char aUsername[32];
 	char aPassword[128];
 
