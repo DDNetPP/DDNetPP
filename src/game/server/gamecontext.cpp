@@ -3537,6 +3537,7 @@ void CGameContext::DDPP_SlowTick()
 			continue;
 
 		TotalPlayers++;
+		CheckDeleteLoginBanEntry(i);
 		if (m_apPlayers[i]->IsQuesting())
 		{
 			NumQuesting++;
@@ -10948,6 +10949,38 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	}
 }
 
+void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * LOGIN_FAIL_DELAY) < time_get())
+			{
+				// TODO: be consistent with log types... sometimes its "bans", "mutes", "login_bans", "account" like wtf?
+				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumLoginBans)
+					return;
+
+				m_NumLoginBans--;
+				m_aLoginBans[ClientID] = m_aLoginBans[m_NumLoginBans];
+				return;
+			}
+		}
+	}
+}
+
 void CGameContext::LoginBanCheck(int ClientID)
 {
 #if defined(CONF_DEBUG)
@@ -10960,7 +10993,6 @@ void CGameContext::LoginBanCheck(int ClientID)
 	int Found = 0;
 	int atts = 0;
 	int64 BanTime = 0;
-	static const int LOGIN_FAIL_DELAY = 60 * 60 * 12; // reset login attempts counter every day
 	// find a matching ban for this ip, update expiration time if found
 	for (int i = 0; i < m_NumLoginBans; i++)
 	{
@@ -10975,7 +11007,7 @@ void CGameContext::LoginBanCheck(int ClientID)
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
 			atts = ++m_aLoginBans[i].m_NumAttempts;
 			Found = 1;
-			dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+			// dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
 		}
 	}
 
@@ -10984,11 +11016,12 @@ void CGameContext::LoginBanCheck(int ClientID)
 		if (m_NumLoginBans < MAX_LOGIN_BANS)
 		{
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			m_aLoginBans[m_NumLoginBans].m_Expire = 0;
 			m_aLoginBans[m_NumLoginBans].m_Addr = Addr;
 			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
 			m_NumLoginBans++;
 			Found = 1;
-			dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
+			// dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
 		}
 	}
 
