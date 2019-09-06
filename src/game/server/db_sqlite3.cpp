@@ -22,6 +22,35 @@ void CQuery::Query(CSql *pDatabase, char *pQuery)
 	m_pDatabase->Query(this, pQuery);
 }
 
+void CQuery::QueryBlocking(CSql *pDatabase, char *pQueryStr)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	pDatabase->QueryBlocking(this, pQueryStr);
+}
+
+void CSql::QueryBlocking(CQuery *pQuery, std::string QueryString)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	int Ret;
+	Ret = sqlite3_prepare_v2(m_pDB, QueryString.c_str(), -1, &pQuery->m_pStatement, 0);
+	if (Ret != SQLITE_OK)
+	{
+		dbg_msg("SQLite", "QueryBlockingError: %s", sqlite3_errmsg(m_pDB));
+		return;
+	}
+	Ret = sqlite3_finalize(pQuery->m_pStatement);
+	if (Ret != SQLITE_OK)
+	{
+		dbg_msg("SQLite", "QueryBlockingFinalizeError: %s", sqlite3_errmsg(m_pDB));
+		return;
+	}
+	dbg_msg("SQLite", "finished QueryBlocking function");
+}
+
 void CQuery::OnData()
 {
 #if defined(CONF_DEBUG)

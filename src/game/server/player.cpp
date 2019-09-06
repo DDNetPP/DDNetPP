@@ -1502,9 +1502,19 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// read showhide bools to char array that is being saved
-	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET"
+	/*
+		It was planned to use the function pointer
+		to switch between ExecuteSQLf and ExecuteSQLBlockingf
+		to ensure execution on mapchange and server shutdown
+		but somehow it didnt block anyways :c
+		i left the function pointer here in case i pick this up in the future.
+	*/
+	// void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLBlockingf;
+	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
+
+	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
 		"  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
 		", `LastGift` = '%i'" /*is actually m_GiftDelay*/
 		", `PoliceRank` = '%i'"

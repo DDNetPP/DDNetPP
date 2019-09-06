@@ -228,6 +228,7 @@ public:
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
+	virtual void LogoutAllPlayers();
 	virtual void OnStartBlockTournament();
 	//virtual void OnDDPPshutdown();
 
@@ -279,6 +280,7 @@ public:
 	// sql
 	void SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword = "");
 	void ExecuteSQLf(const char *pSQL, ...);
+	void ExecuteSQLBlockingf(const char *pSQL, ...);
 	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
 	enum {
 		SQL_REGISTER,
