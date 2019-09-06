@@ -303,7 +303,7 @@ public:
 	bool Freeze(); 
 	bool UnFreeze();
 	void MoneyTile();
-	void MoneyTile2();
+	void MoneyTilePolice();
 	void MoneyTilePlus();
 	void MoneyTileDouble();
 	void GiveAllWeapons();
