@@ -3514,6 +3514,23 @@ void CGameContext::DDPP_Tick()
 	}
 }
 
+void CGameContext::LogoutAllPlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			dbg_msg("ddnet++", "logging out id=%d", i);
+			m_apPlayers[i]->Logout();
+		}
+	}
+}
+
 void CGameContext::ConnectAdventureBots()
 {
 #if defined(CONF_DEBUG)
@@ -11635,6 +11652,22 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}
+}
+
+void CGameContext::ExecuteSQLBlockingf(const char *pSQL, ...)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	va_list ap;
+	va_start(ap, pSQL);
+	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
+	va_end(ap);
+	CQuery *pQuery = new CQuery();
+	pQuery->QueryBlocking(m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+	delete pQuery;
+	dbg_msg("blocking-sql", "should be last...");
 }
 
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)

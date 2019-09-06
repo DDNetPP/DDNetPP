@@ -1944,6 +1944,9 @@ int CServer::LoadMap(const char *pMapName)
 	if(!m_pMap->Load(aBuf))
 		return 0;
 
+	dbg_msg("ddnet++", "loggin out all players (not working yet...)");
+	GameServer()->LogoutAllPlayers();
+
 	// stop recording when we change map
 	for(int i = 0; i < MAX_CLIENTS+1; i++)
 	{
