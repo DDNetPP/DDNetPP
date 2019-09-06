@@ -5328,7 +5328,7 @@ void CGameContext::ConAntiFlood(IConsole::IResult * pResult, void * pUserData)
 	}
 
 	pSelf->AbuseMotd(
-"*~~~~~*   ANTI FLOOD   *~~~~~*\n\n\
+"*~~~~* ANTI FLOOD configs *~~~~*\n\n\
 \
 sv_show_connection_msg\n\
 (0=none 1=join 2=leave 3=join/leave/spec)\n\n\
@@ -5337,8 +5337,13 @@ sv_hide_connection_msg_pattern\n\
 (hides connection pattern check '/regex')\n\n\
 \
 sv_register_human_level\n\
+sv_login_human_level\n\
 sv_chat_human_level\n\
-(min '/humane_level' to chat/reg)\
+(min '/humane_level' to chat/reg)\n\n\
+\
+*~~~* ANTI FLOOD rcon cmds *~~~*\n\n\
+mute, namechange_mute,\n\
+register_ban, login_ban\
 "
 	, pResult->m_ClientID);
 }
