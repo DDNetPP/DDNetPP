@@ -5817,9 +5817,12 @@ void CCharacter::DropLoot()
 	}
 	else if (!GameServer()->IsMinigame(m_pPlayer->GetCID()))
 	{
+		int SpecialGun = 0;
+		if (m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
+			SpecialGun = 1;
 		// block drop 0-2 weapons
-		DropWeapon(rand() % (NUM_WEAPONS - 1) + 1); // no hammer or ninja
-		DropWeapon(rand() % (NUM_WEAPONS - 1) + 1);
+		DropWeapon(rand() % (NUM_WEAPONS - 1) + 2 - SpecialGun); // no hammer or ninja and gun only if special gun
+		DropWeapon(rand() % (NUM_WEAPONS - 1) + 2 - SpecialGun);
 	}
 }
 
