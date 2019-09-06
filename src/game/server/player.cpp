@@ -175,6 +175,7 @@ void CPlayer::Reset()
 		m_IsVanillaWeapons = true;
 	}
 
+	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default

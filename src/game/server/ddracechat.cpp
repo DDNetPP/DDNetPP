@@ -4424,6 +4424,9 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction7);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction8);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction9);
+	str_format(aBuf, sizeof(aBuf), "+%d (moneytiles)", pPlayer->m_MoneyTilesMoney);
+	if (pPlayer->m_MoneyTilesMoney > 0)
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 }
 
