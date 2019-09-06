@@ -1028,8 +1028,8 @@ private:
 
 	CMute m_aMutes[MAX_MUTES];
 	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
-	CGenericBan m_aLoginBans[MAX_LOGIN_BANS]; // TODO: clear this array in some slowtick if attempts is low and last try is old.
-	CGenericBan m_aNameChangeMutes[MAX_MUTES];
+	CGenericBan m_aLoginBans[MAX_LOGIN_BANS];
+	CGenericBan m_aNameChangeMutes[MAX_MUTES]; // TODO: clear this array in some slowtick if attempts is low and last try is old.
 	NETADDR m_aJailIPs[MAX_JAILS];
 	int m_NumMutes;
 	int m_NumRegisterBans;
@@ -1046,8 +1046,10 @@ private:
 	void Converse(int ClientID, char *pStr);
 
 public:
+	static const int LOGIN_FAIL_DELAY = 60 * 60 * 12; // reset login attempts counter every day
 	void RegisterBanCheck(int ClientID);
 	void LoginBanCheck(int ClientID);
+	void CheckDeleteLoginBanEntry(int ClientID);
 	int64 NameChangeMuteCheck(int ClientID);
 	void SetIpJailed(int ClientID);
 	bool CheckIpJailed(int ClientID);
