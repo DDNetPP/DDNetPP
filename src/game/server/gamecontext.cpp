@@ -10869,6 +10869,7 @@ void CGameContext::RegisterBanCheck(int ClientID)
 		{
 			regs = ++m_aRegisterBans[i].m_NumAttempts;
 			Found = 1;
+			break;
 		}
 	}
 
@@ -10919,6 +10920,7 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 			m_aRegisterBans[i].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
 			Found = 1;
+			break;
 		}
 	}
 
@@ -11008,6 +11010,7 @@ void CGameContext::LoginBanCheck(int ClientID)
 			atts = ++m_aLoginBans[i].m_NumAttempts;
 			Found = 1;
 			// dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+			break;
 		}
 	}
 
@@ -11062,6 +11065,7 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 			m_aLoginBans[i].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
 			Found = 1;
+			break;
 		}
 	}
 
@@ -11120,6 +11124,7 @@ int64 CGameContext::NameChangeMuteCheck(int ClientID)
 			changes = ++m_aNameChangeMutes[i].m_NumAttempts;
 			m_aNameChangeMutes[i].m_LastAttempt = time_get();
 			Found = 1;
+			break;
 		}
 	}
 
