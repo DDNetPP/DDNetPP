@@ -260,7 +260,8 @@ public:
 	int CountIngameHumans();
 	int CountConnectedBots();
 	int CountTimeoutCodePlayers();
-    bool IsAllowedCharSet(const char *pStr);
+	bool IsAllowedCharSet(const char *pStr);
+	int GetPlayerByTimeoutcode(const char *pTimeout);
 
 	bool ShowJoinMessage(int ClientID);
 	bool ShowLeaveMessage(int ClientID);
@@ -389,6 +390,7 @@ public:
 
 	void SaveMapPlayerData();
 	void LoadMapPlayerData();
+	void ReadMapPlayerData(); // load debug only output do nothing
 
 	//global chat
 	void GlobalChatPrintMessage();

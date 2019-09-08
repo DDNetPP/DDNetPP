@@ -5246,6 +5246,7 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if (g_Config.m_SvTestingCommands)
 	{
+		pSelf->ReadMapPlayerData();
 		pSelf->LoadMapPlayerData();
 		/*
         pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
