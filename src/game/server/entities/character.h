@@ -110,13 +110,14 @@ public:
 	bool isFreezed;
 	bool m_OnFire;
 
+	int m_NeededFaketuning; // sowwy ChillerDragon made it public
+
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 
 	bool m_Alive;
 	bool m_Paused;
-	int m_NeededFaketuning;
 
 	// weapon info
 	CEntity *m_apHitObjects[10];
