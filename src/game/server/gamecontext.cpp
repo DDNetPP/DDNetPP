@@ -2048,6 +2048,24 @@ bool CGameContext::IsAllowedCharSet(const char *pStr)
     return true;
 }
 
+int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		if (str_comp(m_apPlayers[i]->m_TimeoutCode, pTimeout))
+			continue;
+		return i;
+	}
+	return -1;
+}
+
 int CGameContext::CountConnectedBots()
 {
 #if defined(CONF_DEBUG)
@@ -3832,8 +3850,8 @@ void CGameContext::SaveSinglePlayer()
 	pFile = fopen("ddpp-stats.dat","wb");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
-			return;
+		dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
+		return;
 	}
 	statsBuff.x = m_MissionUnlockedLevel;
 	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
@@ -3854,26 +3872,39 @@ void CGameContext::SaveMapPlayerData()
 	pFile = fopen(aSaveFile,"wb");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-mapsave", "failed to write ddpp player data file '%s'.", aSaveFile);
-			return;
+		dbg_msg("ddpp-mapsave", "failed to write ddpp player data file '%s'.", aSaveFile);
+		return;
 	}
 	int saved = 0;
 	int players = CountTimeoutCodePlayers();
 	fwrite(&players, sizeof(players), 1, pFile);
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (!m_apPlayers[i])
+		CPlayer *pPlayer = m_apPlayers[i];
+		if (!pPlayer)
 			continue;
-		if (!m_apPlayers[i]->m_TimeoutCode[0])
+		CCharacter *pChr = pPlayer->GetCharacter();
+		if (!pChr)
 			continue;
-		if (!m_apPlayers[i]->GetCharacter())
+		if (!pPlayer->m_TimeoutCode[0])
 			continue;
-		fwrite(&m_apPlayers[i]->m_TimeoutCode, sizeof(m_apPlayers[i]->m_TimeoutCode), 1, pFile);
-		float x = m_apPlayers[i]->GetCharacter()->GetPosition().x;
-		float y = m_apPlayers[i]->GetCharacter()->GetPosition().y;
+		if (!pChr)
+			continue;
+		fwrite(&pPlayer->m_TimeoutCode, 64, 1, pFile);
+		char IsLoaded = 0;
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapsave", "writing isloaded at pos %d", pos.__pos);
+		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		float x = pChr->GetPosition().x;
+		float y = pChr->GetPosition().y;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapsave", "writing x/y at pos %d", pos.__pos);
 		fwrite(&x, sizeof(x), 1, pFile);
 		fwrite(&y, sizeof(y), 1, pFile);
-		dbg_msg("ddpp-mapsave", "save player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), m_apPlayers[i]->m_TimeoutCode, x, y);
+		int hit = pChr->m_Hit;
+		fwrite(&hit, sizeof(hit), 1, pFile);
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), pPlayer->m_TimeoutCode, x, y);
 		saved++;
 	}
 	fclose(pFile);
@@ -3888,40 +3919,125 @@ void CGameContext::LoadMapPlayerData()
 	FILE *pFile;
 	char aSaveFile[256];
 	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
-	pFile = fopen(aSaveFile,"rb");
+	pFile = fopen(aSaveFile,"rb+");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-mapload", "failed to write ddpp player data file '%s'.", aSaveFile);
-			return;
+		dbg_msg("ddpp-mapload", "failed to write ddpp player data file '%s'.", aSaveFile);
+		return;
 	}
 	int loaded = 0;
 	int players = 0;
 	fread(&players, sizeof(players), 1, pFile);
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < players; i++)
 	{
-		if (!m_apPlayers[i])
-			continue;
-		if (!m_apPlayers[i]->m_TimeoutCode[0])
-			continue;
-		if (!m_apPlayers[i]->GetCharacter())
-			continue;
+		// ValidPlayer replaces continue to make sure the binary cursor is at the right offset
+		bool ValidPlayer = true;
 		char aTimeoutCode[64];
-		fread(&aTimeoutCode, sizeof(aTimeoutCode), 1, pFile);
-		if (str_comp(aTimeoutCode, m_apPlayers[i]->m_TimeoutCode))
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapload", "read timeout code at %d", pos.__pos);
+		fread(&aTimeoutCode, 64, 1, pFile);
+		int id = GetPlayerByTimeoutcode(aTimeoutCode);
+		if (id == -1)
 		{
-			dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", m_apPlayers[i]->m_TimeoutCode, aTimeoutCode);
-			continue;
+			dbg_msg("ddpp-mapload", "player not online code=%s", aTimeoutCode);
+			ValidPlayer = false;
 		}
+		else
+		{
+			CPlayer *pPlayer = m_apPlayers[id];
+			if (!pPlayer)
+			{
+				dbg_assert(true, "loadmap invalid player");
+				return;
+			}
+			CCharacter *pChr = pPlayer->GetCharacter();
+			if (!pChr)
+			{
+				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", id, aTimeoutCode);
+				ValidPlayer = false;
+			}
+			if (str_comp(aTimeoutCode, pPlayer->m_TimeoutCode))
+			{
+				dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", pPlayer->m_TimeoutCode, aTimeoutCode);
+				ValidPlayer = false;
+			}
+		}
+		char IsLoaded;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapload", "reading isloaded at pos %d", pos.__pos);
+		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		// reset file pos after read to overwrite isloaded or keep clean offset on continue
+		if (IsLoaded)
+		{
+			dbg_msg("ddpp-mapload", "loaded already");
+			ValidPlayer = false;
+		}
+		IsLoaded = ValidPlayer ? 1 : IsLoaded; // only change loaded state if the player is actually loaded
+		fsetpos(pFile, &pos);
+		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		float x;
+		float y;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapload", "reading x/y at pos %d", pos.__pos);
+		fread(&x, sizeof(x), 1, pFile);
+		fread(&y, sizeof(y), 1, pFile);
+		int hit;
+		fread(&hit, sizeof(hit), 1, pFile);
+		if (ValidPlayer)
+		{
+			CPlayer *pPlayer = m_apPlayers[id];
+			CCharacter *pChr = pPlayer->GetCharacter();
+			pChr->ChillTelePort(x, y);
+			pChr->m_Hit = hit;
+			fgetpos(pFile, &pos);
+			dbg_msg("ddpp-mapload", "load player=%s code=%s at(%.2f/%.2f) fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, x, y, pos.__pos);
+			loaded++;
+		}
+	}
+	fclose(pFile);
+	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
+}
+
+void CGameContext::ReadMapPlayerData()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"rb");
+	if (!pFile)
+	{
+		dbg_msg("ddpp-mapread", "failed to read ddpp player data file '%s'.", aSaveFile);
+		return;
+	}
+	int loaded = 0;
+	int players = 0;
+	fread(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < players; i++)
+	{
+		char aTimeoutCode[64];
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapread", "read timeout code at %d", pos.__pos);
+		fread(&aTimeoutCode, 64, 1, pFile);
+		int id = GetPlayerByTimeoutcode(aTimeoutCode);
+		char IsLoaded;
+		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 		float x;
 		float y;
 		fread(&x, sizeof(x), 1, pFile);
 		fread(&y, sizeof(y), 1, pFile);
-		m_apPlayers[i]->GetCharacter()->ChillTelePort(x, y);
-		dbg_msg("ddpp-mapload", "load player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), m_apPlayers[i]->m_TimeoutCode, x, y);
+		int hit;
+		fread(&hit, sizeof(hit), 1, pFile);
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapread", "read player=%d code=%s at(%.2f/%.2f) hit=%d loaded=%d fp=%d", id, aTimeoutCode, x, y, hit, IsLoaded, pos.__pos);
 		loaded++;
 	}
 	fclose(pFile);
-	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
+	dbg_msg("ddpp-mapread", "red %d/%d players", loaded, players);
 }
 
 void CGameContext::GlobalChatPrintMessage()
