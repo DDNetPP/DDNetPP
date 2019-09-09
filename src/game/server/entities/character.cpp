@@ -6674,7 +6674,6 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 #endif
 	char aBuf[256];
 
-
 	if (m_pPlayer->m_IsVanillaModeByTile) //reset vanilla mode but never go out of vanilla mode in survival
 	{
 		m_pPlayer->m_IsVanillaDmg = false;
@@ -6726,7 +6725,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		if (GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
 			GameServer()->m_apPlayers[Killer]->m_Score++;
 
-	//insta kills //TODO: combine with insta 1on1
+	// insta kills //TODO: combine with insta 1on1
 	if (Killer != m_pPlayer->GetCID())
 	{
 		if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
@@ -6739,7 +6738,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
-	//insta 1on1
+	// insta 1on1
 	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
 	{
 		GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
@@ -6758,7 +6757,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
-	//balance battel
+	// balance battel
 	if (m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) //ingame in a balance battle
 	{
 		if (GameServer()->m_BalanceID1 == m_pPlayer->GetCID())
@@ -6797,19 +6796,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
-	//blockwave minigame
-	//commented out cuz idk why people shouldnt be able to play alone lol
-	/*
-	if (m_pPlayer->m_IsBlockWaving)
-	{
-		if (GameServer()->CountBlockWavePlayers() < 2)
-		{
-			GameServer()->m_BlockWaveGameState = 0; //stop blockwaving game
-		}
-	}
-	*/
-
-	//ChillerDragon pvparena code
+	// ChillerDragon pvparena code
 	if (GameServer()->m_apPlayers[Killer])
 	{
 		if (GameServer()->GetPlayerChar(Killer) && Weapon != WEAPON_GAME && Weapon != WEAPON_SELF)
@@ -7216,105 +7203,98 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	//Block points
-	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID] && m_pPlayer->m_LastToucherID > -1 && m_FreezeTime > 0) //only if there is a toucher && the selfkiller was freeze
-	{
-		if (m_pPlayer->m_IsInstaMode_fng && !fngscore)
-		{
-			return Killer; //Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
-		}
+	if (m_FreezeTime <= 0)
+		return Killer;
+	if (m_pPlayer->m_LastToucherID == -1)
+		return Killer;
+	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+		return Killer;
+	if (m_pPlayer->m_IsInstaMode_fng && !fngscore)
+		return Killer; // Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
-		if (m_pPlayer->m_LastToucherID != m_pPlayer->GetCID())
+	if (m_pPlayer->m_LastToucherID == m_pPlayer->GetCID())
+	{
+		dbg_msg("block", "WARNING '%s' [ID: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->GetCID());
+		return Killer;
+	}
+
+	char aBuf[128];
+	Killer = m_pPlayer->m_LastToucherID; // kill message
+	if (!m_pPlayer->m_IsBlockWaving) // dont count block deaths in blockwave minigame
+	{
+		if (m_pPlayer->m_IsInstaArena_gdm)
 		{
-			char aBuf[128];
-			Killer = m_pPlayer->m_LastToucherID; //kill message
-			if (!m_pPlayer->m_IsBlockWaving) //dont count block deaths in blockwave minigame
+			//m_pPlayer->m_GrenadeDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
+		}
+		else if (m_pPlayer->m_IsInstaArena_idm)
+		{
+			//m_pPlayer->m_RifleDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
+		}
+		else
+		{
+			if (m_pPlayer->m_IsDummy)
 			{
-				if (m_pPlayer->m_IsInstaArena_gdm)
+				if (g_Config.m_SvDummyBlockPoints)
 				{
-					//m_pPlayer->m_GrenadeDeaths++; //probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
-				}
-				else if (m_pPlayer->m_IsInstaArena_idm)
-				{
-					//m_pPlayer->m_RifleDeaths++; //probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
-				}
-				else
-				{
-					if (m_pPlayer->m_IsDummy)
-					{
-						if (g_Config.m_SvDummyBlockPoints)
-						{
-							m_pPlayer->m_BlockPoints_Deaths++;
-						}
-					}
-					else
-					{
-						m_pPlayer->m_BlockPoints_Deaths++;
-					}
+					m_pPlayer->m_BlockPoints_Deaths++;
 				}
 			}
-
-			if (GameServer()->m_apPlayers[Killer])
+			else
 			{
-				if (!m_pPlayer->m_IsBlockWaving) //dont count block kills and points in blockwave minigame (would be too op lol)
-				{
-					if (m_pPlayer->m_IsDummy) //if dummy got killed make some exceptions
-					{
-						if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
-						{
-							if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-							{
-								GameServer()->GiveBlockPoints(Killer, 1);
-							}
-							GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
-						}
-					}
-					else
-					{
-						if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
-						{
-							GameServer()->GiveBlockPoints(Killer, 1);
-						}
-						GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
-					}
-				}
+				m_pPlayer->m_BlockPoints_Deaths++;
+			}
+		}
+	}
 
-				if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]) //if killer(blocker) exists
+	if (!m_pPlayer->m_IsBlockWaving) // dont count block kills and points in blockwave minigame (would be too op lol)
+	{
+		if (m_pPlayer->m_IsDummy) // if dummy got killed make some exceptions
+		{
+			if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
+			{
+				if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 				{
-					if (g_Config.m_SvBlockBroadcast == 1)  //send kill message broadcast
-					{
-						str_format(aBuf, sizeof(aBuf), "%s was blocked by %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(m_pPlayer->m_LastToucherID));
-						GameServer()->SendBroadcastAll(aBuf, 0);
-					}
-
-					//give xp reward to the blocker
-					if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
-					{
-						if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->m_HideBlockXp)
-						{
-							str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
-							GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
-						}
-						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->GiveXP( m_pPlayer->m_KillStreak);
-					}
-					//bounty money reward to the blocker
-					if (m_pPlayer->m_BlockBounty)
-					{
-						str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
-						GameServer()->SendChatTarget(m_pPlayer->m_LastToucherID, aBuf);
-						str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
-						GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
-						m_pPlayer->m_BlockBounty = 0;
-					}
+					GameServer()->GiveBlockPoints(Killer, 1);
 				}
-				BlockQuestSubDieFuncBlockKill(Killer);
+				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 			}
 		}
 		else
 		{
-			dbg_msg("block", "WARNING '%s' [ID: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->GetCID());
+			if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+			{
+				GameServer()->GiveBlockPoints(Killer, 1);
+			}
+			GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 		}
 	}
+
+	if (g_Config.m_SvBlockBroadcast == 1)  // send kill message broadcast
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' was blocked by '%s'", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(Killer));
+		GameServer()->SendBroadcastAll(aBuf, 0);
+	}
+
+	// give xp reward to the blocker
+	if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
+	{
+		if (!GameServer()->m_apPlayers[Killer]->m_HideBlockXp)
+		{
+			str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
+			GameServer()->SendChatTarget(Killer, aBuf);
+		}
+		GameServer()->m_apPlayers[Killer]->GiveXP( m_pPlayer->m_KillStreak);
+	}
+	// bounty money reward to the blocker
+	if (m_pPlayer->m_BlockBounty)
+	{
+		str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+		GameServer()->SendChatTarget(Killer, aBuf);
+		str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+		GameServer()->m_apPlayers[Killer]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
+		m_pPlayer->m_BlockBounty = 0;
+	}
+	BlockQuestSubDieFuncBlockKill(Killer);
 	return Killer;
 }
 
@@ -7354,83 +7334,68 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (GameServer()->m_apPlayers[Killer])
+	if (!GameServer()->m_apPlayers[Killer])
+		return;
+
+	char aBuf[128];
+	//QUEST
+	if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_HAMMER)
 	{
-		char aBuf[128];
-		//QUEST
-		if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_HAMMER)
+		if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
 		{
-			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
+			if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue < 10)
 			{
-				if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue < 10)
-				{
-					//GameServer()->SendChatTarget(Killer, "[QUEST] hammer the tee 10 times before blocking him.");
-				}
-				else
-				{
-					GameServer()->QuestAddProgress(Killer, 11);
-				}
-			}
-		}
-		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK)
-		{
-			if (GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
-			{
-				if (!m_pPlayer->m_HideQuestWarning)
-				{
-					GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
-				}
+				//GameServer()->SendChatTarget(Killer, "[QUEST] hammer the tee 10 times before blocking him.");
 			}
 			else
 			{
-				if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 0)
+				GameServer()->QuestAddProgress(Killer, 11);
+			}
+		}
+	}
+	else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK)
+	{
+		if (GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
+		{
+			if (!m_pPlayer->m_HideQuestWarning)
+			{
+				GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+			}
+		}
+		else
+		{
+			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 0)
+			{
+				GameServer()->QuestCompleted(Killer);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 1)
+			{
+				GameServer()->QuestAddProgress(Killer, 2);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 2)
+			{
+				GameServer()->QuestAddProgress(Killer, 3);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 3)
+			{
+				GameServer()->QuestAddProgress(Killer, 5);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 4)
+			{
+				GameServer()->QuestAddProgress(Killer, 10);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 5)
+			{
+				if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue < 5)
 				{
-					GameServer()->QuestCompleted(Killer);
+					GameServer()->QuestAddProgress(Killer, 6, 5);
 				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 1)
+				else
 				{
-					GameServer()->QuestAddProgress(Killer, 2);
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 2)
-				{
-					GameServer()->QuestAddProgress(Killer, 3);
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 3)
-				{
-					GameServer()->QuestAddProgress(Killer, 5);
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 4)
-				{
-					GameServer()->QuestAddProgress(Killer, 10);
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 5)
-				{
-					if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue < 5)
+					if (m_pPlayer->GetCID() != GameServer()->m_apPlayers[Killer]->m_QuestPlayerID)
 					{
-						GameServer()->QuestAddProgress(Killer, 6, 5);
-					}
-					else
-					{
-						if (m_pPlayer->GetCID() != GameServer()->m_apPlayers[Killer]->m_QuestPlayerID)
-						{
-							str_format(aBuf, sizeof(aBuf), "[QUEST] You have to block '%s' to complete the quest.", Server()->ClientName(GameServer()->m_apPlayers[Killer]->m_QuestPlayerID));
-							if (!m_pPlayer->m_HideQuestWarning)
-							{
-								GameServer()->SendChatTarget(Killer, aBuf);
-							}
-						}
-						else
-						{
-							GameServer()->QuestAddProgress(Killer, 6);
-						}
-					}
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 6)
-				{
-					if (m_pPlayer->m_KillStreak < 5)
-					{
-						str_format(aBuf, sizeof(aBuf), "[QUEST] '%s' is only on a %d tee blockingspree", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_KillStreak);
+						str_format(aBuf, sizeof(aBuf), "[QUEST] You have to block '%s' to complete the quest.", Server()->ClientName(GameServer()->m_apPlayers[Killer]->m_QuestPlayerID));
 						if (!m_pPlayer->m_HideQuestWarning)
 						{
 							GameServer()->SendChatTarget(Killer, aBuf);
@@ -7438,66 +7403,81 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 					}
 					else
 					{
-						GameServer()->QuestCompleted(Killer);
-					}
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
-				{
-					//handled in killingspree system
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8)
-				{
-					GameServer()->QuestAddProgress(Killer, 3);
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 9) //TODO: TEST THIS QUEST (should be working now)
-				{
-					//success (blocking player)
-					if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GameServer()->m_apPlayers[Killer]->GetCharacter()) != -1)
-					{
-						GameServer()->QuestAddProgress(Killer, 11);
-					}
-					else
-					{
-						if (!m_pPlayer->m_HideQuestWarning)
-						{
-							GameServer()->SendChatTarget(Killer, "[QUEST] You need the flag.");
-						}
+						GameServer()->QuestAddProgress(Killer, 6);
 					}
 				}
 			}
-		}
-		else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_RIFLE)
-		{
-			if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7) // Rifle <specific player> and then block him [LEVEL 7]
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 6)
 			{
-				if (GameServer()->m_apPlayers[Killer]->m_QuestPlayerID == m_pPlayer->GetCID())
+				if (m_pPlayer->m_KillStreak < 5)
 				{
-					if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue)
+					str_format(aBuf, sizeof(aBuf), "[QUEST] '%s' is only on a %d tee blockingspree", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_KillStreak);
+					if (!m_pPlayer->m_HideQuestWarning)
 					{
-						GameServer()->QuestAddProgress(Killer, 2);
+						GameServer()->SendChatTarget(Killer, aBuf);
 					}
 				}
 				else
 				{
-					// GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
+					GameServer()->QuestCompleted(Killer);
 				}
 			}
-			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8) // Rifle 5 tees before blocking them [LEVEL 8]
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
 			{
-				if (GameServer()->m_apPlayers[Killer]->m_QuestProgressBool)
+				GameServer()->QuestAddProgress(Killer, 11);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8)
+			{
+				GameServer()->QuestAddProgress(Killer, 3);
+			}
+			else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 9) //TODO: TEST THIS QUEST (should be working now)
+			{
+				//success (blocking player)
+				if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GameServer()->m_apPlayers[Killer]->GetCharacter()) != -1)
 				{
-					if (GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID == m_pPlayer->GetCID())
+					GameServer()->QuestAddProgress(Killer, 11);
+				}
+				else
+				{
+					if (!m_pPlayer->m_HideQuestWarning)
 					{
-						GameServer()->QuestAddProgress(Killer, 5);
-						GameServer()->m_apPlayers[Killer]->m_QuestProgressBool = false;
-						GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID = -1;
+						GameServer()->SendChatTarget(Killer, "[QUEST] You need the flag.");
 					}
-					else
+				}
+			}
+		}
+	}
+	else if (GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_RIFLE)
+	{
+		if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7) // Rifle <specific player> and then block him [LEVEL 7]
+		{
+			if (GameServer()->m_apPlayers[Killer]->m_QuestPlayerID == m_pPlayer->GetCID())
+			{
+				if (GameServer()->m_apPlayers[Killer]->m_QuestProgressValue)
+				{
+					GameServer()->QuestAddProgress(Killer, 2);
+				}
+			}
+			else
+			{
+				// GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
+			}
+		}
+		else if (GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 8) // Rifle 5 tees before blocking them [LEVEL 8]
+		{
+			if (GameServer()->m_apPlayers[Killer]->m_QuestProgressBool)
+			{
+				if (GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID == m_pPlayer->GetCID())
+				{
+					GameServer()->QuestAddProgress(Killer, 5);
+					GameServer()->m_apPlayers[Killer]->m_QuestProgressBool = false;
+					GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID = -1;
+				}
+				else
+				{
+					if (!m_pPlayer->m_HideQuestWarning)
 					{
-						if (!m_pPlayer->m_HideQuestWarning)
-						{
-							GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
-						}
+						GameServer()->SendChatTarget(Killer, "[QUEST] wrong tee");
 					}
 				}
 			}
@@ -7510,6 +7490,10 @@ void CCharacter::BlockQuestSubDieFuncDeath(int Killer)
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
+	if (Killer != m_pPlayer->GetCID() && m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 7 && m_pPlayer->m_QuestProgressValue > 0)
+	{
+		GameServer()->QuestFailed(m_pPlayer->GetCID());
+	}
 	if (m_pPlayer->m_QuestStateLevel == 9 && m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
 	{
 		GameServer()->QuestFailed(m_pPlayer->GetCID());
@@ -7536,15 +7520,6 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 
 	if (pVictim && GameServer()->m_apPlayers[Killer])
 	{
-		//##############################################
-		// KILLED (blocked) or (gdm idm fng killed(NEW))
-		//##############################################
-		//Quest (leave it first because it doesnt reset something and needs the values)
-		if (/*Killer != m_pPlayer->GetCID() &&*/ pVictim->GetPlayer()->m_QuestState == CPlayer::QUEST_BLOCK && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
-		{
-			GameServer()->QuestFailed(pVictim->GetPlayer()->GetCID());
-		}
-
 		//#################
 		// KILLED (blocked)
 		//#################
@@ -7664,20 +7639,10 @@ void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0
 				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
 		}
-		//Quest (external because it has nothing to do with spree needed players)
-		if (/*Killer != m_pPlayer->GetCID() &&*/ GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK && GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7)
-		{
-			GameServer()->QuestAddProgress(GameServer()->m_apPlayers[Killer]->GetCID(), 11);
-		}
 	}
 	else if (pVictim) //if killer left the game
 	{
 		//dbg_msg("spree", "Killer left the game");
-		//Quest (leave it first because it doesnt reset something and needs the values)
-		if (pVictim->GetPlayer()->m_QuestState == CPlayer::QUEST_BLOCK && pVictim->GetPlayer()->m_QuestStateLevel == 7 && pVictim->GetPlayer()->m_QuestProgressValue > 0)
-		{
-			GameServer()->QuestFailed(pVictim->GetPlayer()->GetCID());
-		}
 		if (pVictim->GetPlayer()->m_KillStreak >= 5)
 		{
 			//Check for new highscore
