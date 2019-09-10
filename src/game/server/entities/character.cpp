@@ -7026,7 +7026,7 @@ void CCharacter::MoveTee(int x, int y)
 	m_Core.m_Pos.y += y;
 }
 
-void CCharacter::ChillTelePort(int X, int Y)
+void CCharacter::ChillTelePort(float X, float Y)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();

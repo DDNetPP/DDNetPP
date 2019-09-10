@@ -1372,6 +1372,8 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 
 	((CServer *)pSelf->Server())->m_NetServer.SetTimeoutProtected(pResult->m_ClientID);
 	str_copy(pPlayer->m_TimeoutCode, pResult->GetString(0), sizeof(pPlayer->m_TimeoutCode));
+	if (pSelf->m_MapsavePlayers && pSelf->m_MapsaveLoadedPlayers < pSelf->m_MapsavePlayers)
+		pSelf->LoadMapPlayerData();
 }
 
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
@@ -5282,12 +5284,12 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
         str_format(aBuf, sizeof(aBuf), "updated level unlocked=%d current=%d", pSelf->m_MissionUnlockedLevel, pSelf->m_MissionCurrentLevel);
         pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
         pSelf->SaveSinglePlayer();
-		*/
 
 		pSelf->m_BlockWaveRound = pResult->GetInteger(0);
 		str_format(aBuf, sizeof(aBuf), "set blockwave level %d", pSelf->m_BlockWaveRound);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		pSelf->BlockWaveWonRound();
+		*/
 
 		/*
 		if (pResult->NumArguments() != 2)
@@ -8492,6 +8494,59 @@ void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] Error: something went horribly wrong.");
 }
 
+void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->m_ClientID;
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
+		return;
+	}
+
+	char aCommand[32];
+	str_copy(aCommand, pResult->GetString(0), sizeof(aCommand));
+
+	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
+	{
+		pSelf->SendChatTarget(ClientID, "--------  MAPSAVE  ----------");
+		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load]'");
+		pSelf->SendChatTarget(ClientID, "saves/loads state (position etc) of currently ingame players.");
+		pSelf->SendChatTarget(ClientID, "Creates a binary file and it loads automatically (works with timeout codes).");
+		pSelf->SendChatTarget(ClientID, "The load command is mostly for debugging because it should load from alone.");
+		pSelf->SendChatTarget(ClientID, "----------------------------");
+	}
+	else if (!str_comp_nocase(aCommand, "load"))
+	{
+		pSelf->SendChatTarget(ClientID, "[MAPSAVE] loading map data...");
+		pSelf->LoadMapPlayerData();
+	}
+	else if (!str_comp_nocase(aCommand, "save"))
+	{
+		pSelf->SendChatTarget(ClientID, "[MAPSAVE] saving map data...");
+		pSelf->SaveMapPlayerData();
+	}
+	else if (!str_comp_nocase(aCommand, "debug"))
+	{
+		pSelf->SendChatTarget(ClientID, "[MAPSAVE] reading map data debug (check logs)...");
+		pSelf->ReadMapPlayerData(pResult->m_ClientID);
+	}
+	else
+	{
+		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load]'");
+	}
+}
+
 void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 {
 #if defined(CONF_DEBUG)
@@ -10386,6 +10441,7 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "Unknown ACC2 command. Try '/acc2 help' for more help.");
 	}
 }
+
 void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 {
 #if defined(CONF_DEBUG)
