@@ -6122,12 +6122,16 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
+	/*
+	// wtf why did i code that? xd
+	// wait until blocker disconnects to not count as blocked ?!?
 	//clear last toucher on disconnect/unexistance
 	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 	{
 		m_pPlayer->m_LastToucherID = -1;
 		m_pPlayer->m_LastTouchTicks = 0;
 	}
+	*/
 
 	//Block points (check for last touched player)
 	//pikos hook check
@@ -6715,11 +6719,15 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
-	BlockKillingSpree(Killer); //should be renamed to KillingSpree(); because it is not in BlockPointsMain() func and handels all kinds of kills
+	KillingSpree(Killer); // previously called BlockKillingSpree()
 	BlockTourna_Die(Killer);
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
+
+	// TODO: (issue #291) remove this and make sure killer left the game is handled correctly everywhere
+	if (!GameServer()->m_apPlayers[Killer])
+		Killer = m_pPlayer->GetCID(); // for now count killer left the game as selfkill
 
 	if (GameServer()->IsDDPPgametype("battlegores"))
 		if (GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
@@ -7148,7 +7156,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					//dbg_msg("insta", aBuf);
 				}
 
-				str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 				pVictim->GetPlayer()->m_KillStreak = 0;
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
@@ -7161,7 +7169,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					pKiller->m_KillStreak++;
 				}
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				str_format(aBuf, sizeof(aBuf), "%s is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCID()), pKiller->m_KillStreak);
+				str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCID()), pKiller->m_KillStreak);
 
 				if (pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -7207,8 +7215,6 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		return Killer;
 	if (m_pPlayer->m_LastToucherID == -1)
 		return Killer;
-	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
-		return Killer;
 	if (m_pPlayer->m_IsInstaMode_fng && !fngscore)
 		return Killer; // Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
@@ -7220,6 +7226,17 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 
 	char aBuf[128];
 	Killer = m_pPlayer->m_LastToucherID; // kill message
+	dbg_msg("blockpoints", "set lasttouched killed=%d killer=%d", m_pPlayer->GetCID(), Killer);
+
+	if (g_Config.m_SvBlockBroadcast == 1)  // send kill message broadcast
+	{
+		str_format(aBuf, sizeof(aBuf), "'%s' was blocked by '%s'", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(Killer));
+		GameServer()->SendBroadcastAll(aBuf, 0);
+	}
+
+	BlockQuestSubDieFuncBlockKill(Killer);
+
+	// track deaths of blocked
 	if (!m_pPlayer->m_IsBlockWaving) // dont count block deaths in blockwave minigame
 	{
 		if (m_pPlayer->m_IsInstaArena_gdm)
@@ -7246,11 +7263,23 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		}
 	}
 
-	if (!m_pPlayer->m_IsBlockWaving) // dont count block kills and points in blockwave minigame (would be too op lol)
+	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 	{
-		if (m_pPlayer->m_IsDummy) // if dummy got killed make some exceptions
+		// give kills and points to blocker
+		if (!m_pPlayer->m_IsBlockWaving) // dont count block kills and points in blockwave minigame (would be too op lol)
 		{
-			if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
+			if (m_pPlayer->m_IsDummy) // if dummy got killed make some exceptions
+			{
+				if (g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
+				{
+					if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+					{
+						GameServer()->GiveBlockPoints(Killer, 1);
+					}
+					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+				}
+			}
+			else
 			{
 				if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 				{
@@ -7259,42 +7288,26 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 			}
 		}
-		else
+		// give xp reward to the blocker
+		if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
 		{
-			if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+			if (!GameServer()->m_apPlayers[Killer]->m_HideBlockXp)
 			{
-				GameServer()->GiveBlockPoints(Killer, 1);
+				str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
+				GameServer()->SendChatTarget(Killer, aBuf);
 			}
-			GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+			GameServer()->m_apPlayers[Killer]->GiveXP( m_pPlayer->m_KillStreak);
 		}
-	}
-
-	if (g_Config.m_SvBlockBroadcast == 1)  // send kill message broadcast
-	{
-		str_format(aBuf, sizeof(aBuf), "'%s' was blocked by '%s'", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(Killer));
-		GameServer()->SendBroadcastAll(aBuf, 0);
-	}
-
-	// give xp reward to the blocker
-	if (m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
-	{
-		if (!GameServer()->m_apPlayers[Killer]->m_HideBlockXp)
+		// bounty money reward to the blocker
+		if (m_pPlayer->m_BlockBounty)
 		{
-			str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
+			str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->SendChatTarget(Killer, aBuf);
+			str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+			GameServer()->m_apPlayers[Killer]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
+			m_pPlayer->m_BlockBounty = 0;
 		}
-		GameServer()->m_apPlayers[Killer]->GiveXP( m_pPlayer->m_KillStreak);
 	}
-	// bounty money reward to the blocker
-	if (m_pPlayer->m_BlockBounty)
-	{
-		str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
-		GameServer()->SendChatTarget(Killer, aBuf);
-		str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
-		GameServer()->m_apPlayers[Killer]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
-		m_pPlayer->m_BlockBounty = 0;
-	}
-	BlockQuestSubDieFuncBlockKill(Killer);
 	return Killer;
 }
 
@@ -7500,166 +7513,76 @@ void CCharacter::BlockQuestSubDieFuncDeath(int Killer)
 	}
 }
 
-void CCharacter::BlockKillingSpree(int Killer) //also used for intern sv_insta 0 minigames like gdm idm fng etc
+void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees (not other server types as fng or instagib only servers)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
 	char aBuf[128];
-	//Somehow inspiration by //toast killingspree system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon) //stolen from DDnet++ instagib and edited agian by ChillerDragon //rewritten by ChillerDragon cuz tw bug //upgraded to handle instagib agian
-	CCharacter *pVictim = m_pPlayer->GetCharacter();
-	//CPlayer *pKiller = GameServer()->m_apPlayers[Killer]; //removed pointer alien code and used the long way to have less bugsis with left players
+	// Somehow inspiration by //toast killingspree
+	// system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon)
+	// stolen from DDnet++ instagib and edited agian by ChillerDragon
+	// rewritten by ChillerDragon cuz tw bug
+	// upgraded to handle instagib agian
+	// rewritten by ChillerDragon in 2019 cuz old system was fucked in the head
 
+	CPlayer *pKiller = GameServer()->m_apPlayers[Killer]; //removed pointer alien code and used the long way to have less bugsis with left players
 
-	//dont count selfkills only count real being blocked as dead
+	// dont count selfkills only count real being blocked as dead
 	if (m_pPlayer->GetCID() == Killer)
 	{
 		//dbg_msg("SPREE", "didnt count selfkill [%d][%s]", Killer, Server()->ClientName(Killer));
 		return;	
 	}
 
-	if (pVictim && GameServer()->m_apPlayers[Killer])
+	char aKillerName[32];
+	char aSpreeType[16];
+
+	if (GameServer()->m_apPlayers[Killer])
+		str_format(aKillerName, sizeof(aKillerName), "'%s'", Server()->ClientName(Killer));
+	else
+		str_copy(aKillerName, "a player who left the game", sizeof(aKillerName));
+
+	if (m_pPlayer->m_KillStreak >= 5)
 	{
-		//#################
-		// KILLED (blocked)
-		//#################
-		if (pVictim->GetPlayer()->m_KillStreak >= 5)
-		{
-			//Check for new highscore
+		GameServer()->GetSpreeType(m_pPlayer->GetCID(), aSpreeType, sizeof(aSpreeType), true);
+		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+	}
 
-			//could add fng sprees here too...
-			if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
-			{
-				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
-				{
-					pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
-					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade spree record!");
-				}
-				str_format(aBuf, sizeof(aBuf), "'%s's grenade spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
-			}
-			else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
-			{
-				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
-				{
-					pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
-					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle spree record!");
-				}
-				str_format(aBuf, sizeof(aBuf), "'%s's rifle spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
-			}
-			else if (GameServer()->m_apPlayers[Killer]->m_IsVanillaDmg)
-			{
-				str_format(aBuf, sizeof(aBuf), "'%s's killing spree was ended by '%s' (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
-			}
-			else //no insta at all
-			{
-				if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_BlockSpreeHighscore)
-				{
-					pVictim->GetPlayer()->m_BlockSpreeHighscore = pVictim->GetPlayer()->m_KillStreak;
-					GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New Blockspree record!");
-				}
-				str_format(aBuf, sizeof(aBuf), "'%s's blocking spree was ended by '%s' (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), pVictim->GetPlayer()->m_KillStreak);
-			}
-
-
-			pVictim->GetPlayer()->m_KillStreak = 0; 
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			//dbg_msg("cBug", "SendChat(-1) blocking spree ended");
-			GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
-		}
-
+	if (pKiller)
+	{
 		//#################
 		// KILLER (blocker)
 		//#################
-		if (GameServer()->CountIngameHumans() >= g_Config.m_SvSpreePlayers) //only count killing sprees if enough players are online and ingame (alive)
+		if ((m_pPlayer->m_IsDummy && g_Config.m_SvSpreeCountBots) ||  //only count bots if configurated
+			(!m_pPlayer->m_IsDummy)) //count all humans in killingsprees
 		{
-			//if (GameServer()->m_apPlayers[Killer] != pVictim->GetPlayer())
-			{
-				if ((pVictim->GetPlayer()->m_IsDummy && g_Config.m_SvSpreeCountBots) ||  //only count bots if configurated
-					(!pVictim->GetPlayer()->m_IsDummy)) //count all humans in killingsprees
-				{
-					GameServer()->m_apPlayers[Killer]->m_KillStreak++;
-				}
-
-				str_format(aBuf, sizeof(aBuf), "'%s' is on a %d spree!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak); //if something wents wrong this is the general backup message
-
-				if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
-				{
-					if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
-					{
-						str_format(aBuf, sizeof(aBuf), "'%s' is on a boomfng spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-					}
-					else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
-					{
-						str_format(aBuf, sizeof(aBuf), "'%s' is on a fng spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-					}
-				}
-				else if (!GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm))
-				{
-					if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm)
-					{
-						str_format(aBuf, sizeof(aBuf), "'%s' is on a grenade spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-					}
-					else if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
-					{
-						str_format(aBuf, sizeof(aBuf), "'%s' is on a rifle spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-					}
-				}
-				else if (GameServer()->m_apPlayers[Killer]->m_IsVanillaDmg)
-				{
-					str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d kills!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-				}
-				else //no insta at all
-				{
-					str_format(aBuf, sizeof(aBuf), "'%s' is on a blocking spree with %d blocks!", Server()->ClientName(GameServer()->m_apPlayers[Killer]->GetCID()), GameServer()->m_apPlayers[Killer]->m_KillStreak);
-				}
-
-
-				if (GameServer()->m_apPlayers[Killer]->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[Killer]->m_KillStreak >= 5)
-				{
-					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-					//dbg_msg("cBug", "SendChat(-1) blocking spree status");
-					//dbg_msg("cBug", "msg: %s", aBuf);
-				}
-			}
+			GameServer()->m_apPlayers[Killer]->m_KillStreak++;
 		}
-		else //not enough players
+		// only count killing sprees if enough players are online and ingame (alive)
+		if (GameServer()->CountIngameHumans() < g_Config.m_SvSpreePlayers)
 		{
 			//dbg_msg("spree", "not enough tees %d/%d spree (%d)", GameServer()->CountConnectedPlayers(), g_Config.m_SvSpreePlayers, GameServer()->m_apPlayers[Killer]->m_KillStreak);
-			if ((pVictim->GetPlayer()->m_IsDummy && g_Config.m_SvSpreeCountBots) ||  //only count bots if configurated
-				(!pVictim->GetPlayer()->m_IsDummy)) //count all humans in killingsprees
-			{
-				GameServer()->m_apPlayers[Killer]->m_KillStreak++;
-				//dbg_msg("cBug", "(not enough tees) still increment streak to %d", GameServer()->m_apPlayers[Killer]->m_KillStreak);
-			}
-
-			if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5)
+			if (GameServer()->m_apPlayers[Killer]->m_KillStreak == 5) // TODO: what if one has 6 kills and then all players leave then he can farm dummys?
 			{
 				str_format(aBuf, sizeof(aBuf), "[SPREE] %d/%d humans alive to start a spree.", GameServer()->CountIngameHumans(), g_Config.m_SvSpreePlayers);
-				GameServer()->SendChatTarget(GameServer()->m_apPlayers[Killer]->GetCID(), aBuf);
-				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
+				GameServer()->SendChatTarget(Killer, aBuf);
+				GameServer()->m_apPlayers[Killer]->m_KillStreak = 0; // reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
 		}
-	}
-	else if (pVictim) //if killer left the game
-	{
-		//dbg_msg("spree", "Killer left the game");
-		if (pVictim->GetPlayer()->m_KillStreak >= 5)
+		else // enough players
 		{
-			//Check for new highscore
-			if (pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_BlockSpreeHighscore)
+			if (GameServer()->m_apPlayers[Killer]->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[Killer]->m_KillStreak >= 5)
 			{
-				pVictim->GetPlayer()->m_BlockSpreeHighscore = pVictim->GetPlayer()->m_KillStreak;
-				GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New Blockspree record!");
+				GameServer()->GetSpreeType(Killer, aSpreeType, sizeof(aSpreeType), false);
+				str_format(aBuf, sizeof(aBuf), "%s is on a %s spree with %d kills!", aKillerName, aSpreeType, pKiller->m_KillStreak);
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			}
-
-			//                                                                                                                   -------------> "hier koennte ihre werbung stehen" <--------------
-			str_format(aBuf, sizeof(aBuf), "'%s's blockingspree was ended by a player who left the game (%d Blocks)", Server()->ClientName(pVictim->GetPlayer()->GetCID())/*, "(left the game)"*/, pVictim->GetPlayer()->m_KillStreak);
-			pVictim->GetPlayer()->m_KillStreak = 0;
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 		}
 	}
-	pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
+	m_pPlayer->m_KillStreak = 0; //Important always clear killingspree of ded dude
 }
 
 void CCharacter::CITick()

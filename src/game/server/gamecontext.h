@@ -260,7 +260,8 @@ public:
 	int CountConnectedHumans();
 	int CountIngameHumans();
 	int CountConnectedBots();
-    bool IsAllowedCharSet(const char *pStr);
+	bool IsAllowedCharSet(const char *pStr);
+	void GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord = false);
 
 	bool ShowJoinMessage(int ClientID);
 	bool ShowLeaveMessage(int ClientID);

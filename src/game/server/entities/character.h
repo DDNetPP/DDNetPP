@@ -277,7 +277,16 @@ public:
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
 	void BlockQuestSubDieFuncDeath(int Killer);
-	void BlockKillingSpree(int Killer);
+
+	/*
+		KillingSpree
+
+		was called BlockKillingSpree once
+		but now handles all ddnet++ gametype sprees.
+		So block and minigames (fng/vanilla).
+		But not other gametypes as instagib or fng (sv_gametype or other server cfgs).
+	*/
+	void KillingSpree(int Killer);
 
 	//block tourna
 

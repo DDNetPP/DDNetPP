@@ -11548,6 +11548,55 @@ bool CGameContext::ShowTeamSwitchMessage(int ClientID)
 	return true;
 }
 
+void CGameContext::GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_IsInstaArena_fng && (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+			str_copy(pBuf, "boomfng", BufSize);
+		else if (pPlayer->m_IsInstaArena_idm)
+			str_copy(pBuf, "fng", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_gdm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_GrenadeSpree)
+		{
+			pPlayer->m_GrenadeSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New grenade spree record!");
+		}
+		str_copy(pBuf, "grenade", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_idm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_RifleSpree)
+		{
+			pPlayer->m_RifleSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New rifle spree record!");
+		}
+		str_copy(pBuf, "rifle", BufSize);
+	}
+	else if (pPlayer->m_IsVanillaDmg)
+	{
+		str_copy(pBuf, "killing", BufSize);
+	}
+	else //no insta at all
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_BlockSpreeHighscore)
+		{
+			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New Blockspree record!");
+		}
+		str_copy(pBuf, "blocking", BufSize);
+	}
+}
+
 void CGameContext::SQLcleanZombieAccounts(int ClientID)
 {
 #if defined(CONF_DEBUG)
