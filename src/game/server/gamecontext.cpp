@@ -128,6 +128,7 @@ void CQueryLoginThreaded::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 		pData->m_LoginState = CPlayer::LOGIN_OFF;
+		m_pGameServer->LoginBanCheck(m_ClientID);
 		return;
 	}
 	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
@@ -444,6 +445,7 @@ void CQueryLogin::OnData()
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+		m_pGameServer->LoginBanCheck(m_ClientID);
 	}
 }
 
@@ -3548,17 +3550,49 @@ void CGameContext::DDPP_Tick()
 	}
 }
 
+void CGameContext::LogoutAllPlayers()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			dbg_msg("ddnet++", "logging out id=%d", i);
+			m_apPlayers[i]->Logout();
+		}
+	}
+}
+
+void CGameContext::ConnectAdventureBots()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CreateNewDummy(CCharacter::DUMMYMODE_ADVENTURE, true, 1);
+}
+
 void CGameContext::DDPP_SlowTick()
 {
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
 	bool StopSurvival = true;
 	int NumQuesting = 0;
 	int TotalPlayers = 0;
+	int NumAdventureBots = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
 			continue;
 
 		TotalPlayers++;
+		CheckDeleteLoginBanEntry(i);
+		CheckDeleteRegisterBanEntry(i);
+		CheckDeleteNamechangeMuteEntry(i);
 		if (m_apPlayers[i]->IsQuesting())
 		{
 			NumQuesting++;
@@ -3591,6 +3625,11 @@ void CGameContext::DDPP_SlowTick()
 				}
 			}
 		}
+		if (m_apPlayers[i]->m_IsDummy)
+		{
+			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
+				NumAdventureBots++;
+		}
 	}
 
 	if (TotalPlayers + 3 > g_Config.m_SvMaxClients ||
@@ -3605,6 +3644,10 @@ void CGameContext::DDPP_SlowTick()
 			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
 				Server()->BotLeave(i);
 		}
+	}
+	if (NumAdventureBots < g_Config.m_SvAdventureBots)
+	{
+		ConnectAdventureBots();
 	}
 
 	if (StopSurvival)
@@ -4292,50 +4335,51 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_apPlayers[id])
+	if (!m_apPlayers[id])
+		return;
+
+	if (mode == SURVIVAL_OFF)
 	{
-		if (mode == SURVIVAL_OFF)
+		m_apPlayers[id]->m_IsSurvivaling = false;
+		m_apPlayers[id]->m_IsVanillaDmg = false;
+		m_apPlayers[id]->m_IsVanillaWeapons = false;
+		m_apPlayers[id]->m_IsVanillaCompetetive = false;
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_Paused = CPlayer::PAUSED_NONE;
+	}
+	else if (mode == SURVIVAL_LOBBY)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		if (!m_survivalgamestate) //no game running --> start lobby
 		{
-			m_apPlayers[id]->m_IsSurvivaling = false;
-			m_apPlayers[id]->m_IsVanillaDmg = false;
-			m_apPlayers[id]->m_IsVanillaWeapons = false;
-			m_apPlayers[id]->m_IsVanillaCompetetive = false;
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
+			SurvivalSetGameState(SURVIVAL_LOBBY);
+			dbg_msg("survival", "lobby started");
 		}
-		else if (mode == SURVIVAL_LOBBY)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			if (!m_survivalgamestate) //no game running --> start lobby
-			{
-				SurvivalSetGameState(SURVIVAL_LOBBY);
-				dbg_msg("survival", "lobby started");
-			}
-		}
-		else if (mode == SURVIVAL_INGAME)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = true;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = false;
-			m_apPlayers[id]->m_IsSurvivalWinner = false;
-		}
-		else if (mode == SURVIVAL_DIE)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			m_apPlayers[id]->m_SurvivalDeaths++;
-		}
-		else
-		{
-			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
-		}
+	}
+	else if (mode == SURVIVAL_INGAME)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = true;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = false;
+		m_apPlayers[id]->m_IsSurvivalWinner = false;
+	}
+	else if (mode == SURVIVAL_DIE)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		m_apPlayers[id]->m_SurvivalDeaths++;
+	}
+	else
+	{
+		dbg_msg("survival", "WARNING setted undefined mode %d", mode);
 	}
 }
 
@@ -6248,6 +6292,12 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	else if (dummymode == -6) //ChillBlock5 v3 deathmatch
 	{
 		m_apPlayers[DummyID]->m_IsBlockDeathmatch = true;
+	}
+	else if (dummymode == -7) // vanilla based mode
+	{
+		m_apPlayers[DummyID]->m_IsVanillaDmg = true;
+		m_apPlayers[DummyID]->m_IsVanillaWeapons = true;
+		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
 	}
 
 	OnClientEnter(DummyID, silent);
@@ -11044,8 +11094,10 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	{
 		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
 		{
+			m_aRegisterBans[i].m_LastAttempt = time_get();
 			regs = ++m_aRegisterBans[i].m_NumAttempts;
 			Found = 1;
+			break;
 		}
 	}
 
@@ -11053,6 +11105,7 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	{
 		if (m_NumRegisterBans < MAX_REGISTER_BANS)
 		{
+			m_aRegisterBans[m_NumRegisterBans].m_LastAttempt = time_get();
 			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
 			regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
 			m_NumRegisterBans++;
@@ -11071,8 +11124,9 @@ void CGameContext::RegisterBanCheck(int ClientID)
 	}
 	else // no free slot found
 	{
-		if (g_Config.m_SvRegisterHumanLevel < 9)
-			g_Config.m_SvRegisterHumanLevel++;
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
 		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
@@ -11095,6 +11149,7 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 			m_aRegisterBans[i].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
 			Found = 1;
+			break;
 		}
 	}
 
@@ -11111,15 +11166,220 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	}
 	if (Found)
 	{
-		str_format(aBuf, sizeof aBuf, "'%s' has been banned from account system for %d seconds.",
+		str_format(aBuf, sizeof aBuf, "'%s' has been banned from register system for %d seconds.",
 				pDisplayName, Secs);
 		SendChat(-1, CHAT_ALL, aBuf);
 	}
 	else // no free slot found
 	{
-		if (g_Config.m_SvRegisterHumanLevel < 9)
-			g_Config.m_SvRegisterHumanLevel++;
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
 		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aLoginBans[i].m_LastAttempt + (time_freq() * LOGIN_BAN_DELAY) < time_get())
+			{
+				// TODO: be consistent with log types... sometimes its "bans", "mutes", "login_bans", "account" like wtf?
+				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumLoginBans)
+					return;
+
+				m_NumLoginBans--;
+				m_aLoginBans[ClientID] = m_aLoginBans[m_NumLoginBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * REGISTER_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete register ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumRegisterBans)
+					return;
+
+				m_NumRegisterBans--;
+				m_aRegisterBans[ClientID] = m_aRegisterBans[m_NumRegisterBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumNameChangeMutes; i++)
+	{
+		if (net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAMECHANGE_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete namechange mute entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumNameChangeMutes)
+					return;
+
+				m_NumNameChangeMutes--;
+				m_aNameChangeMutes[ClientID] = m_aNameChangeMutes[m_NumNameChangeMutes];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::LoginBanCheck(int ClientID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	char aBuf[128];
+	int Found = 0;
+	int atts = 0;
+	int64 BanTime = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			atts = ++m_aLoginBans[i].m_NumAttempts;
+			Found = 1;
+			// dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			m_aLoginBans[m_NumLoginBans].m_Expire = 0;
+			m_aLoginBans[m_NumLoginBans].m_Addr = Addr;
+			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
+			m_NumLoginBans++;
+			Found = 1;
+			// dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
+		}
+	}
+
+	if (atts >= g_Config.m_SvMaxLoginPerIp)
+		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	else if (atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
+		LoginBan(&Addr, 60, Server()->ClientName(ClientID));
+
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has %d/%d failed account login attempts.", ClientID, atts, g_Config.m_SvMaxLoginPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &NoPortAddr) == 0)
+		{
+			m_aLoginBans[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_Addr = NoPortAddr;
+			m_aLoginBans[m_NumLoginBans].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumLoginBans++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		if (Secs == 0)
+			str_format(aBuf, sizeof aBuf, "'%s' has been unbanned from login system.", pDisplayName);
+		else
+			str_format(aBuf, sizeof aBuf, "'%s' has been banned from login system for %d seconds.", pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 }
@@ -11150,6 +11410,7 @@ int64 CGameContext::NameChangeMuteCheck(int ClientID)
 			changes = ++m_aNameChangeMutes[i].m_NumAttempts;
 			m_aNameChangeMutes[i].m_LastAttempt = time_get();
 			Found = 1;
+			break;
 		}
 	}
 
@@ -11170,8 +11431,6 @@ int64 CGameContext::NameChangeMuteCheck(int ClientID)
 	{
 		if (!muteTime)
 			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
-		else
-			dbg_msg("mute", "name change mute time %lld", muteTime);
 	}
 	if (Found)
 	{
@@ -11497,6 +11756,55 @@ bool CGameContext::ShowTeamSwitchMessage(int ClientID)
 	return true;
 }
 
+void CGameContext::GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_IsInstaArena_fng && (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+			str_copy(pBuf, "boomfng", BufSize);
+		else if (pPlayer->m_IsInstaArena_idm)
+			str_copy(pBuf, "fng", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_gdm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_GrenadeSpree)
+		{
+			pPlayer->m_GrenadeSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New grenade spree record!");
+		}
+		str_copy(pBuf, "grenade", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_idm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_RifleSpree)
+		{
+			pPlayer->m_RifleSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New rifle spree record!");
+		}
+		str_copy(pBuf, "rifle", BufSize);
+	}
+	else if (pPlayer->m_IsVanillaDmg)
+	{
+		str_copy(pBuf, "killing", BufSize);
+	}
+	else //no insta at all
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_BlockSpreeHighscore)
+		{
+			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New Blockspree record!");
+		}
+		str_copy(pBuf, "blocking", BufSize);
+	}
+}
+
 void CGameContext::SQLcleanZombieAccounts(int ClientID)
 {
 #if defined(CONF_DEBUG)
@@ -11601,6 +11909,22 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}
+}
+
+void CGameContext::ExecuteSQLBlockingf(const char *pSQL, ...)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	va_list ap;
+	va_start(ap, pSQL);
+	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
+	va_end(ap);
+	CQuery *pQuery = new CQuery();
+	pQuery->QueryBlocking(m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+	delete pQuery;
+	dbg_msg("blocking-sql", "should be last...");
 }
 
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)
