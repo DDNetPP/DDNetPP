@@ -110,13 +110,14 @@ public:
 	bool isFreezed;
 	bool m_OnFire;
 
+	int m_NeededFaketuning; // sowwy ChillerDragon made it public
+
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 
 	bool m_Alive;
 	bool m_Paused;
-	int m_NeededFaketuning;
 
 	// weapon info
 	CEntity *m_apHitObjects[10];
@@ -257,7 +258,7 @@ public:
 	//usefull everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
 	void MoveTee(int x, int y);
-	void ChillTelePort(int X, int Y);
+	void ChillTelePort(float X, float Y);
 	void ChillTelePortTile(int X, int Y);
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);

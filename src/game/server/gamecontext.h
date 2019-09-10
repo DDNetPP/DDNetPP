@@ -260,7 +260,9 @@ public:
 	int CountConnectedHumans();
 	int CountIngameHumans();
 	int CountConnectedBots();
+	int CountTimeoutCodePlayers();
 	bool IsAllowedCharSet(const char *pStr);
+	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord = false);
 
 	bool ShowJoinMessage(int ClientID);
@@ -386,8 +388,15 @@ public:
     
     struct CBinaryStorage
     {
-        int x,space1,space2;
+        int x,space1,space2; // wtf? xd
     };
+
+	// TODO: make this a own class
+	void SaveMapPlayerData();
+	void LoadMapPlayerData();
+	void ReadMapPlayerData(int ClientID = -1); // load debug only output do nothing
+	int m_MapsavePlayers;
+	int m_MapsaveLoadedPlayers;
 
 	//global chat
 	void GlobalChatPrintMessage();
@@ -1004,6 +1013,7 @@ private:
 	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConLive(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
+	static void ConMapsave(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
