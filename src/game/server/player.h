@@ -95,7 +95,7 @@ public:
 		int m_UseCustomColor;
 		int m_ColorBody;
 		int m_ColorFeet;
-	} m_TeeInfos;
+	} m_TeeInfos, m_LastToucherTeeInfos;
 
 	int m_RespawnTick;
 	int m_DieTick;
@@ -803,6 +803,7 @@ public:
 	*/
 	int m_LastToucherID;
 	int m_LastTouchTicks;
+	char m_aLastToucherName[64];
 	void UpdateLastToucher(int ID);
 
 	int m_BlockBounty;
