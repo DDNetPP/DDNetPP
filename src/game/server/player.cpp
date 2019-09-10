@@ -2168,11 +2168,21 @@ bool CPlayer::JoinMultiplayer()
 	return false;
 }
 
+void CPlayer::UpdateLastToucher(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldID=%d player=%d:'%s'", ID, m_LastToucherID, GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_LastToucherID = ID;
+	m_LastTouchTicks = 0;
+}
+
 void CPlayer::SetAccID(int ID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_AccountID = ID;
 }
@@ -2192,7 +2202,7 @@ void CPlayer::SetXP(int xp)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_xp = xp;
 }
@@ -2201,7 +2211,7 @@ void CPlayer::SetLevel(int level)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_level = level;
 }
@@ -2210,7 +2220,7 @@ void CPlayer::SetMoney(int money)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_money = money;
 }

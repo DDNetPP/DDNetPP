@@ -2301,8 +2301,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	{
 		if (From != m_pPlayer->GetCID())
 		{
-			m_pPlayer->m_LastToucherID = From;
-			m_pPlayer->m_LastTouchTicks = 0;
+			m_pPlayer->UpdateLastToucher(From);
 			m_LastHitWeapon = Weapon;
 		}
 	}
@@ -6102,7 +6101,7 @@ void CCharacter::DDPP_Tick()
 	//}
 	//if (m_pPlayer->m_BlockWasTouchedAndFreezed && m_FreezeTime == 0) //player got touched and freezed and unfreezed agian --> reset toucher because it isnt his kill anymore
 	//{
-	//	m_pPlayer->m_LastToucherID = -1;
+	//	m_pPlayer->UpdateLastToucher(-1);
 	//}
 	//Better system: Remove LastToucherID after some unfreeze time this has less bugs and works also good in other situations like: your racing with your mate and then you rush away solo and fail and suicide (this situation wont count as kill). 
 	if (m_pPlayer->m_LastToucherID != -1 && m_FreezeTime == 0)
@@ -6117,8 +6116,7 @@ void CCharacter::DDPP_Tick()
 			//char aBuf[64];
 			//str_format(aBuf, sizeof(aBuf), "'%s' [ID: %d] touch removed", Server()->ClientName(m_pPlayer->m_LastToucherID), m_pPlayer->m_LastToucherID);
 			//GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-			m_pPlayer->m_LastToucherID = -1;
-			m_pPlayer->m_LastTouchTicks = 0; //should be set with the TouchID but this will fix bugsis if i forgot it somewhere
+			m_pPlayer->UpdateLastToucher(-1);
 		}
 	}
 
@@ -6128,8 +6126,7 @@ void CCharacter::DDPP_Tick()
 	//clear last toucher on disconnect/unexistance
 	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
 	{
-		m_pPlayer->m_LastToucherID = -1;
-		m_pPlayer->m_LastTouchTicks = 0;
+		m_pPlayer->UpdateLastToucher(-1);
 	}
 	*/
 
@@ -6143,8 +6140,7 @@ void CCharacter::DDPP_Tick()
 			continue;
 		if (pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
 		{
-			m_pPlayer->m_LastToucherID = i;
-			m_pPlayer->m_LastTouchTicks = 0;
+			m_pPlayer->UpdateLastToucher(i);
 
 			//was debugging because somekills at spawn werent recongized. But now i know that the dummys just kill to fast even before getting freeze --> not a block kill. But im ok with it spawnblock farming bots isnt nice anyways
 			//dbg_msg("debug", "[%d:%s] hooked [%d:%s]", i, Server()->ClientName(i), m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
@@ -6175,8 +6171,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if (pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
 			{
-				m_pPlayer->m_LastToucherID = pChr->GetPlayer()->GetCID();
-				m_pPlayer->m_LastTouchTicks = 0;
+				m_pPlayer->UpdateLastToucher(pChr->GetPlayer()->GetCID());
 			}
 		}
 	}
@@ -6862,7 +6857,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BOMB] you lost bomb because you died.");
 	}
 
-	m_pPlayer->m_LastToucherID = -1;
+	m_pPlayer->UpdateLastToucher(-1);
 	return Killer;
 }
 
