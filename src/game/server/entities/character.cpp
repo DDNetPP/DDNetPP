@@ -2252,7 +2252,8 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	}
 
 	// send the kill message
-	if (!m_pPlayer->m_ShowName || !GameServer()->m_apPlayers[Killer]->m_ShowName)
+	if (GameServer()->m_apPlayers[Killer] &&
+		(!m_pPlayer->m_ShowName || !GameServer()->m_apPlayers[Killer]->m_ShowName))
 	{
 		if (!GameServer()->m_apPlayers[Killer]->m_ShowName)
 			GameServer()->m_apPlayers[Killer]->FixForNoName(0);	// just for the name to appear because otherwise there would be no name in the kill msg
@@ -6720,16 +6721,13 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 
-	// TODO: (issue #291) remove this and make sure killer left the game is handled correctly everywhere
-	if (!GameServer()->m_apPlayers[Killer])
-		Killer = m_pPlayer->GetCID(); // for now count killer left the game as selfkill
-
 	if (GameServer()->IsDDPPgametype("battlegores"))
 		if (GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
 			GameServer()->m_apPlayers[Killer]->m_Score++;
 
-	// insta kills //TODO: combine with insta 1on1
-	if (Killer != m_pPlayer->GetCID())
+	// TODO: combine with insta 1on1
+	// insta kills
+	if (Killer != m_pPlayer->GetCID() && GameServer()->m_apPlayers[Killer])
 	{
 		if (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
 		{
@@ -6741,26 +6739,31 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
+	// TODO: refactor this code and put it in own function
 	// insta 1on1
-	if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
+	if (GameServer()->m_apPlayers[Killer])
 	{
-		GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
-		str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_Insta1on1_score);
-		if (!GameServer()->m_apPlayers[Killer]->m_HideInsta1on1_killmessages)
+		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
 		{
-			GameServer()->SendChatTarget(Killer, aBuf);
-		}
-		if (!m_pPlayer->m_HideInsta1on1_killmessages)
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-		}
-		if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
-		{
-			GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
+			GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
+			str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_Insta1on1_score);
+			if (!GameServer()->m_apPlayers[Killer]->m_HideInsta1on1_killmessages)
+			{
+				GameServer()->SendChatTarget(Killer, aBuf);
+			}
+			if (!m_pPlayer->m_HideInsta1on1_killmessages)
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			}
+			if (GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
+			{
+				GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
+			}
 		}
 	}
 
-	// balance battel
+	// TODO: refactor this code and put it in own function
+	// balance battle
 	if (m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) //ingame in a balance battle
 	{
 		if (GameServer()->m_BalanceID1 == m_pPlayer->GetCID())
@@ -6799,6 +6802,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
+	// TODO: refactor this code and put it in own function
 	// ChillerDragon pvparena code
 	if (GameServer()->m_apPlayers[Killer])
 	{
