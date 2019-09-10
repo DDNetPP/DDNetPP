@@ -5821,8 +5821,8 @@ void CCharacter::DropLoot()
 		if (m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			SpecialGun = 1;
 		// block drop 0-2 weapons
-		DropWeapon(rand() % (NUM_WEAPONS - 1) + 2 - SpecialGun); // no hammer or ninja and gun only if special gun
-		DropWeapon(rand() % (NUM_WEAPONS - 1) + 2 - SpecialGun);
+		DropWeapon(rand() % (NUM_WEAPONS - (3+SpecialGun)) + (2-SpecialGun)); // no hammer or ninja and gun only if special gun
+		DropWeapon(rand() % (NUM_WEAPONS - (3+SpecialGun)) + (2-SpecialGun));
 	}
 }
 
