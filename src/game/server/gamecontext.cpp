@@ -4129,50 +4129,51 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
 #endif
-	if (m_apPlayers[id])
+	if (!m_apPlayers[id])
+		return;
+
+	if (mode == SURVIVAL_OFF)
 	{
-		if (mode == SURVIVAL_OFF)
+		m_apPlayers[id]->m_IsSurvivaling = false;
+		m_apPlayers[id]->m_IsVanillaDmg = false;
+		m_apPlayers[id]->m_IsVanillaWeapons = false;
+		m_apPlayers[id]->m_IsVanillaCompetetive = false;
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_Paused = CPlayer::PAUSED_NONE;
+	}
+	else if (mode == SURVIVAL_LOBBY)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		if (!m_survivalgamestate) //no game running --> start lobby
 		{
-			m_apPlayers[id]->m_IsSurvivaling = false;
-			m_apPlayers[id]->m_IsVanillaDmg = false;
-			m_apPlayers[id]->m_IsVanillaWeapons = false;
-			m_apPlayers[id]->m_IsVanillaCompetetive = false;
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
+			SurvivalSetGameState(SURVIVAL_LOBBY);
+			dbg_msg("survival", "lobby started");
 		}
-		else if (mode == SURVIVAL_LOBBY)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			if (!m_survivalgamestate) //no game running --> start lobby
-			{
-				SurvivalSetGameState(SURVIVAL_LOBBY);
-				dbg_msg("survival", "lobby started");
-			}
-		}
-		else if (mode == SURVIVAL_INGAME)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = true;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = false;
-			m_apPlayers[id]->m_IsSurvivalWinner = false;
-		}
-		else if (mode == SURVIVAL_DIE)
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			m_apPlayers[id]->m_SurvivalDeaths++;
-		}
-		else
-		{
-			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
-		}
+	}
+	else if (mode == SURVIVAL_INGAME)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = true;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = false;
+		m_apPlayers[id]->m_IsSurvivalWinner = false;
+	}
+	else if (mode == SURVIVAL_DIE)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		m_apPlayers[id]->m_SurvivalDeaths++;
+	}
+	else
+	{
+		dbg_msg("survival", "WARNING setted undefined mode %d", mode);
 	}
 }
 
