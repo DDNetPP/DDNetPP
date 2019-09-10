@@ -2176,6 +2176,16 @@ void CPlayer::UpdateLastToucher(int ID)
 #endif
 	m_LastToucherID = ID;
 	m_LastTouchTicks = 0;
+	if (ID == -1)
+		return;
+	CPlayer *pToucher = GameServer()->m_apPlayers[ID];
+	if (!pToucher)
+		return;
+	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
+	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
+	m_LastToucherTeeInfos.m_ColorFeet = pToucher->m_TeeInfos.m_ColorFeet;
+	str_copy(m_LastToucherTeeInfos.m_SkinName, pToucher->m_TeeInfos.m_SkinName, sizeof(pToucher->m_TeeInfos.m_SkinName));
+	m_LastToucherTeeInfos.m_UseCustomColor = pToucher->m_TeeInfos.m_UseCustomColor;
 }
 
 void CPlayer::SetAccID(int ID)

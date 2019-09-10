@@ -7221,7 +7221,6 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 
 	char aBuf[128];
 	Killer = m_pPlayer->m_LastToucherID; // kill message
-	dbg_msg("blockpoints", "set lasttouched killed=%d killer=%d", m_pPlayer->GetCID(), Killer);
 
 	if (g_Config.m_SvBlockBroadcast == 1)  // send kill message broadcast
 	{
@@ -7536,7 +7535,8 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	if (GameServer()->m_apPlayers[Killer])
 		str_format(aKillerName, sizeof(aKillerName), "'%s'", Server()->ClientName(Killer));
 	else
-		str_copy(aKillerName, "a player who left the game", sizeof(aKillerName));
+		str_format(aKillerName, sizeof(aKillerName), "'%s'", m_pPlayer->m_aLastToucherName);
+		// str_copy(aKillerName, "a player who left the game", sizeof(aKillerName));
 
 	if (m_pPlayer->m_KillStreak >= 5)
 	{
