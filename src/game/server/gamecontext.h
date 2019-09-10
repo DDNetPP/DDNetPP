@@ -393,7 +393,7 @@ public:
 
 	void SaveMapPlayerData();
 	void LoadMapPlayerData();
-	void ReadMapPlayerData(); // load debug only output do nothing
+	void ReadMapPlayerData(int ClientID = -1); // load debug only output do nothing
 
 	//global chat
 	void GlobalChatPrintMessage();
@@ -1010,6 +1010,7 @@ private:
 	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConLive(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
+	static void ConMapsave(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
