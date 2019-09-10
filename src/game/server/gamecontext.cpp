@@ -4037,7 +4037,7 @@ void CGameContext::LoadMapPlayerData()
 	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
 }
 
-void CGameContext::ReadMapPlayerData()
+void CGameContext::ReadMapPlayerData(int ClientID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -4052,6 +4052,7 @@ void CGameContext::ReadMapPlayerData()
 		return;
 	}
 	int loaded = 0;
+	int red = 0;
 	int players = 0;
 	fread(&players, sizeof(players), 1, pFile);
 	for (int i = 0; i < players; i++)
@@ -4064,16 +4065,29 @@ void CGameContext::ReadMapPlayerData()
 		int id = GetPlayerByTimeoutcode(aTimeoutCode);
 		char IsLoaded;
 		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		if (IsLoaded)
+			loaded++;
 
 		CSaveTee savetee;
 		fread(&savetee, sizeof(savetee), 1, pFile);
 
 		fgetpos(pFile, &pos);
 		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%d", id, aTimeoutCode, IsLoaded, pos.__pos);
-		loaded++;
+		red++;
 	}
 	fclose(pFile);
-	dbg_msg("ddpp-mapread", "red %d/%d players", loaded, players);
+	if (ClientID != -1)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: loaded %d/%d players", loaded, players);
+		SendChatTarget(ClientID, aBuf);
+		if (red != players)
+		{
+			str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: WARNING only found %d/%d players", red, players);
+			SendChatTarget(ClientID, aBuf);
+		}
+	}
+	dbg_msg("ddpp-mapread", "red %d/%d players (%d loaded)", red, players, loaded);
 }
 
 void CGameContext::GlobalChatPrintMessage()
@@ -7555,7 +7569,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "human level: %d captcha score: %d", pPlayer->m_PlayerHumanLevel, pPlayer->m_pCaptcha->GetScore());
 						SendChatTarget(ClientID, aBuf);
-						SaveMapPlayerData();
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
                         //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
