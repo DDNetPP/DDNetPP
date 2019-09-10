@@ -3963,7 +3963,8 @@ void CGameContext::LoadMapPlayerData()
 	pFile = fopen(aSaveFile,"rb+");
 	if (!pFile)
 	{
-		dbg_msg("ddpp-mapload", "failed to write ddpp player data file '%s'.", aSaveFile);
+		m_MapsavePlayers = 0;
+		dbg_msg("ddpp-mapload", "failed to open ddpp player data file '%s'.", aSaveFile);
 		return;
 	}
 	int loaded = 0;
@@ -4028,12 +4029,14 @@ void CGameContext::LoadMapPlayerData()
 
 			savetee.load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
+			m_MapsaveLoadedPlayers++;
 			fgetpos(pFile, &pos);
 			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, pos.__pos);
 			loaded++;
 		}
 	}
 	fclose(pFile);
+	m_MapsavePlayers = players;
 	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
 }
 
@@ -9366,6 +9369,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	// ChillerDragon konst constructor
 	m_Database->CreateDatabase();
 	LoadSinglePlayer();
+	m_MapsavePlayers = 0;
+	m_MapsaveLoadedPlayers = 0;
+	LoadMapPlayerData();
 	//Friends_counter = 0;
 	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
