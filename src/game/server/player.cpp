@@ -175,6 +175,7 @@ void CPlayer::Reset()
 		m_IsVanillaWeapons = true;
 	}
 
+	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
@@ -1501,9 +1502,19 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// read showhide bools to char array that is being saved
-	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET"
+	/*
+		It was planned to use the function pointer
+		to switch between ExecuteSQLf and ExecuteSQLBlockingf
+		to ensure execution on mapchange and server shutdown
+		but somehow it didnt block anyways :c
+		i left the function pointer here in case i pick this up in the future.
+	*/
+	// void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLBlockingf;
+	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
+
+	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
 		"  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
 		", `LastGift` = '%i'" /*is actually m_GiftDelay*/
 		", `PoliceRank` = '%i'"
@@ -2157,11 +2168,31 @@ bool CPlayer::JoinMultiplayer()
 	return false;
 }
 
+void CPlayer::UpdateLastToucher(int ID)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldID=%d player=%d:'%s'", ID, m_LastToucherID, GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_LastToucherID = ID;
+	m_LastTouchTicks = 0;
+	if (ID == -1)
+		return;
+	CPlayer *pToucher = GameServer()->m_apPlayers[ID];
+	if (!pToucher)
+		return;
+	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
+	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
+	m_LastToucherTeeInfos.m_ColorFeet = pToucher->m_TeeInfos.m_ColorFeet;
+	str_copy(m_LastToucherTeeInfos.m_SkinName, pToucher->m_TeeInfos.m_SkinName, sizeof(pToucher->m_TeeInfos.m_SkinName));
+	m_LastToucherTeeInfos.m_UseCustomColor = pToucher->m_TeeInfos.m_UseCustomColor;
+}
+
 void CPlayer::SetAccID(int ID)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_AccountID = ID;
 }
@@ -2181,7 +2212,7 @@ void CPlayer::SetXP(int xp)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_xp = xp;
 }
@@ -2190,7 +2221,7 @@ void CPlayer::SetLevel(int level)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_level = level;
 }
@@ -2199,7 +2230,7 @@ void CPlayer::SetMoney(int money)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
-	dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_money = money;
 }
