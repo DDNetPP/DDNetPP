@@ -23,7 +23,7 @@ CSaveTee::~CSaveTee()
 	;
 }
 
-void CSaveTee::save(CCharacter* pchr)
+void CSaveTee::save(CCharacter* pchr, int TimePenalty)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
@@ -63,7 +63,7 @@ void CSaveTee::save(CCharacter* pchr)
 	m_TuneZoneOld = pchr->m_TuneZoneOld;
 
 	if(pchr->m_StartTime)
-		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + 60 * pchr->Server()->TickSpeed();
+		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + ((60 * pchr->Server()->TickSpeed()) * TimePenalty);
 
 	m_Pos = pchr->m_Pos;
 	m_PrevPos = pchr->m_PrevPos;

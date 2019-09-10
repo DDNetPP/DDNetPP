@@ -37,6 +37,7 @@
 #include <game/server/teams.h>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
+#include "save.h"
 
 enum
 {
@@ -3897,37 +3898,11 @@ void CGameContext::SaveMapPlayerData()
 		dbg_msg("ddpp-mapsave", "writing isloaded at pos %d", pos.__pos);
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
-		float x = pChr->GetPosition().x;
-		float y = pChr->GetPosition().y;
-		int hit = pChr->m_Hit;
-		int jumps = pChr->Core()->m_Jumps;
-		int faketune = pChr->NeededFaketuning();
-		int jetpack  = pChr->m_Jetpack;
-		int endless = pChr->m_EndlessHook;
-		int super = pChr->m_Super;
-		int superjump = pChr->m_SuperJump;
-		int freezetime = pChr->m_FreezeTime;
-		int freezetick = pChr->m_FreezeTick;
-		int64 firstfreezetick = pChr->m_FirstFreezeTick;
-		int ddracestate = pChr->m_DDRaceState;
+		CSaveTee savetee;
+		savetee.save(pChr, 0); // save without time penalty
+		fwrite(&savetee, sizeof(savetee), 1, pFile);
 
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapsave", "writing x/y at pos %d", pos.__pos);
-		fwrite(&x, sizeof(x), 1, pFile);
-		fwrite(&y, sizeof(y), 1, pFile);
-		fwrite(&hit, sizeof(hit), 1, pFile);
-		fwrite(&jumps, sizeof(jumps), 1, pFile);
-		fwrite(&faketune, sizeof(faketune), 1, pFile);
-		fwrite(&jetpack, sizeof(jetpack), 1, pFile);
-		fwrite(&endless, sizeof(endless), 1, pFile);
-		fwrite(&super, sizeof(super), 1, pFile);
-		fwrite(&superjump, sizeof(superjump), 1, pFile);
-		fwrite(&freezetime, sizeof(freezetime), 1, pFile);
-		fwrite(&freezetick, sizeof(freezetick), 1, pFile);
-		fwrite(&firstfreezetick, sizeof(firstfreezetick), 1, pFile);
-		fwrite(&ddracestate, sizeof(ddracestate), 1, pFile);
-
-		dbg_msg("ddpp-mapsave", "save player=%s code=%s at(%.2f/%.2f)", Server()->ClientName(i), pPlayer->m_TimeoutCode, x, y);
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_TimeoutCode);
 		saved++;
 	}
 	fclose(pFile);
@@ -4000,56 +3975,18 @@ void CGameContext::LoadMapPlayerData()
 		fsetpos(pFile, &pos);
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
-		float x;
-		float y;
-		int hit;
-		int jumps;
-		int faketune;
-		int jetpack;
-		int endless;
-		int super;
-		int superjump;
-		int freezetime;
-		int freezetick;
-		int64 firstfreezetick;
-		int ddracestate;
-
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapload", "reading x/y at pos %d", pos.__pos);
-		fread(&x, sizeof(x), 1, pFile);
-		fread(&y, sizeof(y), 1, pFile);
-		fread(&hit, sizeof(hit), 1, pFile);
-		fread(&jumps, sizeof(jumps), 1, pFile);
-		fread(&faketune, sizeof(faketune), 1, pFile);
-		fread(&jetpack, sizeof(jetpack), 1, pFile);
-		fread(&endless, sizeof(endless), 1, pFile);
-		fread(&super, sizeof(super), 1, pFile);
-		fread(&superjump, sizeof(superjump), 1, pFile);
-		fread(&freezetime, sizeof(freezetime), 1, pFile);
-		fread(&freezetick, sizeof(freezetick), 1, pFile);
-		fread(&firstfreezetick, sizeof(firstfreezetick), 1, pFile);
-		fread(&ddracestate, sizeof(ddracestate), 1, pFile);
+		CSaveTee savetee;
+		fread(&savetee, sizeof(savetee), 1, pFile);
 
 		if (ValidPlayer)
 		{
 			CPlayer *pPlayer = m_apPlayers[id];
 			CCharacter *pChr = pPlayer->GetCharacter();
 
-			pChr->ChillTelePort(x, y);
-			pChr->m_Hit = hit;
-			pChr->Core()->m_Jumps = jumps;
-			pChr->m_NeededFaketuning = faketune;
-			pChr->m_Jetpack = jetpack;
-			pChr->m_EndlessHook = endless;
-			pChr->m_Super = super;
-			pChr->m_SuperJump = superjump;
-			pChr->m_FreezeTime = freezetime;
-			pChr->m_FreezeTick = freezetick;
-			pChr->m_FirstFreezeTick = firstfreezetick;
-			pChr->m_DDRaceState = ddracestate;
+			savetee.load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
 			fgetpos(pFile, &pos);
-			dbg_msg("ddpp-mapload", "load player=%s code=%s at(%.2f/%.2f) fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, x, y, pos.__pos);
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, pos.__pos);
 			loaded++;
 		}
 	}
@@ -4085,28 +4022,11 @@ void CGameContext::ReadMapPlayerData()
 		char IsLoaded;
 		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
-		float x;
-		float y;
-		int hit;
-		int size_int; // placeholder since read does not need ALL values for debugging just the offset
-		int64 size_int64;
-
-		fread(&x, sizeof(x), 1, pFile);
-		fread(&y, sizeof(y), 1, pFile);
-		fread(&hit, sizeof(hit), 1, pFile);
-		fread(&size_int, sizeof(size_int), 1, pFile); // jumps
-		fread(&size_int, sizeof(size_int), 1, pFile); // faketune
-		fread(&size_int, sizeof(size_int), 1, pFile); // jetpack
-		fread(&size_int, sizeof(size_int), 1, pFile); // endless
-		fread(&size_int, sizeof(size_int), 1, pFile); // super
-		fread(&size_int, sizeof(size_int), 1, pFile); // superjump
-		fread(&size_int, sizeof(size_int), 1, pFile); // frz time
-		fread(&size_int, sizeof(size_int), 1, pFile); // frz tick
-		fread(&size_int64, sizeof(size_int), 1, pFile); // frz tick (first)
-		fread(&size_int, sizeof(size_int), 1, pFile); // ddracestate
+		CSaveTee savetee;
+		fread(&savetee, sizeof(savetee), 1, pFile);
 
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapread", "read player=%d code=%s at(%.2f/%.2f) hit=%d loaded=%d fp=%d", id, aTimeoutCode, x, y, hit, IsLoaded, pos.__pos);
+		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%d", id, aTimeoutCode, IsLoaded, pos.__pos);
 		loaded++;
 	}
 	fclose(pFile);
