@@ -388,12 +388,15 @@ public:
     
     struct CBinaryStorage
     {
-        int x,space1,space2;
+        int x,space1,space2; // wtf? xd
     };
 
+	// TODO: make this a own class
 	void SaveMapPlayerData();
 	void LoadMapPlayerData();
 	void ReadMapPlayerData(int ClientID = -1); // load debug only output do nothing
+	int m_MapsavePlayers;
+	int m_MapsaveLoadedPlayers;
 
 	//global chat
 	void GlobalChatPrintMessage();
