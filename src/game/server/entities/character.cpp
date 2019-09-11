@@ -6994,7 +6994,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 
 				GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "block tournament");
 				GameServer()->m_apPlayers[wonID]->GiveXP(xp_rew);
-				GameServer()->GiveBlockPoints(wonID, points_rew);
+				GameServer()->m_apPlayers[wonID]->GiveBlockPoints(points_rew);
 				GameServer()->UpdateBlockSkill(+skill_rew, wonID);
 			}
 			else if (wonID == 0)
@@ -7261,7 +7261,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		}
 	}
 
-	if (GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+	if (GameServer()->m_apPlayers[Killer])
 	{
 		// give kills and points to blocker
 		if (!m_pPlayer->m_IsBlockWaving) // dont count block kills and points in blockwave minigame (would be too op lol)
@@ -7272,7 +7272,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 				{
 					if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 					{
-						GameServer()->GiveBlockPoints(Killer, 1);
+						GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 					}
 					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 				}
@@ -7281,7 +7281,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 			{
 				if (Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 				{
-					GameServer()->GiveBlockPoints(Killer, 1);
+					GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 				}
 				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 			}
