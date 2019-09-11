@@ -2189,6 +2189,49 @@ void CPlayer::UpdateLastToucher(int ID)
 	m_LastToucherTeeInfos.m_UseCustomColor = pToucher->m_TeeInfos.m_UseCustomColor;
 }
 
+void CPlayer::GiveBlockPoints(int Points)
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	char aBuf[128];
+	bool FlagBonus = false;
+
+	if (GetCharacter() && ((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GetCharacter()) != -1) 
+	{
+		Points++;
+		FlagBonus = true;
+	}
+
+	m_BlockPoints += Points;
+	if (m_ShowBlockPoints)
+	{
+		if (IsLoggedIn())
+		{
+			str_format(aBuf, sizeof(aBuf), "+%d point%s%s", Points, Points == 1 ? "" : "s", FlagBonus ? " (flag bonus)" : "");
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "+%d point%s (warning! use '/login' to save your '/points')", Points, Points == 1 ? "" : "s");
+		}
+
+		GameServer()->SendChatTarget(GetCID(), aBuf);
+	}
+	else // chat info deactivated
+	{
+		if (IsLoggedIn())
+		{
+			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
+			if (m_BlockPoints == 5 || m_BlockPoints == 10)
+			{
+				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_BlockPoints);
+				GameServer()->SendChatTarget(GetCID(), aBuf);
+				GameServer()->SendChatTarget(GetCID(), "Use '/accountinfo' for more information.");
+			}
+		}
+	}
+}
+
 void CPlayer::SetAccID(int ID)
 {
 #if defined(CONF_DEBUG)

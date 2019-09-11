@@ -201,6 +201,13 @@ public:
 	*/
 	void GiveXP(int value);
 	/*
+		GiveBlockPoints(int Points)
+
+		Updates block points expects a positive integer.
+		and also sends a chat message to the player
+	*/
+	void GiveBlockPoints(int Points);
+	/*
 		SetXP(int xp)
 
 		WARNING you probably want to use GiveXp(int value); instead!
