@@ -8520,7 +8520,7 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 	if (pResult->NumArguments() == 0 || !str_comp_nocase(aCommand, "help"))
 	{
 		pSelf->SendChatTarget(ClientID, "--------  MAPSAVE  ----------");
-		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load|debug|players]'");
+		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load|debug|players|check]'");
 		pSelf->SendChatTarget(ClientID, "saves/loads state (position etc) of currently ingame players.");
 		pSelf->SendChatTarget(ClientID, "Creates a binary file and it loads automatically (works with timeout codes).");
 		pSelf->SendChatTarget(ClientID, "The load command is mostly for debugging because it should load from alone.");
@@ -8556,6 +8556,26 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), pPlayer->m_TimeoutCode, pPlayer->m_MapSaveLoaded);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mapsave", aBuf);
 		}
+	}
+	else if (!str_comp_nocase(aCommand, "check"))
+	{
+		int NoCode = 0;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			CPlayer *pPlayer = pSelf->m_apPlayers[i];
+			if (!pPlayer)
+				continue;
+			if (pPlayer->m_TimeoutCode[0])
+				continue;
+
+			NoCode++;
+			pSelf->SendChatTarget(i, "[MAPSAVE] please type '/timeout (code)'.");
+			pSelf->SendChatTarget(i, "[MAPSAVE] the admin wants to restart the server.");
+			pSelf->SendChatTarget(i, "[MAPSAVE] create a code to load and save your stats.");
+		}
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] players without code: %d ('/mapsave players').", NoCode);
+		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else
 	{
