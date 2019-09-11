@@ -4012,14 +4012,21 @@ void CGameContext::LoadMapPlayerData()
 				return;
 			}
 			CCharacter *pChr = pPlayer->GetCharacter();
-			if (!pChr)
+			if (ValidPlayer && !pChr)
 			{
 				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", id, aTimeoutCode);
 				ValidPlayer = false;
 			}
-			if (str_comp(aTimeoutCode, pPlayer->m_TimeoutCode))
+			if (ValidPlayer && str_comp(aTimeoutCode, pPlayer->m_TimeoutCode))
 			{
 				dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", pPlayer->m_TimeoutCode, aTimeoutCode);
+				ValidPlayer = false;
+			}
+			if (ValidPlayer && pPlayer->m_MapSaveLoaded)
+			{
+				// shouldn't happen? couldn't happen? too lazy to think probably possible by abusing /timeout command or share
+				// and can be bypassed by reconnect lol
+				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", id, Server()->ClientName(id), pPlayer->m_TimeoutCode);
 				ValidPlayer = false;
 			}
 		}
@@ -4048,6 +4055,7 @@ void CGameContext::LoadMapPlayerData()
 			savetee.load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
 			m_MapsaveLoadedPlayers++;
+			pPlayer->m_MapSaveLoaded = true;
 			fgetpos(pFile, &pos);
 			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, pos.__pos);
 			loaded++;

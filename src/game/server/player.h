@@ -227,6 +227,8 @@ public:
 	int m_LastBroadcast;
 	int m_LastBroadcastImportance;
 
+	bool m_MapSaveLoaded;
+
 	// login and threads
 	void ThreadLoginStart(const char * pUsername, const char * pPassword);
 	static void ThreadLoginWorker(void * pArg);
