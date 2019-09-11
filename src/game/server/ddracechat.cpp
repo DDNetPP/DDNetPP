@@ -406,6 +406,8 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 			"+ add '/survival' minigame");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
 			"+ add '/regex' staff command");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+			"+ add '/mapsave' staff command");
 	}
 	else if (page == 2)
 	{
