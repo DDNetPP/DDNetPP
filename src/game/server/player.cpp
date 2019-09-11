@@ -179,6 +179,7 @@ void CPlayer::Reset()
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
+	m_MapSaveLoaded = false;
 
 	if (g_Config.m_SvNoboSpawnTime)
 	{
