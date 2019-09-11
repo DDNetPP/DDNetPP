@@ -8535,6 +8535,8 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 	{
 		pSelf->SendChatTarget(ClientID, "[MAPSAVE] saving map data...");
 		pSelf->SaveMapPlayerData();
+		pSelf->m_World.m_Paused = 1;
+		pSelf->LogoutAllPlayersMessage();
 	}
 	else if (!str_comp_nocase(aCommand, "debug"))
 	{
