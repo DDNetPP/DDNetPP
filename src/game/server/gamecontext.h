@@ -264,6 +264,7 @@ public:
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord = false);
+	void LogoutAllPlayersMessage();
 
 	bool ShowJoinMessage(int ClientID);
 	bool ShowLeaveMessage(int ClientID);

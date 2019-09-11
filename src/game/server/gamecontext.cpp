@@ -3567,6 +3567,24 @@ void CGameContext::LogoutAllPlayers()
 	}
 }
 
+void CGameContext::LogoutAllPlayersMessage()
+{
+#if defined(CONF_DEBUG)
+	CALL_STACK_ADD();
+#endif
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			dbg_msg("ddnet++", "logging out id=%d", i);
+			m_apPlayers[i]->Logout();
+			SendChatTarget(i, "[ACCOUNT] you were logged out.");
+		}
+	}
+}
+
 void CGameContext::ConnectAdventureBots()
 {
 #if defined(CONF_DEBUG)
