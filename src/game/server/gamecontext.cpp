@@ -9322,7 +9322,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	LoadSinglePlayer();
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
-	LoadMapPlayerData();
 	//Friends_counter = 0;
 	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
@@ -9432,6 +9431,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	Console()->ExecuteFile(g_Config.m_SvResetFile);
 
+	LoadMapPlayerData();
 	LoadMapSettings();
 
 /*	// select gametype
