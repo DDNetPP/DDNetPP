@@ -4456,6 +4456,7 @@ void CGameContext::SurvivalSetGameState(int state)
 	}
 	else if (state == SURVIVAL_INGAME)
 	{
+		m_survival_spawn_counter = 0;
 		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
