@@ -107,6 +107,10 @@ void CCollision::Init(class CLayers *pLayers)
 					m_pSwitch[i].m_Type = 0;
 			}
 		}
+
+		// DDNet++ (survival)
+		if (m_pTiles[i].m_Index == TILE_SURVIVAL_SPAWN)
+			m_NumSurvivalSpawns++;
 	}
 
 	if(m_NumSwitchers)
@@ -176,16 +180,6 @@ vec2 CCollision::GetRandomTile(int Tile)
 	success:;
 	int Rand = rand() % i;
 	return ReturnValue[Rand];
-}
-
-int CCollision::CountSurvivalSpawns()
-{
-	int i = 0;
-	for (int y = 0; y < m_Height; y++)
-		for (int x = 0; x < m_Width; x++)
-			if (GetCustTile(x*32.0f + 16.0f, y*32.0f + 16.0f) == TILE_SURVIVAL_SPAWN)
-				i++;
-	return i;
 }
 
 vec2 CCollision::GetSurvivalSpawn(int num, bool test)
