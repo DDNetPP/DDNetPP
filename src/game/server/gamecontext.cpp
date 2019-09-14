@@ -3635,7 +3635,7 @@ void CGameContext::LoadMapPlayerData()
 			CPlayer *pPlayer = m_apPlayers[id];
 			if (!pPlayer)
 			{
-				dbg_assert(true, "loadmap invalid player");
+				dbg_assert(false, "loadmap invalid player");
 				return;
 			}
 			CCharacter *pChr = pPlayer->GetCharacter();
