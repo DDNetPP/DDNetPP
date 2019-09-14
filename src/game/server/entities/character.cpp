@@ -7122,7 +7122,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pVictim->GetPlayer()->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 					pVictim->GetPlayer()->m_KillStreak = 0;
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 				}
 			}
 
@@ -7155,7 +7155,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
 				pVictim->GetPlayer()->m_KillStreak = 0;
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			}
 
 			if (pKiller != pVictim->GetPlayer())
@@ -7544,7 +7544,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 		GameServer()->GetSpreeType(m_pPlayer->GetCID(), aSpreeType, sizeof(aSpreeType), true);
 		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 	}
 
 	if (pKiller)
