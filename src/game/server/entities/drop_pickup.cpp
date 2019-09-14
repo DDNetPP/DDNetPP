@@ -17,8 +17,8 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 	// but the thing is it kills the character before deleting it
 	// also m_Pos and the character are used after the ddnet++ stuff by vanilla code so that should not crash
 	// anyways some desperate debugging
-	dbg_assert(GameServer()->GetPlayerChar(Owner) == NULL, "droppickup playerchar is null");
-	dbg_assert(GameServer()->GetPlayerChar(Owner)->m_Pos == NULL, "droppickup m_Pos is null");
+	dbg_assert(GameServer()->GetPlayerChar(Owner) != NULL, "droppickup playerchar is null");
+	dbg_assert(GameServer()->GetPlayerChar(Owner)->m_Pos != NULL, "droppickup m_Pos is null");
 #endif
 
 	m_Type = Type;
