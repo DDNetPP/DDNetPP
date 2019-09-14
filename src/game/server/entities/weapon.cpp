@@ -41,11 +41,9 @@ void CWeapon::Reset()
 
 	if (m_EreaseWeapon)
 	{
-		if (m_Owner != -1)
+		CPlayer* pOwner = GameServer()->m_apPlayers[m_Owner];
+		if (m_Owner != -1 && pOwner)
 		{
-			CPlayer* pOwner = GameServer()->m_apPlayers[m_Owner];
-			if (!pOwner)
-				return;
 			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
 				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
