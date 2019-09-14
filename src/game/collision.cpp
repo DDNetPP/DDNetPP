@@ -156,74 +156,6 @@ int CCollision::GetCustTile(int x, int y)
 	return m_pTiles[pos].m_Index;
 }
 
-#define MAX_RANDOM_TILE 1024
-
-vec2 CCollision::GetRandomTile(int Tile)
-{
-	vec2 ReturnValue[MAX_RANDOM_TILE] = { vec2(0,0) };
-	int i = 0;
-	for (int y = 0; y < m_Height; y++)
-		for (int x = 0; x < m_Width; x++)
-		{
-			vec2 Pos(x*32.0f + 16.0f, y*32.0f + 16.0f);
-
-			if (GetCustTile(Pos.x, Pos.y) == Tile)
-			{
-				if (i >= MAX_RANDOM_TILE - 1)
-					goto success; // choose one of the MAX_RANDOM_TILES already found
-				ReturnValue[i] = Pos;
-				i++;
-			}
-		}
-	if (!i)
-		return vec2(-1, -1);
-	success:;
-	int Rand = rand() % i;
-	return ReturnValue[Rand];
-}
-
-vec2 CCollision::GetSurvivalSpawn(int num, bool test)
-{
-	vec2 ReturnValue[MAX_RANDOM_TILE] = { vec2(0,0) };
-	int i = 0;
-	for (int y = 0; y < m_Height; y++)
-		for (int x = 0; x < m_Width; x++)
-		{
-			vec2 Pos(x*32.0f + 16.0f, y*32.0f + 16.0f);
-
-			if (GetCustTile(Pos.x, Pos.y) == TILE_SURVIVAL_SPAWN)
-			{
-				ReturnValue[i] = Pos;
-				i++;
-				if (i >= MAX_RANDOM_TILE)
-					goto error_too_many_tiles;
-			}
-		}
-
-	if (i)
-	{
-		if (num > i) // mapper fault ( not enough survival spawns )
-			goto error_too_few_tiles;
-		return ReturnValue[num];
-	}
-
-	dbg_msg("ERROR", "no survival spawns on map to return index=%d", num);
-	return vec2(-1, -1);
-
-	error_too_many_tiles:;
-	if (num < MAX_RANDOM_TILE)
-		return ReturnValue[num];
-	dbg_msg("ERROR", "too many survival tiles on map more than MAX=%d", MAX_RANDOM_TILE);
-	return ReturnValue[i - 1];
-
-	error_too_few_tiles:;
-	// better stack tees at one tile and return highest found
-	// than aborting the game or teleporting to (-1, -1)
-	// mapper should then realize what is going on
-	dbg_msg("ERROR", "not enough survival spawns on map to return index=%d", num);
-	return ReturnValue[i-1];
-}
-
 /*
 bool CCollision::IsTileSolid(int x, int y)
 {
@@ -1239,4 +1171,37 @@ int CCollision::IsFCheckpoint(int Index)
 	if(z >= 35 && z <= 59)
 		return z-35;
 	return -1;
+}
+
+// DDNet++
+
+vec2 CCollision::GetSurvivalSpawn(int Num)
+{
+	return GetTileAtNum(TILE_SURVIVAL_SPAWN, Num);
+}
+
+vec2 CCollision::GetTileAtNum(int Tile, int Num)
+{
+	if (m_vTiles[Tile].size())
+	{
+		int Amount = m_vTiles[Tile].size();
+		if (Num > Amount)
+		{
+			dbg_msg("GetTileAtNum", "Error: requested too high index %d/%d for tile=%d", Num, Amount, Tile);
+			Num = Amount;
+		}
+		return m_vTiles[Tile][Num];
+	}
+	return vec2(-1, -1);
+}
+
+// by fokkonaut from F-DDrace
+vec2 CCollision::GetRandomTile(int Tile)
+{
+	if (m_vTiles[Tile].size())
+	{
+		int Rand = rand() % m_vTiles[Tile].size();
+		return m_vTiles[Tile][Rand];
+	}
+	return vec2(-1, -1);
 }

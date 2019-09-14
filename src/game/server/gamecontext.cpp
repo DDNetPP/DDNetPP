@@ -5565,8 +5565,8 @@ int CGameContext::PrintSpecialCharUsers(int ID)
 
 int CGameContext::TestSurvivalSpawns()
 {
-	vec2 SurvivalGameSpawnTile = Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients, true);
-	vec2 SurvivalGameSpawnTile2 = Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+	vec2 SurvivalGameSpawnTile = Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients);
+	vec2 SurvivalGameSpawnTile2 = Collision()->GetSurvivalSpawn(MAX_CLIENTS);
 
 	if (SurvivalGameSpawnTile == vec2(-1, -1))
 	{
@@ -7045,7 +7045,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						/*
 						static int t = 0;
 						t = !t ? 999999 : 0;
-						vec2 post = Collision()->GetSurvivalSpawn(t, false);
+						vec2 post = Collision()->GetSurvivalSpawn(t);
 						str_format(aBuf, sizeof(aBuf), "got t=%d pos %f %f",t, post.x / 32, post.y / 32);
 						SendChatTarget(ClientID, aBuf);
 						pPlayer->GetCharacter()->SetPosition(post);
@@ -8951,12 +8951,16 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	int ShopTiles = 0;
 
+	// by fokkonaut from F-DDrace
+	Collision()->m_vTiles.clear();
+	Collision()->m_vTiles.resize(NUM_INDICES);
+
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
 			int Index = pTiles[y*pTileMap->m_Width+x].m_Index;
-
+			Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
 			if(Index == TILE_OLDLASER)
 			{
 				g_Config.m_SvOldLaser = 1;
@@ -9004,6 +9008,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			if(pFront)
 			{
 				Index = pFront[y * pTileMap->m_Width + x].m_Index;
+				Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
 				if(Index == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
