@@ -13,9 +13,6 @@
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 		IGameController(pGameServer), m_Teams(pGameServer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	m_apFlags[0] = 0;
 	m_apFlags[1] = 0;
@@ -29,9 +26,6 @@ CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 
 bool CGameControllerDDRace::OnEntity(int Index, vec2 Pos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//if(IGameController::OnEntityOld(Index, Pos))
 	//	return true;
 
@@ -51,9 +45,6 @@ bool CGameControllerDDRace::OnEntity(int Index, vec2 Pos)
 
 int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int HadFlag = 0;
 
 	// drop flags
@@ -86,9 +77,6 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 
 void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CFlag *F = m_apFlags[id];
 	if ( (m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)) || (m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter == GameServer()->GetPlayerChar(character)) ){
 
@@ -122,9 +110,6 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 
 int CGameControllerDDRace::HasFlag(CCharacter *character)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for(int i=0; i<2; i++)
 	{
 		if (!m_apFlags[i])
@@ -139,9 +124,6 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 
 void CGameControllerDDRace::DropFlag(int id, int dir)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CFlag *F = m_apFlags[id]; //red=0 blue=1
 	
 	if (g_Config.m_SvFlagSounds)
@@ -161,9 +143,6 @@ void CGameControllerDDRace::DropFlag(int id, int dir)
 
 void CGameControllerDDRace::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	IGameController::Snap(SnappingClient);
 
 	CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
@@ -196,17 +175,11 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 
 CGameControllerDDRace::~CGameControllerDDRace()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Nothing to clean
 }
 
 void CGameControllerDDRace::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	IGameController::Tick();
 
 	if(GameServer()->m_World.m_ResetRequested || GameServer()->m_World.m_Paused)
@@ -433,9 +406,6 @@ void CGameControllerDDRace::Tick()
 
 void CGameControllerDDRace::InitTeleporter()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!GameServer()->Collision()->Layers()->TeleLayer())
 		return;
 	int Width = GameServer()->Collision()->Layers()->TeleLayer()->m_Width;

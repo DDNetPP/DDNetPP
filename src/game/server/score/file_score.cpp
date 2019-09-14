@@ -16,9 +16,6 @@ static LOCK gs_ScoreLock = 0;
 CFileScore::CPlayerScore::CPlayerScore(const char *pName, float Score,
 		float aCpTime[NUM_CHECKPOINTS])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	str_copy(m_aName, pName, sizeof(m_aName));
 	m_Score = Score;
 	for (int i = 0; i < NUM_CHECKPOINTS; i++)
@@ -28,9 +25,6 @@ CFileScore::CPlayerScore::CPlayerScore(const char *pName, float Score,
 CFileScore::CFileScore(CGameContext *pGameServer) :
 				m_pGameServer(pGameServer), m_pServer(pGameServer->Server())
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (gs_ScoreLock == 0)
 		gs_ScoreLock = lock_create();
 
@@ -39,9 +33,6 @@ CFileScore::CFileScore(CGameContext *pGameServer) :
 
 CFileScore::~CFileScore()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_ScoreLock);
 
 	// clear list
@@ -52,9 +43,6 @@ CFileScore::~CFileScore()
 
 std::string SaveFile()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::ostringstream oss;
 	char aBuf[256];
 	str_copy(aBuf, g_Config.m_SvMap, sizeof(aBuf));
@@ -68,25 +56,16 @@ std::string SaveFile()
 
 void CFileScore::MapInfo(int ClientID, const char* MapName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// TODO: implement
 }
 
 void CFileScore::MapVote(int ClientID, const char* MapName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// TODO: implement
 }
 
 void CFileScore::SaveScoreThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CFileScore *pSelf = (CFileScore *) pUser;
 	lock_wait(gs_ScoreLock);
 	std::fstream f;
@@ -116,9 +95,6 @@ void CFileScore::SaveScoreThread(void *pUser)
 
 void CFileScore::Save()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	void *pSaveThread = thread_init(SaveScoreThread, this);
 #if defined(CONF_FAMILY_UNIX)
 	pthread_detach((pthread_t)pSaveThread);
@@ -127,9 +103,6 @@ void CFileScore::Save()
 
 void CFileScore::Init()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_ScoreLock);
 
 	// create folder if not exist
@@ -178,7 +151,6 @@ CFileScore::CPlayerScore *CFileScore::SearchName(const char *pName,
 		int *pPosition, bool NoCase)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	dbg_msg("debug", "score search name '%s'", pName);
 #endif
 	CPlayerScore *pPlayer = 0;
@@ -213,9 +185,6 @@ CFileScore::CPlayerScore *CFileScore::SearchName(const char *pName,
 void CFileScore::UpdatePlayer(int ID, float Score,
 		float aCpTime[NUM_CHECKPOINTS])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	const char *pName = Server()->ClientName(ID);
 
 	lock_wait(gs_ScoreLock);
@@ -240,9 +209,6 @@ void CFileScore::UpdatePlayer(int ID, float Score,
 
 void CFileScore::LoadScore(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayerScore *pPlayer = SearchScore(ClientID, 0);
 	if (pPlayer)
 	{
@@ -258,18 +224,12 @@ void CFileScore::LoadScore(int ClientID)
 
 void CFileScore::SaveTeamScore(int* ClientIDs, unsigned int Size, float Time)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	dbg_msg("FileScore", "SaveTeamScore not implemented for FileScore");
 }
 
 void CFileScore::SaveScore(int ClientID, float Time,
 		float CpTime[NUM_CHECKPOINTS])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CConsole* pCon = (CConsole*) GameServer()->Console();
 	if (!pCon->m_Cheated || g_Config.m_SvRankCheats)
 		UpdatePlayer(ClientID, Time, CpTime);
@@ -278,9 +238,6 @@ void CFileScore::SaveScore(int ClientID, float Time,
 void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 		void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	char aBuf[512];
 	if (g_Config.m_SvInstagibMode)
@@ -308,9 +265,6 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 
 void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayerScore *pScore;
 	int Pos;
 	char aBuf[512];
@@ -352,9 +306,6 @@ void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 
 void CFileScore::ShowTeamTop5(IConsole::IResult *pResult, int ClientID, void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Team ranks not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -362,9 +313,6 @@ void CFileScore::ShowTeamTop5(IConsole::IResult *pResult, int ClientID, void *pU
 
 void CFileScore::ShowTeamRank(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Team ranks not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -372,9 +320,6 @@ void CFileScore::ShowTeamRank(int ClientID, const char* pName, bool Search)
 
 void CFileScore::ShowTopPoints(IConsole::IResult *pResult, int ClientID, void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Team ranks not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -382,9 +327,6 @@ void CFileScore::ShowTopPoints(IConsole::IResult *pResult, int ClientID, void *p
 
 void CFileScore::ShowPoints(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Points not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -392,9 +334,6 @@ void CFileScore::ShowPoints(int ClientID, const char* pName, bool Search)
 
 void CFileScore::RandomMap(int ClientID, int stars)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Random map not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -402,9 +341,6 @@ void CFileScore::RandomMap(int ClientID, int stars)
 
 void CFileScore::RandomUnfinishedMap(int ClientID, int stars)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Random unfinished map not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -412,9 +348,6 @@ void CFileScore::RandomUnfinishedMap(int ClientID, int stars)
 
 void CFileScore::SaveTeam(int Team, const char* Code, int ClientID, const char* Server)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Save-function not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -422,9 +355,6 @@ void CFileScore::SaveTeam(int Team, const char* Code, int ClientID, const char* 
 
 void CFileScore::LoadTeam(const char* Code, int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Save-function not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
@@ -432,9 +362,6 @@ void CFileScore::LoadTeam(const char* Code, int ClientID)
 
 void CFileScore::SaveCIData(const char * ci_data) //chillintelligenz (not intelligent at all rofl)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::fstream f;
 	f.open("chillerbot.txt", std::ios::out);
 	if (!f.fail())
@@ -446,9 +373,6 @@ void CFileScore::SaveCIData(const char * ci_data) //chillintelligenz (not intell
 
 std::string CFileScore::LoadCIData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	std::fstream f;
 	f.open("chillerbot.txt", std::ios::in);

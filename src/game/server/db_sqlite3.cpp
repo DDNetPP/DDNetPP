@@ -3,9 +3,6 @@
 
 bool CQuery::Next()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int Ret = sqlite3_step(m_pStatement);
 	return Ret == SQLITE_ROW;
 }
@@ -13,7 +10,6 @@ bool CQuery::Next()
 void CQuery::Query(CSql *pDatabase, char *pQuery)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	if (!pQuery) {
 		dbg_msg("SQLite","[WARNING] no pQuery found in CQuery::Query()");
 	}
@@ -24,17 +20,11 @@ void CQuery::Query(CSql *pDatabase, char *pQuery)
 
 void CQuery::QueryBlocking(CSql *pDatabase, char *pQueryStr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pDatabase->QueryBlocking(this, pQueryStr);
 }
 
 void CSql::QueryBlocking(CQuery *pQuery, std::string QueryString)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int Ret;
 	Ret = sqlite3_prepare_v2(m_pDB, QueryString.c_str(), -1, &pQuery->m_pStatement, 0);
 	if (Ret != SQLITE_OK)
@@ -53,17 +43,11 @@ void CSql::QueryBlocking(CQuery *pQuery, std::string QueryString)
 
 void CQuery::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Next();
 }
 
 int CQuery::GetID(const char *pName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < GetColumnCount(); i++)
 	{
 		if (str_comp(GetName(i), pName) == 0)
@@ -74,9 +58,6 @@ int CQuery::GetID(const char *pName)
 
 void CSql::WorkerThread()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	while (m_Running)
 	{
 		lock_wait(m_Lock); //lock queue
@@ -141,9 +122,6 @@ void CSql::Tick()
 
 void CSql::InitWorker(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSql *pSelf = (CSql *)pUser;
 	pSelf->WorkerThread();
 }
@@ -151,7 +129,6 @@ void CSql::InitWorker(void *pUser)
 CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	if (!pQuery) {
 		dbg_msg("SQLite", "[WARNING] no pQuery found in CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)");
 		return NULL;
@@ -290,9 +267,6 @@ void CSql::CreateDatabase()
 
 CSql::~CSql()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Running = false;
 	lock_wait(m_Lock);
 

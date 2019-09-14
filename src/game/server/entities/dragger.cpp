@@ -13,9 +13,6 @@ CDragger::CDragger(CGameWorld *pGameWorld, vec2 Pos, float Strength, bool NW,
 		int CatchedTeam, int Layer, int Number) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Layer = Layer;
 	m_Number = Number;
 	m_Pos = Pos;
@@ -33,9 +30,6 @@ CDragger::CDragger(CGameWorld *pGameWorld, vec2 Pos, float Strength, bool NW,
 
 void CDragger::Move()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Target && (!m_Target->IsAlive() || (m_Target->IsAlive()
 			&& (m_Target->m_Super || m_Target->IsPaused()
 					|| (m_Layer == LAYER_SWITCH
@@ -105,9 +99,6 @@ void CDragger::Move()
 
 void CDragger::Drag()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Target)
 	{
 		CCharacter *Target = m_Target;
@@ -263,17 +254,11 @@ void CDragger::Drag()
 
 void CDragger::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CDragger::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (((CGameControllerDDRace*) GameServer()->m_pController)->m_Teams.GetTeamState(
 			m_CatchedTeam) == CGameTeams::TEAMSTATE_EMPTY)
 		return;
@@ -297,9 +282,6 @@ void CDragger::Tick()
 
 void CDragger::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (((CGameControllerDDRace*) GameServer()->m_pController)->m_Teams.GetTeamState(
 			m_CatchedTeam) == CGameTeams::TEAMSTATE_EMPTY)
 		return;
@@ -409,9 +391,6 @@ void CDragger::Snap(int SnappingClient)
 CDraggerTeam::CDraggerTeam(CGameWorld *pGameWorld, vec2 Pos, float Strength,
 		bool NW, int Layer, int Number)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		m_Draggers[i] = new CDragger(pGameWorld, Pos, Strength, NW, i, Layer,

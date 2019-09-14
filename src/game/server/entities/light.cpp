@@ -10,9 +10,6 @@ CLight::CLight(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 		int Layer, int Number) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Layer = Layer;
 	m_Number = Number;
 	m_Tick = (Server()->TickSpeed() * 0.15f);
@@ -26,9 +23,6 @@ CLight::CLight(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 
 bool CLight::HitCharacter()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::list<CCharacter *> HitCharacters =
 			GameServer()->m_World.IntersectedCharacters(m_Pos, m_To, 0.0f, 0);
 	if (HitCharacters.empty())
@@ -47,9 +41,6 @@ bool CLight::HitCharacter()
 
 void CLight::Move()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Speed != 0)
 	{
 		if ((m_CurveLength >= m_Length && m_Speed > 0)
@@ -78,9 +69,6 @@ void CLight::Move()
 
 void CLight::Step()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Move();
 	vec2 dir(sin(m_Rotation), cos(m_Rotation));
 	vec2 to2 = m_Pos + normalize(dir) * m_CurveLength;
@@ -89,17 +77,11 @@ void CLight::Step()
 
 void CLight::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CLight::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (Server()->Tick() % int(Server()->TickSpeed() * 0.15f) == 0)
 	{
@@ -122,9 +104,6 @@ void CLight::Tick()
 
 void CLight::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (NetworkClipped(SnappingClient, m_Pos)
 			&& NetworkClipped(SnappingClient, m_To))
 		return;

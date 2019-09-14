@@ -23,9 +23,6 @@
 
 IGameController::IGameController(class CGameContext *pGameServer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = pGameServer;
 	m_pServer = m_pGameServer->Server();
 	m_pGameType = "unknown";
@@ -53,16 +50,10 @@ IGameController::IGameController(class CGameContext *pGameServer)
 
 IGameController::~IGameController()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Score = 0.0f;
 	CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
 	for (; pC; pC = (CCharacter *)pC->TypeNext())
@@ -81,9 +72,6 @@ float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos)
 
 void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// get spawn point
 	for (int i = 0; i < m_aNumSpawnPoints[Type]; i++)
 	{
@@ -128,9 +116,6 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 
 bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSpawnEval Eval;
 
 	// spectators can't spawn
@@ -208,9 +193,6 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 //bool IGameController::OnEntity(int Index, vec2 Pos)
 bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Index < 0)
 		return false;
 
@@ -455,9 +437,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 
 void IGameController::EndRound()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Warmup) // game can't end when we are running warmup
 		return;
 
@@ -471,17 +450,11 @@ void IGameController::EndRound()
 
 void IGameController::ResetGame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.m_ResetRequested = true;
 }
 
 const char *IGameController::GetTeamName(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Team == 0)
 		return "game";
 	return "spectators";
@@ -491,9 +464,6 @@ const char *IGameController::GetTeamName(int Team)
 
 void IGameController::StartRound()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	ResetGame();
 
 	m_RoundStartTick = Server()->Tick();
@@ -511,9 +481,6 @@ void IGameController::StartRound()
 
 void IGameController::ChangeMap(const char *pToMap)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	/*str_copy(m_aMapWish, pToMap, sizeof(m_aMapWish));
 	EndRound();*/
 	str_copy(g_Config.m_SvMap, pToMap, sizeof(m_aMapWish));
@@ -521,9 +488,6 @@ void IGameController::ChangeMap(const char *pToMap)
 
 void IGameController::PostReset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (GameServer()->m_apPlayers[i])
@@ -539,9 +503,6 @@ void IGameController::PostReset()
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "KILL");
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "pkiller %d", pKiller);
 
@@ -557,9 +518,6 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 
 void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// default health
 	pChr->IncreaseHealth(10);
 
@@ -598,9 +556,6 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 
 void IGameController::DoWarmup(int Seconds)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Seconds < 0)
 		m_Warmup = 0;
 	else
@@ -609,17 +564,11 @@ void IGameController::DoWarmup(int Seconds)
 
 bool IGameController::CanBeMovedOnBalance(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return true;
 }
 
 void IGameController::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	/*if (m_FunPoint) {
 
@@ -711,16 +660,12 @@ void IGameController::Tick()
 bool IGameController::IsTeamplay() const
 {
 #if defined(CONF_DEBUG)
-CALL_STACK_ADD();
 #endif
 return m_GameFlags&GAMEFLAG_TEAMS;
 }
 
 void IGameController::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetObj_GameInfo *pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
 	if (!pGameInfoObj)
 		return;
@@ -790,9 +735,6 @@ void IGameController::Snap(int SnappingClient)
 
 int IGameController::GetAutoTeam(int NotThisID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// this will force the auto balancer to work overtime aswell
 	if (g_Config.m_DbgStress)
 		return 0;
@@ -816,9 +758,6 @@ int IGameController::GetAutoTeam(int NotThisID)
 
 bool IGameController::CanJoinTeam(int Team, int NotThisID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Team == TEAM_SPECTATORS || (GameServer()->m_apPlayers[NotThisID] && GameServer()->m_apPlayers[NotThisID]->GetTeam() != TEAM_SPECTATORS))
 		return true;
 
@@ -837,9 +776,6 @@ bool IGameController::CanJoinTeam(int Team, int NotThisID)
 
 void IGameController::DoWincheck()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_GameOverTick == -1 && !m_Warmup && !GameServer()->m_World.m_ResetRequested)
 	{
 		if (IsTeamplay())
@@ -888,9 +824,6 @@ void IGameController::DoWincheck()
 
 int IGameController::ClampTeam(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Team < 0)
 		return TEAM_SPECTATORS;
 	return 0;

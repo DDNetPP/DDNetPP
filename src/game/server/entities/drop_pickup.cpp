@@ -9,7 +9,6 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// https://github.com/DDNetPP/DDNetPP/issues/296
 	// it crashed at this line:
 	// m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
@@ -39,18 +38,12 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 
 void CDropPickup::Delete()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_EreasePickup = true;
 	Reset();
 }
 
 void CDropPickup::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (m_EreasePickup)
 	{
@@ -86,9 +79,6 @@ int CDropPickup::IsCharacterNear()
 
 void CDropPickup::Pickup()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int CharID = IsCharacterNear();
 	if (CharID != -1)
 	{
@@ -116,9 +106,6 @@ void CDropPickup::Pickup()
 
 void CDropPickup::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
 	{
 		m_Owner = -1;
@@ -230,9 +217,6 @@ void CDropPickup::Tick()
 
 void CDropPickup::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if(NetworkClipped(SnappingClient))
 		return;

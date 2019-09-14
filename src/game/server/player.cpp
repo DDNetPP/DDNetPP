@@ -24,9 +24,6 @@ IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
 CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
@@ -39,18 +36,12 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 
 CPlayer::~CPlayer()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	delete m_pCharacter;
 	m_pCharacter = 0;
 }
 
 void CPlayer::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
 	m_ScoreStartTick = Server()->Tick();
@@ -255,7 +246,6 @@ void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
-		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -460,9 +450,6 @@ void CPlayer::Tick()
 
 void CPlayer::PlayerHumanLevelTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_HumanLevelTime >= 1)
 	{
 		m_HumanLevelTime--;
@@ -556,9 +543,6 @@ void CPlayer::PlayerHumanLevelTick()
 
 void CPlayer::FixForNoName(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_FixNameID = ID;	// 0 for just to display the name in the right moment (e.g. kill msg killer)
 	m_SetRealName = true;
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
@@ -568,9 +552,6 @@ void CPlayer::FixForNoName(int ID)
 
 void CPlayer::PostTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_IsDummy)
 		return;
 
@@ -593,7 +574,6 @@ void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
-		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -855,9 +835,6 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// This is problematic when it's sent before we know whether it's a non-64-player-client
 	// Then we can't spectate players at the start
 	IServer::CClientInfo info;
@@ -880,9 +857,6 @@ void CPlayer::FakeSnap(int SnappingClient)
 
 void CPlayer::OnDisconnectDDPP()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
 		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
@@ -895,9 +869,6 @@ void CPlayer::OnDisconnectDDPP()
 
 void CPlayer::OnDisconnect(const char *pReason, bool silent)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	OnDisconnectDDPP();
 
@@ -931,9 +902,6 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// skip the input if chat is active
 	if((m_PlayerFlags&PLAYERFLAG_CHATTING) && (NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING))
 		return;
@@ -955,9 +923,6 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (AfkTimer(NewInput->m_TargetX, NewInput->m_TargetY))
 		return; // we must return if kicked, as player struct is already deleted
 	AfkVoteTimer(NewInput);
@@ -1005,9 +970,6 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 CCharacter *CPlayer::GetCharacter()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return m_pCharacter;
 	return 0;
@@ -1015,17 +977,11 @@ CCharacter *CPlayer::GetCharacter()
 
 void CPlayer::ThreadKillCharacter(int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_KillMe = Weapon;
 }
 
 void CPlayer::KillCharacter(int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter)
 	{
 		if (m_RespawnTick > Server()->Tick())
@@ -1040,18 +996,12 @@ void CPlayer::KillCharacter(int Weapon)
 
 void CPlayer::Respawn()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_Team != TEAM_SPECTATORS)
 		m_Spawning = true;
 }
 
 CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Spawning = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, Pos);
@@ -1061,9 +1011,6 @@ CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// clamp the team
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
@@ -1111,9 +1058,6 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 
 void CPlayer::TryRespawn()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 SpawnPos;
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this))
@@ -1142,9 +1086,6 @@ void CPlayer::TryRespawn()
 
 bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	/*
 		afk timer (x, y = mouse coordinates)
 		Since a player has to move the mouse to play, this is a better method than checking
@@ -1208,9 +1149,6 @@ bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 
 void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(g_Config.m_SvMaxAfkVoteTime == 0)
 		return;
 
@@ -1230,9 +1168,6 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 
 void CPlayer::ProcessPause()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(!m_pCharacter)
 		return;
 
@@ -1270,9 +1205,6 @@ void CPlayer::ProcessPause()
 
 bool CPlayer::IsPlaying()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return true;
 	return false;
@@ -1280,9 +1212,6 @@ bool CPlayer::IsPlaying()
 
 void CPlayer::FindDuplicateSkins()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_TeeInfos.m_UseCustomColor == 0 && !m_StolenSkin) return;
 	m_StolenSkin = 0;
 	for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -1305,9 +1234,6 @@ void CPlayer::FindDuplicateSkins()
 
 void CPlayer::Logout(int SetLoggedIn)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!IsLoggedIn())
 		return;
 
@@ -1380,9 +1306,6 @@ void CPlayer::Logout(int SetLoggedIn)
 
 void CPlayer::JailPlayer(int seconds)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
 	//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
 
@@ -1404,9 +1327,6 @@ void CPlayer::JailPlayer(int seconds)
 
 void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!IsLoggedIn())
 		return;
 
@@ -1417,7 +1337,6 @@ void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" 
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), GetAccID(), SetLoggedIn);
 #endif
 	if (!IsLoggedIn())
@@ -1577,9 +1496,6 @@ void CPlayer::Save(int SetLoggedIn)
 
 void CPlayer::SaveFileBased(int SetLoggedIn)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	std::string data;
 	char aBuf[128];
@@ -1615,9 +1531,6 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 
 void CPlayer::CalcExp()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int OldNeededXp = m_neededxp;
 	dbg_msg("account", "CalcExp() neededxp=%d xp=%d", OldNeededXp, m_xp);
 
@@ -1837,9 +1750,6 @@ void CPlayer::CalcExp()
 
 void CPlayer::CheckLevel()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!IsLoggedIn())
 		return;
 	if (IsMaxLevel())
@@ -1864,9 +1774,6 @@ void CPlayer::CheckLevel()
 
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_money += Amount;
 #if defined(CONF_DEBUG)
 	if (m_money < 0)
@@ -1892,9 +1799,6 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 
 bool CPlayer::IsInstagibMinigame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
@@ -1902,9 +1806,6 @@ bool CPlayer::IsInstagibMinigame()
 
 void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_LoginData.m_pGameContext = GameServer();
 	m_LoginData.m_LoginState = LOGIN_WAIT;
 	m_LoginData.m_ClientID = GetCID();
@@ -1915,9 +1816,6 @@ void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 
 void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
 	CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
 	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
@@ -1932,9 +1830,6 @@ void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 
 void CPlayer::ThreadLoginDone() //get called every tick
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_LoginData.m_LoginState != LOGIN_DONE)
 		return;
 
@@ -1963,9 +1858,6 @@ void CPlayer::ThreadLoginDone() //get called every tick
 
 void CPlayer::chidraqul3_GameTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//if (m_C3_GameState == 2) //multiplayer
 	//	return; //handled in gamecontext
 
@@ -2155,9 +2047,6 @@ void CPlayer::chidraqul3_GameTick()
 
 bool CPlayer::JoinMultiplayer()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (GameServer()->C3_GetFreeSlots() > 0)
 	{
 		GameServer()->SendChatTarget(GetCID(), "[chidraqul] joined multiplayer.");
@@ -2172,7 +2061,6 @@ bool CPlayer::JoinMultiplayer()
 void CPlayer::UpdateLastToucher(int ID)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldID=%d player=%d:'%s'", ID, m_LastToucherID, GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_LastToucherID = ID;
@@ -2191,9 +2079,6 @@ void CPlayer::UpdateLastToucher(int ID)
 
 void CPlayer::GiveBlockPoints(int Points)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 	bool FlagBonus = false;
 
@@ -2235,7 +2120,6 @@ void CPlayer::GiveBlockPoints(int Points)
 void CPlayer::SetAccID(int ID)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_AccountID = ID;
@@ -2243,9 +2127,6 @@ void CPlayer::SetAccID(int ID)
 
 void CPlayer::GiveXP(int value)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (IsMaxLevel())
 		return;
 
@@ -2255,7 +2136,6 @@ void CPlayer::GiveXP(int value)
 void CPlayer::SetXP(int xp)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_xp = xp;
@@ -2264,7 +2144,6 @@ void CPlayer::SetXP(int xp)
 void CPlayer::SetLevel(int level)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_level = level;
@@ -2273,7 +2152,6 @@ void CPlayer::SetLevel(int level)
 void CPlayer::SetMoney(int money)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
 	m_money = money;

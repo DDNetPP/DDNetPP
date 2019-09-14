@@ -4,9 +4,6 @@
 CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	m_Pos = Pos;
 	m_Pos.y += 15;
@@ -19,17 +16,11 @@ CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos)
 
 void CPlant::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CPlant::TickDefered()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(Server()->Tick()%4 == 1)
 	{
 		m_LastResetPos = m_Pos;
@@ -40,9 +31,6 @@ void CPlant::TickDefered()
 
 void CPlant::CalculateVel()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Time = (Server()->Tick()-m_LastResetTick)/(float)Server()->TickSpeed();
 	float Curvature = 0;
 	float Speed = 0;
@@ -74,9 +62,6 @@ int CPlant::IsCharacterNear()
 
 void CPlant::ResetProjectiles()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	for (unsigned i = 0; i < MAX_PLANT_PROJS; i++)
 	{
@@ -92,7 +77,6 @@ void CPlant::ResetProjectiles()
 void CPlant::Harvest()
 {
 #if defined(CONF_DEBUG)
-CALL_STACK_ADD();
 #endif
 	int CharID = IsCharacterNear();
 	if (CharID != -1)
@@ -116,7 +100,6 @@ CALL_STACK_ADD();
 void CPlant::Tick()
 {
 #if defined(CONF_DEBUG)
-CALL_STACK_ADD();
 #endif
 	if (m_GrowState != 0 && IsCharacterNear() != -1)
 		Harvest();
@@ -159,9 +142,6 @@ CALL_STACK_ADD();
 
 void CPlant::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(NetworkClipped(SnappingClient))
 		return;
 

@@ -9,9 +9,6 @@
 //////////////////////////////////////////////////
 CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameWorld = pGameWorld;
 
 	m_ObjType = ObjType;
@@ -27,26 +24,17 @@ CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
 
 CEntity::~CEntity()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameWorld()->RemoveEntity(this);
 	Server()->SnapFreeID(m_ID);
 }
 
 int CEntity::NetworkClipped(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return NetworkClipped(SnappingClient, m_Pos);
 }
 
 int CEntity::NetworkClipped(int SnappingClient, vec2 CheckPos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(SnappingClient == -1)
 		return 0;
 
@@ -63,9 +51,6 @@ int CEntity::NetworkClipped(int SnappingClient, vec2 CheckPos)
 
 bool CEntity::GameLayerClipped(vec2 CheckPos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.x)/32 > GameServer()->Collision()->GetWidth()+200 ||
 			round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision()->GetHeight()+200 ? true : false;
 }

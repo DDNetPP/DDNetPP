@@ -2485,9 +2485,6 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 
 void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
 	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);
 	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
@@ -2496,7 +2493,6 @@ void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
 //void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	((CServer *)pUser)->GameServer()->OnDDPPshutdown();
 //}

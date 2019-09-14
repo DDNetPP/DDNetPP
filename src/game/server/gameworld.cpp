@@ -13,9 +13,6 @@
 //////////////////////////////////////////////////
 CGameWorld::CGameWorld()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = 0x0;
 	m_pServer = 0x0;
 
@@ -27,9 +24,6 @@ CGameWorld::CGameWorld()
 
 CGameWorld::~CGameWorld()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// delete all entities
 	for(int i = 0; i < NUM_ENTTYPES; i++)
 		while(m_apFirstEntityTypes[i])
@@ -38,26 +32,17 @@ CGameWorld::~CGameWorld()
 
 void CGameWorld::SetGameServer(CGameContext *pGameServer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = pGameServer;
 	m_pServer = m_pGameServer->Server();
 }
 
 CEntity *CGameWorld::FindFirst(int Type)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return Type < 0 || Type >= NUM_ENTTYPES ? 0 : m_apFirstEntityTypes[Type];
 }
 
 int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, int Type)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(Type < 0 || Type >= NUM_ENTTYPES)
 		return 0;
 
@@ -82,7 +67,6 @@ void CGameWorld::InsertEntity(CEntity *pEnt)
 #ifdef CONF_DEBUG
 	for(CEntity *pCur = m_apFirstEntityTypes[pEnt->m_ObjType]; pCur; pCur = pCur->m_pNextTypeEntity)
 		dbg_assert(pCur != pEnt, "err");
-	CALL_STACK_ADD();
 #endif
 
 	// insert it
@@ -95,17 +79,11 @@ void CGameWorld::InsertEntity(CEntity *pEnt)
 
 void CGameWorld::DestroyEntity(CEntity *pEnt)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pEnt->m_MarkedForDestroy = true;
 }
 
 void CGameWorld::RemoveEntity(CEntity *pEnt)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// not in the list
 	if(!pEnt->m_pNextTypeEntity && !pEnt->m_pPrevTypeEntity && m_apFirstEntityTypes[pEnt->m_ObjType] != pEnt)
 		return;
@@ -129,9 +107,6 @@ void CGameWorld::RemoveEntity(CEntity *pEnt)
 //
 void CGameWorld::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for(int i = 0; i < NUM_ENTTYPES; i++)
 		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
 		{
@@ -143,9 +118,6 @@ void CGameWorld::Snap(int SnappingClient)
 
 void CGameWorld::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// reset all entities
 	for(int i = 0; i < NUM_ENTTYPES; i++)
 		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
@@ -164,9 +136,6 @@ void CGameWorld::Reset()
 
 void CGameWorld::RemoveEntities()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// destroy objects marked for destruction
 	for(int i = 0; i < NUM_ENTTYPES; i++)
 		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
@@ -183,17 +152,11 @@ void CGameWorld::RemoveEntities()
 
 bool distCompare(std::pair<float,int> a, std::pair<float,int> b)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return (a.first < b.first);
 }
 
 void CGameWorld::UpdatePlayerMaps()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Server()->Tick() % g_Config.m_SvMapUpdateRate != 0) return;
 
 	std::pair<float,int> dist[MAX_CLIENTS];
@@ -278,9 +241,6 @@ void CGameWorld::UpdatePlayerMaps()
 
 void CGameWorld::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_ResetRequested)
 		Reset();
 
@@ -324,9 +284,6 @@ void CGameWorld::Tick()
 //CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
 CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CCharacter *pNotThis, int CollideWith, class CCharacter *pThisOnly)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
 	CCharacter *pClosest = 0;
@@ -360,9 +317,6 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 
 CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotThis)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find other players
 	float ClosestRange = Radius*2;
 	CCharacter *pClosest = 0;
@@ -389,9 +343,6 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotTh
 
 std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::list< CCharacter * > listOfChars;
 
 	CCharacter *pChr = (CCharacter *)FindFirst(CGameWorld::ENTTYPE_CHARACTER);
@@ -413,9 +364,6 @@ std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 
 
 void CGameWorld::ReleaseHooked(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CCharacter *pChr = (CCharacter *)CGameWorld::FindFirst(CGameWorld::ENTTYPE_CHARACTER);
 		for(; pChr; pChr = (CCharacter *)pChr->TypeNext())
 		{
@@ -432,9 +380,6 @@ void CGameWorld::ReleaseHooked(int ClientID)
 
 CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -468,9 +413,6 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 
 CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *pNotThis)  // Chilidreghuns function stolen from piku 
 {   
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -508,9 +450,6 @@ CCharacter *CGameWorld::ClosestCharTypeRuler(vec2 Pos, bool Human, CCharacter *p
 
 CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *pNotThis)  // Ruler2 is nur im ruler bereich ohne linke freeze wand  (gemacht f�r mode18 == 2)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -548,9 +487,6 @@ CCharacter *CGameWorld::ClosestCharTypeRuler2(vec2 Pos, bool Human, CCharacter *
 
 CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCharacter *pNotThis) 
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -588,9 +524,6 @@ CCharacter *CGameWorld::ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human, CCh
 
 CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter *pNotThis) 
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -627,9 +560,6 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWB(vec2 Pos, bool Human, CCharacter 
 
 CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *pNotThis)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -670,9 +600,6 @@ CCharacter *CGameWorld::ClosestCharTypeTunnel(vec2 Pos, bool Human, CCharacter *
 */
 CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CCharacter *pNotThis)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -710,9 +637,6 @@ CCharacter *CGameWorld::ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human, CChar
 
 CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  // find closest dummy
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Dummys
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -745,9 +669,6 @@ CCharacter *CGameWorld::ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis)  //
 
 CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacter *pNotThis)  // find closest dummy far in race
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Dummys
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -787,9 +708,6 @@ CCharacter *CGameWorld::ClosestCharTypeFarInRace(vec2 Pos, bool Human, CCharacte
 
 CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CCharacter *pNotThis)  // BlmapChill right police freeze
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Find Humans
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
@@ -826,9 +744,6 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CC
 
 CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
 
@@ -865,9 +780,6 @@ CCharacter *CGameWorld::ClosestCharTypeFreeze(vec2 Pos, bool Human, CCharacter *
 
 CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
 
@@ -902,9 +814,6 @@ CCharacter *CGameWorld::ClosestCharTypeNotInFreeze(vec2 Pos, bool Human, CCharac
 
 CCharacter *CGameWorld::ClosestCharTypeUnfreezedArea5(vec2 Pos, bool Human, CCharacter *pNotThis, bool SeeAll)  // blmapV5 potential enemys in area5
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float ClosestRange = 0.f;
 	CCharacter *pClosest = 0;
 
