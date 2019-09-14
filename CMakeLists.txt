@@ -641,8 +641,6 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   ddracechat.cpp
   ddracechat.h
   ddracecommands.cpp
-  debug.cpp
-  debug.h
   entities/character.cpp
   entities/character.h
   entities/character_dummymodes.cpp
