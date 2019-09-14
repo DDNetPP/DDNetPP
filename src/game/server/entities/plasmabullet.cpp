@@ -11,9 +11,6 @@ CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 D
 		bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime, float Accel, float Speed) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Owner = Owner;
 	m_Pos = Pos;
 	m_Core = normalize(Dir) * Speed;
@@ -31,9 +28,6 @@ CPlasmaBullet::CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 D
 
 bool CPlasmaBullet::HitCharacter()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 To2;
 	CCharacter *Hit = GameServer()->m_World.IntersectCharacter(m_Pos,
 			m_Pos + m_Core, 0.0f, To2);
@@ -70,26 +64,17 @@ bool CPlasmaBullet::HitCharacter()
 
 void CPlasmaBullet::Move()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Pos += m_Core;
 	m_Core *= m_Accel;
 }
 
 void CPlasmaBullet::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CPlasmaBullet::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_LifeTime == 0)
 	{
 		Reset();
@@ -148,9 +133,6 @@ void CPlasmaBullet::Tick()
 
 void CPlasmaBullet::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (NetworkClipped(SnappingClient))
 		return;
 	CCharacter* SnapChar = GameServer()->GetPlayerChar(SnappingClient);

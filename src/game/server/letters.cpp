@@ -1,21 +1,14 @@
-#include "debug.h"
 #include "gamecontext.h"
 
 #include "letters.h"
 
 CLetters::CLetters(CGameContext *pGameServer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
     m_pGameServer = pGameServer;
 }
 
 void CLetters::UpdateBuffers(int ascii, int offset)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
     if (ascii <= 0 || ascii >= ASCII_TABLE_SIZE)
         return;
 
@@ -46,9 +39,6 @@ void CLetters::UpdateBuffers(int ascii, int offset)
 
 void CLetters::SendChat(int ClientID, int ascii)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
     UpdateBuffers(ascii);
     for (int i = 0; i < 5; i++)
         GameServer()->SendChatTarget(ClientID, m_aaAsciiBuf[i]);
@@ -56,9 +46,6 @@ void CLetters::SendChat(int ClientID, int ascii)
 
 void CLetters::SendChat(int ClientID, const char *pStr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
     char aUpper[ASCII_BUF_LENGTH+1];
     str_copy(aUpper, pStr, sizeof(aUpper));
     str_uppercase(aUpper);
@@ -76,9 +63,6 @@ void CLetters::SendChat(int ClientID, const char *pStr)
 
 void CLetters::DebugPrint(int ascii)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
     UpdateBuffers(ascii);
     for (int i = 0; i < 5; i++)
         printf("%s\n", m_aaAsciiBuf[i]);

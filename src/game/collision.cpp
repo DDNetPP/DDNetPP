@@ -11,7 +11,6 @@
 #include <game/mapitems.h>
 #include <game/layers.h>
 #include <game/collision.h>
-#include <game/server/debug.h>
 
 #include <engine/shared/config.h>
 #include "collision.h"
@@ -181,9 +180,6 @@ vec2 CCollision::GetRandomTile(int Tile)
 
 int CCollision::CountSurvivalSpawns()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int i = 0;
 	for (int y = 0; y < m_Height; y++)
 		for (int x = 0; x < m_Width; x++)
@@ -194,9 +190,6 @@ int CCollision::CountSurvivalSpawns()
 
 vec2 CCollision::GetSurvivalSpawn(int num, bool test)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 ReturnValue[MAX_RANDOM_TILE] = { vec2(0,0) };
 	int i = 0;
 	for (int y = 0; y < m_Height; y++)

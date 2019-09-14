@@ -15,9 +15,6 @@
 CGun::CGun(CGameWorld *pGameWorld, vec2 Pos, bool Freeze, bool Explosive, int Layer, int Number)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Layer = Layer;
 	m_Number = Number;
 	m_LastFire = Server()->Tick();
@@ -32,9 +29,6 @@ CGun::CGun(CGameWorld *pGameWorld, vec2 Pos, bool Freeze, bool Explosive, int La
 
 void CGun::Fire()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CCharacter *Ents[MAX_CLIENTS];
 	int IdInTeam[MAX_CLIENTS];
 	int LenInTeam[MAX_CLIENTS];
@@ -96,17 +90,11 @@ void CGun::Fire()
 
 void CGun::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CGun::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Server()->Tick()%int(Server()->TickSpeed()*0.15f)==0)
 	{
 		int Flags;
@@ -125,9 +113,6 @@ void CGun::Tick()
 
 void CGun::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(NetworkClipped(SnappingClient))
 		return;
 

@@ -13,9 +13,6 @@
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Type)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Pos = Pos;
 	m_Owner = Owner;
 	m_Energy = StartEnergy;
@@ -33,9 +30,6 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 
 bool CLaser::HitCharacter(vec2 From, vec2 To)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 At;
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	CCharacter *pHit;
@@ -137,9 +131,6 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 
 void CLaser::DoBounce()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_EvalTick = Server()->Tick();
 
 	if(m_Energy < 0)
@@ -230,17 +221,11 @@ void CLaser::DoBounce()
 
 void CLaser::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CLaser::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Delay;
 	if (m_TuneZone)
 		Delay = GameServer()->TuningList()[m_TuneZone].m_LaserBounceDelay;
@@ -253,17 +238,11 @@ void CLaser::Tick()
 
 void CLaser::TickPaused()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	++m_EvalTick;
 }
 
 void CLaser::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(NetworkClipped(SnappingClient))
 		return;
 	CCharacter * OwnerChar = 0;
@@ -298,9 +277,6 @@ void CLaser::Snap(int SnappingClient)
 
 void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// only check for quests in case both the hitter and the hitted are alive
 	// currently all quests are related to the quester hitting tees
 	// but make sure when you add a quest where the quester gets hitted

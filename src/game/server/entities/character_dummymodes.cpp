@@ -15,9 +15,6 @@
 
 void CCharacter::DummyTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_pPlayer->m_IsDummy)
 	{
 		if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			 

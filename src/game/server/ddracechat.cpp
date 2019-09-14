@@ -55,9 +55,6 @@ bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
 void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -90,9 +87,6 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -131,9 +125,6 @@ void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -154,9 +145,6 @@ void CGameContext::ConSayServer(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -260,7 +248,6 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 //void CGameContext::ConTaserinfo(IConsole::IResult *pResult, void *pUserData)
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	CGameContext *pSelf = (CGameContext *)pUserData;
 //	if (!CheckClientID(pResult->m_ClientID))
@@ -328,9 +315,6 @@ void CGameContext::ConPolicehelper(IConsole::IResult * pResult, void * pUserData
 
 void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -366,9 +350,6 @@ void CGameContext::ConOfferInfo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 
@@ -561,9 +542,6 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 
@@ -606,9 +584,6 @@ void CGameContext::ConScore(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	// if you add something to the shop make sure to also add extend the list here and add a page to ShopWindow() and BuyItem() in character.cpp
 
@@ -710,9 +685,6 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -736,9 +708,6 @@ void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -753,9 +722,6 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -768,9 +734,6 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	if (pResult->NumArguments() == 0)
@@ -800,9 +763,6 @@ void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	if (pResult->NumArguments() == 0)
@@ -947,9 +907,6 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	bool Printed = false;
 	if (g_Config.m_SvRulesLine1[0])
@@ -1019,9 +976,6 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1075,9 +1029,6 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID)) return;
 	char aBuf[128];
@@ -1119,9 +1070,6 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1153,9 +1101,6 @@ void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1252,9 +1197,6 @@ void CGameContext::ConTimes(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConDND(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID)) return;
 
@@ -1276,9 +1218,6 @@ void CGameContext::ConDND(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1316,9 +1255,6 @@ void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConMapInfo(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1346,9 +1282,6 @@ void CGameContext::ConMapInfo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1380,9 +1313,6 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1426,9 +1356,6 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConLoad(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1462,9 +1389,6 @@ void CGameContext::ConLoad(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTeamRank(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1500,9 +1424,6 @@ void CGameContext::ConTeamRank(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1538,9 +1459,6 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1592,9 +1510,6 @@ void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1697,9 +1612,6 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1720,26 +1632,17 @@ void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConConverse(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// This will never be called
 }
 
 void CGameContext::ConWhisper(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// This will never be called
 }
 
 void CGameContext::ConSetEyeEmote(IConsole::IResult *pResult,
 		void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1772,9 +1675,6 @@ void CGameContext::ConSetEyeEmote(IConsole::IResult *pResult,
 
 void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (g_Config.m_SvEmotionalTees == -1)
 	{
@@ -1836,9 +1736,6 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1870,9 +1767,6 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1896,9 +1790,6 @@ void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1915,9 +1806,6 @@ void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1934,9 +1822,6 @@ void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 
 bool CheckClientID(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
 			"Wrong clientID!");
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
@@ -1946,9 +1831,6 @@ bool CheckClientID(int ClientID)
 
 void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -1994,9 +1876,6 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2023,9 +1902,6 @@ void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2048,9 +1924,6 @@ void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSetTimerType(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2092,9 +1965,6 @@ void CGameContext::ConSetTimerType(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2115,9 +1985,6 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2264,9 +2131,6 @@ void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2334,9 +2198,6 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -2434,9 +2295,6 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2491,9 +2349,6 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2721,9 +2576,6 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2803,9 +2655,6 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -2841,9 +2690,6 @@ void CGameContext::ConStats(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3077,9 +2923,6 @@ void CGameContext::ConProfile(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3185,9 +3028,6 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3242,9 +3082,6 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3327,9 +3164,6 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConChidraqul(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -3527,9 +3361,6 @@ void CGameContext::ConMinigames(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3590,9 +3421,6 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -3709,9 +3537,6 @@ void CGameContext::ConBalance(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4222,9 +4047,6 @@ void CGameContext::ConInsta(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this command joins the currently running event... for now only Block tournaments
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4295,9 +4117,6 @@ void CGameContext::ConJoin(IConsole::IResult * pResult, void * pUserData) //this
 
 void CGameContext::ConBlock(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4328,9 +4147,6 @@ void CGameContext::ConBlock(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4424,9 +4240,6 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4463,9 +4276,6 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4547,9 +4357,6 @@ void CGameContext::ConPay(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4627,9 +4434,6 @@ void CGameContext::ConGift(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4671,9 +4475,6 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4730,9 +4531,6 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4790,9 +4588,6 @@ void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4849,9 +4644,6 @@ void CGameContext::ConAtom(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4908,9 +4700,6 @@ void CGameContext::ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4952,9 +4741,6 @@ void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -4996,9 +4782,6 @@ void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5055,9 +4838,6 @@ void CGameContext::ConTrail(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5082,9 +4862,6 @@ void CGameContext::ConAccountInfo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	int page = pResult->GetInteger(0); //no parameter -> 0 -> page 1
@@ -5222,7 +4999,6 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 //void CGameContext::ConProfileInfo(IConsole::IResult *pResult, void *pUserData) //old
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	CGameContext *pSelf = (CGameContext *)pUserData;
 //	if (!CheckClientID(pResult->m_ClientID))
@@ -5255,9 +5031,6 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5313,9 +5086,6 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConAntiFlood(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -5354,9 +5124,6 @@ register_ban, login_ban\
 
 void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5421,9 +5188,6 @@ void CGameContext::ConStockMarket(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConCaptcha(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5440,9 +5204,6 @@ void CGameContext::ConCaptcha(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConHumanLevel(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5464,9 +5225,6 @@ void CGameContext::ConHumanLevel(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -5556,9 +5314,6 @@ void CGameContext::ConPoop(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -6041,9 +5796,6 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
@@ -6842,9 +6594,6 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -6976,9 +6725,6 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7014,9 +6760,6 @@ void CGameContext::ConSpawn(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7159,9 +6902,6 @@ void CGameContext::ConRoom(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7273,9 +7013,6 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7389,9 +7126,6 @@ void CGameContext::ConGangsterBag(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConJailCode(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7444,9 +7178,6 @@ void CGameContext::ConJailCode(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7653,9 +7384,6 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 }
 void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -7978,9 +7706,6 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8040,9 +7765,6 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8110,9 +7832,6 @@ void CGameContext::ConReport(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTaser(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8209,9 +7928,6 @@ void CGameContext::ConTaser(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConSpawnWeaponsInfo(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8240,9 +7956,6 @@ void CGameContext::ConSpawnWeaponsInfo(IConsole::IResult * pResult, void * pUser
 
 void CGameContext::ConSpookyGhostInfo(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8262,9 +7975,6 @@ void CGameContext::ConSpookyGhostInfo(IConsole::IResult * pResult, void * pUserD
 
 void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8298,9 +8008,6 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8447,9 +8154,6 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8498,9 +8202,6 @@ void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8587,9 +8288,6 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8749,9 +8447,6 @@ void CGameContext::ConShow(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -8910,9 +8605,6 @@ void CGameContext::ConHide(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9038,9 +8730,6 @@ void CGameContext::ConQuest(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9156,9 +8845,6 @@ void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConTROLL166(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9175,9 +8861,6 @@ void CGameContext::ConTROLL166(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConTROLL420(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9195,9 +8878,6 @@ void CGameContext::ConTROLL420(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9418,9 +9098,6 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9557,9 +9234,6 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9671,9 +9345,6 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9702,9 +9373,6 @@ void CGameContext::ConBroadcastServer(IConsole::IResult * pResult, void * pUserD
 
 void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9820,9 +9488,6 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9873,9 +9538,6 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9925,9 +9587,6 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 
 void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -9956,9 +9615,6 @@ void CGameContext::ConWanted(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConViewers(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10003,9 +9659,6 @@ void CGameContext::ConViewers(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConIp(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10026,9 +9679,6 @@ void CGameContext::ConIp(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10192,9 +9842,6 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10331,9 +9978,6 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10482,9 +10126,6 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
@@ -10555,9 +10196,6 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 
 void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;

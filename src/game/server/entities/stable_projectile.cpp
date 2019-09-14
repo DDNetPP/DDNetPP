@@ -4,9 +4,6 @@
 CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Type = Type;
 
 	m_Pos = Pos;
@@ -20,17 +17,11 @@ CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos)
 
 void CStableProjectile::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_World.DestroyEntity(this);
 }
 
 void CStableProjectile::TickDefered()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(Server()->Tick()%4 == 1)
 	{
 		m_LastResetPos = m_Pos;
@@ -41,9 +32,6 @@ void CStableProjectile::TickDefered()
 
 void CStableProjectile::CalculateVel()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Time = (Server()->Tick()-m_LastResetTick)/(float)Server()->TickSpeed();
 	float Curvature = 0;
 	float Speed = 0;
@@ -101,9 +89,6 @@ void CStableProjectile::CalculateVel()
 
 void CStableProjectile::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(NetworkClipped(SnappingClient))
 		return;
 
