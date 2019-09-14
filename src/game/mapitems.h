@@ -238,6 +238,9 @@ enum
 	TILESLAYERFLAG_TUNE=32,
 
 	ENTITY_OFFSET=255-16*4,
+
+	// F-DDrace
+	NUM_INDICES = 256,
 };
 
 struct CPoint

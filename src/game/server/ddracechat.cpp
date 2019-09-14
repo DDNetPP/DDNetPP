@@ -10165,8 +10165,8 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(aCommand, "test"))
 	{
-		vec2 SurvivalGameSpawnTile = pSelf->Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients, true);
-		vec2 SurvivalGameSpawnTile2 = pSelf->Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+		vec2 SurvivalGameSpawnTile = pSelf->Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients);
+		vec2 SurvivalGameSpawnTile2 = pSelf->Collision()->GetSurvivalSpawn(MAX_CLIENTS);
 
 		if (SurvivalGameSpawnTile == vec2(-1, -1))
 		{
