@@ -13,7 +13,8 @@ jobs:
             apt-get install -y cmake \
             build-essential \
             libcurl4-openssl-dev \
-            python3
+            python3 \
+            gdb
       - run:
           name: Build bam
           command: |
@@ -21,6 +22,20 @@ jobs:
             cd ~/bam/
             git reset --hard f012dd9a3e38295b8a45af5a101d29573381f169
             ./make_unix.sh
+      - run:
+          name: Install chillerbot-ng
+          command: |
+            apt-get install -y libglew-dev \
+            libpnglite-dev \
+            libsdl2-dev \
+            libcurl4-openssl-dev
+            git clone https://github.com/chillerbot/chillerbot-ng ~/chillerbot-src
+            cd ~/chillerbot-src
+            git reset --hard dfbb131ead3ae70f985ff05c6078941ea13f2207
+            mkdir build && cd build
+            cmake ..
+            make -j$(nproc)
+            mv chillerbot-ng ../../
       - run:
           name: Build DDNet++ with bam (debug)
           command: |
@@ -37,5 +52,24 @@ jobs:
             mkdir -p build
             cd build
             cmake ..
-            make
+            make -j$(nproc)
             ./DDNetPP shutdown
+      - run:
+          name: Pentest with chillerbot-ng (cmake)
+          command: |
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_shutdown_srv rcon" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            cd build
+            gdb -ex=run -ex=bt -ex=quit --args ./DDNetPP -f ../autoexec_server.cfg
+            pkill -f chillerbot-ng
+      - run:
+          name: Pentest with chillerbot-ng (bam debug)
+          command: |
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_shutdown_srv rcon" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            nohup ~/chillerbot-ng "cl_chiller_inp 0;connect localhost:8309;cl_pentest 1" &
+            gdb -ex=run -ex=bt -ex=quit --args ./DDNetPP_d -f autoexec_server.cfg
+            pkill -f chillerbot-ng
