@@ -8282,7 +8282,7 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 	}
 	else
 	{
-		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load]'");
+		pSelf->SendChatTarget(ClientID, "Usage: '/mapsave [save|load|debug|players|check]'");
 	}
 }
 
