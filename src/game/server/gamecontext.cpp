@@ -502,13 +502,13 @@ void CGameContext::Construct(int Resetting)
 	//m_LockTeams = 0;
 
 	m_Database = new CSql();
+	m_pLetters = new CLetters(this);
 
 	if(Resetting==NO_RESET)
 	{
 		m_pVoteOptionHeap = new CHeap();
 		m_pScore = 0;
 		m_NumMutes = 0;
-		m_pLetters = new CLetters(this);
 	}
 	m_ChatResponseTargetID = -1;
 	m_aDeleteTempfile[0] = 0;
