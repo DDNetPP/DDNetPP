@@ -9149,6 +9149,12 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 	else if (pResult->NumArguments() == 1)
 	{
 		int TradeID = pSelf->GetCIDByName(pResult->GetString(0));
+		if (TradeID == -1)
+		{
+			str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not online.", pResult->GetString(0));
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			return;
+		}
 		int weapon = pSelf->m_apPlayers[TradeID] ? pSelf->m_apPlayers[TradeID]->m_TradeItem : -1;
 		char aWeaponName[64]; //calculate trading string
 		str_format(aWeaponName, sizeof(aWeaponName), pSelf->TradeItemToStr(weapon));
