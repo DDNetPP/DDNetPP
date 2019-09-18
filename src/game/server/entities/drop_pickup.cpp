@@ -8,32 +8,41 @@
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
-#if defined(CONF_DEBUG)
-	// https://github.com/DDNetPP/DDNetPP/issues/296
-	// it crashed at this line:
-	// m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
-	// so maybe m_Pos or the player char was null
-	// it happend on droploot on disconnect
-	// but the thing is it kills the character before deleting it
-	// also m_Pos and the character are used after the ddnet++ stuff by vanilla code so that should not crash
-	// anyways some desperate debugging
-	dbg_assert(GameServer()->GetPlayerChar(Owner) != NULL, "droppickup playerchar is null");
-	dbg_assert(GameServer()->GetPlayerChar(Owner)->m_Pos != NULL, "droppickup m_Pos is null");
-#endif
+	if (GameServer()->GetPlayerChar(Owner))
+	{
+		m_Type = Type;
+		m_Lifetime = Server()->TickSpeed() * Lifetime;
+		m_ResponsibleTeam = ResponsibleTeam;
+		m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
+		m_Owner = Owner;
 
-	m_Type = Type;
-	m_Lifetime = Server()->TickSpeed() * Lifetime;
-	m_ResponsibleTeam = ResponsibleTeam;
-	m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
-	m_Owner = Owner;
+		m_Vel = vec2(5*Direction, -5);
+		m_Vel.x += (rand() % 10 - 5) * Force;
+		m_Vel.y += (rand() % 10 - 5) * Force;
 
-	m_Vel = vec2(5*Direction, -5);
-	m_Vel.x += (rand() % 10 - 5) * Force;
-	m_Vel.y += (rand() % 10 - 5) * Force;
+		m_PickupDelay = Server()->TickSpeed() * 2;
 
-	m_PickupDelay = Server()->TickSpeed() * 2;
+		GameWorld()->InsertEntity(this);
+	}
+	else // invalid owner
+	{
+		// https://github.com/DDNetPP/DDNetPP/issues/296
+		dbg_msg("drop_pickup", "[WARNING] playerchar=%d is invalid", Owner);
+		m_Type = Type;
+		m_Lifetime = 1;
+		m_ResponsibleTeam = ResponsibleTeam;
+		m_Pos = vec2(0,0);
+		m_Owner = Owner;
 
-	GameWorld()->InsertEntity(this);
+		m_Vel = vec2(5*Direction, -5);
+		m_Vel.x += (rand() % 10 - 5) * Force;
+		m_Vel.y += (rand() % 10 - 5) * Force;
+
+		m_PickupDelay = 1;
+
+		GameWorld()->InsertEntity(this);
+		Delete();
+	}
 }
 
 void CDropPickup::Delete()
