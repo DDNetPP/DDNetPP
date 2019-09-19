@@ -2677,6 +2677,14 @@ int regex_compile(const char *pPattern, const char *pStr)
 	return ret;;
 }
 
+long long fpost_get_pos(fpos_t pos)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return pos;
+#else
+	return pos.__pos;
+#endif
+}
 
 #if defined(__cplusplus)
 }

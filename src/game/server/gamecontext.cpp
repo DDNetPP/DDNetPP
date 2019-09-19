@@ -3586,7 +3586,7 @@ void CGameContext::SaveMapPlayerData()
 		char IsLoaded = 0;
 		fpos_t pos;
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapsave", "writing isloaded at pos %d", pos.__pos);
+		dbg_msg("ddpp-mapsave", "writing isloaded at pos %lld", fpost_get_pos(pos));
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
 		CSaveTee savetee;
@@ -3622,7 +3622,7 @@ void CGameContext::LoadMapPlayerData()
 		char aTimeoutCode[64];
 		fpos_t pos;
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapload", "read timeout code at %d", pos.__pos);
+		dbg_msg("ddpp-mapload", "read timeout code at %lld", fpost_get_pos(pos));
 		fread(&aTimeoutCode, 64, 1, pFile);
 		int id = GetPlayerByTimeoutcode(aTimeoutCode);
 		if (id == -1)
@@ -3659,7 +3659,7 @@ void CGameContext::LoadMapPlayerData()
 		}
 		char IsLoaded;
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapload", "reading isloaded at pos %d", pos.__pos);
+		dbg_msg("ddpp-mapload", "reading isloaded at pos %lld", fpost_get_pos(pos));
 		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 		// reset file pos after read to overwrite isloaded or keep clean offset on continue
 		if (IsLoaded)
@@ -3684,7 +3684,7 @@ void CGameContext::LoadMapPlayerData()
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;
 			fgetpos(pFile, &pos);
-			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%d", Server()->ClientName(id), pPlayer->m_TimeoutCode, pos.__pos);
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%lld", Server()->ClientName(id), pPlayer->m_TimeoutCode, fpost_get_pos(pos));
 			loaded++;
 		}
 	}
@@ -3713,7 +3713,7 @@ void CGameContext::ReadMapPlayerData(int ClientID)
 		char aTimeoutCode[64];
 		fpos_t pos;
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapread", "read timeout code at %d", pos.__pos);
+		dbg_msg("ddpp-mapread", "read timeout code at %lld", fpost_get_pos(pos));
 		fread(&aTimeoutCode, 64, 1, pFile);
 		int id = GetPlayerByTimeoutcode(aTimeoutCode);
 		char IsLoaded;
@@ -3725,7 +3725,7 @@ void CGameContext::ReadMapPlayerData(int ClientID)
 		fread(&savetee, sizeof(savetee), 1, pFile);
 
 		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%d", id, aTimeoutCode, IsLoaded, pos.__pos);
+		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%lld", id, aTimeoutCode, IsLoaded, fpost_get_pos(pos));
 		red++;
 	}
 	fclose(pFile);

@@ -11,6 +11,7 @@
 #include "detect.h"
 #include "stddef.h"
 #include <time.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -1425,6 +1426,18 @@ void secure_random_fill(void *bytes, size_t length);
 		1 - if pattern doesn't match
 */
 int regex_compile(const char *pPattern, const char *pStr);
+
+/*
+	Function: fpost_get_pos
+		ensures windows and unix support for fpos_t
+
+	Parameters:
+		pos - of type fpos_t
+
+	Returns:
+		a file position as long long
+*/
+long long fpost_get_pos(fpos_t pos);
 
 #ifdef __cplusplus
 }
