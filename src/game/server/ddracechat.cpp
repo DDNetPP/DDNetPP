@@ -9258,7 +9258,7 @@ void CGameContext::ConBlockWave(IConsole::IResult * pResult, void * pUserData)
 
 	if (!g_Config.m_SvAllowBlockWave)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] this command is diseabled by an administator.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BlockWave] this command is disabled by an administator.");
 		return;
 	}
 
