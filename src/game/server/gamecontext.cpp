@@ -3959,7 +3959,7 @@ void CGameContext::SendSurvivalChat(const char * pMsg)
 	}
 }
 
-void CGameContext::SendSurvivalBroadcast(const char * pMsg)
+void CGameContext::SendSurvivalBroadcast(const char * pMsg, int Importance)
 {
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -3967,7 +3967,7 @@ void CGameContext::SendSurvivalBroadcast(const char * pMsg)
 		{
 			if (m_apPlayers[i]->m_IsSurvivaling)
 			{
-				SendBroadcast(pMsg, i);
+				SendBroadcast(pMsg, i, Importance);
 			}
 		}
 	}

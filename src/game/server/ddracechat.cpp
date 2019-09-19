@@ -6677,6 +6677,7 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
 			pSelf->SetPlayerSurvival(pResult->m_ClientID, 0);
 			pSelf->SendChatTarget(pResult->m_ClientID, "[SURVIVAL] you left the game. (bye c:)");
+			pSelf->SendBroadcast("", pPlayer->GetCID(), 1); // survival broadcasts are importance lvl1 so lvl1 is needed to overwrite
 		}
 		else
 		{
