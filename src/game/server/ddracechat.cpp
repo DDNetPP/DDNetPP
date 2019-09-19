@@ -8182,6 +8182,7 @@ void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "example: '/regex \"^[0-9]*x$\" \"123x\"' (match numbers followed by x)");
 		return;
 	}
+#if defined(CONF_FAMILY_UNIX)
 	int ret = regex_compile(pResult->GetString(0), pResult->GetString(1));
 	if (ret == -1)
 	{
@@ -8199,6 +8200,9 @@ void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 	pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] Error: something went horribly wrong.");
+#else
+	pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] Error: not supported on your operating system.");
+#endif
 }
 
 void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)

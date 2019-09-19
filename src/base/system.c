@@ -2625,10 +2625,13 @@ void secure_random_fill(void *bytes, size_t length)
 #endif
 }
 
+#if defined(CONF_FAMILY_UNIX)
 #include <regex.h>
+#endif
 
 int regex_compile(const char *pPattern, const char *pStr)
 {
+#if defined(CONF_FAMILY_UNIX)
 	/*
 		credits go to Per-Olof Pettersson
 		found through: https://stackoverflow.com/a/1085120
@@ -2675,6 +2678,9 @@ int regex_compile(const char *pPattern, const char *pStr)
 	/* Free memory allocated to the pattern buffer by regcomp() */
 	regfree(&regex);
 	return ret;;
+#else
+	return 0;
+#endif
 }
 
 long long fpost_get_pos(fpos_t pos)
