@@ -409,7 +409,7 @@ public:
 	void SurvivalDeathmatchTick();
 	void SurvivalStartGame();
 	void SendSurvivalChat(const char *pMsg);
-	void SendSurvivalBroadcast(const char *pMsg);
+	void SendSurvivalBroadcast(const char *pMsg, int Importance = 1);
 	/*
 		SetPlayerSurvival()
 		0	SURVIVAL_OFF
