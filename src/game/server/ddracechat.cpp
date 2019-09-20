@@ -354,6 +354,7 @@ void CGameContext::ConChangelog(IConsole::IResult * pResult, void * pUserData)
 
 
 	//RELEASE NOTES:
+	//20.9.2019 RELEASED v.0.0.7
 	//7.9.2018 RELEASED v.0.0.6
 	//7.10.2017 RELEASED v.0.0.3
 	//25.5.2017 RELEASED v.0.0.2
