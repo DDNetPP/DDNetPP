@@ -389,7 +389,7 @@ MACRO_CONFIG_INT(SvMinAdminPing, sv_min_admin_ping, 0, 0, 1024, CFGFLAG_SERVER, 
 
 MACRO_CONFIG_INT(SvAutoFixBrokenAccs, sv_auto_fix_broken_accs, 0, 0, 1, CFGFLAG_SERVER, "search and fix accounts falsely set to logged in on this port (breaks on 99 999 999+ accs)")
 
-// DDNet++ shutdown if not veto at confuig time if less than x players online
+// DDNet++ shutdown if not veto at config time if less than x players online
 MACRO_CONFIG_INT(SvDDPPshutdown, sv_ddpp_shutdown, 0, 0, 1, CFGFLAG_SERVER | CFGFLAG_GAME, "shutdown srv if players<sv_ddpp_shutdown_players and hour=sv_ddpp_shutdown_hour")
 MACRO_CONFIG_INT(SvDDPPshutdownHour, sv_ddpp_shutdown_hour, 4, 0, 24, CFGFLAG_SERVER | CFGFLAG_GAME, "at this hour the server will restart if sv_ddpp_restart is 1")
 MACRO_CONFIG_INT(SvDDPPshutdownPlayers, sv_ddpp_shutdown_players, 3, 0, MAX_CLIENTS, CFGFLAG_SERVER | CFGFLAG_GAME, "less than x players needed to successfully pass a sv_ddpp_shutdown")
