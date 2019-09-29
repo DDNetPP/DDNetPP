@@ -309,7 +309,7 @@ public:
 	bool ForceFreeze(int Seconds); //mede by ChillerDragon too freeze no matter what used for freezing while freezed (for example for tournaments to have all same freeze time even if some wer freezed at tourna start)
 	//WARNING FORCE FREEZE ISNT ABLE TO OVERWRITE FREEZE AS IT SHOULD!!!
 	//it can still be used to bypass super but thats all i guess
-	bool Freeze(int Time);
+	bool Freeze(float Time);
 	bool Freeze(); 
 	bool UnFreeze();
 	void MoneyTile();

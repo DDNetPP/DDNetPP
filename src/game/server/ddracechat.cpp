@@ -7888,7 +7888,7 @@ void CGameContext::ConTaser(IConsole::IResult * pResult, void * pUserData)
 		str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		//str_format(aBuf, sizeof(aBuf), "FreezeTime: %.4f seconds", (pPlayer->m_TaserLevel * 5) / pSelf->Server()->TickSpeed());
-		str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 5);
+		str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 10);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "FailRate: %d%", 0);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);

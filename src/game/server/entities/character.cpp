@@ -4269,7 +4269,7 @@ bool CCharacter::ForceFreeze(int Seconds)
 	return false;
 }
 
-bool CCharacter::Freeze(int Seconds)
+bool CCharacter::Freeze(float Seconds)
 {
 	KillFreeze(false);
 	isFreezed = true;
