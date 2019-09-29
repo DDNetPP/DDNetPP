@@ -4414,7 +4414,7 @@ bool CCharacter::ForceFreeze(int Seconds)
 	return false;
 }
 
-bool CCharacter::Freeze(int Seconds)
+bool CCharacter::Freeze(float Seconds)
 {
 #if defined(CONF_DEBUG)
 	CALL_STACK_ADD();
