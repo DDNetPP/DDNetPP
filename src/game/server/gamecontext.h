@@ -10,6 +10,8 @@
 #include <game/layers.h>
 #include <game/voting.h>
 
+#include <game/server/letters.h>
+
 #include "eventhandler.h"
 #include "gamecontroller.h"
 #include "gameworld.h"
@@ -226,6 +228,7 @@ public:
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
+	virtual void LogoutAllPlayers();
 	virtual void OnStartBlockTournament();
 	//virtual void OnDDPPshutdown();
 
@@ -257,11 +260,31 @@ public:
 	int CountConnectedHumans();
 	int CountIngameHumans();
 	int CountConnectedBots();
-    bool IsAllowedCharSet(const char *pStr);
+	int CountTimeoutCodePlayers();
+	bool IsAllowedCharSet(const char *pStr);
+	int GetPlayerByTimeoutcode(const char *pTimeout);
+	void GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord = false);
+	void LogoutAllPlayersMessage();
+
+	bool ShowJoinMessage(int ClientID);
+	bool ShowLeaveMessage(int ClientID);
+	bool ShowTeamSwitchMessage(int ClientID);
+
+	enum {
+		CON_SHOW_NONE,
+		CON_SHOW_JOIN,
+		CON_SHOW_JOIN_LEAVE,
+		CON_SHOW_ALL,
+	};
+
+	int m_WrongRconAttempts;
+	void ConnectAdventureBots();
+	CLetters *m_pLetters;
 
 	// sql
 	void SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword = "");
 	void ExecuteSQLf(const char *pSQL, ...);
+	void ExecuteSQLBlockingf(const char *pSQL, ...);
 	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
 	enum {
 		SQL_REGISTER,
@@ -270,9 +293,17 @@ public:
 		SQL_CHANGE_PASSWORD,
 		SQL_SET_PASSWORD
 	};
+	void SQLcleanZombieAccounts(int ClientID);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char * pMsg);
+
+	/*
+		m_LastAccountMode
+		keeps track of changes of the sv_account_stuff config
+		it is used to logout all players
+	*/
+	int m_LastAccountMode;
 
 	//shop
 	int GetShopBot();
@@ -284,8 +315,6 @@ public:
     char m_aAllowedCharSet[128]; //assignment moved to constructor
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
-	void GiveBlockPoints(int ID, int points);
-	void GiveXp(int id, int value);
 	bool IsPosition(int playerID, int pos);
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
@@ -293,6 +322,7 @@ public:
 	void JoinInstagib(int weapon, bool fng, int ID);
 	void ShowInstaStats(int requestID, int requestedID);
 	void ShowSurvivalStats(int requestID, int requestedID);
+	void ShowDDPPStats(int requestID, int requestedID);
 	void LeaveInstagib(int ID);
 	void SayInsta(const char *pMsg, int weapon);
 	void DoInstaScore(int score, int id);
@@ -358,8 +388,15 @@ public:
     
     struct CBinaryStorage
     {
-        int x,space1,space2;
+        int x,space1,space2; // wtf? xd
     };
+
+	// TODO: make this a own class
+	void SaveMapPlayerData();
+	void LoadMapPlayerData();
+	void ReadMapPlayerData(int ClientID = -1); // load debug only output do nothing
+	int m_MapsavePlayers;
+	int m_MapsaveLoadedPlayers;
 
 	//global chat
 	void GlobalChatPrintMessage();
@@ -372,15 +409,55 @@ public:
 	void SurvivalDeathmatchTick();
 	void SurvivalStartGame();
 	void SendSurvivalChat(const char *pMsg);
-	void SendSurvivalBroadcast(const char *pMsg);
-	void SetPlayerSurvival(int id,int mode); //0=off 1=lobby 2=ingame 3=die
+	void SendSurvivalBroadcast(const char *pMsg, int Importance = 1);
+	/*
+		SetPlayerSurvival()
+		0	SURVIVAL_OFF
+		1	SURVIVAL_LOBBY
+		2	SURVIVAL_INGAME
+		3	SURVIVAL_DIE
+	*/
+	void SetPlayerSurvival(int id, int mode);
 	int CountSurvivalPlayers(bool Alive = false);
+	/*
+		SurvivalSetGameState()
+		SURVIVAL_OFF
+		SURVIVAL_LOBBY
+		SURVIVAL_INGAME
+		SURVIVAL_DM_COUNTDOWN
+		SURVIVAL_DM
+	*/
 	void SurvivalSetGameState(int state);
+	void SurvivalCheckWinnerAndDeathMatch();
 	bool SurvivalPickWinner();
-	int m_survivalgamestate; //0=offline 1=lobby 2=ingame 3=deathmatch countdown 4=deathmatch
+	int SurvivalGetRandomAliveID(int NotThis = -1);
+	void SurvivalGetNextSpectator(int UpdateID, int KillerID);
+	void SurvivalUpdateSpectators(int DiedID, int KillerID);
+	/*
+		m_survivalgamestate
+		0	SURVIVAL_OFF
+		1	SURVIVAL_LOBBY
+		2	SURVIVAL_INGAME
+		3	SURVIVAL_DM_COUNTDOWN
+		4	SURVIVAL_DM
+		should only be set by SurvivalSetGameState()
+	*/
+	int m_survivalgamestate;
 	int m_survivallobbycountdown;
 	int m_survival_dm_countdown;
+	int m_survival_game_countdown;
+	int m_survival_start_players;
+	int m_survival_spawn_counter;
 	char m_aLastSurvivalWinnerName[32];
+	enum {
+		SURVIVAL_OFF,				// gamestate	playerstate
+		SURVIVAL_LOBBY,				// gamestate	playerstate
+		SURVIVAL_INGAME,			// gamestate	playerstate
+		SURVIVAL_DM_COUNTDOWN,		// gamestate
+		SURVIVAL_DM,				// gamestate
+
+		SURVIVAL_DIE=3				// playerstate
+	};
 
 	//block tourna
 
@@ -422,6 +499,7 @@ public:
 	//void PickNextQuest(int playerID); //includeded in QuestComplete
 	void StartQuest(int playerID);
 	int PickQuestPlayer(int playerID);
+	void CheckConnectQuestBot();
 
 	//police
 	void SendAllPolice(const char *pMessage);
@@ -799,6 +877,24 @@ private:
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBans(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConNameChangeMute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
@@ -856,6 +952,7 @@ private:
 	//static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConJailCode(IConsole::IResult *pResult, void *pUserData);
 	static void ConReport(IConsole::IResult *pResult, void *pUserData);
 	static void ConTaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConWanted(IConsole::IResult *pResult, void *pUserData);
@@ -884,11 +981,14 @@ private:
 	static void ConIp(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);
+	static void ConDDPPLogs(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConGive(IConsole::IResult *pResult, void *pUserData);
 
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
+	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
+	static void ConHumanLevel(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 
@@ -913,6 +1013,8 @@ private:
 	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
 	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConLive(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
+	static void ConMapsave(IConsole::IResult *pResult, void *pUserData);
 
 	//static void ConAfk(IConsole::IResult *pResult, void *pUserData);
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
@@ -921,21 +1023,55 @@ private:
 	enum
 	{
 		MAX_MUTES=32,
+		MAX_REGISTER_BANS=128,
+		MAX_LOGIN_BANS=128,
+		MAX_JAILS=16
 	};
 	struct CMute
 	{
 		NETADDR m_Addr;
 		int m_Expire;
 	};
+	struct CGenericBan
+	{
+		NETADDR m_Addr;
+		int m_Expire;
+		int64 m_LastAttempt;
+		int m_NumAttempts;
+	};
 
 	CMute m_aMutes[MAX_MUTES];
+	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
+	CGenericBan m_aLoginBans[MAX_LOGIN_BANS];
+	CGenericBan m_aNameChangeMutes[MAX_MUTES];
+	NETADDR m_aJailIPs[MAX_JAILS];
 	int m_NumMutes;
+	int m_NumRegisterBans;
+	int m_NumLoginBans;
+	int m_NumNameChangeMutes;
+	int m_NumJailIPs;
 	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
+	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
+	int64 NameChangeMuteTime(int ClientID);
 	void Whisper(int ClientID, char *pStr);
 	void WhisperID(int ClientID, int VictimID, char *pMessage);
 	void Converse(int ClientID, char *pStr);
 
 public:
+	static const int LOGIN_BAN_DELAY = 60 * 60 * 12; // reset login attempts counter every day
+	static const int REGISTER_BAN_DELAY = 60 * 60 * 12 * 7; // reset register attempts counter every week
+	static const int NAMECHANGE_BAN_DELAY = 60 * 60 * 12; // reset namechange counter every day
+	void RegisterBanCheck(int ClientID);
+	void LoginBanCheck(int ClientID);
+	void CheckDeleteLoginBanEntry(int ClientID);
+	void CheckDeleteRegisterBanEntry(int ClientID);
+	void CheckDeleteNamechangeMuteEntry(int ClientID);
+	int64 NameChangeMuteCheck(int ClientID);
+	void SetIpJailed(int ClientID);
+	bool CheckIpJailed(int ClientID);
+
 	CLayers *Layers() { return &m_Layers; }
 	class IScore *Score() { return m_pScore; }
 	bool m_VoteKick;
@@ -958,6 +1094,10 @@ public:
 
 	int m_ChatResponseTargetID;
 	int m_ChatPrintCBIndex;
+
+	// ddnet++
+
+	virtual void IncrementWrongRconAttempts();
 };
 
 class CQueryPlayer : public CQuery

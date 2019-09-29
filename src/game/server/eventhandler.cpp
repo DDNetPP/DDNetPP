@@ -8,26 +8,17 @@
 //////////////////////////////////////////////////
 CEventHandler::CEventHandler()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = 0;
 	Clear();
 }
 
 void CEventHandler::SetGameServer(CGameContext *pGameServer)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = pGameServer;
 }
 
 void *CEventHandler::Create(int Type, int Size, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_NumEvents == MAX_EVENTS)
 		return 0;
 	if(m_CurrentOffset+Size >= MAX_DATASIZE)
@@ -45,18 +36,12 @@ void *CEventHandler::Create(int Type, int Size, int64_t Mask)
 
 void CEventHandler::Clear()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_NumEvents = 0;
 	m_CurrentOffset = 0;
 }
 
 void CEventHandler::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for(int i = 0; i < m_NumEvents; i++)
 	{
 		if(SnappingClient == -1 || CmaskIsSet(m_aClientMasks[i], SnappingClient))

@@ -6,17 +6,11 @@
 CGameTeams::CGameTeams(CGameContext *pGameContext) :
 		m_pGameContext(pGameContext)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Reset();
 }
 
 void CGameTeams::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Core.Reset();
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 	{
@@ -31,9 +25,6 @@ void CGameTeams::Reset()
 
 void CGameTeams::OnCharacterStart(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int Tick = Server()->Tick();
 	CCharacter* pStartingChar = Character(ClientID);
 	if (!pStartingChar)
@@ -110,9 +101,6 @@ void CGameTeams::OnCharacterStart(int ClientID)
 
 void CGameTeams::OnCharacterFinish(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Core.Team(ClientID) == TEAM_FLOCK
 			|| m_Core.Team(ClientID) == TEAM_SUPER)
 	{
@@ -130,9 +118,6 @@ void CGameTeams::OnCharacterFinish(int ClientID)
 
 void CGameTeams::CheckTeamFinished(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (TeamFinished(Team))
 	{
 		CPlayer *TeamPlayers[MAX_CLIENTS];
@@ -164,9 +149,6 @@ void CGameTeams::CheckTeamFinished(int Team)
 
 bool CGameTeams::SetCharacterTeam(int ClientID, int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//Check on wrong parameters. +1 for TEAM_SUPER
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS || Team < 0
 			|| Team >= MAX_CLIENTS + 1)
@@ -194,9 +176,6 @@ bool CGameTeams::SetCharacterTeam(int ClientID, int Team)
 
 void CGameTeams::SetForceCharacterTeam(int ClientID, int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int OldTeam = m_Core.Team(ClientID);
 
 	if (Team != m_Core.Team(ClientID))
@@ -235,9 +214,6 @@ void CGameTeams::SetForceCharacterTeam(int ClientID, int Team)
 
 void CGameTeams::ForceLeaveTeam(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_TeeFinished[ClientID] = false;
 
 	if (m_Core.Team(ClientID) != TEAM_FLOCK
@@ -266,9 +242,6 @@ void CGameTeams::ForceLeaveTeam(int ClientID)
 
 int CGameTeams::Count(int Team) const
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Team == TEAM_SUPER)
 		return -1;
 	return m_MembersCount[Team];
@@ -276,9 +249,6 @@ int CGameTeams::Count(int Team) const
 
 void CGameTeams::ChangeTeamState(int Team, int State)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int OldState = m_TeamState[Team];
 	m_TeamState[Team] = State;
 	onChangeTeamState(Team, State, OldState);
@@ -286,9 +256,6 @@ void CGameTeams::ChangeTeamState(int Team, int State)
 
 void CGameTeams::onChangeTeamState(int Team, int State, int OldState)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (OldState != State && State == TEAMSTATE_STARTED)
 	{
 		// OnTeamStateStarting
@@ -301,9 +268,6 @@ void CGameTeams::onChangeTeamState(int Team, int State, int OldState)
 
 bool CGameTeams::TeamFinished(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (m_Core.Team(i) == Team && !m_TeeFinished[i])
 			return false;
@@ -312,9 +276,6 @@ bool CGameTeams::TeamFinished(int Team)
 
 int64_t CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int64_t Mask = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -374,9 +335,6 @@ int64_t CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
 
 void CGameTeams::SendTeamsState(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (g_Config.m_SvTeam == 3)
 		return;
 
@@ -393,9 +351,6 @@ void CGameTeams::SendTeamsState(int ClientID)
 
 int CGameTeams::GetDDRaceState(CPlayer* Player)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return DDRACE_NONE;
 
@@ -407,9 +362,6 @@ int CGameTeams::GetDDRaceState(CPlayer* Player)
 
 void CGameTeams::SetDDRaceState(CPlayer* Player, int DDRaceState)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return;
 
@@ -420,9 +372,6 @@ void CGameTeams::SetDDRaceState(CPlayer* Player, int DDRaceState)
 
 int CGameTeams::GetStartTime(CPlayer* Player)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return 0;
 
@@ -434,9 +383,6 @@ int CGameTeams::GetStartTime(CPlayer* Player)
 
 void CGameTeams::SetStartTime(CPlayer* Player, int StartTime)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return;
 
@@ -447,9 +393,6 @@ void CGameTeams::SetStartTime(CPlayer* Player, int StartTime)
 
 void CGameTeams::SetCpActive(CPlayer* Player, int CpActive)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return;
 
@@ -460,9 +403,6 @@ void CGameTeams::SetCpActive(CPlayer* Player, int CpActive)
 
 float *CGameTeams::GetCpCurrent(CPlayer* Player)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player)
 		return NULL;
 
@@ -474,9 +414,6 @@ float *CGameTeams::GetCpCurrent(CPlayer* Player)
 
 void CGameTeams::OnTeamFinish(CPlayer** Players, unsigned int Size)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float time = (float) (Server()->Tick() - GetStartTime(Players[0]))
 			/ ((float) Server()->TickSpeed());
 	if (time < 0.000001f)
@@ -510,9 +447,6 @@ void CGameTeams::OnTeamFinish(CPlayer** Players, unsigned int Size)
 
 void CGameTeams::OnFinish(CPlayer* Player)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!Player || !Player->IsPlaying())
 		return;
 	//TODO:DDRace:btd: this ugly
@@ -520,19 +454,19 @@ void CGameTeams::OnFinish(CPlayer* Player)
 			/ ((float) Server()->TickSpeed());
 	if (time < 0.000001f)
 		return;
+	int mins = (int) time / 60;
+	float secs = time - mins * 60;
+	OnFinishDDPP(Player, mins, secs);
 	CPlayerData *pData = GameServer()->Score()->PlayerData(Player->GetCID());
-	char aBuf[128];
 	SetCpActive(Player, -2);
+	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf),
 			"%s finished in: %d minute(s) %5.2f second(s)",
-			Server()->ClientName(Player->GetCID()), (int) time / 60,
-			time - ((int) time / 60 * 60));
+			Server()->ClientName(Player->GetCID()), mins, secs);
 	if (g_Config.m_SvHideScore || !g_Config.m_SvSaveWorseScores)
 		GameServer()->SendChatTarget(Player->GetCID(), aBuf);
 	else
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-	OnQuestFinish(Player);
 
 	float diff = fabs(time - pData->m_BestTime);
 
@@ -671,11 +605,26 @@ void CGameTeams::OnFinish(CPlayer* Player)
 		Player->m_Score = TTime;
 }
 
+void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, int mins, float secs)
+{
+	OnQuestFinish(pPlayer);
+	if (mins > 0) // only give xp if race was at least 1 minute
+	{
+		if (!pPlayer->IsMaxLevel())
+		{
+			pPlayer->GiveXP(250);
+			GameServer()->SendChatTarget(pPlayer->GetCID(), "+250 xp (finish race)");
+			if (g_Config.m_SvFinishEvent == 1)
+			{
+				pPlayer->GiveXP(500);
+				GameServer()->SendChatTarget(pPlayer->GetCID(), "+500 xp (Event-bonus)");
+			}
+		}
+	}
+}
+
 void CGameTeams::OnQuestFinish(CPlayer * Player)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//char aBuf[256];
 	float time = (float)(Server()->Tick() - GetStartTime(Player))
 		/ ((float)Server()->TickSpeed());
@@ -689,7 +638,7 @@ void CGameTeams::OnQuestFinish(CPlayer * Player)
 	//(int)time / 60); //<--- minutes (total)
 	//GameServer()->SendChatTarget(Player->GetCID(), aBuf);
 
-	if (Player->m_QuestState == 3) //QUEST RACE
+	if (Player->m_QuestState == CPlayer::QUEST_RACE)
 	{
 		if (Player->m_QuestStateLevel == 0)
 		{
@@ -737,9 +686,6 @@ void CGameTeams::OnQuestFinish(CPlayer * Player)
 
 void CGameTeams::OnCharacterSpawn(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Core.SetSolo(ClientID, false);
 
 	if (m_Core.Team(ClientID) >= TEAM_SUPER || !m_TeamLocked[m_Core.Team(ClientID)])
@@ -748,9 +694,6 @@ void CGameTeams::OnCharacterSpawn(int ClientID)
 
 void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	GameServer()->m_apPlayers[ClientID]->Respawn(); // queue the spawn as kill tiles don't
 
 	m_Core.SetSolo(ClientID, false);
@@ -792,17 +735,11 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 
 void CGameTeams::SetTeamLock(int Team, bool Lock)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_TeamLocked[Team] = Lock;
 }
 
 void CGameTeams::KillSavedTeam(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// Set so that no finish is accidentally given to some of the players
 	ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
 

@@ -4,7 +4,7 @@
 
 Based on DDNet: Our own flavor of DDRace, a Teeworlds mod. See the [website](http://ddnet.tw) for more information.
 
-Download DDNet++ version 0.0.6 for macOS/linux/windows [here on github](https://github.com/DDNetPP/DDNetPP/releases/tag/v.0.0.6).
+Download DDNet++ version 0.0.7 for macOS/linux/windows [here on github](https://github.com/DDNetPP/DDNetPP/releases/tag/v.0.0.7).
 
 Building
 --------
@@ -93,7 +93,7 @@ We added all the features missing in ddnet. For example:
 - xp
 - money
 - block system (count kills and stats)
-- minigames (bomb/fng/blockwave)
+- minigames (bomb/fng/blockwave/survival)
 - quests
 - shop
 - police
@@ -101,3 +101,22 @@ We added all the features missing in ddnet. For example:
 - drop weapons and flags
 - and much more
 
+Bugs
+----
+
+*Bug*:
+```
+*** [ACCOUNT] Login failed. This account is already logged in on another server.
+```
+
+*Explanation & fix*:
+
+
+One account should not be logged in multiple times at the same time. To make sure this works with multiple servers sharing one database the logged in state is saved in the database. But somehow this fails to reset sometimes and users are unable to get into their account.
+As a fix admin can use the '/sql_logout_all' chat command which updates the database to set all accounts that are currently not playing on this server and logged in on the current port to logged out. To avoid problems ``sv_port`` should not change during server runtime. The config ``sv_auto_fix_broken_accs`` can be set to ``"1"`` to automatically do this every few seconds.
+
+*limitations of the fix:*
+
+The fix is not supported well if the database holds more than 99 999 999 accounts.
+
+An alternative is to do it for every account manually with the chat command '/sql_logout (accname)' but this is less save than sql_logout_all because this one does no check if the account is currently playing and is not limited to this port. So it could set a account logged out in the database while the account is logged in. And thus allow another login.

@@ -8,39 +8,51 @@
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
+	if (GameServer()->GetPlayerChar(Owner))
+	{
+		m_Type = Type;
+		m_Lifetime = Server()->TickSpeed() * Lifetime;
+		m_ResponsibleTeam = ResponsibleTeam;
+		m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
+		m_Owner = Owner;
 
-	m_Type = Type;
-	m_Lifetime = Server()->TickSpeed() * Lifetime;
-	m_ResponsibleTeam = ResponsibleTeam;
-	m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
-	m_Owner = Owner;
+		m_Vel = vec2(5*Direction, -5);
+		m_Vel.x += (rand() % 10 - 5) * Force;
+		m_Vel.y += (rand() % 10 - 5) * Force;
 
-	m_Vel = vec2(5*Direction, -5);
-	m_Vel.x += (rand() % 10 - 5) * Force;
-	m_Vel.y += (rand() % 10 - 5) * Force;
+		m_PickupDelay = Server()->TickSpeed() * 2;
 
-	m_PickupDelay = Server()->TickSpeed() * 2;
+		GameWorld()->InsertEntity(this);
+	}
+	else // invalid owner
+	{
+		// https://github.com/DDNetPP/DDNetPP/issues/296
+		dbg_msg("drop_pickup", "[WARNING] playerchar=%d is invalid", Owner);
+		m_Type = Type;
+		m_Lifetime = 1;
+		m_ResponsibleTeam = ResponsibleTeam;
+		m_Pos = vec2(0,0);
+		m_Owner = Owner;
 
-	GameWorld()->InsertEntity(this);
+		m_Vel = vec2(5*Direction, -5);
+		m_Vel.x += (rand() % 10 - 5) * Force;
+		m_Vel.y += (rand() % 10 - 5) * Force;
+
+		m_PickupDelay = 1;
+
+		GameWorld()->InsertEntity(this);
+		Delete();
+	}
 }
 
 void CDropPickup::Delete()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_EreasePickup = true;
 	Reset();
 }
 
 void CDropPickup::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (m_EreasePickup)
 	{
@@ -76,9 +88,6 @@ int CDropPickup::IsCharacterNear()
 
 void CDropPickup::Pickup()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int CharID = IsCharacterNear();
 	if (CharID != -1)
 	{
@@ -106,9 +115,6 @@ void CDropPickup::Pickup()
 
 void CDropPickup::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
 	{
 		m_Owner = -1;
@@ -220,9 +226,6 @@ void CDropPickup::Tick()
 
 void CDropPickup::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if(NetworkClipped(SnappingClient))
 		return;

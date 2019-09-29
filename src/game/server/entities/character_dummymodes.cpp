@@ -15,9 +15,6 @@
 
 void CCharacter::DummyTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_pPlayer->m_IsDummy)
 	{
 		if ((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)			 
@@ -33,7 +30,7 @@ void CCharacter::DummyTick()
 			m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;							
 		}																								
 
-		if (m_pPlayer->m_DummyMode == 0) //default and sample mode
+		if (m_pPlayer->m_DummyMode == DUMMYMODE_DEFAULT) // 0
 		{
 			/********************************
 			*           weapons            *
@@ -859,6 +856,62 @@ void CCharacter::DummyTick()
 				}
 			}
 
+		}
+	    else if (m_pPlayer->m_DummyMode == DUMMYMODE_ADVENTURE) // -7
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			// m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			if (rand() % 20 > 17)
+				m_Input.m_Direction = rand() % 3 - 1;
+			if (rand() % 660 > 656)
+				m_Input.m_Jump = 1;
+			if (rand() % 256 > 244)
+				m_Input.m_Hook = rand() % 2;
+			if (rand() % 1000 > 988)
+			{
+				m_Input.m_Fire++;
+				m_LatestInput.m_Fire++;
+			}
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this, false);
+			if (pChr && pChr->IsAlive())
+			{
+				static bool IsAimbot = false;
+				if (IsAimbot)
+				{
+					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+					m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+
+					// don't shoot walls
+					if (!GameServer()->Collision()->IntersectLine(m_Pos, pChr->m_Pos, 0x0, 0))
+					{
+						if (Server()->Tick() % 77 == 0 && m_FreezeTime < 1)
+						{
+							m_Input.m_Fire++;
+							m_LatestInput.m_Fire++;
+						}
+					}
+					IsAimbot = rand() % 50 > 40;
+				}
+				else // no aimbot
+				{
+					IsAimbot = rand() % 3000 > 2789;
+					if (pChr->m_Pos.x < m_Pos.x)
+					{
+						m_Input.m_Direction = -1;
+					}
+					else
+					{
+						m_Input.m_Direction = 1;
+					}
+				}
+			}
 		}
 		else if (m_pPlayer->m_DummyMode == 3)
 		{
@@ -10287,7 +10340,7 @@ void CCharacter::DummyTick()
                 m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
                 m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
                 m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
-                
+
                 // don't shoot walls
                 if (!GameServer()->Collision()->IntersectLine(m_Pos, pChr->m_Pos, 0x0, 0))
                 {
@@ -10299,6 +10352,59 @@ void CCharacter::DummyTick()
                 }
             }
         }
+        else if (m_pPlayer->m_DummyMode == DUMMYMODE_QUEST) // 36
+		{
+			m_Input.m_Jump = 0;
+			m_Input.m_Fire = 0;
+			m_LatestInput.m_Fire = 0;
+			// m_Input.m_Hook = 0;
+			m_Input.m_Direction = 0;
+
+			if (rand() % 20 > 17)
+				m_Input.m_Direction = rand() % 3 - 1;
+			if (rand() % 660 > 656)
+				m_Input.m_Jump = 1;
+			if (rand() % 256 > 244)
+				m_Input.m_Hook = rand() % 2;
+			if (rand() % 1000 > 988)
+			{
+				m_Input.m_Fire++;
+				m_LatestInput.m_Fire++;
+			}
+
+			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
+			if (pChr && pChr->IsAlive())
+			{
+				static bool IsAimbot = false;
+				if (IsAimbot)
+				{
+					m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+					m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
+					m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
+
+					// don't shoot walls
+					if (!GameServer()->Collision()->IntersectLine(m_Pos, pChr->m_Pos, 0x0, 0))
+					{
+						if (Server()->Tick() % 77 == 0 && m_FreezeTime < 1)
+						{
+							m_Input.m_Fire++;
+							m_LatestInput.m_Fire++;
+						}
+					}
+					IsAimbot = rand() % 50 > 40;
+				}
+				else // no aimbot
+				{
+					IsAimbot = rand() % 3000 > 2789;
+				}
+			}
+
+			if (Server()->Tick() % 500 == 0 && isFreezed)
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			if (Server()->Tick() % 5000 == 0) // spawn is probably most reachable spot so go back there here and then
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+		}
 		else if (m_pPlayer->m_DummyMode == 99) // shop bot
 		{
 			m_Input.m_Jump = 0;

@@ -9,6 +9,7 @@
  
 #include "system.h"
 #include "confusables.h"
+#include "ddpp_logs.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -867,7 +868,7 @@ static int priv_net_extract(const char *hostname, char *host, int max_host, int 
 	return 0;
 }
 
-int net_host_lookup(const char *hostname, NETADDR *addr, int types)
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 {
 	struct addrinfo hints;
 	struct addrinfo *result = NULL;
@@ -878,7 +879,16 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types)
 	if(priv_net_extract(hostname, host, sizeof(host), &port))
 		return -1;
 
-	dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	if (logtype == 1)
+	{
+		dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	}
+	else
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[host lookup] host='%s' port=%d %d", host, port, types);
+		ddpp_log(DDPP_LOG_MASTER, aBuf);
+	}
 
 	mem_zero(&hints, sizeof(hints));
 
@@ -2249,11 +2259,17 @@ void gui_messagebox(const char *title, const char *message)
 
 int str_isspace(char c) { return c == ' ' || c == '\n' || c == '\t'; }
 
-char str_uppercase(char c)
+char ch_uppercase(char c)
 {
 	if(c >= 'a' && c <= 'z')
 		return 'A' + (c-'a');
 	return c;
+}
+
+void str_uppercase(char *str)
+{
+	for(int i = 0;str[i] != '\0';i++)
+		str[i] = ch_uppercase(str[i]);
 }
 
 int str_toint(const char *str) { return atoi(str); }
@@ -2606,6 +2622,75 @@ void secure_random_fill(void *bytes, size_t length)
 		dbg_msg("secure", "io_read returned with a short read");
 		dbg_break();
 	}
+#endif
+}
+
+#if defined(CONF_FAMILY_UNIX)
+#include <regex.h>
+#endif
+
+int regex_compile(const char *pPattern, const char *pStr)
+{
+#if defined(CONF_FAMILY_UNIX)
+	/*
+		credits go to Per-Olof Pettersson
+		found through: https://stackoverflow.com/a/1085120
+
+		modified by ChillerDragon
+	*/
+	regex_t regex;
+	int reti;
+	char aBuf[128];
+	int ret = -1;
+
+	/* Compile regular expression */
+	reti = regcomp(&regex, pPattern, 0);
+	if(reti)
+	{
+		dbg_msg("regex", "Could not compile regex");
+		ret = -1;
+		goto end;
+	}
+
+	/* Execute regular expression */
+	reti = regexec(&regex, pStr, 0, NULL, 0);
+	if(!reti)
+	{
+		dbg_msg("regex", "pattern matches");
+		ret = 0;
+		goto end;
+	}
+	else if(reti == REG_NOMATCH)
+	{
+		dbg_msg("regex", "pattern does not match");
+		ret = 1;
+		goto end;
+	}
+	else
+	{
+		regerror(reti, &regex, aBuf, sizeof(aBuf));
+		dbg_msg("regex", "Regex match failed: %s\n", aBuf);
+		ret = -1;
+		goto end;
+	}
+
+	end:
+	/* Free memory allocated to the pattern buffer by regcomp() */
+	regfree(&regex);
+	return ret;;
+#else
+	return 0;
+#endif
+}
+
+long long fpost_get_pos(fpos_t pos)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return pos;
+#elif defined(CONF_PLATFORM_MACOSX)
+	return pos;
+#else
+	return pos.__pos;
 #endif
 }
 

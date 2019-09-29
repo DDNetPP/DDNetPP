@@ -9,25 +9,16 @@
 
 CSaveTee::CSaveTee()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	;
 }
 
 CSaveTee::~CSaveTee()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	;
 }
 
-void CSaveTee::save(CCharacter* pchr)
+void CSaveTee::save(CCharacter* pchr, int TimePenalty)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	str_copy(m_name, pchr->m_pPlayer->Server()->ClientName(pchr->m_pPlayer->GetCID()), sizeof(m_name));
 
 	m_Alive = pchr->m_Alive;
@@ -63,7 +54,7 @@ void CSaveTee::save(CCharacter* pchr)
 	m_TuneZoneOld = pchr->m_TuneZoneOld;
 
 	if(pchr->m_StartTime)
-		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + 60 * pchr->Server()->TickSpeed();
+		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + ((60 * pchr->Server()->TickSpeed()) * TimePenalty);
 
 	m_Pos = pchr->m_Pos;
 	m_PrevPos = pchr->m_PrevPos;
@@ -99,9 +90,6 @@ void CSaveTee::save(CCharacter* pchr)
 
 void CSaveTee::load(CCharacter* pchr, int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pchr->m_pPlayer->m_Paused = m_Paused;
 	pchr->m_pPlayer->ProcessPause();
 
@@ -184,18 +172,12 @@ void CSaveTee::load(CCharacter* pchr, int Team)
 
 char* CSaveTee::GetString()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	str_format(m_String, sizeof(m_String), "%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", m_name, m_Alive, m_Paused, m_NeededFaketuning, m_TeeFinished, m_IsSolo, m_aWeapons[0].m_AmmoRegenStart, m_aWeapons[0].m_Ammo, m_aWeapons[0].m_Ammocost, m_aWeapons[0].m_Got, m_aWeapons[1].m_AmmoRegenStart, m_aWeapons[1].m_Ammo, m_aWeapons[1].m_Ammocost, m_aWeapons[1].m_Got, m_aWeapons[2].m_AmmoRegenStart, m_aWeapons[2].m_Ammo, m_aWeapons[2].m_Ammocost, m_aWeapons[2].m_Got, m_aWeapons[3].m_AmmoRegenStart, m_aWeapons[3].m_Ammo, m_aWeapons[3].m_Ammocost, m_aWeapons[3].m_Got, m_aWeapons[4].m_AmmoRegenStart, m_aWeapons[4].m_Ammo, m_aWeapons[4].m_Ammocost, m_aWeapons[4].m_Got, m_aWeapons[5].m_AmmoRegenStart, m_aWeapons[5].m_Ammo, m_aWeapons[5].m_Ammocost, m_aWeapons[5].m_Got, m_LastWeapon, m_QueuedWeapon, m_SuperJump, m_Jetpack, m_NinjaJetpack, m_FreezeTime, m_FreezeTick, m_DeepFreeze, m_EndlessHook, m_DDRaceState, m_Hit, m_Collision, m_TuneZone, m_TuneZoneOld, m_Hook, m_Time, (int)m_Pos.x, (int)m_Pos.y, (int)m_PrevPos.x, (int)m_PrevPos.y, m_TeleCheckpoint, m_LastPenalty, (int)m_CorePos.x, (int)m_CorePos.y, m_Vel.x, m_Vel.y, m_ActiveWeapon, m_Jumped, m_JumpedTotal, m_Jumps, (int)m_HookPos.x, (int)m_HookPos.y, m_HookDir.x, m_HookDir.y, (int)m_HookTeleBase.x, (int)m_HookTeleBase.y, m_HookTick, m_HookState, m_CpTime, m_CpActive, m_CpLastBroadcast, m_CpCurrent[0], m_CpCurrent[1], m_CpCurrent[2], m_CpCurrent[3], m_CpCurrent[4], m_CpCurrent[5], m_CpCurrent[6], m_CpCurrent[7], m_CpCurrent[8], m_CpCurrent[9], m_CpCurrent[10], m_CpCurrent[11], m_CpCurrent[12], m_CpCurrent[13], m_CpCurrent[14], m_CpCurrent[15], m_CpCurrent[16], m_CpCurrent[17], m_CpCurrent[18], m_CpCurrent[19], m_CpCurrent[20], m_CpCurrent[21], m_CpCurrent[22], m_CpCurrent[23], m_CpCurrent[24]);
 	return m_String;
 }
 
 int CSaveTee::LoadString(char* String)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int Num;
 	Num = sscanf(String, "%[^\t]\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%d\t%d\t%f\t%f\t%f\t%f\t%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%d\t%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", m_name, &m_Alive, &m_Paused, &m_NeededFaketuning, &m_TeeFinished, &m_IsSolo, &m_aWeapons[0].m_AmmoRegenStart, &m_aWeapons[0].m_Ammo, &m_aWeapons[0].m_Ammocost, &m_aWeapons[0].m_Got, &m_aWeapons[1].m_AmmoRegenStart, &m_aWeapons[1].m_Ammo, &m_aWeapons[1].m_Ammocost, &m_aWeapons[1].m_Got, &m_aWeapons[2].m_AmmoRegenStart, &m_aWeapons[2].m_Ammo, &m_aWeapons[2].m_Ammocost, &m_aWeapons[2].m_Got, &m_aWeapons[3].m_AmmoRegenStart, &m_aWeapons[3].m_Ammo, &m_aWeapons[3].m_Ammocost, &m_aWeapons[3].m_Got, &m_aWeapons[4].m_AmmoRegenStart, &m_aWeapons[4].m_Ammo, &m_aWeapons[4].m_Ammocost, &m_aWeapons[4].m_Got, &m_aWeapons[5].m_AmmoRegenStart, &m_aWeapons[5].m_Ammo, &m_aWeapons[5].m_Ammocost, &m_aWeapons[5].m_Got, &m_LastWeapon, &m_QueuedWeapon, &m_SuperJump, &m_Jetpack, &m_NinjaJetpack, &m_FreezeTime, &m_FreezeTick, &m_DeepFreeze, &m_EndlessHook, &m_DDRaceState, &m_Hit, &m_Collision, &m_TuneZone, &m_TuneZoneOld, &m_Hook, &m_Time, &m_Pos.x, &m_Pos.y, &m_PrevPos.x, &m_PrevPos.y, &m_TeleCheckpoint, &m_LastPenalty, &m_CorePos.x, &m_CorePos.y, &m_Vel.x, &m_Vel.y, &m_ActiveWeapon, &m_Jumped, &m_JumpedTotal, &m_Jumps, &m_HookPos.x, &m_HookPos.y, &m_HookDir.x, &m_HookDir.y, &m_HookTeleBase.x, &m_HookTeleBase.y, &m_HookTick, &m_HookState, &m_CpTime, &m_CpActive, &m_CpLastBroadcast, &m_CpCurrent[0], &m_CpCurrent[1], &m_CpCurrent[2], &m_CpCurrent[3], &m_CpCurrent[4], &m_CpCurrent[5], &m_CpCurrent[6], &m_CpCurrent[7], &m_CpCurrent[8], &m_CpCurrent[9], &m_CpCurrent[10], &m_CpCurrent[11], &m_CpCurrent[12], &m_CpCurrent[13], &m_CpCurrent[14], &m_CpCurrent[15], &m_CpCurrent[16], &m_CpCurrent[17], &m_CpCurrent[18], &m_CpCurrent[19], &m_CpCurrent[20], &m_CpCurrent[21], &m_CpCurrent[22], &m_CpCurrent[23], &m_CpCurrent[24]);
 	if (Num == 96) // Don't forget to update this when you save / load more / less.
@@ -212,9 +194,6 @@ int CSaveTee::LoadString(char* String)
 
 CSaveTeam::CSaveTeam(IGameController* Controller)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pController = Controller;
 	m_Switchers = 0;
 	SavedTees = 0;
@@ -222,9 +201,6 @@ CSaveTeam::CSaveTeam(IGameController* Controller)
 
 CSaveTeam::~CSaveTeam()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_Switchers)
 		delete[] m_Switchers;
 	if(SavedTees)
@@ -233,9 +209,6 @@ CSaveTeam::~CSaveTeam()
 
 int CSaveTeam::save(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(g_Config.m_SvTeam == 3 || (Team > 0 && Team < MAX_CLIENTS))
 	{
 		CGameTeams* Teams = &(((CGameControllerDDRace*)m_pController)->m_Teams);
@@ -292,9 +265,6 @@ int CSaveTeam::save(int Team)
 
 int CSaveTeam::load(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(Team <= 0 || Team >= MAX_CLIENTS)
 		return 1;
 
@@ -340,9 +310,6 @@ int CSaveTeam::load(int Team)
 
 int CSaveTeam::MatchPlayer(char name[16])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(str_comp(m_pController->Server()->ClientName(i), name) == 0)
@@ -355,9 +322,6 @@ int CSaveTeam::MatchPlayer(char name[16])
 
 CCharacter* CSaveTeam::MatchCharacter(char name[16], int SaveID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int ID = MatchPlayer(name);
 	if(ID >= 0 && m_pController->GameServer()->m_apPlayers[ID])
 	{
@@ -372,9 +336,6 @@ CCharacter* CSaveTeam::MatchCharacter(char name[16], int SaveID)
 
 char* CSaveTeam::GetString()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	str_format(m_String, sizeof(m_String), "%d\t%d\t%d\t%d", m_TeamState, m_MembersCount, m_NumSwitchers, m_TeamLocked);
 
 	for (int i = 0; i<m_MembersCount; i++)
@@ -400,9 +361,6 @@ char* CSaveTeam::GetString()
 
 int CSaveTeam::LoadString(const char* String)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char TeamStats[MAX_CLIENTS];
 	char Switcher[64];
 	char SaveTee[1024];

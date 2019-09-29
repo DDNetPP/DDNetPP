@@ -5,11 +5,14 @@
 
 // this include should perhaps be removed
 #include "entities/character.h"
+#include "captcha.h"
 #include "gamecontext.h"
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
 #include <vector>
+
+#define ACC_MAX_LEVEL 100 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 
 // player object
 class CPlayer
@@ -92,7 +95,7 @@ public:
 		int m_UseCustomColor;
 		int m_ColorBody;
 		int m_ColorFeet;
-	} m_TeeInfos;
+	} m_TeeInfos, m_LastToucherTeeInfos;
 
 	int m_RespawnTick;
 	int m_DieTick;
@@ -181,19 +184,59 @@ public:
 	int m_DefEmoteReset;
 	bool m_Halloween;
 	bool m_FirstPacket;
+	void OnDisconnectDDPP();
 
-	//usefull everywhere
-	void MoneyTransaction(int Amount, const char *Description);
+	// usefull everywhere
+	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame();
+	bool IsMaxLevel() { return m_level >= ACC_MAX_LEVEL; }
+	bool IsLoggedIn() { return m_AccountID != 0; } // -1 filebased acc >0 sql id
+	int GetAccID() { return m_AccountID; }
+	void SetAccID(int ID);
+	/*
+		GiveXP(int value)
+
+		Use this function to add value xp to a players stats
+		It takes care of max level.
+	*/
+	void GiveXP(int value);
+	/*
+		GiveBlockPoints(int Points)
+
+		Updates block points expects a positive integer.
+		and also sends a chat message to the player
+	*/
+	void GiveBlockPoints(int Points);
+	/*
+		SetXP(int xp)
+
+		WARNING you probably want to use GiveXp(int value); instead!
+		SetXP() should only be used if it is really needed
+	*/
+	void SetXP(int xp);
+	int GetXP() { return m_xp; }
+	int GetNeededXP() { return m_neededxp; }
+	int GetLevel() { return m_level; }
+	void SetLevel(int level);
+	int GetMoney() { return m_money; }
+	/*
+		SetMoney()
+
+		WARNING you probably want to use MoneyTransaction(int Amount, char* Desc) instead!
+		This is only used for specific cases! Dont touch it if you have no idea how it works xd
+	*/
+	void SetMoney(int money);
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetetive;
-	//bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
+	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	int m_LastBroadcast;
 	int m_LastBroadcastImportance;
 
-	//login and threads
+	bool m_MapSaveLoaded;
+
+	// login and threads
 	void ThreadLoginStart(const char * pUsername, const char * pPassword);
 	static void ThreadLoginWorker(void * pArg);
 	void ThreadLoginDone();
@@ -215,6 +258,7 @@ public:
 		bool m_IsAccFrozen;
 
 		// city
+		// TODO: make all those variables private and use protected getters and setters (issue #269)
 		int64 m_level;
 		int64 m_xp;
 		int64 m_money;
@@ -480,6 +524,32 @@ public:
 
 	char m_aAccSkin[32];
 
+	/*
+		PlayerHumanLevel
+
+		The higher the value the less likley it is that this player is a robot.
+		To unlock the next level a player has to master all previous ones.
+
+		This human level then can be used to unlock features like registering an account or uing the chat
+		or showing connection messages. In case those basic features are blocked due to spam attacks.
+
+		0  freshly connected
+		1  sent a few movement inputs
+		2  wait 10 sec
+		3  a few movement or chat inputs ( messages or commands )
+		4  wait 10 sec
+		5  be somewhat active: finish race/get block points/login to account/ TODO: send chat messages that recieve responses
+		6  wait 20 sec
+		7  solve the antibot captcha command
+		8  played quest until finish map/make more than 10 block points
+		9  wait 1 minute
+	*/
+	int m_PlayerHumanLevel;
+	int m_PlayerHumanLevelState; // if the level has sublevels
+	int64 m_HumanLevelTime;
+	void PlayerHumanLevelTick();
+
+	CCaptcha *m_pCaptcha;
 	int m_homing_missiles_ammo;
 
 
@@ -487,6 +557,7 @@ public:
 	//money and traiding
 
 	int m_StockMarket_item_Cucumbers;
+	int m_MoneyTilesMoney;
 
 	char m_money_transaction0[512];
 	char m_money_transaction1[512];
@@ -537,24 +608,36 @@ public:
 	bool m_xpmsg;
 	bool m_hidejailmsg;
 	bool m_ShowInstaScoreBroadcast;
-	char m_aShowHideConfig[16]; //[0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
+	char m_aShowHideConfig[16]; // [0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
 
 
-	//quests
-	int m_QuestUnlocked; //maybe save this in sql and later people can choose all quests untill unlocked
-	int m_QuestLevelUnlocked; //maybe save this in sql and later people can choose all levels untill unlocked
-	int m_QuestState; //current quest 0 = not questing
-	int m_QuestStateLevel; //current quest level (difficulty)
-	int m_QuestLastQuestedPlayerID; //store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
+	// quests
+	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests untill unlocked
+	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels untill unlocked
+	int m_QuestState; // current quest 0 = not questing
+	int m_QuestStateLevel; // current quest level (difficulty)
+	int m_QuestLastQuestedPlayerID; // store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
 	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
 	int m_QuestProgressValue2;
-	int m_QuestDebugValue;         //TODO: remove this var everywhere in code if finished debugging farm quest
 	bool m_QuestProgressBool;
-	int m_QuestPlayerID; //the id of the player which is the quest
-	char m_aQuestString[512]; //stores the quest information
-	int m_aQuestProgress[2]; //stores the quest progress information
+	int m_QuestPlayerID; // the id of the player which is the quest
+	char m_aQuestString[512]; // stores the quest information
+	int m_aQuestProgress[2]; // stores the quest progress information
 	bool m_QuestFailed;
-	//handled in gamecontext.cpp LoadQuest()
+	bool IsQuesting() { return m_QuestState != QUEST_OFF; }
+	enum {
+		QUEST_OFF		= 0,
+		QUEST_HAMMER	= 1,
+		QUEST_BLOCK		= 2,
+		QUEST_RACE		= 3,
+		QUEST_RIFLE		= 4,
+		QUEST_FARM		= 5,
+		QUEST_NUM_PLUS_ONE,
+		QUEST_NUM		= QUEST_NUM_PLUS_ONE - 1,
+
+		QUEST_NUM_LEVEL	= 9
+	};
+	// handled in gamecontext.cpp LoadQuest()
 	//              QUEST         QUEST LEVEL
 	//              0                                = Not Questing
 
@@ -616,13 +699,12 @@ public:
 	//#################
 	// WARNING
 	// update quest num 
-	// in gamecontext.cpp
-	// QuestCompleted()
-	// if you add new quests
+	// QUEST_NUM_LEVEL
+	// if you add new quest level
 	//#################
 
 
-	//other
+	// other
 
 	bool m_ScoreFixForDDNet;
 	int m_AllowTimeScore;
@@ -639,11 +721,6 @@ public:
 	bool m_BoughtRoom;
 	int m_aliveplusxp;
 	int m_shit;
-	int m_level;
-	int m_max_level; //used to stop give players xp at a specific level. just increase the value in player.cpp (init) if u update the level syetem
-	int64 m_xp;
-	int64 m_neededxp;
-	int64 m_money;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64 m_LastGift;
@@ -651,7 +728,6 @@ public:
 	int64 m_LastFight;
 
 	char m_aAccountLoginName[32];
-	int m_AccountID;
 	char m_aChangePassword[32];
 	char m_aAccountPassword[32];
 	char m_aAccountRegDate[32];
@@ -723,11 +799,21 @@ public:
 	int m_BlockPoints; //KILLS + other stuff like block tournaments won 
 	int m_BlockPoints_Kills; //Block points (blocked others)
 	int m_BlockPoints_Deaths; //Block -points (blocked by others)
-	int m_LastToucherID; //The id of the last person who touched this tee (if none -1)
 	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
-	int m_LastTouchTicks;
 	int m_SpawnBlocks;
 	int m_BlockSpreeHighscore;
+
+	/*
+		m_LastToucherID
+
+		Use UpdateLastToucher() to set this variable
+		it tracks the id of the last person who touched it
+		used for block kills
+	*/
+	int m_LastToucherID;
+	int m_LastTouchTicks;
+	char m_aLastToucherName[64];
+	void UpdateLastToucher(int ID);
 
 	int m_BlockBounty;
 
@@ -750,6 +836,13 @@ public:
 	bool m_TROLL166;
 	bool m_TROLL420;
 	bool m_RconFreeze;
+
+	private: // private ddnet+++
+	int m_AccountID;
+	int m_level;
+	int64 m_xp;
+	int64 m_neededxp;
+	int64 m_money;
 };
 
 #endif

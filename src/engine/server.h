@@ -6,7 +6,6 @@
 #include "message.h"
 #include <game/generated/protocol.h>
 #include <engine/shared/protocol.h>
-#include <game/server/debug.h>
 
 class IServer : public IInterface
 {
@@ -152,6 +151,7 @@ public:
 	virtual void SetRconCID(int ClientID) = 0;
 	virtual bool IsAuthed(int ClientID) = 0;
 	virtual void Kick(int ClientID, const char *pReason) = 0;
+	virtual void SendRconLine(int ClientID, const char *pLine) = 0;
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
@@ -169,6 +169,7 @@ public:
 
 	virtual void BotJoin(int BotID) = 0;
 	virtual void BotLeave(int BotID, bool silet = false) = 0;
+	virtual char *GetMapName() = 0;
 };
 
 class IGameServer : public IInterface
@@ -207,7 +208,9 @@ public:
 
 	// DDNet++
 
+	virtual void IncrementWrongRconAttempts() = 0;
 	virtual void OnStartBlockTournament() = 0;
+	virtual void LogoutAllPlayers() = 0;
 	//virtual void OnDDPPshutdown() = 0;
 };
 

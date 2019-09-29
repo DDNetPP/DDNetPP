@@ -33,6 +33,7 @@
 #include <vector>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
+#include <base/ddpp_logs.h>
 
 #include "register.h"
 #include "server.h"
@@ -788,7 +789,7 @@ void CServer::SetRconCID(int ClientID)
 
 bool CServer::IsAuthed(int ClientID)
 {
-	if (m_aClients[ClientID].m_Authed == -1)
+	if (m_aClients[ClientID].m_Authed == AUTHED_HONEY)
 		return 0;
 	return m_aClients[ClientID].m_Authed;
 }
@@ -1552,53 +1553,66 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						GameServer()->OnSetAuthed(ClientID, AUTHED_MOD);
 					}
 				}
-				else if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
+				else // wrong login
 				{
-					CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
-					Msg.AddInt(1);	//authed
-					Msg.AddInt(1);	//cmdlist
-					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
-				}
-				else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
-				{
-					CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
-					Msg.AddInt(1);	//authed
-					Msg.AddInt(1);	//cmdlist
-					SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
-					if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
+					if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
 						Msg.AddInt(1);	//authed
 						Msg.AddInt(1);	//cmdlist
 						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
-
-						m_aClients[ClientID].m_Authed = AUTHED_HONEY;
-						int SendRconCmds = Unpacker.GetInt();
-						if(Unpacker.Error() == 0 && SendRconCmds)
-							m_aClients[ClientID].m_pRconCmdToSend = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_ADMIN, CFGFLAG_SERVER);
-						SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
-						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
-						Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
-
-						// DDRace
-						GameServer()->OnSetAuthed(ClientID, AUTHED_HONEY);
 					}
-				}
-				else if(g_Config.m_SvRconMaxTries)
-				{
-					m_aClients[ClientID].m_AuthTries++;
-					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Wrong password %d/%d.", m_aClients[ClientID].m_AuthTries, g_Config.m_SvRconMaxTries);
-					SendRconLine(ClientID, aBuf);
-					if(m_aClients[ClientID].m_AuthTries >= g_Config.m_SvRconMaxTries)
+					else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
 					{
-						if(!g_Config.m_SvRconBantime)
-							m_NetServer.Drop(ClientID, "Too many remote console authentication tries");
-						else
-							m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientID), g_Config.m_SvRconBantime*60, "Too many remote console authentication tries");
+						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+						Msg.AddInt(1);	//authed
+						Msg.AddInt(1);	//cmdlist
+						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+						if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
+						{
+							CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+							Msg.AddInt(1);	//authed
+							Msg.AddInt(1);	//cmdlist
+							SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+
+							m_aClients[ClientID].m_Authed = AUTHED_HONEY;
+							int SendRconCmds = Unpacker.GetInt();
+							if(Unpacker.Error() == 0 && SendRconCmds)
+								m_aClients[ClientID].m_pRconCmdToSend = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_ADMIN, CFGFLAG_SERVER);
+							SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
+							Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+
+							// DDRace
+							GameServer()->OnSetAuthed(ClientID, AUTHED_HONEY);
+						}
+					}
+					if(g_Config.m_SvRconMaxTries)
+					{
+						m_aClients[ClientID].m_AuthTries++;
+						char aBuf[128];
+						str_format(aBuf, sizeof(aBuf), "Wrong password %d/%d.", m_aClients[ClientID].m_AuthTries, g_Config.m_SvRconMaxTries);
+						SendRconLine(ClientID, aBuf);
+						if(m_aClients[ClientID].m_AuthTries >= g_Config.m_SvRconMaxTries)
+						{
+							if(!g_Config.m_SvRconBantime)
+								m_NetServer.Drop(ClientID, "Too many remote console authentication tries");
+							else
+								m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientID), g_Config.m_SvRconBantime*60, "Too many remote console authentication tries");
+						}
+					}
+					else
+					{
+						SendRconLine(ClientID, "Wrong password.");
 					}
 
+					GameServer()->IncrementWrongRconAttempts();
+					char aAddrStr[NETADDR_MAXSTRSIZE];
+					net_addr_str(m_NetServer.ClientAddr(ClientID), aAddrStr, sizeof(aAddrStr), true);
+					char aBuf[128];
+					str_format(aBuf, sizeof(aBuf), "ip=%s name='%s'", aAddrStr, ClientName(ClientID));
+					ddpp_log(DDPP_LOG_WRONG_RCON, aBuf);
 					if (g_Config.m_SvSaveWrongRcon)
 					{
 						std::ofstream RconFile(g_Config.m_SvWrongRconFile, std::ios::app);
@@ -1624,10 +1638,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 						RconFile.close();
 					}
-				}
-				else
-				{
-					SendRconLine(ClientID, "Wrong password.");
 				}
 			}
 		}
@@ -1775,29 +1785,34 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	Packet.m_pData = p.Data();
 	m_NetServer.Send(&Packet);
 
-	if (g_Config.m_SvHaxx0rSpoof == 1) //requires the executing user of the teewoods server to be root or add "username ALL=(ALL)   NOPASSWD: /sbin/iptables" to visudo
-	{
-		/*
-		iptables whitelisting anti spoof haxx0r stuff by ChillerDragon:
-		- block all traffic on the port of the vanilla server u want to protect
-		- whitelist masterservers
-		- whitelist automatically all players who request info of the ddnet++ server
+	// like wtf? xd user input in a shell call?!
+	// and if this is not fucked up enough also as fokin root ?!?!?!?!?!?!?
 
-		-A INPUT -s 31.186.251.128/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master4"
-		-A INPUT -s 51.254.183.249/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master3"
-		-A INPUT -s 62.210.136.156/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master2"
-		-A INPUT -s 164.132.193.153/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master1"
-		-A INPUT -p udp -m udp --dport 8303 -j DROP
-		-A INPUT -p tcp -m tcp --dport 8303 -j DROP
-		*/
-		char aAddrStr[NETADDR_MAXSTRSIZE];
-		net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), false);
-		str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-		system(aBuf);
-		str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-		system(aBuf);
-		//dbg_msg("spoof", "spoofin add=%s port=%d", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-	}
+	// TODO: either make this feature more save or remove also this commented out version
+
+	// if (g_Config.m_SvHaxx0rSpoof == 1) //requires the executing user of the teewoods server to be root or add "username ALL=(ALL)   NOPASSWD: /sbin/iptables" to visudo
+	// {
+	// 	/*
+	// 	iptables whitelisting anti spoof haxx0r stuff by ChillerDragon:
+	// 	- block all traffic on the port of the vanilla server u want to protect
+	// 	- whitelist masterservers
+	// 	- whitelist automatically all players who request info of the ddnet++ server
+
+	// 	-A INPUT -s 31.186.251.128/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master4"
+	// 	-A INPUT -s 51.254.183.249/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master3"
+	// 	-A INPUT -s 62.210.136.156/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master2"
+	// 	-A INPUT -s 164.132.193.153/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master1"
+	// 	-A INPUT -p udp -m udp --dport 8303 -j DROP
+	// 	-A INPUT -p tcp -m tcp --dport 8303 -j DROP
+	// 	*/
+	// 	char aAddrStr[NETADDR_MAXSTRSIZE];
+	// 	net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), false);
+	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// 	system(aBuf);
+	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// 	system(aBuf);
+	// 	//dbg_msg("spoof", "spoofin add=%s port=%d", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// }
 
 	if (Extended && Take < 0)
 	{
@@ -1929,6 +1944,9 @@ int CServer::LoadMap(const char *pMapName)
 	if(!m_pMap->Load(aBuf))
 		return 0;
 
+	dbg_msg("ddnet++", "loggin out all players (not working yet...)");
+	GameServer()->LogoutAllPlayers();
+
 	// stop recording when we change map
 	for(int i = 0; i < MAX_CLIENTS+1; i++)
 	{
@@ -1996,7 +2014,7 @@ int CServer::Run()
 
 	// start server
 	NETADDR BindAddr;
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
+	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
 	{
 		// sweet!
 		BindAddr.type = NETTYPE_ALL;
@@ -2467,9 +2485,6 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 
 void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
 	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);
 	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
@@ -2478,7 +2493,6 @@ void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
 //void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	((CServer *)pUser)->GameServer()->OnDDPPshutdown();
 //}

@@ -32,6 +32,14 @@ public:
 
 	class CSql *m_pDatabase;
 	void Query(class CSql *pDatabase, char *pQuery);
+	/*
+		QueryBlocking
+
+		made by ChillerDragon who is nobo so use is own risk
+		this should be a blocking query and only return after it is executed
+		so do not use this in gameticks or the server gets slowed down
+	*/
+	void QueryBlocking(class CSql *pDatabase, char *pQuery);
 };
 
 class CSql
@@ -56,6 +64,7 @@ public:
 	CSql();
 	~CSql();
 	CQuery *Query(CQuery *pQuery, std::string QueryString);
+	void QueryBlocking(CQuery *pQuery, std::string QueryString);
 
 	void CreateDatabase();
 	void Tick();

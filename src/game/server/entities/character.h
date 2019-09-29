@@ -110,13 +110,14 @@ public:
 	bool isFreezed;
 	bool m_OnFire;
 
+	int m_NeededFaketuning; // sowwy ChillerDragon made it public
+
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 
 	bool m_Alive;
 	bool m_Paused;
-	int m_NeededFaketuning;
 
 	// weapon info
 	CEntity *m_apHitObjects[10];
@@ -248,6 +249,7 @@ public:
 	bool m_WasInRoom;
 
 	void DDPP_Tick();
+	void DDPP_FlagTick();
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
 	void BlockTourna_Die(int Killer);
 	void DummyTick();
@@ -256,12 +258,13 @@ public:
 	//usefull everywhere
 	void DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon);
 	void MoveTee(int x, int y);
-	void ChillTelePort(int X, int Y);
+	void ChillTelePort(float X, float Y);
 	void ChillTelePortTile(int X, int Y);
 	void FreezeAll(int seconds);
 	bool HasWeapon(int weapon);
 	void KillSpeed();
 	int GetAimDir();
+	bool InputActive();
 
 	//Chillintelligenz
 	void CITick();
@@ -275,7 +278,16 @@ public:
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
 	void BlockQuestSubDieFuncDeath(int Killer);
-	void BlockKillingSpree(int Killer);
+
+	/*
+		KillingSpree
+
+		was called BlockKillingSpree once
+		but now handles all ddnet++ gametype sprees.
+		So block and minigames (fng/vanilla).
+		But not other gametypes as instagib or fng (sv_gametype or other server cfgs).
+	*/
+	void KillingSpree(int Killer);
 
 	//block tourna
 
@@ -301,7 +313,7 @@ public:
 	bool Freeze(); 
 	bool UnFreeze();
 	void MoneyTile();
-	void MoneyTile2();
+	void MoneyTilePolice();
 	void MoneyTilePlus();
 	void MoneyTileDouble();
 	void GiveAllWeapons();
@@ -458,6 +470,12 @@ public:
 	};
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
+
+	enum {
+		DUMMYMODE_DEFAULT=0,
+		DUMMYMODE_ADVENTURE=-7,
+		DUMMYMODE_QUEST=36,
+	};
 
 	//dummymode public vars (used by survival 34)
 	int m_DummyDir;

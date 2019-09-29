@@ -4,6 +4,7 @@
 
 #include <new>
 #include <base/math.h>
+#include <base/ddpp_logs.h>
 #include <engine/shared/config.h>
 #include <engine/map.h>
 #include <engine/console.h>
@@ -36,6 +37,7 @@
 #include <game/server/teams.h>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
+#include "save.h"
 
 enum
 {
@@ -45,7 +47,10 @@ enum
 
 void CQuerySQLstatus::OnData()
 {
-	if (Next())
+	int n = Next();
+	if (m_ClientID == -1)
+		return;
+	if (n)
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: got rows.");
 	else
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
@@ -53,9 +58,6 @@ void CQuerySQLstatus::OnData()
 
 void CQueryRegister::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Next())
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Username already exists.");
@@ -70,15 +72,14 @@ void CQueryRegister::OnData()
 
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Account has been registered.");
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login with: /login <name> <pass>");
+
+		m_pGameServer->RegisterBanCheck(m_ClientID);
 	}
 }
 
 /*
 void CGameContext::LoginThread(void * pArg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	struct LoginData *pData = static_cast<struct LoginData*>(pArg);
 	CGameContext *pGS = static_cast<CGameContext*>(pData->pGameContext);
 	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->pSQL);
@@ -87,14 +88,11 @@ void CGameContext::LoginThread(void * pArg)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[THREAD] hello world3 your id=%d", id);
 	pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	pPlayer->m_money = 420;
+	pPlayer->SetMoney(420);
 }
 
 void CGameContext::Login(void *pArg, int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	struct LoginData *pData = (struct LoginData*)malloc(sizeof(struct LoginData));
 	pData->id = id;
 	pData->pGameContext = this;
@@ -107,9 +105,6 @@ void CGameContext::Login(void *pArg, int id)
 
 void CQueryLoginThreaded::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
 	if (!pPlayer)
 		return;
@@ -121,6 +116,7 @@ void CQueryLoginThreaded::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
 		pData->m_LoginState = CPlayer::LOGIN_OFF;
+		m_pGameServer->LoginBanCheck(m_ClientID);
 		return;
 	}
 	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
@@ -162,9 +158,6 @@ void CQueryLoginThreaded::OnData()
 
 void CQueryLogin::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Next())
 	{
 		if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
@@ -198,7 +191,7 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID = GetInt(GetID("ID"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetAccID(GetInt(GetID("ID")));
 
 				//Accounts
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
@@ -235,9 +228,9 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
 
 				//city
-				m_pGameServer->m_apPlayers[m_ClientID]->m_level = GetInt(GetID("Level"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_xp = GetInt64(GetID("Exp"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_money = GetInt64(GetID("Money"));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetLevel(GetInt(GetID("Level")));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetXP(GetInt64(GetID("Exp")));
+				m_pGameServer->m_apPlayers[m_ClientID]->SetMoney(GetInt64(GetID("Money")));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
 
@@ -430,21 +423,19 @@ void CQueryLogin::OnData()
 			//========================================
 			//works how it should but is possible crashing the server
 
-			m_pGameServer->ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->m_AccountID);
+			m_pGameServer->ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i', `LastLoginPort` = '%i' WHERE `ID` = '%i'", 1, g_Config.m_SvPort, m_pGameServer->m_apPlayers[m_ClientID]->GetAccID());
 		}
 	}
 	else
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
+		m_pGameServer->LoginBanCheck(m_ClientID);
 	}
 }
 
 void CQueryChangePassword::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Next())
 	{
 		if (m_pGameServer->m_apPlayers[m_ClientID])
@@ -462,9 +453,6 @@ void CQueryChangePassword::OnData()
 
 void CQuerySetPassword::OnData()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Next())
 	{
 		//send acc infos on found
@@ -486,15 +474,12 @@ void CQuerySetPassword::OnData()
 
 bool CGameContext::CheckAccounts(int AccountID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
 			continue;
 
-		if (m_apPlayers[i]->m_AccountID == AccountID)
+		if (m_apPlayers[i]->GetAccID() == AccountID)
 			return true;
 	}
 	return false;
@@ -502,9 +487,6 @@ bool CGameContext::CheckAccounts(int AccountID)
 
 void CGameContext::Construct(int Resetting)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Resetting = 0;
 	m_pServer = 0;
 
@@ -520,6 +502,7 @@ void CGameContext::Construct(int Resetting)
 	//m_LockTeams = 0;
 
 	m_Database = new CSql();
+	m_pLetters = new CLetters(this);
 
 	if(Resetting==NO_RESET)
 	{
@@ -533,25 +516,16 @@ void CGameContext::Construct(int Resetting)
 
 CGameContext::CGameContext(int Resetting)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Construct(Resetting);
 }
 
 CGameContext::CGameContext()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	Construct(NO_RESET);
 }
 
 CGameContext::~CGameContext()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		delete m_apPlayers[i];
 	if(!m_Resetting)
@@ -566,9 +540,6 @@ CGameContext::~CGameContext()
 
 void CGameContext::Clear()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CHeap *pVoteOptionHeap = m_pVoteOptionHeap;
 	CVoteOptionServer *pVoteOptionFirst = m_pVoteOptionFirst;
 	CVoteOptionServer *pVoteOptionLast = m_pVoteOptionLast;
@@ -590,9 +561,6 @@ void CGameContext::Clear()
 
 class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || !m_apPlayers[ClientID])
 		return 0;
 	return m_apPlayers[ClientID]->GetCharacter();
@@ -600,9 +568,6 @@ class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 
 void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
 	float s = a-pi/3;
@@ -622,9 +587,6 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Ma
 
 void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
 	if(pEvent)
@@ -637,9 +599,6 @@ void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 
 void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
 	if(pEvent)
@@ -697,9 +656,6 @@ void create_smoke(vec2 Pos)
 
 void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
 	if(ev)
@@ -712,9 +668,6 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 
 void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
 	if(pEvent)
@@ -727,9 +680,6 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 
 void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Sound < 0)
 		return;
 
@@ -745,9 +695,6 @@ void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 
 void CGameContext::CreateSoundGlobal(int Sound, int Target)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Sound < 0)
 		return;
 
@@ -766,9 +713,6 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 
 void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
@@ -801,9 +745,6 @@ void CGameContext::CallVote(int ClientID, const char *aDesc, const char *aCmd, c
 
 void CGameContext::SendChatTarget(int To, const char *pText)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetMsg_Sv_Chat Msg;
 	Msg.m_Team = 0;
 	Msg.m_ClientID = -1;
@@ -816,9 +757,6 @@ void CGameContext::SendChatTarget(int To, const char *pText)
 
 void CGameContext::SendChatTeam(int Team, const char *pText)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for(int i = 0; i<MAX_CLIENTS; i++)
 		if(((CGameControllerDDRace*)m_pController)->m_Teams.m_Core.Team(i) == Team)
 			SendChatTarget(i, pText);
@@ -826,9 +764,6 @@ void CGameContext::SendChatTeam(int Team, const char *pText)
 
 void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, int SpamProtectionClientID, int ToClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(SpamProtectionClientID >= 0 && SpamProtectionClientID < MAX_CLIENTS)
 	{
 		if(ProcessSpamProtection(SpamProtectionClientID))
@@ -920,9 +855,6 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 
 void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetMsg_Sv_Emoticon Msg;
 	Msg.m_ClientID = ClientID;
 	if (m_apPlayers[ClientID]->m_SpookyGhostActive)
@@ -934,9 +866,6 @@ void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 
 void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetMsg_Sv_WeaponPickup Msg;
 	Msg.m_Weapon = Weapon;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
@@ -945,9 +874,6 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 
 void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance, bool supermod)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (ClientID == -1) //classical rcon broadcast
 	{
 		CNetMsg_Sv_Broadcast Msg;
@@ -1018,9 +944,6 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 
 void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char *pReason)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// reset votes
 	m_VoteEnforce = VOTE_ENFORCE_UNKNOWN;
 	m_VoteEnforcer = -1;
@@ -1045,18 +968,12 @@ void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char
 
 void CGameContext::EndVote()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_VoteCloseTime = 0;
 	SendVoteSet(-1);
 }
 
 void CGameContext::SendVoteSet(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetMsg_Sv_VoteSet Msg;
 	if(m_VoteCloseTime)
 	{
@@ -1075,9 +992,6 @@ void CGameContext::SendVoteSet(int ClientID)
 
 void CGameContext::SendVoteStatus(int ClientID, int Total, int Yes, int No)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Total > VANILLA_MAX_CLIENTS && m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_ClientVersion <= VERSION_DDRACE)
 	{
 		Yes = float(Yes) * VANILLA_MAX_CLIENTS / float(Total);
@@ -1097,9 +1011,6 @@ void CGameContext::SendVoteStatus(int ClientID, int Total, int Yes, int No)
 
 void CGameContext::AbortVoteKickOnDisconnect(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_VoteCloseTime && ((!str_comp_num(m_aVoteCommand, "kick ", 5) && str_toint(&m_aVoteCommand[5]) == ClientID) ||
 		(!str_comp_num(m_aVoteCommand, "set_team ", 9) && str_toint(&m_aVoteCommand[9]) == ClientID)))
 		m_VoteCloseTime = -1;
@@ -1108,9 +1019,6 @@ void CGameContext::AbortVoteKickOnDisconnect(int ClientID)
 
 void CGameContext::CheckPureTuning()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// might not be created yet during start up
 	if(!m_pController)
 		return;
@@ -1130,9 +1038,6 @@ void CGameContext::CheckPureTuning()
 
 void CGameContext::SendTuningParams(int ClientID, int Zone)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (ClientID == -1)
 	{
 			for(int i = 0; i < MAX_CLIENTS; ++i)
@@ -1230,9 +1135,6 @@ void CGameContext::SwapTeams()
 */
 void CGameContext::OnTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	// check tuning
 	CheckPureTuning();
@@ -1479,27 +1381,18 @@ void CGameContext::OnTick()
 // Server hooks
 void CGameContext::OnClientDirectInput(int ClientID, void *pInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(!m_World.m_Paused)
 		m_apPlayers[ClientID]->OnDirectInput((CNetObj_PlayerInput *)pInput);
 }
 
 void CGameContext::OnClientPredictedInput(int ClientID, void *pInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(!m_World.m_Paused)
 		m_apPlayers[ClientID]->OnPredictedInput((CNetObj_PlayerInput *)pInput);
 }
 
 struct CVoteOptionServer *CGameContext::GetVoteOption(int Index)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CVoteOptionServer *pCurrent;
 	for (pCurrent = m_pVoteOptionFirst;
 			Index > 0 && pCurrent;
@@ -1512,9 +1405,6 @@ struct CVoteOptionServer *CGameContext::GetVoteOption(int Index)
 
 void CGameContext::ProgressVoteOptions(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPl = m_apPlayers[ClientID];
 
 	if (pPl->m_SendVoteIndex == -1)
@@ -1589,9 +1479,6 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 
 void CGameContext::OnClientEnter(int ClientID, bool silent)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (IsDDPPgametype("survival"))
 	{
@@ -1624,6 +1511,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	// Can't set score here as LoadScore() is threaded, run it in
 	// LoadScoreThreaded() instead
 	Score()->LoadScore(ClientID);
+	CheckIpJailed(ClientID);
 
 	m_apPlayers[ClientID]->m_Score = (Score()->PlayerData(ClientID)->m_BestTime) ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
 
@@ -1639,31 +1527,17 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{
 		char aBuf[512];
-		if (!silent && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 1))
+		if (!silent)
 		{
-			if (g_Config.m_SvActivatePatternFilter)
-			{
-				if (str_find(Server()->ClientName(ClientID), g_Config.m_SvHideJoinLeaveMessagesPattern))
-				{
-					//hide pattern
-					str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", ClientID, Server()->ClientName(ClientID));
-					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-				}
-				else
-				{
-					str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
-					SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				}
-			}
-			else if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(ClientID)))
-			{
-				str_format(aBuf, sizeof(aBuf), "player='%d:%s' join (message hidden)", ClientID, Server()->ClientName(ClientID));
-				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-			}
-			else
+			if (ShowJoinMessage(ClientID))
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 				SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
+				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
 		if (g_Config.m_SvInstagibMode)
@@ -1702,9 +1576,6 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 
 void CGameContext::OnClientConnected(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_ClientLeftServer[ClientID] = false;
 
 	// Check which team the player should be on (copyed all the stuff cuz const int mukked)
@@ -1771,8 +1642,6 @@ void CGameContext::OnClientConnected(int ClientID)
 		{
 			str_format(aBuf, sizeof(aBuf), "• '%s'\n", Server()->ClientName(i));
 			str_append(aBroad, aBuf, sizeof(aBroad));
-			dbg_msg("aBuf", aBuf);
-			dbg_msg("aBroad", aBroad);
 			IsSupporterOnline = true;
 		}
 	}
@@ -1791,9 +1660,6 @@ void CGameContext::OnClientConnected(int ClientID)
 
 void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_ClientLeftServer[ClientID] = true;
 	AbortVoteKickOnDisconnect(ClientID);
 	m_apPlayers[ClientID]->OnDisconnect(pReason, silent);
@@ -1820,9 +1686,6 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool silent)
 
 void CGameContext::OnStartBlockTournament()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_BlockTournaState)
 	{
 		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
@@ -1841,16 +1704,12 @@ void CGameContext::OnStartBlockTournament()
 //void CGameContext::OnDDPPshutdown()
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] server shutdown!");
 //}
 
 void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_apPlayers[ClientID])
 	{
 		m_apPlayers[ClientID]->m_IsFakeMotd = true;
@@ -1863,9 +1722,6 @@ void CGameContext::AbuseMotd(const char * pMsg, int ClientID)
 
 int CGameContext::IsMinigame(int playerID) //if you update this function please also update the '/minigames' chat command
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[playerID];
 	if (!pPlayer)
 		return 0;
@@ -1924,17 +1780,11 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 
 bool CGameContext::IsDDPPgametype(const char * pGametype)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return !str_comp_nocase(g_Config.m_SvDDPPgametype, pGametype);
 }
 
 int CGameContext::GetCIDByName(const char * pName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int nameID = -1;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -1952,9 +1802,6 @@ int CGameContext::GetCIDByName(const char * pName)
 
 int CGameContext::GetShopBot()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
@@ -1970,9 +1817,6 @@ int CGameContext::GetShopBot()
 
 int CGameContext::CountConnectedPlayers()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int cPlayers = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -1989,9 +1833,6 @@ int CGameContext::CountConnectedPlayers()
 
 int CGameContext::CountConnectedHumans()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int cPlayers = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2005,9 +1846,6 @@ int CGameContext::CountConnectedHumans()
 
 int CGameContext::CountIngameHumans()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int cPlayers = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2022,7 +1860,6 @@ int CGameContext::CountIngameHumans()
 bool CGameContext::IsAllowedCharSet(const char *pStr)
 {
 #if defined(CONF_DEBUG)
-    CALL_STACK_ADD();
 #endif
     int i = 0;
     bool IsOk = false;
@@ -2056,11 +1893,23 @@ bool CGameContext::IsAllowedCharSet(const char *pStr)
     return true;
 }
 
+int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		if (str_comp(m_apPlayers[i]->m_TimeoutCode, pTimeout))
+			continue;
+		return i;
+	}
+	return -1;
+}
+
 int CGameContext::CountConnectedBots()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int lum_tt_zv_1_zz_04032018_lt3 = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2072,11 +1921,22 @@ int CGameContext::CountConnectedBots()
 	return lum_tt_zv_1_zz_04032018_lt3;
 }
 
+int CGameContext::CountTimeoutCodePlayers()
+{
+	int p = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_TimeoutCode[0])
+			continue;
+		p++;
+	}
+	return p;
+}
+
 void CGameContext::SendBroadcastAll(const char * pText, int importance, bool supermod)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
@@ -2088,9 +1948,6 @@ void CGameContext::SendBroadcastAll(const char * pText, int importance, bool sup
 
 void CGameContext::KillAll()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && m_apPlayers[i]->GetCharacter()) //only kill alive dudes
@@ -2100,100 +1957,8 @@ void CGameContext::KillAll()
 	}
 }
 
-void CGameContext::GiveBlockPoints(int ID, int points)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (!m_apPlayers[ID])
-		return;
-
-	char aBuf[128];
-	bool FlagBonus = false;
-
-	if (m_apPlayers[ID]->GetCharacter())
-	{
-		if (((CGameControllerDDRace*)m_pController)->HasFlag(m_apPlayers[ID]->GetCharacter()) != -1)
-		{
-			points++;
-			FlagBonus = true;
-		}
-	}
-
-	m_apPlayers[ID]->m_BlockPoints += points;
-	if (m_apPlayers[ID]->m_ShowBlockPoints)
-	{
-		if (m_apPlayers[ID]->m_AccountID > 0)
-		{
-			if (!FlagBonus)
-			{
-				if (points == 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+1 point");
-				}
-				else if (points > 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+%d points", points);
-				}
-			}
-			else
-			{
-				if (points == 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+1 point (flag bonus)");
-				}
-				else if (points > 1)
-				{
-					str_format(aBuf, sizeof(aBuf), "+%d points (flag bonus)", points);
-				}
-			}
-		}
-		else
-		{
-			if (points == 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "+%d point (warning! use '/login' to save your '/points')", points);
-			}
-			else if (points > 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "+%d points (warning! use '/login' to save your '/points')", points);
-			}
-		}
-
-		SendChatTarget(ID, aBuf);
-	}
-	else //chat info deactivated
-	{
-		if (m_apPlayers[ID]->m_AccountID <= 0)
-		{
-			if (m_apPlayers[ID]->m_BlockPoints == 5 || m_apPlayers[ID]->m_BlockPoints == 10) //after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
-			{
-				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_apPlayers[ID]->m_BlockPoints);
-				SendChatTarget(ID, aBuf);
-				SendChatTarget(ID, "Use '/accountinfo' for more information.");
-			}
-		}
-	}
-}
-
-void CGameContext::GiveXp(int id, int value)
-{
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (!m_apPlayers[id])
-		return;
-	if (m_apPlayers[id]->m_level >= m_apPlayers[id]->m_max_level)
-		return;
-
-	m_apPlayers[id]->m_xp += value;
-}
-
 void CGameContext::LoadFNNvalues()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::ifstream readfile;
 	char aFilePath[512];
 	str_format(aFilePath, sizeof(aFilePath), "FNN/move_stats.fnn");
@@ -2222,16 +1987,12 @@ void CGameContext::LoadFNNvalues()
 
 void CGameContext::SQLPortLogout(int port)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `LastLoginPort` = '%i'", 0, g_Config.m_SvPort);
 }
 
 bool CGameContext::IsPosition(int playerID, int pos)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	//dbg_msg("debug", "IsPosition(playerID = %d, pos = %d)", playerID, pos);
 #endif
 	if (!m_apPlayers[playerID])
@@ -2286,9 +2047,6 @@ bool CGameContext::IsPosition(int playerID, int pos)
 
 void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[viewerID])
 		return;
 	if (!m_apPlayers[creatorID])
@@ -2363,9 +2121,6 @@ bool CGameContext::IsHooked(int hookedID, int power)
 
 bool CGameContext::IsSameIP(int ID_1, int ID_2)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aIP_1[64];
 	char aIP_2[64];
 	Server()->GetClientAddr(ID_1, aIP_1, sizeof(aIP_1));
@@ -2381,9 +2136,6 @@ bool CGameContext::IsSameIP(int ID_1, int ID_2)
 
 int CGameContext::C3_GetFreeSlots()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int c = g_Config.m_SvChidraqulSlots;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2397,9 +2149,6 @@ int CGameContext::C3_GetFreeSlots()
 
 int CGameContext::C3_GetOnlinePlayers()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int c = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2413,9 +2162,6 @@ int CGameContext::C3_GetOnlinePlayers()
 
 void CGameContext::C3_MultiPlayer_GameTick(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_apPlayers[id]->m_C3_UpdateFrame || Server()->Tick() % 120 == 0)
 	{
 		C3_RenderFrame();
@@ -2431,9 +2177,6 @@ void CGameContext::C3_MultiPlayer_GameTick(int id)
 
 void CGameContext::C3_RenderFrame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	char aBuf[128];
 	char aHUD[64];
@@ -2476,9 +2219,6 @@ void CGameContext::C3_RenderFrame()
 
 char CGameContext::BoolToChar(bool b)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (b)
 		return '1';
 	return '0';
@@ -2486,9 +2226,6 @@ char CGameContext::BoolToChar(bool b)
 
 bool CGameContext::CharToBool(char c)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (c == '0')
 		return false;
 	return true;
@@ -2496,9 +2233,6 @@ bool CGameContext::CharToBool(char c)
 
 void CGameContext::ShowHideConfigBoolToChar(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -2518,9 +2252,6 @@ void CGameContext::ShowHideConfigBoolToChar(int id)
 
 void CGameContext::ShowHideConfigCharToBool(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -2548,9 +2279,6 @@ void CGameContext::ShowHideConfigCharToBool(int id)
 
 void CGameContext::FNN_LoadRun(const char * path, int botID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[botID];
 	if (!pPlayer)
 	{
@@ -2616,9 +2344,6 @@ void CGameContext::FNN_LoadRun(const char * path, int botID)
 
 void CGameContext::TestPrintTiles(int botID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[botID];
 	if (!pPlayer)
 		return;
@@ -2631,9 +2356,6 @@ void CGameContext::TestPrintTiles(int botID)
 
 vec2 CGameContext::GetFinishTile()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	/*
 	int BIG_NUMBER = 0;
 	BIG_NUMBER = ~BIG_NUMBER; //binary lyfe hacks with chiller
@@ -2703,7 +2425,6 @@ vec2 CGameContext::GetFinishTile()
 void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
 #endif
 
@@ -2746,9 +2467,6 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 
 void CGameContext::ShowInstaStats(int requestID, int requestedID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[requestID])
 		return;
 	CPlayer *pPlayer = m_apPlayers[requestedID];
@@ -2786,9 +2504,6 @@ void CGameContext::ShowInstaStats(int requestID, int requestedID)
 
 void CGameContext::ShowSurvivalStats(int requestID, int requestedID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[requestID])
 		return;
 	CPlayer *pPlayer = m_apPlayers[requestedID];
@@ -2806,11 +2521,46 @@ void CGameContext::ShowSurvivalStats(int requestID, int requestedID)
 	SendChatTarget(requestID, aBuf);
 }
 
+void CGameContext::ShowDDPPStats(int requestID, int requestedID)
+{
+	if (!m_apPlayers[requestID])
+		return;
+	CPlayer *pPlayer = m_apPlayers[requestedID];
+	if (!pPlayer)
+		return;
+
+	char aBuf[128];
+
+	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(requestedID));
+	SendChatTarget(requestID, aBuf);
+	if (pPlayer->GetLevel() == ACC_MAX_LEVEL)
+		str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pPlayer->GetLevel());
+	else
+		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
+	SendChatTarget(requestID, aBuf);
+	if (!pPlayer->IsLoggedIn())
+		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->GetXP());
+	else
+		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->GetXP(), pPlayer->GetNeededXP());
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->GetMoney());
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+	SendChatTarget(requestID, aBuf);
+	SendChatTarget(requestID, "---- BLOCK ----");
+	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+	SendChatTarget(requestID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+	SendChatTarget(requestID, aBuf);
+
+	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsID));
+	// SendChatTarget(requestID, aBuf);
+}
+
 void CGameContext::LeaveInstagib(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CPlayer *pPlayer = m_apPlayers[ID];
 	if (!pPlayer)
@@ -2888,7 +2638,6 @@ void CGameContext::LeaveInstagib(int ID)
 void CGameContext::SayInsta(const char * pMsg, int weapon)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	//dbg_msg("cBug", "SayInsta got called with weapon %d and message '%s'", weapon, pMsg);
 #endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -2916,7 +2665,6 @@ void CGameContext::SayInsta(const char * pMsg, int weapon)
 void CGameContext::DoInstaScore(int score, int id)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	dbg_msg("insta", "'%s' scored %d in instagib [score: %d]", Server()->ClientName(id), score, m_apPlayers[id]->m_InstaScore);
 #endif
 	CPlayer *pPlayer = m_apPlayers[id];
@@ -2932,9 +2680,6 @@ void CGameContext::DoInstaScore(int score, int id)
 
 void CGameContext::CheckInstaWin(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_apPlayers[ID]->m_IsInstaArena_gdm)
 	{
 		if (m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvGrenadeScorelimit)
@@ -2957,9 +2702,6 @@ void CGameContext::CheckInstaWin(int ID)
 
 void CGameContext::InstaGrenadeRoundEndTick(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_InstaGrenadeRoundEndTickTicker) { return; }
 	if (!m_apPlayers[ID]->m_IsInstaArena_gdm) { return; }
 
@@ -3052,9 +2794,6 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 
 void CGameContext::InstaRifleRoundEndTick(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_InstaRifleRoundEndTickTicker) { return; }
 	if (!m_apPlayers[ID]->m_IsInstaArena_idm) { return; }
 
@@ -3144,9 +2883,6 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 
 bool CGameContext::ChillWriteToLine(char const * filename, unsigned lineNo, char const * data)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	std::fstream file(filename);
 	if (!file)
 		return false;
@@ -3171,9 +2907,6 @@ bool CGameContext::ChillWriteToLine(char const * filename, unsigned lineNo, char
 
 int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, const char * value, int requestingID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, account);
 	std::fstream Acc2File(aBuf);
@@ -3280,9 +3013,6 @@ int CGameContext::ChillUpdateFileAcc(const char * account, unsigned int line, co
 
 void CGameContext::ConnectFngBots(int amount, int mode)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < amount; i++)
 	{
 		if (mode == 0) //rifle
@@ -3303,9 +3033,6 @@ void CGameContext::ConnectFngBots(int amount, int mode)
 
 void CGameContext::SaveCosmetics(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -3325,9 +3052,6 @@ void CGameContext::SaveCosmetics(int id)
 
 void CGameContext::LoadCosmetics(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -3347,9 +3071,6 @@ void CGameContext::LoadCosmetics(int id)
 
 void CGameContext::DeleteCosmetics(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -3370,9 +3091,6 @@ void CGameContext::DeleteCosmetics(int id)
 
 void CGameContext::CheckDDPPshutdown()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (g_Config.m_SvDDPPshutdown)
 	{
 		int players = CountConnectedHumans();
@@ -3401,9 +3119,6 @@ void CGameContext::CheckDDPPshutdown()
 
 void CGameContext::DDPP_Tick()	
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_iBroadcastDelay > 0)
 	{
 		m_iBroadcastDelay--;
@@ -3428,9 +3143,33 @@ void CGameContext::DDPP_Tick()
 	{
 		SurvivalLobbyTick();
 	}
-	else if (m_survivalgamestate == 3) //deathmatch countdown
+	else
 	{
-		SurvivalDeathmatchTick();
+		if (m_survival_game_countdown > 0)
+		{
+			m_survival_game_countdown--;
+		}
+		if (m_survival_game_countdown == 0)
+		{
+			SendSurvivalChat("[SURVIVAL] Game ended due to timeout. Nobody won.");
+			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+				{
+					SetPlayerSurvival(i, SURVIVAL_LOBBY);
+					if (m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
+					{
+						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+					}
+				}
+			}
+			SurvivalSetGameState(SURVIVAL_LOBBY);
+		}
+		if (m_survivalgamestate == SURVIVAL_DM_COUNTDOWN)
+		{
+			SurvivalDeathmatchTick();
+		}
 	}
 
 	if (m_BlockWaveGameState)
@@ -3443,6 +3182,15 @@ void CGameContext::DDPP_Tick()
 		if (!m_apPlayers[i])
 			continue;
 
+		if (m_LastAccountMode != g_Config.m_SvAccountStuff)
+		{
+			if (m_apPlayers[i]->IsLoggedIn())
+			{
+				SendChatTarget(i, "[ACCOUNT] you have been logged out due to changes in the system");
+				m_apPlayers[i]->Logout();
+			}
+		}
+
 		ChilliClanTick(i);
 		AsciiTick(i);
 		InstaGrenadeRoundEndTick(i);
@@ -3451,6 +3199,7 @@ void CGameContext::DDPP_Tick()
 	}
 	if (m_InstaGrenadeRoundEndTickTicker) { m_InstaGrenadeRoundEndTickTicker--; }
 	if (m_InstaRifleRoundEndTickTicker) { m_InstaRifleRoundEndTickTicker--; }
+	m_LastAccountMode = g_Config.m_SvAccountStuff;
 
 	if (Server()->Tick() % 600 == 0) //slow ddpp sub tick
 	{
@@ -3458,25 +3207,70 @@ void CGameContext::DDPP_Tick()
 	}
 }
 
+void CGameContext::LogoutAllPlayers()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			dbg_msg("ddnet++", "logging out id=%d", i);
+			m_apPlayers[i]->Logout();
+		}
+	}
+}
+
+void CGameContext::LogoutAllPlayersMessage()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			dbg_msg("ddnet++", "logging out id=%d", i);
+			m_apPlayers[i]->Logout();
+			SendChatTarget(i, "[ACCOUNT] you were logged out.");
+		}
+	}
+}
+
+void CGameContext::ConnectAdventureBots()
+{
+	CreateNewDummy(CCharacter::DUMMYMODE_ADVENTURE, true, 1);
+}
+
 void CGameContext::DDPP_SlowTick()
 {
 	bool StopSurvival = true;
+	int NumQuesting = 0;
+	int TotalPlayers = 0;
+	int NumAdventureBots = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (!m_apPlayers[i])
 			continue;
 
-		if (m_apPlayers[i]->m_QuestState && m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+		TotalPlayers++;
+		CheckDeleteLoginBanEntry(i);
+		CheckDeleteRegisterBanEntry(i);
+		CheckDeleteNamechangeMuteEntry(i);
+		if (m_apPlayers[i]->IsQuesting())
 		{
-			if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
+			NumQuesting++;
+			if (m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
 			{
-				SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
-				QuestFailed(i);
-			}
-			else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
-			{
-				SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
-				QuestFailed(i);
+				if (!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
+				{
+					SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
+					QuestFailed(i);
+				}
+				else if (m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
+				{
+					SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
+					QuestFailed(i);
+				}
 			}
 		}
 		if (m_apPlayers[i]->m_IsSurvivaling)
@@ -3494,8 +3288,30 @@ void CGameContext::DDPP_SlowTick()
 				}
 			}
 		}
+		if (m_apPlayers[i]->m_IsDummy)
+		{
+			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
+				NumAdventureBots++;
+		}
 	}
 
+	if (TotalPlayers + 3 > g_Config.m_SvMaxClients ||
+		NumQuesting == 0)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (!m_apPlayers[i])
+				continue;
+			if (!m_apPlayers[i]->m_IsDummy)
+				continue;
+			if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+				Server()->BotLeave(i);
+		}
+	}
+	if (NumAdventureBots < g_Config.m_SvAdventureBots)
+	{
+		ConnectAdventureBots();
+	}
 
 	if (StopSurvival)
 	{
@@ -3524,13 +3340,12 @@ void CGameContext::DDPP_SlowTick()
 		}
 	}
 	CheckDDPPshutdown();
+	if (g_Config.m_SvAutoFixBrokenAccs)
+		SQLcleanZombieAccounts(-1);
 }
 
 void CGameContext::ChilliClanTick(int i)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!g_Config.m_SvKickChilliClan)
 		return;
 
@@ -3596,9 +3411,6 @@ void CGameContext::ChilliClanTick(int i)
 
 void CGameContext::AsciiTick(int i)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[i])
 		return;
 
@@ -3705,9 +3517,6 @@ void CGameContext::AsciiTick(int i)
 
 void CGameContext::LoadSinglePlayer()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	FILE *pFile;
 	struct CBinaryStorage statsBuff;
 
@@ -3730,17 +3539,14 @@ void CGameContext::LoadSinglePlayer()
 
 void CGameContext::SaveSinglePlayer()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	FILE *pFile;
 	struct CBinaryStorage statsBuff;
 
 	pFile = fopen("ddpp-stats.dat","wb");
 	if (!pFile)
 	{
-			dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
-			return;
+		dbg_msg("ddpp-stats", "[save] failed to open ddpp singleplayer stats");
+		return;
 	}
 	statsBuff.x = m_MissionUnlockedLevel;
 	fwrite(&statsBuff, sizeof(struct CBinaryStorage), 1, pFile);
@@ -3750,12 +3556,195 @@ void CGameContext::SaveSinglePlayer()
 	fclose(pFile);
 }
 
- 
+void CGameContext::SaveMapPlayerData()
+{
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"wb");
+	if (!pFile)
+	{
+		dbg_msg("ddpp-mapsave", "failed to write ddpp player data file '%s'.", aSaveFile);
+		return;
+	}
+	int saved = 0;
+	int players = CountTimeoutCodePlayers();
+	fwrite(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = m_apPlayers[i];
+		if (!pPlayer)
+			continue;
+		CCharacter *pChr = pPlayer->GetCharacter();
+		if (!pChr)
+			continue;
+		if (!pPlayer->m_TimeoutCode[0])
+			continue;
+		if (!pChr)
+			continue;
+		fwrite(&pPlayer->m_TimeoutCode, 64, 1, pFile);
+		char IsLoaded = 0;
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapsave", "writing isloaded at pos %lld", fpost_get_pos(pos));
+		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+
+		CSaveTee savetee;
+		savetee.save(pChr, 0); // save without time penalty
+		fwrite(&savetee, sizeof(savetee), 1, pFile);
+
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_TimeoutCode);
+		saved++;
+	}
+	fclose(pFile);
+	dbg_msg("ddpp-mapsave", "saved %d/%d players", saved, players);
+}
+
+void CGameContext::LoadMapPlayerData()
+{
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"rb+");
+	if (!pFile)
+	{
+		m_MapsavePlayers = 0;
+		dbg_msg("ddpp-mapload", "failed to open ddpp player data file '%s'.", aSaveFile);
+		return;
+	}
+	int loaded = 0;
+	int players = 0;
+	fread(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < players; i++)
+	{
+		// ValidPlayer replaces continue to make sure the binary cursor is at the right offset
+		bool ValidPlayer = true;
+		char aTimeoutCode[64];
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapload", "read timeout code at %lld", fpost_get_pos(pos));
+		fread(&aTimeoutCode, 64, 1, pFile);
+		int id = GetPlayerByTimeoutcode(aTimeoutCode);
+		if (id == -1)
+		{
+			dbg_msg("ddpp-mapload", "player not online code=%s", aTimeoutCode);
+			ValidPlayer = false;
+		}
+		else
+		{
+			CPlayer *pPlayer = m_apPlayers[id];
+			if (!pPlayer)
+			{
+				dbg_assert(false, "loadmap invalid player");
+				return;
+			}
+			CCharacter *pChr = pPlayer->GetCharacter();
+			if (ValidPlayer && !pChr)
+			{
+				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", id, aTimeoutCode);
+				ValidPlayer = false;
+			}
+			if (ValidPlayer && str_comp(aTimeoutCode, pPlayer->m_TimeoutCode))
+			{
+				dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", pPlayer->m_TimeoutCode, aTimeoutCode);
+				ValidPlayer = false;
+			}
+			if (ValidPlayer && pPlayer->m_MapSaveLoaded)
+			{
+				// shouldn't happen? couldn't happen? too lazy to think probably possible by abusing /timeout command or share
+				// and can be bypassed by reconnect lol
+				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", id, Server()->ClientName(id), pPlayer->m_TimeoutCode);
+				ValidPlayer = false;
+			}
+		}
+		char IsLoaded;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapload", "reading isloaded at pos %lld", fpost_get_pos(pos));
+		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		// reset file pos after read to overwrite isloaded or keep clean offset on continue
+		if (IsLoaded)
+		{
+			dbg_msg("ddpp-mapload", "loaded already");
+			ValidPlayer = false;
+		}
+		IsLoaded = ValidPlayer ? 1 : IsLoaded; // only change loaded state if the player is actually loaded
+		fsetpos(pFile, &pos);
+		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+
+		CSaveTee savetee;
+		fread(&savetee, sizeof(savetee), 1, pFile);
+
+		if (ValidPlayer)
+		{
+			CPlayer *pPlayer = m_apPlayers[id];
+			CCharacter *pChr = pPlayer->GetCharacter();
+
+			savetee.load(pChr, 0); // load to team0 always xd cuz teams sokk!
+
+			m_MapsaveLoadedPlayers++;
+			pPlayer->m_MapSaveLoaded = true;
+			fgetpos(pFile, &pos);
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%lld", Server()->ClientName(id), pPlayer->m_TimeoutCode, fpost_get_pos(pos));
+			loaded++;
+		}
+	}
+	fclose(pFile);
+	m_MapsavePlayers = players;
+	dbg_msg("ddpp-mapload", "loaded %d/%d players", loaded, players);
+}
+
+void CGameContext::ReadMapPlayerData(int ClientID)
+{
+	FILE *pFile;
+	char aSaveFile[256];
+	str_format(aSaveFile, sizeof(aSaveFile), "%s_playerdata.dat", Server()->GetMapName());
+	pFile = fopen(aSaveFile,"rb");
+	if (!pFile)
+	{
+		dbg_msg("ddpp-mapread", "failed to read ddpp player data file '%s'.", aSaveFile);
+		return;
+	}
+	int loaded = 0;
+	int red = 0;
+	int players = 0;
+	fread(&players, sizeof(players), 1, pFile);
+	for (int i = 0; i < players; i++)
+	{
+		char aTimeoutCode[64];
+		fpos_t pos;
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapread", "read timeout code at %lld", fpost_get_pos(pos));
+		fread(&aTimeoutCode, 64, 1, pFile);
+		int id = GetPlayerByTimeoutcode(aTimeoutCode);
+		char IsLoaded;
+		fread(&IsLoaded, sizeof(IsLoaded), 1, pFile);
+		if (IsLoaded)
+			loaded++;
+
+		CSaveTee savetee;
+		fread(&savetee, sizeof(savetee), 1, pFile);
+
+		fgetpos(pFile, &pos);
+		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%lld", id, aTimeoutCode, IsLoaded, fpost_get_pos(pos));
+		red++;
+	}
+	fclose(pFile);
+	if (ClientID != -1)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: loaded %d/%d players", loaded, players);
+		SendChatTarget(ClientID, aBuf);
+		if (red != players)
+		{
+			str_format(aBuf, sizeof(aBuf), "[MAPSAVE] Debug: WARNING only found %d/%d players", red, players);
+			SendChatTarget(ClientID, aBuf);
+		}
+	}
+	dbg_msg("ddpp-mapread", "red %d/%d players (%d loaded)", red, players, loaded);
+}
+
 void CGameContext::GlobalChatPrintMessage()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aData[1024];
 	std::string data;
 
@@ -3793,9 +3782,6 @@ void CGameContext::GlobalChatPrintMessage()
 
 void CGameContext::GlobalChatUpdateConfirms(const char * pStr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[1024];
 	str_format(aBuf, sizeof(aBuf), "%s", pStr);
 	int confirms = 0;
@@ -3846,9 +3832,6 @@ void CGameContext::GlobalChatUpdateConfirms(const char * pStr)
 
 void CGameContext::SurvivalLobbyTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 
 	if (CountSurvivalPlayers() >= g_Config.m_SvSurvivalStartPlayers)
@@ -3905,9 +3888,6 @@ void CGameContext::SurvivalLobbyTick()
 
 void CGameContext::SurvivalDeathmatchTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 	m_survival_dm_countdown--;
 
@@ -3924,38 +3904,49 @@ void CGameContext::SurvivalDeathmatchTick()
 
 	if (m_survival_dm_countdown < 1)
 	{
-		//start deathmatch
-		SurvivalSetGameState(4);
+		SurvivalSetGameState(SURVIVAL_DM);
+	}
+}
+
+void CGameContext::SurvivalCheckWinnerAndDeathMatch()
+{
+	int AliveTees = CountSurvivalPlayers(true);
+	char aBuf[128];
+	if (AliveTees < 2) //could also be == 1 but i think < 2 is saver. Check for winning.                        (much wow sentence inc..) if 2 were alive and now only 1 players alive and one dies we have a winner
+	{
+		if (!SurvivalPickWinner()) { SendSurvivalChat("[SURVIVAL] Nobody won."); }
+		SurvivalSetGameState(SURVIVAL_LOBBY);
+	}
+	else if (AliveTees < g_Config.m_SvSurvivalDmPlayers)
+	{
+		SurvivalSetGameState(SURVIVAL_DM_COUNTDOWN);
+		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
+		SendSurvivalChat(aBuf);
 	}
 }
 
 void CGameContext::SurvivalStartGame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 SurvivalGameSpawnTile = Collision()->GetRandomTile(TILE_SURVIVAL_SPAWN);
 
 	if (SurvivalGameSpawnTile == vec2(-1, -1)) //no survival arena
 	{
-		SurvivalSetGameState(1); //set lobby
+		SurvivalSetGameState(SURVIVAL_LOBBY);
 		SendSurvivalChat("[SURVIVAL] no survival arena set.");
 		return;
 	}
 	else
 	{
-		SurvivalSetGameState(2); //set ingame
+		SurvivalSetGameState(SURVIVAL_INGAME);
 		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
 		//SendSurvivalBroadcast("STAY ALIVE!!!");
 		SendSurvivalBroadcast(""); // clear countdown
+		SurvivalCheckWinnerAndDeathMatch();
 	}
 }
 
 void CGameContext::SendSurvivalChat(const char * pMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
@@ -3968,18 +3959,15 @@ void CGameContext::SendSurvivalChat(const char * pMsg)
 	}
 }
 
-void CGameContext::SendSurvivalBroadcast(const char * pMsg)
+void CGameContext::SendSurvivalBroadcast(const char * pMsg, int Importance)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
 		{
 			if (m_apPlayers[i]->m_IsSurvivaling)
 			{
-				SendBroadcast(pMsg, i);
+				SendBroadcast(pMsg, i, Importance);
 			}
 		}
 	}
@@ -3987,61 +3975,105 @@ void CGameContext::SendSurvivalBroadcast(const char * pMsg)
 
 void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 3=die
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (m_apPlayers[id])
+	if (!m_apPlayers[id])
+		return;
+
+	if (mode == SURVIVAL_OFF)
 	{
-		if (mode == 0) //off
+		m_apPlayers[id]->m_IsSurvivaling = false;
+		m_apPlayers[id]->m_IsVanillaDmg = false;
+		m_apPlayers[id]->m_IsVanillaWeapons = false;
+		m_apPlayers[id]->m_IsVanillaCompetetive = false;
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_Paused = CPlayer::PAUSED_NONE;
+	}
+	else if (mode == SURVIVAL_LOBBY)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		if (!m_survivalgamestate) //no game running --> start lobby
 		{
-			m_apPlayers[id]->m_IsSurvivaling = false;
-			m_apPlayers[id]->m_IsVanillaDmg = false;
-			m_apPlayers[id]->m_IsVanillaWeapons = false;
-			m_apPlayers[id]->m_IsVanillaCompetetive = false;
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
+			SurvivalSetGameState(SURVIVAL_LOBBY);
+			dbg_msg("survival", "lobby started");
 		}
-		else if (mode == 1) //lobby
+	}
+	else if (mode == SURVIVAL_INGAME)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = true;
+		m_apPlayers[id]->m_IsSurvivaling = true;
+		m_apPlayers[id]->m_IsVanillaDmg = true;
+		m_apPlayers[id]->m_IsVanillaWeapons = true;
+		m_apPlayers[id]->m_IsVanillaCompetetive = true;
+		m_apPlayers[id]->m_IsSurvivalLobby = false;
+		m_apPlayers[id]->m_IsSurvivalWinner = false;
+	}
+	else if (mode == SURVIVAL_DIE)
+	{
+		m_apPlayers[id]->m_IsSurvivalAlive = false;
+		m_apPlayers[id]->m_IsSurvivalLobby = true;
+		m_apPlayers[id]->m_SurvivalDeaths++;
+	}
+	else
+	{
+		dbg_msg("survival", "WARNING setted undefined mode %d", mode);
+	}
+}
+
+int CGameContext::SurvivalGetRandomAliveID(int NotThis)
+{
+	int r = rand() % CountSurvivalPlayers(true);
+	int x = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (i == NotThis)
+			continue;
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
 		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			if (!m_survivalgamestate) //no game running --> start lobby
-			{
-				SurvivalSetGameState(1);
-				dbg_msg("survival", "lobby started");
-			}
+			if (x++ == r) { return i; }
 		}
-		else if (mode == 2) //on
+	}
+	return -1;
+}
+
+void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
+{
+	CPlayer *pPlayer = m_apPlayers[UpdateID];
+	if (!pPlayer)
+		return;
+
+	int AliveTees = CountSurvivalPlayers(true);
+	if (AliveTees > 1)
+	{
+		pPlayer->m_SpectatorID = UpdateID == KillerID ? SurvivalGetRandomAliveID() : KillerID;
+		pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
+	}
+	else
+	{
+		pPlayer->m_Paused = CPlayer::PAUSED_NONE;
+	}
+}
+
+void CGameContext::SurvivalUpdateSpectators(int DiedID, int KillerID)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i] || !m_apPlayers[i]->m_IsSurvivaling)
+			continue;
+		if (m_apPlayers[i]->m_SpectatorID == DiedID)
 		{
-			m_apPlayers[id]->m_IsSurvivalAlive = true;
-			m_apPlayers[id]->m_IsSurvivaling = true;
-			m_apPlayers[id]->m_IsVanillaDmg = true;
-			m_apPlayers[id]->m_IsVanillaWeapons = true;
-			m_apPlayers[id]->m_IsVanillaCompetetive = true;
-			m_apPlayers[id]->m_IsSurvivalLobby = false;
-			m_apPlayers[id]->m_IsSurvivalWinner = false;
-		}
-		else if (mode == 3) //die
-		{
-			m_apPlayers[id]->m_IsSurvivalAlive = false;
-			m_apPlayers[id]->m_IsSurvivalLobby = true;
-			m_apPlayers[id]->m_SurvivalDeaths++;
-		}
-		else
-		{
-			dbg_msg("survival", "WARNING setted undefined mode %d", mode);
+			SurvivalGetNextSpectator(i, KillerID);
 		}
 	}
 }
 
 int CGameContext::CountSurvivalPlayers(bool Alive)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int x = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -4058,28 +4090,32 @@ int CGameContext::CountSurvivalPlayers(bool Alive)
 
 void CGameContext::SurvivalSetGameState(int state)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (state == 0) //off
+	m_survivalgamestate = state;
+	if (state == SURVIVAL_OFF)
 	{
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 0;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i])
 			{
-				SetPlayerSurvival(i, 0);
+				SetPlayerSurvival(i, SURVIVAL_OFF);
 			}
 		}
 	}
-	else if (state == 1) //lobby
+	else if (state == SURVIVAL_LOBBY)
 	{
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 1;
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+			{
+				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
+			}
+		}
 	}
-	else if (state == 2) //ingame
+	else if (state == SURVIVAL_INGAME)
 	{
+		m_survival_spawn_counter = 0;
+		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
@@ -4089,18 +4125,17 @@ void CGameContext::SurvivalSetGameState(int state)
 					SaveCosmetics(i);
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
-				SetPlayerSurvival(i, 2);
+				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
+				SetPlayerSurvival(i, SURVIVAL_INGAME);
 			}
 		}
-		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		m_survivalgamestate = 2;
+		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
 	}
-	else if (state == 3) //deathmatch countdown
+	else if (state == SURVIVAL_DM_COUNTDOWN)
 	{
 		m_survival_dm_countdown = (Server()->TickSpeed() * 60) * g_Config.m_SvSurvivalDmDelay;
-		m_survivalgamestate = 3;
 	}
-	else if (state == 4) //deathmatch
+	else if (state == SURVIVAL_DM)
 	{
 		SendSurvivalChat("[SURVIVAL] teleporting survivors to deathmatch arena.");
 
@@ -4121,16 +4156,11 @@ void CGameContext::SurvivalSetGameState(int state)
 				}
 			}
 		}
-
-		m_survivalgamestate = 4;
 	}
 }
 
 bool CGameContext::SurvivalPickWinner()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int winnerID = -1;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -4147,11 +4177,11 @@ bool CGameContext::SurvivalPickWinner()
 	SendSurvivalBroadcast(aBuf);
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
 
-	if (m_apPlayers[winnerID]->m_AccountID > 0)
+	if (m_apPlayers[winnerID]->IsLoggedIn())
 	{
 		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
-		m_apPlayers[winnerID]->MoneyTransaction(+50, "+50 (survival)");
-		GiveXp(winnerID, 50);
+		m_apPlayers[winnerID]->MoneyTransaction(+50, "survival win");
+		m_apPlayers[winnerID]->GiveXP(50);
 	}
 	else
 	{
@@ -4167,9 +4197,6 @@ bool CGameContext::SurvivalPickWinner()
 
 void CGameContext::BlockTournaTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 
 	if (m_BlockTournaState == 2) //ingame
@@ -4278,9 +4305,6 @@ void CGameContext::BlockTournaTick()
 
 void CGameContext::EndBlockTourna()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_BlockTournaState = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -4294,9 +4318,6 @@ void CGameContext::EndBlockTourna()
 
 int CGameContext::CountBlockTournaAlive()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int c = 0;
 	int id = -404;
 
@@ -4329,9 +4350,6 @@ int CGameContext::CountBlockTournaAlive()
 
 const char * CGameContext::GetBlockSkillGroup(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return "error";
@@ -4368,9 +4386,6 @@ const char * CGameContext::GetBlockSkillGroup(int id)
 
 int CGameContext::GetBlockSkillGroupInt(int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return -1;
@@ -4407,9 +4422,6 @@ int CGameContext::GetBlockSkillGroupInt(int id)
 
 void CGameContext::UpdateBlockSkill(int value, int id)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[id];
 	if (!pPlayer)
 		return;
@@ -4445,9 +4457,6 @@ void CGameContext::UpdateBlockSkill(int value, int id)
 
 void CGameContext::BlockWaveAddBots()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int OccSlots = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -4488,9 +4497,6 @@ void CGameContext::BlockWaveAddBots()
 
 void CGameContext::BlockWaveWonRound()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_BlockWaveRound++;
 	SendBlockWaveSay("[BlockWave] round survived.");
 	m_BlockWaveGameState = 1;
@@ -4538,7 +4544,6 @@ void CGameContext::BlockWaveWonRound()
 void CGameContext::StartBlockWaveGame()
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	dbg_msg("Blockwave", "Game started.");
 #endif
 	if (m_BlockWaveGameState) { return; } //no resatrt only start if not started yet
@@ -4556,9 +4561,6 @@ void CGameContext::StartBlockWaveGame()
 
 void CGameContext::BlockWaveGameTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 
 	if (m_BlockWaveGameState == 1)
@@ -4614,9 +4616,6 @@ void CGameContext::BlockWaveGameTick()
 
 void CGameContext::BlockWaveEndGame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
 	SendBlockWaveSay(aBuf);
@@ -4624,9 +4623,6 @@ void CGameContext::BlockWaveEndGame()
 
 void CGameContext::BlockWaveStartNewGame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	BlockWaveEndGame(); //send message to all players
 	m_BlockWaveGameState = 0; //end old game
 	StartBlockWaveGame(); //start new game
@@ -4645,9 +4641,6 @@ void CGameContext::BlockWaveStartNewGame()
 
 int CGameContext::CountBlockWavePlayers()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int c = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -4661,9 +4654,6 @@ int CGameContext::CountBlockWavePlayers()
 
 void CGameContext::SendBlockWaveBroadcast(const char * pMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
@@ -4675,9 +4665,6 @@ void CGameContext::SendBlockWaveBroadcast(const char * pMsg)
 
 void CGameContext::SendBlockWaveSay(const char * pMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
@@ -4689,9 +4676,6 @@ void CGameContext::SendBlockWaveSay(const char * pMsg)
 
 void CGameContext::QuestReset(int playerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[playerID])
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player. Quest has been reset.", playerID, Server()->ClientName(playerID));
@@ -4708,15 +4692,12 @@ void CGameContext::QuestReset(int playerID)
 
 void CGameContext::QuestFailed(int playerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[playerID])
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest.", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!m_apPlayers[playerID]->IsQuesting())
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
@@ -4731,15 +4712,12 @@ void CGameContext::QuestFailed(int playerID)
 
 void CGameContext::QuestFailed2(int playerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[playerID])
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player failed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!m_apPlayers[playerID]->IsQuesting())
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] failed a quest without being in a quest.", playerID, Server()->ClientName(playerID));
 		return;
@@ -4759,9 +4737,6 @@ void CGameContext::QuestFailed2(int playerID)
 
 bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 	if (!m_apPlayers[playerID])
 	{
@@ -4798,71 +4773,54 @@ bool CGameContext::QuestAddProgress(int playerID, int globalMAX, int localMAX)
 
 void CGameContext::QuestCompleted(int playerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (!m_apPlayers[playerID])
+	CPlayer *pPlayer = m_apPlayers[playerID];
+	if (!pPlayer)
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player completed the quest", playerID, Server()->ClientName(playerID));
 		return;
 	}
-	if (!m_apPlayers[playerID]->m_QuestState)
+	if (!pPlayer->IsQuesting())
 	{
-		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", m_apPlayers[playerID]->GetCID(), Server()->ClientName(m_apPlayers[playerID]->GetCID()));
+		dbg_msg("QUEST", "Warning! [%d][%s] completed quest without having it activated", pPlayer->GetCID(), Server()->ClientName(pPlayer->GetCID()));
 		return;
 	}
 
-	//REMOVE ME
+	// reward
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "debug value: %d", m_apPlayers[playerID]->m_QuestDebugValue);
-	//SendChatTarget(playerID, aBuf);
-	m_apPlayers[playerID]->m_QuestDebugValue = 0;
-	//REMOVE ME
+	int RewardMoney = pPlayer->m_QuestStateLevel ? 100 : 50;
+	int RewardXP = QuestReward(playerID);
+	if (pPlayer->IsMaxLevel())
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
+	else // xp msg only if not max lvl
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
+	SendChatTarget(playerID, aBuf);
+	pPlayer->MoneyTransaction(+100, "quest reward");
+	pPlayer->GiveXP(RewardXP);
 
-
-	//char aBuf[256]; //uncomment me
-	if (!m_apPlayers[playerID]->m_QuestStateLevel)
-	{
-		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+50 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
-		SendChatTarget(playerID, aBuf);
-		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
-		m_apPlayers[playerID]->MoneyTransaction(+50, "+50 (quest)");
-	}
-	else
-	{
-		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+100 money]", m_apPlayers[playerID]->m_QuestState, m_apPlayers[playerID]->m_QuestStateLevel, QuestReward(playerID));
-		SendChatTarget(playerID, aBuf);
-		m_apPlayers[playerID]->m_xp += QuestReward(playerID);
-		m_apPlayers[playerID]->MoneyTransaction(+100, "+100 (quest)");
-	}
+	// next quest
 	QuestReset(playerID);
-	m_apPlayers[playerID]->m_QuestState++;
-	m_apPlayers[playerID]->m_QuestUnlocked = m_apPlayers[playerID]->m_QuestState; //save highscore
-	if (m_apPlayers[playerID]->m_QuestState > 5) //<--- update value depending on how many quests
+	pPlayer->m_QuestState++;
+	pPlayer->m_QuestUnlocked = pPlayer->m_QuestState; //save highscore
+	if (pPlayer->m_QuestState > CPlayer::QUEST_NUM)
 	{
-		m_apPlayers[playerID]->m_QuestState = 1; //start at quest 1 in the next level
-		m_apPlayers[playerID]->m_QuestStateLevel++;
-		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", m_apPlayers[playerID]->m_QuestStateLevel);
-		if (m_apPlayers[playerID]->m_QuestStateLevel > 9) //<--- update value depending on how many questlevels
+		pPlayer->m_QuestState = CPlayer::QUEST_HAMMER; // start at quest 1 in the next level
+		pPlayer->m_QuestStateLevel++;
+		str_format(aBuf, sizeof(aBuf), "[QUEST] level up... you are now level %d !", pPlayer->m_QuestStateLevel);
+		if (pPlayer->m_QuestStateLevel > CPlayer::QUEST_NUM_LEVEL)
 		{
-			m_apPlayers[playerID]->m_QuestState = 0;
-			m_apPlayers[playerID]->m_QuestStateLevel = 0;
+			pPlayer->m_QuestState = CPlayer::QUEST_OFF;
+			pPlayer->m_QuestStateLevel = 0;
 			SendChatTarget(playerID, "[QUEST] Hurray you finished all Quests !!!");
 			return;
 		}
-		m_apPlayers[playerID]->m_QuestLevelUnlocked = m_apPlayers[playerID]->m_QuestStateLevel; //save highscore
+		pPlayer->m_QuestLevelUnlocked = pPlayer->m_QuestStateLevel; // save highscore
 		SendChatTarget(playerID, aBuf);
 	}
-
-
 	StartQuest(playerID);
 }
 
 int CGameContext::QuestReward(int playerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[playerID])
 	{
 		return 0;
@@ -4881,7 +4839,6 @@ int CGameContext::QuestReward(int playerID)
 //void CGameContext::PickNextQuest(int playerID)
 //{
 //#if defined(CONF_DEBUG)
-//	CALL_STACK_ADD();
 //#endif
 //	m_apPlayers[playerID]->m_QuestState++;
 //	StartQuest(playerID); 
@@ -4889,9 +4846,6 @@ int CGameContext::QuestReward(int playerID)
 
 void CGameContext::StartQuest(int playerID) 
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!m_apPlayers[playerID])
 	{
 		dbg_msg("QUEST", "WARNING! [%d][%s] invalid player has started the quest.", playerID, Server()->ClientName(playerID));
@@ -5184,7 +5138,7 @@ void CGameContext::StartQuest(int playerID)
 	}
 
 
-	if (m_apPlayers[playerID]->m_QuestState && quest)
+	if (m_apPlayers[playerID]->IsQuesting() && quest)
 	{
 		str_format(aBuf, sizeof(aBuf), "[QUEST] %s", m_apPlayers[playerID]->m_aQuestString);
 		SendBroadcast(aBuf, m_apPlayers[playerID]->GetCID());
@@ -5195,13 +5149,12 @@ void CGameContext::StartQuest(int playerID)
 
 	//quest stopped during the next quest election
 	SendBroadcast("[QUEST] stopped", m_apPlayers[playerID]->GetCID());
-	m_apPlayers[playerID]->m_QuestState = 0;
+	m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
  }
 
  int CGameContext::PickQuestPlayer(int playerID)
  {
 #if defined(CONF_DEBUG)
-	 CALL_STACK_ADD();
 #endif
 	 if (!m_apPlayers[playerID])
 	 {
@@ -5262,7 +5215,7 @@ void CGameContext::StartQuest(int playerID)
 	 {
 		 if (Index + IndexDead < g_Config.m_SvQuestNeededPlayers) //not enough dead or alive valid tees --> stop quest
 		 {
-			 m_apPlayers[playerID]->m_QuestState = 0;
+			 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 			 SendChatTarget(playerID, "[QUEST] Quest stopped because there are not enough tees on the server.");
 			 //dbg_msg("QUEST", "alive %d + dead %d = %d/%d tees to start a quest", Index, IndexDead, Index + IndexDead, g_Config.m_SvQuestNeededPlayers);
 			 return -1;
@@ -5273,7 +5226,7 @@ void CGameContext::StartQuest(int playerID)
 			 if (!ID)
 			 {
 				 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
-				 m_apPlayers[playerID]->m_QuestState = 0;
+				 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 				 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
 				 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 				 return -1;
@@ -5288,7 +5241,7 @@ void CGameContext::StartQuest(int playerID)
 	 if (!ID)
 	 {
 		 dbg_msg("QUEST", "WARNING! player [%d][%s] got invalid player [%d][%s] as specific quest", playerID, Server()->ClientName(playerID), ID, Server()->ClientName(ID));
-		 m_apPlayers[playerID]->m_QuestState = 0;
+		 m_apPlayers[playerID]->m_QuestState = CPlayer::QUEST_OFF;
 		 SendChatTarget(playerID, "[QUEST] Quest stopped because something went wrong. (please contact an admin)");
 		 SendChatTarget(playerID, "[QUEST] Try '/quest start' agian to load and start your quest agian");
 		 return -1;
@@ -5296,13 +5249,49 @@ void CGameContext::StartQuest(int playerID)
 
 	 m_apPlayers[playerID]->m_QuestPlayerID = ID - 1;
 	 return ID - 1; //before we stored id + 1 to have an better handling with false values
- }
+}
+
+void CGameContext::CheckConnectQuestBot()
+{
+	int NumQuestBots = 0;
+	int NumQuestPlayers = 0;
+	int NumConnectedPlayers = 0;
+	int NumIngamePlayers = 0;
+	int NumIngameHumans = 0;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+
+		NumConnectedPlayers++;
+		if (m_apPlayers[i]->IsQuesting())
+			NumQuestPlayers++;
+
+		if (!m_apPlayers[i]->GetCharacter())
+			continue;
+
+		NumIngamePlayers++;
+
+		if (!m_apPlayers[i]->m_IsDummy)
+			NumIngameHumans++;
+		else if (m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+			NumQuestBots++;
+	}
+
+	if (NumQuestBots > NumQuestPlayers)
+		return;
+	if (NumQuestBots > 3)
+		return;
+	if (NumIngameHumans > 3)
+		return;
+	if (NumConnectedPlayers + 3 > g_Config.m_SvMaxClients)
+		return;
+
+	CreateNewDummy(CCharacter::DUMMYMODE_QUEST);
+}
 
 void CGameContext::SendAllPolice(const char * pMessage)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[POLICE-CHANNEL] %s", pMessage);
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -5316,9 +5305,6 @@ void CGameContext::SendAllPolice(const char * pMessage)
 
 void CGameContext::AddEscapeReason(int ID, const char * pReason)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//dbg_msg("cBug", "current reaso is %s", m_apPlayers[ID]->m_aEscapeReason);
 
 	//dont add already exsisting reasons agian
@@ -5357,9 +5343,6 @@ void CGameContext::AddEscapeReason(int ID, const char * pReason)
 
 void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 	int GiveView = 1;
 
@@ -5368,7 +5351,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		return;
 	}
 
-	if (m_apPlayers[ViewedID]->m_AccountID <= 0)
+	if (m_apPlayers[ViewedID]->IsLoggedIn())
 	{
 		SendChatTarget(ViewerID, "Player has to be logged in to view his profile.");
 		return;
@@ -5405,9 +5388,9 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->m_money);
+		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);
@@ -5451,7 +5434,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->m_level);
+		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);
@@ -5490,10 +5473,18 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 
 void CGameContext::ShowAdminWelcome(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	SendChatTarget(ID, "============= admin login =============");
+	char aBuf[128];
+	if (m_WrongRconAttempts >= g_Config.m_SvRconAttemptReport)
+	{
+		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login! 'logs wrong_rcon'", m_WrongRconAttempts);
+		Server()->SendRconLine(ID, aBuf);
+	}
+	if (aDDPPLogs[DDPP_LOG_AUTH_RCON][1][0]) // index 1 because index 0 is current login
+	{
+		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_AUTH_RCON][1]);
+		Server()->SendRconLine(ID, aBuf);
+	}
 	int surv_error = TestSurvivalSpawns();
 	if (surv_error == -1)
 	{
@@ -5503,19 +5494,49 @@ void CGameContext::ShowAdminWelcome(int ID)
 	{
 		SendChatTarget(ID, "[ADMIN:Test] WARNING: not enough survival spawns (less survival spawns than slots)");
 	}
+	int protections = 0;
+	if (g_Config.m_SvRegisterHumanLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_register_human_level = %d", g_Config.m_SvRegisterHumanLevel);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvChatHumanLevel)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_chat_human_level = %d", g_Config.m_SvChatHumanLevel);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_show_connection_msg = %d", g_Config.m_SvShowConnectionMessages);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (g_Config.m_SvHideConnectionMessagesPattern[0])
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning sv_hide_connection_msg_pattern = %s", g_Config.m_SvHideConnectionMessagesPattern);
+		SendChatTarget(ID, aBuf);
+		protections++;
+	}
+	if (protections)
+	{
+		str_format(aBuf, sizeof(aBuf), "[ADMIN:Prot] Warning you have %d protective systems running!", protections);
+		SendChatTarget(ID, aBuf);
+		SendChatTarget(ID, "[ADMIN:Prot] As effective those are under attack and as good protection sounds.");
+		SendChatTarget(ID, "[ADMIN:Prot] Those should not run if there is no attack since they lower UX.");
+		protections++;
+	}
 	PrintSpecialCharUsers(ID);
 }
 
 int CGameContext::PrintSpecialCharUsers(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aUsers[2048]; //wont show all users if too many special char users are there but this shouldnt be the case
 	int users = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_AccountID > 0)
+		if (m_apPlayers[i] && m_apPlayers[i]->IsLoggedIn())
 		{
 			if (IsAllowedCharSet(m_apPlayers[i]->m_aAccountLoginName) == false)
 			{
@@ -5544,8 +5565,8 @@ int CGameContext::PrintSpecialCharUsers(int ID)
 
 int CGameContext::TestSurvivalSpawns()
 {
-	vec2 SurvivalGameSpawnTile = Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients, true);
-	vec2 SurvivalGameSpawnTile2 = Collision()->GetSurvivalSpawn(MAX_CLIENTS, true);
+	vec2 SurvivalGameSpawnTile = Collision()->GetSurvivalSpawn(g_Config.m_SvMaxClients);
+	vec2 SurvivalGameSpawnTile2 = Collision()->GetSurvivalSpawn(MAX_CLIENTS);
 
 	if (SurvivalGameSpawnTile == vec2(-1, -1))
 	{
@@ -5567,16 +5588,10 @@ int CGameContext::TestSurvivalSpawns()
 
 void CGameContext::ChatCommands()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 void CGameContext::DummyChat()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	//unused cuz me knoop putting all the stuff here
 }
@@ -5584,7 +5599,6 @@ void CGameContext::DummyChat()
 void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
 	if (!m_apPlayers[WinnerID])
 		dbg_msg("cBug", "[WARNING] WinInsta1on1() at gamecontext.cpp");
 #endif
@@ -5600,8 +5614,8 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
 		SendChatTarget(WinnerID, aBuf);
 		SendChatTarget(WinnerID, "==================");
-		SendChatTarget(WinnerID, "+200 money for winning 1on1"); //actually it is only +100 because you have to pay to start an 1on1
-		m_apPlayers[WinnerID]->MoneyTransaction(+200, "+200 (won insta 1on1)");
+		SendChatTarget(WinnerID, "+200 money for winning 1on1"); // actually it is only +100 because you have to pay to start an 1on1
+		m_apPlayers[WinnerID]->MoneyTransaction(+200, "won insta 1on1");
 
 		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
 		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
@@ -5644,9 +5658,6 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 
 bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int cPlayer = 0;
 
 	if (grenade)
@@ -5704,9 +5715,6 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 
 void CGameContext::CreateBasicDummys()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!str_comp(g_Config.m_SvMap, "ChillBlock5"))
 	{
 		CreateNewDummy(31);//police
@@ -5753,9 +5761,6 @@ void CGameContext::CreateBasicDummys()
 
 int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int DummyID = GetNextClientID();
 	if (DummyID < 0)
 	{
@@ -5811,6 +5816,12 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	{
 		m_apPlayers[DummyID]->m_IsBlockDeathmatch = true;
 	}
+	else if (dummymode == -7) // vanilla based mode
+	{
+		m_apPlayers[DummyID]->m_IsVanillaDmg = true;
+		m_apPlayers[DummyID]->m_IsVanillaWeapons = true;
+		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
+	}
 
 	OnClientEnter(DummyID, silent);
 
@@ -5820,9 +5831,6 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 
 void CGameContext::StopBalanceBattle()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i])
@@ -5844,9 +5852,6 @@ void CGameContext::StopBalanceBattle()
 
 void CGameContext::StartBalanceBattle(int ID1, int ID2)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (m_apPlayers[ID1] && !m_apPlayers[ID2])
 	{
@@ -5884,9 +5889,6 @@ void CGameContext::StartBalanceBattle(int ID1, int ID2)
 
 void CGameContext::BalanceBattleTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 
 	if (m_BalanceBattleState == 1) //preparing
@@ -5959,9 +5961,6 @@ void CGameContext::BalanceBattleTick()
 
 void CGameContext::EndBombGame(int WinnerID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (GetPlayerChar(i))
@@ -5990,8 +5989,7 @@ void CGameContext::EndBombGame(int WinnerID)
 
 	//winner private
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "+%d bomb (won)", m_BombMoney * m_BombStartPlayers);
-	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, aBuf);
+	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
 	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%d money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
 	m_apPlayers[WinnerID]->m_BombGamesWon++;
@@ -6012,9 +6010,6 @@ void CGameContext::EndBombGame(int WinnerID)
 
 void CGameContext::CheckStartBomb()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 	bool AllReady = true;
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -6088,9 +6083,6 @@ void CGameContext::CheckStartBomb()
 
 void CGameContext::BombTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[512];
 
 	//bomb tickin'
@@ -6211,9 +6203,6 @@ void CGameContext::BombTick()
 
 int CGameContext::GetNextClientID()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int ClientID = -1;
 	for (int i = 0; i < g_Config.m_SvMaxClients; i++)
 	{
@@ -6229,9 +6218,6 @@ int CGameContext::GetNextClientID()
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	void *pRawMsg = m_NetObjHandler.SecureUnpackMsg(MsgID, pUnpacker);
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 
@@ -6288,6 +6274,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else
 				Team = CHAT_ALL;
 
+			pPlayer->m_PlayerHumanLevelState++;
 
 			////if (pMsg->m_pMessage[0] == apNames)
 			////##########################
@@ -7058,14 +7045,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						/*
 						static int t = 0;
 						t = !t ? 999999 : 0;
-						vec2 post = Collision()->GetSurvivalSpawn(t, false);
+						vec2 post = Collision()->GetSurvivalSpawn(t);
 						str_format(aBuf, sizeof(aBuf), "got t=%d pos %f %f",t, post.x / 32, post.y / 32);
 						SendChatTarget(ClientID, aBuf);
 						pPlayer->GetCharacter()->SetPosition(post);
 						*/
 						// pPlayer->m_IsBlockDeathmatch ^= true;
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
-						str_format(aBuf, sizeof(aBuf), "is authed %d score %d", Server()->IsAuthed(pPlayer->GetCID()), pPlayer->m_Score);
+						str_format(aBuf, sizeof(aBuf), "human level: %d captcha score: %d", pPlayer->m_PlayerHumanLevel, pPlayer->m_pCaptcha->GetScore());
 						SendChatTarget(ClientID, aBuf);
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
@@ -7116,8 +7103,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_IsJailed = true;
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
-						pPlayer->MoneyTransaction(+5000000, "+5000000 test cmd3000");
-						pPlayer->m_xp += 100000000; //max level 100 (so the annoying level up message show up only once)
+						pPlayer->MoneyTransaction(+5000000, "test cmd3000");
+						pPlayer->SetXP(100000000); //max level 100 (so the annoying level up message show up only once (not rly xd))
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;
@@ -7362,7 +7349,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else
 			{
-				if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
+				if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
+				{
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
+					SendChatTarget(ClientID, aBuf);
+				}
+				else if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
 				{
 					if (g_Config.m_SvMinAdminPing > 256)
 						SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
@@ -7923,9 +7916,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				Server()->SetClientName(ClientID, pMsg->m_pName);
 				if (str_comp(aOldName, Server()->ClientName(ClientID)) != 0)
 				{
+					int mute = NameChangeMuteCheck(ClientID);
 					char aChatText[256];
-					str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientID));
-					SendChat(-1, CGameContext::CHAT_ALL, aChatText);
+					if (mute > 0)
+					{
+						str_format(aChatText, sizeof aChatText, "[MUTE] %d seconds delay for name change message.", mute);
+						SendChatTarget(ClientID, aChatText);
+					}
+					else
+					{
+						str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientID));
+						SendChat(-1, CGameContext::CHAT_ALL, aChatText);
+					}
 
 					// reload scores
 
@@ -8134,9 +8136,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 void CGameContext::ConTuneParam(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pParamName = pResult->GetString(0);
 	float NewValue = pResult->GetFloat(1);
@@ -8154,9 +8153,6 @@ void CGameContext::ConTuneParam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneReset(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	/*CTuningParams TuningParams;
 	*pSelf->Tuning() = TuningParams;
@@ -8168,9 +8164,6 @@ void CGameContext::ConTuneReset(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneDump(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	char aBuf[256];
 	for(int i = 0; i < pSelf->Tuning()->Num(); i++)
@@ -8184,9 +8177,6 @@ void CGameContext::ConTuneDump(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneZone(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int List = pResult->GetInteger(0);
 	const char *pParamName = pResult->GetString(1);
@@ -8208,9 +8198,6 @@ void CGameContext::ConTuneZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneDumpZone(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int List = pResult->GetInteger(0);
 	char aBuf[256];
@@ -8228,9 +8215,6 @@ void CGameContext::ConTuneDumpZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneResetZone(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CTuningParams TuningParams;
 	if (pResult->NumArguments())
@@ -8258,9 +8242,6 @@ void CGameContext::ConTuneResetZone(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConTuneSetZoneMsgEnter(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (pResult->NumArguments())
 	{
@@ -8274,9 +8255,6 @@ void CGameContext::ConTuneSetZoneMsgEnter(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConTuneSetZoneMsgLeave(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if (pResult->NumArguments())
 	{
@@ -8290,9 +8268,6 @@ void CGameContext::ConTuneSetZoneMsgLeave(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConSwitchOpen(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Switch = pResult->GetInteger(0);
 
@@ -8307,9 +8282,6 @@ void CGameContext::ConSwitchOpen(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	/*if(pSelf->m_pController->IsGameOver())
@@ -8320,18 +8292,12 @@ void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConChangeMap(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->m_pController->ChangeMap(pResult->NumArguments() ? pResult->GetString(0) : "");
 }
 
 void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	int stars = 0;
@@ -8349,9 +8315,6 @@ void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	int stars = 0;
@@ -8369,9 +8332,6 @@ void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUse
 
 void CGameContext::ConRestart(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(pResult->NumArguments())
 		pSelf->m_pController->DoWarmup(pResult->GetInteger(0));
@@ -8381,9 +8341,6 @@ void CGameContext::ConRestart(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConBroadcast(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	char aBuf[1024];
@@ -8409,18 +8366,12 @@ void CGameContext::ConBroadcast(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSay(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	pSelf->SendChat(-1, CGameContext::CHAT_ALL, pResult->GetString(0));
 }
 
 void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int ClientID = clamp(pResult->GetInteger(0), 0, (int)MAX_CLIENTS-1);
 	int Team = clamp(pResult->GetInteger(1), -1, 1);
@@ -8441,9 +8392,6 @@ void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConSetTeamAll(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Team = clamp(pResult->GetInteger(0), -1, 1);
 
@@ -8519,9 +8467,6 @@ void CGameContext::ConLockTeams(IConsole::IResult *pResult, void *pUserData)
 */
 void CGameContext::ConAddVote(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pDescription = pResult->GetString(0);
 	const char *pCommand = pResult->GetString(1);
@@ -8586,9 +8531,6 @@ void CGameContext::ConAddVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRemoveVote(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pDescription = pResult->GetString(0);
 
@@ -8661,9 +8603,6 @@ void CGameContext::ConRemoveVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pType = pResult->GetString(0);
 	const char *pValue = pResult->GetString(1);
@@ -8733,9 +8672,6 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "cleared votes");
@@ -8756,9 +8692,6 @@ void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
 	// check if there is a vote running
@@ -8779,9 +8712,6 @@ void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments())
 	{
@@ -8796,9 +8726,6 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 
 void CGameContext::OnConsoleInit()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
@@ -8842,23 +8769,24 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	// ChillerDragon konst constructor
 	m_Database->CreateDatabase();
 	LoadSinglePlayer();
+	m_MapsavePlayers = 0;
+	m_MapsaveLoadedPlayers = 0;
 	//Friends_counter = 0;
 	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
 	m_survivalgamestate = 0;
+	m_survival_game_countdown = 0;
 	m_BlockWaveGameState = 0;
 	m_insta_survival_gamestate = 0;
 	m_CucumberShareValue = 10;
 	m_BombTick = g_Config.m_SvBombTicks;
 	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
+	m_WrongRconAttempts = 0;
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
@@ -8888,21 +8816,21 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	{
 		//-- start comment for m_IsVanillaWeapons --
 		//TuningList()[i] = TuningParams;
-		//TuningList()[i].Set("gun_curvature", 0);
-		//TuningList()[i].Set("gun_speed", 1400);
-		//TuningList()[i].Set("shotgun_curvature", 0);
-		//TuningList()[i].Set("shotgun_speed", 500);
-		//TuningList()[i].Set("shotgun_speeddiff", 0);
+		//TuningList()[i].Set("gun_curvature", 0.0f);
+		//TuningList()[i].Set("gun_speed", 1400.0f);
+		//TuningList()[i].Set("shotgun_curvature", 0.0f);
+		//TuningList()[i].Set("shotgun_speed", 500.0f);
+		//TuningList()[i].Set("shotgun_speeddiff", 0.0f);
 		//-- end comment for m_IsVanillaWeapons --
 
 		//-- start add code for m_IsVanillaWeapons --
 		TuningList()[i] = TuningParams;
-		TuningList()[i].Set("gun_curvature", 0);
-		TuningList()[i].Set("gun_speed", 1400);
-		Tuning()->Set("shotgun_speed", 2750.00);
-		Tuning()->Set("shotgun_speeddiff", 0.80);
-		Tuning()->Set("shotgun_curvature", 7.00);
-		Tuning()->Set("shotgun_lifetime", 0.20);
+		TuningList()[i].Set("gun_curvature", 0.0f);
+		TuningList()[i].Set("gun_speed", 1400.0f);
+		Tuning()->Set("shotgun_speed", 2750.00f);
+		Tuning()->Set("shotgun_speeddiff", 0.80f);
+		Tuning()->Set("shotgun_curvature", 7.00f);
+		Tuning()->Set("shotgun_lifetime", 0.20f);
 		//-- end add code for m_IsVanillaWeapons --
 	}
 
@@ -8920,21 +8848,21 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	else
 	{
 		//-- start2 comment for m_IsVanillaWeapons --
-		//Tuning()->Set("gun_speed", 1400);
-		//Tuning()->Set("gun_curvature", 0);
-		//Tuning()->Set("shotgun_speed", 500);
-		//Tuning()->Set("shotgun_speeddiff", 0);
-		//Tuning()->Set("shotgun_curvature", 0);
+		//Tuning()->Set("gun_speed", 1400.0f);
+		//Tuning()->Set("gun_curvature", 0.0f);
+		//Tuning()->Set("shotgun_speed", 500.0f);
+		//Tuning()->Set("shotgun_speeddiff", 0.0f);
+		//Tuning()->Set("shotgun_curvature", 0.0f);
 		//-- end2 comment for m_IsVanillaWeapons --
 
 		//-- start2 add code for m_IsVanillaWeapons --
-		Tuning()->Set("gun_speed", 1400);
-		Tuning()->Set("gun_curvature", 0);
+		Tuning()->Set("gun_speed", 1400.0f);
+		Tuning()->Set("gun_curvature", 0.0f);
 		//Shotgun tuning by chiller
-		Tuning()->Set("shotgun_speed", 2750.00);
-		Tuning()->Set("shotgun_speeddiff", 0.80);
-		Tuning()->Set("shotgun_curvature", 7.00);
-		Tuning()->Set("shotgun_lifetime", 0.20);
+		Tuning()->Set("shotgun_speed", 2750.00f);
+		Tuning()->Set("shotgun_speeddiff", 0.80f);
+		Tuning()->Set("shotgun_curvature", 7.00f);
+		Tuning()->Set("shotgun_lifetime", 0.20f);
 		//-- end2 add code for m_IsVanillaWeapons --
 	}
 
@@ -8956,6 +8884,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	Console()->ExecuteFile(g_Config.m_SvResetFile);
 
+	LoadMapPlayerData();
 	LoadMapSettings();
 
 /*	// select gametype
@@ -9022,12 +8951,16 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	int ShopTiles = 0;
 
+	// by fokkonaut from F-DDrace
+	Collision()->m_vTiles.clear();
+	Collision()->m_vTiles.resize(NUM_INDICES);
+
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
 			int Index = pTiles[y*pTileMap->m_Width+x].m_Index;
-
+			Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
 			if(Index == TILE_OLDLASER)
 			{
 				g_Config.m_SvOldLaser = 1;
@@ -9075,6 +9008,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			if(pFront)
 			{
 				Index = pFront[y * pTileMap->m_Width + x].m_Index;
+				Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
 				if(Index == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
@@ -9292,9 +9226,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 void CGameContext::DeleteTempfile()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_aDeleteTempfile[0] != 0)
 	{
 		IStorage *pStorage = Kernel()->RequestInterface<IStorage>();
@@ -9305,9 +9236,6 @@ void CGameContext::DeleteTempfile()
 
 void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	IStorage *pStorage = Kernel()->RequestInterface<IStorage>();
 
 	char aConfig[128];
@@ -9435,9 +9363,6 @@ void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 
 void CGameContext::OnShutdown()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	DeleteTempfile();
 	Console()->ResetServerGameSettings();
 	Layers()->Dest();
@@ -9449,9 +9374,6 @@ void CGameContext::OnShutdown()
 
 void CGameContext::LoadMapSettings()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	IMap *pMap = Kernel()->RequestInterface<IMap>();
 	int Start, Num;
 	pMap->GetType(MAPITEMTYPE_INFO, &Start, &Num);
@@ -9488,9 +9410,6 @@ void CGameContext::LoadMapSettings()
 
 void CGameContext::OnSnap(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// add tuning to demo
 	CTuningParams StandardTuning;
 	if(ClientID == -1 && Server()->DemoRecorder_IsRecording() && mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) != 0)
@@ -9519,25 +9438,16 @@ void CGameContext::OnSnap(int ClientID)
 void CGameContext::OnPreSnap() {}
 void CGameContext::OnPostSnap()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Events.Clear();
 }
 
 bool CGameContext::IsClientReady(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsReady ? true : false;
 }
 
 bool CGameContext::IsClientPlayer(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() == TEAM_SPECTATORS ? false : true;
 }
 
@@ -9549,9 +9459,6 @@ IGameServer *CreateGameServer() { return new CGameContext; }
 
 void CGameContext::SendChatResponseAll(const char *pLine, void *pUser) //TODO: schau das an sieht lustig aus
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUser;
 
 	static volatile int ReentryGuard = 0;
@@ -9573,9 +9480,6 @@ void CGameContext::SendChatResponseAll(const char *pLine, void *pUser) //TODO: s
 
 void CGameContext::SendChatResponse(const char *pLine, void *pUser, bool Highlighted)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameContext *pSelf = (CGameContext *)pUser;
 	int ClientID = pSelf->m_ChatResponseTargetID;
 
@@ -9602,9 +9506,6 @@ void CGameContext::SendChatResponse(const char *pLine, void *pUser, bool Highlig
 
 bool CGameContext::PlayerCollision()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Temp;
 	m_Tuning.Get("player_collision", &Temp);
 	return Temp != 0.0;
@@ -9612,9 +9513,6 @@ bool CGameContext::PlayerCollision()
 
 bool CGameContext::PlayerHooking()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Temp;
 	m_Tuning.Get("player_hooking", &Temp);
 	return Temp != 0.0;
@@ -9622,9 +9520,6 @@ bool CGameContext::PlayerHooking()
 
 float CGameContext::PlayerJetpack()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Temp;
 	m_Tuning.Get("player_jetpack", &Temp);
 	return Temp;
@@ -9632,13 +9527,12 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CServer* pServ = (CServer*)Server();
 	if(m_apPlayers[ClientID])
 	{
 		m_apPlayers[ClientID]->m_Authed = Level;
+		if (Level == CServer::AUTHED_HONEY)
+			return;
 		char aBuf[512], aIP[NETADDR_MAXSTRSIZE];
 		pServ->GetClientAddr(ClientID, aIP, sizeof(aIP));
 		str_format(aBuf, sizeof(aBuf), "ban %s %d Banned by vote", aIP, g_Config.m_SvVoteKickBantime);
@@ -9647,15 +9541,28 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 			m_VoteEnforce = CGameContext::VOTE_ENFORCE_NO_ADMIN;
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "CGameContext", "Aborted vote by admin login.");
 		}
+		time_t rawtime;
+		struct tm* timeinfo;
+		char timestr [80];
+
+		time ( &rawtime );
+		timeinfo = localtime ( &rawtime );
+
+		strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
+		char aAccID[32];
+		aAccID[0] = '\0';
+		if (m_apPlayers[ClientID]->IsLoggedIn())
+			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
+		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, pServ->ClientName(ClientID));
+		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
+		m_WrongRconAttempts = 0;
 	}
 }
 
 void CGameContext::SendRecord(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CNetMsg_Sv_Record RecordsMsg;
 	RecordsMsg.m_PlayerTimeBest = Score()->PlayerData(ClientID)->m_BestTime * 100.0f;
 	RecordsMsg.m_ServerTimeBest = m_pController->m_CurrentRecord * 100.0f; //TODO: finish this
@@ -9664,9 +9571,6 @@ void CGameContext::SendRecord(int ClientID)
 
 int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char * pItemName, int Price, bool IsPublic)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[FromID];
 	if (!pPlayer)
 		return -1;
@@ -9688,7 +9592,7 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		return -1;
 	}
 
-	if (pPlayer->m_AccountID <= 0) //LOGGED IN ???
+	if (pPlayer->IsLoggedIn()) //LOGGED IN ???
 	{
 		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
@@ -9770,9 +9674,6 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 
 int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[128];
 	int TradeID = GetCIDByName(pToName);       //USER ONLINE ???
 	if (TradeID == -1)
@@ -9787,7 +9688,7 @@ int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
 		return -1;
 	}
 
-	if (m_apPlayers[TradeID]->m_AccountID <= 0)    //USER LOGGED IN ???
+	if (m_apPlayers[TradeID]->IsLoggedIn())    //USER LOGGED IN ???
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pToName);
 		SendChatTarget(FromID, aBuf);
@@ -9798,9 +9699,6 @@ int CGameContext::TradeSellCheckUser(const char * pToName, int FromID)
 
 int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pBPlayer = m_apPlayers[BuyerID];       // BUYER ONLINE ??
 	if (!pBPlayer)
 		return -1;
@@ -9821,13 +9719,13 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 	CCharacter *pBChr = GetPlayerChar(BuyerID);
 	CCharacter *pSChr = GetPlayerChar(SellerID);
 
-	if (pBPlayer->m_AccountID <= 0)					// BUYER LOGGED IN ??
+	if (pBPlayer->IsLoggedIn())					// BUYER LOGGED IN ??
 	{
 		SendChatTarget(BuyerID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
 	}
 
-	if (pSPlayer->m_AccountID <= 0)					// SELLER LOGGED IN ??
+	if (pSPlayer->IsLoggedIn())					// SELLER LOGGED IN ??
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pSellerName);
 		SendChatTarget(BuyerID, aBuf);
@@ -9846,9 +9744,9 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 		return -1;
 	}
 
-	if (pSPlayer->m_TradeMoney > pBPlayer->m_money)	// ENOUGH MONEY ??
+	if (pSPlayer->m_TradeMoney > pBPlayer->GetMoney())	// ENOUGH MONEY ??
 	{
-		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->m_money, pSPlayer->m_TradeMoney);
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
 		SendChatTarget(BuyerID, aBuf);
 		return -1;
 	}
@@ -9925,9 +9823,6 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 /*
 int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (!str_comp_nocase(pItemName, "shotgun"))   // OWN TRADE ITEM ???
 	{
@@ -10035,9 +9930,6 @@ const char * CGameContext::TradeItemToStr(int ItemID)
 
 int CGameContext::TradeHasItem(int ItemID, int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[ID];
 	if (!pPlayer)
 		return -1;
@@ -10082,9 +9974,6 @@ int CGameContext::TradeHasItem(int ItemID, int ID)
 
 int CGameContext::ProcessSpamProtection(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(!m_apPlayers[ClientID])
 		return 0;
 	if(g_Config.m_SvSpamprotection && m_apPlayers[ClientID]->m_LastChat
@@ -10122,18 +10011,12 @@ int CGameContext::ProcessSpamProtection(int ClientID)
 
 int CGameContext::GetDDRaceTeam(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CGameControllerDDRace* pController = (CGameControllerDDRace*)m_pController;
 	return pController->m_Teams.m_Core.Team(ClientID);
 }
 
 void CGameContext::ResetTuning()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//-- start comment for m_IsVanillaWeapons --
 	//CTuningParams TuningParams;
 	//m_Tuning = TuningParams;
@@ -10171,9 +10054,6 @@ void CGameContext::ResetTuning()
 
 bool CheckClientID2(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
 			"The Client ID is wrong");
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
@@ -10183,9 +10063,6 @@ bool CheckClientID2(int ClientID)
 
 void CGameContext::Whisper(int ClientID, char *pStr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char *pName;
 	char *pMessage;
 	int Error = 0;
@@ -10419,9 +10296,6 @@ void CGameContext::Playerinfo(int ClientID, char *pStr)
 
 void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (!CheckClientID2(ClientID))
 		return;
@@ -10484,9 +10358,6 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 
 void CGameContext::Converse(int ClientID, char *pStr)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 	if (!pPlayer)
 		return;
@@ -10504,9 +10375,6 @@ void CGameContext::Converse(int ClientID, char *pStr)
 
 void CGameContext::List(int ClientID, const char* filter)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int total = 0;
 	char buf[256];
 	int bufcnt = 0;
@@ -10546,11 +10414,461 @@ void CGameContext::List(int ClientID, const char* filter)
 	SendChatTarget(ClientID, buf);
 }
 
+void CGameContext::IncrementWrongRconAttempts()
+{
+	m_WrongRconAttempts++;
+}
+
+void CGameContext::RegisterBanCheck(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	char aBuf[128];
+	int Found = 0;
+	int regs = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		{
+			m_aRegisterBans[i].m_LastAttempt = time_get();
+			regs = ++m_aRegisterBans[i].m_NumAttempts;
+			Found = 1;
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumRegisterBans < MAX_REGISTER_BANS)
+		{
+			m_aRegisterBans[m_NumRegisterBans].m_LastAttempt = time_get();
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = Addr;
+			regs = m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 1;
+			m_NumRegisterBans++;
+			Found = 1;
+		}
+	}
+
+	if (regs >= g_Config.m_SvMaxRegisterPerIp)
+	{
+		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has registered %d/%d accounts.", ClientID, regs, g_Config.m_SvMaxRegisterPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &NoPortAddr) == 0)
+		{
+			m_aRegisterBans[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumRegisterBans < MAX_REGISTER_BANS)
+		{
+			m_aRegisterBans[m_NumRegisterBans].m_Addr = NoPortAddr;
+			m_aRegisterBans[m_NumRegisterBans].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumRegisterBans++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been banned from register system for %d seconds.",
+				pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvRegisterHumanLevel >= 9)
+			return;
+		g_Config.m_SvRegisterHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvRegisterHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aLoginBans[i].m_LastAttempt + (time_freq() * LOGIN_BAN_DELAY) < time_get())
+			{
+				// TODO: be consistent with log types... sometimes its "bans", "mutes", "login_bans", "account" like wtf?
+				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumLoginBans)
+					return;
+
+				m_NumLoginBans--;
+				m_aLoginBans[ClientID] = m_aLoginBans[m_NumLoginBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumRegisterBans; i++)
+	{
+		if (net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * REGISTER_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete register ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumRegisterBans)
+					return;
+
+				m_NumRegisterBans--;
+				m_aRegisterBans[ClientID] = m_aRegisterBans[m_NumRegisterBans];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	// find a matching ban for this ip, delete if expired
+	for (int i = 0; i < m_NumNameChangeMutes; i++)
+	{
+		if (net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		{
+			int64 BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			if (BanTime > 0)
+				return;
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAMECHANGE_BAN_DELAY) < time_get())
+			{
+				dbg_msg("mutes", "delete namechange mute entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 0;
+				if (ClientID < 0 || ClientID >= m_NumNameChangeMutes)
+					return;
+
+				m_NumNameChangeMutes--;
+				m_aNameChangeMutes[ClientID] = m_aNameChangeMutes[m_NumNameChangeMutes];
+				return;
+			}
+		}
+	}
+}
+
+void CGameContext::LoginBanCheck(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	char aBuf[128];
+	int Found = 0;
+	int atts = 0;
+	int64 BanTime = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
+		{
+			BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			atts = ++m_aLoginBans[i].m_NumAttempts;
+			Found = 1;
+			// dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
+			m_aLoginBans[m_NumLoginBans].m_Expire = 0;
+			m_aLoginBans[m_NumLoginBans].m_Addr = Addr;
+			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
+			m_NumLoginBans++;
+			Found = 1;
+			// dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
+		}
+	}
+
+	if (atts >= g_Config.m_SvMaxLoginPerIp)
+		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	else if (atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
+		LoginBan(&Addr, 60, Server()->ClientName(ClientID));
+
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has %d/%d failed account login attempts.", ClientID, atts, g_Config.m_SvMaxLoginPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumLoginBans; i++)
+	{
+		if (net_addr_comp(&m_aLoginBans[i].m_Addr, &NoPortAddr) == 0)
+		{
+			m_aLoginBans[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumLoginBans < MAX_LOGIN_BANS)
+		{
+			m_aLoginBans[m_NumLoginBans].m_Addr = NoPortAddr;
+			m_aLoginBans[m_NumLoginBans].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumLoginBans++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		if (Secs == 0)
+			str_format(aBuf, sizeof aBuf, "'%s' has been unbanned from login system.", pDisplayName);
+		else
+			str_format(aBuf, sizeof aBuf, "'%s' has been banned from login system for %d seconds.", pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		if (g_Config.m_SvLoginHumanLevel >= 9)
+			return;
+		g_Config.m_SvLoginHumanLevel++;
+		str_format(aBuf, sizeof(aBuf), "ban array is full setting human level to %d", g_Config.m_SvLoginHumanLevel);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
+	}
+}
+
+int64 CGameContext::NameChangeMuteCheck(int ClientID)
+{
+	int64 muteTime = NameChangeMuteTime(ClientID);
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	char aBuf[128];
+	int Found = 0;
+	int changes = 0;
+	static const int NAME_CHANGE_DELAY = 60 * 60; // reset name changes counter every hour
+	// find a matching ban for this ip, update expiration time if found
+	for (int i = 0; i < m_NumNameChangeMutes; i++)
+	{
+		if (net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
+		{
+			if (m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAME_CHANGE_DELAY) < time_get())
+			{
+				// dbg_msg("mutes", "name changes mute counter reset for player=%d:'%s'", ClientID, Server()->ClientName(ClientID));
+				m_aNameChangeMutes[i].m_NumAttempts = 0;
+			}
+			changes = ++m_aNameChangeMutes[i].m_NumAttempts;
+			m_aNameChangeMutes[i].m_LastAttempt = time_get();
+			Found = 1;
+			break;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumNameChangeMutes < MAX_REGISTER_BANS)
+		{
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = Addr;
+			changes = m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 1;
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_LastAttempt = time_get();
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = 0;
+			m_NumNameChangeMutes++;
+			Found = 1;
+		}
+	}
+
+	if (changes >= g_Config.m_SvMaxNameChangesPerIp)
+	{
+		if (!muteTime)
+			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof(aBuf), "ClientID=%d has changed name %d/%d times.", ClientID, changes, g_Config.m_SvMaxNameChangesPerIp);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", aBuf);
+	}
+	else // no free slot found
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "warning name change mute array is full!");
+	}
+	return muteTime;
+}
+
+int64 CGameContext::NameChangeMuteTime(int ClientID)
+{
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	for(int i = 0; i < m_NumNameChangeMutes; i++)
+		if(!net_addr_comp(&Addr, &m_aNameChangeMutes[i].m_Addr))
+			return m_aNameChangeMutes[i].m_Expire ? (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed() : 0;
+	return 0;
+}
+
+void CGameContext::NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName)
+{
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr = *Addr;
+	NoPortAddr.port = 0;
+	// find a matching Mute for this ip, update expiration time if found
+	for (int i = 0; i < m_NumNameChangeMutes; i++)
+	{
+		if (net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &NoPortAddr) == 0)
+		{
+			m_aNameChangeMutes[i].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			Found = 1;
+		}
+	}
+
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumNameChangeMutes < MAX_MUTES)
+		{
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Addr = NoPortAddr;
+			m_aNameChangeMutes[m_NumNameChangeMutes].m_Expire = Server()->Tick()
+							+ Secs * Server()->TickSpeed();
+			m_NumNameChangeMutes++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been name change muted for %d seconds.",
+				pDisplayName, Secs);
+		SendChat(-1, CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "name change mute array is full!");
+	}
+}
+
+bool CGameContext::CheckIpJailed(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	for(int i = 0; i < m_NumJailIPs; i++)
+	{
+		if(!net_addr_comp(&Addr, &m_aJailIPs[i]))
+		{
+			SendChatTarget(ClientID, "[JAIL] you have been jailed for 2 minutes.");
+			m_apPlayers[ClientID]->JailPlayer(120);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CGameContext::SetIpJailed(int ClientID)
+{
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr;
+	Server()->GetClientAddr(ClientID, &NoPortAddr);
+	NoPortAddr.port = 0;
+	// find a matching Mute for this ip, update expiration time if found
+	for (int i = 0; i < m_NumJailIPs; i++)
+	{
+		if (net_addr_comp(&m_aJailIPs[i], &NoPortAddr) == 0)
+		{
+			Found = 1;
+			break;
+		}
+	}
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumJailIPs < MAX_MUTES)
+		{
+			m_aJailIPs[m_NumJailIPs] = NoPortAddr;
+			m_NumJailIPs++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been ip jailed.", Server()->ClientName(ClientID));
+		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "name change mute array is full!");
+	}
+}
+
 int CGameContext::FindNextBomb()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//Check who has the furthest distance to all other players (no average middle needed)
 	//New version with pythagoras
 	int MaxDist = 0;
@@ -10588,9 +10906,6 @@ int CGameContext::FindNextBomb()
 
 int CGameContext::CountBannedBombPlayers()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int BannedPlayers = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -10606,9 +10921,6 @@ int CGameContext::CountBannedBombPlayers()
 
 int CGameContext::CountBombPlayers()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	int BombPlayers = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -10640,9 +10952,6 @@ int CGameContext::CountReadyBombPlayers()
 
 void CGameContext::SaveWrongLogin(const char *pLogin)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 		if (!g_Config.m_SvSaveWrongLogin)
 			return;
 
@@ -10671,9 +10980,6 @@ void CGameContext::SaveWrongLogin(const char *pLogin)
 
 bool CGameContext::AdminChatPing(const char * pMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (!g_Config.m_SvMinAdminPing)
 		return false;
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -10691,6 +10997,131 @@ bool CGameContext::AdminChatPing(const char * pMsg)
 		}
 	}
 	return false;
+}
+
+bool CGameContext::ShowJoinMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowLeaveMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_JOIN)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowTeamSwitchMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+void CGameContext::GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord)
+{
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_IsInstaArena_fng && (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+			str_copy(pBuf, "boomfng", BufSize);
+		else if (pPlayer->m_IsInstaArena_idm)
+			str_copy(pBuf, "fng", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_gdm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_GrenadeSpree)
+		{
+			pPlayer->m_GrenadeSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New grenade spree record!");
+		}
+		str_copy(pBuf, "grenade", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_idm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_RifleSpree)
+		{
+			pPlayer->m_RifleSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New rifle spree record!");
+		}
+		str_copy(pBuf, "rifle", BufSize);
+	}
+	else if (pPlayer->m_IsVanillaDmg)
+	{
+		str_copy(pBuf, "killing", BufSize);
+	}
+	else //no insta at all
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_BlockSpreeHighscore)
+		{
+			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New Blockspree record!");
+		}
+		str_copy(pBuf, "blocking", BufSize);
+	}
+}
+
+void CGameContext::SQLcleanZombieAccounts(int ClientID)
+{
+	/*
+		support up to 99 999 999 (8 digit long) registered accounts
+		if more accounts are registered the system breaks :c
+
+		related issue https://github.com/DDNetPP/DDNetPP/issues/279
+	*/
+	static const int MAX_SQL_ID_LENGTH = 8;
+	char aBuf[128+(MAX_CLIENTS*(MAX_SQL_ID_LENGTH+1))];
+	bool IsLoggedIns = false;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (m_apPlayers[i]->IsLoggedIn())
+		{
+			IsLoggedIns = true;
+			break;
+		}
+	}
+	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE LastLoginPort = '%i' ", g_Config.m_SvPort);
+	if (IsLoggedIns)
+	{
+		str_append(aBuf, " AND ID NOT IN (", sizeof(aBuf));
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (!m_apPlayers[i])
+				continue;
+			if (!m_apPlayers[i]->IsLoggedIn())
+				continue;
+			char aBufBuf[MAX_SQL_ID_LENGTH+2]; // max supported id len + comma + nullterm
+			str_format(aBufBuf, sizeof(aBufBuf), "%d,", m_apPlayers[i]->GetAccID());
+			str_append(aBuf, aBufBuf, sizeof(aBuf));
+		}
+		aBuf[strlen(aBuf)-1] = '\0'; // chop of the last comma
+		str_append(aBuf, ")", sizeof(aBuf));
+	}
+	ExecuteSQLvf(ClientID, aBuf);
 }
 
 void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword)
@@ -10752,11 +11183,21 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 	}
 }
 
+void CGameContext::ExecuteSQLBlockingf(const char *pSQL, ...)
+{
+	va_list ap;
+	va_start(ap, pSQL);
+	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
+	va_end(ap);
+	CQuery *pQuery = new CQuery();
+	pQuery->QueryBlocking(m_Database, pQueryBuf);
+	sqlite3_free(pQueryBuf);
+	delete pQuery;
+	dbg_msg("blocking-sql", "should be last...");
+}
+
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	va_list ap;
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
@@ -10768,16 +11209,16 @@ void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 
 void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	va_list ap;
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
-	SendChatTarget(VerboseID, aBuf);
+	if (VerboseID != -1)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
+		SendChatTarget(VerboseID, aBuf);
+	}
 	CQuerySQLstatus *pQuery;
 	pQuery = new CQuerySQLstatus();
 	pQuery->m_ClientID = VerboseID;
