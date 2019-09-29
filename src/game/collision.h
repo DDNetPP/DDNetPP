@@ -6,6 +6,7 @@
 #include <base/vmath.h>
 #include <engine/shared/protocol.h>
 
+#include <vector>
 #include <list>
 
 class CCollision
@@ -91,14 +92,17 @@ public:
 
 	int GetCustTile(int x, int y);
 	vec2 GetRandomTile(int Tile);
-	vec2 GetSurvivalSpawn(int num, bool test = false); //DDNetPP - ChillerDragon
-	int CountSurvivalSpawns();
+	vec2 GetTileAtNum(int Tile, int Num);
+	vec2 GetSurvivalSpawn(int Num);
+	int CountSurvivalSpawns() { return m_NumSurvivalSpawns; };
 
 	class CTeleTile *TeleLayer() { return m_pTele; }
 	class CSwitchTile *SwitchLayer() { return m_pSwitch; }
 	class CTuneTile *TuneLayer() { return m_pTune; }
 	class CLayers *Layers() { return m_pLayers; }
 	int m_NumSwitchers;
+
+	std::vector< std::vector<vec2> > m_vTiles;
 
 private:
 
@@ -115,6 +119,10 @@ private:
 		int m_EndTick[MAX_CLIENTS];
 		int m_Type[MAX_CLIENTS];
 	};
+
+	// DDNet++
+
+	int m_NumSurvivalSpawns;
 
 public:
 

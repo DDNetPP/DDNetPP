@@ -36,9 +36,6 @@ CSqlScore::CSqlScore(CGameContext *pGameServer) : m_pGameServer(pGameServer),
 
 CSqlScore::~CSqlScore()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 	lock_unlock(gs_SqlLock);
 
@@ -56,9 +53,6 @@ CSqlScore::~CSqlScore()
 
 bool CSqlScore::Connect()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_pDriver != NULL && m_pConnection != NULL)
 	{
 		try
@@ -159,17 +153,11 @@ bool CSqlScore::Connect()
 
 void CSqlScore::Disconnect()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 // create tables... should be done only once
 void CSqlScore::Init()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// create connection
 	if(Connect())
 	{
@@ -225,9 +213,6 @@ void CSqlScore::Init()
 // update stuff
 void CSqlScore::LoadScoreThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -288,9 +273,6 @@ void CSqlScore::LoadScoreThread(void *pUser)
 
 void CSqlScore::LoadScore(int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aName, Server()->ClientName(ClientID), MAX_NAME_LENGTH);
@@ -304,9 +286,6 @@ void CSqlScore::LoadScore(int ClientID)
 
 void CSqlScore::SaveTeamScoreThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlTeamScoreData *pData = (CSqlTeamScoreData *)pUser;
@@ -431,9 +410,6 @@ void CSqlScore::SaveTeamScoreThread(void *pUser)
 
 void CSqlScore::MapVote(int ClientID, const char* MapName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlMapData *Tmp = new CSqlMapData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aMap, MapName, 128);
@@ -447,9 +423,6 @@ void CSqlScore::MapVote(int ClientID, const char* MapName)
 
 void CSqlScore::MapVoteThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlMapData *pData = (CSqlMapData *)pUser;
@@ -539,9 +512,6 @@ void CSqlScore::MapVoteThread(void *pUser)
 
 void CSqlScore::MapInfo(int ClientID, const char* MapName)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlMapData *Tmp = new CSqlMapData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aMap, MapName, 128);
@@ -555,9 +525,6 @@ void CSqlScore::MapInfo(int ClientID, const char* MapName)
 
 void CSqlScore::MapInfoThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlMapData *pData = (CSqlMapData *)pUser;
@@ -648,9 +615,6 @@ void CSqlScore::MapInfoThread(void *pUser)
 
 void CSqlScore::SaveScoreThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -717,9 +681,6 @@ void CSqlScore::SaveScoreThread(void *pUser)
 
 void CSqlScore::SaveScore(int ClientID, float Time, float CpTime[NUM_CHECKPOINTS])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CConsole* pCon = (CConsole*)GameServer()->Console();
 	if(pCon->m_Cheated)
 		return;
@@ -739,9 +700,6 @@ void CSqlScore::SaveScore(int ClientID, float Time, float CpTime[NUM_CHECKPOINTS
 
 void CSqlScore::SaveTeamScore(int* aClientIDs, unsigned int Size, float Time)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CConsole* pCon = (CConsole*)GameServer()->Console();
 	if(pCon->m_Cheated)
 		return;
@@ -763,9 +721,6 @@ void CSqlScore::SaveTeamScore(int* aClientIDs, unsigned int Size, float Time)
 
 void CSqlScore::ShowTeamRankThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -851,9 +806,6 @@ void CSqlScore::ShowTeamRankThread(void *pUser)
 
 void CSqlScore::ShowTeamTop5Thread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -956,9 +908,6 @@ void CSqlScore::ShowTeamTop5Thread(void *pUser)
 
 void CSqlScore::ShowRankThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1026,9 +975,6 @@ void CSqlScore::ShowRankThread(void *pUser)
 
 void CSqlScore::ShowTeamRank(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aName, pName, MAX_NAME_LENGTH);
@@ -1044,9 +990,6 @@ void CSqlScore::ShowTeamRank(int ClientID, const char* pName, bool Search)
 
 void CSqlScore::ShowRank(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aName, pName, MAX_NAME_LENGTH);
@@ -1062,9 +1005,6 @@ void CSqlScore::ShowRank(int ClientID, const char* pName, bool Search)
 
 void CSqlScore::ShowTop5Thread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1121,9 +1061,6 @@ void CSqlScore::ShowTop5Thread(void *pUser)
 
 void CSqlScore::ShowTimesThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
 
@@ -1209,9 +1146,6 @@ void CSqlScore::ShowTimesThread(void *pUser)
 
 void CSqlScore::ShowTeamTop5(IConsole::IResult *pResult, int ClientID, void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = Debut;
 	Tmp->m_ClientID = ClientID;
@@ -1225,9 +1159,6 @@ void CSqlScore::ShowTeamTop5(IConsole::IResult *pResult, int ClientID, void *pUs
 
 void CSqlScore::ShowTop5(IConsole::IResult *pResult, int ClientID, void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = Debut;
 	Tmp->m_ClientID = ClientID;
@@ -1241,9 +1172,6 @@ void CSqlScore::ShowTop5(IConsole::IResult *pResult, int ClientID, void *pUserDa
 
 void CSqlScore::ShowTimes(int ClientID, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = Debut;
 	Tmp->m_ClientID = ClientID;
@@ -1258,9 +1186,6 @@ void CSqlScore::ShowTimes(int ClientID, int Debut)
 
 void CSqlScore::ShowTimes(int ClientID, const char* pName, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = Debut;
 	Tmp->m_ClientID = ClientID;
@@ -1276,9 +1201,6 @@ void CSqlScore::ShowTimes(int ClientID, const char* pName, int Debut)
 
 void CSqlScore::FuzzyString(char *pString)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char newString[32*4-1];
 	int pos = 0;
 
@@ -1299,9 +1221,6 @@ void CSqlScore::FuzzyString(char *pString)
 // anti SQL injection
 void CSqlScore::ClearString(char *pString, int size)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char newString[size*2-1];
 	int pos = 0;
 
@@ -1335,9 +1254,6 @@ void CSqlScore::ClearString(char *pString, int size)
 
 void CSqlScore::agoTimeToString(int agoTime, char agoString[])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	char aBuf[20];
 	int times[7] =
 	{
@@ -1415,9 +1331,6 @@ void CSqlScore::agoTimeToString(int agoTime, char agoString[])
 
 void CSqlScore::ShowPointsThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1478,9 +1391,6 @@ void CSqlScore::ShowPointsThread(void *pUser)
 
 void CSqlScore::ShowPoints(int ClientID, const char* pName, bool Search)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_ClientID = ClientID;
 	str_copy(Tmp->m_aName, pName, MAX_NAME_LENGTH);
@@ -1496,9 +1406,6 @@ void CSqlScore::ShowPoints(int ClientID, const char* pName, bool Search)
 
 void CSqlScore::ShowTopPointsThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1550,9 +1457,6 @@ void CSqlScore::ShowTopPointsThread(void *pUser)
 
 void CSqlScore::ShowTopPoints(IConsole::IResult *pResult, int ClientID, void *pUserData, int Debut)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = Debut;
 	Tmp->m_ClientID = ClientID;
@@ -1566,9 +1470,6 @@ void CSqlScore::ShowTopPoints(IConsole::IResult *pResult, int ClientID, void *pU
 
 void CSqlScore::RandomMapThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1623,9 +1524,6 @@ void CSqlScore::RandomMapThread(void *pUser)
 
 void CSqlScore::RandomUnfinishedMapThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	lock_wait(gs_SqlLock);
 
 	CSqlScoreData *pData = (CSqlScoreData *)pUser;
@@ -1684,9 +1582,6 @@ void CSqlScore::RandomUnfinishedMapThread(void *pUser)
 
 void CSqlScore::RandomMap(int ClientID, int stars)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = stars;
 	Tmp->m_ClientID = ClientID;
@@ -1701,9 +1596,6 @@ void CSqlScore::RandomMap(int ClientID, int stars)
 
 void CSqlScore::RandomUnfinishedMap(int ClientID, int stars)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlScoreData *Tmp = new CSqlScoreData();
 	Tmp->m_Num = stars;
 	Tmp->m_ClientID = ClientID;
@@ -1718,9 +1610,6 @@ void CSqlScore::RandomUnfinishedMap(int ClientID, int stars)
 
 void CSqlScore::SaveTeam(int Team, const char* Code, int ClientID, const char* Server)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if((g_Config.m_SvTeam == 3 || (Team > 0 && Team < MAX_CLIENTS)) && ((CGameControllerDDRace*)(GameServer()->m_pController))->m_Teams.Count(Team) > 0)
 	{
 		if(((CGameControllerDDRace*)(GameServer()->m_pController))->m_Teams.GetSaving(Team))
@@ -1748,9 +1637,6 @@ void CSqlScore::SaveTeam(int Team, const char* Code, int ClientID, const char* S
 
 void CSqlScore::SaveTeamThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSaveTeam* SavedTeam = 0;
 	CSqlTeamSave *pData = (CSqlTeamSave *)pUser;
 
@@ -1853,9 +1739,6 @@ void CSqlScore::SaveTeamThread(void *pUser)
 
 void CSqlScore::LoadTeam(const char* Code, int ClientID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSqlTeamLoad *Tmp = new CSqlTeamLoad();
 	str_copy(Tmp->m_Code, Code, 32);
 	Tmp->m_ClientID = ClientID;
@@ -1869,9 +1752,6 @@ void CSqlScore::LoadTeam(const char* Code, int ClientID)
 
 void CSqlScore::LoadTeamThread(void *pUser)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	CSaveTeam* SavedTeam;
 	CSqlTeamLoad *pData = (CSqlTeamLoad *)pUser;
 

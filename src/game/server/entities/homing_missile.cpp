@@ -9,9 +9,6 @@
 CHomingMissile::CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, float Force, vec2 Dir)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	m_Owner = Owner;
 	m_StartTick = Server()->Tick();
@@ -32,9 +29,6 @@ CHomingMissile::CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, 
 
 void CHomingMissile::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	
 
 	GameServer()->m_World.DestroyEntity(this);
@@ -42,9 +36,6 @@ void CHomingMissile::Reset()
 
 void CHomingMissile::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	m_Lifetime--;
 
@@ -88,9 +79,6 @@ void CHomingMissile::Tick()
 
 void CHomingMissile::TickDefered()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (Server()->Tick() % 4 == 1)
 	{
 		m_LastResetPos = m_Pos;
@@ -101,9 +89,6 @@ void CHomingMissile::TickDefered()
 
 void CHomingMissile::CalculateVel()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Time = (Server()->Tick() - m_LastResetTick) / (float)Server()->TickSpeed();
 	float Curvature = 0;
 	float Speed = 0;
@@ -119,9 +104,6 @@ void CHomingMissile::CalculateVel()
 
 void CHomingMissile::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (NetworkClipped(SnappingClient))
 		return;
@@ -143,9 +125,6 @@ void CHomingMissile::Snap(int SnappingClient)
 
 CCharacter* CHomingMissile::CharacterNear()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	CCharacter* pOwner  = GameServer()->GetPlayerChar(m_Owner);
 	CCharacter* pTarget = GameWorld()->ClosestCharacter(m_Pos, 2000.f, pOwner ? pOwner : 0);
@@ -158,9 +137,6 @@ CCharacter* CHomingMissile::CharacterNear()
 
 void CHomingMissile::Move(CCharacter* pTarget)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	vec2 TargetPos = pTarget->m_Pos;
 
@@ -180,9 +156,6 @@ void CHomingMissile::Move(CCharacter* pTarget)
 
 bool CHomingMissile::Hit(CCharacter* pHitTarget)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	
 	vec2 TargetPos = pHitTarget->m_Pos;
 

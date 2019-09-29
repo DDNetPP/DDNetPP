@@ -200,6 +200,10 @@ public:
 
 	static void ConUserCommandStatus(IConsole::IResult *pResult, void *pUser);
 	void SetFlagMask(int FlagMask) { m_FlagMask = FlagMask; }
+
+	// DDNet++
+
+	virtual void PrintDDPPLogs(int type);
 };
 
 #endif

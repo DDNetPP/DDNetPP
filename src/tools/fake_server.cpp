@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 		/*if(str_comp(*argv, "-m") == 0)
 		{
 			argc--; argv++;
-			net_host_lookup(*argv, &aMasterServers[NumMasters], NETTYPE_IPV4);
+			net_host_lookup(*argv, &aMasterServers[NumMasters], NETTYPE_IPV4, g_Config.m_SvMasterServerLogs);
 			argc--; argv++;
 			aMasterServers[NumMasters].port = str_toint(*argv);
 			NumMasters++;

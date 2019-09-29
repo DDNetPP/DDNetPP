@@ -26,9 +26,6 @@ CProjectile::CProjectile
 	)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Type = Type;
 	m_Pos = Pos;
 	m_Direction = Dir;
@@ -52,18 +49,12 @@ CProjectile::CProjectile
 
 void CProjectile::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_LifeSpan > -2)
 		GameServer()->m_World.DestroyEntity(this);
 }
 
 vec2 CProjectile::GetPos(float Time)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Curvature = 0;
 	float Speed = 0;
 
@@ -117,9 +108,6 @@ vec2 CProjectile::GetPos(float Time)
 
 void CProjectile::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Pt = (Server()->Tick()-m_StartTick-1)/(float)Server()->TickSpeed();
 	float Ct = (Server()->Tick()-m_StartTick)/(float)Server()->TickSpeed();
 	vec2 PrevPos = GetPos(Pt);
@@ -288,17 +276,11 @@ void CProjectile::Tick()
 
 void CProjectile::TickPaused()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	++m_StartTick;
 }
 
 void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	pProj->m_X = (int)m_Pos.x;
 	pProj->m_Y = (int)m_Pos.y;
 	pProj->m_VelX = (int)(m_Direction.x*100.0f);
@@ -309,9 +291,6 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 
 void CProjectile::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	float Ct = (Server()->Tick()-m_StartTick)/(float)Server()->TickSpeed();
 
 	if(NetworkClipped(SnappingClient, GetPos(Ct)))
@@ -348,17 +327,11 @@ void CProjectile::Snap(int SnappingClient)
 
 void CProjectile::SetBouncing(int Value)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Bouncing = Value;
 }
 
 void CProjectile::FillExtraInfo(CNetObj_Projectile *pProj)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	const int MaxPos = 0x7fffffff/100;
 	if(abs((int)m_Pos.y)+1 >= MaxPos || abs((int)m_Pos.x)+1 >= MaxPos)
 	{

@@ -7,9 +7,6 @@
 CFlag::CFlag(CGameWorld *pGameWorld, int Team)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Team = Team;
 	m_ProximityRadius = ms_PhysSize;
 	m_pCarryingCharacter = NULL;
@@ -20,9 +17,6 @@ CFlag::CFlag(CGameWorld *pGameWorld, int Team)
 
 void CFlag::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pCarryingCharacter = NULL;
 	m_AtStand = 1;
 	m_Pos = m_StandPos;
@@ -33,9 +27,6 @@ void CFlag::Reset()
 
 void CFlag::TickPaused()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	++m_DropTick;
 	if(m_GrabTick)
 		++m_GrabTick;
@@ -43,9 +34,6 @@ void CFlag::TickPaused()
 
 void CFlag::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(NetworkClipped(SnappingClient))
 		return;
 

@@ -10,9 +10,6 @@ CDoor::CDoor(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 		int Number) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Number = Number;
 	m_Pos = Pos;
 	m_Length = Length;
@@ -26,17 +23,11 @@ CDoor::CDoor(CGameWorld *pGameWorld, vec2 Pos, float Rotation, int Length,
 
 void CDoor::Open(int Tick, bool ActivatedTeam[])
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_EvalTick = Server()->Tick();
 }
 
 void CDoor::ResetCollision()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	for (int i = 0; i < m_Length - 1; i++)
 	{
 		vec2 CurrentPos(m_Pos.x + (m_Direction.x * i),
@@ -55,37 +46,22 @@ void CDoor::ResetCollision()
 
 void CDoor::Open(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 void CDoor::Close(int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 void CDoor::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 void CDoor::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 }
 
 void CDoor::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (NetworkClipped(SnappingClient, m_Pos)
 			&& NetworkClipped(SnappingClient, m_To))
 		return;

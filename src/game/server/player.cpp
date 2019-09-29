@@ -24,32 +24,24 @@ IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
 CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
 	m_pCharacter = 0;
 	m_NumInputs = 0;
 	m_KillMe = 0;
+	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
 	Reset();
 }
 
 CPlayer::~CPlayer()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	delete m_pCharacter;
 	m_pCharacter = 0;
 }
 
 void CPlayer::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
 	m_ScoreStartTick = Server()->Tick();
@@ -174,14 +166,19 @@ void CPlayer::Reset()
 		m_IsVanillaWeapons = true;
 	}
 
+	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
 	str_copy(m_aEscapeReason, "unknown", 16);
 	m_dmm25 = -1; //set to offline default
+	m_MapSaveLoaded = false;
 
 	if (g_Config.m_SvNoboSpawnTime)
 	{
 		m_IsNoboSpawn = true;
 	}
+	m_AccountID = 0; // SetAccID(0); the function shows old value which could cause undefined behaviour i guess
+	m_PlayerHumanLevel = 0;
+	m_HumanLevelTime = 0;
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
@@ -199,7 +196,6 @@ void CPlayer::Reset()
 	m_Dummy_nn_highest_Distance = 0.0f;
 	m_Dummy_nn_highest_Distance_touched = 0.0f;
 	m_Minigameworld_size_x = 30;
-	m_max_level = 99; //is actually 1 more
 	m_ci_lowest_dest_dist = 2147483646; //max long len 2147483647
 	m_ci_latest_dest_dist = 0;
 	m_Insta1on1_id = -1;
@@ -250,7 +246,6 @@ void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
-		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -409,11 +404,10 @@ void CPlayer::Tick()
 		}
 	}
 
-	if (m_AccountID > 0)
-	{
-		if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
+	if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
+		if (IsLoggedIn())
 			Save(1); //SetLoggedIn true
-	}
+
 	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
 
@@ -451,13 +445,104 @@ void CPlayer::Tick()
 			m_SetRealName = false;
 		}
 	}
+	PlayerHumanLevelTick();
+}
+
+void CPlayer::PlayerHumanLevelTick()
+{
+	if (m_HumanLevelTime >= 1)
+	{
+		m_HumanLevelTime--;
+	}
+
+	if (m_PlayerHumanLevel == 0)
+	{
+		if (GetCharacter() && GetCharacter()->InputActive())
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
+		}
+	}
+	else if (m_PlayerHumanLevel == 1)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 2)
+	{
+		if (Server()->Tick() % 40 == 0)
+		{
+			if (GetCharacter() && GetCharacter()->InputActive())
+			{
+				m_PlayerHumanLevelState++;
+			}
+		}
+		if (m_PlayerHumanLevelState > 3)
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
+		}
+	}
+	else if (m_PlayerHumanLevel == 3)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 4)
+	{
+		if (GetCharacter())
+		{
+			if (GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
+				m_BlockPoints > 5 ||
+				IsLoggedIn())
+			{
+				m_PlayerHumanLevel++;
+				m_HumanLevelTime = Server()->TickSpeed() * 20; // 20 sec
+			}
+		}
+	}
+	else if (m_PlayerHumanLevel == 5)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
+	else if (m_PlayerHumanLevel == 6)
+	{
+		if (m_pCaptcha->IsHuman())
+		{
+			m_PlayerHumanLevel++;
+		}
+	}
+	else if (m_PlayerHumanLevel == 7)
+	{
+		if ((m_QuestLevelUnlocked > 0 || m_QuestUnlocked > 2) || // played quest until finish map
+			m_BlockPoints > 10)
+		{
+			m_PlayerHumanLevel++;
+			m_HumanLevelTime = Server()->TickSpeed() * 60; // 1 min
+		}
+	}
+	else if (m_PlayerHumanLevel == 8)
+	{
+		if (m_HumanLevelTime <= 0)
+		{
+			m_PlayerHumanLevel++;
+			m_PlayerHumanLevelState = 0;
+		}
+	}
 }
 
 void CPlayer::FixForNoName(int ID)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_FixNameID = ID;	// 0 for just to display the name in the right moment (e.g. kill msg killer)
 	m_SetRealName = true;
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
@@ -467,9 +552,6 @@ void CPlayer::FixForNoName(int ID)
 
 void CPlayer::PostTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_IsDummy)
 		return;
 
@@ -492,7 +574,6 @@ void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
-		CALL_STACK_ADD();
 #endif
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
@@ -712,12 +793,12 @@ void CPlayer::Snap(int SnappingClient)
 	{
 		if (pSnapping->m_DisplayScore == 1) // level
 		{
-			if (m_AccountID > 0)
+			if (IsLoggedIn())
 			{
 				if (pSnapping->m_ScoreFixForDDNet)
-					pPlayerInfo->m_Score = m_level * 60;
+					pPlayerInfo->m_Score = GetLevel() * 60;
 				else
-					pPlayerInfo->m_Score = m_level;
+					pPlayerInfo->m_Score = GetLevel();
 			}
 			else if (pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
@@ -726,7 +807,7 @@ void CPlayer::Snap(int SnappingClient)
 		}
 		else if (pSnapping->m_DisplayScore == 2) // block points
 		{
-			if (m_AccountID > 0)
+			if (IsLoggedIn())
 			{
 				if (pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
@@ -754,9 +835,6 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// This is problematic when it's sent before we know whether it's a non-64-player-client
 	// Then we can't spectate players at the start
 	IServer::CClientInfo info;
@@ -777,47 +855,30 @@ void CPlayer::FakeSnap(int SnappingClient)
 	StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 }
 
-void CPlayer::OnDisconnect(const char *pReason, bool silent)
+void CPlayer::OnDisconnectDDPP()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-
 	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
 		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
 	}
+	if (m_JailTime)
+	{
+		GameServer()->SetIpJailed(GetCID());
+	}
+}
+
+void CPlayer::OnDisconnect(const char *pReason, bool silent)
+{
+
+	OnDisconnectDDPP();
 
 	KillCharacter();
 
 	Logout();
-	if(Server()->ClientIngame(m_ClientID) && !silent && (g_Config.m_SvHideJoinLeaveMessages == 3 || g_Config.m_SvHideJoinLeaveMessages == 2) && (g_Config.m_SvHideJoinLeaveMessagesPlayer != Server()->ClientName(m_ClientID)))
+	if(Server()->ClientIngame(m_ClientID) && !silent)
 	{
 		char aBuf[512];
-		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(m_ClientID)))
-		{
-			str_format(aBuf, sizeof(aBuf), "player='%d:%s' leave (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
-			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-		}
-		else if (g_Config.m_SvActivatePatternFilter)
-		{
-			if (str_find(Server()->ClientName(GetCID()), g_Config.m_SvHideJoinLeaveMessagesPattern))
-			{
-				//hide pattern
-			}
-			else
-			{
-				if (pReason && *pReason)
-					str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
-				else
-					str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-
-				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
-				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
-			}
-		}
-		else
+		if (GameServer()->ShowLeaveMessage(m_ClientID))
 		{
 			if (pReason && *pReason)
 				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
@@ -828,6 +889,11 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 			str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
+			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+		}
 	}
 
 	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
@@ -836,9 +902,6 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// skip the input if chat is active
 	if((m_PlayerFlags&PLAYERFLAG_CHATTING) && (NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING))
 		return;
@@ -860,9 +923,6 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (AfkTimer(NewInput->m_TargetX, NewInput->m_TargetY))
 		return; // we must return if kicked, as player struct is already deleted
 	AfkVoteTimer(NewInput);
@@ -910,9 +970,6 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 CCharacter *CPlayer::GetCharacter()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return m_pCharacter;
 	return 0;
@@ -920,17 +977,11 @@ CCharacter *CPlayer::GetCharacter()
 
 void CPlayer::ThreadKillCharacter(int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_KillMe = Weapon;
 }
 
 void CPlayer::KillCharacter(int Weapon)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter)
 	{
 		if (m_RespawnTick > Server()->Tick())
@@ -945,18 +996,12 @@ void CPlayer::KillCharacter(int Weapon)
 
 void CPlayer::Respawn()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_Team != TEAM_SPECTATORS)
 		m_Spawning = true;
 }
 
 CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_Spawning = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, Pos);
@@ -966,9 +1011,6 @@ CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	// clamp the team
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
@@ -977,27 +1019,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	char aBuf[512];
 	if(DoChatMsg)
 	{
-		if (!str_comp(g_Config.m_SvHideJoinLeaveMessagesPlayer, Server()->ClientName(GetCID())))
-		{
-			//send it in admin console
-		}
-		else if (g_Config.m_SvHideJoinLeaveMessages < 3)
-		{
-			//send it in admin console
-		}
-		else if (g_Config.m_SvActivatePatternFilter)
-		{
-			if (str_find(Server()->ClientName(GetCID()), g_Config.m_SvHideJoinLeaveMessagesPattern))
-			{
-				//hide pattern
-			}
-			else
-			{
-				str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			}
-		}
-		else
+		if (GameServer()->ShowTeamSwitchMessage(m_ClientID))
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -1036,9 +1058,6 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 
 void CPlayer::TryRespawn()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 SpawnPos;
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this))
@@ -1067,9 +1086,6 @@ void CPlayer::TryRespawn()
 
 bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	/*
 		afk timer (x, y = mouse coordinates)
 		Since a player has to move the mouse to play, this is a better method than checking
@@ -1133,9 +1149,6 @@ bool CPlayer::AfkTimer(int NewTargetX, int NewTargetY)
 
 void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(g_Config.m_SvMaxAfkVoteTime == 0)
 		return;
 
@@ -1155,9 +1168,6 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 
 void CPlayer::ProcessPause()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(!m_pCharacter)
 		return;
 
@@ -1195,9 +1205,6 @@ void CPlayer::ProcessPause()
 
 bool CPlayer::IsPlaying()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if(m_pCharacter && m_pCharacter->IsAlive())
 		return true;
 	return false;
@@ -1205,9 +1212,6 @@ bool CPlayer::IsPlaying()
 
 void CPlayer::FindDuplicateSkins()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_TeeInfos.m_UseCustomColor == 0 && !m_StolenSkin) return;
 	m_StolenSkin = 0;
 	for (int i = 0; i < MAX_CLIENTS; ++i)
@@ -1230,17 +1234,14 @@ void CPlayer::FindDuplicateSkins()
 
 void CPlayer::Logout(int SetLoggedIn)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
 	Save(SetLoggedIn);
-	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", m_AccountID, SetLoggedIn);
+	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", GetAccID(), SetLoggedIn);
 
 	//reset values to default to prevent cheating
-	m_AccountID = 0;
+	SetAccID(0);
 	m_level = 0;
 	m_IsModerator = 0;
 	m_IsSuperModerator = 0;
@@ -1305,9 +1306,6 @@ void CPlayer::Logout(int SetLoggedIn)
 
 void CPlayer::JailPlayer(int seconds)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
 	//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
 
@@ -1329,23 +1327,19 @@ void CPlayer::JailPlayer(int seconds)
 
 void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
-	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, m_AccountID);
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, m_AccountID);
+	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, GetAccID());
+	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, GetAccID());
 }
 
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), m_AccountID, SetLoggedIn);
+	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), GetAccID(), SetLoggedIn);
 #endif
-	if (m_AccountID <= 0)
+	if (!IsLoggedIn())
 		return;
 
 	if (m_IsFileAcc)
@@ -1428,9 +1422,19 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// read showhide bools to char array that is being saved
-	//GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET"
+	/*
+		It was planned to use the function pointer
+		to switch between ExecuteSQLf and ExecuteSQLBlockingf
+		to ensure execution on mapchange and server shutdown
+		but somehow it didnt block anyways :c
+		i left the function pointer here in case i pick this up in the future.
+	*/
+	// void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLBlockingf;
+	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
+
+	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
 		"  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
 		", `LastGift` = '%i'" /*is actually m_GiftDelay*/
 		", `PoliceRank` = '%i'"
@@ -1492,9 +1496,6 @@ void CPlayer::Save(int SetLoggedIn)
 
 void CPlayer::SaveFileBased(int SetLoggedIn)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	std::string data;
 	char aBuf[128];
@@ -1530,128 +1531,8 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 
 void CPlayer::CalcExp()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-
-	dbg_msg("debug", "caling exp");
-
-	//old dynamic shit rofl
-	//if (m_level < 1)
-	//	m_neededxp = 5000;
-	//else
-	//	//m_neededxp = 5000 * (m_level * 5.5);
-	//	//old fucked the account system because neededxp wasnt saved and if u disconnect u need more xp
-	//	//m_neededxp = m_xp + (m_level * 2500);   <-- old one had the xp value in it what changes so the neededxp changes on account load -.-
-	//	m_neededxp = (m_level * 3500) + (m_level-- * 3500);
-
-	//new cuz hardcode is best
-	//Old is a bit too exponential
-	//								//Collected xp
-	//if (m_level == 0)
-	//	m_neededxp = 5000;			
-	//else if (m_level == 1)			//5 000
-	//	m_neededxp = 10000;			
-	//else if (m_level == 2)			//15 000
-	//	m_neededxp = 20000;
-	//else if (m_level == 3)			//35 000			Rainbow
-	//	m_neededxp = 40000;
-	//else if (m_level == 4)			//75 000
-	//	m_neededxp = 50000;
-	//else if (m_level == 5)			//125 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 6)			//225 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 7)			//325 000
-	//	m_neededxp = 100000;
-	//else if (m_level == 8)			//425 000			Bloody
-	//	m_neededxp = 100000;
-	//else if (m_level == 9)			//525 000			room_key
-	//	m_neededxp = 200000;
-	//else if (m_level == 10)			//625 000			
-	//	m_neededxp = 300000;
-	//else if (m_level == 11)			//925 000			Police[1]
-	//	m_neededxp = 400000;
-	//else if (m_level == 12)			//1 325 000
-	//	m_neededxp = 500000;
-	//else if (m_level == 13)			//1 825 000
-	//	m_neededxp = 800000;
-	//else if (m_level == 14)			//2 625 000
-	//	m_neededxp = 1000000;
-	//else if (m_level == 15)			//3 625 000			Police[2]			Taser
-	//	m_neededxp = 2000000;
-	//else if (m_level == 16)			//5 625 000
-	//	m_neededxp = 3000000;
-	//else if (m_level == 17)			//8 625 000
-	//	m_neededxp = 4000000;
-	//else if (m_level == 18)			//12 625 000
-	//	m_neededxp = 5000000;
-	//else if (m_level == 19)			//17 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 20)			//27 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 21)			//37 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 22)			//47 625 000
-	//	m_neededxp = 10000000;
-	//else if (m_level == 23)			//57 625 000
-	//	m_neededxp = 10500000;
-	//else if (m_level == 24)			//68 125 000
-	//	m_neededxp = 15000000;
-	//else if (m_level == 25)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 26)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 27)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 28)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 29)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 30)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 31)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 32)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 33)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 34)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 35)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 36)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 37)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 38)
-	//	m_neededxp = 20000000;
-	//else if (m_level == 39)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 40)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 41)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 42)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 43)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 44)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 45)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 46)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 47)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 48)
-	//	m_neededxp = 50000000;
-	//else if (m_level == 49)
-	//	m_neededxp = 100000000;
-	//else if (m_level == 50)
-	//	m_neededxp = 100000000;
-
-	//New less exponential
+	int OldNeededXp = m_neededxp;
+	dbg_msg("account", "CalcExp() neededxp=%d xp=%d", OldNeededXp, m_xp);
 
 	//										xp diff
 	if (m_level == 0)
@@ -1857,47 +1738,21 @@ void CPlayer::CalcExp()
 	else
 		m_neededxp = 404000000000000;    //404 error         
 
+	// make sure to update ACC_MAX_LEVEL when adding more level (neededxp has only to be defined until max level - 1)
 
-
-		//WARNING!
-		/*
-
-		OLD!!!
-
-		by increasing max level you need to change the hardcodet max level 99:
-		you need to make some changes in the following places:
-
-		player.ccp (CheckLevel())
-		character.cpp(HasFlag)
-		character.cpp(Moneytile)
-		character.cpp(Moneytile2)
-		character.cpp(Moneytileplus)
-		character.cpp(Finish)
-		character.cpp(void CCharacter::Die(int Killer, int Weapon))  (hammerfight)
-
-
-		NEW!!!
-
-		made it dynamic!
-		there is a var called m_max_level
-		update this var if u increase the level sys
-
-
-		TODO: add a makro for max lvl
-
-		*/
-
+	if (IsMaxLevel())
+	{
+		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
+		m_xp = OldNeededXp;
+		// m_neededxp = OldNeededXp; // covered by the 404 else if ACC_MAX_LEVEL is if branch limit if it is less it uses next levels neededxp which doesnt hurt either
+	}
 }
 
 void CPlayer::CheckLevel()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
-	if (m_level > m_max_level)
+	if (!IsLoggedIn())
 		return;
-
-	if (m_AccountID <= 0)
+	if (IsMaxLevel())
 		return;
 
 	if (m_neededxp <= 0)
@@ -1910,7 +1765,7 @@ void CPlayer::CheckLevel()
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", m_level);
 		GameServer()->SendChatTarget(m_ClientID, aBuf);  //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
-		MoneyTransaction(+50, "+50 level up");
+		MoneyTransaction(+50, "level up");
 
 		CalcExp();
 	}
@@ -1919,16 +1774,17 @@ void CPlayer::CheckLevel()
 
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_money += Amount;
 #if defined(CONF_DEBUG)
 	if (m_money < 0)
 	{
-		dbg_msg("cBug", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
+	if (!str_comp(Description, ""))
+		return;
+	char aDesc[64];
+	str_format(aDesc, sizeof(aDesc), "%s%d (%s)", Amount > 0 ? "+" : "", Amount, Description);
 	str_format(m_money_transaction9, sizeof(m_money_transaction9), "%s", m_money_transaction9);
 	str_format(m_money_transaction8, sizeof(m_money_transaction8), "%s", m_money_transaction8);
 	str_format(m_money_transaction7, sizeof(m_money_transaction7), "%s", m_money_transaction7);
@@ -1938,14 +1794,11 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction3, sizeof(m_money_transaction3), "%s", m_money_transaction2);
 	str_format(m_money_transaction2, sizeof(m_money_transaction2), "%s", m_money_transaction1);
 	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
-	str_format(m_money_transaction0, sizeof(m_money_transaction0), Description);
+	str_format(m_money_transaction0, sizeof(m_money_transaction0), aDesc);
 }
 
 bool CPlayer::IsInstagibMinigame()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
@@ -1953,9 +1806,6 @@ bool CPlayer::IsInstagibMinigame()
 
 void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	m_LoginData.m_pGameContext = GameServer();
 	m_LoginData.m_LoginState = LOGIN_WAIT;
 	m_LoginData.m_ClientID = GetCID();
@@ -1966,9 +1816,6 @@ void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 
 void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
 	CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
 	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
@@ -1983,9 +1830,6 @@ void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 
 void CPlayer::ThreadLoginDone() //get called every tick
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_LoginData.m_LoginState != LOGIN_DONE)
 		return;
 
@@ -1993,7 +1837,7 @@ void CPlayer::ThreadLoginDone() //get called every tick
 	str_copy(m_aAccountLoginName, m_LoginData.m_aUsername, sizeof(m_aAccountLoginName));
 	str_copy(m_aAccountPassword, m_LoginData.m_aPassword, sizeof(m_aAccountPassword));
 	str_copy(m_aAccountRegDate, m_LoginData.m_aAccountRegDate, sizeof(m_aAccountRegDate));
-	m_AccountID = m_LoginData.m_AccountID;
+	SetAccID(m_LoginData.m_AccountID);
 
 	//Accounts
 	m_IsModerator = m_LoginData.m_IsModerator;
@@ -2014,9 +1858,6 @@ void CPlayer::ThreadLoginDone() //get called every tick
 
 void CPlayer::chidraqul3_GameTick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	//if (m_C3_GameState == 2) //multiplayer
 	//	return; //handled in gamecontext
 
@@ -2217,3 +2058,101 @@ bool CPlayer::JoinMultiplayer()
 	return false;
 }
 
+void CPlayer::UpdateLastToucher(int ID)
+{
+#if defined(CONF_DEBUG)
+	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldID=%d player=%d:'%s'", ID, m_LastToucherID, GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_LastToucherID = ID;
+	m_LastTouchTicks = 0;
+	if (ID == -1)
+		return;
+	CPlayer *pToucher = GameServer()->m_apPlayers[ID];
+	if (!pToucher)
+		return;
+	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
+	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
+	m_LastToucherTeeInfos.m_ColorFeet = pToucher->m_TeeInfos.m_ColorFeet;
+	str_copy(m_LastToucherTeeInfos.m_SkinName, pToucher->m_TeeInfos.m_SkinName, sizeof(pToucher->m_TeeInfos.m_SkinName));
+	m_LastToucherTeeInfos.m_UseCustomColor = pToucher->m_TeeInfos.m_UseCustomColor;
+}
+
+void CPlayer::GiveBlockPoints(int Points)
+{
+	char aBuf[128];
+	bool FlagBonus = false;
+
+	if (GetCharacter() && ((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GetCharacter()) != -1) 
+	{
+		Points++;
+		FlagBonus = true;
+	}
+
+	m_BlockPoints += Points;
+	if (m_ShowBlockPoints)
+	{
+		if (IsLoggedIn())
+		{
+			str_format(aBuf, sizeof(aBuf), "+%d point%s%s", Points, Points == 1 ? "" : "s", FlagBonus ? " (flag bonus)" : "");
+		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "+%d point%s (warning! use '/login' to save your '/points')", Points, Points == 1 ? "" : "s");
+		}
+
+		GameServer()->SendChatTarget(GetCID(), aBuf);
+	}
+	else // chat info deactivated
+	{
+		if (IsLoggedIn())
+		{
+			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
+			if (m_BlockPoints == 5 || m_BlockPoints == 10)
+			{
+				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_BlockPoints);
+				GameServer()->SendChatTarget(GetCID(), aBuf);
+				GameServer()->SendChatTarget(GetCID(), "Use '/accountinfo' for more information.");
+			}
+		}
+	}
+}
+
+void CPlayer::SetAccID(int ID)
+{
+#if defined(CONF_DEBUG)
+	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_AccountID = ID;
+}
+
+void CPlayer::GiveXP(int value)
+{
+	if (IsMaxLevel())
+		return;
+
+	m_xp += value;
+}
+
+void CPlayer::SetXP(int xp)
+{
+#if defined(CONF_DEBUG)
+	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_xp = xp;
+}
+
+void CPlayer::SetLevel(int level)
+{
+#if defined(CONF_DEBUG)
+	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_level = level;
+}
+
+void CPlayer::SetMoney(int money)
+{
+#if defined(CONF_DEBUG)
+	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+#endif
+	m_money = money;
+}

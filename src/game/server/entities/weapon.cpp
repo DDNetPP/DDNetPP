@@ -8,9 +8,6 @@
 CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack, bool SpreadGun)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	m_Type = Weapon;
 	m_Lifetime = Server()->TickSpeed() * Lifetime;
@@ -35,17 +32,12 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 void CWeapon::Reset()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if (m_EreaseWeapon)
 	{
-		if (m_Owner != -1)
+		CPlayer* pOwner = GameServer()->m_apPlayers[m_Owner];
+		if (m_Owner != -1 && pOwner)
 		{
-			CPlayer* pOwner = GameServer()->m_apPlayers[m_Owner];
-			if (!pOwner)
-				return;
 			for (unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
 				if (pOwner->m_vWeaponLimit[m_Type][i] == this)
@@ -103,9 +95,6 @@ int CWeapon::IsCharacterNear()
 
 void CWeapon::Pickup()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	
 	int CharID = IsCharacterNear();
 	if (CharID != -1)
@@ -181,9 +170,6 @@ void CWeapon::Pickup()
 
 void CWeapon::Tick()
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 	if (m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
 	{
 		m_Owner = -1;
@@ -302,9 +288,6 @@ void CWeapon::Tick()
 
 void CWeapon::Snap(int SnappingClient)
 {
-#if defined(CONF_DEBUG)
-	CALL_STACK_ADD();
-#endif
 
 	if(NetworkClipped(SnappingClient))
 		return;

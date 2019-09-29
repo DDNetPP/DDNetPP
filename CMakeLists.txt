@@ -462,6 +462,8 @@ set_glob(BASE GLOB_RECURSE src/base
   color.h
   confusables.c
   confusables.h
+  ddpp_logs.c
+  ddpp_logs.h
   detect.h
   hash.c
   hash.h
@@ -632,13 +634,13 @@ set_glob(ENGINE_SERVER GLOB src/engine/server
   server.h
 )
 set_glob(GAME_SERVER GLOB_RECURSE src/game/server
+  captcha.cpp
+  captcha.h
   db_sqlite3.cpp
   db_sqlite3.h
   ddracechat.cpp
   ddracechat.h
   ddracecommands.cpp
-  debug.cpp
-  debug.h
   entities/character.cpp
   entities/character.h
   entities/character_dummymodes.cpp
@@ -695,6 +697,8 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   gamemodes/tdm.h
   gameworld.cpp
   gameworld.h
+  letters.cpp
+  letters.h
   player.cpp
   player.h
   save.cpp
