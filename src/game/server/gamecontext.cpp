@@ -7054,6 +7054,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						// str_format(aBuf, sizeof(aBuf), "finish tile pos %f %f", m_FinishTilePos.x, m_FinishTilePos.y);
 						str_format(aBuf, sizeof(aBuf), "human level: %d captcha score: %d", pPlayer->m_PlayerHumanLevel, pPlayer->m_pCaptcha->GetScore());
 						SendChatTarget(ClientID, aBuf);
+						// https://github.com/ddnet/ddnet/issues/1728
+						if (pPlayer->GetCharacter())
+							pPlayer->GetCharacter()->SetPosition(vec2(999999999.99, 999999999.99));
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
                         //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
