@@ -75,6 +75,7 @@ generated/
 .idea/
 .vscode/
 .vs/
+tags
 
 debug.txt
 wrong_rcon.txt
