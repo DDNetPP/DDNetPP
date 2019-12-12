@@ -8849,6 +8849,40 @@ void CGameContext::ConBounty(IConsole::IResult * pResult, void * pUserData)
 	}
 }
 
+void CGameContext::ConDcDummy(IConsole::IResult * pResult, void * pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
+	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[dummy] You have to be admin to use this command.");
+		return;
+	}
+
+	int DummyID = pResult->GetInteger(0);
+	char aBuf[128];
+	CPlayer *pDummy = pSelf->m_apPlayers[DummyID];
+	if (!pDummy)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[dummy] this id is not online.");
+		return;
+	}
+	if (!pDummy->m_IsDummy)
+	{
+		str_format(aBuf, sizeof(aBuf), "[dummy] player '%s' is not a dummy.", pSelf->Server()->ClientName(DummyID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		return;
+	}
+	str_format(aBuf, sizeof(aBuf), "[dummy] dummy '%s' disconnected.", pSelf->Server()->ClientName(DummyID));
+	pSelf->Server()->BotLeave(DummyID);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+}
+
 void CGameContext::ConTROLL166(IConsole::IResult * pResult, void * pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
