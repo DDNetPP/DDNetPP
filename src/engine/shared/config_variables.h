@@ -554,6 +554,9 @@ MACRO_CONFIG_INT(SvAllowGlobalChat, sv_allow_global_chat, 0, 0, 1, CFGFLAG_SERVE
 MACRO_CONFIG_INT(SvGlobalChatServers, sv_global_chat_servers, 0, 0, 9, CFGFLAG_SERVER, "how many servers are connected to the global chat (needed for print confirmation)")
 MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", CFGFLAG_SERVER, "path/to/file.txt where the global chat messages get pushed and pulled")
 
+// configurable tiles cfg_tiles
+MACRO_CONFIG_INT(SvCfgTile1, sv_cfg_tile_1, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
+MACRO_CONFIG_INT(SvCfgTile2, sv_cfg_tile_2, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 
 //TODO: move me to sql data or somehting
 //Supporter permissions

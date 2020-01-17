@@ -141,6 +141,8 @@ int CCollision::GetTile(int x, int y)
 
 	if(m_pTiles[pos].m_Index >= TILE_SOLID && m_pTiles[pos].m_Index <= TILE_NOLASER)
 		return m_pTiles[pos].m_Index;
+	if(m_pTiles[pos].m_Index == TILE_CONFIG_1 || m_pTiles[pos].m_Index == TILE_CONFIG_2)
+		return m_pTiles[pos].m_Index;
 	return 0;
 }
 
@@ -431,6 +433,10 @@ void CCollision::Dest()
 int CCollision::IsSolid(int x, int y)
 {
 	int index = GetTile(x,y);
+	if(index == TILE_CONFIG_1)
+		return g_Config.m_SvCfgTile1 == CFG_TILE_HOOK || g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
+	if(index == TILE_CONFIG_2)
+		return g_Config.m_SvCfgTile2 == CFG_TILE_HOOK || g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK;
 	return index == TILE_SOLID || index == TILE_NOHOOK;
 }
 
@@ -1075,7 +1081,9 @@ int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2
 		if(GetIndex(Nx, Ny) == TILE_SOLID
 			|| GetIndex(Nx, Ny) == TILE_NOHOOK
 			|| GetIndex(Nx, Ny) == TILE_NOLASER
-			|| GetFIndex(Nx, Ny) == TILE_NOLASER)
+			|| GetFIndex(Nx, Ny) == TILE_NOLASER
+			|| (GetIndex(Nx, Ny) == TILE_CONFIG_1 && g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK)
+			|| (GetIndex(Nx, Ny) == TILE_CONFIG_2 && g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;

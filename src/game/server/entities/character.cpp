@@ -2963,6 +2963,33 @@ void CCharacter::HandleSkippableTiles(int Index)
 	}
 }
 
+bool CCharacter::HandleConfigTile(int Type)
+{
+	if(Type == CFG_TILE_OFF)
+		return false;
+
+	if(Type == CFG_TILE_FREEZE)
+		Freeze();
+	else if(Type == CFG_TILE_UNFREEZE)
+		UnFreeze();
+	else if(Type == CFG_TILE_DEEP)
+		m_DeepFreeze = true;
+	else if(Type == CFG_TILE_UNDEEP)
+		m_DeepFreeze = false;
+	else if(Type == CFG_TILE_DEATH)
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD); // TODO: probably should be in places where TILE_DEATH is and not here
+		return true;
+	}
+	else if(Type == CFG_TILE_GIVE_BLOODY)
+		m_Bloody = true;
+	else if(Type == CFG_TILE_GIVE_RAINBOW)
+		m_Rainbow = true;
+	else if(Type == CFG_TILE_GIVE_SPREADGUN)
+		m_autospreadgun = true;
+	return false;
+}
+
 void CCharacter::HandleTiles(int Index)
 {
 	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
@@ -3241,6 +3268,18 @@ void CCharacter::HandleTiles(int Index)
 		m_DDPP_Finished = true;
 	}
 
+	// DDNet++ config tiles
+	if ((m_TileIndex == TILE_CONFIG_1) || (m_TileFIndex == TILE_CONFIG_1))
+	{
+		if(HandleConfigTile(g_Config.m_SvCfgTile1))
+			return;
+	}
+	else if ((m_TileIndex == TILE_CONFIG_2) || (m_TileFIndex == TILE_CONFIG_2))
+	{
+		if(HandleConfigTile(g_Config.m_SvCfgTile2))
+			return;
+	}
+
 	// freeze
 	if (((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE)) && !m_Super && !m_DeepFreeze)
 	{
@@ -3256,6 +3295,7 @@ void CCharacter::HandleTiles(int Index)
 			if ((m_pPlayer->GetCID() == GameServer()->m_BalanceID1 || m_pPlayer->GetCID() == GameServer()->m_BalanceID2) && GameServer()->m_BalanceBattleState == 2)
 			{
 				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				return;
 			}
 		}
 	}
