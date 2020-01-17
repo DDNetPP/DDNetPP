@@ -309,6 +309,10 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 		{
 			if(Hit == TILE_NOHOOK)
 				GoingToRetract = true;
+			else if (Hit == TILE_CONFIG_1)
+				GoingToRetract = g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
+			else if (Hit == TILE_CONFIG_2)
+				GoingToRetract = g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK;
 			else if (Hit == TILE_TELEINHOOK)
 				GoingThroughTele = true;
 			else

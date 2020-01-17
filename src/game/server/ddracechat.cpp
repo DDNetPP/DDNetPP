@@ -10198,6 +10198,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(ClientID, "'/admin vote_delay' reset vote delay to allow votes agian");
 		pSelf->SendChatTarget(ClientID, "'/admin test' test DDNet++");
 		pSelf->SendChatTarget(ClientID, "'/admin acc' test for illegal chars in account names");
+		pSelf->SendChatTarget(ClientID, "'/admin cfg_tiles' info on configurable tiles");
 		pSelf->SendChatTarget(ClientID, "--- SIMILAR COMMANDS ---");
 		pSelf->SendChatTarget(ClientID, "'/flood' for flood protection commands");
 		pSelf->SendChatTarget(ClientID, "----------------------");
@@ -10233,6 +10234,18 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 		{
 			pSelf->SendChatTarget(ClientID, "All users have allowed char set usernames.");
 		}
+	}
+	else if (!str_comp_nocase(aCommand, "cfg_tiles") || !str_comp_nocase(aCommand, "cfg_tile") || !str_comp_nocase(aCommand, "config_tiles"))
+	{
+		pSelf->SendChatTarget(ClientID, "=== config tiles ===");
+		pSelf->SendChatTarget(ClientID, "config tile 1 index=182");
+		pSelf->SendChatTarget(ClientID, "config tile 2 index=183");
+		pSelf->SendChatTarget(ClientID, "");
+		pSelf->SendChatTarget(ClientID, "sv_cfg_tile_1, sv_cfg_tile_2:");
+		pSelf->SendChatTarget(ClientID, "0=off");
+		pSelf->SendChatTarget(ClientID, "1=freeze,2=unfreeze,3=deep,4=undeep");
+		pSelf->SendChatTarget(ClientID, "5=hook,6=unhook,7=kill");
+		pSelf->SendChatTarget(ClientID, "8=bloody,9=rainbow,10=spreadgun");
 	}
 	else
 	{

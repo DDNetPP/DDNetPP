@@ -440,6 +440,8 @@ public:
 	//battlegores
 	void KillFreeze(bool unfreeze);
 
+	bool HandleConfigTile(int Type);
+
 	// finite cosmetics
 	bool m_Rainbow;
 	bool m_Bloody;
