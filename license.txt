@@ -1,7 +1,7 @@
-Teeworlds Copyright (C) 2007-2014 Magnus Auvinen
+Teeworlds Copyright (C) 2007-2020 Magnus Auvinen
 DDRace    Copyright (C) 2010-2011 Shereef Marzouk
-DDNet     Copyright (C) 2013-2018 Dennis Felsing
-DDNetPP   Copyright (C) 2016-2019 Chiller Dragon
+DDNet     Copyright (C) 2013-2020 Dennis Felsing
+DDNetPP   Copyright (C) 2016-2020 Chiller Dragon
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
