@@ -194,8 +194,12 @@ endif()
 # COMMON FUNCTIONS
 ########################################################################
 
-function(set_glob VAR GLOBBING DIRECTORY) # ...
-  file(${GLOBBING} GLOB_RESULT "${DIRECTORY}/*.c" "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.h")
+function(set_glob VAR GLOBBING EXTS DIRECTORY) # ...
+  set(GLOBS)
+  foreach(ext ${EXTS})
+    list(APPEND GLOBS "${DIRECTORY}/*.${ext}")
+  endforeach()
+  file(${GLOBBING} GLOB_RESULT ${GLOBS})
   list(SORT GLOB_RESULT)
   set(FILES)
   foreach(file ${ARGN})
@@ -231,6 +235,11 @@ function(set_glob VAR GLOBBING DIRECTORY) # ...
   endif()
 
   set(${VAR} ${FILES} PARENT_SCOPE)
+endfunction()
+
+function(set_src VAR GLOBBING DIRECTORY) # ...
+  set_glob(${VAR} ${GLOBBING} "c;cpp;h" ${DIRECTORY} ${ARGN})
+  set(${VAR} ${${VAR}} PARENT_SCOPE)
 endfunction()
 
 ########################################################################
@@ -396,13 +405,13 @@ endif()
 ########################################################################
 
 # Static dependencies
-set_glob(DEP_SQLITE3_SRC GLOB src/engine/external/sqlite3 sqlite3.c sqlite3.h)
+set_src(DEP_SQLITE3_SRC GLOB src/engine/external/sqlite3 sqlite3.c sqlite3.h)
 add_library(sqlite3 EXCLUDE_FROM_ALL OBJECT ${DEP_SQLITE3_SRC})
 
-set_glob(DEP_JSON_SRC GLOB src/engine/external/json-parser json.c json.h)
+set_src(DEP_JSON_SRC GLOB src/engine/external/json-parser json.c json.h)
 add_library(json EXCLUDE_FROM_ALL OBJECT ${DEP_JSON_SRC})
 
-set_glob(DEP_MD5_SRC GLOB src/engine/external/md5 md5.c md5.h)
+set_src(DEP_MD5_SRC GLOB src/engine/external/md5 md5.c md5.h)
 add_library(md5 EXCLUDE_FROM_ALL OBJECT ${DEP_MD5_SRC})
 
 list(APPEND TARGETS_DEP sqlite3 json md5)
@@ -477,7 +486,7 @@ generate_source("src/game/generated/server_data.h" "server_content_header")
 ########################################################################
 
 # Sources
-set_glob(BASE GLOB_RECURSE src/base
+set_src(BASE GLOB_RECURSE src/base
   color.h
   confusables.c
   confusables.h
@@ -503,7 +512,7 @@ set_glob(BASE GLOB_RECURSE src/base
   tl/threading.h
   vmath.h
 )
-set_glob(ENGINE_INTERFACE GLOB src/engine
+set_src(ENGINE_INTERFACE GLOB src/engine
   config.h
   console.h
   demo.h
@@ -524,7 +533,7 @@ set_glob(ENGINE_INTERFACE GLOB src/engine
   updater.h
   uuid.h
 )
-set_glob(ENGINE_SHARED GLOB src/engine/shared
+set_src(ENGINE_SHARED GLOB src/engine/shared
   compression.cpp
   compression.h
   config.cpp
@@ -585,7 +594,7 @@ set_glob(ENGINE_SHARED GLOB src/engine/shared
   websockets.cpp
   websockets.h
 )
-set_glob(GAME_SHARED GLOB src/game
+set_src(GAME_SHARED GLOB src/game
   collision.cpp
   collision.h
   ddracecommands.h
@@ -644,13 +653,13 @@ list(APPEND TARGETS_OWN engine-shared game-shared)
 ########################################################################
 
 # Sources
-set_glob(ENGINE_SERVER GLOB src/engine/server
+set_src(ENGINE_SERVER GLOB src/engine/server
   register.cpp
   register.h
   server.cpp
   server.h
 )
-set_glob(GAME_SERVER GLOB_RECURSE src/game/server
+set_src(GAME_SERVER GLOB_RECURSE src/game/server
   captcha.cpp
   captcha.h
   db_sqlite3.cpp
@@ -774,8 +783,8 @@ endif()
 # VARIOUS TARGETS
 ########################################################################
 
-set_glob(MASTERSRV_SRC GLOB src/mastersrv mastersrv.cpp mastersrv.h)
-set_glob(TWPING_SRC GLOB src/twping twping.cpp)
+set_src(MASTERSRV_SRC GLOB src/mastersrv mastersrv.cpp mastersrv.h)
+set_src(TWPING_SRC GLOB src/twping twping.cpp)
 
 set(TARGET_MASTERSRV mastersrv)
 set(TARGET_TWPING twping)
@@ -790,7 +799,7 @@ list(APPEND TARGETS_OWN ${TARGET_MASTERSRV} ${TARGET_TWPING})
 list(APPEND TARGETS_LINK ${TARGET_MASTERSRV} ${TARGET_TWPING})
 
 set(TARGETS_TOOLS)
-set_glob(TOOLS GLOB src/tools
+set_src(TOOLS GLOB src/tools
   config_common.h
   config_retrieve.cpp
   config_store.cpp
