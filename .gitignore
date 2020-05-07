@@ -1,6 +1,9 @@
 data/
 !/data/
 
+maps/
+!/maps/
+
 bundle/
 !/other/bundle/
 
