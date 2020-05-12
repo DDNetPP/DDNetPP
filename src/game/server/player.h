@@ -214,11 +214,11 @@ public:
 		SetXP() should only be used if it is really needed
 	*/
 	void SetXP(int xp);
-	int GetXP() { return m_xp; }
-	int GetNeededXP() { return m_neededxp; }
+	int64 GetXP() { return m_xp; }
+	int64 GetNeededXP() { return m_neededxp; }
 	int GetLevel() { return m_level; }
 	void SetLevel(int level);
-	int GetMoney() { return m_money; }
+	int64 GetMoney() { return m_money; }
 	/*
 		SetMoney()
 
