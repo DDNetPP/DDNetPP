@@ -3630,7 +3630,7 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 	//ROOMTILE
-	if (((m_TileIndex == TILE_ROOMPOINT) || (m_TileFIndex == TILE_ROOMPOINT)) && !Allowed) // Admins got it free
+	if (((m_TileIndex == TILE_ROOM) || (m_TileFIndex == TILE_ROOM)) && !Allowed) // Admins got it free
 	{
 		//ChillerDragon upgrade to not cheat the map or stuff and tele too far
 
@@ -4199,7 +4199,7 @@ void CCharacter::DDRaceTick()
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
-		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOMPOINT && ftile!= TILE_ROOMPOINT && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
+		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOM && ftile!= TILE_ROOM && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
 			m_PrevSavePos = m_Pos;
 			m_SetSavePos = true;
 		}
