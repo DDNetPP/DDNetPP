@@ -414,7 +414,6 @@ endif()
 ########################################################################
 
 file(COPY data DESTINATION .)
-file(COPY maps DESTINATION .)
 set(COPY_FILES
   ${CURL_COPY_FILES}
   ${FREETYPE_COPY_FILES}
