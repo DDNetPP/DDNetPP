@@ -4,6 +4,7 @@
 #include <mastersrv/mastersrv.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
+#include <engine/shared/config.h>
 
 static CNetClient g_NetOp; // main
 
