@@ -1975,11 +1975,6 @@ void CPlayer::chidraqul3_GameTick()
 			str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 3)
-		{
-			str_format(aBuf, sizeof(aBuf), "____%s_______", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
-		}
 		else if (m_HashPos == 4)
 		{
 			str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
