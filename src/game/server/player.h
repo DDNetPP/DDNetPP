@@ -7,6 +7,7 @@
 #include "entities/character.h"
 #include "captcha.h"
 #include "gamecontext.h"
+#include <game/version.h>
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
@@ -728,11 +729,11 @@ public:
 	int64 m_LastFight;
 
 	char m_aAccountLoginName[32];
-	char m_aChangePassword[32];
-	char m_aAccountPassword[32];
+	char m_aChangePassword[MAX_PW_LEN+1];
+	char m_aAccountPassword[MAX_PW_LEN+1];
 	char m_aAccountRegDate[32];
 
-	char m_aSetPassword[32]; //admin sql save string (used to resett passwords)
+	char m_aSetPassword[MAX_PW_LEN+1]; //admin sql save string (used to resett passwords)
 	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
 
 	void ChangePassword();

@@ -19,13 +19,6 @@
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
 
-// VARCHAR(128) in the database
-#define MIN_PW_LEN 3
-#define MAX_PW_LEN 120
-
-#define MIN_PW_LEN_STR "3"
-#define MAX_PW_LEN_STR "120"
-
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
@@ -2265,8 +2258,8 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	char aUsername[32];
-	char aPassword[32];
-	char aPassword2[32];
+	char aPassword[MAX_PW_LEN+1];
+	char aPassword2[MAX_PW_LEN+1];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 	str_copy(aPassword2, pResult->GetString(2), sizeof(aPassword2));
@@ -2984,7 +2977,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	char aUsername[32];
-	char aPassword[128];
+	char aPassword[MAX_PW_LEN+1];
 
 	if (pResult->NumArguments() == 1)
 	{
@@ -3058,9 +3051,9 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 		return;
 	}
 
-	char aOldPass[32];
-	char aNewPass[32];
-	char aNewPass2[32];
+	char aOldPass[MAX_PW_LEN+1];
+	char aNewPass[MAX_PW_LEN+1];
+	char aNewPass2[MAX_PW_LEN+1];
 	str_copy(aOldPass, pResult->GetString(0), sizeof(aOldPass));
 	str_copy(aNewPass, pResult->GetString(1), sizeof(aNewPass));
 	str_copy(aNewPass2, pResult->GetString(2), sizeof(aNewPass2));
@@ -9760,7 +9753,7 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	char aUsername[32];
-	char aPassword[128];
+	char aPassword[MAX_PW_LEN+1];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 
@@ -9923,8 +9916,8 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[512];
 	char aUsername[32];
-	char aPassword[32];
-	char aPassword2[32];
+	char aPassword[MAX_PW_LEN+1];
+	char aPassword2[MAX_PW_LEN+1];
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 	str_copy(aPassword2, pResult->GetString(2), sizeof(aPassword2));
