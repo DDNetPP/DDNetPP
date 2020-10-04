@@ -19,6 +19,13 @@
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
 
+// VARCHAR(128) in the database
+#define MIN_PW_LEN 3
+#define MAX_PW_LEN 120
+
+#define MIN_PW_LEN_STR "3"
+#define MAX_PW_LEN_STR "120"
+
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
@@ -2266,13 +2273,13 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
-	if ((str_length(aPassword) > 20 || str_length(aPassword) < 3) || (str_length(aPassword2) > 20 || str_length(aPassword2) < 3))
+	if ((str_length(aPassword) > MAX_PW_LEN || str_length(aPassword) < MIN_PW_LEN) || (str_length(aPassword2) > MAX_PW_LEN || str_length(aPassword2) < MIN_PW_LEN))
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
@@ -2332,9 +2339,9 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(pResult->GetString(0), "set_passwd"))
 	{
-		if ((str_length(pResult->GetString(2)) > 20 || str_length(pResult->GetString(2)) < 3) || (str_length(pResult->GetString(2)) > 20 || str_length(pResult->GetString(2)) < 3))
+		if ((str_length(pResult->GetString(2)) > MAX_PW_LEN || str_length(pResult->GetString(2)) < MIN_PW_LEN) || (str_length(pResult->GetString(2)) > MAX_PW_LEN || str_length(pResult->GetString(2)) < MIN_PW_LEN))
 		{
-			pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+			pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 			return;
 		}
 		str_format(pPlayer->m_aSetPassword, sizeof(pPlayer->m_aSetPassword), "%s", pResult->GetString(2));
@@ -3005,15 +3012,15 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
+	if (str_length(aUsername) > MAX_PW_LEN || str_length(aUsername) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientID, "Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
-	if (str_length(aPassword) > 20 || str_length(aPassword) < 3)
+	if (str_length(aPassword) > MAX_PW_LEN || str_length(aPassword) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientID, "Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
@@ -3058,15 +3065,15 @@ void CGameContext::ConChangePassword(IConsole::IResult * pResult, void * pUserDa
 	str_copy(aNewPass, pResult->GetString(1), sizeof(aNewPass));
 	str_copy(aNewPass2, pResult->GetString(2), sizeof(aNewPass2));
 
-	if (str_length(aOldPass) > 20 || str_length(aOldPass) < 3)
+	if (str_length(aOldPass) > MAX_PW_LEN || str_length(aOldPass) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Your old password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your old password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
-	if ((str_length(aNewPass) > 20 || str_length(aNewPass) < 3) || (str_length(aNewPass2) > 20 || str_length(aNewPass2) < 3))
+	if ((str_length(aNewPass) > MAX_PW_LEN || str_length(aNewPass) < MIN_PW_LEN) || (str_length(aNewPass2) > MAX_PW_LEN || str_length(aNewPass2) < MIN_PW_LEN))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Your password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Your password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
@@ -9757,15 +9764,15 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 
-	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
+	if (str_length(aUsername) > MAX_PW_LEN || str_length(aUsername) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
-	if (str_length(aPassword) > 20 || str_length(aPassword) < 3)
+	if (str_length(aPassword) > MAX_PW_LEN || str_length(aPassword) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
@@ -9922,15 +9929,15 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aPassword, pResult->GetString(1), sizeof(aPassword));
 	str_copy(aPassword2, pResult->GetString(2), sizeof(aPassword2));
 
-	if (str_length(aUsername) > 20 || str_length(aUsername) < 3)
+	if (str_length(aUsername) > MAX_PW_LEN || str_length(aUsername) < MIN_PW_LEN)
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Username is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
-	if ((str_length(aPassword) > 20 || str_length(aPassword) < 3) || (str_length(aPassword2) > 20 || str_length(aPassword2) < 3))
+	if ((str_length(aPassword) > MAX_PW_LEN || str_length(aPassword) < MIN_PW_LEN) || (str_length(aPassword2) > MAX_PW_LEN || str_length(aPassword2) < MIN_PW_LEN))
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length 20, min. length 3");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Password is too long or too short. Max. length " MAX_PW_LEN_STR ", min. length " MIN_PW_LEN_STR);
 		return;
 	}
 
