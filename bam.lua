@@ -117,6 +117,10 @@ AddDependency(server_content_source, server_content_header)
 
 nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
+git_rev = "src/game/generated/git_revision.cpp"
+AddJob(Path(git_rev), "git revision", Script("scripts/git_revision.py") .. " > " .. Path(git_rev))
+AddDependency(git_rev, Path("scripts/git_revision.py"))
+
 server_link_other = {}
 server_sql_depends = {}
 
@@ -264,7 +268,7 @@ function build(settings)
 	versionserver = Compile(settings, Collect("src/versionsrv/*.cpp"))
 	masterserver = Compile(settings, Collect("src/mastersrv/*.cpp"))
 	twping = Compile(settings, Collect("src/twping/*.cpp"))
-	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, network_source)
+	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, git_rev, network_source)
 	game_server = Compile(settings, CollectRecursive("src/game/server/*.cpp"), server_content_source)
 	game_editor = Compile(settings, Collect("src/game/editor/*.cpp"))
 
