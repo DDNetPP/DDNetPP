@@ -7,7 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-16.04]
+        os: [ubuntu-latest, macOS-latest, ubuntu-16.04]
+        # os: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-16.04]
         include:
         - os: ubuntu-latest
           cmake-args: -G "Unix Makefiles"
@@ -27,11 +28,13 @@ jobs:
           package-file: DDNetPP-*-osx.dmg
           env:
             CFLAGS: -Wdeclaration-after-statement
-        - os: windows-latest
-          cmake-args: -G "Visual Studio 16 2019" -A x64
-          package-file: DDNetPP-*-win64.zip
-          env:
-            CXXFLAGS: null
+        # - os: windows-latest
+        #   cmake-args: -G "Visual Studio 16 2019" -A x64
+        #   package-file: DDNetPP-*-win64.zip
+        #   env:
+        #     CFLAGS: /WX
+        #     CXXFLAGS: /WX
+        #     LDFLAGS: /WX
 
     steps:
     - uses: actions/checkout@v2
