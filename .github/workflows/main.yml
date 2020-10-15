@@ -12,24 +12,24 @@ jobs:
         - os: ubuntu-latest
           cmake-args: -G "Unix Makefiles"
           build-args: --parallel
-          package-file: teeworlds-*-linux_x86_64.tar.xz
+          package-file: DDNetPP-*-linux_x86_64.tar.xz
           env:
             CFLAGS: -Wdeclaration-after-statement
         - os: ubuntu-16.04
           cmake-path: /usr/bin/
           cmake-args: -G "Unix Makefiles"
-          package-file: teeworlds-*-linux_x86_64.tar.xz
+          package-file: DDNetPP-*-linux_x86_64.tar.xz
           env:
             CFLAGS: -Wdeclaration-after-statement
         - os: macOS-latest
           cmake-args: -G "Unix Makefiles"
           build-args: --parallel
-          package-file: teeworlds-*-osx.dmg
+          package-file: DDNetPP-*-osx.dmg
           env:
             CFLAGS: -Wdeclaration-after-statement
         - os: windows-latest
           cmake-args: -G "Visual Studio 16 2019" -A x64
-          package-file: teeworlds-*-win64.zip
+          package-file: DDNetPP-*-win64.zip
           env:
             CFLAGS: /WX
             CXXFLAGS: /WX
@@ -87,7 +87,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: teeworlds-${{ matrix.os }}
+        name: DDNetPP-${{ matrix.os }}
         path: release/artifacts
 
   build-bam:
@@ -124,23 +124,23 @@ jobs:
         cd bam
         ./make_unix.sh
 
-    - name: Prepare Windows
-      if: contains(matrix.os, 'windows')
-      run: |
-        cd bam
-        ./make_win64_msvc.bat
+    # - name: Prepare Windows
+    #   if: contains(matrix.os, 'windows')
+    #   run: |
+    #     cd bam
+    #     ./make_win64_msvc.bat
 
-    - name: Build in debug mode
-      run: ./bam/bam server_debug
-    - name: Test debug
-      run: ./DDNetPP_d shutdown
+    # - name: Build in debug mode
+    #   run: ./bam/bam server_debug
+    # - name: Test debug
+    #   run: ./DDNetPP_d shutdown
 
-    - name: Build in release mode
-      run: ./bam/bam server_release
-    - name: Test release
-      run: ./DDNetPP shutdown
+    # - name: Build in release mode
+    #   run: ./bam/bam server_release
+    # - name: Test release
+    #   run: ./DDNetPP shutdown
 
-    - name: Create MacOS app using make_release.py
-      if: contains(matrix.os, 'macOS')
-      run: |
-        sudo python3 scripts/make_release.py 0.7.4 osx
+    # - name: Create MacOS app using make_release.py
+    #   if: contains(matrix.os, 'macOS')
+    #   run: |
+    #     sudo python3 scripts/make_release.py 0.7.4 osx
