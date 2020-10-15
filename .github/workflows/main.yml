@@ -14,22 +14,19 @@ jobs:
           build-args: --parallel
           package-file: teeworlds-*-linux_x86_64.tar.xz
           env:
-            CFLAGS: -Wdeclaration-after-statement -Werror
-            CXXFLAGS: -Werror
+            CFLAGS: -Wdeclaration-after-statement
         - os: ubuntu-16.04
           cmake-path: /usr/bin/
           cmake-args: -G "Unix Makefiles"
           package-file: teeworlds-*-linux_x86_64.tar.xz
           env:
-            CFLAGS: -Wdeclaration-after-statement -Werror
-            CXXFLAGS: -Werror
+            CFLAGS: -Wdeclaration-after-statement
         - os: macOS-latest
           cmake-args: -G "Unix Makefiles"
           build-args: --parallel
           package-file: teeworlds-*-osx.dmg
           env:
-            CFLAGS: -Wdeclaration-after-statement -Werror
-            CXXFLAGS: -Werror
+            CFLAGS: -Wdeclaration-after-statement
         - os: windows-latest
           cmake-args: -G "Visual Studio 16 2019" -A x64
           package-file: teeworlds-*-win64.zip
@@ -65,7 +62,7 @@ jobs:
         mkdir debug
         cd debug
         ${{ matrix.cmake-path }}cmake --version
-        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
         ${{ matrix.cmake-path }}cmake --build . --config Debug ${{ matrix.build-args }} --target everything
     - name: Test debug
       run: |
@@ -78,7 +75,7 @@ jobs:
       run: |
         mkdir release
         cd release
-        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
         ${{ matrix.cmake-path }}cmake --build . --config Release ${{ matrix.build-args }} --target everything
     - name: Test release
       run: |
