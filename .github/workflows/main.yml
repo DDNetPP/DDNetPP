@@ -63,13 +63,6 @@ jobs:
     - name: Test debug
       run: |
         cd debug
-        echo x
-        ls
-        echo x
-        ls data
-        echo x
-        ls data/maps
-        echo x
         ./DDNetPP shutdown
 
     - name: Build in release mode
