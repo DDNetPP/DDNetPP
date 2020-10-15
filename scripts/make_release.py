@@ -7,7 +7,7 @@ if len(sys.argv) != 3:
 	print(sys.argv[0], "VERSION PLATFORM")
 	sys.exit(-1)
 
-name = "DDNet"
+name = "DDNetPP"
 version = sys.argv[1]
 platform = sys.argv[2]
 exe_ext = ""
@@ -88,11 +88,10 @@ if include_data and not use_bundle:
 
 if include_exe and not use_bundle:
 	shutil.copy(name+exe_ext, package_dir)
-	shutil.copy(name+"-Server"+exe_ext, package_dir)
 	shutil.copy("dilate"+exe_ext, package_dir)
 	shutil.copy("config_store"+exe_ext, package_dir)
 	shutil.copy("config_retrieve"+exe_ext, package_dir)
-	#shutil.copy(name+"-Server_sql"+exe_ext, package_dir)
+	#shutil.copy(name+"_sql"+exe_ext, package_dir)
 	
 if include_src:
 	for p in ["src", "scripts", "datasrc", "other", "objs"]:
@@ -102,7 +101,7 @@ if include_src:
 	shutil.copy("configure.lua", package_dir)
 
 if use_bundle:
-	bins = [name, name+'-Server', 'dilate', 'config_store', 'config_retrieve', 'serverlaunch']
+	bins = [name, 'dilate', 'config_store', 'config_retrieve', 'serverlaunch']
 	platforms = ('x86', 'x86_64', 'ppc')
 	for bin in bins:
 		to_lipo = []
@@ -126,7 +125,7 @@ if use_bundle:
 	os.mkdir(os.path.join(serverbundle_resource_dir, "data/mapres"))
 	copydir("data/maps", serverbundle_resource_dir)
 	shutil.copy("other/icons/DDNetPP.icns", serverbundle_resource_dir)
-	shutil.copy(name+"-Server"+exe_ext, serverbundle_bin_dir)
+	shutil.copy(name+exe_ext, serverbundle_bin_dir)
 	shutil.copy("serverlaunch"+exe_ext, serverbundle_bin_dir + "/"+name+"_server")
 	file(os.path.join(serverbundle_content_dir, "Info.plist"), "w").write("""
 <?xml version="1.0" encoding="UTF-8"?>
