@@ -617,6 +617,8 @@ set_src(GAME_SHARED GLOB src/game
 set(ENGINE_UUID_SHARED
   src/game/generated/protocol.cpp
   src/game/generated/protocol.h
+  src/game/generated/server_data.cpp
+  src/game/generated/server_data.h
 )
 foreach(s ${GAME_SHARED})
   if(s MATCHES "mapitems_(ex.cpp|ex.h|ex_types.h)$")
@@ -627,6 +629,7 @@ list(REMOVE_ITEM GAME_SHARED ${ENGINE_UUID_SHARED})
 set(GAME_GENERATED_SHARED
   src/game/generated/git_revision.cpp
   src/game/generated/protocol.h
+  src/game/generated/server_data.h
 )
 
 set(DEPS ${DEP_SQLITE3} ${DEP_JSON} ${DEP_MD5} ${ZLIB_DEP})
@@ -737,11 +740,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   teams.cpp
   teams.h
 )
-set(GAME_GENERATED_SERVER
-  "src/game/generated/server_data.cpp"
-  "src/game/generated/server_data.h"
-)
-set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
+set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER})
 if(TARGET_OS STREQUAL "windows")
   set(SERVER_ICON "other/icons/teeworlds_srv_cl.rc")
 else()
