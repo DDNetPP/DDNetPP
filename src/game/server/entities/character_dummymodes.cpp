@@ -3300,17 +3300,7 @@ void CCharacter::DummyTick()
 					}
 					else if (m_Core.m_Pos.x < 440 * 32 && m_Core.m_Pos.y > 213 * 32) //im tunnel laufen
 					{
-						if (m_Core.m_Pos.x > 426 * 32)
-						{
-							//if (m_Core.m_Vel.x < 11.4f) //slow down before jump
-							//{
-							m_Input.m_Direction = 1;
-							//}
-						}
-						else
-						{
-							m_Input.m_Direction = 1;
-						}
+						m_Input.m_Direction = 1;
 					}
 
 					//springen
@@ -10287,11 +10277,7 @@ void CCharacter::DummyTick()
 				{
 					m_DummyDir = -1;
 				}
-				else if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 3))
-				{
-					m_DummyDir = 1;
-				}
-				else
+				else // if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 1 || GameServer()->Collision()->GetCollisionAt(m_Core.m_Pos.x - 20, m_Core.m_Pos.y) == 3))
 				{
 					m_DummyDir = 1;
 				}
