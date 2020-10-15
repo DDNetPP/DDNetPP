@@ -162,10 +162,10 @@ if use_bundle:
 	file(os.path.join(clientbundle_content_dir, "PkgInfo"), "w").write("APPL????")
 
 	# create Teeworlds Server appfolder
-	serverbundle_content_dir = os.path.join(package_dir, "DDNet-Server.app/Contents")
+	serverbundle_content_dir = os.path.join(package_dir, "DDNetPP.app/Contents")
 	serverbundle_bin_dir = os.path.join(serverbundle_content_dir, "MacOS")
 	serverbundle_resource_dir = os.path.join(serverbundle_content_dir, "Resources")
-	os.mkdir(os.path.join(package_dir, "DDNet-Server.app"))
+	os.mkdir(os.path.join(package_dir, "DDNetPP.app"))
 	os.mkdir(serverbundle_content_dir)
 	os.mkdir(serverbundle_bin_dir)
 	os.mkdir(serverbundle_resource_dir)
@@ -173,7 +173,7 @@ if use_bundle:
 	os.mkdir(os.path.join(serverbundle_resource_dir, "data/maps"))
 	os.mkdir(os.path.join(serverbundle_resource_dir, "data/mapres"))
 	copydir("data/maps", serverbundle_resource_dir)
-	shutil.copy("other/icons/DDNet-Server.icns", serverbundle_resource_dir)
+	shutil.copy("other/icons/DDNetPP.icns", serverbundle_resource_dir)
 	shutil.copy(name+"-Server"+exe_ext, serverbundle_bin_dir)
 	shutil.copy("serverlaunch"+exe_ext, serverbundle_bin_dir + "/"+name+"_server")
 	file(os.path.join(serverbundle_content_dir, "Info.plist"), "w").write("""
@@ -186,7 +186,7 @@ if use_bundle:
         <key>CFBundleExecutable</key>
         <string>DDNet_server</string>
         <key>CFBundleIconFile</key>
-        <string>DDNet-Server</string>
+        <string>DDNetPP</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundlePackageType</key>
