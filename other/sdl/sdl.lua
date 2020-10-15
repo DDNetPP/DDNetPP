@@ -35,11 +35,6 @@ SDL = {
 				settings.link.flags:Add("`sdl-config --libs`")
 			end
 
-			if option.use_osxframework == true then
-				client_settings.link.frameworks:Add("SDL")
-				client_settings.cc.includes:Add("/Library/Frameworks/SDL.framework/Headers")
-			end
-
 			if option.use_winlib > 0 then
 				settings.cc.includes:Add(SDL.basepath .. "/include")
 				if option.use_winlib == 32 then
