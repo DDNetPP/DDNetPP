@@ -113,54 +113,6 @@ if use_bundle:
 		if to_lipo:
 			os.system("lipo -create -output "+bin+" "+" ".join(to_lipo))
 
-	# create Teeworlds appfolder
-	clientbundle_content_dir = os.path.join(package_dir, "DDNet.app/Contents")
-	clientbundle_bin_dir = os.path.join(clientbundle_content_dir, "MacOS")
-	clientbundle_resource_dir = os.path.join(clientbundle_content_dir, "Resources")
-	clientbundle_framework_dir = os.path.join(clientbundle_content_dir, "Frameworks")
-	binary_path = clientbundle_bin_dir + "/" + name+exe_ext
-	os.mkdir(os.path.join(package_dir, "DDNet.app"))
-	os.mkdir(clientbundle_content_dir)
-	os.mkdir(clientbundle_bin_dir)
-	os.mkdir(clientbundle_resource_dir)
-	os.mkdir(clientbundle_framework_dir)
-	os.mkdir(os.path.join(clientbundle_resource_dir, "data"))
-	copydir("data", clientbundle_resource_dir)
-
-
-	shutil.copy("other/icons/DDNet.icns", clientbundle_resource_dir)
-	#shutil.copy("other/icons/Teeworlds.icns", clientbundle_resource_dir)
-	shutil.copy(name+exe_ext, clientbundle_bin_dir)
-	os.system("install_name_tool -change /opt/X11/lib/libfreetype.6.dylib @executable_path/../Frameworks/libfreetype.6.dylib " + binary_path)
-	os.system("install_name_tool -change /Library/Frameworks/SDL.framework/SDL @executable_path/../Frameworks/SDL.framework/SDL  " + binary_path)
-	os.system("cp -R /Library/Frameworks/SDL.framework " + clientbundle_framework_dir)
-	os.system("cp /opt/X11/lib/libfreetype.6.dylib " + clientbundle_framework_dir)
-	file(os.path.join(clientbundle_content_dir, "Info.plist"), "w").write("""
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-        <key>CFBundleDevelopmentRegion</key>
-        <string>English</string>
-        <key>CFBundleExecutable</key>
-        <string>DDNet</string>
-        <key>CFBundleIconFile</key>
-        <string>DDNet</string>
-        <key>CFBundleInfoDictionaryVersion</key>
-        <string>6.0</string>
-        <key>CFBundlePackageType</key>
-        <string>APPL</string>
-        <key>CFBundleSignature</key>
-        <string>????</string>
-        <key>CFBundleVersion</key>
-        <string>%s</string>
-        <key>CFBundleIdentifier</key>
-        <string>org.DDNetClient.app</string>
-</dict>
-</plist>
-	""" % (version))
-	file(os.path.join(clientbundle_content_dir, "PkgInfo"), "w").write("APPL????")
-
 	# create Teeworlds Server appfolder
 	serverbundle_content_dir = os.path.join(package_dir, "DDNetPP.app/Contents")
 	serverbundle_bin_dir = os.path.join(serverbundle_content_dir, "MacOS")
