@@ -46,7 +46,9 @@ ChillerBot
 DDNetPP
 DDNetPP_d
 DDNetPP_x86
+DDNetPP_x86_d
 DDNetPP_x86_64
+DDNetPP_x86_64_d
 serverlaunch_x86
 serverlaunch_x86_64
 config_retrieve

@@ -278,8 +278,6 @@ function build(settings)
 
 	server_osxlaunch = {}
 	if platform == "macosx" then
-		notification_settings.cc.flags:Add("-x objective-c++")
-		notification_settings.cc.flags:Add("-I/System/Library/Frameworks/Foundation.framework/Versions/C/Headers")
 		server_osxlaunch = Compile(launcher_settings, "src/osxlaunch/server.m")
 	end
 
