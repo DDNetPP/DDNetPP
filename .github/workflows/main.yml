@@ -132,17 +132,17 @@ jobs:
     #     cd bam
     #     ./make_win64_msvc.bat
 
-    # - name: Build in debug mode
-    #   run: ./bam/bam server_debug
-    # - name: Test debug
-    #   run: ./DDNetPP_d shutdown
+    - name: Build in debug mode
+      run: ./bam/bam server_debug
+    - name: Test debug
+      run: ./DDNetPP_d shutdown
 
-    # - name: Build in release mode
-    #   run: ./bam/bam server_release
-    # - name: Test release
-    #   run: ./DDNetPP shutdown
+    - name: Build in release mode
+      run: ./bam/bam server_release
+    - name: Test release
+      run: ./DDNetPP shutdown
 
-    # - name: Create MacOS app using make_release.py
-    #   if: contains(matrix.os, 'macOS')
-    #   run: |
-    #     sudo python3 scripts/make_release.py 0.7.4 osx
+    - name: Create MacOS app using make_release.py
+      if: contains(matrix.os, 'macOS')
+      run: |
+        sudo python3 scripts/make_release.py 0.7.4 osx
