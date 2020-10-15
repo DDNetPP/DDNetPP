@@ -9588,10 +9588,10 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		struct tm* timeinfo;
 		char timestr [80];
 
-		time ( &rawtime );
-		timeinfo = localtime ( &rawtime );
+		time( &rawtime );
+		timeinfo = localtime( &rawtime );
 
-		strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
+		strftime(timestr,sizeof(timestr),"%F %H:%M:%S",timeinfo);
 		char aAccID[32];
 		aAccID[0] = '\0';
 		if (m_apPlayers[ClientID]->IsLoggedIn())
