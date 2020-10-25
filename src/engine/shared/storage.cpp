@@ -1,39 +1,21 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include "linereader.h"
-#include <base/math.h>
 #include <base/system.h>
 #include <engine/storage.h>
+#include "linereader.h"
 
-#define CLIENT_EXEC "DDNet"
-#define SERVER_EXEC "DDNetPP"
-
-#if defined(CONF_FAMILY_WINDOWS)
-#define PLAT_EXT ".exe"
-#define PLAT_NAME CONF_PLATFORM_STRING
-#elif defined(CONF_FAMILY_UNIX)
-#define PLAT_EXT ""
-#if defined(CONF_ARCH_IA32)
-#define PLAT_NAME CONF_PLATFORM_STRING "-x86"
-#elif defined(CONF_ARCH_AMD64)
-#define PLAT_NAME CONF_PLATFORM_STRING "-x86_64"
-#else
-#define PLAT_NAME CONF_PLATFORM_STRING "-unsupported"
-#endif
-#else
-#define PLAT_EXT ""
-#define PLAT_NAME "unsupported-unsupported"
-#endif
-
-#define PLAT_CLIENT_DOWN CLIENT_EXEC "-" PLAT_NAME PLAT_EXT
-#define PLAT_SERVER_DOWN SERVER_EXEC "-" PLAT_NAME PLAT_EXT
-
-#define PLAT_CLIENT_EXEC CLIENT_EXEC PLAT_EXT
-#define PLAT_SERVER_EXEC SERVER_EXEC PLAT_EXT
+// compiled-in data-dir path
+#define DATA_DIR "data"
 
 class CStorage : public IStorage
 {
 public:
+	enum
+	{
+		MAX_PATHS = 16,
+		MAX_PATH_LENGTH = 512
+	};
+
 	char m_aaStoragePaths[MAX_PATHS][MAX_PATH_LENGTH];
 	int m_NumPaths;
 	char m_aDatadir[MAX_PATH_LENGTH];
@@ -56,9 +38,6 @@ public:
 
 		// get datadir
 		FindDatadir(ppArguments[0]);
-
-		// get binarydir
-		FindBinarydir(ppArguments[0]);
 
 		// get currentdir
 		if(!fs_getcwd(m_aCurrentdir, sizeof(m_aCurrentdir)))
@@ -83,28 +62,13 @@ public:
 				fs_makedir(GetPath(TYPE_SAVE, "screenshots/auto", aPath, sizeof(aPath)));
 				fs_makedir(GetPath(TYPE_SAVE, "screenshots/auto/stats", aPath, sizeof(aPath)));
 				fs_makedir(GetPath(TYPE_SAVE, "maps", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "mapres", aPath, sizeof(aPath)));
 				fs_makedir(GetPath(TYPE_SAVE, "downloadedmaps", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "skins", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "downloadedskins", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "themes", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "assets", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "assets/emoticons", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "assets/entities", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "assets/game", aPath, sizeof(aPath)));
-				fs_makedir(GetPath(TYPE_SAVE, "assets/particles", aPath, sizeof(aPath)));
-#if defined(CONF_VIDEORECORDER)
-				fs_makedir(GetPath(TYPE_SAVE, "videos", aPath, sizeof(aPath)));
-#endif
 			}
 			fs_makedir(GetPath(TYPE_SAVE, "dumps", aPath, sizeof(aPath)));
 			fs_makedir(GetPath(TYPE_SAVE, "demos", aPath, sizeof(aPath)));
 			fs_makedir(GetPath(TYPE_SAVE, "demos/auto", aPath, sizeof(aPath)));
-			fs_makedir(GetPath(TYPE_SAVE, "demos/auto/race", aPath, sizeof(aPath)));
-			fs_makedir(GetPath(TYPE_SAVE, "demos/replays", aPath, sizeof(aPath)));
 			fs_makedir(GetPath(TYPE_SAVE, "editor", aPath, sizeof(aPath)));
 			fs_makedir(GetPath(TYPE_SAVE, "ghosts", aPath, sizeof(aPath)));
-			fs_makedir(GetPath(TYPE_SAVE, "teehistorian", aPath, sizeof(aPath)));
 		}
 
 		return m_NumPaths ? 0 : 1;
@@ -124,7 +88,7 @@ public:
 			if(Pos < MAX_PATH_LENGTH)
 			{
 				char aBuffer[MAX_PATH_LENGTH];
-				str_copy(aBuffer, pArgv0, Pos + 1);
+				str_copy(aBuffer, pArgv0, Pos+1);
 				str_append(aBuffer, "/storage.cfg", sizeof(aBuffer));
 				File = io_open(aBuffer, IOFLAG_READ);
 			}
@@ -142,11 +106,8 @@ public:
 
 		while((pLine = LineReader.Get()))
 		{
-			const char *pLineWithoutPrefix = str_startswith(pLine, "add_path ");
-			if(pLineWithoutPrefix)
-			{
-				AddPath(pLineWithoutPrefix);
-			}
+			if(str_length(pLine) > 9 && !str_comp_num(pLine, "add_path ", 9))
+				AddPath(pLine+9);
 		}
 
 		io_close(File);
@@ -204,17 +165,17 @@ public:
 		if(fs_is_dir("data/mapres"))
 		{
 			str_copy(m_aDatadir, "data", sizeof(m_aDatadir));
+			str_copy(m_aBinarydir, "", sizeof(m_aBinarydir));
 			return;
 		}
 
-#if defined(DATA_DIR)
 		// 2) use compiled-in data-dir if present
 		if(fs_is_dir(DATA_DIR "/mapres"))
 		{
 			str_copy(m_aDatadir, DATA_DIR, sizeof(m_aDatadir));
+			str_copy(m_aBinarydir, "", sizeof(m_aBinarydir));
 			return;
 		}
-#endif
 
 		// 3) check for usable path in argv[0]
 		{
@@ -225,95 +186,50 @@ public:
 
 			if(Pos < MAX_PATH_LENGTH)
 			{
-				char aBuf[MAX_PATH_LENGTH];
-				char aDir[MAX_PATH_LENGTH];
-				str_copy(aDir, pArgv0, Pos + 1);
-				str_format(aBuf, sizeof(aBuf), "%s/data/mapres", aDir);
-				if(fs_is_dir(aBuf))
-				{
-					str_format(m_aDatadir, sizeof(m_aDatadir), "%s/data", aDir);
+				char aBaseDir[MAX_PATH_LENGTH];
+				str_copy(aBaseDir, pArgv0, Pos+1);
+				str_copy(m_aBinarydir, aBaseDir, sizeof(m_aBinarydir));
+				str_format(m_aDatadir, sizeof(m_aDatadir), "%s/data", aBaseDir);
+				str_append(aBaseDir, "/data/mapres", sizeof(aBaseDir));
+
+				if(fs_is_dir(aBaseDir))
 					return;
-				}
+				else
+					m_aDatadir[0] = 0;
 			}
 		}
 
-#if defined(CONF_FAMILY_UNIX)
+	#if defined(CONF_FAMILY_UNIX)
 		// 4) check for all default locations
 		{
 			const char *aDirs[] = {
-				"/usr/share/ddnet",
-				"/usr/share/games/ddnet",
-				"/usr/local/share/ddnet",
-				"/usr/local/share/games/ddnet",
-				"/usr/pkg/share/ddnet",
-				"/usr/pkg/share/games/ddnet",
-				"/opt/ddnet"};
+				"/usr/share/teeworlds/data",
+				"/usr/share/games/teeworlds/data",
+				"/usr/local/share/teeworlds/data",
+				"/usr/local/share/games/teeworlds/data",
+				"/opt/teeworlds/data"
+			};
 			const int DirsCount = sizeof(aDirs) / sizeof(aDirs[0]);
 
 			int i;
-			for(i = 0; i < DirsCount; i++)
+			for (i = 0; i < DirsCount; i++)
 			{
 				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "%s/data/mapres", aDirs[i]);
+				str_format(aBuf, sizeof(aBuf), "%s/mapres", aDirs[i]);
 				if(fs_is_dir(aBuf))
 				{
-					str_format(m_aDatadir, sizeof(m_aDatadir), "%s/data", aDirs[i]);
+					str_copy(m_aBinarydir, aDirs[i], sizeof(aDirs[i])-5);
+					str_copy(m_aDatadir, aDirs[i], sizeof(m_aDatadir));
 					return;
 				}
 			}
 		}
-#endif
+	#endif
 
-		dbg_msg("storage", "warning: no data directory found");
+		// no data-dir found
+		dbg_msg("storage", "warning no data directory found");
 	}
 
-	void FindBinarydir(const char *pArgv0)
-	{
-#if defined(BINARY_DIR)
-		str_copy(m_aBinarydir, BINARY_DIR, sizeof(m_aBinarydir));
-		return;
-#endif
-
-		// check for usable path in argv[0]
-		{
-			unsigned int Pos = ~0U;
-			for(unsigned i = 0; pArgv0[i]; i++)
-				if(pArgv0[i] == '/' || pArgv0[i] == '\\')
-					Pos = i;
-
-			if(Pos < MAX_PATH_LENGTH)
-			{
-				char aBuf[MAX_PATH_LENGTH];
-				str_copy(m_aBinarydir, pArgv0, Pos + 1);
-				str_format(aBuf, sizeof(aBuf), "%s/" PLAT_SERVER_EXEC, m_aBinarydir);
-				IOHANDLE File = io_open(aBuf, IOFLAG_READ);
-				if(File)
-				{
-					io_close(File);
-					return;
-				}
-				else
-				{
-#if defined(CONF_PLATFORM_MACOSX)
-					str_append(m_aBinarydir, "/../../../DDNetPP.app/Contents/MacOS", sizeof(m_aBinarydir));
-					str_format(aBuf, sizeof(aBuf), "%s/" PLAT_SERVER_EXEC, m_aBinarydir);
-					IOHANDLE File = io_open(aBuf, IOFLAG_READ);
-					if(File)
-					{
-						io_close(File);
-						return;
-					}
-					else
-						m_aBinarydir[0] = 0;
-#else
-					m_aBinarydir[0] = 0;
-#endif
-				}
-			}
-		}
-
-		// no binary directory found, use $PATH on Posix, $PWD on Windows
-	}
 
 	virtual void ListDirectoryInfo(int Type, const char *pPath, FS_LISTDIR_INFO_CALLBACK pfnCallback, void *pUser)
 	{
@@ -349,14 +265,7 @@ public:
 
 	virtual const char *GetPath(int Type, const char *pDir, char *pBuffer, unsigned BufferSize)
 	{
-		if(Type == TYPE_ABSOLUTE)
-		{
-			str_copy(pBuffer, pDir, BufferSize);
-		}
-		else
-		{
-			str_format(pBuffer, BufferSize, "%s%s%s", m_aaStoragePaths[Type], !m_aaStoragePaths[Type][0] ? "" : "/", pDir);
-		}
+		str_format(pBuffer, BufferSize, "%s%s%s", m_aaStoragePaths[Type], !m_aaStoragePaths[Type][0] ? "" : "/", pDir);
 		return pBuffer;
 	}
 
@@ -369,23 +278,7 @@ public:
 			BufferSize = sizeof(aBuffer);
 		}
 
-		if(Type == TYPE_ABSOLUTE)
-		{
-			return io_open(pFilename, Flags);
-		}
-		if(str_startswith(pFilename, "mapres/../skins/"))
-		{
-			pFilename = pFilename + 10; // just start from skins/
-		}
-		if(pFilename[0] == '/' || pFilename[0] == '\\' || str_find(pFilename, "../") != NULL || str_find(pFilename, "..\\") != NULL
-#ifdef CONF_FAMILY_WINDOWS
-			|| (pFilename[0] && pFilename[1] == ':')
-#endif
-		)
-		{
-			// don't escape base directory
-		}
-		else if(Flags & IOFLAG_WRITE)
+		if(Flags&IOFLAG_WRITE)
 		{
 			return io_open(GetPath(TYPE_SAVE, pFilename, pBuffer, BufferSize), Flags);
 		}
@@ -393,7 +286,7 @@ public:
 		{
 			IOHANDLE Handle = 0;
 
-			if(Type <= TYPE_ALL)
+			if(Type == TYPE_ALL)
 			{
 				// check all available directories
 				for(int i = 0; i < m_NumPaths; ++i)
@@ -487,59 +380,33 @@ public:
 
 	virtual bool RemoveFile(const char *pFilename, int Type)
 	{
-		if(Type < TYPE_ABSOLUTE || Type == TYPE_ALL || Type >= m_NumPaths)
+		if(Type < 0 || Type >= m_NumPaths)
 			return false;
 
 		char aBuffer[MAX_PATH_LENGTH];
-		GetPath(Type, pFilename, aBuffer, sizeof(aBuffer));
-
-		bool success = !fs_remove(aBuffer);
-		if(!success)
-			dbg_msg("storage", "failed to remove: %s", aBuffer);
-		return success;
+		return !fs_remove(GetPath(Type, pFilename, aBuffer, sizeof(aBuffer)));
 	}
 
 	virtual bool RemoveBinaryFile(const char *pFilename)
 	{
 		char aBuffer[MAX_PATH_LENGTH];
-		GetBinaryPath(pFilename, aBuffer, sizeof(aBuffer));
-
-		bool success = !fs_remove(aBuffer);
-		if(!success)
-			dbg_msg("storage", "failed to remove: %s", aBuffer);
-		return success;
+		return !fs_remove(GetBinaryPath(pFilename, aBuffer, sizeof(aBuffer)));
 	}
 
-	virtual bool RenameFile(const char *pOldFilename, const char *pNewFilename, int Type)
+	virtual bool RenameFile(const char* pOldFilename, const char* pNewFilename, int Type)
 	{
 		if(Type < 0 || Type >= m_NumPaths)
 			return false;
-
 		char aOldBuffer[MAX_PATH_LENGTH];
 		char aNewBuffer[MAX_PATH_LENGTH];
-		GetPath(Type, pOldFilename, aOldBuffer, sizeof(aOldBuffer));
-		GetPath(Type, pNewFilename, aNewBuffer, sizeof(aNewBuffer));
-
-		bool success = !fs_rename(aOldBuffer, aNewBuffer);
-		if(!success)
-			dbg_msg("storage", "failed to rename: %s -> %s", aOldBuffer, aNewBuffer);
-		return success;
+		return !fs_rename(GetPath(Type, pOldFilename, aOldBuffer, sizeof(aOldBuffer)), GetPath(Type, pNewFilename, aNewBuffer, sizeof (aNewBuffer)));
 	}
 
-	virtual bool RenameBinaryFile(const char *pOldFilename, const char *pNewFilename)
+	virtual bool RenameBinaryFile(const char* pOldFilename, const char* pNewFilename)
 	{
 		char aOldBuffer[MAX_PATH_LENGTH];
 		char aNewBuffer[MAX_PATH_LENGTH];
-		GetBinaryPath(pOldFilename, aOldBuffer, sizeof(aOldBuffer));
-		GetBinaryPath(pNewFilename, aNewBuffer, sizeof(aNewBuffer));
-
-		if(fs_makedir_rec_for(aNewBuffer) < 0)
-			dbg_msg("storage", "cannot create folder for: %s", aNewBuffer);
-
-		bool success = !fs_rename(aOldBuffer, aNewBuffer);
-		if(!success)
-			dbg_msg("storage", "failed to rename: %s -> %s", aOldBuffer, aNewBuffer);
-		return success;
+		return !fs_rename(GetBinaryPath(pOldFilename, aOldBuffer, sizeof(aOldBuffer)), GetBinaryPath(pNewFilename, aNewBuffer, sizeof (aNewBuffer)));
 	}
 
 	virtual bool CreateFolder(const char *pFoldername, int Type)
@@ -548,12 +415,7 @@ public:
 			return false;
 
 		char aBuffer[MAX_PATH_LENGTH];
-		GetPath(Type, pFoldername, aBuffer, sizeof(aBuffer));
-
-		bool success = !fs_makedir(aBuffer);
-		if(!success)
-			dbg_msg("storage", "failed to create folder: %s", aBuffer);
-		return success;
+		return !fs_makedir(GetPath(Type, pFoldername, aBuffer, sizeof(aBuffer)));
 	}
 
 	virtual void GetCompletePath(int Type, const char *pDir, char *pBuffer, unsigned BufferSize)
@@ -568,9 +430,9 @@ public:
 		GetPath(Type, pDir, pBuffer, BufferSize);
 	}
 
-	virtual const char *GetBinaryPath(const char *pFilename, char *pBuffer, unsigned BufferSize)
+	virtual const char* GetBinaryPath(const char *pDir, char *pBuffer, unsigned BufferSize)
 	{
-		str_format(pBuffer, BufferSize, "%s%s%s", m_aBinarydir, !m_aBinarydir[0] ? "" : "/", pFilename);
+		str_format(pBuffer, BufferSize, "%s%s%s", m_aBinarydir, !m_aBinarydir[0] ? "" : "/", pDir);
 		return pBuffer;
 	}
 
@@ -586,28 +448,6 @@ public:
 		return p;
 	}
 };
-
-void IStorage::StripPathAndExtension(const char *pFilename, char *pBuffer, int BufferSize)
-{
-	const char *pFilenameEnd = pFilename + str_length(pFilename);
-	const char *pExtractedName = pFilename;
-	const char *pEnd = pFilenameEnd;
-	for(const char *pIter = pFilename; *pIter; pIter++)
-	{
-		if(*pIter == '/' || *pIter == '\\')
-		{
-			pExtractedName = pIter + 1;
-			pEnd = pFilenameEnd;
-		}
-		else if(*pIter == '.')
-		{
-			pEnd = pIter;
-		}
-	}
-
-	int Length = min(BufferSize, (int)(pEnd - pExtractedName + 1));
-	str_copy(pBuffer, pExtractedName, Length);
-}
 
 IStorage *CreateStorage(const char *pApplicationName, int StorageType, int NumArgs, const char **ppArguments) { return CStorage::Create(pApplicationName, StorageType, NumArgs, ppArguments); }
 
