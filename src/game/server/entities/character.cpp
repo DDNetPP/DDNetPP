@@ -42,6 +42,13 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
 	//}
 
+	m_pDummyBlmapChillPolice = 0;
+}
+
+CCharacter::~CCharacter()
+{
+	if (m_pDummyBlmapChillPolice)
+		delete m_pDummyBlmapChillPolice;
 }
 
 void CCharacter::Reset()
@@ -323,6 +330,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
+	m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
 	GameServer()->m_pController->OnCharacterSpawn(this);
 
 	Teams()->OnCharacterSpawn(GetPlayer()->GetCID());

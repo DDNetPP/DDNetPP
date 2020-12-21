@@ -12,6 +12,7 @@
 #include <game/gamecore.h>
 
 #include <vector>
+#include "dummy/blmapchill_police.h"
 
 #include "weapon.h"
 #include "drop_pickup.h"
@@ -55,6 +56,7 @@ public:
 	static const int ms_PhysSize = 28;
 
 	CCharacter(CGameWorld *pWorld);
+	~CCharacter();
 
 	virtual void Reset();
 	virtual void Destroy();
@@ -530,6 +532,15 @@ public:
 	int m_DummySpawnTeleporter; // 1 = left, 2 = middle, 3 = right (the totele 9 at spawn)s
 
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
+
+	CDummyBlmapChillPolice *m_pDummyBlmapChillPolice;
+
+	CNetObj_PlayerInput *Input() { return &m_Input; };
+	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
+	void Fire(bool Fire = true);
+	int GetReloadTimer() { return m_ReloadTimer; }
+
+	//dummymode 29 vars (ChillBlock5 blocker)
 	int m_DummyFreezeBlockTrick;
 	int m_Dummy_trick_panic_check_delay;
 	bool m_Dummy_start_hook;
