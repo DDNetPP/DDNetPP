@@ -219,7 +219,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		m_aaSpawnPoints[3][m_aNumSpawnPoints[3]++] = Pos;
 	*/
 
-	if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE)
+	if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE && Layer <= LAYER_FRONT)
 	{
 		int Type = Index - ENTITY_SPAWN;
 		m_aaSpawnPoints[Type][m_aNumSpawnPoints[Type]] = Pos;
