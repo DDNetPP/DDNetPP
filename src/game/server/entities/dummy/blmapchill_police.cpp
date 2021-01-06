@@ -62,7 +62,7 @@ void CDummyBlmapChillPolice::OnTick()
             m_SpawnTeleporter = 2;
         if (GetPos().x < 26 * 32 && GetPos().y < 14 * 32 && GetPos().x > 25 * 32) // looking for tp and setting different aims for the swing
             m_SpawnTeleporter = 3;
-        if (GetPos().y > 21 * 32 && GetPos().x > 43 * 32 && GetPos().y < 35 * 32) // kill 
+        if (GetPos().y > 25 * 32 && GetPos().x > 43 * 32 && GetPos().y < 35 * 32) // kill
         {
             Die();
             return;
@@ -153,12 +153,34 @@ void CDummyBlmapChillPolice::OnTick()
             if (GetPos().x > 63 * 32)
                 Input()->m_Jump = 1;
         }
+        // fallen into lower right area of the top block area before gores
+        if (GetPos().y > 20 * 32 && GetPos().y < 25 * 32)
+        {
+            Input()->m_TargetX = GetPos().x > 67 * 32 ? -20 : 20;
+            Input()->m_TargetY = 100;
+            if (GetPos().x > 69 * 32)
+                Input()->m_Direction = -1;
+            if (IsGrounded())
+                Input()->m_Jump = 1;
+            if (GetPos().y < 23 * 32 + 20 && GetVel().y < -1.1f)
+                Fire();
+        }
         else if (GetPos().x > 75 * 32 && GetPos().x < 135 * 32) //gores stuff (the thign with freeze spikes from top and bottom)
         {
             Input()->m_Jump = 0;
             Input()->m_Direction = 1;
-            if (GetPos().x > 77 * 32) //start jump into gores
+            // start jump into gores
+            if (GetPos().x > 77 * 32 && GetPos().y > 13 * 32 && GetPos().x < 80 * 32)
                 Input()->m_Jump = 1;
+            // nade boost on roof
+            if ((GetPos().x > 80 * 32 && GetPos().x < 90 * 32) ||
+                (GetPos().x > 104 * 32 && GetPos().x < 117 * 32))
+            {
+                if (GetPos().y < 10 * 32)
+                    Fire();
+                Input()->m_TargetX = GetVel().x > 12.0f ? -10 : -100;
+                Input()->m_TargetY = -180;
+            }
             if (GetPos().x > 92 * 32 && GetPos().y > 12.5 * 32) // hooking stuff from now on
             {
                 Input()->m_TargetX = 100;
@@ -167,6 +189,9 @@ void CDummyBlmapChillPolice::OnTick()
                 if (GetPos().y < 14 * 32 && GetPos().x > 100 * 32 && GetPos().x < 110 * 32)
                     Input()->m_Hook = 0;
             }
+            // Don't swing into roof when boost worked
+            if (GetPos().x > 127 * 32 && GetPos().x < 138 * 32 && GetVel().x > 12.f && GetVel().y < -1.5)
+                Input()->m_Hook = 0;
             if (GetPos().x > 120 * 32 && GetPos().y < 13 * 32)
                 Input()->m_Hook = 0;
         }
