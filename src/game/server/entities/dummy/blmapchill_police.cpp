@@ -13,7 +13,7 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_LovedX = 0;
 	m_LovedY = 0;
 	m_LowerPanic = 0;
-	m_Speed = 0;
+	m_Speed = 70; // fix for crashbug (DONT REMOVE)
 	m_HelpMode = 0;
 	m_GrenadeJump = 0;
 	m_SpawnTeleporter = 0;
@@ -32,12 +32,11 @@ void CDummyBlmapChillPolice::OnTick()
 {
     m_pChr->ResetInput();
     Input()->m_Hook = 0;
-    if (GetPos().x > 451 * 32 && GetPos().x < 472 * 32 && GetPos().y > 74 * 32 && GetPos().y < 85 * 32) //spawn area, walk into the left SPAWN teleporter
+    if (GetPos().x > 451 * 32 && GetPos().x < 472 * 32 && GetPos().y > 74 * 32 && GetPos().y < 85 * 32) // new spawn area, walk into the left SPAWN teleporter
     {
-        m_Speed = 70; // fix for crashbug (DONT REMOVE)
-
         Input()->m_Direction = -1;
-        if (GetPos().x > 454 * 32 && GetPos().x < 458 * 32) //left side of spawn area
+        // jump into tele on spawn or jump onto edge after getting 5 jumps
+        if (GetPos().x > 454 * 32 && GetPos().x < 463 * 32 + 2) // left side of new spawn area
         {
             Input()->m_Jump = 1;
             if (Server()->Tick() % 10 == 0)
@@ -287,9 +286,12 @@ void CDummyBlmapChillPolice::OnTick()
             return;
         }
     }
-    if (GetPos().x > 368 * 32 && GetPos().y < 340 * 32) //new spawn going left and hopping over the gap under the CFRM.  (the jump over the freeze gap before falling down is not here, its in line 13647)
+    // new spawn going left and hopping over the gap under the CFRM.
+    // (the jump over the freeze gap before falling down is not here, its in line 38 (search for comment 'jump onto edge after getting 5 jumps'))
+    if (m_GrenadeJump == 4 || (GetPos().x > 368 * 32 && GetPos().y < 340 * 32))
     {
-        if (Server()->Tick() % 1 == 0) //change to gun
+        // change to gun
+        if (Server()->Tick() % 3 == 0 && GetPos().x > 497 * 32)
             SetWeapon(1);
         Input()->m_Direction = -1;
         if (GetPos().x > 509 * 32 && GetPos().y > 62 * 32) // if bot gets under the table he will go right and jump out of the gap under the table
@@ -301,12 +303,76 @@ void CDummyBlmapChillPolice::OnTick()
                     Input()->m_Jump = 1;
             }
         }
+        // jump over chairs
         else if (Server()->Tick() % 10 == 0 && GetPos().x > 505 * 32)
             Input()->m_Jump = 1;
+        // jump out of the chair room
         if (GetPos().x < 497 * 32 && GetPos().x > 496 * 32)
             Input()->m_Jump = 1;
-        if (GetPos().x < 480 * 32 && GetPos().x > 479 * 32)
+        // fallen too low backup jump
+        if (GetPos().x > 469 * 32 && GetPos().y > 74 * 32)
+        {
             Input()->m_Jump = 1;
+            if (Server()->Tick() % 15 == 0)
+                Input()->m_Jump = 0;
+        }
+
+        // Slow down to hit ground before jumping through freeze
+        if (GetPos().x > 465 * 32 && GetPos().x < 469 * 32)
+        {
+            if (!IsGrounded())
+                Input()->m_Direction = 0;
+        }
+
+        // rocket jump from new spawn edge to old map entry
+        if (GetPos().x < 453 * 32 && GetPos().y < 80 * 32)
+        {
+            Input()->m_Direction = 0;
+            if (Server()->Tick() % 10 == 0) // change to grenade
+                SetWeapon(3);
+
+            if (!m_pChr->m_FreezeTime && IsGrounded() && m_GrenadeJump == 0) // shoot up
+            {
+                Input()->m_Jump = 1;
+                Input()->m_TargetX = 1;
+                Input()->m_TargetY = -100;
+                LatestInput()->m_TargetX = 1;
+                LatestInput()->m_TargetY = -100;
+                Fire();
+                m_GrenadeJump = 1;
+            }
+            else if (GetVel().y > -7.6f && m_GrenadeJump == 1) // jump in air // basically a timer for when the grenade comes down
+            {
+                Input()->m_Jump = 1;
+                m_GrenadeJump = 2;
+            }
+            if (m_GrenadeJump == 2 || m_GrenadeJump == 3) // double grenade
+            {
+                if (IsGrounded())
+                    Input()->m_Direction = -1;
+                if (GetVel().y < 0.09f && GetVel().x < -0.1f)
+                {
+                    Input()->m_Jump = 1;
+                    Input()->m_TargetX = 100;
+                    Input()->m_TargetY = 150;
+                    LatestInput()->m_TargetX = 100;
+                    LatestInput()->m_TargetY = 150;
+                    Fire();
+                    m_GrenadeJump = 4;
+                }
+            }
+            if (m_GrenadeJump == 4)
+            {
+                Input()->m_Direction = -1;
+                if (GetVel().y > 4.4f)
+                    Input()->m_Jump = 1;
+            }
+        }
+        else
+        {
+            // Reset rj vars for fallback grenade jump
+            m_GrenadeJump = 0;
+        }
     }
     if (GetPos().x > 370 * 32 && GetPos().y < 340 * 32 && GetPos().y > 310 * 32) // bottom going left to the grenade jump
     {
