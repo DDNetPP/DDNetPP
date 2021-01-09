@@ -317,11 +317,29 @@ void CDummyBlmapChillPolice::OnTick()
                 Input()->m_Jump = 0;
         }
 
-        // Slow down to hit ground before jumping through freeze
-        if (GetPos().x > 465 * 32 && GetPos().x < 469 * 32)
+        // above new spawn about to jump through freeze
+        if (GetPos().y < 75 * 32)
         {
-            if (!IsGrounded())
-                Input()->m_Direction = 0;
+            // Slow down to hit ground before jumping through freeze
+            if (GetPos().x > 465 * 32 && GetPos().x < 469 * 32)
+            {
+                if (!IsGrounded())
+                    Input()->m_Direction = 0;
+            }
+            // Too slow to jump through freeze -> go back get speed
+            if (GetPos().x < 461 * 32 && GetVel().x > -9)
+                m_GetSpeed = true;
+            if (GetPos().x > 465 * 32 || GetVel().x < -10)
+                m_GetSpeed = false;
+            if (m_GetSpeed)
+            {
+                Input()->m_Direction = 1;
+                Input()->m_TargetX = 200;
+                Input()->m_TargetY = 100;
+                Input()->m_Hook = 1;
+                if (Server()->Tick() % 15 == 0)
+                    Input()->m_Hook = 0;
+            }
         }
 
         // rocket jump from new spawn edge to old map entry
@@ -366,13 +384,12 @@ void CDummyBlmapChillPolice::OnTick()
                 Input()->m_Direction = -1;
                 if (GetVel().y > 4.4f)
                     Input()->m_Jump = 1;
+                if (GetPos().y > 85 * 32)
+                    m_GrenadeJump = 0; // something went wrong abort and try fallback grenade jump
             }
         }
-        else
-        {
-            // Reset rj vars for fallback grenade jump
+        else // Reset rj vars for fallback grenade jump
             m_GrenadeJump = 0;
-        }
     }
     if (GetPos().x > 370 * 32 && GetPos().y < 340 * 32 && GetPos().y > 310 * 32) // bottom going left to the grenade jump
     {

@@ -28,6 +28,7 @@ public:
     bool m_HasStartGrenade;
     bool m_IsDJUsed;
     bool m_HashReachedCinemaEntrance;
+    bool m_GetSpeed;
 };
 
 #endif
