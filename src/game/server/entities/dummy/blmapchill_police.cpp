@@ -393,7 +393,6 @@ void CDummyBlmapChillPolice::OnTick()
         }
         else // Reset rj vars for fallback grenade jump and other reuse
         {
-            m_GetSpeed = false;
             m_GrenadeJump = 0;
         }
     }
