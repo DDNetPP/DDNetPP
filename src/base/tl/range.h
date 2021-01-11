@@ -20,12 +20,7 @@
 */
 struct concept_empty
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-			t.empty();
-	}
+	template<typename T> static void check(T &t) { if(0) t.empty(); };
 };
 
 /*
@@ -39,12 +34,7 @@ struct concept_empty
 */
 struct concept_index
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-			t.index(0);
-	}
+	template<typename T> static void check(T &t) { if(0) t.index(0); };
 };
 
 /*
@@ -58,12 +48,7 @@ struct concept_index
 */
 struct concept_size
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-			t.size();
-	}
+	template<typename T> static void check(T &t) { if(0) t.size(); };
 };
 
 /*
@@ -77,12 +62,7 @@ struct concept_size
 */
 struct concept_slice
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-			t.slice(0, 0);
-	}
+	template<typename T> static void check(T &t) { if(0) t.slice(0, 0); };
 };
 
 /*
@@ -96,12 +76,7 @@ struct concept_slice
 */
 struct concept_sorted
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-			t.sorted();
-	}
+	template<typename T> static void check(T &t) { if(0) t.sorted(); };
 };
 
 /*
@@ -117,15 +92,7 @@ struct concept_sorted
 */
 struct concept_forwarditeration
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-		{
-			t.front();
-			t.pop_front();
-		}
-	}
+	template<typename T> static void check(T &t) { if(0) { t.front(); t.pop_front(); } };
 };
 
 /*
@@ -141,20 +108,14 @@ struct concept_forwarditeration
 */
 struct concept_backwarditeration
 {
-	template<typename T>
-	static void check(T &t)
-	{
-		if(0)
-		{
-			t.back();
-			t.pop_back();
-		}
-	}
+	template<typename T> static void check(T &t) { if(0) { t.back(); t.pop_back(); } };
 };
+
 
 /*
 	Group: Range classes
 */
+
 
 /*
 	Class: plain_range
@@ -177,6 +138,11 @@ public:
 		end = 0x0;
 	}
 
+	plain_range(const plain_range &r)
+	{
+		*this = r;
+	}
+
 	plain_range(T *b, T *e)
 	{
 		begin = b;
@@ -184,35 +150,15 @@ public:
 	}
 
 	bool empty() const { return begin >= end; }
-	void pop_front()
-	{
-		tl_assert(!empty());
-		begin++;
-	}
-	void pop_back()
-	{
-		tl_assert(!empty());
-		end--;
-	}
-	T &front()
-	{
-		tl_assert(!empty());
-		return *begin;
-	}
-	T &back()
-	{
-		tl_assert(!empty());
-		return *(end - 1);
-	}
-	T &index(unsigned i)
-	{
-		tl_assert(i < (unsigned)(end - begin));
-		return begin[i];
-	}
-	unsigned size() const { return (unsigned)(end - begin); }
+	void pop_front() { tl_assert(!empty()); begin++; }
+	void pop_back() { tl_assert(!empty()); end--; }
+	T& front() { tl_assert(!empty()); return *begin; }
+	T& back() { tl_assert(!empty()); return *(end-1); }
+	T& index(unsigned i) { tl_assert(i < (unsigned)(end-begin)); return begin[i]; }
+	unsigned size() const { return (unsigned)(end-begin); }
 	plain_range slice(unsigned startindex, unsigned endindex)
 	{
-		return plain_range(begin + startindex, begin + endindex);
+		return plain_range(begin+startindex, begin+endindex);
 	}
 
 protected:
@@ -231,23 +177,25 @@ template<class T>
 class plain_range_sorted : public plain_range<T>
 {
 	typedef plain_range<T> parent;
-
 public:
 	/* sorted concept */
-	void sorted() const {}
+	void sorted() const { }
 
 	plain_range_sorted()
+	{}
+
+	plain_range_sorted(const plain_range_sorted &r)
 	{
+		*this = r;
 	}
 
-	plain_range_sorted(T *b, T *e) :
-		parent(b, e)
-	{
-	}
+	plain_range_sorted(T *b, T *e)
+	: parent(b, e)
+	{}
 
 	plain_range_sorted slice(unsigned start, unsigned count)
 	{
-		return plain_range_sorted(parent::begin + start, parent::begin + start + count);
+		return plain_range_sorted(parent::begin+start, parent::begin+start+count);
 	}
 };
 
@@ -256,7 +204,6 @@ class reverse_range
 {
 private:
 	reverse_range() {}
-
 public:
 	typedef typename R::type type;
 
@@ -267,23 +214,20 @@ public:
 
 	reverse_range(const reverse_range &other) { range = other.range; }
 
+
 	bool empty() const { return range.empty(); }
 	void pop_front() { range.pop_back(); }
 	void pop_back() { range.pop_front(); }
-	type &front() { return range.back(); }
-	type &back() { return range.front(); }
+	type& front() { return range.back(); }
+	type& back() { return range.front(); }
 
 	R range;
 };
 
-template<class R>
-reverse_range<R> reverse(R range)
-{
+template<class R> reverse_range<R> reverse(R range) {
 	return reverse_range<R>(range);
 }
-template<class R>
-R reverse(reverse_range<R> range)
-{
+template<class R> R reverse(reverse_range<R> range) {
 	return range.range;
 }
 
