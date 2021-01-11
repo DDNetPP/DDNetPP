@@ -399,15 +399,21 @@ void CDummyBlmapChillPolice::OnTick()
     if (GetPos().x > 370 * 32 && GetPos().y < 340 * 32 && GetPos().y > 310 * 32) // bottom going left to the grenade jump
     {
         Input()->m_Direction = -1;
-        if (GetPos().x < 422 * 32 && GetPos().x > 421 * 32) // bottom jump over the hole to police station
+        // bottom jump over the hole to police station
+        if (GetPos().x < 422 * 32 && GetPos().x > 421 * 32)
             Input()->m_Jump = 1;
-        if (GetPos().x < 406 * 32 && GetPos().x > 405 * 32) // using 5jump from now on
+        // using 5jump from now on
+        if (GetPos().x < 406 * 32 && GetPos().x > 405 * 32)
             Input()->m_Jump = 1;
         if (GetPos().x < 397 * 32 && GetPos().x > 396 * 32)
             Input()->m_Jump = 1;
         if (GetPos().x < 387 * 32 && GetPos().x > 386 * 32)
             Input()->m_Jump = 1;
-        if (GetPos().x < 377 * 32 && GetPos().x > 376 * 32) // last jump from the 5 jump
+        // last jump from the 5 jump
+        if (GetPos().x < 377 * 32 && GetPos().x > 376 * 32)
+            Input()->m_Jump = 1;
+        // recover from uncontrolled long fall
+        if (GetPos().x > 435 * 32 && GetPos().y > 327 * 32 && GetVel().y > 20.0f)
             Input()->m_Jump = 1;
         if (GetPos().y > 339 * 32) // if he falls into the hole to police station he will kill
         {
