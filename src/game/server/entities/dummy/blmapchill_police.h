@@ -19,6 +19,7 @@ public:
     int m_HelpMode;
     int m_GrenadeJump;
     int m_SpawnTeleporter;
+    int m_FailedAttempts;
 
     bool m_IsHelpHook;
     bool m_IsClosestPolice;

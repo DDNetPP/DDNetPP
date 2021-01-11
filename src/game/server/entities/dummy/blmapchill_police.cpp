@@ -17,6 +17,7 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_HelpMode = 0;
 	m_GrenadeJump = 0;
 	m_SpawnTeleporter = 0;
+	m_FailedAttempts = 0;
 
 	m_IsHelpHook = false;
 	m_IsClosestPolice = false;
@@ -329,8 +330,11 @@ void CDummyBlmapChillPolice::OnTick()
             // Too slow to jump through freeze -> go back get speed
             if (GetPos().x > 455 * 32)
             {
-                if (GetPos().x < 461 * 32 && GetVel().x > -9)
+                if (GetPos().x < 461 * 32 && GetVel().x > -9 && !m_GetSpeed)
+                {
                     m_GetSpeed = true;
+                    m_FailedAttempts++;
+                }
                 if (GetPos().x > 465 * 32 || GetVel().x < -10)
                     m_GetSpeed = false;
                 if (m_GetSpeed)
@@ -343,6 +347,27 @@ void CDummyBlmapChillPolice::OnTick()
                         Input()->m_Hook = 0;
                 }
             }
+            // count not succeding for a long time as fail
+            if (Server()->Tick() % 200 == 0)
+                m_FailedAttempts++;
+        }
+        // somebody is blocking flappy intentionally
+        if (m_FailedAttempts > 4 && GetPos().x > 452 * 32)
+        {
+            // don't aim for edge and rather go full speed to bypass the blocker
+            Input()->m_Direction = -1;
+            Input()->m_TargetX = 100;
+            Input()->m_TargetY = 100;
+            if (Server()->Tick() % 15 == 0)
+                SetWeapon(3);
+            if (GetVel().y < -0.2)
+                Fire();
+            if (IsGrounded())
+                Input()->m_Jump = 1;
+            if (GetPos().x < 456 * 32)
+                Input()->m_Jump = 1;
+            if (Server()->Tick() % 15 == 0)
+                Input()->m_Jump = 0;
         }
 
         // rocket jump from new spawn edge to old map entry
