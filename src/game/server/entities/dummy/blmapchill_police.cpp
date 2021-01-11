@@ -391,8 +391,11 @@ void CDummyBlmapChillPolice::OnTick()
                     m_GrenadeJump = 0; // something went wrong abort and try fallback grenade jump
             }
         }
-        else // Reset rj vars for fallback grenade jump
+        else // Reset rj vars for fallback grenade jump and other reuse
+        {
+            m_GetSpeed = false;
             m_GrenadeJump = 0;
+        }
     }
     if (GetPos().x > 370 * 32 && GetPos().y < 340 * 32 && GetPos().y > 310 * 32) // bottom going left to the grenade jump
     {
@@ -614,6 +617,18 @@ void CDummyBlmapChillPolice::OnTick()
             Input()->m_Direction = -1;
         if (GetPos().x > 317 * 32 && GetVel().x > 5.5f)
             Input()->m_Direction = 0;
+        if (GetPos().x > 316 * 32 && GetVel().x > 9.8f)
+            Input()->m_Direction = -1;
+        // Get enough speed before the rj
+        if (GetPos().x < 297 * 32 && GetPos().x > 296 * 32)
+            if (GetVel().x < 9.9f)
+                m_GetSpeed = true;
+        if (m_GetSpeed)
+        {
+            Input()->m_Direction = -1;
+            if ((GetPos().x < 294 * 32 && IsGrounded()) || GetPos().x < 280 * 32)
+                m_GetSpeed = false;
+        }
         Input()->m_TargetX = -50;
         Input()->m_TargetY = 100;
         if (GetPos().x < 303 * 32)
