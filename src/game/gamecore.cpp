@@ -172,8 +172,6 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 	m_TileSFlagsT = (UseInput && IsRightTeam(MapIndexT))?Collision()->GetDTileFlags(MapIndexT):0;
 	m_TriggeredEvents = 0;
 
-	vec2 PrevPos = m_Pos;
-
 	// get ground state
 	bool Grounded = false;
 	if(m_pCollision->CheckPoint(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+5))
@@ -410,7 +408,7 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 	{
 		// UPDATE HOOK POS ON FLAG POS!!!!!
 		if(m_HookedPlayer == 98){
-			if (m_carryFlagChar1 == 0 || !m_carryFlagChar1){
+			if (!m_carryFlagChar1){
 				m_HookPos = m_FlagPos1;
 			}
 			else{
@@ -420,7 +418,7 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 			}
 		}
 		else if(m_HookedPlayer == 99){
-			if (m_carryFlagChar2 == 0 || !m_carryFlagChar2){
+			if (!m_carryFlagChar2){
 				m_HookPos = m_FlagPos2;
 			}
 			else{

@@ -6662,6 +6662,7 @@ void CGameContext::ConSurvival(IConsole::IResult * pResult, void * pUserData)
 			break;
 			case SURVIVAL_DM:
 			str_copy(aDM, "deathmatch", sizeof(aDM));
+			// fall through
 			case SURVIVAL_DM_COUNTDOWN:
 			case SURVIVAL_INGAME:
 			if (pSelf->m_survival_game_countdown != -1)
