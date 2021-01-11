@@ -560,7 +560,29 @@ void CDummyBlmapChillPolice::OnTick()
         if (GetPos().x < 328 * 32 && GetPos().y < 60 * 32)
             Input()->m_Jump = 1;
     }
-    else if (GetPos().y > 260 * 32 && GetPos().x < 325 * 32 && GetPos().y < 328 * 32 && GetPos().x > 275 * 32) // jumping over the big freeze to get into the tunnel
+    // Stuck on the outside of the clu spike thing
+    else if (GetPos().y > 120 * 32 && GetPos().y < 185 * 32 && GetPos().x > 233 * 32 && GetPos().x < 300 * 32)
+    {
+        if (GetPos().x < 272 * 32)
+            Input()->m_Direction = 1;
+        /*
+        ##    <- deep and spikes and clu skip
+        #
+   ######
+   ######
+   ##      <-- stuck here
+   ######
+   ######
+        #
+        #  <-- or stuck here
+        ##
+         #    police entrance
+    ######      |
+    #           v
+        */
+    }
+    // jumping over the big freeze to get into the tunnel
+    else if (GetPos().y > 260 * 32 && GetPos().x < 325 * 32 && GetPos().y < 328 * 32 && GetPos().x > 275 * 32)
     {
         Input()->m_Direction = -1;
         Input()->m_Jump = 0;
@@ -569,7 +591,8 @@ void CDummyBlmapChillPolice::OnTick()
         if (Server()->Tick() % 5 == 0)
             SetWeapon(1);
     }
-    else if (GetPos().y > 328 * 32 && GetPos().y < 345 * 32 && GetPos().x > 236 * 32 && GetPos().x < 365 * 32) // after grenade jump and being down going into the tunnel to police staion
+    // after grenade jump and being down going into the tunnel to police staion
+    else if (GetPos().y > 328 * 32 && GetPos().y < 345 * 32 && GetPos().x > 236 * 32 && GetPos().x < 365 * 32)
     {
         Input()->m_Direction = 1;
         if (GetPos().x > 265 * 32 && GetPos().x < 267 * 32)
