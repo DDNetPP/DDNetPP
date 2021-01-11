@@ -77,7 +77,7 @@ void CDummyBlmapChillPolice::OnTick()
             Die();
             return;
         }
-        else if (GetPos().y > 25 * 32) // after unfreeze hold hook to the right and walk right.
+        if (GetPos().y > 25 * 32) // after unfreeze hold hook to the right and walk right.
         {
             Input()->m_TargetX = 100;
             Input()->m_TargetY = 1;
@@ -116,6 +116,9 @@ void CDummyBlmapChillPolice::OnTick()
                     Fire();
                 }
             }
+            // fix getting stuck in the unfreeze and hooking the wall
+            if (GetPos().x < 33 * 32 && GetPos().x > 31 * 32 && GetPos().y < 29 * 32)
+                Input()->m_Hook = 0;
         }
         else if (GetPos().x > 33 * 32 && GetPos().x < 50 * 32 && GetPos().y > 18 * 32)
         {
