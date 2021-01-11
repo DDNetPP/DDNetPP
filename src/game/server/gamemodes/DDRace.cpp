@@ -309,7 +309,7 @@ void CGameControllerDDRace::Tick()
 				}
 			}
 
-			if( (!F->m_pCarryingCharacter || F->m_pCarryingCharacter == 0) && !F->m_AtStand)
+			if (F->m_pCarryingCharacter && !F->m_AtStand)
 			{
 				if(Server()->Tick() > F->m_DropTick + Server()->TickSpeed()*90)
 				{
