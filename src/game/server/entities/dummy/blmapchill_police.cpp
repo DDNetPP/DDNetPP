@@ -655,12 +655,29 @@ void CDummyBlmapChillPolice::OnTick()
         if (GetPos().x < 363 * 32)
         {
             Input()->m_Direction = 1;
-            if (IsGrounded())
-                Input()->m_Jump = 1;
         }
         // do not enter in pvp area or bank
         if (GetPos().x > 323 * 32 && GetPos().y < 408 * 32)
             Input()->m_Direction = -1;
+        // police area entrance tunnel (left side)
+        if (GetPos().x > 316 * 32 && GetPos().x < 366 * 32 && GetPos().y > 416 * 32)
+        {
+            // jump through freeze if one is close or go back if no vel
+            for (int i = 10; i < 160; i+=20)
+            {
+                int tile = GameServer()->Collision()->GetCustTile(GetPos().x + i, GetPos().y);
+                if (tile == TILE_FREEZE)
+                {
+                    if (GetVel().y > 1.1f)
+                    {
+                        Input()->m_Direction = -1;
+                    }
+                    if (IsGrounded() && GetVel().x > 8.8f)
+                        Input()->m_Jump = 1;
+                    break;
+                }
+            }
+        }
         /* * * * * * * *
          * police area *
          * * * * * * * */
