@@ -356,6 +356,7 @@ void CDummyBlmapChillPolice::OnTick()
         {
             // don't aim for edge and rather go full speed to bypass the blocker
             Input()->m_Direction = -1;
+            Input()->m_Hook = 0;
             Input()->m_TargetX = 100;
             Input()->m_TargetY = 100;
             if (Server()->Tick() % 15 == 0)
