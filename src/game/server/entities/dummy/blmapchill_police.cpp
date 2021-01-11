@@ -324,7 +324,7 @@ void CDummyBlmapChillPolice::OnTick()
             if (GetPos().x > 465 * 32 && GetPos().x < 469 * 32)
             {
                 if (!IsGrounded())
-                    Input()->m_Direction = 0;
+                    Input()->m_Direction = 1;
             }
             // Too slow to jump through freeze -> go back get speed
             if (GetPos().x > 455 * 32)
