@@ -204,7 +204,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	else if (m_pPlayer->m_DummySpawnTile)
 	{
-		vec2 SpawnTile;
+		vec2 SpawnTile(0.0f, 0.0f);
 		if (m_pPlayer->m_DummySpawnTile == 1)
 			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_1);
 		else if (m_pPlayer->m_DummySpawnTile == 2)
