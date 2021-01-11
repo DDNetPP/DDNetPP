@@ -36,7 +36,7 @@ void CDummyBlmapChillPolice::OnTick()
     {
         Input()->m_Direction = -1;
         // jump into tele on spawn or jump onto edge after getting 5 jumps
-        if (GetPos().x > 454 * 32 && GetPos().x < 463 * 32 + 2) // left side of new spawn area
+        if (GetPos().x > 454 * 32 && GetPos().x < 462 * 32) // left side of new spawn area
         {
             Input()->m_Jump = 1;
             if (Server()->Tick() % 10 == 0)
