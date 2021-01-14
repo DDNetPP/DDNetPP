@@ -28,7 +28,7 @@ public:
 	bool m_HasAlreadyBeenHere;
 	bool m_HasStartGrenade;
 	bool m_IsDJUsed;
-	bool m_HashReachedCinemaEntrance;
+	bool m_HasReachedCinemaEntrance;
 	bool m_GetSpeed;
 };
 

@@ -13,7 +13,7 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_LovedX = 0;
 	m_LovedY = 0;
 	m_LowerPanic = 0;
-	m_Speed = 70; // fix for crashbug (DONT REMOVE)
+	m_Speed = 70;
 	m_HelpMode = 0;
 	m_GrenadeJump = 0;
 	m_SpawnTeleporter = 0;
@@ -26,7 +26,7 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_HasAlreadyBeenHere = false;
 	m_HasStartGrenade = false;
 	m_IsDJUsed = false;
-	m_HashReachedCinemaEntrance = false;
+	m_HasReachedCinemaEntrance = false;
 }
 
 void CDummyBlmapChillPolice::OnTick()
@@ -454,14 +454,14 @@ void CDummyBlmapChillPolice::OnTick()
 	{
 		if (IsGrounded())
 		{
-			m_HashReachedCinemaEntrance = true;
+			m_HasReachedCinemaEntrance = true;
 			Input()->m_Jump = 1;
 		}
 		else if (GetPos().y < 313 * 32 && GetPos().y > 312 * 32 && GetPos().x < 367 * 32)
 			Input()->m_Direction = 1;
 		else if (GetPos().x > 367 * 32)
 			Input()->m_Direction = -1;
-		if (!m_HashReachedCinemaEntrance && GetPos().x < 370 * 32)
+		if (!m_HasReachedCinemaEntrance && GetPos().x < 370 * 32)
 			Input()->m_Direction = 0;
 		if (GetVel().y > 0.0000001f && GetPos().y < 310 * 32)
 			Input()->m_Jump = 1;
