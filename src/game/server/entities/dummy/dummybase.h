@@ -29,7 +29,7 @@ public:
 	struct CNetObj_PlayerInput *LatestInput();
 
 
-	CCharacter *m_pChr;
+	CCharacter *m_pCharacter;
 	CPlayer *m_pPlayer;
 };
 

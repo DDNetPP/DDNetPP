@@ -8,76 +8,76 @@
 
 CDummyBase::CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer)
 {
-	m_pChr = pChr;
+	m_pCharacter = pChr;
 	m_pPlayer = pPlayer;
 }
 
 IServer *CDummyBase::Server()
 {
-	return m_pChr->Server();
+	return m_pCharacter->Server();
 }
 
 CGameContext *CDummyBase::GameServer()
 {
-	return m_pChr->GameServer();
+	return m_pCharacter->GameServer();
 }
 
 CGameWorld *CDummyBase::GameWorld()
 {
-	return m_pChr->GameWorld();
+	return m_pCharacter->GameWorld();
 }
 
 CNetObj_PlayerInput *CDummyBase::Input()
 {
-	return m_pChr->Input();
+	return m_pCharacter->Input();
 }
 
 CNetObj_PlayerInput *CDummyBase::LatestInput()
 {
-	return m_pChr->LatestInput();
+	return m_pCharacter->LatestInput();
 }
 
 vec2 CDummyBase::GetPos()
 {
-	return m_pChr->GetCore().m_Pos;
+	return m_pCharacter->GetCore().m_Pos;
 }
 
 vec2 CDummyBase::GetVel()
 {
-	return m_pChr->GetCore().m_Vel;
+	return m_pCharacter->GetCore().m_Vel;
 }
 
 void CDummyBase::Die()
 {
-	m_pChr->Die(m_pChr->GetPlayer()->GetCID(), WEAPON_SELF);
+	m_pCharacter->Die(m_pCharacter->GetPlayer()->GetCID(), WEAPON_SELF);
 }
 
 void CDummyBase::SetWeapon(int Weapon)
 {
-	m_pChr->SetWeapon(Weapon);
+	m_pCharacter->SetWeapon(Weapon);
 }
 
 void CDummyBase::Fire()
 {
-	m_pChr->Fire();
+	m_pCharacter->Fire();
 }
 
 bool CDummyBase::IsGrounded()
 {
-	return m_pChr->IsGrounded();
+	return m_pCharacter->IsGrounded();
 }
 
 int CDummyBase::HookState()
 {
-	return m_pChr->GetCore().m_HookState;
+	return m_pCharacter->GetCore().m_HookState;
 }
 
 int CDummyBase::Jumped()
 {
-	return m_pChr->GetCore().m_Jumped;
+	return m_pCharacter->GetCore().m_Jumped;
 }
 
 int CDummyBase::Jumps()
 {
-	return m_pChr->GetCore().m_Jumps;
+	return m_pCharacter->GetCore().m_Jumps;
 }
