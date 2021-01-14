@@ -605,11 +605,11 @@ void CDummyBlmapChillPolice::OnTick()
 		/*
 		##    <- deep and spikes and clu skip
 		#
-   ######
-   ######
-   ##      <-- stuck here
-   ######
-   ######
+	######
+	######
+	##      <-- stuck here
+	######
+	######
 		#
 		#  <-- or stuck here
 		##
