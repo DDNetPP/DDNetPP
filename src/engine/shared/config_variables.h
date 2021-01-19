@@ -328,7 +328,7 @@ MACRO_CONFIG_INT(SvSurvivalDmPlayers, sv_survival_dm_players, 3, 3, 64, CFGFLAG_
 MACRO_CONFIG_INT(SvSurvivalDmDelay, sv_survival_dm_delay, 5, 0, 60, CFGFLAG_SERVER, "after how many minutes the deathmatch should start 0=off")
 MACRO_CONFIG_INT(SvSurvivalMaxGameTime, sv_survival_max_game_time, 120, 0, 1200, CFGFLAG_SERVER, "after how many minutes the game should end without winners 0=never")
 MACRO_CONFIG_INT(SvAllowSurvival, sv_allow_survival, 0, 0, 1, CFGFLAG_SERVER, "allow survival command")
-MACRO_CONFIG_INT(SvSurvivalKillProtection, sv_survival_kill_protection, 2, 0, 2, CFGFLAG_SERVER, "0=off 1=allowed in lobby 2=full on")
+MACRO_CONFIG_INT(SvSurvivalKillProtection, sv_survival_kill_protection, 1, 0, 2, CFGFLAG_SERVER, "0=off 1=allowed in lobby 2=full on")
 
 MACRO_CONFIG_INT(SvVanillaShotgun, sv_vanilla_shotgun, 0, 0, 1, CFGFLAG_SERVER|CFGFLAG_GAME, "Fix tunings for vanilla shotgun (breaks bullet tiles)")
 
