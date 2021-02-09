@@ -7095,8 +7095,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						str_format(aBuf, sizeof(aBuf), "human level: %d captcha score: %d", pPlayer->m_PlayerHumanLevel, pPlayer->m_pCaptcha->GetScore());
 						SendChatTarget(ClientID, aBuf);
 						// https://github.com/ddnet/ddnet/issues/1728
-						if (pPlayer->GetCharacter())
-							pPlayer->GetCharacter()->SetPosition(vec2(999999999.99, 999999999.99));
+						// if (pPlayer->GetCharacter())
+						// 	pPlayer->GetCharacter()->SetPosition(vec2(999999999.99, 999999999.99));
 						//CreateNewDummy(35, true, 1);
                         //LoadSinglePlayer();
                         //str_format(aBuf, sizeof(aBuf), "unlocked level: %d current: %d", m_MissionUnlockedLevel, m_MissionCurrentLevel);
@@ -7147,7 +7147,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						//pPlayer->m_JailTime = Server()->TickSpeed() * 10; //4 min
 						//QuestCompleted(pPlayer->GetCID());
 						pPlayer->MoneyTransaction(+5000000, "test cmd3000");
-						pPlayer->SetXP(100000000); //max level 100 (so the annoying level up message show up only once (not rly xd))
+						pPlayer->GiveXP(100000000);
 						//Server()->SetClientName(ClientID, "dad");
 						//pPlayer->m_IsVanillaDmg = !pPlayer->m_IsVanillaDmg;
 						//pPlayer->m_IsVanillaWeapons = !pPlayer->m_IsVanillaWeapons;

@@ -1735,6 +1735,26 @@ void CPlayer::CalcExp()
 		m_neededxp = 66800000;
 	else if (m_level == 99)					//1 100 000
 		m_neededxp = 67900000;
+	else if (m_level == 100)				//12 100 000
+		m_neededxp = 80000000;
+	else if (m_level == 101)				//20 000 000
+		m_neededxp = 100000000;
+	else if (m_level == 102)				//20 000 000
+		m_neededxp = 120000000;
+	else if (m_level == 103)				//20 000 000
+		m_neededxp = 140000000;
+	else if (m_level == 104)				//20 000 000
+		m_neededxp = 160000000;
+	else if (m_level == 105)				//20 000 000
+		m_neededxp = 180000000;
+	else if (m_level == 106)				//20 000 000
+		m_neededxp = 200000000;
+	else if (m_level == 107)				//20 000 000
+		m_neededxp = 220000000;
+	else if (m_level == 108)				//20 000 000
+		m_neededxp = 240000000;
+	else if (m_level == 109)				//20 000 000
+		m_neededxp = 260000000;
 	else
 		m_neededxp = 404000000000000;    //404 error         
 
