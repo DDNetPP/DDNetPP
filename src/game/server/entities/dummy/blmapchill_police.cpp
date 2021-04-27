@@ -22,6 +22,8 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_GrenadeJump = 0;
 	m_SpawnTeleporter = 0;
 	m_FailedAttempts = 0;
+	m_Confused = 0;
+	m_Sad = 0;
 
 	m_IsHelpHook = false;
 	m_IsClosestPolice = false;
@@ -31,6 +33,8 @@ CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPl
 	m_HasStartGrenade = false;
 	m_IsDJUsed = false;
 	m_HasReachedCinemaEntrance = false;
+
+	m_LastStuckCheckPos = vec2(0, 0);
 }
 
 bool CDummyBlmapChillPolice::CheckStuck()
