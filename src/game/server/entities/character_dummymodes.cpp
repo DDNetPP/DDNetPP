@@ -9551,7 +9551,7 @@ void CCharacter::DummyTick()
 		}
 		else if (m_pPlayer->m_DummyMode == 32) // solo police base bot using 5 jumps and insane grenade jump
 		{
-			m_pDummyBlmapChillPolice->OnTick();
+			m_pDummyBlmapChillPolice->Tick();
 		}
 		else if (m_pPlayer->m_DummyMode == 33) //Chillintelligenz
 		{

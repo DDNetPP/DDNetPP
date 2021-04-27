@@ -91,6 +91,7 @@ public:
 	vec2 CpSpeed(int index, int Flags = 0);
 
 	int GetCustTile(int x, int y);
+	int GetCustFTile(int x, int y);
 	vec2 GetRandomTile(int Tile);
 	vec2 GetTileAtNum(int Tile, int Num);
 	vec2 GetSurvivalSpawn(int Num);
