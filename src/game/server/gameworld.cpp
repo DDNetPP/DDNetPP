@@ -341,6 +341,29 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotTh
 	return pClosest;
 }
 
+CCharacter *CGameWorld::ClosestCharacterNoRange(vec2 Pos, CEntity *pNotThis)
+{
+	// Find other players
+	float ClosestRange = 0.f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	for(; p; p = (CCharacter *)p->TypeNext())
+	{
+		if(p == pNotThis)
+			continue;
+
+		float Len = distance(Pos, p->m_Pos);
+		if(Len < ClosestRange)
+		{
+			ClosestRange = Len;
+			pClosest = p;
+		}
+	}
+
+	return pClosest;
+}
+
 std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis)
 {
 	std::list< CCharacter * > listOfChars;
@@ -726,9 +749,47 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CC
 				continue;
 		}
 
+		if (!p->GetPlayer()->m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
+			continue;
 		if (p->m_FreezeTime == 0 || p->m_Pos.y > 438 * 32 || p->m_Pos.x < 430 * 32 || p->m_Pos.x > 445 * 32 || p->m_Pos.y < 423 * 32) // only freezed tees in the hole coming from short entry into blmapchill police base
 			continue;
 
+		float Len = distance(Pos, p->m_Pos);
+
+		if (Len < ClosestRange || !ClosestRange)
+		{
+			ClosestRange = Len;
+			pClosest = p;
+		}
+	}
+
+	return pClosest;
+}
+
+CCharacter *CGameWorld::ClosestCharTypePoliceFreezePitLeft(vec2 Pos, bool Human, CCharacter *pNotThis)  // BlmapChill left freeze pit
+{
+	// Find Humans
+	float ClosestRange = 0.f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
+	for (; p; p = (CCharacter *)p->TypeNext())
+	{
+		if (p == pNotThis)
+			continue;
+
+		if (!g_Config.m_SvDummySeeDummy)
+		{
+			if (Human && p->GetPlayer()->m_IsDummy)
+				continue;
+			else if (!Human && !p->GetPlayer()->m_IsDummy)
+				continue;
+		}
+
+		if (!p->GetPlayer()->m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
+			continue;
+		if (p->m_FreezeTime == 0 || p->m_Pos.y > 436 * 32 || p->m_Pos.x < 363 * 32 || p->m_Pos.x > 381 * 32 || p->m_Pos.y < 420 * 32)
+			continue;
 
 		float Len = distance(Pos, p->m_Pos);
 

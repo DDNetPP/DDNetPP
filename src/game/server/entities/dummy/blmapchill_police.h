@@ -9,8 +9,18 @@
 class CDummyBlmapChillPolice : public CDummyBase {
 public:
 	CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer);
+	virtual void OnTick();
 
-	void OnTick();
+private:
+	bool CheckStuck();
+	void OldPoliceMoves();
+	void NewPoliceMoves();
+
+	void WalkPoliceDir(int Direction);
+	void WalkPoliceLeft() { WalkPoliceDir(DIRECTION_LEFT); }
+	void WalkPoliceRight() { WalkPoliceDir(DIRECTION_RIGHT); }
+	bool HelpOfficerRight();
+	bool HelpOfficerLeft();
 
 	int m_LovedX;
 	int m_LovedY;
@@ -20,6 +30,8 @@ public:
 	int m_GrenadeJump;
 	int m_SpawnTeleporter;
 	int m_FailedAttempts;
+	int m_Confused;
+	int m_Sad;
 
 	bool m_IsHelpHook;
 	bool m_IsClosestPolice;
@@ -30,6 +42,8 @@ public:
 	bool m_IsDJUsed;
 	bool m_HasReachedCinemaEntrance;
 	bool m_GetSpeed;
+
+	vec2 m_LastStuckCheckPos;
 };
 
 #endif

@@ -430,23 +430,12 @@ void CDummyBase::DebugColor(int DebugColor)
 		return;
 	}
 
-	// CTeeInfo Info = m_pPlayer->m_CurrentInfo.m_TeeInfos;
-	// for (int p = 0; p < NUM_SKINPARTS; p++)
-	// {
-	// 	int BaseColor = (DebugColor*30) * 0x010000;
-	// 	int Color = 0xff32;
-	// 	if (DebugColor == COLOR_BLACK)
-	// 		Color = BaseColor = 0;
-	// 	else if (DebugColor == COLOR_WHITE)
-	// 		Color = BaseColor = 255;
-	// 	if (p == SKINPART_MARKING)
-	// 		Color *= -256;
+	int BaseColor = (DebugColor*30) * 0x010000;
+	int Color = 0xff32;
+	if (DebugColor == COLOR_BLACK)
+		Color = BaseColor = 0;
+	else if (DebugColor == COLOR_WHITE)
+		Color = BaseColor = 255;
 
-	// 	Info.m_aUseCustomColors[p] = 1;
-	// 	Info.m_aSkinPartColors[p] = BaseColor + Color;
-	// 	Info.m_Sevendown.m_UseCustomColor = 1;
-	// 	Info.m_Sevendown.m_ColorBody = Info.m_Sevendown.m_ColorFeet = BaseColor + Color;
-	// }
-
-	// GameServer()->SendSkinChange(Info, m_pPlayer->GetCID(), -1);
+	m_pPlayer->m_TeeInfos.m_ColorBody = Color;
 }
