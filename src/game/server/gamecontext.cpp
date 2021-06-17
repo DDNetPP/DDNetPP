@@ -5755,7 +5755,7 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 
 void CGameContext::CreateBasicDummys()
 {
-	if (!str_comp(g_Config.m_SvMap, "ChillBlock5"))
+	if (!str_comp(Server()->GetMapName(), "ChillBlock5"))
 	{
 		CreateNewDummy(31);//police
 		//CreateNewDummy(30);//taxi (not needed in new cb5)
@@ -5764,25 +5764,25 @@ void CGameContext::CreateBasicDummys()
 		CreateNewDummy(23);//racer
 		CreateNewDummy(-6);//blocker dm v3
 	}
-	else if (!str_comp(g_Config.m_SvMap, "BlmapChill"))
+	else if (!str_comp(Server()->GetMapName(), "BlmapChill"))
 	{
 		CreateNewDummy(32);//police
 		//CreateNewDummy(28);//racer
 	}
-	else if (!str_comp(g_Config.m_SvMap, "blmapV5"))
+	else if (!str_comp(Server()->GetMapName(), "blmapV5"))
 	{
 		CreateNewDummy(104);//lower blocker
 		CreateNewDummy(104);//lower blocker
 		CreateNewDummy(105);//upper blocker
 	}
-	else if (!str_comp(g_Config.m_SvMap, "blmapV5_ddpp"))
+	else if (!str_comp(Server()->GetMapName(), "blmapV5_ddpp"))
 	{
 		CreateNewDummy(104);//lower blocker
 		CreateNewDummy(104);//lower blocker
 		CreateNewDummy(105);//upper blocker
 		g_Config.m_SvDummyMapOffsetX = -226;
 	}
-	else if (!str_comp(g_Config.m_SvMap, "ddpp_survival"))
+	else if (!str_comp(Server()->GetMapName(), "ddpp_survival"))
 	{
 		CreateNewDummy(34);//dynamic pvp mode
 		CreateNewDummy(34);//dynamic pvp mode
@@ -5790,13 +5790,13 @@ void CGameContext::CreateBasicDummys()
 	else
 	{
 		CreateNewDummy(0); //dummy
-		dbg_msg("basic_dummys", "waring map=%s not supported", g_Config.m_SvMap);
+		dbg_msg("basic_dummys", "waring map=%s not supported", Server()->GetMapName());
 	}
 	if (m_ShopBotTileExists)
 	{
 		m_CreateShopBot = true;
 	}
-	dbg_msg("basic_dummys","map=%s", g_Config.m_SvMap);
+	dbg_msg("basic_dummys","map=%s", Server()->GetMapName());
 }
 
 int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
