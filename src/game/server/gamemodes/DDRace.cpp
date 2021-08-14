@@ -322,13 +322,13 @@ void CGameControllerDDRace::Tick()
 
 					//Friction
 					float PhysSize = 28.0f;
-					Grounded = false;
+					m_IsGrounded = false;
 					if(GameServer()->Collision()->CheckPoint(F->m_Pos.x+PhysSize/2, F->m_Pos.y+PhysSize/2+5))
-						Grounded = true;
+						m_IsGrounded = true;
 					if(GameServer()->Collision()->CheckPoint(F->m_Pos.x-PhysSize/2, F->m_Pos.y+PhysSize/2+5))
-						Grounded = true;
+						m_IsGrounded = true;
 
-					if (Grounded == true){
+					if (m_IsGrounded == true){
 						F->m_Vel.x *= 0.75f;
 					}
 					else{
