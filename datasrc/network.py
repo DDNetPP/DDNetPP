@@ -5,7 +5,18 @@ PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM"]
 GameFlags = ["TEAMS", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
-GameInfoFlags = ["TIMESCORE"]
+GameInfoFlags = [
+	"TIMESCORE", "GAMETYPE_RACE", "GAMETYPE_FASTCAP", "GAMETYPE_FNG",
+	"GAMETYPE_DDRACE", "GAMETYPE_DDNET", "GAMETYPE_BLOCK_WORLDS",
+	"GAMETYPE_VANILLA", "GAMETYPE_PLUS", "FLAG_STARTS_RACE", "RACE",
+	"UNLIMITED_AMMO", "DDRACE_RECORD_MESSAGE", "RACE_RECORD_MESSAGE",
+	"ALLOW_EYE_WHEEL", "ALLOW_HOOK_COLL", "ALLOW_ZOOM", "BUG_DDRACE_GHOST",
+	"BUG_DDRACE_INPUT", "BUG_FNG_LASER_RANGE", "BUG_VANILLA_BOUNCE",
+	"PREDICT_FNG", "PREDICT_DDRACE", "PREDICT_DDRACE_TILES", "PREDICT_VANILLA",
+	"ENTITIES_DDNET", "ENTITIES_DDRACE", "ENTITIES_RACE", "ENTITIES_FNG",
+	"ENTITIES_VANILLA", "DONT_MASK_ENTITIES", "ENTITIES_BW"
+	# Full, use GameInfoFlags2 for more flags
+]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
@@ -33,6 +44,11 @@ enum
 
 	SPEC_FREEVIEW=-1,
 	SPEC_FOLLOW=-2,
+};
+
+enum
+{
+	GAMEINFO_CURVERSION=6,
 };
 '''
 
@@ -197,9 +213,11 @@ Objects = [
 		NetIntAny("m_Test"),
 	]),
 
-	NetObjectEx("DDNetGameInfo", "gameinfo@netobj.ddnet.tw", [
+	NetObjectEx("GameInfoEx", "gameinfo@netobj.ddnet.tw", [
 		NetIntAny("m_Flags"),
-	]),
+		NetIntAny("m_Version"),
+		NetIntAny("m_Flags2"),
+	], validate_size=False),
 
 	## Events
 

@@ -727,12 +727,32 @@ void IGameController::Snap(int SnappingClient)
 	else
 		pGameInfoObj->m_ScoreLimit = 0;
 
-	CNetObj_DDNetGameInfo *pGameInfoEx = (CNetObj_DDNetGameInfo *)Server()->SnapNewItem(NETOBJTYPE_DDNETGAMEINFO, 0, sizeof(CNetObj_DDNetGameInfo));
+	CNetObj_GameInfoEx *pGameInfoEx = (CNetObj_GameInfoEx *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFOEX, 0, sizeof(CNetObj_GameInfoEx));
 	if (!pGameInfoEx)
 		return;
 
-	if (pPlayer->m_DisplayScore == 0 && !GameServer()->IsMinigame(SnappingClient)) // time score
-		pGameInfoEx->m_Flags = GAMEINFOFLAG_TIMESCORE;
+	pGameInfoEx->m_Flags =
+		GAMEINFOFLAG_GAMETYPE_RACE |
+		GAMEINFOFLAG_GAMETYPE_DDRACE |
+		GAMEINFOFLAG_GAMETYPE_DDNET |
+		GAMEINFOFLAG_UNLIMITED_AMMO |
+		GAMEINFOFLAG_RACE_RECORD_MESSAGE |
+		GAMEINFOFLAG_ALLOW_EYE_WHEEL |
+		GAMEINFOFLAG_ALLOW_HOOK_COLL |
+		GAMEINFOFLAG_ALLOW_ZOOM |
+		GAMEINFOFLAG_BUG_DDRACE_GHOST |
+		GAMEINFOFLAG_BUG_DDRACE_INPUT |
+		GAMEINFOFLAG_PREDICT_DDRACE |
+		GAMEINFOFLAG_PREDICT_DDRACE_TILES |
+		GAMEINFOFLAG_ENTITIES_DDNET |
+		GAMEINFOFLAG_ENTITIES_DDRACE |
+		GAMEINFOFLAG_ENTITIES_RACE |
+		GAMEINFOFLAG_RACE;
+	pGameInfoEx->m_Flags2 = 0;
+	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
+
+	if (pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
+		pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 }
 
 int IGameController::GetAutoTeam(int NotThisID)

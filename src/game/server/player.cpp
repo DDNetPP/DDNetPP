@@ -240,6 +240,7 @@ void CPlayer::Reset()
 	m_autospreadgun_offer = false;
 	//Block points
 	m_LastToucherID = -1;
+	m_DisplayScore = SCORE_LEVEL;
 }
 
 void CPlayer::Tick()
@@ -789,9 +790,9 @@ void CPlayer::Snap(int SnappingClient)
 		else
 			pPlayerInfo->m_Score = -9999;
 	}
-	else if (pSnapping->m_DisplayScore != 0) // race time
+	else if (pSnapping->m_DisplayScore != SCORE_TIME)
 	{
-		if (pSnapping->m_DisplayScore == 1) // level
+		if (pSnapping->m_DisplayScore == SCORE_LEVEL)
 		{
 			if (IsLoggedIn())
 			{
@@ -805,7 +806,7 @@ void CPlayer::Snap(int SnappingClient)
 			else
 				pPlayerInfo->m_Score = 0;
 		}
-		else if (pSnapping->m_DisplayScore == 2) // block points
+		else if (pSnapping->m_DisplayScore == SCORE_BLOCK)
 		{
 			if (IsLoggedIn())
 			{

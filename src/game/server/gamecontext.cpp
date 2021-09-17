@@ -1518,10 +1518,6 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	if (g_Config.m_SvDDPPscore == 0)
 	{
 		m_apPlayers[ClientID]->m_Score = 0;
-		m_apPlayers[ClientID]->m_AllowTimeScore = 0;
-		CMsgPacker ScoreMsg(NETMSG_TIME_SCORE);
-		ScoreMsg.AddInt(m_apPlayers[ClientID]->m_AllowTimeScore);
-		Server()->SendMsg(&ScoreMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID, true);
 	}
 
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
