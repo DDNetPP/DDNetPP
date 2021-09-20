@@ -8,6 +8,7 @@
 
 class CDummyBlmapChillPolice : public CDummyBase {
 public:
+	virtual ~CDummyBlmapChillPolice() {};
 	CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer);
 	virtual void OnTick();
 
