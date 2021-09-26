@@ -11,6 +11,7 @@
 #include "detect.h"
 #include "stddef.h"
 #include <time.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,6 +185,7 @@ enum {
 	IOFLAG_READ = 1,
 	IOFLAG_WRITE = 2,
 	IOFLAG_RANDOM = 4,
+	IOFLAG_APPEND = 8,
 
 	IOSEEK_START = 0,
 	IOSEEK_CUR = 1,
@@ -198,7 +200,7 @@ typedef struct IOINTERNAL *IOHANDLE;
 
 	Parameters:
 		filename - File to open.
-		flags - A set of flags. IOFLAG_READ, IOFLAG_WRITE, IOFLAG_RANDOM.
+		flags - A set of flags. IOFLAG_READ, IOFLAG_WRITE, IOFLAG_RANDOM, IOFLAG_APPEND.
 
 	Returns:
 		Returns a handle to the file on success and 0 on failure.
@@ -516,10 +518,16 @@ int net_init();
 		Does a hostname lookup by name and fills out the passed
 		NETADDR struct with the recieved details.
 
+	Parameters:
+		hostname - name
+		addr	 - address
+		types	 - net type
+		logtype	 - 0=ddnet++ logs 1=default console output
+
 	Returns:
 		0 on success.
 */
-int net_host_lookup(const char *hostname, NETADDR *addr, int types);
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype);
 
 /*
 	Function: net_addr_comp
@@ -966,6 +974,40 @@ int str_comp_num(const char *a, const char *b, const int num);
 int str_comp_filenames(const char *a, const char *b);
 
 /*
+	Function: str_startswith
+		Checks whether the string begins with a certain prefix.
+
+	Parameter:
+		str - String to check.
+		prefix - Prefix to look for.
+
+	Returns:
+		A pointer to the string str after the string prefix, or 0 if
+		the string prefix isn't a prefix of the string str.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+*/
+const char *str_startswith(const char *str, const char *prefix);
+
+/*
+	Function: str_endswith
+		Checks whether the string ends with a certain suffix.
+
+	Parameter:
+		str - String to check.
+		suffix - Suffix to look for.
+
+	Returns:
+		A pointer to the beginning of the suffix in the string str, or
+		0 if the string suffix isn't a suffix of the string str.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+*/
+const char *str_endswith(const char *str, const char *suffix);
+
+/*
 	Function: str_find_nocase
 		Finds a string inside another string case insensitive.
 
@@ -1015,6 +1057,23 @@ const char *str_find(const char *haystack, const char *needle);
 */
 void str_hex(char *dst, int dst_size, const void *data, int data_size);
 
+
+/*
+	Function: str_hex_decode
+		Takes a hex string *without spaces between bytes* and returns a
+		byte array.
+	Parameters:
+		dst - Buffer for the byte array
+		dst_size - size of the buffer
+		data - String to decode
+	Returns:
+		2 - String doesn't exactly fit the buffer
+		1 - Invalid character in string
+		0 - Success
+	Remarks:
+		- The contents of the buffer is only valid on success
+*/
+int str_hex_decode(void *dst, int dst_size, const char *src);
 /*
 	Function: str_timestamp
 		Copies a time stamp in the format year-month-day_hour-minute-second to the string.
@@ -1239,7 +1298,8 @@ int str_toint(const char *str);
 int str_toint_base(const char *str, int base);
 float str_tofloat(const char *str);
 int str_isspace(char c);
-char str_uppercase(char c);
+char ch_uppercase(char c);
+void str_uppercase(char *str);
 unsigned str_quickhash(const char *str);
 
 /*
@@ -1382,6 +1442,35 @@ int secure_random_init();
 		length - Length of the buffer.
 */
 void secure_random_fill(void *bytes, size_t length);
+
+/* * * * * * * * * * *
+ *                   *
+ *      DDNet++      *
+ *                   *
+ * * * * * * * * * * */
+
+/*
+	Function: regex_compile
+		checks if a regex pattern matches
+
+	Retrurns:
+	   -1 - on error
+		0 - if pattern matches
+		1 - if pattern doesn't match
+*/
+int regex_compile(const char *pPattern, const char *pStr);
+
+/*
+	Function: fpost_get_pos
+		ensures windows and unix support for fpos_t
+
+	Parameters:
+		pos - of type fpos_t
+
+	Returns:
+		a file position as long long
+*/
+long long fpost_get_pos(fpos_t pos);
 
 #ifdef __cplusplus
 }

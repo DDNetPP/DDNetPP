@@ -114,106 +114,163 @@ void CProjectile::Tick()
 	vec2 CurPos = GetPos(Ct);
 	vec2 ColPos;
 	vec2 NewPos;
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos, false);
+	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos);
 	CCharacter *pOwnerChar = 0;
 
-	if(m_Owner >= 0)
+	if (m_Owner >= 0)
 		pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
-	CCharacter *pTargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, ColPos, m_Freeze ? 1.0f : 6.0f, ColPos, pOwnerChar, m_Owner);
+	if (pOwnerChar && pOwnerChar->GetPlayer() && pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
+	{
+		//dbg_msg("cBug", "WARNING DETECTED m_IsVanillaWeapons MODE");
+		//dbg_msg("cBug", "VANILLA WEAPONS '%s:%d'", Server()->ClientName(pOwnerChar->GetPlayer()->GetCID()), pOwnerChar->GetPlayer()->GetCID());
 
-	if(m_LifeSpan > -1)
-		m_LifeSpan--;
 
-	int64_t TeamMask = -1LL;
-	bool isWeaponCollide = false;
-	if
-	(
-			pOwnerChar &&
-			pTargetChr &&
-			pOwnerChar->IsAlive() &&
-			pTargetChr->IsAlive() &&
-			!pTargetChr->CanCollide(m_Owner)
-			)
-	{
-			isWeaponCollide = true;
-			//TeamMask = OwnerChar->Teams()->TeamMask( OwnerChar->Team());
-	}
-	if (pOwnerChar && pOwnerChar->IsAlive())
-	{
-		TeamMask = pOwnerChar->Teams()->TeamMask(pOwnerChar->Team(), -1, m_Owner);
-	}
-	else if (m_Owner >= 0)
-	{
-		GameServer()->m_World.DestroyEntity(this);
-	}
+		CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, ColPos, pOwnerChar);
 
-	if( ((pTargetChr && (pOwnerChar ? !(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_GRENADE) : g_Config.m_SvHit || m_Owner == -1 || pTargetChr == pOwnerChar)) || Collide || GameLayerClipped(CurPos)) && !isWeaponCollide)
-	{
-		if(m_Explosive/*??*/ && (!pTargetChr || (pTargetChr && (!m_Freeze || (m_Weapon == WEAPON_SHOTGUN && Collide)))))
+		if (m_LifeSpan > -1)
+			m_LifeSpan--;
+
+		if (TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 		{
-			GameServer()->CreateExplosion(ColPos, m_Owner, m_Weapon, m_Owner == -1, (!pTargetChr ? -1 : pTargetChr->Team()),
-			(m_Owner != -1)? TeamMask : -1LL);
-			GameServer()->CreateSound(ColPos, m_SoundImpact,
-			(m_Owner != -1)? TeamMask : -1LL);
-		}
-		else if(pTargetChr && m_Freeze && ((m_Layer == LAYER_SWITCH && GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pTargetChr->Team()]) || m_Layer != LAYER_SWITCH))
-			pTargetChr->Freeze();
-		if(Collide && m_Bouncing != 0)
-		{
-			m_StartTick = Server()->Tick();
-			m_Pos = NewPos+(-(m_Direction*4));
-			if (m_Bouncing == 1)
-				m_Direction.x = -m_Direction.x;
-			else if(m_Bouncing == 2)
-				m_Direction.y = -m_Direction.y;
-			if (fabs(m_Direction.x) < 1e-6)
-				m_Direction.x = 0;
-			if (fabs(m_Direction.y) < 1e-6)
-				m_Direction.y = 0;
-			m_Pos += m_Direction;
-		}
-		else if (m_Weapon == WEAPON_GUN)
-		{
-			GameServer()->CreateDamageInd(CurPos, -atan2(m_Direction.x, m_Direction.y), 10, (m_Owner != -1)? TeamMask : -1LL);
+			if (m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE)
+				GameServer()->CreateSound(CurPos, m_SoundImpact);
+
+
+			if (m_Explosive)
+				GameServer()->CreateExplosion(ColPos, m_Owner, m_Weapon, m_Owner == -1, (!TargetChr ? -1 : TargetChr->Team()), -1LL);
+
+			else if (TargetChr)
+				TargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), 1, m_Owner, m_Weapon);
+
+
 			GameServer()->m_World.DestroyEntity(this);
 		}
+
+		int x = GameServer()->Collision()->GetIndex(PrevPos, CurPos);
+		int z;
+		if (g_Config.m_SvOldTeleportWeapons)
+			z = GameServer()->Collision()->IsTeleport(x);
 		else
-			if (!m_Freeze)
-				GameServer()->m_World.DestroyEntity(this);
-	}
-	if(m_LifeSpan == -1)
-	{
-		if(m_Explosive)
+			z = GameServer()->Collision()->IsTeleportWeapon(x);
+		if (z && ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1].size())
 		{
-			if(m_Owner >= 0)
-				pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
-
-			int64_t TeamMask = -1LL;
-			if (pOwnerChar && pOwnerChar->IsAlive())
-			{
-					TeamMask = pOwnerChar->Teams()->TeamMask(pOwnerChar->Team(), -1, m_Owner);
-			}
-
-			GameServer()->CreateExplosion(ColPos, m_Owner, m_Weapon, m_Owner == -1, (!pOwnerChar ? -1 : pOwnerChar->Team()),
-			(m_Owner != -1)? TeamMask : -1LL);
-			GameServer()->CreateSound(ColPos, m_SoundImpact,
-			(m_Owner != -1)? TeamMask : -1LL);
+			int Num = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1].size();
+			m_Pos = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1][(!Num) ? Num : rand() % Num];
+			m_StartTick = Server()->Tick();
 		}
-		GameServer()->m_World.DestroyEntity(this);
 	}
-
-	int x = GameServer()->Collision()->GetIndex(PrevPos, CurPos);
-	int z;
-	if (g_Config.m_SvOldTeleportWeapons)
-		z = GameServer()->Collision()->IsTeleport(x);
 	else
-		z = GameServer()->Collision()->IsTeleportWeapon(x);
-	if (z && ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z-1].size())
 	{
-		int Num = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z-1].size();
-		m_Pos = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z-1][(!Num)?Num:rand() % Num];
-		m_StartTick = Server()->Tick();
+
+		if (m_Owner >= 0)
+			pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+
+		CCharacter *pTargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, ColPos, m_Freeze ? 1.0f : 6.0f, ColPos, pOwnerChar, m_Owner);
+
+		if (m_LifeSpan > -1)
+			m_LifeSpan--;
+
+		int64_t TeamMask = -1LL;
+		bool isWeaponCollide = false;
+		if
+			(
+				pOwnerChar &&
+				pTargetChr &&
+				pOwnerChar->IsAlive() &&
+				pTargetChr->IsAlive() &&
+				!pTargetChr->CanCollide(m_Owner)
+				)
+		{
+			isWeaponCollide = true;
+			//TeamMask = OwnerChar->Teams()->TeamMask( OwnerChar->Team());
+		}
+		if (pOwnerChar && pOwnerChar->IsAlive())
+		{
+			TeamMask = pOwnerChar->Teams()->TeamMask(pOwnerChar->Team(), -1, m_Owner);
+		}
+		else if (m_Owner >= 0)
+		{
+			GameServer()->m_World.DestroyEntity(this);
+		}
+
+		if (((pTargetChr && (pOwnerChar ? !(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_GRENADE) : g_Config.m_SvHit || m_Owner == -1 || pTargetChr == pOwnerChar)) || Collide || GameLayerClipped(CurPos)) && !isWeaponCollide)
+		{
+			if (m_Explosive/*??*/ && (!pTargetChr || (pTargetChr && (!m_Freeze || (m_Weapon == WEAPON_SHOTGUN && Collide)))))
+			{
+				GameServer()->CreateExplosion(ColPos, m_Owner, m_Weapon, m_Owner == -1, (!pTargetChr ? -1 : pTargetChr->Team()),
+					(m_Owner != -1) ? TeamMask : -1LL);
+				GameServer()->CreateSound(ColPos, m_SoundImpact,
+					(m_Owner != -1) ? TeamMask : -1LL);
+			}
+			else if (pTargetChr && m_Freeze && ((m_Layer == LAYER_SWITCH && GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pTargetChr->Team()]) || m_Layer != LAYER_SWITCH))
+				pTargetChr->Freeze();
+			if (Collide && m_Bouncing != 0)
+			{
+				m_StartTick = Server()->Tick();
+				m_Pos = NewPos + (-(m_Direction * 4));
+				if (m_Bouncing == 1)
+					m_Direction.x = -m_Direction.x;
+				else if (m_Bouncing == 2)
+					m_Direction.y = -m_Direction.y;
+				if (fabs(m_Direction.x) < 1e-6)
+					m_Direction.x = 0;
+				if (fabs(m_Direction.y) < 1e-6)
+					m_Direction.y = 0;
+				m_Pos += m_Direction;
+			}
+			else if (m_Weapon == WEAPON_GUN)
+			{
+				if (GameServer()->GetPlayerChar(m_Owner) && GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_IsVanillaDmg)
+				{
+					if (pTargetChr)
+					{
+						pTargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), 1, m_Owner, m_Weapon);
+					}
+				}
+				else
+				{
+					GameServer()->CreateDamageInd(CurPos, -atan2(m_Direction.x, m_Direction.y), 10, (m_Owner != -1) ? TeamMask : -1LL);
+				}
+				GameServer()->m_World.DestroyEntity(this);
+			}
+			else
+				if (!m_Freeze)
+					GameServer()->m_World.DestroyEntity(this);
+		}
+		if (m_LifeSpan == -1)
+		{
+			if (m_Explosive)
+			{
+				if (m_Owner >= 0)
+					pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+
+				int64_t TeamMask = -1LL;
+				if (pOwnerChar && pOwnerChar->IsAlive())
+				{
+					TeamMask = pOwnerChar->Teams()->TeamMask(pOwnerChar->Team(), -1, m_Owner);
+				}
+
+				GameServer()->CreateExplosion(ColPos, m_Owner, m_Weapon, m_Owner == -1, (!pOwnerChar ? -1 : pOwnerChar->Team()),
+					(m_Owner != -1) ? TeamMask : -1LL);
+				GameServer()->CreateSound(ColPos, m_SoundImpact,
+					(m_Owner != -1) ? TeamMask : -1LL);
+			}
+			GameServer()->m_World.DestroyEntity(this);
+		}
+
+		int x = GameServer()->Collision()->GetIndex(PrevPos, CurPos);
+		int z;
+		if (g_Config.m_SvOldTeleportWeapons)
+			z = GameServer()->Collision()->IsTeleport(x);
+		else
+			z = GameServer()->Collision()->IsTeleportWeapon(x);
+		if (z && ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1].size())
+		{
+			int Num = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1].size();
+			m_Pos = ((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts[z - 1][(!Num) ? Num : rand() % Num];
+			m_StartTick = Server()->Tick();
+		}
 	}
 }
 
@@ -259,7 +316,7 @@ void CProjectile::Snap(int SnappingClient)
 	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID, sizeof(CNetObj_Projectile)));
 	if(pProj)
 	{
-		if(SnappingClient > -1 && GameServer()->m_apPlayers[SnappingClient] && GameServer()->m_apPlayers[SnappingClient]->m_ClientVersion >= VERSION_DDNET_ANTIPING_PROJECTILE)
+		if(!g_Config.m_SvVanillaShotgun && SnappingClient > -1 && GameServer()->m_apPlayers[SnappingClient] && GameServer()->m_apPlayers[SnappingClient]->m_ClientVersion >= VERSION_DDNET_ANTIPING_PROJECTILE)
 			FillExtraInfo(pProj);
 		else
 			FillInfo(pProj);

@@ -64,6 +64,11 @@ public:
 
 	virtual void SaveTeam(int Team, const char* Code, int ClientID, const char* Server) = 0;
 	virtual void LoadTeam(const char* Code, int ClientID) = 0;
+
+	//ddpp
+
+	virtual void SaveCIData(const char* ci_data) = 0;
+	virtual std::string LoadCIData() = 0;
 };
 
 #endif

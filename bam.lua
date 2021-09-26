@@ -1,4 +1,3 @@
-CheckVersion("0.4")
 
 Import("configure.lua")
 Import("other/sdl/sdl.lua")
@@ -13,7 +12,7 @@ Import("other/mysql/mysql.lua")
 config = NewConfig()
 config:Add(OptCCompiler("compiler"))
 config:Add(OptTestCompileC("stackprotector", "int main(){return 0;}", "-fstack-protector -fstack-protector-all"))
-config:Add(OptTestCompileC("minmacosxsdk", "int main(){return 0;}", "-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk"))
+config:Add(OptTestCompileC("minmacosxsdk", "int main(){return 0;}", "-mmacosx-version-min=10.7 -isysroot /Developer/SDKs/MacOSX10.7.sdk"))
 config:Add(OptTestCompileC("macosxppc", "int main(){return 0;}", "-arch ppc"))
 config:Add(OptLibrary("zlib", "zlib.h", false))
 config:Add(SDL.OptFind("sdl", true))
@@ -110,60 +109,28 @@ end
 -- Content Compile
 network_source = ContentCompile("network_source", "src/game/generated/protocol.cpp")
 network_header = ContentCompile("network_header", "src/game/generated/protocol.h")
-client_content_source = ContentCompile("client_content_source", "src/game/generated/client_data.cpp")
-client_content_header = ContentCompile("client_content_header", "src/game/generated/client_data.h")
 server_content_source = ContentCompile("server_content_source", "src/game/generated/server_data.cpp")
 server_content_header = ContentCompile("server_content_header", "src/game/generated/server_data.h")
 
 AddDependency(network_source, network_header)
-AddDependency(client_content_source, client_content_header)
 AddDependency(server_content_source, server_content_header)
 
 nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
-client_link_other = {}
-client_depends = {}
+git_rev = "src/game/generated/git_revision.cpp"
+AddJob(Path(git_rev), "git revision", Script("scripts/git_revision.py") .. " > " .. Path(git_rev))
+AddDependency(git_rev, Path("scripts/git_revision.py"))
+
 server_link_other = {}
 server_sql_depends = {}
 
 if family == "windows" then
-	if platform == "win32" then
-		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\lib32\\freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\sdl\\lib32\\SDL.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib32\\libcurl.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib32\\libeay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib32\\libidn-11.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib32\\ssleay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib32\\zlib1.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib32\\libgcc_s_sjlj-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib32\\libogg-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib32\\libopus-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib32\\libopusfile-0.dll"))
-	else
-		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\lib64\\freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\sdl\\lib64\\SDL.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib64\\libcurl.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib64\\libeay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib64\\ssleay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\curl\\windows\\lib64\\zlib1.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib64\\libwinpthread-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib64\\libgcc_s_seh-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib64\\libogg-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib64\\libopus-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\opus\\windows\\lib64\\libopusfile-0.dll"))
-	end
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\mysqlcppconn.dll"))
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\libmysql.dll"))
 
 	if config.compiler.driver == "cl" then
-		client_link_other = {ResCompile("other/icons/teeworlds_cl.rc")}
 		server_link_other = {ResCompile("other/icons/teeworlds_srv_cl.rc")}
 	elseif config.compiler.driver == "gcc" then
-		client_link_other = {ResCompile("other/icons/teeworlds_gcc.rc")}
 		server_link_other = {ResCompile("other/icons/teeworlds_srv_gcc.rc")}
 	end
 end
@@ -208,8 +175,14 @@ function build(settings)
 			-- disable visibility attribute support for gcc on windows
 			settings.cc.defines:Add("NO_VIZ")
 		elseif platform == "macosx" then
-			settings.cc.flags:Add("-mmacosx-version-min=10.5")
-			settings.link.flags:Add("-mmacosx-version-min=10.5")
+			-- c++ stdlib needed
+			settings.cc.flags:Add("--stdlib=libc++")
+			settings.link.flags:Add("--stdlib=libc++")
+			-- this also needs the macOS min SDK version to be at least 10.7
+
+			settings.cc.flags:Add("-mmacosx-version-min=10.7")
+			settings.link.flags:Add("-mmacosx-version-min=10.7")
+
 			if config.minmacosxsdk.value == 1 then
 				settings.cc.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
 				settings.link.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
@@ -229,7 +202,7 @@ function build(settings)
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
 			settings.link.libs:Add("dl")
-			settings.link.libs:Add("crypto")
+			-- settings.link.libs:Add("crypto")
 		else
 			settings.link.libs:Add("pthread")
 			settings.link.libs:Add("dl")
@@ -262,6 +235,8 @@ function build(settings)
 	end
 
 	-- build the small libraries
+	settings.cc.includes:Add("src/engine/external/sqlite3")
+	sqlite3 = Compile(settings, Collect("src/engine/external/sqlite3/*.c"))
 	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	jsonparser = Compile(settings, Collect("src/engine/external/json-parser/*.c"))
@@ -273,72 +248,36 @@ function build(settings)
 	-- build game components
 	engine_settings = settings:Copy()
 	server_settings = engine_settings:Copy()
-	client_settings = engine_settings:Copy()
 	launcher_settings = engine_settings:Copy()
 
 	if family == "unix" then
 		if platform == "macosx" then
-			client_settings.link.frameworks:Add("OpenGL")
-			client_settings.link.frameworks:Add("AGL")
-			client_settings.link.frameworks:Add("Carbon")
-			client_settings.link.frameworks:Add("Cocoa")
 			launcher_settings.link.frameworks:Add("Cocoa")
-			client_settings.cc.flags:Add("-I/opt/X11/include")
-		else
-			client_settings.link.libs:Add("X11")
-			client_settings.link.libs:Add("GL")
-			client_settings.link.libs:Add("GLU")
-			client_settings.link.libs:Add("dl")
 		end
 
 	elseif family == "windows" then
-		if arch == "amd64" then
-			client_settings.link.libpath:Add("other/curl/windows/lib64")
-		else
-			client_settings.link.libpath:Add("other/curl/windows/lib32")
-		end
-		client_settings.link.libs:Add("opengl32")
-		client_settings.link.libs:Add("glu32")
-		client_settings.link.libs:Add("winmm")
-		client_settings.link.libs:Add("libopusfile-0")
-		client_settings.link.libs:Add("curl")
 		if string.find(settings.config_name, "sql") then
 			server_settings.link.libpath:Add("other/mysql/vc2005libs")
 			server_settings.link.libs:Add("mysqlcppconn")
 		end
 	end
 
-	config.sdl:Apply(client_settings)
-	config.freetype:Apply(client_settings)
-	config.curl:Apply(client_settings)
-	config.opusfile:Apply(client_settings)
-	config.opus:Apply(client_settings)
-	config.ogg:Apply(client_settings)
-
 	engine = Compile(engine_settings, Collect("src/engine/shared/*.cpp", "src/base/*.c"))
-	client = Compile(client_settings, Collect("src/engine/client/*.cpp"))
 	server = Compile(server_settings, Collect("src/engine/server/*.cpp"))
 
 	versionserver = Compile(settings, Collect("src/versionsrv/*.cpp"))
 	masterserver = Compile(settings, Collect("src/mastersrv/*.cpp"))
 	twping = Compile(settings, Collect("src/twping/*.cpp"))
-	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, network_source)
-	game_client = Compile(client_settings, CollectRecursive("src/game/client/*.cpp"), client_content_source)
+	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, git_rev, network_source)
 	game_server = Compile(settings, CollectRecursive("src/game/server/*.cpp"), server_content_source)
 	game_editor = Compile(settings, Collect("src/game/editor/*.cpp"))
 
 	-- build tools (TODO: fix this so we don't get double _d_d stuff)
 	tools_src = Collect("src/tools/*.cpp", "src/tools/*.c")
+	tools_ddpp_src = Collect("src/tools/ddpp/*.cpp", "src/tools/ddpp/*.c")
 
-	client_notification = {}
-	client_osxlaunch = {}
 	server_osxlaunch = {}
 	if platform == "macosx" then
-		notification_settings = client_settings:Copy()
-		notification_settings.cc.flags:Add("-x objective-c++")
-		notification_settings.cc.flags:Add("-I/System/Library/Frameworks/Foundation.framework/Versions/C/Headers")
-		client_notification = Compile(notification_settings, "src/osx/notification.m")
-		client_osxlaunch = Compile(client_settings, "src/osxlaunch/client.m")
 		server_osxlaunch = Compile(launcher_settings, "src/osxlaunch/server.m")
 	end
 
@@ -348,13 +287,14 @@ function build(settings)
 		tools[i] = Link(settings, toolname, Compile(settings, v), engine, zlib, pnglite, md5)
 	end
 
-	-- build client, server, version server and master server
-	client_exe = Link(client_settings, "DDNet", game_shared, game_client,
-		engine, client, game_editor, zlib, pnglite, wavpack,
-		client_link_other, client_osxlaunch, jsonparser, libwebsockets, md5, client_notification)
+	tools_ddpp = {}
+	for i,v in ipairs(tools_ddpp_src) do
+		toolname_ddpp = PathFilename(PathBase(v))
+		tools_ddpp[i] = Link(settings, toolname_ddpp, Compile(settings, v), engine, zlib, pnglite, md5)
+	end
 
-	server_exe = Link(server_settings, "DDNet-Server", engine, server,
-		game_shared, game_server, zlib, server_link_other, libwebsockets, md5)
+	server_exe = Link(server_settings, "DDNetPP", engine, server,
+		game_shared, game_server, zlib, server_link_other, libwebsockets, md5, sqlite3)
 
 	serverlaunch = {}
 	if platform == "macosx" then
@@ -371,20 +311,20 @@ function build(settings)
 		engine, zlib, md5)
 
 	-- make targets
-	c = PseudoTarget("client".."_"..settings.config_name, client_exe, client_depends)
 	if string.find(settings.config_name, "sql") then
 		s = PseudoTarget("server".."_"..settings.config_name, server_exe, serverlaunch, server_sql_depends)
 	else
 		s = PseudoTarget("server".."_"..settings.config_name, server_exe, serverlaunch)
 	end
-	g = PseudoTarget("game".."_"..settings.config_name, client_exe, server_exe)
+	g = PseudoTarget("game".."_"..settings.config_name, server_exe)
 
 	v = PseudoTarget("versionserver".."_"..settings.config_name, versionserver_exe)
 	m = PseudoTarget("masterserver".."_"..settings.config_name, masterserver_exe)
 	t = PseudoTarget("tools".."_"..settings.config_name, tools)
+	d = PseudoTarget("tools_ddpp".."_"..settings.config_name, tools_ddpp)
 	p = PseudoTarget("twping".."_"..settings.config_name, twping_exe)
 
-	all = PseudoTarget(settings.config_name, c, s, v, m, t, p)
+	all = PseudoTarget(settings.config_name, s, v, m, t, d, p)
 	return all
 end
 
@@ -458,8 +398,6 @@ if platform == "macosx" then
 		debug_settings_x86 = debug_settings:Copy()
 		debug_settings_x86.config_name = "debug_x86"
 		debug_settings_x86.config_ext = "_x86_d"
-		debug_settings_x86.cc.flags:Add("-arch i386")
-		debug_settings_x86.link.flags:Add("-arch i386")
 		debug_settings_x86.cc.defines:Add("CONF_DEBUG")
 
 		debug_sql_settings_x86 = debug_sql_settings:Copy()
@@ -472,8 +410,6 @@ if platform == "macosx" then
 		release_settings_x86 = release_settings:Copy()
 		release_settings_x86.config_name = "release_x86"
 		release_settings_x86.config_ext = "_x86"
-		release_settings_x86.cc.flags:Add("-arch i386")
-		release_settings_x86.link.flags:Add("-arch i386")
 		release_settings_x86.cc.defines:Add("CONF_RELEASE")
 	
 		release_sql_settings_x86 = release_sql_settings:Copy()
@@ -532,8 +468,6 @@ if platform == "macosx" then
 			PseudoTarget("debug", ppc_d, x86_d)
 			PseudoTarget("server_release", "server_release_ppc", "server_release_x86")
 			PseudoTarget("server_debug", "server_debug_ppc", "server_debug_x86")
-			PseudoTarget("client_release", "client_release_ppc", "client_release_x86")
-			PseudoTarget("client_debug", "client_debug_ppc", "client_debug_x86")
 			PseudoTarget("sql_release", sql_ppc_r, sql_x86_r)
 			PseudoTarget("sql_debug", sql_ppc_d, sql_x86_d)
 			PseudoTarget("server_sql_release", "server_sql_release_ppc", "server_sql_release_x86")
@@ -543,8 +477,6 @@ if platform == "macosx" then
 			PseudoTarget("debug", ppc_d, x86_d, x86_64_d)
 			PseudoTarget("server_release", "server_release_ppc", "server_release_x86", "server_release_x86_64")
 			PseudoTarget("server_debug", "server_debug_ppc", "server_debug_x86", "server_debug_x86_64")
-			PseudoTarget("client_release", "client_release_ppc", "client_release_x86", "client_release_x86_64")
-			PseudoTarget("client_debug", "client_debug_ppc", "client_debug_x86", "client_debug_x86_64")
 			PseudoTarget("sql_release", sql_ppc_r, sql_x86_r, sql_x86_64_r)
 			PseudoTarget("sql_debug", sql_ppc_d, sql_x86_d, sql_x86_64_d)
 			PseudoTarget("server_sql_release", "server_sql_release_ppc", "server_sql_release_x86", "server_sql_release_x86_64")
@@ -554,8 +486,6 @@ if platform == "macosx" then
 			PseudoTarget("debug", ppc_d)
 			PseudoTarget("server_release", "server_release_ppc")
 			PseudoTarget("server_debug", "server_debug_ppc")
-			PseudoTarget("client_release", "client_release_ppc")
-			PseudoTarget("client_debug", "client_debug_ppc")
 			PseudoTarget("sql_release", sql_ppc_r)
 			PseudoTarget("sql_debug", sql_ppc_d)
 			PseudoTarget("server_sql_release", "server_sql_release_ppc")
@@ -567,8 +497,6 @@ if platform == "macosx" then
 			PseudoTarget("debug", x86_d)
 			PseudoTarget("server_release", "server_release_x86")
 			PseudoTarget("server_debug", "server_debug_x86")
-			PseudoTarget("client_release", "client_release_x86")
-			PseudoTarget("client_debug", "client_debug_x86")
 			PseudoTarget("sql_release", sql_x86_r)
 			PseudoTarget("sql_debug", sql_x86_d)
 			PseudoTarget("server_sql_release", "server_sql_release_x86")
@@ -578,8 +506,6 @@ if platform == "macosx" then
 			PseudoTarget("debug", x86_d, x86_64_d)
 			PseudoTarget("server_release", "server_release_x86", "server_release_x86_64")
 			PseudoTarget("server_debug", "server_debug_x86", "server_debug_x86_64")
-			PseudoTarget("client_release", "client_release_x86", "client_release_x86_64")
-			PseudoTarget("client_debug", "client_debug_x86", "client_debug_x86_64")
 			PseudoTarget("sql_release", sql_x86_r, sql_x86_64_r)
 			PseudoTarget("sql_debug", sql_x86_d, sql_x86_64_d)
 			PseudoTarget("server_sql_release", "server_sql_release_x86", "server_sql_release_x86_64")

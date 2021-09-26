@@ -162,7 +162,7 @@ void BuildPackets()
 		{
 			*pCurrent = m_aServers[m_NumServers-1];
 			m_NumServers--;
-			dbg_msg("mastersrv", "error: server of invalid type, dropping it");
+			dbg_msg("mastersrv", "ERROR: server of invalid type, dropping it");
 		}
 	}
 }
@@ -208,7 +208,7 @@ void AddCheckserver(NETADDR *pInfo, NETADDR *pAlt, ServerType Type)
 	// add server
 	if(m_NumCheckServers == MAX_SERVERS)
 	{
-		dbg_msg("mastersrv", "error: mastersrv is full");
+		dbg_msg("mastersrv", "ERROR: mastersrv is full");
 		return;
 	}
 
@@ -243,7 +243,7 @@ void AddServer(NETADDR *pInfo, ServerType Type)
 	// add server
 	if(m_NumServers == MAX_SERVERS)
 	{
-		dbg_msg("mastersrv", "error: mastersrv is full");
+		dbg_msg("mastersrv", "ERROR: mastersrv is full");
 		return;
 	}
 
@@ -314,7 +314,7 @@ void PurgeServers()
 void ReloadBans()
 {
 	m_NetBan.UnbanAll();
-	m_pConsole->ExecuteFile("master.cfg");
+	m_pConsole->ExecuteFile("master.cfg", -1);
 }
 
 int main(int argc, const char **argv) // ignore_convention
@@ -346,7 +346,7 @@ int main(int argc, const char **argv) // ignore_convention
 	if(argc > 1) // ignore_convention
 		m_pConsole->ParseArguments(argc-1, &argv[1]); // ignore_convention
 
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
+	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
 	{
 		// got bindaddr
 		BindAddr.type = NETTYPE_ALL;

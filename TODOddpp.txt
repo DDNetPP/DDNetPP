@@ -1,0 +1,128 @@
+﻿~~~ BUGS ~~~
+
+~~~ LESS IMPORTANT BUGS ~~~
+
+## Jail ##
+there was this one case i guess it was player with client id 0 (fokko says: doesnt depend on id)
+he always gets jail code 0 
+could also be a feature xd idk yet
+
+## pChr != this ##
+while working on FNN i expirienced a bug after touching the bot
+and then selfkilling. The bot keeps spamming in chat "stup touch me" 
+and then i added to this line:
+	if (pChr && pChr->IsAlive())
+this:
+	if (pChr && pChr->IsAlive() && pChr != this)
+what fixed it. idk if this also causes some selfblock points or something like that or if this error is catched somewhere else.
+this can also fuck some dummymodes idk better check it on time
+
+## commands ##
+Almost all chat commands added require a character to be executed or it returns.
+But for example /shop doesnt need it change it but be carefull it can cause crashbugs
+
+## instagib killingspree (sv_intsa 1) ##
+if you get killed by a player who left the game things get crazy even in vanilla
+so stick to the blockkillingspreesystem and all is fine c:
+
+and also if players are missing for killingsprees make it possible to end killingsprees but end how? better think of it good and maybe look ad the blockklinningspree system
+
+## IsSameIP ##
+behaves weird on local server with dummys check if it works online
+and also behaved weird on official server (not local). i did '/gift Chillingo.*' and server said "don't gift ur dummy" 
+
+~~~ ADD ~~~
+
+##  mail ##
+add a new database only for mails
+and add some '/mail send (username) (title) (content)' command
+and '/mail list' and '/mail read (id of the mail)'
+
+## survival ##
+add cosmetics for the lobby
+gun curvature (needed for the whole vanilla mode nor only for survival)
+
+## vip/vip+ ##
+better track their features and a nice vipinfo command ingame
+
+## security ##
+add pins which are needed for passwords change
+add backup questions to restore password without email
+hash the passwords in the database
+
+## livestreams ##
+add '/livestream host' command to host a livestream
+a hoster gets printed all '/livestream view'ers in broadcast
+and the viewers get paused and focused on the tee.
+there is an extra stream chat and idk totally useless feature
+
+## trade command ##
+add trade delay levels to shop
+default level 0 has a delay of 20 minutes and max speed is 20 seconds
+add Items: homing missiles ammo
+
+## king of hill ##
+Capturing areas with bloody tiles which show the current leading tee
+
+## block points dummy check ##
+im very insecure baut diz. But maybe add a check where only non equal ips can collect block points
+
+## waveblock bot sub mod ##
+add something like monster where you have to hold a position
+and if all humans are freezed round restarts
+and add upgrades only for this sub mod like
+weapons (with ammo)
+jetpack
+endless
+
+## Apocalypse ##
+rework map and copy paste the whole map and then edit it to a broken version
+more doodads and some gernric tiles missing and stuff like this.
+then code something which changes spawns to this spawns
+and init it with something crazy (for example combine all stuff 166 420 and maybe send some sounds and or a broadcast saying "rip world")
+then kill all player.. and *plopp* they are in a Apocalypse version of the server o.O
+the killall() maybe needs a KillDDPP() in the character.cpp DDPP_DIE() func to kill all the ddpp stuff running (minigames and stuff)
+
+## ip und clan speichern ##
+mehr daten über den user sammeln und last names mal gut testen und wenn nötig fixxen
+Name Fix [x]
+IP [x]
+Clan [x]
+Skin [x]
+Country [ ]
+last login date [ ]
+account registration date [x]
+
+## Homing Missiles ##
+Die Waffe selber kann ab police lvl 4 erworben werden.
+Monition kann jedoch jeder an den munition spawner tiles sammeln (die dort random spawnen)
+
+## jail ##
+add reasons why people get arrested (bankrob, spawnblock, report)
+and add a report command
+"/report (player) (reason)" to report a player
+und dann ein paar reasons:
+- spawnblocking
+- hacking
+- insulting
+- scamming
+und wenn dann genung reports der selben reason ankamen wird die police auf den geschickt
+
+## warps ##
+add warps like in minecraft
+/tele_create (name)
+/tele (name)
+works ingame
+supermoderators can create some for much money but only if x < cfgrated (to avoid race cheats)
+and all tele there for some money
+
+## dppgametype 5 (full fng server) ##
+add sv_scorelimit back agian
+
+COULD AND TO DOS:
+
+//gamecontext.cpp code: cfv45
+COULD inform creator live if some1 watched if he has this feed activated (use new show command)
+
+//character.cpp code: 6gta8w
+TODO move this check if there is an survival spawn somewhere in gamecontext to the gamestart or soemthign like that

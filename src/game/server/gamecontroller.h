@@ -24,8 +24,8 @@ class IGameController
 {
 	friend class CSaveTeam; // need acces to GameServer() and Server()
 
-	vec2 m_aaSpawnPoints[3][64];
-	int m_aNumSpawnPoints[3];
+	vec2 m_aaSpawnPoints[4][64];
+	int m_aNumSpawnPoints[4];
 
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
@@ -51,7 +51,7 @@ protected:
 
 	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos);
 	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
-	bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos);
+	//bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos); //ChillerDragon commented it out cuz it is just a soul of an empty function the mod runs fine without i guess :p
 
 	//void CycleMap();
 	void ResetGame();
@@ -63,7 +63,7 @@ protected:
 	int m_GameOverTick;
 	int m_SuddenDeath;
 
-	//int m_aTeamscore[2];
+	int m_aTeamscore[2];
 
 	int m_Warmup;
 	int m_RoundCount;
@@ -71,27 +71,26 @@ protected:
 	int m_GameFlags;
 	int m_UnbalancedTick;
 	bool m_ForceBalanced;
+	//bool m_disarm = false;
 
 public:
 	const char *m_pGameType;
 
-	//bool IsTeamplay() const;
-	//bool IsGameOver() const { return m_GameOverTick != -1; }
+	//vec2 m_FunPoint;
+
+	bool IsTeamplay() const;
+	bool IsGameOver() const { return m_GameOverTick != -1; }
 
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
 
-	// virtual void DoWincheck();
+	virtual void DoWincheck();
 
 	void DoWarmup(int Seconds);
 
 	void StartRound();
 	void EndRound();
 	void ChangeMap(const char *pToMap);
-
-	bool IsFriendlyFire(int ClientID1, int ClientID2);
-
-	bool IsForceBalanced();
 
 	/*
 
@@ -142,7 +141,7 @@ public:
 	//virtual void OnPlayerInfoChange(class CPlayer *pP);
 
 	//
-	virtual bool CanSpawn(int Team, vec2 *pPos);
+	virtual bool CanSpawn(int Team, vec2 *pPos, class CPlayer *pPlayer);
 
 	/*
 

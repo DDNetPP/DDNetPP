@@ -237,7 +237,15 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	char aBuf[512];
-	pSelf->SendChatTarget(ClientID, "----------- Top 5 -----------");
+	if (g_Config.m_SvInstagibMode)
+	{
+		str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvKillsToFinish);
+	}
+	else
+	{
+		str_format(aBuf, sizeof(aBuf), "----------- Top 5 -----------");
+	}
+	pSelf->SendChatTarget(ClientID, aBuf);
 	for (int i = 0; i < 5; i++)
 	{
 		if (i + Debut > m_Top.size())
@@ -347,4 +355,43 @@ void CFileScore::LoadTeam(const char* Code, int ClientID)
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "Save-function not supported in file based servers");
 	GameServer()->SendChatTarget(ClientID, aBuf);
+}
+
+/*
+
+	DDNet++
+
+*/
+
+void CFileScore::SaveCIData(const char * ci_data) //chillintelligenz (not intelligent at all rofl)
+{
+	std::fstream f;
+	f.open("chillerbot.txt", std::ios::out);
+	if (!f.fail())
+	{
+		f << ci_data << std::endl;
+	}
+	f.close();
+}
+
+std::string CFileScore::LoadCIData()
+{
+
+	std::fstream f;
+	f.open("chillerbot.txt", std::ios::in);
+
+	while (!f.eof() && !f.fail())
+	{
+		std::string Line;
+		//const char* Line;
+		std::getline(f, Line);
+		if (!f.eof() && Line != "")
+		{
+			//dbg_msg("CI", Line);
+			return Line;
+		}
+	}
+	f.close();
+
+	return "error";
 }

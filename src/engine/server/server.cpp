@@ -22,6 +22,7 @@
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
+#include <engine/shared/protocol_ex.h>
 #include <engine/shared/snapshot.h>
 #include <engine/shared/fifoconsole.h>
 
@@ -32,6 +33,7 @@
 #include <vector>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
+#include <base/ddpp_logs.h>
 
 #include "register.h"
 #include "server.h"
@@ -41,6 +43,11 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 #endif
+
+// DDPP ( ChillerDragon )
+#include <string>
+#include <fstream>
+
 
 static const char *StrLtrim(const char *pStr)
 {
@@ -143,6 +150,233 @@ void CSnapIDPool::TimeoutIDs()
 	// process timed ids
 	while(m_FirstTimed != -1)
 		RemoveFirstTimeout();
+}
+
+
+
+void CServer::BotJoin(int BotID)
+{
+	const char *pNames[] = { //Array für die Namen
+		"flappy.*",
+		"Chillingo.*",
+		"Fluffy.*",
+		"MLG_PRO.*",
+		"Enzym.*",
+		"ZillyDreck.*",
+		"ciliDR[HUN].*",
+		"fuzzle.*",
+		"Piko.*",
+		"chilliger.*",
+		"ChilligerDrago",
+		"GubbaFubba",
+		"fuZZle.*",
+		"<bot>",
+		"<noob>",
+		"<police>",
+		"<train>",
+		"<boat>",
+		"<blocker>",
+		"<racer>",
+		"<hyper>",
+		"$heeP",
+		"b3ep",
+		"chilluminatee.*",
+		"auftragschiller",
+		"abcJuhee",
+		"BANANA.*",
+		"POTATO.*",
+		"<cucumber>",
+		"<rape>",
+		"<_BoT__>",
+		"NotMyName",
+		"NotChiller",
+		"NotChiIIer",
+		"NotChlIer",
+		"fuckmesoon.*",
+		"DataNub",
+		"149.202.127.134",
+		"<hacker>",
+		"<cheater>",
+		"<glitcher>",
+		"__ERROR",
+		"404_kein_tier",
+		"ZitrusFRUCHT",
+		"BAUMKIND",
+		"KELLERKIND",
+		"KINDERKIND",
+		"einZug-",
+		"<bob>",
+		"BezzyHill",
+		"BeckySkill",
+		"Skilli.*",
+		"UltraVa.",
+		"DONATE!",
+		"SUBSCRIBE!",
+		"SHARE!",
+		"#like",
+		"<#name_>",
+		"KRISTIAN-.",
+		".,-,08/524",
+		"3113pimml34",
+		"NotAB0t",
+		"Hurman",
+		"xxlddnnet64",
+		"flappy.*", //64igster name
+		"steeeve",
+		"naki.*",
+		"tuba.*",
+		"higge.*",
+		"linux_uzer3k",
+		"hubbat.*",
+		"Proviet-",
+		"7h89",
+		"1276.*",
+		"SchinKKKen",
+		"FOSSIELamKIEL",
+		"apfelFUZ",
+		"cron_tabur",
+		"hinter_c_dur",
+		"equariator",
+		"deckztinator",
+		"intezinatoha",
+		"defquirlibaor",
+		"enmuhinakur",
+		"wooknazitur",
+		"demnatura",
+		"intranuza",
+		"eggspikuza",
+		"finaluba",
+		"denkrikator",
+		"nihilatur",
+		"Goethe[HUN]",
+		"RightIsRight.*",
+		"Egg_user_xd",
+		"avucadur",
+		"NoeeoN",
+		"wuuuzzZZZa",
+		"JezzicaP",
+		"Jeqqicaqua",
+		"analyticus",
+		"haspiclecane",
+		"nameus",
+		"tahdequz",
+		"rostBEULEH",
+		"regenwurm674",
+		"mc_cm",
+		"ddpp",
+		"DDNet++",
+		"pidgin.,a",
+		"bibubablbl",
+		"randomNAME2",
+		"Mircaduzla",
+		"zer0_brain",
+		"haxxor-420",
+		"fok-me-fok",
+		"fok-fee-san",
+		"denzulat",
+		"epsilat",
+		"destructat",
+		"hinzuckat",
+		"penZilin",
+		"deszilin",
+		"VogelFisch7",
+		"Dont4sk",
+		"i_fokmen_i",
+		"noobScout24",
+		"geneticual",
+		"fokkoNUT"
+
+		
+	};
+	const char *pClans[] = { //Array für die Clans
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"Chilli.*",
+		"21",
+		"22",
+		"23",
+		"24",
+		"25",
+		"26",
+		"27",
+		"28",
+		"29",
+		"30",
+		"31",
+		"32",
+		"33",
+		"34",
+		"35",
+		"36",
+		"37",
+		"38",
+		"39",
+		"40",
+		"41",
+		"42",
+		"43",
+		"44",
+		"45",
+		"46",
+		"47",
+		"48",
+		"49",
+		"50",
+		"51",
+		"52",
+		"53",
+		"54",
+		"55",
+		"56",
+		"57",
+		"58",
+		"59",
+		"60",
+		"61",
+		"62",
+		"63",
+		"64"
+	};
+
+	m_NetServer.BotInit(BotID);
+	m_aClients[BotID].m_State = CClient::STATE_BOT;
+	m_aClients[BotID].m_Authed = AUTHED_NO;
+
+	str_copy(m_aClients[BotID].m_aName, pNames[BotID], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
+	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
+}
+
+void CServer::BotLeave(int BotID, bool silent)
+{
+	GameServer()->OnClientDrop(BotID, "", silent);
+
+	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
+	m_aClients[BotID].m_aName[0] = 0;
+	m_aClients[BotID].m_aClan[0] = 0;
+	m_aClients[BotID].m_Country = -1;
+	m_aClients[BotID].m_Authed = AUTHED_NO;
+	m_aClients[BotID].m_AuthTries = 0;
+	m_aClients[BotID].m_pRconCmdToSend = 0;
+	m_aClients[BotID].m_Snapshots.PurgeAll();
+
+	m_NetServer.BotDelete(BotID);
 }
 
 void CSnapIDPool::FreeID(int ID)
@@ -334,7 +568,8 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "'%s' -> '%s'", pName, aTrimmedName);
-	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
+	if (g_Config.m_SvShowRenameMessages)
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 	pName = aTrimmedName;
 
 	// make sure that two clients doesn't have the same name
@@ -345,8 +580,101 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 				return -1;
 		}
 
-	// set the client name
+	//ChillerDragons Badname protection
+	//const int BadNamesLen = 8;
+	//char aBadNames[BadNamesLen][16] = {"ChillerDragon","NotNice","FokPutin","Dumpfbacke","doofman","gemeini","hirsemensch","ziegenfokker"};
+	//bool IsBadName = false;
+
+	//for (int i = 0; i < BadNamesLen; i++)
+	//{
+	//	if (!str_comp(aBadNames[i], pName))
+	//	{
+	//		IsBadName = true;
+	//		break;
+	//	}
+	//}
+
+	//// set the client name
+	//if (IsBadName)
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
+
+	//ChillerDragons Clan Protection (for real clans not Chilli.* xd)
+	//const int MembersLen = 8;
+	//char aMembers[MembersLen][16] = { "ChillerDragon","NotNice","FokPutin","Dumpfbacke","doofman","gemeini","hirsemensch","ziegenfokker" };
+	//bool IsMember = false;
+
+	//for (int i = 0; i < MembersLen; i++)
+	//{
+	//	if (!str_comp(aMembers[i], pName))
+	//	{
+	//		IsMember = true;
+	//		break;
+	//	}
+	//}
+
+	//// set the client name
+	//if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "test"))
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
+
+	//Clan Protection with textfiles by PeBox //TODO: this system has massive bugs it works delayed and uses the old clan:
+	//I can join as "ChillerDragon" with the clantag "RIXP" and nothing happens but when i change the name to "ChillerDragon2" i get named "fekerdregun"
+
+	//bool IsMember = false;
+	//std::vector<std::string> vFileData;
+
+	//std::string line;
+	//std::ifstream sNameData("ddpp_scripts/member.txt");
+
+	//if (sNameData.is_open())
+	//{
+	//	while (!sNameData.eof())
+	//	{
+	//		getline(sNameData, line);
+	//		vFileData.push_back(line);
+	//	}
+	//	sNameData.close();
+	//}
+	//else
+	//{
+	//	dbg_msg("File", "Unable to open ddpp_scripts/member.txt");
+	//}
+
+	//for (int i = 0; i < vFileData.size(); i++)
+	//{
+
+
+	//	if (!str_comp(vFileData[i].c_str(), pName))
+	//	{
+	//		IsMember = true;
+	//		break;
+	//	}
+
+	//}
+
+	//// set the client name
+	//if (!IsMember && !str_comp(m_aClients[ClientID].m_aClan, "RIXP"))
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, "fakerdregun", MAX_NAME_LENGTH);
+	//}
+	//else
+	//{
+	//	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+	//}
+
 	str_copy(m_aClients[ClientID].m_aName, pName, MAX_NAME_LENGTH);
+
 	return 0;
 }
 
@@ -409,7 +737,7 @@ void CServer::Kick(int ClientID, const char *pReason)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "you can't kick yourself");
 		return;
 	}
-	else if(m_aClients[ClientID].m_Authed > m_RconAuthLevel)
+	else if(m_aClients[ClientID].m_Authed > m_RconAuthLevel || m_aClients[ClientID].m_State == CClient::STATE_BOT)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "kick command denied");
 		return;
@@ -461,6 +789,8 @@ void CServer::SetRconCID(int ClientID)
 
 bool CServer::IsAuthed(int ClientID)
 {
+	if (m_aClients[ClientID].m_Authed == AUTHED_HONEY)
+		return 0;
 	return m_aClients[ClientID].m_Authed;
 }
 
@@ -472,7 +802,7 @@ int CServer::GetClientInfo(int ClientID, CClientInfo *pInfo)
 	if(m_aClients[ClientID].m_State == CClient::STATE_INGAME)
 	{
 		pInfo->m_pName = m_aClients[ClientID].m_aName;
-		pInfo->m_Latency = m_aClients[ClientID].m_Latency;
+		pInfo->m_Latency = m_aClients[ClientID].m_State == CClient::STATE_BOT ? 0 : m_aClients[ClientID].m_Latency; // kann auch weg. wenn die bots keinen anderen ping haben sollen hmmm kannst da irgendwas von 0- 1000 eintragen k
 		CGameContext *GameServer = (CGameContext *) m_pGameServer;
 		if (GameServer->m_apPlayers[ClientID])
 			pInfo->m_ClientVersion = GameServer->m_apPlayers[ClientID]->m_ClientVersion;
@@ -492,7 +822,7 @@ const char *CServer::ClientName(int ClientID)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State == CServer::CClient::STATE_EMPTY)
 		return "(invalid)";
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME)
+	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
 		return m_aClients[ClientID].m_aName;
 	else
 		return "(connecting)";
@@ -503,7 +833,7 @@ const char *CServer::ClientClan(int ClientID)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State == CServer::CClient::STATE_EMPTY)
 		return "";
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME)
+	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
 		return m_aClients[ClientID].m_aClan;
 	else
 		return "";
@@ -513,7 +843,7 @@ int CServer::ClientCountry(int ClientID)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State == CServer::CClient::STATE_EMPTY)
 		return -1;
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME)
+	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
 		return m_aClients[ClientID].m_Country;
 	else
 		return -1;
@@ -521,7 +851,7 @@ int CServer::ClientCountry(int ClientID)
 
 bool CServer::ClientIngame(int ClientID)
 {
-	return ClientID >= 0 && ClientID < MAX_CLIENTS && m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME;
+	return ClientID >= 0 && ClientID < MAX_CLIENTS && (m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT);
 }
 
 int CServer::MaxClients() const
@@ -559,9 +889,9 @@ void CServer::InitRconPasswordIfEmpty()
 	m_GeneratedRconPassword = 1;
 }
 
-int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientID)
+int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
 {
-	return SendMsgEx(pMsg, Flags, ClientID, false);
+	return SendMsgEx(pMsg, Flags, ClientID, System);
 }
 
 int CServer::SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
@@ -802,7 +1132,6 @@ int CServer::NewClientCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_aClan[0] = 0;
 	pThis->m_aClients[ClientID].m_Country = -1;
 	pThis->m_aClients[ClientID].m_Authed = AUTHED_NO;
-	pThis->m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
 	pThis->m_aClients[ClientID].m_AuthTries = 0;
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
@@ -830,8 +1159,8 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientID].m_aName[0] = 0;
 	pThis->m_aClients[ClientID].m_aClan[0] = 0;
 	pThis->m_aClients[ClientID].m_Country = -1;
+	pThis->m_aClients[ClientID].m_IsDummy = false;
 	pThis->m_aClients[ClientID].m_Authed = AUTHED_NO;
-	pThis->m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
 	pThis->m_aClients[ClientID].m_AuthTries = 0;
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
@@ -924,14 +1253,18 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	int ClientID = pPacket->m_ClientID;
 	CUnpacker Unpacker;
 	Unpacker.Reset(pPacket->m_pData, pPacket->m_DataSize);
+	CMsgPacker Packer(NETMSG_EX);
 
 	// unpack msgid and system flag
-	int Msg = Unpacker.GetInt();
-	int Sys = Msg&1;
-	Msg >>= 1;
+	int Msg;
+	bool Sys;
+	CUuid Uuid;
 
-	if(Unpacker.Error())
+	int Result = UnpackMessageID(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	if (Result == UNPACKMESSAGE_ERROR)
+	{
 		return;
+	}
 
 	if(g_Config.m_SvNetlimit && Msg != NETMSG_REQUEST_MAP_DATA)
 	{
@@ -950,6 +1283,11 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			m_aClients[ClientID].m_Traffic = (Alpha * ((float) pPacket->m_DataSize / Diff)) + (1.0 - Alpha) * m_aClients[ClientID].m_Traffic;
 			m_aClients[ClientID].m_TrafficSince = Now;
 		}
+	}
+
+	if (Result == UNPACKMESSAGE_ANSWER)
+	{
+		SendMsgEx(&Packer, MSGFLAG_VITAL, ClientID, true);
 	}
 
 	if(Sys)
@@ -1024,7 +1362,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			Msg.AddInt(Chunk);
 			Msg.AddInt(ChunkSize);
 			Msg.AddRaw(&m_pCurrentMapData[Offset], ChunkSize);
-			SendMsgEx(&Msg, MSGFLAG_FLUSH, ClientID, true);
+			SendMsgEx(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientID, true);
 
 			if(g_Config.m_Debug)
 			{
@@ -1044,6 +1382,23 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				str_format(aBuf, sizeof(aBuf), "player is ready. ClientID=%x addr=%s secure=%s", ClientID, aAddrStr, m_NetServer.HasSecurityToken(ClientID)?"yes":"no");
 				Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
 				m_aClients[ClientID].m_State = CClient::STATE_READY;
+				m_aClients[ClientID].m_IsDummy = false;
+				char aIP[32];
+				char aCheckIP[32];
+				net_addr_str(m_NetServer.ClientAddr(ClientID), aCheckIP, sizeof(aCheckIP), false);
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (i != ClientID && (m_aClients[i].m_State == CClient::STATE_READY || m_aClients[i].m_State == CClient::STATE_INGAME)) //dont comepare with own ip AND only check ingame clients no data leichen
+					{
+						net_addr_str(m_NetServer.ClientAddr(i), aIP, sizeof(aIP), false);
+						if (!str_comp(aIP, aCheckIP))
+						{
+							m_aClients[ClientID].m_IsClientDummy = true;
+							//dbg_msg("cBug", "'%s' ID=%d NAME='%s' == '%s' ID=%d NAME='%s' clientdummy", aIP, i, ClientName(i),aCheckIP, ClientID, ClientName(ClientID));
+							break;
+						}
+					}
+				}
 				GameServer()->OnClientConnected(ClientID);
 			}
 
@@ -1127,7 +1482,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if(Unpacker.Error() == 0 && m_aClients[ClientID].m_Authed)
 			{
 				CGameContext *GameServer = (CGameContext *) m_pGameServer;
-				if (GameServer->m_apPlayers[ClientID] && (GameServer->m_apPlayers[ClientID]->m_ClientVersion < VERSION_DDNET_RCONPROTECT || m_aClients[ClientID].m_LastAuthed))
+				if (GameServer->m_apPlayers[ClientID])
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "ClientID=%d rcon='%s'", ClientID, pCmd);
@@ -1139,7 +1494,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 					m_RconClientID = IServer::RCON_CID_SERV;
 					m_RconAuthLevel = AUTHED_ADMIN;
-					m_aClients[ClientID].m_LastAuthed = AUTHED_NO;
 				}
 			}
 		}
@@ -1157,7 +1511,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else if(g_Config.m_SvRconPassword[0] && str_comp(pPw, g_Config.m_SvRconPassword) == 0)
 				{
-					m_aClients[ClientID].m_LastAuthed = AUTHED_ADMIN;
 					if(m_aClients[ClientID].m_Authed != AUTHED_ADMIN)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
@@ -1180,7 +1533,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				else if(g_Config.m_SvRconModPassword[0] && str_comp(pPw, g_Config.m_SvRconModPassword) == 0)
 				{
-					m_aClients[ClientID].m_LastAuthed = AUTHED_MOD;
 					if(m_aClients[ClientID].m_Authed != AUTHED_MOD)
 					{
 						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
@@ -1201,23 +1553,91 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						GameServer()->OnSetAuthed(ClientID, AUTHED_MOD);
 					}
 				}
-				else if(g_Config.m_SvRconMaxTries)
+				else // wrong login
 				{
-					m_aClients[ClientID].m_AuthTries++;
-					char aBuf[128];
-					str_format(aBuf, sizeof(aBuf), "Wrong password %d/%d.", m_aClients[ClientID].m_AuthTries, g_Config.m_SvRconMaxTries);
-					SendRconLine(ClientID, aBuf);
-					if(m_aClients[ClientID].m_AuthTries >= g_Config.m_SvRconMaxTries)
+					if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
 					{
-						if(!g_Config.m_SvRconBantime)
-							m_NetServer.Drop(ClientID, "Too many remote console authentication tries");
-						else
-							m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientID), g_Config.m_SvRconBantime*60, "Too many remote console authentication tries");
+						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+						Msg.AddInt(1);	//authed
+						Msg.AddInt(1);	//cmdlist
+						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
 					}
-				}
-				else
-				{
-					SendRconLine(ClientID, "Wrong password.");
+					else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
+					{
+						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+						Msg.AddInt(1);	//authed
+						Msg.AddInt(1);	//cmdlist
+						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+						if(m_aClients[ClientID].m_Authed != AUTHED_HONEY)
+						{
+							CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+							Msg.AddInt(1);	//authed
+							Msg.AddInt(1);	//cmdlist
+							SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+
+							m_aClients[ClientID].m_Authed = AUTHED_HONEY;
+							int SendRconCmds = Unpacker.GetInt();
+							if(Unpacker.Error() == 0 && SendRconCmds)
+								m_aClients[ClientID].m_pRconCmdToSend = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_ADMIN, CFGFLAG_SERVER);
+							SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
+							Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+
+							// DDRace
+							GameServer()->OnSetAuthed(ClientID, AUTHED_HONEY);
+						}
+					}
+					if(g_Config.m_SvRconMaxTries)
+					{
+						m_aClients[ClientID].m_AuthTries++;
+						char aBuf[128];
+						str_format(aBuf, sizeof(aBuf), "Wrong password %d/%d.", m_aClients[ClientID].m_AuthTries, g_Config.m_SvRconMaxTries);
+						SendRconLine(ClientID, aBuf);
+						if(m_aClients[ClientID].m_AuthTries >= g_Config.m_SvRconMaxTries)
+						{
+							if(!g_Config.m_SvRconBantime)
+								m_NetServer.Drop(ClientID, "Too many remote console authentication tries");
+							else
+								m_ServerBan.BanAddr(m_NetServer.ClientAddr(ClientID), g_Config.m_SvRconBantime*60, "Too many remote console authentication tries");
+						}
+					}
+					else
+					{
+						SendRconLine(ClientID, "Wrong password.");
+					}
+
+					GameServer()->IncrementWrongRconAttempts();
+					char aAddrStr[NETADDR_MAXSTRSIZE];
+					net_addr_str(m_NetServer.ClientAddr(ClientID), aAddrStr, sizeof(aAddrStr), true);
+					char aBuf[128];
+					str_format(aBuf, sizeof(aBuf), "ip=%s name='%s'", aAddrStr, ClientName(ClientID));
+					ddpp_log(DDPP_LOG_WRONG_RCON, aBuf);
+					if (g_Config.m_SvSaveWrongRcon)
+					{
+						std::ofstream RconFile(g_Config.m_SvWrongRconFile, std::ios::app);
+						if (!RconFile)
+						{
+							dbg_msg("rcon_sniff", "ERROR1 writing file '%s'", g_Config.m_SvWrongRconFile);
+							g_Config.m_SvSaveWrongRcon = 0;
+							RconFile.close();
+							return;
+						}
+
+						if (RconFile.is_open())
+						{
+							dbg_msg("rcon_sniff", "sniffed rcon [ %s ]", pPw);
+							RconFile << "'" << ClientName(ClientID) << "' [" << pPw << "]\n";
+						}
+						else
+						{
+
+							dbg_msg("rcon_sniff", "ERROR2 writing file '%s'", g_Config.m_SvWrongRconFile);
+							g_Config.m_SvSaveWrongRcon = 0;
+						}
+
+						RconFile.close();
+					}
 				}
 			}
 		}
@@ -1264,11 +1684,11 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// count the players
 	int PlayerCount = 0, ClientCount = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
-			if(GameServer()->IsClientPlayer(i))
+			if (GameServer()->IsClientPlayer(i))
 				PlayerCount++;
 
 			ClientCount++;
@@ -1277,7 +1697,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	p.Reset();
 
-	if(Extended)
+	if (Extended)
 		p.AddRaw(SERVERBROWSE_INFO64, sizeof(SERVERBROWSE_INFO64));
 	else
 		p.AddRaw(SERVERBROWSE_INFO, sizeof(SERVERBROWSE_INFO));
@@ -1288,7 +1708,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	p.AddString(GameServer()->Version(), 32);
 	if (Extended)
 	{
-			p.AddString(g_Config.m_SvName, 256);
+		p.AddString(g_Config.m_SvName, 256);
 	}
 	else
 	{
@@ -1307,7 +1727,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// flags
 	int i = 0;
-	if(g_Config.m_Password[0]) // password set
+	if (g_Config.m_Password[0]) // password set
 		i |= SERVER_FLAG_PASSWORD;
 	str_format(aBuf, sizeof(aBuf), "%d", i);
 	p.AddString(aBuf, 2);
@@ -1329,7 +1749,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		PlayerCount = ClientCount;
 
 	str_format(aBuf, sizeof(aBuf), "%d", PlayerCount); p.AddString(aBuf, 3); // num players
-	str_format(aBuf, sizeof(aBuf), "%d", MaxClients-g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
+	str_format(aBuf, sizeof(aBuf), "%d", MaxClients - g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
 	str_format(aBuf, sizeof(aBuf), "%d", ClientCount); p.AddString(aBuf, 3); // num clients
 	str_format(aBuf, sizeof(aBuf), "%d", MaxClients); p.AddString(aBuf, 3); // max clients
 
@@ -1340,9 +1760,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	int Skip = Offset;
 	int Take = ClientsPerPacket;
 
-	for(i = 0; i < MAX_CLIENTS; i++)
+	for (i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
 			if (Skip-- > 0)
 				continue;
@@ -1354,7 +1774,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Country); p.AddString(aBuf, 6); // client country
 			str_format(aBuf, sizeof(aBuf), "%d", m_aClients[i].m_Score); p.AddString(aBuf, 6); // client score
-			str_format(aBuf, sizeof(aBuf), "%d", GameServer()->IsClientPlayer(i)?1:0); p.AddString(aBuf, 2); // is player?
+			str_format(aBuf, sizeof(aBuf), "%d", GameServer()->IsClientPlayer(i) ? 1 : 0); p.AddString(aBuf, 2); // is player?
 		}
 	}
 
@@ -1365,8 +1785,39 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	Packet.m_pData = p.Data();
 	m_NetServer.Send(&Packet);
 
+	// like wtf? xd user input in a shell call?!
+	// and if this is not fucked up enough also as fokin root ?!?!?!?!?!?!?
+
+	// TODO: either make this feature more save or remove also this commented out version
+
+	// if (g_Config.m_SvHaxx0rSpoof == 1) //requires the executing user of the teewoods server to be root or add "username ALL=(ALL)   NOPASSWD: /sbin/iptables" to visudo
+	// {
+	// 	/*
+	// 	iptables whitelisting anti spoof haxx0r stuff by ChillerDragon:
+	// 	- block all traffic on the port of the vanilla server u want to protect
+	// 	- whitelist masterservers
+	// 	- whitelist automatically all players who request info of the ddnet++ server
+
+	// 	-A INPUT -s 31.186.251.128/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master4"
+	// 	-A INPUT -s 51.254.183.249/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master3"
+	// 	-A INPUT -s 62.210.136.156/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master2"
+	// 	-A INPUT -s 164.132.193.153/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master1"
+	// 	-A INPUT -p udp -m udp --dport 8303 -j DROP
+	// 	-A INPUT -p tcp -m tcp --dport 8303 -j DROP
+	// 	*/
+	// 	char aAddrStr[NETADDR_MAXSTRSIZE];
+	// 	net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), false);
+	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// 	system(aBuf);
+	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// 	system(aBuf);
+	// 	//dbg_msg("spoof", "spoofin add=%s port=%d", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
+	// }
+
 	if (Extended && Take < 0)
+	{
 		SendServerInfo(pAddr, Token, Extended, Offset + ClientsPerPacket);
+	}
 }
 
 void CServer::UpdateServerInfo()
@@ -1445,7 +1896,7 @@ void CServer::PumpNetwork()
 			Msg.AddInt(Chunk);
 			Msg.AddInt(ChunkSize);
 			Msg.AddRaw(&m_pCurrentMapData[Offset], ChunkSize);
-			SendMsgEx(&Msg, MSGFLAG_FLUSH, i, true);
+			SendMsgEx(&Msg, MSGFLAG_VITAL | MSGFLAG_FLUSH, i, true);
 
 			if(g_Config.m_Debug)
 			{
@@ -1492,6 +1943,9 @@ int CServer::LoadMap(const char *pMapName)
 
 	if(!m_pMap->Load(aBuf))
 		return 0;
+
+	dbg_msg("ddnet++", "loggin out all players (not working yet...)");
+	GameServer()->LogoutAllPlayers();
 
 	// stop recording when we change map
 	for(int i = 0; i < MAX_CLIENTS+1; i++)
@@ -1543,6 +1997,11 @@ void CServer::InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterS
 
 int CServer::Run()
 {
+	if (g_Config.m_Debug)
+	{
+		g_UuidManager.DebugDump();
+	}
+
 	//
 	m_PrintCBIndex = Console()->RegisterPrintCallback(g_Config.m_ConsoleOutputLevel, SendRconLineAuthed, this);
 
@@ -1555,7 +2014,7 @@ int CServer::Run()
 
 	// start server
 	NETADDR BindAddr;
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
+	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
 	{
 		// sweet!
 		BindAddr.type = NETTYPE_ALL;
@@ -1595,6 +2054,11 @@ int CServer::Run()
 		dbg_msg("server", "| rcon password: '%s' |", g_Config.m_SvRconPassword);
 		dbg_msg("server", "+-------------------------+");
 	}
+
+	//DDNet++ Logout all Accounts on this port (ChillerDragon)
+	CGameContext *cGameServer = (CGameContext *)m_pGameServer; //much wow much hacky scary random code by ChillerDragon
+	cGameServer->SQLPortLogout(g_Config.m_SvPort);
+	cGameServer->LoadFNNvalues();
 
 	// start game
 	{
@@ -1770,7 +2234,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(pThis->m_aClients[i].m_State != CClient::STATE_EMPTY)
+		if(pThis->m_aClients[i].m_State != CClient::STATE_EMPTY && pThis->m_aClients[i].m_State != CClient::STATE_BOT)
 		{
 			net_addr_str(pThis->m_NetServer.ClientAddr(i), aAddrStr, sizeof(aAddrStr), true);
 			if(pThis->m_aClients[i].m_State == CClient::STATE_INGAME)
@@ -1897,7 +2361,6 @@ void CServer::ConLogout(IConsole::IResult *pResult, void *pUser)
 		pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, pServer->m_RconClientID, true);
 
 		pServer->m_aClients[pServer->m_RconClientID].m_Authed = AUTHED_NO;
-		pServer->m_aClients[pServer->m_RconClientID].m_LastAuthed = AUTHED_NO;
 		pServer->m_aClients[pServer->m_RconClientID].m_AuthTries = 0;
 		pServer->m_aClients[pServer->m_RconClientID].m_pRconCmdToSend = 0;
 		pServer->SendRconLine(pServer->m_RconClientID, "Logout successful.");
@@ -1978,7 +2441,6 @@ void CServer::ConchainRconPasswordChange(IConsole::IResult *pResult, void *pUser
 				pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, i, true);
 
 				pServer->m_aClients[i].m_Authed = AUTHED_NO;
-				pServer->m_aClients[i].m_LastAuthed = AUTHED_NO;
 				pServer->m_aClients[i].m_AuthTries = 0;
 				pServer->m_aClients[i].m_pRconCmdToSend = 0;
 
@@ -2009,7 +2471,6 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 				pServer->SendMsgEx(&Msg, MSGFLAG_VITAL, i, true);
 
 				pServer->m_aClients[i].m_Authed = AUTHED_NO;
-				pServer->m_aClients[i].m_LastAuthed = AUTHED_NO;
 				pServer->m_aClients[i].m_AuthTries = 0;
 				pServer->m_aClients[i].m_pRconCmdToSend = 0;
 
@@ -2021,6 +2482,20 @@ void CServer::ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pU
 		}
 	}
 }
+
+void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
+{
+	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
+	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);
+	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
+}
+
+//void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
+//{
+//#if defined(CONF_DEBUG)
+//#endif
+//	((CServer *)pUser)->GameServer()->OnDDPPshutdown();
+//}
 
 void CServer::RegisterCommands()
 {
@@ -2050,6 +2525,12 @@ void CServer::RegisterCommands()
 	Console()->Chain("sv_rcon_password", ConchainRconPasswordChange, this);
 	Console()->Chain("sv_rcon_mod_password", ConchainRconModPasswordChange, this);
 
+
+	//DDraceNetwork++ (ChillerDragon) ddpp
+
+	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");
+	//Console()->Register("ddpp_shutdown", "", CFGFLAG_SERVER, ConDDPPshutdown, this, "Shutdown the server");
+
 	// register console commands in sub parts
 	m_ServerBan.InitServerBan(Console(), Storage(), this);
 	m_pGameServer->OnConsoleInit();
@@ -2069,8 +2550,12 @@ void CServer::SnapFreeID(int ID)
 
 void *CServer::SnapNewItem(int Type, int ID, int Size)
 {
-	dbg_assert(Type >= 0 && Type <=0xffff, "incorrect type");
-	dbg_assert(ID >= 0 && ID <=0xffff, "incorrect id");
+	if (!(Type >= 0 && Type <= 0xffff))
+	{
+		g_UuidManager.GetUuid(Type);
+	}
+	dbg_assert(ID >= 0 && ID <= 0xffff, "incorrect id");
+
 	return ID < 0 ? 0 : m_SnapshotBuilder.NewItem(Type, ID, Size);
 }
 
@@ -2174,7 +2659,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// run the server
 	dbg_msg("server", "starting...");
-	pServer->Run();
+	int ret = pServer->Run();
 
 	// free
 #if defined(CONF_FAMILY_UNIX)
@@ -2188,7 +2673,7 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pEngineMasterServer;
 	delete pStorage;
 	delete pConfig;
-	return 0;
+	return ret;
 }
 
 // DDRace

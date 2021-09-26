@@ -1,13 +1,13 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <base/system.h>
+#include <base/hash_ctxt.h>
 
 #include <engine/console.h>
 
 #include "config.h"
 #include "netban.h"
 #include "network.h"
-#include <engine/external/md5/md5.h>
 #include <engine/message.h>
 #include <engine/shared/protocol.h>
 
@@ -112,16 +112,12 @@ int CNetServer::Update()
 
 SECURITY_TOKEN CNetServer::GetToken(const NETADDR &Addr)
 {
-	md5_state_t md5;
-	md5_byte_t digest[16];
-	SECURITY_TOKEN SecurityToken;
-	md5_init(&md5);
+	MD5_CTX Md5;
+	md5_init(&Md5);
+	md5_update(&Md5, (unsigned char*)m_SecurityTokenSeed, sizeof(m_SecurityTokenSeed));
+	md5_update(&Md5, (unsigned char*)&Addr, sizeof(Addr));
 
-	md5_append(&md5, (unsigned char*)m_SecurityTokenSeed, sizeof(m_SecurityTokenSeed));
-	md5_append(&md5, (unsigned char*)&Addr, sizeof(Addr));
-
-	md5_finish(&md5, digest);
-	SecurityToken = ToSecurityToken(digest);
+	SECURITY_TOKEN SecurityToken = ToSecurityToken(md5_finish(&Md5).data);
 
 	if (SecurityToken == NET_SECURITY_TOKEN_UNKNOWN ||
 		SecurityToken == NET_SECURITY_TOKEN_UNSUPPORTED)
@@ -399,45 +395,38 @@ void CNetServer::OnConnCtrlMsg(NETADDR &Addr, int ClientID, int ControlMsg, cons
 
 void CNetServer::OnTokenCtrlMsg(NETADDR &Addr, int ControlMsg, const CNetPacketConstruct &Packet)
 {
-	if (ClientExists(Addr))
+	if(ClientExists(Addr))
 		return; // silently ignore
 
 
-	if (Addr.type == NETTYPE_WEBSOCKET_IPV4)
+	if(Addr.type == NETTYPE_WEBSOCKET_IPV4)
 	{
 		// websocket client doesn't send token
 		// direct accept
 		SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, SECURITY_TOKEN_MAGIC, sizeof(SECURITY_TOKEN_MAGIC), NET_SECURITY_TOKEN_UNSUPPORTED);
 		TryAcceptClient(Addr, NET_SECURITY_TOKEN_UNSUPPORTED);
 	}
-	else if (ControlMsg == NET_CTRLMSG_CONNECT)
+	else if(ControlMsg == NET_CTRLMSG_CONNECT)
 	{
-		bool SupportsToken = Packet.m_DataSize >=
-								(int)(1 + sizeof(SECURITY_TOKEN_MAGIC) + sizeof(SECURITY_TOKEN)) &&
-								!mem_comp(&Packet.m_aChunkData[1], SECURITY_TOKEN_MAGIC, sizeof(SECURITY_TOKEN_MAGIC));
-
-		if (SupportsToken)
-		{
-			// response connection request with token
-			SECURITY_TOKEN Token = GetToken(Addr);
-			SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, SECURITY_TOKEN_MAGIC, sizeof(SECURITY_TOKEN_MAGIC), Token);
-		}
+		// response connection request with token
+		SECURITY_TOKEN Token = GetToken(Addr);
+		SendControl(Addr, NET_CTRLMSG_CONNECTACCEPT, SECURITY_TOKEN_MAGIC, sizeof(SECURITY_TOKEN_MAGIC), Token);
 	}
-	else if (ControlMsg == NET_CTRLMSG_ACCEPT && Packet.m_DataSize == 1 + sizeof(SECURITY_TOKEN))
+	else if(ControlMsg == NET_CTRLMSG_ACCEPT)
 	{
 		SECURITY_TOKEN Token = ToSecurityToken(&Packet.m_aChunkData[1]);
-		if (Token == GetToken(Addr))
+		if(Token == GetToken(Addr))
 		{
 			// correct token
 			// try to accept client
-			if (g_Config.m_Debug)
+			if(g_Config.m_Debug)
 				dbg_msg("security", "new client (ddnet token)");
 			TryAcceptClient(Addr, Token);
 		}
 		else
 		{
 			// invalid token
-			if (g_Config.m_Debug)
+			if(g_Config.m_Debug)
 				dbg_msg("security", "invalid token");
 		}
 	}
@@ -459,6 +448,29 @@ int CNetServer::GetClientSlot(const NETADDR &Addr)
 	}
 
 	return Slot;
+}
+
+static bool IsDDNetControlMsg(const CNetPacketConstruct *pPacket)
+{
+	if(!(pPacket->m_Flags&NET_PACKETFLAG_CONTROL)
+		|| pPacket->m_DataSize < 1)
+	{
+		return false;
+	}
+	if(pPacket->m_aChunkData[0] == NET_CTRLMSG_CONNECT
+		&& pPacket->m_DataSize >= (int)(1 + sizeof(SECURITY_TOKEN_MAGIC) + sizeof(SECURITY_TOKEN))
+		&& mem_comp(&pPacket->m_aChunkData[1], SECURITY_TOKEN_MAGIC, sizeof(SECURITY_TOKEN_MAGIC)) == 0)
+	{
+		// DDNet CONNECT
+		return true;
+	}
+	if(pPacket->m_aChunkData[0] == NET_CTRLMSG_ACCEPT
+		&& pPacket->m_DataSize >= 1 + (int)sizeof(SECURITY_TOKEN))
+	{
+		// DDNet ACCEPT
+		return true;
+	}
+	return false;
 }
 
 /*
@@ -524,9 +536,8 @@ int CNetServer::Recv(CNetChunk *pChunk)
 				{
 					// not found, client that wants to connect
 
-					if(m_RecvUnpacker.m_Data.m_Flags&NET_PACKETFLAG_CONTROL &&
-						m_RecvUnpacker.m_Data.m_DataSize > 1)
-						// got control msg with extra size (should support token)
+					if(IsDDNetControlMsg(&m_RecvUnpacker.m_Data))
+						// got ddnet control msg
 						OnTokenCtrlMsg(Addr, m_RecvUnpacker.m_Data.m_aChunkData[0], m_RecvUnpacker.m_Data);
 					else
 						// got connection-less ctrl or sys msg
@@ -553,6 +564,9 @@ int CNetServer::Send(CNetChunk *pChunk)
 	}
 	else
 	{
+		if (m_aSlots[pChunk->m_ClientID].m_Connection.State() == NET_CONNSTATE_BOT)
+			return -1;
+
 		int Flags = 0;
 		dbg_assert(pChunk->m_ClientID >= 0, "errornous client id");
 		dbg_assert(pChunk->m_ClientID < MaxClients(), "errornous client id");
@@ -608,4 +622,14 @@ int CNetServer::ResetErrorString(int ClientID)
 const char *CNetServer::ErrorString(int ClientID)
 {
 	return m_aSlots[ClientID].m_Connection.ErrorString();
+}
+
+void CNetServer::BotInit(int BotID)
+{
+	m_aSlots[BotID].m_Connection.BotConnect();
+}
+
+void CNetServer::BotDelete(int BotID)
+{
+	m_aSlots[BotID].m_Connection.BotDrop();
 }

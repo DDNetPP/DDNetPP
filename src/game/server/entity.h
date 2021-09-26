@@ -78,6 +78,7 @@ public:
 
 	CEntity *TypeNext() { return m_pNextTypeEntity; }
 	CEntity *TypePrev() { return m_pPrevTypeEntity; }
+	const vec2 &GetPos() const { return m_Pos; }
 
 	/*
 		Function: destroy

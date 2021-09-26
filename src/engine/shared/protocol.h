@@ -30,7 +30,7 @@
 
 enum
 {
-	NETMSG_NULL=0,
+	NETMSG_EX=0,
 
 	// the first thing sent by the client
 	// contains the version info for the client
@@ -70,6 +70,8 @@ enum
 	// sent by server (todo: move it up)
 	NETMSG_RCON_CMD_ADD,
 	NETMSG_RCON_CMD_REM,
+
+	NUM_NETMSGS,
 };
 
 // this should be revised
@@ -78,7 +80,7 @@ enum
 	SERVER_TICK_SPEED=50,
 	SERVER_FLAG_PASSWORD = 0x1,
 
-	MAX_CLIENTS=64,
+	MAX_CLIENTS=128,
 	VANILLA_MAX_CLIENTS=16,
 
 	MAX_INPUT_SIZE=128,

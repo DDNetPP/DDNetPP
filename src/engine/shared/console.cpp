@@ -4,6 +4,7 @@
 
 #include <base/math.h>
 #include <base/system.h>
+#include <base/ddpp_logs.h>
 
 #include <engine/storage.h>
 #include <engine/shared/protocol.h>
@@ -11,6 +12,9 @@
 #include "config.h"
 #include "console.h"
 #include "linereader.h"
+
+#include <game/server/gamecontext.h> //ddpp for cmdlist permissions
+#include <engine/server/server.h> // ddpp for cmdlist permissions
 
 // todo: rework this
 
@@ -217,15 +221,35 @@ void CConsole::SetPrintOutputLevel(int Index, int OutputLevel)
 		m_aPrintCB[Index].m_OutputLevel = clamp(OutputLevel, (int)(OUTPUT_LEVEL_STANDARD), (int)(OUTPUT_LEVEL_DEBUG));
 }
 
+void CConsole::PrintDDPPLogs(int type)
+{
+    /*
+        start from the oldest log
+        so the last line printed in the console is the latest log
+        scroll up to go in the past
+    */
+    for (int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
+    {
+        if (!aDDPPLogs[type][i][0])
+            continue;
+		Print(OUTPUT_LEVEL_STANDARD, "ddpp_logs", aDDPPLogs[type][i]);
+    }
+}
+
 void CConsole::Print(int Level, const char *pFrom, const char *pStr, bool Highlighted)
 {
+	char aBuf[1024];
+	str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
+	if (Level == OUTPUT_LEVEL_DDPP_LOGS)
+	{
+		ddpp_log(DDPP_LOG_MASTER, aBuf);
+		return;
+	}
 	dbg_msg(pFrom ,"%s", pStr);
 	for(int i = 0; i < m_NumPrintCB; ++i)
 	{
 		if(Level <= m_aPrintCB[i].m_OutputLevel && m_aPrintCB[i].m_pfnPrintCallback)
 		{
-			char aBuf[1024];
-			str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
 			m_aPrintCB[i].m_pfnPrintCallback(aBuf, m_aPrintCB[i].m_pPrintCallbackUserdata, Highlighted);
 		}
 	}
@@ -360,7 +384,7 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID)
 					if(ParseArgs(&Result, pCommand->m_pParams))
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "Invalid arguments... Usage: %s %s", pCommand->m_pName, pCommand->m_pParams);
+						str_format(aBuf, sizeof(aBuf), "Invalid! Usage: %s %s", pCommand->m_pName, pCommand->m_pParams);
 						Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
 					}
 					else if(m_StoreCommands && pCommand->m_Flags&CFGFLAG_STORE)
@@ -635,7 +659,7 @@ static void StrVariableCommand(IConsole::IResult *pResult, void *pUserData)
 			int Length = 0;
 			while(*pString)
 			{
-				int Size = str_utf8_encode(Temp, static_cast<const unsigned char>(*pString++));
+				int Size = str_utf8_encode(Temp, static_cast<unsigned char>(*pString++));
 				if(Length+Size < pData->m_MaxSize)
 				{
 					mem_copy(pData->m_pStr+Length, &Temp, Size);
@@ -831,7 +855,7 @@ void CConsole::AddCommandSorted(CCommand *pCommand)
 }
 
 void CConsole::Register(const char *pName, const char *pParams,
-	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp)
+	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp, int ddpp_al)
 {
 	CCommand *pCommand = FindCommand(pName, Flags);
 	bool DoAdd = false;
@@ -846,6 +870,7 @@ void CConsole::Register(const char *pName, const char *pParams,
 	pCommand->m_pName = pName;
 	pCommand->m_pHelp = pHelp;
 	pCommand->m_pParams = pParams;
+	pCommand->m_ddpp_access_level = ddpp_al;
 
 	pCommand->m_Flags = Flags;
 	pCommand->m_Temp = false;
@@ -1009,28 +1034,57 @@ void CConsole::ConUserCommandStatus(IResult *pResult, void *pUser)
 	char aBuf[240];
 	mem_zero(aBuf, sizeof(aBuf));
 	int Used = 0;
+	//int al = 0; //ddpp user access level
+	//CGameContext *pSelf = (CGameContext *)pUser;
+	//int ClientID = pResult->m_ClientID;
+	//dbg_msg("cBug", "cmdlist id=%d", ClientID);
+	//dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
+	//	"The Client ID is wrong");
+	//if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+	//	return;
+
+	//CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	//if (!pPlayer)
+	//{
+	//	dbg_msg("cBug", "no player"); //gets executed
+	//	return;
+	//}
+
+	//if (pPlayer->m_IsModerator)
+	//	al = 1;
+	//if (pPlayer->m_IsSuperModerator)
+	//	al = 2;
+	//if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	//	al = 3;
+
+	//dbg_msg("cBug", "surjiawdn");
+
+	int al = 9999;
 
 	for(CCommand *pCommand = pConsole->m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
 	{
-		if(pCommand->m_Flags&pConsole->m_FlagMask && pCommand->GetAccessLevel() == ACCESS_LEVEL_USER)
+		if (al >= pCommand->m_ddpp_access_level)
 		{
-			int Length = str_length(pCommand->m_pName);
-			if(Used + Length + 2 < (int)(sizeof(aBuf)))
+			if (pCommand->m_Flags&pConsole->m_FlagMask && pCommand->GetAccessLevel() == ACCESS_LEVEL_USER)
 			{
-				if(Used > 0)
+				int Length = str_length(pCommand->m_pName);
+				if (Used + Length + 2 < (int)(sizeof(aBuf)))
 				{
-					Used += 2;
-					str_append(aBuf, ", ", sizeof(aBuf));
+					if (Used > 0)
+					{
+						Used += 2;
+						str_append(aBuf, ", ", sizeof(aBuf));
+					}
+					str_append(aBuf, pCommand->m_pName, sizeof(aBuf));
+					Used += Length;
 				}
-				str_append(aBuf, pCommand->m_pName, sizeof(aBuf));
-				Used += Length;
-			}
-			else
-			{
-				pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
-				mem_zero(aBuf, sizeof(aBuf));
-				str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
-				Used = Length;
+				else
+				{
+					pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+					mem_zero(aBuf, sizeof(aBuf));
+					str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
+					Used = Length;
+				}
 			}
 		}
 	}

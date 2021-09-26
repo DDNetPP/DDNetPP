@@ -17,7 +17,7 @@ CSaveTee::~CSaveTee()
 	;
 }
 
-void CSaveTee::save(CCharacter* pchr)
+void CSaveTee::save(CCharacter* pchr, int TimePenalty)
 {
 	str_copy(m_name, pchr->m_pPlayer->Server()->ClientName(pchr->m_pPlayer->GetCID()), sizeof(m_name));
 
@@ -54,11 +54,8 @@ void CSaveTee::save(CCharacter* pchr)
 	m_TuneZoneOld = pchr->m_TuneZoneOld;
 
 	if(pchr->m_StartTime)
-		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + 60 * pchr->Server()->TickSpeed();
-
-	m_Pos = pchr->m_Pos;
+		m_Time = pchr->Server()->Tick() - pchr->m_StartTime + ((60 * pchr->Server()->TickSpeed()) * TimePenalty);
 	m_PrevPos = pchr->m_PrevPos;
-	m_TeleCheckpoint = pchr->m_TeleCheckpoint;
 	m_LastPenalty = pchr->m_LastPenalty;
 
 	if(pchr->m_CpTick)

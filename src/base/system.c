@@ -6,9 +6,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-
+ 
 #include "system.h"
 #include "confusables.h"
+#include "ddpp_logs.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,8 +40,6 @@
 		// this prevents having duplicate definitions of those
 		#define _lock_set_user_
 		#define _task_user_
-
-		#include <Carbon/Carbon.h>
 	#endif
 
 	#if defined(__ANDROID__)
@@ -167,7 +166,7 @@ void dbg_msg_thread(void *v)
 void dbg_enable_threaded()
 {
 	Queue *q;
-	void *Thread;
+	void *Thread; 
 
 	q = &log_queue;
 	q->begin = 0;
@@ -203,6 +202,12 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 	timeinfo = localtime ( &rawtime );
 
 	strftime (timestr,sizeof(timestr),"%y-%m-%d %H:%M:%S",timeinfo);
+
+	/* TODO: add a filter str config var*/
+	/*
+	if (str_comp_nocase(sys, "filter-string"))
+		return;
+	*/
 
 #if !defined(CONF_PLATFORM_MACOSX)
 	if(dbg_msg_threaded)
@@ -279,17 +284,49 @@ static void logger_debugger(const char *line)
 static IOHANDLE logfile = 0;
 static void logger_file(const char *line)
 {
+
 	io_write(logfile, line, strlen(line));
 	io_write_newline(logfile);
 	io_flush(logfile);
+
+	//log filter by ChillerDragon
+	//all rights reserved to ChillerBot.png 
+	//ChillerBot.png (c) Copyright 2017
+	//if (str_find(line, "test"))
+	//{
+	//	io_write(logfile, line, strlen(line));
+	//	io_write_newline(logfile);
+	//	io_flush(logfile);
+	//}
+	//if (str_find(line, "[demo_recorder]: Recording to")) //if starting demo record --> print cut in chat log
+	//{
+	//	time_t rawtime;
+	//	struct tm* timeinfo;
+	//	char timestr[80];
+
+	//	time(&rawtime);
+	//	timeinfo = localtime(&rawtime);
+
+	//	strftime(timestr, sizeof(timestr), "%y-%m-%d %H:%M:%S", timeinfo);
+
+	//	char aBuf[1024];
+	//	str_format(aBuf, sizeof(aBuf), "[%s]", timestr);
+	//	io_write(logfile, line, strlen(line));
+	//	io_write_newline(logfile);
+	//	io_flush(logfile);
+	//}
+
 }
 
 void dbg_logger_stdout() { dbg_logger(logger_stdout); }
 
+
 void dbg_logger_debugger() { dbg_logger(logger_debugger); }
 void dbg_logger_file(const char *filename)
 {
-	logfile = io_open(filename, IOFLAG_WRITE);
+	logfile = io_open(filename, IOFLAG_WRITE); //overwrite
+	//logfile = io_open(filename, IOFLAG_APPEND);
+	//test dies 
 	if(logfile)
 		dbg_logger(logger_file);
 	else
@@ -429,6 +466,8 @@ IOHANDLE io_open(const char *filename, int flags)
 		return (IOHANDLE)fopen(filename, "rb");
 	if(flags == IOFLAG_WRITE)
 		return (IOHANDLE)fopen(filename, "wb");
+	if (flags == IOFLAG_APPEND)
+		return (IOHANDLE)fopen(filename, "ab");
 	return 0x0;
 }
 
@@ -829,7 +868,7 @@ static int priv_net_extract(const char *hostname, char *host, int max_host, int 
 	return 0;
 }
 
-int net_host_lookup(const char *hostname, NETADDR *addr, int types)
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 {
 	struct addrinfo hints;
 	struct addrinfo *result = NULL;
@@ -840,7 +879,16 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types)
 	if(priv_net_extract(hostname, host, sizeof(host), &port))
 		return -1;
 
-	dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	if (logtype == 1)
+	{
+		dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
+	}
+	else
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "[host lookup] host='%s' port=%d %d", host, port, types);
+		ddpp_log(DDPP_LOG_MASTER, aBuf);
+	}
 
 	mem_zero(&hints, sizeof(hints));
 
@@ -2060,6 +2108,39 @@ int str_comp_filenames(const char *a, const char *b)
 	return *a - *b;
 }
 
+const char *str_startswith(const char *str, const char *prefix)
+{
+	int prefixl = str_length(prefix);
+	if(str_comp_num(str, prefix, prefixl) == 0)
+	{
+		return str + prefixl;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+const char *str_endswith(const char *str, const char *suffix)
+{
+	int strl = str_length(str);
+	int suffixl = str_length(suffix);
+	const char *strsuffix;
+	if(strl < suffixl)
+	{
+		return 0;
+	}
+	strsuffix = str + strl - suffixl;
+	if(str_comp(strsuffix, suffix) == 0)
+	{
+		return strsuffix;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 const char *str_find_nocase(const char *haystack, const char *needle)
 {
 	while(*haystack) /* native implementation */
@@ -2113,6 +2194,66 @@ void str_hex(char *dst, int dst_size, const void *data, int data_size)
 	}
 }
 
+static int hexval(char x)
+{
+    switch(x)
+    {
+    case '0': return 0;
+    case '1': return 1;
+    case '2': return 2;
+    case '3': return 3;
+    case '4': return 4;
+    case '5': return 5;
+    case '6': return 6;
+    case '7': return 7;
+    case '8': return 8;
+    case '9': return 9;
+    case 'a':
+    case 'A': return 10;
+    case 'b':
+    case 'B': return 11;
+    case 'c':
+    case 'C': return 12;
+    case 'd':
+    case 'D': return 13;
+    case 'e':
+    case 'E': return 14;
+    case 'f':
+    case 'F': return 15;
+    default: return -1;
+    }
+}
+
+static int byteval(const char *byte, unsigned char *dst)
+{
+	int v1 = -1, v2 = -1;
+	v1 = hexval(byte[0]);
+	v2 = hexval(byte[1]);
+
+	if(v1 < 0 || v2 < 0)
+		return 1;
+
+	*dst = v1 * 16 + v2;
+	return 0;
+}
+
+int str_hex_decode(void *dst, int dst_size, const char *src)
+{
+	unsigned char *cdst = dst;
+	int slen = str_length(src);
+	int len = slen / 2;
+	int i;
+	if(slen != dst_size * 2)
+		return 2;
+
+	for(i = 0; i < len && dst_size; i++, dst_size--)
+	{
+		if(byteval(src + i * 2, cdst++))
+			return 1;
+	}
+	return 0;
+}
+
 void str_timestamp_ex(time_t time_data, char *buffer, int buffer_size, const char *format)
 {
 	struct tm *time_info;
@@ -2146,53 +2287,21 @@ void net_stats(NETSTATS *stats_inout)
 
 void gui_messagebox(const char *title, const char *message)
 {
-#if defined(CONF_PLATFORM_MACOSX)
-	DialogRef theItem;
-	DialogItemIndex itemIndex;
-
-	/* FIXME: really needed? can we rely on glfw? */
-	/* HACK - get events without a bundle */
-	ProcessSerialNumber psn;
-	GetCurrentProcess(&psn);
-	TransformProcessType(&psn,kProcessTransformToForegroundApplication);
-	SetFrontProcess(&psn);
-	/* END HACK */
-
-	CreateStandardAlert(kAlertStopAlert,
-			CFStringCreateWithCString(NULL, title, kCFStringEncodingASCII),
-			CFStringCreateWithCString(NULL, message, kCFStringEncodingASCII),
-			NULL,
-			&theItem);
-
-	RunStandardAlert(theItem, NULL, &itemIndex);
-#elif defined(CONF_FAMILY_UNIX)
-	static char cmd[1024];
-	int err;
-	/* use xmessage which is available on nearly every X11 system */
-	snprintf(cmd, sizeof(cmd), "xmessage -center -title '%s' '%s'",
-		title,
-		message);
-
-	err = system(cmd);
-	dbg_msg("gui/msgbox", "result = %i", err);
-#elif defined(CONF_FAMILY_WINDOWS)
-	MessageBox(NULL,
-		message,
-		title,
-		MB_ICONEXCLAMATION | MB_OK);
-#else
-	/* this is not critical */
-	#warning not implemented
-#endif
 }
 
 int str_isspace(char c) { return c == ' ' || c == '\n' || c == '\t'; }
 
-char str_uppercase(char c)
+char ch_uppercase(char c)
 {
 	if(c >= 'a' && c <= 'z')
 		return 'A' + (c-'a');
 	return c;
+}
+
+void str_uppercase(char *str)
+{
+	for(int i = 0;str[i] != '\0';i++)
+		str[i] = ch_uppercase(str[i]);
 }
 
 int str_toint(const char *str) { return atoi(str); }
@@ -2545,6 +2654,75 @@ void secure_random_fill(void *bytes, size_t length)
 		dbg_msg("secure", "io_read returned with a short read");
 		dbg_break();
 	}
+#endif
+}
+
+#if defined(CONF_FAMILY_UNIX)
+#include <regex.h>
+#endif
+
+int regex_compile(const char *pPattern, const char *pStr)
+{
+#if defined(CONF_FAMILY_UNIX)
+	/*
+		credits go to Per-Olof Pettersson
+		found through: https://stackoverflow.com/a/1085120
+
+		modified by ChillerDragon
+	*/
+	regex_t regex;
+	int reti;
+	char aBuf[128];
+	int ret = -1;
+
+	/* Compile regular expression */
+	reti = regcomp(&regex, pPattern, 0);
+	if(reti)
+	{
+		dbg_msg("regex", "Could not compile regex");
+		ret = -1;
+		goto end;
+	}
+
+	/* Execute regular expression */
+	reti = regexec(&regex, pStr, 0, NULL, 0);
+	if(!reti)
+	{
+		dbg_msg("regex", "pattern matches");
+		ret = 0;
+		goto end;
+	}
+	else if(reti == REG_NOMATCH)
+	{
+		dbg_msg("regex", "pattern does not match");
+		ret = 1;
+		goto end;
+	}
+	else
+	{
+		regerror(reti, &regex, aBuf, sizeof(aBuf));
+		dbg_msg("regex", "Regex match failed: %s\n", aBuf);
+		ret = -1;
+		goto end;
+	}
+
+	end:
+	/* Free memory allocated to the pattern buffer by regcomp() */
+	regfree(&regex);
+	return ret;;
+#else
+	return 0;
+#endif
+}
+
+long long fpost_get_pos(fpos_t pos)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return pos;
+#elif defined(CONF_PLATFORM_MACOSX)
+	return pos;
+#else
+	return pos.__pos;
 #endif
 }
 

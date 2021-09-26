@@ -16,6 +16,7 @@
 #include <engine/shared/mapchecker.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/netban.h>
+#include <engine/shared/uuid_manager.h>
 
 class CSnapIDPool
 {
@@ -82,6 +83,7 @@ public:
 
 	enum
 	{
+		AUTHED_HONEY=-1,
 		AUTHED_NO=0,
 		AUTHED_MOD,
 		AUTHED_ADMIN,
@@ -100,6 +102,8 @@ public:
 			STATE_CONNECTING,
 			STATE_READY,
 			STATE_INGAME,
+
+			STATE_BOT,
 
 			SNAPRATE_INIT=0,
 			SNAPRATE_FULL,
@@ -134,7 +138,6 @@ public:
 		int m_Country;
 		int m_Score;
 		int m_Authed;
-		int m_LastAuthed;
 		int m_AuthTries;
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
@@ -144,6 +147,8 @@ public:
 		// DDRace
 
 		NETADDR m_Addr;
+		bool m_IsDummy;
+		bool m_IsClientDummy; //ddnet++ hide dummy in master
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -214,7 +219,7 @@ public:
 	bool ClientIngame(int ClientID);
 	int MaxClients() const;
 
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID);
+	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false);
 	int SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System);
 
 	void DoSnapshot();
@@ -268,6 +273,11 @@ public:
 	static void ConchainRconPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
+	//ddnet++
+
+	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
+	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
+
 	void RegisterCommands();
 
 
@@ -285,6 +295,9 @@ public:
 	void RestrictRconOutput(int ClientID) { m_RconRestrict = ClientID; }
 
 	virtual int* GetIdMap(int ClientID);
+
+	void BotJoin(int BotID);
+	void BotLeave(int BotID, bool silent = false);
 };
 
 #endif

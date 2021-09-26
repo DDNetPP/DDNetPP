@@ -52,7 +52,7 @@ enum
 	NET_MAX_PAYLOAD = NET_MAX_PACKETSIZE-6,
 	NET_MAX_CHUNKHEADERSIZE = 5,
 	NET_PACKETHEADERSIZE = 3,
-	NET_MAX_CLIENTS = 64,
+	NET_MAX_CLIENTS = 128,
 	NET_MAX_CONSOLE_CLIENTS = 4,
 	NET_MAX_SEQUENCE = 1<<10,
 	NET_SEQUENCE_MASK = NET_MAX_SEQUENCE-1,
@@ -62,6 +62,8 @@ enum
 	NET_CONNSTATE_PENDING=2,
 	NET_CONNSTATE_ONLINE=3,
 	NET_CONNSTATE_ERROR=4,
+
+	NET_CONNSTATE_BOT = 5,
 
 	NET_PACKETFLAG_CONTROL=1,
 	NET_PACKETFLAG_CONNLESS=2,
@@ -223,6 +225,9 @@ public:
 	void DirectInit(NETADDR &Addr, SECURITY_TOKEN SecurityToken);
 	void SetUnknownSeq() { m_UnknownSeq = true; }
 	void SetSequence(int Sequence) { m_Sequence = Sequence; }
+
+	void BotConnect();
+	void BotDrop();
 };
 
 class CConsoleNetConnection
@@ -348,6 +353,9 @@ public:
 	SECURITY_TOKEN GetToken(const NETADDR &Addr);
 	// vanilla token/gametick shouldn't be negative
 	SECURITY_TOKEN GetVanillaToken(const NETADDR &Addr) { return absolute(GetToken(Addr)); }
+
+	void BotInit(int BotID);
+	void BotDelete(int BotID);
 };
 
 class CNetConsole

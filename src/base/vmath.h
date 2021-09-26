@@ -5,6 +5,8 @@
 
 #include <math.h>
 
+#define _USE_MATH_DEFINES
+
 // ------------------------------------
 
 template<typename T>
@@ -28,8 +30,6 @@ public:
 	vector2_base operator *(const vector2_base &v) const { return vector2_base(x*v.x, y*v.y); }
 	vector2_base operator /(const T v) const { return vector3_base(x/v, y/v); }
 	vector2_base operator /(const vector2_base &v) const { return vector2_base(x/v.x, y/v.y); }
-
-	const vector2_base &operator =(const vector2_base &v) { x = v.x; y = v.y; return *this; }
 
 	const vector2_base &operator +=(const vector2_base &v) { x += v.x; y += v.y; return *this; }
 	const vector2_base &operator -=(const vector2_base &v) { x -= v.x; y -= v.y; return *this; }
@@ -89,6 +89,22 @@ inline vector2_base<T> closest_point_on_line(vector2_base<T> line_point0, vector
 	return t;*/
 }
 
+template<typename T>
+inline vector2_base<T> rotate_around_point(vector2_base<T> point, vector2_base<T> pivot, float angle)
+{
+	T s = sin(angle);
+	T c = cos(angle);
+	// translate point to origin
+	point -= pivot;
+	// rotate point
+	vector2_base<T> rotated_point;
+	rotated_point.x = point.x*c - point.y*s;
+	rotated_point.y = point.x*s + point.y*c;
+	// translate point back to pivot
+	point = rotated_point + pivot;
+	return point;
+}
+
 // ------------------------------------
 template<typename T>
 class vector3_base
@@ -105,8 +121,6 @@ public:
 		y = ny;
 		z = nz;
 	}
-
-	const vector3_base &operator =(const vector3_base &v) { x = v.x; y = v.y; z = v.z; return *this; }
 
 	vector3_base operator -(const vector3_base &v) const { return vector3_base(x-v.x, y-v.y, z-v.z); }
 	vector3_base operator -() const { return vector3_base(-x, -y, -z); }
@@ -193,8 +207,6 @@ public:
 	vector4_base operator *(const T v) const { return vector4_base(x*v, y*v, z*v, w*v); }
 	vector4_base operator /(const vector4_base &v) const { return vector4_base(x/v.x, y/v.y, z/v.z, w/v.w); }
 	vector4_base operator /(const T v) const { return vector4_base(x/v, y/v, z/v, w/v); }
-
-	const vector4_base &operator =(const vector4_base &v) { x = v.x; y = v.y; z = v.z; w = v.w; return *this; }
 
 	const vector4_base &operator +=(const vector4_base &v) { x += v.x; y += v.y; z += v.z; w += v.w; return *this; }
 	const vector4_base &operator -=(const vector4_base &v) { x -= v.x; y -= v.y; z -= v.z; w -= v.w; return *this; }

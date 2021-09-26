@@ -1,3 +1,4 @@
+
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #ifndef ENGINE_SERVER_H
@@ -37,7 +38,7 @@ public:
 	virtual void GetClientAddr(int ClientID, char *pAddrStr, int Size) = 0;
 	virtual void RestrictRconOutput(int ClientID) = 0;
 
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
+	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false) = 0;
 
 	template<class T>
 	int SendPackMsg(T *pMsg, int Flags, int ClientID)
@@ -151,6 +152,7 @@ public:
 	virtual void SetRconCID(int ClientID) = 0;
 	virtual bool IsAuthed(int ClientID) = 0;
 	virtual void Kick(int ClientID, const char *pReason) = 0;
+	virtual void SendRconLine(int ClientID, const char *pLine) = 0;
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
@@ -165,6 +167,10 @@ public:
 	virtual void GetClientAddr(int ClientID, NETADDR *pAddr) = 0;
 
 	virtual int* GetIdMap(int ClientID) = 0;
+
+	virtual void BotJoin(int BotID) = 0;
+	virtual void BotLeave(int BotID, bool silet = false) = 0;
+	virtual char *GetMapName() = 0;
 };
 
 class IGameServer : public IInterface
@@ -185,8 +191,8 @@ public:
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID) = 0;
 
 	virtual void OnClientConnected(int ClientID) = 0;
-	virtual void OnClientEnter(int ClientID) = 0;
-	virtual void OnClientDrop(int ClientID, const char *pReason) = 0;
+	virtual void OnClientEnter(int ClientID, bool silent = false) = 0;
+	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false) = 0;
 	virtual void OnClientDirectInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientPredictedInput(int ClientID, void *pInput) = 0;
 
@@ -200,6 +206,13 @@ public:
 	// DDRace
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
+
+	// DDNet++
+
+	virtual void IncrementWrongRconAttempts() = 0;
+	virtual void OnStartBlockTournament() = 0;
+	virtual void LogoutAllPlayers() = 0;
+	//virtual void OnDDPPshutdown() = 0;
 };
 
 extern IGameServer *CreateGameServer();

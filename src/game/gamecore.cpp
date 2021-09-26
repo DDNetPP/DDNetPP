@@ -94,6 +94,7 @@ void CCharacterCore::Reset()
 	m_HookDir = vec2(0,0);
 	m_HookTick = 0;
 	m_HookState = HOOK_IDLE;
+	m_LastHookedPlayer = -1;
 	m_HookedPlayer = -1;
 	m_Jumped = 0;
 	m_JumpedTotal = 0;
@@ -103,8 +104,35 @@ void CCharacterCore::Reset()
 	m_Collision = true;
 }
 
+void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry)
+{
+	if (id == 0)
+	{
+		m_FlagPos1 = Pos;
+		m_AtStand1 = Stand;
+		m_FlagVel1 = Vel;
+		m_carryFlagChar1 = carry;
+	}
+	else if (id == 1)
+	{
+		m_FlagPos2 = Pos;
+		m_AtStand2 = Stand;
+		m_FlagVel2 = Vel;
+		m_carryFlagChar2 = carry;
+	}
+}
+
 void CCharacterCore::Tick(bool UseInput, bool IsClient)
 {
+	m_updateFlagVel = 0;
+
+	if (m_LastHookedTick != -1){m_LastHookedTick = m_LastHookedTick + 1;}
+
+	if (m_LastHookedTick > SERVER_TICK_SPEED*10){
+			m_LastHookedPlayer = -1;
+			m_LastHookedTick = -1;
+		}
+
 	float PhysSize = 28.0f;
 	int MapIndex = Collision()->GetPureMapIndex(m_Pos);;
 	int MapIndexL = Collision()->GetPureMapIndex(vec2(m_Pos.x + (28/2)+4,m_Pos.y));
@@ -143,8 +171,6 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 	m_TileSIndexT = (UseInput && IsRightTeam(MapIndexT))?Collision()->GetDTileIndex(MapIndexT):0;
 	m_TileSFlagsT = (UseInput && IsRightTeam(MapIndexT))?Collision()->GetDTileFlags(MapIndexT):0;
 	m_TriggeredEvents = 0;
-
-	vec2 PrevPos = m_Pos;
 
 	// get ground state
 	bool Grounded = false;
@@ -273,15 +299,19 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 		bool GoingToRetract = false;
 		bool GoingThroughTele = false;
 		int teleNr = 0;
-		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, 0, &teleNr, true);
+		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, 0, &teleNr);
 
 		//m_NewHook = false;
 
 		if(Hit)
 		{
-			if(Hit&CCollision::COLFLAG_NOHOOK)
+			if(Hit == TILE_NOHOOK)
 				GoingToRetract = true;
-			else if (Hit&CCollision::COLFLAG_TELE)
+			else if (Hit == TILE_CONFIG_1)
+				GoingToRetract = g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
+			else if (Hit == TILE_CONFIG_2)
+				GoingToRetract = g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK;
+			else if (Hit == TILE_TELEINHOOK)
 				GoingThroughTele = true;
 			else
 				GoingToHitGround = true;
@@ -307,9 +337,39 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 						m_HookState = HOOK_GRABBED;
 						m_HookedPlayer = i;
 						Distance = distance(m_HookPos, pCharCore->m_Pos);
+						pCharCore->m_LastHookedPlayer = m_Id;
+						pCharCore->m_LastHookedTick = 0;
 					}
 				}
 			}
+
+			//Check against Flags: DELETE IF IT DOSNT WORK
+			vec2 ClosestPoint;
+			ClosestPoint = closest_point_on_line(m_HookPos, NewPos, m_FlagPos1);
+			if(distance(m_FlagPos1, ClosestPoint) < PhysSize+2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != 99 && m_HookedPlayer != 98)
+				{
+					if (m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
+					{
+						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+						m_HookState = HOOK_GRABBED;
+						m_HookedPlayer = 98;
+						Distance = distance(m_HookPos, m_FlagPos1);
+					}
+				}
+
+			ClosestPoint = closest_point_on_line(m_HookPos, NewPos, m_FlagPos2);
+			if(distance(m_FlagPos2, ClosestPoint) < PhysSize+2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != 98 && m_HookedPlayer != 99)
+				{
+					if (m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
+					{
+						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+						m_HookState = HOOK_GRABBED;
+						m_HookedPlayer = 99;
+						Distance = distance(m_HookPos, m_FlagPos2);
+					}
+				}
+			//Check against Flags: DELETE IF IT DOSNT WORK
+
 		}
 
 		if(m_HookState == HOOK_FLYING)
@@ -346,7 +406,30 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 
 	if(m_HookState == HOOK_GRABBED)
 	{
-		if(m_HookedPlayer != -1)
+		// UPDATE HOOK POS ON FLAG POS!!!!!
+		if(m_HookedPlayer == 98){
+			if (!m_carryFlagChar1){
+				m_HookPos = m_FlagPos1;
+			}
+			else{
+				m_HookedPlayer = -1;
+				m_HookState = HOOK_RETRACTED;
+				m_HookPos = m_Pos;
+			}
+		}
+		else if(m_HookedPlayer == 99){
+			if (!m_carryFlagChar2){
+				m_HookPos = m_FlagPos2;
+			}
+			else{
+				m_HookedPlayer = -1;
+				m_HookState = HOOK_RETRACTED;
+				m_HookPos = m_Pos;
+			}
+		}
+		// UPDATE HOOK POS ON FLAG POS!!!!!
+
+		else if(m_HookedPlayer != -1)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
 			if(pCharCore && (IsClient || m_pTeams->CanKeepHook(m_Id, pCharCore->m_Id)))
@@ -390,12 +473,31 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 
 		// release hook (max default hook time is 1.25 s)
 		m_HookTick++;
-		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5 || !m_pWorld->m_apCharacters[m_HookedPlayer]))
+		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5 || (m_HookedPlayer < 97 && !m_pWorld->m_apCharacters[m_HookedPlayer])))
 		{
 			m_HookedPlayer = -1;
 			m_HookState = HOOK_RETRACTED;
 			m_HookPos = m_Pos;
 		}
+
+		if(m_HookedPlayer == 98){
+			if (m_AtStand1 == 1 /*|| !m_carryFlagChar1*/ || m_carryFlagChar1 == -1){
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;}
+
+		}
+		if(m_HookedPlayer == 99){
+			if (m_AtStand2 == 1 /*|| !m_carryFlagChar2*/ || m_carryFlagChar2 == -1){
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;}
+
+		}
+	}
+
+	if (m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_LastHookedPlayer]){
+		m_LastHookedPlayer = -1;
 	}
 
 	if(m_pWorld)
@@ -467,120 +569,64 @@ void CCharacterCore::Tick(bool UseInput, bool IsClient)
 			}
 		}
 
+				if (m_HookedPlayer == 98 || m_HookedPlayer == 99){
+
+				float Distance;
+				vec2 FlagVel;
+				vec2 Dir;
+				vec2 FPos;
+				vec2 Temp;
+
+				if (m_HookedPlayer == 98){ m_updateFlagVel = 98; Temp = m_FlagVel1; FlagVel = m_FlagVel1; FPos = m_FlagPos1; Distance = distance(m_Pos, m_FlagPos1); Dir = normalize(m_Pos - m_FlagPos1);}
+				if (m_HookedPlayer == 99) {m_updateFlagVel = 99; Temp = m_FlagVel2; FlagVel = m_FlagVel2; FPos = m_FlagPos2; Distance = distance(m_Pos, m_FlagPos2); Dir = normalize(m_Pos - m_FlagPos2);}
+
+				if(Distance > PhysSize*1.50f) // TODO: fix tweakable variable
+				{
+
+				float Accel = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragAccel * (Distance/m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookLength);
+				float DragSpeed = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragSpeed;
+
+				Temp.x = SaturatedAdd(-DragSpeed, DragSpeed, FlagVel.x, Accel*Dir.x*1.5f);
+				Temp.y = SaturatedAdd(-DragSpeed, DragSpeed, FlagVel.y, Accel*Dir.y*1.5f);
+
+				/*int FMapIndex = Collision()->GetPureMapIndex(FPos);int FMapIndexL = Collision()->GetPureMapIndex(vec2(FPos.x + (28/2)+4,FPos.y));int FMapIndexR = Collision()->GetPureMapIndex(vec2(FPos.x - (28/2)-4,FPos.y));int FMapIndexT = Collision()->GetPureMapIndex(vec2(FPos.x,FPos.y + (28/2)+4));int FMapIndexB = Collision()->GetPureMapIndex(vec2(FPos.x,FPos.y - (28/2)-4));
+				
+				int m_FTileIndex = Collision()->GetTileIndex(FMapIndex);int m_FTileFlags = Collision()->GetTileFlags(FMapIndex);int m_FTileIndexL = Collision()->GetTileIndex(FMapIndexL);int m_FTileFlagsL = Collision()->GetTileFlags(FMapIndexL);int m_FTileIndexR = Collision()->GetTileIndex(FMapIndexR);
+				int m_FTileFlagsR = Collision()->GetTileFlags(FMapIndexR);int m_FTileIndexB = Collision()->GetTileIndex(FMapIndexB);int m_FTileFlagsB = Collision()->GetTileFlags(FMapIndexB);int m_FTileIndexT = Collision()->GetTileIndex(FMapIndexT);int m_FTileFlagsT = Collision()->GetTileFlags(FMapIndexT);
+				int m_FTileFIndex = Collision()->GetFTileIndex(FMapIndex);int m_FTileFFlags = Collision()->GetFTileFlags(FMapIndex);int m_FTileFIndexL = Collision()->GetFTileIndex(FMapIndexL);int m_FTileFFlagsL = Collision()->GetFTileFlags(FMapIndexL);int m_FTileFIndexR = Collision()->GetFTileIndex(FMapIndexR);int m_FTileFFlagsR = Collision()->GetFTileFlags(FMapIndexR);
+				int m_FTileFIndexB = Collision()->GetFTileIndex(FMapIndexB);int m_FTileFFlagsB = Collision()->GetFTileFlags(FMapIndexB);int m_FTileFIndexT = Collision()->GetFTileIndex(FMapIndexT);int m_FTileFFlagsT = Collision()->GetFTileFlags(FMapIndexT);int m_FTileSIndex = (UseInput && IsRightTeam(FMapIndex))?Collision()->GetDTileIndex(FMapIndex):0;int m_FTileSFlags = (UseInput && IsRightTeam(FMapIndex))?Collision()->GetDTileFlags(FMapIndex):0;
+				int m_FTileSIndexL = (UseInput && IsRightTeam(FMapIndexL))?Collision()->GetDTileIndex(FMapIndexL):0;int m_FTileSFlagsL = (UseInput && IsRightTeam(FMapIndexL))?Collision()->GetDTileFlags(FMapIndexL):0;int m_FTileSIndexR = (UseInput && IsRightTeam(FMapIndexR))?Collision()->GetDTileIndex(FMapIndexR):0;int m_FTileSFlagsR = (UseInput && IsRightTeam(FMapIndexR))?Collision()->GetDTileFlags(FMapIndexR):0;
+				int m_FTileSIndexB = (UseInput && IsRightTeam(FMapIndexB))?Collision()->GetDTileIndex(FMapIndexB):0;int m_FTileSFlagsB = (UseInput && IsRightTeam(FMapIndexB))?Collision()->GetDTileFlags(FMapIndexB):0;int m_FTileSIndexT = (UseInput && IsRightTeam(FMapIndexT))?Collision()->GetDTileIndex(FMapIndexT):0;int m_FTileSFlagsT = (UseInput && IsRightTeam(FMapIndexT))?Collision()->GetDTileFlags(FMapIndexT):0;
+
+				if(Temp.x > 0 && ((m_FTileIndex == TILE_STOP && m_FTileFlags == ROTATION_270) || (m_FTileIndexL == TILE_STOP && m_FTileFlagsL == ROTATION_270) || (m_FTileIndexL == TILE_STOPS && (m_FTileFlagsL == ROTATION_90 || m_FTileFlagsL ==ROTATION_270)) || (m_FTileIndexL == TILE_STOPA) || (m_FTileFIndex == TILE_STOP && m_FTileFFlags == ROTATION_270) || (m_FTileFIndexL == TILE_STOP && m_FTileFFlagsL == ROTATION_270) || (m_FTileFIndexL == TILE_STOPS && (m_FTileFFlagsL == ROTATION_90 || m_FTileFFlagsL == ROTATION_270)) || (m_FTileFIndexL == TILE_STOPA) || (m_FTileSIndex == TILE_STOP && m_FTileSFlags == ROTATION_270) || (m_FTileSIndexL == TILE_STOP && m_FTileSFlagsL == ROTATION_270) || (m_FTileSIndexL == TILE_STOPS && (m_FTileSFlagsL == ROTATION_90 || m_FTileSFlagsL == ROTATION_270)) || (m_FTileSIndexL == TILE_STOPA)))
+					Temp.x = 0;
+				if(Temp.x < 0 && ((m_FTileIndex == TILE_STOP && m_FTileFlags == ROTATION_90) || (m_FTileIndexR == TILE_STOP && m_FTileFlagsR == ROTATION_90) || (m_FTileIndexR == TILE_STOPS && (m_FTileFlagsR == ROTATION_90 || m_FTileFlagsR == ROTATION_270)) || (m_FTileIndexR == TILE_STOPA) || (m_FTileFIndex == TILE_STOP && m_FTileFFlags == ROTATION_90) || (m_FTileFIndexR == TILE_STOP && m_FTileFFlagsR == ROTATION_90) || (m_FTileFIndexR == TILE_STOPS && (m_FTileFFlagsR == ROTATION_90 || m_FTileFFlagsR == ROTATION_270)) || (m_FTileFIndexR == TILE_STOPA) || (m_FTileSIndex == TILE_STOP && m_FTileSFlags == ROTATION_90) || (m_FTileSIndexR == TILE_STOP && m_FTileSFlagsR == ROTATION_90) || (m_FTileSIndexR == TILE_STOPS && (m_FTileSFlagsR == ROTATION_90 || m_FTileSFlagsR == ROTATION_270)) || (m_FTileSIndexR == TILE_STOPA)))
+					Temp.x = 0;
+				if(Temp.y < 0 && ((m_FTileIndex == TILE_STOP && m_FTileFlags == ROTATION_180) || (m_FTileIndexB == TILE_STOP && m_FTileFlagsB == ROTATION_180) || (m_FTileIndexB == TILE_STOPS && (m_FTileFlagsB == ROTATION_0 || m_FTileFlagsB == ROTATION_180)) || (m_FTileIndexB == TILE_STOPA) || (m_FTileFIndex == TILE_STOP && m_FTileFFlags == ROTATION_180) || (m_FTileFIndexB == TILE_STOP && m_FTileFFlagsB == ROTATION_180) || (m_FTileFIndexB == TILE_STOPS && (m_FTileFFlagsB == ROTATION_0 || m_FTileFFlagsB == ROTATION_180)) || (m_FTileFIndexB == TILE_STOPA) || (m_FTileSIndex == TILE_STOP && m_FTileSFlags == ROTATION_180) || (m_FTileSIndexB == TILE_STOP && m_FTileSFlagsB == ROTATION_180) || (m_FTileSIndexB == TILE_STOPS && (m_FTileSFlagsB == ROTATION_0 || m_FTileSFlagsB == ROTATION_180)) || (m_FTileSIndexB == TILE_STOPA)))
+					Temp.y = 0;
+				if(Temp.y > 0 && ((m_FTileIndex == TILE_STOP && m_FTileFlags == ROTATION_0) || (m_FTileIndexT == TILE_STOP && m_FTileFlagsT == ROTATION_0) || (m_FTileIndexT == TILE_STOPS && (m_FTileFlagsT == ROTATION_0 || m_FTileFlagsT == ROTATION_180)) || (m_FTileIndexT == TILE_STOPA) || (m_FTileFIndex == TILE_STOP && m_FTileFFlags == ROTATION_0) || (m_FTileFIndexT == TILE_STOP && m_FTileFFlagsT == ROTATION_0) || (m_FTileFIndexT == TILE_STOPS && (m_FTileFFlagsT == ROTATION_0 || m_FTileFFlagsT == ROTATION_180)) || (m_FTileFIndexT == TILE_STOPA) || (m_FTileSIndex == TILE_STOP && m_FTileSFlags == ROTATION_0) || (m_FTileSIndexT == TILE_STOP && m_FTileSFlagsT == ROTATION_0) || (m_FTileSIndexT == TILE_STOPS && (m_FTileSFlagsT == ROTATION_0 || m_FTileSFlagsT == ROTATION_180)) || (m_FTileSIndexT == TILE_STOPA)))
+					Temp.y = 0;*/
+	
+				m_UFlagVel = Temp;
+
+				Temp.x = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.x, -Accel*Dir.x*0.25f);
+				Temp.y = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.y, -Accel*Dir.y*0.25f);
+				if(Temp.x > 0 && ((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_270) || (m_TileIndexL == TILE_STOP && m_TileFlagsL == ROTATION_270) || (m_TileIndexL == TILE_STOPS && (m_TileFlagsL == ROTATION_90 || m_TileFlagsL ==ROTATION_270)) || (m_TileIndexL == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_270) || (m_TileFIndexL == TILE_STOP && m_TileFFlagsL == ROTATION_270) || (m_TileFIndexL == TILE_STOPS && (m_TileFFlagsL == ROTATION_90 || m_TileFFlagsL == ROTATION_270)) || (m_TileFIndexL == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_270) || (m_TileSIndexL == TILE_STOP && m_TileSFlagsL == ROTATION_270) || (m_TileSIndexL == TILE_STOPS && (m_TileSFlagsL == ROTATION_90 || m_TileSFlagsL == ROTATION_270)) || (m_TileSIndexL == TILE_STOPA)))
+					Temp.x = 0;
+				if(Temp.x < 0 && ((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_90) || (m_TileIndexR == TILE_STOP && m_TileFlagsR == ROTATION_90) || (m_TileIndexR == TILE_STOPS && (m_TileFlagsR == ROTATION_90 || m_TileFlagsR == ROTATION_270)) || (m_TileIndexR == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_90) || (m_TileFIndexR == TILE_STOP && m_TileFFlagsR == ROTATION_90) || (m_TileFIndexR == TILE_STOPS && (m_TileFFlagsR == ROTATION_90 || m_TileFFlagsR == ROTATION_270)) || (m_TileFIndexR == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_90) || (m_TileSIndexR == TILE_STOP && m_TileSFlagsR == ROTATION_90) || (m_TileSIndexR == TILE_STOPS && (m_TileSFlagsR == ROTATION_90 || m_TileSFlagsR == ROTATION_270)) || (m_TileSIndexR == TILE_STOPA)))
+					Temp.x = 0;
+				if(Temp.y < 0 && ((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_180) || (m_TileIndexB == TILE_STOP && m_TileFlagsB == ROTATION_180) || (m_TileIndexB == TILE_STOPS && (m_TileFlagsB == ROTATION_0 || m_TileFlagsB == ROTATION_180)) || (m_TileIndexB == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_180) || (m_TileFIndexB == TILE_STOP && m_TileFFlagsB == ROTATION_180) || (m_TileFIndexB == TILE_STOPS && (m_TileFFlagsB == ROTATION_0 || m_TileFFlagsB == ROTATION_180)) || (m_TileFIndexB == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_180) || (m_TileSIndexB == TILE_STOP && m_TileSFlagsB == ROTATION_180) || (m_TileSIndexB == TILE_STOPS && (m_TileSFlagsB == ROTATION_0 || m_TileSFlagsB == ROTATION_180)) || (m_TileSIndexB == TILE_STOPA)))
+					Temp.y = 0;
+				if(Temp.y > 0 && ((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_0) || (m_TileIndexT == TILE_STOP && m_TileFlagsT == ROTATION_0) || (m_TileIndexT == TILE_STOPS && (m_TileFlagsT == ROTATION_0 || m_TileFlagsT == ROTATION_180)) || (m_TileIndexT == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_0) || (m_TileFIndexT == TILE_STOP && m_TileFFlagsT == ROTATION_0) || (m_TileFIndexT == TILE_STOPS && (m_TileFFlagsT == ROTATION_0 || m_TileFFlagsT == ROTATION_180)) || (m_TileFIndexT == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_0) || (m_TileSIndexT == TILE_STOP && m_TileSFlagsT == ROTATION_0) || (m_TileSIndexT == TILE_STOPS && (m_TileSFlagsT == ROTATION_0 || m_TileSFlagsT == ROTATION_180)) || (m_TileSIndexT == TILE_STOPA)))
+					Temp.y = 0;
+				m_Vel = Temp;
+
+				}
+		}
+
 		if (m_HookState != HOOK_FLYING)
 		{
 			m_NewHook = false;
-		}
-
-		int Index = MapIndex;
-		if(g_Config.m_ClPredictDDRace && IsClient && m_pCollision->IsSpeedup(Index))
-		{
-			vec2 Direction, MaxVel, TempVel = m_Vel;
-			int Force, MaxSpeed = 0;
-			float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
-			m_pCollision->GetSpeedup(Index, &Direction, &Force, &MaxSpeed);
-			if(Force == 255 && MaxSpeed)
-			{
-				m_Vel = Direction * (MaxSpeed/5);
-			}
-			else
-			{
-				if(MaxSpeed > 0 && MaxSpeed < 5) MaxSpeed = 5;
-				//dbg_msg("speedup tile start","Direction %f %f, Force %d, Max Speed %d", (Direction).x,(Direction).y, Force, MaxSpeed);
-				if(MaxSpeed > 0)
-				{
-					if(Direction.x > 0.0000001f)
-						SpeederAngle = -atan(Direction.y / Direction.x);
-					else if(Direction.x < 0.0000001f)
-						SpeederAngle = atan(Direction.y / Direction.x) + 2.0f * asin(1.0f);
-					else if(Direction.y > 0.0000001f)
-						SpeederAngle = asin(1.0f);
-					else
-						SpeederAngle = asin(-1.0f);
-
-					if(SpeederAngle < 0)
-						SpeederAngle = 4.0f * asin(1.0f) + SpeederAngle;
-
-					if(TempVel.x > 0.0000001f)
-						TeeAngle = -atan(TempVel.y / TempVel.x);
-					else if(TempVel.x < 0.0000001f)
-						TeeAngle = atan(TempVel.y / TempVel.x) + 2.0f * asin(1.0f);
-					else if(TempVel.y > 0.0000001f)
-						TeeAngle = asin(1.0f);
-					else
-						TeeAngle = asin(-1.0f);
-
-					if(TeeAngle < 0)
-						TeeAngle = 4.0f * asin(1.0f) + TeeAngle;
-
-					TeeSpeed = sqrt(pow(TempVel.x, 2) + pow(TempVel.y, 2));
-
-					DiffAngle = SpeederAngle - TeeAngle;
-					SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
-					//dbg_msg("speedup tile debug","MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
-					if(abs((int)SpeedLeft) > Force && SpeedLeft > 0.0000001f)
-						TempVel += Direction * Force;
-					else if(abs((int)SpeedLeft) > Force)
-						TempVel += Direction * -Force;
-					else
-						TempVel += Direction * SpeedLeft;
-				}
-				else
-					TempVel += Direction * Force;
-
-
-				if(TempVel.x > 0 && ((this->m_TileIndex == TILE_STOP && this->m_TileFlags == ROTATION_270) || (this->m_TileIndexL == TILE_STOP && this->m_TileFlagsL == ROTATION_270) || (this->m_TileIndexL == TILE_STOPS && (this->m_TileFlagsL == ROTATION_90 || this->m_TileFlagsL ==ROTATION_270)) || (this->m_TileIndexL == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_270) || (m_TileFIndexL == TILE_STOP && m_TileFFlagsL == ROTATION_270) || (m_TileFIndexL == TILE_STOPS && (m_TileFFlagsL == ROTATION_90 || m_TileFFlagsL == ROTATION_270)) || (m_TileFIndexL == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_270) || (m_TileSIndexL == TILE_STOP && m_TileSFlagsL == ROTATION_270) || (m_TileSIndexL == TILE_STOPS && (m_TileSFlagsL == ROTATION_90 || m_TileSFlagsL == ROTATION_270)) || (m_TileSIndexL == TILE_STOPA)))
-					TempVel.x = 0;
-				if(TempVel.x < 0 && ((this->m_TileIndex == TILE_STOP && this->m_TileFlags == ROTATION_90) || (this->m_TileIndexR == TILE_STOP && this->m_TileFlagsR == ROTATION_90) || (this->m_TileIndexR == TILE_STOPS && (this->m_TileFlagsR == ROTATION_90 || this->m_TileFlagsR == ROTATION_270)) || (this->m_TileIndexR == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_90) || (m_TileFIndexR == TILE_STOP && m_TileFFlagsR == ROTATION_90) || (m_TileFIndexR == TILE_STOPS && (m_TileFFlagsR == ROTATION_90 || m_TileFFlagsR == ROTATION_270)) || (m_TileFIndexR == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_90) || (m_TileSIndexR == TILE_STOP && m_TileSFlagsR == ROTATION_90) || (m_TileSIndexR == TILE_STOPS && (m_TileSFlagsR == ROTATION_90 || m_TileSFlagsR == ROTATION_270)) || (m_TileSIndexR == TILE_STOPA)))
-					TempVel.x = 0;
-				if(TempVel.y < 0 && ((this->m_TileIndex == TILE_STOP && this->m_TileFlags == ROTATION_180) || (this->m_TileIndexB == TILE_STOP && this->m_TileFlagsB == ROTATION_180) || (this->m_TileIndexB == TILE_STOPS && (this->m_TileFlagsB == ROTATION_0 || this->m_TileFlagsB == ROTATION_180)) || (this->m_TileIndexB == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_180) || (m_TileFIndexB == TILE_STOP && m_TileFFlagsB == ROTATION_180) || (m_TileFIndexB == TILE_STOPS && (m_TileFFlagsB == ROTATION_0 || m_TileFFlagsB == ROTATION_180)) || (m_TileFIndexB == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_180) || (m_TileSIndexB == TILE_STOP && m_TileSFlagsB == ROTATION_180) || (m_TileSIndexB == TILE_STOPS && (m_TileSFlagsB == ROTATION_0 || m_TileSFlagsB == ROTATION_180)) || (m_TileSIndexB == TILE_STOPA)))
-					TempVel.y = 0;
-				if(TempVel.y > 0 && ((this->m_TileIndex == TILE_STOP && this->m_TileFlags == ROTATION_0) || (this->m_TileIndexT == TILE_STOP && this->m_TileFlagsT == ROTATION_0) || (this->m_TileIndexT == TILE_STOPS && (this->m_TileFlagsT == ROTATION_0 || this->m_TileFlagsT == ROTATION_180)) || (this->m_TileIndexT == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_0) || (m_TileFIndexT == TILE_STOP && m_TileFFlagsT == ROTATION_0) || (m_TileFIndexT == TILE_STOPS && (m_TileFFlagsT == ROTATION_0 || m_TileFFlagsT == ROTATION_180)) || (m_TileFIndexT == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_0) || (m_TileSIndexT == TILE_STOP && m_TileSFlagsT == ROTATION_0) || (m_TileSIndexT == TILE_STOPS && (m_TileSFlagsT == ROTATION_0 || m_TileSFlagsT == ROTATION_180)) || (m_TileSIndexT == TILE_STOPA)))
-					TempVel.y = 0;
-
-
-				m_Vel = TempVel;
-				//dbg_msg("speedup tile end","(Direction*Force) %f %f   m_Vel%f %f",(Direction*Force).x,(Direction*Force).y,m_Vel.x,m_Vel.y);
-				//dbg_msg("speedup tile end","Direction %f %f, Force %d, Max Speed %d", (Direction).x,(Direction).y, Force, MaxSpeed);
-			}
-		}
-
-		// jetpack and ninjajetpack prediction
-		if(IsClient && UseInput && (m_Input.m_Fire&1) && (m_ActiveWeapon == WEAPON_GUN || m_ActiveWeapon == WEAPON_NINJA)) {
-			m_Vel += TargetDirection * -1.0f * (m_pWorld->m_Tuning[g_Config.m_ClDummy].m_JetpackStrength / 100.0f / 6.11f);
-		}
-
-		if(g_Config.m_ClPredictDDRace && IsClient)
-		{
-			if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_270) || (m_TileIndexL == TILE_STOP && m_TileFlagsL == ROTATION_270) || (m_TileIndexL == TILE_STOPS && (m_TileFlagsL == ROTATION_90 || m_TileFlagsL ==ROTATION_270)) || (m_TileIndexL == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_270) || (m_TileFIndexL == TILE_STOP && m_TileFFlagsL == ROTATION_270) || (m_TileFIndexL == TILE_STOPS && (m_TileFFlagsL == ROTATION_90 || m_TileFFlagsL == ROTATION_270)) || (m_TileFIndexL == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_270) || (m_TileSIndexL == TILE_STOP && m_TileSFlagsL == ROTATION_270) || (m_TileSIndexL == TILE_STOPS && (m_TileSFlagsL == ROTATION_90 || m_TileSFlagsL == ROTATION_270)) || (m_TileSIndexL == TILE_STOPA)) && m_Vel.x > 0)
-			{
-				if((int)m_pCollision->GetPos(MapIndexL).x < (int)m_Pos.x)
-					m_Pos = PrevPos;
-				m_Vel.x = 0;
-			}
-			if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_90) || (m_TileIndexR == TILE_STOP && m_TileFlagsR == ROTATION_90) || (m_TileIndexR == TILE_STOPS && (m_TileFlagsR == ROTATION_90 || m_TileFlagsR == ROTATION_270)) || (m_TileIndexR == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_90) || (m_TileFIndexR == TILE_STOP && m_TileFFlagsR == ROTATION_90) || (m_TileFIndexR == TILE_STOPS && (m_TileFFlagsR == ROTATION_90 || m_TileFFlagsR == ROTATION_270)) || (m_TileFIndexR == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_90) || (m_TileSIndexR == TILE_STOP && m_TileSFlagsR == ROTATION_90) || (m_TileSIndexR == TILE_STOPS && (m_TileSFlagsR == ROTATION_90 || m_TileSFlagsR == ROTATION_270)) || (m_TileSIndexR == TILE_STOPA)) && m_Vel.x < 0)
-			{
-				if((int)m_pCollision->GetPos(MapIndexR).x)
-					if((int)m_pCollision->GetPos(MapIndexR).x < (int)m_Pos.x)
-						m_Pos = PrevPos;
-				m_Vel.x = 0;
-			}
-			if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_180) || (m_TileIndexB == TILE_STOP && m_TileFlagsB == ROTATION_180) || (m_TileIndexB == TILE_STOPS && (m_TileFlagsB == ROTATION_0 || m_TileFlagsB == ROTATION_180)) || (m_TileIndexB == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_180) || (m_TileFIndexB == TILE_STOP && m_TileFFlagsB == ROTATION_180) || (m_TileFIndexB == TILE_STOPS && (m_TileFFlagsB == ROTATION_0 || m_TileFFlagsB == ROTATION_180)) || (m_TileFIndexB == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_180) || (m_TileSIndexB == TILE_STOP && m_TileSFlagsB == ROTATION_180) || (m_TileSIndexB == TILE_STOPS && (m_TileSFlagsB == ROTATION_0 || m_TileSFlagsB == ROTATION_180)) || (m_TileSIndexB == TILE_STOPA)) && m_Vel.y < 0)
-			{
-				if((int)m_pCollision->GetPos(MapIndexB).y)
-					if((int)m_pCollision->GetPos(MapIndexB).y < (int)m_Pos.y)
-						m_Pos = PrevPos;
-				m_Vel.y = 0;
-			}
-			if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_0) || (m_TileIndexT == TILE_STOP && m_TileFlagsT == ROTATION_0) || (m_TileIndexT == TILE_STOPS && (m_TileFlagsT == ROTATION_0 || m_TileFlagsT == ROTATION_180)) || (m_TileIndexT == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_0) || (m_TileFIndexT == TILE_STOP && m_TileFFlagsT == ROTATION_0) || (m_TileFIndexT == TILE_STOPS && (m_TileFFlagsT == ROTATION_0 || m_TileFFlagsT == ROTATION_180)) || (m_TileFIndexT == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_0) || (m_TileSIndexT == TILE_STOP && m_TileSFlagsT == ROTATION_0) || (m_TileSIndexT == TILE_STOPS && (m_TileSFlagsT == ROTATION_0 || m_TileSFlagsT == ROTATION_180)) || (m_TileSIndexT == TILE_STOPA)) && m_Vel.y > 0)
-			{
-				if((int)m_pCollision->GetPos(MapIndexT).y)
-					if((int)m_pCollision->GetPos(MapIndexT).y < (int)m_Pos.y)
-						m_Pos = PrevPos;
-				m_Vel.y = 0;
-				m_Jumped = 0;
-				m_JumpedTotal = 0;
-			}
 		}
 	}
 
@@ -666,7 +712,10 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_HookY = round_to_int(m_HookPos.y);
 	pObjCore->m_HookDx = round_to_int(m_HookDir.x*256.0f);
 	pObjCore->m_HookDy = round_to_int(m_HookDir.y*256.0f);
-	pObjCore->m_HookedPlayer = m_HookedPlayer;
+	if (m_HookedPlayer == 98 || m_HookedPlayer == 99){
+		pObjCore->m_HookedPlayer = -1;
+	}
+	else{pObjCore->m_HookedPlayer = m_HookedPlayer;}
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Angle = m_Angle;
@@ -684,7 +733,10 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_HookPos.y = pObjCore->m_HookY;
 	m_HookDir.x = pObjCore->m_HookDx/256.0f;
 	m_HookDir.y = pObjCore->m_HookDy/256.0f;
+	if (m_HookedPlayer == 98 || m_HookedPlayer == 99){}
+	else{
 	m_HookedPlayer = pObjCore->m_HookedPlayer;
+	}
 	m_Jumped = pObjCore->m_Jumped;
 	m_Direction = pObjCore->m_Direction;
 	m_Angle = pObjCore->m_Angle;

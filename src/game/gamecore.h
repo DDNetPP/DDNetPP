@@ -80,10 +80,17 @@ inline void StrToInts(int *pInts, int Num, const char *pStr)
 	int Index = 0;
 	while(Num)
 	{
-		char aBuf[4] = {0,0,0,0};
+		char aBuf[4] = {0, 0, 0, 0};
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds" // false positive
+#endif
 		for(int c = 0; c < 4 && pStr[Index]; c++, Index++)
 			aBuf[c] = pStr[Index];
-		*pInts = ((aBuf[0]+128)<<24)|((aBuf[1]+128)<<16)|((aBuf[2]+128)<<8)|(aBuf[3]+128);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+		*pInts = ((aBuf[0] + 128) << 24) | ((aBuf[1] + 128) << 16) | ((aBuf[2] + 128) << 8) | (aBuf[3] + 128);
 		pInts++;
 		Num--;
 	}
@@ -197,7 +204,11 @@ public:
 	int m_HookTick;
 	int m_HookState;
 	int m_HookedPlayer;
+	int m_LastHookedPlayer;
+	int m_LastHookedTick;
 	int m_ActiveWeapon;
+
+	bool m_hookedFlag;
 
 	bool m_NewHook;
 
@@ -216,6 +227,21 @@ public:
 	void Reset();
 	void Tick(bool UseInput, bool IsClient);
 	void Move();
+
+	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
+
+	vec2 m_FlagPos1;
+	vec2 m_FlagPos2;
+	int m_AtStand1;
+	int m_AtStand2;
+	vec2 m_FlagVel1;
+	vec2 m_FlagVel2;
+
+	int m_updateFlagVel;
+	vec2 m_UFlagVel;
+
+	int m_carryFlagChar1;
+	int m_carryFlagChar2;
 
 	void Read(const CNetObj_CharacterCore *pObjCore);
 	void Write(CNetObj_CharacterCore *pObjCore);

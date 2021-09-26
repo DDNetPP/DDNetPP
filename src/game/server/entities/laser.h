@@ -35,6 +35,10 @@ private:
 	vec2 m_PrevPos;
 	int m_Type;
 	int m_TuneZone;
+
+	// DDNet++
+
+	void QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar);
 };
 
 #endif

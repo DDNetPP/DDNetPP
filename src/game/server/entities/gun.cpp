@@ -1,4 +1,5 @@
-/* copyright (c) 2007 magnus auvinen, see licence.txt for more info */
+/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
+/* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <engine/server.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
@@ -48,7 +49,7 @@ void CGun::Fire()
 			continue;
 		if(m_Layer == LAYER_SWITCH && !GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[Target->Team()])
 			continue;
-		int res = GameServer()->Collision()->IntersectLine(m_Pos, Target->m_Pos,0,0,false);
+		int res = GameServer()->Collision()->IntersectLine(m_Pos, Target->m_Pos,0,0);
 		if (!res)
 		{
 			int Len = length(Target->m_Pos - m_Pos);
@@ -75,7 +76,7 @@ void CGun::Fire()
 		{
 			if (IdInTeam[Target->Team()] != i)
 			{
-				int res = GameServer()->Collision()->IntersectLine(m_Pos, Target->m_Pos,0,0,false);
+				int res = GameServer()->Collision()->IntersectLine(m_Pos, Target->m_Pos,0,0);
 				if (!res)
 				{
 					new CPlasma(&GameServer()->m_World, m_Pos, normalize(Target->m_Pos - m_Pos), m_Freeze, m_Explosive, Target->Team());

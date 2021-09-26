@@ -46,22 +46,18 @@ void CDoor::ResetCollision()
 
 void CDoor::Open(int Team)
 {
-
 }
 
 void CDoor::Close(int Team)
 {
-
 }
 
 void CDoor::Reset()
 {
-
 }
 
 void CDoor::Tick()
 {
-
 }
 
 void CDoor::Snap(int SnappingClient)
