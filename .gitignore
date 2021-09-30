@@ -61,6 +61,7 @@ DDNet*
 
 FNN/*.fnn
 
+uuid
 ChillerBot
 DDNetPP
 DDNetPP-Launcher
