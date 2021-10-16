@@ -98,11 +98,10 @@ public:
 		int m_ColorFeet;
 	} m_TeeInfos, m_LastToucherTeeInfos;
 
-	int m_RespawnTick;
 	int m_DieTick;
 	int m_Score;
-	//int m_xp;
 	int m_ScoreStartTick;
+	int m_JoinTick;
 	bool m_ForceBalanced;
 	int m_LastActionTick;
 	bool m_StolenSkin;
@@ -150,6 +149,7 @@ public:
 
 	int m_Paused;
 	bool m_DND;
+	int64 m_FirstVoteTick;
 	int64 m_NextPauseTick;
 	char m_TimeoutCode[64];
 

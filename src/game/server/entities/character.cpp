@@ -1481,7 +1481,8 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	// (because it was too fast otherwise and the normal skin would be there if its a selfkill and not a death tile kill)
 	if ((!m_pPlayer->m_ShowName && m_pPlayer->m_SpookyGhostActive) || m_pPlayer->m_CanClearFakeMotd)
 	{
-		m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
+		// TODO: fix this merge with upstream removed CPlayer::m_RespawnTick
+		// m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
 
 		m_pPlayer->m_CanClearFakeMotd = false;
 	}

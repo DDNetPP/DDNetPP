@@ -1410,14 +1410,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   gamemodes/DDRace.cpp
   gamemodes/DDRace.h
   gamemodes/ctf.cpp
-  gamemodes/ctf.h
-  gamemodes/dm.cpp
-  gamemodes/dm.h
   gamemodes/gamemode.h
-  gamemodes/mod.cpp
-  gamemodes/mod.h
-  gamemodes/tdm.cpp
-  gamemodes/tdm.h
   gameworld.cpp
   gameworld.h
   letters.cpp

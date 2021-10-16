@@ -176,7 +176,7 @@ public:
 	};
 
 	// network
-	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote = false);
+	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *pChatmsg, bool IsDDPPVetoVote = false);
 	void SendChatTarget(int To, const char *pText);
 	void SendChatTeam(int Team, const char *pText);
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int ToClientID = -1);
@@ -558,6 +558,8 @@ public:
 
 	int ProcessSpamProtection(int ClientID);
 	int GetDDRaceTeam(int ClientID);
+	// Describes the time when the first player joined the server.
+	int64 m_NonEmptySince;
 	int64 m_LastMapVote;
 
 	CSql *m_Database;

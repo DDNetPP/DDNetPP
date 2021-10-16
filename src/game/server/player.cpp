@@ -42,9 +42,8 @@ CPlayer::~CPlayer()
 
 void CPlayer::Reset()
 {
-	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
-	m_ScoreStartTick = Server()->Tick();
+	m_JoinTick = Server()->Tick();
 	if (m_pCharacter)
 		delete m_pCharacter;
 	m_pCharacter = 0;
@@ -134,6 +133,22 @@ void CPlayer::Reset()
 #if defined(CONF_SQL)
 	m_LastSQLQuery = 0;
 #endif
+
+	int64 Now = Server()->Tick();
+	int64 TickSpeed = Server()->TickSpeed();
+	// If the player joins within ten seconds of the server becoming
+	// non-empty, allow them to vote immediately. This allows players to
+	// vote after map changes or when they join an empty server.
+	//
+	// Otherwise, block voting for 60 seconds after joining.
+	if(Now > GameServer()->m_NonEmptySince + 10 * TickSpeed)
+	{
+		m_FirstVoteTick = Now + 60 * TickSpeed;
+	}
+	else
+	{
+		m_FirstVoteTick = Now;
+	}
 
 	/*****************************
 	*        DDNetPP             *
@@ -333,14 +348,13 @@ void CPlayer::Tick()
 				m_pCharacter = 0;
 			}
 		}
-		else if(m_Spawning && m_RespawnTick <= Server()->Tick())
+		else if(m_Spawning)
 			TryRespawn();
 	}
 	else
 	{
-		++m_RespawnTick;
 		++m_DieTick;
-		++m_ScoreStartTick;
+		++m_JoinTick;
 		++m_LastActionTick;
 		++m_TeamChangeTick;
 	}
@@ -985,9 +999,6 @@ void CPlayer::KillCharacter(int Weapon)
 {
 	if(m_pCharacter)
 	{
-		if (m_RespawnTick > Server()->Tick())
-			return;
-
 		m_pCharacter->Die(m_ClientID, Weapon);
 
 		delete m_pCharacter;
@@ -1039,8 +1050,6 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	m_LastSetTeam = Server()->Tick();
 	m_LastActionTick = Server()->Tick();
 	m_SpectatorID = SPEC_FREEVIEW;
-	m_RespawnTick = Server()->Tick();
-	//m_RespawnTick = 0;
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", m_ClientID, Server()->ClientName(m_ClientID), m_Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 

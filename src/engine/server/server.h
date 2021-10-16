@@ -139,7 +139,6 @@ public:
 		int m_Country;
 		int m_Score;
 		int m_Authed;
-		int m_LastAuthed;
 		int m_AuthTries;
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
@@ -189,6 +188,10 @@ public:
 	CMapChecker m_MapChecker;
 
 	int m_RconRestrict;
+
+	bool m_ServerInfoHighLoad;
+	int64 m_ServerInfoFirstRequest;
+	int m_ServerInfoNumRequests;
 
 	CServer();
 
@@ -244,7 +247,8 @@ public:
 
 	void ProcessClientPacket(CNetChunk *pPacket);
 
-	void SendServerInfo(const NETADDR *pAddr, int Token, bool Extended=false, int Offset=0);
+	void SendServerInfoConnless(const NETADDR *pAddr, int Token, bool Extended);
+	void SendServerInfo(const NETADDR *pAddr, int Token, bool Extended=false, int Offset=0, bool Short=false);
 	void UpdateServerInfo();
 
 	void PumpNetwork();
