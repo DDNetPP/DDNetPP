@@ -13,9 +13,6 @@
 #include "console.h"
 #include "linereader.h"
 
-#include <game/server/gamecontext.h> //ddpp for cmdlist permissions
-#include <engine/server/server.h> // ddpp for cmdlist permissions
-
 // todo: rework this
 
 const char *CConsole::CResult::GetString(unsigned Index)
@@ -894,7 +891,7 @@ void CConsole::AddCommandSorted(CCommand *pCommand)
 }
 
 void CConsole::Register(const char *pName, const char *pParams,
-	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp, int ddpp_al)
+	int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp)
 {
 	CCommand *pCommand = FindCommand(pName, Flags);
 	bool DoAdd = false;
@@ -909,7 +906,6 @@ void CConsole::Register(const char *pName, const char *pParams,
 	pCommand->m_pName = pName;
 	pCommand->m_pHelp = pHelp;
 	pCommand->m_pParams = pParams;
-	pCommand->m_ddpp_access_level = ddpp_al;
 
 	pCommand->m_Flags = Flags;
 	pCommand->m_Temp = false;
