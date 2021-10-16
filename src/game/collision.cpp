@@ -107,7 +107,6 @@ void CCollision::Init(class CLayers *pLayers)
 					m_pSwitch[i].m_Type = 0;
 			}
 		}
-
 		// DDNet++ (survival)
 		if (m_pTiles[i].m_Index == TILE_SURVIVAL_SPAWN)
 			m_NumSurvivalSpawns++;
@@ -140,8 +139,6 @@ int CCollision::GetTile(int x, int y)
 	int pos = Ny * m_Width + Nx;
 
 	if(m_pTiles[pos].m_Index >= TILE_SOLID && m_pTiles[pos].m_Index <= TILE_NOLASER)
-		return m_pTiles[pos].m_Index;
-	if(m_pTiles[pos].m_Index == TILE_CONFIG_1 || m_pTiles[pos].m_Index == TILE_CONFIG_2)
 		return m_pTiles[pos].m_Index;
 	return 0;
 }
@@ -176,6 +173,7 @@ bool CCollision::IsTileSolid(int x, int y)
 	return GetTile(x, y)&COLFLAG_SOLID;
 }
 */
+
 // TODO: rewrite this smarter!
 int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision)
 {
@@ -712,8 +710,8 @@ vec2 CCollision::CpSpeed(int Index, int Flags)
 
 int CCollision::GetPureMapIndex(float x, float y)
 {
-	int Nx = clamp((int)x/32, 0, m_Width-1);
-	int Ny = clamp((int)y/32, 0, m_Height-1);
+	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
 	return Ny*m_Width+Nx;
 }
 

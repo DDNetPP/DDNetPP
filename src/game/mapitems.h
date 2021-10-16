@@ -231,6 +231,8 @@ enum
 	TILE_END_CUSTOM, // pack alle neuen tiles hier dr�ber! (all new tiles on top of this line pls)
 
 
+	TILE_ENTITIES_OFF_1 = 190,
+	TILE_ENTITIES_OFF_2,
 	//End of higher tiles
 	//Layers
 	LAYER_GAME=0,
@@ -533,5 +535,10 @@ public:
 	unsigned char m_Number;
 	unsigned char m_Type;
 };
+
+
+bool IsValidGameTile(int Index);
+bool IsValidFrontTile(int Index);
+bool IsValidEntity(int Index);
 
 #endif

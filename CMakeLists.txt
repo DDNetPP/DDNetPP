@@ -823,9 +823,14 @@ set(EXPECTED_DATA
   editor/checker.png
   editor/cursor.png
   editor/ddmax_freeze.rules
+  editor/ddnet_tiles.rules
   editor/desert_main.rules
   editor/entities.png
-  editor/entities_clear.png
+  editor/entities_clear/ddnet.png
+  editor/entities_clear/ddrace.png
+  editor/entities_clear/fng.png
+  editor/entities_clear/race.png
+  editor/entities_clear/vanilla.png
   editor/fadeout.rules
   editor/front.png
   editor/generic_clear.rules
@@ -891,6 +896,9 @@ set(EXPECTED_DATA
   mapres/bg_cloud2.png
   mapres/bg_cloud3.png
   mapres/ddmax_freeze.png
+  mapres/ddnet_start.png
+  mapres/ddnet_tiles.png
+  mapres/ddnet_walls.png
   mapres/desert_background.png
   mapres/desert_doodads.png
   mapres/desert_main.png
