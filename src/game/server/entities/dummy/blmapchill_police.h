@@ -10,6 +10,7 @@ class CDummyBlmapChillPolice : public CDummyBase {
 public:
 	CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer);
 	virtual void OnTick();
+	virtual ~CDummyBlmapChillPolice() {};
 
 private:
 	bool CheckStuck();

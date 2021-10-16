@@ -40,6 +40,7 @@ public:
 		so do not use this in gameticks or the server gets slowed down
 	*/
 	void QueryBlocking(class CSql *pDatabase, char *pQuery);
+	virtual ~CQuery() {};
 };
 
 class CSql

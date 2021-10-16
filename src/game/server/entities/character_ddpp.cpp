@@ -379,7 +379,9 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
         Server()->SendMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCID());
 
         GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);
+        return true;
     }
+    return false;
 }
 
 void CCharacter::DDPPFireWeapon()
