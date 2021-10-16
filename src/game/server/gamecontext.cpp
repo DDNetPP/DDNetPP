@@ -664,6 +664,11 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 				{
 					Msg.AddInt(-1000000);
 				}
+				else if((i==36) // hammer hit
+				&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
+				{
+					Msg.AddInt(0);
+				}
 				else
 				{
 					Msg.AddInt(pParams[i]);
@@ -717,6 +722,12 @@ void CGameContext::OnTick()
 			m_apPlayers[i]->Tick();
 			m_apPlayers[i]->PostTick();
 		}
+	}
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_apPlayers[i])
+			m_apPlayers[i]->PostPostTick();
 	}
 
 	// update voting
@@ -1075,6 +1086,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	{
 		m_apPlayers[ClientID]->m_Score = 0;
 	}
+	Score()->CheckBirthday(ClientID);
 
 	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
 	{

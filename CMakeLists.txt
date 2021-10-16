@@ -844,7 +844,8 @@ set(EXPECTED_DATA
   editor/winter_main.rules
   emoticons.png
   file_icons.png
-  fonts/DejaVuSans.ttf
+  fonts/DejaVuSansCJKName.ttf
+  fonts/DejavuWenQuanYiMicroHei.ttf
   game.png
   gui_buttons.png
   gui_cursor.png
@@ -871,6 +872,7 @@ set(EXPECTED_DATA
   languages/kyrgyz.txt
   languages/license.txt
   languages/norwegian.txt
+  languages/persian.txt
   languages/polish.txt
   languages/portuguese.txt
   languages/readme.txt

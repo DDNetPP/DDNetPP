@@ -2651,12 +2651,16 @@ void CCharacter::HandleTiles(int Index)
 	if (((m_TileIndex == TILE_HIT_END) || (m_TileFIndex == TILE_HIT_END)) && m_Hit != (DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_RIFLE | DISABLE_HIT_SHOTGUN))
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can't hit others");
-		m_Hit = DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_RIFLE | DISABLE_HIT_SHOTGUN;
+		m_Hit = DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_RIFLE|DISABLE_HIT_SHOTGUN;
+		m_NeededFaketuning |= FAKETUNE_NOHAMMER;
+		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
 	else if (((m_TileIndex == TILE_HIT_START) || (m_TileFIndex == TILE_HIT_START)) && m_Hit != HIT_ALL)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can hit others");
 		m_Hit = HIT_ALL;
+		m_NeededFaketuning &= ~FAKETUNE_NOHAMMER;
+		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
 
 	// collide with others
@@ -2738,11 +2742,14 @@ void CCharacter::HandleTiles(int Index)
 	}
 	*/
 
-	if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0) {
+	if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0)
+	{
 
-		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
+		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
+		{
 		}
-		else {
+		else
+		{
 			/*
 			if (!(m_LastIndexTile == 66 || m_LastIndexFrontTile == 66) ){
 			char aBuf[256];
@@ -2755,11 +2762,11 @@ void CCharacter::HandleTiles(int Index)
 					m_Core.m_Pos = m_PrevPos;
 			m_Core.m_Vel.x = 0;
 		}
-
 	}
 
 
-	if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0) {
+	if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0)
+	{
 
 		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
 		}
@@ -3099,8 +3106,14 @@ void CCharacter::HandleTiles(int Index)
 		}
 	}
 
+	// unlock team
+	else if((m_TileIndex == TILE_UNLOCK_TEAM) || (m_TileFIndex == TILE_UNLOCK_TEAM))
+	{
+		Teams()->SetTeamLock(Team(), false);
+	}
+
 	// solo part
-	if (((m_TileIndex == TILE_SOLO_START) || (m_TileFIndex == TILE_SOLO_START)) && !Teams()->m_Core.GetSolo(m_pPlayer->GetCID()))
+	if(((m_TileIndex == TILE_SOLO_START) || (m_TileFIndex == TILE_SOLO_START)) && !Teams()->m_Core.GetSolo(m_pPlayer->GetCID()))
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You are now in a solo part.");
 		SetSolo(true);
@@ -3198,11 +3211,15 @@ void CCharacter::HandleTiles(int Index)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can hammer hit others");
 		m_Hit &= ~DISABLE_HIT_HAMMER;
+		m_NeededFaketuning &= ~FAKETUNE_NOHAMMER;
+		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
 	else if (GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_END && !(m_Hit&DISABLE_HIT_HAMMER) && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_HAMMER)
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can't hammer hit others");
 		m_Hit |= DISABLE_HIT_HAMMER;
+		m_NeededFaketuning |= FAKETUNE_NOHAMMER;
+		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
 	else if (GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_START && m_Hit&DISABLE_HIT_SHOTGUN && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_SHOTGUN)
 	{

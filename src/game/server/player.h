@@ -29,7 +29,7 @@ public:
 	void Reset();
 
 	void TryRespawn();
-	void Respawn();
+	void Respawn(bool WeakHook = false); // with WeakHook == true the character will be spawned after all calls of Tick from other Players
 	CCharacter* ForceSpawn(vec2 Pos); // required for loading savegames
 	void SetTeam(int Team, bool DoChatMsg=true);
 	int GetTeam() const { return m_Team; };
@@ -37,6 +37,9 @@ public:
 
 	void Tick();
 	void PostTick();
+
+	// will be called after all Tick and PostTick calls from other players
+	void PostPostTick();
 	void Snap(int SnappingClient);
 	void FakeSnap(int SnappingClient);
 
@@ -133,6 +136,7 @@ private:
 
 	//
 	bool m_Spawning;
+	bool m_WeakHookSpawn;
 	int m_ClientID;
 	int m_Team;
 

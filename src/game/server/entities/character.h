@@ -43,6 +43,7 @@ enum
 	FAKETUNE_NOCOLL = 8,
 	FAKETUNE_NOHOOK = 16,
 	FAKETUNE_JETPACK = 32,
+	FAKETUNE_NOHAMMER = 64,
 };
 
 class CCharacter : public CEntity
