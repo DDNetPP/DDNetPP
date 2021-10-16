@@ -1313,39 +1313,33 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				Team = CHAT_ALL;
 
 			pPlayer->m_PlayerHumanLevelState++;
-
 			GlobalChat(ClientID, pMsg->m_pMessage);
 
-			//############
-			//CHAT COMMANDS
-			//############
 			if(pMsg->m_pMessage[0]=='/')
 			{
-				// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
-				// geb mal ein cmd /join spec   && /join fight (player)
 				if(IsDDPPChatCommand(ClientID, pPlayer, pMsg->m_pMessage + 1))
 				{
 					// pass
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "w ", 2) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "w ", 2) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Whisper(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "whisper ", 8) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "whisper ", 8) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 9, 256);
 					Whisper(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "c ", 2) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "c ", 2) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Converse(pPlayer->GetCID(), pWhisperMsg);
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage + 1, "converse ", 9) == 0)
+				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "converse ", 9) == 0)
 				{
 					char pWhisperMsg[256];
 					str_copy(pWhisperMsg, pMsg->m_pMessage + 10, 256);
@@ -1386,33 +1380,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					Server()->RestrictRconOutput(-1);
 				}
 			}
-			else
-			{
-				if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
-				{
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
-					SendChatTarget(ClientID, aBuf);
-				}
-				else if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMsg->m_pMessage))
-				{
-					if (g_Config.m_SvMinAdminPing > 256)
-						SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
-					else
-						SendChatTarget(ClientID, "your message is too short to bother an admin with that.");
-				}
-				else
-				{
-					if (!pPlayer->m_ShowName)
-					{
-						str_copy(pPlayer->m_ChatText, pMsg->m_pMessage, sizeof(pPlayer->m_ChatText));
-						pPlayer->m_ChatTeam = Team;
-						pPlayer->FixForNoName(1);
-					}
-					else
-						SendChat(ClientID, Team, pMsg->m_pMessage, ClientID); //hier stehe ich eig SendChatFUNKTION
-				}
-			}
+			else if(!IsChatMessageBlocked(ClientID, pPlayer, Team, pMsg->m_pMessage))
+				SendChat(ClientID, Team, pMsg->m_pMessage, ClientID);
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{
@@ -1671,69 +1640,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if (pMsg->m_Vote == 1) //vote yes (f3)
 			{
-				//SendChatTarget(ClientID, "you pressed f3");
-
-				if (pChr)
-				{
-					if (pChr->m_InShop)
-					{
-						if (pChr->m_PurchaseState == 1)
-						{
-							pChr->ConfirmPurchase();
-						}
-						else if (pChr->m_PurchaseState == 2)
-						{
-							pChr->PurchaseEnd(false);
-						}
-					}
-					else
-					{
-						if (pChr)
-						{
-							IGameController* ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
-							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0])
-							{
-								if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pChr) {
-									((CGameControllerDDRace*)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
-									//SendChatTarget(ClientID, "you dropped red flag");
-								}
-							}
-							if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1])
-							{
-								if (((CGameControllerDDRace*)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pChr) {
-									((CGameControllerDDRace*)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
-									//SendChatTarget(ClientID, "you dropped blue flag");
-								}
-							}
-						}
-					}
-				}
+				VotedYes(pChr, pPlayer);
 			}
 			else if (pMsg->m_Vote == -1) //vote no (f4)
 			{
-				//SendChatTarget(ClientID, "you pressed f4");
-
-				if (pChr)
-				{
-					if (pChr->m_InShop)
-					{
-						if (pChr->m_PurchaseState == 2)
-						{
-							pChr->PurchaseEnd(true);
-						}
-						else if (pChr->m_ShopWindowPage == -1)
-						{
-							pChr->StartShop();
-						}
-					}
-					else
-					{
-						if (g_Config.m_SvAllowDroppingWeapons)
-						{
-							pChr->DropWeapon(pChr->GetActiveWeapon()); // drop the weapon youre holding.
-						}
-					}
-				}
+				VotedNo(pChr);
 			}
 
 			if(!m_VoteCloseTime)
@@ -1768,37 +1679,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}*/
 
-			if (IsMinigame(ClientID))
-			{
-				SendChatTarget(ClientID, "[MINIGAMES] You can't change team while playing minigames or being in jail.");
+			if(AbortTeamChange(ClientID, pPlayer))
 				return;
-			}
-
-			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3)
-			{
-				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't change team because you spawnblock too much. Try agian later.");
-				return;
-			}
-
-			if (m_apPlayers[ClientID]->m_IsBlockWaving)
-			{
-				SendChatTarget(ClientID, "[BlockWave] you can't change team while block waving. Try '/blockwave leave'");
-				return;
-			}
-
-			//zCatch survival LMS ChillerDragon Instagib grenade rifle
-			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //gLMS iLMS
-			{
-				SendChatTarget(ClientID, "You can't join running survival games. Wait until the round ends.");
-				return;
-			}
-
-			if (pPlayer->m_GangsterBagMoney)
-			{
-				SendChatTarget(ClientID, "Make sure to empty your gangsterbag before disconnecting/spectating or you will lose it.");
-				SendChatTarget(ClientID, "or clear it yourself with '/gangsterbag clear'");
-				return;
-			}
 
 			//Kill Protection
 			CCharacter* pChr = pPlayer->GetCharacter();
@@ -2050,58 +1932,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
-			if (m_InstaGrenadeRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_gdm)
-			{
-				return; //yy evil silent return
-			}
-			if (m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_idm)
-			{
-				return; //yy evil silent return
-			}
-
-
-			if (m_apPlayers[ClientID]->m_IsBlockTourning)
-			{
-				if (Server()->TickSpeed() * 5 > m_BlockTournaLobbyTick)
-				{
-					//silent return selfkill in last 5 secs of lobby tick to prevent the char being dead on tourna start
-					return;
-				}
-			}
-
-			if (m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
-			{
-				SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
-				return;
-			}
-
-			if (m_apPlayers[ClientID]->m_SpawnBlocks > 3 && g_Config.m_SvSpawnBlockProtection == 2)
-			{
-				SendChatTarget(ClientID, "[SPAWNBLOCK] You can't selfkill because you spawnblock too much. Try agian later.");
-				return;
-			}
-
-			if (!g_Config.m_SvAllowBombSelfkill && GetPlayerChar(ClientID) && GetPlayerChar(ClientID)->m_IsBombing)
-			{
-				SendChatTarget(ClientID, "[BOMB] selfkill protection activated. Try '/bomb leave' to leave and get the money back. All other ways of leaving the game are leading to lose your money.");
-				return;
-			}
-
-			if (m_apPlayers[ClientID]->m_IsSurvivaling)
-			{
-				if (g_Config.m_SvSurvivalKillProtection == 2) //full on
-				{
-					SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
-					return;
-				}
-				else if (g_Config.m_SvSurvivalKillProtection == 1 && m_apPlayers[ClientID]->m_IsSurvivalLobby == false) //allowed in lobby
-				{
-					SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
-					return;
-				}
-				//else == off
-			}
-
 			if(m_VoteCloseTime && m_VoteCreator == ClientID && GetDDRaceTeam(ClientID) && (m_VoteKick || m_VoteSpec))
 			{
 				SendChatTarget(ClientID, "You are running a vote please try again after the vote is done!");
@@ -2124,11 +1954,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
-			if (m_apPlayers[ClientID]->m_IsInstaArena_fng && pChr->m_FreezeTime)
-			{
-				SendChatTarget(ClientID, "[INSTA] You can't suicide in fng games while being frozen.");
+			if(AbortKill(ClientID, pPlayer, pChr))
 				return;
-			}
 
 			pPlayer->m_LastKill = Server()->Tick();
 			pPlayer->KillCharacter(WEAPON_SELF);

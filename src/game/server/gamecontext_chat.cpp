@@ -119,6 +119,8 @@ void CGameContext::GlobalChat(int ClientID, const char *pMsg)
 
 bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char *pCommand)
 {
+    // todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
+    // geb mal ein cmd /join spec   && /join fight (player)
     if (!str_comp(pCommand, "leave"))
     {
         if (pPlayer->m_IsBlockDeathmatch)
@@ -222,5 +224,34 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     }
     else
         return false;
+    return true;
+}
+
+bool CGameContext::IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage)
+{
+    if (pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
+    {
+        char aBuf[256];
+        str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
+        SendChatTarget(ClientID, aBuf);
+    }
+    else if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMesage))
+    {
+        if (g_Config.m_SvMinAdminPing > 256)
+            SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
+        else
+            SendChatTarget(ClientID, "your message is too short to bother an admin with that.");
+    }
+    else
+    {
+        if (!pPlayer->m_ShowName)
+        {
+            str_copy(pPlayer->m_ChatText, pMesage, sizeof(pPlayer->m_ChatText));
+            pPlayer->m_ChatTeam = Team;
+            pPlayer->FixForNoName(1);
+        }
+        else
+            return false;
+    }
     return true;
 }

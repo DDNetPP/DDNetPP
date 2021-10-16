@@ -565,6 +565,11 @@ public:
 
 	void GlobalChat(int ClientID, const char *pMsg);
 	bool IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char *pCommand);
+	bool IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage);
+	void VotedYes(CCharacter *pChr, CPlayer *pPlayer);
+	void VotedNo(CCharacter *pChr);
+	bool AbortTeamChange(int ClientID, CPlayer *pPlayer);
+	bool AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr);
 
 	//Chiller
 	//ChillerDragihn!
