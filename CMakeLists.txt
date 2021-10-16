@@ -1348,7 +1348,9 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   ddracecommands.cpp
   entities/character.cpp
   entities/character.h
+  entities/character_ddpp.cpp
   entities/character_dummymodes.cpp
+  entities/character_quests.cpp
   entities/door.cpp
   entities/door.h
   entities/dragger.cpp

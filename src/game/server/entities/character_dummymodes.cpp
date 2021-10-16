@@ -9,9 +9,6 @@
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
 
-//rip 25
-//#include <iostream> 
-//#include <fstream>
 
 void CCharacter::Fire(bool Fire)
 {

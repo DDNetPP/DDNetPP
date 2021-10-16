@@ -103,7 +103,6 @@ CONSOLE_COMMAND("freezelaser", "v", CFGFLAG_SERVER, ConFreezeLaser, this, "Gives
 //SarKro
 CONSOLE_COMMAND("unfreeze", "v", CFGFLAG_SERVER, ConUnFreeze, this, "Unfreezes player v")
 CONSOLE_COMMAND("freeze", "v?i", CFGFLAG_SERVER, ConFreeze, this, "Freezes player v for i seconds (infinite by default)")
-CONSOLE_COMMAND("pullhammer_pl", "v", CFGFLAG_SERVER, ConPullhammer, this, "give/remove player v pullhammer")
 
 //HACK COMMAND ChillerDragon
 //CONSOLE_COMMAND("hack", "vi", CFGFLAG_SERVER, ConHack, this, "dont use this command!")

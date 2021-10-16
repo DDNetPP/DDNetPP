@@ -282,6 +282,25 @@ public:
 	void BlockQuestSubDieFuncDeath(int Killer);
 
 	/*
+		QuestHammerHit
+
+		gets called on hammer hit
+	*/
+	void QuestHammerHit(CCharacter *pTarget);
+	void QuestShotgun();
+	void QuestGrenade();
+	void QuestRifle();
+	void QuestNinja();
+	void QuestFireWeapon();
+	void DDPPFireWeapon();
+	void PoliceHammerHit(CCharacter *pTarget);
+	void DDPPHammerHit(CCharacter *pTarget);
+	bool IsHammerBlocked();
+	void DDPPGunFire(vec2 Direction);
+	bool SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lifetime);
+	bool FreezeShotgun(vec2 Direction, vec2 ProjStartPos);
+
+	/*
 		KillingSpree
 
 		was called BlockKillingSpree once
@@ -349,8 +368,6 @@ public:
 	bool m_FreezeHammer;
 	bool m_fake_super;
 	bool m_Godmode;
-	bool m_Pullhammer;// pullhammer
-	int m_PullingID; //Pullhammer added by sarkro
 	bool m_Fire;
 	bool m_DDPP_Finished;
 

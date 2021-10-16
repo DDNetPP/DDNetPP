@@ -491,27 +491,6 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConPullhammer(IConsole::IResult *pResult, void *pUserData) // give/remove pullhammer
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	int ClientID = pResult->GetVictim();
-
-	pSelf->SendChatTarget(pResult->m_ClientID, "deactivated command.");
-	return;
-
-
-	if (pSelf->m_apPlayers[ClientID])
-	{
-		pSelf->m_apPlayers[ClientID]->GetCharacter()->m_Pullhammer ^= 1;
-		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), pSelf->m_apPlayers[ClientID]->GetCharacter()->m_Pullhammer ? "%s gave you pullhammer!" : "%s removed your pullhammer!", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
-	}
-}
-
 void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

@@ -770,7 +770,6 @@ private:
 
 	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
-	static void ConPullhammer(IConsole::IResult *pResult, void *pUserData);
 
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
