@@ -1478,3 +1478,86 @@ void CGameContext::BombTick()
 		}
 	}
 }
+
+int CGameContext::FindNextBomb()
+{
+	//Check who has the furthest distance to all other players (no average middle needed)
+	//New version with pythagoras
+	int MaxDist = 0;
+	int NextBombID = -1;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+		{
+			int Dist = 0;
+			for (int i_comp = 0; i_comp < MAX_CLIENTS; i_comp++)
+			{
+				if (GetPlayerChar(i_comp) && GetPlayerChar(i_comp)->m_IsBombing)
+				{
+					int a = GetPlayerChar(i)->m_Pos.x - GetPlayerChar(i_comp)->m_Pos.x;
+					int b = GetPlayerChar(i)->m_Pos.y - GetPlayerChar(i_comp)->m_Pos.y;
+
+					//|a| |b|
+					a = abs(a);
+					b = abs(b); 
+
+					int c = sqrt((double)(a + b)); //pythagoras rocks
+					Dist += c; //store all distances to all players
+				}
+			}
+			if (Dist > MaxDist)
+			{
+				MaxDist = Dist;
+				NextBombID = i;
+			}
+		}
+	}
+	return NextBombID;
+}
+
+int CGameContext::CountBannedBombPlayers()
+{
+	int BannedPlayers = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->m_BombBanTime)
+		{
+			BannedPlayers++;
+		}
+	}
+
+	return BannedPlayers;
+}
+
+int CGameContext::CountBombPlayers()
+{
+	int BombPlayers = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GetPlayerChar(i))
+		{
+			if (GetPlayerChar(i)->m_IsBombing)
+			{
+				BombPlayers++;
+			}
+		}
+	}
+	return BombPlayers;
+}
+
+int CGameContext::CountReadyBombPlayers()
+{
+	int RdyPlrs = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && GetPlayerChar(i)->m_IsBombReady)
+		{
+			RdyPlrs++;
+		}
+	}
+	return RdyPlrs;
+}

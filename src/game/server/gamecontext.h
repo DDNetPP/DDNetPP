@@ -563,6 +563,9 @@ public:
 	CSql *m_Database;
 	bool CheckAccounts(int AccountID);
 
+	void GlobalChat(int ClientID, const char *pMsg);
+	bool IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char *pCommand);
+
 	//Chiller
 	//ChillerDragihn!
 	//Chilli

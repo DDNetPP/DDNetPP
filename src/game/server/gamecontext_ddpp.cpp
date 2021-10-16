@@ -2125,3 +2125,191 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 
 	return DummyID;
 }
+
+bool CGameContext::CheckIpJailed(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	NETADDR Addr;
+	Server()->GetClientAddr(ClientID, &Addr);
+	Addr.port = 0;
+	for(int i = 0; i < m_NumJailIPs; i++)
+	{
+		if(!net_addr_comp(&Addr, &m_aJailIPs[i]))
+		{
+			SendChatTarget(ClientID, "[JAIL] you have been jailed for 2 minutes.");
+			m_apPlayers[ClientID]->JailPlayer(120);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CGameContext::SetIpJailed(int ClientID)
+{
+	char aBuf[128];
+	int Found = 0;
+	NETADDR NoPortAddr;
+	Server()->GetClientAddr(ClientID, &NoPortAddr);
+	NoPortAddr.port = 0;
+	// find a matching Mute for this ip, update expiration time if found
+	for (int i = 0; i < m_NumJailIPs; i++)
+	{
+		if (net_addr_comp(&m_aJailIPs[i], &NoPortAddr) == 0)
+		{
+			Found = 1;
+			break;
+		}
+	}
+	if (!Found) // nothing found so far, find a free slot..
+	{
+		if (m_NumJailIPs < MAX_MUTES)
+		{
+			m_aJailIPs[m_NumJailIPs] = NoPortAddr;
+			m_NumJailIPs++;
+			Found = 1;
+		}
+	}
+	if (Found)
+	{
+		str_format(aBuf, sizeof aBuf, "'%s' has been ip jailed.", Server()->ClientName(ClientID));
+		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	}
+	else // no free slot found
+	{
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", "name change mute array is full!");
+	}
+}
+
+void CGameContext::SaveWrongLogin(const char *pLogin)
+{
+		if (!g_Config.m_SvSaveWrongLogin)
+			return;
+
+		std::ofstream LoginFile(g_Config.m_SvWrongLoginFile, std::ios::app);
+		if (!LoginFile)
+		{
+			dbg_msg("login_sniff", "ERROR1 writing file '%s'", g_Config.m_SvWrongLoginFile);
+			g_Config.m_SvSaveWrongLogin = 0;
+			LoginFile.close();
+			return;
+		}
+
+		if (LoginFile.is_open())
+		{
+			//dbg_msg("login_sniff", "sniffed msg [ %s ]", pLogin);
+			LoginFile << pLogin << "\n";
+		}
+		else
+		{
+			dbg_msg("login_sniff", "ERROR2 writing file '%s'", g_Config.m_SvWrongLoginFile);
+			g_Config.m_SvSaveWrongLogin = 0;
+		}
+
+		LoginFile.close();
+}
+
+bool CGameContext::AdminChatPing(const char * pMsg)
+{
+	if (!g_Config.m_SvMinAdminPing)
+		return false;
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (!m_apPlayers[i])
+			continue;
+		if (!m_apPlayers[i]->m_Authed)
+			continue;
+		if (str_find_nocase(pMsg, Server()->ClientName(i)))
+		{
+			int len_name = str_length(Server()->ClientName(i));
+			int len_msg = str_length(pMsg);
+			if (len_msg - len_name - 2 < g_Config.m_SvMinAdminPing)
+				return true;
+		}
+	}
+	return false;
+}
+
+bool CGameContext::ShowJoinMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowLeaveMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_NONE)
+		return false;
+	if (g_Config.m_SvShowConnectionMessages == CON_SHOW_JOIN)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+bool CGameContext::ShowTeamSwitchMessage(int ClientID)
+{
+	if (!m_apPlayers[ClientID])
+		return false;
+	if (g_Config.m_SvShowConnectionMessages != CON_SHOW_ALL)
+		return false;
+	if (g_Config.m_SvHideConnectionMessagesPattern[0]) // if regex filter active
+		if (!regex_compile(g_Config.m_SvHideConnectionMessagesPattern, Server()->ClientName(ClientID)))
+			return false;
+	return true;
+}
+
+void CGameContext::GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord)
+{
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if (!pPlayer)
+		return;
+
+	if (pPlayer->m_IsInstaArena_fng && (pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm))
+	{
+		if (pPlayer->m_IsInstaArena_gdm)
+			str_copy(pBuf, "boomfng", BufSize);
+		else if (pPlayer->m_IsInstaArena_idm)
+			str_copy(pBuf, "fng", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_gdm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_GrenadeSpree)
+		{
+			pPlayer->m_GrenadeSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New grenade spree record!");
+		}
+		str_copy(pBuf, "grenade", BufSize);
+	}
+	else if (pPlayer->m_IsInstaArena_idm)
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_RifleSpree)
+		{
+			pPlayer->m_RifleSpree = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New rifle spree record!");
+		}
+		str_copy(pBuf, "rifle", BufSize);
+	}
+	else if (pPlayer->m_IsVanillaDmg)
+	{
+		str_copy(pBuf, "killing", BufSize);
+	}
+	else //no insta at all
+	{
+		if (IsRecord && pPlayer->m_KillStreak > pPlayer->m_BlockSpreeHighscore)
+		{
+			pPlayer->m_BlockSpreeHighscore = pPlayer->m_KillStreak;
+			SendChatTarget(pPlayer->GetCID(), "New Blockspree record!");
+		}
+		str_copy(pBuf, "blocking", BufSize);
+	}
+}

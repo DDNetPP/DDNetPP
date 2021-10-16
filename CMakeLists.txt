@@ -1393,11 +1393,14 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   eventhandler.h
   gamecontext.cpp
   gamecontext.h
+  gamecontext_chat.cpp
   gamecontext_ddpp.cpp
   gamecontext_minigames.cpp
   gamecontext_quests.cpp
+  gamecontext_ratelimits.cpp
   gamecontext_sql.cpp
   gamecontext_survival.cpp
+  gamecontext_trades.cpp
   gamecontroller.cpp
   gamecontroller.h
   gamemodes/DDRace.cpp
