@@ -1,4 +1,17 @@
 
+target_family = os.getenv("TARGET_FAMILY")
+if target_family then
+	family = target_family
+end
+target_platform = os.getenv("TARGET_PLATFORM")
+if target_platform then
+	platform = target_platform
+end
+target_arch = os.getenv("TARGET_ARCH")
+if target_arch then
+	arch = target_arch
+end
+
 Import("configure.lua")
 Import("other/sdl/sdl.lua")
 Import("other/freetype/freetype.lua")
@@ -27,7 +40,7 @@ config:Finalize("config.lua")
 
 -- data compiler
 function Script(name)
-	if family == "windows" then
+	if family == "windows" and target_family ~= "windows" then
 		return str_replace(name, "/", "\\")
 	end
 	return "python " .. name
@@ -66,14 +79,20 @@ DuplicateDirectoryStructure("src", "src", "objs")
 ]]
 
 function ResCompile(scriptfile)
+	windres = os.getenv("WINDRES")
+	if not windres then
+		windres = "windres"
+	end
+
 	scriptfile = Path(scriptfile)
 	if config.compiler.driver == "cl" then
 		output = PathBase(scriptfile) .. ".res"
 		AddJob(output, "rc " .. scriptfile, "rc /fo " .. output .. " " .. scriptfile)
 	elseif config.compiler.driver == "gcc" then
 		output = PathBase(scriptfile) .. ".coff"
-		AddJob(output, "windres " .. scriptfile, "windres -i " .. scriptfile .. " -o " .. output)
+		AddJob(output, windres .. " " .. scriptfile, windres .. " -i " .. scriptfile .. " -o " .. output)
 	end
+
 	AddDependency(output, scriptfile)
 	return output
 end
@@ -127,6 +146,36 @@ server_sql_depends = {}
 if family == "windows" then
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\mysqlcppconn.dll"))
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\libmysql.dll"))
+	if platform == "win32" then
+		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib32/freetype.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib32/SDL.dll"))
+
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libcurl.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libeay32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libidn-11.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/ssleay32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/zlib1.dll"))
+
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libwinpthread-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libgcc_s_sjlj-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libogg-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libopus-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libopusfile-0.dll"))
+	else
+		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib64/freetype.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib64/SDL.dll"))
+
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libcurl.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libeay32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/ssleay32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/zlib1.dll"))
+
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libwinpthread-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libgcc_s_seh-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libogg-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libopus-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libopusfile-0.dll"))
+	end
 
 	if config.compiler.driver == "cl" then
 		server_link_other = {ResCompile("other/icons/teeworlds_srv_cl.rc")}
@@ -142,13 +191,20 @@ end
 function build(settings)
 	-- apply compiler settings
 	config.compiler:Apply(settings)
-	
+
 	--settings.objdir = Path("objs")
 	settings.cc.Output = Intermediate_Output
 
-	--settings.cc.flags:Add("-m32")
-	--settings.link.flags:Add("-m32")
-
+	cc = os.getenv("CC")
+	if cc then
+		settings.cc.exe_c = cc
+	end
+	cxx = os.getenv("CXX")
+	if cxx then
+		settings.cc.exe_cxx = cxx
+		settings.link.exe = cxx
+		settings.dll.exe = cxx
+	end
 	cflags = os.getenv("CFLAGS")
 	if cflags then
 		settings.cc.flags:Add(cflags)
@@ -175,17 +231,13 @@ function build(settings)
 			-- disable visibility attribute support for gcc on windows
 			settings.cc.defines:Add("NO_VIZ")
 		elseif platform == "macosx" then
-			-- c++ stdlib needed
-			settings.cc.flags:Add("--stdlib=libc++")
-			settings.link.flags:Add("--stdlib=libc++")
-			-- this also needs the macOS min SDK version to be at least 10.7
-
 			settings.cc.flags:Add("-mmacosx-version-min=10.7")
 			settings.link.flags:Add("-mmacosx-version-min=10.7")
-
+			settings.cc.flags:Add("-stdlib=libc++")
+			settings.link.flags:Add("-stdlib=libc++")
 			if config.minmacosxsdk.value == 1 then
-				settings.cc.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
-				settings.link.flags:Add("-isysroot /Developer/SDKs/MacOSX10.5.sdk")
+				settings.cc.flags:Add("-isysroot /Developer/SDKs/MacOSX10.7.sdk")
+				settings.link.flags:Add("-isysroot /Developer/SDKs/MacOSX10.7.sdk")
 			end
 		elseif config.stackprotector.value == 1 then
 			settings.cc.flags:Add("-fstack-protector", "-fstack-protector-all")
@@ -202,13 +254,11 @@ function build(settings)
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
 			settings.link.libs:Add("dl")
-			-- settings.link.libs:Add("crypto")
+			settings.link.libs:Add("crypto")
 		else
 			settings.link.libs:Add("pthread")
-			settings.link.libs:Add("dl")
-			settings.link.libs:Add("rt")
 		end
-		
+
 		if platform == "solaris" then
 			settings.link.flags:Add("-lsocket")
 			settings.link.flags:Add("-lnsl")
@@ -253,6 +303,11 @@ function build(settings)
 	if family == "unix" then
 		if platform == "macosx" then
 			launcher_settings.link.frameworks:Add("Cocoa")
+			client_settings.cc.flags:Add("-I/opt/X11/include")
+		else
+			client_settings.link.libs:Add("X11")
+			client_settings.link.libs:Add("GL")
+			client_settings.link.libs:Add("GLU")
 		end
 
 	elseif family == "windows" then
@@ -260,6 +315,20 @@ function build(settings)
 			server_settings.link.libpath:Add("other/mysql/vc2005libs")
 			server_settings.link.libs:Add("mysqlcppconn")
 		end
+	end
+
+	config.sdl:Apply(client_settings)
+	config.freetype:Apply(client_settings)
+	config.curl:Apply(client_settings)
+	config.opusfile:Apply(client_settings)
+	config.opus:Apply(client_settings)
+	config.ogg:Apply(client_settings)
+
+	if family == "unix" and (platform == "macosx" or platform == "linux") then
+		engine_settings.link.libs:Add("dl")
+		server_settings.link.libs:Add("dl")
+		client_settings.link.libs:Add("dl")
+		launcher_settings.link.libs:Add("dl")
 	end
 
 	engine = Compile(engine_settings, Collect("src/engine/shared/*.cpp", "src/base/*.c"))
@@ -278,6 +347,10 @@ function build(settings)
 
 	server_osxlaunch = {}
 	if platform == "macosx" then
+		notification_settings = client_settings:Copy()
+		notification_settings.cc.flags:Add("-x objective-c++")
+		client_notification = Compile(notification_settings, "src/osx/notification.m")
+		client_osxlaunch = Compile(client_settings, "src/osxlaunch/client.m")
 		server_osxlaunch = Compile(launcher_settings, "src/osxlaunch/server.m")
 	end
 
@@ -374,14 +447,14 @@ if platform == "macosx" then
 	debug_sql_settings_ppc.cc.flags:Add("-arch ppc")
 	debug_sql_settings_ppc.link.flags:Add("-arch ppc")
 	debug_sql_settings_ppc.cc.defines:Add("CONF_DEBUG", "CONF_SQL")
-	
+
 	release_settings_ppc = release_settings:Copy()
 	release_settings_ppc.config_name = "release_ppc"
 	release_settings_ppc.config_ext = "_ppc"
 	release_settings_ppc.cc.flags:Add("-arch ppc")
 	release_settings_ppc.link.flags:Add("-arch ppc")
 	release_settings_ppc.cc.defines:Add("CONF_RELEASE")
-	
+
 	release_sql_settings_ppc = release_sql_settings:Copy()
 	release_sql_settings_ppc.config_name = "sql_release_ppc"
 	release_sql_settings_ppc.config_ext = "_sql_ppc"
@@ -411,7 +484,7 @@ if platform == "macosx" then
 		release_settings_x86.config_name = "release_x86"
 		release_settings_x86.config_ext = "_x86"
 		release_settings_x86.cc.defines:Add("CONF_RELEASE")
-	
+
 		release_sql_settings_x86 = release_sql_settings:Copy()
 		release_sql_settings_x86.config_name = "sql_release_x86"
 		release_sql_settings_x86.config_ext = "_sql_x86"
@@ -446,7 +519,7 @@ if platform == "macosx" then
 		release_settings_x86_64.cc.flags:Add("-arch x86_64")
 		release_settings_x86_64.link.flags:Add("-arch x86_64")
 		release_settings_x86_64.cc.defines:Add("CONF_RELEASE")
-	
+
 		release_sql_settings_x86_64 = release_sql_settings:Copy()
 		release_sql_settings_x86_64.config_name = "sql_release_x86_64"
 		release_sql_settings_x86_64.config_ext = "_sql_x86_64"
@@ -461,7 +534,7 @@ if platform == "macosx" then
 	end
 
 	DefaultTarget("game_debug_x86")
-	
+
 	if config.macosxppc.value == 1 then
 		if arch == "ia32" then
 			PseudoTarget("release", ppc_r, x86_r)

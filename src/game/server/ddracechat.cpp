@@ -745,9 +745,18 @@ void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 		const char *pArg = pResult->GetString(0);
 		const IConsole::CCommandInfo *pCmdInfo =
 				pSelf->Console()->GetCommandInfo(pArg, CFGFLAG_SERVER, false);
-		if (pCmdInfo && pCmdInfo->m_pHelp)
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help",
-					pCmdInfo->m_pHelp);
+		if (pCmdInfo)
+		{
+			if (pCmdInfo->m_pParams)
+			{
+				char aBuf[256];
+				str_format(aBuf, sizeof(aBuf), "Usage: %s %s", pCmdInfo->m_pName, pCmdInfo->m_pParams);
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help", aBuf);
+			}
+
+			if (pCmdInfo->m_pHelp)
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help", pCmdInfo->m_pHelp);
+		}
 		else
 			pSelf->Console()->Print(
 					IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1330,16 +1339,28 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 	int Team = ((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(pResult->m_ClientID);
 
 	const char* pCode = pResult->GetString(0);
-	char aCountry[4];
+	char aCountry[5];
 	if(str_length(pCode) > 3 && pCode[0] >= 'A' && pCode[0] <= 'Z' && pCode[1] >= 'A'
-		&& pCode[1] <= 'Z' && pCode[2] >= 'A' && pCode[2] <= 'Z' && pCode[3] == ' ')
+		&& pCode[1] <= 'Z' && pCode[2] >= 'A' && pCode[2] <= 'Z')
 	{
-		str_copy(aCountry, pCode, 4);
-		pCode = pCode + 4;
+		if(pCode[3] == ' ')
+		{
+			str_copy(aCountry, pCode, 4);
+			pCode = pCode + 4;
+		}
+		else if(str_length(pCode) > 4 && pCode[4] == ' ')
+		{
+			str_copy(aCountry, pCode, 5);
+			pCode = pCode + 5;
+		}
+		else
+		{
+			str_copy(aCountry, g_Config.m_SvSqlServerName, sizeof(aCountry));
+		}
 	}
 	else
 	{
-		str_copy(aCountry, g_Config.m_SvSqlServerName, 4);
+		str_copy(aCountry, g_Config.m_SvSqlServerName, sizeof(aCountry));
 	}
 
 	pSelf->Score()->SaveTeam(Team, pCode, pResult->m_ClientID, aCountry);

@@ -1472,6 +1472,12 @@ int regex_compile(const char *pPattern, const char *pStr);
 */
 long long fpost_get_pos(fpos_t pos);
 
+/*
+	Function: secure_rand
+		Returns random int (replacement for rand()).
+*/
+int secure_rand();
+
 #ifdef __cplusplus
 }
 #endif

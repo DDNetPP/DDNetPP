@@ -155,6 +155,7 @@ class CNetConnection
 private:
 	unsigned short m_Sequence;
 	unsigned short m_Ack;
+	unsigned short m_PeerAck;
 	unsigned m_State;
 
 	int m_Token;
