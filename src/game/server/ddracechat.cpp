@@ -7,6 +7,7 @@
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
+#include <base/system_ddpp.h>
 #include <time.h>          //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line

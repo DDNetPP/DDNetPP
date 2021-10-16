@@ -1175,6 +1175,8 @@ set_src(BASE GLOB_RECURSE src/base
   math.h
   system.c
   system.h
+  system_ddpp.c
+  system_ddpp.h
   tl/algorithm.h
   tl/allocator.h
   tl/array.h

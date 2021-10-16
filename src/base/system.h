@@ -1443,35 +1443,6 @@ int secure_random_init();
 */
 void secure_random_fill(void *bytes, size_t length);
 
-/* * * * * * * * * * *
- *                   *
- *      DDNet++      *
- *                   *
- * * * * * * * * * * */
-
-/*
-	Function: regex_compile
-		checks if a regex pattern matches
-
-	Retrurns:
-	   -1 - on error
-		0 - if pattern matches
-		1 - if pattern doesn't match
-*/
-int regex_compile(const char *pPattern, const char *pStr);
-
-/*
-	Function: fpost_get_pos
-		ensures windows and unix support for fpos_t
-
-	Parameters:
-		pos - of type fpos_t
-
-	Returns:
-		a file position as long long
-*/
-long long fpost_get_pos(fpos_t pos);
-
 /*
 	Function: secure_rand
 		Returns random int (replacement for rand()).
