@@ -1391,6 +1391,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   entities/meteor.h
   entities/pickup.cpp
   entities/pickup.h
+  entities/pickup_ddpp.cpp
   entities/plant.cpp
   entities/plant.h
   entities/plasma.cpp

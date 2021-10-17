@@ -29,6 +29,8 @@ private:
 
 	void Move();
 	vec2 m_Core;
+
+	bool DDPPIntersect(CCharacter *pChr, int *pRespawnTime);
 };
 
 #endif
