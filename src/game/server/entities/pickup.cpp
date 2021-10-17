@@ -171,7 +171,7 @@ void CPickup::Tick()
 					else if (pChr->GetPlayer()->m_SpawnShotgunActive && m_Subtype == WEAPON_SHOTGUN)
 					{
 						pChr->GetPlayer()->m_SpawnShotgunActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
+						if (pChr->GiveWeapon(m_Subtype))
 						{
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
 		
@@ -182,7 +182,7 @@ void CPickup::Tick()
 					else if (pChr->GetPlayer()->m_SpawnGrenadeActive && m_Subtype == WEAPON_GRENADE)
 					{
 						pChr->GetPlayer()->m_SpawnGrenadeActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
+						if (pChr->GiveWeapon(m_Subtype))
 						{
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChr->Teams()->TeamMask(pChr->Team()));
 
@@ -193,7 +193,7 @@ void CPickup::Tick()
 					else if (pChr->GetPlayer()->m_SpawnRifleActive && m_Subtype == WEAPON_RIFLE)
 					{
 						pChr->GetPlayer()->m_SpawnRifleActive = 0;
-						if (pChr->GiveWeapon(m_Subtype, -1))
+						if (pChr->GiveWeapon(m_Subtype))
 						{
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
 
@@ -208,7 +208,7 @@ void CPickup::Tick()
 
 						if (m_Subtype >= 0 && m_Subtype < NUM_WEAPONS && (!pChr->GetWeaponGot(m_Subtype) || (pChr->GetWeaponAmmo(m_Subtype) != -1 && !pChr->m_FreezeTime)))
 						{
-							if (pChr->GiveWeapon(m_Subtype, -1))
+							if (pChr->GiveWeapon(m_Subtype))
 							{
 								//RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
 

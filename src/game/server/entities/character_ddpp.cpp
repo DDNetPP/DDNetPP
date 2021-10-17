@@ -20,6 +20,12 @@ void CCharacter::DDPPDDraceTick()
 	}
 }
 
+void CCharacter::DDPPDDRacePostCoreTick()
+{
+	if (!isFreezed)
+		m_FirstFreezeTick = 0;
+}
+
 void CCharacter::SetSpookyGhost()
 {
 	if (m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && m_pPlayer->m_IsSurvivalLobby == false)) // no ghost in competetive minigames

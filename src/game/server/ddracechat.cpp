@@ -9060,27 +9060,27 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		str_copy(pPlayer->m_aTradeOffer, "", sizeof(pPlayer->m_aTradeOffer));
 		if (weapon == 2)
 		{
-			pChr->GiveWeapon(2, -1);
+			pChr->GiveWeapon(2);
 			pPlayer->m_SpawnShotgunActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] = false;
 		}
 		if (weapon == 3)
 		{
-			pChr->GiveWeapon(3, -1);
+			pChr->GiveWeapon(3);
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_GRENADE] = false;
 		}
 		if (weapon == 4)
 		{
-			pChr->GiveWeapon(4, -1);
+			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnRifleActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
 		}
 		else if (weapon == 5)
 		{
-			pChr->GiveWeapon(2, -1);
-			pChr->GiveWeapon(3, -1);
-			pChr->GiveWeapon(4, -1);
+			pChr->GiveWeapon(2);
+			pChr->GiveWeapon(3);
+			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnShotgunActive = 0;
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pPlayer->m_SpawnRifleActive = 0;
@@ -9202,27 +9202,27 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		str_copy(pPlayer->m_aTradeOffer, "", sizeof(pPlayer->m_aTradeOffer));
 		if (weapon == 2)
 		{
-			pChr->GiveWeapon(2, -1);
+			pChr->GiveWeapon(2);
 			pPlayer->m_SpawnShotgunActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] = false;
 		}
 		if (weapon == 3)
 		{
-			pChr->GiveWeapon(3, -1);
+			pChr->GiveWeapon(3);
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_GRENADE] = false;
 		}
 		if (weapon == 4)
 		{
-			pChr->GiveWeapon(4, -1);
+			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnRifleActive = 0;
 			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
 		}
 		else if (weapon == 5)
 		{
-			pChr->GiveWeapon(2, -1);
-			pChr->GiveWeapon(3, -1);
-			pChr->GiveWeapon(4, -1);
+			pChr->GiveWeapon(2);
+			pChr->GiveWeapon(3);
+			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnShotgunActive = 0;
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pPlayer->m_SpawnRifleActive = 0;

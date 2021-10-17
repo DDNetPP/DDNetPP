@@ -526,32 +526,32 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 	//zCatch ChillerDragon
 	if (pChr->GetPlayer()->m_IsInstaMode_fng)
 	{
-		pChr->GiveWeapon(WEAPON_HAMMER, -1);
+		pChr->GiveWeapon(WEAPON_HAMMER);
 	}
 
 	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || pChr->GetPlayer()->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{
-		pChr->GiveWeapon(WEAPON_GRENADE, -1);
+		pChr->GiveWeapon(WEAPON_GRENADE);
 	}
 	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || pChr->GetPlayer()->m_IsInstaMode_idm) // idm & zCatch rifle
 	{
-		pChr->GiveWeapon(WEAPON_RIFLE, -1);
+		pChr->GiveWeapon(WEAPON_RIFLE);
 	}
 	else
 	{
 		// give default weapons              ---    dragon test disarm
 		if (pChr->GetPlayer()->m_disarm)
 		{
-			pChr->GiveWeapon(WEAPON_GUN, -1);
+			pChr->GiveWeapon(WEAPON_GUN);
 		}
 		//else if (pChr->GetPlayer()->m_hammerfight)
 		//{  
-		//pChr->GiveWeapon(WEAPON_HAMMER, -1);
+		//pChr->GiveWeapon(WEAPON_HAMMER);
 		//}
 		else
 		{
-			pChr->GiveWeapon(WEAPON_HAMMER, -1);
-			pChr->GiveWeapon(WEAPON_GUN, -1);
+			pChr->GiveWeapon(WEAPON_HAMMER);
+			pChr->GiveWeapon(WEAPON_GUN);
 		}
 	}
 }

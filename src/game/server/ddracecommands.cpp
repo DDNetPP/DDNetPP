@@ -320,7 +320,7 @@ void CGameContext::ModifyWeapons(IConsole::IResult *pResult, void *pUserData, in
 		if (Remove)
 			pChr->SetWeaponGot(Weapon, false);
 		else
-			pChr->GiveWeapon(Weapon, -1);
+			pChr->GiveWeapon(Weapon);
 	}
 	else
 	{

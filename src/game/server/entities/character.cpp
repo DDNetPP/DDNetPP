@@ -1045,18 +1045,32 @@ void CCharacter::HandleWeapons()
 	return;
 }
 
-bool CCharacter::GiveWeapon(int Weapon, int Ammo)
+bool CCharacter::GiveWeapon(int Weapon, bool Remove, int Ammo)
 {
-	if (m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
+	if(Weapon == WEAPON_NINJA)
 	{
-		m_aWeapons[Weapon].m_Got = true;
+		// if(Remove)
+		// 	RemoveNinja();
+		// else
+			GiveNinja();
+		return true;
+	}
+
+	if(Remove)
+	{
+		if(GetActiveWeapon() == Weapon)
+			SetActiveWeapon(WEAPON_GUN);
+	}
+	else if (m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
+	{
 		m_aWeapons[Weapon].m_Ammo = Ammo;
 		if (m_FreezeTime)	//dont remove this
 			Freeze(0);		//dont remove this
 			// m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
-		return true;
 	}
-	return false;
+
+	m_aWeapons[Weapon].m_Got = !Remove;
+	return !Remove;
 }
 
 void CCharacter::GiveNinja()
@@ -3071,12 +3085,7 @@ void CCharacter::DDRacePostCoreTick()
 		m_LastIndexFrontTile = 0;
 	}
 
-	if (!(isFreezed)) {
-
-		m_FirstFreezeTick = 0;
-
-	}
-
+	DDPPDDRacePostCoreTick();
 	HandleBroadcast();
 }
 
