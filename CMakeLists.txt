@@ -1288,6 +1288,7 @@ set_src(GAME_SHARED GLOB src/game
   ddracecommands.h
   gamecore.cpp
   gamecore.h
+  gamecore_ddpp.cpp
   layers.cpp
   layers.h
   localization.cpp

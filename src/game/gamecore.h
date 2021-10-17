@@ -294,6 +294,11 @@ private:
 	int m_TileSIndexB;
 	int m_TileSFlagsB;
 	bool IsRightTeam(int MapIndex);
+
+	// DDNet++
+
+	void DDPPWrite(CNetObj_CharacterCore *pObjCore);
+	void DDPPRead(const CNetObj_CharacterCore *pObjCore);
 };
 
 //input count
