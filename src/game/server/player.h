@@ -189,6 +189,16 @@ public:
 	int m_DefEmoteReset;
 	bool m_Halloween;
 	bool m_FirstPacket;
+
+
+	/*
+
+		DDNet++
+
+	*/
+
+	void ResetDDPP();
+	void DDPPTick();
 	void OnDisconnectDDPP();
 
 	// usefull everywhere

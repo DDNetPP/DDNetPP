@@ -1429,6 +1429,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   letters.h
   player.cpp
   player.h
+  player_ddpp.cpp
   save.cpp
   save.h
   score.h
