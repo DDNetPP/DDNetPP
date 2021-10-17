@@ -12,14 +12,6 @@
 
 #include "character.h"
 
-void CCharacter::DDPPDDraceTick()
-{
-	if (!m_pPlayer->m_IsVanillaDmg)
-	{
-		m_Armor = (m_FreezeTime >= 0) ? 10 - (m_FreezeTime / 15) : 0;
-	}
-}
-
 void CCharacter::DDPPDDRacePostCoreTick()
 {
 	if (!isFreezed)

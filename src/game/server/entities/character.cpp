@@ -1096,15 +1096,16 @@ void CCharacter::SetEmote(int Emote, int Tick)
 void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 {
 	// check for changes
-	if (mem_comp(&m_Input, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
+	if(mem_comp(&m_SavedInput, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
 		m_LastAction = Server()->Tick();
 
 	// copy new input
+	mem_copy(&m_SavedInput, pNewInput, sizeof(m_SavedInput));
 	mem_copy(&m_Input, pNewInput, sizeof(m_Input));
 	m_NumInputs++;
 
 	// it is not allowed to aim in the center
-	if (m_Input.m_TargetX == 0 && m_Input.m_TargetY == 0)
+	if(m_Input.m_TargetX == 0 && m_Input.m_TargetY == 0)
 		m_Input.m_TargetY = -1;
 }
 
@@ -3001,7 +3002,12 @@ void CCharacter::SendZoneMsgs()
 
 void CCharacter::DDRaceTick()
 {
-	if (m_Input.m_Direction != 0 || m_Input.m_Jump != 0)
+	mem_copy(&m_Input, &m_SavedInput, sizeof(m_Input));
+	if(!m_pPlayer->m_IsVanillaDmg)
+	{
+		m_Armor=(m_FreezeTime >= 0)?10-(m_FreezeTime/15):0;
+	}
+	if(m_Input.m_Direction != 0 || m_Input.m_Jump != 0)
 		m_LastMove = Server()->Tick();
 
 	if (m_FreezeTime > 0 || m_FreezeTime == -1)
@@ -3036,7 +3042,6 @@ void CCharacter::DDRaceTick()
 	}
 
 	m_Core.m_Id = GetPlayer()->GetCID();
-	DDPPDDraceTick();
 }
 
 
