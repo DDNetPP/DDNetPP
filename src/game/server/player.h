@@ -200,6 +200,13 @@ public:
 	void ResetDDPP();
 	void DDPPTick();
 	void OnDisconnectDDPP();
+	/*
+		DDPPSnapChangeSkin
+
+		returns true if changed skin
+	*/
+	bool DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo);
+	void DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo);
 
 	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
