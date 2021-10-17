@@ -298,6 +298,7 @@ function build(settings)
 	-- build game components
 	engine_settings = settings:Copy()
 	server_settings = engine_settings:Copy()
+	client_settings = engine_settings:Copy()
 	launcher_settings = engine_settings:Copy()
 
 	if family == "unix" then
