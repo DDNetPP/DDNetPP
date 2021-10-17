@@ -588,8 +588,12 @@ if platform == "macosx" then
 	end
 else
 	build(debug_settings)
-	build(debug_sql_settings)
-	build(release_settings)
-	build(release_sql_settings)
+	-- ChillerDragon commented out those to fix
+	-- bam: error: job 'objs/game/server/gamecontext_sql_d.o' already exists
+	-- [string "src/driver_gcc.lua"]:21: bad argument #1 to 'AddJob' (node 'objs/game/server/gamecontext_sql_d.o' already exists)
+
+	-- build(debug_sql_settings)
+	-- build(release_settings)
+	-- build(release_sql_settings)
 	DefaultTarget("game_debug")
 end
