@@ -122,10 +122,6 @@ void CProjectile::Tick()
 
 	if (pOwnerChar && pOwnerChar->GetPlayer() && pOwnerChar->GetPlayer()->m_IsVanillaWeapons)
 	{
-		//dbg_msg("cBug", "WARNING DETECTED m_IsVanillaWeapons MODE");
-		//dbg_msg("cBug", "VANILLA WEAPONS '%s:%d'", Server()->ClientName(pOwnerChar->GetPlayer()->GetCID()), pOwnerChar->GetPlayer()->GetCID());
-
-
 		CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, ColPos, pOwnerChar);
 
 		if (m_LifeSpan > -1)

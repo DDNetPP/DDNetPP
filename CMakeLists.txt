@@ -1365,6 +1365,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   entities/character_ddpp.cpp
   entities/character_dummymodes.cpp
   entities/character_quests.cpp
+  entities/character_tiles.cpp
   entities/door.cpp
   entities/door.h
   entities/dragger.cpp
@@ -1383,6 +1384,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   entities/homing_missile.h
   entities/laser.cpp
   entities/laser.h
+  entities/laser_ddpp.cpp
   entities/light.cpp
   entities/light.h
   entities/meteor.cpp

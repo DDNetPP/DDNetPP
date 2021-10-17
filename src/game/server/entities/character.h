@@ -203,6 +203,15 @@ private:
 	bool m_SetSavePos;
 	vec2 m_PrevSavePos;
 
+	/*
+
+		DDNet++
+
+	*/
+
+	void HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int MapIndexL, int MapIndexR, int MapIndexT, int MapIndexB);
+	void DDPPDDraceTick();
+
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
 
