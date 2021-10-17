@@ -1292,6 +1292,7 @@ set_src(GAME_SHARED GLOB src/game
   layers.h
   localization.cpp
   localization.h
+  mapitems.cpp
   mapitems.h
   teamscore.cpp
   teamscore.h
@@ -1358,6 +1359,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   ddracechat.cpp
   ddracechat.h
   ddracecommands.cpp
+  ddracecommands_ddpp.cpp
   entities/character.cpp
   entities/character.h
   entities/character_ddpp.cpp

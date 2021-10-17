@@ -750,26 +750,9 @@ private:
 	static void ConNinja(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnSolo(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnDeep(IConsole::IResult *pResult, void *pUserData);
-	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
-	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
-	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
-	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
-	static void Conheal(IConsole::IResult *pResult, void *pUserData);
-	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
-	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
-	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
-	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
-	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
-	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
 	static void ConShotgun(IConsole::IResult *pResult, void *pUserData);
 	static void ConGrenade(IConsole::IResult *pResult, void *pUserData);
 	static void ConRifle(IConsole::IResult *pResult, void *pUserData);
-	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConWeapons(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnShotgun(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnGrenade(IConsole::IResult *pResult, void *pUserData);
@@ -780,37 +763,6 @@ private:
 
 	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
-
-	// cosmetics
-	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
-	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
-	static void ConAtom(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldAtom(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfAtom(IConsole::IResult *pResult, void *pUserData);
-	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
-	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
-	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
-	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
-	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
-
-	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
-
-	//SQL
-	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
-
-	//rcon api
-	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
-	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
-
-	//HACK ChillerDragon
-	//static void ConHack(IConsole::IResult *pResult, void *pUserData);
 
 	void ModifyWeapons(IConsole::IResult *pResult, void *pUserData, int Weapon, bool Remove);
 	void MoveCharacter(int ClientID, int X, int Y, bool Raw = false);
@@ -877,13 +829,23 @@ private:
 	static void ConRescue(IConsole::IResult *pResult, void *pUserData);
 	static void ConProtectedKill(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
-
 	static void ConMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteID(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteIP(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConList(IConsole::IResult *pResult, void *pUserData);
+	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
+
+	//====================
+	//ChillerDragon (ddpp)
+	//====================
+
+	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
@@ -903,17 +865,52 @@ private:
 	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConList(IConsole::IResult *pResult, void *pUserData);
-	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
-	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
-	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
 
-	//====================
-	//ChillerDragon (ddpp)
-	//====================
+	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
+	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
+	static void Conheal(IConsole::IResult *pResult, void *pUserData);
+	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
+	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
+	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
+	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
+	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
 
-	//chat commands
+	// cosmetics
+	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
+
+	//SQL
+	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	//rcon api
+	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
 
 	//account stuff
 	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);

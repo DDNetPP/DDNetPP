@@ -268,7 +268,6 @@ int main(int argc, const char **argv)
 		}
 		else if (ChillerLayerNumber && i == ChillerLayerNumber) //Chiller
 		{
-			/*
 			if (mapwidthChiller != mapwidth || mapheightStones != mapheight)
 			{
 				dbg_msg("ERROR", "Chiller layer (%d x %d) is not the same size as Game (%d x %d)", mapwidthChiller, mapheightChiller, mapwidth, mapheight);
@@ -280,7 +279,6 @@ int main(int argc, const char **argv)
 			update_tile(&*pTile, Q_TILE_LAYER_CHILLER);
 			df.AddData(mapwidthChiller*mapheightChiller * sizeof(CTile), pTile);
 			DataFile.UnloadData(i);
-			*/
 		}
 		else
 		{
