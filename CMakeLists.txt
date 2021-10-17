@@ -1303,6 +1303,7 @@ set_src(GAME_SHARED GLOB src/game
   tuning.h
   variables.h
   version.h
+  version_ddpp.h
   voting.h
 )
 # A bit hacky, but these are needed to register all the UUIDs, even for stuff
