@@ -1354,6 +1354,12 @@ set_src(ENGINE_SERVER GLOB src/engine/server
   register.h
   server.cpp
   server.h
+  sql_connector.cpp
+  sql_connector.h
+  sql_server.cpp
+  sql_server.h
+  sql_string_helpers.cpp
+  sql_string_helpers.h
 )
 set_src(GAME_SERVER GLOB_RECURSE src/game/server
   captcha.cpp
@@ -1513,6 +1519,7 @@ set_src(TOOLS GLOB src/tools
   ddpp_map_chiller.cpp
   ddpp_map_gen.cpp
   dilate.cpp
+  dummy_map.cpp
   fake_server.cpp
   map_resave.cpp
   map_version.cpp

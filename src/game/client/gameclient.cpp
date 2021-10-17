@@ -1513,7 +1513,7 @@ void CGameClient::OnPredict()
 								if(i == m_Snap.m_LocalClientID)
 									continue;
 								if(!(distance(World.m_apCharacters[i]->m_Pos, ProjPos) < Radius+ProximityRadius))
-									continue;;
+									continue;
 
 								CCharacterCore *pTarget = World.m_apCharacters[i];
 
