@@ -181,10 +181,8 @@ int CSaveTee::LoadString(char* String)
 		return 0;
 	else
 	{
-		dbg_msg("Load", "failed to load Tee-string");
-		char aBuf[32];
-		str_format(aBuf, sizeof(aBuf), "loaded %d vars", Num);
-		dbg_msg("Load", aBuf);
+		dbg_msg("load", "failed to load tee-string");
+		dbg_msg("load", "loaded %d vars", Num);
 		return Num+1; // never 0 here
 	}
 }
@@ -382,7 +380,7 @@ int CSaveTeam::LoadString(const char* String)
 
 	if(StrSize <= 0)
 	{
-		dbg_msg("Load", "Savegame: wrong format (couldn't load TeamStats)");
+		dbg_msg("load", "savegame: wrong format (couldn't load teamstats)");
 		return 1;
 	}
 
@@ -392,15 +390,13 @@ int CSaveTeam::LoadString(const char* String)
 		int Num = sscanf(TeamStats, "%d\t%d\t%d\t%d", &m_TeamState, &m_MembersCount, &m_NumSwitchers, &m_TeamLocked);
 		if(Num != 4)
 		{
-			dbg_msg("Load", "failed to load Teamstats");
-			char aBuf[32];
-			str_format(aBuf, sizeof(aBuf), "loaded %d vars", Num);
-			dbg_msg("Load", aBuf);
+			dbg_msg("load", "failed to load teamstats");
+			dbg_msg("load", "loaded %d vars", Num);
 		}
 	}
 	else
 	{
-		dbg_msg("Load", "Savegame: wrong format (couldn't load TeamStats, too big)");
+		dbg_msg("load", "savegame: wrong format (couldn't load teamstats, too big)");
 		return 1;
 	}
 
@@ -428,7 +424,7 @@ int CSaveTeam::LoadString(const char* String)
 
 		if(StrSize <= 0)
 		{
-			dbg_msg("Load", "Savegame: wrong format (couldn't load Tee)");
+			dbg_msg("load", "savegame: wrong format (couldn't load tee)");
 			return 1;
 		}
 
@@ -438,16 +434,14 @@ int CSaveTeam::LoadString(const char* String)
 			int Num = SavedTees[n].LoadString(SaveTee);
 			if(Num)
 			{
-				dbg_msg("Load", "failed to load Tee");
-				char aBuf[32];
-				str_format(aBuf, sizeof(aBuf), "loaded %d vars", Num-1);
-				dbg_msg("Load", aBuf);
+				dbg_msg("load", "failed to load tee");
+				dbg_msg("load", "loaded %d vars", Num-1);
 				return 1;
 			}
 		}
 		else
 		{
-			dbg_msg("Load", "Savegame: wrong format (couldn't load Tee, too big)");
+			dbg_msg("load", "savegame: wrong format (couldn't load tee, too big)");
 			return 1;
 		}
 	}
@@ -476,7 +470,7 @@ int CSaveTeam::LoadString(const char* String)
 
 			if(StrSize <= 0)
 			{
-				dbg_msg("Load", "Savegame: wrong format (couldn't load Switcher)");
+				dbg_msg("load", "savegame: wrong format (couldn't load switcher)");
 				return 1;
 			}
 
@@ -486,15 +480,13 @@ int CSaveTeam::LoadString(const char* String)
 				int Num = sscanf(Switcher, "%d\t%d\t%d", &(m_Switchers[n].m_Status), &(m_Switchers[n].m_EndTime), &(m_Switchers[n].m_Type));
 				if(Num != 3)
 				{
-					dbg_msg("Load", "failed to load Switcher");
-					char aBuf[32];
-					str_format(aBuf, sizeof(aBuf), "loaded %d vars", Num-1);
-					dbg_msg("Load", aBuf);
+					dbg_msg("load", "failed to load switcher");
+					dbg_msg("load", "loaded %d vars", Num-1);
 				}
 			}
 			else
 			{
-				dbg_msg("Load", "Savegame: wrong format (couldn't load Switcher, too big)");
+				dbg_msg("load", "savegame: wrong format (couldn't load switcher, too big)");
 				return 1;
 			}
 		}

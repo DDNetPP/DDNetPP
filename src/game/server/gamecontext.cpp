@@ -1124,7 +1124,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		if (g_Config.m_SvShowOthersDefault)
 		{
 			if (g_Config.m_SvShowOthers)
-				SendChatTarget(ClientID, "You can see other players. To disable this use the DDNet client and type /showothers .");
+				SendChatTarget(ClientID, "You can see other players. To disable this use DDNet client and type /showothers .");
 
 			m_apPlayers[ClientID]->m_ShowOthers = true;
 		}
@@ -1407,7 +1407,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
-			if(g_Config.m_SvJoinVoteDelay && Now < pPlayer->m_FirstVoteTick)
+			if(Now < pPlayer->m_FirstVoteTick)
 			{
 				char aBuf[64];
 				str_format(aBuf, sizeof(aBuf), "You must wait %d seconds before making your first vote", ((pPlayer->m_FirstVoteTick - Now) / TickSpeed) + 1);
@@ -1764,9 +1764,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(pPlayer->m_ClientVersion < Version)
 				pPlayer->m_ClientVersion = Version;
 
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
-			dbg_msg("DDNet", aBuf);
+			dbg_msg("ddnet", "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
 
 			if (Version >= 11043 && Version < 11073)
 				m_apPlayers[ClientID]->m_ScoreFixForDDNet = true;
@@ -2781,7 +2779,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				Collision()->m_pSwitchers[i].m_Initial = true;
 	}
 
-	Console()->ExecuteFile(g_Config.m_SvResetFile);
+	Console()->ExecuteFile(g_Config.m_SvResetFile, -1);
 
 	LoadMapPlayerData();
 	LoadMapSettings();
@@ -2854,27 +2852,27 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			if(Index == TILE_OLDLASER)
 			{
 				g_Config.m_SvOldLaser = 1;
-				dbg_msg("Game Layer", "Found Old Laser Tile");
+				dbg_msg("game layer", "found old laser tile");
 			}
 			else if(Index == TILE_NPC)
 			{
 				m_Tuning.Set("player_collision", 0);
-				dbg_msg("Game Layer", "Found No Collision Tile");
+				dbg_msg("game layer", "found no collision tile");
 			}
 			else if(Index == TILE_EHOOK)
 			{
 				g_Config.m_SvEndlessDrag = 1;
-				dbg_msg("Game Layer", "Found No Unlimited hook time Tile");
+				dbg_msg("game layer", "found no unlimited hook time tile");
 			}
 			else if(Index == TILE_NOHIT)
 			{
 				g_Config.m_SvHit = 0;
-				dbg_msg("Game Layer", "Found No Weapons Hitting others Tile");
+				dbg_msg("game layer", "found no weapons hitting others tile");
 			}
 			else if(Index == TILE_NPH)
 			{
 				m_Tuning.Set("player_hooking", 0);
-				dbg_msg("Game Layer", "Found No Player Hooking Tile");
+				dbg_msg("game layer", "found no player hooking tile");
 			}
 			else if (Index == TILE_SHOP_SPAWN)
 			{
@@ -2902,27 +2900,27 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				if(Index == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
-					dbg_msg("Front Layer", "Found Old Laser Tile");
+					dbg_msg("front layer", "found old laser tile");
 				}
 				else if(Index == TILE_NPC)
 				{
 					m_Tuning.Set("player_collision", 0);
-					dbg_msg("Front Layer", "Found No Collision Tile");
+					dbg_msg("front layer", "found no collision tile");
 				}
 				else if(Index == TILE_EHOOK)
 				{
 					g_Config.m_SvEndlessDrag = 1;
-					dbg_msg("Front Layer", "Found No Unlimited hook time Tile");
+					dbg_msg("front layer", "found no unlimited hook time tile");
 				}
 				else if(Index == TILE_NOHIT)
 				{
 					g_Config.m_SvHit = 0;
-					dbg_msg("Front Layer", "Found No Weapons Hitting others Tile");
+					dbg_msg("front layer", "found no weapons hitting others tile");
 				}
 				else if(Index == TILE_NPH)
 				{
 					m_Tuning.Set("player_hooking", 0);
-					dbg_msg("Front Layer", "Found No Player Hooking Tile");
+					dbg_msg("front layer", "found no player hooking tile");
 				}
 				else if(Index == TILE_JAIL)
 				{

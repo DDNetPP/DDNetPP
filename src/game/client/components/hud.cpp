@@ -308,7 +308,7 @@ void CHud::MapscreenToGroup(float CenterX, float CenterY, CMapItemGroup *pGroup)
 	Graphics()->MapScreen(Points[0], Points[1], Points[2], Points[3]);
 }
 
-void CHud::RenderFps()
+void CHud::RenderTextInfo()
 {
 	if(g_Config.m_ClShowfps)
 	{
@@ -318,6 +318,12 @@ void CHud::RenderFps()
 		char Buf[512];
 		str_format(Buf, sizeof(Buf), "%d", (int)m_AverageFPS);
 		TextRender()->Text(0, m_Width-10-TextRender()->TextWidth(0,12,Buf,-1), 5, 12, Buf, -1);
+	}
+	if(g_Config.m_ClShowpred)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "%d", Client()->GetPredictionTime());
+		TextRender()->Text(0, m_Width-10-TextRender()->TextWidth(0,12,aBuf,-1), g_Config.m_ClShowfps ? 20 : 5, 12, aBuf, -1);
 	}
 }
 
@@ -586,7 +592,7 @@ void CHud::OnRender()
 		if (g_Config.m_ClShowhudScore)
 			RenderScoreHud();
 		RenderWarmupTimer();
-		RenderFps();
+		RenderTextInfo();
 		RenderLocalTime((m_Width/7)*3);
 		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
 			RenderConnectionWarning();
@@ -600,7 +606,6 @@ void CHud::OnRender()
 
 void CHud::OnMessage(int MsgType, void *pRawMsg)
 {
-
 	if(MsgType == NETMSGTYPE_SV_DDRACETIME)
 	{
 		m_DDRaceTimeReceived = true;
@@ -618,6 +623,29 @@ void CHud::OnMessage(int MsgType, void *pRawMsg)
 		{
 			m_CheckpointDiff = (float)pMsg->m_Check/100;
 			m_CheckpointTick = Client()->GameTick();
+		}
+	}
+	// NETMSGTYPE_SV_RACETIME on old race servers
+	else if(MsgType == NETMSGTYPE_SV_RECORD)
+	{
+		CServerInfo Info;
+		Client()->GetServerInfo(&Info);
+		if(!IsDDRace(&Info) && IsRace(&Info))
+		{
+			m_DDRaceTimeReceived = true;
+
+			CNetMsg_Sv_Record *pMsg = (CNetMsg_Sv_Record *)pRawMsg;
+
+			m_DDRaceTime = pMsg->m_ServerTimeBest; // First value: m_Time
+			m_DDRaceTick = 0;
+
+			m_LastReceivedTimeTick = Client()->GameTick();
+
+			if(pMsg->m_PlayerTimeBest) // Second value: m_Check
+			{
+				m_CheckpointDiff = (float)pMsg->m_PlayerTimeBest/100;
+				m_CheckpointTick = Client()->GameTick();
+			}
 		}
 	}
 	else if(MsgType == NETMSGTYPE_SV_KILLMSG)

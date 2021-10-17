@@ -72,6 +72,7 @@ CMenus::CMenus()
 	m_NeedSendDummyinfo = false;
 	m_MenuActive = true;
 	m_UseMouseButtons = true;
+	m_MouseSlow = false;
 
 	m_EscapePressed = false;
 	m_EnterPressed = false;
@@ -243,9 +244,9 @@ int CMenus::DoEditBox(void *pID, const CUIRect *pRect, char *pStr, unsigned StrS
 			const char *Text = Input()->GetClipboardText();
 			if(Text)
 			{
-				int CharsLeft = StrSize - str_length(pStr);
 				int Offset = str_length(pStr);
-				for(int i = 0; i < str_length(Text) && i <= CharsLeft; i++)
+				int CharsLeft = StrSize - Offset - 1;
+				for(int i = 0; i < str_length(Text) && i < CharsLeft; i++)
 				{
 					if(Text[i] == '\n')
 						pStr[i + Offset] = ' ';
@@ -432,6 +433,9 @@ float CMenus::DoScrollbarV(const void *pID, const CUIRect *pRect, float Current)
 		if(!UI()->MouseButton(0))
 			UI()->SetActiveItem(0);
 
+		if(Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT))
+			m_MouseSlow = true;
+
 		float Min = pRect->y;
 		float Max = pRect->h-Handle.h;
 		float Cur = UI()->MouseY()-OffsetY;
@@ -487,6 +491,9 @@ float CMenus::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current)
 	{
 		if(!UI()->MouseButton(0))
 			UI()->SetActiveItem(0);
+
+		if(Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT))
+			m_MouseSlow = true;
 
 		float Min = pRect->x;
 		float Max = pRect->w-Handle.w;
@@ -917,6 +924,8 @@ int CMenus::Render()
 	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 
+	m_MouseSlow = false;
+
 	static bool s_First = true;
 	if(s_First)
 	{
@@ -1048,29 +1057,12 @@ int CMenus::Render()
 			pTitle = Localize("Disconnected");
 			pExtraText = Client()->ErrorString();
 			pButtonText = Localize("Ok");
-			if ((str_find_nocase(Client()->ErrorString(), "full")) || (str_find_nocase(Client()->ErrorString(), "reserved")))
+			if(Client()->m_ReconnectTime > 0)
 			{
-				if (g_Config.m_ClReconnectFull > 0)
-				{
-					if (_my_rtime == 0)
-						_my_rtime = time_get();
-					str_format(aBuf, sizeof(aBuf), Localize("\n\nReconnect in %d sec"), ((_my_rtime - time_get()) / time_freq() + g_Config.m_ClReconnectFull));
-					pTitle = Client()->ErrorString();
-					pExtraText = aBuf;
-					pButtonText = Localize("Abort");
-				}
-			}
-			else if (str_find_nocase(Client()->ErrorString(), "Timeout"))
-			{
-				if (g_Config.m_ClReconnectTimeout > 0)
-				{
-					if (_my_rtime == 0)
-						_my_rtime = time_get();
-					str_format(aBuf, sizeof(aBuf), Localize("\n\nReconnect in %d sec"), ((_my_rtime - time_get()) / time_freq() + g_Config.m_ClReconnectTimeout));
-					pTitle = Client()->ErrorString();
-					pExtraText = aBuf;
-					pButtonText = Localize("Abort");
-				}
+				str_format(aBuf, sizeof(aBuf), Localize("\n\nReconnect in %d sec"), ((Client()->m_ReconnectTime - time_get()) / time_freq() + g_Config.m_ClReconnectFull));
+				pTitle = Client()->ErrorString();
+				pExtraText = aBuf;
+				pButtonText = Localize("Abort");
 			}
 			ExtraAlign = 0;
 		}
@@ -1605,28 +1597,15 @@ int CMenus::Render()
 
 			static int s_Button = 0;
 			if(DoButton_Menu(&s_Button, pButtonText, 0, &Part) || m_EscapePressed || m_EnterPressed)
+			{
+				if(m_Popup == POPUP_DISCONNECTED && Client()->m_ReconnectTime > 0)
+					Client()->m_ReconnectTime = 0;
 				m_Popup = POPUP_NONE;
+			}
 		}
 
 		if(m_Popup == POPUP_NONE)
 			UI()->SetActiveItem(0);
-	}
-
-	if (m_Popup == POPUP_DISCONNECTED)
-	{
-		if (str_find_nocase(Client()->ErrorString(), "full") || str_find_nocase(Client()->ErrorString(), "reserved"))
-		{
-			if (g_Config.m_ClReconnectFull > 0 && time_get() > _my_rtime + time_freq() * g_Config.m_ClReconnectFull)
-				Client()->Connect(g_Config.m_UiServerAddress);
-		}
-		else if (str_find_nocase(Client()->ErrorString(), "Timeout"))
-		{
-			if (g_Config.m_ClReconnectTimeout > 0 && time_get() > _my_rtime + time_freq() * g_Config.m_ClReconnectTimeout)
-				Client()->Connect(g_Config.m_UiServerAddress);
-		}
-	}
-	else if (_my_rtime != 0) {
-		_my_rtime = 0;
 	}
 	return 0;
 }
@@ -1679,8 +1658,16 @@ bool CMenus::OnMouseMove(float x, float y)
 	m_MousePos.y = y;
 #else
 	UI()->ConvertMouseMove(&x, &y);
-	m_MousePos.x += x;
-	m_MousePos.y += y;
+	if(m_MouseSlow)
+	{
+		m_MousePos.x += x * 0.05f;
+		m_MousePos.y += y * 0.05f;
+	}
+	else
+	{
+		m_MousePos.x += x;
+		m_MousePos.y += y;
+	}
 #endif
 	if(m_MousePos.x < 0) m_MousePos.x = 0;
 	if(m_MousePos.y < 0) m_MousePos.y = 0;

@@ -314,7 +314,7 @@ void PurgeServers()
 void ReloadBans()
 {
 	m_NetBan.UnbanAll();
-	m_pConsole->ExecuteFile("master.cfg", -1);
+	m_pConsole->ExecuteFile("master.cfg", -1, true);
 }
 
 int main(int argc, const char **argv) // ignore_convention

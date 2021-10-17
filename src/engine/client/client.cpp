@@ -42,7 +42,7 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/ringbuffer.h>
 #include <engine/shared/snapshot.h>
-#include <engine/shared/fifoconsole.h>
+#include <engine/shared/fifo.h>
 
 #include <game/version.h>
 
@@ -345,6 +345,7 @@ CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta)
 		m_LastDummyConnectTime = 0;
 
 	m_DDNetSrvListTokenSet = false;
+	m_ReconnectTime = 0;
 }
 
 // ----- send functions -----
@@ -622,7 +623,17 @@ void CClient::SetState(int s)
 	}
 	m_State = s;
 	if(Old != s)
+	{
 		GameClient()->OnStateChange(m_State, Old);
+
+		if(s == IClient::STATE_OFFLINE && m_ReconnectTime == 0)
+		{
+			if(g_Config.m_ClReconnectFull > 0 && (str_find_nocase(ErrorString(), "full") || str_find_nocase(ErrorString(), "reserved")))
+				m_ReconnectTime = time_get() + time_freq() * g_Config.m_ClReconnectFull;
+			else if(g_Config.m_ClReconnectTimeout > 0 && str_find_nocase(ErrorString(), "Timeout"))
+				m_ReconnectTime = time_get() + time_freq() * g_Config.m_ClReconnectTimeout;
+		}
+	}
 }
 
 // called when the map is loaded and we should init for a new round
@@ -749,7 +760,8 @@ void CClient::Disconnect()
 {
 	if(m_DummyConnected)
 		DummyDisconnect(0);
-	DisconnectWithReason(0);
+	if(m_State != IClient::STATE_OFFLINE)
+		DisconnectWithReason(0);
 }
 
 bool CClient::DummyConnected()
@@ -921,7 +933,6 @@ void CClient::DebugRender()
 	static NETSTATS Prev, Current;
 	static int64 LastSnap = 0;
 	static float FrameTimeAvg = 0;
-	int64 Now = time_get();
 	char aBuffer[512];
 
 	if(!g_Config.m_Debug)
@@ -987,8 +998,7 @@ void CClient::DebugRender()
 		}
 	}
 
-	str_format(aBuffer, sizeof(aBuffer), "pred: %d ms",
-		(int)((m_PredictedTime.Get(Now)-m_GameTime[g_Config.m_ClDummy].Get(Now))*1000/(float)time_freq()));
+	str_format(aBuffer, sizeof(aBuffer), "pred: %d ms", GetPredictionTime());
 	Graphics()->QuadsText(2, 70, 16, aBuffer);
 	Graphics()->QuadsEnd();
 
@@ -1223,6 +1233,7 @@ void CClient::ProcessConnlessPacket(CNetChunk *pPacket)
 				// do decompression of serverlist
 				if (uncompress((Bytef*)aBuf, &DstLen, (Bytef*)pComp, CompLength) == Z_OK && (int)DstLen == PlainLength)
 				{
+					aBuf[DstLen] = '\0';
 					bool ListChanged = true;
 
 					IOHANDLE File = m_pStorage->OpenFile("ddnet-servers.json", IOFLAG_READ, IStorage::TYPE_SAVE);
@@ -1283,7 +1294,7 @@ void CClient::ProcessConnlessPacket(CNetChunk *pPacket)
 		{
 			m_pMasterServer->SetCount(ServerID, ServerCount);
 			if(g_Config.m_Debug)
-				dbg_msg("MasterCount", "Server %d got %d servers", ServerID, ServerCount);
+				dbg_msg("mastercount", "server %d got %d servers", ServerID, ServerCount);
 		}
 	}
 	// server list from master server
@@ -2444,7 +2455,7 @@ void CClient::Update()
 			FinishMapDownload();
 		else if(m_pMapdownloadTask->State() == CFetchTask::STATE_ERROR)
 		{
-			dbg_msg("webdl", "HTTP failed falling back to gameserver.");
+			dbg_msg("webdl", "http failed, falling back to gameserver");
 			ResetMapDownload();
 			SendMapRequest();
 		}
@@ -2466,6 +2477,12 @@ void CClient::Update()
 	// update gameclient
 	if(!m_EditorActive)
 		GameClient()->OnUpdate();
+
+	if(m_ReconnectTime > 0 && time_get() > m_ReconnectTime)
+	{
+		Connect(m_aServerAddressStr);
+		m_ReconnectTime = 0;
+	}
 }
 
 void CClient::VersionUpdate()
@@ -2651,6 +2668,10 @@ void CClient::Run()
 	// process pending commands
 	m_pConsole->StoreCommands(false);
 
+#if defined(CONF_FAMILY_UNIX)
+	m_Fifo.Init(m_pConsole, g_Config.m_ClInputFifo, CFGFLAG_CLIENT);
+#endif
+
 	bool LastD = false;
 	bool LastQ = false;
 	bool LastE = false;
@@ -2738,13 +2759,15 @@ void CClient::Run()
 				m_EditorActive = false;
 
 			Update();
+			int64 Now = time_get();
 
-			if((g_Config.m_GfxBackgroundRender || m_pGraphics->WindowOpen()) && (!g_Config.m_GfxAsyncRenderOld || m_pGraphics->IsIdle()))
+			if((g_Config.m_GfxBackgroundRender || m_pGraphics->WindowOpen())
+				&& (!g_Config.m_GfxAsyncRenderOld || m_pGraphics->IsIdle())
+				&& (!g_Config.m_GfxRefreshRate || Now >= m_LastRenderTime + time_freq() / g_Config.m_GfxRefreshRate))
 			{
 				m_RenderFrames++;
 
 				// update frametime
-				int64 Now = time_get();
 				m_RenderFrameTime = (Now - m_LastRenderTime) / (float)time_freq();
 				if(m_RenderFrameTime < m_RenderFrameTimeLow)
 					m_RenderFrameTimeLow = m_RenderFrameTime;
@@ -2795,6 +2818,10 @@ void CClient::Run()
 		if(State() == IClient::STATE_QUITING)
 			break;
 
+#if defined(CONF_FAMILY_UNIX)
+		m_Fifo.Update();
+#endif
+
 		// beNice
 		if(g_Config.m_ClCpuThrottle)
 			net_socket_read_wait(m_NetClient[0].m_Socket, g_Config.m_ClCpuThrottle * 1000);
@@ -2811,6 +2838,10 @@ void CClient::Run()
 		// update local time
 		m_LocalTime = (time_get()-m_LocalStartTime)/(float)time_freq();
 	}
+
+#if defined(CONF_FAMILY_UNIX)
+	m_Fifo.Shutdown();
+#endif
 
 	GameClient()->OnShutdown();
 	Disconnect();
@@ -3443,10 +3474,6 @@ int main(int argc, const char **argv) // ignore_convention
 
 	pClient->Engine()->InitLogfile();
 
-#if defined(CONF_FAMILY_UNIX)
-	FifoConsole *fifoConsole = new FifoConsole(pConsole, g_Config.m_ClInputFifo, CFGFLAG_CLIENT);
-#endif
-
 #if defined(CONF_FAMILY_WINDOWS)
 	if(!g_Config.m_ClShowConsole)
 		FreeConsole();
@@ -3458,10 +3485,6 @@ int main(int argc, const char **argv) // ignore_convention
 	// run the client
 	dbg_msg("client", "starting...");
 	pClient->Run();
-
-#if defined(CONF_FAMILY_UNIX)
-	delete fifoConsole;
-#endif
 
 	// write down the config and quit
 	pConfig->Save();
@@ -3525,4 +3548,10 @@ void CClient::RequestDDNetSrvList()
 	Packet.m_DataSize = sizeof(VERSIONSRV_GETDDNETLIST)+4;
 	Packet.m_Flags = NETSENDFLAG_CONNLESS;
 	m_NetClient[g_Config.m_ClDummy].Send(&Packet);
+}
+
+int CClient::GetPredictionTime()
+{
+	int64 Now = time_get();
+	return (int)((m_PredictedTime.Get(Now)-m_GameTime[g_Config.m_ClDummy].Get(Now))*1000/(float)time_freq());
 }

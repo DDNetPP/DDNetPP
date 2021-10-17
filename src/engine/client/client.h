@@ -194,6 +194,10 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	char m_aDDNetSrvListToken[4];
 	bool m_DDNetSrvListTokenSet;
 
+#if defined(CONF_FAMILY_UNIX)
+	CFifo m_Fifo;
+#endif
+
 public:
 	IEngine *Engine() { return m_pEngine; }
 	IEngineGraphics *Graphics() { return m_pGraphics; }
@@ -266,6 +270,7 @@ public:
 
 	// ---
 
+	int GetPredictionTime();
 	void *SnapGetItem(int SnapID, int Index, CSnapItem *pItem);
 	void SnapInvalidateItem(int SnapID, int Index);
 	void *SnapFindItem(int SnapID, int Type, int ID);

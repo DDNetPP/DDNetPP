@@ -602,23 +602,25 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 		switch(Result)
 		{
 			case 4:
-				Result = TILE_FREEZE;
+				Result = TILE_THROUGH_CUT;
 				break;
 			case 5:
-				Result = TILE_UNFREEZE;
+				Result = TILE_FREEZE;
 				break;
 			case 6:
-				Result = TILE_DFREEZE;
+				Result = TILE_UNFREEZE;
 				break;
 			case 7:
-				Result = TILE_DUNFREEZE;
+				Result = TILE_DFREEZE;
 				break;
 			case 8:
-				Result = TILE_TELECHECKIN;
+				Result = TILE_DUNFREEZE;
 				break;
 			case 9:
-				Result = TILE_TELECHECKINEVIL;
+				Result = TILE_TELECHECKIN;
 				break;
+			case 10:
+				Result = TILE_TELECHECKINEVIL;
 			default:
 				break;
 		}
@@ -632,8 +634,10 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 				int h = min(gl->m_Height, m_Height);
 				for(int y = 0; y < h; y++)
 					for(int x = 0; x < w; x++)
-						if(m_pTiles[y*m_Width+x].m_Index)
-							gl->m_pTiles[y*gl->m_Width+x].m_Index = TILE_AIR+Result;
+						if(GetTile(x, y).m_Index) {
+							CTile result_tile = {(unsigned char)Result};
+							gl->SetTile(x, y, result_tile);
+						}
 			}
 			else if (m_pEditor->m_Map.m_pTeleLayer)
 			{
@@ -1314,6 +1318,11 @@ void CLayerFront::SetTile(int x, int y, CTile tile)
 	} else {
 		CTile air = {TILE_AIR};
 		CLayerTiles::SetTile(x, y, air);
+		if(!m_pEditor->m_PreventUnusedTilesWasWarned) {
+			m_pEditor->m_PopupEventType = m_pEditor->POPEVENT_PREVENTUNUSEDTILES;
+			m_pEditor->m_PopupEventActivated = true;
+			m_pEditor->m_PreventUnusedTilesWasWarned = true;
+		}
 	}
 }
 

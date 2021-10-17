@@ -1236,8 +1236,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   econ.cpp
   econ.h
   engine.cpp
-  fifoconsole.cpp
-  fifoconsole.h
+  fifo.cpp
+  fifo.h
   filecollection.cpp
   filecollection.h
   global_uuid_manager.cpp
@@ -1508,10 +1508,15 @@ set_src(TOOLS GLOB src/tools
   crapnet.cpp
   ddpp_map_chiller.cpp
   ddpp_map_gen.cpp
+  dilate.cpp
   fake_server.cpp
   map_resave.cpp
   map_version.cpp
   packetgen.cpp
+  tileset_borderadd.cpp
+  tileset_borderfix.cpp
+  tileset_borderrem.cpp
+  tileset_borderset.cpp
   uuid.cpp
 )
 foreach(ABS_T ${TOOLS})
