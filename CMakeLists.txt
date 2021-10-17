@@ -1287,6 +1287,7 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
 set_src(GAME_SHARED GLOB src/game
   collision.cpp
   collision.h
+  collision_ddpp.cpp
   ddracecommands.h
   gamecore.cpp
   gamecore.h

@@ -13,7 +13,6 @@
 #include <game/collision.h>
 
 #include <engine/shared/config.h>
-#include "collision.h"
 
 CCollision::CCollision()
 {
@@ -141,30 +140,6 @@ int CCollision::GetTile(int x, int y)
 	if(m_pTiles[pos].m_Index >= TILE_SOLID && m_pTiles[pos].m_Index <= TILE_NOLASER)
 		return m_pTiles[pos].m_Index;
 	return 0;
-}
-
-int CCollision::GetCustTile(int x, int y)
-{
-	if (!m_pTiles)
-		return 0;
-
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
-	int pos = Ny * m_Width + Nx;
-
-	return m_pTiles[pos].m_Index;
-}
-
-int CCollision::GetCustFTile(int x, int y)
-{
-	if (!m_pFront)
-		return 0;
-
-	int Nx = clamp(x / 32, 0, m_Width - 1);
-	int Ny = clamp(y / 32, 0, m_Height - 1);
-	int pos = Ny * m_Width + Nx;
-
-	return m_pFront[pos].m_Index;
 }
 
 /*
@@ -1170,37 +1145,4 @@ int CCollision::IsFCheckpoint(int Index)
 	if(z >= 35 && z <= 59)
 		return z-35;
 	return -1;
-}
-
-// DDNet++
-
-vec2 CCollision::GetSurvivalSpawn(int Num)
-{
-	return GetTileAtNum(TILE_SURVIVAL_SPAWN, Num);
-}
-
-vec2 CCollision::GetTileAtNum(int Tile, int Num)
-{
-	if (m_vTiles[Tile].size())
-	{
-		int Amount = m_vTiles[Tile].size();
-		if (Num > Amount)
-		{
-			dbg_msg("GetTileAtNum", "Error: requested too high index %d/%d for tile=%d", Num, Amount, Tile);
-			Num = Amount;
-		}
-		return m_vTiles[Tile][Num];
-	}
-	return vec2(-1, -1);
-}
-
-// by fokkonaut from F-DDrace
-vec2 CCollision::GetRandomTile(int Tile)
-{
-	if (m_vTiles[Tile].size())
-	{
-		int Rand = rand() % m_vTiles[Tile].size();
-		return m_vTiles[Tile][Rand];
-	}
-	return vec2(-1, -1);
 }
