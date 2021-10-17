@@ -2564,6 +2564,7 @@ void CEditor::DoMapEditor(CUIRect View, CUIRect ToolBar)
 		Graphics()->TextureSet(-1);
 		Graphics()->LinesBegin();
 
+		// possible screen sizes (white border)
 		float aLastPoints[4];
 		float Start = 1.0f; //9.0f/16.0f;
 		float End = 16.0f/9.0f;
@@ -2606,7 +2607,7 @@ void CEditor::DoMapEditor(CUIRect View, CUIRect ToolBar)
 			mem_copy(aLastPoints, aPoints, sizeof(aPoints));
 		}
 
-		if(1)
+		// two screen sizes (green and red border)
 		{
 			Graphics()->SetColor(1,0,0,1);
 			for(int i = 0; i < 2; i++)
@@ -2634,8 +2635,16 @@ void CEditor::DoMapEditor(CUIRect View, CUIRect ToolBar)
 				Graphics()->SetColor(0,1,0,1);
 			}
 		}
-
 		Graphics()->LinesEnd();
+
+		// tee position (blue circle)
+		{
+			Graphics()->TextureSet(-1);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(0,0,1,0.3f);
+			RenderTools()->DrawCircle(m_WorldOffsetX, m_WorldOffsetY, 20.0f, 32);
+			Graphics()->QuadsEnd();
+		}
 	}
 
 	if (!m_ShowPicker && m_ShowTileInfo && m_ShowEnvelopePreview != 0 && GetSelectedLayer(0) && GetSelectedLayer(0)->m_Type == LAYERTYPE_QUADS)
@@ -3809,10 +3818,10 @@ void CEditor::RenderFileDialog()
 		aPath[0] = 0;
 	str_format(aBuf, sizeof(aBuf), "Current path: %s", aPath);
 	UI()->DoLabel(&PathBox, aBuf, 10.0f, -1, -1);
-
-	// filebox
+	
 	if(m_FileDialogStorageType == IStorage::TYPE_SAVE)
 	{
+		// filebox
 		static float s_FileBoxID = 0;
 		UI()->DoLabel(&FileBoxLabel, "Filename:", 10.0f, -1, -1);
 		if(DoEditBox(&s_FileBoxID, &FileBox, m_aFileDialogFileName, sizeof(m_aFileDialogFileName), 10.0f, &s_FileBoxID))
@@ -3822,6 +3831,29 @@ void CEditor::RenderFileDialog()
 				if(m_aFileDialogFileName[i] == '/' || m_aFileDialogFileName[i] == '\\')
 					str_copy(&m_aFileDialogFileName[i], &m_aFileDialogFileName[i+1], (int)(sizeof(m_aFileDialogFileName))-i);
 			m_FilesSelectedIndex = -1;
+		}
+	}
+	else
+	{
+		//searchbox
+		FileBox.VSplitRight(250, &FileBox, 0);
+		CUIRect ClearBox;
+		FileBox.VSplitRight(15, &FileBox, &ClearBox);
+		
+		static float s_SearchBoxID = 0;
+		UI()->DoLabel(&FileBoxLabel, "Search:", 10.0f, -1, -1);
+		DoEditBox(&s_SearchBoxID, &FileBox, m_aFileDialogSearchText, sizeof(m_aFileDialogSearchText), 10.0f, &s_SearchBoxID,false,CUI::CORNER_L);
+		
+		// clearSearchbox button
+		{
+			static int s_ClearButton = 0;
+			RenderTools()->DrawUIRect(&ClearBox, vec4(1, 1, 1, 0.33f)*ButtonColorMul(&s_ClearButton), CUI::CORNER_R, 3.0f);
+			UI()->DoLabel(&ClearBox, "×", 10.0f, 0);
+			if (UI()->DoButtonLogic(&s_ClearButton, "×", 0, &ClearBox))
+			{
+				m_aFileDialogSearchText[0] = 0;
+				UI()->SetActiveItem(&s_SearchBoxID);
+			}
 		}
 	}
 
@@ -3936,6 +3968,7 @@ void CEditor::RenderFileDialog()
 	UI()->ClipEnable(&View);
 
 	for(int i = 0; i < m_FileList.size(); i++)
+		if (!m_aFileDialogSearchText[0] || str_find_nocase (m_FileList[i].m_aName, m_aFileDialogSearchText))
 		AddFileDialogEntry(i, &View);
 
 	// disable clipping again
@@ -4073,6 +4106,7 @@ void CEditor::InvokeFileDialog(int StorageType, int FileType, const char *pTitle
 	m_pfnFileDialogFunc = pfnFunc;
 	m_pFileDialogUser = pUser;
 	m_aFileDialogFileName[0] = 0;
+	m_aFileDialogSearchText[0] = 0;
 	m_aFileDialogCurrentFolder[0] = 0;
 	m_aFileDialogCurrentLink[0] = 0;
 	m_pFileDialogPath = m_aFileDialogCurrentFolder;

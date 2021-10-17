@@ -383,10 +383,10 @@ function build(settings)
 		engine, zlib, libwebsockets, md5)
 
 	masterserver_exe = Link(server_settings, "mastersrv", masterserver,
-		engine, zlib, md5)
+		engine, zlib, libwebsockets, md5)
 
 	twping_exe = Link(server_settings, "twping", twping,
-		engine, zlib, md5)
+		engine, zlib, libwebsockets, md5)
 
 	-- make targets
 	if string.find(settings.config_name, "sql") then
