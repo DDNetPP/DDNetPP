@@ -1358,6 +1358,7 @@ set_src(ENGINE_SERVER GLOB src/engine/server
   register.h
   server.cpp
   server.h
+  server_ddpp.cpp
   sql_connector.cpp
   sql_connector.h
   sql_server.cpp

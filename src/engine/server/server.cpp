@@ -152,233 +152,6 @@ void CSnapIDPool::TimeoutIDs()
 		RemoveFirstTimeout();
 }
 
-
-
-void CServer::BotJoin(int BotID)
-{
-	const char *pNames[] = { //Array für die Namen
-		"flappy.*",
-		"Chillingo.*",
-		"Fluffy.*",
-		"MLG_PRO.*",
-		"Enzym.*",
-		"ZillyDreck.*",
-		"ciliDR[HUN].*",
-		"fuzzle.*",
-		"Piko.*",
-		"chilliger.*",
-		"ChilligerDrago",
-		"GubbaFubba",
-		"fuZZle.*",
-		"<bot>",
-		"<noob>",
-		"<police>",
-		"<train>",
-		"<boat>",
-		"<blocker>",
-		"<racer>",
-		"<hyper>",
-		"$heeP",
-		"b3ep",
-		"chilluminatee.*",
-		"auftragschiller",
-		"abcJuhee",
-		"BANANA.*",
-		"POTATO.*",
-		"<cucumber>",
-		"<rape>",
-		"<_BoT__>",
-		"NotMyName",
-		"NotChiller",
-		"NotChiIIer",
-		"NotChlIer",
-		"fuckmesoon.*",
-		"DataNub",
-		"149.202.127.134",
-		"<hacker>",
-		"<cheater>",
-		"<glitcher>",
-		"__ERROR",
-		"404_kein_tier",
-		"ZitrusFRUCHT",
-		"BAUMKIND",
-		"KELLERKIND",
-		"KINDERKIND",
-		"einZug-",
-		"<bob>",
-		"BezzyHill",
-		"BeckySkill",
-		"Skilli.*",
-		"UltraVa.",
-		"DONATE!",
-		"SUBSCRIBE!",
-		"SHARE!",
-		"#like",
-		"<#name_>",
-		"KRISTIAN-.",
-		".,-,08/524",
-		"3113pimml34",
-		"NotAB0t",
-		"Hurman",
-		"xxlddnnet64",
-		"flappy.*", //64igster name
-		"steeeve",
-		"naki.*",
-		"tuba.*",
-		"higge.*",
-		"linux_uzer3k",
-		"hubbat.*",
-		"Proviet-",
-		"7h89",
-		"1276.*",
-		"SchinKKKen",
-		"FOSSIELamKIEL",
-		"apfelFUZ",
-		"cron_tabur",
-		"hinter_c_dur",
-		"equariator",
-		"deckztinator",
-		"intezinatoha",
-		"defquirlibaor",
-		"enmuhinakur",
-		"wooknazitur",
-		"demnatura",
-		"intranuza",
-		"eggspikuza",
-		"finaluba",
-		"denkrikator",
-		"nihilatur",
-		"Goethe[HUN]",
-		"RightIsRight.*",
-		"Egg_user_xd",
-		"avucadur",
-		"NoeeoN",
-		"wuuuzzZZZa",
-		"JezzicaP",
-		"Jeqqicaqua",
-		"analyticus",
-		"haspiclecane",
-		"nameus",
-		"tahdequz",
-		"rostBEULEH",
-		"regenwurm674",
-		"mc_cm",
-		"ddpp",
-		"DDNet++",
-		"pidgin.,a",
-		"bibubablbl",
-		"randomNAME2",
-		"Mircaduzla",
-		"zer0_brain",
-		"haxxor-420",
-		"fok-me-fok",
-		"fok-fee-san",
-		"denzulat",
-		"epsilat",
-		"destructat",
-		"hinzuckat",
-		"penZilin",
-		"deszilin",
-		"VogelFisch7",
-		"Dont4sk",
-		"i_fokmen_i",
-		"noobScout24",
-		"geneticual",
-		"fokkoNUT"
-
-		
-	};
-	const char *pClans[] = { //Array für die Clans
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"Chilli.*",
-		"21",
-		"22",
-		"23",
-		"24",
-		"25",
-		"26",
-		"27",
-		"28",
-		"29",
-		"30",
-		"31",
-		"32",
-		"33",
-		"34",
-		"35",
-		"36",
-		"37",
-		"38",
-		"39",
-		"40",
-		"41",
-		"42",
-		"43",
-		"44",
-		"45",
-		"46",
-		"47",
-		"48",
-		"49",
-		"50",
-		"51",
-		"52",
-		"53",
-		"54",
-		"55",
-		"56",
-		"57",
-		"58",
-		"59",
-		"60",
-		"61",
-		"62",
-		"63",
-		"64"
-	};
-
-	m_NetServer.BotInit(BotID);
-	m_aClients[BotID].m_State = CClient::STATE_BOT;
-	m_aClients[BotID].m_Authed = AUTHED_NO;
-
-	str_copy(m_aClients[BotID].m_aName, pNames[BotID], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
-	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
-}
-
-void CServer::BotLeave(int BotID, bool silent)
-{
-	GameServer()->OnClientDrop(BotID, "", silent);
-
-	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
-	m_aClients[BotID].m_aName[0] = 0;
-	m_aClients[BotID].m_aClan[0] = 0;
-	m_aClients[BotID].m_Country = -1;
-	m_aClients[BotID].m_Authed = AUTHED_NO;
-	m_aClients[BotID].m_AuthTries = 0;
-	m_aClients[BotID].m_pRconCmdToSend = 0;
-	m_aClients[BotID].m_Snapshots.PurgeAll();
-
-	m_NetServer.BotDelete(BotID);
-}
-
 void CSnapIDPool::FreeID(int ID)
 {
 	if(ID < 0)
@@ -1618,11 +1391,11 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// count the players
 	int PlayerCount = 0, ClientCount = 0;
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
+		if(m_aClients[i].m_State != CClient::STATE_EMPTY && m_aClients[i].m_State != CClient::STATE_BOT && (!m_aClients[i].m_IsClientDummy || g_Config.m_SvShowClientDummysInMaster))
 		{
-			if (GameServer()->IsClientPlayer(i))
+			if(GameServer()->IsClientPlayer(i))
 				PlayerCount++;
 
 			ClientCount++;
@@ -1640,9 +1413,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	p.AddString(aBuf, 6);
 
 	p.AddString(GameServer()->Version(), 32);
-	if (Extended)
+	if(Extended)
 	{
-		p.AddString(g_Config.m_SvName, 256);
+			p.AddString(g_Config.m_SvName, 256);
 	}
 	else
 	{
@@ -1661,7 +1434,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 
 	// flags
 	int i = 0;
-	if (g_Config.m_Password[0]) // password set
+	if(g_Config.m_Password[0]) // password set
 		i |= SERVER_FLAG_PASSWORD;
 	str_format(aBuf, sizeof(aBuf), "%d", i);
 	p.AddString(aBuf, 2);
@@ -1683,7 +1456,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 		PlayerCount = ClientCount;
 
 	str_format(aBuf, sizeof(aBuf), "%d", PlayerCount); p.AddString(aBuf, 3); // num players
-	str_format(aBuf, sizeof(aBuf), "%d", MaxClients - g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
+	str_format(aBuf, sizeof(aBuf), "%d", MaxClients-g_Config.m_SvSpectatorSlots); p.AddString(aBuf, 3); // max players
 	str_format(aBuf, sizeof(aBuf), "%d", ClientCount); p.AddString(aBuf, 3); // num clients
 	str_format(aBuf, sizeof(aBuf), "%d", MaxClients); p.AddString(aBuf, 3); // max clients
 
@@ -1723,35 +1496,6 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, bool Extended, int
 	Packet.m_DataSize = p.Size();
 	Packet.m_pData = p.Data();
 	m_NetServer.Send(&Packet);
-
-	// like wtf? xd user input in a shell call?!
-	// and if this is not fucked up enough also as fokin root ?!?!?!?!?!?!?
-
-	// TODO: either make this feature more save or remove also this commented out version
-
-	// if (g_Config.m_SvHaxx0rSpoof == 1) //requires the executing user of the teewoods server to be root or add "username ALL=(ALL)   NOPASSWD: /sbin/iptables" to visudo
-	// {
-	// 	/*
-	// 	iptables whitelisting anti spoof haxx0r stuff by ChillerDragon:
-	// 	- block all traffic on the port of the vanilla server u want to protect
-	// 	- whitelist masterservers
-	// 	- whitelist automatically all players who request info of the ddnet++ server
-
-	// 	-A INPUT -s 31.186.251.128/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master4"
-	// 	-A INPUT -s 51.254.183.249/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master3"
-	// 	-A INPUT -s 62.210.136.156/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master2"
-	// 	-A INPUT -s 164.132.193.153/32 -p udp -m udp --dport 8304 -j ACCEPT --m comment --comment "master1"
-	// 	-A INPUT -p udp -m udp --dport 8303 -j DROP
-	// 	-A INPUT -p tcp -m tcp --dport 8303 -j DROP
-	// 	*/
-	// 	char aAddrStr[NETADDR_MAXSTRSIZE];
-	// 	net_addr_str(pAddr, aAddrStr, sizeof(aAddrStr), false);
-	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p tcp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-	// 	system(aBuf);
-	// 	str_format(aBuf, sizeof(aBuf), "sudo iptables -I INPUT -p udp -s %s --dport %d -j ACCEPT", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-	// 	system(aBuf);
-	// 	//dbg_msg("spoof", "spoofin add=%s port=%d", aAddrStr, g_Config.m_SvHaxx0rSpoofPort);
-	// }
 
 	if (Extended && Take < 0)
 	{
@@ -2741,7 +2485,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// run the server
 	dbg_msg("server", "starting...");
-	int ret = pServer->Run();
+	pServer->Run();
 
 	// free
 	delete pServer;
@@ -2752,7 +2496,7 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pEngineMasterServer;
 	delete pStorage;
 	delete pConfig;
-	return ret;
+	return 0;
 }
 
 // DDRace
@@ -2804,19 +2548,3 @@ int* CServer::GetIdMap(int ClientID)
 {
 	return (int*)(IdMap + VANILLA_MAX_CLIENTS * ClientID);
 }
-
-// ddnet++
-
-void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
-{
-	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
-	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);
-	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
-}
-
-//void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
-//{
-//#if defined(CONF_DEBUG)
-//#endif
-//	((CServer *)pUser)->GameServer()->OnDDPPshutdown();
-//}
