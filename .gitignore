@@ -9,6 +9,7 @@ SDL.dll
 SDL2.dll
 freetype.dll
 
+/confusables*
 /crapnet*
 /config_store*
 /config_retrieve*
@@ -86,6 +87,7 @@ wrong_login.txt
 *.cfg
 
 # TODO: remove when merge added it
+confusables
 dummy_map
 crapnet
 config_store

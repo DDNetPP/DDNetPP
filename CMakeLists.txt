@@ -891,6 +891,7 @@ set(EXPECTED_DATA
   languages/slovak.txt
   languages/spanish.txt
   languages/swedish.txt
+  languages/traditional_chinese.txt
   languages/turkish.txt
   languages/ukrainian.txt
   mapres/basic_freeze.png
@@ -1174,7 +1175,7 @@ generate_source("src/game/generated/server_data.h" "server_content_header")
 set_src(BASE GLOB_RECURSE src/base
   color.h
   confusables.c
-  confusables.h
+  confusables_data.h
   ddpp_logs.c
   ddpp_logs.h
   detect.h
@@ -1519,6 +1520,7 @@ set_src(TOOLS GLOB src/tools
   config_common.h
   config_retrieve.cpp
   config_store.cpp
+  confusables.cpp
   crapnet.cpp
   ddpp_map_chiller.cpp
   ddpp_map_gen.cpp
