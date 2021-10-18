@@ -159,7 +159,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 		m_apPlayers[id]->m_IsVanillaWeapons = false;
 		m_apPlayers[id]->m_IsVanillaCompetetive = false;
 		m_apPlayers[id]->m_IsSurvivalAlive = false;
-		m_apPlayers[id]->m_Paused = CPlayer::PAUSED_NONE;
+		m_apPlayers[id]->Pause(CPlayer::PAUSE_NONE, true);
 	}
 	else if (mode == SURVIVAL_LOBBY)
 	{
@@ -225,11 +225,11 @@ void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
 	if (AliveTees > 1)
 	{
 		pPlayer->m_SpectatorID = UpdateID == KillerID ? SurvivalGetRandomAliveID() : KillerID;
-		pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
+		pPlayer->Pause(CPlayer::PAUSE_SPEC, true);
 	}
 	else
 	{
-		pPlayer->m_Paused = CPlayer::PAUSED_NONE;
+		pPlayer->Pause(CPlayer::PAUSE_NONE, true);
 	}
 }
 
@@ -282,7 +282,7 @@ void CGameContext::SurvivalSetGameState(int state)
 		{
 			if (m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
 			{
-				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
+				m_apPlayers[i]->Pause(CPlayer::PAUSE_NONE, true);
 			}
 		}
 	}
@@ -299,7 +299,7 @@ void CGameContext::SurvivalSetGameState(int state)
 					SaveCosmetics(i);
 					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
 				}
-				m_apPlayers[i]->m_Paused = CPlayer::PAUSED_NONE;
+				m_apPlayers[i]->Pause(CPlayer::PAUSE_NONE, true);
 				SetPlayerSurvival(i, SURVIVAL_INGAME);
 			}
 		}

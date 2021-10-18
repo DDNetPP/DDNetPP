@@ -598,22 +598,22 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 {
 	if (ClientID == -1)
 	{
-			for(int i = 0; i < MAX_CLIENTS; ++i)
+		for(int i = 0; i < MAX_CLIENTS; ++i)
+		{
+			if (m_apPlayers[i])
 			{
-				if (m_apPlayers[i])
+				if(m_apPlayers[i]->GetCharacter())
 				{
-					if(m_apPlayers[i]->GetCharacter())
-					{
-						if (m_apPlayers[i]->GetCharacter()->m_TuneZone == Zone)
-							SendTuningParams(i, Zone);
-					}
-					else if (m_apPlayers[i]->m_TuneZone == Zone)
-					{
+					if (m_apPlayers[i]->GetCharacter()->m_TuneZone == Zone)
 						SendTuningParams(i, Zone);
-					}
+				}
+				else if (m_apPlayers[i]->m_TuneZone == Zone)
+				{
+					SendTuningParams(i, Zone);
 				}
 			}
-			return;
+		}
+		return;
 	}
 
 	CheckPureTuning();
@@ -634,50 +634,50 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 		last = 38;
 
 	for(unsigned i = 0; i < last; i++)
+	{
+		if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetCharacter())
 		{
-			if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetCharacter())
+			if((i==31) // collision
+			&& (m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO
+			 || m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOCOLL))
 			{
-				if((i==31) // collision
-				&& (m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO
-				 || m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOCOLL))
-				{
-					Msg.AddInt(0);
-				}
-				else if((i==32) // hooking
-				&& (m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO
-				 || m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHOOK))
-				{
-					Msg.AddInt(0);
-				}
-				else if((i==3) // ground jump impulse
-				&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOJUMP)
-				{
-					Msg.AddInt(0);
-				}
-				else if((i==33) // jetpack
-				&& !(m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_JETPACK))
-				{
-					Msg.AddInt(0);
-				}
-				else if((i==12) // gravity for 420 trolling
-				&& m_apPlayers[ClientID]->m_TROLL420)
-				{
-					Msg.AddInt(-1000000);
-				}
-				else if((i==36) // hammer hit
-				&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
-				{
-					Msg.AddInt(0);
-				}
-				else
-				{
-					Msg.AddInt(pParams[i]);
-				}
+				Msg.AddInt(0);
+			}
+			else if((i==32) // hooking
+			&& (m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_SOLO
+			 || m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHOOK))
+			{
+				Msg.AddInt(0);
+			}
+			else if((i==3) // ground jump impulse
+			&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOJUMP)
+			{
+				Msg.AddInt(0);
+			}
+			else if((i==33) // jetpack
+			&& !(m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_JETPACK))
+			{
+				Msg.AddInt(0);
+			}
+			else if((i==12) // gravity for 420 trolling
+			&& m_apPlayers[ClientID]->m_TROLL420)
+			{
+				Msg.AddInt(-1000000);
+			}
+			else if((i==36) // hammer hit
+			&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
+			{
+				Msg.AddInt(0);
 			}
 			else
-				Msg.AddInt(pParams[i]); // if everything is normal just send true tunings
+			{
+				Msg.AddInt(pParams[i]);
+			}
 		}
-		Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		else
+			Msg.AddInt(pParams[i]); // if everything is normal just send true tunings
+	}
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 /*
 void CGameContext::SwapTeams()
@@ -1577,7 +1577,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					}
 				}
 
-				m_LastMapVote = time_get();
 				m_VoteKick = false;
 				m_VoteSpec = false;
 			}
@@ -1585,11 +1584,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			{
 				if(!m_apPlayers[ClientID]->m_Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * 5))
 					return;
-				else if(!m_apPlayers[ClientID]->m_Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * g_Config.m_SvVoteKickTimeDelay))
+				else if(!m_apPlayers[ClientID]->m_Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * g_Config.m_SvVoteKickDelay))
 				{
 					char chatmsg[512] = {0};
 					str_format(chatmsg, sizeof(chatmsg), "There's a %d second wait time between kick votes for each player please wait %d second(s)",
-					g_Config.m_SvVoteKickTimeDelay,
+					g_Config.m_SvVoteKickDelay,
 					((m_apPlayers[ClientID]->m_Last_KickVote + (m_apPlayers[ClientID]->m_Last_KickVote*time_freq()))/time_freq())-(time_get()/time_freq())
 					);
 					SendChatTarget(ClientID, chatmsg);
@@ -1662,13 +1661,20 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				str_format(aChatmsg, sizeof(aChatmsg), "'%s' called for vote to kick '%s' (%s)", Server()->ClientName(ClientID), Server()->ClientName(KickID), aReason);
 				str_format(aDesc, sizeof(aDesc), "Kick '%s'", Server()->ClientName(KickID));
-				if (!g_Config.m_SvVoteKickBantime)
-					str_format(aCmd, sizeof(aCmd), "kick %d Kicked by vote", KickID);
+				if(!GetDDRaceTeam(ClientID))
+				{
+					if (!g_Config.m_SvVoteKickBantime)
+						str_format(aCmd, sizeof(aCmd), "kick %d Kicked by vote", KickID);
+					else
+					{
+						char aAddrStr[NETADDR_MAXSTRSIZE] = {0};
+						Server()->GetClientAddr(KickID, aAddrStr, sizeof(aAddrStr));
+						str_format(aCmd, sizeof(aCmd), "ban %s %d Banned by vote", aAddrStr, g_Config.m_SvVoteKickBantime);
+					}
+				}
 				else
 				{
-					char aAddrStr[NETADDR_MAXSTRSIZE] = {0};
-					Server()->GetClientAddr(KickID, aAddrStr, sizeof(aAddrStr));
-					str_format(aCmd, sizeof(aCmd), "ban %s %d Banned by vote", aAddrStr, g_Config.m_SvVoteKickBantime);
+					str_format(aCmd, sizeof(aCmd), "set_team_ddr %d 0", KickID);
 				}
 				m_apPlayers[ClientID]->m_Last_KickVote = time_get();
 				m_VoteKick = true;
@@ -1774,7 +1780,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 
 			//Kill Protection
-			CCharacter* pChr = pPlayer->GetCharacter();
+			CCharacter *pChr = pPlayer->GetCharacter();
 			if(pChr)
 			{
 				int CurrTime = (Server()->Tick() - pChr->m_StartTime) / Server()->TickSpeed();
@@ -1800,7 +1806,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			{
 				//if(m_pController->CanChangeTeam(pPlayer, pMsg->m_Team))
 
-				if(pPlayer->m_Paused)
+				if(pPlayer->IsPaused())
 					SendChatTarget(ClientID,"Use /pause first then you can kill");
 				else
 				{
@@ -1832,10 +1838,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(pPlayer->m_ClientVersion < Version)
 				pPlayer->m_ClientVersion = Version;
-			
+
 			if(pPlayer->m_ClientVersion >= VERSION_DDNET_GAMETICK)
 				pPlayer->m_TimerType = g_Config.m_SvDefaultTimerType;
-			
+
 			dbg_msg("ddnet", "%d using Custom Client %d", ClientID, pPlayer->m_ClientVersion);
 
 			if (Version >= 11043 && Version < 11073)
@@ -1985,7 +1991,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_LastEmote = Server()->Tick();
 
 			SendEmoticon(ClientID, pMsg->m_Emoticon);
-			CCharacter* pChr = pPlayer->GetCharacter();
+			CCharacter *pChr = pPlayer->GetCharacter();
 			if(pChr && g_Config.m_SvEmotionalTees && pPlayer->m_EyeEmote)
 			{
 				switch(pMsg->m_Emoticon)
@@ -2036,10 +2042,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			if(pPlayer->m_LastKill && pPlayer->m_LastKill+Server()->TickSpeed()*g_Config.m_SvKillDelay > Server()->Tick())
 				return;
-			if(pPlayer->m_Paused)
+			if(pPlayer->IsPaused())
 				return;
 
-			CCharacter* pChr = pPlayer->GetCharacter();
+			CCharacter *pChr = pPlayer->GetCharacter();
 			if(!pChr)
 				return;
 
@@ -2139,7 +2145,7 @@ void CGameContext::ConTuneDump(IConsole::IResult *pResult, void *pUserData)
 	{
 		float v;
 		pSelf->Tuning()->Get(i, &v);
-		str_format(aBuf, sizeof(aBuf), "%s %.2f", pSelf->Tuning()->m_apNames[i], v);
+		str_format(aBuf, sizeof(aBuf), "%s %.2f", pSelf->Tuning()->ms_apNames[i], v);
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "tuning", aBuf);
 	}
 }
@@ -2176,7 +2182,7 @@ void CGameContext::ConTuneDumpZone(IConsole::IResult *pResult, void *pUserData)
 		{
 			float v;
 			pSelf->TuningList()[List].Get(i, &v);
-			str_format(aBuf, sizeof(aBuf), "zone %d: %s %.2f", List, pSelf->TuningList()[List].m_apNames[i], v);
+			str_format(aBuf, sizeof(aBuf), "zone %d: %s %.2f", List, pSelf->TuningList()[List].ms_apNames[i], v);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "tuning", aBuf);
 		}
 	}
@@ -2355,7 +2361,7 @@ void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
 	pSelf->m_apPlayers[ClientID]->m_TeamChangeTick = pSelf->Server()->Tick()+pSelf->Server()->TickSpeed()*Delay*60;
 	pSelf->m_apPlayers[ClientID]->SetTeam(Team);
 	if(Team == TEAM_SPECTATORS)
-		pSelf->m_apPlayers[ClientID]->m_Paused = CPlayer::PAUSED_NONE;
+		pSelf->m_apPlayers[ClientID]->Pause(CPlayer::PAUSE_NONE, true);
 	// (void)pSelf->m_pController->CheckTeamBalance();
 }
 
@@ -3490,7 +3496,7 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
-	CServer* pServ = (CServer*)Server();
+	CServer *pServ = (CServer*)Server();
 	if(m_apPlayers[ClientID])
 	{
 		m_apPlayers[ClientID]->m_Authed = Level;
@@ -3571,7 +3577,7 @@ int CGameContext::ProcessSpamProtection(int ClientID)
 
 int CGameContext::GetDDRaceTeam(int ClientID)
 {
-	CGameControllerDDRace* pController = (CGameControllerDDRace*)m_pController;
+	CGameControllerDDRace *pController = (CGameControllerDDRace*)m_pController;
 	return pController->m_Teams.m_Core.Team(ClientID);
 }
 
@@ -3800,43 +3806,43 @@ void CGameContext::Converse(int ClientID, char *pStr)
 	}
 }
 
-void CGameContext::List(int ClientID, const char* filter)
+void CGameContext::List(int ClientID, const char *pFilter)
 {
-	int total = 0;
-	char buf[256];
-	int bufcnt = 0;
-	if (filter[0])
-		str_format(buf, sizeof(buf), "Listing players with \"%s\" in name:", filter);
+	int Total = 0;
+	char aBuf[256];
+	int Bufcnt = 0;
+	if (pFilter[0])
+		str_format(aBuf, sizeof(aBuf), "Listing players with \"%s\" in name:", pFilter);
 	else
-		str_format(buf, sizeof(buf), "Listing all players:", filter);
-	SendChatTarget(ClientID, buf);
+		str_format(aBuf, sizeof(aBuf), "Listing all players:", pFilter);
+	SendChatTarget(ClientID, aBuf);
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(m_apPlayers[i])
 		{
-			total++;
-			const char* name = Server()->ClientName(i);
-			if (str_find_nocase(name, filter) == NULL)
+			Total++;
+			const char *pName = Server()->ClientName(i);
+			if (str_find_nocase(pName, pFilter) == NULL)
 				continue;
-			if (bufcnt + str_length(name) + 4 > 256)
+			if (Bufcnt + str_length(pName) + 4 > 256)
 			{
-				SendChatTarget(ClientID, buf);
-				bufcnt = 0;
+				SendChatTarget(ClientID, aBuf);
+				Bufcnt = 0;
 			}
-			if (bufcnt != 0)
+			if (Bufcnt != 0)
 			{
-				str_format(&buf[bufcnt], sizeof(buf) - bufcnt, ", %s", name);
-				bufcnt += 2 + str_length(name);
+				str_format(&aBuf[Bufcnt], sizeof(aBuf) - Bufcnt, ", %s", pName);
+				Bufcnt += 2 + str_length(pName);
 			}
 			else
 			{
-				str_format(&buf[bufcnt], sizeof(buf) - bufcnt, "%s", name);
-				bufcnt += str_length(name);
+				str_format(&aBuf[Bufcnt], sizeof(aBuf) - Bufcnt, "%s", pName);
+				Bufcnt += str_length(pName);
 			}
 		}
 	}
-	if (bufcnt != 0)
-		SendChatTarget(ClientID, buf);
-	str_format(buf, sizeof(buf), "%d players online", total);
-	SendChatTarget(ClientID, buf);
+	if (Bufcnt != 0)
+		SendChatTarget(ClientID, aBuf);
+	str_format(aBuf, sizeof(aBuf), "%d players online", Total);
+	SendChatTarget(ClientID, aBuf);
 }

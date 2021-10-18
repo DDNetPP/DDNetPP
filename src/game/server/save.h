@@ -9,7 +9,7 @@ class CSaveTee
 public:
 	CSaveTee();
 	~CSaveTee();
-	void save(CCharacter* pchr, int TimePenalty = 1);
+	void save(CCharacter* pchr);
 	void load(CCharacter* pchr, int Team);
 	char* GetString();
 	int LoadString(char* String);

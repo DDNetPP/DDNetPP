@@ -113,16 +113,16 @@ void dbg_break()
 }
 
 #if !defined(CONF_PLATFORM_MACOSX)
-#define QUEUE_SIZE 16
+#define QUEUE_SIZE 64
 
 typedef struct
 {
 	char q[QUEUE_SIZE][1024*4];
 	int begin;
 	int end;
+	int skipped;
 	SEMAPHORE mutex;
 	SEMAPHORE notempty;
-	SEMAPHORE notfull;
 } Queue;
 
 static int dbg_msg_threaded = 0;
@@ -142,21 +142,24 @@ void dbg_msg_thread(void *v)
 {
 	char str[1024*4];
 	int i;
-	int f;
 	while(1)
 	{
 		semaphore_wait(&log_queue.notempty);
 		semaphore_wait(&log_queue.mutex);
-		f = queue_full(&log_queue);
 
-		str_copy(str, log_queue.q[log_queue.begin], sizeof(str));
+		if(queue_empty(&log_queue))
+		{
+			str_format(str, sizeof(str), "Skipped %d log messages because of full queue.", log_queue.skipped);
+			log_queue.skipped = 0;
+		}
+		else
+		{
+			str_copy(str, log_queue.q[log_queue.begin], sizeof(str));
 
-		log_queue.begin = (log_queue.begin + 1) % QUEUE_SIZE;
+			log_queue.begin = (log_queue.begin + 1) % QUEUE_SIZE;
+		}
 
-		if(f)
-			semaphore_signal(&log_queue.notfull);
-
-		if(!queue_empty(&log_queue))
+		if(!queue_empty(&log_queue) || log_queue.skipped > 0)
 			semaphore_signal(&log_queue.notempty);
 
 		semaphore_signal(&log_queue.mutex);
@@ -174,11 +177,10 @@ void dbg_enable_threaded()
 	q = &log_queue;
 	q->begin = 0;
 	q->end = 0;
+	q->skipped = 0;
 	semaphore_init(&q->mutex);
 	semaphore_init(&q->notempty);
-	semaphore_init(&q->notfull);
 	semaphore_signal(&q->mutex);
-	semaphore_signal(&q->notfull);
 
 	dbg_msg_threaded = 1;
 
@@ -212,31 +214,34 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 #if !defined(CONF_PLATFORM_MACOSX)
 	if(dbg_msg_threaded)
 	{
-		int e;
-		semaphore_wait(&log_queue.notfull);
 		semaphore_wait(&log_queue.mutex);
-		e = queue_empty(&log_queue);
 
-		str_format(log_queue.q[log_queue.end], sizeof(log_queue.q[log_queue.end]), "[%s][%s]: ", timestr, sys);
+		if(queue_full(&log_queue))
+		{
+			log_queue.skipped++;
+		}
+		else
+		{
+			int e = queue_empty(&log_queue);
 
-		len = strlen(log_queue.q[log_queue.end]);
-		msg = (char *)log_queue.q[log_queue.end] + len;
+			str_format(log_queue.q[log_queue.end], sizeof(log_queue.q[log_queue.end]), "[%s][%s]: ", timestr, sys);
 
-		va_start(args, fmt);
+			len = strlen(log_queue.q[log_queue.end]);
+			msg = (char *)log_queue.q[log_queue.end] + len;
+
+			va_start(args, fmt);
 #if defined(CONF_FAMILY_WINDOWS)
-		_vsnprintf(msg, sizeof(log_queue.q[log_queue.end])-len, fmt, args);
+			_vsnprintf(msg, sizeof(log_queue.q[log_queue.end])-len, fmt, args);
 #else
-		vsnprintf(msg, sizeof(log_queue.q[log_queue.end])-len, fmt, args);
+			vsnprintf(msg, sizeof(log_queue.q[log_queue.end])-len, fmt, args);
 #endif
-		va_end(args);
+			va_end(args);
 
-		log_queue.end = (log_queue.end + 1) % QUEUE_SIZE;
+			log_queue.end = (log_queue.end + 1) % QUEUE_SIZE;
 
-		if(e)
-			semaphore_signal(&log_queue.notempty);
-
-		if(!queue_full(&log_queue))
-			semaphore_signal(&log_queue.notfull);
+			if(e)
+				semaphore_signal(&log_queue.notempty);
+		}
 
 		semaphore_signal(&log_queue.mutex);
 	}

@@ -699,7 +699,7 @@ void IGameController::Snap(int SnappingClient)
 		{
 			pGameInfoObj->m_RoundStartTick = Server()->Tick()-500001;
 		}
-		else if ((pPlayer->GetTeam() == -1 || pPlayer->m_Paused)
+		else if((pPlayer->GetTeam() == -1 || pPlayer->IsPaused())
 			&& pPlayer->m_SpectatorID != SPEC_FREEVIEW
 			&& (pPlayer2 = GameServer()->m_apPlayers[pPlayer->m_SpectatorID]))
 		{

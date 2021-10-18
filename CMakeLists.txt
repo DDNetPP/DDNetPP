@@ -1051,6 +1051,7 @@ set(EXPECTED_DATA
   editor/cursor.png
   editor/ddmax_freeze.rules
   editor/ddnet_tiles.rules
+  editor/ddnet_walls.rules
   editor/desert_main.rules
   editor/entities.png
   editor/entities_clear/ddnet.png

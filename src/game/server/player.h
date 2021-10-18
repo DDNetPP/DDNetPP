@@ -85,6 +85,7 @@ public:
 	int m_LastCommands[4];
 	int m_LastCommandPos;
 	int m_LastWhisperTo;
+	int m_LastInvited;
 
 	int m_SendVoteIndex;
 
@@ -141,15 +142,17 @@ private:
 	int m_ClientID;
 	int m_Team;
 
+	int m_Paused;
+	int64 m_ForcePauseTime;
+	int64 m_LastPause;
 
 	// DDRace
 public:
 	enum
 	{
-		PAUSED_NONE=0,
-		PAUSED_SPEC,
-		PAUSED_PAUSED,
-		PAUSED_FORCE
+		PAUSE_NONE=0,
+		PAUSE_PAUSED,
+		PAUSE_SPEC
 	};
 	
 	enum
@@ -160,14 +163,15 @@ public:
 		TIMERTYPE_NONE,
 	};
 
-	int m_Paused;
 	bool m_DND;
 	int64 m_FirstVoteTick;
-	int64 m_NextPauseTick;
 	char m_TimeoutCode[64];
 
 	void ProcessPause();
-	int m_ForcePauseTime;
+	int Pause(int State, bool Force);
+	int ForcePause(int Time);
+	int IsPaused();
+
 	bool IsPlaying();
 	int64 m_Last_KickVote;
 	int64 m_Last_Team;

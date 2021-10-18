@@ -1838,15 +1838,15 @@ void CCharacter::Snap(int SnappingClient)
 		CCharacter* SnapChar = GameServer()->GetPlayerChar(SnappingClient);
 		CPlayer* SnapPlayer = GameServer()->m_apPlayers[SnappingClient];
 
-		if ((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->m_Paused) && SnapPlayer->m_SpectatorID != -1
+		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1
 			&& !CanCollide(SnapPlayer->m_SpectatorID) && !SnapPlayer->m_ShowOthers)
 			return;
 
-		if (SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->m_Paused && SnapChar && !SnapChar->m_Super
+		if( SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar && !SnapChar->m_Super
 			&& !CanCollide(SnappingClient) && !SnapPlayer->m_ShowOthers)
 			return;
 
-		if ((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->m_Paused) && SnapPlayer->m_SpectatorID == -1
+		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID == -1
 			&& !CanCollide(SnappingClient) && SnapPlayer->m_SpecTeam)
 			return;
 	}
@@ -2026,7 +2026,7 @@ void CCharacter::Snap(int SnappingClient)
 		}
 	}
 
-	if (GetPlayer()->m_Afk || GetPlayer()->m_Paused)
+	if(GetPlayer()->m_Afk || GetPlayer()->IsPaused())
 		pCharacter->m_Emote = EMOTE_BLINK;
 
 	if (pCharacter->m_Emote == EMOTE_NORMAL)

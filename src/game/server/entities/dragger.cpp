@@ -320,7 +320,7 @@ void CDragger::Snap(int SnappingClient)
 		CCharacter * Char = GameServer()->GetPlayerChar(SnappingClient);
 
 		if(SnappingClient > -1 && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == -1
-					|| GameServer()->m_apPlayers[SnappingClient]->m_Paused)
+					|| GameServer()->m_apPlayers[SnappingClient]->IsPaused())
 				&& GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID != SPEC_FREEVIEW)
 			Char = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID);
 
@@ -365,17 +365,17 @@ void CDragger::Snap(int SnappingClient)
 
 		if (!obj)
 			continue;
-		obj->m_X = (int) m_Pos.x;
-		obj->m_Y = (int) m_Pos.y;
+		obj->m_X = (int)m_Pos.x;
+		obj->m_Y = (int)m_Pos.y;
 		if (Target)
 		{
-			obj->m_FromX = (int) Target->m_Pos.x;
-			obj->m_FromY = (int) Target->m_Pos.y;
+			obj->m_FromX = (int)Target->m_Pos.x;
+			obj->m_FromY = (int)Target->m_Pos.y;
 		}
 		else
 		{
-			obj->m_FromX = (int) m_Pos.x;
-			obj->m_FromY = (int) m_Pos.y;
+			obj->m_FromX = (int)m_Pos.x;
+			obj->m_FromY = (int)m_Pos.y;
 		}
 
 		int StartTick = m_EvalTick;

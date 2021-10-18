@@ -64,7 +64,7 @@ void CPickup::Tick()
 			if(DDPPIntersect(pChr, &RespawnTime))
 				continue;
 			if(m_Layer == LAYER_SWITCH && !GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pChr->Team()]) continue;
-			bool sound = false;
+			bool Sound = false;
 			// player picked us up, is someone was hooking us, let them go
 			switch (m_Type)
 			{
@@ -82,14 +82,14 @@ void CPickup::Tick()
 							{
 								pChr->SetWeaponGot(i, false);
 								pChr->SetWeaponAmmo(i, 0);
-								sound = true;
+								Sound = true;
 							}
 						}
 					}
 					pChr->SetNinjaActivationDir(vec2(0,0));
 					pChr->SetNinjaActivationTick(-500);
 					pChr->SetNinjaCurrentMoveTime(0);
-					if (sound)
+					if (Sound)
 					{
 						pChr->SetLastWeapon(WEAPON_GUN);
 						GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
@@ -170,7 +170,7 @@ void CPickup::Snap(int SnappingClient)
 	CCharacter *Char = GameServer()->GetPlayerChar(SnappingClient);
 
 	if(SnappingClient > -1 && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == -1
-				|| GameServer()->m_apPlayers[SnappingClient]->m_Paused)
+				|| GameServer()->m_apPlayers[SnappingClient]->IsPaused())
 			&& GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID != SPEC_FREEVIEW)
 		Char = GameServer()->GetPlayerChar(GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID);
 

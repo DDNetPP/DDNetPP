@@ -74,7 +74,7 @@ struct CSqlExecData
 	bool m_ReadOnly;
 
 	// keeps track of score-threads
-	static int ms_InstanceCount;
+	volatile static int ms_InstanceCount;
 };
 
 struct CSqlPlayerData : CSqlData
@@ -90,6 +90,7 @@ struct CSqlMapData : CSqlData
 
 	sqlstr::CSqlString<128> m_RequestedMap;
 	char m_aFuzzyMap[128];
+	sqlstr::CSqlString<MAX_NAME_LENGTH> m_Name;
 };
 
 struct CSqlScoreData : CSqlData

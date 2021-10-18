@@ -31,7 +31,7 @@ void CDebugHud::RenderNetCorrections()
 	float Velspeed = length(vec2(m_pClient->m_Snap.m_pLocalCharacter->m_VelX/256.0f, m_pClient->m_Snap.m_pLocalCharacter->m_VelY/256.0f))*50;
 	float Ramp = VelocityRamp(Velspeed, m_pClient->m_Tuning[g_Config.m_ClDummy].m_VelrampStart, m_pClient->m_Tuning[g_Config.m_ClDummy].m_VelrampRange, m_pClient->m_Tuning[g_Config.m_ClDummy].m_VelrampCurvature);
 
-	const char *paStrings[] = {"velspeed:", "velspeed*ramp:", "ramp:", "Pos", " x:", " y:", "netobj corrections", " num:", " on:"};
+	const char *paStrings[] = {"velspeed:", "velspeed*ramp:", "ramp:", "Pos", " x:", " y:", "angle:", "netobj corrections", " num:", " on:"};
 	const int Num = sizeof(paStrings)/sizeof(char *);
 	const float LineHeight = 6.0f;
 	const float Fontsize = 5.0f;
@@ -54,11 +54,15 @@ void CDebugHud::RenderNetCorrections()
 	w = TextRender()->TextWidth(0, Fontsize, aBuf, -1);
 	TextRender()->Text(0, x-w, y, Fontsize, aBuf, -1);
 	y += 2*LineHeight;
-	str_format(aBuf, sizeof(aBuf), "%d", m_pClient->m_Snap.m_pLocalCharacter->m_X/32);
+	str_format(aBuf, sizeof(aBuf), "%.2f", static_cast<float>(m_pClient->m_Snap.m_pLocalCharacter->m_X)/32.0f);
 	w = TextRender()->TextWidth(0, Fontsize, aBuf, -1);
 	TextRender()->Text(0, x-w, y, Fontsize, aBuf, -1);
 	y += LineHeight;
-	str_format(aBuf, sizeof(aBuf), "%d", m_pClient->m_Snap.m_pLocalCharacter->m_Y/32);
+	str_format(aBuf, sizeof(aBuf), "%.2f", static_cast<float>(m_pClient->m_Snap.m_pLocalCharacter->m_Y)/32.0f);
+	w = TextRender()->TextWidth(0, Fontsize, aBuf, -1);
+	TextRender()->Text(0, x-w, y, Fontsize, aBuf, -1);
+	y += LineHeight;
+	str_format(aBuf, sizeof(aBuf), "%d", m_pClient->m_Snap.m_pLocalCharacter->m_Angle);
 	w = TextRender()->TextWidth(0, Fontsize, aBuf, -1);
 	TextRender()->Text(0, x-w, y, Fontsize, aBuf, -1);
 	y += 2*LineHeight;
@@ -108,7 +112,7 @@ void CDebugHud::RenderTuning()
 		TextRender()->Text(0x0, x-w, y+Count*6, 5, aBuf, -1);
 
 		x += 5.0f;
-		TextRender()->Text(0x0, x, y+Count*6, 5, m_pClient->m_Tuning[g_Config.m_ClDummy].m_apNames[i], -1);
+		TextRender()->Text(0x0, x, y+Count*6, 5, m_pClient->m_Tuning[g_Config.m_ClDummy].ms_apNames[i], -1);
 
 		Count++;
 	}

@@ -37,6 +37,7 @@ void CChat::OnReset()
 		m_aLines[i].m_Time = 0;
 		m_aLines[i].m_aText[0] = 0;
 		m_aLines[i].m_aName[0] = 0;
+		m_aLines[i].m_Friend = false;
 	}
 
 	m_ReverseTAB = false;
@@ -539,18 +540,13 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 				Highlighted = true;
 			}
 			else
-			{
-				if(g_Config.m_ClMessageFriend && m_pClient->m_aClients[ClientID].m_Friend)
-				{
-					str_format(m_aLines[m_CurrentLine].m_aName, sizeof(m_aLines[m_CurrentLine].m_aName), "♥ %s", m_pClient->m_aClients[ClientID].m_aName);
-					m_aLines[m_CurrentLine].m_NameColor = 2;
-				}
-				else
-					str_copy(m_aLines[m_CurrentLine].m_aName, m_pClient->m_aClients[ClientID].m_aName, sizeof(m_aLines[m_CurrentLine].m_aName));
-			}
+				str_copy(m_aLines[m_CurrentLine].m_aName, m_pClient->m_aClients[ClientID].m_aName, sizeof(m_aLines[m_CurrentLine].m_aName));
 
 			str_format(m_aLines[m_CurrentLine].m_aText, sizeof(m_aLines[m_CurrentLine].m_aText), ": %s", pLine);
+			m_aLines[m_CurrentLine].m_Friend = m_pClient->m_aClients[ClientID].m_Friend;
 		}
+
+		m_aLines[m_CurrentLine].m_Friend = ClientID >= 0 ? m_pClient->m_aClients[ClientID].m_Friend : false;
 
 		char aBuf[1024];
 		str_format(aBuf, sizeof(aBuf), "%s%s", m_aLines[m_CurrentLine].m_aName, m_aLines[m_CurrentLine].m_aText);
@@ -698,15 +694,15 @@ void CChat::OnRender()
 	x += 120.0f;
 #endif
 
-	int64 Now = time_get();
-	float LineWidth = m_pClient->m_pScoreboard->Active() ? 90.0f : 200.0f;
-	float HeightLimit = m_pClient->m_pScoreboard->Active() ? 230.0f : m_Show ? 50.0f : 200.0f;
-	float Begin = x;
 #if defined(__ANDROID__)
 	float FontSize = 10.0f;
 #else
 	float FontSize = 6.0f;
 #endif
+	int64 Now = time_get();
+	float LineWidth = m_pClient->m_pScoreboard->Active() ? 90.0f : 200.0f;
+	float HeightLimit = m_pClient->m_pScoreboard->Active() ? 230.0f : m_Show ? 50.0f : 200.0f;
+	float Begin = x;
 	CTextCursor Cursor;
 	int OffsetType = m_pClient->m_pScoreboard->Active() ? 1 : 0;
 	for(int i = 0; i < MAX_LINES; i++)
@@ -734,6 +730,7 @@ void CChat::OnRender()
 		{
 			TextRender()->SetCursor(&Cursor, Begin, 0.0f, FontSize, 0);
 			Cursor.m_LineWidth = LineWidth;
+			TextRender()->TextEx(&Cursor, "♥ ", -1);
 			TextRender()->TextEx(&Cursor, aName, -1);
 			TextRender()->TextEx(&Cursor, m_aLines[r].m_aText, -1);
 			m_aLines[r].m_YOffset[OffsetType] = Cursor.m_Y + Cursor.m_FontSize;
@@ -749,6 +746,13 @@ void CChat::OnRender()
 		// reset the cursor
 		TextRender()->SetCursor(&Cursor, Begin, y, FontSize, TEXTFLAG_RENDER);
 		Cursor.m_LineWidth = LineWidth;
+
+		if(g_Config.m_ClMessageFriend)
+		{
+			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageFriendHue / 255.0f, g_Config.m_ClMessageFriendSat / 255.0f, g_Config.m_ClMessageFriendLht / 255.0f));
+			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, m_aLines[r].m_Friend ? Blend : 0); //Less ugly hack to align messages
+			TextRender()->TextEx(&Cursor, "♥ ", -1);
+		}
 
 		// render name
 		if (m_aLines[r].m_ClientID == -1) // system
@@ -772,11 +776,6 @@ void CChat::OnRender()
 			TextRender()->TextColor(0.7f, 0.7f, 1.0f, Blend); // blue
 		else if(m_aLines[r].m_NameColor == TEAM_SPECTATORS)
 			TextRender()->TextColor(0.75f, 0.5f, 0.75f, Blend); // spectator
-		else if(m_aLines[r].m_NameColor == 2)
-		{
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageFriendHue / 255.0f, g_Config.m_ClMessageFriendSat / 255.0f, g_Config.m_ClMessageFriendLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, Blend);
-		}
 		else if(m_aLines[r].m_ClientID >= 0 && g_Config.m_ClChatTeamColors && m_pClient->m_Teams.Team(m_aLines[r].m_ClientID))
 		{
 			vec3 rgb = HslToRgb(vec3(m_pClient->m_Teams.Team(m_aLines[r].m_ClientID) / 64.0f, 1.0f, 0.75f));

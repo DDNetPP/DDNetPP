@@ -86,7 +86,7 @@ public:
 	int IsCheckpoint(int Index);
 	int IsFCheckpoint(int Index);
 
-	int IsMover(int x, int y, int* Flags);
+	int IsMover(int x, int y, int *pFlags);
 
 	vec2 CpSpeed(int index, int Flags = 0);
 
@@ -127,7 +127,7 @@ private:
 
 public:
 
-	SSwitchers* m_pSwitchers;
+	SSwitchers *m_pSwitchers;
 };
 
 void ThroughOffset(vec2 Pos0, vec2 Pos1, int *Ox, int *Oy);

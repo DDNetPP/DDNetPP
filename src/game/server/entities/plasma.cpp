@@ -96,18 +96,18 @@ void CPlasma::Snap(int SnappingClient)
 			&& (!Tick))
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->m_Paused) && SnapPlayer->m_SpectatorID != -1
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1
 		&& GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID)
 		&& GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID)->Team() != m_ResponsibleTeam
 		&& !SnapPlayer->m_ShowOthers)
 		return;
 
-	if(SnapPlayer && SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->m_Paused && SnapChar
+	if(SnapPlayer && SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar
 		&& SnapChar && SnapChar->Team() != m_ResponsibleTeam
 		&& !SnapPlayer->m_ShowOthers)
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->m_Paused) && SnapPlayer->m_SpectatorID == -1
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID == -1
 		&& SnapChar
 		&& SnapChar->Team() != m_ResponsibleTeam
 		&& SnapPlayer->m_SpecTeam)
@@ -119,9 +119,9 @@ void CPlasma::Snap(int SnappingClient)
 	if(!pObj)
 		return;
 
-	pObj->m_X = (int) m_Pos.x;
-	pObj->m_Y = (int) m_Pos.y;
-	pObj->m_FromX = (int) m_Pos.x;
-	pObj->m_FromY = (int) m_Pos.y;
+	pObj->m_X = (int)m_Pos.x;
+	pObj->m_Y = (int)m_Pos.y;
+	pObj->m_FromX = (int)m_Pos.x;
+	pObj->m_FromY = (int)m_Pos.y;
 	pObj->m_StartTick = m_EvalTick;
 }

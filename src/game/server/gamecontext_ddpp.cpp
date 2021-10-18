@@ -1432,7 +1432,7 @@ void CGameContext::SaveMapPlayerData()
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
 		CSaveTee savetee;
-		savetee.save(pChr, 0); // save without time penalty
+		savetee.save(pChr);
 		fwrite(&savetee, sizeof(savetee), 1, pFile);
 
 		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_TimeoutCode);

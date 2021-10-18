@@ -245,6 +245,34 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 							&Button,
 							g_Config.m_ClAutoStatboardScreenshotMax/1000.0f)*1000.0f+0.1f);
 		}
+
+		// auto statboard csv
+		{
+			Right.HSplitTop(20.0f, 0, &Right); //
+			Right.HSplitTop(20.0f, 0, &Right); // Make some distance so it looks more natural
+			Right.HSplitTop(20.0f, &Button, &Right);
+			if (DoButton_CheckBox(&g_Config.m_ClAutoCSV,
+				Localize("Automatically create statboard csv"),
+				g_Config.m_ClAutoCSV, &Button))
+			{
+				g_Config.m_ClAutoCSV ^= 1;
+			}
+
+			Right.HSplitTop(10.0f, 0, &Right);
+			Right.HSplitTop(20.0f, &Label, &Right);
+			Button.VSplitRight(20.0f, &Button, 0);
+			if (g_Config.m_ClAutoCSVMax)
+				str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Max CSVs"), g_Config.m_ClAutoCSVMax);
+			else
+				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max CSVs"), Localize("no limit"));
+			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
+			Right.HSplitTop(20.0f, &Button, 0);
+			Button.HMargin(2.0f, &Button);
+			g_Config.m_ClAutoCSVMax =
+				static_cast<int>(DoScrollbarH(&g_Config.m_ClAutoCSVMax,
+					&Button,
+					g_Config.m_ClAutoCSVMax / 1000.0f)*1000.0f + 0.1f);
+		}
 	}
 }
 
@@ -1318,12 +1346,13 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 {
 	static int pIDP1 = 0, pIDP2 = 0;
 	static int Page = 1;
-	CUIRect Left, Right, HUD, Messages, Button, Label, Weapon, Laser, Page1Tab, Page2Tab, Enable;
+	CUIRect Left, Right, HUD, Messages, Button, Label, Weapon, Laser, Page1Tab, Page2Tab, Enable, Heart;
 
 	MainView.HSplitTop(150.0f, &HUD, &MainView);
 
 	HUD.HSplitTop(30.0f, &Label, &HUD);
-	Label.VSplitLeft(60.0f, &Label, &Page1Tab);
+	float tw = TextRender()->TextWidth(0, 20.0f, Localize("HUD"), -1);
+	Label.VSplitLeft(tw + 10.0f, &Label, &Page1Tab);
 	Page1Tab.VSplitLeft(60.0f, &Page1Tab, 0);
 	Page1Tab.VSplitLeft(30.0f, &Page1Tab, &Page2Tab);
 
@@ -1609,21 +1638,18 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 
 			vec3 rgbf = HslToRgb(vec3(g_Config.m_ClMessageFriendHue / 255.0f, g_Config.m_ClMessageFriendSat / 255.0f, g_Config.m_ClMessageFriendLht / 255.0f));
 			TextRender()->TextColor(rgbf.r, rgbf.g, rgbf.b, 1.0f);
-			str_format(aBuf, sizeof aBuf, "♥ %s", Localize("Friend"));
-			float tw = TextRender()->TextWidth(0, 12.0f, aBuf, -1);
+			float hw = TextRender()->TextWidth(0, 12.0f, "♥ ", -1);
+			Label.VSplitLeft(hw, &Heart, &Label);
+			UI()->DoLabelScaled(&Heart, "♥ ", 12.0f, -1);
+
+			TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
+			float tw = TextRender()->TextWidth(0, 12.0f, Localize("Friend"), -1);
 			Label.VSplitLeft(tw, &Label, &Button);
-			UI()->DoLabelScaled(&Label, aBuf, 12.0f, -1);
+			UI()->DoLabelScaled(&Label, Localize("Friend"), 12.0f, -1);
 
 			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageHue / 255.0f, g_Config.m_ClMessageSat / 255.0f, g_Config.m_ClMessageLht / 255.0f));
 			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
-			char name[16];
-			str_copy(name, g_Config.m_PlayerName, sizeof(name));
-			str_format(aBuf, sizeof(aBuf), ": %s", Localize ("Look out!"));
-			while (TextRender()->TextWidth(0, 12.0f, aBuf, -1) > Button.w)
-			{
-				name[str_length(name) - 1] = 0;
-				str_format(aBuf, sizeof(aBuf), ": %s: %s", name, Localize("Look out!"));
-			}
+			str_format(aBuf, sizeof(aBuf), ": %s", Localize("Hi o/"));
 			UI()->DoLabelScaled(&Button, aBuf, 12.0f, -1);
 
 			TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1978,9 +2004,9 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	}
 
 	Left.HSplitTop(20.0f, &Button, &Left);
-	if(DoButton_CheckBox(&g_Config.m_ClShowOtherHookColl, Localize("Show other players' hook collision lines"), g_Config.m_ClShowOtherHookColl, &Button))
+	if(DoButton_CheckBox(&g_Config.m_ClShowHookCollOther, Localize("Show other players' hook collision lines"), g_Config.m_ClShowHookCollOther, &Button))
 	{
-		g_Config.m_ClShowOtherHookColl ^= 1;
+		g_Config.m_ClShowHookCollOther ^= 1;
 	}
 
 	Left.HSplitTop(20.0f, &Button, &Left);
