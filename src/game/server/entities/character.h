@@ -95,6 +95,7 @@ public:
 
 	bool GiveWeapon(int Weapon, bool Remove = false, int Ammo = -1);
 	void GiveNinja();
+	void RemoveNinja();
 
 	void SetEmote(int Emote, int Tick);
 

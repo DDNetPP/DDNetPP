@@ -503,11 +503,7 @@ void CCharacter::HandleNinja()
 	if ((Server()->Tick() - m_Ninja.m_ActivationTick) > (g_pData->m_Weapons.m_Ninja.m_Duration * Server()->TickSpeed() / 1000))
 	{
 		// time's up, return
-		m_Ninja.m_CurrentMoveTime = 0;
-		m_aWeapons[WEAPON_NINJA].m_Got = false;
-		m_Core.m_ActiveWeapon = m_LastWeapon;
-
-		SetWeapon(m_Core.m_ActiveWeapon);
+		RemoveNinja();
 		return;
 	}
 
@@ -1045,34 +1041,6 @@ void CCharacter::HandleWeapons()
 	return;
 }
 
-bool CCharacter::GiveWeapon(int Weapon, bool Remove, int Ammo)
-{
-	if(Weapon == WEAPON_NINJA)
-	{
-		// if(Remove)
-		// 	RemoveNinja();
-		// else
-			GiveNinja();
-		return true;
-	}
-
-	if(Remove)
-	{
-		if(GetActiveWeapon() == Weapon)
-			SetActiveWeapon(WEAPON_GUN);
-	}
-	else if (m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
-	{
-		m_aWeapons[Weapon].m_Ammo = Ammo;
-		if (m_FreezeTime)	//dont remove this
-			Freeze(0);		//dont remove this
-			// m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
-	}
-
-	m_aWeapons[Weapon].m_Got = !Remove;
-	return !Remove;
-}
-
 void CCharacter::GiveNinja()
 {
 	m_Ninja.m_ActivationTick = Server()->Tick();
@@ -1085,6 +1053,15 @@ void CCharacter::GiveNinja()
 
 	if (!m_aWeapons[WEAPON_NINJA].m_Got)
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_NINJA, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+}
+
+void CCharacter::RemoveNinja()
+{
+	m_Ninja.m_CurrentMoveTime = 0;
+	m_aWeapons[WEAPON_NINJA].m_Got = false;
+	m_Core.m_ActiveWeapon = m_LastWeapon;
+	
+		SetWeapon(m_Core.m_ActiveWeapon);
 }
 
 void CCharacter::SetEmote(int Emote, int Tick)
@@ -3220,14 +3197,40 @@ bool CCharacter::UnFreeze()
 	return false;
 }
 
+bool CCharacter::GiveWeapon(int Weapon, bool Remove, int Ammo)
+{
+	if(Weapon == WEAPON_NINJA)
+	{
+		// if(Remove)
+		// 	RemoveNinja();
+		// else
+			GiveNinja();
+		return true;
+	}
+
+	if(Remove)
+	{
+		if(GetActiveWeapon() == Weapon)
+			SetActiveWeapon(WEAPON_GUN);
+	}
+	else if (m_aWeapons[Weapon].m_Ammo < g_pData->m_Weapons.m_aId[Weapon].m_Maxammo || !m_aWeapons[Weapon].m_Got)
+	{
+		m_aWeapons[Weapon].m_Ammo = Ammo;
+		if (m_FreezeTime)	//dont remove this
+			Freeze(0);		//dont remove this
+			// m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
+	}
+
+	m_aWeapons[Weapon].m_Got = !Remove;
+	return !Remove;
+}
+
 void CCharacter::GiveAllWeapons()
 {
 	for (int i = WEAPON_HAMMER; i<NUM_WEAPONS - 1; i++)
 	{
-		m_aWeapons[i].m_Got = true;
-		if (!m_FreezeTime) m_aWeapons[i].m_Ammo = -1;
+		GiveWeapon(i);
 	}
-	return;
 }
 
 void CCharacter::BulletAmounts()

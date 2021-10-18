@@ -364,6 +364,7 @@ MACRO_CONFIG_INT(ClOldGunPosition, cl_old_gun_position, 0, 0, 1, CFGFLAG_SAVE|CF
 MACRO_CONFIG_INT(ClConfirmDisconnect, cl_confirm_disconnect, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Confirmation popup before disconnecting")
 MACRO_CONFIG_STR(ClTimeoutCode, cl_timeout_code, 64, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Timeout code to use")
 MACRO_CONFIG_STR(ClDummyTimeoutCode, cl_dummy_timeout_code, 64, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Dummy Timeout code to use")
+MACRO_CONFIG_STR(ClTimeoutSeed, cl_timeout_seed, 64, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Timeout seed")
 MACRO_CONFIG_STR(ClInputFifo, cl_input_fifo, 128, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Fifo file to use as input for client console")
 MACRO_CONFIG_INT(ClShowConsole, cl_show_console, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Show console window (Windows only)")
 #if defined(__ANDROID__)
@@ -375,7 +376,7 @@ MACRO_CONFIG_INT(ClConfigVersion, cl_config_version, 0, 0, 0, CFGFLAG_CLIENT|CFG
 
 // demo editor
 MACRO_CONFIG_INT(ClDemoSliceBegin, cl_demo_slice_begin, -1, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Begin marker for demo slice")
-MACRO_CONFIG_INT(ClDemoSliceEnd, cl_demo_slice_end, -1, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "End marer for demo slice")
+MACRO_CONFIG_INT(ClDemoSliceEnd, cl_demo_slice_end, -1, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "End marker for demo slice")
 MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Show speed meter on change")
 
 #endif
