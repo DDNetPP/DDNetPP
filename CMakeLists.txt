@@ -1871,6 +1871,7 @@ if(SERVER)
     db_sqlite3.h
     ddracechat.cpp
     ddracechat.h
+    ddracechat_ddpp.cpp
     ddracecommands.cpp
     ddracecommands_ddpp.cpp
     entities/character.cpp
