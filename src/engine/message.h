@@ -12,7 +12,7 @@ public:
 	CMsgPacker(int Type)
 	{
 		Reset();
-		if (Type < OFFSET_UUID)
+		if(Type < OFFSET_UUID)
 		{
 			AddInt(Type);
 		}

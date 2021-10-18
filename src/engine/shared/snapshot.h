@@ -31,8 +31,8 @@ class CSnapshot
 public:
 	enum
 	{
-		OFFSET_UUID_TYPE = 0x4000,
-		MAX_TYPE = 0x7fff,
+		OFFSET_UUID_TYPE=0x4000,
+		MAX_TYPE=0x7fff,
 		MAX_SIZE=64*1024
 	};
 

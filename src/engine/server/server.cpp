@@ -1000,7 +1000,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	CUuid Uuid;
 
 	int Result = UnpackMessageID(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
-	if (Result == UNPACKMESSAGE_ERROR)
+	if(Result == UNPACKMESSAGE_ERROR)
 	{
 		return;
 	}
@@ -1024,7 +1024,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 		}
 	}
 
-	if (Result == UNPACKMESSAGE_ANSWER)
+	if(Result == UNPACKMESSAGE_ANSWER)
 	{
 		SendMsgEx(&Packer, MSGFLAG_VITAL, ClientID, true);
 	}
@@ -1748,6 +1748,11 @@ int CServer::Run()
 		g_UuidManager.DebugDump();
 	}
 	m_AuthManager.Init();
+
+	if(g_Config.m_Debug)
+	{
+		g_UuidManager.DebugDump();
+	}
 
 	//
 	m_PrintCBIndex = Console()->RegisterPrintCallback(g_Config.m_ConsoleOutputLevel, SendRconLineAuthed, this);
@@ -2734,12 +2739,11 @@ void CServer::SnapFreeID(int ID)
 
 void *CServer::SnapNewItem(int Type, int ID, int Size)
 {
-	if (!(Type >= 0 && Type <= 0xffff))
+	if(!(Type >= 0 && Type <= 0xffff))
 	{
 		g_UuidManager.GetUuid(Type);
 	}
 	dbg_assert(ID >= 0 && ID <= 0xffff, "incorrect id");
-
 	return ID < 0 ? 0 : m_SnapshotBuilder.NewItem(Type, ID, Size);
 }
 

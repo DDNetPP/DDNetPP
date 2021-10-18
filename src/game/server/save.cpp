@@ -22,7 +22,7 @@ void CSaveTee::save(CCharacter *pChr)
 	str_copy(m_name, pChr->m_pPlayer->Server()->ClientName(pChr->m_pPlayer->GetCID()), sizeof(m_name));
 
 	m_Alive = pChr->m_Alive;
-	m_Paused = pChr->m_pPlayer->IsPaused();
+	m_Paused = abs(pChr->m_pPlayer->IsPaused());
 	m_NeededFaketuning = pChr->m_NeededFaketuning;
 
 	m_TeeFinished = pChr->Teams()->TeeFinished(pChr->m_pPlayer->GetCID());
@@ -147,6 +147,7 @@ void CSaveTee::load(CCharacter *pChr, int Team)
 	pChr->m_Core.m_Hook = m_Hook;
 	pChr->m_Core.m_Collision = m_Collision;
 	pChr->m_Core.m_ActiveWeapon = m_ActiveWeapon;
+	pChr->m_Core.m_Jumped = m_Jumped;
 	pChr->m_Core.m_JumpedTotal = m_JumpedTotal;
 	pChr->m_Core.m_Jumps = m_Jumps;
 	pChr->m_Core.m_HookPos = m_HookPos;
@@ -264,27 +265,34 @@ int CSaveTeam::load(int Team)
 	if(Team <= 0 || Team >= MAX_CLIENTS)
 		return 1;
 
-	CGameTeams* Teams = &(((CGameControllerDDRace*)m_pController)->m_Teams);
+	CGameTeams* pTeams = &(((CGameControllerDDRace*)m_pController)->m_Teams);
 
-	Teams->ChangeTeamState(Team, m_TeamState);
-	Teams->SetTeamLock(Team, m_TeamLocked);
+	if(pTeams->Count(Team) > m_MembersCount)
+		return 2;
 
 	CCharacter *pChr;
 
-	for (int i = 0; i<m_MembersCount; i++)
+	for (int i = 0; i < m_MembersCount; i++)
 	{
 		int ID = MatchPlayer(SavedTees[i].GetName());
 		if(ID == -1) // first check if team can be loaded / do not load half teams
 		{
-			return i+10; // +10 to let space for other return-values
+			return i+10; // +10 to leave space for other return-values
 		}
-		else if (m_pController->GameServer()->m_apPlayers[ID] && m_pController->GameServer()->m_apPlayers[ID]->GetCharacter() && m_pController->GameServer()->m_apPlayers[ID]->GetCharacter()->m_DDRaceState)
+		if(m_pController->GameServer()->m_apPlayers[ID] && m_pController->GameServer()->m_apPlayers[ID]->GetCharacter() && m_pController->GameServer()->m_apPlayers[ID]->GetCharacter()->m_DDRaceState)
 		{
-			return i+100; // +100 to let space for other return-values
+			return i+100; // +100 to leave space for other return-values
+		}
+		if(Team != pTeams->m_Core.Team(ID))
+		{
+			return i+200; // +100 to leave space for other return-values
 		}
 	}
 
-	for (int i = 0; i<m_MembersCount; i++)
+	pTeams->ChangeTeamState(Team, m_TeamState);
+	pTeams->SetTeamLock(Team, m_TeamLocked);
+
+	for (int i = 0; i < m_MembersCount; i++)
 	{
 		pChr = MatchCharacter(SavedTees[i].GetName(), i);
 		if(pChr)

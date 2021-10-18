@@ -362,7 +362,7 @@ function build(settings)
 	tools = {}
 	for i,v in ipairs(tools_src) do
 		toolname = PathFilename(PathBase(v))
-		tools[i] = Link(settings, toolname, Compile(settings, v), engine, zlib, pnglite, md5)
+		tools[i] = Link(settings, toolname, Compile(settings, v), engine, zlib, pnglite, md5, game_shared)
 	end
 
 	tools_ddpp = {}
@@ -380,13 +380,13 @@ function build(settings)
 	end
 
 	versionserver_exe = Link(server_settings, "versionsrv", versionserver,
-		engine, zlib, libwebsockets, md5)
+		engine, zlib, libwebsockets, md5, game_shared)
 
 	masterserver_exe = Link(server_settings, "mastersrv", masterserver,
-		engine, zlib, libwebsockets, md5)
+		engine, zlib, libwebsockets, md5, game_shared)
 
 	twping_exe = Link(server_settings, "twping", twping,
-		engine, zlib, libwebsockets, md5)
+		engine, zlib, libwebsockets, md5, game_shared)
 
 	-- make targets
 	if string.find(settings.config_name, "sql") then

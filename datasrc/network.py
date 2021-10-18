@@ -217,7 +217,7 @@ Objects = [
 		NetIntAny("m_Flags"),
 		NetIntAny("m_Version"),
 		NetIntAny("m_Flags2"),
-	], validate_size=False),
+	]),
 
 	## Events
 

@@ -353,7 +353,7 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	pPlayerInfo->m_Team = (m_ClientVersion < VERSION_DDNET_OLD || m_Paused != PAUSE_PAUSED || m_ClientID != SnappingClient) && m_Paused < PAUSE_SPEC ? m_Team : TEAM_SPECTATORS;
 
-	if(m_ClientID == SnappingClient && (m_Paused != PAUSE_SPEC || m_ClientVersion >= VERSION_DDNET_OLD))
+	if(m_ClientID == SnappingClient && (m_Paused != PAUSE_PAUSED || m_ClientVersion >= VERSION_DDNET_OLD))
 		pPlayerInfo->m_Local = 1;
 
 	if(m_ClientID == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))
@@ -389,7 +389,7 @@ void CPlayer::FakeSnap()
 	StrToInts(&pClientInfo->m_Clan0, 3, "");
 	StrToInts(&pClientInfo->m_Skin0, 6, "default");
 
-	if(m_Paused != PAUSE_SPEC)
+	if(m_Paused != PAUSE_PAUSED)
 		return;
 
 	CNetObj_PlayerInfo *pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, FakeID, sizeof(CNetObj_PlayerInfo)));
@@ -609,7 +609,6 @@ void CPlayer::TryRespawn()
 
 	m_WeakHookSpawn = false;
 	m_Spawning = false;
-	m_Paused = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos, m_pCharacter->Teams()->TeamMask(m_pCharacter->Team(), -1, m_ClientID));
@@ -728,7 +727,9 @@ void CPlayer::ProcessPause()
 
 int CPlayer::Pause(int State, bool Force)
 {
-	dbg_assert(State >= PAUSE_NONE && State <= PAUSE_SPEC, "invalid pause state passed");
+	if(State < PAUSE_NONE || State > PAUSE_SPEC) // Invalid pause state passed
+		return 0;
+
 	if(!m_pCharacter)
 		return 0;
 

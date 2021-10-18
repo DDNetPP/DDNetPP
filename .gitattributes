@@ -1,6 +1,7 @@
 CMakeLists.txt merge=ours
 autoexec_server.cfg merge=ours
 README.md merge=ours
+license.txt merge=ours
 # TODO: remove this
 src/engine/server/authmanager.cpp merge=ours
 

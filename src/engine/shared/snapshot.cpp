@@ -21,20 +21,20 @@ int CSnapshot::GetItemSize(int Index)
 int CSnapshot::GetItemType(int Index)
 {
 	int InternalType = GetItem(Index)->Type();
-	if (InternalType < OFFSET_UUID_TYPE)
+	if(InternalType < OFFSET_UUID_TYPE)
 	{
 		return InternalType;
 	}
 
 	int TypeItemIndex = GetItemIndex((0 << 16) | InternalType); // NETOBJTYPE_EX
-	if (TypeItemIndex == -1 || GetItemSize(TypeItemIndex) < (int)sizeof(CUuid))
+	if(TypeItemIndex == -1 || GetItemSize(TypeItemIndex) < (int)sizeof(CUuid))
 	{
 		return InternalType;
 	}
 
 	CSnapshotItem *pTypeItem = GetItem(TypeItemIndex);
 	CUuid Uuid;
-	for (int i = 0; i < (int)sizeof(CUuid) / 4; i++)
+	for(int i = 0; i < (int)sizeof(CUuid) / 4; i++)
 	{
 		Uuid.m_aData[i * 4 + 0] = pTypeItem->Data()[i] >> 24;
 		Uuid.m_aData[i * 4 + 1] = pTypeItem->Data()[i] >> 16;
@@ -359,7 +359,7 @@ int CSnapshotDelta::UnpackDelta(CSnapshot *pFrom, CSnapshot *pTo, void *pSrcData
 
 		Type = *pData++;
 		ID = *pData++;
-		if ((unsigned int)Type < sizeof(m_aItemSizes) && m_aItemSizes[Type])
+		if ((unsigned int)Type < sizeof(m_aItemSizes) / sizeof(m_aItemSizes[0]) && m_aItemSizes[Type])
 			ItemSize = m_aItemSizes[Type];
 		else
 		{
@@ -525,7 +525,7 @@ void CSnapshotBuilder::Init()
 	m_DataSize = 0;
 	m_NumItems = 0;
 
-	for (int i = 0; i < m_NumExtendedItemTypes; i++)
+	for(int i = 0; i < m_NumExtendedItemTypes; i++)
 	{
 		AddExtendedItemType(i);
 	}
@@ -570,7 +570,7 @@ void CSnapshotBuilder::AddExtendedItemType(int Index)
 	int TypeID = m_aExtendedItemTypes[Index];
 	CUuid Uuid = g_UuidManager.GetUuid(TypeID);
 	int *pUuidItem = (int *)NewItem(0, GetTypeFromIndex(Index), sizeof(Uuid)); // NETOBJTYPE_EX
-	for (int i = 0; i < (int)sizeof(CUuid) / 4; i++)
+	for(int i = 0; i < (int)sizeof(CUuid) / 4; i++)
 	{
 		pUuidItem[i] =
 			(Uuid.m_aData[i * 4 + 0] << 24) |
@@ -582,9 +582,9 @@ void CSnapshotBuilder::AddExtendedItemType(int Index)
 
 int CSnapshotBuilder::GetExtendedItemTypeIndex(int TypeID)
 {
-	for (int i = 0; i < m_NumExtendedItemTypes; i++)
+	for(int i = 0; i < m_NumExtendedItemTypes; i++)
 	{
-		if (m_aExtendedItemTypes[i] == TypeID)
+		if(m_aExtendedItemTypes[i] == TypeID)
 		{
 			return i;
 		}
@@ -606,7 +606,7 @@ void *CSnapshotBuilder::NewItem(int Type, int ID, int Size)
 		return 0;
 	}
 
-	if (Type >= OFFSET_UUID)
+	if(Type >= OFFSET_UUID)
 	{
 		Type = GetTypeFromIndex(GetExtendedItemTypeIndex(Type));
 	}

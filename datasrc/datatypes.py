@@ -198,7 +198,7 @@ class Flags:
 		self.values = values
 
 class NetObject:
-	def __init__(self, name, variables, ex=None, validate_size=True):
+	def __init__(self, name, variables, ex=None):
 		l = name.split(":")
 		self.name = l[0]
 		self.base = ""
@@ -209,7 +209,6 @@ class NetObject:
 		self.enum_name = "NETOBJTYPE_%s" % self.name.upper()
 		self.variables = variables
 		self.ex = ex
-		self.validate_size = validate_size
 	def emit_declaration(self):
 		if self.base:
 			lines = ["struct %s : public %s"%(self.struct_name,self.base_struct_name), "{"]
@@ -222,18 +221,13 @@ class NetObject:
 	def emit_validate(self):
 		lines = ["case %s:" % self.enum_name]
 		lines += ["{"]
-		if self.validate_size:
-			lines += ["\t%s *pObj = (%s *)pData;"%(self.struct_name, self.struct_name)]
-			lines += ["\tif((int)sizeof(*pObj) > Size) return -1;"]
-		prev_len = len(lines)
+		lines += ["\t%s *pObj = (%s *)pData;"%(self.struct_name, self.struct_name)]
+		lines += ["\tif((int)sizeof(*pObj) > Size) return -1;"]
 		for v in self.variables:
 			lines += ["\t"+line for line in v.emit_validate()]
-		if not self.validate_size and prev_len != len(lines):
-			raise ValueError("Can't use members that need validation in a struct whose size isn't validated")
 		lines += ["\treturn 0;"]
 		lines += ["}"]
 		return lines
-
 
 class NetEvent(NetObject):
 	def __init__(self, name, variables, ex=None):
@@ -278,8 +272,8 @@ class NetMessage(NetObject):
 		return lines
 
 class NetObjectEx(NetObject):
-	def __init__(self, name, ex, variables, validate_size=True):
-		NetObject.__init__(self, name, variables, ex=ex, validate_size=validate_size)
+	def __init__(self, name, ex, variables):
+		NetObject.__init__(self, name, variables, ex=ex)
 
 class NetEventEx(NetEvent):
 	def __init__(self, name, ex, variables):

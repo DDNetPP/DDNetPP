@@ -311,9 +311,9 @@ void CGameContext::ModifyWeapons(IConsole::IResult *pResult, void *pUserData,
 
 	if (Weapon == -1)
 	{
-		pChr->GiveWeapon(WEAPON_SHOTGUN);
-		pChr->GiveWeapon(WEAPON_GRENADE);
-		pChr->GiveWeapon(WEAPON_RIFLE);
+		pChr->GiveWeapon(WEAPON_SHOTGUN, Remove);
+		pChr->GiveWeapon(WEAPON_GRENADE, Remove);
+		pChr->GiveWeapon(WEAPON_RIFLE, Remove);
 	}
 	else
 	{
