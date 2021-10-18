@@ -1441,6 +1441,7 @@ set_src(GAME_SERVER GLOB_RECURSE src/game/server
   gamemodes/gamemode.h
   gameworld.cpp
   gameworld.h
+  gameworld_ddpp.cpp
   letters.cpp
   letters.h
   player.cpp
