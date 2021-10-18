@@ -215,7 +215,7 @@ function build(settings)
 	end
 
 	if config.websockets.value then
-		settings.cc.defines:Add("WEBSOCKETS")
+		settings.cc.defines:Add("CONF_WEBSOCKETS")
 	end
 
 	if config.compiler.driver == "cl" then

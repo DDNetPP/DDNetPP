@@ -1057,34 +1057,21 @@ const char *str_find(const char *haystack, const char *needle);
 */
 void str_hex(char *dst, int dst_size, const void *data, int data_size);
 
-
 /*
 	Function: str_hex_decode
-		Takes a hex string *without spaces between bytes* and returns a
-		byte array.
-	Parameters:
-		dst - Buffer for the byte array
-		dst_size - size of the buffer
-		data - String to decode
-	Returns:
-		2 - String doesn't exactly fit the buffer
-		1 - Invalid character in string
-		0 - Success
-	Remarks:
-		- The contents of the buffer is only valid on success
+		Takes a hex string and returns a byte array.
+		Parameters:
+			dst - Buffer for the byte array
+			dst_size - size of the buffer
+			data - String to decode
+		Returns:
+			2 - String doesn't exactly fit the buffer
+			1 - Invalid character in string
+			0 - Success
+		Remarks:
+			- The contents of the buffer is only valid on success
 */
-int str_hex_decode(void *dst, int dst_size, const char *src);
-/*
-	Function: str_timestamp
-		Copies a time stamp in the format year-month-day_hour-minute-second to the string.
-
-	Parameters:
-		buffer - Pointer to a buffer that shall receive the time stamp string.
-		buffer_size - Size of the buffer.
-
-	Remarks:
-		- Guarantees that buffer string will contain zero-termination.
-*/
+int str_hex_decode(unsigned char *dst, int dst_size, const char *src);
 void str_timestamp(char *buffer, int buffer_size);
 void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format);
 

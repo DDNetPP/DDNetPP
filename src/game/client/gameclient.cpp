@@ -392,6 +392,7 @@ void CGameClient::OnDummySwap()
 	if (g_Config.m_ClDummyResetOnSwitch)
 	{
 		m_pControls->ResetInput(!g_Config.m_ClDummy);
+		m_pControls->m_InputData[!g_Config.m_ClDummy].m_Hook = 0;
 	}
 	m_DummyInput = m_pControls->m_InputData[!g_Config.m_ClDummy];
 }
@@ -2271,4 +2272,9 @@ void CGameClient::FindWeaker(bool IsWeaker[2][MAX_CLIENTS])
 			DirAccumulated[g_Config.m_ClDummy][HookedPlayer] = SaturatedAdd(-1, 2, DirAccumulated[g_Config.m_ClDummy][HookedPlayer], -1);
 		IsWeaker[g_Config.m_ClDummy][HookedPlayer] = (DirAccumulated[g_Config.m_ClDummy][HookedPlayer] > 0);
 	}
+}
+
+vec3 CalculateNameColor(vec3 TextColorHSL)
+{
+	return HslToRgb(vec3(TextColorHSL.h, TextColorHSL.s * 0.68f, TextColorHSL.l * 0.81f));
 }
