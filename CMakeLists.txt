@@ -1298,6 +1298,7 @@ set_src(GAME_SHARED GLOB src/game
   localization.h
   mapitems.cpp
   mapitems.h
+  mapitems_ddpp.h
   teamscore.cpp
   teamscore.h
   tuning.h
