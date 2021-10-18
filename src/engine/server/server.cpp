@@ -872,6 +872,13 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	return 0;
 }
 
+void CServer::SendRconType(int ClientID, bool UsernameReq)
+{
+	CMsgPacker Msg(NETMSG_RCONTYPE);
+	Msg.AddInt(UsernameReq);
+	SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+}
+
 void CServer::SendMap(int ClientID)
 {
 	CMsgPacker Msg(NETMSG_MAP_CHANGE);
@@ -2088,10 +2095,10 @@ void CServer::ConAuthAddHashed(IConsole::IResult *pResult, void *pUser)
 		return;
 	}
 
-	unsigned char aHash[MD5_BYTES];
+	MD5_DIGEST Hash;
 	unsigned char aSalt[SALT_BYTES];
 
-	if(str_hex_decode(aHash, sizeof(aHash), pPw))
+	if(md5_from_str(&Hash, pPw))
 	{
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "Malformed password hash");
 		return;
@@ -2102,10 +2109,16 @@ void CServer::ConAuthAddHashed(IConsole::IResult *pResult, void *pUser)
 		return;
 	}
 
-	if(pManager->AddKeyHash(pIdent, aHash, aSalt, Level) < 0)
+	bool NeedUpdate = !pManager->NumNonDefaultKeys();
+
+	if(pManager->AddKeyHash(pIdent, Hash, aSalt, Level) < 0)
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "ident already exists");
 	else
+	{
+		if(NeedUpdate)
+			pThis->SendRconType(-1, true);
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "key added");
+	}
 }
 
 void CServer::ConAuthUpdate(IConsole::IResult *pResult, void *pUser)
@@ -2160,10 +2173,10 @@ void CServer::ConAuthUpdateHashed(IConsole::IResult *pResult, void *pUser)
 		return;
 	}
 
-	unsigned char aHash[MD5_BYTES];
+	MD5_DIGEST Hash;
 	unsigned char aSalt[SALT_BYTES];
 
-	if(str_hex_decode(aHash, sizeof(aHash), pPw))
+	if(md5_from_str(&Hash, pPw))
 	{
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "Malformed password hash");
 		return;
@@ -2174,7 +2187,7 @@ void CServer::ConAuthUpdateHashed(IConsole::IResult *pResult, void *pUser)
 		return;
 	}
 
-	pManager->UpdateKeyHash(KeySlot, aHash, aSalt, Level);
+	pManager->UpdateKeyHash(KeySlot, Hash, aSalt, Level);
 	pThis->LogoutKey(KeySlot, "key update");
 
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "key updated");
