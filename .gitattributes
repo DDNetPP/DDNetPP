@@ -1,0 +1,4 @@
+CMakeLists.txt merge=ours
+autoexec_server.cfg merge=ours
+README.md merge=ours
+
