@@ -58,6 +58,57 @@ bool CGameContext::DDPPInfo()
     return true;
 }
 
+bool CGameContext::DDPPPoints(IConsole::IResult *pResult, void *pUserData)
+{
+	if (g_Config.m_SvPointsMode == 1) //ddnet
+        return false;
+
+	if (g_Config.m_SvPointsMode == 2) //ddpp (blockpoints)
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return true;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return true;
+
+		char aBuf[256];
+
+		if (pResult->NumArguments() > 0) //show others
+		{
+			int pointsID = pSelf->GetCIDByName(pResult->GetString(0));
+			if (pointsID == -1)
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' is not online", pResult->GetString(0));
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				return true;
+			}
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsID]->m_BlockPoints, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+		else //show own
+		{
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_BlockPoints, pPlayer->m_BlockPoints_Kills, pPlayer->m_BlockPoints_Deaths);
+			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+		}
+	}
+	else //points deactivated
+	{
+		CGameContext *pSelf = (CGameContext *)pUserData;
+		if (!CheckClientID(pResult->m_ClientID))
+			return true;
+		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+		if (!pPlayer)
+			return true;
+
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"points",
+			"Showing points is deactivated on this DDNet++ server.");
+	}
+    return true;
+}
+
 void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

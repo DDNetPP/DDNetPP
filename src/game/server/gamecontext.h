@@ -1030,6 +1030,7 @@ private:
 
 	bool DDPPCredits();
 	bool DDPPInfo();
+	bool DDPPPoints(IConsole::IResult *pResult, void *pUserData);
 
 	enum
 	{

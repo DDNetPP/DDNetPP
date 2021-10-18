@@ -3,17 +3,16 @@
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <engine/server/server.h>
-#include <game/server/captcha.h>
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
 
+#include <game/generated/nethash.cpp>
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
 
-bool CheckClientID(int ClientID); //TODO: whats this ? xd
-
+bool CheckClientID(int ClientID);
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
@@ -68,9 +67,9 @@ void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help",
 				"/cmdlist will show a list of all chat commands");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help",
-				"/help + any command will show you the help for this command.");
+				"/help + any command will show you the help for this command");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "help",
-				"Example /help settings will display the help about settings.");
+				"Example /help settings will display the help about ");
 	}
 	else
 	{
@@ -106,11 +105,11 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"setting",
-				"To server setting type '/settings <settingname>', setting names are:");
+				"to check a server setting say /settings and setting's name, setting names are:");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "setting",
-				"teams, collision, hooking, endlesshooking, me, ");
+				"teams, cheats, collision, hooking, endlesshooking, me, ");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "setting",
-				"hitting, oldlaser, timeout, votes, pause and scores.");
+				"hitting, oldlaser, timeout, votes, pause and scores");
 	}
 	else
 	{
@@ -142,7 +141,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					"settings",
 					ColTemp ?
 							"Players can collide on this server" :
-							"Players can't collide on this server");
+							"Players Can't collide on this server");
 		}
 		else if (str_comp(pArg, "hooking") == 0)
 		{
@@ -151,7 +150,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					"settings",
 					HookTemp ?
 							"Players can hook each other on this server" :
-							"Players can't hook each other on this server");
+							"Players Can't hook each other on this server");
 		}
 		else if (str_comp(pArg, "endlesshooking") == 0)
 		{
@@ -159,8 +158,8 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"settings",
 					g_Config.m_SvEndlessDrag ?
-							"Players endlesshook is activated" :
-							"Players endlesshook is deactivated");
+							"Players can hook time is unlimited" :
+							"Players can hook time is limited");
 		}
 		else if (str_comp(pArg, "hitting") == 0)
 		{
@@ -168,8 +167,8 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"settings",
 					g_Config.m_SvHit ?
-							"Player's weapons affect others." :
-							"Player's weapons don't affect others.");
+							"Player's weapons affect each other" :
+							"Player's weapons has no affect on each other");
 		}
 		else if (str_comp(pArg, "oldlaser") == 0)
 		{
@@ -177,7 +176,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"settings",
 					g_Config.m_SvOldLaser ?
-							"Lasers can hit you if you shot them and they pull you towards the bounce origin (Like DDRace Beta)" :
+							"Lasers can hit you if you shot them and that they pull you towards the bounce origin (Like DDRace Beta)" :
 							"Lasers can't hit you if you shot them, and they pull others towards the shooter");
 		}
 		else if (str_comp(pArg, "me") == 0)
@@ -186,13 +185,13 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"settings",
 					g_Config.m_SvSlashMe ?
-							"Players can use '/me'" :
-							"Players can't '/me'");
+							"Players can use /me commands the famous IRC Command" :
+							"Players Can't use the /me command");
 		}
 		else if (str_comp(pArg, "timeout") == 0)
 		{
 			str_format(aBuf, sizeof(aBuf),
-					"The server timeout is currently set to %d seconds",
+					"The Server Timeout is currently set to %d seconds",
 					g_Config.m_ConnTimeout);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "settings",
 					aBuf);
@@ -204,7 +203,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					"settings",
 					g_Config.m_SvVoteKick ?
 							"Players can use Callvote menu tab to kick offenders" :
-							"Players can't use the Callvote menu tab to kick offenders");
+							"Players Can't use the Callvote menu tab to kick offenders");
 			if (g_Config.m_SvVoteKick)
 				str_format(
 						aBuf,
@@ -227,7 +226,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 							g_Config.m_SvPauseTime ?
 									"/pause is available on this server and it pauses your time too" :
 									"/pause is available on this server but it doesn't pause your time"
-									:"/pause is not available on this server");
+									:"/pause is NOT available on this server");
 		}
 		else if (str_comp(pArg, "scores") == 0)
 		{
@@ -292,7 +291,7 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 	if (pPlayer->GetCharacter() == 0)
 	{
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spec",
-	"You can't spec while you're dead/a spectator.");
+	"You can't spec while you are dead/a spectator.");
 	return;
 	}
 	if (pPlayer->m_Paused == CPlayer::PAUSED_SPEC && g_Config.m_SvPauseable)
@@ -307,22 +306,8 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spec", aBuf);
 		return;
 	}
-	if ((pResult->NumArguments() > 0) && (pSelf->GetCIDByName(pResult->GetString(0)) != pPlayer->m_SpectatorID))
-	{
-		if (pSelf->GetCIDByName(pResult->GetString(0)) == pResult->m_ClientID)
-		{
-			pPlayer->m_SpectatorID = SPEC_FREEVIEW;
-		}
-		else
-		{
-			pPlayer->m_SpectatorID = pSelf->GetCIDByName(pResult->GetString(0));
-			pPlayer->m_Paused = CPlayer::PAUSED_PAUSED;
-		}
-	}
-	else
-	{
-		pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_PAUSED) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_PAUSED;
-	}
+
+	pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_PAUSED) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_PAUSED;
 }
 
 void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
@@ -338,7 +323,7 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 	if (pPlayer->GetCharacter() == 0)
 	{
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "pause",
-	"You can't pause while you're dead/a spectator.");
+	"You can't pause while you are dead/a spectator.");
 	return;
 	}
 
@@ -348,24 +333,9 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "pause", aBuf);
 		return;
 	}
-	if ((pResult->NumArguments() > 0) && (pSelf->GetCIDByName(pResult->GetString(0)) != pPlayer->m_SpectatorID))
-	{
-		if (pSelf->GetCIDByName(pResult->GetString(0)) == pResult->m_ClientID)
-		{
-			pPlayer->m_SpectatorID = SPEC_FREEVIEW;
-		}
-		else
-		{
-			pPlayer->m_SpectatorID = pSelf->GetCIDByName(pResult->GetString(0));
-			pPlayer->m_Paused = CPlayer::PAUSED_SPEC;
-		}
-	}
-	else
-	{
-		pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_SPEC) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_SPEC;
-	}
-}
 
+	pPlayer->m_Paused = (pPlayer->m_Paused == CPlayer::PAUSED_SPEC) ? CPlayer::PAUSED_NONE : CPlayer::PAUSED_SPEC;
+}
 void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
@@ -403,32 +373,29 @@ void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
-	{
-
 #if defined(CONF_SQL)
-		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
-				return;
+	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+		if(pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+			return;
 #endif
 
-		if (g_Config.m_SvHideScore)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top5",
+	if (g_Config.m_SvHideScore)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top5",
 				"Showing the top 5 is not allowed on this server.");
-			return;
-		}
+		return;
+	}
 
 	if (pResult->NumArguments() > 0 && pResult->GetInteger(0) > 0)
 		pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData,
 				pResult->GetInteger(0));
-		else
-			pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData);
+	else
+		pSelf->Score()->ShowTop5(pResult, pResult->m_ClientID, pUserData);
 
 #if defined(CONF_SQL)
-		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
+	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
 #endif
-	}
 }
 
 #if defined(CONF_SQL)
@@ -502,7 +469,7 @@ void CGameContext::ConDND(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pPlayer->m_DND = true;
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnd", "You will not receive any more global chat and server messages");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dnd", "You will not receive any further global chat and server messages");
 	}
 }
 
@@ -521,7 +488,7 @@ void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 
 	if (pResult->NumArguments() <= 0)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "map", "Use /map <mapname> to call vote for mapchange.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "map", "Example: /map adr3 to call vote for Adrenaline 3. This means that the map name must start with 'a' and contain the characters 'd', 'r' and '3' in that order");
 		return;
 	}
 
@@ -587,7 +554,7 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 		if (str_comp(pSelf->m_apPlayers[i]->m_TimeoutCode, pResult->GetString(0))) continue;
 		if (((CServer *)pSelf->Server())->m_NetServer.SetTimedOut(i, pResult->m_ClientID))
 		{
-			((CServer *)pSelf->Server())->DelClientCallback(pResult->m_ClientID, "Timeout protection used", ((CServer *)pSelf->Server()));
+			((CServer *)pSelf->Server())->DelClientCallback(pResult->m_ClientID, "Timeout Protection used", ((CServer *)pSelf->Server()));
 			((CServer *)pSelf->Server())->m_aClients[i].m_Authed = CServer::AUTHED_NO;
 			if (pSelf->m_apPlayers[i]->GetCharacter())
 				((CGameContext *)(((CServer *)pSelf->Server())->GameServer()))->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
@@ -597,8 +564,6 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 
 	((CServer *)pSelf->Server())->m_NetServer.SetTimeoutProtected(pResult->m_ClientID);
 	str_copy(pPlayer->m_TimeoutCode, pResult->GetString(0), sizeof(pPlayer->m_TimeoutCode));
-	if (pSelf->m_MapsavePlayers && pSelf->m_MapsaveLoadedPlayers < pSelf->m_MapsavePlayers)
-		pSelf->LoadMapPlayerData();
 }
 
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
@@ -726,7 +691,7 @@ void CGameContext::ConTeamRank(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 {
-	CGameContext *pSelf = (CGameContext *)pUserData;
+	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
@@ -735,26 +700,26 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 #if defined(CONF_SQL)
-		if (g_Config.m_SvUseSQL)
-			if (pPlayer->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
-				return;
+	if(g_Config.m_SvUseSQL)
+		if(pPlayer->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+			return;
 #endif
 
 	if (pResult->NumArguments() > 0)
 		if (!g_Config.m_SvHideScore)
 			pSelf->Score()->ShowRank(pResult->m_ClientID, pResult->GetString(0),
-				true);
+					true);
 		else
 			pSelf->Console()->Print(
-				IConsole::OUTPUT_LEVEL_STANDARD,
-				"rank",
-				"Showing the rank of other players is not allowed on this server.");
+					IConsole::OUTPUT_LEVEL_STANDARD,
+					"rank",
+					"Showing the rank of other players is not allowed on this server.");
 	else
 		pSelf->Score()->ShowRank(pResult->m_ClientID,
-			pSelf->Server()->ClientName(pResult->m_ClientID));
+				pSelf->Server()->ClientName(pResult->m_ClientID));
 
 #if defined(CONF_SQL)
-	if (g_Config.m_SvUseSQL)
+	if(g_Config.m_SvUseSQL)
 		pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
 #endif
 }
@@ -839,7 +804,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"join",
-				"You must join a team in order to start.");
+				"You must join a team and play with somebody or else you can\'t play");
 		pPlayer->GetCharacter()->m_LastStartWarning = pSelf->Server()->Tick();
 	}
 
@@ -848,7 +813,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 		if (pPlayer->GetCharacter() == 0)
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-					"You can't change teams while you're dead/a spectator.");
+					"You can't change teams while you are dead/a spectator.");
 		}
 		else
 		{
@@ -858,12 +823,12 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 					> pSelf->Server()->Tick())
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-						"You can't change teams that fast!");
+						"You can\'t change teams that fast!");
 			}
 			else if(pResult->GetInteger(0) > 0 && pResult->GetInteger(0) < MAX_CLIENTS && ((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.TeamLocked(pResult->GetInteger(0)))
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-						"This team is locked using '/lock'. Only members of the team can unlock it using '/lock'.");
+						"This team is locked using /lock. Only members of the team can unlock it using /lock.");
 			}
 			else if(pResult->GetInteger(0) > 0 && pResult->GetInteger(0) < MAX_CLIENTS && ((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.Count(pResult->GetInteger(0)) >= g_Config.m_SvTeamMaxSize)
 			{
@@ -884,7 +849,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-						"You can't join this team at the moment");
+						"You cannot join this team at this time");
 			}
 		}
 	}
@@ -896,7 +861,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 			pSelf->Console()->Print(
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"join",
-					"You can't check your team while you're dead/a spectator.");
+					"You can't check your team while you are dead/a spectator.");
 		}
 		else
 		{
@@ -981,7 +946,7 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvEmotionalTees == -1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "emote",
-				"Admin disabled emotes.");
+				"Server admin disabled emotes.");
 		return;
 	}
 
@@ -1125,7 +1090,7 @@ void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 bool CheckClientID(int ClientID)
 {
 	dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
-			"Wrong clientID!");
+			"The Client ID is wrong");
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return false;
 	return true;
@@ -1306,7 +1271,7 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	if (!g_Config.m_SvRescue) {
-		pSelf->SendChatTarget(pPlayer->GetCID(), "Rescue is disabled on this server.");
+		pSelf->SendChatTarget(pPlayer->GetCID(), "Rescue is not enabled on this server");
 		return;
 	}
 
@@ -1337,98 +1302,40 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
-//#if defined(CONF_SQL)
 void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 {
-	if (g_Config.m_SvPointsMode == 1) //ddnet
-	{
+	if(((CGameContext *) pUserData)->DDPPPoints(pResult, pUserData))
+		return;
 #if defined(CONF_SQL)
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		if (!CheckClientID(pResult->m_ClientID))
+	CGameContext *pSelf = (CGameContext *) pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+		if(pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
 			return;
 
-		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-			if (pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery + pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
-				return;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if (!pPlayer)
+		return;
 
-		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-		if (!pPlayer)
-			return;
-
-		if (pResult->NumArguments() > 0)
-			if (!g_Config.m_SvHideScore)
-				pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
+	if (pResult->NumArguments() > 0)
+		if (!g_Config.m_SvHideScore)
+			pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0),
 					true);
-			else
-				pSelf->Console()->Print(
+		else
+			pSelf->Console()->Print(
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"points",
 					"Showing the global points of other players is not allowed on this server.");
-		else
-			pSelf->Score()->ShowPoints(pResult->m_ClientID,
+	else
+		pSelf->Score()->ShowPoints(pResult->m_ClientID,
 				pSelf->Server()->ClientName(pResult->m_ClientID));
 
-		if (pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
-#else
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		if (!CheckClientID(pResult->m_ClientID))
-			return;
-		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-		if (!pPlayer)
-			return;
-
-		pSelf->Console()->Print(
-			IConsole::OUTPUT_LEVEL_STANDARD,
-			"points",
-			"This is not an SQL server.");
+	if(pSelf->m_apPlayers[pResult->m_ClientID] && g_Config.m_SvUseSQL)
+		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastSQLQuery = pSelf->Server()->Tick();
 #endif
-	}
-	else if (g_Config.m_SvPointsMode == 2) //ddpp (blockpoints)
-	{
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		if (!CheckClientID(pResult->m_ClientID))
-			return;
-		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-		if (!pPlayer)
-			return;
-
-		char aBuf[256];
-
-		if (pResult->NumArguments() > 0) //show others
-		{
-			int pointsID = pSelf->GetCIDByName(pResult->GetString(0));
-			if (pointsID == -1)
-			{
-				str_format(aBuf, sizeof(aBuf), "'%s' is not online", pResult->GetString(0));
-				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-				return;
-			}
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsID]->m_BlockPoints, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		}
-		else //show own
-		{
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_BlockPoints, pPlayer->m_BlockPoints_Kills, pPlayer->m_BlockPoints_Deaths);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		}
-	}
-	else //points deactivated
-	{
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		if (!CheckClientID(pResult->m_ClientID))
-			return;
-		CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-		if (!pPlayer)
-			return;
-
-		pSelf->Console()->Print(
-			IConsole::OUTPUT_LEVEL_STANDARD,
-			"points",
-			"Showing points is deactivated on this DDNet++ server.");
-	}
 }
-//#endif
 
 #if defined(CONF_SQL)
 void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)

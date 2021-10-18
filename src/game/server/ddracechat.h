@@ -47,8 +47,16 @@ CHAT_COMMAND("rescue", "", CFGFLAG_CHAT|CFGFLAG_SERVER, ConRescue, this, "Telepo
 
 CHAT_COMMAND("kill", "", CFGFLAG_CHAT|CFGFLAG_SERVER, ConProtectedKill, this, "Kill yourself")
 
+#if defined(CONF_SQL)
+CHAT_COMMAND("times", "?s[playername] ?i[number of times to skip]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTimes, this, "/times ?s?i shows last 5 times of the server or of a player beginning with name s starting with time i (i = 1 by default)")
+// CHAT_COMMAND("points", "?r[playername]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPoints, this, "Shows the global points of a player beginning with name r (your rank by default)")
+CHAT_COMMAND("top5points", "?i[number]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTopPoints, this, "Shows five points of the global point ladder beginning with rank i (1 by default)")
+#endif
+
 //ChillerDragon
 //DDNetPlusPlus (DDNet++)
+
+CHAT_COMMAND("points", "?r[playername]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPoints, this, "Shows the global points of a player beginning with name r (your rank by default)")
 
 //account stuff
 CHAT_COMMAND("changepassword", "?sss", CFGFLAG_CHAT | CFGFLAG_SERVER, ConChangePassword, this, "change your account password with '/password <old password> <new password> <new password repeat>'")
@@ -177,12 +185,6 @@ CHAT_COMMAND("live", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLive, this, "get li
 CHAT_COMMAND("regex", "?ss[pattern|string]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegex, this, "test regex patterns")
 CHAT_COMMAND("mapsave", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMapsave, this, "save current map status")
 
-CHAT_COMMAND("points", "?r", CFGFLAG_CHAT | CFGFLAG_SERVER, ConPoints, this, "Shows the points of a player beginning with name r (your rank by default)")
-#if defined(CONF_SQL)
-CHAT_COMMAND("times", "?s[playername] ?i[number of times to skip]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTimes, this, "/times ?s?i shows last 5 times of the server or of a player beginning with name s starting with time i (i = 1 by default)")
-// CHAT_COMMAND("points", "?r[playername]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConPoints, this, "Shows the global points of a player beginning with name r (your rank by default)")
-CHAT_COMMAND("top5points", "?i[number]", CFGFLAG_CHAT|CFGFLAG_SERVER, ConTopPoints, this, "Shows five points of the global point ladder beginning with rank i (1 by default)")
-#endif
 #undef CHAT_COMMAND
 
 #endif
