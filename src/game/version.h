@@ -6,10 +6,10 @@
 #ifndef GAME_VERSION_H
 #define GAME_VERSION_H
 #include "generated/nethash.cpp"
-#define GAME_VERSION "0.6.3, 10.3.5"
+#define GAME_VERSION "0.6.3, 10.4"
 #define GAME_NETVERSION "0.6 626fce9a778df4d4"
-static const char GAME_RELEASE_VERSION[8] = "10.3.5";
-#define CLIENT_VERSIONNR 10035
+static const char GAME_RELEASE_VERSION[8] = "10.4";
+#define CLIENT_VERSIONNR 10040
 #endif
 
-#define GAME_RELEASE_VERSION = "10.3.5"; // TODO: remove
+#define GAME_RELEASE_VERSION = "10.4"; // TODO: remove

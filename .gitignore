@@ -31,6 +31,7 @@ bam
 build server.bat
 buildlog.txt
 bam.exe
+*.a
 *.bat
 .cproject
 .project
@@ -56,6 +57,11 @@ bam.exe
 *.dll
 
 DDNet*
+
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
 
 #############
 #           #
@@ -141,4 +147,3 @@ rules.ninja
 testrunner\[1\]_include.cmake
 src/game/generated
 generated/
-

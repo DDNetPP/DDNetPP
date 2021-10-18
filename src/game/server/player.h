@@ -109,6 +109,7 @@ public:
 	int m_LastActionTick;
 	bool m_StolenSkin;
 	int m_TeamChangeTick;
+	bool m_SentSemicolonTip;
 	struct
 	{
 		int m_TargetX;
