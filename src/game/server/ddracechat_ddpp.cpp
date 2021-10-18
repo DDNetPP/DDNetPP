@@ -26,6 +26,38 @@
 
 bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
+bool CGameContext::DDPPCredits()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"ChillerDragon's Block Mod (" DDNETPP_VERSION ").");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"heinrich5991, QshaR, Teecloud, noby, SarKro, Pikotee, toast & Blue");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Based on DDNet.");
+    return true;
+}
+
+bool CGameContext::DDPPInfo()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"ChillerDragon's Block mod. " DDNETPP_VERSION " (more info '/changelog')");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+        "Based on DDNet Version: " GAME_VERSION);
+	if(GIT_SHORTREV_HASH)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "Git revision hash: %s", GIT_SHORTREV_HASH);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+	}
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+        "Official site: DDNet.tw");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+        "For more info: /cmdlist");
+    return true;
+}
+
 void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

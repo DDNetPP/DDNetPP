@@ -1028,6 +1028,9 @@ private:
 	//static void ConAddPolicehelper(IConsole::IResult *pResult, void *pUserData);
 	//static void ConRemovePolicehelper(IConsole::IResult *pResult, void *pUserData);
 
+	bool DDPPCredits();
+	bool DDPPInfo();
+
 	enum
 	{
 		MAX_MUTES=32,

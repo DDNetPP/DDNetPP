@@ -7,18 +7,6 @@
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
-#include <base/system_ddpp.h>
-#include <time.h>          //ChillerDragon
-#include <fstream> //ChillerDragon acc sys2
-#include <limits> //ChillerDragon acc sys2 get specific line
-#include <engine/external/sqlite3/sqlite3.h>
-//#include <stdio.h> //strcat
-#include <string.h> //strcat
-#include <stdio.h> //acc2 to_str()
-#include <stdlib.h>  //acc2 to_str()
-//#include <string> //acc2 std::to_string
-//#include <iostream> //acc2 std::to_string
-//#include <sstream> //acc2 std::to_string
 
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
@@ -30,35 +18,45 @@ bool CheckClientID(int ClientID); //TODO: whats this ? xd
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(pSelf->DDPPCredits())
+		return;
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block Mod (" DDNETPP_VERSION ").");
+		"DDNet is run by the DDNet staff (DDNet.tw/staff)");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
+		"Great maps and many ideas from the great community");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"heinrich5991, QshaR, Teecloud, noby, SarKro, Pikotee, toast & Blue");
+		"Help and code by eeeee, HMH, east, CookieMichal, Learath2,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"Based on DDNet.");
+		"Savander, laxa, Tobii, BeaR, Wohoo, nuborn, timakro, Shiki,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"trml, Soreu, hi_leute_gll, Lady Saavik, Chairn, heinrich5991,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"swick, oy & others.");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Based on DDRace by the DDRace developers,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"which is a mod of Teeworlds by the Teeworlds developers.");
 }
 
 void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
+	if(pSelf->DDPPInfo())
+		return;
 
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"ChillerDragon's Block mod. " DDNETPP_VERSION " (more info '/changelog')");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
-			"Based on DDNet Version: " GAME_VERSION);
-	if(GIT_SHORTREV_HASH)
-	{
-		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "Git revision hash: %s", GIT_SHORTREV_HASH);
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-	}
+			"DDraceNetwork Mod. Version: " GAME_VERSION);
+#if defined( GIT_SHORTREV_HASH )
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+			"Git revision hash: " GIT_SHORTREV_HASH);
+#endif
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Official site: DDNet.tw");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"For more info: /cmdlist");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+			"Or visit DDNet.tw");
 }
 
 void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
