@@ -4,10 +4,6 @@
 #define GAME_VARIABLES_H
 #undef GAME_VARIABLES_H // this file will be included several times
 
-// chilidrgehuhn
-MACRO_CONFIG_INT(ClMovebot, cl_movebot, 0, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "hacky movement")
-MACRO_CONFIG_INT(ClFlybot, cl_flybot, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "flybot lele rofl")
-
 // client
 MACRO_CONFIG_INT(ClPredict, cl_predict, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Predict client movements")
 MACRO_CONFIG_INT(ClAntiPingLimit, cl_antiping_limit, 0, 0, 200, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Antiping limit (0 to disable)")

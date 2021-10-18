@@ -1229,6 +1229,7 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   config.cpp
   config.h
   config_variables.h
+  config_variables_ddpp.h
   console.cpp
   console.h
   datafile.cpp

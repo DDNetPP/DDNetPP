@@ -10,20 +10,6 @@
 class CControls : public CComponent
 {
 public:
-	//ChillerDragon Vars
-	int m_TimeTicker;
-	int m_JumpDelay;
-	int m_JumpDelay2;  //hiddenway jumps
-	int m_DontHook; //speedstart in hiddenway
-	int m_StuckTime;
-	int m_abc; //iused for stuff idc
-	bool m_ReleaseHook;
-	//TeeTown
-	int m_JumpTicker;
-	int m_LifetimeTT; //lifetime on teetown
-	int m_AntiAfkTicker;
-
-
 	vec2 m_MousePos[2];
 	vec2 m_TargetPos[2];
 	float m_OldMouseX;
