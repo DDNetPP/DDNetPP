@@ -85,6 +85,9 @@ wrong_login.txt
 *.dll
 *.cfg
 
+# TODO: remove when merge added it
+dummy_map
+
 # cmake TODO: remove when merged with ddnets gitignore
 
 data/
