@@ -3,7 +3,7 @@ from datatypes import *
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM"]
 GameFlags = ["TEAMS", "FLAGS"]
-GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
+GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED", "RACETIME"]
 
 GameInfoFlags = [
 	"TIMESCORE", "GAMETYPE_RACE", "GAMETYPE_FASTCAP", "GAMETYPE_FNG",
@@ -126,7 +126,7 @@ Objects = [
 		NetIntRange("m_GameFlags", 0, 256),
 		NetIntRange("m_GameStateFlags", 0, 256),
 		NetTick("m_RoundStartTick"),
-		NetIntRange("m_WarmupTimer", 0, 'max_int'),
+		NetIntRange("m_WarmupTimer", 'min_int', 'max_int'),
 
 		NetIntRange("m_ScoreLimit", 0, 'max_int'),
 		NetIntRange("m_TimeLimit", 0, 'max_int'),
