@@ -3,6 +3,7 @@
 #ifndef ENGINE_SERVER_SERVER_H
 #define ENGINE_SERVER_SERVER_H
 
+#include <engine/engine.h>
 #include <engine/server.h>
 
 #include <engine/map.h>
@@ -120,7 +121,12 @@ public:
 
 			SNAPRATE_INIT=0,
 			SNAPRATE_FULL,
-			SNAPRATE_RECOVER
+			SNAPRATE_RECOVER,
+
+			DNSBL_STATE_NONE=0,
+			DNSBL_STATE_PENDING,
+			DNSBL_STATE_BLACKLISTED,
+			DNSBL_STATE_WHITELISTED,
 		};
 
 		class CInput
@@ -162,6 +168,10 @@ public:
 		NETADDR m_Addr;
 		bool m_IsDummy;
 		bool m_IsClientDummy; //ddnet++ hide dummy in master
+
+		// DNSBL
+		int m_DnsblState;
+		CHostLookup m_DnsblLookup;
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -288,6 +298,7 @@ public:
 	static void ConStopRecord(IConsole::IResult *pResult, void *pUser);
 	static void ConMapReload(IConsole::IResult *pResult, void *pUser);
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
+	static void ConDnsblStatus(IConsole::IResult *pResult, void *pUser);
 
 #if defined (CONF_SQL)
 	// console commands for sqlmasters
@@ -333,6 +344,12 @@ public:
 
 	void BotJoin(int BotID);
 	void BotLeave(int BotID, bool silent = false);
+	void InitDnsbl(int ClientID);
+	bool DnsblWhite(int ClientID)
+	{
+		return m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_NONE ||
+		m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_WHITELISTED;
+	}
 };
 
 #endif

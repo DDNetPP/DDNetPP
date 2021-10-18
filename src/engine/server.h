@@ -171,6 +171,7 @@ public:
 	virtual void BotJoin(int BotID) = 0;
 	virtual void BotLeave(int BotID, bool silet = false) = 0;
 	virtual char *GetMapName() = 0;
+	virtual bool DnsblWhite(int ClientID) = 0;
 };
 
 class IGameServer : public IInterface
