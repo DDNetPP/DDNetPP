@@ -290,34 +290,6 @@ static void logger_file(const char *line)
 	io_write(logfile, line, strlen(line));
 	io_write_newline(logfile);
 	io_flush(logfile);
-
-	//log filter by ChillerDragon
-	//all rights reserved to ChillerBot.png 
-	//ChillerBot.png (c) Copyright 2017
-	//if (str_find(line, "test"))
-	//{
-	//	io_write(logfile, line, strlen(line));
-	//	io_write_newline(logfile);
-	//	io_flush(logfile);
-	//}
-	//if (str_find(line, "[demo_recorder]: Recording to")) //if starting demo record --> print cut in chat log
-	//{
-	//	time_t rawtime;
-	//	struct tm* timeinfo;
-	//	char timestr[80];
-
-	//	time(&rawtime);
-	//	timeinfo = localtime(&rawtime);
-
-	//	strftime(timestr, sizeof(timestr), "%y-%m-%d %H:%M:%S", timeinfo);
-
-	//	char aBuf[1024];
-	//	str_format(aBuf, sizeof(aBuf), "[%s]", timestr);
-	//	io_write(logfile, line, strlen(line));
-	//	io_write_newline(logfile);
-	//	io_flush(logfile);
-	//}
-
 }
 
 void dbg_logger_stdout() { dbg_logger(logger_stdout); }
