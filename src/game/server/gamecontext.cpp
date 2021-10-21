@@ -28,7 +28,6 @@
 #include "gamemodes/DDRace.h"
 #include "score.h"
 #include "score/file_score.h"
-#include <time.h>
 #if defined(CONF_SQL)
 #include "score/sql_score.h"
 #endif

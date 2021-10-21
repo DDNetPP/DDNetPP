@@ -17,7 +17,6 @@
 #include <engine/shared/demo.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/filecollection.h>
-#include <engine/shared/mapchecker.h>
 #include <engine/shared/netban.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>

@@ -347,7 +347,6 @@ function build(settings)
 	engine = Compile(engine_settings, Collect("src/engine/shared/*.cpp", "src/base/*.c"))
 	server = Compile(server_settings, Collect("src/engine/server/*.cpp"))
 
-	versionserver = Compile(settings, Collect("src/versionsrv/*.cpp"))
 	masterserver = Compile(settings, Collect("src/mastersrv/*.cpp"))
 	twping = Compile(settings, Collect("src/twping/*.cpp"))
 	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, git_rev, network_source)
@@ -387,9 +386,6 @@ function build(settings)
 	if platform == "macosx" then
 		serverlaunch = Link(launcher_settings, "serverlaunch", server_osxlaunch)
 	end
-
-	versionserver_exe = Link(server_settings, "versionsrv", versionserver,
-		engine, zlib, libwebsockets, md5, game_shared)
 
 	masterserver_exe = Link(server_settings, "mastersrv", masterserver,
 		engine, zlib, libwebsockets, md5, game_shared)
