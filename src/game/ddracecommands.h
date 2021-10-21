@@ -1,7 +1,7 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
-#ifndef GAME_SERVER_DDRACECOMMANDS_H
-#define GAME_SERVER_DDRACECOMMANDS_H
-#undef GAME_SERVER_DDRACECOMMANDS_H // this file can be included several times
+
+// This file can be included several times.
+
 #ifndef CONSOLE_COMMAND
 #define CONSOLE_COMMAND(name, params, flags, callback, userdata, help)
 #endif
@@ -123,5 +123,3 @@ CONSOLE_COMMAND("rcon_api_say_id", "vs", CFGFLAG_SERVER, ConRconApiSayID, this, 
 CONSOLE_COMMAND("rcon_api_alter_table", "is", CFGFLAG_SERVER, ConRconApiAlterTable, this, "RCON API command dont use it") //adds the column with the name s and the type i. i=0 INTEGER i=1 VARCHAR(4) i=2 VARCHAR(16) i=3 VARCHAR(32) i=4 VARCHAR(64) i=5 VARCHAR(128)   
 
 #undef CONSOLE_COMMAND
-
-#endif

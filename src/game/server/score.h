@@ -1,5 +1,5 @@
-#ifndef GAME_SERVER_INTERFACE_SCORE_H
-#define GAME_SERVER_INTERFACE_SCORE_H
+#ifndef GAME_SERVER_SCORE_H
+#define GAME_SERVER_SCORE_H
 
 #include "entities/character.h"
 #include "gamecontext.h"
@@ -75,4 +75,4 @@ public:
 	virtual std::string LoadCIData() = 0;
 };
 
-#endif
+#endif // GAME_SERVER_SCORE_H

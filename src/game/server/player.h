@@ -14,7 +14,7 @@
 #include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-#include <engine/shared/fetcher.h>
+#include <engine/shared/http.h>
 
 // player object
 class CPlayer

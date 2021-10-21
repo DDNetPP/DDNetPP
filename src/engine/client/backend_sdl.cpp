@@ -1226,7 +1226,7 @@ void CCommandProcessorFragment_OpenGL3_3::UploadStreamBufferData(unsigned int Pr
 		glBufferData(GL_ARRAY_BUFFER, sizeof(CCommandBuffer::SVertex) * Count, (const void*)pVertices, GL_STREAM_DRAW);
 	else
 	{
-		// This is better for some iGPUs. Probably due to not initializing a new buffer in the system memory again and again...(driver dependend)
+		// This is better for some iGPUs. Probably due to not initializing a new buffer in the system memory again and again...(driver dependent)
 		void *pData = glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(CCommandBuffer::SVertex) * Count, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 		mem_copy(pData, pVertices, sizeof(CCommandBuffer::SVertex) * Count);
@@ -2207,7 +2207,7 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	SDL_ClearError();
 	const char *pErr = NULL;
 
-	//query default values, since they are platform dependend
+	//query default values, since they are platform dependent
 	static bool s_InitDefaultParams = false;
 	static int s_SDLGLContextProfileMask, s_SDLGLContextMajorVersion, s_SDLGLContextMinorVersion;
 	m_UseOpenGL3_3 = false;
@@ -2390,7 +2390,7 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 			return -1;
 	}
 
-	SDL_GL_GetDrawableSize(m_pWindow, pWidth, pHeight);
+	SDL_GL_GetDrawableSize(m_pWindow, pCurrentWidth, pCurrentHeight);
 	SDL_GL_SetSwapInterval(Flags&IGraphicsBackend::INITFLAG_VSYNC ? 1 : 0);
 	SDL_GL_MakeCurrent(NULL, NULL);
 
@@ -2430,8 +2430,6 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 		WaitForIdle();
 	}
 
-	*pCurrentWidth = *pWidth;
-	*pCurrentHeight = *pHeight;
 
 	SDL_ShowWindow(m_pWindow);
 	if(SetWindowScreen(g_Config.m_GfxScreen))

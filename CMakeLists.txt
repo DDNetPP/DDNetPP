@@ -1173,47 +1173,6 @@ set(EXPECTED_DATA
   mapres/winter_mountains.png
   mapres/winter_mountains2.png
   mapres/winter_mountains3.png
-  maps/BlmapChill.map
-  maps/BlmapChill_versions/BlmapChill_v0004.map
-  maps/BlmapChill_versions/BlmapChill_v0052.map
-  maps/BlmapChill_versions/BlmapChill_v0059.map
-  maps/BlmapChill_versions/BlmapChill_v0103.map
-  maps/BlmapChill_versions/BlmapChill_v0104.map
-  maps/BlmapChill_versions/BlmapChill_v0105.map
-  maps/BlmapChill_versions/BlmapChill_v0106.map
-  maps/BlmapChill_versions/BlmapChill_v0107.map
-  maps/BlmapChill_versions/BlmapChill_v0108.map
-  maps/BlmapChill_versions/BlmapChill_v0109.map
-  maps/BlmapChill_versions/BlmapChill_v0110.map
-  maps/BlmapChill_versions/BlmapChill_v0111.map
-  maps/Blockdale.map
-  maps/CBattleGores.map
-  maps/ChillBlock5.map
-  maps/ChillBlock_fork/ChillBlock5_v002_fork_a_01.map
-  maps/ChillBlock_fork/readme.txt
-  maps/ChillBlock_old/ChillBlock5_old.map
-  maps/ChillBlock_old/ChillBlock5_old10.map
-  maps/ChillBlock_old/ChillBlock5_old2.map
-  maps/ChillBlock_old/ChillBlock5_old3.map
-  maps/ChillBlock_old/ChillBlock5_old4.map
-  maps/ChillBlock_old/ChillBlock5_old5.map
-  maps/ChillBlock_old/ChillBlock5_old6.map
-  maps/ChillBlock_old/ChillBlock5_old7.map
-  maps/ChillBlock_old/ChillBlock5_old8.map
-  maps/ChillBlock_old/ChillBlock5_old9.map
-  maps/ChillBlock_versions/ChillBlock5_v001.map
-  maps/ChillBlock_versions/ChillBlock5_v002.map
-  maps/ChillBlock_versions/ChillBlock5_v003.map
-  maps/ChillBlock_versions/ChillBlock5_v004.map
-  maps/ChillBlock_versions/ChillBlock5_v005.map
-  maps/ChillBlock_versions/ChillBlock5_v006.map
-  maps/ChillBlock_versions/ChillBlock5_v006_christmas.map
-  maps/ChillBlock_versions/ChillBlock5_v007.map
-  maps/ChillBlock_versions/ChillBlock5_v008.map
-  maps/blmapV5_ddpp.map
-  maps/ctf5_fngores.map
-  maps/ddpp_survival.map
-  maps/fly_shy_cry.map
   particles.png
   shader/bordertile.frag
   shader/bordertile.vert
@@ -1540,8 +1499,6 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   econ.cpp
   econ.h
   engine.cpp
-  fetcher.cpp
-  fetcher.h
   fifo.cpp
   fifo.h
   filecollection.cpp
@@ -1549,6 +1506,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   ghost.cpp
   ghost.h
   global_uuid_manager.cpp
+  http.cpp
+  http.h
   huffman.cpp
   huffman.h
   jobs.cpp

@@ -1,7 +1,7 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
-#ifndef GAME_SERVER_DDRACECOMMANDS_H
-#define GAME_SERVER_DDRACECOMMANDS_H
-#undef GAME_SERVER_DDRACECOMMANDS_H // this file can be included several times
+
+// This file can be included several times.
+
 #ifndef CHAT_COMMAND
 #define CHAT_COMMAND(name, params, flags, callback, userdata, help, ddpp_al)
 //ddpp_al = ddnet++ access level 0=all 1=vip 2=vip+ 3=rcon_authed
@@ -190,5 +190,3 @@ CHAT_COMMAND("regex", "?ss[pattern|string]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConR
 CHAT_COMMAND("mapsave", "?s", CFGFLAG_CHAT | CFGFLAG_SERVER, ConMapsave, this, "save current map status")
 
 #undef CHAT_COMMAND
-
-#endif

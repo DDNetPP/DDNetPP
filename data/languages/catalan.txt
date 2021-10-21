@@ -542,9 +542,6 @@ Warmup
 Weapon
 == Arma
 
-Welcome to Teeworlds
-== ¡Benvingut/da a Teeworlds!
-
 Yes
 == Sí
 
@@ -647,9 +644,6 @@ Round
 Lht.
 == Lluminositat
 
-no limit
-== sense límit
-
 UI Color
 == Color del menú
 
@@ -689,9 +683,6 @@ Show quads
 Map sound volume
 == Volum del so del mapa
 
-✗
-== ✗
-
 Countries
 == Països
 
@@ -730,9 +721,6 @@ HUD
 
 Look out!
 == Estigues atent!
-
-Show names in chat in team colors
-== 
 
 Select a name
 == Selecciona un nom
@@ -869,9 +857,6 @@ Overlay entities
 Messages
 == Missatges
 
-Vanilla Skins only
-== Només skins originals
-
 %.2f MiB
 == %.2f MiB
 
@@ -965,9 +950,6 @@ AntiPing: predict weapons
 DDNet Client updated!
 == El client DDNet s'ha actualitzat!
 
-High-DPI screen support (experimental)
-== Suport per pantalla High-DPI (experimental)
-
 Outline color
 == Color del contorn
 
@@ -988,3 +970,66 @@ AntiPing limit
 
 Inner color
 == Color interior
+
+Kitty skins (DDCat)
+== Skins gatunes (DDCat)
+
+Friend message
+== Missatge d'amics
+
+\xEE\x85\x8B
+== \xEE\x85\x8B
+
+Fat skins (DDFat)
+== Skins Groses (DDFat)
+
+Show names in chat in team colors
+== Mostrar els noms en el xat amb colors
+
+may cause delay
+== pot causar retràs
+
+Unfinished map
+== Mapa inacabat
+
+Deactivate
+== Desactivar
+
+Welcome to DDNet
+== Benvingut a DDNet
+
+Preinit VBO (iGPUs only)
+== Preinicialitzar VBO (iGPUs només)
+
+Activate
+== Activar
+
+Multiple texture units (disable for MacOS)
+== Multiple texture units (disable for MacOS)
+
+Use OpenGL 3.3 (experimental)
+== Utilitzar OpenGL 3.3 (experimental)
+
+UI mouse s.
+== UI mouse s.
+
+File already exists, do you want to overwrite it?
+== L'arxiu ja existeix, vols reescriure'l?
+
+Indicate map finish
+== Indicar la finalització d'un mapa
+
+Save
+== Guardar
+
+Vanilla skins only
+== Només Vanilla skins only
+
+Date
+== Data
+
+Show DDNet map finishes in server browser\n(transmits your player name to info.ddnet.tw)
+== Mostrar finalitzacions de mapes en el buscador de servidors\n(retransmet el teu nom de jugar a info.ddnet.tw)
+
+Reload
+== Recarga

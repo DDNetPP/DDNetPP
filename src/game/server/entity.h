@@ -89,7 +89,7 @@ public:
 
 	/*
 		Function: destroy
-			Destorys the entity.
+			Destroys the entity.
 	*/
 	virtual void Destroy() { delete this; }
 
@@ -164,6 +164,9 @@ public:
 	vec2 m_Pos;
 
 	// DDRace
+	
+	bool GetNearestAirPos(vec2 Pos, vec2 ColPos, vec2* pOutPos);
+	bool GetNearestAirPosPlayer(vec2 PlayerPos, vec2* OutPos);
 
 	int m_Number;
 	int m_Layer;

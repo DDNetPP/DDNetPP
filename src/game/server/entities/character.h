@@ -700,6 +700,11 @@ public:
 	bool m_LastRefillJumps;
 	bool m_LastPenalty;
 	bool m_LastBonus;
+	bool m_HasTeleGun;
+	bool m_HasTeleGrenade;
+	bool m_HasTeleLaser;
+	vec2 m_TeleGunPos;
+	bool m_TeleGunTeleport;
 
 	int64 m_AliveTime;
 

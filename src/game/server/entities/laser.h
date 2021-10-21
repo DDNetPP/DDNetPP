@@ -36,6 +36,8 @@ private:
 	int m_Type;
 	int m_TuneZone;
 
+	bool m_TeleportCancelled;
+
 	// DDNet++
 
 	void QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar);

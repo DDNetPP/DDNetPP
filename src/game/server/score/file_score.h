@@ -1,8 +1,8 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 /* Based on Race mod stuff and tweaked by GreYFoX@GTi and others to fit our DDRace needs. */
 /* copyright (c) 2008 rajh and gregwar. Score stuff */
-#ifndef GAME_SERVER_FILESCORE_H
-#define GAME_SERVER_FILESCORE_H
+#ifndef GAME_SERVER_SCORE_FILE_SCORE_H
+#define GAME_SERVER_SCORE_FILE_SCORE_H
 
 #include <base/tl/sorted_array.h>
 
@@ -93,4 +93,4 @@ public:
 	virtual std::string LoadCIData();
 };
 
-#endif
+#endif // GAME_SERVER_SCORE_FILE_SCORE_H

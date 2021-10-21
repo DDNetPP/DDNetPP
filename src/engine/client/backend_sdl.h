@@ -1,3 +1,5 @@
+#ifndef ENGINE_CLIENT_BACKEND_SDL_H
+#define ENGINE_CLIENT_BACKEND_SDL_H
 
 #include "SDL.h"
 
@@ -35,7 +37,7 @@
 class CGraphicsBackend_Threaded : public IGraphicsBackend
 {
 public:
-	// constructed on the main thread, the rest of the functions is runned on the render thread
+	// constructed on the main thread, the rest of the functions is run on the render thread
 	class ICommandProcessor
 	{
 	public:
@@ -368,3 +370,5 @@ public:
 	
 	virtual bool IsOpenGL3_3() { return m_UseOpenGL3_3; }
 };
+
+#endif // ENGINE_CLIENT_BACKEND_SDL_H
