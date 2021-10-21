@@ -1271,6 +1271,21 @@ set(EXPECTED_DATA
   skins/jeet.png
   skins/kintaro_2.png
   skins/kirby.png
+  skins/kitty_bluestripe.png
+  skins/kitty_brownbear.png
+  skins/kitty_cammo.png
+  skins/kitty_cammostripes.png
+  skins/kitty_coala.png
+  skins/kitty_default.png
+  skins/kitty_pinky.png
+  skins/kitty_redbopp.png
+  skins/kitty_redstripe.png
+  skins/kitty_saddo.png
+  skins/kitty_toptri.png
+  skins/kitty_twinbop.png
+  skins/kitty_twintri.png
+  skins/kitty_warpaint.png
+  skins/kitty_x_ninja.png
   skins/lightbulb.png
   skins/limekitty.png
   skins/m&mred.png

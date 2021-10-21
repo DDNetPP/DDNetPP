@@ -425,10 +425,24 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	Dummy.HSplitTop(20.0f, &DummyLabel, &Dummy);
 
-	if(DoButton_CheckBox(&g_Config.m_ClVanillaSkinsOnly, Localize("Vanilla Skins only"), g_Config.m_ClVanillaSkinsOnly, &DummyLabel))
+	if(DoButton_CheckBox(&g_Config.m_ClVanillaSkinsOnly, Localize("Vanilla skins only"), g_Config.m_ClVanillaSkinsOnly, &DummyLabel))
 	{
 		g_Config.m_ClVanillaSkinsOnly ^= 1;
 		CheckSettings = true;
+	}
+
+	Dummy.HSplitTop(20.0f, &DummyLabel, &Dummy);
+
+	if(DoButton_CheckBox(&g_Config.m_ClKittySkins, Localize("Kitty skins (DDCat)"), g_Config.m_ClKittySkins, &DummyLabel))
+	{
+		g_Config.m_ClKittySkins ^= 1;
+	}
+
+	Dummy.HSplitTop(20.0f, &DummyLabel, &Dummy);
+
+	if(DoButton_CheckBox(&g_Config.m_ClFatSkins, Localize("Fat skins (DDFat)"), g_Config.m_ClFatSkins, &DummyLabel))
+	{
+		g_Config.m_ClFatSkins ^= 1;
 	}
 
 	if(CheckSettings)
@@ -616,6 +630,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(QuickSearch.w-15.0f, &QuickSearch, &QuickSearchClearButton);
 		static float Offset = 0.0f;
+		if(Input()->KeyPress(KEY_F) && (Input()->KeyIsPressed(KEY_LCTRL) || Input()->KeyIsPressed(KEY_RCTRL)))
+			UI()->SetActiveItem(&g_Config.m_ClSkinFilterString);
 		if(DoEditBox(&g_Config.m_ClSkinFilterString, &QuickSearch, g_Config.m_ClSkinFilterString, sizeof(g_Config.m_ClSkinFilterString), 14.0f, &Offset, false, CUI::CORNER_L, Localize("Search")))
 			s_InitSkinlist = true;
 

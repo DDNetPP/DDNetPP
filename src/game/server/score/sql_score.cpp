@@ -187,7 +187,7 @@ bool CSqlScore::CheckBirthdayThread(CSqlServer* pSqlServer, const CSqlData *pGam
 			str_format(aBuf, sizeof(aBuf), "Happy DDNet birthday to %s for finishing their first map %d year%s ago!", pData->m_Name.Str(), yearsAgo, yearsAgo > 1 ? "s" : "");
 			pData->GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, pData->m_ClientID);
 
-			str_format(aBuf, sizeof(aBuf), "Happy DDNet birthday %s !\nYou have finished your first map %d year%s ago!", pData->m_Name.Str(), yearsAgo, yearsAgo > 1 ? "s" : "");
+			str_format(aBuf, sizeof(aBuf), "Happy DDNet birthday %s!\nYou have finished your first map %d year%s ago!", pData->m_Name.Str(), yearsAgo, yearsAgo > 1 ? "s" : "");
 
 			pData->GameServer()->SendBroadcast(aBuf, pData->m_ClientID);
 		}
@@ -688,7 +688,7 @@ bool CSqlScore::SaveTeamScoreThread(CSqlServer* pSqlServer, const CSqlData *pGam
 
 		if (aUpdateID[0])
 		{
-			str_format(aBuf, sizeof(aBuf), "UPDATE %s_teamrace SET Time='%.2f', Timestamp=CURRENT_TIMESTAMP() WHERE ID = '%s';", pSqlServer->GetPrefix(), pData->m_Time, aUpdateID);
+			str_format(aBuf, sizeof(aBuf), "UPDATE %s_teamrace SET Time='%.2f' WHERE ID = '%s';", pSqlServer->GetPrefix(), pData->m_Time, aUpdateID);
 			dbg_msg("sql", "%s", aBuf);
 			pSqlServer->executeSql(aBuf);
 		}

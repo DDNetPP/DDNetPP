@@ -1069,6 +1069,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 
 				m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
+				SendRconType(ClientID, m_AuthManager.NumNonDefaultKeys() > 0);
 				SendMap(ClientID);
 			}
 		}
@@ -2155,10 +2156,15 @@ void CServer::ConAuthAdd(IConsole::IResult *pResult, void *pUser)
 		return;
 	}
 
+	bool NeedUpdate = !pManager->NumNonDefaultKeys();
 	if(pManager->AddKey(pIdent, pPw, Level) < 0)
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "ident already exists");
 	else
+	{
+		if(NeedUpdate)
+			pThis->SendRconType(-1, true);
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "key added");
+	}
 }
 
 void CServer::ConAuthAddHashed(IConsole::IResult *pResult, void *pUser)
@@ -2228,6 +2234,7 @@ void CServer::ConAuthUpdate(IConsole::IResult *pResult, void *pUser)
 	}
 
 	pManager->UpdateKey(KeySlot, pPw, Level);
+	pThis->LogoutKey(KeySlot, "key update");
 
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "key updated");
 }
@@ -2291,6 +2298,10 @@ void CServer::ConAuthRemove(IConsole::IResult *pResult, void *pUser)
 	}
 
 	pThis->AuthRemoveKey(KeySlot);
+
+	if(!pManager->NumNonDefaultKeys())
+		pThis->SendRconType(-1, false);
+
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "auth", "key removed, all users logged out");
 }
 
