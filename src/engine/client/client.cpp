@@ -41,6 +41,7 @@
 #include <engine/shared/datafile.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/filecollection.h>
+#include <engine/shared/ghost.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
@@ -478,7 +479,7 @@ void CClient::SendInput()
 	if(m_PredTick[g_Config.m_ClDummy] <= 0)
 		return;
 
-	if(m_LastDummy != g_Config.m_ClDummy)
+	if(m_LastDummy != (bool)g_Config.m_ClDummy)
 	{
 		m_LastDummy = g_Config.m_ClDummy;
 		GameClient()->OnDummySwap();
@@ -1505,7 +1506,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 						char aEscaped[128];
 						str_format(aFilename, sizeof(aFilename), "%s_%08x.map", pMap, MapCrc);
 
-						Fetcher()->Escape(aEscaped, sizeof(aEscaped), aFilename);
+						EscapeUrl(aEscaped, sizeof(aEscaped), aFilename);
 						str_format(aUrl, sizeof(aUrl), "%s/", g_Config.m_ClDDNetMapDownloadUrl);
 
 						// We only trust our own custom-selected CAs for our own servers.
@@ -1517,8 +1518,8 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 
 						str_append(aUrl, aEscaped, sizeof(aUrl));
 
-						m_pMapdownloadTask = new CFetchTask(true, UseDDNetCA);
-						Fetcher()->QueueAdd(m_pMapdownloadTask, aUrl, m_aMapdownloadFilename, IStorage::TYPE_SAVE);
+						m_pMapdownloadTask = std::make_shared<CFetchTask>(Storage(), aUrl, m_aMapdownloadFilename, IStorage::TYPE_SAVE, UseDDNetCA, true);
+						Engine()->AddJob(m_pMapdownloadTask);
 					}
 					else
 						SendMapRequest();
@@ -1731,7 +1732,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 
 					if(CompleteSize)
 					{
-						int IntSize = CVariableInt::Decompress(m_aSnapshotIncomingData, CompleteSize, aTmpBuffer2);
+						int IntSize = CVariableInt::Decompress(m_aSnapshotIncomingData, CompleteSize, aTmpBuffer2, sizeof(aTmpBuffer2));
 
 						if(IntSize < 0) // failure during decompression, bail
 							return;
@@ -1991,7 +1992,7 @@ void CClient::ProcessServerPacketDummy(CNetChunk *pPacket)
 
 					if(CompleteSize)
 					{
-						int IntSize = CVariableInt::Decompress(m_aSnapshotIncomingData, CompleteSize, aTmpBuffer2);
+						int IntSize = CVariableInt::Decompress(m_aSnapshotIncomingData, CompleteSize, aTmpBuffer2, sizeof(aTmpBuffer2));
 
 						if(IntSize < 0) // failure during decompression, bail
 							return;
@@ -2089,7 +2090,6 @@ void CClient::ResetMapDownload()
 	if(m_pMapdownloadTask)
 	{
 		m_pMapdownloadTask->Abort();
-		delete m_pMapdownloadTask;
 		m_pMapdownloadTask = NULL;
 	}
 	m_MapdownloadFile = 0;
@@ -2135,7 +2135,6 @@ void CClient::ResetDDNetInfo()
 	if(m_pDDNetInfoTask)
 	{
 		m_pDDNetInfoTask->Abort();
-		delete m_pDDNetInfoTask;
 		m_pDDNetInfoTask = NULL;
 	}
 }
@@ -2486,7 +2485,6 @@ void CClient::Update()
 		}
 		else if(m_pMapdownloadTask->State() == CFetchTask::STATE_ABORTED)
 		{
-			delete m_pMapdownloadTask;
 			m_pMapdownloadTask = NULL;
 		}
 	}
@@ -2502,7 +2500,6 @@ void CClient::Update()
 		}
 		else if(m_pDDNetInfoTask->State() == CFetchTask::STATE_ABORTED)
 		{
-			delete m_pDDNetInfoTask;
 			m_pDDNetInfoTask = NULL;
 		}
 	}
@@ -2529,8 +2526,9 @@ void CClient::RegisterInterfaces()
 {
 	Kernel()->RegisterInterface(static_cast<IDemoRecorder*>(&m_DemoRecorder[RECORDER_MANUAL]), false);
 	Kernel()->RegisterInterface(static_cast<IDemoPlayer*>(&m_DemoPlayer), false);
+	Kernel()->RegisterInterface(static_cast<IGhostRecorder*>(&m_GhostRecorder), false);
+	Kernel()->RegisterInterface(static_cast<IGhostLoader*>(&m_GhostLoader), false);
 	Kernel()->RegisterInterface(static_cast<IServerBrowser*>(&m_ServerBrowser), false);
-	Kernel()->RegisterInterface(static_cast<IFetcher*>(&m_Fetcher), false);
 #if !defined(CONF_PLATFORM_MACOSX) && !defined(__ANDROID__)
 	Kernel()->RegisterInterface(static_cast<IUpdater*>(&m_Updater), false);
 #endif
@@ -2549,7 +2547,6 @@ void CClient::InitInterfaces()
 	m_pInput = Kernel()->RequestInterface<IEngineInput>();
 	m_pMap = Kernel()->RequestInterface<IEngineMap>();
 	m_pMasterServer = Kernel()->RequestInterface<IEngineMasterServer>();
-	m_pFetcher = Kernel()->RequestInterface<IFetcher>();
 #if !defined(CONF_PLATFORM_MACOSX) && !defined(__ANDROID__)
 	m_pUpdater = Kernel()->RequestInterface<IUpdater>();
 #endif
@@ -2559,7 +2556,7 @@ void CClient::InitInterfaces()
 
 	m_ServerBrowser.SetBaseInfo(&m_NetClient[2], m_pGameClient->NetVersion());
 
-	m_Fetcher.Init();
+	FetcherInit();
 
 #if !defined(CONF_PLATFORM_MACOSX) && !defined(__ANDROID__)
 	m_Updater.Init();
@@ -2567,6 +2564,9 @@ void CClient::InitInterfaces()
 
 	m_Friends.Init();
 	m_Foes.Init(true);
+
+	m_GhostRecorder.Init();
+	m_GhostLoader.Init();
 }
 
 void CClient::Run()
@@ -2884,6 +2884,7 @@ void CClient::Run()
 	GameClient()->OnShutdown();
 	Disconnect();
 
+	delete m_pEditor;
 	m_pGraphics->Shutdown();
 
 	// shutdown SDL
@@ -3431,6 +3432,7 @@ int main(int argc, const char **argv) // ignore_convention
 {
 #endif
 	bool Silent = false;
+	bool RandInitFailed = false;
 
 	for(int i = 1; i < argc; i++) // ignore_convention
 	{
@@ -3444,14 +3446,9 @@ int main(int argc, const char **argv) // ignore_convention
 		}
 	}
 
-#if !defined(CONF_PLATFORM_MACOSX)
-	dbg_enable_threaded();
-#endif
-
 	if(secure_random_init() != 0)
 	{
-		dbg_msg("secure", "could not initialize secure RNG");
-		return -1;
+		RandInitFailed = true;
 	}
 
 	CClient *pClient = CreateClient();
@@ -3469,6 +3466,12 @@ int main(int argc, const char **argv) // ignore_convention
 	IEngineTextRender *pEngineTextRender = CreateEngineTextRender();
 	IEngineMap *pEngineMap = CreateEngineMap();
 	IEngineMasterServer *pEngineMasterServer = CreateEngineMasterServer();
+
+	if(RandInitFailed)
+	{
+		dbg_msg("secure", "could not initialize secure RNG");
+		return -1;
+	}
 
 	{
 		bool RegisterFail = false;
@@ -3492,7 +3495,7 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMasterServer*>(pEngineMasterServer)); // register as both
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateEditor());
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateEditor(), false);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateGameClient(), false);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pStorage);
 
@@ -3583,53 +3586,45 @@ int main(int argc, const char **argv) // ignore_convention
 
 // DDRace
 
-const char* CClient::GetCurrentMap()
+const char *CClient::GetCurrentMap()
 {
 	return m_aCurrentMap;
 }
 
-int CClient::GetCurrentMapCrc()
-{
-	return m_pMap->Crc();
-}
-
-const char* CClient::GetCurrentMapPath()
+const char *CClient::GetCurrentMapPath()
 {
 	return m_aCurrentMapPath;
 }
 
-const char* CClient::RaceRecordStart(const char *pFilename)
+unsigned CClient::GetMapCrc()
 {
-	char aFilename[128];
-	str_format(aFilename, sizeof(aFilename), "demos/%s_%s.demo", m_aCurrentMap, pFilename);
-
-	if(State() != STATE_ONLINE)
-		dbg_msg("demorec/record", "client is not online");
-	else
-		m_DemoRecorder[RECORDER_RACE].Start(Storage(),  m_pConsole, aFilename, GameClient()->NetVersion(), m_aCurrentMap, m_pMap->Crc(), "client", m_pMap->MapSize(), 0, m_pMap->File());
-
-	return m_aCurrentMap;
+	return m_pMap->Crc();
 }
 
-void CClient::RaceRecordStop()
+void CClient::RaceRecord_Start(const char *pFilename)
+{
+	if(State() != IClient::STATE_ONLINE)
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demorec/record", "client is not online");
+	else
+		m_DemoRecorder[RECORDER_RACE].Start(Storage(), m_pConsole, pFilename, GameClient()->NetVersion(), m_aCurrentMap, m_pMap->Crc(), "client", m_pMap->MapSize(), 0, m_pMap->File());
+}
+
+void CClient::RaceRecord_Stop()
 {
 	if(m_DemoRecorder[RECORDER_RACE].IsRecording())
 		m_DemoRecorder[RECORDER_RACE].Stop();
 }
 
-bool CClient::RaceRecordIsRecording()
+bool CClient::RaceRecord_IsRecording()
 {
 	return m_DemoRecorder[RECORDER_RACE].IsRecording();
 }
 
+
 void CClient::RequestDDNetInfo()
 {
 	char aUrl[256];
-	#if defined(CONF_FAMILY_WINDOWS)
-	static bool s_IsWinXP = os_compare_version(5U, 1U) <= 0;
-	#else
-	static bool s_IsWinXP = false;
-	#endif
+	static bool s_IsWinXP = os_is_winxp_or_lower();
 	if(s_IsWinXP)
 		str_copy(aUrl, "http://info.ddnet.tw/info", sizeof(aUrl));
 	else
@@ -3638,13 +3633,13 @@ void CClient::RequestDDNetInfo()
 	if(g_Config.m_BrIndicateFinished)
 	{
 		char aEscaped[128];
-		Fetcher()->Escape(aEscaped, sizeof(aEscaped), g_Config.m_PlayerName);
+		EscapeUrl(aEscaped, sizeof(aEscaped), g_Config.m_PlayerName);
 		str_append(aUrl, "?name=", sizeof(aUrl));
 		str_append(aUrl, aEscaped, sizeof(aUrl));
 	}
 
-	m_pDDNetInfoTask = new CFetchTask(true, /*UseDDNetCA*/ true);
-	Fetcher()->QueueAdd(m_pDDNetInfoTask, aUrl, "ddnet-info.json.tmp", IStorage::TYPE_SAVE);
+	m_pDDNetInfoTask = std::make_shared<CFetchTask>(Storage(), aUrl, "ddnet-info.json.tmp", IStorage::TYPE_SAVE, true, true);
+	Engine()->AddJob(m_pDDNetInfoTask);
 }
 
 int CClient::GetPredictionTime()

@@ -163,13 +163,8 @@ if family == "windows" then
 	table.insert(server_sql_depends, CopyToDirectory(".", "ddnet-libs/mysql/windows/mysqlcppconn.dll"))
 	table.insert(server_sql_depends, CopyToDirectory(".", "ddnet-libs/mysql/windows/libmysql.dll"))
 
-	if config.compiler.driver == "cl" then
-		client_link_other = {ResCompile("other/icons/DDNet_cl.rc")}
-		server_link_other = {ResCompile("other/icons/DDNet-Server_cl.rc")}
-	elseif config.compiler.driver == "gcc" then
-		client_link_other = {ResCompile("other/icons/DDNet_gcc.rc")}
-		server_link_other = {ResCompile("other/icons/DDNet-Server_gcc.rc")}
-	end
+	client_link_other = {ResCompile("other/icons/DDNet.rc")}
+	server_link_other = {ResCompile("other/icons/DDNet-Server.rc")}
 end
 
 function Intermediate_Output(settings, input)
@@ -211,6 +206,9 @@ function build(settings)
 		settings.cc.flags:Add("/EHsc")
 	else
 		settings.cc.flags:Add("-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
+		if config.compiler.driver == "gcc" then
+			settings.cc.flags_cxx:Add("-std=c++11")
+		end
 		if family == "windows" then
 			if config.compiler.driver == "gcc" then
 				settings.link.flags:Add("-static-libgcc")
@@ -295,8 +293,12 @@ function build(settings)
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	jsonparser = Compile(settings, Collect("src/engine/external/json-parser/*.c"))
 	md5 = Compile(settings, "src/engine/external/md5/md5.c")
+
+	settings.cc.flags:Add("-I src/engine/external/glew")
+	glew = Compile(settings, Collect("src/engine/external/glew/*.c"))
+
 	if config.websockets.value then
-		libwebsockets = Compile(external_settings, Collect("src/engine/external/libwebsockets/*.c"))
+		libwebsockets = Compile(settings, Collect("src/engine/external/libwebsockets/*.c"))
 	end
 
 	-- build game components
@@ -316,6 +318,8 @@ function build(settings)
 		end
 
 	elseif family == "windows" then
+		client_settings.cc.defines:Add("GLEW_STATIC")
+
 		if arch == "amd64" then
 			client_settings.link.libpath:Add("ddnet-libs/curl/windows/lib64")
 		else
@@ -378,6 +382,10 @@ function build(settings)
 		toolname_ddpp = PathFilename(PathBase(v))
 		tools_ddpp[i] = Link(settings, toolname_ddpp, Compile(settings, v), engine, zlib, pnglite, md5)
 	end
+	-- build client, server, version server and master server
+	client_exe = Link(client_settings, "DDNet", game_shared, game_client,
+		engine, client, game_editor, zlib, pnglite, wavpack, glew,
+		client_link_other, client_osxlaunch, jsonparser, libwebsockets, md5, client_notification)
 
 	server_exe = Link(server_settings, "DDNetPP", engine, server,
 		game_shared, game_server, zlib, server_link_other, libwebsockets, md5, sqlite3)

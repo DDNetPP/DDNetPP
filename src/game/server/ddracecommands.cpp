@@ -299,7 +299,7 @@ void CGameContext::ConToCheckTeleporter(IConsole::IResult *pResult, void *pUserD
 void CGameContext::ConTeleport(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
-	int TeleTo = pResult->GetInteger(0);
+	int TeleTo = pResult->GetInteger(1);
 	int Tele = pResult->m_ClientID;
 	if (pResult->NumArguments() > 0)
 		Tele = pResult->GetVictim();
@@ -339,8 +339,8 @@ void CGameContext::ConForcePause(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
 	int Seconds = 0;
-	if (pResult->NumArguments() > 0)
-		Seconds = clamp(pResult->GetInteger(0), 0, 360);
+	if (pResult->NumArguments() > 1)
+		Seconds = clamp(pResult->GetInteger(1), 0, 360);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[Victim];
 	if (!pPlayer)
@@ -353,6 +353,9 @@ void CGameContext::Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, con
 {
 	char aBuf[128];
 	int Found = 0;
+
+	Addr->port = 0; // ignore port number for mutes
+
 	// find a matching mute for this ip, update expiration time if found
 	for (int i = 0; i < m_NumMutes; i++)
 	{
@@ -377,9 +380,12 @@ void CGameContext::Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, con
 	}
 	if (Found)
 	{
-		str_format(aBuf, sizeof aBuf, "'%s' has been muted for %d seconds.",
-				pDisplayName, Secs);
-		SendChat(-1, CHAT_ALL, aBuf);
+		if (pDisplayName)
+		{
+			str_format(aBuf, sizeof aBuf, "'%s' has been muted for %d seconds.",
+					pDisplayName, Secs);
+			SendChat(-1, CHAT_ALL, aBuf);
+		}
 	}
 	else // no free slot found
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mutes", "mute array is full");
@@ -403,7 +409,7 @@ void CGameContext::ConMuteID(IConsole::IResult *pResult, void *pUserData)
 	NETADDR Addr;
 	pSelf->Server()->GetClientAddr(Victim, &Addr);
 
-	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(0), 1, 86400),
+	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400),
 			pSelf->Server()->ClientName(Victim));
 }
 
@@ -417,8 +423,7 @@ void CGameContext::ConMuteIP(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mutes",
 				"Invalid network address to mute");
 	}
-	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400),
-			pResult->GetString(0));
+	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400), NULL);
 }
 
 // unmute by mute list index
@@ -463,6 +468,34 @@ void CGameContext::ConMutes(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConModerate(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if (!CheckClientID(pResult->m_ClientID))
+		return;
+
+	bool HadModerator = pSelf->PlayerModerating();
+
+	CPlayer* player = pSelf->m_apPlayers[pResult->m_ClientID];
+	player->m_Moderating = !player->m_Moderating;
+	
+	char aBuf[256];
+
+	if(!HadModerator && player->m_Moderating)
+		str_format(aBuf, sizeof(aBuf), "Server kick/spec votes will now be actively moderated.");
+
+	if (!pSelf->PlayerModerating())
+		str_format(aBuf, sizeof(aBuf), "Server kick/spec votes are no longer actively moderated.");
+
+	pSelf->SendChat(-1, CHAT_ALL, aBuf, 0);
+	
+	if(player->m_Moderating)
+		pSelf->SendChatTarget(pResult->m_ClientID,
+			"Active moderator mode enabled for you.");
+	else
+		pSelf->SendChatTarget(pResult->m_ClientID, "Active moderator mode disabled for you.");
+}
+
 void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -483,7 +516,7 @@ void CGameContext::ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData)
 	CGameControllerDDRace *pController = (CGameControllerDDRace *)pSelf->m_pController;
 
 	int Target = pResult->GetVictim();
-	int Team = pResult->GetInteger(0);
+	int Team = pResult->GetInteger(1);
 
 	if(pController->m_Teams.m_Core.Team(Target) && pController->m_Teams.GetDDRaceState(pSelf->m_apPlayers[Target]) == DDRACE_STARTED)
 		pSelf->m_apPlayers[Target]->KillCharacter(WEAPON_SELF);

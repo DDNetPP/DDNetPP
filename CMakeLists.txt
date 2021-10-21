@@ -1076,6 +1076,8 @@ set(EXPECTED_DATA
   editor/tune.png
   editor/water.rules
   editor/winter_main.rules
+  emojis/emojione.sprites.png
+  emojis/index.txt
   emoticons.png
   file_icons.png
   fonts/DejaVuSansCJKName.ttf
@@ -1214,6 +1216,20 @@ set(EXPECTED_DATA
   maps/ddpp_survival.map
   maps/fly_shy_cry.map
   particles.png
+  shader/bordertile.frag
+  shader/bordertile.vert
+  shader/bordertileline.frag
+  shader/bordertileline.vert
+  shader/bordertilelinetex.frag
+  shader/bordertilelinetex.vert
+  shader/bordertiletex.frag
+  shader/bordertiletex.vert
+  shader/prim.frag
+  shader/prim.vert
+  shader/tile.frag
+  shader/tile.vert
+  shader/tiletex.frag
+  shader/tiletex.vert
   skins/Ablush\ NeoN.png
   skins/Aoe4leg.png
   skins/Apish\ Coke.png
@@ -1482,8 +1498,8 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   demo.h
   editor.h
   engine.h
-  fetcher.h
   friends.h
+  ghost.h
   graphics.h
   input.h
   kernel.h
@@ -1519,6 +1535,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   fifo.h
   filecollection.cpp
   filecollection.h
+  ghost.cpp
+  ghost.h
   global_uuid_manager.cpp
   huffman.cpp
   huffman.h
@@ -1553,7 +1571,6 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   snapshot.cpp
   snapshot.h
   storage.cpp
-  storage.h
   uuid_manager.cpp
   uuid_manager.h
   websockets.cpp
@@ -1641,6 +1658,10 @@ if(CLIENT)
     input.cpp
     input.h
     keynames.h
+    opengl_sl.cpp
+    opengl_sl.h
+    opengl_sl_program.cpp
+    opengl_sl_program.h
     serverbrowser.cpp
     serverbrowser.h
     sound.cpp
@@ -1675,6 +1696,8 @@ if(CLIENT)
     components/debughud.h
     components/effects.cpp
     components/effects.h
+    components/emojis.cpp
+    components/emojis.h
     components/emoticon.cpp
     components/emoticon.h
     components/flow.cpp
@@ -1707,8 +1730,6 @@ if(CLIENT)
     components/particles.h
     components/players.cpp
     components/players.h
-    components/race.cpp
-    components/race.h
     components/race_demo.cpp
     components/race_demo.h
     components/scoreboard.cpp
@@ -1727,6 +1748,8 @@ if(CLIENT)
     gameclient.h
     lineinput.cpp
     lineinput.h
+    race.cpp
+    race.h
     render.cpp
     render.h
     render_map.cpp
@@ -1975,6 +1998,8 @@ if(SERVER)
     score/sql_score.h
     teams.cpp
     teams.h
+    teehistorian.cpp
+    teehistorian.h
   )
   set(GAME_GENERATED_SERVER
     "src/game/generated/server_data.cpp"

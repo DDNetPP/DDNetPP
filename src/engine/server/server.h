@@ -85,9 +85,15 @@ class CServer : public IServer
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
 
-#if defined (CONF_SQL)
+#if defined(CONF_SQL)
 	CSqlServer *m_apSqlReadServers[MAX_SQLSERVERS];
 	CSqlServer *m_apSqlWriteServers[MAX_SQLSERVERS];
+#endif
+
+#if defined(CONF_FAMILY_UNIX)
+	UNIXSOCKETADDR m_ConnLoggingDestAddr;
+	bool m_ConnLoggingSocketCreated;
+	UNIXSOCKET m_ConnLoggingSocket;
 #endif
 
 public:
@@ -168,7 +174,7 @@ public:
 
 		// DNSBL
 		int m_DnsblState;
-		CHostLookup m_DnsblLookup;
+		std::shared_ptr<CHostLookup> m_pDnsblLookup;
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
@@ -213,6 +219,8 @@ public:
 	int64 m_ServerInfoFirstRequest;
 	int m_ServerInfoNumRequests;
 
+	char m_aErrorShutdownReason[128];
+
 	CServer();
 
 	int TrySetClientName(int ClientID, const char *pName);
@@ -235,6 +243,7 @@ public:
 
 	void SetRconCID(int ClientID);
 	int GetAuthedState(int ClientID);
+	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, int *pMapCrc);
 	int GetClientInfo(int ClientID, CClientInfo *pInfo);
 	void GetClientAddr(int ClientID, char *pAddrStr, int Size);
 	const char *ClientName(int ClientID);
@@ -325,10 +334,15 @@ public:
 	static void ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainRconHelperPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
-	//ddnet++
+	// ddnet++
 
 	static void ConStartBlockTourna(IConsole::IResult *pResult, void *pUser);
 	//static void ConDDPPshutdown(IConsole::IResult *pResult, void *pUser);
+
+
+#if defined(CONF_FAMILY_UNIX)
+	static void ConchainConnLoggingServerChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+#endif
 
 	void RegisterCommands();
 
@@ -363,6 +377,20 @@ public:
 	void ResetNetErrorString(int ClientID) { m_NetServer.ResetErrorString(ClientID); };
 	bool SetTimedOut(int ClientID, int OrigID);
 	void SetTimeoutProtected(int ClientID) { m_NetServer.SetTimeoutProtected(ClientID); };
+
+	bool ErrorShutdown() const { return m_aErrorShutdownReason[0] != 0; }
+	void SetErrorShutdown(const char *pReason);
+
+#ifdef CONF_FAMILY_UNIX
+	enum CONN_LOGGING_CMD
+	{
+		OPEN_SESSION=1,
+		CLOSE_SESSION=2,
+	};
+
+	void SendConnLoggingCommand(CONN_LOGGING_CMD cmd, const NETADDR *pAddr);
+#endif
+
 };
 
 #endif

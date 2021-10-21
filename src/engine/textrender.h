@@ -25,6 +25,7 @@ public:
 	float m_StartY;
 	float m_LineWidth;
 	float m_X, m_Y;
+	float m_EmojiX;
 
 	CFont *m_pFont;
 	float m_FontSize;
@@ -43,6 +44,7 @@ public:
 
 	//
 	virtual void TextEx(CTextCursor *pCursor, const char *pText, int Length) = 0;
+	virtual void UploadText(int TextureID, const char *pText, int Length, float x, float y, int Size, int MaxWidth, int MaxSize = -1, int MinSize = -1) = 0;
 
 	// old foolish interface
 	virtual void TextColor(float r, float g, float b, float a) = 0;

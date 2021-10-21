@@ -330,6 +330,10 @@ CServer::CServer()
 	m_ServerInfoNumRequests = 0;
 	m_ServerInfoHighLoad = false;
 
+#ifdef CONF_FAMILY_UNIX
+	m_ConnLoggingSocketCreated = false;
+#endif
+
 #if defined (CONF_SQL)
 	for (int i = 0; i < MAX_SQLSERVERS; i++)
 	{
@@ -340,6 +344,8 @@ CServer::CServer()
 	CSqlConnector::SetReadServers(m_apSqlReadServers);
 	CSqlConnector::SetWriteServers(m_apSqlWriteServers);
 #endif
+
+	m_aErrorShutdownReason[0] = 0;
 
 	Init();
 }
@@ -718,10 +724,10 @@ void CServer::DoSnapshot()
 				const int MaxSize = MAX_SNAPSHOT_PACKSIZE;
 				int NumPackets;
 
-				SnapshotSize = CVariableInt::Compress(aDeltaData, DeltaSize, aCompData);
+				SnapshotSize = CVariableInt::Compress(aDeltaData, DeltaSize, aCompData, sizeof(aCompData));
 				NumPackets = (SnapshotSize+MaxSize-1)/MaxSize;
 
-				for(int n = 0, Left = SnapshotSize; Left; n++)
+				for(int n = 0, Left = SnapshotSize; Left > 0; n++)
 				{
 					int Chunk = Left < MaxSize ? Left : MaxSize;
 					Left -= Chunk;
@@ -798,7 +804,9 @@ int CServer::NewClientNoAuthCallback(int ClientID, bool Reset, void *pUser)
 	}
 
 	pThis->SendMap(ClientID);
-
+#if defined(CONF_FAMILY_UNIX)
+	pThis->SendConnLoggingCommand(OPEN_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
+#endif
 	return 0;
 }
 
@@ -818,6 +826,11 @@ int CServer::NewClientCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_TrafficSince = 0;
 	memset(&pThis->m_aClients[ClientID].m_Addr, 0, sizeof(NETADDR));
 	pThis->m_aClients[ClientID].Reset();
+	pThis->GameServer()->OnClientEngineJoin(ClientID);
+
+#if defined(CONF_FAMILY_UNIX)
+	pThis->SendConnLoggingCommand(OPEN_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
+#endif
 	return 0;
 }
 
@@ -826,21 +839,42 @@ void CServer::InitDnsbl(int ClientID)
 	NETADDR Addr = *m_NetServer.ClientAddr(ClientID);
 
 	//TODO: support ipv6
-	if (Addr.type != NETTYPE_IPV4)
+	if(Addr.type != NETTYPE_IPV4)
 		return;
 
 	// build dnsbl host lookup
 	char aBuf[256];
-	if (g_Config.m_SvDnsblKey[0] == '\0')
+	if(g_Config.m_SvDnsblKey[0] == '\0')
+	{
 		// without key
 		str_format(aBuf, sizeof(aBuf), "%d.%d.%d.%d.%s", Addr.ip[3], Addr.ip[2], Addr.ip[1], Addr.ip[0], g_Config.m_SvDnsblHost);
+	}
 	else
+	{
 		// with key
 		str_format(aBuf, sizeof(aBuf), "%s.%d.%d.%d.%d.%s", g_Config.m_SvDnsblKey, Addr.ip[3], Addr.ip[2], Addr.ip[1], Addr.ip[0], g_Config.m_SvDnsblHost);
+	}
 
 	IEngine *pEngine = Kernel()->RequestInterface<IEngine>();
-	pEngine->HostLookup(&m_aClients[ClientID].m_DnsblLookup, aBuf, NETTYPE_IPV4);
+	pEngine->AddJob(m_aClients[ClientID].m_pDnsblLookup = std::make_shared<CHostLookup>(aBuf, NETTYPE_IPV4));
 }
+
+#ifdef CONF_FAMILY_UNIX
+void CServer::SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR* pAddr)
+{
+	if(!g_Config.m_SvConnLoggingServer[0] || !m_ConnLoggingSocketCreated)
+		return;
+
+	// pack the data and send it
+	unsigned char aData[23] = {0};
+	aData[0] = Cmd;
+	mem_copy(&aData[1], &pAddr->type, 4);
+	mem_copy(&aData[5], pAddr->ip, 16);
+	mem_copy(&aData[21], &pAddr->port, 2);
+
+	net_unix_send(m_ConnLoggingSocket, &m_ConnLoggingDestAddr, aData, sizeof(aData));
+}
+#endif
 
 int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 {
@@ -870,6 +904,11 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientID].m_TrafficSince = 0;
 	pThis->m_aPrevStates[ClientID] = CClient::STATE_EMPTY;
 	pThis->m_aClients[ClientID].m_Snapshots.PurgeAll();
+
+	pThis->GameServer()->OnClientEngineDrop(ClientID, pReason);
+#if defined(CONF_FAMILY_UNIX)
+	pThis->SendConnLoggingCommand(CLOSE_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
+#endif
 	return 0;
 }
 
@@ -878,6 +917,13 @@ void CServer::SendRconType(int ClientID, bool UsernameReq)
 	CMsgPacker Msg(NETMSG_RCONTYPE);
 	Msg.AddInt(UsernameReq);
 	SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+}
+
+void CServer::GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, int *pMapCrc)
+{
+	str_copy(pMapName, GetMapName(), MapNameSize);
+	*pMapSize = m_CurrentMapSize;
+	*pMapCrc = m_CurrentMapCrc;
 }
 
 void CServer::SendMap(int ClientID)
@@ -1061,7 +1107,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 
 				// reserved slot
-				if(ClientID >= (g_Config.m_SvMaxClients - g_Config.m_SvReservedSlots) && g_Config.m_SvReservedSlotsPass[0] != 0 && strcmp(g_Config.m_SvReservedSlotsPass, pPassword) != 0)
+				if(ClientID >= (g_Config.m_SvMaxClients - g_Config.m_SvReservedSlots) && g_Config.m_SvReservedSlotsPass[0] != 0 && str_comp(g_Config.m_SvReservedSlotsPass, pPassword) != 0)
 				{
 					m_NetServer.Drop(ClientID, "This server is full");
 					return;
@@ -1645,7 +1691,9 @@ void CServer::PumpNetwork()
 			}
 		}
 		else
+		{
 			ProcessClientPacket(&Packet);
+		}
 	}
 
 	m_ServerBan.Update();
@@ -1782,6 +1830,10 @@ int CServer::Run()
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 
 	GameServer()->OnInit();
+	if(ErrorShutdown())
+	{
+		return 1;
+	}
 	str_format(aBuf, sizeof(aBuf), "version %s", GameServer()->NetVersion());
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 
@@ -1849,6 +1901,10 @@ int CServer::Run()
 					m_ServerInfoFirstRequest = 0;
 					Kernel()->ReregisterInterface(GameServer());
 					GameServer()->OnInit();
+					if(ErrorShutdown())
+					{
+						break;
+					}
 					UpdateServerInfo();
 				}
 				else
@@ -1874,10 +1930,10 @@ int CServer::Run()
 						InitDnsbl(ClientID);
 					}
 					else if (m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_PENDING &&
-								m_aClients[ClientID].m_DnsblLookup.m_Job.Status() == CJob::STATE_DONE)
+								m_aClients[ClientID].m_pDnsblLookup->Status() == IJob::STATE_DONE)
 					{
 
-						if (m_aClients[ClientID].m_DnsblLookup.m_Job.Result() != 0)
+						if (m_aClients[ClientID].m_pDnsblLookup->m_Result != 0)
 						{
 							// entry not found -> whitelisted
 							m_aClients[ClientID].m_DnsblState = CClient::DNSBL_STATE_WHITELISTED;
@@ -1926,6 +1982,10 @@ int CServer::Run()
 				}
 
 				GameServer()->OnTick();
+				if(ErrorShutdown())
+				{
+					break;
+				}
 			}
 
 			// snap game
@@ -1983,11 +2043,16 @@ int CServer::Run()
 			}
 		}
 	}
+	const char *pDisconnectReason = "Server shutdown";
+	if(ErrorShutdown())
+	{
+		pDisconnectReason = m_aErrorShutdownReason;
+	}
 	// disconnect all clients on shutdown
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
-			m_NetServer.Drop(i, "Server shutdown");
+			m_NetServer.Drop(i, pDisconnectReason);
 	}
 
 	m_Econ.Shutdown();
@@ -2003,17 +2068,17 @@ int CServer::Run()
 		mem_free(m_pCurrentMapData);
 
 #if defined (CONF_SQL)
-		for (int i = 0; i < MAX_SQLSERVERS; i++)
-		{
-			if (m_apSqlReadServers[i])
-				delete m_apSqlReadServers[i];
+	for (int i = 0; i < MAX_SQLSERVERS; i++)
+	{
+		if (m_apSqlReadServers[i])
+			delete m_apSqlReadServers[i];
 
-			if (m_apSqlWriteServers[i])
-				delete m_apSqlWriteServers[i];
-		}
+		if (m_apSqlWriteServers[i])
+			delete m_apSqlWriteServers[i];
+	}
 #endif
 
-	return 0;
+	return ErrorShutdown();
 }
 
 void CServer::ConTestingCommands(CConsole::IResult *pResult, void *pUser)
@@ -2630,6 +2695,34 @@ void CServer::ConchainRconHelperPasswordChange(IConsole::IResult *pResult, void 
 	((CServer *)pUserData)->ConchainRconPasswordChangeGeneric(AUTHED_HELPER, pResult);
 }
 
+#if defined(CONF_FAMILY_UNIX)
+void CServer::ConchainConnLoggingServerChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	pfnCallback(pResult, pCallbackUserData);
+	if(pResult->NumArguments() == 1)
+	{
+		CServer *pServer = (CServer *)pUserData;
+
+		// open socket to send new connections
+		if(!pServer->m_ConnLoggingSocketCreated)
+		{
+			pServer->m_ConnLoggingSocket = net_unix_create_unnamed();
+			if(pServer->m_ConnLoggingSocket == -1)
+			{
+				pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Failed to created socket for communication with the connection logging server.");
+			}
+			else
+			{
+				pServer->m_ConnLoggingSocketCreated = true;
+			}
+		}
+
+		// set the destination address for the connection logging
+		net_unix_set_addr(&pServer->m_ConnLoggingDestAddr, pResult->GetString(0));
+	}
+}
+#endif
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2648,20 +2741,18 @@ void CServer::RegisterCommands()
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
 
-#if defined (CONF_SQL)
-
-	Console()->Register("add_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]", CFGFLAG_SERVER, ConAddSqlServer, this, "add a sqlserver");
+#if defined(CONF_SQL)
+	Console()->Register("add_sqlserver", "s['r'|'w'] s[Database] s[Prefix] s[User] s[Password] s[IP] i[Port] ?i[SetUpDatabase ?]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAddSqlServer, this, "add a sqlserver");
 	Console()->Register("dump_sqlservers", "s['r'|'w']", CFGFLAG_SERVER, ConDumpSqlServers, this, "dumps all sqlservers readservers = r, writeservers = w");
-
 #endif
 
 	Console()->Register("dnsbl_status", "", CFGFLAG_SERVER, ConDnsblStatus, this, "List blacklisted players");
 
-	Console()->Register("auth_add", "s[ident] s[level] s[pw]", CFGFLAG_SERVER, ConAuthAdd, this, "Add a rcon key");
-	Console()->Register("auth_add_p", "s[ident] s[level] s[hash] s[salt]", CFGFLAG_SERVER, ConAuthAddHashed, this, "Add a prehashed rcon key");
-	Console()->Register("auth_change", "s[ident] s[level] s[pw]", CFGFLAG_SERVER, ConAuthUpdate, this, "Update a rcon key");
-	Console()->Register("auth_change_p", "s[ident] s[level] s[hash] s[salt]", CFGFLAG_SERVER, ConAuthUpdateHashed, this, "Update a rcon key with prehashed data");
-	Console()->Register("auth_remove", "s[ident]", CFGFLAG_SERVER, ConAuthRemove, this, "Remove a rcon key");
+	Console()->Register("auth_add", "s[ident] s[level] s[pw]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthAdd, this, "Add a rcon key");
+	Console()->Register("auth_add_p", "s[ident] s[level] s[hash] s[salt]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthAddHashed, this, "Add a prehashed rcon key");
+	Console()->Register("auth_change", "s[ident] s[level] s[pw]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthUpdate, this, "Update a rcon key");
+	Console()->Register("auth_change_p", "s[ident] s[level] s[hash] s[salt]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthUpdateHashed, this, "Update a rcon key with prehashed data");
+	Console()->Register("auth_remove", "s[ident]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthRemove, this, "Remove a rcon key");
 	Console()->Register("auth_list", "", CFGFLAG_SERVER, ConAuthList, this, "List all rcon keys");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
@@ -2680,6 +2771,9 @@ void CServer::RegisterCommands()
 
 	Console()->Register("start_block_tournament", "", CFGFLAG_SERVER, ConStartBlockTourna, this, "Start a block tournament");
 	//Console()->Register("ddpp_shutdown", "", CFGFLAG_SERVER, ConDDPPshutdown, this, "Shutdown the server");
+#if defined(CONF_FAMILY_UNIX)
+	Console()->Chain("sv_conn_logging_server", ConchainConnLoggingServerChange, this);
+#endif
 
 	// register console commands in sub parts
 	m_ServerBan.InitServerBan(Console(), Storage(), this);
@@ -2730,10 +2824,6 @@ int main(int argc, const char **argv) // ignore_convention
 			break;
 		}
 	}
-
-#if !defined(CONF_PLATFORM_MACOSX) && !defined(FUZZING)
-	dbg_enable_threaded();
-#endif
 
 	if(secure_random_init() != 0)
 	{
@@ -2811,6 +2901,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// free
 	delete pKernel;
+
 	return 0;
 }
 
@@ -2844,7 +2935,7 @@ const char *CServer::GetAnnouncementLine(char const *pFileName)
 	}
 	else if(!g_Config.m_SvAnnouncementRandom)
 	{
-		if(m_AnnouncementLastLine >= v.size())
+		if(++m_AnnouncementLastLine >= v.size())
 			m_AnnouncementLastLine %= v.size();
 	}
 	else
@@ -2862,12 +2953,13 @@ const char *CServer::GetAnnouncementLine(char const *pFileName)
 	return v[m_AnnouncementLastLine];
 }
 
-int* CServer::GetIdMap(int ClientID)
+int *CServer::GetIdMap(int ClientID)
 {
-	return (int*)(IdMap + VANILLA_MAX_CLIENTS * ClientID);
+	return (int *)(IdMap + VANILLA_MAX_CLIENTS * ClientID);
 }
 
-bool CServer::SetTimedOut(int ClientID, int OrigID) {
+bool CServer::SetTimedOut(int ClientID, int OrigID)
+{
 	if (!m_NetServer.SetTimedOut(ClientID, OrigID))
 	{
 		return false;
@@ -2875,4 +2967,9 @@ bool CServer::SetTimedOut(int ClientID, int OrigID) {
 	DelClientCallback(OrigID, "Timeout Protection used", this);
 	m_aClients[ClientID].m_Authed = IServer::AUTHED_NO;
 	return true;
+}
+
+void CServer::SetErrorShutdown(const char *pReason)
+{
+	str_copy(m_aErrorShutdownReason, pReason, sizeof(m_aErrorShutdownReason));
 }

@@ -16,6 +16,7 @@
 #include "gamecontroller.h"
 #include "gameworld.h"
 #include "player.h"
+#include "teehistorian.h"
 
 #include "db_sqlite3.h"
 
@@ -55,15 +56,26 @@ enum
 	NUM_TUNEZONES = 256
 };
 
+class IStorage;
+
 class CGameContext : public IGameServer
 {
 	IServer *m_pServer;
 	class IConsole *m_pConsole;
+	IStorage *m_pStorage;
 	CLayers m_Layers;
 	CCollision m_Collision;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 	CTuningParams m_aTuningList[NUM_TUNEZONES];
+
+	bool m_TeeHistorianActive;
+	CTeeHistorian m_TeeHistorian;
+	ASYNCIO *m_pTeeHistorianFile;
+	CUuid m_GameUuid;
+
+	static void CommandCallback(int ClientID, int FlagMask, const char *pCmd, IConsole::IResult *pResult, void *pUser);
+	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
 
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
@@ -102,6 +114,7 @@ class CGameContext : public IGameServer
 public:
 	IServer *Server() const { return m_pServer; }
 	class IConsole *Console() { return m_pConsole; }
+	IStorage *Storage() { return m_pStorage; }
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
 	CTuningParams *TuningList() { return &m_aTuningList[0]; }
@@ -216,6 +229,9 @@ public:
 	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false);
 	virtual void OnClientDirectInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
+
+	virtual void OnClientEngineJoin(int ClientID);
+	virtual void OnClientEngineDrop(int ClientID, const char *pReason);
 
 	virtual bool IsClientReady(int ClientID);
 	virtual bool IsClientPlayer(int ClientID);
@@ -564,6 +580,8 @@ public:
 	int GetClientVersion(int ClientID);
 	void SetClientVersion(int ClientID, int Version);
 	bool PlayerExists(int ClientID) { return m_apPlayers[ClientID]; };
+	// Returns true if someone is actively moderating.
+	bool PlayerModerating();
 
 	CSql *m_Database;
 	bool CheckAccounts(int AccountID);
@@ -840,6 +858,7 @@ private:
 	static void ConMuteIP(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
+	static void ConModerate(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData);

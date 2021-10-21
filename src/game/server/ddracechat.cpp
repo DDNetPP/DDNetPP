@@ -32,7 +32,9 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"swick, oy, necropotame, Ryozuki, Redix, d3fault, marcelherd,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"BannZay, ACTom, SiuFuWong, PathosEthosLogos, TsFreddie & others.");
+		"BannZay, ACTom, SiuFuWong, PathosEthosLogos, TsFreddie,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Jupeyy, noby & others.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDRace by the DDRace developers,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
@@ -47,7 +49,7 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"DDraceNetwork Mod. Version: " GAME_VERSION);
-#if defined( GIT_SHORTREV_HASH )
+#if defined(GIT_SHORTREV_HASH)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
 			"Git revision hash: " GIT_SHORTREV_HASH);
 #endif
@@ -168,8 +170,8 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 					IConsole::OUTPUT_LEVEL_STANDARD,
 					"settings",
 					g_Config.m_SvHit ?
-							"Player's weapons affect each other" :
-							"Player's weapons has no affect on each other");
+							"Players' weapons affect each other" :
+							"Players' weapons has no affect on each other");
 		}
 		else if (str_comp(pArg, "oldlaser") == 0)
 		{
@@ -292,10 +294,19 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 	int PauseState = pPlayer->IsPaused();
 	if(PauseState <= 0)
 	{
-		if(-PauseState != CPlayer::PAUSE_SPEC)
+		if(pResult->NumArguments() > 0)
+		{
 			pPlayer->Pause(CPlayer::PAUSE_SPEC, false);
+			pPlayer->SpectatePlayerName(pResult->GetString(0));
+		}
 		else if(-PauseState == CPlayer::PAUSE_SPEC)
+		{
 			pPlayer->Pause(CPlayer::PAUSE_NONE, false);
+		}
+		else if(-PauseState != CPlayer::PAUSE_SPEC)
+		{
+			pPlayer->Pause(CPlayer::PAUSE_SPEC, false);
+		}
 	}
 	else
 	{
@@ -320,10 +331,19 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 	int PauseState = pPlayer->IsPaused();
 	if(PauseState <= 0)
 	{
-		if(-PauseState != CPlayer::PAUSE_PAUSED)
+		if(pResult->NumArguments() > 0)
+		{
 			pPlayer->Pause(CPlayer::PAUSE_PAUSED, false);
+			pPlayer->SpectatePlayerName(pResult->GetString(0));
+		}
 		else if(-PauseState == CPlayer::PAUSE_PAUSED)
+		{
 			pPlayer->Pause(CPlayer::PAUSE_NONE, false);
+		}
+		else if(-PauseState != CPlayer::PAUSE_PAUSED)
+		{
+			pPlayer->Pause(CPlayer::PAUSE_PAUSED, false);
+		}
 	}
 	else
 	{

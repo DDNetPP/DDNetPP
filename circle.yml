@@ -1,11 +1,12 @@
 dependencies:
-  pre:
+  override:
     - |
         sudo add-apt-repository -y ppa:zoogie/sdl2-snapshots
         sudo apt-get update
         sudo apt-get build-dep teeworlds
-        sudo apt-get install libsdl2-dev cmake
+        sudo apt-get install cmake libsdl2-dev xz-utils
 
+    - |
         if [ ! -x ~/bam/bam ]; then
           git clone https://github.com/matricks/bam ~/bam/
           cd ~/bam; ./make_unix.sh
@@ -13,15 +14,45 @@ dependencies:
 
   cache_directories:
     - "~/bam/"
+    - "~/cmake/"
+
+checkout:
+  post:
+    - git submodule update --init
 
 ## Customize test commands
+compile:
+  override:
+    - ~/bam/bam release
+    - |
+        mkdir build
+        cd build
+        env CFLAGS="-Wdeclaration-after-statement -Werror" CXXFLAGS="-Werror" cmake -DDOWNLOAD_GTEST=ON ..
+        make everything
+
 test:
   override:
     - |
-        git submodule update --init
-        ../bam/bam release
-
-        mkdir build
         cd build
-        env CFLAGS="-Wdeclaration-after-statement -Werror" CXXFLAGS="-Werror" cmake ..
-        make everything
+        make run_tests
+        ./DDNet-Server shutdown
+
+    - |
+        cd build
+        make package
+        mv DDNet-*.tar.* ${CIRCLE_ARTIFACTS}
+
+branches:
+  ignore:
+    - staging.tmp
+
+##
+##deployment:
+##  master:
+##    branch: master
+##    owner: ddnet
+##    commands:
+##      - |
+##          cd build
+##          make package
+##          mv DDNet-*.tar.*

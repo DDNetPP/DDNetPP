@@ -1,5 +1,6 @@
 bam
 .bam
+.vs
 config.lua
 datasrc/__pycache__
 datasrc/*.pyc
@@ -64,8 +65,10 @@ DDNet-Server_d
 DDNet-Server_sql
 DDNet-Server_sql_d
 
+/.vs
 /build
 CMakeCache.txt
+CMakeSettings*
 CMakeFiles
 Makefile
 cmake_install.cmake

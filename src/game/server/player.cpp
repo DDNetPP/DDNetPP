@@ -69,6 +69,7 @@ void CPlayer::Reset()
 	m_Sent1stAfkWarning = 0;
 	m_Sent2ndAfkWarning = 0;
 	m_ChatScore = 0;
+	m_Moderating = false;
 	m_EyeEmote = true;
 	m_TimerType = (g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) ? CPlayer::TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
 	m_DefEmote = EMOTE_NORMAL;
@@ -162,6 +163,15 @@ void CPlayer::Tick()
 		m_ChatScore--;
 
 	Server()->SetClientScore(m_ClientID, m_Score);
+
+	if (m_Moderating && m_Afk)
+	{
+		m_Moderating = false;
+		GameServer()->SendChatTarget(m_ClientID, "Active moderator mode disabled because you are afk.");
+
+		if (!GameServer()->PlayerModerating())
+			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Server kick/spec votes are no longer actively moderated.");
+	}
 
 	// do latency stuff
 	if (!m_IsDummy)
@@ -437,6 +447,14 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 			str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 		}
+
+		bool WasModerator = m_Moderating;
+
+		// Set this to false, otherwise PlayerModerating() will return true.
+		m_Moderating = false;
+
+		if (!GameServer()->PlayerModerating() && WasModerator)
+			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Server kick/spec votes are no longer actively moderated.");
 	}
 
 	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
@@ -794,13 +812,13 @@ void CPlayer::FindDuplicateSkins()
 {
 	if (m_TeeInfos.m_UseCustomColor == 0 && !m_StolenSkin) return;
 	m_StolenSkin = 0;
-	for (int i = 0; i < MAX_CLIENTS; ++i)
+	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
-		if (i == m_ClientID) continue;
+		if(i == m_ClientID) continue;
 		if(GameServer()->m_apPlayers[i])
 		{
-			if (GameServer()->m_apPlayers[i]->m_StolenSkin) continue;
-			if ((GameServer()->m_apPlayers[i]->m_TeeInfos.m_UseCustomColor == m_TeeInfos.m_UseCustomColor) &&
+			if(GameServer()->m_apPlayers[i]->m_StolenSkin) continue;
+			if((GameServer()->m_apPlayers[i]->m_TeeInfos.m_UseCustomColor == m_TeeInfos.m_UseCustomColor) &&
 			(GameServer()->m_apPlayers[i]->m_TeeInfos.m_ColorFeet == m_TeeInfos.m_ColorFeet) &&
 			(GameServer()->m_apPlayers[i]->m_TeeInfos.m_ColorBody == m_TeeInfos.m_ColorBody) &&
 			!str_comp(GameServer()->m_apPlayers[i]->m_TeeInfos.m_SkinName, m_TeeInfos.m_SkinName))
@@ -808,6 +826,21 @@ void CPlayer::FindDuplicateSkins()
 				m_StolenSkin = 1;
 				return;
 			}
+		}
+	}
+}
+
+void CPlayer::SpectatePlayerName(const char *pName)
+{
+	if(!pName)
+		return;
+
+	for(int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		if(i != m_ClientID && Server()->ClientIngame(i) && !str_comp(pName, Server()->ClientName(i)))
+		{
+			m_SpectatorID = i;
+			return;
 		}
 	}
 }

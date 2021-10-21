@@ -3,6 +3,10 @@
 #ifndef ENGINE_CLIENT_CLIENT_H
 #define ENGINE_CLIENT_CLIENT_H
 
+#include <memory>
+
+#include "fetcher.h"
+
 class CGraph
 {
 public:
@@ -61,7 +65,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IEngineMap *m_pMap;
 	IConsole *m_pConsole;
 	IStorage *m_pStorage;
-	IFetcher *m_pFetcher;
 	IUpdater *m_pUpdater;
 	IEngineMasterServer *m_pMasterServer;
 
@@ -75,8 +78,9 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	class CDemoPlayer m_DemoPlayer;
 	class CDemoRecorder m_DemoRecorder[RECORDER_MAX];
 	class CDemoEditor m_DemoEditor;
+	class CGhostRecorder m_GhostRecorder;
+	class CGhostLoader m_GhostLoader;
 	class CServerBrowser m_ServerBrowser;
-	class CFetcher m_Fetcher;
 	class CUpdater m_Updater;
 	class CFriends m_Friends;
 	class CFriends m_Foes;
@@ -126,7 +130,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	char m_aCmdConnect[256];
 
 	// map download
-	CFetchTask *m_pMapdownloadTask;
+	std::shared_ptr<CFetchTask> m_pMapdownloadTask;
 	char m_aMapdownloadFilename[256];
 	char m_aMapdownloadName[256];
 	IOHANDLE m_MapdownloadFile;
@@ -135,7 +139,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_MapdownloadAmount;
 	int m_MapdownloadTotalsize;
 
-	CFetchTask *m_pDDNetInfoTask;
+	std::shared_ptr<CFetchTask> m_pDDNetInfoTask;
 
 	// time
 	CSmoothTime m_GameTime[2];
@@ -207,7 +211,6 @@ public:
 	IGameClient *GameClient() { return m_pGameClient; }
 	IEngineMasterServer *MasterServer() { return m_pMasterServer; }
 	IStorage *Storage() { return m_pStorage; }
-	IFetcher *Fetcher() { return m_pFetcher; }
 	IUpdater *Updater() { return m_pUpdater; }
 
 	CClient();
@@ -300,7 +303,6 @@ public:
 	void FinishDDNetInfo();
 	void LoadDDNetInfo();
 
-	virtual CFetchTask *MapDownloadTask() { return m_pMapdownloadTask; }
 	virtual const char *MapDownloadName() { return m_aMapdownloadName; }
 	virtual int MapDownloadAmount() { return !m_pMapdownloadTask ? m_MapdownloadAmount : (int)m_pMapdownloadTask->Current(); }
 	virtual int MapDownloadTotalsize() { return !m_pMapdownloadTask ? m_MapdownloadTotalsize : (int)m_pMapdownloadTask->Size(); }
@@ -381,12 +383,13 @@ public:
 	void GenerateTimeoutSeed();
 	void GenerateTimeoutCodes();
 
-	virtual const char* GetCurrentMap();
-	virtual int GetCurrentMapCrc();
-	virtual const char* GetCurrentMapPath();
-	virtual const char* RaceRecordStart(const char *pFilename);
-	virtual void RaceRecordStop();
-	virtual bool RaceRecordIsRecording();
+	const char *GetCurrentMap();
+	const char *GetCurrentMapPath();
+	unsigned GetMapCrc();
+
+	void RaceRecord_Start(const char *pFilename);
+	void RaceRecord_Stop();
+	bool RaceRecord_IsRecording();
 
 	virtual void DemoSliceBegin();
 	virtual void DemoSliceEnd();

@@ -52,6 +52,7 @@ public:
 	CCharacter *GetCharacter();
 
 	void FindDuplicateSkins();
+	void SpectatePlayerName(const char *pName);
 
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
@@ -186,6 +187,8 @@ public:
 	bool m_HasFinishScore;
 
 	int m_ChatScore;
+
+	bool m_Moderating;
 
 	bool AfkTimer(int new_target_x, int new_target_y); //returns true if kicked
 	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);

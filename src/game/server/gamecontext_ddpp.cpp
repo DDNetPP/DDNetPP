@@ -25,6 +25,20 @@ bool CGameContext::CheckAccounts(int AccountID)
 	return false;
 }
 
+int CGameContext::GetNextClientID()
+{
+	int ClientID = -1;
+	for (int i = 0; i < g_Config.m_SvMaxClients; i++)
+	{
+		if (m_apPlayers[i])
+			continue;
+
+		ClientID = i;
+		break;
+	}
+
+	return ClientID;
+}
 
 void CGameContext::OnStartBlockTournament()
 {

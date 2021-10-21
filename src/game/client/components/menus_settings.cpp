@@ -58,8 +58,8 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 {
 	char aBuf[128];
 	CUIRect Label, Button, Left, Right, Game, Client, AutoReconnect;
-	MainView.HSplitTop(180.0f, &Game, &Client);
-	Client.HSplitTop(160.0f, &Client, &AutoReconnect);
+	MainView.HSplitTop(220.0f, &Game, &Client);
+	Client.HSplitTop(120.0f, &Client, &AutoReconnect);
 
 	// game
 	{
@@ -107,6 +107,21 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitTop(20.0f, &Button, &Left);
 		if(DoButton_CheckBox(&g_Config.m_ClResetWantedWeaponOnDeath, Localize("Reset wanted weapon on death"), g_Config.m_ClResetWantedWeaponOnDeath, &Button))
 			g_Config.m_ClResetWantedWeaponOnDeath ^= 1;
+
+		Left.HSplitTop(5.0f, 0, &Left);
+		Left.HSplitTop(20.0f, &Button, &Left);
+		if(DoButton_CheckBox(&g_Config.m_ClShowEmotes, Localize("Show tee emotes"), g_Config.m_ClShowEmotes, &Button))
+			g_Config.m_ClShowEmotes ^= 1;
+
+		Left.HSplitTop(5.0f, 0, &Left);
+		Left.HSplitTop(20.0f, &Button, &Left);
+		if(DoButton_CheckBox(&g_Config.m_ClShowChatEmojis, Localize("Show emojis in chat"), g_Config.m_ClShowChatEmojis, &Button))
+			g_Config.m_ClShowChatEmojis ^= 1;
+
+		Left.HSplitTop(5.0f, 0, &Left);
+		Left.HSplitTop(20.0f, &Button, &Left);
+		if(DoButton_CheckBox(&g_Config.m_ClShowChatSystem, Localize("Show chat messages by system"), g_Config.m_ClShowChatSystem, &Button))
+			g_Config.m_ClShowChatSystem ^= 1;
 
 		// chat messages
 		Right.HSplitTop(5.0f, 0, &Right);
@@ -179,7 +194,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			if(g_Config.m_ClAutoDemoMax)
 				str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Max demos"), g_Config.m_ClAutoDemoMax);
 			else
-				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max demos"), Localize("no limit"));
+				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max demos"), "∞");
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
 			Left.HSplitTop(20.0f, &Button, 0);
 			Button.HMargin(2.0f, &Button);
@@ -191,7 +206,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			if(g_Config.m_ClAutoScreenshotMax)
 				str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Max Screenshots"), g_Config.m_ClAutoScreenshotMax);
 			else
-				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max Screenshots"), Localize("no limit"));
+				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max Screenshots"), "∞");
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
 			Right.HSplitTop(20.0f, &Button, 0);
 			Button.HMargin(2.0f, &Button);
@@ -205,7 +220,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		if(g_Config.m_ClRefreshRate)
 			str_format(aBuf, sizeof(aBuf), "%s: %i Hz", Localize("Refresh Rate"), g_Config.m_ClRefreshRate);
 		else
-			str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Refresh Rate"), Localize("no limit"));
+			str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Refresh Rate"), "∞");
 		UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
 		Left.HSplitTop(20.0f, &Button, 0);
 		Button.HMargin(2.0f, &Button);
@@ -236,7 +251,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			if(g_Config.m_ClAutoStatboardScreenshotMax)
 				str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Max Screenshots"), g_Config.m_ClAutoStatboardScreenshotMax);
 			else
-				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max Screenshots"), Localize("no limit"));
+				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max Screenshots"), "∞");
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
 			Right.HSplitTop(20.0f, &Button, 0);
 			Button.HMargin(2.0f, &Button);
@@ -264,7 +279,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			if (g_Config.m_ClAutoCSVMax)
 				str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Max CSVs"), g_Config.m_ClAutoCSVMax);
 			else
-				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max CSVs"), Localize("no limit"));
+				str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Max CSVs"), "∞");
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
 			Right.HSplitTop(20.0f, &Button, 0);
 			Button.HMargin(2.0f, &Button);
@@ -909,6 +924,9 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	static int s_GfxFsaaSamples = g_Config.m_GfxFsaaSamples;
 	static int s_GfxTextureQuality = g_Config.m_GfxTextureQuality;
 	static int s_GfxTextureCompression = g_Config.m_GfxTextureCompression;
+	static int s_GfxOpenGLVersion = g_Config.m_GfxOpenGL3;
+	static int s_GfxEnableTextureUnitOptimization = g_Config.m_GfxEnableTextureUnitOptimization;
+	static int s_GfxUsePreinitBuffer = g_Config.m_GfxUsePreinitBuffer;
 
 	CUIRect ModeList;
 	MainView.VSplitLeft(300.0f, &MainView, &ModeList);
@@ -1030,6 +1048,30 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	if(DoButton_CheckBox(&g_Config.m_GfxHighDetail, Localize("High Detail"), g_Config.m_GfxHighDetail, &Button))
 		g_Config.m_GfxHighDetail ^= 1;
 
+	MainView.HSplitTop(20.0f, &Button, &MainView);
+	if(DoButton_CheckBox(&g_Config.m_GfxOpenGL3, Localize("Use OpenGL 3.3 (experimental)"), g_Config.m_GfxOpenGL3, &Button))
+	{
+		CheckSettings = true;
+		g_Config.m_GfxOpenGL3 ^= 1;
+	}
+
+	if(g_Config.m_GfxOpenGL3)
+	{
+		MainView.HSplitTop(20.0f, &Button, &MainView);
+		if(DoButton_CheckBox(&g_Config.m_GfxUsePreinitBuffer, Localize("Preinit VBO (iGPUs only)"), g_Config.m_GfxUsePreinitBuffer, &Button))
+		{
+			CheckSettings = true;
+			g_Config.m_GfxUsePreinitBuffer ^= 1;
+		}
+
+		MainView.HSplitTop(20.0f, &Button, &MainView);
+		if(DoButton_CheckBox(&g_Config.m_GfxEnableTextureUnitOptimization, Localize("Multiple texture units (disable for MacOS)"), g_Config.m_GfxEnableTextureUnitOptimization, &Button))
+		{
+			CheckSettings = true;
+			g_Config.m_GfxEnableTextureUnitOptimization ^= 1;
+		}
+	}
+	
 	// check if the new settings require a restart
 	if(CheckSettings)
 	{
@@ -1039,7 +1081,10 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			s_GfxVsync == g_Config.m_GfxVsync &&
 			s_GfxFsaaSamples == g_Config.m_GfxFsaaSamples &&
 			s_GfxTextureQuality == g_Config.m_GfxTextureQuality &&
-			s_GfxTextureCompression == g_Config.m_GfxTextureCompression)
+			s_GfxTextureCompression == g_Config.m_GfxTextureCompression &&
+			s_GfxOpenGLVersion == g_Config.m_GfxOpenGL3 &&
+			s_GfxUsePreinitBuffer == g_Config.m_GfxUsePreinitBuffer &&
+			s_GfxEnableTextureUnitOptimization == g_Config.m_GfxEnableTextureUnitOptimization)
 			m_NeedRestartGraphics = false;
 		else
 			m_NeedRestartGraphics = true;
@@ -1050,7 +1095,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	if(g_Config.m_GfxRefreshRate)
 		str_format(aBuf, sizeof(aBuf), "%s: %i Hz", Localize("Refresh Rate"), g_Config.m_GfxRefreshRate);
 	else
-		str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Refresh Rate"), Localize("no limit"));
+		str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Refresh Rate"), "∞");
 	UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
 	Button.HMargin(2.0f, &Button);
 	g_Config.m_GfxRefreshRate = static_cast<int>(DoScrollbarH(&g_Config.m_GfxRefreshRate, &Button, g_Config.m_GfxRefreshRate/1000.0f)*1000.0f+0.1f);
@@ -1485,6 +1530,13 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		{
 			g_Config.m_ClShowVotesAfterVoting ^= 1;
 		}
+
+		Right.HSplitTop(20.0f, &Button, &Right);
+		if (DoButton_CheckBox(&g_Config.m_ClShowNotifications, Localize("Show notifications"), g_Config.m_ClShowNotifications, &Button))
+		{
+			g_Config.m_ClShowNotifications ^= 1;
+		}
+
 		MainView.HSplitTop(170.0f, &Messages, &MainView);
 		Messages.HSplitTop(30.0f, &Label, &Messages);
 		Label.VSplitMid(&Label, &Button);
@@ -1657,10 +1709,10 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			char aBuf[64];
 			Right.HSplitTop(20.0f, &Label, &Right);
 			Label.VSplitRight(50.0f, &Label, &Button);
-			float twh = TextRender()->TextWidth(0, 16.0f, "Friend message", -1) ;
+			float twh = TextRender()->TextWidth(0, 16.0f, Localize("Friend message"), -1) ;
 			Label.VSplitLeft(twh + 5.0f, &Label, &Enable);
 			Enable.VSplitLeft(20.0f, &Enable, 0);
-			UI()->DoLabelScaled(&Label, "Friend message", 16.0f, -1);
+			UI()->DoLabelScaled(&Label, Localize("Friend message"), 16.0f, -1);
 			{
 				static int s_DefaultButton = 0;
 				if (DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))

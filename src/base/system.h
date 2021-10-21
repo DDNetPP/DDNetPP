@@ -13,6 +13,10 @@
 #include <time.h>
 #include <stdio.h>
 
+#ifdef CONF_FAMILY_UNIX
+#include <sys/un.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -337,6 +341,18 @@ int io_close(IOHANDLE io);
 */
 int io_flush(IOHANDLE io);
 
+/*
+	Function: io_error
+		Checks whether an error occured during I/O with the file.
+
+	Parameters:
+		io - Handle to the file.
+
+	Returns:
+		Returns nonzero on error, 0 otherwise.
+*/
+int io_error(IOHANDLE io);
+
 
 /*
 	Function: io_stdin
@@ -356,6 +372,134 @@ IOHANDLE io_stdout();
 */
 IOHANDLE io_stderr();
 
+typedef struct ASYNCIO ASYNCIO;
+
+/*
+	Function: aio_new
+		Wraps a <IOHANDLE> for asynchronous writing.
+
+	Parameters:
+		io - Handle to the file.
+
+	Returns:
+		Returns the handle for asynchronous writing.
+
+*/
+ASYNCIO *aio_new(IOHANDLE io);
+
+/*
+	Function: aio_lock
+		Locks the ASYNCIO structure so it can't be written into by
+		other threads.
+
+	Parameters:
+		aio - Handle to the file.
+*/
+void aio_lock(ASYNCIO *aio);
+
+/*
+	Function: aio_unlock
+		Unlocks the ASYNCIO structure after finishing the contiguous
+		write.
+
+	Parameters:
+		aio - Handle to the file.
+*/
+void aio_unlock(ASYNCIO *aio);
+
+/*
+	Function: aio_write
+		Queues a chunk of data for writing.
+
+	Parameters:
+		aio - Handle to the file.
+		buffer - Pointer to the data that should be written.
+		size - Number of bytes to write.
+
+*/
+void aio_write(ASYNCIO *aio, const void *buffer, unsigned size);
+
+/*
+	Function: aio_write_newline
+		Queues a newline for writing.
+
+	Parameters:
+		aio - Handle to the file.
+
+*/
+void aio_write_newline(ASYNCIO *aio);
+
+/*
+	Function: aio_write_unlocked
+		Queues a chunk of data for writing. The ASYNCIO struct must be
+		locked using `aio_lock` first.
+
+	Parameters:
+		aio - Handle to the file.
+		buffer - Pointer to the data that should be written.
+		size - Number of bytes to write.
+
+*/
+void aio_write_unlocked(ASYNCIO *aio, const void *buffer, unsigned size);
+
+/*
+	Function: aio_write_newline_unlocked
+		Queues a newline for writing. The ASYNCIO struct must be locked
+		using `aio_lock` first.
+
+	Parameters:
+		aio - Handle to the file.
+
+*/
+void aio_write_newline_unlocked(ASYNCIO *aio);
+
+/*
+	Function: aio_error
+		Checks whether errors have occured during the asynchronous
+		writing.
+
+		Call this function regularly to see if there are errors. Call
+		this function after <aio_wait> to see if the process of writing
+		to the file succeeded.
+
+	Parameters:
+		aio - Handle to the file.
+
+	Returns:
+		Returns 0 if no error occured, and nonzero on error.
+
+*/
+int aio_error(ASYNCIO *aio);
+
+/*
+	Function: aio_close
+		Queues file closing.
+
+	Parameters:
+		aio - Handle to the file.
+
+*/
+void aio_close(ASYNCIO *aio);
+
+/*
+	Function: aio_wait
+		Wait for the asynchronous operations to complete.
+
+	Parameters:
+		aio - Handle to the file.
+
+*/
+void aio_wait(ASYNCIO *aio);
+
+/*
+	Function: aio_free
+		Frees the resources associated to the asynchronous file handle.
+
+	Parameters:
+		aio - Handle to the file.
+
+*/
+void aio_free(ASYNCIO *aio);
 
 /* Group: Threads */
 
@@ -389,7 +533,7 @@ void *thread_init(void (*threadfunc)(void *), void *user);
 void thread_wait(void *thread);
 
 /*
-	Function: thread_yeild
+	Function: thread_yield
 		Yield the current threads execution slice.
 */
 void thread_yield();
@@ -506,6 +650,10 @@ typedef struct
 	unsigned short port;
 } NETADDR;
 
+#ifdef CONF_FAMILY_UNIX
+typedef int UNIXSOCKET;
+typedef struct sockaddr_un UNIXSOCKETADDR;
+#endif
 /*
 	Function: net_init
 		Initiates network functionallity.
@@ -736,6 +884,54 @@ int net_tcp_recv(NETSOCKET sock, void *data, int maxsize);
 */
 int net_tcp_close(NETSOCKET sock);
 
+#if defined(CONF_FAMILY_UNIX)
+/* Group: Network Unix Sockets */
+
+/*
+	Function: net_unix_create_unnamed
+		Creates an unnamed unix datagram socket.
+
+	Returns:
+		On success it returns a handle to the socket. On failure it returns -1.
+*/
+UNIXSOCKET net_unix_create_unnamed();
+
+/*
+	Function: net_unix_send
+		Sends data to a Unix socket.
+
+	Parameters:
+		sock - Socket to use.
+		addr - Where to send the packet.
+		data - Pointer to the packet data to send.
+		size - Size of the packet.
+
+	Returns:
+		Number of bytes sent. Negative value on failure.
+*/
+int net_unix_send(UNIXSOCKET sock, UNIXSOCKETADDR *addr, void *data, int size);
+
+/*
+	Function: net_unix_set_addr
+		Sets the unixsocketaddress for a path to a socket file.
+
+	Parameters:
+		addr - Pointer to the addressstruct to fill.
+		path - Path to the (named) unix socket.
+*/
+void net_unix_set_addr(UNIXSOCKETADDR *addr, const char *path);
+
+/*
+	Function: net_unix_close
+		Closes a Unix socket.
+
+	Parameters:
+		sock - Socket to close.
+*/
+void net_unix_close(UNIXSOCKET sock);
+
+#endif
+
 /* Group: Strings */
 
 /*
@@ -855,6 +1051,18 @@ void str_sanitize_cc(char *str);
 void str_sanitize(char *str);
 
 /*
+	Function: str_sanitize_filename
+		Replaces all invalid filename characters with whitespace.
+
+	Parameters:
+		str - String to sanitize.
+
+	Remarks:
+		- The strings are treated as zero-termineted strings.
+*/
+void str_sanitize_filename(char *str);
+
+/*
 	Function: str_skip_to_whitespace
 		Skips leading non-whitespace characters(all but ' ', '\t', '\n', '\r').
 
@@ -927,7 +1135,7 @@ int str_comp_nocase_num(const char *a, const char *b, const int num);
 
 /*
 	Function: str_comp
-		Compares to strings case sensitive.
+		Compares two strings case sensitive.
 
 	Parameters:
 		a - String to compare.
@@ -1288,10 +1496,10 @@ void mem_debug_dump(IOHANDLE file);
 void swap_endian(void *data, unsigned elem_size, unsigned num);
 
 
-typedef void (*DBG_LOGGER)(const char *line);
-void dbg_logger(DBG_LOGGER logger);
+typedef void (*DBG_LOGGER)(const char *line, void *user);
+typedef void (*DBG_LOGGER_FINISH)(void *user);
+void dbg_logger(DBG_LOGGER logger, DBG_LOGGER_FINISH finish, void *user);
 
-void dbg_enable_threaded();
 void dbg_logger_stdout();
 void dbg_logger_debugger();
 void dbg_logger_file(const char *filename);
@@ -1432,19 +1640,14 @@ int pid();
 void shell_execute(const char *file);
 
 /*
-	Function: os_compare_version
-		Compares the OS version to a given major and minor.
-
-	Parameters:
-		major - Major version to compare to.
-		minor - Minor version to compare to.
+	Function: os_is_winxp_or_lower
+		Checks whether the program runs on Windows XP or lower.
 
 	Returns:
-		1 - OS version higher.
-		0 - OS version same.
-		-1 - OS version lower.
+		1 - Windows XP or lower.
+		0 - Higher Windows version, Linux, macOS, etc.
 */
-int os_compare_version(unsigned int major, unsigned int minor);
+int os_is_winxp_or_lower();
 
 /*
 	Function: generate_password
