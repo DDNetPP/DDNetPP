@@ -1111,12 +1111,12 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 		if (g_Config.m_SvInstagibMode)
 		{
-			SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSION ") based on DDNet 9.0.2");
+			SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSION ") based on DDNet " GAME_RELEASE_VERSION);
 		}
 		else
 		{
 			char aWelcome[128];
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet 9.0.2", g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
+			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
 			SendChatTarget(ClientID, aWelcome);
 		}
 
