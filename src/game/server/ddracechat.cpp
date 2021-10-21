@@ -569,11 +569,13 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
+	const char* pTimeout = pResult->NumArguments() > 0 ? pResult->GetString(0) : pPlayer->m_TimeoutCode;
+
 	for(int i = 0; i < pSelf->Server()->MaxClients(); i++)
 	{
 		if (i == pResult->m_ClientID) continue;
 		if (!pSelf->m_apPlayers[i]) continue;
-		if (str_comp(pSelf->m_apPlayers[i]->m_TimeoutCode, pResult->GetString(0))) continue;
+		if (str_comp(pSelf->m_apPlayers[i]->m_TimeoutCode, pTimeout)) continue;
 		if (pSelf->Server()->SetTimedOut(i, pResult->m_ClientID)) {
 			if (pSelf->m_apPlayers[i]->GetCharacter())
 				pSelf->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
@@ -1154,9 +1156,21 @@ void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	if (pResult->NumArguments())
+	{
+		if (pPlayer->m_ShowAll == (bool)pResult->GetInteger(0))
+			return;
+
 		pPlayer->m_ShowAll = pResult->GetInteger(0);
+	}
 	else
+	{
 		pPlayer->m_ShowAll = !pPlayer->m_ShowAll;
+	}
+
+	if (pPlayer->m_ShowAll)
+		pSelf->SendChatTarget(pResult->m_ClientID, "You will now see all tees on this server, no matter the distance");
+	else
+		pSelf->SendChatTarget(pResult->m_ClientID, "You will no longer see all tees on this server");
 }
 
 void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)

@@ -2552,7 +2552,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	bool SetUpDb = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : false;
+	bool SetUpDb = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;
 
 	CSqlServer** apSqlServers = ReadOnly ? pSelf->m_apSqlReadServers : pSelf->m_apSqlWriteServers;
 

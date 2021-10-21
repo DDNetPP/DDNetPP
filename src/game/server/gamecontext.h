@@ -8,6 +8,7 @@
 #include <engine/shared/memheap.h>
 
 #include <game/layers.h>
+#include <game/mapbugs.h>
 #include <game/voting.h>
 
 #include <game/server/letters.h>
@@ -73,6 +74,7 @@ class CGameContext : public IGameServer
 	CTeeHistorian m_TeeHistorian;
 	ASYNCIO *m_pTeeHistorianFile;
 	CUuid m_GameUuid;
+	CMapBugs m_MapBugs;
 
 	static void CommandCallback(int ClientID, int FlagMask, const char *pCmd, IConsole::IResult *pResult, void *pUser);
 	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
@@ -85,6 +87,7 @@ class CGameContext : public IGameServer
 	static void ConTuneResetZone(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneSetZoneMsgEnter(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneSetZoneMsgLeave(IConsole::IResult *pResult, void *pUserData);
+	static void ConMapbug(IConsole::IResult *pResult, void *pUserData);
 	static void ConSwitchOpen(IConsole::IResult *pResult, void *pUserData);
 	static void ConPause(IConsole::IResult *pResult, void *pUserData);
 	static void ConChangeMap(IConsole::IResult *pResult, void *pUserData);
@@ -133,6 +136,8 @@ public:
 
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
+	bool EmulateBug(int Bug);
+
 	//int m_LockTeams;
 
 	// voting
@@ -858,6 +863,7 @@ private:
 	static void ConRescue(IConsole::IResult *pResult, void *pUserData);
 	static void ConProtectedKill(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConVoteMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteID(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteIP(IConsole::IResult *pResult, void *pUserData);
@@ -1067,7 +1073,8 @@ private:
 		MAX_MUTES=32,
 		MAX_REGISTER_BANS=128,
 		MAX_LOGIN_BANS=128,
-		MAX_JAILS=16
+		MAX_JAILS=16,
+		MAX_VOTE_BANS=32,
 	};
 	struct CMute
 	{
@@ -1081,6 +1088,11 @@ private:
 		int64 m_LastAttempt;
 		int m_NumAttempts;
 	};
+	struct CVoteMute
+	{
+		NETADDR m_Addr;
+		int m_Expire;
+	};
 
 	CMute m_aMutes[MAX_MUTES];
 	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
@@ -1092,11 +1104,14 @@ private:
 	int m_NumLoginBans;
 	int m_NumNameChangeMutes;
 	int m_NumJailIPs;
-	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
 	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
 	int64 NameChangeMuteTime(int ClientID);
+	CVoteMute m_aVoteMutes[MAX_VOTE_BANS];
+	int m_NumVoteMutes;
+	void Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs, const char *pDisplayName);
+	void VoteMute(IConsole::IResult *pResult, NETADDR *pAddr, int Secs, const char *pDisplayName, int AuthedID);
 	void Whisper(int ClientID, char *pStr);
 	void WhisperID(int ClientID, int VictimID, char *pMessage);
 	void Converse(int ClientID, char *pStr);
