@@ -28,6 +28,7 @@ cmake/FindCrypto.cmake merge=ours
 cmake/FindPnglite.cmake merge=ours
 # TODO: remove this
 src/engine/server/authmanager.cpp merge=ours
+src/engine/server/authmanager.h merge=ours
 
 other/*/include/* linguist-vendored
 src/engine/external/* linguist-vendored
