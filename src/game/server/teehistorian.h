@@ -1,4 +1,6 @@
+#include <base/hash.h>
 #include <engine/console.h>
+#include <engine/shared/fetcher.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
@@ -26,6 +28,7 @@ public:
 
 		const char *m_pMapName;
 		int m_MapSize;
+		SHA256_DIGEST m_MapSha256;
 		int m_MapCrc;
 
 		CConfiguration *m_pConfig;

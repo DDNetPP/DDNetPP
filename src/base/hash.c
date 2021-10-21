@@ -49,7 +49,6 @@ int sha256_comp(SHA256_DIGEST digest1, SHA256_DIGEST digest2)
 {
 	return mem_comp(digest1.data, digest2.data, sizeof(digest1.data));
 }
-
 MD5_DIGEST md5(const void *message, size_t message_len)
 {
 	MD5_CTX ctxt;

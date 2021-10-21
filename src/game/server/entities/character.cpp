@@ -449,48 +449,45 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::HandleJetpack()
 {
-	if (isFreezed || m_FreezeTime)
-		return;
-
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
-	if (m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	if(m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
 
 	// check if we gonna fire
 	bool WillFire = false;
-	if (CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
+	if(CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
 		WillFire = true;
 
-	if (FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	if(FullAuto && (m_LatestInput.m_Fire&1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 		WillFire = true;
 
-	if (!WillFire)
+	if(!WillFire)
 		return;
 
 	// check for ammo
-	if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	if(!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 	{
 		return;
 	}
 
-	switch (m_Core.m_ActiveWeapon)
+	switch(m_Core.m_ActiveWeapon)
 	{
-	case WEAPON_GUN:
-	{
-		if (m_Jetpack)
+		case WEAPON_GUN:
 		{
-			float Strength;
-			if (!m_TuneZone)
-				Strength = GameServer()->Tuning()->m_JetpackStrength;
-			else
-				Strength = GameServer()->TuningList()[m_TuneZone].m_JetpackStrength;
-			TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage, m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+			if (m_Jetpack)
+			{
+				float Strength;
+				if (!m_TuneZone)
+					Strength = GameServer()->Tuning()->m_JetpackStrength;
+				else
+					Strength = GameServer()->TuningList()[m_TuneZone].m_JetpackStrength;
+				TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage, m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+			}
 		}
-	}
 	}
 }
 
@@ -598,7 +595,7 @@ void CCharacter::HandleNinja()
 void CCharacter::DoWeaponSwitch()
 {
 	// make sure we can switch
-	if (m_ReloadTimer != 0 || m_QueuedWeapon == -1 || m_aWeapons[WEAPON_NINJA].m_Got)
+	if(m_ReloadTimer != 0 || m_QueuedWeapon == -1 || m_aWeapons[WEAPON_NINJA].m_Got || !m_aWeapons[m_QueuedWeapon].m_Got)
 		return;
 
 	// switch Weapon

@@ -14,6 +14,7 @@
 #include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
+#include <engine/shared/fetcher.h>
 
 // player object
 class CPlayer
@@ -147,7 +148,6 @@ private:
 	int64 m_ForcePauseTime;
 	int64 m_LastPause;
 
-	// DDRace
 public:
 	enum
 	{
@@ -188,7 +188,7 @@ public:
 	int m_ChatScore;
 
 	bool m_Moderating;
-	int m_ModHelpTick;
+	int m_ModhelpTick;
 
 	bool AfkTimer(int new_target_x, int new_target_y); //returns true if kicked
 	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);
@@ -209,6 +209,7 @@ public:
 	bool m_Halloween;
 	bool m_FirstPacket;
 
+	std::shared_ptr<CPostJson> m_pPostJson;
 
 	/*
 

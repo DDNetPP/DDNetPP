@@ -5,7 +5,8 @@
 
 #include <memory>
 
-#include "fetcher.h"
+#include <base/hash.h>
+#include <engine/shared/fetcher.h>
 
 class CGraph
 {
@@ -112,6 +113,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	char m_RconPassword[32];
 	int m_UseTempRconCommands;
 	char m_Password[32];
+	bool m_SendPassword;
 
 	// version-checking
 	char m_aVersionStr[10];
@@ -130,7 +132,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	char m_aCmdConnect[256];
 
 	// map download
-	std::shared_ptr<CFetchTask> m_pMapdownloadTask;
+	std::shared_ptr<CGetFile> m_pMapdownloadTask;
 	char m_aMapdownloadFilename[256];
 	char m_aMapdownloadName[256];
 	IOHANDLE m_MapdownloadFile;
@@ -138,8 +140,15 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_MapdownloadCrc;
 	int m_MapdownloadAmount;
 	int m_MapdownloadTotalsize;
+	bool m_MapdownloadSha256Present;
+	SHA256_DIGEST m_MapdownloadSha256;
 
-	std::shared_ptr<CFetchTask> m_pDDNetInfoTask;
+	bool m_MapDetailsPresent;
+	char m_aMapDetailsName[256];
+	int m_MapDetailsCrc;
+	SHA256_DIGEST m_MapDetailsSha256;
+
+	std::shared_ptr<CGetFile> m_pDDNetInfoTask;
 
 	// time
 	CSmoothTime m_GameTime[2];
@@ -285,8 +294,8 @@ public:
 
 	virtual const char *ErrorString();
 
-	const char *LoadMap(const char *pName, const char *pFilename, unsigned WantedCrc);
-	const char *LoadMapSearch(const char *pMapName, int WantedCrc);
+	const char *LoadMap(const char *pName, const char *pFilename, SHA256_DIGEST *pWantedSha256, unsigned WantedCrc);
+	const char *LoadMapSearch(const char *pMapName, SHA256_DIGEST *pWantedSha256, int WantedCrc);
 
 	static int PlayerScoreNameComp(const void *a, const void *b);
 
@@ -348,7 +357,8 @@ public:
 	static void ConchainWindowScreen(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainWindowVSync(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainTimeoutSeed(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
-
+	static void ConchainPassword(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	
 	static void Con_DemoSlice(IConsole::IResult *pResult, void *pUserData);
 	static void Con_DemoSliceBegin(IConsole::IResult *pResult, void *pUserData);
 	static void Con_DemoSliceEnd(IConsole::IResult *pResult, void *pUserData);

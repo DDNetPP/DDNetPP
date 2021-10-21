@@ -53,12 +53,12 @@ void CPlayer::Reset()
 	m_LastInvited = 0;
 	m_WeakHookSpawn = false;
 
-	int* idMap = Server()->GetIdMap(m_ClientID);
+	int *pIdMap = Server()->GetIdMap(m_ClientID);
 	for (int i = 1;i < VANILLA_MAX_CLIENTS;i++)
 	{
-		idMap[i] = -1;
+		pIdMap[i] = -1;
 	}
-	idMap[0] = m_ClientID;
+	pIdMap[0] = m_ClientID;
 
 	// DDRace
 
@@ -77,7 +77,7 @@ void CPlayer::Reset()
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_TimeoutCode[0] = '\0';
-	m_ModHelpTick = 0;
+	m_ModhelpTick = -1;
 
 	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
 		m_aCatchedID[i] = -1;
@@ -769,7 +769,7 @@ int CPlayer::Pause(int State, bool Force)
 		case PAUSE_SPEC:
 			if(g_Config.m_SvPauseMessages)
 			{
-				str_format(aBuf, sizeof(aBuf), (m_Paused > PAUSE_NONE) ? "'%s' speced" : "'%s' resumed", Server()->ClientName(m_ClientID));
+				str_format(aBuf, sizeof(aBuf), (State > PAUSE_NONE) ? "'%s' speced" : "'%s' resumed", Server()->ClientName(m_ClientID));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			}
 			break;

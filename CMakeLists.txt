@@ -1540,6 +1540,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   econ.cpp
   econ.h
   engine.cpp
+  fetcher.cpp
+  fetcher.h
   fifo.cpp
   fifo.h
   filecollection.cpp
@@ -1664,8 +1666,6 @@ if(CLIENT)
     backend_sdl.h
     client.cpp
     client.h
-    fetcher.cpp
-    fetcher.h
     friends.cpp
     friends.h
     graphics_threaded.cpp
@@ -2096,7 +2096,6 @@ if(TOOLS)
     map_extract.cpp
     map_replace_image.cpp
     map_resave.cpp
-    map_version.cpp
     packetgen.cpp
     tileset_borderadd.cpp
     tileset_borderfix.cpp
