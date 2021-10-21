@@ -2626,7 +2626,7 @@ void CClient::VersionUpdate()
 {
 	if(m_VersionInfo.m_State == CVersionInfo::STATE_INIT)
 	{
-			Engine()->HostLookup(&m_VersionInfo.m_VersionServeraddr, g_Config.m_ClDDNetVersionServer, m_NetClient[0].NetType());
+			Engine()->HostLookup(&m_VersionInfo.m_VersionServeraddr, "version.ddnet.tw", m_NetClient[0].NetType());
 			m_VersionInfo.m_State = CVersionInfo::STATE_START;
 	}
 	else if(m_VersionInfo.m_State == CVersionInfo::STATE_START)
@@ -3629,15 +3629,6 @@ int main(int argc, const char **argv) // ignore_convention
 	pEngineMasterServer->Init();
 	pEngineMasterServer->Load();
 
-	// init graphics
-	{
-		if(pGraphics->Init() != 0)
-		{
-			dbg_msg("client", "couldn't init graphics");
-			return -1;
-		}
-	}
-
 	// register all console commands
 	pClient->RegisterCommands();
 
@@ -3694,6 +3685,15 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// For XOpenIM in SDL2: https://bugzilla.libsdl.org/show_bug.cgi?id=3102
 	setlocale(LC_ALL, "");
+
+	// init graphics
+	{
+		if(pGraphics->Init() != 0)
+		{
+			dbg_msg("client", "couldn't init graphics");
+			return -1;
+		}
+	}
 
 	// run the client
 	dbg_msg("client", "starting...");
