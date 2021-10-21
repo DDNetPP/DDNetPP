@@ -226,7 +226,7 @@ public:
 	void Init(CWorldCore *pWorld, CCollision *pCollision, CTeamsCore *pTeams, std::map<int, std::vector<vec2> > *pTeleOuts);
 	void Reset();
 	void Tick(bool UseInput, bool IsClient);
-	void Move(bool BugStoppersPassthrough);
+	void Move();
 
 	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
 

@@ -398,7 +398,7 @@ void CGameControllerDDRace::Tick()
 				}
 				F->m_Vel = TempVel;
 				}
-			GameServer()->Collision()->MoveBox(&F->m_Pos, &F->m_Vel, vec2(F->ms_PhysSize, F->ms_PhysSize), 0.5f, true);
+			GameServer()->Collision()->MoveBox(&F->m_Pos, &F->m_Vel, vec2(F->ms_PhysSize, F->ms_PhysSize), 0.5f);
 			}
 		}
 	}
