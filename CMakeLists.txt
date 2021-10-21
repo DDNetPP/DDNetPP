@@ -789,7 +789,6 @@ set(EXPECTED_DATA
   audio/wp_switch-03.wv
   blob.png
   browse_icons.png
-  ca-ddnet.pem
   console.png
   console_bar.png
   countryflags/AD.png
@@ -1603,6 +1602,9 @@ set_src(GAME_SHARED GLOB src/game
   layers.h
   localization.cpp
   localization.h
+  mapbugs.cpp
+  mapbugs.h
+  mapbugs_list.h
   mapitems.cpp
   mapitems.h
   mapitems_ddpp.h
