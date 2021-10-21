@@ -36,6 +36,9 @@ CLayerTiles::CLayerTiles(int w, int h)
 	m_Front = 0;
 	m_Switch = 0;
 	m_Tune = 0;
+	m_AutoMapperConfig = -1;
+	m_Seed = 0;
+	m_AutoAutoMap = false;
 
 	m_pTiles = new CTile[m_Width*m_Height];
 	mem_zero(m_pTiles, m_Width*m_Height*sizeof(CTile));
@@ -271,7 +274,21 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 				for(int x = 0; x < r.w; x++)
 				{
 					pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x] = ((CLayerSwitch*)this)->m_pSwitchTile[(r.y+y)*m_Width+(r.x+x)];
-					if(pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_DOOR + ENTITY_OFFSET || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_HIT_START || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_HIT_END || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHOPEN || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHCLOSE || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHTIMEDOPEN || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHTIMEDCLOSE || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_LONG + ENTITY_OFFSET || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_MEDIUM + ENTITY_OFFSET || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_SHORT + ENTITY_OFFSET || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_JUMP || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_PENALTY || pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_BONUS)
+					if(pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_DOOR + ENTITY_OFFSET
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_HIT_START
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_HIT_END
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHOPEN
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHCLOSE
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHTIMEDOPEN
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_SWITCHTIMEDCLOSE
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_LONG + ENTITY_OFFSET
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_MEDIUM + ENTITY_OFFSET
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == ENTITY_LASER_SHORT + ENTITY_OFFSET
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_JUMP
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_PENALTY
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_BONUS
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_ALLOW_TELE_GUN
+						|| pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Type == TILE_ALLOW_BLUE_TELE_GUN)
 					{
 						m_pEditor->m_SwitchNum = pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Number;
 						m_pEditor->m_SwitchDelay = pGrabbed->m_pSwitchTile[y*pGrabbed->m_Width+x].m_Delay;
@@ -392,7 +409,7 @@ void CLayerTiles::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 				SetTile(fx, fy, pLt->m_pTiles[(y*pLt->m_Width + x%pLt->m_Width) % (pLt->m_Width*pLt->m_Height)]);
 		}
 	}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, w, h);
 }
 
 void CLayerTiles::BrushDraw(CLayer *pBrush, float wx, float wy)
@@ -415,7 +432,7 @@ void CLayerTiles::BrushDraw(CLayer *pBrush, float wx, float wy)
 
 			SetTile(fx, fy, l->m_pTiles[y*l->m_Width+x]);
 		}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 void CLayerTiles::BrushFlipX()
@@ -606,29 +623,11 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 	CUIRect Button;
 
 	bool InGameGroup = !find_linear(m_pEditor->m_Map.m_pGameGroup->m_lLayers.all(), this).empty();
-	if(m_pEditor->m_Map.m_pGameLayer != this)
-	{
-		if(m_Image >= 0 && m_Image < m_pEditor->m_Map.m_lImages.size() && m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.IsLoaded())
-		{
-			static int s_AutoMapperButton = 0;
-			pToolBox->HSplitBottom(12.0f, pToolBox, &Button);
-			if(m_pEditor->DoButton_Editor(&s_AutoMapperButton, "Auto map", 0, &Button, 0, ""))
-				m_pEditor->PopupSelectConfigAutoMapInvoke(m_pEditor->UI()->MouseX(), m_pEditor->UI()->MouseY());
-
-			int Result = m_pEditor->PopupSelectConfigAutoMapResult();
-			if(Result > -1)
-			{
-				m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.Proceed(this, Result);
-				return 1;
-			}
-		}
-	}
-	else if(m_pEditor->m_Map.m_pGameLayer == this || m_pEditor->m_Map.m_pTeleLayer == this || m_pEditor->m_Map.m_pSpeedupLayer == this || m_pEditor->m_Map.m_pFrontLayer == this || m_pEditor->m_Map.m_pSwitchLayer == this || m_pEditor->m_Map.m_pTuneLayer == this)
+	if(m_pEditor->m_Map.m_pGameLayer == this || m_pEditor->m_Map.m_pTeleLayer == this || m_pEditor->m_Map.m_pSpeedupLayer == this || m_pEditor->m_Map.m_pFrontLayer == this || m_pEditor->m_Map.m_pSwitchLayer == this || m_pEditor->m_Map.m_pTuneLayer == this)
 		InGameGroup = false;
 
 	if(InGameGroup)
 	{
-		pToolBox->HSplitBottom(2.0f, pToolBox, 0);
 		pToolBox->HSplitBottom(12.0f, pToolBox, &Button);
 		static int s_ColclButton = 0;
 		if(m_pEditor->DoButton_Editor(&s_ColclButton, "Game tiles", 0, &Button, 0, "Constructs game tiles from this layer"))
@@ -694,6 +693,33 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 			return 1;
 		}
 	}
+	
+	if(m_pEditor->m_Map.m_pGameLayer != this)
+	{
+		if(m_Image >= 0 && m_Image < m_pEditor->m_Map.m_lImages.size() && m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.IsLoaded() &&
+			m_AutoMapperConfig != -1)
+		{
+			static int s_AutoMapperButton = 0;
+			static int s_AutoMapperButtonAuto = 0;
+			pToolBox->HSplitBottom(2.0f, pToolBox, 0);
+			pToolBox->HSplitBottom(12.0f, pToolBox, &Button);
+			if(m_Seed != 0) {
+				CUIRect ButtonAuto;
+				Button.VSplitRight(16.0f, &Button, &ButtonAuto);
+				Button.VSplitRight(2.0f, &Button, 0);
+				if(m_pEditor->DoButton_Editor(&s_AutoMapperButtonAuto, "A", m_AutoAutoMap, &ButtonAuto, 0, "Automatically run automap after modifications."))
+				{
+					m_AutoAutoMap = !m_AutoAutoMap;
+					FlagModified(0, 0, m_Width, m_Height);
+				}
+			}
+			if(m_pEditor->DoButton_Editor(&s_AutoMapperButton, "Automap", 0, &Button, 0, "Run the automapper"))
+			{
+				m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.Proceed(this, m_AutoMapperConfig, m_Seed);
+				return 1;
+			}
+		}
+	}
 
 	enum
 	{
@@ -705,6 +731,8 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 		PROP_COLOR,
 		PROP_COLOR_ENV,
 		PROP_COLOR_ENV_OFFSET,
+		PROP_AUTOMAPPER,
+		PROP_SEED,
 		NUM_PROPS,
 	};
 
@@ -723,20 +751,26 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 		{"Color", Color, PROPTYPE_COLOR, 0, 0},
 		{"Color Env", m_ColorEnv+1, PROPTYPE_INT_STEP, 0, m_pEditor->m_Map.m_lEnvelopes.size()+1},
 		{"Color TO", m_ColorEnvOffset, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Auto Rule", m_AutoMapperConfig, PROPTYPE_AUTOMAPPER, m_Image, 0},
+		{"Seed", m_Seed, PROPTYPE_INT_SCROLL, 0, 1000000000},
 		{0},
 	};
 
 	if(m_pEditor->m_Map.m_pGameLayer == this || m_pEditor->m_Map.m_pTeleLayer == this || m_pEditor->m_Map.m_pSpeedupLayer == this || m_pEditor->m_Map.m_pFrontLayer == this || m_pEditor->m_Map.m_pSwitchLayer == this || m_pEditor->m_Map.m_pTuneLayer == this) // remove the image and color properties if this is the game/tele/speedup/front/switch layer
 	{
-		aProps[4].m_pName = 0;
-		aProps[5].m_pName = 0;
+		aProps[PROP_IMAGE].m_pName = 0;
+		aProps[PROP_COLOR].m_pName = 0;
+		aProps[PROP_AUTOMAPPER].m_pName = 0;
+	}
+	if(m_Image == -1)
+	{
+		aProps[PROP_AUTOMAPPER].m_pName = 0;
+		aProps[PROP_SEED].m_pName = 0;
 	}
 
 	static int s_aIds[NUM_PROPS] = {0};
 	int NewVal = 0;
 	int Prop = m_pEditor->DoProperties(pToolBox, aProps, s_aIds, &NewVal);
-	if(Prop != -1)
-		m_pEditor->m_Map.m_Modified = true;
 
 	if(Prop == PROP_WIDTH && NewVal > 1)
 	{
@@ -770,7 +804,10 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 			m_Image = -1;
 		}
 		else
+		{
 			m_Image = NewVal%m_pEditor->m_Map.m_lImages.size();
+			m_AutoMapperConfig = -1;
+		}
 	}
 	else if(Prop == PROP_COLOR)
 	{
@@ -795,8 +832,27 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 	}
 	if(Prop == PROP_COLOR_ENV_OFFSET)
 		m_ColorEnvOffset = NewVal;
+	else if(Prop == PROP_SEED)
+		m_Seed = NewVal;
+	else if(Prop == PROP_AUTOMAPPER)
+	{
+		if (m_Image >= 0 && m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.ConfigNamesNum() > 0 && NewVal >= 0)
+			m_AutoMapperConfig = NewVal%m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.ConfigNamesNum();
+		else
+			m_AutoMapperConfig = -1;
+	}
+	if(Prop != -1) {
+		FlagModified(0, 0, m_Width, m_Height);
+	}
 
 	return 0;
+}
+
+void CLayerTiles::FlagModified(int x, int y, int w, int h) {
+	m_pEditor->m_Map.m_Modified = true;
+	if (m_Seed != 0 && m_AutoMapperConfig != -1 && m_AutoAutoMap) {
+		m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.ProceedLocalized(this, m_AutoMapperConfig, m_Seed, x, y, w, h);
+	}
 }
 
 
@@ -946,7 +1002,7 @@ void CLayerTele::BrushDraw(CLayer *pBrush, float wx, float wy)
 				m_pTiles[fy*m_Width+fx].m_Index = 0;
 			}
 		}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 void CLayerTele::BrushFlipX()
@@ -1057,6 +1113,7 @@ void CLayerTele::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 			}
 		}
 	}
+	FlagModified(sx, sy, w, h);
 }
 
 CLayerSpeedup::CLayerSpeedup(int w, int h)
@@ -1211,7 +1268,7 @@ void CLayerSpeedup::BrushDraw(CLayer *pBrush, float wx, float wy)
 				m_pTiles[fy*m_Width+fx].m_Index = 0;
 			}
 		}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 void CLayerSpeedup::BrushFlipX()
@@ -1330,6 +1387,7 @@ void CLayerSpeedup::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 			}
 		}
 	}
+	FlagModified(sx, sy, w, h);
 }
 
 CLayerFront::CLayerFront(int w, int h)
@@ -1397,7 +1455,7 @@ void CLayerFront::BrushDraw(CLayer *pBrush, float wx, float wy)
 
 			SetTile(fx, fy, l->m_pTiles[y*l->m_Width+x]);
 		}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 CLayerSwitch::CLayerSwitch(int w, int h)
@@ -1509,7 +1567,21 @@ void CLayerSwitch::BrushDraw(CLayer *pBrush, float wx, float wy)
 			if(fx<0 || fx >= m_Width || fy < 0 || fy >= m_Height)
 				continue;
 
-			if((l->m_pTiles[y*l->m_Width+x].m_Index >= (ENTITY_ARMOR_1 + ENTITY_OFFSET) && l->m_pTiles[y*l->m_Width+x].m_Index <= (ENTITY_DOOR + ENTITY_OFFSET)) || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_HIT_START || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_HIT_END || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHOPEN || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHCLOSE || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHTIMEDOPEN || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHTIMEDCLOSE || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_FREEZE || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_DFREEZE || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_DUNFREEZE || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_JUMP || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_PENALTY || l->m_pTiles[y*l->m_Width+x].m_Index == TILE_BONUS)
+			if((l->m_pTiles[y*l->m_Width+x].m_Index >= (ENTITY_ARMOR_1 + ENTITY_OFFSET) && l->m_pTiles[y*l->m_Width+x].m_Index <= (ENTITY_DOOR + ENTITY_OFFSET))
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_HIT_START
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_HIT_END
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHOPEN
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHCLOSE
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHTIMEDOPEN
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_SWITCHTIMEDCLOSE
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_FREEZE
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_DFREEZE
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_DUNFREEZE
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_JUMP
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_PENALTY
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_BONUS
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_ALLOW_TELE_GUN
+				|| l->m_pTiles[y*l->m_Width+x].m_Index == TILE_ALLOW_BLUE_TELE_GUN)
 			{
 				if(m_pEditor->m_SwitchNum != l->m_SwitchNumber || m_pEditor->m_SwitchDelay != l->m_SwitchDelay)
 				{
@@ -1550,7 +1622,7 @@ void CLayerSwitch::BrushDraw(CLayer *pBrush, float wx, float wy)
 				m_pSwitchTile[fy*m_Width+fx].m_Delay = 0;
 			}
 		}
-	m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 void CLayerSwitch::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
@@ -1605,6 +1677,7 @@ void CLayerSwitch::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 			}
 		}
 	}
+	FlagModified(sx, sy, w, h);
 }
 
 //------------------------------------------------------
@@ -1748,7 +1821,7 @@ void CLayerTune::BrushDraw(CLayer *pBrush, float wx, float wy)
 					m_pTiles[fy*m_Width+fx].m_Index = 0;
 				}
 			}
-		m_pEditor->m_Map.m_Modified = true;
+	FlagModified(sx, sy, l->m_Width, l->m_Height);
 }
 
 
@@ -1859,4 +1932,6 @@ void CLayerTune::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 				}
 			}
 		}
+
+	FlagModified(sx, sy, w, h);
 }

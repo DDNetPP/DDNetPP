@@ -70,6 +70,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_HasTeleLaser = false;
 	m_HasTeleGrenade = false;
 	m_TeleGunTeleport = false;
+	m_IsBlueTeleGunTeleport = false;
 
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
@@ -3102,10 +3103,12 @@ void CCharacter::DDRacePostCoreTick()
 	{
 		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 		m_Core.m_Pos = m_TeleGunPos;
-		m_Core.m_Vel = vec2(0, 0);
+		if(!m_IsBlueTeleGunTeleport)
+			m_Core.m_Vel = vec2(0, 0);
 		GameServer()->CreateDeath(m_TeleGunPos, m_pPlayer->GetCID(), Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 		GameServer()->CreateSound(m_TeleGunPos, SOUND_WEAPON_SPAWN, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 		m_TeleGunTeleport = false;
+		m_IsBlueTeleGunTeleport = false;
 	}
 
 	DDPPDDRacePostCoreTick();

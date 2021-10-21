@@ -705,6 +705,7 @@ public:
 	bool m_HasTeleLaser;
 	vec2 m_TeleGunPos;
 	bool m_TeleGunTeleport;
+	bool m_IsBlueTeleGunTeleport;
 
 	int64 m_AliveTime;
 
