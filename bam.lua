@@ -13,11 +13,11 @@ if target_arch then
 end
 
 Import("configure.lua")
-Import("other/sdl/sdl.lua")
-Import("other/freetype/freetype.lua")
-Import("other/curl/curl.lua")
-Import("other/opus/opusfile.lua")
-Import("other/mysql/mysql.lua")
+Import("other/sdl.lua")
+Import("other/freetype.lua")
+Import("other/curl.lua")
+Import("other/opusfile.lua")
+Import("other/mysql.lua")
 
 --- Setup Config -------
 config = NewConfig()
@@ -143,42 +143,32 @@ if family == "windows" then
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\mysqlcppconn.dll"))
 	table.insert(server_sql_depends, CopyToDirectory(".", "other\\mysql\\vc2005libs\\libmysql.dll"))
 	if platform == "win32" then
-		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib32/freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib32/SDL2.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libcurl-4.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libeay32.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libidn-11.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/ssleay32.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/zlib1.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libwinpthread-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libgcc_s_sjlj-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libogg-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libopus-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libopusfile-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/freetype/windows/lib32/libfreetype.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/sdl/windows/lib32/SDL2.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/curl/windows/lib32/libcurl.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib32/libwinpthread-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib32/libgcc_s_sjlj-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib32/libogg.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib32/libopus.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib32/libopusfile.dll"))
 	else
-		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib64/freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib64/SDL2.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libcurl-4.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libeay32.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/ssleay32.dll"))
-		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/zlib1.dll"))
-
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libwinpthread-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libgcc_s_seh-1.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libogg-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libopus-0.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libopusfile-0.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/freetype/windows/lib64/libfreetype.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/sdl/windows/lib64/SDL2.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/curl/windows/lib64/libcurl.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib64/libwinpthread-1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib64/libogg.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib64/libopus.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "ddnet-libs/opus/windows/lib64/libopusfile.dll"))
 	end
+	table.insert(server_sql_depends, CopyToDirectory(".", "ddnet-libs/mysql/windows/mysqlcppconn.dll"))
+	table.insert(server_sql_depends, CopyToDirectory(".", "ddnet-libs/mysql/windows/libmysql.dll"))
 
 	if config.compiler.driver == "cl" then
 		client_link_other = {ResCompile("other/icons/DDNet_cl.rc")}
-		server_link_other = {ResCompile("other/icons/DDNet_srv_cl.rc")}
+		server_link_other = {ResCompile("other/icons/DDNet-Server_cl.rc")}
 	elseif config.compiler.driver == "gcc" then
 		client_link_other = {ResCompile("other/icons/DDNet_gcc.rc")}
-		server_link_other = {ResCompile("other/icons/DDNet_srv_gcc.rc")}
+		server_link_other = {ResCompile("other/icons/DDNet-Server_gcc.rc")}
 	end
 end
 
@@ -327,17 +317,17 @@ function build(settings)
 
 	elseif family == "windows" then
 		if arch == "amd64" then
-			client_settings.link.libpath:Add("other/curl/windows/lib64")
+			client_settings.link.libpath:Add("ddnet-libs/curl/windows/lib64")
 		else
-			client_settings.link.libpath:Add("other/curl/windows/lib32")
+			client_settings.link.libpath:Add("ddnet-libs/curl/windows/lib32")
 		end
 		client_settings.link.libs:Add("opengl32")
 		client_settings.link.libs:Add("glu32")
 		client_settings.link.libs:Add("winmm")
-		client_settings.link.libs:Add("libopusfile-0")
-		client_settings.link.libs:Add("curl-4")
+		client_settings.link.libs:Add("libopusfile")
+		client_settings.link.libs:Add("curl")
 		if string.find(settings.config_name, "sql") then
-			server_settings.link.libpath:Add("other/mysql/vc2005libs")
+			server_settings.link.libpath:Add("ddnet-libs/mysql/vc2005libs")
 			server_settings.link.libs:Add("mysqlcppconn")
 		end
 	end

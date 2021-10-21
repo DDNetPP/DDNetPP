@@ -69,22 +69,14 @@ if include_data and not use_bundle:
 	if platform[:3] == "win":
 		shutil.copy("other/config_directory.bat", package_dir)
 		shutil.copy("SDL2.dll", package_dir)
-		shutil.copy("freetype.dll", package_dir)
+		shutil.copy("libfreetype.dll", package_dir)
 		if platform == "win32":
-		    shutil.copy("libgcc_s_sjlj-1.dll", package_dir)
-		    #shutil.copy("libidn-11.dll", package_dir)
-		elif platform == "win64":
-		    shutil.copy("libgcc_s_seh-1.dll", package_dir)
+			shutil.copy("libgcc_s_sjlj-1.dll", package_dir)
 		shutil.copy("libwinpthread-1.dll", package_dir)
-		shutil.copy("libogg-0.dll", package_dir)
-		shutil.copy("libopus-0.dll", package_dir)
-		shutil.copy("libopusfile-0.dll", package_dir)
-		#shutil.copy("libmysql.dll", package_dir)
-		#shutil.copy("mysqlcppconn.dll", package_dir)
-		shutil.copy("libcurl-4.dll", package_dir)
-		#shutil.copy("libeay32.dll", package_dir)
-		#shutil.copy("ssleay32.dll", package_dir)
-		#shutil.copy("zlib1.dll", package_dir)
+		shutil.copy("libogg.dll", package_dir)
+		shutil.copy("libopus.dll", package_dir)
+		shutil.copy("libopusfile.dll", package_dir)
+		shutil.copy("libcurl.dll", package_dir)
 
 if include_exe and not use_bundle:
 	shutil.copy(name+exe_ext, package_dir)
