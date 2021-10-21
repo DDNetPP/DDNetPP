@@ -120,7 +120,7 @@ void CGameContext::QuestCompleted(int playerID)
 	int RewardMoney = pPlayer->m_QuestStateLevel ? 100 : 50;
 	int RewardXP = QuestReward(playerID);
 	if (pPlayer->IsMaxLevel())
-		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
+		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardMoney);
 	else // xp msg only if not max lvl
 		str_format(aBuf, sizeof(aBuf), "[QUEST] Quest %d (lvl %d) completed. [+%d xp] [+%d money]", pPlayer->m_QuestState, pPlayer->m_QuestStateLevel, RewardXP, RewardMoney);
 	SendChatTarget(playerID, aBuf);

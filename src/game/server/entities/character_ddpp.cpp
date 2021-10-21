@@ -271,7 +271,7 @@ void CCharacter::ShopWindow(int Dir)
 	}
 	else
 	{
-		str_format(aItem, sizeof(aItem), "");
+		aItem[0] = '\0';
 	}
 	//////////////////// UPDATE m_MaxShopPage ON TOP OF THIS FUNCTION!!! /////////////////////////
 
@@ -1250,7 +1250,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_EscapeTime = 0;
 		m_pPlayer->m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %lld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
 		if (Server()->Tick() % 40 == 0)
 		{
 			if (!m_pPlayer->m_hidejailmsg)
@@ -1282,11 +1282,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if (m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %d seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %lld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %d seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %lld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if (Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -2293,7 +2293,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		{
 			str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->SendChatTarget(Killer, aBuf);
-			str_format(aBuf, sizeof(aBuf), "bounty '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+			str_format(aBuf, sizeof(aBuf), "bounty '%s'", Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->m_apPlayers[Killer]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
 			m_pPlayer->m_BlockBounty = 0;
 		}
@@ -2596,17 +2596,17 @@ void CCharacter::CIRestart()
 	//}
 
 	m_pPlayer->m_ci_latest_dest_dist = CIGetDestDist();
-	str_format(aBuf, sizeof(aBuf), "Dist: %d", m_pPlayer->m_ci_latest_dest_dist);
-	dbg_msg("CI", aBuf);
+	str_format(aBuf, sizeof(aBuf), "Dist: %ld", m_pPlayer->m_ci_latest_dest_dist);
+	dbg_msg("CI", "%s", aBuf);
 
 	if (m_pPlayer->m_ci_latest_dest_dist < m_pPlayer->m_ci_lowest_dest_dist)
 	{
-		str_format(aBuf, sizeof(aBuf), "NEW [%d] OLD [%d]", m_pPlayer->m_ci_latest_dest_dist, m_pPlayer->m_ci_lowest_dest_dist);
-		dbg_msg("CI", aBuf);
+		str_format(aBuf, sizeof(aBuf), "NEW [%ld] OLD [%ld]", m_pPlayer->m_ci_latest_dest_dist, m_pPlayer->m_ci_lowest_dest_dist);
+		dbg_msg("CI", "%s", aBuf);
 		m_pPlayer->m_ci_lowest_dest_dist = m_pPlayer->m_ci_latest_dest_dist;
 	}
 
-	str_format(aBuf, sizeof(aBuf), "%d", m_pPlayer->m_ci_lowest_dest_dist);
+	str_format(aBuf, sizeof(aBuf), "%ld", m_pPlayer->m_ci_lowest_dest_dist);
 
 	GameServer()->Score()->SaveCIData(aBuf);
 }
@@ -2738,7 +2738,7 @@ bool CCharacter::IsHammerBlocked()
     if (m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
     {
         char aBuf[128];
-        str_format(aBuf, sizeof(aBuf), "You have to wait %d minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+        str_format(aBuf, sizeof(aBuf), "You have to wait %lld minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
         GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
         return true;
     }
@@ -2831,7 +2831,7 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
                     GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
                     m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-                    str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", m_pPlayer->m_JailHammer, Server()->ClientName(m_pPlayer->GetCID()));
+                    str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_JailHammer);
                     GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
                     pTarget->GetPlayer()->m_EscapeTime = 0;
                     pTarget->GetPlayer()->m_GangsterBagMoney = 0;

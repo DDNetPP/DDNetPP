@@ -503,7 +503,7 @@ void CGameContext::FNN_LoadRun(const char * path, int botID)
 	//load run
 	std::ifstream readfile;
 	char aFilePath[512];
-	str_format(aFilePath, sizeof(aFilePath), path);
+	str_copy(aFilePath, path, sizeof(aFilePath));
 	readfile.open(aFilePath);
 	if (readfile.is_open())
 	{
@@ -1806,7 +1806,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money: %d", m_apPlayers[ViewedID]->GetMoney());
+		str_format(aBuf, sizeof(aBuf), "Money: %lld", m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);

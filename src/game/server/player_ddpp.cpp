@@ -512,12 +512,12 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_pvp_arena_deaths = 0;
 	m_ProfileStyle = 0;
 	m_ProfileViews = 0;
-	str_format(m_ProfileStatus, sizeof(m_ProfileStatus), "");
-	str_format(m_ProfileSkype, sizeof(m_ProfileSkype), "");
-	str_format(m_ProfileYoutube, sizeof(m_ProfileYoutube), "");
-	str_format(m_ProfileEmail, sizeof(m_ProfileEmail), "");
-	str_format(m_ProfileHomepage, sizeof(m_ProfileHomepage), "");
-	str_format(m_ProfileTwitter, sizeof(m_ProfileTwitter), "");
+	m_ProfileStatus[0] = '\0';
+	m_ProfileSkype[0] = '\0';
+	m_ProfileYoutube[0] = '\0';
+	m_ProfileEmail[0] = '\0';
+	m_ProfileHomepage[0] = '\0';
+	m_ProfileTwitter[0] = '\0';
 	m_homing_missiles_ammo = 0;
 	m_BlockPoints = 0;
 	m_BlockPoints_Kills = 0;
@@ -536,16 +536,16 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_RifleDeaths = 0;
 	m_RifleShots = 0;
 	m_RifleWins = 0;
-	str_format(m_money_transaction9, sizeof(m_money_transaction9), "");
-	str_format(m_money_transaction8, sizeof(m_money_transaction8), "");
-	str_format(m_money_transaction7, sizeof(m_money_transaction7), "");
-	str_format(m_money_transaction6, sizeof(m_money_transaction6), "");
-	str_format(m_money_transaction5, sizeof(m_money_transaction5), "");
-	str_format(m_money_transaction4, sizeof(m_money_transaction4), "");
-	str_format(m_money_transaction3, sizeof(m_money_transaction3), "");
-	str_format(m_money_transaction2, sizeof(m_money_transaction2), "");
-	str_format(m_money_transaction1, sizeof(m_money_transaction1), "");
-	str_format(m_money_transaction0, sizeof(m_money_transaction0), "");
+	m_money_transaction9[0] = '\0';
+	m_money_transaction8[0] = '\0';
+	m_money_transaction7[0] = '\0';
+	m_money_transaction6[0] = '\0';
+	m_money_transaction5[0] = '\0';
+	m_money_transaction4[0] = '\0';
+	m_money_transaction3[0] = '\0';
+	m_money_transaction2[0] = '\0';
+	m_money_transaction1[0] = '\0';
+	m_money_transaction0[0] = '\0';
 }
 
 void CPlayer::JailPlayer(int seconds)
@@ -775,8 +775,8 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 
 void CPlayer::CalcExp()
 {
-	int OldNeededXp = m_neededxp;
-	dbg_msg("account", "CalcExp() neededxp=%d xp=%d", OldNeededXp, m_xp);
+	int64 OldNeededXp = m_neededxp;
+	dbg_msg("account", "CalcExp() neededxp=%lld xp=%lld", OldNeededXp, m_xp);
 
 	//										xp diff
 	if (m_level == 0)
@@ -1058,7 +1058,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 	str_format(m_money_transaction3, sizeof(m_money_transaction3), "%s", m_money_transaction2);
 	str_format(m_money_transaction2, sizeof(m_money_transaction2), "%s", m_money_transaction1);
 	str_format(m_money_transaction1, sizeof(m_money_transaction1), "%s", m_money_transaction0);
-	str_format(m_money_transaction0, sizeof(m_money_transaction0), aDesc);
+	str_format(m_money_transaction0, sizeof(m_money_transaction0), "%s", aDesc);
 }
 
 bool CPlayer::IsInstagibMinigame()
@@ -1136,10 +1136,7 @@ void CPlayer::chidraqul3_GameTick()
 		char aBuf[512];
 
 		char m_minigame_world[512];
-		str_format(m_minigame_world, sizeof(m_minigame_world), "");
-
-
-
+		m_minigame_world[0] = '\0';
 
 		//spawn gold
 		if (!m_GoldAlive)

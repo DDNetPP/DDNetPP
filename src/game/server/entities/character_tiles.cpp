@@ -610,7 +610,7 @@ void CCharacter::MoneyTile()
 		if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
 			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
 		else
-			str_format(FixBroadcast, sizeof(FixBroadcast), "");
+			FixBroadcast[0] = '\0';
 
 		char aBuf[128];
 		if (m_survivexpvalue == 0)
@@ -726,7 +726,7 @@ void CCharacter::MoneyTilePolice()
 		if ((m_pPlayer->GetXP() >= 1000000) && m_survivexpvalue > 0)
 			str_format(FixBroadcast, sizeof(FixBroadcast), "                                       ");
 		else
-			str_format(FixBroadcast, sizeof(FixBroadcast), "");
+			FixBroadcast[0] = '\0';
 
 		char aBuf[128];
 		if (m_pPlayer->m_PoliceRank > 0)
@@ -780,7 +780,7 @@ void CCharacter::MoneyTileDouble()
 	if (GameServer()->CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[%llu/%llu] players to activate the double moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
+		str_format(aBuf, sizeof(aBuf), "[%d/%d] players to activate the double moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 		return;
 	}

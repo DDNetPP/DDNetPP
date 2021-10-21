@@ -181,7 +181,7 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 
 	if (pSPlayer->m_TradeMoney > pBPlayer->GetMoney())	// ENOUGH MONEY ??
 	{
-		str_format(aBuf, sizeof(aBuf), "[TRADE] %d/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %lld/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
 		SendChatTarget(BuyerID, aBuf);
 		return -1;
 	}
