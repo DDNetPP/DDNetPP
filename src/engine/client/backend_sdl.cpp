@@ -796,6 +796,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Init(const SCommand_Init *pCommand
 		m_pBorderTileLineProgram->m_LocLOD = -1;
 		m_pBorderTileLineProgram->m_LocTexelOffset = -1;
 		m_pBorderTileLineProgram->m_LastLOD = -1;
+		m_pBorderTileLineProgram->m_LocOffset = m_pBorderTileLineProgram->GetUniformLoc("Offset");
 		m_pBorderTileLineProgram->m_LocDir = m_pBorderTileLineProgram->GetUniformLoc("Dir");
 	}
 	{
@@ -818,6 +819,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Init(const SCommand_Init *pCommand
 		m_pBorderTileLineProgramTextured->m_LocLOD = m_pBorderTileLineProgramTextured->GetUniformLoc("LOD");
 		m_pBorderTileLineProgramTextured->m_LocTexelOffset = m_pBorderTileLineProgramTextured->GetUniformLoc("TexelOffset");
 		m_pBorderTileLineProgramTextured->m_LastLOD = -1;
+		m_pBorderTileLineProgramTextured->m_LocOffset = m_pBorderTileLineProgramTextured->GetUniformLoc("Offset");
 		m_pBorderTileLineProgramTextured->m_LocDir = m_pBorderTileLineProgramTextured->GetUniformLoc("Dir");
 	}
 	{
@@ -1650,6 +1652,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_RenderBorderTileLine(const CComman
 
 	SetState(pCommand->m_State, pProgram);
 	pProgram->SetUniformVec4(pProgram->m_LocColor, 1, (float*)&pCommand->m_Color);
+	pProgram->SetUniformVec2(pProgram->m_LocOffset, 1, (float*)&pCommand->m_Offset);
 	pProgram->SetUniformVec2(pProgram->m_LocDir, 1, (float*)&pCommand->m_Dir);
 
 	glBindVertexArray(BufferContainer.m_VertArrayID);
@@ -2207,19 +2210,33 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	SDL_ClearError();
 	const char *pErr = NULL;
 
-	//query default values, since they are platform dependent
+	// Query default values, since they are platform dependent
 	static bool s_InitDefaultParams = false;
 	static int s_SDLGLContextProfileMask, s_SDLGLContextMajorVersion, s_SDLGLContextMinorVersion;
+	static bool s_TriedOpenGL3Context = false;
+
+	if(!s_InitDefaultParams)
+	{
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &s_SDLGLContextProfileMask);
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &s_SDLGLContextMajorVersion);
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &s_SDLGLContextMinorVersion);
+		s_InitDefaultParams = true;
+	}
+
+	// if OpenGL3 context was tried to be created, but failed, we have to restore the old context attributes
+	if(s_TriedOpenGL3Context && !g_Config.m_GfxOpenGL3)
+	{
+		s_TriedOpenGL3Context = false;
+
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, s_SDLGLContextProfileMask);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, s_SDLGLContextMajorVersion);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, s_SDLGLContextMinorVersion);
+	}
+
 	m_UseOpenGL3_3 = false;
 	if(g_Config.m_GfxOpenGL3)
 	{
-		if(!s_InitDefaultParams)
-		{
-			SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &s_SDLGLContextProfileMask);
-			SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &s_SDLGLContextMajorVersion);
-			SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &s_SDLGLContextMinorVersion);
-			s_InitDefaultParams = true;
-		}
+		s_TriedOpenGL3Context = true;
 
 		if(SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) == 0)
 		{

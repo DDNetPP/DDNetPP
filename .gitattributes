@@ -6,6 +6,7 @@ license.txt merge=ours
 .travis.yml merge=ours
 appveyor.yml merge=ours
 circle.yml merge=ours
+data/maps merge=ours
 cmake/FindNotify.cmake merge=ours
 cmake/FindMiniupnpc.cmake merge=ours
 cmake/FindAndroid.cmake merge=ours

@@ -172,13 +172,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		return 0;
 
 	// create new layers
-	if(m_pEditor->GetSelectedLayer(0) == m_pEditor->m_Map.m_pTeleLayer)
+	if(this == m_pEditor->m_Map.m_pTeleLayer)
 	{
 		CLayerTele *pGrabbed = new CLayerTele(r.w, r.h);
 		pGrabbed->m_pEditor = m_pEditor;
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 
 		pBrush->AddLayer(pGrabbed);
 
@@ -199,13 +200,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		pGrabbed->m_TeleNum = m_pEditor->m_TeleNumber;
 		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName, sizeof(pGrabbed->m_aFileName));
 	}
-	else if(m_pEditor->GetSelectedLayer(0) == m_pEditor->m_Map.m_pSpeedupLayer)
+	else if(this == m_pEditor->m_Map.m_pSpeedupLayer)
 	{
 		CLayerSpeedup *pGrabbed = new CLayerSpeedup(r.w, r.h);
 		pGrabbed->m_pEditor = m_pEditor;
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 
 		pBrush->AddLayer(pGrabbed);
 
@@ -232,13 +234,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		pGrabbed->m_SpeedupAngle = m_pEditor->m_SpeedupAngle;
 		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName, sizeof(pGrabbed->m_aFileName));
 	}
-	else if(m_pEditor->GetSelectedLayer(0) == m_pEditor->m_Map.m_pSwitchLayer)
+	else if(this == m_pEditor->m_Map.m_pSwitchLayer)
 	{
 		CLayerSwitch *pGrabbed = new CLayerSwitch(r.w, r.h);
 		pGrabbed->m_pEditor = m_pEditor;
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 
 		pBrush->AddLayer(pGrabbed);
 
@@ -264,13 +267,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName, sizeof(pGrabbed->m_aFileName));
 	}
 
-	else if(m_pEditor->GetSelectedLayer(0) == m_pEditor->m_Map.m_pTuneLayer)
+	else if(this == m_pEditor->m_Map.m_pTuneLayer)
 	{
 		CLayerTune *pGrabbed = new CLayerTune(r.w, r.h);
 		pGrabbed->m_pEditor = m_pEditor;
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 		pBrush->AddLayer(pGrabbed);
 
 		// copy the tiles
@@ -292,13 +296,14 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		pGrabbed->m_TuningNumber = m_pEditor->m_TuningNum;
 		str_copy(pGrabbed->m_aFileName, m_pEditor->m_aFileName, sizeof(pGrabbed->m_aFileName));
 	}
-	else if(m_pEditor->GetSelectedLayer(0) == m_pEditor->m_Map.m_pFrontLayer)
+	else if(this == m_pEditor->m_Map.m_pFrontLayer)
 	{
 		CLayerFront *pGrabbed = new CLayerFront(r.w, r.h);
 		pGrabbed->m_pEditor = m_pEditor;
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 		pBrush->AddLayer(pGrabbed);
 
 		// copy the tiles
@@ -314,6 +319,7 @@ int CLayerTiles::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 		pGrabbed->m_TexID = m_TexID;
 		pGrabbed->m_Image = m_Image;
 		pGrabbed->m_Game = m_Game;
+		pGrabbed->m_Color = m_Color;
 		pBrush->AddLayer(pGrabbed);
 
 		// copy the tiles
@@ -1576,7 +1582,7 @@ void CLayerSwitch::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 CLayerTune::CLayerTune(int w, int h)
 : CLayerTiles(w, h)
 {
-	//m_Type = LAYERTYPE_SWITCH;
+	//m_Type = LAYERTYPE_TUNE;
 	str_copy(m_aName, "Tune", sizeof(m_aName));
 	m_Tune = 1;
 

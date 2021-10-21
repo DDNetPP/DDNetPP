@@ -1231,6 +1231,21 @@ set(EXPECTED_DATA
   skins/chinese_by_whis.png
   skins/clefairy.png
   skins/coala.png
+  skins/coala_bluekitty.png
+  skins/coala_bluestripe.png
+  skins/coala_cammo.png
+  skins/coala_cammostripes.png
+  skins/coala_default.png
+  skins/coala_limekitty.png
+  skins/coala_pinky.png
+  skins/coala_redbopp.png
+  skins/coala_redstripe.png
+  skins/coala_saddo.png
+  skins/coala_toptri.png
+  skins/coala_twinbop.png
+  skins/coala_twintri.png
+  skins/coala_warpaint.png
+  skins/coala_x_ninja.png
   skins/default.png
   skins/demonlimekitty.png
   skins/dino.png
@@ -1298,6 +1313,22 @@ set(EXPECTED_DATA
   skins/redstripe.png
   skins/roman.png
   skins/saddo.png
+  skins/santa_bluekitty.png
+  skins/santa_bluestripe.png
+  skins/santa_brownbear.png
+  skins/santa_cammo.png
+  skins/santa_cammostripes.png
+  skins/santa_coala.png
+  skins/santa_default.png
+  skins/santa_limekitty.png
+  skins/santa_pinky.png
+  skins/santa_redbopp.png
+  skins/santa_redstripe.png
+  skins/santa_saddo.png
+  skins/santa_toptri.png
+  skins/santa_twinbop.png
+  skins/santa_twintri.png
+  skins/santa_warpaint.png
   skins/savage.png
   skins/t2.png
   skins/tails.png

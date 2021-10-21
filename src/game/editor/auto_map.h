@@ -31,13 +31,14 @@ class CAutoMapper
 		int m_ID;
 		array<CPosRule> m_aRules;
 		int m_Flag;
-		int m_RandomValue;
+		float m_RandomProbability;
 		bool m_DefaultRule;
 	};
 
 	struct CRun
 	{
 		array<CIndexRule> m_aIndexRules;
+		bool m_AutomapCopy;
 	};
 
 	struct CConfiguration
