@@ -45,7 +45,7 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -y
-        sudo apt-get install pkg-config cmake libfreetype6-dev libsdl2-dev -y
+        sudo apt-get install pkg-config cmake libfreetype6-dev libsdl2-dev libcurl4-openssl-dev libssl-dev -y
 
     - name: Prepare MacOS
       if: contains(matrix.os, 'macOS')
