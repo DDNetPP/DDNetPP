@@ -2030,6 +2030,7 @@ if(SERVER)
   # Libraries
   set(LIBS_SERVER
     ${LIBS}
+    ${CURL_LIBRARIES}
     ${MYSQL_LIBRARIES}
     ${MINIUPNPC_LIBRARIES}
     # Add pthreads (on non-Windows) at the end, so that other libraries can depend
@@ -2109,7 +2110,7 @@ if(TOOLS)
       string(REGEX REPLACE "\\.cpp$" "" TOOL "${T}")
       set(TOOL_DEPS ${DEPS})
       set(TOOL_LIBS ${LIBS})
-      if(TOOL MATCHES "^(dilate|map_optimize|map_extract|map_replace_image)$")
+      if(TOOL MATCHES "^(dilate|map_optimize|map_extract|map_replace_image|tileset_.*)$")
         list(APPEND TOOL_DEPS ${PNGLITE_DEP})
         list(APPEND TOOL_LIBS ${PNGLITE_LIBRARIES})
         list(APPEND TOOL_INCLUDE_DIRS ${PNGLITE_INCLUDE_DIRS})
