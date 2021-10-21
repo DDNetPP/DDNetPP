@@ -435,7 +435,8 @@ void CClient::RconAuth(const char *pName, const char *pPassword)
 	if(RconAuthed())
 		return;
 
-	str_copy(m_RconPassword, pPassword, sizeof(m_RconPassword));
+	if(pPassword != m_RconPassword)
+		str_copy(m_RconPassword, pPassword, sizeof(m_RconPassword));
 
 	CMsgPacker Msg(NETMSG_RCON_AUTH);
 	Msg.AddString(pName, 32);
@@ -2486,6 +2487,7 @@ void CClient::Update()
 	}
 
 	// STRESS TEST: join the server again
+#ifdef CONF_DEBUG
 	if(g_Config.m_DbgStress)
 	{
 		static int64 ActionTaken = 0;
@@ -2509,6 +2511,7 @@ void CClient::Update()
 			}
 		}
 	}
+#endif
 
 	// pump the network
 	PumpNetwork();
@@ -2752,6 +2755,8 @@ void CClient::Run()
 	bool LastE = false;
 	bool LastG = false;
 
+	int64 LastTime = time_get();
+
 	while (1)
 	{
 		set_new_tick();
@@ -2856,6 +2861,7 @@ void CClient::Run()
 
 				m_LastRenderTime = Now;
 
+#ifdef CONF_DEBUG
 				if(g_Config.m_DbgStress)
 				{
 					if((m_RenderFrames%10) == 0)
@@ -2871,6 +2877,7 @@ void CClient::Run()
 					}
 				}
 				else
+#endif
 				{
 					if(!m_EditorActive)
 						Render();
@@ -2903,11 +2910,20 @@ void CClient::Run()
 #endif
 
 		// beNice
-		if(g_Config.m_DbgStress || (g_Config.m_ClCpuThrottleInactive && !m_pGraphics->WindowActive()))
-			thread_sleep(g_Config.m_ClCpuThrottleInactive);
-		else if(g_Config.m_ClCpuThrottle)
-			net_socket_read_wait(m_NetClient[0].m_Socket, g_Config.m_ClCpuThrottle * 1000);
-			//thread_sleep(g_Config.m_ClCpuThrottle);
+		int64 Now = time_get();
+		if(
+#ifdef CONF_DEBUG
+			g_Config.m_DbgStress ||
+#endif
+			(g_Config.m_ClRefreshRateInactive && !m_pGraphics->WindowActive()))
+		{
+			thread_sleep(max(1000 * (LastTime + time_freq() / g_Config.m_ClRefreshRateInactive - Now) / time_freq(), (int64)0));
+		}
+		else if(g_Config.m_ClRefreshRate)
+		{
+			net_socket_read_wait(m_NetClient[0].m_Socket, max(1000000 * (LastTime + time_freq() / g_Config.m_ClRefreshRate - Now) / time_freq(), (int64)0));
+		}
+		LastTime = Now;
 
 		if(g_Config.m_DbgHitch)
 		{
