@@ -103,6 +103,7 @@ dilate
 fake_server
 map_resave
 map_version
+map_extract
 tileset_borderadd
 tileset_borderfix
 tileset_borderrem

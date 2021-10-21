@@ -334,11 +334,11 @@ void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int
 	}
 	else if (g_Config.m_SvRoomState == 3) //buy admin
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID())) ? true : false;
+		Allowed = (m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID())) ? true : false;
 	}
 	else if (g_Config.m_SvRoomState == 4) //buy admin invite
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom || Server()->IsAuthed(m_pPlayer->GetCID()) || m_HasRoomKeyBySuperModerator) ? true : false;
+		Allowed = (m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID()) || m_HasRoomKeyBySuperModerator) ? true : false;
 	}
 
 	//ROOMTILE

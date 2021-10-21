@@ -1551,6 +1551,8 @@ set_src(GAME_SHARED GLOB src/game
   collision.h
   collision_ddpp.cpp
   ddracecommands.h
+  extrainfo.cpp
+  extrainfo.h
   gamecore.cpp
   gamecore.h
   gamecore_ddpp.cpp
@@ -2035,6 +2037,7 @@ if(TOOLS)
     dilate.cpp
     dummy_map.cpp
     fake_server.cpp
+    map_extract.cpp
     map_resave.cpp
     map_version.cpp
     packetgen.cpp

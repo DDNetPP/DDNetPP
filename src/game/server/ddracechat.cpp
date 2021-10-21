@@ -2,7 +2,6 @@
 #include "gamecontext.h"
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
-#include <engine/server/server.h>
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
@@ -285,7 +284,7 @@ void CGameContext::ConToggleSpec(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	CGameContext *pSelf = (CGameContext *) pUserData;
-	CServer* pServ = (CServer*)pSelf->Server();
+	IServer* pServ = pSelf->Server();
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(!pPlayer)
 		return;
@@ -313,7 +312,7 @@ void CGameContext::ConTogglePause(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameContext *pSelf = (CGameContext *) pUserData;
-	CServer* pServ = (CServer*)pSelf->Server();
+	IServer* pServ = pSelf->Server();
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(!pPlayer)
 		return;
@@ -544,17 +543,14 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 		if (i == pResult->m_ClientID) continue;
 		if (!pSelf->m_apPlayers[i]) continue;
 		if (str_comp(pSelf->m_apPlayers[i]->m_TimeoutCode, pResult->GetString(0))) continue;
-		if (((CServer *)pSelf->Server())->m_NetServer.SetTimedOut(i, pResult->m_ClientID))
-		{
-			((CServer *)pSelf->Server())->DelClientCallback(pResult->m_ClientID, "Timeout Protection used", ((CServer *)pSelf->Server()));
-			((CServer *)pSelf->Server())->m_aClients[i].m_Authed = CServer::AUTHED_NO;
+		if (pSelf->Server()->SetTimedOut(i, pResult->m_ClientID)) {
 			if (pSelf->m_apPlayers[i]->GetCharacter())
-				((CGameContext *)(((CServer *)pSelf->Server())->GameServer()))->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
+				pSelf->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
 			return;
 		}
 	}
 
-	((CServer *)pSelf->Server())->m_NetServer.SetTimeoutProtected(pResult->m_ClientID);
+	pSelf->Server()->SetTimeoutProtected(pResult->m_ClientID);
 	str_copy(pPlayer->m_TimeoutCode, pResult->GetString(0), sizeof(pPlayer->m_TimeoutCode));
 }
 
@@ -1150,8 +1146,6 @@ void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 
 bool CheckClientID(int ClientID)
 {
-	dbg_assert(ClientID >= 0 || ClientID < MAX_CLIENTS,
-			"The Client ID is wrong");
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return false;
 	return true;

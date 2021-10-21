@@ -146,11 +146,17 @@ public:
 
 	enum
 	{
+		AUTHED_HONEY=-1,
+		AUTHED_NO=0,
+		AUTHED_HELPER,
+		AUTHED_MOD,
+		AUTHED_ADMIN,
+
 		RCON_CID_SERV=-1,
 		RCON_CID_VOTE=-2,
 	};
 	virtual void SetRconCID(int ClientID) = 0;
-	virtual bool IsAuthed(int ClientID) = 0;
+	virtual int GetAuthedState(int ClientID) = 0;
 	virtual void Kick(int ClientID, const char *pReason) = 0;
 	virtual void SendRconLine(int ClientID, const char *pLine) = 0;
 
@@ -172,6 +178,12 @@ public:
 	virtual void BotLeave(int BotID, bool silet = false) = 0;
 	virtual char *GetMapName() = 0;
 	virtual bool DnsblWhite(int ClientID) = 0;
+	virtual const char *GetAnnouncementLine(char const *FileName) = 0;
+	virtual bool ClientPrevIngame(int ClientID) = 0;
+	virtual const char *GetNetErrorString(int ClientID) = 0;
+	virtual void ResetNetErrorString(int ClientID) = 0;
+	virtual bool SetTimedOut(int ClientID, int OrigID) = 0;
+	virtual void SetTimeoutProtected(int ClientID) = 0;
 };
 
 class IGameServer : public IInterface
@@ -179,6 +191,15 @@ class IGameServer : public IInterface
 	MACRO_INTERFACE("gameserver", 0)
 protected:
 public:
+	// DDNet++ start
+
+	virtual void IncrementWrongRconAttempts() = 0;
+	virtual void OnStartBlockTournament() = 0;
+	virtual void LogoutAllPlayers() = 0;
+	//virtual void OnDDPPshutdown() = 0;
+
+	// DDNet++ end
+
 	virtual void OnInit() = 0;
 	virtual void OnConsoleInit() = 0;
 	virtual void OnMapChange(char *pNewMapName, int MapNameSize) = 0;
@@ -210,12 +231,9 @@ public:
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
 
-	// DDNet++
-
-	virtual void IncrementWrongRconAttempts() = 0;
-	virtual void OnStartBlockTournament() = 0;
-	virtual void LogoutAllPlayers() = 0;
-	//virtual void OnDDPPshutdown() = 0;
+	virtual int GetClientVersion(int ClientID) = 0;
+	virtual void SetClientVersion(int ClientID, int Version) = 0;
+	virtual bool PlayerExists(int ClientID) = 0;
 };
 
 extern IGameServer *CreateGameServer();

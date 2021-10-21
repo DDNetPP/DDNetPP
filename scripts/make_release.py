@@ -7,7 +7,7 @@ if len(sys.argv) != 3:
 	print(sys.argv[0], "VERSION PLATFORM")
 	sys.exit(-1)
 
-name = "DDNetPP"
+name = "DDNet"
 version = sys.argv[1]
 platform = sys.argv[2]
 exe_ext = ""
@@ -88,10 +88,12 @@ if include_data and not use_bundle:
 
 if include_exe and not use_bundle:
 	shutil.copy(name+exe_ext, package_dir)
+	shutil.copy(name+"-Server"+exe_ext, package_dir)
 	shutil.copy("dilate"+exe_ext, package_dir)
 	shutil.copy("config_store"+exe_ext, package_dir)
 	shutil.copy("config_retrieve"+exe_ext, package_dir)
-	#shutil.copy(name+"_sql"+exe_ext, package_dir)
+	shutil.copy("map_extract"+exe_ext, package_dir)
+	#shutil.copy(name+"-Server_sql"+exe_ext, package_dir)
 	
 if include_src:
 	for p in ["src", "scripts", "datasrc", "other", "objs"]:
@@ -101,7 +103,7 @@ if include_src:
 	shutil.copy("configure.lua", package_dir)
 
 if use_bundle:
-	bins = [name, 'dilate', 'config_store', 'config_retrieve', 'serverlaunch']
+	bins = [name, name+'-Server', 'dilate', 'config_store', 'config_retrieve', 'map_extract', 'serverlaunch']
 	platforms = ('x86', 'x86_64', 'ppc')
 	for bin in bins:
 		to_lipo = []
@@ -163,10 +165,10 @@ if use_bundle:
 	file(os.path.join(clientbundle_content_dir, "PkgInfo"), "w").write("APPL????")
 
 	# create Teeworlds Server appfolder
-	serverbundle_content_dir = os.path.join(package_dir, "DDNetPP.app/Contents")
+	serverbundle_content_dir = os.path.join(package_dir, "DDNet-Server.app/Contents")
 	serverbundle_bin_dir = os.path.join(serverbundle_content_dir, "MacOS")
 	serverbundle_resource_dir = os.path.join(serverbundle_content_dir, "Resources")
-	os.mkdir(os.path.join(package_dir, "DDNetPP.app"))
+	os.mkdir(os.path.join(package_dir, "DDNet-Server.app"))
 	os.mkdir(serverbundle_content_dir)
 	os.mkdir(serverbundle_bin_dir)
 	os.mkdir(serverbundle_resource_dir)
@@ -174,8 +176,8 @@ if use_bundle:
 	os.mkdir(os.path.join(serverbundle_resource_dir, "data/maps"))
 	os.mkdir(os.path.join(serverbundle_resource_dir, "data/mapres"))
 	copydir("data/maps", serverbundle_resource_dir)
-	shutil.copy("other/icons/DDNetPP.icns", serverbundle_resource_dir)
-	shutil.copy(name+exe_ext, serverbundle_bin_dir)
+	shutil.copy("other/icons/DDNet-Server.icns", serverbundle_resource_dir)
+	shutil.copy(name+"-Server"+exe_ext, serverbundle_bin_dir)
 	shutil.copy("serverlaunch"+exe_ext, serverbundle_bin_dir + "/"+name+"_server")
 	file(os.path.join(serverbundle_content_dir, "Info.plist"), "w").write("""
 <?xml version="1.0" encoding="UTF-8"?>
@@ -187,7 +189,7 @@ if use_bundle:
         <key>CFBundleExecutable</key>
         <string>DDNet_server</string>
         <key>CFBundleIconFile</key>
-        <string>DDNetPP</string>
+        <string>DDNet-Server</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
         <key>CFBundlePackageType</key>

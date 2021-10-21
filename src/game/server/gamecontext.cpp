@@ -903,7 +903,7 @@ void CGameContext::OnTick()
 
 	if(Server()->Tick() % (g_Config.m_SvAnnouncementInterval * Server()->TickSpeed() * 60) == 0)
 	{
-		char *Line = ((CServer *) Server())->GetAnnouncementLine(g_Config.m_SvAnnouncementFileName);
+		const char *Line = Server()->GetAnnouncementLine(g_Config.m_SvAnnouncementFileName);
 		if(Line)
 			SendChat(-1, CGameContext::CHAT_ALL, Line);
 	}
@@ -1093,7 +1093,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	}
 	Score()->CheckBirthday(ClientID);
 
-	if(((CServer *) Server())->m_aPrevStates[ClientID] < CServer::CClient::STATE_INGAME)
+	if(!Server()->ClientPrevIngame(ClientID))
 	{
 		char aBuf[512];
 		if (!silent)
@@ -1140,7 +1140,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	if(m_VoteCloseTime)
 		SendVoteSet(ClientID);
 
-	m_apPlayers[ClientID]->m_Authed = ((CServer*)Server())->m_aClients[ClientID].m_Authed;
+	m_apPlayers[ClientID]->m_Authed = Server()->GetAuthedState(ClientID);
 }
 
 void CGameContext::OnClientConnected(int ClientID)
@@ -1372,7 +1372,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					Console()->SetFlagMask(CFGFLAG_CHAT);
 
 					if (pPlayer->m_Authed)
-						Console()->SetAccessLevel(pPlayer->m_Authed == CServer::AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : pPlayer->m_Authed == CServer::AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
+						Console()->SetAccessLevel(pPlayer->m_Authed == IServer::AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : pPlayer->m_Authed == IServer::AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
 					else
 						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_USER);
 					Console()->SetPrintOutputLevel(m_ChatPrintCBIndex, 0);
@@ -1563,7 +1563,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if(!pOption)
 				{
-					if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)  // allow admins to call any vote they want
+					if (pPlayer->m_Authed != IServer::AUTHED_ADMIN)  // allow admins to call any vote they want
 					{
 						str_format(aChatmsg, sizeof(aChatmsg), "'%s' isn't an option on this server", pMsg->m_Value);
 						SendChatTarget(ClientID, aChatmsg);
@@ -3496,14 +3496,13 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
-	CServer *pServ = (CServer*)Server();
 	if(m_apPlayers[ClientID])
 	{
 		m_apPlayers[ClientID]->m_Authed = Level;
 		if (Level == CServer::AUTHED_HONEY)
 			return;
 		char aBuf[512], aIP[NETADDR_MAXSTRSIZE];
-		pServ->GetClientAddr(ClientID, aIP, sizeof(aIP));
+		Server()->GetClientAddr(ClientID, aIP, sizeof(aIP));
 		str_format(aBuf, sizeof(aBuf), "ban %s %d Banned by vote", aIP, g_Config.m_SvVoteKickBantime);
 		if(!str_comp_nocase(m_aVoteCommand, aBuf) && Level > 0)
 		{
@@ -3522,7 +3521,7 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		aAccID[0] = '\0';
 		if (m_apPlayers[ClientID]->IsLoggedIn())
 			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
-		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, pServ->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, Server()->ClientName(ClientID));
 		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
@@ -3779,7 +3778,7 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 	{
 		if (m_apPlayers[i] && i != VictimID && i != ClientID)
 		{
-			if (Server()->IsAuthed(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
+			if (Server()->GetAuthedState(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
 			{
 				SendChatTarget(i, aBuf);
 			}
@@ -3843,4 +3842,17 @@ void CGameContext::List(int ClientID, const char *pFilter)
 		SendChatTarget(ClientID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "%d players online", Total);
 	SendChatTarget(ClientID, aBuf);
+}
+
+int CGameContext::GetClientVersion(int ClientID) {
+	return m_apPlayers[ClientID]
+		? m_apPlayers[ClientID]->m_ClientVersion
+		: 0;
+}
+
+void CGameContext::SetClientVersion(int ClientID, int Version) {
+	if (!m_apPlayers[ClientID]) {
+		return;
+	}
+	m_apPlayers[ClientID]->m_ClientVersion = Version;
 }

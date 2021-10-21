@@ -14,7 +14,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <engine/server/server.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/score.h>
 #include "light.h"

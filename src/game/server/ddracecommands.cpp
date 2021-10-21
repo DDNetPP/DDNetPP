@@ -1,7 +1,6 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 #include <engine/shared/config.h>
-#include <engine/server/server.h>
 #include <game/server/teams.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/version.h>
@@ -99,73 +98,6 @@ void CGameContext::ConNinja(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	pSelf->ModifyWeapons(pResult, pUserData, WEAPON_NINJA, false);
-}
-
-void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	int Seconds = -1;
-	int Victim = pResult->GetVictim();
-
-	char aBuf[128];
-
-	if (pResult->NumArguments() == 1)
-		Seconds = clamp(pResult->GetInteger(0), -2, 9999);
-
-	CCharacter* pChr = pSelf->GetPlayerChar(Victim);
-	if (!pChr)
-		return;
-
-	if (pSelf->m_apPlayers[Victim])
-	{
-		pChr->Freeze(Seconds);
-		pChr->GetPlayer()->m_RconFreeze = Seconds != -2;
-		CServer* pServ = (CServer*)pSelf->Server();
-		if (Seconds >= 0)
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
-		else if (Seconds == -2)
-		{
-			pChr->m_DeepFreeze = true;
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
-		}
-		else
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d is frozen until you unfreeze him.", pServ->ClientName(Victim), Victim);
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-	}
-
-}
-
-void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if (!CheckClientID(pResult->m_ClientID))
-		return;
-
-	int Victim = pResult->GetVictim();
-	static bool Warning = false;
-	char aBuf[128];
-	CCharacter* pChr = pSelf->GetPlayerChar(Victim);
-	if (!pChr)
-		return;
-	if (pChr->m_DeepFreeze && !Warning)
-	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "warning", "This client is deeply frozen, repeat the command to defrost him.");
-		Warning = true;
-		return;
-	}
-	if (pChr->m_DeepFreeze && Warning)
-	{
-		pChr->m_DeepFreeze = false;
-		Warning = false;
-	}
-	pChr->m_FreezeTime = 2;
-	pChr->GetPlayer()->m_RconFreeze = false;
-	CServer* pServ = (CServer*)pSelf->Server();
-	str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been defrosted.", pServ->ClientName(Victim), Victim);
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 }
 
 void CGameContext::ConSuper(IConsole::IResult *pResult, void *pUserData)

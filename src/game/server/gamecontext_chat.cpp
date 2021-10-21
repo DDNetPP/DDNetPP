@@ -175,7 +175,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     }
     else if (str_comp_nocase_num(pCommand, "dummy ", 6) == 0) //hab den hier kopiert un dbissl abgeändert
     {
-        //if (Server()->IsAuthed(ClientID))
+        //if (Server()->GetAuthedState(ClientID))
         if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
         {
             char pValue[32];
@@ -198,7 +198,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     }
     else if (!str_comp(pCommand, "dcdummys"))
     {
-        //if (Server()->IsAuthed(ClientID))
+        //if (Server()->GetAuthedState(ClientID))
         if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
         {
             for (int i = 0; i < MAX_CLIENTS; i++)

@@ -4621,7 +4621,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		}
 		else if (g_Config.m_SvBombLockable == 1) //mods and higher
 		{
-			if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
+			if (!pSelf->Server()->GetAuthedState(pResult->m_ClientID))
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Only authed players can lock bomb games.");
 				return;
@@ -7473,7 +7473,7 @@ void CGameContext::ConTROLL166(IConsole::IResult * pResult, void * pUserData)
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
-	if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
+	if (!pSelf->Server()->GetAuthedState(pResult->m_ClientID))
 		return;
 
 	int VictimCID = pResult->GetVictim();
@@ -7489,7 +7489,7 @@ void CGameContext::ConTROLL420(IConsole::IResult * pResult, void * pUserData)
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
 
-	if (!pSelf->Server()->IsAuthed(pResult->m_ClientID))
+	if (!pSelf->Server()->GetAuthedState(pResult->m_ClientID))
 		return;
 
 	int VictimCID = pResult->GetVictim();
@@ -8765,7 +8765,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (!(pPlayer->m_Authed == CServer::AUTHED_ADMIN || (pSelf->Server()->IsAuthed(ClientID) && pPlayer->m_IsSupporter)))
+	if (!(pPlayer->m_Authed == CServer::AUTHED_ADMIN || (pSelf->Server()->GetAuthedState(ClientID) && pPlayer->m_IsSupporter)))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
 		return;
