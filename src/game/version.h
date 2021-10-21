@@ -11,7 +11,3 @@
 #define GAME_RELEASE_VERSION "10.8.6"
 #define CLIENT_VERSIONNR 10086
 #endif
-
-#ifndef GAME_RELEASE_VERSION
-#define GAME_RELEASE_VERSION = "10.8.4"; // TODO: remove
-#endif

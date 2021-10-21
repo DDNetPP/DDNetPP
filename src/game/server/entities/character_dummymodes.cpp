@@ -1699,7 +1699,7 @@ void CCharacter::DummyTick()
 
 
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "targX: %d = %d - %d", m_Input.m_TargetX, pChr->m_Pos.x, m_Pos.x);
+						str_format(aBuf, sizeof(aBuf), "targX: %d = %.2f - %.2f", m_Input.m_TargetX, pChr->m_Pos.x, m_Pos.x);
 						// GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
@@ -5398,7 +5398,7 @@ void CCharacter::DummyTick()
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "Error unknown weapon:", rand_Weapon);
+						str_format(aBuf, sizeof(aBuf), "Error unknown weapon: %d", rand_Weapon);
 						GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "FNN", aBuf);
 					}
 					if (rand_Fire == 1 && m_FreezeTime == 0)
