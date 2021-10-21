@@ -1067,7 +1067,6 @@ set(EXPECTED_DATA
   languages/portuguese.txt
   languages/romanian.txt
   languages/russian.txt
-  languages/scripts/readme.txt
   languages/serbian.txt
   languages/simplified_chinese.txt
   languages/slovak.txt

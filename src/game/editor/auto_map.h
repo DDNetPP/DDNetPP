@@ -9,6 +9,7 @@ class CAutoMapper
 	{
 		int m_ID;
 		int m_Flag;
+		bool m_TestFlag;
 	};
 
 	struct CPosRule
@@ -33,6 +34,8 @@ class CAutoMapper
 		int m_Flag;
 		float m_RandomProbability;
 		bool m_DefaultRule;
+		bool m_SkipEmpty;
+		bool m_SkipFull;
 	};
 
 	struct CRun

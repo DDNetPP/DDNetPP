@@ -13,9 +13,9 @@
 
 #include "character.h"
 
-void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int MapIndexL, int MapIndexR, int MapIndexT, int MapIndexB)
+void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4)
 {
-	CGameControllerDDRace* Controller = (CGameControllerDDRace*)GameServer()->m_pController;
+	CGameControllerDDRace *Controller = (CGameControllerDDRace*)GameServer()->m_pController;
 	// chillerdragon dummy tile test
 	// finish tile finishtile
 	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
@@ -134,50 +134,50 @@ void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int
 			return;
 	}
 
-    // TODO: use enum here instead of magic number
-	if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0)
-	{
+    // // TODO: use enum here instead of magic number
+	// if (((m_TileIndex == 66) || (m_TileFIndex == 66)) && m_Core.m_Vel.x < 0)
+	// {
 
-		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
-		{
-		}
-		else
-		{
-			/*
-			if (!(m_LastIndexTile == 66 || m_LastIndexFrontTile == 66) ){
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-			}*/
+	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
+	// 	{
+	// 	}
+	// 	else
+	// 	{
+	// 		/*
+	// 		if (!(m_LastIndexTile == 66 || m_LastIndexFrontTile == 66) ){
+	// 		char aBuf[256];
+	// 		str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
+	// 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+	// 		}*/
 
-			if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
-				if ((int)GameServer()->Collision()->GetPos(MapIndexL).x < (int)m_Core.m_Pos.x)
-					m_Core.m_Pos = m_PrevPos;
-			m_Core.m_Vel.x = 0;
-		}
-	}
+	// 		if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
+	// 			if ((int)GameServer()->Collision()->GetPos(MapIndexL).x < (int)m_Core.m_Pos.x)
+	// 				m_Core.m_Pos = m_PrevPos;
+	// 		m_Core.m_Vel.x = 0;
+	// 	}
+	// }
 
 
-	if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0)
-	{
+	// if (((m_TileIndex == 67) || (m_TileFIndex == 67)) && m_Core.m_Vel.x > 0)
+	// {
 
-		if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
-		}
-		else {
-			/*
-			if (!(m_LastIndexTile == 67 || m_LastIndexFrontTile == 67) ){
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-			}*/
+	// 	if (((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this || ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this) {
+	// 	}
+	// 	else {
+	// 		/*
+	// 		if (!(m_LastIndexTile == 67 || m_LastIndexFrontTile == 67) ){
+	// 		char aBuf[256];
+	// 		str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
+	// 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+	// 		}*/
 
-			if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
-				if ((int)GameServer()->Collision()->GetPos(MapIndexL).x < (int)m_Core.m_Pos.x)
-					m_Core.m_Pos = m_PrevPos;
-			m_Core.m_Vel.x = 0;
-		}
+	// 		if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
+	// 			if ((int)GameServer()->Collision()->GetPos(MapIndexL).x < (int)m_Core.m_Pos.x)
+	// 				m_Core.m_Pos = m_PrevPos;
+	// 		m_Core.m_Vel.x = 0;
+	// 	}
 
-	}
+	// }
 
 	// cosmetic tiles
 	//rainbow

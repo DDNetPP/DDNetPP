@@ -221,7 +221,7 @@ void CDropPickup::Tick()
 		m_Vel = TempVel;
 	}
 
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(ms_PhysSize, ms_PhysSize), 0.5f);
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(ms_PhysSize, ms_PhysSize), 0.5f, true);
 }
 
 void CDropPickup::Snap(int SnappingClient)

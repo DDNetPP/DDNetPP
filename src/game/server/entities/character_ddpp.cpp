@@ -18,6 +18,33 @@ void CCharacter::DDPPDDRacePostCoreTick()
 		m_FirstFreezeTick = 0;
 }
 
+bool CCharacter::HandleConfigTile(int Type)
+{
+	if(Type == CFG_TILE_OFF)
+		return false;
+
+	if(Type == CFG_TILE_FREEZE)
+		Freeze();
+	else if(Type == CFG_TILE_UNFREEZE)
+		UnFreeze();
+	else if(Type == CFG_TILE_DEEP)
+		m_DeepFreeze = true;
+	else if(Type == CFG_TILE_UNDEEP)
+		m_DeepFreeze = false;
+	else if(Type == CFG_TILE_DEATH)
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD); // TODO: probably should be in places where TILE_DEATH is and not here
+		return true;
+	}
+	else if(Type == CFG_TILE_GIVE_BLOODY)
+		m_Bloody = true;
+	else if(Type == CFG_TILE_GIVE_RAINBOW)
+		m_Rainbow = true;
+	else if(Type == CFG_TILE_GIVE_SPREADGUN)
+		m_autospreadgun = true;
+	return false;
+}
+
 void CCharacter::SetSpookyGhost()
 {
 	if (m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && m_pPlayer->m_IsSurvivalLobby == false)) // no ghost in competetive minigames

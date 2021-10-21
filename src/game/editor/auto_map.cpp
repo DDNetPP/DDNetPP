@@ -75,6 +75,8 @@ void CAutoMapper::Load(const char* pTileName)
 				NewIndexRule.m_Flag = 0;
 				NewIndexRule.m_RandomProbability = 1.0;
 				NewIndexRule.m_DefaultRule = true;
+				NewIndexRule.m_SkipEmpty = false;
+				NewIndexRule.m_SkipFull = false;
 
 				if(str_length(aOrientation1) > 0)
 				{
@@ -122,13 +124,13 @@ void CAutoMapper::Load(const char* pTileName)
 				if(!str_comp(aValue, "EMPTY"))
 				{
 					Value = CPosRule::INDEX;
-					CIndexInfo NewIndexInfo = {0, 0};
+					CIndexInfo NewIndexInfo = {0, 0, false};
 					NewIndexList.add(NewIndexInfo);
 				}
 				else if(!str_comp(aValue, "FULL"))
 				{
 					Value = CPosRule::NOTINDEX;
-					CIndexInfo NewIndexInfo1 = {0, 0};
+					CIndexInfo NewIndexInfo1 = {0, 0, false};
 					//CIndexInfo NewIndexInfo2 = {-1, 0};
 					NewIndexList.add(NewIndexInfo1);
 					//NewIndexList.add(NewIndexInfo2);
@@ -151,13 +153,15 @@ void CAutoMapper::Load(const char* pTileName)
 
 						CIndexInfo NewIndexInfo;
 						NewIndexInfo.m_ID = ID;
-						NewIndexInfo.m_Flag = -1;
+						NewIndexInfo.m_Flag = 0;
+						NewIndexInfo.m_TestFlag = false;
 
 						if(!str_comp(aOrientation1, "OR")) {
 							NewIndexList.add(NewIndexInfo);
 							pWord += 2;
 							continue;
 						} else if(str_length(aOrientation1) > 0) {
+							NewIndexInfo.m_TestFlag = true;
 							if(!str_comp(aOrientation1, "XFLIP"))
 								NewIndexInfo.m_Flag = TILEFLAG_VFLIP;
 							else if(!str_comp(aOrientation1, "YFLIP"))
@@ -166,6 +170,8 @@ void CAutoMapper::Load(const char* pTileName)
 								NewIndexInfo.m_Flag = TILEFLAG_ROTATE;
 							else if(!str_comp(aOrientation1, "NONE"))
 								NewIndexInfo.m_Flag = 0;
+							else
+								NewIndexInfo.m_TestFlag = false;
 						} else {
 							NewIndexList.add(NewIndexInfo);
 							break;
@@ -217,6 +223,16 @@ void CAutoMapper::Load(const char* pTileName)
 				if(Value != CPosRule::NORULE) {
 					CPosRule NewPosRule = {x, y, Value, NewIndexList};
 					pCurrentIndex->m_aRules.add(NewPosRule);
+
+					if(x == 0 && y == 0) {
+						for(int i = 0; i < NewIndexList.size(); ++i) 
+						{
+							if(Value == CPosRule::INDEX && NewIndexList[i].m_ID == 0)
+								pCurrentIndex->m_SkipFull = true;
+							else
+								pCurrentIndex->m_SkipEmpty = true;
+						}
+					}
 				}
 			}
 			else if(str_startswith(pLine, "Random") && pCurrentIndex)
@@ -251,23 +267,31 @@ void CAutoMapper::Load(const char* pTileName)
 		{
 			for(int i = 0; i < m_lConfigs[g].m_aRuns[h].m_aIndexRules.size(); ++i)
 			{
+				CIndexRule *pIndexRule = &m_lConfigs[g].m_aRuns[h].m_aIndexRules[i];
 				bool Found = false;
-				for(int j = 0; j < m_lConfigs[g].m_aRuns[h].m_aIndexRules[i].m_aRules.size(); ++j)
+				for(int j = 0; j < pIndexRule->m_aRules.size(); ++j)
 				{
-					CPosRule *pRule = &m_lConfigs[g].m_aRuns[h].m_aIndexRules[i].m_aRules[j];
+					CPosRule *pRule = &pIndexRule->m_aRules[j];
 					if(pRule && pRule->m_X == 0 && pRule->m_Y == 0)
 					{
 						Found = true;
 						break;
 					}
 				}
-				if(!Found && m_lConfigs[g].m_aRuns[h].m_aIndexRules[i].m_DefaultRule)
+				if(!Found && pIndexRule->m_DefaultRule)
 				{
 					array<CIndexInfo> NewIndexList;
-					CIndexInfo NewIndexInfo = {0, 0};
+					CIndexInfo NewIndexInfo = {0, 0, false};
 					NewIndexList.add(NewIndexInfo);
 					CPosRule NewPosRule = {0, 0, CPosRule::NOTINDEX, NewIndexList};
-					m_lConfigs[g].m_aRuns[h].m_aIndexRules[i].m_aRules.add(NewPosRule);
+					pIndexRule->m_aRules.add(NewPosRule);
+					
+					pIndexRule->m_SkipEmpty = true;
+					pIndexRule->m_SkipFull = false;
+				}
+				if(pIndexRule->m_SkipEmpty && pIndexRule->m_SkipFull)
+				{
+					pIndexRule->m_SkipFull = false;
 				}
 			}
 		}
@@ -334,10 +358,16 @@ void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID)
 
 				for(int i = 0; i < pRun->m_aIndexRules.size(); ++i)
 				{
+					CIndexRule *pIndexRule = &pRun->m_aIndexRules[i];
+					if(pIndexRule->m_SkipEmpty && pTile->m_Index == 0) // skip empty tiles
+						continue;
+					if(pIndexRule->m_SkipFull && pTile->m_Index != 0) // skip full tiles
+						continue;
+
 					bool RespectRules = true;
-					for(int j = 0; j < pRun->m_aIndexRules[i].m_aRules.size() && RespectRules; ++j)
+					for(int j = 0; j < pIndexRule->m_aRules.size() && RespectRules; ++j)
 					{
-						CPosRule *pRule = &pRun->m_aIndexRules[i].m_aRules[j];
+						CPosRule *pRule = &pIndexRule->m_aRules[j];
 
 						int CheckIndex, CheckFlags;
 						int CheckX = x + pRule->m_X;
@@ -355,7 +385,7 @@ void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID)
 						{
 							RespectRules = false;
 							for(int i = 0; i < pRule->m_aIndexList.size(); ++i) {
-								if(CheckIndex == pRule->m_aIndexList[i].m_ID && (pRule->m_aIndexList[i].m_Flag == -1 || CheckFlags == pRule->m_aIndexList[i].m_Flag))
+								if(CheckIndex == pRule->m_aIndexList[i].m_ID && (!pRule->m_aIndexList[i].m_TestFlag || CheckFlags == pRule->m_aIndexList[i].m_Flag))
 								{
 									RespectRules = true;
 									break;
@@ -365,7 +395,7 @@ void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID)
 	 					else if(pRule->m_Value == CPosRule::NOTINDEX)
 						{
 							for(int i = 0; i < pRule->m_aIndexList.size(); ++i) {
-								if(CheckIndex == pRule->m_aIndexList[i].m_ID && (pRule->m_aIndexList[i].m_Flag == -1 || CheckFlags == pRule->m_aIndexList[i].m_Flag))
+								if(CheckIndex == pRule->m_aIndexList[i].m_ID && (!pRule->m_aIndexList[i].m_TestFlag || CheckFlags == pRule->m_aIndexList[i].m_Flag))
 								{
 									RespectRules = false;
 									break;
@@ -375,10 +405,10 @@ void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID)
 					}
 
 					if(RespectRules &&
-						(pRun->m_aIndexRules[i].m_RandomProbability >= 1.0 || (float)rand() / ((float)RAND_MAX + 1) < pRun->m_aIndexRules[i].m_RandomProbability))
+						(pIndexRule->m_RandomProbability >= 1.0 || (float)rand() / ((float)RAND_MAX + 1) < pIndexRule->m_RandomProbability))
 					{
-						pTile->m_Index = pRun->m_aIndexRules[i].m_ID;
-						pTile->m_Flags = pRun->m_aIndexRules[i].m_Flag;
+						pTile->m_Index = pIndexRule->m_ID;
+						pTile->m_Flags = pIndexRule->m_Flag;
 					}
 				}
 			}

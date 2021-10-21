@@ -5298,29 +5298,29 @@ void CCharacter::DummyTick()
 					int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
 					int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
 					//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
-					m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
-					m_TileFlagsL = GameServer()->Collision()->GetTileFlags(MapIndexL);
-					m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
-					m_TileFlagsR = GameServer()->Collision()->GetTileFlags(MapIndexR);
-					m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
-					m_TileFlagsB = GameServer()->Collision()->GetTileFlags(MapIndexB);
-					m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
+					int TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
+					// int TileFlagsL = GameServer()->Collision()->GetTileFlags(MapIndexL);
+					int TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
+					// int TileFlagsR = GameServer()->Collision()->GetTileFlags(MapIndexR);
+					int TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
+					// int TileFlagsB = GameServer()->Collision()->GetTileFlags(MapIndexB);
+					int TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
 
 					// if (Server()->Tick() % 100 == 0)
 					// {
 					// 	dbg_msg("fnn-debug", "------ TEST --------");
-					// 	dbg_msg("fnn-debug", "left: %d mapindex: %d", m_TileIndexL, MapIndexL);
-					// 	dbg_msg("fnn-debug", "right: %d mapindex: %d", m_TileIndexR, MapIndexR);
-					// 	dbg_msg("fnn-debug", "up: %d mapindex: %d", m_TileIndexT, MapIndexT);
-					// 	dbg_msg("fnn-debug", "down: %d mapindex: %d", m_TileIndexB, MapIndexB);
+					// 	dbg_msg("fnn-debug", "left: %d mapindex: %d", TileIndexL, MapIndexL);
+					// 	dbg_msg("fnn-debug", "right: %d mapindex: %d", TileIndexR, MapIndexR);
+						dbg_msg("fnn-debug", "up: %d mapindex: %d", TileIndexT, MapIndexT);
+					// 	dbg_msg("fnn-debug", "down: %d mapindex: %d", TileIndexB, MapIndexB);
 					// }
 
-					if (m_TileIndexL == TILE_FREEZE)
+					if (TileIndexL == TILE_FREEZE)
 					{
 						m_Input.m_Direction = 1;
 						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
 					}
-					else 	if (m_TileIndexR == TILE_FREEZE)
+					else 	if (TileIndexR == TILE_FREEZE)
 					{
 						m_Input.m_Direction = -1;
 						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
@@ -5329,13 +5329,13 @@ void CCharacter::DummyTick()
 					{
 						m_Input.m_Direction = rand_Direction;
 					}
-					if (m_TileIndexB == TILE_FREEZE)
+					if (TileIndexB == TILE_FREEZE)
 					{
 						m_Input.m_Jump = 1;
 						m_pPlayer->m_TeeInfos.m_ColorBody = (200 * 255 / 1);
 					}
 
-					if (m_TileIndexB == TILE_NOHOOK)
+					if (TileIndexB == TILE_NOHOOK)
 					{
 						m_pPlayer->m_TeeInfos.m_ColorBody = (100 * 255 / 1); // light red
 					}
