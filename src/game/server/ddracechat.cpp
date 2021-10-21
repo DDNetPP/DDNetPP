@@ -35,7 +35,9 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
 		"Jupeyy, noby, ChillerDragon, ZombieToad, weez15, z6zzz,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
-		"Piepow, QingGo, RafaelFF, sctt & others.");
+		"Piepow, QingGo, RafaelFF, sctt, jao, daverck, fokkonaut,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
+		"Bojidar & others.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
 		"Based on DDRace by the DDRace developers,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
@@ -198,7 +200,7 @@ void CGameContext::ConSettings(IConsole::IResult *pResult, void *pUserData)
 			{
 				str_format(aBuf, sizeof(aBuf),
 						"Players are banned for %d minute(s) if they get voted off", g_Config.m_SvVoteKickBantime);
-						
+
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "settings",
 						g_Config.m_SvVoteKickBantime ?
 								aBuf :
@@ -315,15 +317,22 @@ void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int Pause
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "You are force-paused for %d seconds.", (PauseState - pServ->Tick()) / pServ->TickSpeed());
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "spec", aBuf);
+		return;
 	}
-	else if(!pSelf->m_VoteCloseTime || (!pSelf->m_VoteKick && !pSelf->m_VoteSpec) || (pPlayer->IsPaused() && pPlayer->m_SpectatorID == pSelf->m_VoteVictim) || pResult->m_ClientID == pSelf->m_VoteVictim)
+
+	bool IsPlayerBeingVoted = pSelf->m_VoteCloseTime &&
+		(pSelf->m_VoteKick || pSelf->m_VoteSpec) &&
+		pResult->m_ClientID != pSelf->m_VoteVictim;
+	if((!IsPlayerBeingVoted && -PauseState == PauseType) ||
+		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorID == pSelf->m_VoteVictim))
 	{
 		pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 	}
 	else
 	{
 		pPlayer->Pause(PauseType, false);
-		pPlayer->m_SpectatorID = pSelf->m_VoteVictim;
+		if(IsPlayerBeingVoted)
+			pPlayer->m_SpectatorID = pSelf->m_VoteVictim;
 	}
 }
 
@@ -487,7 +496,7 @@ void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvMapVote == 0)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "map",
-				"Admin has disabled /map");
+				"/map is disabled");
 		return;
 	}
 
@@ -618,28 +627,19 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 		str_copy(aCountry, g_Config.m_SvSqlServerName, sizeof(aCountry));
 	}
 
-	char aValidServerNames[sizeof(g_Config.m_SvSqlValidServerNames)];
-	str_copy(aValidServerNames, g_Config.m_SvSqlValidServerNames, sizeof(aValidServerNames));
-	char *p = strtok(aValidServerNames, ",");;
-
-	while(p)
+	if(str_in_list(g_Config.m_SvSqlValidServerNames, ",", aCountry))
 	{
-		if(str_comp(p, aCountry) == 0)
-		{
-			pSelf->Score()->SaveTeam(Team, pCode, pResult->m_ClientID, aCountry);
+		pSelf->Score()->SaveTeam(Team, pCode, pResult->m_ClientID, aCountry);
 
-			if(g_Config.m_SvUseSQL)
-				pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
-
-			return;
-		}
-
-		p = strtok(NULL, ",");
+		if(g_Config.m_SvUseSQL)
+			pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
 	}
-
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "Unknown server name '%s'.", aCountry);
-	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	else
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "Unknown server name '%s'.", aCountry);
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
 
 #endif
 }
@@ -811,13 +811,13 @@ void CGameContext::ConInviteTeam(IConsole::IResult *pResult, void *pUserData)
 	if(g_Config.m_SvTeam == 0 || g_Config.m_SvTeam == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-				"Admin has disabled teams");
+				"Teams are disabled");
 		return;
 	}
 
 	if(!g_Config.m_SvInvite)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "invite", "Admin has disabled invites");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "invite", "Invites are disabled");
 		return;
 	}
 
@@ -890,7 +890,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 	else if (g_Config.m_SvTeam == 0 || g_Config.m_SvTeam == 3)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-				"Admin has disabled teams");
+				"Teams are disabled");
 		return;
 	}
 	else if (g_Config.m_SvTeam == 2 && pResult->GetInteger(0) == 0 && pPlayer->GetCharacter() && pPlayer->GetCharacter()->m_LastStartWarning < pSelf->Server()->Tick() - 3 * pSelf->Server()->TickSpeed())
@@ -990,7 +990,7 @@ void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"me",
-				"/me is disabled on this server, admin can enable it by using sv_slash_me");
+				"/me is disabled on this server");
 }
 
 void CGameContext::ConConverse(IConsole::IResult *pResult, void *pUserData)
@@ -1042,7 +1042,7 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 	if (g_Config.m_SvEmotionalTees == -1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "emote",
-				"Server admin disabled emotes.");
+				"Emotes are disabled.");
 		return;
 	}
 
@@ -1148,7 +1148,7 @@ void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"showotherschat",
-				"Showing players from other teams is disabled by the server admin");
+				"Showing players from other teams is disabled");
 }
 
 void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
@@ -1413,80 +1413,6 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 			//		((CurrTime / 60) > 9) ? "" : "0", CurrTime / 60,
 			//		((CurrTime % 60) > 9) ? "" : "0", CurrTime % 60);
 			//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	}
-}
-
-void CGameContext::ConModhelp(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *) pUserData;
-
-	if(!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if(!pPlayer)
-		return;
-
-	if(pPlayer->m_pPostJson)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Your last request hasn't finished processing yet, please slow down.");
-		return;
-	}
-
-	int CurTick = pSelf->Server()->Tick();
-	if(pPlayer->m_ModhelpTick != -1)
-	{
-		int TickSpeed = pSelf->Server()->TickSpeed();
-		int NextModhelpTick = pPlayer->m_ModhelpTick + g_Config.m_SvModhelpDelay * TickSpeed;
-		if(NextModhelpTick > CurTick)
-		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "You must wait %d seconds before you can execute this command again.",
-				(NextModhelpTick - CurTick) / TickSpeed);
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			return;
-		}
-	}
-
-	pPlayer->m_ModhelpTick = CurTick;
-
-	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "Moderator help is requested by '%s' (ID: %d):",
-			pSelf->Server()->ClientName(pResult->m_ClientID),
-			pResult->m_ClientID);
-
-	// Send the request to all authed clients.
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(pSelf->m_apPlayers[i] && pSelf->Server()->ClientAuthed(i))
-		{
-			pSelf->SendChatTarget(i, aBuf);
-			pSelf->SendChatTarget(i, pResult->GetString(0));
-		}
-	}
-	if(g_Config.m_SvModhelpUrl[0])
-	{
-		bool ModeratorPresent = false;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i] && pSelf->Server()->ClientAuthed(i))
-			{
-				ModeratorPresent = true;
-				break;
-			}
-		}
-
-		char aJson[512];
-		char aPlayerName[64];
-		char aMessage[128];
-		str_format(aJson, sizeof(aJson), "{\"port\":%d,\"moderator_present\":%s,\"player_id\":%d,\"blacklisted\":%s,\"player_name\":\"%s\",\"message\":\"%s\"}",
-			g_Config.m_SvPort,
-			JsonBool(ModeratorPresent),
-			pResult->m_ClientID,
-			!pSelf->Server()->DnsblWhite(pResult->m_ClientID) ? "true" : "false",
-			EscapeJson(aPlayerName, sizeof(aPlayerName), pSelf->Server()->ClientName(pResult->m_ClientID)),
-			EscapeJson(aMessage, sizeof(aMessage), pResult->GetString(0)));
-		pSelf->Engine()->AddJob(pPlayer->m_pPostJson = std::make_shared<CPostJson>(g_Config.m_SvModhelpUrl, false, aJson));
 	}
 }
 

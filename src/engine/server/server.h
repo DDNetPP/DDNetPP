@@ -212,7 +212,7 @@ public:
 	int64 m_Lastheartbeat;
 	//static NETADDR4 master_server;
 
-	char m_aCurrentMap[64];
+	char m_aCurrentMap[MAX_PATH_LENGTH];
 	SHA256_DIGEST m_CurrentMapSha256;
 	unsigned m_CurrentMapCrc;
 	unsigned char *m_pCurrentMapData;
@@ -242,6 +242,7 @@ public:
 	virtual void SetClientScore(int ClientID, int Score);
 
 	void Kick(int ClientID, const char *pReason);
+	void Ban(int ClientID, int Seconds, const char *pReason);
 
 	void DemoRecorder_HandleAutoStart();
 	bool DemoRecorder_IsRecording();

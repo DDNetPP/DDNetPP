@@ -164,6 +164,8 @@ public:
 	};
 	int m_ServerMode;
 
+	int m_AllowTimeScore[2];
+
 	int m_DemoSpecID;
 
 	vec2 m_LocalCharacterPos;
@@ -250,6 +252,8 @@ public:
 		bool m_Friend;
 		bool m_Foe;
 
+		int m_AuthLevel;
+
 		void UpdateRenderInfo();
 		void Reset();
 
@@ -265,7 +269,7 @@ public:
 		int m_IngameTicks;
 		int m_JoinTick;
 		bool m_Active;
-		
+
 	public:
 		CClientStats();
 
@@ -281,7 +285,7 @@ public:
 		int m_FlagCaptures;
 
 		void Reset();
-		
+
 		bool IsActive() const { return m_Active; }
 		void JoinGame(int Tick) { m_Active = true; m_JoinTick = Tick; };
 		void JoinSpec(int Tick) { m_Active = false; m_IngameTicks += Tick - m_JoinTick; };
@@ -314,6 +318,7 @@ public:
 	virtual void OnEnterGame();
 	virtual void OnRconType(bool UsernameReq);
 	virtual void OnRconLine(const char *pLine);
+	virtual void OnTimeScore(int AllowTimeScore, bool Dummy);
 	virtual void OnGameOver();
 	virtual void OnStartGame();
 	virtual void OnFlagGrab(int TeamID);
@@ -376,6 +381,8 @@ public:
 	CWeaponData m_aWeaponData[150];
 	CWeaponData *GetWeaponData(int Tick) { return &m_aWeaponData[((Tick%150)+150)%150]; }
 	CWeaponData *FindWeaponData(int TargetTick);
+
+	virtual int GetLastRaceTick();
 
 	void FindWeaker(bool IsWeaker[2][MAX_CLIENTS]);
 

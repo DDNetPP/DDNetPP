@@ -1,5 +1,8 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+
+#include <limits>
+
 #include <engine/editor.h>
 #include <engine/engine.h>
 #include <engine/friends.h>
@@ -62,7 +65,6 @@
 #include <base/system.h>
 #include "components/race_demo.h"
 #include "components/ghost.h"
-#include <base/tl/sorted_array.h>
 
 CGameClient g_GameClient;
 
@@ -288,22 +290,7 @@ void CGameClient::OnInit()
 	for(int i = 0; i < NUM_NETOBJTYPES; i++)
 		Client()->SnapSetStaticsize(i, m_NetObjHandler.GetObjSize(i));
 
-	// load default font
-	static CFont *pDefaultFont = 0;
-	char aFilename[512];
-	const char *pFontFile = "fonts/DejaVuSansCJKName.ttf";
-	if(str_find(g_Config.m_ClLanguagefile, "chinese") != NULL || str_find(g_Config.m_ClLanguagefile, "japanese") != NULL ||
-		str_find(g_Config.m_ClLanguagefile, "korean") != NULL)
-		pFontFile = "fonts/DejavuWenQuanYiMicroHei.ttf";
-	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
-	if(File)
-	{
-		io_close(File);
-		pDefaultFont = TextRender()->LoadFont(aFilename);
-		TextRender()->SetDefaultFont(pDefaultFont);
-	}
-	if(!pDefaultFont)
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='%s'", pFontFile);
+	Client()->LoadFont();
 
 	// init all components
 	for(int i = m_All.m_Num-1; i >= 0; --i)
@@ -324,10 +311,6 @@ void CGameClient::OnInit()
 
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->OnReset();
-
-	int64 End = time_get();
-	str_format(aBuf, sizeof(aBuf), "initialisation finished after %.2fms", ((End-Start)*1000)/(float)time_freq());
-	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "gameclient", aBuf);
 
 	m_ServerMode = SERVERMODE_PURE;
 
@@ -361,6 +344,10 @@ void CGameClient::OnInit()
 				g_Config.m_ClDummyTimeoutCode[i] = (char)((rand() % 26) + 65);
 		}
 	}
+
+	int64 End = time_get();
+	str_format(aBuf, sizeof(aBuf), "initialisation finished after %.2fms", ((End-Start)*1000)/(float)time_freq());
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "gameclient", aBuf);
 }
 
 void CGameClient::OnUpdate()
@@ -687,6 +674,11 @@ void CGameClient::OnDummyDisconnect()
 	m_LastNewPredictedTick[1] = -1;
 }
 
+int CGameClient::GetLastRaceTick()
+{
+	return m_pGhost->GetLastRaceTick();
+}
+
 void CGameClient::OnRelease()
 {
 	// release all systems
@@ -935,6 +927,11 @@ void CGameClient::OnRconLine(const char *pLine)
 	m_pGameConsole->PrintLine(CGameConsole::CONSOLETYPE_REMOTE, pLine);
 }
 
+void CGameClient::OnTimeScore(int AllowTimeScore, bool Dummy)
+{
+	m_AllowTimeScore[Dummy] = AllowTimeScore;
+}
+
 void CGameClient::ProcessEvents()
 {
 	if(m_SuppressEvents)
@@ -1180,6 +1177,8 @@ void CGameClient::OnNewSnapshot()
 			}
 			else if(Item.m_Type == NETOBJTYPE_FLAG)
 				m_Snap.m_paFlags[Item.m_ID%2] = (const CNetObj_Flag *)pData;
+			else if(Item.m_Type == NETOBJTYPE_AUTHINFO)
+				m_aClients[Item.m_ID].m_AuthLevel = ((const CNetObj_AuthInfo *)pData)->m_AuthLevel;
 		}
 	}
 
@@ -1227,61 +1226,48 @@ void CGameClient::OnNewSnapshot()
 
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
-        // update friend state
-        m_aClients[i].m_Friend = !(i == m_Snap.m_LocalClientID
-                || !m_Snap.m_paPlayerInfos[i]
-                || !Friends()->IsFriend(m_aClients[i].m_aName, m_aClients[i].m_aClan, true));
+		// update friend state
+		m_aClients[i].m_Friend = !(i == m_Snap.m_LocalClientID
+			|| !m_Snap.m_paPlayerInfos[i]
+			|| !Friends()->IsFriend(m_aClients[i].m_aName, m_aClients[i].m_aClan, true));
 
-        // update foe state
-        m_aClients[i].m_Foe = !(i == m_Snap.m_LocalClientID
-                || !m_Snap.m_paPlayerInfos[i]
-                || !Foes()->IsFriend(m_aClients[i].m_aName, m_aClients[i].m_aClan, true));
+		// update foe state
+		m_aClients[i].m_Foe = !(i == m_Snap.m_LocalClientID
+			|| !m_Snap.m_paPlayerInfos[i]
+			|| !Foes()->IsFriend(m_aClients[i].m_aName, m_aClients[i].m_aClan, true));
 	}
 
 	// sort player infos by name
 	mem_copy(m_Snap.m_paInfoByName, m_Snap.m_paPlayerInfos, sizeof(m_Snap.m_paInfoByName));
-	for(int k = 0; k < MAX_CLIENTS-1; k++) // ffs, bubblesort
-	{
-		for(int i = 0; i < MAX_CLIENTS-k-1; i++)
+	std::stable_sort(m_Snap.m_paInfoByName, m_Snap.m_paInfoByName + MAX_CLIENTS,
+		[this](const CNetObj_PlayerInfo* p1, const CNetObj_PlayerInfo* p2) -> bool
 		{
-			if(m_Snap.m_paInfoByName[i+1] && (!m_Snap.m_paInfoByName[i] || str_comp_nocase(m_aClients[m_Snap.m_paInfoByName[i]->m_ClientID].m_aName, m_aClients[m_Snap.m_paInfoByName[i+1]->m_ClientID].m_aName) > 0))
-			{
-				const CNetObj_PlayerInfo *pTmp = m_Snap.m_paInfoByName[i];
-				m_Snap.m_paInfoByName[i] = m_Snap.m_paInfoByName[i+1];
-				m_Snap.m_paInfoByName[i+1] = pTmp;
-			}
-		}
-	}
+			if (!p2)
+				return static_cast<bool>(p1);
+			if (!p1)
+				return false;
+			return str_comp_nocase(m_aClients[p1->m_ClientID].m_aName, m_aClients[p2->m_ClientID].m_aName) < 0;
+		});
+
+	CServerInfo CurrentServerInfo;
+	Client()->GetServerInfo(&CurrentServerInfo);
+	bool IsGameTypeRace = IsRace(&CurrentServerInfo);
 
 	// sort player infos by score
 	mem_copy(m_Snap.m_paInfoByScore, m_Snap.m_paInfoByName, sizeof(m_Snap.m_paInfoByScore));
-	for(int k = 0; k < MAX_CLIENTS-1; k++) // ffs, bubblesort
-	{
-		for(int i = 0; i < MAX_CLIENTS-k-1; i++)
+	std::stable_sort(m_Snap.m_paInfoByScore, m_Snap.m_paInfoByScore + MAX_CLIENTS,
+		[IsGameTypeRace](const CNetObj_PlayerInfo* p1, const CNetObj_PlayerInfo* p2) -> bool
 		{
-			if(m_Snap.m_paInfoByScore[i+1] && (!m_Snap.m_paInfoByScore[i] || m_Snap.m_paInfoByScore[i]->m_Score < m_Snap.m_paInfoByScore[i+1]->m_Score))
-			{
-				const CNetObj_PlayerInfo *pTmp = m_Snap.m_paInfoByScore[i];
-				m_Snap.m_paInfoByScore[i] = m_Snap.m_paInfoByScore[i+1];
-				m_Snap.m_paInfoByScore[i+1] = pTmp;
-			}
-		}
-	}
-
-	// sort player infos by team
-	//int Teams[3] = { TEAM_RED, TEAM_BLUE, TEAM_SPECTATORS };
-	int Index = 0;
-	//for(int Team = 0; Team < 3; ++Team)
-	//{
-	//	for(int i = 0; i < MAX_CLIENTS && Index < MAX_CLIENTS; ++i)
-	//	{
-	//		if(m_Snap.m_paPlayerInfos[i] && m_Snap.m_paPlayerInfos[i]->m_Team == Teams[Team])
-	//			m_Snap.m_paInfoByTeam[Index++] = m_Snap.m_paPlayerInfos[i];
-	//	}
-	//}
+			if (!p2)
+				return static_cast<bool>(p1);
+			if (!p1)
+				return false;
+			return (((IsGameTypeRace && p1->m_Score == -9999) ? std::numeric_limits<int>::min() : p1->m_Score) >
+				((IsGameTypeRace && p2->m_Score == -9999) ? std::numeric_limits<int>::min() : p2->m_Score));
+		});
 
 	// sort player infos by DDRace Team (and score between)
-	Index = 0;
+	int Index = 0;
 	for(int Team = 0; Team <= MAX_CLIENTS; ++Team)
 	{
 		for(int i = 0; i < MAX_CLIENTS && Index < MAX_CLIENTS; ++i)
@@ -1292,8 +1278,6 @@ void CGameClient::OnNewSnapshot()
 	}
 
 	CTuningParams StandardTuning;
-	CServerInfo CurrentServerInfo;
-	Client()->GetServerInfo(&CurrentServerInfo);
 	if(CurrentServerInfo.m_aGameType[0] != '0')
 	{
 		if(str_comp(CurrentServerInfo.m_aGameType, "DM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "TDM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "CTF") != 0)
@@ -1863,6 +1847,9 @@ void CGameClient::CClientData::Reset()
 	m_EmoticonStart = -1;
 	m_Active = false;
 	m_ChatIgnore = false;
+	m_Friend = false;
+	m_Foe = false;
+	m_AuthLevel = AUTHED_NO;
 	m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(0)->m_ColorTexture;
 	m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);

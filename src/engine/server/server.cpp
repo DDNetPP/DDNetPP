@@ -20,7 +20,6 @@
 #include <engine/shared/demo.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/filecollection.h>
-#include <engine/shared/http.h>
 #include <engine/shared/netban.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
@@ -178,7 +177,7 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 			if(Server()->m_aClients[i].m_State == CServer::CClient::STATE_EMPTY)
 				continue;
 
-			if(Server()->m_aClients[i].m_Authed != CServer::AUTHED_NO && NetMatch(pData, Server()->m_NetServer.ClientAddr(i)))
+			if(Server()->m_aClients[i].m_Authed != AUTHED_NO && NetMatch(pData, Server()->m_NetServer.ClientAddr(i)))
 			{
 				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "net_ban", "ban error (command denied)");
 				return -1;
@@ -231,7 +230,7 @@ void CServerBan::ConBanExt(IConsole::IResult *pResult, void *pUser)
 	int Minutes = pResult->NumArguments()>1 ? clamp(pResult->GetInteger(1), 0, 44640) : 30;
 	const char *pReason = pResult->NumArguments()>2 ? pResult->GetString(2) : "No reason given";
 
-	if(StrAllnum(pStr))
+	if(str_isallnum(pStr))
 	{
 		int ClientID = str_toint(pStr);
 		if(ClientID < 0 || ClientID >= MAX_CLIENTS || pThis->Server()->m_aClients[ClientID].m_State == CServer::CClient::STATE_EMPTY)
@@ -428,6 +427,13 @@ void CServer::Kick(int ClientID, const char *pReason)
 	}
 
 	m_NetServer.Drop(ClientID, pReason);
+}
+
+void CServer::Ban(int ClientID, int Seconds, const char *pReason)
+{
+	NETADDR Addr;
+	GetClientAddr(ClientID, &Addr);
+	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason);
 }
 
 /*int CServer::Tick()
@@ -1744,9 +1750,6 @@ void CServer::PumpNetwork()
 
 	m_ServerBan.Update();
 	m_Econ.Update();
-#if defined(CONF_FAMILY_UNIX)
-	m_Fifo.Update();
-#endif
 }
 
 char *CServer::GetMapName()
@@ -1776,6 +1779,9 @@ int CServer::LoadMap(const char *pMapName)
 	// stop recording when we change map
 	for(int i = 0; i < MAX_CLIENTS+1; i++)
 	{
+		if(!m_aDemoRecorder[i].IsRecording())
+			continue;
+
 		m_aDemoRecorder[i].Stop();
 
 		// remove tmp demos
@@ -1848,16 +1854,18 @@ int CServer::Run()
 
 	// start server
 	NETADDR BindAddr;
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
+	int NetType = g_Config.m_SvIpv4Only ? NETTYPE_IPV4 : NETTYPE_ALL;
+
+	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NetType, g_Config.m_SvMasterServerLogs) == 0)
 	{
 		// sweet!
-		BindAddr.type = NETTYPE_ALL;
+		BindAddr.type = NetType;
 		BindAddr.port = g_Config.m_SvPort;
 	}
 	else
 	{
 		mem_zero(&BindAddr, sizeof(BindAddr));
-		BindAddr.type = NETTYPE_ALL;
+		BindAddr.type = NetType;
 		BindAddr.port = g_Config.m_SvPort;
 	}
 
@@ -2006,6 +2014,12 @@ int CServer::Run()
 
 			while(t > TickStartTime(m_CurrentGameTick+1))
 			{
+				for(int c = 0; c < MAX_CLIENTS; c++)
+					if(m_aClients[c].m_State == CClient::STATE_INGAME)
+						for(int i = 0; i < 200; i++)
+							if(m_aClients[c].m_aInputs[i].m_GameTick == Tick() + 1)
+								GameServer()->OnClientPredictedEarlyInput(c, m_aClients[c].m_aInputs[i].m_aData);
+
 				m_CurrentGameTick++;
 				NewTicks++;
 
@@ -2038,6 +2052,10 @@ int CServer::Run()
 					DoSnapshot();
 
 				UpdateClientRconCommands();
+
+#if defined(CONF_FAMILY_UNIX)
+				m_Fifo.Update();
+#endif
 			}
 
 			// master server stuff
@@ -2155,7 +2173,7 @@ void CServer::StatusImpl(IConsole::IResult *pResult, void *pUser, bool DnsblBlac
 	char aAddrStr[NETADDR_MAXSTRSIZE];
 	CServer *pThis = static_cast<CServer *>(pUser);
 
-	bool CanSeeAddress = pThis->m_aClients[pResult->m_ClientID].m_Authed > CServer::AUTHED_MOD;
+	bool CanSeeAddress = pThis->m_aClients[pResult->m_ClientID].m_Authed > AUTHED_MOD;
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -2167,9 +2185,9 @@ void CServer::StatusImpl(IConsole::IResult *pResult, void *pUser, bool DnsblBlac
 			net_addr_str(pThis->m_NetServer.ClientAddr(i), aAddrStr, sizeof(aAddrStr), true);
 			if(pThis->m_aClients[i].m_State == CClient::STATE_INGAME)
 			{
-				const char *pAuthStr = pThis->m_aClients[i].m_Authed == CServer::AUTHED_ADMIN ? "(Admin)" :
-										pThis->m_aClients[i].m_Authed == CServer::AUTHED_MOD ? "(Mod)" :
-										pThis->m_aClients[i].m_Authed == CServer::AUTHED_HELPER ? "(Helper)" : "";
+				const char *pAuthStr = pThis->m_aClients[i].m_Authed == AUTHED_ADMIN ? "(Admin)" :
+										pThis->m_aClients[i].m_Authed == AUTHED_MOD ? "(Mod)" :
+										pThis->m_aClients[i].m_Authed == AUTHED_HELPER ? "(Helper)" : "";
 				char aAuthStr[128];
 				aAuthStr[0] = '\0';
 				if(pThis->m_aClients[i].m_AuthKey >= 0)
@@ -2208,11 +2226,11 @@ static int GetAuthLevel(const char *pLevel)
 {
 	int Level = -1;
 	if(!str_comp_nocase(pLevel, "admin"))
-		Level = CServer::AUTHED_ADMIN;
+		Level = AUTHED_ADMIN;
 	else if(!str_comp_nocase_num(pLevel, "mod", 3))
-		Level = CServer::AUTHED_MOD;
+		Level = AUTHED_MOD;
 	else if(!str_comp_nocase(pLevel, "helper"))
-		Level = CServer::AUTHED_HELPER;
+		Level = AUTHED_HELPER;
 
 	return Level;
 }
@@ -2417,38 +2435,28 @@ void CServer::ConAuthList(IConsole::IResult *pResult, void *pUser)
 void CServer::ConNameBan(IConsole::IResult *pResult, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
-	char aBuf[64];
+	char aBuf[128];
 	const char *pName = pResult->GetString(0);
-	const char *pReason = "";
-	int Distance;
-
-	if(pResult->NumArguments() > 1)
-	{
-		Distance = pResult->GetInteger(1);
-		if(pResult->NumArguments() > 2)
-		{
-			pReason = pResult->GetString(2);
-		}
-	}
-	else
-	{
-		Distance = str_length(pName) / 3;
-	}
+	const char *pReason = pResult->NumArguments() > 3 ? pResult->GetString(3) : "";
+	int Distance = pResult->NumArguments() > 1 ? pResult->GetInteger(1) : str_length(pName) / 3;
+	int IsSubstring = pResult->NumArguments() > 2 ? pResult->GetInteger(2) : 0;
 
 	for(int i = 0; i < pThis->m_aNameBans.size(); i++)
 	{
 		CNameBan *pBan = &pThis->m_aNameBans[i];
 		if(str_comp(pBan->m_aName, pName) == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "changed name='%s' distance=%d old_distance=%d reason='%s' old_reason='%s'", pName, Distance, pBan->m_Distance, pReason, pBan->m_aReason);
+			str_format(aBuf, sizeof(aBuf), "changed name='%s' distance=%d old_distance=%d is_substring=%d old_is_substring=%d reason='%s' old_reason='%s'", pName, Distance, pBan->m_Distance, IsSubstring, pBan->m_IsSubstring, pReason, pBan->m_aReason);
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 			pBan->m_Distance = Distance;
+			pBan->m_IsSubstring = IsSubstring;
+			str_copy(pBan->m_aReason, pReason, sizeof(pBan->m_aReason));
 			return;
 		}
 	}
 
-	pThis->m_aNameBans.add(CNameBan(pName, Distance, pReason));
-	str_format(aBuf, sizeof(aBuf), "added name='%s' distance=%d reason='%s'", pName, Distance, pReason);
+	pThis->m_aNameBans.add(CNameBan(pName, Distance, IsSubstring, pReason));
+	str_format(aBuf, sizeof(aBuf), "added name='%s' distance=%d is_substring=%d reason='%s'", pName, Distance, IsSubstring, pReason);
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 }
 
@@ -2463,7 +2471,7 @@ void CServer::ConNameUnban(IConsole::IResult *pResult, void *pUser)
 		if(str_comp(pBan->m_aName, pName) == 0)
 		{
 			char aBuf[64];
-			str_format(aBuf, sizeof(aBuf), "removed name='%s' distance=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_aReason);
+			str_format(aBuf, sizeof(aBuf), "removed name='%s' distance=%d is_substring=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_IsSubstring, pBan->m_aReason);
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 			pThis->m_aNameBans.remove_index(i);
 		}
@@ -2478,7 +2486,7 @@ void CServer::ConNameBans(IConsole::IResult *pResult, void *pUser)
 	{
 		CNameBan *pBan = &pThis->m_aNameBans[i];
 		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "name='%s' distance=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_aReason);
+		str_format(aBuf, sizeof(aBuf), "name='%s' distance=%d is_substring=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_IsSubstring, pBan->m_aReason);
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 	}
 }
@@ -2625,10 +2633,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 			apSqlServers[i] = new CSqlServer(pResult->GetString(1), pResult->GetString(2), pResult->GetString(3), pResult->GetString(4), pResult->GetString(5), pResult->GetInteger(6), &pSelf->m_GlobalSqlLock, ReadOnly, SetUpDb);
 
 			if(SetUpDb)
-			{
-				void *TablesThread = thread_init(CreateTablesThread, apSqlServers[i]);
-				thread_detach(TablesThread);
-			}
+				thread_init(CreateTablesThread, apSqlServers[i], "CreateTables");
 
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "Added new Sql%sServer: %d: DB: '%s' Prefix: '%s' User: '%s' IP: '%s' Port: %d", ReadOnly ? "Read" : "Write", i, apSqlServers[i]->GetDatabase(), apSqlServers[i]->GetPrefix(), apSqlServers[i]->GetUser(), apSqlServers[i]->GetIP(), apSqlServers[i]->GetPort());
@@ -2873,7 +2878,7 @@ void CServer::RegisterCommands()
 	Console()->Register("auth_remove", "s[ident]", CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, ConAuthRemove, this, "Remove a rcon key");
 	Console()->Register("auth_list", "", CFGFLAG_SERVER, ConAuthList, this, "List all rcon keys");
 
-	Console()->Register("name_ban", "s[name] ?i[distance] ?r[reason]", CFGFLAG_SERVER, ConNameBan, this, "Ban a certain nick name");
+	Console()->Register("name_ban", "s[name] ?i[distance] ?i[is_substring] ?r[reason]", CFGFLAG_SERVER, ConNameBan, this, "Ban a certain nick name");
 	Console()->Register("name_unban", "s[name]", CFGFLAG_SERVER, ConNameUnban, this, "Unban a certain nick name");
 	Console()->Register("name_bans", "", CFGFLAG_SERVER, ConNameBans, this, "List all name bans");
 
@@ -2993,8 +2998,6 @@ int main(int argc, const char **argv) // ignore_convention
 	pEngineMasterServer->Init();
 	pEngineMasterServer->Load();
 
-	HttpInit(pStorage);
-
 	// register all console commands
 	pServer->RegisterCommands();
 
@@ -3089,7 +3092,7 @@ bool CServer::SetTimedOut(int ClientID, int OrigID)
 		return false;
 	}
 	DelClientCallback(OrigID, "Timeout Protection used", this);
-	m_aClients[ClientID].m_Authed = IServer::AUTHED_NO;
+	m_aClients[ClientID].m_Authed = AUTHED_NO;
 	return true;
 }
 

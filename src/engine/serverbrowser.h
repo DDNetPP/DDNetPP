@@ -48,7 +48,8 @@ public:
 	int m_MaxPlayers;
 	int m_NumPlayers;
 	int m_Flags;
-	int m_Favorite;
+	bool m_Favorite;
+	bool m_Official;
 	int m_Latency; // in ms
 	int m_HasRank;
 	char m_aGameType[16];
@@ -70,7 +71,6 @@ bool IsRace(const CServerInfo *pInfo);
 bool IsFastCap(const CServerInfo *pInfo);
 bool IsDDRace(const CServerInfo *pInfo);
 bool IsDDNet(const CServerInfo *pInfo);
-bool IsBlockWorlds(const CServerInfo *pInfo);
 
 bool Is64Player(const CServerInfo *pInfo);
 bool IsPlus(const CServerInfo *pInfo);
@@ -103,11 +103,17 @@ public:
 		TYPE_LAN = 2,
 		TYPE_FAVORITES = 3,
 		TYPE_DDNET = 4,
+		TYPE_KOG = 5,
 
 		SET_MASTER_ADD=1,
 		SET_FAV_ADD,
 		SET_DDNET_ADD,
-		SET_TOKEN
+		SET_KOG_ADD,
+		SET_TOKEN,
+
+		NETWORK_DDNET=0,
+		NETWORK_KOG=1,
+		NUM_NETWORKS,
 	};
 
 	virtual void Refresh(int Type) = 0;
@@ -127,18 +133,18 @@ public:
 	virtual void AddFavorite(const NETADDR &Addr) = 0;
 	virtual void RemoveFavorite(const NETADDR &Addr) = 0;
 
-	virtual int NumDDNetCountries() = 0;
-	virtual int GetDDNetCountryFlag(int Index) = 0;
-	virtual const char *GetDDNetCountryName(int Index) = 0;
+	virtual int NumCountries(int Network) = 0;
+	virtual int GetCountryFlag(int Network, int Index) = 0;
+	virtual const char *GetCountryName(int Network, int Index) = 0;
 
-	virtual int NumDDNetTypes() = 0;
-	virtual const char *GetDDNetType(int Index) = 0;
+	virtual int NumTypes(int Network) = 0;
+	virtual const char *GetType(int Network, int Index) = 0;
 
 	virtual void DDNetFilterAdd(char *pFilter, const char *pName) = 0;
 	virtual void DDNetFilterRem(char *pFilter, const char *pName) = 0;
 	virtual bool DDNetFiltered(char *pFilter, const char *pName) = 0;
-	virtual void DDNetCountryFilterClean() = 0;
-	virtual void DDNetTypeFilterClean() = 0;
+	virtual void CountryFilterClean(int Network) = 0;
+	virtual void TypeFilterClean(int Network) = 0;
 	virtual int GetCurrentType() = 0;
 };
 

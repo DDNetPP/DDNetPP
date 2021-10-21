@@ -76,7 +76,6 @@ void CPlayer::Reset()
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_TimeoutCode[0] = '\0';
-	m_ModhelpTick = -1;
 
 	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
 		m_aCatchedID[i] = -1;
@@ -88,7 +87,7 @@ void CPlayer::Reset()
 
 	m_SendVoteIndex = -1;
 
-	if (g_Config.m_SvEvents)
+	if(g_Config.m_Events)
 	{
 		time_t rawtime;
 		struct tm* timeinfo;
@@ -137,11 +136,14 @@ void CPlayer::Reset()
 	// non-empty, allow them to vote immediately. This allows players to
 	// vote after map changes or when they join an empty server.
 	//
-	// Otherwise, block voting for 60 seconds after joining.
+	// Otherwise, block voting in the begnning after joining.
 	if(Now > GameServer()->m_NonEmptySince + 10 * TickSpeed)
 		m_FirstVoteTick = Now + g_Config.m_SvJoinVoteDelay * TickSpeed;
 	else
 		m_FirstVoteTick = Now;
+
+	m_NotEligibleForFinish = false;
+	m_EligibleForFinishCheck = 0;
 }
 
 void CPlayer::Tick()
@@ -376,6 +378,17 @@ void CPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_Y = m_ViewPos.y;
 	}
 
+	// send 0 if times of others are not shown
+	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
+		pPlayerInfo->m_Score = -9999;
+	else
+		pPlayerInfo->m_Score = abs(m_Score) * -1;
+
+	CNetObj_AuthInfo *pAuthInfo = static_cast<CNetObj_AuthInfo *>(Server()->SnapNewItem(NETOBJTYPE_AUTHINFO, id, sizeof(CNetObj_AuthInfo)));
+	if(!pAuthInfo)
+		return;
+
+	pAuthInfo->m_AuthLevel = Server()->GetAuthedState(id);
 	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 }
 
@@ -488,11 +501,14 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 		return; // we must return if kicked, as player struct is already deleted
 	AfkVoteTimer(NewInput);
 
+	if(((!m_pCharacter && m_Team == TEAM_SPECTATORS) || m_Paused) && m_SpectatorID == SPEC_FREEVIEW)
+		m_ViewPos = vec2(NewInput->m_TargetX, NewInput->m_TargetY);
+
 	if(NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING)
 	{
 	// skip the input if chat is active
 		if(m_PlayerFlags&PLAYERFLAG_CHATTING)
-		return;
+			return;
 
 		// reset input
 		if(m_pCharacter)
@@ -504,19 +520,11 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 
 	m_PlayerFlags = NewInput->m_PlayerFlags;
 
-	if(m_pCharacter)
-	{
-		if(!m_Paused)
-			m_pCharacter->OnDirectInput(NewInput);
-		else
-			m_pCharacter->ResetInput();
-	}
+	if(m_pCharacter && m_Paused)
+		m_pCharacter->ResetInput();
 
 	if(!m_pCharacter && m_Team != TEAM_SPECTATORS && (NewInput->m_Fire&1))
 		m_Spawning = true;
-
-	if(((!m_pCharacter && m_Team == TEAM_SPECTATORS) || m_Paused) && m_SpectatorID == SPEC_FREEVIEW)
-		m_ViewPos = vec2(NewInput->m_TargetX, NewInput->m_TargetY);
 
 	// check for activity
 	if(NewInput->m_Direction || m_LatestActivity.m_TargetX != NewInput->m_TargetX ||
@@ -527,6 +535,16 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 		m_LatestActivity.m_TargetY = NewInput->m_TargetY;
 		m_LastActionTick = Server()->Tick();
 	}
+}
+
+void CPlayer::OnPredictedEarlyInput(CNetObj_PlayerInput *NewInput)
+{
+	// skip the input if chat is active
+	if((m_PlayerFlags&PLAYERFLAG_CHATTING) && (NewInput->m_PlayerFlags&PLAYERFLAG_CHATTING))
+		return;
+
+	if(m_pCharacter && !m_Paused)
+		m_pCharacter->OnDirectInput(NewInput);
 }
 
 CCharacter *CPlayer::GetCharacter()
@@ -572,12 +590,12 @@ CCharacter* CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
-	// clamp the team
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
 		return;
 
 	char aBuf[512];
+	DoChatMsg = false;
 	if(DoChatMsg)
 	{
 		if (GameServer()->ShowTeamSwitchMessage(m_ClientID))

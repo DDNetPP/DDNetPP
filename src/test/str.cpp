@@ -55,6 +55,35 @@ TEST(Str, Utf8CompConfusables)
 	EXPECT_TRUE(str_utf8_comp_confusable("aceiou", "ąçęįǫų") == 0);
 }
 
+TEST(Str, Utf8ToLower)
+{
+	EXPECT_TRUE(str_utf8_tolower('A') == 'a');
+	EXPECT_TRUE(str_utf8_tolower('z') == 'z');
+	EXPECT_TRUE(str_utf8_tolower(192) == 224); // À -> à
+	EXPECT_TRUE(str_utf8_tolower(7882) == 7883); // Ị -> ị
+
+	EXPECT_TRUE(str_utf8_comp_nocase("ÖlÜ", "ölü") == 0);
+	EXPECT_TRUE(str_utf8_comp_nocase("ÜlÖ", "ölü") > 0); // ü > ö
+	EXPECT_TRUE(str_utf8_comp_nocase("ÖlÜ", "ölüa") < 0); // NULL < a
+	EXPECT_TRUE(str_utf8_comp_nocase("ölüa", "ÖlÜ") > 0); // a < NULL
+
+	const char a[2] = {-128, 0};
+	const char b[2] = {0, 0};
+	EXPECT_TRUE(str_utf8_comp_nocase(a, b) > 0);
+	EXPECT_TRUE(str_utf8_comp_nocase(b, a) < 0);
+
+	EXPECT_TRUE(str_utf8_comp_nocase_num("ÖlÜ", "ölüa", 5) == 0);
+	EXPECT_TRUE(str_utf8_comp_nocase_num("ÖlÜ", "ölüa", 6) != 0);
+	EXPECT_TRUE(str_utf8_comp_nocase_num("a", "z", 0) == 0);
+	EXPECT_TRUE(str_utf8_comp_nocase_num("a", "z", 1) != 0);
+
+	const char str[] = "ÄÖÜ";
+	EXPECT_TRUE(str_utf8_find_nocase(str, "ä") == str);
+	EXPECT_TRUE(str_utf8_find_nocase(str, "ö") == str+2);
+	EXPECT_TRUE(str_utf8_find_nocase(str, "ü") == str+4);
+	EXPECT_TRUE(str_utf8_find_nocase(str, "z") == NULL);
+}
+
 TEST(Str, Startswith)
 {
 	EXPECT_TRUE(str_startswith("abcdef", "abc"));
@@ -105,4 +134,46 @@ TEST(Str, HexDecode)
 	EXPECT_EQ(str_hex_decode(aOut, 1, "x1"), 1); EXPECT_STREQ(aOut + 1, "bcd");
 	EXPECT_EQ(str_hex_decode(aOut, 1, "411"), 2); EXPECT_STREQ(aOut + 1, "bcd");
 	EXPECT_EQ(str_hex_decode(aOut, 4, "41424344"), 0); EXPECT_STREQ(aOut, "ABCD");
+}
+
+TEST(Str, Tokenize)
+{
+	char aTest[] = "GER,RUS,ZAF,BRA,CAN";
+	const char *aOut[] = {"GER", "RUS", "ZAF", "BRA", "CAN"};
+	char aBuf[4];
+
+	int n = 0;
+	for(const char *tok = aTest; (tok = str_next_token(tok, ",", aBuf, sizeof(aBuf)));)
+		EXPECT_STREQ(aOut[n++], aBuf);
+
+	char aTest2[] = "";
+	EXPECT_EQ(str_next_token(aTest2, ",", aBuf, sizeof(aBuf)), nullptr);
+}
+
+TEST(Str, InList)
+{
+	char aTest[] = "GER,RUS,ZAF,BRA,CAN";
+	EXPECT_TRUE(str_in_list(aTest, ",", "GER"));
+	EXPECT_TRUE(str_in_list(aTest, ",", "RUS"));
+	EXPECT_TRUE(str_in_list(aTest, ",", "ZAF"));
+	EXPECT_TRUE(str_in_list(aTest, ",", "BRA"));
+	EXPECT_TRUE(str_in_list(aTest, ",", "CAN"));
+
+	EXPECT_FALSE(str_in_list(aTest, ",", "CHN"));
+	EXPECT_FALSE(str_in_list(aTest, ",", "R,R"));
+
+	EXPECT_FALSE(str_in_list("abc,xyz", ",", "abcdef"));
+	EXPECT_FALSE(str_in_list("", ",", ""));
+	EXPECT_FALSE(str_in_list("", ",", "xyz"));
+}
+
+TEST(Str, StrFormat)
+{
+	char aBuf[4];
+	EXPECT_EQ(str_format(aBuf, 4, "%d:", 9), 2);
+	EXPECT_STREQ(aBuf, "9:");
+	EXPECT_EQ(str_format(aBuf, 4, "%d: ", 9), 3);
+	EXPECT_STREQ(aBuf, "9: ");
+	EXPECT_EQ(str_format(aBuf, 4, "%d: ", 99), 3);
+	EXPECT_STREQ(aBuf, "99:");
 }

@@ -17,6 +17,8 @@ bool CNetClient::Open(NETADDR BindAddr, int Flags)
 	// init
 	m_Socket = Socket;
 	m_Connection.Init(m_Socket, false);
+	net_init_mmsgs(&m_MMSGS);
+
 	return true;
 }
 
@@ -64,13 +66,14 @@ int CNetClient::Recv(CNetChunk *pChunk)
 
 		// TODO: empty the recvinfo
 		NETADDR Addr;
-		int Bytes = net_udp_recv(m_Socket, &Addr, m_RecvUnpacker.m_aBuffer, NET_MAX_PACKETSIZE);
+		unsigned char *pData;
+		int Bytes = net_udp_recv(m_Socket, &Addr, m_RecvUnpacker.m_aBuffer, NET_MAX_PACKETSIZE, &m_MMSGS, &pData);
 
 		// no more packets for now
 		if(Bytes <= 0)
 			break;
 
-		if(CNetBase::UnpackPacket(m_RecvUnpacker.m_aBuffer, Bytes, &m_RecvUnpacker.m_Data) == 0)
+		if(CNetBase::UnpackPacket(pData, Bytes, &m_RecvUnpacker.m_Data) == 0)
 		{
 			if(m_RecvUnpacker.m_Data.m_Flags&NET_PACKETFLAG_CONNLESS)
 			{

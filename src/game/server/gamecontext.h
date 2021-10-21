@@ -83,6 +83,7 @@ class CGameContext : public IGameServer
 	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
 
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
+	static void ConToggleTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneDump(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneZone(IConsole::IResult *pResult, void *pUserData);
@@ -239,6 +240,7 @@ public:
 	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false);
 	virtual void OnClientDirectInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
+	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput);
 
 	virtual void OnClientEngineJoin(int ClientID);
 	virtual void OnClientEngineDrop(int ClientID, const char *pReason);
@@ -868,16 +870,18 @@ private:
 	static void ConProtectedKill(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConVoteMute(IConsole::IResult *pResult, void *pUserData);
+	static void ConVoteUnmute(IConsole::IResult *pResult, void *pUserData);
+	static void ConVoteMutes(IConsole::IResult *pResult, void *pUserData);
 	static void ConMute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteID(IConsole::IResult *pResult, void *pUserData);
 	static void ConMuteIP(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
 	static void ConModerate(IConsole::IResult *pResult, void *pUserData);
-	static void ConModhelp(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData);
+	static void ConUninvite(IConsole::IResult *pResult, void *pUserData);
 	static void ConFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData);
 
@@ -1115,10 +1119,12 @@ private:
 	CVoteMute m_aVoteMutes[MAX_VOTE_BANS];
 	int m_NumVoteMutes;
 	void Mute(const NETADDR *pAddr, int Secs, const char *pDisplayName);
-	void VoteMute(const NETADDR *pAddr, int Secs, const char *pDisplayName, int AuthedID);
+	bool VoteMute(const NETADDR *pAddr, int Secs, const char *pDisplayName, int AuthedID);
+	bool VoteUnmute(const NETADDR *pAddr, const char *pDisplayName, int AuthedID);
 	void Whisper(int ClientID, char *pStr);
 	void WhisperID(int ClientID, int VictimID, char *pMessage);
 	void Converse(int ClientID, char *pStr);
+	bool IsVersionBanned(int Version);
 
 public:
 	static const int LOGIN_BAN_DELAY = 60 * 60 * 12; // reset login attempts counter every day

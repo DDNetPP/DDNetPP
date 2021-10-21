@@ -395,7 +395,7 @@ container.sprites.Add(Sprite("question", set_emoticons, 3, 3, 1, 1))
 container.sprites.Add(Sprite("browse_lock", set_browseicons, 0,0,1,1))
 container.sprites.Add(Sprite("browse_heart", set_browseicons, 1,0,1,1))
 container.sprites.Add(Sprite("browse_unpure", set_browseicons, 3,0,1,1))
-container.sprites.Add(Sprite("browse_norank", set_browseicons, 4,0,1,1))
+container.sprites.Add(Sprite("browse_ddnet", set_browseicons, 4,0,1,1))
 container.sprites.Add(Sprite("browse_rank", set_browseicons, 5,0,1,1))
 
 container.sprites.Add(Sprite("speedup_arrow", set_speedup_arrow, 0,0,1,1))

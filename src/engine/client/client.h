@@ -6,7 +6,9 @@
 #include <memory>
 
 #include <base/hash.h>
-#include <engine/shared/http.h>
+#include <engine/client/http.h>
+
+#define CONNECTLINK "ddnet:"
 
 class CGraph
 {
@@ -121,8 +123,8 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	// pinging
 	int64 m_PingStartTime;
 
-	char m_aCurrentMap[256];
-	char m_aCurrentMapPath[CEditor::MAX_PATH_LENGTH];
+	char m_aCurrentMap[MAX_PATH_LENGTH];
+	char m_aCurrentMapPath[MAX_PATH_LENGTH];
 
 	char m_aTimeoutCodes[2][32];
 	bool m_aTimeoutCodeSent[2];
@@ -382,16 +384,21 @@ public:
 
 	void ServerBrowserUpdate();
 
+	void HandleConnectLink(const char *pLink);
+
 	// gfx
 	void SwitchWindowScreen(int Index);
 	void ToggleFullscreen();
 	void ToggleWindowBordered();
 	void ToggleWindowVSync();
+	void LoadFont();
 
 	// DDRace
 
 	void GenerateTimeoutSeed();
 	void GenerateTimeoutCodes();
+
+	virtual int GetCurrentRaceTime();
 
 	const char *GetCurrentMap();
 	const char *GetCurrentMapPath();

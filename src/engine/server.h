@@ -5,6 +5,7 @@
 #define ENGINE_SERVER_H
 
 #include <base/hash.h>
+#include <base/math.h>
 
 #include "kernel.h"
 #include "message.h"
@@ -132,6 +133,7 @@ public:
 		GetClientInfo(Client, &Info);
 		if (Info.m_ClientVersion >= VERSION_DDNET_OLD)
 			return true;
+		Target = clamp(Target, 0, VANILLA_MAX_CLIENTS-1);
 		int *pMap = GetIdMap(Client);
 		if (pMap[Target] == -1)
 			return false;
@@ -152,14 +154,7 @@ public:
 
 	virtual void SnapSetStaticsize(int ItemType, int Size) = 0;
 
-	enum
-	{
-		AUTHED_HONEY=-1,
-		AUTHED_NO=0,
-		AUTHED_HELPER,
-		AUTHED_MOD,
-		AUTHED_ADMIN,
-
+	enum {
 		RCON_CID_SERV=-1,
 		RCON_CID_VOTE=-2,
 	};
@@ -167,7 +162,8 @@ public:
 	virtual int GetAuthedState(int ClientID) = 0;
 	virtual const char *GetAuthName(int ClientID) = 0;
 	virtual void Kick(int ClientID, const char *pReason) = 0;
-	virtual void SendRconLine(int ClientID, const char *pLine) = 0;
+	virtual void Ban(int ClientID, int Seconds, const char *pReason) = 0;
+
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
@@ -230,6 +226,7 @@ public:
 	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false) = 0;
 	virtual void OnClientDirectInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientPredictedInput(int ClientID, void *pInput) = 0;
+	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput) = 0;
 
 	virtual bool IsClientReady(int ClientID) = 0;
 	virtual bool IsClientPlayer(int ClientID) = 0;

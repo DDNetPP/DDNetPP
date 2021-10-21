@@ -15,6 +15,7 @@
 #include <game/client/components/countryflags.h>
 #include <game/client/components/motd.h>
 #include <game/client/components/statboard.h>
+#include <game/client/components/skins.h>
 
 #include "scoreboard.h"
 
@@ -116,9 +117,13 @@ void CScoreboard::RenderSpectators(float x, float y, float w)
 
 	// spectator names
 	y += 30.0f;
-	char aBuffer[1024*4];
-	aBuffer[0] = 0;
 	bool Multiple = false;
+
+	CTextCursor Cursor;
+	TextRender()->SetCursor(&Cursor, x+10.0f, y, 22.0f, TEXTFLAG_RENDER);
+	Cursor.m_LineWidth = w-20.0f;
+	Cursor.m_MaxLines = 4;
+
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		const CNetObj_PlayerInfo *pInfo = m_pClient->m_Snap.m_paInfoByName[i];
@@ -126,21 +131,25 @@ void CScoreboard::RenderSpectators(float x, float y, float w)
 			continue;
 
 		if(Multiple)
-			str_append(aBuffer, ", ", sizeof(aBuffer));
+			TextRender()->TextEx(&Cursor, ", ", 2);
+
+		if(m_pClient->m_aClients[pInfo->m_ClientID].m_AuthLevel)
+		{
+			vec4 Color = m_pClient->m_pSkins->GetColorV4(g_Config.m_ClAuthedPlayerColor);
+			TextRender()->TextColor(Color.r, Color.g, Color.b, Color.a);
+		}
+
 		if(g_Config.m_ClShowIDs)
 		{
-			char aId[5];
-			str_format(aId,sizeof(aId),"%d: ",pInfo->m_ClientID);
-			str_append(aBuffer, aId, sizeof(aBuffer));
+			char aBuffer[5];
+			int size = str_format(aBuffer, sizeof(aBuffer), "%d: ", pInfo->m_ClientID);
+			TextRender()->TextEx(&Cursor, aBuffer, size);
 		}
-		str_append(aBuffer, m_pClient->m_aClients[pInfo->m_ClientID].m_aName, sizeof(aBuffer));
+		TextRender()->TextEx(&Cursor, m_pClient->m_aClients[pInfo->m_ClientID].m_aName, -1);
+		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 		Multiple = true;
 	}
-	CTextCursor Cursor;
-	TextRender()->SetCursor(&Cursor, x+10.0f, y, 22.0f, TEXTFLAG_RENDER);
-	Cursor.m_LineWidth = w-20.0f;
-	Cursor.m_MaxLines = 4;
-	TextRender()->TextEx(&Cursor, aBuffer, -1);
 }
 
 void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const char *pTitle)
@@ -193,7 +202,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		if(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_GAMEOVER)
 			pTitle = Localize("Game over");
 		else
-			pTitle = Localize("Score board");
+			pTitle = Localize("Scoreboard");
 	}
 	TextRender()->Text(0, x+20.0f, y + (50.f - TitleFontsize) / 2.f, TitleFontsize, pTitle, -1);
 
@@ -222,7 +231,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 	}
 
-	if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard)
+	if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy])
 	{
 		if (m_ServerRecord > 0)
 		{
@@ -285,9 +294,10 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 	// render headlines
 	y += 50.0f;
 	float HeadlineFontsize = 22.0f;
-	float ScoreWidth = TextRender()->TextWidth(0, HeadlineFontsize, Localize("Score"), -1);
+	const char* pScore = (m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy]) ? Localize("Time") : Localize("Score");
+	float ScoreWidth = TextRender()->TextWidth(0, HeadlineFontsize, pScore, -1);
 	tw = ScoreLength > ScoreWidth ? ScoreLength : ScoreWidth;
-	TextRender()->Text(0, ScoreOffset+ScoreLength-tw, y + (HeadlineFontsize * 2.f - HeadlineFontsize) / 2.f, HeadlineFontsize, Localize("Score"), -1);
+	TextRender()->Text(0, ScoreOffset+ScoreLength-tw, y + (HeadlineFontsize * 2.f - HeadlineFontsize) / 2.f, HeadlineFontsize, pScore, -1);
 
 	TextRender()->Text(0, NameOffset, y + (HeadlineFontsize * 2.f - HeadlineFontsize) / 2.f, HeadlineFontsize, Localize("Name"), -1);
 
@@ -404,7 +414,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 
 		// score
-		if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard)
+		if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy])
 		{
 			if (pInfo->m_Score == -9999)
 				aBuf[0] = 0;
@@ -444,13 +454,16 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 
 		// name
 		TextRender()->SetCursor(&Cursor, NameOffset, y + (LineHeight - FontSize) / 2.f, FontSize, TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
+		if(m_pClient->m_aClients[pInfo->m_ClientID].m_AuthLevel)
+		{
+			vec4 Color = m_pClient->m_pSkins->GetColorV4(g_Config.m_ClAuthedPlayerColor);
+			TextRender()->TextColor(Color.r, Color.g, Color.b, Color.a);
+		}
+
 		if(g_Config.m_ClShowIDs)
 		{
 			char aId[64] = "";
-			if (pInfo->m_ClientID >= 10)
-				str_format(aId, sizeof(aId),"%d: ", pInfo->m_ClientID);
-			else
-				str_format(aId, sizeof(aId)," %d: ", pInfo->m_ClientID);
+			str_format(aId, sizeof(aId)," %2d: ", pInfo->m_ClientID);
 			str_append(aId, m_pClient->m_aClients[pInfo->m_ClientID].m_aName,sizeof(aId));
 			Cursor.m_LineWidth = NameLength+8;
 			TextRender()->TextEx(&Cursor, aId, -1);
@@ -460,6 +473,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 			Cursor.m_LineWidth = NameLength;
 			TextRender()->TextEx(&Cursor, m_pClient->m_aClients[pInfo->m_ClientID].m_aName, -1);
 		}
+		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// clan
 		tw = TextRender()->TextWidth(0, FontSize, m_pClient->m_aClients[pInfo->m_ClientID].m_aClan, -1);

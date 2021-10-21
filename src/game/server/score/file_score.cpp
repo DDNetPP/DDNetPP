@@ -86,7 +86,7 @@ void CFileScore::SaveScoreThread(void *pUser)
 			}
 			t++;
 			if (t % 50 == 0)
-				thread_sleep(1);
+				thread_sleep(1000);
 		}
 	}
 	f.close();
@@ -95,8 +95,7 @@ void CFileScore::SaveScoreThread(void *pUser)
 
 void CFileScore::Save()
 {
-	void *pSaveThread = thread_init(SaveScoreThread, this);
-	thread_detach(pSaveThread);
+	thread_init_and_detach(SaveScoreThread, this, "FileScore save");
 }
 
 void CFileScore::Init()
@@ -122,14 +121,11 @@ void CFileScore::Init()
 			if (g_Config.m_SvCheckpointSave)
 			{
 				std::getline(f, TmpCpLine);
-				char *pTime = strtok((char*) TmpCpLine.c_str(), " ");
+
+				std::istringstream iss(TmpCpLine);
 				int i = 0;
-				while (pTime != NULL && i < NUM_CHECKPOINTS)
-				{
-					aTmpCpTime[i] = atof(pTime);
-					pTime = strtok(NULL, " ");
-					i++;
-				}
+				for(std::string p; std::getline(iss, p, ' '); i++)
+					aTmpCpTime[i] = std::stof(p, NULL);
 			}
 			m_Top.add(
 					*new CPlayerScore(TmpName.c_str(), atof(TmpScore.c_str()),
@@ -231,7 +227,7 @@ void CFileScore::SaveTeamScore(int* ClientIDs, unsigned int Size, float Time)
 }
 
 void CFileScore::SaveScore(int ClientID, float Time,
-		float CpTime[NUM_CHECKPOINTS])
+		float CpTime[NUM_CHECKPOINTS], bool NotEligible)
 {
 	CConsole* pCon = (CConsole*) GameServer()->Console();
 	if (!pCon->m_Cheated || g_Config.m_SvRankCheats)

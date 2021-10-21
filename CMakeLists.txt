@@ -1462,8 +1462,6 @@ generate_source("src/game/generated/server_data.h" "server_content_header")
 # Sources
 set_src(BASE GLOB_RECURSE src/base
   color.h
-  confusables.c
-  confusables_data.h
   ddpp_logs.c
   ddpp_logs.h
   detect.h
@@ -1486,6 +1484,10 @@ set_src(BASE GLOB_RECURSE src/base
   tl/sorted_array.h
   tl/string.h
   tl/threading.h
+  unicode/confusables.c
+  unicode/confusables_data.h
+  unicode/tolower.c
+  unicode/tolower_data.h
   vmath.h
 )
 set_src(ENGINE_INTERFACE GLOB src/engine
@@ -1535,12 +1537,12 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   ghost.cpp
   ghost.h
   global_uuid_manager.cpp
-  http.cpp
-  http.h
   huffman.cpp
   huffman.h
   jobs.cpp
   jobs.h
+  json.cpp
+  json.h
   kernel.cpp
   linereader.cpp
   linereader.h
@@ -1662,6 +1664,8 @@ if(CLIENT)
     friends.h
     graphics_threaded.cpp
     graphics_threaded.h
+    http.cpp
+    http.h
     input.cpp
     input.h
     keynames.h
@@ -2078,7 +2082,6 @@ if(TOOLS)
     config_common.h
     config_retrieve.cpp
     config_store.cpp
-    confusables.cpp
     crapnet.cpp
     ddpp_map_chiller.cpp
     ddpp_map_gen.cpp
@@ -2094,6 +2097,7 @@ if(TOOLS)
     tileset_borderfix.cpp
     tileset_borderrem.cpp
     tileset_borderset.cpp
+    unicode_confusables.cpp
     uuid.cpp
   )
   foreach(ABS_T ${TOOLS})

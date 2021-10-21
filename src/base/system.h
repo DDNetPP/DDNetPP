@@ -9,6 +9,11 @@
 #define BASE_SYSTEM_H
 
 #include "detect.h"
+
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <time.h>
@@ -16,6 +21,11 @@
 
 #ifdef CONF_FAMILY_UNIX
 #include <sys/un.h>
+#endif
+
+#ifdef CONF_PLATFORM_LINUX
+#include <sys/socket.h>
+#include <netinet/in.h>
 #endif
 
 #ifdef __cplusplus
@@ -150,7 +160,7 @@ void mem_zero(void *block, unsigned size);
 		size - Size of the data to compare
 
 	Returns:
-		<0 - Block a is lesser than block b
+		<0 - Block a is less than block b
 		0 - Block a is equal to block b
 		>0 - Block a is greater than block b
 */
@@ -467,9 +477,9 @@ void aio_free(ASYNCIO *aio);
 		Suspends the current thread for a given period.
 
 	Parameters:
-		milliseconds - Number of milliseconds to sleep.
+		microseconds - Number of microseconds to sleep.
 */
-void thread_sleep(int milliseconds);
+void thread_sleep(int microseconds);
 
 /*
 	Function: thread_init
@@ -478,9 +488,9 @@ void thread_sleep(int milliseconds);
 	Parameters:
 		threadfunc - Entry point for the new thread.
 		user - Pointer to pass to the thread.
-
+		name - name describing the use of the thread
 */
-void *thread_init(void (*threadfunc)(void *), void *user);
+void *thread_init(void (*threadfunc)(void *), void *user, const char *name);
 
 /*
 	Function: thread_wait
@@ -507,6 +517,20 @@ void thread_yield();
 		thread - Thread to detach
 */
 void thread_detach(void *thread);
+
+/*
+	Function: thread_init_and_detach
+		Creates a new thread and if it succeeded detaches it.
+
+	Parameters:
+		threadfunc - Entry point for the new thread.
+		user - Pointer to pass to the thread.
+		name - name describing the use of the thread
+
+	Returns:
+		Returns the thread if no error occured, 0 on error.
+*/
+void *thread_init_and_detach(void (*threadfunc)(void *), void *user, const char *name);
 
 /* Group: Locks */
 typedef void* LOCK;
@@ -673,7 +697,7 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 		b - Address to compare to.
 
 	Returns:
-		<0 - Address a is lesser than address b
+		<0 - Address a is less than address b
 		0 - Address a is equal to address b
 		>0 - Address a is greater than address b
 */
@@ -688,7 +712,7 @@ int net_addr_comp(const NETADDR *a, const NETADDR *b);
 		b - Address to compare to.
 
 	Returns:
-		<0 - Address a is lesser than address b
+		<0 - Address a is less than address b
 		0 - Address a is equal to address b
 		>0 - Address a is greater than address b
 */
@@ -754,6 +778,24 @@ NETSOCKET net_udp_create(NETADDR bindaddr);
 */
 int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size);
 
+#define VLEN 128
+#define PACKETSIZE 1400
+typedef struct
+{
+#ifdef CONF_PLATFORM_LINUX
+	int pos;
+	int size;
+	struct mmsghdr msgs[VLEN];
+	struct iovec iovecs[VLEN];
+	char bufs[VLEN][PACKETSIZE];
+	char sockaddrs[VLEN][128];
+#else
+	int dummy;
+#endif
+} MMSGS;
+
+void net_init_mmsgs(MMSGS* m);
+
 /*
 	Function: net_udp_recv
 		Receives a packet over an UDP socket.
@@ -761,14 +803,15 @@ int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size
 	Parameters:
 		sock - Socket to use.
 		addr - Pointer to an NETADDR that will receive the address.
-		data - Pointer to a buffer that will receive the data.
+		buffer - Pointer to a buffer that can be used to receive the data.
 		maxsize - Maximum size to receive.
+		data - Will get set to the actual data, might be the passed buffer or an internal one
 
 	Returns:
 		On success it returns the number of bytes received. Returns -1
 		on error.
 */
-int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *data, int maxsize);
+int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *buffer, int maxsize, MMSGS* m, unsigned char **data);
 
 /*
 	Function: net_udp_close
@@ -983,7 +1026,7 @@ int str_length(const char *str);
 		... - Parameters for the formatting.
 
 	Returns:
-		Length of written string
+		Length of written string, even if it has been truncated
 
 	Remarks:
 		- See the C manual for syntax for the printf formatting string.
@@ -1092,26 +1135,26 @@ char *str_skip_whitespaces(char *str);
 
 /*
 	Function: str_comp_nocase
-		Compares to strings case insensitive.
+		Compares to strings case insensitively.
 
 	Parameters:
 		a - String to compare.
 		b - String to compare.
 
 	Returns:
-		<0 - String a is lesser than string b
+		<0 - String a is less than string b
 		0 - String a is equal to string b
 		>0 - String a is greater than string b
 
 	Remarks:
-		- Only garanted to work with a-z/A-Z.
+		- Only guaranteed to work with a-z/A-Z.
 		- The strings are treated as zero-terminated strings.
 */
 int str_comp_nocase(const char *a, const char *b);
 
 /*
 	Function: str_comp_nocase_num
-		Compares up to num characters of two strings case insensitive.
+		Compares up to num characters of two strings case insensitively.
 
 	Parameters:
 		a - String to compare.
@@ -1119,15 +1162,16 @@ int str_comp_nocase(const char *a, const char *b);
 		num - Maximum characters to compare
 
 	Returns:
-		<0 - String a is lesser than string b
+		<0 - String a is less than string b
 		0 - String a is equal to string b
 		>0 - String a is greater than string b
 
 	Remarks:
-		- Only garanted to work with a-z/A-Z.
+		- Only guaranteed to work with a-z/A-Z.
+		  (use str_utf8_comp_nocase_num for unicode support)
 		- The strings are treated as zero-terminated strings.
 */
-int str_comp_nocase_num(const char *a, const char *b, const int num);
+int str_comp_nocase_num(const char *a, const char *b, int num);
 
 /*
 	Function: str_comp
@@ -1138,7 +1182,7 @@ int str_comp_nocase_num(const char *a, const char *b, const int num);
 		b - String to compare.
 
 	Returns:
-		<0 - String a is lesser than string b
+		<0 - String a is less than string b
 		0 - String a is equal to string b
 		>0 - String a is greater than string b
 
@@ -1157,14 +1201,14 @@ int str_comp(const char *a, const char *b);
 		num - Maximum characters to compare
 
 	Returns:
-		<0 - String a is lesser than string b
+		<0 - String a is less than string b
 		0 - String a is equal to string b
 		>0 - String a is greater than string b
 
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
-int str_comp_num(const char *a, const char *b, const int num);
+int str_comp_num(const char *a, const char *b, int num);
 
 /*
 	Function: str_comp_filenames
@@ -1175,7 +1219,7 @@ int str_comp_num(const char *a, const char *b, const int num);
 		b - String to compare.
 
 	Returns:
-		<0 - String a is lesser than string b
+		<0 - String a is less than string b
 		0 - String a is equal to string b
 		>0 - String a is greater than string b
 
@@ -1263,7 +1307,7 @@ int str_utf32_dist_buffer(const int *a, int a_len, const int *b, int b_len, int 
 
 /*
 	Function: str_find_nocase
-		Finds a string inside another string case insensitive.
+		Finds a string inside another string case insensitively.
 
 	Parameters:
 		haystack - String to search in
@@ -1274,7 +1318,8 @@ int str_utf32_dist_buffer(const int *a, int a_len, const int *b, int b_len, int 
 		Returns NULL of needle could not be found.
 
 	Remarks:
-		- Only garanted to work with a-z/A-Z.
+		- Only guaranteed to work with a-z/A-Z.
+		  (use str_utf8_find_nocase for unicode support)
 		- The strings are treated as zero-terminated strings.
 */
 const char *str_find_nocase(const char *haystack, const char *needle);
@@ -1567,8 +1612,8 @@ int str_toint(const char *str);
 int str_toint_base(const char *str, int base);
 float str_tofloat(const char *str);
 int str_isspace(char c);
-char ch_uppercase(char c);
-void str_uppercase(char *str);
+char str_uppercase(char c);
+int str_isallnum(const char *str);
 unsigned str_quickhash(const char *str);
 
 struct SKELETON;
@@ -1589,6 +1634,66 @@ int str_utf8_to_skeleton(const char *str, int *buf, int buf_len);
 		!=0 otherwise.
 */
 int str_utf8_comp_confusable(const char *a, const char *b);
+
+/*
+	Function: str_utf8_tolower
+		Converts the given Unicode codepoint to lowercase (locale insensitive).
+
+	Parameters:
+		code - Unicode codepoint to convert.
+
+	Returns:
+		Lowercase codepoint
+*/
+int str_utf8_tolower(int code);
+
+/*
+	Function: str_utf8_comp_nocase
+		Compares two utf8 strings case insensitively.
+
+	Parameters:
+		a - String to compare.
+		b - String to compare.
+
+	Returns:
+		<0 - String a is less than string b
+		0 - String a is equal to string b
+		>0 - String a is greater than string b
+*/
+int str_utf8_comp_nocase(const char *a, const char *b);
+
+/*
+	Function: str_utf8_comp_nocase_num
+		Compares up to num bytes of two utf8 strings case insensitively.
+
+	Parameters:
+		a - String to compare.
+		b - String to compare.
+		num - Maximum bytes to compare
+
+	Returns:
+		<0 - String a is less than string b
+		0 - String a is equal to string b
+		>0 - String a is greater than string b
+*/
+int str_utf8_comp_nocase_num(const char *a, const char *b, int num);
+
+/*
+	Function: str_utf8_find_nocase
+		Finds a utf8 string inside another utf8 string case insensitively.
+
+	Parameters:
+		haystack - String to search in
+		needle - String to search for
+
+	Returns:
+		A pointer into haystack where the needle was found.
+		Returns NULL of needle could not be found.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+*/
+const char *str_utf8_find_nocase(const char *haystack, const char *needle);
 
 /*
 	Function: str_utf8_isspace
@@ -1698,6 +1803,21 @@ int str_utf8_decode(const char **ptr);
 int str_utf8_encode(char *ptr, int chr);
 
 /*
+	Function: str_utf16le_encode
+		Encode an utf8 character
+
+	Parameters:
+		ptr - Pointer to a buffer that should receive the data. Should be able to hold at least 4 bytes.
+
+	Returns:
+		Number of bytes put into the buffer.
+
+	Remarks:
+		- Does not do zero termination of the string.
+*/
+int str_utf16le_encode(char *ptr, int chr);
+
+/*
 	Function: str_utf8_check
 		Checks if a strings contains just valid utf8 characters.
 
@@ -1712,6 +1832,36 @@ int str_utf8_encode(char *ptr, int chr);
 		- The string is treated as zero-terminated utf8 string.
 */
 int str_utf8_check(const char *str);
+
+/*
+	Function: str_next_token
+		Writes the next token after str into buf, returns the rest of the string.
+	Parameters:
+		str - Pointer to string.
+		delim - Delimiter for tokenization.
+		buffer - Buffer to store token in.
+		buffer_size - Size of the buffer.
+	Returns:
+		Pointer to rest of the string.
+	Remarks:
+		- The token is always null-terminated.
+*/
+const char *str_next_token(const char *str, const char *delim, char *buffer, int buffer_size);
+
+/*
+	Function: str_in_list
+		Checks if needle is in list delimited by delim
+
+	Parameters:
+		list - List
+		delim - List delimiter.
+		needle - Item that is being looked for.
+
+	Returns:
+		1 - Item is in list.
+		0 - Item isn't in list.
+*/
+int str_in_list(const char *list, const char *delim, const char *needle);
 
 int pid();
 

@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <climits>
-#include <locale.h> //setlocale
+#include <tuple>
 
 #include <base/math.h>
 #include <base/vmath.h>
@@ -36,13 +36,13 @@
 
 #include <engine/external/md5/md5.h>
 
+#include <engine/client/http.h>
 #include <engine/shared/config.h>
 #include <engine/shared/compression.h>
 #include <engine/shared/datafile.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/filecollection.h>
 #include <engine/shared/ghost.h>
-#include <engine/shared/http.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
@@ -721,6 +721,8 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	m_GametimeMarginGraph.Init(-150.0f, 150.0f);
 
 	GenerateTimeoutCodes();
+
+	GameClient()->OnTimeScore(1, false);
 }
 
 void CClient::DisconnectWithReason(const char *pReason)
@@ -806,6 +808,8 @@ void CClient::DummyConnect()
 
 	//connecting to the server
 	m_NetClient[1].Connect(&m_ServerAddress);
+
+	GameClient()->OnTimeScore(1, true);
 }
 
 void CClient::DummyDisconnect(const char *pReason)
@@ -818,6 +822,13 @@ void CClient::DummyDisconnect(const char *pReason)
 	m_RconAuthed[1] = 0;
 	m_DummyConnected = false;
 	GameClient()->OnDummyDisconnect();
+}
+
+int CClient::GetCurrentRaceTime()
+{
+	if(GameClient()->GetLastRaceTick() < 0)
+		return 0;
+	return (GameTick() - GameClient()->GetLastRaceTick()) / 50;
 }
 
 int CClient::SendMsgExY(CMsgPacker *pMsg, int Flags, bool System, int NetClient)
@@ -1935,6 +1946,13 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 			bool UsernameReq = Unpacker.GetInt() & 1;
 			GameClient()->OnRconType(UsernameReq);
 		}
+		else if(Msg == NETMSG_TIME_SCORE)
+		{
+			int NewTimeScore = Unpacker.GetInt();
+			if (Unpacker.Error())
+				return;
+			GameClient()->OnTimeScore(NewTimeScore, g_Config.m_ClDummy);
+		}
 	}
 	else
 	{
@@ -1954,14 +1972,22 @@ void CClient::ProcessServerPacketDummy(CNetChunk *pPacket)
 {
 	CUnpacker Unpacker;
 	Unpacker.Reset(pPacket->m_pData, pPacket->m_DataSize);
+	CMsgPacker Packer(NETMSG_EX);
 
 	// unpack msgid and system flag
-	int Msg = Unpacker.GetInt();
-	int Sys = Msg&1;
-	Msg >>= 1;
+	int Msg;
+	bool Sys;
+	CUuid Uuid;
 
-	if(Unpacker.Error())
+	int Result = UnpackMessageID(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	if(Result == UNPACKMESSAGE_ERROR)
+	{
 		return;
+	}
+	else if(Result == UNPACKMESSAGE_ANSWER)
+	{
+		SendMsgEx(&Packer, MSGFLAG_VITAL, true);
+	}
 
 	if(Sys)
 	{
@@ -2155,6 +2181,13 @@ void CClient::ProcessServerPacketDummy(CNetChunk *pPacket)
 				}
 			}
 		}
+		else if(Msg == NETMSG_TIME_SCORE)
+		{
+			int NewTimeScore = Unpacker.GetInt();
+			if (Unpacker.Error())
+				return;
+			GameClient()->OnTimeScore(NewTimeScore, true);
+		}
 	}
 	else
 	{
@@ -2234,6 +2267,29 @@ void CClient::FinishDDNetInfo()
 	LoadDDNetInfo();
 }
 
+typedef std::tuple<int, int, int> Version;
+static const Version InvalidVersion = std::make_tuple(-1, -1, -1);
+
+Version ToVersion(char *pStr)
+{
+	int version[3] = {0, 0, 0};
+	const char *p = strtok(pStr, ".");
+
+	for(int i = 0; i < 3 && p; ++i)
+	{
+		if(!str_isallnum(p))
+			return InvalidVersion;
+
+		version[i] = str_toint(p);
+		p = strtok(NULL, ".");
+	}
+
+	if(p)
+		return InvalidVersion;
+
+	return std::make_tuple(version[0], version[1], version[2]);
+}
+
 void CClient::LoadDDNetInfo()
 {
 	const json_value *pDDNetInfo = m_ServerBrowser.LoadDDNetInfo();
@@ -2244,10 +2300,13 @@ void CClient::LoadDDNetInfo()
 	const json_value *pVersion = json_object_get(pDDNetInfo, "version");
 	if(pVersion->type == json_string)
 	{
-		const char *pVersionString = json_string_get(pVersion);
-		if(str_comp(pVersionString, GAME_RELEASE_VERSION))
+		char aNewVersionStr[64];
+		str_copy(aNewVersionStr, json_string_get(pVersion), sizeof(aNewVersionStr));
+		char aCurVersionStr[64];
+		str_copy(aCurVersionStr, GAME_RELEASE_VERSION, sizeof(aCurVersionStr));
+		if(ToVersion(aNewVersionStr) > ToVersion(aCurVersionStr))
 		{
-			str_copy(m_aVersionStr, pVersionString, sizeof(m_aVersionStr));
+			str_copy(m_aVersionStr, json_string_get(pVersion), sizeof(m_aVersionStr));
 		}
 		else
 		{
@@ -2787,7 +2846,7 @@ void CClient::Run()
 	bool LastQ = false;
 	bool LastE = false;
 	bool LastG = false;
-	
+
 	int64 LastTime = time_get_microseconds();
 	int64 LastRenderTime = time_get();
 
@@ -2938,6 +2997,7 @@ void CClient::Run()
 		}
 
 		AutoScreenshot_Cleanup();
+		AutoStatScreenshot_Cleanup();
 		AutoCSV_Cleanup();
 
 		// check conditions
@@ -2960,7 +3020,7 @@ void CClient::Run()
 		{
 			SleepTimeInMicroSeconds = ((int64)1000000 / (int64)g_Config.m_ClRefreshRateInactive) - (Now - LastTime);
 			if(SleepTimeInMicroSeconds / (int64)1000 > (int64)0)
-				thread_sleep(SleepTimeInMicroSeconds / (int64)1000);
+				thread_sleep(SleepTimeInMicroSeconds);
 			Slept = true;
 		}
 		else if(g_Config.m_ClRefreshRate)
@@ -2990,7 +3050,7 @@ void CClient::Run()
 
 		if(g_Config.m_DbgHitch)
 		{
-			thread_sleep(g_Config.m_DbgHitch);
+			thread_sleep(g_Config.m_DbgHitch*1000);
 			g_Config.m_DbgHitch = 0;
 		}
 
@@ -3448,6 +3508,28 @@ void CClient::ToggleWindowVSync()
 		g_Config.m_GfxVsync ^= 1;
 }
 
+void CClient::LoadFont()
+{
+	static CFont *pDefaultFont = 0;
+	char aFilename[512];
+	const char *pFontFile = "fonts/DejaVuSansCJKName.ttf";
+	if(str_find(g_Config.m_ClLanguagefile, "chinese") != NULL || str_find(g_Config.m_ClLanguagefile, "japanese") != NULL ||
+		str_find(g_Config.m_ClLanguagefile, "korean") != NULL)
+		pFontFile = "fonts/DejavuWenQuanYiMicroHei.ttf";
+	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+	if(File)
+	{
+		io_close(File);
+		IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
+		pDefaultFont = pTextRender->GetFont(aFilename);
+		if(pDefaultFont == NULL)
+			pDefaultFont = pTextRender->LoadFont(aFilename);
+		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);
+	}
+	if(!pDefaultFont)
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='%s'", pFontFile);
+}
+
 void CClient::ConchainWindowVSync(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
@@ -3515,9 +3597,9 @@ void CClient::RegisterCommands()
 	m_pConsole->Register("demo_speed", "i[speed]", CFGFLAG_CLIENT, Con_DemoSpeed, this, "Set demo speed");
 
 	m_pConsole->Chain("cl_timeout_seed", ConchainTimeoutSeed, this);
-	
+
 	m_pConsole->Chain("password", ConchainPassword, this);
-	
+
 	// used for server browser update
 	m_pConsole->Chain("br_filter_string", ConchainServerBrowserUpdate, this);
 	m_pConsole->Chain("br_filter_gametype", ConchainServerBrowserUpdate, this);
@@ -3540,6 +3622,11 @@ static CClient *CreateClient()
 	CClient *pClient = static_cast<CClient *>(malloc(sizeof(*pClient)));
 	mem_zero(pClient, sizeof(CClient));
 	return new(pClient) CClient;
+}
+
+void CClient::HandleConnectLink(const char *pArg)
+{
+	str_copy(m_aCmdConnect, pArg + sizeof(CONNECTLINK) - 1, sizeof(m_aCmdConnect));
 }
 
 /*
@@ -3688,7 +3775,9 @@ int main(int argc, const char **argv) // ignore_convention
 	g_Config.m_ClConfigVersion = 1;
 
 	// parse the command line arguments
-	if(argc > 1) // ignore_convention
+	if(argc == 2 && str_startswith(argv[1], CONNECTLINK))
+		pClient->HandleConnectLink(argv[1]);
+	else if(argc > 1) // ignore_convention
 		pConsole->ParseArguments(argc-1, &argv[1]); // ignore_convention
 
 	pClient->Engine()->InitLogfile();
@@ -3697,9 +3786,6 @@ int main(int argc, const char **argv) // ignore_convention
 	if(!g_Config.m_ClShowConsole)
 		FreeConsole();
 #endif
-
-	// For XOpenIM in SDL2: https://bugzilla.libsdl.org/show_bug.cgi?id=3102
-	setlocale(LC_ALL, "");
 
 	// run the client
 	dbg_msg("client", "starting...");

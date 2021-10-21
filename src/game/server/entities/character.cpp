@@ -2393,7 +2393,7 @@ void CCharacter::HandleTiles(int Index)
 	// start
 	if(((m_TileIndex == TILE_BEGIN) || (m_TileFIndex == TILE_BEGIN) || FTile1 == TILE_BEGIN || FTile2 == TILE_BEGIN || FTile3 == TILE_BEGIN || FTile4 == TILE_BEGIN || Tile1 == TILE_BEGIN || Tile2 == TILE_BEGIN || Tile3 == TILE_BEGIN || Tile4 == TILE_BEGIN) && (m_DDRaceState == DDRACE_NONE || m_DDRaceState == DDRACE_FINISHED || (m_DDRaceState == DDRACE_STARTED && !Team() && g_Config.m_SvTeam != 3)))
 	{
-		if (m_DDRaceState == DDRACE_NONE || m_DDRaceState == DDRACE_FINISHED || (m_DDRaceState == DDRACE_STARTED && !Team()))
+		if(g_Config.m_SvResetPickups)
 		{
 			bool CanBegin = true;
 			if (g_Config.m_SvResetPickups)
@@ -2407,23 +2407,15 @@ void CCharacter::HandleTiles(int Index)
 			}
 			if (g_Config.m_SvTeam == 2 && (Team() == TEAM_FLOCK || Teams()->Count(Team()) <= 1))
 			{
-				if (m_LastStartWarning < Server()->Tick() - 3 * Server()->TickSpeed())
-				{
-					GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Server admin requires you to be in a team and with other tees to start");
-					m_LastStartWarning = Server()->Tick();
-				}
-				Die(GetPlayer()->GetCID(), WEAPON_WORLD);
-				CanBegin = false;
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(),"You have to be in a team with other tees to start");
+				m_LastStartWarning = Server()->Tick();
 			}
-			if (CanBegin)
-			{
-				Teams()->OnCharacterStart(m_pPlayer->GetCID());
-				m_CpActive = -2;
-			}
-			else {
-				
-			}
+			Die(GetPlayer()->GetCID(), WEAPON_WORLD);
+			return;
 		}
+
+		Teams()->OnCharacterStart(m_pPlayer->GetCID());
+		m_CpActive = -2;
 	}
 
 	// freeze
@@ -3087,15 +3079,25 @@ void CCharacter::DDRacePostCoreTick()
 
 	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_Pos);
 	HandleSkippableTiles(CurrentIndex);
+	if(!m_Alive)
+		return;
 
 	// handle Anti-Skip tiles
 	std::list < int > Indices = GameServer()->Collision()->GetMapIndices(m_PrevPos, m_Pos);
 	if(!Indices.empty())
+	{
 		for(std::list < int >::iterator i = Indices.begin(); i != Indices.end(); i++)
+		{
 			HandleTiles(*i);
+			if(!m_Alive)
+				return;
+		}
+	}
 	else
 	{
 		HandleTiles(CurrentIndex);
+		if(!m_Alive)
+			return;
 	}
 
 	// teleport gun
@@ -3322,11 +3324,6 @@ void CCharacter::DDRaceInit()
 	m_LastBroadcast = 0;
 	m_TeamBeforeSuper = 0;
 	m_Core.m_Id = GetPlayer()->GetCID();
-	if (g_Config.m_SvTeam == 2)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Please join a team before you start");
-		m_LastStartWarning = Server()->Tick();
-	}
 	m_TeleCheckpoint = 0;
 	m_EndlessHook = g_Config.m_SvEndlessDrag;
 	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_RIFLE | DISABLE_HIT_SHOTGUN;
@@ -3363,6 +3360,12 @@ void CCharacter::DDRaceInit()
 				}
 			}
 		}
+	}
+
+	if(g_Config.m_SvTeam == 2 && Team == TEAM_FLOCK)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(),"Please join a team before you start");
+		m_LastStartWarning = Server()->Tick();
 	}
 }
 

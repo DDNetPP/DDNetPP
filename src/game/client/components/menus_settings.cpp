@@ -405,8 +405,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	MainView.HSplitTop(20.0f, &Label, &MainView);
 	Label.VSplitLeft(280.0f, &Label, &Dummy);
 	Label.VSplitLeft(230.0f, &Label, 0);
-	Dummy.VSplitLeft(250.0f, &Dummy, &SkinPrefix);
-	SkinPrefix.VSplitLeft(150.0f, &SkinPrefix, 0);
+	Dummy.VSplitLeft(170.0f, &Dummy, &SkinPrefix);
+	SkinPrefix.VSplitLeft(120.0f, &SkinPrefix, 0);
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "%s:", Localize("Your skin"));
 	UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
@@ -632,7 +632,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		QuickSearch.HSplitTop(5.0f, 0, &QuickSearch);
 		const char *pSearchLabel = "\xEE\xA2\xB6";
 		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
-		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING);
+		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 		UI()->DoLabelScaled(&QuickSearch, pSearchLabel, 14.0f, -1);
 		float wSearch = TextRender()->TextWidth(0, 14.0f, pSearchLabel, -1);
 		TextRender()->SetRenderFlags(0);
@@ -1346,24 +1346,7 @@ void CMenus::RenderLanguageSelection(CUIRect MainView)
 	{
 		str_copy(g_Config.m_ClLanguagefile, s_Languages[s_SelectedLanguage].m_FileName, sizeof(g_Config.m_ClLanguagefile));
 		g_Localization.Load(s_Languages[s_SelectedLanguage].m_FileName, Storage(), Console());
-
-		// Load Font
-		static CFont *pDefaultFont = 0;
-		char aFilename[512];
-		const char *pFontFile = "fonts/DejaVuSansCJKName.ttf";
-		if(str_find(g_Config.m_ClLanguagefile, "chinese") != NULL || str_find(g_Config.m_ClLanguagefile, "japanese") != NULL ||
-			str_find(g_Config.m_ClLanguagefile, "korean") != NULL)
-			pFontFile = "fonts/DejavuWenQuanYiMicroHei.ttf";
-		IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
-		if(File)
-		{
-			io_close(File);
-			if((pDefaultFont = TextRender()->GetFont(aFilename)) == NULL)
-				pDefaultFont = TextRender()->LoadFont(aFilename);
-			TextRender()->SetDefaultFont(pDefaultFont);
-		}
-		if(!pDefaultFont)
-			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='%s'", pFontFile);
+		Client()->LoadFont();
 	}
 }
 
@@ -1374,11 +1357,11 @@ void CMenus::RenderSettings(CUIRect MainView)
 	// render background
 	CUIRect Temp, TabBar, RestartWarning;
 	MainView.VSplitRight(120.0f, &MainView, &TabBar);
-	RenderTools()->DrawUIRect(&MainView, ms_ColorTabbarActive, CUI::CORNER_B|CUI::CORNER_TL, 10.0f);
+	RenderTools()->DrawUIRect(&MainView, ms_ColorTabbarActive, CUI::CORNER_B, 10.0f);
 	MainView.Margin(10.0f, &MainView);
 	MainView.HSplitBottom(15.0f, &MainView, &RestartWarning);
 	TabBar.HSplitTop(50.0f, &Temp, &TabBar);
-	RenderTools()->DrawUIRect(&Temp, ms_ColorTabbarActive, CUI::CORNER_R, 10.0f);
+	RenderTools()->DrawUIRect(&Temp, ms_ColorTabbarActive, CUI::CORNER_BR, 10.0f);
 
 	MainView.HSplitTop(10.0f, 0, &MainView);
 
@@ -2192,7 +2175,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	}
 
 	// Updater
-#if defined(CONF_FAMILY_WINDOWS) || (defined(CONF_PLATFORM_LINUX) && !defined(__ANDROID__))
+#if defined(CONF_AUTOUPDATE)
 	{
 		Left.HSplitTop(20.0f, &Label, &Left);
 		bool NeedUpdate = str_comp(Client()->LatestVersion(), "0");

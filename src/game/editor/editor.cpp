@@ -120,7 +120,6 @@ CLayerGroup::CLayerGroup()
 {
 	m_aName[0] = 0;
 	m_Visible = true;
-	m_SaveToMap = true;
 	m_Collapse = false;
 	m_GameGroup = false;
 	m_OffsetX = 0;
@@ -139,7 +138,6 @@ CLayerGroup::CLayerGroup(const CLayerGroup& rhs)
 {
 	str_copy(m_aName, rhs.m_aName, sizeof m_aName);
 	m_Visible = rhs.m_Visible;
-	m_SaveToMap = rhs.m_SaveToMap;
 	m_Collapse = rhs.m_Collapse;
 	m_GameGroup = rhs.m_GameGroup;
 	m_OffsetX = rhs.m_OffsetX;
@@ -795,7 +793,7 @@ int CEditor::UiDoValueSelector(void *pID, CUIRect *pRect, const char *pLabel, in
 		m_pTooltip = "Type your number";
 
 		static float s_NumberBoxID = 0;
-		DoEditBox(&s_NumberBoxID, pRect, s_NumStr, sizeof(s_NumStr), 10.0f, &s_NumberBoxID);
+		DoEditBox(&s_NumberBoxID, pRect, s_NumStr, sizeof(s_NumStr), 10.0f, &s_NumberBoxID, false, Corners);
 
 		UI()->SetActiveItem(&s_NumberBoxID);
 
@@ -1186,7 +1184,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 		                  250,  m_SelectEntitiesFiles.size()*14 + 10, PopupEntities);
 	}
 
-	TB_Top.VSplitLeft(10.0f, 0, &TB_Top);
+	TB_Top.VSplitLeft(5.0f, 0, &TB_Top);
 
 	// zoom group
 	TB_Top.VSplitLeft(30.0f, &Button, &TB_Top);
@@ -1208,7 +1206,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 	if(DoButton_Ex(&s_ZoomInButton, "ZI", 0, &Button, 0, "[NumPad+] Zoom in", CUI::CORNER_R))
 		m_ZoomLevel -= 50;
 
-	TB_Top.VSplitLeft(10.0f, 0, &TB_Top);
+	TB_Top.VSplitLeft(5.0f, 0, &TB_Top);
 
 	// animation speed
 	TB_Top.VSplitLeft(30.0f, &Button, &TB_Top);
@@ -1229,7 +1227,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 			m_AnimateSpeed -= 0.5f;
 	}
 
-	TB_Top.VSplitLeft(10.0f, &Button, &TB_Top);
+	TB_Top.VSplitLeft(5.0f, &Button, &TB_Top);
 
 
 	// brush manipulation
@@ -1254,7 +1252,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 		}
 
 		// rotate buttons
-		TB_Top.VSplitLeft(10.0f, &Button, &TB_Top);
+		TB_Top.VSplitLeft(5.0f, &Button, &TB_Top);
 
 		TB_Top.VSplitLeft(30.0f, &Button, &TB_Top);
 		static int s_RotationAmount = 90;
@@ -1314,7 +1312,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 				DoMapBorder();
 		}
 
-		TB_Bottom.VSplitLeft(10.0f, &Button, &TB_Bottom);
+		TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
 
 		// do tele/tune/switch/speedup button
 		{
@@ -1366,7 +1364,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 		}
 	}
 
-	TB_Bottom.VSplitLeft(10.0f, 0, &TB_Bottom);
+	TB_Bottom.VSplitLeft(5.0f, 0, &TB_Bottom);
 
 	// grid zoom
 	TB_Bottom.VSplitLeft(30.0f, &Button, &TB_Bottom);
@@ -1391,60 +1389,81 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 			m_GridFactor++;
 	}
 
-	// sound source manipulation
+	TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
+
+	// do add quad/sound button
+	TB_Bottom.VSplitLeft(60.0f, &Button, &TB_Bottom);
 	{
-		// do add button
-		TB_Bottom.VSplitLeft(10.0f, &Button, &TB_Bottom);
-		TB_Bottom.VSplitLeft(60.0f, &Button, &TB_Bottom);
-		static int s_NewButton = 0;
+		const char *pButtonText = "Add Item";
+		const char *pButtonToolTip = "[ctrl+q] Add a new item";
+		int Checked = -1;
 
-		CLayerSounds *pSoundLayer = (CLayerSounds *)GetSelectedLayerType(0, LAYERTYPE_SOUNDS);
-		if(DoButton_Editor(&s_NewButton, "Add Sound", pSoundLayer?0:-1, &Button, 0, "Adds a new sound source"))
+		CLayer *pLayer = GetSelectedLayer(0);
+		if(pLayer)
 		{
-			if(pSoundLayer)
+			if(pLayer->m_Type == LAYERTYPE_QUADS)
 			{
-				float Mapping[4];
-				CLayerGroup *g = GetSelectedGroup();
-				g->Mapping(Mapping);
-				int AddX = f2fx(Mapping[0] + (Mapping[2]-Mapping[0])/2);
-				int AddY = f2fx(Mapping[1] + (Mapping[3]-Mapping[1])/2);
-
-				CSoundSource *pSource = pSoundLayer->NewSource();
-				pSource->m_Position.x += AddX;
-				pSource->m_Position.y += AddY;
+				pButtonText = "Add Quad";
+				pButtonToolTip = "[ctrl+q] Add a new quad";
+				Checked = 0;
+			}
+			else if(pLayer->m_Type == LAYERTYPE_SOUNDS)
+			{
+				pButtonText = "Add Sound";
+				pButtonToolTip = "[ctrl+q] Add a new sound source";
+				Checked = 0;
 			}
 		}
-	}
 
-	// quad manipulation
-	{
-		// do add button
-		TB_Bottom.VSplitLeft(10.0f, &Button, &TB_Bottom);
-		TB_Bottom.VSplitLeft(60.0f, &Button, &TB_Bottom);
-		static int s_NewButton = 0;
-
-		CLayerQuads *pQLayer = (CLayerQuads *)GetSelectedLayerType(0, LAYERTYPE_QUADS);
-		//CLayerTiles *tlayer = (CLayerTiles *)get_selected_layer_type(0, LAYERTYPE_TILES);
-		if(DoButton_Editor(&s_NewButton, "Add Quad", pQLayer?0:-1, &Button, 0, "Adds a new quad"))
+		static int s_AddItemButton = 0;
+		if(DoButton_Editor(&s_AddItemButton, pButtonText, Checked, &Button, 0, pButtonToolTip) ||
+				(Input()->KeyPress(KEY_Q) && (Input()->KeyIsPressed(KEY_LCTRL) || Input()->KeyIsPressed(KEY_RCTRL))))
 		{
-			if(pQLayer)
+			if(pLayer)
 			{
-				float Mapping[4];
-				CLayerGroup *g = GetSelectedGroup();
-				g->Mapping(Mapping);
-				int AddX = f2fx(Mapping[0] + (Mapping[2]-Mapping[0])/2);
-				int AddY = f2fx(Mapping[1] + (Mapping[3]-Mapping[1])/2);
+				CLayerGroup *pGroup = GetSelectedGroup();
 
-				CQuad *q = pQLayer->NewQuad();
-				for(int i = 0; i < 5; i++)
+				float Mapping[4];
+				pGroup->Mapping(Mapping);
+				int x = Mapping[0] + (Mapping[2]-Mapping[0]) / 2;
+				int y = Mapping[1] + (Mapping[3]-Mapping[1]) / 2;
+				if(Input()->KeyPress(KEY_Q) && (Input()->KeyIsPressed(KEY_LCTRL) || Input()->KeyIsPressed(KEY_RCTRL)))
 				{
-					q->m_aPoints[i].x += AddX;
-					q->m_aPoints[i].y += AddY;
+					x += UI()->MouseWorldX() - (m_WorldOffsetX*pGroup->m_ParallaxX/100) - pGroup->m_OffsetX;
+					y += UI()->MouseWorldY() - (m_WorldOffsetY*pGroup->m_ParallaxY/100) - pGroup->m_OffsetY;
+				}
+
+				if(pLayer->m_Type == LAYERTYPE_QUADS)
+				{
+					CLayerQuads *pQuadLayer = (CLayerQuads *)pLayer;
+
+					int Width = 64;
+					int Height = 64;
+					if(pQuadLayer->m_Image >= 0)
+					{
+						Width = m_Map.m_lImages[pQuadLayer->m_Image]->m_Width;
+						Height = m_Map.m_lImages[pQuadLayer->m_Image]->m_Height;
+					}
+
+					pQuadLayer->NewQuad(x, y, Width, Height);
+				}
+				else if(pLayer->m_Type == LAYERTYPE_SOUNDS)
+				{
+					CLayerSounds *pSoundLayer = (CLayerSounds *)pLayer;
+					pSoundLayer->NewSource(x, y);
 				}
 			}
 		}
 	}
 
+	TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
+
+	// Brush draw mode button
+	TB_Bottom.VSplitLeft(65.0f, &Button, &TB_Bottom);
+	static int s_BrushDrawModeButton = 0;
+	if(DoButton_Editor(&s_BrushDrawModeButton, "Destructive", m_BrushDrawDestructive, &Button, 0, "[ctrl+d] Toggle brush draw mode") ||
+			(Input()->KeyPress(KEY_D) && (Input()->KeyIsPressed(KEY_LCTRL) || Input()->KeyIsPressed(KEY_RCTRL))))
+		m_BrushDrawDestructive = !m_BrushDrawDestructive;
 }
 
 static void Rotate(const CPoint *pCenter, CPoint *pPoint, float Rotation)
@@ -2404,6 +2423,7 @@ void CEditor::DoMapEditor(CUIRect View)
 				m_TilesetPicker.m_Color = {255, 255, 255, 255};
 			}
 
+			m_TilesetPicker.m_Game = t->m_Game;
 			m_TilesetPicker.m_Tele = t->m_Tele;
 			m_TilesetPicker.m_Speedup = t->m_Speedup;
 			m_TilesetPicker.m_Front = t->m_Front;
@@ -2559,10 +2579,22 @@ void CEditor::DoMapEditor(CUIRect View)
 						// draw with brush
 						for(int k = 0; k < NumEditLayers; k++)
 						{
-							int BrushIndex = k;
-							if(m_Brush.m_lLayers.size() != NumEditLayers) BrushIndex = 0;
+							int BrushIndex = k % m_Brush.m_lLayers.size();
 							if(pEditLayers[k]->m_Type == m_Brush.m_lLayers[BrushIndex]->m_Type)
-								pEditLayers[k]->BrushDraw(m_Brush.m_lLayers[BrushIndex], wx, wy);
+							{
+								if (pEditLayers[k]->m_Type == LAYERTYPE_TILES)
+								{
+									CLayerTiles *l = (CLayerTiles *)pEditLayers[k];
+									CLayerTiles *b = (CLayerTiles *)m_Brush.m_lLayers[BrushIndex];
+
+									if(l->m_Tele <= b->m_Tele && l->m_Speedup <= b->m_Speedup && l->m_Front <= b->m_Front && l->m_Game <= b->m_Game && l->m_Switch <= b->m_Switch && l->m_Tune <= b->m_Tune)
+										l->BrushDraw(b, wx, wy);
+								}
+								else
+								{
+									pEditLayers[k]->BrushDraw(m_Brush.m_lLayers[BrushIndex], wx, wy);
+								}
+							}
 						}
 					}
 				}
@@ -3095,12 +3127,23 @@ int CEditor::DoProperties(CUIRect *pToolBox, CProperty *pProps, int *pIDs, int *
 		else if(pProps[i].m_Type == PROPTYPE_IMAGE)
 		{
 			char aBuf[64];
+			float FontSize = 10.0f;
+
 			if(pProps[i].m_Value < 0)
 				str_copy(aBuf, "None", sizeof(aBuf));
 			else
-				str_format(aBuf, sizeof(aBuf),"%s", m_Map.m_lImages[pProps[i].m_Value]->m_aName);
+			{
+				str_format(aBuf, sizeof(aBuf), "%s", m_Map.m_lImages[pProps[i].m_Value]->m_aName);
+				while(TextRender()->TextWidth(0, FontSize, aBuf, -1) > Shifter.w)
+				{
+					if(FontSize > 6.0f)
+						FontSize--;
+					else
+						str_format(aBuf, sizeof(aBuf), "%.*s...", str_length(aBuf) - 4, aBuf);
+				}
+			}
 
-			if(DoButton_Editor(&pIDs[i], aBuf, 0, &Shifter, 0, 0))
+			if(DoButton_Ex(&pIDs[i], aBuf, 0, &Shifter, 0, 0, CUI::CORNER_ALL, FontSize))
 				PopupSelectImageInvoke(pProps[i].m_Value, UI()->MouseX(), UI()->MouseY());
 
 			int r = PopupSelectImageResult();
@@ -3148,12 +3191,23 @@ int CEditor::DoProperties(CUIRect *pToolBox, CProperty *pProps, int *pIDs, int *
 		else if(pProps[i].m_Type == PROPTYPE_SOUND)
 		{
 			char aBuf[64];
+			float FontSize = 10.0f;
+
 			if(pProps[i].m_Value < 0)
 				str_copy(aBuf, "None", sizeof(aBuf));
 			else
-				str_format(aBuf, sizeof(aBuf),"%s", m_Map.m_lSounds[pProps[i].m_Value]->m_aName);
+			{
+				str_format(aBuf, sizeof(aBuf), "%s", m_Map.m_lSounds[pProps[i].m_Value]->m_aName);
+				while(TextRender()->TextWidth(0, FontSize, aBuf, -1) > Shifter.w)
+				{
+					if(FontSize > 6.0f)
+						FontSize--;
+					else
+						str_format(aBuf, sizeof(aBuf), "%.*s...", str_length(aBuf) - 4, aBuf);
+				}
+			}
 
-			if(DoButton_Editor(&pIDs[i], aBuf, 0, &Shifter, 0, 0))
+			if(DoButton_Ex(&pIDs[i], aBuf, 0, &Shifter, 0, 0, CUI::CORNER_ALL, FontSize))
 				PopupSelectSoundInvoke(pProps[i].m_Value, UI()->MouseX(), UI()->MouseY());
 
 			int r = PopupSelectSoundResult();
@@ -3251,7 +3305,7 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				continue;
 			}
 
-			CUIRect VisibleToggle, SaveCheck;
+			CUIRect VisibleToggle;
 			if(LayerCur >= LayerStartAt)
 			{
 				LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
@@ -3259,17 +3313,12 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				if(DoButton_Ex(&m_Map.m_lGroups[g]->m_Visible, m_Map.m_lGroups[g]->m_Visible?"V":"H", m_Map.m_lGroups[g]->m_Collapse ? 1 : 0, &VisibleToggle, 0, "Toggle group visibility", CUI::CORNER_L))
 					m_Map.m_lGroups[g]->m_Visible = !m_Map.m_lGroups[g]->m_Visible;
 
-				Slot.VSplitRight(12.0f, &Slot, &SaveCheck);
-				if(DoButton_Ex(&m_Map.m_lGroups[g]->m_SaveToMap, "S", m_Map.m_lGroups[g]->m_SaveToMap, &SaveCheck, 0, "Enable/disable group for saving", CUI::CORNER_R))
-					if(!m_Map.m_lGroups[g]->m_GameGroup)
-						m_Map.m_lGroups[g]->m_SaveToMap = !m_Map.m_lGroups[g]->m_SaveToMap;
-
 				str_format(aBuf, sizeof(aBuf),"#%d %s", g, m_Map.m_lGroups[g]->m_aName);
 				float FontSize = 10.0f;
 				while(TextRender()->TextWidth(0, FontSize, aBuf, -1) > Slot.w)
 					FontSize--;
 				if(int Result = DoButton_Ex(&m_Map.m_lGroups[g], aBuf, g==m_SelectedGroup, &Slot,
-					BUTTON_CONTEXT, m_Map.m_lGroups[g]->m_Collapse ? "Select group. Shift click to select all layers. Double click to expand." : "Select group. Shift click to select all layers. Double click to collapse.", 0, FontSize))
+					BUTTON_CONTEXT, m_Map.m_lGroups[g]->m_Collapse ? "Select group. Shift click to select all layers. Double click to expand." : "Select group. Shift click to select all layers. Double click to collapse.", CUI::CORNER_R, FontSize))
 				{
 					m_SelectedGroup = g;
 					SelectLayer(0);
@@ -3313,17 +3362,28 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				if(DoButton_Ex(&m_Map.m_lGroups[g]->m_lLayers[i]->m_Visible, m_Map.m_lGroups[g]->m_lLayers[i]->m_Visible?"V":"H", 0, &VisibleToggle, 0, "Toggle layer visibility", CUI::CORNER_L))
 					m_Map.m_lGroups[g]->m_lLayers[i]->m_Visible = !m_Map.m_lGroups[g]->m_lLayers[i]->m_Visible;
 
-				Button.VSplitRight(12.0f, &Button, &SaveCheck);
-				if(DoButton_Ex(&m_Map.m_lGroups[g]->m_lLayers[i]->m_SaveToMap, "S", m_Map.m_lGroups[g]->m_lLayers[i]->m_SaveToMap, &SaveCheck, 0, "Enable/disable layer for saving", CUI::CORNER_R))
-					if(m_Map.m_lGroups[g]->m_lLayers[i] != m_Map.m_pGameLayer)
-						m_Map.m_lGroups[g]->m_lLayers[i]->m_SaveToMap = !m_Map.m_lGroups[g]->m_lLayers[i]->m_SaveToMap;
-
 				if(m_Map.m_lGroups[g]->m_lLayers[i]->m_aName[0])
-					str_format(aBuf, sizeof(aBuf), "%s", m_Map.m_lGroups[g]->m_lLayers[i]->m_aName);
-				else if(m_Map.m_lGroups[g]->m_lLayers[i]->m_Type == LAYERTYPE_TILES)
-					str_copy(aBuf, "Tiles", sizeof(aBuf));
+					str_copy(aBuf, m_Map.m_lGroups[g]->m_lLayers[i]->m_aName, sizeof(aBuf));
 				else
-					str_copy(aBuf, "Quads", sizeof(aBuf));
+				{
+					if(m_Map.m_lGroups[g]->m_lLayers[i]->m_Type == LAYERTYPE_TILES)
+					{
+						CLayerTiles *pTiles = (CLayerTiles *)m_Map.m_lGroups[g]->m_lLayers[i];
+						str_copy(aBuf, pTiles->m_Image >= 0 ? m_Map.m_lImages[pTiles->m_Image]->m_aName : "Tiles", sizeof(aBuf));
+					}
+					else if(m_Map.m_lGroups[g]->m_lLayers[i]->m_Type == LAYERTYPE_QUADS)
+					{
+						CLayerQuads *pQuads = (CLayerQuads *)m_Map.m_lGroups[g]->m_lLayers[i];
+						str_copy(aBuf, pQuads->m_Image >= 0 ? m_Map.m_lImages[pQuads->m_Image]->m_aName : "Quads", sizeof(aBuf));
+					}
+					else if(m_Map.m_lGroups[g]->m_lLayers[i]->m_Type == LAYERTYPE_SOUNDS)
+					{
+						CLayerSounds *pSounds = (CLayerSounds *)m_Map.m_lGroups[g]->m_lLayers[i];
+						str_copy(aBuf, pSounds->m_Sound >= 0 ? m_Map.m_lSounds[pSounds->m_Sound]->m_aName : "Sounds", sizeof(aBuf));
+					}
+					if(str_length(aBuf) > 11)
+						str_format(aBuf, sizeof(aBuf), "%.8s...", aBuf);
+				}
 
 				float FontSize = 10.0f;
 				while(TextRender()->TextWidth(0, FontSize, aBuf, -1) > Button.w)
@@ -3350,7 +3410,7 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 					Checked += 6;
 				}
 				if(int Result = DoButton_Ex(m_Map.m_lGroups[g]->m_lLayers[i], aBuf, Checked, &Button,
-					BUTTON_CONTEXT, "Select layer. Shift click to select multiple.", 0, FontSize))
+					BUTTON_CONTEXT, "Select layer. Shift click to select multiple.", CUI::CORNER_R, FontSize))
 				{
 					if ((Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)) && m_SelectedGroup == g)
 					{
@@ -3381,7 +3441,7 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 		LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
 
 		static int s_NewGroupButton = 0;
-		if(DoButton_Editor(&s_NewGroupButton, "Add group", 0, &Slot, 0, "Adds a new group"))
+		if(DoButton_Editor(&s_NewGroupButton, "Add group", 0, &Slot, CUI::CORNER_R, "Adds a new group"))
 		{
 			m_Map.NewGroup();
 			m_SelectedGroup = m_Map.m_lGroups.size()-1;
@@ -4744,8 +4804,8 @@ void CEditor::RenderEnvelopeEditor(CUIRect View)
 		if(m_Map.m_lEnvelopes.size())
 		{
 			EnvColor = IsEnvelopeUsed(m_SelectedEnvelope) ?
-				vec4(0.7f, 1, 0.7f, 0.5f) :
-				vec4(1, 0.7f, 0.7f, 0.5f);
+				vec4(1, 0.7f, 0.7f, 0.5f) :
+				vec4(0.7f, 1, 0.7f, 0.5f);
 		}
 
 		RenderTools()->DrawUIRect(&Shifter, EnvColor, 0, 0.0f);
@@ -5518,8 +5578,10 @@ void CEditor::Render()
 	else
 	{
 		// hack to get keyboard inputs from toolbar even when GUI is not active
-		ToolBar.HSplitTop(53.0f, &ToolBar, 0);
-		ToolBar.Margin(-1000, &ToolBar);
+		ToolBar.x = -100;
+		ToolBar.y = -100;
+		ToolBar.w = 50;
+		ToolBar.h = 50;
 	}
 
 	//	a little hack for now
@@ -5623,15 +5685,18 @@ void CEditor::Render()
 
 	if(m_GuiActive)
 	{
-		if(m_ShowEnvelopeEditor || m_ShowServerSettingsEditor)
+		if(!m_ShowPicker)
 		{
-			RenderBackground(ExtraEditor, ms_BackgroundTexture, 128.0f, Brightness);
-			ExtraEditor.Margin(2.0f, &ExtraEditor);
-		}
-		if(m_ShowUndo)
-		{
-			RenderBackground(UndoList, ms_BackgroundTexture, 128.0f, Brightness);
-			UndoList.Margin(2.0f, &UndoList);
+			if(m_ShowEnvelopeEditor || m_ShowServerSettingsEditor)
+			{
+				RenderBackground(ExtraEditor, ms_BackgroundTexture, 128.0f, Brightness);
+				ExtraEditor.Margin(2.0f, &ExtraEditor);
+			}
+			if(m_ShowUndo)
+			{
+				RenderBackground(UndoList, ms_BackgroundTexture, 128.0f, Brightness);
+				UndoList.Margin(2.0f, &UndoList);
+			}
 		}
 
 		if(m_Mode == MODE_LAYERS)
@@ -5903,13 +5968,7 @@ void CEditorMap::CreateDefault(int EntitiesTexture)
 	pGroup->m_ParallaxY = 0;
 	CLayerQuads *pLayer = new CLayerQuads;
 	pLayer->m_pEditor = m_pEditor;
-	CQuad *pQuad = pLayer->NewQuad();
-	const int Width = 800000;
-	const int Height = 600000;
-	pQuad->m_aPoints[0].x = pQuad->m_aPoints[2].x = -Width;
-	pQuad->m_aPoints[1].x = pQuad->m_aPoints[3].x = Width;
-	pQuad->m_aPoints[0].y = pQuad->m_aPoints[1].y = -Height;
-	pQuad->m_aPoints[2].y = pQuad->m_aPoints[3].y = Height;
+	CQuad *pQuad = pLayer->NewQuad(0, 0, 1600, 1200);
 	pQuad->m_aColors[0].r = pQuad->m_aColors[1].r = 94;
 	pQuad->m_aColors[0].g = pQuad->m_aColors[1].g = 132;
 	pQuad->m_aColors[0].b = pQuad->m_aColors[1].b = 174;
@@ -5959,7 +6018,7 @@ void CEditor::Init()
 	m_TilesetPicker.m_Readonly = true;
 
 	m_QuadsetPicker.m_pEditor = this;
-	m_QuadsetPicker.NewQuad();
+	m_QuadsetPicker.NewQuad(0, 0, 64, 64);
 	m_QuadsetPicker.m_Readonly = true;
 
 	m_Brush.m_pMap = &m_Map;
@@ -5991,8 +6050,7 @@ void CEditor::DoMapBorder()
 
 void CEditor::CreateUndoStep()
 {
-	void *CreateThread = thread_init(CreateUndoStepThread, this);
-	thread_detach(CreateThread);
+	thread_init_and_detach(CreateUndoStepThread, this, "Editor Undo");
 }
 
 void CEditor::CreateUndoStepThread(void *pUser)
@@ -6051,17 +6109,19 @@ void CEditor::UpdateAndRender()
 		m_OldMouseY = ty;
 #else
 		UI()->ConvertMouseMove(&rx, &ry);
+
+		// TODO: Why do we have to halve this?
+		rx /= 2;
+		ry /= 2;
+
 		m_MouseDeltaX = rx;
 		m_MouseDeltaY = ry;
 
 		if(!m_LockMouse)
 		{
-			s_MouseX += rx;
-			s_MouseY += ry;
+			s_MouseX = clamp(s_MouseX + rx, 0.0f, UI()->Screen()->w);
+			s_MouseY = clamp(s_MouseY + ry, 0.0f, UI()->Screen()->h);
 		}
-
-		s_MouseX = clamp(s_MouseX, 0.0f, UI()->Screen()->w);
-		s_MouseY = clamp(s_MouseY, 0.0f, UI()->Screen()->h);
 #endif
 
 		// update the ui

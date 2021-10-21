@@ -8,13 +8,14 @@
 #include "captcha.h"
 #include "gamecontext.h"
 #include <game/version.h>
+#include <engine/client/http.h>
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
 #include <vector>
+#include <memory>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
-#include <engine/shared/http.h>
 
 // player object
 class CPlayer
@@ -47,6 +48,7 @@ public:
 	void OnDirectInput(CNetObj_PlayerInput *NewInput);
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
 	void OnDisconnect(const char *pReason, bool silent = false);
+	void OnPredictedEarlyInput(CNetObj_PlayerInput *NewInput);
 
 	void ThreadKillCharacter(int Weapon = WEAPON_GAME);
 	void KillCharacter(int Weapon = WEAPON_GAME);
@@ -188,7 +190,6 @@ public:
 	int m_ChatScore;
 
 	bool m_Moderating;
-	int m_ModhelpTick;
 
 	bool AfkTimer(int new_target_x, int new_target_y); //returns true if kicked
 	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);
@@ -210,6 +211,9 @@ public:
 	bool m_FirstPacket;
 
 	std::shared_ptr<CPostJson> m_pPostJson;
+
+	bool m_NotEligibleForFinish;
+	int64 m_EligibleForFinishCheck;
 
 	/*
 

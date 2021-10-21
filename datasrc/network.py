@@ -49,6 +49,11 @@ enum
 enum
 {
 	GAMEINFO_CURVERSION=6,
+	AUTHED_HONEY=-1,
+	AUTHED_NO=0,
+	AUTHED_HELPER,
+	AUTHED_MOD,
+	AUTHED_ADMIN,
 };
 '''
 
@@ -217,6 +222,10 @@ Objects = [
 		NetIntAny("m_Flags"),
 		NetIntAny("m_Version"),
 		NetIntAny("m_Flags2"),
+	]),
+
+	NetObjectEx("AuthInfo", "auth-info@netobj.ddnet.tw", [
+		NetIntRange("m_AuthLevel", "AUTHED_NO", "AUTHED_ADMIN"),
 	]),
 
 	## Events

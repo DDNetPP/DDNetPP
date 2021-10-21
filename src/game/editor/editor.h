@@ -24,6 +24,7 @@
 #include <engine/editor.h>
 #include <engine/graphics.h>
 #include <engine/sound.h>
+#include <engine/storage.h>
 
 #include "auto_map.h"
 
@@ -135,7 +136,6 @@ public:
 		str_copy(m_aName, "(invalid)", sizeof(m_aName));
 		m_Visible = true;
 		m_Readonly = false;
-		m_SaveToMap = true;
 		m_Flags = 0;
 		m_pEditor = 0;
 		m_BrushRefCount = 0;
@@ -170,7 +170,6 @@ public:
 
 	bool m_Readonly;
 	bool m_Visible;
-	bool m_SaveToMap;
 
 	int m_BrushRefCount;
 };
@@ -197,7 +196,6 @@ public:
 	char m_aName[12];
 	bool m_GameGroup;
 	bool m_Visible;
-	bool m_SaveToMap;
 	bool m_Collapse;
 
 	CLayerGroup();
@@ -535,6 +533,7 @@ public:
 	void Snap(CUIRect *pRect);
 	void Clamp(RECTi *pRect);
 
+	virtual bool IsEmpty(CLayerTiles *pLayer);
 	virtual void BrushSelecting(CUIRect Rect);
 	virtual int BrushGrab(CLayerGroup *pBrush, CUIRect Rect);
 	virtual void FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect);
@@ -552,7 +551,7 @@ public:
 	void PrepareForSave();
 
 	void GetSize(float *w, float *h) { *w = m_Width*32.0f; *h = m_Height*32.0f; }
-	
+
 	void FlagModified(int x, int y, int w, int h);
 
 	int m_TexID;
@@ -585,7 +584,7 @@ public:
 	~CLayerQuads();
 
 	virtual void Render(bool QuadPicker = false);
-	CQuad *NewQuad();
+	CQuad *NewQuad(int x, int y, int Width, int Height);
 
 	virtual void BrushSelecting(CUIRect Rect);
 	virtual int BrushGrab(CLayerGroup *pBrush, CUIRect Rect);
@@ -744,7 +743,8 @@ public:
 		m_SpeedupAngle = 0;
 		m_LargeLayerWasWarned = false;
 		m_PreventUnusedTilesWasWarned = false;
-		m_AllowPlaceUnusedTiles = false;
+		m_AllowPlaceUnusedTiles = 0;
+		m_BrushDrawDestructive = true;
 	}
 
 	virtual void Init();
@@ -826,15 +826,14 @@ public:
 	int m_PopupEventWasActivated;
 	bool m_LargeLayerWasWarned;
 	bool m_PreventUnusedTilesWasWarned;
-	bool m_AllowPlaceUnusedTiles;
+	int m_AllowPlaceUnusedTiles;
+	bool m_BrushDrawDestructive;
 
 	enum
 	{
 		FILETYPE_MAP,
 		FILETYPE_IMG,
 		FILETYPE_SOUND,
-
-		MAX_PATH_LENGTH = 512
 	};
 
 	int m_FileDialogStorageType;
@@ -1088,6 +1087,7 @@ public:
 
 	virtual void Resize(int NewW, int NewH);
 	virtual void Shift(int Direction);
+	virtual bool IsEmpty(CLayerTiles *pLayer);
 	virtual void BrushDraw(CLayer *pBrush, float wx, float wy);
 	virtual void BrushFlipX();
 	virtual void BrushFlipY();
@@ -1108,6 +1108,7 @@ public:
 
 	virtual void Resize(int NewW, int NewH);
 	virtual void Shift(int Direction);
+	virtual bool IsEmpty(CLayerTiles *pLayer);
 	virtual void BrushDraw(CLayer *pBrush, float wx, float wy);
 	virtual void BrushFlipX();
 	virtual void BrushFlipY();
@@ -1138,7 +1139,11 @@ public:
 
 	virtual void Resize(int NewW, int NewH);
 	virtual void Shift(int Direction);
+	virtual bool IsEmpty(CLayerTiles *pLayer);
 	virtual void BrushDraw(CLayer *pBrush, float wx, float wy);
+	virtual void BrushFlipX();
+	virtual void BrushFlipY();
+	virtual void BrushRotate(float Amount);
 	virtual void FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect);
 };
 
@@ -1153,6 +1158,7 @@ public:
 
 	virtual void Resize(int NewW, int NewH);
 	virtual void Shift(int Direction);
+	virtual bool IsEmpty(CLayerTiles *pLayer);
 	virtual void BrushDraw(CLayer *pBrush, float wx, float wy);
 	virtual void BrushFlipX();
 	virtual void BrushFlipY();
@@ -1167,7 +1173,7 @@ public:
 	~CLayerSounds();
 
 	virtual void Render(bool Tileset = false);
-	CSoundSource *NewSource();
+	CSoundSource *NewSource(int x, int y);
 
 	virtual void BrushSelecting(CUIRect Rect);
 	virtual int BrushGrab(CLayerGroup *pBrush, CUIRect Rect);

@@ -126,7 +126,6 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 	char str[1024*4];
 	int i;
 
-	//str_format(str, sizeof(str), "[%08x][%s]: ", (int)time(0), sys);
 	char timestr[80];
 	str_timestamp_format(timestr, sizeof(timestr), FORMAT_SPACE);
 
@@ -174,8 +173,28 @@ static void logger_file(const char *line, void *user)
 static void logger_stdout_sync(const char *line, void *user)
 {
 	(void)user;
-	puts(line);
-	fflush(stdout);
+
+	size_t length = strlen(line);
+	wchar_t *wide = malloc(length * sizeof (*wide));
+	mem_zero(wide, length * sizeof *wide);
+
+	const char *p = line;
+	int wlen = 0;
+	for(int codepoint = 0; (codepoint = str_utf8_decode(&p)); wlen++)
+	{
+		if(codepoint < 0)
+			return;
+
+		char u16[4] = {0};
+		if(str_utf16le_encode(u16, codepoint) != 2)
+			return;
+
+		mem_copy(&wide[wlen], u16, 2);
+	}
+
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	WriteConsoleW(console, wide, wlen, NULL, NULL);
+	WriteConsoleA(console, "\n", 1, NULL, NULL);
 }
 #endif
 
@@ -345,8 +364,7 @@ int io_close(IOHANDLE io)
 
 int io_flush(IOHANDLE io)
 {
-	fflush((FILE*)io);
-	return 0;
+	return fflush((FILE*)io);
 }
 
 
@@ -505,7 +523,7 @@ ASYNCIO *aio_new(IOHANDLE io)
 	aio->finish = ASYNCIO_RUNNING;
 	aio->refcount = 2;
 
-	aio->thread = thread_init(aio_thread, aio);
+	aio->thread = thread_init(aio_thread, aio, "aio");
 	if(!aio->thread)
 	{
 		free(aio->buffer);
@@ -687,7 +705,7 @@ static unsigned long __stdcall thread_run(void *user)
 	return 0;
 }
 
-void *thread_init(void (*threadfunc)(void *), void *u)
+void *thread_init(void (*threadfunc)(void *), void *u, const char *name)
 {
 	struct THREAD_RUN *data = malloc(sizeof(*data));
 	data->threadfunc = threadfunc;
@@ -695,8 +713,10 @@ void *thread_init(void (*threadfunc)(void *), void *u)
 #if defined(CONF_FAMILY_UNIX)
 	{
 		pthread_t id;
-		if(pthread_create(&id, NULL, thread_run, data) != 0)
+		int result = pthread_create(&id, NULL, thread_run, data);
+		if(result != 0)
 		{
+			dbg_msg("thread", "creating %s thread failed: %d", name, result);
 			return 0;
 		}
 		return (void*)id;
@@ -725,7 +745,9 @@ void thread_wait(void *thread)
 void thread_yield()
 {
 #if defined(CONF_FAMILY_UNIX)
-	sched_yield();
+	int result = sched_yield();
+	if(result != 0)
+		dbg_msg("thread", "yield failed: %d", errno);
 #elif defined(CONF_FAMILY_WINDOWS)
 	Sleep(0);
 #else
@@ -733,12 +755,15 @@ void thread_yield()
 #endif
 }
 
-void thread_sleep(int milliseconds)
+void thread_sleep(int microseconds)
 {
 #if defined(CONF_FAMILY_UNIX)
-	usleep(milliseconds*1000);
+	int result = usleep(microseconds);
+	/* ignore signal interruption */
+	if(result == -1 && errno != EINTR)
+		dbg_msg("thread", "sleep failed: %d", errno);
 #elif defined(CONF_FAMILY_WINDOWS)
-	Sleep(milliseconds);
+	Sleep(microseconds/1000);
 #else
 	#error not implemented
 #endif
@@ -747,7 +772,9 @@ void thread_sleep(int milliseconds)
 void thread_detach(void *thread)
 {
 #if defined(CONF_FAMILY_UNIX)
-	pthread_detach((pthread_t)(thread));
+	int result = pthread_detach((pthread_t)(thread));
+	if(result != 0)
+		dbg_msg("thread", "detach failed: %d", result);
 #elif defined(CONF_FAMILY_WINDOWS)
 	CloseHandle(thread);
 #else
@@ -755,6 +782,13 @@ void thread_detach(void *thread)
 #endif
 }
 
+void *thread_init_and_detach(void (*threadfunc)(void *), void *u, const char *name)
+{
+	void *thread = thread_init(threadfunc, u, name);
+	if(thread)
+		thread_detach(thread);
+	return thread;
+}
 
 
 
@@ -769,9 +803,20 @@ typedef CRITICAL_SECTION LOCKINTERNAL;
 LOCK lock_create()
 {
 	LOCKINTERNAL *lock = (LOCKINTERNAL *)malloc(sizeof(*lock));
+#if defined(CONF_FAMILY_UNIX)
+	int result;
+#endif
+
+	if(!lock)
+		return 0;
 
 #if defined(CONF_FAMILY_UNIX)
-	pthread_mutex_init(lock, 0x0);
+	result = pthread_mutex_init(lock, 0x0);
+	if(result != 0)
+	{
+		dbg_msg("lock", "init failed: %d", result);
+		return 0;
+	}
 #elif defined(CONF_FAMILY_WINDOWS)
 	InitializeCriticalSection((LPCRITICAL_SECTION)lock);
 #else
@@ -783,7 +828,9 @@ LOCK lock_create()
 void lock_destroy(LOCK lock)
 {
 #if defined(CONF_FAMILY_UNIX)
-	pthread_mutex_destroy((LOCKINTERNAL *)lock);
+	int result = pthread_mutex_destroy((LOCKINTERNAL *)lock);
+	if(result != 0)
+		dbg_msg("lock", "destroy failed: %d", result);
 #elif defined(CONF_FAMILY_WINDOWS)
 	DeleteCriticalSection((LPCRITICAL_SECTION)lock);
 #else
@@ -806,7 +853,9 @@ int lock_trylock(LOCK lock)
 void lock_wait(LOCK lock)
 {
 #if defined(CONF_FAMILY_UNIX)
-	pthread_mutex_lock((LOCKINTERNAL *)lock);
+	int result = pthread_mutex_lock((LOCKINTERNAL *)lock);
+	if(result != 0)
+		dbg_msg("lock", "lock failed: %d", result);
 #elif defined(CONF_FAMILY_WINDOWS)
 	EnterCriticalSection((LPCRITICAL_SECTION)lock);
 #else
@@ -817,7 +866,9 @@ void lock_wait(LOCK lock)
 void lock_unlock(LOCK lock)
 {
 #if defined(CONF_FAMILY_UNIX)
-	pthread_mutex_unlock((LOCKINTERNAL *)lock);
+	int result = pthread_mutex_unlock((LOCKINTERNAL *)lock);
+	if(result != 0)
+		dbg_msg("lock", "unlock failed: %d", result);
 #elif defined(CONF_FAMILY_WINDOWS)
 	LeaveCriticalSection((LPCRITICAL_SECTION)lock);
 #else
@@ -847,10 +898,28 @@ void sphore_destroy(SEMAPHORE *sem)
 	sem_unlink(aBuf);
 }
 #elif defined(CONF_FAMILY_UNIX)
-void sphore_init(SEMAPHORE *sem) { sem_init(sem, 0, 0); }
-void sphore_wait(SEMAPHORE *sem) { sem_wait(sem); }
-void sphore_signal(SEMAPHORE *sem) { sem_post(sem); }
-void sphore_destroy(SEMAPHORE *sem) { sem_destroy(sem); }
+void sphore_init(SEMAPHORE *sem)
+{
+	if(sem_init(sem, 0, 0) != 0)
+		dbg_msg("sphore", "init failed: %d", errno);
+}
+
+void sphore_wait(SEMAPHORE *sem)
+{
+	if(sem_wait(sem) != 0)
+		dbg_msg("sphore", "wait failed: %d", errno);
+}
+
+void sphore_signal(SEMAPHORE *sem)
+{
+	if(sem_post(sem) != 0)
+		dbg_msg("sphore", "post failed: %d", errno);
+}
+void sphore_destroy(SEMAPHORE *sem)
+{
+	if(sem_destroy(sem) != 0)
+		dbg_msg("sphore", "destroy failed: %d", errno);
+}
 #endif
 
 static int new_tick = -1;
@@ -882,7 +951,11 @@ int64 time_get_impl()
 		return last;
 #elif defined(CONF_FAMILY_UNIX)
 		struct timespec spec;
-		clock_gettime(CLOCK_MONOTONIC, &spec);
+		if(clock_gettime(CLOCK_MONOTONIC, &spec) != 0)
+		{
+			dbg_msg("clock", "gettime failed: %d", errno);
+			return 0;
+		}
 		last = (int64)spec.tv_sec*(int64)1000000 + (int64)spec.tv_nsec / 1000;
 		return last;
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -1237,7 +1310,8 @@ static void priv_net_close_socket(int sock)
 #if defined(CONF_FAMILY_WINDOWS)
 	closesocket(sock);
 #else
-	close(sock);
+	if(close(sock) != 0)
+		dbg_msg("socket", "close failed: %d", errno);
 #endif
 }
 
@@ -1297,7 +1371,8 @@ static int priv_net_create_socket(int domain, int type, struct sockaddr *addr, i
 	if (domain == AF_INET && type == SOCK_STREAM)
 	{
 		int option = 1;
-		setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+		if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) != 0)
+			dbg_msg("socket", "Setting SO_REUSEADDR failed: %d", errno);
 	}
 #endif
 
@@ -1306,7 +1381,8 @@ static int priv_net_create_socket(int domain, int type, struct sockaddr *addr, i
 	if(domain == AF_INET6)
 	{
 		int ipv6only = 1;
-		setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&ipv6only, sizeof(ipv6only));
+		if(setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&ipv6only, sizeof(ipv6only)) != 0)
+			dbg_msg("socket", "Setting V6ONLY failed: %d", errno);
 	}
 #endif
 
@@ -1336,7 +1412,6 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 	NETSOCKET sock = invalid_socket;
 	NETADDR tmpbindaddr = bindaddr;
 	int broadcast = 1;
-	int recvsize = 65536;
 
 	if(bindaddr.type&NETTYPE_IPV4)
 	{
@@ -1353,16 +1428,15 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 			sock.ipv4sock = socket;
 
 			/* set broadcast */
-			setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof(broadcast));
-
-			/* set receive buffer size */
-			setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char*)&recvsize, sizeof(recvsize));
+			if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof(broadcast)) != 0)
+				dbg_msg("socket", "Setting BROADCAST on ipv4 failed: %d", errno);
 
 			{
 				/* set DSCP/TOS */
 				int iptos = 0x10 /* IPTOS_LOWDELAY */;
 				//int iptos = 46; /* High Priority */
-				setsockopt(socket, IPPROTO_IP, IP_TOS, (char*)&iptos, sizeof(iptos));
+				if(setsockopt(socket, IPPROTO_IP, IP_TOS, (char*)&iptos, sizeof(iptos)) != 0)
+					dbg_msg("socket", "Setting TOS on ipv4 failed: %d", errno);
 			}
 		}
 	}
@@ -1401,16 +1475,15 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 			sock.ipv6sock = socket;
 
 			/* set broadcast */
-			setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof(broadcast));
-
-			/* set receive buffer size */
-			setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char*)&recvsize, sizeof(recvsize));
+			if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof(broadcast)) != 0)
+					dbg_msg("socket", "Setting BROADCAST on ipv6 failed: %d", errno);
 
 			{
 				/* set DSCP/TOS */
 				int iptos = 0x10 /* IPTOS_LOWDELAY */;
 				//int iptos = 46; /* High Priority */
-				setsockopt(socket, IPPROTO_IP, IP_TOS, (char*)&iptos, sizeof(iptos));
+				if(setsockopt(socket, IPPROTO_IP, IP_TOS, (char*)&iptos, sizeof(iptos)) != 0)
+					dbg_msg("socket", "Setting TOS on ipv6 failed: %d", errno);
 			}
 		}
 	}
@@ -1512,30 +1585,85 @@ int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size
 #endif /* FUZZING */
 }
 
-int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *data, int maxsize)
+void net_init_mmsgs(MMSGS* m)
+{
+#if defined(CONF_PLATFORM_LINUX)
+	int i;
+	m->pos = 0;
+	m->size = 0;
+	mem_zero(m->msgs, sizeof(m->msgs));
+	mem_zero(m->iovecs, sizeof(m->iovecs));
+	mem_zero(m->sockaddrs, sizeof(m->sockaddrs));
+	for(i = 0; i < VLEN; ++i)
+	{
+		m->iovecs[i].iov_base = m->bufs[i];
+		m->iovecs[i].iov_len = PACKETSIZE;
+		m->msgs[i].msg_hdr.msg_iov = &(m->iovecs[i]);
+		m->msgs[i].msg_hdr.msg_iovlen = 1;
+		m->msgs[i].msg_hdr.msg_name = &(m->sockaddrs[i]);
+		m->msgs[i].msg_hdr.msg_namelen = sizeof(m->sockaddrs[i]);
+	}
+#endif
+}
+
+int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *buffer, int maxsize, MMSGS* m, unsigned char **data)
 {
 #ifndef FUZZING
 	char sockaddrbuf[128];
-	socklen_t fromlen;// = sizeof(sockaddrbuf);
 	int bytes = 0;
 
+#if defined(CONF_PLATFORM_LINUX)
+	if(sock.ipv4sock >= 0)
+	{
+		if(m->pos >= m->size)
+		{
+			m->size = recvmmsg(sock.ipv4sock, m->msgs, VLEN, 0, NULL);
+			m->pos = 0;
+		}
+	}
+
+	if(sock.ipv6sock >= 0)
+	{
+		if(m->pos >= m->size)
+		{
+			m->size = recvmmsg(sock.ipv6sock, m->msgs, VLEN, 0, NULL);
+			m->pos = 0;
+		}
+	}
+
+	if(m->pos < m->size)
+	{
+		sockaddr_to_netaddr((struct sockaddr *)&(m->sockaddrs[m->pos]), addr);
+		// TODO: network_stats
+		//network_stats.recv_bytes += bytes;
+		//network_stats.recv_packets++;
+		bytes = m->msgs[m->pos].msg_len;
+		*data = (unsigned char*)m->bufs[m->pos];
+		m->pos++;
+		return bytes;
+	}
+#else
 	if(bytes == 0 && sock.ipv4sock >= 0)
 	{
-		fromlen = sizeof(struct sockaddr_in);
-		bytes = recvfrom(sock.ipv4sock, (char*)data, maxsize, 0, (struct sockaddr *)&sockaddrbuf, &fromlen);
+		socklen_t fromlen = sizeof(struct sockaddr_in);
+		bytes = recvfrom(sock.ipv4sock, (char*)buffer, maxsize, 0, (struct sockaddr *)&sockaddrbuf, &fromlen);
+		*data = buffer;
 	}
 
 	if(bytes <= 0 && sock.ipv6sock >= 0)
 	{
-		fromlen = sizeof(struct sockaddr_in6);
-		bytes = recvfrom(sock.ipv6sock, (char*)data, maxsize, 0, (struct sockaddr *)&sockaddrbuf, &fromlen);
+		socklen_t fromlen = sizeof(struct sockaddr_in6);
+		bytes = recvfrom(sock.ipv6sock, (char*)buffer, maxsize, 0, (struct sockaddr *)&sockaddrbuf, &fromlen);
+		*data = buffer;
 	}
+#endif
 
 #if defined(CONF_WEBSOCKETS)
 	if(bytes <= 0 && sock.web_ipv4sock >= 0)
 	{
-		fromlen = sizeof(struct sockaddr);
-		bytes = websocket_recv(sock.web_ipv4sock, data, maxsize, (struct sockaddr_in *)&sockaddrbuf, fromlen);
+		socklen_t fromlen = sizeof(struct sockaddr);
+		bytes = websocket_recv(sock.web_ipv4sock, buffer, maxsize, (struct sockaddr_in *)&sockaddrbuf, fromlen);
+		*data = buffer;
 		((struct sockaddr_in *)&sockaddrbuf)->sin_family = AF_WEBSOCKET_INET;
 	}
 #endif
@@ -1550,7 +1678,7 @@ int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *data, int maxsize)
 	else if(bytes == 0)
 		return 0;
 	return -1; /* error */
-#else
+#else /* ifdef FUZZING */
 	addr->type = NETTYPE_IPV4;
 	addr->port = 11111;
 	addr->ip[0] = 127;
@@ -1567,7 +1695,8 @@ int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *data, int maxsize)
 			break;
 		}
 
-		((unsigned char*)data)[CurrentData] = gs_NetData[gs_NetPosition];
+		((unsigned char*)buffer)[CurrentData] = gs_NetData[gs_NetPosition];
+		*data = buffer;
 		CurrentData++;
 		gs_NetPosition++;
 	}
@@ -1633,7 +1762,8 @@ int net_set_non_blocking(NETSOCKET sock)
 #if defined(CONF_FAMILY_WINDOWS)
 		ioctlsocket(sock.ipv4sock, FIONBIO, (unsigned long *)&mode);
 #else
-		ioctl(sock.ipv4sock, FIONBIO, (unsigned long *)&mode);
+		if(ioctl(sock.ipv4sock, FIONBIO, (unsigned long *)&mode) == -1)
+			dbg_msg("socket", "setting ipv4 non-blocking failed: %d", errno);
 #endif
 	}
 
@@ -1642,7 +1772,8 @@ int net_set_non_blocking(NETSOCKET sock)
 #if defined(CONF_FAMILY_WINDOWS)
 		ioctlsocket(sock.ipv6sock, FIONBIO, (unsigned long *)&mode);
 #else
-		ioctl(sock.ipv6sock, FIONBIO, (unsigned long *)&mode);
+		if(ioctl(sock.ipv6sock, FIONBIO, (unsigned long *)&mode) == -1)
+			dbg_msg("socket", "setting ipv6 non-blocking failed: %d", errno);
 #endif
 	}
 
@@ -1657,7 +1788,8 @@ int net_set_blocking(NETSOCKET sock)
 #if defined(CONF_FAMILY_WINDOWS)
 		ioctlsocket(sock.ipv4sock, FIONBIO, (unsigned long *)&mode);
 #else
-		ioctl(sock.ipv4sock, FIONBIO, (unsigned long *)&mode);
+		if(ioctl(sock.ipv4sock, FIONBIO, (unsigned long *)&mode) == -1)
+			dbg_msg("socket", "setting ipv4 blocking failed: %d", errno);
 #endif
 	}
 
@@ -1666,7 +1798,8 @@ int net_set_blocking(NETSOCKET sock)
 #if defined(CONF_FAMILY_WINDOWS)
 		ioctlsocket(sock.ipv6sock, FIONBIO, (unsigned long *)&mode);
 #else
-		ioctl(sock.ipv6sock, FIONBIO, (unsigned long *)&mode);
+		if(ioctl(sock.ipv6sock, FIONBIO, (unsigned long *)&mode) == -1)
+			dbg_msg("socket", "setting ipv6 blocking failed: %d", errno);
 #endif
 	}
 
@@ -2214,14 +2347,26 @@ int str_format(char *buffer, int buffer_size, const char *format, ...)
 	va_start(ap, format);
 	ret = _vsnprintf(buffer, buffer_size, format, ap);
 	va_end(ap);
+
+	buffer[buffer_size-1] = 0; /* assure null termination */
+
+	/* _vsnprintf is documented to return negative values on truncation, but
+	 * in practice we didn't see that. let's handle it anyway just in case. */
+	if(ret < 0)
+		ret = buffer_size - 1;
 #else
 	va_list ap;
 	va_start(ap, format);
 	ret = vsnprintf(buffer, buffer_size, format, ap);
 	va_end(ap);
+
+	/* null termination is assured by definition of vsnprintf */
 #endif
 
-	buffer[buffer_size-1] = 0; /* assure null termination */
+	/* a return value of buffer_size or more indicates truncated output */
+	if(ret >= buffer_size)
+		ret = buffer_size - 1;
+
 	return ret;
 }
 
@@ -2308,7 +2453,7 @@ int str_comp_nocase(const char *a, const char *b)
 #endif
 }
 
-int str_comp_nocase_num(const char *a, const char *b, const int num)
+int str_comp_nocase_num(const char *a, const char *b, int num)
 {
 #if defined(CONF_FAMILY_WINDOWS)
 	return _strnicmp(a, b, num);
@@ -2322,7 +2467,7 @@ int str_comp(const char *a, const char *b)
 	return strcmp(a, b);
 }
 
-int str_comp_num(const char *a, const char *b, const int num)
+int str_comp_num(const char *a, const char *b, int num)
 {
 	return strncmp(a, b, num);
 }
@@ -2658,16 +2803,81 @@ char ch_uppercase(char c)
 	return c;
 }
 
-void str_uppercase(char *str)
+int str_isallnum(const char *str)
 {
-	for(int i = 0;str[i] != '\0';i++)
-		str[i] = ch_uppercase(str[i]);
+	while(*str)
+	{
+		if(!(*str >= '0' && *str <= '9'))
+			return 0;
+		str++;
+	}
+	return 1;
 }
 
 int str_toint(const char *str) { return atoi(str); }
 int str_toint_base(const char *str, int base) { return strtol(str, NULL, base); }
 float str_tofloat(const char *str) { return atof(str); }
 
+int str_utf8_comp_nocase(const char *a, const char *b)
+{
+	int code_a;
+	int code_b;
+
+	while(*a && *b)
+	{
+		code_a = str_utf8_tolower(str_utf8_decode(&a));
+		code_b = str_utf8_tolower(str_utf8_decode(&b));
+
+		if(code_a != code_b)
+			return code_a - code_b;
+	}
+	return (unsigned char)*a - (unsigned char)*b;
+}
+
+int str_utf8_comp_nocase_num(const char *a, const char *b, int num)
+{
+	int code_a;
+	int code_b;
+	const char *old_a = a;
+
+	if(num <= 0)
+		return 0;
+
+	while(*a && *b)
+	{
+		code_a = str_utf8_tolower(str_utf8_decode(&a));
+		code_b = str_utf8_tolower(str_utf8_decode(&b));
+
+		if(code_a != code_b)
+			return code_a - code_b;
+
+		if(a - old_a >= num)
+			return 0;
+	}
+
+	return (unsigned char)*a - (unsigned char)*b;
+}
+
+const char *str_utf8_find_nocase(const char *haystack, const char *needle)
+{
+	while(*haystack) /* native implementation */
+	{
+		const char *a = haystack;
+		const char *b = needle;
+		const char *a_next = a;
+		const char *b_next = b;
+		while(*a && *b && str_utf8_tolower(str_utf8_decode(&a_next)) == str_utf8_tolower(str_utf8_decode(&b_next)))
+		{
+			a = a_next;
+			b = b_next;
+		}
+		if(!(*b))
+			return haystack;
+		str_utf8_decode(&haystack);
+	}
+
+	return 0;
+}
 
 int str_utf8_isspace(int code)
 {
@@ -2805,6 +3015,32 @@ int str_utf8_encode(char *ptr, int chr)
 	return 0;
 }
 
+int str_utf16le_encode(char *ptr, int chr)
+{
+	if(chr < 0x10000)
+	{
+		ptr[0] = chr;
+		ptr[1] = chr >> 0x8;
+		return 2;
+	}
+	else if(chr <= 0x10FFFF)
+	{
+		int U = chr - 0x10000;
+		int W1 = 0xD800, W2 = 0xDC00;
+
+		W1 |= ((U >> 10) & 0x3FF);
+		W2 |= (U & 0x3FF);
+
+		ptr[0] = W1;
+		ptr[1] = W1 >> 0x8;
+		ptr[2] = W2;
+		ptr[3] = W2 >> 0x8;
+		return 4;
+	}
+
+	return 0;
+}
+
 static unsigned char str_byte_next(const char **ptr)
 {
 	unsigned char byte = **ptr;
@@ -2900,6 +3136,44 @@ unsigned str_quickhash(const char *str)
 	for(; *str; str++)
 		hash = ((hash << 5) + hash) + (*str); /* hash * 33 + c */
 	return hash;
+}
+
+static const char *str_token_get(const char *str, const char *delim, int *length)
+{
+	str += strspn(str, delim);
+	if(!*str)
+		return NULL;
+
+	*length = strcspn(str, delim);
+	return str;
+}
+
+int str_in_list(const char *list, const char *delim, const char *needle)
+{
+	const char *tok = list;
+	int len = 0, notfound = 1, needlelen = str_length(needle);
+
+	while(notfound && (tok = str_token_get(tok, delim, &len)))
+	{
+		notfound = needlelen != len || str_comp_num(tok, needle, len);
+		tok = tok + len;
+	}
+
+	return !notfound;
+}
+
+const char *str_next_token(const char *str, const char *delim, char *buffer, int buffer_size)
+{
+	int len = 0;
+	const char *tok = str_token_get(str, delim, &len);
+	if(len < 0)
+		return NULL;
+
+	len = buffer_size > len ? len : buffer_size - 1;
+	mem_copy(buffer, tok, len);
+	buffer[len] = '\0';
+
+	return tok + len;
 }
 
 int pid()

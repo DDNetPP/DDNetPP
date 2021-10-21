@@ -365,15 +365,15 @@ void CAutoMapper::ProceedLocalized(CLayerTiles *pLayer, int ConfigID, int Seed, 
 
 	CConfiguration *pConf = &m_lConfigs[ConfigID];
 
-	int CommitFromX = max(X + pConf->m_StartX, 0);
-	int CommitFromY = max(Y + pConf->m_StartY, 0);
-	int CommitToX = min(X + Width + pConf->m_EndX, pLayer->m_Width);
-	int CommitToY = min(Y + Height + pConf->m_EndY, pLayer->m_Height);
+	int CommitFromX = clamp(X + pConf->m_StartX, 0, pLayer->m_Width);
+	int CommitFromY = clamp(Y + pConf->m_StartY, 0, pLayer->m_Height);
+	int CommitToX = clamp(X + Width + pConf->m_EndX, 0, pLayer->m_Width);
+	int CommitToY = clamp(Y + Height + pConf->m_EndY, 0, pLayer->m_Height);
 
-	int UpdateFromX = max(X + 3 * pConf->m_StartX, 0);
-	int UpdateFromY = max(Y + 3 * pConf->m_StartY, 0);
-	int UpdateToX = min(X + Width + 3 * pConf->m_EndX, pLayer->m_Width);
-	int UpdateToY = min(Y + Height + 3 * pConf->m_EndY, pLayer->m_Height);
+	int UpdateFromX = clamp(X + 3 * pConf->m_StartX, 0, pLayer->m_Width);
+	int UpdateFromY = clamp(Y + 3 * pConf->m_StartY, 0, pLayer->m_Height);
+	int UpdateToX = clamp(X + Width + 3 * pConf->m_EndX, 0, pLayer->m_Width);
+	int UpdateToY = clamp(Y + Height + 3 * pConf->m_EndY, 0, pLayer->m_Height);
 
 	CLayerTiles *pUpdateLayer;
 	if (UpdateFromX != 0 || UpdateFromY != 0 || UpdateToX != pLayer->m_Width || UpdateToY != pLayer->m_Width)
@@ -469,7 +469,7 @@ void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID, int Seed, int SeedO
 						if(CheckX >= 0 && CheckX < pLayer->m_Width && CheckY >= 0 && CheckY < pLayer->m_Height) {
 							int CheckTile = CheckY * pLayer->m_Width + CheckX;
 							CheckIndex = pReadLayer->m_pTiles[CheckTile].m_Index;
-							CheckFlags = pReadLayer->m_pTiles[CheckTile].m_Flags;
+							CheckFlags = pReadLayer->m_pTiles[CheckTile].m_Flags & (TILEFLAG_ROTATE | TILEFLAG_VFLIP | TILEFLAG_HFLIP);
 						} else {
 							CheckIndex = -1;
 							CheckFlags = 0;
