@@ -488,7 +488,7 @@ int main(int argc, const char **argv)
 	
 	for(int i = 0; i < DataFile.NumData() || i == SettingsIndex; i++) //iterate through all tile layers (each iteration is a single layer)
 	{
-		int Size = DataFile.GetUncompressedDataSize(i);
+		// int Size = DataFile.GetUncompressedDataSize(i);
 		if (GameLayerNumber && i == GameLayerNumber) //game
 		{	
 			CTile *pTile;
@@ -547,9 +547,9 @@ int main(int argc, const char **argv)
 		else
 		{
 			dbg_msg("Layer", "Other i: %d", i);
-			unsigned char *pData = (unsigned char *)DataFile.GetData(i);
-			df.AddData(Size, pData);
-			DataFile.UnloadData(i);
+			// unsigned char *pData = (unsigned char *)DataFile.GetData(i);
+			// df.AddData(Size, pData);
+			// DataFile.UnloadData(i);
 		}
 	}
 

@@ -550,7 +550,7 @@ int CEditorMap::Save(class IStorage *pStorage, const char *pFileName)
 		|| !mem_comp(CurrentServerInfo.m_NetAddr.ip, ipv6Localhost, sizeof(ipv6Localhost)))
 		{
 			char aMapName[128];
-			m_pEditor->ExtractName(pFileName, aMapName, sizeof(aMapName));
+			IStorage::StripPathAndExtension(pFileName, aMapName, sizeof(aMapName));
 			if(!str_comp(aMapName, CurrentServerInfo.m_aMap))
 				m_pEditor->Client()->Rcon("reload");
 		}
@@ -612,7 +612,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 			DataFile.GetType(MAPITEMTYPE_INFO, &Start, &Num);
 			for(int i = Start; i < Start + Num; i++)
 			{
-				int ItemSize = DataFile.GetItemSize(Start) - 8;
+				int ItemSize = DataFile.GetItemSize(Start);
 				int ItemID;
 				CMapItemInfoSettings *pItem = (CMapItemInfoSettings *)DataFile.GetItem(i, 0, &ItemID);
 				if(!pItem || ItemID != 0)
@@ -633,7 +633,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 				if(!(pItem->m_Settings > -1))
 					break;
 
-				const unsigned Size = DataFile.GetUncompressedDataSize(pItem->m_Settings);
+				const unsigned Size = DataFile.GetDataSize(pItem->m_Settings);
 				char *pSettings = (char *)DataFile.GetData(pItem->m_Settings);
 				char *pNext = pSettings;
 				while(pNext < pSettings + Size)
@@ -867,7 +867,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 
 						pGroup->AddLayer(pTiles);
 						void *pData = DataFile.GetData(pTilemapItem->m_Data);
-						unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Data);
+						unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Data);
 						pTiles->m_Image = pTilemapItem->m_Image;
 						pTiles->m_Game = pTilemapItem->m_Flags&TILESLAYERFLAG_GAME;
 
@@ -878,7 +878,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 						if(pTiles->m_Tele)
 						{
 							void *pTeleData = DataFile.GetData(pTilemapItem->m_Tele);
-							unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Tele);
+							unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Tele);
 							if (Size >= pTiles->m_Width*pTiles->m_Height*sizeof(CTeleTile))
 							{
 								static const int s_aTilesRep[] = {
@@ -909,7 +909,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 						else if(pTiles->m_Speedup)
 						{
 							void *pSpeedupData = DataFile.GetData(pTilemapItem->m_Speedup);
-							unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Speedup);
+							unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Speedup);
 
 							if (Size >= pTiles->m_Width*pTiles->m_Height*sizeof(CSpeedupTile))
 							{
@@ -929,7 +929,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 						else if(pTiles->m_Front)
 						{
 							void *pFrontData = DataFile.GetData(pTilemapItem->m_Front);
-							unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Front);
+							unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Front);
 							if (Size >= pTiles->m_Width*pTiles->m_Height*sizeof(CTile))
 								mem_copy(((CLayerFront*)pTiles)->m_pTiles, pFrontData, pTiles->m_Width*pTiles->m_Height*sizeof(CTile));
 
@@ -938,7 +938,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 						else if(pTiles->m_Switch)
 						{
 							void *pSwitchData = DataFile.GetData(pTilemapItem->m_Switch);
-							unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Switch);
+							unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Switch);
 							if (Size >= pTiles->m_Width*pTiles->m_Height*sizeof(CSwitchTile))
 							{
 								const int s_aTilesComp[] = {
@@ -984,7 +984,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 						else if(pTiles->m_Tune)
 						{
 							void *pTuneData = DataFile.GetData(pTilemapItem->m_Tune);
-							unsigned int Size = DataFile.GetUncompressedDataSize(pTilemapItem->m_Tune);
+							unsigned int Size = DataFile.GetDataSize(pTilemapItem->m_Tune);
 							if (Size >= pTiles->m_Width*pTiles->m_Height*sizeof(CTuneTile))
 							{
 								CTuneTile *pLayerTuneTiles = ((CLayerTune *)pTiles)->m_pTuneTile;

@@ -47,6 +47,7 @@ public:
 	int m_Flags;
 	int m_Favorite;
 	int m_Latency; // in ms
+	int m_HasRank;
 	char m_aGameType[16];
 	char m_aName[64];
 	char m_aMap[32];
@@ -127,6 +128,8 @@ public:
 	virtual void DDNetFilterAdd(char *pFilter, const char *pName) = 0;
 	virtual void DDNetFilterRem(char *pFilter, const char *pName) = 0;
 	virtual bool DDNetFiltered(char *pFilter, const char *pName) = 0;
+	virtual void DDNetCountryFilterClean() = 0;
+	virtual void DDNetTypeFilterClean() = 0;
 	virtual int GetCurrentType() = 0;
 };
 

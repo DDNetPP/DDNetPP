@@ -46,6 +46,12 @@ void dbg_assert_imp(const char *filename, int line, int test, const char *msg);
 #define dbg_assert(test,msg) assert(test)
 #endif
 
+#ifdef __GNUC__
+#define GNUC_ATTRIBUTE(x) __attribute__(x)
+#else
+#define GNUC_ATTRIBUTE(x)
+#endif
+
 /*
 	Function: dbg_break
 		Breaks into the debugger.
@@ -78,7 +84,8 @@ void dbg_break_imp();
 	See Also:
 		<dbg_assert>
 */
-void dbg_msg(const char *sys, const char *fmt, ...);
+void dbg_msg(const char *sys, const char *fmt, ...)
+GNUC_ATTRIBUTE((format(printf, 2, 3)));
 
 /* Group: Memory */
 
@@ -109,9 +116,7 @@ void *mem_alloc_debug(const char *filename, int line, unsigned size, unsigned al
 		Frees a block allocated through <mem_alloc>.
 
 	Remarks:
-		- In the debug version of the library the function will assert if
-		a non-valid block is passed, like a null pointer or a block that
-		isn't allocated.
+		- Is safe on null pointers.
 
 	See Also:
 		<mem_alloc>
@@ -384,17 +389,8 @@ void *thread_init(void (*threadfunc)(void *), void *user);
 void thread_wait(void *thread);
 
 /*
-	Function: thread_destroy
-		Destroys a thread.
-
-	Parameters:
-		thread - Thread to destroy.
-*/
-void thread_destroy(void *thread);
-
-/*
 	Function: thread_yeild
-		Yeild the current threads execution slice.
+		Yield the current threads execution slice.
 */
 void thread_yield();
 
@@ -421,22 +417,22 @@ void lock_unlock(LOCK lock);
 
 
 /* Group: Semaphores */
-
-#if !defined(CONF_PLATFORM_MACOSX)
-	#if defined(CONF_FAMILY_UNIX)
-		#include <semaphore.h>
-		typedef sem_t SEMAPHORE;
-	#elif defined(CONF_FAMILY_WINDOWS)
-		typedef void* SEMAPHORE;
-	#else
-		#error missing sempahore implementation
-	#endif
-
-	void semaphore_init(SEMAPHORE *sem);
-	void semaphore_wait(SEMAPHORE *sem);
-	void semaphore_signal(SEMAPHORE *sem);
-	void semaphore_destroy(SEMAPHORE *sem);
+#if defined(CONF_FAMILY_WINDOWS)
+	typedef void* SEMAPHORE;
+#elif defined(CONF_PLATFORM_MACOSX)
+	#include <semaphore.h>
+	typedef sem_t* SEMAPHORE;
+#elif defined(CONF_FAMILY_UNIX)
+	#include <semaphore.h>
+	typedef sem_t SEMAPHORE;
+#else
+	#error not implemented on this platform
 #endif
+
+void sphore_init(SEMAPHORE *sem);
+void sphore_wait(SEMAPHORE *sem);
+void sphore_signal(SEMAPHORE *sem);
+void sphore_destroy(SEMAPHORE *sem);
 
 /* Group: Timer */
 #ifdef __GNUC__
@@ -802,7 +798,8 @@ int str_length(const char *str);
 		- The strings are treated as zero-termineted strings.
 		- Garantees that dst string will contain zero-termination.
 */
-int str_format(char *buffer, int buffer_size, const char *format, ...);
+int str_format(char *buffer, int buffer_size, const char *format, ...)
+GNUC_ATTRIBUTE((format(printf, 3, 4)));
 
 /*
 	Function: str_trim_words
@@ -1083,7 +1080,13 @@ void str_hex(char *dst, int dst_size, const void *data, int data_size);
 */
 int str_hex_decode(unsigned char *dst, int dst_size, const char *src);
 void str_timestamp(char *buffer, int buffer_size);
-void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format);
+void str_timestamp_format(char *buffer, int buffer_size, const char *format);
+void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format)
+GNUC_ATTRIBUTE((format(strftime, 4, 0)));
+
+#define FORMAT_TIME "%H:%M:%S"
+#define FORMAT_SPACE "%Y-%m-%d %H:%M:%S"
+#define FORMAT_NOSPACE "%Y-%m-%d_%H-%M-%S"
 
 /*
 	Function: str_escape
@@ -1288,9 +1291,7 @@ void swap_endian(void *data, unsigned elem_size, unsigned num);
 typedef void (*DBG_LOGGER)(const char *line);
 void dbg_logger(DBG_LOGGER logger);
 
-#if !defined(CONF_PLATFORM_MACOSX)
 void dbg_enable_threaded();
-#endif
 void dbg_logger_stdout();
 void dbg_logger_debugger();
 void dbg_logger_file(const char *filename);
@@ -1322,16 +1323,6 @@ int str_isspace(char c);
 char ch_uppercase(char c);
 void str_uppercase(char *str);
 unsigned str_quickhash(const char *str);
-
-/*
-	Function: gui_messagebox
-		Display plain OS-dependent message box
-
-	Parameters:
-		title - title of the message box
-		message - text to display
-*/
-void gui_messagebox(const char *title, const char *message);
 
 /*
 	Function: str_utf8_comp_confusable

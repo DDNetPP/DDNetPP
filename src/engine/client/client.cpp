@@ -321,6 +321,7 @@ CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta)
 	m_MapdownloadCrc = 0;
 	m_MapdownloadAmount = -1;
 	m_MapdownloadTotalsize = -1;
+	m_pDDNetRanksTask = NULL;
 
 	m_CurrentServerInfoRequestTime = -1;
 
@@ -1170,6 +1171,7 @@ void CClient::ProcessConnlessPacket(CNetChunk *pPacket)
 			m_NetClient[g_Config.m_ClDummy].Send(&Packet);
 
 			RequestDDNetSrvList();
+			RequestDDNetRanks();
 
 			// request the map version list now
 			mem_zero(&Packet, sizeof(Packet));
@@ -1408,6 +1410,8 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 		GET_INT(Info.m_MaxPlayers);
 		GET_INT(Info.m_NumClients);
 		GET_INT(Info.m_MaxClients);
+		if(Info.m_aMap[0])
+			Info.m_HasRank = m_ServerBrowser.HasRank(Info.m_aMap);
 
 		// don't add invalid info to the server browser list
 		if(Info.m_NumClients < 0 || Info.m_MaxClients < 0 ||
@@ -1542,6 +1546,7 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 			}
 		}
 	}
+
 	#undef GET_STRING
 	#undef GET_INT
 }
@@ -2256,6 +2261,22 @@ void CClient::FinishMapDownload()
 	}
 }
 
+void CClient::ResetDDNetRanks()
+{
+	if(m_pDDNetRanksTask)
+	{
+		m_pDDNetRanksTask->Abort();
+		delete m_pDDNetRanksTask;
+		m_pDDNetRanksTask = NULL;
+	}
+}
+
+void CClient::FinishDDNetRanks()
+{
+	ResetDDNetRanks();
+	m_ServerBrowser.LoadDDNetRanks();
+}
+
 void CClient::PumpNetwork()
 {
 	for(int i=0; i<3; i++)
@@ -2548,6 +2569,7 @@ void CClient::Update()
 
 	// pump the network
 	PumpNetwork();
+
 	if(m_pMapdownloadTask)
 	{
 		if(m_pMapdownloadTask->State() == CFetchTask::STATE_DONE)
@@ -2565,6 +2587,21 @@ void CClient::Update()
 		}
 	}
 
+	if(m_pDDNetRanksTask)
+	{
+		if(m_pDDNetRanksTask->State() == CFetchTask::STATE_DONE)
+			FinishDDNetRanks();
+		else if(m_pDDNetRanksTask->State() == CFetchTask::STATE_ERROR)
+		{
+			dbg_msg("ddnet-ranks", "download failed");
+			ResetDDNetRanks();
+		}
+		else if(m_pDDNetRanksTask->State() == CFetchTask::STATE_ABORTED)
+		{
+			delete m_pDDNetRanksTask;
+			m_pDDNetRanksTask = NULL;
+		}
+	}
 
 	// update the maser server registry
 	MasterServer()->Update();
@@ -2620,14 +2657,14 @@ void CClient::CheckVersionUpdate()
 
 void CClient::RegisterInterfaces()
 {
-	Kernel()->RegisterInterface(static_cast<IDemoRecorder*>(&m_DemoRecorder[RECORDER_MANUAL]));
-	Kernel()->RegisterInterface(static_cast<IDemoPlayer*>(&m_DemoPlayer));
-	Kernel()->RegisterInterface(static_cast<IServerBrowser*>(&m_ServerBrowser));
-	Kernel()->RegisterInterface(static_cast<IFetcher*>(&m_Fetcher));
+	Kernel()->RegisterInterface(static_cast<IDemoRecorder*>(&m_DemoRecorder[RECORDER_MANUAL]), false);
+	Kernel()->RegisterInterface(static_cast<IDemoPlayer*>(&m_DemoPlayer), false);
+	Kernel()->RegisterInterface(static_cast<IServerBrowser*>(&m_ServerBrowser), false);
+	Kernel()->RegisterInterface(static_cast<IFetcher*>(&m_Fetcher), false);
 #if !defined(CONF_PLATFORM_MACOSX) && !defined(__ANDROID__)
-	Kernel()->RegisterInterface(static_cast<IUpdater*>(&m_Updater));
+	Kernel()->RegisterInterface(static_cast<IUpdater*>(&m_Updater), false);
 #endif
-	Kernel()->RegisterInterface(static_cast<IFriends*>(&m_Friends));
+	Kernel()->RegisterInterface(static_cast<IFriends*>(&m_Friends), false);
 	Kernel()->ReregisterInterface(static_cast<IFriends*>(&m_Foes));
 }
 
@@ -2636,7 +2673,7 @@ void CClient::InitInterfaces()
 	// fetch interfaces
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
 	m_pEditor = Kernel()->RequestInterface<IEditor>();
-	//m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
+	m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
 	m_pSound = Kernel()->RequestInterface<IEngineSound>();
 	m_pGameClient = Kernel()->RequestInterface<IGameClient>();
 	m_pInput = Kernel()->RequestInterface<IEngineInput>();
@@ -2697,21 +2734,6 @@ void CClient::Run()
 		}
 
 		atexit(SDL_Quit); // ignore_convention
-	}
-
-	// init graphics
-	{
-		m_pGraphics = CreateEngineGraphicsThreaded();
-
-		bool RegisterFail = false;
-		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IEngineGraphics*>(m_pGraphics)); // register graphics as both
-		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IGraphics*>(m_pGraphics));
-
-		if(RegisterFail || m_pGraphics->Init() != 0)
-		{
-			dbg_msg("client", "couldn't init graphics");
-			return;
-		}
 	}
 
 	// init sound, allowed to fail
@@ -2980,7 +3002,6 @@ void CClient::Run()
 	Disconnect();
 
 	m_pGraphics->Shutdown();
-	m_pSound->Shutdown();
 
 	// shutdown SDL
 	{
@@ -3549,7 +3570,7 @@ int main(int argc, const char **argv) // ignore_convention
 
 	CClient *pClient = CreateClient();
 	IKernel *pKernel = IKernel::Create();
-	pKernel->RegisterInterface(pClient);
+	pKernel->RegisterInterface(pClient, false);
 	pClient->RegisterInterfaces();
 
 	// create the components
@@ -3557,6 +3578,7 @@ int main(int argc, const char **argv) // ignore_convention
 	IConsole *pConsole = CreateConsole(CFGFLAG_CLIENT);
 	IStorage *pStorage = CreateStorage("Teeworlds", IStorage::STORAGETYPE_CLIENT, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
+	IEngineGraphics *pGraphics = CreateEngineGraphicsThreaded();
 	IEngineSound *pEngineSound = CreateEngineSound();
 	IEngineInput *pEngineInput = CreateEngineInput();
 	IEngineTextRender *pEngineTextRender = CreateEngineTextRender();
@@ -3571,32 +3593,49 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConfig);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineSound*>(pEngineSound)); // register as both
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ISound*>(pEngineSound));
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ISound*>(pEngineSound), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineInput*>(pEngineInput)); // register as both
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IInput*>(pEngineInput));
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IInput*>(pEngineInput), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineTextRender*>(pEngineTextRender)); // register as both
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ITextRender*>(pEngineTextRender));
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ITextRender*>(pEngineTextRender), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMap*>(pEngineMap)); // register as both
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMap*>(pEngineMap));
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMap*>(pEngineMap), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMasterServer*>(pEngineMasterServer)); // register as both
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer));
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer), false);
+
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineGraphics*>(pGraphics)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IGraphics*>(pGraphics), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateEditor());
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateGameClient());
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateGameClient(), false);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pStorage);
 
 		if(RegisterFail)
+		{
+			delete pKernel;
+			pClient->~CClient();
+			mem_free(pClient);
 			return -1;
+		}
 	}
 
 	pEngine->Init();
 	pConfig->Init();
 	pEngineMasterServer->Init();
 	pEngineMasterServer->Load();
+
+	// init graphics
+	{
+		if(pGraphics->Init() != 0)
+		{
+			dbg_msg("client", "couldn't init graphics");
+			return -1;
+		}
+	}
 
 	// register all console commands
 	pClient->RegisterCommands();
@@ -3662,6 +3701,10 @@ int main(int argc, const char **argv) // ignore_convention
 	// write down the config and quit
 	pConfig->Save();
 
+	delete pKernel;
+	pClient->~CClient();
+	mem_free(pClient);
+
 	return 0;
 }
 
@@ -3726,6 +3769,18 @@ void CClient::RequestDDNetSrvList()
 	Packet.m_DataSize = sizeof(VERSIONSRV_GETDDNETLIST)+4;
 	Packet.m_Flags = NETSENDFLAG_CONNLESS;
 	m_NetClient[g_Config.m_ClDummy].Send(&Packet);
+}
+
+void CClient::RequestDDNetRanks()
+{
+	char aUrl[256];
+	char aEscaped[128];
+
+	Fetcher()->Escape(aEscaped, sizeof(aEscaped), g_Config.m_PlayerName);
+	str_format(aUrl, sizeof(aUrl), "https://ddnet.tw/players/?json=%s", aEscaped);
+
+	m_pDDNetRanksTask = new CFetchTask(true, /*UseDDNetCA*/ true);
+	Fetcher()->QueueAdd(m_pDDNetRanksTask, aUrl, "ddnet-ranks.json", IStorage::TYPE_SAVE);
 }
 
 int CClient::GetPredictionTime()

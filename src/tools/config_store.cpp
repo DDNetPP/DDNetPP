@@ -54,8 +54,7 @@ void Process(IStorage *pStorage, const char *pMapName, const char *pConfigName)
 		int TypeID;
 		int ItemID;
 		int *pData = (int *)Reader.GetItem(i, &TypeID, &ItemID);
-		// GetItemSize returns item size including header, remove that.
-		int Size = Reader.GetItemSize(i) - sizeof(int) * 2;
+		int Size = Reader.GetItemSize(i);
 		CMapItemInfoSettings MapInfo;
 		if(TypeID == MAPITEMTYPE_INFO && ItemID == 0)
 		{
@@ -70,7 +69,7 @@ void Process(IStorage *pStorage, const char *pMapName, const char *pConfigName)
 				{
 					SettingsIndex = pInfo->m_Settings;
 					char *pMapSettings = (char *)Reader.GetData(SettingsIndex);
-					int DataSize = Reader.GetUncompressedDataSize(SettingsIndex);
+					int DataSize = Reader.GetDataSize(SettingsIndex);
 					if(DataSize == TotalLength && mem_comp(pSettings, pMapSettings, DataSize) == 0)
 					{
 						dbg_msg("config_store", "configs coincide, not updating map");
@@ -117,7 +116,7 @@ void Process(IStorage *pStorage, const char *pMapName, const char *pConfigName)
 			continue;
 		}
 		unsigned char *pData = (unsigned char *)Reader.GetData(i);
-		int Size = Reader.GetUncompressedDataSize(i);
+		int Size = Reader.GetDataSize(i);
 		Writer.AddData(Size, pData);
 		Reader.UnloadData(i);
 	}

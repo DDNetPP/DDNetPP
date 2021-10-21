@@ -15,8 +15,10 @@ CFetcher::CFetcher()
 	m_pStorage = NULL;
 	m_pHandle = NULL;
 	m_Lock = lock_create();
+	sphore_init(&m_Queued);
 	m_pFirst = NULL;
 	m_pLast = NULL;
+	m_Running = true;
 }
 
 bool CFetcher::Init()
@@ -29,6 +31,15 @@ bool CFetcher::Init()
 
 CFetcher::~CFetcher()
 {
+	if(m_pThHandle)
+	{
+		m_Running = false;
+		sphore_signal(&m_Queued);
+		thread_wait(m_pThHandle);
+	}
+	lock_destroy(m_Lock);
+	sphore_destroy(&m_Queued);
+
 	if(m_pHandle)
 		curl_easy_cleanup(m_pHandle);
 	curl_global_cleanup();
@@ -49,7 +60,6 @@ void CFetcher::QueueAdd(CFetchTask *pTask, const char *pUrl, const char *pDest, 
 	if(!m_pThHandle)
 	{
 		m_pThHandle = thread_init(&FetcherThread, this);
-		thread_detach(m_pThHandle);
 	}
 
 	if(!m_pFirst)
@@ -64,6 +74,7 @@ void CFetcher::QueueAdd(CFetchTask *pTask, const char *pUrl, const char *pDest, 
 	}
 	pTask->m_State = CFetchTask::STATE_QUEUED;
 	lock_unlock(m_Lock);
+	sphore_signal(&m_Queued);
 }
 
 void CFetcher::Escape(char *pBuf, size_t size, const char *pStr)
@@ -77,8 +88,9 @@ void CFetcher::FetcherThread(void *pUser)
 {
 	CFetcher *pFetcher = (CFetcher *)pUser;
 	dbg_msg("fetcher", "thread started...");
-	while(1)
+	while(pFetcher->m_Running)
 	{
+		sphore_wait(&pFetcher->m_Queued);
 		lock_wait(pFetcher->m_Lock);
 		CFetchTask *pTask = pFetcher->m_pFirst;
 		if(pTask)
@@ -86,13 +98,11 @@ void CFetcher::FetcherThread(void *pUser)
 		lock_unlock(pFetcher->m_Lock);
 		if(pTask)
 		{
-			dbg_msg("fetcher", "task got %s:%s", pTask->m_aUrl, pTask->m_aDest);
+			dbg_msg("fetcher", "task got %s -> %s", pTask->m_aUrl, pTask->m_aDest);
 			pFetcher->FetchFile(pTask);
 			if(pTask->m_pfnCompCallback)
 				pTask->m_pfnCompCallback(pTask, pTask->m_pUser);
 		}
-		else
-			thread_sleep(10);
 	}
 }
 
@@ -165,9 +175,9 @@ void CFetcher::FetchFile(CFetchTask *pTask)
 	}
 }
 
-void CFetcher::WriteToFile(char *pData, size_t size, size_t nmemb, void *pFile)
+size_t CFetcher::WriteToFile(char *pData, size_t size, size_t nmemb, void *pFile)
 {
-	io_write((IOHANDLE)pFile, pData, size*nmemb);
+	return io_write((IOHANDLE)pFile, pData, size*nmemb);
 }
 
 int CFetcher::ProgressCallback(void *pUser, double DlTotal, double DlCurr, double UlTotal, double UlCurr)

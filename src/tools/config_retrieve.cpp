@@ -18,7 +18,7 @@ void Process(IStorage *pStorage, const char *pMapName, const char *pConfigName)
 	{
 		int ItemID;
 		CMapItemInfoSettings *pItem = (CMapItemInfoSettings *)Map.GetItem(i, 0, &ItemID);
-		int ItemSize = Map.GetItemSize(i) - 8;
+		int ItemSize = Map.GetItemSize(i);
 		if(!pItem || ItemID != 0)
 			continue;
 
@@ -35,7 +35,7 @@ void Process(IStorage *pStorage, const char *pMapName, const char *pConfigName)
 			return;
 		}
 
-		int Size = Map.GetUncompressedDataSize(pItem->m_Settings);
+		int Size = Map.GetDataSize(pItem->m_Settings);
 		char *pSettings = (char *)Map.GetData(pItem->m_Settings);
 		char *pNext = pSettings;
 		while(pNext < pSettings + Size)

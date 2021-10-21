@@ -1067,6 +1067,7 @@ set(EXPECTED_DATA
   editor/grass_main.rules
   editor/grass_main_0.7.rules
   editor/jungle_main.rules
+  editor/jungle_midground.rules
   editor/round_tiles.rules
   editor/speed_arrow.png
   editor/speedup.png
@@ -1708,6 +1709,8 @@ if(CLIENT)
     components/particles.h
     components/players.cpp
     components/players.h
+    components/race.cpp
+    components/race.h
     components/race_demo.cpp
     components/race_demo.h
     components/scoreboard.cpp
@@ -2053,6 +2056,7 @@ if(TOOLS)
     fake_server.cpp
     map_diff.cpp
     map_extract.cpp
+    map_replace_image.cpp
     map_resave.cpp
     map_version.cpp
     packetgen.cpp

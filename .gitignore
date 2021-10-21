@@ -110,6 +110,7 @@ map_resave
 map_version
 map_extract
 map_diff
+map_replace_image
 tileset_borderadd
 tileset_borderfix
 tileset_borderrem
