@@ -1042,7 +1042,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if (m_money < 0)
 	{
-		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%d", GetCID(), Server()->ClientName(GetCID()), m_money);
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%lld", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
 	if (!str_comp(Description, ""))
