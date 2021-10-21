@@ -1224,8 +1224,6 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	// send active vote
 	if(m_VoteCloseTime)
 		SendVoteSet(ClientID);
-
-	m_apPlayers[ClientID]->m_Authed = Server()->GetAuthedState(ClientID);
 }
 
 void CGameContext::OnClientConnected(int ClientID)
@@ -1465,8 +1463,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					Server()->RestrictRconOutput(ClientID);
 					Console()->SetFlagMask(CFGFLAG_CHAT);
 
-					if (pPlayer->m_Authed)
-						Console()->SetAccessLevel(pPlayer->m_Authed == IServer::AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : pPlayer->m_Authed == IServer::AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
+					int Authed = Server()->GetAuthedState(ClientID);
+					if(Authed)
+						Console()->SetAccessLevel(Authed == IServer::AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : Authed == IServer::AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
 					else
 						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_USER);
 					Console()->SetPrintOutputLevel(m_ChatPrintCBIndex, 0);
@@ -1492,7 +1491,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			int64 Now = Server()->Tick();
 			int64 TickSpeed = Server()->TickSpeed();
 
-			if(g_Config.m_SvRconVote && !pPlayer->m_Authed)
+			if(g_Config.m_SvRconVote && !Server()->GetAuthedState(ClientID))
 			{
 				SendChatTarget(ClientID, "You can only vote after logging in.");
 				return;
@@ -1566,6 +1565,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if(str_comp_nocase(pMsg->m_Type, "option") == 0)
 			{
+				int Authed = Server()->GetAuthedState(ClientID);
 				CVoteOptionServer *pOption = m_pVoteOptionFirst;
 				while(pOption)
 				{
@@ -1576,7 +1576,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 							SendChatTarget(ClientID, "Invalid option");
 							return;
 						}
-						if(!pPlayer->m_Authed && (str_comp_num(pOption->m_aCommand, "sv_map ", 7) == 0 || str_comp_num(pOption->m_aCommand, "change_map ", 11) == 0 || str_comp_num(pOption->m_aCommand, "random_map", 10) == 0 || str_comp_num(pOption->m_aCommand, "random_unfinished_map", 21) == 0) && time_get() < m_LastMapVote + (time_freq() * g_Config.m_SvVoteMapTimeDelay))
+						if(!Authed && (str_comp_num(pOption->m_aCommand, "sv_map ", 7) == 0 || str_comp_num(pOption->m_aCommand, "change_map ", 11) == 0 || str_comp_num(pOption->m_aCommand, "random_map", 10) == 0 || str_comp_num(pOption->m_aCommand, "random_unfinished_map", 21) == 0) && time_get() < m_LastMapVote + (time_freq() * g_Config.m_SvVoteMapTimeDelay))
 						{
 							str_format(aChatmsg, sizeof(aChatmsg), "There's a %d second delay between map-votes, please wait %d seconds.", g_Config.m_SvVoteMapTimeDelay, (int)(((m_LastMapVote+(g_Config.m_SvVoteMapTimeDelay * time_freq()))/time_freq())-(time_get()/time_freq())));
 							SendChatTarget(ClientID, aChatmsg);
@@ -1607,7 +1607,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if(!pOption)
 				{
-					if (pPlayer->m_Authed != IServer::AUTHED_ADMIN)  // allow admins to call any vote they want
+					if(Authed != IServer::AUTHED_ADMIN)  // allow admins to call any vote they want
 					{
 						str_format(aChatmsg, sizeof(aChatmsg), "'%s' isn't an option on this server", pMsg->m_Value);
 						SendChatTarget(ClientID, aChatmsg);
@@ -1626,9 +1626,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			else if(str_comp_nocase(pMsg->m_Type, "kick") == 0)
 			{
-				if(!m_apPlayers[ClientID]->m_Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * 5))
+				int Authed = Server()->GetAuthedState(ClientID);
+				if(!Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * 5))
 					return;
-				else if(!m_apPlayers[ClientID]->m_Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * g_Config.m_SvVoteKickDelay))
+				else if(!Authed && time_get() < m_apPlayers[ClientID]->m_Last_KickVote + (time_freq() * g_Config.m_SvVoteKickDelay))
 				{
 					str_format(aChatmsg, sizeof(aChatmsg), "There's a %d second wait time between kick votes for each player please wait %d second(s)",
 					g_Config.m_SvVoteKickDelay,
@@ -1639,7 +1640,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					return;
 				}
 				//else if(!g_Config.m_SvVoteKick)
-				else if(!g_Config.m_SvVoteKick && !pPlayer->m_Authed) // allow admins to call kick votes even if they are forbidden
+				else if(!g_Config.m_SvVoteKick && !Authed) // allow admins to call kick votes even if they are forbidden
 				{
 					SendChatTarget(ClientID, "Server does not allow voting to kick players");
 					m_apPlayers[ClientID]->m_Last_KickVote = time_get();
@@ -1677,9 +1678,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					return;
 				}
-				//if(Server()->IsAuthed(KickID))
-				if((m_apPlayers[KickID]->m_Authed != CServer::AUTHED_HONEY) && // always allow kicking honeypot users
-					(m_apPlayers[KickID]->m_Authed > 0 && m_apPlayers[KickID]->m_Authed >= pPlayer->m_Authed))
+				int KickedAuthed = Server()->GetAuthedState(KickID);
+				if(KickedAuthed > 0 && KickedAuthed >= Authed)
 				{
 					SendChatTarget(ClientID, "You can't kick moderators");
 					m_apPlayers[ClientID]->m_Last_KickVote = time_get();
@@ -2940,12 +2940,22 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 		GameInfo.m_pConfig = &g_Config;
 		GameInfo.m_pTuning = Tuning();
+		GameInfo.m_pUuids = &g_UuidManager;
 
 		char aMapName[128];
 		Server()->GetMapInfo(aMapName, sizeof(aMapName), &GameInfo.m_MapSize, &GameInfo.m_MapCrc);
 		GameInfo.m_pMapName = aMapName;
 
 		m_TeeHistorian.Reset(&GameInfo, TeeHistorianWrite, this);
+
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			int Level = Server()->GetAuthedState(i);
+			if(Level)
+			{
+				m_TeeHistorian.RecordAuthInitial(i, Level, Server()->GetAuthName(i));
+			}
+		}
 	}
 
 	if(g_Config.m_SvSoloServer)
@@ -3594,11 +3604,10 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
+	if (Level == CServer::AUTHED_HONEY)
+		return;
 	if(m_apPlayers[ClientID])
 	{
-		m_apPlayers[ClientID]->m_Authed = Level;
-		if (Level == CServer::AUTHED_HONEY)
-			return;
 		char aBuf[512], aIP[NETADDR_MAXSTRSIZE];
 		Server()->GetClientAddr(ClientID, aIP, sizeof(aIP));
 		str_format(aBuf, sizeof(aBuf), "ban %s %d Banned by vote", aIP, g_Config.m_SvVoteKickBantime);
@@ -3624,6 +3633,17 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
 		ShowAdminWelcome(ClientID);
 		m_WrongRconAttempts = 0;
+	}
+	if(m_TeeHistorianActive)
+	{
+		if(Level)
+		{
+			m_TeeHistorian.RecordAuthLogin(ClientID, Level, Server()->GetAuthName(ClientID));
+		}
+		else
+		{
+			m_TeeHistorian.RecordAuthLogout(ClientID);
+		}
 	}
 }
 
@@ -3877,7 +3897,7 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 	{
 		if (m_apPlayers[i] && i != VictimID && i != ClientID)
 		{
-			if (Server()->GetAuthedState(i) && m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN)
+			if (Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == CServer::AUTHED_ADMIN)
 			{
 				SendChatTarget(i, aBuf);
 			}
@@ -3969,7 +3989,7 @@ bool CGameContext::PlayerModerating()
 void CGameContext::ForceVote(int EnforcerID, bool Success)
 {
 	// check if there is a vote running
-	if(m_VoteCloseTime)
+	if(!m_VoteCloseTime)
 		return;
 	
 	m_VoteEnforce = Success ? CGameContext::VOTE_ENFORCE_YES_ADMIN : CGameContext::VOTE_ENFORCE_NO_ADMIN;

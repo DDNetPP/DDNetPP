@@ -1076,8 +1076,6 @@ set(EXPECTED_DATA
   editor/tune.png
   editor/water.rules
   editor/winter_main.rules
-  emojis/emojione.sprites.png
-  emojis/index.txt
   emoticons.png
   file_icons.png
   fonts/DejaVuSansCJKName.ttf
@@ -1571,6 +1569,9 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   snapshot.cpp
   snapshot.h
   storage.cpp
+  teehistorian_ex.cpp
+  teehistorian_ex.h
+  teehistorian_ex_chunks.h
   uuid_manager.cpp
   uuid_manager.h
   websockets.cpp
@@ -1696,8 +1697,6 @@ if(CLIENT)
     components/debughud.h
     components/effects.cpp
     components/effects.h
-    components/emojis.cpp
-    components/emojis.h
     components/emoticon.cpp
     components/emoticon.h
     components/flow.cpp

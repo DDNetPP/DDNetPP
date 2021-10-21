@@ -931,7 +931,7 @@ void CGameContext::ConSQLName(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN) 
 	{
 		//pSelf->SendChatTarget(ClientID, "No such command: sql_name.");
 		pSelf->SendChatTarget(ClientID, "Missing permission.");
@@ -991,7 +991,7 @@ void CGameContext::ConSQL(IConsole::IResult * pResult, void * pUserData)
 	//	return;
 	//}
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN) //after Arguments check to troll curious users
 	{
 		//pSelf->SendChatTarget(ClientID, "No such command: sql.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
@@ -1213,7 +1213,7 @@ void CGameContext::ConAcc_Info(IConsole::IResult * pResult, void * pUserData)
 	}
 
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
 		return;
@@ -1990,7 +1990,7 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN)
 	{
 
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'namless rofl' entered and joined the game");
@@ -3679,7 +3679,7 @@ void CGameContext::ConAntiFlood(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[FLOOD] Missing permission.");
 		return;
@@ -3952,7 +3952,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 	//- missing motivation to create an account
 
 
-	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN)
 	{
 		if (pResult->NumArguments() == 1) //only item no player --> give it ur self
 		{
@@ -4337,7 +4337,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if (pPlayer->m_Authed == CServer::AUTHED_MOD)
+	else if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_MOD)
 	{
 		char aItem[64];
 		str_copy(aItem, pResult->GetString(0), sizeof(aItem));
@@ -4754,7 +4754,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		if (pPlayer->m_Authed == CServer::AUTHED_ADMIN) //DESC power to use highest rank
+		if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN) //DESC power to use highest rank
 		{
 			//int Bantime = pResult->GetInteger(1) * pSelf->Server()->TickSpeed();
 			int Bantime = pResult->GetInteger(1);
@@ -4826,7 +4826,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN)
+			if (pSelf->Server()->GetAuthedState(BanID) == CServer::AUTHED_ADMIN)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 				return;
@@ -4889,7 +4889,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator)
+			if (pSelf->Server()->GetAuthedState(BanID) == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
 				return;
@@ -4939,7 +4939,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
 			}
 		}
-		else if (pPlayer->m_Authed == CServer::AUTHED_MOD)
+		else if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_MOD)
 		{
 			int Bantime = pResult->GetInteger(1);
 			char aBanname[32];
@@ -4952,7 +4952,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if (pSelf->m_apPlayers[BanID]->m_Authed == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator || pSelf->m_apPlayers[BanID]->m_IsModerator)
+			if (pSelf->Server()->GetAuthedState(BanID) == CServer::AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator || pSelf->m_apPlayers[BanID]->m_IsModerator)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
 				return;
@@ -5512,7 +5512,7 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 
 	if (!str_comp_nocase(pResult->GetString(0), "close"))
 	{
-		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN) 
+		if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN) 
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank close.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
@@ -5530,7 +5530,7 @@ void CGameContext::ConBank(IConsole::IResult * pResult, void * pUserData)
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "open"))
 	{
-		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientID, "No such command: bank open.");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
@@ -6569,7 +6569,7 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN-CHAT] missing permission to use this command.");
 		return;
@@ -6585,7 +6585,7 @@ void CGameContext::ConAdminChat(IConsole::IResult * pResult, void * pUserData)
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Authed == CServer::AUTHED_ADMIN) 
+		if (pSelf->m_apPlayers[i] && pSelf->Server()->GetAuthedState(i) == CServer::AUTHED_ADMIN) 
 		{
 			pSelf->SendChatTarget(i, aMsg);
 		}
@@ -6602,7 +6602,7 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[LIVE] missing permission to use this command.");
 		return;
@@ -6639,9 +6639,9 @@ void CGameContext::ConLive(IConsole::IResult * pResult, void * pUserData)
 		pSelf->ShowTeamSwitchMessage(pLive->GetCID()) ? "shown" : "hidden");
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
-	if (pLive->m_Authed)
+	if (pSelf->Server()->GetAuthedState(pLive->GetCID()))
 	{
-		str_format(aBuf, sizeof(aBuf), "Authed: %d", pLive->m_Authed);
+		str_format(aBuf, sizeof(aBuf), "Authed: %d", pSelf->Server()->GetAuthedState(pLive->GetCID()));
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	if (pLive->IsLoggedIn())
@@ -6752,7 +6752,7 @@ void CGameContext::ConRegex(IConsole::IResult * pResult, void * pUserData)
 		Since regex can be used as denial of service attack vector
 		it is probably safer to make it staff only command
 	*/
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN && !pPlayer->m_IsSupporter)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] missing permission to use this command.");
 		return;
@@ -6801,7 +6801,7 @@ void CGameContext::ConMapsave(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
 		return;
@@ -7442,7 +7442,7 @@ void CGameContext::ConDcDummy(IConsole::IResult * pResult, void * pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if (!pPlayer)
 		return;
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[dummy] You have to be admin to use this command.");
 		return;
@@ -8024,14 +8024,14 @@ void CGameContext::ConFng(IConsole::IResult * pResult, void * pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "=== FNG SETTINGS ===");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng autojoin <value>' 0=off 1=join fng 2=join boomfng on login");
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/fng hammertune <value>' 0=vanilla 1=fng");
-		if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+		if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "'/fng bots <amount> <mode 4/5>' to connect bots for 4=grenade 5=rifle");
 		}
 	}
 	else if (!str_comp_nocase(pResult->GetString(0), "bots"))
 	{
-		if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+		if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] missing permission.");
 			return;
@@ -8127,7 +8127,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN)
 	{
 		//admins are allowed
 	}
@@ -8178,7 +8178,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult * pResult, void * pUserData
 		return;
 
 
-	if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN)
 	{
 		//admins are allowed
 	}
@@ -8623,7 +8623,7 @@ void CGameContext::ConACC2(IConsole::IResult * pResult, void * pUserData)
 		return;
 	}
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 		return;
@@ -8765,7 +8765,7 @@ void CGameContext::ConAdmin(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (!(pPlayer->m_Authed == CServer::AUTHED_ADMIN || (pSelf->Server()->GetAuthedState(ClientID) && pPlayer->m_IsSupporter)))
+	if (!(pSelf->Server()->GetAuthedState(pResult->m_ClientID) == CServer::AUTHED_ADMIN || (pSelf->Server()->GetAuthedState(ClientID) && pPlayer->m_IsSupporter)))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
 		return;
@@ -8848,7 +8848,7 @@ void CGameContext::ConFNN(IConsole::IResult * pResult, void * pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pPlayer->m_Authed != CServer::AUTHED_ADMIN)
+	if (pSelf->Server()->GetAuthedState(pResult->m_ClientID) != CServer::AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[FNN] Missing permission.");
 		return;

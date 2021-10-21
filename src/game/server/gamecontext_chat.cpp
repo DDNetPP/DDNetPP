@@ -170,13 +170,12 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     }
     else if (!str_comp(pCommand, "_"))
     {
-        if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
             CreateBasicDummys();
     }
     else if (str_comp_nocase_num(pCommand, "dummy ", 6) == 0) //hab den hier kopiert un dbissl abgeändert
     {
-        //if (Server()->GetAuthedState(ClientID))
-        if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
         {
             char pValue[32];
             str_copy(pValue, pCommand + 6, 32);
@@ -199,7 +198,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     else if (!str_comp(pCommand, "dcdummys"))
     {
         //if (Server()->GetAuthedState(ClientID))
-        if (pPlayer->m_Authed == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
         {
             for (int i = 0; i < MAX_CLIENTS; i++)
             {
@@ -235,7 +234,7 @@ bool CGameContext::IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team
         str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
         SendChatTarget(ClientID, aBuf);
     }
-    else if (m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_Authed && AdminChatPing(pMesage))
+    else if (m_apPlayers[ClientID] && !Server()->GetAuthedState(ClientID) && AdminChatPing(pMesage))
     {
         if (g_Config.m_SvMinAdminPing > 256)
             SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");

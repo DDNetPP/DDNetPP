@@ -2226,15 +2226,15 @@ void CGameContext::SaveWrongLogin(const char *pLogin)
 
 bool CGameContext::AdminChatPing(const char * pMsg)
 {
-	if (!g_Config.m_SvMinAdminPing)
+	if(!g_Config.m_SvMinAdminPing)
 		return false;
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (!m_apPlayers[i])
+		if(!m_apPlayers[i])
 			continue;
-		if (!m_apPlayers[i]->m_Authed)
+		if(Server()->GetAuthedState(i))
 			continue;
-		if (str_find_nocase(pMsg, Server()->ClientName(i)))
+		if(str_find_nocase(pMsg, Server()->ClientName(i)))
 		{
 			int len_name = str_length(Server()->ClientName(i));
 			int len_msg = str_length(pMsg);
