@@ -128,7 +128,7 @@ server_content_header = ContentCompile("server_content_header", "src/game/genera
 AddDependency(network_source, network_header)
 AddDependency(server_content_source, server_content_header)
 
-nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
+nethash = CHash("src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
 git_rev = "src/game/generated/git_revision.cpp"
 AddJob(Path(git_rev), "git revision", Script("scripts/git_revision.py") .. " > " .. Path(git_rev))
