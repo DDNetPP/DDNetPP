@@ -146,11 +146,11 @@ if family == "windows" then
 		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib32/freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib32/SDL2.dll"))
 
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libcurl.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libeay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libidn-11.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/ssleay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/zlib1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libcurl-4.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libeay32.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/libidn-11.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/ssleay32.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib32/zlib1.dll"))
 
 		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libwinpthread-1.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib32/libgcc_s_sjlj-1.dll"))
@@ -161,10 +161,10 @@ if family == "windows" then
 		table.insert(client_depends, CopyToDirectory(".", "other/freetype/lib64/freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other/sdl/lib64/SDL2.dll"))
 
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libcurl.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libeay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/ssleay32.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/zlib1.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libcurl-4.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/libeay32.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/ssleay32.dll"))
+		--table.insert(client_depends, CopyToDirectory(".", "other/curl/windows/lib64/zlib1.dll"))
 
 		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libwinpthread-1.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other/opus/windows/lib64/libgcc_s_seh-1.dll"))
@@ -326,6 +326,16 @@ function build(settings)
 		end
 
 	elseif family == "windows" then
+		if arch == "amd64" then
+			client_settings.link.libpath:Add("other/curl/windows/lib64")
+		else
+			client_settings.link.libpath:Add("other/curl/windows/lib32")
+		end
+		client_settings.link.libs:Add("opengl32")
+		client_settings.link.libs:Add("glu32")
+		client_settings.link.libs:Add("winmm")
+		client_settings.link.libs:Add("libopusfile-0")
+		client_settings.link.libs:Add("curl-4")
 		if string.find(settings.config_name, "sql") then
 			server_settings.link.libpath:Add("other/mysql/vc2005libs")
 			server_settings.link.libs:Add("mysqlcppconn")
