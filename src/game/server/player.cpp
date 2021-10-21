@@ -77,6 +77,7 @@ void CPlayer::Reset()
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_TimeoutCode[0] = '\0';
+	m_ModHelpTick = 0;
 
 	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
 		m_aCatchedID[i] = -1;
@@ -238,7 +239,7 @@ void CPlayer::Tick()
 	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_ViewPos);
 	m_TuneZone = GameServer()->Collision()->IsTune(CurrentIndex);
 
-	if (m_TuneZone != m_TuneZoneOld) // dont send tunigs all the time
+	if (m_TuneZone != m_TuneZoneOld) // don't send tunigs all the time
 	{
 		GameServer()->SendTuningParams(m_ClientID, m_TuneZone);
 	}

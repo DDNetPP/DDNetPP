@@ -19,7 +19,10 @@
 #include <engine/shared/netban.h>
 #include <engine/shared/uuid_manager.h>
 
+#include <base/tl/array.h>
+
 #include "authmanager.h"
+#include "name_ban.h"
 
 #if defined (CONF_SQL)
 	#include "sql_connector.h"
@@ -221,6 +224,8 @@ public:
 
 	char m_aErrorShutdownReason[128];
 
+	array<CNameBan> m_aNameBans;
+
 	CServer();
 
 	int TrySetClientName(int ClientID, const char *pName);
@@ -251,6 +256,7 @@ public:
 	const char *ClientClan(int ClientID);
 	int ClientCountry(int ClientID);
 	bool ClientIngame(int ClientID);
+	bool ClientAuthed(int ClientID);
 	int MaxClients() const;
 
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false);
@@ -312,6 +318,10 @@ public:
 	static void ConAuthRemove(IConsole::IResult *pResult, void *pUser);
 	static void ConAuthList(IConsole::IResult *pResult, void *pUser);
 
+	static void ConNameBan(IConsole::IResult *pResult, void *pUser);
+	static void ConNameUnban(IConsole::IResult *pResult, void *pUser);
+	static void ConNameBans(IConsole::IResult *pResult, void *pUser);
+
 	static void StatusImpl(IConsole::IResult *pResult, void *pUser, bool DnsblBlacklistedOnly);
 
 #if defined (CONF_SQL)
@@ -330,7 +340,7 @@ public:
 	void LogoutClient(int ClientID, const char *pReason);
 	void LogoutKey(int Key, const char *pReason);
 
-	void ConchainRconPasswordChangeGeneric(int Level, IConsole::IResult *pResult);
+	void ConchainRconPasswordChangeGeneric(int Level, const char *pCurrent, IConsole::IResult *pResult);
 	static void ConchainRconPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainRconModPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainRconHelperPasswordChange(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);

@@ -188,11 +188,14 @@ public:
 	int m_ChatScore;
 
 	bool m_Moderating;
+	int m_ModHelpTick;
 
 	bool AfkTimer(int new_target_x, int new_target_y); //returns true if kicked
 	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);
 	int64 m_LastPlaytime;
 	int64 m_LastEyeEmote;
+	int64 m_LastBroadcast;
+	int m_LastBroadcastImportance;
 	int m_LastTarget_x;
 	int m_LastTarget_y;
 	CNetObj_PlayerInput m_LastTarget;
@@ -269,9 +272,6 @@ public:
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetetive;
 	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
-	int m_LastBroadcast;
-	int m_LastBroadcastImportance;
-
 	bool m_MapSaveLoaded;
 
 	// login and threads

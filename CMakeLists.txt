@@ -789,6 +789,7 @@ set(EXPECTED_DATA
   audio/wp_switch-03.wv
   blob.png
   browse_icons.png
+  ca-ddnet.pem
   console.png
   console_bar.png
   countryflags/AD.png
@@ -1080,6 +1081,7 @@ set(EXPECTED_DATA
   file_icons.png
   fonts/DejaVuSansCJKName.ttf
   fonts/DejavuWenQuanYiMicroHei.ttf
+  fonts/Icons.ttf
   game.png
   gui_buttons.png
   gui_cursor.png
@@ -1224,6 +1226,16 @@ set(EXPECTED_DATA
   shader/bordertiletex.vert
   shader/prim.frag
   shader/prim.vert
+  shader/quad.frag
+  shader/quad.vert
+  shader/quadtex.frag
+  shader/quadtex.vert
+  shader/sprite.frag
+  shader/sprite.vert
+  shader/spritemulti.frag
+  shader/spritemulti.vert
+  shader/text.frag
+  shader/text.vert
   shader/tile.frag
   shader/tile.vert
   shader/tiletex.frag
@@ -1892,6 +1904,8 @@ if(SERVER)
   set_src(ENGINE_SERVER GLOB_RECURSE src/engine/server
     authmanager.cpp
     authmanager.h
+    name_ban.cpp
+    name_ban.h
     register.cpp
     register.h
     server.cpp
@@ -2082,6 +2096,10 @@ if(TOOLS)
     map_resave.cpp
     map_version.cpp
     packetgen.cpp
+    tileset_borderadd.cpp
+    tileset_borderfix.cpp
+    tileset_borderrem.cpp
+    tileset_borderset.cpp
     uuid.cpp
   )
   foreach(ABS_T ${TOOLS})

@@ -74,7 +74,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	static int64 LastSpeedChange = 0;
 
 	// render popups
-	if (m_DemoPlayerState == DEMOPLAYER_SLICE_SAVE)
+	if(m_DemoPlayerState == DEMOPLAYER_SLICE_SAVE)
 	{
 		CUIRect Screen = *UI()->Screen();
 		CUIRect Box, Part, Part2;
@@ -191,7 +191,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	TotalHeight = SeekBarHeight+ButtonbarHeight+NameBarHeight+Margins*3;
 
 	// render speed info
-	if (g_Config.m_ClDemoShowSpeed && time_get() - LastSpeedChange < time_freq() * 1)
+	if(g_Config.m_ClDemoShowSpeed && time_get() - LastSpeedChange < time_freq() * 1)
 	{
 		CUIRect Screen = *UI()->Screen();
 
@@ -250,7 +250,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 		// draw slice markers
 		// begin
-		if (g_Config.m_ClDemoSliceBegin != -1)
+		if(g_Config.m_ClDemoSliceBegin != -1)
 		{
 			float Ratio = (g_Config.m_ClDemoSliceBegin-pInfo->m_FirstTick) / (float)TotalTicks;
 			Graphics()->TextureSet(-1);
@@ -262,7 +262,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		}
 
 		// end
-		if (g_Config.m_ClDemoSliceEnd != -1)
+		if(g_Config.m_ClDemoSliceEnd != -1)
 		{
 			float Ratio = (g_Config.m_ClDemoSliceEnd-pInfo->m_FirstTick) / (float)TotalTicks;
 			Graphics()->TextureSet(-1);
@@ -457,6 +457,7 @@ static int gs_ListBoxNumItems;
 static int gs_ListBoxItemsPerRow;
 static float gs_ListBoxScrollValue;
 static bool gs_ListBoxItemActivated;
+static bool gs_ListBoxClicked;
 
 void CMenus::UiDoListboxStart(const void *pID, const CUIRect *pRect, float RowHeight, const char *pTitle, const char *pBottomText, int NumItems,
 								int ItemsPerRow, int SelectedIndex, float ScrollValue)
@@ -497,6 +498,7 @@ void CMenus::UiDoListboxStart(const void *pID, const CUIRect *pRect, float RowHe
 	gs_ListBoxDoneEvents = 0;
 	gs_ListBoxScrollValue = ScrollValue;
 	gs_ListBoxItemActivated = false;
+	gs_ListBoxClicked = false;
 
 	// do the scrollbar
 	View.HSplitTop(gs_ListBoxRowHeight, &Row, 0);
@@ -592,7 +594,10 @@ CMenus::CListboxItem CMenus::UiDoListboxNextItem(const void *pId, bool Selected,
 	CListboxItem Item = UiDoListboxNextRow();
 
 	if(Item.m_Visible && UI()->DoButtonLogic(pId, "", gs_ListBoxSelectedIndex == gs_ListBoxItemIndex, &Item.m_HitRect))
+	{
+		gs_ListBoxClicked = true;
 		gs_ListBoxNewSelected = ThisItemIndex;
+	}
 
 	// process input, regard selected index
 	if(gs_ListBoxSelectedIndex == ThisItemIndex)
@@ -600,7 +605,6 @@ CMenus::CListboxItem CMenus::UiDoListboxNextItem(const void *pId, bool Selected,
 		if(!gs_ListBoxDoneEvents)
 		{
 			gs_ListBoxDoneEvents = 1;
-
 
 			if(m_EnterPressed || (UI()->ActiveItem() == pId && Input()->MouseDoubleClick()))
 			{
@@ -661,13 +665,15 @@ CMenus::CListboxItem CMenus::UiDoListboxNextItem(const void *pId, bool Selected,
 	return Item;
 }
 
-int CMenus::UiDoListboxEnd(float *pScrollValue, bool *pItemActivated)
+int CMenus::UiDoListboxEnd(float *pScrollValue, bool *pItemActivated, bool *pListBoxActive)
 {
 	UI()->ClipDisable();
 	if(pScrollValue)
 		*pScrollValue = gs_ListBoxScrollValue;
 	if(pItemActivated)
 		*pItemActivated = gs_ListBoxItemActivated;
+	if(pListBoxActive)
+		*pListBoxActive = gs_ListBoxClicked;
 	return gs_ListBoxNewSelected;
 }
 
@@ -711,7 +717,7 @@ void CMenus::DemolistPopulate()
 
 void CMenus::DemolistOnUpdate(bool Reset)
 {
-	if (Reset)
+	if(Reset)
 		g_Config.m_UiDemoSelected[0] = '\0';
 	else
 	{
@@ -722,14 +728,14 @@ void CMenus::DemolistOnUpdate(bool Reset)
 		{
 			SelectedIndex++;
 
-			if (str_comp(g_Config.m_UiDemoSelected, r.front().m_aName) == 0)
+			if(str_comp(g_Config.m_UiDemoSelected, r.front().m_aName) == 0)
 			{
 				Found = true;
 				break;
 			}
 		}
 
-		if (Found)
+		if(Found)
 			m_DemolistSelectedIndex = SelectedIndex;
 	}
 
@@ -1096,23 +1102,23 @@ void CMenus::RenderDemoList(CUIRect MainView)
 
 			int ID = s_aCols[c].m_ID;
 
-			if (ID == COL_ICON)
+			if(ID == COL_ICON)
 			{
 				DoButton_Icon(IMAGE_FILEICONS, r.front().m_IsDir?SPRITE_FILE_FOLDER:SPRITE_FILE_DEMO1, &Button);
 			}
 			else if(ID == COL_DEMONAME)
 			{
 				CTextCursor Cursor;
-				TextRender()->SetCursor(&Cursor, Button.x, Button.y, 12.0f * UI()->Scale(), TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
+				TextRender()->SetCursor(&Cursor, Button.x, Button.y + (Button.h - 12.0f * UI()->Scale()) / 2.f, 12.0f * UI()->Scale(), TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
 				Cursor.m_LineWidth = Button.w;
 
 				TextRender()->TextEx(&Cursor, r.front().m_aName, -1);
 
 			}
-			else if (ID == COL_DATE && !r.front().m_IsDir)
+			else if(ID == COL_DATE && !r.front().m_IsDir)
 			{
 				CTextCursor Cursor;
-				TextRender()->SetCursor(&Cursor, Button.x, Button.y, 12.0f * UI()->Scale(), TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
+				TextRender()->SetCursor(&Cursor, Button.x, Button.y + (Button.h - 12.0f * UI()->Scale()) / 2.f, 12.0f * UI()->Scale(), TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
 				Cursor.m_LineWidth = Button.w;
 
 				char aBuf[256];
@@ -1128,9 +1134,9 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	bool Activated = false;
 
 #if defined(__ANDROID__)
-	if (m_EnterPressed || (DoubleClicked && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
+	if(m_EnterPressed || (DoubleClicked && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
 #else
-	if (m_EnterPressed || (Input()->MouseDoubleClick() && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
+	if(m_EnterPressed || (Input()->MouseDoubleClick() && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
 #endif
 	{
 		UI()->SetActiveItem(0);

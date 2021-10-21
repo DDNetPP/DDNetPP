@@ -301,7 +301,7 @@ int io_seek(IOHANDLE io, int offset, int origin);
 		io - Handle to the file.
 
 	Returns:
-		Returns the current position. -1L if an error occured.
+		Returns the current position. -1L if an error occurred.
 */
 long int io_tell(IOHANDLE io);
 
@@ -313,7 +313,7 @@ long int io_tell(IOHANDLE io);
 		io - Handle to the file.
 
 	Returns:
-		Returns the total size. -1L if an error occured.
+		Returns the total size. -1L if an error occurred.
 */
 long int io_length(IOHANDLE io);
 
@@ -343,7 +343,7 @@ int io_flush(IOHANDLE io);
 
 /*
 	Function: io_error
-		Checks whether an error occured during I/O with the file.
+		Checks whether an error occurred during I/O with the file.
 
 	Parameters:
 		io - Handle to the file.
@@ -455,7 +455,7 @@ void aio_write_newline_unlocked(ASYNCIO *aio);
 
 /*
 	Function: aio_error
-		Checks whether errors have occured during the asynchronous
+		Checks whether errors have occurred during the asynchronous
 		writing.
 
 		Call this function regularly to see if there are errors. Call
@@ -466,7 +466,7 @@ void aio_write_newline_unlocked(ASYNCIO *aio);
 		aio - Handle to the file.
 
 	Returns:
-		Returns 0 if no error occured, and nonzero on error.
+		Returns 0 if no error occurred, and nonzero on error.
 
 */
 int aio_error(ASYNCIO *aio);
@@ -593,6 +593,18 @@ typedef unsigned long long uint64;
 void set_new_tick();
 
 /*
+	Function: time_get_impl
+		Fetches a sample from a high resolution timer.
+
+	Returns:
+		Current value of the timer.
+
+	Remarks:
+		To know how fast the timer is ticking, see <time_freq>.
+*/
+int64 time_get_impl();
+
+/*
 	Function: time_get
 		Fetches a sample from a high resolution timer.
 
@@ -601,6 +613,7 @@ void set_new_tick();
 
 	Remarks:
 		To know how fast the timer is ticking, see <time_freq>.
+		Uses <time_get_impl> to fetch the sample.
 */
 int64 time_get();
 
@@ -621,6 +634,15 @@ int64 time_freq();
 		The time as a UNIX timestamp
 */
 int time_timestamp();
+
+/*
+Function: time_get_microseconds
+Fetches a sample from a high resolution timer and converts it in microseconds.
+
+Returns:
+Current value of the timer in microseconds.
+*/
+int64 time_get_microseconds();
 
 /* Group: Network General */
 typedef struct
@@ -670,7 +692,7 @@ int net_init();
 /*
 	Function: net_host_lookup
 		Does a hostname lookup by name and fills out the passed
-		NETADDR struct with the recieved details.
+		NETADDR struct with the received details.
 
 	Parameters:
 		hostname - name
@@ -700,7 +722,7 @@ int net_addr_comp(const NETADDR *a, const NETADDR *b);
 
 /*
 	Function: net_addr_str
-		Turns a network address into a representive string.
+		Turns a network address into a representative string.
 
 	Parameters:
 		addr - Address to turn into a string.
@@ -769,7 +791,7 @@ int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size
 		maxsize - Maximum size to recive.
 
 	Returns:
-		On success it returns the number of bytes recived. Returns -1
+		On success it returns the number of bytes received. Returns -1
 		on error.
 */
 int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *data, int maxsize);
@@ -807,7 +829,7 @@ NETSOCKET net_tcp_create(NETADDR bindaddr);
 
 	Parameters:
 		sock - Socket to start listen to.
-		backlog - Size of the queue of incomming connections to keep.
+		backlog - Size of the queue of incoming connections to keep.
 
 	Returns:
 		Returns 0 on success.
@@ -945,7 +967,7 @@ void net_unix_close(UNIXSOCKET sock);
 
 	Remarks:
 		- The strings are treated as zero-termineted strings.
-		- Garantees that dst string will contain zero-termination.
+		- Guarantees that dst string will contain zero-termination.
 */
 void str_append(char *dst, const char *src, int dst_size);
 
@@ -960,7 +982,7 @@ void str_append(char *dst, const char *src, int dst_size);
 
 	Remarks:
 		- The strings are treated as zero-termineted strings.
-		- Garantees that dst string will contain zero-termination.
+		- Guarantees that dst string will contain zero-termination.
 */
 void str_copy(char *dst, const char *src, int dst_size);
 
@@ -981,7 +1003,7 @@ int str_length(const char *str);
 		Performs printf formating into a buffer.
 
 	Parameters:
-		buffer - Pointer to the buffer to recive the formated string.
+		buffer - Pointer to the buffer to recive the formatted string.
 		buffer_size - Size of the buffer.
 		format - printf formating string.
 		... - Parameters for the formating.
@@ -992,7 +1014,7 @@ int str_length(const char *str);
 	Remarks:
 		- See the C manual for syntax for the printf formating string.
 		- The strings are treated as zero-termineted strings.
-		- Garantees that dst string will contain zero-termination.
+		- Guarantees that dst string will contain zero-termination.
 */
 int str_format(char *buffer, int buffer_size, const char *format, ...)
 GNUC_ATTRIBUTE((format(printf, 3, 4)));
@@ -1199,6 +1221,15 @@ int str_comp_filenames(const char *a, const char *b);
 	Returns:
 		A pointer to the string str after the string prefix, or 0 if
 		the string prefix isn't a prefix of the string str.
+	Function: str_utf8_dist
+		Computes the edit distance between two strings.
+
+	Parameters:
+		a - First string for the edit distance.
+		b - Second string for the edit distance.
+
+	Returns:
+		The edit distance between the both strings.
 
 	Remarks:
 		- The strings are treated as zero-terminated strings.
@@ -1216,11 +1247,51 @@ const char *str_startswith(const char *str, const char *prefix);
 	Returns:
 		A pointer to the beginning of the suffix in the string str, or
 		0 if the string suffix isn't a suffix of the string str.
+*/
+int str_utf8_dist(const char *a, const char *b);
+
+/*
+	Function: str_utf8_dist_buffer
+		Computes the edit distance between two strings, allows buffers
+		to be passed in.
+
+	Parameters:
+		a - First string for the edit distance.
+		b - Second string for the edit distance.
+		buf - Buffer for the function.
+		buf_len - Length of the buffer, must be at least as long as
+		          twice the length of both strings combined plus two.
+
+	Returns:
+		The edit distance between the both strings.
 
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
 const char *str_endswith(const char *str, const char *suffix);
+int str_utf8_dist_buffer(const char *a, const char *b, int *buf, int buf_len);
+
+/*
+	Function: str_utf32_dist_buffer
+		Computes the edit distance between two strings, allows buffers
+		to be passed in.
+
+	Parameters:
+		a - First string for the edit distance.
+		a_len - Length of the first string.
+		b - Second string for the edit distance.
+		b_len - Length of the second string.
+		buf - Buffer for the function.
+		buf_len - Length of the buffer, must be at least as long as
+		          the length of both strings combined plus two.
+
+	Returns:
+		The edit distance between the both strings.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+*/
+int str_utf32_dist_buffer(const int *a, int a_len, const int *b, int b_len, int *buf, int buf_len);
 
 /*
 	Function: str_find_nocase
@@ -1285,6 +1356,19 @@ void str_hex(char *dst, int dst_size, const void *data, int data_size);
 			0 - Success
 		Remarks:
 			- The contents of the buffer is only valid on success
+
+	Parameters:
+		dst - Buffer for the byte array
+		dst_size - size of the buffer
+		data - String to decode
+
+	Returns:
+		2 - String doesn't exactly fit the buffer
+		1 - Invalid character in string
+		0 - Success
+
+	Remarks:
+		- The contents of the buffer is only valid on success
 */
 int str_hex_decode(unsigned char *dst, int dst_size, const char *src);
 void str_timestamp(char *buffer, int buffer_size);
@@ -1532,6 +1616,11 @@ char ch_uppercase(char c);
 void str_uppercase(char *str);
 unsigned str_quickhash(const char *str);
 
+struct SKELETON;
+void str_utf8_skeleton_begin(struct SKELETON *skel, const char *str);
+int str_utf8_skeleton_next(struct SKELETON *skel);
+int str_utf8_to_skeleton(const char *str, int *buf, int buf_len);
+
 /*
 	Function: str_utf8_comp_confusable
 		Compares two strings for visual appearance.
@@ -1546,11 +1635,49 @@ unsigned str_quickhash(const char *str);
 */
 int str_utf8_comp_confusable(const char *a, const char *b);
 
+/*
+	Function: str_utf8_isspace
+		Checks whether the given Unicode codepoint renders as space.
+
+	Parameters:
+		code - Unicode codepoint to check.
+
+	Returns:
+		0 if the codepoint does not render as space, != 0 if it does.
+*/
 int str_utf8_isspace(int code);
 
 int str_utf8_isstart(char c);
 
+/*
+	Function: str_utf8_skip_whitespaces
+		Skips leading characters that render as spaces.
+
+	Parameters:
+		str - Pointer to the string.
+
+	Returns:
+		Pointer to the first non-whitespace character found
+		within the string.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+*/
 const char *str_utf8_skip_whitespaces(const char *str);
+
+/*
+	Function: str_utf8_trim_right
+		Removes trailing characters that render as spaces by modifying
+		the string in-place.
+
+	Parameters:
+		str - Pointer to the string.
+
+	Remarks:
+		- The strings are treated as zero-terminated strings.
+		- The string is modified in-place.
+*/
+void str_utf8_trim_right(char *str);
 
 /*
 	Function: str_utf8_rewind
@@ -1596,7 +1723,7 @@ int str_utf8_forward(const char *str, int cursor);
 
 	Remarks:
 		- This function will also move the pointer forward.
-		- You may call this function again after an error occured.
+		- You may call this function again after an error occurred.
 */
 int str_utf8_decode(const char **ptr);
 

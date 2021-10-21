@@ -237,6 +237,7 @@ public:
 	virtual bool IsClientReady(int ClientID);
 	virtual bool IsClientPlayer(int ClientID);
 
+	virtual CUuid GameUuid();
 	virtual const char *GameType();
 	virtual const char *Version();
 	virtual const char *NetVersion();
@@ -813,7 +814,9 @@ private:
 	static void ConShow(IConsole::IResult *pResult, void *pUserData);
 	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglePause(IConsole::IResult *pResult, void *pUserData);
+	static void ConTogglePauseVoted(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpec(IConsole::IResult *pResult, void *pUserData);
+	static void ConToggleSpecVoted(IConsole::IResult *pResult, void *pUserData);
 	static void ConForcePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConTeamTop5(IConsole::IResult *pResult, void *pUserData);
 	static void ConTop5(IConsole::IResult *pResult, void *pUserData);
@@ -861,6 +864,7 @@ private:
 	static void ConUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConMutes(IConsole::IResult *pResult, void *pUserData);
 	static void ConModerate(IConsole::IResult *pResult, void *pUserData);
+	static void ConModHelp(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConList(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData);
@@ -1114,6 +1118,7 @@ public:
 	class IScore *Score() { return m_pScore; }
 	bool m_VoteKick;
 	bool m_VoteSpec;
+	int m_VoteVictim;
 	enum
 	{
 		VOTE_ENFORCE_NO_ADMIN = VOTE_ENFORCE_YES + 1,

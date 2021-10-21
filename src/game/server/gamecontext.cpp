@@ -1384,7 +1384,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				int Code = str_utf8_decode(&p);
 
 				// check if unicode is not empty
-				if(str_utf8_isspace(Code))
+				if(!str_utf8_isspace(Code))
 				{
 					pEnd = 0;
 				}
@@ -1649,12 +1649,36 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 				if(g_Config.m_SvVoteKickMin)
 				{
-					int PlayerNum = 0;
+					char aaAddresses[MAX_CLIENTS][NETADDR_MAXSTRSIZE] = {{0}};
+					for(int i = 0; i < MAX_CLIENTS; i++)
+					{
+						if(m_apPlayers[i])
+						{
+							Server()->GetClientAddr(i, aaAddresses[i], NETADDR_MAXSTRSIZE);
+						}
+					}
+					int NumPlayers = 0;
 					for(int i = 0; i < MAX_CLIENTS; ++i)
+					{
 						if(m_apPlayers[i] && m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
-							++PlayerNum;
+						{
+							NumPlayers++;
+							for(int j = 0; j < i; j++)
+							{
 
-					if(PlayerNum < g_Config.m_SvVoteKickMin)
+								if(m_apPlayers[j] && m_apPlayers[j]->GetTeam() != TEAM_SPECTATORS)
+								{
+									if(str_comp(aaAddresses[i], aaAddresses[j]) == 0)
+									{
+										NumPlayers--;
+										break;
+									}
+								}
+							}
+						}
+					}
+
+					if(NumPlayers < g_Config.m_SvVoteKickMin)
 					{
 						str_format(aChatmsg, sizeof(aChatmsg), "Kick voting requires %d players on the server", g_Config.m_SvVoteKickMin);
 						SendChatTarget(ClientID, aChatmsg);
@@ -1722,6 +1746,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_apPlayers[ClientID]->m_Last_KickVote = time_get();
 				m_VoteKick = true;
 				m_VoteSpec = false;
+				m_VoteVictim = KickID;
 			}
 			else if(str_comp_nocase(pMsg->m_Type, "spectate") == 0)
 			{
@@ -1768,6 +1793,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				m_VoteKick = false;
 				m_VoteSpec = true;
+				m_VoteVictim = SpectateID;
 			}
 
 			if(aCmd[0] && str_comp(aCmd, "info") != 0)
@@ -2924,11 +2950,14 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pTeeHistorianFile = aio_new(File);
 
 		char aVersion[128];
-#ifdef GIT_SHORTREV_HASH
-		str_format(aVersion, sizeof(aVersion), "%s (%s)", GAME_VERSION, GIT_SHORTREV_HASH);
-#else
-		str_format(aVersion, sizeof(aVersion), "%s", GAME_VERSION);
-#endif
+		if(GIT_SHORTREV_HASH)
+		{
+			str_format(aVersion, sizeof(aVersion), "%s (%s)", GAME_VERSION, GIT_SHORTREV_HASH);
+		}
+		else
+		{
+			str_format(aVersion, sizeof(aVersion), "%s", GAME_VERSION);
+		}
 		CTeeHistorian::CGameInfo GameInfo;
 		GameInfo.m_GameUuid = m_GameUuid;
 		GameInfo.m_pServerVersion = aVersion;
@@ -3523,6 +3552,7 @@ bool CGameContext::IsClientPlayer(int ClientID)
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() == TEAM_SPECTATORS ? false : true;
 }
 
+CUuid CGameContext::GameUuid() { return m_GameUuid; }
 const char *CGameContext::GameType() { return m_pController && m_pController->m_pGameType ? m_pController->m_pGameType : ""; }
 const char *CGameContext::Version() { return GAME_VERSION; }
 const char *CGameContext::NetVersion() { return GAME_NETVERSION; }

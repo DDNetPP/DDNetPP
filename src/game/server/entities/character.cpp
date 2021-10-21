@@ -2160,8 +2160,8 @@ void CCharacter::HandleBroadcast()
 	{
 		char aBuftime[64];
 		int IntTime = (int)((float)(Server()->Tick() - m_StartTime) / ((float)Server()->TickSpeed()));
-		str_format(aBuftime, sizeof(aBuftime), "%s%d:%s%d", ((IntTime / 60) > 9) ? "" : "0", IntTime / 60, ((IntTime % 60) > 9) ? "" : "0", IntTime % 60);
-		GameServer()->SendBroadcast(aBuftime, m_pPlayer->GetCID());
+		str_format(aBuftime, sizeof(aBuftime), "%s%d:%s%d", ((IntTime/60) > 9)?"":"0", IntTime/60, ((IntTime%60) > 9)?"":"0", IntTime%60);
+		GameServer()->SendBroadcast(aBuftime, m_pPlayer->GetCID(), false);
 		m_CpLastBroadcast = m_CpActive;
 		m_LastBroadcast = Server()->Tick();
 	}
@@ -2961,7 +2961,7 @@ void CCharacter::HandleTuneLayer()
 	else
 		m_Core.m_pWorld->m_Tuning[g_Config.m_ClDummy] = *GameServer()->Tuning();
 
-	if (m_TuneZone != m_TuneZoneOld) // dont send tunigs all the time
+	if (m_TuneZone != m_TuneZoneOld) // don't send tunigs all the time
 	{
 		// send zone msgs
 		SendZoneMsgs();
