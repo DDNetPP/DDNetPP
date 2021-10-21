@@ -1644,6 +1644,7 @@ set(LIBS
   ${WEBSOCKETS_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${PLATFORM_LIBS}
+  ${CURL_LIBRARIES}
   # Add pthreads (on non-Windows) at the end, so that other libraries can depend
   # on it.
   ${CMAKE_THREAD_LIBS_INIT}
