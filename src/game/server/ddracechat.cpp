@@ -635,10 +635,29 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 		str_copy(aCountry, g_Config.m_SvSqlServerName, sizeof(aCountry));
 	}
 
-	pSelf->Score()->SaveTeam(Team, pCode, pResult->m_ClientID, aCountry);
+	char aValidServerNames[sizeof(g_Config.m_SvSqlValidServerNames)];
+	str_copy(aValidServerNames, g_Config.m_SvSqlValidServerNames, sizeof(aValidServerNames));
+	char *p = strtok(aValidServerNames, ",");;
 
-	if(g_Config.m_SvUseSQL)
-		pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
+	while(p)
+	{
+		if(str_comp(p, aCountry) == 0)
+		{
+			pSelf->Score()->SaveTeam(Team, pCode, pResult->m_ClientID, aCountry);
+
+			if(g_Config.m_SvUseSQL)
+				pPlayer->m_LastSQLQuery = pSelf->Server()->Tick();
+
+			return;
+		}
+
+		p = strtok(NULL, ",");
+	}
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "Unknown server name '%s'.", aCountry);
+	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+
 #endif
 }
 
@@ -758,42 +777,46 @@ void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 	if (pResult->NumArguments() > 0)
 		Lock = !pResult->GetInteger(0);
 
-	if(Team > TEAM_FLOCK && Team < TEAM_SUPER)
+	if(Team <= TEAM_FLOCK || Team >= TEAM_SUPER)
 	{
-		char aBuf[512];
-		if(Lock)
-		{
-			((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.SetTeamLock(Team, false);
-
-			str_format(aBuf, sizeof(aBuf), "'%s' unlocked your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
-
-			for (int i = 0; i < MAX_CLIENTS; i++)
-				if (((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(i) == Team)
-					pSelf->SendChatTarget(i, aBuf);
-		}
-		else if(!g_Config.m_SvTeamLock)
-		{
-			pSelf->Console()->Print(
-					IConsole::OUTPUT_LEVEL_STANDARD,
-					"print",
-					"Team locking is disabled on this server");
-		}
-		else
-		{
-			((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.SetTeamLock(Team, true);
-
-			str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race started killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
-
-			for (int i = 0; i < MAX_CLIENTS; i++)
-				if (((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(i) == Team)
-					pSelf->SendChatTarget(i, aBuf);
-		}
-	}
-	else
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
 				"print",
 				"This team can't be locked");
+		return;
+	}
+
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+		return;
+
+	char aBuf[512];
+	if(Lock)
+	{
+		((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.SetTeamLock(Team, false);
+
+		str_format(aBuf, sizeof(aBuf), "'%s' unlocked your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+			if (((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(i) == Team)
+				pSelf->SendChatTarget(i, aBuf);
+	}
+	else if(!g_Config.m_SvTeamLock)
+	{
+		pSelf->Console()->Print(
+				IConsole::OUTPUT_LEVEL_STANDARD,
+				"print",
+				"Team locking is disabled on this server");
+	}
+	else
+	{
+		((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.SetTeamLock(Team, true);
+
+		str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race started killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+			if (((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(i) == Team)
+				pSelf->SendChatTarget(i, aBuf);
+	}
 }
 
 void CGameContext::ConInviteTeam(IConsole::IResult *pResult, void *pUserData)
