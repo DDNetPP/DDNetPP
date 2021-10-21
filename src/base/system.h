@@ -1172,15 +1172,12 @@ int str_comp_filenames(const char *a, const char *b);
 /*
 	Function: str_startswith
 		Checks whether the string begins with a certain prefix.
-
 	Parameter:
 		str - String to check.
 		prefix - Prefix to look for.
-
 	Returns:
 		A pointer to the string str after the string prefix, or 0 if
 		the string prefix isn't a prefix of the string str.
-
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
@@ -1189,15 +1186,12 @@ const char *str_startswith(const char *str, const char *prefix);
 /*
 	Function: str_endswith
 		Checks whether the string ends with a certain suffix.
-
 	Parameter:
 		str - String to check.
 		suffix - Suffix to look for.
-
 	Returns:
 		A pointer to the beginning of the suffix in the string str, or
 		0 if the string suffix isn't a suffix of the string str.
-
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
@@ -1206,29 +1200,13 @@ const char *str_endswith(const char *str, const char *suffix);
 /*
 	Function: str_utf8_dist
 		Computes the edit distance between two strings.
-
 	Parameters:
 		a - First string for the edit distance.
 		b - Second string for the edit distance.
-
 	Returns:
 		The edit distance between the both strings.
-
 	Remarks:
 		- The strings are treated as zero-terminated strings.
-*/
-
-/*
-	Function: str_endswith
-		Checks whether the string ends with a certain suffix.
-
-	Parameter:
-		str - String to check.
-		suffix - Suffix to look for.
-
-	Returns:
-		A pointer to the beginning of the suffix in the string str, or
-		0 if the string suffix isn't a suffix of the string str.
 */
 int str_utf8_dist(const char *a, const char *b);
 
@@ -1236,28 +1214,23 @@ int str_utf8_dist(const char *a, const char *b);
 	Function: str_utf8_dist_buffer
 		Computes the edit distance between two strings, allows buffers
 		to be passed in.
-
 	Parameters:
 		a - First string for the edit distance.
 		b - Second string for the edit distance.
 		buf - Buffer for the function.
 		buf_len - Length of the buffer, must be at least as long as
 		          twice the length of both strings combined plus two.
-
 	Returns:
 		The edit distance between the both strings.
-
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
-const char *str_endswith(const char *str, const char *suffix);
 int str_utf8_dist_buffer(const char *a, const char *b, int *buf, int buf_len);
 
 /*
 	Function: str_utf32_dist_buffer
 		Computes the edit distance between two strings, allows buffers
 		to be passed in.
-
 	Parameters:
 		a - First string for the edit distance.
 		a_len - Length of the first string.
@@ -1266,10 +1239,8 @@ int str_utf8_dist_buffer(const char *a, const char *b, int *buf, int buf_len);
 		buf - Buffer for the function.
 		buf_len - Length of the buffer, must be at least as long as
 		          the length of both strings combined plus two.
-
 	Returns:
 		The edit distance between the both strings.
-
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
@@ -1314,13 +1285,11 @@ const char *str_find(const char *haystack, const char *needle);
 	Function: str_hex
 		Takes a datablock and generates a hex string of it, with spaces
 		between bytes.
-
 	Parameters:
 		dst - Buffer to fill with hex data
 		dst_size - size of the buffer
 		data - Data to turn into hex
 		data - Size of the data
-
 	Remarks:
 		- The destination buffer will be zero-terminated
 */
@@ -1328,30 +1297,16 @@ void str_hex(char *dst, int dst_size, const void *data, int data_size);
 
 /*
 	Function: str_hex_decode
-		Takes a hex string and returns a byte array.
-		Parameters:
-			dst - Buffer for the byte array
-			dst_size - size of the buffer
-			data - String to decode
-		Returns:
-			2 - String doesn't exactly fit the buffer
-			1 - Invalid character in string
-			0 - Success
-		Remarks:
-			- The contents of the buffer is only valid on success
 		Takes a hex string *without spaces between bytes* and returns a
 		byte array.
->>>>>>> ddnet
 	Parameters:
 		dst - Buffer for the byte array
 		dst_size - size of the buffer
 		data - String to decode
-
 	Returns:
 		2 - String doesn't exactly fit the buffer
 		1 - Invalid character in string
 		0 - Success
-
 	Remarks:
 		- The contents of the buffer is only valid on success
 */
