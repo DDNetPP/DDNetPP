@@ -2871,14 +2871,19 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (Controller->m_TeleCheckOuts[k].size())
 			{
-				m_Core.m_HookedPlayer = -1;
-				m_Core.m_HookState = HOOK_RETRACTED;
-				m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
 				int Num = Controller->m_TeleCheckOuts[k].size();
-				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num) ? Num : rand() % Num];
-				GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
-				m_Core.m_Vel = vec2(0, 0);
-				m_Core.m_HookPos = m_Core.m_Pos;
+				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num)?Num:rand() % Num];
+				m_Core.m_Vel = vec2(0,0);
+
+				if(!g_Config.m_SvTeleportHoldHook)
+				{
+					m_Core.m_HookedPlayer = -1;
+					m_Core.m_HookState = HOOK_RETRACTED;
+					m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+					GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+					m_Core.m_HookPos = m_Core.m_Pos;
+				}
+
 				return;
 			}
 		}
@@ -2886,13 +2891,17 @@ void CCharacter::HandleTiles(int Index)
 		vec2 SpawnPos;
 		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
 		{
-			m_Core.m_HookedPlayer = -1;
-			m_Core.m_HookState = HOOK_RETRACTED;
-			m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
 			m_Core.m_Pos = SpawnPos;
-			GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
-			m_Core.m_Vel = vec2(0, 0);
-			m_Core.m_HookPos = m_Core.m_Pos;
+			m_Core.m_Vel = vec2(0,0);
+
+			if(!g_Config.m_SvTeleportHoldHook)
+			{
+				m_Core.m_HookedPlayer = -1;
+				m_Core.m_HookState = HOOK_RETRACTED;
+				m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+				GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+				m_Core.m_HookPos = m_Core.m_Pos;
+			}
 		}
 		return;
 	}
@@ -2905,12 +2914,17 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (Controller->m_TeleCheckOuts[k].size())
 			{
-				m_Core.m_HookedPlayer = -1;
-				m_Core.m_HookState = HOOK_RETRACTED;
-				m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
 				int Num = Controller->m_TeleCheckOuts[k].size();
-				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num) ? Num : rand() % Num];
-				m_Core.m_HookPos = m_Core.m_Pos;
+				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num)?Num:rand() % Num];
+
+				if(!g_Config.m_SvTeleportHoldHook)
+				{
+					m_Core.m_HookedPlayer = -1;
+					m_Core.m_HookState = HOOK_RETRACTED;
+					m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+					m_Core.m_HookPos = m_Core.m_Pos;
+				}
+
 				return;
 			}
 		}
@@ -2918,11 +2932,15 @@ void CCharacter::HandleTiles(int Index)
 		vec2 SpawnPos;
 		if (GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
 		{
-			m_Core.m_HookedPlayer = -1;
-			m_Core.m_HookState = HOOK_RETRACTED;
-			m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
 			m_Core.m_Pos = SpawnPos;
-			m_Core.m_HookPos = m_Core.m_Pos;
+
+			if(!g_Config.m_SvTeleportHoldHook)
+			{
+				m_Core.m_HookedPlayer = -1;
+				m_Core.m_HookState = HOOK_RETRACTED;
+				m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+				m_Core.m_HookPos = m_Core.m_Pos;
+			}
 		}
 		return;
 	}
