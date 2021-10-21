@@ -674,7 +674,7 @@ struct THREAD_RUN
 #if defined(CONF_FAMILY_UNIX)
 static void *thread_run(void *user)
 #elif defined(CONF_FAMILY_WINDOWS)
-static unsigned int __stdcall thread_run(void *user)
+static unsigned long __stdcall thread_run(void *user)
 #else
 #error not implemented
 #endif
@@ -996,6 +996,14 @@ static void sockaddr_to_netaddr(const struct sockaddr *src, NETADDR *dst)
 int net_addr_comp(const NETADDR *a, const NETADDR *b)
 {
 	return mem_comp(a, b, sizeof(NETADDR));
+}
+
+int net_addr_comp_noport(const NETADDR *a, const NETADDR *b)
+{
+	NETADDR ta = *a, tb = *b;
+	ta.port = tb.port = 0;
+
+	return net_addr_comp(&ta, &tb);
 }
 
 void net_addr_str(const NETADDR *addr, char *string, int max_length, int add_port)
@@ -2189,7 +2197,7 @@ void str_append(char *dst, const char *src, int dst_size)
 
 void str_copy(char *dst, const char *src, int dst_size)
 {
-	strncpy(dst, src, dst_size);
+	strncpy(dst, src, dst_size-1);
 	dst[dst_size-1] = 0; /* assure null termination */
 }
 

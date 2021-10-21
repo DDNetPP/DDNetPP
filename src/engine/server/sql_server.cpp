@@ -10,9 +10,11 @@
 int CSqlServer::ms_NumReadServer = 0;
 int CSqlServer::ms_NumWriteServer = 0;
 
-CSqlServer::CSqlServer(const char *pDatabase, const char *pPrefix, const char *pUser, const char *pPass, const char *pIp, int Port, bool ReadOnly, bool SetUpDb) :
+CSqlServer::CSqlServer(const char *pDatabase, const char *pPrefix, const char *pUser, const char *pPass, const char *pIp, int Port, lock *pGlobalLock, bool ReadOnly, bool SetUpDb) :
 		m_Port(Port),
-		m_SetUpDB(SetUpDb)
+		m_SetUpDB(SetUpDb),
+		m_SqlLock(),
+		m_pGlobalLock(pGlobalLock)
 {
 	str_copy(m_aDatabase, pDatabase, sizeof(m_aDatabase));
 	str_copy(m_aPrefix, pPrefix, sizeof(m_aPrefix));
@@ -26,13 +28,11 @@ CSqlServer::CSqlServer(const char *pDatabase, const char *pPrefix, const char *p
 	m_pStatement = 0;
 
 	ReadOnly ? ms_NumReadServer++ : ms_NumWriteServer++;
-
-	m_SqlLock = lock_create();
 }
 
 CSqlServer::~CSqlServer()
 {
-	Lock();
+	scope_lock LockScope(&m_SqlLock);
 	try
 	{
 		if (m_pResults)
@@ -57,14 +57,11 @@ CSqlServer::~CSqlServer()
 	{
 		dbg_msg("sql", "Unknown Error cause by the MySQL/C++ Connector");
 	}
-	UnLock();
-	lock_destroy(m_SqlLock);
-	m_SqlLock = 0;
 }
 
 bool CSqlServer::Connect()
 {
-	Lock();
+	m_SqlLock.take();
 
 	if (m_pDriver != NULL && m_pConnection != NULL)
 	{
@@ -91,8 +88,8 @@ bool CSqlServer::Connect()
 			dbg_msg("sql", "Unknown Error cause by the MySQL/C++ Connector");
 		}
 
+		m_SqlLock.release();
 		dbg_msg("sql", "ERROR: SQL connection failed");
-		UnLock();
 		return false;
 	}
 
@@ -114,7 +111,10 @@ bool CSqlServer::Connect()
 		connection_properties["OPT_CHARSET_NAME"] = sql::SQLString("utf8mb4");
 
 		// Create connection
-		m_pDriver = get_driver_instance();
+		{
+			scope_lock GlobalLockScope(m_pGlobalLock);
+			m_pDriver = get_driver_instance();
+		}
 		m_pConnection = m_pDriver->connect(connection_properties);
 
 		// Create Statement
@@ -151,13 +151,13 @@ bool CSqlServer::Connect()
 	}
 
 	dbg_msg("sql", "ERROR: sql connection failed");
-	UnLock();
+	m_SqlLock.release();
 	return false;
 }
 
 void CSqlServer::Disconnect()
 {
-	UnLock();
+	m_SqlLock.release();
 }
 
 void CSqlServer::CreateTables()

@@ -30,7 +30,8 @@ bool IsFNG(const CServerInfo *pInfo)
 bool IsRace(const CServerInfo *pInfo)
 {
 	return str_find_nocase(pInfo->m_aGameType, "race")
-	    || str_find_nocase(pInfo->m_aGameType, "fastcap");
+	    || IsFastCap(pInfo)
+	    || IsDDRace(pInfo);
 }
 
 bool IsFastCap(const CServerInfo *pInfo)
@@ -41,14 +42,26 @@ bool IsFastCap(const CServerInfo *pInfo)
 bool IsDDRace(const CServerInfo *pInfo)
 {
 	return str_find_nocase(pInfo->m_aGameType, "ddrace")
-	    || str_find_nocase(pInfo->m_aGameType, "mkrace");
+	    || str_find_nocase(pInfo->m_aGameType, "mkrace")
+	    || IsDDNet(pInfo);
+}
+
+bool IsBlockInfectionZ(const CServerInfo *pInfo)
+{
+	return str_find_nocase(pInfo->m_aGameType, "blockZ")
+	    || str_find_nocase(pInfo->m_aGameType, "infectionZ");
 }
 
 bool IsDDNet(const CServerInfo *pInfo)
 {
-	return str_find_nocase(pInfo->m_aGameType, "ddracenet")
-	    || str_find_nocase(pInfo->m_aGameType, "ddnet")
-	    || str_comp_nocase(pInfo->m_aGameType, "bw  ") == 0
+	return (str_find_nocase(pInfo->m_aGameType, "ddracenet")
+	    || str_find_nocase(pInfo->m_aGameType, "ddnet"))
+	    && !IsBlockInfectionZ(pInfo);
+}
+
+bool IsBlockWorlds(const CServerInfo *pInfo)
+{
+	return str_comp_nocase_num(pInfo->m_aGameType, "bw  ", 4) == 0
 	    || str_comp_nocase(pInfo->m_aGameType, "bw") == 0;
 }
 
@@ -58,7 +71,8 @@ bool Is64Player(const CServerInfo *pInfo)
 {
 	return str_find(pInfo->m_aGameType, "64")
 	    || str_find(pInfo->m_aName, "64")
-	    || IsDDNet(pInfo);
+	    || IsDDNet(pInfo)
+	    || IsBlockInfectionZ(pInfo);
 }
 
 bool IsPlus(const CServerInfo *pInfo)

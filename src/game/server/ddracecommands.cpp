@@ -348,18 +348,15 @@ void CGameContext::ConForcePause(IConsole::IResult *pResult, void *pUserData)
 	pPlayer->ForcePause(Seconds);
 }
 
-void CGameContext::VoteMute(IConsole::IResult *pResult, NETADDR *pAddr, int Secs,
-	const char *pDisplayName, int AuthedID)
+void CGameContext::VoteMute(const NETADDR *pAddr, int Secs, const char *pDisplayName, int AuthedID)
 {
 	char aBuf[128];
 	bool Found = 0;
 
-	pAddr->port = 0; // ignore port number for vote mutes
-
 	// find a matching vote mute for this ip, update expiration time if found
 	for(int i = 0; i < m_NumVoteMutes; i++)
 	{
-		if(net_addr_comp(&m_aVoteMutes[i].m_Addr, pAddr) == 0)
+		if(net_addr_comp_noport(&m_aVoteMutes[i].m_Addr, pAddr) == 0)
 		{
 			m_aVoteMutes[i].m_Expire = Server()->Tick()
 				+ Secs * Server()->TickSpeed();
@@ -392,18 +389,15 @@ void CGameContext::VoteMute(IConsole::IResult *pResult, NETADDR *pAddr, int Secs
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "votemute", "vote mute array is full");
 }
 
-void CGameContext::Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs,
-		const char *pDisplayName)
+void CGameContext::Mute(const NETADDR *pAddr, int Secs, const char *pDisplayName)
 {
 	char aBuf[128];
 	int Found = 0;
 
-	Addr->port = 0; // ignore port number for mutes
-
 	// find a matching mute for this ip, update expiration time if found
 	for (int i = 0; i < m_NumMutes; i++)
 	{
-		if (net_addr_comp(&m_aMutes[i].m_Addr, Addr) == 0)
+		if (net_addr_comp_noport(&m_aMutes[i].m_Addr, pAddr) == 0)
 		{
 			m_aMutes[i].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
@@ -415,7 +409,7 @@ void CGameContext::Mute(IConsole::IResult *pResult, NETADDR *Addr, int Secs,
 	{
 		if (m_NumMutes < MAX_MUTES)
 		{
-			m_aMutes[m_NumMutes].m_Addr = *Addr;
+			m_aMutes[m_NumMutes].m_Addr = *pAddr;
 			m_aMutes[m_NumMutes].m_Expire = Server()->Tick()
 							+ Secs * Server()->TickSpeed();
 			m_NumMutes++;
@@ -449,7 +443,7 @@ void CGameContext::ConVoteMute(IConsole::IResult *pResult, void *pUserData)
 	NETADDR Addr;
 	pSelf->Server()->GetClientAddr(Victim, &Addr);
 
-	pSelf->VoteMute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->VoteMute(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
 		pSelf->Server()->ClientName(Victim), pResult->m_ClientID);
 }
 
@@ -467,7 +461,7 @@ void CGameContext::ConMuteID(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	int Victim = pResult->GetVictim();
-	
+
 	if (Victim < 0 || Victim > MAX_CLIENTS || !pSelf->m_apPlayers[Victim])
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "muteid", "Client id not found.");
@@ -477,7 +471,7 @@ void CGameContext::ConMuteID(IConsole::IResult *pResult, void *pUserData)
 	NETADDR Addr;
 	pSelf->Server()->GetClientAddr(Victim, &Addr);
 
-	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
 			pSelf->Server()->ClientName(Victim));
 }
 
@@ -491,7 +485,7 @@ void CGameContext::ConMuteIP(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mutes",
 				"Invalid network address to mute");
 	}
-	pSelf->Mute(pResult, &Addr, clamp(pResult->GetInteger(1), 1, 86400), NULL);
+	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 86400), NULL);
 }
 
 // unmute by mute list index
@@ -517,7 +511,7 @@ void CGameContext::ConUnmute(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConMutes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
-	
+
 	if (pSelf->m_NumMutes <= 0)
 	{
 		// Just to make sure.
@@ -526,7 +520,7 @@ void CGameContext::ConMutes(IConsole::IResult *pResult, void *pUserData)
 			"There are no active mutes.");
 		return;
 	}
-	
+
 	char aIpBuf[64];
 	char aBuf[128];
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mutes",
@@ -566,7 +560,7 @@ void CGameContext::ConModerate(IConsole::IResult *pResult, void *pUserData)
 		str_format(aBuf, sizeof(aBuf), "Server kick/spec votes are no longer actively moderated.");
 
 	pSelf->SendChat(-1, CHAT_ALL, aBuf, 0);
-	
+
 	if(pPlayer->m_Moderating)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Active moderator mode enabled for you.");
 	else
@@ -639,6 +633,6 @@ void CGameContext::ConUnFreezeHammer(IConsole::IResult *pResult, void *pUserData
 void CGameContext::ConVoteNo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	
+
 	pSelf->ForceVote(pResult->m_ClientID, false);
 }

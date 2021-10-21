@@ -3,6 +3,8 @@
 #ifndef GAME_EDITOR_EDITOR_H
 #define GAME_EDITOR_EDITOR_H
 
+#include <vector>
+#include <string>
 #include <math.h>
 
 #include <base/math.h>
@@ -136,6 +138,7 @@ public:
 		m_SaveToMap = true;
 		m_Flags = 0;
 		m_pEditor = 0;
+		m_BrushRefCount = 0;
 	}
 
 	virtual ~CLayer()
@@ -168,6 +171,8 @@ public:
 	bool m_Readonly;
 	bool m_Visible;
 	bool m_SaveToMap;
+
+	int m_BrushRefCount;
 };
 
 class CLayerGroup
@@ -196,6 +201,7 @@ public:
 	bool m_Collapse;
 
 	CLayerGroup();
+	CLayerGroup(const CLayerGroup& rhs);
 	~CLayerGroup();
 
 	void Convert(CUIRect *pRect);
@@ -250,7 +256,8 @@ public:
 
 	void Clear()
 	{
-		m_lLayers.delete_all();
+		//m_lLayers.delete_all();
+		m_lLayers.clear();
 	}
 
 	void AddLayer(CLayer *l);
@@ -642,6 +649,8 @@ public:
 		m_GridActive = false;
 		m_GridFactor = 1;
 
+		m_BrushColorEnabled = true;
+
 		m_aFileName[0] = 0;
 		m_aFileSaveName[0] = 0;
 		m_ValidSaveFilename = false;
@@ -663,6 +672,8 @@ public:
 		m_FilesStartAt = 0;
 		m_FilesCur = 0;
 		m_FilesStopAt = 999;
+
+		m_SelectEntitiesImage = "DDNet";
 
 		m_WorldOffsetX = 0;
 		m_WorldOffsetY = 0;
@@ -750,6 +761,9 @@ public:
 	bool m_Undo;
 	int m_ShowUndo;
 	float m_UndoScrollValue;
+
+	CLayerGroup *m_apSavedBrushes[10];
+
 	void FilelistPopulate(int StorageType);
 	void InvokeFileDialog(int StorageType, int FileType, const char *pTitle, const char *pButtonText,
 		const char *pBasepath, const char *pDefaultName,
@@ -761,7 +775,7 @@ public:
 	int Append(const char *pFilename, int StorageType);
 	void LoadCurrentMap();
 	void Render();
-	
+
 	array<CQuad *> GetSelectedQuads();
 	CLayer *GetSelectedLayerType(int Index, int Type);
 	CLayer *GetSelectedLayer(int Index);
@@ -783,6 +797,8 @@ public:
 
 	bool m_GridActive;
 	int m_GridFactor;
+
+	bool m_BrushColorEnabled;
 
 	char m_aFileName[512];
 	char m_aFileSaveName[512];
@@ -824,6 +840,7 @@ public:
 	char m_aFileDialogCurrentFolder[MAX_PATH_LENGTH];
 	char m_aFileDialogCurrentLink[MAX_PATH_LENGTH];
 	char m_aFileDialogSearchText[64];
+	char m_aFileDialogPrevSearchText[64];
 	char *m_pFileDialogPath;
 	bool m_aFileDialogActivate;
 	int m_FileDialogFileType;
@@ -842,6 +859,7 @@ public:
 		bool m_IsDir;
 		bool m_IsLink;
 		int m_StorageType;
+		bool m_IsVisible;
 
 		bool operator<(const CFilelistItem &Other) { return !str_comp(m_aFilename, "..") ? true : !str_comp(Other.m_aFilename, "..") ? false :
 														m_IsDir && !Other.m_IsDir ? true : !m_IsDir && Other.m_IsDir ? false :
@@ -851,6 +869,9 @@ public:
 	int m_FilesStartAt;
 	int m_FilesCur;
 	int m_FilesStopAt;
+
+	std::vector<std::string> m_SelectEntitiesFiles;
+	std::string m_SelectEntitiesImage;
 
 	float m_WorldOffsetX;
 	float m_WorldOffsetY;
@@ -959,6 +980,7 @@ public:
 	static int PopupSound(CEditor *pEditor, CUIRect View);
 	static int PopupSource(CEditor *pEditor, CUIRect View);
 	static int PopupColorPicker(CEditor *pEditor, CUIRect View);
+	static int PopupEntities(CEditor *pEditor, CUIRect View);
 
 	static void CallbackOpenMap(const char *pFileName, int StorageType, void *pUser);
 	static void CallbackAppendMap(const char *pFileName, int StorageType, void *pUser);
@@ -995,6 +1017,8 @@ public:
 	static void ReplaceSound(const char *pFileName, int StorageType, void *pUser);
 	static void AddImage(const char *pFilename, int StorageType, void *pUser);
 	static void AddSound(const char *pFileName, int StorageType, void *pUser);
+
+	bool IsEnvelopeUsed(int EnvelopeIndex);
 
 	void RenderImages(CUIRect Toolbox, CUIRect View);
 	void RenderLayers(CUIRect Toolbox, CUIRect View);

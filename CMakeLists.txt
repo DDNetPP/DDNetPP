@@ -1008,7 +1008,10 @@ set(EXPECTED_DATA
   editor/ddnet_tiles.rules
   editor/ddnet_walls.rules
   editor/desert_main.rules
-  editor/entities.png
+  editor/entities/DDNet.png
+  editor/entities/FNG.png
+  editor/entities/Race.png
+  editor/entities/Vanilla.png
   editor/entities_clear/ddnet.png
   editor/entities_clear/ddrace.png
   editor/entities_clear/fng.png
@@ -1595,6 +1598,9 @@ set_src(GAME_SHARED GLOB src/game
   mapitems.cpp
   mapitems.h
   mapitems_ddpp.h
+  mapitems_ex.cpp
+  mapitems_ex.h
+  mapitems_ex_types.h
   teamscore.cpp
   teamscore.h
   tuning.h

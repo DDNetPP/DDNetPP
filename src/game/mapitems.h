@@ -30,6 +30,9 @@ enum
 	MAPITEMTYPE_LAYER,
 	MAPITEMTYPE_ENVPOINTS,
 	MAPITEMTYPE_SOUND,
+	// High map item type numbers suggest that they use the alternate
+	// format with UUIDs. See src/engine/shared/datafile.cpp for some of
+	// the implementation.
 
 
 	CURVETYPE_STEP=0,
@@ -419,7 +422,6 @@ struct CMapItemSound
 	int m_SoundData;
 	int m_SoundDataSize;
 } ;
-
 
 // DDRace
 
