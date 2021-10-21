@@ -1108,7 +1108,6 @@ set(EXPECTED_DATA
   languages/persian.txt
   languages/polish.txt
   languages/portuguese.txt
-  languages/readme.txt
   languages/romanian.txt
   languages/russian.txt
   languages/scripts/readme.txt
@@ -2037,6 +2036,7 @@ if(TOOLS)
     dilate.cpp
     dummy_map.cpp
     fake_server.cpp
+    map_diff.cpp
     map_extract.cpp
     map_resave.cpp
     map_version.cpp

@@ -1090,7 +1090,8 @@ void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *fo
 		Escapes \ and " characters in a string.
 
 	Parameters:
-		dst - Destination array pointer, gets increased
+		dst - Destination array pointer, gets increased, will point to
+		      the terminating null.
 		src - Source array
 		end - End of destination array
 */
@@ -1452,7 +1453,7 @@ void shell_execute(const char *file);
 		0 - OS version same.
 		-1 - OS version lower.
 */
-int os_compare_version(int major, int minor);
+int os_compare_version(unsigned int major, unsigned int minor);
 
 /*
 	Function: generate_password
