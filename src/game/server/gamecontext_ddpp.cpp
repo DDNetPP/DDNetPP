@@ -1908,12 +1908,12 @@ void CGameContext::ShowAdminWelcome(int ID)
 	if (m_WrongRconAttempts >= g_Config.m_SvRconAttemptReport)
 	{
 		str_format(aBuf, sizeof(aBuf), "Warning %d failed rcon attempts since last successful login! 'logs wrong_rcon'", m_WrongRconAttempts);
-		Server()->SendRconLine(ID, aBuf);
+		// Server()->SendRconLine(ID, aBuf); // TODO: uncomment
 	}
 	if (aDDPPLogs[DDPP_LOG_AUTH_RCON][1][0]) // index 1 because index 0 is current login
 	{
 		str_format(aBuf, sizeof(aBuf), "last login %s", aDDPPLogs[DDPP_LOG_AUTH_RCON][1]);
-		Server()->SendRconLine(ID, aBuf);
+		// Server()->SendRconLine(ID, aBuf); // TODO: uncomment
 	}
 	int surv_error = TestSurvivalSpawns();
 	if (surv_error == -1)

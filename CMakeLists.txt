@@ -1616,6 +1616,9 @@ set_src(GAME_SHARED GLOB src/game
 set(ENGINE_UUID_SHARED
   src/game/generated/protocol.cpp
   src/game/generated/protocol.h
+  src/game/mapitems_ex.cpp
+  src/game/mapitems_ex.h
+  src/game/mapitems_ex_types.h
 )
 foreach(s ${GAME_SHARED})
   if(s MATCHES "mapitems_(ex.cpp|ex.h|ex_types.h)$")

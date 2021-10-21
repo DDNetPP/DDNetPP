@@ -1075,7 +1075,7 @@ void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 	m_LoginData.m_ClientID = GetCID();
 	str_copy(m_LoginData.m_aUsername, pUsername, sizeof(m_LoginData.m_aUsername));
 	str_copy(m_LoginData.m_aPassword, pPassword, sizeof(m_LoginData.m_aPassword));
-	thread_init(*ThreadLoginWorker, &m_LoginData); //setzte die werte von pTmpPlayer
+	thread_init(*ThreadLoginWorker, &m_LoginData, "sql login"); //setzte die werte von pTmpPlayer
 }
 
 void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread

@@ -2395,7 +2395,6 @@ void CCharacter::HandleTiles(int Index)
 	{
 		if(g_Config.m_SvResetPickups)
 		{
-			bool CanBegin = true;
 			if (g_Config.m_SvResetPickups)
 			{
 				for (int i = WEAPON_SHOTGUN; i < NUM_WEAPONS; ++i)

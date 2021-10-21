@@ -170,12 +170,12 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     }
     else if (!str_comp(pCommand, "_"))
     {
-        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
             CreateBasicDummys();
     }
     else if (str_comp_nocase_num(pCommand, "dummy ", 6) == 0) //hab den hier kopiert un dbissl abgeändert
     {
-        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
         {
             char pValue[32];
             str_copy(pValue, pCommand + 6, 32);
@@ -198,7 +198,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
     else if (!str_comp(pCommand, "dcdummys"))
     {
         //if (Server()->GetAuthedState(ClientID))
-        if (Server()->GetAuthedState(ClientID) == CServer::AUTHED_ADMIN)
+        if (Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
         {
             for (int i = 0; i < MAX_CLIENTS; i++)
             {

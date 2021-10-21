@@ -16,6 +16,7 @@ class CLetters {
     public:
     CLetters(CGameContext *pGameServer);
 
+    void ToUpper(char *pStr);
     void UpdateBuffers(int ascii, int offset = 0);
     void SendChat(int ClientID, int ascii);
     void SendChat(int ClientID, const char *pStr);

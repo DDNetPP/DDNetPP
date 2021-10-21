@@ -2796,7 +2796,7 @@ void net_stats(NETSTATS *stats_inout)
 
 int str_isspace(char c) { return c == ' ' || c == '\n' || c == '\t'; }
 
-char ch_uppercase(char c)
+char str_uppercase(char c)
 {
 	if(c >= 'a' && c <= 'z')
 		return 'A' + (c-'a');

@@ -488,8 +488,6 @@ void CGameTeams::OnFinish(CPlayer* Player, float Time)
 	if (!Player || !Player->IsPlaying())
 		return;
 	//TODO:DDRace:btd: this ugly
-	float Time = (float)(Server()->Tick() - GetStartTime(Player))
-			/ ((float)Server()->TickSpeed());
 	if (Time < 0.000001f)
 		return;
 	int mins = (int)Time / 60;

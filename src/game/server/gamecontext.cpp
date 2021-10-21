@@ -3773,7 +3773,7 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
-	if (Level == CServer::AUTHED_HONEY)
+	if (Level == AUTHED_HONEY)
 		return;
 	if(m_apPlayers[ClientID])
 	{
@@ -4065,7 +4065,7 @@ void CGameContext::WhisperID(int ClientID, int VictimID, char *pMessage)
 	{
 		if (m_apPlayers[i] && i != VictimID && i != ClientID)
 		{
-			if (Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == CServer::AUTHED_ADMIN)
+			if (Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == AUTHED_ADMIN)
 			{
 				SendChatTarget(i, aBuf);
 			}

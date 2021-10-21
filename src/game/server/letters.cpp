@@ -44,11 +44,17 @@ void CLetters::SendChat(int ClientID, int ascii)
         GameServer()->SendChatTarget(ClientID, m_aaAsciiBuf[i]);
 }
 
+void CLetters::ToUpper(char *pStr)
+{
+    while(*pStr++)
+        *pStr = str_uppercase(*pStr);
+}
+
 void CLetters::SendChat(int ClientID, const char *pStr)
 {
     char aUpper[ASCII_BUF_LENGTH+1];
     str_copy(aUpper, pStr, sizeof(aUpper));
-    str_uppercase(aUpper);
+    ToUpper(aUpper);
     printf("CLetters::SendChat(id=%d, str=%s) upper=%s\n", ClientID, pStr, aUpper);
     for (int i = 0; i < ASCII_BUF_LENGTH; i++)
     {
