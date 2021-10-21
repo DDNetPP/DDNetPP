@@ -166,7 +166,7 @@ void CKillMessages::OnRender()
 		}
 
 		if(m_aKillmsgs[r].m_VictimTextContainerIndex != -1)
-			TextRender()->RenderTextContainer(m_aKillmsgs[r].m_VictimTextContainerIndex, &TColor, &TOutlineColor, x, y);
+			TextRender()->RenderTextContainer(m_aKillmsgs[r].m_VictimTextContainerIndex, &TColor, &TOutlineColor, x, y + (46.f - 36.f) / 2.f);
 		
 		// render victim tee
 		x -= 24.0f;
@@ -205,7 +205,7 @@ void CKillMessages::OnRender()
 					Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 
 					int QuadOffset = 2;
-					if(m_aKillmsgs[r].m_VictimTeam == TEAM_RED)
+					if(m_aKillmsgs[r].m_KillerTeam == TEAM_RED)
 						++QuadOffset;
 
 					Graphics()->RenderQuadContainerAsSprite(m_SpriteQuadContainerIndex, QuadOffset, x - 56, y - 16);
@@ -221,7 +221,7 @@ void CKillMessages::OnRender()
 			x -= m_aKillmsgs[r].m_KillerTextWidth;
 
 			if(m_aKillmsgs[r].m_KillerTextContainerIndex != -1)
-				TextRender()->RenderTextContainer(m_aKillmsgs[r].m_KillerTextContainerIndex, &TColor, &TOutlineColor, x, y);
+				TextRender()->RenderTextContainer(m_aKillmsgs[r].m_KillerTextContainerIndex, &TColor, &TOutlineColor, x, y + (46.f - 36.f) / 2.f);
 		}
 
 		y += 46.0f;
