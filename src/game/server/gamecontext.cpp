@@ -1869,12 +1869,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 			}
 			else if(!IsChatMessageBlocked(ClientID, pPlayer, Team, pMsg->m_pMessage))
-			{
-				if(!Server()->IsSixup(ClientID))
-					SendChat(ClientID, Team, pMsg->m_pMessage, CHAT_SIX, ClientID);
-				else
-					dbg_assert(true, "todo implement");
-			}
+				SendChat(ClientID, Team, pMsg->m_pMessage);
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{
