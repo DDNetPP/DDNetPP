@@ -82,7 +82,7 @@ void dbg_assert_imp(const char *filename, int line, int test, const char *msg);
 #else
 #define dbg_break()
 #endif
-void dbg_break_imp();
+void dbg_break_imp(void);
 
 /*
 	Function: dbg_msg
@@ -327,19 +327,19 @@ int io_error(IOHANDLE io);
 	Function: io_stdin
 		Returns an <IOHANDLE> to the standard input.
 */
-IOHANDLE io_stdin();
+IOHANDLE io_stdin(void);
 
 /*
 	Function: io_stdout
 		Returns an <IOHANDLE> to the standard output.
 */
-IOHANDLE io_stdout();
+IOHANDLE io_stdout(void);
 
 /*
 	Function: io_stderr
 		Returns an <IOHANDLE> to the standard error.
 */
-IOHANDLE io_stderr();
+IOHANDLE io_stderr(void);
 
 typedef struct ASYNCIO ASYNCIO;
 
@@ -505,7 +505,7 @@ void thread_wait(void *thread);
 	Function: thread_yield
 		Yield the current threads execution slice.
 */
-void thread_yield();
+void thread_yield(void);
 
 /*
 	Function: thread_detach
@@ -535,7 +535,7 @@ void *thread_init_and_detach(void (*threadfunc)(void *), void *user, const char 
 /* Group: Locks */
 typedef void* LOCK;
 
-LOCK lock_create();
+LOCK lock_create(void);
 void lock_destroy(LOCK lock);
 
 int lock_trylock(LOCK lock);
@@ -573,7 +573,7 @@ typedef long long int64;
 typedef unsigned long long uint64;
 #endif
 
-void set_new_tick();
+void set_new_tick(void);
 
 /*
 	Function: time_get_impl
@@ -585,7 +585,7 @@ void set_new_tick();
 	Remarks:
 		To know how fast the timer is ticking, see <time_freq>.
 */
-int64 time_get_impl();
+int64 time_get_impl(void);
 
 /*
 	Function: time_get
@@ -598,7 +598,7 @@ int64 time_get_impl();
 		To know how fast the timer is ticking, see <time_freq>.
 		Uses <time_get_impl> to fetch the sample.
 */
-int64 time_get();
+int64 time_get(void);
 
 /*
 	Function: time_freq
@@ -607,7 +607,7 @@ int64 time_get();
 	Returns:
 		Returns the frequency of the high resolution timer.
 */
-int64 time_freq();
+int64 time_freq(void);
 
 /*
 	Function: time_timestamp
@@ -616,7 +616,7 @@ int64 time_freq();
 	Returns:
 		The time as a UNIX timestamp
 */
-int time_timestamp();
+int time_timestamp(void);
 
 /*
 Function: time_get_microseconds
@@ -625,7 +625,7 @@ Fetches a sample from a high resolution timer and converts it in microseconds.
 Returns:
 Current value of the timer in microseconds.
 */
-int64 time_get_microseconds();
+int64 time_get_microseconds(void);
 
 /* Group: Network General */
 typedef struct
@@ -670,7 +670,7 @@ typedef struct sockaddr_un UNIXSOCKETADDR;
 		You must call this function before using any other network
 		functions.
 */
-int net_init();
+int net_init(void);
 
 /*
 	Function: net_host_lookup
@@ -933,7 +933,7 @@ int net_tcp_close(NETSOCKET sock);
 	Returns:
 		On success it returns a handle to the socket. On failure it returns -1.
 */
-UNIXSOCKET net_unix_create_unnamed();
+UNIXSOCKET net_unix_create_unnamed(void);
 
 /*
 	Function: net_unix_send
@@ -1632,14 +1632,14 @@ int net_set_blocking(NETSOCKET sock);
 
 	DOCTODO: serp
 */
-int net_errno();
+int net_errno(void);
 
 /*
 	Function: net_would_block
 
 	DOCTODO: serp
 */
-int net_would_block();
+int net_would_block(void);
 
 int net_socket_read_wait(NETSOCKET sock, int time);
 
@@ -1650,8 +1650,8 @@ typedef void (*DBG_LOGGER)(const char *line, void *user);
 typedef void (*DBG_LOGGER_FINISH)(void *user);
 void dbg_logger(DBG_LOGGER logger, DBG_LOGGER_FINISH finish, void *user);
 
-void dbg_logger_stdout();
-void dbg_logger_debugger();
+void dbg_logger_stdout(void);
+void dbg_logger_debugger(void);
 void dbg_logger_file(const char *filename);
 
 typedef struct
@@ -1921,7 +1921,7 @@ const char *str_next_token(const char *str, const char *delim, char *buffer, int
 */
 int str_in_list(const char *list, const char *delim, const char *needle);
 
-int pid();
+int pid(void);
 
 /*
 	Function: shell_execute
@@ -1937,7 +1937,7 @@ void shell_execute(const char *file);
 		1 - Windows XP or lower.
 		0 - Higher Windows version, Linux, macOS, etc.
 */
-int os_is_winxp_or_lower();
+int os_is_winxp_or_lower(void);
 
 /*
 	Function: generate_password
@@ -1962,7 +1962,7 @@ void generate_password(char *buffer, unsigned length, unsigned short *random, un
 		0 - Initialization succeeded.
 		1 - Initialization failed.
 */
-int secure_random_init();
+int secure_random_init(void);
 
 /*
 	Function: secure_random_password
@@ -1993,7 +1993,7 @@ void secure_random_fill(void *bytes, unsigned length);
 	Function: secure_rand
 		Returns random int (replacement for rand()).
 */
-int secure_rand();
+int secure_rand(void);
 
 #ifdef __cplusplus
 }

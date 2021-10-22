@@ -476,7 +476,7 @@ void CCharacter::HandleJetpack()
 		return;
 
 	// check for ammo
-	if(!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	if(!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
 	{
 		return;
 	}
@@ -719,7 +719,7 @@ void CCharacter::FireWeapon(bool Bot)
 			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
 		}
-		else
+		else if(m_PainSoundTimer<=0)
 		{
 			m_PainSoundTimer = 1 * Server()->TickSpeed();
 			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
@@ -727,7 +727,16 @@ void CCharacter::FireWeapon(bool Bot)
 		return;
 	}
 
-	vec2 ProjStartPos = m_Pos + Direction*m_ProximityRadius*0.75f;
+	// check for ammo
+	if(!m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	{
+		/*// 125ms is a magical limit of how fast a human can click
+		m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);*/
+		return;
+	}
+
+	vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*0.75f;
 
 	switch (m_Core.m_ActiveWeapon)
 	{
@@ -1041,8 +1050,7 @@ void CCharacter::GiveNinja()
 {
 	m_Ninja.m_ActivationTick = Server()->Tick();
 	m_aWeapons[WEAPON_NINJA].m_Got = true;
-	if (!m_FreezeTime)
-		m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
+	m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
 	if (m_Core.m_ActiveWeapon != WEAPON_NINJA)
 		m_LastWeapon = m_Core.m_ActiveWeapon;
 	m_Core.m_ActiveWeapon = WEAPON_NINJA;
@@ -3290,7 +3298,8 @@ bool CCharacter::UnFreeze()
 		else
 			m_GotTasered = false;
 
-		if (!m_aWeapons[m_Core.m_ActiveWeapon].m_Got)
+		m_Armor=10;
+		if(!m_aWeapons[m_Core.m_ActiveWeapon].m_Got)
 			m_Core.m_ActiveWeapon = WEAPON_GUN;
 		m_FreezeTime = 0;
 		m_FreezeTick = 0;

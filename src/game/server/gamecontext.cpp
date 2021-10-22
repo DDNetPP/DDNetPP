@@ -3870,7 +3870,8 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 	{
 		pStr++;
 
-		pName = pStr; // we might have to process escape data
+		pName = pStr;
+		char *pDst = pStr; // we might have to process escape data
 		while(1)
 		{
 			if(pStr[0] == '"')
@@ -3885,11 +3886,14 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 			else if(pStr[0] == 0)
 				Error = 1;
 
+			*pDst = *pStr;
+			pDst++;
 			pStr++;
 		}
 
 		// write null termination
-		*pStr = 0;
+		*pDst = 0;
+
 		pStr++;
 
 		for(Victim = 0; Victim < MAX_CLIENTS; Victim++)

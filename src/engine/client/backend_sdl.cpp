@@ -657,6 +657,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Init(const SCommand_Init *pCommand
 	m_pTextProgram = new CGLSLTextProgram;
 	m_pSpriteProgram = new CGLSLSpriteProgram;
 	m_pSpriteProgramMultiple = new CGLSLSpriteMultipleProgram;
+	m_LastProgramID = 0;
 
 	{
 		CGLSL PrimitiveVertexShader;
@@ -2572,9 +2573,6 @@ void CGraphicsBackend_SDL_OpenGL::SetWindowGrab(bool Grab)
 
 void CGraphicsBackend_SDL_OpenGL::NotifyWindow()
 {
-	if(!g_Config.m_ClShowNotifications)
-		return;
-
 	// get window handle
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);

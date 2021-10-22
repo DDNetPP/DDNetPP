@@ -121,6 +121,7 @@ public:
 	virtual void ToggleWindowBordered() = 0;
 	virtual void ToggleWindowVSync() = 0;
 	virtual void LoadFont() = 0;
+	virtual void Notify(const char *pTitle, const char *pMessage) = 0;
 
 	// networking
 	virtual void EnterGame() = 0;
@@ -131,8 +132,8 @@ public:
 	virtual int MapDownloadTotalsize() = 0;
 
 	// input
-	virtual int *GetInput(int Tick) = 0;
-	virtual int *GetDirectInput(int Tick) = 0;
+	virtual int *GetInput(int Tick, int IsDummy = 0) = 0;
+	virtual int *GetDirectInput(int Tick, int IsDummy = 0) = 0;
 
 	// remote console
 	virtual void RconAuth(const char *pUsername, const char *pPassword) = 0;
