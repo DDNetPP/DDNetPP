@@ -662,7 +662,7 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 	int NumRequiredVotes = TeamSize / 2 + 1;
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "'%s' voted to %s /practice mode for your team, which means you can use /r, but you can't earn a rank. (%d/%d required votes)", pSelf->Server()->ClientName(pResult->m_ClientID), VotedForPractice ? "enable" : "disable", NumCurrentVotes, NumRequiredVotes);
+	str_format(aBuf, sizeof(aBuf), "'%s' voted to %s /practice mode for your team, which means you can use /r, but you can't earn a rank. Type /practice to vote (%d/%d required votes)", pSelf->Server()->ClientName(pResult->m_ClientID), VotedForPractice ? "enable" : "disable", NumCurrentVotes, NumRequiredVotes);
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		if(Teams.m_Core.Team(i) == Team)
@@ -852,6 +852,13 @@ void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	if (!CheckClientID(pResult->m_ClientID))
 		return;
+
+	if(g_Config.m_SvTeam == 0 || g_Config.m_SvTeam == 3)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "lock",
+				"Teams are disabled");
+		return;
+	}
 
 	int Team = ((CGameControllerDDRace*) pSelf->m_pController)->m_Teams.m_Core.Team(pResult->m_ClientID);
 
