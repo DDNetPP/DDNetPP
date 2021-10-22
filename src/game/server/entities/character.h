@@ -141,6 +141,7 @@ private:
 
 	int m_aWeaponsBackup[NUM_WEAPONS][2];
 	bool m_WeaponsBackupped;
+	struct WeaponStat m_aPrevSaveWeapons[NUM_WEAPONS];
 
 	int m_LastWeapon;
 	int m_QueuedWeapon;
