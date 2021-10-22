@@ -86,9 +86,13 @@ public:
 	virtual void LoadTeam(const char* Code, int ClientID);
 
 	virtual void OnShutdown();
+private:
+	std::string SaveFile();
+
 
 	//ddpp
-	
+public:
+
 	virtual void SaveCIData(const char* ci_data);
 	virtual std::string LoadCIData();
 };

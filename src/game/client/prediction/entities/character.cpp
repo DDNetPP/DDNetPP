@@ -38,15 +38,11 @@ bool CCharacter::IsGrounded()
 	if(Collision()->CheckPoint(m_Pos.x-m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5))
 		return true;
 
-	int index = Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y+m_ProximityRadius/2+4));
-	int tile = Collision()->GetTileIndex(index);
-	int flags = Collision()->GetTileFlags(index);
-	if(tile == TILE_STOPA || (tile == TILE_STOP && flags == ROTATION_0) || (tile ==TILE_STOPS && (flags == ROTATION_0 || flags == ROTATION_180)))
+	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, m_ProximityRadius / 2 + 4), 0.0f);
+	if(MoveRestrictionsBelow&CANTMOVE_DOWN)
+	{
 		return true;
-	tile = Collision()->GetFTileIndex(index);
-	flags = Collision()->GetFTileFlags(index);
-	if(tile == TILE_STOPA || (tile == TILE_STOP && flags == ROTATION_0) || (tile ==TILE_STOPS && (flags == ROTATION_0 || flags == ROTATION_180)))
-		return true;
+	}
 
 	return false;
 }
@@ -87,7 +83,9 @@ void CCharacter::HandleJetpack()
 		{
 			if (m_Jetpack)
 			{
-				float Strength = m_LastJetpackStrength;
+				float Strength = GetTuning(m_TuneZone)->m_JetpackStrength;
+				if(!m_TuneZone)
+					Strength = m_LastJetpackStrength;
 				TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage, GetCID(), m_Core.m_ActiveWeapon);
 			}
 		}
@@ -324,10 +322,10 @@ void CCharacter::FireWeapon()
 				else
 					Dir = vec2(0.f, -1.f);
 
-				float Strength = Tuning()->m_HammerStrength;
+				float Strength = GetTuning(m_TuneZone)->m_HammerStrength;
 
 				vec2 Temp = pTarget->m_Core.m_Vel + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f;
-				pTarget->Core()->LimitForce(&Temp);
+				Temp = pTarget->Core()->LimitVel(Temp);
 				Temp -= pTarget->m_Core.m_Vel;
 
 				vec2 Force = vec2(0.f, -1.0f) + Temp;
@@ -365,8 +363,8 @@ void CCharacter::FireWeapon()
 		{
 			if (!m_Jetpack)
 			{
-				int Lifetime;
-				Lifetime = (int)(GameWorld()->GameTickSpeed()*Tuning()->m_GunLifetime);
+				int Lifetime = (int)(GameWorld()->GameTickSpeed()*GetTuning(m_TuneZone)->m_GunLifetime);
+
 				new CProjectile
 						(
 						GameWorld(),
@@ -388,7 +386,6 @@ void CCharacter::FireWeapon()
 		{
 			if(GameWorld()->m_WorldConfig.m_IsVanilla)
 			{
-
 				int ShotSpread = 2;
 				for(int i = -ShotSpread; i <= ShotSpread; ++i)
 				{
@@ -396,7 +393,7 @@ void CCharacter::FireWeapon()
 					float a = GetAngle(Direction);
 					a += Spreading[i+2];
 					float v = 1-(absolute(i)/(float)ShotSpread);
-					float Speed = mix((float)GameWorld()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
+					float Speed = mix((float)Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
 					new CProjectile
 						(
 						GameWorld(),
@@ -404,7 +401,7 @@ void CCharacter::FireWeapon()
 						GetCID(),//Owner
 						ProjStartPos,//Pos
 						vec2(cosf(a), sinf(a))*Speed,//Dir
-						(int)(GameWorld()->GameTickSpeed()*GameWorld()->Tuning()->m_ShotgunLifetime),//Span
+						(int)(GameWorld()->GameTickSpeed()*Tuning()->m_ShotgunLifetime),//Span
 						0,//Freeze
 						0,//Explosive
 						0,//Force
@@ -415,14 +412,16 @@ void CCharacter::FireWeapon()
 			}
 			else if(GameWorld()->m_WorldConfig.m_IsDDRace)
 			{
-				float LaserReach = Tuning()->m_LaserReach;
+				float LaserReach = GetTuning(m_TuneZone)->m_LaserReach;
+
 				new CLaser(GameWorld(), m_Pos, Direction, LaserReach, GetCID(), WEAPON_SHOTGUN);
 			}
 		} break;
 
 		case WEAPON_GRENADE:
 		{
-			int Lifetime = (int)(GameWorld()->GameTickSpeed()*Tuning()->m_GrenadeLifetime);
+			int Lifetime = (int)(GameWorld()->GameTickSpeed()*GetTuning(m_TuneZone)->m_GrenadeLifetime);
+
 			new CProjectile
 					(
 					GameWorld(),
@@ -441,7 +440,8 @@ void CCharacter::FireWeapon()
 
 		case WEAPON_RIFLE:
 		{
-			float LaserReach = Tuning()->m_LaserReach;
+			float LaserReach = GetTuning(m_TuneZone)->m_LaserReach;
+
 			new CLaser(GameWorld(), m_Pos, Direction, LaserReach, GetCID(), WEAPON_RIFLE);
 		} break;
 
@@ -462,7 +462,8 @@ void CCharacter::FireWeapon()
 	if(!m_ReloadTimer)
 	{
 		float FireDelay;
-		Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+		GetTuning(m_TuneZone)->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+
 		m_ReloadTimer = FireDelay * GameWorld()->GameTickSpeed() / 1000;
 	}
 }
@@ -648,79 +649,29 @@ void CCharacter::HandleSkippableTiles(int Index)
 			}
 			else
 				TempVel += Direction * Force;
-			m_Core.LimitForce(&TempVel);
-			m_Core.m_Vel = TempVel;
+			m_Core.m_Vel = m_Core.LimitVel(TempVel);
 		}
 	}
+}
+
+bool CCharacter::IsSwitchActiveCb(int Number, void *pUser)
+{
+	CCharacter *pThis = (CCharacter *)pUser;
+	CCollision *pCollision = pThis->Collision();
+	return pCollision->m_pSwitchers && pCollision->m_pSwitchers[Number].m_Status[pThis->Team()] && pThis->Team() != TEAM_SUPER;
 }
 
 void CCharacter::HandleTiles(int Index)
 {
 	int MapIndex = Index;
-	float Offset = 4.0f;
-	int MapIndexL = Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
-	int MapIndexR = Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
-	int MapIndexT = Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
-	int MapIndexB = Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
-	m_TileFlags = Collision()->GetTileFlags(MapIndex);
-	m_TileIndexL = Collision()->GetTileIndex(MapIndexL);
-	m_TileFlagsL = Collision()->GetTileFlags(MapIndexL);
-	m_TileIndexR = Collision()->GetTileIndex(MapIndexR);
-	m_TileFlagsR = Collision()->GetTileFlags(MapIndexR);
-	m_TileIndexB = Collision()->GetTileIndex(MapIndexB);
-	m_TileFlagsB = Collision()->GetTileFlags(MapIndexB);
-	m_TileIndexT = Collision()->GetTileIndex(MapIndexT);
-	m_TileFlagsT = Collision()->GetTileFlags(MapIndexT);
 	m_TileFIndex = Collision()->GetFTileIndex(MapIndex);
-	m_TileFFlags = Collision()->GetFTileFlags(MapIndex);
-	m_TileFIndexL = Collision()->GetFTileIndex(MapIndexL);
-	m_TileFFlagsL = Collision()->GetFTileFlags(MapIndexL);
-	m_TileFIndexR = Collision()->GetFTileIndex(MapIndexR);
-	m_TileFFlagsR = Collision()->GetFTileFlags(MapIndexR);
-	m_TileFIndexB = Collision()->GetFTileIndex(MapIndexB);
-	m_TileFFlagsB = Collision()->GetFTileFlags(MapIndexB);
-	m_TileFIndexT = Collision()->GetFTileIndex(MapIndexT);
-	m_TileFFlagsT = Collision()->GetFTileFlags(MapIndexT);//
-	m_TileSIndex = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndex)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileIndex(MapIndex) : 0 : 0;
-	m_TileSFlags = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndex)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileFlags(MapIndex) : 0 : 0;
-	m_TileSIndexL = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexL)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileIndex(MapIndexL) : 0 : 0;
-	m_TileSFlagsL = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexL)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileFlags(MapIndexL) : 0 : 0;
-	m_TileSIndexR = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexR)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileIndex(MapIndexR) : 0 : 0;
-	m_TileSFlagsR = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexR)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileFlags(MapIndexR) : 0 : 0;
-	m_TileSIndexB = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexB)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileIndex(MapIndexB) : 0 : 0;
-	m_TileSFlagsB = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexB)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileFlags(MapIndexB) : 0 : 0;
-	m_TileSIndexT = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexT)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileIndex(MapIndexT) : 0 : 0;
-	m_TileSFlagsT = (Collision()->m_pSwitchers && Collision()->m_pSwitchers[Collision()->GetDTileNumber(MapIndexT)].m_Status[Team()])?(Team() != TEAM_SUPER)? Collision()->GetDTileFlags(MapIndexT) : 0 : 0;
+	m_MoveRestrictions = Collision()->GetMoveRestrictions(IsSwitchActiveCb, this, m_Pos);
 
 	// stopper
-	if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_270) || (m_TileIndexL == TILE_STOP && m_TileFlagsL == ROTATION_270) || (m_TileIndexL == TILE_STOPS && (m_TileFlagsL == ROTATION_90 || m_TileFlagsL ==ROTATION_270)) || (m_TileIndexL == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_270) || (m_TileFIndexL == TILE_STOP && m_TileFFlagsL == ROTATION_270) || (m_TileFIndexL == TILE_STOPS && (m_TileFFlagsL == ROTATION_90 || m_TileFFlagsL == ROTATION_270)) || (m_TileFIndexL == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_270) || (m_TileSIndexL == TILE_STOP && m_TileSFlagsL == ROTATION_270) || (m_TileSIndexL == TILE_STOPS && (m_TileSFlagsL == ROTATION_90 || m_TileSFlagsL == ROTATION_270)) || (m_TileSIndexL == TILE_STOPA)) && m_Core.m_Vel.x > 0)
+	m_Core.m_Vel = ClampVel(m_MoveRestrictions, m_Core.m_Vel);
+	if(m_MoveRestrictions&CANTMOVE_DOWN)
 	{
-		if((int)Collision()->GetPos(MapIndexL).x)
-			if((int)Collision()->GetPos(MapIndexL).x < (int)m_Core.m_Pos.x)
-				m_Core.m_Pos = m_PrevPos;
-		m_Core.m_Vel.x = 0;
-	}
-	if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_90) || (m_TileIndexR == TILE_STOP && m_TileFlagsR == ROTATION_90) || (m_TileIndexR == TILE_STOPS && (m_TileFlagsR == ROTATION_90 || m_TileFlagsR == ROTATION_270)) || (m_TileIndexR == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_90) || (m_TileFIndexR == TILE_STOP && m_TileFFlagsR == ROTATION_90) || (m_TileFIndexR == TILE_STOPS && (m_TileFFlagsR == ROTATION_90 || m_TileFFlagsR == ROTATION_270)) || (m_TileFIndexR == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_90) || (m_TileSIndexR == TILE_STOP && m_TileSFlagsR == ROTATION_90) || (m_TileSIndexR == TILE_STOPS && (m_TileSFlagsR == ROTATION_90 || m_TileSFlagsR == ROTATION_270)) || (m_TileSIndexR == TILE_STOPA)) && m_Core.m_Vel.x < 0)
-	{
-		if((int)Collision()->GetPos(MapIndexR).x)
-			if((int)Collision()->GetPos(MapIndexR).x > (int)m_Core.m_Pos.x)
-				m_Core.m_Pos = m_PrevPos;
-		m_Core.m_Vel.x = 0;
-	}
-	if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_180) || (m_TileIndexB == TILE_STOP && m_TileFlagsB == ROTATION_180) || (m_TileIndexB == TILE_STOPS && (m_TileFlagsB == ROTATION_0 || m_TileFlagsB == ROTATION_180)) || (m_TileIndexB == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_180) || (m_TileFIndexB == TILE_STOP && m_TileFFlagsB == ROTATION_180) || (m_TileFIndexB == TILE_STOPS && (m_TileFFlagsB == ROTATION_0 || m_TileFFlagsB == ROTATION_180)) || (m_TileFIndexB == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_180) || (m_TileSIndexB == TILE_STOP && m_TileSFlagsB == ROTATION_180) || (m_TileSIndexB == TILE_STOPS && (m_TileSFlagsB == ROTATION_0 || m_TileSFlagsB == ROTATION_180)) || (m_TileSIndexB == TILE_STOPA)) && m_Core.m_Vel.y < 0)
-	{
-		if((int)Collision()->GetPos(MapIndexB).y)
-			if((int)Collision()->GetPos(MapIndexB).y > (int)m_Core.m_Pos.y)
-				m_Core.m_Pos = m_PrevPos;
-		m_Core.m_Vel.y = 0;
-	}
-	if(((m_TileIndex == TILE_STOP && m_TileFlags == ROTATION_0) || (m_TileIndexT == TILE_STOP && m_TileFlagsT == ROTATION_0) || (m_TileIndexT == TILE_STOPS && (m_TileFlagsT == ROTATION_0 || m_TileFlagsT == ROTATION_180)) || (m_TileIndexT == TILE_STOPA) || (m_TileFIndex == TILE_STOP && m_TileFFlags == ROTATION_0) || (m_TileFIndexT == TILE_STOP && m_TileFFlagsT == ROTATION_0) || (m_TileFIndexT == TILE_STOPS && (m_TileFFlagsT == ROTATION_0 || m_TileFFlagsT == ROTATION_180)) || (m_TileFIndexT == TILE_STOPA) || (m_TileSIndex == TILE_STOP && m_TileSFlags == ROTATION_0) || (m_TileSIndexT == TILE_STOP && m_TileSFlagsT == ROTATION_0) || (m_TileSIndexT == TILE_STOPS && (m_TileSFlagsT == ROTATION_0 || m_TileSFlagsT == ROTATION_180)) || (m_TileSIndexT == TILE_STOPA)) && m_Core.m_Vel.y > 0)
-	{
-		if((int)Collision()->GetPos(MapIndexT).y)
-			if((int)Collision()->GetPos(MapIndexT).y < (int)m_Core.m_Pos.y)
-				m_Core.m_Pos = m_PrevPos;
-		m_Core.m_Vel.y = 0;
 		m_Core.m_Jumped = 0;
 		m_Core.m_JumpedTotal = 0;
 	}
@@ -886,6 +837,14 @@ void CCharacter::HandleTiles(int Index)
 	}
 }
 
+void CCharacter::HandleTuneLayer()
+{
+	int CurrentIndex = Collision()->GetMapIndex(m_Pos);
+	m_TuneZone = GameWorld()->m_WorldConfig.m_PredictTiles ? Collision()->IsTune(CurrentIndex) : 0;
+
+	m_Core.m_pWorld->m_Tuning[g_Config.m_ClDummy] = *GetTuning(m_TuneZone); // throw tunings (from specific zone if in a tunezone) into gamecore
+}
+
 void CCharacter::DDRaceTick()
 {
 	mem_copy(&m_Input, &m_SavedInput, sizeof(m_Input));
@@ -904,6 +863,8 @@ void CCharacter::DDRaceTick()
 		if (m_FreezeTime == 1)
 			UnFreeze();
 	}
+
+	HandleTuneLayer();
 }
 
 void CCharacter::DDRacePostCoreTick()
@@ -1184,6 +1145,8 @@ void CCharacter::Read(CNetObj_Character *pChar, CNetObj_DDNetCharacter *pExtende
 	m_AttackTick = pChar->m_AttackTick;
 	m_LastSnapWeapon = pChar->m_Weapon;
 	m_Alive = true;
+
+	m_TuneZone = GameWorld()->m_WorldConfig.m_PredictTiles ? Collision()->IsTune(Collision()->GetMapIndex(m_Pos)) : 0;
 
 	// set the current weapon
 	if(pChar->m_Weapon != WEAPON_NINJA)

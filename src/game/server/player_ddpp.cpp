@@ -34,6 +34,8 @@ void CPlayer::ResetDDPP()
 		str_format(m_aAsciiFrame14, sizeof(m_aAsciiFrame14), ":");
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
+	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
+		m_aCatchedID[i] = -1;
 
 	if (GameServer()->IsDDPPgametype("fly"))
 	{

@@ -101,8 +101,8 @@ public:
 
 	void Rescue();
 
-	int NeededFaketuning() {return m_NeededFaketuning;}
-	bool IsAlive() const { return m_Alive; } 
+	int NeededFaketuning() { return m_NeededFaketuning;}
+	bool IsAlive() const { return m_Alive; }
 	bool IsPaused() const { return m_Paused; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
@@ -190,7 +190,7 @@ private:
 
 	// DDRace
 
-
+	static bool IsSwitchActiveCb(int Number, void *pUser);
 	void HandleTiles(int Index);
 	float m_Time;
 	int m_LastBroadcast;
@@ -376,6 +376,7 @@ public:
 	int m_FreezeTime;
 	int m_FreezeTick;
 	int64 m_FirstFreezeTick;
+	bool m_FrozenLastTick;
 	bool m_DeepFreeze;
 	bool m_EndlessHook;
 	bool m_FreezeHammer;
@@ -666,44 +667,16 @@ public:
 	int m_CpLastBroadcast;
 	float m_CpCurrent[25];
 	int m_TileIndex;
-	int m_TileFlags;
 	int m_TileFIndex;
-	int m_TileFFlags;
-	int m_TileSIndex;
-	int m_TileSFlags;
-	int m_TileIndexL;
-	int m_TileFlagsL;
-	int m_TileFIndexL;
-	int m_TileFFlagsL;
-	int m_TileSIndexL;
-	int m_TileSFlagsL;
-	int m_TileIndexR;
-	int m_TileFlagsR;
-	int m_TileFIndexR;
-	int m_TileFFlagsR;
-	int m_TileSIndexR;
-	int m_TileSFlagsR;
-	int m_TileIndexT;
-	int m_TileFlagsT;
-	int m_TileFIndexT;
-	int m_TileFFlagsT;
-	int m_TileSIndexT;
-	int m_TileSFlagsT;
-	int m_TileIndexB;
-	int m_TileFlagsB;
-	int m_TileFIndexB;
-	int m_TileFFlagsB;
-	int m_TileSIndexB;
-	int m_TileSFlagsB;
+
+	int m_MoveRestrictions;
+
 	vec2 m_Intersection;
 	int64 m_LastStartWarning;
 	int64 m_LastRescue;
 	bool m_LastRefillJumps;
 	bool m_LastPenalty;
 	bool m_LastBonus;
-	bool m_HasTeleGun;
-	bool m_HasTeleGrenade;
-	bool m_HasTeleLaser;
 	vec2 m_TeleGunPos;
 	bool m_TeleGunTeleport;
 	bool m_IsBlueTeleGunTeleport;
@@ -716,14 +689,14 @@ public:
 
 	// Setters/Getters because i don't want to modify vanilla vars access modifiers
 	int GetLastWeapon() { return m_LastWeapon; };
-	void SetLastWeapon(int LastWeap) {m_LastWeapon = LastWeap; };
+	void SetLastWeapon(int LastWeap) { m_LastWeapon = LastWeap; };
 	int GetActiveWeapon() { return m_Core.m_ActiveWeapon; };
-	void SetActiveWeapon(int ActiveWeap) {m_Core.m_ActiveWeapon = ActiveWeap; };
-	void SetLastAction(int LastAction) {m_LastAction = LastAction; };
+	void SetActiveWeapon(int ActiveWeap) { m_Core.m_ActiveWeapon = ActiveWeap; };
+	void SetLastAction(int LastAction) { m_LastAction = LastAction; };
 	int GetArmor() { return m_Armor; };
-	void SetArmor(int Armor) {m_Armor = Armor; };
+	void SetArmor(int Armor) { m_Armor = Armor; };
 	CCharacterCore GetCore() { return m_Core; };
-	void SetCore(CCharacterCore Core) {m_Core = Core; };
+	void SetCore(CCharacterCore Core) { m_Core = Core; };
 	CCharacterCore* Core() { return &m_Core; };
 	bool GetWeaponGot(int Type) { return m_aWeapons[Type].m_Got; };
 	void SetWeaponGot(int Type, bool Value) { m_aWeapons[Type].m_Got = Value; };
@@ -736,6 +709,10 @@ public:
 	void SetNinjaActivationTick(int ActivationTick) { m_Ninja.m_ActivationTick = ActivationTick; };
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Ninja.m_CurrentMoveTime = CurrentMoveTime; };
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
+
+	bool HasTelegunGun() { return m_Core.m_HasTelegunGun; };
+	bool HasTelegunGrenade() { return m_Core.m_HasTelegunGrenade; };
+	bool HasTelegunLaser() { return m_Core.m_HasTelegunLaser; };
 };
 
 enum

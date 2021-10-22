@@ -1091,11 +1091,6 @@ private:
 		int64 m_LastAttempt;
 		int m_NumAttempts;
 	};
-	struct CVoteMute
-	{
-		NETADDR m_Addr;
-		int m_Expire;
-	};
 
 	CMute m_aMutes[MAX_MUTES];
 	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
@@ -1111,7 +1106,7 @@ private:
 	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
 	int64 NameChangeMuteTime(int ClientID);
-	CVoteMute m_aVoteMutes[MAX_VOTE_MUTES];
+	CMute m_aVoteMutes[MAX_VOTE_MUTES];
 	int m_NumVoteMutes;
 	bool TryMute(const NETADDR *pAddr, int Secs);
 	void Mute(const NETADDR *pAddr, int Secs, const char *pDisplayName);

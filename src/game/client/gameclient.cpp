@@ -239,6 +239,8 @@ void CGameClient::OnConsoleInit()
 	Console()->Register("swap_teams", "", CFGFLAG_SERVER, 0, 0, "Swap the current teams");
 	Console()->Register("shuffle_teams", "", CFGFLAG_SERVER, 0, 0, "Shuffle the current teams");
 
+	// register tune zone command to allow the client prediction to load tunezones from the map
+	Console()->Register("tune_zone", "i[zone] s[tuning] i[value]", CFGFLAG_CLIENT|CFGFLAG_GAME, ConTuneZone, this, "Tune in zone a variable to value");
 
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->m_pClient = this;
@@ -350,6 +352,7 @@ void CGameClient::OnInit()
 
 	m_GameWorld.m_GameTickSpeed = SERVER_TICK_SPEED;
 	m_GameWorld.m_pCollision = Collision();
+	m_GameWorld.m_pTuningList = m_aTuningList;
 
 	m_pMapimages->SetTextureScale(g_Config.m_ClTextEntitiesSize);
 }
@@ -488,6 +491,7 @@ void CGameClient::OnConnected()
 	m_GameWorld.m_WorldConfig.m_InfiniteAmmo = true;
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		m_aLastWorldCharacters[i].m_Alive = false;
+	LoadMapSettings();
 }
 
 void CGameClient::OnReset()
@@ -1197,6 +1201,8 @@ void CGameClient::OnNewSnapshot()
 				const CNetObj_DDNetPlayer *pInfo = (const CNetObj_DDNetPlayer *)pData;
 				m_aClients[Item.m_ID].m_AuthLevel = pInfo->m_AuthLevel;
 				m_aClients[Item.m_ID].m_Afk = pInfo->m_Flags & EXPLAYERFLAG_AFK;
+				m_aClients[Item.m_ID].m_Paused = pInfo->m_Flags & EXPLAYERFLAG_PAUSED;
+				m_aClients[Item.m_ID].m_Spec = pInfo->m_Flags & EXPLAYERFLAG_SPEC;
 			}
 			else if(Item.m_Type == NETOBJTYPE_CHARACTER)
 			{
@@ -1757,7 +1763,7 @@ void CGameClient::CClientData::Reset()
 	m_aName[0] = 0;
 	m_aClan[0] = 0;
 	m_Country = -1;
-	m_SkinID = 0;
+	m_SkinID = -1;
 	m_Team = 0;
 	m_Angle = 0;
 	m_Emoticon = 0;
@@ -1768,7 +1774,9 @@ void CGameClient::CClientData::Reset()
 	m_Foe = false;
 	m_AuthLevel = AUTHED_NO;
 	m_Afk = false;
-	m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(0)->m_ColorTexture;
+	m_Paused = false;
+	m_Spec = false;
+	m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(-1)->m_OrgTexture;
 	m_SkinInfo.m_ColorBody = ColorRGBA(1,1,1);
 	m_SkinInfo.m_ColorFeet = ColorRGBA(1,1,1);
 
@@ -1999,7 +2007,12 @@ void CGameClient::UpdatePrediction()
 		m_GameWorld.m_WorldConfig.m_InfiniteAmmo = false;
 	m_GameWorld.m_WorldConfig.m_IsSolo = !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_HasExtendedData && !m_Tuning[g_Config.m_ClDummy].m_PlayerCollision && !m_Tuning[g_Config.m_ClDummy].m_PlayerHooking;
 
-	m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+	// update the tuning/tunezone at the local character position with the latest tunings received before the new snapshot
+	int TuneZone = Collision()->IsTune(Collision()->GetMapIndex(vec2(m_Snap.m_pLocalCharacter->m_X, m_Snap.m_pLocalCharacter->m_Y)));
+	if(!TuneZone || !m_GameWorld.m_WorldConfig.m_PredictTiles)
+		m_GameWorld.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+	else
+		m_GameWorld.TuningList()[TuneZone] = m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
 
 	// restore characters from previously saved ones if they temporarily left the snapshot
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -2298,4 +2311,61 @@ bool CGameClient::IsOtherTeam(int ClientID)
 		return true;
 
 	return m_Teams.Team(ClientID) != m_Teams.Team(m_Snap.m_LocalClientID);
+}
+
+void CGameClient::LoadMapSettings()
+{
+	// Reset Tunezones
+	CTuningParams TuningParams;
+	for(int i = 0; i < NUM_TUNEZONES; i++)
+	{
+		TuningList()[i] = TuningParams;
+		TuningList()[i].Set("gun_curvature", 0);
+		TuningList()[i].Set("gun_speed", 1400);
+		TuningList()[i].Set("shotgun_curvature", 0);
+		TuningList()[i].Set("shotgun_speed", 500);
+		TuningList()[i].Set("shotgun_speeddiff", 0);
+	}
+
+	// Load map tunings
+	IMap *pMap = Kernel()->RequestInterface<IMap>();
+	int Start, Num;
+	pMap->GetType(MAPITEMTYPE_INFO, &Start, &Num);
+	for(int i = Start; i < Start + Num; i++)
+	{
+		int ItemID;
+		CMapItemInfoSettings *pItem = (CMapItemInfoSettings *)pMap->GetItem(i, 0, &ItemID);
+		int ItemSize = pMap->GetItemSize(i);
+		if(!pItem || ItemID != 0)
+			continue;
+
+		if(ItemSize < (int)sizeof(CMapItemInfoSettings))
+			break;
+		if(!(pItem->m_Settings > -1))
+			break;
+
+		int Size = pMap->GetDataSize(pItem->m_Settings);
+		char *pSettings = (char *)pMap->GetData(pItem->m_Settings);
+		char *pNext = pSettings;
+		dbg_msg("New tune ","%s", pNext);
+		while(pNext < pSettings + Size)
+		{
+			int StrSize = str_length(pNext) + 1;
+			Console()->ExecuteLine(pNext, IConsole::CLIENT_ID_GAME);
+			pNext += StrSize;
+		}
+		pMap->UnloadData(pItem->m_Settings);
+		break;
+	}
+}
+
+void CGameClient::ConTuneZone(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameClient *pSelf = (CGameClient *)pUserData;
+	int List = pResult->GetInteger(0);
+	const char *pParamName = pResult->GetString(1);
+	float NewValue = pResult->GetFloat(2);
+
+	if(List >= 0 && List < NUM_TUNEZONES)
+		pSelf->TuningList()[List].Set(pParamName, NewValue);
 }

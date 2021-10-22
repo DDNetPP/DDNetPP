@@ -21,7 +21,7 @@ GameInfoFlags = [
 	"ENTITIES_VANILLA", "DONT_MASK_ENTITIES", "ENTITIES_BW"
 	# Full, use GameInfoFlags2 for more flags
 ]
-ExPlayerFlags = ["AFK"]
+ExPlayerFlags = ["AFK", "PAUSED", "SPEC"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 

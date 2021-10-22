@@ -156,7 +156,7 @@ public:
 		PAUSE_PAUSED,
 		PAUSE_SPEC
 	};
-	
+
 	enum
 	{
 		TIMERTYPE_GAMETIMER=0,
@@ -198,7 +198,7 @@ public:
 	int m_LastBroadcastImportance;
 	int m_LastTarget_x;
 	int m_LastTarget_y;
-	CNetObj_PlayerInput m_LastTarget;
+	CNetObj_PlayerInput *m_pLastTarget;
 	int m_Sent1stAfkWarning; // afk timer's 1st warning after 50% of sv_max_afk_time
 	int m_Sent2ndAfkWarning; // afk timer's 2nd warning after 90% of sv_max_afk_time
 	char m_pAfkMsg[160];

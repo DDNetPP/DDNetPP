@@ -24,15 +24,14 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
-	m_pCharacter = 0;
 	m_NumInputs = 0;
-	m_KillMe = 0;
 	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
 	Reset();
 }
 
 CPlayer::~CPlayer()
 {
+	delete m_pLastTarget;
 	delete m_pCharacter;
 	m_pCharacter = 0;
 }
@@ -64,7 +63,7 @@ void CPlayer::Reset()
 	m_vWeaponLimit.resize(5);
 
 	m_LastCommandPos = 0;
-	m_LastPlaytime = time_get();
+	m_LastPlaytime = 0;
 	m_Sent1stAfkWarning = 0;
 	m_Sent2ndAfkWarning = 0;
 	m_ChatScore = 0;
@@ -72,14 +71,12 @@ void CPlayer::Reset()
 	m_EyeEmote = true;
 	m_TimerType = (g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) ? CPlayer::TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
 	m_DefEmote = EMOTE_NORMAL;
-	m_Afk = false;
+	m_Afk = true;
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_TimeoutCode[0] = '\0';
-
-	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
-		m_aCatchedID[i] = -1;
-
+	delete m_pLastTarget;
+	m_pLastTarget = nullptr;
 	m_TuneZone = 0;
 	m_TuneZoneOld = m_TuneZone;
 	m_Halloween = false;
@@ -209,7 +206,7 @@ void CPlayer::Tick()
 	if(!GameServer()->m_World.m_Paused)
 	{
 		int EarliestRespawnTick = m_PreviousDieTick+Server()->TickSpeed()*3;
-		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick);
+		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick)+2;
 		if(!m_pCharacter && RespawnTick <= Server()->Tick())
 			m_Spawning = true;
 
@@ -371,7 +368,13 @@ void CPlayer::Snap(int SnappingClient)
 		return;
 
 	pDDNetPlayer->m_AuthLevel = Server()->GetAuthedState(id);
-	pDDNetPlayer->m_Flags = m_Afk ? EXPLAYERFLAG_AFK : 0;
+	pDDNetPlayer->m_Flags = 0;
+	if(m_Afk)
+		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
+	if(m_Paused == PAUSE_SPEC)
+		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
+	if(m_Paused == PAUSE_PAUSED)
+		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;
 	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 }
 
@@ -714,10 +717,17 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 	if(g_Config.m_SvMaxAfkVoteTime == 0)
 		return;
 
-	if(mem_comp(NewTarget, &m_LastTarget, sizeof(CNetObj_PlayerInput)) != 0)
+	if(!m_pLastTarget)
+	{
+		m_pLastTarget = new CNetObj_PlayerInput(*NewTarget);
+		m_LastPlaytime = 0;
+		m_Afk = true;
+		return;
+	}
+	else if(mem_comp(NewTarget, m_pLastTarget, sizeof(CNetObj_PlayerInput)) != 0)
 	{
 		m_LastPlaytime = time_get();
-		mem_copy(&m_LastTarget, NewTarget, sizeof(CNetObj_PlayerInput));
+		mem_copy(m_pLastTarget, NewTarget, sizeof(CNetObj_PlayerInput));
 	}
 	else if(m_LastPlaytime < time_get()-time_freq()*g_Config.m_SvMaxAfkVoteTime)
 	{

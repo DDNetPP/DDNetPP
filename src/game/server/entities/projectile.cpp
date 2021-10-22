@@ -28,7 +28,6 @@ CProjectile::CProjectile
 	m_Type = Type;
 	m_Pos = Pos;
 	m_Direction = Dir;
-	m_InitialLifeSpan = Span;
 	m_LifeSpan = Span;
 	m_Owner = Owner;
 	m_Force = Force;
@@ -154,7 +153,7 @@ void CProjectile::Tick()
 		if(m_Explosive/*??*/ && (!pTargetChr || (pTargetChr && (!m_Freeze || (m_Type == WEAPON_SHOTGUN && Collide)))))
 		{
 			int Number = 1;
-			if(GameServer()->EmulateBug(BUG_GRENADE_DOUBLEEXPLOSION) && m_LifeSpan == -1 && m_InitialLifeSpan == 0)
+			if(GameServer()->EmulateBug(BUG_GRENADE_DOUBLEEXPLOSION) && m_LifeSpan == -1)
 			{
 				Number = 2;
 			}
@@ -176,7 +175,7 @@ void CProjectile::Tick()
 		}
 
 		if (pOwnerChar && ColPos && !GameLayerClipped(ColPos) &&
-			((m_Type == WEAPON_GRENADE && pOwnerChar->m_HasTeleGrenade) || (m_Type == WEAPON_GUN && pOwnerChar->m_HasTeleGun)))
+			((m_Type == WEAPON_GRENADE && pOwnerChar->HasTelegunGrenade()) || (m_Type == WEAPON_GUN && pOwnerChar->HasTelegunGun())))
 		{
 			int MapIndex = GameServer()->Collision()->GetPureMapIndex(pTargetChr ? pTargetChr->m_Pos : ColPos);
 			int TileFIndex = GameServer()->Collision()->GetFTileIndex(MapIndex);

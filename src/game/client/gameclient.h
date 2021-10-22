@@ -154,6 +154,8 @@ class CGameClient : public IGameClient
 	static void ConchainSpecialDummy(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainClTextEntitiesSize(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
+	static void ConTuneZone(IConsole::IResult *pResult, void *pUserData);
+
 public:
 	IKernel *Kernel() { return IInterface::Kernel(); }
 	IEngine *Engine() const { return m_pEngine; }
@@ -305,6 +307,8 @@ public:
 
 		int m_AuthLevel;
 		bool m_Afk;
+		bool m_Paused;
+		bool m_Spec;
 
 		void UpdateRenderInfo();
 		void Reset();
@@ -465,6 +469,14 @@ private:
 
 	CCharOrder m_CharOrder;
 	class CCharacter m_aLastWorldCharacters[MAX_CLIENTS];
+
+	enum
+	{
+		NUM_TUNEZONES = 256
+	};
+	void LoadMapSettings();
+	CTuningParams m_aTuningList[NUM_TUNEZONES];
+	CTuningParams *TuningList() { return m_aTuningList; }
 };
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);

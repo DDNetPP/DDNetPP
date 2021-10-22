@@ -320,6 +320,15 @@ void CConsole::PrintDDPPLogs(int type)
     }
 }
 
+char *CConsole::Format(char *pBuf, int Size, const char *pFrom, const char *pStr)
+{
+	char aTimeBuf[80];
+	str_timestamp_format(aTimeBuf, sizeof(aTimeBuf), FORMAT_TIME);
+
+	str_format(pBuf, Size, "[%s][%s]: %s", aTimeBuf, pFrom, pStr);
+	return pBuf;
+}
+
 void CConsole::Print(int Level, const char *pFrom, const char *pStr, bool Highlighted)
 {
 	char aBuf[1024];
@@ -330,15 +339,11 @@ void CConsole::Print(int Level, const char *pFrom, const char *pStr, bool Highli
 		return;
 	}
 	dbg_msg(pFrom ,"%s", pStr);
+	Format(aBuf, sizeof(aBuf), pFrom, pStr);
 	for(int i = 0; i < m_NumPrintCB; ++i)
 	{
 		if(Level <= m_aPrintCB[i].m_OutputLevel && m_aPrintCB[i].m_pfnPrintCallback)
 		{
-			char aTimeBuf[80];
-			str_timestamp_format(aTimeBuf, sizeof(aTimeBuf), FORMAT_TIME);
-
-			char aBuf[1024];
-			str_format(aBuf, sizeof(aBuf), "[%s][%s]: %s", aTimeBuf, pFrom, pStr);
 			m_aPrintCB[i].m_pfnPrintCallback(aBuf, m_aPrintCB[i].m_pPrintCallbackUserdata, Highlighted);
 		}
 	}

@@ -223,6 +223,9 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 		if(p == pNotThis)
 			continue;
 
+		if(pThisOnly && p != pThisOnly)
+			continue;
+
 		if(CollideWith != -1 && !p->CanCollide(CollideWith))
 			continue;
 
@@ -281,7 +284,7 @@ void CGameWorld::ReleaseHooked(int ClientID)
 
 CTuningParams *CGameWorld::Tuning()
 {
-	return &m_Core.m_Tuning[g_Config.m_ClDummy];
+	return &m_Tuning[g_Config.m_ClDummy];
 }
 
 CEntity *CGameWorld::GetEntity(int ID, int EntType)
@@ -518,7 +521,11 @@ void CGameWorld::CopyWorld(CGameWorld *pFrom)
 	m_pCollision = pFrom->m_pCollision;
 	m_WorldConfig = pFrom->m_WorldConfig;
 	for(int i = 0; i < 2; i++)
+	{
 		m_Core.m_Tuning[i] = pFrom->m_Core.m_Tuning[i];
+		m_Tuning[i] = pFrom->m_Tuning[i];
+	}
+	m_pTuningList = pFrom->m_pTuningList;
 	m_Teams = pFrom->m_Teams;
 	// delete the previous entities
 	for(int i = 0; i < NUM_ENTTYPES; i++)

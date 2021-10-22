@@ -1117,7 +1117,7 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, SHA256_DI
 
 	// stop demo recording if we loaded a new map
 	for(int i = 0; i < RECORDER_MAX; i++)
-		DemoRecorder_Stop(i);
+		DemoRecorder_Stop(i, i == RECORDER_REPLAYS);
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "loaded map '%s'", pFilename);
@@ -1187,9 +1187,17 @@ int CClient::PlayerScoreNameComp(const void *a, const void *b)
 		return -1;
 	if(!p0->m_Player && p1->m_Player)
 		return 1;
-	if(p0->m_Score > p1->m_Score)
+
+	int Score0 = p0->m_Score;
+	int Score1 = p1->m_Score;
+	if(Score0 == -9999)
+		Score0 = INT_MIN;
+	if(Score1 == -9999)
+		Score1 = INT_MIN;
+
+	if(Score0 > Score1)
 		return -1;
-	if(p0->m_Score < p1->m_Score)
+	if(Score0 < Score1)
 		return 1;
 	return str_comp_nocase(p0->m_aName, p1->m_aName);
 }
@@ -3534,7 +3542,7 @@ void CClient::DemoRecorder_Stop(int Recorder, bool RemoveFile)
 	m_DemoRecorder[Recorder].Stop();
 	if(RemoveFile)
 	{
-		const char *pFilename = (&m_DemoRecorder[RECORDER_REPLAYS])->GetCurrentFilename();
+		const char *pFilename = (&m_DemoRecorder[Recorder])->GetCurrentFilename();
 		Storage()->RemoveFile(pFilename, IStorage::TYPE_SAVE);
 	}
 }
