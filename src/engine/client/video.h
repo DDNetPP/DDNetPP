@@ -59,6 +59,7 @@ public:
 
 	virtual void start();
 	virtual void stop();
+	virtual void pause(bool p);
 
 	virtual void nextVideoFrame();
 	virtual void nextVideoFrame_thread();

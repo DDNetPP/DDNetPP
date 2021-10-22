@@ -27,10 +27,12 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_NumInputs = 0;
 	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
 	Reset();
+	GameServer()->Antibot()->OnPlayerInit(m_ClientID);
 }
 
 CPlayer::~CPlayer()
 {
+	GameServer()->Antibot()->OnPlayerDestroy(m_ClientID);
 	delete m_pLastTarget;
 	delete m_pCharacter;
 	m_pCharacter = 0;

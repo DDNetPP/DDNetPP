@@ -1939,6 +1939,8 @@ if(SERVER)
     sql_string_helpers.h
   )
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
+    antibot.cpp
+    antibot.h
     captcha.cpp
     captcha.h
     db_sqlite3.cpp

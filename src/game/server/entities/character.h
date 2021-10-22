@@ -26,7 +26,9 @@
 #define V3_OFFSET_X 0 * 32 //was 277
 #define V3_OFFSET_Y 0 * 32 //was 48
 
+class CAntibot;
 class CGameTeams;
+struct CAntibotCharacterData;
 
 enum
 {
@@ -156,6 +158,7 @@ private:
 	int m_LastNoAmmoSound;
 
 	// these are non-heldback inputs
+	CNetObj_PlayerInput m_LatestPrevPrevInput;
 	CNetObj_PlayerInput m_LatestPrevInput;
 	CNetObj_PlayerInput m_LatestInput;
 
@@ -201,6 +204,7 @@ private:
 	void HandleBroadcast();
 	void HandleTuneLayer();
 	void SendZoneMsgs();
+	CAntibot *Antibot();
 
 	bool m_SetSavePos;
 	vec2 m_PrevSavePos;
@@ -339,6 +343,7 @@ public:
 	void InstagibKillingSpree(int KillerID, int Weapon);
 	bool m_UpdateInstaScoreBoard;
 
+	void FillAntibot(CAntibotCharacterData *pData);
 	void Pause(bool Pause);
 	bool ForceFreeze(int Seconds); //mede by ChillerDragon too freeze no matter what used for freezing while freezed (for example for tournaments to have all same freeze time even if some wer freezed at tourna start)
 	//WARNING FORCE FREEZE ISNT ABLE TO OVERWRITE FREEZE AS IT SHOULD!!!
@@ -686,6 +691,8 @@ public:
 
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
+	int m_SpawnTick;
+	int m_WeaponChangeTick;
 
 	// Setters/Getters because i don't want to modify vanilla vars access modifiers
 	int GetLastWeapon() { return m_LastWeapon; };
