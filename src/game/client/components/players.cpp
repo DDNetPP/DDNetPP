@@ -108,7 +108,7 @@ void CPlayers::RenderHook(
 		Position = m_pClient->m_aClients[ClientID].m_RenderPos;
 	else
 		Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Player.m_X, Player.m_Y), IntraTick);
-
+	
 	// draw hook
 	if(Prev.m_HookState>0 && Player.m_HookState>0)
 	{
@@ -125,6 +125,7 @@ void CPlayers::RenderHook(
 			HookPos = m_pClient->m_aClients[pPlayerChar->m_HookedPlayer].m_RenderPos;
 		else
 			HookPos = mix(vec2(Prev.m_HookX, Prev.m_HookY), vec2(Player.m_HookX, Player.m_HookY), IntraTick);
+		
 
 		float d = distance(Pos, HookPos);
 		vec2 Dir = normalize(Pos-HookPos);
@@ -164,7 +165,6 @@ void CPlayers::RenderPlayer(
 	const CNetObj_Character *pPlayerChar,
 	const CTeeRenderInfo *pRenderInfo,
 	int ClientID,
-	bool Spec,
 	float Intra
 	)
 {
@@ -177,7 +177,7 @@ void CPlayers::RenderPlayer(
 
 	bool Local = m_pClient->m_Snap.m_LocalClientID == ClientID;
 	bool OtherTeam = m_pClient->IsOtherTeam(ClientID);
-	float Alpha = (OtherTeam || Spec) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+	float Alpha = OtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
 
 	// set size
 	RenderInfo.m_Size = 64.0f;
@@ -197,7 +197,7 @@ void CPlayers::RenderPlayer(
 	bool PredictLocalWeapons = false;
 	float AttackTime = (Client()->PrevGameTick(g_Config.m_ClDummy) - Player.m_AttackTick) / (float)SERVER_TICK_SPEED + Client()->GameTickTime(g_Config.m_ClDummy);
 	float LastAttackTime = (Client()->PrevGameTick(g_Config.m_ClDummy) - Player.m_AttackTick) / (float)SERVER_TICK_SPEED + s_LastGameTickTime;
-	if(m_pClient->m_aClients[ClientID].m_IsPredictedLocal && m_pClient->AntiPingGunfire())
+	if(ClientID >= 0 && m_pClient->m_aClients[ClientID].m_IsPredictedLocal && m_pClient->AntiPingGunfire())
 	{
 		PredictLocalWeapons = true;
 		AttackTime = (Client()->PredIntraGameTick(g_Config.m_ClDummy) + (Client()->PredGameTick(g_Config.m_ClDummy) - 1 - Player.m_AttackTick)) / (float)SERVER_TICK_SPEED;
@@ -230,17 +230,11 @@ void CPlayers::RenderPlayer(
 
 	vec2 Direction = GetDirection((int)(Angle*256.0f));
 	vec2 Position;
-	if(in_range(ClientID, MAX_CLIENTS-1))
+	if(ClientID >= 0)
 		Position = m_pClient->m_aClients[ClientID].m_RenderPos;
 	else
 		Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Player.m_X, Player.m_Y), IntraTick);
 	
-	if(Spec)
-	{
-		Position.x = m_pClient->m_aClients[ClientID].m_SpecChar.m_X;
-		Position.y = m_pClient->m_aClients[ClientID].m_SpecChar.m_Y;
-	}
-
 	vec2 Vel = mix(vec2(Prev.m_VelX/256.0f, Prev.m_VelY/256.0f), vec2(Player.m_VelX/256.0f, Player.m_VelY/256.0f), IntraTick);
 
 	m_pClient->m_pFlow->Add(Position, Vel*100.0f, 10.0f);
@@ -286,7 +280,6 @@ void CPlayers::RenderPlayer(
 	}
 
 	// draw gun
-	if(!Spec)
 	{
 #if defined(CONF_VIDEORECORDER)
 		if(ClientID >= 0 && ((GameClient()->m_GameInfo.m_AllowHookColl && g_Config.m_ClShowHookCollAlways) || (Player.m_PlayerFlags&PLAYERFLAG_AIM && ((!Local && ((!IVideo::Current()&&g_Config.m_ClShowHookCollOther)||(IVideo::Current()&&g_Config.m_ClVideoShowHookCollOther))) || (Local && g_Config.m_ClShowHookCollOwn)))))
@@ -568,13 +561,10 @@ void CPlayers::RenderPlayer(
 		Graphics()->QuadsSetRotation(0);
 	}
 
-	if(OtherTeam || Spec || ClientID < 0)
+	if(OtherTeam || ClientID < 0)
 		RenderTools()->RenderTee(&State, &RenderInfo, Player.m_Emote, Direction, Position, g_Config.m_ClShowOthersAlpha / 100.0f);
 	else
 		RenderTools()->RenderTee(&State, &RenderInfo, Player.m_Emote, Direction, Position);
-
-	if(Spec)
-		return;
 
 	int QuadOffsetToEmoticon = NUM_WEAPONS * 2 + 2 + 2;
 	if(Player.m_PlayerFlags&PLAYERFLAG_CHATTING)
@@ -662,56 +652,53 @@ void CPlayers::OnRender()
 			}
 		}
 	}
+	m_RenderInfoSpec.m_Texture = m_pClient->m_pSkins->Get(m_pClient->m_pSkins->Find("x_spec"))->m_OrgTexture;
+	m_RenderInfoSpec.m_Size = 64.0f;
 
-	// render other players in two passes, first pass we render the other, second pass we render our self
-	for(int p = 0; p < 4; p++)
+	// render other players in three passes, first pass we render spectees,
+	// then everyone but us, and finally we render ourselves
+	for(int p = 0; p < 6; p++)
 	{
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
 			// only render active characters
-			if(!m_pClient->m_Snap.m_aCharacters[i].m_Active && (!m_pClient->m_aClients[i].m_Spec || !g_Config.m_ClShowSpecTee))
+			if(p % 3 == 0 && !m_pClient->m_aClients[i].m_SpecCharPresent)
+				continue;
+			if(p % 3 != 0 && !m_pClient->m_Snap.m_aCharacters[i].m_Active)
 				continue;
 
-			const void *pPrevInfo = Client()->SnapFindItem(IClient::SNAP_PREV, NETOBJTYPE_PLAYERINFO, i);
-			const void *pInfo = Client()->SnapFindItem(IClient::SNAP_CURRENT, NETOBJTYPE_PLAYERINFO, i);
-
-			if(pPrevInfo && pInfo)
+			if(p % 3 == 0)
 			{
+				if(p < 3)
+				{
+					continue;
+				}
+				vec2 Pos = m_pClient->m_aClients[i].m_SpecChar;
+				RenderTools()->RenderTee(CAnimState::GetIdle(), &m_RenderInfoSpec, EMOTE_BLINK, vec2(1, 0), Pos, 1.0f);
+			}
+			else
+			{
+				const void *pPrevInfo = Client()->SnapFindItem(IClient::SNAP_PREV, NETOBJTYPE_PLAYERINFO, i);
+				const void *pInfo = Client()->SnapFindItem(IClient::SNAP_CURRENT, NETOBJTYPE_PLAYERINFO, i);
+				if(!pPrevInfo || !pInfo)
+				{
+					continue;
+				}
+
 				bool Local = m_pClient->m_Snap.m_LocalClientID == i;
-				if((p % 2) == 0 && Local) continue;
-				if((p % 2) == 1 && !Local) continue;
+				if((p % 3) == 1 && Local) continue;
+				if((p % 3) == 2 && !Local) continue;
 
 				CNetObj_Character PrevChar = m_pClient->m_aClients[i].m_RenderPrev;
 				CNetObj_Character CurChar = m_pClient->m_aClients[i].m_RenderCur;
 
-
-				if(m_pClient->m_aClients[i].m_Spec)
+				if(p<3)
 				{
-					int Skin = m_pClient->m_pSkins->Find("x_spec");
-					if(Skin != -1)
-					{
-						m_aRenderInfo[i].m_Texture = m_pClient->m_pSkins->Get(Skin)->m_ColorTexture;
-					}
-				}
-
-				if(p<2)
-				{
-					RenderHook(
-							&PrevChar,
-							&CurChar,
-							&m_aRenderInfo[i],
-							i
-						);
+					RenderHook(&PrevChar, &CurChar, &m_aRenderInfo[i], i);
 				}
 				else
 				{
-					RenderPlayer(
-							&PrevChar,
-							&CurChar,
-							&m_aRenderInfo[i],
-							i,
-							m_pClient->m_aClients[i].m_Spec
-						);
+					RenderPlayer(&PrevChar, &CurChar, &m_aRenderInfo[i], i);
 				}
 			}
 		}

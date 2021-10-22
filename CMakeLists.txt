@@ -2049,6 +2049,7 @@ if(SERVER)
     player_ddpp.cpp
     save.cpp
     save.h
+    score.cpp
     score.h
     score/file_score.cpp
     score/file_score.h
