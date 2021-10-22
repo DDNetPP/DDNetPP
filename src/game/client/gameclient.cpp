@@ -1025,8 +1025,8 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_EntitiesRace = Race;
 	Info.m_EntitiesFNG = FNG;
 	Info.m_EntitiesVanilla = Vanilla;
-	Info.m_EntitiesUnused = !DDNet;
 	Info.m_Race = Race;
+	Info.m_DontMaskEntities = !DDNet;
 
 	if(Version >= 0)
 	{
@@ -1057,8 +1057,8 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	}
 	if(Version >= 3)
 	{
-		Info.m_EntitiesUnused = Flags&GAMEINFOFLAG_ENTITIES_UNUSED;
 		Info.m_Race = Flags&GAMEINFOFLAG_RACE;
+		Info.m_DontMaskEntities = Flags&GAMEINFOFLAG_DONT_MASK_ENTITIES;
 	}
 	return Info;
 }
@@ -1767,6 +1767,7 @@ void CGameClient::CClientData::Reset()
 	m_Friend = false;
 	m_Foe = false;
 	m_AuthLevel = AUTHED_NO;
+	m_Afk = false;
 	m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(0)->m_ColorTexture;
 	m_SkinInfo.m_ColorBody = ColorRGBA(1,1,1);
 	m_SkinInfo.m_ColorFeet = ColorRGBA(1,1,1);
