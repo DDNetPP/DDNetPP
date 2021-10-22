@@ -4,6 +4,8 @@
 #define ENGINE_TEXTRENDER_H
 #include "kernel.h"
 
+#include <base/color.h>
+
 enum
 {
 	TEXTFLAG_RENDER=1,
@@ -96,10 +98,12 @@ public:
 	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor) = 0;
 	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor, float X, float Y) = 0;
 
-	virtual void UploadEntityLayerText(int TextureID, const char *pText, int Length, float x, float y, int Size, int MaxWidth, int MaxSize = -1, int MinSize = -1) = 0;
+	virtual void UploadEntityLayerText(int TextureID, const char *pText, int Length, float x, float y, int FontHeight) = 0;
+	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize = -1) = 0;
 
 	// old foolish interface
 	virtual void TextColor(float r, float g, float b, float a) = 0;
+	virtual void TextColor(ColorRGBA rgb) = 0;
 	virtual void TextOutlineColor(float r, float g, float b, float a) = 0;
 	virtual void Text(void *pFontSetV, float x, float y, float Size, const char *pText, int MaxWidth) = 0;
 	virtual float TextWidth(void *pFontSetV, float Size, const char *pText, int Length, float *pAlignedHeight = NULL) = 0;

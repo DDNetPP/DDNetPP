@@ -258,7 +258,6 @@ void CServer::CClient::Reset()
 	m_Score = 0;
 	m_NextMapChunk = 0;
 	m_Flags = 0;
-	m_ShowIps = false;
 }
 
 CServer::CServer()
@@ -473,6 +472,7 @@ int CServer::Init()
 		m_aClients[i].m_Snapshots.Init();
 		m_aClients[i].m_Traffic = 0;
 		m_aClients[i].m_TrafficSince = 0;
+		m_aClients[i].m_ShowIps = false;
 		m_aClients[i].m_AuthKey = -1;
 	}
 
@@ -850,6 +850,7 @@ int CServer::NewClientNoAuthCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_AuthKey = -1;
 	pThis->m_aClients[ClientID].m_AuthTries = 0;
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
+	pThis->m_aClients[ClientID].m_ShowIps = false;
 	pThis->m_aClients[ClientID].Reset();
 
 	pThis->SendMap(ClientID);
@@ -874,6 +875,7 @@ int CServer::NewClientCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
 	pThis->m_aClients[ClientID].m_TrafficSince = 0;
+	pThis->m_aClients[ClientID].m_ShowIps = false;
 	memset(&pThis->m_aClients[ClientID].m_Addr, 0, sizeof(NETADDR));
 	pThis->m_aClients[ClientID].Reset();
 	pThis->GameServer()->OnClientEngineJoin(ClientID);
@@ -954,6 +956,7 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientID].m_pRconCmdToSend = 0;
 	pThis->m_aClients[ClientID].m_Traffic = 0;
 	pThis->m_aClients[ClientID].m_TrafficSince = 0;
+	pThis->m_aClients[ClientID].m_ShowIps = false;
 	pThis->m_aPrevStates[ClientID] = CClient::STATE_EMPTY;
 	pThis->m_aClients[ClientID].m_Snapshots.PurgeAll();
 
@@ -2250,7 +2253,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 		{
 			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> connecting", i, aAddrStr);
 		}
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Server", aBuf);
+		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 	}
 }
 

@@ -104,9 +104,6 @@ class CGameContext : public IGameServer
 	static void ConSay(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetTeamAll(IConsole::IResult *pResult, void *pUserData);
-	//static void ConSwapTeams(IConsole::IResult *pResult, void *pUserData);
-	//static void ConShuffleTeams(IConsole::IResult *pResult, void *pUserData);
-	//static void ConLockTeams(IConsole::IResult *pResult, void *pUserData);
 	static void ConAddVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemoveVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceVote(IConsole::IResult *pResult, void *pUserData);
@@ -142,8 +139,6 @@ public:
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
 	bool EmulateBug(int Bug);
-
-	//int m_LockTeams;
 
 	// voting
 	void StartVote(const char *pDesc, const char *pCommand, const char *pReason);
@@ -218,8 +213,6 @@ public:
 	void ProgressVoteOptions(int ClientID);
 
 	//
-	//void SwapTeams();
-
 	void LoadMapSettings();
 
 	// engine events

@@ -36,17 +36,29 @@ CMenusKeyBinder::CMenusKeyBinder()
 {
 	m_TakeKey = false;
 	m_GotKey = false;
+	m_Modifier = 0;
 }
 
 bool CMenusKeyBinder::OnInput(IInput::CEvent Event)
 {
 	if(m_TakeKey)
 	{
-		if(Event.m_Flags&IInput::FLAG_PRESS)
+		int TriggeringEvent = (Event.m_Key == KEY_MOUSE_1) ? IInput::FLAG_PRESS : IInput::FLAG_RELEASE;
+		if(Event.m_Flags&TriggeringEvent)
 		{
 			m_Key = Event;
 			m_GotKey = true;
 			m_TakeKey = false;
+
+			int Mask = CBinds::GetModifierMask(Input());
+			m_Modifier = 0;
+			while(!(Mask&1))
+			{
+				Mask >>= 1;
+				m_Modifier++;
+			}
+			if(CBinds::ModifierMatchesKey(m_Modifier, Event.m_Key))
+				m_Modifier = 0;
 		}
 		return true;
 	}
@@ -341,7 +353,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 			float OldWidth = Item.m_Rect.w;
 			Item.m_Rect.w = Item.m_Rect.h*2;
 			Item.m_Rect.x += (OldWidth-Item.m_Rect.w)/ 2.0f;
-			vec4 Color(1.0f, 1.0f, 1.0f, 1.0f);
+			ColorRGBA Color(1.0f, 1.0f, 1.0f, 1.0f);
 			m_pClient->m_pCountryFlags->Render(pEntry->m_CountryCode, &Color, Item.m_Rect.x, Item.m_Rect.y, Item.m_Rect.w, Item.m_Rect.h);
 			if(pEntry->m_Texture != -1)
 				UI()->DoLabel(&Label, pEntry->m_aCountryCodeString, 10.0f, 0);
@@ -391,14 +403,14 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	if(*UseCustomColor)
 	{
 		OwnSkinInfo.m_Texture = pOwnSkin->m_ColorTexture;
-		OwnSkinInfo.m_ColorBody = m_pClient->m_pSkins->GetColorV4(*ColorBody);
-		OwnSkinInfo.m_ColorFeet = m_pClient->m_pSkins->GetColorV4(*ColorFeet);
+		OwnSkinInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(*ColorBody).Lighten());
+		OwnSkinInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(*ColorFeet).Lighten());
 	}
 	else
 	{
 		OwnSkinInfo.m_Texture = pOwnSkin->m_OrgTexture;
-		OwnSkinInfo.m_ColorBody = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		OwnSkinInfo.m_ColorFeet = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		OwnSkinInfo.m_ColorBody = ColorRGBA(1.0f, 1.0f, 1.0f);
+		OwnSkinInfo.m_ColorFeet = ColorRGBA(1.0f, 1.0f, 1.0f);
 	}
 	OwnSkinInfo.m_Size = 50.0f*UI()->Scale();
 
@@ -462,7 +474,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	MainView.HSplitTop(50.0f, &Label, &MainView);
 	Label.VSplitLeft(230.0f, &Label, 0);
-	RenderTools()->DrawUIRect(&Label, vec4(1.0f, 1.0f, 1.0f, 0.25f), CUI::CORNER_ALL, 10.0f);
+	RenderTools()->DrawUIRect(&Label, ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), CUI::CORNER_ALL, 10.0f);
 	RenderTools()->RenderTee(CAnimState::GetIdle(), &OwnSkinInfo, 0, vec2(1, 0), vec2(Label.x+30.0f, Label.y+28.0f));
 	Label.VSplitLeft(70.0f, 0, &Label);
 	UI()->DoLabelScaled(&Label, Skin, 14.0f, -1, 150.0f);
@@ -580,31 +592,18 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		char aBuf[128];
 		if(Item.m_Visible)
 		{
-			CTeeRenderInfo Info;
-			if(*UseCustomColor)
-			{
-				Info.m_Texture = s->m_ColorTexture;
-				Info.m_ColorBody = m_pClient->m_pSkins->GetColorV4(*ColorBody);
-				Info.m_ColorFeet = m_pClient->m_pSkins->GetColorV4(*ColorFeet);
-			}
-			else
-			{
-				Info.m_Texture = s->m_OrgTexture;
-				Info.m_ColorBody = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-				Info.m_ColorFeet = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			}
+			CTeeRenderInfo Info = OwnSkinInfo;
+			Info.m_Texture = *UseCustomColor ? s->m_ColorTexture : s->m_OrgTexture;
 
-			Info.m_Size = UI()->Scale()*50.0f;
 			Item.m_Rect.HSplitTop(5.0f, 0, &Item.m_Rect); // some margin from the top
 			RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, 0, vec2(1.0f, 0.0f), vec2(Item.m_Rect.x+30, Item.m_Rect.y+Item.m_Rect.h/2));
-
 
 			Item.m_Rect.VSplitLeft(60.0f, 0, &Item.m_Rect);
 			str_format(aBuf, sizeof(aBuf), "%s", s->m_aName);
 			RenderTools()->UI()->DoLabelScaled(&Item.m_Rect, aBuf, 12.0f, -1,Item.m_Rect.w);
 			if(g_Config.m_Debug)
 			{
-				vec3 BloodColor = *UseCustomColor ? m_pClient->m_pSkins->GetColorV3(*ColorBody) : s->m_BloodColor;
+				ColorRGBA BloodColor = *UseCustomColor ? color_cast<ColorRGBA>(ColorHSLA(*ColorBody)) : s->m_BloodColor;
 				Graphics()->TextureSet(-1);
 				Graphics()->QuadsBegin();
 				Graphics()->SetColor(BloodColor.r, BloodColor.g, BloodColor.b, 1.0f);
@@ -657,57 +656,58 @@ typedef struct
 	CLocConstString m_Name;
 	const char *m_pCommand;
 	int m_KeyId;
+	int m_Modifier;
 } CKeyInfo;
 
 static CKeyInfo gs_aKeys[] =
 {
-	{ "Move left", "+left", 0}, // Localize - these strings are localized within CLocConstString
-	{ "Move right", "+right", 0 },
-	{ "Jump", "+jump", 0 },
-	{ "Fire", "+fire", 0 },
-	{ "Hook", "+hook", 0 },
-	{ "Hook collisions", "+showhookcoll", 0 },
-	{ "Pause", "say /pause", 0 },
-	{ "Kill", "kill", 0 },
-	{ "Zoom in", "zoom+", 0 },
-	{ "Zoom out", "zoom-", 0 },
-	{ "Default zoom", "zoom", 0 },
-	{ "Show others", "say /showothers", 0 },
-	{ "Show all", "say /showall", 0 },
-	{ "Toggle dyncam", "toggle cl_dyncam 0 1", 0 },
-	{ "Toggle dummy", "toggle cl_dummy 0 1", 0 },
-	{ "Toggle ghost", "toggle cl_race_show_ghost 0 1", 0 },
-	{ "Dummy copy", "toggle cl_dummy_copy_moves 0 1", 0 },
-	{ "Hammerfly dummy", "toggle cl_dummy_hammer 0 1", 0 },
+	{ "Move left", "+left", 0, 0 }, // Localize - these strings are localized within CLocConstString
+	{ "Move right", "+right", 0, 0 },
+	{ "Jump", "+jump", 0, 0 },
+	{ "Fire", "+fire", 0, 0 },
+	{ "Hook", "+hook", 0, 0 },
+	{ "Hook collisions", "+showhookcoll", 0, 0 },
+	{ "Pause", "say /pause", 0, 0 },
+	{ "Kill", "kill", 0, 0 },
+	{ "Zoom in", "zoom+", 0, 0 },
+	{ "Zoom out", "zoom-", 0, 0 },
+	{ "Default zoom", "zoom", 0, 0 },
+	{ "Show others", "say /showothers", 0, 0 },
+	{ "Show all", "say /showall", 0, 0 },
+	{ "Toggle dyncam", "toggle cl_dyncam 0 1", 0, 0 },
+	{ "Toggle dummy", "toggle cl_dummy 0 1", 0, 0 },
+	{ "Toggle ghost", "toggle cl_race_show_ghost 0 1", 0, 0 },
+	{ "Dummy copy", "toggle cl_dummy_copy_moves 0 1", 0, 0 },
+	{ "Hammerfly dummy", "toggle cl_dummy_hammer 0 1", 0, 0 },
 
-	{ "Hammer", "+weapon1", 0 },
-	{ "Pistol", "+weapon2", 0 },
-	{ "Shotgun", "+weapon3", 0 },
-	{ "Grenade", "+weapon4", 0 },
-	{ "Rifle", "+weapon5", 0 },
-	{ "Next weapon", "+nextweapon", 0 },
-	{ "Prev. weapon", "+prevweapon", 0 },
+	{ "Hammer", "+weapon1", 0, 0 },
+	{ "Pistol", "+weapon2", 0, 0 },
+	{ "Shotgun", "+weapon3", 0, 0 },
+	{ "Grenade", "+weapon4", 0, 0 },
+	{ "Rifle", "+weapon5", 0, 0 },
+	{ "Next weapon", "+nextweapon", 0, 0 },
+	{ "Prev. weapon", "+prevweapon", 0, 0 },
 
-	{ "Vote yes", "vote yes", 0 },
-	{ "Vote no", "vote no", 0 },
+	{ "Vote yes", "vote yes", 0, 0 },
+	{ "Vote no", "vote no", 0, 0 },
 
-	{ "Chat", "+show_chat; chat all", 0 },
-	{ "Team chat", "+show_chat; chat team", 0 },
-	{ "Converse", "+show_chat; chat all /c ", 0 },
-	{ "Show chat", "+show_chat", 0 },
+	{ "Chat", "+show_chat; chat all", 0, 0 },
+	{ "Team chat", "+show_chat; chat team", 0, 0 },
+	{ "Converse", "+show_chat; chat all /c ", 0, 0 },
+	{ "Show chat", "+show_chat", 0, 0 },
 
-	{ "Emoticon", "+emote", 0 },
-	{ "Spectator mode", "+spectate", 0 },
-	{ "Spectate next", "spectate_next", 0 },
-	{ "Spectate previous", "spectate_previous", 0 },
-	{ "Console", "toggle_local_console", 0 },
-	{ "Remote console", "toggle_remote_console", 0 },
-	{ "Screenshot", "screenshot", 0 },
-	{ "Scoreboard", "+scoreboard", 0 },
-	{ "Statboard", "+statboard", 0 },
-	{ "Lock team", "say /lock", 0 },
-	{ "Show entities", "toggle cl_overlay_entities 0 100", 0 },
-	{ "Show HUD", "toggle cl_showhud 0 1", 0 },
+	{ "Emoticon", "+emote", 0, 0 },
+	{ "Spectator mode", "+spectate", 0, 0 },
+	{ "Spectate next", "spectate_next", 0, 0 },
+	{ "Spectate previous", "spectate_previous", 0, 0 },
+	{ "Console", "toggle_local_console", 0, 0 },
+	{ "Remote console", "toggle_remote_console", 0, 0 },
+	{ "Screenshot", "screenshot", 0, 0 },
+	{ "Scoreboard", "+scoreboard", 0, 0 },
+	{ "Statboard", "+statboard", 0, 0 },
+	{ "Lock team", "say /lock", 0, 0 },
+	{ "Show entities", "toggle cl_overlay_entities 0 100", 0, 0 },
+	{ "Show HUD", "toggle cl_showhud 0 1", 0, 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!
@@ -734,14 +734,14 @@ void CMenus::UiDoGetButtons(int Start, int Stop, CUIRect View, CUIRect ScopeView
 			str_format(aBuf, sizeof(aBuf), "%s:", (const char *)Key.m_Name);
 
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, -1);
-			int OldId = Key.m_KeyId;
-			int NewId = DoKeyReader((void *)&gs_aKeys[i].m_Name, &Button, OldId);
-			if(NewId != OldId)
+			int OldId = Key.m_KeyId, OldModifier = Key.m_Modifier, NewModifier;
+			int NewId = DoKeyReader((void *)&gs_aKeys[i].m_Name, &Button, OldId, OldModifier, &NewModifier);
+			if(NewId != OldId || NewModifier != OldModifier)
 			{
 				if(OldId != 0 || NewId == 0)
-					m_pClient->m_pBinds->Bind(OldId, "");
+					m_pClient->m_pBinds->Bind(OldId, "", false, OldModifier);
 				if(NewId != 0)
-					m_pClient->m_pBinds->Bind(NewId, gs_aKeys[i].m_pCommand);
+					m_pClient->m_pBinds->Bind(NewId, gs_aKeys[i].m_pCommand, false, NewModifier);
 			}
 		}
 
@@ -755,20 +755,24 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 
 	// this is kinda slow, but whatever
 	for(int i = 0; i < g_KeyCount; i++)
-		gs_aKeys[i].m_KeyId = 0;
+		gs_aKeys[i].m_KeyId = gs_aKeys[i].m_Modifier = 0;
 
-	for(int KeyId = 0; KeyId < KEY_LAST; KeyId++)
+	for(int Mod = 0; Mod < CBinds::MODIFIER_COUNT; Mod++)
 	{
-		const char *pBind = m_pClient->m_pBinds->Get(KeyId);
-		if(!pBind[0])
-			continue;
+		for(int KeyId = 0; KeyId < KEY_LAST; KeyId++)
+		{
+			const char *pBind = m_pClient->m_pBinds->Get(KeyId, Mod);
+			if(!pBind[0])
+				continue;
 
-		for(int i = 0; i < g_KeyCount; i++)
-			if(str_comp(pBind, gs_aKeys[i].m_pCommand) == 0)
-			{
-				gs_aKeys[i].m_KeyId = KeyId;
-				break;
-			}
+			for(int i = 0; i < g_KeyCount; i++)
+				if(str_comp(pBind, gs_aKeys[i].m_pCommand) == 0)
+				{
+					gs_aKeys[i].m_KeyId = KeyId;
+					gs_aKeys[i].m_Modifier = Mod;
+					break;
+				}
+		}
 	}
 
 	// controls in a scrollable listbox
@@ -787,7 +791,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		MovementSettings.VMargin(5.0f, &MovementSettings);
 		MovementSettings.HSplitTop(515.0f, &MovementSettings, &WeaponSettings);
-		RenderTools()->DrawUIRect(&MovementSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&MovementSettings, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		MovementSettings.VMargin(10.0f, &MovementSettings);
 
 		TextRender()->Text(0, MovementSettings.x, MovementSettings.y + (14.0f + 5.0f + 10.0f - 14.0f*UI()->Scale()) / 2.f, 14.0f*UI()->Scale(), Localize("Movement"), -1);
@@ -801,9 +805,9 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("Mouse sens."), g_Config.m_InpMousesens);
 			UI()->DoLabel(&Label, aBuf, 14.0f*UI()->Scale(), -1);
 			Button.HMargin(2.0f, &Button);
-			int NewValue = (int)(DoScrollbarH(&g_Config.m_InpMousesens, &Button, (min(g_Config.m_InpMousesens, 500)-1)/500.0f)*500.0f)+1;
+			int NewValue = (int)(DoScrollbarH(&g_Config.m_InpMousesens, &Button, (minimum(g_Config.m_InpMousesens, 500)-1)/500.0f)*500.0f)+1;
 			if(g_Config.m_InpMousesens < 500 || NewValue < 500)
-				g_Config.m_InpMousesens = min(NewValue, 500);
+				g_Config.m_InpMousesens = minimum(NewValue, 500);
 			MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
 		}
 
@@ -814,9 +818,9 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			str_format(aBuf, sizeof(aBuf), "%s: %i", Localize("UI mouse s."), g_Config.m_UiMousesens);
 			UI()->DoLabel(&Label, aBuf, 14.0f*UI()->Scale(), -1);
 			Button.HMargin(2.0f, &Button);
-			int NewValue = (int)(DoScrollbarH(&g_Config.m_UiMousesens, &Button, (min(g_Config.m_UiMousesens, 500)-1)/500.0f)*500.0f)+1;
+			int NewValue = (int)(DoScrollbarH(&g_Config.m_UiMousesens, &Button, (minimum(g_Config.m_UiMousesens, 500)-1)/500.0f)*500.0f)+1;
 			if(g_Config.m_UiMousesens < 500 || NewValue < 500)
-				g_Config.m_UiMousesens = min(NewValue, 500);
+				g_Config.m_UiMousesens = minimum(NewValue, 500);
 			MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
 		}
 
@@ -828,7 +832,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		WeaponSettings.HSplitTop(10.0f, 0, &WeaponSettings);
 		WeaponSettings.HSplitTop(190.0f, &WeaponSettings, &ResetButton);
-		RenderTools()->DrawUIRect(&WeaponSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&WeaponSettings, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		WeaponSettings.VMargin(10.0f, &WeaponSettings);
 
 		TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y + (14.0f + 5.0f + 10.0f - 14.0f*UI()->Scale()) / 2.f, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
@@ -841,7 +845,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		ResetButton.HSplitTop(10.0f, 0, &ResetButton);
 		ResetButton.HSplitTop(40.0f, &ResetButton, 0);
-		RenderTools()->DrawUIRect(&ResetButton, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&ResetButton, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		ResetButton.HMargin(10.0f, &ResetButton);
 		ResetButton.VMargin(30.0f, &ResetButton);
 		ResetButton.HSplitTop(20.0f, &ResetButton, 0);
@@ -854,7 +858,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		VotingSettings.VMargin(5.0f, &VotingSettings);
 		VotingSettings.HSplitTop(80.0f, &VotingSettings, &ChatSettings);
-		RenderTools()->DrawUIRect(&VotingSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&VotingSettings, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		VotingSettings.VMargin(10.0f, &VotingSettings);
 
 		TextRender()->Text(0, VotingSettings.x, VotingSettings.y + (14.0f + 5.0f + 10.0f - 14.0f*UI()->Scale()) / 2.f, 14.0f*UI()->Scale(), Localize("Voting"), -1);
@@ -867,7 +871,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		ChatSettings.HSplitTop(10.0f, 0, &ChatSettings);
 		ChatSettings.HSplitTop(125.0f, &ChatSettings, &MiscSettings);
-		RenderTools()->DrawUIRect(&ChatSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&ChatSettings, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		ChatSettings.VMargin(10.0f, &ChatSettings);
 
 		TextRender()->Text(0, ChatSettings.x, ChatSettings.y + (14.0f + 5.0f + 10.0f - 14.0f*UI()->Scale()) / 2.f, 14.0f*UI()->Scale(), Localize("Chat"), -1);
@@ -880,7 +884,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	{
 		MiscSettings.HSplitTop(10.0f, 0, &MiscSettings);
 		MiscSettings.HSplitTop(300.0f, &MiscSettings, 0);
-		RenderTools()->DrawUIRect(&MiscSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+		RenderTools()->DrawUIRect(&MiscSettings, ColorRGBA(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		MiscSettings.VMargin(10.0f, &MiscSettings);
 
 		TextRender()->Text(0, MiscSettings.x, MiscSettings.y + (14.0f + 5.0f + 10.0f - 14.0f*UI()->Scale()) / 2.f, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
@@ -1055,7 +1059,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			g_Config.m_GfxEnableTextureUnitOptimization ^= 1;
 		}
 	}
-	
+
 	// check if the new settings require a restart
 	if(CheckSettings)
 	{
@@ -1082,7 +1086,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		str_format(aBuf, sizeof(aBuf), "%s: %s", Localize("Refresh Rate"), "∞");
 	UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
 	Button.HMargin(2.0f, &Button);
-	int NewRefreshRate = static_cast<int>(DoScrollbarH(&g_Config.m_GfxRefreshRate, &Button, (min(g_Config.m_GfxRefreshRate, 1000))/1000.0f)*1000.0f+0.1f);
+	int NewRefreshRate = static_cast<int>(DoScrollbarH(&g_Config.m_GfxRefreshRate, &Button, (minimum(g_Config.m_GfxRefreshRate, 1000))/1000.0f)*1000.0f+0.1f);
 	if(g_Config.m_GfxRefreshRate <= 1000 || NewRefreshRate < 1000)
 		g_Config.m_GfxRefreshRate = NewRefreshRate;
 
@@ -1092,12 +1096,13 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	//text.VSplitLeft(15.0f, 0, &text);
 	UI()->DoLabelScaled(&Text, Localize("UI Color"), 14.0f, -1);
 
+	ColorHSLA UIColor = ColorHSLA(g_Config.m_UiColor, true);
 	const char *paLabels[] = {
 		Localize("Hue"),
 		Localize("Sat."),
 		Localize("Lht."),
 		Localize("Alpha")};
-	int *pColorSlider[4] = {&g_Config.m_UiColorHue, &g_Config.m_UiColorSat, &g_Config.m_UiColorLht, &g_Config.m_UiColorAlpha};
+	float *pColorSlider[4] = {&UIColor.h, &UIColor.s, &UIColor.l, &UIColor.a};
 	for(int s = 0; s < 4; s++)
 	{
 		CUIRect Text;
@@ -1107,11 +1112,11 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		//Button.VSplitRight(5.0f, &Button, 0);
 		Button.HSplitTop(4.0f, 0, &Button);
 
-		float k = (*pColorSlider[s]) / 255.0f;
-		k = DoScrollbarH(pColorSlider[s], &Button, k);
-		*pColorSlider[s] = (int)(k*255.0f);
+		float *k = pColorSlider[s];
+		*k = DoScrollbarH(k, &Button, *k);
 		UI()->DoLabelScaled(&Text, paLabels[s], 15.0f, -1);
 	}
+	g_Config.m_UiColor = UIColor.Pack();
 }
 
 void CMenus::RenderSettingsSound(CUIRect MainView)
@@ -1196,7 +1201,7 @@ void CMenus::RenderSettingsSound(CUIRect MainView)
 		Button.VSplitLeft(190.0f, 0, &Button);
 		static float Offset = 0.0f;
 		DoEditBox(&g_Config.m_SndRate, &Button, aBuf, sizeof(aBuf), 14.0f, &Offset);
-		g_Config.m_SndRate = max(1, str_toint(aBuf));
+		g_Config.m_SndRate = maximum(1, str_toint(aBuf));
 		m_NeedRestartSound = !s_SndEnable || s_SndRate != g_Config.m_SndRate;
 	}
 
@@ -1329,7 +1334,7 @@ void CMenus::RenderLanguageSelection(CUIRect MainView)
 			Item.m_Rect.VSplitLeft(Item.m_Rect.h*2.0f, &Rect, &Item.m_Rect);
 			Rect.VMargin(6.0f, &Rect);
 			Rect.HMargin(3.0f, &Rect);
-			vec4 Color(1.0f, 1.0f, 1.0f, 1.0f);
+			ColorRGBA Color(1.0f, 1.0f, 1.0f, 1.0f);
 			m_pClient->m_pCountryFlags->Render(r.front().m_CountryCode, &Color, Rect.x, Rect.y, Rect.w, Rect.h);
 			Item.m_Rect.HSplitTop(2.0f, 0, &Item.m_Rect);
 			UI()->DoLabelScaled(&Item.m_Rect, r.front().m_Name, 16.0f, -1);
@@ -1513,35 +1518,40 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
-					vec3 HSL = RgbToHsl(vec3(1.0f, 1.0f, 0.5f)); // default values
-					g_Config.m_ClMessageSystemHue = HSL.h;
-					g_Config.m_ClMessageSystemSat = HSL.s;
-					g_Config.m_ClMessageSystemLht = HSL.l;
+					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 1.0f, 0.5f));
+					g_Config.m_ClMessageSystemCol = HSL.Pack() & 0xFFFFFF;
 				}
 			}
+
+			ColorHSLA SMColor(g_Config.m_ClMessageSystemCol);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Hue"), 14.0f, -1);
-			g_Config.m_ClMessageSystemHue = (int)(DoScrollbarH(&g_Config.m_ClMessageSystemHue, &Button, g_Config.m_ClMessageSystemHue / 255.0f)*255.0f);
+			SMColor.h = DoScrollbarH(&SMColor.h, &Button, SMColor.h);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Sat."), 14.0f, -1);
-			g_Config.m_ClMessageSystemSat = (int)(DoScrollbarH(&g_Config.m_ClMessageSystemSat, &Button, g_Config.m_ClMessageSystemSat / 255.0f)*255.0f);
+			SMColor.s = DoScrollbarH(&SMColor.s, &Button, SMColor.s);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
-			g_Config.m_ClMessageSystemLht = (int)(DoScrollbarH(&g_Config.m_ClMessageSystemLht, &Button, g_Config.m_ClMessageSystemLht / 255.0f)*255.0f);
+			SMColor.l = DoScrollbarH(&SMColor.l, &Button, SMColor.l);
+
+			g_Config.m_ClMessageSystemCol = SMColor.Pack() & 0xFFFFFF;
 
 			Left.HSplitTop(10.0f, &Label, &Left);
 
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageSystemHue / 255.0f, g_Config.m_ClMessageSystemSat / 255.0f, g_Config.m_ClMessageSystemLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(SMColor);
+			TextRender()->TextColor(rgb);
 
 
 			char name[16];
@@ -1565,33 +1575,35 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
-					vec3 HSL = RgbToHsl(vec3(1.0f, 0.5f, 0.5f)); // default values
-					g_Config.m_ClMessageHighlightHue = HSL.h;
-					g_Config.m_ClMessageHighlightSat = HSL.s;
-					g_Config.m_ClMessageHighlightLht = HSL.l;
+					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 0.5f, 0.5f));
+					g_Config.m_ClMessageHighlightCol = HSL.Pack() & 0xFFFFFF;
 				}
 			}
+
+			ColorHSLA HMColor(g_Config.m_ClMessageHighlightCol);
+
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Hue"), 14.0f, -1);
-			g_Config.m_ClMessageHighlightHue = (int)(DoScrollbarH(&g_Config.m_ClMessageHighlightHue, &Button, g_Config.m_ClMessageHighlightHue / 255.0f)*255.0f);
+			HMColor.h = DoScrollbarH(&HMColor.h, &Button, HMColor.h);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Sat."), 14.0f, -1);
-			g_Config.m_ClMessageHighlightSat = (int)(DoScrollbarH(&g_Config.m_ClMessageHighlightSat, &Button, g_Config.m_ClMessageHighlightSat / 255.0f)*255.0f);
+			HMColor.s = DoScrollbarH(&HMColor.s, &Button, HMColor.s);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
-			g_Config.m_ClMessageHighlightLht = (int)(DoScrollbarH(&g_Config.m_ClMessageHighlightLht, &Button, g_Config.m_ClMessageHighlightLht / 255.0f)*255.0f);
+			HMColor.l = DoScrollbarH(&HMColor.l, &Button, HMColor.l);
 
+			g_Config.m_ClMessageHighlightCol = HMColor.Pack() & 0xFFFFFF;
 			Right.HSplitTop(10.0f, &Label, &Right);
 
 			TextRender()->TextColor(0.75f, 0.5f, 0.75f, 1.0f);
@@ -1599,8 +1611,8 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			Label.VSplitLeft(tw, &Label, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Spectator"), 12.0f, -1);
 
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageHighlightHue / 255.0f, g_Config.m_ClMessageHighlightSat / 255.0f, g_Config.m_ClMessageHighlightLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(HMColor);
+			TextRender()->TextColor(rgb);
 			char name[16];
 			str_copy(name, g_Config.m_PlayerName, sizeof(name));
 			str_format(aBuf, sizeof(aBuf), ": %s: %s", name, Localize ("Look out!"));
@@ -1623,41 +1635,45 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
-					vec3 HSL = RgbToHsl(vec3(0.65f, 1.0f, 0.65f)); // default values
-					g_Config.m_ClMessageTeamHue = HSL.h;
-					g_Config.m_ClMessageTeamSat = HSL.s;
-					g_Config.m_ClMessageTeamLht = HSL.l;
+					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.65f, 1.0f, 0.65f));
+					g_Config.m_ClMessageTeamCol = HSL.Pack() & 0xFFFFFF;
 				}
 			}
+
+			ColorHSLA TMColor(g_Config.m_ClMessageTeamCol);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Hue"), 14.0f, -1);
-			g_Config.m_ClMessageTeamHue = (int)(DoScrollbarH(&g_Config.m_ClMessageTeamHue, &Button, g_Config.m_ClMessageTeamHue / 255.0f)*255.0f);
+			TMColor.h = DoScrollbarH(&TMColor.h, &Button, TMColor.h);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Sat."), 14.0f, -1);
-			g_Config.m_ClMessageTeamSat = (int)(DoScrollbarH(&g_Config.m_ClMessageTeamSat, &Button, g_Config.m_ClMessageTeamSat / 255.0f)*255.0f);
+			TMColor.s = DoScrollbarH(&TMColor.s, &Button, TMColor.s);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
-			g_Config.m_ClMessageTeamLht = (int)(DoScrollbarH(&g_Config.m_ClMessageTeamLht, &Button, g_Config.m_ClMessageTeamLht / 255.0f)*255.0f);
+			TMColor.l = DoScrollbarH(&TMColor.l, &Button, TMColor.l);
 
+			g_Config.m_ClMessageTeamCol = TMColor.Pack() & 0xFFFFFF;
 			Left.HSplitTop(10.0f, &Label, &Left);
 
-			vec3 rgbn = CalculateNameColor(vec3(g_Config.m_ClMessageTeamHue / 255.0f, g_Config.m_ClMessageTeamSat / 255.0f, g_Config.m_ClMessageTeamLht / 255.0f));
-			TextRender()->TextColor(rgbn.r, rgbn.g, rgbn.b, 1.0f);
+			ColorRGBA rgbn = CalculateNameColor(TMColor);
+			TextRender()->TextColor(rgbn);
 			float tw = TextRender()->TextWidth(0, 12.0f, Localize("Player"), -1);
 			Label.VSplitLeft(tw, &Label, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Player"), 12.0f, -1);
 
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageTeamHue / 255.0f, g_Config.m_ClMessageTeamSat / 255.0f, g_Config.m_ClMessageTeamLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(TMColor);
+			TextRender()->TextColor(rgb);
 			str_format(aBuf, sizeof(aBuf), ": %s!",  Localize("We will win"));
 			UI()->DoLabelScaled(&Button, aBuf, 12.0f, -1);
 
@@ -1675,11 +1691,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			{
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
-				{
-					g_Config.m_ClMessageFriendHue = 0;
-					g_Config.m_ClMessageFriendSat = 255;
-					g_Config.m_ClMessageFriendLht = 145;
-				}
+					g_Config.m_ClMessageFriendCol = ColorHSLA(0, 1, 145/255.0f).Pack() & 0xFFFFFF;
 			}
 
 			if(DoButton_CheckBox(&g_Config.m_ClMessageFriend, "", g_Config.m_ClMessageFriend, &Enable))
@@ -1687,31 +1699,34 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				g_Config.m_ClMessageFriend ^= 1;
 			}
 
+			ColorHSLA FMColor(g_Config.m_ClMessageFriendCol);
+
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Hue"), 14.0f, -1);
-			g_Config.m_ClMessageFriendHue = (int)(DoScrollbarH(&g_Config.m_ClMessageFriendHue, &Button, g_Config.m_ClMessageFriendHue / 255.0f)*255.0f);
+			FMColor.h = DoScrollbarH(&FMColor.h, &Button, FMColor.h);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Sat."), 14.0f, -1);
-			g_Config.m_ClMessageFriendSat = (int)(DoScrollbarH(&g_Config.m_ClMessageFriendSat, &Button, g_Config.m_ClMessageFriendSat / 255.0f)*255.0f);
+			FMColor.s = DoScrollbarH(&FMColor.s, &Button, FMColor.s);
 
 			Right.HSplitTop(20.0f, &Button, &Right);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
-			g_Config.m_ClMessageFriendLht = (int)(DoScrollbarH(&g_Config.m_ClMessageFriendLht, &Button, g_Config.m_ClMessageFriendLht / 255.0f)*255.0f);
+			FMColor.l = DoScrollbarH(&FMColor.l, &Button, FMColor.l);
 
+			g_Config.m_ClMessageFriendCol = FMColor.Pack() & 0xFFFFFF;
 			Right.HSplitTop(10.0f, &Label, &Right);
 
-			vec3 rgbf = HslToRgb(vec3(g_Config.m_ClMessageFriendHue / 255.0f, g_Config.m_ClMessageFriendSat / 255.0f, g_Config.m_ClMessageFriendLht / 255.0f));
-			TextRender()->TextColor(rgbf.r, rgbf.g, rgbf.b, 1.0f);
+			ColorRGBA rgbf = color_cast<ColorRGBA>(FMColor);
+			TextRender()->TextColor(rgbf);
 			float hw = TextRender()->TextWidth(0, 12.0f, "♥ ", -1);
 			Label.VSplitLeft(hw, &Heart, &Label);
 			UI()->DoLabelScaled(&Heart, "♥ ", 12.0f, -1);
@@ -1721,8 +1736,8 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			Label.VSplitLeft(tw, &Label, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Friend"), 12.0f, -1);
 
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageHue / 255.0f, g_Config.m_ClMessageSat / 255.0f, g_Config.m_ClMessageLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClMessageCol));
+			TextRender()->TextColor(rgb);
 			str_format(aBuf, sizeof(aBuf), ": %s", Localize("Hi o/"));
 			UI()->DoLabelScaled(&Button, aBuf, 12.0f, -1);
 
@@ -1738,31 +1753,35 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
-					vec3 HSL = RgbToHsl(vec3(1.0f, 1.0f, 1.0f)); // default values
-					g_Config.m_ClMessageHue = HSL.h;
-					g_Config.m_ClMessageSat = HSL.s;
-					g_Config.m_ClMessageLht = HSL.l;
+					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 1.0f, 1.0f));
+					g_Config.m_ClMessageCol = HSL.Pack() & 0xFFFFFF;
 				}
 			}
+
+			ColorHSLA MColor(g_Config.m_ClMessageCol);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Hue"), 14.0f, -1);
-			g_Config.m_ClMessageHue = (int)(DoScrollbarH(&g_Config.m_ClMessageHue, &Button, g_Config.m_ClMessageHue / 255.0f)*255.0f);
+			MColor.h = DoScrollbarH(&MColor.h, &Button, MColor.h);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Sat."), 14.0f, -1);
-			g_Config.m_ClMessageSat = (int)(DoScrollbarH(&g_Config.m_ClMessageSat, &Button, g_Config.m_ClMessageSat / 255.0f)*255.0f);
+			MColor.s = DoScrollbarH(&MColor.s, &Button, MColor.s);
+
 			Left.HSplitTop(20.0f, &Button, &Left);
 			Button.VSplitLeft(15.0f, 0, &Button);
 			Button.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
-			g_Config.m_ClMessageLht = (int)(DoScrollbarH(&g_Config.m_ClMessageLht, &Button, g_Config.m_ClMessageLht / 255.0f)*255.0f);
+			MColor.l = DoScrollbarH(&MColor.l, &Button, MColor.l);
 
+			g_Config.m_ClMessageCol = MColor.Pack() & 0xFFFFFF;
 			Left.HSplitTop(10.0f, &Label, &Left);
 
 			TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
@@ -1770,8 +1789,8 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			Label.VSplitLeft(tw, &Label, &Button);
 			UI()->DoLabelScaled(&Label, Localize("Player"), 12.0f, -1);
 
-			vec3 rgb = HslToRgb(vec3(g_Config.m_ClMessageHue / 255.0f, g_Config.m_ClMessageSat / 255.0f, g_Config.m_ClMessageLht / 255.0f));
-			TextRender()->TextColor(rgb.r, rgb.g, rgb.b, 1.0f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(MColor);
+			TextRender()->TextColor(rgb);
 			str_format(aBuf, sizeof(aBuf), ": %s :D", Localize("Hello and welcome"));
 			UI()->DoLabelScaled(&Button, aBuf, 12.0f, -1);
 
@@ -1795,32 +1814,35 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			static int s_DefaultButton = 0;
 			if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 			{
-				vec3 HSL = RgbToHsl(vec3(0.5f, 0.5f, 1.0f)); // default values
-				g_Config.m_ClLaserInnerHue = HSL.h;
-				g_Config.m_ClLaserInnerSat = HSL.s;
-				g_Config.m_ClLaserInnerLht = HSL.l;
+				ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.5f, 0.5f, 1.0f));
+				g_Config.m_ClLaserInnerCol = HSL.Pack() & 0xFFFFFF;
 			}
 		}
+
+		ColorHSLA LIColor(g_Config.m_ClLaserInnerCol);
 
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(20.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Hue"), 12.0f, -1);
-		g_Config.m_ClLaserInnerHue = (int)(DoScrollbarH(&g_Config.m_ClLaserInnerHue, &Button, g_Config.m_ClLaserInnerHue / 255.0f)*255.0f);
+		LIColor.h = DoScrollbarH(&LIColor.h, &Button, LIColor.h);
+
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(20.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Sat."), 12.0f, -1);
-		g_Config.m_ClLaserInnerSat = (int)(DoScrollbarH(&g_Config.m_ClLaserInnerSat, &Button, g_Config.m_ClLaserInnerSat / 255.0f)*255.0f);
+		LIColor.s = DoScrollbarH(&LIColor.s, &Button, LIColor.s);
+
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(20.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Lht."), 12.0f, -1);
-		g_Config.m_ClLaserInnerLht = (int)(DoScrollbarH(&g_Config.m_ClLaserInnerLht, &Button, g_Config.m_ClLaserInnerLht / 255.0f)*255.0f);
+		LIColor.l = DoScrollbarH(&LIColor.l, &Button, LIColor.l);
 
+		g_Config.m_ClLaserInnerCol = LIColor.Pack() & 0xFFFFFF;
 		Laser.HSplitTop(10.0f, 0, &Laser);
 
 		Laser.HSplitTop(20.0f, &Label, &Laser);
@@ -1831,37 +1853,39 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			static int s_DefaultButton = 0;
 			if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 			{
-				vec3 HSL = RgbToHsl(vec3(0.075f, 0.075f, 0.25f)); // default values
-				g_Config.m_ClLaserOutlineHue = HSL.h;
-				g_Config.m_ClLaserOutlineSat = HSL.s;
-				g_Config.m_ClLaserOutlineLht = HSL.l;
+				ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.075f, 0.075f, 0.25f));
+				g_Config.m_ClLaserOutlineCol = HSL.Pack() & 0xFFFFFF;
 			}
 		}
+
+		ColorRGBA LOColor(g_Config.m_ClLaserOutlineCol);
 
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(15.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Hue"), 12.0f, -1);
-		g_Config.m_ClLaserOutlineHue = (int)(DoScrollbarH(&g_Config.m_ClLaserOutlineHue, &Button, g_Config.m_ClLaserOutlineHue / 255.0f)*255.0f);
+		LOColor.h = DoScrollbarH(&LOColor.h, &Button, LOColor.h);
+
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(15.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Sat."), 12.0f, -1);
-		g_Config.m_ClLaserOutlineSat = (int)(DoScrollbarH(&g_Config.m_ClLaserOutlineSat, &Button, g_Config.m_ClLaserOutlineSat / 255.0f)*255.0f);
+		LOColor.s = DoScrollbarH(&LOColor.s, &Button, LOColor.s);
+
 		Laser.HSplitTop(20.0f, &Button, &Laser);
 		Button.VSplitLeft(15.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, Localize("Lht."), 12.0f, -1);
-		g_Config.m_ClLaserOutlineLht = (int)(DoScrollbarH(&g_Config.m_ClLaserOutlineLht, &Button, g_Config.m_ClLaserOutlineLht / 255.0f)*255.0f);
+		LOColor.l = DoScrollbarH(&LOColor.l, &Button, LOColor.l);
 
-
+		g_Config.m_ClLaserOutlineCol = LOColor.Pack() & 0xFFFFFF;
 		//Laser.HSplitTop(8.0f, &Weapon, &Laser);
 		Weapon.VSplitLeft(30.0f, 0, &Weapon);
 
-		vec3 RGB;
+		ColorRGBA RGB;
 		vec2 From = vec2(Weapon.x, Weapon.y + Weapon.h / 2.0f);
 		vec2 Pos = vec2(Weapon.x + Weapon.w - 10.0f, Weapon.y + Weapon.h / 2.0f);
 
@@ -1872,8 +1896,8 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		Graphics()->QuadsBegin();
 
 		// do outline
-		RGB = HslToRgb(vec3(g_Config.m_ClLaserOutlineHue / 255.0f, g_Config.m_ClLaserOutlineSat / 255.0f, g_Config.m_ClLaserOutlineLht / 255.0f));
-		vec4 OuterColor(RGB.r, RGB.g, RGB.b, 1.0f);
+		RGB = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserOutlineCol));
+		ColorRGBA OuterColor(RGB.r, RGB.g, RGB.b, 1.0f);
 		Graphics()->SetColor(RGB.r, RGB.g, RGB.b, 1.0f); // outline
 		Out = vec2(0.0f, -1.0f) * (3.15f);
 
@@ -1885,8 +1909,8 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		Graphics()->QuadsDrawFreeform(&Freeform, 1);
 
 		// do inner
-		RGB = HslToRgb(vec3(g_Config.m_ClLaserInnerHue / 255.0f, g_Config.m_ClLaserInnerSat / 255.0f, g_Config.m_ClLaserInnerLht / 255.0f));
-		vec4 InnerColor(RGB.r, RGB.g, RGB.b, 1.0f);
+		RGB = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserInnerCol));
+		ColorRGBA InnerColor(RGB.r, RGB.g, RGB.b, 1.0f);
 		Out = vec2(0.0f, -1.0f) * (2.25f);
 		Graphics()->SetColor(InnerColor.r, InnerColor.g, InnerColor.b, 1.0f); // center
 
@@ -2112,7 +2136,8 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	aRects[0].VSplitRight(10.0f, &aRects[0], 0);
 	aRects[1].VSplitLeft(10.0f, 0, &aRects[1]);
 
-	int *pColorSlider[2][3] = {{&g_Config.m_ClBackgroundHue, &g_Config.m_ClBackgroundSat, &g_Config.m_ClBackgroundLht}, {&g_Config.m_ClBackgroundEntitiesHue, &g_Config.m_ClBackgroundEntitiesSat, &g_Config.m_ClBackgroundEntitiesLht}};
+	ColorHSLA Bg = ColorHSLA(g_Config.m_ClBackgroundCol), BgE = ColorHSLA(g_Config.m_ClBackgroundEntitiesCol);
+	float *pColorSlider[2][3] = {{&Bg.h, &Bg.s, &Bg.l}, {&BgE.h, &BgE.s, &BgE.l}};
 
 	const char *paParts[] = {
 		Localize("Background (regular)"),
@@ -2135,12 +2160,13 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 			Label.VSplitLeft(100.0f, &Label, &Button);
 			Button.HMargin(2.0f, &Button);
 
-			float k = (*pColorSlider[i][s]) / 255.0f;
-			k = DoScrollbarH(pColorSlider[i][s], &Button, k);
-			*pColorSlider[i][s] = (int)(k*255.0f);
+			float *k = pColorSlider[i][s];
+			*k = DoScrollbarH(k, &Button, *k);
 			UI()->DoLabelScaled(&Label, paLabels[s], 15.0f, -1);
 		}
 	}
+	g_Config.m_ClBackgroundCol = Bg.Pack();
+	g_Config.m_ClBackgroundEntitiesCol = BgE.Pack();
 
 	{
 		static float s_Map = 0.0f;

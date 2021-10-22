@@ -178,7 +178,7 @@ void CRenderTools::ForceRenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags
 
 void CRenderTools::RenderTileRectangle(int RectX, int RectY, int RectW, int RectH,
                                        unsigned char IndexIn, unsigned char IndexOut,
-                                       float Scale, vec4 Color, int RenderFlags,
+                                       float Scale, ColorRGBA Color, int RenderFlags,
                                        ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
@@ -254,7 +254,7 @@ void CRenderTools::RenderTileRectangle(int RectX, int RectY, int RectW, int Rect
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 Color, int RenderFlags,
+void CRenderTools::RenderTilemap(CTile *pTiles, int w, int h, float Scale, ColorRGBA Color, int RenderFlags,
                                  ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
@@ -415,6 +415,9 @@ void CRenderTools::RenderTeleOverlay(CTeleTile *pTele, int w, int h, float Scale
 	if(EndX - StartX > Graphics()->ScreenWidth() / g_Config.m_GfxTextOverlay || EndY - StartY > Graphics()->ScreenHeight() / g_Config.m_GfxTextOverlay)
 		return; // its useless to render text at this distance
 
+	float Size = g_Config.m_ClTextEntitiesSize/100.f;
+	float ToCenterOffset = (1-Size)/2.f;
+
 	for(int y = StartY; y < EndY; y++)
 		for(int x = StartX; x < EndX; x++)
 		{
@@ -439,7 +442,7 @@ void CRenderTools::RenderTeleOverlay(CTeleTile *pTele, int w, int h, float Scale
 				char aBuf[16];
 				str_format(aBuf, sizeof(aBuf), "%d", Index);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-				UI()->TextRender()->Text(0, mx*Scale - 3.f, my*Scale, Scale - 5.f, aBuf, -1);
+				UI()->TextRender()->Text(0, mx*Scale - 3.f, (my+ToCenterOffset)*Scale, Size*Scale, aBuf, -1);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		}
@@ -459,6 +462,9 @@ void CRenderTools::RenderSpeedupOverlay(CSpeedupTile *pSpeedup, int w, int h, fl
 
 	if(EndX - StartX > Graphics()->ScreenWidth() / g_Config.m_GfxTextOverlay || EndY - StartY > Graphics()->ScreenHeight() / g_Config.m_GfxTextOverlay)
 		return; // its useless to render text at this distance
+
+	float Size = g_Config.m_ClTextEntitiesSize / 100.f;
+	float ToCenterOffset = (1-Size)/2.f;
 
 	for(int y = StartY; y < EndY; y++)
 		for(int x = StartX; x < EndX; x++)
@@ -498,13 +504,13 @@ void CRenderTools::RenderSpeedupOverlay(CSpeedupTile *pSpeedup, int w, int h, fl
 					char aBuf[16];
 					str_format(aBuf, sizeof(aBuf), "%d", Force);
 					UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-					UI()->TextRender()->Text(0, mx*Scale, (my*Scale) + 16.f + ((16.f - (Scale - 20.f)) / 2.f), Scale - 20.f, aBuf, -1);
+					UI()->TextRender()->Text(0, mx*Scale, (my+0.5+ToCenterOffset/2)*Scale, Size*Scale/2.f, aBuf, -1);
 					UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 					if(MaxSpeed)
 					{
 						str_format(aBuf, sizeof(aBuf), "%d", MaxSpeed);
 						UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-						UI()->TextRender()->Text(0, mx*Scale, (my*Scale) + ((16.f - (Scale - 20.f)) / 2.f), Scale - 20.f, aBuf, -1);
+						UI()->TextRender()->Text(0, mx*Scale, (my+ToCenterOffset/2)*Scale, Size*Scale/2.f, aBuf, -1);
 						UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 					}
 				}
@@ -528,6 +534,9 @@ void CRenderTools::RenderSwitchOverlay(CSwitchTile *pSwitch, int w, int h, float
 
 	if(EndX - StartX > Graphics()->ScreenWidth() / g_Config.m_GfxTextOverlay || EndY - StartY > Graphics()->ScreenHeight() / g_Config.m_GfxTextOverlay)
 		return; // its useless to render text at this distance
+
+	float Size = g_Config.m_ClTextEntitiesSize/100.f;
+	float ToCenterOffset = (1-Size)/2.f;
 
 	for(int y = StartY; y < EndY; y++)
 		for(int x = StartX; x < EndX; x++)
@@ -553,7 +562,7 @@ void CRenderTools::RenderSwitchOverlay(CSwitchTile *pSwitch, int w, int h, float
 				char aBuf[16];
 				str_format(aBuf, sizeof(aBuf), "%d", Index);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-				UI()->TextRender()->Text(0, mx*Scale, my*Scale + 16.f + ((16.f - (Scale - 20.f)) / 2.f), Scale - 20.f, aBuf, -1);
+				UI()->TextRender()->Text(0, mx*Scale, (my+ToCenterOffset/2)*Scale, Size*Scale/2.f, aBuf, -1);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 
@@ -563,7 +572,7 @@ void CRenderTools::RenderSwitchOverlay(CSwitchTile *pSwitch, int w, int h, float
 				char aBuf[16];
 				str_format(aBuf, sizeof(aBuf), "%d", Delay);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-				UI()->TextRender()->Text(0, mx*Scale, my*Scale + ((16.f - (Scale - 20.f)) / 2.f), Scale - 20.f, aBuf, -1);
+				UI()->TextRender()->Text(0, mx*Scale, (my+0.5f+ToCenterOffset/2)* Scale, Size*Scale/2.f, aBuf, -1);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		}
@@ -586,6 +595,8 @@ void CRenderTools::RenderTuneOverlay(CTuneTile *pTune, int w, int h, float Scale
 
 	if(EndX - StartX > Graphics()->ScreenWidth() / g_Config.m_GfxTextOverlay || EndY - StartY > Graphics()->ScreenHeight() / g_Config.m_GfxTextOverlay)
 		return; // its useless to render text at this distance
+
+	float Size = g_Config.m_ClTextEntitiesSize/100.f;
 
 	for(int y = StartY; y < EndY; y++)
 		for(int x = StartX; x < EndX; x++)
@@ -611,7 +622,7 @@ void CRenderTools::RenderTuneOverlay(CTuneTile *pTune, int w, int h, float Scale
 				char aBuf[16];
 				str_format(aBuf, sizeof(aBuf), "%d", Index);
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
-				UI()->TextRender()->Text(0, mx*Scale+11.f, my*Scale+6.f, Scale/1.5f-5.f, aBuf, -1); // numbers shouldn't be too big and in the center of the tile
+				UI()->TextRender()->Text(0, mx*Scale+11.f, my*Scale+6.f, Size*Scale/1.5f-5.f, aBuf, -1); // numbers shouldn't be too big and in the center of the tile
 				UI()->TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		}
@@ -619,7 +630,7 @@ void CRenderTools::RenderTuneOverlay(CTuneTile *pTune, int w, int h, float Scale
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderTelemap(CTeleTile *pTele, int w, int h, float Scale, vec4 Color, int RenderFlags)
+void CRenderTools::RenderTelemap(CTeleTile *pTele, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
@@ -630,7 +641,7 @@ void CRenderTools::RenderTelemap(CTeleTile *pTele, int w, int h, float Scale, ve
 	float FinalTilesetScale = FinalTileSize/TilePixelSize;
 
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(Color.r, Color.g, Color.b, Color.a);
+	Graphics()->SetColor(Color);
 
 	int StartY = (int)(ScreenY0/Scale)-1;
 	int StartX = (int)(ScreenX0/Scale)-1;
@@ -710,7 +721,7 @@ void CRenderTools::RenderTelemap(CTeleTile *pTele, int w, int h, float Scale, ve
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderSpeedupmap(CSpeedupTile *pSpeedupTile, int w, int h, float Scale, vec4 Color, int RenderFlags)
+void CRenderTools::RenderSpeedupmap(CSpeedupTile *pSpeedupTile, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)
 {
 	//Graphics()->TextureSet(img_get(tmap->image));
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
@@ -723,7 +734,7 @@ void CRenderTools::RenderSpeedupmap(CSpeedupTile *pSpeedupTile, int w, int h, fl
 	float FinalTilesetScale = FinalTileSize/TilePixelSize;
 
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(Color.r, Color.g, Color.b, Color.a);
+	Graphics()->SetColor(Color);
 
 	int StartY = (int)(ScreenY0/Scale)-1;
 	int StartX = (int)(ScreenX0/Scale)-1;
@@ -803,7 +814,7 @@ void CRenderTools::RenderSpeedupmap(CSpeedupTile *pSpeedupTile, int w, int h, fl
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderSwitchmap(CSwitchTile *pSwitchTile, int w, int h, float Scale, vec4 Color, int RenderFlags)
+void CRenderTools::RenderSwitchmap(CSwitchTile *pSwitchTile, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)
 {
 	//Graphics()->TextureSet(img_get(tmap->image));
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
@@ -816,7 +827,7 @@ void CRenderTools::RenderSwitchmap(CSwitchTile *pSwitchTile, int w, int h, float
 	float FinalTilesetScale = FinalTileSize/TilePixelSize;
 
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(Color.r, Color.g, Color.b, Color.a);
+	Graphics()->SetColor(Color);
 
 	int StartY = (int)(ScreenY0/Scale)-1;
 	int StartX = (int)(ScreenX0/Scale)-1;
@@ -939,7 +950,7 @@ void CRenderTools::RenderSwitchmap(CSwitchTile *pSwitchTile, int w, int h, float
 	Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 }
 
-void CRenderTools::RenderTunemap(CTuneTile *pTune, int w, int h, float Scale, vec4 Color, int RenderFlags)
+void CRenderTools::RenderTunemap(CTuneTile *pTune, int w, int h, float Scale, ColorRGBA Color, int RenderFlags)
 {
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
@@ -950,7 +961,7 @@ void CRenderTools::RenderTunemap(CTuneTile *pTune, int w, int h, float Scale, ve
 	float FinalTilesetScale = FinalTileSize/TilePixelSize;
 
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(Color.r, Color.g, Color.b, Color.a);
+	Graphics()->SetColor(Color);
 
 	int StartY = (int)(ScreenY0/Scale)-1;
 	int StartX = (int)(ScreenX0/Scale)-1;

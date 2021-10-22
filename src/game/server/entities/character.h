@@ -707,6 +707,7 @@ public:
 	vec2 m_TeleGunPos;
 	bool m_TeleGunTeleport;
 	bool m_IsBlueTeleGunTeleport;
+	int m_StrongWeakID;
 
 	int64 m_AliveTime;
 

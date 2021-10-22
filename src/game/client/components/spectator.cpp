@@ -327,8 +327,8 @@ void CSpectator::OnRender()
 		{
 			Graphics()->TextureSet(-1);
 			Graphics()->QuadsBegin();
-			vec3 rgb = HslToRgb(vec3(DDTeam / 64.0f, 1.0f, 0.5f));
-			Graphics()->SetColor(rgb.r, rgb.g, rgb.b, 0.5f);
+			ColorRGBA rgb = color_cast<ColorRGBA>(ColorHSLA(DDTeam / 64.0f, 1.0f, 0.5f, 0.5f));
+			Graphics()->SetColor(rgb);
 
 			int Corners = 0;
 
@@ -393,10 +393,8 @@ void CSpectator::OnRender()
 		}
 
 		CTeeRenderInfo TeeInfo = m_pClient->m_aClients[m_pClient->m_Snap.m_paInfoByDDTeam[i]->m_ClientID].m_RenderInfo;
-		TeeInfo.m_ColorBody.a = TeeAlpha;
-		TeeInfo.m_ColorFeet.a = TeeAlpha;
 		TeeInfo.m_Size *= TeeSizeMod;
-		RenderTools()->RenderTee(CAnimState::GetIdle(), &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), vec2(Width/2.0f+x+20.0f, Height/2.0f+y+20.0f), true);
+		RenderTools()->RenderTee(CAnimState::GetIdle(), &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), vec2(Width/2.0f+x+20.0f, Height/2.0f+y+20.0f), TeeAlpha);
 
 		y += LineHeight;
 	}

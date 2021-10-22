@@ -52,7 +52,6 @@ protected:
 	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos);
 	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
 
-	//void CycleMap();
 	void ResetGame();
 
 	char m_aMapWish[128];
@@ -61,8 +60,6 @@ protected:
 	int m_RoundStartTick;
 	int m_GameOverTick;
 	int m_SuddenDeath;
-
-	int m_aTeamscore[2];
 
 	int m_Warmup;
 	int m_RoundCount;
@@ -74,11 +71,6 @@ protected:
 
 public:
 	const char *m_pGameType;
-
-	//vec2 m_FunPoint;
-
-	bool IsTeamplay() const;
-	bool IsGameOver() const { return m_GameOverTick != -1; }
 
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
@@ -137,8 +129,6 @@ public:
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 
 
-	//virtual void OnPlayerInfoChange(class CPlayer *pP);
-
 	//
 	virtual bool CanSpawn(int Team, vec2 *pPos, class CPlayer *pPlayer);
 
@@ -148,8 +138,6 @@ public:
 	virtual const char *GetTeamName(int Team);
 	virtual int GetAutoTeam(int NotThisID);
 	virtual bool CanJoinTeam(int Team, int NotThisID);
-	//bool CheckTeamBalance();
-	//bool CanChangeTeam(CPlayer *pPplayer, int JoinTeam);
 	int ClampTeam(int Team);
 
 	virtual void PostReset();
@@ -157,6 +145,15 @@ public:
 	// DDRace
 
 	float m_CurrentRecord;
+
+	// DDNet++
+
+	bool IsTeamplay() const;
+	bool IsGameOver() const { return m_GameOverTick != -1; }
+	bool IsForceBalanced();
+
+private:
+	int m_aTeamscore[2];
 };
 
 #endif

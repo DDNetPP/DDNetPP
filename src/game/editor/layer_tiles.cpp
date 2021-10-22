@@ -85,7 +85,7 @@ void CLayerTiles::Render(bool Tileset)
 	if(m_Image >= 0 && m_Image < m_pEditor->m_Map.m_lImages.size())
 		m_TexID = m_pEditor->m_Map.m_lImages[m_Image]->m_TexID;
 	Graphics()->TextureSet(m_TexID);
-	vec4 Color = vec4(m_Color.r/255.0f, m_Color.g/255.0f, m_Color.b/255.0f, m_Color.a/255.0f);
+	ColorRGBA Color = ColorRGBA(m_Color.r/255.0f, m_Color.g/255.0f, m_Color.b/255.0f, m_Color.a/255.0f);
 	Graphics()->BlendNone();
 	m_pEditor->RenderTools()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_OPAQUE,
 												m_pEditor->EnvelopeEval, m_pEditor, m_ColorEnv, m_ColorEnvOffset);
@@ -419,7 +419,7 @@ void CLayerTiles::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerTiles *pLt = static_cast<CLayerTiles*>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pLt);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
 
 	for(int y = 0; y < h; y++)
 	{
@@ -432,7 +432,7 @@ void CLayerTiles::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 				continue;
 
 			bool HasTile = GetTile(fx, fy).m_Index;
-			if(pLt->GetTile(x, y).m_Index == TILE_THROUGH_CUT)
+			if(!Empty && pLt->GetTile(x, y).m_Index == TILE_THROUGH_CUT)
 			{
 				if(m_Game && m_pEditor->m_Map.m_pFrontLayer)
 				{
@@ -448,7 +448,7 @@ void CLayerTiles::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 				continue;
 
 			if(Empty)
-				m_pTiles[fy*m_Width+fx].m_Index = 1;
+				m_pTiles[fy*m_Width+fx].m_Index = 0;
 			else
 				SetTile(fx, fy, pLt->m_pTiles[(y*pLt->m_Width + x%pLt->m_Width) % (pLt->m_Width*pLt->m_Height)]);
 		}
@@ -589,8 +589,8 @@ void CLayerTiles::Resize(int NewW, int NewH)
 	mem_zero(pNewData, NewW*NewH*sizeof(CTile));
 
 	// copy old data
-	for(int y = 0; y < min(NewH, m_Height); y++)
-		mem_copy(&pNewData[y*NewW], &m_pTiles[y*m_Width], min(m_Width, NewW)*sizeof(CTile));
+	for(int y = 0; y < minimum(NewH, m_Height); y++)
+		mem_copy(&pNewData[y*NewW], &m_pTiles[y*m_Width], minimum(m_Width, NewW)*sizeof(CTile));
 
 	// replace old
 	delete [] m_pTiles;
@@ -674,10 +674,10 @@ void CLayerTiles::ShowInfo()
 	Graphics()->TextureSet(m_pEditor->Client()->GetDebugFont());
 	Graphics()->QuadsBegin();
 
-	int StartY = max(0, (int)(ScreenY0/32.0f)-1);
-	int StartX = max(0, (int)(ScreenX0/32.0f)-1);
-	int EndY = min((int)(ScreenY1/32.0f)+1, m_Height);
-	int EndX = min((int)(ScreenX1/32.0f)+1, m_Width);
+	int StartY = maximum(0, (int)(ScreenY0/32.0f)-1);
+	int StartX = maximum(0, (int)(ScreenX0/32.0f)-1);
+	int EndY = minimum((int)(ScreenY1/32.0f)+1, m_Height);
+	int EndX = minimum((int)(ScreenX1/32.0f)+1, m_Width);
 
 	for(int y = StartY; y < EndY; y++)
 		for(int x = StartX; x < EndX; x++)
@@ -1001,8 +1001,8 @@ void CLayerTele::Resize(int NewW, int NewH)
 	mem_zero(pNewTeleData, NewW*NewH*sizeof(CTeleTile));
 
 	// copy old data
-	for(int y = 0; y < min(NewH, m_Height); y++)
-		mem_copy(&pNewTeleData[y*NewW], &m_pTeleTile[y*m_Width], min(m_Width, NewW)*sizeof(CTeleTile));
+	for(int y = 0; y < minimum(NewH, m_Height); y++)
+		mem_copy(&pNewTeleData[y*NewW], &m_pTeleTile[y*m_Width], minimum(m_Width, NewW)*sizeof(CTeleTile));
 
 	// replace old
 	delete [] m_pTeleTile;
@@ -1212,7 +1212,7 @@ void CLayerTele::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerTele *pLt = static_cast<CLayerTele*>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pLt);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
 
 	for(int y = 0; y < h; y++)
 	{
@@ -1273,8 +1273,8 @@ void CLayerSpeedup::Resize(int NewW, int NewH)
 	mem_zero(pNewSpeedupData, NewW*NewH*sizeof(CSpeedupTile));
 
 	// copy old data
-	for(int y = 0; y < min(NewH, m_Height); y++)
-		mem_copy(&pNewSpeedupData[y*NewW], &m_pSpeedupTile[y*m_Width], min(m_Width, NewW)*sizeof(CSpeedupTile));
+	for(int y = 0; y < minimum(NewH, m_Height); y++)
+		mem_copy(&pNewSpeedupData[y*NewW], &m_pSpeedupTile[y*m_Width], minimum(m_Width, NewW)*sizeof(CSpeedupTile));
 
 	// replace old
 	delete [] m_pSpeedupTile;
@@ -1499,7 +1499,7 @@ void CLayerSpeedup::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerSpeedup *pLt = static_cast<CLayerSpeedup*>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pLt);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
 
 	for(int y = 0; y < h; y++)
 	{
@@ -1608,8 +1608,8 @@ void CLayerSwitch::Resize(int NewW, int NewH)
 	mem_zero(pNewSwitchData, NewW*NewH*sizeof(CSwitchTile));
 
 	// copy old data
-	for(int y = 0; y < min(NewH, m_Height); y++)
-		mem_copy(&pNewSwitchData[y*NewW], &m_pSwitchTile[y*m_Width], min(m_Width, NewW)*sizeof(CSwitchTile));
+	for(int y = 0; y < minimum(NewH, m_Height); y++)
+		mem_copy(&pNewSwitchData[y*NewW], &m_pSwitchTile[y*m_Width], minimum(m_Width, NewW)*sizeof(CSwitchTile));
 
 	// replace old
 	delete [] m_pSwitchTile;
@@ -1832,7 +1832,7 @@ void CLayerSwitch::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 	CLayerSwitch *pLt = static_cast<CLayerSwitch*>(pBrush);
 
-	bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pLt);
+	bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
 
 	for(int y = 0; y < h; y++)
 	{
@@ -1901,8 +1901,8 @@ void CLayerTune::Resize(int NewW, int NewH)
 	mem_zero(pNewTuneData, NewW*NewH*sizeof(CTuneTile));
 
 	// copy old data
-	for(int y = 0; y < min(NewH, m_Height); y++)
-		mem_copy(&pNewTuneData[y*NewW], &m_pTuneTile[y*m_Width], min(m_Width, NewW)*sizeof(CTuneTile));
+	for(int y = 0; y < minimum(NewH, m_Height); y++)
+		mem_copy(&pNewTuneData[y*NewW], &m_pTuneTile[y*m_Width], minimum(m_Width, NewW)*sizeof(CTuneTile));
 
 	// replace old
 	delete [] m_pTuneTile;
@@ -2114,7 +2114,7 @@ void CLayerTune::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 
 		CLayerTune *pLt = static_cast<CLayerTune*>(pBrush);
 
-		bool Destructive = m_pEditor->m_BrushDrawDestructive || IsEmpty(pLt);
+		bool Destructive = m_pEditor->m_BrushDrawDestructive || Empty || IsEmpty(pLt);
 
 		for(int y = 0; y < h; y++)
 		{

@@ -171,6 +171,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pEffects); // doesn't render anything, just updates effects
 	m_All.Add(m_pParticles);
 	m_All.Add(m_pBinds);
+	m_All.Add(&m_pBinds->m_SpecialBinds);
 	m_All.Add(m_pControls);
 	m_All.Add(m_pCamera);
 	m_All.Add(m_pSounds);
@@ -201,6 +202,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&gs_Statboard);
 	m_All.Add(m_pMotd);
 	m_All.Add(m_pMenus);
+	m_All.Add(&m_pMenus->m_Binder);
 	m_All.Add(m_pGameConsole);
 
 	// build the input stack
@@ -218,8 +220,6 @@ void CGameClient::OnConsoleInit()
 	// add the some console commands
 	Console()->Register("team", "i[team-id]", CFGFLAG_CLIENT, ConTeam, this, "Switch team");
 	Console()->Register("kill", "", CFGFLAG_CLIENT, ConKill, this, "Kill yourself");
-	Console()->Register("color_from_rgb", "s[color]", CFGFLAG_CLIENT, ConColorFromRgb, this, "Convert HEX RGB color (3 or 6 digits) to TW formats");
-	Console()->Register("color_to_rgb", "i[color] ?i[color] ?i[color]", CFGFLAG_CLIENT, ConColorToRgb, this, "Convert TW colors to HEX RGB color format");
 
 	// register server dummy commands for tab completion
 	Console()->Register("tune", "s[tuning] i[value]", CFGFLAG_SERVER, 0, 0, "Tune variable to value");
@@ -266,6 +266,7 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("dummy_skin", ConchainSpecialDummyInfoupdate, this);
 
 	Console()->Chain("cl_dummy", ConchainSpecialDummy, this);
+	Console()->Chain("cl_text_entities_size", ConchainClTextEntitiesSize, this);
 
 	//
 	m_SuppressEvents = false;
@@ -350,6 +351,8 @@ void CGameClient::OnInit()
 	m_GameWorld.m_GameTickSpeed = SERVER_TICK_SPEED;
 	m_GameWorld.m_pCollision = Collision();
 	m_GameWorld.m_pTeams = &m_TeamsPredicted;
+
+	m_pMapimages->SetTextureScale(g_Config.m_ClTextEntitiesSize);
 }
 
 void CGameClient::OnUpdate()
@@ -829,6 +832,8 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 		{
 			m_CharOrder.GiveWeak(pMsg->m_Victim);
 			m_aLastWorldCharacters[pMsg->m_Victim].m_Alive = false;
+			if(CCharacter *pChar = m_GameWorld.GetCharacterByID(pMsg->m_Victim))
+				pChar->ResetPrediction();
 			m_GameWorld.ReleaseHooked(pMsg->m_Victim);
 		}
 	}
@@ -1028,8 +1033,8 @@ void CGameClient::OnNewSnapshot()
 				if(m_aClients[ClientID].m_aSkinName[0] == 'x' || m_aClients[ClientID].m_aSkinName[1] == '_')
 					str_copy(m_aClients[ClientID].m_aSkinName, "default", 64);
 
-				m_aClients[ClientID].m_SkinInfo.m_ColorBody = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorBody);
-				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorFeet);
+				m_aClients[ClientID].m_SkinInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorBody).Lighten());
+				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorFeet).Lighten());
 				m_aClients[ClientID].m_SkinInfo.m_Size = 64;
 
 				// find new skin
@@ -1040,8 +1045,8 @@ void CGameClient::OnNewSnapshot()
 				else
 				{
 					m_aClients[ClientID].m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(m_aClients[ClientID].m_SkinID)->m_OrgTexture;
-					m_aClients[ClientID].m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
-					m_aClients[ClientID].m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);
+					m_aClients[ClientID].m_SkinInfo.m_ColorBody = ColorRGBA(1,1,1);
+					m_aClients[ClientID].m_SkinInfo.m_ColorFeet = ColorRGBA(1,1,1);
 				}
 
 				m_aClients[ClientID].UpdateRenderInfo();
@@ -1126,10 +1131,10 @@ void CGameClient::OnNewSnapshot()
 						pCharacterData->m_Flags & CHARACTERFLAG_ENDLESS_JUMP;
 
 				// Freeze
-				m_aClients[Item.m_ID].m_Frozen = m_aClients[Item.m_ID].m_Predicted.m_Frozen =
-						pCharacterData->m_Flags & CHARACTERFLAG_FROZEN;
+				m_aClients[Item.m_ID].m_FreezeEnd = m_aClients[Item.m_ID].m_Predicted.m_FreezeEnd =
+						pCharacterData->m_FreezeEnd;
 				m_aClients[Item.m_ID].m_DeepFrozen = m_aClients[Item.m_ID].m_Predicted.m_DeepFrozen =
-						pCharacterData->m_Flags & CHARACTERFLAG_DEEP_FROZEN;
+						pCharacterData->m_FreezeEnd == -1;
 
 				// Telegun
 				m_aClients[Item.m_ID].m_HasTelegunGrenade = m_aClients[Item.m_ID].m_Predicted.m_HasTelegunGrenade =
@@ -1138,9 +1143,6 @@ void CGameClient::OnNewSnapshot()
 						pCharacterData->m_Flags & CHARACTERFLAG_TELEGUN_GUN;
 				m_aClients[Item.m_ID].m_HasTelegunLaser = m_aClients[Item.m_ID].m_Predicted.m_HasTelegunLaser =
 						pCharacterData->m_Flags & CHARACTERFLAG_TELEGUN_LASER;
-
-				// Other
-				m_aClients[Item.m_ID].m_Spectating = pCharacterData->m_Flags & CHARACTERFLAG_SPECTATING;
 			}
 			else if(Item.m_Type == NETOBJTYPE_SPECTATORINFO)
 			{
@@ -1432,6 +1434,10 @@ void CGameClient::OnPredict()
 					m_aClients[i].m_PrevPredicted = pChar->GetCore();
 		}
 
+		// optionally allow some movement in freeze by not predicting freeze the last one to two ticks
+		if(g_Config.m_ClPredictFreeze == 2 && Client()->PredGameTick() - 1 - Client()->PredGameTick()%2 <= Tick)
+			pLocalChar->m_CanMoveInFreeze = true;
+
 		// apply inputs and tick
 		CNetObj_PlayerInput *pInputData = (CNetObj_PlayerInput*) Client()->GetDirectInput(Tick);
 		if(pInputData)
@@ -1494,7 +1500,7 @@ void CGameClient::OnPredict()
 			if(!m_Snap.m_aCharacters[i].m_Active || i == m_Snap.m_LocalClientID || !s_aLastActive[i])
 				continue;
 			vec2 NewPos = (m_PredictedTick == Client()->PredGameTick()) ? m_aClients[i].m_Predicted.m_Pos : m_aClients[i].m_PrevPredicted.m_Pos;
-			vec2 PredErr = (s_aLastPos[i] - NewPos)/(float)min(Client()->GetPredictionTime(), 200);
+			vec2 PredErr = (s_aLastPos[i] - NewPos)/(float)minimum(Client()->GetPredictionTime(), 200);
 			if(in_range(length(PredErr), 0.05f, 5.f))
 			{
 				vec2 PredPos = mix(m_aClients[i].m_PrevPredicted.m_Pos, m_aClients[i].m_Predicted.m_Pos, Client()->PredIntraGameTick());
@@ -1520,7 +1526,7 @@ void CGameClient::OnPredict()
 					}
 					int64 TimePassed = time_get() - m_aClients[i].m_SmoothStart[j];
 					if(in_range(TimePassed, (int64)0, Len-1))
-						MixAmount[j] = min(MixAmount[j], (float)(TimePassed/(double)Len));
+						MixAmount[j] = minimum(MixAmount[j], (float)(TimePassed/(double)Len));
 
 				}
 				for(int j = 0; j < 2; j++)
@@ -1528,7 +1534,7 @@ void CGameClient::OnPredict()
 						MixAmount[j] = MixAmount[j^1];
 				for(int j = 0; j < 2; j++)
 				{
-					int64 Remaining = min((1.f-MixAmount[j])*Len, min(time_freq()*0.700f, (1.f-MixAmount[j^1])*Len + time_freq()*0.300f)); // don't smooth for longer than 700ms, or more than 300ms longer along one axis than the other axis
+					int64 Remaining = minimum((1.f-MixAmount[j])*Len, minimum(time_freq()*0.700f, (1.f-MixAmount[j^1])*Len + time_freq()*0.300f)); // don't smooth for longer than 700ms, or more than 300ms longer along one axis than the other axis
 					int64 Start = time_get() - (Len - Remaining);
 					if(!in_range(Start + Len, m_aClients[i].m_SmoothStart[j], m_aClients[i].m_SmoothStart[j] + Len))
 					{
@@ -1618,13 +1624,13 @@ void CGameClient::CClientData::UpdateRenderInfo()
 		const int TeamColors[2] = {65387, 10223467};
 		if(m_Team >= TEAM_RED && m_Team <= TEAM_BLUE)
 		{
-			m_RenderInfo.m_ColorBody = g_GameClient.m_pSkins->GetColorV4(TeamColors[m_Team]);
-			m_RenderInfo.m_ColorFeet = g_GameClient.m_pSkins->GetColorV4(TeamColors[m_Team]);
+			m_RenderInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(TeamColors[m_Team]));
+			m_RenderInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(TeamColors[m_Team]));
 		}
 		else
 		{
-			m_RenderInfo.m_ColorBody = g_GameClient.m_pSkins->GetColorV4(12895054);
-			m_RenderInfo.m_ColorFeet = g_GameClient.m_pSkins->GetColorV4(12895054);
+			m_RenderInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(12895054));
+			m_RenderInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(12895054));
 		}
 	}
 }
@@ -1645,10 +1651,9 @@ void CGameClient::CClientData::Reset()
 	m_Foe = false;
 	m_AuthLevel = AUTHED_NO;
 	m_SkinInfo.m_Texture = g_GameClient.m_pSkins->Get(0)->m_ColorTexture;
-	m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
-	m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);
+	m_SkinInfo.m_ColorBody = ColorRGBA(1,1,1);
+	m_SkinInfo.m_ColorFeet = ColorRGBA(1,1,1);
 
-	// DDNet Character
 	m_Solo = false;
 	m_Jetpack = false;
 	m_NoCollision = false;
@@ -1663,9 +1668,8 @@ void CGameClient::CClientData::Reset()
 	m_HasTelegunGun = false;
 	m_HasTelegunGrenade = false;
 	m_HasTelegunLaser = false;
-	m_Frozen = false;
+	m_FreezeEnd = 0;
 	m_DeepFrozen = false;
-	m_Spectating = false;
 
 	UpdateRenderInfo();
 }
@@ -1770,74 +1774,6 @@ void CGameClient::ConKill(IConsole::IResult *pResult, void *pUserData)
 	((CGameClient*)pUserData)->SendKill(-1);
 }
 
-void CGameClient::ConColorFromRgb(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameClient *pThis = (CGameClient*)pUserData;
-	const char *pString = pResult->GetString(0);
-	const size_t Length = str_length(pString);
-	vec3 Hsl;
-	vec3 Rgb;
-
-	if(Length == 3)
-	{
-		const int Num = str_toint_base(pString, 16);
-		Rgb.r = (float)(((Num & 0xF00) >> 8) + ((Num & 0xF00) >> 4)) / 255.0f;
-		Rgb.g = (float)(((Num & 0x0F0) >> 4) + ((Num & 0x0F0) >> 0)) / 255.0f;
-		Rgb.b = (float)(((Num & 0x00F) >> 0) + ((Num & 0x00F) << 4)) / 255.0f;
-	}
-	else if(Length == 6)
-	{
-		const int Num = str_toint_base(pString, 16);
-		Rgb.r = (float)((Num & 0xFF0000) >> 16) / 255.0f;
-		Rgb.g = (float)((Num & 0x00FF00) >>  8) / 255.0f;
-		Rgb.b = (float)((Num & 0x0000FF) >>  0) / 255.0f;
-	}
-	else
-	{
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "color", "Unknown color format");
-		return;
-	}
-
-	char aBuf[32];
-	Hsl = RgbToHsl(Rgb);
-	// full lightness range for GUI colors
-	str_format(aBuf, sizeof(aBuf), "Hue: %d, Sat: %d, Lht: %d", (int)Hsl.h, (int)Hsl.s, (int)Hsl.l);
-	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "color", aBuf);
-
-	// limited lightness range to prevent too dark colors for player colors
-	Hsl.l = clamp((Hsl.l - 127.0) * 2.0, 0.0, 255.0);
-	str_format(aBuf, sizeof(aBuf), "%d", ((int)Hsl.h << 16) + ((int)Hsl.s << 8) + (int)Hsl.l);
-	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "color", aBuf);
-}
-
-void CGameClient::ConColorToRgb(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameClient *pThis = (CGameClient*)pUserData;
-	vec3 Rgb;
-
-	if(pResult->NumArguments() == 1)
-	{
-		const int v = pResult->GetInteger(0);
-		Rgb = HslToRgb(vec3(((v>>16)&0xff)/255.0f, ((v>>8)&0xff)/255.0f, 0.5f+(v&0xff)/255.0f*0.5f));
-	}
-	else if(pResult->NumArguments() == 3)
-	{
-		const int Hue = pResult->GetInteger(0);
-		const int Sat = pResult->GetInteger(1);
-		const int Lht = pResult->GetInteger(2);
-		Rgb = HslToRgb(vec3(Hue / 255.0f, Sat / 255.0f, Lht / 255.0f));
-	}
-	else
-	{
-		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "color", "Pass 1 integer in player_color format or 3 ints as hue sat lht");
-		return;
-	}
-
-	char aBuf[32];
-	str_format(aBuf, sizeof(aBuf), "%06X", ((int)(Rgb.r * 255) << 16) + ((int)(Rgb.g * 255) << 8) + (int)(Rgb.b * 255));
-	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "color", aBuf);
-}
-
 void CGameClient::ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	pfnCallback(pResult, pCallbackUserData);
@@ -1858,6 +1794,17 @@ void CGameClient::ConchainSpecialDummy(IConsole::IResult *pResult, void *pUserDa
 	if(pResult->NumArguments())
 		if(g_Config.m_ClDummy && !((CGameClient*)pUserData)->Client()->DummyConnected())
 			g_Config.m_ClDummy = 0;
+}
+
+void CGameClient::ConchainClTextEntitiesSize(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	pfnCallback(pResult, pCallbackUserData);
+
+	if(pResult->NumArguments())
+	{
+		CGameClient *pGameClient = (CGameClient*)pUserData;
+		pGameClient->m_pMapimages->SetTextureScale(g_Config.m_ClTextEntitiesSize);
+	}
 }
 
 IGameClient *CreateGameClient()
@@ -1905,9 +1852,9 @@ int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2& NewPos2, in
 	return ClosestID;
 }
 
-vec3 CalculateNameColor(vec3 TextColorHSL)
+ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL)
 {
-	return HslToRgb(vec3(TextColorHSL.h, TextColorHSL.s * 0.68f, TextColorHSL.l * 0.81f));
+	return color_cast<ColorRGBA>(ColorHSLA(TextColorHSL.h, TextColorHSL.s * 0.68f, TextColorHSL.l * 0.81f));
 }
 
 void CGameClient::UpdatePrediction()
@@ -1927,6 +1874,7 @@ void CGameClient::UpdatePrediction()
 	m_GameWorld.m_WorldConfig.m_IsVanilla = IsVanilla(&CurrentServerInfo);
 	m_GameWorld.m_WorldConfig.m_IsDDRace = IsDDRace(&CurrentServerInfo);
 	m_GameWorld.m_WorldConfig.m_IsFNG = IsFNG(&CurrentServerInfo);
+	m_GameWorld.m_WorldConfig.m_PredictDDRace = g_Config.m_ClPredictDDRace;
 	m_GameWorld.m_WorldConfig.m_PredictTiles = g_Config.m_ClPredictDDRace && m_GameWorld.m_WorldConfig.m_IsDDRace && !IsBlockWorlds(&CurrentServerInfo);
 	m_GameWorld.m_WorldConfig.m_PredictFreeze = g_Config.m_ClPredictFreeze;
 	m_GameWorld.m_WorldConfig.m_PredictWeapons = AntiPingWeapons();
@@ -2047,7 +1995,9 @@ void CGameClient::UpdateRenderedCharacters()
 		{
 			m_aClients[i].m_Predicted.Write(&m_aClients[i].m_RenderCur);
 			m_aClients[i].m_PrevPredicted.Write(&m_aClients[i].m_RenderPrev);
+
 			m_aClients[i].m_IsPredicted = true;
+
 			Pos = mix(
 					vec2(m_aClients[i].m_RenderPrev.m_X, m_aClients[i].m_RenderPrev.m_Y),
 					vec2(m_aClients[i].m_RenderCur.m_X, m_aClients[i].m_RenderCur.m_Y),
@@ -2059,13 +2009,19 @@ void CGameClient::UpdateRenderedCharacters()
 			{
 				// use unpredicted values for other players
 				m_aClients[i].m_RenderPrev.m_Angle = m_Snap.m_aCharacters[i].m_Prev.m_Angle;
-				m_aClients[i].m_RenderPrev.m_AttackTick = m_Snap.m_aCharacters[i].m_Prev.m_AttackTick;
 				m_aClients[i].m_RenderCur.m_Angle = m_Snap.m_aCharacters[i].m_Cur.m_Angle;
-				m_aClients[i].m_RenderCur.m_AttackTick = m_Snap.m_aCharacters[i].m_Cur.m_AttackTick;
 
 				if(g_Config.m_ClAntiPingSmooth)
 					Pos = GetSmoothPos(i);
 			}
+
+			if(AntiPingWeapons() && AntiPingGrenade() && m_aClients[i].m_IsPredictedLocal && (m_Snap.m_aCharacters[i].m_Cur.m_Weapon != WEAPON_NINJA || m_Snap.m_aCharacters[i].m_Cur.m_Weapon == m_aClients[i].m_Predicted.m_ActiveWeapon))
+			{
+				m_aClients[i].m_RenderCur.m_Weapon = m_aClients[i].m_Predicted.m_ActiveWeapon;
+				if(CCharacter *pChar = m_PredictedWorld.GetCharacterByID(i))
+					m_aClients[i].m_RenderCur.m_AttackTick = pChar->GetAttackTick();
+			}
+
 		}
 		m_Snap.m_aCharacters[i].m_Position = Pos;
 		m_aClients[i].m_RenderPos = Pos;
@@ -2085,7 +2041,7 @@ void CGameClient::DetectStrongHook()
 		int ToPlayer = m_Snap.m_aCharacters[FromPlayer].m_Prev.m_HookedPlayer;
 		if(ToPlayer < 0 || ToPlayer >= MAX_CLIENTS || !m_Snap.m_aCharacters[ToPlayer].m_Active || ToPlayer != m_Snap.m_aCharacters[FromPlayer].m_Cur.m_HookedPlayer)
 			continue;
-		if(abs(min(s_LastUpdateTick[ToPlayer], s_LastUpdateTick[FromPlayer]) - Client()->GameTick()) < SERVER_TICK_SPEED/4)
+		if(abs(minimum(s_LastUpdateTick[ToPlayer], s_LastUpdateTick[FromPlayer]) - Client()->GameTick()) < SERVER_TICK_SPEED/4)
 			continue;
 		if(m_Snap.m_aCharacters[FromPlayer].m_Prev.m_Direction != m_Snap.m_aCharacters[FromPlayer].m_Cur.m_Direction
 				|| m_Snap.m_aCharacters[ToPlayer].m_Prev.m_Direction != m_Snap.m_aCharacters[ToPlayer].m_Cur.m_Direction)

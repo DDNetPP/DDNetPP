@@ -82,7 +82,7 @@ int CSkins::SkinScan(const char *pName, int IsDir, int DirType, void *pUser)
 				}
 			}
 
-		Skin.m_BloodColor = normalize(vec3(aColors[0], aColors[1], aColors[2]));
+		Skin.m_BloodColor = ColorRGBA(normalize(vec3(aColors[0], aColors[1], aColors[2])));
 	}
 
 	// create colorless version
@@ -175,7 +175,7 @@ void CSkins::OnInit()
 		DummySkin.m_OrgTexture = -1;
 		DummySkin.m_ColorTexture = -1;
 		str_copy(DummySkin.m_aName, "dummy", sizeof(DummySkin.m_aName));
-		DummySkin.m_BloodColor = vec3(1.0f, 1.0f, 1.0f);
+		DummySkin.m_BloodColor = ColorRGBA(1.0f, 1.0f, 1.0f);
 		m_aSkins.add(DummySkin);
 	}
 }
@@ -228,15 +228,4 @@ int CSkins::FindImpl(const char *pName) const
 		}
 	}
 	return -1;
-}
-
-vec3 CSkins::GetColorV3(int v)
-{
-	return HslToRgb(vec3(((v>>16)&0xff)/255.0f, ((v>>8)&0xff)/255.0f, 0.5f+(v&0xff)/255.0f*0.5f));
-}
-
-vec4 CSkins::GetColorV4(int v)
-{
-	vec3 r = GetColorV3(v);
-	return vec4(r.r, r.g, r.b, 1.0f);
 }

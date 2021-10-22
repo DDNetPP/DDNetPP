@@ -34,8 +34,6 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_RoundStartTick = Server()->Tick();
 	m_RoundCount = 0;
 	m_GameFlags = 0;
-	//m_aTeamscore[TEAM_RED] = 0;
-	//m_aTeamscore[TEAM_BLUE] = 0;
 	m_aMapWish[0] = 0;
 
 	m_UnbalancedTick = -1;
@@ -189,8 +187,6 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 	return Eval.m_Got;
 }
 
-
-//bool IGameController::OnEntity(int Index, vec2 Pos)
 bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number)
 {
 	if (Index < 0)
@@ -203,14 +199,24 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	x = (Pos.x - 16.0f) / 32.0f;
 	y = (Pos.y - 16.0f) / 32.0f;
 	int sides[8];
-	sides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
-	sides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
-	sides[2] = GameServer()->Collision()->Entity(x + 1, y, Layer);
-	sides[3] = GameServer()->Collision()->Entity(x + 1, y - 1, Layer);
-	sides[4] = GameServer()->Collision()->Entity(x, y - 1, Layer);
-	sides[5] = GameServer()->Collision()->Entity(x - 1, y - 1, Layer);
-	sides[6] = GameServer()->Collision()->Entity(x - 1, y, Layer);
-	sides[7] = GameServer()->Collision()->Entity(x - 1, y + 1, Layer);
+	sides[0]=GameServer()->Collision()->Entity(x,y+1, Layer);
+	sides[1]=GameServer()->Collision()->Entity(x+1,y+1, Layer);
+	sides[2]=GameServer()->Collision()->Entity(x+1,y, Layer);
+	sides[3]=GameServer()->Collision()->Entity(x+1,y-1, Layer);
+	sides[4]=GameServer()->Collision()->Entity(x,y-1, Layer);
+	sides[5]=GameServer()->Collision()->Entity(x-1,y-1, Layer);
+	sides[6]=GameServer()->Collision()->Entity(x-1,y, Layer);
+	sides[7]=GameServer()->Collision()->Entity(x-1,y+1, Layer);
+
+	if(Layer <= LAYER_FRONT) // F-DDrace plot support
+	{
+		if(Index == ENTITY_SPAWN)
+			m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
+		else if(Index == ENTITY_SPAWN_RED)
+			m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
+		else if(Index == ENTITY_SPAWN_BLUE)
+			m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
+	}
 
 	// TODO: fix this survival spawn code
 	// messed up to fix a crash on plot maps https://github.com/ddnet/ddnet/commit/5b5d4404a6f232045b54127c4f82a24e67905800
@@ -218,13 +224,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	else if (Index == TILE_SURVIVAL_SPAWN) //testy ddnet++ by ChillerDragon use spawn system for survival spawns
 		m_aaSpawnPoints[3][m_aNumSpawnPoints[3]++] = Pos;
 	*/
-
-	if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE && Layer <= LAYER_FRONT)
-	{
-		int Type = Index - ENTITY_SPAWN;
-		m_aaSpawnPoints[Type][m_aNumSpawnPoints[Type]] = Pos;
-		m_aNumSpawnPoints[Type] = min(m_aNumSpawnPoints[Type] + 1, (int)(sizeof(m_aaSpawnPoints[0]) / sizeof(m_aaSpawnPoints[0][0])));
-	}
 
 	else if(Index == ENTITY_DOOR)
 	{
@@ -334,7 +333,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		SubType = WEAPON_HAMMER;
 	}
 	//else if(Index == ENTITY_POWERUP_NINJA && g_Config.m_SvPowerups)
-	else if (Index == ENTITY_POWERUP_NINJA)
+	else if(Index == ENTITY_POWERUP_NINJA)
 	{
 		Type = POWERUP_NINJA;
 		SubType = WEAPON_NINJA;
@@ -428,7 +427,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 
 	if (Type != -1)
 	{
-		//CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType, Layer, Number);
 		pPickup->m_Pos = Pos;
 		return true;
@@ -457,7 +455,7 @@ void IGameController::ResetGame()
 
 const char *IGameController::GetTeamName(int Team)
 {
-	if (Team == 0)
+	if(Team == 0)
 		return "game";
 	return "spectators";
 }
@@ -472,8 +470,8 @@ void IGameController::StartRound()
 	m_SuddenDeath = 0;
 	m_GameOverTick = -1;
 	GameServer()->m_World.m_Paused = false;
-	m_aTeamscore[TEAM_RED] = 0;
-	m_aTeamscore[TEAM_BLUE] = 0;
+	m_aTeamscore[TEAM_RED] = 0; // ddnet++
+	m_aTeamscore[TEAM_BLUE] = 0; // ddnet++
 	m_ForceBalanced = false;
 	Server()->DemoRecorder_HandleAutoStart();
 	char aBuf[256];
@@ -483,8 +481,6 @@ void IGameController::StartRound()
 
 void IGameController::ChangeMap(const char *pToMap)
 {
-	/*str_copy(m_aMapWish, pToMap, sizeof(m_aMapWish));
-	EndRound();*/
 	str_copy(g_Config.m_SvMap, pToMap, sizeof(g_Config.m_SvMap));
 }
 
@@ -513,8 +509,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	if (pKiller == pVictim->GetPlayer())
 		return 0; // suicide
 
-	pKiller->GetCharacter()->m_Bloody = true;
-
+	pKiller->GetCharacter()->m_Bloody = true; // TODO: wtf is this?
 	return 0;
 }
 
@@ -564,6 +559,11 @@ void IGameController::DoWarmup(int Seconds)
 		m_Warmup = Seconds*Server()->TickSpeed();
 }
 
+bool IGameController::IsForceBalanced()
+{
+	return false;
+}
+
 bool IGameController::CanBeMovedOnBalance(int ClientID)
 {
 	return true;
@@ -598,12 +598,10 @@ void IGameController::Tick()
 		// game over.. wait for restart
 		if (Server()->Tick() > m_GameOverTick + Server()->TickSpeed() * 10)
 		{
-			//CycleMap();
 			StartRound();
 			m_RoundCount++;
 		}
 	}
-
 	// game is Paused
 	if(GameServer()->m_World.m_Paused)
 		++m_RoundStartTick;
@@ -684,10 +682,10 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_WarmupTimer = m_Warmup;
 
 	pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
-	//pGameInfoObj->m_TimeLimit = g_Config.m_SvTimelimit;
+	// pGameInfoObj->m_TimeLimit = g_Config.m_SvTimelimit;
 
-	pGameInfoObj->m_RoundNum = /*(str_length(g_Config.m_SvMaprotation) && g_Config.m_SvRoundsPerMap) ? g_Config.m_SvRoundsPerMap :*/ 0;
-	pGameInfoObj->m_RoundCurrent = m_RoundCount + 1;
+	pGameInfoObj->m_RoundNum = 0;
+	pGameInfoObj->m_RoundCurrent = m_RoundCount+1;
 
 	CCharacter *pChr;
 	CPlayer *pPlayer = SnappingClient > -1 ? GameServer()->m_apPlayers[SnappingClient] : 0;
@@ -799,7 +797,7 @@ bool IGameController::CanJoinTeam(int Team, int NotThisID)
 		}
 	}
 
-	return (aNumplayers[0] + aNumplayers[1]) < Server()->MaxClients() - g_Config.m_SvSpectatorSlots;
+	return (aNumplayers[0] + aNumplayers[1]) < Server()->MaxClients()-g_Config.m_SvSpectatorSlots;
 }
 
 void IGameController::DoWincheck()

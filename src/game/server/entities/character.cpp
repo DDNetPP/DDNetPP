@@ -48,6 +48,7 @@ CCharacter::~CCharacter()
 {
 	if (m_pDummyBlmapChillPolice)
 		delete m_pDummyBlmapChillPolice;
+	m_StrongWeakID = 0;
 }
 
 void CCharacter::Reset()
@@ -1033,13 +1034,14 @@ void CCharacter::HandleWeapons()
 				if ((Server()->Tick() - m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart) >= AmmoRegenTime * Server()->TickSpeed() / 1000)
 				{
 					// Add some ammo
-					m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = min(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
+					m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
 					m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
 				}
 			}
 			else
 			{
-				m_aWeapons[m_Core.m_ActiveWeapon].m_AmmoRegenStart = -1;
+				// Add some ammo
+				m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo = minimum(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo + 1, 10);
 			}
 		}
 	}
@@ -1563,6 +1565,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 		//return false; //removes hammer knockback
 	}
+	// m_pPlayer only inflicts half damage on self
+	if(From == m_pPlayer->GetCID())
+		Dmg = maximum(1, Dmg/2);
 
 
 	//zCatch ChillerDragon
@@ -1583,7 +1588,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 
 			if (From == m_pPlayer->GetCID())
 			{
-				Dmg = max(1, Dmg / 2);
+				Dmg = maximum(1, Dmg / 2);
 
 				if (m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_RIFLE)
 				{
@@ -2074,10 +2079,6 @@ void CCharacter::Snap(int SnappingClient)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_ENDLESS_JUMP;
 	if(m_Jetpack || m_NinjaJetpack)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_JETPACK;
-	if(m_FreezeTime > 0)
-		pDDNetCharacter->m_Flags |= CHARACTERFLAG_FROZEN;
-	if(m_DeepFreeze)
-		pDDNetCharacter->m_Flags |= CHARACTERFLAG_DEEP_FROZEN;
 	if(m_Hit&DISABLE_HIT_GRENADE)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_GRENADE_HIT;
 	if(m_Hit&DISABLE_HIT_HAMMER)
@@ -2086,14 +2087,29 @@ void CCharacter::Snap(int SnappingClient)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_RIFLE_HIT;
 	if(m_Hit&DISABLE_HIT_SHOTGUN)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_SHOTGUN_HIT;
-	if(IsPaused())
-		pDDNetCharacter->m_Flags |= CHARACTERFLAG_SPECTATING;
 	if(m_HasTeleGun)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_TELEGUN_GUN;
 	if(m_HasTeleGrenade)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_TELEGUN_GRENADE;
 	if(m_HasTeleLaser)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_TELEGUN_LASER;
+	if(m_aWeapons[WEAPON_HAMMER].m_Got)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_HAMMER;
+	if(m_aWeapons[WEAPON_GUN].m_Got)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_GUN;
+	if(m_aWeapons[WEAPON_SHOTGUN].m_Got)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_SHOTGUN;
+	if(m_aWeapons[WEAPON_GRENADE].m_Got)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_GRENADE;
+	if(m_aWeapons[WEAPON_RIFLE].m_Got)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_LASER;
+	if(m_Core.m_ActiveWeapon == WEAPON_NINJA)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_NINJA;
+
+	pDDNetCharacter->m_FreezeEnd = m_DeepFreeze ? -1 : m_FreezeTick + m_FreezeTime;
+	pDDNetCharacter->m_Jumps = m_Core.m_Jumps;
+	pDDNetCharacter->m_TeleCheckpoint = m_TeleCheckpoint;
+	pDDNetCharacter->m_StrongWeakID = m_StrongWeakID;
 }
 
 int CCharacter::NetworkClipped(int SnappingClient)
@@ -3342,7 +3358,7 @@ bool CCharacter::GiveWeapon(int Weapon, bool Remove, int Ammo)
 		m_aWeapons[Weapon].m_Ammo = Ammo;
 		if (m_FreezeTime)	//dont remove this
 			Freeze(0);		//dont remove this
-			// m_aWeapons[Weapon].m_Ammo = min(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
+			// m_aWeapons[Weapon].m_Ammo = minimum(g_pData->m_Weapons.m_aId[Weapon].m_Maxammo, Ammo); // commented out by chiller
 	}
 
 	m_aWeapons[Weapon].m_Got = !Remove;

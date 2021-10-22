@@ -1053,12 +1053,12 @@ void CClient::Render()
 {
 	if(g_Config.m_ClOverlayEntities)
 	{
-		vec3 bg = HslToRgb(vec3(g_Config.m_ClBackgroundEntitiesHue/255.0f, g_Config.m_ClBackgroundEntitiesSat/255.0f, g_Config.m_ClBackgroundEntitiesLht/255.0f));
+		ColorRGBA bg = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClBackgroundEntitiesCol));
 		Graphics()->Clear(bg.r, bg.g, bg.b);
 	}
 	else
 	{
-		vec3 bg = HslToRgb(vec3(g_Config.m_ClBackgroundHue/255.0f, g_Config.m_ClBackgroundSat/255.0f, g_Config.m_ClBackgroundLht/255.0f));
+		ColorRGBA bg = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClBackgroundCol));
 		Graphics()->Clear(bg.r, bg.g, bg.b);
 	}
 
@@ -1070,11 +1070,6 @@ void CClient::Render()
 		int64 Now = time_get();
 		g_Config.m_ClAntiPing = (m_PredictedTime.Get(Now)-m_GameTime[g_Config.m_ClDummy].Get(Now))*1000/(float)time_freq() > g_Config.m_ClAntiPingLimit;
 	}
-}
-
-vec3 CClient::GetColorV3(int v)
-{
-	return HslToRgb(vec3(((v>>16)&0xff)/255.0f, ((v>>8)&0xff)/255.0f, 0.5f+(v&0xff)/255.0f*0.5f));
 }
 
 const char *CClient::LoadMap(const char *pName, const char *pFilename, SHA256_DIGEST *pWantedSha256, unsigned WantedCrc)

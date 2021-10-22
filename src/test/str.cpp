@@ -150,6 +150,10 @@ TEST(Str, Tokenize)
 
 	char aTest2[] = "";
 	EXPECT_EQ(str_next_token(aTest2, ",", aBuf, sizeof(aBuf)), nullptr);
+
+	char aTest3[] = "+b";
+	str_next_token(aTest3, "+", aBuf, sizeof(aBuf));
+	EXPECT_STREQ(aBuf, "b");
 }
 
 TEST(Str, InList)
@@ -167,6 +171,8 @@ TEST(Str, InList)
 	EXPECT_FALSE(str_in_list("abc,xyz", ",", "abcdef"));
 	EXPECT_FALSE(str_in_list("", ",", ""));
 	EXPECT_FALSE(str_in_list("", ",", "xyz"));
+
+	EXPECT_TRUE(str_in_list("FOO,,BAR", ",", ""));
 }
 
 TEST(Str, StrFormat)

@@ -251,8 +251,8 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 		str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvKillsToFinish);
 	else
 		str_format(aBuf, sizeof(aBuf), "----------- Top 5 -----------");
-	Debut = max(1, Debut < 0 ? m_Top.size() + Debut - 3 : Debut);
 	pSelf->SendChatTarget(ClientID, aBuf);
+	Debut = maximum(1, Debut < 0 ? m_Top.size() + Debut - 3 : Debut);
 	for (int i = 0; i < 5; i++)
 	{
 		if (i + Debut > m_Top.size())
