@@ -367,6 +367,23 @@ CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta)
 }
 
 // ----- send functions -----
+static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer)
+{
+	Packer.Reset();
+	if(pMsg->m_MsgID < OFFSET_UUID)
+	{
+		Packer.AddInt((pMsg->m_MsgID<<1)|(pMsg->m_System?1:0));
+	}
+	else
+	{
+		Packer.AddInt((0<<1)|(pMsg->m_System?1:0)); // NETMSG_EX, NETMSGTYPE_EX
+		g_UuidManager.PackUuid(pMsg->m_MsgID, &Packer);
+	}
+	Packer.AddRaw(pMsg->Data(), pMsg->Size());
+
+	return false;
+}
+
 int CClient::SendMsg(CMsgPacker *pMsg, int Flags)
 {
 	CNetChunk Packet;
@@ -374,10 +391,15 @@ int CClient::SendMsg(CMsgPacker *pMsg, int Flags)
 	if(State() == IClient::STATE_OFFLINE)
 		return 0;
 
+	// repack message (inefficient)
+	CPacker Pack;
+	if(RepackMsg(pMsg, Pack))
+		return 0;
+
 	mem_zero(&Packet, sizeof(CNetChunk));
 	Packet.m_ClientID = 0;
-	Packet.m_pData = pMsg->Data();
-	Packet.m_DataSize = pMsg->Size();
+	Packet.m_pData = Pack.Data();
+	Packet.m_DataSize = Pack.Size();
 
 	if(Flags&MSGFLAG_VITAL)
 		Packet.m_Flags |= NETSENDFLAG_VITAL;
@@ -841,11 +863,15 @@ int CClient::SendMsgY(CMsgPacker *pMsg, int Flags, int NetClient)
 {
 	CNetChunk Packet;
 
-	mem_zero(&Packet, sizeof(CNetChunk));
+	// repack message (inefficient)
+	CPacker Pack;
+	if(RepackMsg(pMsg, Pack))
+		return 0;
 
+	mem_zero(&Packet, sizeof(CNetChunk));
 	Packet.m_ClientID = 0;
-	Packet.m_pData = pMsg->Data();
-	Packet.m_DataSize = pMsg->Size();
+	Packet.m_pData = Pack.Data();
+	Packet.m_DataSize = Pack.Size();
 
 	if(Flags&MSGFLAG_VITAL)
 		Packet.m_Flags |= NETSENDFLAG_VITAL;
@@ -2399,6 +2425,15 @@ void CClient::PumpNetwork()
 			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
 		}
 
+		if(State() != IClient::STATE_OFFLINE && State() < IClient::STATE_QUITING && m_DummyConnected
+			&& m_NetClient[CLIENT_DUMMY].State() == NETSTATE_OFFLINE)
+		{
+			DummyDisconnect(0);
+			char aBuf[256];
+			str_format(aBuf, sizeof(aBuf), "offline dummy error='%s'", m_NetClient[CLIENT_DUMMY].ErrorString());
+			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+		}
+
 		//
 		if(State() == IClient::STATE_CONNECTING && m_NetClient[CLIENT_MAIN].State() == NETSTATE_ONLINE)
 		{
@@ -2512,10 +2547,10 @@ void CClient::Update()
 #if defined(CONF_VIDEORECORDER)
 	if (m_DemoPlayer.IsPlaying() && IVideo::Current())
 	{
-		if (IVideo::Current()->frameRendered())
-			IVideo::Current()->nextVideoFrame();
-		if (IVideo::Current()->aframeRendered())
-			IVideo::Current()->nextAudioFrame_timeline();
+		if (IVideo::Current()->FrameRendered())
+			IVideo::Current()->NextVideoFrame();
+		if (IVideo::Current()->AudioFrameRendered())
+			IVideo::Current()->NextAudioFrameTimeline();
 	}
 	else if(m_ButtonRender)
 		Disconnect();
@@ -3336,10 +3371,10 @@ void CClient::Con_StartVideo(IConsole::IResult *pResult, void *pUserData)
 	if (!IVideo::Current())
 	{
 		new CVideo((CGraphics_Threaded*)pSelf->m_pGraphics, pSelf->Storage(), pSelf->m_pConsole, pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), "");
-		IVideo::Current()->start();
+		IVideo::Current()->Start();
 		bool paused = pSelf->m_DemoPlayer.Info()->m_Info.m_Paused;
 		if(paused)
-			IVideo::Current()->pause(true);
+			IVideo::Current()->Pause(true);
 	}
 	else
 		pSelf->m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "videorecorder", "Videorecorder already running.");
@@ -3356,7 +3391,7 @@ void CClient::StartVideo(IConsole::IResult *pResult, void *pUserData, const char
 	if (!IVideo::Current())
 	{
 		new CVideo((CGraphics_Threaded*)pSelf->m_pGraphics, pSelf->Storage(), pSelf->m_pConsole, pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), pVideoName);
-		IVideo::Current()->start();
+		IVideo::Current()->Start();
 	}
 	else
 		pSelf->m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "videorecorder", "Videorecorder already running.");
@@ -3365,7 +3400,7 @@ void CClient::StartVideo(IConsole::IResult *pResult, void *pUserData, const char
 void CClient::Con_StopVideo(IConsole::IResult *pResult, void *pUserData)
 {
 	if (IVideo::Current())
-		IVideo::Current()->stop();
+		IVideo::Current()->Stop();
 }
 
 #endif

@@ -6,7 +6,6 @@
 // this include should perhaps be removed
 #include "entities/character.h"
 #include "captcha.h"
-#include "gamecontext.h"
 #include <game/version.h>
 #include <engine/client/http.h>
 
@@ -16,6 +15,14 @@
 #include <memory>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
+#include "score.h"
+#include "teeinfo.h"
+#include "gamecontext.h"
+#include <memory>
+
+#if defined(CONF_SQL)
+class CSqlPlayerResult;
+#endif
 
 // player object
 class CPlayer
@@ -37,6 +44,7 @@ public:
 	int GetTeam() const { return m_Team; };
 	int GetCID() const { return m_ClientID; };
 	int GetClientVersion() const;
+	bool SetTimerType(int NewType);
 
 	void Tick();
 	void PostTick();
@@ -51,7 +59,6 @@ public:
 	void OnDisconnect(const char *pReason, bool silent = false);
 	void OnPredictedEarlyInput(CNetObj_PlayerInput *NewInput);
 
-	void ThreadKillCharacter(int Weapon = WEAPON_GAME);
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
 
@@ -93,18 +100,8 @@ public:
 
 	int m_SendVoteIndex;
 
-
-
-
-
-	// TODO: clean this up
-	struct
-	{
-		char m_SkinName[64];
-		int m_UseCustomColor;
-		int m_ColorBody;
-		int m_ColorFeet;
-	} m_TeeInfos, m_LastToucherTeeInfos;
+	CTeeInfo m_TeeInfos;
+	CTeeInfo m_LastToucherTeeInfos;
 
 	int m_DieTick;
 	int m_PreviousDieTick;
@@ -160,9 +157,11 @@ public:
 
 	enum
 	{
+		TIMERTYPE_DEFAULT=-1,
 		TIMERTYPE_GAMETIMER=0,
 		TIMERTYPE_BROADCAST,
 		TIMERTYPE_GAMETIMER_AND_BROADCAST,
+		TIMERTYPE_SIXUP,
 		TIMERTYPE_NONE,
 	};
 
@@ -183,7 +182,6 @@ public:
 	bool m_SpecTeam;
 	bool m_NinjaJetpack;
 	bool m_Afk;
-	int m_KillMe;
 	bool m_HasFinishScore;
 
 	int m_ChatScore;
@@ -211,6 +209,12 @@ public:
 
 	std::shared_ptr<CPostJson> m_pPostJson;
 
+#if defined(CONF_SQL)
+	void ProcessSqlResult(CSqlPlayerResult &Result);
+	int64 m_LastSQLQuery;
+	std::shared_ptr<CSqlPlayerResult> m_SqlQueryResult;
+	std::shared_ptr<CSqlPlayerResult> m_SqlFinishResult;
+#endif
 	bool m_NotEligibleForFinish;
 	int64 m_EligibleForFinishCheck;
 	bool m_VotedForPractice;

@@ -15,6 +15,10 @@
 #include "player.h"
 #include <time.h>
 
+#if defined(CONF_SQL)
+#include "score/sql_score.h"
+#endif
+
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
@@ -46,7 +50,6 @@ void CPlayer::Reset()
 	m_JoinTick = Server()->Tick();
 	delete m_pCharacter;
 	m_pCharacter = 0;
-	m_KillMe = 0;
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
@@ -71,7 +74,11 @@ void CPlayer::Reset()
 	m_ChatScore = 0;
 	m_Moderating = false;
 	m_EyeEmote = true;
-	m_TimerType = (g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) ? CPlayer::TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
+	if(Server()->IsSixup(m_ClientID))
+		m_TimerType = TIMERTYPE_SIXUP;
+	else
+		m_TimerType = (g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER_AND_BROADCAST) ? TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
+
 	m_DefEmote = EMOTE_NORMAL;
 	m_Afk = true;
 	m_LastWhisperTo = -1;
@@ -126,6 +133,8 @@ void CPlayer::Reset()
 	m_Last_Team = 0;
 #if defined(CONF_SQL)
 	m_LastSQLQuery = 0;
+	m_SqlQueryResult = nullptr;
+	m_SqlFinishResult = nullptr;
 #endif
 
 	int64 Now = Server()->Tick();
@@ -134,7 +143,7 @@ void CPlayer::Reset()
 	// non-empty, allow them to vote immediately. This allows players to
 	// vote after map changes or when they join an empty server.
 	//
-	// Otherwise, block voting in the begnning after joining.
+	// Otherwise, block voting in the beginning after joining.
 	if(Now > GameServer()->m_NonEmptySince + 10 * TickSpeed)
 		m_FirstVoteTick = Now + g_Config.m_SvJoinVoteDelay * TickSpeed;
 	else
@@ -145,20 +154,48 @@ void CPlayer::Reset()
 	m_VotedForPractice = false;
 }
 
+static int PlayerFlags_SevenToSix(int Flags)
+{
+	int Six = 0;
+	if(Flags&protocol7::PLAYERFLAG_CHATTING)
+		Six |= PLAYERFLAG_CHATTING;
+	if(Flags&protocol7::PLAYERFLAG_SCOREBOARD)
+		Six |= PLAYERFLAG_SCOREBOARD;
+
+	return Six;
+}
+
+static int PlayerFlags_SixToSeven(int Flags)
+{
+	int Seven = 0;
+	if(Flags&PLAYERFLAG_CHATTING)
+		Seven |= protocol7::PLAYERFLAG_CHATTING;
+	if(Flags&PLAYERFLAG_SCOREBOARD)
+		Seven |= protocol7::PLAYERFLAG_SCOREBOARD;
+
+	return Seven;
+}
+
 void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
 #endif
+#if defined(CONF_SQL)
+	if(m_SqlQueryResult != nullptr && m_SqlQueryResult.use_count() == 1)
+	{
+		ProcessSqlResult(*m_SqlQueryResult);
+		m_SqlQueryResult = nullptr;
+	}
+	if(m_SqlFinishResult != nullptr && m_SqlFinishResult.use_count() == 1)
+	{
+		ProcessSqlResult(*m_SqlFinishResult);
+		m_SqlFinishResult = nullptr;
+	}
+#endif
+
 	if(!Server()->ClientIngame(m_ClientID))
 		return;
-
-	if(m_KillMe != 0)
-	{
-		KillCharacter(m_KillMe);
-		m_KillMe = 0;
-		return;
-	}
 
 	if (m_ChatScore > 0)
 		m_ChatScore--;
@@ -242,7 +279,7 @@ void CPlayer::Tick()
 	int CurrentIndex = GameServer()->Collision()->GetMapIndex(m_ViewPos);
 	m_TuneZone = GameServer()->Collision()->IsTune(CurrentIndex);
 
-	if (m_TuneZone != m_TuneZoneOld) // don't send tunigs all the time
+	if (m_TuneZone != m_TuneZoneOld) // don't send tunings all the time
 	{
 		GameServer()->SendTuningParams(m_ClientID, m_TuneZone);
 	}
@@ -281,11 +318,11 @@ void CPlayer::PostTick()
 
 void CPlayer::PostPostTick()
 {
-	#ifdef CONF_DEBUG
-		if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
-	#endif
-		if(!Server()->ClientIngame(m_ClientID))
-			return;
+#ifdef CONF_DEBUG
+	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS-g_Config.m_DbgDummies)
+#endif
+	if(!Server()->ClientIngame(m_ClientID))
+		return;
 
 	if(!GameServer()->m_World.m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
 		TryRespawn();
@@ -300,10 +337,10 @@ void CPlayer::Snap(int SnappingClient)
 		return;
 
 	int id = m_ClientID;
-	if (SnappingClient > -1 && !Server()->Translate(id, SnappingClient)) return;
+	if(SnappingClient > -1 && !Server()->Translate(id, SnappingClient))
+		return;
 
 	CNetObj_ClientInfo *pClientInfo = static_cast<CNetObj_ClientInfo *>(Server()->SnapNewItem(NETOBJTYPE_CLIENTINFO, id, sizeof(CNetObj_ClientInfo)));
-
 	if(!pClientInfo)
 		return;
 
@@ -336,34 +373,67 @@ void CPlayer::Snap(int SnappingClient)
 		pClientInfo->m_ColorFeet = m_TeeInfos.m_ColorFeet;
 	}
 
-	CNetObj_PlayerInfo *pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, id, sizeof(CNetObj_PlayerInfo)));
-	if(!pPlayerInfo)
-		return;
-
 	int ClientVersion = GetClientVersion();
-	pPlayerInfo->m_Latency = SnappingClient == -1 ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aActLatency[m_ClientID];
-	pPlayerInfo->m_Local = (int)(m_ClientID == SnappingClient && (m_Paused != PAUSE_PAUSED || ClientVersion >= VERSION_DDNET_OLD));
-	pPlayerInfo->m_ClientID = id;
-	pPlayerInfo->m_Team = (ClientVersion < VERSION_DDNET_OLD || m_Paused != PAUSE_PAUSED || m_ClientID != SnappingClient) && m_Paused < PAUSE_SPEC ? m_Team : TEAM_SPECTATORS;
-
-	if(m_ClientID == SnappingClient && m_Paused == PAUSE_PAUSED && ClientVersion < VERSION_DDNET_OLD)
-		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+	int Latency = SnappingClient == -1 ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aActLatency[m_ClientID];
+	int Score = g_Config.m_SvInstagibMode ? abs(m_Score) * -1 : m_Score;
 
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
-		pPlayerInfo->m_Score = -9999;
+		Score = -9999;
+
+	if(!Server()->IsSixup(SnappingClient))
+	{
+		CNetObj_PlayerInfo *pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, id, sizeof(CNetObj_PlayerInfo)));
+		if(!pPlayerInfo)
+			return;
+
+		pPlayerInfo->m_Latency = Latency;
+		pPlayerInfo->m_Score = Score;
+		pPlayerInfo->m_Local = (int)(m_ClientID == SnappingClient && (m_Paused != PAUSE_PAUSED || ClientVersion >= VERSION_DDNET_OLD));
+		pPlayerInfo->m_ClientID = id;
+		pPlayerInfo->m_Team = (ClientVersion < VERSION_DDNET_OLD || m_Paused != PAUSE_PAUSED || m_ClientID != SnappingClient) && m_Paused < PAUSE_SPEC ? m_Team : TEAM_SPECTATORS;
+
+		if(m_ClientID == SnappingClient && m_Paused == PAUSE_PAUSED && ClientVersion < VERSION_DDNET_OLD)
+			pPlayerInfo->m_Team = TEAM_SPECTATORS;
+	}
 	else
-		pPlayerInfo->m_Score = g_Config.m_SvInstagibMode ? abs(m_Score) * -1 : m_Score;
+	{
+		protocol7::CNetObj_PlayerInfo *pPlayerInfo = static_cast<protocol7::CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, id, sizeof(protocol7::CNetObj_PlayerInfo)));
+		if(!pPlayerInfo)
+			return;
+
+		pPlayerInfo->m_PlayerFlags = PlayerFlags_SixToSeven(m_PlayerFlags);
+		if(Server()->ClientAuthed(m_ClientID))
+			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
+
+		// Times are in milliseconds for 0.7
+		pPlayerInfo->m_Score = Score == -9999 ? -1 : -Score * 1000;
+		pPlayerInfo->m_Latency = Latency;
+	}
 
 	if(m_ClientID == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))
 	{
-		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
-		if(!pSpectatorInfo)
-			return;
+		if(!Server()->IsSixup(SnappingClient))
+		{
+			CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
+			if(!pSpectatorInfo)
+				return;
 
-		pSpectatorInfo->m_SpectatorID = m_SpectatorID;
-		pSpectatorInfo->m_X = m_ViewPos.x;
-		pSpectatorInfo->m_Y = m_ViewPos.y;
+			pSpectatorInfo->m_SpectatorID = m_SpectatorID;
+			pSpectatorInfo->m_X = m_ViewPos.x;
+			pSpectatorInfo->m_Y = m_ViewPos.y;
+		}
+		else
+		{
+			protocol7::CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<protocol7::CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(protocol7::CNetObj_SpectatorInfo)));
+			if(!pSpectatorInfo)
+				return;
+
+			pSpectatorInfo->m_SpecMode = m_SpectatorID == SPEC_FREEVIEW ? protocol7::SPEC_FREEVIEW : protocol7::SPEC_PLAYER;
+			pSpectatorInfo->m_SpectatorID = m_SpectatorID;
+			pSpectatorInfo->m_X = m_ViewPos.x;
+			pSpectatorInfo->m_Y = m_ViewPos.y;
+		}
 	}
 
 	CNetObj_DDNetPlayer *pDDNetPlayer = static_cast<CNetObj_DDNetPlayer *>(Server()->SnapNewItem(NETOBJTYPE_DDNETPLAYER, id, sizeof(CNetObj_DDNetPlayer)));
@@ -378,12 +448,30 @@ void CPlayer::Snap(int SnappingClient)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
 	if(m_Paused == PAUSE_PAUSED)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_PAUSED;
-	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
+
+	if(Server()->IsSixup(SnappingClient) && m_pCharacter && m_pCharacter->m_DDRaceState == DDRACE_STARTED &&
+		GameServer()->m_apPlayers[SnappingClient]->m_TimerType == TIMERTYPE_SIXUP)
+	{
+		protocol7::CNetObj_PlayerInfoRace *pRaceInfo = static_cast<protocol7::CNetObj_PlayerInfoRace *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_PLAYERINFORACE, id, sizeof(protocol7::CNetObj_PlayerInfoRace)));
+		pRaceInfo->m_RaceStartTick = m_pCharacter->m_StartTime;
+	}
+
+	if(m_Paused == PAUSE_SPEC && m_pCharacter && m_pCharacter->Core())
+	{
+		CNetObj_SpecChar *pSpecChar = static_cast<CNetObj_SpecChar *>(Server()->SnapNewItem(NETOBJTYPE_SPECCHAR, id, sizeof(CNetObj_SpecChar)));
+		pSpecChar->m_X = m_pCharacter->Core()->m_Pos.x;
+		pSpecChar->m_Y = m_pCharacter->Core()->m_Pos.y;
+	}
+	#pragma message "IMPLEMENT DDNet++ snap"
+	// DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 }
 
 void CPlayer::FakeSnap()
 {
 	if(GetClientVersion() >= VERSION_DDNET_OLD)
+		return;
+
+	if(Server()->IsSixup(m_ClientID))
 		return;
 
 	int FakeID = VANILLA_MAX_CLIENTS - 1;
@@ -443,9 +531,16 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
-			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			// str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", m_ClientID, Server()->ClientName(m_ClientID));
+			// GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 		}
+
+		// TODO: fix bridge chat here
+			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+
+		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 
 		bool WasModerator = m_Moderating;
 
@@ -474,15 +569,17 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
 		m_pCharacter->OnPredictedInput(NewInput);
 
 	// Magic number when we can hope that client has successfully identified itself
-	/*if(m_NumInputs == 20)
-	{
-		if(g_Config.m_SvClientSuggestion[0] != '\0' && GetClientVersion() <= VERSION_DDNET_OLD)
-			GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
-	}*/
+	if(m_NumInputs == 20 && g_Config.m_SvClientSuggestion[0] != '\0' && GetClientVersion() <= VERSION_DDNET_OLD)
+		GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
+	else if(m_NumInputs == 200 && Server()->IsSixup(m_ClientID))
+		GameServer()->SendBroadcast("This server uses an experimental translation from Teeworlds 0.7 to 0.6. Please report bugs on ddnet.tw/discord", m_ClientID);
 }
 
 void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 {
+	if(Server()->IsSixup(m_ClientID))
+		NewInput->m_PlayerFlags = PlayerFlags_SevenToSix(NewInput->m_PlayerFlags);
+
 	if(NewInput->m_PlayerFlags)
 		Server()->SetClientFlags(m_ClientID, NewInput->m_PlayerFlags);
 
@@ -548,11 +645,6 @@ CCharacter *CPlayer::GetCharacter()
 	return 0;
 }
 
-void CPlayer::ThreadKillCharacter(int Weapon)
-{
-	m_KillMe = Weapon;
-}
-
 void CPlayer::KillCharacter(int Weapon)
 {
 	if(m_pCharacter)
@@ -616,6 +708,13 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 
 	//GameServer()->m_pController->OnPlayerInfoChange(GameServer()->m_apPlayers[m_ClientID]);
 
+	protocol7::CNetMsg_Sv_Team Msg;
+	Msg.m_ClientID = m_ClientID;
+	Msg.m_Team = m_Team;
+	Msg.m_Silent = !DoChatMsg;
+	Msg.m_CooldownTick = m_LastSetTeam + Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, -1);
+
 	if(Team == TEAM_SPECTATORS)
 	{
 		// update spectator modes
@@ -625,6 +724,52 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 				GameServer()->m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 		}
 	}
+}
+
+bool CPlayer::SetTimerType(int TimerType)
+{
+	if(TimerType == TIMERTYPE_DEFAULT)
+	{
+		if(Server()->IsSixup(m_ClientID))
+			m_TimerType = TIMERTYPE_SIXUP;
+		else
+			SetTimerType(g_Config.m_SvDefaultTimerType);
+
+		return true;
+	}
+
+	if(Server()->IsSixup(m_ClientID))
+	{
+		if(TimerType == TIMERTYPE_SIXUP || TimerType == TIMERTYPE_NONE)
+		{
+			m_TimerType = TimerType;
+			return true;
+		}
+		else
+			return false;
+	}
+
+	if(TimerType == TIMERTYPE_GAMETIMER)
+	{
+		if(GetClientVersion() >= VERSION_DDNET_GAMETICK)
+			m_TimerType = TimerType;
+		else
+			return false;
+	}
+	else if(TimerType == TIMERTYPE_GAMETIMER_AND_BROADCAST)
+	{
+		if(GetClientVersion() >= VERSION_DDNET_GAMETICK)
+			m_TimerType = TimerType;
+		else
+		{
+			m_TimerType = TIMERTYPE_BROADCAST;
+			return false;
+		}
+	}
+	else
+		m_TimerType = TimerType;
+
+	return true;
 }
 
 void CPlayer::TryRespawn()
@@ -644,7 +789,7 @@ void CPlayer::TryRespawn()
 
 	if(g_Config.m_SvTeam == 3)
 	{
-		int NewTeam = 0;
+		int NewTeam = 1;
 		for(; NewTeam < TEAM_SUPER; NewTeam++)
 			if(Controller->m_Teams.Count(NewTeam) == 0)
 				break;
@@ -842,3 +987,78 @@ void CPlayer::SpectatePlayerName(const char *pName)
 		}
 	}
 }
+
+#if defined(CONF_SQL)
+void CPlayer::ProcessSqlResult(CSqlPlayerResult &Result)
+{
+	if(Result.m_Done) // SQL request was successful
+	{
+		switch(Result.m_MessageKind)
+		{
+		case CSqlPlayerResult::DIRECT:
+			for(int i = 0; i < CSqlPlayerResult::MAX_MESSAGES; i++)
+			{
+				if(Result.m_Data.m_aaMessages[i][0] == 0)
+					break;
+				GameServer()->SendChatTarget(m_ClientID, Result.m_Data.m_aaMessages[i]);
+			}
+			break;
+		case CSqlPlayerResult::ALL:
+			for(int i = 0; i < CSqlPlayerResult::MAX_MESSAGES; i++)
+			{
+				if(Result.m_Data.m_aaMessages[i][0] == 0)
+					break;
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, Result.m_Data.m_aaMessages[i]);
+			}
+			break;
+		case CSqlPlayerResult::BROADCAST:
+			if(Result.m_Data.m_Broadcast[0] != 0)
+				GameServer()->SendBroadcast(Result.m_Data.m_Broadcast, -1);
+			break;
+		case CSqlPlayerResult::MAP_VOTE:
+			GameServer()->m_VoteKick = false;
+			GameServer()->m_VoteSpec = false;
+			GameServer()->m_LastMapVote = time_get();
+
+			char aCmd[256];
+			str_format(aCmd, sizeof(aCmd),
+					"sv_reset_file types/%s/flexreset.cfg; change_map \"%s\"",
+					Result.m_Data.m_MapVote.m_Server, Result.m_Data.m_MapVote.m_Map);
+
+			char aChatmsg[512];
+			str_format(aChatmsg, sizeof(aChatmsg), "'%s' called vote to change server option '%s' (%s)",
+					Server()->ClientName(m_ClientID), Result.m_Data.m_MapVote.m_Map, "/map");
+
+			GameServer()->CallVote(m_ClientID, Result.m_Data.m_MapVote.m_Map, aCmd, "/map", aChatmsg);
+			break;
+		case CSqlPlayerResult::PLAYER_INFO:
+			GameServer()->Score()->PlayerData(m_ClientID)->Set(
+					Result.m_Data.m_Info.m_Time,
+					Result.m_Data.m_Info.m_CpTime
+			);
+			m_Score = Result.m_Data.m_Info.m_Score;
+			m_HasFinishScore = Result.m_Data.m_Info.m_HasFinishScore;
+			// -9999 stands for no time and isn't displayed in scoreboard, so
+			// shift the time by a second if the player actually took 9999
+			// seconds to finish the map.
+			if(m_HasFinishScore && m_Score == -9999)
+				m_Score = -10000;
+			Server()->ExpireServerInfo();
+			int Birthday = Result.m_Data.m_Info.m_Birthday;
+			if(Birthday != 0)
+			{
+				char aBuf[512];
+				str_format(aBuf, sizeof(aBuf),
+						"Happy DDNet birthday to %s for finishing their first map %d year%s ago!",
+						Server()->ClientName(m_ClientID), Birthday, Birthday > 1 ? "s" : "");
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, m_ClientID);
+				str_format(aBuf, sizeof(aBuf),
+						"Happy DDNet birthday, %s!\nYou have finished your first map exactly %d year%s ago!",
+						Server()->ClientName(m_ClientID), Birthday, Birthday > 1 ? "s" : "");
+				GameServer()->SendBroadcast(aBuf, m_ClientID);
+			}
+			break;
+		}
+	}
+}
+#endif

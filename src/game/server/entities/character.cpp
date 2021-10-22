@@ -518,9 +518,7 @@ void CCharacter::HandleNinja()
 	}
 
 	if (!m_pPlayer->m_IsVanillaDmg)
-	{
-		m_Armor = 10 - (NinjaTime / 15);
-	}
+		m_Armor = clamp(10 - (NinjaTime / 15), 0, 10);
 
 	// force ninja Weapon
 	SetWeapon(WEAPON_NINJA);
@@ -1254,6 +1252,13 @@ void CCharacter::Tick()
 
 	DummyTick();
 	DDPP_Tick();
+	// set emote
+	if(m_EmoteStop < Server()->Tick())
+	{
+		m_EmoteType = m_pPlayer->m_DefEmote;
+		m_EmoteStop = -1;
+	}
+
 	DDRaceTick();
 
 	Antibot()->OnCharacterTick(m_pPlayer->GetCID());
@@ -1389,9 +1394,9 @@ void CCharacter::TickDefered()
 
 	if (Events&COREEVENT_GROUND_JUMP) GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP, Teams()->TeamMask(Team(), m_pPlayer->GetCID()));
 
-	if (Events&COREEVENT_HOOK_ATTACH_PLAYER) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-	if (Events&COREEVENT_HOOK_ATTACH_GROUND) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND, Teams()->TeamMask(Team(), m_pPlayer->GetCID(), m_pPlayer->GetCID()));
-	if (Events&COREEVENT_HOOK_HIT_NOHOOK) GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH, Teams()->TeamMask(Team(), m_pPlayer->GetCID(), m_pPlayer->GetCID()));
+	if(Events&COREEVENT_HOOK_ATTACH_PLAYER && !Server()->IsSixup(m_pPlayer->GetCID())) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+	if(Events&COREEVENT_HOOK_ATTACH_GROUND) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND, Teams()->TeamMask(Team(), m_pPlayer->GetCID(), m_pPlayer->GetCID()));
+	if(Events&COREEVENT_HOOK_HIT_NOHOOK) GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH, Teams()->TeamMask(Team(), m_pPlayer->GetCID(), m_pPlayer->GetCID()));
 
 
 	if (m_pPlayer->GetTeam() == TEAM_SPECTATORS)
@@ -1844,42 +1849,9 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 	}
 }
 
-void CCharacter::Snap(int SnappingClient)
+//TODO: Move the emote stuff to a function
+void CCharacter::SnapCharacter(int SnappingClient, int ID)
 {
-
-	int id = m_pPlayer->GetCID();
-
-	if (SnappingClient > -1 && !Server()->Translate(id, SnappingClient))
-		return;
-
-	if (NetworkClipped(SnappingClient))
-		return;
-
-	if (SnappingClient > -1)
-	{
-		CCharacter* SnapChar = GameServer()->GetPlayerChar(SnappingClient);
-		CPlayer* SnapPlayer = GameServer()->m_apPlayers[SnappingClient];
-
-		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1
-			&& !CanCollide(SnapPlayer->m_SpectatorID) && !SnapPlayer->m_ShowOthers)
-			return;
-
-		if( SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar && !SnapChar->m_Super
-			&& !CanCollide(SnappingClient) && !SnapPlayer->m_ShowOthers)
-			return;
-
-		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID == -1
-			&& !CanCollide(SnappingClient) && SnapPlayer->m_SpecTeam)
-			return;
-	}
-
-	if (m_Paused)
-		return;
-
-	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, id, sizeof(CNetObj_Character)));
-	if (!pCharacter)
-		return;
-
 	// da oben sind ja die ganzen abfragen, ob der spieler sichtbar ist, ob er richtig erstellt werden konnte, 
 	// ob das game nicht pausiert ist und so.
 	// wenn du das jetzt oben hinschreibst dann passiert das vor den abfragen
@@ -1952,60 +1924,36 @@ void CCharacter::Snap(int SnappingClient)
 
 
 	// write down the m_Core
-	if (!m_ReckoningTick || GameServer()->m_World.m_Paused)
+	CCharacterCore *pCore;
+	int Tick, Emote = m_EmoteType, Weapon = m_Core.m_ActiveWeapon, AmmoCount = 0,
+		Health = 0, Armor = 0;
+	if(!m_ReckoningTick || GameServer()->m_World.m_Paused)
 	{
-		// no dead reckoning when paused because the client doesn't know
-		// how far to perform the reckoning
-		pCharacter->m_Tick = 0;
-		m_Core.Write(pCharacter);
+		Tick = 0;
+		pCore = &m_Core;
 	}
 	else
 	{
-		pCharacter->m_Tick = m_ReckoningTick;
-		m_SendCore.Write(pCharacter);
+		Tick = m_ReckoningTick;
+		pCore = &m_SendCore;
 	}
 
-	// set emote
-	if (m_EmoteStop < Server()->Tick())
+	// change eyes and use ninja graphic if player is frozen
+	if(m_DeepFreeze || m_FreezeTime > 0 || m_FreezeTime == -1)
 	{
-		m_EmoteType = m_pPlayer->m_DefEmote;
-		m_EmoteStop = -1;
-	}
-	pCharacter->m_Emote = m_EmoteType;
+		if(Emote == EMOTE_NORMAL)
+			Emote = m_DeepFreeze ? EMOTE_PAIN : EMOTE_BLINK;
 
-	if (pCharacter->m_HookedPlayer != -1)
-	{
-		if (!Server()->Translate(pCharacter->m_HookedPlayer, SnappingClient))
-			pCharacter->m_HookedPlayer = -1;
+		Weapon = WEAPON_NINJA;
 	}
 
-	pCharacter->m_AttackTick = m_AttackTick;
-	pCharacter->m_Direction = m_Input.m_Direction;
-	pCharacter->m_Weapon = m_Core.m_ActiveWeapon;
-	pCharacter->m_AmmoCount = 0;
-	pCharacter->m_Health = 0;
-	pCharacter->m_Armor = 0;
-
-	// change eyes and use ninja graphic if player is freeze
-	if (m_DeepFreeze)
-	{
-		if (pCharacter->m_Emote == EMOTE_NORMAL)
-			pCharacter->m_Emote = EMOTE_PAIN;
-		pCharacter->m_Weapon = WEAPON_NINJA;
-	}
-	else if (m_FreezeTime > 0 || m_FreezeTime == -1)
-	{
-		if (pCharacter->m_Emote == EMOTE_NORMAL)
-			pCharacter->m_Emote = EMOTE_BLINK;
-		pCharacter->m_Weapon = WEAPON_NINJA;
-	}
-
+	// This could probably happen when m_Jetpack changes instead
 	// jetpack and ninjajetpack prediction
-	if (m_pPlayer->GetCID() == SnappingClient)
+	if(m_pPlayer->GetCID() == SnappingClient)
 	{
-		if (m_Jetpack && pCharacter->m_Weapon != WEAPON_NINJA)
+		if(m_Jetpack && Weapon != WEAPON_NINJA)
 		{
-			if (!(m_NeededFaketuning & FAKETUNE_JETPACK))
+			if(!(m_NeededFaketuning & FAKETUNE_JETPACK))
 			{
 				m_NeededFaketuning |= FAKETUNE_JETPACK;
 				GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone);
@@ -2013,7 +1961,7 @@ void CCharacter::Snap(int SnappingClient)
 		}
 		else
 		{
-			if (m_NeededFaketuning & FAKETUNE_JETPACK)
+			if(m_NeededFaketuning & FAKETUNE_JETPACK)
 			{
 				m_NeededFaketuning &= ~FAKETUNE_JETPACK;
 				GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone);
@@ -2022,44 +1970,37 @@ void CCharacter::Snap(int SnappingClient)
 	}
 
 	// change eyes, use ninja graphic and set ammo count if player has ninjajetpack
-	if (m_pPlayer->m_NinjaJetpack && m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN && !m_DeepFreeze && !(m_FreezeTime > 0 || m_FreezeTime == -1))
+	if(m_pPlayer->m_NinjaJetpack && m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN && !m_DeepFreeze && !(m_FreezeTime > 0 || m_FreezeTime == -1))
 	{
-		if (pCharacter->m_Emote == EMOTE_NORMAL)
-			pCharacter->m_Emote = EMOTE_HAPPY;
-		pCharacter->m_Weapon = WEAPON_NINJA;
-		pCharacter->m_AmmoCount = 10;
+		if(Emote == EMOTE_NORMAL)
+			Emote = EMOTE_HAPPY;
+		Weapon = WEAPON_NINJA;
+		AmmoCount = 10;
 	}
 
 	if (m_pPlayer->GetCID() == SnappingClient || SnappingClient == -1 ||
 		(!g_Config.m_SvStrictSpectateMode && m_pPlayer->GetCID() == GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID))
 	{
-		pCharacter->m_Health = m_Health;
-		pCharacter->m_Armor = m_Armor;
-		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0)
-		{
-			if (m_pPlayer->m_IsVanillaWeapons)
-			{
-				pCharacter->m_AmmoCount = m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo;
-			}
-			else
-			{
-				pCharacter->m_AmmoCount = (!m_FreezeTime) ? m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
-			}
-		}
+		Health = m_Health;
+		Armor = m_Armor;
+		if(m_pPlayer->m_IsVanillaWeapons)
+			AmmoCount = m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo;
+		else if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0)
+			AmmoCount = (!m_FreezeTime)?m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo:0;
 	}
 
 	if(GetPlayer()->m_Afk || GetPlayer()->IsPaused())
 	{
 		if(m_FreezeTime > 0 || m_FreezeTime == -1 || m_DeepFreeze)
-			pCharacter->m_Emote = EMOTE_NORMAL;
+			Emote = EMOTE_NORMAL;
 		else
-			pCharacter->m_Emote = EMOTE_BLINK;
+			Emote = EMOTE_BLINK;
 	}
 
-	if (pCharacter->m_Emote == EMOTE_NORMAL)
+	if(Emote == EMOTE_NORMAL)
 	{
-		if (250 - ((Server()->Tick() - m_LastAction) % (250)) < 5)
-			pCharacter->m_Emote = EMOTE_BLINK;
+		if(250 - ((Server()->Tick() - m_LastAction)%(250)) < 5)
+			Emote = EMOTE_BLINK;
 	}
 
 	if (m_pPlayer->m_Halloween)
@@ -2070,7 +2011,89 @@ void CCharacter::Snap(int SnappingClient)
 		}
 	}
 
-	pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+	if(!Server()->IsSixup(SnappingClient))
+	{
+		CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ID, sizeof(CNetObj_Character)));
+		if(!pCharacter)
+			return;
+
+		pCore->Write(pCharacter);
+
+		pCharacter->m_Tick = Tick;
+		pCharacter->m_Emote = Emote;
+
+		if(pCharacter->m_HookedPlayer != -1)
+		{
+			if(!Server()->Translate(pCharacter->m_HookedPlayer, SnappingClient))
+				pCharacter->m_HookedPlayer = -1;
+		}
+
+		pCharacter->m_AttackTick = m_AttackTick;
+		pCharacter->m_Direction = m_Input.m_Direction;
+		pCharacter->m_Weapon = Weapon;
+		pCharacter->m_AmmoCount = AmmoCount;
+		pCharacter->m_Health = Health;
+		pCharacter->m_Armor = Armor;
+		pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+	}
+	else
+	{
+		protocol7::CNetObj_Character *pCharacter = static_cast<protocol7::CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ID, sizeof(protocol7::CNetObj_Character)));
+		if(!pCharacter)
+			return;
+
+		pCore->Write(reinterpret_cast<CNetObj_CharacterCore *>(static_cast<protocol7::CNetObj_CharacterCore *>(pCharacter)));
+
+		pCharacter->m_Tick = Tick;
+		pCharacter->m_Emote = Emote;
+		pCharacter->m_AttackTick = m_AttackTick;
+		pCharacter->m_Direction = m_Input.m_Direction;
+		pCharacter->m_Weapon = Weapon;
+		pCharacter->m_AmmoCount = AmmoCount;
+
+		if (m_FreezeTime > 0 || m_FreezeTime == -1 || m_DeepFreeze)
+			pCharacter->m_AmmoCount = m_FreezeTick + g_Config.m_SvFreezeDelay * Server()->TickSpeed();
+		else if(Weapon == WEAPON_NINJA)
+			pCharacter->m_AmmoCount = m_Ninja.m_ActivationTick + g_pData->m_Weapons.m_Ninja.m_Duration * Server()->TickSpeed() / 1000;
+
+		pCharacter->m_Health = Health;
+		pCharacter->m_Armor = Armor;
+		pCharacter->m_TriggeredEvents = 0;
+	}
+}
+
+void CCharacter::Snap(int SnappingClient)
+{
+	int id = m_pPlayer->GetCID();
+
+	if(SnappingClient > -1 && !Server()->Translate(id, SnappingClient))
+		return;
+
+	if(NetworkClipped(SnappingClient))
+		return;
+
+	if(SnappingClient > -1)
+	{
+		CCharacter* SnapChar = GameServer()->GetPlayerChar(SnappingClient);
+		CPlayer* SnapPlayer = GameServer()->m_apPlayers[SnappingClient];
+
+		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1
+			&& !CanCollide(SnapPlayer->m_SpectatorID) && !SnapPlayer->m_ShowOthers)
+			return;
+
+		if( SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar && !SnapChar->m_Super
+			&& !CanCollide(SnappingClient) && !SnapPlayer->m_ShowOthers)
+			return;
+
+		if((SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID == -1
+			&& !CanCollide(SnappingClient) && SnapPlayer->m_SpecTeam)
+			return;
+	}
+
+	if (m_Paused)
+		return;
+
+	SnapCharacter(SnappingClient, id);
 
 	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, id, sizeof(CNetObj_DDNetCharacter)));
 	if(!pDDNetCharacter)
@@ -2447,24 +2470,34 @@ void CCharacter::HandleTiles(int Index)
 	// start
 	if(((m_TileIndex == TILE_BEGIN) || (m_TileFIndex == TILE_BEGIN) || FTile1 == TILE_BEGIN || FTile2 == TILE_BEGIN || FTile3 == TILE_BEGIN || FTile4 == TILE_BEGIN || Tile1 == TILE_BEGIN || Tile2 == TILE_BEGIN || Tile3 == TILE_BEGIN || Tile4 == TILE_BEGIN) && (m_DDRaceState == DDRACE_NONE || m_DDRaceState == DDRACE_FINISHED || (m_DDRaceState == DDRACE_STARTED && !Team() && g_Config.m_SvTeam != 3)))
 	{
-		if(g_Config.m_SvResetPickups)
+		if(Teams()->GetSaving(Team()))
 		{
-			if (g_Config.m_SvResetPickups)
+			if(m_LastStartWarning < Server()->Tick() - 3 * Server()->TickSpeed())
 			{
-				for (int i = WEAPON_SHOTGUN; i < NUM_WEAPONS; ++i)
-				{
-					m_aWeapons[i].m_Got = false;
-					if (m_Core.m_ActiveWeapon == i)
-						m_Core.m_ActiveWeapon = WEAPON_GUN;
-				}
-			}
-			if (g_Config.m_SvTeam == 2 && (Team() == TEAM_FLOCK || Teams()->Count(Team()) <= 1))
-			{
-				GameServer()->SendChatTarget(GetPlayer()->GetCID(),"You have to be in a team with other tees to start");
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can't start while loading/saving of team is in progress");
 				m_LastStartWarning = Server()->Tick();
 			}
 			Die(GetPlayer()->GetCID(), WEAPON_WORLD);
 			return;
+		}
+		if(g_Config.m_SvTeam == 2 && (Team() == TEAM_FLOCK || Teams()->Count(Team()) <= 1))
+		{
+			if(m_LastStartWarning < Server()->Tick() - 3 * Server()->TickSpeed())
+			{
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You have to be in a team with other tees to start");
+				m_LastStartWarning = Server()->Tick();
+			}
+			Die(GetPlayer()->GetCID(), WEAPON_WORLD);
+			return;
+		}
+		if(g_Config.m_SvResetPickups)
+		{
+			for (int i = WEAPON_SHOTGUN; i < NUM_WEAPONS; ++i)
+			{
+				m_aWeapons[i].m_Got = false;
+				if(m_Core.m_ActiveWeapon == i)
+					m_Core.m_ActiveWeapon = WEAPON_GUN;
+			}
 		}
 
 		Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -3100,15 +3133,8 @@ void CCharacter::DDRaceTick()
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
-		if (IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && tile != TILE_ROOM && ftile!= TILE_ROOM && ftile != TILE_FREEZE && ftile != TILE_DFREEZE) {
-			m_PrevSavePos = m_Pos;
-			for(int i = 0; i< NUM_WEAPONS; i++)
-			{
-				m_aPrevSaveWeapons[i].m_AmmoRegenStart = m_aWeapons[i].m_AmmoRegenStart;
-				m_aPrevSaveWeapons[i].m_Ammo = m_aWeapons[i].m_Ammo;
-				m_aPrevSaveWeapons[i].m_Ammocost = m_aWeapons[i].m_Ammocost;
-				m_aPrevSaveWeapons[i].m_Got = m_aWeapons[i].m_Got;
-			}
+		if(IsGrounded() && tile != TILE_FREEZE && tile != TILE_DFREEZE && ftile != TILE_FREEZE && ftile != TILE_DFREEZE && !m_DeepFreeze) {
+			m_RescueTee.save(this);
 			m_SetSavePos = true;
 		}
 	}
@@ -3452,25 +3478,12 @@ void CCharacter::Rescue()
 			return;
 		}
 
-		m_LastRescue = Server()->Tick();
-		m_Core.m_Pos = m_PrevSavePos;
-		m_Pos = m_PrevSavePos;
-		m_PrevPos = m_PrevSavePos;
-		m_Core.m_Vel = vec2(0, 0);
-		m_Core.m_HookedPlayer = -1;
-		m_Core.m_HookState = HOOK_RETRACTED;
-		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
-		GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
-		m_Core.m_HookPos = m_Core.m_Pos;
-		m_DeepFreeze = false;
-		UnFreeze();
 
-		for(int i = 0; i< NUM_WEAPONS; i++)
-		{
-			m_aWeapons[i].m_AmmoRegenStart = m_aPrevSaveWeapons[i].m_AmmoRegenStart;
-			m_aWeapons[i].m_Ammo = m_aPrevSaveWeapons[i].m_Ammo;
-			m_aWeapons[i].m_Ammocost = m_aPrevSaveWeapons[i].m_Ammocost;
-			m_aWeapons[i].m_Got = m_aPrevSaveWeapons[i].m_Got;
-		}
+		float StartTime = m_StartTime;
+		m_RescueTee.load(this, Team());
+		// Don't load these from saved tee:
+		m_Core.m_Vel = vec2(0, 0);
+		m_Core.m_HookState = HOOK_IDLE;
+		m_StartTime = StartTime;
 	}
 }

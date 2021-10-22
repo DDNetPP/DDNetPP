@@ -1355,6 +1355,8 @@ set(EXPECTED_DATA
   skins/wartee.png
   skins/whis.png
   skins/x_ninja.png
+  skins/x_spec.png
+  wordlist.txt
 )
 
 set_glob(DATA GLOB_RECURSE "frag;json;map;otf;png;rules;ttf;txt;vert;wv" data ${EXPECTED_DATA})
@@ -1457,6 +1459,11 @@ generate_source("src/game/generated/protocol.h" "network_header")
 generate_source("src/game/generated/server_data.cpp" "server_content_source")
 generate_source("src/game/generated/server_data.h" "server_content_header")
 
+generate_source7("src/game/generated/protocol7.cpp" "network_source")
+generate_source7("src/game/generated/protocol7.h" "network_header")
+
+generate_maps("src/game/generated/protocolglue.h")
+
 ########################################################################
 # SHARED
 ########################################################################
@@ -1526,6 +1533,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   config_variables_ddpp.h
   console.cpp
   console.h
+  csv.cpp
+  csv.h
   datafile.cpp
   datafile.h
   demo.cpp
@@ -1621,6 +1630,9 @@ set_src(GAME_SHARED GLOB src/game
 # A bit hacky, but these are needed to register all the UUIDs, even for stuff
 # that doesn't link game.
 set(ENGINE_UUID_SHARED
+  src/game/generated/protocolglue.h
+  src/game/generated/protocol7.cpp
+  src/game/generated/protocol7.h
   src/game/generated/protocol.cpp
   src/game/generated/protocol.h
   src/game/mapitems_ex.cpp
@@ -1636,6 +1648,8 @@ list(REMOVE_ITEM GAME_SHARED ${ENGINE_UUID_SHARED})
 set(GAME_GENERATED_SHARED
   src/game/generated/git_revision.cpp
   src/game/generated/protocol.h
+  src/game/generated/protocol7.h
+  src/game/generated/protocolglue.h
 )
 
 set(DEPS ${DEP_JSON} ${DEP_MD5} ${ZLIB_DEP})
@@ -2044,6 +2058,8 @@ if(SERVER)
     teams.h
     teehistorian.cpp
     teehistorian.h
+    teeinfo.cpp
+    teeinfo.h
   )
   set(GAME_GENERATED_SERVER
     "src/game/generated/server_data.cpp"

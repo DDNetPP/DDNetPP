@@ -413,8 +413,6 @@ void CGameClient::OnDummySwap()
 
 int CGameClient::OnSnapInput(int *pData, bool Dummy, bool Force)
 {
-	m_LocalIDs[g_Config.m_ClDummy] = m_Snap.m_LocalClientID;
-
 	if(!Dummy)
 	{
 		return m_pControls->SnapInput(pData);
@@ -1164,8 +1162,8 @@ void CGameClient::OnNewSnapshot()
 				if(m_aClients[ClientID].m_aSkinName[0] == 'x' || m_aClients[ClientID].m_aSkinName[1] == '_')
 					str_copy(m_aClients[ClientID].m_aSkinName, "default", 64);
 
-				m_aClients[ClientID].m_SkinInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorBody).Lighten());
-				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorFeet).Lighten());
+				m_aClients[ClientID].m_SkinInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorBody).UnclampLighting());
+				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = color_cast<ColorRGBA>(ColorHSLA(m_aClients[ClientID].m_ColorFeet).UnclampLighting());
 				m_aClients[ClientID].m_SkinInfo.m_Size = 64;
 
 				// find new skin
@@ -1286,6 +1284,13 @@ void CGameClient::OnNewSnapshot()
 
 				m_aClients[Item.m_ID].m_Predicted.ReadDDNet(pCharacterData);
 			}
+			else if(Item.m_Type == NETOBJTYPE_SPECCHAR)
+			{
+				const CNetObj_SpecChar *pSpecCharData = (const CNetObj_SpecChar *)pData;
+				
+				m_aClients[Item.m_ID].m_SpecChar.m_X = pSpecCharData->m_X;
+				m_aClients[Item.m_ID].m_SpecChar.m_Y = pSpecCharData->m_Y;
+			}
 			else if(Item.m_Type == NETOBJTYPE_SPECTATORINFO)
 			{
 				m_Snap.m_pSpectatorInfo = (const CNetObj_SpectatorInfo *)pData;
@@ -1367,6 +1372,8 @@ void CGameClient::OnNewSnapshot()
 	// setup local pointers
 	if(m_Snap.m_LocalClientID >= 0)
 	{
+		m_LocalIDs[g_Config.m_ClDummy] = m_Snap.m_LocalClientID;
+
 		CSnapState::CCharacterInfo *c = &m_Snap.m_aCharacters[m_Snap.m_LocalClientID];
 		if(c->m_Active)
 		{
@@ -1852,6 +1859,9 @@ void CGameClient::CClientData::Reset()
 	m_DeepFrozen = false;
 
 	m_Evolved.m_Tick = -1;
+
+	m_SpecChar.m_X = 0;
+	m_SpecChar.m_Y = 0;
 
 	UpdateRenderInfo();
 }

@@ -109,7 +109,7 @@ void CGameContext::ConSuper(IConsole::IResult *pResult, void *pUserData)
 	if (pChr && !pChr->m_Super)
 	{
 		pChr->m_Super = true;
-		pSelf->m_World.m_Core.m_apCharacters[pResult->m_ClientID]->m_Super = true;
+		pChr->Core()->m_Super = true;
 		pChr->UnFreeze();
 		pChr->m_TeamBeforeSuper = pChr->Team();
 		pChr->Teams()->SetCharacterTeam(pResult->m_ClientID, TEAM_SUPER);
@@ -126,7 +126,7 @@ void CGameContext::ConUnSuper(IConsole::IResult *pResult, void *pUserData)
 	if (pChr && pChr->m_Super)
 	{
 		pChr->m_Super = false;
-		pSelf->m_World.m_Core.m_apCharacters[pResult->m_ClientID]->m_Super = false;
+		pChr->Core()->m_Super = false;
 		pChr->Teams()->SetForceCharacterTeam(pResult->m_ClientID,
 				pChr->m_TeamBeforeSuper);
 	}
@@ -305,6 +305,13 @@ void CGameContext::ConTeleport(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	int Tele = pResult->NumArguments() == 2 ? pResult->GetInteger(0) : pResult->m_ClientID;
 	int TeleTo = pResult->NumArguments() ? pResult->GetInteger(pResult->NumArguments() - 1) : pResult->m_ClientID;
+	int AuthLevel = pSelf->Server()->GetAuthedState(pResult->m_ClientID);
+
+	if(Tele != pResult->m_ClientID && AuthLevel < g_Config.m_SvTeleOthersAuthLevel)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "tele", "you aren't allowed to tele others");
+		return;
+	}
 
 	CCharacter *pChr = pSelf->GetPlayerChar(Tele);
 	if(pChr && pSelf->GetPlayerChar(TeleTo))
@@ -434,7 +441,7 @@ bool CGameContext::TryMute(const NETADDR *pAddr, int Secs, const char *pReason)
 		m_aMutes[m_NumMutes].m_Addr = *pAddr;
 		m_aMutes[m_NumMutes].m_Expire = Server()->Tick()
 						+ Secs * Server()->TickSpeed();
-		str_copy(m_aMutes[m_NumMutes].m_aReason, pReason, sizeof(m_aMutes[m_NumMutes].m_aReason));	
+		str_copy(m_aMutes[m_NumMutes].m_aReason, pReason, sizeof(m_aMutes[m_NumMutes].m_aReason));
 		m_NumMutes++;
 		return true;
 	}

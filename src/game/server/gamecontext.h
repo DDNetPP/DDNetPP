@@ -60,9 +60,8 @@ enum
 class IConsole;
 class IEngine;
 class IStorage;
-class CRandomMapResult;
-class CMapVoteResult;
 struct CAntibotData;
+struct CSqlRandomMapResult;
 
 class CGameContext : public IGameServer
 {
@@ -73,6 +72,7 @@ class CGameContext : public IGameServer
 	IAntibot *m_pAntibot;
 	CLayers m_Layers;
 	CCollision m_Collision;
+	protocol7::CNetObjHandler m_NetObjHandler7;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 	CTuningParams m_aTuningList[NUM_TUNEZONES];
@@ -83,9 +83,6 @@ class CGameContext : public IGameServer
 	CUuid m_GameUuid;
 	CMapBugs m_MapBugs;
 	CPrng m_Prng;
-
-	std::shared_ptr<CRandomMapResult> m_pRandomMapResult;
-	std::shared_ptr<CMapVoteResult> m_pMapVoteResult;
 
 	static void CommandCallback(int ClientID, int FlagMask, const char *pCmd, IConsole::IResult *pResult, void *pUser);
 	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
@@ -200,14 +197,17 @@ public:
 		CHAT_BLUE=1,
 		CHAT_WHISPER_SEND=2,
 		CHAT_WHISPER_RECV=3,
-		CHAT_TO_ONE_CLIENT=4
+		CHAT_TO_ONE_CLIENT=4,
+
+		CHAT_SIX=1<<0,
+		CHAT_SIXUP=1<<1,
 	};
 
 	// network
-	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *pChatmsg, bool IsDDPPVetoVote = false);
-	void SendChatTarget(int To, const char *pText);
+	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote = false);
+	void SendChatTarget(int To, const char *pText, int Flags = CHAT_SIX | CHAT_SIXUP);
 	void SendChatTeam(int Team, const char *pText);
-	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int ToClientID = -1);
+	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int Flags = CHAT_SIX | CHAT_SIXUP, int ToClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID, int importance = 1,  bool supermod = false);
@@ -235,6 +235,7 @@ public:
 	virtual void OnSnap(int ClientID);
 	virtual void OnPostSnap();
 
+	void *PreProcessMsg(int *MsgID, CUnpacker *pUnpacker, int ClientID);
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
 	virtual void OnClientConnected(int ClientID);
@@ -244,7 +245,7 @@ public:
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput);
 
-	virtual void OnClientEngineJoin(int ClientID);
+	virtual void OnClientEngineJoin(int ClientID, bool Sixup);
 	virtual void OnClientEngineDrop(int ClientID, const char *pReason);
 
 	virtual bool IsClientReady(int ClientID);
@@ -774,6 +775,11 @@ public:
 		vec2 m_Center;
 	};
 	std::vector<CBlockDMA2> m_BlockDMA2;
+	// Checks if player can vote and notify them about the reason
+	bool RateLimitPlayerVote(int ClientID);
+	bool RateLimitPlayerMapVote(int ClientID);
+
+	std::shared_ptr<CSqlRandomMapResult> m_SqlRandomMapResult;
 
 private:
 
@@ -1123,7 +1129,7 @@ private:
 	bool VoteMute(const NETADDR *pAddr, int Secs, const char *pDisplayName, int AuthedID);
 	bool VoteUnmute(const NETADDR *pAddr, const char *pDisplayName, int AuthedID);
 	void Whisper(int ClientID, char *pStr);
-	void WhisperID(int ClientID, int VictimID, char *pMessage);
+	void WhisperID(int ClientID, int VictimID, const char *pMessage);
 	void Converse(int ClientID, char *pStr);
 	bool IsVersionBanned(int Version);
 	void UnlockTeam(int ClientID, int Team);
