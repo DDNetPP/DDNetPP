@@ -392,6 +392,23 @@ int CEditor::DoEditBox(void *pID, const CUIRect *pRect, char *pStr, unsigned Str
 			int NumChars = Len;
 			ReturnValue |= CLineInput::Manipulate(Input()->GetEvent(i), pStr, StrSize, StrSize, &Len, &s_AtIndex, &NumChars);
 		}
+
+		if(Input()->KeyIsPressed(KEY_LCTRL) && Input()->KeyPress(KEY_V))
+		{
+			const char *pClipboardText = Input()->GetClipboardText();
+			if(pClipboardText)
+			{
+				str_append(pStr, pClipboardText, StrSize);
+				str_sanitize_cc(pStr);
+				s_AtIndex = str_length(pStr);
+				ReturnValue = true;
+			}
+		}
+
+		if(Input()->KeyIsPressed(KEY_LCTRL) && Input()->KeyPress(KEY_C) && pStr[0] != '\0')
+		{
+			Input()->SetClipboardText(pStr);
+		}
 	}
 
 	bool JustGotActive = false;
@@ -604,7 +621,7 @@ int CEditor::DoButton_Editor_Common(const void *pID, const char *pText, int Chec
 	}
 
 	if(UI()->HotItem() == pID && pToolTip)
-		m_pTooltip = (const char *)pToolTip;
+		m_pTooltip = pToolTip;
 
 	return UI()->DoButtonLogic(pID, pText, Checked, pRect);
 
@@ -3781,7 +3798,7 @@ void CEditor::SortImages()
 
 	if(!Sorted)
 	{
-		array<CEditorImage*> lTemp = array<CEditorImage*>(m_Map.m_lImages);
+		array<CEditorImage*> lTemp = m_Map.m_lImages;
 		gs_pSortedIndex = new int[lTemp.size()];
 
 		qsort(m_Map.m_lImages.base_ptr(), m_Map.m_lImages.size(), sizeof(CEditorImage*), CompareImageName);
@@ -4269,13 +4286,13 @@ void CEditor::RenderFileDialog()
 	else
 		ScrollNum = 0;
 
-	if(!m_FileList[m_FilesSelectedIndex].m_IsVisible)
-	{
-		m_FilesSelectedIndex = 0;
-	}
-
 	if(m_FilesSelectedIndex > -1)
 	{
+		if(!m_FileList[m_FilesSelectedIndex].m_IsVisible)
+		{
+			m_FilesSelectedIndex = 0;
+		}
+
 		for(int i = 0; i < Input()->NumEvents(); i++)
 		{
 			int NewIndex = -1;
@@ -4455,7 +4472,6 @@ void CEditor::RenderFileDialog()
 
 	if(m_FileDialogStorageType == IStorage::TYPE_SAVE)
 	{
-		ButtonBar.VSplitLeft(40.0f, 0, &ButtonBar);
 		ButtonBar.VSplitLeft(70.0f, &Button, &ButtonBar);
 		if(DoButton_Editor(&s_NewFolderButton, "New folder", 0, &Button, 0, 0))
 		{
@@ -4502,7 +4518,7 @@ void CEditor::FilelistPopulate(int StorageType)
 	m_FilePreviewImage = 0;
 	m_aFileDialogActivate = false;
 
-	if(m_FilesSelectedIndex >= 0)
+	if(m_FilesSelectedIndex >= 0 && !m_FileList[m_FilesSelectedIndex].m_IsDir)
 		str_copy(m_aFileDialogFileName, m_FileList[m_FilesSelectedIndex].m_aFilename, sizeof(m_aFileDialogFileName));
 	else
 		m_aFileDialogFileName[0] = 0;
@@ -6141,22 +6157,6 @@ void CEditor::UpdateAndRender()
 	float rx, ry;
 	{
 		Input()->MouseRelative(&rx, &ry);
-#if defined(__ANDROID__)
-		float tx, ty;
-		tx = s_MouseX;
-		ty = s_MouseY;
-
-		s_MouseX = (rx / (float)Graphics()->ScreenWidth()) * UI()->Screen()->w;
-		s_MouseY = (ry / (float)Graphics()->ScreenHeight()) * UI()->Screen()->h;
-
-		s_MouseX = clamp(s_MouseX, 0.0f, UI()->Screen()->w);
-		s_MouseY = clamp(s_MouseY, 0.0f, UI()->Screen()->h);
-
-		m_MouseDeltaX = s_MouseX - m_OldMouseX;
-		m_MouseDeltaY = s_MouseY - m_OldMouseY;
-		m_OldMouseX = tx;
-		m_OldMouseY = ty;
-#else
 		UI()->ConvertMouseMove(&rx, &ry);
 
 		// TODO: Why do we have to halve this?
@@ -6171,7 +6171,6 @@ void CEditor::UpdateAndRender()
 			s_MouseX = clamp(s_MouseX + rx, 0.0f, UI()->Screen()->w);
 			s_MouseY = clamp(s_MouseY + ry, 0.0f, UI()->Screen()->h);
 		}
-#endif
 
 		// update the ui
 		mx = s_MouseX;
@@ -6200,14 +6199,7 @@ void CEditor::UpdateAndRender()
 		if(Input()->KeyIsPressed(KEY_MOUSE_2)) Buttons |= 2;
 		if(Input()->KeyIsPressed(KEY_MOUSE_3)) Buttons |= 4;
 
-#if defined(__ANDROID__)
-	static int ButtonsOneFrameDelay = 0; // For Android touch input
-
-	UI()->Update(mx,my,Mwx,Mwy,ButtonsOneFrameDelay);
-	ButtonsOneFrameDelay = Buttons;
-#else
 		UI()->Update(mx,my,Mwx,Mwy,Buttons);
-#endif
 	}
 
 	// toggle gui

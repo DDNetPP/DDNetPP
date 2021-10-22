@@ -204,6 +204,7 @@ private:
 
 	bool m_SetSavePos;
 	vec2 m_PrevSavePos;
+	bool m_Solo;
 
 	/*
 

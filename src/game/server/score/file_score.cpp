@@ -70,7 +70,11 @@ void CFileScore::SaveScoreThread(void *pUser)
 	lock_wait(gs_ScoreLock);
 	std::fstream f;
 	f.open(SaveFile().c_str(), std::ios::out);
-	if (!f.fail())
+	if(f.fail())
+	{
+		dbg_msg("filescore", "opening '%s' for writing failed", SaveFile().c_str());
+	}
+	else
 	{
 		int t = 0;
 		for (sorted_array<CPlayerScore>::range r = pSelf->m_Top.all();
@@ -109,6 +113,10 @@ void CFileScore::Init()
 	std::fstream f;
 	f.open(SaveFile().c_str(), std::ios::in);
 
+	if(f.fail())
+	{
+		dbg_msg("filescore", "opening '%s' for reading failed", SaveFile().c_str());
+	}
 	while (!f.eof() && !f.fail())
 	{
 		std::string TmpName, TmpScore, TmpCpLine;
@@ -239,14 +247,11 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
 	char aBuf[512];
-	if (g_Config.m_SvInstagibMode)
-	{
+	if(g_Config.m_SvInstagibMode)
 		str_format(aBuf, sizeof(aBuf), "----------- Top 5 (%d Kills spree time) -----------", g_Config.m_SvKillsToFinish);
-	}
 	else
-	{
 		str_format(aBuf, sizeof(aBuf), "----------- Top 5 -----------");
-	}
+	Debut = max(1, Debut < 0 ? m_Top.size() + Debut - 3 : Debut);
 	pSelf->SendChatTarget(ClientID, aBuf);
 	for (int i = 0; i < 5; i++)
 	{
@@ -276,9 +281,6 @@ void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 	if (pScore && Pos > -1)
 	{
 		float Time = pScore->m_Score;
-		char aClientName[128];
-		str_format(aClientName, sizeof(aClientName), " (%s)",
-				Server()->ClientName(ClientID));
 		if (g_Config.m_SvHideScore)
 			str_format(aBuf, sizeof(aBuf),
 					"Your time: %d minute(s) %5.2f second(s)", (int)Time / 60,
@@ -287,7 +289,7 @@ void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 			str_format(aBuf, sizeof(aBuf),
 					"%d. %s Time: %d minute(s) %5.2f second(s), requested by (%s)", Pos,
 					pScore->m_aName, (int)Time / 60,
-					Time - ((int)Time / 60 * 60), aClientName);
+					Time - ((int)Time / 60 * 60), Server()->ClientName(ClientID));
 		if (!Search)
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, ClientID);
 		else

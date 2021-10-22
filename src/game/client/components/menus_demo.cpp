@@ -13,6 +13,7 @@
 
 #include <game/client/render.h>
 #include <game/client/gameclient.h>
+#include <game/client/components/console.h>
 #include <game/localization.h>
 
 #include <game/client/ui.h>
@@ -80,11 +81,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		CUIRect Box, Part, Part2;
 		Box = Screen;
 		Box.VMargin(150.0f/UI()->Scale(), &Box);
-#if defined(__ANDROID__)
-		Box.HMargin(100.0f/UI()->Scale(), &Box);
-#else
 		Box.HMargin(150.0f/UI()->Scale(), &Box);
-#endif
 
 		// render the box
 		RenderTools()->DrawUIRect(&Box, vec4(0,0,0,0.5f), CUI::CORNER_ALL, 15.0f);
@@ -101,11 +98,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		CUIRect Label, TextBox, Ok, Abort;
 
 		Box.HSplitBottom(20.f, &Box, &Part);
-#if defined(__ANDROID__)
-		Box.HSplitBottom(60.f, &Box, &Part);
-#else
 		Box.HSplitBottom(24.f, &Box, &Part);
-#endif
 		Part.VMargin(80.0f, &Part);
 
 		Part.VSplitMid(&Abort, &Ok);
@@ -149,13 +142,8 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 		Box.HSplitBottom(60.f, &Box, &Part);
 		Box.HSplitBottom(60.f, &Box, &Part2);
-#if defined(__ANDROID__)
-		Box.HSplitBottom(60.f, &Box, &Part2);
-		Box.HSplitBottom(60.f, &Box, &Part);
-#else
 		Box.HSplitBottom(24.f, &Box, &Part2);
 		Box.HSplitBottom(24.f, &Box, &Part);
-#endif
 
 		Part2.VSplitLeft(60.0f, 0, &Label);
 		if(DoButton_CheckBox(&s_RemoveChat, Localize("Remove chat"), s_RemoveChat, &Label))
@@ -175,16 +163,72 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		}
 	}
 
-	// handle mousewheel independent of active menu
-	if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP))
+	// handle keyboard shortcuts independent of active menu
+	if(m_pClient->m_pGameConsole->IsClosed())
 	{
-		DemoPlayer()->SetSpeedIndex(+1);
-		LastSpeedChange = time_get();
-	}
-	else if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN))
-	{
-		DemoPlayer()->SetSpeedIndex(-1);
-		LastSpeedChange = time_get();
+		// increase/decrease speed
+		if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP) || Input()->KeyPress(KEY_UP))
+		{
+			DemoPlayer()->SetSpeedIndex(+1);
+			LastSpeedChange = time_get();
+		}
+		else if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN) || Input()->KeyPress(KEY_DOWN))
+		{
+			DemoPlayer()->SetSpeedIndex(-1);
+			LastSpeedChange = time_get();
+		}
+
+		// pause/unpause
+		if(Input()->KeyPress(KEY_SPACE) || Input()->KeyPress(KEY_RETURN) || Input()->KeyPress(KEY_K))
+		{
+			if(pInfo->m_Paused)
+			{
+				DemoPlayer()->Unpause();
+			}
+			else
+			{
+				DemoPlayer()->Pause();
+			}
+		}
+
+		// seek backward/forward 10/5 seconds
+		if(Input()->KeyPress(KEY_J))
+		{
+			DemoPlayer()->SeekTime(-10.0f);
+		}
+		else if(Input()->KeyPress(KEY_L))
+		{
+			DemoPlayer()->SeekTime(10.0f);
+		}
+		else if(Input()->KeyPress(KEY_LEFT))
+		{
+			DemoPlayer()->SeekTime(-5.0f);
+		}
+		else if(Input()->KeyPress(KEY_RIGHT))
+		{
+			DemoPlayer()->SeekTime(5.0f);
+		}
+
+		// seek to 0-90%
+		const int SeekPercentKeys[] = {KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9};
+		for(unsigned i = 0; i < sizeof(SeekPercentKeys) / sizeof(SeekPercentKeys[0]); i++)
+		{
+			if(Input()->KeyPress(SeekPercentKeys[i]))
+			{
+				DemoPlayer()->SeekPercent(i * 0.1f);
+				break;
+			}
+		}
+
+		// seek to the beginning/end
+		if(Input()->KeyPress(KEY_HOME))
+		{
+			DemoPlayer()->SeekPercent(0.0f);
+		}
+		else if(Input()->KeyPress(KEY_END))
+		{
+			DemoPlayer()->SeekPercent(1.0f);
+		}
 	}
 
 	TotalHeight = SeekBarHeight+ButtonbarHeight+NameBarHeight+Margins*3;
@@ -288,7 +332,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 			else
 			{
 				static float PrevAmount = 0.0f;
-				float Amount = (UI()->MouseX()-SeekBar.x)/(float)SeekBar.w;
+				float Amount = (UI()->MouseX()-SeekBar.x)/SeekBar.w;
 
 				if(Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT))
 				{
@@ -299,7 +343,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 						//PrevAmount = Amount;
 						m_pClient->OnReset();
 						m_pClient->m_SuppressEvents = true;
-						DemoPlayer()->SetPos(Amount);
+						DemoPlayer()->SeekPercent(Amount);
 						m_pClient->m_SuppressEvents = false;
 						m_pClient->m_pMapLayersBackGround->EnvelopeUpdate();
 						m_pClient->m_pMapLayersForeGround->EnvelopeUpdate();
@@ -312,7 +356,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 						PrevAmount = Amount;
 						m_pClient->OnReset();
 						m_pClient->m_SuppressEvents = true;
-						DemoPlayer()->SetPos(Amount);
+						DemoPlayer()->SeekPercent(Amount);
 						m_pClient->m_SuppressEvents = false;
 						m_pClient->m_pMapLayersBackGround->EnvelopeUpdate();
 						m_pClient->m_pMapLayersForeGround->EnvelopeUpdate();
@@ -334,7 +378,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	{
 		m_pClient->OnReset();
 		DemoPlayer()->Pause();
-		DemoPlayer()->SetPos(0);
+		DemoPlayer()->SeekPercent(0.0f);
 	}
 
 	bool IncreaseDemoSpeed = false, DecreaseDemoSpeed = false;
@@ -345,15 +389,16 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	// combined play and pause button
 	ButtonBar.VSplitLeft(ButtonbarHeight, &Button, &ButtonBar);
 	static int s_PlayPauseButton = 0;
-	if(!pInfo->m_Paused)
+	if(DoButton_Sprite(&s_PlayPauseButton, IMAGE_DEMOBUTTONS, SPRITE_DEMOBUTTON_PAUSE, false, &Button, CUI::CORNER_ALL))
 	{
-		if(DoButton_Sprite(&s_PlayPauseButton, IMAGE_DEMOBUTTONS, SPRITE_DEMOBUTTON_PAUSE, false, &Button, CUI::CORNER_ALL))
-			DemoPlayer()->Pause();
-	}
-	else
-	{
-		if(DoButton_Sprite(&s_PlayPauseButton, IMAGE_DEMOBUTTONS, SPRITE_DEMOBUTTON_PLAY, false, &Button, CUI::CORNER_ALL))
+		if(pInfo->m_Paused)
+		{
 			DemoPlayer()->Unpause();
+		}
+		else
+		{
+			DemoPlayer()->Pause();
+		}
 	}
 
 	// stop button
@@ -365,7 +410,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	{
 		m_pClient->OnReset();
 		DemoPlayer()->Pause();
-		DemoPlayer()->SetPos(0);
+		DemoPlayer()->SeekPercent(0.0f);
 	}
 
 	// slowdown
@@ -479,11 +524,7 @@ void CMenus::UiDoListboxStart(const void *pID, const CUIRect *pRect, float RowHe
 	RenderTools()->DrawUIRect(&View, vec4(0,0,0,0.15f), 0, 0);
 
 	// prepare the scroll
-#if defined(__ANDROID__)
-	View.VSplitRight(50, &View, &Scroll);
-#else
 	View.VSplitRight(15, &View, &Scroll);
-#endif
 
 	// setup the variables
 	gs_ListBoxOriginalView = View;
@@ -982,11 +1023,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 
 	// scrollbar
 	CUIRect Scroll;
-#if defined(__ANDROID__)
-	ListBox.VSplitRight(50, &ListBox, &Scroll);
-#else
 	ListBox.VSplitRight(15, &ListBox, &Scroll);
-#endif
 
 	int Num = (int)(ListBox.h/s_aCols[0].m_Rect.h) + 1;
 	static int s_ScrollBar = 0;
@@ -1062,9 +1099,6 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	ListBox.y -= s_ScrollValue*ScrollNum*s_aCols[0].m_Rect.h;
 
 	int NewSelected = -1;
-#if defined(__ANDROID__)
-	int DoubleClicked = 0;
-#endif
 	int ItemIndex = -1;
 
 	for(sorted_array<CDemoItem>::range r = m_lDemos.all(); !r.empty(); r.pop_front())
@@ -1103,11 +1137,6 @@ void CMenus::RenderDemoList(CUIRect MainView)
 				NewSelected = ItemIndex;
 				str_copy(g_Config.m_UiDemoSelected, r.front().m_aName, sizeof(g_Config.m_UiDemoSelected));
 				DemolistOnUpdate(false);
-#if defined(__ANDROID__)
-				if(NewSelected == m_DoubleClickIndex)
-					DoubleClicked = 1;
-#endif
-
 				m_DoubleClickIndex = NewSelected;
 			}
 		}
@@ -1170,11 +1199,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 
 	bool Activated = false;
 
-#if defined(__ANDROID__)
-	if(m_EnterPressed || (DoubleClicked && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
-#else
 	if(m_EnterPressed || (Input()->MouseDoubleClick() && UI()->HotItem() == m_lDemos[m_DemolistSelectedIndex].m_aName))
-#endif
 	{
 		UI()->SetActiveItem(0);
 		Activated = true;

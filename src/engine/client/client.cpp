@@ -357,6 +357,8 @@ CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta)
 	m_ReconnectTime = 0;
 
 	m_GenerateTimeoutSeed = true;
+
+	m_FrameTimeAvg = 0.0001f;
 }
 
 // ----- send functions -----
@@ -553,12 +555,12 @@ int *CClient::GetInput(int Tick)
 	return 0;
 }
 
-bool CClient::InputExists(int Tick)
+int *CClient::GetDirectInput(int Tick)
 {
 	for(int i = 0; i < 200; i++)
 		if(m_aInputs[g_Config.m_ClDummy][i].m_Tick == Tick)
-			return true;
-	return false;
+			return (int *)m_aInputs[g_Config.m_ClDummy][i].m_aData;
+	return 0;
 }
 
 // ------ state handling -----
@@ -705,7 +707,11 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	else
 		str_copy(m_Password, pPassword, sizeof(m_Password));
 
+	// Deregister Rcon commands from last connected server, might not have called
+	// DisconnectWithReason if the server was shut down
 	m_RconAuthed[0] = 0;
+	m_UseTempRconCommands = 0;
+	m_pConsole->DeregisterTempAll();
 	if(m_ServerAddress.port == 0)
 		m_ServerAddress.port = Port;
 	m_NetClient[0].Connect(&m_ServerAddress);
@@ -2748,7 +2754,7 @@ void CClient::Run()
 		m_pGraphics = CreateEngineGraphicsThreaded();
 
 		bool RegisterFail = false;
-		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IEngineGraphics*>(m_pGraphics)); // register graphics as both
+		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(m_pGraphics); // IEngineGraphics
 		RegisterFail = RegisterFail || !Kernel()->RegisterInterface(static_cast<IGraphics*>(m_pGraphics), false);
 
 		if(RegisterFail || m_pGraphics->Init() != 0)
@@ -2955,6 +2961,8 @@ void CClient::Run()
 				if(m_RenderFrameTime > m_RenderFrameTimeHigh)
 					m_RenderFrameTimeHigh = m_RenderFrameTime;
 				m_FpsGraph.Add(1.0f/m_RenderFrameTime, 1,1,1);
+
+				m_FrameTimeAvg = m_FrameTimeAvg*0.9f + m_RenderFrameTime*0.1f;
 
 				// keep the overflow time - it's used to make sure the gfx refreshrate is reached
 				int64 AdditionalTime = g_Config.m_GfxRefreshRate ? ((Now - LastRenderTime) - (time_freq() / (int64)g_Config.m_GfxRefreshRate)) : 0;
@@ -3653,7 +3661,7 @@ void CClient::HandleDemoPath(const char *pPath)
 		Upstream latency
 */
 
-#if defined(CONF_PLATFORM_MACOSX) || defined(__ANDROID__)
+#if defined(CONF_PLATFORM_MACOSX)
 extern "C" int SDL_main(int argc, char **argv_) // ignore_convention
 {
 	const char **argv = const_cast<const char **>(argv_);
@@ -3710,19 +3718,19 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConsole);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConfig);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineSound*>(pEngineSound)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineSound); // IEngineSound
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ISound*>(pEngineSound), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineInput*>(pEngineInput)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineInput); // IEngineInput
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IInput*>(pEngineInput), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineTextRender*>(pEngineTextRender)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineTextRender); // IEngineTextRender
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<ITextRender*>(pEngineTextRender), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMap*>(pEngineMap)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineMap); // IEngineMap
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMap*>(pEngineMap), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMasterServer*>(pEngineMasterServer)); // register as both
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineMasterServer); // IEngineMasterServer
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer), false);
 
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateEditor(), false);
@@ -3877,4 +3885,14 @@ int CClient::GetPredictionTime()
 {
 	int64 Now = time_get();
 	return (int)((m_PredictedTime.Get(Now)-m_GameTime[g_Config.m_ClDummy].Get(Now))*1000/(float)time_freq());
+}
+
+void CClient::GetSmoothTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount)
+{
+	int64 GameTime = m_GameTime[g_Config.m_ClDummy].Get(time_get());
+	int64 PredTime = m_PredictedTime.Get(time_get());
+	int64 SmoothTime = clamp(GameTime + (int64)(MixAmount * (PredTime - GameTime)), GameTime, PredTime);
+
+	*pSmoothTick = (int)(SmoothTime*50/time_freq())+1;
+	*pSmoothIntraTick = (SmoothTime - (*pSmoothTick-1)*time_freq()/50) / (float)(time_freq()/50);
 }

@@ -44,10 +44,6 @@
 		#include <mach/mach_time.h>
 	#endif
 
-	#if defined(__ANDROID__)
-		#include <android/log.h>
-	#endif
-
 #elif defined(CONF_FAMILY_WINDOWS)
 	#define WIN32_LEAN_AND_MEAN
 	#undef _WIN32_WINNT
@@ -146,16 +142,12 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 		loggers[i].logger(str, loggers[i].user);
 }
 
-#if defined(CONF_FAMILY_WINDOWS) || defined(__ANDROID__)
+#if defined(CONF_FAMILY_WINDOWS)
 static void logger_debugger(const char *line, void *user)
 {
 	(void)user;
-#if defined(CONF_FAMILY_WINDOWS)
 	OutputDebugString(line);
 	OutputDebugString("\n");
-#elif defined(__ANDROID__)
-	__android_log_print(ANDROID_LOG_INFO, "DDNet", "%s", line);
-#endif
 }
 #endif
 
@@ -251,7 +243,7 @@ void dbg_logger_stdout()
 
 void dbg_logger_debugger()
 {
-#if defined(CONF_FAMILY_WINDOWS) || defined(__ANDROID__)
+#if defined(CONF_FAMILY_WINDOWS)
 	dbg_logger(logger_debugger, 0, 0);
 #endif
 }
@@ -2336,6 +2328,12 @@ void str_copy(char *dst, const char *src, int dst_size)
 	dst[dst_size-1] = 0; /* assure null termination */
 }
 
+void str_truncate(char *dst, int dst_size, const char *src, int truncation_len)
+{
+	int size = truncation_len >= dst_size ? dst_size : truncation_len + 1;
+	str_copy(dst, src, size);
+}
+
 int str_length(const char *str)
 {
 	return (int)strlen(str);
@@ -2667,6 +2665,11 @@ const char *str_find(const char *haystack, const char *needle)
 	}
 
 	return 0;
+}
+
+const char *str_rchr(const char *haystack, char needle)
+{
+	return strrchr(haystack, needle);
 }
 
 void str_hex(char *dst, int dst_size, const void *data, int data_size)
