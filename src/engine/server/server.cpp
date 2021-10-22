@@ -852,6 +852,7 @@ int CServer::NewClientNoAuthCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_ShowIps = false;
 	pThis->m_aClients[ClientID].Reset();
 
+	pThis->SendCapabilities(ClientID);
 	pThis->SendMap(ClientID);
 #if defined(CONF_FAMILY_UNIX)
 	pThis->SendConnLoggingCommand(OPEN_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
@@ -979,6 +980,14 @@ void CServer::GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_
 	*pMapSize = m_CurrentMapSize;
 	*pMapSha256 = m_CurrentMapSha256;
 	*pMapCrc = m_CurrentMapCrc;
+}
+
+void CServer::SendCapabilities(int ClientID)
+{
+	CMsgPacker Msg(NETMSG_CAPABILITIES);
+	Msg.AddInt(SERVERCAP_CURVERSION); // version
+	Msg.AddInt(SERVERCAPFLAG_DDNET | SERVERCAPFLAG_CHATTIMEOUTCODE); // flags
+	SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
 }
 
 void CServer::SendMap(int ClientID)
@@ -1144,7 +1153,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	{
 		int64 Now = time_get();
 		int64 Diff = Now - m_aClients[ClientID].m_TrafficSince;
-		float Alpha = g_Config.m_SvNetlimitAlpha / 100.0;
+		float Alpha = g_Config.m_SvNetlimitAlpha / 100.0f;
 		float Limit = (float)g_Config.m_SvNetlimit * 1024 / time_freq();
 
 		if (m_aClients[ClientID].m_Traffic > Limit)
@@ -1154,7 +1163,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 		}
 		if (Diff > 100)
 		{
-			m_aClients[ClientID].m_Traffic = (Alpha * ((float)pPacket->m_DataSize / Diff)) + (1.0 - Alpha) * m_aClients[ClientID].m_Traffic;
+			m_aClients[ClientID].m_Traffic = (Alpha * ((float)pPacket->m_DataSize / Diff)) + (1.0f - Alpha) * m_aClients[ClientID].m_Traffic;
 			m_aClients[ClientID].m_TrafficSince = Now;
 		}
 	}
@@ -1206,6 +1215,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 				m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 				SendRconType(ClientID, m_AuthManager.NumNonDefaultKeys() > 0);
+				SendCapabilities(ClientID);
 				SendMap(ClientID);
 			}
 		}
@@ -1592,10 +1602,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	p.AddString(GameServer()->GameType(), 16);
 
 	// flags
-	int Flags = SERVER_FLAG_ISDDNET;
-	if(g_Config.m_Password[0])
-		Flags |= SERVER_FLAG_PASSWORD;
-	ADD_INT(p, Flags);
+	ADD_INT(p, g_Config.m_Password[0] ? SERVER_FLAG_PASSWORD : 0);
 
 	int MaxClients = m_NetServer.MaxClients();
 	if(Type == SERVERINFO_VANILLA || Type == SERVERINFO_INGAME)
@@ -1614,9 +1621,9 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	}
 
 	ADD_INT(p, PlayerCount); // num players
-	ADD_INT(p, MaxClients-g_Config.m_SvSpectatorSlots); // max players
+	ADD_INT(p, maximum(MaxClients - maximum(g_Config.m_SvSpectatorSlots, g_Config.m_SvReservedSlots), PlayerCount)); // max players
 	ADD_INT(p, ClientCount); // num clients
-	ADD_INT(p, MaxClients); // max clients
+	ADD_INT(p, maximum(MaxClients - g_Config.m_SvReservedSlots, ClientCount)); // max clients
 
 	if(Type == SERVERINFO_EXTENDED)
 		p.AddString("", 0); // extra info, reserved
@@ -3084,12 +3091,12 @@ int main(int argc, const char **argv) // ignore_convention
 
 	// run the server
 	dbg_msg("server", "starting...");
-	pServer->Run();
+	int Ret = pServer->Run();
 
 	// free
 	delete pKernel;
 
-	return 0;
+	return Ret;
 }
 
 // DDRace
@@ -3153,6 +3160,7 @@ bool CServer::SetTimedOut(int ClientID, int OrigID)
 	}
 	DelClientCallback(OrigID, "Timeout Protection used", this);
 	m_aClients[ClientID].m_Authed = AUTHED_NO;
+	m_aClients[ClientID].m_Flags = m_aClients[OrigID].m_Flags;
 	return true;
 }
 

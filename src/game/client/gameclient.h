@@ -59,6 +59,39 @@ public:
 	void Deactivate() { m_Active = 0; }
 };
 
+class CGameInfo
+{
+public:
+	bool m_FlagStartsRace;
+	bool m_TimeScore;
+	bool m_UnlimitedAmmo;
+	bool m_DDRaceRecordMessage;
+	bool m_RaceRecordMessage;
+
+	bool m_AllowEyeWheel;
+	bool m_AllowHookColl;
+	bool m_AllowZoom;
+
+	bool m_BugDDRaceGhost;
+	bool m_BugDDRaceInput;
+	bool m_BugFNGLaserRange;
+	bool m_BugVanillaBounce;
+
+	bool m_PredictFNG;
+	bool m_PredictDDRace;
+	bool m_PredictDDRaceTiles;
+	bool m_PredictVanilla;
+
+	bool m_EntitiesDDNet;
+	bool m_EntitiesDDRace;
+	bool m_EntitiesRace;
+	bool m_EntitiesFNG;
+	bool m_EntitiesVanilla;
+
+	bool m_EntitiesUnused;
+	bool m_Race;
+};
+
 class CGameClient : public IGameClient
 {
 	class CStack
@@ -112,8 +145,6 @@ class CGameClient : public IGameClient
 
 	int m_CheckInfo[2];
 
-	time_t m_InitTime;
-
 	static void ConTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
 
@@ -147,8 +178,6 @@ public:
 	int NetobjNumCorrections() { return m_NetObjHandler.NumObjCorrections(); }
 	const char *NetobjCorrectedOn() { return m_NetObjHandler.CorrectedObjOn(); }
 
-	double GetPlayTime(time_t Curr){ return difftime(Curr, m_InitTime); };
-
 	bool m_SuppressEvents;
 	bool m_NewTick;
 	bool m_NewPredictedTick;
@@ -164,6 +193,7 @@ public:
 		SERVERMODE_PUREMOD,
 	};
 	int m_ServerMode;
+	CGameInfo m_GameInfo;
 
 	int m_DemoSpecID;
 
@@ -191,8 +221,6 @@ public:
 		const CNetObj_PlayerInfo *m_paInfoByName[MAX_CLIENTS];
 		//const CNetObj_PlayerInfo *m_paInfoByTeam[MAX_CLIENTS];
 		const CNetObj_PlayerInfo *m_paInfoByDDTeam[MAX_CLIENTS];
-
-		const CNetObj_DDNetGameInfo *m_pGameInfoEx;
 
 		int m_LocalClientID;
 		int m_NumPlayers;
@@ -227,8 +255,6 @@ public:
 	};
 
 	CSnapState m_Snap;
-
-	bool TimeScore();
 
 	// client data
 	struct CClientData
@@ -277,6 +303,7 @@ public:
 		bool m_Foe;
 
 		int m_AuthLevel;
+		bool m_Afk;
 
 		void UpdateRenderInfo();
 		void Reset();
@@ -416,6 +443,7 @@ public:
 	bool AntiPingPlayers() { return g_Config.m_ClAntiPing && g_Config.m_ClAntiPingPlayers && !m_Snap.m_SpecInfo.m_Active && Client()->State() != IClient::STATE_DEMOPLAYBACK && (m_Tuning[g_Config.m_ClDummy].m_PlayerCollision || m_Tuning[g_Config.m_ClDummy].m_PlayerHooking); }
 	bool AntiPingGrenade() { return g_Config.m_ClAntiPing && g_Config.m_ClAntiPingGrenade && !m_Snap.m_SpecInfo.m_Active && Client()->State() != IClient::STATE_DEMOPLAYBACK; }
 	bool AntiPingWeapons() { return g_Config.m_ClAntiPing && g_Config.m_ClAntiPingWeapons && !m_Snap.m_SpecInfo.m_Active && Client()->State() != IClient::STATE_DEMOPLAYBACK; }
+	bool AntiPingGunfire() { return AntiPingGrenade() && AntiPingWeapons() && g_Config.m_ClAntiPingGunfire; }
 	bool Predict() { return g_Config.m_ClPredict && !(m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_GAMEOVER) && !m_Snap.m_SpecInfo.m_Active && Client()->State() != IClient::STATE_DEMOPLAYBACK && m_Snap.m_pLocalCharacter; }
 
 	CGameWorld m_GameWorld;
@@ -423,6 +451,7 @@ public:
 	CGameWorld m_PrevPredictedWorld;
 
 	void Echo(const char *pString);
+	bool IsOtherTeam(int ClientID);
 
 private:
 	bool m_DDRaceMsgSent[2];
@@ -435,7 +464,6 @@ private:
 
 	CCharOrder m_CharOrder;
 	class CCharacter m_aLastWorldCharacters[MAX_CLIENTS];
-	class CTeamsCore m_TeamsPredicted;
 };
 
 ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL);

@@ -258,6 +258,7 @@ public:
 	bool m_LeftWall;
 
 	// DDnet Character
+	void ReadDDNet(const CNetObj_DDNetCharacter *pObjDDNet);
 	bool m_Solo;
 	bool m_Jetpack;
 	bool m_NoCollision;

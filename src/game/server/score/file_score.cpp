@@ -59,7 +59,7 @@ void CFileScore::MapInfo(int ClientID, const char* MapName)
 	// TODO: implement
 }
 
-void CFileScore::MapVote(int ClientID, const char* MapName)
+void CFileScore::MapVote(std::shared_ptr<CMapVoteResult> *ppResult, int ClientID, const char* MapName)
 {
 	// TODO: implement
 }
@@ -270,7 +270,7 @@ void CFileScore::ShowTop5(IConsole::IResult *pResult, int ClientID,
 void CFileScore::ShowRank(int ClientID, const char* pName, bool Search)
 {
 	CPlayerScore *pScore;
-	int Pos = -1;
+	int Pos = -2;
 	char aBuf[512];
 
 	if (!Search)

@@ -68,6 +68,11 @@ bool CMenusKeyBinder::OnInput(IInput::CEvent Event)
 
 void CMenus::RenderSettingsGeneral(CUIRect MainView)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	bool CheckSettings = false;
+	static int s_ClShowConsole = g_Config.m_ClShowConsole;
+#endif
+
 	char aBuf[128];
 	CUIRect Label, Button, Left, Right, Game, Client, AutoReconnect;
 	MainView.HSplitTop(180.0f, &Game, &Client);
@@ -213,7 +218,13 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitTop(20.0f, 0, &Left);
 		Left.HSplitTop(20.0f, &Button, &Left);
 		if(DoButton_CheckBox(&g_Config.m_ClShowConsole, Localize("Show console window"), g_Config.m_ClShowConsole, &Button))
+		{
 			g_Config.m_ClShowConsole ^= 1;
+			CheckSettings = true;
+		}
+
+		if(CheckSettings)
+			m_NeedRestartGeneral = s_ClShowConsole != g_Config.m_ClShowConsole;
 #endif
 
 		// auto statboard screenshot
@@ -297,7 +308,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 	Button.VSplitLeft(150.0f, &Button, 0);
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "%s:", Localize("Name"));
-	UI()->DoLabelScaled(&Label, aBuf, 14.0, -1);
+	UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
 	static float s_OffsetName = 0.0f;
 	if(DoEditBox(Name, &Button, Name, sizeof(g_Config.m_PlayerName), 14.0f, &s_OffsetName))
 	{
@@ -318,7 +329,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 	Button.VSplitLeft(80.0f, &Label, &Button);
 	Button.VSplitLeft(150.0f, &Button, 0);
 	str_format(aBuf, sizeof(aBuf), "%s:", Localize("Clan"));
-	UI()->DoLabelScaled(&Label, aBuf, 14.0, -1);
+	UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
 	static float s_OffsetClan = 0.0f;
 	if(DoEditBox(Clan, &Button, Clan, sizeof(g_Config.m_PlayerClan), 14.0f, &s_OffsetClan))
 	{
@@ -1417,7 +1428,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 		UI()->DoLabelScaled(&RestartWarning, Localize("DDNet Client needs to be restarted to complete update!"), 14.0f, -1);
 		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
-	else if(m_NeedRestartSkins || m_NeedRestartGraphics || m_NeedRestartSound || m_NeedRestartDDNet)
+	else if(m_NeedRestartGeneral || m_NeedRestartSkins || m_NeedRestartGraphics || m_NeedRestartSound || m_NeedRestartDDNet)
 		UI()->DoLabelScaled(&RestartWarning, Localize("You must restart the game for all settings to take effect."), 14.0f, -1);
 }
 
@@ -1519,7 +1530,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
 					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 1.0f, 0.5f));
-					g_Config.m_ClMessageSystemColor = HSL.Pack() & 0xFFFFFF;
+					g_Config.m_ClMessageSystemColor = HSL.Pack(false);
 				}
 			}
 
@@ -1547,7 +1558,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
 			SMColor.l = DoScrollbarH(&SMColor.l, &Button, SMColor.l);
 
-			g_Config.m_ClMessageSystemColor = SMColor.Pack() & 0xFFFFFF;
+			g_Config.m_ClMessageSystemColor = SMColor.Pack(false);
 
 			Left.HSplitTop(10.0f, &Label, &Left);
 
@@ -1577,7 +1588,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
 					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 0.5f, 0.5f));
-					g_Config.m_ClMessageHighlightColor = HSL.Pack() & 0xFFFFFF;
+					g_Config.m_ClMessageHighlightColor = HSL.Pack(false);
 				}
 			}
 
@@ -1605,7 +1616,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
 			HMColor.l = DoScrollbarH(&HMColor.l, &Button, HMColor.l);
 
-			g_Config.m_ClMessageHighlightColor = HMColor.Pack() & 0xFFFFFF;
+			g_Config.m_ClMessageHighlightColor = HMColor.Pack(false);
 			Right.HSplitTop(10.0f, &Label, &Right);
 
 			TextRender()->TextColor(0.75f, 0.5f, 0.75f, 1.0f);
@@ -1638,7 +1649,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
 					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.65f, 1.0f, 0.65f));
-					g_Config.m_ClMessageTeamColor = HSL.Pack() & 0xFFFFFF;
+					g_Config.m_ClMessageTeamColor = HSL.Pack(false);
 				}
 			}
 
@@ -1666,7 +1677,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
 			TMColor.l = DoScrollbarH(&TMColor.l, &Button, TMColor.l);
 
-			g_Config.m_ClMessageTeamColor = TMColor.Pack() & 0xFFFFFF;
+			g_Config.m_ClMessageTeamColor = TMColor.Pack(false);
 			Left.HSplitTop(10.0f, &Label, &Left);
 
 			ColorRGBA rgbn = CalculateNameColor(TMColor);
@@ -1694,7 +1705,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			{
 				static int s_DefaultButton = 0;
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
-					g_Config.m_ClMessageFriendColor = ColorHSLA(0, 1, 145/255.0f).Pack() & 0xFFFFFF;
+					g_Config.m_ClMessageFriendColor = ColorHSLA(0, 1, 145/255.0f).Pack(false);
 			}
 
 			if(DoButton_CheckBox(&g_Config.m_ClMessageFriend, "", g_Config.m_ClMessageFriend, &Enable))
@@ -1726,7 +1737,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
 			FMColor.l = DoScrollbarH(&FMColor.l, &Button, FMColor.l);
 
-			g_Config.m_ClMessageFriendColor = FMColor.Pack() & 0xFFFFFF;
+			g_Config.m_ClMessageFriendColor = FMColor.Pack(false);
 			Right.HSplitTop(10.0f, &Label, &Right);
 
 			ColorRGBA rgbf = color_cast<ColorRGBA>(FMColor);
@@ -1758,7 +1769,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 				if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 				{
 					ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(1.0f, 1.0f, 1.0f));
-					g_Config.m_ClMessageColor = HSL.Pack() & 0xFFFFFF;
+					g_Config.m_ClMessageColor = HSL.Pack(false);
 				}
 			}
 
@@ -1786,7 +1797,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			UI()->DoLabelScaled(&Label, Localize("Lht."), 14.0f, -1);
 			MColor.l = DoScrollbarH(&MColor.l, &Button, MColor.l);
 
-			g_Config.m_ClMessageColor = MColor.Pack() & 0xFFFFFF;
+			g_Config.m_ClMessageColor = MColor.Pack(false);
 			Left.HSplitTop(10.0f, &Label, &Left);
 
 			TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
@@ -1820,7 +1831,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 			{
 				ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.5f, 0.5f, 1.0f));
-				g_Config.m_ClLaserInnerColor = HSL.Pack() & 0xFFFFFF;
+				g_Config.m_ClLaserInnerColor = HSL.Pack(false);
 			}
 		}
 
@@ -1847,7 +1858,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		UI()->DoLabelScaled(&Label, Localize("Lht."), 12.0f, -1);
 		LIColor.l = DoScrollbarH(&LIColor.l, &Button, LIColor.l);
 
-		g_Config.m_ClLaserInnerColor = LIColor.Pack() & 0xFFFFFF;
+		g_Config.m_ClLaserInnerColor = LIColor.Pack(false);
 		Laser.HSplitTop(10.0f, 0, &Laser);
 
 		Laser.HSplitTop(20.0f, &Label, &Laser);
@@ -1859,7 +1870,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			if(DoButton_Menu(&s_DefaultButton, Localize("Reset"), 0, &Button))
 			{
 				ColorHSLA HSL = color_cast<ColorHSLA>(ColorRGBA(0.075f, 0.075f, 0.25f));
-				g_Config.m_ClLaserOutlineColor = HSL.Pack() & 0xFFFFFF;
+				g_Config.m_ClLaserOutlineColor = HSL.Pack(false);
 			}
 		}
 
@@ -1886,7 +1897,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		UI()->DoLabelScaled(&Label, Localize("Lht."), 12.0f, -1);
 		LOColor.l = DoScrollbarH(&LOColor.l, &Button, LOColor.l);
 
-		g_Config.m_ClLaserOutlineColor = LOColor.Pack() & 0xFFFFFF;
+		g_Config.m_ClLaserOutlineColor = LOColor.Pack(false);
 		//Laser.HSplitTop(8.0f, &Weapon, &Laser);
 		Weapon.VSplitLeft(30.0f, 0, &Weapon);
 
@@ -2157,12 +2168,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	}
 
 	if(CheckSettings)
-	{
-		if(s_InpMouseOld == g_Config.m_InpMouseOld)
-			m_NeedRestartDDNet = false;
-		else
-			m_NeedRestartDDNet = true;
-	}
+		m_NeedRestartDDNet = s_InpMouseOld != g_Config.m_InpMouseOld;
 
 	CUIRect aRects[2];
 	Left.HSplitTop(5.0f, &Button, &Left);

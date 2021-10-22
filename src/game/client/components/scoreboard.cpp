@@ -30,10 +30,6 @@ CScoreboard::CScoreboard()
 void CScoreboard::ConKeyScoreboard(IConsole::IResult *pResult, void *pUserData)
 {
 	CScoreboard *pSelf = (CScoreboard *)pUserData;
-	CServerInfo Info;
-
-	pSelf->Client()->GetServerInfo(&Info);
-	pSelf->m_IsGameTypeRace = IsRace(&Info);
 	pSelf->m_Active = pResult->GetInteger(0) != 0;
 }
 
@@ -195,6 +191,8 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		RenderTools()->DrawRoundRect(x, y, w, h, 17.0f);
 	Graphics()->QuadsEnd();
 
+	char aBuf[128] = {0};
+
 	// render title
 	float TitleFontsize = 40.0f;
 	if(!pTitle)
@@ -202,11 +200,20 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		if(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_GAMEOVER)
 			pTitle = Localize("Game over");
 		else
-			pTitle = Localize("Scoreboard");
+		{
+			if(str_length(Client()->GetCurrentMap()) > 16)
+			{
+				str_truncate(aBuf, sizeof(aBuf), Client()->GetCurrentMap(), 16);
+				str_append(aBuf, "...", sizeof(aBuf));
+				pTitle = aBuf;
+			}
+			else
+			{
+				pTitle = Client()->GetCurrentMap();
+			}
+		}
 	}
-	TextRender()->Text(0, x+20.0f, y + (50.f - TitleFontsize) / 2.f, TitleFontsize, pTitle, -1);
-
-	char aBuf[128] = {0};
+	TextRender()->Text(0, x + 20.0f, y + (50.f - TitleFontsize) / 2.f, TitleFontsize, pTitle, -1);
 
 	if(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS)
 	{
@@ -231,7 +238,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 	}
 
-	if(m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard)
+	if(m_pClient->m_GameInfo.m_TimeScore && g_Config.m_ClDDRaceScoreBoard)
 	{
 		if (m_ServerRecord > 0)
 		{
@@ -294,7 +301,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 	// render headlines
 	y += 50.0f;
 	float HeadlineFontsize = 22.0f;
-	const char *pScore = (m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard) ? Localize("Time") : Localize("Score");
+	const char *pScore = (m_pClient->m_GameInfo.m_TimeScore && g_Config.m_ClDDRaceScoreBoard) ? Localize("Time") : Localize("Score");
 	float ScoreWidth = TextRender()->TextWidth(0, HeadlineFontsize, pScore, -1);
 	tw = ScoreLength > ScoreWidth ? ScoreLength : ScoreWidth;
 	TextRender()->Text(0, ScoreOffset+ScoreLength-tw, y + (HeadlineFontsize * 2.f - HeadlineFontsize) / 2.f, HeadlineFontsize, pScore, -1);
@@ -414,7 +421,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 
 		// score
-		if(m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard)
+		if(m_pClient->m_GameInfo.m_TimeScore && g_Config.m_ClDDRaceScoreBoard)
 		{
 			if (pInfo->m_Score == -9999)
 				aBuf[0] = 0;
@@ -439,7 +446,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 			Graphics()->QuadsBegin();
 
-			RenderTools()->SelectSprite(pInfo->m_Team==TEAM_RED ? SPRITE_FLAG_BLUE : SPRITE_FLAG_RED, SPRITE_FLAG_FLIP_X);
+			RenderTools()->SelectSprite(m_pClient->m_Snap.m_pGameDataObj->m_FlagCarrierBlue == pInfo->m_ClientID ? SPRITE_FLAG_BLUE : SPRITE_FLAG_RED, SPRITE_FLAG_FLIP_X);
 
 			float Size = LineHeight;
 			IGraphics::CQuadItem QuadItem(TeeOffset+0.0f, y-5.0f-Spacing/2.0f, Size/2.0f, Size);

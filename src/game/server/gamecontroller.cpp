@@ -348,8 +348,8 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		sides2[6] = GameServer()->Collision()->Entity(x - 2, y, Layer);
 		sides2[7] = GameServer()->Collision()->Entity(x - 2, y + 2, Layer);
 
-		float AngularSpeed = 0.0;
-		int Ind = Index - ENTITY_LASER_STOP;
+		float AngularSpeed = 0.0f;
+		int Ind=Index-ENTITY_LASER_STOP;
 		int M;
 		if (Ind < 0)
 		{

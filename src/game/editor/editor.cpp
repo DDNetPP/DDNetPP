@@ -134,27 +134,6 @@ CLayerGroup::CLayerGroup()
 	m_ClipH = 0;
 }
 
-CLayerGroup::CLayerGroup(const CLayerGroup& rhs)
-{
-	str_copy(m_aName, rhs.m_aName, sizeof m_aName);
-	m_Visible = rhs.m_Visible;
-	m_Collapse = rhs.m_Collapse;
-	m_GameGroup = rhs.m_GameGroup;
-	m_OffsetX = rhs.m_OffsetX;
-	m_OffsetY = rhs.m_OffsetY;
-	m_ParallaxX = rhs.m_ParallaxX;
-	m_ParallaxY = rhs.m_ParallaxY;
-
-	m_UseClipping = rhs.m_UseClipping;
-	m_ClipX = rhs.m_ClipX;
-	m_ClipY = rhs.m_ClipY;
-	m_ClipW = rhs.m_ClipW;
-	m_ClipH = rhs.m_ClipH;
-
-	m_lLayers = rhs.m_lLayers;
-	m_pMap = rhs.m_pMap;
-}
-
 CLayerGroup::~CLayerGroup()
 {
 	Clear();
@@ -3502,7 +3481,6 @@ void CEditor::ReplaceImage(const char *pFileName, int StorageType, void *pUser)
 		return;
 
 	CEditorImage *pImg = pEditor->m_Map.m_lImages[pEditor->m_SelectedImage];
-	int External = pImg->m_External;
 	pEditor->Graphics()->UnloadTexture(pImg->m_TexID);
 	if(pImg->m_pData)
 	{
@@ -3510,8 +3488,8 @@ void CEditor::ReplaceImage(const char *pFileName, int StorageType, void *pUser)
 		pImg->m_pData = 0;
 	}
 	*pImg = ImgInfo;
-	pImg->m_External = External;
 	IStorage::StripPathAndExtension(pFileName, pImg->m_aName, sizeof(pImg->m_aName));
+	pImg->m_External = IsVanillaImage(pImg->m_aName);
 	pImg->m_AutoMapper.Load(pImg->m_aName);
 	pImg->m_TexID = pEditor->Graphics()->LoadTextureRaw(ImgInfo.m_Width, ImgInfo.m_Height, ImgInfo.m_Format, ImgInfo.m_pData, CImageInfo::FORMAT_AUTO, 0);
 	ImgInfo.m_pData = 0;

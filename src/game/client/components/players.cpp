@@ -77,20 +77,6 @@ inline float AngularApproach(float Src, float Dst, float Amount)
 	return n;
 }
 
-bool CPlayers::IsOtherTeam(int ClientID)
-{
-	bool Local = m_pClient->m_Snap.m_LocalClientID == ClientID;
-
-	if((m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientID].m_Team == TEAM_SPECTATORS && m_pClient->m_Snap.m_SpecInfo.m_SpectatorID == SPEC_FREEVIEW) || ClientID < 0)
-		return false;
-	else if(m_pClient->m_Snap.m_SpecInfo.m_Active && m_pClient->m_Snap.m_SpecInfo.m_SpectatorID != SPEC_FREEVIEW)
-		return m_pClient->m_Teams.Team(ClientID) != m_pClient->m_Teams.Team(m_pClient->m_Snap.m_SpecInfo.m_SpectatorID);
-	else if((m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientID].m_Solo || m_pClient->m_aClients[ClientID].m_Solo) && !Local)
-		return true;
-
-	return m_pClient->m_Teams.Team(ClientID) != m_pClient->m_Teams.Team(m_pClient->m_Snap.m_LocalClientID);
-}
-
 void CPlayers::RenderHook(
 	const CNetObj_Character *pPrevChar,
 	const CNetObj_Character *pPlayerChar,
@@ -114,7 +100,7 @@ void CPlayers::RenderHook(
 	if(ClientID >= 0)
 		IntraTick = (m_pClient->m_aClients[ClientID].m_IsPredicted) ? Client()->PredIntraGameTick() : Client()->IntraGameTick();
 
-	bool OtherTeam = IsOtherTeam(ClientID);
+	bool OtherTeam = m_pClient->IsOtherTeam(ClientID);
 
 	RenderInfo.m_Size = 64.0f;
 
@@ -190,7 +176,7 @@ void CPlayers::RenderPlayer(
 	CTeeRenderInfo RenderInfo = *pRenderInfo;
 
 	bool Local = m_pClient->m_Snap.m_LocalClientID == ClientID;
-	bool OtherTeam = IsOtherTeam(ClientID);
+	bool OtherTeam = m_pClient->IsOtherTeam(ClientID);
 	float Alpha = OtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
 
 	// set size
@@ -211,7 +197,7 @@ void CPlayers::RenderPlayer(
 	bool PredictLocalWeapons = false;
 	float AttackTime = (Client()->PrevGameTick() - Player.m_AttackTick) / (float)SERVER_TICK_SPEED + Client()->GameTickTime();
 	float LastAttackTime = (Client()->PrevGameTick() - Player.m_AttackTick) / (float)SERVER_TICK_SPEED + s_LastGameTickTime;
-	if(Local && m_pClient->m_aClients[ClientID].m_IsPredicted && m_pClient->AntiPingWeapons() && m_pClient->AntiPingGrenade())
+	if(m_pClient->m_aClients[ClientID].m_IsPredictedLocal && m_pClient->AntiPingGunfire())
 	{
 		PredictLocalWeapons = true;
 		AttackTime = (Client()->PredIntraGameTick() + (Client()->PredGameTick() - 1 - Player.m_AttackTick)) / (float)SERVER_TICK_SPEED;
@@ -294,9 +280,7 @@ void CPlayers::RenderPlayer(
 
 	// draw gun
 	{
-		CServerInfo Info;
-		Client()->GetServerInfo(&Info);
-		if(ClientID >= 0 && (((IsDDRace(&Info) || IsDDNet(&Info)) && g_Config.m_ClShowHookCollAlways) || (Player.m_PlayerFlags&PLAYERFLAG_AIM && ((!Local && g_Config.m_ClShowHookCollOther) || (Local && g_Config.m_ClShowHookCollOwn)))))
+		if(ClientID >= 0 && ((GameClient()->m_GameInfo.m_AllowHookColl && g_Config.m_ClShowHookCollAlways) || (Player.m_PlayerFlags&PLAYERFLAG_AIM && ((!Local && g_Config.m_ClShowHookCollOther) || (Local && g_Config.m_ClShowHookCollOwn)))))
 		{
 			vec2 ExDirection = Direction;
 
@@ -577,6 +561,17 @@ void CPlayers::RenderPlayer(
 		Graphics()->QuadsSetRotation(0);
 	}
 
+	if(g_Config.m_ClAfkEmote && m_pClient->m_aClients[ClientID].m_Afk && !(Player.m_PlayerFlags&PLAYERFLAG_CHATTING))
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_EMOTICONS].m_Id);
+		int QuadOffset = QuadOffsetToEmoticon + (SPRITE_ZZZ - SPRITE_OOP);
+		Graphics()->SetColor(1.0f, 1.0f, 1.0f, Alpha);
+		Graphics()->RenderQuadContainerAsSprite(m_WeaponEmoteQuadContainerIndex, QuadOffset, Position.x + 24.f, Position.y - 40.f);
+
+		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+		Graphics()->QuadsSetRotation(0);
+	}
+
 	if(ClientID < 0)
 		return;
 
@@ -590,15 +585,15 @@ void CPlayers::RenderPlayer(
 		float a = 1;
 
 		if(FromEnd < Client()->GameTickSpeed() / 5)
-			a = FromEnd / (Client()->GameTickSpeed() / 5.0);
+			a = FromEnd / (Client()->GameTickSpeed() / 5.0f);
 
 		float h = 1;
 		if(SinceStart < Client()->GameTickSpeed() / 10)
-			h = SinceStart / (Client()->GameTickSpeed() / 10.0);
+			h = SinceStart / (Client()->GameTickSpeed() / 10.0f);
 
 		float Wiggle = 0;
 		if(SinceStart < Client()->GameTickSpeed() / 5)
-			Wiggle = SinceStart / (Client()->GameTickSpeed() / 5.0);
+			Wiggle = SinceStart / (Client()->GameTickSpeed() / 5.0f);
 
 		float WiggleAngle = sinf(5*Wiggle);
 

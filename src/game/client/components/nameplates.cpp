@@ -28,7 +28,6 @@ void CNamePlates::RenderNameplate(
 	)
 {
 	int ClientID = pPlayerInfo->m_ClientID;
-	bool Local = m_pClient->m_Snap.m_LocalClientID == ClientID;
 
 	vec2 Position;
 	if(ClientID >= 0 && ClientID < MAX_CLIENTS)
@@ -36,19 +35,11 @@ void CNamePlates::RenderNameplate(
 	else
 		Position = mix(vec2(pPrevChar->m_X, pPrevChar->m_Y), vec2(pPlayerChar->m_X, pPlayerChar->m_Y), Client()->IntraGameTick());
 
-	bool OtherTeam;
-
-	if(m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientID].m_Team == TEAM_SPECTATORS && m_pClient->m_Snap.m_SpecInfo.m_SpectatorID == SPEC_FREEVIEW)
-		OtherTeam = false;
-	else if(m_pClient->m_Snap.m_SpecInfo.m_Active && m_pClient->m_Snap.m_SpecInfo.m_SpectatorID != SPEC_FREEVIEW)
-		OtherTeam = m_pClient->m_Teams.Team(pPlayerInfo->m_ClientID) != m_pClient->m_Teams.Team(m_pClient->m_Snap.m_SpecInfo.m_SpectatorID);
-	else if((m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientID].m_Solo || m_pClient->m_aClients[ClientID].m_Solo) && !Local)
-		OtherTeam = true;
-	else
-		OtherTeam = m_pClient->m_Teams.Team(pPlayerInfo->m_ClientID) != m_pClient->m_Teams.Team(m_pClient->m_Snap.m_LocalClientID);
+	bool OtherTeam = m_pClient->IsOtherTeam(ClientID);
 
 	float FontSize = 18.0f + 20.0f * g_Config.m_ClNameplatesSize / 100.0f;
 	float FontSizeClan = 18.0f + 20.0f * g_Config.m_ClNameplatesClanSize / 100.0f;
+
 	// render name plate
 	if(!pPlayerInfo->m_Local || g_Config.m_ClNameplatesOwn)
 	{
@@ -63,8 +54,6 @@ void CNamePlates::RenderNameplate(
 			mem_copy(m_aNamePlates[ClientID].m_aName, pName, sizeof(m_aNamePlates[ClientID].m_aName));
 			m_aNamePlates[ClientID].m_NameTextFontSize = FontSize;
 
-			m_aNamePlates[ClientID].m_NameTextWidth = TextRender()->TextWidth(0, FontSize, pName, -1);
-
 			if(m_aNamePlates[ClientID].m_NameTextContainerIndex != -1)
 				TextRender()->DeleteTextContainer(m_aNamePlates[ClientID].m_NameTextContainerIndex);
 
@@ -76,6 +65,9 @@ void CNamePlates::RenderNameplate(
 			float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 			Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 			MapscreenToGroup(m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, Layers()->GameGroup());
+
+			m_aNamePlates[ClientID].m_NameTextWidth = TextRender()->TextWidth(0, FontSize, pName, -1);
+
 			m_aNamePlates[ClientID].m_NameTextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pName);
 			Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 		}
@@ -88,8 +80,6 @@ void CNamePlates::RenderNameplate(
 				mem_copy(m_aNamePlates[ClientID].m_aClanName, pClan, sizeof(m_aNamePlates[ClientID].m_aClanName));
 				m_aNamePlates[ClientID].m_ClanNameTextFontSize = FontSizeClan;
 
-				m_aNamePlates[ClientID].m_ClanNameTextWidth = TextRender()->TextWidth(0, FontSizeClan, pClan, -1);
-
 				if(m_aNamePlates[ClientID].m_ClanNameTextContainerIndex != -1)
 					TextRender()->DeleteTextContainer(m_aNamePlates[ClientID].m_ClanNameTextContainerIndex);
 
@@ -101,6 +91,9 @@ void CNamePlates::RenderNameplate(
 				float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 				Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 				MapscreenToGroup(m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, Layers()->GameGroup());
+
+				m_aNamePlates[ClientID].m_ClanNameTextWidth = TextRender()->TextWidth(0, FontSizeClan, pClan, -1);
+
 				m_aNamePlates[ClientID].m_ClanNameTextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pClan);
 				Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 			}
@@ -116,7 +109,7 @@ void CNamePlates::RenderNameplate(
 
 		if(OtherTeam)
 		{
-			TOutlineColor.Set(0.0f, 0.0f, 0.0f, 0.2f);
+			TOutlineColor.Set(0.0f, 0.0f, 0.0f, 0.2f * g_Config.m_ClShowOthersAlpha / 100.0f);
 			TColor.Set(rgb.r, rgb.g, rgb.b, g_Config.m_ClShowOthersAlpha / 100.0f);
 		}
 		else

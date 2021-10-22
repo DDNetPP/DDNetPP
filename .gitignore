@@ -63,13 +63,18 @@ versionsrv
 
 generated
 
+# IDE project files
 .cproject
 .idea
 .project
 .settings
+.vs
 .vscode
+compile_commands.json
 cscope.files
 cscope.out
+out
+tags
 
 # bam ignores
 /.bam
@@ -115,7 +120,6 @@ _CPack_Packages/
 cmake_install.cmake
 
 *.vcxproj
-*.vs
 *.zip
 
 #############

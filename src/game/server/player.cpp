@@ -15,8 +15,6 @@
 #include "player.h"
 #include <time.h>
 
-#include <algorithm>
-
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
@@ -211,7 +209,7 @@ void CPlayer::Tick()
 	if(!GameServer()->m_World.m_Paused)
 	{
 		int EarliestRespawnTick = m_PreviousDieTick+Server()->TickSpeed()*3;
-		int RespawnTick = std::max(m_DieTick, EarliestRespawnTick);
+		int RespawnTick = maximum(m_DieTick, EarliestRespawnTick);
 		if(!m_pCharacter && RespawnTick <= Server()->Tick())
 			m_Spawning = true;
 
@@ -373,6 +371,7 @@ void CPlayer::Snap(int SnappingClient)
 		return;
 
 	pDDNetPlayer->m_AuthLevel = Server()->GetAuthedState(id);
+	pDDNetPlayer->m_Flags = m_Afk ? EXPLAYERFLAG_AFK : 0;
 	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 }
 

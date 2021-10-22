@@ -21,6 +21,7 @@ GameInfoFlags = [
 	"ENTITIES_VANILLA", "DONT_MASK_ENTITIES", "ENTITIES_BW"
 	# Full, use GameInfoFlags2 for more flags
 ]
+ExPlayerFlags = ["AFK"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
@@ -50,6 +51,11 @@ enum
 	SPEC_FREEVIEW=-1,
 	SPEC_FOLLOW=-2,
 };
+
+enum
+{
+	GAMEINFO_CURVERSION=3,
+};
 '''
 
 RawSource = '''
@@ -70,6 +76,7 @@ Flags = [
 	Flags("GAMESTATEFLAG", GameStateFlags),
 	Flags("CHARACTERFLAG", CharacterFlags),
 	Flags("GAMEINFOFLAG", GameInfoFlags),
+	Flags("EXPLAYERFLAG", ExPlayerFlags),
 ]
 
 Objects = [
@@ -215,12 +222,6 @@ Objects = [
 		NetIntAny("m_Test"),
 	]),
 
-	NetObjectEx("GameInfoEx", "gameinfo@netobj.ddnet.tw", [
-		NetIntAny("m_Flags"),
-		NetIntAny("m_Version"),
-		NetIntAny("m_Flags2"),
-	]),
-
 	NetObjectEx("AuthInfo", "auth-info@netobj.ddnet.tw", [
 		NetIntRange("m_AuthLevel", "AUTHED_NO", "AUTHED_ADMIN"),
 	]),
@@ -238,9 +239,11 @@ Objects = [
 		NetIntRange("m_AuthLevel", "AUTHED_NO", "AUTHED_ADMIN"),
 	]),
 
-	NetObjectEx("DDNetGameInfo", "gameinfo@netobj.ddnet.tw", [
+	NetObjectEx("GameInfoEx", "gameinfo@netobj.ddnet.tw", [
 		NetIntAny("m_Flags"),
-	]),
+		NetIntAny("m_Version"),
+		NetIntAny("m_Flags2"),
+	], validate_size=False),
 
 	## Events
 

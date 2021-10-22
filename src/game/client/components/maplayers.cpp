@@ -450,9 +450,6 @@ void CMapLayers::OnMapLoad()
 		m_QuadLayerVisuals.clear();
 	}
 
-	CServerInfo Info;
-	Client()->GetServerInfo(&Info);
-
 	bool PassedGameLayer = false;
 	//prepare all visuals for all tile layers
 	std::vector<STmpTile> tmpTiles;
@@ -623,21 +620,21 @@ void CMapLayers::OnMapLoad()
 									{
 										Index = ((CTile*)pTiles)[y*pTMap->m_Width+x].m_Index;
 										Flags = ((CTile*)pTiles)[y*pTMap->m_Width+x].m_Flags;
-										if(IsDDNet(&Info) && !IsValidGameTile(Index))
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && !IsValidGameTile(Index))
 											Index = 0;
 									}
 									if(IsFrontLayer)
 									{
 										Index = ((CTile*)pTiles)[y*pTMap->m_Width+x].m_Index;
 										Flags = ((CTile*)pTiles)[y*pTMap->m_Width+x].m_Flags;
-										if(!IsValidFrontTile(Index))
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && !IsValidFrontTile(Index))
 											Index = 0;
 									}
 									if(IsSwitchLayer)
 									{
 										Flags = 0;
 										Index = ((CSwitchTile*)pTiles)[y*pTMap->m_Width+x].m_Type;
-										if(!IsValidSwitchTile(Index))
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && !IsValidSwitchTile(Index))
 											Index = 0;
 										else if(CurOverlay == 0)
 										{
@@ -653,7 +650,7 @@ void CMapLayers::OnMapLoad()
 									{
 										Index = ((CTeleTile*)pTiles)[y*pTMap->m_Width+x].m_Type;
 										Flags = 0;
-										if(!IsValidTeleTile(Index))
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && !IsValidTeleTile(Index))
 											Index = 0;
 										else if(CurOverlay == 1)
 										{
@@ -667,7 +664,7 @@ void CMapLayers::OnMapLoad()
 										Index = ((CSpeedupTile*)pTiles)[y*pTMap->m_Width+x].m_Type;
 										Flags = 0;
 										AngleRotate = ((CSpeedupTile*)pTiles)[y*pTMap->m_Width + x].m_Angle;
-										if(!IsValidSpeedupTile(Index) || ((CSpeedupTile*)pTiles)[y*pTMap->m_Width+x].m_Force == 0)
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && (!IsValidSpeedupTile(Index) || ((CSpeedupTile*)pTiles)[y*pTMap->m_Width+x].m_Force == 0))
 											Index = 0;
 										else if(CurOverlay == 1)
 											Index = ((CSpeedupTile*)pTiles)[y*pTMap->m_Width+x].m_Force;
@@ -677,7 +674,7 @@ void CMapLayers::OnMapLoad()
 									if(IsTuneLayer)
 									{
 										Index = ((CTuneTile*)pTiles)[y*pTMap->m_Width+x].m_Type;
-										if(!IsValidTuneTile(Index))
+										if(!GameClient()->m_GameInfo.m_EntitiesUnused && !IsValidTuneTile(Index))
 											Index = 0;
 										Flags = 0;
 									}
@@ -1573,7 +1570,7 @@ void CMapLayers::OnRender()
 
 		if(!g_Config.m_ClZoomBackgroundLayers && !pGroup->m_ParallaxX && !pGroup->m_ParallaxY)
 		{
-			MapScreenToGroup(Center.x, Center.y, pGroup, 1.0);
+			MapScreenToGroup(Center.x, Center.y, pGroup, 1.0f);
 		} else
 			MapScreenToGroup(Center.x, Center.y, pGroup, m_pClient->m_pCamera->m_Zoom);
 
@@ -1747,7 +1744,7 @@ void CMapLayers::OnRender()
 							{
 								// slow blinking to hint that it's not a part of the map
 								double Seconds = time_get()/(double)time_freq();
-								ColorRGBA ColorHint = ColorRGBA(1.0f, 1.0f, 1.0f, 0.3f + 0.7f*(1.0+sin(2.0f*pi*Seconds/3.f))/2.0f);
+								ColorRGBA ColorHint = ColorRGBA(1.0f, 1.0f, 1.0f, 0.3f + 0.7f*(1.0f+sin(2.0f*pi*Seconds/3.f))/2.0f);
 
 								RenderTools()->RenderTileRectangle(-201, -201, pTMap->m_Width+402, pTMap->m_Height+402,
 																   0, TILE_DEATH, // display air inside, death outside

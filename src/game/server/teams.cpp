@@ -1,5 +1,6 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "teams.h"
+#include "score.h"
 #include <engine/shared/config.h>
 
 CGameTeams::CGameTeams(CGameContext *pGameContext) :
@@ -530,7 +531,7 @@ void CGameTeams::OnFinish(CPlayer* Player, float Time, const char *pTimestamp)
 	{
 		Server()->StopRecord(Player->GetCID());
 
-		if (Diff <= 0.005)
+		if (Diff <= 0.005f)
 		{
 			GameServer()->SendChatTarget(Player->GetCID(),
 					"You finished with your best time.");
@@ -596,7 +597,7 @@ void CGameTeams::OnFinish(CPlayer* Player, float Time, const char *pTimestamp)
 				if (!g_Config.m_SvHideScore || i == Player->GetCID())
 				{
 					CNetMsg_Sv_PlayerTime Msg;
-					Msg.m_Time = Time * 100.0;
+					Msg.m_Time = Time * 100.0f;
 					Msg.m_ClientID = Player->GetCID();
 					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
 				}
