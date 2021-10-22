@@ -170,8 +170,7 @@ void CLayerGroup::Mapping(float *pPoints)
 {
 	m_pMap->m_pEditor->RenderTools()->MapscreenToWorld(
 		m_pMap->m_pEditor->m_WorldOffsetX, m_pMap->m_pEditor->m_WorldOffsetY,
-		m_ParallaxX/100.0f, m_ParallaxY/100.0f,
-		m_OffsetX, m_OffsetY,
+		m_ParallaxX, m_ParallaxY, m_OffsetX, m_OffsetY,
 		m_pMap->m_pEditor->Graphics()->ScreenAspect(), m_pMap->m_pEditor->m_WorldZoom, pPoints);
 
 	pPoints[0] += m_pMap->m_pEditor->m_EditorOffsetX;
@@ -2548,7 +2547,26 @@ void CEditor::DoMapEditor(CUIRect View)
 		// brush editing
 		if(UI()->HotItem() == s_pEditorID)
 		{
-			if(m_Brush.IsEmpty())
+			int Layer = NUM_LAYERS;
+			if(m_ShowPicker)
+			{
+				CLayer *pLayer = GetSelectedLayer(0);
+				if(pLayer == m_Map.m_pGameLayer)
+					Layer = LAYER_GAME;
+				else if(pLayer == m_Map.m_pFrontLayer)
+					Layer = LAYER_FRONT;
+				else if(pLayer == m_Map.m_pSwitchLayer)
+					Layer = LAYER_SWITCH;
+				else if(pLayer == m_Map.m_pTeleLayer)
+					Layer = LAYER_TELE;
+				else if(pLayer == m_Map.m_pSpeedupLayer)
+					Layer = LAYER_SPEEDUP;
+				else if(pLayer == m_Map.m_pTuneLayer)
+					Layer = LAYER_TUNE;
+			}
+			if(m_ShowPicker && Layer != NUM_LAYERS)
+				m_pTooltip = Explain((int)wx / 32 + (int)wy / 32 * 16, Layer);
+			else if(m_Brush.IsEmpty())
 				m_pTooltip = "Use left mouse button to drag and create a brush. Hold shift to select multiple quads.";
 			else
 				m_pTooltip = "Use left mouse button to paint with the brush. Right button clears the brush.";
@@ -2874,7 +2892,7 @@ void CEditor::DoMapEditor(CUIRect View)
 
 			RenderTools()->MapscreenToWorld(
 				m_WorldOffsetX, m_WorldOffsetY,
-				1.0f, 1.0f, 0.0f, 0.0f, Aspect, 1.0f, aPoints);
+				100.0f, 100.0f, 0.0f, 0.0f, Aspect, 1.0f, aPoints);
 
 			if(i == 0)
 			{
@@ -2916,7 +2934,7 @@ void CEditor::DoMapEditor(CUIRect View)
 
 				RenderTools()->MapscreenToWorld(
 					m_WorldOffsetX, m_WorldOffsetY,
-					1.0f, 1.0f, 0.0f, 0.0f, Aspect, 1.0f, aPoints);
+					100.0f, 100.0f, 0.0f, 0.0f, Aspect, 1.0f, aPoints);
 
 				CUIRect r;
 				r.x = aPoints[0];
@@ -4598,14 +4616,23 @@ void CEditor::RenderStatusbar(CUIRect View)
 
 	if(m_pTooltip)
 	{
+		char aBuf[512];
 		if(ms_pUiGotContext && ms_pUiGotContext == UI()->HotItem())
-		{
-			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "%s Right click for context menu.", m_pTooltip);
-			UI()->DoLabel(&View, aBuf, 10.0f, -1, -1);
-		}
 		else
-			UI()->DoLabel(&View, m_pTooltip, 10.0f, -1, -1);
+			str_copy(aBuf, m_pTooltip, sizeof(aBuf));
+
+		float FontSize = 10.0f;
+
+		while(TextRender()->TextWidth(0, FontSize, m_pTooltip, -1) > View.w)
+		{
+			if(FontSize > 6.0f)
+				FontSize--;
+			else
+				str_format(aBuf, sizeof(aBuf), "%.*s...", str_length(aBuf) - 4, aBuf);
+		}
+
+		UI()->DoLabel(&View, m_pTooltip, FontSize, -1, View.w);
 	}
 }
 
@@ -5679,6 +5706,28 @@ void CEditor::Render()
 		StatusBar.Margin(2.0f, &StatusBar);
 	}
 
+	// show mentions
+	if(m_GuiActive && m_Mentions)
+	{
+		char aBuf[16];
+		if(m_Mentions == 1)
+		{
+			str_copy(aBuf, Localize("1 new mention"), sizeof(aBuf));
+		}
+		else if(m_Mentions <= 9)
+		{
+			str_format(aBuf, sizeof(aBuf), Localize("%d new mentions"), m_Mentions);
+		}
+		else
+		{
+			str_copy(aBuf, Localize("9+ new mentions"), sizeof(aBuf));
+		}
+
+		TextRender()->TextColor(1.0f, 0.0f, 0.0f, 1.0f);
+		TextRender()->Text(0, 5.0f, 27.0f, 10.0f, aBuf, -1);
+		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
 	// do the toolbar
 	if(m_Mode == MODE_LAYERS)
 		DoToolbar(ToolBar);
@@ -5870,7 +5919,7 @@ void CEditor::ZoomMouseTarget(float ZoomFactor)
 	float aPoints[4];
 	RenderTools()->MapscreenToWorld(
 		m_WorldOffsetX, m_WorldOffsetY,
-		1.0f, 1.0f, 0.0f, 0.0f, Graphics()->ScreenAspect(), m_WorldZoom, aPoints);
+		100.0f, 100.0f, 0.0f, 0.0f, Graphics()->ScreenAspect(), m_WorldZoom, aPoints);
 
 	float WorldWidth = aPoints[2]-aPoints[0];
 	float WorldHeight = aPoints[3]-aPoints[1];

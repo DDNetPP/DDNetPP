@@ -169,6 +169,8 @@ public:
 		int m_AuthKey;
 		int m_AuthTries;
 		int m_NextMapChunk;
+		int m_Flags;
+		bool m_ShowIps;
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 
@@ -240,6 +242,7 @@ public:
 	virtual void SetClientClan(int ClientID, char const *pClan);
 	virtual void SetClientCountry(int ClientID, int Country);
 	virtual void SetClientScore(int ClientID, int Score);
+	virtual void SetClientFlags(int ClientID, int Flags);
 
 	void Kick(int ClientID, const char *pReason);
 	void Ban(int ClientID, int Seconds, const char *pReason);
@@ -318,7 +321,7 @@ public:
 	static void ConStopRecord(IConsole::IResult *pResult, void *pUser);
 	static void ConMapReload(IConsole::IResult *pResult, void *pUser);
 	static void ConLogout(IConsole::IResult *pResult, void *pUser);
-	static void ConDnsblStatus(IConsole::IResult *pResult, void *pUser);
+	static void ConShowIps(IConsole::IResult *pResult, void *pUser);
 
 	static void ConAuthAdd(IConsole::IResult *pResult, void *pUser);
 	static void ConAuthAddHashed(IConsole::IResult *pResult, void *pUser);
@@ -330,8 +333,6 @@ public:
 	static void ConNameBan(IConsole::IResult *pResult, void *pUser);
 	static void ConNameUnban(IConsole::IResult *pResult, void *pUser);
 	static void ConNameBans(IConsole::IResult *pResult, void *pUser);
-
-	static void StatusImpl(IConsole::IResult *pResult, void *pUser, bool DnsblBlacklistedOnly);
 
 #if defined (CONF_SQL)
 	// console commands for sqlmasters

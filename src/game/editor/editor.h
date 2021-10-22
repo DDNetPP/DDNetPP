@@ -745,11 +745,15 @@ public:
 		m_PreventUnusedTilesWasWarned = false;
 		m_AllowPlaceUnusedTiles = 0;
 		m_BrushDrawDestructive = true;
+
+		m_Mentions = 0;
 	}
 
 	virtual void Init();
 	virtual void UpdateAndRender();
 	virtual bool HasUnsavedData() { return m_Map.m_Modified; }
+	virtual void UpdateMentions() { m_Mentions++; }
+	virtual void ResetMentions() { m_Mentions = 0; }
 
 	int64 m_LastUndoUpdateTime;
 	bool m_UndoRunning;
@@ -828,6 +832,8 @@ public:
 	bool m_PreventUnusedTilesWasWarned;
 	int m_AllowPlaceUnusedTiles;
 	bool m_BrushDrawDestructive;
+
+	int m_Mentions;
 
 	enum
 	{
@@ -1039,6 +1045,7 @@ public:
 
 	void AddFileDialogEntry(int Index, CUIRect *pView);
 	void SortImages();
+	const char *Explain(int Tile, int Layer);
 
 	int GetLineDistance();
 	void ZoomMouseTarget(float ZoomFactor);

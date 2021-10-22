@@ -28,7 +28,6 @@ CUuid CalculateUuid(const char *pName)
 {
 	MD5_CTX Md5;
 	md5_init(&Md5);
-
 	md5_update(&Md5, TEEWORLDS_NAMESPACE.m_aData, sizeof(TEEWORLDS_NAMESPACE.m_aData));
 	// Without terminating NUL.
 	md5_update(&Md5, (const unsigned char *)pName, str_length(pName));
