@@ -121,8 +121,8 @@ bool CCharacter::SetWeaponThatChrHas()
 		SetWeapon(WEAPON_GRENADE);
 	else if (m_aWeapons[WEAPON_SHOTGUN].m_Got)
 		SetWeapon(WEAPON_SHOTGUN);
-	else if (m_aWeapons[WEAPON_RIFLE].m_Got)
-		SetWeapon(WEAPON_RIFLE);
+	else if (m_aWeapons[WEAPON_LASER].m_Got)
+		SetWeapon(WEAPON_LASER);
 	else
 		return false;
 
@@ -883,7 +883,7 @@ void CCharacter::DropLoot()
 		DropWeapon(WEAPON_GUN);
 		DropWeapon(WEAPON_SHOTGUN);
 		DropWeapon(WEAPON_GRENADE);
-		DropWeapon(WEAPON_RIFLE);
+		DropWeapon(WEAPON_LASER);
 	}
 	else if (!GameServer()->IsMinigame(m_pPlayer->GetCID()))
 	{
@@ -951,7 +951,7 @@ void CCharacter::DropWeapon(int WeaponID)
 		|| (WeaponID == WEAPON_NINJA)
 		|| (WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		|| (WeaponID == WEAPON_GUN && !m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-		|| (WeaponID == WEAPON_RIFLE && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_RIFLE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+		|| (WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		|| (WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		|| (WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		)
@@ -3185,13 +3185,13 @@ void CCharacter::DDPPFireWeapon()
 		}
 	}
 
-	if (m_pPlayer->m_SpawnRifleActive && m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	if (m_pPlayer->m_SpawnRifleActive && m_Core.m_ActiveWeapon == WEAPON_LASER)
 	{
 		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 		if (m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_pPlayer->m_SpawnRifleActive = 0;
-			SetWeaponGot(WEAPON_RIFLE, false);
+			SetWeaponGot(WEAPON_LASER, false);
 			SetWeaponThatChrHas();
 		}
 	}

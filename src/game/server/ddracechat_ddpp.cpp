@@ -7678,7 +7678,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		{
 			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnRifleActive = 0;
-			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
+			pChr->m_aDecreaseAmmo[WEAPON_LASER] = false;
 		}
 		else if (weapon == 5)
 		{
@@ -7688,7 +7688,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 			pPlayer->m_SpawnShotgunActive = 0;
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pPlayer->m_SpawnRifleActive = 0;
-			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
+			pChr->m_aDecreaseAmmo[WEAPON_LASER] = false;
 			pChr->m_aDecreaseAmmo[WEAPON_GRENADE] = false;
 			pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] = false;
 		}
@@ -7820,7 +7820,7 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 		{
 			pChr->GiveWeapon(4);
 			pPlayer->m_SpawnRifleActive = 0;
-			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
+			pChr->m_aDecreaseAmmo[WEAPON_LASER] = false;
 		}
 		else if (weapon == 5)
 		{
@@ -7830,7 +7830,7 @@ void CGameContext::ConTr(IConsole::IResult *pResult, void *pUserData)
 			pPlayer->m_SpawnShotgunActive = 0;
 			pPlayer->m_SpawnGrenadeActive = 0;
 			pPlayer->m_SpawnRifleActive = 0;
-			pChr->m_aDecreaseAmmo[WEAPON_RIFLE] = false;
+			pChr->m_aDecreaseAmmo[WEAPON_LASER] = false;
 			pChr->m_aDecreaseAmmo[WEAPON_GRENADE] = false;
 			pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] = false;
 		}

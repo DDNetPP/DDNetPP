@@ -73,12 +73,12 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
-	if (item == 4 && pChr->m_aDecreaseAmmo[WEAPON_RIFLE])
+	if (item == 4 && pChr->m_aDecreaseAmmo[WEAPON_LASER])
 	{
 		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
-	if (item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_RIFLE]))
+	if (item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_LASER]))
 	{
 		SendChatTarget(FromID, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
 		return -1;
@@ -246,7 +246,7 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 		return -1;
 	}
 
-	if (pSChr->m_aDecreaseAmmo[WEAPON_RIFLE] && ItemID == 4)
+	if (pSChr->m_aDecreaseAmmo[WEAPON_LASER] && ItemID == 4)
 	{
 		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;

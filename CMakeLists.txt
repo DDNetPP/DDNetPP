@@ -717,6 +717,12 @@ set(EXPECTED_DATA
   audio/wp_hammer_swing-01.wv
   audio/wp_hammer_swing-02.wv
   audio/wp_hammer_swing-03.wv
+  audio/wp_laser_bnce-01.wv
+  audio/wp_laser_bnce-02.wv
+  audio/wp_laser_bnce-03.wv
+  audio/wp_laser_fire-01.wv
+  audio/wp_laser_fire-02.wv
+  audio/wp_laser_fire-03.wv
   audio/wp_ninja_attack-01.wv
   audio/wp_ninja_attack-02.wv
   audio/wp_ninja_attack-03.wv
@@ -730,12 +736,6 @@ set(EXPECTED_DATA
   audio/wp_noammo-03.wv
   audio/wp_noammo-04.wv
   audio/wp_noammo-05.wv
-  audio/wp_rifle_bnce-01.wv
-  audio/wp_rifle_bnce-02.wv
-  audio/wp_rifle_bnce-03.wv
-  audio/wp_rifle_fire-01.wv
-  audio/wp_rifle_fire-02.wv
-  audio/wp_rifle_fire-03.wv
   audio/wp_shotty_fire-01.wv
   audio/wp_shotty_fire-02.wv
   audio/wp_shotty_fire-03.wv
@@ -1663,6 +1663,8 @@ if(CLIENT)
     backend_sdl.h
     client.cpp
     client.h
+    demoedit.cpp
+    demoedit.h
     friends.cpp
     friends.h
     graphics_threaded.cpp
@@ -1760,6 +1762,18 @@ if(CLIENT)
     gameclient.h
     lineinput.cpp
     lineinput.h
+    prediction/entities/character.cpp
+    prediction/entities/character.h
+    prediction/entities/laser.cpp
+    prediction/entities/laser.h
+    prediction/entities/pickup.cpp
+    prediction/entities/pickup.h
+    prediction/entities/projectile.cpp
+    prediction/entities/projectile.h
+    prediction/entity.cpp
+    prediction/entity.h
+    prediction/gameworld.cpp
+    prediction/gameworld.h
     race.cpp
     race.h
     render.cpp
@@ -1773,6 +1787,7 @@ if(CLIENT)
     auto_map.h
     editor.cpp
     editor.h
+    explanations.cpp
     io.cpp
     layer_game.cpp
     layer_quads.cpp
@@ -2091,6 +2106,7 @@ if(TOOLS)
     dilate.cpp
     dummy_map.cpp
     fake_server.cpp
+    map_convert_07.cpp
     map_diff.cpp
     map_extract.cpp
     map_replace_image.cpp
@@ -2109,7 +2125,7 @@ if(TOOLS)
       string(REGEX REPLACE "\\.cpp$" "" TOOL "${T}")
       set(TOOL_DEPS ${DEPS})
       set(TOOL_LIBS ${LIBS})
-      if(TOOL MATCHES "^(dilate|map_optimize|map_extract|map_replace_image|tileset_.*)$")
+      if(TOOL MATCHES "^(dilate|map_optimize|map_extract|map_replace_image|tileset_.*|map_convert_07)$")
         list(APPEND TOOL_DEPS ${PNGLITE_DEP})
         list(APPEND TOOL_LIBS ${PNGLITE_LIBRARIES})
         list(APPEND TOOL_INCLUDE_DIRS ${PNGLITE_INCLUDE_DIRS})

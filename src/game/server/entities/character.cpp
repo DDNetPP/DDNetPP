@@ -12,8 +12,6 @@
 #include "meteor.h"
 #include "homing_missile.h"
 
-#include <stdio.h>
-#include <string.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/score.h>
 #include "light.h"
@@ -86,7 +84,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaMode_idm) //idm & zCatch rifle
 	{
-		m_Core.m_ActiveWeapon = WEAPON_RIFLE;
+		m_Core.m_ActiveWeapon = WEAPON_LASER;
 	}
 	else
 	{
@@ -456,7 +454,7 @@ void CCharacter::HandleJetpack()
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
-	if(m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	if(m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_LASER)
 		FullAuto = true;
 	if (m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
@@ -662,7 +660,7 @@ void CCharacter::FireWeapon(bool Bot)
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
-	if (m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_RIFLE)
+	if(m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_LASER)
 		FullAuto = true;
 	if(m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
@@ -931,22 +929,17 @@ void CCharacter::FireWeapon(bool Bot)
 
 		QuestGrenade();
 	} break;
-	case WEAPON_RIFLE:
+	case WEAPON_LASER:
 	{
 		if (g_Config.m_SvInstagibMode)
-		{
 			m_pPlayer->m_RifleShots++;
-		}
-
 		float LaserReach;
 		if (!m_TuneZone)
 			LaserReach = GameServer()->Tuning()->m_LaserReach;
 		else
 			LaserReach = GameServer()->TuningList()[m_TuneZone].m_LaserReach;
-
-		new CLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_RIFLE);
-		GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-
+		new CLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_LASER);
+		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 		QuestRifle();
 	} break;
 
@@ -1527,7 +1520,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	//Block points check for touchers (weapons)
-	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
+	if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 	{
 		if (From != m_pPlayer->GetCID())
 		{
@@ -1539,7 +1532,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	////dragon test [FNN] isTouched check
 	if (m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
 	{
-		if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_RIFLE) && GameServer()->m_apPlayers[From])
+		if ((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
 			m_Dummy_nn_touched_by_humans = true;
 			char aBuf[128];
@@ -1574,7 +1567,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			{
 				Dmg = maximum(1, Dmg / 2);
 
-				if (m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_RIFLE)
+				if (m_pPlayer->m_IsVanillaCompetetive && Weapon == WEAPON_LASER)
 				{
 					return false; //no rifle self damage in competetive vanilla games (for example survival)
 				}
@@ -2059,8 +2052,8 @@ void CCharacter::Snap(int SnappingClient)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_GRENADE_HIT;
 	if(m_Hit&DISABLE_HIT_HAMMER)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_HAMMER_HIT;
-	if(m_Hit&DISABLE_HIT_RIFLE)
-		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_RIFLE_HIT;
+	if(m_Hit&DISABLE_HIT_LASER)
+		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_LASER_HIT;
 	if(m_Hit&DISABLE_HIT_SHOTGUN)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_NO_SHOTGUN_HIT;
 	if(m_Core.m_HasTelegunGun)
@@ -2077,7 +2070,7 @@ void CCharacter::Snap(int SnappingClient)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_SHOTGUN;
 	if(m_aWeapons[WEAPON_GRENADE].m_Got)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_GRENADE;
-	if(m_aWeapons[WEAPON_RIFLE].m_Got)
+	if(m_aWeapons[WEAPON_LASER].m_Got)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_LASER;
 	if(m_Core.m_ActiveWeapon == WEAPON_NINJA)
 		pDDNetCharacter->m_Flags |= CHARACTERFLAG_WEAPON_NINJA;
@@ -2455,14 +2448,14 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 	// hit others
-	if (((m_TileIndex == TILE_HIT_END) || (m_TileFIndex == TILE_HIT_END)) && m_Hit != (DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_RIFLE | DISABLE_HIT_SHOTGUN))
+	if(((m_TileIndex == TILE_HIT_END) || (m_TileFIndex == TILE_HIT_END)) && m_Hit != (DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_LASER|DISABLE_HIT_SHOTGUN))
 	{
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can't hit others");
-		m_Hit = DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_RIFLE|DISABLE_HIT_SHOTGUN;
+		m_Hit = DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_LASER|DISABLE_HIT_SHOTGUN;
 		m_Core.m_NoShotgunHit = true;
 		m_Core.m_NoGrenadeHit = true;
 		m_Core.m_NoHammerHit = true;
-		m_Core.m_NoRifleHit = true;
+		m_Core.m_NoLaserHit = true;
 		m_NeededFaketuning |= FAKETUNE_NOHAMMER;
 		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
@@ -2473,7 +2466,7 @@ void CCharacter::HandleTiles(int Index)
 		m_Core.m_NoShotgunHit = false;
 		m_Core.m_NoGrenadeHit = false;
 		m_Core.m_NoHammerHit = false;
-		m_Core.m_NoRifleHit = false;
+		m_Core.m_NoLaserHit = false;
 		m_NeededFaketuning &= ~FAKETUNE_NOHAMMER;
 		GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
 	}
@@ -2721,17 +2714,17 @@ void CCharacter::HandleTiles(int Index)
 		m_Hit |= DISABLE_HIT_GRENADE;
 		m_Core.m_NoGrenadeHit = true;
 	}
-	else if (GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_START && m_Hit&DISABLE_HIT_RIFLE && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_RIFLE)
+	else if(GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_START && m_Hit&DISABLE_HIT_LASER && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can shoot others with rifle");
-		m_Hit &= ~DISABLE_HIT_RIFLE;
-		m_Core.m_NoRifleHit = false;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(),"You can shoot others with laser");
+		m_Hit &= ~DISABLE_HIT_LASER;
+		m_Core.m_NoLaserHit = false;
 	}
-	else if (GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_END && !(m_Hit&DISABLE_HIT_RIFLE) && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_RIFLE)
+	else if(GameServer()->Collision()->IsSwitch(MapIndex) == TILE_HIT_END && !(m_Hit&DISABLE_HIT_LASER) && GameServer()->Collision()->GetSwitchDelay(MapIndex) == WEAPON_LASER)
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You can't shoot others with rifle");
-		m_Hit |= DISABLE_HIT_RIFLE;
-		m_Core.m_NoRifleHit = true;
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(),"You can't shoot others with laser");
+		m_Hit |= DISABLE_HIT_LASER;
+		m_Core.m_NoLaserHit = true;
 	}
 	else if (GameServer()->Collision()->IsSwitch(MapIndex) == TILE_JUMP)
 	{
@@ -3221,7 +3214,7 @@ bool CCharacter::UnFreeze()
 			{
 				if (m_aWeapons[i].m_Got)
 				{
-					if (m_pPlayer->m_IsVanillaWeapons || m_aDecreaseAmmo[i] || (m_pPlayer->m_SpawnShotgunActive && i == WEAPON_SHOTGUN) || (m_pPlayer->m_SpawnGrenadeActive && i == WEAPON_GRENADE) || (m_pPlayer->m_SpawnRifleActive && i == WEAPON_RIFLE))
+					if (m_pPlayer->m_IsVanillaWeapons || m_aDecreaseAmmo[i] || (m_pPlayer->m_SpawnShotgunActive && i == WEAPON_SHOTGUN) || (m_pPlayer->m_SpawnGrenadeActive && i == WEAPON_GRENADE) || (m_pPlayer->m_SpawnRifleActive && i == WEAPON_LASER))
 					{
 						m_aWeapons[i].m_Ammo = m_aWeaponsBackup[i][1];
 						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_aWeapons[i].m_Ammo);
@@ -3332,7 +3325,7 @@ void CCharacter::DDRaceInit()
 	m_Core.m_Id = GetPlayer()->GetCID();
 	m_TeleCheckpoint = 0;
 	m_EndlessHook = g_Config.m_SvEndlessDrag;
-	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_RIFLE | DISABLE_HIT_SHOTGUN;
+	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE|DISABLE_HIT_HAMMER|DISABLE_HIT_LASER|DISABLE_HIT_SHOTGUN;
 	m_SuperJump = false;
 	m_Jetpack = false;
 	m_freezeShotgun = false;

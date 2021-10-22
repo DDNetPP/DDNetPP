@@ -72,7 +72,7 @@ bool CPickup::DDPPIntersect(CCharacter *pChr, int *pRespawnTime)
                             GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChr->Teams()->TeamMask(pChr->Team()));
                         else if (m_Subtype == WEAPON_SHOTGUN)
                             GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
-                        else if (m_Subtype == WEAPON_RIFLE)
+                        else if (m_Subtype == WEAPON_LASER)
                             GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChr->Teams()->TeamMask(pChr->Team()));
                         else if (m_Subtype == WEAPON_GUN || m_Subtype == WEAPON_HAMMER)
                             GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChr->Teams()->TeamMask(pChr->Team()));
@@ -104,7 +104,7 @@ bool CPickup::DDPPIntersect(CCharacter *pChr, int *pRespawnTime)
                         GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
                 }
             }
-            else if (pChr->GetPlayer()->m_SpawnRifleActive && m_Subtype == WEAPON_RIFLE)
+            else if (pChr->GetPlayer()->m_SpawnRifleActive && m_Subtype == WEAPON_LASER)
             {
                 pChr->GetPlayer()->m_SpawnRifleActive = 0;
                 if (pChr->GiveWeapon(m_Subtype))

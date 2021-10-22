@@ -35,12 +35,12 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	CCharacter *pHit;
 	bool pDontHitSelf = g_Config.m_SvOldLaser || (m_Bounces == 0 && !m_WasTele);
 
-	if(pOwnerChar ? (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_RIFLE) && m_Type == WEAPON_RIFLE) || (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_SHOTGUN) && m_Type == WEAPON_SHOTGUN) : g_Config.m_SvHit)
+	if(pOwnerChar ? (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_LASER) && m_Type == WEAPON_LASER) || (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_SHOTGUN) && m_Type == WEAPON_SHOTGUN) : g_Config.m_SvHit)
 		pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : 0, m_Owner);
 	else
 		pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : 0, m_Owner, pOwnerChar);
 
-	if(!pHit || (pHit == pOwnerChar && g_Config.m_SvOldLaser) || (pHit != pOwnerChar && pOwnerChar ? (pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_RIFLE  && m_Type == WEAPON_RIFLE) || (pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_SHOTGUN && m_Type == WEAPON_SHOTGUN) : !g_Config.m_SvHit))
+	if(!pHit || (pHit == pOwnerChar && g_Config.m_SvOldLaser) || (pHit != pOwnerChar && pOwnerChar ? (pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_LASER  && m_Type == WEAPON_LASER) || (pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_SHOTGUN && m_Type == WEAPON_SHOTGUN) : !g_Config.m_SvHit))
 		return false;
 	m_From = From;
 	m_Pos = At;
@@ -71,7 +71,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 			}
 		}
 	}
-	else if (m_Type == WEAPON_RIFLE)
+	else if (m_Type == WEAPON_LASER)
 	{
 		if (!pOwnerChar)
 		{
@@ -90,14 +90,14 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 					pOwnerChar->m_OnFire = true;
 				}
 			}
-			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
+			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
 		}
 		else
 		{
 			if (pOwnerChar->GetPlayer()->m_TaserOn)
 			{
 				pHit->Freeze(10.f * GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->m_TaserLevel / 100.f);
-				pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
+				pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
 				pHit->m_GotTasered = true;
 			}
 			else
@@ -105,11 +105,11 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 				pHit->UnFreeze();
 				if (pOwnerChar->GetPlayer()->m_IsVanillaCompetetive)
 				{
-					pHit->TakeDamage(vec2(0.f, 0.f), 5, m_Owner, WEAPON_RIFLE);
+					pHit->TakeDamage(vec2(0.f, 0.f), 5, m_Owner, WEAPON_LASER);
 				}
 				else
 				{
-					pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_RIFLE);
+					pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
 				}
 			}
 		}
@@ -192,7 +192,7 @@ void CLaser::DoBounce()
 			if(m_Bounces > BounceNum)
 				m_Energy = -1;
 
-			GameServer()->CreateSound(m_Pos, SOUND_RIFLE_BOUNCE, m_TeamMask);
+			GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE, m_TeamMask);
 		}
 	}
 	else
@@ -207,7 +207,7 @@ void CLaser::DoBounce()
 
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	if (m_Owner >= 0 && m_Energy <= 0 && m_Pos && !m_TeleportCancelled && pOwnerChar &&
-		pOwnerChar->IsAlive() && pOwnerChar->HasTelegunLaser() && m_Type == WEAPON_RIFLE)
+		pOwnerChar->IsAlive() && pOwnerChar->HasTelegunLaser() && m_Type == WEAPON_LASER)
 	{
 		vec2 PossiblePos;
 		bool Found = false;
@@ -216,7 +216,7 @@ void CLaser::DoBounce()
 		bool pDontHitSelf = g_Config.m_SvOldLaser || (m_Bounces == 0 && !m_WasTele);
 		vec2 At;
 		CCharacter *pHit;
-		if (pOwnerChar ? (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_RIFLE) && m_Type == WEAPON_RIFLE) : g_Config.m_SvHit)
+		if (pOwnerChar ? (!(pOwnerChar->m_Hit&CCharacter::DISABLE_HIT_LASER) && m_Type == WEAPON_LASER) : g_Config.m_SvHit)
 			pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : 0, m_Owner);
 		else
 			pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pDontHitSelf ? pOwnerChar : 0, m_Owner, pOwnerChar);
@@ -248,7 +248,7 @@ void CLaser::DoBounce()
 				// Delay = 0 means all.
 				int delay = GameServer()->Collision()->GetSwitchDelay(MapIndex);
 
-				if((delay != 3 && delay != 0) && m_Type == WEAPON_RIFLE) {
+				if((delay != 3 && delay != 0) && m_Type == WEAPON_LASER) {
 					IsSwitchTeleGun = IsBlueSwitchTeleGun = false;
 				}
 			}
@@ -258,7 +258,7 @@ void CLaser::DoBounce()
 			// Teleport is canceled if the last bounce tile is not a TILE_ALLOW_TELE_GUN.
 			// Teleport also works if laser didn't bounce.
 			m_TeleportCancelled =
-					m_Type == WEAPON_RIFLE
+					m_Type == WEAPON_LASER
 					&& (TileFIndex != TILE_ALLOW_TELE_GUN
 						&& TileFIndex != TILE_ALLOW_BLUE_TELE_GUN
 						&& !IsSwitchTeleGun

@@ -315,10 +315,10 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		Type = POWERUP_WEAPON;
 		SubType = WEAPON_GRENADE;
 	}
-	else if (Index == ENTITY_WEAPON_RIFLE)
+	else if(Index == ENTITY_WEAPON_LASER)
 	{
 		Type = POWERUP_WEAPON;
-		SubType = WEAPON_RIFLE;
+		SubType = WEAPON_LASER;
 	}
 	else if (Index == ENTITY_WEAPON_GUN)
 	{
@@ -528,7 +528,7 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 	}
 	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || pChr->GetPlayer()->m_IsInstaMode_idm) // idm & zCatch rifle
 	{
-		pChr->GiveWeapon(WEAPON_RIFLE);
+		pChr->GiveWeapon(WEAPON_LASER);
 	}
 	else
 	{

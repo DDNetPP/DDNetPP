@@ -106,7 +106,7 @@ void CWeapon::Pickup()
 			return;
 
 		if (
-			(pChar->GetPlayer()->m_SpawnRifleActive && m_Type == WEAPON_RIFLE)
+			(pChar->GetPlayer()->m_SpawnRifleActive && m_Type == WEAPON_LASER)
 			|| (pChar->GetPlayer()->m_SpawnShotgunActive && m_Type == WEAPON_SHOTGUN)
 			|| (pChar->GetPlayer()->m_SpawnGrenadeActive && m_Type == WEAPON_GRENADE)
 			)
@@ -129,7 +129,7 @@ void CWeapon::Pickup()
 			return;
 
 
-		if (m_Type == WEAPON_RIFLE)
+		if (m_Type == WEAPON_LASER)
 			pChar->GetPlayer()->m_SpawnRifleActive = 0;
 		else if (m_Type == WEAPON_SHOTGUN)
 			pChar->GetPlayer()->m_SpawnShotgunActive = 0;
@@ -155,7 +155,7 @@ void CWeapon::Pickup()
 			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a jetpack gun");
 		}
 
-		if (m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_RIFLE)
+		if (m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_LASER)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN, pChar->Teams()->TeamMask(pChar->Team()));
 		else if (m_Type == WEAPON_GRENADE)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE, pChar->Teams()->TeamMask(pChar->Team()));

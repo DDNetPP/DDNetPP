@@ -5391,7 +5391,7 @@ void CCharacter::DummyTick()
 					}
 					else if (rand_Weapon == 4)
 					{
-						if (m_aWeapons[WEAPON_RIFLE].m_Got)
+						if (m_aWeapons[WEAPON_LASER].m_Got)
 						{
 							SetWeapon(4); //laser
 						}
