@@ -80,7 +80,7 @@ inline void StrToInts(int *pInts, int Num, const char *pStr)
 	int Index = 0;
 	while(Num)
 	{
-		char aBuf[4] = {0, 0, 0, 0};
+		char aBuf[4] = {0,0,0,0};
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds" // false positive
@@ -90,7 +90,7 @@ inline void StrToInts(int *pInts, int Num, const char *pStr)
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-		*pInts = ((aBuf[0] + 128) << 24) | ((aBuf[1] + 128) << 16) | ((aBuf[2] + 128) << 8) | (aBuf[3] + 128);
+		*pInts = ((aBuf[0]+128)<<24)|((aBuf[1]+128)<<16)|((aBuf[2]+128)<<8)|(aBuf[3]+128);
 		pInts++;
 		Num--;
 	}
