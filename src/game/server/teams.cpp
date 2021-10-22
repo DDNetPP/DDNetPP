@@ -1,5 +1,6 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "teams.h"
+#include "teehistorian.h"
 #include "score.h"
 #include <engine/shared/config.h>
 
@@ -686,11 +687,17 @@ void CGameTeams::ProcessSaveTeam()
 			GameServer()->SendBroadcast(m_pSaveTeamResult[Team]->m_aBroadcast, -1);
 		if(m_pSaveTeamResult[Team]->m_aMessage[0] != '\0' && m_pSaveTeamResult[Team]->m_Status != CScoreSaveResult::LOAD_FAILED)
 			GameServer()->SendChatTeam(Team, m_pSaveTeamResult[Team]->m_aMessage);
-		// TODO: log load/save success/fail in teehistorian
 		switch(m_pSaveTeamResult[Team]->m_Status)
 		{
 		case CScoreSaveResult::SAVE_SUCCESS:
 		{
+			if(GameServer()->TeeHistorianActive())
+			{
+				GameServer()->TeeHistorian()->RecordTeamSaveSuccess(
+						Team,
+						m_pSaveTeamResult[Team]->m_SaveID,
+						m_pSaveTeamResult[Team]->m_SavedTeam.GetString());
+			}
 			ResetSavedTeam(m_pSaveTeamResult[Team]->m_RequestingPlayer, Team);
 			char aSaveID[UUID_MAXSTRSIZE];
 			FormatUuid(m_pSaveTeamResult[Team]->m_SaveID, aSaveID, UUID_MAXSTRSIZE);
@@ -698,11 +705,20 @@ void CGameTeams::ProcessSaveTeam()
 			break;
 		}
 		case CScoreSaveResult::SAVE_FAILED:
+			if(GameServer()->TeeHistorianActive())
+				GameServer()->TeeHistorian()->RecordTeamSaveFailure(Team);
 			if(Count(Team) > 0)
 				m_pSaveTeamResult[Team]->m_SavedTeam.load(Team);
 			break;
 		case CScoreSaveResult::LOAD_SUCCESS:
 		{
+			if(GameServer()->TeeHistorianActive())
+			{
+				GameServer()->TeeHistorian()->RecordTeamLoadSuccess(
+						Team,
+						m_pSaveTeamResult[Team]->m_SaveID,
+						m_pSaveTeamResult[Team]->m_SavedTeam.GetString());
+			}
 			if(Count(Team) > 0)
 				m_pSaveTeamResult[Team]->m_SavedTeam.load(Team);
 			char aSaveID[UUID_MAXSTRSIZE];
@@ -711,6 +727,8 @@ void CGameTeams::ProcessSaveTeam()
 			break;
 		}
 		case CScoreSaveResult::LOAD_FAILED:
+			if(GameServer()->TeeHistorianActive())
+				GameServer()->TeeHistorian()->RecordTeamLoadFailure(Team);
 			if(m_pSaveTeamResult[Team]->m_aMessage[0] != '\0')
 				GameServer()->SendChatTarget(m_pSaveTeamResult[Team]->m_RequestingPlayer, m_pSaveTeamResult[Team]->m_aMessage);
 			break;
