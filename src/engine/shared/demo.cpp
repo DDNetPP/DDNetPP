@@ -8,6 +8,12 @@
 
 #include <engine/shared/config.h>
 
+#if defined(CONF_VIDEORECORDER)
+	#include <engine/shared/video.h>
+#endif
+
+#include <game/generated/protocol.h>
+
 #include "compression.h"
 #include "demo.h"
 #include "memheap.h"
@@ -35,7 +41,7 @@ CDemoRecorder::CDemoRecorder(class CSnapshotDelta *pSnapshotDelta, bool NoMapDat
 }
 
 // Record
-int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, const char *pNetVersion, const char *pMap, SHA256_DIGEST Sha256, unsigned Crc, const char *pType, unsigned int MapSize, unsigned char *pMapData, IOHANDLE MapFile, DEMOFUNC_FILTER pfnFilter, void *pUser)
+int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, const char *pNetVersion, const char *pMap, SHA256_DIGEST *pSha256, unsigned Crc, const char *pType, unsigned int MapSize, unsigned char *pMapData, IOHANDLE MapFile, DEMOFUNC_FILTER pfnFilter, void *pUser)
 {
 	m_pfnFilter = pfnFilter;
 	m_pUser = pUser;
@@ -68,13 +74,26 @@ int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, con
 	if(MapFile)
 		io_seek(MapFile, 0, IOSEEK_START);
 
+	char aSha256[SHA256_MAXSTRSIZE];
+	if(pSha256)
+		sha256_str(*pSha256, aSha256, sizeof(aSha256));
+
 	if(!pMapData && !MapFile)
 	{
 		// open mapfile
 		char aMapFilename[128];
 		// try the downloaded maps
-		str_format(aMapFilename, sizeof(aMapFilename), "downloadedmaps/%s_%08x.map", pMap, Crc);
-		MapFile = pStorage->OpenFile(aMapFilename, IOFLAG_READ, IStorage::TYPE_ALL);
+		if(pSha256)
+		{
+			str_format(aMapFilename, sizeof(aMapFilename), "downloadedmaps/%s_%08x_%s.map", pMap, Crc, aSha256);
+			MapFile = pStorage->OpenFile(aMapFilename, IOFLAG_READ, IStorage::TYPE_ALL);
+		}
+		if(!MapFile)
+		{
+			// try the downloaded maps without sha
+			str_format(aMapFilename, sizeof(aMapFilename), "downloadedmaps/%s_%08x.map", pMap, Crc);
+			MapFile = pStorage->OpenFile(aMapFilename, IOFLAG_READ, IStorage::TYPE_ALL);
+		}
 		if(!MapFile)
 		{
 			// try the normal maps folder
@@ -125,7 +144,7 @@ int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, con
 
 	//Write Sha256
 	io_write(DemoFile, SHA256_EXTENSION.m_aData, sizeof(SHA256_EXTENSION.m_aData));
-	io_write(DemoFile, &Sha256, sizeof(SHA256_DIGEST));
+	io_write(DemoFile, pSha256, sizeof(SHA256_DIGEST));
 
 	if(m_NoMapData)
 	{
@@ -391,6 +410,9 @@ CDemoPlayer::CDemoPlayer(class CSnapshotDelta *pSnapshotDelta)
 	m_pKeyFrames = 0;
 	m_SpeedIndex = 4;
 
+	m_TickTime = 0;
+	m_Time = 0;
+
 	m_pSnapshotDelta = pSnapshotDelta;
 	m_LastSnapshotDataSize = -1;
 }
@@ -543,6 +565,10 @@ void CDemoPlayer::DoTick()
 			// stop on error or eof
 			if(m_pConsole)
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "demo_player", "end of file");
+			#if defined(CONF_VIDEORECORDER)
+				if (IVideo::Current())
+					Stop();
+			#endif
 			if(m_Info.m_PreviousTick == -1)
 			{
 				if(m_pConsole)
@@ -835,6 +861,34 @@ int CDemoPlayer::NextFrame()
 	return IsPlaying();
 }
 
+int64 CDemoPlayer::time()
+{
+#if defined(CONF_VIDEORECORDER)
+	static bool s_Recording = false;
+	if (IVideo::Current())
+	{
+		if (!s_Recording)
+		{
+			s_Recording = true;
+			m_Info.m_LastUpdate = IVideo::time();
+		}
+		return IVideo::time();
+	}
+	else
+	{
+		int64 Now = time_get();
+		if (s_Recording)
+		{
+			s_Recording = false;
+			m_Info.m_LastUpdate = Now;
+		}
+		return Now;
+	}
+#else
+	return time_get();
+#endif
+}
+
 int CDemoPlayer::Play()
 {
 	// fill in previous and next tick
@@ -845,7 +899,7 @@ int CDemoPlayer::Play()
 	/*m_Info.start_tick = m_Info.previous_tick;
 	m_Info.start_time = time_get();*/
 	m_Info.m_CurrentTime = m_Info.m_PreviousTick*time_freq()/SERVER_TICK_SPEED;
-	m_Info.m_LastUpdate = time_get();
+	m_Info.m_LastUpdate = time();
 	return 0;
 }
 
@@ -909,7 +963,7 @@ void CDemoPlayer::SetSpeedIndex(int Offset)
 
 int CDemoPlayer::Update(bool RealTime)
 {
-	int64 Now = time_get();
+	int64 Now = time();
 	int64 Deltatime = Now-m_Info.m_LastUpdate;
 	m_Info.m_LastUpdate = Now;
 
@@ -959,6 +1013,8 @@ int CDemoPlayer::Update(bool RealTime)
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "demo_player", aBuf);
 			}
 		}
+
+		m_Time += m_TickTime;
 	}
 
 	return 0;
@@ -966,6 +1022,11 @@ int CDemoPlayer::Update(bool RealTime)
 
 int CDemoPlayer::Stop()
 {
+#if defined(CONF_VIDEORECORDER)
+		if (IVideo::Current())
+			IVideo::Current()->stop();
+#endif
+
 	if(!m_File)
 		return -1;
 
@@ -1081,7 +1142,7 @@ void CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int 
 			Sha256 = pMapInfo->m_Sha256;
 	}
 
-	if (m_pDemoRecorder->Start(m_pStorage, m_pConsole, pDst, m_pNetVersion, pMapInfo->m_aName, Sha256, pMapInfo->m_Crc, "client", pMapInfo->m_Size, NULL, NULL, pfnFilter, pUser) == -1)
+	if (m_pDemoRecorder->Start(m_pStorage, m_pConsole, pDst, m_pNetVersion, pMapInfo->m_aName, &Sha256, pMapInfo->m_Crc, "client", pMapInfo->m_Size, NULL, NULL, pfnFilter, pUser) == -1)
 		return;
 
 

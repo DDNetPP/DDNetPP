@@ -35,7 +35,7 @@ public:
 	CDemoRecorder(class CSnapshotDelta *pSnapshotDelta, bool NoMapData = false);
 	CDemoRecorder() {}
 
-	int Start(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, const char *pNetversion, const char *pMap, SHA256_DIGEST Sha256, unsigned MapCrc, const char *pType, unsigned int MapSize, unsigned char *pMapData, IOHANDLE MapFile = 0, DEMOFUNC_FILTER pfnFilter = 0, void *pUser = 0);
+	int Start(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, const char *pNetversion, const char *pMap, SHA256_DIGEST *pSha256, unsigned MapCrc, const char *pType, unsigned int MapSize, unsigned char *pMapData, IOHANDLE MapFile = 0, DEMOFUNC_FILTER pfnFilter = 0, void *pUser = 0);
 	int Stop();
 	void AddDemoMarker();
 
@@ -113,6 +113,11 @@ private:
 	void DoTick();
 	void ScanFile();
 	int NextFrame();
+
+	int64 time();
+
+	int64 m_TickTime;
+	int64 m_Time;
 
 public:
 

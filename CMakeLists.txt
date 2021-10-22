@@ -1577,6 +1577,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   teehistorian_ex_chunks.h
   uuid_manager.cpp
   uuid_manager.h
+  video.cpp
+  video.h
   websockets.cpp
   websockets.h
 )
@@ -1685,6 +1687,8 @@ if(CLIENT)
     text.cpp
     updater.cpp
     updater.h
+    video.cpp
+    video.h
   )
   set_src(GAME_CLIENT GLOB_RECURSE src/game/client
     animstate.cpp

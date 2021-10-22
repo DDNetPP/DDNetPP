@@ -130,6 +130,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_UseTempRconCommands;
 	char m_Password[32];
 	bool m_SendPassword;
+	bool m_ButtonRender=false;
 
 	// version-checking
 	char m_aVersionStr[10];
@@ -165,6 +166,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_MapDetailsCrc;
 	SHA256_DIGEST m_MapDetailsSha256;
 
+	char m_aDDNetInfoTmp[64];
 	std::shared_ptr<CGetFile> m_pDDNetInfoTask;
 
 	// time
@@ -250,9 +252,8 @@ public:
 
 	// ----- send functions -----
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags);
-	virtual int SendMsgExY(CMsgPacker *pMsg, int Flags, bool System=true, int NetClient=1);
+	virtual int SendMsgY(CMsgPacker *pMsg, int Flags, int NetClient=1);
 
-	int SendMsgEx(CMsgPacker *pMsg, int Flags, bool System=true);
 	void SendInfo();
 	void SendEnterGame();
 	void SendReady();
@@ -367,6 +368,14 @@ public:
 	static void Con_Minimize(IConsole::IResult *pResult, void *pUserData);
 	static void Con_Ping(IConsole::IResult *pResult, void *pUserData);
 	static void Con_Screenshot(IConsole::IResult *pResult, void *pUserData);
+
+#if defined(CONF_VIDEORECORDER)
+	static void StartVideo(IConsole::IResult *pResult, void *pUserData, const char *pVideName);
+	static void Con_StartVideo(IConsole::IResult *pResult, void *pUserData);
+	static void Con_StopVideo(IConsole::IResult *pResult, void *pUserData);
+	const char *DemoPlayer_Render(const char *pFilename, int StorageType, const char *pVideoName, int SpeedIndex);
+#endif
+
 	static void Con_Rcon(IConsole::IResult *pResult, void *pUserData);
 	static void Con_RconAuth(IConsole::IResult *pResult, void *pUserData);
 	static void Con_RconLogin(IConsole::IResult *pResult, void *pUserData);

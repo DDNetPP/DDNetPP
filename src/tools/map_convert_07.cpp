@@ -135,7 +135,7 @@ int main(int argc, const char **argv)
 
 	png_init(0,0);
 
-	g_NextDataItemID = g_DataReader.NumItems();
+	g_NextDataItemID = g_DataReader.NumData();
 
 	// add all items
 	for(int Index = 0; Index < g_DataReader.NumItems(); Index++)
@@ -150,7 +150,7 @@ int main(int argc, const char **argv)
 	}
 
 	// add all data
-	for(int Index = 0; Index < g_DataReader.NumItems(); Index++)
+	for(int Index = 0; Index < g_DataReader.NumData(); Index++)
 	{
 		pData = g_DataReader.GetData(Index);
 		Size = g_DataReader.GetDataSize(Index);

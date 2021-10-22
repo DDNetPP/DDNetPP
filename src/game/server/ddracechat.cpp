@@ -68,6 +68,19 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 			"Or visit DDNet.tw");
 }
 
+void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int ClientID = pResult->m_ClientID;
+	if(!CheckClientID(ClientID)) return;
+
+	char zerochar = 0;
+	if(pResult->NumArguments() > 0)
+		pSelf->List(ClientID, pResult->GetString(0));
+	else
+		pSelf->List(ClientID, &zerochar);
+}
+
 void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *) pUserData;
@@ -612,12 +625,12 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 		if(pCode[3] == ' ')
 		{
 			str_copy(aCountry, pCode, 4);
-			pCode = pCode + 4;
+			pCode = str_skip_whitespaces_const(pCode + 4);
 		}
 		else if(str_length(pCode) > 4 && pCode[4] == ' ')
 		{
 			str_copy(aCountry, pCode, 5);
-			pCode = pCode + 5;
+			pCode = str_skip_whitespaces_const(pCode + 5);
 		}
 		else
 		{

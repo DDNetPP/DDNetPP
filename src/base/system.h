@@ -1119,6 +1119,16 @@ void str_sanitize(char *str);
 void str_sanitize_filename(char *str);
 
 /*
+	Function: str_clean_whitespaces
+		Removes leading and trailing spaces and limits the use of multiple spaces.
+	Parameters:
+		str - String to clean up
+	Remarks:
+		- The strings are treated as zero-termineted strings.
+*/
+void str_clean_whitespaces(char *str);
+
+/*
 	Function: str_skip_to_whitespace
 		Skips leading non-whitespace characters(all but ' ', '\t', '\n', '\r').
 
@@ -1135,6 +1145,12 @@ void str_sanitize_filename(char *str);
 char *str_skip_to_whitespace(char *str);
 
 /*
+	Function: str_skip_to_whitespace_const
+		See str_skip_to_whitespace.
+*/
+const char *str_skip_to_whitespace_const(const char *str);
+
+/*
 	Function: str_skip_whitespaces
 		Skips leading whitespace characters(' ', '\t', '\n', '\r').
 
@@ -1149,6 +1165,12 @@ char *str_skip_to_whitespace(char *str);
 		- The strings are treated as zero-terminated strings.
 */
 char *str_skip_whitespaces(char *str);
+
+/*
+	Function: str_skip_whitespaces_const
+		See str_skip_whitespaces.
+*/
+const char *str_skip_whitespaces_const(const char *str);
 
 /*
 	Function: str_comp_nocase
