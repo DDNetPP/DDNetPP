@@ -981,14 +981,13 @@ void CGameContext::OnTick()
 			}
 		}
 
-
-	if (m_CreateShopBot && (Server()->Tick() % 50 == 0))
-	{
-		CreateNewDummy(99);//shop bot
-		m_CreateShopBot = false;
-	}
-
 	DDPP_Tick();
+
+	if(m_pRandomMapResult && m_pRandomMapResult->m_Done)
+	{
+		str_copy(g_Config.m_SvMap, m_pRandomMapResult->m_aMap, sizeof(g_Config.m_SvMap));
+		m_pRandomMapResult = NULL;
+	}
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -2424,17 +2423,11 @@ void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	int stars = 0;
-	if (pResult->NumArguments())
-		stars = pResult->GetInteger(0);
+	int Stars = 0;
+	if(pResult->NumArguments())
+		Stars = pResult->GetInteger(0);
 
-	if (pSelf->m_VoteCreator == -1)
-	{
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] error server can't vote random map.");
-		return;
-	}
-
-	pSelf->m_pScore->RandomMap(pSelf->m_VoteCreator, stars);
+	pSelf->m_pScore->RandomMap(&pSelf->m_pRandomMapResult, pSelf->m_VoteCreator, Stars);
 }
 
 void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUserData)
@@ -2445,13 +2438,7 @@ void CGameContext::ConRandomUnfinishedMap(IConsole::IResult *pResult, void *pUse
 	if (pResult->NumArguments())
 		stars = pResult->GetInteger(0);
 
-	if (pSelf->m_VoteCreator == -1)
-	{
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] error server can't vote random map.");
-		return;
-	}
-
-	pSelf->m_pScore->RandomUnfinishedMap(pSelf->m_VoteCreator, stars);
+	pSelf->m_pScore->RandomUnfinishedMap(&pSelf->m_pRandomMapResult, pSelf->m_VoteCreator, stars);
 }
 
 void CGameContext::ConRestart(IConsole::IResult *pResult, void *pUserData)

@@ -1027,6 +1027,11 @@ void CGameContext::DDPP_Tick()
 		BlockWaveGameTick();
 	}
 
+	if (m_CreateShopBot && (Server()->Tick() % 50 == 0))
+	{
+		CreateNewDummy(99);//shop bot
+		m_CreateShopBot = false;
+	}
 	for (int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
 	{
 		if (!m_apPlayers[i])
