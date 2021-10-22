@@ -386,8 +386,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	char *Skin = g_Config.m_ClPlayerSkin;
 	int *UseCustomColor = &g_Config.m_ClPlayerUseCustomColor;
-	int *ColorBody = &g_Config.m_ClPlayerColorBody;
-	int *ColorFeet = &g_Config.m_ClPlayerColorFeet;
+	unsigned *ColorBody = &g_Config.m_ClPlayerColorBody;
+	unsigned *ColorFeet = &g_Config.m_ClPlayerColorFeet;
 
 	if(m_Dummy)
 	{
@@ -501,7 +501,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		aRects[0].VSplitRight(10.0f, &aRects[0], 0);
 		aRects[1].VSplitLeft(10.0f, 0, &aRects[1]);
 
-		int *paColors[2];
+		unsigned *paColors[2];
 		paColors[0] = ColorBody;
 		paColors[1] = ColorFeet;
 
@@ -1995,6 +1995,37 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	if(DoButton_CheckBox(&g_Config.m_ClAutoRaceRecord, Localize("Save the best demo of each race"), g_Config.m_ClAutoRaceRecord, &Button))
 	{
 		g_Config.m_ClAutoRaceRecord ^= 1;
+	}
+
+	{
+		CUIRect Button, Label;
+		Left.HSplitTop(20.0f, &Button, &Left);
+		Button.VSplitLeft(160.0f, &LeftLeft, &Button);
+
+		Button.VSplitLeft(140.0f, &Label, &Button);
+		Button.HMargin(2.0f, &Button);
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), Localize("Default length: %d"), g_Config.m_ClReplayLength);
+		UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
+
+		int NewValue = (int)(DoScrollbarH(&g_Config.m_ClReplayLength, &Button, (minimum(g_Config.m_ClReplayLength, 600) - 10) / 590.0f)*590.0f) + 10;
+		if(g_Config.m_ClReplayLength < 600 || NewValue < 600)
+			g_Config.m_ClReplayLength = minimum(NewValue, 600);
+
+		if(DoButton_CheckBox(&g_Config.m_ClReplays, Localize("Enable replays"), g_Config.m_ClReplays, &LeftLeft))
+		{
+			g_Config.m_ClReplays ^= 1;
+			if(!g_Config.m_ClReplays)
+			{
+				// stop recording and remove the tmp demo file
+				Client()->DemoRecorder_Stop(RECORDER_REPLAYS, true);
+			}
+			else
+			{
+				// start recording
+				Client()->DemoRecorder_HandleAutoStart();
+			}
+		}
 	}
 
 	Right.HSplitTop(20.0f, &Button, &Right);

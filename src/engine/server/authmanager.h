@@ -11,7 +11,6 @@ class CAuthManager
 private:
 	enum
 	{
-		AUTHED_HONEY = -1,
 		AUTHED_NO = 0,
 		AUTHED_HELPER,
 		AUTHED_MOD,

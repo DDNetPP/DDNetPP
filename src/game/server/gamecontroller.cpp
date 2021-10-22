@@ -265,8 +265,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			true, //Freeze 
 			true, //Explosive
 			0, //Force
-			(g_Config.m_SvShotgunBulletSound) ? SOUND_GRENADE_EXPLODE : -1,//SoundImpact
-			WEAPON_SHOTGUN,//Weapon
+			(g_Config.m_SvShotgunBulletSound)?SOUND_GRENADE_EXPLODE:-1,//SoundImpact
 			Layer,
 			Number
 		);
@@ -296,7 +295,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			false, //Explosive
 			0,
 			SOUND_GRENADE_EXPLODE,
-			WEAPON_SHOTGUN, //Weapon
 			Layer,
 			Number
 		);
@@ -751,7 +749,7 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_ENTITIES_RACE |
 		GAMEINFOFLAG_RACE;
 	pGameInfoEx->m_Flags2 = 0;
-	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
+	pGameInfoEx->m_Version = 6; /* TODO: use GAMEINFO_CURVERSION */;
 
 	if (pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
 		pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;

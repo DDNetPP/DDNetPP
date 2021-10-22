@@ -25,6 +25,7 @@ GameInfoFlags = [
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
 Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA"]
+Authed = ["NO", "HELPER", "MOD", "ADMIN"]
 
 RawHeader = '''
 
@@ -49,16 +50,6 @@ enum
 	SPEC_FREEVIEW=-1,
 	SPEC_FOLLOW=-2,
 };
-
-enum
-{
-	GAMEINFO_CURVERSION=6,
-	AUTHED_HONEY=-1,
-	AUTHED_NO=0,
-	AUTHED_HELPER,
-	AUTHED_MOD,
-	AUTHED_ADMIN,
-};
 '''
 
 RawSource = '''
@@ -69,15 +60,16 @@ RawSource = '''
 Enums = [
 	Enum("EMOTE", Emotes),
 	Enum("POWERUP", Powerups),
-	Enum("EMOTICON", Emoticons)
+	Enum("EMOTICON", Emoticons),
+	Enum("AUTHED", Authed),
 ]
 
 Flags = [
 	Flags("PLAYERFLAG", PlayerFlags),
 	Flags("GAMEFLAG", GameFlags),
 	Flags("GAMESTATEFLAG", GameStateFlags),
-	Flags("GAMEINFOFLAG", GameInfoFlags),
 	Flags("CHARACTERFLAG", CharacterFlags),
+	Flags("GAMEINFOFLAG", GameInfoFlags),
 ]
 
 Objects = [
@@ -239,6 +231,15 @@ Objects = [
 		NetIntRange("m_Jumps", 0, 255),
 		NetIntAny("m_TeleCheckpoint"),
 		NetIntRange("m_StrongWeakID", 0, 'MAX_CLIENTS-1'),
+	]),
+
+	NetObjectEx("DDNetPlayer", "player@netobj.ddnet.tw", [
+		NetIntAny("m_Flags"),
+		NetIntRange("m_AuthLevel", "AUTHED_NO", "AUTHED_ADMIN"),
+	]),
+
+	NetObjectEx("DDNetGameInfo", "gameinfo@netobj.ddnet.tw", [
+		NetIntAny("m_Flags"),
 	]),
 
 	## Events

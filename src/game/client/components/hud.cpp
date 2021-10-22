@@ -340,7 +340,7 @@ void CHud::RenderScoreHud()
 				{
 					CServerInfo Info;
 					Client()->GetServerInfo(&Info);
-					if(IsRace(&Info) && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy])
+					if(m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard)
 					{
 						if(apPlayerInfo[t]->m_Score != -9999)
 							str_format(aScore[t], sizeof(aScore[t]), "%02d:%02d", abs(apPlayerInfo[t]->m_Score)/60, abs(apPlayerInfo[t]->m_Score)%60);
@@ -768,6 +768,31 @@ void CHud::RenderLocalTime(float x)
 	TextRender()->Text(0, x-25.0f, (12.5f - 5.f) / 2.f, 5.0f, aTimeStr, -1);
 }
 
+void CHud::RenderPlayTime(float x)
+{
+	if(!g_Config.m_ClShowPlayTimeAlways && !m_pClient->m_pScoreboard->Active())
+		return;
+
+	// get the time
+	char aPlayTimeStr[6];
+	time_t CurrTime;
+	time(&CurrTime);
+	int Time = m_pClient->GetPlayTime(CurrTime) / 60;
+	str_format(aPlayTimeStr, sizeof(aPlayTimeStr), "%02d:%02d", Time/60, Time%60);
+
+	//draw the box
+	Graphics()->BlendNormal();
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(0.0f, 0.0f, 0.0f, 0.4f);
+	RenderTools()->DrawRoundRectExt(x-95.0f, 0.0f, 30.0f+TextRender()->TextWidth(0, 12, aPlayTimeStr, -1)/2, 12.5f, 3.75f, CUI::CORNER_B);
+	Graphics()->QuadsEnd();
+
+	//draw the text
+	TextRender()->Text(0, x-70.0f, (12.5f - 5.f) / 2.f, 5.0f, aPlayTimeStr, -1);
+	TextRender()->Text(0, x-90.0f, (12.5f - 5.f) / 2.f, 5.0f, "PLAYED", -1);
+}
+
 void CHud::OnRender()
 {
 	if(!m_pClient->m_Snap.m_pGameInfoObj)
@@ -800,12 +825,14 @@ void CHud::OnRender()
 		RenderWarmupTimer();
 		RenderTextInfo();
 		RenderLocalTime((m_Width/7)*3);
+		RenderPlayTime((m_Width/7)*3);
 		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
 			RenderConnectionWarning();
 		RenderTeambalanceWarning();
 		RenderVoting();
 		if(g_Config.m_ClShowRecord)
 			RenderRecord();
+
 	}
 	RenderCursor();
 }

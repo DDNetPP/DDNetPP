@@ -112,6 +112,8 @@ class CGameClient : public IGameClient
 
 	int m_CheckInfo[2];
 
+	time_t m_InitTime;
+
 	static void ConTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
 
@@ -145,6 +147,8 @@ public:
 	int NetobjNumCorrections() { return m_NetObjHandler.NumObjCorrections(); }
 	const char *NetobjCorrectedOn() { return m_NetObjHandler.CorrectedObjOn(); }
 
+	double GetPlayTime(time_t Curr){ return difftime(Curr, m_InitTime); };
+
 	bool m_SuppressEvents;
 	bool m_NewTick;
 	bool m_NewPredictedTick;
@@ -160,8 +164,6 @@ public:
 		SERVERMODE_PUREMOD,
 	};
 	int m_ServerMode;
-
-	int m_AllowTimeScore[2];
 
 	int m_DemoSpecID;
 
@@ -189,6 +191,8 @@ public:
 		const CNetObj_PlayerInfo *m_paInfoByName[MAX_CLIENTS];
 		//const CNetObj_PlayerInfo *m_paInfoByTeam[MAX_CLIENTS];
 		const CNetObj_PlayerInfo *m_paInfoByDDTeam[MAX_CLIENTS];
+
+		const CNetObj_DDNetGameInfo *m_pGameInfoEx;
 
 		int m_LocalClientID;
 		int m_NumPlayers;
@@ -223,6 +227,8 @@ public:
 	};
 
 	CSnapState m_Snap;
+
+	bool TimeScore();
 
 	// client data
 	struct CClientData
@@ -347,7 +353,6 @@ public:
 	virtual void OnEnterGame();
 	virtual void OnRconType(bool UsernameReq);
 	virtual void OnRconLine(const char *pLine);
-	virtual void OnTimeScore(int AllowTimeScore, bool Dummy);
 	virtual void OnGameOver();
 	virtual void OnStartGame();
 	virtual void OnFlagGrab(int TeamID);
@@ -416,6 +421,8 @@ public:
 	CGameWorld m_GameWorld;
 	CGameWorld m_PredictedWorld;
 	CGameWorld m_PrevPredictedWorld;
+
+	void Echo(const char *pString);
 
 private:
 	bool m_DDRaceMsgSent[2];

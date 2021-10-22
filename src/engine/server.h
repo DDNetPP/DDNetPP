@@ -12,6 +12,8 @@
 #include <game/generated/protocol.h>
 #include <engine/shared/protocol.h>
 
+#define AUTHED_HONEY -1 // ddnet++
+
 class IServer : public IInterface
 {
 	MACRO_INTERFACE("server", 0)

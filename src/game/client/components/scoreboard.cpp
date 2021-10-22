@@ -231,7 +231,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 	}
 
-	if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy])
+	if(m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard)
 	{
 		if (m_ServerRecord > 0)
 		{
@@ -294,7 +294,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 	// render headlines
 	y += 50.0f;
 	float HeadlineFontsize = 22.0f;
-	const char* pScore = (m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy]) ? Localize("Time") : Localize("Score");
+	const char *pScore = (m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard) ? Localize("Time") : Localize("Score");
 	float ScoreWidth = TextRender()->TextWidth(0, HeadlineFontsize, pScore, -1);
 	tw = ScoreLength > ScoreWidth ? ScoreLength : ScoreWidth;
 	TextRender()->Text(0, ScoreOffset+ScoreLength-tw, y + (HeadlineFontsize * 2.f - HeadlineFontsize) / 2.f, HeadlineFontsize, pScore, -1);
@@ -414,7 +414,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 
 		// score
-		if(m_IsGameTypeRace && g_Config.m_ClDDRaceScoreBoard && m_pClient->m_AllowTimeScore[g_Config.m_ClDummy])
+		if(m_pClient->TimeScore() && g_Config.m_ClDDRaceScoreBoard)
 		{
 			if (pInfo->m_Score == -9999)
 				aBuf[0] = 0;
@@ -525,7 +525,8 @@ void CScoreboard::RenderRecordingNotification(float x)
 {
 	if(!m_pClient->DemoRecorder(RECORDER_MANUAL)->IsRecording() &&
 	   !m_pClient->DemoRecorder(RECORDER_AUTO)->IsRecording() &&
-	   !m_pClient->DemoRecorder(RECORDER_RACE)->IsRecording())
+	   !m_pClient->DemoRecorder(RECORDER_RACE)->IsRecording() &&
+	   !m_pClient->DemoRecorder(RECORDER_REPLAYS)->IsRecording())
 	{
 		return;
 	}
@@ -551,6 +552,12 @@ void CScoreboard::RenderRecordingNotification(float x)
 	{
 		Seconds = m_pClient->DemoRecorder(RECORDER_AUTO)->Length();
 		str_format(aBuf2, sizeof(aBuf2), Localize("Auto %3d:%02d  "), Seconds/60, Seconds%60);
+		str_append(aBuf, aBuf2, sizeof(aBuf));
+	}
+	if(m_pClient->DemoRecorder(RECORDER_REPLAYS)->IsRecording())
+	{
+		Seconds = m_pClient->DemoRecorder(RECORDER_REPLAYS)->Length();
+		str_format(aBuf2, sizeof(aBuf2), Localize("Replay %3d:%02d  "), Seconds / 60, Seconds % 60);
 		str_append(aBuf, aBuf2, sizeof(aBuf));
 	}
 

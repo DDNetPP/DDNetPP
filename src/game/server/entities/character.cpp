@@ -848,19 +848,18 @@ void CCharacter::FireWeapon(bool Bot)
 			if(!SpecialGunProjectile(Direction, ProjStartPos, Lifetime))
 			{
 				CProjectile *pProj = new CProjectile
-				(
-					GameWorld(),
-					WEAPON_GUN,//Type
-					m_pPlayer->GetCID(),//Owner
-					ProjStartPos,//Pos
-					Direction,//Dir
-					Lifetime,//Span
-					0,//Freeze
-					0,//Explosive
-					0,//Force
-					-1,//SoundImpact
-					WEAPON_GUN//Weapon
-				);
+						(
+						GameWorld(),
+						WEAPON_GUN,//Type
+						m_pPlayer->GetCID(),//Owner
+						ProjStartPos,//Pos
+						Direction,//Dir
+						Lifetime,//Span
+						0,//Freeze
+						0,//Explosive
+						0,//Force
+						-1//SoundImpact
+						);
 
 				// pack the Projectile and send it to the client Directly
 				CNetObj_Projectile p;
@@ -906,7 +905,6 @@ void CCharacter::FireWeapon(bool Bot)
 			m_pPlayer->m_GrenadeShotsNoRJ++;
 		}
 
-
 		int Lifetime;
 		if (!m_TuneZone)
 			Lifetime = (int)(Server()->TickSpeed()*GameServer()->Tuning()->m_GrenadeLifetime);
@@ -920,19 +918,18 @@ void CCharacter::FireWeapon(bool Bot)
 		else
 		{
 			CProjectile *pProj = new CProjectile
-			(
-				GameWorld(),
-				WEAPON_GRENADE,//Type
-				m_pPlayer->GetCID(),//Owner
-				ProjStartPos,//Pos
-				Direction,//Dir
-				Lifetime,//Span
-				0,//Freeze
-				true,//Explosive
-				0,//Force
-				SOUND_GRENADE_EXPLODE,//SoundImpact
-				WEAPON_GRENADE//Weapon
-			);//SoundImpact
+					(
+					GameWorld(),
+					WEAPON_GRENADE,//Type
+					m_pPlayer->GetCID(),//Owner
+					ProjStartPos,//Pos
+					Direction,//Dir
+					Lifetime,//Span
+					0,//Freeze
+					true,//Explosive
+					0,//Force
+					SOUND_GRENADE_EXPLODE//SoundImpact
+					);//SoundImpact
 
 			  // pack the Projectile and send it to the client Directly
 			CNetObj_Projectile p;
@@ -1528,7 +1525,8 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 	// a nice sound
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-	// this is for auto respawn after 3 secs
+	// this is to rate limit respawning to 3 secs
+	m_pPlayer->m_PreviousDieTick = m_pPlayer->m_DieTick;
 	m_pPlayer->m_DieTick = Server()->Tick();
 
 	m_Alive = false;

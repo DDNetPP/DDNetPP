@@ -274,6 +274,7 @@ void CGameClient::OnConsoleInit()
 
 void CGameClient::OnInit()
 {
+	time(&m_InitTime);
 	m_pGraphics = Kernel()->RequestInterface<IGraphics>();
 
 	m_pGraphics->AddWindowResizeListener(OnWindowResizeCB, this);
@@ -627,8 +628,8 @@ void CGameClient::OnRender()
 			m_aClients[m_LocalIDs[0]].m_Country != g_Config.m_PlayerCountry ||
 			str_comp(m_aClients[m_LocalIDs[0]].m_aSkinName, g_Config.m_ClPlayerSkin) ||
 			m_aClients[m_LocalIDs[0]].m_UseCustomColor != g_Config.m_ClPlayerUseCustomColor ||
-			m_aClients[m_LocalIDs[0]].m_ColorBody != g_Config.m_ClPlayerColorBody ||
-			m_aClients[m_LocalIDs[0]].m_ColorFeet != g_Config.m_ClPlayerColorFeet
+			m_aClients[m_LocalIDs[0]].m_ColorBody != (int)g_Config.m_ClPlayerColorBody ||
+			m_aClients[m_LocalIDs[0]].m_ColorFeet != (int)g_Config.m_ClPlayerColorFeet
 			)
 				SendInfo(false);
 			else
@@ -646,8 +647,8 @@ void CGameClient::OnRender()
 				m_aClients[m_LocalIDs[1]].m_Country != g_Config.m_ClDummyCountry ||
 				str_comp(m_aClients[m_LocalIDs[1]].m_aSkinName, g_Config.m_ClDummySkin) ||
 				m_aClients[m_LocalIDs[1]].m_UseCustomColor != g_Config.m_ClDummyUseCustomColor ||
-				m_aClients[m_LocalIDs[1]].m_ColorBody != g_Config.m_ClDummyColorBody ||
-				m_aClients[m_LocalIDs[1]].m_ColorFeet != g_Config.m_ClDummyColorFeet
+				m_aClients[m_LocalIDs[1]].m_ColorBody != (int)g_Config.m_ClDummyColorBody ||
+				m_aClients[m_LocalIDs[1]].m_ColorFeet != (int)g_Config.m_ClDummyColorFeet
 				)
 					SendDummyInfo(false);
 				else
@@ -906,11 +907,6 @@ void CGameClient::OnRconLine(const char *pLine)
 	m_pGameConsole->PrintLine(CGameConsole::CONSOLETYPE_REMOTE, pLine);
 }
 
-void CGameClient::OnTimeScore(int AllowTimeScore, bool Dummy)
-{
-	m_AllowTimeScore[Dummy] = AllowTimeScore;
-}
-
 void CGameClient::ProcessEvents()
 {
 	if(m_SuppressEvents)
@@ -974,7 +970,7 @@ void CGameClient::OnNewSnapshot()
 			void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, Index, &Item);
 			if(m_NetObjHandler.ValidateObj(Item.m_Type, pData, Item.m_DataSize) != 0)
 			{
-				if(g_Config.m_Debug)
+				if(g_Config.m_Debug && Item.m_Type != UUID_UNKNOWN)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "invalidated index=%d type=%d (%s) size=%d id=%d", Index, Item.m_Type, m_NetObjHandler.GetObjName(Item.m_Type), Item.m_DataSize, Item.m_ID);
@@ -1084,6 +1080,11 @@ void CGameClient::OnNewSnapshot()
 					m_aStats[pInfo->m_ClientID].JoinSpec(Client()->GameTick());
 
 			}
+			else if(Item.m_Type == NETOBJTYPE_DDNETPLAYER)
+			{
+				const CNetObj_DDNetPlayer *pInfo = (const CNetObj_DDNetPlayer *)pData;
+				m_aClients[Item.m_ID].m_AuthLevel = pInfo->m_AuthLevel;
+			}
 			else if(Item.m_Type == NETOBJTYPE_CHARACTER)
 			{
 				const void *pOld = Client()->SnapFindItem(IClient::SNAP_PREV, NETOBJTYPE_CHARACTER, Item.m_ID);
@@ -1173,6 +1174,10 @@ void CGameClient::OnNewSnapshot()
 				s_GameOver = CurrentTickGameOver;
 				s_GamePaused = (bool)(m_Snap.m_pGameInfoObj->m_GameStateFlags & GAMESTATEFLAG_PAUSED);
 			}
+			else if(Item.m_Type == NETOBJTYPE_DDNETGAMEINFO)
+			{
+				m_Snap.m_pGameInfoEx = (const CNetObj_DDNetGameInfo *)pData;
+			}
 			else if(Item.m_Type == NETOBJTYPE_GAMEDATA)
 			{
 				m_Snap.m_pGameDataObj = (const CNetObj_GameData *)pData;
@@ -1201,8 +1206,6 @@ void CGameClient::OnNewSnapshot()
 			}
 			else if(Item.m_Type == NETOBJTYPE_FLAG)
 				m_Snap.m_paFlags[Item.m_ID%2] = (const CNetObj_Flag *)pData;
-			else if(Item.m_Type == NETOBJTYPE_AUTHINFO)
-				m_aClients[Item.m_ID].m_AuthLevel = ((const CNetObj_AuthInfo *)pData)->m_AuthLevel;
 		}
 	}
 
@@ -1818,23 +1821,27 @@ int CGameClient::IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2& NewPos2, in
 	float Distance = 0.0f;
 	int ClosestID = -1;
 
-	CClientData OwncData = m_aClients[ownID];
-
-	if(!OwncData.m_Super && !m_Tuning[g_Config.m_ClDummy].m_PlayerHooking)
-		return ClosestID;
+	CClientData OwnClientData = m_aClients[ownID];
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
+		if(i == ownID)
+			continue;
+
 		CClientData cData = m_aClients[i];
+
+		if(!cData.m_Active)
+			continue;
+
 		CNetObj_Character Prev = m_Snap.m_aCharacters[i].m_Prev;
 		CNetObj_Character Player = m_Snap.m_aCharacters[i].m_Cur;
 
 		vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Player.m_X, Player.m_Y), Client()->IntraGameTick());
 
-		bool IsOneSuper = cData.m_Super || OwncData.m_Super;
-		bool IsOneSolo = cData.m_Solo || OwncData.m_Solo;
+		bool IsOneSuper = cData.m_Super || OwnClientData.m_Super;
+		bool IsOneSolo = cData.m_Solo || OwnClientData.m_Solo;
 
-		if(!cData.m_Active || i == ownID || (!IsOneSuper && (!m_Teams.SameTeam(i, ownID) || IsOneSolo || OwncData.m_NoHookHit)))
+		if(!IsOneSuper && (!m_Teams.SameTeam(i, ownID) || IsOneSolo || OwnClientData.m_NoHookHit))
 			continue;
 
 		vec2 ClosestPoint = closest_point_on_line(HookPos, NewPos, Position);
@@ -1975,6 +1982,13 @@ void CGameClient::UpdatePrediction()
 			m_aLastWorldCharacters[i] = *pChar;
 			m_aLastWorldCharacters[i].DetachFromGameWorld();
 		}
+}
+
+bool CGameClient::TimeScore()
+{
+	CServerInfo Info;
+	Client()->GetServerInfo(&Info);
+	return m_Snap.m_pGameInfoEx ? m_Snap.m_pGameInfoEx->m_Flags & GAMEINFOFLAG_TIMESCORE : IsRace(&Info);
 }
 
 void CGameClient::UpdateRenderedCharacters()
@@ -2133,4 +2147,9 @@ vec2 CGameClient::GetSmoothPos(int ClientID)
 		}
 	}
 	return Pos;
+}
+
+void CGameClient::Echo(const char *pString)
+{
+	m_pChat->Echo(pString);
 }

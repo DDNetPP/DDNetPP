@@ -286,7 +286,6 @@ CServer::CServer()
 
 	m_ServerInfoFirstRequest = 0;
 	m_ServerInfoNumRequests = 0;
-	m_ServerInfoHighLoad = false;
 
 #ifdef CONF_FAMILY_UNIX
 	m_ConnLoggingSocketCreated = false;
@@ -1508,20 +1507,24 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 void CServer::SendServerInfoConnless(const NETADDR *pAddr, int Token, int Type)
 {
-	const int MaxRequests = g_Config.m_SvServerInfoPerSecond;
-	int64 Now = Tick();
-	if(Now <= m_ServerInfoFirstRequest + TickSpeed())
+	bool SendClients = true;
+
+	if(g_Config.m_SvServerInfoPerSecond)
 	{
-		m_ServerInfoNumRequests++;
-	}
-	else
-	{
-		m_ServerInfoHighLoad = m_ServerInfoNumRequests > MaxRequests;
-		m_ServerInfoNumRequests = 1;
-		m_ServerInfoFirstRequest = Now;
+		SendClients = m_ServerInfoNumRequests <= g_Config.m_SvServerInfoPerSecond;
+		const int64 Now = Tick();
+
+		if(Now <= m_ServerInfoFirstRequest + TickSpeed())
+		{
+			m_ServerInfoNumRequests++;
+		}
+		else
+		{
+			m_ServerInfoNumRequests = 1;
+			m_ServerInfoFirstRequest = Now;
+		}
 	}
 
-	bool SendClients = m_ServerInfoNumRequests <= MaxRequests && !m_ServerInfoHighLoad;
 	SendServerInfo(pAddr, Token, Type, SendClients);
 }
 
@@ -1589,7 +1592,10 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	p.AddString(GameServer()->GameType(), 16);
 
 	// flags
-	ADD_INT(p, g_Config.m_Password[0] ? SERVER_FLAG_PASSWORD : 0);
+	int Flags = SERVER_FLAG_ISDDNET;
+	if(g_Config.m_Password[0])
+		Flags |= SERVER_FLAG_PASSWORD;
+	ADD_INT(p, Flags);
 
 	int MaxClients = m_NetServer.MaxClients();
 	if(Type == SERVERINFO_VANILLA || Type == SERVERINFO_INGAME)
