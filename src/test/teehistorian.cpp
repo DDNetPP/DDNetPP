@@ -57,6 +57,7 @@ protected:
 		m_GameInfo.m_GameUuid = CalculateUuid("test@ddnet.tw");
 		m_GameInfo.m_pServerVersion = "DDNet test";
 		m_GameInfo.m_StartTime = time(0);
+		m_GameInfo.m_pPrngDescription = "test-prng:02468ace";
 
 		m_GameInfo.m_pServerName = "server name";
 		m_GameInfo.m_ServerPort = 8303;
@@ -91,7 +92,7 @@ protected:
 	{
 		static CUuid TEEHISTORIAN_UUID = CalculateUuid("teehistorian@ddnet.tw");
 		static const char PREFIX1[] = "{\"comment\":\"teehistorian@ddnet.tw\",\"version\":\"2\",\"game_uuid\":\"a1eb7182-796e-3b3e-941d-38ca71b2a4a8\",\"server_version\":\"DDNet test\",\"start_time\":\"";
-		static const char PREFIX2[] = "\",\"server_name\":\"server name\",\"server_port\":\"8303\",\"game_type\":\"game type\",\"map_name\":\"Kobra 3 Solo\",\"map_size\":\"903514\",\"map_sha256\":\"0123456789012345678901234567890123456789012345678901234567890123\",\"map_crc\":\"eceaf25c\",\"config\":{},\"tuning\":{},\"uuids\":[";
+		static const char PREFIX2[] = "\",\"server_name\":\"server name\",\"server_port\":\"8303\",\"game_type\":\"game type\",\"map_name\":\"Kobra 3 Solo\",\"map_size\":\"903514\",\"map_sha256\":\"0123456789012345678901234567890123456789012345678901234567890123\",\"map_crc\":\"eceaf25c\",\"prng_description\":\"test-prng:02468ace\",\"config\":{},\"tuning\":{},\"uuids\":[";
 		static const char PREFIX3[] = "]}";
 
 		char aTimeBuf[64];
@@ -315,6 +316,43 @@ TEST_F(TeeHistorian, ExtraMessage)
 		0x40, // FINISH
 	};
 	Tick(1); Inputs(); m_TH.RecordTestExtra();
+	Finish();
+	Expect(EXPECTED, sizeof(EXPECTED));
+}
+
+TEST_F(TeeHistorian, DDNetVersion)
+{
+	const unsigned char EXPECTED[] = {
+		// EX uuid=60daba5c-52c4-3aeb-b8ba-b2953fb55a17 data_len=50
+		0x4a,
+		0x13, 0x97, 0xb6, 0x3e, 0xee, 0x4e, 0x39, 0x19,
+		0xb8, 0x6a, 0xb0, 0x58, 0x88, 0x7f, 0xca, 0xf5,
+		0x32,
+		// (DDNETVER) cid=0 connection_id=fb13a576-d35f-4893-b815-eedc6d98015b
+		// ddnet_version=13010 ddnet_version_str=DDNet 13.1 (3623f5e4cd184556)
+		0x00,
+		0xfb, 0x13, 0xa5, 0x76, 0xd3, 0x5f, 0x48, 0x93,
+		0xb8, 0x15, 0xee, 0xdc, 0x6d, 0x98, 0x01, 0x5b,
+		0x92, 0xcb, 0x01, 'D',  'D',  'N',  'e',  't',
+		' ',  '1',  '3',  '.',  '1',  ' ',  '(',  '3',
+		'6',  '2',  '3',  'f',  '5',  'e',  '4',  'c',
+		'd',  '1',  '8',  '4',  '5',  '5',  '6',  ')',
+		0x00,
+		// EX uuid=1397b63e-ee4e-3919-b86a-b058887fcaf5 data_len=4
+		0x4a,
+		0x41, 0xb4, 0x95, 0x41, 0xf2, 0x6f, 0x32, 0x5d,
+		0x87, 0x15, 0x9b, 0xaf, 0x4b, 0x54, 0x4e, 0xf9,
+		0x04,
+		// (DDNETVER_OLD) cid=1 ddnet_version=13010
+		0x01, 0x92, 0xcb, 0x01,
+		0x40, // FINISH
+	};
+	CUuid ConnectionID = {
+		0xfb, 0x13, 0xa5, 0x76, 0xd3, 0x5f, 0x48, 0x93,
+		0xb8, 0x15, 0xee, 0xdc, 0x6d, 0x98, 0x01, 0x5b,
+	};
+	m_TH.RecordDDNetVersion(0, ConnectionID, 13010, "DDNet 13.1 (3623f5e4cd184556)");
+	m_TH.RecordDDNetVersionOld(1, 13010);
 	Finish();
 	Expect(EXPECTED, sizeof(EXPECTED));
 }

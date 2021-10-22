@@ -704,7 +704,7 @@ void CCharacter::FireWeapon(bool Bot)
 		}
 	}
 
-	if (FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+	if(FullAuto && (m_LatestInput.m_Fire&1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo && !m_FreezeTime)
 		WillFire = true;
 
 	if (!WillFire && !m_Fire)
@@ -1256,7 +1256,7 @@ void CCharacter::Tick()
 	DDPP_Tick();
 	DDRaceTick();
 
-	Antibot()->OnTick(m_pPlayer->GetCID());
+	Antibot()->OnCharacterTick(m_pPlayer->GetCID());
 
 	m_Core.m_Input = m_Input;
 
@@ -1339,7 +1339,7 @@ void CCharacter::TickDefered()
 	// advance the dummy
 	{
 		CWorldCore TempWorld;
-		m_ReckoningCore.Init(&TempWorld, GameServer()->Collision(), &((CGameControllerDDRace*)GameServer()->m_pController)->m_Teams.m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
+		m_ReckoningCore.Init(&TempWorld, GameServer()->Collision(), &Teams()->m_Core, &((CGameControllerDDRace*)GameServer()->m_pController)->m_TeleOuts);
 		m_ReckoningCore.m_Id = m_pPlayer->GetCID();
 		m_ReckoningCore.Tick(false);
 		m_ReckoningCore.Move();
@@ -2234,9 +2234,9 @@ void CCharacter::HandleBroadcast()
 {
 	CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
 
-	if (m_DDRaceState == DDRACE_STARTED && m_CpLastBroadcast != m_CpActive &&
-		m_CpActive > -1 && m_CpTick > Server()->Tick() && m_pPlayer->m_ClientVersion == VERSION_VANILLA &&
-		pData->m_BestTime && pData->m_aBestCpTime[m_CpActive] != 0)
+	if(m_DDRaceState == DDRACE_STARTED && m_CpLastBroadcast != m_CpActive &&
+			m_CpActive > -1 && m_CpTick > Server()->Tick() && m_pPlayer->GetClientVersion() == VERSION_VANILLA &&
+			pData->m_BestTime && pData->m_aBestCpTime[m_CpActive] != 0)
 	{
 		char aBroadcast[128];
 		float Diff = m_CpCurrent[m_CpActive] - pData->m_aBestCpTime[m_CpActive];
@@ -2396,7 +2396,7 @@ void CCharacter::HandleTiles(int Index)
 		m_CpActive = cp;
 		m_CpCurrent[cp] = m_Time;
 		m_CpTick = Server()->Tick() + Server()->TickSpeed() * 2;
-		if (m_pPlayer->m_ClientVersion >= VERSION_DDRACE) {
+		if(m_pPlayer->GetClientVersion() >= VERSION_DDRACE) {
 			CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
 			CNetMsg_Sv_DDRaceTime Msg;
 			Msg.m_Time = (int)m_Time;
@@ -2420,8 +2420,8 @@ void CCharacter::HandleTiles(int Index)
 	{
 		m_CpActive = cpf;
 		m_CpCurrent[cpf] = m_Time;
-		m_CpTick = Server()->Tick() + Server()->TickSpeed() * 2;
-		if (m_pPlayer->m_ClientVersion >= VERSION_DDRACE) {
+		m_CpTick = Server()->Tick() + Server()->TickSpeed()*2;
+		if(m_pPlayer->GetClientVersion() >= VERSION_DDRACE) {
 			CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
 			CNetMsg_Sv_DDRaceTime Msg;
 			Msg.m_Time = (int)m_Time;
@@ -2878,9 +2878,9 @@ void CCharacter::HandleTiles(int Index)
 	{
 		if (m_Super)
 			return;
-		int Num = Controller->m_TeleOuts[z - 1].size();
-		m_Core.m_Pos = Controller->m_TeleOuts[z - 1][(!Num) ? Num : rand() % Num];
-		if (!g_Config.m_SvTeleportHoldHook)
+		int TeleOut = m_Core.m_pWorld->RandomOr0(Controller->m_TeleOuts[z-1].size());
+		m_Core.m_Pos = Controller->m_TeleOuts[z-1][TeleOut];
+		if(!g_Config.m_SvTeleportHoldHook)
 		{
 			m_Core.m_HookedPlayer = -1;
 			m_Core.m_HookState = HOOK_RETRACTED;
@@ -2899,8 +2899,8 @@ void CCharacter::HandleTiles(int Index)
 	{
 		if (m_Super)
 			return;
-		int Num = Controller->m_TeleOuts[evilz - 1].size();
-		m_Core.m_Pos = Controller->m_TeleOuts[evilz - 1][(!Num) ? Num : rand() % Num];
+		int TeleOut = m_Core.m_pWorld->RandomOr0(Controller->m_TeleOuts[evilz-1].size());
+		m_Core.m_Pos = Controller->m_TeleOuts[evilz-1][TeleOut];
 		if (!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons)
 		{
 			m_Core.m_Vel = vec2(0, 0);
@@ -2930,8 +2930,8 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (Controller->m_TeleCheckOuts[k].size())
 			{
-				int Num = Controller->m_TeleCheckOuts[k].size();
-				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num)?Num:rand() % Num];
+				int TeleOut = m_Core.m_pWorld->RandomOr0(Controller->m_TeleCheckOuts[k].size());
+				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][TeleOut];
 				m_Core.m_Vel = vec2(0,0);
 
 				if(!g_Config.m_SvTeleportHoldHook)
@@ -2973,8 +2973,8 @@ void CCharacter::HandleTiles(int Index)
 		{
 			if (Controller->m_TeleCheckOuts[k].size())
 			{
-				int Num = Controller->m_TeleCheckOuts[k].size();
-				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][(!Num)?Num:rand() % Num];
+				int TeleOut = m_Core.m_pWorld->RandomOr0(Controller->m_TeleCheckOuts[k].size());
+				m_Core.m_Pos = Controller->m_TeleCheckOuts[k][TeleOut];
 
 				if(!g_Config.m_SvTeleportHoldHook)
 				{
@@ -3059,7 +3059,7 @@ void CCharacter::SendZoneMsgs()
 	}
 }
 
-CAntibot *CCharacter::Antibot()
+IAntibot *CCharacter::Antibot()
 {
 	return GameServer()->Antibot();
 }
@@ -3095,7 +3095,8 @@ void CCharacter::DDRaceTick()
 
 	HandleTuneLayer(); // need this before coretick
 
-	{
+	// look for save position for rescue feature
+	if(g_Config.m_SvRescue || (Team() > TEAM_FLOCK && Team() < TEAM_SUPER)) {
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);

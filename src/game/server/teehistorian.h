@@ -23,6 +23,7 @@ public:
 		CUuid m_GameUuid;
 		const char *m_pServerVersion;
 		time_t m_StartTime;
+		const char *m_pPrngDescription;
 
 		const char *m_pServerName;
 		int m_ServerPort;
@@ -62,6 +63,9 @@ public:
 	void EndInputs();
 
 	void EndTick();
+
+	void RecordDDNetVersionOld(int ClientID, int DDNetVersion);
+	void RecordDDNetVersion(int ClientID, CUuid ConnectionID, int DDNetVersion, const char *pDDNetVersionStr);
 
 	void RecordAuthInitial(int ClientID, int Level, const char *pAuthName);
 	void RecordAuthLogin(int ClientID, int Level, const char *pAuthName);

@@ -410,18 +410,18 @@ bool CSqlScore::MapInfoThread(CSqlServer* pSqlServer, const CSqlData *pGameData,
 			int ago = pSqlServer->GetResults()->getInt("Ago");
 			float ownTime = (float)pSqlServer->GetResults()->getDouble("OwnTime");
 
-			char pAgoString[40] = "\0";
-			char pReleasedString[60] = "\0";
+			char aAgoString[40] = "\0";
+			char aReleasedString[60] = "\0";
 			if(stamp != 0)
 			{
-				sqlstr::AgoTimeToString(ago, pAgoString);
-				str_format(pReleasedString, sizeof(pReleasedString), ", released %s ago", pAgoString);
+				sqlstr::AgoTimeToString(ago, aAgoString);
+				str_format(aReleasedString, sizeof(aReleasedString), ", released %s ago", aAgoString);
 			}
 
-			char pAverageString[60] = "\0";
+			char aAverageString[60] = "\0";
 			if(average > 0)
 			{
-				str_format(pAverageString, sizeof(pAverageString), " in %d:%02d average", average / 60, average % 60);
+				str_format(aAverageString, sizeof(aAverageString), " in %d:%02d average", average / 60, average % 60);
 			}
 
 			char aStars[20];
@@ -436,13 +436,13 @@ bool CSqlScore::MapInfoThread(CSqlServer* pSqlServer, const CSqlData *pGameData,
 				default: aStars[0] = '\0';
 			}
 
-			char pOwnFinishesString[40] = "\0";
+			char aOwnFinishesString[40] = "\0";
 			if(ownTime > 0)
 			{
-				str_format(pOwnFinishesString, sizeof(pOwnFinishesString), ", your time: %02d:%05.2f", (int)(ownTime/60), ownTime-((int)ownTime/60*60));
+				str_format(aOwnFinishesString, sizeof(aOwnFinishesString), ", your time: %02d:%05.2f", (int)(ownTime/60), ownTime-((int)ownTime/60*60));
 			}
 
-			str_format(aBuf, sizeof(aBuf), "\"%s\" by %s on %s, %s, %d %s%s, %d %s by %d %s%s%s", aMap, aMapper, aServer, aStars, points, points == 1 ? "point" : "points", pReleasedString, finishes, finishes == 1 ? "finish" : "finishes", finishers, finishers == 1 ? "tee" : "tees", pAverageString, pOwnFinishesString);
+			str_format(aBuf, sizeof(aBuf), "\"%s\" by %s on %s, %s, %d %s%s, %d %s by %d %s%s%s", aMap, aMapper, aServer, aStars, points, points == 1 ? "point" : "points", aReleasedString, finishes, finishes == 1 ? "finish" : "finishes", finishers, finishers == 1 ? "tee" : "tees", aAverageString, aOwnFinishesString);
 		}
 
 		pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
@@ -596,8 +596,8 @@ bool CSqlScore::SaveTeamScoreThread(CSqlServer* pSqlServer, const CSqlData *pGam
 		IOHANDLE File = io_open(g_Config.m_SvSqlFailureFile, IOFLAG_APPEND);
 		if(File)
 		{
-			const char pUUID[] = "SET @id = UUID();";
-			io_write(File, pUUID, sizeof(pUUID) - 1);
+			const char aUUID[] = "SET @id = UUID();";
+			io_write(File, aUUID, sizeof(aUUID) - 1);
 			io_write_newline(File);
 
 			char aBuf[2300];
@@ -1099,26 +1099,26 @@ bool CSqlScore::ShowTimesThread(CSqlServer* pSqlServer, const CSqlData *pGameDat
 
 		while(pSqlServer->GetResults()->next())
 		{
-			char pAgoString[40] = "\0";
+			char aAgoString[40] = "\0";
 			pSince = pSqlServer->GetResults()->getInt("Ago");
 			pStamp = pSqlServer->GetResults()->getInt("Stamp");
 			pTime = (float)pSqlServer->GetResults()->getDouble("Time");
 
-			sqlstr::AgoTimeToString(pSince,pAgoString);
+			sqlstr::AgoTimeToString(pSince,aAgoString);
 
 			if(pData->m_Search) // last 5 times of a player
 			{
 				if(pStamp == 0) // stamp is 00:00:00 cause it's an old entry from old times where there where no stamps yet
 					str_format(aBuf, sizeof(aBuf), "%02d:%05.02f, don't know how long ago", (int)(pTime/60), pTime-((int)pTime/60*60));
 				else
-					str_format(aBuf, sizeof(aBuf), "%s ago, %02d:%05.02f", pAgoString, (int)(pTime/60), pTime-((int)pTime/60*60));
+					str_format(aBuf, sizeof(aBuf), "%s ago, %02d:%05.02f", aAgoString, (int)(pTime/60), pTime-((int)pTime/60*60));
 			}
 			else // last 5 times of the server
 			{
 				if(pStamp == 0) // stamp is 00:00:00 cause it's an old entry from old times where there where no stamps yet
 					str_format(aBuf, sizeof(aBuf), "%s, %02d:%05.02f, don't know when", pSqlServer->GetResults()->getString("Name").c_str(), (int)(pTime/60), pTime-((int)pTime/60*60));
 				else
-					str_format(aBuf, sizeof(aBuf), "%s, %s ago, %02d:%05.02f", pSqlServer->GetResults()->getString("Name").c_str(), pAgoString, (int)(pTime/60), pTime-((int)pTime/60*60));
+					str_format(aBuf, sizeof(aBuf), "%s, %s ago, %02d:%05.02f", pSqlServer->GetResults()->getString("Name").c_str(), aAgoString, (int)(pTime/60), pTime-((int)pTime/60*60));
 			}
 			pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
 		}
@@ -1389,6 +1389,7 @@ void CSqlScore::SaveTeam(int Team, const char* Code, int ClientID, const char* S
 	Tmp->m_ClientID = ClientID;
 	Tmp->m_Code = Code;
 	str_copy(Tmp->m_Server, Server, sizeof(Tmp->m_Server));
+	str_copy(Tmp->m_ClientName, this->Server()->ClientName(Tmp->m_ClientID), sizeof(Tmp->m_ClientName));
 
 	thread_init_and_detach(ExecSqlFunc, new CSqlExecData(SaveTeamThread, Tmp, false), "save team");
 }
@@ -1468,8 +1469,8 @@ bool CSqlScore::SaveTeamThread(CSqlServer* pSqlServer, const CSqlData *pGameData
 
 				// be sure to keep all calls to pData->GameServer() after inserting the save, otherwise it might be lost due to CGameContextError.
 
-				char aBuf2[256];
-				str_format(aBuf2, sizeof(aBuf2), "Team successfully saved. Use '/load %s' to continue", pData->m_Code.Str());
+				char aBuf2[512];
+				str_format(aBuf2, sizeof(aBuf2), "Team successfully saved by %s. Use '/load %s' to continue", pData->m_ClientName, pData->m_Code.Str());
 				pData->GameServer()->SendChatTeam(Team, aBuf2);
 				((CGameControllerDDRace*)(pData->GameServer()->m_pController))->m_Teams.KillSavedTeam(Team);
 			}
@@ -1507,6 +1508,7 @@ void CSqlScore::LoadTeam(const char* Code, int ClientID)
 	CSqlTeamLoad *Tmp = new CSqlTeamLoad();
 	Tmp->m_Code = Code;
 	Tmp->m_ClientID = ClientID;
+	str_copy(Tmp->m_ClientName, Server()->ClientName(Tmp->m_ClientID), sizeof(Tmp->m_ClientName));
 
 	thread_init_and_detach(ExecSqlFunc, new CSqlExecData(LoadTeamThread, Tmp), "load team");
 }
@@ -1556,11 +1558,10 @@ bool CSqlScore::LoadTeamThread(CSqlServer* pSqlServer, const CSqlData *pGameData
 				pData->GameServer()->SendChatTarget(pData->m_ClientID, "Unable to load savegame: data corrupted");
 			else
 			{
-
 				bool Found = false;
 				for (int i = 0; i < SavedTeam.GetMembersCount(); i++)
 				{
-					if(str_comp(SavedTeam.SavedTees[i].GetName(), pData->Server()->ClientName(pData->m_ClientID)) == 0)
+					if(str_comp(SavedTeam.m_pSavedTees[i].GetName(), pData->Server()->ClientName(pData->m_ClientID)) == 0)
 					{
 						Found = true;
 						break;
@@ -1587,25 +1588,26 @@ bool CSqlScore::LoadTeamThread(CSqlServer* pSqlServer, const CSqlData *pGameData
 					else if(Num >= 10 && Num < 100)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "Unable to find player: '%s'", SavedTeam.SavedTees[Num-10].GetName());
+						str_format(aBuf, sizeof(aBuf), "Unable to find player: '%s'", SavedTeam.m_pSavedTees[Num-10].GetName());
 						pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
 					}
 					else if(Num >= 100 && Num < 200)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "%s is racing right now, Team can't be loaded if a Tee is racing already", SavedTeam.SavedTees[Num-100].GetName());
+						str_format(aBuf, sizeof(aBuf), "%s is racing right now, Team can't be loaded if a Tee is racing already", SavedTeam.m_pSavedTees[Num-100].GetName());
 						pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
 					}
 					else if(Num >= 200)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "Everyone has to be in a team, %s is in team 0 or the wrong team", SavedTeam.SavedTees[Num-200].GetName());
+						str_format(aBuf, sizeof(aBuf), "Everyone has to be in a team, %s is in team 0 or the wrong team", SavedTeam.m_pSavedTees[Num-200].GetName());
 						pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
 					}
 					else
 					{
-						pData->GameServer()->SendChatTeam(Team, "Loading successfully done");
 						char aBuf[512];
+						str_format(aBuf, sizeof(aBuf), "Loading successfully done by %s", pData->m_ClientName);
+						pData->GameServer()->SendChatTeam(Team, aBuf);
 						str_format(aBuf, sizeof(aBuf), "DELETE from %s_saves where Code='%s' and Map='%s';", pSqlServer->GetPrefix(), pData->m_Code.ClrStr(), pData->m_Map.ClrStr());
 						pSqlServer->executeSql(aBuf);
 					}
@@ -1628,6 +1630,62 @@ bool CSqlScore::LoadTeamThread(CSqlServer* pSqlServer, const CSqlData *pGameData
 	catch (CGameContextError &e)
 	{
 		dbg_msg("sql", "WARNING: Aborted loading team due to reload/change of map.");
+		return true;
+	}
+	return false;
+}
+
+void CSqlScore::GetSaves(int ClientID)
+{
+	CSqlGetSavesData *Tmp = new CSqlGetSavesData();
+	Tmp->m_ClientID = ClientID;
+	Tmp->m_Name = Server()->ClientName(ClientID);
+
+	thread_init_and_detach(ExecSqlFunc, new CSqlExecData(GetSavesThread, Tmp, false), "get saves");
+}
+
+bool CSqlScore::GetSavesThread(CSqlServer* pSqlServer, const CSqlData *pGameData, bool HandleFailure)
+{
+	const CSqlGetSavesData *pData = dynamic_cast<const CSqlGetSavesData *>(pGameData);
+
+	if (HandleFailure)
+		return true;
+
+	try
+	{
+		char aBuf[512];
+
+		str_format(aBuf, sizeof(aBuf), "SELECT count(*) as NumSaves, UNIX_TIMESTAMP(CURRENT_TIMESTAMP)-UNIX_TIMESTAMP(max(Timestamp)) as Ago FROM %s_saves WHERE Map='%s' AND Savegame regexp '\\n%s\\t';", pSqlServer->GetPrefix(), pData->m_Map.ClrStr(), pData->m_Name.ClrStr());
+		pSqlServer->executeSqlQuery(aBuf);
+		if(pSqlServer->GetResults()->next())
+		{
+			int NumSaves = pSqlServer->GetResults()->getInt("NumSaves");
+
+			int Ago = pSqlServer->GetResults()->getInt("Ago");
+			char aAgoString[40] = "\0";
+			char aLastSavedString[60] = "\0";
+			if(Ago)
+			{
+				sqlstr::AgoTimeToString(Ago, aAgoString);
+				str_format(aLastSavedString, sizeof(aLastSavedString), ", last saved %s ago", aAgoString);
+			}
+
+			str_format(aBuf, sizeof(aBuf), "%s has %d save%s on %s%s", pData->m_Name.Str(), NumSaves, NumSaves == 1 ? "" : "s", pData->m_Map.Str(), aLastSavedString);
+			pData->GameServer()->SendChatTarget(pData->m_ClientID, aBuf);
+		}
+
+		dbg_msg("sql", "Showing saves done");
+		return true;
+	}
+	catch (sql::SQLException &e)
+	{
+		dbg_msg("sql", "MySQL Error: %s", e.what());
+		dbg_msg("sql", "ERROR: Could not get saves");
+		pData->GameServer()->SendChatTarget(pData->m_ClientID, "MySQL Error: Could not get saves");
+	}
+	catch (CGameContextError &e)
+	{
+		dbg_msg("sql", "WARNING: Aborted getting saves due to reload/change of map.");
 		return true;
 	}
 	return false;

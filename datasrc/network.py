@@ -54,7 +54,7 @@ enum
 
 enum
 {
-	GAMEINFO_CURVERSION=3,
+	GAMEINFO_CURVERSION=4,
 };
 '''
 

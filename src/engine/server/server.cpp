@@ -257,6 +257,9 @@ void CServer::CClient::Reset()
 	m_Score = 0;
 	m_NextMapChunk = 0;
 	m_Flags = 0;
+	m_DDNetVersion = VERSION_NONE;
+	m_GotDDNetVersionPacket = false;
+	m_DDNetVersionSettled = false;
 }
 
 CServer::CServer()
@@ -518,11 +521,33 @@ int CServer::GetClientInfo(int ClientID, CClientInfo *pInfo)
 	if(m_aClients[ClientID].m_State == CClient::STATE_INGAME)
 	{
 		pInfo->m_pName = m_aClients[ClientID].m_aName;
-		pInfo->m_Latency = m_aClients[ClientID].m_State == CClient::STATE_BOT ? 0 : m_aClients[ClientID].m_Latency; // kann auch weg. wenn die bots keinen anderen ping haben sollen hmmm kannst da irgendwas von 0- 1000 eintragen k
-		pInfo->m_ClientVersion = GameServer()->GetClientVersion(ClientID);
+		pInfo->m_Latency = m_aClients[ClientID].m_Latency;
+		pInfo->m_GotDDNetVersion = m_aClients[ClientID].m_DDNetVersionSettled;
+		pInfo->m_DDNetVersion = m_aClients[ClientID].m_DDNetVersion >= 0 ? m_aClients[ClientID].m_DDNetVersion : VERSION_VANILLA;
+		if(m_aClients[ClientID].m_GotDDNetVersionPacket)
+		{
+			pInfo->m_pConnectionID = &m_aClients[ClientID].m_ConnectionID;
+			pInfo->m_pDDNetVersionStr = m_aClients[ClientID].m_aDDNetVersionStr;
+		}
+		else
+		{
+			pInfo->m_pConnectionID = 0;
+			pInfo->m_pDDNetVersionStr = 0;
+		}
 		return 1;
 	}
 	return 0;
+}
+
+void CServer::SetClientDDNetVersion(int ClientID, int DDNetVersion)
+{
+	dbg_assert(ClientID >= 0 && ClientID < MAX_CLIENTS, "client_id is not valid");
+
+	if(m_aClients[ClientID].m_State == CClient::STATE_INGAME)
+	{
+		m_aClients[ClientID].m_DDNetVersion = DDNetVersion;
+		m_aClients[ClientID].m_DDNetVersionSettled = true;
+	}
 }
 
 void CServer::GetClientAddr(int ClientID, char *pAddrStr, int Size)
@@ -669,6 +694,25 @@ int CServer::SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
 			m_NetServer.Send(&Packet);
 	}
 	return 0;
+}
+
+void CServer::SendMsgRaw(int ClientID, const void *pData, int Size, int Flags)
+{
+	CNetChunk Packet;
+	mem_zero(&Packet, sizeof(CNetChunk));
+	Packet.m_ClientID = ClientID;
+	Packet.m_pData = pData;
+	Packet.m_DataSize = Size;
+	Packet.m_Flags = 0;
+	if(Flags&MSGFLAG_VITAL)
+	{
+		Packet.m_Flags |= NETSENDFLAG_VITAL;
+	}
+	if(Flags&MSGFLAG_FLUSH)
+	{
+		Packet.m_Flags |= NETSENDFLAG_FLUSH;
+	}
+	m_NetServer.Send(&Packet);
 }
 
 void CServer::DoSnapshot()
@@ -862,7 +906,7 @@ int CServer::NewClientNoAuthCallback(int ClientID, void *pUser)
 int CServer::NewClientCallback(int ClientID, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
-	pThis->m_aClients[ClientID].m_State = CClient::STATE_AUTH;
+	pThis->m_aClients[ClientID].m_State = CClient::STATE_PREAUTH;
 	pThis->m_aClients[ClientID].m_SupportsMapSha256 = false;
 	pThis->m_aClients[ClientID].m_DnsblState = CClient::DNSBL_STATE_NONE;
 	pThis->m_aClients[ClientID].m_aName[0] = 0;
@@ -877,7 +921,9 @@ int CServer::NewClientCallback(int ClientID, void *pUser)
 	pThis->m_aClients[ClientID].m_ShowIps = false;
 	memset(&pThis->m_aClients[ClientID].m_Addr, 0, sizeof(NETADDR));
 	pThis->m_aClients[ClientID].Reset();
+
 	pThis->GameServer()->OnClientEngineJoin(ClientID);
+	pThis->Antibot()->OnEngineClientJoin(ClientID);
 
 #if defined(CONF_FAMILY_UNIX)
 	pThis->SendConnLoggingCommand(OPEN_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
@@ -960,6 +1006,7 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 	pThis->m_aClients[ClientID].m_Snapshots.PurgeAll();
 
 	pThis->GameServer()->OnClientEngineDrop(ClientID, pReason);
+	pThis->Antibot()->OnEngineClientDrop(ClientID, pReason);
 #if defined(CONF_FAMILY_UNIX)
 	pThis->SendConnLoggingCommand(CLOSE_SESSION, pThis->m_NetServer.ClientAddr(ClientID));
 #endif
@@ -1137,6 +1184,13 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	Unpacker.Reset(pPacket->m_pData, pPacket->m_DataSize);
 	CMsgPacker Packer(NETMSG_EX, true);
 
+	int GameFlags = 0;
+	if(pPacket->m_Flags&NET_CHUNKFLAG_VITAL)
+	{
+		GameFlags |= MSGFLAG_VITAL;
+	}
+	Antibot()->OnEngineClientMessage(ClientID, pPacket->m_pData, pPacket->m_DataSize, GameFlags);
+
 	// unpack msgid and system flag
 	int Msg;
 	bool Sys;
@@ -1175,9 +1229,28 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	if(Sys)
 	{
 		// system message
-		if(Msg == NETMSG_INFO)
+		if(Msg == NETMSG_CLIENTVER)
 		{
-			if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 && m_aClients[ClientID].m_State == CClient::STATE_AUTH)
+			if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 && m_aClients[ClientID].m_State == CClient::STATE_PREAUTH)
+			{
+				CUuid *pConnectionID = (CUuid *)Unpacker.GetRaw(sizeof(*pConnectionID));
+				int DDNetVersion = Unpacker.GetInt();
+				const char *pDDNetVersionStr = Unpacker.GetString(CUnpacker::SANITIZE_CC);
+				if(Unpacker.Error() || !str_utf8_check(pDDNetVersionStr) || DDNetVersion < 0)
+				{
+					return;
+				}
+				m_aClients[ClientID].m_ConnectionID = *pConnectionID;
+				m_aClients[ClientID].m_DDNetVersion = DDNetVersion;
+				str_copy(m_aClients[ClientID].m_aDDNetVersionStr, pDDNetVersionStr, sizeof(m_aClients[ClientID].m_aDDNetVersionStr));
+				m_aClients[ClientID].m_DDNetVersionSettled = true;
+				m_aClients[ClientID].m_GotDDNetVersionPacket = true;
+				m_aClients[ClientID].m_State = CClient::STATE_AUTH;
+			}
+		}
+		else if(Msg == NETMSG_INFO)
+		{
+			if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 && (m_aClients[ClientID].m_State == CClient::STATE_PREAUTH || m_aClients[ClientID].m_State == CClient::STATE_AUTH))
 			{
 				const char *pVersion = Unpacker.GetString(CUnpacker::SANITIZE_CC);
 				if(!str_utf8_check(pVersion))
@@ -1348,11 +1421,13 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			}
 			if(Unpacker.Error() == 0 && !str_comp(pCmd, "crashmeplx"))
 			{
-				int version = GameServer()->GetClientVersion(ClientID);
-				if (GameServer()->PlayerExists(ClientID) && version < VERSION_DDNET_OLD)
-					GameServer()->SetClientVersion(ClientID, VERSION_DDNET_OLD);
-			} else
-			if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 && Unpacker.Error() == 0 && m_aClients[ClientID].m_Authed)
+				int Version = m_aClients[ClientID].m_DDNetVersion;
+				if (GameServer()->PlayerExists(ClientID) && Version < VERSION_DDNET_OLD)
+				{
+					m_aClients[ClientID].m_DDNetVersion = VERSION_DDNET_OLD;
+				}
+			}
+			else if((pPacket->m_Flags&NET_CHUNKFLAG_VITAL) != 0 && Unpacker.Error() == 0 && m_aClients[ClientID].m_Authed)
 			{
 				if (GameServer()->PlayerExists(ClientID))
 				{
@@ -1740,7 +1815,7 @@ void CServer::CacheServerInfo(CCache *pCache, int Type, bool SendClients)
 
 			if(Type == SERVERINFO_EXTENDED)
 			{
-				if(pp.Size() >= NET_MAX_PAYLOAD)
+				if(pp.Size() >= NET_MAX_PAYLOAD - 18) // 8 bytes for type, 10 bytes for the largest token
 				{
 					// Retry current player.
 					i--;
@@ -2010,6 +2085,10 @@ int CServer::Run()
 		BindAddr.port = g_Config.m_SvPort;
 	}
 
+#if defined(CONF_UPNP)
+	m_UPnP.Open(BindAddr);
+#endif
+
 	if(!m_NetServer.Open(BindAddr, &m_ServerBan, g_Config.m_SvMaxClients, g_Config.m_SvMaxClientsPerIP, 0))
 	{
 		dbg_msg("server", "couldn't open socket. port %d might already be in use", g_Config.m_SvPort);
@@ -2028,6 +2107,7 @@ int CServer::Run()
 	str_format(aBuf, sizeof(aBuf), "server name is '%s'", g_Config.m_SvName);
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 
+	Antibot()->Init();
 	GameServer()->OnInit();
 	if(ErrorShutdown())
 	{
@@ -2206,6 +2286,8 @@ int CServer::Run()
 			if(m_ServerInfoNeedsUpdate)
 				UpdateServerInfo();
 
+			Antibot()->OnEngineTick();
+
 			if(!NonActive)
 				PumpNetwork();
 
@@ -2283,6 +2365,10 @@ int CServer::Run()
 	}
 #endif
 
+#if defined (CONF_UPNP)
+	m_UPnP.Shutdown();
+#endif
+
 	return ErrorShutdown();
 }
 
@@ -2355,7 +2441,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 			}
 
 			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> name='%s' client=%d secure=%s flags=%d%s%s",
-				i, aAddrStr, pThis->m_aClients[i].m_aName, pThis->GameServer()->GetClientVersion(i),
+				i, aAddrStr, pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_DDNetVersion,
 				pThis->m_NetServer.HasSecurityToken(i) ? "yes" : "no", pThis->m_aClients[i].m_Flags, aDnsblStr, aAuthStr);
 		}
 		else
@@ -3020,6 +3106,7 @@ void CServer::RegisterCommands()
 	m_pGameServer = Kernel()->RequestInterface<IGameServer>();
 	m_pMap = Kernel()->RequestInterface<IEngineMap>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
+	m_pAntibot = Kernel()->RequestInterface<IEngineAntibot>();
 
 	// register console commands
 	Console()->Register("kick", "i[id] ?r[reason]", CFGFLAG_SERVER, ConKick, this, "Kick player with specified id for any reason");
@@ -3136,6 +3223,7 @@ int main(int argc, const char **argv) // ignore_convention
 	IEngineMasterServer *pEngineMasterServer = CreateEngineMasterServer();
 	IStorage *pStorage = CreateStorage("Teeworlds", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
+	IEngineAntibot *pEngineAntibot = CreateEngineAntibot();
 
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
@@ -3152,6 +3240,8 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConfig);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineMasterServer); // register as both
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer), false);
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineAntibot);
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IAntibot*>(pEngineAntibot), false);
 
 		if(RegisterFail)
 		{

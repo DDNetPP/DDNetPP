@@ -1012,6 +1012,8 @@ set(EXPECTED_DATA
   editor/entities/FNG.png
   editor/entities/Race.png
   editor/entities/Vanilla.png
+  editor/entities/blockworlds.png
+  editor/entities_clear/blockworlds.png
   editor/entities_clear/ddnet.png
   editor/entities_clear/ddrace.png
   editor/entities_clear/fng.png
@@ -1491,6 +1493,7 @@ set_src(BASE GLOB_RECURSE src/base
   vmath.h
 )
 set_src(ENGINE_INTERFACE GLOB src/engine
+  antibot.h
   client.h
   config.h
   console.h
@@ -1605,6 +1608,8 @@ set_src(GAME_SHARED GLOB src/game
   mapitems_ex.cpp
   mapitems_ex.h
   mapitems_ex_types.h
+  prng.cpp
+  prng.h
   teamscore.cpp
   teamscore.h
   tuning.h
@@ -1676,6 +1681,8 @@ if(CLIENT)
     input.cpp
     input.h
     keynames.h
+    notifications.cpp
+    notifications.h
     opengl_sl.cpp
     opengl_sl.h
     opengl_sl_program.cpp
@@ -1922,6 +1929,8 @@ endif()
 if(SERVER)
   # Sources
   set_src(ENGINE_SERVER GLOB_RECURSE src/engine/server
+    antibot.cpp
+    antibot.h
     authmanager.cpp
     authmanager.h
     name_ban.cpp
@@ -1937,10 +1946,10 @@ if(SERVER)
     sql_server.h
     sql_string_helpers.cpp
     sql_string_helpers.h
+    upnp.cpp
+    upnp.h
   )
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
-    antibot.cpp
-    antibot.h
     captcha.cpp
     captcha.h
     db_sqlite3.cpp

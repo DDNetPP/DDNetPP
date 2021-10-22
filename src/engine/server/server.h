@@ -25,8 +25,13 @@
 
 #include <list>
 
+#include "antibot.h"
 #include "authmanager.h"
 #include "name_ban.h"
+
+#if defined (CONF_UPNP)
+	#include "upnp.h"
+#endif
 
 #if defined (CONF_SQL)
 	#include "sql_connector.h"
@@ -91,6 +96,11 @@ class CServer : public IServer
 	class IGameServer *m_pGameServer;
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
+	class IEngineAntibot *m_pAntibot;
+
+#if defined(CONF_UPNP)
+	CUPnP m_UPnP;
+#endif
 
 #if defined(CONF_SQL)
 	lock m_GlobalSqlLock;
@@ -109,6 +119,7 @@ public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class IConsole *Console() { return m_pConsole; }
 	class IStorage *Storage() { return m_pStorage; }
+	class IEngineAntibot *Antibot() { return m_pAntibot; }
 
 	enum
 	{
@@ -122,6 +133,7 @@ public:
 		enum
 		{
 			STATE_EMPTY = 0,
+			STATE_PREAUTH,
 			STATE_AUTH,
 			STATE_CONNECTING,
 			STATE_READY,
@@ -183,6 +195,11 @@ public:
 		NETADDR m_Addr;
 		bool m_IsDummy;
 		bool m_IsClientDummy; //ddnet++ hide dummy in master
+		bool m_GotDDNetVersionPacket;
+		bool m_DDNetVersionSettled;
+		int m_DDNetVersion;
+		char m_aDDNetVersionStr[64];
+		CUuid m_ConnectionID;
 
 		// DNSBL
 		int m_DnsblState;
@@ -262,6 +279,7 @@ public:
 	const char *GetAuthName(int ClientID);
 	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pMapSha256, int *pMapCrc);
 	int GetClientInfo(int ClientID, CClientInfo *pInfo);
+	void SetClientDDNetVersion(int ClientID, int DDNetVersion);
 	void GetClientAddr(int ClientID, char *pAddrStr, int Size);
 	const char *ClientName(int ClientID);
 	const char *ClientClan(int ClientID);
@@ -424,6 +442,8 @@ public:
 	void ResetNetErrorString(int ClientID) { m_NetServer.ResetErrorString(ClientID); };
 	bool SetTimedOut(int ClientID, int OrigID);
 	void SetTimeoutProtected(int ClientID) { m_NetServer.SetTimeoutProtected(ClientID); };
+
+	void SendMsgRaw(int ClientID, const void *pData, int Size, int Flags);
 
 	bool ErrorShutdown() const { return m_aErrorShutdownReason[0] != 0; }
 	void SetErrorShutdown(const char *pReason);

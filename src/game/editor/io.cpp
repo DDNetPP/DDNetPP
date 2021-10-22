@@ -439,6 +439,7 @@ int CEditorMap::Save(class IStorage *pStorage, const char *pFileName)
 				df.AddItem(MAPITEMTYPE_LAYER, LayerCount, sizeof(Item), &Item);
 
 				CMapItemAutoMapperConfig ItemAutomapper;
+				ItemAutomapper.m_Version = CMapItemAutoMapperConfig::CURRENT_VERSION;
 				ItemAutomapper.m_GroupId = GroupCount;
 				ItemAutomapper.m_LayerId = GItem.m_NumLayers;
 				ItemAutomapper.m_AutomapperConfig = pLayer->m_AutoMapperConfig;
@@ -564,12 +565,6 @@ int CEditorMap::Save(class IStorage *pStorage, const char *pFileName)
 	}
 
 	return 1;
-}
-
-void CEditor::LoadCurrentMap()
-{
-	Load(m_pClient->GetCurrentMapPath(), IStorage::TYPE_ALL);
-	m_ValidSaveFilename = true;
 }
 
 int CEditor::Load(const char *pFileName, int StorageType)
@@ -1294,6 +1289,7 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 	else
 		return 0;
 
+	m_Modified = false;
 	return 1;
 }
 

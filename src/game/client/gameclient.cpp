@@ -112,6 +112,8 @@ void CGameClient::CStack::Add(class CComponent *pComponent) { m_paComponents[m_N
 
 const char *CGameClient::Version() { return GAME_VERSION; }
 const char *CGameClient::NetVersion() { return GAME_NETVERSION; }
+int CGameClient::DDNetVersion() { return CLIENT_VERSIONNR; }
+const char *CGameClient::DDNetVersionStr() { return m_aDDNetVersionStr; }
 const char *CGameClient::GetItemName(int Type) { return m_NetObjHandler.GetObjName(Type); }
 
 void CGameClient::OnConsoleInit()
@@ -287,6 +289,15 @@ void CGameClient::OnInit()
 
 	int64 Start = time_get();
 
+	if(GIT_SHORTREV_HASH)
+	{
+		str_format(m_aDDNetVersionStr, sizeof(m_aDDNetVersionStr), "%s %s (%s)", GAME_NAME, GAME_RELEASE_VERSION, GIT_SHORTREV_HASH);
+	}
+	else
+	{
+		str_format(m_aDDNetVersionStr, sizeof(m_aDDNetVersionStr), "%s %s", GAME_NAME, GAME_RELEASE_VERSION);
+	}
+
 	// set the language
 	g_Localization.Load(g_Config.m_ClLanguagefile, Storage(), Console());
 
@@ -413,7 +424,7 @@ int CGameClient::OnSnapInput(int *pData, bool Dummy, bool Force)
 	{
 		if(m_DummyFire != 0)
 		{
-			m_DummyInput.m_Fire = m_HammerInput.m_Fire;
+			m_DummyInput.m_Fire = (m_HammerInput.m_Fire+1) & ~1;
 			m_DummyFire = 0;
 		}
 
@@ -434,7 +445,7 @@ int CGameClient::OnSnapInput(int *pData, bool Dummy, bool Force)
 		}
 		m_DummyFire++;
 
-		m_HammerInput.m_Fire += 2;
+		m_HammerInput.m_Fire = (m_HammerInput.m_Fire+1) | 1;
 		m_HammerInput.m_WantedWeapon = WEAPON_HAMMER + 1;
 		if(!g_Config.m_ClDummyRestoreWeapon)
 		{
@@ -1036,6 +1047,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_EntitiesRace = Race;
 	Info.m_EntitiesFNG = FNG;
 	Info.m_EntitiesVanilla = Vanilla;
+	Info.m_EntitiesBW = BlockWorlds;
 	Info.m_Race = Race;
 	Info.m_DontMaskEntities = !DDNet;
 
@@ -1070,6 +1082,11 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	{
 		Info.m_Race = Flags&GAMEINFOFLAG_RACE;
 		Info.m_DontMaskEntities = Flags&GAMEINFOFLAG_DONT_MASK_ENTITIES;
+	}
+
+	if (Version >= 4)
+	{
+		Info.m_EntitiesBW = Flags&GAMEINFOFLAG_ENTITIES_BW;
 	}
 	return Info;
 }

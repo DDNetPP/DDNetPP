@@ -4,6 +4,7 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <deque>
+#include <engine/antibot.h>
 #include <game/server/entity.h>
 #include <game/server/entities/stable_projectile.h>
 #include <game/generated/server_data.h>
@@ -204,7 +205,7 @@ private:
 	void HandleBroadcast();
 	void HandleTuneLayer();
 	void SendZoneMsgs();
-	CAntibot *Antibot();
+	IAntibot *Antibot();
 
 	bool m_SetSavePos;
 	vec2 m_PrevSavePos;
