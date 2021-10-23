@@ -1,5 +1,6 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "teamscore.h"
+#include <engine/shared/config.h>
 
 CTeamsCore::CTeamsCore()
 {
@@ -45,7 +46,10 @@ void CTeamsCore::Reset()
 
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 	{
-		m_Team[i] = TEAM_FLOCK;
+		if(g_Config.m_SvTeam == 3)
+			m_Team[i] = i;
+		else
+			m_Team[i] = TEAM_FLOCK;
 		m_IsSolo[i] = false;
 	}
 }

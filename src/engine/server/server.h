@@ -225,7 +225,16 @@ public:
 
 	int64 m_GameStartTime;
 	//int m_CurrentGameTick;
+
+	enum
+	{
+		UNINITIALIZED=0,
+		RUNNING=1,
+		STOPPING=2
+	};
+
 	int m_RunServer;
+
 	int m_MapReload;
 	bool m_ReloadedWhenEmpty;
 	int m_RconClientID;
@@ -445,6 +454,14 @@ public:
 	{
 		return m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_NONE ||
 		m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_WHITELISTED;
+	}
+	bool DnsblPending(int ClientID)
+	{
+		return m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_PENDING;
+	}
+	bool DnsblBlack(int ClientID)
+	{
+		return m_aClients[ClientID].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED;
 	}
 
 	void AuthRemoveKey(int KeySlot);

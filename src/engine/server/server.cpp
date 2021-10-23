@@ -274,7 +274,7 @@ CServer::CServer(): m_Register(false), m_RegSixup(true)
 	m_pGameServer = 0;
 
 	m_CurrentGameTick = 0;
-	m_RunServer = false;
+	m_RunServer = UNINITIALIZED;
 
 	for(int i = 0; i < 2; i++)
 	{
@@ -999,7 +999,7 @@ int CServer::NewClientCallback(int ClientID, void *pUser, bool Sixup)
 	pThis->m_aClients[ClientID].Reset();
 
 	pThis->GameServer()->OnClientEngineJoin(ClientID, Sixup);
-	pThis->Antibot()->OnEngineClientJoin(ClientID);
+	pThis->Antibot()->OnEngineClientJoin(ClientID, Sixup);
 
 	pThis->m_aClients[ClientID].m_Sixup = Sixup;
 
@@ -2116,7 +2116,7 @@ void CServer::ExpireServerInfo()
 
 void CServer::UpdateServerInfo(bool Resend)
 {
-	if(!m_RunServer)
+	if(m_RunServer == UNINITIALIZED)
 		return;
 
 	for(int i = 0; i < 3; i++)
@@ -2339,7 +2339,8 @@ void CServer::InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterS
 
 int CServer::Run()
 {
-	m_RunServer = true;
+	if(m_RunServer == UNINITIALIZED)
+		m_RunServer = RUNNING;
 
 	m_AuthManager.Init();
 
@@ -2361,28 +2362,26 @@ int CServer::Run()
 	NETADDR BindAddr;
 	int NetType = g_Config.m_SvIpv4Only ? NETTYPE_IPV4 : NETTYPE_ALL;
 
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NetType, g_Config.m_SvMasterServerLogs) == 0)
-	{
-		// sweet!
-		BindAddr.type = NetType;
-		BindAddr.port = g_Config.m_SvPort;
-	}
-	else
-	{
+	if(!g_Config.m_Bindaddr[0] || net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NetType, g_Config.m_SvMasterServerLogs) != 0)
 		mem_zero(&BindAddr, sizeof(BindAddr));
-		BindAddr.type = NetType;
-		BindAddr.port = g_Config.m_SvPort;
+
+	BindAddr.type = NetType;
+
+	for(BindAddr.port = g_Config.m_SvPort != 0 ? g_Config.m_SvPort : 8303; !m_NetServer.Open(BindAddr, &m_ServerBan, g_Config.m_SvMaxClients, g_Config.m_SvMaxClientsPerIP, 0); BindAddr.port++)
+	{
+		if(g_Config.m_SvPort != 0 || BindAddr.port >= 8310)
+		{
+			dbg_msg("server", "couldn't open socket. port %d might already be in use", BindAddr.port);
+			return -1;
+		}
 	}
+
+	if(g_Config.m_SvPort == 0)
+		dbg_msg("server", "using port %d", BindAddr.port);
 
 #if defined(CONF_UPNP)
 	m_UPnP.Open(BindAddr);
 #endif
-
-	if(!m_NetServer.Open(BindAddr, &m_ServerBan, g_Config.m_SvMaxClients, g_Config.m_SvMaxClientsPerIP, 0))
-	{
-		dbg_msg("server", "couldn't open socket. port %d might already be in use", g_Config.m_SvPort);
-		return -1;
-	}
 
 	m_NetServer.SetCallbacks(NewClientCallback, NewClientNoAuthCallback, ClientRejoinCallback, DelClientCallback, this);
 
@@ -2400,7 +2399,7 @@ int CServer::Run()
 	GameServer()->OnInit();
 	if(ErrorShutdown())
 	{
-		m_RunServer = false;
+		m_RunServer = STOPPING;
 	}
 	str_format(aBuf, sizeof(aBuf), "version %s", GameServer()->NetVersion());
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
@@ -2428,7 +2427,7 @@ int CServer::Run()
 		m_GameStartTime = time_get();
 
 		UpdateServerInfo();
-		while(m_RunServer)
+		while(m_RunServer < STOPPING)
 		{
 			if(NonActive)
 				PumpNetwork();
@@ -2603,7 +2602,7 @@ int CServer::Run()
 				}
 
 				if(g_Config.m_SvShutdownWhenEmpty)
-					m_RunServer = false;
+					m_RunServer = STOPPING;
 				else
 					net_socket_read_wait(m_NetServer.Socket(), 1000000);
 			}
@@ -3016,7 +3015,7 @@ void CServer::ConNameBans(IConsole::IResult *pResult, void *pUser)
 
 void CServer::ConShutdown(IConsole::IResult *pResult, void *pUser)
 {
-	((CServer *)pUser)->m_RunServer = 0;
+	((CServer *)pUser)->m_RunServer = STOPPING;
 }
 
 void CServer::DemoRecorder_HandleAutoStart()

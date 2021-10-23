@@ -2,6 +2,7 @@
 #ifndef GAME_SERVER_TEAMS_H
 #define GAME_SERVER_TEAMS_H
 
+#include <engine/shared/config.h>
 #include <game/teamscore.h>
 #include <game/server/gamecontext.h>
 
@@ -10,7 +11,7 @@ class CGameTeams
 	int m_TeamState[MAX_CLIENTS];
 	bool m_TeeFinished[MAX_CLIENTS];
 	bool m_TeamLocked[MAX_CLIENTS];
-	uint64_t m_Invited[MAX_CLIENTS];
+	uint64 m_Invited[MAX_CLIENTS];
 	bool m_Practice[MAX_CLIENTS];
 	std::shared_ptr<CScoreSaveResult> m_pSaveTeamResult[MAX_CLIENTS];
 
@@ -60,7 +61,7 @@ public:
 	void ChangeTeamState(int Team, int State);
 	void onChangeTeamState(int Team, int State, int OldState);
 
-	int64_t TeamMask(int Team, int ExceptID = -1, int Asker = -1);
+	int64 TeamMask(int Team, int ExceptID = -1, int Asker = -1);
 
 	int Count(int Team) const;
 
@@ -70,6 +71,7 @@ public:
 	void ForceLeaveTeam(int ClientID);
 
 	void Reset();
+	void ResetSwitchers(int Team);
 
 	void SendTeamsState(int ClientID);
 	void SetTeamLock(int Team, bool Lock);
@@ -123,7 +125,9 @@ public:
 
 	bool GetSaving(int TeamID)
 	{
-		if(TeamID <= TEAM_FLOCK || TeamID >= TEAM_SUPER)
+		if(TeamID < TEAM_FLOCK || TeamID >= TEAM_SUPER)
+			return false;
+		if(g_Config.m_SvTeam != 3 && TeamID == TEAM_FLOCK)
 			return false;
 
 		return m_pSaveTeamResult[TeamID] != nullptr;
@@ -131,7 +135,9 @@ public:
 
 	void EnablePractice(int Team)
 	{
-		if(Team <= TEAM_FLOCK || Team >= TEAM_SUPER)
+		if(Team < TEAM_FLOCK || Team >= TEAM_SUPER)
+			return;
+		if(g_Config.m_SvTeam != 3 && Team == TEAM_FLOCK)
 			return;
 
 		m_Practice[Team] = true;
@@ -139,7 +145,9 @@ public:
 
 	bool IsPractice(int Team)
 	{
-		if(Team <= TEAM_FLOCK || Team >= TEAM_SUPER)
+		if(Team < TEAM_FLOCK || Team >= TEAM_SUPER)
+			return false;
+		if(g_Config.m_SvTeam != 3 && Team == TEAM_FLOCK)
 			return false;
 
 		return m_Practice[Team];

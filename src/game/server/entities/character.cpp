@@ -2156,7 +2156,7 @@ int CCharacter::NetworkClipped(int SnappingClient, vec2 CheckPos)
 		return 0;
 
 	float dx = GameServer()->m_apPlayers[SnappingClient]->m_ViewPos.x-CheckPos.x;
-	if(absolute(dx) > GameServer()->m_apPlayers[SnappingClient]->m_ShowDistance.y)
+	if(absolute(dx) > GameServer()->m_apPlayers[SnappingClient]->m_ShowDistance.x)
 		return 1;
 
 	float dy = GameServer()->m_apPlayers[SnappingClient]->m_ViewPos.y-CheckPos.y;
@@ -2851,7 +2851,7 @@ void CCharacter::HandleTiles(int Index)
 
 		m_StartTime -= (min * 60 + sec) * Server()->TickSpeed();
 
-		if (Team != TEAM_FLOCK && Team != TEAM_SUPER)
+		if ((g_Config.m_SvTeam == 3 || Team != TEAM_FLOCK) && Team != TEAM_SUPER)
 		{
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
@@ -2877,7 +2877,7 @@ void CCharacter::HandleTiles(int Index)
 		if (m_StartTime > Server()->Tick())
 			m_StartTime = Server()->Tick();
 
-		if (Team != TEAM_FLOCK && Team != TEAM_SUPER)
+		if ((g_Config.m_SvTeam == 3 || Team != TEAM_FLOCK) && Team != TEAM_SUPER)
 		{
 			for (int i = 0; i < MAX_CLIENTS; i++)
 			{
@@ -3133,7 +3133,10 @@ void CCharacter::DDRaceTick()
 	HandleTuneLayer(); // need this before coretick
 
 	// look for save position for rescue feature
-	if(g_Config.m_SvRescue || (Team() > TEAM_FLOCK && Team() < TEAM_SUPER)) {
+	if(g_Config.m_SvRescue
+			|| ((g_Config.m_SvTeam == 3 || Team() > TEAM_FLOCK)
+					&& Team() >= TEAM_FLOCK
+					&& Team() < TEAM_SUPER)) {
 		int index = GameServer()->Collision()->GetPureMapIndex(m_Pos);
 		int tile = GameServer()->Collision()->GetTileIndex(index);
 		int ftile = GameServer()->Collision()->GetFTileIndex(index);
@@ -3471,8 +3474,9 @@ void CCharacter::DDRaceInit()
 
 void CCharacter::Rescue()
 {
-	if (m_SetSavePos && !m_Super) {
-		if (m_LastRescue + g_Config.m_SvRescueDelay * Server()->TickSpeed() > Server()->Tick())
+	if(m_SetSavePos && !m_Super)
+	{
+		if(m_LastRescue + g_Config.m_SvRescueDelay * Server()->TickSpeed() > Server()->Tick())
 		{
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "You have to wait %d seconds until you can rescue yourself", (int)((m_LastRescue + g_Config.m_SvRescueDelay * Server()->TickSpeed() - Server()->Tick()) / Server()->TickSpeed()));
@@ -3480,12 +3484,19 @@ void CCharacter::Rescue()
 			return;
 		}
 
-
 		float StartTime = m_StartTime;
 		m_RescueTee.load(this, Team());
 		// Don't load these from saved tee:
 		m_Core.m_Vel = vec2(0, 0);
 		m_Core.m_HookState = HOOK_IDLE;
 		m_StartTime = StartTime;
+		m_SavedInput.m_Direction = 0;
+		m_SavedInput.m_Jump = 0;
+		// simulate releasing the fire button
+		if((m_SavedInput.m_Fire&1) != 0)
+			m_SavedInput.m_Fire++;
+		m_SavedInput.m_Fire &= INPUT_STATE_MASK;
+		m_SavedInput.m_Hook = 0;
+		m_pPlayer->Pause(CPlayer::PAUSE_NONE, true);
 	}
 }

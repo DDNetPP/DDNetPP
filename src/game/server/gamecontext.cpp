@@ -197,7 +197,7 @@ void CGameContext::FillAntibot(CAntibotRoundData *pData)
 	}
 }
 
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64 Mask)
 {
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
@@ -216,7 +216,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Ma
 	}
 }
 
-void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
+void CGameContext::CreateHammerHit(vec2 Pos, int64 Mask)
 {
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
@@ -227,7 +227,7 @@ void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64 Mask)
 {
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
@@ -242,7 +242,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	float Radius = 135.0f;
 	float InnerRadius = 48.0f;
 	int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-	int64_t TeamMask = -1;
+	int64 TeamMask = -1;
 	for(int i = 0; i < Num; i++)
 	{
 		vec2 Diff = apEnts[i]->m_Pos - Pos;
@@ -278,7 +278,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	}
 }
 
-void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
+void CGameContext::CreatePlayerSpawn(vec2 Pos, int64 Mask)
 {
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
@@ -290,7 +290,7 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
+void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64 Mask)
 {
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
@@ -302,7 +302,7 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, int64 Mask)
 {
 	if (Sound < 0)
 		return;
@@ -3266,6 +3266,21 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	m_MapBugs.Dump();
 
+	if(g_Config.m_SvSoloServer)
+	{
+		g_Config.m_SvTeam = 3;
+		g_Config.m_SvShowOthersDefault = 1;
+
+		Tuning()->Set("player_collision", 0);
+		Tuning()->Set("player_hooking", 0);
+
+		for (int i = 0; i < NUM_TUNEZONES; i++)
+		{
+			TuningList()[i].Set("player_collision", 0);
+			TuningList()[i].Set("player_hooking", 0);
+		}
+	}
+
 	m_pController = new CGameControllerDDRace(this);
 	((CGameControllerDDRace*)m_pController)->m_Teams.Reset();
 
@@ -3328,21 +3343,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			{
 				m_TeeHistorian.RecordAuthInitial(i, Level, Server()->GetAuthName(i));
 			}
-		}
-	}
-
-	if(g_Config.m_SvSoloServer)
-	{
-		g_Config.m_SvTeam = 3;
-		g_Config.m_SvShowOthersDefault = 1;
-
-		Tuning()->Set("player_collision", 0);
-		Tuning()->Set("player_hooking", 0);
-
-		for (int i = 0; i < NUM_TUNEZONES; i++)
-		{
-			TuningList()[i].Set("player_collision", 0);
-			TuningList()[i].Set("player_hooking", 0);
 		}
 	}
 
@@ -4403,11 +4403,18 @@ bool CGameContext::RateLimitPlayerVote(int ClientID)
 		return true;
 	}
 
-	if (g_Config.m_SvDnsblVote && !m_pServer->DnsblWhite(ClientID) && Server()->DistinctClientCount() > 1)
+	if(g_Config.m_SvDnsblVote && Server()->DistinctClientCount() > 1)
 	{
-		// blacklisted by dnsbl
-		SendChatTarget(ClientID, "You are not allowed to vote due to DNSBL.");
-		return true;
+		if(m_pServer->DnsblPending(ClientID))
+		{
+			SendChatTarget(ClientID, "You are not allowed to vote because we're currently checking for VPNs. Try again in ~30 seconds.");
+			return true;
+		}
+		else if(m_pServer->DnsblBlack(ClientID))
+		{
+			SendChatTarget(ClientID, "You are not allowed to vote because you appear to be using a VPN. Try connecting without a VPN or contacting an admin if you think this is a mistake.");
+			return true;
+		}
 	}
 
 	if(g_Config.m_SvSpamprotection && pPlayer->m_LastVoteTry && pPlayer->m_LastVoteTry + TickSpeed * 3 > Now)

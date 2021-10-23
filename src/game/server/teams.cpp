@@ -25,16 +25,28 @@ void CGameTeams::Reset()
 	}
 }
 
+void CGameTeams::ResetSwitchers(int Team)
+{
+	if (GameServer()->Collision()->m_NumSwitchers > 0) {
+		for (int i = 0; i < GameServer()->Collision()->m_NumSwitchers+1; ++i)
+		{
+			GameServer()->Collision()->m_pSwitchers[i].m_Status[Team] = GameServer()->Collision()->m_pSwitchers[i].m_Initial;
+			GameServer()->Collision()->m_pSwitchers[i].m_EndTick[Team] = 0;
+			GameServer()->Collision()->m_pSwitchers[i].m_Type[Team] = TILE_SWITCHOPEN;
+		}
+	}
+}
+
 void CGameTeams::OnCharacterStart(int ClientID)
 {
 	int Tick = Server()->Tick();
 	CCharacter* pStartingChar = Character(ClientID);
 	if(!pStartingChar)
 		return;
-	if(m_Core.Team(ClientID) != TEAM_FLOCK && pStartingChar->m_DDRaceState == DDRACE_FINISHED)
+	if((g_Config.m_SvTeam == 3 || m_Core.Team(ClientID) != TEAM_FLOCK) && pStartingChar->m_DDRaceState == DDRACE_FINISHED)
 		return;
-	if(m_Core.Team(ClientID) == TEAM_FLOCK
-			|| m_Core.Team(ClientID) == TEAM_SUPER)
+	if(g_Config.m_SvTeam != 3 &&
+			(m_Core.Team(ClientID) == TEAM_FLOCK || m_Core.Team(ClientID) == TEAM_SUPER))
 	{
 		pStartingChar->m_DDRaceState = DDRACE_STARTED;
 		pStartingChar->m_StartTime = Tick;
@@ -135,7 +147,7 @@ void CGameTeams::OnCharacterStart(int ClientID)
 
 void CGameTeams::OnCharacterFinish(int ClientID)
 {
-	if (m_Core.Team(ClientID) == TEAM_FLOCK
+	if((m_Core.Team(ClientID) == TEAM_FLOCK && g_Config.m_SvTeam != 3)
 			|| m_Core.Team(ClientID) == TEAM_SUPER)
 	{
 		CPlayer* pPlayer = GetPlayer(ClientID);
@@ -287,14 +299,7 @@ void CGameTeams::SetForceCharacterTeam(int ClientID, int Team)
 		if (!m_TeamLocked[Team])
 			ChangeTeamState(Team, TEAMSTATE_OPEN);
 
-		if (GameServer()->Collision()->m_NumSwitchers > 0) {
-			for (int i = 0; i < GameServer()->Collision()->m_NumSwitchers+1; ++i)
-			{
-				GameServer()->Collision()->m_pSwitchers[i].m_Status[Team] = GameServer()->Collision()->m_pSwitchers[i].m_Initial;
-				GameServer()->Collision()->m_pSwitchers[i].m_EndTick[Team] = 0;
-				GameServer()->Collision()->m_pSwitchers[i].m_Type[Team] = TILE_SWITCHOPEN;
-			}
-		}
+		ResetSwitchers(Team);
 	}
 }
 
@@ -302,7 +307,7 @@ void CGameTeams::ForceLeaveTeam(int ClientID)
 {
 	m_TeeFinished[ClientID] = false;
 
-	if (m_Core.Team(ClientID) != TEAM_FLOCK
+	if((m_Core.Team(ClientID) != TEAM_FLOCK || g_Config.m_SvTeam == 3)
 			&& m_Core.Team(ClientID) != TEAM_SUPER
 			&& m_TeamState[m_Core.Team(ClientID)] != TEAMSTATE_EMPTY)
 	{
@@ -367,9 +372,9 @@ bool CGameTeams::TeamFinished(int Team)
 	return true;
 }
 
-int64_t CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
+int64 CGameTeams::TeamMask(int Team, int ExceptID, int Asker)
 {
-	int64_t Mask = 0;
+	int64 Mask = 0;
 
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 	{
@@ -515,7 +520,7 @@ void CGameTeams::OnTeamFinish(CPlayer** Players, unsigned int Size, float Time, 
 
 		if(g_Config.m_SvRejoinTeam0 && g_Config.m_SvTeam != 3 && (m_Core.Team(Players[i]->GetCID()) >= TEAM_SUPER || !m_TeamLocked[m_Core.Team(Players[i]->GetCID())]))
 		{
-			SetForceCharacterTeam(Players[i]->GetCID(), 0);
+			SetForceCharacterTeam(Players[i]->GetCID(), TEAM_FLOCK);
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "%s joined team 0",
 					GameServer()->Server()->ClientName(Players[i]->GetCID()));
@@ -747,7 +752,10 @@ void CGameTeams::OnCharacterSpawn(int ClientID)
 
 	if (m_Core.Team(ClientID) >= TEAM_SUPER || !m_TeamLocked[Team])
 	{
-		SetForceCharacterTeam(ClientID, 0);
+		if(g_Config.m_SvTeam != 3)
+			SetForceCharacterTeam(ClientID, TEAM_FLOCK);
+		else
+			SetForceCharacterTeam(ClientID, ClientID); // initialize team
 		CheckTeamFinished(Team);
 	}
 }
@@ -761,12 +769,14 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 		return;
 	bool Locked = TeamLocked(Team) && Weapon != WEAPON_GAME;
 
-	if(!Locked)
+	if(g_Config.m_SvTeam == 3)
 	{
-		SetForceCharacterTeam(ClientID, 0);
-		CheckTeamFinished(Team);
+		ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
+		ResetSwitchers(Team);
+		m_Practice[Team] = false;
+		GameServer()->m_apPlayers[ClientID]->m_VotedForPractice = false;
 	}
-	else
+	else if(Locked)
 	{
 		SetForceCharacterTeam(ClientID, Team);
 
@@ -794,6 +804,11 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 						GameServer()->SendChatTarget(i, aBuf);
 				}
 		}
+	}
+	else
+	{
+		SetForceCharacterTeam(ClientID, TEAM_FLOCK);
+		CheckTeamFinished(Team);
 	}
 }
 
@@ -833,11 +848,19 @@ void CGameTeams::KillSavedTeam(int ClientID, int Team)
 
 void CGameTeams::ResetSavedTeam(int ClientID, int Team)
 {
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	if(g_Config.m_SvTeam == 3)
 	{
-		if(m_Core.Team(i) == Team && GameServer()->m_apPlayers[i])
+		ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
+		ResetSwitchers(Team);
+	}
+	else
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
-			SetForceCharacterTeam(i, 0);
+			if(m_Core.Team(i) == Team && GameServer()->m_apPlayers[i])
+			{
+				SetForceCharacterTeam(i, TEAM_FLOCK);
+			}
 		}
 	}
 }

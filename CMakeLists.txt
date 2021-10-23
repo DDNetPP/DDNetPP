@@ -1203,7 +1203,6 @@ set(EXPECTED_DATA
   skins/Apish\ Coke.png
   skins/BadAnqelMonster.png
   skins/Black\ Phantom\ heinrich5991.png
-  skins/Blind\ r0xr.png
   skins/DuMoH.png
   skins/Evil\ Puffi.png
   skins/Flying\ Silex.png
@@ -1212,14 +1211,11 @@ set(EXPECTED_DATA
   skins/Mobys\ Skull.png
   skins/PaladiN.png
   skins/Red\ Coke.png
-  skins/Shadow.png
-  skins/Sonic.png
   skins/Straw\ Crytek.png
   skins/Terrorist.png
   skins/Volt.png
   skins/antiantey.png
   skins/aqua.png
-  skins/atlas_by_whis.png
   skins/bauer.png
   skins/beast.png
   skins/blacktee.png
@@ -1254,7 +1250,6 @@ set(EXPECTED_DATA
   skins/demonlimekitty.png
   skins/dino.png
   skins/dragon.png
-  skins/draw.png
   skins/emo.png
   skins/evil.png
   skins/evilwolfe.png
@@ -1270,7 +1265,6 @@ set(EXPECTED_DATA
   skins/hedgehog.png
   skins/jeet.png
   skins/kintaro_2.png
-  skins/kirby.png
   skins/kitty_bluestripe.png
   skins/kitty_brownbear.png
   skins/kitty_cammo.png
@@ -1288,13 +1282,8 @@ set(EXPECTED_DATA
   skins/kitty_x_ninja.png
   skins/lightbulb.png
   skins/limekitty.png
-  skins/m&mred.png
-  skins/m&myellow.png
-  skins/masterchief.png
   skins/mermydon-coala.png
   skins/mermydon.png
-  skins/mike.png
-  skins/monstee.png
   skins/mouse.png
   skins/musmann.png
   skins/nanami.png
@@ -1304,15 +1293,9 @@ set(EXPECTED_DATA
   skins/nosey.png
   skins/oldman.png
   skins/oldschool.png
-  skins/pbody_by_whis.png
   skins/penguin.png
-  skins/pepsi.png
-  skins/pikminpurple.png
-  skins/pikminwhite.png
-  skins/pikminyellow.png
   skins/pinky.png
   skins/random.png
-  skins/red_bird.png
   skins/redbopp.png
   skins/redstripe.png
   skins/roman.png
@@ -1334,19 +1317,10 @@ set(EXPECTED_DATA
   skins/santa_twintri.png
   skins/santa_warpaint.png
   skins/savage.png
-  skins/t2.png
-  skins/tails.png
   skins/tank.png
-  skins/tauren.png
   skins/teerasta.png
-  skins/teledipsy.png
-  skins/telelaalaa.png
-  skins/telepo.png
-  skins/teletinkywinky.png
   skins/toptri.png
-  skins/troll.png
   skins/ts2_contest_skin.png
-  skins/tweety.png
   skins/twinbop.png
   skins/twintri.png
   skins/veteran.png
@@ -1595,6 +1569,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   websockets.h
 )
 set_src(GAME_SHARED GLOB src/game
+  bezier.cpp
+  bezier.h
   collision.cpp
   collision.h
   collision_ddpp.cpp
