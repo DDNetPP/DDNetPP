@@ -275,6 +275,11 @@ public:
 
 	void DDPP_Tick();
 	void DDPP_FlagTick();
+	void CosmeticTick();
+	void SpawnDDPP(CPlayer *pPlayer, vec2 Pos);
+	void PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos);
+	void DDPPPostCoreTick();
+	bool DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon);
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
 	void BlockTourna_Die(int Killer);
 	void DummyTick();
