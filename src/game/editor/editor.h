@@ -812,6 +812,7 @@ public:
 		POPEVENT_PREVENTUNUSEDTILES,
 		POPEVENT_IMAGEDIV16,
 		POPEVENT_IMAGE_MAX,
+		POPEVENT_PLACE_BORDER_TILES
 	};
 
 	int m_PopupEventType;
@@ -934,7 +935,7 @@ public:
 	float m_CommandBox;
 	char m_aSettingsCommand[256];
 
-	void DoMapBorder();
+	void PlaceBorderTiles();
 	int DoButton_Editor_Common(const void *pID, const char *pText, int Checked, const CUIRect *pRect, int Flags, const char *pToolTip);
 	int DoButton_Editor(const void *pID, const char *pText, int Checked, const CUIRect *pRect, int Flags, const char *pToolTip);
 	int DoButton_Env(const void *pID, const char *pText, int Checked, const CUIRect *pRect, const char *pToolTip, ColorRGBA Color);
@@ -1039,6 +1040,7 @@ public:
 	void RenderFileDialog();
 
 	void AddFileDialogEntry(int Index, CUIRect *pView);
+	void SelectGameLayer();
 	void SortImages();
 	const char *Explain(int Tile, int Layer);
 

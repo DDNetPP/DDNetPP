@@ -1344,7 +1344,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 			if (ShowJoinMessage(ClientID))
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
-				SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CHAT_SIX);
 			}
 			else
 			{

@@ -1298,9 +1298,10 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 			if(pT)
 			{
 				TB_Bottom.VSplitLeft(60.0f, &Button, &TB_Bottom);
-				if(DoButton_Ex(&s_BorderBut, "Border", 0, &Button, 0, "Adds border tiles", CUI::CORNER_ALL))
+				if(DoButton_Ex(&s_BorderBut, "Border", 0, &Button, 0, "Place tiles in a 2-tile wide border at the edges of the layer", CUI::CORNER_ALL))
 				{
-					DoMapBorder();
+					m_PopupEventType = POPEVENT_PLACE_BORDER_TILES;
+					m_PopupEventActivated = true;
 				}
 				TB_Bottom.VSplitLeft(5.0f, &Button, &TB_Bottom);
 			}
@@ -3881,6 +3882,21 @@ int CEditor::PopupSound(CEditor *pEditor, CUIRect View, void *pContext)
 	return 0;
 }
 
+void CEditor::SelectGameLayer()
+{
+	for(int g = 0; g < m_Map.m_lGroups.size(); g++)
+	{
+		for(int i = 0; i < m_Map.m_lGroups[g]->m_lLayers.size(); i++)
+		{
+			if(m_Map.m_lGroups[g]->m_lLayers[i] == m_Map.m_pGameLayer)
+			{
+				SelectLayer(i, g);
+				return;
+			}
+		}
+	}
+}
+
 static int CompareImageName(const void *pObject1, const void *pObject2)
 {
 	CEditorImage *pImage1 = *(CEditorImage**)pObject1;
@@ -6177,7 +6193,7 @@ void CEditor::Reset(bool CreateDefault)
 	if(CreateDefault)
 		m_Map.CreateDefault(m_EntitiesTexture);
 
-	SelectLayer(0, 0);
+	SelectGameLayer();
 	m_lSelectedQuads.clear();
 	m_SelectedPoints = 0;
 	m_SelectedEnvelope = 0;
@@ -6401,7 +6417,7 @@ void CEditor::Init()
 	ms_PickerColor = ColorHSVA(1.0f, 0.0f, 0.0f);
 }
 
-void CEditor::DoMapBorder()
+void CEditor::PlaceBorderTiles()
 {
 	CLayerTiles *pT = (CLayerTiles *)GetSelectedLayerType(0, LAYERTYPE_TILES);
 
