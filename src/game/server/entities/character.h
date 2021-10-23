@@ -53,6 +53,7 @@ enum
 
 class CCharacter : public CEntity
 {
+	#define IN_CLASS_CHARACTER
 	#include "character_ddpp.h"
 	MACRO_ALLOC_POOL_ID()
 

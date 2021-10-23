@@ -1,3 +1,23 @@
+#ifndef IN_CLASS_CHARACTER
+#include <deque>
+#include <engine/antibot.h>
+#include <game/server/entity.h>
+#include <game/server/entities/stable_projectile.h>
+#include <game/server/save.h>
+#include <game/generated/server_data.h>
+#include <game/generated/protocol.h>
+
+#include <game/gamecore.h>
+
+#include <vector>
+#include "dummy/blmapchill_police.h"
+
+#include "weapon.h"
+#include "drop_pickup.h"
+class CCharacter : public CEntity
+{
+#endif
+
 private:
 	/*
 
@@ -434,3 +454,7 @@ public:
 	int m_Dummy_mode18;                 //yes dummymode18 has his own modes o.O
 	//bool mode18_main_init;              //yep one of the randomesteztes booleans in ze world
 private:
+
+#ifndef IN_CLASS_CHARACTER
+}
+#endif
