@@ -1158,6 +1158,10 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 		hints.ai_family = AF_INET;
 	else if(types == NETTYPE_IPV6)
 		hints.ai_family = AF_INET6;
+#if defined(CONF_WEBSOCKETS)
+	if(types & NETTYPE_WEBSOCKET_IPV4)
+		hints.ai_family = AF_INET;
+#endif
 
 	e = getaddrinfo(host, NULL, &hints, &result);
 
@@ -2242,8 +2246,11 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 	if(sock.web_ipv4sock >= 0)
 	{
 		int maxfd = websocket_fd_set(sock.web_ipv4sock, &readfds);
-		if (maxfd > sockid)
+		if(maxfd > sockid)
+		{
 			sockid = maxfd;
+			FD_SET(sockid, &readfds);
+		}
 	}
 #endif
 
@@ -2255,7 +2262,10 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 
 	if(sock.ipv4sock >= 0 && FD_ISSET(sock.ipv4sock, &readfds))
 		return 1;
-
+#if defined(CONF_WEBSOCKETS)
+	if(sock.web_ipv4sock >= 0 && FD_ISSET(sockid, &readfds))
+		return 1;
+#endif
 	if(sock.ipv6sock >= 0 && FD_ISSET(sock.ipv6sock, &readfds))
 		return 1;
 
@@ -3254,7 +3264,7 @@ PROCESS shell_execute(const char *file)
 	if(pid == 0)
 	{
 		execv(file, argv);
-		exit(1);
+		_exit(1);
 	}
 	return pid;
 #endif
