@@ -45,6 +45,201 @@ bool CCharacter::HandleConfigTile(int Type)
 	return false;
 }
 
+void CCharacter::SnapCharacterDDPP()
+{
+	// da oben sind ja die ganzen abfragen, ob der spieler sichtbar ist, ob er richtig erstellt werden konnte, 
+	// ob das game nicht pausiert ist und so.
+	// wenn du das jetzt oben hinschreibst dann passiert das vor den abfragen
+	// kann evtl. zu einem crash oder ähnlichem führen
+	if (m_WaveBloody)
+	{
+		if (m_WaveBloodyStrength < 1 || Server()->Tick() % m_WaveBloodyStrength == 0)
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+			if (m_WaveBloodyStrength < -5)
+			{
+				for (int i = 0; i < 3; i++) //strong bloody
+				{
+					GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+				}
+			}
+		}
+
+		if (Server()->Tick() % 11 == 0) // wave speed
+		{
+			if (m_WaveBloodyGrow)
+			{
+				m_WaveBloodyStrength++;
+			}
+			else
+			{
+				m_WaveBloodyStrength--;
+			}
+		}
+
+		if (m_WaveBloodyStrength > 12)
+		{
+			m_WaveBloodyGrow = false;
+		}
+		else if (m_WaveBloodyStrength < -10)
+		{
+			m_WaveBloodyGrow = true;
+		}
+	}
+
+	if (m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) ||m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
+	{
+		if (Server()->Tick() % 3 == 0) //low bloody
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+		}
+	}
+
+	if (m_StrongBloody) // wenn strong bloody aktiviert ist
+	{
+		for (int i = 0; i < 3; i++) //strong bloody
+		{
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+		}
+	}
+
+	if (m_pPlayer->m_ninjasteam || m_ninjasteam)
+	{
+		for (int i = 0; i < 3; i++) //hier wird eine schleife erstellt, damit sich der effekt wiederholt
+		{
+			GameServer()->CreatePlayerSpawn(m_Pos); //hier wird der spawn effekt erstellt
+		}
+	}
+
+	if (m_isHeal)
+	{
+		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der tee zerplatzt xD effekt erstellt.
+		m_isHeal = false;
+	}
+}
+
+void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
+{
+	if (m_Godmode || (m_pPlayer->m_IsInstaArena_gdm && GameServer()->m_InstaGrenadeRoundEndTickTicker) || (m_pPlayer->m_IsInstaArena_idm && GameServer()->m_InstaRifleRoundEndTickTicker))
+	{
+		//CHEATER!!
+	}
+	else
+	{
+		if (From == m_pPlayer->GetCID())
+		{
+			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
+		}
+
+		if (From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
+		{
+			if (m_pPlayer->m_IsInstaMode_fng || GameServer()->m_apPlayers[From]->m_IsInstaMode_fng)
+			{
+				if (!m_FreezeTime)
+				{
+					//char aBuf[256];
+					//str_format(aBuf, sizeof(aBuf), "freezetime %d", m_FreezeTime);
+					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					Freeze(10);
+					// on fire mode
+					if (g_Config.m_SvOnFireMode == 1)
+					{
+						if (GameServer()->m_apPlayers[From] && GameServer()->m_apPlayers[From]->GetCharacter())
+						{
+							GameServer()->m_apPlayers[From]->GetCharacter()->m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
+						}
+					}
+				}
+				else
+				{
+					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "returned cuz freeze time");
+					//return false; //dont count freezed tee shots (no score or sound or happy emote)
+					//dont return because we loose hammer vel then
+					return; //we can return agian because the instagib stuff has his own func and got moved out of TakeDamage();
+				}
+			}
+			else
+			{
+				Die(From, Weapon);
+			}
+
+			//do scoring (by ChillerDragon)
+			if (g_Config.m_SvInstagibMode || g_Config.m_SvDDPPscore == 0)
+			{
+				GameServer()->m_apPlayers[From]->m_Score++;
+			}
+			GameServer()->DoInstaScore(1, From);
+
+
+			//save the kill
+			//if (!m_pPlayer->m_IsInstaArena_fng) //damage is only a hit not a kill in insta ---> well move it complety al to kill makes more performance sense
+			//{
+			//	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
+			//	{
+			//		GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+			//	}
+			//	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
+			//	{
+			//		GameServer()->m_apPlayers[From]->m_RifleKills++;
+			//	}
+			//}
+
+
+			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
+			//GameServer()->m_apPlayers[From]->m_KillStreak++;
+			//char aBuf[256];
+			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak >= 5)
+			//{
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+			//}
+			//m_pPlayer->m_KillStreak = 0;
+			//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
+			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
+			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
+			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+
+			// set attacker's face to happy (taunt!)
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			{
+				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
+				if (pChr)
+				{
+					pChr->m_EmoteType = EMOTE_HAPPY;
+					pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
+				}
+			}
+
+
+			// do damage Hit sound
+			if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			{
+				int64_t Mask = CmaskOne(From);
+				for (int i = 0; i < MAX_CLIENTS; i++)
+				{
+					if (GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+						Mask |= CmaskOne(i);
+				}
+				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+			}
+
+			//if zCatch mode --> move to spec
+			if (g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
+			{
+				if (From != m_pPlayer->GetCID())
+				{
+					m_pPlayer->SetTeam(-1, 0);
+				}
+
+				//Save The Player in catch array
+				GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+			}
+		}
+	}
+}
+
 void CCharacter::SetSpookyGhost()
 {
 	if (m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && m_pPlayer->m_IsSurvivalLobby == false)) // no ghost in competetive minigames

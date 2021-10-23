@@ -1507,6 +1507,7 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   config_variables_ddpp.h
   console.cpp
   console.h
+  console_ddpp.cpp
   csv.cpp
   csv.h
   datafile.cpp

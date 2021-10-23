@@ -307,21 +307,6 @@ void CConsole::SetPrintOutputLevel(int Index, int OutputLevel)
 		m_aPrintCB[Index].m_OutputLevel = clamp(OutputLevel, (int)(OUTPUT_LEVEL_STANDARD), (int)(OUTPUT_LEVEL_DEBUG));
 }
 
-void CConsole::PrintDDPPLogs(int type)
-{
-    /*
-        start from the oldest log
-        so the last line printed in the console is the latest log
-        scroll up to go in the past
-    */
-    for (int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
-    {
-        if (!aDDPPLogs[type][i][0])
-            continue;
-		Print(OUTPUT_LEVEL_STANDARD, "ddpp_logs", aDDPPLogs[type][i]);
-    }
-}
-
 char *CConsole::Format(char *pBuf, int Size, const char *pFrom, const char *pStr)
 {
 	char aTimeBuf[80];
