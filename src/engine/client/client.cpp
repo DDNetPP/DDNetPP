@@ -65,10 +65,9 @@
 	#include <windows.h>
 #endif
 
+#include "client.h"
 #include "friends.h"
 #include "serverbrowser.h"
-#include "updater.h"
-#include "client.h"
 
 #if defined(CONF_VIDEORECORDER)
 	#include "video.h"
@@ -709,6 +708,12 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 
 	str_format(aBuf, sizeof(aBuf), "connecting to '%s'", m_aServerAddressStr);
 	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+	bool is_websocket = false;
+	if(strncmp(m_aServerAddressStr, "ws://", 5) == 0)
+	{
+		is_websocket = true;
+		str_copy(m_aServerAddressStr, pAddress + 5, sizeof(m_aServerAddressStr));
+	}
 
 	ServerInfoRequest();
 	if(net_host_lookup(m_aServerAddressStr, &m_ServerAddress, m_NetClient[CLIENT_MAIN].NetType()) != 0, 0)
@@ -736,6 +741,10 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	m_pConsole->DeregisterTempAll();
 	if(m_ServerAddress.port == 0)
 		m_ServerAddress.port = Port;
+	if(is_websocket)
+	{
+		m_ServerAddress.type = NETTYPE_WEBSOCKET_IPV4;
+	}
 	m_NetClient[CLIENT_MAIN].Connect(&m_ServerAddress);
 	SetState(IClient::STATE_CONNECTING);
 
@@ -2381,11 +2390,60 @@ void CClient::ResetDDNetInfo()
 	}
 }
 
+bool CClient::IsDDNetInfoChanged()
+{
+	IOHANDLE OldFile = m_pStorage->OpenFile(DDNET_INFO, IOFLAG_READ, IStorage::TYPE_SAVE);
+
+	if(!OldFile)
+		return true;
+
+	IOHANDLE NewFile = m_pStorage->OpenFile(m_aDDNetInfoTmp, IOFLAG_READ, IStorage::TYPE_SAVE);
+
+	if(NewFile)
+	{
+		char aOldData[4096];
+		char aNewData[4096];
+		unsigned OldBytes;
+		unsigned NewBytes;
+
+		do
+		{
+			OldBytes = io_read(OldFile, aOldData, sizeof(aOldData));
+			NewBytes = io_read(NewFile, aNewData, sizeof(aNewData));
+
+			if(OldBytes != NewBytes || mem_comp(aOldData, aNewData, OldBytes) != 0)
+			{
+				io_close(NewFile);
+				io_close(OldFile);
+				return true;
+			}
+		}
+		while(OldBytes > 0);
+
+		io_close(NewFile);
+	}
+
+	io_close(OldFile);
+	return false;
+}
+
 void CClient::FinishDDNetInfo()
 {
 	ResetDDNetInfo();
-	m_pStorage->RenameFile(m_aDDNetInfoTmp, DDNET_INFO, IStorage::TYPE_SAVE);
-	LoadDDNetInfo();
+	if(IsDDNetInfoChanged())
+	{
+		m_pStorage->RenameFile(m_aDDNetInfoTmp, DDNET_INFO, IStorage::TYPE_SAVE);
+		LoadDDNetInfo();
+
+		if(g_Config.m_UiPage == CMenus::PAGE_DDNET)
+			m_ServerBrowser.Refresh(IServerBrowser::TYPE_DDNET);
+		else if(g_Config.m_UiPage == CMenus::PAGE_KOG)
+			m_ServerBrowser.Refresh(IServerBrowser::TYPE_KOG);
+	}
+	else
+	{
+		m_pStorage->RemoveFile(m_aDDNetInfoTmp, IStorage::TYPE_SAVE);
+	}
 }
 
 typedef std::tuple<int, int, int> Version;
@@ -2441,9 +2499,9 @@ void CClient::LoadDDNetInfo()
 	{
 		const char *pNewsString = json_string_get(pNews);
 
-		// Only switch to news page if something new was added to the news
+		// Only mark news button if something new was added to the news
 		if(m_aNews[0] && str_find(m_aNews, pNewsString) == nullptr)
-			g_Config.m_UiPage = CMenus::PAGE_NEWS;
+			g_Config.m_UiUnreadNews = true;
 
 		str_copy(m_aNews, pNewsString, sizeof(m_aNews));
 	}
@@ -3901,18 +3959,24 @@ void CClient::LoadFont()
 	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
+		size_t Size = io_length(File);
+		unsigned char *pBuf = (unsigned char *)malloc(Size);
+		io_read(File, pBuf, Size);
 		io_close(File);
 		IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
 		pDefaultFont = pTextRender->GetFont(aFilename);
 		if(pDefaultFont == NULL)
-			pDefaultFont = pTextRender->LoadFont(aFilename);
+			pDefaultFont = pTextRender->LoadFont(aFilename, pBuf, Size);
 
 		File = Storage()->OpenFile(pFallbackFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 		if(File)
 		{
+			size_t Size = io_length(File);
+			unsigned char *pBuf = (unsigned char *)malloc(Size);
+			io_read(File, pBuf, Size);
 			io_close(File);
 			IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
-			LoadedFallbackFont = pTextRender->LoadFallbackFont(pDefaultFont, aFilename);
+			LoadedFallbackFont = pTextRender->LoadFallbackFont(pDefaultFont, aFilename, pBuf, Size);
 		}
 
 		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);

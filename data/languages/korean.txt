@@ -303,6 +303,7 @@ Ping
 Pistol
 == 권총
 
+[Demo browser]
 Play
 == 플레이
 
@@ -629,9 +630,6 @@ Alpha
 Length:
 == 길이:
 
-Current version: %s
-== 현재 버전: %s
-
 Name plates size
 == 이름 글꼴 크기
 
@@ -647,13 +645,16 @@ Replay feature is disabled!
 The width or height of texture %s is not divisible by 16, which might cause visual bugs.
 == 
 
+Warning
+== 
+
 Server best:
 == 
 
 Personal best:
 == 
 
-Learn
+Menu
 == 
 
 Browser
@@ -719,6 +720,9 @@ Country / Region
 Destination file already exist
 == 
 
+Speed
+== 
+
 Video name:
 == 
 
@@ -747,24 +751,6 @@ Countries
 == 
 
 Types
-== 
-
-DDNet %s is out!
-== 
-
-Downloading %s:
-== 
-
-Update failed! Check log...
-== 
-
-DDNet Client updated!
-== 
-
-Update now
-== 
-
-Restart
 == 
 
 Select a name
@@ -812,6 +798,12 @@ Connecting dummy
 Connect Dummy
 == 
 
+Kill
+== 
+
+Pause
+== 
+
 Reload
 == 
 
@@ -836,6 +828,9 @@ Show clan above name plates
 Clan plates size
 == 
 
+Skip the main menu
+== 
+
 Refresh Rate
 == 
 
@@ -854,6 +849,9 @@ Max CSVs
 Dummy settings
 == 
 
+Download skins
+== 
+
 Vanilla skins only
 == 
 
@@ -864,12 +862,6 @@ Skin prefix
 == 
 
 Hook collisions
-== 
-
-Pause
-== 
-
-Kill
 == 
 
 Zoom in
@@ -1127,7 +1119,13 @@ Try fast HTTP map download first
 DDNet %s is available:
 == 
 
+Update now
+== 
+
 Updating...
+== 
+
+DDNet Client updated!
 == 
 
 No updates available
@@ -1137,6 +1135,46 @@ Check now
 == 
 
 New random timeout code
+== 
+
+Learn
+== 
+
+https://wiki.ddnet.tw/
+== 
+
+Website
+== 
+
+Settings
+== 
+
+Stop server
+== 
+
+Run server
+== 
+
+Server executable not found, can't run server
+== 
+
+Editor
+== 
+
+[Start menu]
+Play
+== 
+
+DDNet %s is out!
+== 
+
+Downloading %s:
+== 
+
+Update failed! Check log...
+== 
+
+Restart
 == 
 
 Time

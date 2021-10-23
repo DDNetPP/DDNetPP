@@ -18,7 +18,7 @@ void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int
 	CGameControllerDDRace *Controller = (CGameControllerDDRace*)GameServer()->m_pController;
 	// chillerdragon dummy tile test
 	// finish tile finishtile
-	if (((m_TileIndex == TILE_END) || (m_TileFIndex == TILE_END) || FTile1 == TILE_END || FTile2 == TILE_END || FTile3 == TILE_END || FTile4 == TILE_END || Tile1 == TILE_END || Tile2 == TILE_END || Tile3 == TILE_END || Tile4 == TILE_END) && m_DDRaceState == DDRACE_STARTED)
+	if(((m_TileIndex == TILE_FINISH) || (m_TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && m_DDRaceState == DDRACE_STARTED)
 	{
 		Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID()); // Quest 3 lvl 0-4 is handled in here teams.cpp
 		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)
@@ -498,7 +498,7 @@ void CCharacter::HandleTilesDDPP(int Index, int Tile1, int Tile2, int Tile3, int
 	}
 
 	// start (override)
-	if (((m_TileIndex == TILE_BEGIN) || (m_TileFIndex == TILE_BEGIN) || FTile1 == TILE_BEGIN || FTile2 == TILE_BEGIN || FTile3 == TILE_BEGIN || FTile4 == TILE_BEGIN || Tile1 == TILE_BEGIN || Tile2 == TILE_BEGIN || Tile3 == TILE_BEGIN || Tile4 == TILE_BEGIN))
+	if(((m_TileIndex == TILE_START) || (m_TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (m_DDRaceState == DDRACE_NONE || m_DDRaceState == DDRACE_FINISHED || (m_DDRaceState == DDRACE_STARTED && !Team() && g_Config.m_SvTeam != 3)))
 	{
 		m_pPlayer->m_MoneyTilePlus = true;
 		if (m_pPlayer->m_QuestState == CPlayer::QUEST_RACE)

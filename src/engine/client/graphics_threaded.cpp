@@ -417,6 +417,26 @@ IGraphics::CTextureHandle CGraphics_Threaded::LoadTextureRaw(int Width, int Heig
 		return m_InvalidTexture;
 #endif
 
+	if((Flags & IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE) != 0 || (Flags & IGraphics::TEXLOAD_TO_3D_TEXTURE) != 0)
+	{
+		if(Width == 0 || (Width % 16) != 0 || Height == 0 || (Height % 16) != 0)
+		{
+			SGraphicsWarning NewWarning;
+			char aText[128];
+			aText[0] = '\0';
+			if(pTexName)
+			{
+				str_format(aText, sizeof(aText), "\"%s\"", pTexName);
+			}
+			str_format(NewWarning.m_aWarningMsg, sizeof(NewWarning.m_aWarningMsg), Localize("The width or height of texture %s is not divisible by 16, which might cause visual bugs."), aText);
+
+			m_Warnings.emplace_back(NewWarning);
+		}
+	}
+
+	if(Width == 0 || Height == 0)
+		return IGraphics::CTextureHandle();
+
 	// grab texture
 	int Tex = m_FirstFreeTexture;
 	m_FirstFreeTexture = m_aTextureIndices[Tex];
@@ -434,9 +454,9 @@ IGraphics::CTextureHandle CGraphics_Threaded::LoadTextureRaw(int Width, int Heig
 	Cmd.m_Flags = 0;
 	if(Flags&IGraphics::TEXLOAD_NOMIPMAPS)
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_NOMIPMAPS;
-	if(g_Config.m_GfxTextureCompression && ((Flags&IGraphics::TEXLOAD_NO_COMPRESSION) == 0))
+	if(g_Config.m_GfxTextureCompressionOld && ((Flags & IGraphics::TEXLOAD_NO_COMPRESSION) == 0))
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_COMPRESSED;
-	if(g_Config.m_GfxTextureQuality || Flags&TEXLOAD_NORESAMPLE)
+	if(g_Config.m_GfxTextureQualityOld || Flags & TEXLOAD_NORESAMPLE)
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_QUALITY;
 	if((Flags&IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE) != 0)
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE;
@@ -448,23 +468,6 @@ IGraphics::CTextureHandle CGraphics_Threaded::LoadTextureRaw(int Width, int Heig
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_TO_3D_TEXTURE_SINGLE_LAYER;
 	if((Flags&IGraphics::TEXLOAD_NO_2D_TEXTURE) != 0)
 		Cmd.m_Flags |= CCommandBuffer::TEXFLAG_NO_2D_TEXTURE;
-
-	if((Flags&IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE) != 0 || (Flags&IGraphics::TEXLOAD_TO_3D_TEXTURE) != 0)
-	{
-		if(Width == 0 || (Width % 16) != 0 || Height == 0 || (Height % 16) != 0)
-		{
-			SGraphicsWarning NewWarning;
-			char aText[128];
-			aText[0] = '\0';
-			if(pTexName)
-			{
-				str_format(aText, sizeof(aText), "\"%s\"", pTexName);
-			}
-			str_format(NewWarning.m_aWarningMsg, sizeof(NewWarning.m_aWarningMsg), Localize("The width or height of texture %s is not divisible by 16, which might cause visual bugs."), aText);
-
-			m_Warnings.emplace_back(NewWarning);
-		}
-	}
 
 	// copy texture data
 	int MemSize = Width*Height*Cmd.m_PixelSize;
@@ -553,6 +556,16 @@ int CGraphics_Threaded::LoadPNG(CImageInfo *pImg, const char *pFilename, int Sto
 		pImg->m_Format = CImageInfo::FORMAT_RGBA;
 	pImg->m_pData = pBuffer;
 	return 1;
+}
+
+void CGraphics_Threaded::CopyTextureBufferSub(uint8_t *pDestBuffer, uint8_t *pSourceBuffer, int FullWidth, int FullHeight, int ColorChannelCount, int SubOffsetX, int SubOffsetY, int SubCopyWidth, int SubCopyHeight)
+{
+	for(int Y = 0; Y < SubCopyHeight; ++Y)
+	{
+		int ImgOffset = ((SubOffsetY + Y) * FullWidth * ColorChannelCount) + (SubOffsetX * ColorChannelCount);
+		int CopySize = SubCopyWidth * ColorChannelCount;
+		mem_copy(&pDestBuffer[ImgOffset], &pSourceBuffer[ImgOffset], CopySize);
+	}
 }
 
 void CGraphics_Threaded::KickCommandBuffer()
@@ -712,6 +725,17 @@ void CGraphics_Threaded::SetColor(float r, float g, float b, float a)
 void CGraphics_Threaded::SetColor(ColorRGBA rgb)
 {
 	SetColor(rgb.r, rgb.g, rgb.b, rgb.a);
+}
+
+void CGraphics_Threaded::SetColor4(vec4 TopLeft, vec4 TopRight, vec4 BottomLeft, vec4 BottomRight)
+{
+	dbg_assert(m_Drawing != 0, "called Graphics()->SetColor without begin");
+	CColorVertex Array[4] = {
+		CColorVertex(0, TopLeft.r, TopLeft.g, TopLeft.b, TopLeft.a),
+		CColorVertex(1, TopRight.r, TopRight.g, TopRight.b, TopRight.a),
+		CColorVertex(2, BottomRight.r, BottomRight.g, BottomRight.b, BottomRight.a),
+		CColorVertex(3, BottomLeft.r, BottomLeft.g, BottomLeft.b, BottomLeft.a)};
+	SetColorVertex(Array, 4);
 }
 
 void CGraphics_Threaded::ChangeColorOfCurrentQuadVertices(float r, float g, float b, float a)

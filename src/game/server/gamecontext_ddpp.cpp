@@ -621,7 +621,7 @@ vec2 CGameContext::GetFinishTile()
 	int Height = Collision()->GetHeight();
 	for (int i = 0; i < Width*Height; i++)
 	{
-		if (Collision()->GetTileIndex(i) == TILE_END || Collision()->GetFTileIndex(i) == TILE_END)
+		if (Collision()->GetTileIndex(i) == TILE_FINISH || Collision()->GetFTileIndex(i) == TILE_FINISH)
 		{
 			/*
 			dbg_msg("tile-finder", "found finish tile at index=%d", i);

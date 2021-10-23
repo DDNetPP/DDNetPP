@@ -23,11 +23,14 @@
 #include <game/version.h>
 #include <game/generated/protocol.h>
 
-#include <game/generated/client_data.h>
+#include <engine/client/updater.h>
+
 #include <game/client/components/binds.h>
+#include <game/client/components/console.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
 #include <game/client/lineinput.h>
+#include <game/generated/client_data.h>
 #include <game/localization.h>
 #include <mastersrv/mastersrv.h>
 
@@ -39,10 +42,13 @@
 ColorRGBA CMenus::ms_GuiColor;
 ColorRGBA CMenus::ms_ColorTabbarInactiveOutgame;
 ColorRGBA CMenus::ms_ColorTabbarActiveOutgame;
+ColorRGBA CMenus::ms_ColorTabbarHoverOutgame;
 ColorRGBA CMenus::ms_ColorTabbarInactive;
-ColorRGBA CMenus::ms_ColorTabbarActive = ColorRGBA(0,0,0,0.5f);
+ColorRGBA CMenus::ms_ColorTabbarActive = ColorRGBA(0, 0, 0, 0.5f);
+ColorRGBA CMenus::ms_ColorTabbarHover;
 ColorRGBA CMenus::ms_ColorTabbarInactiveIngame;
 ColorRGBA CMenus::ms_ColorTabbarActiveIngame;
+ColorRGBA CMenus::ms_ColorTabbarHoverIngame;
 
 float CMenus::ms_ButtonHeight = 25.0f;
 float CMenus::ms_ListheaderHeight = 17.0f;
@@ -56,6 +62,7 @@ CMenus::CMenus()
 {
 	m_Popup = POPUP_NONE;
 	m_ActivePage = PAGE_INTERNET;
+	m_MenuPage = 0;
 	m_GamePage = PAGE_GAME;
 
 	m_NeedRestartGraphics = false;
@@ -63,6 +70,7 @@ CMenus::CMenus()
 	m_NeedSendinfo = false;
 	m_NeedSendDummyinfo = false;
 	m_MenuActive = true;
+	m_ShowStart = true;
 	m_UseMouseButtons = true;
 	m_MouseSlow = false;
 
@@ -81,6 +89,9 @@ CMenus::CMenus()
 
 	m_DemoPlayerState = DEMOPLAYER_NONE;
 	m_Dummy = false;
+
+	m_ServerProcess.Process = 0;
+	m_ServerProcess.Initialized = false;
 }
 
 float CMenus::ButtonColorMul(const void *pID)
@@ -142,12 +153,36 @@ int CMenus::DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, 
 	return Active ? UI()->DoButtonLogic(pID, "", Checked, pRect) : 0;
 }
 
-int CMenus::DoButton_Menu(const void *pID, const char *pText, int Checked, const CUIRect *pRect)
+int CMenus::DoButton_Menu(const void *pID, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName, int Corners, float r, float FontFactor, vec4 ColorHot, vec4 Color)
 {
-	RenderTools()->DrawUIRect(pRect, ColorRGBA(1,1,1,0.5f * ButtonColorMul(pID)), CUI::CORNER_ALL, 5.0f);
-	CUIRect Temp;
-	pRect->HMargin(pRect->h>=20.0f?2.0f:1.0f, &Temp);
-	UI()->DoLabel(&Temp, pText, Temp.h*ms_FontmodHeight, 0);
+	CUIRect Text = *pRect;
+
+	Color.a *= ButtonColorMul(pID);
+	RenderTools()->DrawUIRect(pRect, Color, Corners, r);
+
+	if(pImageName)
+	{
+		CUIRect Image;
+		pRect->VSplitRight(pRect->h * 4.0f, &Text, &Image); // always correct ratio for image
+
+		// render image
+		const CMenuImage *pImage = FindMenuImage(pImageName);
+		if(pImage)
+		{
+			Graphics()->TextureSet(UI()->HotItem() == pID ? pImage->m_OrgTexture : pImage->m_GreyTexture);
+			Graphics()->WrapClamp();
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+			IGraphics::CQuadItem QuadItem(Image.x, Image.y, Image.w, Image.h);
+			Graphics()->QuadsDrawTL(&QuadItem, 1);
+			Graphics()->QuadsEnd();
+			Graphics()->WrapNormal();
+		}
+	}
+
+	Text.HMargin(pRect->h >= 20.0f ? 2.0f : 1.0f, &Text);
+	Text.HMargin((Text.h * FontFactor) / 2.0f, &Text);
+	UI()->DoLabel(&Text, pText, Text.h * ms_FontmodHeight, 0);
 	return UI()->DoButtonLogic(pID, pText, Checked, pRect);
 }
 
@@ -159,12 +194,32 @@ void CMenus::DoButton_KeySelect(const void *pID, const char *pText, int Checked,
 	UI()->DoLabel(&Temp, pText, Temp.h*ms_FontmodHeight, 0);
 }
 
-int CMenus::DoButton_MenuTab(const void *pID, const char *pText, int Checked, const CUIRect *pRect, int Corners)
+int CMenus::DoButton_MenuTab(const void *pID, const char *pText, int Checked, const CUIRect *pRect, int Corners, const ColorRGBA *pDefaultColor, const ColorRGBA *pActiveColor, const ColorRGBA *pHoverColor, float EdgeRounding)
 {
 	if(Checked)
-		RenderTools()->DrawUIRect(pRect, ms_ColorTabbarActive, Corners, 10.0f);
+	{
+		ColorRGBA ColorMenuTab = ms_ColorTabbarActive;
+		if(pActiveColor)
+			ColorMenuTab = *pActiveColor;
+		RenderTools()->DrawUIRect(pRect, ColorMenuTab, Corners, EdgeRounding);
+	}
 	else
-		RenderTools()->DrawUIRect(pRect, ms_ColorTabbarInactive, Corners, 10.0f);
+	{
+		if(UI()->MouseInside(pRect))
+		{
+			ColorRGBA HoverColorMenuTab = ms_ColorTabbarHover;
+			if(pHoverColor)
+				HoverColorMenuTab = *pHoverColor;
+			RenderTools()->DrawUIRect(pRect, HoverColorMenuTab, Corners, EdgeRounding);
+		}
+		else
+		{
+			ColorRGBA ColorMenuTab = ms_ColorTabbarInactive;
+			if(pDefaultColor)
+				ColorMenuTab = *pDefaultColor;
+			RenderTools()->DrawUIRect(pRect, ColorMenuTab, Corners, EdgeRounding);
+		}
+	}
 	CUIRect Temp;
 	pRect->HMargin(2.0f, &Temp);
 	UI()->DoLabel(&Temp, pText, Temp.h*ms_FontmodHeight, 0);
@@ -470,7 +525,7 @@ int CMenus::DoClearableEditBox(void *pID, void *pClearID, const CUIRect *pRect, 
 	CUIRect EditBox;
 	CUIRect ClearButton;
 	pRect->VSplitRight(15.0f, &EditBox, &ClearButton);
-	if(DoEditBox(pID, &EditBox, pStr, StrSize, FontSize, Offset, Hidden, Corners&~CUI::CORNER_R, pEmptyText))
+	if(DoEditBox(pID, &EditBox, pStr, StrSize, FontSize, Offset, Hidden, Corners & ~CUI::CORNER_R, pEmptyText))
 	{
 		ReturnValue = true;
 	}
@@ -526,24 +581,25 @@ float CMenus::DoScrollbarV(const void *pID, const CUIRect *pRect, float Current)
 		UI()->SetHotItem(pID);
 
 	// render
-	CUIRect Rail;
-	pRect->VMargin(5.0f, &Rail);
-	RenderTools()->DrawUIRect(&Rail, ColorRGBA(1,1,1,0.25f), 0, 0.0f);
+	RenderTools()->DrawUIRect(pRect, ColorRGBA(0, 0, 0, 0.25f), CUI::CORNER_ALL, 2.5f);
 
 	CUIRect Slider = Handle;
-	Slider.w = Rail.x-Slider.x;
-	RenderTools()->DrawUIRect(&Slider, ColorRGBA(1,1,1,0.25f), CUI::CORNER_L, 2.5f);
-	Slider.x = Rail.x+Rail.w;
-	RenderTools()->DrawUIRect(&Slider, ColorRGBA(1,1,1,0.25f), CUI::CORNER_R, 2.5f);
+	RenderTools()->DrawUIRect(&Slider, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_ALL, 2.5f);
+	Slider.Margin(2, &Slider);
 
-	Slider = Handle;
-	Slider.Margin(5.0f, &Slider);
-	RenderTools()->DrawUIRect(&Slider, ColorRGBA(1,1,1,0.25f*ButtonColorMul(pID)), CUI::CORNER_ALL, 2.5f);
+	float ColorSlider = 0;
+
+	if(UI()->ActiveItem() == pID)
+		ColorSlider = 1.0f;
+	else if(UI()->HotItem() == pID)
+		ColorSlider = 0.9f;
+	else
+		ColorSlider = 0.75f;
+
+	RenderTools()->DrawUIRect(&Slider, ColorRGBA(ColorSlider, ColorSlider, ColorSlider, 0.75f), CUI::CORNER_ALL, 2.5f);
 
 	return ReturnValue;
 }
-
-
 
 float CMenus::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current)
 {
@@ -688,7 +744,7 @@ int CMenus::RenderMenubar(CUIRect r)
 	CUIRect Box = r;
 	CUIRect Button;
 
-	m_ActivePage = g_Config.m_UiPage;
+	m_ActivePage = m_MenuPage;
 	int NewPage = -1;
 
 	if(Client()->State() != IClient::STATE_OFFLINE)
@@ -696,91 +752,128 @@ int CMenus::RenderMenubar(CUIRect r)
 
 	if(Client()->State() == IClient::STATE_OFFLINE)
 	{
+		Box.VSplitLeft(33.0f, &Button, &Box);
+		static int s_StartButton = 0;
+
+		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+
+		bool GotNewsOrUpdate = false;
+
+#if defined(CONF_AUTOUPDATE)
+		int State = Updater()->GetCurrentState();
+		bool NeedUpdate = str_comp(Client()->LatestVersion(), "0");
+		if(State == IUpdater::CLEAN && NeedUpdate)
+		{
+			GotNewsOrUpdate = true;
+		}
+#endif
+
+		GotNewsOrUpdate |= (bool)g_Config.m_UiUnreadNews;
+
+		ColorRGBA HomeButtonColorAlert(0, 1, 0, 0.25f);
+		ColorRGBA HomeButtonColorAlertHover(0, 1, 0, 0.5f);
+		ColorRGBA *pHomeButtonColor = NULL;
+		ColorRGBA *pHomeButtonColorHover = NULL;
+
+		const char *pHomeScreenButtonLabel = "\xEE\xA2\x8A";
+		if(GotNewsOrUpdate)
+		{
+			pHomeScreenButtonLabel = "\xEE\x80\xB1";
+			pHomeButtonColor = &HomeButtonColorAlert;
+			pHomeButtonColorHover = &HomeButtonColorAlertHover;
+		}
+
+		if(DoButton_MenuTab(&s_StartButton, pHomeScreenButtonLabel, false, &Button, CUI::CORNER_T, pHomeButtonColor, pHomeButtonColor, pHomeButtonColorHover))
+		{
+			m_ShowStart = true;
+			m_DoubleClickIndex = -1;
+		}
+
+		TextRender()->SetRenderFlags(0);
+		TextRender()->SetCurFont(NULL);
+
+		Box.VSplitLeft(10.0f, 0, &Box);
+
 		// offline menus
-		Box.VSplitLeft(60.0f, &Button, &Box);
-		static int s_NewsButton=0;
-		if(DoButton_MenuTab(&s_NewsButton, Localize("News"), m_ActivePage==PAGE_NEWS, &Button, CUI::CORNER_TL))
+		if(m_ActivePage == PAGE_NEWS)
 		{
-			NewPage = PAGE_NEWS;
-			m_DoubleClickIndex = -1;
-		}
-		Box.VSplitLeft(60.0f, &Button, &Box);
-		static int s_LearnButton=0;
-		if(DoButton_MenuTab(&s_LearnButton, Localize("Learn"), false, &Button, CUI::CORNER_TR))
-		{
-			if(!open_link("https://wiki.ddnet.tw/"))
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_NewsButton = 0;
+			if(DoButton_MenuTab(&s_NewsButton, Localize("News"), m_ActivePage == PAGE_NEWS, &Button, CUI::CORNER_T))
 			{
-				dbg_msg("menus", "couldn't open link");
+				NewPage = PAGE_NEWS;
+				m_DoubleClickIndex = -1;
 			}
-			m_DoubleClickIndex = -1;
 		}
-
-		Box.VSplitLeft(5.0f, 0, &Box);
-
-		Box.VSplitLeft(100.0f, &Button, &Box);
-		static int s_InternetButton=0;
-		if(DoButton_MenuTab(&s_InternetButton, Localize("Internet"), m_ActivePage==PAGE_INTERNET, &Button, CUI::CORNER_TL))
+		else if(m_ActivePage == PAGE_DEMOS)
 		{
-			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
-				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-			NewPage = PAGE_INTERNET;
-			m_DoubleClickIndex = -1;
-		}
-
-		Box.VSplitLeft(60.0f, &Button, &Box);
-		static int s_LanButton=0;
-		if(DoButton_MenuTab(&s_LanButton, Localize("LAN"), m_ActivePage==PAGE_LAN, &Button, 0))
-		{
-			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
-				ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-			NewPage = PAGE_LAN;
-			m_DoubleClickIndex = -1;
-		}
-
-		Box.VSplitLeft(100.0f, &Button, &Box);
-		static int s_FavoritesButton=0;
-		if(DoButton_MenuTab(&s_FavoritesButton, Localize("Favorites"), m_ActivePage==PAGE_FAVORITES, &Button, 0))
-		{
-			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_FAVORITES)
-				ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
-			NewPage = PAGE_FAVORITES;
-			m_DoubleClickIndex = -1;
-		}
-
-		Box.VSplitLeft(80.0f, &Button, &Box);
-		static int s_DDNetButton=0;
-		if(DoButton_MenuTab(&s_DDNetButton, "DDNet", m_ActivePage==PAGE_DDNET, &Button, 0))
-		{
-			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_DDNET)
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_DemosButton = 0;
+			if(DoButton_MenuTab(&s_DemosButton, Localize("Demos"), m_ActivePage == PAGE_DEMOS, &Button, CUI::CORNER_T))
 			{
-				Client()->RequestDDNetInfo();
-				ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
+				DemolistPopulate();
+				NewPage = PAGE_DEMOS;
+				m_DoubleClickIndex = -1;
 			}
-			NewPage = PAGE_DDNET;
-			m_DoubleClickIndex = -1;
 		}
-
-		Box.VSplitLeft(60.0f, &Button, &Box);
-		static int s_KoGButton=0;
-		if(DoButton_MenuTab(&s_KoGButton, "KoG", m_ActivePage==PAGE_KOG, &Button, CUI::CORNER_TR))
+		else
 		{
-			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_KOG)
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_InternetButton = 0;
+			if(DoButton_MenuTab(&s_InternetButton, Localize("Internet"), m_ActivePage == PAGE_INTERNET, &Button, CUI::CORNER_TL))
 			{
-				Client()->RequestDDNetInfo();
-				ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
+					ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
+				NewPage = PAGE_INTERNET;
+				m_DoubleClickIndex = -1;
 			}
-			NewPage = PAGE_KOG;
-			m_DoubleClickIndex = -1;
-		}
 
-		Box.VSplitLeft(5.0f, 0, &Box);
-		Box.VSplitLeft(80.0f, &Button, &Box);
-		static int s_DemosButton=0;
-		if(DoButton_MenuTab(&s_DemosButton, Localize("Demos"), m_ActivePage==PAGE_DEMOS, &Button, CUI::CORNER_T))
-		{
-			DemolistPopulate();
-			NewPage = PAGE_DEMOS;
-			m_DoubleClickIndex = -1;
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_LanButton = 0;
+			if(DoButton_MenuTab(&s_LanButton, Localize("LAN"), m_ActivePage == PAGE_LAN, &Button, 0))
+			{
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
+					ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
+				NewPage = PAGE_LAN;
+				m_DoubleClickIndex = -1;
+			}
+
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_FavoritesButton = 0;
+			if(DoButton_MenuTab(&s_FavoritesButton, Localize("Favorites"), m_ActivePage == PAGE_FAVORITES, &Button, 0))
+			{
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_FAVORITES)
+					ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
+				NewPage = PAGE_FAVORITES;
+				m_DoubleClickIndex = -1;
+			}
+
+			Box.VSplitLeft(90.0f, &Button, &Box);
+			static int s_DDNetButton = 0;
+			if(DoButton_MenuTab(&s_DDNetButton, "DDNet", m_ActivePage == PAGE_DDNET, &Button, 0))
+			{
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_DDNET)
+				{
+					Client()->RequestDDNetInfo();
+					ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
+				}
+				NewPage = PAGE_DDNET;
+				m_DoubleClickIndex = -1;
+			}
+
+			Box.VSplitLeft(90.0f, &Button, &Box);
+			static int s_KoGButton = 0;
+			if(DoButton_MenuTab(&s_KoGButton, "KoG", m_ActivePage == PAGE_KOG, &Button, CUI::CORNER_TR))
+			{
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_KOG)
+				{
+					Client()->RequestDDNetInfo();
+					ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
+				}
+				NewPage = PAGE_KOG;
+				m_DoubleClickIndex = -1;
+			}
 		}
 	}
 	else
@@ -810,8 +903,8 @@ int CMenus::RenderMenubar(CUIRect r)
 			static int s_GhostButton = 0;
 			if(GameClient()->m_GameInfo.m_Race)
 			{
-				Box.VSplitLeft(70.0f, &Button, &Box);
-				if(DoButton_MenuTab(&s_GhostButton, Localize("Ghost"), m_ActivePage==PAGE_GHOST, &Button, 0))
+				Box.VSplitLeft(90.0f, &Button, &Box);
+				if(DoButton_MenuTab(&s_GhostButton, Localize("Ghost"), m_ActivePage == PAGE_GHOST, &Button, 0))
 					NewPage = PAGE_GHOST;
 			}
 		}
@@ -827,8 +920,9 @@ int CMenus::RenderMenubar(CUIRect r)
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 	Box.VSplitRight(33.0f, &Box, &Button);
-	static int s_QuitButton=0;
-	if(DoButton_MenuTab(&s_QuitButton, "\xEE\x97\x8D", 0, &Button, CUI::CORNER_T))
+	static int s_QuitButton = 0;
+	ColorRGBA QuitColor(1, 0, 0, 0.5f);
+	if(DoButton_MenuTab(&s_QuitButton, "\xEE\x97\x8D", 0, &Button, CUI::CORNER_T, NULL, NULL, &QuitColor))
 	{
 		if(m_pClient->Editor()->HasUnsavedData() || (Client()->GetCurrentRaceTime() / 60 >= g_Config.m_ClConfirmQuitTime && g_Config.m_ClConfirmQuitTime >= 0))
 		{
@@ -855,13 +949,30 @@ int CMenus::RenderMenubar(CUIRect r)
 		g_Config.m_ClEditor = 1;
 	}
 
+	if(Client()->State() == IClient::STATE_OFFLINE)
+	{
+		Box.VSplitRight(10.0f, &Box, &Button);
+		Box.VSplitRight(33.0f, &Box, &Button);
+		static int s_DemoButton = 0;
+
+		if(DoButton_MenuTab(&s_DemoButton, "\xEE\x80\xAC", m_ActivePage == PAGE_DEMOS, &Button, CUI::CORNER_T))
+			NewPage = PAGE_DEMOS;
+
+		Box.VSplitRight(10.0f, &Box, &Button);
+		Box.VSplitRight(33.0f, &Box, &Button);
+		static int s_ServerButton = 0;
+
+		if(DoButton_MenuTab(&s_ServerButton, "\xEE\xA0\x8B", m_ActivePage == g_Config.m_UiPage, &Button, CUI::CORNER_T))
+			NewPage = g_Config.m_UiPage;
+	}
+
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetCurFont(NULL);
 
 	if(NewPage != -1)
 	{
 		if(Client()->State() == IClient::STATE_OFFLINE)
-			g_Config.m_UiPage = NewPage;
+			SetMenuPage(NewPage);
 		else
 			m_GamePage = NewPage;
 	}
@@ -925,6 +1036,8 @@ void CMenus::RenderLoading()
 
 void CMenus::RenderNews(CUIRect MainView)
 {
+	g_Config.m_UiUnreadNews = false;
+
 	RenderTools()->DrawUIRect(&MainView, ms_ColorTabbarActive, CUI::CORNER_B, 10.0f);
 
 	MainView.HSplitTop(15.0f, 0, &MainView);
@@ -955,6 +1068,8 @@ void CMenus::OnInit()
 {
 	if(g_Config.m_ClShowWelcome)
 		m_Popup = POPUP_LANGUAGE;
+	if(g_Config.m_ClSkipStartMenu)
+		m_ShowStart = false;
 
 	Console()->Chain("add_favorite", ConchainServerbrowserUpdate, this);
 	Console()->Chain("remove_favorite", ConchainServerbrowserUpdate, this);
@@ -964,10 +1079,15 @@ void CMenus::OnInit()
 	m_TextureBlob = Graphics()->LoadTexture("blob.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
 
 	// setup load amount
+	const int NumMenuImages = 5;
 	m_LoadCurrent = 0;
-	m_LoadTotal = g_pData->m_NumImages;
+	m_LoadTotal = g_pData->m_NumImages + NumMenuImages;
 	if(!g_Config.m_ClThreadsoundloading)
 		m_LoadTotal += g_pData->m_NumSounds;
+
+	// load menu images
+	m_lMenuImages.clear();
+	Storage()->ListDirectory(IStorage::TYPE_ALL, "menuimages", MenuImageScan, this);
 }
 
 void CMenus::PopupMessage(const char *pTopic, const char *pBody, const char *pButton)
@@ -1014,6 +1134,7 @@ int CMenus::Render()
 	static int s_Frame = 0;
 	if(s_Frame == 0)
 	{
+		m_MenuPage = g_Config.m_UiPage;
 		s_Frame++;
 	}
 	else if(s_Frame == 1)
@@ -1038,12 +1159,14 @@ int CMenus::Render()
 	{
 		ms_ColorTabbarInactive = ms_ColorTabbarInactiveIngame;
 		ms_ColorTabbarActive = ms_ColorTabbarActiveIngame;
+		ms_ColorTabbarHover = ms_ColorTabbarHoverIngame;
 	}
 	else
 	{
 		RenderBackground();
 		ms_ColorTabbarInactive = ms_ColorTabbarInactiveOutgame;
 		ms_ColorTabbarActive = ms_ColorTabbarActiveOutgame;
+		ms_ColorTabbarHover = ms_ColorTabbarHoverOutgame;
 	}
 
 	CUIRect TabBar;
@@ -1062,53 +1185,63 @@ int CMenus::Render()
 
 	if(m_Popup == POPUP_NONE)
 	{
-		Screen.HSplitTop(24.0f, &TabBar, &MainView);
-
-		// render news
-		if(g_Config.m_UiPage < PAGE_NEWS || g_Config.m_UiPage > PAGE_SETTINGS || (Client()->State() == IClient::STATE_OFFLINE && g_Config.m_UiPage >= PAGE_GAME && g_Config.m_UiPage <= PAGE_CALLVOTE))
+		if(m_ShowStart && Client()->State() == IClient::STATE_OFFLINE)
+			RenderStartMenu(Screen);
+		else
 		{
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-			g_Config.m_UiPage = PAGE_INTERNET;
-			m_DoubleClickIndex = -1;
-		}
+			Screen.HSplitTop(24.0f, &TabBar, &MainView);
 
-		// render current page
-		if(Client()->State() != IClient::STATE_OFFLINE)
-		{
-			if(m_GamePage == PAGE_GAME)
-				RenderGame(MainView);
-			else if(m_GamePage == PAGE_PLAYERS)
-				RenderPlayers(MainView);
-			else if(m_GamePage == PAGE_SERVER_INFO)
-				RenderServerInfo(MainView);
-			else if(m_GamePage == PAGE_NETWORK)
-				RenderInGameNetwork(MainView);
-			else if(m_GamePage == PAGE_GHOST)
-				RenderGhost(MainView);
-			else if(m_GamePage == PAGE_CALLVOTE)
-				RenderServerControl(MainView);
-			else if(m_GamePage == PAGE_SETTINGS)
+			if(Client()->State() == IClient::STATE_OFFLINE && m_EscapePressed)
+			{
+				m_ShowStart = true;
+			}
+
+			// render news
+			if(m_MenuPage < PAGE_NEWS || m_MenuPage > PAGE_SETTINGS || (Client()->State() == IClient::STATE_OFFLINE && m_MenuPage >= PAGE_GAME && m_MenuPage <= PAGE_CALLVOTE))
+			{
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
+				SetMenuPage(PAGE_INTERNET);
+				m_DoubleClickIndex = -1;
+			}
+
+			// render current page
+			if(Client()->State() != IClient::STATE_OFFLINE)
+			{
+				if(m_GamePage == PAGE_GAME)
+					RenderGame(MainView);
+				else if(m_GamePage == PAGE_PLAYERS)
+					RenderPlayers(MainView);
+				else if(m_GamePage == PAGE_SERVER_INFO)
+					RenderServerInfo(MainView);
+				else if(m_GamePage == PAGE_NETWORK)
+					RenderInGameNetwork(MainView);
+				else if(m_GamePage == PAGE_GHOST)
+					RenderGhost(MainView);
+				else if(m_GamePage == PAGE_CALLVOTE)
+					RenderServerControl(MainView);
+				else if(m_GamePage == PAGE_SETTINGS)
+					RenderSettings(MainView);
+			}
+			else if(m_MenuPage == PAGE_NEWS)
+				RenderNews(MainView);
+			else if(m_MenuPage == PAGE_INTERNET)
+				RenderServerbrowser(MainView);
+			else if(m_MenuPage == PAGE_LAN)
+				RenderServerbrowser(MainView);
+			else if(m_MenuPage == PAGE_DEMOS)
+				RenderDemoList(MainView);
+			else if(m_MenuPage == PAGE_FAVORITES)
+				RenderServerbrowser(MainView);
+			else if(m_MenuPage == PAGE_DDNET)
+				RenderServerbrowser(MainView);
+			else if(m_MenuPage == PAGE_KOG)
+				RenderServerbrowser(MainView);
+			else if(m_MenuPage == PAGE_SETTINGS)
 				RenderSettings(MainView);
-		}
-		else if(g_Config.m_UiPage == PAGE_NEWS)
-			RenderNews(MainView);
-		else if(g_Config.m_UiPage == PAGE_INTERNET)
-			RenderServerbrowser(MainView);
-		else if(g_Config.m_UiPage == PAGE_LAN)
-			RenderServerbrowser(MainView);
-		else if(g_Config.m_UiPage == PAGE_DEMOS)
-			RenderDemoList(MainView);
-		else if(g_Config.m_UiPage == PAGE_FAVORITES)
-			RenderServerbrowser(MainView);
-		else if(g_Config.m_UiPage == PAGE_DDNET)
-			RenderServerbrowser(MainView);
-		else if(g_Config.m_UiPage == PAGE_KOG)
-			RenderServerbrowser(MainView);
-		else if(g_Config.m_UiPage == PAGE_SETTINGS)
-			RenderSettings(MainView);
 
-		// do tab bar
-		RenderMenubar(TabBar);
+			// do tab bar
+			RenderMenubar(TabBar);
+		}
 	}
 	else
 	{
@@ -1676,7 +1809,18 @@ int CMenus::Render()
 					}
 				}
 			}
-			Box.HSplitBottom(60.f, &Box, &Part);
+			Box.HSplitBottom(40.f, &Box, &Part);
+			Box.HSplitBottom(20.f, &Box, &Part);
+
+			Part.VSplitLeft(113.0f, 0, &Part);
+			Part.VSplitLeft(Button.h, &Button, &Part);
+			if(DoButton_CheckBox(&g_Config.m_ClVideoShowChat, Localize("Show chat"), g_Config.m_ClVideoShowChat, &Button))
+				g_Config.m_ClVideoShowChat ^= 1;
+			Part.VSplitLeft(112.0f, 0, &Part);
+			Part.VSplitLeft(Button.h, &Button, &Part);
+			if(DoButton_CheckBox(&g_Config.m_ClVideoSndEnable, Localize("Use sounds"), g_Config.m_ClVideoSndEnable, &Button))
+				g_Config.m_ClVideoSndEnable ^= 1;
+
 			Box.HSplitBottom(20.f, &Box, &Part);
 			Part.VSplitLeft(60.0f, 0, &Part);
 			Part.VSplitLeft(60.0f, 0, &Label);
@@ -1702,29 +1846,20 @@ int CMenus::Render()
 				IncDemoSpeed = true;
 
 			// speed meter
-			Part.VSplitLeft(15.0f, 0, &Part);
+			Part.VSplitLeft(8.0f, 0, &Part);
 			char aBuffer[64];
-			str_format(aBuffer, sizeof(aBuffer), "Speed: ×%g", g_aSpeeds[m_Speed]);
-			//str_format(aBuffer, sizeof(aBuffer), "Speed: ×%g", Speed);
-			UI()->DoLabel(&Part, aBuffer, Button.h*0.7f, -1);
+			str_format(aBuffer, sizeof(aBuffer), "%s: ×%g", Localize("Speed"), g_aSpeeds[m_Speed]);
+			UI()->DoLabel(&Part, aBuffer, 12.8f, -1);
 
 			if(IncDemoSpeed)
 				m_Speed = clamp(m_Speed + 1, 0, (int)(sizeof(g_aSpeeds)/sizeof(g_aSpeeds[0])-1));
 			else if(DecDemoSpeed)
 				m_Speed = clamp(m_Speed - 1, 0, (int)(sizeof(g_aSpeeds)/sizeof(g_aSpeeds[0])-1));
 
-			Part.VSplitLeft(100.0f, 0, &Part);
+			Part.VSplitLeft(107.0f, 0, &Part);
 			Part.VSplitLeft(Button.h, &Button, &Part);
 			if(DoButton_CheckBox(&g_Config.m_ClVideoShowhud, Localize("Show ingame HUD"), g_Config.m_ClVideoShowhud, &Button))
 				g_Config.m_ClVideoShowhud ^= 1;
-			Part.VSplitLeft(150.0f, 0, &Part);
-			Part.VSplitLeft(Button.h, &Button, &Part);
-			if(DoButton_CheckBox(&g_Config.m_ClVideoShowChat, Localize("Show chat"), g_Config.m_ClVideoShowChat, &Button))
-				g_Config.m_ClVideoShowChat ^= 1;
-			Part.VSplitLeft(150.0f, 0, &Part);
-			Part.VSplitLeft(Button.h, &Button, &Part);
-			if(DoButton_CheckBox(&g_Config.m_ClVideoSndEnable, Localize("Use sounds"), g_Config.m_ClVideoSndEnable, &Button))
-				g_Config.m_ClVideoSndEnable ^= 1;
 
 			Box.HSplitBottom(20.f, &Box, &Part);
 #if defined(__ANDROID__)
@@ -2044,22 +2179,26 @@ void CMenus::OnRender()
 	// update colors
 	ms_GuiColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_UiColor, true));
 
-	ms_ColorTabbarInactiveOutgame = ColorRGBA(0,0,0,0.25f);
-	ms_ColorTabbarActiveOutgame = ColorRGBA(0,0,0,0.5f);
+	ms_ColorTabbarInactiveOutgame = ColorRGBA(0, 0, 0, 0.25f);
+	ms_ColorTabbarActiveOutgame = ColorRGBA(0, 0, 0, 0.5f);
+	ms_ColorTabbarHoverOutgame = ColorRGBA(1, 1, 1, 0.25f);
 
 	float ColorIngameScaleI = 0.5f;
 	float ColorIngameAcaleA = 0.2f;
+
 	ms_ColorTabbarInactiveIngame = ColorRGBA(
-		ms_GuiColor.r*ColorIngameScaleI,
-		ms_GuiColor.g*ColorIngameScaleI,
-		ms_GuiColor.b*ColorIngameScaleI,
-		ms_GuiColor.a*0.8f);
+		ms_GuiColor.r * ColorIngameScaleI,
+		ms_GuiColor.g * ColorIngameScaleI,
+		ms_GuiColor.b * ColorIngameScaleI,
+		ms_GuiColor.a * 0.8f);
 
 	ms_ColorTabbarActiveIngame = ColorRGBA(
 		ms_GuiColor.r*ColorIngameAcaleA,
 		ms_GuiColor.g*ColorIngameAcaleA,
 		ms_GuiColor.b*ColorIngameAcaleA,
 		ms_GuiColor.a);
+
+	ms_ColorTabbarHoverIngame = ColorRGBA(1, 1, 1, 0.75f);
 
 	// update the ui
 	CUIRect *pScreen = UI()->Screen();
@@ -2080,12 +2219,14 @@ void CMenus::OnRender()
 	Render();
 
 	// render cursor
+	Graphics()->WrapClamp();
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CURSOR].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1,1,1,1);
 	IGraphics::CQuadItem QuadItem(mx, my, 24, 24);
 	Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
+	Graphics()->WrapNormal();
 
 	// render debug information
 	if(g_Config.m_Debug)
@@ -2156,6 +2297,13 @@ void CMenus::RenderBackground()
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);}
 }
 
+bool CMenus::CheckHotKey(int Key) const
+{
+	return m_Popup == POPUP_NONE &&
+	       !Input()->KeyIsPressed(KEY_LSHIFT) && !Input()->KeyIsPressed(KEY_RSHIFT) && !Input()->KeyIsPressed(KEY_LCTRL) && !Input()->KeyIsPressed(KEY_RCTRL) && !Input()->KeyIsPressed(KEY_LALT) && // no modifier
+	       Input()->KeyIsPressed(Key) && m_pClient->m_pGameConsole->IsClosed();
+}
+
 int CMenus::DoButton_CheckBox_DontCare(const void *pID, const char *pText, int Checked, const CUIRect *pRect)
 {
 	switch(Checked)
@@ -2219,4 +2367,102 @@ void CMenus::RenderUpdating(const char *pCaption, int current, int total)
 	}
 
 	Graphics()->Swap();
+}
+
+int CMenus::MenuImageScan(const char *pName, int IsDir, int DirType, void *pUser)
+{
+	CMenus *pSelf = (CMenus *)pUser;
+	if(IsDir || !str_endswith(pName, ".png"))
+		return 0;
+
+	char aBuf[MAX_PATH_LENGTH];
+	str_format(aBuf, sizeof(aBuf), "menuimages/%s", pName);
+	CImageInfo Info;
+	if(!pSelf->Graphics()->LoadPNG(&Info, aBuf, DirType))
+	{
+		str_format(aBuf, sizeof(aBuf), "failed to load menu image from %s", pName);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "game", aBuf);
+		return 0;
+	}
+
+	CMenuImage MenuImage;
+	MenuImage.m_OrgTexture = pSelf->Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, Info.m_Format, 0);
+
+	unsigned char *d = (unsigned char *)Info.m_pData;
+	//int Pitch = Info.m_Width*4;
+
+	// create colorless version
+	int Step = Info.m_Format == CImageInfo::FORMAT_RGBA ? 4 : 3;
+
+	// make the texture gray scale
+	for(int i = 0; i < Info.m_Width*Info.m_Height; i++)
+	{
+		int v = (d[i*Step]+d[i*Step+1]+d[i*Step+2])/3;
+		d[i*Step] = v;
+		d[i*Step+1] = v;
+		d[i*Step+2] = v;
+	}
+
+	/* same grey like sinks
+	int Freq[256] = {0};
+	int OrgWeight = 0;
+	int NewWeight = 192;
+
+	// find most common frequence
+	for(int y = 0; y < Info.m_Height; y++)
+		for(int x = 0; x < Info.m_Width; x++)
+		{
+			if(d[y*Pitch+x*4+3] > 128)
+				Freq[d[y*Pitch+x*4]]++;
+		}
+
+	for(int i = 1; i < 256; i++)
+	{
+		if(Freq[OrgWeight] < Freq[i])
+			OrgWeight = i;
+	}
+
+	// reorder
+	int InvOrgWeight = 255-OrgWeight;
+	int InvNewWeight = 255-NewWeight;
+	for(int y = 0; y < Info.m_Height; y++)
+		for(int x = 0; x < Info.m_Width; x++)
+		{
+			int v = d[y*Pitch+x*4];
+			if(v <= OrgWeight)
+				v = (int)(((v/(float)OrgWeight) * NewWeight));
+			else
+				v = (int)(((v-OrgWeight)/(float)InvOrgWeight)*InvNewWeight + NewWeight);
+			d[y*Pitch+x*4] = v;
+			d[y*Pitch+x*4+1] = v;
+			d[y*Pitch+x*4+2] = v;
+		}
+	*/
+
+	MenuImage.m_GreyTexture = pSelf->Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, Info.m_Format, 0);
+	free(Info.m_pData);
+
+	// set menu image data
+	str_truncate(MenuImage.m_aName, sizeof(MenuImage.m_aName), pName, str_length(pName) - 4);
+	pSelf->m_lMenuImages.add(MenuImage);
+	pSelf->RenderLoading();
+
+	return 0;
+}
+
+const CMenus::CMenuImage *CMenus::FindMenuImage(const char *pName)
+{
+	for(int i = 0; i < m_lMenuImages.size(); i++)
+	{
+		if(str_comp(m_lMenuImages[i].m_aName, pName) == 0)
+			return &m_lMenuImages[i];
+	}
+	return 0;
+}
+
+void CMenus::SetMenuPage(int NewPage)
+{
+	m_MenuPage = NewPage;
+	if(NewPage >= PAGE_INTERNET && NewPage <= PAGE_KOG)
+		g_Config.m_UiPage = NewPage;
 }

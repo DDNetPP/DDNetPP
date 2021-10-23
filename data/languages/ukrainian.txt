@@ -238,6 +238,7 @@ Ping
 Pistol
 == Пістолет
 
+[Demo browser]
 Play
 == Перегляд
 
@@ -449,9 +450,6 @@ Host address
 
 Alpha
 == Прозор..
-
-Current version: %s
-== Поточна версія: %s
 
 LAN
 == LAN
@@ -1185,11 +1183,51 @@ Grabs
 The width or height of texture %s is not divisible by 16, which might cause visual bugs.
 == 
 
+Warning
+== 
+
+Menu
+== 
+
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
 == 
 
 Country / Region
 == 
 
+Speed
+== 
+
 Markers
+== 
+
+Skip the main menu
+== 
+
+Download skins
+== 
+
+https://wiki.ddnet.tw/
+== 
+
+Website
+== 
+
+Settings
+== 
+
+Stop server
+== 
+
+Run server
+== 
+
+Server executable not found, can't run server
+== 
+
+Editor
+== 
+
+[Start menu]
+Play
 == 
