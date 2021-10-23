@@ -297,6 +297,7 @@ public:
 	int ClientCountry(int ClientID);
 	bool ClientIngame(int ClientID);
 	bool ClientAuthed(int ClientID);
+	int Port() const;
 	int MaxClients() const;
 	int ClientCount();
 	int DistinctClientCount();

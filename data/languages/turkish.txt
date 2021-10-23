@@ -111,9 +111,6 @@ Controls
 Count players only
 == Sadece oyuncuları say
 
-Country
-== Ülke
-
 Current
 == Şimdiki
 
@@ -336,9 +333,6 @@ Please balance teams!
 Prev. weapon
 == Önceki silah
 
-Quality Textures
-== Kaliteli dolgular
-
 Quit
 == Çıkış
 
@@ -470,9 +464,6 @@ Team
 
 Team chat
 == Takım sohbeti
-
-Texture Compression
-== Dolgu sıkıştırması
 
 The audio device couldn't be initialised.
 == Ses donanımı başlatılamadı.
@@ -1201,3 +1192,9 @@ Grabs
 
 9+ new mentions
 == 9+ yeni bildirim
+
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
+Country / Region
+== 

@@ -120,9 +120,6 @@ Controls
 Count players only
 == Nur Spieler zählen
 
-Country
-== Land
-
 Current
 == Aktuell
 
@@ -351,9 +348,6 @@ Please balance teams!
 Prev. weapon
 == Vorherige Waffe
 
-Quality Textures
-== Hochauflösende Texturen
-
 Quit
 == Beenden
 
@@ -488,9 +482,6 @@ Team
 
 Team chat
 == Teamchat
-
-Texture Compression
-== Texturkompression
 
 The audio device couldn't be initialised.
 == Das Audiosystem konnte nicht gestartet werden.
@@ -1211,3 +1202,9 @@ Use k key to kill (restart), q to pause and watch other players. See settings fo
 
 Client message
 == Client-Nachricht
+
+Country / Region
+== Land / Region
+
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== Die Breite oder Höhe von Textur %s ist nicht durch 16 teilbar, was visuelle Bugs verursachen kann.

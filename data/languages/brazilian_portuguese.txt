@@ -120,9 +120,6 @@ Controls
 Count players only
 == Contar apenas jogadores
 
-Country
-== País
-
 Current
 == Atual
 
@@ -351,9 +348,6 @@ Please balance teams!
 Prev. weapon
 == Arma anterior
 
-Quality Textures
-== Texturas de qualidade
-
 Quit
 == Sair
 
@@ -488,9 +482,6 @@ Team
 
 Team chat
 == Chat do time
-
-Texture Compression
-== Compressão de textura
 
 The audio device couldn't be initialised.
 == O dispositivo de áudio não pôde ser inicializado.
@@ -1149,6 +1140,9 @@ Zoom in
 Zoom out
 == Zoom out
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Server best:
 == 
 
@@ -1186,6 +1180,9 @@ It's recommended that you check the settings to adjust them to your liking befor
 == 
 
 Please enter your nick name below.
+== 
+
+Country / Region
 == 
 
 Destination file already exist

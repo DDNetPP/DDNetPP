@@ -113,9 +113,6 @@ Controls
 Count players only
 == 屏蔽旁观位
 
-Country
-== 国家/地区
-
 Current
 == 当前
 
@@ -371,9 +368,6 @@ Please balance teams!
 Prev. weapon
 == 上一个武器
 
-Quality Textures
-== 高品质纹理
-
 Quit
 == 退出
 
@@ -520,9 +514,6 @@ Team
 
 Team chat
 == 队伍聊天
-
-Texture Compression
-== 纹理压缩
 
 The audio device couldn't be initialised.
 == 初始化音频设备失败。
@@ -1207,3 +1198,9 @@ Show others (own team only)
 
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
 == 使用 k键 自杀以重新开始，使用 q键 可以暂停以旁观他人或查看地图。 请在设置中查看其他按键。
+
+Country / Region
+== 国家 / 地区
+
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 

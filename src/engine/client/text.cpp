@@ -147,6 +147,7 @@ struct STextContainer
 
 	int m_Flags;
 	int m_LineCount;
+	int m_GlyphCount;
 	int m_CharCount;
 	int m_MaxLines;
 
@@ -167,7 +168,7 @@ struct STextContainer
 		m_StringInfo.m_CharacterQuads.clear();
 
 		m_AlignedStartX = m_AlignedStartY = m_X = m_Y = 0.f;
-		m_Flags = m_LineCount = m_CharCount = 0;
+		m_Flags = m_LineCount = m_CharCount = m_GlyphCount = 0;
 		m_MaxLines = -1;
 		m_StartX = m_StartY = 0.f;
 		m_LineWidth = -1.f;
@@ -237,15 +238,15 @@ class CTextRender : public IEngineTextRender
 
 	int WordLength(const char *pText)
 	{
-		int s = 1;
+		int Length = 0;
 		while(1)
 		{
-			if(*pText == 0)
-				return s-1;
-			if(*pText == '\n' || *pText == '\t' || *pText == ' ')
-				return s;
-			pText++;
-			s++;
+			const char *pCursor = (pText + Length);
+			if(*pCursor == 0)
+				return Length;
+			if(*pCursor == '\n' || *pCursor == '\t' || *pCursor == ' ')
+				return Length+1;
+			Length = str_utf8_forward(pText, Length);
 		}
 	}
 
@@ -675,10 +676,10 @@ public:
 
 		dbg_msg("textrender", "loaded pFont from '%s'", pFilename);
 
-		pFont->m_CurTextureDimensions[0] = 256;
+		pFont->m_CurTextureDimensions[0] = 1024;
 		pFont->m_TextureData[0] = new unsigned char[pFont->m_CurTextureDimensions[0] * pFont->m_CurTextureDimensions[0]];
 		mem_zero(pFont->m_TextureData[0], pFont->m_CurTextureDimensions[0] * pFont->m_CurTextureDimensions[0] * sizeof(unsigned char));
-		pFont->m_CurTextureDimensions[1] = 256;
+		pFont->m_CurTextureDimensions[1] = 1024;
 		pFont->m_TextureData[1] = new unsigned char[pFont->m_CurTextureDimensions[1] * pFont->m_CurTextureDimensions[1]];
 		mem_zero(pFont->m_TextureData[1], pFont->m_CurTextureDimensions[1] * pFont->m_CurTextureDimensions[1] * sizeof(unsigned char));
 
@@ -777,6 +778,7 @@ public:
 		pCursor->m_LineCount = 1;
 		pCursor->m_LineWidth = -1;
 		pCursor->m_Flags = Flags;
+		pCursor->m_GlyphCount = 0;
 		pCursor->m_CharCount = 0;
 	}
 
@@ -903,7 +905,7 @@ public:
 			// make sure there are no vertices
 			Graphics()->FlushVertices();
 
-			if(Graphics()->IsBufferingEnabled())
+			if(Graphics()->IsTextBufferingEnabled())
 			{
 				Graphics()->TextureClear();
 				Graphics()->TextQuadsBegin();
@@ -938,6 +940,7 @@ public:
 				{
 					// word can't be fitted in one line, cut it
 					CTextCursor Cutter = *pCursor;
+					Cutter.m_GlyphCount = 0;
 					Cutter.m_CharCount = 0;
 					Cutter.m_X = DrawX;
 					Cutter.m_Y = DrawY;
@@ -945,10 +948,11 @@ public:
 					Cutter.m_Flags |= TEXTFLAG_STOP_AT_END;
 
 					TextEx(&Cutter, pCurrent, Wlen);
+					int WordGlyphs = Cutter.m_GlyphCount;
 					Wlen = Cutter.m_CharCount;
 					NewLine = 1;
 
-					if(Wlen <= 3) // if we can't place 3 chars of the word on this line, take the next
+					if(WordGlyphs <= 3) // if we can't place 3 chars of the word on this line, take the next
 						Wlen = 0;
 				}
 				else if(Compare.m_X-pCursor->m_StartX > pCursor->m_LineWidth)
@@ -964,6 +968,7 @@ public:
 			int NextCharacter = str_utf8_decode(&pTmp);
 			while(pCurrent < pBatchEnd)
 			{
+				pCursor->m_CharCount += pTmp-pCurrent;
 				int Character = NextCharacter;
 				pCurrent = pTmp;
 				NextCharacter = str_utf8_decode(&pTmp);
@@ -1009,7 +1014,7 @@ public:
 
 					if(pCursor->m_Flags&TEXTFLAG_RENDER && m_Color.a != 0.f)
 					{
-						if(Graphics()->IsBufferingEnabled())
+						if(Graphics()->IsTextBufferingEnabled())
 							Graphics()->QuadsSetSubset(pChr->m_aUVs[0], pChr->m_aUVs[3], pChr->m_aUVs[2], pChr->m_aUVs[1]);
 						else
 							Graphics()->QuadsSetSubset(pChr->m_aUVs[0] * UVScale, pChr->m_aUVs[3] * UVScale, pChr->m_aUVs[2] * UVScale, pChr->m_aUVs[1] * UVScale);
@@ -1032,7 +1037,7 @@ public:
 						DrawX += BearingX + CharKerning + CharWidth;
 					else
 						DrawX += Advance*Size + CharKerning;
-					pCursor->m_CharCount++;
+					pCursor->m_GlyphCount++;
 
 					++CharacterCounter;
 				}
@@ -1054,7 +1059,7 @@ public:
 
 		if(pCursor->m_Flags&TEXTFLAG_RENDER)
 		{
-			if(Graphics()->IsBufferingEnabled())
+			if(Graphics()->IsTextBufferingEnabled())
 			{
 				float OutlineColor[4] = { m_OutlineColor.r, m_OutlineColor.g, m_OutlineColor.b, m_OutlineColor.a*m_Color.a };
 				Graphics()->TextQuadsEnd(pFont->m_CurTextureDimensions[0], pFont->m_aTextures[0], pFont->m_aTextures[1], OutlineColor);
@@ -1137,7 +1142,7 @@ public:
 		else
 		{
 			TextContainer.m_StringInfo.m_QuadNum = TextContainer.m_StringInfo.m_CharacterQuads.size();
-			if(Graphics()->IsBufferingEnabled())
+			if(Graphics()->IsTextBufferingEnabled())
 			{
 				size_t DataSize = TextContainer.m_StringInfo.m_CharacterQuads.size() * sizeof(STextCharQuad);
 				void *pUploadData = &TextContainer.m_StringInfo.m_CharacterQuads[0];
@@ -1152,6 +1157,7 @@ public:
 			}
 
 			TextContainer.m_LineCount = pCursor->m_LineCount;
+			TextContainer.m_GlyphCount = pCursor->m_GlyphCount;
 			TextContainer.m_CharCount = pCursor->m_CharCount;
 			TextContainer.m_MaxLines = pCursor->m_MaxLines;
 			TextContainer.m_StartX = pCursor->m_StartX;
@@ -1243,6 +1249,7 @@ public:
 				{
 					// word can't be fitted in one line, cut it
 					CTextCursor Cutter = *pCursor;
+					Cutter.m_GlyphCount = 0;
 					Cutter.m_CharCount = 0;
 					Cutter.m_X = DrawX;
 					Cutter.m_Y = DrawY;
@@ -1250,10 +1257,11 @@ public:
 					Cutter.m_Flags |= TEXTFLAG_STOP_AT_END;
 
 					TextEx(&Cutter, pCurrent, Wlen);
+					int WordGlyphs = Cutter.m_GlyphCount;
 					Wlen = Cutter.m_CharCount;
 					NewLine = 1;
 
-					if(Wlen <= 3) // if we can't place 3 chars of the word on this line, take the next
+					if(WordGlyphs <= 3) // if we can't place 3 chars of the word on this line, take the next
 						Wlen = 0;
 				}
 				else if(Compare.m_X - pCursor->m_StartX > pCursor->m_LineWidth)
@@ -1269,6 +1277,7 @@ public:
 			int NextCharacter = str_utf8_decode(&pTmp);
 			while(pCurrent < pBatchEnd)
 			{
+				TextContainer.m_CharCount += pTmp-pCurrent;
 				int Character = NextCharacter;
 				pCurrent = pTmp;
 				NextCharacter = str_utf8_decode(&pTmp);
@@ -1369,7 +1378,7 @@ public:
 						DrawX += BearingX + CharKerning + CharWidth;
 					else
 						DrawX += Advance * Size + CharKerning;
-					pCursor->m_CharCount++;
+					pCursor->m_GlyphCount++;
 					++CharacterCounter;
 				}
 			}
@@ -1392,7 +1401,7 @@ public:
 		{
 			TextContainer.m_StringInfo.m_QuadNum = TextContainer.m_StringInfo.m_CharacterQuads.size();
 			// setup the buffers
-			if(Graphics()->IsBufferingEnabled())
+			if(Graphics()->IsTextBufferingEnabled())
 			{
 				size_t DataSize = TextContainer.m_StringInfo.m_CharacterQuads.size() * sizeof(STextCharQuad);
 				void *pUploadData = &TextContainer.m_StringInfo.m_CharacterQuads[0];
@@ -1505,6 +1514,7 @@ public:
 				CTextCursor FakeCursor;
 				SetCursor(&FakeCursor, DrawX, DrawY, TextContainer.m_UnscaledFontSize, TextContainer.m_Flags);
 				FakeCursor.m_LineCount = TextContainer.m_LineCount;
+				FakeCursor.m_GlyphCount = TextContainer.m_GlyphCount;
 				FakeCursor.m_CharCount = TextContainer.m_CharCount;
 				FakeCursor.m_MaxLines = TextContainer.m_MaxLines;
 				FakeCursor.m_StartX = TextContainer.m_StartX;
@@ -1524,6 +1534,7 @@ public:
 				{
 					// word can't be fitted in one line, cut it
 					CTextCursor Cutter = FakeCursor;
+					Cutter.m_GlyphCount = 0;
 					Cutter.m_CharCount = 0;
 					Cutter.m_X = DrawX;
 					Cutter.m_Y = DrawY;
@@ -1531,10 +1542,11 @@ public:
 					Cutter.m_Flags |= TEXTFLAG_STOP_AT_END;
 
 					TextEx(&Cutter, pCurrent, Wlen);
+					int WordGlyphs = Cutter.m_GlyphCount;
 					Wlen = Cutter.m_CharCount;
 					NewLine = 1;
 
-					if(Wlen <= 3) // if we can't place 3 chars of the word on this line, take the next
+					if(WordGlyphs <= 3) // if we can't place 3 chars of the word on this line, take the next
 						Wlen = 0;
 				}
 				else if(Compare.m_X - TextContainer.m_StartX > TextContainer.m_LineWidth)
@@ -1551,6 +1563,7 @@ public:
 			int NextCharacter = str_utf8_decode(&pTmp);
 			while(pCurrent < pBatchEnd)
 			{
+				TextContainer.m_CharCount += pTmp-pCurrent;
 				int Character = NextCharacter;
 				pCurrent = pTmp;
 				NextCharacter = str_utf8_decode(&pTmp);
@@ -1611,7 +1624,7 @@ public:
 					else
 						DrawX += Advance * Size + CharKerning;
 
-					TextContainer.m_CharCount++;
+					TextContainer.m_GlyphCount++;
 					++CharacterCounter;
 				}
 				pCurrentLast = pCurrent;
@@ -1647,7 +1660,7 @@ public:
 	virtual void DeleteTextContainer(int TextContainerIndex)
 	{
 		STextContainer& TextContainer = GetTextContainer(TextContainerIndex);
-		if(Graphics()->IsBufferingEnabled())
+		if(Graphics()->IsTextBufferingEnabled())
 		{
 			if(TextContainer.m_StringInfo.m_QuadBufferContainerIndex != -1)
 				Graphics()->DeleteBufferContainer(TextContainer.m_StringInfo.m_QuadBufferContainerIndex, true);
@@ -1675,7 +1688,7 @@ public:
 				s_CursorRenderTime = time_get_microseconds();
 		}
 
-		if(Graphics()->IsBufferingEnabled())
+		if(Graphics()->IsTextBufferingEnabled())
 		{
 			Graphics()->TextureClear();
 			// render buffered text
@@ -1755,7 +1768,7 @@ public:
 		Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
 	}
 
-	virtual void UploadEntityLayerText(IGraphics::CTextureHandle Texture, const char *pText, int Length, float x, float y, int FontSize)
+	virtual void UploadEntityLayerText(void* pTexBuff, int ImageColorChannelCount, int TexWidth, int TexHeight, const char *pText, int Length, float x, float y, int FontSize)
 	{
 		if (FontSize < 1)
 			return;
@@ -1794,27 +1807,46 @@ public:
 				mem_zero(ms_aGlyphData, SlotSize);
 
 				if(pBitmap->pixel_mode == FT_PIXEL_MODE_GRAY) // ignore_convention
+				{
+					for(py = 0; py < (unsigned)SlotH; py++) // ignore_convention
+						for(px = 0; px < (unsigned)SlotW; px++)
+						{
+							ms_aGlyphData[(py)*SlotW + px] = pBitmap->buffer[py*pBitmap->width + px]; // ignore_convention
+						}
+				}
+
+				uint8_t* pImageBuff = (uint8_t*)pTexBuff;
+				for(int OffY = 0; OffY < SlotH; ++OffY)
+				{
+					for(int OffX = 0; OffX < SlotW; ++OffX)
 					{
-						for(py = 0; py < (unsigned)SlotH; py++) // ignore_convention
-							for(px = 0; px < (unsigned)SlotW; px++)
+						size_t ImageOffset = (y + OffY) * (TexWidth * ImageColorChannelCount) + ((x + OffX) + WidthLastChars) * ImageColorChannelCount;
+						size_t GlyphOffset = (OffY) * SlotW + OffX;
+						for(size_t i = 0; i < (size_t)ImageColorChannelCount; ++i)
+						{
+							if(i != (size_t)ImageColorChannelCount - 1)
 							{
-								ms_aGlyphData[(py)*SlotW + px] = pBitmap->buffer[py*pBitmap->width + px]; // ignore_convention
+								*(pImageBuff + ImageOffset + i) = 255;
 							}
+							else
+							{
+								*(pImageBuff + ImageOffset + i) = *(ms_aGlyphData + GlyphOffset);
+							}
+						}
 					}
+				}
 
-				Graphics()->LoadTextureRawSub(Texture, x + WidthLastChars, y, SlotW, SlotH, CImageInfo::FORMAT_ALPHA, ms_aGlyphData);
 				WidthLastChars += (SlotW + 1);
-
 			}
 			pCurrent = pTmp;
 		}
 	}
 
-	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize = -1)
+	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize, int MaxWidth)
 	{
 		int WidthOfText = CalculateTextWidth(pText, TextLength, 0, 100);
 
-		int FontSize = 100.f / ((float)WidthOfText / (float)MaxSize);
+		int FontSize = 100.f / ((float)WidthOfText / (float)MaxWidth);
 
 		if (MaxSize > 0 && FontSize > MaxSize)
 			FontSize = MaxSize;

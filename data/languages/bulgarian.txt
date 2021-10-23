@@ -106,9 +106,6 @@ Controls
 Count players only
 == Брой на играчите
 
-Country
-== Държава
-
 Current
 == Текущ
 
@@ -334,9 +331,6 @@ Please balance teams!
 Prev. weapon
 == Пред. оръжие
 
-Quality Textures
-== Качествени Текстури
-
 Quit
 == Изход
 
@@ -465,9 +459,6 @@ Team
 
 Team chat
 == Отборен чат
-
-Texture Compression
-== Компресиране на Текстурите
 
 The audio device couldn't be initialised.
 == Аудио устройството не може да бъде стартирано.
@@ -648,6 +639,9 @@ Successfully saved the replay!
 Replay feature is disabled!
 == 
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Game paused
 == 
 
@@ -715,6 +709,9 @@ It's recommended that you check the settings to adjust them to your liking befor
 == 
 
 Please enter your nick name below.
+== 
+
+Country / Region
 == 
 
 Destination file already exist

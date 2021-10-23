@@ -6,6 +6,7 @@
 
 #include <base/color.h>
 #include <engine/graphics.h>
+#include <stdint.h>
 
 enum
 {
@@ -38,6 +39,7 @@ class CTextCursor
 public:
 	int m_Flags;
 	int m_LineCount;
+	int m_GlyphCount;
 	int m_CharCount;
 	int m_MaxLines;
 
@@ -100,8 +102,8 @@ public:
 	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor) = 0;
 	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor, float X, float Y) = 0;
 
-	virtual void UploadEntityLayerText(IGraphics::CTextureHandle Texture, const char *pText, int Length, float x, float y, int FontHeight) = 0;
-	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize = -1) = 0;
+	virtual void UploadEntityLayerText(void* pTexBuff, int ImageColorChannelCount, int TexWidth, int TexHeight, const char *pText, int Length, float x, float y, int FontHeight) = 0;
+	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize, int MaxWidth) = 0;
 	virtual int CalculateTextWidth(const char *pText, int TextLength, int FontWidth, int FontHeight) = 0;
 
 	// old foolish interface

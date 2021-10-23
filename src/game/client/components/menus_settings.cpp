@@ -349,7 +349,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 	MainView.HSplitTop(20.0f, 0, &MainView);
 	static float s_ScrollValue = 0.0f;
 	int OldSelected = -1;
-	UiDoListboxStart(&s_ScrollValue, &MainView, 50.0f, Localize("Country"), "", m_pClient->m_pCountryFlags->Num(), 6, OldSelected, s_ScrollValue);
+	UiDoListboxStart(&s_ScrollValue, &MainView, 50.0f, Localize("Country / Region"), "", m_pClient->m_pCountryFlags->Num(), 6, OldSelected, s_ScrollValue);
 
 	for(int i = 0; i < m_pClient->m_pCountryFlags->Num(); ++i)
 	{
@@ -907,7 +907,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	static int s_GfxFsaaSamples = g_Config.m_GfxFsaaSamples;
 	static int s_GfxTextureQuality = g_Config.m_GfxTextureQuality;
 	static int s_GfxTextureCompression = g_Config.m_GfxTextureCompression;
-	static int s_GfxOpenGLVersion = g_Config.m_GfxOpenGL3;
+	static int s_GfxOpenGLVersion = (g_Config.m_GfxOpenGLMajor == 3 && g_Config.m_GfxOpenGLMinor == 3) || g_Config.m_GfxOpenGLMajor >= 4;
 	static int s_GfxEnableTextureUnitOptimization = g_Config.m_GfxEnableTextureUnitOptimization;
 	static int s_GfxUsePreinitBuffer = g_Config.m_GfxUsePreinitBuffer;
 	static int s_GfxHighdpi = g_Config.m_GfxHighdpi;
@@ -1015,31 +1015,31 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	}
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GfxTextureQuality, Localize("Quality Textures"), g_Config.m_GfxTextureQuality, &Button))
-	{
-		g_Config.m_GfxTextureQuality ^= 1;
-		CheckSettings = true;
-	}
-
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GfxTextureCompression, Localize("Texture Compression"), g_Config.m_GfxTextureCompression, &Button))
-	{
-		g_Config.m_GfxTextureCompression ^= 1;
-		CheckSettings = true;
-	}
-
-	MainView.HSplitTop(20.0f, &Button, &MainView);
 	if(DoButton_CheckBox(&g_Config.m_GfxHighDetail, Localize("High Detail"), g_Config.m_GfxHighDetail, &Button))
 		g_Config.m_GfxHighDetail ^= 1;
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GfxOpenGL3, Localize("Use OpenGL 3.3 (experimental)"), g_Config.m_GfxOpenGL3, &Button))
+	bool IsNewOpenGL = (g_Config.m_GfxOpenGLMajor == 3 && g_Config.m_GfxOpenGLMinor == 3) || g_Config.m_GfxOpenGLMajor >= 4;
+	if(DoButton_CheckBox(&g_Config.m_GfxOpenGLMajor, Localize("Use OpenGL 3.3 (experimental)"), IsNewOpenGL, &Button))
 	{
 		CheckSettings = true;
-		g_Config.m_GfxOpenGL3 ^= 1;
+		if(IsNewOpenGL)
+		{
+			g_Config.m_GfxOpenGLMajor = 3;
+			g_Config.m_GfxOpenGLMinor = 0;
+			g_Config.m_GfxOpenGLPatch = 0;
+			IsNewOpenGL = false;
+		}
+		else
+		{
+			g_Config.m_GfxOpenGLMajor = 3;
+			g_Config.m_GfxOpenGLMinor = 3;
+			g_Config.m_GfxOpenGLPatch = 0;
+			IsNewOpenGL = true;
+		}
 	}
 
-	if(g_Config.m_GfxOpenGL3)
+	if(IsNewOpenGL)
 	{
 		MainView.HSplitTop(20.0f, &Button, &MainView);
 		if(DoButton_CheckBox(&g_Config.m_GfxUsePreinitBuffer, Localize("Preinit VBO (iGPUs only)"), g_Config.m_GfxUsePreinitBuffer, &Button))
@@ -1074,7 +1074,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			s_GfxFsaaSamples == g_Config.m_GfxFsaaSamples &&
 			s_GfxTextureQuality == g_Config.m_GfxTextureQuality &&
 			s_GfxTextureCompression == g_Config.m_GfxTextureCompression &&
-			s_GfxOpenGLVersion == g_Config.m_GfxOpenGL3 &&
+			s_GfxOpenGLVersion == (int)IsNewOpenGL &&
 			s_GfxUsePreinitBuffer == g_Config.m_GfxUsePreinitBuffer &&
 			s_GfxEnableTextureUnitOptimization == g_Config.m_GfxEnableTextureUnitOptimization &&
 			s_GfxHighdpi == g_Config.m_GfxHighdpi)

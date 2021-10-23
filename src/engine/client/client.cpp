@@ -600,6 +600,15 @@ void CClient::SetState(int s)
 			else if(g_Config.m_ClReconnectTimeout > 0 && (str_find_nocase(ErrorString(), "Timeout") || str_find_nocase(ErrorString(), "Too weak connection")))
 				m_ReconnectTime = time_get() + time_freq() * g_Config.m_ClReconnectTimeout;
 		}
+
+		if(s == IClient::STATE_ONLINE)
+		{
+			Steam()->SetGameInfo(m_ServerAddress, m_aCurrentMap);
+		}
+		else if(Old == IClient::STATE_ONLINE)
+		{
+			Steam()->ClearGameInfo();
+		}
 	}
 }
 
@@ -2432,7 +2441,8 @@ void CClient::LoadDDNetInfo()
 	{
 		const char *pNewsString = json_string_get(pNews);
 
-		if(m_aNews[0] && str_comp(m_aNews, pNewsString))
+		// Only switch to news page if something new was added to the news
+		if(m_aNews[0] && str_find(m_aNews, pNewsString) == nullptr)
 			g_Config.m_UiPage = CMenus::PAGE_NEWS;
 
 		str_copy(m_aNews, pNewsString, sizeof(m_aNews));
@@ -4167,10 +4177,6 @@ int main(int argc, const char **argv) // ignore_convention
 		io_close(File);
 		pConsole->ExecuteFile(CONFIG_FILE);
 	}
-	else // fallback
-	{
-		pConsole->ExecuteFile("settings.cfg");
-	}
 
 	// execute autoexec file
 	File = pStorage->OpenFile(AUTOEXEC_CLIENT_FILE, IOFLAG_READ, IStorage::TYPE_ALL);
@@ -4288,7 +4294,7 @@ void CClient::RequestDDNetInfo()
 	if(g_Config.m_BrIndicateFinished)
 	{
 		char aEscaped[128];
-		EscapeUrl(aEscaped, sizeof(aEscaped), g_Config.m_PlayerName);
+		EscapeUrl(aEscaped, sizeof(aEscaped), PlayerName());
 		str_append(aUrl, "?name=", sizeof(aUrl));
 		str_append(aUrl, aEscaped, sizeof(aUrl));
 	}

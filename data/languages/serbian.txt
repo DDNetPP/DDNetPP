@@ -109,9 +109,6 @@ Controls
 Count players only
 == Broj samo igrače
 
-Country
-== Država
-
 Current
 == Trenutno
 
@@ -337,9 +334,6 @@ Please balance teams!
 Prev. weapon
 == Prethodno oružje
 
-Quality Textures
-== Visokokvalitetne teksture
-
 Quit
 == Izlaz
 
@@ -471,9 +465,6 @@ Team
 
 Team chat
 == Timski čet
-
-Texture Compression
-== Kompresija tekstura
 
 The audio device couldn't be initialised.
 == Audio uređaj nije moguće pokrenuti.
@@ -655,14 +646,32 @@ Replay feature is disabled!
 Game paused
 == Igra pauzirana
 
+Learn
+== Nauči
+
+Loading DDNet Client
+== Učitavanje DDNet Klijenta
+
+Render demo
+== Renderuj demo
+
+Disconnect Dummy
+== Diskonektuj Dummy
+
+Video name:
+== Video naziv:
+
+Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
+== Tipka K da se ubijes (restart), tipka q da pauziras i gledas druge igrače.
+
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Server best:
 == 
 
 Personal best:
 == 
-
-Learn
-== Nauči
 
 Browser
 == 
@@ -670,14 +679,8 @@ Browser
 Ghost
 == 
 
-Loading DDNet Client
-== Učitavanje DDNet Klijenta
-
 Reconnect in %d sec
 == 
-
-Render demo
-== Renderuj demo
 
 Replace video
 == 
@@ -688,14 +691,11 @@ File already exists, do you want to overwrite it?
 Are you sure that you want to disconnect?
 == 
 
-Disconnect Dummy
-== Diskonektuj Dummy
-
 Are you sure that you want to disconnect your dummy?
 == 
 
 Welcome to DDNet
-==
+== 
 
 DDraceNetwork is a cooperative online game where the goal is for you and your group of tees to reach the finish line of the map. As a newcomer you should start on Novice servers, which host the easiest maps. Consider the ping to choose a server close to you.
 == 
@@ -718,11 +718,11 @@ It's recommended that you check the settings to adjust them to your liking befor
 Please enter your nick name below.
 == 
 
-Destination file already exist
+Country / Region
 == 
 
-Video name:
-== Video naziv:
+Destination file already exist
+== 
 
 Show DDNet map finishes in server browser
 == 
@@ -1193,10 +1193,4 @@ Grabs
 == 
 
 9+ new mentions
-== 
-
-Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
-== Tipka K da se ubijes (restart), tipka q da pauziras i gledas druge igrače. 
-
-Client message
 == 

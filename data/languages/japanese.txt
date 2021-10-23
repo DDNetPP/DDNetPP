@@ -106,9 +106,6 @@ Controls
 Count players only
 == 実際のプレイヤー数を表示
 
-Country
-== 国
-
 Current
 == 現行
 
@@ -334,9 +331,6 @@ Please balance teams!
 Prev. weapon
 == 前の武器
 
-Quality Textures
-== テクスチャの品質
-
 Quit
 == 終了
 
@@ -468,9 +462,6 @@ Team
 
 Team chat
 == チームチャット
-
-Texture Compression
-== テクスチャ圧縮
 
 The audio device couldn't be initialised.
 == オーディオデバイスの初期化に失敗しました。
@@ -651,6 +642,9 @@ Successfully saved the replay!
 Replay feature is disabled!
 == 
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Game paused
 == 
 
@@ -718,6 +712,9 @@ It's recommended that you check the settings to adjust them to your liking befor
 == 
 
 Please enter your nick name below.
+== 
+
+Country / Region
 == 
 
 Destination file already exist

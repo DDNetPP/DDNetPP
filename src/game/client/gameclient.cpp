@@ -221,7 +221,7 @@ void CGameClient::OnConsoleInit()
 
 	// add the some console commands
 	Console()->Register("team", "i[team-id]", CFGFLAG_CLIENT, ConTeam, this, "Switch team");
-	Console()->Register("kill", "", CFGFLAG_CLIENT, ConKill, this, "Kill yourself");
+	Console()->Register("kill", "", CFGFLAG_CLIENT, ConKill, this, "Kill yourself to restart");
 
 	// register server dummy commands for tab completion
 	Console()->Register("tune", "s[tuning] i[value]", CFGFLAG_SERVER, 0, 0, "Tune variable to value");
@@ -622,6 +622,21 @@ void CGameClient::OnRender()
 {
 	// update the local character and spectate position
 	UpdatePositions();
+
+	// display gfx warnings
+	if(g_Config.m_GfxShowWarnings == 1)
+	{
+		SGraphicsWarning* pWarning = Graphics()->GetCurWarning();
+		if(pWarning != NULL)
+		{
+			if(m_pMenus->CanDisplayWarning())
+			{
+				m_pMenus->PopupWarning("Warning!", pWarning->m_aWarningMsg, "Ok", 10000000);
+
+				pWarning->m_WasShown = true;
+			}
+		}
+	}
 
 	// render all systems
 	for(int i = 0; i < m_All.m_Num; i++)

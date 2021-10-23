@@ -106,9 +106,6 @@ Controls
 Count players only
 == Nepočítať divákov
 
-Country
-== Krajina
-
 Current
 == Aktuálne
 
@@ -334,9 +331,6 @@ Please balance teams!
 Prev. weapon
 == Predošlá zbraň
 
-Quality Textures
-== Kvalitné textúry
-
 Quit
 == Ukončiť
 
@@ -468,9 +462,6 @@ Team
 
 Team chat
 == Týmový chat
-
-Texture Compression
-== Kompresia textúr
 
 The audio device couldn't be initialised.
 == Zvukové zariadenie nemohlo byť inicializované.
@@ -651,6 +642,9 @@ Successfully saved the replay!
 Replay feature is disabled!
 == 
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Game paused
 == 
 
@@ -718,6 +712,9 @@ It's recommended that you check the settings to adjust them to your liking befor
 == 
 
 Please enter your nick name below.
+== 
+
+Country / Region
 == 
 
 Destination file already exist

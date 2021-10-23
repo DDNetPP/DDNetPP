@@ -2190,7 +2190,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 
 			if(aCmd[0] && str_comp(aCmd, "info") != 0)
-				CallVote(ClientID, aDesc, aCmd, aReason, aChatmsg, aSixupDesc);
+				CallVote(ClientID, aDesc, aCmd, aReason, aChatmsg, aSixupDesc[0] ? aSixupDesc : 0);
 		}
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
 		{
@@ -2540,12 +2540,22 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 		CNetMsg_Cl_StartInfo *pMsg = (CNetMsg_Cl_StartInfo *)pRawMsg;
 
-		if(!str_utf8_check(pMsg->m_pName)
-			|| !str_utf8_check(pMsg->m_pClan)
-			|| !str_utf8_check(pMsg->m_pSkin))
+		if(!str_utf8_check(pMsg->m_pName))
 		{
+			Server()->Kick(ClientID, "name is not valid utf8");
 			return;
 		}
+		if(!str_utf8_check(pMsg->m_pClan))
+		{
+			Server()->Kick(ClientID, "clan is not valid utf8");
+			return;
+		}
+		if(!str_utf8_check(pMsg->m_pSkin))
+		{
+			Server()->Kick(ClientID, "skin is not valid utf8");
+			return;
+		}
+
 		pPlayer->m_LastChangeInfo = Server()->Tick();
 
 		// set start infos
@@ -3379,7 +3389,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		GameInfo.m_pPrngDescription = m_Prng.Description();
 
 		GameInfo.m_pServerName = g_Config.m_SvName;
-		GameInfo.m_ServerPort = g_Config.m_SvPort;
+		GameInfo.m_ServerPort = Server()->Port();
 		GameInfo.m_pGameType = m_pController->m_pGameType;
 
 		GameInfo.m_pConfig = &g_Config;

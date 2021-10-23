@@ -253,9 +253,6 @@ Please balance teams!
 Prev. weapon
 == Попер. зброя
 
-Quality Textures
-== Якісні текстури
-
 Quit
 == Вихід
 
@@ -348,9 +345,6 @@ Team
 
 Team chat
 == Командний чат
-
-Texture Compression
-== Стиснення текстур
 
 The server is running a non-standard tuning on a pure game type.
 == Сервер запущено з нестандартними налаштуваннями на стандартному типі гри.
@@ -578,9 +572,6 @@ Quit anyway?
 
 %i seconds left
 == Залишилось %i секунд
-
-Country
-== Країна
 
 Unable to delete the demo
 == Неможливо видалити демо
@@ -1191,7 +1182,13 @@ Grabs
 9+ new mentions
 == 9+ нових згадок
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
+== 
+
+Country / Region
 == 
 
 Markers

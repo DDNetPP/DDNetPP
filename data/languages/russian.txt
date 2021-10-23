@@ -112,9 +112,6 @@ Controls
 Count players only
 == Считать только игроков
 
-Country
-== Флаг вашей страны
-
 Current
 == Текущий
 
@@ -340,9 +337,6 @@ Please balance teams!
 Prev. weapon
 == Пред. оружие
 
-Quality Textures
-== Качественные текстуры
-
 Quit
 == Выход
 
@@ -492,9 +486,6 @@ Team
 
 Team chat
 == Командный чат
-
-Texture Compression
-== Сжатие текстур
 
 The audio device couldn't be initialised.
 == Аудио устройство не может быть инициализировано
@@ -1197,7 +1188,13 @@ Grabs
 Client message
 == Сообщение от клиента
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
+== 
+
+Country / Region
 == 
 
 Markers

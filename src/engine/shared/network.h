@@ -315,6 +315,7 @@ class CNetServer
 		int m_Conns;
 	};
 
+	NETADDR m_Address;
 	NETSOCKET m_Socket;
 	MMSGS m_MMSGS;
 	class CNetBan *m_pNetBan;
@@ -373,6 +374,7 @@ public:
 	// status requests
 	const NETADDR *ClientAddr(int ClientID) const { return m_aSlots[ClientID].m_Connection.PeerAddress(); }
 	bool HasSecurityToken(int ClientID) const { return m_aSlots[ClientID].m_Connection.SecurityToken() != NET_SECURITY_TOKEN_UNSUPPORTED; }
+	NETADDR Address() const { return m_Address; }
 	NETSOCKET Socket() const { return m_Socket; }
 	class CNetBan *NetBan() const { return m_pNetBan; }
 	int NetType() const { return m_Socket.type; }

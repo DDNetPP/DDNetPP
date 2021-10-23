@@ -917,10 +917,13 @@ CSoundSource *CEditor::GetSelectedSource()
 	return 0;
 }
 
-void CEditor::SelectLayer(int Index)
+void CEditor::SelectLayer(int LayerIndex, int GroupIndex)
 {
+	if (GroupIndex != -1)
+		m_SelectedGroup = GroupIndex;
+
 	m_lSelectedLayers.clear();
-	m_lSelectedLayers.add(Index);
+	m_lSelectedLayers.add(LayerIndex);
 }
 
 void CEditor::SelectQuad(int Index)
@@ -3350,8 +3353,9 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				if(int Result = DoButton_Ex(&m_Map.m_lGroups[g], aBuf, g==m_SelectedGroup, &Slot,
 					BUTTON_CONTEXT, m_Map.m_lGroups[g]->m_Collapse ? "Select group. Shift click to select all layers. Double click to expand." : "Select group. Shift click to select all layers. Double click to collapse.", CUI::CORNER_R, FontSize))
 				{
-					m_SelectedGroup = g;
-					SelectLayer(0);
+					if (g != m_SelectedGroup)
+						SelectLayer(0, g);
+	
 					if ((Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)) && m_SelectedGroup == g)
 					{
 						for(int i = 1; i < m_Map.m_lGroups[g]->m_lLayers.size(); i++)
@@ -3453,12 +3457,30 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 						}
 						else if(!(Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)))
 						{
-							m_SelectedGroup = g;
-							SelectLayer(i);
+							SelectLayer(i, g);
 						}
 					}
 					else if(Result == 2)
 					{
+						bool IsLayerSelected = false;
+
+						if (m_SelectedGroup == g)
+						{
+							for (int x = 0; x < m_lSelectedLayers.size(); x++)
+							{
+								if (m_lSelectedLayers[x] == i)
+								{
+									IsLayerSelected = true;
+									break;
+								}
+							}
+						}
+						
+						if (!IsLayerSelected)
+						{
+							SelectLayer(i, g);
+						}
+
 						if(m_lSelectedLayers.size() > 1)
 						{
 							bool AllTile = true;
@@ -3514,8 +3536,7 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				{
 					if(m_Map.m_lGroups[Group]->m_lLayers.size() > 0)
 					{
-						m_SelectedGroup = Group;
-						SelectLayer(0);
+						SelectLayer(0, Group);
 						break;
 					}
 				}
@@ -3546,8 +3567,7 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				{
 					if(m_Map.m_lGroups[Group]->m_lLayers.size() > 0)
 					{
-						m_SelectedGroup = Group;
-						SelectLayer(m_Map.m_lGroups[Group]->m_lLayers.size() - 1);
+						SelectLayer(m_Map.m_lGroups[Group]->m_lLayers.size() - 1, Group);
 						break;
 					}
 				}
@@ -4351,7 +4371,7 @@ void CEditor::AddFileDialogEntry(int Index, CUIRect *pView)
 		m_PreviewImageIsLoaded = false;
 
 		if(Input()->MouseDoubleClick())
-			m_aFileDialogActivate = true;
+			m_FileDialogActivate = true;
 	}
 }
 
@@ -4422,6 +4442,8 @@ void CEditor::RenderFileDialog()
 		UI()->DoLabel(&FileBoxLabel, "Search:", 10.0f, -1, -1);
 		str_copy(m_aFileDialogPrevSearchText, m_aFileDialogSearchText, sizeof(m_aFileDialogPrevSearchText));
 		DoEditBox(&s_SearchBoxID, &FileBox, m_aFileDialogSearchText, sizeof(m_aFileDialogSearchText), 10.0f, &s_SearchBoxID,false,CUI::CORNER_L);
+		if(m_FileDialogOpening)
+			UI()->SetActiveItem(&s_SearchBoxID);
 
 		// clearSearchbox button
 		{
@@ -4438,6 +4460,8 @@ void CEditor::RenderFileDialog()
 		if(str_comp(m_aFileDialogPrevSearchText, m_aFileDialogSearchText))
 			m_FileDialogScrollValue = 0.0f;
 	}
+
+	m_FileDialogOpening = false;
 
 	int Num = (int)(View.h/17.0f)+1;
 	static int ScrollBar = 0;
@@ -4562,7 +4586,7 @@ void CEditor::RenderFileDialog()
 		if(Input()->GetEvent(i).m_Flags&IInput::FLAG_PRESS)
 		{
 			if(Input()->GetEvent(i).m_Key == KEY_RETURN || Input()->GetEvent(i).m_Key == KEY_KP_ENTER)
-				m_aFileDialogActivate = true;
+				m_FileDialogActivate = true;
 		}
 	}
 
@@ -4592,9 +4616,9 @@ void CEditor::RenderFileDialog()
 	CUIRect Button;
 	ButtonBar.VSplitRight(50.0f, &ButtonBar, &Button);
 	bool IsDir = m_FilesSelectedIndex >= 0 && m_FileList[m_FilesSelectedIndex].m_IsDir;
-	if(DoButton_Editor(&s_OkButton, IsDir ? "Open" : m_pFileDialogButtonText, 0, &Button, 0, 0) || m_aFileDialogActivate)
+	if(DoButton_Editor(&s_OkButton, IsDir ? "Open" : m_pFileDialogButtonText, 0, &Button, 0, 0) || m_FileDialogActivate)
 	{
-		m_aFileDialogActivate = false;
+		m_FileDialogActivate = false;
 		if(IsDir)	// folder
 		{
 			if(str_comp(m_FileList[m_FilesSelectedIndex].m_aFilename, "..") == 0)	// parent folder
@@ -4696,7 +4720,7 @@ void CEditor::FilelistPopulate(int StorageType)
 	Storage()->ListDirectory(StorageType, m_pFileDialogPath, EditorListdirCallback, this);
 	m_FilesSelectedIndex = m_FileList.size() ? 0 : -1;
 	m_PreviewImageIsLoaded = false;
-	m_aFileDialogActivate = false;
+	m_FileDialogActivate = false;
 
 	if(m_FilesSelectedIndex >= 0 && !m_FileList[m_FilesSelectedIndex].m_IsDir)
 		str_copy(m_aFileDialogFileName, m_FileList[m_FilesSelectedIndex].m_aFilename, sizeof(m_aFileDialogFileName));
@@ -4721,6 +4745,7 @@ void CEditor::InvokeFileDialog(int StorageType, int FileType, const char *pTitle
 	m_FileDialogFileType = FileType;
 	m_FileDialogScrollValue = 0.0f;
 	m_PreviewImageIsLoaded = false;
+	m_FileDialogOpening = true;
 
 	if(pDefaultName)
 		str_copy(m_aFileDialogFileName, pDefaultName, sizeof(m_aFileDialogFileName));
@@ -4729,6 +4754,7 @@ void CEditor::InvokeFileDialog(int StorageType, int FileType, const char *pTitle
 
 	FilelistPopulate(m_FileDialogStorageType);
 
+	m_FileDialogOpening = true;
 	m_Dialog = DIALOG_FILE;
 }
 
@@ -6150,9 +6176,8 @@ void CEditor::Reset(bool CreateDefault)
 	if(CreateDefault)
 		m_Map.CreateDefault(m_EntitiesTexture);
 
-	SelectLayer(0);
+	SelectLayer(0, 0);
 	m_lSelectedQuads.clear();
-	m_SelectedGroup = 0;
 	m_SelectedPoints = 0;
 	m_SelectedEnvelope = 0;
 	m_SelectedImage = 0;

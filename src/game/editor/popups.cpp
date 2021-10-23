@@ -1021,32 +1021,32 @@ int CEditor::PopupMapInfo(CEditor *pEditor, CUIRect View, void *pContext)
 	// author box
 	View.HSplitTop(20.0f, &Label, &View);
 	pEditor->UI()->DoLabel(&Label, "Author:", 10.0f, -1);
-	Label.VSplitLeft(40.0f, 0, &Button);
-	Button.HSplitTop(12.0f, &Button, 0);
+	Label.VSplitLeft(45.0f, 0, &Button);
+	Button.HMargin(3, &Button);
 	static float s_AuthorBox = 0;
 	pEditor->DoEditBox(&s_AuthorBox, &Button, pEditor->m_Map.m_MapInfo.m_aAuthorTmp, sizeof(pEditor->m_Map.m_MapInfo.m_aAuthorTmp), 10.0f, &s_AuthorBox);
 
 	// version box
 	View.HSplitTop(20.0f, &Label, &View);
 	pEditor->UI()->DoLabel(&Label, "Version:", 10.0f, -1);
-	Label.VSplitLeft(40.0f, 0, &Button);
-	Button.HSplitTop(12.0f, &Button, 0);
+	Label.VSplitLeft(45.0f, 0, &Button);
+	Button.HMargin(3, &Button);
 	static float s_VersionBox = 0;
 	pEditor->DoEditBox(&s_VersionBox, &Button, pEditor->m_Map.m_MapInfo.m_aVersionTmp, sizeof(pEditor->m_Map.m_MapInfo.m_aVersionTmp), 10.0f, &s_VersionBox);
 
 	// credits box
 	View.HSplitTop(20.0f, &Label, &View);
 	pEditor->UI()->DoLabel(&Label, "Credits:", 10.0f, -1);
-	Label.VSplitLeft(40.0f, 0, &Button);
-	Button.HSplitTop(12.0f, &Button, 0);
+	Label.VSplitLeft(45.0f, 0, &Button);
+	Button.HMargin(3, &Button);
 	static float s_CreditsBox = 0;
 	pEditor->DoEditBox(&s_CreditsBox, &Button, pEditor->m_Map.m_MapInfo.m_aCreditsTmp, sizeof(pEditor->m_Map.m_MapInfo.m_aCreditsTmp), 10.0f, &s_CreditsBox);
 
 	// license box
 	View.HSplitTop(20.0f, &Label, &View);
 	pEditor->UI()->DoLabel(&Label, "License:", 10.0f, -1);
-	Label.VSplitLeft(40.0f, 0, &Button);
-	Button.HSplitTop(12.0f, &Button, 0);
+	Label.VSplitLeft(45.0f, 0, &Button);
+	Button.HMargin(3, &Button);
 	static float s_LicenseBox = 0;
 	pEditor->DoEditBox(&s_LicenseBox, &Button, pEditor->m_Map.m_MapInfo.m_aLicenseTmp, sizeof(pEditor->m_Map.m_MapInfo.m_aLicenseTmp), 10.0f, &s_LicenseBox);
 
@@ -1092,7 +1092,7 @@ int CEditor::PopupEvent(CEditor *pEditor, CUIRect View, void *pContext)
 	else if(pEditor->m_PopupEventType == POPEVENT_PREVENTUNUSEDTILES)
 		pEditor->UI()->DoLabel(&Label, "Unused tiles disabled", 20.0f, 0);
 	else if(pEditor->m_PopupEventType == POPEVENT_IMAGEDIV16)
-		pEditor->UI()->DoLabel(&Label, "Image width", 20.0f, 0);
+		pEditor->UI()->DoLabel(&Label, "Image width/height", 20.0f, 0);
 
 	View.HSplitBottom(10.0f, &View, 0);
 	View.HSplitBottom(20.0f, &View, &ButtonBar);
@@ -1115,7 +1115,7 @@ int CEditor::PopupEvent(CEditor *pEditor, CUIRect View, void *pContext)
 	else if(pEditor->m_PopupEventType == POPEVENT_PREVENTUNUSEDTILES)
 		pEditor->UI()->DoLabel(&Label, "Unused tiles can't be placed by default because they could get a use later and then destroy your map.\nActivate the 'Unused' switch to be able to place every tile.", 10.0f, -1, Label.w-10.0f);
 	else if(pEditor->m_PopupEventType == POPEVENT_IMAGEDIV16)
-		pEditor->UI()->DoLabel(&Label, "The width of this image is not divisible by 16. This is required for images used in tile layers for Teeworlds 0.7 compatibility.", 10.0f, -1, Label.w-10.0f);
+		pEditor->UI()->DoLabel(&Label, "The width or height of this image is not divisible by 16. This is required for images used in tile layers for Teeworlds 0.7 compatibility.", 10.0f, -1, Label.w-10.0f);
 
 	// button bar
 	ButtonBar.VSplitLeft(30.0f, 0, &ButtonBar);

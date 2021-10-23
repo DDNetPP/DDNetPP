@@ -68,8 +68,6 @@ Controls
 == ﺎﻫ ﻝﺮﺘﻨﻛ
 Count players only
 == ﺎﻫ ﻦﻜﯾﺯﺎﺑ ﺩﺍﺪﻌﺗ
-Country
-== ﺭﻮﺸﻛ
 Current
 == ﯽﻠﻌﻓ
 Custom colors
@@ -222,8 +220,6 @@ Please balance teams!
 == !ﺪﯿﻨﻛ ﻝﺩﺎﻌﺘﻣ ﺍﺭ ﺎﻫ ﻢﯿﺗ ﺎﻔﻄﻟ
 Prev. weapon
 == ﯽﻠﺒﻗ ﻪﺤﻠﺳﺍ
-Quality Textures
-== ﻦﺘﻣ ﺖﯿﻔﯿﮐ
 Quit
 == ﻥﺪﺷ ﺝﺭﺎﺧ
 Reason:
@@ -314,8 +310,6 @@ Team
 == ﻢﯿﺗ
 Team chat
 == ﻢﯿﺗ ﺖﭼ
-Texture Compression
-== Texture Compression
 The audio device couldn't be initialised.
 == .ﺪﺸﻧ ﻥﺪﺷ ﺐﺼﻧ ﻪﺑ ﻖﻓﻮﻣ ﺍﺪﺻ ﻩﺎﮕﺘﺳﺩ
 The server is running a non-standard tuning on a pure game type.
@@ -788,7 +782,13 @@ Personal best:
 Best
 == ﻦﯾﺮﺘﻬﺑ
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
+== 
+
+Country / Region
 == 
 
 may cause delay

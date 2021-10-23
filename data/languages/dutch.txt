@@ -118,9 +118,6 @@ Controls
 Count players only
 == Tel alleen spelers
 
-Country
-== Land
-
 Current
 == Huidig
 
@@ -346,9 +343,6 @@ Please balance teams!
 Prev. weapon
 == Vorig wapen
 
-Quality Textures
-== Structuurkwaliteit
-
 Quit
 == Afsluiten
 
@@ -480,9 +474,6 @@ Team
 
 Team chat
 == Team chat
-
-Texture Compression
-== Structuurscompressie
 
 The audio device couldn't be initialised.
 == Het geluid kon niet worden geladen.
@@ -1196,7 +1187,13 @@ Grabs
 9+ new mentions
 == 9+ nieuwe berichten
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Use k key to kill (restart), q to pause and watch other players. See settings for other key binds.
+== 
+
+Country / Region
 == 
 
 Client message

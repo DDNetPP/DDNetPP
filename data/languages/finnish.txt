@@ -107,9 +107,6 @@ Controls
 Count players only
 == Laske vain pelaajat
 
-Country
-== Maa
-
 Current
 == Nykyinen
 
@@ -335,9 +332,6 @@ Please balance teams!
 Prev. weapon
 == Edellinen ase
 
-Quality Textures
-== Hyvälaatuiset tekstuurit
-
 Quit
 == Lopeta
 
@@ -469,9 +463,6 @@ Team
 
 Team chat
 == Joukkuechatti
-
-Texture Compression
-== Tekstuuripakkaus
 
 The audio device couldn't be initialised.
 == Äänilaitteen alustaminen ei onnistunut.
@@ -652,6 +643,9 @@ Successfully saved the replay!
 Replay feature is disabled!
 == 
 
+The width or height of texture %s is not divisible by 16, which might cause visual bugs.
+== 
+
 Game paused
 == 
 
@@ -719,6 +713,9 @@ It's recommended that you check the settings to adjust them to your liking befor
 == 
 
 Please enter your nick name below.
+== 
+
+Country / Region
 == 
 
 Destination file already exist
