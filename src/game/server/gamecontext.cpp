@@ -447,7 +447,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 		}
 	}
-	else if (Team == CHAT_TO_ONE_CLIENT)
+	else if (Team == CHAT_TO_ONE_CLIENT && ToClientID > -1)
 	{
 		CNetMsg_Sv_Chat Msg;
 		Msg.m_Team = 0;
