@@ -1176,20 +1176,12 @@ set(EXPECTED_DATA
   maps7/Gold\ Mine.map
   maps7/readme.txt
   particles.png
-  shader/bordertile.frag
-  shader/bordertile.vert
-  shader/bordertileline.frag
-  shader/bordertileline.vert
-  shader/bordertilelinetex.frag
-  shader/bordertilelinetex.vert
-  shader/bordertiletex.frag
-  shader/bordertiletex.vert
+  shader/pipeline.frag
+  shader/pipeline.vert
   shader/prim.frag
   shader/prim.vert
   shader/quad.frag
   shader/quad.vert
-  shader/quadtex.frag
-  shader/quadtex.vert
   shader/sprite.frag
   shader/sprite.vert
   shader/spritemulti.frag
@@ -1198,8 +1190,6 @@ set(EXPECTED_DATA
   shader/text.vert
   shader/tile.frag
   shader/tile.vert
-  shader/tiletex.frag
-  shader/tiletex.vert
   skins/Ablush\ NeoN.png
   skins/Aoe4leg.png
   skins/Apish\ Coke.png
@@ -1440,6 +1430,7 @@ set_src(BASE GLOB_RECURSE src/base
   ddpp_logs.c
   ddpp_logs.h
   detect.h
+  dynamic.h
   hash.c
   hash.h
   hash_bundled.c
@@ -1485,6 +1476,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   server.h
   serverbrowser.h
   sound.h
+  steam.h
   storage.h
   textrender.h
   updater.h
@@ -1674,6 +1666,7 @@ if(CLIENT)
     serverbrowser.h
     sound.cpp
     sound.h
+    steam.cpp
     text.cpp
     updater.cpp
     updater.h

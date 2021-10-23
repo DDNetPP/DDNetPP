@@ -7,13 +7,15 @@
 #include "././game/variables.h"
 #include "config_variables_ddpp.h"
 
-MACRO_CONFIG_STR(PlayerName, player_name, 16, "nameless tee", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Name of the player")
+MACRO_CONFIG_STR(PlayerName, player_name, 16, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Name of the player")
 MACRO_CONFIG_STR(PlayerClan, player_clan, 12, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Clan of the player")
 MACRO_CONFIG_INT(PlayerCountry, player_country, -1, -1, 1000, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Country of the player")
 MACRO_CONFIG_STR(Password, password, 32, "", CFGFLAG_CLIENT|CFGFLAG_SERVER|CFGFLAG_NONTEEHISTORIC, "Password to the server")
 MACRO_CONFIG_STR(Logfile, logfile, 128, "", CFGFLAG_SAVE|CFGFLAG_CLIENT|CFGFLAG_SERVER, "Filename to log all output to")
 MACRO_CONFIG_INT(ConsoleOutputLevel, console_output_level, 0, 0, 2, CFGFLAG_CLIENT|CFGFLAG_SERVER, "Adjusts the amount of information in the console")
 MACRO_CONFIG_INT(Events, events, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT|CFGFLAG_SERVER, "Enable triggering of events, like the happy eye emotes on some holidays.")
+
+MACRO_CONFIG_STR(SteamName, steam_name, 16, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Last seen name of the Steam profile")
 
 MACRO_CONFIG_INT(ClSaveSettings, cl_save_settings, 1, 0, 1, CFGFLAG_CLIENT, "Write the settings file on exit")
 MACRO_CONFIG_INT(ClRefreshRate, cl_refresh_rate, 0, 0, 10000, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Refresh rate for updating the game (in Hz)")
@@ -63,7 +65,7 @@ MACRO_CONFIG_STR(BrFilterExcludeCountriesKoG, br_filter_exclude_countries_kog, 1
 MACRO_CONFIG_STR(BrFilterExcludeTypesKoG, br_filter_exclude_types_kog, 128, "", CFGFLAG_SAVE|CFGFLAG_CLIENT, "Filter out kog servers by type (mod)")
 
 MACRO_CONFIG_INT(BrSort, br_sort, 4, 0, 256, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sorting column in server browser")
-MACRO_CONFIG_INT(BrSortOrder, br_sort_order, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sorting order in server browser")
+MACRO_CONFIG_INT(BrSortOrder, br_sort_order, 2, 0, 2, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sorting order in server browser")
 MACRO_CONFIG_INT(BrMaxRequests, br_max_requests, 25, 0, 1000, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Number of requests to use when refreshing server browser")
 
 MACRO_CONFIG_INT(BrDemoSort, br_demo_sort, 0, 0, 3, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sorting column in demo browser")
@@ -90,8 +92,13 @@ MACRO_CONFIG_INT(SndHighlight, snd_highlight, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIE
 MACRO_CONFIG_INT(GfxScreen, gfx_screen, 0, 0, 15, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Screen index")
 MACRO_CONFIG_INT(GfxScreenWidth, gfx_screen_width, 0, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Screen resolution width")
 MACRO_CONFIG_INT(GfxScreenHeight, gfx_screen_height, 0, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Screen resolution height")
+#if !defined(CONF_PLATFORM_MACOSX)
 MACRO_CONFIG_INT(GfxBorderless, gfx_borderless, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Borderless window (not to be used with fullscreen)")
 MACRO_CONFIG_INT(GfxFullscreen, gfx_fullscreen, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Fullscreen")
+#else
+MACRO_CONFIG_INT(GfxBorderless, gfx_borderless, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Borderless window (not to be used with fullscreen)")
+MACRO_CONFIG_INT(GfxFullscreen, gfx_fullscreen, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Fullscreen")
+#endif
 MACRO_CONFIG_INT(GfxHighdpi, gfx_highdpi, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Enable high-dpi")
 MACRO_CONFIG_INT(GfxAlphabits, gfx_alphabits, 0, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Alpha bits for framebuffer (fullscreen only)")
 MACRO_CONFIG_INT(GfxColorDepth, gfx_color_depth, 24, 16, 24, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Colors bits for framebuffer (fullscreen only)")
@@ -368,7 +375,9 @@ MACRO_CONFIG_INT(ClDemoShowSpeed, cl_demo_show_speed, 0, 0, 1, CFGFLAG_SAVE|CFGF
 MACRO_CONFIG_INT(ClDemoKeyboardShortcuts, cl_demo_keyboard_shortcuts, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Enable keyboard shortcuts in demo player")
 
 //opengl
-MACRO_CONFIG_INT(GfxOpenGL3, gfx_opengl3, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use new OpenGL3 with shaders")
+MACRO_CONFIG_INT(GfxOpenGLMajor, gfx_opengl_major, 3, 1, 10, CFGFLAG_SAVE|CFGFLAG_CLIENT, "OpenGL major version")
+MACRO_CONFIG_INT(GfxOpenGLMinor, gfx_opengl_minor, 0, 0, 10, CFGFLAG_SAVE|CFGFLAG_CLIENT, "OpenGL minor version")
+MACRO_CONFIG_INT(GfxOpenGLPatch, gfx_opengl_patch, 0, 0, 10, CFGFLAG_SAVE|CFGFLAG_CLIENT, "OpenGL patch version")
 #if !defined(CONF_PLATFORM_MACOSX)
 MACRO_CONFIG_INT(GfxEnableTextureUnitOptimization, gfx_enable_texture_unit_optimization, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use multiple texture units, instead of only one.")
 #else

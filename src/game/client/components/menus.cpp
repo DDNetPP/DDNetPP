@@ -174,7 +174,9 @@ int CMenus::DoButton_MenuTab(const void *pID, const char *pText, int Checked, co
 
 int CMenus::DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect)
 {
-	if(Checked)
+	if(Checked == 2)
+		RenderTools()->DrawUIRect(pRect, ColorRGBA(1,0.98f,0.5f,0.55f), CUI::CORNER_T, 5.0f);
+	else if(Checked)
 		RenderTools()->DrawUIRect(pRect, ColorRGBA(1,1,1,0.5f), CUI::CORNER_T, 5.0f);
 	CUIRect t;
 	pRect->VSplitLeft(5.0f, 0, &t);
@@ -1803,7 +1805,7 @@ int CMenus::Render()
 			TextBox.VSplitRight(60.0f, &TextBox, 0);
 			UI()->DoLabel(&Label, Localize("Nickname"), 16.0f, -1);
 			static float Offset = 0.0f;
-			DoEditBox(&g_Config.m_PlayerName, &TextBox, g_Config.m_PlayerName, sizeof(g_Config.m_PlayerName), 12.0f, &Offset);
+			DoEditBox(&g_Config.m_PlayerName, &TextBox, g_Config.m_PlayerName, sizeof(g_Config.m_PlayerName), 12.0f, &Offset, false, CUI::CORNER_ALL, Client()->PlayerName());
 		}
 		else
 		{
