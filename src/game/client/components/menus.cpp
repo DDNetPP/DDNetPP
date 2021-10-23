@@ -974,6 +974,7 @@ void CMenus::PopupMessage(const char *pTopic, const char *pBody, const char *pBu
 	str_copy(m_aMessageTopic, pTopic, sizeof(m_aMessageTopic));
 	str_copy(m_aMessageBody, pBody, sizeof(m_aMessageBody));
 	str_copy(m_aMessageButton, pButton, sizeof(m_aMessageButton));
+	m_Popup = POPUP_MESSAGE;
 }
 
 void CMenus::PopupWarning(const char *pTopic, const char *pBody, const char *pButton, int64 Duration)
@@ -1348,6 +1349,7 @@ int CMenus::Render()
 			{
 				Client()->DummyDisconnect(0);
 				m_Popup = POPUP_NONE;
+				SetActive(false);
 			}
 		}
 		else if(m_Popup == POPUP_PASSWORD)
@@ -2103,7 +2105,7 @@ void CMenus::OnRender()
 void CMenus::RenderBackground()
 {
 	Graphics()->BlendNormal();
-	
+
 	float sw = 300*Graphics()->ScreenAspect();
 	float sh = 300;
 	Graphics()->MapScreen(0, 0, sw, sh);
