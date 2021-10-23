@@ -387,6 +387,7 @@ void CPlayer::Snap(int SnappingClient)
 
 		if(m_ClientID == SnappingClient && m_Paused == PAUSE_PAUSED && ClientVersion < VERSION_DDNET_OLD)
 			pPlayerInfo->m_Team = TEAM_SPECTATORS;
+		DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 	}
 	else
 	{
@@ -401,6 +402,8 @@ void CPlayer::Snap(int SnappingClient)
 		// Times are in milliseconds for 0.7
 		pPlayerInfo->m_Score = Score == -9999 ? -1 : -Score * 1000;
 		pPlayerInfo->m_Latency = Latency;
+		#pragma message "Implement DDPPSnapChangePlayerInfo7"
+		// DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
 	}
 
 	if(m_ClientID == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))
@@ -454,8 +457,6 @@ void CPlayer::Snap(int SnappingClient)
 		pSpecChar->m_X = m_pCharacter->Core()->m_Pos.x;
 		pSpecChar->m_Y = m_pCharacter->Core()->m_Pos.y;
 	}
-	#pragma message "IMPLEMENT DDNet++ snap"
-	// DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, pPlayerInfo);
 }
 
 void CPlayer::FakeSnap()
