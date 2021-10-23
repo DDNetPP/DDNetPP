@@ -438,10 +438,12 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 		// send to the clients
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
+			if(!m_apPlayers[i])
+				continue;
 			bool Send = (Server()->IsSixup(i) && (Flags & CHAT_SIXUP)) ||
 				(!Server()->IsSixup(i) && (Flags & CHAT_SIX));
 
-			if(m_apPlayers[i] != 0 && !m_apPlayers[i]->m_DND && Send)
+			if(!m_apPlayers[i]->m_DND && Send)
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 		}
 	}
@@ -2239,13 +2241,26 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientDDNetVersion(ClientID, DDNetVersion);
 			OnClientDDNetVersionKnown(ClientID);
 		}
+		else if (MsgID == NETMSGTYPE_CL_SHOWOTHERSLEGACY)
+		{
+			if(g_Config.m_SvShowOthers && !g_Config.m_SvShowOthersDefault)
+			{
+				CNetMsg_Cl_ShowOthersLegacy *pMsg = (CNetMsg_Cl_ShowOthersLegacy *)pRawMsg;
+				pPlayer->m_ShowOthers = pMsg->m_Show;
+			}
+		}
 		else if (MsgID == NETMSGTYPE_CL_SHOWOTHERS)
 		{
 			if(g_Config.m_SvShowOthers && !g_Config.m_SvShowOthersDefault)
 			{
 				CNetMsg_Cl_ShowOthers *pMsg = (CNetMsg_Cl_ShowOthers *)pRawMsg;
-				pPlayer->m_ShowOthers = (bool)pMsg->m_Show;
+				pPlayer->m_ShowOthers = pMsg->m_Show;
 			}
+		}
+		else if (MsgID == NETMSGTYPE_CL_SHOWDISTANCE)
+		{
+			CNetMsg_Cl_ShowDistance *pMsg = (CNetMsg_Cl_ShowDistance *)pRawMsg;
+			pPlayer->m_ShowDistance = vec2(pMsg->m_X, pMsg->m_Y);
 		}
 		else if (MsgID == NETMSGTYPE_CL_SETSPECTATORMODE && !m_World.m_Paused)
 		{

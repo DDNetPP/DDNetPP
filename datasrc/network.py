@@ -424,12 +424,22 @@ Messages = [
 
 	NetMessage("Sv_TeamsState", []),
 
-	NetMessage("Cl_ShowOthers", [
+	# deprecated, use showothers@netmsg.ddnet.tw instead
+	NetMessage("Cl_ShowOthersLegacy", [
 		NetBool("m_Show"),
 	]),
 # Can't add any NetMessages here!
 
 	NetMessageEx("Sv_MyOwnMessage", "my-own-message@heinrich5991.de", [
 		NetIntAny("m_Test"),
+	]),
+
+	NetMessageEx("Cl_ShowDistance", "show-distance@netmsg.ddnet.tw", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+	]),
+
+	NetMessageEx("Cl_ShowOthers", "showothers@netmsg.ddnet.tw", [
+		NetIntRange("m_Show", 0, 2),
 	]),
 ]

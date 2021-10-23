@@ -274,7 +274,7 @@ CServer::CServer(): m_Register(false), m_RegSixup(true)
 	m_pGameServer = 0;
 
 	m_CurrentGameTick = 0;
-	m_RunServer = 1;
+	m_RunServer = false;
 
 	for(int i = 0; i < 2; i++)
 	{
@@ -485,6 +485,7 @@ int CServer::Init()
 		m_aClients[i].m_ShowIps = false;
 		m_aClients[i].m_AuthKey = -1;
 		m_aClients[i].m_Latency = 0;
+		m_aClients[i].m_Sixup = false;
 	}
 
 	m_CurrentGameTick = 0;
@@ -2115,6 +2116,9 @@ void CServer::ExpireServerInfo()
 
 void CServer::UpdateServerInfo(bool Resend)
 {
+	if(!m_RunServer)
+		return;
+
 	for(int i = 0; i < 3; i++)
 		for(int j = 0; j < 2; j++)
 			CacheServerInfo(&m_ServerInfoCache[i * 2 + j], i, j);
@@ -2335,10 +2339,8 @@ void CServer::InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterS
 
 int CServer::Run()
 {
-	if (g_Config.m_Debug)
-	{
-		g_UuidManager.DebugDump();
-	}
+	m_RunServer = true;
+
 	m_AuthManager.Init();
 
 	if(g_Config.m_Debug)

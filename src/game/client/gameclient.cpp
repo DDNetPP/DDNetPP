@@ -1540,8 +1540,6 @@ void CGameClient::OnNewSnapshot()
 
 	if(m_ShowOthers[g_Config.m_ClDummy] == -1 || (m_ShowOthers[g_Config.m_ClDummy] != -1 && m_ShowOthers[g_Config.m_ClDummy] != g_Config.m_ClShowOthers))
 	{
-		// no need to send, default settings
-		//if(!(m_ShowOthers == -1 && g_Config.m_ClShowOthers))
 		{
 			CNetMsg_Cl_ShowOthers Msg;
 			Msg.m_Show = g_Config.m_ClShowOthers;
@@ -1550,6 +1548,20 @@ void CGameClient::OnNewSnapshot()
 
 		// update state
 		m_ShowOthers[g_Config.m_ClDummy] = g_Config.m_ClShowOthers;
+	}
+
+	static float LastZoom = .0;
+	static float LastScreenAspect = .0;
+	if(m_pCamera->m_Zoom != LastZoom || Graphics()->ScreenAspect() != LastScreenAspect)
+	{
+		LastZoom = m_pCamera->m_Zoom;
+		LastScreenAspect = Graphics()->ScreenAspect();
+		CNetMsg_Cl_ShowDistance Msg;
+		float x, y;
+		RenderTools()->CalcScreenParams(Graphics()->ScreenAspect(), m_pCamera->m_Zoom, &x, &y);
+		Msg.m_X = x;
+		Msg.m_Y = y;
+		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 	}
 
 	m_pGhost->OnNewSnapshot();
@@ -1859,6 +1871,7 @@ void CGameClient::CClientData::Reset()
 	m_EmoticonStart = -1;
 	m_Active = false;
 	m_ChatIgnore = false;
+	m_EmoticonIgnore = false;
 	m_Friend = false;
 	m_Foe = false;
 	m_AuthLevel = AUTHED_NO;
