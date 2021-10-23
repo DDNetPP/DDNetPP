@@ -30,7 +30,6 @@
 
 class CAntibot;
 class CGameTeams;
-class CSaveTee;
 struct CAntibotCharacterData;
 
 enum

@@ -229,6 +229,8 @@ void CPlayer::Tick()
 
 	if(Server()->GetNetErrorString(m_ClientID)[0])
 	{
+		m_Afk = true;
+
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "'%s' would have timed out, but can use timeout protection now", Server()->ClientName(m_ClientID));
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -937,6 +939,15 @@ int CPlayer::Pause(int State, bool Force)
 		// Update state
 		m_Paused = State;
 		m_LastPause = Server()->Tick();
+
+		// Sixup needs a teamchange
+		protocol7::CNetMsg_Sv_Team Msg;
+		Msg.m_ClientID = m_ClientID;
+		Msg.m_CooldownTick = Server()->Tick();
+		Msg.m_Silent = true;
+		Msg.m_Team = m_Paused ? protocol7::TEAM_SPECTATORS : m_Team;
+
+		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, m_ClientID);
 	}
 
 	return m_Paused;
@@ -1010,8 +1021,7 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 				GameServer()->SendBroadcast(Result.m_Data.m_Broadcast, -1);
 			break;
 		case CScorePlayerResult::MAP_VOTE:
-			GameServer()->m_VoteKick = false;
-			GameServer()->m_VoteSpec = false;
+			GameServer()->m_VoteType = CGameContext::VOTE_TYPE_OPTION;
 			GameServer()->m_LastMapVote = time_get();
 
 			char aCmd[256];

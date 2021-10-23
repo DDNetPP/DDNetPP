@@ -191,7 +191,7 @@ if(NOT MSVC AND NOT HAIKU)
   add_c_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-all)
 
   # Disable exceptions as DDNet does not use them.
-  add_c_compiler_flag_if_supported(OUR_FLAGS -fno-exceptions)
+  add_c_compiler_flag_if_supported(OUR_FLAGS -fexceptions)
 
   # Inaccurate floating point numbers cause problems on mingw-w64-gcc when
   # compiling for x86, might cause problems elsewhere. So don't store floats
@@ -1198,38 +1198,20 @@ set(EXPECTED_DATA
   shader/tile.vert
   shader/tiletex.frag
   shader/tiletex.vert
-  skins/Ablush\ NeoN.png
   skins/Aoe4leg.png
-  skins/Apish\ Coke.png
-  skins/BadAnqelMonster.png
-  skins/Black\ Phantom\ heinrich5991.png
-  skins/DuMoH.png
-  skins/Evil\ Puffi.png
-  skins/Flying\ Silex.png
-  skins/Hidden\ Assassin.png
-  skins/Irradiated\ Sunny.png
-  skins/Mobys\ Skull.png
   skins/PaladiN.png
-  skins/Red\ Coke.png
-  skins/Straw\ Crytek.png
   skins/Terrorist.png
-  skins/Volt.png
   skins/antiantey.png
-  skins/aqua.png
-  skins/bauer.png
   skins/beast.png
   skins/blacktee.png
   skins/bluekitty.png
   skins/bluestripe.png
-  skins/bomb.png
   skins/brownbear.png
   skins/bunny.png
   skins/caesar.png
   skins/cammo.png
   skins/cammostripes.png
-  skins/chera.png
   skins/chinese_by_whis.png
-  skins/clefairy.png
   skins/coala.png
   skins/coala_bluekitty.png
   skins/coala_bluestripe.png
@@ -1253,7 +1235,6 @@ set(EXPECTED_DATA
   skins/emo.png
   skins/evil.png
   skins/evilwolfe.png
-  skins/fuzzy_coala.png
   skins/ghost.png
   skins/ghostjtj.png
   skins/giraffe.png
@@ -1280,6 +1261,7 @@ set(EXPECTED_DATA
   skins/kitty_twintri.png
   skins/kitty_warpaint.png
   skins/kitty_x_ninja.png
+  skins/license.txt
   skins/lightbulb.png
   skins/limekitty.png
   skins/mermydon-coala.png
@@ -1320,7 +1302,6 @@ set(EXPECTED_DATA
   skins/tank.png
   skins/teerasta.png
   skins/toptri.png
-  skins/ts2_contest_skin.png
   skins/twinbop.png
   skins/twintri.png
   skins/veteran.png
@@ -1924,6 +1905,14 @@ if(SERVER)
     antibot.h
     authmanager.cpp
     authmanager.h
+    databases/connection.cpp
+    databases/connection.h
+    databases/connection_pool.cpp
+    databases/connection_pool.h
+    databases/mysql.cpp
+    databases/mysql.h
+    databases/sqlite.cpp
+    databases/sqlite.h
     name_ban.cpp
     name_ban.h
     register.cpp
@@ -1931,10 +1920,6 @@ if(SERVER)
     server.cpp
     server.h
     server_ddpp.cpp
-    sql_connector.cpp
-    sql_connector.h
-    sql_server.cpp
-    sql_server.h
     sql_string_helpers.cpp
     sql_string_helpers.h
     upnp.cpp
@@ -2029,10 +2014,6 @@ if(SERVER)
     save.h
     score.cpp
     score.h
-    score/file_score.cpp
-    score/file_score.h
-    score/sql_score.cpp
-    score/sql_score.h
     teams.cpp
     teams.h
     teehistorian.cpp

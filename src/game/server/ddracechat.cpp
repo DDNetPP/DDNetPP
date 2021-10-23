@@ -36,7 +36,9 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
 		"Bojidar, FallenKN, ardadem, archimede67, sirius1242, Aerll,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
-		"trafilaw, Zwelf, Patiga, Konsti, ElXreno, MikiGamer & others.");
+		"trafilaw, Zwelf, Patiga, Konsti, ElXreno, MikiGamer,");
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
+		"Fireball & others.");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
 		"Based on DDRace by the DDRace developers,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credits",
@@ -333,7 +335,7 @@ void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int Pause
 	}
 
 	bool IsPlayerBeingVoted = pSelf->m_VoteCloseTime &&
-		(pSelf->m_VoteKick || pSelf->m_VoteSpec) &&
+		(pSelf->IsKickVote() || pSelf->IsSpecVote()) &&
 		pResult->m_ClientID != pSelf->m_VoteVictim;
 	if((!IsPlayerBeingVoted && -PauseState == PauseType) ||
 		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorID == pSelf->m_VoteVictim))
@@ -915,7 +917,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 	if (!pPlayer)
 		return;
 
-	if (pSelf->m_VoteCloseTime && pSelf->m_VoteCreator == pResult->m_ClientID && (pSelf->m_VoteKick || pSelf->m_VoteSpec))
+	if (pSelf->m_VoteCloseTime && pSelf->m_VoteCreator == pResult->m_ClientID && (pSelf->IsKickVote() || pSelf->IsSpecVote()))
 	{
 		pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,

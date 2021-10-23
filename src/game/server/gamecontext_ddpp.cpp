@@ -957,7 +957,7 @@ void CGameContext::CheckDDPPshutdown()
 			if (players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
-				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", true);
+				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0, true);
 			}
 			else
 			{

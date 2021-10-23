@@ -73,7 +73,7 @@ void CNamePlates::RenderNameplatePos(vec2 Position, const CNetObj_PlayerInfo *pP
 			Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 			MapscreenToGroup(m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, Layers()->GameGroup());
 
-			m_aNamePlates[ClientID].m_NameTextWidth = TextRender()->TextWidth(0, FontSize, pName, -1);
+			m_aNamePlates[ClientID].m_NameTextWidth = TextRender()->TextWidth(0, FontSize, pName, -1, -1.0f);
 
 			m_aNamePlates[ClientID].m_NameTextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pName);
 			Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
@@ -99,7 +99,7 @@ void CNamePlates::RenderNameplatePos(vec2 Position, const CNetObj_PlayerInfo *pP
 				Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 				MapscreenToGroup(m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, Layers()->GameGroup());
 
-				m_aNamePlates[ClientID].m_ClanNameTextWidth = TextRender()->TextWidth(0, FontSizeClan, pClan, -1);
+				m_aNamePlates[ClientID].m_ClanNameTextWidth = TextRender()->TextWidth(0, FontSizeClan, pClan, -1, -1.0f);
 
 				m_aNamePlates[ClientID].m_ClanNameTextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pClan);
 				Graphics()->MapScreen(ScreenX0, ScreenY0, ScreenX1, ScreenY1);
@@ -149,9 +149,51 @@ void CNamePlates::RenderNameplatePos(vec2 Position, const CNetObj_PlayerInfo *pP
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf),"%d", pPlayerInfo->m_ClientID);
 			float Offset = g_Config.m_ClNameplatesClan ? (FontSize * 2 + FontSizeClan) : (FontSize * 2);
-			float tw_id = TextRender()->TextWidth(0, FontSize, aBuf, -1);
+			float tw_id = TextRender()->TextWidth(0, FontSize, aBuf, -1, -1.0f);
 			TextRender()->TextColor(rgb);
-			TextRender()->Text(0, Position.x-tw_id/2.0f, Position.y-Offset-38.0f, 28.0f, aBuf, -1);
+			TextRender()->Text(0, Position.x-tw_id/2.0f, Position.y-Offset-38.0f, 28.0f, aBuf, -1.0f);
+		}
+
+		if(g_Config.m_ClNameplatesHA) // render health and armor in nameplate
+		{
+			int Health = m_pClient->m_Snap.m_aCharacters[ClientID].m_Cur.m_Health;
+			if(Health > 0)
+			{
+				int Armor = m_pClient->m_Snap.m_aCharacters[ClientID].m_Cur.m_Armor;
+				float HFontSize = 5.0f + 20.0f * g_Config.m_ClNameplatesHASize / 100.0f;
+				float AFontSize = 6.0f + 24.0f * g_Config.m_ClNameplatesHASize / 100.0f;
+				char aHealth[40] = "\0";
+				char aArmor[40] = "\0";
+				for(int i = 0; i < Health; i++)
+					str_append(aHealth, "♥", sizeof(aHealth));
+				for(int i = Health; i < 10; i++)
+					str_append(aHealth, "♡", sizeof(aHealth));
+				str_append(aHealth, "\0", sizeof(aHealth));
+				for(int i = 0; i < Armor; i++)
+					str_append(aArmor, "⚫", sizeof(aArmor));
+				for(int i = Armor; i < 10; i++)
+					str_append(aArmor, "⚪", sizeof(aArmor));
+				str_append(aArmor, "\0", sizeof(aArmor));
+
+				float Offset;
+
+				if(g_Config.m_ClNameplatesClan && (g_Config.m_Debug || g_Config.m_ClNameplatesIDs))
+					Offset = (FontSize * 3 + FontSizeClan);
+				else if (g_Config.m_ClNameplatesClan)
+					Offset = (FontSize * 2 + FontSizeClan);
+				else if (g_Config.m_Debug || g_Config.m_ClNameplatesIDs)
+					Offset = (FontSize * 3);
+				else
+					Offset = (FontSize * 2);
+
+				float PosHealth = TextRender()->TextWidth(0, HFontSize, aHealth, -1, -1.0f);
+				TextRender()->TextColor(ColorRGBA(1.0f, 0.0f, 0.0f));
+				TextRender()->Text(0, Position.x-PosHealth/2.0f, Position.y-Offset-HFontSize-AFontSize, HFontSize, aHealth, -1);
+
+				float PosArmor = TextRender()->TextWidth(0, AFontSize, aArmor, -1, -1.0f);
+				TextRender()->TextColor(ColorRGBA(1.0f, 1.0f, 0.0f));
+				TextRender()->Text(0, Position.x-PosArmor/2.0f, Position.y-Offset-AFontSize-3.0f, AFontSize, aArmor, -1);
+			}
 		}
 
 		TextRender()->TextColor(1,1,1,1);

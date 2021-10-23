@@ -3461,7 +3461,8 @@ void CCharacter::CIRestart()
 
 	str_format(aBuf, sizeof(aBuf), "%ld", m_pPlayer->m_ci_lowest_dest_dist);
 
-	GameServer()->Score()->SaveCIData(aBuf);
+	// TODO: got lost when file score was removed by upstream
+	// GameServer()->Score()->SaveCIData(aBuf);
 }
 
 int CCharacter::CIGetDestDist()

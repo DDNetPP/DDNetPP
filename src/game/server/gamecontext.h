@@ -57,6 +57,7 @@ enum
 	NUM_TUNEZONES = 256
 };
 
+class CScore;
 class IConsole;
 class IEngine;
 class IStorage;
@@ -149,7 +150,7 @@ public:
 	bool EmulateBug(int Bug);
 
 	// voting
-	void StartVote(const char *pDesc, const char *pCommand, const char *pReason);
+	void StartVote(const char *pDesc, const char *pCommand, const char *pReason, const char *pSixupDesc);
 	void EndVote();
 	void SendVoteSet(int ClientID);
 	void SendVoteStatus(int ClientID, int Total, int Yes, int No);
@@ -157,10 +158,12 @@ public:
 
 	int m_VoteCreator;
 	bool m_IsDDPPVetoVote;
+	int m_VoteType;
 	int64 m_VoteCloseTime;
 	bool m_VoteUpdate;
 	int m_VotePos;
 	char m_aVoteDescription[VOTE_DESC_LENGTH];
+	char m_aSixupVoteDescription[VOTE_DESC_LENGTH];
 	char m_aVoteCommand[VOTE_CMD_LENGTH];
 	char m_aVoteReason[VOTE_REASON_LENGTH];
 	int m_NumVoteOptions;
@@ -176,6 +179,7 @@ public:
 		VOTE_ENFORCE_UNKNOWN=0,
 		VOTE_ENFORCE_NO,
 		VOTE_ENFORCE_YES,
+		VOTE_ENFORCE_ABORT,
 	};
 	CHeap *m_pVoteOptionHeap;
 	CVoteOptionServer *m_pVoteOptionFirst;
@@ -206,7 +210,7 @@ public:
 	};
 
 	// network
-	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, bool IsDDPPVetoVote = false);
+	void CallVote(int ClientID, const char *aDesc, const char *aCmd, const char *pReason, const char *aChatmsg, const char *pSixupDesc = 0, bool IsDDPPVetoVote = false);
 	void SendChatTarget(int To, const char *pText, int Flags = CHAT_SIX | CHAT_SIXUP);
 	void SendChatTeam(int Team, const char *pText);
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int Flags = CHAT_SIX | CHAT_SIXUP, int ToClientID = -1);
@@ -230,7 +234,7 @@ public:
 	virtual void OnInit();
 	virtual void OnConsoleInit();
 	virtual void OnMapChange(char *pNewMapName, int MapNameSize);
-	virtual void OnShutdown(bool FullShutdown = false);
+	virtual void OnShutdown();
 
 	virtual void OnTick();
 	virtual void OnPreSnap();
@@ -786,7 +790,7 @@ public:
 private:
 
 	bool m_VoteWillPass;
-	class IScore *m_pScore;
+	class CScore *m_pScore;
 
 	//DDRace Console Commands
 
@@ -1150,16 +1154,25 @@ public:
 	bool CheckIpJailed(int ClientID);
 
 	CLayers *Layers() { return &m_Layers; }
-	class IScore *Score() { return m_pScore; }
-	bool m_VoteKick;
-	bool m_VoteSpec;
-	int m_VoteVictim;
+	class CScore *Score() { return m_pScore; }
+
 	enum
 	{
 		VOTE_ENFORCE_NO_ADMIN = VOTE_ENFORCE_YES + 1,
-		VOTE_ENFORCE_YES_ADMIN
+		VOTE_ENFORCE_YES_ADMIN,
+
+		VOTE_TYPE_UNKNOWN=0,
+		VOTE_TYPE_OPTION,
+		VOTE_TYPE_KICK,
+		VOTE_TYPE_SPECTATE,
 	};
+	int m_VoteVictim;
 	int m_VoteEnforcer;
+
+	inline bool IsOptionVote() const { return m_VoteType == VOTE_TYPE_OPTION; };
+	inline bool IsKickVote() const { return m_VoteType == VOTE_TYPE_KICK; };
+	inline bool IsSpecVote() const { return m_VoteType == VOTE_TYPE_SPECTATE; };
+
 	void SendRecord(int ClientID);
 	static void SendChatResponse(const char *pLine, void *pUser, bool Highlighted = false);
 	static void SendChatResponseAll(const char *pLine, void *pUser);

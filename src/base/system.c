@@ -2329,10 +2329,18 @@ void str_copy(char *dst, const char *src, int dst_size)
 	dst[dst_size-1] = 0; /* assure null termination */
 }
 
-void str_truncate(char *dst, int dst_size, const char *src, int truncation_len)
+void str_utf8_truncate(char *dst, int dst_size, const char *src, int truncation_len)
 {
-	int size = truncation_len >= dst_size ? dst_size : truncation_len + 1;
-	str_copy(dst, src, size);
+	int size = -1;
+	int cursor = 0;
+	int pos = 0;
+	while(pos <= truncation_len && cursor < dst_size && size != cursor)
+	{
+		size = cursor;
+		cursor = str_utf8_forward(src, cursor);
+		pos++;
+	}
+	str_copy(dst, src, size+1);
 }
 
 int str_length(const char *str)
