@@ -216,11 +216,6 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
             SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
         }
     }
-    else if (!str_comp(pCommand, "taxi"))
-    {
-        SendChatTarget(ClientID, "You called a dummy! He is on his way to be your taxi!");
-        GetPlayerChar(ClientID)->m_taxi = true;
-    }
     else
         return false;
     return true;

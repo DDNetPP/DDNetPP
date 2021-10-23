@@ -2036,7 +2036,6 @@ void CGameContext::CreateBasicDummys()
 	if (!str_comp(Server()->GetMapName(), "ChillBlock5"))
 	{
 		CreateNewDummy(31);//police
-		//CreateNewDummy(30);//taxi (not needed in new cb5)
 		CreateNewDummy(29);//blocker
 		CreateNewDummy(29);//blocker 2
 		CreateNewDummy(23);//racer

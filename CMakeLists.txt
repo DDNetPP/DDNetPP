@@ -1953,6 +1953,7 @@ if(SERVER)
     entities/character.cpp
     entities/character.h
     entities/character_ddpp.cpp
+    entities/character_ddpp.h
     entities/character_dummymodes.cpp
     entities/character_quests.cpp
     entities/character_tiles.cpp
