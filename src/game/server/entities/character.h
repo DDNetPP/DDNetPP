@@ -138,13 +138,10 @@ private:
 
 	} m_aWeapons[NUM_WEAPONS];
 
-	int m_aWeaponsBackup[NUM_WEAPONS][2];
-	bool m_WeaponsBackupped;
-
 	int m_LastWeapon;
 	int m_QueuedWeapon;
 
-	int m_ReloadTimer; // moved to public for onfire mode
+	int m_ReloadTimer;
 	int m_AttackTick;
 
 	int m_DamageTaken;
@@ -271,10 +268,6 @@ public:
 	bool m_IsBlueTeleGunTeleport;
 	int m_StrongWeakID;
 
-	int64 m_AliveTime;
-
-	int m_LastIndexTile;
-	int m_LastIndexFrontTile;
 	int m_SpawnTick;
 	int m_WeaponChangeTick;
 
@@ -293,13 +286,12 @@ public:
 	void SetWeaponGot(int Type, bool Value) { m_aWeapons[Type].m_Got = Value; };
 	int GetWeaponAmmo(int Type) { return m_aWeapons[Type].m_Ammo; };
 	void SetWeaponAmmo(int Type, int Value) { m_aWeapons[Type].m_Ammo = Value; };
-	/*inline*/ bool IsAlive() { return m_Alive; }; //testy inline by ChillerDragon
+	bool IsAlive() { return m_Alive; };
 	void SetEmoteType(int EmoteType) { m_EmoteType = EmoteType; };
 	void SetEmoteStop(int EmoteStop) { m_EmoteStop = EmoteStop; };
 	void SetNinjaActivationDir(vec2 ActivationDir) { m_Ninja.m_ActivationDir = ActivationDir; };
 	void SetNinjaActivationTick(int ActivationTick) { m_Ninja.m_ActivationTick = ActivationTick; };
 	void SetNinjaCurrentMoveTime(int CurrentMoveTime) { m_Ninja.m_CurrentMoveTime = CurrentMoveTime; };
-	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
 
 	bool HasTelegunGun() { return m_Core.m_HasTelegunGun; };
 	bool HasTelegunGrenade() { return m_Core.m_HasTelegunGrenade; };

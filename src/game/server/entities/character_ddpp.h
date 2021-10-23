@@ -50,7 +50,13 @@ private:
 	bool m_IsFreeShopBot;
 	void ClearFakeMotd();
 	void SendShopMessage(const char *pMsg);
+	int m_aWeaponsBackup[NUM_WEAPONS][2];
+	bool m_WeaponsBackupped;
 public:
+	int m_LastIndexTile;
+	int m_LastIndexFrontTile;
+	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
+	int64 m_AliveTime;
 	bool m_IsSpecHF;
 	vec2 GetPosition() { return m_Core.m_Pos;  } //proudly mede by ChillerDragon
 	void TakeHammerHit(CCharacter* pFrom); //ddpp implemented from fng2
