@@ -586,13 +586,12 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 					"FROM %s_teamrace "
 					"WHERE Map = ? AND Name = ? AND DDNet7 = false"
 			") as l INNER JOIN %s_teamrace AS r ON l.ID = r.ID "
-			"ORDER BY l.ID, Name ",
+			"ORDER BY l.ID, Name;",
 			pSqlServer->GetPrefix(), pSqlServer->GetPrefix());
 	pSqlServer->PrepareStatement(aBuf);
 	pSqlServer->BindString(1, pData->m_Map);
 	pSqlServer->BindString(2, pData->m_aNames[0]);
 
-	CUuid GameID;
 	bool FoundTeam = false;
 	float Time;
 	CTeamrank Teamrank;
@@ -603,13 +602,6 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 		{
 			Time = pSqlServer->GetFloat(3);
 			SearchTeam = Teamrank.NextSqlResult(pSqlServer);
-			if(str_comp(Teamrank.m_aaNames[0], aNames[0].c_str()) != 0)
-			{
-				dbg_msg("sql", "insert team rank logic error: "
-						"first team member from sql (%s) should be first name in array (%s), "
-						"because both are sorted by binary values", Teamrank.m_aaNames[0], aNames[0].c_str());
-				return false;
-			}
 			if(Teamrank.SamePlayers(&aNames))
 			{
 				FoundTeam = true;
@@ -628,7 +620,7 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 			pSqlServer->PrepareStatement(aBuf);
 			pSqlServer->BindString(1, pData->m_aTimestamp);
 			pSqlServer->BindString(2, pData->m_GameUuid);
-			pSqlServer->BindBlob(3, GameID.m_aData, sizeof(GameID.m_aData));
+			pSqlServer->BindBlob(3, Teamrank.m_TeamID.m_aData, sizeof(Teamrank.m_TeamID.m_aData));
 			pSqlServer->Step();
 		}
 	}

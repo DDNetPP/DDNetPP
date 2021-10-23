@@ -1173,6 +1173,8 @@ set(EXPECTED_DATA
   maps/ctf5_fngores.map
   maps/ddpp_survival.map
   maps/fly_shy_cry.map
+  maps7/Gold\ Mine.map
+  maps7/readme.txt
   particles.png
   shader/bordertile.frag
   shader/bordertile.vert
@@ -1198,7 +1200,15 @@ set(EXPECTED_DATA
   shader/tile.vert
   shader/tiletex.frag
   shader/tiletex.vert
+  skins/Ablush\ NeoN.png
   skins/Aoe4leg.png
+  skins/Apish\ Coke.png
+  skins/Black\ Phantom\ heinrich5991.png
+  skins/Evil\ Puffi.png
+  skins/Flying\ Silex.png
+  skins/Hidden\ Assassin.png
+  skins/Irradiated\ Sunny.png
+  skins/Mobys\ Skull.png
   skins/PaladiN.png
   skins/Terrorist.png
   skins/antiantey.png
