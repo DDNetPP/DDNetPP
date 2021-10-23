@@ -69,12 +69,6 @@
 extern "C" {
 #endif
 
-#ifdef FUZZING
-static unsigned char gs_NetData[1024];
-static int gs_NetPosition = 0;
-static int gs_NetSize = 0;
-#endif
-
 IOHANDLE io_stdin() { return (IOHANDLE)stdin; }
 IOHANDLE io_stdout() { return (IOHANDLE)stdout; }
 IOHANDLE io_stderr() { return (IOHANDLE)stderr; }
@@ -1485,21 +1479,12 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 	/* set non-blocking */
 	net_set_non_blocking(sock);
 
-#ifdef FUZZING
-	IOHANDLE file = io_open("bar.txt", IOFLAG_READ);
-	gs_NetPosition = 0;
-	gs_NetSize = io_length(file);
-	io_read(file, gs_NetData, 1024);
-	io_close(file);
-#endif /* FUZZING */
-
 	/* return */
 	return sock;
 }
 
 int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size)
 {
-#ifndef FUZZING
 	int d = -1;
 
 	if(addr->type&NETTYPE_IPV4)
@@ -1574,9 +1559,6 @@ int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size
 	network_stats.sent_bytes += size;
 	network_stats.sent_packets++;
 	return d;
-#else
-	return size;
-#endif /* FUZZING */
 }
 
 void net_init_mmsgs(MMSGS* m)
@@ -1602,7 +1584,6 @@ void net_init_mmsgs(MMSGS* m)
 
 int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *buffer, int maxsize, MMSGS* m, unsigned char **data)
 {
-#ifndef FUZZING
 	char sockaddrbuf[128];
 	int bytes = 0;
 
@@ -1673,34 +1654,6 @@ int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *buffer, int maxsize, MMSGS
 	else if(bytes == 0)
 		return 0;
 	return -1; /* error */
-#else /* ifdef FUZZING */
-	addr->type = NETTYPE_IPV4;
-	addr->port = 11111;
-	addr->ip[0] = 127;
-	addr->ip[1] = 0;
-	addr->ip[2] = 0;
-	addr->ip[3] = 1;
-
-	int CurrentData = 0;
-	while (gs_NetPosition < gs_NetSize && CurrentData < maxsize)
-	{
-		if(gs_NetData[gs_NetPosition] == '\n')
-		{
-			gs_NetPosition++;
-			break;
-		}
-
-		((unsigned char*)buffer)[CurrentData] = gs_NetData[gs_NetPosition];
-		*data = buffer;
-		CurrentData++;
-		gs_NetPosition++;
-	}
-
-	if (gs_NetPosition >= gs_NetSize)
-		exit(0);
-
-	return CurrentData;
-#endif /* FUZZING */
 }
 
 int net_udp_close(NETSOCKET sock)
@@ -3192,6 +3145,10 @@ int str_utf8_check(const char *str)
 	return 1;
 }
 
+void str_utf8_copy(char *dst, const char *src, int dst_size)
+{
+	str_utf8_truncate(dst, dst_size, src, dst_size);
+}
 
 unsigned str_quickhash(const char *str)
 {
@@ -3233,8 +3190,11 @@ const char *str_next_token(const char *str, const char *delim, char *buffer, int
 {
 	int len = 0;
 	const char *tok = str_token_get(str, delim, &len);
-	if(len < 0)
+	if(len < 0 || tok == NULL)
+	{
+		buffer[0] = '\0';
 		return NULL;
+	}
 
 	len = buffer_size > len ? len : buffer_size - 1;
 	mem_copy(buffer, tok, len);

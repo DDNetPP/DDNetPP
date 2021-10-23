@@ -574,11 +574,6 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 	for(unsigned int i = 0; i < pData->m_Size; i++)
 		aNames.push_back(pData->m_aNames[i]);
 
-	char aTable[512];
-	str_format(aTable, sizeof(aTable),
-			"%s_teamrace WRITE, %s_teamrace AS r WRITE",
-			pSqlServer->GetPrefix(), pSqlServer->GetPrefix());
-	pSqlServer->Lock(aTable);
 	std::sort(aNames.begin(), aNames.end());
 	str_format(aBuf, sizeof(aBuf),
 			"SELECT l.ID, Name, Time "
@@ -587,8 +582,8 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 					"FROM %s_teamrace "
 					"WHERE Map = ? AND Name = ? AND DDNet7 = false"
 			") as l INNER JOIN %s_teamrace AS r ON l.ID = r.ID "
-			"ORDER BY l.ID, Name;",
-			pSqlServer->GetPrefix(), pSqlServer->GetPrefix());
+			"ORDER BY l.ID, Name COLLATE %s;",
+			pSqlServer->GetPrefix(), pSqlServer->GetPrefix(), pSqlServer->BinaryCollate());
 	pSqlServer->PrepareStatement(aBuf);
 	pSqlServer->BindString(1, pData->m_Map);
 	pSqlServer->BindString(2, pData->m_aNames[0]);
@@ -645,8 +640,6 @@ bool CScore::SaveTeamScoreThread(IDbConnection *pSqlServer, const ISqlData *pGam
 			pSqlServer->Step();
 		}
 	}
-	pSqlServer->Unlock();
-
 	return true;
 }
 
