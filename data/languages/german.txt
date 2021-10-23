@@ -924,9 +924,6 @@ Threaded sound loading
 Race %3d:%02d  
 == Rennen %3d:%02d  
 
-DDNet %s is out! Download it at DDNet.tw!
-== DDNet %s ist da! Download bei DDNet.tw!
-
 Frags
 == Abschüsse
 
@@ -1140,8 +1137,8 @@ Default length: %d
 Pause
 == Pause
 
-transmits your player name to info.ddnet.tw
-== überträgt deinen Spielernamen an info.ddnet.tw
+transmits your player name to info2.ddnet.tw
+== überträgt deinen Spielernamen an info2.ddnet.tw
 
 The mouse wheel changes weapons. Hammer (left mouse) can be used to hit other tees and wake them up from being frozen.
 == Das Mausrad wechselt Waffen. Hammer (linke Maustaste) kann benutzt werden um andere Tees zu schlagen und vom Freeze aufzuwecken.

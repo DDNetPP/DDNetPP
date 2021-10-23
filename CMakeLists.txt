@@ -1038,9 +1038,9 @@ set(EXPECTED_DATA
   editor/winter_main.rules
   emoticons.png
   file_icons.png
-  fonts/DejaVuSansCJKName.ttf
-  fonts/DejavuWenQuanYiMicroHei.ttf
+  fonts/DejaVuSans.ttf
   fonts/Icons.ttf
+  fonts/SourceHanSansSC-Regular.otf
   game.png
   gui_buttons.png
   gui_cursor.png
@@ -1216,6 +1216,7 @@ set(EXPECTED_DATA
   skins/blacktee.png
   skins/bluekitty.png
   skins/bluestripe.png
+  skins/bomb.png
   skins/brownbear.png
   skins/bunny.png
   skins/caesar.png

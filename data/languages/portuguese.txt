@@ -790,9 +790,6 @@ Check now
 Background (regular)
 == Plano de fundo (regular)
 
-DDNet %s is out! Download it at DDNet.tw!
-== DDNet %s saiu! Saca-o em DDNet.tw!
-
 AntiPing: predict other players
 == Antiping: prever os outros jogadores
 
@@ -970,7 +967,7 @@ Video name:
 Show DDNet map finishes in server browser
 == 
 
-transmits your player name to info.ddnet.tw
+transmits your player name to info2.ddnet.tw
 == 
 
 Filter connecting players

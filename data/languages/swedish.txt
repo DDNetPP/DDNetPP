@@ -647,9 +647,6 @@ Name plates size
 Type:
 == Typ:
 
-DDNet %s is out! Download it at DDNet.tw!
-== DDNet %s har släppts! Ladda ner det från DDNet.tw!
-
 Show console window
 == Visa konsol fönster
 
@@ -773,8 +770,8 @@ Personal best:
 Show DDNet map finishes in server browser
 == Visa DDNet bana avklarningar i server bläddraren
 
-transmits your player name to info.ddnet.tw
-== skickar ditt spel namn till info.ddnet.tw
+transmits your player name to info2.ddnet.tw
+== skickar ditt spel namn till info2.ddnet.tw
 
 9+ new mentions
 == 9+ nya nämningar

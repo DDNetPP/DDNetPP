@@ -3837,11 +3837,10 @@ void CClient::ToggleWindowVSync()
 void CClient::LoadFont()
 {
 	static CFont *pDefaultFont = 0;
+	static bool LoadedFallbackFont = false;
 	char aFilename[512];
-	const char *pFontFile = "fonts/DejaVuSansCJKName.ttf";
-	if(str_find(g_Config.m_ClLanguagefile, "chinese") != NULL || str_find(g_Config.m_ClLanguagefile, "japanese") != NULL ||
-		str_find(g_Config.m_ClLanguagefile, "korean") != NULL)
-		pFontFile = "fonts/DejavuWenQuanYiMicroHei.ttf";
+	const char *pFontFile = "fonts/DejaVuSans.ttf";
+	const char *pFallbackFontFile = "fonts/SourceHanSansSC-Regular.otf";
 	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
@@ -3850,10 +3849,22 @@ void CClient::LoadFont()
 		pDefaultFont = pTextRender->GetFont(aFilename);
 		if(pDefaultFont == NULL)
 			pDefaultFont = pTextRender->LoadFont(aFilename);
+
+		File = Storage()->OpenFile(pFallbackFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+		if(File)
+		{
+			io_close(File);
+			IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
+			LoadedFallbackFont = pTextRender->LoadFallbackFont(pDefaultFont, aFilename);
+		}
+
 		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);
 	}
 	if(!pDefaultFont)
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='%s'", pFontFile);
+
+	if(!LoadedFallbackFont)
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load the fallback font. filename='%s'", pFallbackFontFile);
 }
 
 void CClient::Notify(const char *pTitle, const char *pMessage)
@@ -4234,9 +4245,9 @@ void CClient::RequestDDNetInfo()
 	char aUrl[256];
 	static bool s_IsWinXP = os_is_winxp_or_lower();
 	if(s_IsWinXP)
-		str_copy(aUrl, "http://info.ddnet.tw/info", sizeof(aUrl));
+		str_copy(aUrl, "http://info2.ddnet.tw/info", sizeof(aUrl));
 	else
-		str_copy(aUrl, "https://info.ddnet.tw/info", sizeof(aUrl));
+		str_copy(aUrl, "https://info2.ddnet.tw/info", sizeof(aUrl));
 
 	if(g_Config.m_BrIndicateFinished)
 	{

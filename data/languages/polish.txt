@@ -1067,9 +1067,6 @@ Downloading %s:
 Show tiles layers from BG map
 == Pokaż warstwy płytek razem z tłem mapy
 
-DDNet %s is out! Download it at DDNet.tw!
-== DDNet %s już jest! Pobierz je na DDNet.tw!
-
 Show console window
 == Pokaż okno konsoli
 
@@ -1190,8 +1187,8 @@ Please enter your nick name below.
 Show DDNet map finishes in server browser
 == Pokaż ukończone mapy DDNet w wyszukiwarce serwerów
 
-transmits your player name to info.ddnet.tw
-== przenosi twój nick do info.ddnet.tw
+transmits your player name to info2.ddnet.tw
+== przenosi twój nick do info2.ddnet.tw
 
 Indicate map finish
 == Pokazuj ukończone mapy
