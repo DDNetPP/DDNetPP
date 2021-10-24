@@ -6,7 +6,7 @@
 
 class CGun;
 
-class CPlasmaBullet: public CEntity
+class CPlasmaBullet : public CEntity
 {
 	vec2 m_Core;
 	int m_EvalTick;
@@ -27,10 +27,10 @@ class CPlasmaBullet: public CEntity
 	bool m_Explosive;
 	bool HitCharacter();
 	void Move();
-public:
 
+public:
 	CPlasmaBullet(CGameWorld *pGameWorld, int Owner, vec2 Pos, vec2 Dir, bool Freeze,
-			bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime = 1.5, float Accel = 1.1f, float Speed = 1.0f);
+		bool Explosive, bool Unfreeze, bool Bloody, bool Ghost, int ResponsibleTeam, float Lifetime = 1.5, float Accel = 1.1f, float Speed = 1.0f);
 
 	virtual void Reset();
 	virtual void Tick();

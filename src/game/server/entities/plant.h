@@ -25,7 +25,7 @@ class CPlant : public CEntity
 	void ResetProjectiles();
 
 public:
-	CPlant(CGameWorld *pGameWorld, vec2 Pos=vec2());
+	CPlant(CGameWorld *pGameWorld, vec2 Pos = vec2());
 
 	virtual void Tick();
 	virtual void Reset();

@@ -7,17 +7,17 @@
 #include <engine/antibot.h>
 #include <game/generated/protocol.h>
 #include <game/generated/server_data.h>
-#include <game/server/entity.h>
 #include <game/server/entities/stable_projectile.h>
+#include <game/server/entity.h>
 #include <game/server/save.h>
 
 #include <game/gamecore.h>
 
-#include <vector>
 #include "dummy/blmapchill_police.h"
+#include <vector>
 
-#include "weapon.h"
 #include "drop_pickup.h"
+#include "weapon.h"
 
 #define NUM_ATOMS 6
 #define NUM_TRAILS 20
@@ -52,8 +52,8 @@ enum
 
 class CCharacter : public CEntity
 {
-	#define IN_CLASS_CHARACTER
-	#include "character_ddpp.h"
+#define IN_CLASS_CHARACTER
+#include "character_ddpp.h"
 	MACRO_ALLOC_POOL_ID()
 
 	friend class CSaveTee; // need to use core
@@ -214,7 +214,7 @@ public:
 	void FillAntibot(CAntibotCharacterData *pData);
 	void Pause(bool Pause);
 	bool Freeze(float Time);
-	bool Freeze(); 
+	bool Freeze();
 	bool UnFreeze();
 	void GiveAllWeapons();
 	int m_DDRaceState;

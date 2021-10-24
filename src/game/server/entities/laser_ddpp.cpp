@@ -1,8 +1,8 @@
 /* CLaser ddnet++ methods */
+#include "laser.h"
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
-#include "laser.h"
 
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
@@ -25,7 +25,6 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 
 	// lol i just realized i am debugging a crashbug in line 84 anyways so this code is fine until someone proofs its brokenness.
 
-
 	// TL;DR: tried to justify the guard and failed
 
 	/*
@@ -34,15 +33,15 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 	*/
 
 	char aBuf[256];
-	if (pOwnerChar->GetPlayer()->m_QuestState == CPlayer::QUEST_RIFLE)
+	if(pOwnerChar->GetPlayer()->m_QuestState == CPlayer::QUEST_RIFLE)
 	{
-		if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 0)
+		if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 0)
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your own tee doesn't count");
 			}
-			else if (GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
+			else if(GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your dummy doesn't count");
 			}
@@ -51,9 +50,9 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				GameServer()->QuestCompleted(pOwnerChar->GetPlayer()->GetCID());
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 1)
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 1)
 		{
-			if (pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID)
+			if(pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID)
 			{
 				GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCID(), 5);
 			}
@@ -62,11 +61,11 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				//GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] wrong tee");
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 2) //rifle freezed <specific player> 5 times
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 2) //rifle freezed <specific player> 5 times
 		{
-			if (pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID)
+			if(pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID)
 			{
-				if (pHit->m_FreezeTime)
+				if(pHit->m_FreezeTime)
 				{
 					GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCID(), 5);
 				}
@@ -80,30 +79,30 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				//GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] wrong tee");
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 3) //rifle 10 tees and <specific player>
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 3) //rifle 10 tees and <specific player>
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your own tee doesn't count");
 			}
-			else if (GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
+			else if(GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your dummy doesn't count");
 			}
 			else
 			{
-				if (pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID) 
+				if(pHit->GetPlayer()->GetCID() == pOwnerChar->GetPlayer()->m_QuestPlayerID)
 				{
 					pOwnerChar->GetPlayer()->m_QuestProgressBool = true;
 				}
 
-				if (pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID()) //hitting the same player agian
+				if(pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID()) //hitting the same player agian
 				{
 					GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] rifle a different tee");
 				}
 				else //hitting a new player
 				{
-					if (pOwnerChar->GetPlayer()->m_QuestProgressBool)
+					if(pOwnerChar->GetPlayer()->m_QuestProgressBool)
 					{
 						GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCID(), 11);
 						pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID = pHit->GetPlayer()->GetCID();
@@ -116,21 +115,21 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				}
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 4) //rifle 10 freezed tees
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 4) //rifle 10 freezed tees
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your own tee doesn't count");
 			}
-			else if (GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
+			else if(GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your dummy doesn't count");
 			}
-			else if (pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID())
+			else if(pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] rifle a different tee");
 			}
-			else if (!pHit->m_FreezeTime)
+			else if(!pHit->m_FreezeTime)
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] the target has to be freezed");
 			}
@@ -140,11 +139,11 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID = pHit->GetPlayer()->GetCID();
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 5) //freeze selfrifle
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 5) //freeze selfrifle
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
-				if (!pHit->m_FreezeTime)
+				if(!pHit->m_FreezeTime)
 				{
 					GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] the target has to be freezed");
 				}
@@ -154,11 +153,11 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				}
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 6) //freeze selfrifle 10 times
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 6) //freeze selfrifle 10 times
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
-				if (!pHit->m_FreezeTime)
+				if(!pHit->m_FreezeTime)
 				{
 					GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] the target has to be freezed");
 				}
@@ -168,9 +167,9 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				}
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 7) //rifle <specific player> and then block him
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 7) //rifle <specific player> and then block him
 		{
-			if (pOwnerChar->GetPlayer()->m_QuestPlayerID != pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->m_QuestPlayerID != pHit->GetPlayer()->GetCID())
 			{
 				//GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] wrong tee");
 			}
@@ -179,13 +178,13 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				GameServer()->QuestAddProgress(pOwnerChar->GetPlayer()->GetCID(), 2, 1);
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 8) //rifle 5 tees before blocking them
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 8) //rifle 5 tees before blocking them
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your own tee doesn't count");
 			}
-			else if (GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
+			else if(GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your dummy doesn't count");
 			}
@@ -203,25 +202,25 @@ void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), aBuf);
 			}
 		}
-		else if (pOwnerChar->GetPlayer()->m_QuestStateLevel == 9) //rifle 20 freezed tees while having the flag
+		else if(pOwnerChar->GetPlayer()->m_QuestStateLevel == 9) //rifle 20 freezed tees while having the flag
 		{
-			if (pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
+			if(pOwnerChar->GetPlayer()->GetCID() == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your own tee doesn't count");
 			}
-			else if (GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
+			else if(GameServer()->IsSameIP(pOwnerChar->GetPlayer()->GetCID(), pHit->GetPlayer()->GetCID()))
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] your dummy doesn't count");
 			}
-			else if (!pHit->m_FreezeTime)
+			else if(!pHit->m_FreezeTime)
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] the target has to be freezed");
 			}
-			else if (pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID())
+			else if(pOwnerChar->GetPlayer()->m_QuestLastQuestedPlayerID == pHit->GetPlayer()->GetCID())
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] rifle a different tee");
 			}
-			else if (((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(pOwnerChar) == -1) //no flag
+			else if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(pOwnerChar) == -1) //no flag
 			{
 				GameServer()->SendChatTarget(pOwnerChar->GetPlayer()->GetCID(), "[QUEST] you need the flag");
 			}

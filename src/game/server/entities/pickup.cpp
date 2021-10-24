@@ -23,11 +23,10 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int N
 
 void CPickup::Reset()
 {
-
 	//testy all the code in this function was commented out in ddnet
 	//ChillerDragon uncommented all to let pickups respawn (needed if players in m_IsVanillaWeapons mode pick up pickups)
 
-	if (g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
+	if(g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
 		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 	else
 		m_SpawnTick = -1;
@@ -64,7 +63,8 @@ void CPickup::Tick()
 			int RespawnTime = -1;
 			if(DDPPIntersect(pChr, &RespawnTime))
 				continue;
-			if(m_Layer == LAYER_SWITCH && !GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pChr->Team()]) continue;
+			if(m_Layer == LAYER_SWITCH && !GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pChr->Team()])
+				continue;
 			bool Sound = false;
 			// player picked us up, is someone was hooking us, let them go
 			switch(m_Type)
@@ -138,7 +138,7 @@ void CPickup::Tick()
 			};
 
 			//--start2 uncommented for m_IsVanillaWeapons --
-			if (RespawnTime >= 0)
+			if(RespawnTime >= 0)
 			{
 				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "pickup player='%d:%s' item=%d/%d",
@@ -189,7 +189,8 @@ void CPickup::Snap(int SnappingClient)
 	if(Server()->IsSixup(SnappingClient))
 	{
 		if(m_Type == POWERUP_WEAPON)
-			pP->m_Type = m_Subtype == WEAPON_SHOTGUN ? 3 : m_Subtype == WEAPON_GRENADE ? 2 : 4;
+			pP->m_Type = m_Subtype == WEAPON_SHOTGUN ? 3 : m_Subtype == WEAPON_GRENADE ? 2 :
+                                                                                                     4;
 		else if(m_Type == POWERUP_NINJA)
 			pP->m_Type = 5;
 	}

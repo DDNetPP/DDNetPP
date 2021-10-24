@@ -3,14 +3,15 @@
 #ifndef GAME_SERVER_ENTITIES_DUMMY_BLMAPCHILL_POLICE_H
 #define GAME_SERVER_ENTITIES_DUMMY_BLMAPCHILL_POLICE_H
 
-#include <base/vmath.h>
 #include "dummybase.h"
+#include <base/vmath.h>
 
-class CDummyBlmapChillPolice : public CDummyBase {
+class CDummyBlmapChillPolice : public CDummyBase
+{
 public:
 	CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer);
 	virtual void OnTick();
-	virtual ~CDummyBlmapChillPolice() {};
+	virtual ~CDummyBlmapChillPolice(){};
 
 private:
 	bool CheckStuck();

@@ -15,7 +15,7 @@ class CStableProjectile : public CEntity
 	void CalculateVel();
 
 public:
-	CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos=vec2());
+	CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos = vec2());
 
 	virtual void Reset();
 	virtual void TickDefered();

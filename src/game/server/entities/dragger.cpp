@@ -58,7 +58,7 @@ void CDragger::Move()
 		int Res =
 			m_NW ? GameServer()->Collision()->IntersectNoLaserNW(m_Pos,
 				       Temp->m_Pos, 0, 0) :
-			       GameServer()->Collision()->IntersectNoLaser(m_Pos,
+                               GameServer()->Collision()->IntersectNoLaser(m_Pos,
 				       Temp->m_Pos, 0, 0);
 
 		if(Res == 0)

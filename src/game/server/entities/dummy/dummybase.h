@@ -6,7 +6,8 @@
 class CCharacter;
 class CPlayer;
 
-class CDummyBase {
+class CDummyBase
+{
 public:
 	CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer);
 	void Tick();
@@ -27,7 +28,6 @@ protected:
 	class CGameWorld *GameWorld();
 	struct CNetObj_PlayerInput *Input();
 	struct CNetObj_PlayerInput *LatestInput();
-
 
 	CCharacter *m_pCharacter;
 	CPlayer *m_pPlayer;
