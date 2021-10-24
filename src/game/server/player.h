@@ -17,7 +17,6 @@
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 #include "score.h"
 #include "teeinfo.h"
-#include "gamecontext.h"
 #include <memory>
 
 // player object
@@ -35,8 +34,8 @@ public:
 
 	void TryRespawn();
 	void Respawn(bool WeakHook = false); // with WeakHook == true the character will be spawned after all calls of Tick from other Players
-	CCharacter* ForceSpawn(vec2 Pos); // required for loading savegames
-	void SetTeam(int Team, bool DoChatMsg=true);
+	CCharacter *ForceSpawn(vec2 Pos); // required for loading savegames
+	void SetTeam(int Team, bool DoChatMsg = true);
 	int GetTeam() const { return m_Team; };
 	int GetCID() const { return m_ClientID; };
 	int GetClientVersion() const;
@@ -146,15 +145,15 @@ private:
 public:
 	enum
 	{
-		PAUSE_NONE=0,
+		PAUSE_NONE = 0,
 		PAUSE_PAUSED,
 		PAUSE_SPEC
 	};
 
 	enum
 	{
-		TIMERTYPE_DEFAULT=-1,
-		TIMERTYPE_GAMETIMER=0,
+		TIMERTYPE_DEFAULT = -1,
+		TIMERTYPE_GAMETIMER = 0,
 		TIMERTYPE_BROADCAST,
 		TIMERTYPE_GAMETIMER_AND_BROADCAST,
 		TIMERTYPE_SIXUP,

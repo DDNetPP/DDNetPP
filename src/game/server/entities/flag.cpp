@@ -3,6 +3,7 @@
 
 #include <game/server/gamecontext.h>
 #include "flag.h"
+#include <game/server/gamecontext.h>
 
 CFlag::CFlag(CGameWorld *pGameWorld, int Team)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_FLAG)

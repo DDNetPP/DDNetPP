@@ -39,6 +39,7 @@ class CUnpacker;
 class CUuidManager
 {
 	array<CName> m_aNames;
+
 public:
 	void RegisterName(int ID, const char *pName);
 	CUuid GetUuid(int ID) const;

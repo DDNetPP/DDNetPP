@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <base/system.h>
 #include <base/math.h>
-#include <mastersrv/mastersrv.h>
+#include <base/system.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/config.h>
@@ -31,7 +29,7 @@ int main(int argc, char **argv) // ignore_convention
 	if(Addr.port == 0)
 		Addr.port = 8303;
 
-	unsigned char Buffer[sizeof(SERVERBROWSE_GETINFO)+1];
+	unsigned char Buffer[sizeof(SERVERBROWSE_GETINFO) + 1];
 	CNetChunk Packet;
 
 	mem_copy(Buffer, SERVERBROWSE_GETINFO, sizeof(SERVERBROWSE_GETINFO));
@@ -60,7 +58,7 @@ int main(int argc, char **argv) // ignore_convention
 			// we got ze info
 			CUnpacker Up;
 
-			Up.Reset((unsigned char*)Packet.m_pData+sizeof(SERVERBROWSE_INFO), Packet.m_DataSize-sizeof(SERVERBROWSE_INFO));
+			Up.Reset((unsigned char *)Packet.m_pData + sizeof(SERVERBROWSE_INFO), Packet.m_DataSize - sizeof(SERVERBROWSE_INFO));
 			int Token = str_toint(Up.GetString());
 			if(Token != CurToken)
 				continue;

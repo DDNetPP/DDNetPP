@@ -11,10 +11,10 @@
 
 enum
 {
-	CANTMOVE_LEFT=1<<0,
-	CANTMOVE_RIGHT=1<<1,
-	CANTMOVE_UP=1<<2,
-	CANTMOVE_DOWN=1<<3,
+	CANTMOVE_LEFT = 1 << 0,
+	CANTMOVE_RIGHT = 1 << 1,
+	CANTMOVE_UP = 1 << 2,
+	CANTMOVE_DOWN = 1 << 3,
 };
 
 vec2 ClampVel(int MoveRestriction, vec2 Vel);
@@ -127,7 +127,6 @@ public:
 	std::vector< std::vector<vec2> > m_vTiles;
 
 private:
-
 	class CTeleTile *m_pTele;
 	class CSpeedupTile *m_pSpeedup;
 	class CTile *m_pFront;
@@ -147,7 +146,6 @@ private:
 	int m_NumSurvivalSpawns;
 
 public:
-
 	SSwitchers *m_pSwitchers;
 };
 
