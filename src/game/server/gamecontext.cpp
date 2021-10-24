@@ -1139,6 +1139,12 @@ void CGameContext::OnClientDirectInput(int ClientID, void *pInput)
 	{
 		m_TeeHistorian.RecordPlayerInput(ClientID, (CNetObj_PlayerInput *)pInput);
 	}
+
+	int Flags = ((CNetObj_PlayerInput *)pInput)->m_PlayerFlags;
+	if((Flags & 256) || (Flags & 512))
+	{
+		Server()->Kick(ClientID, "please update your client or use DDNet client");
+	}
 }
 
 void CGameContext::OnClientPredictedInput(int ClientID, void *pInput)
@@ -1369,12 +1375,12 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 
 		Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-		if (g_Config.m_SvShowOthersDefault)
+		if(g_Config.m_SvShowOthersDefault > 0)
 		{
 			if (g_Config.m_SvShowOthers)
 				SendChatTarget(ClientID, "You can see other players. To disable this use DDNet client and type /showothers .");
 
-			m_apPlayers[ClientID]->m_ShowOthers = true;
+			m_apPlayers[ClientID]->m_ShowOthers = g_Config.m_SvShowOthersDefault;
 		}
 	}
 	m_VoteUpdate = true;

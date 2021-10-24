@@ -30,6 +30,8 @@
 #include <game/client/ui.h>
 #include <game/generated/client_data.h>
 
+#include <engine/shared/dilate.h>
+
 #include "auto_map.h"
 #include "editor.h"
 
@@ -1051,7 +1053,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 
 	TB_Top.HSplitBottom(2.5f, &TB_Top, 0);
 	TB_Bottom.HSplitTop(2.5f, 0, &TB_Bottom);
-	
+
 	// top line buttons
 	{
 		// detail button
@@ -2407,16 +2409,16 @@ void CEditor::DoMapEditor(CUIRect View)
 			if(t)
 			{
 				m_QuadsetPicker.m_Image = t->m_Image;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[0].x = (int)View.x << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[0].y = (int)View.y << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[1].x = (int)(View.x+View.w) << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[1].y = (int)View.y << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[2].x = (int)View.x << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[2].y = (int)(View.y+View.h) << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[3].x = (int)(View.x+View.w) << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[3].y = (int)(View.y+View.h) << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[4].x = (int)(View.x+View.w/2) << 10;
-				m_QuadsetPicker.m_lQuads[0].m_aPoints[4].y = (int)(View.y+View.h/2) << 10;
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[0].x = f2fx(View.x);
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[0].y = f2fx(View.y);
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[1].x = f2fx((View.x + View.w));
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[1].y = f2fx(View.y);
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[2].x = f2fx(View.x);
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[2].y = f2fx((View.y + View.h));
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[3].x = f2fx((View.x + View.w));
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[3].y = f2fx((View.y + View.h));
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[4].x = f2fx((View.x + View.w / 2));
+				m_QuadsetPicker.m_lQuads[0].m_aPoints[4].y = f2fx((View.y + View.h / 2));
 				m_QuadsetPicker.Render();
 			}
 		}
@@ -3356,8 +3358,8 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 				{
 					if (g != m_SelectedGroup)
 						SelectLayer(0, g);
-	
-					if ((Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)) && m_SelectedGroup == g)
+
+					if((Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)) && m_SelectedGroup == g)
 					{
 						for(int i = 1; i < m_Map.m_lGroups[g]->m_lLayers.size(); i++)
 						{
@@ -3476,8 +3478,8 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect View)
 								}
 							}
 						}
-						
-						if (!IsLayerSelected)
+
+						if(!IsLayerSelected)
 						{
 							SelectLayer(i, g);
 						}
@@ -3606,6 +3608,20 @@ void CEditor::ReplaceImage(const char *pFileName, int StorageType, void *pUser)
 	*pImg = ImgInfo;
 	IStorage::StripPathAndExtension(pFileName, pImg->m_aName, sizeof(pImg->m_aName));
 	pImg->m_External = IsVanillaImage(pImg->m_aName);
+
+	if(!pImg->m_External && g_Config.m_ClEditorDilate == 1)
+	{
+		int ColorChannelCount = 0;
+		if(ImgInfo.m_Format == CImageInfo::FORMAT_ALPHA)
+			ColorChannelCount = 1;
+		else if(ImgInfo.m_Format == CImageInfo::FORMAT_RGB)
+			ColorChannelCount = 3;
+		else if(ImgInfo.m_Format == CImageInfo::FORMAT_RGBA)
+			ColorChannelCount = 4;
+
+		DilateImage((unsigned char *)ImgInfo.m_pData, ImgInfo.m_Width, ImgInfo.m_Height, ColorChannelCount);
+	}
+
 	pImg->m_AutoMapper.Load(pImg->m_aName);
 	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(ImgInfo.m_Width, ImgInfo.m_Height, ImgInfo.m_Format, ImgInfo.m_pData, CImageInfo::FORMAT_AUTO, 0);
 	ImgInfo.m_pData = 0;
@@ -3643,9 +3659,23 @@ void CEditor::AddImage(const char *pFileName, int StorageType, void *pUser)
 
 	CEditorImage *pImg = new CEditorImage(pEditor);
 	*pImg = ImgInfo;
+	pImg->m_External = IsVanillaImage(aBuf);
+
+	if(!pImg->m_External && g_Config.m_ClEditorDilate == 1)
+	{
+		int ColorChannelCount = 0;
+		if(ImgInfo.m_Format == CImageInfo::FORMAT_ALPHA)
+			ColorChannelCount = 1;
+		else if(ImgInfo.m_Format == CImageInfo::FORMAT_RGB)
+			ColorChannelCount = 3;
+		else if(ImgInfo.m_Format == CImageInfo::FORMAT_RGBA)
+			ColorChannelCount = 4;
+
+		DilateImage((unsigned char *)ImgInfo.m_pData, ImgInfo.m_Width, ImgInfo.m_Height, ColorChannelCount);
+	}
+
 	pImg->m_Texture = pEditor->Graphics()->LoadTextureRaw(ImgInfo.m_Width, ImgInfo.m_Height, ImgInfo.m_Format, ImgInfo.m_pData, CImageInfo::FORMAT_AUTO, 0);
 	ImgInfo.m_pData = 0;
-	pImg->m_External = IsVanillaImage(aBuf);
 	str_copy(pImg->m_aName, aBuf, sizeof(pImg->m_aName));
 	pImg->m_AutoMapper.Load(pImg->m_aName);
 	pEditor->m_Map.m_lImages.add(pImg);

@@ -1174,6 +1174,9 @@ set(EXPECTED_DATA
   maps/ddpp_survival.map
   maps/fly_shy_cry.map
   maps7/Gold\ Mine.map
+  maps7/LearnToPlay.map
+  maps7/Sunny\ Side\ Up.map
+  maps7/Tsunami.map
   maps7/readme.txt
   menuimages/demos.png
   menuimages/editor.png
@@ -1307,6 +1310,21 @@ set(EXPECTED_DATA
   skins/whis.png
   skins/x_ninja.png
   skins/x_spec.png
+  themes/auto.png
+  themes/autumn.png
+  themes/autumn_day.map
+  themes/autumn_night.map
+  themes/heavens.png
+  themes/heavens_day.map
+  themes/heavens_night.map
+  themes/jungle.png
+  themes/jungle_day.map
+  themes/jungle_night.map
+  themes/none.png
+  themes/rand.png
+  themes/winter.png
+  themes/winter_day.map
+  themes/winter_night.map
   wordlist.txt
 )
 
@@ -1493,6 +1511,8 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   datafile.h
   demo.cpp
   demo.h
+  dilate.cpp
+  dilate.h
   econ.cpp
   econ.h
   engine.cpp
@@ -1513,6 +1533,7 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   linereader.cpp
   linereader.h
   map.cpp
+  map.h
   masterserver.cpp
   memheap.cpp
   memheap.h
@@ -1712,6 +1733,8 @@ if(CLIENT)
     components/maplayers.h
     components/mapsounds.cpp
     components/mapsounds.h
+    components/menu_background.cpp
+    components/menu_background.h
     components/menus.cpp
     components/menus.h
     components/menus_browser.cpp
