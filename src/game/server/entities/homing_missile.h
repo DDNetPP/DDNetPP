@@ -12,15 +12,14 @@ public:
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
 
-	CCharacter* CharacterNear();
+	CCharacter *CharacterNear();
 
 	void CalculateVel();
 	virtual void TickDefered();
-	void Move(CCharacter* pTarget);
-	bool Hit(CCharacter* pHitCharacter);
+	void Move(CCharacter *pTarget);
+	bool Hit(CCharacter *pHitCharacter);
 
 private:
-
 	vec2 m_LastResetPos;
 	int m_LastResetTick;
 	bool m_CalculatedVel;

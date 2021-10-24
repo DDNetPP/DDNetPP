@@ -1,14 +1,15 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
-#include "drop_pickup.h"
-#include "pickup.h"
 
 #include <game/server/teams.h>
 
-CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam)
-: CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
+#include "drop_pickup.h"
+#include "pickup.h"
+
+CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam) :
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
 {
-	if (GameServer()->GetPlayerChar(Owner))
+	if(GameServer()->GetPlayerChar(Owner))
 	{
 		m_Type = Type;
 		m_Lifetime = Server()->TickSpeed() * Lifetime;
@@ -16,7 +17,7 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 		m_Pos = GameServer()->GetPlayerChar(Owner)->m_Pos;
 		m_Owner = Owner;
 
-		m_Vel = vec2(5*Direction, -5);
+		m_Vel = vec2(5 * Direction, -5);
 		m_Vel.x += (rand() % 10 - 5) * Force;
 		m_Vel.y += (rand() % 10 - 5) * Force;
 
@@ -31,10 +32,10 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 		m_Type = Type;
 		m_Lifetime = 1;
 		m_ResponsibleTeam = ResponsibleTeam;
-		m_Pos = vec2(0,0);
+		m_Pos = vec2(0, 0);
 		m_Owner = Owner;
 
-		m_Vel = vec2(5*Direction, -5);
+		m_Vel = vec2(5 * Direction, -5);
 		m_Vel.x += (rand() % 10 - 5) * Force;
 		m_Vel.y += (rand() % 10 - 5) * Force;
 
@@ -53,19 +54,18 @@ void CDropPickup::Delete()
 
 void CDropPickup::Reset()
 {
-
-	if (m_EreasePickup)
+	if(m_EreasePickup)
 	{
-		for (unsigned i = 0; i < GameServer()->m_vDropLimit[m_Type].size(); i++)
+		for(unsigned i = 0; i < GameServer()->m_vDropLimit[m_Type].size(); i++)
 		{
-			if (GameServer()->m_vDropLimit[m_Type][i] == this)
+			if(GameServer()->m_vDropLimit[m_Type][i] == this)
 			{
 				GameServer()->m_vDropLimit[m_Type].erase(GameServer()->m_vDropLimit[m_Type].begin() + i);
 			}
 		}
 	}
 
-	if (IsCharacterNear() == -1)
+	if(IsCharacterNear() == -1)
 		GameServer()->CreateDeath(m_Pos, -1);
 
 	GameServer()->m_World.DestroyEntity(this);
@@ -74,12 +74,12 @@ void CDropPickup::Reset()
 int CDropPickup::IsCharacterNear()
 {
 	CCharacter *apEnts[MAX_CLIENTS];
-	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity **)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
-	for (int i = 0; i < Num; ++i)
+	for(int i = 0; i < Num; ++i)
 	{
-		CCharacter * pChr = apEnts[i];
-		if (pChr && pChr->IsAlive())
+		CCharacter *pChr = apEnts[i];
+		if(pChr && pChr->IsAlive())
 			return pChr->GetPlayer()->GetCID();
 	}
 
@@ -89,23 +89,23 @@ int CDropPickup::IsCharacterNear()
 void CDropPickup::Pickup()
 {
 	int CharID = IsCharacterNear();
-	if (CharID != -1)
+	if(CharID != -1)
 	{
-		CCharacter* pChar = GameServer()->GetPlayerChar(CharID);
-		if (!pChar)
+		CCharacter *pChar = GameServer()->GetPlayerChar(CharID);
+		if(!pChar)
 			return;
 
-		if (pChar->GetPlayer()->m_IsVanillaDmg)
+		if(pChar->GetPlayer()->m_IsVanillaDmg)
 		{
-			if (m_Type == POWERUP_HEALTH)
+			if(m_Type == POWERUP_HEALTH)
 				pChar->IncreaseHealth(1);
-			else if (m_Type == POWERUP_ARMOR)
+			else if(m_Type == POWERUP_ARMOR)
 				pChar->IncreaseArmor(1);
 		}
 
-		if (m_Type == POWERUP_HEALTH)
+		if(m_Type == POWERUP_HEALTH)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, pChar->Teams()->TeamMask(pChar->Team()));
-		else if (m_Type == POWERUP_ARMOR)
+		else if(m_Type == POWERUP_ARMOR)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
 		Delete();
@@ -115,91 +115,89 @@ void CDropPickup::Pickup()
 
 void CDropPickup::Tick()
 {
-	if (m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
+	if(m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
 	{
 		m_Owner = -1;
 	}
 
 	// weapon hits death-tile or left the game layer, reset it
-	if (GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y) == TILE_DEATH || GameLayerClipped(m_Pos))
+	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y) == TILE_DEATH || GameLayerClipped(m_Pos))
 	{
 		Delete();
 		return;
 	}
 
-	if (m_Lifetime == 0)
+	if(m_Lifetime == 0)
 	{
 		Delete();
 		return;
 	}
 
-	if (m_Lifetime != -1)
+	if(m_Lifetime != -1)
 		m_Lifetime--;
 
-
-	if (m_PickupDelay > 0)
+	if(m_PickupDelay > 0)
 		m_PickupDelay--;
 
-	if (m_PickupDelay <= 0 || IsCharacterNear() != m_Owner)
+	if(m_PickupDelay <= 0 || IsCharacterNear() != m_Owner)
 		Pickup();
 
 	m_Vel.y += GameServer()->Tuning()->m_Gravity;
 
-
 	//Friction
 	bool Grounded = false;
-	if (GameServer()->Collision()->CheckPoint(m_Pos.x + ms_PhysSize / 2, m_Pos.y + ms_PhysSize / 2 + 5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x + ms_PhysSize / 2, m_Pos.y + ms_PhysSize / 2 + 5))
 		Grounded = true;
-	if (GameServer()->Collision()->CheckPoint(m_Pos.x - ms_PhysSize / 2, m_Pos.y + ms_PhysSize / 2 + 5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x - ms_PhysSize / 2, m_Pos.y + ms_PhysSize / 2 + 5))
 		Grounded = true;
 
-	if (Grounded == true)
+	if(Grounded == true)
 		m_Vel.x *= 0.75f;
 	else
 		m_Vel.x *= 0.98f;
 
-
 	//Speedups
-	if (GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos)))
+	if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos)))
 	{
 		int Force, MaxSpeed = 0;
 		vec2 Direction, MaxVel, TempVel = m_Vel;
 		float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
 		GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos), &Direction, &Force, &MaxSpeed);
 
-		if (Force == 255 && MaxSpeed)
+		if(Force == 255 && MaxSpeed)
 		{
 			m_Vel = Direction * (MaxSpeed / 5);
 		}
 
 		else
 		{
-			if (MaxSpeed > 0 && MaxSpeed < 5) MaxSpeed = 5;
+			if(MaxSpeed > 0 && MaxSpeed < 5)
+				MaxSpeed = 5;
 			//dbg_msg("speedup tile start", "Direction %f %f, Force %d, Max Speed %d", (Direction).x, (Direction).y, Force, MaxSpeed);
-			if (MaxSpeed > 0)
+			if(MaxSpeed > 0)
 			{
-				if (Direction.x > 0.0000001f)
+				if(Direction.x > 0.0000001f)
 					SpeederAngle = -atan(Direction.y / Direction.x);
-				else if (Direction.x < 0.0000001f)
+				else if(Direction.x < 0.0000001f)
 					SpeederAngle = atan(Direction.y / Direction.x) + 2.0f * asin(1.0f);
-				else if (Direction.y > 0.0000001f)
+				else if(Direction.y > 0.0000001f)
 					SpeederAngle = asin(1.0f);
 				else
 					SpeederAngle = asin(-1.0f);
 
-				if (SpeederAngle < 0)
+				if(SpeederAngle < 0)
 					SpeederAngle = 4.0f * asin(1.0f) + SpeederAngle;
 
-				if (TempVel.x > 0.0000001f)
+				if(TempVel.x > 0.0000001f)
 					TeeAngle = -atan(TempVel.y / TempVel.x);
-				else if (TempVel.x < 0.0000001f)
+				else if(TempVel.x < 0.0000001f)
 					TeeAngle = atan(TempVel.y / TempVel.x) + 2.0f * asin(1.0f);
-				else if (TempVel.y > 0.0000001f)
+				else if(TempVel.y > 0.0000001f)
 					TeeAngle = asin(1.0f);
 				else
 					TeeAngle = asin(-1.0f);
 
-				if (TeeAngle < 0)
+				if(TeeAngle < 0)
 					TeeAngle = 4.0f * asin(1.0f) + TeeAngle;
 
 				TeeSpeed = sqrt(pow(TempVel.x, 2) + pow(TempVel.y, 2));
@@ -207,16 +205,15 @@ void CDropPickup::Tick()
 				DiffAngle = SpeederAngle - TeeAngle;
 				SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
 				//dbg_msg("speedup tile debug", "MaxSpeed %i, TeeSpeed %f, SpeedLeft %f, SpeederAngle %f, TeeAngle %f", MaxSpeed, TeeSpeed, SpeedLeft, SpeederAngle, TeeAngle);
-				if (abs(SpeedLeft) > Force && SpeedLeft > 0.0000001f)
+				if(abs(SpeedLeft) > Force && SpeedLeft > 0.0000001f)
 					TempVel += Direction * Force;
-				else if (abs(SpeedLeft) > Force)
+				else if(abs(SpeedLeft) > Force)
 					TempVel += Direction * -Force;
 				else
 					TempVel += Direction * SpeedLeft;
 			}
 			else
 				TempVel += Direction * Force;
-
 		}
 		m_Vel = TempVel;
 	}
@@ -226,7 +223,6 @@ void CDropPickup::Tick()
 
 void CDropPickup::Snap(int SnappingClient)
 {
-
 	if(NetworkClipped(SnappingClient))
 		return;
 
