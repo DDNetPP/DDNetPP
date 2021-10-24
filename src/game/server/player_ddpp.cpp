@@ -1,7 +1,7 @@
 /* CPlayer related ddnet++ methods */
 
-#include <engine/shared/config.h>
 #include "gamemodes/DDRace.h"
+#include <engine/shared/config.h>
 
 #include <fstream>
 #include <limits>
@@ -15,7 +15,7 @@ void CPlayer::ResetDDPP()
 	******************************/
 
 	//ChillerDragon constructor Konstructor init
-	if (g_Config.m_SvTestingCommands)
+	if(g_Config.m_SvTestingCommands)
 	{
 		str_format(m_aAsciiFrame0, sizeof(m_aAsciiFrame0), "x");
 		str_format(m_aAsciiFrame1, sizeof(m_aAsciiFrame1), "+");
@@ -34,10 +34,10 @@ void CPlayer::ResetDDPP()
 		str_format(m_aAsciiFrame14, sizeof(m_aAsciiFrame14), ":");
 		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
 	}
-	for(unsigned i = 0; i < sizeof(m_aCatchedID)/sizeof(m_aCatchedID[0]); i++)
+	for(unsigned i = 0; i < sizeof(m_aCatchedID) / sizeof(m_aCatchedID[0]); i++)
 		m_aCatchedID[i] = -1;
 
-	if (GameServer()->IsDDPPgametype("fly"))
+	if(GameServer()->IsDDPPgametype("fly"))
 	{
 		m_IsVanillaDmg = true;
 		m_IsVanillaWeapons = true;
@@ -49,7 +49,7 @@ void CPlayer::ResetDDPP()
 	m_dmm25 = -1; //set to offline default
 	m_MapSaveLoaded = false;
 
-	if (g_Config.m_SvNoboSpawnTime)
+	if(g_Config.m_SvNoboSpawnTime)
 	{
 		m_IsNoboSpawn = true;
 	}
@@ -123,31 +123,30 @@ void CPlayer::ResetDDPP()
 void CPlayer::DDPPTick()
 {
 	//ChillerDragon chidraqul3 the hash game
-	if (m_C3_GameState == 1) //singleplayer
+	if(m_C3_GameState == 1) //singleplayer
 	{
 		chidraqul3_GameTick();
 	}
 
 	//profile views
-	if (Server()->Tick() % 1000 == 0)
+	if(Server()->Tick() % 1000 == 0)
 	{
 		m_IsProfileViewLoaded = true;
 		//GameServer()->SendChatTarget(m_ClientID, "View loaded");
 	}
 
-
 	//bomb
-	if (m_BombBanTime)
+	if(m_BombBanTime)
 	{
 		m_BombBanTime--;
-		if (m_BombBanTime == 1)
+		if(m_BombBanTime == 1)
 		{
 			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
 		}
 	}
 
-	if (Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
-		if (IsLoggedIn())
+	if(Server()->Tick() % (Server()->TickSpeed() * 300) == 0)
+		if(IsLoggedIn())
 			Save(1); //SetLoggedIn true
 
 	//dragon test chillers level system xp money usw am start :3
@@ -155,9 +154,9 @@ void CPlayer::DDPPTick()
 
 	ThreadLoginDone();
 
-	if (m_ChangeTeamOnFlag || (Server()->Tick() % 600 == 0))
+	if(m_ChangeTeamOnFlag || (Server()->Tick() % 600 == 0))
 	{
-		if ((((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GetCharacter()) == -1) && m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
+		if((((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GetCharacter()) == -1) && m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
 		{
 			m_Team = TEAM_BLUE;
 		}
@@ -168,13 +167,13 @@ void CPlayer::DDPPTick()
 		m_ChangeTeamOnFlag = false;
 	}
 
-	if (m_SetRealName)
+	if(m_SetRealName)
 	{
-		if (m_SetRealNameTick < Server()->Tick())
+		if(m_SetRealNameTick < Server()->Tick())
 		{
-			if (m_FixNameID == 1)
+			if(m_FixNameID == 1)
 				GameServer()->SendChat(m_ClientID, m_ChatTeam, m_ChatText, m_ClientID);
-			else if (m_FixNameID == 2)
+			else if(m_FixNameID == 2)
 			{
 				CNetMsg_Sv_KillMsg Msg;
 				Msg.m_Killer = m_MsgKiller;
@@ -192,55 +191,55 @@ void CPlayer::DDPPTick()
 
 void CPlayer::PlayerHumanLevelTick()
 {
-	if (m_HumanLevelTime >= 1)
+	if(m_HumanLevelTime >= 1)
 	{
 		m_HumanLevelTime--;
 	}
 
-	if (m_PlayerHumanLevel == 0)
+	if(m_PlayerHumanLevel == 0)
 	{
-		if (GetCharacter() && GetCharacter()->InputActive())
+		if(GetCharacter() && GetCharacter()->InputActive())
 		{
 			m_PlayerHumanLevel++;
 			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
 		}
 	}
-	else if (m_PlayerHumanLevel == 1)
+	else if(m_PlayerHumanLevel == 1)
 	{
-		if (m_HumanLevelTime <= 0)
+		if(m_HumanLevelTime <= 0)
 		{
 			m_PlayerHumanLevel++;
 			m_PlayerHumanLevelState = 0;
 		}
 	}
-	else if (m_PlayerHumanLevel == 2)
+	else if(m_PlayerHumanLevel == 2)
 	{
-		if (Server()->Tick() % 40 == 0)
+		if(Server()->Tick() % 40 == 0)
 		{
-			if (GetCharacter() && GetCharacter()->InputActive())
+			if(GetCharacter() && GetCharacter()->InputActive())
 			{
 				m_PlayerHumanLevelState++;
 			}
 		}
-		if (m_PlayerHumanLevelState > 3)
+		if(m_PlayerHumanLevelState > 3)
 		{
 			m_PlayerHumanLevel++;
 			m_HumanLevelTime = Server()->TickSpeed() * 10; // 10 sec
 		}
 	}
-	else if (m_PlayerHumanLevel == 3)
+	else if(m_PlayerHumanLevel == 3)
 	{
-		if (m_HumanLevelTime <= 0)
+		if(m_HumanLevelTime <= 0)
 		{
 			m_PlayerHumanLevel++;
 			m_PlayerHumanLevelState = 0;
 		}
 	}
-	else if (m_PlayerHumanLevel == 4)
+	else if(m_PlayerHumanLevel == 4)
 	{
-		if (GetCharacter())
+		if(GetCharacter())
 		{
-			if (GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
+			if(GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
 				m_BlockPoints > 5 ||
 				IsLoggedIn())
 			{
@@ -249,33 +248,33 @@ void CPlayer::PlayerHumanLevelTick()
 			}
 		}
 	}
-	else if (m_PlayerHumanLevel == 5)
+	else if(m_PlayerHumanLevel == 5)
 	{
-		if (m_HumanLevelTime <= 0)
+		if(m_HumanLevelTime <= 0)
 		{
 			m_PlayerHumanLevel++;
 			m_PlayerHumanLevelState = 0;
 		}
 	}
-	else if (m_PlayerHumanLevel == 6)
+	else if(m_PlayerHumanLevel == 6)
 	{
-		if (m_pCaptcha->IsHuman())
+		if(m_pCaptcha->IsHuman())
 		{
 			m_PlayerHumanLevel++;
 		}
 	}
-	else if (m_PlayerHumanLevel == 7)
+	else if(m_PlayerHumanLevel == 7)
 	{
-		if ((m_QuestLevelUnlocked > 0 || m_QuestUnlocked > 2) || // played quest until finish map
+		if((m_QuestLevelUnlocked > 0 || m_QuestUnlocked > 2) || // played quest until finish map
 			m_BlockPoints > 10)
 		{
 			m_PlayerHumanLevel++;
 			m_HumanLevelTime = Server()->TickSpeed() * 60; // 1 min
 		}
 	}
-	else if (m_PlayerHumanLevel == 8)
+	else if(m_PlayerHumanLevel == 8)
 	{
-		if (m_HumanLevelTime <= 0)
+		if(m_HumanLevelTime <= 0)
 		{
 			m_PlayerHumanLevel++;
 			m_PlayerHumanLevelState = 0;
@@ -287,18 +286,18 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 {
 	//spooky ghost
 	const char *pClan;
-	if (m_SpookyGhostActive)
+	if(m_SpookyGhostActive)
 		pClan = m_RealName;
 	else
 		pClan = m_RealClan;
 	StrToInts(&pClientInfo->m_Clan0, 3, pClan);
 
-	if (m_SpookyGhostActive)
+	if(m_SpookyGhostActive)
 	{
 		m_ShowName = false;
 	}
 
-	if (m_SetRealName || m_ShowName)
+	if(m_SetRealName || m_ShowName)
 	{
 		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
 	}
@@ -307,28 +306,27 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		StrToInts(&pClientInfo->m_Name0, 4, " ");
 	}
 
-	if (m_PlayerFlags&PLAYERFLAG_SCOREBOARD)
+	if(m_PlayerFlags & PLAYERFLAG_SCOREBOARD)
 	{
-		if (GetCharacter())
+		if(GetCharacter())
 		{
 			GetCharacter()->m_ShopMotdTick = 0;
 		}
 	}
 	else
 	{
-		if (GetCharacter())
+		if(GetCharacter())
 		{
 			GetCharacter()->m_TimesShot = 0;
 		}
 	}
 
-	if (GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
+	if(GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
 
-
-		if (GameServer()->m_BombTick < 75) //red glowup right before explode
+		if(GameServer()->m_BombTick < 75) //red glowup right before explode
 		{
 			//if (GameServer()->m_bwff) //old not working blackwhite flick flack
 			//{
@@ -351,21 +349,21 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		else
 		{
 			int ColorChangeVal = (255000 - GameServer()->m_BombTick) * 0.0001;
-			if (!ColorChangeVal)
+			if(!ColorChangeVal)
 			{
 				ColorChangeVal = 1;
 			}
 
-			if (GameServer()->m_BombColor > 254)
+			if(GameServer()->m_BombColor > 254)
 			{
 				GameServer()->m_bwff = false;
 			}
-			if (GameServer()->m_BombColor < 1)
+			if(GameServer()->m_BombColor < 1)
 			{
 				GameServer()->m_bwff = true;
 			}
 
-			if (GameServer()->m_bwff) //black -> white
+			if(GameServer()->m_bwff) //black -> white
 			{
 				GameServer()->m_BombColor += ColorChangeVal;
 			}
@@ -378,7 +376,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if (m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
+	else if(m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -386,23 +384,23 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
 		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
 	}
-    else
-        return false;
-    return true;
+	else
+		return false;
+	return true;
 }
 
 void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo)
 {
-    // send 0 if times of others are not shown
-	if (SnappingClient != m_ClientID && g_Config.m_SvHideScore)
+	// send 0 if times of others are not shown
+	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
 	{
 		pPlayerInfo->m_Score = -9999;
 	}
-	else if (pSnapping->IsInstagibMinigame())
+	else if(pSnapping->IsInstagibMinigame())
 	{
-		if (IsInstagibMinigame())
+		if(IsInstagibMinigame())
 		{
-			if (pSnapping->m_ScoreFixForDDNet)
+			if(pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = m_InstaScore * 60;
 			else
 				pPlayerInfo->m_Score = m_InstaScore;
@@ -410,11 +408,11 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 		else
 			pPlayerInfo->m_Score = -9999;
 	}
-	else if (pSnapping->m_IsSurvivaling)
+	else if(pSnapping->m_IsSurvivaling)
 	{
-		if (m_IsSurvivaling)
+		if(m_IsSurvivaling)
 		{
-			if (pSnapping->m_ScoreFixForDDNet)
+			if(pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = m_SurvivalKills * 60;
 			else
 				pPlayerInfo->m_Score = m_SurvivalKills;
@@ -422,32 +420,32 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 		else
 			pPlayerInfo->m_Score = -9999;
 	}
-	else if (pSnapping->m_DisplayScore != SCORE_TIME)
+	else if(pSnapping->m_DisplayScore != SCORE_TIME)
 	{
-		if (pSnapping->m_DisplayScore == SCORE_LEVEL)
+		if(pSnapping->m_DisplayScore == SCORE_LEVEL)
 		{
-			if (IsLoggedIn())
+			if(IsLoggedIn())
 			{
-				if (pSnapping->m_ScoreFixForDDNet)
+				if(pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = GetLevel() * 60;
 				else
 					pPlayerInfo->m_Score = GetLevel();
 			}
-			else if (pSnapping->m_ScoreFixForDDNet)
+			else if(pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
 		}
-		else if (pSnapping->m_DisplayScore == SCORE_BLOCK)
+		else if(pSnapping->m_DisplayScore == SCORE_BLOCK)
 		{
-			if (IsLoggedIn())
+			if(IsLoggedIn())
 			{
-				if (pSnapping->m_ScoreFixForDDNet)
+				if(pSnapping->m_ScoreFixForDDNet)
 					pPlayerInfo->m_Score = m_BlockPoints * 60;
 				else
 					pPlayerInfo->m_Score = m_BlockPoints;
 			}
-			else if (pSnapping->m_ScoreFixForDDNet)
+			else if(pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
@@ -455,7 +453,7 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 	}
 	else
 	{
-		if (g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
+		if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
 		{
 			pPlayerInfo->m_Score = m_Score;
 		}
@@ -468,11 +466,11 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 
 void CPlayer::OnDisconnectDDPP()
 {
-	if (m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
+	if(m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
 		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
 	}
-	if (m_JailTime)
+	if(m_JailTime)
 	{
 		GameServer()->SetIpJailed(GetCID());
 	}
@@ -480,7 +478,7 @@ void CPlayer::OnDisconnectDDPP()
 
 void CPlayer::Logout(int SetLoggedIn)
 {
-	if (!IsLoggedIn())
+	if(!IsLoggedIn())
 		return;
 
 	Save(SetLoggedIn);
@@ -557,9 +555,9 @@ void CPlayer::JailPlayer(int seconds)
 
 	m_JailTime = Server()->TickSpeed() * seconds;
 
-	if (GetCharacter())
+	if(GetCharacter())
 	{
-		if (JailPlayerSpawn != vec2(-1, -1))
+		if(JailPlayerSpawn != vec2(-1, -1))
 		{
 			GetCharacter()->SetPosition(JailPlayerSpawn);
 		}
@@ -573,7 +571,7 @@ void CPlayer::JailPlayer(int seconds)
 
 void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
 {
-	if (!IsLoggedIn())
+	if(!IsLoggedIn())
 		return;
 
 	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, GetAccID());
@@ -585,10 +583,10 @@ void CPlayer::Save(int SetLoggedIn)
 #if defined(CONF_DEBUG)
 	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), GetAccID(), SetLoggedIn);
 #endif
-	if (!IsLoggedIn())
+	if(!IsLoggedIn())
 		return;
 
-	if (m_IsFileAcc)
+	if(m_IsFileAcc)
 	{
 		SaveFileBased(SetLoggedIn);
 		return;
@@ -598,7 +596,7 @@ void CPlayer::Save(int SetLoggedIn)
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
 
-	if (str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
+	if(str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
 	{
 		//dbg_msg("save", "update clan '%s'", aClan);
 		str_format(m_aClan3, sizeof(m_aClan3), "%s", m_aClan2);
@@ -610,7 +608,7 @@ void CPlayer::Save(int SetLoggedIn)
 	char aIP[32];
 	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
 
-	if (str_comp(aIP, m_aIP_1) && str_comp(aIP, m_aIP_2) && str_comp(aIP, m_aIP_3))
+	if(str_comp(aIP, m_aIP_1) && str_comp(aIP, m_aIP_2) && str_comp(aIP, m_aIP_3))
 	{
 		//dbg_msg("save", "updated ip '%s'", aIP);
 		str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
@@ -622,25 +620,25 @@ void CPlayer::Save(int SetLoggedIn)
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	if (!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
+	if(!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
 	{
-		if (!str_comp(aName, m_LastLogoutIGN1))
+		if(!str_comp(aName, m_LastLogoutIGN1))
 		{
 			m_iLastLogoutIGN1_usage++;
 		}
-		else if (!str_comp(aName, m_LastLogoutIGN2))
+		else if(!str_comp(aName, m_LastLogoutIGN2))
 		{
 			m_iLastLogoutIGN2_usage++;
 		}
-		else if (!str_comp(aName, m_LastLogoutIGN3))
+		else if(!str_comp(aName, m_LastLogoutIGN3))
 		{
 			m_iLastLogoutIGN3_usage++;
 		}
-		else if (!str_comp(aName, m_LastLogoutIGN4))
+		else if(!str_comp(aName, m_LastLogoutIGN4))
 		{
 			m_iLastLogoutIGN4_usage++;
 		}
-		else if (!str_comp(aName, m_LastLogoutIGN5))
+		else if(!str_comp(aName, m_LastLogoutIGN5))
 		{
 			m_iLastLogoutIGN5_usage++;
 		}
@@ -681,34 +679,34 @@ void CPlayer::Save(int SetLoggedIn)
 	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
 
 	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
-		"  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
-		", `LastGift` = '%i'" /*is actually m_GiftDelay*/
-		", `PoliceRank` = '%i'"
-		", `JailTime` = '%llu', `EscapeTime` = '%llu'"
-		", `TaserLevel` = '%i'"
-		", `NinjaJetpackBought` = '%i'"
-		", `SpookyGhost` = '%i'"
-		", `UseSpawnWeapons` = '%i'"
-		", `SpawnWeaponShotgun` = '%i'"
-		", `SpawnWeaponGrenade` = '%i'"
-		", `SpawnWeaponRifle` = '%i'"
-		", `PvPArenaTickets` = '%i', `PvPArenaGames` = '%i', `PvPArenaKills` = '%i', `PvPArenaDeaths` = '%i'"
-		", `ProfileStyle` = '%i', `ProfileViews` = '%i', `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
-		", `HomingMissiles` = '%i'"
-		", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
-		", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
-		", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
-		", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
-		", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
-		", `Skin` = '%q'"
-		", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
-		", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-		", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
-		", `ShowHideConfig` = '%q'"
-		", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
-		", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
-		", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
-		" WHERE `ID` = '%i'",
+				 "  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
+				 ", `LastGift` = '%i'" /*is actually m_GiftDelay*/
+				 ", `PoliceRank` = '%i'"
+				 ", `JailTime` = '%llu', `EscapeTime` = '%llu'"
+				 ", `TaserLevel` = '%i'"
+				 ", `NinjaJetpackBought` = '%i'"
+				 ", `SpookyGhost` = '%i'"
+				 ", `UseSpawnWeapons` = '%i'"
+				 ", `SpawnWeaponShotgun` = '%i'"
+				 ", `SpawnWeaponGrenade` = '%i'"
+				 ", `SpawnWeaponRifle` = '%i'"
+				 ", `PvPArenaTickets` = '%i', `PvPArenaGames` = '%i', `PvPArenaKills` = '%i', `PvPArenaDeaths` = '%i'"
+				 ", `ProfileStyle` = '%i', `ProfileViews` = '%i', `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
+				 ", `HomingMissiles` = '%i'"
+				 ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
+				 ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
+				 ", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
+				 ", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
+				 ", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
+				 ", `Skin` = '%q'"
+				 ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
+				 ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
+				 ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
+				 ", `ShowHideConfig` = '%q'"
+				 ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
+				 ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
+				 ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
+				 " WHERE `ID` = '%i'",
 		m_aAccountPassword, m_level, m_xp, m_money, m_shit,
 		m_GiftDelay,
 		m_PoliceRank,
@@ -736,19 +734,17 @@ void CPlayer::Save(int SetLoggedIn)
 		m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
 		m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
 		m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
-		m_AccountID
-	);
+		m_AccountID);
 }
 
 void CPlayer::SaveFileBased(int SetLoggedIn)
 {
-
 	std::string data;
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, m_aAccountLoginName);
 	std::ofstream Acc2File(aBuf);
 
-	if (Acc2File.is_open())
+	if(Acc2File.is_open())
 	{
 		dbg_msg("acc2", "saved acc '%s'", m_aAccountLoginName);
 
@@ -770,7 +766,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 	}
 	else
 	{
-		dbg_msg("acc2","[WARNING] account '%s' (%s) failed to save", m_aAccountLoginName, aBuf);
+		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", m_aAccountLoginName, aBuf);
 		Acc2File.close();
 	}
 }
@@ -781,232 +777,232 @@ void CPlayer::CalcExp()
 	dbg_msg("account", "CalcExp() neededxp=%lld xp=%lld", OldNeededXp, m_xp);
 
 	//										xp diff
-	if (m_level == 0)
+	if(m_level == 0)
 		m_neededxp = 5000;
-	else if (m_level == 1)					//5 000
+	else if(m_level == 1) //5 000
 		m_neededxp = 15000;
-	else if (m_level == 2)					//10 000
+	else if(m_level == 2) //10 000
 		m_neededxp = 25000;
-	else if (m_level == 3)					//10 000			
+	else if(m_level == 3) //10 000
 		m_neededxp = 35000;
-	else if (m_level == 4)					//10 000
+	else if(m_level == 4) //10 000
 		m_neededxp = 50000;
-	else if (m_level == 5)					//15 000			Rainbow
+	else if(m_level == 5) //15 000			Rainbow
 		m_neededxp = 65000;
-	else if (m_level == 6)					//15 000
+	else if(m_level == 6) //15 000
 		m_neededxp = 80000;
-	else if (m_level == 7)					//15 000
+	else if(m_level == 7) //15 000
 		m_neededxp = 100000;
-	else if (m_level == 8)					//20 000			
+	else if(m_level == 8) //20 000
 		m_neededxp = 120000;
-	else if (m_level == 9)					//20 000
+	else if(m_level == 9) //20 000
 		m_neededxp = 130000;
-	else if (m_level == 10)					//30 000			
+	else if(m_level == 10) //30 000
 		m_neededxp = 160000;
-	else if (m_level == 11)					//30 000			
+	else if(m_level == 11) //30 000
 		m_neededxp = 200000;
-	else if (m_level == 12)					//40 000
+	else if(m_level == 12) //40 000
 		m_neededxp = 240000;
-	else if (m_level == 13)					//40 000
+	else if(m_level == 13) //40 000
 		m_neededxp = 280000;
-	else if (m_level == 14)					//40 000
+	else if(m_level == 14) //40 000
 		m_neededxp = 325000;
-	else if (m_level == 15)					//45 000			Bloody
+	else if(m_level == 15) //45 000			Bloody
 		m_neededxp = 370000;
-	else if (m_level == 16)					//50 000			room_key
+	else if(m_level == 16) //50 000			room_key
 		m_neededxp = 420000;
-	else if (m_level == 17)					//50 000
+	else if(m_level == 17) //50 000
 		m_neededxp = 470000;
-	else if (m_level == 18)					//50 000			Police[1]
+	else if(m_level == 18) //50 000			Police[1]
 		m_neededxp = 520000;
-	else if (m_level == 19)					//50 000
+	else if(m_level == 19) //50 000
 		m_neededxp = 600000;
-	else if (m_level == 20)					//80 000
+	else if(m_level == 20) //80 000
 		m_neededxp = 680000;
-	else if (m_level == 21)					//80 000			Ninja jetpack
+	else if(m_level == 21) //80 000			Ninja jetpack
 		m_neededxp = 760000;
-	else if (m_level == 22)					//90 000
+	else if(m_level == 22) //90 000
 		m_neededxp = 850000;
-	else if (m_level == 23)					//100 000
+	else if(m_level == 23) //100 000
 		m_neededxp = 950000;
-	else if (m_level == 24)					//150 000
+	else if(m_level == 24) //150 000
 		m_neededxp = 1200000;
-	else if (m_level == 25)					//200 000			Police[2]		policehelper && jail codes
+	else if(m_level == 25) //200 000			Police[2]		policehelper && jail codes
 		m_neededxp = 1400000;
-	else if (m_level == 26)					//200 000
+	else if(m_level == 26) //200 000
 		m_neededxp = 1600000;
-	else if (m_level == 27)					//200 000
+	else if(m_level == 27) //200 000
 		m_neededxp = 1800000;
-	else if (m_level == 28)					//200 000
+	else if(m_level == 28) //200 000
 		m_neededxp = 2000000;
-	else if (m_level == 29)					//210 000
+	else if(m_level == 29) //210 000
 		m_neededxp = 2210000;
-	else if (m_level == 30)					//220 000			Police[3]		taser
+	else if(m_level == 30) //220 000			Police[3]		taser
 		m_neededxp = 2430000;
-	else if (m_level == 31)					//230 000
+	else if(m_level == 31) //230 000
 		m_neededxp = 2660000;
-	else if (m_level == 32)					//240 000
+	else if(m_level == 32) //240 000
 		m_neededxp = 2900000;
-	else if (m_level == 33)					//250 000
+	else if(m_level == 33) //250 000
 		m_neededxp = 3150000;
-	else if (m_level == 34)					//350 000                      
+	else if(m_level == 34) //350 000
 		m_neededxp = 3500000;
-	else if (m_level == 35)					//450 000			
+	else if(m_level == 35) //450 000
 		m_neededxp = 3950000;
-	else if (m_level == 36)					//550 000
+	else if(m_level == 36) //550 000
 		m_neededxp = 4500000;
-	else if (m_level == 37)					//750 000
+	else if(m_level == 37) //750 000
 		m_neededxp = 5250000;
-	else if (m_level == 38)					//850 000			spawn weapons
+	else if(m_level == 38) //850 000			spawn weapons
 		m_neededxp = 6100000;
-	else if (m_level == 39)					//900 000
+	else if(m_level == 39) //900 000
 		m_neededxp = 7000000;
-	else if (m_level == 40)					//1 000 000			Police[4]		homing missels
+	else if(m_level == 40) //1 000 000			Police[4]		homing missels
 		m_neededxp = 8000000;
-	else if (m_level == 41)					//1 000 000
+	else if(m_level == 41) //1 000 000
 		m_neededxp = 9000000;
-	else if (m_level == 42)					//1 000 000
+	else if(m_level == 42) //1 000 000
 		m_neededxp = 10000000;
-	else if (m_level == 43)					//1 000 000
+	else if(m_level == 43) //1 000 000
 		m_neededxp = 11000000;
-	else if (m_level == 44)					//1 000 000
+	else if(m_level == 44) //1 000 000
 		m_neededxp = 12000000;
-	else if (m_level == 45)					//1 000 000
+	else if(m_level == 45) //1 000 000
 		m_neededxp = 13000000;
-	else if (m_level == 46)					//1 000 000
+	else if(m_level == 46) //1 000 000
 		m_neededxp = 14000000;
-	else if (m_level == 47)					//1 000 000
+	else if(m_level == 47) //1 000 000
 		m_neededxp = 15000000;
-	else if (m_level == 48)					//1 000 000
+	else if(m_level == 48) //1 000 000
 		m_neededxp = 16000000;
-	else if (m_level == 49)					//1 000 000
+	else if(m_level == 49) //1 000 000
 		m_neededxp = 17000000;
-	else if (m_level == 50)					//1 000 000			Police[5]		'/jail arrest <time>' hammer command
+	else if(m_level == 50) //1 000 000			Police[5]		'/jail arrest <time>' hammer command
 		m_neededxp = 18000000;
-	else if (m_level == 51)					//1 000 000
+	else if(m_level == 51) //1 000 000
 		m_neededxp = 19000000;
-	else if (m_level == 52)					//1 000 000
+	else if(m_level == 52) //1 000 000
 		m_neededxp = 20000000;
-	else if (m_level == 53)					//1 000 000
+	else if(m_level == 53) //1 000 000
 		m_neededxp = 21000000;
-	else if (m_level == 54)					//1 000 000
+	else if(m_level == 54) //1 000 000
 		m_neededxp = 22000000;
-	else if (m_level == 55)					//1 000 000
+	else if(m_level == 55) //1 000 000
 		m_neededxp = 23000000;
-	else if (m_level == 56)					//1 000 000
+	else if(m_level == 56) //1 000 000
 		m_neededxp = 24000000;
-	else if (m_level == 57)					//1 000 000
+	else if(m_level == 57) //1 000 000
 		m_neededxp = 25000000;
-	else if (m_level == 58)					//1 000 000
+	else if(m_level == 58) //1 000 000
 		m_neededxp = 26000000;
-	else if (m_level == 59)					//1 000 000
+	else if(m_level == 59) //1 000 000
 		m_neededxp = 27000000;
-	else if (m_level == 60)					//1 000 000
+	else if(m_level == 60) //1 000 000
 		m_neededxp = 28000000;
-	else if (m_level == 61)					//1 000 000
+	else if(m_level == 61) //1 000 000
 		m_neededxp = 29000000;
-	else if (m_level == 62)					//1 000 000
+	else if(m_level == 62) //1 000 000
 		m_neededxp = 30000000;
-	else if (m_level == 63)					//1 000 000
+	else if(m_level == 63) //1 000 000
 		m_neededxp = 31000000;
-	else if (m_level == 64)					//1 000 000
+	else if(m_level == 64) //1 000 000
 		m_neededxp = 32000000;
-	else if (m_level == 65)					//1 000 000
+	else if(m_level == 65) //1 000 000
 		m_neededxp = 33000000;
-	else if (m_level == 66)					//1 000 000
+	else if(m_level == 66) //1 000 000
 		m_neededxp = 34000000;
-	else if (m_level == 67)					//1 000 000
+	else if(m_level == 67) //1 000 000
 		m_neededxp = 35000000;
-	else if (m_level == 68)					//1 000 000
+	else if(m_level == 68) //1 000 000
 		m_neededxp = 36000000;
-	else if (m_level == 69)					//1 000 000
+	else if(m_level == 69) //1 000 000
 		m_neededxp = 37000000;
-	else if (m_level == 70)					//1 000 000
+	else if(m_level == 70) //1 000 000
 		m_neededxp = 38000000;
-	else if (m_level == 71)					//1 000 000
+	else if(m_level == 71) //1 000 000
 		m_neededxp = 39000000;
-	else if (m_level == 72)					//1 000 000
+	else if(m_level == 72) //1 000 000
 		m_neededxp = 40000000;
-	else if (m_level == 73)					//1 010 000
+	else if(m_level == 73) //1 010 000
 		m_neededxp = 41010000;
-	else if (m_level == 74)					//1 010 000
+	else if(m_level == 74) //1 010 000
 		m_neededxp = 42020000;
-	else if (m_level == 75)					//1 010 000
+	else if(m_level == 75) //1 010 000
 		m_neededxp = 43030000;
-	else if (m_level == 76)					//1 010 000
+	else if(m_level == 76) //1 010 000
 		m_neededxp = 44040000;
-	else if (m_level == 77)					//1 010 000
+	else if(m_level == 77) //1 010 000
 		m_neededxp = 45050000;
-	else if (m_level == 78)					//1 010 000
+	else if(m_level == 78) //1 010 000
 		m_neededxp = 46060000;
-	else if (m_level == 79)					//1 010 000
+	else if(m_level == 79) //1 010 000
 		m_neededxp = 47070000;
-	else if (m_level == 80)					//1 010 000
+	else if(m_level == 80) //1 010 000
 		m_neededxp = 48080000;
-	else if (m_level == 81)					//1 010 000
+	else if(m_level == 81) //1 010 000
 		m_neededxp = 49090000;
-	else if (m_level == 82)					//1 010 000
+	else if(m_level == 82) //1 010 000
 		m_neededxp = 50100000;
-	else if (m_level == 83)					//1 010 000
+	else if(m_level == 83) //1 010 000
 		m_neededxp = 51110000;
-	else if (m_level == 84)					//1 010 000
+	else if(m_level == 84) //1 010 000
 		m_neededxp = 52120000;
-	else if (m_level == 85)					//1 010 000
+	else if(m_level == 85) //1 010 000
 		m_neededxp = 53130000;
-	else if (m_level == 86)					//1 010 000
+	else if(m_level == 86) //1 010 000
 		m_neededxp = 54140000;
-	else if (m_level == 87)					//1 010 000
+	else if(m_level == 87) //1 010 000
 		m_neededxp = 55150000;
-	else if (m_level == 88)					//1 010 000
+	else if(m_level == 88) //1 010 000
 		m_neededxp = 56160000;
-	else if (m_level == 89)					//1 010 000
+	else if(m_level == 89) //1 010 000
 		m_neededxp = 57170000;
-	else if (m_level == 90)					//1 010 000
+	else if(m_level == 90) //1 010 000
 		m_neededxp = 58180000;
-	else if (m_level == 91)					//1 010 000
+	else if(m_level == 91) //1 010 000
 		m_neededxp = 59190000;
-	else if (m_level == 92)					//1 010 000
+	else if(m_level == 92) //1 010 000
 		m_neededxp = 60200000;
-	else if (m_level == 93)					//1 100 000
+	else if(m_level == 93) //1 100 000
 		m_neededxp = 61300000;
-	else if (m_level == 94)					//1 100 000
+	else if(m_level == 94) //1 100 000
 		m_neededxp = 62400000;
-	else if (m_level == 95)					//1 100 000
+	else if(m_level == 95) //1 100 000
 		m_neededxp = 63500000;
-	else if (m_level == 96)					//1 100 000
+	else if(m_level == 96) //1 100 000
 		m_neededxp = 64600000;
-	else if (m_level == 97)					//1 100 000
+	else if(m_level == 97) //1 100 000
 		m_neededxp = 65700000;
-	else if (m_level == 98)					//1 100 000
+	else if(m_level == 98) //1 100 000
 		m_neededxp = 66800000;
-	else if (m_level == 99)					//1 100 000
+	else if(m_level == 99) //1 100 000
 		m_neededxp = 67900000;
-	else if (m_level == 100)				//12 100 000
+	else if(m_level == 100) //12 100 000
 		m_neededxp = 80000000;
-	else if (m_level == 101)				//20 000 000
+	else if(m_level == 101) //20 000 000
 		m_neededxp = 100000000;
-	else if (m_level == 102)				//20 000 000
+	else if(m_level == 102) //20 000 000
 		m_neededxp = 120000000;
-	else if (m_level == 103)				//20 000 000
+	else if(m_level == 103) //20 000 000
 		m_neededxp = 140000000;
-	else if (m_level == 104)				//20 000 000
+	else if(m_level == 104) //20 000 000
 		m_neededxp = 160000000;
-	else if (m_level == 105)				//20 000 000
+	else if(m_level == 105) //20 000 000
 		m_neededxp = 180000000;
-	else if (m_level == 106)				//20 000 000
+	else if(m_level == 106) //20 000 000
 		m_neededxp = 200000000;
-	else if (m_level == 107)				//20 000 000
+	else if(m_level == 107) //20 000 000
 		m_neededxp = 220000000;
-	else if (m_level == 108)				//20 000 000
+	else if(m_level == 108) //20 000 000
 		m_neededxp = 240000000;
-	else if (m_level == 109)				//20 000 000
+	else if(m_level == 109) //20 000 000
 		m_neededxp = 260000000;
 	else
-		m_neededxp = 404000000000000;    //404 error         
+		m_neededxp = 404000000000000; //404 error
 
 	// make sure to update ACC_MAX_LEVEL when adding more level (neededxp has only to be defined until max level - 1)
 
-	if (IsMaxLevel())
+	if(IsMaxLevel())
 	{
 		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
 		m_xp = OldNeededXp;
@@ -1016,38 +1012,37 @@ void CPlayer::CalcExp()
 
 void CPlayer::CheckLevel()
 {
-	if (!IsLoggedIn())
+	if(!IsLoggedIn())
 		return;
-	if (IsMaxLevel())
+	if(IsMaxLevel())
 		return;
 
-	if (m_neededxp <= 0)
+	if(m_neededxp <= 0)
 		CalcExp();
 
-	if (m_xp >= m_neededxp)
+	if(m_xp >= m_neededxp)
 	{
 		m_level++;
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", m_level);
-		GameServer()->SendChatTarget(m_ClientID, aBuf);  //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
+		GameServer()->SendChatTarget(m_ClientID, aBuf); //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
 		MoneyTransaction(+50, "level up");
 
 		CalcExp();
 	}
 }
 
-
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
 	m_money += Amount;
 #if defined(CONF_DEBUG)
-	if (m_money < 0)
+	if(m_money < 0)
 	{
 		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%lld", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
-	if (!str_comp(Description, ""))
+	if(!str_comp(Description, ""))
 		return;
 	char aDesc[64];
 	str_format(aDesc, sizeof(aDesc), "%s%d (%s)", Amount > 0 ? "+" : "", Amount, Description);
@@ -1065,12 +1060,12 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 
 bool CPlayer::IsInstagibMinigame()
 {
-	if (m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
+	if(m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
 }
 
-void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
+void CPlayer::ThreadLoginStart(const char *pUsername, const char *pPassword)
 {
 	m_LoginData.m_pGameContext = GameServer();
 	m_LoginData.m_LoginState = LOGIN_WAIT;
@@ -1080,10 +1075,10 @@ void CPlayer::ThreadLoginStart(const char * pUsername, const char * pPassword)
 	thread_init(*ThreadLoginWorker, &m_LoginData, "sql login"); //setzte die werte von pTmpPlayer
 }
 
-void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
+void CPlayer::ThreadLoginWorker(void *pArg) //is the actual thread
 {
-	struct CLoginData *pData = static_cast<struct CLoginData*>(pArg);
-	CGameContext *pGS = static_cast<CGameContext*>(pData->m_pGameContext);
+	struct CLoginData *pData = static_cast<struct CLoginData *>(pArg);
+	CGameContext *pGS = static_cast<CGameContext *>(pData->m_pGameContext);
 	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
 	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pData->m_aUsername, pData->m_aPassword);
 	CQueryLoginThreaded *pQuery = new CQueryLoginThreaded();
@@ -1096,7 +1091,7 @@ void CPlayer::ThreadLoginWorker(void * pArg) //is the actual thread
 
 void CPlayer::ThreadLoginDone() //get called every tick
 {
-	if (m_LoginData.m_LoginState != LOGIN_DONE)
+	if(m_LoginData.m_LoginState != LOGIN_DONE)
 		return;
 
 	//basic
@@ -1127,13 +1122,12 @@ void CPlayer::chidraqul3_GameTick()
 	//if (m_C3_GameState == 2) //multiplayer
 	//	return; //handled in gamecontext
 
-
-	if (g_Config.m_SvAllowChidraqul == 0)
+	if(g_Config.m_SvAllowChidraqul == 0)
 	{
 		GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
 		m_C3_GameState = false;
 	}
-	else if (g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
+	else if(g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
 	{
 		char aBuf[512];
 
@@ -1141,10 +1135,10 @@ void CPlayer::chidraqul3_GameTick()
 		m_minigame_world[0] = '\0';
 
 		//spawn gold
-		if (!m_GoldAlive)
+		if(!m_GoldAlive)
 		{
 			m_GoldPos = -1;
-			if (m_GoldRespawnDelay <= 0)
+			if(m_GoldRespawnDelay <= 0)
 			{
 				m_GoldPos = rand() % 25 + 1;
 				m_GoldAlive = true;
@@ -1158,24 +1152,20 @@ void CPlayer::chidraqul3_GameTick()
 
 		//Check for hittin stuff
 		//collecting gold
-		if (m_GoldPos == m_HashPos && m_HashPosY == 0)
+		if(m_GoldPos == m_HashPos && m_HashPosY == 0)
 		{
 			m_HashGold++;
 			m_GoldAlive = false;
 		}
 
-
-
-
-
 		//create world chararray
 		//y: 3
 		//y: 2
 		//y: 1
-		for (int i = 0; i < m_Minigameworld_size_x; i++)
+		for(int i = 0; i < m_Minigameworld_size_x; i++)
 		{
 			char create_world[126];
-			if (i == m_HashPos && m_HashPosY == 1)
+			if(i == m_HashPos && m_HashPosY == 1)
 			{
 				str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
 			}
@@ -1188,14 +1178,14 @@ void CPlayer::chidraqul3_GameTick()
 		}
 		str_format(m_minigame_world, sizeof(m_minigame_world), "%s\n", m_minigame_world);
 		//y: 0
-		for (int i = 0; i < m_Minigameworld_size_x; i++)
+		for(int i = 0; i < m_Minigameworld_size_x; i++)
 		{
 			char create_world[126];
-			if (i == m_HashPos && m_HashPosY == 0)
+			if(i == m_HashPos && m_HashPosY == 0)
 			{
 				str_format(create_world, sizeof(create_world), "%s", m_HashSkin);
 			}
-			else if (i == m_GoldPos)
+			else if(i == m_GoldPos)
 			{
 				str_format(create_world, sizeof(create_world), "$");
 			}
@@ -1213,77 +1203,76 @@ void CPlayer::chidraqul3_GameTick()
 		//print all
 		GameServer()->SendBroadcast(aBuf, m_ClientID);
 	}
-	else if (g_Config.m_SvAllowChidraqul == 2) //old hardcodet 
+	else if(g_Config.m_SvAllowChidraqul == 2) //old hardcodet
 	{
 		char aBuf[512];
 
-
-		if (m_HashPos == 0)
+		if(m_HashPos == 0)
 		{
 			str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 1)
+		else if(m_HashPos == 1)
 		{
 			str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 2)
+		else if(m_HashPos == 2)
 		{
 			str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 3)
+		else if(m_HashPos == 3)
 		{
 			str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 4)
+		else if(m_HashPos == 4)
 		{
 			str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 5)
+		else if(m_HashPos == 5)
 		{
 			str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 6)
+		else if(m_HashPos == 6)
 		{
 			str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 7)
+		else if(m_HashPos == 7)
 		{
 			str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 8)
+		else if(m_HashPos == 8)
 		{
 			str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 9)
+		else if(m_HashPos == 9)
 		{
 			str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
-		else if (m_HashPos == 10)
+		else if(m_HashPos == 10)
 		{
 			str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
 			GameServer()->SendBroadcast(aBuf, m_ClientID);
 		}
 	}
-	else if (g_Config.m_SvAllowChidraqul == 3) //next generation
+	else if(g_Config.m_SvAllowChidraqul == 3) //next generation
 	{
-		if (m_C3_UpdateFrame)
+		if(m_C3_UpdateFrame)
 		{
 			m_C3_UpdateFrame = false;
 			char aBuf[128];
 			char aHUD[64];
 			char aWorld[64]; //max world size
 
-			for (int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
+			for(int i = 0; i < g_Config.m_SvChidraqulWorldX; i++)
 			{
 				aWorld[i] = '_';
 			}
@@ -1296,7 +1285,7 @@ void CPlayer::chidraqul3_GameTick()
 
 			GameServer()->SendBroadcast(aWorld, m_ClientID, 0);
 		}
-		if (Server()->Tick() % 120 == 0)
+		if(Server()->Tick() % 120 == 0)
 		{
 			m_C3_UpdateFrame = true;
 		}
@@ -1305,7 +1294,7 @@ void CPlayer::chidraqul3_GameTick()
 
 bool CPlayer::JoinMultiplayer()
 {
-	if (GameServer()->C3_GetFreeSlots() > 0)
+	if(GameServer()->C3_GetFreeSlots() > 0)
 	{
 		GameServer()->SendChatTarget(GetCID(), "[chidraqul] joined multiplayer.");
 		m_C3_UpdateFrame = true;
@@ -1323,10 +1312,10 @@ void CPlayer::UpdateLastToucher(int ID)
 #endif
 	m_LastToucherID = ID;
 	m_LastTouchTicks = 0;
-	if (ID == -1)
+	if(ID == -1)
 		return;
 	CPlayer *pToucher = GameServer()->m_apPlayers[ID];
-	if (!pToucher)
+	if(!pToucher)
 		return;
 	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
 	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
@@ -1340,16 +1329,16 @@ void CPlayer::GiveBlockPoints(int Points)
 	char aBuf[128];
 	bool FlagBonus = false;
 
-	if (GetCharacter() && ((CGameControllerDDRace*)GameServer()->m_pController)->HasFlag(GetCharacter()) != -1) 
+	if(GetCharacter() && ((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GetCharacter()) != -1)
 	{
 		Points++;
 		FlagBonus = true;
 	}
 
 	m_BlockPoints += Points;
-	if (m_ShowBlockPoints)
+	if(m_ShowBlockPoints)
 	{
-		if (IsLoggedIn())
+		if(IsLoggedIn())
 		{
 			str_format(aBuf, sizeof(aBuf), "+%d point%s%s", Points, Points == 1 ? "" : "s", FlagBonus ? " (flag bonus)" : "");
 		}
@@ -1362,10 +1351,10 @@ void CPlayer::GiveBlockPoints(int Points)
 	}
 	else // chat info deactivated
 	{
-		if (IsLoggedIn())
+		if(IsLoggedIn())
 		{
 			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
-			if (m_BlockPoints == 5 || m_BlockPoints == 10)
+			if(m_BlockPoints == 5 || m_BlockPoints == 10)
 			{
 				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_BlockPoints);
 				GameServer()->SendChatTarget(GetCID(), aBuf);
@@ -1385,7 +1374,7 @@ void CPlayer::SetAccID(int ID)
 
 void CPlayer::GiveXP(int value)
 {
-	if (IsMaxLevel())
+	if(IsMaxLevel())
 		return;
 
 	m_xp += value;
