@@ -21,6 +21,9 @@ GameInfoFlags = [
 	"ENTITIES_VANILLA", "DONT_MASK_ENTITIES", "ENTITIES_BW"
 	# Full, use GameInfoFlags2 for more flags
 ]
+GameInfoFlags2 = [
+	"ALLOW_X_SKINS", "GAMETYPE_CITY",
+]
 ExPlayerFlags = ["AFK", "PAUSED", "SPEC"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
@@ -54,7 +57,7 @@ enum
 
 enum
 {
-	GAMEINFO_CURVERSION=4,
+	GAMEINFO_CURVERSION=5,
 };
 '''
 
@@ -76,6 +79,7 @@ Flags = [
 	Flags("GAMESTATEFLAG", GameStateFlags),
 	Flags("CHARACTERFLAG", CharacterFlags),
 	Flags("GAMEINFOFLAG", GameInfoFlags),
+	Flags("GAMEINFOFLAG2", GameInfoFlags2),
 	Flags("EXPLAYERFLAG", ExPlayerFlags),
 ]
 

@@ -749,10 +749,10 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_ENTITIES_RACE |
 		GAMEINFOFLAG_RACE;
 	pGameInfoEx->m_Flags2 = 0;
-	pGameInfoEx->m_Version = 6; /* TODO: use GAMEINFO_CURVERSION */;
 
 	if (pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
 		pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
 	if(Server()->IsSixup(SnappingClient))
 	{

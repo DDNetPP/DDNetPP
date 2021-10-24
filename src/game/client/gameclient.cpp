@@ -1009,14 +1009,21 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	{
 		Flags = pInfoEx->m_Flags;
 	}
+	int Flags2 = 0;
+	if(Version >= 5)
+	{
+		Flags2 = pInfoEx->m_Flags2;
+	}
 	bool Race;
 	bool FastCap;
 	bool FNG;
 	bool DDRace;
 	bool DDNet;
 	bool BlockWorlds;
+	bool City;
 	bool Vanilla;
 	bool Plus;
+	bool AllowXSkins = Flags2 & GAMEINFOFLAG2_ALLOW_X_SKINS;
 	if(Version < 1)
 	{
 		Race = IsRace(pFallbackServerInfo);
@@ -1025,6 +1032,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 		DDRace = IsDDRace(pFallbackServerInfo);
 		DDNet = IsDDNet(pFallbackServerInfo);
 		BlockWorlds = IsBlockWorlds(pFallbackServerInfo);
+		City = IsCity(pFallbackServerInfo);
 		Vanilla = IsVanilla(pFallbackServerInfo);
 		Plus = IsPlus(pFallbackServerInfo);
 	}
@@ -1038,6 +1046,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 		BlockWorlds = Flags&GAMEINFOFLAG_GAMETYPE_BLOCK_WORLDS;
 		Vanilla = Flags&GAMEINFOFLAG_GAMETYPE_VANILLA;
 		Plus = Flags&GAMEINFOFLAG_GAMETYPE_PLUS;
+		City = Flags2&GAMEINFOFLAG2_GAMETYPE_CITY;
 
 		// Ensure invariants upheld by the server info parsing business.
 		DDRace = DDRace || DDNet;
@@ -1050,9 +1059,9 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_UnlimitedAmmo = Race;
 	Info.m_DDRaceRecordMessage = DDRace && !DDNet;
 	Info.m_RaceRecordMessage = DDNet || (Race && !DDRace);
-	Info.m_AllowEyeWheel = DDRace || BlockWorlds || Plus;
+	Info.m_AllowEyeWheel = DDRace || BlockWorlds || City || Plus;
 	Info.m_AllowHookColl = DDRace;
-	Info.m_AllowZoom = Race || BlockWorlds;
+	Info.m_AllowZoom = Race || BlockWorlds || City;
 	Info.m_BugDDRaceGhost = DDRace;
 	Info.m_BugDDRaceInput = DDRace;
 	Info.m_BugFNGLaserRange = FNG;
@@ -1069,6 +1078,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_EntitiesBW = BlockWorlds;
 	Info.m_Race = Race;
 	Info.m_DontMaskEntities = !DDNet;
+	Info.m_AllowXSkins = AllowXSkins;
 
 	if(Version >= 0)
 	{
@@ -1199,7 +1209,7 @@ void CGameClient::OnNewSnapshot()
 					pClient->m_ColorFeet = pInfo->m_ColorFeet;
 
 					// prepare the info
-					if(pClient->m_aSkinName[0] == 'x' || pClient->m_aSkinName[1] == '_')
+					if(!m_GameInfo.m_AllowXSkins && (pClient->m_aSkinName[0] == 'x' || pClient->m_aSkinName[1] == '_'))
 						str_copy(pClient->m_aSkinName, "default", 64);
 
 					pClient->m_SkinInfo.m_ColorBody = color_cast<ColorRGBA>(ColorHSLA(pClient->m_ColorBody).UnclampLighting());
