@@ -2197,6 +2197,7 @@ if(SERVER)
     score.h
     teams.cpp
     teams.h
+    teams_ddpp.cpp
     teehistorian.cpp
     teehistorian.h
     teeinfo.cpp
