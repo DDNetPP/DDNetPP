@@ -1237,7 +1237,7 @@ void CServer::SendRconLineAuthed(const char *pLine, void *pUser, bool Highlighte
 	else
 	{
 		str_append(aLine, pLine, pStart - pLine + 1);
-		str_append(aLine, pStart + 2, pStart - pLine + pEnd - pStart - 2);
+		str_append(aLine, pStart + 2, pStart - pLine + pEnd - pStart - 1);
 		str_append(aLine, pEnd + 2, sizeof(aLine));
 
 		str_append(aLineWithoutIps, pLine, pStart - pLine + 1);
@@ -3164,8 +3164,6 @@ void CServer::ConLogout(IConsole::IResult *pResult, void *pUser)
 
 void CServer::ConShowIps(IConsole::IResult *pResult, void *pUser)
 {
-	if(!g_Config.m_SvUseSQL)
-		return;
 	CServer *pServer = (CServer *)pUser;
 
 	if(pServer->m_RconClientID >= 0 && pServer->m_RconClientID < MAX_CLIENTS &&

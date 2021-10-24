@@ -463,6 +463,23 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		DemolistOnUpdate(false);
 	}
 
+	// file button
+	ButtonBar.VSplitRight(Margins, &ButtonBar, 0);
+	ButtonBar.VSplitRight(ButtonbarHeight * 3, &ButtonBar, &Button);
+	static int s_FileButton = 0;
+	if(DoButton_DemoPlayer(&s_FileButton, Localize("File"), 0, &Button))
+	{
+		char aBuf[MAX_PATH_LENGTH];
+		char aBufFull[MAX_PATH_LENGTH + 7];
+		str_format(aBufFull, sizeof(aBufFull), "%s/%s", m_aCurrentDemoFolder, m_lDemos[m_DemolistSelectedIndex].m_aFilename);
+		Storage()->GetCompletePath(m_lDemos[m_DemolistSelectedIndex].m_StorageType, aBufFull, aBuf, sizeof(aBuf));
+		str_format(aBufFull, sizeof(aBufFull), "file://%s", aBuf);
+		if(!open_link(aBufFull))
+		{
+			dbg_msg("menus", "couldn't open link");
+		}
+	}
+
 	// toggle keyboard shortcuts button
 	ButtonBar.VSplitRight(Margins * 3, &ButtonBar, 0);
 	ButtonBar.VSplitRight(ButtonbarHeight, &ButtonBar, &Button);
@@ -509,25 +526,28 @@ static bool gs_ListBoxItemActivated;
 static bool gs_ListBoxClicked;
 
 void CMenus::UiDoListboxStart(const void *pID, const CUIRect *pRect, float RowHeight, const char *pTitle, const char *pBottomText, int NumItems,
-	int ItemsPerRow, int SelectedIndex, float ScrollValue)
+	int ItemsPerRow, int SelectedIndex, float ScrollValue, bool LogicOnly)
 {
 	CUIRect Scroll, Row;
 	CUIRect View = *pRect;
 	CUIRect Header, Footer;
 
-	// draw header
-	View.HSplitTop(ms_ListheaderHeight, &Header, &View);
-	RenderTools()->DrawUIRect(&Header, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_T, 5.0f);
-	UI()->DoLabel(&Header, pTitle, Header.h * ms_FontmodHeight, 0);
+	if(!LogicOnly)
+	{
+		// draw header
+		View.HSplitTop(ms_ListheaderHeight, &Header, &View);
+		RenderTools()->DrawUIRect(&Header, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_T, 5.0f);
+		UI()->DoLabel(&Header, pTitle, Header.h * ms_FontmodHeight, 0);
 
-	// draw footers
-	View.HSplitBottom(ms_ListheaderHeight, &View, &Footer);
-	RenderTools()->DrawUIRect(&Footer, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_B, 5.0f);
-	Footer.VSplitLeft(10.0f, 0, &Footer);
-	UI()->DoLabel(&Footer, pBottomText, Header.h * ms_FontmodHeight, 0);
+		// draw footers
+		View.HSplitBottom(ms_ListheaderHeight, &View, &Footer);
+		RenderTools()->DrawUIRect(&Footer, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_B, 5.0f);
+		Footer.VSplitLeft(10.0f, 0, &Footer);
+		UI()->DoLabel(&Footer, pBottomText, Header.h * ms_FontmodHeight, 0);
 
-	// background
-	RenderTools()->DrawUIRect(&View, ColorRGBA(0, 0, 0, 0.15f), 0, 0);
+		// background
+		RenderTools()->DrawUIRect(&View, ColorRGBA(0, 0, 0, 0.15f), 0, 0);
+	}
 
 	// prepare the scroll
 	View.VSplitRight(15, &View, &Scroll);
@@ -861,24 +881,29 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	MainView.Margin(10.0f, &MainView);
 
 #if defined(CONF_VIDEORECORDER)
-	CUIRect ButtonBar, RefreshRect, FetchRect, PlayRect, DeleteRect, RenameRect, RenderRect, LabelRect, ListBox;
-#else
-	CUIRect ButtonBar, RefreshRect, FetchRect, PlayRect, DeleteRect, RenameRect, LabelRect, ListBox;
+	CUIRect RenderRect;
 #endif
-	MainView.HSplitBottom(ms_ButtonHeight + 5.0f, &MainView, &ButtonBar);
+	CUIRect ButtonBar, RefreshRect, FetchRect, PlayRect, DeleteRect, RenameRect, LabelRect, ListBox;
+	CUIRect ButtonBar2, DirectoryButton;
+
+	MainView.HSplitBottom((ms_ButtonHeight + 5.0f) * 2.0f, &MainView, &ButtonBar2);
+	ButtonBar2.HSplitTop(5.0f, 0, &ButtonBar2);
+	ButtonBar2.HSplitTop(ms_ButtonHeight, &ButtonBar2, &ButtonBar);
 	ButtonBar.HSplitTop(5.0f, 0, &ButtonBar);
+	ButtonBar2.VSplitLeft(110.0f, &FetchRect, &ButtonBar2);
+	ButtonBar2.VSplitLeft(10.0f, 0, &ButtonBar2);
+	ButtonBar2.VSplitLeft(230.0f, &DirectoryButton, &ButtonBar2);
+	ButtonBar2.VSplitLeft(10.0f, 0, &ButtonBar2);
 	ButtonBar.VSplitRight(110.0f, &ButtonBar, &PlayRect);
 	ButtonBar.VSplitLeft(110.0f, &RefreshRect, &ButtonBar);
-	ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
-	ButtonBar.VSplitLeft(110.0f, &FetchRect, &ButtonBar);
 	ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 	ButtonBar.VSplitLeft(110.0f, &DeleteRect, &ButtonBar);
 	ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 	ButtonBar.VSplitLeft(110.0f, &RenameRect, &ButtonBar);
 	ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 #if defined(CONF_VIDEORECORDER)
-	ButtonBar.VSplitLeft(110.0f, &RenderRect, &ButtonBar);
-	ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
+	ButtonBar2.VSplitRight(110.0f, &ButtonBar2, &RenderRect);
+	ButtonBar2.VSplitRight(10.0f, &ButtonBar2, 0);
 #endif
 	ButtonBar.VSplitLeft(110.0f, &LabelRect, &ButtonBar);
 	MainView.HSplitBottom(140.0f, &ListBox, &MainView);
@@ -1309,6 +1334,19 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		}
 	}
 
+	if(DoButton_Menu(&DirectoryButton, Localize("Demos directory"), 0, &DirectoryButton))
+	{
+		char aBuf[MAX_PATH_LENGTH];
+		char aBufFull[MAX_PATH_LENGTH + 7];
+		Storage()->GetCompletePath(IStorage::TYPE_SAVE, "demos", aBuf, sizeof(aBuf));
+		Storage()->CreateFolder("demos", IStorage::TYPE_SAVE);
+		str_format(aBufFull, sizeof(aBufFull), "file://%s", aBuf);
+		if(!open_link(aBufFull))
+		{
+			dbg_msg("menus", "couldn't open link");
+		}
+	}
+
 	if(!m_DemolistSelectedIsDir)
 	{
 		static int s_DeleteButton = 0;
@@ -1349,9 +1387,5 @@ void CMenus::RenderDemoList(CUIRect MainView)
 #endif
 	}
 
-#if defined(CONF_VIDEORECORDER)
-	// Doesn't always fit, not so important to show
-	if(PlayRect.x > 725)
-#endif
-		UI()->DoLabelScaled(&LabelRect, aFooterLabel, 14.0f, -1);
+	UI()->DoLabelScaled(&LabelRect, aFooterLabel, 14.0f, -1);
 }

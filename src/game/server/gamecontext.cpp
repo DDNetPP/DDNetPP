@@ -17,14 +17,11 @@
 #include <game/gamecore.h>
 #include <game/server/entities/flag.h>
 #include <new>
-/*#include "gamemodes/dm.h"
-#include "gamemodes/ctf.h"
-#include "gamemodes/mod.h"
-#include "gamemodes/tdm.h"*/
 
 #include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
 #include <engine/server/server.h> // ddpp
 #include <stdio.h>
+
 #include <string.h>
 
 #include <game/generated/protocol7.h>
@@ -348,7 +345,6 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 
 		StartVote(pDesc, pCmd, pReason, pSixupDesc);
 		m_VoteCreator = ClientID;
-		m_LastVoteCallAll = Now;
 	}
 	else
 	{
@@ -360,10 +356,10 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 		if(!pSixupDesc)
 			pSixupDesc = pDesc;
 
+		m_VoteCreator = ClientID;
 		StartVote(pDesc, pCmd, pReason, pSixupDesc);
 		pPlayer->m_Vote = 1;
 		pPlayer->m_VotePos = m_VotePos = 1;
-		m_VoteCreator = ClientID;
 		pPlayer->m_LastVoteCall = Now;
 	}
 }
