@@ -2031,6 +2031,7 @@ if(SERVER)
     gamecontroller.h
     gamemodes/DDRace.cpp
     gamemodes/DDRace.h
+    gamemodes/DDRace_ddpp.cpp
     gamemodes/ctf.cpp
     gamemodes/gamemode.h
     gameworld.cpp

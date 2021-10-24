@@ -53,10 +53,8 @@ private:
 	bool m_MoveMode;
 	bool m_LeftMM;
 
-	int m_DummyFinishes;
 
 	bool m_DummyShowRank;
-	bool m_DummyFinished;
 	bool m_DummyFreezed;
 	bool m_DummyHammer;
 
@@ -73,6 +71,8 @@ private:
 	bool m_WeaponsBackupped;
 
 public:
+	bool m_DummyFinished;
+	int m_DummyFinishes;
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };

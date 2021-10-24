@@ -1460,7 +1460,7 @@ void CGameContext::SaveMapPlayerData()
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
 		CSaveTee savetee;
-		savetee.save(pChr);
+		savetee.Save(pChr);
 		fwrite(&savetee, sizeof(savetee), 1, pFile);
 
 		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_TimeoutCode);
@@ -1566,7 +1566,7 @@ void CGameContext::LoadMapPlayerData()
 			CPlayer *pPlayer = m_apPlayers[id];
 			CCharacter *pChr = pPlayer->GetCharacter();
 
-			savetee.load(pChr, 0); // load to team0 always xd cuz teams sokk!
+			savetee.Load(pChr, 0); // load to team0 always xd cuz teams sokk!
 
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;

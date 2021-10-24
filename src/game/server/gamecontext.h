@@ -613,7 +613,7 @@ public:
 	int TradeHasItem(int ItemID, int ID);
 
 	// DDRace
-	void OnClientDDNetVersionKnown(int ClientID);
+	bool OnClientDDNetVersionKnown(int ClientID);
 	virtual void FillAntibot(CAntibotRoundData *pData);
 	int ProcessSpamProtection(int ClientID);
 	int GetDDRaceTeam(int ClientID);
