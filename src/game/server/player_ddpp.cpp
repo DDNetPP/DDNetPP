@@ -8,6 +8,13 @@
 
 #include "player.h"
 
+void CPlayer::FixForNoName(int ID)
+{
+	m_FixNameID = ID; // 0 for just to display the name in the right moment (e.g. kill msg killer)
+	m_SetRealName = true;
+	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
+}
+
 void CPlayer::ResetDDPP()
 {
 	/*****************************
