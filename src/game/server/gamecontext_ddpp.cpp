@@ -2152,7 +2152,8 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
 	}
 
-	OnClientEnter(DummyID, silent);
+	#pragma message "add back silent arg"
+	OnClientEnter(DummyID);
 
 	return DummyID;
 }

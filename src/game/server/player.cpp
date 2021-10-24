@@ -147,6 +147,7 @@ void CPlayer::Reset()
 	m_NotEligibleForFinish = false;
 	m_EligibleForFinishCheck = 0;
 	m_VotedForPractice = false;
+	m_SwapTargetsClientID = -1;
 }
 
 static int PlayerFlags_SevenToSix(int Flags)
@@ -841,7 +842,7 @@ void CPlayer::OverrideDefaultEmote(int Emote, int Tick)
 
 bool CPlayer::CanOverrideDefaultEmote() const
 {
-	return m_LastEyeEmote == 0 || m_LastEyeEmote + (int64_t)g_Config.m_SvEyeEmoteChangeDelay * Server()->TickSpeed() < Server()->Tick();
+	return m_LastEyeEmote == 0 || m_LastEyeEmote + (int64)g_Config.m_SvEyeEmoteChangeDelay * Server()->TickSpeed() < Server()->Tick();
 }
 
 void CPlayer::ProcessPause()
@@ -878,7 +879,7 @@ int CPlayer::Pause(int State, bool Force)
 		case PAUSE_NONE:
 			if(m_pCharacter->IsPaused()) // First condition might be unnecessary
 			{
-				if(!Force && m_LastPause && m_LastPause + (int64_t)g_Config.m_SvSpecFrequency * Server()->TickSpeed() > Server()->Tick())
+				if(!Force && m_LastPause && m_LastPause + (int64)g_Config.m_SvSpecFrequency * Server()->TickSpeed() > Server()->Tick())
 				{
 					GameServer()->SendChatTarget(m_ClientID, "Can't /spec that quickly.");
 					return m_Paused; // Do not update state. Do not collect $200
@@ -969,13 +970,21 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 			}
 			break;
 		case CScorePlayerResult::ALL:
+		{
+			bool PrimaryMessage = true;
 			for(auto &aMessage : Result.m_Data.m_aaMessages)
 			{
 				if(aMessage[0] == 0)
 					break;
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, m_ClientID);
+
+				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
+					break;
+
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
+				PrimaryMessage = false;
 			}
 			break;
+		}
 		case CScorePlayerResult::BROADCAST:
 			if(Result.m_Data.m_Broadcast[0] != 0)
 				GameServer()->SendBroadcast(Result.m_Data.m_Broadcast, -1);

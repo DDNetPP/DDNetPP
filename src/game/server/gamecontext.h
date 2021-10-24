@@ -25,14 +25,6 @@
 
 #include <memory>
 
-#ifdef _MSC_VER
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
-#else
-#include <stdint.h>
-#endif
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -134,6 +126,11 @@ class CGameContext : public IGameServer
 	static int MapScan(const char *pName, int IsDir, int DirType, void *pUserData);
 
 	bool m_Resetting;
+
+	struct CPersistentClientData
+	{
+		bool m_IsSpectator;
+	};
 
 public:
 	IServer *Server() const { return m_pServer; }
@@ -260,9 +257,10 @@ public:
 	void CensorMessage(char *pCensoredMessage, const char *pMessage, int Size);
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
-	virtual void OnClientConnected(int ClientID);
-	virtual void OnClientEnter(int ClientID, bool silent = false);
-	virtual void OnClientDrop(int ClientID, const char *pReason, bool silent = false);
+	virtual bool OnClientDataPersist(int ClientID, void *pData);
+	virtual void OnClientConnected(int ClientID, void *pData);
+	virtual void OnClientEnter(int ClientID);
+	virtual void OnClientDrop(int ClientID, const char *pReason);
 	virtual void OnClientDirectInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput);
@@ -270,13 +268,14 @@ public:
 	virtual void OnClientEngineJoin(int ClientID, bool Sixup);
 	virtual void OnClientEngineDrop(int ClientID, const char *pReason);
 
-	virtual bool IsClientReady(int ClientID);
-	virtual bool IsClientPlayer(int ClientID);
+	virtual bool IsClientReady(int ClientID) const;
+	virtual bool IsClientPlayer(int ClientID) const;
+	virtual int PersistentClientDataSize() const { return sizeof(CPersistentClientData); }
 
-	virtual CUuid GameUuid();
-	virtual const char *GameType();
-	virtual const char *Version();
-	virtual const char *NetVersion();
+	virtual CUuid GameUuid() const;
+	virtual const char *GameType() const;
+	virtual const char *Version() const;
+	virtual const char *NetVersion() const;
 
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
@@ -620,10 +619,10 @@ public:
 	// Describes the time when the first player joined the server.
 	int64 m_NonEmptySince;
 	int64 m_LastMapVote;
-	int GetClientVersion(int ClientID);
-	bool PlayerExists(int ClientID) { return m_apPlayers[ClientID]; };
+	int GetClientVersion(int ClientID) const;
+	bool PlayerExists(int ClientID) const { return m_apPlayers[ClientID]; }
 	// Returns true if someone is actively moderating.
-	bool PlayerModerating();
+	bool PlayerModerating() const;
 	void ForceVote(int EnforcerID, bool Success);
 
 	CSql *m_Database;
@@ -864,7 +863,7 @@ private:
 	static void ConToggleSpecVoted(IConsole::IResult *pResult, void *pUserData);
 	static void ConForcePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConTeamTop5(IConsole::IResult *pResult, void *pUserData);
-	static void ConTop5(IConsole::IResult *pResult, void *pUserData);
+	static void ConTop(IConsole::IResult *pResult, void *pUserData);
 	static void ConPoints(IConsole::IResult *pResult, void *pUserData);
 	static void ConTimes(IConsole::IResult *pResult, void *pUserData);
 	static void ConTopPoints(IConsole::IResult *pResult, void *pUserData);
@@ -874,6 +873,7 @@ private:
 	static void ConMapInfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConTimeout(IConsole::IResult *pResult, void *pUserData);
 	static void ConPractice(IConsole::IResult *pResult, void *pUserData);
+	static void ConSwap(IConsole::IResult *pResult, void *pUserData);
 	static void ConSave(IConsole::IResult *pResult, void *pUserData);
 	static void ConLoad(IConsole::IResult *pResult, void *pUserData);
 	static void ConMap(IConsole::IResult *pResult, void *pUserData);
@@ -1191,7 +1191,7 @@ public:
 	inline bool IsSpecVote() const { return m_VoteType == VOTE_TYPE_SPECTATE; };
 
 	void SendRecord(int ClientID);
-	static void SendChatResponse(const char *pLine, void *pUser, bool Highlighted = false);
+	static void SendChatResponse(const char *pLine, void *pUser, ColorRGBA PrintColor = {1, 1, 1, 1});
 	static void SendChatResponseAll(const char *pLine, void *pUser);
 	virtual void OnSetAuthed(int ClientID, int Level);
 	virtual bool PlayerCollision();

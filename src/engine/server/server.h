@@ -180,6 +180,9 @@ public:
 
 		const IConsole::CCommandInfo *m_pRconCmdToSend;
 
+		bool m_HasPersistentData;
+		void *m_pPersistentData;
+
 		void Reset();
 
 		// DDRace
@@ -288,21 +291,21 @@ public:
 	int Init();
 
 	void SetRconCID(int ClientID);
-	int GetAuthedState(int ClientID);
-	const char *GetAuthName(int ClientID);
+	int GetAuthedState(int ClientID) const;
+	const char *GetAuthName(int ClientID) const;
 	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pMapSha256, int *pMapCrc);
-	int GetClientInfo(int ClientID, CClientInfo *pInfo);
+	int GetClientInfo(int ClientID, CClientInfo *pInfo) const;
 	void SetClientDDNetVersion(int ClientID, int DDNetVersion);
-	void GetClientAddr(int ClientID, char *pAddrStr, int Size);
-	const char *ClientName(int ClientID);
-	const char *ClientClan(int ClientID);
-	int ClientCountry(int ClientID);
-	bool ClientIngame(int ClientID);
-	bool ClientAuthed(int ClientID);
+	void GetClientAddr(int ClientID, char *pAddrStr, int Size) const;
+	const char *ClientName(int ClientID) const;
+	const char *ClientClan(int ClientID) const;
+	int ClientCountry(int ClientID) const;
+	bool ClientIngame(int ClientID) const;
+	bool ClientAuthed(int ClientID) const;
 	int Port() const;
 	int MaxClients() const;
-	int ClientCount();
-	int DistinctClientCount();
+	int ClientCount() const;
+	int DistinctClientCount() const;
 
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false);
 	int SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System);
@@ -321,7 +324,7 @@ public:
 	void SendMapData(int ClientID, int Chunk);
 	void SendConnectionReady(int ClientID);
 	void SendRconLine(int ClientID, const char *pLine);
-	static void SendRconLineAuthed(const char *pLine, void *pUser, bool Highlighted = false);
+	static void SendRconLineAuthed(const char *pLine, void *pUser, ColorRGBA PrintColor = {1, 1, 1, 1});
 
 	void SendRconCmdAdd(const IConsole::CCommandInfo *pCommandInfo, int ClientID);
 	void SendRconCmdRem(const IConsole::CCommandInfo *pCommandInfo, int ClientID);
@@ -365,7 +368,7 @@ public:
 
 	void PumpNetwork(bool PacketWaiting);
 
-	char *GetMapName();
+	char *GetMapName() const;
 	int LoadMap(const char *pMapName);
 
 	void SaveDemo(int ClientID, float Time);
@@ -433,7 +436,7 @@ public:
 
 	// DDRace
 
-	void GetClientAddr(int ClientID, NETADDR *pAddr);
+	void GetClientAddr(int ClientID, NETADDR *pAddr) const;
 	int m_aPrevStates[MAX_CLIENTS];
 	const char *GetAnnouncementLine(char const *pFileName);
 	unsigned m_AnnouncementLastLine;

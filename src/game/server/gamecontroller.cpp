@@ -476,6 +476,19 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	return false;
 }
 
+void IGameController::OnPlayerConnect(CPlayer *pPlayer)
+{
+	int ClientID = pPlayer->GetCID();
+	pPlayer->Respawn();
+
+	if(!Server()->ClientPrevIngame(ClientID))
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), pPlayer->GetTeam());
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	}
+}
+
 void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason)
 {
 	pPlayer->OnDisconnect();
@@ -563,9 +576,6 @@ void IGameController::OnReset()
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
-	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "KILL");
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "pkiller %d", pKiller);
-
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
 	if(pKiller == pVictim->GetPlayer())

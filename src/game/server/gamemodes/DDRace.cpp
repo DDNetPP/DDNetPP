@@ -1,13 +1,18 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 /* Based on Race mod stuff and tweaked by GreYFoX@GTi and others to fit our DDRace needs. */
 #include "DDRace.h"
-#include "gamemode.h"
+
 #include <engine/server.h>
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
 #include <game/server/gamecontext.h>
+#include <game/server/player.h>
+#include <game/version.h>
+
+#define GAME_TYPE_NAME "DDraceNetwork"
+#define TEST_TYPE_NAME "TestDDraceNetwork"
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer), m_Teams(pGameServer), m_pInitResult(nullptr)
@@ -17,7 +22,7 @@ CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 
 	m_GameFlags = GAMEFLAG_FLAGS;
 
-	m_pGameType = g_Config.m_SvTestingCommands ? TEST_NAME : GAME_NAME;
+	m_pGameType = g_Config.m_SvTestingCommands ? TEST_TYPE_NAME : GAME_TYPE_NAME;
 
 	InitTeleporter();
 }
@@ -178,6 +183,11 @@ CGameControllerDDRace::~CGameControllerDDRace()
 	// Nothing to clean
 }
 
+CScore *CGameControllerDDRace::Score()
+{
+	return GameServer()->Score();
+}
+
 void CGameControllerDDRace::OnCharacterSpawn(CCharacter *pChr)
 {
 	IGameController::OnCharacterSpawn(pChr);
@@ -267,6 +277,50 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		pChr->SetSolo(false);
 	}
 	HandleCharacterTilesDDPP(pChr, m_TileIndex, m_TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4);
+}
+
+void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
+{
+	IGameController::OnPlayerConnect(pPlayer);
+	int ClientID = pPlayer->GetCID();
+
+	// init the player
+	Score()->PlayerData(ClientID)->Reset();
+	pPlayer->m_Score = Score()->PlayerData(ClientID)->m_BestTime ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
+
+	// Can't set score here as LoadScore() is threaded, run it in
+	// LoadScoreThreaded() instead
+	Score()->LoadPlayerData(ClientID);
+
+	#pragma message "add back silent"
+	bool silent = false;
+	if(!Server()->ClientPrevIngame(ClientID))
+	{
+		char aBuf[512];
+		if(!silent)
+		{
+			if(GameServer()->ShowJoinMessage(ClientID))
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+			}
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			}
+		}
+		if(g_Config.m_SvInstagibMode)
+		{
+			GameServer()->SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSION ") based on DDNet " GAME_RELEASE_VERSION);
+		}
+		else
+		{
+			char aWelcome[128];
+			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
+			GameServer()->SendChatTarget(ClientID, aWelcome);
+		}
+	}
 }
 
 void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pReason)

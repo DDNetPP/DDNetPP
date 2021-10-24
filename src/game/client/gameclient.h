@@ -383,11 +383,11 @@ public:
 
 	void OnLanguageChange();
 
-	virtual const char *GetItemName(int Type);
-	virtual const char *Version();
-	virtual const char *NetVersion();
-	virtual int DDNetVersion();
-	virtual const char *DDNetVersionStr();
+	virtual const char *GetItemName(int Type) const;
+	virtual const char *Version() const;
+	virtual const char *NetVersion() const;
+	virtual int DDNetVersion() const;
+	virtual const char *DDNetVersionStr() const;
 
 	// actions
 	// TODO: move these
@@ -451,6 +451,7 @@ public:
 	CGameWorld m_PredictedWorld;
 	CGameWorld m_PrevPredictedWorld;
 
+	void DummyResetInput();
 	void Echo(const char *pString);
 	bool IsOtherTeam(int ClientID);
 	bool CanDisplayWarning();

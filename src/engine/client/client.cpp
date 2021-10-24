@@ -77,6 +77,9 @@
 #undef main
 #endif
 
+static const ColorRGBA ClientNetworkPrintColor{0.7f, 1, 0.7f, 1.0f};
+static const ColorRGBA ClientNetworkErrPrintColor{1.0f, 0.25f, 0.25f, 1.0f};
+
 void CGraph::Init(float Min, float Max)
 {
 	m_Min = Min;
@@ -478,7 +481,7 @@ void CClient::Rcon(const char *pCmd)
 	SendMsg(&Msg, MSGFLAG_VITAL);
 }
 
-bool CClient::ConnectionProblems()
+bool CClient::ConnectionProblems() const
 {
 	return m_NetClient[g_Config.m_ClDummy].GotProblems() != 0;
 }
@@ -543,13 +546,13 @@ void CClient::SendInput()
 	}
 }
 
-const char *CClient::LatestVersion()
+const char *CClient::LatestVersion() const
 {
 	return m_aVersionStr;
 }
 
 // TODO: OPT: do this a lot smarter!
-int *CClient::GetInput(int Tick, int IsDummy)
+int *CClient::GetInput(int Tick, int IsDummy) const
 {
 	int Best = -1;
 	const int d = IsDummy ^ g_Config.m_ClDummy;
@@ -564,7 +567,7 @@ int *CClient::GetInput(int Tick, int IsDummy)
 	return 0;
 }
 
-int *CClient::GetDirectInput(int Tick, int IsDummy)
+int *CClient::GetDirectInput(int Tick, int IsDummy) const
 {
 	const int d = IsDummy ^ g_Config.m_ClDummy;
 	for(int i = 0; i < 200; i++)
@@ -709,7 +712,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 		str_copy(m_aServerAddressStr, pAddress, sizeof(m_aServerAddressStr));
 
 	str_format(aBuf, sizeof(aBuf), "connecting to '%s'", m_aServerAddressStr);
-	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ClientNetworkPrintColor);
 	bool is_websocket = false;
 	if(strncmp(m_aServerAddressStr, "ws://", 5) == 0)
 	{
@@ -764,7 +767,7 @@ void CClient::DisconnectWithReason(const char *pReason)
 {
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "disconnecting. reason='%s'", pReason ? pReason : "unknown");
-	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ClientNetworkPrintColor);
 
 	// stop demo playback and recorder
 	m_DemoPlayer.Stop();
@@ -899,7 +902,7 @@ int CClient::SendMsgY(CMsgPacker *pMsg, int Flags, int NetClient)
 	return 0;
 }
 
-void CClient::GetServerInfo(CServerInfo *pServerInfo)
+void CClient::GetServerInfo(CServerInfo *pServerInfo) const
 {
 	mem_copy(pServerInfo, &m_CurrentServerInfo, sizeof(m_CurrentServerInfo));
 
@@ -921,7 +924,7 @@ int CClient::LoadData()
 
 // ---
 
-void *CClient::SnapGetItem(int SnapID, int Index, CSnapItem *pItem)
+void *CClient::SnapGetItem(int SnapID, int Index, CSnapItem *pItem) const
 {
 	CSnapshotItem *i;
 	dbg_assert(SnapID >= 0 && SnapID < NUM_SNAPSHOT_TYPES, "invalid SnapID");
@@ -932,7 +935,7 @@ void *CClient::SnapGetItem(int SnapID, int Index, CSnapItem *pItem)
 	return (void *)i->Data();
 }
 
-int CClient::SnapItemSize(int SnapID, int Index)
+int CClient::SnapItemSize(int SnapID, int Index) const
 {
 	dbg_assert(SnapID >= 0 && SnapID < NUM_SNAPSHOT_TYPES, "invalid SnapID");
 	return m_aSnapshots[g_Config.m_ClDummy][SnapID]->m_pAltSnap->GetItemSize(Index);
@@ -953,7 +956,7 @@ void CClient::SnapInvalidateItem(int SnapID, int Index)
 	}
 }
 
-void *CClient::SnapFindItem(int SnapID, int Type, int ID)
+void *CClient::SnapFindItem(int SnapID, int Type, int ID) const
 {
 	// TODO: linear search. should be fixed.
 	int i;
@@ -970,7 +973,7 @@ void *CClient::SnapFindItem(int SnapID, int Type, int ID)
 	return 0x0;
 }
 
-int CClient::SnapNumItems(int SnapID)
+int CClient::SnapNumItems(int SnapID) const
 {
 	dbg_assert(SnapID >= 0 && SnapID < NUM_SNAPSHOT_TYPES, "invalid SnapID");
 	if(!m_aSnapshots[g_Config.m_ClDummy][SnapID])
@@ -1083,7 +1086,7 @@ void CClient::Quit()
 	SetState(IClient::STATE_QUITTING);
 }
 
-const char *CClient::PlayerName()
+const char *CClient::PlayerName() const
 {
 	if(g_Config.m_PlayerName[0])
 	{
@@ -1096,7 +1099,7 @@ const char *CClient::PlayerName()
 	return "nameless tee";
 }
 
-const char *CClient::DummyName()
+const char *CClient::DummyName() const
 {
 	if(g_Config.m_ClDummyName[0])
 	{
@@ -1113,13 +1116,14 @@ const char *CClient::DummyName()
 	}
 	if(pBase)
 	{
-		str_format(m_aDummyNameBuf, sizeof(m_aDummyNameBuf), "[D] %s", pBase);
-		return m_aDummyNameBuf;
+		static char aDummyNameBuf[16];
+		str_format(aDummyNameBuf, sizeof(aDummyNameBuf), "[D] %s", pBase);
+		return aDummyNameBuf;
 	}
 	return "brainless tee";
 }
 
-const char *CClient::ErrorString()
+const char *CClient::ErrorString() const
 {
 	return m_NetClient[CLIENT_MAIN].ErrorString();
 }
@@ -2563,7 +2567,7 @@ void CClient::PumpNetwork()
 			Disconnect();
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "offline error='%s'", m_NetClient[CLIENT_MAIN].ErrorString());
-			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ClientNetworkErrPrintColor);
 		}
 
 		if(State() != IClient::STATE_OFFLINE && State() < IClient::STATE_QUITTING && m_DummyConnected &&
@@ -2572,14 +2576,14 @@ void CClient::PumpNetwork()
 			DummyDisconnect(0);
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "offline dummy error='%s'", m_NetClient[CLIENT_DUMMY].ErrorString());
-			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ClientNetworkErrPrintColor);
 		}
 
 		//
 		if(State() == IClient::STATE_CONNECTING && m_NetClient[CLIENT_MAIN].State() == NETSTATE_ONLINE)
 		{
 			// we switched to online
-			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", "connected, sending info");
+			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", "connected, sending info", ClientNetworkPrintColor);
 			SetState(IClient::STATE_LOADING);
 			SendInfo();
 		}
@@ -3118,7 +3122,7 @@ void CClient::Run()
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "version %s", GameClient()->NetVersion());
-	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+	m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ColorRGBA{0.7f, 0.7f, 1, 1.0f});
 
 	// connect to the server if wanted
 	/*
@@ -3480,6 +3484,12 @@ void CClient::Con_DummyDisconnect(IConsole::IResult *pResult, void *pUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
 	pSelf->DummyDisconnect(0);
+}
+
+void CClient::Con_DummyResetInput(IConsole::IResult *pResult, void *pUserData)
+{
+	CClient *pSelf = (CClient *)pUserData;
+	pSelf->GameClient()->DummyResetInput();
 }
 
 void CClient::Con_Quit(IConsole::IResult *pResult, void *pUserData)
@@ -4084,11 +4094,20 @@ void CClient::LoadFont()
 
 		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);
 	}
+
+	char aBuff[1024];
+
 	if(!pDefaultFont)
-		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='%s'", pFontFile);
+	{
+		str_format(aBuff, sizeof(aBuff) / sizeof(aBuff[0]), "failed to load font. filename='%s'", pFontFile);
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuff);
+	}
 
 	if(!LoadedFallbackFont)
-		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load the fallback font. filename='%s'", pFallbackFontFile);
+	{
+		str_format(aBuff, sizeof(aBuff) / sizeof(aBuff[0]), "failed to load the fallback font. filename='%s'", pFallbackFontFile);
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuff);
+	}
 }
 
 void CClient::Notify(const char *pTitle, const char *pMessage)
@@ -4162,8 +4181,9 @@ void CClient::RegisterCommands()
 	m_pConsole->Register("stoprecord", "", CFGFLAG_SERVER, 0, 0, "Stop recording");
 	m_pConsole->Register("reload", "", CFGFLAG_SERVER, 0, 0, "Reload the map");
 
-	m_pConsole->Register("dummy_connect", "", CFGFLAG_CLIENT, Con_DummyConnect, this, "connect dummy");
-	m_pConsole->Register("dummy_disconnect", "", CFGFLAG_CLIENT, Con_DummyDisconnect, this, "disconnect dummy");
+	m_pConsole->Register("dummy_connect", "", CFGFLAG_CLIENT, Con_DummyConnect, this, "Connect dummy");
+	m_pConsole->Register("dummy_disconnect", "", CFGFLAG_CLIENT, Con_DummyDisconnect, this, "Disconnect dummy");
+	m_pConsole->Register("dummy_reset", "", CFGFLAG_CLIENT, Con_DummyResetInput, this, "Reset dummy");
 
 	m_pConsole->Register("quit", "", CFGFLAG_CLIENT | CFGFLAG_STORE, Con_Quit, this, "Quit Teeworlds");
 	m_pConsole->Register("exit", "", CFGFLAG_CLIENT | CFGFLAG_STORE, Con_Quit, this, "Quit Teeworlds");
@@ -4269,10 +4289,12 @@ int main(int argc, const char **argv) // ignore_convention
 		if(str_comp("-s", argv[i]) == 0 || str_comp("--silent", argv[i]) == 0) // ignore_convention
 		{
 			Silent = true;
+		}
+		else if(str_comp("-c", argv[i]) == 0 || str_comp("--console", argv[i]) == 0) // ignore_convention
+		{
 #if defined(CONF_FAMILY_WINDOWS)
-			FreeConsole();
+			AllocConsole();
 #endif
-			break;
 		}
 	}
 
@@ -4366,6 +4388,11 @@ int main(int argc, const char **argv) // ignore_convention
 		pConsole->ExecuteFile(CONFIG_FILE);
 	}
 
+#if defined(CONF_FAMILY_WINDOWS)
+	if(g_Config.m_ClShowConsole)
+		AllocConsole();
+#endif
+
 	// execute autoexec file
 	File = pStorage->OpenFile(AUTOEXEC_CLIENT_FILE, IOFLAG_READ, IStorage::TYPE_ALL);
 	if(File)
@@ -4407,11 +4434,6 @@ int main(int argc, const char **argv) // ignore_convention
 
 	pClient->Engine()->InitLogfile();
 
-#if defined(CONF_FAMILY_WINDOWS)
-	if(!g_Config.m_ClShowConsole)
-		FreeConsole();
-#endif
-
 	// run the client
 	dbg_msg("client", "starting...");
 	pClient->Run();
@@ -4435,22 +4457,22 @@ int main(int argc, const char **argv) // ignore_convention
 
 // DDRace
 
-const char *CClient::GetCurrentMap()
+const char *CClient::GetCurrentMap() const
 {
 	return m_aCurrentMap;
 }
 
-const char *CClient::GetCurrentMapPath()
+const char *CClient::GetCurrentMapPath() const
 {
 	return m_aCurrentMapPath;
 }
 
-SHA256_DIGEST CClient::GetCurrentMapSha256()
+SHA256_DIGEST CClient::GetCurrentMapSha256() const
 {
 	return m_pMap->Sha256();
 }
 
-unsigned CClient::GetCurrentMapCrc()
+unsigned CClient::GetCurrentMapCrc() const
 {
 	return m_pMap->Crc();
 }

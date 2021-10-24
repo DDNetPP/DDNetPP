@@ -28,10 +28,13 @@ public:
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();
 
+	CScore *Score();
+
 	void OnCharacterSpawn(class CCharacter *pChr) override;
 	void HandleCharacterTiles(class CCharacter *pChr, int MapIndex) override;
 	void HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4);
 
+	void OnPlayerConnect(class CPlayer *pPlayer) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason) override;
 
 	void Tick() override;

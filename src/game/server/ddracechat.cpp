@@ -428,7 +428,7 @@ void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConTop(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
@@ -436,15 +436,15 @@ void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvHideScore)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top5",
-			"Showing the top 5 is not allowed on this server.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "top",
+			"Showing the top is not allowed on this server.");
 		return;
 	}
 
 	if(pResult->NumArguments() > 0)
-		pSelf->Score()->ShowTop5(pResult->m_ClientID, pResult->GetInteger(0));
+		pSelf->Score()->ShowTop(pResult->m_ClientID, pResult->GetInteger(0));
 	else
-		pSelf->Score()->ShowTop5(pResult->m_ClientID);
+		pSelf->Score()->ShowTop(pResult->m_ClientID);
 }
 
 void CGameContext::ConTimes(IConsole::IResult *pResult, void *pUserData)
@@ -677,6 +677,81 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 			if(Teams.m_Core.Team(i) == Team)
 				pSelf->SendChatTarget(i, "Practice mode enabled for your team, happy practicing!");
 	}
+}
+
+void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	const char *pName = pResult->GetString(0);
+
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+		return;
+
+	CGameTeams &Teams = ((CGameControllerDDRace *)pSelf->m_pController)->m_Teams;
+
+	int Team = Teams.m_Core.Team(pResult->m_ClientID);
+
+	if(Team < TEAM_FLOCK || (Team == TEAM_FLOCK && g_Config.m_SvTeam != 3) || Team >= TEAM_SUPER)
+	{
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"print",
+			"Join a team to use swap feature, which means you can swap positions with each other.");
+		return;
+	}
+
+	int TargetClientId = -1;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(pSelf->m_apPlayers[i] && !str_comp(pName, pSelf->Server()->ClientName(i)))
+		{
+			TargetClientId = i;
+			break;
+		}
+	}
+
+	if(TargetClientId < 0)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "swap", "Player not found");
+		return;
+	}
+
+	if(TargetClientId == pResult->m_ClientID)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "swap", "Can't swap with yourself");
+		return;
+	}
+
+	int TargetTeam = Teams.m_Core.Team(TargetClientId);
+	if(TargetTeam != Team)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "swap", "Player is on a different team");
+		return;
+	}
+
+	if(!Teams.IsStarted(Team))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "swap", "Need to have started the map to swap with a player.");
+		return;
+	}
+
+	CPlayer *pSwapPlayer = pSelf->m_apPlayers[TargetClientId];
+
+	bool SwapPending = pSwapPlayer->m_SwapTargetsClientID != pResult->m_ClientID;
+	if(SwapPending)
+	{
+		Teams.RequestTeamSwap(pPlayer, pSwapPlayer, Team);
+		return;
+	}
+
+	Teams.SwapTeamCharacters(pPlayer, pSwapPlayer, Team);
 }
 
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
@@ -955,7 +1030,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 		{
 			int Team = pResult->GetInteger(0);
 
-			if(pPlayer->m_Last_Team + (int64_t)pSelf->Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > pSelf->Server()->Tick())
+			if(pPlayer->m_Last_Team + (int64)pSelf->Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > pSelf->Server()->Tick())
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
 					"You can\'t change teams that fast!");

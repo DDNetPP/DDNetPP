@@ -256,7 +256,8 @@ void CServer::BotJoin(int BotID)
 
 void CServer::BotLeave(int BotID, bool silent)
 {
-	GameServer()->OnClientDrop(BotID, "", silent);
+	#pragma message "add back OnClientDrop(silent)"
+	GameServer()->OnClientDrop(BotID, "");
 
 	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
 	m_aClients[BotID].m_aName[0] = 0;

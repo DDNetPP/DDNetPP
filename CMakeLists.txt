@@ -1941,9 +1941,7 @@ if(SERVER)
     databases/connection_pool.cpp
     databases/connection_pool.h
     databases/mysql.cpp
-    databases/mysql.h
     databases/sqlite.cpp
-    databases/sqlite.h
     name_ban.cpp
     name_ban.h
     register.cpp
@@ -2033,7 +2031,6 @@ if(SERVER)
     gamemodes/DDRace.h
     gamemodes/DDRace_ddpp.cpp
     gamemodes/ctf.cpp
-    gamemodes/gamemode.h
     gameworld.cpp
     gameworld.h
     gameworld_ddpp.cpp
