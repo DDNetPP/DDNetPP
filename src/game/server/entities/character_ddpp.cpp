@@ -19,6 +19,14 @@ void CCharacter::DDPPDDRacePostCoreTick()
 		m_FirstFreezeTick = 0;
 }
 
+void CCharacter::BulletAmounts()
+{
+	m_GunBullets = m_aWeapons[1].m_Ammo;
+	m_ShotgunBullets = m_aWeapons[2].m_Ammo;
+	m_GrenadeBullets = m_aWeapons[3].m_Ammo;
+	m_RifleBullets = m_aWeapons[4].m_Ammo;
+}
+
 bool CCharacter::HandleConfigTile(int Type)
 {
 	if(Type == CFG_TILE_OFF)

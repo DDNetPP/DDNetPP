@@ -2667,14 +2667,6 @@ void CCharacter::GiveAllWeapons()
 	}
 }
 
-void CCharacter::BulletAmounts()
-{
-	m_GunBullets = m_aWeapons[1].m_Ammo;
-	m_ShotgunBullets = m_aWeapons[2].m_Ammo;
-	m_GrenadeBullets = m_aWeapons[3].m_Ammo;
-	m_RifleBullets = m_aWeapons[4].m_Ammo;
-}
-
 void CCharacter::SetEndlessHook(bool Enable)
 {
 	if(m_EndlessHook == Enable)
