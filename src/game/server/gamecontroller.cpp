@@ -207,12 +207,12 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 
 	if(Layer <= LAYER_FRONT) // F-DDrace plot support
 	{
-		if(Index == ENTITY_SPAWN)
-			m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
-		else if(Index == ENTITY_SPAWN_RED)
-			m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
-		else if(Index == ENTITY_SPAWN_BLUE)
-			m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
+		if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE)
+		{
+			int Type = Index - ENTITY_SPAWN;
+			m_aaSpawnPoints[Type][m_aNumSpawnPoints[Type]] = Pos;
+			m_aNumSpawnPoints[Type] = minimum(m_aNumSpawnPoints[Type] + 1, (int)(sizeof(m_aaSpawnPoints[0]) / sizeof(m_aaSpawnPoints[0][0])));
+		}
 	}
 
 	// TODO: fix this survival spawn code
@@ -474,17 +474,13 @@ void IGameController::ChangeMap(const char *pToMap)
 
 void IGameController::PostReset()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(GameServer()->m_apPlayers[i])
+	for(auto &pPlayer : GameServer()->m_apPlayers)
+		if(pPlayer)
 		{
-			GameServer()->m_apPlayers[i]->Respawn();
 			if(g_Config.m_SvDDPPscore == 0)
-				GameServer()->m_apPlayers[i]->m_Score = 0;
-			//GameServer()->m_apPlayers[i]->m_ScoreStartTick = Server()->Tick();
-			//GameServer()->m_apPlayers[i]->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+				pPlayer->m_Score = 0;
+			pPlayer->Respawn();
 		}
-	}
 }
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
@@ -621,8 +617,8 @@ void IGameController::Tick()
 					{
 						// move player to spectator if the reserved slots aren't filled yet, kick him otherwise
 						int Spectators = 0;
-						for(int j = 0; j < MAX_CLIENTS; ++j)
-							if(GameServer()->m_apPlayers[j] && GameServer()->m_apPlayers[j]->GetTeam() == TEAM_SPECTATORS)
+						for(auto &pPlayer : GameServer()->m_apPlayers)
+							if(pPlayer && pPlayer->GetTeam() == TEAM_SPECTATORS)
 								++Spectators;
 						if(Spectators >= g_Config.m_SvSpectatorSlots)
 							Server()->Kick(i, "Kicked for inactivity");

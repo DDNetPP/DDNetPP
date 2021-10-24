@@ -1938,7 +1938,7 @@ int net_unix_send(UNIXSOCKET sock, UNIXSOCKETADDR *addr, void *data, int size)
 
 void net_unix_set_addr(UNIXSOCKETADDR *addr, const char *path)
 {
-	mem_zero(addr, sizeof(addr));
+	mem_zero(addr, sizeof(*addr));
 	addr->sun_family = AF_UNIX;
 	str_copy(addr->sun_path, path, sizeof(addr->sun_path));
 }
@@ -2074,7 +2074,7 @@ int fs_storage_path(const char *appname, char *path, int max)
 #else
 	snprintf(path, max, "%s/.%s", home, appname);
 	for(i = strlen(home) + 2; path[i]; i++)
-		path[i] = tolower(path[i]);
+		path[i] = tolower((unsigned char)path[i]);
 #endif
 
 	return 0;
@@ -2720,7 +2720,7 @@ const char *str_find_nocase(const char *haystack, const char *needle)
 	{
 		const char *a = haystack;
 		const char *b = needle;
-		while(*a && *b && tolower(*a) == tolower(*b))
+		while(*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b))
 		{
 			a++;
 			b++;
@@ -2858,6 +2858,54 @@ void str_timestamp(char *buffer, int buffer_size)
 #pragma GCC diagnostic pop
 #endif
 
+int str_time(int64 centisecs, int format, char *buffer, int buffer_size)
+{
+	const int sec = 100;
+	const int min = 60 * sec;
+	const int hour = 60 * min;
+	const int day = 24 * hour;
+
+	if(buffer_size <= 0)
+		return -1;
+
+	if(centisecs < 0)
+		centisecs = 0;
+
+	buffer[0] = 0;
+
+	switch(format)
+	{
+	case TIME_DAYS:
+		if(centisecs >= day)
+			return str_format(buffer, buffer_size, "%lldd %02lld:%02lld:%02lld", centisecs / day,
+				(centisecs % day) / hour, (centisecs % hour) / min, (centisecs % min) / sec);
+		// fall through
+	case TIME_HOURS:
+		if(centisecs >= hour)
+			return str_format(buffer, buffer_size, "%02lld:%02lld:%02lld", centisecs / hour,
+				(centisecs % hour) / min, (centisecs % min) / sec);
+		// fall through
+	case TIME_MINS:
+		return str_format(buffer, buffer_size, "%02lld:%02lld", centisecs / min,
+			(centisecs % min) / sec);
+	case TIME_HOURS_CENTISECS:
+		if(centisecs >= hour)
+			return str_format(buffer, buffer_size, "%02lld:%02lld:%02lld.%02lld", centisecs / hour,
+				(centisecs % hour) / min, (centisecs % min) / sec, centisecs % sec);
+		// fall through
+	case TIME_MINS_CENTISECS:
+		return str_format(buffer, buffer_size, "%02lld:%02lld.%02lld", centisecs / min,
+			(centisecs % min) / sec, centisecs % sec);
+	}
+
+	return -1;
+}
+
+int str_time_float(float secs, int format, char *buffer, int buffer_size)
+{
+	return str_time((int64)(secs * 100.0), format, buffer, buffer_size);
+}
+
 void str_escape(char **dst, const char *src, const char *end)
 {
 	while(*src && *dst + 1 < end)
@@ -2973,11 +3021,11 @@ const char *str_utf8_find_nocase(const char *haystack, const char *needle)
 int str_utf8_isspace(int code)
 {
 	return code <= 0x0020 || code == 0x0085 || code == 0x00A0 ||
-	       code == 0x034F || code == 0x1680 || code == 0x180E ||
+	       code == 0x034F || code == 0x1160 || code == 0x1680 || code == 0x180E ||
 	       (code >= 0x2000 && code <= 0x200F) || (code >= 0x2028 && code <= 0x202F) ||
 	       (code >= 0x205F && code <= 0x2064) || (code >= 0x206A && code <= 0x206F) ||
-	       code == 0x2800 || code == 0x3000 ||
-	       (code >= 0xFE00 && code <= 0xFE0F) || code == 0xFEFF ||
+	       code == 0x2800 || code == 0x3000 || code == 0x3164 ||
+	       (code >= 0xFE00 && code <= 0xFE0F) || code == 0xFEFF || code == 0xFFA0 ||
 	       (code >= 0xFFF9 && code <= 0xFFFC);
 }
 

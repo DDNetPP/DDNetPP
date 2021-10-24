@@ -1193,10 +1193,10 @@ set(EXPECTED_DATA
   shader/pipeline.vert
   shader/prim.frag
   shader/prim.vert
+  shader/primex.frag
+  shader/primex.vert
   shader/quad.frag
   shader/quad.vert
-  shader/sprite.frag
-  shader/sprite.vert
   shader/spritemulti.frag
   shader/spritemulti.vert
   shader/text.frag
@@ -1205,7 +1205,6 @@ set(EXPECTED_DATA
   shader/tile.vert
   skins/Aoe4leg.png
   skins/PaladiN.png
-  skins/Terrorist.png
   skins/antiantey.png
   skins/beast.png
   skins/blacktee.png

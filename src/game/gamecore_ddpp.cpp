@@ -51,25 +51,29 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 		{
 			//Check against Flags: DELETE IF IT DOSNT WORK
 			vec2 ClosestPoint;
-			ClosestPoint = closest_point_on_line(m_HookPos, NewPos, m_FlagPos1);
-			if(distance(m_FlagPos1, ClosestPoint) < PhysSize + 2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != 99 && m_HookedPlayer != 98)
+			if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos1, ClosestPoint))
 			{
-				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
+				if(distance(m_FlagPos1, ClosestPoint) < PhysSize + 2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != 99 && m_HookedPlayer != 98)
 				{
-					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-					m_HookState = HOOK_GRABBED;
-					m_HookedPlayer = 98;
+					if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
+					{
+						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+						m_HookState = HOOK_GRABBED;
+						m_HookedPlayer = 98;
+					}
 				}
 			}
 
-			ClosestPoint = closest_point_on_line(m_HookPos, NewPos, m_FlagPos2);
-			if(distance(m_FlagPos2, ClosestPoint) < PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != 98 && m_HookedPlayer != 99)
+			if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos2, ClosestPoint))
 			{
-				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
+				if(distance(m_FlagPos2, ClosestPoint) < PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != 98 && m_HookedPlayer != 99)
 				{
-					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-					m_HookState = HOOK_GRABBED;
-					m_HookedPlayer = 99;
+					if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
+					{
+						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+						m_HookState = HOOK_GRABBED;
+						m_HookedPlayer = 99;
+					}
 				}
 			}
 			//Check against Flags: DELETE IF IT DOSNT WORK

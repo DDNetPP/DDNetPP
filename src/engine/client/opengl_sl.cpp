@@ -86,7 +86,7 @@ bool CGLSL::LoadShader(CGLSLCompiler *pCompiler, IStorage *pStorage, const char 
 
 			glGetShaderInfoLog(shader, maxLength, &maxLength, buff);
 
-			dbg_msg("GLSL", "%s: %s", pFile, buff);
+			dbg_msg("glsl", "%s: %s", pFile, buff);
 			glDeleteShader(shader);
 			return false;
 		}
@@ -188,7 +188,7 @@ void CGLSLCompiler::ParseLine(std::string &Line, const char *pReadLine, int Type
 						++pBuff;
 					}
 
-					if(*pBuff && *pBuff == ' ' && *(pBuff + 1) && *(pBuff + 1) == 'i' && *(pBuff + 2) == 'n')
+					if(*pBuff == ' ' && *(pBuff + 1) && *(pBuff + 1) == 'i' && *(pBuff + 2) == 'n')
 					{
 						pBuff += 3;
 						Line.append("attribute");
@@ -197,7 +197,7 @@ void CGLSLCompiler::ParseLine(std::string &Line, const char *pReadLine, int Type
 					}
 					else
 					{
-						dbg_msg("Shader compiler", "Fix shader for older OpenGL versions.");
+						dbg_msg("shadercompiler", "Fix shader for older OpenGL versions.");
 					}
 				}
 				else if(str_comp(aTmpStr, "noperspective") == 0 || str_comp(aTmpStr, "smooth") == 0 || str_comp(aTmpStr, "flat") == 0)
@@ -225,7 +225,7 @@ void CGLSLCompiler::ParseLine(std::string &Line, const char *pReadLine, int Type
 
 					if(!Found)
 					{
-						dbg_msg("Shader compiler", "Fix shader for older OpenGL versions.");
+						dbg_msg("shadercompiler", "Fix shader for older OpenGL versions.");
 					}
 
 					Line.append("varying");

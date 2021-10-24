@@ -18,16 +18,16 @@ CGameWorld::CGameWorld()
 
 	m_Paused = false;
 	m_ResetRequested = false;
-	for(int i = 0; i < NUM_ENTTYPES; i++)
-		m_apFirstEntityTypes[i] = 0;
+	for(auto &pFirstEntityType : m_apFirstEntityTypes)
+		pFirstEntityType = 0;
 }
 
 CGameWorld::~CGameWorld()
 {
 	// delete all entities
-	for(int i = 0; i < NUM_ENTTYPES; i++)
-		while(m_apFirstEntityTypes[i])
-			delete m_apFirstEntityTypes[i];
+	for(auto &pFirstEntityType : m_apFirstEntityTypes)
+		while(pFirstEntityType)
+			delete pFirstEntityType;
 }
 
 void CGameWorld::SetGameServer(CGameContext *pGameServer)
@@ -107,8 +107,8 @@ void CGameWorld::RemoveEntity(CEntity *pEnt)
 //
 void CGameWorld::Snap(int SnappingClient)
 {
-	for(int i = 0; i < NUM_ENTTYPES; i++)
-		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+	for(auto *pEnt : m_apFirstEntityTypes)
+		for(; pEnt;)
 		{
 			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 			pEnt->Snap(SnappingClient);
@@ -119,8 +119,8 @@ void CGameWorld::Snap(int SnappingClient)
 void CGameWorld::Reset()
 {
 	// reset all entities
-	for(int i = 0; i < NUM_ENTTYPES; i++)
-		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+	for(auto *pEnt : m_apFirstEntityTypes)
+		for(; pEnt;)
 		{
 			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 			pEnt->Reset();
@@ -137,8 +137,8 @@ void CGameWorld::Reset()
 void CGameWorld::RemoveEntities()
 {
 	// destroy objects marked for destruction
-	for(int i = 0; i < NUM_ENTTYPES; i++)
-		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+	for(auto *pEnt : m_apFirstEntityTypes)
+		for(; pEnt;)
 		{
 			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 			if(pEnt->m_MarkedForDestroy)
@@ -204,9 +204,9 @@ void CGameWorld::UpdatePlayerMaps()
 
 		// compute reverse map
 		int rMap[MAX_CLIENTS];
-		for(int j = 0; j < MAX_CLIENTS; j++)
+		for(int &j : rMap)
 		{
-			rMap[j] = -1;
+			j = -1;
 		}
 		for(int j = 0; j < VANILLA_MAX_CLIENTS; j++)
 		{
@@ -252,16 +252,16 @@ void CGameWorld::Tick()
 	if(!m_Paused)
 	{
 		// update all objects
-		for(int i = 0; i < NUM_ENTTYPES; i++)
-			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+		for(auto *pEnt : m_apFirstEntityTypes)
+			for(; pEnt;)
 			{
 				m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 				pEnt->Tick();
 				pEnt = m_pNextTraverseEntity;
 			}
 
-		for(int i = 0; i < NUM_ENTTYPES; i++)
-			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+		for(auto *pEnt : m_apFirstEntityTypes)
+			for(; pEnt;)
 			{
 				m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 				pEnt->TickDefered();
@@ -271,8 +271,8 @@ void CGameWorld::Tick()
 	else
 	{
 		// update all objects
-		for(int i = 0; i < NUM_ENTTYPES; i++)
-			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt;)
+		for(auto *pEnt : m_apFirstEntityTypes)
+			for(; pEnt;)
 			{
 				m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 				pEnt->TickPaused();
@@ -313,16 +313,19 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 		if(CollideWith != -1 && !p->CanCollide(CollideWith))
 			continue;
 
-		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
-		float Len = distance(p->m_Pos, IntersectPos);
-		if(Len < p->m_ProximityRadius + Radius)
+		vec2 IntersectPos;
+		if(closest_point_on_line(Pos0, Pos1, p->m_Pos, IntersectPos))
 		{
-			Len = distance(Pos0, IntersectPos);
-			if(Len < ClosestLen)
+			float Len = distance(p->m_Pos, IntersectPos);
+			if(Len < p->m_ProximityRadius + Radius)
 			{
-				NewPos = IntersectPos;
-				ClosestLen = Len;
-				pClosest = p;
+				Len = distance(Pos0, IntersectPos);
+				if(Len < ClosestLen)
+				{
+					NewPos = IntersectPos;
+					ClosestLen = Len;
+					pClosest = p;
+				}
 			}
 		}
 	}
@@ -389,12 +392,15 @@ std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 
 		if(pChr == pNotThis)
 			continue;
 
-		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, pChr->m_Pos);
-		float Len = distance(pChr->m_Pos, IntersectPos);
-		if(Len < pChr->m_ProximityRadius + Radius)
+		vec2 IntersectPos;
+		if(closest_point_on_line(Pos0, Pos1, pChr->m_Pos, IntersectPos))
 		{
-			pChr->m_Intersection = IntersectPos;
-			listOfChars.push_back(pChr);
+			float Len = distance(pChr->m_Pos, IntersectPos);
+			if(Len < pChr->m_ProximityRadius + Radius)
+			{
+				pChr->m_Intersection = IntersectPos;
+				listOfChars.push_back(pChr);
+			}
 		}
 	}
 	return listOfChars;

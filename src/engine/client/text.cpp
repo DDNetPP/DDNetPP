@@ -85,9 +85,9 @@ public:
 		free(m_pBuf);
 		delete[] m_TextureData[0];
 		delete[] m_TextureData[1];
-		for(size_t i = 0; i < m_FtFallbackFonts.size(); i++)
+		for(auto &FtFallbackFont : m_FtFallbackFonts)
 		{
-			free(m_FtFallbackFonts[i].m_pBuf);
+			free(FtFallbackFont.m_pBuf);
 		}
 	}
 
@@ -229,6 +229,12 @@ class CTextRender : public IEngineTextRender
 		m_FirstFreeTextContainerIndex = Index;
 	}
 
+	void FreeTextContainer(int Index)
+	{
+		m_TextContainers[Index].Reset();
+		FreeTextContainerIndex(Index);
+	}
+
 	STextContainer &GetTextContainer(int Index)
 	{
 		if(Index >= (int)m_TextContainers.size())
@@ -239,12 +245,6 @@ class CTextRender : public IEngineTextRender
 		}
 
 		return m_TextContainers[Index];
-	}
-
-	void FreeTextContainer(int Index)
-	{
-		m_TextContainers[Index].Reset();
-		FreeTextContainerIndex(Index);
 	}
 
 	int WordLength(const char *pText)
@@ -270,6 +270,11 @@ class CTextRender : public IEngineTextRender
 	virtual void SetRenderFlags(unsigned int Flags)
 	{
 		m_RenderFlags = Flags;
+	}
+
+	virtual unsigned int GetRenderFlags()
+	{
+		return m_RenderFlags;
 	}
 
 	void Grow(unsigned char *pIn, unsigned char *pOut, int w, int h, int OutlineCount)
@@ -483,7 +488,7 @@ class CTextRender : public IEngineTextRender
 
 				if(GlyphIndex == 0)
 				{
-					dbg_msg("pFont", "font has no glyph for either %d or replacement char %d", Chr, ReplacementChr);
+					dbg_msg("textrender", "font has no glyph for either %d or replacement char %d", Chr, ReplacementChr);
 					return;
 				}
 			}
@@ -491,7 +496,7 @@ class CTextRender : public IEngineTextRender
 
 		if(FT_Load_Glyph(FtFace, GlyphIndex, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP))
 		{
-			dbg_msg("pFont", "error loading glyph %d", Chr);
+			dbg_msg("textrender", "error loading glyph %d", Chr);
 			return;
 		}
 
@@ -595,16 +600,16 @@ public:
 
 	virtual ~CTextRender()
 	{
-		for(size_t i = 0; i < m_Fonts.size(); ++i)
+		for(auto &pFont : m_Fonts)
 		{
-			FT_Done_Face(m_Fonts[i]->m_FtFace);
+			FT_Done_Face(pFont->m_FtFace);
 
-			for(CFont::SFontFallBack &FallbackFont : m_Fonts[i]->m_FtFallbackFonts)
+			for(CFont::SFontFallBack &FallbackFont : pFont->m_FtFallbackFonts)
 			{
 				FT_Done_Face(FallbackFont.m_FtFace);
 			}
 
-			delete m_Fonts[i];
+			delete pFont;
 		}
 
 		if(m_FTLibrary != 0)
@@ -710,7 +715,7 @@ public:
 		if(FT_New_Memory_Face(m_FTLibrary, pBuf, Size, 0, &FallbackFont.m_FtFace) == 0)
 		{
 			dbg_msg("textrender", "loaded fallback font from '%s'", pFilename);
-			pFont->m_FtFallbackFonts.emplace_back(std::move(FallbackFont));
+			pFont->m_FtFallbackFonts.emplace_back(FallbackFont);
 
 			return true;
 		}
@@ -728,10 +733,10 @@ public:
 
 	CFont *GetFont(const char *pFilename)
 	{
-		for(size_t i = 0; i < m_Fonts.size(); ++i)
+		for(auto &pFont : m_Fonts)
 		{
-			if(str_comp(pFilename, m_Fonts[i]->m_aFilename) == 0)
-				return m_Fonts[i];
+			if(str_comp(pFilename, pFont->m_aFilename) == 0)
+				return pFont;
 		}
 
 		return NULL;
@@ -766,6 +771,13 @@ public:
 		pCursor->m_GlyphCount = 0;
 		pCursor->m_CharCount = 0;
 		pCursor->m_MaxCharacterHeight = 0;
+		pCursor->m_LongestLineWidth = 0;
+	}
+
+	virtual void MoveCursor(CTextCursor *pCursor, float x, float y)
+	{
+		pCursor->m_X += x;
+		pCursor->m_Y += y;
 	}
 
 	virtual void Text(void *pFontSetV, float x, float y, float Size, const char *pText, float LineWidth)
@@ -843,6 +855,7 @@ public:
 
 		int ActualSize;
 		int GotNewLine = 0;
+		int GotNewLineLast = 0;
 		float DrawX = 0.0f, DrawY = 0.0f;
 		int LineCount = 0;
 		float CursorX, CursorY;
@@ -884,7 +897,7 @@ public:
 		//the outlined texture is always the same size as the current
 		float UVScale = 1.0f / pFont->m_CurTextureDimensions[0];
 
-		const char *pCurrent = (char *)pText;
+		const char *pCurrent = pText;
 		const char *pEnd = pCurrent + Length;
 
 		if((m_RenderFlags & TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT) != 0)
@@ -928,7 +941,7 @@ public:
 			const char *pBatchEnd = pEnd;
 			if(pCursor->m_LineWidth > 0 && !(pCursor->m_Flags & TEXTFLAG_STOP_AT_END))
 			{
-				int Wlen = minimum(WordLength((char *)pCurrent), (int)(pEnd - pCurrent));
+				int Wlen = minimum(WordLength(pCurrent), (int)(pEnd - pCurrent));
 				CTextCursor Compare = *pCursor;
 				Compare.m_X = DrawX;
 				Compare.m_Y = DrawY;
@@ -952,10 +965,10 @@ public:
 					Wlen = Cutter.m_CharCount;
 					NewLine = 1;
 
-					if(WordGlyphs <= 3) // if we can't place 3 chars of the word on this line, take the next
+					if(WordGlyphs <= 3 && GotNewLineLast == 0) // if we can't place 3 chars of the word on this line, take the next
 						Wlen = 0;
 				}
-				else if(Compare.m_X - pCursor->m_StartX > pCursor->m_LineWidth)
+				else if(Compare.m_X - pCursor->m_StartX > pCursor->m_LineWidth && GotNewLineLast == 0)
 				{
 					NewLine = 1;
 					Wlen = 0;
@@ -1041,7 +1054,7 @@ public:
 
 					pCursor->m_MaxCharacterHeight = maximum(pCursor->m_MaxCharacterHeight, CharHeight + BearingY);
 
-					if(NextCharacter == 0 && (m_RenderFlags & TEXT_RENDER_FLAG_NO_LAST_CHARACTER_ADVANCE) != 0)
+					if(NextCharacter == 0 && (m_RenderFlags & TEXT_RENDER_FLAG_NO_LAST_CHARACTER_ADVANCE) != 0 && Character != ' ')
 						DrawX += BearingX + CharKerning + CharWidth;
 					else
 						DrawX += Advance * Size + CharKerning;
@@ -1049,6 +1062,9 @@ public:
 
 					++CharacterCounter;
 				}
+
+				if(DrawX > pCursor->m_LongestLineWidth)
+					pCursor->m_LongestLineWidth = DrawX;
 			}
 
 			if(NewLine)
@@ -1061,8 +1077,11 @@ public:
 					DrawY = (int)(DrawY * FakeToScreenY) / FakeToScreenY;
 				}
 				GotNewLine = 1;
+				GotNewLineLast = 1;
 				++LineCount;
 			}
+			else
+				GotNewLineLast = 0;
 		}
 
 		if(pCursor->m_Flags & TEXTFLAG_RENDER)
@@ -1091,7 +1110,7 @@ public:
 			pCursor->m_Y = DrawY;
 	}
 
-	virtual int CreateTextContainer(CTextCursor *pCursor, const char *pText)
+	virtual int CreateTextContainer(CTextCursor *pCursor, const char *pText, int Length = -1)
 	{
 		CFont *pFont = pCursor->m_pFont;
 
@@ -1134,6 +1153,7 @@ public:
 		int OldRenderFlags = m_RenderFlags;
 		if(pCursor->m_LineWidth <= 0)
 			SetRenderFlags(OldRenderFlags | ETextRenderFlags::TEXT_RENDER_FLAG_NO_FIRST_CHARACTER_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_LAST_CHARACTER_ADVANCE);
+
 		TextContainer.m_RenderFlags = m_RenderFlags;
 		SetRenderFlags(OldRenderFlags);
 
@@ -1144,7 +1164,7 @@ public:
 
 		TextContainer.m_FontSize = pSizeData->m_FontSize;
 
-		AppendTextContainer(pCursor, ContainerIndex, pText);
+		AppendTextContainer(pCursor, ContainerIndex, pText, Length);
 
 		if(TextContainer.m_StringInfo.m_CharacterQuads.size() == 0)
 		{
@@ -1156,16 +1176,10 @@ public:
 			TextContainer.m_StringInfo.m_QuadNum = TextContainer.m_StringInfo.m_CharacterQuads.size();
 			if(Graphics()->IsTextBufferingEnabled())
 			{
-				size_t DataSize = TextContainer.m_StringInfo.m_CharacterQuads.size() * sizeof(STextCharQuad);
-				void *pUploadData = &TextContainer.m_StringInfo.m_CharacterQuads[0];
-
-				TextContainer.m_StringInfo.m_QuadBufferObjectIndex = Graphics()->CreateBufferObject(DataSize, pUploadData);
-
-				for(size_t i = 0; i < m_DefaultTextContainerInfo.m_Attributes.size(); ++i)
-					m_DefaultTextContainerInfo.m_Attributes[i].m_VertBufferBindingIndex = TextContainer.m_StringInfo.m_QuadBufferObjectIndex;
-
-				TextContainer.m_StringInfo.m_QuadBufferContainerIndex = Graphics()->CreateBufferContainer(&m_DefaultTextContainerInfo);
-				Graphics()->IndicesNumRequiredNotify(TextContainer.m_StringInfo.m_QuadNum * 6);
+				if((TextContainer.m_RenderFlags & TEXT_RENDER_FLAG_NO_AUTOMATIC_QUAD_UPLOAD) == 0)
+				{
+					UploadTextContainer(ContainerIndex);
+				}
 			}
 
 			TextContainer.m_LineCount = pCursor->m_LineCount;
@@ -1181,7 +1195,7 @@ public:
 		return ContainerIndex;
 	}
 
-	virtual void AppendTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText)
+	virtual void AppendTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1)
 	{
 		STextContainer &TextContainer = GetTextContainer(TextContainerIndex);
 
@@ -1192,6 +1206,7 @@ public:
 
 		int ActualSize;
 		int GotNewLine = 0;
+		int GotNewLineLast = 0;
 		float DrawX = 0.0f, DrawY = 0.0f;
 		int LineCount = 0;
 		float CursorX, CursorY;
@@ -1218,7 +1233,8 @@ public:
 		pSizeData = TextContainer.m_pFont->GetFontSize(TextContainer.m_FontSize);
 
 		// string length
-		int Length = str_length(pText);
+		if(Length < 0)
+			Length = str_length(pText);
 
 		float Scale = 1.0f / pSizeData->m_FontSize;
 
@@ -1273,10 +1289,10 @@ public:
 					Wlen = Cutter.m_CharCount;
 					NewLine = 1;
 
-					if(WordGlyphs <= 3) // if we can't place 3 chars of the word on this line, take the next
+					if(WordGlyphs <= 3 && GotNewLineLast == 0) // if we can't place 3 chars of the word on this line, take the next
 						Wlen = 0;
 				}
-				else if(Compare.m_X - pCursor->m_StartX > pCursor->m_LineWidth)
+				else if(Compare.m_X - pCursor->m_StartX > pCursor->m_LineWidth && GotNewLineLast == 0)
 				{
 					NewLine = 1;
 					Wlen = 0;
@@ -1287,6 +1303,7 @@ public:
 
 			const char *pTmp = pCurrent;
 			int NextCharacter = str_utf8_decode(&pTmp);
+
 			while(pCurrent < pBatchEnd)
 			{
 				TextContainer.m_CharCount += pTmp - pCurrent;
@@ -1394,13 +1411,16 @@ public:
 
 					pCursor->m_MaxCharacterHeight = maximum(pCursor->m_MaxCharacterHeight, CharHeight + BearingY);
 
-					if(NextCharacter == 0 && (RenderFlags & TEXT_RENDER_FLAG_NO_LAST_CHARACTER_ADVANCE) != 0)
+					if(NextCharacter == 0 && (RenderFlags & TEXT_RENDER_FLAG_NO_LAST_CHARACTER_ADVANCE) != 0 && Character != ' ')
 						DrawX += BearingX + CharKerning + CharWidth;
 					else
 						DrawX += Advance * Size + CharKerning;
 					pCursor->m_GlyphCount++;
 					++CharacterCounter;
 				}
+
+				if(DrawX > pCursor->m_LongestLineWidth)
+					pCursor->m_LongestLineWidth = DrawX;
 			}
 
 			if(NewLine)
@@ -1413,8 +1433,11 @@ public:
 					DrawY = (int)(DrawY * FakeToScreenY) / FakeToScreenY;
 				}
 				GotNewLine = 1;
+				GotNewLineLast = 1;
 				++LineCount;
 			}
+			else
+				GotNewLineLast = 0;
 		}
 
 		if(TextContainer.m_StringInfo.m_CharacterQuads.size() != 0)
@@ -1426,7 +1449,7 @@ public:
 				size_t DataSize = TextContainer.m_StringInfo.m_CharacterQuads.size() * sizeof(STextCharQuad);
 				void *pUploadData = &TextContainer.m_StringInfo.m_CharacterQuads[0];
 
-				if(TextContainer.m_StringInfo.m_QuadBufferObjectIndex != -1)
+				if(TextContainer.m_StringInfo.m_QuadBufferObjectIndex != -1 && (TextContainer.m_RenderFlags & TEXT_RENDER_FLAG_NO_AUTOMATIC_QUAD_UPLOAD) == 0)
 				{
 					Graphics()->RecreateBufferObject(TextContainer.m_StringInfo.m_QuadBufferObjectIndex, DataSize, pUploadData);
 					Graphics()->IndicesNumRequiredNotify(TextContainer.m_StringInfo.m_QuadNum * 6);
@@ -1443,19 +1466,19 @@ public:
 	}
 
 	// just deletes and creates text container
-	virtual void RecreateTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText)
+	virtual void RecreateTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1)
 	{
 		DeleteTextContainer(TextContainerIndex);
-		CreateTextContainer(pCursor, pText);
+		CreateTextContainer(pCursor, pText, Length);
 	}
 
-	virtual void RecreateTextContainerSoft(CTextCursor *pCursor, int TextContainerIndex, const char *pText)
+	virtual void RecreateTextContainerSoft(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1)
 	{
 		STextContainer &TextContainer = GetTextContainer(TextContainerIndex);
 		TextContainer.m_StringInfo.m_CharacterQuads.clear();
 		TextContainer.m_StringInfo.m_QuadNum = 0;
 		// the text buffer gets then recreated by the appended quads
-		AppendTextContainer(pCursor, TextContainerIndex, pText);
+		AppendTextContainer(pCursor, TextContainerIndex, pText, Length);
 	}
 
 	virtual void SetTextContainerSelection(int TextContainerIndex, const char *pText, int CursorPos, int SelectionStart, int SelectionEnd)
@@ -1688,6 +1711,20 @@ public:
 		FreeTextContainer(TextContainerIndex);
 	}
 
+	virtual void UploadTextContainer(int TextContainerIndex)
+	{
+		STextContainer &TextContainer = GetTextContainer(TextContainerIndex);
+		size_t DataSize = TextContainer.m_StringInfo.m_CharacterQuads.size() * sizeof(STextCharQuad);
+		void *pUploadData = &TextContainer.m_StringInfo.m_CharacterQuads[0];
+		TextContainer.m_StringInfo.m_QuadBufferObjectIndex = Graphics()->CreateBufferObject(DataSize, pUploadData);
+
+		for(auto &Attribute : m_DefaultTextContainerInfo.m_Attributes)
+			Attribute.m_VertBufferBindingIndex = TextContainer.m_StringInfo.m_QuadBufferObjectIndex;
+
+		TextContainer.m_StringInfo.m_QuadBufferContainerIndex = Graphics()->CreateBufferContainer(&m_DefaultTextContainerInfo);
+		Graphics()->IndicesNumRequiredNotify(TextContainer.m_StringInfo.m_QuadNum * 6);
+	}
+
 	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor)
 	{
 		STextContainer &TextContainer = GetTextContainer(TextContainerIndex);
@@ -1809,7 +1846,7 @@ public:
 
 				if(FT_Load_Char(pFont->m_FtFace, NextCharacter, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP))
 				{
-					dbg_msg("pFont", "error loading glyph %d", NextCharacter);
+					dbg_msg("textrender", "error loading glyph %d", NextCharacter);
 					pCurrent = pTmp;
 					continue;
 				}
@@ -1873,6 +1910,32 @@ public:
 		return FontSize;
 	}
 
+	virtual float GetGlyphOffsetX(int FontSize, char TextCharacter)
+	{
+		CFont *pFont = m_pDefaultFont;
+		FT_Set_Pixel_Sizes(pFont->m_FtFace, 0, FontSize);
+		const char *pTmp = &TextCharacter;
+		int NextCharacter = str_utf8_decode(&pTmp);
+
+		if(NextCharacter)
+		{
+			FT_Int32 FTFlags = 0;
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 7 && (FREETYPE_MINOR > 7 || FREETYPE_PATCH >= 1)
+			FTFlags = FT_LOAD_BITMAP_METRICS_ONLY | FT_LOAD_NO_BITMAP;
+#else
+			FTFlags = FT_LOAD_RENDER | FT_LOAD_NO_BITMAP;
+#endif
+			if(FT_Load_Char(pFont->m_FtFace, NextCharacter, FTFlags))
+			{
+				dbg_msg("textrender", "error loading glyph %d in GetGlyphOffsetX", NextCharacter);
+				return -1;
+			}
+
+			return (float)(pFont->m_FtFace->glyph->metrics.horiBearingX >> 6);
+		}
+		return 0;
+	}
+
 	virtual int CalculateTextWidth(const char *pText, int TextLength, int FontWidth, int FontHeight)
 	{
 		CFont *pFont = m_pDefaultFont;
@@ -1896,7 +1959,7 @@ public:
 #endif
 				if(FT_Load_Char(pFont->m_FtFace, NextCharacter, FTFlags))
 				{
-					dbg_msg("pFont", "error loading glyph %d", NextCharacter);
+					dbg_msg("textrender", "error loading glyph %d in CalculateTextWidth", NextCharacter);
 					pCurrent = pTmp;
 					continue;
 				}
@@ -1912,28 +1975,28 @@ public:
 	virtual void OnWindowResize()
 	{
 		bool FoundTextContainer = false;
-		for(size_t i = 0; i < m_TextContainers.size(); ++i)
-			if(m_TextContainers[i].m_StringInfo.m_QuadBufferContainerIndex != -1)
+		for(auto &TextContainer : m_TextContainers)
+			if(TextContainer.m_StringInfo.m_QuadBufferContainerIndex != -1)
 				FoundTextContainer = true;
 		if(FoundTextContainer)
 		{
-			dbg_msg("text render", "%s", "Found non empty text container");
+			dbg_msg("textrender", "%s", "Found non empty text container");
 			dbg_assert(false, "text container was not empty");
 		}
 
-		for(size_t i = 0; i < m_Fonts.size(); ++i)
+		for(auto &pFont : m_Fonts)
 		{
 			// reset the skylines
 			for(int j = 0; j < 2; ++j)
 			{
-				for(size_t k = 0; k < m_Fonts[i]->m_TextureSkyline[j].m_CurHeightOfPixelColumn.size(); ++k)
-					m_Fonts[i]->m_TextureSkyline[j].m_CurHeightOfPixelColumn[k] = 0;
+				for(int &k : pFont->m_TextureSkyline[j].m_CurHeightOfPixelColumn)
+					k = 0;
 
-				mem_zero(m_Fonts[i]->m_TextureData[j], (size_t)m_Fonts[i]->m_CurTextureDimensions[j] * m_Fonts[i]->m_CurTextureDimensions[j] * sizeof(unsigned char));
-				Graphics()->LoadTextureRawSub(m_Fonts[i]->m_aTextures[j], 0, 0, m_Fonts[i]->m_CurTextureDimensions[j], m_Fonts[i]->m_CurTextureDimensions[j], CImageInfo::FORMAT_ALPHA, m_Fonts[i]->m_TextureData[j]);
+				mem_zero(pFont->m_TextureData[j], (size_t)pFont->m_CurTextureDimensions[j] * pFont->m_CurTextureDimensions[j] * sizeof(unsigned char));
+				Graphics()->LoadTextureRawSub(pFont->m_aTextures[j], 0, 0, pFont->m_CurTextureDimensions[j], pFont->m_CurTextureDimensions[j], CImageInfo::FORMAT_ALPHA, pFont->m_TextureData[j]);
 			}
 
-			m_Fonts[i]->InitFontSizes();
+			pFont->InitFontSizes();
 		}
 	}
 };

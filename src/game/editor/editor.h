@@ -313,7 +313,6 @@ public:
 	{
 		m_pEditor = pEditor;
 		m_aName[0] = 0;
-		m_External = 0;
 		m_SoundID = 0;
 
 		m_pData = 0x0;
@@ -323,7 +322,6 @@ public:
 	~CEditorSound();
 
 	int m_SoundID;
-	int m_External;
 	char m_aName[128];
 
 	void *m_pData;
@@ -801,7 +799,7 @@ public:
 	bool IsQuadSelected(int Index);
 	int FindSelectedQuadIndex(int Index);
 
-	float ScaleFontSize(char *aBuf, float FontSize, int Width);
+	float ScaleFontSize(char *pText, int TextSize, float FontSize, int Width);
 	int DoProperties(CUIRect *pToolbox, CProperty *pProps, int *pIDs, int *pNewVal, ColorRGBA Color = ColorRGBA(1, 1, 1, 0.5f));
 
 	int m_Mode;

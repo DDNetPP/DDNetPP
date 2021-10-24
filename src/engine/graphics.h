@@ -150,7 +150,7 @@ struct GL_SVertexTex3DStream
 typedef void (*WINDOW_RESIZE_FUNC)(void *pUser);
 
 namespace client_data7 {
-struct CDataSprite;
+struct CDataSprite; // NOLINT(bugprone-forward-declaration-namespace)
 }
 
 class IGraphics : public IInterface
@@ -290,6 +290,8 @@ public:
 	virtual void TextQuadsEnd(int TextureSize, int TextTextureIndex, int TextOutlineTextureIndex, float *pOutlineTextColor) = 0;
 	virtual void QuadsTex3DBegin() = 0;
 	virtual void QuadsTex3DEnd() = 0;
+	virtual void TrianglesBegin() = 0;
+	virtual void TrianglesEnd() = 0;
 	virtual void QuadsEndKeepVertices() = 0;
 	virtual void QuadsDrawCurrentVertices(bool KeepVertices = true) = 0;
 	virtual void QuadsSetRotation(float Angle) = 0;
@@ -331,6 +333,7 @@ public:
 	virtual void DeleteQuadContainer(int ContainerIndex) = 0;
 	virtual void RenderQuadContainer(int ContainerIndex, int QuadDrawNum) = 0;
 	virtual void RenderQuadContainer(int ContainerIndex, int QuadOffset, int QuadDrawNum) = 0;
+	virtual void RenderQuadContainerEx(int ContainerIndex, int QuadOffset, int QuadDrawNum, float X, float Y, float ScaleX = 1.f, float ScaleY = 1.f) = 0;
 	virtual void RenderQuadContainerAsSprite(int ContainerIndex, int QuadOffset, float X, float Y, float ScaleX = 1.f, float ScaleY = 1.f) = 0;
 
 	struct SRenderSpriteInfo

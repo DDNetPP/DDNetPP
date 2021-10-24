@@ -263,8 +263,8 @@ void CSmoothTime::Update(CGraph *pGraph, int64 Target, int TimeLeft, int AdjustD
 CClient::CClient() :
 	m_DemoPlayer(&m_SnapshotDelta)
 {
-	for(int i = 0; i < RECORDER_MAX; i++)
-		m_DemoRecorder[i] = CDemoRecorder(&m_SnapshotDelta);
+	for(auto &DemoRecorder : m_DemoRecorder)
+		DemoRecorder = CDemoRecorder(&m_SnapshotDelta);
 
 	m_pEditor = 0;
 	m_pInput = 0;
@@ -328,6 +328,7 @@ CClient::CClient() :
 	str_format(m_aDDNetInfoTmp, sizeof(m_aDDNetInfoTmp), DDNET_INFO ".%d.tmp", pid());
 	m_pDDNetInfoTask = NULL;
 	m_aNews[0] = '\0';
+	m_Points = -1;
 
 	m_CurrentServerInfoRequestTime = -1;
 
@@ -402,9 +403,9 @@ int CClient::SendMsg(CMsgPacker *pMsg, int Flags)
 
 	if(Flags & MSGFLAG_RECORD)
 	{
-		for(int i = 0; i < RECORDER_MAX; i++)
-			if(m_DemoRecorder[i].IsRecording())
-				m_DemoRecorder[i].RecordMessage(Packet.m_pData, Packet.m_DataSize);
+		for(auto &i : m_DemoRecorder)
+			if(i.IsRecording())
+				i.RecordMessage(Packet.m_pData, Packet.m_DataSize);
 	}
 
 	if(!(Flags & MSGFLAG_NOSEND))
@@ -500,7 +501,7 @@ void CClient::SendInput()
 
 	bool Force = false;
 	// fetch input
-	for(int Dummy = 0; Dummy < 2; Dummy++)
+	for(int Dummy = 0; Dummy < NUM_DUMMIES; Dummy++)
 	{
 		if(!m_DummyConnected && Dummy != 0)
 		{
@@ -2018,12 +2019,12 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 					SnapshotRemoveExtraInfo(aExtraInfoRemoved);
 
 					// add snapshot to demo
-					for(int i = 0; i < RECORDER_MAX; i++)
+					for(auto &DemoRecorder : m_DemoRecorder)
 					{
-						if(m_DemoRecorder[i].IsRecording())
+						if(DemoRecorder.IsRecording())
 						{
 							// write snapshot
-							m_DemoRecorder[i].RecordSnapshot(GameTick, aExtraInfoRemoved, SnapSize);
+							DemoRecorder.RecordSnapshot(GameTick, aExtraInfoRemoved, SnapSize);
 						}
 					}
 
@@ -2090,9 +2091,9 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 		if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 || Msg == NETMSGTYPE_SV_EXTRAPROJECTILE)
 		{
 			// game message
-			for(int i = 0; i < RECORDER_MAX; i++)
-				if(m_DemoRecorder[i].IsRecording())
-					m_DemoRecorder[i].RecordMessage(pPacket->m_pData, pPacket->m_DataSize);
+			for(auto &DemoRecorder : m_DemoRecorder)
+				if(DemoRecorder.IsRecording())
+					DemoRecorder.RecordMessage(pPacket->m_pData, pPacket->m_DataSize);
 
 			GameClient()->OnMessage(Msg, &Unpacker);
 		}
@@ -2521,13 +2522,17 @@ void CClient::LoadDDNetInfo()
 
 		str_copy(m_aNews, pNewsString, sizeof(m_aNews));
 	}
+
+	const json_value *pPoints = json_object_get(pDDNetInfo, "points");
+	if(pPoints->type == json_integer)
+		m_Points = pPoints->u.integer;
 }
 
 void CClient::PumpNetwork()
 {
-	for(int i = 0; i < NUM_CLIENTS; i++)
+	for(auto &NetClient : m_NetClient)
 	{
-		m_NetClient[i].Update();
+		NetClient.Update();
 	}
 
 	if(State() != IClient::STATE_DEMOPLAYBACK)
@@ -2874,7 +2879,6 @@ void CClient::Update()
 			FinishDDNetInfo();
 		else if(m_pDDNetInfoTask->State() == HTTP_ERROR)
 		{
-			m_Warnings.emplace_back(SWarning(Localize("Downloading ddnet-info.json failed")));
 			Storage()->RemoveFile(m_aDDNetInfoTmp, IStorage::TYPE_SAVE);
 			ResetDDNetInfo();
 		}
@@ -3052,12 +3056,12 @@ void CClient::Run()
 			mem_zero(&BindAddr, sizeof(BindAddr));
 			BindAddr.type = NETTYPE_ALL;
 		}
-		for(int i = 0; i < NUM_CLIENTS; i++)
+		for(auto &NetClient : m_NetClient)
 		{
 			do
 			{
 				BindAddr.port = (secure_rand() % 64511) + 1024;
-			} while(!m_NetClient[i].Open(BindAddr, 0));
+			} while(!NetClient.Open(BindAddr, 0));
 		}
 	}
 

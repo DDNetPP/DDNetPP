@@ -114,7 +114,7 @@ public:
 		CMD_RENDER_TEXT, // render text
 		CMD_RENDER_TEXT_STREAM, // render text stream
 		CMD_RENDER_QUAD_CONTAINER, // render a quad buffer container
-		CMD_RENDER_QUAD_CONTAINER_SPRITE, // render a quad buffer container as sprite
+		CMD_RENDER_QUAD_CONTAINER_EX, // render a quad buffer container with extended parameters
 		CMD_RENDER_QUAD_CONTAINER_SPRITE_MULTIPLE, // render a quad buffer container as sprite multiple times
 
 		// swap
@@ -447,10 +447,10 @@ public:
 		void *m_pOffset;
 	};
 
-	struct SCommand_RenderQuadContainerAsSprite : public SCommand
+	struct SCommand_RenderQuadContainerEx : public SCommand
 	{
-		SCommand_RenderQuadContainerAsSprite() :
-			SCommand(CMD_RENDER_QUAD_CONTAINER_SPRITE) {}
+		SCommand_RenderQuadContainerEx() :
+			SCommand(CMD_RENDER_QUAD_CONTAINER_EX) {}
 		SState m_State;
 
 		int m_BufferContainerIndex;
@@ -680,7 +680,8 @@ class CGraphics_Threaded : public IEngineGraphics
 		NUM_CMDBUFFERS = 2,
 
 		DRAWING_QUADS = 1,
-		DRAWING_LINES = 2
+		DRAWING_LINES = 2,
+		DRAWING_TRIANGLES = 3
 	};
 
 	CCommandBuffer::SState m_State;
@@ -856,6 +857,8 @@ public:
 	void TextQuadsEnd(int TextureSize, int TextTextureIndex, int TextOutlineTextureIndex, float *pOutlineTextColor) override;
 	void QuadsTex3DBegin() override;
 	void QuadsTex3DEnd() override;
+	void TrianglesBegin() override;
+	void TrianglesEnd() override;
 	void QuadsEndKeepVertices() override;
 	void QuadsDrawCurrentVertices(bool KeepVertices = true) override;
 	void QuadsSetRotation(float Angle) override;
@@ -992,6 +995,7 @@ public:
 	void DeleteQuadContainer(int ContainerIndex) override;
 	void RenderQuadContainer(int ContainerIndex, int QuadDrawNum) override;
 	void RenderQuadContainer(int ContainerIndex, int QuadOffset, int QuadDrawNum) override;
+	void RenderQuadContainerEx(int ContainerIndex, int QuadOffset, int QuadDrawNum, float X, float Y, float ScaleX = 1.f, float ScaleY = 1.f) override;
 	void RenderQuadContainerAsSprite(int ContainerIndex, int QuadOffset, float X, float Y, float ScaleX = 1.f, float ScaleY = 1.f) override;
 	void RenderQuadContainerAsSpriteMultiple(int ContainerIndex, int QuadOffset, int DrawCount, SRenderSpriteInfo *pRenderInfo) override;
 
@@ -1024,6 +1028,11 @@ public:
 		{
 			PrimType = CCommandBuffer::PRIMTYPE_LINES;
 			PrimCount = NumVerts / 2;
+		}
+		else if(m_Drawing == DRAWING_TRIANGLES)
+		{
+			PrimType = CCommandBuffer::PRIMTYPE_TRIANGLES;
+			PrimCount = NumVerts / 3;
 		}
 		else
 			return;

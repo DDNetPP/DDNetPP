@@ -18,6 +18,7 @@
 #include <game/generated/protocol.h>
 
 #include <game/client/animstate.h>
+#include <game/client/components/chat.h>
 #include <game/client/components/menu_background.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
@@ -103,6 +104,25 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			else
 			{
 				g_Config.m_ClDyncam = 1;
+			}
+		}
+
+		// smooth dynamic camera
+		Left.HSplitTop(5.0f, 0, &Left);
+		Left.HSplitTop(20.0f, &Button, &Left);
+		if(g_Config.m_ClDyncam)
+		{
+			if(DoButton_CheckBox(&g_Config.m_ClDyncamSmoothness, Localize("Smooth Dynamic Camera"), g_Config.m_ClDyncamSmoothness, &Button))
+			{
+				if(g_Config.m_ClDyncamSmoothness)
+				{
+					g_Config.m_ClDyncamSmoothness = 0;
+				}
+				else
+				{
+					g_Config.m_ClDyncamSmoothness = 50;
+					g_Config.m_ClDyncamStabilizing = 50;
+				}
 			}
 		}
 
@@ -512,13 +532,12 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	SkinPrefix.HSplitTop(2.0f, 0, &SkinPrefix);
 	{
 		static const char *s_aSkinPrefixes[] = {"kitty", "santa"};
-		for(unsigned i = 0; i < sizeof(s_aSkinPrefixes) / sizeof(s_aSkinPrefixes[0]); i++)
+		for(auto &pPrefix : s_aSkinPrefixes)
 		{
-			const char *pPrefix = s_aSkinPrefixes[i];
 			CUIRect Button;
 			SkinPrefix.HSplitTop(20.0f, &Button, &SkinPrefix);
 			Button.HMargin(2.0f, &Button);
-			if(DoButton_Menu(&s_aSkinPrefixes[i], pPrefix, 0, &Button))
+			if(DoButton_Menu(&pPrefix, pPrefix, 0, &Button))
 			{
 				str_copy(g_Config.m_ClSkinPrefix, pPrefix, sizeof(g_Config.m_ClSkinPrefix));
 			}
@@ -796,8 +815,6 @@ static CKeyInfo gs_aKeys[] =
 	Localize("Lock team");Localize("Show entities");Localize("Show HUD");
 */
 
-const int g_KeyCount = sizeof(gs_aKeys) / sizeof(CKeyInfo);
-
 void CMenus::UiDoGetButtons(int Start, int Stop, CUIRect View, CUIRect ScopeView)
 {
 	for(int i = Start; i < Stop; i++)
@@ -833,8 +850,8 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	char aBuf[128];
 
 	// this is kinda slow, but whatever
-	for(int i = 0; i < g_KeyCount; i++)
-		gs_aKeys[i].m_KeyId = gs_aKeys[i].m_Modifier = 0;
+	for(auto &Key : gs_aKeys)
+		Key.m_KeyId = Key.m_Modifier = 0;
 
 	for(int Mod = 0; Mod < CBinds::MODIFIER_COUNT; Mod++)
 	{
@@ -844,11 +861,11 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			if(!pBind[0])
 				continue;
 
-			for(int i = 0; i < g_KeyCount; i++)
-				if(str_comp(pBind, gs_aKeys[i].m_pCommand) == 0)
+			for(auto &Key : gs_aKeys)
+				if(str_comp(pBind, Key.m_pCommand) == 0)
 				{
-					gs_aKeys[i].m_KeyId = KeyId;
-					gs_aKeys[i].m_Modifier = Mod;
+					Key.m_KeyId = KeyId;
+					Key.m_Modifier = Mod;
 					break;
 				}
 		}
@@ -1443,6 +1460,7 @@ void CMenus::RenderLanguageSelection(CUIRect MainView)
 	{
 		str_copy(g_Config.m_ClLanguagefile, s_Languages[s_SelectedLanguage].m_FileName, sizeof(g_Config.m_ClLanguagefile));
 		g_Localization.Load(s_Languages[s_SelectedLanguage].m_FileName, Storage(), Console());
+		GameClient()->OnLanguageChange();
 	}
 }
 
@@ -1631,13 +1649,20 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			g_Config.m_ClShowChat ^= 1;
 		}
 
+		Left.HSplitTop(20.0f, &Button, &Left);
+		if(DoButton_CheckBox(&g_Config.m_ClChatOld, Localize("Use old chat style"), g_Config.m_ClChatOld, &Button))
+		{
+			g_Config.m_ClChatOld ^= 1;
+			GameClient()->m_pChat->RebuildChat();
+		}
+
 		Right.HSplitTop(20.0f, &Button, &Right);
 		if(DoButton_CheckBox(&g_Config.m_ClChatTeamColors, Localize("Show names in chat in team colors"), g_Config.m_ClChatTeamColors, &Button))
 		{
 			g_Config.m_ClChatTeamColors ^= 1;
 		}
 
-		Left.HSplitTop(20.0f, &Button, &Left);
+		Right.HSplitTop(20.0f, &Button, &Right);
 		if(DoButton_CheckBox(&g_Config.m_ClShowKillMessages, Localize("Show kill messages"), g_Config.m_ClShowKillMessages, &Button))
 		{
 			g_Config.m_ClShowKillMessages ^= 1;
@@ -1660,6 +1685,10 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 			char aBuf[64];
 			Left.HSplitTop(20.0f, &Label, &Left);
 			Label.VSplitRight(50.0f, &Label, &Button);
+			Label.VSplitLeft(25.0f, &Enable, &Label);
+
+			if(DoButton_CheckBox(&g_Config.m_ClShowChatSystem, "", g_Config.m_ClShowChatSystem, &Enable))
+				g_Config.m_ClShowChatSystem ^= 1;
 			UI()->DoLabelScaled(&Label, Localize("System message"), 16.0f, -1);
 			{
 				static int s_DefaultButton = 0;
@@ -1773,7 +1802,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 					g_Config.m_ClMessageFriendColor = ColorHSLA(0, 1, 145 / 255.0f).Pack(false);
 			}
 
-			if(DoButton_CheckBox(&g_Config.m_ClMessageFriend, "", g_Config.m_ClMessageFriend, &Enable))
+			if(DoButton_CheckBox(&g_Config.m_ClMessageFriend, Localize("Highlight"), g_Config.m_ClMessageFriend, &Enable))
 			{
 				g_Config.m_ClMessageFriend ^= 1;
 			}

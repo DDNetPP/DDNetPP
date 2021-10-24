@@ -549,9 +549,9 @@ SHA256_DIGEST CDataFileReader::Sha256()
 	if(!m_pDataFile)
 	{
 		SHA256_DIGEST Result;
-		for(unsigned i = 0; i < sizeof(Result.data); i++)
+		for(unsigned char &d : Result.data)
 		{
-			Result.data[i] = 0xff;
+			d = 0xff;
 		}
 		return Result;
 	}
@@ -591,6 +591,12 @@ CDataFileWriter::~CDataFileWriter()
 {
 	free(m_pItemTypes);
 	m_pItemTypes = 0;
+	for(int i = 0; i < m_NumItems; i++)
+		if(m_pItems[i].m_pData)
+			free(m_pItems[i].m_pData);
+	for(int i = 0; i < m_NumDatas; ++i)
+		if(m_pDatas[i].m_pCompressedData)
+			free(m_pDatas[i].m_pCompressedData);
 	free(m_pItems);
 	m_pItems = 0;
 	free(m_pDatas);
@@ -895,9 +901,15 @@ int CDataFileWriter::Finish()
 
 	// free data
 	for(int i = 0; i < m_NumItems; i++)
+	{
 		free(m_pItems[i].m_pData);
+		m_pItems[i].m_pData = 0;
+	}
 	for(int i = 0; i < m_NumDatas; ++i)
+	{
 		free(m_pDatas[i].m_pCompressedData);
+		m_pDatas[i].m_pCompressedData = 0;
+	}
 
 	io_close(m_File);
 	m_File = 0;
