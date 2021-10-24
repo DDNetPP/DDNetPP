@@ -36,6 +36,8 @@
 #include "opengl_sl.h"
 #include "opengl_sl_program.h"
 
+#include <engine/shared/image_manipulation.h>
+
 #ifdef __MINGW32__
 extern "C" {
 int putenv(const char *);
@@ -69,7 +71,7 @@ void CGraphicsBackend_Threaded::ThreadFunc(void *pUser)
 
 	while(!pThis->m_Shutdown)
 	{
-		pThis->m_Activity.wait();
+		pThis->m_Activity.Wait();
 		if(pThis->m_pBuffer)
 		{
 #ifdef CONF_PLATFORM_MACOSX
@@ -79,7 +81,7 @@ void CGraphicsBackend_Threaded::ThreadFunc(void *pUser)
 
 			sync_barrier();
 			pThis->m_pBuffer = 0x0;
-			pThis->m_BufferDone.signal();
+			pThis->m_BufferDone.Signal();
 		}
 #if defined(CONF_VIDEORECORDER)
 		if(IVideo::Current())
@@ -100,13 +102,13 @@ void CGraphicsBackend_Threaded::StartProcessor(ICommandProcessor *pProcessor)
 	m_Shutdown = false;
 	m_pProcessor = pProcessor;
 	m_pThread = thread_init(ThreadFunc, this, "CGraphicsBackend_Threaded");
-	m_BufferDone.signal();
+	m_BufferDone.Signal();
 }
 
 void CGraphicsBackend_Threaded::StopProcessor()
 {
 	m_Shutdown = true;
-	m_Activity.signal();
+	m_Activity.Signal();
 	if(m_pThread)
 		thread_wait(m_pThread);
 }
@@ -115,7 +117,7 @@ void CGraphicsBackend_Threaded::RunBuffer(CCommandBuffer *pBuffer)
 {
 	WaitForIdle();
 	m_pBuffer = pBuffer;
-	m_Activity.signal();
+	m_Activity.Signal();
 }
 
 bool CGraphicsBackend_Threaded::IsIdle() const
@@ -126,7 +128,7 @@ bool CGraphicsBackend_Threaded::IsIdle() const
 void CGraphicsBackend_Threaded::WaitForIdle()
 {
 	while(m_pBuffer != 0x0)
-		m_BufferDone.wait();
+		m_BufferDone.Wait();
 }
 
 static bool Texture2DTo3D(void *pImageBuffer, int ImageWidth, int ImageHeight, int ImageColorChannelCount, int SplitCountWidth, int SplitCountHeight, void *pTarget3DImageData, int &Target3DImageWidth, int &Target3DImageHeight)
@@ -160,7 +162,7 @@ static bool Texture2DTo3D(void *pImageBuffer, int ImageWidth, int ImageHeight, i
 
 void CCommandProcessorFragment_General::Cmd_Signal(const CCommandBuffer::SCommand_Signal *pCommand)
 {
-	pCommand->m_pSemaphore->signal();
+	pCommand->m_pSemaphore->Signal();
 }
 
 bool CCommandProcessorFragment_General::RunCommand(const CCommandBuffer::SCommand *pBaseCommand)
@@ -176,19 +178,6 @@ bool CCommandProcessorFragment_General::RunCommand(const CCommandBuffer::SComman
 }
 
 // ------------ CCommandProcessorFragment_OpenGL
-
-static int HighestBit(int OfVar)
-{
-	if(!OfVar)
-		return 0;
-
-	int RetV = 1;
-
-	while(OfVar >>= 1)
-		RetV <<= 1;
-
-	return RetV;
-}
 
 int CCommandProcessorFragment_OpenGL::TexFormatToOpenGLFormat(int TexFormat)
 {
@@ -212,132 +201,16 @@ int CCommandProcessorFragment_OpenGL::TexFormatToImageColorChannelCount(int TexF
 	return 4;
 }
 
-static float CubicHermite(float A, float B, float C, float D, float t)
-{
-	float a = -A / 2.0f + (3.0f * B) / 2.0f - (3.0f * C) / 2.0f + D / 2.0f;
-	float b = A - (5.0f * B) / 2.0f + 2.0f * C - D / 2.0f;
-	float c = -A / 2.0f + C / 2.0f;
-	float d = B;
-
-	return (a * t * t * t) + (b * t * t) + (c * t) + d;
-}
-
-static void GetPixelClamped(uint8_t *pSourceImage, int x, int y, uint32_t W, uint32_t H, size_t BPP, uint8_t aTmp[])
-{
-	x = clamp<int>(x, 0, (int)W - 1);
-	y = clamp<int>(y, 0, (int)H - 1);
-
-	for(size_t i = 0; i < BPP; i++)
-	{
-		aTmp[i] = pSourceImage[x * BPP + (W * BPP * y) + i];
-	}
-}
-
-static void SampleBicubic(uint8_t *pSourceImage, float u, float v, uint32_t W, uint32_t H, size_t BPP, uint8_t aSample[])
-{
-	float X = (u * W) - 0.5f;
-	int xInt = (int)X;
-	float xFract = X - floorf(X);
-
-	float Y = (v * H) - 0.5f;
-	int yInt = (int)Y;
-	float yFract = Y - floorf(Y);
-
-	uint8_t PX00[4];
-	uint8_t PX10[4];
-	uint8_t PX20[4];
-	uint8_t PX30[4];
-
-	uint8_t PX01[4];
-	uint8_t PX11[4];
-	uint8_t PX21[4];
-	uint8_t PX31[4];
-
-	uint8_t PX02[4];
-	uint8_t PX12[4];
-	uint8_t PX22[4];
-	uint8_t PX32[4];
-
-	uint8_t PX03[4];
-	uint8_t PX13[4];
-	uint8_t PX23[4];
-	uint8_t PX33[4];
-
-	GetPixelClamped(pSourceImage, xInt - 1, yInt - 1, W, H, BPP, PX00);
-	GetPixelClamped(pSourceImage, xInt + 0, yInt - 1, W, H, BPP, PX10);
-	GetPixelClamped(pSourceImage, xInt + 1, yInt - 1, W, H, BPP, PX20);
-	GetPixelClamped(pSourceImage, xInt + 2, yInt - 1, W, H, BPP, PX30);
-
-	GetPixelClamped(pSourceImage, xInt - 1, yInt + 0, W, H, BPP, PX01);
-	GetPixelClamped(pSourceImage, xInt + 0, yInt + 0, W, H, BPP, PX11);
-	GetPixelClamped(pSourceImage, xInt + 1, yInt + 0, W, H, BPP, PX21);
-	GetPixelClamped(pSourceImage, xInt + 2, yInt + 0, W, H, BPP, PX31);
-
-	GetPixelClamped(pSourceImage, xInt - 1, yInt + 1, W, H, BPP, PX02);
-	GetPixelClamped(pSourceImage, xInt + 0, yInt + 1, W, H, BPP, PX12);
-	GetPixelClamped(pSourceImage, xInt + 1, yInt + 1, W, H, BPP, PX22);
-	GetPixelClamped(pSourceImage, xInt + 2, yInt + 1, W, H, BPP, PX32);
-
-	GetPixelClamped(pSourceImage, xInt - 1, yInt + 2, W, H, BPP, PX03);
-	GetPixelClamped(pSourceImage, xInt + 0, yInt + 2, W, H, BPP, PX13);
-	GetPixelClamped(pSourceImage, xInt + 1, yInt + 2, W, H, BPP, PX23);
-	GetPixelClamped(pSourceImage, xInt + 2, yInt + 2, W, H, BPP, PX33);
-
-	for(size_t i = 0; i < BPP; i++)
-	{
-		float Clmn0 = CubicHermite(PX00[i], PX10[i], PX20[i], PX30[i], xFract);
-		float Clmn1 = CubicHermite(PX01[i], PX11[i], PX21[i], PX31[i], xFract);
-		float Clmn2 = CubicHermite(PX02[i], PX12[i], PX22[i], PX32[i], xFract);
-		float Clmn3 = CubicHermite(PX03[i], PX13[i], PX23[i], PX33[i], xFract);
-
-		float Valuef = CubicHermite(Clmn0, Clmn1, Clmn2, Clmn3, yFract);
-
-		Valuef = clamp<float>(Valuef, 0.0f, 255.0f);
-
-		aSample[i] = (uint8_t)Valuef;
-	}
-}
-
-static void ResizeImage(uint8_t *pSourceImage, uint32_t SW, uint32_t SH, uint8_t *pDestinationImage, uint32_t W, uint32_t H, size_t BPP)
-{
-	uint8_t aSample[4];
-	int y, x;
-
-	for(y = 0; y < (int)H; ++y)
-	{
-		float v = (float)y / (float)(H - 1);
-
-		for(x = 0; x < (int)W; ++x)
-		{
-			float u = (float)x / (float)(W - 1);
-			SampleBicubic(pSourceImage, u, v, SW, SH, BPP, aSample);
-
-			for(size_t i = 0; i < BPP; ++i)
-			{
-				pDestinationImage[x * BPP + ((W * BPP) * y) + i] = aSample[i];
-			}
-		}
-	}
-}
-
 void *CCommandProcessorFragment_OpenGL::Resize(int Width, int Height, int NewWidth, int NewHeight, int Format, const unsigned char *pData)
 {
-	unsigned char *pTmpData;
-
 	int Bpp = TexFormatToImageColorChannelCount(Format);
 
-	// All calls to Resize() ensure width & height are > 0, Bpp is always > 0,
-	// thus no allocation size 0 possible.
-	pTmpData = (unsigned char *)malloc((size_t)NewWidth * NewHeight * Bpp); // NOLINT(clang-analyzer-optin.portability.UnixAPI)
-
-	ResizeImage((uint8_t *)pData, Width, Height, (uint8_t *)pTmpData, NewWidth, NewHeight, Bpp);
-
-	return pTmpData;
+	return ResizeImage((const uint8_t *)pData, Width, Height, NewWidth, NewHeight, Bpp);
 }
 
 bool CCommandProcessorFragment_OpenGL::IsTexturedState(const CCommandBuffer::SState &State)
 {
-	return State.m_Texture >= 0 && State.m_Texture < CCommandBuffer::MAX_TEXTURES;
+	return State.m_Texture >= 0 && State.m_Texture < (int)m_Textures.size();
 }
 
 void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &State, bool Use2DArrayTextures)
@@ -397,9 +270,9 @@ void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &St
 		if(!Use2DArrayTextures)
 		{
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, m_aTextures[State.m_Texture].m_Tex);
+			glBindTexture(GL_TEXTURE_2D, m_Textures[State.m_Texture].m_Tex);
 
-			if(m_aTextures[State.m_Texture].m_LastWrapMode != State.m_WrapMode)
+			if(m_Textures[State.m_Texture].m_LastWrapMode != State.m_WrapMode)
 			{
 				switch(State.m_WrapMode)
 				{
@@ -414,7 +287,7 @@ void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &St
 				default:
 					dbg_msg("render", "unknown wrapmode %d\n", State.m_WrapMode);
 				};
-				m_aTextures[State.m_Texture].m_LastWrapMode = State.m_WrapMode;
+				m_Textures[State.m_Texture].m_LastWrapMode = State.m_WrapMode;
 			}
 		}
 		else
@@ -423,13 +296,13 @@ void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &St
 			{
 				if(!m_HasShaders)
 					glEnable(m_2DArrayTarget);
-				glBindTexture(m_2DArrayTarget, m_aTextures[State.m_Texture].m_Tex2DArray);
+				glBindTexture(m_2DArrayTarget, m_Textures[State.m_Texture].m_Tex2DArray);
 			}
 			else if(m_Has3DTextures)
 			{
 				if(!m_HasShaders)
 					glEnable(GL_TEXTURE_3D);
-				glBindTexture(GL_TEXTURE_3D, m_aTextures[State.m_Texture].m_Tex2DArray);
+				glBindTexture(GL_TEXTURE_3D, m_Textures[State.m_Texture].m_Tex2DArray);
 			}
 			else
 			{
@@ -474,7 +347,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_Init(const SCommand_Init *pCommand)
 
 void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::SCommand_Texture_Update *pCommand)
 {
-	glBindTexture(GL_TEXTURE_2D, m_aTextures[pCommand->m_Slot].m_Tex);
+	glBindTexture(GL_TEXTURE_2D, m_Textures[pCommand->m_Slot].m_Tex);
 
 	void *pTexData = pCommand->m_pData;
 	int Width = pCommand->m_Width;
@@ -484,8 +357,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::
 
 	if(!m_HasNPOTTextures)
 	{
-		float ResizeW = m_aTextures[pCommand->m_Slot].m_ResizeWidth;
-		float ResizeH = m_aTextures[pCommand->m_Slot].m_ResizeHeight;
+		float ResizeW = m_Textures[pCommand->m_Slot].m_ResizeWidth;
+		float ResizeH = m_Textures[pCommand->m_Slot].m_ResizeHeight;
 		if(ResizeW > 0 && ResizeH > 0)
 		{
 			int ResizedW = (int)(Width * ResizeW);
@@ -500,11 +373,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::
 		}
 	}
 
-	if(m_aTextures[pCommand->m_Slot].m_RescaleCount > 0)
+	if(m_Textures[pCommand->m_Slot].m_RescaleCount > 0)
 	{
 		int OldWidth = Width;
 		int OldHeight = Height;
-		for(int i = 0; i < m_aTextures[pCommand->m_Slot].m_RescaleCount; ++i)
+		for(int i = 0; i < m_Textures[pCommand->m_Slot].m_RescaleCount; ++i)
 		{
 			Width >>= 1;
 			Height >>= 1;
@@ -525,35 +398,35 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::
 
 void CCommandProcessorFragment_OpenGL::DestroyTexture(int Slot)
 {
-	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) - m_aTextures[Slot].m_MemSize, std::memory_order_relaxed);
+	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) - m_Textures[Slot].m_MemSize, std::memory_order_relaxed);
 
-	if(m_aTextures[Slot].m_Tex != 0)
+	if(m_Textures[Slot].m_Tex != 0)
 	{
-		glDeleteTextures(1, &m_aTextures[Slot].m_Tex);
+		glDeleteTextures(1, &m_Textures[Slot].m_Tex);
 	}
 
-	if(m_aTextures[Slot].m_Tex2DArray != 0)
+	if(m_Textures[Slot].m_Tex2DArray != 0)
 	{
-		glDeleteTextures(1, &m_aTextures[Slot].m_Tex2DArray);
+		glDeleteTextures(1, &m_Textures[Slot].m_Tex2DArray);
 	}
 
 	if(IsNewApi())
 	{
-		if(m_aTextures[Slot].m_Sampler != 0)
+		if(m_Textures[Slot].m_Sampler != 0)
 		{
-			glDeleteSamplers(1, &m_aTextures[Slot].m_Sampler);
+			glDeleteSamplers(1, &m_Textures[Slot].m_Sampler);
 		}
-		if(m_aTextures[Slot].m_Sampler2DArray != 0)
+		if(m_Textures[Slot].m_Sampler2DArray != 0)
 		{
-			glDeleteSamplers(1, &m_aTextures[Slot].m_Sampler2DArray);
+			glDeleteSamplers(1, &m_Textures[Slot].m_Sampler2DArray);
 		}
 	}
 
-	m_aTextures[Slot].m_Tex = 0;
-	m_aTextures[Slot].m_Sampler = 0;
-	m_aTextures[Slot].m_Tex2DArray = 0;
-	m_aTextures[Slot].m_Sampler2DArray = 0;
-	m_aTextures[Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
+	m_Textures[Slot].m_Tex = 0;
+	m_Textures[Slot].m_Sampler = 0;
+	m_Textures[Slot].m_Tex2DArray = 0;
+	m_Textures[Slot].m_Sampler2DArray = 0;
+	m_Textures[Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
 }
 
 void CCommandProcessorFragment_OpenGL::Cmd_Texture_Destroy(const CCommandBuffer::SCommand_Texture_Destroy *pCommand)
@@ -574,8 +447,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
 	}
 
-	m_aTextures[pCommand->m_Slot].m_ResizeWidth = -1.f;
-	m_aTextures[pCommand->m_Slot].m_ResizeHeight = -1.f;
+	if(pCommand->m_Slot >= (int)m_Textures.size())
+		m_Textures.resize(m_Textures.size() * 2);
+
+	m_Textures[pCommand->m_Slot].m_ResizeWidth = -1.f;
+	m_Textures[pCommand->m_Slot].m_ResizeHeight = -1.f;
 
 	if(!m_HasNPOTTextures)
 	{
@@ -587,8 +463,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 			free(pTexData);
 			pTexData = pTmpData;
 
-			m_aTextures[pCommand->m_Slot].m_ResizeWidth = (float)PowerOfTwoWidth / (float)Width;
-			m_aTextures[pCommand->m_Slot].m_ResizeHeight = (float)PowerOfTwoHeight / (float)Height;
+			m_Textures[pCommand->m_Slot].m_ResizeWidth = (float)PowerOfTwoWidth / (float)Width;
+			m_Textures[pCommand->m_Slot].m_ResizeHeight = (float)PowerOfTwoHeight / (float)Height;
 
 			Width = PowerOfTwoWidth;
 			Height = PowerOfTwoHeight;
@@ -627,9 +503,9 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 			pTexData = pTmpData;
 		}
 	}
-	m_aTextures[pCommand->m_Slot].m_Width = Width;
-	m_aTextures[pCommand->m_Slot].m_Height = Height;
-	m_aTextures[pCommand->m_Slot].m_RescaleCount = RescaleCount;
+	m_Textures[pCommand->m_Slot].m_Width = Width;
+	m_Textures[pCommand->m_Slot].m_Height = Height;
+	m_Textures[pCommand->m_Slot].m_RescaleCount = RescaleCount;
 
 	int Oglformat = TexFormatToOpenGLFormat(pCommand->m_Format);
 	int StoreOglformat = TexFormatToOpenGLFormat(pCommand->m_StoreFormat);
@@ -647,8 +523,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 
 	if((pCommand->m_Flags & CCommandBuffer::TEXFLAG_NO_2D_TEXTURE) == 0)
 	{
-		glGenTextures(1, &m_aTextures[pCommand->m_Slot].m_Tex);
-		glBindTexture(GL_TEXTURE_2D, m_aTextures[pCommand->m_Slot].m_Tex);
+		glGenTextures(1, &m_Textures[pCommand->m_Slot].m_Tex);
+		glBindTexture(GL_TEXTURE_2D, m_Textures[pCommand->m_Slot].m_Tex);
 	}
 
 	if(pCommand->m_Flags & CCommandBuffer::TEXFLAG_NOMIPMAPS || !m_HasMipMaps)
@@ -678,7 +554,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 		{
 			bool Is3DTexture = (pCommand->m_Flags & Flag3DTexture) != 0;
 
-			glGenTextures(1, &m_aTextures[pCommand->m_Slot].m_Tex2DArray);
+			glGenTextures(1, &m_Textures[pCommand->m_Slot].m_Tex2DArray);
 
 			GLenum Target = GL_TEXTURE_3D;
 
@@ -691,12 +567,12 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 				Target = m_2DArrayTarget;
 			}
 
-			glBindTexture(Target, m_aTextures[pCommand->m_Slot].m_Tex2DArray);
+			glBindTexture(Target, m_Textures[pCommand->m_Slot].m_Tex2DArray);
 
 			if(IsNewApi())
 			{
-				glGenSamplers(1, &m_aTextures[pCommand->m_Slot].m_Sampler2DArray);
-				glBindSampler(0, m_aTextures[pCommand->m_Slot].m_Sampler2DArray);
+				glGenSamplers(1, &m_Textures[pCommand->m_Slot].m_Sampler2DArray);
+				glBindSampler(0, m_Textures[pCommand->m_Slot].m_Sampler2DArray);
 			}
 
 			glTexParameteri(Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -704,14 +580,14 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 			{
 				glTexParameteri(Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				if(IsNewApi())
-					glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			}
 			else
 			{
 				glTexParameteri(Target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glTexParameteri(Target, GL_GENERATE_MIPMAP, GL_TRUE);
 				if(IsNewApi())
-					glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+					glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			}
 
 			glTexParameteri(Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -722,11 +598,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 
 			if(IsNewApi())
 			{
-				glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+				glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 				if(m_OpenGLTextureLodBIAS != 0)
-					glSamplerParameterf(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
+					glSamplerParameterf(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
 
 				glBindSampler(0, 0);
 			}
@@ -786,17 +662,17 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 	}
 
 	// This is the initial value for the wrap modes
-	m_aTextures[pCommand->m_Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
+	m_Textures[pCommand->m_Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
 
 	// calculate memory usage
-	m_aTextures[pCommand->m_Slot].m_MemSize = Width * Height * pCommand->m_PixelSize;
+	m_Textures[pCommand->m_Slot].m_MemSize = Width * Height * pCommand->m_PixelSize;
 	while(Width > 2 && Height > 2)
 	{
 		Width >>= 1;
 		Height >>= 1;
-		m_aTextures[pCommand->m_Slot].m_MemSize += Width * Height * pCommand->m_PixelSize;
+		m_Textures[pCommand->m_Slot].m_MemSize += Width * Height * pCommand->m_PixelSize;
 	}
-	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) + m_aTextures[pCommand->m_Slot].m_MemSize, std::memory_order_relaxed);
+	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) + m_Textures[pCommand->m_Slot].m_MemSize, std::memory_order_relaxed);
 
 	free(pTexData);
 }
@@ -871,7 +747,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_Screenshot(const CCommandBuffer::SCom
 
 CCommandProcessorFragment_OpenGL::CCommandProcessorFragment_OpenGL()
 {
-	mem_zero(m_aTextures, sizeof(m_aTextures));
+	m_Textures.resize(CCommandBuffer::MAX_TEXTURES);
 	m_HasShaders = false;
 }
 
@@ -1025,15 +901,15 @@ void CCommandProcessorFragment_OpenGL2::SetState(const CCommandBuffer::SState &S
 				glActiveTexture(GL_TEXTURE0 + Slot);
 				if(!Use2DArrayTextures)
 				{
-					glBindTexture(GL_TEXTURE_2D, m_aTextures[State.m_Texture].m_Tex);
+					glBindTexture(GL_TEXTURE_2D, m_Textures[State.m_Texture].m_Tex);
 					if(IsNewApi())
-						glBindSampler(Slot, m_aTextures[State.m_Texture].m_Sampler);
+						glBindSampler(Slot, m_Textures[State.m_Texture].m_Sampler);
 				}
 				else
 				{
-					glBindTexture(GL_TEXTURE_2D_ARRAY, m_aTextures[State.m_Texture].m_Tex2DArray);
+					glBindTexture(GL_TEXTURE_2D_ARRAY, m_Textures[State.m_Texture].m_Tex2DArray);
 					if(IsNewApi())
-						glBindSampler(Slot, m_aTextures[State.m_Texture].m_Sampler2DArray);
+						glBindSampler(Slot, m_Textures[State.m_Texture].m_Sampler2DArray);
 				}
 			}
 		}
@@ -1044,9 +920,9 @@ void CCommandProcessorFragment_OpenGL2::SetState(const CCommandBuffer::SState &S
 			{
 				if(!IsNewApi() && !m_HasShaders)
 					glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, m_aTextures[State.m_Texture].m_Tex);
+				glBindTexture(GL_TEXTURE_2D, m_Textures[State.m_Texture].m_Tex);
 				if(IsNewApi())
-					glBindSampler(Slot, m_aTextures[State.m_Texture].m_Sampler);
+					glBindSampler(Slot, m_Textures[State.m_Texture].m_Sampler);
 			}
 			else
 			{
@@ -1054,17 +930,17 @@ void CCommandProcessorFragment_OpenGL2::SetState(const CCommandBuffer::SState &S
 				{
 					if(!IsNewApi() && !m_HasShaders)
 						glEnable(GL_TEXTURE_3D);
-					glBindTexture(GL_TEXTURE_3D, m_aTextures[State.m_Texture].m_Tex2DArray);
+					glBindTexture(GL_TEXTURE_3D, m_Textures[State.m_Texture].m_Tex2DArray);
 					if(IsNewApi())
-						glBindSampler(Slot, m_aTextures[State.m_Texture].m_Sampler2DArray);
+						glBindSampler(Slot, m_Textures[State.m_Texture].m_Sampler2DArray);
 				}
 				else
 				{
 					if(!IsNewApi() && !m_HasShaders)
 						glEnable(m_2DArrayTarget);
-					glBindTexture(m_2DArrayTarget, m_aTextures[State.m_Texture].m_Tex2DArray);
+					glBindTexture(m_2DArrayTarget, m_Textures[State.m_Texture].m_Tex2DArray);
 					if(IsNewApi())
-						glBindSampler(Slot, m_aTextures[State.m_Texture].m_Sampler2DArray);
+						glBindSampler(Slot, m_Textures[State.m_Texture].m_Sampler2DArray);
 				}
 			}
 		}
@@ -1075,28 +951,28 @@ void CCommandProcessorFragment_OpenGL2::SetState(const CCommandBuffer::SState &S
 			pProgram->m_LastTextureSampler = Slot;
 		}
 
-		if(m_aTextures[State.m_Texture].m_LastWrapMode != State.m_WrapMode && !Use2DArrayTextures)
+		if(m_Textures[State.m_Texture].m_LastWrapMode != State.m_WrapMode && !Use2DArrayTextures)
 		{
 			switch(State.m_WrapMode)
 			{
 			case CCommandBuffer::WRAP_REPEAT:
 				if(IsNewApi())
 				{
-					glSamplerParameteri(m_aTextures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-					glSamplerParameteri(m_aTextures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+					glSamplerParameteri(m_Textures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glSamplerParameteri(m_Textures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				}
 				break;
 			case CCommandBuffer::WRAP_CLAMP:
 				if(IsNewApi())
 				{
-					glSamplerParameteri(m_aTextures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-					glSamplerParameteri(m_aTextures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					glSamplerParameteri(m_Textures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glSamplerParameteri(m_Textures[State.m_Texture].m_Sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				}
 				break;
 			default:
 				dbg_msg("render", "unknown wrapmode %d\n", State.m_WrapMode);
 			};
-			m_aTextures[State.m_Texture].m_LastWrapMode = State.m_WrapMode;
+			m_Textures[State.m_Texture].m_LastWrapMode = State.m_WrapMode;
 		}
 	}
 
@@ -2615,7 +2491,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Init(const SCommand_Init *pCommand
 
 	m_CurrentIndicesInBuffer = CCommandBuffer::MAX_VERTICES / 4 * 6;
 
-	mem_zero(m_aTextures, sizeof(m_aTextures));
+	m_Textures.resize(CCommandBuffer::MAX_TEXTURES);
 
 	m_ClearColor.r = m_ClearColor.g = m_ClearColor.b = -1.f;
 
@@ -2673,7 +2549,7 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Shutdown(const SCommand_Shutdown *
 	glDeleteBuffers(1, &m_PrimitiveDrawBufferIDTex3D);
 	glDeleteVertexArrays(1, &m_PrimitiveDrawVertexIDTex3D);
 
-	for(int i = 0; i < CCommandBuffer::MAX_TEXTURES; ++i)
+	for(int i = 0; i < (int)m_Textures.size(); ++i)
 	{
 		DestroyTexture(i);
 	}
@@ -2694,19 +2570,19 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Update(const CCommandBuffe
 		//just tell, that we using this texture now
 		IsAndUpdateTextureSlotBound(Slot, pCommand->m_Slot);
 		glActiveTexture(GL_TEXTURE0 + Slot);
-		glBindSampler(Slot, m_aTextures[pCommand->m_Slot].m_Sampler);
+		glBindSampler(Slot, m_Textures[pCommand->m_Slot].m_Sampler);
 	}
 
-	glBindTexture(GL_TEXTURE_2D, m_aTextures[pCommand->m_Slot].m_Tex);
+	glBindTexture(GL_TEXTURE_2D, m_Textures[pCommand->m_Slot].m_Tex);
 
 	void *pTexData = pCommand->m_pData;
 	int Width = pCommand->m_Width;
 	int Height = pCommand->m_Height;
 	int X = pCommand->m_X;
 	int Y = pCommand->m_Y;
-	if(m_aTextures[pCommand->m_Slot].m_RescaleCount > 0)
+	if(m_Textures[pCommand->m_Slot].m_RescaleCount > 0)
 	{
-		for(int i = 0; i < m_aTextures[pCommand->m_Slot].m_RescaleCount; ++i)
+		for(int i = 0; i < m_Textures[pCommand->m_Slot].m_RescaleCount; ++i)
 		{
 			Width >>= 1;
 			Height >>= 1;
@@ -2747,6 +2623,9 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 	int Height = pCommand->m_Height;
 	void *pTexData = pCommand->m_pData;
 
+	if(pCommand->m_Slot >= (int)m_Textures.size())
+		m_Textures.resize(m_Textures.size() * 2);
+
 	// resample if needed
 	int RescaleCount = 0;
 	if(pCommand->m_Format == CCommandBuffer::TEXFORMAT_RGBA || pCommand->m_Format == CCommandBuffer::TEXFORMAT_RGB || pCommand->m_Format == CCommandBuffer::TEXFORMAT_ALPHA)
@@ -2775,9 +2654,9 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 			pTexData = pTmpData;
 		}
 	}
-	m_aTextures[pCommand->m_Slot].m_Width = Width;
-	m_aTextures[pCommand->m_Slot].m_Height = Height;
-	m_aTextures[pCommand->m_Slot].m_RescaleCount = RescaleCount;
+	m_Textures[pCommand->m_Slot].m_Width = Width;
+	m_Textures[pCommand->m_Slot].m_Height = Height;
+	m_Textures[pCommand->m_Slot].m_RescaleCount = RescaleCount;
 
 	int Oglformat = TexFormatToNewOpenGLFormat(pCommand->m_Format);
 	int StoreOglformat = TexFormatToNewOpenGLFormat(pCommand->m_StoreFormat);
@@ -2806,11 +2685,11 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 
 	if((pCommand->m_Flags & CCommandBuffer::TEXFLAG_NO_2D_TEXTURE) == 0)
 	{
-		glGenTextures(1, &m_aTextures[pCommand->m_Slot].m_Tex);
-		glBindTexture(GL_TEXTURE_2D, m_aTextures[pCommand->m_Slot].m_Tex);
+		glGenTextures(1, &m_Textures[pCommand->m_Slot].m_Tex);
+		glBindTexture(GL_TEXTURE_2D, m_Textures[pCommand->m_Slot].m_Tex);
 
-		glGenSamplers(1, &m_aTextures[pCommand->m_Slot].m_Sampler);
-		glBindSampler(Slot, m_aTextures[pCommand->m_Slot].m_Sampler);
+		glGenSamplers(1, &m_Textures[pCommand->m_Slot].m_Sampler);
+		glBindSampler(Slot, m_Textures[pCommand->m_Slot].m_Sampler);
 	}
 
 	if(Oglformat == GL_RED)
@@ -2827,8 +2706,8 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexImage2D(GL_TEXTURE_2D, 0, StoreOglformat, Width, Height, 0, Oglformat, GL_UNSIGNED_BYTE, pTexData);
 		}
 	}
@@ -2836,10 +2715,10 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 	{
 		if((pCommand->m_Flags & CCommandBuffer::TEXFLAG_NO_2D_TEXTURE) == 0)
 		{
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			if(m_OpenGLTextureLodBIAS != 0)
-				glSamplerParameterf(m_aTextures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
+				glSamplerParameterf(m_Textures[pCommand->m_Slot].m_Sampler, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
 			//prevent mipmap display bugs, when zooming out far
 			if(Width >= 1024 && Height >= 1024)
 			{
@@ -2852,18 +2731,18 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 
 		if((pCommand->m_Flags & (CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE | CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE_SINGLE_LAYER)) != 0)
 		{
-			glGenTextures(1, &m_aTextures[pCommand->m_Slot].m_Tex2DArray);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, m_aTextures[pCommand->m_Slot].m_Tex2DArray);
+			glGenTextures(1, &m_Textures[pCommand->m_Slot].m_Tex2DArray);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, m_Textures[pCommand->m_Slot].m_Tex2DArray);
 
-			glGenSamplers(1, &m_aTextures[pCommand->m_Slot].m_Sampler2DArray);
-			glBindSampler(Slot, m_aTextures[pCommand->m_Slot].m_Sampler2DArray);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glSamplerParameteri(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+			glGenSamplers(1, &m_Textures[pCommand->m_Slot].m_Sampler2DArray);
+			glBindSampler(Slot, m_Textures[pCommand->m_Slot].m_Sampler2DArray);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glSamplerParameteri(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 			if(m_OpenGLTextureLodBIAS != 0)
-				glSamplerParameterf(m_aTextures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
+				glSamplerParameterf(m_Textures[pCommand->m_Slot].m_Sampler2DArray, GL_TEXTURE_LOD_BIAS, ((GLfloat)m_OpenGLTextureLodBIAS / 1000.0f));
 
 			int ImageColorChannels = TexFormatToImageColorChannelCount(pCommand->m_Format);
 
@@ -2921,17 +2800,17 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_Texture_Create(const CCommandBuffe
 	}
 
 	// This is the initial value for the wrap modes
-	m_aTextures[pCommand->m_Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
+	m_Textures[pCommand->m_Slot].m_LastWrapMode = CCommandBuffer::WRAP_REPEAT;
 
 	// calculate memory usage
-	m_aTextures[pCommand->m_Slot].m_MemSize = Width * Height * pCommand->m_PixelSize;
+	m_Textures[pCommand->m_Slot].m_MemSize = Width * Height * pCommand->m_PixelSize;
 	while(Width > 2 && Height > 2)
 	{
 		Width >>= 1;
 		Height >>= 1;
-		m_aTextures[pCommand->m_Slot].m_MemSize += Width * Height * pCommand->m_PixelSize;
+		m_Textures[pCommand->m_Slot].m_MemSize += Width * Height * pCommand->m_PixelSize;
 	}
-	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) + m_aTextures[pCommand->m_Slot].m_MemSize, std::memory_order_relaxed);
+	m_pTextureMemoryUsage->store(m_pTextureMemoryUsage->load(std::memory_order_relaxed) + m_Textures[pCommand->m_Slot].m_MemSize, std::memory_order_relaxed);
 
 	free(pTexData);
 }
@@ -3496,25 +3375,25 @@ void CCommandProcessorFragment_OpenGL3_3::RenderText(const CCommandBuffer::SStat
 		if(!IsAndUpdateTextureSlotBound(SlotText, TextTextureIndex))
 		{
 			glActiveTexture(GL_TEXTURE0 + SlotText);
-			glBindTexture(GL_TEXTURE_2D, m_aTextures[TextTextureIndex].m_Tex);
-			glBindSampler(SlotText, m_aTextures[TextTextureIndex].m_Sampler);
+			glBindTexture(GL_TEXTURE_2D, m_Textures[TextTextureIndex].m_Tex);
+			glBindSampler(SlotText, m_Textures[TextTextureIndex].m_Sampler);
 		}
 		if(!IsAndUpdateTextureSlotBound(SlotTextOutline, TextOutlineTextureIndex))
 		{
 			glActiveTexture(GL_TEXTURE0 + SlotTextOutline);
-			glBindTexture(GL_TEXTURE_2D, m_aTextures[TextOutlineTextureIndex].m_Tex);
-			glBindSampler(SlotTextOutline, m_aTextures[TextOutlineTextureIndex].m_Sampler);
+			glBindTexture(GL_TEXTURE_2D, m_Textures[TextOutlineTextureIndex].m_Tex);
+			glBindSampler(SlotTextOutline, m_Textures[TextOutlineTextureIndex].m_Sampler);
 		}
 	}
 	else
 	{
 		SlotText = 0;
 		SlotTextOutline = 1;
-		glBindTexture(GL_TEXTURE_2D, m_aTextures[TextTextureIndex].m_Tex);
-		glBindSampler(SlotText, m_aTextures[TextTextureIndex].m_Sampler);
+		glBindTexture(GL_TEXTURE_2D, m_Textures[TextTextureIndex].m_Tex);
+		glBindSampler(SlotText, m_Textures[TextTextureIndex].m_Sampler);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m_aTextures[TextOutlineTextureIndex].m_Tex);
-		glBindSampler(SlotTextOutline, m_aTextures[TextOutlineTextureIndex].m_Sampler);
+		glBindTexture(GL_TEXTURE_2D, m_Textures[TextOutlineTextureIndex].m_Tex);
+		glBindSampler(SlotTextOutline, m_Textures[TextOutlineTextureIndex].m_Sampler);
 		glActiveTexture(GL_TEXTURE0);
 	}
 
@@ -4111,7 +3990,6 @@ void CCommandProcessorFragment_SDL::Cmd_VSync(const CCommandBuffer::SCommand_VSy
 
 void CCommandProcessorFragment_SDL::Cmd_Resize(const CCommandBuffer::SCommand_Resize *pCommand)
 {
-	SDL_SetWindowSize(m_pWindow, pCommand->m_Width, pCommand->m_Height);
 	glViewport(0, 0, pCommand->m_Width, pCommand->m_Height);
 }
 
@@ -4454,11 +4332,6 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 			dbg_msg("gfx", "unable to init SDL video: %s", SDL_GetError());
 			return EGraphicsBackendErrorCodes::GRAPHICS_BACKEND_ERROR_CODE_SDL_INIT_FAILED;
 		}
-
-#ifdef CONF_FAMILY_WINDOWS
-		if(!getenv("SDL_VIDEO_WINDOW_POS") && !getenv("SDL_VIDEO_CENTERED")) // ignore_convention
-			putenv("SDL_VIDEO_WINDOW_POS=center"); // ignore_convention
-#endif
 	}
 
 	SDL_ClearError();
@@ -4612,10 +4485,8 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	int SdlFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_GRABBED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
 	if(Flags & IGraphicsBackend::INITFLAG_HIGHDPI)
 		SdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
-#if defined(SDL_VIDEO_DRIVER_X11)
 	if(Flags & IGraphicsBackend::INITFLAG_RESIZABLE)
 		SdlFlags |= SDL_WINDOW_RESIZABLE;
-#endif
 	if(Flags & IGraphicsBackend::INITFLAG_BORDERLESS)
 		SdlFlags |= SDL_WINDOW_BORDERLESS;
 	if(Flags & IGraphicsBackend::INITFLAG_FULLSCREEN)
@@ -4663,8 +4534,8 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 
 	m_pWindow = SDL_CreateWindow(
 		pName,
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
 		*pWidth,
 		*pHeight,
 		SdlFlags);
@@ -4928,6 +4799,16 @@ int CGraphicsBackend_SDL_OpenGL::WindowOpen()
 void CGraphicsBackend_SDL_OpenGL::SetWindowGrab(bool Grab)
 {
 	SDL_SetWindowGrab(m_pWindow, Grab ? SDL_TRUE : SDL_FALSE);
+}
+
+void CGraphicsBackend_SDL_OpenGL::ResizeWindow(int w, int h)
+{
+	SDL_SetWindowSize(m_pWindow, w, h);
+}
+
+void CGraphicsBackend_SDL_OpenGL::GetViewportSize(int &w, int &h)
+{
+	SDL_GL_GetDrawableSize(m_pWindow, &w, &h);
 }
 
 void CGraphicsBackend_SDL_OpenGL::NotifyWindow()

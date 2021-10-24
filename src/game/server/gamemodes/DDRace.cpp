@@ -405,9 +405,9 @@ void CGameControllerDDRace::Tick()
 	}
 	m_Teams.ProcessSaveTeam();
 
-	if(m_pInitResult != nullptr && m_pInitResult.use_count() == 1)
+	if(m_pInitResult != nullptr && m_pInitResult->m_Completed)
 	{
-		if(m_pInitResult->m_Done)
+		if(m_pInitResult->m_Success)
 		{
 			m_CurrentRecord = m_pInitResult->m_CurrentRecord;
 		}

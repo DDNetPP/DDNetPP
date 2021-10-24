@@ -392,10 +392,37 @@ void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pResult->NumArguments() > 0)
-		pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, pResult->GetInteger(0));
+	if(pResult->NumArguments() == 0)
+	{
+		pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, 1);
+	}
+	else if(pResult->NumArguments() == 1)
+	{
+		if(pResult->GetInteger(0) != 0)
+		{
+			pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, pResult->GetInteger(0));
+		}
+		else
+		{
+			const char *pRequestedName = (str_comp(pResult->GetString(0), "me") == 0) ?
+							     pSelf->Server()->ClientName(pResult->m_ClientID) :
+							     pResult->GetString(0);
+			pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, pRequestedName, 0);
+		}
+	}
+	else if(pResult->NumArguments() == 2 && pResult->GetInteger(1) != 0)
+	{
+		const char *pRequestedName = (str_comp(pResult->GetString(0), "me") == 0) ?
+						     pSelf->Server()->ClientName(pResult->m_ClientID) :
+						     pResult->GetString(0);
+		pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
+	}
 	else
-		pSelf->Score()->ShowTeamTop5(pResult->m_ClientID);
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "teamtop5", "/top5team needs 0, 1 or 2 parameter. 1. = name, 2. = start number");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "teamtop5", "Example: /top5team, /top5team me, /top5team Hans, /top5team \"Papa Smurf\" 5");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "teamtop5", "Bad: /top5team Papa Smurf 5 # Good: /top5team \"Papa Smurf\" 5 ");
+	}
 }
 
 void CGameContext::ConTop5(IConsole::IResult *pResult, void *pUserData)
@@ -1227,7 +1254,7 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	int ClientID;
-	char aBufname[MAX_NAME_LENGTH];
+	char aBufName[MAX_NAME_LENGTH];
 
 	if(pResult->NumArguments() > 0)
 	{
@@ -1238,11 +1265,11 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 		if(ClientID == MAX_CLIENTS)
 			return;
 
-		str_format(aBufname, sizeof(aBufname), "%s's", pSelf->Server()->ClientName(ClientID));
+		str_format(aBufName, sizeof(aBufName), "%s's", pSelf->Server()->ClientName(ClientID));
 	}
 	else
 	{
-		str_copy(aBufname, "Your", sizeof(aBufname));
+		str_copy(aBufName, "Your", sizeof(aBufName));
 		ClientID = pResult->m_ClientID;
 	}
 
@@ -1255,13 +1282,12 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 	if(pChr->m_DDRaceState != DDRACE_STARTED)
 		return;
 
-	char aBuftime[64];
-	int IntTime = (int)((float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed()));
-	str_format(aBuftime, sizeof(aBuftime), "%s time is %s%d:%s%d",
-		aBufname,
-		((IntTime / 60) > 9) ? "" : "0", IntTime / 60,
-		((IntTime % 60) > 9) ? "" : "0", IntTime % 60);
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "time", aBuftime);
+	char aBufTime[32];
+	char aBuf[64];
+	int64 Time = (int64)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
+	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_format(aBuf, sizeof(aBuf), "%s current race time is %s", aBufName, aBufTime);
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "time", aBuf);
 }
 
 void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
@@ -1279,14 +1305,13 @@ void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 	if(pChr->m_DDRaceState != DDRACE_STARTED)
 		return;
 
-	char aBuftime[64];
-	int IntTime = (int)((float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed()));
-	str_format(aBuftime, sizeof(aBuftime),
-		"%s\'s current race time is %s%d:%s%d",
-		pSelf->Server()->ClientName(pResult->m_ClientID),
-		((IntTime / 60) > 9) ? "" : "0", IntTime / 60,
-		((IntTime % 60) > 9) ? "" : "0", IntTime % 60);
-	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuftime, pResult->m_ClientID);
+	char aBufTime[32];
+	char aBuf[64];
+	int64 Time = (int64)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
+	const char *pName = pSelf->Server()->ClientName(pResult->m_ClientID);
+	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_format(aBuf, sizeof(aBuf), "%s\'s current race time is %s", pName, aBufTime);
+	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientID);
 }
 
 void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
@@ -1302,12 +1327,12 @@ void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	char aBuftime[64];
-	int IntTime = (int)((float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed()));
-	str_format(aBuftime, sizeof(aBuftime), "Your time is %s%d:%s%d",
-		((IntTime / 60) > 9) ? "" : "0", IntTime / 60,
-		((IntTime % 60) > 9) ? "" : "0", IntTime % 60);
-	pSelf->SendBroadcast(aBuftime, pResult->m_ClientID);
+	char aBufTime[32];
+	char aBuf[64];
+	int64 Time = (int64)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
+	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
+	str_format(aBuf, sizeof(aBuf), "Your time is %s", aBufTime);
+	pSelf->SendBroadcast(aBuf, pResult->m_ClientID);
 }
 
 static const char s_aaMsg[4][128] = {"game/round timer.", "broadcast.", "both game/round timer and broadcast.", "racetime."};
@@ -1403,12 +1428,6 @@ void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 	if(g_Config.m_SvKillProtection != 0 && CurrTime >= (60 * g_Config.m_SvKillProtection) && pChr->m_DDRaceState == DDRACE_STARTED)
 	{
 		pPlayer->KillCharacter(WEAPON_SELF);
-
-		//char aBuf[64];
-		//str_format(aBuf, sizeof(aBuf), "You killed yourself in: %s%d:%s%d",
-		//		((CurrTime / 60) > 9) ? "" : "0", CurrTime / 60,
-		//		((CurrTime % 60) > 9) ? "" : "0", CurrTime % 60);
-		//pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
 

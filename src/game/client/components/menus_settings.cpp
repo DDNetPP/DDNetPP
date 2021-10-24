@@ -1056,11 +1056,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		g_Config.m_GfxColorDepth = Depth;
 		g_Config.m_GfxScreenWidth = s_aModes[NewSelected].m_Width;
 		g_Config.m_GfxScreenHeight = s_aModes[NewSelected].m_Height;
-#if defined(SDL_VIDEO_DRIVER_X11)
-		Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight);
-#else
-		CheckSettings = true;
-#endif
+		Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, true);
 	}
 
 	// switches
@@ -1499,7 +1495,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 	{
 		TabBar.HSplitTop(10, &Button, &TabBar);
 		TabBar.HSplitTop(26, &Button, &TabBar);
-		if(DoButton_MenuTab(aTabs[i], aTabs[i], g_Config.m_UiSettingsPage == i, &Button, CUI::CORNER_R))
+		if(DoButton_MenuTab(aTabs[i], aTabs[i], g_Config.m_UiSettingsPage == i, &Button, CUI::CORNER_R, &m_aAnimatorsSettingsTab[i]))
 			g_Config.m_UiSettingsPage = i;
 	}
 
@@ -1936,7 +1932,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		vec2 From = vec2(Weapon.x, Weapon.y + Weapon.h / 2.0f);
 		vec2 Pos = vec2(Weapon.x + Weapon.w - 10.0f, Weapon.y + Weapon.h / 2.0f);
 
-		vec2 Out, Border;
+		vec2 Out;
 
 		Graphics()->BlendNormal();
 		Graphics()->TextureClear();

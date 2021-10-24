@@ -102,6 +102,21 @@ public:
 	void HMargin(float Cut, CUIRect *pOtherRect) const;
 };
 
+struct SUIAnimator
+{
+	bool m_Active;
+	bool m_ScaleLabel;
+	bool m_RepositionLabel;
+
+	int64 m_Time;
+	float m_Value;
+
+	float m_XOffset;
+	float m_YOffset;
+	float m_WOffset;
+	float m_HOffset;
+};
+
 class CUI;
 
 class CUIElement
@@ -129,10 +144,7 @@ public:
 		STextRenderColor m_TextColor;
 		STextRenderColor m_TextOutlineColor;
 
-		SUIElementRect() :
-			m_UIRectQuadContainer(-1), m_UITextContainer(-1), m_X(-1), m_Y(-1), m_Width(-1), m_Height(-1)
-		{
-		}
+		SUIElementRect();
 	};
 
 protected:

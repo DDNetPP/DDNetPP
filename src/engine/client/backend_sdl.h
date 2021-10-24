@@ -62,8 +62,8 @@ private:
 	ICommandProcessor *m_pProcessor;
 	CCommandBuffer *volatile m_pBuffer;
 	volatile bool m_Shutdown;
-	semaphore m_Activity;
-	semaphore m_BufferDone;
+	CSemaphore m_Activity;
+	CSemaphore m_BufferDone;
 	void *m_pThread;
 
 	static void ThreadFunc(void *pUser);
@@ -114,7 +114,10 @@ protected:
 	struct CTexture
 	{
 		CTexture() :
-			m_Tex(0), m_Tex2DArray(0), m_Sampler(0), m_Sampler2DArray(0) {}
+			m_Tex(0), m_Tex2DArray(0), m_Sampler(0), m_Sampler2DArray(0), m_LastWrapMode(CCommandBuffer::WRAP_REPEAT), m_MemSize(0), m_Width(0), m_Height(0), m_RescaleCount(0), m_ResizeWidth(0), m_ResizeHeight(0)
+		{
+		}
+
 		GLuint m_Tex;
 		GLuint m_Tex2DArray; //or 3D texture as fallback
 		GLuint m_Sampler;
@@ -129,7 +132,7 @@ protected:
 		float m_ResizeWidth;
 		float m_ResizeHeight;
 	};
-	CTexture m_aTextures[CCommandBuffer::MAX_TEXTURES];
+	std::vector<CTexture> m_Textures;
 	std::atomic<int> *m_pTextureMemoryUsage;
 
 	GLint m_MaxTexSize;
@@ -515,6 +518,8 @@ public:
 	virtual int WindowActive();
 	virtual int WindowOpen();
 	virtual void SetWindowGrab(bool Grab);
+	virtual void ResizeWindow(int w, int h);
+	virtual void GetViewportSize(int &w, int &h);
 	virtual void NotifyWindow();
 
 	virtual bool IsNewOpenGL() { return m_UseNewOpenGL; }

@@ -176,12 +176,12 @@ void CPlayer::Tick()
 #ifdef CONF_DEBUG
 	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS - g_Config.m_DbgDummies)
 #endif
-		if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult.use_count() == 1)
+		if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult->m_Completed)
 		{
 			ProcessScoreResult(*m_ScoreQueryResult);
 			m_ScoreQueryResult = nullptr;
 		}
-	if(m_ScoreFinishResult != nullptr && m_ScoreFinishResult.use_count() == 1)
+	if(m_ScoreFinishResult != nullptr && m_ScoreFinishResult->m_Completed)
 	{
 		ProcessScoreResult(*m_ScoreFinishResult);
 		m_ScoreFinishResult = nullptr;
@@ -697,8 +697,14 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	if(Team == TEAM_SPECTATORS)
 	{
 		CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
-		if(g_Config.m_SvTeam != 3)
+		if(g_Config.m_SvTeam != 3 && m_pCharacter)
+		{
+			// Joining spectators should not kill a locked team, but should still
+			// check if the team finished by you leaving it.
+			int DDRTeam = m_pCharacter->Team();
 			Controller->m_Teams.SetForceCharacterTeam(m_ClientID, TEAM_FLOCK);
+			Controller->m_Teams.CheckTeamFinished(DDRTeam);
+		}
 	}
 
 	KillCharacter();
@@ -993,7 +999,7 @@ void CPlayer::SpectatePlayerName(const char *pName)
 
 void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 {
-	if(Result.m_Done) // SQL request was successful
+	if(Result.m_Success) // SQL request was successful
 	{
 		switch(Result.m_MessageKind)
 		{
