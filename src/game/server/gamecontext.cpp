@@ -1311,10 +1311,8 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 	pPl->m_SendVoteIndex += NumVotesToSend;
 }
 
-void CGameContext::OnClientEnter(int ClientID)
+void CGameContext::OnClientEnter(int ClientID, bool Silent)
 {
-	#pragma message "add back silent arg"
-	bool silent = false;
 	if(IsDDPPgametype("survival"))
 	{
 		SetPlayerSurvival(ClientID, 1);
@@ -1346,7 +1344,7 @@ void CGameContext::OnClientEnter(int ClientID)
 	Score()->LoadPlayerData(ClientID);
 	if(g_Config.m_SvDDPPscore == 0)
 		m_apPlayers[ClientID]->m_Score = 0;
-	m_pController->OnPlayerConnect(m_apPlayers[ClientID]);
+	m_pController->OnPlayerConnect(m_apPlayers[ClientID], Silent);
 
 	if(Server()->IsSixup(ClientID))
 	{
@@ -1587,13 +1585,11 @@ void CGameContext::OnClientConnected(int ClientID, void *pData)
 	Server()->ExpireServerInfo();
 }
 
-void CGameContext::OnClientDrop(int ClientID, const char *pReason)
+void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool Silent)
 {
-	#pragma message "add silent arg"
-	bool silent = false;
 	m_ClientLeftServer[ClientID] = true;
 	AbortVoteKickOnDisconnect(ClientID);
-	m_pController->OnPlayerDisconnect(m_apPlayers[ClientID], pReason);
+	m_pController->OnPlayerDisconnect(m_apPlayers[ClientID], pReason, Silent);
 	delete m_apPlayers[ClientID];
 	m_apPlayers[ClientID] = 0;
 
@@ -1617,7 +1613,7 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 	protocol7::CNetMsg_Sv_ClientDrop Msg;
 	Msg.m_ClientID = ClientID;
 	Msg.m_pReason = pReason;
-	Msg.m_Silent = false;
+	Msg.m_Silent = Silent;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);
 
 	Server()->ExpireServerInfo();

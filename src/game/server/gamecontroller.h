@@ -106,8 +106,8 @@ public:
 	*/
 	virtual bool OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number = 0);
 
-	virtual void OnPlayerConnect(class CPlayer *pPlayer);
-	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason);
+	virtual void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false);
+	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false);
 
 	void OnReset();
 

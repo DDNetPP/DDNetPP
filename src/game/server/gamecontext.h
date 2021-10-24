@@ -260,8 +260,8 @@ public:
 
 	virtual bool OnClientDataPersist(int ClientID, void *pData);
 	virtual void OnClientConnected(int ClientID, void *pData);
-	virtual void OnClientEnter(int ClientID);
-	virtual void OnClientDrop(int ClientID, const char *pReason);
+	virtual void OnClientEnter(int ClientID, bool Silent = false);
+	virtual void OnClientDrop(int ClientID, const char *pReason, bool Silent = false);
 	virtual void OnClientDirectInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedInput(int ClientID, void *pInput);
 	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput);

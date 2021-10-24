@@ -479,7 +479,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 	return false;
 }
 
-void IGameController::OnPlayerConnect(CPlayer *pPlayer)
+void IGameController::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 {
 	int ClientID = pPlayer->GetCID();
 	pPlayer->Respawn();
@@ -492,23 +492,26 @@ void IGameController::OnPlayerConnect(CPlayer *pPlayer)
 	}
 }
 
-void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason)
+void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
 	pPlayer->OnDisconnect();
 	int ClientID = pPlayer->GetCID();
 	if(Server()->ClientIngame(ClientID))
 	{
 		char aBuf[512];
-		if(pReason && *pReason)
-			str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientID), pReason);
-		else
-			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientID));
-		if(GameServer()->ShowLeaveMessage(ClientID))
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
-		else
+		if(!Silent)
 		{
-			str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientID, Server()->ClientName(ClientID));
-			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			if(pReason && *pReason)
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientID), pReason);
+			else
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientID));
+			if(GameServer()->ShowLeaveMessage(ClientID))
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+			else
+			{
+				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientID, Server()->ClientName(ClientID));
+				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			}
 		}
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientID, Server()->ClientName(ClientID));

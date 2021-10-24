@@ -950,7 +950,7 @@ void CCharacter::DummyTick()
 			//showing rank
 			if(m_DummyShowRank == true)
 			{
-				if(frandom() * 100 < 2)
+				if(random_float() * 100 < 2)
 				{
 					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Look at my nice rank!");
 					GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Type /rank");
@@ -1041,16 +1041,16 @@ void CCharacter::DummyTick()
 				m_Input.m_Hook = 1;
 			else if(m_Core.m_HookState == HOOK_GRABBED)
 			{
-				if(frandom() * 250 < 1)
+				if(random_float() * 250 < 1)
 				{
-					if(frandom() * 250 == 1)
+					if(random_float() * 250 == 1)
 						m_Input.m_Hook = 0;
 					else
 						m_Input.m_Hook = 1;
 				}
 				else
 				{
-					if(frandom() * 250 < 1)
+					if(random_float() * 250 < 1)
 						m_Input.m_Hook = 0;
 					else
 						m_Input.m_Hook = 1;
@@ -1058,7 +1058,7 @@ void CCharacter::DummyTick()
 			}
 			else
 			{
-				if(frandom() * 250 < 3)
+				if(random_float() * 250 < 3)
 				{
 					m_Input.m_Hook = 1;
 				}
@@ -1165,7 +1165,7 @@ void CCharacter::DummyTick()
 			m_Input.m_TargetY = sinf(AngleRad) * 100;
 
 			// fire
-			if(frandom() * 25 < 3) // probier mal jetzt ob sich was ändert
+			if(random_float() * 25 < 3) // probier mal jetzt ob sich was ändert
 			{
 				m_LatestInput.m_TargetX = cosf(AngleRad) * 100;
 				m_LatestInput.m_TargetY = sinf(AngleRad) * 100;
@@ -1180,16 +1180,16 @@ void CCharacter::DummyTick()
 				m_Input.m_Hook = 1;
 			else if(m_Core.m_HookState == HOOK_GRABBED)
 			{
-				if(frandom() * 250 < 1)
+				if(random_float() * 250 < 1)
 				{
-					if(frandom() * 250 == 1)
+					if(random_float() * 250 == 1)
 						m_Input.m_Hook = 0;
 					else
 						m_Input.m_Hook = 1;
 				}
 				else
 				{
-					if(frandom() * 250 < 1)
+					if(random_float() * 250 < 1)
 						m_Input.m_Hook = 0;
 					else
 						m_Input.m_Hook = 1;
@@ -1197,7 +1197,7 @@ void CCharacter::DummyTick()
 			}
 			else
 			{
-				if(frandom() * 250 < 3)
+				if(random_float() * 250 < 3)
 				{
 					m_Input.m_Hook = 1;
 				}

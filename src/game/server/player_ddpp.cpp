@@ -687,10 +687,10 @@ void CPlayer::Save(int SetLoggedIn)
 	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
 
 	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
-				 "  `Password` = '%q', `Level` = '%i', `Exp` = '%llu', `Money` = '%llu', `Shit` = '%i'"
+				 "  `Password` = '%q', `Level` = '%i', `Exp` = '%lu', `Money` = '%lu', `Shit` = '%i'"
 				 ", `LastGift` = '%i'" /*is actually m_GiftDelay*/
 				 ", `PoliceRank` = '%i'"
-				 ", `JailTime` = '%llu', `EscapeTime` = '%llu'"
+				 ", `JailTime` = '%lu', `EscapeTime` = '%lu'"
 				 ", `TaserLevel` = '%i'"
 				 ", `NinjaJetpackBought` = '%i'"
 				 ", `SpookyGhost` = '%i'"
@@ -782,7 +782,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 void CPlayer::CalcExp()
 {
 	int64_t OldNeededXp = m_neededxp;
-	dbg_msg("account", "CalcExp() neededxp=%lld xp=%lld", OldNeededXp, m_xp);
+	dbg_msg("account", "CalcExp() neededxp=%ld xp=%ld", OldNeededXp, m_xp);
 
 	//										xp diff
 	if(m_level == 0)
@@ -1047,7 +1047,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if(m_money < 0)
 	{
-		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%lld", GetCID(), Server()->ClientName(GetCID()), m_money);
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%ld", GetCID(), Server()->ClientName(GetCID()), m_money);
 	}
 #endif
 	if(!str_comp(Description, ""))

@@ -254,10 +254,9 @@ void CServer::BotJoin(int BotID)
 	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
 }
 
-void CServer::BotLeave(int BotID, bool silent)
+void CServer::BotLeave(int BotID, bool Silent)
 {
-	#pragma message "add back OnClientDrop(silent)"
-	GameServer()->OnClientDrop(BotID, "");
+	GameServer()->OnClientDrop(BotID, "", Silent);
 
 	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
 	m_aClients[BotID].m_aName[0] = 0;

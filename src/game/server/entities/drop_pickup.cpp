@@ -160,7 +160,7 @@ void CDropPickup::Tick()
 	if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos)))
 	{
 		int Force, MaxSpeed = 0;
-		vec2 Direction, MaxVel, TempVel = m_Vel;
+		vec2 Direction, TempVel = m_Vel;
 		float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
 		GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(m_Pos), &Direction, &Force, &MaxSpeed);
 

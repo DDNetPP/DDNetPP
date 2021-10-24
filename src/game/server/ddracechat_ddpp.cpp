@@ -2824,7 +2824,7 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[256];
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
-	str_format(aBuf, sizeof(aBuf), "Money: %lld", pPlayer->GetMoney());
+	str_format(aBuf, sizeof(aBuf), "Money: %ld", pPlayer->GetMoney());
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction0);
@@ -4498,12 +4498,12 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(pPlayer->GetMoney() < pSelf->m_BombMoney)
 			{
-				str_format(aBuf, sizeof(aBuf), "You need at least %lld money to join this game.", pSelf->m_BombMoney);
+				str_format(aBuf, sizeof(aBuf), "You need at least %ld money to join this game.", pSelf->m_BombMoney);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
 
-			str_format(aBuf, sizeof(aBuf), "-%lld money for joining this game. You don't want to risk that much money? Type '/bomb leave'", pSelf->m_BombMoney);
+			str_format(aBuf, sizeof(aBuf), "-%ld money for joining this game. You don't want to risk that much money? Type '/bomb leave'", pSelf->m_BombMoney);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			pSelf->SendChatTarget(pResult->m_ClientID, "You will die in this game! So better leave if you want to keep weapons and stuff.");
 			pChr->m_IsBombing = true;
@@ -4529,7 +4529,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "You left the bomb game. (+%lld money)", pSelf->m_BombMoney);
+		str_format(aBuf, sizeof(aBuf), "You left the bomb game. (+%ld money)", pSelf->m_BombMoney);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		pPlayer->MoneyTransaction(pSelf->m_BombMoney, "bomb leave");
 		pSelf->SendBroadcast("", pResult->m_ClientID);
@@ -5537,7 +5537,7 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_GangsterBagMoney += 5 * policedudesfound;
 		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * policedudesfound);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %lld minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
+		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %ld minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "'%s' robbed the bank.", pSelf->Server()->ClientName(pResult->m_ClientID));
@@ -5600,7 +5600,7 @@ void CGameContext::ConGangsterBag(IConsole::IResult *pResult, void *pUserData)
 		}
 		if(pPlayer->m_EscapeTime)
 		{
-			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %lld seconds...", pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %ld seconds...", pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -8189,7 +8189,7 @@ void CGameContext::ConWanted(IConsole::IResult *pResult, void *pUserData)
 		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_EscapeTime)
 		{
 			gangster++;
-			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%lld]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%ld]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}

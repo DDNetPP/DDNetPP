@@ -277,9 +277,9 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	HandleCharacterTilesDDPP(pChr, m_TileIndex, m_TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4);
 }
 
-void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
+void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 {
-	IGameController::OnPlayerConnect(pPlayer);
+	IGameController::OnPlayerConnect(pPlayer, Silent);
 	int ClientID = pPlayer->GetCID();
 
 	// init the player
@@ -290,12 +290,10 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 	// LoadScoreThreaded() instead
 	Score()->LoadPlayerData(ClientID);
 
-	#pragma message "add back silent"
-	bool silent = false;
 	if(!Server()->ClientPrevIngame(ClientID))
 	{
 		char aBuf[512];
-		if(!silent)
+		if(!Silent)
 		{
 			if(GameServer()->ShowJoinMessage(ClientID))
 			{
@@ -321,12 +319,12 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 	}
 }
 
-void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pReason)
+void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pReason, bool Silent)
 {
 	int ClientID = pPlayer->GetCID();
 	bool WasModerator = pPlayer->m_Moderating && Server()->ClientIngame(ClientID);
 
-	IGameController::OnPlayerDisconnect(pPlayer, pReason);
+	IGameController::OnPlayerDisconnect(pPlayer, pReason, Silent);
 
 	if(!GameServer()->PlayerModerating() && WasModerator)
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Server kick/spec votes are no longer actively moderated.");
@@ -499,7 +497,7 @@ void CGameControllerDDRace::Tick()
 				if(GameServer()->Collision()->IsSpeedup(GameServer()->Collision()->GetMapIndex(F->m_Pos)))
 				{
 					int Force, MaxSpeed = 0;
-					vec2 Direction, MaxVel, TempVel = F->m_Vel;
+					vec2 Direction, TempVel = F->m_Vel;
 					float TeeAngle, SpeederAngle, DiffAngle, SpeedLeft, TeeSpeed;
 					GameServer()->Collision()->GetSpeedup(GameServer()->Collision()->GetMapIndex(F->m_Pos), &Direction, &Force, &MaxSpeed);
 

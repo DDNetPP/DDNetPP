@@ -34,8 +34,6 @@ void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int
     // finish
 	if(((m_TileIndex == TILE_FINISH) || (m_TileFIndex == TILE_FINISH) || FTile1 == TILE_FINISH || FTile2 == TILE_FINISH || FTile3 == TILE_FINISH || FTile4 == TILE_FINISH || Tile1 == TILE_FINISH || Tile2 == TILE_FINISH || Tile3 == TILE_FINISH || Tile4 == TILE_FINISH) && PlayerDDRaceState == DDRACE_STARTED)
     {
-        #pragma message "TODO what is this teams finish here? should be uncommented"
-		// Controller->m_Teams.OnCharacterFinish(m_pPlayer->GetCID()); // Quest 3 lvl 0-4 is handled in here teams.cpp
 		if(pChr->GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if(pChr->GetPlayer()->m_QuestStateLevel == 5)

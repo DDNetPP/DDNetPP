@@ -703,11 +703,11 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
 	SendChatTarget(requestID, aBuf);
 	if(!pPlayer->IsLoggedIn())
-		str_format(aBuf, sizeof(aBuf), "Xp[%llu] (not logged in)", pPlayer->GetXP());
+		str_format(aBuf, sizeof(aBuf), "Xp[%lu] (not logged in)", pPlayer->GetXP());
 	else
-		str_format(aBuf, sizeof(aBuf), "Xp[%llu/%llu]", pPlayer->GetXP(), pPlayer->GetNeededXP());
+		str_format(aBuf, sizeof(aBuf), "Xp[%lu/%lu]", pPlayer->GetXP(), pPlayer->GetNeededXP());
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Money[%llu]", pPlayer->GetMoney());
+	str_format(aBuf, sizeof(aBuf), "Money[%lu]", pPlayer->GetMoney());
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
 	SendChatTarget(requestID, aBuf);
@@ -1838,7 +1838,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money: %lld", m_apPlayers[ViewedID]->GetMoney());
+		str_format(aBuf, sizeof(aBuf), "Money: %ld", m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
 		SendChatTarget(ViewerID, aBuf);
@@ -2152,8 +2152,7 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
 	}
 
-	#pragma message "add back silent arg"
-	OnClientEnter(DummyID);
+	OnClientEnter(DummyID, silent);
 
 	return DummyID;
 }

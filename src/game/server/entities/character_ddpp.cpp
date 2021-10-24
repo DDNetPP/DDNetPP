@@ -1632,7 +1632,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		char aBuf[128];
 		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
 		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %lld sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %ld sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
 			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
@@ -1935,7 +1935,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_EscapeTime = 0;
 		m_pPlayer->m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %lld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
 		if(Server()->Tick() % 40 == 0)
 		{
 			if(!m_pPlayer->m_hidejailmsg)
@@ -1967,11 +1967,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if(m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %lld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %lld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if(Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -2220,14 +2220,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2242,14 +2242,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2265,14 +2265,14 @@ void CCharacter::DDPP_FlagTick()
 			else if(m_survivexpvalue == 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 				m_pPlayer->GiveXP(1);
 			}
 			else if(m_survivexpvalue > 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 				m_pPlayer->GiveXP(1); //flag
 				m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2286,14 +2286,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%llu/%llu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2309,14 +2309,14 @@ void CCharacter::DDPP_FlagTick()
 					if(m_survivexpvalue == 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2330,14 +2330,14 @@ void CCharacter::DDPP_FlagTick()
 					if(m_survivexpvalue == 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%llu/%llu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -3582,7 +3582,7 @@ bool CCharacter::IsHammerBlocked()
 	if(m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "You have to wait %lld minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+		str_format(aBuf, sizeof(aBuf), "You have to wait %ld minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		return true;
 	}
