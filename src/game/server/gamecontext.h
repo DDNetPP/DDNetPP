@@ -13,6 +13,9 @@
 #include <game/voting.h>
 
 #include <game/server/letters.h>
+#include <base/tl/array.h>
+#include <base/tl/string.h>
+
 #include "eventhandler.h"
 #include "gamecontroller.h"
 #include "gameworld.h"
@@ -77,6 +80,7 @@ class CGameContext : public IGameServer
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 	CTuningParams m_aTuningList[NUM_TUNEZONES];
+	array<string> m_aCensorlist;
 
 	bool m_TeeHistorianActive;
 	CTeeHistorian m_TeeHistorian;
@@ -242,6 +246,7 @@ public:
 	virtual void OnPostSnap();
 
 	void *PreProcessMsg(int *MsgID, CUnpacker *pUnpacker, int ClientID);
+	void CensorMessage(char *pCensoredMessage, const char *pMessage, int Size);
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
 	virtual void OnClientConnected(int ClientID);

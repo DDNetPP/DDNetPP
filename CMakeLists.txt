@@ -744,6 +744,7 @@ set(EXPECTED_DATA
   audio/wp_switch-03.wv
   blob.png
   browse_icons.png
+  censorlist.txt
   console.png
   console_bar.png
   countryflags/AD.png
@@ -1198,15 +1199,7 @@ set(EXPECTED_DATA
   shader/text.vert
   shader/tile.frag
   shader/tile.vert
-  skins/Ablush\ NeoN.png
   skins/Aoe4leg.png
-  skins/Apish\ Coke.png
-  skins/Black\ Phantom\ heinrich5991.png
-  skins/Evil\ Puffi.png
-  skins/Flying\ Silex.png
-  skins/Hidden\ Assassin.png
-  skins/Irradiated\ Sunny.png
-  skins/Mobys\ Skull.png
   skins/PaladiN.png
   skins/Terrorist.png
   skins/antiantey.png
