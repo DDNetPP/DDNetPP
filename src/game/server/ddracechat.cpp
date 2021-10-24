@@ -605,7 +605,7 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
 		return;
 
 	if(!g_Config.m_SvPractice)
@@ -871,7 +871,7 @@ void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
 		return;
 
 	char aBuf[512];
@@ -909,7 +909,7 @@ void CGameContext::ConUnlockTeam(IConsole::IResult *pResult, void *pUserData)
 	if(Team <= TEAM_FLOCK || Team >= TEAM_SUPER)
 		return;
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
 		return;
 
 	pSelf->UnlockTeam(pResult->m_ClientID, Team);

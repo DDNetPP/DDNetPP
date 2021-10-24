@@ -614,7 +614,7 @@ public:
 	// DDRace
 	bool OnClientDDNetVersionKnown(int ClientID);
 	virtual void FillAntibot(CAntibotRoundData *pData);
-	int ProcessSpamProtection(int ClientID);
+	int ProcessSpamProtection(int ClientID, bool RespectChatInitialDelay = true);
 	int GetDDRaceTeam(int ClientID);
 	// Describes the time when the first player joined the server.
 	int64 m_NonEmptySince;

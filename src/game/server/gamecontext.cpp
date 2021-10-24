@@ -1828,7 +1828,7 @@ void CGameContext::CensorMessage(char *pCensoredMessage, const char *pMessage, i
 		char *pCurLoc = pCensoredMessage;
 		do
 		{
-			pCurLoc = (char *)str_find_nocase(pCurLoc, m_aCensorlist[i].cstr());
+			pCurLoc = (char *)str_utf8_find_nocase(pCurLoc, m_aCensorlist[i].cstr());
 			if(pCurLoc)
 			{
 				memset(pCurLoc, '*', str_length(m_aCensorlist[i].cstr()));
@@ -4197,7 +4197,7 @@ void CGameContext::SendRecord(int ClientID)
 	}
 }
 
-int CGameContext::ProcessSpamProtection(int ClientID)
+int CGameContext::ProcessSpamProtection(int ClientID, bool RespectChatInitialDelay)
 {
 	if(!m_apPlayers[ClientID])
 		return 0;
@@ -4215,7 +4215,7 @@ int CGameContext::ProcessSpamProtection(int ClientID)
 	Server()->GetClientAddr(ClientID, &Addr);
 
 	int Muted = 0;
-	if(m_apPlayers[ClientID]->m_JoinTick > m_NonEmptySince + 10 * Server()->TickSpeed())
+	if(m_apPlayers[ClientID]->m_JoinTick > m_NonEmptySince + 10 * Server()->TickSpeed() && RespectChatInitialDelay)
 		Muted = (m_apPlayers[ClientID]->m_JoinTick + Server()->TickSpeed() * g_Config.m_SvChatInitialDelay - Server()->Tick()) / Server()->TickSpeed();
 	if(Muted <= 0)
 	{
@@ -4519,7 +4519,7 @@ void CGameContext::List(int ClientID, const char *pFilter)
 		{
 			Total++;
 			const char *pName = Server()->ClientName(i);
-			if(str_find_nocase(pName, pFilter) == NULL)
+			if(str_utf8_find_nocase(pName, pFilter) == NULL)
 				continue;
 			if(Bufcnt + str_length(pName) + 4 > 256)
 			{
@@ -4637,6 +4637,11 @@ bool CGameContext::RateLimitPlayerVote(int ClientID)
 	for(int i = 0; i < m_NumVoteMutes && !VoteMuted; i++)
 		if(!net_addr_comp_noport(&Addr, &m_aVoteMutes[i].m_Addr))
 			VoteMuted = (m_aVoteMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+	for(int i = 0; i < m_NumMutes && VoteMuted == 0; i++)
+	{
+		if(!net_addr_comp_noport(&Addr, &m_aMutes[i].m_Addr))
+			VoteMuted = (m_aMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+	}
 	if(VoteMuted > 0)
 	{
 		char aChatmsg[64];
