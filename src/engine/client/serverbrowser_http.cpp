@@ -137,16 +137,16 @@ void CChooseMaster::CJob::Run()
 	{
 		aTimeMs[i] = -1;
 		const char *pUrl = m_pData->m_aaUrls[aRandomized[i]];
-		CHead Head(pUrl, Timeout, false);
+		CHead Head(pUrl, Timeout, HTTPLOG::FAILURE);
 		IEngine::RunJobBlocking(&Head);
 		if(Head.State() != HTTP_DONE)
 		{
 			continue;
 		}
-		int64 StartTime = time_get();
-		CGet Get(pUrl, Timeout, false);
+		int64 StartTime = time_get_microseconds();
+		CGet Get(pUrl, Timeout, HTTPLOG::FAILURE);
 		IEngine::RunJobBlocking(&Get);
-		int Time = (time_get() - StartTime) * 1000 / time_freq();
+		int Time = (time_get_microseconds() - StartTime) / 1000;
 		if(Get.State() != HTTP_DONE)
 		{
 			continue;
@@ -272,7 +272,9 @@ void CServerBrowserHttp::Update()
 			}
 			return;
 		}
-		m_pEngine->AddJob(m_pGetServers = std::make_shared<CGet>(pBestUrl, CTimeout{0, 0, 0}));
+		// 10 seconds connection timeout, lower than 8KB/s for 10 seconds to fail.
+		CTimeout Timeout{10000, 8000, 10};
+		m_pEngine->AddJob(m_pGetServers = std::make_shared<CGet>(pBestUrl, Timeout));
 		m_State = STATE_REFRESHING;
 	}
 	else if(m_State == STATE_REFRESHING)
@@ -304,7 +306,8 @@ void CServerBrowserHttp::Refresh()
 	{
 		m_pChooseMaster->Refresh();
 	}
-	m_State = STATE_WANTREFRESH;
+	if(m_State == STATE_DONE)
+		m_State = STATE_WANTREFRESH;
 	Update();
 }
 bool ServerbrowserParseUrl(NETADDR *pOut, const char *pUrl)
