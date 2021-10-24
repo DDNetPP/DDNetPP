@@ -1252,6 +1252,7 @@ void CGameClient::OnNewSnapshot()
 					const CSkin *pSkin = m_pSkins->Get(m_pSkins->Find(pClient->m_aSkinName));
 					pClient->m_SkinInfo.m_OriginalRenderSkin = pSkin->m_OriginalSkin;
 					pClient->m_SkinInfo.m_ColorableRenderSkin = pSkin->m_ColorableSkin;
+					pClient->m_SkinInfo.m_SkinMetrics = pSkin->m_Metrics;
 					pClient->m_SkinInfo.m_BloodColor = pSkin->m_BloodColor;
 					pClient->m_SkinInfo.m_CustomColoredSkin = pClient->m_UseCustomColor;
 
@@ -1974,6 +1975,7 @@ void CGameClient::CClientData::Reset()
 	m_SkinInfo.m_CustomColoredSkin = false;
 	m_SkinInfo.m_ColorBody = ColorRGBA(1, 1, 1);
 	m_SkinInfo.m_ColorFeet = ColorRGBA(1, 1, 1);
+	m_SkinInfo.m_SkinMetrics.Reset();
 
 	m_Solo = false;
 	m_Jetpack = false;
@@ -2216,6 +2218,13 @@ void CGameClient::UpdatePrediction()
 		m_GameWorld.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
 	else
 		m_GameWorld.TuningList()[TuneZone] = m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+
+	// if ddnetcharacter is available, ignore server-wide tunings for hook and collision
+	if(m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_HasExtendedData)
+	{
+		m_GameWorld.m_Tuning[g_Config.m_ClDummy].m_PlayerCollision = 1;
+		m_GameWorld.m_Tuning[g_Config.m_ClDummy].m_PlayerHooking = 1;
+	}
 
 	// restore characters from previously saved ones if they temporarily left the snapshot
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -2888,6 +2897,8 @@ void CGameClient::RefindSkins()
 {
 	for(auto &Client : m_aClients)
 	{
+		Client.m_SkinInfo.m_OriginalRenderSkin.Reset();
+		Client.m_SkinInfo.m_ColorableRenderSkin.Reset();
 		if(Client.m_aSkinName[0] != '\0')
 		{
 			const CSkin *pSkin = m_pSkins->Get(m_pSkins->Find(Client.m_aSkinName));
@@ -2898,6 +2909,7 @@ void CGameClient::RefindSkins()
 	}
 	m_pGhost->RefindSkin();
 	m_pChat->RefindSkins();
+	gs_KillMessages.RefindSkins();
 }
 
 void CGameClient::LoadMapSettings()

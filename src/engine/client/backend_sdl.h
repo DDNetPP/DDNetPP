@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+#include "blocklist_driver.h"
 #include "graphics_threaded.h"
 
 #include <base/tl/threading.h>
@@ -170,6 +171,7 @@ public:
 	};
 
 protected:
+	bool IsTexturedState(const CCommandBuffer::SState &State);
 	void SetState(const CCommandBuffer::SState &State, bool Use2DArrayTexture = false);
 	virtual bool IsNewApi() { return false; }
 	void DestroyTexture(int Slot);
@@ -310,6 +312,7 @@ class CCommandProcessorFragment_OpenGL3_3 : public CCommandProcessorFragment_Ope
 	static const int m_MaxQuadsPossible = 256;
 
 	CGLSLPrimitiveProgram *m_pPrimitiveProgram;
+	CGLSLPrimitiveProgram *m_pPrimitiveProgramTextured;
 	CGLSLTileProgram *m_pBorderTileProgram;
 	CGLSLTileProgram *m_pBorderTileProgramTextured;
 	CGLSLTileProgram *m_pBorderTileLineProgram;
@@ -319,6 +322,8 @@ class CCommandProcessorFragment_OpenGL3_3 : public CCommandProcessorFragment_Ope
 	CGLSLTextProgram *m_pTextProgram;
 	CGLSLPrimitiveExProgram *m_pPrimitiveExProgram;
 	CGLSLPrimitiveExProgram *m_pPrimitiveExProgramTextured;
+	CGLSLPrimitiveExProgram *m_pPrimitiveExProgramRotationless;
+	CGLSLPrimitiveExProgram *m_pPrimitiveExProgramTexturedRotationless;
 	CGLSLSpriteMultipleProgram *m_pSpriteProgramMultiple;
 
 	GLuint m_LastProgramID;
@@ -352,6 +357,8 @@ class CCommandProcessorFragment_OpenGL3_3 : public CCommandProcessorFragment_Ope
 	std::vector<GLuint> m_BufferObjectIndices;
 
 	CCommandBuffer::SColorf m_ClearColor;
+
+	void InitPrimExProgram(CGLSLPrimitiveExProgram *pProgram, class CGLSLCompiler *pCompiler, class IStorage *pStorage, bool Textured, bool Rotationless);
 
 protected:
 	static int TexFormatToNewOpenGLFormat(int TexFormat);
@@ -418,6 +425,8 @@ public:
 		SDL_Window *m_pWindow;
 		SDL_GLContext m_GLContext;
 		SBackendCapabilites *m_pCapabilities;
+
+		const char **m_pErrStringPtr;
 
 		int *m_pInitError;
 
@@ -487,6 +496,8 @@ class CGraphicsBackend_SDL_OpenGL : public CGraphicsBackend_Threaded
 
 	bool m_UseNewOpenGL;
 
+	char m_aErrorString[256];
+
 public:
 	virtual int Init(const char *pName, int *Screen, int *pWidth, int *pHeight, int FsaaSamples, int Flags, int *pDesktopWidth, int *pDesktopHeight, int *pCurrentWidth, int *pCurrentHeight, class IStorage *pStorage);
 	virtual int Shutdown();
@@ -512,6 +523,14 @@ public:
 	virtual bool HasTextBuffering() { return m_Capabilites.m_TextBuffering; }
 	virtual bool HasQuadContainerBuffering() { return m_Capabilites.m_QuadContainerBuffering; }
 	virtual bool Has2DTextureArrays() { return m_Capabilites.m_2DArrayTextures; }
+
+	virtual const char *GetErrorString()
+	{
+		if(m_aErrorString[0] != '\0')
+			return m_aErrorString;
+
+		return NULL;
+	}
 };
 
 #endif // ENGINE_CLIENT_BACKEND_SDL_H

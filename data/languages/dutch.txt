@@ -1045,7 +1045,7 @@ Save the best demo of each race
 == Sla de beste demo op van elke race
 
 Default length: %d
-== Standaart lengte
+== Standaart lengte: %d
 
 Enable replays
 == Replays aan zetten
@@ -1157,6 +1157,18 @@ Grabs
 
 9+ new mentions
 == 9+ nieuwe berichten
+
+Manual
+== Manual
+
+Race
+== Race
+
+Auto
+== Automatisch
+
+Replay
+== Herhaling
 
 Saving ddnet-settings.cfg failed
 == 
@@ -1284,18 +1296,6 @@ Editor
 [Start menu]
 Play
 == 
-
-Manual
-== Manual
-
-Race
-== Race
-
-Auto
-== Automatisch
-
-Replay
-== Herhaling
 
 Net
 == 
