@@ -105,11 +105,15 @@ option(AUTOUPDATE "Enable the autoupdater" OFF)
 option(INFORM_UPDATE "Inform about available updates" ON)
 option(VIDEORECORDER "Enable video recording support via FFmpeg" OFF)
 option(UPNP "Enable UPnP support" OFF)
+option(ANTIBOT "Enable support for a dynamic anticheat library" OFF)
 option(HEADLESS_CLIENT "Build the client without graphics" OFF)
 option(CLIENT "Compile client" OFF)
 option(SERVER "Compile server" ON)
 option(TOOLS "Compile tools" ON)
 option(DOWNLOAD_GTEST "Download and compile GTest" ${AUTO_DEPENDENCIES_DEFAULT})
+option(STEAM "Build the Steam release version" OFF)
+option(DISCORD "Enable Discord rich presence support" OFF)
+option(DISCORD_DYNAMIC "Enable discovering Discord rich presence libraries at runtime (Linux only)" OFF)
 option(PREFER_BUNDLED_LIBS "Prefer bundled libraries over system libraries" ${AUTO_DEPENDENCIES_DEFAULT})
 option(DEV "Don't generate stuff necessary for packaging" OFF)
 
@@ -191,7 +195,7 @@ if(NOT MSVC AND NOT HAIKU)
   add_c_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-all)
 
   # Disable exceptions as DDNet does not use them.
-  add_c_compiler_flag_if_supported(OUR_FLAGS -fexceptions)
+  add_c_compiler_flag_if_supported(OUR_FLAGS -fno-exceptions)
 
   # Inaccurate floating point numbers cause problems on mingw-w64-gcc when
   # compiling for x86, might cause problems elsewhere. So don't store floats
@@ -296,6 +300,12 @@ function(set_own_rpath TARGET)
   endif()
 endfunction()
 
+if(NOT TARGET_OS STREQUAL "windows" AND NOT TARGET_OS STREQUAL "mac" AND CMAKE_VERSION VERSION_LESS 3.8)
+  if((CLIENT AND (STEAM OR DISCORD_DYNAMIC)) OR ANTIBOT)
+    message(STATUS "Can't set BUILD_RPATH in CMake before 3.8, pass -Wl,-rpath,'$ORIGIN' manually if you wish to emulate this. Or just install a newer version of CMake...")
+  endif()
+endif()
+
 ########################################################################
 # INITIALIZE TARGET LISTS
 ########################################################################
@@ -398,6 +408,9 @@ find_package(Pnglite)
 find_package(PythonInterp 3)
 find_package(SDL2)
 find_package(SQLite3)
+if(DISCORD)
+  find_package(DiscordSdk)
+endif()
 if(UNIX)
   # Use -pthread instead of -lpthread to draw dependencies other than libpthread
   set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -485,6 +498,9 @@ show_dependency_status("SDL2" SDL2)
 show_dependency_status("SQLite3" SQLite3)
 show_dependency_status("Wavpack" WAVPACK)
 show_dependency_status("Zlib" ZLIB)
+if(DISCORD)
+  show_dependency_status("DiscordSdk" DiscordSdk)
+endif()
 if(WEBSOCKETS)
   show_dependency_status("Websockets" WEBSOCKETS)
 endif()
@@ -509,6 +525,17 @@ endif()
 
 if(UPNP AND NOT(MINIUPNPC_FOUND))
   message(SEND_ERROR "You must install miniupnpc to compile the DDNet server with UPnP support")
+endif()
+if(DISCORD AND NOT(DISCORDSDK_FOUND))
+  message(SEND_ERROR "You must install the Discord SDK to compile the DDNet client with Discord support")
+endif()
+if(DISCORD_DYNAMIC)
+  if(TARGET_OS STREQUAL "windows" OR TARGET_OS STREQUAL "mac")
+    message(SEND_ERROR "Dynamically loading the Discord SDK is only supported on Linux")
+  endif()
+  if(NOT DISCORD)
+    message(SEND_ERROR "You must enable the DISCORD flag if you want to link the Discord SDK")
+  endif()
 endif()
 if(CLIENT AND NOT(FREETYPE_FOUND))
   message(SEND_ERROR "You must install Freetype to compile the DDNet client")
@@ -586,7 +613,52 @@ endif()
 # DOWNLOAD GTEST
 ########################################################################
 
-# no gtest in ddnet++
+if(NOT(GTEST_FOUND) AND DOWNLOAD_GTEST)
+  set(DDNET_GTEST_VERSION 5c8ca58edfb304b2dd5e6061f83387470826dd87) # master as of 2021-04-07
+  configure_file(cmake/Download_GTest_CMakeLists.txt.in googletest-download/CMakeLists.txt)
+  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/googletest-download
+  )
+  if(result)
+    message(WARNING "CMake step for googletest failed: ${result}")
+    set(DOWNLOAD_GTEST OFF)
+  else()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+      RESULT_VARIABLE result
+      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/googletest-download
+    )
+    if(result)
+      message(WARNING "Build step for googletest failed: ${result}")
+      set(DOWNLOAD_GTEST OFF)
+    else()
+      # Prevent overriding the parent project's compiler/linker settings on Windows
+      set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+      # Add googletest directly to our build. This defines the gtest target.
+      add_subdirectory(
+        ${PROJECT_BINARY_DIR}/googletest-src
+        ${PROJECT_BINARY_DIR}/googletest-build
+        EXCLUDE_FROM_ALL
+      )
+
+      if(MSVC)
+        foreach(target gtest)
+          # `/w` disables all warnings. This is needed because `gtest` enables
+          # `/WX` (equivalent of `-Werror`) for some reason, breaking builds
+          # when MSVS adds new warnings.
+          target_compile_options(${target} PRIVATE $<$<NOT:${DBG}>:/MT> $<${DBG}:/MTd> /w)
+        endforeach()
+      endif()
+
+      set(GTEST_LIBRARIES gtest)
+      set(GTEST_INCLUDE_DIRS)
+      if(CMAKE_VERSION VERSION_LESS 2.8.11)
+        set(GTEST_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include")
+      endif()
+    endif()
+  endif()
+endif()
 
 ########################################################################
 # DEPENDENCY COMPILATION
@@ -1350,6 +1422,7 @@ set(COPY_FILES
   ${SQLite3_COPY_FILES}
   ${FFMPEG_COPY_FILES}
   ${WEBSOCKETS_COPY_FILES}
+  ${DISCORDSDK_COPY_FILES}
 )
 file(COPY ${COPY_FILES} DESTINATION .)
 
@@ -1432,8 +1505,17 @@ generate_source("src/game/generated/server_data.h" "server_content_header")
 
 generate_source7("src/game/generated/protocol7.cpp" "network_source")
 generate_source7("src/game/generated/protocol7.h" "network_header")
+generate_source7("src/game/generated/client_data7.cpp" "client_content_source")
+generate_source7("src/game/generated/client_data7.h" "client_content_header")
 
 generate_maps("src/game/generated/protocolglue.h")
+
+add_custom_command(OUTPUT "src/game/generated/wordlist.h"
+  COMMAND ${PYTHON_EXECUTABLE} scripts/wordlist.py > ${PROJECT_BINARY_DIR}/src/game/generated/wordlist.h
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  DEPENDS
+    scripts/wordlist.py
+)
 
 ########################################################################
 # SHARED
@@ -1640,7 +1722,6 @@ set(LIBS
   ${WEBSOCKETS_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${PLATFORM_LIBS}
-  ${CURL_LIBRARIES}
   # Add pthreads (on non-Windows) at the end, so that other libraries can depend
   # on it.
   ${CMAKE_THREAD_LIBS_INIT}
@@ -1651,12 +1732,33 @@ add_library(engine-shared EXCLUDE_FROM_ALL OBJECT ${ENGINE_INTERFACE} ${ENGINE_S
 add_library(game-shared EXCLUDE_FROM_ALL OBJECT ${GAME_SHARED} ${GAME_GENERATED_SHARED})
 list(APPEND TARGETS_OWN engine-shared game-shared)
 
+if(DISCORD AND NOT DISCORD_DYNAMIC)
+  add_library(discord-shared SHARED IMPORTED)
+  set_target_properties(discord-shared PROPERTIES
+    IMPORTED_LOCATION "${DISCORDSDK_LIBRARIES}"
+    IMPORTED_IMPLIB "${DISCORDSDK_LIBRARIES}"
+  )
+endif()
+
 ########################################################################
 # CLIENT
 ########################################################################
 
 if(CLIENT)
   # Sources
+  set_src(STEAMAPI_SRC GLOB_RECURSE src/steam
+    steam_api_flat.h
+    steam_api_stub.cpp
+  )
+
+  if(STEAM OR TARGET_OS STREQUAL "windows" OR TARGET_OS STREQUAL "mac")
+    set(STEAMAPI_KIND SHARED)
+  else()
+    set(STEAMAPI_KIND STATIC)
+  endif()
+  set(TARGET_STEAMAPI steam_api)
+  add_library(${TARGET_STEAMAPI} ${STEAMAPI_KIND} ${STEAMAPI_SRC})
+  list(APPEND TARGETS_OWN ${TARGET_STEAMAPI})
 
   set_src(ENGINE_CLIENT GLOB_RECURSE src/engine/client
     backend/glsl_shader_compiler.cpp
@@ -1838,6 +1940,8 @@ if(CLIENT)
   set(GAME_GENERATED_CLIENT
     src/game/generated/client_data.cpp
     src/game/generated/client_data.h
+    src/game/generated/client_data7.cpp
+    src/game/generated/client_data7.h
   )
   set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR} ${GAME_GENERATED_CLIENT})
 
@@ -1859,6 +1963,8 @@ if(CLIENT)
     ${OPUS_LIBRARIES}
     ${OGG_LIBRARIES}
 
+    ${TARGET_STEAMAPI}
+
     ${PLATFORM_CLIENT_LIBS}
 
     # Add pthreads (on non-Windows) at the end, so that other libraries can depend
@@ -1866,12 +1972,21 @@ if(CLIENT)
     ${CMAKE_THREAD_LIBS_INIT}
   )
 
+  if(DISCORD)
+    if(NOT DISCORD_DYNAMIC)
+      list(APPEND LIBS_CLIENT discord-shared)
+    else()
+      list(APPEND LIBS_CLIENT ${CMAKE_DL_LIBS})
+    endif()
+  endif()
+
   if(TARGET_OS STREQUAL "windows")
     set(CLIENT_ICON "other/icons/DDNet.rc")
     if(NOT MINGW)
       set(CLIENT_MANIFEST "other/manifest/DDNet.manifest")
     else()
       set(CLIENT_MANIFEST "other/manifest/DDNet.rc")
+      set_target_properties(${TARGET_STEAMAPI} PROPERTIES PREFIX "")
     endif()
   else()
     set(CLIENT_ICON)
@@ -1917,9 +2032,14 @@ if(CLIENT)
     ${SDL2_INCLUDE_DIRS}
     ${WAVPACK_INCLUDE_DIRS}
     ${FFMPEG_INCLUDE_DIRS}
+    ${DISCORDSDK_INCLUDE_DIRS}
 
     ${PLATFORM_CLIENT_INCLUDE_DIRS}
   )
+
+  if(STEAMAPI_KIND STREQUAL SHARED OR DISCORD_DYNAMIC)
+    set_own_rpath(${TARGET_CLIENT})
+  endif()
 
   set(PARAMS "${WAVPACK_INCLUDE_DIRS};${WAVPACK_INCLUDE_DIRS}")
   if(NOT(WAVPACK_OPEN_FILE_INPUT_EX_PARAMS STREQUAL PARAMS))
@@ -1957,6 +2077,12 @@ endif()
 
 if(SERVER)
   # Sources
+  set_src(ANTIBOT_SRC GLOB src/antibot
+    antibot_data.h
+    antibot_interface.h
+    antibot_null.cpp
+  )
+
   set_src(ENGINE_SERVER GLOB_RECURSE src/engine/server
     antibot.cpp
     antibot.h
@@ -2079,6 +2205,7 @@ if(SERVER)
   set(GAME_GENERATED_SERVER
     "src/game/generated/server_data.cpp"
     "src/game/generated/server_data.h"
+    "src/game/generated/wordlist.h"
   )
   set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER} ${GAME_GENERATED_SERVER})
   if(TARGET_OS STREQUAL "windows")
@@ -2087,11 +2214,18 @@ if(SERVER)
     set(SERVER_ICON)
   endif()
 
+  # Antibot
+  if(ANTIBOT)
+    set(TARGET_ANTIBOT antibot)
+    add_library(${TARGET_ANTIBOT} SHARED ${ANTIBOT_SRC})
+    list(APPEND TARGETS_OWN ${TARGET_ANTIBOT})
+  endif()
+
   # Libraries
   set(LIBS_SERVER
     ${LIBS}
-    ${CURL_LIBRARIES}
     ${MYSQL_LIBRARIES}
+    ${TARGET_ANTIBOT}
     ${MINIUPNPC_LIBRARIES}
     # Add pthreads (on non-Windows) at the end, so that other libraries can depend
     # on it.
@@ -2168,7 +2302,7 @@ if(TOOLS)
       string(REGEX REPLACE "\\.cpp$" "" TOOL "${T}")
       set(TOOL_DEPS ${DEPS})
       set(TOOL_LIBS ${LIBS})
-      if(TOOL MATCHES "^(dilate|map_optimize|map_extract|map_replace_image|tileset_.*|map_convert_07)$")
+      if(TOOL MATCHES "^(dilate|map_convert_07|map_optimize|map_extract|map_replace_image)$")
         list(APPEND TOOL_DEPS ${PNGLITE_DEP})
         list(APPEND TOOL_LIBS ${PNGLITE_LIBRARIES})
         list(APPEND TOOL_INCLUDE_DIRS ${PNGLITE_INCLUDE_DIRS})
@@ -2203,7 +2337,76 @@ add_custom_target(everything DEPENDS ${TARGETS_OWN})
 # TESTS
 ########################################################################
 
-# no tests in ddnet++
+if(GTEST_FOUND OR DOWNLOAD_GTEST)
+  set_src(TESTS GLOB src/test
+    aio.cpp
+    bezier.cpp
+    blocklist_driver.cpp
+    color.cpp
+    csv.cpp
+    datafile.cpp
+    fs.cpp
+    git_revision.cpp
+    hash.cpp
+    jobs.cpp
+    json.cpp
+    mapbugs.cpp
+    name_ban.cpp
+    netaddr.cpp
+    packer.cpp
+    prng.cpp
+    secure_random.cpp
+    serverbrowser.cpp
+    serverinfo.cpp
+    sorted_array.cpp
+    str.cpp
+    strip_path_and_extension.cpp
+    teehistorian.cpp
+    test.cpp
+    test.h
+    thread.cpp
+    unix.cpp
+    uuid.cpp
+  )
+  set(TESTS_EXTRA
+    src/engine/client/blocklist_driver.cpp
+    src/engine/client/blocklist_driver.h
+    src/engine/client/http.cpp
+    src/engine/client/http.h
+    src/engine/client/serverbrowser.cpp
+    src/engine/client/serverbrowser.h
+    src/engine/client/serverbrowser_http.cpp
+    src/engine/client/serverbrowser_http.h
+    src/engine/client/serverbrowser_ping_cache.cpp
+    src/engine/client/serverbrowser_ping_cache.h
+    src/engine/client/sqlite.cpp
+    src/engine/server/name_ban.cpp
+    src/engine/server/name_ban.h
+    src/game/server/teehistorian.cpp
+    src/game/server/teehistorian.h
+  )
+
+  set(TARGET_TESTRUNNER testrunner)
+  add_executable(${TARGET_TESTRUNNER} EXCLUDE_FROM_ALL
+    ${TESTS}
+    ${TESTS_EXTRA}
+    $<TARGET_OBJECTS:engine-shared>
+    $<TARGET_OBJECTS:game-shared>
+    ${DEPS}
+  )
+  target_link_libraries(${TARGET_TESTRUNNER} ${LIBS} ${CURL_LIBRARIES} ${GTEST_LIBRARIES})
+  target_include_directories(${TARGET_TESTRUNNER} PRIVATE ${CURL_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS})
+
+  list(APPEND TARGETS_OWN ${TARGET_TESTRUNNER})
+  list(APPEND TARGETS_LINK ${TARGET_TESTRUNNER})
+
+  add_custom_target(run_tests
+    COMMAND $<TARGET_FILE:${TARGET_TESTRUNNER}> ${TESTRUNNER_ARGS}
+    COMMENT Running tests
+    DEPENDS ${TARGET_TESTRUNNER}
+    USES_TERMINAL
+  )
+endif()
 
 ########################################################################
 # INSTALLATION
@@ -2352,6 +2555,9 @@ if(TOOLS)
     config_retrieve
     config_store
     dilate
+    map_convert_07
+    map_diff
+    map_extract
   )
 else()
   set(TARGET_TOOLS)
@@ -2362,6 +2568,9 @@ set(CPACK_TARGETS
   ${TARGET_SERVER}
   ${TARGET_TOOLS}
 )
+if(STEAMAPI_KIND STREQUAL SHARED)
+  list(APPEND CPACK_TARGETS ${TARGET_STEAMAPI})
+endif()
 set(CPACK_DIRS data)
 set(CPACK_FILES
   license.txt
@@ -2376,7 +2585,13 @@ if(NOT DEV)
   include(GNUInstallDirs)
   install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/ddnet COMPONENT data)
   install(TARGETS ${TARGET_CLIENT} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT client)
+  if(STEAMAPI_KIND STREQUAL SHARED)
+    install(TARGETS ${TARGET_STEAMAPI} DESTINATION ${CMAKE_INSTALL_LIBDIR}/ddnet COMPONENT client)
+  endif()
   install(TARGETS ${TARGET_SERVER} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT server)
+  if(ANTIBOT)
+    install(TARGETS ${TARGET_ANTIBOT} DESTINATION ${CMAKE_INSTALL_LIBDIR}/ddnet COMPONENT server)
+  endif()
   install(TARGETS ${TARGETS_TOOLS} DESTINATION ${CMAKE_INSTALL_LIBDIR}/ddnet COMPONENT tools)
   install(FILES other/ddnet.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications COMPONENT client)
   install(FILES other/ddnet.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo COMPONENT client)
@@ -2436,6 +2651,7 @@ if(CLIENT AND (DMGTOOLS_FOUND OR HDIUTIL))
     COMMAND ${CMAKE_COMMAND} -E copy bundle/client/Info.plist ${PROJECT_SOURCE_DIR}/other/bundle/client/PkgInfo ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_CLIENT}> ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/ddnet-libs/sdl/mac/lib64/SDL2.framework ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/SDL2.framework
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/discord/mac/lib64/discord_game_sdk.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/freetype/mac/lib64/libfreetype.6.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/mac/lib64/libavcodec.58.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/mac/lib64/libavformat.58.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
@@ -2443,6 +2659,7 @@ if(CLIENT AND (DMGTOOLS_FOUND OR HDIUTIL))
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/mac/lib64/libswresample.3.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/mac/lib64/libswscale.5.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/websockets/mac/lib64/libwebsockets.18.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/libsteam_api.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/darwin_strip_rpath.py ${CMAKE_OTOOL} ${CMAKE_INSTALL_NAME_TOOL} ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/${TARGET_CLIENT}
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @loader_path/../Frameworks ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/${TARGET_CLIENT}
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @loader_path/../Frameworks ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/libavcodec.58.dylib
@@ -2462,6 +2679,8 @@ if(CLIENT AND (DMGTOOLS_FOUND OR HDIUTIL))
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change /usr/local/lib/libfreetype.6.dylib @rpath/libfreetype.6.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/${TARGET_CLIENT}
     # TODO: Cleaner solution than hardcoding paths
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change /home/deen/isos/ddnet/debian6/mac64/libwebsockets-4.2/lib/libwebsockets.18.dylib @rpath/libwebsockets.18.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/${TARGET_CLIENT}
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${PROJECT_BINARY_DIR}/libsteam_api.dylib @rpath/libsteam_api.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/${TARGET_CLIENT}
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${PROJECT_BINARY_DIR}/libsteam_api.dylib @rpath/libsteam_api.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/libsteam_api.dylib
 
     # SERVER
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/data/maps ${DMG_TMPDIR}/${TARGET_SERVER}.app/Contents/Resources/data/maps
@@ -2481,6 +2700,7 @@ if(CLIENT AND (DMGTOOLS_FOUND OR HDIUTIL))
 
     DEPENDS
       ${TARGET_CLIENT}
+      ${TARGET_STEAMAPI}
       ${TARGET_SERVER_LAUNCHER}
       ${TARGET_SERVER}
       ${PROJECT_BINARY_DIR}/bundle/client/Info.plist
@@ -2576,6 +2796,12 @@ macro(source_group_tree dir)
 endmacro()
 source_group_tree(src)
 
+if(ANTIBOT)
+  # Allow the antibot library to use functions from the server binary.
+  add_c_compiler_flag_if_supported(OUR_FLAGS_LINK -rdynamic)
+  set_own_rpath(${TARGET_SERVER})
+endif()
+
 set(TARGETS ${TARGETS_OWN} ${TARGETS_DEP})
 
 foreach(target ${TARGETS})
@@ -2634,7 +2860,6 @@ foreach(target ${TARGETS_OWN})
   target_include_directories(${target} PRIVATE ${PROJECT_BINARY_DIR}/src)
   target_include_directories(${target} PRIVATE src)
   target_compile_definitions(${target} PRIVATE $<$<CONFIG:Debug>:CONF_DEBUG>)
-  target_include_directories(${target} PRIVATE ${CURL_INCLUDE_DIRS})
   target_include_directories(${target} PRIVATE ${SQLite3_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
   target_compile_definitions(${target} PRIVATE GLEW_STATIC)
   if(CRYPTO_FOUND)
@@ -2652,12 +2877,30 @@ foreach(target ${TARGETS_OWN})
   if(VIDEORECORDER)
     target_compile_definitions(${target} PRIVATE CONF_VIDEORECORDER)
   endif()
+  if(ANTIBOT)
+    target_compile_definitions(${target} PRIVATE CONF_ANTIBOT)
+  endif()
   if(HEADLESS_CLIENT)
     target_compile_definitions(${target} PRIVATE CONF_HEADLESS_CLIENT)
   endif()
   if(MYSQL)
     target_compile_definitions(${target} PRIVATE CONF_SQL)
     target_include_directories(${target} PRIVATE ${MYSQL_INCLUDE_DIRS})
+  endif()
+  if(AUTOUPDATE AND NOT STEAM)
+    target_compile_definitions(${target} PRIVATE CONF_AUTOUPDATE)
+  endif()
+  if(INFORM_UPDATE AND NOT STEAM)
+    target_compile_definitions(${target} PRIVATE CONF_INFORM_UPDATE)
+  endif()
+  if(STEAM)
+    target_compile_definitions(${target} PRIVATE PLATFORM_SUFFIX="-steam")
+  endif()
+  if(DISCORD)
+    target_compile_definitions(${target} PRIVATE CONF_DISCORD)
+    if(DISCORD_DYNAMIC)
+      target_compile_definitions(${target} PRIVATE CONF_DISCORD_DYNAMIC)
+    endif()
   endif()
   if(VERSION)
     target_compile_definitions(${target} PRIVATE GAME_RELEASE_VERSION="${VERSION}")
