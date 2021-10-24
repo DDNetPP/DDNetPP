@@ -78,6 +78,7 @@ public:
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
 	void OnDirectInput(CNetObj_PlayerInput *pNewInput);
+	void ResetHook();
 	void ResetInput();
 	void FireWeapon(bool Bot = false);
 

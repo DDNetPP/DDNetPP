@@ -632,7 +632,11 @@ void sphore_destroy(SEMAPHORE *sem);
 /* if compiled with -pedantic-errors it will complain about long
 	not being a C90 thing.
 */
+#ifdef CONF_PLATFORM_HAIKU
+#include <SupportDefs.h>
+#else
 __extension__ typedef long long int64;
+#endif
 __extension__ typedef unsigned long long uint64;
 #else
 typedef long long int64;
@@ -1622,6 +1626,21 @@ int fs_listdir_info(const char *dir, FS_LISTDIR_INFO_CALLBACK cb, int type, void
 int fs_makedir(const char *path);
 
 /*
+	Function: fs_removedir
+		Removes a directory
+
+	Parameters:
+		path - Directory to remove
+
+	Returns:
+		Returns 0 on success. Negative value on failure.
+
+	Remarks:
+		Cannot remove a non-empty directory.
+*/
+int fs_removedir(const char *path);
+
+/*
 	Function: fs_makedir_rec_for
 		Recursively create directories for a file
 
@@ -1707,6 +1726,7 @@ int fs_parent_dir(char *path);
 
 	Remarks:
 		- The strings are treated as zero-terminated strings.
+		- Returns an error if the path specifies a directory name.
 */
 int fs_remove(const char *filename);
 
@@ -2175,6 +2195,16 @@ void secure_random_fill(void *bytes, unsigned length);
 		Returns random int (replacement for rand()).
 */
 int secure_rand(void);
+
+/*
+	Function: secure_rand_below
+		Returns a random nonnegative integer below the given number,
+		with a uniform distribution.
+
+	Parameters:
+		below - Upper limit (exclusive) of integers to return.
+*/
+int secure_rand_below(int below);
 
 #ifdef __cplusplus
 }

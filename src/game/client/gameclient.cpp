@@ -540,6 +540,15 @@ void CGameClient::OnReset()
 	m_LastNewPredictedTick[0] = -1;
 	m_LastNewPredictedTick[1] = -1;
 
+	m_LocalTuneZone[0] = 0;
+	m_LocalTuneZone[1] = 0;
+
+	m_ExpectingTuningForZone[0] = -1;
+	m_ExpectingTuningForZone[1] = -1;
+
+	m_ReceivedTuning[0] = false;
+	m_ReceivedTuning[1] = false;
+
 	InvalidateSnapshot();
 
 	for(auto &Client : m_aClients)
@@ -782,6 +791,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 
 		m_ServerMode = SERVERMODE_PURE;
 
+		m_ReceivedTuning[IsDummy ? !g_Config.m_ClDummy : g_Config.m_ClDummy] = true;
 		// apply new tuning
 		m_Tuning[IsDummy ? !g_Config.m_ClDummy : g_Config.m_ClDummy] = NewTuning;
 		return;
@@ -1659,10 +1669,10 @@ void CGameClient::OnNewSnapshot()
 	m_pGhost->OnNewSnapshot();
 	m_pRaceDemo->OnNewSnapshot();
 
-	// detect air jump for unpredicted players
+	// detect air jump for other players
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		if(m_Snap.m_aCharacters[i].m_Active && (m_Snap.m_aCharacters[i].m_Cur.m_Jumped & 2) && !(m_Snap.m_aCharacters[i].m_Prev.m_Jumped & 2))
-			if(!Predict() || (!AntiPingPlayers() && i != m_Snap.m_LocalClientID))
+			if(!Predict() || (i != m_Snap.m_LocalClientID && (!AntiPingPlayers() || i != m_PredictedDummyID)))
 			{
 				vec2 Pos = mix(vec2(m_Snap.m_aCharacters[i].m_Prev.m_X, m_Snap.m_aCharacters[i].m_Prev.m_Y),
 					vec2(m_Snap.m_aCharacters[i].m_Cur.m_X, m_Snap.m_aCharacters[i].m_Cur.m_Y),
@@ -1806,6 +1816,17 @@ void CGameClient::OnPredict()
 				if(Events & COREEVENT_HOOK_HIT_NOHOOK)
 					m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_HOOK_NOATTACH, 1.0f, Pos);
 			}
+		}
+
+		// check if we want to trigger predicted airjump for dummy
+		if(AntiPingPlayers() && pDummyChar && Tick > m_LastNewPredictedTick[!Dummy])
+		{
+			m_LastNewPredictedTick[!Dummy] = Tick;
+			vec2 Pos = pDummyChar->Core()->m_Pos;
+			int Events = pDummyChar->Core()->m_TriggeredEvents;
+			if(g_Config.m_ClPredict)
+				if(Events & COREEVENT_AIR_JUMP)
+					m_pEffects->AirJump(Pos);
 		}
 	}
 
@@ -2201,6 +2222,8 @@ ColorRGBA CalculateNameColor(ColorHSLA TextColorHSL)
 
 void CGameClient::UpdatePrediction()
 {
+	m_GameWorld.m_WorldConfig.m_UseTuneZones = m_GameInfo.m_PredictDDRaceTiles;
+
 	if(!m_Snap.m_pLocalCharacter)
 	{
 		if(CCharacter *pLocalChar = m_GameWorld.GetCharacterByID(m_Snap.m_LocalClientID))
@@ -2220,17 +2243,68 @@ void CGameClient::UpdatePrediction()
 	m_GameWorld.m_WorldConfig.m_IsSolo = !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_HasExtendedData && !m_Tuning[g_Config.m_ClDummy].m_PlayerCollision && !m_Tuning[g_Config.m_ClDummy].m_PlayerHooking;
 
 	// update the tuning/tunezone at the local character position with the latest tunings received before the new snapshot
-	int TuneZone = Collision()->IsTune(Collision()->GetMapIndex(vec2(m_Snap.m_pLocalCharacter->m_X, m_Snap.m_pLocalCharacter->m_Y)));
-	if(!TuneZone || !m_GameWorld.m_WorldConfig.m_PredictTiles)
-		m_GameWorld.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+	vec2 LocalCharPos = vec2(m_Snap.m_pLocalCharacter->m_X, m_Snap.m_pLocalCharacter->m_Y);
+	m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+
+	int TuneZone = 0;
+	if(m_GameWorld.m_WorldConfig.m_UseTuneZones)
+	{
+		TuneZone = Collision()->IsTune(Collision()->GetMapIndex(LocalCharPos));
+
+		if(TuneZone != m_LocalTuneZone[g_Config.m_ClDummy])
+		{
+			// our tunezone changed, expecting tuning message
+			m_LocalTuneZone[g_Config.m_ClDummy] = m_ExpectingTuningForZone[g_Config.m_ClDummy] = TuneZone;
+			m_ExpectingTuningSince[g_Config.m_ClDummy] = 0;
+		}
+
+		if(m_ExpectingTuningForZone[g_Config.m_ClDummy] >= 0)
+		{
+			if(m_ReceivedTuning[g_Config.m_ClDummy])
+			{
+				dbg_msg("tunezone", "got tuning for zone %d", m_ExpectingTuningForZone[g_Config.m_ClDummy]);
+				m_GameWorld.TuningList()[m_ExpectingTuningForZone[g_Config.m_ClDummy]] = m_Tuning[g_Config.m_ClDummy];
+				m_ReceivedTuning[g_Config.m_ClDummy] = false;
+				m_ExpectingTuningForZone[g_Config.m_ClDummy] = -1;
+			}
+			else if(m_ExpectingTuningSince[g_Config.m_ClDummy] >= 5)
+			{
+				// if we are expecting tuning for more than 10 snaps (less than a quarter of a second)
+				// it is probably dropped or it was received out of order
+				// or applied to another tunezone.
+				// we need to fallback to current tuning to fix ourselves.
+				m_ExpectingTuningForZone[g_Config.m_ClDummy] = -1;
+				m_ExpectingTuningSince[g_Config.m_ClDummy] = 0;
+				m_ReceivedTuning[g_Config.m_ClDummy] = false;
+				dbg_msg("tunezone", "the tuning was missed");
+			}
+			else
+			{
+				// if we are expecting tuning and have not received one yet.
+				// do not update any tuning, so we don't apply it to the wrong tunezone.
+				dbg_msg("tunezone", "waiting for tuning for zone %d", m_ExpectingTuningForZone[g_Config.m_ClDummy]);
+				m_ExpectingTuningSince[g_Config.m_ClDummy]++;
+			}
+		}
+		else
+		{
+			// if we have processed what we need, and the tuning is still wrong due to out of order messege
+			// fix our tuning by using the current one
+			m_GameWorld.TuningList()[TuneZone] = m_Tuning[g_Config.m_ClDummy];
+			m_ExpectingTuningSince[g_Config.m_ClDummy] = 0;
+			m_ReceivedTuning[g_Config.m_ClDummy] = false;
+		}
+	}
 	else
-		m_GameWorld.TuningList()[TuneZone] = m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy] = m_Tuning[g_Config.m_ClDummy];
+	{
+		m_GameWorld.TuningList()[0] = m_Tuning[g_Config.m_ClDummy];
+	}
 
 	// if ddnetcharacter is available, ignore server-wide tunings for hook and collision
 	if(m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_HasExtendedData)
 	{
-		m_GameWorld.m_Tuning[g_Config.m_ClDummy].m_PlayerCollision = 1;
-		m_GameWorld.m_Tuning[g_Config.m_ClDummy].m_PlayerHooking = 1;
+		m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy].m_PlayerCollision = 1;
+		m_GameWorld.m_Core.m_Tuning[g_Config.m_ClDummy].m_PlayerHooking = 1;
 	}
 
 	// restore characters from previously saved ones if they temporarily left the snapshot

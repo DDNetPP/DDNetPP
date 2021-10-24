@@ -29,7 +29,7 @@ CHomingMissile::CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, 
 
 void CHomingMissile::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 void CHomingMissile::Tick()

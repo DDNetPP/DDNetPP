@@ -68,7 +68,7 @@ void CDropPickup::Reset()
 	if(IsCharacterNear() == -1)
 		GameServer()->CreateDeath(m_Pos, -1);
 
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 int CDropPickup::IsCharacterNear()

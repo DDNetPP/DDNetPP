@@ -1290,7 +1290,7 @@ void CCharacter::CosmeticTick()
 	{
 		for(std::vector<CStableProjectile *>::iterator it = m_AtomProjs.begin(); it != m_AtomProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(*it);
+			(*it)->m_MarkedForDestroy;
 		}
 		m_AtomProjs.clear();
 	}
@@ -1372,7 +1372,7 @@ void CCharacter::CosmeticTick()
 	{
 		for(std::vector<CStableProjectile *>::iterator it = m_TrailProjs.begin(); it != m_TrailProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(*it);
+			(*it)->m_MarkedForDestroy;
 		}
 		m_TrailProjs.clear();
 	}
@@ -2388,7 +2388,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	{
 		for(std::vector<CStableProjectile *>::iterator it = m_AtomProjs.begin(); it != m_AtomProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(*it);
+			(*it)->m_MarkedForDestroy = true;
 		}
 		m_AtomProjs.clear();
 	}
@@ -2398,7 +2398,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	{
 		for(std::vector<CStableProjectile *>::iterator it = m_TrailProjs.begin(); it != m_TrailProjs.end(); ++it)
 		{
-			GameServer()->m_World.DestroyEntity(*it);
+			(*it)->m_MarkedForDestroy;
 		}
 		m_TrailProjs.clear();
 	}

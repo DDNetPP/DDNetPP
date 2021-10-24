@@ -326,171 +326,9 @@ int CEditor::DoClearableEditBox(void *pID, void *pClearID, const CUIRect *pRect,
 	return ReturnValue;
 }
 
-// copied from gc_menu.cpp, should be more generalized
-//extern int ui_do_edit_box(void *id, const CUIRect *rect, char *str, int str_size, float font_size, bool hidden=false);
 int CEditor::DoEditBox(void *pID, const CUIRect *pRect, char *pStr, unsigned StrSize, float FontSize, float *Offset, bool Hidden, int Corners)
 {
-	int Inside = UI()->MouseInside(pRect);
-	bool ReturnValue = false;
-	bool UpdateOffset = false;
-	static int s_AtIndex = 0;
-	static bool s_DoScroll = false;
-	static float s_ScrollStart = 0.0f;
-
-	FontSize *= UI()->Scale();
-
-	if(UI()->LastActiveItem() == pID)
-	{
-		m_EditBoxActive = 2;
-		int Len = str_length(pStr);
-		if(Len == 0)
-			s_AtIndex = 0;
-
-		if(Inside && UI()->MouseButton(0))
-		{
-			s_DoScroll = true;
-			s_ScrollStart = UI()->MouseX();
-			int MxRel = (int)(UI()->MouseX() - pRect->x);
-
-			for(int i = 1; i <= Len; i++)
-			{
-				if(TextRender()->TextWidth(0, FontSize, pStr, i, std::numeric_limits<float>::max()) - *Offset > MxRel)
-				{
-					s_AtIndex = i - 1;
-					break;
-				}
-
-				if(i == Len)
-					s_AtIndex = Len;
-			}
-		}
-		else if(!UI()->MouseButton(0))
-			s_DoScroll = false;
-		else if(s_DoScroll)
-		{
-			// do scrolling
-			if(UI()->MouseX() < pRect->x && s_ScrollStart - UI()->MouseX() > 10.0f)
-			{
-				s_AtIndex = maximum(0, s_AtIndex - 1);
-				s_ScrollStart = UI()->MouseX();
-				UpdateOffset = true;
-			}
-			else if(UI()->MouseX() > pRect->x + pRect->w && UI()->MouseX() - s_ScrollStart > 10.0f)
-			{
-				s_AtIndex = minimum(Len, s_AtIndex + 1);
-				s_ScrollStart = UI()->MouseX();
-				UpdateOffset = true;
-			}
-		}
-
-		for(int i = 0; i < Input()->NumEvents(); i++)
-		{
-			Len = str_length(pStr);
-			int NumChars = Len;
-			ReturnValue |= CLineInput::Manipulate(Input()->GetEvent(i), pStr, StrSize, StrSize, &Len, &s_AtIndex, &NumChars);
-		}
-
-		if(Input()->KeyIsPressed(KEY_LCTRL) && Input()->KeyPress(KEY_V))
-		{
-			const char *pClipboardText = Input()->GetClipboardText();
-			if(pClipboardText)
-			{
-				str_append(pStr, pClipboardText, StrSize);
-				str_sanitize_cc(pStr);
-				s_AtIndex = str_length(pStr);
-				ReturnValue = true;
-			}
-		}
-
-		if(Input()->KeyIsPressed(KEY_LCTRL) && Input()->KeyPress(KEY_C) && pStr[0] != '\0')
-		{
-			Input()->SetClipboardText(pStr);
-		}
-	}
-
-	bool JustGotActive = false;
-
-	if(UI()->ActiveItem() == pID)
-	{
-		if(!UI()->MouseButton(0))
-		{
-			s_AtIndex = minimum(s_AtIndex, str_length(pStr));
-			s_DoScroll = false;
-			UI()->SetActiveItem(0);
-		}
-	}
-	else if(UI()->HotItem() == pID)
-	{
-		if(UI()->MouseButton(0))
-		{
-			if(UI()->LastActiveItem() != pID)
-				JustGotActive = true;
-			UI()->SetActiveItem(pID);
-		}
-	}
-
-	if(Inside)
-		UI()->SetHotItem(pID);
-
-	CUIRect Textbox = *pRect;
-	RenderTools()->DrawUIRect(&Textbox, ColorRGBA(1, 1, 1, 0.5f), Corners, 3.0f);
-	Textbox.VMargin(2.0f, &Textbox);
-
-	const char *pDisplayStr = pStr;
-	char aStars[128];
-
-	if(Hidden)
-	{
-		unsigned s = str_length(pStr);
-		if(s >= sizeof(aStars))
-			s = sizeof(aStars) - 1;
-		for(unsigned int i = 0; i < s; ++i)
-			aStars[i] = '*';
-		aStars[s] = 0;
-		pDisplayStr = aStars;
-	}
-
-	// check if the text has to be moved
-	if(UI()->LastActiveItem() == pID && !JustGotActive && (UpdateOffset || Input()->NumEvents()))
-	{
-		float w = TextRender()->TextWidth(0, FontSize, pDisplayStr, s_AtIndex, std::numeric_limits<float>::max());
-		if(w - *Offset > Textbox.w)
-		{
-			// move to the left
-			float wt = TextRender()->TextWidth(0, FontSize, pDisplayStr, -1, std::numeric_limits<float>::max());
-			do
-			{
-				*Offset += minimum(wt - *Offset - Textbox.w, Textbox.w / 3);
-			} while(w - *Offset > Textbox.w + 0.0001f);
-		}
-		else if(w - *Offset < 0.0f)
-		{
-			// move to the right
-			do
-			{
-				*Offset = maximum(0.0f, *Offset - Textbox.w / 3);
-			} while(w - *Offset < -0.0001f);
-		}
-	}
-	UI()->ClipEnable(pRect);
-	Textbox.x -= *Offset;
-
-	UI()->DoLabel(&Textbox, pDisplayStr, FontSize, -1, std::numeric_limits<float>::max());
-
-	// render the cursor
-	if(UI()->LastActiveItem() == pID && !JustGotActive)
-	{
-		float w = TextRender()->TextWidth(0, FontSize, pDisplayStr, s_AtIndex, std::numeric_limits<float>::max());
-		Textbox = *pRect;
-		Textbox.VSplitLeft(2.0f, 0, &Textbox);
-		Textbox.x += (w - *Offset - TextRender()->TextWidth(0, FontSize, "|", -1, std::numeric_limits<float>::max()) / 2);
-
-		if((2 * time_get() / time_freq()) % 2) // make it blink
-			UI()->DoLabel(&Textbox, "|", FontSize, -1, std::numeric_limits<float>::max());
-	}
-	UI()->ClipDisable();
-
-	return ReturnValue;
+	return m_UIEx.DoEditBox(pID, pRect, pStr, StrSize, FontSize, Offset, Hidden, Corners);
 }
 
 float CEditor::ButtonColorMul(const void *pID)
@@ -1159,7 +997,8 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 		TB_Top.VSplitLeft(5.0f, 0, &TB_Top);
 
 		TB_Top.VSplitLeft(45.0f, &Button, &TB_Top);
-		if(DoButton_Editor(&Button, "Entities", 0, &Button, 0, "Choose game layer entities image for different gametypes"))
+		static int s_EntitiesButtonID = 0;
+		if(DoButton_Editor(&s_EntitiesButtonID, "Entities", 0, &Button, 0, "Choose game layer entities image for different gametypes"))
 		{
 			m_SelectEntitiesFiles.clear();
 			Storage()->ListDirectory(IStorage::TYPE_ALL, "editor/entities", EntitiesListdirCallback, this);
@@ -4508,7 +4347,7 @@ void CEditor::RenderFileDialog()
 
 				if(Graphics()->LoadPNG(&m_FilePreviewImageInfo, aBuffer, IStorage::TYPE_ALL))
 				{
-					m_FilePreviewImage = Graphics()->LoadTextureRaw(m_FilePreviewImageInfo.m_Width, m_FilePreviewImageInfo.m_Height, m_FilePreviewImageInfo.m_Format, m_FilePreviewImageInfo.m_pData, m_FilePreviewImageInfo.m_Format, IGraphics::TEXLOAD_NORESAMPLE);
+					m_FilePreviewImage = Graphics()->LoadTextureRaw(m_FilePreviewImageInfo.m_Width, m_FilePreviewImageInfo.m_Height, m_FilePreviewImageInfo.m_Format, m_FilePreviewImageInfo.m_pData, m_FilePreviewImageInfo.m_Format, 0);
 					CImageInfo DummyInfo = m_FilePreviewImageInfo;
 					m_FilePreviewImageInfo.m_pData = NULL;
 					Graphics()->FreePNG(&DummyInfo);
@@ -4852,7 +4691,7 @@ void CEditor::RenderUndoList(CUIRect View)
 		{
 			char aBuffer[1024];
 			str_format(aBuffer, sizeof(aBuffer), "editor/undo_%i.png", m_lUndoSteps[HoveredIndex].m_FileNum);
-			m_lUndoSteps[HoveredIndex].m_PreviewImage = Graphics()->LoadTexture(aBuffer, IStorage::TYPE_SAVE, CImageInfo::FORMAT_RGB, IGraphics::TEXLOAD_NORESAMPLE);
+			m_lUndoSteps[HoveredIndex].m_PreviewImage = Graphics()->LoadTexture(aBuffer, IStorage::TYPE_SAVE, CImageInfo::FORMAT_RGB, 0);
 			m_lUndoSteps[HoveredIndex].m_PreviewImageIsLoaded = true;
 		}
 		if(m_lUndoSteps[HoveredIndex].m_PreviewImageIsLoaded)
@@ -5995,8 +5834,14 @@ void CEditor::Render()
 			}
 		}
 
+		// ctrl+shift+alt+s to save as
+		if(Input()->KeyPress(KEY_S) && CtrlPressed && ShiftPressed && AltPressed)
+			InvokeFileDialog(IStorage::TYPE_SAVE, FILETYPE_MAP, "Save map", "Save", "maps", "", CallbackSaveCopyMap, this);
+		// ctrl+shift+s to save as
+		else if(Input()->KeyPress(KEY_S) && CtrlPressed && ShiftPressed)
+			InvokeFileDialog(IStorage::TYPE_SAVE, FILETYPE_MAP, "Save map", "Save", "maps", "", CallbackSaveMap, this);
 		// ctrl+s to save
-		if(Input()->KeyPress(KEY_S) && CtrlPressed)
+		else if(Input()->KeyPress(KEY_S) && CtrlPressed)
 		{
 			if(m_aFileName[0] && m_ValidSaveFilename)
 			{
@@ -6009,14 +5854,6 @@ void CEditor::Render()
 			else
 				InvokeFileDialog(IStorage::TYPE_SAVE, FILETYPE_MAP, "Save map", "Save", "maps", "", CallbackSaveMap, this);
 		}
-
-		// ctrl+shift+s to save as
-		if(Input()->KeyPress(KEY_S) && CtrlPressed && ShiftPressed)
-			InvokeFileDialog(IStorage::TYPE_SAVE, FILETYPE_MAP, "Save map", "Save", "maps", "", CallbackSaveMap, this);
-
-		// ctrl+shift+alt+s to save as
-		if(Input()->KeyPress(KEY_S) && CtrlPressed && ShiftPressed && AltPressed)
-			InvokeFileDialog(IStorage::TYPE_SAVE, FILETYPE_MAP, "Save map", "Save", "maps", "", CallbackSaveCopyMap, this);
 	}
 
 	if(m_GuiActive)
@@ -6368,6 +6205,8 @@ void CEditor::Init()
 	m_RenderTools.Init(m_pGraphics, &m_UI, pGameClient);
 	m_UI.SetGraphics(m_pGraphics, m_pTextRender);
 	m_Map.m_pEditor = this;
+
+	m_UIEx.Init(UI(), Kernel(), RenderTools(), Input()->GetEventsRaw(), Input()->GetEventCountRaw());
 
 	m_CheckerTexture = Graphics()->LoadTexture("editor/checker.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
 	m_BackgroundTexture = Graphics()->LoadTexture("editor/background.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);

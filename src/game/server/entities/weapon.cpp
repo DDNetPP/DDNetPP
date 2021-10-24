@@ -54,7 +54,7 @@ void CWeapon::Reset()
 	Server()->SnapFreeID(m_ID3);
 	Server()->SnapFreeID(m_ID4);
 	Server()->SnapFreeID(m_ID5);
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 void CWeapon::IsShieldNear()

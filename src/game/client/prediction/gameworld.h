@@ -37,12 +37,9 @@ public:
 	class CCharacter *IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, class CCharacter *pNotThis = 0, int CollideWith = -1, class CCharacter *pThisOnly = 0);
 	void InsertEntity(CEntity *pEntity, bool Last = false);
 	void RemoveEntity(CEntity *pEntity);
-	void DestroyEntity(CEntity *pEntity);
 	void Tick();
 
 	// DDRace
-
-	std::list<class CCharacter *> IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, class CEntity *pNotThis);
 	void ReleaseHooked(int ClientID);
 	std::list<class CCharacter *> IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis = 0);
 
@@ -74,6 +71,7 @@ public:
 		bool m_PredictWeapons;
 		bool m_PredictDDRace;
 		bool m_IsSolo;
+		bool m_UseTuneZones;
 	} m_WorldConfig;
 
 	bool m_IsValidCopy;
@@ -89,10 +87,9 @@ public:
 	CEntity *FindMatch(int ObjID, int ObjType, const void *pObjData);
 	void Clear();
 
-	CTuningParams m_Tuning[2];
 	CTuningParams *m_pTuningList;
 	CTuningParams *TuningList() { return m_pTuningList; }
-	CTuningParams *GetTuning(int i) { return i == 0 ? Tuning() : &TuningList()[i]; }
+	CTuningParams *GetTuning(int i) { return &TuningList()[i]; }
 
 private:
 	void RemoveEntities();

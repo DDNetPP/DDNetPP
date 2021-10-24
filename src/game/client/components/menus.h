@@ -15,6 +15,7 @@
 
 #include <game/client/component.h>
 #include <game/client/ui.h>
+#include <game/client/ui_ex.h>
 #include <game/voting.h>
 
 struct CServerProcess
@@ -70,6 +71,8 @@ class CMenus : public CComponent
 
 	char m_aLocalStringHelper[1024];
 
+	CUIEx m_UIEx;
+
 	float ButtonColorMulActive() { return 0.5f; }
 	float ButtonColorMulHot() { return 1.5f; }
 	float ButtonColorMulDefault() { return 1.0f; }
@@ -108,7 +111,7 @@ class CMenus : public CComponent
 	//static int ui_do_edit_box(void *id, const CUIRect *rect, char *str, unsigned str_size, float font_size, bool hidden=false);
 
 	float DoScrollbarV(const void *pID, const CUIRect *pRect, float Current);
-	float DoScrollbarH(const void *pID, const CUIRect *pRect, float Current);
+	float DoScrollbarH(const void *pID, const CUIRect *pRect, float Current, bool ColorPickerSlider = false, ColorRGBA *pColorInner = NULL);
 	void DoButton_KeySelect(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 	int DoKeyReader(void *pID, const CUIRect *pRect, int Key, int Modifier, int *NewModifier);
 
@@ -220,6 +223,8 @@ class CMenus : public CComponent
 	CListboxItem UiDoListboxNextRow();
 	int UiDoListboxEnd(float *pScrollValue, bool *pItemActivated, bool *pListBoxActive = 0);
 
+	int UiLogicGetCurrentClickedItem();
+
 	//static void demolist_listdir_callback(const char *name, int is_dir, void *user);
 	//static void demolist_list_callback(const CUIRect *rect, int index, void *user);
 
@@ -267,6 +272,11 @@ protected:
 	static int GameScan(const char *pName, int IsDir, int DirType, void *pUser);
 	static int EmoticonsScan(const char *pName, int IsDir, int DirType, void *pUser);
 	static int ParticlesScan(const char *pName, int IsDir, int DirType, void *pUser);
+
+	static void ConchainAssetsEntities(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainAssetGame(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainAssetParticles(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainAssetEmoticons(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
 	void ClearCustomItems(int CurTab);
 
@@ -688,7 +698,9 @@ private:
 	void RenderSettingsDDNet(CUIRect MainView);
 	void RenderSettingsHUD(CUIRect MainView);
 	ColorHSLA RenderHSLColorPicker(const CUIRect *pRect, unsigned int *pColor, bool Alpha);
-	ColorHSLA RenderHSLScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alpha = false);
+	ColorHSLA RenderHSLScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alpha = false, bool ClampedLight = false);
+
+	int RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelection, const void **pIDs, const char **pStr, int PickNum, const void *pID, float &ScrollVal);
 
 	CServerProcess m_ServerProcess;
 };

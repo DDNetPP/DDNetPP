@@ -409,10 +409,31 @@ transmits your player name to info2.ddnet.tw
 Theme
 == 
 
+AFR
+== 
+
+ASI
+== 
+
+AUS
+== 
+
+EUR
+== 
+
+NA
+== 
+
+SA
+== 
+
+CHN
+== 
+
 Type
 == 
 
-Refreshing master servers
+Getting server list from master server
 == 
 
 Search
@@ -473,6 +494,9 @@ Reset filter
 == 
 
 Server details
+== 
+
+Leak IP
 == 
 
 Scoreboard
@@ -784,13 +808,16 @@ Dummy
 Miscellaneous
 == 
 
-Show only supported
-== 
-
 Display Modes
 == 
 
-Borderless window
+Windowed
+== 
+
+Windowed borderless
+== 
+
+Desktop fullscreen
 == 
 
 V-Sync
@@ -805,7 +832,7 @@ Screen
 FSAA samples
 == 
 
-Use OpenGL 3.3 (experimental)
+Use modern OpenGL
 == 
 
 Preinit VBO (iGPUs only)
@@ -920,6 +947,18 @@ Laser Outline Color
 == 
 
 Laser Inner Color
+== 
+
+Hookline
+== 
+
+No hit
+== 
+
+Hookable
+== 
+
+Tee
 == 
 
 Use old chat style

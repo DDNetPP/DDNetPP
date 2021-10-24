@@ -271,7 +271,8 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		RenderThemeSelection(Left);
 
 		DirectoryButton.HSplitTop(5.0f, 0, &DirectoryButton);
-		if(DoButton_Menu(&DirectoryButton, Localize("Themes directory"), 0, &DirectoryButton))
+		static int s_ThemesButtonID = 0;
+		if(DoButton_Menu(&s_ThemesButtonID, Localize("Themes directory"), 0, &DirectoryButton))
 		{
 			char aBuf[MAX_PATH_LENGTH];
 			char aBufFull[MAX_PATH_LENGTH + 7];
@@ -583,7 +584,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	MainView.HSplitTop(20.0f, 0, &MainView);
 	MainView.HSplitTop(20.0f, &Button, &MainView);
 	Button.VSplitMid(&Button, &Button2);
-	if(DoButton_CheckBox(&ColorBody, Localize("Custom colors"), *UseCustomColor, &Button))
+	static int s_CustomColorID = 0;
+	if(DoButton_CheckBox(&s_CustomColorID, Localize("Custom colors"), *UseCustomColor, &Button))
 	{
 		*UseCustomColor = *UseCustomColor ? 0 : 1;
 		SetNeedSendInfo();
@@ -609,7 +611,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 			aRects[i].HSplitTop(2.5f, 0, &aRects[i]);
 
 			unsigned PrevColor = *paColors[i];
-			RenderHSLScrollbars(&aRects[i], paColors[i]);
+			RenderHSLScrollbars(&aRects[i], paColors[i], false, true);
 
 			if(PrevColor != *paColors[i])
 			{
@@ -724,7 +726,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	SkinDB.VSplitLeft(150.0f, &SkinDB, &DirectoryButton);
 	SkinDB.HSplitTop(5.0f, 0, &SkinDB);
-	if(DoButton_Menu(&SkinDB, Localize("Skin Database"), 0, &SkinDB))
+	static int s_SkinDBDirID = 0;
+	if(DoButton_Menu(&s_SkinDBDirID, Localize("Skin Database"), 0, &SkinDB))
 	{
 		if(!open_link("https://ddnet.tw/skins/"))
 		{
@@ -736,7 +739,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	DirectoryButton.VSplitRight(175.0f, 0, &DirectoryButton);
 	DirectoryButton.VSplitRight(25.0f, &DirectoryButton, &RefreshButton);
 	DirectoryButton.VSplitRight(10.0f, &DirectoryButton, 0);
-	if(DoButton_Menu(&DirectoryButton, Localize("Skins directory"), 0, &DirectoryButton))
+	static int s_DirectoryButtonID = 0;
+	if(DoButton_Menu(&s_DirectoryButtonID, Localize("Skins directory"), 0, &DirectoryButton))
 	{
 		char aBuf[MAX_PATH_LENGTH];
 		char aBufFull[MAX_PATH_LENGTH + 7];
@@ -751,7 +755,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
-	if(DoButton_Menu(&RefreshButton, "\xEE\x97\x95", 0, &RefreshButton, NULL, 15, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
+	static int s_SkinRefreshButtonID = 0;
+	if(DoButton_Menu(&s_SkinRefreshButtonID, "\xEE\x97\x95", 0, &RefreshButton, NULL, 15, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
 	{
 		m_pClient->m_pSkins->Refresh();
 		s_InitSkinlist = true;
@@ -898,20 +903,20 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	static int s_ControlsList = 0;
 	static int s_SelectedControl = -1;
 	static float s_ScrollValue = 0;
-	int OldSelected = s_SelectedControl;
+	static int s_OldSelected = 0;
 	// Hacky values: Size of 10.0f per item for smoother scrolling, 72 elements
 	// fits the current size of controls settings
 	UiDoListboxStart(&s_ControlsList, &MainView, 10.0f, Localize("Controls"), "", 72, 1, s_SelectedControl, s_ScrollValue);
 
 	CUIRect MovementSettings, WeaponSettings, VotingSettings, ChatSettings, DummySettings, MiscSettings, ResetButton;
-	CListboxItem Item = UiDoListboxNextItem(&OldSelected, false, false, true);
+	CListboxItem Item = UiDoListboxNextItem(&s_OldSelected, false, false, true);
 	Item.m_Rect.HSplitTop(10.0f, 0, &Item.m_Rect);
 	Item.m_Rect.VSplitMid(&MovementSettings, &VotingSettings);
 
 	// movement settings
 	{
 		MovementSettings.VMargin(5.0f, &MovementSettings);
-		MovementSettings.HSplitTop(490.0f, &MovementSettings, &WeaponSettings);
+		MovementSettings.HSplitTop(445.0f, &MovementSettings, &WeaponSettings);
 		RenderTools()->DrawUIRect(&MovementSettings, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_ALL, 10.0f);
 		MovementSettings.VMargin(10.0f, &MovementSettings);
 
@@ -945,20 +950,20 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
 		}
 
-		UiDoGetButtons(0, 17, MovementSettings, MainView);
+		UiDoGetButtons(0, 15, MovementSettings, MainView);
 	}
 
 	// weapon settings
 	{
 		WeaponSettings.HSplitTop(10.0f, 0, &WeaponSettings);
-		WeaponSettings.HSplitTop(145.0f, &WeaponSettings, &ResetButton);
+		WeaponSettings.HSplitTop(190.0f, &WeaponSettings, &ResetButton);
 		RenderTools()->DrawUIRect(&WeaponSettings, ColorRGBA(1, 1, 1, 0.25f), CUI::CORNER_ALL, 10.0f);
 		WeaponSettings.VMargin(10.0f, &WeaponSettings);
 
 		TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y + (14.0f + 5.0f + 10.0f - 14.0f * UI()->Scale()) / 2.f, 14.0f * UI()->Scale(), Localize("Weapon"), -1.0f);
 
 		WeaponSettings.HSplitTop(14.0f + 5.0f + 10.0f, 0, &WeaponSettings);
-		UiDoGetButtons(17, 22, WeaponSettings, MainView);
+		UiDoGetButtons(15, 22, WeaponSettings, MainView);
 	}
 
 	// defaults
@@ -1029,6 +1034,43 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	UiDoListboxEnd(&s_ScrollValue, 0);
 }
 
+int CMenus::RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelection, const void **pIDs, const char **pStr, int PickNum, const void *pID, float &ScrollVal)
+{
+	if(CurDropDownState != 0)
+	{
+		CUIRect ListRect;
+		pRect->HSplitTop(24.0f * PickNum, &ListRect, pRect);
+		char aBuf[1024];
+		UiDoListboxStart(&pID, &ListRect, 24.0f, "", aBuf, PickNum, 1, CurSelection, ScrollVal);
+		for(int i = 0; i < PickNum; ++i)
+		{
+			CListboxItem Item = UiDoListboxNextItem(pIDs[i], CurSelection == i);
+			if(Item.m_Visible)
+			{
+				str_format(aBuf, sizeof(aBuf), "%s", pStr[i]);
+				UI()->DoLabelScaled(&Item.m_Rect, aBuf, 16.0f, 0);
+			}
+		}
+		bool ClickedItem = false;
+		int NewIndex = UiDoListboxEnd(&ScrollVal, NULL, &ClickedItem);
+		if(ClickedItem)
+		{
+			CurDropDownState = 0;
+			return NewIndex;
+		}
+		else
+			return CurSelection;
+	}
+	else
+	{
+		CUIRect Button;
+		pRect->HSplitTop(24.0f, &Button, pRect);
+		if(DoButton_MenuTab(pID, CurSelection > -1 ? pStr[CurSelection] : "", 0, &Button, CUI::CORNER_ALL, NULL, NULL, NULL, NULL, 4.0f))
+			CurDropDownState = 1;
+		return CurSelection;
+	}
+}
+
 void CMenus::RenderSettingsGraphics(CUIRect MainView)
 {
 	CUIRect Button, Label;
@@ -1043,7 +1085,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	static int s_GfxColorDepth = g_Config.m_GfxColorDepth;
 	static int s_GfxVsync = g_Config.m_GfxVsync;
 	static int s_GfxFsaaSamples = g_Config.m_GfxFsaaSamples;
-	static int s_GfxOpenGLVersion = (g_Config.m_GfxOpenGLMajor == 3 && g_Config.m_GfxOpenGLMinor == 3) || g_Config.m_GfxOpenGLMajor >= 4;
+	static int s_GfxOpenGLVersion = Graphics()->IsConfigModernAPI();
 	static int s_GfxEnableTextureUnitOptimization = g_Config.m_GfxEnableTextureUnitOptimization;
 	static int s_GfxUsePreinitBuffer = g_Config.m_GfxUsePreinitBuffer;
 	static int s_GfxHighdpi = g_Config.m_GfxHighdpi;
@@ -1051,14 +1093,6 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	CUIRect ModeList;
 	MainView.VSplitLeft(350.0f, &MainView, &ModeList);
 	MainView.VSplitLeft(340.0f, &MainView, 0);
-
-	// draw allmodes switch
-	ModeList.HSplitTop(20, &Button, &ModeList);
-	if(DoButton_CheckBox(&g_Config.m_GfxDisplayAllModes, Localize("Show only supported"), g_Config.m_GfxDisplayAllModes ^ 1, &Button))
-	{
-		g_Config.m_GfxDisplayAllModes ^= 1;
-		s_NumNodes = Graphics()->GetVideoModes(s_aModes, MAX_RESOLUTIONS, g_Config.m_GfxScreen);
-	}
 
 	// display mode list
 	static float s_ScrollValue = 0;
@@ -1071,8 +1105,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	{
 		const int Depth = s_aModes[i].m_Red + s_aModes[i].m_Green + s_aModes[i].m_Blue > 16 ? 24 : 16;
 		if(g_Config.m_GfxColorDepth == Depth &&
-			g_Config.m_GfxScreenWidth == s_aModes[i].m_Width &&
-			g_Config.m_GfxScreenHeight == s_aModes[i].m_Height)
+			g_Config.m_GfxScreenWidth == s_aModes[i].m_WindowWidth &&
+			g_Config.m_GfxScreenHeight == s_aModes[i].m_WindowHeight)
 		{
 			OldSelected = i;
 		}
@@ -1080,8 +1114,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		CListboxItem Item = UiDoListboxNextItem(&s_aModes[i], OldSelected == i);
 		if(Item.m_Visible)
 		{
-			int G = gcd(s_aModes[i].m_Width, s_aModes[i].m_Height);
-			str_format(aBuf, sizeof(aBuf), " %dx%d %d bit (%d:%d)", s_aModes[i].m_Width, s_aModes[i].m_Height, Depth, s_aModes[i].m_Width / G, s_aModes[i].m_Height / G);
+			int G = gcd(s_aModes[i].m_CanvasWidth, s_aModes[i].m_CanvasHeight);
+			str_format(aBuf, sizeof(aBuf), " %dx%d %d bit (%d:%d)", s_aModes[i].m_CanvasWidth, s_aModes[i].m_CanvasHeight, Depth, s_aModes[i].m_CanvasWidth / G, s_aModes[i].m_CanvasHeight / G);
 			UI()->DoLabelScaled(&Item.m_Rect, aBuf, 16.0f, -1);
 		}
 	}
@@ -1091,22 +1125,34 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	{
 		const int Depth = s_aModes[NewSelected].m_Red + s_aModes[NewSelected].m_Green + s_aModes[NewSelected].m_Blue > 16 ? 24 : 16;
 		g_Config.m_GfxColorDepth = Depth;
-		g_Config.m_GfxScreenWidth = s_aModes[NewSelected].m_Width;
-		g_Config.m_GfxScreenHeight = s_aModes[NewSelected].m_Height;
+		g_Config.m_GfxScreenWidth = s_aModes[NewSelected].m_WindowWidth;
+		g_Config.m_GfxScreenHeight = s_aModes[NewSelected].m_WindowHeight;
 		Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, true);
 	}
 
 	// switches
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GfxBorderless, Localize("Borderless window"), g_Config.m_GfxBorderless, &Button))
-	{
-		Client()->ToggleWindowBordered();
-	}
+	static float s_ScrollValueDrop = 0;
+	static const int s_NumWindowMode = 4;
+	static int s_aWindowModeIDs[s_NumWindowMode];
+	const void *aWindowModeIDs[s_NumWindowMode];
+	for(int i = 0; i < s_NumWindowMode; ++i)
+		aWindowModeIDs[i] = &s_aWindowModeIDs[i];
+	static int s_WindowModeDropDownState = 0;
+	const char *pWindowModes[] = {Localize("Windowed"), Localize("Windowed borderless"), Localize("Desktop fullscreen"), Localize("Fullscreen")};
 
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GfxFullscreen, Localize("Fullscreen"), g_Config.m_GfxFullscreen, &Button))
+	OldSelected = (g_Config.m_GfxFullscreen ? (g_Config.m_GfxFullscreen == 1 ? 3 : 2) : (g_Config.m_GfxBorderless ? 1 : 0));
+
+	const int NewWindowMode = RenderDropDown(s_WindowModeDropDownState, &MainView, OldSelected, aWindowModeIDs, pWindowModes, s_NumWindowMode, &s_NumWindowMode, s_ScrollValueDrop);
+	if(OldSelected != NewWindowMode)
 	{
-		Client()->ToggleFullscreen();
+		if(NewWindowMode == 0)
+			Client()->SetWindowParams(0, false);
+		else if(NewWindowMode == 1)
+			Client()->SetWindowParams(0, true);
+		else if(NewWindowMode == 2)
+			Client()->SetWindowParams(2, false);
+		else if(NewWindowMode == 3)
+			Client()->SetWindowParams(1, false);
 	}
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
@@ -1152,22 +1198,19 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		g_Config.m_GfxHighDetail ^= 1;
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	bool IsNewOpenGL = (g_Config.m_GfxOpenGLMajor == 3 && g_Config.m_GfxOpenGLMinor == 3) || g_Config.m_GfxOpenGLMajor >= 4;
-	if(DoButton_CheckBox(&g_Config.m_GfxOpenGLMajor, Localize("Use OpenGL 3.3 (experimental)"), IsNewOpenGL, &Button))
+	bool IsNewOpenGL = Graphics()->IsConfigModernAPI();
+
+	if(DoButton_CheckBox(&g_Config.m_GfxOpenGLMajor, Localize("Use modern OpenGL"), IsNewOpenGL, &Button))
 	{
 		CheckSettings = true;
 		if(IsNewOpenGL)
 		{
-			g_Config.m_GfxOpenGLMajor = 3;
-			g_Config.m_GfxOpenGLMinor = 0;
-			g_Config.m_GfxOpenGLPatch = 0;
+			Graphics()->GetDriverVersion(GRAPHICS_DRIVER_AGE_TYPE_DEFAULT, g_Config.m_GfxOpenGLMajor, g_Config.m_GfxOpenGLMinor, g_Config.m_GfxOpenGLPatch);
 			IsNewOpenGL = false;
 		}
 		else
 		{
-			g_Config.m_GfxOpenGLMajor = 3;
-			g_Config.m_GfxOpenGLMinor = 3;
-			g_Config.m_GfxOpenGLPatch = 0;
+			Graphics()->GetDriverVersion(GRAPHICS_DRIVER_AGE_TYPE_MODERN, g_Config.m_GfxOpenGLMajor, g_Config.m_GfxOpenGLMinor, g_Config.m_GfxOpenGLPatch);
 			IsNewOpenGL = true;
 		}
 	}
@@ -1646,23 +1689,339 @@ ColorHSLA CMenus::RenderHSLColorPicker(const CUIRect *pRect, unsigned int *pColo
 	return HSLColor;
 }
 
-ColorHSLA CMenus::RenderHSLScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alpha)
+ColorHSLA CMenus::RenderHSLScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alpha, bool ClampedLight)
 {
 	ColorHSLA Color(*pColor, Alpha);
-	CUIRect Button, Label;
+	CUIRect Preview, Button, Label;
 	char aBuf[32];
 	float *paComponent[] = {&Color.h, &Color.s, &Color.l, &Color.a};
 	const char *aLabels[] = {Localize("Hue"), Localize("Sat."), Localize("Lht."), Localize("Alpha")};
 
+	float SizePerEntry = 20.0f;
+	float MarginPerEntry = 5.0f;
+
+	float OffY = (SizePerEntry + MarginPerEntry) * (3 + (Alpha ? 1 : 0)) - 40.0f;
+	pRect->VSplitLeft(40.0f, &Preview, pRect);
+	Preview.HSplitTop(OffY / 2.0f, NULL, &Preview);
+	Preview.HSplitTop(40.0f, &Preview, NULL);
+
+	Graphics()->TextureClear();
+	{
+		const float SizeBorder = 5.0f;
+		ColorRGBA SetColorRGBA{0.15f, 0.15f, 0.15f, 1};
+		Graphics()->SetColor(SetColorRGBA);
+		int TmpCont = RenderTools()->CreateRoundRectQuadContainer(Preview.x - SizeBorder / 2.0f, Preview.y - SizeBorder / 2.0f, Preview.w + SizeBorder, Preview.h + SizeBorder, 4.0f + SizeBorder / 2.0f, CUI::CORNER_ALL);
+		Graphics()->RenderQuadContainer(TmpCont, -1);
+		Graphics()->DeleteQuadContainer(TmpCont);
+	}
+	ColorHSLA RenderColorHSLA{Color.r, Color.g, Color.b, Color.a};
+	if(ClampedLight)
+		RenderColorHSLA = RenderColorHSLA.UnclampLighting();
+	ColorRGBA SetColorRGBA = color_cast<ColorRGBA>(RenderColorHSLA);
+	Graphics()->SetColor(SetColorRGBA);
+	int TmpCont = RenderTools()->CreateRoundRectQuadContainer(Preview.x, Preview.y, Preview.w, Preview.h, 4.0f, CUI::CORNER_ALL);
+	Graphics()->RenderQuadContainer(TmpCont, -1);
+	Graphics()->DeleteQuadContainer(TmpCont);
+
+	auto &&RenderHSLColorsRect = [&](CUIRect *pColorRect) {
+		Graphics()->TextureClear();
+		Graphics()->TrianglesBegin();
+
+		float CurXOff = pColorRect->x;
+		float SizeColor = pColorRect->w / 6;
+
+		// red to yellow
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 1, 0, 0, 1),
+				IGraphics::CColorVertex(1, 1, 1, 0, 1),
+				IGraphics::CColorVertex(2, 1, 0, 0, 1),
+				IGraphics::CColorVertex(3, 1, 1, 0, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		// yellow to green
+		CurXOff += SizeColor;
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 1, 1, 0, 1),
+				IGraphics::CColorVertex(1, 0, 1, 0, 1),
+				IGraphics::CColorVertex(2, 1, 1, 0, 1),
+				IGraphics::CColorVertex(3, 0, 1, 0, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		CurXOff += SizeColor;
+		// green to turquoise
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 0, 1, 0, 1),
+				IGraphics::CColorVertex(1, 0, 1, 1, 1),
+				IGraphics::CColorVertex(2, 0, 1, 0, 1),
+				IGraphics::CColorVertex(3, 0, 1, 1, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		CurXOff += SizeColor;
+		// turquoise to blue
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 0, 1, 1, 1),
+				IGraphics::CColorVertex(1, 0, 0, 1, 1),
+				IGraphics::CColorVertex(2, 0, 1, 1, 1),
+				IGraphics::CColorVertex(3, 0, 0, 1, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		CurXOff += SizeColor;
+		// blue to purple
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 0, 0, 1, 1),
+				IGraphics::CColorVertex(1, 1, 0, 1, 1),
+				IGraphics::CColorVertex(2, 0, 0, 1, 1),
+				IGraphics::CColorVertex(3, 1, 0, 1, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		CurXOff += SizeColor;
+		// purple to red
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, 1, 0, 1, 1),
+				IGraphics::CColorVertex(1, 1, 0, 0, 1),
+				IGraphics::CColorVertex(2, 1, 0, 1, 1),
+				IGraphics::CColorVertex(3, 1, 0, 0, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		Graphics()->TrianglesEnd();
+	};
+
+	auto &&RenderHSLSatRect = [&](CUIRect *pColorRect, ColorRGBA &CurColor) {
+		Graphics()->TextureClear();
+		Graphics()->TrianglesBegin();
+
+		float CurXOff = pColorRect->x;
+		float SizeColor = pColorRect->w;
+
+		ColorHSLA RightColor = color_cast<ColorHSLA>(CurColor);
+		ColorHSLA LeftColor = color_cast<ColorHSLA>(CurColor);
+
+		LeftColor.g = 0;
+		RightColor.g = 1;
+
+		ColorRGBA RightColorRGBA = color_cast<ColorRGBA>(RightColor);
+		ColorRGBA LeftColorRGBA = color_cast<ColorRGBA>(LeftColor);
+
+		// saturation
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(1, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1),
+				IGraphics::CColorVertex(2, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(3, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		Graphics()->TrianglesEnd();
+	};
+
+	auto &&RenderHSLLightRect = [&](CUIRect *pColorRect, ColorRGBA &CurColorSat) {
+		Graphics()->TextureClear();
+		Graphics()->TrianglesBegin();
+
+		float CurXOff = pColorRect->x;
+		float SizeColor = pColorRect->w / (ClampedLight ? 1.0f : 2.0f);
+
+		ColorHSLA RightColor = color_cast<ColorHSLA>(CurColorSat);
+		ColorHSLA LeftColor = color_cast<ColorHSLA>(CurColorSat);
+
+		LeftColor.b = ColorHSLA::DARKEST_LGT;
+		RightColor.b = 1;
+
+		ColorRGBA RightColorRGBA = color_cast<ColorRGBA>(RightColor);
+		ColorRGBA LeftColorRGBA = color_cast<ColorRGBA>(LeftColor);
+
+		if(!ClampedLight)
+			CurXOff += SizeColor;
+
+		// light
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(1, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1),
+				IGraphics::CColorVertex(2, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(3, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		if(!ClampedLight)
+		{
+			CurXOff -= SizeColor;
+			LeftColor.b = 0;
+			RightColor.b = ColorHSLA::DARKEST_LGT;
+
+			ColorRGBA RightColorRGBA = color_cast<ColorRGBA>(RightColor);
+			ColorRGBA LeftColorRGBA = color_cast<ColorRGBA>(LeftColor);
+
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(1, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1),
+				IGraphics::CColorVertex(2, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, 1),
+				IGraphics::CColorVertex(3, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, 1)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		Graphics()->TrianglesEnd();
+	};
+
+	auto &&RenderHSLAlphaRect = [&](CUIRect *pColorRect, ColorRGBA &CurColorFull) {
+		Graphics()->TextureClear();
+		Graphics()->TrianglesBegin();
+
+		float CurXOff = pColorRect->x;
+		float SizeColor = pColorRect->w;
+
+		ColorHSLA RightColor = color_cast<ColorHSLA>(CurColorFull);
+		ColorHSLA LeftColor = color_cast<ColorHSLA>(CurColorFull);
+
+		LeftColor.a = 0;
+		RightColor.a = 1;
+
+		ColorRGBA RightColorRGBA = color_cast<ColorRGBA>(RightColor);
+		ColorRGBA LeftColorRGBA = color_cast<ColorRGBA>(LeftColor);
+
+		// alpha
+		{
+			IGraphics::CColorVertex Array[4] = {
+				IGraphics::CColorVertex(0, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, LeftColorRGBA.a),
+				IGraphics::CColorVertex(1, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, RightColorRGBA.a),
+				IGraphics::CColorVertex(2, LeftColorRGBA.r, LeftColorRGBA.g, LeftColorRGBA.b, LeftColorRGBA.a),
+				IGraphics::CColorVertex(3, RightColorRGBA.r, RightColorRGBA.g, RightColorRGBA.b, RightColorRGBA.a)};
+			Graphics()->SetColorVertex(Array, 4);
+
+			IGraphics::CFreeformItem Freeform(
+				CurXOff, pColorRect->y,
+				CurXOff + SizeColor, pColorRect->y,
+				CurXOff, pColorRect->y + pColorRect->h,
+				CurXOff + SizeColor, pColorRect->y + pColorRect->h);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+
+		Graphics()->TrianglesEnd();
+	};
+
 	for(int i = 0; i < 3 + Alpha; i++)
 	{
-		pRect->HSplitTop(20.0f, &Button, pRect);
+		pRect->HSplitTop(SizePerEntry, &Button, pRect);
+		pRect->HSplitTop(MarginPerEntry, NULL, pRect);
 		Button.VSplitLeft(10.0f, 0, &Button);
 		Button.VSplitLeft(100.0f, &Label, &Button);
-		Button.HMargin(2.0f, &Button);
+
+		RenderTools()->DrawUIRect(&Button, ColorRGBA{0.15f, 0.15f, 0.15f, 1.0f}, CUI::CORNER_ALL, 1.0f);
+
+		Button.Margin(2.0f, &Button);
 		str_format(aBuf, sizeof(aBuf), "%s: %03d", aLabels[i], (int)(*paComponent[i] * 255));
 		UI()->DoLabelScaled(&Label, aBuf, 14.0f, -1);
-		*paComponent[i] = DoScrollbarH(&((char *)pColor)[i], &Button, *paComponent[i]);
+
+		ColorHSLA CurColorPureHSLA{RenderColorHSLA.r, 1, 0.5f, 1};
+		ColorRGBA CurColorPure = color_cast<ColorRGBA>(CurColorPureHSLA);
+		ColorRGBA ColorInner{1, 1, 1, 0.25f};
+
+		if(i == 0)
+		{
+			ColorInner = CurColorPure;
+			RenderHSLColorsRect(&Button);
+		}
+		else if(i == 1)
+		{
+			RenderHSLSatRect(&Button, CurColorPure);
+			ColorInner = color_cast<ColorRGBA>(ColorHSLA{CurColorPureHSLA.r, *paComponent[1], CurColorPureHSLA.b, 1});
+		}
+		else if(i == 2)
+		{
+			ColorRGBA CurColorSat = color_cast<ColorRGBA>(ColorHSLA{CurColorPureHSLA.r, *paComponent[1], 0.5f, 1});
+			RenderHSLLightRect(&Button, CurColorSat);
+			float LightVal = *paComponent[2];
+			if(ClampedLight)
+				LightVal = ColorHSLA::DARKEST_LGT + LightVal * (1.0f - ColorHSLA::DARKEST_LGT);
+			ColorInner = color_cast<ColorRGBA>(ColorHSLA{CurColorPureHSLA.r, *paComponent[1], LightVal, 1});
+		}
+		else if(i == 3)
+		{
+			ColorRGBA CurColorFull = color_cast<ColorRGBA>(ColorHSLA{CurColorPureHSLA.r, *paComponent[1], *paComponent[2], 1});
+			RenderHSLAlphaRect(&Button, CurColorFull);
+			float LightVal = *paComponent[2];
+			if(ClampedLight)
+				LightVal = ColorHSLA::DARKEST_LGT + LightVal * (1.0f - ColorHSLA::DARKEST_LGT);
+			ColorInner = color_cast<ColorRGBA>(ColorHSLA{CurColorPureHSLA.r, *paComponent[1], LightVal, *paComponent[3]});
+		}
+
+		*paComponent[i] = DoScrollbarH(&((char *)pColor)[i], &Button, *paComponent[i], true, &ColorInner);
 	}
 
 	*pColor = Color.Pack(Alpha);
@@ -1718,6 +2077,27 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 	Section.VSplitLeft(30.0f, 0, &Section);
 
 	DoLaserPreview(&Section, LaserOutlineColor, LaserInnerColor);
+
+	HUD.HSplitTop(25.0f, 0x0, &HUD);
+	HUD.HSplitTop(20.0f, &SectionTwo, &HUD);
+
+	UI()->DoLabelScaled(&SectionTwo, Localize("Hookline"), 20.0f, -1);
+
+	HUD.HSplitTop(5.0f, 0x0, &HUD);
+	HUD.HSplitTop(25.0f, &SectionTwo, &HUD);
+
+	static int HookCollNoCollResetID, HookCollHookableCollResetID, HookCollTeeCollResetID;
+	DoLine_ColorPicker(&HookCollNoCollResetID, 25.0f, 194.0f, 13.0f, 5.0f, &SectionTwo, Localize("No hit"), &g_Config.m_ClHookCollColorNoColl, ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), false);
+
+	HUD.HSplitTop(5.0f, 0x0, &HUD);
+	HUD.HSplitTop(25.0f, &SectionTwo, &HUD);
+
+	DoLine_ColorPicker(&HookCollHookableCollResetID, 25.0f, 194.0f, 13.0f, 5.0f, &SectionTwo, Localize("Hookable"), &g_Config.m_ClHookCollColorHookableColl, ColorRGBA(130.0f / 255.0f, 232.0f / 255.0f, 160.0f / 255.0f, 1.0f), false);
+
+	HUD.HSplitTop(5.0f, 0x0, &HUD);
+	HUD.HSplitTop(25.0f, &SectionTwo, &HUD);
+
+	DoLine_ColorPicker(&HookCollTeeCollResetID, 25.0f, 194.0f, 13.0f, 5.0f, &SectionTwo, Localize("Tee"), &g_Config.m_ClHookCollColorTeeColl, ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f), false);
 
 	// ***** Chat ***** //
 
@@ -2058,7 +2438,8 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 
 	Left.HSplitTop(20.0f, &Button, &Left);
 	bool ShowOwnTeam = g_Config.m_ClShowOthers == 2;
-	if(DoButton_CheckBox(&ShowOwnTeam, Localize("Show others (own team only)"), ShowOwnTeam, &Button))
+	static int s_ShowOwnTeamID = 0;
+	if(DoButton_CheckBox(&s_ShowOwnTeamID, Localize("Show others (own team only)"), ShowOwnTeam, &Button))
 	{
 		g_Config.m_ClShowOthers = g_Config.m_ClShowOthers != 2 ? 2 : 0;
 	}
@@ -2165,7 +2546,8 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 
 	Left.HSplitTop(20.0f, &Button, &Left);
 	bool UseCurrentMap = str_comp(g_Config.m_ClBackgroundEntities, CURRENT_MAP) == 0;
-	if(DoButton_CheckBox(&UseCurrentMap, Localize("Use current map as background"), UseCurrentMap, &Button))
+	static int s_UseCurrentMapID = 0;
+	if(DoButton_CheckBox(&s_UseCurrentMapID, Localize("Use current map as background"), UseCurrentMap, &Button))
 	{
 		if(UseCurrentMap)
 			g_Config.m_ClBackgroundEntities[0] = '\0';

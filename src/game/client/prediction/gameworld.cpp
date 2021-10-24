@@ -121,11 +121,6 @@ void CGameWorld::InsertEntity(CEntity *pEnt, bool Last)
 	}
 }
 
-void CGameWorld::DestroyEntity(CEntity *pEnt)
-{
-	pEnt->m_MarkedForDestroy = true;
-}
-
 void CGameWorld::RemoveEntity(CEntity *pEnt)
 {
 	// not in the list
@@ -289,7 +284,7 @@ void CGameWorld::ReleaseHooked(int ClientID)
 
 CTuningParams *CGameWorld::Tuning()
 {
-	return &m_Tuning[g_Config.m_ClDummy];
+	return &m_Core.m_Tuning[g_Config.m_ClDummy];
 }
 
 CEntity *CGameWorld::GetEntity(int ID, int EntType)
@@ -374,11 +369,11 @@ void CGameWorld::NetObjAdd(int ObjID, int ObjType, const void *pObjData)
 		CProjectileData Data;
 		if(ObjType == NETOBJTYPE_PROJECTILE)
 		{
-			Data = ExtractProjectileInfo((const CNetObj_Projectile *)pObjData);
+			Data = ExtractProjectileInfo((const CNetObj_Projectile *)pObjData, this);
 		}
 		else
 		{
-			Data = ExtractProjectileInfoDDNet((const CNetObj_DDNetProjectile *)pObjData);
+			Data = ExtractProjectileInfoDDNet((const CNetObj_DDNetProjectile *)pObjData, this);
 		}
 		CProjectile NetProj = CProjectile(this, ObjID, &Data);
 
@@ -531,7 +526,6 @@ void CGameWorld::CopyWorld(CGameWorld *pFrom)
 	for(int i = 0; i < 2; i++)
 	{
 		m_Core.m_Tuning[i] = pFrom->m_Core.m_Tuning[i];
-		m_Tuning[i] = pFrom->m_Tuning[i];
 	}
 	m_pTuningList = pFrom->m_pTuningList;
 	m_Teams = pFrom->m_Teams;
@@ -586,11 +580,11 @@ CEntity *CGameWorld::FindMatch(int ObjID, int ObjType, const void *pObjData)
 		CProjectileData Data;
 		if(ObjType == NETOBJTYPE_PROJECTILE)
 		{
-			Data = ExtractProjectileInfo((const CNetObj_Projectile *)pObjData);
+			Data = ExtractProjectileInfo((const CNetObj_Projectile *)pObjData, this);
 		}
 		else
 		{
-			Data = ExtractProjectileInfoDDNet((const CNetObj_DDNetProjectile *)pObjData);
+			Data = ExtractProjectileInfoDDNet((const CNetObj_DDNetProjectile *)pObjData, this);
 		}
 		CProjectile *pEnt = (CProjectile *)GetEntity(ObjID, ENTTYPE_PROJECTILE);
 		if(pEnt && CProjectile(this, ObjID, &Data).Match(pEnt))

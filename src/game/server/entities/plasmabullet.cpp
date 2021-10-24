@@ -58,7 +58,7 @@ bool CPlasmaBullet::HitCharacter()
 	if(m_Explosive)
 		GameServer()->CreateExplosion(m_Pos, m_Owner, WEAPON_GRENADE, true,
 			m_ResponsibleTeam, Hit->Teams()->TeamMask(m_ResponsibleTeam));
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 	return true;
 }
 
@@ -70,7 +70,7 @@ void CPlasmaBullet::Move()
 
 void CPlasmaBullet::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 void CPlasmaBullet::Tick()

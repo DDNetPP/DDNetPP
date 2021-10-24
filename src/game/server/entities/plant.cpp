@@ -16,7 +16,7 @@ CPlant::CPlant(CGameWorld *pGameWorld, vec2 Pos) :
 
 void CPlant::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 void CPlant::TickDefered()

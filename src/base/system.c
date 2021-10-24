@@ -128,7 +128,7 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 
 	str_format(str, sizeof(str), "[%s][%s]: ", timestr, sys);
 
-	len = strlen(str);
+	len = str_length(str);
 	msg = (char *)str + len;
 
 	va_start(args, fmt);
@@ -156,7 +156,7 @@ static void logger_file(const char *line, void *user)
 {
 	ASYNCIO *logfile = (ASYNCIO *)user;
 	aio_lock(logfile);
-	aio_write_unlocked(logfile, line, strlen(line));
+	aio_write_unlocked(logfile, line, str_length(line));
 	aio_write_newline_unlocked(logfile);
 	aio_unlock(logfile);
 }
@@ -164,7 +164,7 @@ static void logger_file(const char *line, void *user)
 #if defined(CONF_FAMILY_WINDOWS)
 static void logger_stdout_sync(const char *line, void *user)
 {
-	size_t length = strlen(line);
+	size_t length = str_length(line);
 	wchar_t *wide = malloc(length * sizeof(*wide));
 	const char *p = line;
 	int wlen = 0;
@@ -1090,6 +1090,73 @@ int net_addr_comp_noport(const NETADDR *a, const NETADDR *b)
 	return net_addr_comp(&ta, &tb);
 }
 
+void net_addr_str_v6(const unsigned short ip[8], int port, char *buffer, int buffer_size)
+{
+	int longest_seq_len = 0;
+	int longest_seq_start = -1;
+	int w = 0;
+	int i;
+	{
+		int seq_len = 0;
+		int seq_start = -1;
+		// Determine longest sequence of zeros.
+		for(i = 0; i < 8 + 1; i++)
+		{
+			if(seq_start != -1)
+			{
+				if(i == 8 || ip[i] != 0)
+				{
+					if(longest_seq_len < seq_len)
+					{
+						longest_seq_len = seq_len;
+						longest_seq_start = seq_start;
+					}
+					seq_len = 0;
+					seq_start = -1;
+				}
+				else
+				{
+					seq_len += 1;
+				}
+			}
+			else
+			{
+				if(i != 8 && ip[i] == 0)
+				{
+					seq_start = i;
+					seq_len = 1;
+				}
+			}
+		}
+	}
+	if(longest_seq_len <= 1)
+	{
+		longest_seq_len = 0;
+		longest_seq_start = -1;
+	}
+	w += str_format(buffer + w, buffer_size - w, "[");
+	for(i = 0; i < 8; i++)
+	{
+		if(longest_seq_start <= i && i < longest_seq_start + longest_seq_len)
+		{
+			if(i == longest_seq_start)
+			{
+				w += str_format(buffer + w, buffer_size - w, "::");
+			}
+		}
+		else
+		{
+			char *colon = i == 0 || i == longest_seq_start + longest_seq_len ? "" : ":";
+			w += str_format(buffer + w, buffer_size - w, "%s%x", colon, ip[i]);
+		}
+	}
+	w += str_format(buffer + w, buffer_size - w, "]");
+	if(port >= 0)
+	{
+		str_format(buffer + w, buffer_size - w, ":%d", port);
+	}
+}
+
 void net_addr_str(const NETADDR *addr, char *string, int max_length, int add_port)
 {
 	if(addr->type == NETTYPE_IPV4 || addr->type == NETTYPE_WEBSOCKET_IPV4)
@@ -1101,15 +1168,18 @@ void net_addr_str(const NETADDR *addr, char *string, int max_length, int add_por
 	}
 	else if(addr->type == NETTYPE_IPV6)
 	{
-		if(add_port != 0)
-			str_format(string, max_length, "[%x:%x:%x:%x:%x:%x:%x:%x]:%d",
-				(addr->ip[0] << 8) | addr->ip[1], (addr->ip[2] << 8) | addr->ip[3], (addr->ip[4] << 8) | addr->ip[5], (addr->ip[6] << 8) | addr->ip[7],
-				(addr->ip[8] << 8) | addr->ip[9], (addr->ip[10] << 8) | addr->ip[11], (addr->ip[12] << 8) | addr->ip[13], (addr->ip[14] << 8) | addr->ip[15],
-				addr->port);
-		else
-			str_format(string, max_length, "[%x:%x:%x:%x:%x:%x:%x:%x]",
-				(addr->ip[0] << 8) | addr->ip[1], (addr->ip[2] << 8) | addr->ip[3], (addr->ip[4] << 8) | addr->ip[5], (addr->ip[6] << 8) | addr->ip[7],
-				(addr->ip[8] << 8) | addr->ip[9], (addr->ip[10] << 8) | addr->ip[11], (addr->ip[12] << 8) | addr->ip[13], (addr->ip[14] << 8) | addr->ip[15]);
+		int port = -1;
+		unsigned short ip[8];
+		int i;
+		if(add_port)
+		{
+			port = addr->port;
+		}
+		for(i = 0; i < 8; i++)
+		{
+			ip[i] = (addr->ip[i * 2] << 8) | (addr->ip[i * 2 + 1]);
+		}
+		net_addr_str_v6(ip, port, string, max_length);
 	}
 	else
 		str_format(string, max_length, "unknown type %d", addr->type);
@@ -1296,6 +1366,10 @@ int net_addr_from_str(NETADDR *addr, const char *string)
 				str++;
 				if(parse_uint16(&addr->port, &str))
 					return -1;
+			}
+			else
+			{
+				addr->port = 0;
 			}
 		}
 		else
@@ -2084,11 +2158,16 @@ int fs_storage_path(const char *appname, char *path, int max)
 	if(!home)
 		return -1;
 
+#if defined(CONF_PLATFORM_HAIKU)
+	str_format(path, max, "%s/config/settings/%s", home, appname);
+	return 0;
+#endif
+
 #if defined(CONF_PLATFORM_MACOS)
 	snprintf(path, max, "%s/Library/Application Support/%s", home, appname);
 #else
 	snprintf(path, max, "%s/.%s", home, appname);
-	for(i = strlen(home) + 2; path[i]; i++)
+	for(i = str_length(home) + 2; path[i]; i++)
 		path[i] = tolower((unsigned char)path[i]);
 #endif
 
@@ -2123,9 +2202,27 @@ int fs_makedir(const char *path)
 		return 0;
 	return -1;
 #else
+#ifdef CONF_PLATFORM_HAIKU
+	struct stat st;
+	if(stat(path, &st) == 0)
+		return 0;
+#endif
 	if(mkdir(path, 0755) == 0)
 		return 0;
 	if(errno == EEXIST)
+		return 0;
+	return -1;
+#endif
+}
+
+int fs_removedir(const char *path)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	if(_rmdir(path) == 0)
+		return 0;
+	return -1;
+#else
+	if(rmdir(path) == 0)
 		return 0;
 	return -1;
 #endif
@@ -2209,9 +2306,11 @@ int fs_parent_dir(char *path)
 
 int fs_remove(const char *filename)
 {
-	if(remove(filename) != 0)
-		return 1;
-	return 0;
+#if defined(CONF_FAMILY_WINDOWS)
+	return _unlink(filename) != 0;
+#else
+	return unlink(filename) != 0;
+#endif
 }
 
 int fs_rename(const char *oldname, const char *newname)
@@ -2356,7 +2455,7 @@ int time_season(void)
 
 void str_append(char *dst, const char *src, int dst_size)
 {
-	int s = strlen(dst);
+	int s = str_length(dst);
 	int i = 0;
 	while(s < dst_size)
 	{
@@ -3027,8 +3126,8 @@ const char *str_utf8_find_nocase(const char *haystack, const char *needle)
 
 int str_utf8_isspace(int code)
 {
-	return code <= 0x0020 || code == 0x0085 || code == 0x00A0 ||
-	       code == 0x034F || code == 0x1160 || code == 0x1680 || code == 0x180E ||
+	return code <= 0x0020 || code == 0x0085 || code == 0x00A0 || code == 0x034F ||
+	       code == 0x115F || code == 0x1160 || code == 0x1680 || code == 0x180E ||
 	       (code >= 0x2000 && code <= 0x200F) || (code >= 0x2028 && code <= 0x202F) ||
 	       (code >= 0x205F && code <= 0x2064) || (code >= 0x206A && code <= 0x206F) ||
 	       code == 0x2800 || code == 0x3000 || code == 0x3164 ||
@@ -3532,6 +3631,34 @@ int secure_rand(void)
 	unsigned int i;
 	secure_random_fill(&i, sizeof(i));
 	return (int)(i % RAND_MAX);
+}
+
+// From https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2.
+static unsigned int find_next_power_of_two_minus_one(unsigned int n)
+{
+	n--;
+	n |= n >> 1;
+	n |= n >> 2;
+	n |= n >> 4;
+	n |= n >> 4;
+	n |= n >> 16;
+	return n;
+}
+
+int secure_rand_below(int below)
+{
+	unsigned int mask = find_next_power_of_two_minus_one(below);
+	dbg_assert(below > 0, "below must be positive");
+	while(1)
+	{
+		unsigned int n;
+		secure_random_fill(&n, sizeof(n));
+		n &= mask;
+		if((int)n < below)
+		{
+			return n;
+		}
+	}
 }
 
 #if defined(__cplusplus)

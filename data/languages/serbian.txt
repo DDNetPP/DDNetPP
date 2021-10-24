@@ -350,9 +350,6 @@ Red team wins!
 Refresh
 == Osveži
 
-Refreshing master servers
-== Osvežavam master servere
-
 Remote console
 == Udaljena konzola
 
@@ -415,9 +412,6 @@ Show ingame HUD
 
 Show name plates
 == Prikaži imena igrača
-
-Show only supported
-== Prikaži samo podržane
 
 Skins
 == Skinovi
@@ -743,6 +737,30 @@ transmits your player name to info2.ddnet.tw
 Theme
 == 
 
+AFR
+== 
+
+ASI
+== 
+
+AUS
+== 
+
+EUR
+== 
+
+NA
+== 
+
+SA
+== 
+
+CHN
+== 
+
+Getting server list from master server
+== 
+
 Search
 == 
 
@@ -774,6 +792,9 @@ Countries
 == 
 
 Types
+== 
+
+Leak IP
 == 
 
 Select a name
@@ -956,7 +977,13 @@ UI mouse s.
 Dummy
 == 
 
-Borderless window
+Windowed
+== 
+
+Windowed borderless
+== 
+
+Desktop fullscreen
 == 
 
 may cause delay
@@ -965,7 +992,7 @@ may cause delay
 Screen
 == 
 
-Use OpenGL 3.3 (experimental)
+Use modern OpenGL
 == 
 
 Preinit VBO (iGPUs only)
@@ -1050,6 +1077,18 @@ Laser Outline Color
 == 
 
 Laser Inner Color
+== 
+
+Hookline
+== 
+
+No hit
+== 
+
+Hookable
+== 
+
+Tee
 == 
 
 Use old chat style

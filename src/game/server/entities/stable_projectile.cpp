@@ -17,7 +17,7 @@ CStableProjectile::CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos)
 
 void CStableProjectile::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	m_MarkedForDestroy = true;
 }
 
 void CStableProjectile::TickDefered()

@@ -26,7 +26,6 @@
 #include <engine/input.h>
 #include <engine/keys.h>
 #include <engine/map.h>
-#include <engine/masterserver.h>
 #include <engine/serverbrowser.h>
 #include <engine/sound.h>
 #include <engine/steam.h>
@@ -336,6 +335,12 @@ CClient::CClient() :
 	m_Points = -1;
 
 	m_CurrentServerInfoRequestTime = -1;
+	m_CurrentServerPingInfoType = -1;
+	m_CurrentServerPingBasicToken = -1;
+	m_CurrentServerPingToken = -1;
+	mem_zero(&m_CurrentServerPingUuid, sizeof(m_CurrentServerPingUuid));
+	m_CurrentServerCurrentPingTime = -1;
+	m_CurrentServerNextPingTime = -1;
 
 	m_CurrentInput[0] = 0;
 	m_CurrentInput[1] = 0;
@@ -656,6 +661,7 @@ void CClient::EnterGame()
 	OnEnterGame();
 
 	ServerInfoRequest(); // fresh one for timeout protection
+	m_CurrentServerNextPingTime = time_get() + time_freq() / 2;
 	m_aTimeoutCodeSent[0] = false;
 	m_aTimeoutCodeSent[1] = false;
 }
@@ -739,6 +745,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	else
 		str_copy(m_Password, pPassword, sizeof(m_Password));
 
+	m_CanReceiveServerCapabilities = true;
 	// Deregister Rcon commands from last connected server, might not have called
 	// DisconnectWithReason if the server was shut down
 	m_RconAuthed[0] = 0;
@@ -776,13 +783,18 @@ void CClient::DisconnectWithReason(const char *pReason)
 
 	//
 	m_RconAuthed[0] = 0;
-	m_CanReceiveServerCapabilities = true;
 	m_ServerSentCapabilities = false;
 	m_UseTempRconCommands = 0;
 	m_pConsole->DeregisterTempAll();
 	m_NetClient[CLIENT_MAIN].Disconnect(pReason);
 	SetState(IClient::STATE_OFFLINE);
 	m_pMap->Unload();
+	m_CurrentServerPingInfoType = -1;
+	m_CurrentServerPingBasicToken = -1;
+	m_CurrentServerPingToken = -1;
+	mem_zero(&m_CurrentServerPingUuid, sizeof(m_CurrentServerPingUuid));
+	m_CurrentServerCurrentPingTime = -1;
+	m_CurrentServerNextPingTime = -1;
 
 	// disable all downloads
 	m_MapdownloadChunk = 0;
@@ -918,7 +930,7 @@ void CClient::ServerInfoRequest()
 
 int CClient::LoadData()
 {
-	m_DebugFont = Graphics()->LoadTexture("debug_font.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, IGraphics::TEXLOAD_NORESAMPLE);
+	m_DebugFont = Graphics()->LoadTexture("debug_font.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
 	return 1;
 }
 
@@ -1251,105 +1263,8 @@ const char *CClient::LoadMapSearch(const char *pMapName, SHA256_DIGEST *pWantedS
 	return pError;
 }
 
-bool CClient::PlayerScoreNameLess(const CServerInfo::CClient &p0, const CServerInfo::CClient &p1)
-{
-	if(p0.m_Player && !p1.m_Player)
-		return true;
-	if(!p0.m_Player && p1.m_Player)
-		return false;
-
-	int Score0 = p0.m_Score;
-	int Score1 = p1.m_Score;
-	if(Score0 == -9999)
-		Score0 = INT_MIN;
-	if(Score1 == -9999)
-		Score1 = INT_MIN;
-
-	if(Score0 > Score1)
-		return true;
-	if(Score0 < Score1)
-		return false;
-	return str_comp_nocase(p0.m_aName, p1.m_aName) < 0;
-}
-
 void CClient::ProcessConnlessPacket(CNetChunk *pPacket)
 {
-	//server count from master server
-	if(pPacket->m_DataSize == (int)sizeof(SERVERBROWSE_COUNT) + 2 && mem_comp(pPacket->m_pData, SERVERBROWSE_COUNT, sizeof(SERVERBROWSE_COUNT)) == 0)
-	{
-		unsigned char *pP = (unsigned char *)pPacket->m_pData;
-		pP += sizeof(SERVERBROWSE_COUNT);
-		int ServerCount = ((*pP) << 8) | *(pP + 1);
-		int ServerID = -1;
-		for(int i = 0; i < IMasterServer::MAX_MASTERSERVERS; i++)
-		{
-			if(!m_pMasterServer->IsValid(i))
-				continue;
-			NETADDR tmp = m_pMasterServer->GetAddr(i);
-			if(net_addr_comp(&pPacket->m_Address, &tmp) == 0)
-			{
-				ServerID = i;
-				break;
-			}
-		}
-		if(ServerCount > -1 && ServerID != -1)
-		{
-			m_pMasterServer->SetCount(ServerID, ServerCount);
-			if(g_Config.m_Debug)
-				dbg_msg("mastercount", "server %d got %d servers", ServerID, ServerCount);
-		}
-	}
-	// server list from master server
-	if(pPacket->m_DataSize >= (int)sizeof(SERVERBROWSE_LIST) &&
-		mem_comp(pPacket->m_pData, SERVERBROWSE_LIST, sizeof(SERVERBROWSE_LIST)) == 0)
-	{
-		// check for valid master server address
-		bool Valid = false;
-		for(int i = 0; i < IMasterServer::MAX_MASTERSERVERS; ++i)
-		{
-			if(m_pMasterServer->IsValid(i))
-			{
-				NETADDR Addr = m_pMasterServer->GetAddr(i);
-				if(net_addr_comp(&pPacket->m_Address, &Addr) == 0)
-				{
-					Valid = true;
-					break;
-				}
-			}
-		}
-		if(!Valid)
-			return;
-
-		int Size = pPacket->m_DataSize - sizeof(SERVERBROWSE_LIST);
-		int Num = Size / sizeof(CMastersrvAddr);
-		CMastersrvAddr *pAddrs = (CMastersrvAddr *)((char *)pPacket->m_pData + sizeof(SERVERBROWSE_LIST));
-		for(int i = 0; i < Num; i++)
-		{
-			NETADDR Addr;
-
-			static unsigned char s_IPV4Mapping[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF};
-
-			// copy address
-			if(!mem_comp(s_IPV4Mapping, pAddrs[i].m_aIp, sizeof(s_IPV4Mapping)))
-			{
-				mem_zero(&Addr, sizeof(Addr));
-				Addr.type = NETTYPE_IPV4;
-				Addr.ip[0] = pAddrs[i].m_aIp[12];
-				Addr.ip[1] = pAddrs[i].m_aIp[13];
-				Addr.ip[2] = pAddrs[i].m_aIp[14];
-				Addr.ip[3] = pAddrs[i].m_aIp[15];
-			}
-			else
-			{
-				Addr.type = NETTYPE_IPV6;
-				mem_copy(Addr.ip, pAddrs[i].m_aIp, sizeof(Addr.ip));
-			}
-			Addr.port = (pAddrs[i].m_aPort[0] << 8) | pAddrs[i].m_aPort[1];
-
-			m_ServerBrowser.Set(Addr, IServerBrowser::SET_MASTER_ADD, -1, 0x0);
-		}
-	}
-
 	// server info
 	if(pPacket->m_DataSize >= (int)sizeof(SERVERBROWSE_INFO))
 	{
@@ -1530,19 +1445,9 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 
 	if(!Up.Error() || IgnoreError)
 	{
-		std::sort(Info.m_aClients, Info.m_aClients + Info.m_NumReceivedClients, PlayerScoreNameLess);
-
 		if(!DuplicatedPacket && (!pEntry || !pEntry->m_GotInfo || SavedType >= pEntry->m_Info.m_Type))
 		{
 			m_ServerBrowser.Set(*pFrom, IServerBrowser::SET_TOKEN, Token, &Info);
-			pEntry = m_ServerBrowser.Find(*pFrom);
-
-			if(SavedType == SERVERINFO_VANILLA && Is64Player(&Info) && pEntry)
-			{
-				pEntry->m_Request64Legacy = true;
-				// Force a quick update.
-				m_ServerBrowser.RequestImpl64(pEntry->m_Addr, pEntry);
-			}
 		}
 
 		// Player info is irrelevant for the client (while connected),
@@ -1560,6 +1465,30 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 				mem_copy(&m_CurrentServerInfo, &Info, sizeof(m_CurrentServerInfo));
 				m_CurrentServerInfo.m_NetAddr = m_ServerAddress;
 				m_CurrentServerInfoRequestTime = -1;
+			}
+
+			bool ValidPong = false;
+			if(!m_ServerCapabilities.m_PingEx && m_CurrentServerCurrentPingTime >= 0 && SavedType >= m_CurrentServerPingInfoType)
+			{
+				if(RawType == SERVERINFO_VANILLA)
+				{
+					ValidPong = Token == m_CurrentServerPingBasicToken;
+				}
+				else if(RawType == SERVERINFO_EXTENDED)
+				{
+					ValidPong = Token == m_CurrentServerPingToken;
+				}
+			}
+			if(ValidPong)
+			{
+				int LatencyMs = (time_get() - m_CurrentServerCurrentPingTime) * 1000 / time_freq();
+				m_ServerBrowser.SetCurrentServerPing(m_ServerAddress, LatencyMs);
+				m_CurrentServerPingInfoType = SavedType;
+				m_CurrentServerCurrentPingTime = -1;
+
+				char aBuf[64];
+				str_format(aBuf, sizeof(aBuf), "got pong from current server, latency=%dms", LatencyMs);
+				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
 			}
 		}
 	}
@@ -1609,6 +1538,7 @@ static CServerCapabilities GetServerCapabilities(int Version, int Flags)
 	}
 	Result.m_ChatTimeoutCode = DDNet;
 	Result.m_AnyPlayerFlag = DDNet;
+	Result.m_PingEx = false;
 	if(Version >= 1)
 	{
 		Result.m_ChatTimeoutCode = Flags & SERVERCAPFLAG_CHATTIMEOUTCODE;
@@ -1616,6 +1546,10 @@ static CServerCapabilities GetServerCapabilities(int Version, int Flags)
 	if(Version >= 2)
 	{
 		Result.m_AnyPlayerFlag = Flags & SERVERCAPFLAG_ANYPLAYERFLAG;
+	}
+	if(Version >= 3)
+	{
+		Result.m_PingEx = Flags & SERVERCAPFLAG_PINGEX;
 	}
 	return Result;
 }
@@ -1813,6 +1747,35 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 		{
 			CMsgPacker Msg(NETMSG_PING_REPLY, true);
 			SendMsg(&Msg, 0);
+		}
+		else if(Msg == NETMSG_PINGEX)
+		{
+			CUuid *pID = (CUuid *)Unpacker.GetRaw(sizeof(*pID));
+			if(Unpacker.Error())
+			{
+				return;
+			}
+			CMsgPacker Msg(NETMSG_PONGEX, true);
+			Msg.AddRaw(pID, sizeof(*pID));
+			SendMsg(&Msg, MSGFLAG_FLUSH);
+		}
+		else if(Msg == NETMSG_PONGEX)
+		{
+			CUuid *pID = (CUuid *)Unpacker.GetRaw(sizeof(*pID));
+			if(Unpacker.Error())
+			{
+				return;
+			}
+			if(m_ServerCapabilities.m_PingEx && m_CurrentServerCurrentPingTime >= 0 && *pID == m_CurrentServerPingUuid)
+			{
+				int LatencyMs = (time_get() - m_CurrentServerCurrentPingTime) * 1000 / time_freq();
+				m_ServerBrowser.SetCurrentServerPing(m_ServerAddress, LatencyMs);
+				m_CurrentServerCurrentPingTime = -1;
+
+				char aBuf[64];
+				str_format(aBuf, sizeof(aBuf), "got pong from current server, latency=%dms", LatencyMs);
+				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+			}
 		}
 		else if((pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_ADD)
 		{
@@ -2845,6 +2808,33 @@ void CClient::Update()
 				m_ServerBrowser.RequestCurrentServer(m_ServerAddress);
 				m_CurrentServerInfoRequestTime = time_get() + time_freq() * 2;
 			}
+
+			// periodically ping server
+			if(State() == IClient::STATE_ONLINE &&
+				m_CurrentServerNextPingTime >= 0 &&
+				time_get() > m_CurrentServerNextPingTime)
+			{
+				int64 Now = time_get();
+				int64 Freq = time_freq();
+
+				char aBuf[64];
+				str_format(aBuf, sizeof(aBuf), "pinging current server%s", !m_ServerCapabilities.m_PingEx ? ", using fallback via server info" : "");
+				m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
+
+				m_CurrentServerPingUuid = RandomUuid();
+				if(!m_ServerCapabilities.m_PingEx)
+				{
+					m_ServerBrowser.RequestCurrentServerWithRandomToken(m_ServerAddress, &m_CurrentServerPingBasicToken, &m_CurrentServerPingToken);
+				}
+				else
+				{
+					CMsgPacker Msg(NETMSG_PINGEX, true);
+					Msg.AddRaw(&m_CurrentServerPingUuid, sizeof(m_CurrentServerPingUuid));
+					SendMsg(&Msg, MSGFLAG_FLUSH);
+				}
+				m_CurrentServerCurrentPingTime = Now;
+				m_CurrentServerNextPingTime = Now + 600 * Freq; // ping every 10 minutes
+			}
 		}
 
 		m_LastDummy = (bool)g_Config.m_ClDummy;
@@ -2930,9 +2920,6 @@ void CClient::Update()
 		}
 	}
 
-	// update the maser server registry
-	MasterServer()->Update();
-
 	// update the server browser
 	m_ServerBrowser.Update(m_ResortServerBrowser);
 	m_ResortServerBrowser = false;
@@ -2953,7 +2940,8 @@ void CClient::Update()
 
 	if(m_ReconnectTime > 0 && time_get() > m_ReconnectTime)
 	{
-		Connect(m_aServerAddressStr);
+		if(State() != STATE_ONLINE)
+			Connect(m_aServerAddressStr);
 		m_ReconnectTime = 0;
 	}
 }
@@ -2982,7 +2970,6 @@ void CClient::InitInterfaces()
 	m_pGameClient = Kernel()->RequestInterface<IGameClient>();
 	m_pInput = Kernel()->RequestInterface<IEngineInput>();
 	m_pMap = Kernel()->RequestInterface<IEngineMap>();
-	m_pMasterServer = Kernel()->RequestInterface<IEngineMasterServer>();
 	m_pConfigManager = Kernel()->RequestInterface<IConfigManager>();
 	m_pConfig = m_pConfigManager->Values();
 #if defined(CONF_AUTOUPDATE)
@@ -3098,9 +3085,6 @@ void CClient::Run()
 	// init the input
 	Input()->Init();
 
-	// start refreshing addresses while we load
-	MasterServer()->RefreshAddresses(m_NetClient[CLIENT_MAIN].NetType());
-
 	// init the editor
 	m_pEditor->Init();
 
@@ -3119,6 +3103,7 @@ void CClient::Run()
 	}
 
 	GameClient()->OnInit();
+	m_ServerBrowser.OnInit();
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "version %s", GameClient()->NetVersion());
@@ -3289,7 +3274,7 @@ void CClient::Run()
 				{
 					char aBuf[64];
 					str_format(aBuf, sizeof(aBuf), "Frametime %d us\n", (int)(m_RenderFrameTime * 1000000));
-					io_write(m_BenchmarkFile, aBuf, strlen(aBuf));
+					io_write(m_BenchmarkFile, aBuf, str_length(aBuf));
 					if(time_get() > m_BenchmarkStopTime)
 					{
 						io_close(m_BenchmarkFile);
@@ -3653,8 +3638,18 @@ void CClient::Con_AddFavorite(IConsole::IResult *pResult, void *pUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
 	NETADDR Addr;
-	if(net_addr_from_str(&Addr, pResult->GetString(0)) == 0)
-		pSelf->m_ServerBrowser.AddFavorite(Addr);
+	if(net_addr_from_str(&Addr, pResult->GetString(0)) != 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "invalid address '%s'", pResult->GetString(0));
+		pSelf->m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
+		return;
+	}
+	pSelf->m_ServerBrowser.AddFavorite(Addr);
+	if(pResult->NumArguments() > 1 && str_find(pResult->GetString(1), "allow_ping"))
+	{
+		pSelf->m_ServerBrowser.FavoriteAllowPing(Addr, true);
+	}
 }
 
 void CClient::Con_RemoveFavorite(IConsole::IResult *pResult, void *pUserData)
@@ -3996,10 +3991,10 @@ void CClient::SwitchWindowScreen(int Index)
 	// Todo SDL: remove this when fixed (changing screen when in fullscreen is bugged)
 	if(g_Config.m_GfxFullscreen)
 	{
-		ToggleFullscreen();
+		SetWindowParams(0, g_Config.m_GfxBorderless);
 		if(Graphics()->SetWindowScreen(Index))
 			g_Config.m_GfxScreen = Index;
-		ToggleFullscreen();
+		SetWindowParams(g_Config.m_GfxFullscreen, g_Config.m_GfxBorderless);
 	}
 	else
 	{
@@ -4020,10 +4015,11 @@ void CClient::ConchainWindowScreen(IConsole::IResult *pResult, void *pUserData, 
 		pfnCallback(pResult, pCallbackUserData);
 }
 
-void CClient::ToggleFullscreen()
+void CClient::SetWindowParams(int FullscreenMode, bool IsBorderless)
 {
-	if(Graphics()->Fullscreen(g_Config.m_GfxFullscreen ^ 1))
-		g_Config.m_GfxFullscreen ^= 1;
+	g_Config.m_GfxFullscreen = clamp(FullscreenMode, 0, 2);
+	g_Config.m_GfxBorderless = (int)IsBorderless;
+	Graphics()->SetWindowParams(FullscreenMode, IsBorderless);
 }
 
 void CClient::ConchainFullscreen(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -4032,16 +4028,10 @@ void CClient::ConchainFullscreen(IConsole::IResult *pResult, void *pUserData, IC
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
 		if(g_Config.m_GfxFullscreen != pResult->GetInteger(0))
-			pSelf->ToggleFullscreen();
+			pSelf->SetWindowParams(pResult->GetInteger(0), g_Config.m_GfxBorderless);
 	}
 	else
 		pfnCallback(pResult, pCallbackUserData);
-}
-
-void CClient::ToggleWindowBordered()
-{
-	g_Config.m_GfxBorderless ^= 1;
-	Graphics()->SetWindowBordered(!g_Config.m_GfxBorderless);
 }
 
 void CClient::ConchainWindowBordered(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -4050,7 +4040,7 @@ void CClient::ConchainWindowBordered(IConsole::IResult *pResult, void *pUserData
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
 		if(!g_Config.m_GfxFullscreen && (g_Config.m_GfxBorderless != pResult->GetInteger(0)))
-			pSelf->ToggleWindowBordered();
+			pSelf->SetWindowParams(g_Config.m_GfxFullscreen, !g_Config.m_GfxBorderless);
 	}
 	else
 		pfnCallback(pResult, pCallbackUserData);
@@ -4065,10 +4055,14 @@ void CClient::ToggleWindowVSync()
 void CClient::LoadFont()
 {
 	static CFont *pDefaultFont = 0;
-	static bool LoadedFallbackFont = false;
 	char aFilename[512];
+	char aBuff[1024];
 	const char *pFontFile = "fonts/DejaVuSans.ttf";
-	const char *pFallbackFontFile = "fonts/SourceHanSansSC-Regular.otf";
+	const char *apFallbackFontFiles[] =
+		{
+			"fonts/GlowSansJCompressed-Book.otf",
+			"fonts/SourceHanSansSC-Regular.otf",
+		};
 	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
@@ -4081,31 +4075,33 @@ void CClient::LoadFont()
 		if(pDefaultFont == NULL)
 			pDefaultFont = pTextRender->LoadFont(aFilename, pBuf, Size);
 
-		File = Storage()->OpenFile(pFallbackFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
-		if(File)
+		for(auto &pFallbackFontFile : apFallbackFontFiles)
 		{
-			size_t Size = io_length(File);
-			unsigned char *pBuf = (unsigned char *)malloc(Size);
-			io_read(File, pBuf, Size);
-			io_close(File);
-			IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
-			LoadedFallbackFont = pTextRender->LoadFallbackFont(pDefaultFont, aFilename, pBuf, Size);
+			bool FontLoaded = false;
+			File = Storage()->OpenFile(pFallbackFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+			if(File)
+			{
+				size_t Size = io_length(File);
+				unsigned char *pBuf = (unsigned char *)malloc(Size);
+				io_read(File, pBuf, Size);
+				io_close(File);
+				IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
+				FontLoaded = pTextRender->LoadFallbackFont(pDefaultFont, aFilename, pBuf, Size);
+			}
+
+			if(!FontLoaded)
+			{
+				str_format(aBuff, sizeof(aBuff) / sizeof(aBuff[0]), "failed to load the fallback font. filename='%s'", pFallbackFontFile);
+				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuff);
+			}
 		}
 
 		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);
 	}
 
-	char aBuff[1024];
-
 	if(!pDefaultFont)
 	{
 		str_format(aBuff, sizeof(aBuff) / sizeof(aBuff[0]), "failed to load font. filename='%s'", pFontFile);
-		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuff);
-	}
-
-	if(!LoadedFallbackFont)
-	{
-		str_format(aBuff, sizeof(aBuff) / sizeof(aBuff[0]), "failed to load the fallback font. filename='%s'", pFallbackFontFile);
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuff);
 	}
 }
@@ -4205,7 +4201,7 @@ void CClient::RegisterCommands()
 	m_pConsole->Register("record", "?r[file]", CFGFLAG_CLIENT, Con_Record, this, "Record to the file");
 	m_pConsole->Register("stoprecord", "", CFGFLAG_CLIENT, Con_StopRecord, this, "Stop recording");
 	m_pConsole->Register("add_demomarker", "", CFGFLAG_CLIENT, Con_AddDemoMarker, this, "Add demo timeline marker");
-	m_pConsole->Register("add_favorite", "r[host|ip]", CFGFLAG_CLIENT, Con_AddFavorite, this, "Add a server as a favorite");
+	m_pConsole->Register("add_favorite", "s[host|ip] ?s['allow_ping']", CFGFLAG_CLIENT, Con_AddFavorite, this, "Add a server as a favorite");
 	m_pConsole->Register("remove_favorite", "r[host|ip]", CFGFLAG_CLIENT, Con_RemoveFavorite, this, "Remove a server from favorites");
 	m_pConsole->Register("demo_slice_start", "", CFGFLAG_CLIENT, Con_DemoSliceBegin, this, "");
 	m_pConsole->Register("demo_slice_end", "", CFGFLAG_CLIENT, Con_DemoSliceEnd, this, "");
@@ -4311,7 +4307,7 @@ int main(int argc, const char **argv) // ignore_convention
 	pClient->RegisterInterfaces();
 
 	// create the components
-	IEngine *pEngine = CreateEngine("DDNet", Silent, 1);
+	IEngine *pEngine = CreateEngine("DDNet", Silent, 2);
 	IConsole *pConsole = CreateConsole(CFGFLAG_CLIENT);
 	IStorage *pStorage = CreateStorage("Teeworlds", IStorage::STORAGETYPE_CLIENT, argc, argv); // ignore_convention
 	IConfigManager *pConfigManager = CreateConfigManager();
@@ -4319,7 +4315,6 @@ int main(int argc, const char **argv) // ignore_convention
 	IEngineInput *pEngineInput = CreateEngineInput();
 	IEngineTextRender *pEngineTextRender = CreateEngineTextRender();
 	IEngineMap *pEngineMap = CreateEngineMap();
-	IEngineMasterServer *pEngineMasterServer = CreateEngineMasterServer();
 	IDiscord *pDiscord = CreateDiscord();
 	ISteam *pSteam = CreateSteam();
 
@@ -4348,9 +4343,6 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineMap); // IEngineMap
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMap *>(pEngineMap), false);
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngineMasterServer); // IEngineMasterServer
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer *>(pEngineMasterServer), false);
-
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateEditor(), false);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(CreateGameClient(), false);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pStorage);
@@ -4369,8 +4361,6 @@ int main(int argc, const char **argv) // ignore_convention
 	pEngine->Init();
 	pConfigManager->Init();
 	pConsole->Init();
-	pEngineMasterServer->Init();
-	pEngineMasterServer->Load();
 
 	// register all console commands
 	pClient->RegisterCommands();

@@ -169,15 +169,18 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	if(m_pClient->m_pGameConsole->IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE && g_Config.m_ClDemoKeyboardShortcuts)
 	{
 		// increase/decrease speed
-		if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP) || Input()->KeyPress(KEY_UP))
+		if(!Input()->KeyIsPressed(KEY_LSHIFT) && !Input()->KeyIsPressed(KEY_RSHIFT))
 		{
-			DemoPlayer()->SetSpeedIndex(+1);
-			LastSpeedChange = time_get();
-		}
-		else if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN) || Input()->KeyPress(KEY_DOWN))
-		{
-			DemoPlayer()->SetSpeedIndex(-1);
-			LastSpeedChange = time_get();
+			if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP) || Input()->KeyPress(KEY_UP))
+			{
+				DemoPlayer()->SetSpeedIndex(+1);
+				LastSpeedChange = time_get();
+			}
+			else if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN) || Input()->KeyPress(KEY_DOWN))
+			{
+				DemoPlayer()->SetSpeedIndex(-1);
+				LastSpeedChange = time_get();
+			}
 		}
 
 		// pause/unpause
@@ -620,7 +623,18 @@ CMenus::CListboxItem CMenus::UiDoListboxNextItem(const void *pId, bool Selected,
 
 	CListboxItem Item = UiDoListboxNextRow();
 
-	if(Item.m_Visible && UI()->DoButtonLogic(pId, "", gs_ListBoxSelectedIndex == gs_ListBoxItemIndex, &Item.m_HitRect))
+	CUIRect HitRect = Item.m_HitRect;
+
+	if(HitRect.y < gs_ListBoxOriginalView.y)
+	{
+		float TmpDiff = gs_ListBoxOriginalView.y - HitRect.y;
+		HitRect.y = gs_ListBoxOriginalView.y;
+		HitRect.h -= TmpDiff;
+	}
+
+	HitRect.h = minimum(HitRect.h, (gs_ListBoxOriginalView.y + gs_ListBoxOriginalView.h) - HitRect.y);
+
+	if(Item.m_Visible && UI()->DoButtonLogic(pId, "", gs_ListBoxSelectedIndex == gs_ListBoxItemIndex, &HitRect))
 	{
 		gs_ListBoxClicked = true;
 		gs_ListBoxNewSelected = ThisItemIndex;
@@ -697,7 +711,7 @@ CMenus::CListboxItem CMenus::UiDoListboxNextItem(const void *pId, bool Selected,
 		r.Margin(1.5f, &r);
 		RenderTools()->DrawUIRect(&r, ColorRGBA(1, 1, 1, 0.5f), CUI::CORNER_ALL, 4.0f);
 	}
-	else if(UI()->MouseInside(&Item.m_Rect) && !NoHoverEffects)
+	else if(UI()->MouseInside(&HitRect) && !NoHoverEffects)
 	{
 		CUIRect r = Item.m_Rect;
 		r.Margin(1.5f, &r);
@@ -717,6 +731,14 @@ int CMenus::UiDoListboxEnd(float *pScrollValue, bool *pItemActivated, bool *pLis
 	if(pListBoxActive)
 		*pListBoxActive = gs_ListBoxClicked;
 	return gs_ListBoxNewSelected;
+}
+
+int CMenus::UiLogicGetCurrentClickedItem()
+{
+	if(gs_ListBoxClicked)
+		return gs_ListBoxNewSelected;
+	else
+		return -1;
 }
 
 int CMenus::DemolistFetchCallback(const char *pName, time_t Date, int IsDir, int StorageType, void *pUser)
@@ -1234,7 +1256,8 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		}
 	}
 
-	if(DoButton_Menu(&DirectoryButton, Localize("Demos directory"), 0, &DirectoryButton))
+	static int s_DirectoryButtonID = 0;
+	if(DoButton_Menu(&s_DirectoryButtonID, Localize("Demos directory"), 0, &DirectoryButton))
 	{
 		char aBuf[MAX_PATH_LENGTH];
 		char aBufFull[MAX_PATH_LENGTH + 7];

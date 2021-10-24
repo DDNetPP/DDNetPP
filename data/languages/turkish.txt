@@ -349,9 +349,6 @@ Red team wins!
 Refresh
 == Yenile
 
-Refreshing master servers
-== Ana sunucu yenileniyor
-
 Remote console
 == Uzak Konsol
 
@@ -414,9 +411,6 @@ Show ingame HUD
 
 Show name plates
 == Oyuncu isimlerini göster
-
-Show only supported
-== Desteklenmeyen çözünürlükleri gizle
 
 Skins
 == Skinler
@@ -906,17 +900,11 @@ Show HUD
 UI mouse s.
 == Arayüzde mouse duy.
 
-Borderless window
-== Kenarsız pencere
-
 may cause delay
 == gecikmelere sebep olabilir
 
 Screen
 == Ekran
-
-Use OpenGL 3.3 (experimental)
-== OpenGL 3.3 Kullan (deneysel)
 
 Preinit VBO (iGPUs only)
 == Preinit VBO (sadece iGPUs)
@@ -1164,6 +1152,30 @@ Speed
 Theme
 == 
 
+AFR
+== 
+
+ASI
+== 
+
+AUS
+== 
+
+EUR
+== 
+
+NA
+== 
+
+SA
+== 
+
+CHN
+== 
+
+Getting server list from master server
+== 
+
 %d of %d servers
 == 
 
@@ -1174,6 +1186,9 @@ Theme
 == 
 
 %d player
+== 
+
+Leak IP
 == 
 
 Demos directory
@@ -1203,6 +1218,18 @@ Chat command
 Dummy
 == 
 
+Windowed
+== 
+
+Windowed borderless
+== 
+
+Desktop fullscreen
+== 
+
+Use modern OpenGL
+== 
+
 Game sound volume
 == 
 
@@ -1222,6 +1249,18 @@ Laser Outline Color
 == 
 
 Laser Inner Color
+== 
+
+Hookline
+== 
+
+No hit
+== 
+
+Hookable
+== 
+
+Tee
 == 
 
 Use old chat style

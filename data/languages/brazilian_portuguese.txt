@@ -20,6 +20,7 @@
 # Rafael Fontenelle   2020-08-27 12:38:07
 # Rafael Fontenelle   2020-09-20 11:00:38
 # Rafael Fontenelle   2021-02-13 07:00:00
+# Rafael Fontenelle   2021-06-10 12:00:00
 ##### /authors #####
 
 ##### translated strings #####
@@ -367,9 +368,6 @@ Red team wins!
 Refresh
 == Atualizar
 
-Refreshing master servers
-== Atualizando servidores mestres
-
 Remote console
 == Console remoto
 
@@ -435,9 +433,6 @@ Show name plates
 
 Show only chat messages from friends
 == Mostrar apenas mensagens de amigos
-
-Show only supported
-== Mostrar apenas modos suportados
 
 Skins
 == Skins
@@ -546,9 +541,6 @@ Yes
 
 You must restart the game for all settings to take effect.
 == Você deve reiniciar o jogo para que todas as alterações tenham efeito.
-
-Borderless window
-== Janela sem borda
 
 Demo
 == Demo
@@ -931,9 +923,6 @@ Activate
 Multiple texture units (disable for MacOS)
 == Várias unidades de textura (desabilite para macOS)
 
-Use OpenGL 3.3 (experimental)
-== Usar OpenGL 3.3 (experimental)
-
 UI mouse s.
 == Sens. mouse de UI
 
@@ -1286,11 +1275,62 @@ Entities Background color
 Regular Background Color
 == Cor de fundo comum
 
+AFR
+== AFR
+
+ASI
+== ASI
+
+AUS
+== AUS
+
+EUR
+== EUR
+
+NA
+== NA
+
+SA
+== SA
+
+CHN
+== CHN
+
+Getting server list from master server
+== Obtendo lista de servidores do servidor mestre
+
+Leak IP
+== Vazar IP
+
 Chat command
-== 
+== Comando de chat
+
+Windowed
+== Janela
+
+Windowed borderless
+== Janela sem borda
+
+Desktop fullscreen
+== Tela cheia de desktop
+
+Use modern OpenGL
+== Usar OpenGL moderno
+
+Hookline
+== Linha do gancho
+
+No hit
+== Sem acerto
+
+Hookable
+== Enganchável
+
+Tee
+== Tee
 
 Discord
-== 
+== Discord
 
 https://ddnet.tw/discord
-== 
+== https://ddnet.tw/discord

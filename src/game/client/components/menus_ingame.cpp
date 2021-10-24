@@ -293,9 +293,16 @@ void CMenus::RenderPlayers(CUIRect MainView)
 
 		// player info
 		Player.VSplitLeft(28.0f, &Button, &Player);
-		CTeeRenderInfo Info = m_pClient->m_aClients[Index].m_RenderInfo;
-		Info.m_Size = Button.h;
-		RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, EMOTE_NORMAL, vec2(1.0f, 0.0f), vec2(Button.x + Button.h / 2, Button.y + Button.h / 2));
+
+		CTeeRenderInfo TeeInfo = m_pClient->m_aClients[Index].m_RenderInfo;
+		TeeInfo.m_Size = Button.h;
+
+		CAnimState *pIdleState = CAnimState::GetIdle();
+		vec2 OffsetToMid;
+		RenderTools()->GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
+		vec2 TeeRenderPos(Button.x + Button.h / 2, Button.y + Button.h / 2 + OffsetToMid.y);
+
+		RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
 
 		Player.HSplitTop(1.5f, 0, &Player);
 		Player.VSplitMid(&Player, &Button);
@@ -589,10 +596,17 @@ bool CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 
 		if(Item.m_Visible)
 		{
-			CTeeRenderInfo Info = m_pClient->m_aClients[aPlayerIDs[i]].m_RenderInfo;
-			Info.m_Size = Item.m_Rect.h;
-			RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, EMOTE_NORMAL, vec2(1, 0), vec2(Item.m_Rect.x + Item.m_Rect.h / 2, Item.m_Rect.y + Item.m_Rect.h / 2));
-			Item.m_Rect.x += Info.m_Size;
+			CTeeRenderInfo TeeInfo = m_pClient->m_aClients[aPlayerIDs[i]].m_RenderInfo;
+			TeeInfo.m_Size = Item.m_Rect.h;
+
+			CAnimState *pIdleState = CAnimState::GetIdle();
+			vec2 OffsetToMid;
+			RenderTools()->GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
+			vec2 TeeRenderPos(Item.m_Rect.x + Item.m_Rect.h / 2, Item.m_Rect.y + Item.m_Rect.h / 2 + OffsetToMid.y);
+
+			RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos);
+
+			Item.m_Rect.x += TeeInfo.m_Size;
 			UI()->DoLabelScaled(&Item.m_Rect, m_pClient->m_aClients[aPlayerIDs[i]].m_aName, 16.0f, -1);
 		}
 	}
@@ -993,8 +1007,8 @@ void CMenus::RenderGhost(CUIRect MainView)
 	static CColumn s_aCols[] = {
 		{-1, " ", 2.0f, {0}, {0}},
 		{COL_ACTIVE, " ", 30.0f, {0}, {0}},
-		{COL_NAME, "Name", 300.0f, {0}, {0}},
-		{COL_TIME, "Time", 200.0f, {0}, {0}},
+		{COL_NAME, "Name", 300.0f, {0}, {0}}, // Localize("Name")
+		{COL_TIME, "Time", 200.0f, {0}, {0}}, // Localize("Time")
 	};
 
 	int NumCols = sizeof(s_aCols) / sizeof(CColumn);
@@ -1010,7 +1024,7 @@ void CMenus::RenderGhost(CUIRect MainView)
 
 	// do headers
 	for(int i = 0; i < NumCols; i++)
-		DoButton_GridHeader(s_aCols[i].m_Caption, s_aCols[i].m_Caption, 0, &s_aCols[i].m_Rect);
+		DoButton_GridHeader(s_aCols[i].m_Caption, Localize(s_aCols[i].m_Caption), 0, &s_aCols[i].m_Rect);
 
 	RenderTools()->DrawUIRect(&View, ColorRGBA(0, 0, 0, 0.15f), 0, 0);
 
@@ -1141,7 +1155,7 @@ void CMenus::RenderGhost(CUIRect MainView)
 		GhostlistPopulate();
 	}
 
-	if(s_SelectedIndex >= m_lGhosts.size())
+	if(s_SelectedIndex == -1 || s_SelectedIndex >= m_lGhosts.size())
 		return;
 
 	CGhostItem *pGhost = &m_lGhosts[s_SelectedIndex];

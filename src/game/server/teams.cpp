@@ -731,8 +731,16 @@ void CGameTeams::SwapTeamCharacters(CPlayer *pPlayer, CPlayer *pTargetPlayer, in
 		return;
 	}
 
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_Core.Team(i) == Team && GameServer()->m_apPlayers[i])
+		{
+			GameServer()->m_apPlayers[i]->m_SwapTargetsClientID = -1;
+		}
+	}
+
 	int TimeoutAfterDelay = g_Config.m_SvSaveSwapGamesDelay + g_Config.m_SvSwapTimeout;
-	if(Since > TimeoutAfterDelay)
+	if(Since >= TimeoutAfterDelay)
 	{
 		str_format(aBuf, sizeof(aBuf),
 			"Your swap request timed out %d seconds ago. Use /swap again to re-initiate it.",
@@ -740,10 +748,16 @@ void CGameTeams::SwapTeamCharacters(CPlayer *pPlayer, CPlayer *pTargetPlayer, in
 
 		GameServer()->SendChatTeam(Team, aBuf);
 
-		pPlayer->m_SwapTargetsClientID = -1;
-		pTargetPlayer->m_SwapTargetsClientID = -1;
-
 		return;
+	}
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_Core.Team(i) == Team && GameServer()->m_apPlayers[i])
+		{
+			GameServer()->m_apPlayers[i]->GetCharacter()->ResetHook();
+			GameServer()->m_World.ReleaseHooked(i);
+		}
 	}
 
 	CSaveTee PrimarySavedTee;
@@ -754,9 +768,6 @@ void CGameTeams::SwapTeamCharacters(CPlayer *pPlayer, CPlayer *pTargetPlayer, in
 
 	PrimarySavedTee.Load(pTargetPlayer->GetCharacter(), Team);
 	SecondarySavedTee.Load(pPlayer->GetCharacter(), Team);
-
-	pPlayer->m_SwapTargetsClientID = -1;
-	pTargetPlayer->m_SwapTargetsClientID = -1;
 
 	str_format(aBuf, sizeof(aBuf),
 		"%s has swapped with %s.",
@@ -867,7 +878,7 @@ void CGameTeams::OnCharacterDeath(int ClientID, int Weapon)
 		return;
 	bool Locked = TeamLocked(Team) && Weapon != WEAPON_GAME;
 
-	if(g_Config.m_SvTeam == 3)
+	if(g_Config.m_SvTeam == 3 && Team != TEAM_SUPER)
 	{
 		ChangeTeamState(Team, CGameTeams::TEAMSTATE_OPEN);
 		ResetRoundState(Team);

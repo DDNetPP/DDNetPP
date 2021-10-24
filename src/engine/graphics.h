@@ -93,7 +93,8 @@ public:
 class CVideoMode
 {
 public:
-	int m_Width, m_Height;
+	int m_CanvasWidth, m_CanvasHeight;
+	int m_WindowWidth, m_WindowHeight;
 	int m_Red, m_Green, m_Blue;
 };
 
@@ -147,6 +148,13 @@ struct GL_SVertexTex3DStream
 	GL_STexCoord3D m_Tex;
 };
 
+enum EGraphicsDriverAgeType
+{
+	GRAPHICS_DRIVER_AGE_TYPE_LEGACY = 0,
+	GRAPHICS_DRIVER_AGE_TYPE_DEFAULT,
+	GRAPHICS_DRIVER_AGE_TYPE_MODERN,
+};
+
 typedef void (*WINDOW_RESIZE_FUNC)(void *pUser);
 
 namespace client_data7 {
@@ -159,16 +167,11 @@ class IGraphics : public IInterface
 protected:
 	int m_ScreenWidth;
 	int m_ScreenHeight;
-	int m_DesktopScreenWidth;
-	int m_DesktopScreenHeight;
+	float m_ScreenHiDPIScale;
 
 public:
-	/* Constants: Texture Loading Flags
-		TEXLOAD_NORESAMPLE - Prevents the texture from any resampling
-	*/
 	enum
 	{
-		TEXLOAD_NORESAMPLE = 1 << 0,
 		TEXLOAD_NOMIPMAPS = 1 << 1,
 		TEXLOAD_NO_COMPRESSION = 1 << 2,
 		TEXLOAD_TO_3D_TEXTURE = (1 << 3),
@@ -195,9 +198,11 @@ public:
 	int ScreenWidth() const { return m_ScreenWidth; }
 	int ScreenHeight() const { return m_ScreenHeight; }
 	float ScreenAspect() const { return (float)ScreenWidth() / (float)ScreenHeight(); }
+	float ScreenHiDPIScale() const { return m_ScreenHiDPIScale; }
+	int WindowWidth() const { return m_ScreenWidth / m_ScreenHiDPIScale; }
+	int WindowHeight() const { return m_ScreenHeight / m_ScreenHiDPIScale; }
 
-	virtual bool Fullscreen(bool State) = 0;
-	virtual void SetWindowBordered(bool State) = 0;
+	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless) = 0;
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool SetVSync(bool State) = 0;
 	virtual int GetWindowScreen() = 0;
@@ -270,11 +275,17 @@ public:
 	virtual void UpdateBufferContainer(int ContainerIndex, struct SBufferContainerInfo *pContainerInfo) = 0;
 	virtual void IndicesNumRequiredNotify(unsigned int RequiredIndicesCount) = 0;
 
+	virtual void GetDriverVersion(EGraphicsDriverAgeType DriverAgeType, int &Major, int &Minor, int &Patch) = 0;
+	virtual bool IsConfigModernAPI() = 0;
 	virtual bool IsTileBufferingEnabled() = 0;
 	virtual bool IsQuadBufferingEnabled() = 0;
 	virtual bool IsTextBufferingEnabled() = 0;
 	virtual bool IsQuadContainerBufferingEnabled() = 0;
 	virtual bool HasTextureArrays() = 0;
+
+	virtual const char *GetVendorString() = 0;
+	virtual const char *GetVersionString() = 0;
+	virtual const char *GetRendererString() = 0;
 
 	struct CLineItem
 	{
