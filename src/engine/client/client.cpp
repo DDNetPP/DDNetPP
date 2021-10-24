@@ -1872,7 +1872,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 			int GameTick = Unpacker.GetInt();
 			int DeltaTick = GameTick - Unpacker.GetInt();
 			int PartSize = 0;
-			int Crc = 0;
+			unsigned int Crc = 0;
 			int CompleteSize = 0;
 			const char *pData = 0;
 
@@ -2160,7 +2160,7 @@ void CClient::ProcessServerPacketDummy(CNetChunk *pPacket)
 			int GameTick = Unpacker.GetInt();
 			int DeltaTick = GameTick - Unpacker.GetInt();
 			int PartSize = 0;
-			int Crc = 0;
+			unsigned int Crc = 0;
 			int CompleteSize = 0;
 			const char *pData = 0;
 
@@ -3029,6 +3029,10 @@ void CClient::Run()
 			return;
 		}
 	}
+
+	// make sure the first frame just clears everything to prevent undesired colors when waiting for io
+	Graphics()->Clear(0, 0, 0);
+	Graphics()->Swap();
 
 	// init sound, allowed to fail
 	m_SoundInitFailed = Sound()->Init() != 0;
