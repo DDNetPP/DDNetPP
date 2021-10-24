@@ -1309,6 +1309,7 @@ set(EXPECTED_DATA
   skins/whis.png
   skins/x_ninja.png
   skins/x_spec.png
+  strong_weak.png
   themes/auto.png
   themes/autumn.png
   themes/autumn_day.map
@@ -1445,14 +1446,14 @@ set_src(BASE GLOB_RECURSE src/base
   ddpp_logs.h
   detect.h
   dynamic.h
-  hash.c
+  hash.cpp
   hash.h
-  hash_bundled.c
+  hash_bundled.cpp
   hash_ctxt.h
-  hash_libtomcrypt.c
-  hash_openssl.c
+  hash_libtomcrypt.cpp
+  hash_openssl.cpp
   math.h
-  system.c
+  system.cpp
   system.h
   system_ddpp.c
   system_ddpp.h
@@ -1464,9 +1465,9 @@ set_src(BASE GLOB_RECURSE src/base
   tl/sorted_array.h
   tl/string.h
   tl/threading.h
-  unicode/confusables.c
+  unicode/confusables.cpp
   unicode/confusables_data.h
-  unicode/tolower.c
+  unicode/tolower.cpp
   unicode/tolower_data.h
   vmath.h
 )
@@ -1539,7 +1540,6 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   masterserver.cpp
   memheap.cpp
   memheap.h
-  message.h
   netban.cpp
   netban.h
   network.cpp
@@ -1692,6 +1692,7 @@ if(CLIENT)
     graphics_defines.h
     graphics_threaded.cpp
     graphics_threaded.h
+    graphics_threaded_null.h
     http.cpp
     http.h
     input.cpp
@@ -1718,6 +1719,7 @@ if(CLIENT)
   set_src(GAME_CLIENT GLOB_RECURSE src/game/client
     animstate.cpp
     animstate.h
+    component.cpp
     component.h
     components/background.cpp
     components/background.h

@@ -197,9 +197,9 @@ int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
 	{
 		if(!m_apPlayers[i])
 			continue;
-		if(!m_apPlayers[i]->m_TimeoutCode[0])
+		if(!m_apPlayers[i]->m_aTimeoutCode[0])
 			continue;
-		if(str_comp(m_apPlayers[i]->m_TimeoutCode, pTimeout))
+		if(str_comp(m_apPlayers[i]->m_aTimeoutCode, pTimeout))
 			continue;
 		return i;
 	}
@@ -226,7 +226,7 @@ int CGameContext::CountTimeoutCodePlayers()
 	{
 		if(!m_apPlayers[i])
 			continue;
-		if(!m_apPlayers[i]->m_TimeoutCode[0])
+		if(!m_apPlayers[i]->m_aTimeoutCode[0])
 			continue;
 		p++;
 	}
@@ -1448,11 +1448,11 @@ void CGameContext::SaveMapPlayerData()
 		CCharacter *pChr = pPlayer->GetCharacter();
 		if(!pChr)
 			continue;
-		if(!pPlayer->m_TimeoutCode[0])
+		if(!pPlayer->m_aTimeoutCode[0])
 			continue;
 		if(!pChr)
 			continue;
-		fwrite(&pPlayer->m_TimeoutCode, 64, 1, pFile);
+		fwrite(&pPlayer->m_aTimeoutCode, 64, 1, pFile);
 		char IsLoaded = 0;
 		fpos_t pos;
 		fgetpos(pFile, &pos);
@@ -1463,7 +1463,7 @@ void CGameContext::SaveMapPlayerData()
 		savetee.Save(pChr);
 		fwrite(&savetee, sizeof(savetee), 1, pFile);
 
-		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_TimeoutCode);
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_aTimeoutCode);
 		saved++;
 	}
 	fclose(pFile);
@@ -1523,16 +1523,16 @@ void CGameContext::LoadMapPlayerData()
 				dbg_msg("ddpp-mapload", "player not alive id=%d code=%s", id, aTimeoutCode);
 				ValidPlayer = false;
 			}
-			if(ValidPlayer && str_comp(aTimeoutCode, pPlayer->m_TimeoutCode))
+			if(ValidPlayer && str_comp(aTimeoutCode, pPlayer->m_aTimeoutCode))
 			{
-				dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", pPlayer->m_TimeoutCode, aTimeoutCode);
+				dbg_msg("ddpp-mapload", "wrong timeout code player=%s file=%s", pPlayer->m_aTimeoutCode, aTimeoutCode);
 				ValidPlayer = false;
 			}
 			if(ValidPlayer && pPlayer->m_MapSaveLoaded)
 			{
 				// shouldn't happen? couldn't happen? too lazy to think probably possible by abusing /timeout command or share
 				// and can be bypassed by reconnect lol
-				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", id, Server()->ClientName(id), pPlayer->m_TimeoutCode);
+				dbg_msg("ddpp-mapload", "Warning: %d:'%s' code=%s is loaded already", id, Server()->ClientName(id), pPlayer->m_aTimeoutCode);
 				ValidPlayer = false;
 			}
 		}
@@ -1571,7 +1571,7 @@ void CGameContext::LoadMapPlayerData()
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;
 			fgetpos(pFile, &pos);
-			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%lld", Server()->ClientName(id), pPlayer->m_TimeoutCode, fpost_get_pos(pos));
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%lld", Server()->ClientName(id), pPlayer->m_aTimeoutCode, fpost_get_pos(pos));
 			loaded++;
 		}
 	}

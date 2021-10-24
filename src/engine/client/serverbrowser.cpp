@@ -23,6 +23,7 @@
 #include <engine/console.h>
 #include <engine/engine.h>
 #include <engine/friends.h>
+#include <engine/serverbrowser.h>
 #include <engine/storage.h>
 
 #include <mastersrv/mastersrv.h>
@@ -66,7 +67,6 @@ CServerBrowser::CServerBrowser()
 	m_ServerlistType = 0;
 	m_BroadcastTime = 0;
 	secure_random_fill(m_aTokenSeed, sizeof(m_aTokenSeed));
-	m_RequestNumber = 0;
 
 	m_pDDNetInfo = 0;
 
@@ -768,19 +768,13 @@ void CServerBrowser::Set(const NETADDR &Addr, int Type, int Token, const CServer
 
 void CServerBrowser::Refresh(int Type)
 {
-	// clear out everything
-	m_ServerlistHeap.Reset();
-	m_NumServers = 0;
-	m_NumSortedServers = 0;
-	mem_zero(m_aServerlistIp, sizeof(m_aServerlistIp));
-	m_pFirstReqServer = 0;
-	m_pLastReqServer = 0;
-	m_NumRequests = 0;
-	m_CurrentMaxRequests = g_Config.m_BrMaxRequests;
-	m_RequestNumber++;
-
+	bool ServerListTypeChanged = m_ServerlistType != Type;
+	int OldServerListType = m_ServerlistType;
 	m_ServerlistType = Type;
 	secure_random_fill(m_aTokenSeed, sizeof(m_aTokenSeed));
+
+	if(Type == IServerBrowser::TYPE_LAN || (ServerListTypeChanged && OldServerListType == IServerBrowser::TYPE_LAN))
+		CleanUp();
 
 	if(Type == IServerBrowser::TYPE_LAN)
 	{
@@ -820,6 +814,13 @@ void CServerBrowser::Refresh(int Type)
 		m_pHttp->Refresh();
 		m_pPingCache->Load();
 		m_RefreshingHttp = true;
+
+		if(ServerListTypeChanged && m_pHttp->NumServers() > 0)
+		{
+			CleanUp();
+			UpdateFromHttp();
+			Sort();
+		}
 	}
 }
 
@@ -915,7 +916,7 @@ void CServerBrowser::RequestCurrentServerWithRandomToken(const NETADDR &Addr, in
 
 void CServerBrowser::SetCurrentServerPing(const NETADDR &Addr, int Ping)
 {
-	SetLatency(Addr, std::min(Ping, 999));
+	SetLatency(Addr, minimum(Ping, 999));
 }
 
 void ServerBrowserFillEstimatedLatency(int OwnLocation, const IServerBrowserPingCache::CEntry *pEntries, int NumEntries, int *pIndex, NETADDR Addr, CServerInfo *pInfo)
@@ -1160,10 +1161,23 @@ void CServerBrowser::UpdateFromHttp()
 	}
 }
 
+void CServerBrowser::CleanUp()
+{
+	// clear out everything
+	m_ServerlistHeap.Reset();
+	m_NumServers = 0;
+	m_NumSortedServers = 0;
+	mem_zero(m_aServerlistIp, sizeof(m_aServerlistIp));
+	m_pFirstReqServer = 0;
+	m_pLastReqServer = 0;
+	m_NumRequests = 0;
+	m_CurrentMaxRequests = g_Config.m_BrMaxRequests;
+}
+
 void CServerBrowser::Update(bool ForceResort)
 {
-	int64 Timeout = time_freq();
-	int64 Now = time_get();
+	int64_t Timeout = time_freq();
+	int64_t Now = time_get();
 
 	const char *pHttpBestUrl;
 	if(!m_pHttp->GetBestUrl(&pHttpBestUrl) && pHttpBestUrl != m_pHttpPrevBestUrl)
@@ -1177,10 +1191,10 @@ void CServerBrowser::Update(bool ForceResort)
 	if(m_ServerlistType != TYPE_LAN && m_RefreshingHttp && !m_pHttp->IsRefreshing())
 	{
 		m_RefreshingHttp = false;
+		CleanUp();
 		UpdateFromHttp();
 		// TODO: move this somewhere else
-		if(m_Sorthash != SortHash() || ForceResort)
-			Sort();
+		Sort();
 		return;
 	}
 

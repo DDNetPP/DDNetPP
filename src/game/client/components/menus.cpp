@@ -86,8 +86,6 @@ CMenus::CMenus()
 	m_DeletePressed = false;
 	m_NumInputEvents = 0;
 
-	m_LastInput = time_get();
-
 	str_copy(m_aCurrentDemoFolder, "demos", sizeof(m_aCurrentDemoFolder));
 	m_aCallvoteReason[0] = 0;
 
@@ -249,9 +247,9 @@ int CMenus::DoButton_MenuTab(const void *pID, const char *pText, int Checked, co
 
 	if(pAnimator != NULL)
 	{
-		int64 Time = time_get_microseconds();
+		int64_t Time = time_get_microseconds();
 
-		if(pAnimator->m_Time + (int64)100000 < Time)
+		if(pAnimator->m_Time + (int64_t)100000 < Time)
 		{
 			pAnimator->m_Value = pAnimator->m_Active ? 1 : 0;
 			pAnimator->m_Time = Time;
@@ -763,7 +761,7 @@ float CMenus::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current,
 		Slider.y -= MarginH / 2;
 		Slider.w += MarginW;
 		Slider.h += MarginH;
-		RenderTools()->DrawUIRect(&Slider, ColorRGBA{0.15f, 0.15f, 0.15f, 1.0f}, CUI::CORNER_ALL, 5.0f);
+		RenderTools()->DrawUIRect(&Slider, ColorRGBA(0.15f, 0.15f, 0.15f, 1.0f), CUI::CORNER_ALL, 5.0f);
 		Slider.Margin(2, &Slider);
 		RenderTools()->DrawUIRect(&Slider, *pColorInner, CUI::CORNER_ALL, 3.0f);
 	}
@@ -1099,7 +1097,7 @@ void CMenus::RenderLoading()
 {
 	// TODO: not supported right now due to separate render thread
 
-	static int64 LastLoadRender = 0;
+	static int64_t LastLoadRender = 0;
 	float Percent = m_LoadCurrent++ / (float)m_LoadTotal;
 
 	// make sure that we don't render for each little thing we load
@@ -1113,7 +1111,7 @@ void CMenus::RenderLoading()
 	ms_GuiColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_UiColor, true));
 
 	CUIRect Screen = *UI()->Screen();
-	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
+	UI()->MapScreen();
 
 	if(!m_pBackground->Render())
 	{
@@ -1190,8 +1188,8 @@ void CMenus::OnInit()
 
 	m_UIEx.Init(UI(), Kernel(), RenderTools(), m_aInputEvents, &m_NumInputEvents);
 
-	m_RefreshButton.Init(UI());
-	m_ConnectButton.Init(UI());
+	m_RefreshButton.Init(UI(), -1);
+	m_ConnectButton.Init(UI(), -1);
 
 	Console()->Chain("add_favorite", ConchainServerbrowserUpdate, this);
 	Console()->Chain("remove_favorite", ConchainServerbrowserUpdate, this);
@@ -1228,7 +1226,7 @@ void CMenus::PopupMessage(const char *pTopic, const char *pBody, const char *pBu
 	m_Popup = POPUP_MESSAGE;
 }
 
-void CMenus::PopupWarning(const char *pTopic, const char *pBody, const char *pButton, int64 Duration)
+void CMenus::PopupWarning(const char *pTopic, const char *pBody, const char *pButton, int64_t Duration)
 {
 	dbg_msg(pTopic, "%s", pBody);
 
@@ -1453,7 +1451,7 @@ int CMenus::Render()
 		return 0;
 
 	CUIRect Screen = *UI()->Screen();
-	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
+	UI()->MapScreen();
 
 	m_MouseSlow = false;
 
@@ -1465,7 +1463,7 @@ int CMenus::Render()
 	}
 	else if(s_Frame == 1)
 	{
-		m_pClient->m_pSounds->Enqueue(CSounds::CHN_MUSIC, SOUND_MENU);
+		m_pClient->m_Sounds.Enqueue(CSounds::CHN_MUSIC, SOUND_MENU);
 		s_Frame++;
 		m_DoubleClickIndex = -1;
 
@@ -1607,7 +1605,7 @@ int CMenus::Render()
 		const char *pButtonText = "";
 		int ExtraAlign = 0;
 
-		ColorRGBA BgColor = ColorRGBA{0.0f, 0.0f, 0.0f, 0.5f};
+		ColorRGBA BgColor = ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f);
 		if(m_Popup == POPUP_MESSAGE)
 		{
 			pTitle = m_aMessageTopic;
@@ -1746,7 +1744,7 @@ int CMenus::Render()
 		}
 		else if(m_Popup == POPUP_WARNING)
 		{
-			BgColor = ColorRGBA{0.5f, 0.0f, 0.0f, 0.7f};
+			BgColor = ColorRGBA(0.5f, 0.0f, 0.0f, 0.7f);
 			pTitle = m_aMessageTopic;
 			pExtraText = m_aMessageBody;
 			pButtonText = m_aMessageButton;
@@ -1921,7 +1919,7 @@ int CMenus::Render()
 
 			if(Client()->MapDownloadTotalsize() > 0)
 			{
-				int64 Now = time_get();
+				int64_t Now = time_get();
 				if(Now - m_DownloadLastCheckTime >= time_freq())
 				{
 					if(m_DownloadLastCheckSize > Client()->MapDownloadAmount())
@@ -2003,11 +2001,11 @@ int CMenus::Render()
 				ActSelection = g_Config.m_BrFilterCountryIndex;
 			static float s_ScrollValue = 0.0f;
 			int OldSelected = -1;
-			UiDoListboxStart(&s_ScrollValue, &Box, 50.0f, Localize("Country / Region"), "", m_pClient->m_pCountryFlags->Num(), 6, OldSelected, s_ScrollValue);
+			UiDoListboxStart(&s_ScrollValue, &Box, 50.0f, Localize("Country / Region"), "", m_pClient->m_CountryFlags.Num(), 6, OldSelected, s_ScrollValue);
 
-			for(int i = 0; i < m_pClient->m_pCountryFlags->Num(); ++i)
+			for(int i = 0; i < m_pClient->m_CountryFlags.Num(); ++i)
 			{
-				const CCountryFlags::CCountryFlag *pEntry = m_pClient->m_pCountryFlags->GetByIndex(i);
+				const CCountryFlags::CCountryFlag *pEntry = m_pClient->m_CountryFlags.GetByIndex(i);
 				if(pEntry->m_CountryCode == ActSelection)
 					OldSelected = i;
 
@@ -2021,14 +2019,14 @@ int CMenus::Render()
 					Item.m_Rect.w = Item.m_Rect.h * 2;
 					Item.m_Rect.x += (OldWidth - Item.m_Rect.w) / 2.0f;
 					ColorRGBA Color(1.0f, 1.0f, 1.0f, 1.0f);
-					m_pClient->m_pCountryFlags->Render(pEntry->m_CountryCode, &Color, Item.m_Rect.x, Item.m_Rect.y, Item.m_Rect.w, Item.m_Rect.h);
+					m_pClient->m_CountryFlags.Render(pEntry->m_CountryCode, &Color, Item.m_Rect.x, Item.m_Rect.y, Item.m_Rect.w, Item.m_Rect.h);
 					UI()->DoLabel(&Label, pEntry->m_aCountryCodeString, 10.0f, 0);
 				}
 			}
 
 			const int NewSelected = UiDoListboxEnd(&s_ScrollValue, 0);
 			if(OldSelected != NewSelected)
-				ActSelection = m_pClient->m_pCountryFlags->GetByIndex(NewSelected)->m_CountryCode;
+				ActSelection = m_pClient->m_CountryFlags.GetByIndex(NewSelected)->m_CountryCode;
 
 			Part.VMargin(120.0f, &Part);
 
@@ -2474,7 +2472,7 @@ void CMenus::RenderThemeSelection(CUIRect MainView, bool Header)
 		Item.m_Rect.VSplitLeft(Item.m_Rect.h * 2.0f, &Icon, &Item.m_Rect);
 
 		// draw icon if it exists
-		if(Theme.m_IconTexture != -1)
+		if(Theme.m_IconTexture.IsValid())
 		{
 			Icon.VMargin(6.0f, &Icon);
 			Icon.HMargin(3.0f, &Icon);
@@ -2554,8 +2552,6 @@ void CMenus::OnReset()
 
 bool CMenus::OnMouseMove(float x, float y)
 {
-	m_LastInput = time_get();
-
 	if(!m_MenuActive)
 		return false;
 
@@ -2570,16 +2566,14 @@ bool CMenus::OnMouseMove(float x, float y)
 		m_MousePos.x += x;
 		m_MousePos.y += y;
 	}
-	m_MousePos.x = clamp(m_MousePos.x, 0.f, (float)Graphics()->ScreenWidth());
-	m_MousePos.y = clamp(m_MousePos.y, 0.f, (float)Graphics()->ScreenHeight());
+	m_MousePos.x = clamp(m_MousePos.x, 0.f, (float)Graphics()->WindowWidth());
+	m_MousePos.y = clamp(m_MousePos.y, 0.f, (float)Graphics()->WindowHeight());
 
 	return true;
 }
 
 bool CMenus::OnInput(IInput::CEvent e)
 {
-	m_LastInput = time_get();
-
 	// special handle esc and enter for popup purposes
 	if(e.m_Flags & IInput::FLAG_PRESS)
 	{
@@ -2618,7 +2612,7 @@ void CMenus::OnStateChange(int NewState, int OldState)
 	if(NewState == IClient::STATE_OFFLINE)
 	{
 		if(OldState >= IClient::STATE_ONLINE && NewState < IClient::STATE_QUITTING)
-			m_pClient->m_pSounds->Play(CSounds::CHN_MUSIC, SOUND_MENU, 1.0f);
+			m_pClient->m_Sounds.Play(CSounds::CHN_MUSIC, SOUND_MENU, 1.0f);
 		m_Popup = POPUP_NONE;
 		if(Client()->ErrorString() && Client()->ErrorString()[0] != 0)
 		{
@@ -2651,8 +2645,6 @@ void CMenus::OnStateChange(int NewState, int OldState)
 	}
 }
 
-extern "C" void font_debug_render();
-
 void CMenus::OnRender()
 {
 	if(Client()->State() != IClient::STATE_ONLINE && Client()->State() != IClient::STATE_DEMOPLAYBACK)
@@ -2660,9 +2652,8 @@ void CMenus::OnRender()
 
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
-		CUIRect Screen = *UI()->Screen();
-		Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
-		RenderDemoPlayer(Screen);
+		UI()->MapScreen();
+		RenderDemoPlayer(*UI()->Screen());
 	}
 
 	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == m_pClient->SERVERMODE_PUREMOD)
@@ -2707,8 +2698,8 @@ void CMenus::OnRender()
 
 	// update the ui
 	CUIRect *pScreen = UI()->Screen();
-	float mx = (m_MousePos.x / (float)Graphics()->ScreenWidth()) * pScreen->w;
-	float my = (m_MousePos.y / (float)Graphics()->ScreenHeight()) * pScreen->h;
+	float mx = (m_MousePos.x / (float)Graphics()->WindowWidth()) * pScreen->w;
+	float my = (m_MousePos.y / (float)Graphics()->WindowHeight()) * pScreen->h;
 
 	int Buttons = 0;
 	if(m_UseMouseButtons)
@@ -2739,8 +2730,7 @@ void CMenus::OnRender()
 	// render debug information
 	if(g_Config.m_Debug)
 	{
-		CUIRect Screen = *UI()->Screen();
-		Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
+		UI()->MapScreen();
 
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "%p %p %p", UI()->HotItem(), UI()->ActiveItem(), UI()->LastActiveItem());
@@ -2801,17 +2791,14 @@ void CMenus::RenderBackground()
 	Graphics()->QuadsEnd();
 
 	// restore screen
-	{
-		CUIRect Screen = *UI()->Screen();
-		Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
-	}
+	UI()->MapScreen();
 }
 
 bool CMenus::CheckHotKey(int Key) const
 {
 	return m_Popup == POPUP_NONE &&
 	       !Input()->KeyIsPressed(KEY_LSHIFT) && !Input()->KeyIsPressed(KEY_RSHIFT) && !Input()->KeyIsPressed(KEY_LCTRL) && !Input()->KeyIsPressed(KEY_RCTRL) && !Input()->KeyIsPressed(KEY_LALT) && // no modifier
-	       Input()->KeyIsPressed(Key) && m_pClient->m_pGameConsole->IsClosed();
+	       Input()->KeyIsPressed(Key) && m_pClient->m_GameConsole.IsClosed();
 }
 
 int CMenus::DoButton_CheckBox_DontCare(const void *pID, const char *pText, int Checked, const CUIRect *pRect)
@@ -2833,7 +2820,7 @@ void CMenus::RenderUpdating(const char *pCaption, int current, int total)
 {
 	// make sure that we don't render for each little thing we load
 	// because that will slow down loading if we have vsync
-	static int64 LastLoadRender = 0;
+	static int64_t LastLoadRender = 0;
 	if(time_get() - LastLoadRender < time_freq() / 60)
 		return;
 	LastLoadRender = time_get();
@@ -2842,7 +2829,7 @@ void CMenus::RenderUpdating(const char *pCaption, int current, int total)
 	ms_GuiColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_UiColor, true));
 
 	CUIRect Screen = *UI()->Screen();
-	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
+	UI()->MapScreen();
 
 	RenderBackground();
 
@@ -2885,7 +2872,7 @@ int CMenus::MenuImageScan(const char *pName, int IsDir, int DirType, void *pUser
 	if(IsDir || !str_endswith(pName, ".png"))
 		return 0;
 
-	char aBuf[MAX_PATH_LENGTH];
+	char aBuf[IO_MAX_PATH_LENGTH];
 	str_format(aBuf, sizeof(aBuf), "menuimages/%s", pName);
 	CImageInfo Info;
 	if(!pSelf->Graphics()->LoadPNG(&Info, aBuf, DirType))
@@ -3009,7 +2996,9 @@ bool CMenus::HandleListInputs(const CUIRect &View, float &ScrollValue, const flo
 	{
 		if(m_aInputEvents[i].m_Flags & IInput::FLAG_PRESS)
 		{
-			if(m_aInputEvents[i].m_Key == KEY_DOWN)
+			if(UI()->LastActiveItem() == &g_Config.m_UiServerAddress)
+				return false;
+			else if(m_aInputEvents[i].m_Key == KEY_DOWN)
 				NewIndex = minimum(SelectedIndex + 1, NumElems - 1);
 			else if(m_aInputEvents[i].m_Key == KEY_UP)
 				NewIndex = maximum(SelectedIndex - 1, 0);

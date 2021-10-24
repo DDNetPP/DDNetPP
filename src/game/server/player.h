@@ -114,11 +114,6 @@ public:
 	int m_LastActionTick;
 	int m_TeamChangeTick;
 	bool m_SentSemicolonTip;
-	struct
-	{
-		int m_TargetX;
-		int m_TargetY;
-	} m_LatestActivity;
 
 	// network latency calculations
 	struct
@@ -146,8 +141,8 @@ private:
 	int m_Team;
 
 	int m_Paused;
-	int64 m_ForcePauseTime;
-	int64 m_LastPause;
+	int64_t m_ForcePauseTime;
+	int64_t m_LastPause;
 
 	int m_DefEmote;
 	int m_OverrideEmote;
@@ -173,8 +168,8 @@ public:
 	};
 
 	bool m_DND;
-	int64 m_FirstVoteTick;
-	char m_TimeoutCode[64];
+	int64_t m_FirstVoteTick;
+	char m_aTimeoutCode[64];
 
 	void ProcessPause();
 	int Pause(int State, bool Force);
@@ -182,8 +177,8 @@ public:
 	int IsPaused();
 
 	bool IsPlaying();
-	int64 m_Last_KickVote;
-	int64 m_Last_Team;
+	int64_t m_Last_KickVote;
+	int64_t m_Last_Team;
 	int m_ShowOthers;
 	bool m_ShowAll;
 	vec2 m_ShowDistance;
@@ -196,19 +191,22 @@ public:
 
 	bool m_Moderating;
 
-	bool AfkTimer(int new_target_x, int new_target_y); //returns true if kicked
+	bool AfkTimer(CNetObj_PlayerInput *pNewTarget); // returns true if kicked
 	void UpdatePlaytime();
 	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);
-	int64 m_LastPlaytime;
-	int64 m_LastEyeEmote;
-	int64 m_LastBroadcast;
 	int m_LastBroadcastImportance;
+	int64_t m_LastBroadcast;
 	int m_LastTarget_x;
 	int m_LastTarget_y;
+
 	CNetObj_PlayerInput *m_pLastTarget;
-	int m_Sent1stAfkWarning; // afk timer's 1st warning after 50% of sv_max_afk_time
-	int m_Sent2ndAfkWarning; // afk timer's 2nd warning after 90% of sv_max_afk_time
-	char m_pAfkMsg[160];
+	/* 
+		afk timer's 1st warning after 50% of sv_max_afk_time
+		2nd warning after 90%
+		kick after reaching 100% of sv_max_afk_time
+	*/
+	bool m_SentAfkWarning[2];
+
 	bool m_EyeEmoteEnabled;
 	int m_TimerType;
 
@@ -217,12 +215,12 @@ public:
 	bool CanOverrideDefaultEmote() const;
 
 	bool m_FirstPacket;
-	int64 m_LastSQLQuery;
+	int64_t m_LastSQLQuery;
 	void ProcessScoreResult(CScorePlayerResult &Result);
 	std::shared_ptr<CScorePlayerResult> m_ScoreQueryResult;
 	std::shared_ptr<CScorePlayerResult> m_ScoreFinishResult;
 	bool m_NotEligibleForFinish;
-	int64 m_EligibleForFinishCheck;
+	int64_t m_EligibleForFinishCheck;
 	bool m_VotedForPractice;
 	int m_SwapTargetsClientID; //Client ID of the swap target for the given player
 
@@ -272,11 +270,11 @@ public:
 		SetXP() should only be used if it is really needed
 	*/
 	void SetXP(int xp);
-	int64 GetXP() { return m_xp; }
-	int64 GetNeededXP() { return m_neededxp; }
+	int64_t GetXP() { return m_xp; }
+	int64_t GetNeededXP() { return m_neededxp; }
 	int GetLevel() { return m_level; }
 	void SetLevel(int level);
-	int64 GetMoney() { return m_money; }
+	int64_t GetMoney() { return m_money; }
 	/*
 		SetMoney()
 
@@ -288,6 +286,8 @@ public:
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups
 	bool m_IsVanillaCompetetive;
+	int64_t m_LastEyeEmote;
+	int64_t m_LastPlaytime;
 	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	bool m_MapSaveLoaded;
 
@@ -315,9 +315,9 @@ public:
 
 		// city
 		// TODO: make all those variables private and use protected getters and setters (issue #269)
-		int64 m_level;
-		int64 m_xp;
-		int64 m_money;
+		int64_t m_level;
+		int64_t m_xp;
+		int64_t m_money;
 		int m_shit;
 		int m_GiftDelay;
 	};
@@ -483,7 +483,7 @@ public:
 	int m_FixNameID;
 	bool m_ShowName;
 	bool m_SetRealName;
-	int64 m_SetRealNameTick;
+	int64_t m_SetRealNameTick;
 	//ID == 1 // chat message
 	int m_ChatTeam;
 	char m_ChatText[256];
@@ -544,7 +544,7 @@ public:
 	bool m_HadFlagOnDeath;
 
 	bool m_IsNoboSpawn;
-	int64 m_NoboSpawnStop;
+	int64_t m_NoboSpawnStop;
 
 	//Account stuff:
 	bool m_IsFileAcc;
@@ -601,7 +601,7 @@ public:
 	*/
 	int m_PlayerHumanLevel;
 	int m_PlayerHumanLevelState; // if the level has sublevels
-	int64 m_HumanLevelTime;
+	int64_t m_HumanLevelTime;
 	void PlayerHumanLevelTick();
 
 	CCaptcha *m_pCaptcha;
@@ -626,11 +626,11 @@ public:
 	int m_TradeMoney;
 	int m_TradeItem;
 	int m_TradeID;
-	int64 m_TradeTick;
+	int64_t m_TradeTick;
 	int m_GangsterBagMoney;
 	char m_aTradeOffer[256];
 
-	int64 m_ShopBotAntiSpamTick;
+	int64_t m_ShopBotAntiSpamTick;
 	int m_ShopBotMesssagesRecieved;
 
 	void JailPlayer(int seconds);
@@ -640,14 +640,14 @@ public:
 	int m_TaserPrice;
 	bool m_TaserOn;
 	bool m_IsJailed;
-	int64 m_JailTime;
-	int64 m_EscapeTime;
+	int64_t m_JailTime;
+	int64_t m_EscapeTime;
 	char m_aEscapeReason[256];
 	bool m_IsJailDoorOpen;
 	//bool m_IsJailHammer;
 	int m_JailHammer;
 	//int m_JailHammerTime;
-	int64 m_JailHammerDelay;
+	int64_t m_JailHammerDelay;
 	//int m_CorruptID;
 	//int m_CorruptMoney;
 	short m_JailCode;
@@ -781,9 +781,9 @@ public:
 	int m_shit;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
-	//int64 m_LastGift;
+	//int64_t m_LastGift;
 	int m_GiftDelay; //is still in sql as LastGift
-	int64 m_LastFight;
+	int64_t m_LastFight;
 
 	char m_aAccountLoginName[32];
 	char m_aChangePassword[MAX_PW_LEN + 1];
@@ -885,10 +885,10 @@ public:
 	char m_aWrongLogin[256];
 
 #if defined(CONF_SQL)
-	int64 m_LastSQLQuery;
+	int64_t m_LastSQLQuery;
 #endif
 
-	int64 m_LastWarning;
+	int64_t m_LastWarning;
 	int m_ChilliWarnings;
 	bool m_TROLL166;
 	bool m_TROLL420;
@@ -897,9 +897,9 @@ public:
 private: // private ddnet+++
 	int m_AccountID;
 	int m_level;
-	int64 m_xp;
-	int64 m_neededxp;
-	int64 m_money;
+	int64_t m_xp;
+	int64_t m_neededxp;
+	int64_t m_money;
 };
 
 #endif

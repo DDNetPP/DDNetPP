@@ -113,7 +113,7 @@ void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
 	{
 		if(net_addr_comp(&m_aLoginBans[i].m_Addr, &Addr) == 0)
 		{
-			int64 BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			int64_t BanTime = (m_aLoginBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
 				return;
 			if(m_aLoginBans[i].m_LastAttempt + (time_freq() * LOGIN_BAN_DELAY) < time_get())
@@ -142,7 +142,7 @@ void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
 	{
 		if(net_addr_comp(&m_aRegisterBans[i].m_Addr, &Addr) == 0)
 		{
-			int64 BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			int64_t BanTime = (m_aRegisterBans[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
 				return;
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * REGISTER_BAN_DELAY) < time_get())
@@ -170,7 +170,7 @@ void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
 	{
 		if(net_addr_comp(&m_aNameChangeMutes[i].m_Addr, &Addr) == 0)
 		{
-			int64 BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
+			int64_t BanTime = (m_aNameChangeMutes[i].m_Expire - Server()->Tick()) / Server()->TickSpeed();
 			if(BanTime > 0)
 				return;
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAMECHANGE_BAN_DELAY) < time_get())
@@ -196,7 +196,7 @@ void CGameContext::LoginBanCheck(int ClientID)
 	char aBuf[128];
 	int Found = 0;
 	int atts = 0;
-	int64 BanTime = 0;
+	int64_t BanTime = 0;
 	// find a matching ban for this ip, update expiration time if found
 	for(int i = 0; i < m_NumLoginBans; i++)
 	{
@@ -290,9 +290,9 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 	}
 }
 
-int64 CGameContext::NameChangeMuteCheck(int ClientID)
+int64_t CGameContext::NameChangeMuteCheck(int ClientID)
 {
-	int64 muteTime = NameChangeMuteTime(ClientID);
+	int64_t muteTime = NameChangeMuteTime(ClientID);
 	NETADDR Addr;
 	Server()->GetClientAddr(ClientID, &Addr);
 	Addr.port = 0;
@@ -347,7 +347,7 @@ int64 CGameContext::NameChangeMuteCheck(int ClientID)
 	return muteTime;
 }
 
-int64 CGameContext::NameChangeMuteTime(int ClientID)
+int64_t CGameContext::NameChangeMuteTime(int ClientID)
 {
 	NETADDR Addr;
 	Server()->GetClientAddr(ClientID, &Addr);

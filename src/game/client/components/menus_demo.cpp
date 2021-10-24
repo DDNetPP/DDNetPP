@@ -73,7 +73,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	const float NameBarHeight = 20.0f;
 	const float Margins = 5.0f;
 	float TotalHeight;
-	static int64 LastSpeedChange = 0;
+	static int64_t LastSpeedChange = 0;
 
 	// render popups
 	if(m_DemoPlayerState == DEMOPLAYER_SLICE_SAVE)
@@ -122,7 +122,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 				if(!str_endswith(m_aCurrentDemoFile, ".demo"))
 					str_append(m_aCurrentDemoFile, ".demo", sizeof(m_aCurrentDemoFile));
 
-				char aPath[512];
+				char aPath[IO_MAX_PATH_LENGTH];
 				str_format(aPath, sizeof(aPath), "%s/%s", m_aCurrentDemoFolder, m_aCurrentDemoFile);
 
 				IOHANDLE DemoFile = Storage()->OpenFile(aPath, IOFLAG_READ, IStorage::TYPE_SAVE);
@@ -166,7 +166,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	}
 
 	// handle keyboard shortcuts independent of active menu
-	if(m_pClient->m_pGameConsole->IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE && g_Config.m_ClDemoKeyboardShortcuts)
+	if(m_pClient->m_GameConsole.IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE && g_Config.m_ClDemoKeyboardShortcuts)
 	{
 		// increase/decrease speed
 		if(!Input()->KeyIsPressed(KEY_LSHIFT) && !Input()->KeyIsPressed(KEY_RSHIFT))
@@ -323,9 +323,9 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 		// draw time
 		char aCurrentTime[32];
-		str_time((int64)CurrentTick / SERVER_TICK_SPEED * 100, TIME_HOURS, aCurrentTime, sizeof(aCurrentTime));
+		str_time((int64_t)CurrentTick / SERVER_TICK_SPEED * 100, TIME_HOURS, aCurrentTime, sizeof(aCurrentTime));
 		char aTotalTime[32];
-		str_time((int64)TotalTicks / SERVER_TICK_SPEED * 100, TIME_HOURS, aTotalTime, sizeof(aTotalTime));
+		str_time((int64_t)TotalTicks / SERVER_TICK_SPEED * 100, TIME_HOURS, aTotalTime, sizeof(aTotalTime));
 		str_format(aBuffer, sizeof(aBuffer), "%s / %s", aCurrentTime, aTotalTime);
 		UI()->DoLabel(&SeekBar, aBuffer, SeekBar.h * 0.70f, 0);
 
@@ -351,8 +351,8 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 						m_pClient->m_SuppressEvents = true;
 						DemoPlayer()->SeekPercent(Amount);
 						m_pClient->m_SuppressEvents = false;
-						m_pClient->m_pMapLayersBackGround->EnvelopeUpdate();
-						m_pClient->m_pMapLayersForeGround->EnvelopeUpdate();
+						m_pClient->m_MapLayersBackGround.EnvelopeUpdate();
+						m_pClient->m_MapLayersForeGround.EnvelopeUpdate();
 					}
 				}
 				else
@@ -363,8 +363,8 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 						m_pClient->m_SuppressEvents = true;
 						DemoPlayer()->SeekPercent(Amount);
 						m_pClient->m_SuppressEvents = false;
-						m_pClient->m_pMapLayersBackGround->EnvelopeUpdate();
-						m_pClient->m_pMapLayersForeGround->EnvelopeUpdate();
+						m_pClient->m_MapLayersBackGround.EnvelopeUpdate();
+						m_pClient->m_MapLayersForeGround.EnvelopeUpdate();
 					}
 				}
 			}
@@ -464,7 +464,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	// close button
 	ButtonBar.VSplitRight(ButtonbarHeight * 3, &ButtonBar, &Button);
 	static int s_ExitButton = 0;
-	if(DoButton_DemoPlayer(&s_ExitButton, Localize("Close"), 0, &Button) || (Input()->KeyPress(KEY_C) && m_pClient->m_pGameConsole->IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE))
+	if(DoButton_DemoPlayer(&s_ExitButton, Localize("Close"), 0, &Button) || (Input()->KeyPress(KEY_C) && m_pClient->m_GameConsole.IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE))
 	{
 		Client()->Disconnect();
 		DemolistOnUpdate(false);
@@ -741,28 +741,28 @@ int CMenus::UiLogicGetCurrentClickedItem()
 		return -1;
 }
 
-int CMenus::DemolistFetchCallback(const char *pName, time_t Date, int IsDir, int StorageType, void *pUser)
+int CMenus::DemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser)
 {
 	CMenus *pSelf = (CMenus *)pUser;
-	if(str_comp(pName, ".") == 0 || (str_comp(pName, "..") == 0 && str_comp(pSelf->m_aCurrentDemoFolder, "demos") == 0) || (!IsDir && !str_endswith(pName, ".demo")))
+	if(str_comp(pInfo->m_pName, ".") == 0 || (str_comp(pInfo->m_pName, "..") == 0 && str_comp(pSelf->m_aCurrentDemoFolder, "demos") == 0) || (!IsDir && !str_endswith(pInfo->m_pName, ".demo")))
 	{
 		return 0;
 	}
 
 	CDemoItem Item;
-	str_copy(Item.m_aFilename, pName, sizeof(Item.m_aFilename));
+	str_copy(Item.m_aFilename, pInfo->m_pName, sizeof(Item.m_aFilename));
 	if(IsDir)
 	{
-		str_format(Item.m_aName, sizeof(Item.m_aName), "%s/", pName);
+		str_format(Item.m_aName, sizeof(Item.m_aName), "%s/", pInfo->m_pName);
 		Item.m_InfosLoaded = false;
 		Item.m_Valid = false;
 		Item.m_Date = 0;
 	}
 	else
 	{
-		str_truncate(Item.m_aName, sizeof(Item.m_aName), pName, str_length(pName) - 5);
+		str_truncate(Item.m_aName, sizeof(Item.m_aName), pInfo->m_pName, str_length(pInfo->m_pName) - 5);
 		Item.m_InfosLoaded = false;
-		Item.m_Date = Date;
+		Item.m_Date = pInfo->m_TimeModified;
 	}
 	Item.m_IsDir = IsDir != 0;
 	Item.m_StorageType = StorageType;
@@ -922,7 +922,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		UI()->DoLabelScaled(&Left, Localize("Length:"), 14.0f, -1);
 		int Length = m_lDemos[m_DemolistSelectedIndex].Length();
 		char aBuf[64];
-		str_time((int64)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
+		str_time((int64_t)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
 		UI()->DoLabelScaled(&Right, aBuf, 14.0f, -1);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
@@ -1183,7 +1183,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 			{
 				int Length = r.front().Length();
 				char aBuf[32];
-				str_time((int64)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
+				str_time((int64_t)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
 				Button.VMargin(4.0f, &Button);
 				UI()->DoLabelScaled(&Button, aBuf, 12.0f, 1);
 			}
@@ -1222,7 +1222,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	}
 
 	static int s_PlayButton = 0;
-	if(DoButton_Menu(&s_PlayButton, m_DemolistSelectedIsDir ? Localize("Open") : Localize("Play", "Demo browser"), 0, &PlayRect) || Activated || (Input()->KeyPress(KEY_P) && m_pClient->m_pGameConsole->IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE))
+	if(DoButton_Menu(&s_PlayButton, m_DemolistSelectedIsDir ? Localize("Open") : Localize("Play", "Demo browser"), 0, &PlayRect) || Activated || (Input()->KeyPress(KEY_P) && m_pClient->m_GameConsole.IsClosed() && m_DemoPlayerState == DEMOPLAYER_NONE))
 	{
 		if(m_DemolistSelectedIndex >= 0)
 		{
@@ -1259,8 +1259,8 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	static int s_DirectoryButtonID = 0;
 	if(DoButton_Menu(&s_DirectoryButtonID, Localize("Demos directory"), 0, &DirectoryButton))
 	{
-		char aBuf[MAX_PATH_LENGTH];
-		char aBufFull[MAX_PATH_LENGTH + 7];
+		char aBuf[IO_MAX_PATH_LENGTH];
+		char aBufFull[IO_MAX_PATH_LENGTH + 7];
 		Storage()->GetCompletePath(IStorage::TYPE_SAVE, "demos", aBuf, sizeof(aBuf));
 		Storage()->CreateFolder("demos", IStorage::TYPE_SAVE);
 		str_format(aBufFull, sizeof(aBufFull), "file://%s", aBuf);
@@ -1273,7 +1273,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	if(!m_DemolistSelectedIsDir)
 	{
 		static int s_DeleteButton = 0;
-		if(DoButton_Menu(&s_DeleteButton, Localize("Delete"), 0, &DeleteRect) || m_DeletePressed || (Input()->KeyPress(KEY_D) && m_pClient->m_pGameConsole->IsClosed()))
+		if(DoButton_Menu(&s_DeleteButton, Localize("Delete"), 0, &DeleteRect) || m_DeletePressed || (Input()->KeyPress(KEY_D) && m_pClient->m_GameConsole.IsClosed()))
 		{
 			if(m_DemolistSelectedIndex >= 0)
 			{
@@ -1297,7 +1297,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 
 #if defined(CONF_VIDEORECORDER)
 		static int s_RenderButton = 0;
-		if(DoButton_Menu(&s_RenderButton, Localize("Render"), 0, &RenderRect) || (Input()->KeyPress(KEY_R) && m_pClient->m_pGameConsole->IsClosed()))
+		if(DoButton_Menu(&s_RenderButton, Localize("Render"), 0, &RenderRect) || (Input()->KeyPress(KEY_R) && m_pClient->m_GameConsole.IsClosed()))
 		{
 			if(m_DemolistSelectedIndex >= 0)
 			{

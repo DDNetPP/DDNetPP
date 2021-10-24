@@ -46,40 +46,50 @@ enum
 
 void CGameContext::Construct(int Resetting)
 {
-	m_Resetting = 0;
+	m_Resetting = false;
 	m_pServer = 0;
 
 	for(auto &pPlayer : m_apPlayers)
 		pPlayer = 0;
 
 	m_pController = 0;
+	m_aVoteCommand[0] = 0;
 	m_VoteType = VOTE_TYPE_UNKNOWN;
 	m_VoteCloseTime = 0;
 	m_pVoteOptionFirst = 0;
 	m_pVoteOptionLast = 0;
 	m_NumVoteOptions = 0;
 	m_LastMapVote = 0;
-	//m_LockTeams = 0;
 
 	m_Database = new CSql();
 	m_pLetters = new CLetters(this);
 	m_SqlRandomMapResult = nullptr;
 
+	m_pScore = nullptr;
+	m_NumMutes = 0;
+	m_NumVoteMutes = 0;
+
 	if(Resetting == NO_RESET)
-	{
 		m_pVoteOptionHeap = new CHeap();
-		m_pScore = 0;
-		m_NumMutes = 0;
-		m_NumVoteMutes = 0;
-	}
+
 	m_ChatResponseTargetID = -1;
 	m_aDeleteTempfile[0] = 0;
 	m_TeeHistorianActive = false;
 }
 
-CGameContext::CGameContext(int Resetting)
+void CGameContext::Destruct(int Resetting)
 {
-	Construct(Resetting);
+	for(auto &pPlayer : m_apPlayers)
+		delete pPlayer;
+
+	if(Resetting == NO_RESET)
+		delete m_pVoteOptionHeap;
+
+	if(m_pScore)
+	{
+		delete m_pScore;
+		m_pScore = nullptr;
+	}
 }
 
 CGameContext::CGameContext()
@@ -87,18 +97,14 @@ CGameContext::CGameContext()
 	Construct(NO_RESET);
 }
 
+CGameContext::CGameContext(int Reset)
+{
+	Construct(Reset);
+}
+
 CGameContext::~CGameContext()
 {
-	for(auto &pPlayer : m_apPlayers)
-		delete pPlayer;
-	if(!m_Resetting)
-		delete m_pVoteOptionHeap;
-
-	//m_Database->~CSql();
-	//delete m_Database;
-
-	if(m_pScore)
-		delete m_pScore;
+	Destruct(m_Resetting ? RESET : NO_RESET);
 }
 
 void CGameContext::Clear()
@@ -111,7 +117,6 @@ void CGameContext::Clear()
 
 	m_Resetting = true;
 	this->~CGameContext();
-	mem_zero(this, sizeof(*this));
 	new(this) CGameContext(RESET);
 
 	m_pVoteOptionHeap = pVoteOptionHeap;
@@ -190,7 +195,7 @@ void CGameContext::FillAntibot(CAntibotRoundData *pData)
 	}
 }
 
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64 Mask)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
 {
 	float a = 3 * 3.14159f / 2 + Angle;
 	//float a = get_angle(dir);
@@ -209,7 +214,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64 Mask
 	}
 }
 
-void CGameContext::CreateHammerHit(vec2 Pos, int64 Mask)
+void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 {
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
@@ -220,7 +225,7 @@ void CGameContext::CreateHammerHit(vec2 Pos, int64 Mask)
 	}
 }
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64 Mask)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
@@ -235,7 +240,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	float Radius = 135.0f;
 	float InnerRadius = 48.0f;
 	int Num = m_World.FindEntities(Pos, Radius, (CEntity **)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-	int64 TeamMask = -1;
+	int64_t TeamMask = -1;
 	for(int i = 0; i < Num; i++)
 	{
 		vec2 Diff = apEnts[i]->m_Pos - Pos;
@@ -275,7 +280,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	}
 }
 
-void CGameContext::CreatePlayerSpawn(vec2 Pos, int64 Mask)
+void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
@@ -287,7 +292,7 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64 Mask)
 	}
 }
 
-void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64 Mask)
+void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 {
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
@@ -299,7 +304,7 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64 Mask)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int64 Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
 {
 	if(Sound < 0)
 		return;
@@ -340,7 +345,7 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 
 	m_IsDDPPVetoVote = IsDDPPVetoVote; // Veto votes only pass if nobody voted agianst it (vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 
-	int64 Now = Server()->Tick();
+	int64_t Now = Server()->Tick();
 	if(ClientID == -1) //Server vote
 	{
 		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg);
@@ -349,23 +354,21 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 
 		StartVote(pDesc, pCmd, pReason, pSixupDesc);
 		m_VoteCreator = ClientID;
+		return;
 	}
-	else
-	{
-		CPlayer *pPlayer = m_apPlayers[ClientID];
-		if(!pPlayer)
-			return;
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if(!pPlayer)
+		return;
 
-		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
-		if(!pSixupDesc)
-			pSixupDesc = pDesc;
+	SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
+	if(!pSixupDesc)
+		pSixupDesc = pDesc;
 
-		m_VoteCreator = ClientID;
-		StartVote(pDesc, pCmd, pReason, pSixupDesc);
-		pPlayer->m_Vote = 1;
-		pPlayer->m_VotePos = m_VotePos = 1;
-		pPlayer->m_LastVoteCall = Now;
-	}
+	m_VoteCreator = ClientID;
+	StartVote(pDesc, pCmd, pReason, pSixupDesc);
+	pPlayer->m_Vote = 1;
+	pPlayer->m_VotePos = m_VotePos = 1;
+	pPlayer->m_LastVoteCall = Now;
 }
 
 void CGameContext::SendChatTarget(int To, const char *pText, int Flags)
@@ -844,6 +847,25 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
+void CGameContext::OnPreTickTeehistorian()
+{
+	if(!m_TeeHistorianActive)
+		return;
+
+	auto *pController = ((CGameControllerDDRace *)m_pController);
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_apPlayers[i] != nullptr)
+			m_TeeHistorian.RecordPlayerTeam(i, pController->m_Teams.m_Core.Team(i));
+		else
+			m_TeeHistorian.RecordPlayerTeam(i, 0);
+	}
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		m_TeeHistorian.RecordTeamPractice(i, pController->m_Teams.IsPractice(i));
+	}
+}
+
 void CGameContext::OnTick()
 {
 	// check tuning
@@ -873,28 +895,6 @@ void CGameContext::OnTick()
 
 	//if(world.paused) // make sure that the game object always updates
 	m_pController->Tick();
-
-	// process sql queries
-	m_Database->Tick();
-
-	if(m_TeeHistorianActive)
-	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
-			{
-				CNetObj_CharacterCore Char;
-				m_apPlayers[i]->GetCharacter()->GetCore().Write(&Char);
-				m_TeeHistorian.RecordPlayer(i, &Char);
-			}
-			else
-			{
-				m_TeeHistorian.RecordDeadPlayer(i);
-			}
-		}
-		m_TeeHistorian.EndPlayers();
-		m_TeeHistorian.BeginInputs();
-	}
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -946,7 +946,7 @@ void CGameContext::OnTick()
 
 				// remember checked players, only the first player with a specific ip will be handled
 				bool aVoteChecked[MAX_CLIENTS] = {false};
-				int64 Now = Server()->Tick();
+				int64_t Now = Server()->Tick();
 				for(int i = 0; i < MAX_CLIENTS; i++)
 				{
 					if(!m_apPlayers[i] || aVoteChecked[i])
@@ -1152,8 +1152,8 @@ void CGameContext::OnTick()
 		{
 			if(PlayerExists(m_SqlRandomMapResult->m_ClientID) && m_SqlRandomMapResult->m_aMessage[0] != '\0')
 				SendChatTarget(m_SqlRandomMapResult->m_ClientID, m_SqlRandomMapResult->m_aMessage);
-			if(m_SqlRandomMapResult->m_Map[0] != '\0')
-				str_copy(g_Config.m_SvMap, m_SqlRandomMapResult->m_Map, sizeof(g_Config.m_SvMap));
+			if(m_SqlRandomMapResult->m_aMap[0] != '\0')
+				str_copy(g_Config.m_SvMap, m_SqlRandomMapResult->m_aMap, sizeof(g_Config.m_SvMap));
 			else
 				m_LastMapVote = 0;
 		}
@@ -1171,6 +1171,27 @@ void CGameContext::OnTick()
 		}
 	}
 #endif
+
+	// Record player position at the end of the tick
+	if(m_TeeHistorianActive)
+	{
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter())
+			{
+				CNetObj_CharacterCore Char;
+				m_apPlayers[i]->GetCharacter()->GetCore().Write(&Char);
+				m_TeeHistorian.RecordPlayer(i, &Char);
+			}
+			else
+			{
+				m_TeeHistorian.RecordDeadPlayer(i);
+			}
+		}
+		m_TeeHistorian.EndPlayers();
+		m_TeeHistorian.BeginInputs();
+	}
+	// Warning: do not put code in this function directly above or below this comment
 }
 
 // Server hooks
@@ -1954,7 +1975,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					if(g_Config.m_SvSpamprotection && !str_startswith(pMsg->m_pMessage + 1, "timeout ") && pPlayer->m_LastCommands[0] && pPlayer->m_LastCommands[0] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[1] && pPlayer->m_LastCommands[1] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[2] && pPlayer->m_LastCommands[2] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[3] && pPlayer->m_LastCommands[3] + Server()->TickSpeed() > Server()->Tick())
 						return;
 
-					int64 Now = Server()->Tick();
+					int64_t Now = Server()->Tick();
 					pPlayer->m_LastCommands[pPlayer->m_LastCommandPos] = Now;
 					pPlayer->m_LastCommandPos = (pPlayer->m_LastCommandPos + 1) % 4;
 
@@ -2267,7 +2288,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(g_Config.m_SvSpamprotection && pPlayer->m_LastVoteTry && pPlayer->m_LastVoteTry + Server()->TickSpeed() * 3 > Server()->Tick())
 				return;
 
-			int64 Now = Server()->Tick();
+			int64_t Now = Server()->Tick();
 
 			pPlayer->m_LastVoteTry = Now;
 			pPlayer->UpdatePlaytime();
@@ -2313,7 +2334,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->m_LastSetTeam = Server()->Tick();
 				int TimeLeft = (pPlayer->m_TeamChangeTick - Server()->Tick()) / Server()->TickSpeed();
 				char aTime[32];
-				str_time((int64)TimeLeft * 100, TIME_HOURS, aTime, sizeof(aTime));
+				str_time((int64_t)TimeLeft * 100, TIME_HOURS, aTime, sizeof(aTime));
 				char aBuf[128];
 				str_format(aBuf, sizeof(aBuf), "Time to wait before changing team: %s", aTime);
 				SendBroadcast(aBuf, ClientID);
@@ -3176,7 +3197,7 @@ void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 
 struct CMapNameItem
 {
-	char m_aName[MAX_PATH_LENGTH - 4];
+	char m_aName[IO_MAX_PATH_LENGTH - 4];
 
 	bool operator<(const CMapNameItem &Other) const { return str_comp_nocase(m_aName, Other.m_aName) < 0; }
 };
@@ -3193,8 +3214,8 @@ void CGameContext::ConAddMapVotes(IConsole::IResult *pResult, void *pUserData)
 		char aDescription[64];
 		str_format(aDescription, sizeof(aDescription), "Map: %s", MapList[i].m_aName);
 
-		char aCommand[MAX_PATH_LENGTH * 2 + 10];
-		char aMapEscaped[MAX_PATH_LENGTH * 2];
+		char aCommand[IO_MAX_PATH_LENGTH * 2 + 10];
+		char aMapEscaped[IO_MAX_PATH_LENGTH * 2];
 		char *pDst = aMapEscaped;
 		str_escape(&pDst, MapList[i].m_aName, aMapEscaped + sizeof(aMapEscaped));
 		str_format(aCommand, sizeof(aCommand), "change_map \"%s\"", aMapEscaped);
@@ -3322,7 +3343,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_GameUuid = RandomUuid();
 	Console()->SetTeeHistorianCommandCallback(CommandCallback, this);
 
-	uint64 aSeed[2];
+	uint64_t aSeed[2];
 	secure_random_fill(aSeed, sizeof(aSeed));
 	m_Prng.Seed(aSeed);
 	m_World.m_Core.m_pPrng = &m_Prng;
@@ -3470,7 +3491,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		char aGameUuid[UUID_MAXSTRSIZE];
 		FormatUuid(m_GameUuid, aGameUuid, sizeof(aGameUuid));
 
-		char aFilename[64];
+		char aFilename[IO_MAX_PATH_LENGTH];
 		str_format(aFilename, sizeof(aFilename), "teehistorian/%s.teehistorian", aGameUuid);
 
 		IOHANDLE File = Storage()->OpenFile(aFilename, IOFLAG_WRITE, IStorage::TYPE_SAVE);
@@ -3804,9 +3825,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//ChillerDragon
 	//dummy_init
 	if(g_Config.m_SvBasicDummys)
-	{
 		CreateBasicDummys();
-	}
+	if(GIT_SHORTREV_HASH)
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "git-revision", GIT_SHORTREV_HASH);
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -4030,10 +4051,6 @@ void CGameContext::OnSnap(int ClientID)
 		Server()->SendMsg(&Msg, MSGFLAG_RECORD | MSGFLAG_NOSEND, ClientID);
 	}
 
-	m_World.Snap(ClientID);
-	m_pController->Snap(ClientID);
-	m_Events.Snap(ClientID);
-
 	for(auto &pPlayer : m_apPlayers)
 	{
 		if(pPlayer)
@@ -4042,6 +4059,10 @@ void CGameContext::OnSnap(int ClientID)
 
 	if(ClientID > -1)
 		m_apPlayers[ClientID]->FakeSnap();
+
+	m_World.Snap(ClientID);
+	m_pController->Snap(ClientID);
+	m_Events.Snap(ClientID);
 }
 void CGameContext::OnPreSnap() {}
 void CGameContext::OnPostSnap()
@@ -4070,7 +4091,7 @@ void CGameContext::SendChatResponseAll(const char *pLine, void *pUser)
 {
 	CGameContext *pSelf = (CGameContext *)pUser;
 
-	static volatile int ReentryGuard = 0;
+	static int ReentryGuard = 0;
 	const char *pLineOrig = pLine;
 
 	if(ReentryGuard)
@@ -4097,7 +4118,7 @@ void CGameContext::SendChatResponse(const char *pLine, void *pUser, ColorRGBA Pr
 
 	const char *pLineOrig = pLine;
 
-	static volatile int ReentryGuard = 0;
+	static int ReentryGuard = 0;
 
 	if(ReentryGuard)
 		return;
@@ -4580,8 +4601,8 @@ void CGameContext::ForceVote(int EnforcerID, bool Success)
 
 bool CGameContext::RateLimitPlayerVote(int ClientID)
 {
-	int64 Now = Server()->Tick();
-	int64 TickSpeed = Server()->TickSpeed();
+	int64_t Now = Server()->Tick();
+	int64_t TickSpeed = Server()->TickSpeed();
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 
 	if(g_Config.m_SvRconVote && !Server()->GetAuthedState(ClientID))

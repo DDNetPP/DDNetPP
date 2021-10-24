@@ -86,6 +86,8 @@ class CGameContext : public IGameServer
 	CMapBugs m_MapBugs;
 	CPrng m_Prng;
 
+	bool m_Resetting;
+
 	static void CommandCallback(int ClientID, int FlagMask, const char *pCmd, IConsole::IResult *pResult, void *pUser);
 	static void TeeHistorianWrite(const void *pData, int DataSize, void *pUser);
 
@@ -120,12 +122,10 @@ class CGameContext : public IGameServer
 	static void ConDumpAntibot(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
-	CGameContext(int Resetting);
 	void Construct(int Resetting);
+	void Destruct(int Resetting);
 	void AddVote(const char *pDescription, const char *pCommand);
 	static int MapScan(const char *pName, int IsDir, int DirType, void *pUserData);
-
-	bool m_Resetting;
 
 	struct CPersistentClientData
 	{
@@ -146,6 +146,7 @@ public:
 	bool TeeHistorianActive() const { return m_TeeHistorianActive; }
 
 	CGameContext();
+	CGameContext(int Reset);
 	~CGameContext();
 
 	void Clear();
@@ -170,7 +171,7 @@ public:
 	int m_VoteCreator;
 	bool m_IsDDPPVetoVote;
 	int m_VoteType;
-	int64 m_VoteCloseTime;
+	int64_t m_VoteCloseTime;
 	bool m_VoteUpdate;
 	int m_VotePos;
 	char m_aVoteDescription[VOTE_DESC_LENGTH];
@@ -197,12 +198,12 @@ public:
 	CVoteOptionServer *m_pVoteOptionLast;
 
 	// helper functions
-	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount, int64 Mask = -1);
-	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64 Mask);
-	void CreateHammerHit(vec2 Pos, int64 Mask = -1);
-	void CreatePlayerSpawn(vec2 Pos, int64 Mask = -1);
-	void CreateDeath(vec2 Pos, int Who, int64 Mask = -1);
-	void CreateSound(vec2 Pos, int Sound, int64 Mask = -1);
+	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount, int64_t Mask = -1);
+	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask);
+	void CreateHammerHit(vec2 Pos, int64_t Mask = -1);
+	void CreatePlayerSpawn(vec2 Pos, int64_t Mask = -1);
+	void CreateDeath(vec2 Pos, int Who, int64_t Mask = -1);
+	void CreateSound(vec2 Pos, int Sound, int64_t Mask = -1);
 	void CreateSoundGlobal(int Sound, int Target = -1);
 
 	enum
@@ -583,7 +584,7 @@ public:
 	int CountBombPlayers();
 	int CountReadyBombPlayers();
 	int m_BombGameState; //0=no bomb game created 1=bomb game created (lobby) 2=bomb game created (lobby)(locked) 3=bomb game created and running (ingame)
-	int64 m_BombMoney;
+	int64_t m_BombMoney;
 	int m_BombStartPlayers;
 	int m_BombTick; //the ticking bomby ticker ticks until he flicks to zer0 then he kicks kaboooms!
 	int m_BombStartCountDown;
@@ -612,13 +613,14 @@ public:
 	int TradeHasItem(int ItemID, int ID);
 
 	// DDRace
+	void OnPreTickTeehistorian();
 	bool OnClientDDNetVersionKnown(int ClientID);
 	virtual void FillAntibot(CAntibotRoundData *pData);
 	int ProcessSpamProtection(int ClientID, bool RespectChatInitialDelay = true);
 	int GetDDRaceTeam(int ClientID);
 	// Describes the time when the first player joined the server.
-	int64 m_NonEmptySince;
-	int64 m_LastMapVote;
+	int64_t m_NonEmptySince;
+	int64_t m_LastMapVote;
 	int GetClientVersion(int ClientID) const;
 	bool PlayerExists(int ClientID) const { return m_apPlayers[ClientID]; }
 	// Returns true if someone is actively moderating.
@@ -1126,7 +1128,7 @@ private:
 	{
 		NETADDR m_Addr;
 		int m_Expire;
-		int64 m_LastAttempt;
+		int64_t m_LastAttempt;
 		int m_NumAttempts;
 	};
 
@@ -1143,7 +1145,7 @@ private:
 	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
-	int64 NameChangeMuteTime(int ClientID);
+	int64_t NameChangeMuteTime(int ClientID);
 	CMute m_aVoteMutes[MAX_VOTE_MUTES];
 	int m_NumVoteMutes;
 	bool TryMute(const NETADDR *pAddr, int Secs, const char *pReason);
@@ -1166,7 +1168,7 @@ public:
 	void CheckDeleteLoginBanEntry(int ClientID);
 	void CheckDeleteRegisterBanEntry(int ClientID);
 	void CheckDeleteNamechangeMuteEntry(int ClientID);
-	int64 NameChangeMuteCheck(int ClientID);
+	int64_t NameChangeMuteCheck(int ClientID);
 	void SetIpJailed(int ClientID);
 	bool CheckIpJailed(int ClientID);
 
@@ -1263,9 +1265,9 @@ class CQueryLoginThreaded : public CQueryPlayer
 public:
 };
 
-inline int64 CmaskAll() { return -1LL; }
-inline int64 CmaskOne(int ClientID) { return 1LL << ClientID; }
-inline int64 CmaskUnset(int64 Mask, int ClientID) { return Mask ^ CmaskOne(ClientID); }
-inline int64 CmaskAllExceptOne(int ClientID) { return CmaskUnset(CmaskAll(), ClientID); }
-inline bool CmaskIsSet(int64 Mask, int ClientID) { return (Mask & CmaskOne(ClientID)) != 0; }
+inline int64_t CmaskAll() { return -1LL; }
+inline int64_t CmaskOne(int ClientID) { return 1LL << ClientID; }
+inline int64_t CmaskUnset(int64_t Mask, int ClientID) { return Mask ^ CmaskOne(ClientID); }
+inline int64_t CmaskAllExceptOne(int ClientID) { return CmaskUnset(CmaskAll(), ClientID); }
+inline bool CmaskIsSet(int64_t Mask, int ClientID) { return (Mask & CmaskOne(ClientID)) != 0; }
 #endif

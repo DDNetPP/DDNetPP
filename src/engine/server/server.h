@@ -157,7 +157,7 @@ public:
 		int m_SnapRate;
 
 		float m_Traffic;
-		int64 m_TrafficSince;
+		int64_t m_TrafficSince;
 
 		int m_LastAckedSnapshot;
 		int m_LastInputTick;
@@ -218,7 +218,7 @@ public:
 
 	IEngineMap *m_pMap;
 
-	int64 m_GameStartTime;
+	int64_t m_GameStartTime;
 	//int m_CurrentGameTick;
 
 	enum
@@ -236,7 +236,7 @@ public:
 	int m_RconAuthLevel;
 	int m_PrintCBIndex;
 
-	int64 m_Lastheartbeat;
+	int64_t m_Lastheartbeat;
 	//static NETADDR4 master_server;
 
 	enum
@@ -245,7 +245,7 @@ public:
 		SIXUP,
 	};
 
-	char m_aCurrentMap[MAX_PATH_LENGTH];
+	char m_aCurrentMap[IO_MAX_PATH_LENGTH];
 	SHA256_DIGEST m_aCurrentMapSha256[2];
 	unsigned m_aCurrentMapCrc[2];
 	unsigned char *m_apCurrentMapData[2];
@@ -258,7 +258,7 @@ public:
 
 	int m_RconRestrict;
 
-	int64 m_ServerInfoFirstRequest;
+	int64_t m_ServerInfoFirstRequest;
 	int m_ServerInfoNumRequests;
 
 	char m_aErrorShutdownReason[128];
@@ -285,7 +285,7 @@ public:
 	bool DemoRecorder_IsRecording();
 
 	//int Tick()
-	int64 TickStartTime(int Tick);
+	int64_t TickStartTime(int Tick);
 	//int TickSpeed()
 
 	int Init();

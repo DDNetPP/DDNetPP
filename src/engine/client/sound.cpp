@@ -1,5 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+#include <atomic>
 #include <base/math.h>
 #include <base/system.h>
 
@@ -74,7 +75,7 @@ static int m_CenterX = 0;
 static int m_CenterY = 0;
 
 static int m_MixingRate = 48000;
-static volatile int m_SoundVolume = 100;
+static std::atomic<int> m_SoundVolume{100};
 
 static int m_NextVoice GUARDED_BY(m_SoundLock) = 0;
 static int *m_pMixBuffer = 0; // buffer only used by the thread callback function
@@ -822,11 +823,11 @@ void CSound::SetVoiceTimeOffset(CVoiceHandle Voice, float offset)
 		{
 			int Tick = 0;
 			bool IsLooping = m_aVoices[VoiceID].m_Flags & ISound::FLAG_LOOP;
-			uint64 TickOffset = m_aVoices[VoiceID].m_pSample->m_Rate * offset;
+			uint64_t TickOffset = m_aVoices[VoiceID].m_pSample->m_Rate * offset;
 			if(m_aVoices[VoiceID].m_pSample->m_NumFrames > 0 && IsLooping)
 				Tick = TickOffset % m_aVoices[VoiceID].m_pSample->m_NumFrames;
 			else
-				Tick = clamp(TickOffset, (uint64)0, (uint64)m_aVoices[VoiceID].m_pSample->m_NumFrames);
+				Tick = clamp(TickOffset, (uint64_t)0, (uint64_t)m_aVoices[VoiceID].m_pSample->m_NumFrames);
 
 			// at least 200msec off, else depend on buffer size
 			float Threshold = maximum(0.2f * m_aVoices[VoiceID].m_pSample->m_Rate, (float)m_MaxFrames);

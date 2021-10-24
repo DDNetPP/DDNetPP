@@ -781,7 +781,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 
 void CPlayer::CalcExp()
 {
-	int64 OldNeededXp = m_neededxp;
+	int64_t OldNeededXp = m_neededxp;
 	dbg_msg("account", "CalcExp() neededxp=%lld xp=%lld", OldNeededXp, m_xp);
 
 	//										xp diff

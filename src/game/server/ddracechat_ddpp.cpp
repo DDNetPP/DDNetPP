@@ -6792,7 +6792,7 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 				continue;
 
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), pPlayer->m_TimeoutCode, pPlayer->m_MapSaveLoaded);
+			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), pPlayer->m_aTimeoutCode, pPlayer->m_MapSaveLoaded);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mapsave", aBuf);
 		}
 	}
@@ -6804,7 +6804,7 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 			CPlayer *pPlayer = pSelf->m_apPlayers[i];
 			if(!pPlayer)
 				continue;
-			if(pPlayer->m_TimeoutCode[0])
+			if(pPlayer->m_aTimeoutCode[0])
 				continue;
 
 			NoCode++;

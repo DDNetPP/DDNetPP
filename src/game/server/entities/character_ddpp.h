@@ -76,7 +76,7 @@ public:
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
-	int64 m_AliveTime;
+	int64_t m_AliveTime;
 	bool m_IsSpecHF;
 	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
@@ -179,7 +179,7 @@ public:
 	bool m_FreezeLaser;
 	bool m_DestroyLaser;
 	bool m_isDmg;
-	int64 m_FirstFreezeTick;
+	int64_t m_FirstFreezeTick;
 	bool m_fake_super;
 	bool m_Godmode;
 	bool m_Fire;
@@ -249,7 +249,7 @@ public:
 	void ShopWindow(int Dir);
 	int m_ShopWindowPage;
 
-	int64 m_ShopMotdTick;
+	int64_t m_ShopMotdTick;
 
 	void BuyItem(int ItemID);
 	void ConfirmPurchase();
