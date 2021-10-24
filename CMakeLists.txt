@@ -1020,6 +1020,7 @@ set(EXPECTED_DATA
   editor/entities_clear/blockworlds.png
   editor/entities_clear/ddnet.png
   editor/entities_clear/ddrace.png
+  editor/entities_clear/f-ddrace.png
   editor/entities_clear/fng.png
   editor/entities_clear/race.png
   editor/entities_clear/vanilla.png
@@ -1316,6 +1317,8 @@ set(EXPECTED_DATA
   themes/jungle.png
   themes/jungle_day.map
   themes/jungle_night.map
+  themes/newyear.map
+  themes/newyear.png
   themes/none.png
   themes/rand.png
   themes/winter.png

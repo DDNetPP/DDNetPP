@@ -910,7 +910,8 @@ void CGameContext::OnTick()
 					}
 				}
 
-				bool aVoteChecked[MAX_CLIENTS] = {0};
+				// remember checked players, only the first player with a specific ip will be handled
+				bool aVoteChecked[MAX_CLIENTS] = {false};
 				int64 Now = Server()->Tick();
 				for(int i = 0; i < MAX_CLIENTS; i++)
 				{
@@ -947,18 +948,21 @@ void CGameContext::OnTick()
 					int ActVote = m_apPlayers[i]->m_Vote;
 					int ActVotePos = m_apPlayers[i]->m_VotePos;
 
+					// only allow IPs to vote once, but keep veto ability
 					// check for more players with the same ip (only use the vote of the one who voted first)
-					for(int j = i + 1; j < MAX_CLIENTS; ++j)
+					for(int j = i + 1; j < MAX_CLIENTS; j++)
 					{
-						if(!m_apPlayers[j] || aVoteChecked[j] || str_comp(aaBuf[j], aaBuf[i]))
+						if(!m_apPlayers[j] || aVoteChecked[j] || str_comp(aaBuf[j], aaBuf[i]) != 0)
 							continue;
 
-						aVoteChecked[j] = true;
-						if(m_apPlayers[j]->m_Vote && (!ActVote || ActVotePos > m_apPlayers[j]->m_VotePos))
+						// count the latest vote by this ip
+						if(ActVotePos < m_apPlayers[j]->m_VotePos)
 						{
 							ActVote = m_apPlayers[j]->m_Vote;
 							ActVotePos = m_apPlayers[j]->m_VotePos;
 						}
+
+						aVoteChecked[j] = true;
 					}
 
 					Total++;
@@ -968,17 +972,27 @@ void CGameContext::OnTick()
 						No++;
 
 					// veto right for players who have been active on server for long and who're not afk
-					if(!IsKickVote() && !IsSpecVote() && m_apPlayers[i] &&
-						!m_apPlayers[i]->m_Afk && m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS &&
-						g_Config.m_SvVoteVetoTime &&
-						((Server()->Tick() - m_apPlayers[i]->m_JoinTick) / (Server()->TickSpeed() * 60) > g_Config.m_SvVoteVetoTime ||
-							(m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->m_DDRaceState == DDRACE_STARTED &&
-								(Server()->Tick() - m_apPlayers[i]->GetCharacter()->m_StartTime) / (Server()->TickSpeed() * 60) > g_Config.m_SvVoteVetoTime)))
+					if(!IsKickVote() && !IsSpecVote() && g_Config.m_SvVoteVetoTime)
 					{
-						if(ActVote == 0)
-							Veto = true;
-						else if(ActVote < 0)
-							VetoStop = true;
+						// look through all players with same IP again, including the current player
+						for(int j = i; j < MAX_CLIENTS; j++)
+						{
+							// no need to check ip address of current player
+							if(i != j && (!m_apPlayers[j] || str_comp(aaBuf[j], aaBuf[i]) != 0))
+								continue;
+
+							if(m_apPlayers[j] && !m_apPlayers[j]->m_Afk && m_apPlayers[j]->GetTeam() != TEAM_SPECTATORS &&
+								((Server()->Tick() - m_apPlayers[j]->m_JoinTick) / (Server()->TickSpeed() * 60) > g_Config.m_SvVoteVetoTime ||
+									(m_apPlayers[j]->GetCharacter() && m_apPlayers[j]->GetCharacter()->m_DDRaceState == DDRACE_STARTED &&
+										(Server()->Tick() - m_apPlayers[j]->GetCharacter()->m_StartTime) / (Server()->TickSpeed() * 60) > g_Config.m_SvVoteVetoTime)))
+							{
+								if(ActVote == 0)
+									Veto = true;
+								else if(ActVote < 0)
+									VetoStop = true;
+								break;
+							}
+						}
 					}
 				}
 
@@ -2383,11 +2397,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->GetCharacter()->SaveRealInfos();
 
 			// set infos
-			char aOldName[MAX_NAME_LENGTH];
-			str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));
 			if(Server()->WouldClientNameChange(ClientID, pMsg->m_pName) && !ProcessSpamProtection(ClientID))
 			{
 				int mute = NameChangeMuteCheck(ClientID);
+				char aOldName[MAX_NAME_LENGTH];
+				str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));
 				Server()->SetClientName(ClientID, pMsg->m_pName);
 
 				char aChatText[256];
@@ -2605,12 +2619,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		SendTuningParams(ClientID, pPlayer->m_TuneZone);
 
 		// client is ready to enter
-		if(!pPlayer->m_IsReady)
-		{
-			pPlayer->m_IsReady = true;
-			CNetMsg_Sv_ReadyToEnter m;
-			Server()->SendPackMsg(&m, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientID);
-		}
+		pPlayer->m_IsReady = true;
+		CNetMsg_Sv_ReadyToEnter m;
+		Server()->SendPackMsg(&m, MSGFLAG_VITAL | MSGFLAG_FLUSH, ClientID);
 
 		Server()->ExpireServerInfo();
 	}
