@@ -3266,7 +3266,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	SHA256_DIGEST MapSha256;
 	int MapCrc;
 	Server()->GetMapInfo(aMapName, sizeof(aMapName), &MapSize, &MapSha256, &MapCrc);
-	m_MapBugs = GetMapBugs(aMapName, MapSize, MapSha256, MapCrc);
+	m_MapBugs = GetMapBugs(aMapName, MapSize, MapSha256);
 
 	// reset everything here
 	//world = new GAMEWORLD;
@@ -3781,7 +3781,7 @@ void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 	}
 	io_close(File);
 
-	char *pSettings = (char *)malloc(TotalLength);
+	char *pSettings = (char *)malloc(maximum(1, TotalLength));
 	int Offset = 0;
 	for(int i = 0; i < aLines.size(); i++)
 	{
@@ -3820,6 +3820,7 @@ void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 					if(DataSize == TotalLength && mem_comp(pSettings, pMapSettings, DataSize) == 0)
 					{
 						// Configs coincide, no need to update map.
+						free(pSettings);
 						return;
 					}
 					Reader.UnloadData(pInfo->m_Settings);
@@ -3869,6 +3870,7 @@ void CGameContext::OnMapChange(char *pNewMapName, int MapNameSize)
 	}
 
 	dbg_msg("mapchange", "imported settings");
+	free(pSettings);
 	Reader.Close();
 	Writer.OpenFile(Storage(), aTemp);
 	Writer.Finish();

@@ -326,7 +326,9 @@ void *CCommandProcessorFragment_OpenGL::Resize(int Width, int Height, int NewWid
 
 	int Bpp = TexFormatToImageColorChannelCount(Format);
 
-	pTmpData = (unsigned char *)malloc((size_t)NewWidth * NewHeight * Bpp);
+	// All calls to Resize() ensure width & height are > 0, Bpp is always > 0,
+	// thus no allocation size 0 possible.
+	pTmpData = (unsigned char *)malloc((size_t)NewWidth * NewHeight * Bpp); // NOLINT(clang-analyzer-optin.portability.UnixAPI)
 
 	ResizeImage((uint8_t *)pData, Width, Height, (uint8_t *)pTmpData, NewWidth, NewHeight, Bpp);
 
@@ -1651,6 +1653,7 @@ void CCommandProcessorFragment_OpenGL2::Cmd_RenderTex3D(const CCommandBuffer::SC
 
 void CCommandProcessorFragment_OpenGL2::Cmd_CreateBufferObject(const CCommandBuffer::SCommand_CreateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 	//create necessary space
 	if((size_t)Index >= m_BufferObjectIndices.size())
@@ -1667,7 +1670,7 @@ void CCommandProcessorFragment_OpenGL2::Cmd_CreateBufferObject(const CCommandBuf
 	{
 		glGenBuffers(1, &VertBufferID);
 		glBindBuffer(GL_COPY_WRITE_BUFFER, VertBufferID);
-		glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData, GL_STATIC_DRAW);
+		glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pUploadData, GL_STATIC_DRAW);
 		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 	}
 
@@ -1675,19 +1678,23 @@ void CCommandProcessorFragment_OpenGL2::Cmd_CreateBufferObject(const CCommandBuf
 	BufferObject.m_BufferObjectID = VertBufferID;
 	BufferObject.m_DataSize = pCommand->m_DataSize;
 	BufferObject.m_pData = malloc(pCommand->m_DataSize);
-	if(pCommand->m_pUploadData)
-		mem_copy(BufferObject.m_pData, pCommand->m_pUploadData, pCommand->m_DataSize);
+	if(pUploadData)
+		mem_copy(BufferObject.m_pData, pUploadData, pCommand->m_DataSize);
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL2::Cmd_RecreateBufferObject(const CCommandBuffer::SCommand_RecreateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 	SBufferObject &BufferObject = m_BufferObjectIndices[Index];
 
 	if(m_HasShaders)
 	{
 		glBindBuffer(GL_COPY_WRITE_BUFFER, BufferObject.m_BufferObjectID);
-		glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData, GL_STATIC_DRAW);
+		glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pUploadData, GL_STATIC_DRAW);
 		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 	}
 
@@ -1695,24 +1702,31 @@ void CCommandProcessorFragment_OpenGL2::Cmd_RecreateBufferObject(const CCommandB
 	if(BufferObject.m_pData)
 		free(BufferObject.m_pData);
 	BufferObject.m_pData = malloc(pCommand->m_DataSize);
-	if(pCommand->m_pUploadData)
-		mem_copy(BufferObject.m_pData, pCommand->m_pUploadData, pCommand->m_DataSize);
+	if(pUploadData)
+		mem_copy(BufferObject.m_pData, pUploadData, pCommand->m_DataSize);
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL2::Cmd_UpdateBufferObject(const CCommandBuffer::SCommand_UpdateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 	SBufferObject &BufferObject = m_BufferObjectIndices[Index];
 
 	if(m_HasShaders)
 	{
 		glBindBuffer(GL_COPY_WRITE_BUFFER, BufferObject.m_BufferObjectID);
-		glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)(pCommand->m_pOffset), (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData);
+		glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)(pCommand->m_pOffset), (GLsizeiptr)(pCommand->m_DataSize), pUploadData);
 		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 	}
 
-	if(pCommand->m_pUploadData)
-		mem_copy(((uint8_t *)BufferObject.m_pData) + (ptrdiff_t)pCommand->m_pOffset, pCommand->m_pUploadData, pCommand->m_DataSize);
+	if(pUploadData)
+		mem_copy(((uint8_t *)BufferObject.m_pData) + (ptrdiff_t)pCommand->m_pOffset, pUploadData, pCommand->m_DataSize);
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL2::Cmd_CopyBufferObject(const CCommandBuffer::SCommand_CopyBufferObject *pCommand)
@@ -3097,6 +3111,7 @@ void CCommandProcessorFragment_OpenGL3_3::AppendIndices(unsigned int NewIndicesC
 
 void CCommandProcessorFragment_OpenGL3_3::Cmd_CreateBufferObject(const CCommandBuffer::SCommand_CreateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 	//create necessary space
 	if((size_t)Index >= m_BufferObjectIndices.size())
@@ -3111,25 +3126,36 @@ void CCommandProcessorFragment_OpenGL3_3::Cmd_CreateBufferObject(const CCommandB
 
 	glGenBuffers(1, &VertBufferID);
 	glBindBuffer(GL_COPY_WRITE_BUFFER, VertBufferID);
-	glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData, GL_STATIC_DRAW);
+	glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pUploadData, GL_STATIC_DRAW);
 
 	m_BufferObjectIndices[Index] = VertBufferID;
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL3_3::Cmd_RecreateBufferObject(const CCommandBuffer::SCommand_RecreateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 
 	glBindBuffer(GL_COPY_WRITE_BUFFER, m_BufferObjectIndices[Index]);
-	glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData, GL_STATIC_DRAW);
+	glBufferData(GL_COPY_WRITE_BUFFER, (GLsizeiptr)(pCommand->m_DataSize), pUploadData, GL_STATIC_DRAW);
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL3_3::Cmd_UpdateBufferObject(const CCommandBuffer::SCommand_UpdateBufferObject *pCommand)
 {
+	void *pUploadData = pCommand->m_pUploadData;
 	int Index = pCommand->m_BufferIndex;
 
 	glBindBuffer(GL_COPY_WRITE_BUFFER, m_BufferObjectIndices[Index]);
-	glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)(pCommand->m_pOffset), (GLsizeiptr)(pCommand->m_DataSize), pCommand->m_pUploadData);
+	glBufferSubData(GL_COPY_WRITE_BUFFER, (GLintptr)(pCommand->m_pOffset), (GLsizeiptr)(pCommand->m_DataSize), pUploadData);
+
+	if(pCommand->m_DeletePointer)
+		free(pUploadData);
 }
 
 void CCommandProcessorFragment_OpenGL3_3::Cmd_CopyBufferObject(const CCommandBuffer::SCommand_CopyBufferObject *pCommand)
@@ -3744,7 +3770,6 @@ void CCommandProcessorFragment_SDL::Cmd_Init(const SCommand_Init *pCommand)
 
 	int MajorV = pCommand->m_pCapabilities->m_ContextMajor;
 	int MinorV = pCommand->m_pCapabilities->m_ContextMinor;
-	int PatchV = pCommand->m_pCapabilities->m_ContextPatch;
 
 	*pCommand->m_pInitError = 0;
 
@@ -3760,6 +3785,7 @@ void CCommandProcessorFragment_SDL::Cmd_Init(const SCommand_Init *pCommand)
 		}
 		else if(MinorV == pCommand->m_RequestedMinor)
 		{
+			int PatchV = pCommand->m_pCapabilities->m_ContextPatch;
 			if(PatchV < pCommand->m_RequestedPatch)
 			{
 				*pCommand->m_pInitError = -2;
@@ -3771,7 +3797,6 @@ void CCommandProcessorFragment_SDL::Cmd_Init(const SCommand_Init *pCommand)
 	{
 		MajorV = pCommand->m_RequestedMajor;
 		MinorV = pCommand->m_RequestedMinor;
-		PatchV = pCommand->m_RequestedPatch;
 
 		pCommand->m_pCapabilities->m_2DArrayTexturesAsExtension = false;
 		pCommand->m_pCapabilities->m_NPOTTextures = true;
@@ -3979,23 +4004,18 @@ bool CCommandProcessorFragment_SDL::RunCommand(const CCommandBuffer::SCommand *p
 
 void CCommandProcessor_SDL_OpenGL::RunBuffer(CCommandBuffer *pBuffer)
 {
-	unsigned CmdIndex = 0;
-	while(1)
+	for(CCommandBuffer::SCommand *pCommand = pBuffer->Head(); pCommand; pCommand = pCommand->m_pNext)
 	{
-		const CCommandBuffer::SCommand *pBaseCommand = pBuffer->GetCommand(&CmdIndex);
-		if(pBaseCommand == 0x0)
-			break;
-
-		if(m_pOpenGL->RunCommand(pBaseCommand))
+		if(m_pOpenGL->RunCommand(pCommand))
 			continue;
 
-		if(m_SDL.RunCommand(pBaseCommand))
+		if(m_SDL.RunCommand(pCommand))
 			continue;
 
-		if(m_General.RunCommand(pBaseCommand))
+		if(m_General.RunCommand(pCommand))
 			continue;
 
-		dbg_msg("graphics", "unknown command %d", pBaseCommand->m_Cmd);
+		dbg_msg("graphics", "unknown command %d", pCommand->m_Cmd);
 	}
 }
 
@@ -4424,10 +4444,8 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	if(Flags & IGraphicsBackend::INITFLAG_RESIZABLE)
 		SdlFlags |= SDL_WINDOW_RESIZABLE;
 #endif
-#if defined(CONF_PLATFORM_MACOSX) // TODO: remove this when fixed in SDL
 	if(Flags & IGraphicsBackend::INITFLAG_BORDERLESS)
 		SdlFlags |= SDL_WINDOW_BORDERLESS;
-#endif
 	if(Flags & IGraphicsBackend::INITFLAG_FULLSCREEN)
 	{
 		// when we are at fullscreen, we really shouldn't allow window sizes, that aren't supported by the driver
