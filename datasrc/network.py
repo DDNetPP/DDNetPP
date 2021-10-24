@@ -1,3 +1,6 @@
+# pylint: skip-file
+# See https://github.com/ddnet/ddnet/issues/3507
+
 from datatypes import Enum, Flags, NetBool, NetEvent, NetIntAny, NetIntRange, NetMessage, NetMessageEx, NetObject, NetObjectEx, NetString, NetStringHalfStrict, NetStringStrict, NetTick
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
@@ -25,6 +28,10 @@ GameInfoFlags2 = [
 	"ALLOW_X_SKINS", "GAMETYPE_CITY", "GAMETYPE_FDDRACE", "ENTITIES_FDDRACE",
 ]
 ExPlayerFlags = ["AFK", "PAUSED", "SPEC"]
+ProjectileFlags = ["CLIENTID_BIT{}".format(i) for i in range(8)] + [
+	"NO_OWNER", "IS_DDNET", "BOUNCE_HORIZONTAL", "BOUNCE_VERTICAL",
+	"EXPLOSIVE", "FREEZE",
+]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
@@ -81,6 +88,7 @@ Flags = [
 	Flags("GAMEINFOFLAG", GameInfoFlags),
 	Flags("GAMEINFOFLAG2", GameInfoFlags2),
 	Flags("EXPLAYERFLAG", ExPlayerFlags),
+	Flags("PROJECTILEFLAG", ProjectileFlags),
 ]
 
 Objects = [
@@ -249,6 +257,17 @@ Objects = [
 		NetIntAny("m_Flags2"),
 	], validate_size=False),
 
+	# The code assumes that this has the same in-memory representation as
+	# the Projectile net object.
+	NetObjectEx("DDNetProjectile", "projectile@netobj.ddnet.tw", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_Angle"),
+		NetIntAny("m_Data"),
+		NetIntRange("m_Type", 0, 'NUM_WEAPONS-1'),
+		NetTick("m_StartTick"),
+	]),
+
 	## Events
 
 	NetEvent("Common", [
@@ -411,22 +430,22 @@ Messages = [
 		NetStringStrict("m_Reason"),
 	], teehistorian=False),
 
-	NetMessage("Cl_IsDDNet", []),
+	NetMessage("Cl_IsDDNetLegacy", []),
 
-	NetMessage("Sv_DDRaceTime", [
+	NetMessage("Sv_DDRaceTimeLegacy", [
 		NetIntAny("m_Time"),
 		NetIntAny("m_Check"),
 		NetIntRange("m_Finish", 0, 1),
 	]),
 
-	NetMessage("Sv_Record", [
+	NetMessage("Sv_RecordLegacy", [
 		NetIntAny("m_ServerTimeBest"),
 		NetIntAny("m_PlayerTimeBest"),
 	]),
 
 	NetMessage("Unused", []),
 
-	NetMessage("Sv_TeamsState", []),
+	NetMessage("Sv_TeamsStateLegacy", []),
 
 	# deprecated, use showothers@netmsg.ddnet.tw instead
 	NetMessage("Cl_ShowOthersLegacy", [
@@ -445,5 +464,18 @@ Messages = [
 
 	NetMessageEx("Cl_ShowOthers", "showothers@netmsg.ddnet.tw", [
 		NetIntRange("m_Show", 0, 2),
+	]),
+
+	NetMessageEx("Sv_TeamsState", "teamsstate@netmsg.ddnet.tw", []),
+
+	NetMessageEx("Sv_DDRaceTime", "ddrace-time@netmsg.ddnet.tw", [
+		NetIntAny("m_Time"),
+		NetIntAny("m_Check"),
+		NetIntRange("m_Finish", 0, 1),
+	]),
+
+	NetMessageEx("Sv_Record", "weird-record@netmsg.ddnet.tw", [
+		NetIntAny("m_ServerTimeBest"),
+		NetIntAny("m_PlayerTimeBest"),
 	]),
 ]

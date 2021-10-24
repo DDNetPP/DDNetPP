@@ -37,7 +37,7 @@ public:
 
 	CGameTeams(CGameContext *pGameContext);
 
-	//helper methods
+	// helper methods
 	CCharacter *Character(int ClientID)
 	{
 		return GameServer()->GetPlayerChar(ClientID);
@@ -61,17 +61,17 @@ public:
 	void OnCharacterSpawn(int ClientID);
 	void OnCharacterDeath(int ClientID, int Weapon);
 
-	bool SetCharacterTeam(int ClientID, int Team);
+	// returns nullptr if successful, error string if failed
+	const char *SetCharacterTeam(int ClientID, int Team);
 	void CheckTeamFinished(int ClientID);
 
 	void ChangeTeamState(int Team, int State);
-	void onChangeTeamState(int Team, int State, int OldState);
 
 	int64 TeamMask(int Team, int ExceptID = -1, int Asker = -1);
 
 	int Count(int Team) const;
 
-	//need to be very careful using this method. SERIOUSLY...
+	// need to be very careful using this method. SERIOUSLY...
 	void SetForceCharacterTeam(int ClientID, int Team);
 	void SetForceCharacterNewTeam(int ClientID, int Team);
 	void ForceLeaveTeam(int ClientID);

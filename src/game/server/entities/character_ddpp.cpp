@@ -19,6 +19,17 @@ void CCharacter::DDPPDDRacePostCoreTick()
 		m_FirstFreezeTick = 0;
 }
 
+void CCharacter::ClearFakeMotd()
+{
+	if(m_pPlayer->m_IsFakeMotd)
+	{
+		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCID());
+		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "clear fake motd");
+		m_pPlayer->m_CanClearFakeMotd = true;
+		m_pPlayer->m_IsFakeMotd = false;
+	}
+}
+
 void CCharacter::BulletAmounts()
 {
 	m_GunBullets = m_aWeapons[1].m_Ammo;
@@ -3710,7 +3721,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 {
 	if(m_pPlayer->m_SpookyGhostActive && (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
 	{
-		float a = GetAngle(Direction);
+		float a = angle(Direction);
 		a += (0.070f) * 2;
 
 		new CPlasmaBullet(
@@ -3779,7 +3790,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		//----- ChillerDragon tried to create 2nd projectile -----
 		//Just copy and pasted the whole code agian
-		float a = GetAngle(Direction);
+		float a = angle(Direction);
 		a += (0.070f) * 2;
 
 		new CProjectile(
@@ -3875,7 +3886,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		float Spreading[] = {-0.070f, 0, 0.070f};
 		for(int i = -RifleSpread; i <= RifleSpread; ++i)
 		{
-			float a = GetAngle(Direction);
+			float a = angle(Direction);
 			a += Spreading[i + 1];
 			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), 0);
 		}
@@ -3900,7 +3911,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 		for(int i = -ShotSpread; i <= ShotSpread; ++i)
 		{
 			float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
-			float a = GetAngle(Direction);
+			float a = angle(Direction);
 			a += Spreading[i + 2];
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);

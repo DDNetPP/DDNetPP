@@ -118,7 +118,7 @@ public:
 	virtual void Snap(int SnappingClient) {}
 
 	/*
-		Function: networkclipped(int snapping_client)
+		Function: NetworkClipped
 			Performs a series of test to see if a client can see the
 			entity.
 
@@ -129,10 +129,10 @@ public:
 				recording.
 
 		Returns:
-			Non-zero if the entity doesn't have to be in the snapshot.
+			True if the entity doesn't have to be in the snapshot.
 	*/
-	virtual int NetworkClipped(int SnappingClient);
-	virtual int NetworkClipped(int SnappingClient, vec2 CheckPos);
+	bool NetworkClipped(int SnappingClient);
+	bool NetworkClipped(int SnappingClient, vec2 CheckPos);
 
 	bool GameLayerClipped(vec2 CheckPos);
 
@@ -144,5 +144,7 @@ public:
 	int m_Number;
 	int m_Layer;
 };
+
+bool NetworkClipped(CGameContext *pGameServer, int SnappingClient, vec2 CheckPos);
 
 #endif

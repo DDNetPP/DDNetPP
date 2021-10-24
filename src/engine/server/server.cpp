@@ -33,7 +33,6 @@
 // DDRace
 #include <base/ddpp_logs.h>
 #include <engine/shared/linereader.h>
-#include <game/extrainfo.h>
 #include <game/server/gamecontext.h>
 #include <vector>
 #include <zlib.h>
@@ -706,43 +705,46 @@ static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer, bool Sixup
 {
 	int MsgId = pMsg->m_MsgID;
 	Packer.Reset();
-	if(MsgId < OFFSET_UUID)
+
+	if(Sixup && !pMsg->m_NoTranslate)
 	{
-		if(Sixup && !pMsg->m_NoTranslate)
+		if(pMsg->m_System)
 		{
-			if(pMsg->m_System)
-			{
-				if(MsgId >= NETMSG_MAP_CHANGE && MsgId <= NETMSG_MAP_DATA)
-					;
-				else if(MsgId >= NETMSG_CON_READY && MsgId <= NETMSG_INPUTTIMING)
-					MsgId += 1;
-				else if(MsgId == NETMSG_RCON_LINE)
-					MsgId = 13;
-				else if(MsgId >= NETMSG_AUTH_CHALLANGE && MsgId <= NETMSG_AUTH_RESULT)
-					MsgId += 4;
-				else if(MsgId >= NETMSG_PING && MsgId <= NETMSG_ERROR)
-					MsgId += 4;
-				else if(MsgId >= NETMSG_RCON_CMD_ADD && MsgId <= NETMSG_RCON_CMD_REM)
-					MsgId -= 11;
-				else
-				{
-					dbg_msg("net", "DROP send sys %d", MsgId);
-					return true;
-				}
-			}
+			if(MsgId >= OFFSET_UUID)
+				;
+			else if(MsgId >= NETMSG_MAP_CHANGE && MsgId <= NETMSG_MAP_DATA)
+				;
+			else if(MsgId >= NETMSG_CON_READY && MsgId <= NETMSG_INPUTTIMING)
+				MsgId += 1;
+			else if(MsgId == NETMSG_RCON_LINE)
+				MsgId = 13;
+			else if(MsgId >= NETMSG_AUTH_CHALLANGE && MsgId <= NETMSG_AUTH_RESULT)
+				MsgId += 4;
+			else if(MsgId >= NETMSG_PING && MsgId <= NETMSG_ERROR)
+				MsgId += 4;
+			else if(MsgId >= NETMSG_RCON_CMD_ADD && MsgId <= NETMSG_RCON_CMD_REM)
+				MsgId -= 11;
 			else
 			{
-				if(MsgId >= 0)
-					MsgId = Msg_SixToSeven(MsgId);
-
-				if(MsgId < 0)
-					return true;
+				dbg_msg("net", "DROP send sys %d", MsgId);
+				return true;
 			}
 		}
+		else
+		{
+			if(MsgId >= 0 && MsgId < OFFSET_UUID)
+				MsgId = Msg_SixToSeven(MsgId);
 
+			if(MsgId < 0)
+				return true;
+		}
+	}
+
+	if(MsgId < OFFSET_UUID)
+	{
 		Packer.AddInt((MsgId << 1) | (pMsg->m_System ? 1 : 0));
 	}
-	else if(!Sixup)
+	else
 	{
 		Packer.AddInt((0 << 1) | (pMsg->m_System ? 1 : 0)); // NETMSG_EX, NETMSGTYPE_EX
 		g_UuidManager.PackUuid(MsgId, &Packer);
@@ -848,12 +850,8 @@ void CServer::DoSnapshot()
 		GameServer()->OnSnap(-1);
 		SnapshotSize = m_SnapshotBuilder.Finish(aData);
 
-		// for antiping: if the projectile netobjects contains extra data, this is removed and the original content restored before recording demo
-		unsigned char aExtraInfoRemoved[CSnapshot::MAX_SIZE];
-		mem_copy(aExtraInfoRemoved, aData, SnapshotSize);
-		SnapshotRemoveExtraInfo(aExtraInfoRemoved);
 		// write snapshot
-		m_aDemoRecorder[MAX_CLIENTS].RecordSnapshot(Tick(), aExtraInfoRemoved, SnapshotSize);
+		m_aDemoRecorder[MAX_CLIENTS].RecordSnapshot(Tick(), aData, SnapshotSize);
 	}
 
 	// create snapshots for all clients
@@ -893,12 +891,8 @@ void CServer::DoSnapshot()
 
 			if(m_aDemoRecorder[i].IsRecording())
 			{
-				// for antiping: if the projectile netobjects contains extra data, this is removed and the original content restored before recording demo
-				unsigned char aExtraInfoRemoved[CSnapshot::MAX_SIZE];
-				mem_copy(aExtraInfoRemoved, aData, SnapshotSize);
-				SnapshotRemoveExtraInfo(aExtraInfoRemoved);
 				// write snapshot
-				m_aDemoRecorder[i].RecordSnapshot(Tick(), aExtraInfoRemoved, SnapshotSize);
+				m_aDemoRecorder[i].RecordSnapshot(Tick(), aData, SnapshotSize);
 			}
 
 			Crc = pData->Crc();
@@ -1155,7 +1149,7 @@ void CServer::SendCapabilities(int ClientID)
 {
 	CMsgPacker Msg(NETMSG_CAPABILITIES, true);
 	Msg.AddInt(SERVERCAP_CURVERSION); // version
-	Msg.AddInt(SERVERCAPFLAG_DDNET | SERVERCAPFLAG_CHATTIMEOUTCODE); // flags
+	Msg.AddInt(SERVERCAPFLAG_DDNET | SERVERCAPFLAG_CHATTIMEOUTCODE | SERVERCAPFLAG_ANYPLAYERFLAG); // flags
 	SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
@@ -1323,7 +1317,7 @@ static inline int MsgFromSixup(int Msg, bool System)
 			Msg += 11;
 		else if(Msg >= 18 && Msg <= 28)
 			Msg = NETMSG_READY + Msg - 18;
-		else
+		else if(Msg < OFFSET_UUID)
 			return -1;
 	}
 
@@ -2789,8 +2783,13 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 				str_format(aAuthStr, sizeof(aAuthStr), " key=%s %s", pThis->m_AuthManager.KeyIdent(pThis->m_aClients[i].m_AuthKey), pAuthStr);
 			}
 
-			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> name='%s' client=%d secure=%s flags=%d%s%s",
-				i, aAddrStr, pThis->m_aClients[i].m_aName, pThis->m_aClients[i].m_DDNetVersion,
+			const char *pClientPrefix = "";
+			if(pThis->m_aClients[i].m_Sixup)
+			{
+				pClientPrefix = "0.7:";
+			}
+			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> name='%s' client=%s%d secure=%s flags=%d%s%s",
+				i, aAddrStr, pThis->m_aClients[i].m_aName, pClientPrefix, pThis->m_aClients[i].m_DDNetVersion,
 				pThis->m_NetServer.HasSecurityToken(i) ? "yes" : "no", pThis->m_aClients[i].m_Flags, aDnsblStr, aAuthStr);
 		}
 		else
@@ -3685,6 +3684,10 @@ bool CServer::SetTimedOut(int ClientID, int OrigID)
 	}
 	m_aClients[ClientID].m_Sixup = m_aClients[OrigID].m_Sixup;
 
+	if(m_aClients[OrigID].m_Authed != AUTHED_NO)
+	{
+		LogoutClient(ClientID, "Timeout Protection");
+	}
 	DelClientCallback(OrigID, "Timeout Protection used", this);
 	m_aClients[ClientID].m_Authed = AUTHED_NO;
 	m_aClients[ClientID].m_Flags = m_aClients[OrigID].m_Flags;

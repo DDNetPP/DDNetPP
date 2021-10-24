@@ -37,6 +37,8 @@ protected:
 	CConfig *Config() { return m_pConfig; }
 	IServer *Server() const { return m_pServer; }
 
+	void DoActivityCheck();
+
 	struct CSpawnEval
 	{
 		CSpawnEval()
@@ -77,25 +79,31 @@ public:
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
 
-	virtual void DoWincheck();
-
-	void DoWarmup(int Seconds);
-
-	void StartRound();
-	void EndRound();
-	void ChangeMap(const char *pToMap);
-
+	// event
 	/*
+		Function: OnCharacterDeath
+			Called when a CCharacter in the world dies.
 
+		Arguments:
+			victim - The CCharacter that died.
+			killer - The player that killed it.
+			weapon - What weapon that killed it. Can be -1 for undefined
+				weapon when switching team or player suicides.
 	*/
-	virtual bool CanBeMovedOnBalance(int ClientID);
+	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
+	/*
+		Function: OnCharacterSpawn
+			Called when a CCharacter spawns into the game world.
 
-	virtual void Tick();
+		Arguments:
+			chr - The CCharacter that was spawned.
+	*/
+	virtual void OnCharacterSpawn(class CCharacter *pChr);
 
-	virtual void Snap(int SnappingClient);
+	virtual void HandleCharacterTiles(class CCharacter *pChr, int MapIndex);
 
 	/*
-		Function: on_entity
+		Function: OnEntity
 			Called when the map is loaded to process an entity
 			in the map.
 
@@ -106,33 +114,35 @@ public:
 		Returns:
 			bool?
 	*/
-	//virtual bool OnEntity(int Index, vec2 Pos);
 	virtual bool OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number = 0);
 
+	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason);
+
+	void OnReset();
+
+	// game
+	void DoWarmup(int Seconds);
+
+	void StartRound();
+	void EndRound();
+	void ChangeMap(const char *pToMap);
+
+	bool IsFriendlyFire(int ClientID1, int ClientID2);
+
+	bool IsForceBalanced();
+
 	/*
-		Function: on_CCharacter_spawn
-			Called when a CCharacter spawns into the game world.
 
-		Arguments:
-			chr - The CCharacter that was spawned.
 	*/
-	virtual void OnCharacterSpawn(class CCharacter *pChr);
+	virtual bool CanBeMovedOnBalance(int ClientID);
 
-	/*
-		Function: on_CCharacter_death
-			Called when a CCharacter in the world dies.
+	virtual void Tick();
 
-		Arguments:
-			victim - The CCharacter that died.
-			killer - The player that killed it.
-			weapon - What weapon that killed it. Can be -1 for undefined
-				weapon when switching team or player suicides.
-	*/
-	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
+	virtual void Snap(int SnappingClient);
 
-	//
 	virtual bool CanSpawn(int Team, vec2 *pPos, class CPlayer *pPlayer);
 
+	virtual void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true);
 	/*
 
 	*/
@@ -141,7 +151,7 @@ public:
 	virtual bool CanJoinTeam(int Team, int NotThisID);
 	int ClampTeam(int Team);
 
-	virtual void PostReset();
+	virtual int64 GetMaskForPlayerWorldEvent(int Asker, int ExceptID = -1);
 
 	// DDRace
 
@@ -151,7 +161,8 @@ public:
 
 	bool IsTeamplay() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
-	bool IsForceBalanced();
+	virtual void DoWincheck();
+
 
 private:
 	int m_aTeamscore[2];

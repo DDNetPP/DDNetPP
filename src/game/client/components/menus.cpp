@@ -631,7 +631,7 @@ int CMenus::DoEditBox(void *pID, const CUIRect *pRect, char *pStr, unsigned StrS
 			if(Text)
 			{
 				int Offset = str_length(pStr);
-				int CharsLeft = StrSize - Offset - 1;
+				int CharsLeft = StrSize - Offset;
 				char *pCur = pStr + Offset;
 				str_utf8_copy(pCur, Text, CharsLeft);
 				for(int i = 0; i < CharsLeft; i++)
@@ -1470,6 +1470,13 @@ bool CMenus::CanDisplayWarning()
 
 void CMenus::RenderColorPicker()
 {
+	if(m_EscapePressed)
+	{
+		ms_ColorPicker.m_Active = false;
+		ms_ValueSelectorTextMode = false;
+		UI()->SetActiveItem(0);
+	}
+
 	if(!ms_ColorPicker.m_Active)
 		return;
 

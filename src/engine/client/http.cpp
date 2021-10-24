@@ -7,6 +7,10 @@
 #include <engine/storage.h>
 #include <game/version.h>
 
+#if !defined(CONF_FAMILY_WINDOWS)
+#include <signal.h>
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include "curl/curl.h"
 #include "curl/easy.h"
@@ -24,7 +28,7 @@ static int GetLockIndex(int Data)
 	return Data;
 }
 
-static void CurlLock(CURL *pHandle, curl_lock_data Data, curl_lock_access Access, void *pUser)
+static void CurlLock(CURL *pHandle, curl_lock_data Data, curl_lock_access Access, void *pUser) ACQUIRE(gs_aLocks[GetLockIndex(Data)])
 {
 	(void)pHandle;
 	(void)Access;
@@ -32,7 +36,7 @@ static void CurlLock(CURL *pHandle, curl_lock_data Data, curl_lock_access Access
 	lock_wait(gs_aLocks[GetLockIndex(Data)]);
 }
 
-static void CurlUnlock(CURL *pHandle, curl_lock_data Data, void *pUser)
+static void CurlUnlock(CURL *pHandle, curl_lock_data Data, void *pUser) RELEASE(gs_aLocks[GetLockIndex(Data)])
 {
 	(void)pHandle;
 	(void)pUser;
@@ -65,6 +69,13 @@ bool HttpInit(IStorage *pStorage)
 	curl_share_setopt(gs_Share, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
 	curl_share_setopt(gs_Share, CURLSHOPT_LOCKFUNC, CurlLock);
 	curl_share_setopt(gs_Share, CURLSHOPT_UNLOCKFUNC, CurlUnlock);
+
+#if !defined(CONF_FAMILY_WINDOWS)
+	// As a multithreaded application we have to tell curl to not install signal
+	// handlers and instead ignore SIGPIPE from OpenSSL ourselves.
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
 	return false;
 }
 

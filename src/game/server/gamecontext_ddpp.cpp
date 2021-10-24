@@ -2099,7 +2099,7 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 
 	if(m_apPlayers[DummyID])
 	{
-		m_apPlayers[DummyID]->OnDisconnect("");
+		m_pController->OnPlayerDisconnect(m_apPlayers[DummyID], "");
 		delete m_apPlayers[DummyID];
 		m_apPlayers[DummyID] = 0;
 	}

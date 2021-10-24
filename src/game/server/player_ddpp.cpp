@@ -481,6 +481,7 @@ void CPlayer::OnDisconnectDDPP()
 	{
 		GameServer()->SetIpJailed(GetCID());
 	}
+	Logout();
 }
 
 void CPlayer::Logout(int SetLoggedIn)

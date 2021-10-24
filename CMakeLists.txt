@@ -1051,6 +1051,7 @@ set(EXPECTED_DATA
   gui_cursor.png
   gui_icons.png
   gui_logo.png
+  languages/arabic.txt
   languages/belarusian.txt
   languages/bosnian.txt
   languages/brazilian_portuguese.txt
@@ -1474,6 +1475,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   config.h
   console.h
   demo.h
+  discord.h
   editor.h
   engine.h
   friends.h
@@ -1573,9 +1575,8 @@ set_src(GAME_SHARED GLOB src/game
   collision.cpp
   collision.h
   collision_ddpp.cpp
+  ddracechat.h
   ddracecommands.h
-  extrainfo.cpp
-  extrainfo.h
   gamecore.cpp
   gamecore.h
   gamecore_ddpp.cpp
@@ -1663,6 +1664,7 @@ if(CLIENT)
     client.h
     demoedit.cpp
     demoedit.h
+    discord.cpp
     friends.cpp
     friends.h
     ghost.cpp
@@ -1783,6 +1785,8 @@ if(CLIENT)
     prediction/entity.h
     prediction/gameworld.cpp
     prediction/gameworld.h
+    projectile_data.cpp
+    projectile_data.h
     race.cpp
     race.h
     render.cpp
@@ -1959,7 +1963,6 @@ if(SERVER)
     db_sqlite3.cpp
     db_sqlite3.h
     ddracechat.cpp
-    ddracechat.h
     ddracechat_ddpp.cpp
     ddracecommands.cpp
     ddracecommands_ddpp.cpp

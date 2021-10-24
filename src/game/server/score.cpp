@@ -19,6 +19,12 @@
 #include <fstream>
 #include <random>
 
+// "6b407e81-8b77-3e04-a207-8da17f37d000"
+// "save-no-save-id@ddnet.tw"
+static const CUuid UUID_NO_SAVE_ID =
+	{{0x6b, 0x40, 0x7e, 0x81, 0x8b, 0x77, 0x3e, 0x04,
+		0xa2, 0x07, 0x8d, 0xa1, 0x7f, 0x37, 0xd0, 0x00}};
+
 CScorePlayerResult::CScorePlayerResult()
 {
 	SetVariant(Variant::DIRECT);
@@ -355,12 +361,13 @@ bool CScore::MapInfoThread(IDbConnection *pSqlServer, const ISqlData *pGameData)
 	char aTimestamp[512];
 	pSqlServer->ToUnixTimestamp("l.Timestamp", aTimestamp, sizeof(aTimestamp));
 
-	char aBuf[1024];
+	char aMedianMapTime[2048];
+	char aBuf[4096];
 	str_format(aBuf, sizeof(aBuf),
 		"SELECT l.Map, l.Server, Mapper, Points, Stars, "
 		"  (SELECT COUNT(Name) FROM %s_race WHERE Map = l.Map) AS Finishes, "
 		"  (SELECT COUNT(DISTINCT Name) FROM %s_race WHERE Map = l.Map) AS Finishers, "
-		"  (SELECT ROUND(AVG(Time)) FROM %s_race WHERE Map = l.Map) AS Average, "
+		"  (%s) AS Median, "
 		"  %s AS Stamp, "
 		"  %s-%s AS Ago, "
 		"  (SELECT MIN(Time) FROM %s_race WHERE Map = l.Map AND Name = ?) AS OwnTime "
@@ -374,7 +381,8 @@ bool CScore::MapInfoThread(IDbConnection *pSqlServer, const ISqlData *pGameData)
 		"    Map "
 		"  LIMIT 1"
 		") as l;",
-		pSqlServer->GetPrefix(), pSqlServer->GetPrefix(), pSqlServer->GetPrefix(),
+		pSqlServer->GetPrefix(), pSqlServer->GetPrefix(),
+		pSqlServer->MedianMapTime(aMedianMapTime, sizeof(aMedianMapTime)),
 		aTimestamp, aCurrentTimestamp, aTimestamp,
 		pSqlServer->GetPrefix(), pSqlServer->GetPrefix(),
 		pSqlServer->CollateNocase());
@@ -396,7 +404,7 @@ bool CScore::MapInfoThread(IDbConnection *pSqlServer, const ISqlData *pGameData)
 		int Stars = pSqlServer->GetInt(5);
 		int Finishes = pSqlServer->GetInt(6);
 		int Finishers = pSqlServer->GetInt(7);
-		int Average = pSqlServer->GetInt(8);
+		float Median = pSqlServer->GetInt(8);
 		int Stamp = pSqlServer->GetInt(9);
 		int Ago = pSqlServer->GetInt(10);
 		float OwnTime = pSqlServer->GetFloat(11);
@@ -409,11 +417,11 @@ bool CScore::MapInfoThread(IDbConnection *pSqlServer, const ISqlData *pGameData)
 			str_format(aReleasedString, sizeof(aReleasedString), ", released %s ago", aAgoString);
 		}
 
-		char aAverageString[60] = "\0";
-		if(Average > 0)
+		char aMedianString[60] = "\0";
+		if(Median > 0)
 		{
-			str_time((int64)Average * 100, TIME_HOURS, aBuf, sizeof(aBuf));
-			str_format(aAverageString, sizeof(aAverageString), " in %s average", aBuf);
+			str_time((int64)Median * 100, TIME_HOURS, aBuf, sizeof(aBuf));
+			str_format(aMedianString, sizeof(aMedianString), " in %s median", aBuf);
 		}
 
 		char aStars[20];
@@ -443,7 +451,7 @@ bool CScore::MapInfoThread(IDbConnection *pSqlServer, const ISqlData *pGameData)
 			aReleasedString,
 			Finishes, Finishes == 1 ? "finish" : "finishes",
 			Finishers, Finishers == 1 ? "tee" : "tees",
-			aAverageString, aOwnFinishesString);
+			aMedianString, aOwnFinishesString);
 	}
 	else
 	{
@@ -663,9 +671,9 @@ bool CScore::ShowRankThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	char aBuf[600];
 
 	str_format(aBuf, sizeof(aBuf),
-		"SELECT Rank, Name, Time "
+		"SELECT Rank, Time, PercentRank "
 		"FROM ("
-		"  SELECT RANK() OVER w AS Rank, Name, MIN(Time) AS Time "
+		"  SELECT RANK() OVER w AS Rank, PERCENT_RANK() OVER w as PercentRank, Name, MIN(Time) AS Time "
 		"  FROM %s_race "
 		"  WHERE Map = ? "
 		"  GROUP BY Name "
@@ -680,21 +688,21 @@ bool CScore::ShowRankThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	if(pSqlServer->Step())
 	{
 		int Rank = pSqlServer->GetInt(1);
-		float Time = pSqlServer->GetFloat(3);
+		float Time = pSqlServer->GetFloat(2);
+		// CEIL and FLOOR are not supported in SQLite
+		int BetterThanPercent = std::floor(100.0 - 100.0 * pSqlServer->GetFloat(3));
 		str_time_float(Time, TIME_HOURS_CENTISECS, aBuf, sizeof(aBuf));
 		if(g_Config.m_SvHideScore)
 		{
 			str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-				"Your time: %s", aBuf);
+				"Your time: %s, better than %d%%", aBuf, BetterThanPercent);
 		}
 		else
 		{
-			char aName[MAX_NAME_LENGTH];
-			pSqlServer->GetString(2, aName, sizeof(aName));
 			pResult->m_MessageKind = CScorePlayerResult::ALL;
 			str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-				"%d. %s Time: %s, requested by %s",
-				Rank, aName, aBuf, pData->m_RequestingPlayer);
+				"%d. %s Time: %s, better than %d%%, requested by %s",
+				Rank, pData->m_Name, aBuf, BetterThanPercent, pData->m_RequestingPlayer);
 		}
 	}
 	else
@@ -721,9 +729,9 @@ bool CScore::ShowTeamRankThread(IDbConnection *pSqlServer, const ISqlData *pGame
 	char aBuf[2400];
 
 	str_format(aBuf, sizeof(aBuf),
-		"SELECT l.ID, Name, Time, Rank "
+		"SELECT l.ID, Name, Time, Rank, PercentRank "
 		"FROM (" // teamrank score board
-		"  SELECT RANK() OVER w AS Rank, ID "
+		"  SELECT RANK() OVER w AS Rank, PERCENT_RANK() OVER w AS PercentRank, ID "
 		"  FROM %s_teamrace "
 		"  WHERE Map = ? "
 		"  GROUP BY ID "
@@ -747,6 +755,8 @@ bool CScore::ShowTeamRankThread(IDbConnection *pSqlServer, const ISqlData *pGame
 		float Time = pSqlServer->GetFloat(3);
 		str_time_float(Time, TIME_HOURS_CENTISECS, aBuf, sizeof(aBuf));
 		int Rank = pSqlServer->GetInt(4);
+		// CEIL and FLOOR are not supported in SQLite
+		int BetterThanPercent = std::floor(100.0 - 100.0 * pSqlServer->GetFloat(5));
 		CTeamrank Teamrank;
 		Teamrank.NextSqlResult(pSqlServer);
 
@@ -764,14 +774,14 @@ bool CScore::ShowTeamRankThread(IDbConnection *pSqlServer, const ISqlData *pGame
 		if(g_Config.m_SvHideScore)
 		{
 			str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-				"Your team time: %s", aBuf);
+				"Your team time: %s, better than %d%%", aBuf, BetterThanPercent);
 		}
 		else
 		{
 			pResult->m_MessageKind = CScorePlayerResult::ALL;
 			str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-				"%d. %s Team time: %s, requested by %s",
-				Rank, aFormattedNames, aBuf, pData->m_RequestingPlayer);
+				"%d. %s Team time: %s, better than %d%%, requested by %s",
+				Rank, aFormattedNames, aBuf, BetterThanPercent, pData->m_RequestingPlayer);
 		}
 	}
 	else
@@ -1367,39 +1377,19 @@ bool CScore::SaveTeamThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	char *pSaveState = pResult->m_SavedTeam.GetString();
 	char aBuf[65536];
 
-	char aTable[512];
-	str_format(aTable, sizeof(aTable), "%s_saves WRITE", pSqlServer->GetPrefix());
-	pSqlServer->Lock(aTable);
+	bool UseGeneratedCode = pData->m_Code[0] == '\0' || Failure;
 
-	char Code[128] = {0};
-	str_format(aBuf, sizeof(aBuf), "SELECT Savegame FROM %s_saves WHERE Code = ? AND Map = ?", pSqlServer->GetPrefix());
-	pSqlServer->PrepareStatement(aBuf);
-	bool UseCode = false;
-	if(pData->m_Code[0] != '\0' && !Failure)
+	bool Retry = false;
+	// two tries, first use the user provided code, then the autogenerated
+	do
 	{
-		pSqlServer->BindString(1, pData->m_Code);
-		pSqlServer->BindString(2, pData->m_Map);
-		// only allow saving when save code does not already exist
-		if(!pSqlServer->Step())
-		{
-			UseCode = true;
-			str_copy(Code, pData->m_Code, sizeof(Code));
-		}
-	}
-	if(!UseCode)
-	{
-		// use random generated passphrase if save code exists or no save code given
-		pSqlServer->BindString(1, pData->m_aGeneratedCode);
-		pSqlServer->BindString(2, pData->m_Map);
-		if(!pSqlServer->Step())
-		{
-			UseCode = true;
+		Retry = false;
+		char Code[128] = {0};
+		if(UseGeneratedCode)
 			str_copy(Code, pData->m_aGeneratedCode, sizeof(Code));
-		}
-	}
+		else
+			str_copy(Code, pData->m_Code, sizeof(Code));
 
-	if(UseCode)
-	{
 		str_format(aBuf, sizeof(aBuf),
 			"%s INTO %s_saves(Savegame, Map, Code, Timestamp, Server, SaveID, DDNet7) "
 			"VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, false)",
@@ -1411,52 +1401,58 @@ bool CScore::SaveTeamThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->BindString(4, pData->m_Server);
 		pSqlServer->BindString(5, aSaveID);
 		pSqlServer->Print();
-		pSqlServer->Step();
-
-		if(!Failure)
+		int NumInserted = pSqlServer->ExecuteUpdate();
+		if(NumInserted == 1)
 		{
-			if(str_comp(pData->m_Server, g_Config.m_SvSqlServerName) == 0)
+			if(!Failure)
 			{
-				str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
-					"Team successfully saved by %s. Use '/load %s' to continue",
-					pData->m_ClientName, Code);
+				if(str_comp(pData->m_Server, g_Config.m_SvSqlServerName) == 0)
+				{
+					str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
+						"Team successfully saved by %s. Use '/load %s' to continue",
+						pData->m_ClientName, Code);
+				}
+				else
+				{
+					str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
+						"Team successfully saved by %s. Use '/load %s' on %s to continue",
+						pData->m_ClientName, Code, pData->m_Server);
+				}
 			}
 			else
 			{
-				str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
-					"Team successfully saved by %s. Use '/load %s' on %s to continue",
-					pData->m_ClientName, Code, pData->m_Server);
+				str_copy(pResult->m_aBroadcast,
+					"Database connection failed, teamsave written to a file instead. Admins will add it manually in a few days.",
+					sizeof(pResult->m_aBroadcast));
+				if(str_comp(pData->m_Server, g_Config.m_SvSqlServerName) == 0)
+				{
+					str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
+						"Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue",
+						pData->m_ClientName, Code);
+				}
+				else
+				{
+					str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
+						"Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue",
+						pData->m_ClientName, Code, pData->m_Server);
+				}
 			}
-		}
-		else
-		{
-			str_copy(pResult->m_aBroadcast,
-				"Database connection failed, teamsave written to a file instead. Admins will add it manually in a few days.",
-				sizeof(pResult->m_aBroadcast));
-			if(str_comp(pData->m_Server, g_Config.m_SvSqlServerName) == 0)
-			{
-				str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
-					"Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' to continue",
-					pData->m_ClientName, Code);
-			}
-			else
-			{
-				str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
-					"Team successfully saved by %s. The database connection failed, using generated save code instead to avoid collisions. Use '/load %s' on %s to continue",
-					pData->m_ClientName, Code, pData->m_Server);
-			}
-		}
 
-		pResult->m_Status = CScoreSaveResult::SAVE_SUCCESS;
-	}
-	else
+			pResult->m_Status = CScoreSaveResult::SAVE_SUCCESS;
+		}
+		else if(!UseGeneratedCode)
+		{
+			UseGeneratedCode = true;
+			Retry = true;
+		}
+	} while(Retry);
+
+	if(pResult->m_Status != CScoreSaveResult::SAVE_SUCCESS)
 	{
 		dbg_msg("sql", "ERROR: This save-code already exists");
 		pResult->m_Status = CScoreSaveResult::SAVE_FAILED;
 		str_copy(pResult->m_aMessage, "This save-code already exists", sizeof(pResult->m_aMessage));
 	}
-
-	pSqlServer->Unlock();
 	return true;
 }
 
@@ -1506,95 +1502,99 @@ bool CScore::LoadTeamThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	CScoreSaveResult *pResult = dynamic_cast<CScoreSaveResult *>(pGameData->m_pResult.get());
 	pResult->m_Status = CScoreSaveResult::LOAD_FAILED;
 
-	char aTable[512];
-	str_format(aTable, sizeof(aTable), "%s_saves WRITE", pSqlServer->GetPrefix());
-	pSqlServer->Lock(aTable);
+	char aSaveLike[128] = "";
+	str_append(aSaveLike, "%\n", sizeof(aSaveLike));
+	sqlstr::EscapeLike(aSaveLike + str_length(aSaveLike),
+		pData->m_RequestingPlayer,
+		sizeof(aSaveLike) - str_length(aSaveLike));
+	str_append(aSaveLike, "\t%", sizeof(aSaveLike));
 
+	char aCurrentTimestamp[512];
+	pSqlServer->ToUnixTimestamp("CURRENT_TIMESTAMP", aCurrentTimestamp, sizeof(aCurrentTimestamp));
+	char aTimestamp[512];
+	pSqlServer->ToUnixTimestamp("Timestamp", aTimestamp, sizeof(aTimestamp));
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf),
+		"SELECT Savegame, %s-%s AS Ago, SaveID "
+		"FROM %s_saves "
+		"where Code = ? AND Map = ? AND DDNet7 = false AND Savegame LIKE ?;",
+		aCurrentTimestamp, aTimestamp,
+		pSqlServer->GetPrefix());
+	pSqlServer->PrepareStatement(aBuf);
+	pSqlServer->BindString(1, pData->m_Code);
+	pSqlServer->BindString(2, pData->m_Map);
+	pSqlServer->BindString(3, aSaveLike);
+
+	if(!pSqlServer->Step())
 	{
-		char aSaveLike[128] = "";
-		str_append(aSaveLike, "%\n", sizeof(aSaveLike));
-		sqlstr::EscapeLike(aSaveLike + str_length(aSaveLike),
-			pData->m_RequestingPlayer,
-			sizeof(aSaveLike) - str_length(aSaveLike));
-		str_append(aSaveLike, "\t%", sizeof(aSaveLike));
-
-		char aCurrentTimestamp[512];
-		pSqlServer->ToUnixTimestamp("CURRENT_TIMESTAMP", aCurrentTimestamp, sizeof(aCurrentTimestamp));
-		char aTimestamp[512];
-		pSqlServer->ToUnixTimestamp("Timestamp", aTimestamp, sizeof(aTimestamp));
-
-		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf),
-			"SELECT Savegame, %s-%s AS Ago, SaveID "
-			"FROM %s_saves "
-			"where Code = ? AND Map = ? AND DDNet7 = false AND Savegame LIKE ?;",
-			aCurrentTimestamp, aTimestamp,
-			pSqlServer->GetPrefix());
-		pSqlServer->PrepareStatement(aBuf);
-		pSqlServer->BindString(1, pData->m_Code);
-		pSqlServer->BindString(2, pData->m_Map);
-		pSqlServer->BindString(3, aSaveLike);
-
-		if(!pSqlServer->Step())
-		{
-			str_copy(pResult->m_aMessage, "No such savegame for this map", sizeof(pResult->m_aMessage));
-			goto end;
-		}
-
-		int Since = pSqlServer->GetInt(2);
-		if(Since < g_Config.m_SvSaveGamesDelay)
-		{
-			str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
-				"You have to wait %d seconds until you can load this savegame",
-				g_Config.m_SvSaveGamesDelay - Since);
-			goto end;
-		}
-
-		char aSaveID[UUID_MAXSTRSIZE];
-		memset(pResult->m_SaveID.m_aData, 0, sizeof(pResult->m_SaveID.m_aData));
-		if(!pSqlServer->IsNull(3))
-		{
-			pSqlServer->GetString(3, aSaveID, sizeof(aSaveID));
-			if(str_length(aSaveID) + 1 != UUID_MAXSTRSIZE)
-			{
-				str_copy(pResult->m_aMessage, "Unable to load savegame: SaveID corrupted", sizeof(pResult->m_aMessage));
-				goto end;
-			}
-			ParseUuid(&pResult->m_SaveID, aSaveID);
-		}
-
-		char aSaveString[65536];
-		pSqlServer->GetString(1, aSaveString, sizeof(aSaveString));
-		int Num = pResult->m_SavedTeam.FromString(aSaveString);
-
-		if(Num != 0)
-		{
-			str_copy(pResult->m_aMessage, "Unable to load savegame: data corrupted", sizeof(pResult->m_aMessage));
-			goto end;
-		}
-
-		bool CanLoad = pResult->m_SavedTeam.MatchPlayers(
-			pData->m_aClientNames, pData->m_aClientID, pData->m_NumPlayer,
-			pResult->m_aMessage, sizeof(pResult->m_aMessage));
-
-		if(!CanLoad)
-			goto end;
-
-		str_format(aBuf, sizeof(aBuf),
-			"DELETE FROM  %s_saves "
-			"WHERE Code = ? AND Map = ?;",
-			pSqlServer->GetPrefix());
-		pSqlServer->PrepareStatement(aBuf);
-		pSqlServer->BindString(1, pData->m_Code);
-		pSqlServer->BindString(2, pData->m_Map);
-		pSqlServer->Print();
-		pSqlServer->Step();
-
-		pResult->m_Status = CScoreSaveResult::LOAD_SUCCESS;
-		str_copy(pResult->m_aMessage, "Loading successfully done", sizeof(pResult->m_aMessage));
+		str_copy(pResult->m_aMessage, "No such savegame for this map", sizeof(pResult->m_aMessage));
+		return true;
 	}
-end:
-	pSqlServer->Unlock();
+
+	int Since = pSqlServer->GetInt(2);
+	if(Since < g_Config.m_SvSaveGamesDelay)
+	{
+		str_format(pResult->m_aMessage, sizeof(pResult->m_aMessage),
+			"You have to wait %d seconds until you can load this savegame",
+			g_Config.m_SvSaveGamesDelay - Since);
+		return true;
+	}
+
+	pResult->m_SaveID = UUID_NO_SAVE_ID;
+	if(!pSqlServer->IsNull(3))
+	{
+		char aSaveID[UUID_MAXSTRSIZE];
+		pSqlServer->GetString(3, aSaveID, sizeof(aSaveID));
+		if(ParseUuid(&pResult->m_SaveID, aSaveID) || pResult->m_SaveID == UUID_NO_SAVE_ID)
+		{
+			str_copy(pResult->m_aMessage, "Unable to load savegame: SaveID corrupted", sizeof(pResult->m_aMessage));
+			return true;
+		}
+	}
+
+	char aSaveString[65536];
+	pSqlServer->GetString(1, aSaveString, sizeof(aSaveString));
+	int Num = pResult->m_SavedTeam.FromString(aSaveString);
+
+	if(Num != 0)
+	{
+		str_copy(pResult->m_aMessage, "Unable to load savegame: data corrupted", sizeof(pResult->m_aMessage));
+		return true;
+	}
+
+	bool CanLoad = pResult->m_SavedTeam.MatchPlayers(
+		pData->m_aClientNames, pData->m_aClientID, pData->m_NumPlayer,
+		pResult->m_aMessage, sizeof(pResult->m_aMessage));
+
+	if(!CanLoad)
+		return true;
+
+	str_format(aBuf, sizeof(aBuf),
+		"DELETE FROM %s_saves "
+		"WHERE Code = ? AND Map = ? AND SaveID %s;",
+		pSqlServer->GetPrefix(),
+		pResult->m_SaveID != UUID_NO_SAVE_ID ? "= ?" : "IS NULL");
+	pSqlServer->PrepareStatement(aBuf);
+	pSqlServer->BindString(1, pData->m_Code);
+	pSqlServer->BindString(2, pData->m_Map);
+	char aUuid[UUID_MAXSTRSIZE];
+	if(pResult->m_SaveID != UUID_NO_SAVE_ID)
+	{
+		FormatUuid(pResult->m_SaveID, aUuid, sizeof(aUuid));
+		pSqlServer->BindString(3, aUuid);
+	}
+	pSqlServer->Print();
+	int NumDeleted = pSqlServer->ExecuteUpdate();
+
+	if(NumDeleted != 1)
+	{
+		str_copy(pResult->m_aMessage, "Unable to load savegame: loaded on a different server", sizeof(pResult->m_aMessage));
+		return true;
+	}
+
+	pResult->m_Status = CScoreSaveResult::LOAD_SUCCESS;
+	str_copy(pResult->m_aMessage, "Loading successfully done", sizeof(pResult->m_aMessage));
 	return true;
 }
 

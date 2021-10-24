@@ -799,7 +799,7 @@ void CGameContext::ConLockTeam(IConsole::IResult *pResult, void *pUserData)
 	{
 		((CGameControllerDDRace *)pSelf->m_pController)->m_Teams.SetTeamLock(Team, true);
 
-		str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race started killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race starts, killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
 
 		for(int i = 0; i < MAX_CLIENTS; i++)
 			if(((CGameControllerDDRace *)pSelf->m_pController)->m_Teams.m_Core.Team(i) == Team)
@@ -955,13 +955,7 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 		{
 			int Team = pResult->GetInteger(0);
 
-			if(Team == pController->m_Teams.m_Core.Team(pResult->m_ClientID))
-			{
-				char aBuf[32];
-				str_format(aBuf, sizeof(aBuf), "You are in team %d already", Team);
-				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join", aBuf);
-			}
-			else if(pPlayer->m_Last_Team + (int64_t)pSelf->Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > pSelf->Server()->Tick())
+			if(pPlayer->m_Last_Team + (int64_t)pSelf->Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > pSelf->Server()->Tick())
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
 					"You can\'t change teams that fast!");
@@ -979,7 +973,11 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 				str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvTeamMaxSize);
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join", aBuf);
 			}
-			else if(pController->m_Teams.SetCharacterTeam(pPlayer->GetCID(), Team))
+			else if(const char *pError = pController->m_Teams.SetCharacterTeam(pPlayer->GetCID(), Team))
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join", pError);
+			}
+			else
 			{
 				char aBuf[512];
 				str_format(aBuf, sizeof(aBuf), "%s joined team %d",
@@ -990,11 +988,6 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 
 				if(pController->m_Teams.IsPractice(Team))
 					pSelf->SendChatTarget(pPlayer->GetCID(), "Practice mode enabled for your team, happy practicing!");
-			}
-			else
-			{
-				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
-					"You cannot join this team at this time");
 			}
 		}
 	}
@@ -1066,23 +1059,23 @@ void CGameContext::ConSetEyeEmote(IConsole::IResult *pResult,
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
 			"emote",
-			(pPlayer->m_EyeEmote) ?
-                                "You can now use the preset eye emotes." :
-                                "You don't have any eye emotes, remember to bind some. (until you die)");
+			(pPlayer->m_EyeEmoteEnabled) ?
+				"You can now use the preset eye emotes." :
+				"You don't have any eye emotes, remember to bind some. (until you die)");
 		return;
 	}
 	else if(str_comp_nocase(pResult->GetString(0), "on") == 0)
-		pPlayer->m_EyeEmote = true;
+		pPlayer->m_EyeEmoteEnabled = true;
 	else if(str_comp_nocase(pResult->GetString(0), "off") == 0)
-		pPlayer->m_EyeEmote = false;
+		pPlayer->m_EyeEmoteEnabled = false;
 	else if(str_comp_nocase(pResult->GetString(0), "toggle") == 0)
-		pPlayer->m_EyeEmote = !pPlayer->m_EyeEmote;
+		pPlayer->m_EyeEmoteEnabled = !pPlayer->m_EyeEmoteEnabled;
 	pSelf->Console()->Print(
 		IConsole::OUTPUT_LEVEL_STANDARD,
 		"emote",
-		(pPlayer->m_EyeEmote) ?
-                        "You can now use the preset eye emotes." :
-                        "You don't have any eye emotes, remember to bind some. (until you die)");
+		(pPlayer->m_EyeEmoteEnabled) ?
+			"You can now use the preset eye emotes." :
+			"You don't have any eye emotes, remember to bind some. (until you die)");
 }
 
 void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
@@ -1115,33 +1108,36 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		if(pPlayer->m_LastEyeEmote + (int64_t)g_Config.m_SvEyeEmoteChangeDelay * pSelf->Server()->TickSpeed() >= pSelf->Server()->Tick())
+		if(!pPlayer->CanOverrideDefaultEmote())
 			return;
 
+		int EmoteType = 0;
 		if(!str_comp(pResult->GetString(0), "angry"))
-			pPlayer->m_DefEmote = EMOTE_ANGRY;
+			EmoteType = EMOTE_ANGRY;
 		else if(!str_comp(pResult->GetString(0), "blink"))
-			pPlayer->m_DefEmote = EMOTE_BLINK;
+			EmoteType = EMOTE_BLINK;
 		else if(!str_comp(pResult->GetString(0), "close"))
-			pPlayer->m_DefEmote = EMOTE_BLINK;
+			EmoteType = EMOTE_BLINK;
 		else if(!str_comp(pResult->GetString(0), "happy"))
-			pPlayer->m_DefEmote = EMOTE_HAPPY;
+			EmoteType = EMOTE_HAPPY;
 		else if(!str_comp(pResult->GetString(0), "pain"))
-			pPlayer->m_DefEmote = EMOTE_PAIN;
+			EmoteType = EMOTE_PAIN;
 		else if(!str_comp(pResult->GetString(0), "surprise"))
-			pPlayer->m_DefEmote = EMOTE_SURPRISE;
+			EmoteType = EMOTE_SURPRISE;
 		else if(!str_comp(pResult->GetString(0), "normal"))
-			pPlayer->m_DefEmote = EMOTE_NORMAL;
+			EmoteType = EMOTE_NORMAL;
 		else
+		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD,
 				"emote", "Unknown emote... Say /emote");
+			return;
+		}
 
 		int Duration = 1;
 		if(pResult->NumArguments() > 1)
 			Duration = clamp(pResult->GetInteger(1), 1, 86400);
 
-		pPlayer->m_DefEmoteReset = pSelf->Server()->Tick() + Duration * pSelf->Server()->TickSpeed();
-		pPlayer->m_LastEyeEmote = pSelf->Server()->Tick();
+		pPlayer->OverrideDefaultEmote(EmoteType, pSelf->Server()->Tick() + Duration * pSelf->Server()->TickSpeed());
 	}
 }
 
