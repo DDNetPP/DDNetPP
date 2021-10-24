@@ -29,6 +29,7 @@
 
 #include "entities/character.h"
 #include "gamemodes/DDRace.h"
+#include "player.h"
 #include "score.h"
 
 //ChillerDragon (ddpp)

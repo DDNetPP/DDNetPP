@@ -19,7 +19,6 @@
 #include "eventhandler.h"
 #include "gamecontroller.h"
 #include "gameworld.h"
-#include "player.h"
 #include "teehistorian.h"
 
 #include "db_sqlite3.h"
