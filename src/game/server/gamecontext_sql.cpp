@@ -9,18 +9,17 @@
 void CQuerySQLstatus::OnData()
 {
 	int n = Next();
-	if (m_ClientID == -1)
+	if(m_ClientID == -1)
 		return;
-	if (n)
+	if(n)
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: got rows.");
 	else
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
 }
 
-
 void CQueryRegister::OnData()
 {
-	if (Next())
+	if(Next())
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Username already exists.");
 	}
@@ -68,12 +67,12 @@ void CGameContext::Login(void *pArg, int id)
 void CQueryLoginThreaded::OnData()
 {
 	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
-	if (!pPlayer)
+	if(!pPlayer)
 		return;
 	CPlayer::CLoginData *pData = &pPlayer->m_LoginData;
-	if (!pData)
+	if(!pData)
 		return;
-	if (!Next())
+	if(!Next())
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
 		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
@@ -81,7 +80,7 @@ void CQueryLoginThreaded::OnData()
 		m_pGameServer->LoginBanCheck(m_ClientID);
 		return;
 	}
-	if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
+	if(m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
 	{
 		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
 		pData->m_LoginState = CPlayer::LOGIN_OFF;
@@ -120,24 +119,24 @@ void CQueryLoginThreaded::OnData()
 
 void CQueryLogin::OnData()
 {
-	if (Next())
+	if(Next())
 	{
-		if (m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
+		if(m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
 		{
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
 		}
 		else
 		{
-			if (g_Config.m_SvSpeedLogin)
+			if(g_Config.m_SvSpeedLogin)
 			{
-				if (m_pGameServer->m_apPlayers[m_ClientID])
+				if(m_pGameServer->m_apPlayers[m_ClientID])
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] speed login success.");
 					//m_pGameServer->m_apPlayers[m_ClientID]->ThreadLoginStart(this); //crashes the server still in work
 				}
 				return;
 			}
-			if (m_pGameServer->m_apPlayers[m_ClientID])
+			if(m_pGameServer->m_apPlayers[m_ClientID])
 			{
 				//#####################################################
 				//       W A R N I N G
@@ -146,7 +145,7 @@ void CQueryLogin::OnData()
 				// src/game/server/player.cpp
 				//#####################################################
 #if defined(CONF_DEBUG)
-				dbg_msg("cBug","gamecontext.cpp '%s' CID=%d loading data...", m_pGameServer->Server()->ClientName(m_ClientID), m_ClientID);
+				dbg_msg("cBug", "gamecontext.cpp '%s' CID=%d loading data...", m_pGameServer->Server()->ClientName(m_ClientID), m_ClientID);
 #endif
 
 				//basic
@@ -272,13 +271,13 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleSpree"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleShots = GetInt(GetID("RifleShots"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleWins = GetInt(GetID("RifleWins")); //zCatch
-				if (g_Config.m_SvInstaScore) //load scoreboard scores
+				if(g_Config.m_SvInstaScore) //load scoreboard scores
 				{
-					if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
+					if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
 					{
 						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("GrenadeKills"));
 					}
-					else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
+					else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 					{
 						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("RifleKills"));
 					}
@@ -286,7 +285,7 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
 
 				//ShowHide config
-                /*
+				/*
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig));
 				m_pGameServer->ShowHideConfigCharToBool(m_ClientID); //update the actual bools used ingame
                 */
@@ -296,14 +295,14 @@ void CQueryLogin::OnData()
 			// ABORT LOGIN AFTER LOADING DATA
 			//================================
 
-			if (m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
 				m_pGameServer->m_apPlayers[m_ClientID]->Logout();
 				return;
 			}
 
-			if (GetInt(GetID("IsLoggedIn")) == 1)
+			if(GetInt(GetID("IsLoggedIn")) == 1)
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
 				m_pGameServer->m_apPlayers[m_ClientID]->Logout(1); //Set IsLoggedIn to 1 to keep the account logged in on this logout
@@ -315,11 +314,10 @@ void CQueryLogin::OnData()
 			// Start to do something...
 			//==========================
 
-
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
 
 			//nobo spawn
-			if (m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop > m_pGameServer->Server()->Tick())
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop > m_pGameServer->Server()->Tick())
 			{
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsNoboSpawn = false;
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NoboSpawnStop = 0;
@@ -327,13 +325,13 @@ void CQueryLogin::OnData()
 			}
 
 			//jail
-			if (m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
 			{
-				if (m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
+				if(m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
 				{
 					vec2 JailPlayerSpawn = m_pGameServer->Collision()->GetRandomTile(TILE_JAIL);
 
-					if (JailPlayerSpawn != vec2(-1, -1))
+					if(JailPlayerSpawn != vec2(-1, -1))
 					{
 						m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter()->SetPosition(JailPlayerSpawn);
 					}
@@ -345,9 +343,9 @@ void CQueryLogin::OnData()
 			}
 
 			//auto joins
-			if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
 			{
-				if (!g_Config.m_SvAllowInsta)
+				if(!g_Config.m_SvAllowInsta)
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] fng autojoin failed because fng is deactivated by an admin.");
 				}
@@ -357,9 +355,9 @@ void CQueryLogin::OnData()
 					m_pGameServer->JoinInstagib(5, true, m_ClientID);
 				}
 			}
-			else if (m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '2') //auto boomfng join
+			else if(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '2') //auto boomfng join
 			{
-				if (!g_Config.m_SvAllowInsta)
+				if(!g_Config.m_SvAllowInsta)
 				{
 					m_pGameServer->SendChatTarget(m_ClientID, "[INSTA] boomfng autojoin failed because fng is deactivated by an admin.");
 				}
@@ -370,14 +368,11 @@ void CQueryLogin::OnData()
 				}
 			}
 
-
 			//account reset info
-			if (!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
+			if(!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
-
-
 
 			//========================================
 			//LEAVE THIS CODE LAST!!!!
@@ -398,9 +393,9 @@ void CQueryLogin::OnData()
 
 void CQueryChangePassword::OnData()
 {
-	if (Next())
+	if(Next())
 	{
-		if (m_pGameServer->m_apPlayers[m_ClientID])
+		if(m_pGameServer->m_apPlayers[m_ClientID])
 		{
 			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
 			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
@@ -415,7 +410,7 @@ void CQueryChangePassword::OnData()
 
 void CQuerySetPassword::OnData()
 {
-	if (Next())
+	if(Next())
 	{
 		//send acc infos on found
 		char aBuf[128];
@@ -443,41 +438,41 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 		related issue https://github.com/DDNetPP/DDNetPP/issues/279
 	*/
 	static const int MAX_SQL_ID_LENGTH = 8;
-	char aBuf[128+(MAX_CLIENTS*(MAX_SQL_ID_LENGTH+1))];
+	char aBuf[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
 	bool IsLoggedIns = false;
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (!m_apPlayers[i])
+		if(!m_apPlayers[i])
 			continue;
-		if (m_apPlayers[i]->IsLoggedIn())
+		if(m_apPlayers[i]->IsLoggedIn())
 		{
 			IsLoggedIns = true;
 			break;
 		}
 	}
 	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE LastLoginPort = '%i' ", g_Config.m_SvPort);
-	if (IsLoggedIns)
+	if(IsLoggedIns)
 	{
 		str_append(aBuf, " AND ID NOT IN (", sizeof(aBuf));
-		for (int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (!m_apPlayers[i])
+			if(!m_apPlayers[i])
 				continue;
-			if (!m_apPlayers[i]->IsLoggedIn())
+			if(!m_apPlayers[i]->IsLoggedIn())
 				continue;
-			char aBufBuf[MAX_SQL_ID_LENGTH+2]; // max supported id len + comma + nullterm
+			char aBufBuf[MAX_SQL_ID_LENGTH + 2]; // max supported id len + comma + nullterm
 			str_format(aBufBuf, sizeof(aBufBuf), "%d,", m_apPlayers[i]->GetAccID());
 			str_append(aBuf, aBufBuf, sizeof(aBuf));
 		}
-		aBuf[strlen(aBuf)-1] = '\0'; // chop of the last comma
+		aBuf[strlen(aBuf) - 1] = '\0'; // chop of the last comma
 		str_append(aBuf, ")", sizeof(aBuf));
 	}
 	ExecuteSQLvf(ClientID, aBuf);
 }
 
-void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword)
+void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword)
 {
-	if (mode == SQL_LOGIN)
+	if(mode == SQL_LOGIN)
 	{
 		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pUsername, pPassword);
 		CQueryLogin *pQuery = new CQueryLogin();
@@ -486,20 +481,20 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}
-	else if (mode == SQL_LOGIN_THREADED)
+	else if(mode == SQL_LOGIN_THREADED)
 	{
 		CPlayer *pPlayer = m_apPlayers[ClientID];
-		if (!pPlayer)
+		if(!pPlayer)
 			return;
-		if (pPlayer->m_LoginData.m_LoginState != CPlayer::LOGIN_OFF)
+		if(pPlayer->m_LoginData.m_LoginState != CPlayer::LOGIN_OFF)
 			return;
 		pPlayer->ThreadLoginStart(pUsername, pPassword);
 	}
-	else if (mode == SQL_REGISTER)
+	else if(mode == SQL_REGISTER)
 	{
 		char time_str[64];
 		time_t rawtime;
-		struct tm * timeinfo;
+		struct tm *timeinfo;
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
 		str_format(time_str, sizeof(time_str), "%d-%d-%d_%d:%d:%d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
@@ -514,7 +509,7 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}
-	else if (mode == SQL_CHANGE_PASSWORD)
+	else if(mode == SQL_CHANGE_PASSWORD)
 	{
 		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pUsername, pPassword);
 		CQueryChangePassword *pQuery = new CQueryChangePassword();
@@ -523,7 +518,7 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char * pUsername, co
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}
-	else if (mode == SQL_SET_PASSWORD)
+	else if(mode == SQL_SET_PASSWORD)
 	{
 		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pUsername);
 		CQuerySetPassword *pQuery = new CQuerySetPassword();
@@ -564,7 +559,7 @@ void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
 	va_start(ap, pSQL);
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
-	if (VerboseID != -1)
+	if(VerboseID != -1)
 	{
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);

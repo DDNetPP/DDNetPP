@@ -10,8 +10,9 @@ bool CQuery::Next()
 void CQuery::Query(CSql *pDatabase, char *pQuery)
 {
 #if defined(CONF_DEBUG)
-	if (!pQuery) {
-		dbg_msg("SQLite","[WARNING] no pQuery found in CQuery::Query()");
+	if(!pQuery)
+	{
+		dbg_msg("SQLite", "[WARNING] no pQuery found in CQuery::Query()");
 	}
 #endif
 	m_pDatabase = pDatabase;
@@ -27,13 +28,13 @@ void CSql::QueryBlocking(CQuery *pQuery, std::string QueryString)
 {
 	int Ret;
 	Ret = sqlite3_prepare_v2(m_pDB, QueryString.c_str(), -1, &pQuery->m_pStatement, 0);
-	if (Ret != SQLITE_OK)
+	if(Ret != SQLITE_OK)
 	{
 		dbg_msg("SQLite", "QueryBlockingError: %s", sqlite3_errmsg(m_pDB));
 		return;
 	}
 	Ret = sqlite3_finalize(pQuery->m_pStatement);
-	if (Ret != SQLITE_OK)
+	if(Ret != SQLITE_OK)
 	{
 		dbg_msg("SQLite", "QueryBlockingFinalizeError: %s", sqlite3_errmsg(m_pDB));
 		return;
@@ -47,9 +48,9 @@ void CQuery::OnData()
 }
 int CQuery::GetID(const char *pName)
 {
-	for (int i = 0; i < GetColumnCount(); i++)
+	for(int i = 0; i < GetColumnCount(); i++)
 	{
-		if (str_comp(GetName(i), pName) == 0)
+		if(str_comp(GetName(i), pName) == 0)
 			return i;
 	}
 	return -1;
@@ -57,10 +58,10 @@ int CQuery::GetID(const char *pName)
 
 void CSql::WorkerThread()
 {
-	while (m_Running)
+	while(m_Running)
 	{
 		lock_wait(m_Lock); //lock queue
-		if (m_lpQueries.size() > 0)
+		if(m_lpQueries.size() > 0)
 		{
 			CQuery *pQuery = m_lpQueries.front();
 			m_lpQueries.pop();
@@ -68,16 +69,16 @@ void CSql::WorkerThread()
 
 			int Ret;
 			Ret = sqlite3_prepare_v2(m_pDB, pQuery->m_Query.c_str(), -1, &pQuery->m_pStatement, 0);
-			if (Ret == SQLITE_OK)
+			if(Ret == SQLITE_OK)
 			{
-				if (!m_Running) //last check
+				if(!m_Running) //last check
 					break;
 
-                // pQuery->OnData()
+				// pQuery->OnData()
 
-                lock_wait(m_CallbackLock);
-                m_lpExecutedQueries.push(pQuery);
-                lock_unlock(m_CallbackLock);
+				lock_wait(m_CallbackLock);
+				m_lpExecutedQueries.push(pQuery);
+				lock_unlock(m_CallbackLock);
 
 				// sqlite3_finalize(pQuery->m_pStatement);
 			}
@@ -100,23 +101,25 @@ void CSql::WorkerThread()
 
 void CSql::Tick()
 {
-    while(true) {
-        lock_wait(m_CallbackLock);
-        if(!m_lpExecutedQueries.size()) {
-            lock_unlock(m_CallbackLock);
-            break;
-        }
+	while(true)
+	{
+		lock_wait(m_CallbackLock);
+		if(!m_lpExecutedQueries.size())
+		{
+			lock_unlock(m_CallbackLock);
+			break;
+		}
 
-        CQuery *pQuery = m_lpExecutedQueries.front();
-        m_lpExecutedQueries.pop();
+		CQuery *pQuery = m_lpExecutedQueries.front();
+		m_lpExecutedQueries.pop();
 
-        pQuery->OnData();
+		pQuery->OnData();
 
-        sqlite3_finalize(pQuery->m_pStatement);
+		sqlite3_finalize(pQuery->m_pStatement);
 
-        lock_unlock(m_CallbackLock);
-        delete pQuery;
-    }
+		lock_unlock(m_CallbackLock);
+		delete pQuery;
+	}
 }
 
 void CSql::InitWorker(void *pUser)
@@ -128,7 +131,8 @@ void CSql::InitWorker(void *pUser)
 CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 {
 #if defined(CONF_DEBUG)
-	if (!pQuery) {
+	if(!pQuery)
+	{
 		dbg_msg("SQLite", "[WARNING] no pQuery found in CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)");
 		return NULL;
 	}
@@ -151,7 +155,7 @@ void CSql::CreateDatabase()
 {
 	dbg_msg("SQLite", "connecting to '%s' ", g_Config.m_SvDatabasePath);
 	int rc = sqlite3_open(g_Config.m_SvDatabasePath, &m_pDB);
-	if (rc)
+	if(rc)
 	{
 		dbg_msg("SQLite", "Can't open database error: %d", rc);
 		sqlite3_close(m_pDB);
@@ -255,7 +259,6 @@ void CSql::CreateDatabase()
 		AsciiFrame14				VARCHAR(64)		DEFAULT '',\n\
 		AsciiFrame15				VARCHAR(64)		DEFAULT '');";
 
-
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 
 	m_Lock = lock_create();
@@ -268,7 +271,7 @@ CSql::~CSql()
 {
 	m_Running = false;
 	lock_wait(m_Lock);
-	while (m_lpQueries.size())
+	while(m_lpQueries.size())
 	{
 		CQuery *pQuery = m_lpQueries.front();
 		m_lpQueries.pop();
@@ -280,13 +283,13 @@ CSql::~CSql()
 
 	lock_wait(m_CallbackLock);
 
-	while (m_lpExecutedQueries.size())
+	while(m_lpExecutedQueries.size())
 	{
 		CQuery *pQuery = m_lpExecutedQueries.front();
 		m_lpExecutedQueries.pop();
 		delete pQuery;
 	}
 
-    lock_unlock(m_CallbackLock);
-    lock_destroy(m_CallbackLock);
+	lock_unlock(m_CallbackLock);
+	lock_destroy(m_CallbackLock);
 }

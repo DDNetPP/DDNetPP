@@ -2050,7 +2050,7 @@ void CCharacter::DummyTick()
 						//                                                      Old: tee<bot      New: tee<pos.x
 						if((pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5 /* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 428 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32) || //wenn ein tee weiter links ist als der bot && der bot links vom mittelfreeze im rulerspot steht
 							(pChr->m_Pos.y < 213 * 32 && pChr->m_Pos.x > 417 * 32 - 5 /* && pChr->m_Pos.x < m_Core.m_Pos.x*/ && pChr->m_Pos.x < 444 * 32 && m_Core.m_Pos.x < 429 * 32 && m_Core.m_Pos.x > 415 * 32 && m_Core.m_Pos.y < 213 * 32 && pChr->m_FreezeTime == 0)) //oder der tee auch rechts vom bot ist aber unfreeze
-							//wenn dies ist -> notstand links ausrufen und versuchen gegner zu blocken
+						//wenn dies ist -> notstand links ausrufen und versuchen gegner zu blocken
 						{
 							//m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 							SetWeapon(0);

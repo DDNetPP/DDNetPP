@@ -16,6 +16,7 @@
 #include <engine/shared/datafile.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/econ.h>
+#include <engine/shared/fifo.h>
 #include <engine/shared/filecollection.h>
 #include <engine/shared/netban.h>
 #include <engine/shared/network.h>
@@ -23,33 +24,32 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/protocol_ex.h>
 #include <engine/shared/snapshot.h>
-#include <engine/shared/fifo.h>
 
 #include <mastersrv/mastersrv.h>
 
 // DDRace
-#include <string.h>
-#include <vector>
+#include <base/ddpp_logs.h>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
-#include <base/ddpp_logs.h>
+#include <string.h>
+#include <vector>
 
 #include "register.h"
 #include "server.h"
 
 #if defined(CONF_FAMILY_WINDOWS)
-	#define _WIN32_WINNT 0x0501
-	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+#define _WIN32_WINNT 0x0501
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 // DDPP ( ChillerDragon )
-#include <string>
 #include <fstream>
+#include <string>
 
 void CServer::BotJoin(int BotID)
 {
-	const char *pNames[] = { //Array für die Namen
+	const char *pNames[] = {//Array für die Namen
 		"flappy.*",
 		"Chillingo.*",
 		"Fluffy.*",
@@ -179,9 +179,8 @@ void CServer::BotJoin(int BotID)
 		"geneticual",
 		"fokkoNUT"
 
-		
 	};
-	const char *pClans[] = { //Array für die Clans
+	const char *pClans[] = {//Array für die Clans
 		"Chilli.*",
 		"Chilli.*",
 		"Chilli.*",
@@ -245,8 +244,7 @@ void CServer::BotJoin(int BotID)
 		"61",
 		"62",
 		"63",
-		"64"
-	};
+		"64"};
 
 	m_NetServer.BotInit(BotID);
 	m_aClients[BotID].m_State = CClient::STATE_BOT;
@@ -272,7 +270,7 @@ void CServer::BotLeave(int BotID, bool silent)
 	m_NetServer.BotDelete(BotID);
 }
 
-void CServer::ConStartBlockTourna(IConsole::IResult * pResult, void * pUser)
+void CServer::ConStartBlockTourna(IConsole::IResult *pResult, void *pUser)
 {
 	//((CServer *)pUser)->m_pGameServer->SendBroadcastAll("hacked the world");
 	//((CServer *)pUser)->GameServer()->OnClientDrop(2, "", false);

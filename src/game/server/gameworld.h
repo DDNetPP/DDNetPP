@@ -101,25 +101,23 @@ public:
 			Returns a pointer to the closest CCharacter or NULL if no CCharacter is close enough.
 	*/
 
+	class CCharacter *ClosestCharType(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true); //piku pro code
 
-
-	class CCharacter *ClosestCharType(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true);  //piku pro code
-
-	class CCharacter *ClosestCharTypeFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true);  
+	class CCharacter *ClosestCharTypeFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true);
 
 	class CCharacter *ClosestCharTypeNotInFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0, bool SeeAll = true);
 
-	class CCharacter *ClosestCharTypeRuler(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //chiller was here o.O
+	class CCharacter *ClosestCharTypeRuler(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0); //chiller was here o.O
 
-	class CCharacter *ClosestCharTypeRuler2(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //Ruler2 == Ruler (nur der unfreez bereieich ohne linke fwand)
+	class CCharacter *ClosestCharTypeRuler2(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0); //Ruler2 == Ruler (nur der unfreez bereieich ohne linke fwand)
 
-	class CCharacter *ClosestCharTypeRulerWB(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0); 
+	class CCharacter *ClosestCharTypeRulerWB(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
 
 	class CCharacter *ClosestCharTypeRulerWBBottom(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
 
 	class CCharacter *ClosestCharTypeTunnel(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);
 
-	class CCharacter *ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0);  //chiller was here o.O 2
+	class CCharacter *ClosestCharTypeRulerLeftFreeze(vec2 Pos, bool Human = true, CCharacter *pNotThis = 0); //chiller was here o.O 2
 
 	class CCharacter *ClosestCharTypeDummy(vec2 Pos, CCharacter *pNotThis = 0);
 

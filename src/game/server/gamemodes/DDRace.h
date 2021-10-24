@@ -12,7 +12,6 @@ struct CScoreInitResult;
 class CGameControllerDDRace : public IGameController
 {
 public:
-
 	bool m_IsGrounded;
 
 	class CFlag *m_apFlags[2];

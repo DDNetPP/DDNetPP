@@ -12,9 +12,9 @@
 #include <game/mapbugs.h>
 #include <game/voting.h>
 
-#include <game/server/letters.h>
 #include <base/tl/array.h>
 #include <base/tl/string.h>
+#include <game/server/letters.h>
 
 #include "eventhandler.h"
 #include "gamecontroller.h"
@@ -202,16 +202,16 @@ public:
 
 	enum
 	{
-		CHAT_ALL=-2,
-		CHAT_SPEC=-1,
-		CHAT_RED=0,
-		CHAT_BLUE=1,
-		CHAT_WHISPER_SEND=2,
-		CHAT_WHISPER_RECV=3,
-		CHAT_TO_ONE_CLIENT=4,
+		CHAT_ALL = -2,
+		CHAT_SPEC = -1,
+		CHAT_RED = 0,
+		CHAT_BLUE = 1,
+		CHAT_WHISPER_SEND = 2,
+		CHAT_WHISPER_RECV = 3,
+		CHAT_TO_ONE_CLIENT = 4,
 
-		CHAT_SIX=1<<0,
-		CHAT_SIXUP=1<<1,
+		CHAT_SIX = 1 << 0,
+		CHAT_SIXUP = 1 << 1,
 	};
 
 	// network
@@ -221,7 +221,7 @@ public:
 	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int Flags = CHAT_SIX | CHAT_SIXUP, int ToClientID = -1);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID, int importance = 1,  bool supermod = false);
+	void SendBroadcast(const char *pText, int ClientID, int importance = 1, bool supermod = false);
 
 	void List(int ClientID, const char *filter);
 
@@ -297,7 +297,7 @@ public:
 	//usefull everywhere
 	void AbuseMotd(const char *pMsg, int ClientID);
 	int IsMinigame(int playerID);
-	bool IsDDPPgametype(const char * pGametype);
+	bool IsDDPPgametype(const char *pGametype);
 	int GetCIDByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountConnectedHumans();
@@ -306,14 +306,15 @@ public:
 	int CountTimeoutCodePlayers();
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
-	void GetSpreeType(int ClientID, char * pBuf, size_t BufSize, bool IsRecord = false);
+	void GetSpreeType(int ClientID, char *pBuf, size_t BufSize, bool IsRecord = false);
 	void LogoutAllPlayersMessage();
 
 	bool ShowJoinMessage(int ClientID);
 	bool ShowLeaveMessage(int ClientID);
 	bool ShowTeamSwitchMessage(int ClientID);
 
-	enum {
+	enum
+	{
 		CON_SHOW_NONE,
 		CON_SHOW_JOIN,
 		CON_SHOW_JOIN_LEAVE,
@@ -325,11 +326,12 @@ public:
 	CLetters *m_pLetters;
 
 	// sql
-	void SQLaccount(int mode, int ClientID, const char * pUsername, const char * pPassword = "");
+	void SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword = "");
 	void ExecuteSQLf(const char *pSQL, ...);
 	void ExecuteSQLBlockingf(const char *pSQL, ...);
 	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
-	enum {
+	enum
+	{
 		SQL_REGISTER,
 		SQL_LOGIN,
 		SQL_LOGIN_THREADED,
@@ -339,7 +341,7 @@ public:
 	void SQLcleanZombieAccounts(int ClientID);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
-	bool AdminChatPing(const char * pMsg);
+	bool AdminChatPing(const char *pMsg);
 
 	/*
 		m_LastAccountMode
@@ -353,9 +355,9 @@ public:
 	bool m_CreateShopBot;
 	bool m_ShopBotTileExists;
 
-    //                                                                                                    \\ Escaping the escape seceqnze
-    //char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)
-    char m_aAllowedCharSet[128]; //assignment moved to constructor
+	//                                                                                                    \\ Escaping the escape seceqnze
+	//char m_aAllowedCharSet[128] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&!?*.:+@/\\-_ "; //warning also added space (needed for profile status)
+	char m_aAllowedCharSet[128]; //assignment moved to constructor
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
 	bool IsPosition(int playerID, int pos);
@@ -380,7 +382,7 @@ public:
 	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
 	int m_InstaRifleWinnerID;
 	char m_aInstaRifleScoreboard[1024];
-	bool ChillWriteToLine(char const* filename, unsigned lineNo, char const * data);
+	bool ChillWriteToLine(char const *filename, unsigned lineNo, char const *data);
 	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
 	int m_LastVoteCallAll;
 	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
@@ -402,7 +404,7 @@ public:
 	void ShowHideConfigCharToBool(int id); // full side effect function which loads all the showhide bools from the char array
 
 	//FNN
-	void FNN_LoadRun(const char * path, int botID);
+	void FNN_LoadRun(const char *path, int botID);
 	vec2 m_FinishTilePos;
 	vec2 GetFinishTile();
 	void TestPrintTiles(int botID);
@@ -422,17 +424,17 @@ public:
 	void DDPP_SlowTick();
 	void ChilliClanTick(int i);
 	void AsciiTick(int i);
-    
-    // missions (singleplayer)
-    int m_MissionUnlockedLevel;
-    int m_MissionCurrentLevel;
-    void LoadSinglePlayer();
-    void SaveSinglePlayer();
-    
-    struct CBinaryStorage
-    {
-        int x,space1,space2; // wtf? xd
-    };
+
+	// missions (singleplayer)
+	int m_MissionUnlockedLevel;
+	int m_MissionCurrentLevel;
+	void LoadSinglePlayer();
+	void SaveSinglePlayer();
+
+	struct CBinaryStorage
+	{
+		int x, space1, space2; // wtf? xd
+	};
 
 	// TODO: make this a own class
 	void SaveMapPlayerData();
@@ -443,7 +445,7 @@ public:
 
 	//global chat
 	void GlobalChatPrintMessage();
-	void GlobalChatUpdateConfirms(const char * pStr);
+	void GlobalChatUpdateConfirms(const char *pStr);
 	char m_aLastPrintedGlobalChatMessage[1024];
 
 	//survival
@@ -492,32 +494,33 @@ public:
 	int m_survival_start_players;
 	int m_survival_spawn_counter;
 	char m_aLastSurvivalWinnerName[32];
-	enum {
-		SURVIVAL_OFF,				// gamestate	playerstate
-		SURVIVAL_LOBBY,				// gamestate	playerstate
-		SURVIVAL_INGAME,			// gamestate	playerstate
-		SURVIVAL_DM_COUNTDOWN,		// gamestate
-		SURVIVAL_DM,				// gamestate
+	enum
+	{
+		SURVIVAL_OFF, // gamestate	playerstate
+		SURVIVAL_LOBBY, // gamestate	playerstate
+		SURVIVAL_INGAME, // gamestate	playerstate
+		SURVIVAL_DM_COUNTDOWN, // gamestate
+		SURVIVAL_DM, // gamestate
 
-		SURVIVAL_DIE=3				// playerstate
+		SURVIVAL_DIE = 3 // playerstate
 	};
 
 	//block tourna
 
-	void BlockTournaTick(); 
+	void BlockTournaTick();
 	void EndBlockTourna(); //sets all player bools to false and the state
 	int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
 	int m_BlockTournaLobbyTick;
 	int m_BlockTournaTick;
 	int CountBlockTournaAlive();
 	int m_BlockTournaStartPlayers;
-	
-	const char* GetBlockSkillGroup(int id);
+
+	const char *GetBlockSkillGroup(int id);
 	int GetBlockSkillGroupInt(int id);
 	void UpdateBlockSkill(int value, int id);
 
 	//blockwave
-	
+
 	void BlockWaveAddBots();
 	void BlockWaveWonRound();
 	void StartBlockWaveGame();
@@ -582,7 +585,7 @@ public:
 	bool m_bwff; //black whithe flip flip
 
 	// drop pickups
-	std::vector< std::vector<CDropPickup*> > m_vDropLimit;
+	std::vector<std::vector<CDropPickup *>> m_vDropLimit;
 
 	/*****************
 	*     TRADE      *
@@ -596,9 +599,8 @@ public:
 
 	//  --- base
 	int TradeItemToInt(const char *pItemName);
-	const char * TradeItemToStr(int ItemID);
+	const char *TradeItemToStr(int ItemID);
 	int TradeHasItem(int ItemID, int ID);
-
 
 	// DDRace
 	void OnClientDDNetVersionKnown(int ClientID);
@@ -636,7 +638,6 @@ public:
 	//char aTestMsg[1024];
 	//int TestShareValue;
 	int m_CucumberShareValue;
-
 
 	char aBroadcastMSG[128];
 	int m_iBroadcastDelay;
@@ -1028,7 +1029,7 @@ private:
 	static void ConTaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConWanted(IConsole::IResult *pResult, void *pUserData);
 
-	//money 
+	//money
 	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
 	static void ConPay(IConsole::IResult *pResult, void *pUserData);
 	static void ConBank(IConsole::IResult *pResult, void *pUserData);
@@ -1055,7 +1056,6 @@ private:
 	static void ConDDPPLogs(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConGive(IConsole::IResult *pResult, void *pUserData);
-
 
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
@@ -1098,11 +1098,11 @@ private:
 
 	enum
 	{
-		MAX_MUTES=32,
-		MAX_REGISTER_BANS=128,
-		MAX_LOGIN_BANS=128,
-		MAX_JAILS=16,
-		MAX_VOTE_MUTES=32,
+		MAX_MUTES = 32,
+		MAX_REGISTER_BANS = 128,
+		MAX_LOGIN_BANS = 128,
+		MAX_JAILS = 16,
+		MAX_VOTE_MUTES = 32,
 	};
 	struct CMute
 	{
@@ -1207,6 +1207,7 @@ public:
 class CQueryChangePassword : public CQueryPlayer
 {
 	void OnData();
+
 public:
 };
 
@@ -1214,6 +1215,7 @@ public:
 class CQuerySetPassword : public CQueryPlayer
 {
 	void OnData();
+
 public:
 };
 
@@ -1226,6 +1228,7 @@ class CQuerySQLstatus : public CQueryPlayer
 class CQueryRegister : public CQueryPlayer
 {
 	void OnData();
+
 public:
 	std::string m_Name;
 	std::string m_Password;
@@ -1236,6 +1239,7 @@ public:
 class CQueryLogin : public CQueryPlayer
 {
 	void OnData();
+
 public:
 };
 
@@ -1243,6 +1247,7 @@ public:
 class CQueryLoginThreaded : public CQueryPlayer
 {
 	void OnData();
+
 public:
 };
 

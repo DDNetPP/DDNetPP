@@ -135,8 +135,8 @@ inline vector2_base<T> rotate_around_point(vector2_base<T> point, vector2_base<T
 	point -= pivot;
 	// rotate point
 	vector2_base<T> rotated_point;
-	rotated_point.x = point.x*c - point.y*s;
-	rotated_point.y = point.x*s + point.y*c;
+	rotated_point.x = point.x * c - point.y * s;
+	rotated_point.y = point.x * s + point.y * c;
 	// translate point back to pivot
 	point = rotated_point + pivot;
 	return point;

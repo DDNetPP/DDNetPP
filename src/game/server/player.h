@@ -4,15 +4,15 @@
 #define GAME_SERVER_PLAYER_H
 
 // this include should perhaps be removed
-#include "entities/character.h"
 #include "captcha.h"
-#include <game/version.h>
+#include "entities/character.h"
 #include <engine/client/http.h>
+#include <game/version.h>
 
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 #include "score.h"
@@ -275,11 +275,12 @@ public:
 	bool m_MapSaveLoaded;
 
 	// login and threads
-	void ThreadLoginStart(const char * pUsername, const char * pPassword);
-	static void ThreadLoginWorker(void * pArg);
+	void ThreadLoginStart(const char *pUsername, const char *pPassword);
+	static void ThreadLoginWorker(void *pArg);
 	void ThreadLoginDone();
 
-	struct CLoginData {
+	struct CLoginData
+	{
 		// meta
 		CGameContext *m_pGameContext;
 		int m_LoginState;
@@ -304,7 +305,8 @@ public:
 		int m_GiftDelay;
 	};
 	CLoginData m_LoginData;
-	enum {
+	enum
+	{
 		LOGIN_OFF,
 		LOGIN_WAIT,
 		LOGIN_DONE
@@ -353,7 +355,6 @@ public:
 	long m_ci_lowest_dest_dist; //max long len 2147483647
 	long m_ci_latest_dest_dist;
 
-
 	//###########
 	//minigames
 	//###########
@@ -365,7 +366,7 @@ public:
 	//moved to gamecontext.cpp
 	//int m_BombColor;
 	//bool m_bwff; //black whithe flip flip
-	
+
 	//bomb stats
 	int m_BombGamesPlayed;
 	int m_BombGamesWon;
@@ -410,7 +411,6 @@ public:
 	char m_ProfileTwitter[50];
 	char m_LastViewedProfile[32];
 	bool m_IsProfileViewLoaded;
-
 
 	//PvP-arena ChillerDragon
 	int m_pvp_arena_tickets;
@@ -511,7 +511,7 @@ public:
 	int m_SpawnGrenadeActive;
 	int m_SpawnRifleActive;
 
-	std::vector< std::vector<CWeapon*> > m_vWeaponLimit;
+	std::vector<std::vector<CWeapon *>> m_vWeaponLimit;
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp
@@ -540,7 +540,7 @@ public:
 
 	bool m_IsAccFrozen; //cant use the sql acc if true
 
-	char m_LastLogoutIGN1[32]; 
+	char m_LastLogoutIGN1[32];
 	char m_LastLogoutIGN2[32];
 	char m_LastLogoutIGN3[32];
 	char m_LastLogoutIGN4[32];
@@ -589,8 +589,6 @@ public:
 
 	CCaptcha *m_pCaptcha;
 	int m_homing_missiles_ammo;
-
-
 
 	//money and traiding
 
@@ -648,7 +646,6 @@ public:
 	bool m_ShowInstaScoreBroadcast;
 	char m_aShowHideConfig[16]; // [0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
 
-
 	// quests
 	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests untill unlocked
 	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels untill unlocked
@@ -663,17 +660,18 @@ public:
 	int m_aQuestProgress[2]; // stores the quest progress information
 	bool m_QuestFailed;
 	bool IsQuesting() { return m_QuestState != QUEST_OFF; }
-	enum {
-		QUEST_OFF		= 0,
-		QUEST_HAMMER	= 1,
-		QUEST_BLOCK		= 2,
-		QUEST_RACE		= 3,
-		QUEST_RIFLE		= 4,
-		QUEST_FARM		= 5,
+	enum
+	{
+		QUEST_OFF = 0,
+		QUEST_HAMMER = 1,
+		QUEST_BLOCK = 2,
+		QUEST_RACE = 3,
+		QUEST_RIFLE = 4,
+		QUEST_FARM = 5,
 		QUEST_NUM_PLUS_ONE,
-		QUEST_NUM		= QUEST_NUM_PLUS_ONE - 1,
+		QUEST_NUM = QUEST_NUM_PLUS_ONE - 1,
 
-		QUEST_NUM_LEVEL	= 9
+		QUEST_NUM_LEVEL = 9
 	};
 	// handled in gamecontext.cpp LoadQuest()
 	//              QUEST         QUEST LEVEL
@@ -688,18 +686,18 @@ public:
 	//              1             6                  = Hammer freezed <specific player> 3 times [LEVEL 6]
 	//              1             7                  = Hammer <specfifc player> 10 times and then block him [LEVEL 7]
 	//              1             8                  = Hammer 2 tees in one hit [LEVEL 8]
-	//              1             9                  = Hammer 10 freezed tees in a row while holding the flag [LEVEL 9]  
+	//              1             9                  = Hammer 10 freezed tees in a row while holding the flag [LEVEL 9]
 
 	//              2             0                  = Block 1 tee [LEVEL 0]
 	//              2             1                  = Block 2 tees [LEVEL 1]
 	//              2             2                  = Block 3 tees [LEVEL 2]
 	//              2             3                  = Block 5 tees [LEVEL 3]
 	//              2             4                  = Block 10 tees without using a weapon [LEVEL 4]
-	//              2             5                  = Block 5 tees and then block <specific player> [LEVEL 5]               
+	//              2             5                  = Block 5 tees and then block <specific player> [LEVEL 5]
 	//              2             6                  = Block a tee which is on a 5 tees blocking spree [LEVEL 6]
 	//              2             7                  = Block 11 tees without getting blocked [LEVEL 7]
 	//              2             8                  = Block 3 tees without using hook [LEVEL 8]
-	//              2             9                  = Block 11 tees whithout dieing while holding the flag [LEVEL 9]   //TODO: die = fail 
+	//              2             9                  = Block 11 tees whithout dieing while holding the flag [LEVEL 9]   //TODO: die = fail
 
 	//              3             0                  = Finish race [LEVEL 0]
 	//              3             1                  = Finish race under cfg_time1 [LEVEL 1]
@@ -715,7 +713,7 @@ public:
 	//              4             0                  = Rifle 1 tee [LEVEL 0]
 	//              4             1                  = Rifle <specific player> 5 times [LEVEL 1]
 	//              4             2                  = Rifle freezed <specific player> 5 times [LEVEL 2]
-	//              4             3                  = Rilfe 10 tees and <specific player> [LEVEL 3]  
+	//              4             3                  = Rilfe 10 tees and <specific player> [LEVEL 3]
 	//              4             4                  = Rifle 10 freezed tees [LEVEL 4]
 	//              4             5                  = Rifle yourself while being freezed [LEVEL 5]
 	//              4             6                  = Rifle yourself while being freezed 10 times [LEVEL 6]
@@ -736,15 +734,15 @@ public:
 
 	//#################
 	// WARNING
-	// update quest num 
+	// update quest num
 	// QUEST_NUM_LEVEL
 	// if you add new quest level
 	//#################
 
-
 	// other
 
-	enum {
+	enum
+	{
 		SCORE_TIME,
 		SCORE_LEVEL,
 		SCORE_BLOCK
@@ -771,11 +769,11 @@ public:
 	int64 m_LastFight;
 
 	char m_aAccountLoginName[32];
-	char m_aChangePassword[MAX_PW_LEN+1];
-	char m_aAccountPassword[MAX_PW_LEN+1];
+	char m_aChangePassword[MAX_PW_LEN + 1];
+	char m_aAccountPassword[MAX_PW_LEN + 1];
 	char m_aAccountRegDate[32];
 
-	char m_aSetPassword[MAX_PW_LEN+1]; //admin sql save string (used to resett passwords)
+	char m_aSetPassword[MAX_PW_LEN + 1]; //admin sql save string (used to resett passwords)
 	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
 
 	void ChangePassword();
@@ -839,7 +837,7 @@ public:
 	//BLOCK POINTS
 
 	int m_BlockSkill;
-	int m_BlockPoints; //KILLS + other stuff like block tournaments won 
+	int m_BlockPoints; //KILLS + other stuff like block tournaments won
 	int m_BlockPoints_Kills; //Block points (blocked others)
 	int m_BlockPoints_Deaths; //Block -points (blocked by others)
 	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
@@ -867,7 +865,6 @@ public:
 	//bool m_freezeShotgun;
 	int m_RainbowColor;
 
-
 	char m_aWrongLogin[256];
 
 #if defined(CONF_SQL)
@@ -880,7 +877,7 @@ public:
 	bool m_TROLL420;
 	bool m_RconFreeze;
 
-	private: // private ddnet+++
+private: // private ddnet+++
 	int m_AccountID;
 	int m_level;
 	int64 m_xp;

@@ -261,11 +261,11 @@ void CCharacterCore::Tick(bool UseInput)
 		{
 			if(Hit == TILE_NOHOOK)
 				GoingToRetract = true;
-			else if (Hit == TILE_CONFIG_1)
+			else if(Hit == TILE_CONFIG_1)
 				GoingToRetract = g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
-			else if (Hit == TILE_CONFIG_2)
+			else if(Hit == TILE_CONFIG_2)
 				GoingToRetract = g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK;
-			else if (Hit == TILE_TELEINHOOK)
+			else if(Hit == TILE_TELEINHOOK)
 				GoingThroughTele = true;
 			else
 				GoingToHitGround = true;
@@ -333,7 +333,6 @@ void CCharacterCore::Tick(bool UseInput)
 
 	if(m_HookState == HOOK_GRABBED)
 	{
-
 		if(m_HookedPlayer != -1)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
@@ -377,7 +376,7 @@ void CCharacterCore::Tick(bool UseInput)
 
 		// release hook (max default hook time is 1.25 s)
 		m_HookTick++;
-		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5 || (m_HookedPlayer < 97 && !m_pWorld->m_apCharacters[m_HookedPlayer])))
+		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_HookedPlayer < 97 && !m_pWorld->m_apCharacters[m_HookedPlayer])))
 		{
 			m_HookedPlayer = -1;
 			m_HookState = HOOK_RETRACTED;
@@ -525,8 +524,8 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_HookTick = m_HookTick;
 	pObjCore->m_HookX = round_to_int(m_HookPos.x);
 	pObjCore->m_HookY = round_to_int(m_HookPos.y);
-	pObjCore->m_HookDx = round_to_int(m_HookDir.x*256.0f);
-	pObjCore->m_HookDy = round_to_int(m_HookDir.y*256.0f);
+	pObjCore->m_HookDx = round_to_int(m_HookDir.x * 256.0f);
+	pObjCore->m_HookDy = round_to_int(m_HookDir.y * 256.0f);
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Angle = m_Angle;
@@ -543,8 +542,8 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_HookTick = pObjCore->m_HookTick;
 	m_HookPos.x = pObjCore->m_HookX;
 	m_HookPos.y = pObjCore->m_HookY;
-	m_HookDir.x = pObjCore->m_HookDx/256.0f;
-	m_HookDir.y = pObjCore->m_HookDy/256.0f;
+	m_HookDir.x = pObjCore->m_HookDx / 256.0f;
+	m_HookDir.y = pObjCore->m_HookDy / 256.0f;
 	m_Jumped = pObjCore->m_Jumped;
 	m_Direction = pObjCore->m_Direction;
 	m_Angle = pObjCore->m_Angle;

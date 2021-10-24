@@ -2,19 +2,18 @@
 #ifndef BASE_DDPP_LOGS_H
 #define BASE_DDPP_LOGS_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+enum
+{
+	DDPP_LOG_MASTER,
+	DDPP_LOG_AUTH_RCON,
+	DDPP_LOG_WRONG_RCON,
+	DDPP_NUM_LOGS,
 
-enum {
-    DDPP_LOG_MASTER,
-    DDPP_LOG_AUTH_RCON,
-    DDPP_LOG_WRONG_RCON,
-    DDPP_NUM_LOGS,
-
-    DDPP_LOG_SIZE=8
+	DDPP_LOG_SIZE = 8
 };
 
 extern char aDDPPLogs[DDPP_NUM_LOGS][DDPP_LOG_SIZE][128];

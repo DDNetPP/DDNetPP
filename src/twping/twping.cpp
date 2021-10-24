@@ -1,8 +1,8 @@
 #include <base/math.h>
 #include <base/system.h>
+#include <engine/shared/config.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
-#include <engine/shared/config.h>
 
 static CNetClient g_NetOp; // main
 
@@ -20,7 +20,7 @@ int main(int argc, char **argv) // ignore_convention
 	}
 
 	NETADDR Addr;
-	if (net_host_lookup(argv[1], &Addr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs))
+	if(net_host_lookup(argv[1], &Addr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs))
 	{
 		fprintf(stderr, "host lookup failed\n");
 		return 1;

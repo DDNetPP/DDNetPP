@@ -146,8 +146,8 @@ SECURITY_TOKEN CNetServer::GetToken(const NETADDR &Addr)
 {
 	MD5_CTX Md5;
 	md5_init(&Md5);
-	md5_update(&Md5, (unsigned char*)m_SecurityTokenSeed, sizeof(m_SecurityTokenSeed));
-	md5_update(&Md5, (unsigned char*)&Addr, sizeof(Addr));
+	md5_update(&Md5, (unsigned char *)m_SecurityTokenSeed, sizeof(m_SecurityTokenSeed));
+	md5_update(&Md5, (unsigned char *)&Addr, sizeof(Addr));
 
 	SECURITY_TOKEN SecurityToken = ToSecurityToken(md5_finish(&Md5).data);
 
@@ -744,7 +744,7 @@ int CNetServer::Send(CNetChunk *pChunk)
 	}
 	else
 	{
-		if (m_aSlots[pChunk->m_ClientID].m_Connection.State() == NET_CONNSTATE_BOT)
+		if(m_aSlots[pChunk->m_ClientID].m_Connection.State() == NET_CONNSTATE_BOT)
 			return -1;
 
 		int Flags = 0;

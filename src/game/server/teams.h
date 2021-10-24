@@ -157,8 +157,8 @@ public:
 	}
 
 	// ddnet++
-	void OnQuestFinish(CPlayer* Player);
-	void OnFinishDDPP(CPlayer* Player, int mins, float secs);
+	void OnQuestFinish(CPlayer *Player);
+	void OnFinishDDPP(CPlayer *Player, int mins, float secs);
 };
 
 #endif

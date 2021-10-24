@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
- 
-#include "system.h"
+
 #include "ddpp_logs.h"
+#include "system.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1141,7 +1141,7 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 	if(priv_net_extract(hostname, host, sizeof(host), &port))
 		return -1;
 
-	if (logtype == 1)
+	if(logtype == 1)
 	{
 		dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
 	}

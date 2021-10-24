@@ -6,8 +6,8 @@
 #include <base/vmath.h>
 #include <engine/shared/protocol.h>
 
-#include <vector>
 #include <list>
+#include <vector>
 
 enum
 {
@@ -124,7 +124,7 @@ public:
 	class CLayers *Layers() { return m_pLayers; }
 	int m_NumSwitchers;
 
-	std::vector< std::vector<vec2> > m_vTiles;
+	std::vector<std::vector<vec2>> m_vTiles;
 
 private:
 	class CTeleTile *m_pTele;

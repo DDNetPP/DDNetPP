@@ -1,22 +1,22 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <base/system.h>
 #include <base/math.h>
+#include <base/system.h>
 #include <base/vmath.h>
 
-#include <math.h>
-#include <engine/map.h>
 #include <engine/kernel.h>
+#include <engine/map.h>
+#include <math.h>
 
-#include <game/mapitems.h>
-#include <game/layers.h>
 #include <game/collision.h>
+#include <game/layers.h>
+#include <game/mapitems.h>
 
 #include <engine/shared/config.h>
 
 int CCollision::GetCustTile(int x, int y)
 {
-	if (!m_pTiles)
+	if(!m_pTiles)
 		return 0;
 
 	int Nx = clamp(x / 32, 0, m_Width - 1);
@@ -28,7 +28,7 @@ int CCollision::GetCustTile(int x, int y)
 
 int CCollision::GetCustFTile(int x, int y)
 {
-	if (!m_pFront)
+	if(!m_pFront)
 		return 0;
 
 	int Nx = clamp(x / 32, 0, m_Width - 1);
@@ -45,10 +45,10 @@ vec2 CCollision::GetSurvivalSpawn(int Num)
 
 vec2 CCollision::GetTileAtNum(int Tile, int Num)
 {
-	if (m_vTiles[Tile].size())
+	if(m_vTiles[Tile].size())
 	{
 		int Amount = m_vTiles[Tile].size();
-		if (Num > Amount)
+		if(Num > Amount)
 		{
 			dbg_msg("GetTileAtNum", "Error: requested too high index %d/%d for tile=%d", Num, Amount, Tile);
 			Num = Amount;
@@ -61,7 +61,7 @@ vec2 CCollision::GetTileAtNum(int Tile, int Num)
 // by fokkonaut from F-DDrace
 vec2 CCollision::GetRandomTile(int Tile)
 {
-	if (m_vTiles[Tile].size())
+	if(m_vTiles[Tile].size())
 	{
 		int Rand = rand() % m_vTiles[Tile].size();
 		return m_vTiles[Tile][Rand];

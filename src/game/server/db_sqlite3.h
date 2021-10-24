@@ -4,18 +4,20 @@
 #define GAME_SERVER_SQLITE3_H
 #include "base/system.h"
 #include <engine/external/sqlite3/sqlite3.h>
-#include <vector>
+#include <engine/server.h>
 #include <queue>
 #include <string>
-#include <engine/server.h>
+#include <vector>
 
 class CQuery
 {
 	friend class CSql;
+
 private:
 	std::string m_Query;
 	sqlite3_stmt *m_pStatement;
 	virtual void OnData();
+
 public:
 	bool Next();
 	int GetColumnCount() { return sqlite3_column_count(m_pStatement); }
@@ -40,7 +42,7 @@ public:
 		so do not use this in gameticks or the server gets slowed down
 	*/
 	void QueryBlocking(class CSql *pDatabase, char *pQuery);
-	virtual ~CQuery() {};
+	virtual ~CQuery(){};
 };
 
 class CSql
@@ -51,11 +53,11 @@ private:
 	LOCK m_Lock;
 	LOCK m_CallbackLock;
 
-    // Queries which are not executed yet
-	std::queue<CQuery *>m_lpQueries;
+	// Queries which are not executed yet
+	std::queue<CQuery *> m_lpQueries;
 
 	// Queries which are executed but not processed yet
-	std::queue<CQuery *>m_lpExecutedQueries;
+	std::queue<CQuery *> m_lpExecutedQueries;
 
 	bool m_Running;
 

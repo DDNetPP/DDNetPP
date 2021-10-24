@@ -3,9 +3,9 @@
 #include <new>
 
 #include <base/color.h>
+#include <base/ddpp_logs.h>
 #include <base/math.h>
 #include <base/system.h>
-#include <base/ddpp_logs.h>
 
 #include <engine/shared/protocol.h>
 #include <engine/storage.h>
@@ -317,12 +317,12 @@ void CConsole::Print(int Level, const char *pFrom, const char *pStr, bool Highli
 {
 	char aBuf[1024];
 	str_format(aBuf, sizeof(aBuf), "[%s]: %s", pFrom, pStr);
-	if (Level == OUTPUT_LEVEL_DDPP_LOGS)
+	if(Level == OUTPUT_LEVEL_DDPP_LOGS)
 	{
 		ddpp_log(DDPP_LOG_MASTER, aBuf);
 		return;
 	}
-	dbg_msg(pFrom ,"%s", pStr);
+	dbg_msg(pFrom, "%s", pStr);
 	Format(aBuf, sizeof(aBuf), pFrom, pStr);
 	for(int i = 0; i < m_NumPrintCB; ++i)
 	{

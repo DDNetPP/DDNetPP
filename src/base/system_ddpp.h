@@ -10,8 +10,8 @@
 
 #include "detect.h"
 #include "stddef.h"
-#include <time.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifdef __cplusplus
 extern "C" {

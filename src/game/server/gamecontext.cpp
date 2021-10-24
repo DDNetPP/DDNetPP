@@ -2,10 +2,8 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <base/tl/sorted_array.h>
 
-#include <new>
-#include <base/math.h>
-#include <base/ddpp_logs.h>
 #include <antibot/antibot_data.h>
+#include <base/ddpp_logs.h>
 #include <base/math.h>
 #include <engine/console.h>
 #include <engine/engine.h>
@@ -18,15 +16,16 @@
 #include <game/collision.h>
 #include <game/gamecore.h>
 #include <game/server/entities/flag.h>
+#include <new>
 /*#include "gamemodes/dm.h"
-#include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
-#include "gamemodes/mod.h"*/
+#include "gamemodes/mod.h"
+#include "gamemodes/tdm.h"*/
 
 #include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
+#include <engine/server/server.h> // ddpp
 #include <stdio.h>
 #include <string.h>
-#include <engine/server/server.h> // ddpp
 
 #include <game/generated/protocol7.h>
 #include <game/generated/protocolglue.h>
@@ -35,15 +34,14 @@
 #include "score.h"
 
 //ChillerDragon (ddpp)
-#include <game/server/teams.h>
 #include <fstream>
+#include <game/server/teams.h>
 
 enum
 {
 	RESET,
 	NO_RESET
 };
-
 
 void CGameContext::Construct(int Resetting)
 {
@@ -342,7 +340,7 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 	m_IsDDPPVetoVote = IsDDPPVetoVote; // Veto votes only pass if nobody voted agianst it (vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 
 	int64 Now = Server()->Tick();
-	if (ClientID == -1) //Server vote
+	if(ClientID == -1) //Server vote
 	{
 		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg);
 		if(!pSixupDesc)
@@ -355,7 +353,7 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 	else
 	{
 		CPlayer *pPlayer = m_apPlayers[ClientID];
-		if (!pPlayer)
+		if(!pPlayer)
 			return;
 
 		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
@@ -451,7 +449,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
 		}
 	}
-	else if (Team == CHAT_TO_ONE_CLIENT && ToClientID > -1)
+	else if(Team == CHAT_TO_ONE_CLIENT && ToClientID > -1)
 	{
 		CNetMsg_Sv_Chat Msg;
 		Msg.m_Team = 0;
@@ -459,11 +457,11 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 		Msg.m_pMessage = aText;
 
 		// pack one for the recording only
-		if (g_Config.m_SvDemoChat)
+		if(g_Config.m_SvDemoChat)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
 
 		// send to the clients
-		if (!m_apPlayers[ToClientID]->m_DND)
+		if(!m_apPlayers[ToClientID]->m_DND)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientID);
 	}
 	else
@@ -506,7 +504,7 @@ void CGameContext::SendEmoticon(int ClientID, int Emoticon)
 {
 	CNetMsg_Sv_Emoticon Msg;
 	Msg.m_ClientID = ClientID;
-	if (m_apPlayers[ClientID]->m_SpookyGhostActive)
+	if(m_apPlayers[ClientID]->m_SpookyGhostActive)
 		Msg.m_Emoticon = 7; // ghost emote only
 	else
 		Msg.m_Emoticon = Emoticon;
@@ -520,19 +518,18 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
-
 void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance, bool supermod)
 {
-	if (ClientID == -1) //classical rcon broadcast
+	if(ClientID == -1) //classical rcon broadcast
 	{
 		CNetMsg_Sv_Broadcast Msg;
 		Msg.m_pMessage = pText; //default broadcast
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 
 		//set important broadcast for all
-		for (int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if (m_apPlayers[i])
+			if(m_apPlayers[i])
 			{
 				m_apPlayers[i]->m_LastBroadcastImportance = 1;
 				m_apPlayers[i]->m_LastBroadcast = Server()->Tick();
@@ -542,22 +539,22 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 	}
 	else //non rcon broadcast
 	{
-		if (!m_apPlayers[ClientID]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
+		if(!m_apPlayers[ClientID]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
 		{
 			//dbg_msg("cBug", "returned id=%d", ClientID);
 			return;
 		}
 
-		if (m_apPlayers[ClientID]->m_LastBroadcastImportance) //only care if last broadcast was important
+		if(m_apPlayers[ClientID]->m_LastBroadcastImportance) //only care if last broadcast was important
 		{
-			if (m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
+			if(m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
 			{
-				if (importance == 0)
+				if(importance == 0)
 				{
 					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
 				}
-				else if (importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
+				else if(importance == 1 && supermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
 					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
@@ -580,10 +577,10 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int importance
 		//}
 		//else
 		//{
-			Msg.m_pMessage = pText; //default broadcast
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		Msg.m_pMessage = pText; //default broadcast
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 
-			m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
+		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
 		//}
 
 		m_apPlayers[ClientID]->m_LastBroadcast = Server()->Tick();
@@ -797,13 +794,13 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 			{
 				Msg.AddInt(0);
 			}
-			else if((i==12) // gravity for 420 trolling
-			&& m_apPlayers[ClientID]->m_TROLL420)
+			else if((i == 12) // gravity for 420 trolling
+				&& m_apPlayers[ClientID]->m_TROLL420)
 			{
 				Msg.AddInt(-1000000);
 			}
-			else if((i==36) // hammer hit
-			&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
+			else if((i == 36) // hammer hit
+				&& m_apPlayers[ClientID]->GetCharacter()->NeededFaketuning() & FAKETUNE_NOHAMMER)
 			{
 				Msg.AddInt(0);
 			}
@@ -820,7 +817,6 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 
 void CGameContext::OnTick()
 {
-
 	// check tuning
 	CheckPureTuning();
 
@@ -931,9 +927,9 @@ void CGameContext::OnTick()
 											     GetPlayerChar(m_VoteCreator)->Team() != GetPlayerChar(i)->Team())))
 						continue;
 
-					if (m_VoteCreator != -1) // Ignore Server Votes
+					if(m_VoteCreator != -1) // Ignore Server Votes
 					{
-						if (GetPlayerChar(m_VoteCreator) && GetPlayerChar(i) &&
+						if(GetPlayerChar(m_VoteCreator) && GetPlayerChar(i) &&
 							GetPlayerChar(m_VoteCreator)->Team() != GetPlayerChar(i)->Team())
 							continue;
 					}
@@ -1002,7 +998,7 @@ void CGameContext::OnTick()
 
 				if(VetoStop)
 					m_VoteEnforce = VOTE_ENFORCE_NO;
-				else if (m_IsDDPPVetoVote && No)
+				else if(m_IsDDPPVetoVote && No)
 					m_VoteEnforce = VOTE_ENFORCE_NO;
 
 				m_VoteWillPass = Yes > (Yes + No) / (100.0f / g_Config.m_SvVoteYesPercentage);
@@ -1010,7 +1006,7 @@ void CGameContext::OnTick()
 
 			if(time_get() > m_VoteCloseTime && !g_Config.m_SvVoteMajority)
 				m_VoteEnforce = (m_VoteWillPass && !Veto && !m_IsDDPPVetoVote) ? VOTE_ENFORCE_YES : VOTE_ENFORCE_NO;
-			if (time_get() > m_VoteCloseTime && m_IsDDPPVetoVote && !No) // pass vote even if nobody votes yes
+			if(time_get() > m_VoteCloseTime && m_IsDDPPVetoVote && !No) // pass vote even if nobody votes yes
 				m_VoteEnforce = VOTE_ENFORCE_YES;
 
 			// / Ensure minimum time for vote to end when moderating.
@@ -1021,7 +1017,7 @@ void CGameContext::OnTick()
 				Console()->ExecuteLine(m_aVoteCommand);
 				Server()->SetRconCID(IServer::RCON_CID_SERV);
 				EndVote();
-				SendChat(-1, CGameContext::CHAT_ALL, m_IsDDPPVetoVote ?  "Vote passed because nobody used veto (Veto Vote)" : "Vote passed", -1, CHAT_SIX);
+				SendChat(-1, CGameContext::CHAT_ALL, m_IsDDPPVetoVote ? "Vote passed because nobody used veto (Veto Vote)" : "Vote passed", -1, CHAT_SIX);
 
 				if(m_apPlayers[m_VoteCreator] && !IsKickVote() && !IsSpecVote())
 					m_apPlayers[m_VoteCreator]->m_LastVoteCall = 0;
@@ -1047,7 +1043,7 @@ void CGameContext::OnTick()
 				EndVote();
 				if(VetoStop || (m_VoteWillPass && Veto))
 					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because of veto. Find an empty server instead", -1, CHAT_SIX);
-				else if (m_IsDDPPVetoVote)
+				else if(m_IsDDPPVetoVote)
 					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because someone voted agianst it. (Veto Vote)", -1, CHAT_SIX);
 				else
 					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed", -1, CHAT_SIX);
@@ -1255,23 +1251,22 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 
 void CGameContext::OnClientEnter(int ClientID, bool silent)
 {
-
-	if (IsDDPPgametype("survival"))
+	if(IsDDPPgametype("survival"))
 	{
 		SetPlayerSurvival(ClientID, 1);
 	}
-	else if (IsDDPPgametype("vanilla"))
+	else if(IsDDPPgametype("vanilla"))
 	{
-		if (m_apPlayers[ClientID])
+		if(m_apPlayers[ClientID])
 		{
 			m_apPlayers[ClientID]->m_IsVanillaDmg = true;
 			m_apPlayers[ClientID]->m_IsVanillaWeapons = true;
 			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
 		}
 	}
-	else if (IsDDPPgametype("fng"))
+	else if(IsDDPPgametype("fng"))
 	{
-		if (m_apPlayers[ClientID])
+		if(m_apPlayers[ClientID])
 		{
 			m_apPlayers[ClientID]->m_IsInstaMode_idm = true;
 			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
@@ -1285,7 +1280,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 	m_apPlayers[ClientID]->m_Score = Score()->PlayerData(ClientID)->m_BestTime ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
 
 	Score()->LoadPlayerData(ClientID);
-	if (g_Config.m_SvDDPPscore == 0)
+	if(g_Config.m_SvDDPPscore == 0)
 		m_apPlayers[ClientID]->m_Score = 0;
 
 	if(Server()->IsSixup(ClientID))
@@ -1353,9 +1348,9 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 		}
 
 		char aBuf[512];
-		if (!silent)
+		if(!silent)
 		{
-			if (ShowJoinMessage(ClientID))
+			if(ShowJoinMessage(ClientID))
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), m_pController->GetTeamName(m_apPlayers[ClientID]->GetTeam()));
 				SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CHAT_SIX);
@@ -1366,7 +1361,7 @@ void CGameContext::OnClientEnter(int ClientID, bool silent)
 				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
-		if (g_Config.m_SvInstagibMode)
+		if(g_Config.m_SvInstagibMode)
 		{
 			SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSION ") based on DDNet " GAME_RELEASE_VERSION);
 		}
@@ -1504,15 +1499,15 @@ void CGameContext::OnClientConnected(int ClientID)
 
 	// send motd
 	CNetMsg_Sv_Motd Msg;
-	char aBuf[128]; 
+	char aBuf[128];
 	char aBroad[2048];
 	bool IsSupporterOnline = false;
 	str_format(aBroad, sizeof(aBroad), "%s\n[ONLINE SUPPORTER]:\n", g_Config.m_SvMotd);
 
 	//lass mal durch alle spieler iterieren und schauen ob n mod online is
-	for (int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
+	for(int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
 	{
-		if (m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is
+		if(m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is
 		{
 			str_format(aBuf, sizeof(aBuf), "• '%s'\n", Server()->ClientName(i));
 			str_append(aBroad, aBuf, sizeof(aBroad));
@@ -1520,15 +1515,15 @@ void CGameContext::OnClientConnected(int ClientID)
 		}
 	}
 
-	if (IsSupporterOnline) // so wenn ein mod online ist schicken wir die modifizierte message of the day mit dem namen des sup 
+	if(IsSupporterOnline) // so wenn ein mod online ist schicken wir die modifizierte message of the day mit dem namen des sup
 	{
 		Msg.m_pMessage = aBroad;
 	}
-	else //sonst schicken wir die normale 
+	else //sonst schicken wir die normale
 	{
 		Msg.m_pMessage = g_Config.m_SvMotd; //hier wird der string aus der config variable in die message geklatscht du meinst das was man in der autoexec eingibt? yes oder ngame mit sv_modt yy also lass das mal modifizieren davo
 	}
-	
+
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 
 	//send sixup settings
@@ -1760,7 +1755,8 @@ void *CGameContext::PreProcessMsg(int *MsgID, CUnpacker *pUnpacker, int ClientID
 			if(pMsg7->m_Force)
 			{
 				str_format(s_aRawMsg, sizeof(s_aRawMsg), "force_vote \"%s\" \"%s\" \"%s\"", pMsg7->m_Type, pMsg7->m_Value, pMsg7->m_Reason);
-				Console()->SetAccessLevel(Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
+				Console()->SetAccessLevel(Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD :
+                                                                                                                                         IConsole::ACCESS_LEVEL_HELPER);
 				Console()->ExecuteLine(s_aRawMsg, ClientID, false);
 				Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_ADMIN);
 				return 0;
@@ -1884,13 +1880,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_PlayerHumanLevelState++;
 			GlobalChat(ClientID, pMsg->m_pMessage);
 
-			if(pMsg->m_pMessage[0]=='/')
+			if(pMsg->m_pMessage[0] == '/')
 			{
 				if(IsDDPPChatCommand(ClientID, pPlayer, pMsg->m_pMessage + 1))
 				{
 					// pass
 				}
-				else if (str_comp_nocase_num(pMsg->m_pMessage+1, "w ", 2) == 0)
+				else if(str_comp_nocase_num(pMsg->m_pMessage + 1, "w ", 2) == 0)
 				{
 					char aWhisperMsg[256];
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 3, 256);
@@ -1929,7 +1925,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 					int Authed = Server()->GetAuthedState(ClientID);
 					if(Authed)
-						Console()->SetAccessLevel(Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER);
+						Console()->SetAccessLevel(Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD :
+                                                                                                                                                         IConsole::ACCESS_LEVEL_HELPER);
 					else
 						Console()->SetAccessLevel(IConsole::ACCESS_LEVEL_USER);
 					Console()->SetPrintOutputLevel(m_ChatPrintCBIndex, 0);
@@ -2126,7 +2123,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					m_apPlayers[ClientID]->m_Last_KickVote = time_get();
 					return;
 				}
-				if (m_apPlayers[KickID]->m_IsDummy)
+				if(m_apPlayers[KickID]->m_IsDummy)
 				{
 					SendChatTarget(ClientID, "You can't kick dummies");
 					return;
@@ -2214,11 +2211,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_Vote *pMsg = (CNetMsg_Cl_Vote *)pRawMsg;
 			CCharacter *pChr = pPlayer->GetCharacter();
 
-			if (pMsg->m_Vote == 1) //vote yes (f3)
+			if(pMsg->m_Vote == 1) //vote yes (f3)
 			{
 				VotedYes(pChr, pPlayer);
 			}
-			else if (pMsg->m_Vote == -1) //vote no (f4)
+			else if(pMsg->m_Vote == -1) //vote no (f4)
 			{
 				VotedNo(pChr);
 			}
@@ -2357,9 +2354,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		else if(MsgID == NETMSGTYPE_CL_CHANGEINFO)
 		{
-			if (pPlayer->m_SpookyGhostActive)
+			if(pPlayer->m_SpookyGhostActive)
 				return;
-			if (g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo && pPlayer->m_LastChangeInfo + Server()->TickSpeed()*g_Config.m_SvInfoChangeDelay > Server()->Tick())
+			if(g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo && pPlayer->m_LastChangeInfo + Server()->TickSpeed() * g_Config.m_SvInfoChangeDelay > Server()->Tick())
 				return;
 
 			bool SixupNeedsUpdate = false;
@@ -2378,11 +2375,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			char aOldName[MAX_NAME_LENGTH];
 			str_copy(aOldName, Server()->ClientName(ClientID), sizeof(aOldName));
 			Server()->SetClientName(ClientID, pMsg->m_pName);
-			if (str_comp(aOldName, Server()->ClientName(ClientID)) != 0)
+			if(str_comp(aOldName, Server()->ClientName(ClientID)) != 0)
 			{
 				int mute = NameChangeMuteCheck(ClientID);
 				char aChatText[256];
-				if (mute > 0)
+				if(mute > 0)
 				{
 					str_format(aChatText, sizeof aChatText, "[MUTE] %d seconds delay for name change message.", mute);
 					SendChatTarget(ClientID, aChatText);
@@ -2509,7 +2506,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					pChr->SetEmoteType(EMOTE_NORMAL);
 					break;
 				}
-				if (pPlayer->m_SpookyGhostActive)
+				if(pPlayer->m_SpookyGhostActive)
 				{
 					pChr->SetEmoteType(EMOTE_SURPRISE);
 				}
@@ -3205,7 +3202,6 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
-
 	// ChillerDragon konst constructor
 	m_Database->CreateDatabase();
 	LoadSinglePlayer();
@@ -3473,8 +3469,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
-			int Index = pTiles[y*pTileMap->m_Width+x].m_Index;
-			Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
+			int Index = pTiles[y * pTileMap->m_Width + x].m_Index;
+			Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 			if(Index == TILE_OLDLASER)
 			{
 				g_Config.m_SvOldLaser = 1;
@@ -3500,12 +3496,12 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				m_Tuning.Set("player_hooking", 0);
 				dbg_msg("game layer", "found no player hooking tile");
 			}
-			else if (Index == TILE_SHOP_SPAWN)
+			else if(Index == TILE_SHOP_SPAWN)
 			{
 				m_ShopBotTileExists = true;
 				dbg_msg("Game Layer", "Found Shop Spawn Tile");
 			}
-			else if (Index == TILE_SHOP)
+			else if(Index == TILE_SHOP)
 			{
 				m_ShopBotTileExists = true;
 				ShopTiles++;
@@ -3515,14 +3511,14 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			{
 				vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
 				//m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
-				((CGameControllerDDRace*)m_pController)->OnEntity(Index-ENTITY_OFFSET, Pos);
+				((CGameControllerDDRace *)m_pController)->OnEntity(Index - ENTITY_OFFSET, Pos);
 				m_pController->OnEntity(Index - ENTITY_OFFSET, Pos, LAYER_GAME, pTiles[y * pTileMap->m_Width + x].m_Flags);
 			}
 
 			if(pFront)
 			{
 				Index = pFront[y * pTileMap->m_Width + x].m_Index;
-				Collision()->m_vTiles[Index].push_back(vec2(x*32.0f+16.0f, y*32.0f+16.0f));
+				Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 				if(Index == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
@@ -3551,144 +3547,144 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 				else if(Index == TILE_JAIL)
 				{
 					CJail Jail;
-					Jail.m_Center = vec2(x,y);
+					Jail.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got Jail tile at (%.2f|%.2f)", Jail.m_Center.x, Jail.m_Center.y);
 					m_Jail.push_back(Jail);
 				}
-				else if(Index == TILE_JAILRELEASE) 
+				else if(Index == TILE_JAILRELEASE)
 				{
 					CJailrelease Jailrelease;
-					Jailrelease.m_Center = vec2(x,y);
+					Jailrelease.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got Jailrelease tile at (%.2f|%.2f)", Jailrelease.m_Center.x, Jailrelease.m_Center.y);
 					m_Jailrelease.push_back(Jailrelease);
 				}
-				else if (Index == TILE_BALANCE_BATTLE_1)
+				else if(Index == TILE_BALANCE_BATTLE_1)
 				{
 					CBalanceBattleTile1 Balancebattle;
-					Balancebattle.m_Center = vec2(x,y);
+					Balancebattle.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got balancebattle1 tile at (%.2f|%.2f)", Balancebattle.m_Center.x, Balancebattle.m_Center.y);
 					m_BalanceBattleTile1.push_back(Balancebattle);
 				}
-				else if (Index == TILE_BALANCE_BATTLE_2)
+				else if(Index == TILE_BALANCE_BATTLE_2)
 				{
 					CBalanceBattleTile2 Balancebattle;
 					Balancebattle.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got balancebattle2 tile at (%.2f|%.2f)", Balancebattle.m_Center.x, Balancebattle.m_Center.y);
 					m_BalanceBattleTile2.push_back(Balancebattle);
 				}
-				else if (Index == TILE_SURVIVAL_LOBBY)
+				else if(Index == TILE_SURVIVAL_LOBBY)
 				{
 					CSurvivalLobbyTile Survivallobby;
 					Survivallobby.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got survival lobby tile at (%.2f|%.2f)", Survivallobby.m_Center.x, Survivallobby.m_Center.y);
 					m_SurvivalLobby.push_back(Survivallobby);
 				}
-				else if (Index == TILE_SURVIVAL_SPAWN)
+				else if(Index == TILE_SURVIVAL_SPAWN)
 				{
 					CSurvivalSpawnTile Survivalspawn;
 					Survivalspawn.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got survival spawn tile at (%.2f|%.2f)", Survivalspawn.m_Center.x, Survivalspawn.m_Center.y);
 					m_SurvivalSpawn.push_back(Survivalspawn);
 				}
-				else if (Index == TILE_SURVIVAL_DEATHMATCH)
+				else if(Index == TILE_SURVIVAL_DEATHMATCH)
 				{
 					CSurvivalDeathmatchTile Survivaldeathmatch;
 					Survivaldeathmatch.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got survival deathmatch tile at (%.2f|%.2f)", Survivaldeathmatch.m_Center.x, Survivaldeathmatch.m_Center.y);
 					m_SurvivalDeathmatch.push_back(Survivaldeathmatch);
 				}
-				else if (Index == TILE_BLOCKWAVE_BOT)
+				else if(Index == TILE_BLOCKWAVE_BOT)
 				{
 					CBlockWaveBotTile BlockWaveBot;
 					BlockWaveBot.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got blockwave bot spawn tile at (%.2f|%.2f)", BlockWaveBot.m_Center.x, BlockWaveBot.m_Center.y);
 					m_BlockWaveBot.push_back(BlockWaveBot);
 				}
-				else if (Index == TILE_BLOCKWAVE_HUMAN)
+				else if(Index == TILE_BLOCKWAVE_HUMAN)
 				{
 					CBlockWaveHumanTile BlockWaveHuman;
 					BlockWaveHuman.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got blockwave Human spawn tile at (%.2f|%.2f)", BlockWaveHuman.m_Center.x, BlockWaveHuman.m_Center.y);
 					m_BlockWaveHuman.push_back(BlockWaveHuman);
 				}
-				else if (Index == TILE_FNG_SCORE)
+				else if(Index == TILE_FNG_SCORE)
 				{
 					CFngScore FngScore;
 					FngScore.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", FngScore.m_Center.x, FngScore.m_Center.y);
 					m_FngScore.push_back(FngScore);
 				}
-				else if (Index == TILE_BLOCK_TOURNA_SPAWN)
+				else if(Index == TILE_BLOCK_TOURNA_SPAWN)
 				{
 					CBlockTournaSpawn BlockTournaSpawn;
 					BlockTournaSpawn.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
 					m_BlockTournaSpawn.push_back(BlockTournaSpawn);
 				}
-				else if (Index == TILE_PVP_ARENA_SPAWN)
+				else if(Index == TILE_PVP_ARENA_SPAWN)
 				{
 					CPVPArenaSpawn PVPArenaSpawn;
 					PVPArenaSpawn.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got pvp arena spawn tile at (%.2f|%.2f)", PVPArenaSpawn.m_Center.x, PVPArenaSpawn.m_Center.y);
 					m_PVPArenaSpawn.push_back(PVPArenaSpawn);
 				}
-				else if (Index == TILE_VANILLA_MODE)
+				else if(Index == TILE_VANILLA_MODE)
 				{
 					CVanillaMode VanillaMode;
 					VanillaMode.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got vanilla mode tile at (%.2f|%.2f)", VanillaMode.m_Center.x, VanillaMode.m_Center.y);
 					m_VanillaMode.push_back(VanillaMode);
 				}
-				else if (Index == TILE_DDRACE_MODE)
+				else if(Index == TILE_DDRACE_MODE)
 				{
 					CDDraceMode DDraceMode;
 					DDraceMode.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDraceMode.m_Center.x, DDraceMode.m_Center.y);
 					m_DDraceMode.push_back(DDraceMode);
 				}
-				else if (Index == TILE_BOTSPAWN_1)
+				else if(Index == TILE_BOTSPAWN_1)
 				{
 					CBotSpawn1 BotSpawn1;
 					BotSpawn1.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got botspawn1 tile at (%.2f|%.2f)", BotSpawn1.m_Center.x, BotSpawn1.m_Center.y);
 					m_BotSpawn1.push_back(BotSpawn1);
 				}
-				else if (Index == TILE_BOTSPAWN_2)
+				else if(Index == TILE_BOTSPAWN_2)
 				{
 					CBotSpawn2 BotSpawn2;
 					BotSpawn2.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got botspawn2 tile at (%.2f|%.2f)", BotSpawn2.m_Center.x, BotSpawn2.m_Center.y);
 					m_BotSpawn2.push_back(BotSpawn2);
 				}
-				else if (Index == TILE_BOTSPAWN_3)
+				else if(Index == TILE_BOTSPAWN_3)
 				{
 					CBotSpawn3 BotSpawn3;
 					BotSpawn3.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got botspawn3 tile at (%.2f|%.2f)", BotSpawn3.m_Center.x, BotSpawn3.m_Center.y);
 					m_BotSpawn3.push_back(BotSpawn3);
 				}
-				else if (Index == TILE_BOTSPAWN_4)
+				else if(Index == TILE_BOTSPAWN_4)
 				{
 					CBotSpawn4 BotSpawn4;
 					BotSpawn4.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got botspawn4 tile at (%.2f|%.2f)", BotSpawn4.m_Center.x, BotSpawn4.m_Center.y);
 					m_BotSpawn4.push_back(BotSpawn4);
 				}
-				else if (Index == TILE_NO_HAMMER)
+				else if(Index == TILE_NO_HAMMER)
 				{
 					CNoHammer NoHammer;
 					NoHammer.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got no hammer tile at (%.2f|%.2f)", NoHammer.m_Center.x, NoHammer.m_Center.y);
 					m_NoHammer.push_back(NoHammer);
 				}
-				else if (Index == TILE_BLOCK_DM_A1)
+				else if(Index == TILE_BLOCK_DM_A1)
 				{
 					CBlockDMA1 BlockDMA1;
 					BlockDMA1.m_Center = vec2(x, y);
 					dbg_msg("game layer", "got block deathmatch(1) tile at (%.2f|%.2f)", BlockDMA1.m_Center.x, BlockDMA1.m_Center.y);
 					m_BlockDMA1.push_back(BlockDMA1);
 				}
-				else if (Index == TILE_BLOCK_DM_A2)
+				else if(Index == TILE_BLOCK_DM_A2)
 				{
 					CBlockDMA2 BlockDMA2;
 					BlockDMA2.m_Center = vec2(x, y);
@@ -3716,13 +3712,11 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	}
 	dbg_msg("Game Layer", "Found Shop Tiles (%d)", ShopTiles);
 
-
 	//game.world.insert_entity(game.Controller);
-
 
 	//ChillerDragon
 	//dummy_init
-	if (g_Config.m_SvBasicDummys)
+	if(g_Config.m_SvBasicDummys)
 	{
 		CreateBasicDummys();
 	}
@@ -4058,7 +4052,7 @@ float CGameContext::PlayerJetpack()
 
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
-	if (Level == AUTHED_HONEY)
+	if(Level == AUTHED_HONEY)
 		return;
 	if(m_apPlayers[ClientID])
 	{
@@ -4071,16 +4065,16 @@ void CGameContext::OnSetAuthed(int ClientID, int Level)
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "CGameContext", "Vote aborted by authorized login.");
 		}
 		time_t rawtime;
-		struct tm* timeinfo;
-		char timestr [80];
+		struct tm *timeinfo;
+		char timestr[80];
 
-		time( &rawtime );
-		timeinfo = localtime( &rawtime );
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
 
-		strftime(timestr,sizeof(timestr),"%F %H:%M:%S",timeinfo);
+		strftime(timestr, sizeof(timestr), "%F %H:%M:%S", timeinfo);
 		char aAccID[32];
 		aAccID[0] = '\0';
-		if (m_apPlayers[ClientID]->IsLoggedIn())
+		if(m_apPlayers[ClientID]->IsLoggedIn())
 			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
 		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, Server()->ClientName(ClientID));
 		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
@@ -4367,11 +4361,11 @@ void CGameContext::WhisperID(int ClientID, int VictimID, const char *pMessage)
 
 	str_format(aBuf, sizeof(aBuf), "['%s' -> '%s'] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
 	dbg_msg("whisper", "%s", aBuf);
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if (m_apPlayers[i] && i != VictimID && i != ClientID)
+		if(m_apPlayers[i] && i != VictimID && i != ClientID)
 		{
-			if (Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == AUTHED_ADMIN)
+			if(Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == AUTHED_ADMIN)
 			{
 				SendChatTarget(i, aBuf);
 			}

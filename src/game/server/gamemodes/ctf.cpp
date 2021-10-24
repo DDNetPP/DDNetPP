@@ -5,11 +5,11 @@
 
 #include <game/mapitems.h>
 
+#include "ctf.h"
 #include <game/server/entities/character.h>
 #include <game/server/entities/flag.h>
-#include <game/server/player.h>
 #include <game/server/gamecontext.h>
-#include "ctf.h"
+#include <game/server/player.h>
 
 CGameControllerCTF::CGameControllerCTF(class CGameContext *pGameServer)
 : IGameController(pGameServer)

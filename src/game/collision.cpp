@@ -134,7 +134,7 @@ void CCollision::Init(class CLayers *pLayers)
 			}
 		}
 		// DDNet++ (survival)
-		if (m_pTiles[i].m_Index == TILE_SURVIVAL_SPAWN)
+		if(m_pTiles[i].m_Index == TILE_SURVIVAL_SPAWN)
 			m_NumSurvivalSpawns++;
 	}
 
@@ -595,7 +595,7 @@ void CCollision::Dest()
 
 int CCollision::IsSolid(int x, int y)
 {
-	int index = GetTile(x,y);
+	int index = GetTile(x, y);
 	if(index == TILE_CONFIG_1)
 		return g_Config.m_SvCfgTile1 == CFG_TILE_HOOK || g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK;
 	if(index == TILE_CONFIG_2)
@@ -862,7 +862,7 @@ bool CCollision::TileExists(int Index)
 
 	if(m_pTiles[Index].m_Index >= TILE_FREEZE && m_pTiles[Index].m_Index <= TILE_END_CUSTOM)
 		return true;
-	if(m_pFront && m_pFront[Index].m_Index >= TILE_FREEZE && m_pFront[Index].m_Index  <= TILE_END_CUSTOM)
+	if(m_pFront && m_pFront[Index].m_Index >= TILE_FREEZE && m_pFront[Index].m_Index <= TILE_END_CUSTOM)
 		return true;
 	if(m_pTele && (m_pTele[Index].m_Type == TILE_TELEIN || m_pTele[Index].m_Type == TILE_TELEINEVIL || m_pTele[Index].m_Type == TILE_TELECHECKINEVIL || m_pTele[Index].m_Type == TILE_TELECHECK || m_pTele[Index].m_Type == TILE_TELECHECKIN))
 		return true;
@@ -1211,14 +1211,9 @@ int CCollision::IntersectNoLaser(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2
 	{
 		float a = f / d;
 		vec2 Pos = mix(Pos0, Pos1, a);
-		int Nx = clamp(round_to_int(Pos.x)/32, 0, m_Width-1);
-		int Ny = clamp(round_to_int(Pos.y)/32, 0, m_Height-1);
-		if(GetIndex(Nx, Ny) == TILE_SOLID
-			|| GetIndex(Nx, Ny) == TILE_NOHOOK
-			|| GetIndex(Nx, Ny) == TILE_NOLASER
-			|| GetFIndex(Nx, Ny) == TILE_NOLASER
-			|| (GetIndex(Nx, Ny) == TILE_CONFIG_1 && g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK)
-			|| (GetIndex(Nx, Ny) == TILE_CONFIG_2 && g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK))
+		int Nx = clamp(round_to_int(Pos.x) / 32, 0, m_Width - 1);
+		int Ny = clamp(round_to_int(Pos.y) / 32, 0, m_Height - 1);
+		if(GetIndex(Nx, Ny) == TILE_SOLID || GetIndex(Nx, Ny) == TILE_NOHOOK || GetIndex(Nx, Ny) == TILE_NOLASER || GetFIndex(Nx, Ny) == TILE_NOLASER || (GetIndex(Nx, Ny) == TILE_CONFIG_1 && g_Config.m_SvCfgTile1 == CFG_TILE_UNHOOK) || (GetIndex(Nx, Ny) == TILE_CONFIG_2 && g_Config.m_SvCfgTile2 == CFG_TILE_UNHOOK))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;

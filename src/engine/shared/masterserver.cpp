@@ -4,11 +4,11 @@
 
 #include <base/system.h>
 
+#include <base/ddpp_logs.h>
 #include <engine/engine.h>
 #include <engine/masterserver.h>
-#include <engine/storage.h>
 #include <engine/shared/config.h>
-#include <base/ddpp_logs.h>
+#include <engine/storage.h>
 
 #include "linereader.h"
 
@@ -51,7 +51,7 @@ public:
 		if(m_State != STATE_INIT && m_State != STATE_READY)
 			return -1;
 
-		if (g_Config.m_SvMasterServerLogs) // TODO: make this less ugly xd
+		if(g_Config.m_SvMasterServerLogs) // TODO: make this less ugly xd
 			dbg_msg("engine/mastersrv", "refreshing master server addresses");
 		else
 			ddpp_log(DDPP_LOG_MASTER, "[engine/mastersrv] refreshing master server addresses");
@@ -97,7 +97,7 @@ public:
 
 		if(m_State == STATE_READY)
 		{
-			if (g_Config.m_SvMasterServerLogs)
+			if(g_Config.m_SvMasterServerLogs)
 				dbg_msg("engine/mastersrv", "saving addresses");
 			else
 				ddpp_log(DDPP_LOG_MASTER, "[engine/mastersrv] saving addresses");

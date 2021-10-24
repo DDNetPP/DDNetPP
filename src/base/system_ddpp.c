@@ -1,17 +1,17 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
- 
-#include "system.h"
-#include "ddpp_logs.h"
 
-#include <sys/types.h>
+#include "ddpp_logs.h"
+#include "system.h"
+
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -66,10 +66,11 @@ int regex_compile(const char *pPattern, const char *pStr)
 		goto end;
 	}
 
-	end:
+end:
 	/* Free memory allocated to the pattern buffer by regcomp() */
 	regfree(&regex);
-	return ret;;
+	return ret;
+	;
 #else
 	return 0;
 #endif

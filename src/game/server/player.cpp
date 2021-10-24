@@ -1,18 +1,18 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <new>
 #include <cstdio>
 #include <ctime>
+#include <new>
 
+#include "gamecontext.h"
+#include "gamemodes/DDRace.h"
+#include "player.h"
 #include <engine/server.h>
-#include <engine/shared/config.h>
 #include <engine/server/server.h>
-#include <game/version.h>
+#include <engine/shared/config.h>
 #include <game/gamecore.h>
 #include <game/server/teams.h>
-#include "gamemodes/DDRace.h"
-#include "gamecontext.h"
-#include "player.h"
+#include <game/version.h>
 #include <time.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
@@ -126,7 +126,7 @@ void CPlayer::Reset()
 	m_Score = -9999;
 	m_HasFinishScore = false;
 
-	// Variable initialized: 
+	// Variable initialized:
 	m_Last_Team = 0;
 	m_LastSQLQuery = 0;
 	m_ScoreQueryResult = nullptr;
@@ -205,7 +205,7 @@ void CPlayer::Tick()
 	}
 
 	// do latency stuff
-	if (!m_IsDummy)
+	if(!m_IsDummy)
 	{
 		IServer::CClientInfo Info;
 		if(Server()->GetClientInfo(m_ClientID, &Info))
@@ -224,7 +224,6 @@ void CPlayer::Tick()
 			m_Latency.m_AccumMin = 1000;
 			m_Latency.m_AccumMax = 0;
 		}
-
 	}
 
 	if(Server()->GetNetErrorString(m_ClientID)[0])
@@ -284,7 +283,7 @@ void CPlayer::Tick()
 
 void CPlayer::FixForNoName(int ID)
 {
-	m_FixNameID = ID;	// 0 for just to display the name in the right moment (e.g. kill msg killer)
+	m_FixNameID = ID; // 0 for just to display the name in the right moment (e.g. kill msg killer)
 	m_SetRealName = true;
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
 
@@ -293,7 +292,7 @@ void CPlayer::FixForNoName(int ID)
 
 void CPlayer::PostTick()
 {
-	if (m_IsDummy)
+	if(m_IsDummy)
 		return;
 
 	// update latency value
@@ -343,16 +342,16 @@ void CPlayer::Snap(int SnappingClient)
 	m_ShowName = false;
 
 	CPlayer *pSnapping = GameServer()->m_apPlayers[SnappingClient];
-	
-	if (pSnapping)
+
+	if(pSnapping)
 	{
-		if (pSnapping->GetTeam() == TEAM_SPECTATORS || !pSnapping->m_IsSurvivaling || !pSnapping->m_IsSurvivalAlive) //could add a bool is dead here too to activate name agian
+		if(pSnapping->GetTeam() == TEAM_SPECTATORS || !pSnapping->m_IsSurvivaling || !pSnapping->m_IsSurvivalAlive) //could add a bool is dead here too to activate name agian
 		{
 			m_ShowName = true;
 		}
 	}
 
-	if (g_Config.m_SvNameplates)
+	if(g_Config.m_SvNameplates)
 	{
 		m_ShowName = true;
 	}
@@ -405,7 +404,7 @@ void CPlayer::Snap(int SnappingClient)
 		// Times are in milliseconds for 0.7
 		pPlayerInfo->m_Score = Score == -9999 ? -1 : -Score * 1000;
 		pPlayerInfo->m_Latency = Latency;
-		#pragma message "Implement DDPPSnapChangePlayerInfo7"
+#pragma message "Implement DDPPSnapChangePlayerInfo7"
 		// DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
 	}
 
@@ -513,7 +512,6 @@ void CPlayer::FakeSnap()
 
 void CPlayer::OnDisconnect(const char *pReason, bool silent)
 {
-
 	OnDisconnectDDPP();
 
 	KillCharacter();
@@ -522,9 +520,9 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 	if(Server()->ClientIngame(m_ClientID) && !silent)
 	{
 		char aBuf[512];
-		if (GameServer()->ShowLeaveMessage(m_ClientID))
+		if(GameServer()->ShowLeaveMessage(m_ClientID))
 		{
-			if (pReason && *pReason)
+			if(pReason && *pReason)
 				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
 			else
 				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
@@ -540,7 +538,7 @@ void CPlayer::OnDisconnect(const char *pReason, bool silent)
 		}
 
 		// TODO: fix bridge chat here
-			str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
@@ -689,7 +687,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	DoChatMsg = false;
 	if(DoChatMsg)
 	{
-		if (GameServer()->ShowTeamSwitchMessage(m_ClientID))
+		if(GameServer()->ShowTeamSwitchMessage(m_ClientID))
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);

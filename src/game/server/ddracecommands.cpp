@@ -1,11 +1,11 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
+#include <base/ddpp_logs.h>
 #include <engine/shared/config.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/save.h>
 #include <game/server/teams.h>
 #include <game/version.h>
-#include <base/ddpp_logs.h>
 #if defined(CONF_SQL)
 #include <game/server/score/sql_score.h>
 #endif
@@ -19,7 +19,6 @@ void CGameContext::ConGoLeft(IConsole::IResult *pResult, void *pUserData)
 		return;
 	pSelf->MoveCharacter(pResult->m_ClientID, -1, 0);
 }
-
 
 void CGameContext::ConGoRight(IConsole::IResult *pResult, void *pUserData)
 {

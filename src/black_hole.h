@@ -17,7 +17,6 @@ public:
 	virtual void Snap(int SnappingClient);
 
 private:
-
 	int m_Owner;
 	int m_Buffer;
 	bool GoingToKill;
@@ -26,7 +25,6 @@ private:
 	bool Attracting;
 
 	vec2 m_Pos;
-
 };
 
 #endif

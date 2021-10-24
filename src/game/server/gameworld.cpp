@@ -423,22 +423,22 @@ CCharacter *CGameWorld::ClosestCharType(vec2 Pos, bool Human, CCharacter *pNotTh
 	CCharacter *pClosest = 0;
 
 	CCharacter *p = (CCharacter *)GameServer()->m_World.FindFirst(ENTTYPE_CHARACTER);
-	for (; p; p = (CCharacter *)p->TypeNext())
+	for(; p; p = (CCharacter *)p->TypeNext())
 	{
-		if (p == pNotThis)
+		if(p == pNotThis)
 			continue;
 
-		if (!SeeAll)
+		if(!SeeAll)
 		{
-			if (Human && p->GetPlayer()->m_IsDummy)
+			if(Human && p->GetPlayer()->m_IsDummy)
 				continue;
-			else if (!Human && !p->GetPlayer()->m_IsDummy)
+			else if(!Human && !p->GetPlayer()->m_IsDummy)
 				continue;
 		}
 
 		float Len = distance(Pos, p->m_Pos);
 
-		if (Len < ClosestRange || !ClosestRange)
+		if(Len < ClosestRange || !ClosestRange)
 		{
 			ClosestRange = Len;
 			pClosest = p;

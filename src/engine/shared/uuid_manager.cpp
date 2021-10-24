@@ -32,7 +32,7 @@ CUuid CalculateUuid(const char *pName)
 	MD5_DIGEST Digest = md5_finish(&Md5);
 
 	CUuid Result;
-	for (unsigned i = 0; i < sizeof(Result.m_aData); i++)
+	for(unsigned i = 0; i < sizeof(Result.m_aData); i++)
 	{
 		Result.m_aData[i] = Digest.data[i];
 	}
@@ -104,9 +104,9 @@ const char *CUuidManager::GetName(int ID) const
 
 int CUuidManager::LookupUuid(CUuid Uuid) const
 {
-	for (int i = 0; i < m_aNames.size(); i++)
+	for(int i = 0; i < m_aNames.size(); i++)
 	{
-		if (Uuid == m_aNames[i].m_Uuid)
+		if(Uuid == m_aNames[i].m_Uuid)
 		{
 			return GetID(i);
 		}
@@ -128,7 +128,7 @@ int CUuidManager::UnpackUuid(CUnpacker *pUnpacker) const
 int CUuidManager::UnpackUuid(CUnpacker *pUnpacker, CUuid *pOut) const
 {
 	const CUuid *pUuid = (const CUuid *)pUnpacker->GetRaw(sizeof(*pUuid));
-	if (pUuid == NULL)
+	if(pUuid == NULL)
 	{
 		return UUID_INVALID;
 	}
@@ -144,7 +144,7 @@ void CUuidManager::PackUuid(int ID, CPacker *pPacker) const
 
 void CUuidManager::DebugDump() const
 {
-	for (int i = 0; i < m_aNames.size(); i++)
+	for(int i = 0; i < m_aNames.size(); i++)
 	{
 		char aBuf[UUID_MAXSTRSIZE];
 		FormatUuid(m_aNames[i].m_Uuid, aBuf, sizeof(aBuf));
