@@ -15,9 +15,17 @@
 #include <vector>
 
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
+#include "gamecontext.h"
 #include "score.h"
 #include "teeinfo.h"
 #include <memory>
+
+enum
+{
+	WEAPON_GAME = -3, // team switching etc
+	WEAPON_SELF = -2, // console kill command
+	WEAPON_WORLD = -1, // death tiles etc
+};
 
 // player object
 class CPlayer

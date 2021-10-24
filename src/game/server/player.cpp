@@ -4,6 +4,7 @@
 #include <ctime>
 #include <new>
 
+#include "entities/character.h"
 #include "gamecontext.h"
 #include "gamemodes/DDRace.h"
 #include "player.h"

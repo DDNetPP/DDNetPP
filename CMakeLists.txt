@@ -1953,6 +1953,7 @@ if(SERVER)
     upnp.h
   )
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
+    alloc.h
     captcha.cpp
     captcha.h
     db_sqlite3.cpp
