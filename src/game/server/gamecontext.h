@@ -24,7 +24,8 @@
 
 #include "db_sqlite3.h"
 
-#include "score.h"
+#include <memory>
+
 #ifdef _MSC_VER
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
