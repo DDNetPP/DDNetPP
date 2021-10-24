@@ -1669,30 +1669,22 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						}
 						case AUTHED_MOD:
 						{
-							case AUTHED_ADMIN:
-							{
-								SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
-								str_format(aBuf, sizeof(aBuf), "ClientID=%d authed with key=%s (admin)", ClientID, pIdent);
-								break;
-							}
-							case AUTHED_MOD:
-							{
 								SendRconLine(ClientID, "Moderator authentication successful. Limited remote console access granted.");
 								str_format(aBuf, sizeof(aBuf), "ClientID=%d authed with key=%s (moderator)", ClientID, pIdent);
 								break;
-							}
-							case AUTHED_HELPER:
-							{
-								SendRconLine(ClientID, "Helper authentication successful. Limited remote console access granted.");
-								str_format(aBuf, sizeof(aBuf), "ClientID=%d authed with key=%s (helper)", ClientID, pIdent);
-								break;
-							}
-							case AUTHED_HONEY:
-							{
-								SendRconLine(ClientID, "Admin authentication successful. Limited remote console access granted.");
-								str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
-								break;
-							}
+						}
+						case AUTHED_HELPER:
+						{
+							SendRconLine(ClientID, "Helper authentication successful. Limited remote console access granted.");
+							str_format(aBuf, sizeof(aBuf), "ClientID=%d authed with key=%s (helper)", ClientID, pIdent);
+							break;
+						}
+						case AUTHED_HONEY:
+						{
+							SendRconLine(ClientID, "Admin authentication successful. Limited remote console access granted.");
+							str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
+							break;
+						}
 						}
 						Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 

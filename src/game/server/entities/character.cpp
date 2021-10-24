@@ -689,10 +689,6 @@ void CCharacter::FireWeapon(bool Bot)
 		GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 		QuestNinja();
 	} break;
-
-		GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-	}
-	break;
 	}
 
 	DDPPFireWeapon();

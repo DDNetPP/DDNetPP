@@ -7,16 +7,15 @@
 
 #include "entities/pickup.h"
 #include "gamecontext.h"
-#include <game/server/entities/character.h>
-#include <game/server/teams.h>
+#include "gamecontroller.h"
 
 #include "entities/door.h"
 #include "entities/dragger.h"
 #include "entities/gun.h"
-#include "entities/projectile.h"
-#include "entities/plant.h"
+#include "entities/light.h"
 #include "entities/plasma.h"
 #include "entities/projectile.h"
+#include "entities/plant.h"
 #include <game/layers.h>
 
 IGameController::IGameController(class CGameContext *pGameServer)
