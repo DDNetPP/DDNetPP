@@ -650,8 +650,8 @@ void CMenus::RenderServerControl(CUIRect MainView)
 			QuickSearch.HSplitTop(5.0f, 0, &QuickSearch);
 			const char *pSearchLabel = "\xEE\xA2\xB6";
 			TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
-			TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
-			UI()->DoLabelScaled(&QuickSearch, pSearchLabel, 14.0f, -1);
+			TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+			UI()->DoLabelScaled(&QuickSearch, pSearchLabel, 14.0f, -1, -1, 0);
 			float wSearch = TextRender()->TextWidth(0, 14.0f, pSearchLabel, -1, -1.0f);
 			TextRender()->SetRenderFlags(0);
 			TextRender()->SetCurFont(NULL);
@@ -1128,13 +1128,14 @@ void CMenus::RenderGhost(CUIRect MainView)
 			{
 				if(pItem->Active())
 				{
-					Graphics()->TextureSet(g_pData->m_aImages[IMAGE_EMOTICONS].m_Id);
+					Graphics()->WrapClamp();
+					Graphics()->TextureSet(GameClient()->m_EmoticonsSkin.m_SpriteEmoticons[(SPRITE_OOP + 7) - SPRITE_OOP]);
 					Graphics()->QuadsBegin();
-					RenderTools()->SelectSprite(SPRITE_OOP + 7);
 					IGraphics::CQuadItem QuadItem(Button.x + Button.w / 2, Button.y + Button.h / 2, 20.0f, 20.0f);
 					Graphics()->QuadsDraw(&QuadItem, 1);
 
 					Graphics()->QuadsEnd();
+					Graphics()->WrapNormal();
 				}
 			}
 			else if(Id == COL_NAME)
