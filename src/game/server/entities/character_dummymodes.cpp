@@ -5024,10 +5024,10 @@ void CCharacter::DummyTick()
 
 					// read world inputs
 					float Offset = 16.0f;
-					int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
-					int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
-					int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
-					int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
+					int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (GetProximityRadius() / 2) - Offset, m_Pos.y));
+					int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (GetProximityRadius() / 2) + Offset, m_Pos.y));
+					int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (GetProximityRadius() / 2) + Offset));
+					int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (GetProximityRadius() / 2) - Offset));
 					//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
 					int TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
 					// int TileFlagsL = GameServer()->Collision()->GetTileFlags(MapIndexL);

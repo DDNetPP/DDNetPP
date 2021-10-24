@@ -12,6 +12,7 @@
 #include <engine/shared/config.h>
 #include <engine/shared/datafile.h>
 #include <engine/shared/linereader.h>
+#include <engine/shared/memheap.h>
 #include <engine/storage.h>
 #include <game/collision.h>
 #include <game/gamecore.h>
@@ -22,6 +23,7 @@
 #include <engine/server/server.h> // ddpp
 #include <stdio.h>
 
+#include <game/version.h>
 #include <string.h>
 
 #include <game/generated/protocol7.h>
@@ -3235,6 +3237,7 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 void CGameContext::OnConsoleInit()
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
+	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();
@@ -3301,6 +3304,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 
 	m_pServer = Kernel()->RequestInterface<IServer>();
+	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 	m_pEngine = Kernel()->RequestInterface<IEngine>();
 	m_pStorage = Kernel()->RequestInterface<IStorage>();

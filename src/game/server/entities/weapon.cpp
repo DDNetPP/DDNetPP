@@ -280,7 +280,7 @@ void CWeapon::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));
+	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetID(), sizeof(CNetObj_Pickup)));
 	if(!pP)
 		return;
 

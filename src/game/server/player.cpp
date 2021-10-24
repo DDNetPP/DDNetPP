@@ -14,7 +14,6 @@
 #include <game/gamecore.h>
 #include <game/server/teams.h>
 #include <game/version.h>
-#include <time.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
