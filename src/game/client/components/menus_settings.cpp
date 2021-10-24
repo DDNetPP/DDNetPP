@@ -422,7 +422,7 @@ void CMenus::RenderSettingsPlayer(CUIRect MainView)
 
 void CMenus::RenderSettingsTee(CUIRect MainView)
 {
-	CUIRect Button, Label, Button2, Dummy, DummyLabel, SkinList, QuickSearch, QuickSearchClearButton, SkinDB, SkinPrefix, SkinPrefixLabel;
+	CUIRect Button, Label, Button2, Dummy, DummyLabel, SkinList, QuickSearch, QuickSearchClearButton, SkinDB, SkinPrefix, SkinPrefixLabel, DirectoryButton, RefreshButton;
 
 	static float s_ClSkinPrefix = 0.0f;
 
@@ -618,7 +618,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		if(str_comp(s->m_aName, Skin) == 0)
 			OldSelected = i;
 
-		CListboxItem Item = UiDoListboxNextItem(&s_paSkinList[i], OldSelected == i);
+		CListboxItem Item = UiDoListboxNextItem(s_paSkinList[i], OldSelected == i);
 		char aBuf[128];
 		if(Item.m_Visible)
 		{
@@ -674,7 +674,6 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 			s_InitSkinlist = true;
 	}
 
-	CUIRect DirectoryButton;
 	SkinDB.VSplitLeft(150.0f, &SkinDB, &DirectoryButton);
 	SkinDB.HSplitTop(5.0f, 0, &SkinDB);
 	if(DoButton_Menu(&SkinDB, Localize("Skin Database"), 0, &SkinDB))
@@ -687,6 +686,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	DirectoryButton.HSplitTop(5.0f, 0, &DirectoryButton);
 	DirectoryButton.VSplitRight(175.0f, 0, &DirectoryButton);
+	DirectoryButton.VSplitRight(25.0f, &DirectoryButton, &RefreshButton);
+	DirectoryButton.VSplitRight(10.0f, &DirectoryButton, 0);
 	if(DoButton_Menu(&DirectoryButton, Localize("Skins directory"), 0, &DirectoryButton))
 	{
 		char aBuf[MAX_PATH_LENGTH];
@@ -699,6 +700,16 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 			dbg_msg("menus", "couldn't open link");
 		}
 	}
+
+	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+	if(DoButton_Menu(&RefreshButton, "\xEE\x97\x95", 0, &RefreshButton))
+	{
+		m_pClient->m_pSkins->Refresh();
+		s_InitSkinlist = true;
+	}
+	TextRender()->SetRenderFlags(0);
+	TextRender()->SetCurFont(NULL);
 }
 
 typedef void (*pfnAssignFuncCallback)(CConfiguration *pConfig, int Value);
@@ -2017,7 +2028,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		}
 	}
 
-	MainView.HSplitTop(310.0f, &Gameplay, &MainView);
+	MainView.HSplitTop(330.0f, &Gameplay, &MainView);
 
 	Gameplay.HSplitTop(30.0f, &Label, &Gameplay);
 	UI()->DoLabelScaled(&Label, Localize("Gameplay"), 20.0f, -1);
@@ -2172,6 +2183,16 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		Background.VSplitLeft(100.0f, &Label, &Left);
 		UI()->DoLabelScaled(&Label, Localize("Map"), 14.0f, -1);
 		DoEditBox(g_Config.m_ClBackgroundEntities, &Left, g_Config.m_ClBackgroundEntities, sizeof(g_Config.m_ClBackgroundEntities), 14.0f, &s_Map);
+
+		aRects[1].HSplitTop(20.0f, &Button, &aRects[1]);
+		bool UseCurrentMap = str_comp(g_Config.m_ClBackgroundEntities, CURRENT_MAP) == 0;
+		if(DoButton_CheckBox(&UseCurrentMap, Localize("Use current map as background"), UseCurrentMap, &Button))
+		{
+			if(UseCurrentMap)
+				g_Config.m_ClBackgroundEntities[0] = '\0';
+			else
+				str_copy(g_Config.m_ClBackgroundEntities, CURRENT_MAP, sizeof(g_Config.m_ClBackgroundEntities));
+		}
 
 		aRects[1].HSplitTop(20.0f, &Button, 0);
 		if(DoButton_CheckBox(&g_Config.m_ClBackgroundShowTilesLayers, Localize("Show tiles layers from BG map"), g_Config.m_ClBackgroundShowTilesLayers, &Button))

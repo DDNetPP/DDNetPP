@@ -59,7 +59,7 @@ void CMapLayers::MapScreenToGroup(float CenterX, float CenterY, CMapItemGroup *p
 	Graphics()->MapScreen(Points[0], Points[1], Points[2], Points[3]);
 }
 
-void CMapLayers::EnvelopeEval(float TimeOffset, int Env, float *pChannels, void *pUser)
+void CMapLayers::EnvelopeEval(int TimeOffsetMillis, int Env, float *pChannels, void *pUser)
 {
 	CMapLayers *pThis = (CMapLayers *)pUser;
 	pChannels[0] = 0;
@@ -84,8 +84,10 @@ void CMapLayers::EnvelopeEval(float TimeOffset, int Env, float *pChannels, void 
 
 	CMapItemEnvelope *pItem = (CMapItemEnvelope *)pThis->m_pLayers->Map()->GetItem(Start + Env, 0, 0);
 
-	static float s_Time = 0.0f;
-	static float s_LastLocalTime = pThis->LocalTime();
+	const int64 TickToMicroSeconds = (1000000ll / (int64)pThis->Client()->GameTickSpeed());
+
+	static int64 s_Time = 0;
+	static int64 s_LastLocalTime = time_get_microseconds();
 	if(pThis->Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
 		const IDemoPlayer::CInfo *pInfo = pThis->DemoPlayer()->BaseInfo();
@@ -99,42 +101,50 @@ void CMapLayers::EnvelopeEval(float TimeOffset, int Env, float *pChannels, void 
 			}
 			if(pItem->m_Version < 2 || pItem->m_Synchronized)
 			{
-				s_Time = mix((pThis->Client()->PrevGameTick(g_Config.m_ClDummy) - pThis->m_pClient->m_Snap.m_pGameInfoObj->m_RoundStartTick) / (float)pThis->Client()->GameTickSpeed(),
-					(pThis->Client()->GameTick(g_Config.m_ClDummy) - pThis->m_pClient->m_Snap.m_pGameInfoObj->m_RoundStartTick) / (float)pThis->Client()->GameTickSpeed(),
-					pThis->Client()->IntraGameTick(g_Config.m_ClDummy));
+				// get the lerp of the current tick and prev
+				int MinTick = pThis->Client()->PrevGameTick(g_Config.m_ClDummy);
+				s_Time = (int64)(mix<double>(
+							 0,
+							 (pThis->Client()->GameTick(g_Config.m_ClDummy) - MinTick),
+							 pThis->Client()->IntraGameTick(g_Config.m_ClDummy)) *
+						 TickToMicroSeconds) +
+					 MinTick * TickToMicroSeconds;
 			}
 			else
 			{
-				s_Time = mix(pThis->m_LastLocalTick / (float)pThis->Client()->GameTickSpeed(),
-					pThis->m_CurrentLocalTick / (float)pThis->Client()->GameTickSpeed(),
-					pThis->Client()->IntraGameTick(g_Config.m_ClDummy));
+				int MinTick = pThis->m_LastLocalTick;
+				s_Time = (int64)(mix<double>(0,
+							 pThis->m_CurrentLocalTick - MinTick,
+							 pThis->Client()->IntraGameTick(g_Config.m_ClDummy)) *
+						 TickToMicroSeconds) +
+					 MinTick * TickToMicroSeconds;
 			}
 		}
-		pThis->RenderTools()->RenderEvalEnvelope(pPoints + pItem->m_StartPoint, pItem->m_NumPoints, 4, s_Time + TimeOffset, pChannels);
+		pThis->RenderTools()->RenderEvalEnvelope(pPoints + pItem->m_StartPoint, pItem->m_NumPoints, 4, s_Time + (int64)TimeOffsetMillis * 1000ll, pChannels);
 	}
 	else
 	{
 		if(pThis->m_OnlineOnly && (pItem->m_Version < 2 || pItem->m_Synchronized))
 		{
-			if(pThis->m_OnlineOnly && pThis->m_pClient->m_Snap.m_pGameInfoObj) // && !(pThis->m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+			if(pThis->m_pClient->m_Snap.m_pGameInfoObj) // && !(pThis->m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 			{
-				s_Time = mix((pThis->Client()->PrevGameTick(g_Config.m_ClDummy) - pThis->m_pClient->m_Snap.m_pGameInfoObj->m_RoundStartTick) / (float)pThis->Client()->GameTickSpeed(),
-					(pThis->Client()->GameTick(g_Config.m_ClDummy) - pThis->m_pClient->m_Snap.m_pGameInfoObj->m_RoundStartTick) / (float)pThis->Client()->GameTickSpeed(),
-					pThis->Client()->IntraGameTick(g_Config.m_ClDummy));
+				// get the lerp of the current tick and prev
+				int MinTick = pThis->Client()->PrevGameTick(g_Config.m_ClDummy);
+				s_Time = (int64)(mix<double>(
+							 0,
+							 (pThis->Client()->GameTick(g_Config.m_ClDummy) - MinTick),
+							 pThis->Client()->IntraGameTick(g_Config.m_ClDummy)) *
+						 TickToMicroSeconds) +
+					 MinTick * TickToMicroSeconds;
 			}
-		}
-		else if(pThis->m_OnlineOnly)
-		{
-			s_Time += pThis->LocalTime() - s_LastLocalTime;
-			s_LastLocalTime = pThis->LocalTime();
 		}
 		else
 		{
-			float CurTime = (float)((double)time_get_microseconds() / 1000000.0);
+			int64 CurTime = time_get_microseconds();
 			s_Time += CurTime - s_LastLocalTime;
 			s_LastLocalTime = CurTime;
 		}
-		pThis->RenderTools()->RenderEvalEnvelope(pPoints + pItem->m_StartPoint, pItem->m_NumPoints, 4, s_Time + TimeOffset, pChannels);
+		pThis->RenderTools()->RenderEvalEnvelope(pPoints + pItem->m_StartPoint, pItem->m_NumPoints, 4, s_Time + (int64)TimeOffsetMillis * 1000ll, pChannels);
 	}
 }
 
@@ -995,7 +1005,7 @@ void CMapLayers::RenderTileLayer(int LayerIndex, ColorRGBA *pColor, CMapItemLaye
 	if(pTileLayer->m_ColorEnv >= 0)
 	{
 		float aChannels[4];
-		EnvelopeEval(pTileLayer->m_ColorEnvOffset / 1000.0f, pTileLayer->m_ColorEnv, aChannels, this);
+		EnvelopeEval(pTileLayer->m_ColorEnvOffset, pTileLayer->m_ColorEnv, aChannels, this);
 		r = aChannels[0];
 		g = aChannels[1];
 		b = aChannels[2];
@@ -1385,7 +1395,7 @@ void CMapLayers::RenderQuadLayer(int LayerIndex, CMapItemLayerQuads *pQuadLayer,
 		aColor[0] = aColor[1] = aColor[2] = aColor[3] = 1.f;
 		if(q->m_ColorEnv >= 0)
 		{
-			EnvelopeEval(q->m_ColorEnvOffset / 1000.0f, q->m_ColorEnv, aColor, this);
+			EnvelopeEval(q->m_ColorEnvOffset, q->m_ColorEnv, aColor, this);
 		}
 
 		float OffsetX = 0;
@@ -1395,7 +1405,7 @@ void CMapLayers::RenderQuadLayer(int LayerIndex, CMapItemLayerQuads *pQuadLayer,
 		if(q->m_PosEnv >= 0)
 		{
 			float aChannels[4];
-			EnvelopeEval(q->m_PosEnvOffset / 1000.0f, q->m_PosEnv, aChannels, this);
+			EnvelopeEval(q->m_PosEnvOffset, q->m_PosEnv, aChannels, this);
 			OffsetX = aChannels[0];
 			OffsetY = aChannels[1];
 			Rot = aChannels[2] / 180.0f * pi;
@@ -1727,7 +1737,7 @@ void CMapLayers::OnRender()
 					CTile *pTiles = (CTile *)m_pLayers->Map()->GetData(pTMap->m_Data);
 					unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Data);
 
-					if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CTile))
+					if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CTile))
 					{
 						ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f);
 						if(IsGameLayer && EntityOverlayVal)
@@ -1825,7 +1835,7 @@ void CMapLayers::OnRender()
 				CTile *pFrontTiles = (CTile *)m_pLayers->Map()->GetData(pTMap->m_Front);
 				unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Front);
 
-				if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CTile))
+				if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CTile))
 				{
 					ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f * EntityOverlayVal / 100.0f);
 					if(!Graphics()->IsTileBufferingEnabled())
@@ -1852,7 +1862,7 @@ void CMapLayers::OnRender()
 				CSwitchTile *pSwitchTiles = (CSwitchTile *)m_pLayers->Map()->GetData(pTMap->m_Switch);
 				unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Switch);
 
-				if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CSwitchTile))
+				if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CSwitchTile))
 				{
 					ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f * EntityOverlayVal / 100.0f);
 					if(!Graphics()->IsTileBufferingEnabled())
@@ -1885,7 +1895,7 @@ void CMapLayers::OnRender()
 				CTeleTile *pTeleTiles = (CTeleTile *)m_pLayers->Map()->GetData(pTMap->m_Tele);
 				unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Tele);
 
-				if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CTeleTile))
+				if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CTeleTile))
 				{
 					ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f * EntityOverlayVal / 100.0f);
 					if(!Graphics()->IsTileBufferingEnabled())
@@ -1916,7 +1926,7 @@ void CMapLayers::OnRender()
 				CSpeedupTile *pSpeedupTiles = (CSpeedupTile *)m_pLayers->Map()->GetData(pTMap->m_Speedup);
 				unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Speedup);
 
-				if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CSpeedupTile))
+				if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CSpeedupTile))
 				{
 					ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f * EntityOverlayVal / 100.0f);
 					if(!Graphics()->IsTileBufferingEnabled())
@@ -1954,7 +1964,7 @@ void CMapLayers::OnRender()
 				CTuneTile *pTuneTiles = (CTuneTile *)m_pLayers->Map()->GetData(pTMap->m_Tune);
 				unsigned int Size = m_pLayers->Map()->GetDataSize(pTMap->m_Tune);
 
-				if(Size >= pTMap->m_Width * pTMap->m_Height * sizeof(CTuneTile))
+				if(Size >= (size_t)pTMap->m_Width * pTMap->m_Height * sizeof(CTuneTile))
 				{
 					ColorRGBA Color = ColorRGBA(pTMap->m_Color.r / 255.0f, pTMap->m_Color.g / 255.0f, pTMap->m_Color.b / 255.0f, pTMap->m_Color.a / 255.0f * EntityOverlayVal / 100.0f);
 					if(!Graphics()->IsTileBufferingEnabled())

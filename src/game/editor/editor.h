@@ -89,7 +89,7 @@ public:
 
 	int Eval(float Time, float *pResult)
 	{
-		CRenderTools::RenderEvalEnvelope(m_lPoints.base_ptr(), m_lPoints.size(), m_Channels, Time, pResult);
+		CRenderTools::RenderEvalEnvelope(m_lPoints.base_ptr(), m_lPoints.size(), m_Channels, (int64)((double)Time * 1000000.0), pResult);
 		return m_Channels;
 	}
 
@@ -801,6 +801,7 @@ public:
 	bool IsQuadSelected(int Index);
 	int FindSelectedQuadIndex(int Index);
 
+	float ScaleFontSize(char *aBuf, float FontSize, int Width);
 	int DoProperties(CUIRect *pToolbox, CProperty *pProps, int *pIDs, int *pNewVal, ColorRGBA Color = ColorRGBA(1, 1, 1, 0.5f));
 
 	int m_Mode;
@@ -947,7 +948,7 @@ public:
 	CEditorMap m_Map;
 	int m_ShiftBy;
 
-	static void EnvelopeEval(float TimeOffset, int Env, float *pChannels, void *pUser);
+	static void EnvelopeEval(int TimeOffsetMillis, int Env, float *pChannels, void *pUser);
 
 	float m_CommandBox;
 	char m_aSettingsCommand[256];

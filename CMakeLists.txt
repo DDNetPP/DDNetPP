@@ -611,6 +611,8 @@ endif()
 
 set(EXPECTED_DATA
   arrow.png
+  assets/entities/comfort/ddnet.png
+  assets/entities/license.txt
   audio/foley_body_impact-01.wv
   audio/foley_body_impact-02.wv
   audio/foley_body_impact-03.wv
@@ -1074,6 +1076,7 @@ set(EXPECTED_DATA
   languages/romanian.txt
   languages/russian.txt
   languages/serbian.txt
+  languages/serbian_cyrillic.txt
   languages/simplified_chinese.txt
   languages/slovak.txt
   languages/spanish.txt
@@ -1487,6 +1490,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   textrender.h
   updater.h
   uuid.h
+  warning.h
 )
 set_src(ENGINE_SHARED GLOB src/engine/shared
   compression.cpp
@@ -1734,6 +1738,7 @@ if(CLIENT)
     components/menus_demo.cpp
     components/menus_ingame.cpp
     components/menus_settings.cpp
+    components/menus_settings_assets.cpp
     components/menus_start.cpp
     components/motd.cpp
     components/motd.h

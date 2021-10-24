@@ -143,9 +143,11 @@ bool CBinds::OnInput(IInput::CEvent e)
 		}
 	}
 
-	if(m_aapKeyBindings[0][e.m_Key] && (!ret || m_aapKeyBindings[0][e.m_Key][0] == '+')) // always trigger +xxx binds despite any modifier
+	// Shift for emoticons works while moving through map
+	if(m_aapKeyBindings[0][e.m_Key] && (!ret || m_aapKeyBindings[0][e.m_Key][0] == '+'))
 	{
-		if(e.m_Flags & IInput::FLAG_PRESS)
+		// When ctrl+shift are pressed (ctrl+shift binds and also the hard-coded ctrl+shift+d, ctrl+shift+g, ctrl+shift+e), ignore other +xxx binds
+		if(e.m_Flags & IInput::FLAG_PRESS && Mask != ((1 << MODIFIER_CTRL) | (1 << MODIFIER_SHIFT)))
 			Console()->ExecuteLineStroked(1, m_aapKeyBindings[0][e.m_Key]);
 		if(e.m_Flags & IInput::FLAG_RELEASE)
 			Console()->ExecuteLineStroked(0, m_aapKeyBindings[0][e.m_Key]);
