@@ -974,29 +974,17 @@ void CGameContext::CheckDDPPshutdown()
 void CGameContext::DDPP_Tick()
 {
 	if(m_iBroadcastDelay > 0)
-	{
 		m_iBroadcastDelay--;
-	}
-
 	if(m_BlockTournaState)
-	{
 		BlockTournaTick();
-	}
-
 	if(m_BalanceBattleState == 1)
-	{
 		BalanceBattleTick();
-	}
-
 	if(m_BombGameState)
-	{
 		BombTick();
-	}
-
+	if(m_BlockWaveGameState)
+		BlockWaveGameTick();
 	if(m_survivalgamestate == 1)
-	{
 		SurvivalLobbyTick();
-	}
 	else
 	{
 		if(m_survival_game_countdown > 0)
@@ -1026,17 +1014,16 @@ void CGameContext::DDPP_Tick()
 		}
 	}
 
-	if(m_BlockWaveGameState)
-	{
-		BlockWaveGameTick();
-	}
-
 	if(m_CreateShopBot && (Server()->Tick() % 50 == 0))
 	{
 		CreateNewDummy(99); //shop bot
 		m_CreateShopBot = false;
 	}
-	for(int i = 0; i < MAX_CLIENTS; i++) //all the tick stuff which needs all players
+	// process sql queries
+	m_Database->Tick();
+
+	 // all the tick stuff which needs all players
+	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(!m_apPlayers[i])
 			continue;
@@ -1057,19 +1044,13 @@ void CGameContext::DDPP_Tick()
 		C3_MultiPlayer_GameTick(i);
 	}
 	if(m_InstaGrenadeRoundEndTickTicker)
-	{
 		m_InstaGrenadeRoundEndTickTicker--;
-	}
 	if(m_InstaRifleRoundEndTickTicker)
-	{
 		m_InstaRifleRoundEndTickTicker--;
-	}
 	m_LastAccountMode = g_Config.m_SvAccountStuff;
 
 	if(Server()->Tick() % 600 == 0) //slow ddpp sub tick
-	{
 		DDPP_SlowTick();
-	}
 }
 
 void CGameContext::LogoutAllPlayers()
