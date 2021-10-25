@@ -4011,8 +4011,10 @@ void CCharacter::SendShopMessage(const char *pMsg)
 	if(g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= recv)
 		return;
 
-	dbg_assert(!Server()->IsSixup(GetPlayer()->GetCID()), "implement 0.7");
-	GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIX, m_pPlayer->GetCID());
+	if(Server()->IsSixup(GetPlayer()->GetCID()))
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIXUP, m_pPlayer->GetCID());
+	else
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIX, m_pPlayer->GetCID());
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
 }
 
