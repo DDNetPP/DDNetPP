@@ -2172,11 +2172,13 @@ if(SERVER)
     gamecontext.h
     gamecontext_chat.cpp
     gamecontext_ddpp.cpp
+    gamecontext_ddpp.h
     gamecontext_minigames.cpp
     gamecontext_onmessage.cpp
     gamecontext_quests.cpp
     gamecontext_ratelimits.cpp
     gamecontext_sql.cpp
+    gamecontext_sql.h
     gamecontext_survival.cpp
     gamecontext_trades.cpp
     gamecontext_votes.cpp

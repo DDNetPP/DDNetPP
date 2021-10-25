@@ -6,6 +6,9 @@
 #include <fstream>
 #include <limits>
 
+#include "gamecontext.h"
+#include "gamecontext_sql.h"
+
 #include "player.h"
 
 void CPlayer::FixForNoName(int ID)

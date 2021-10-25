@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "gamecontext.h"
+#include "gamecontext_sql.h"
 
 void CQuerySQLstatus::OnData()
 {

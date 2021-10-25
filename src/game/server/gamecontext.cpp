@@ -1313,38 +1313,8 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 
 void CGameContext::OnClientEnter(int ClientID, bool Silent)
 {
-	if(IsDDPPgametype("survival"))
-	{
-		SetPlayerSurvival(ClientID, 1);
-	}
-	else if(IsDDPPgametype("vanilla"))
-	{
-		if(m_apPlayers[ClientID])
-		{
-			m_apPlayers[ClientID]->m_IsVanillaDmg = true;
-			m_apPlayers[ClientID]->m_IsVanillaWeapons = true;
-			m_apPlayers[ClientID]->m_IsVanillaCompetetive = true;
-		}
-	}
-	else if(IsDDPPgametype("fng"))
-	{
-		if(m_apPlayers[ClientID])
-		{
-			m_apPlayers[ClientID]->m_IsInstaMode_idm = true;
-			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
-		}
-	}
-
-	//world.insert_entity(&players[client_id]);
-	m_apPlayers[ClientID]->Respawn();
-	// init the player
-	Score()->PlayerData(ClientID)->Reset();
-	m_apPlayers[ClientID]->m_Score = Score()->PlayerData(ClientID)->m_BestTime ? Score()->PlayerData(ClientID)->m_BestTime : -9999;
-
-	Score()->LoadPlayerData(ClientID);
-	if(g_Config.m_SvDDPPscore == 0)
-		m_apPlayers[ClientID]->m_Score = 0;
 	m_pController->OnPlayerConnect(m_apPlayers[ClientID], Silent);
+	OnClientEnterDDPP(ClientID);
 
 	if(Server()->IsSixup(ClientID))
 	{
@@ -3306,26 +3276,6 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
-	// ChillerDragon konst constructor
-	m_Database->CreateDatabase();
-	LoadSinglePlayer();
-	m_MapsavePlayers = 0;
-	m_MapsaveLoadedPlayers = 0;
-	//Friends_counter = 0;
-	m_vDropLimit.resize(2);
-	m_BalanceID1 = -1;
-	m_BalanceID2 = -1;
-	m_survivalgamestate = 0;
-	m_survival_game_countdown = 0;
-	m_BlockWaveGameState = 0;
-	m_insta_survival_gamestate = 0;
-	m_CucumberShareValue = 10;
-	m_BombTick = g_Config.m_SvBombTicks;
-	m_BombStartCountDown = g_Config.m_SvBombStartDelay;
-	m_WrongRconAttempts = 0;
-	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
-	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
-
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -3565,10 +3515,6 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	int ShopTiles = 0;
 
-	// by fokkonaut from F-DDrace
-	Collision()->m_vTiles.clear();
-	Collision()->m_vTiles.resize(NUM_INDICES);
-
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
@@ -3648,152 +3594,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 					m_Tuning.Set("player_hooking", 0);
 					dbg_msg("front_layer", "found no player hooking tile");
 				}
-				else if(Index == TILE_JAIL)
+				else if(InitTileDDPP(Index, x, y))
 				{
-					CJail Jail;
-					Jail.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got Jail tile at (%.2f|%.2f)", Jail.m_Center.x, Jail.m_Center.y);
-					m_Jail.push_back(Jail);
-				}
-				else if(Index == TILE_JAILRELEASE)
-				{
-					CJailrelease Jailrelease;
-					Jailrelease.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got Jailrelease tile at (%.2f|%.2f)", Jailrelease.m_Center.x, Jailrelease.m_Center.y);
-					m_Jailrelease.push_back(Jailrelease);
-				}
-				else if(Index == TILE_BALANCE_BATTLE_1)
-				{
-					CBalanceBattleTile1 Balancebattle;
-					Balancebattle.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got balancebattle1 tile at (%.2f|%.2f)", Balancebattle.m_Center.x, Balancebattle.m_Center.y);
-					m_BalanceBattleTile1.push_back(Balancebattle);
-				}
-				else if(Index == TILE_BALANCE_BATTLE_2)
-				{
-					CBalanceBattleTile2 Balancebattle;
-					Balancebattle.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got balancebattle2 tile at (%.2f|%.2f)", Balancebattle.m_Center.x, Balancebattle.m_Center.y);
-					m_BalanceBattleTile2.push_back(Balancebattle);
-				}
-				else if(Index == TILE_SURVIVAL_LOBBY)
-				{
-					CSurvivalLobbyTile Survivallobby;
-					Survivallobby.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got survival lobby tile at (%.2f|%.2f)", Survivallobby.m_Center.x, Survivallobby.m_Center.y);
-					m_SurvivalLobby.push_back(Survivallobby);
-				}
-				else if(Index == TILE_SURVIVAL_SPAWN)
-				{
-					CSurvivalSpawnTile Survivalspawn;
-					Survivalspawn.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got survival spawn tile at (%.2f|%.2f)", Survivalspawn.m_Center.x, Survivalspawn.m_Center.y);
-					m_SurvivalSpawn.push_back(Survivalspawn);
-				}
-				else if(Index == TILE_SURVIVAL_DEATHMATCH)
-				{
-					CSurvivalDeathmatchTile Survivaldeathmatch;
-					Survivaldeathmatch.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got survival deathmatch tile at (%.2f|%.2f)", Survivaldeathmatch.m_Center.x, Survivaldeathmatch.m_Center.y);
-					m_SurvivalDeathmatch.push_back(Survivaldeathmatch);
-				}
-				else if(Index == TILE_BLOCKWAVE_BOT)
-				{
-					CBlockWaveBotTile BlockWaveBot;
-					BlockWaveBot.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got blockwave bot spawn tile at (%.2f|%.2f)", BlockWaveBot.m_Center.x, BlockWaveBot.m_Center.y);
-					m_BlockWaveBot.push_back(BlockWaveBot);
-				}
-				else if(Index == TILE_BLOCKWAVE_HUMAN)
-				{
-					CBlockWaveHumanTile BlockWaveHuman;
-					BlockWaveHuman.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got blockwave Human spawn tile at (%.2f|%.2f)", BlockWaveHuman.m_Center.x, BlockWaveHuman.m_Center.y);
-					m_BlockWaveHuman.push_back(BlockWaveHuman);
-				}
-				else if(Index == TILE_FNG_SCORE)
-				{
-					CFngScore FngScore;
-					FngScore.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", FngScore.m_Center.x, FngScore.m_Center.y);
-					m_FngScore.push_back(FngScore);
-				}
-				else if(Index == TILE_BLOCK_TOURNA_SPAWN)
-				{
-					CBlockTournaSpawn BlockTournaSpawn;
-					BlockTournaSpawn.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got fng score tile at (%.2f|%.2f)", BlockTournaSpawn.m_Center.x, BlockTournaSpawn.m_Center.y);
-					m_BlockTournaSpawn.push_back(BlockTournaSpawn);
-				}
-				else if(Index == TILE_PVP_ARENA_SPAWN)
-				{
-					CPVPArenaSpawn PVPArenaSpawn;
-					PVPArenaSpawn.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got pvp arena spawn tile at (%.2f|%.2f)", PVPArenaSpawn.m_Center.x, PVPArenaSpawn.m_Center.y);
-					m_PVPArenaSpawn.push_back(PVPArenaSpawn);
-				}
-				else if(Index == TILE_VANILLA_MODE)
-				{
-					CVanillaMode VanillaMode;
-					VanillaMode.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got vanilla mode tile at (%.2f|%.2f)", VanillaMode.m_Center.x, VanillaMode.m_Center.y);
-					m_VanillaMode.push_back(VanillaMode);
-				}
-				else if(Index == TILE_DDRACE_MODE)
-				{
-					CDDraceMode DDraceMode;
-					DDraceMode.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got ddrace mode tile at (%.2f|%.2f)", DDraceMode.m_Center.x, DDraceMode.m_Center.y);
-					m_DDraceMode.push_back(DDraceMode);
-				}
-				else if(Index == TILE_BOTSPAWN_1)
-				{
-					CBotSpawn1 BotSpawn1;
-					BotSpawn1.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got botspawn1 tile at (%.2f|%.2f)", BotSpawn1.m_Center.x, BotSpawn1.m_Center.y);
-					m_BotSpawn1.push_back(BotSpawn1);
-				}
-				else if(Index == TILE_BOTSPAWN_2)
-				{
-					CBotSpawn2 BotSpawn2;
-					BotSpawn2.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got botspawn2 tile at (%.2f|%.2f)", BotSpawn2.m_Center.x, BotSpawn2.m_Center.y);
-					m_BotSpawn2.push_back(BotSpawn2);
-				}
-				else if(Index == TILE_BOTSPAWN_3)
-				{
-					CBotSpawn3 BotSpawn3;
-					BotSpawn3.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got botspawn3 tile at (%.2f|%.2f)", BotSpawn3.m_Center.x, BotSpawn3.m_Center.y);
-					m_BotSpawn3.push_back(BotSpawn3);
-				}
-				else if(Index == TILE_BOTSPAWN_4)
-				{
-					CBotSpawn4 BotSpawn4;
-					BotSpawn4.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got botspawn4 tile at (%.2f|%.2f)", BotSpawn4.m_Center.x, BotSpawn4.m_Center.y);
-					m_BotSpawn4.push_back(BotSpawn4);
-				}
-				else if(Index == TILE_NO_HAMMER)
-				{
-					CNoHammer NoHammer;
-					NoHammer.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got no hammer tile at (%.2f|%.2f)", NoHammer.m_Center.x, NoHammer.m_Center.y);
-					m_NoHammer.push_back(NoHammer);
-				}
-				else if(Index == TILE_BLOCK_DM_A1)
-				{
-					CBlockDMA1 BlockDMA1;
-					BlockDMA1.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got block deathmatch(1) tile at (%.2f|%.2f)", BlockDMA1.m_Center.x, BlockDMA1.m_Center.y);
-					m_BlockDMA1.push_back(BlockDMA1);
-				}
-				else if(Index == TILE_BLOCK_DM_A2)
-				{
-					CBlockDMA2 BlockDMA2;
-					BlockDMA2.m_Center = vec2(x, y);
-					dbg_msg("game layer", "got block deathmatch(2) tile at (%.2f|%.2f)", BlockDMA2.m_Center.x, BlockDMA2.m_Center.y);
-					m_BlockDMA2.push_back(BlockDMA2);
+					// pass
 				}
 				if(Index >= ENTITY_OFFSET)
 				{
