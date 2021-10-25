@@ -150,32 +150,46 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 {
 	IGameController::Snap(SnappingClient);
 
-	CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
-	if(!pGameDataObj)
-		return;
-
+	int FlagCarrierRed = FLAG_MISSING;
 	if(m_apFlags[TEAM_RED])
 	{
 		if(m_apFlags[TEAM_RED]->m_AtStand)
-			pGameDataObj->m_FlagCarrierRed = FLAG_ATSTAND;
-		else if(m_apFlags[TEAM_RED]->m_pCarryingCharacter && m_apFlags[TEAM_RED]->m_pCarryingCharacter->GetPlayer())
-			pGameDataObj->m_FlagCarrierRed = m_apFlags[TEAM_RED]->m_pCarryingCharacter->GetPlayer()->GetCID();
+			FlagCarrierRed = FLAG_ATSTAND;
+		else if(m_apFlags[TEAM_RED]->GetCarrier() && m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer())
+			FlagCarrierRed = m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer()->GetCID();
 		else
-			pGameDataObj->m_FlagCarrierRed = FLAG_TAKEN;
+			FlagCarrierRed = FLAG_TAKEN;
 	}
-	else
-		pGameDataObj->m_FlagCarrierRed = FLAG_MISSING;
+
+	int FlagCarrierBlue = FLAG_MISSING;
 	if(m_apFlags[TEAM_BLUE])
 	{
 		if(m_apFlags[TEAM_BLUE]->m_AtStand)
-			pGameDataObj->m_FlagCarrierBlue = FLAG_ATSTAND;
-		else if(m_apFlags[TEAM_BLUE]->m_pCarryingCharacter && m_apFlags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer())
-			pGameDataObj->m_FlagCarrierBlue = m_apFlags[TEAM_BLUE]->m_pCarryingCharacter->GetPlayer()->GetCID();
+			FlagCarrierBlue = FLAG_ATSTAND;
+		else if(m_apFlags[TEAM_BLUE]->GetCarrier() && m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer())
+			FlagCarrierBlue = m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer()->GetCID();
 		else
-			pGameDataObj->m_FlagCarrierBlue = FLAG_TAKEN;
+			FlagCarrierBlue = FLAG_TAKEN;
+	}
+
+	if(Server()->IsSixup(SnappingClient))
+	{
+		protocol7::CNetObj_GameDataFlag *pGameDataObj = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
+		if(!pGameDataObj)
+			return;
+
+		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
+		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
 	}
 	else
-		pGameDataObj->m_FlagCarrierBlue = FLAG_MISSING;
+	{
+		CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
+		if(!pGameDataObj)
+			return;
+
+		pGameDataObj->m_FlagCarrierRed = FlagCarrierRed;
+		pGameDataObj->m_FlagCarrierBlue = FlagCarrierBlue;
+	}
 }
 
 CGameControllerDDRace::~CGameControllerDDRace()

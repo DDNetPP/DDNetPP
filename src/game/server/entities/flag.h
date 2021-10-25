@@ -27,6 +27,8 @@ public:
 	virtual void Reset();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
+
+	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
 };
 
 #endif

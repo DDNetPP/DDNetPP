@@ -3276,6 +3276,7 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
+	OnInitDDPP();
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
