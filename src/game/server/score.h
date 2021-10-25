@@ -357,8 +357,6 @@ public:
 	void RandomMap(int ClientID, int Stars);
 	void RandomUnfinishedMap(int ClientID, int Stars);
 
-	//ddpp
-
 	void SaveTeam(int ClientID, const char *pCode, const char *pServer);
 	void LoadTeam(const char *pCode, int ClientID);
 	void GetSaves(int ClientID);
