@@ -1,16 +1,11 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <cstdio>
-#include <ctime>
-#include <new>
+#include "player.h"
+#include <engine/shared/config.h>
 
 #include "entities/character.h"
 #include "gamecontext.h"
-#include "gamemodes/DDRace.h"
-#include "player.h"
 #include <engine/server.h>
-#include <engine/server/server.h>
-#include <engine/shared/config.h>
 #include <game/gamecore.h>
 #include <game/version.h>
 
@@ -60,8 +55,6 @@ void CPlayer::Reset()
 	pIdMap[0] = m_ClientID;
 
 	// DDRace
-
-	m_vWeaponLimit.resize(5);
 
 	m_LastCommandPos = 0;
 	m_LastPlaytime = 0;
@@ -361,6 +354,7 @@ void CPlayer::Snap(int SnappingClient)
 		m_ShowName = true;
 	}
 
+	StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
 	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 
@@ -524,6 +518,8 @@ void CPlayer::FakeSnap()
 
 void CPlayer::OnDisconnect()
 {
+	KillCharacter();
+
 	m_Moderating = false;
 }
 
