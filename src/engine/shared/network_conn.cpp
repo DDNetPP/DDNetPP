@@ -493,13 +493,3 @@ void CNetConnection::SetTimedOut(const NETADDR *pAddr, int Sequence, int Ack, SE
 		pResendBuffer->PopFirst();
 	}
 }
-
-void CNetConnection::BotConnect()
-{
-	m_State = NET_CONNSTATE_BOT;
-}
-
-void CNetConnection::BotDrop()
-{
-	m_State = NET_CONNSTATE_OFFLINE;
-}
