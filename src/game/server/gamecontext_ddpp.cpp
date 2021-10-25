@@ -2104,10 +2104,9 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 		m_apPlayers[DummyID] = 0;
 	}
 
-	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED);
+	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED, true);
 
 	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
-	m_apPlayers[DummyID]->m_IsDummy = true;
 	m_apPlayers[DummyID]->m_DummyMode = dummymode;
 	Server()->BotJoin(DummyID);
 

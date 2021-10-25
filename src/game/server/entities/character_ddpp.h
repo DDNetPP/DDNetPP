@@ -372,7 +372,7 @@ public:
 
 	CDummyBlmapChillPolice *m_pDummyBlmapChillPolice;
 
-	CNetObj_PlayerInput *Input() { return &m_Input; };
+	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
 	void Fire(bool Fire = true);
 	int GetReloadTimer() { return m_ReloadTimer; }

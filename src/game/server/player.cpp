@@ -18,13 +18,14 @@ MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
-CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
+CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team, bool IsDummy)
 {
 	m_pGameServer = pGameServer;
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
 	m_NumInputs = 0;
 	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
+	m_IsDummy = IsDummy;
 	Reset();
 	GameServer()->Antibot()->OnPlayerInit(m_ClientID);
 }
@@ -74,7 +75,7 @@ void CPlayer::Reset()
 		m_TimerType = (g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER || g_Config.m_SvDefaultTimerType == TIMERTYPE_GAMETIMER_AND_BROADCAST) ? TIMERTYPE_BROADCAST : g_Config.m_SvDefaultTimerType;
 
 	m_DefEmote = EMOTE_NORMAL;
-	m_Afk = true;
+	m_Afk = !m_IsDummy;
 	m_LastWhisperTo = -1;
 	m_LastSetSpectatorMode = 0;
 	m_aTimeoutCode[0] = '\0';
@@ -445,7 +446,7 @@ void CPlayer::Snap(int SnappingClient)
 
 	pDDNetPlayer->m_AuthLevel = Server()->GetAuthedState(id);
 	pDDNetPlayer->m_Flags = 0;
-	if(m_Afk)
+	if(m_Afk && !m_IsDummy)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
 	if(m_Paused == PAUSE_SPEC)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_SPEC;
@@ -799,7 +800,7 @@ void CPlayer::AfkVoteTimer(CNetObj_PlayerInput *NewTarget)
 
 	if(m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkVoteTime)
 	{
-		m_Afk = true;
+		m_Afk = !m_IsDummy;
 		return;
 	}
 
