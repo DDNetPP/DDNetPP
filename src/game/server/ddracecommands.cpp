@@ -8,9 +8,6 @@
 #include <game/server/save.h>
 #include <game/server/teams.h>
 #include <game/version.h>
-#if defined(CONF_SQL)
-#include <game/server/score/sql_score.h>
-#endif
 
 bool CheckClientID(int ClientID);
 

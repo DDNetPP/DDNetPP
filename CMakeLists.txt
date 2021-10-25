@@ -1663,6 +1663,7 @@ set_src(GAME_SHARED GLOB src/game
   collision.h
   collision_ddpp.cpp
   ddracechat.h
+  ddracechat_ddpp.h
   ddracecommands.h
   gamecore.cpp
   gamecore.h
