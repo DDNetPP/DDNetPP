@@ -57,7 +57,7 @@ public:
 	virtual void GetClientAddr(int ClientID, char *pAddrStr, int Size) const = 0;
 	virtual void RestrictRconOutput(int ClientID) = 0;
 
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false) = 0;
+	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
 
 	template<class T, typename std::enable_if<!protocol7::is_sixup<T>::value, int>::type = 0>
 	inline int SendPackMsg(T *pMsg, int Flags, int ClientID)

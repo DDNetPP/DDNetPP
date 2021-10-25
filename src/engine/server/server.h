@@ -307,8 +307,7 @@ public:
 	int ClientCount() const;
 	int DistinctClientCount() const;
 
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System = false);
-	int SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System);
+	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID);
 
 	void DoSnapshot();
 

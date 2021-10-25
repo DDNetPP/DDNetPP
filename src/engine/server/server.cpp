@@ -695,11 +695,6 @@ int CServer::DistinctClientCount() const
 	return ClientCount;
 }
 
-int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
-{
-	return SendMsgEx(pMsg, Flags, ClientID, System);
-}
-
 static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer, bool Sixup)
 {
 	int MsgId = pMsg->m_MsgID;
@@ -753,7 +748,7 @@ static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer, bool Sixup
 	return false;
 }
 
-int CServer::SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
+int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientID)
 {
 	CNetChunk Packet;
 	if(!pMsg)
@@ -1647,10 +1642,10 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						AuthLevel = AUTHED_HELPER;
 					else if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
 					{
-						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS);
+						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS, true);
 						Msg.AddInt(1); //authed
 						Msg.AddInt(1); //cmdlist
-						SendMsgEx(&Msg, MSGFLAG_VITAL, ClientID, true);
+						SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 					}
 					else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
 						AuthLevel = AUTHED_HONEY;
