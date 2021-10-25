@@ -405,8 +405,7 @@ void CPlayer::Snap(int SnappingClient)
 		// Times are in milliseconds for 0.7
 		pPlayerInfo->m_Score = Score == -9999 ? -1 : -Score * 1000;
 		pPlayerInfo->m_Latency = Latency;
-#pragma message "Implement DDPPSnapChangePlayerInfo7"
-		// DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
+		DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
 	}
 
 	if(m_ClientID == SnappingClient && (m_Team == TEAM_SPECTATORS || m_Paused))

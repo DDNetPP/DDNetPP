@@ -475,6 +475,11 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 	}
 }
 
+void CPlayer::DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo)
+{
+	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, (CNetObj_PlayerInfo*)pPlayerInfo);
+}
+
 void CPlayer::OnDisconnectDDPP()
 {
 	if(m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
