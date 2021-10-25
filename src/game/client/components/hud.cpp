@@ -248,8 +248,8 @@ void CHud::RenderScoreHud()
 				{
 					int BlinkTimer = (m_pClient->m_FlagDropTick[t] != 0 &&
 								 (Client()->GameTick(g_Config.m_ClDummy) - m_pClient->m_FlagDropTick[t]) / Client()->GameTickSpeed() >= 25) ?
-                                                                 10 :
-                                                                 20;
+								 10 :
+								 20;
 					if(FlagCarrier[t] == FLAG_ATSTAND || (FlagCarrier[t] == FLAG_TAKEN && ((Client()->GameTick(g_Config.m_ClDummy) / BlinkTimer) & 1)))
 					{
 						// draw flag
