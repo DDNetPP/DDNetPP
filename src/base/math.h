@@ -38,8 +38,6 @@ constexpr inline T mix(const T a, const T b, TB amount)
 	return a + (b - a) * amount;
 }
 
-inline int _random(int max) { return rand() % max; }
-inline int _random(int min, int max) { return min + rand() % (max + 1 - min); }
 inline float random_float() { return rand() / (float)(RAND_MAX); }
 
 // float to fixed

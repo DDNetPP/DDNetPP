@@ -1,5 +1,6 @@
 // ddnet++ generic character stuff
 
+#include <base/math_ddpp.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>

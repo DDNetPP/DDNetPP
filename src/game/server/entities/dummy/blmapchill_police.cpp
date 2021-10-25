@@ -6,6 +6,7 @@
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
+#include <base/math_ddpp.h>
 
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
