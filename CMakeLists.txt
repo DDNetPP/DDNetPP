@@ -2160,6 +2160,7 @@ if(SERVER)
     entities/plasmabullet.h
     entities/projectile.cpp
     entities/projectile.h
+    entities/projectile_ddpp.cpp
     entities/stable_projectile.cpp
     entities/stable_projectile.h
     entities/weapon.cpp

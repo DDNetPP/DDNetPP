@@ -121,6 +121,9 @@ void CProjectile::Tick()
 
 	CCharacter *pTargetChr = 0;
 
+	if(IsDDPPVanillaProjectile(Collide, PrevPos, CurPos, ColPos, NewPos, pOwnerChar, Pt, Ct))
+		return;
+
 	if(pOwnerChar ? !(pOwnerChar->m_Hit & CCharacter::DISABLE_HIT_GRENADE) : g_Config.m_SvHit)
 		pTargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, ColPos, m_Freeze ? 1.0f : 6.0f, ColPos, pOwnerChar, m_Owner);
 

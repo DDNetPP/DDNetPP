@@ -47,6 +47,8 @@ private:
 	bool m_Freeze;
 	int m_TuneZone;
 
+	bool IsDDPPVanillaProjectile(int Collide, vec2 PrevPos, vec2 CurPos, vec2 ColPos, vec2 NewPos, CCharacter *pOwnerChar, float Pt, float Ct);
+
 public:
 	void SetBouncing(int Value);
 	bool FillExtraInfo(CNetObj_DDNetProjectile *pProj);
