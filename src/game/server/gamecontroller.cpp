@@ -214,18 +214,19 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 		{
 			EvaluateSpawnType(&Eval, 2); //blue
 		}
-		/* doesnt work yet no spawning like there were no spawntiles set
-			else if (pPlayer->m_IsSurvivaling && pPlayer->m_IsSurvivalAlive)
-			{
-				EvaluateSpawnType(&Eval, 3); //survival spawntile
-			}
-			*/
+		else if (pPlayer->m_IsSurvivaling)
+		{
+			int Id = pPlayer->GetCID();
+			Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);
+			if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
+				EvaluateSpawnType(&Eval, 0); //default
+			else
+				Eval.m_Got = true;
+		}
 		else
 		{
 			EvaluateSpawnType(&Eval, 0); //default
 		}
-
-		//EvaluateSpawnType(&Eval, 1); //red (bloody)
 	}
 	else
 	{
@@ -270,14 +271,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			m_aNumSpawnPoints[Type] = minimum(m_aNumSpawnPoints[Type] + 1, (int)(sizeof(m_aaSpawnPoints[0]) / sizeof(m_aaSpawnPoints[0][0])));
 		}
 	}
-
-	// TODO: fix this survival spawn code
-	// messed up to fix a crash on plot maps https://github.com/ddnet/ddnet/commit/5b5d4404a6f232045b54127c4f82a24e67905800
-	/*
-	else if (Index == TILE_SURVIVAL_SPAWN) //testy ddnet++ by ChillerDragon use spawn system for survival spawns
-		m_aaSpawnPoints[3][m_aNumSpawnPoints[3]++] = Pos;
-	*/
-
 	else if(Index == ENTITY_DOOR)
 	{
 		for(int i = 0; i < 8; i++)

@@ -1498,40 +1498,6 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 			}
 		}
 	}
-	else if(m_pPlayer->m_IsSurvivaling)
-	{
-		if(m_pPlayer->m_IsSurvivalAlive)
-		{
-			// OLD Survival Spawn finder code (placed two tees on one spawn (random))
-			// vec2 SurvivalSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_SURVIVAL_SPAWN);
-			// vec2 SurvivalSpawnTile = GameServer()->Collision()->GetSurvivalSpawn(m_pPlayer->GetCID());
-			vec2 SurvivalSpawnTile = GameServer()->Collision()->GetSurvivalSpawn(GameServer()->m_survival_spawn_counter++);
-
-			if(SurvivalSpawnTile != vec2(-1, -1))
-			{
-				SetPosition(SurvivalSpawnTile);
-			}
-			else //no SurvivalSpawnTile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] No arena set.");
-				GameServer()->SurvivalSetGameState(CGameContext::SURVIVAL_OFF);
-			}
-		}
-		else
-		{
-			vec2 SurvivalLobbyTile = GameServer()->Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
-
-			if(SurvivalLobbyTile != vec2(-1, -1))
-			{
-				SetPosition(SurvivalLobbyTile);
-			}
-			else //no SurvivalLobbyTile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] No lobby set.");
-				GameServer()->SurvivalSetGameState(0);
-			}
-		}
-	}
 	else if(m_pPlayer->m_DummySpawnTile)
 	{
 		vec2 SpawnTile(0.0f, 0.0f);

@@ -201,6 +201,8 @@ public:
 
 	//survival
 
+	vec2 GetNextSurvivalSpawn(int ClientID);
+	vec2 GetSurvivalLobbySpawn(int ClientID);
 	void SurvivalLobbyTick();
 	void SurvivalDeathmatchTick();
 	void SurvivalStartGame();

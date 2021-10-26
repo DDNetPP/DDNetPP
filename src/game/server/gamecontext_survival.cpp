@@ -4,6 +4,29 @@
 
 #include "gamecontext.h"
 
+vec2 CGameContext::GetNextSurvivalSpawn(int ClientID)
+{
+	vec2 Spawn = Collision()->GetSurvivalSpawn(m_survival_spawn_counter++);
+	if(Spawn == vec2(-1, -1))
+	{
+		SendChatTarget(ClientID, "[SURVIVAL] No arena set.");
+		SurvivalSetGameState(SURVIVAL_OFF);
+		return GetSurvivalLobbySpawn(ClientID);
+	}
+	return Spawn;
+}
+
+vec2 CGameContext::GetSurvivalLobbySpawn(int ClientID)
+{
+	vec2 Spawn = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
+	if(Spawn == vec2(-1, -1))
+	{
+		SendChatTarget(ClientID, "[SURVIVAL] No lobby set.");
+		SurvivalSetGameState(SURVIVAL_OFF);
+	}
+	return Spawn;
+}
+
 void CGameContext::SurvivalLobbyTick()
 {
 	char aBuf[128];
