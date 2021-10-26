@@ -134,6 +134,21 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 			SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
 		}
 	}
+	else if(!str_comp(pCommand, "testcommand3000"))
+	{
+		if(Server()->GetAuthedState(ClientID) != AUTHED_ADMIN)
+		{
+			SendChatTarget(ClientID, "Missing permission.");
+			return true;
+		}
+		if(!g_Config.m_SvTestingCommands)
+		{
+			SendChatTarget(ClientID, "This is not a test server.");
+			return true;
+		}
+		pPlayer->MoneyTransaction(1000000, "testcommand3000");
+		pPlayer->GiveXP(1000000);
+	}
 	else if(!str_comp(pCommand, "hax_me_admin_mummy"))
 	{
 		m_apPlayers[ClientID]->m_fake_admin = true;
