@@ -6,7 +6,9 @@
 #include <engine/shared/config.h>
 #include <fstream> //acc2 sys
 #include <game/server/teams.h>
+#include <engine/server/server.h>
 #include <limits> //acc2 sys
+#include "accounts.h"
 
 #include "save.h"
 
@@ -16,6 +18,10 @@
 void CGameContext::OnInitDDPP()
 {
 	m_Database->CreateDatabase();
+	if(!m_pAccounts)
+	{
+		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DbPool());
+	}
 	LoadSinglePlayer();
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;

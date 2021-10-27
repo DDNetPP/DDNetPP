@@ -189,12 +189,15 @@ public:
 
 		NETADDR m_Addr;
 		bool m_IsDummy;
-		bool m_IsClientDummy; //ddnet++ hide dummy in master
 		bool m_GotDDNetVersionPacket;
 		bool m_DDNetVersionSettled;
 		int m_DDNetVersion;
 		char m_aDDNetVersionStr[64];
 		CUuid m_ConnectionID;
+
+		// DDNet++
+		bool m_IsClientDummy; //ddnet++ hide dummy in master
+		void RunDDPP();
 
 		// DNSBL
 		int m_DnsblState;
@@ -443,8 +446,6 @@ public:
 
 	virtual int *GetIdMap(int ClientID);
 
-	void BotJoin(int BotID);
-	void BotLeave(int BotID, bool silent = false);
 	void InitDnsbl(int ClientID);
 	bool DnsblWhite(int ClientID)
 	{
@@ -483,6 +484,12 @@ public:
 
 	void SendConnLoggingCommand(CONN_LOGGING_CMD Cmd, const NETADDR *pAddr);
 #endif
+
+	// DDNet++
+
+	void BotJoin(int BotID);
+	void BotLeave(int BotID, bool silent = false);
+	void RunDDPP();
 };
 
 #endif

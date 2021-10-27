@@ -47,6 +47,27 @@
 #include <fstream>
 #include <string>
 
+#include "databases/connection.h"
+#include "databases/connection_pool.h"
+
+void CServer::RunDDPP()
+{
+	//DDNet++ Logout all Accounts on this port (ChillerDragon)
+	CGameContext *cGameServer = (CGameContext *)m_pGameServer; //much wow much hacky scary random code by ChillerDragon
+	cGameServer->SQLPortLogout(g_Config.m_SvPort);
+	cGameServer->LoadFNNvalues();
+
+	if(g_Config.m_SvDatabasePath[0] != '\0')
+	{
+		auto pSqlServers = std::unique_ptr<IDbConnection>(CreateSqliteConnection(
+			g_Config.m_SvDatabasePath, true));
+
+		auto pCopy = std::unique_ptr<IDbConnection>(pSqlServers->Copy());
+		DbPool()->RegisterDatabase(std::move(pSqlServers), CDbConnectionPool::READ);
+		DbPool()->RegisterDatabase(std::move(pCopy), CDbConnectionPool::WRITE);
+	}
+}
+
 void CServer::BotJoin(int BotID)
 {
 	const char *pNames[] = {//Array für die Namen

@@ -2110,6 +2110,8 @@ if(SERVER)
     upnp.h
   )
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
+    accounts.cpp
+    accounts.h
     alloc.h
     captcha.cpp
     captcha.h
