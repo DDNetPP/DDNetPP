@@ -12,18 +12,15 @@ struct CScoreInitResult;
 class CGameControllerDDRace : public IGameController
 {
 public:
+	// ddnet++
 	bool m_IsGrounded;
-
 	class CFlag *m_apFlags[2];
-
-	virtual void Snap(int SnappingClient);
-
-	virtual bool OnEntity(int Index, vec2 Pos);
-	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
-
 	void DropFlag(int id, int dir = 1);
 	void ChangeFlagOwner(int id, int character);
 	int HasFlag(CCharacter *character);
+	void Snap(int SnappingClient) override;
+	bool OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number) override;
+	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();
