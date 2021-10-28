@@ -3620,61 +3620,7 @@ void CCharacter::DummyTick()
 					}
 				}
 
-				//Der krasse shit!
-				//Der bot macht den 2Player part o.O
-				//erstmal schauen wann der bot den 2player part machen soll
-
-				//if (m_Core.m_Pos.x > 466 * 32)
-				//{
-				//	CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-				//	if (pChr && pChr->IsAlive())
-				//	{
-				//		m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-				//		m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-				//		m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-				//		m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-
-				//		if (m_Dummy_collected_weapons && m_FreezeTime == 0 && m_Core.m_Pos.x > 478 * 32 && m_Core.m_Pos.x < 485 * 32 && pChr->m_Pos.x > 476 * 32)
-				//		{
-				//			SetWeapon(0);
-
-				//			if (pChr->m_Pos.x < m_Core.m_Pos.x && m_Core.m_Pos.x > 481 * 32 && pChr->m_Pos.y < 195 * 32) //wenn sich der racemate zum schieben eignet schieb ihn zum abgrund um ihn dort dann später zu hammern
-				//			{
-				//				m_Input.m_Direction = -1;
-				//			}
-
-				//			if (pChr->m_Pos.x < m_Core.m_Pos.x && m_Core.m_Pos.x - pChr->m_Pos.x < 8 && m_Core.m_Pos.x > 481 * 32 - 1) //wenn der racemate links des bots bereit um ins freeze gehammert zu werden liegt hau raus
-				//			{
-				//				m_Input.m_Fire++;
-				//				m_LatestInput.m_Fire++;
-				//			}
-
-				//			if (pChr->m_Pos.y > 194 * 32 && m_Core.m_Pos.x < 481 * 32 && pChr->m_Pos.x < m_Core.m_Pos.x && pChr->m_Core.m_Vel.y > -0.5f) //wenn der racemate unter der platform ist und der bot geeigent zum draggen is ---> gogo
-				//			{
-				//				m_Dummy_dd_hook = true;
-				//			}
-
-				//			//TODO:
-				//			//abfrage die m_Dummy_dd_hook wieder auf false setzt (wenn pChr zu tief is oder zu weit rechts oder der hammer gehittet hat)
-
-				//			if (m_Dummy_dd_hook)
-				//			{
-				//				m_Input.m_Hook = 1;
-				//				m_Input.m_Direction = 1;
-
-				//				if (pChr->m_Pos.x > 485 * 32)
-				//				{
-				//					m_Input.m_Jump = true;
-				//				}
-				//			}
-				//		}
-				//	}
-				//}
-
 				/*
-				New Stuff:
-				commented out the whole old system
-
 				Struct:
 
 				STRUCT[1]: Check if bot shoudl change m_Dummy_2p_state
