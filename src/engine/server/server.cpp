@@ -2810,7 +2810,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 	{
 		if(pThis->m_aClients[i].m_State == CClient::STATE_EMPTY)
 			continue;
-		if(pThis->m_aClients[i].m_State != CClient::STATE_BOT)
+		if(pThis->m_aClients[i].m_State == CClient::STATE_BOT)
 			continue;
 
 		if(!str_utf8_find_nocase(pThis->m_aClients[i].m_aName, pName))
