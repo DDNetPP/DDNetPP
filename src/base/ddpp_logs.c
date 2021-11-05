@@ -48,7 +48,7 @@ void ddpp_log(int type, const char *pMsg)
 
 void ddpp_log_append(int type, const char *pMsg)
 {
-	for(int i = DDPP_LOG_SIZE - 1; i >= 0; i--)
+	for(int i = DDPP_LOG_SIZE - 1; i >= 1; i--)
 	{
 		str_copy(aDDPPLogs[type][i], aDDPPLogs[type][i - 1], sizeof(aDDPPLogs[type][i]));
 	}
