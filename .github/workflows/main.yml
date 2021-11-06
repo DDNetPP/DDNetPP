@@ -16,7 +16,7 @@ jobs:
           package-file: DDNetPP-*-linux_x86_64.tar.xz
           env:
             CFLAGS: -Wdeclaration-after-statement
-        - os: ubuntu-16.04
+        - os: ubuntu-18.04
           cmake-path: /usr/bin/
           cmake-args: -G "Unix Makefiles"
           package-file: DDNetPP-*-linux_x86_64.tar.xz
