@@ -95,6 +95,7 @@ void CGameContext::Destruct(int Resetting)
 CGameContext::CGameContext()
 {
 	Construct(NO_RESET);
+	ConstructDDPP();
 }
 
 CGameContext::CGameContext(int Reset)

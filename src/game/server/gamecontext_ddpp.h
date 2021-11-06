@@ -22,6 +22,8 @@ public:
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
 
+	void ConstructDDPP();
+
 	virtual void LogoutAllPlayers();
 	virtual void OnStartBlockTournament();
 	//virtual void OnDDPPshutdown();

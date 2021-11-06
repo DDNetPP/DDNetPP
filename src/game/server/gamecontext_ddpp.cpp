@@ -14,17 +14,11 @@
 
 #include "gamecontext.h"
 
-void CGameContext::OnInitDDPP()
+void CGameContext::ConstructDDPP()
 {
-	m_Database->CreateDatabase();
-	if(!m_pAccounts)
-	{
-		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
-	}
-	LoadSinglePlayer();
+	m_pAccounts = NULL;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
-	//Friends_counter = 0;
 	m_vDropLimit.resize(2);
 	m_BalanceID1 = -1;
 	m_BalanceID2 = -1;
@@ -38,6 +32,27 @@ void CGameContext::OnInitDDPP()
 	m_WrongRconAttempts = 0;
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
+	m_iBroadcastDelay = 0;
+	m_BlockTournaState = 0;
+	m_BombGameState = 0;
+	m_survivalgamestate = 0;
+	m_BalanceBattleState = 0;
+	m_CreateShopBot = false;
+	m_InstaGrenadeRoundEndTickTicker = 0;
+	m_InstaRifleRoundEndTickTicker = 0;
+	m_NumLoginBans = 0;
+	m_NumRegisterBans = 0;
+	m_NumNameChangeMutes = 0;
+}
+
+void CGameContext::OnInitDDPP()
+{
+	m_Database->CreateDatabase();
+	if(!m_pAccounts)
+	{
+		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
+	}
+	LoadSinglePlayer();
 
 	// by fokkonaut from F-DDrace
 	Collision()->m_vTiles.clear();
