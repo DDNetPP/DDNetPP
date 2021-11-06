@@ -477,7 +477,7 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 
 void CPlayer::DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo)
 {
-	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, (CNetObj_PlayerInfo*)pPlayerInfo);
+	DDPPSnapChangePlayerInfo(SnappingClient, pSnapping, (CNetObj_PlayerInfo *)pPlayerInfo);
 }
 
 void CPlayer::OnDisconnectDDPP()

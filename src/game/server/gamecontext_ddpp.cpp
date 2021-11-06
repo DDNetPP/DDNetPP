@@ -1,26 +1,25 @@
 // gamecontext scoped ddnet++ methods
 
+#include "accounts.h"
 #include <base/ddpp_logs.h>
 #include <base/system_ddpp.h>
 #include <cstring>
+#include <engine/server/server.h>
 #include <engine/shared/config.h>
 #include <fstream> //acc2 sys
 #include <game/server/teams.h>
-#include <engine/server/server.h>
 #include <limits> //acc2 sys
-#include "accounts.h"
 
 #include "save.h"
 
 #include "gamecontext.h"
-
 
 void CGameContext::OnInitDDPP()
 {
 	m_Database->CreateDatabase();
 	if(!m_pAccounts)
 	{
-		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DbPool());
+		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	}
 	LoadSinglePlayer();
 	m_MapsavePlayers = 0;
@@ -1236,7 +1235,7 @@ void CGameContext::DDPP_Tick()
 	// process sql queries
 	m_Database->Tick();
 
-	 // all the tick stuff which needs all players
+	// all the tick stuff which needs all players
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(!m_apPlayers[i])

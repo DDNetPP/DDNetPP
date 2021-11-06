@@ -466,16 +466,16 @@ void CGameContext::ConTimes(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			const char *pRequestedName = (str_comp(pResult->GetString(0), "me") == 0) ?
-                                                             pSelf->Server()->ClientName(pResult->m_ClientID) :
-                                                             pResult->GetString(0);
+							     pSelf->Server()->ClientName(pResult->m_ClientID) :
+							     pResult->GetString(0);
 			pSelf->Score()->ShowTimes(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
 		}
 	}
 	else if(pResult->NumArguments() == 2 && pResult->GetInteger(1) != 0)
 	{
 		const char *pRequestedName = (str_comp(pResult->GetString(0), "me") == 0) ?
-                                                     pSelf->Server()->ClientName(pResult->m_ClientID) :
-                                                     pResult->GetString(0);
+						     pSelf->Server()->ClientName(pResult->m_ClientID) :
+						     pResult->GetString(0);
 		pSelf->Score()->ShowTimes(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
 	}
 	else
@@ -1036,8 +1036,8 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
 					g_Config.m_SvInvite ?
-                                                "This team is locked using /lock. Only members of the team can unlock it using /lock." :
-                                                "This team is locked using /lock. Only members of the team can invite you or unlock it using /lock.");
+						"This team is locked using /lock. Only members of the team can unlock it using /lock." :
+						"This team is locked using /lock. Only members of the team can invite you or unlock it using /lock.");
 			}
 			else if(Team > 0 && Team < MAX_CLIENTS && pController->m_Teams.Count(Team) >= g_Config.m_SvTeamMaxSize)
 			{

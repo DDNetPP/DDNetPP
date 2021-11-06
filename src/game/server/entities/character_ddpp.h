@@ -53,7 +53,6 @@ private:
 	bool m_MoveMode;
 	bool m_LeftMM;
 
-
 	bool m_DummyShowRank;
 	bool m_DummyFreezed;
 	bool m_DummyHammer;

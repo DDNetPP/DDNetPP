@@ -544,10 +544,9 @@ public:
 	std::vector<CBlockDMA2> m_BlockDMA2;
 
 private:
-
-    bool InitTileDDPP(int Index, int x, int y);
-    void OnClientEnterDDPP(int ClientID);
-    void OnInitDDPP();
+	bool InitTileDDPP(int Index, int x, int y);
+	void OnClientEnterDDPP(int ClientID);
+	void OnInitDDPP();
 
 #ifndef IN_CLASS_GAMECONTEXT
 }

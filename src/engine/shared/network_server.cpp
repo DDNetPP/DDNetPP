@@ -142,7 +142,6 @@ int CNetServer::Update()
 	return 0;
 }
 
-
 SECURITY_TOKEN CNetServer::GetToken(const NETADDR &Addr)
 {
 	SHA256_CTX Sha256;

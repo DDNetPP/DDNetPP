@@ -184,8 +184,7 @@ void CCharacter::DummyTick()
 			{
 				m_pPlayer->m_LastEmote = Server()->Tick();
 				int r = rand() % 100;
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 :
-                                                                                                      7);
+				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
 
 				m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 10 + Server()->TickSpeed() * (rand() % 21);
 			}
@@ -980,8 +979,7 @@ void CCharacter::DummyTick()
 				m_pPlayer->m_LastEmote = Server()->Tick();
 
 				int r = rand() % 100;
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 :
-                                                                                                      7);
+				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
 
 				m_DummyHammer ^= true;
 
@@ -1135,8 +1133,7 @@ void CCharacter::DummyTick()
 			{
 				m_pPlayer->m_LastEmote = Server()->Tick();
 				int r = rand() % 100;
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 :
-                                                                                                      7);
+				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
 
 				m_EmoteTickNext = Server()->Tick() + Server()->TickSpeed() * 5 + Server()->TickSpeed() * (rand() % 21);
 			}
@@ -1277,8 +1274,7 @@ void CCharacter::DummyTick()
 			{
 				m_pPlayer->m_LastEmote = Server()->Tick();
 				int r = rand() % 100;
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 :
-                                                                                                      7);
+				GameServer()->SendEmoticon(m_pPlayer->GetCID(), r < 10 ? 5 : r < 55 ? 2 : 7);
 
 				m_Input.m_Jump = 1;
 

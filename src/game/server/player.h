@@ -11,6 +11,7 @@
 #include <engine/client/http.h>
 #include <game/version.h>
 
+#include "accounts.h"
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 
 #include <memory>
@@ -224,12 +225,14 @@ public:
 	bool m_VotedForPractice;
 	int m_SwapTargetsClientID; //Client ID of the swap target for the given player
 
-
 	/*
 
 		DDNet++
 
 	*/
+
+	void DDPPProcessScoreResult(CAccountResult &Result);
+	std::shared_ptr<CAccountResult> m_AccountQueryResult;
 
 	void ResetDDPP();
 	void DDPPTick();

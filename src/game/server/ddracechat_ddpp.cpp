@@ -33,7 +33,9 @@ bool CGameContext::DDPPCredits()
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
-		"heinrich5991, QshaR, Teecloud, noby, SarKro, Pikotee, toast & Blue");
+		"heinrich5991, QshaR, Teecloud, noby, SarKro, Pikotee, toast");
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+		"Blue, Zwelf");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
 		"Based on DDNet.");
 	return true;

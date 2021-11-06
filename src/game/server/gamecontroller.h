@@ -154,7 +154,6 @@ public:
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 	virtual void DoWincheck();
 
-
 private:
 	int m_aTeamscore[2];
 };

@@ -1,6 +1,6 @@
 /* Teams scoped ddnet++ methods */
-#include "teams.h"
 #include "score.h"
+#include "teams.h"
 #include "teehistorian.h"
 #include <engine/shared/config.h>
 

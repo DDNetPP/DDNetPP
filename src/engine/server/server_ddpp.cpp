@@ -63,8 +63,8 @@ void CServer::RunDDPP()
 			g_Config.m_SvDatabasePath, true));
 
 		auto pCopy = std::unique_ptr<IDbConnection>(pSqlServers->Copy());
-		DbPool()->RegisterDatabase(std::move(pSqlServers), CDbConnectionPool::READ);
-		DbPool()->RegisterDatabase(std::move(pCopy), CDbConnectionPool::WRITE);
+		DDPPDbPool()->RegisterDatabase(std::move(pSqlServers), CDbConnectionPool::READ);
+		DDPPDbPool()->RegisterDatabase(std::move(pCopy), CDbConnectionPool::WRITE);
 	}
 }
 

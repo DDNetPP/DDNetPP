@@ -214,7 +214,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 		{
 			EvaluateSpawnType(&Eval, 2); //blue
 		}
-		else if (pPlayer->m_IsSurvivaling)
+		else if(pPlayer->m_IsSurvivaling)
 		{
 			int Id = pPlayer->GetCID();
 			Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);

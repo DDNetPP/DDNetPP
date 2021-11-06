@@ -2199,6 +2199,7 @@ if(SERVER)
     player.cpp
     player.h
     player_ddpp.cpp
+    player_sql.cpp
     save.cpp
     save.h
     score.cpp
