@@ -1620,7 +1620,6 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 
 void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 {
-	m_SpawnTick = Server()->Tick();
 	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
 	{
