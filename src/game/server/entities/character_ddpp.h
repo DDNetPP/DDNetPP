@@ -113,6 +113,7 @@ public:
 
 	//Block
 	int BlockPointsMain(int Killer, bool fngscore = false);
+	void XpOnKill(int Killer);
 	void BlockSpawnProt(int Killer);
 	void BlockQuestSubDieFuncBlockKill(int Killer);
 	void BlockQuestSubDieFuncDeath(int Killer);

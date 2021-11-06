@@ -2371,6 +2371,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	}
 
 	Killer = BlockPointsMain(Killer, fngscore);
+	XpOnKill(Killer);
 	BlockSpawnProt(Killer); //idk if this should be included in BlockPointsMain() but spawnkills no matter what kind are evil i guess but then we should rename it to SpawnKillProt() imo
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
@@ -3088,16 +3089,6 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
 			}
 		}
-		// give xp reward to the blocker
-		if(m_pPlayer->m_KillStreak > 4 && m_pPlayer->IsMaxLevel())
-		{
-			if(!GameServer()->m_apPlayers[Killer]->m_HideBlockXp)
-			{
-				str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", m_pPlayer->m_KillStreak, Server()->ClientName(m_pPlayer->GetCID()));
-				GameServer()->SendChatTarget(Killer, aBuf);
-			}
-			GameServer()->m_apPlayers[Killer]->GiveXP(m_pPlayer->m_KillStreak);
-		}
 		// bounty money reward to the blocker
 		if(m_pPlayer->m_BlockBounty)
 		{
@@ -3109,6 +3100,71 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		}
 	}
 	return Killer;
+}
+
+void CCharacter::XpOnKill(int Killer)
+{
+	CPlayer *pKiller = GameServer()->m_apPlayers[Killer];
+	if(!pKiller)
+		return;
+	if(!pKiller->GetCharacter())
+		return;
+	if(Killer == m_pPlayer->GetCID())
+		return;
+	if(!pKiller->IsLoggedIn())
+		return;
+	if(pKiller->IsMaxLevel())
+		return;
+	if(Server()->Tick() < pKiller->GetCharacter()->m_AliveTime + Server()->TickSpeed() * 15)
+		return;
+	if(Server()->Tick() < m_AliveTime + Server()->TickSpeed() * 15)
+		return;
+
+	int TotalXP = 1;
+
+	if(m_AliveTime)
+	{
+		// victim
+		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 30) // 30 secs
+			TotalXP += 5;
+		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 60) // 60 secs
+			TotalXP += 5;
+		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 600) // 10 mins
+			TotalXP += 10;
+
+		// killer
+		if(Server()->Tick() >= pKiller->GetCharacter()->m_AliveTime + Server()->TickSpeed() * 600) // 10 mins
+			TotalXP += 1;
+	}
+
+	// TODO:
+
+	// +1xp per weapon the killed has.
+	// +1xp per jump the killed has.
+	// +2xp if the killed has jetpack (not too op in fights and can be dropped to farm jetpack kills).
+	// +50xp if the killed has endless jumps or endless hook.
+
+	if(pKiller->m_KillStreak >= 10)
+		TotalXP += 1;
+	if(pKiller->m_KillStreak >= 20)
+		TotalXP += 2;
+	if(pKiller->m_KillStreak >= 25)
+		TotalXP += 4;
+
+	if(m_pPlayer->m_KillStreak >= 10)
+		TotalXP += 10;
+	if(m_pPlayer->m_KillStreak >= 20)
+		TotalXP += 20;
+	if(m_pPlayer->m_KillStreak >= 25)
+		TotalXP += 40;
+
+	if(!pKiller->m_HideBlockXp)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", TotalXP, Server()->ClientName(m_pPlayer->GetCID()));
+		GameServer()->SendChatTarget(Killer, aBuf);
+	}
+	pKiller->GiveXP(TotalXP);
 }
 
 void CCharacter::BlockSpawnProt(int Killer)
