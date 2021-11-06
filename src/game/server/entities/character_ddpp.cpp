@@ -3111,6 +3111,8 @@ void CCharacter::XpOnKill(int Killer)
 		return;
 	if(Killer == m_pPlayer->GetCID())
 		return;
+	if(GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
+		return;
 	if(!pKiller->IsLoggedIn())
 		return;
 	if(pKiller->IsMaxLevel())
@@ -3118,6 +3120,9 @@ void CCharacter::XpOnKill(int Killer)
 	if(Server()->Tick() < pKiller->GetCharacter()->m_AliveTime + Server()->TickSpeed() * 15)
 		return;
 	if(Server()->Tick() < m_AliveTime + Server()->TickSpeed() * 15)
+		return;
+	// no xp for players that got afk killed already and did not move since
+	if(m_pPlayer->m_LastPlaytime < m_AliveTime)
 		return;
 
 	int TotalXP = 1;
