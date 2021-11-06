@@ -1620,6 +1620,8 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 
 void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 {
+	m_SpawnTick = Server()->Tick();
+	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
 	{
 		Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -1866,21 +1868,21 @@ void CCharacter::DDPP_Tick()
 
 	//dbg_msg("", "koordinaten: x=%d y=%d", (int)(m_Pos.x / 32.f), (int)(m_Pos.y / 32.f));
 	//survivexp stuff
-	if(m_AliveTime)
+	if(m_SpawnTick)
 	{
-		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 6000) //100min
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 6000) //100min
 		{
 			m_survivexpvalue = 4;
 		}
-		else if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 3600) //60min
+		else if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 3600) //60min
 		{
 			m_survivexpvalue = 3;
 		}
-		else if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 1200) //20min
+		else if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 1200) //20min
 		{
 			m_survivexpvalue = 2;
 		}
-		else if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 300) //5min
+		else if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 300) //5min
 		{
 			m_survivexpvalue = 1;
 		}
@@ -3073,7 +3075,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 			{
 				if(g_Config.m_SvDummyBlockPoints == 2 || (g_Config.m_SvDummyBlockPoints == 3 && GameServer()->IsPosition(Killer, 2))) //only count dummy kills if configt       cfg:3 block area or further count kills
 				{
-					if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+					if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 					{
 						GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 					}
@@ -3082,7 +3084,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 			}
 			else
 			{
-				if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
+				if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvPointsFarmProtection)
 				{
 					GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 				}
@@ -3117,28 +3119,28 @@ void CCharacter::XpOnKill(int Killer)
 		return;
 	if(pKiller->IsMaxLevel())
 		return;
-	if(Server()->Tick() < pKiller->GetCharacter()->m_AliveTime + Server()->TickSpeed() * 15)
+	if(Server()->Tick() < pKiller->GetCharacter()->m_SpawnTick + Server()->TickSpeed() * 15)
 		return;
-	if(Server()->Tick() < m_AliveTime + Server()->TickSpeed() * 15)
+	if(Server()->Tick() < m_SpawnTick + Server()->TickSpeed() * 15)
 		return;
 	// no xp for players that only moved shortly after spawn or spawned afk
-	if(m_pPlayer->m_LastPlaytime < m_AliveTime + Server()->TickSpeed() * 3)
+	if(m_pPlayer->m_LastPlaytime < m_AliveSince + time_freq() * 3)
 		return;
 
 	int TotalXP = 1;
 
-	if(m_AliveTime)
+	if(m_SpawnTick)
 	{
 		// victim
-		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 30) // 30 secs
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 30) // 30 secs
 			TotalXP += 5;
-		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 60) // 60 secs
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 60) // 60 secs
 			TotalXP += 5;
-		if(Server()->Tick() >= m_AliveTime + Server()->TickSpeed() * 600) // 10 mins
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 600) // 10 mins
 			TotalXP += 10;
 
 		// killer
-		if(Server()->Tick() >= pKiller->GetCharacter()->m_AliveTime + Server()->TickSpeed() * 600) // 10 mins
+		if(Server()->Tick() >= pKiller->GetCharacter()->m_SpawnTick + Server()->TickSpeed() * 600) // 10 mins
 			TotalXP += 1;
 	}
 

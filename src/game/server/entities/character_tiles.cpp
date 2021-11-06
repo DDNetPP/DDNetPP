@@ -46,7 +46,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 		}
 		else
 		{
-			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCID()), m_AliveTime / Server()->TickSpeed()); //prints server up time in sec
+			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCID()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
 			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(m_pPlayer->GetCID()));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
@@ -55,7 +55,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(m_pPlayer->m_QuestStateLevel == 7)
 				{
-					if(Server()->Tick() > m_AliveTime + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
+					if(Server()->Tick() > m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
 					{
 						GameServer()->QuestFailed(m_pPlayer->GetCID());
 					}
