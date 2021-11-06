@@ -579,8 +579,6 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		return 0;
 	if(pKiller == pVictim->GetPlayer())
 		return 0; // suicide
-
-	pKiller->GetCharacter()->m_Bloody = true; // TODO: wtf is this?
 	return 0;
 }
 
