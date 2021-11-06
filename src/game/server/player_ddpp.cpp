@@ -1368,7 +1368,7 @@ void CPlayer::GiveBlockPoints(int Points)
 	}
 	else // chat info deactivated
 	{
-		if(IsLoggedIn())
+		if(!IsLoggedIn())
 		{
 			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
 			if(m_BlockPoints == 5 || m_BlockPoints == 10)
