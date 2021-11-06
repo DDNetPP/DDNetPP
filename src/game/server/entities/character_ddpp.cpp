@@ -3121,8 +3121,8 @@ void CCharacter::XpOnKill(int Killer)
 		return;
 	if(Server()->Tick() < m_AliveTime + Server()->TickSpeed() * 15)
 		return;
-	// no xp for players that got afk killed already and did not move since
-	if(m_pPlayer->m_LastPlaytime < m_AliveTime)
+	// no xp for players that only moved shortly after spawn or spawned afk
+	if(m_pPlayer->m_LastPlaytime < m_AliveTime + Server()->TickSpeed() * 3)
 		return;
 
 	int TotalXP = 1;
