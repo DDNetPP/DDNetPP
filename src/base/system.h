@@ -1832,10 +1832,10 @@ void dbg_logger_file(const char *filename);
 
 typedef struct
 {
-	int sent_packets;
-	int sent_bytes;
-	int recv_packets;
-	int recv_bytes;
+	uint64_t sent_packets;
+	uint64_t sent_bytes;
+	uint64_t recv_packets;
+	uint64_t recv_bytes;
 } NETSTATS;
 
 void net_stats(NETSTATS *stats);
