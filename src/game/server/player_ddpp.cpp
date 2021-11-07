@@ -112,8 +112,6 @@ void CPlayer::ResetDDPP()
 	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
 	//m_xpmsg = true;
 
-	m_Account.m_LoginState = LOGIN_OFF;
-
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
 	m_InfBloody = false;

@@ -31,7 +31,6 @@ class CPlayer
 #endif
 
 public:
-
 	/*
 
 		DDNet++
@@ -102,38 +101,8 @@ public:
 	CTeeInfo m_LastToucherTeeInfos;
 	int m_ScoreStartTick;
 
-	struct CAccountData
-	{
-		// meta
-		CGameContext *m_pGameContext; // TODO: remove
-		int m_LoginState;
-		int m_ClientID;
-
-		int m_AccountID;
-		char m_aUsername[64];
-		char m_aPassword[64];
-		char m_aAccountRegDate[64];
-
-		// city
-		int64_t m_level;
-		int64_t m_xp;
-		int64_t m_money;
-		int m_shit;
-		int m_GiftDelay;
-
-		bool m_IsModerator;
-		bool m_IsSuperModerator;
-		bool m_IsSupporter;
-		bool m_IsAccFrozen;
-
-	};
+	/* defined in accounts.h and copied over on sql query result */
 	CAccountData m_Account;
-	enum
-	{
-		LOGIN_OFF,
-		LOGIN_WAIT,
-		LOGIN_DONE
-	};
 
 	//ascii animation frames
 	char m_aAsciiFrame0[64];
@@ -701,7 +670,7 @@ public:
 	bool m_RconFreeze;
 
 private: // private ddnet+++
-    int64_t m_neededxp;
+	int64_t m_neededxp;
 
 #ifndef IN_CLASS_PLAYER
 }

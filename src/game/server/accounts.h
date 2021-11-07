@@ -19,6 +19,34 @@ class IDbConnection;
 class IServer;
 class CGameContext;
 
+/*
+	CAccountData
+
+	Has an instance on every player object and one in the sql result
+*/
+struct CAccountData
+{
+	// meta
+	int m_ClientID;
+
+	int m_AccountID;
+	char m_aUsername[64];
+	char m_aPassword[64];
+	char m_aAccountRegDate[64];
+
+	// city
+	int64_t m_level;
+	int64_t m_xp;
+	int64_t m_money;
+	int m_shit;
+	int m_GiftDelay;
+
+	bool m_IsModerator;
+	bool m_IsSuperModerator;
+	bool m_IsSupporter;
+	bool m_IsAccFrozen;
+};
+
 struct CAccountResult : ISqlResult
 {
 	CAccountResult();
@@ -39,28 +67,7 @@ struct CAccountResult : ISqlResult
 	{
 		char m_aaMessages[MAX_MESSAGES][512];
 		char m_aBroadcast[1024];
-		struct
-		{
-			int m_LoginState;
-			int m_ClientID;
-			int m_AccountID;
-			char m_aUsername[64];
-			char m_aPassword[64];
-			char m_aAccountRegDate[64];
-
-			// acc
-			// bool m_IsModerator;
-			// bool m_IsSuperModerator;
-			// bool m_IsSupporter;
-			// bool m_IsAccFrozen;
-
-			// city
-			int64_t m_level;
-			int64_t m_xp;
-			int64_t m_money;
-			// int m_shit;
-			// int m_GiftDelay;
-		} m_Info;
+		CAccountData m_Account;
 	} m_Data; // PLAYER_INFO
 
 	void SetVariant(Variant v);

@@ -1641,7 +1641,6 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 
 	// pSelf->Accounts()->Login(ClientID, aUsername, aPassword);
 	pSelf->SQLaccount(pSelf->SQL_LOGIN, ClientID, aUsername, aPassword);
-	// pSelf->SQLaccount(pSelf->SQL_LOGIN_THREADED, ClientID, aUsername, aPassword);
 }
 
 void CGameContext::ConChangePassword(IConsole::IResult *pResult, void *pUserData)

@@ -24,8 +24,8 @@ void CAccountResult::SetVariant(Variant v)
 		m_Data.m_aBroadcast[0] = 0;
 		break;
 	case LOGIN_INFO:
-		// TODO: initalize all here
-		m_Data.m_Info.m_AccountID = -1;
+		// TODO: initalize all here ??? do i need to ?
+		m_Data.m_Account.m_AccountID = 0;
 	}
 }
 
@@ -76,12 +76,13 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	char aBuf[512];
 	str_copy(aBuf,
 		"SELECT "
+		"	ID,"
 		"	Username, Password,"
 		"	RegisterDate, IsLoggedIn, LastLoginPort,"
 		"	LastLogoutIGN1, LastLogoutIGN2, LastLogoutIGN3, LastLogoutIGN4, LastLogoutIGN5,"
 		"	IP_1, IP_2, IP_3,"
 		"	Clan1, Clan2, Clan3,"
-		"	Skin," // 17
+		"	Skin," // 18
 		"	Level, Money, Exp,"
 		"	Shit, LastGift,"
 		"	PoliceRank,"
@@ -105,11 +106,12 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	}
 	if(!End)
 	{
-		// pSqlServer->GetText(1); // username
-		// pSqlServer->GetText(2); // password
 		pResult->SetVariant(CAccountResult::LOGIN_INFO);
-		pResult->m_Data.m_Info.m_level = pSqlServer->GetInt(18);
-		pResult->m_Data.m_Info.m_money = pSqlServer->GetInt(19);
+		pResult->m_Data.m_Account.m_AccountID = pSqlServer->GetInt(1);
+		// pSqlServer->GetText(2); // username
+		// pSqlServer->GetText(3); // password
+		// pResult->m_Data.m_Account.m_level = pSqlServer->GetInt64(19);
+		// pResult->m_Data.m_Account.m_money = pSqlServer->GetInt64(20);
 	}
 	else
 	{

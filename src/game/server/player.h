@@ -10,12 +10,12 @@
 #include "teeinfo.h"
 
 // ddnet++ includes start
+#include "accounts.h"
 #include "captcha.h"
+#include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 #include "entities/character.h"
 #include <engine/client/http.h>
 #include <game/version.h>
-#include "accounts.h"
-#include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 #include <memory>
 #include <vector>
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
