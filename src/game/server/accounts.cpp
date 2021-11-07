@@ -62,6 +62,11 @@ void CAccounts::ExecUserThread(
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
+void CAccounts::Login(int ClientID, const char *pUsername, const char *pPassword)
+{
+	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword);
+}
+
 bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
 {
 	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
@@ -70,19 +75,19 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	// check sort method
 	char aBuf[512];
 	str_copy(aBuf,
-		"SELECT"
+		"SELECT "
 		"	Username, Password,"
-		"	RegisterDate, IsLoggedIn, LastLoginPort"
+		"	RegisterDate, IsLoggedIn, LastLoginPort,"
 		"	LastLogoutIGN1, LastLogoutIGN2, LastLogoutIGN3, LastLogoutIGN4, LastLogoutIGN5,"
 		"	IP_1, IP_2, IP_3,"
 		"	Clan1, Clan2, Clan3,"
-		"	Skin,"
-		"	Level, Money, Exp"
+		"	Skin," // 17
+		"	Level, Money, Exp,"
 		"	Shit, LastGift,"
 		"	PoliceRank,"
 		"	JailTime, EscapeTime,"
-		"	TaserLevel"
-		"FROM Accounts"
+		"	TaserLevel "
+		"FROM Accounts "
 		"WHERE Username = ? AND Password = ?;",
 		sizeof(aBuf));
 
@@ -102,44 +107,13 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	{
 		// pSqlServer->GetText(1); // username
 		// pSqlServer->GetText(2); // password
-
-		// float Time = pSqlServer->GetFloat(3);
-		// str_time_float(Time, TIME_HOURS_CENTISECS, aBuf, sizeof(aBuf));
-		// int Rank = pSqlServer->GetInt(4);
-		// // CEIL and FLOOR are not supported in SQLite
-		// int BetterThanPercent = std::floor(100.0 - 100.0 * pSqlServer->GetFloat(5));
-		// CTeamrank Teamrank;
-		// if(Teamrank.NextSqlResult(pSqlServer, &End, pError, ErrorSize))
-		// {
-		// 	return true;
-		// }
-
-		// char aFormattedNames[512] = "";
-		// for(unsigned int Name = 0; Name < Teamrank.m_NumNames; Name++)
-		// {
-		// 	str_append(aFormattedNames, Teamrank.m_aaNames[Name], sizeof(aFormattedNames));
-
-		// 	if(Name < Teamrank.m_NumNames - 2)
-		// 		str_append(aFormattedNames, ", ", sizeof(aFormattedNames));
-		// 	else if(Name < Teamrank.m_NumNames - 1)
-		// 		str_append(aFormattedNames, " & ", sizeof(aFormattedNames));
-		// }
-
-		// if(g_Config.m_SvHideScore)
-		// {
-		// 	str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-		// 		"Your team time: %s, better than %d%%", aBuf, BetterThanPercent);
-		// }
-		// else
-		// {
-		// 	pResult->m_MessageKind = CScorePlayerResult::ALL;
-		// 	str_format(pResult->m_Data.m_aaMessages[0], sizeof(pResult->m_Data.m_aaMessages[0]),
-		// 		"%d. %s Team time: %s, better than %d%%, requested by %s",
-		// 		Rank, aFormattedNames, aBuf, BetterThanPercent, pData->m_aRequestingPlayer);
-		// }
+		pResult->SetVariant(CAccountResult::LOGIN_INFO);
+		pResult->m_Data.m_Info.m_level = pSqlServer->GetInt(18);
+		pResult->m_Data.m_Info.m_money = pSqlServer->GetInt(19);
 	}
 	else
 	{
+		pResult->SetVariant(CAccountResult::DIRECT);
 		str_copy(pResult->m_Data.m_aaMessages[0],
 			"[ACCOUNT] Login failed. Wrong password or username.",
 			sizeof(pResult->m_Data.m_aaMessages[0]));

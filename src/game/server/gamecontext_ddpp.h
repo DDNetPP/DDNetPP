@@ -18,6 +18,8 @@ class CGameContext : public IGameServer
 {
 #endif
 
+	class CAccounts *m_pAccounts;
+
 public:
 	// DDRace & DDnetPlusPlus (ddpp)
 	//ChillerDragon
@@ -27,6 +29,8 @@ public:
 	virtual void LogoutAllPlayers();
 	virtual void OnStartBlockTournament();
 	//virtual void OnDDPPshutdown();
+
+	class CAccounts *Accounts() { return m_pAccounts; }
 
 	void ShowProfile(int ViewerID, int ViewedID);
 	void ShowAdminWelcome(int ID);

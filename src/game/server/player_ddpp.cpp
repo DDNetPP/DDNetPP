@@ -133,6 +133,11 @@ void CPlayer::ResetDDPP()
 
 void CPlayer::DDPPTick()
 {
+	if(m_AccountQueryResult != nullptr && m_AccountQueryResult->m_Completed)
+	{
+		DDPPProcessScoreResult(*m_AccountQueryResult);
+		m_AccountQueryResult = nullptr;
+	}
 	//ChillerDragon chidraqul3 the hash game
 	if(m_C3_GameState == 1) //singleplayer
 	{

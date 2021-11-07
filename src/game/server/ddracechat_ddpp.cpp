@@ -1639,6 +1639,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		str_format(pPlayer->m_aWrongLogin, sizeof(pPlayer->m_aWrongLogin), "[%s] '%s' '%s'", pSelf->Server()->ClientName(pResult->m_ClientID), aUsername, aPassword);
 	}
 
+	// pSelf->Accounts()->Login(ClientID, aUsername, aPassword);
 	pSelf->SQLaccount(pSelf->SQL_LOGIN, ClientID, aUsername, aPassword);
 	// pSelf->SQLaccount(pSelf->SQL_LOGIN_THREADED, ClientID, aUsername, aPassword);
 }

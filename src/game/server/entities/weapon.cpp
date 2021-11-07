@@ -34,8 +34,10 @@ void CWeapon::Reset()
 {
 	if(m_EreaseWeapon)
 	{
+		if(m_Owner != -1)
+			return;
 		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
-		if(m_Owner != -1 && pOwner)
+		if(pOwner)
 		{
 			for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 			{
@@ -60,6 +62,7 @@ void CWeapon::Reset()
 void CWeapon::IsShieldNear()
 {
 	CPickup *apEnts[9];
+	mem_zero(apEnts, sizeof(apEnts));
 	int Num = GameWorld()->FindEntities(m_Pos, 20.0f, (CEntity **)apEnts, 9, CGameWorld::ENTTYPE_PICKUP);
 
 	for(int i = 0; i < Num; i++)

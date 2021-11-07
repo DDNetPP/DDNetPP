@@ -290,7 +290,6 @@ public:
 private:
 	bool m_VoteWillPass;
 	class CScore *m_pScore;
-	class CAccounts *m_pAccounts;
 
 	//DDRace Console Commands
 

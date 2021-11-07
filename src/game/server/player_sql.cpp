@@ -18,27 +18,27 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 		switch(Result.m_MessageKind)
 		{
 		case CAccountResult::DIRECT:
-			// for(auto &aMessage : Result.m_Data.m_aaMessages)
-			// {
-			// 	if(aMessage[0] == 0)
-			// 		break;
-			// 	GameServer()->SendChatTarget(m_ClientID, aMessage);
-			// }
+			for(auto &aMessage : Result.m_Data.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
+				GameServer()->SendChatTarget(m_ClientID, aMessage);
+			}
 			break;
 		case CAccountResult::ALL:
 		{
-			// bool PrimaryMessage = true;
-			// for(auto &aMessage : Result.m_Data.m_aaMessages)
-			// {
-			// 	if(aMessage[0] == 0)
-			// 		break;
+			bool PrimaryMessage = true;
+			for(auto &aMessage : Result.m_Data.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
 
-			// 	if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
-			// 		break;
+				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
+					break;
 
-			// 	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
-			// 	PrimaryMessage = false;
-			// }
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
+				PrimaryMessage = false;
+			}
 			break;
 		}
 		case CAccountResult::BROADCAST:
@@ -46,6 +46,9 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			// 	GameServer()->SendBroadcast(Result.m_Data.m_aBroadcast, -1);
 			break;
 		case CAccountResult::LOGIN_INFO:
+			GameServer()->SendChatTarget(m_ClientID, "login  suscce");
+			m_level = Result.m_Data.m_Info.m_level;
+			m_money = Result.m_Data.m_Info.m_money;
 			break;
 		}
 	}
