@@ -102,11 +102,6 @@ public:
 	CTeeInfo m_LastToucherTeeInfos;
 	int m_ScoreStartTick;
 
-	// login and threads
-	void ThreadLoginStart(const char *pUsername, const char *pPassword);
-	static void ThreadLoginWorker(void *pArg);
-	void ThreadLoginDone();
-
 	struct CAccountData
 	{
 		// meta

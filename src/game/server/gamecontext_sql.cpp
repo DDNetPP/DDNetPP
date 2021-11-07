@@ -39,85 +39,6 @@ void CQueryRegister::OnData()
 	}
 }
 
-/*
-void CGameContext::LoginThread(void * pArg)
-{
-	struct LoginData *pData = static_cast<struct LoginData*>(pArg);
-	CGameContext *pGS = static_cast<CGameContext*>(pData->pGameContext);
-	CQueryLogin *pSQL = static_cast<CQueryLogin*>(pData->pSQL);
-	CPlayer *pPlayer = static_cast<CPlayer*>(pData->pTmpPlayer);
-	int id = pData->id;
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[THREAD] hello world3 your id=%d", id);
-	pGS->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	pPlayer->SetMoney(420);
-}
-
-void CGameContext::Login(void *pArg, int id)
-{
-	struct LoginData *pData = (struct LoginData*)malloc(sizeof(struct LoginData));
-	pData->id = id;
-	pData->pGameContext = this;
-	pData->pSQL = pArg;
-	pData->pTmpPlayer = m_apPlayers[id];
-	void *pt = thread_init(*LoginThread, pData); //setzte die werte von pTmpPlayer
-	//the thread result gets catched in LoginDone function called everytick
-}
-*/
-
-void CQueryLoginThreaded::OnData()
-{
-	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
-	if(!pPlayer)
-		return;
-	CPlayer::CAccountData *pData = &pPlayer->m_Account;
-	if(!pData)
-		return;
-	if(!Next())
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
-		m_pGameServer->SaveWrongLogin(m_pGameServer->m_apPlayers[m_ClientID]->m_aWrongLogin);
-		pData->m_LoginState = CPlayer::LOGIN_OFF;
-		m_pGameServer->LoginBanCheck(m_ClientID);
-		return;
-	}
-	if(m_pGameServer->CheckAccounts(GetInt(GetID("ID"))))
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
-		pData->m_LoginState = CPlayer::LOGIN_OFF;
-		return;
-	}
-	//#####################################################
-	//       W A R N I N G
-	// if you add a new var here
-	// make sure to reset it in the Logout(); function
-	// src/game/server/player.cpp
-	//#####################################################
-
-	//basic
-	str_copy(pData->m_aUsername, GetText(GetID("Username")), sizeof(pData->m_aUsername));
-	str_copy(pData->m_aPassword, GetText(GetID("Password")), sizeof(pData->m_aPassword));
-	str_copy(pData->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(pData->m_aAccountRegDate));
-	pData->m_AccountID = GetInt(GetID("ID"));
-
-	//Accounts
-	pData->m_IsModerator = GetInt(GetID("IsModerator"));
-	pData->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
-	pData->m_IsSupporter = GetInt(GetID("IsSupporter"));
-	pData->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
-
-	//city
-	pData->m_level = GetInt(GetID("Level"));
-	pData->m_xp = GetInt64(GetID("Exp"));
-	pData->m_money = GetInt64(GetID("Money"));
-	pData->m_shit = GetInt(GetID("Shit"));
-	pData->m_GiftDelay = GetInt(GetID("LastGift"));
-
-	m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login success");
-
-	pData->m_LoginState = CPlayer::LOGIN_DONE;
-}
-
 void CQueryLogin::OnData()
 {
 	if(Next())
@@ -481,15 +402,6 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, con
 		pQuery->m_pGameServer = this;
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
-	}
-	else if(mode == SQL_LOGIN_THREADED)
-	{
-		CPlayer *pPlayer = m_apPlayers[ClientID];
-		if(!pPlayer)
-			return;
-		if(pPlayer->m_Account.m_LoginState != CPlayer::LOGIN_OFF)
-			return;
-		pPlayer->ThreadLoginStart(pUsername, pPassword);
 	}
 	else if(mode == SQL_REGISTER)
 	{

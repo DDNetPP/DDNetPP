@@ -168,8 +168,6 @@ void CPlayer::DDPPTick()
 	//dragon test chillers level system xp money usw am start :3
 	CheckLevel();
 
-	ThreadLoginDone();
-
 	if(m_ChangeTeamOnFlag || (Server()->Tick() % 600 == 0))
 	{
 		if((((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(GetCharacter()) == -1) && m_IsDummy && ((g_Config.m_SvShowBotsInScoreboard == 1 && (m_DummyMode >= -6 && m_DummyMode <= -1)) || g_Config.m_SvShowBotsInScoreboard == 0))
@@ -1085,58 +1083,6 @@ bool CPlayer::IsInstagibMinigame()
 	if(m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
 		return true;
 	return false;
-}
-
-void CPlayer::ThreadLoginStart(const char *pUsername, const char *pPassword)
-{
-	m_Account.m_pGameContext = GameServer();
-	m_Account.m_LoginState = LOGIN_WAIT;
-	m_Account.m_ClientID = GetCID();
-	str_copy(m_Account.m_aUsername, pUsername, sizeof(m_Account.m_aUsername));
-	str_copy(m_Account.m_aPassword, pPassword, sizeof(m_Account.m_aPassword));
-	thread_init(*ThreadLoginWorker, &m_Account, "sql login"); //setzte die werte von pTmpPlayer
-}
-
-void CPlayer::ThreadLoginWorker(void *pArg) //is the actual thread
-{
-	struct CAccountData *pData = static_cast<struct CAccountData *>(pArg);
-	CGameContext *pGS = static_cast<CGameContext *>(pData->m_pGameContext);
-	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
-	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pData->m_aUsername, pData->m_aPassword);
-	CQueryLoginThreaded *pQuery = new CQueryLoginThreaded();
-	pQuery->m_ClientID = pData->m_ClientID;
-	pQuery->m_pGameServer = pGS;
-	pQuery->Query(pGS->m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
-	pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
-}
-
-void CPlayer::ThreadLoginDone() //get called every tick
-{
-	if(m_Account.m_LoginState != LOGIN_DONE)
-		return;
-
-	// //basic
-	// str_copy(m_aAccountLoginName, m_Account.m_aUsername, sizeof(m_aAccountLoginName));
-	// str_copy(m_aAccountPassword, m_Account.m_aPassword, sizeof(m_aAccountPassword));
-	// str_copy(m_aAccountRegDate, m_Account.m_aAccountRegDate, sizeof(m_aAccountRegDate));
-	// SetAccID(m_Account.m_AccountID);
-
-	// //Accounts
-	// m_IsModerator = m_Account.m_IsModerator;
-	// m_IsSuperModerator = m_Account.m_IsSuperModerator;
-	// m_IsSupporter = m_Account.m_IsSupporter;
-	// m_IsAccFrozen = m_Account.m_IsAccFrozen;
-
-	// //city
-	// m_level = m_Account.m_level;
-	// m_xp = m_Account.m_xp;
-	// m_money = m_Account.m_money;
-	// m_shit = m_Account.m_shit;
-	// m_GiftDelay = m_Account.m_GiftDelay;
-
-	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[THREAD] login done");
-	m_Account.m_LoginState = LOGIN_OFF;
 }
 
 void CPlayer::chidraqul3_GameTick()
