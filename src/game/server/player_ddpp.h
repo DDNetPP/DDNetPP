@@ -56,9 +56,9 @@ public:
 	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame();
-	bool IsMaxLevel() { return m_level >= ACC_MAX_LEVEL; }
-	bool IsLoggedIn() { return m_AccountID != 0; } // -1 filebased acc >0 sql id
-	int GetAccID() { return m_AccountID; }
+	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
+	bool IsLoggedIn() { return GetAccID() != 0; } // -1 filebased acc >0 sql id
+	int GetAccID() { return m_Account.m_AccountID; }
 	void SetAccID(int ID);
 	/*
 		GiveXP(int value)
@@ -81,11 +81,11 @@ public:
 		SetXP() should only be used if it is really needed
 	*/
 	void SetXP(int xp);
-	int64_t GetXP() { return m_xp; }
+	int64_t GetXP() { return m_Account.m_xp; }
 	int64_t GetNeededXP() { return m_neededxp; }
-	int GetLevel() { return m_level; }
+	int GetLevel() { return m_Account.m_level; }
 	void SetLevel(int level);
-	int64_t GetMoney() { return m_money; }
+	int64_t GetMoney() { return m_Account.m_money; }
 	/*
 		SetMoney()
 
@@ -107,32 +107,32 @@ public:
 	static void ThreadLoginWorker(void *pArg);
 	void ThreadLoginDone();
 
-	struct CLoginData
+	struct CAccountData
 	{
 		// meta
-		CGameContext *m_pGameContext;
+		CGameContext *m_pGameContext; // TODO: remove
 		int m_LoginState;
 		int m_ClientID;
+
 		int m_AccountID;
 		char m_aUsername[64];
 		char m_aPassword[64];
 		char m_aAccountRegDate[64];
 
-		// acc
-		bool m_IsModerator;
-		bool m_IsSuperModerator;
-		bool m_IsSupporter;
-		bool m_IsAccFrozen;
-
 		// city
-		// TODO: make all those variables private and use protected getters and setters (issue #269)
 		int64_t m_level;
 		int64_t m_xp;
 		int64_t m_money;
 		int m_shit;
 		int m_GiftDelay;
+
+		bool m_IsModerator;
+		bool m_IsSuperModerator;
+		bool m_IsSupporter;
+		bool m_IsAccFrozen;
+
 	};
-	CLoginData m_LoginData;
+	CAccountData m_Account;
 	enum
 	{
 		LOGIN_OFF,
@@ -706,11 +706,7 @@ public:
 	bool m_RconFreeze;
 
 private: // private ddnet+++
-	int m_AccountID;
-	int m_level;
-	int64_t m_xp;
-	int64_t m_neededxp;
-	int64_t m_money;
+    int64_t m_neededxp;
 
 #ifndef IN_CLASS_PLAYER
 }

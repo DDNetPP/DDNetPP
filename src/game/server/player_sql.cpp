@@ -47,8 +47,8 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			break;
 		case CAccountResult::LOGIN_INFO:
 			GameServer()->SendChatTarget(m_ClientID, "login  suscce");
-			m_level = Result.m_Data.m_Info.m_level;
-			m_money = Result.m_Data.m_Info.m_money;
+			// m_level = Result.m_Data.m_Info.m_level;
+			// m_money = Result.m_Data.m_Info.m_money;
 			break;
 		}
 	}

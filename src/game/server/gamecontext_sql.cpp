@@ -70,7 +70,7 @@ void CQueryLoginThreaded::OnData()
 	CPlayer *pPlayer = m_pGameServer->m_apPlayers[m_ClientID];
 	if(!pPlayer)
 		return;
-	CPlayer::CLoginData *pData = &pPlayer->m_LoginData;
+	CPlayer::CAccountData *pData = &pPlayer->m_Account;
 	if(!pData)
 		return;
 	if(!Next())
@@ -487,7 +487,7 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, con
 		CPlayer *pPlayer = m_apPlayers[ClientID];
 		if(!pPlayer)
 			return;
-		if(pPlayer->m_LoginData.m_LoginState != CPlayer::LOGIN_OFF)
+		if(pPlayer->m_Account.m_LoginState != CPlayer::LOGIN_OFF)
 			return;
 		pPlayer->ThreadLoginStart(pUsername, pPassword);
 	}

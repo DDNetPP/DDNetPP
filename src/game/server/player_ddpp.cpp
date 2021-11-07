@@ -64,7 +64,7 @@ void CPlayer::ResetDDPP()
 	{
 		m_IsNoboSpawn = true;
 	}
-	m_AccountID = 0; // SetAccID(0); the function shows old value which could cause undefined behaviour i guess
+	SetAccID(0);
 	m_PlayerHumanLevel = 0;
 	m_HumanLevelTime = 0;
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
@@ -112,7 +112,7 @@ void CPlayer::ResetDDPP()
 	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
 	//m_xpmsg = true;
 
-	m_LoginData.m_LoginState = LOGIN_OFF;
+	m_Account.m_LoginState = LOGIN_OFF;
 
 	// disable infinite cosmetics by default
 	m_InfRainbow = false;
@@ -508,13 +508,13 @@ void CPlayer::Logout(int SetLoggedIn)
 
 	//reset values to default to prevent cheating
 	SetAccID(0);
-	m_level = 0;
 	m_IsModerator = 0;
 	m_IsSuperModerator = 0;
 	m_IsAccFrozen = 0;
-	m_xp = 0;
 	m_neededxp = 0;
-	m_money = 0;
+	SetLevel(0);
+	SetXP(0);
+	SetMoney(0);
 	m_shit = 0;
 	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
 	m_PoliceRank = 0;
@@ -729,7 +729,7 @@ void CPlayer::Save(int SetLoggedIn)
 				 ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 				 ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
 				 " WHERE `ID` = '%i'",
-		m_aAccountPassword, m_level, m_xp, m_money, m_shit,
+		m_aAccountPassword, GetLevel(), GetXP(), GetMoney(), m_shit,
 		m_GiftDelay,
 		m_PoliceRank,
 		m_JailTime, m_EscapeTime,
@@ -756,7 +756,7 @@ void CPlayer::Save(int SetLoggedIn)
 		m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
 		m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
 		m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
-		m_AccountID);
+		GetAccID());
 }
 
 void CPlayer::SaveFileBased(int SetLoggedIn)
@@ -777,9 +777,9 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 		Acc2File << m_IsModerator << "\n";
 		Acc2File << m_IsSuperModerator << "\n";
 		Acc2File << m_IsSupporter << "\n";
-		Acc2File << m_money << "\n";
-		Acc2File << m_level << "\n";
-		Acc2File << m_xp << "\n";
+		Acc2File << GetMoney() << "\n";
+		Acc2File << GetLevel() << "\n";
+		Acc2File << GetXP() << "\n";
 		Acc2File << m_shit << "\n";
 		Acc2File << m_PoliceRank << "\n";
 		Acc2File << m_TaserLevel << "\n";
@@ -796,228 +796,228 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 void CPlayer::CalcExp()
 {
 	int64_t OldNeededXp = m_neededxp;
-	dbg_msg("account", "CalcExp() neededxp=%ld xp=%ld", OldNeededXp, m_xp);
+	dbg_msg("account", "CalcExp() neededxp=%ld xp=%ld", OldNeededXp, GetXP());
 
 	//										xp diff
-	if(m_level == 0)
+	if(GetLevel() == 0)
 		m_neededxp = 5000;
-	else if(m_level == 1) //5 000
+	else if(GetLevel() == 1) //5 000
 		m_neededxp = 15000;
-	else if(m_level == 2) //10 000
+	else if(GetLevel() == 2) //10 000
 		m_neededxp = 25000;
-	else if(m_level == 3) //10 000
+	else if(GetLevel() == 3) //10 000
 		m_neededxp = 35000;
-	else if(m_level == 4) //10 000
+	else if(GetLevel() == 4) //10 000
 		m_neededxp = 50000;
-	else if(m_level == 5) //15 000			Rainbow
+	else if(GetLevel() == 5) //15 000			Rainbow
 		m_neededxp = 65000;
-	else if(m_level == 6) //15 000
+	else if(GetLevel() == 6) //15 000
 		m_neededxp = 80000;
-	else if(m_level == 7) //15 000
+	else if(GetLevel() == 7) //15 000
 		m_neededxp = 100000;
-	else if(m_level == 8) //20 000
+	else if(GetLevel() == 8) //20 000
 		m_neededxp = 120000;
-	else if(m_level == 9) //20 000
+	else if(GetLevel() == 9) //20 000
 		m_neededxp = 130000;
-	else if(m_level == 10) //30 000
+	else if(GetLevel() == 10) //30 000
 		m_neededxp = 160000;
-	else if(m_level == 11) //30 000
+	else if(GetLevel() == 11) //30 000
 		m_neededxp = 200000;
-	else if(m_level == 12) //40 000
+	else if(GetLevel() == 12) //40 000
 		m_neededxp = 240000;
-	else if(m_level == 13) //40 000
+	else if(GetLevel() == 13) //40 000
 		m_neededxp = 280000;
-	else if(m_level == 14) //40 000
+	else if(GetLevel() == 14) //40 000
 		m_neededxp = 325000;
-	else if(m_level == 15) //45 000			Bloody
+	else if(GetLevel() == 15) //45 000			Bloody
 		m_neededxp = 370000;
-	else if(m_level == 16) //50 000			room_key
+	else if(GetLevel() == 16) //50 000			room_key
 		m_neededxp = 420000;
-	else if(m_level == 17) //50 000
+	else if(GetLevel() == 17) //50 000
 		m_neededxp = 470000;
-	else if(m_level == 18) //50 000			Police[1]
+	else if(GetLevel() == 18) //50 000			Police[1]
 		m_neededxp = 520000;
-	else if(m_level == 19) //50 000
+	else if(GetLevel() == 19) //50 000
 		m_neededxp = 600000;
-	else if(m_level == 20) //80 000
+	else if(GetLevel() == 20) //80 000
 		m_neededxp = 680000;
-	else if(m_level == 21) //80 000			Ninja jetpack
+	else if(GetLevel() == 21) //80 000			Ninja jetpack
 		m_neededxp = 760000;
-	else if(m_level == 22) //90 000
+	else if(GetLevel() == 22) //90 000
 		m_neededxp = 850000;
-	else if(m_level == 23) //100 000
+	else if(GetLevel() == 23) //100 000
 		m_neededxp = 950000;
-	else if(m_level == 24) //150 000
+	else if(GetLevel() == 24) //150 000
 		m_neededxp = 1200000;
-	else if(m_level == 25) //200 000			Police[2]		policehelper && jail codes
+	else if(GetLevel() == 25) //200 000			Police[2]		policehelper && jail codes
 		m_neededxp = 1400000;
-	else if(m_level == 26) //200 000
+	else if(GetLevel() == 26) //200 000
 		m_neededxp = 1600000;
-	else if(m_level == 27) //200 000
+	else if(GetLevel() == 27) //200 000
 		m_neededxp = 1800000;
-	else if(m_level == 28) //200 000
+	else if(GetLevel() == 28) //200 000
 		m_neededxp = 2000000;
-	else if(m_level == 29) //210 000
+	else if(GetLevel() == 29) //210 000
 		m_neededxp = 2210000;
-	else if(m_level == 30) //220 000			Police[3]		taser
+	else if(GetLevel() == 30) //220 000			Police[3]		taser
 		m_neededxp = 2430000;
-	else if(m_level == 31) //230 000
+	else if(GetLevel() == 31) //230 000
 		m_neededxp = 2660000;
-	else if(m_level == 32) //240 000
+	else if(GetLevel() == 32) //240 000
 		m_neededxp = 2900000;
-	else if(m_level == 33) //250 000
+	else if(GetLevel() == 33) //250 000
 		m_neededxp = 3150000;
-	else if(m_level == 34) //350 000
+	else if(GetLevel() == 34) //350 000
 		m_neededxp = 3500000;
-	else if(m_level == 35) //450 000
+	else if(GetLevel() == 35) //450 000
 		m_neededxp = 3950000;
-	else if(m_level == 36) //550 000
+	else if(GetLevel() == 36) //550 000
 		m_neededxp = 4500000;
-	else if(m_level == 37) //750 000
+	else if(GetLevel() == 37) //750 000
 		m_neededxp = 5250000;
-	else if(m_level == 38) //850 000			spawn weapons
+	else if(GetLevel() == 38) //850 000			spawn weapons
 		m_neededxp = 6100000;
-	else if(m_level == 39) //900 000
+	else if(GetLevel() == 39) //900 000
 		m_neededxp = 7000000;
-	else if(m_level == 40) //1 000 000			Police[4]		homing missels
+	else if(GetLevel() == 40) //1 000 000			Police[4]		homing missels
 		m_neededxp = 8000000;
-	else if(m_level == 41) //1 000 000
+	else if(GetLevel() == 41) //1 000 000
 		m_neededxp = 9000000;
-	else if(m_level == 42) //1 000 000
+	else if(GetLevel() == 42) //1 000 000
 		m_neededxp = 10000000;
-	else if(m_level == 43) //1 000 000
+	else if(GetLevel() == 43) //1 000 000
 		m_neededxp = 11000000;
-	else if(m_level == 44) //1 000 000
+	else if(GetLevel() == 44) //1 000 000
 		m_neededxp = 12000000;
-	else if(m_level == 45) //1 000 000
+	else if(GetLevel() == 45) //1 000 000
 		m_neededxp = 13000000;
-	else if(m_level == 46) //1 000 000
+	else if(GetLevel() == 46) //1 000 000
 		m_neededxp = 14000000;
-	else if(m_level == 47) //1 000 000
+	else if(GetLevel() == 47) //1 000 000
 		m_neededxp = 15000000;
-	else if(m_level == 48) //1 000 000
+	else if(GetLevel() == 48) //1 000 000
 		m_neededxp = 16000000;
-	else if(m_level == 49) //1 000 000
+	else if(GetLevel() == 49) //1 000 000
 		m_neededxp = 17000000;
-	else if(m_level == 50) //1 000 000			Police[5]		'/jail arrest <time>' hammer command
+	else if(GetLevel() == 50) //1 000 000			Police[5]		'/jail arrest <time>' hammer command
 		m_neededxp = 18000000;
-	else if(m_level == 51) //1 000 000
+	else if(GetLevel() == 51) //1 000 000
 		m_neededxp = 19000000;
-	else if(m_level == 52) //1 000 000
+	else if(GetLevel() == 52) //1 000 000
 		m_neededxp = 20000000;
-	else if(m_level == 53) //1 000 000
+	else if(GetLevel() == 53) //1 000 000
 		m_neededxp = 21000000;
-	else if(m_level == 54) //1 000 000
+	else if(GetLevel() == 54) //1 000 000
 		m_neededxp = 22000000;
-	else if(m_level == 55) //1 000 000
+	else if(GetLevel() == 55) //1 000 000
 		m_neededxp = 23000000;
-	else if(m_level == 56) //1 000 000
+	else if(GetLevel() == 56) //1 000 000
 		m_neededxp = 24000000;
-	else if(m_level == 57) //1 000 000
+	else if(GetLevel() == 57) //1 000 000
 		m_neededxp = 25000000;
-	else if(m_level == 58) //1 000 000
+	else if(GetLevel() == 58) //1 000 000
 		m_neededxp = 26000000;
-	else if(m_level == 59) //1 000 000
+	else if(GetLevel() == 59) //1 000 000
 		m_neededxp = 27000000;
-	else if(m_level == 60) //1 000 000
+	else if(GetLevel() == 60) //1 000 000
 		m_neededxp = 28000000;
-	else if(m_level == 61) //1 000 000
+	else if(GetLevel() == 61) //1 000 000
 		m_neededxp = 29000000;
-	else if(m_level == 62) //1 000 000
+	else if(GetLevel() == 62) //1 000 000
 		m_neededxp = 30000000;
-	else if(m_level == 63) //1 000 000
+	else if(GetLevel() == 63) //1 000 000
 		m_neededxp = 31000000;
-	else if(m_level == 64) //1 000 000
+	else if(GetLevel() == 64) //1 000 000
 		m_neededxp = 32000000;
-	else if(m_level == 65) //1 000 000
+	else if(GetLevel() == 65) //1 000 000
 		m_neededxp = 33000000;
-	else if(m_level == 66) //1 000 000
+	else if(GetLevel() == 66) //1 000 000
 		m_neededxp = 34000000;
-	else if(m_level == 67) //1 000 000
+	else if(GetLevel() == 67) //1 000 000
 		m_neededxp = 35000000;
-	else if(m_level == 68) //1 000 000
+	else if(GetLevel() == 68) //1 000 000
 		m_neededxp = 36000000;
-	else if(m_level == 69) //1 000 000
+	else if(GetLevel() == 69) //1 000 000
 		m_neededxp = 37000000;
-	else if(m_level == 70) //1 000 000
+	else if(GetLevel() == 70) //1 000 000
 		m_neededxp = 38000000;
-	else if(m_level == 71) //1 000 000
+	else if(GetLevel() == 71) //1 000 000
 		m_neededxp = 39000000;
-	else if(m_level == 72) //1 000 000
+	else if(GetLevel() == 72) //1 000 000
 		m_neededxp = 40000000;
-	else if(m_level == 73) //1 010 000
+	else if(GetLevel() == 73) //1 010 000
 		m_neededxp = 41010000;
-	else if(m_level == 74) //1 010 000
+	else if(GetLevel() == 74) //1 010 000
 		m_neededxp = 42020000;
-	else if(m_level == 75) //1 010 000
+	else if(GetLevel() == 75) //1 010 000
 		m_neededxp = 43030000;
-	else if(m_level == 76) //1 010 000
+	else if(GetLevel() == 76) //1 010 000
 		m_neededxp = 44040000;
-	else if(m_level == 77) //1 010 000
+	else if(GetLevel() == 77) //1 010 000
 		m_neededxp = 45050000;
-	else if(m_level == 78) //1 010 000
+	else if(GetLevel() == 78) //1 010 000
 		m_neededxp = 46060000;
-	else if(m_level == 79) //1 010 000
+	else if(GetLevel() == 79) //1 010 000
 		m_neededxp = 47070000;
-	else if(m_level == 80) //1 010 000
+	else if(GetLevel() == 80) //1 010 000
 		m_neededxp = 48080000;
-	else if(m_level == 81) //1 010 000
+	else if(GetLevel() == 81) //1 010 000
 		m_neededxp = 49090000;
-	else if(m_level == 82) //1 010 000
+	else if(GetLevel() == 82) //1 010 000
 		m_neededxp = 50100000;
-	else if(m_level == 83) //1 010 000
+	else if(GetLevel() == 83) //1 010 000
 		m_neededxp = 51110000;
-	else if(m_level == 84) //1 010 000
+	else if(GetLevel() == 84) //1 010 000
 		m_neededxp = 52120000;
-	else if(m_level == 85) //1 010 000
+	else if(GetLevel() == 85) //1 010 000
 		m_neededxp = 53130000;
-	else if(m_level == 86) //1 010 000
+	else if(GetLevel() == 86) //1 010 000
 		m_neededxp = 54140000;
-	else if(m_level == 87) //1 010 000
+	else if(GetLevel() == 87) //1 010 000
 		m_neededxp = 55150000;
-	else if(m_level == 88) //1 010 000
+	else if(GetLevel() == 88) //1 010 000
 		m_neededxp = 56160000;
-	else if(m_level == 89) //1 010 000
+	else if(GetLevel() == 89) //1 010 000
 		m_neededxp = 57170000;
-	else if(m_level == 90) //1 010 000
+	else if(GetLevel() == 90) //1 010 000
 		m_neededxp = 58180000;
-	else if(m_level == 91) //1 010 000
+	else if(GetLevel() == 91) //1 010 000
 		m_neededxp = 59190000;
-	else if(m_level == 92) //1 010 000
+	else if(GetLevel() == 92) //1 010 000
 		m_neededxp = 60200000;
-	else if(m_level == 93) //1 100 000
+	else if(GetLevel() == 93) //1 100 000
 		m_neededxp = 61300000;
-	else if(m_level == 94) //1 100 000
+	else if(GetLevel() == 94) //1 100 000
 		m_neededxp = 62400000;
-	else if(m_level == 95) //1 100 000
+	else if(GetLevel() == 95) //1 100 000
 		m_neededxp = 63500000;
-	else if(m_level == 96) //1 100 000
+	else if(GetLevel() == 96) //1 100 000
 		m_neededxp = 64600000;
-	else if(m_level == 97) //1 100 000
+	else if(GetLevel() == 97) //1 100 000
 		m_neededxp = 65700000;
-	else if(m_level == 98) //1 100 000
+	else if(GetLevel() == 98) //1 100 000
 		m_neededxp = 66800000;
-	else if(m_level == 99) //1 100 000
+	else if(GetLevel() == 99) //1 100 000
 		m_neededxp = 67900000;
-	else if(m_level == 100) //12 100 000
+	else if(GetLevel() == 100) //12 100 000
 		m_neededxp = 80000000;
-	else if(m_level == 101) //20 000 000
+	else if(GetLevel() == 101) //20 000 000
 		m_neededxp = 100000000;
-	else if(m_level == 102) //20 000 000
+	else if(GetLevel() == 102) //20 000 000
 		m_neededxp = 120000000;
-	else if(m_level == 103) //20 000 000
+	else if(GetLevel() == 103) //20 000 000
 		m_neededxp = 140000000;
-	else if(m_level == 104) //20 000 000
+	else if(GetLevel() == 104) //20 000 000
 		m_neededxp = 160000000;
-	else if(m_level == 105) //20 000 000
+	else if(GetLevel() == 105) //20 000 000
 		m_neededxp = 180000000;
-	else if(m_level == 106) //20 000 000
+	else if(GetLevel() == 106) //20 000 000
 		m_neededxp = 200000000;
-	else if(m_level == 107) //20 000 000
+	else if(GetLevel() == 107) //20 000 000
 		m_neededxp = 220000000;
-	else if(m_level == 108) //20 000 000
+	else if(GetLevel() == 108) //20 000 000
 		m_neededxp = 240000000;
-	else if(m_level == 109) //20 000 000
+	else if(GetLevel() == 109) //20 000 000
 		m_neededxp = 260000000;
 	else
 		m_neededxp = 404000000000000; //404 error
@@ -1027,7 +1027,7 @@ void CPlayer::CalcExp()
 	if(IsMaxLevel())
 	{
 		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
-		m_xp = OldNeededXp;
+		SetXP(OldNeededXp);
 		// m_neededxp = OldNeededXp; // covered by the 404 else if ACC_MAX_LEVEL is if branch limit if it is less it uses next levels neededxp which doesnt hurt either
 	}
 }
@@ -1042,12 +1042,12 @@ void CPlayer::CheckLevel()
 	if(m_neededxp <= 0)
 		CalcExp();
 
-	if(m_xp >= m_neededxp)
+	if(GetXP() >= m_neededxp)
 	{
-		m_level++;
+		SetLevel(GetLevel() + 1);
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", m_level);
+		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", GetLevel());
 		GameServer()->SendChatTarget(m_ClientID, aBuf); //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
 		MoneyTransaction(+50, "level up");
 
@@ -1057,11 +1057,11 @@ void CPlayer::CheckLevel()
 
 void CPlayer::MoneyTransaction(int Amount, const char *Description)
 {
-	m_money += Amount;
+	SetMoney(GetMoney() + Amount);
 #if defined(CONF_DEBUG)
-	if(m_money < 0)
+	if(GetMoney() < 0)
 	{
-		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%ld", GetCID(), Server()->ClientName(GetCID()), m_money);
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%ld", GetCID(), Server()->ClientName(GetCID()), GetMoney());
 	}
 #endif
 	if(!str_comp(Description, ""))
@@ -1089,17 +1089,17 @@ bool CPlayer::IsInstagibMinigame()
 
 void CPlayer::ThreadLoginStart(const char *pUsername, const char *pPassword)
 {
-	m_LoginData.m_pGameContext = GameServer();
-	m_LoginData.m_LoginState = LOGIN_WAIT;
-	m_LoginData.m_ClientID = GetCID();
-	str_copy(m_LoginData.m_aUsername, pUsername, sizeof(m_LoginData.m_aUsername));
-	str_copy(m_LoginData.m_aPassword, pPassword, sizeof(m_LoginData.m_aPassword));
-	thread_init(*ThreadLoginWorker, &m_LoginData, "sql login"); //setzte die werte von pTmpPlayer
+	m_Account.m_pGameContext = GameServer();
+	m_Account.m_LoginState = LOGIN_WAIT;
+	m_Account.m_ClientID = GetCID();
+	str_copy(m_Account.m_aUsername, pUsername, sizeof(m_Account.m_aUsername));
+	str_copy(m_Account.m_aPassword, pPassword, sizeof(m_Account.m_aPassword));
+	thread_init(*ThreadLoginWorker, &m_Account, "sql login"); //setzte die werte von pTmpPlayer
 }
 
 void CPlayer::ThreadLoginWorker(void *pArg) //is the actual thread
 {
-	struct CLoginData *pData = static_cast<struct CLoginData *>(pArg);
+	struct CAccountData *pData = static_cast<struct CAccountData *>(pArg);
 	CGameContext *pGS = static_cast<CGameContext *>(pData->m_pGameContext);
 	// pGS->SendChat(-1, CGameContext::CHAT_ALL, "hello work from thread");
 	char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pData->m_aUsername, pData->m_aPassword);
@@ -1113,30 +1113,30 @@ void CPlayer::ThreadLoginWorker(void *pArg) //is the actual thread
 
 void CPlayer::ThreadLoginDone() //get called every tick
 {
-	if(m_LoginData.m_LoginState != LOGIN_DONE)
+	if(m_Account.m_LoginState != LOGIN_DONE)
 		return;
 
-	//basic
-	str_copy(m_aAccountLoginName, m_LoginData.m_aUsername, sizeof(m_aAccountLoginName));
-	str_copy(m_aAccountPassword, m_LoginData.m_aPassword, sizeof(m_aAccountPassword));
-	str_copy(m_aAccountRegDate, m_LoginData.m_aAccountRegDate, sizeof(m_aAccountRegDate));
-	SetAccID(m_LoginData.m_AccountID);
+	// //basic
+	// str_copy(m_aAccountLoginName, m_Account.m_aUsername, sizeof(m_aAccountLoginName));
+	// str_copy(m_aAccountPassword, m_Account.m_aPassword, sizeof(m_aAccountPassword));
+	// str_copy(m_aAccountRegDate, m_Account.m_aAccountRegDate, sizeof(m_aAccountRegDate));
+	// SetAccID(m_Account.m_AccountID);
 
-	//Accounts
-	m_IsModerator = m_LoginData.m_IsModerator;
-	m_IsSuperModerator = m_LoginData.m_IsSuperModerator;
-	m_IsSupporter = m_LoginData.m_IsSupporter;
-	m_IsAccFrozen = m_LoginData.m_IsAccFrozen;
+	// //Accounts
+	// m_IsModerator = m_Account.m_IsModerator;
+	// m_IsSuperModerator = m_Account.m_IsSuperModerator;
+	// m_IsSupporter = m_Account.m_IsSupporter;
+	// m_IsAccFrozen = m_Account.m_IsAccFrozen;
 
-	//city
-	m_level = m_LoginData.m_level;
-	m_xp = m_LoginData.m_xp;
-	m_money = m_LoginData.m_money;
-	m_shit = m_LoginData.m_shit;
-	m_GiftDelay = m_LoginData.m_GiftDelay;
+	// //city
+	// m_level = m_Account.m_level;
+	// m_xp = m_Account.m_xp;
+	// m_money = m_Account.m_money;
+	// m_shit = m_Account.m_shit;
+	// m_GiftDelay = m_Account.m_GiftDelay;
 
 	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[THREAD] login done");
-	m_LoginData.m_LoginState = LOGIN_OFF;
+	m_Account.m_LoginState = LOGIN_OFF;
 }
 
 void CPlayer::chidraqul3_GameTick()
@@ -1391,7 +1391,7 @@ void CPlayer::SetAccID(int ID)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_AccountID = ID;
+	m_Account.m_AccountID = ID;
 }
 
 void CPlayer::GiveXP(int value)
@@ -1399,7 +1399,7 @@ void CPlayer::GiveXP(int value)
 	if(IsMaxLevel())
 		return;
 
-	m_xp += value;
+	m_Account.m_xp += value;
 }
 
 void CPlayer::SetXP(int xp)
@@ -1407,7 +1407,7 @@ void CPlayer::SetXP(int xp)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_xp = xp;
+	m_Account.m_xp = xp;
 }
 
 void CPlayer::SetLevel(int level)
@@ -1415,7 +1415,7 @@ void CPlayer::SetLevel(int level)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_level = level;
+	m_Account.m_level = level;
 }
 
 void CPlayer::SetMoney(int money)
@@ -1423,5 +1423,5 @@ void CPlayer::SetMoney(int money)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_money = money;
+	m_Account.m_money = money;
 }
