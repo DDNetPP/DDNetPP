@@ -99,6 +99,8 @@ public:
 	bool m_IsVanillaCompetetive;
 	// bool m_IsGodMode; //no damage (only usefull in vanilla or pvp based subgametypes)
 	bool m_MapSaveLoaded;
+	CTeeInfo m_LastToucherTeeInfos;
+	int m_ScoreStartTick;
 
 	// login and threads
 	void ThreadLoginStart(const char *pUsername, const char *pPassword);

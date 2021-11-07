@@ -6,21 +6,21 @@
 #include "alloc.h"
 
 // this include should perhaps be removed
+#include "score.h"
+#include "teeinfo.h"
+
+// ddnet++ includes start
 #include "captcha.h"
 #include "entities/character.h"
 #include <engine/client/http.h>
 #include <game/version.h>
-
 #include "accounts.h"
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
-
 #include <memory>
 #include <vector>
-
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 #include "gamecontext.h"
-#include "score.h"
-#include "teeinfo.h"
+// ddnet++ includes end
 
 enum
 {
@@ -61,8 +61,8 @@ public:
 
 	void OnDirectInput(CNetObj_PlayerInput *NewInput);
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
-	void OnDisconnect();
 	void OnPredictedEarlyInput(CNetObj_PlayerInput *NewInput);
+	void OnDisconnect();
 
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
@@ -106,12 +106,10 @@ public:
 	int m_SendVoteIndex;
 
 	CTeeInfo m_TeeInfos;
-	CTeeInfo m_LastToucherTeeInfos;
 
 	int m_DieTick;
 	int m_PreviousDieTick;
 	int m_Score;
-	int m_ScoreStartTick;
 	int m_JoinTick;
 	bool m_ForceBalanced;
 	int m_LastActionTick;
@@ -196,11 +194,11 @@ public:
 
 	bool AfkTimer(CNetObj_PlayerInput *pNewTarget); // returns true if kicked
 	void UpdatePlaytime();
-	void AfkVoteTimer(CNetObj_PlayerInput *NewTarget);
-	int m_LastBroadcastImportance;
+	void AfkVoteTimer(CNetObj_PlayerInput *pNewTarget);
+	int64_t m_LastPlaytime;
+	int64_t m_LastEyeEmote;
 	int64_t m_LastBroadcast;
-	int m_LastTarget_x;
-	int m_LastTarget_y;
+	int m_LastBroadcastImportance; // ddnet++ uses int for importance levels and ddnet bool for important or not
 
 	CNetObj_PlayerInput *m_pLastTarget;
 	/* 
@@ -226,9 +224,6 @@ public:
 	int64_t m_EligibleForFinishCheck;
 	bool m_VotedForPractice;
 	int m_SwapTargetsClientID; //Client ID of the swap target for the given player
-
-	int64_t m_LastEyeEmote;
-	int64_t m_LastPlaytime;
 };
 
 #endif
