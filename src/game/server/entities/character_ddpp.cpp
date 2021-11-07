@@ -3126,21 +3126,21 @@ void CCharacter::XpOnKill(int Killer)
 	if(m_pPlayer->m_LastPlaytime < m_AliveSince + time_freq() * 3)
 		return;
 
-	int TotalXP = 1;
+	int TotalXP = 3;
 
 	if(m_SpawnTick)
 	{
 		// victim
 		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 30) // 30 secs
-			TotalXP += 5;
-		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 60) // 60 secs
-			TotalXP += 5;
-		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 600) // 10 mins
 			TotalXP += 10;
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 60) // 60 secs
+			TotalXP += 10;
+		if(Server()->Tick() >= m_SpawnTick + Server()->TickSpeed() * 600) // 10 mins
+			TotalXP += 20;
 
 		// killer
 		if(Server()->Tick() >= pKiller->GetCharacter()->m_SpawnTick + Server()->TickSpeed() * 600) // 10 mins
-			TotalXP += 1;
+			TotalXP += 6;
 	}
 
 	// TODO:
@@ -3151,18 +3151,18 @@ void CCharacter::XpOnKill(int Killer)
 	// +50xp if the killed has endless jumps or endless hook.
 
 	if(pKiller->m_KillStreak >= 10)
-		TotalXP += 1;
+		TotalXP += 3;
 	if(pKiller->m_KillStreak >= 20)
-		TotalXP += 2;
+		TotalXP += 6;
 	if(pKiller->m_KillStreak >= 25)
-		TotalXP += 4;
+		TotalXP += 8;
 
 	if(m_pPlayer->m_KillStreak >= 10)
-		TotalXP += 10;
+		TotalXP += 100;
 	if(m_pPlayer->m_KillStreak >= 20)
-		TotalXP += 20;
+		TotalXP += 200;
 	if(m_pPlayer->m_KillStreak >= 25)
-		TotalXP += 40;
+		TotalXP += 400;
 
 	if(!pKiller->m_HideBlockXp)
 	{
