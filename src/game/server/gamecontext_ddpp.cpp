@@ -2011,7 +2011,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		return;
 	}
 
-	if(m_apPlayers[ViewedID]->IsLoggedIn())
+	if(!m_apPlayers[ViewedID]->IsLoggedIn())
 	{
 		SendChatTarget(ViewerID, "Player has to be logged in to view his profile.");
 		return;
