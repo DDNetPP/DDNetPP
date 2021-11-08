@@ -57,7 +57,7 @@ public:
 	bool IsInstagibMinigame();
 	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
 	bool IsLoggedIn() { return GetAccID() != 0; } // -1 filebased acc >0 sql id
-	int GetAccID() { return m_Account.m_AccountID; }
+	int GetAccID() { return m_Account.m_ID; }
 	void SetAccID(int ID);
 	/*
 		GiveXP(int value)
@@ -80,18 +80,18 @@ public:
 		SetXP() should only be used if it is really needed
 	*/
 	void SetXP(int xp);
-	int64_t GetXP() { return m_Account.m_xp; }
+	int64_t GetXP() { return m_Account.m_XP; }
 	int64_t GetNeededXP() { return m_neededxp; }
-	int GetLevel() { return m_Account.m_level; }
-	void SetLevel(int level);
-	int64_t GetMoney() { return m_Account.m_money; }
+	int GetLevel() { return m_Account.m_Level; }
+	void SetLevel(int Level);
+	int64_t GetMoney() { return m_Account.m_Money; }
 	/*
 		SetMoney()
 
 		WARNING you probably want to use MoneyTransaction(int Amount, char* Desc) instead!
 		This is only used for specific cases! Dont touch it if you have no idea how it works xd
 	*/
-	void SetMoney(int money);
+	void SetMoney(int Money);
 	bool m_IsVanillaModeByTile;
 	bool m_IsVanillaDmg;
 	bool m_IsVanillaWeapons; //also used for pickups

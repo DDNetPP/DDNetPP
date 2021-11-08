@@ -1335,7 +1335,7 @@ void CPlayer::SetAccID(int ID)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_Account.m_AccountID = ID;
+	m_Account.m_ID = ID;
 }
 
 void CPlayer::GiveXP(int value)
@@ -1343,7 +1343,7 @@ void CPlayer::GiveXP(int value)
 	if(IsMaxLevel())
 		return;
 
-	m_Account.m_xp += value;
+	m_Account.m_XP += value;
 }
 
 void CPlayer::SetXP(int xp)
@@ -1351,21 +1351,21 @@ void CPlayer::SetXP(int xp)
 #if defined(CONF_DEBUG)
 	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_Account.m_xp = xp;
+	m_Account.m_XP = xp;
 }
 
-void CPlayer::SetLevel(int level)
+void CPlayer::SetLevel(int Level)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", Level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_Account.m_level = level;
+	m_Account.m_Level = Level;
 }
 
-void CPlayer::SetMoney(int money)
+void CPlayer::SetMoney(int Money)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", Money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
 #endif
-	m_Account.m_money = money;
+	m_Account.m_Money = Money;
 }

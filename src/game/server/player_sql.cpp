@@ -18,7 +18,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 		switch(Result.m_MessageKind)
 		{
 		case CAccountResult::DIRECT:
-			for(auto &aMessage : Result.m_Data.m_aaMessages)
+			for(auto &aMessage : Result.m_aaMessages)
 			{
 				if(aMessage[0] == 0)
 					break;
@@ -28,7 +28,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 		case CAccountResult::ALL:
 		{
 			bool PrimaryMessage = true;
-			for(auto &aMessage : Result.m_Data.m_aaMessages)
+			for(auto &aMessage : Result.m_aaMessages)
 			{
 				if(aMessage[0] == 0)
 					break;
@@ -42,12 +42,12 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			break;
 		}
 		case CAccountResult::BROADCAST:
-			// if(Result.m_Data.m_aBroadcast[0] != 0)
-			// 	GameServer()->SendBroadcast(Result.m_Data.m_aBroadcast, -1);
+			// if(Result.m_aBroadcast[0] != 0)
+			// 	GameServer()->SendBroadcast(Result.m_aBroadcast, -1);
 			break;
 		case CAccountResult::LOGIN_INFO:
 			GameServer()->SendChatTarget(m_ClientID, "login  suscce");
-			m_Account = Result.m_Data.m_Account;
+			m_Account = Result.m_Account;
 			break;
 		}
 	}

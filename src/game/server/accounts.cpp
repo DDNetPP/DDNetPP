@@ -17,15 +17,15 @@ void CAccountResult::SetVariant(Variant v)
 	{
 	case DIRECT:
 	case ALL:
-		for(auto &aMessage : m_Data.m_aaMessages)
+		for(auto &aMessage : m_aaMessages)
 			aMessage[0] = 0;
 		break;
 	case BROADCAST:
-		m_Data.m_aBroadcast[0] = 0;
+		m_aBroadcast[0] = 0;
 		break;
 	case LOGIN_INFO:
-		// TODO: initalize all here ??? do i need to ?
-		m_Data.m_Account.m_AccountID = 0;
+		// initialized in account data constructor
+		break;
 	}
 }
 
@@ -77,15 +77,22 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	str_copy(aBuf,
 		"SELECT "
 		"	ID,"
+		/*  2         3 */
 		"	Username, Password,"
+		/*  4             5           6 */
 		"	RegisterDate, IsLoggedIn, LastLoginPort,"
+		/*  7               8               9               10              11 */
 		"	LastLogoutIGN1, LastLogoutIGN2, LastLogoutIGN3, LastLogoutIGN4, LastLogoutIGN5,"
+		/*  12    13    14 */
 		"	IP_1, IP_2, IP_3,"
+		/*  15     16     17 */
 		"	Clan1, Clan2, Clan3,"
 		"	Skin," // 18
+		/*  19     20     21 */
 		"	Level, Money, Exp,"
+		/*  22    23 */
 		"	Shit, LastGift,"
-		"	PoliceRank,"
+		"	PoliceRank," // 24
 		"	JailTime, EscapeTime,"
 		"	TaserLevel "
 		"FROM Accounts "
@@ -106,19 +113,30 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	}
 	if(!End)
 	{
+		if(pSqlServer->GetInt(5)) // IsLoggedIn
+		{
+			pResult->SetVariant(CAccountResult::DIRECT);
+			str_copy(pResult->m_aaMessages[0],
+				"[ACCOUNT] Login failed. This account is logged in already.",
+				sizeof(pResult->m_aaMessages[0]));
+			return false;
+		}
 		pResult->SetVariant(CAccountResult::LOGIN_INFO);
-		pResult->m_Data.m_Account.m_AccountID = pSqlServer->GetInt(1);
+		pResult->m_Account.m_ID = pSqlServer->GetInt(1);
 		// pSqlServer->GetText(2); // username
 		// pSqlServer->GetText(3); // password
-		// pResult->m_Data.m_Account.m_level = pSqlServer->GetInt64(19);
-		// pResult->m_Data.m_Account.m_money = pSqlServer->GetInt64(20);
+		pSqlServer->GetString(4, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
+		// 5 IsLoggedIn (not needed here)
+		// 6 LastLoginPort (not needed)
+		// pResult->m_Account.m_level = pSqlServer->GetInt64(19);
+		// pResult->m_Account.m_money = pSqlServer->GetInt64(20);
 	}
 	else
 	{
 		pResult->SetVariant(CAccountResult::DIRECT);
-		str_copy(pResult->m_Data.m_aaMessages[0],
+		str_copy(pResult->m_aaMessages[0],
 			"[ACCOUNT] Login failed. Wrong password or username.",
-			sizeof(pResult->m_Data.m_aaMessages[0]));
+			sizeof(pResult->m_aaMessages[0]));
 	}
 	return false;
 }
