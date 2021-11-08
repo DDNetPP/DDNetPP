@@ -128,8 +128,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(4, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
 		// 5 IsLoggedIn (not needed here)
 		// 6 LastLoginPort (not needed)
-		// pResult->m_Account.m_level = pSqlServer->GetInt64(19);
-		// pResult->m_Account.m_money = pSqlServer->GetInt64(20);
+		pResult->m_Account.m_Level = pSqlServer->GetInt64(19);
+		pResult->m_Account.m_Money = pSqlServer->GetInt64(20);
 	}
 	else
 	{
