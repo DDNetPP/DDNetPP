@@ -72,7 +72,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
 	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
 
-	char aBuf[512];
+	char aBuf[2048];
 	str_copy(aBuf,
 		"SELECT "
 		"	ID,"
@@ -215,7 +215,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pResult->m_Account.m_AsciiViewsProfile = pSqlServer->GetInt(Index++);
 		for(int i = 0; i < MAX_ASCII_FRAMES; i++)
 		{
-			pSqlServer->GetString(Index, pResult->m_Account.m_aAsciiFrame[Index], sizeof(pResult->m_Account.m_aAsciiFrame[Index]));
+			pSqlServer->GetString(Index, pResult->m_Account.m_aAsciiFrame[i], sizeof(pResult->m_Account.m_aAsciiFrame[i]));
 			Index++;
 		}
 	}
