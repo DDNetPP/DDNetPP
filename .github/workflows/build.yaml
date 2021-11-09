@@ -85,7 +85,7 @@ jobs:
       run: |
         cd debug
         ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests ${{ matrix.build-args }}
-        ./DDNet-Server shutdown
+        ./DDNetPP shutdown
 
     - name: Build in release mode
       env: ${{ matrix.env }}
@@ -98,7 +98,7 @@ jobs:
       run: |
         cd release
         ${{ matrix.cmake-path }}cmake --build . --config Release --target run_tests ${{ matrix.build-args }}
-        ./DDNet-Server shutdown
+        ./DDNetPP shutdown
 
     - name: Build headless client
       env: ${{ matrix.env }}
@@ -111,7 +111,7 @@ jobs:
     - name: Test headless client
       run: |
         cd headless
-        ./DDNet-Server &
+        ./DDNetPP &
         ./DDNet "cl_download_skins 0;connect localhost:8303;quit"
 
     - name: Build in release mode with debug info and all features on
@@ -127,7 +127,7 @@ jobs:
       run: |
         cd release
         ${{ matrix.cmake-path }}cmake --build . --config RelWithDebInfo --target run_tests ${{ matrix.build-args }}
-        ./DDNet-Server shutdown
+        ./DDNetPP shutdown
 
     - name: Package
       run: |
