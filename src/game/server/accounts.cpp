@@ -23,8 +23,10 @@ void CAccountResult::SetVariant(Variant v)
 	case BROADCAST:
 		m_aBroadcast[0] = 0;
 		break;
+	case LOGGED_IN_ALREADY:
+		break;
 	case LOGIN_INFO:
-		// initialized in account data constructor
+		m_Account = CAccountData();
 		break;
 	}
 }
@@ -135,10 +137,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	{
 		if(pSqlServer->GetInt(5)) // IsLoggedIn
 		{
-			pResult->SetVariant(CAccountResult::DIRECT);
-			str_copy(pResult->m_aaMessages[0],
-				"[ACCOUNT] Login failed. This account is logged in already.",
-				sizeof(pResult->m_aaMessages[0]));
+			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
+			pResult->m_Account.m_ID = pSqlServer->GetInt(1);
 			return false;
 		}
 		int Index = 1;

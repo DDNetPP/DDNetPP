@@ -267,6 +267,7 @@ struct CAccountResult : ISqlResult
 		DIRECT,
 		ALL,
 		BROADCAST,
+		LOGGED_IN_ALREADY,
 		LOGIN_INFO,
 	} m_MessageKind;
 

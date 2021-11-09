@@ -45,6 +45,13 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			// if(Result.m_aBroadcast[0] != 0)
 			// 	GameServer()->SendBroadcast(Result.m_aBroadcast, -1);
 			break;
+		case CAccountResult::LOGGED_IN_ALREADY:
+			if(GameServer()->CheckAccounts(Result.m_Account.m_ID))
+				GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
+			else
+				GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
+			dbg_msg("account", "sql id=%d is already logged in.", Result.m_Account.m_ID);
+			break;
 		case CAccountResult::LOGIN_INFO:
 			GameServer()->SendChatTarget(m_ClientID, "login  suscce");
 			m_Account = Result.m_Account;
