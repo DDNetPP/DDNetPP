@@ -121,15 +121,41 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 				sizeof(pResult->m_aaMessages[0]));
 			return false;
 		}
+		int Index = 1;
 		pResult->SetVariant(CAccountResult::LOGIN_INFO);
-		pResult->m_Account.m_ID = pSqlServer->GetInt(1);
-		// pSqlServer->GetText(2); // username
-		// pSqlServer->GetText(3); // password
-		pSqlServer->GetString(4, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
-		// 5 IsLoggedIn (not needed here)
-		// 6 LastLoginPort (not needed)
-		pResult->m_Account.m_Level = pSqlServer->GetInt64(19);
-		pResult->m_Account.m_Money = pSqlServer->GetInt64(20);
+		pResult->m_Account.m_ID = pSqlServer->GetInt(Index++); // 1
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aUsername, sizeof(pResult->m_Account.m_aUsername));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aPassword, sizeof(pResult->m_Account.m_aPassword));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
+		Index++; // 5 IsLoggedIn (not needed here)
+		Index++; // 6 LastLoginPort (not needed)
+		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN1, sizeof(pResult->m_Account.m_LastLogoutIGN1));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN2, sizeof(pResult->m_Account.m_LastLogoutIGN2));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN3, sizeof(pResult->m_Account.m_LastLogoutIGN3));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN4, sizeof(pResult->m_Account.m_LastLogoutIGN4));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN5, sizeof(pResult->m_Account.m_LastLogoutIGN5));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_1, sizeof(pResult->m_Account.m_aIP_1));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_2, sizeof(pResult->m_Account.m_aIP_2));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_3, sizeof(pResult->m_Account.m_aIP_3));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan1, sizeof(pResult->m_Account.m_aClan1));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan2, sizeof(pResult->m_Account.m_aClan2));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan3, sizeof(pResult->m_Account.m_aClan3));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aSkin, sizeof(pResult->m_Account.m_aSkin));
+		pResult->m_Account.m_Level = pSqlServer->GetInt64(Index++); // 19
+		pResult->m_Account.m_Money = pSqlServer->GetInt64(Index++);
+		pResult->m_Account.m_XP = pSqlServer->GetInt64(Index++);
+		pResult->m_Account.m_Shit = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GiftDelay = pSqlServer->GetInt(Index++); // 23
+
+		pResult->m_Account.m_PoliceRank = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_JailTime = pSqlServer->GetInt64(Index++);
+		pResult->m_Account.m_EscapeTime = pSqlServer->GetInt64(Index++);
+		pResult->m_Account.m_TaserLevel = pSqlServer->GetInt(Index++);
+
+		pResult->m_Account.m_PvpArenaTickets = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_PvpArenaGamesPlayed = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_PvpArenaKills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_PvpArenaDeaths = pSqlServer->GetInt(Index++);
 	}
 	else
 	{

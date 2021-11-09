@@ -316,7 +316,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezeHole(vec2 Pos, bool Human, CC
 				continue;
 		}
 
-		if(!p->GetPlayer()->m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
+		if(!p->GetPlayer()->m_Account.m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
 			continue;
 		if(p->m_FreezeTime == 0 || p->m_Pos.y > 438 * 32 || p->m_Pos.x < 430 * 32 || p->m_Pos.x > 445 * 32 || p->m_Pos.y < 423 * 32) // only freezed tees in the hole coming from short entry into blmapchill police base
 			continue;
@@ -353,7 +353,7 @@ CCharacter *CGameWorld::ClosestCharTypePoliceFreezePitLeft(vec2 Pos, bool Human,
 				continue;
 		}
 
-		if(!p->GetPlayer()->m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
+		if(!p->GetPlayer()->m_Account.m_PoliceRank && !p->GetPlayer()->m_PoliceHelper)
 			continue;
 		if(p->m_FreezeTime == 0 || p->m_Pos.y > 436 * 32 || p->m_Pos.x < 363 * 32 || p->m_Pos.x > 381 * 32 || p->m_Pos.y < 420 * 32)
 			continue;

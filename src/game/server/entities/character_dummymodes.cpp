@@ -5704,7 +5704,7 @@ void CCharacter::DummyTick()
 
 						m_Dummy_ClosestPolice = false;
 						//If a policerank escapes from jail he is treated like a non police
-						if((pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0))
+						if((pChr->m_pPlayer->m_Account.m_PoliceRank > 0 && pChr->m_pPlayer->m_Account.m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_Account.m_EscapeTime == 0))
 						{
 							m_Dummy_ClosestPolice = true;
 						}
@@ -8621,7 +8621,7 @@ void CCharacter::DummyTick()
 				//}
 				m_Dummy_ClosestPolice = false;
 				//If a policerank escapes from jail he is treated like a non police
-				if((pChr->m_pPlayer->m_PoliceRank > 0 && pChr->m_pPlayer->m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_EscapeTime == 0))
+				if((pChr->m_pPlayer->m_Account.m_PoliceRank > 0 && pChr->m_pPlayer->m_Account.m_EscapeTime == 0) || (pChr->m_pPlayer->m_PoliceHelper && pChr->m_pPlayer->m_Account.m_EscapeTime == 0))
 				{
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hello officär");
 					m_Dummy_ClosestPolice = true;

@@ -82,21 +82,21 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSupporter = GetInt(GetID("IsSupporter"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
 
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN1));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN2));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3, GetText(GetID("LastLogoutIGN3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN3));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN4));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_LastLogoutIGN5));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN3, GetText(GetID("LastLogoutIGN3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN4, GetText(GetID("LastLogoutIGN4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN4));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN5, GetText(GetID("LastLogoutIGN5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN5));
 
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_1, GetText(GetID("IP_1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_1));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2, GetText(GetID("IP_2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_2));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3, GetText(GetID("IP_3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aIP_3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_1, GetText(GetID("IP_1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_2, GetText(GetID("IP_2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_3, GetText(GetID("IP_3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aIP_3));
 
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1, GetText(GetID("Clan1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan1));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2, GetText(GetID("Clan2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan2));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3, GetText(GetID("Clan3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aClan3));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan1, GetText(GetID("Clan1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan1));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan2, GetText(GetID("Clan2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan2));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan3, GetText(GetID("Clan3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aClan3));
 
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccSkin));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aSkin));
 
 				//ninjajetpack
 				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
@@ -114,20 +114,20 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->SetLevel(GetInt(GetID("Level")));
 				m_pGameServer->m_apPlayers[m_ClientID]->SetXP(GetInt64(GetID("Exp")));
 				m_pGameServer->m_apPlayers[m_ClientID]->SetMoney(GetInt64(GetID("Money")));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_shit = GetInt(GetID("Shit"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GiftDelay = GetInt(GetID("LastGift"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_Shit = GetInt(GetID("Shit"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GiftDelay = GetInt(GetID("LastGift"));
 
 				//police
-				m_pGameServer->m_apPlayers[m_ClientID]->m_PoliceRank = GetInt(GetID("PoliceRank"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime = GetInt(GetID("JailTime"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_EscapeTime = GetInt(GetID("EscapeTime"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_TaserLevel = GetInt(GetID("TaserLevel"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PoliceRank = GetInt(GetID("PoliceRank"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_JailTime = GetInt(GetID("JailTime"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_EscapeTime = GetInt(GetID("EscapeTime"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_TaserLevel = GetInt(GetID("TaserLevel"));
 
 				//pvp arena
-				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_tickets = GetInt(GetID("PvPArenaTickets"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_games_played = GetInt(GetID("PvPArenaGames"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_kills = GetInt(GetID("PvPArenaKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_pvp_arena_deaths = GetInt(GetID("PvPArenaDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PvpArenaTickets = GetInt(GetID("PvPArenaTickets"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PvpArenaGamesPlayed = GetInt(GetID("PvPArenaGames"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PvpArenaKills = GetInt(GetID("PvPArenaKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PvpArenaDeaths = GetInt(GetID("PvPArenaDeaths"));
 
 				//profiles (int)
 				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
@@ -247,7 +247,7 @@ void CQueryLogin::OnData()
 			}
 
 			//jail
-			if(m_pGameServer->m_apPlayers[m_ClientID]->m_JailTime)
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_JailTime)
 			{
 				if(m_pGameServer->m_apPlayers[m_ClientID]->GetCharacter())
 				{

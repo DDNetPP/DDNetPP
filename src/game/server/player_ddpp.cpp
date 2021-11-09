@@ -487,7 +487,7 @@ void CPlayer::OnDisconnectDDPP()
 	{
 		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
 	}
-	if(m_JailTime)
+	if(m_Account.m_JailTime)
 	{
 		GameServer()->SetIpJailed(GetCID());
 	}
@@ -502,21 +502,18 @@ void CPlayer::Logout(int SetLoggedIn)
 	Save(SetLoggedIn);
 	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", GetAccID(), SetLoggedIn);
 
+
+	m_Account.m_JailTime = 0; //logout doesnt release :p
+	//m_EscapeTime = 0; // TODO: logout doesnt remove jail time 
+
+	// TODO: remove all and call m_Account constructor
+
 	//reset values to default to prevent cheating
-	SetAccID(0);
 	m_IsModerator = 0;
 	m_IsSuperModerator = 0;
 	m_IsAccFrozen = 0;
 	m_neededxp = 0;
-	SetLevel(0);
-	SetXP(0);
-	SetMoney(0);
-	m_shit = 0;
 	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
-	m_PoliceRank = 0;
-	//m_JailTime = 0; //logout doesnt release :p
-	//m_EscapeTime = 0;
-	m_TaserLevel = 0;
 	m_NinjaJetpackBought = 0;
 	m_SpookyGhost = 0;
 	m_UseSpawnWeapons = 0;
@@ -524,10 +521,6 @@ void CPlayer::Logout(int SetLoggedIn)
 	m_SpawnWeaponGrenade = 0;
 	m_SpawnWeaponRifle = 0;
 	m_TaserOn = false;
-	m_pvp_arena_tickets = 0;
-	m_pvp_arena_games_played = 0;
-	m_pvp_arena_kills = 0;
-	m_pvp_arena_deaths = 0;
 	m_ProfileStyle = 0;
 	m_ProfileViews = 0;
 	m_ProfileStatus[0] = '\0';
@@ -571,7 +564,7 @@ void CPlayer::JailPlayer(int seconds)
 	vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
 	//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
 
-	m_JailTime = Server()->TickSpeed() * seconds;
+	m_Account.m_JailTime = Server()->TickSpeed() * seconds;
 
 	if(GetCharacter())
 	{
@@ -614,49 +607,49 @@ void CPlayer::Save(int SetLoggedIn)
 	char aClan[32];
 	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
 
-	if(str_comp(aClan, m_aClan1) && str_comp(aClan, m_aClan2) && str_comp(aClan, m_aClan3))
+	if(str_comp(aClan, m_Account.m_aClan1) && str_comp(aClan, m_Account.m_aClan2) && str_comp(aClan, m_Account.m_aClan3))
 	{
 		//dbg_msg("save", "update clan '%s'", aClan);
-		str_format(m_aClan3, sizeof(m_aClan3), "%s", m_aClan2);
-		str_format(m_aClan2, sizeof(m_aClan2), "%s", m_aClan1);
-		str_format(m_aClan1, sizeof(m_aClan1), "%s", aClan);
+		str_format(m_Account.m_aClan3, sizeof(m_Account.m_aClan3), "%s", m_Account.m_aClan2);
+		str_format(m_Account.m_aClan2, sizeof(m_Account.m_aClan2), "%s", m_Account.m_aClan1);
+		str_format(m_Account.m_aClan1, sizeof(m_Account.m_aClan1), "%s", aClan);
 	}
 
 	// Proccess IP ADDR...
 	char aIP[32];
 	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
 
-	if(str_comp(aIP, m_aIP_1) && str_comp(aIP, m_aIP_2) && str_comp(aIP, m_aIP_3))
+	if(str_comp(aIP, m_Account.m_aIP_1) && str_comp(aIP, m_Account.m_aIP_2) && str_comp(aIP, m_Account.m_aIP_3))
 	{
 		//dbg_msg("save", "updated ip '%s'", aIP);
-		str_format(m_aIP_3, sizeof(m_aIP_3), "%s", m_aIP_2);
-		str_format(m_aIP_2, sizeof(m_aIP_2), "%s", m_aIP_1);
-		str_format(m_aIP_1, sizeof(m_aIP_1), "%s", aIP);
+		str_format(m_Account.m_aIP_3, sizeof(m_Account.m_aIP_3), "%s", m_Account.m_aIP_2);
+		str_format(m_Account.m_aIP_2, sizeof(m_Account.m_aIP_2), "%s", m_Account.m_aIP_1);
+		str_format(m_Account.m_aIP_1, sizeof(m_Account.m_aIP_1), "%s", aIP);
 	}
 
 	// Proccess IngameName Data...
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	if(!str_comp(aName, m_LastLogoutIGN1) || !str_comp(aName, m_LastLogoutIGN2) || !str_comp(aName, m_LastLogoutIGN3) || !str_comp(aName, m_LastLogoutIGN4) || !str_comp(aName, m_LastLogoutIGN5))
+	if(!str_comp(aName, m_Account.m_LastLogoutIGN1) || !str_comp(aName, m_Account.m_LastLogoutIGN2) || !str_comp(aName, m_Account.m_LastLogoutIGN3) || !str_comp(aName, m_Account.m_LastLogoutIGN4) || !str_comp(aName, m_Account.m_LastLogoutIGN5))
 	{
-		if(!str_comp(aName, m_LastLogoutIGN1))
+		if(!str_comp(aName, m_Account.m_LastLogoutIGN1))
 		{
 			m_iLastLogoutIGN1_usage++;
 		}
-		else if(!str_comp(aName, m_LastLogoutIGN2))
+		else if(!str_comp(aName, m_Account.m_LastLogoutIGN2))
 		{
 			m_iLastLogoutIGN2_usage++;
 		}
-		else if(!str_comp(aName, m_LastLogoutIGN3))
+		else if(!str_comp(aName, m_Account.m_LastLogoutIGN3))
 		{
 			m_iLastLogoutIGN3_usage++;
 		}
-		else if(!str_comp(aName, m_LastLogoutIGN4))
+		else if(!str_comp(aName, m_Account.m_LastLogoutIGN4))
 		{
 			m_iLastLogoutIGN4_usage++;
 		}
-		else if(!str_comp(aName, m_LastLogoutIGN5))
+		else if(!str_comp(aName, m_Account.m_LastLogoutIGN5))
 		{
 			m_iLastLogoutIGN5_usage++;
 		}
@@ -664,17 +657,17 @@ void CPlayer::Save(int SetLoggedIn)
 	else // new name --> add it in history and overwrite the oldest
 	{
 		//dbg_msg("debug", "'%s' was not equal to...", aName);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN1);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN2);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN3);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN4);
-		//dbg_msg("debug", "'%s'", m_LastLogoutIGN5);
+		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN1);
+		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN2);
+		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN3);
+		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN4);
+		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN5);
 
-		str_format(m_LastLogoutIGN5, sizeof(m_LastLogoutIGN5), "%s", m_LastLogoutIGN4);
-		str_format(m_LastLogoutIGN4, sizeof(m_LastLogoutIGN4), "%s", m_LastLogoutIGN3);
-		str_format(m_LastLogoutIGN3, sizeof(m_LastLogoutIGN3), "%s", m_LastLogoutIGN2);
-		str_format(m_LastLogoutIGN2, sizeof(m_LastLogoutIGN2), "%s", m_LastLogoutIGN1);
-		str_format(m_LastLogoutIGN1, sizeof(m_LastLogoutIGN1), "%s", aName);
+		str_format(m_Account.m_LastLogoutIGN5, sizeof(m_Account.m_LastLogoutIGN5), "%s", m_Account.m_LastLogoutIGN4);
+		str_format(m_Account.m_LastLogoutIGN4, sizeof(m_Account.m_LastLogoutIGN4), "%s", m_Account.m_LastLogoutIGN3);
+		str_format(m_Account.m_LastLogoutIGN3, sizeof(m_Account.m_LastLogoutIGN3), "%s", m_Account.m_LastLogoutIGN2);
+		str_format(m_Account.m_LastLogoutIGN2, sizeof(m_Account.m_LastLogoutIGN2), "%s", m_Account.m_LastLogoutIGN1);
+		str_format(m_Account.m_LastLogoutIGN1, sizeof(m_Account.m_LastLogoutIGN1), "%s", aName);
 
 		m_iLastLogoutIGN5_usage = m_iLastLogoutIGN4_usage;
 		m_iLastLogoutIGN4_usage = m_iLastLogoutIGN3_usage;
@@ -725,25 +718,25 @@ void CPlayer::Save(int SetLoggedIn)
 				 ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 				 ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
 				 " WHERE `ID` = '%i'",
-		m_aAccountPassword, GetLevel(), GetXP(), GetMoney(), m_shit,
-		m_GiftDelay,
-		m_PoliceRank,
-		m_JailTime, m_EscapeTime,
-		m_TaserLevel,
+		m_aAccountPassword, GetLevel(), GetXP(), GetMoney(), m_Account.m_Shit,
+		m_Account.m_GiftDelay,
+		m_Account.m_PoliceRank,
+		m_Account.m_JailTime, m_Account.m_EscapeTime,
+		m_Account.m_TaserLevel,
 		m_NinjaJetpackBought,
 		m_SpookyGhost,
 		m_UseSpawnWeapons,
 		m_SpawnWeaponShotgun,
 		m_SpawnWeaponGrenade,
 		m_SpawnWeaponRifle,
-		m_pvp_arena_tickets, m_pvp_arena_games_played, m_pvp_arena_kills, m_pvp_arena_deaths,
+		m_Account.m_PvpArenaTickets, m_Account.m_PvpArenaGamesPlayed, m_Account.m_PvpArenaKills, m_Account.m_PvpArenaDeaths,
 		m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
 		m_homing_missiles_ammo,
 		m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_BlockSkill,
 		m_IsModerator, m_IsSuperModerator, m_IsSupporter, m_IsAccFrozen, SetLoggedIn,
-		m_LastLogoutIGN1, m_LastLogoutIGN2, m_LastLogoutIGN3, m_LastLogoutIGN4, m_LastLogoutIGN5,
-		m_aIP_1, m_aIP_2, m_aIP_3,
-		m_aClan1, m_aClan2, m_aClan3,
+		m_Account.m_LastLogoutIGN1, m_Account.m_LastLogoutIGN2, m_Account.m_LastLogoutIGN3, m_Account.m_LastLogoutIGN4, m_Account.m_LastLogoutIGN5,
+		m_Account.m_aIP_1, m_Account.m_aIP_2, m_Account.m_aIP_3,
+		m_Account.m_aClan1, m_Account.m_aClan2, m_Account.m_aClan3,
 		m_TeeInfos.m_SkinName,
 		m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
 		m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
@@ -776,9 +769,9 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 		Acc2File << GetMoney() << "\n";
 		Acc2File << GetLevel() << "\n";
 		Acc2File << GetXP() << "\n";
-		Acc2File << m_shit << "\n";
-		Acc2File << m_PoliceRank << "\n";
-		Acc2File << m_TaserLevel << "\n";
+		Acc2File << m_Account.m_Shit << "\n";
+		Acc2File << m_Account.m_PoliceRank << "\n";
+		Acc2File << m_Account.m_TaserLevel << "\n";
 
 		Acc2File.close();
 	}

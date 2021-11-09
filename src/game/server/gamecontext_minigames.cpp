@@ -14,7 +14,7 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 		return 0;
 	CCharacter *pChr = GetPlayerChar(playerID);
 
-	if(pPlayer->m_JailTime)
+	if(pPlayer->m_Account.m_JailTime)
 	{
 		return -1;
 	}

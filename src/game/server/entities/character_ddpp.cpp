@@ -712,7 +712,7 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-5, "bought 'shit'");
 
-			m_pPlayer->m_shit++;
+			m_pPlayer->m_Account.m_Shit++;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought shit.");
 		}
 		else
@@ -750,7 +750,7 @@ void CCharacter::BuyItem(int ItemID)
 	}
 	else if(ItemID == 6)
 	{
-		if(m_pPlayer->m_PoliceRank == 0)
+		if(m_pPlayer->m_Account.m_PoliceRank == 0)
 		{
 			if(m_pPlayer->GetLevel() < 18)
 			{
@@ -758,7 +758,7 @@ void CCharacter::BuyItem(int ItemID)
 				return;
 			}
 		}
-		else if(m_pPlayer->m_PoliceRank == 1)
+		else if(m_pPlayer->m_Account.m_PoliceRank == 1)
 		{
 			if(m_pPlayer->GetLevel() < 25)
 			{
@@ -766,7 +766,7 @@ void CCharacter::BuyItem(int ItemID)
 				return;
 			}
 		}
-		else if(m_pPlayer->m_PoliceRank == 2)
+		else if(m_pPlayer->m_Account.m_PoliceRank == 2)
 		{
 			if(m_pPlayer->GetLevel() < 30)
 			{
@@ -774,7 +774,7 @@ void CCharacter::BuyItem(int ItemID)
 				return;
 			}
 		}
-		else if(m_pPlayer->m_PoliceRank == 3)
+		else if(m_pPlayer->m_Account.m_PoliceRank == 3)
 		{
 			if(m_pPlayer->GetLevel() < 40)
 			{
@@ -782,7 +782,7 @@ void CCharacter::BuyItem(int ItemID)
 				return;
 			}
 		}
-		else if(m_pPlayer->m_PoliceRank == 4)
+		else if(m_pPlayer->m_Account.m_PoliceRank == 4)
 		{
 			if(m_pPlayer->GetLevel() < 50)
 			{
@@ -791,7 +791,7 @@ void CCharacter::BuyItem(int ItemID)
 			}
 		}
 
-		if(m_pPlayer->m_PoliceRank > 2)
+		if(m_pPlayer->m_Account.m_PoliceRank > 2)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already bought maximum police lvl.");
 			return;
@@ -800,8 +800,8 @@ void CCharacter::BuyItem(int ItemID)
 		if(m_pPlayer->GetMoney() >= 100000)
 		{
 			m_pPlayer->MoneyTransaction(-100000, "bought 'police'");
-			m_pPlayer->m_PoliceRank++;
-			str_format(aBuf, sizeof(aBuf), "You bought PoliceRank[%d]!", m_pPlayer->m_PoliceRank);
+			m_pPlayer->m_Account.m_PoliceRank++;
+			str_format(aBuf, sizeof(aBuf), "You bought PoliceRank[%d]!", m_pPlayer->m_Account.m_PoliceRank);
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
 		else
@@ -811,37 +811,37 @@ void CCharacter::BuyItem(int ItemID)
 	}
 	else if(ItemID == 7)
 	{
-		if(m_pPlayer->m_PoliceRank < 3)
+		if(m_pPlayer->m_Account.m_PoliceRank < 3)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't own a weapon license.");
 			return;
 		}
 
-		if(m_pPlayer->m_TaserLevel == 0)
+		if(m_pPlayer->m_Account.m_TaserLevel == 0)
 		{
 			m_pPlayer->m_TaserPrice = 50000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 1)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 1)
 		{
 			m_pPlayer->m_TaserPrice = 75000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 2)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 2)
 		{
 			m_pPlayer->m_TaserPrice = 100000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 3)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 3)
 		{
 			m_pPlayer->m_TaserPrice = 150000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 4)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 4)
 		{
 			m_pPlayer->m_TaserPrice = 200000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 5)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 5)
 		{
 			m_pPlayer->m_TaserPrice = 200000;
 		}
-		else if(m_pPlayer->m_TaserLevel == 6)
+		else if(m_pPlayer->m_Account.m_TaserLevel == 6)
 		{
 			m_pPlayer->m_TaserPrice = 200000;
 		}
@@ -860,8 +860,8 @@ void CCharacter::BuyItem(int ItemID)
 
 		m_pPlayer->MoneyTransaction(-m_pPlayer->m_TaserPrice, "bought 'taser'");
 
-		m_pPlayer->m_TaserLevel++;
-		if(m_pPlayer->m_TaserLevel == 1)
+		m_pPlayer->m_Account.m_TaserLevel++;
+		if(m_pPlayer->m_Account.m_TaserLevel == 1)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a taser. (Type '/taser help' for all cmds)");
 		}
@@ -875,9 +875,9 @@ void CCharacter::BuyItem(int ItemID)
 		if(m_pPlayer->GetMoney() >= 150)
 		{
 			m_pPlayer->MoneyTransaction(-150, "bought 'pvp_arena_ticket'");
-			m_pPlayer->m_pvp_arena_tickets++;
+			m_pPlayer->m_Account.m_PvpArenaTickets++;
 
-			str_format(aBuf, sizeof(aBuf), "You bought a pvp_arena_ticket. You have %d tickets.", m_pPlayer->m_pvp_arena_tickets);
+			str_format(aBuf, sizeof(aBuf), "You bought a pvp_arena_ticket. You have %d tickets.", m_pPlayer->m_Account.m_PvpArenaTickets);
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		}
 		else
@@ -1233,7 +1233,7 @@ void CCharacter::PvPArenaTick()
 	{
 		if(m_pvp_arena_exit_request)
 		{
-			m_pPlayer->m_pvp_arena_tickets++;
+			m_pPlayer->m_Account.m_PvpArenaTickets++;
 			m_Health = 10;
 			m_IsPVParena = false;
 			m_isDmg = false;
@@ -1248,8 +1248,8 @@ void CCharacter::PvPArenaTick()
 		}
 		else // join request
 		{
-			m_pPlayer->m_pvp_arena_tickets--;
-			m_pPlayer->m_pvp_arena_games_played++;
+			m_pPlayer->m_Account.m_PvpArenaTickets--;
+			m_pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			m_IsPVParena = true;
 			m_isDmg = true;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleporting to arena... good luck and have fun!");
@@ -1453,7 +1453,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 			}
 		}
 	}
-	else if(m_pPlayer->m_JailTime)
+	else if(m_pPlayer->m_Account.m_JailTime)
 	{
 		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
 
@@ -1889,21 +1889,21 @@ void CCharacter::DDPP_Tick()
 
 	DDPP_FlagTick();
 
-	if(m_pPlayer->m_GiftDelay > 0)
+	if(m_pPlayer->m_Account.m_GiftDelay > 0)
 	{
-		m_pPlayer->m_GiftDelay--;
-		if(m_pPlayer->m_GiftDelay == 1)
+		m_pPlayer->m_Account.m_GiftDelay--;
+		if(m_pPlayer->m_Account.m_GiftDelay == 1)
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[GIFT] delay expired.");
 		}
 	}
 
-	if(m_pPlayer->m_JailTime > 0)
+	if(m_pPlayer->m_Account.m_JailTime > 0)
 	{
-		m_pPlayer->m_EscapeTime = 0;
-		m_pPlayer->m_JailTime--;
+		m_pPlayer->m_Account.m_EscapeTime = 0;
+		m_pPlayer->m_Account.m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_JailTime / Server()->TickSpeed());
 		if(Server()->Tick() % 40 == 0)
 		{
 			if(!m_pPlayer->m_hidejailmsg)
@@ -1911,7 +1911,7 @@ void CCharacter::DDPP_Tick()
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 			}
 		}
-		if(m_pPlayer->m_JailTime == 1)
+		if(m_pPlayer->m_Account.m_JailTime == 1)
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[JAIL] You were released from jail.");
 			vec2 JailReleaseSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAILRELEASE);
@@ -1929,17 +1929,17 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if(m_pPlayer->m_EscapeTime > 0)
+	if(m_pPlayer->m_Account.m_EscapeTime > 0)
 	{
-		m_pPlayer->m_EscapeTime--;
+		m_pPlayer->m_Account.m_EscapeTime--;
 		char aBuf[256];
 		if(m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if(Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -1949,7 +1949,7 @@ void CCharacter::DDPP_Tick()
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 			}
 		}
-		if(m_pPlayer->m_EscapeTime == 1)
+		if(m_pPlayer->m_Account.m_EscapeTime == 1)
 		{
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You are free now.");
 			GameServer()->AddEscapeReason(GetPlayer()->GetCID(), "unknown");
@@ -2479,7 +2479,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				)
 				{
 					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
-					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
+					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
 
 					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(Killer, aBuf);
@@ -2488,7 +2488,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				{
 					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
 					GameServer()->m_apPlayers[Killer]->GiveXP(100);
-					GameServer()->m_apPlayers[Killer]->m_pvp_arena_kills++;
+					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
 
 					str_format(aBuf, sizeof(aBuf), "[PVP] +100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(Killer, aBuf);
@@ -2497,7 +2497,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 				int r = rand() % 100;
 				if(r > 92)
 				{
-					GameServer()->m_apPlayers[Killer]->m_pvp_arena_tickets++;
+					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaTickets++;
 					GameServer()->SendChatTarget(Killer, "[PVP] +1 pvp_arena_ticket        (special random drop for kill)");
 				}
 				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
@@ -2509,7 +2509,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		//m_pPlayer->m_InfRainbow = true;
 		if(m_IsPVParena)
 		{
-			m_pPlayer->m_pvp_arena_deaths++;
+			m_pPlayer->m_Account.m_PvpArenaDeaths++;
 
 			str_format(aBuf, sizeof(aBuf), "[PVP] You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
@@ -3193,7 +3193,7 @@ void CCharacter::BlockSpawnProt(int Killer)
 					str_format(aBuf, sizeof(aBuf), "'%s' is spawnblocking. catch him!", Server()->ClientName(Killer));
 					GameServer()->SendAllPolice(aBuf);
 					GameServer()->SendChatTarget(Killer, "Police is searching you because of spawnblocking.");
-					GameServer()->m_apPlayers[Killer]->m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
+					GameServer()->m_apPlayers[Killer]->m_Account.m_EscapeTime += Server()->TickSpeed() * 120; // + 2 minutes escape time
 					GameServer()->AddEscapeReason(Killer, "spawnblock");
 				}
 			}
@@ -3655,13 +3655,13 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 {
 	//Police catch gangstazz
-	if(m_pPlayer->m_PoliceRank && pTarget->m_FreezeTime > 1 && m_pPlayer->m_JailHammer)
+	if(m_pPlayer->m_Account.m_PoliceRank && pTarget->m_FreezeTime > 1 && m_pPlayer->m_JailHammer)
 	{
 		char aBuf[256];
 
 		if(!GameServer()->IsMinigame(pTarget->GetPlayer()->GetCID()))
 		{
-			if(pTarget->GetPlayer()->m_EscapeTime) //always prefer normal hammer
+			if(pTarget->GetPlayer()->m_Account.m_EscapeTime) //always prefer normal hammer
 			{
 				if(pTarget->GetPlayer()->GetMoney() < 200)
 				{
@@ -3672,7 +3672,7 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 					str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
 					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
-					pTarget->GetPlayer()->m_EscapeTime = 0;
+					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(600); //10 minutes jail
 					pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
@@ -3688,7 +3688,7 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 					str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
 					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
 					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
-					pTarget->GetPlayer()->m_EscapeTime = 0;
+					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
 					pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;
@@ -3705,7 +3705,7 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 
 					str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_JailHammer);
 					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					pTarget->GetPlayer()->m_EscapeTime = 0;
+					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(Server()->TickSpeed() * m_pPlayer->m_JailHammer);
 					pTarget->GetPlayer()->m_JailCode = rand() % 8999 + 1000;

@@ -120,7 +120,7 @@ bool CDummyBase::IsPolice(CCharacter *pChr)
 {
 	if(!pChr)
 		return false;
-	return pChr->GetPlayer()->m_PoliceRank || pChr->GetPlayer()->m_PoliceHelper;
+	return pChr->GetPlayer()->m_Account.m_PoliceRank || pChr->GetPlayer()->m_PoliceHelper;
 }
 
 int CDummyBase::GetTile(int PosX, int PosY)

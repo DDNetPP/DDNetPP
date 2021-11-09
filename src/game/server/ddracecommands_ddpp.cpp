@@ -579,7 +579,7 @@ void CGameContext::ConForceUnJail(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if(pPlayer)
 	{
-		pPlayer->m_JailTime = 0;
+		pPlayer->m_Account.m_JailTime = 0;
 
 		if(pSelf->m_apPlayers[pResult->GetVictim()]->GetCharacter())
 		{

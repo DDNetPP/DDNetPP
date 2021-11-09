@@ -220,7 +220,7 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/policehelper add/remove <playername>'.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Police-Bots help policehelpers.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "*** Personal Stats ***");
-		if(pPlayer->m_PoliceRank > 1)
+		if(pPlayer->m_Account.m_PoliceRank > 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Police[2]: true");
 		}
@@ -239,7 +239,7 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pPlayer->m_PoliceRank < 2)
+	if(pPlayer->m_Account.m_PoliceRank < 2)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[POLICE] You have to be atleast Police[2] to use this command. Check '/policehelper' for more info.");
 		return;
@@ -319,31 +319,31 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 //		return;
 //
 //
-//	if (pPlayer->m_TaserLevel == 0)
+//	if (pPlayer->m_Account.m_TaserLevel == 0)
 //	{
 //		pPlayer->m_TaserPrice = 50000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 1)
+//	else if (pPlayer->m_Account.m_TaserLevel == 1)
 //	{
 //		pPlayer->m_TaserPrice = 75000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 2)
+//	else if (pPlayer->m_Account.m_TaserLevel == 2)
 //	{
 //		pPlayer->m_TaserPrice = 100000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 3)
+//	else if (pPlayer->m_Account.m_TaserLevel == 3)
 //	{
 //		pPlayer->m_TaserPrice = 150000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 4)
+//	else if (pPlayer->m_Account.m_TaserLevel == 4)
 //	{
 //		pPlayer->m_TaserPrice = 200000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 5)
+//	else if (pPlayer->m_Account.m_TaserLevel == 5)
 //	{
 //		pPlayer->m_TaserPrice = 200000;
 //	}
-//	else if (pPlayer->m_TaserLevel == 6)
+//	else if (pPlayer->m_Account.m_TaserLevel == 6)
 //	{
 //		pPlayer->m_TaserPrice = 200000;
 //	}
@@ -360,11 +360,11 @@ void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
 //	pSelf->SendChatTarget(pResult->m_ClientID, "Police Ranks 3 or higher are allowed to carry a taser.");
 //	pSelf->SendChatTarget(pResult->m_ClientID, "Use the taser to fight gangsters.");
 //	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR TASER STATS ~~~");
-//	str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_TaserLevel);
+//	str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_Account.m_TaserLevel);
 //	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 //	str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
 //	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-//	str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 5);
+//	str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_Account.m_TaserLevel * 5);
 //	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 //	str_format(aBuf, sizeof(aBuf), "FailRate: %d%", 0);
 //	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -739,10 +739,10 @@ void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[256 + 24];
 
 	str_format(aBuf, 256 + 24, "[%x][Police]%s: %s",
-		pPlayer->m_PoliceRank,
+		pPlayer->m_Account.m_PoliceRank,
 		pSelf->Server()->ClientName(pResult->m_ClientID),
 		pResult->GetString(0));
-	if(pPlayer->m_PoliceRank > 0)
+	if(pPlayer->m_Account.m_PoliceRank > 0)
 		pSelf->SendChat(-2, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientID);
 	else
 		pSelf->Console()->Print(
@@ -1249,20 +1249,20 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->GetAccID());
 		pSelf->SendChatTarget(ClientID, aBuf);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN1);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN2);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN3);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN4);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_LastLogoutIGN5);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN3);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN4);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN5);
 		pSelf->SendChatTarget(ClientID, "======== IP ========");
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_1);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_2);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aIP_3);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aIP_1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aIP_2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aIP_3);
 		pSelf->SendChatTarget(ClientID, "======== Clan ========");
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan1);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan2);
-		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_aClan3);
-		str_format(aBuf, sizeof(aBuf), "========= Skin '%s' =========", pSelf->m_apPlayers[InfoID]->m_aAccSkin);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aClan1);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aClan2);
+		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_aClan3);
+		str_format(aBuf, sizeof(aBuf), "========= Skin '%s' =========", pSelf->m_apPlayers[InfoID]->m_Account.m_aSkin);
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 	else
@@ -1560,7 +1560,7 @@ void CGameContext::ConLogin(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pPlayer->m_JailTime)
+	if(pPlayer->m_Account.m_JailTime)
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't login in jail.");
 		return;
@@ -1731,7 +1731,7 @@ void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
 		}
 	}
 
-	if(pPlayer->m_JailTime)
+	if(pPlayer->m_Account.m_JailTime)
 	{
 		pSelf->SendChatTarget(ClientID, "[ACCOUNT] you can't logout in jail.");
 		return;
@@ -2756,7 +2756,7 @@ void CGameContext::ConPvpArena(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] No pvp-arena found.");
 			return;
 		}
-		if(pPlayer->m_pvp_arena_tickets < 1)
+		if(pPlayer->m_Account.m_PvpArenaTickets < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[PVP] You don't have a ticket. Buy a ticket first with '/buy pvp_arena_ticket'");
 			return;
@@ -2940,9 +2940,9 @@ void CGameContext::ConGift(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "'/gift <player>' to send someone 150 money.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't lose this money. It is coming from the server.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "**** GIFT STATUS ****");
-		if(pPlayer->m_GiftDelay)
+		if(pPlayer->m_Account.m_GiftDelay)
 		{
-			str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_Account.m_GiftDelay / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
@@ -2960,9 +2960,9 @@ void CGameContext::ConGift(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
-	if(pPlayer->m_GiftDelay)
+	if(pPlayer->m_Account.m_GiftDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_GiftDelay / pSelf->Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "[GIFT] You can send gifts in %d seconds.", pPlayer->m_Account.m_GiftDelay / pSelf->Server()->TickSpeed());
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
@@ -2993,7 +2993,7 @@ void CGameContext::ConGift(IConsole::IResult *pResult, void *pUserData)
 			str_format(aBuf, sizeof(aBuf), "[GIFT] '%s' has gifted you 150 money. (more info: '/gift')", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(GiftID, aBuf);
 
-			pSelf->m_apPlayers[pResult->m_ClientID]->m_GiftDelay = pSelf->Server()->TickSpeed() * 180; //180 seconds == 3 minutes
+			pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_GiftDelay = pSelf->Server()->TickSpeed() * 180; //180 seconds == 3 minutes
 		}
 	}
 }
@@ -3804,7 +3804,7 @@ void CGameContext::ConPoop(IConsole::IResult *pResult, void *pUserData)
 	str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 	int PoopID = pSelf->GetCIDByName(aUsername);
 
-	if(Amount > pPlayer->m_shit)
+	if(Amount > pPlayer->m_Account.m_Shit)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have enough shit.");
 		return;
@@ -3839,7 +3839,7 @@ void CGameContext::ConPoop(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "you lost %d shit ._.", Amount);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		pPlayer->m_shit -= Amount;
+		pPlayer->m_Account.m_Shit -= Amount;
 
 		//player get
 		if(g_Config.m_SvPoopMSG == 1) //normal
@@ -3862,7 +3862,7 @@ void CGameContext::ConPoop(IConsole::IResult *pResult, void *pUserData)
 				}
 			}
 		}
-		pSelf->m_apPlayers[PoopID]->m_shit += Amount;
+		pSelf->m_apPlayers[PoopID]->m_Account.m_Shit += Amount;
 	}
 }
 
@@ -5521,7 +5521,7 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 		int policedudesfound = 0;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_PoliceRank && pSelf->m_apPlayers[i] != pPlayer)
+			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_PoliceRank && pSelf->m_apPlayers[i] != pPlayer)
 			{
 				policedudesfound++;
 			}
@@ -5533,13 +5533,13 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 600; //+10 min
+		pPlayer->m_Account.m_EscapeTime += pSelf->Server()->TickSpeed() * 600; //+10 min
 		//str_format(aBuf, sizeof(aBuf), "+%d bank robbery", 5 * policedudesfound);
 		//pPlayer->MoneyTransaction(+5 * policedudesfound, aBuf);
 		pPlayer->m_GangsterBagMoney += 5 * policedudesfound;
 		str_format(aBuf, sizeof(aBuf), "You robbed the bank. (+%d money to your gangstabag)", 5 * policedudesfound);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %ld minutes.", (pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
+		str_format(aBuf, sizeof(aBuf), "Police will be hunting you for %ld minutes.", (pPlayer->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed()) / 60);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "'%s' robbed the bank.", pSelf->Server()->ClientName(pResult->m_ClientID));
@@ -5600,9 +5600,9 @@ void CGameContext::ConGangsterBag(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Try: '/trade <gangsta bro>'.");
 			return;
 		}
-		if(pPlayer->m_EscapeTime)
+		if(pPlayer->m_Account.m_EscapeTime)
 		{
-			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %ld seconds...", pPlayer->m_EscapeTime / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "You can't trade while escaping the police. You have to wait %ld seconds...", pPlayer->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -5632,7 +5632,7 @@ void CGameContext::ConGangsterBag(IConsole::IResult *pResult, void *pUserData)
 		{
 			//bro
 			pSelf->m_apPlayers[broID]->m_GangsterBagMoney += pPlayer->m_GangsterBagMoney;
-			pSelf->m_apPlayers[broID]->m_EscapeTime += pSelf->Server()->TickSpeed() * 180; // 180 secs == 3 minutes
+			pSelf->m_apPlayers[broID]->m_Account.m_EscapeTime += pSelf->Server()->TickSpeed() * 180; // 180 secs == 3 minutes
 			str_format(aBuf, sizeof(aBuf), "'%s' traded you %d gangster coins (police traced ip)", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_GangsterBagMoney);
 			pSelf->SendChatTarget(broID, aBuf);
 
@@ -5640,7 +5640,7 @@ void CGameContext::ConGangsterBag(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Police recognized the illegal trade... (ip traced)");
 			pSelf->SendChatTarget(pResult->m_ClientID, "Your bro now has gangster coins and is getting hunted by police.");
 			pPlayer->m_GangsterBagMoney = 0;
-			pPlayer->m_EscapeTime += pSelf->Server()->TickSpeed() * 60; // +1 minutes for illegal trades
+			pPlayer->m_Account.m_EscapeTime += pSelf->Server()->TickSpeed() * 60; // +1 minutes for illegal trades
 			return;
 		}
 		else
@@ -5687,12 +5687,12 @@ void CGameContext::ConJailCode(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Usage: '/jail_code <playername>'");
 		return;
 	}
-	if(pPlayer->m_PoliceRank < 2)
+	if(pPlayer->m_Account.m_PoliceRank < 2)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You need police rank 2 or higher.");
 		return;
 	}
-	if(pPlayer->m_JailTime)
+	if(pPlayer->m_Account.m_JailTime)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You are arrested.");
 		return;
@@ -5706,7 +5706,7 @@ void CGameContext::ConJailCode(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		return;
 	}
-	if(!pSelf->m_apPlayers[jailedID]->m_JailTime)
+	if(!pSelf->m_apPlayers[jailedID]->m_Account.m_JailTime)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Player is not arrested.");
 		return;
@@ -5767,7 +5767,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
-		if(!pSelf->m_apPlayers[jailedID]->m_JailTime)
+		if(!pSelf->m_apPlayers[jailedID]->m_Account.m_JailTime)
 		{
 			str_format(aBuf, sizeof(aBuf), "'%s' is not arrested.", pResult->GetString(2));
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -5802,7 +5802,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	//		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	//		return;
 	//	}
-	//	if (!pSelf->m_apPlayers[corruptID]->m_PoliceRank)
+	//	if (!pSelf->m_apPlayers[corruptID]->m_Account.m_PoliceRank)
 	//	{
 	//		str_format(aBuf, sizeof(aBuf), "'%s' is no police officer.", pResult->GetString(2));
 	//		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -5818,7 +5818,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	//}
 	else if(!str_comp_nocase(pResult->GetString(0), "list")) //codes
 	{
-		if(pPlayer->m_JailTime || !pPlayer->m_PoliceRank)
+		if(pPlayer->m_Account.m_JailTime || !pPlayer->m_Account.m_PoliceRank)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
@@ -5829,7 +5829,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
-		if(!pPlayer->m_JailTime)
+		if(!pPlayer->m_Account.m_JailTime)
 		{
 			//pSelf->SendChatTarget(pResult->m_ClientID, "you are not arrested.");
 			return;
@@ -5842,8 +5842,8 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 
 		pSelf->SendChatTarget(pResult->m_ClientID, "You escaped the jail, run! The police will be hunting you for 10 minutes.");
 		pSelf->AddEscapeReason(pResult->m_ClientID, "jail escape");
-		pPlayer->m_EscapeTime = pSelf->Server()->TickSpeed() * 600; // 10 minutes for escaping the jail
-		pPlayer->m_JailTime = 0;
+		pPlayer->m_Account.m_EscapeTime = pSelf->Server()->TickSpeed() * 600; // 10 minutes for escaping the jail
+		pPlayer->m_Account.m_JailTime = 0;
 		pPlayer->m_IsJailDoorOpen = false;
 
 		vec2 JailReleaseSpawn = pSelf->Collision()->GetRandomTile(TILE_JAILRELEASE);
@@ -5859,7 +5859,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "hammer"))
 	{
-		if(!pPlayer->m_PoliceRank)
+		if(!pPlayer->m_Account.m_PoliceRank)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You have to be police to use this command.");
 			return;
@@ -5898,7 +5898,7 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 		}
 		if(pResult->GetInteger(1) > 1)
 		{
-			if(pPlayer->m_PoliceRank < 5)
+			if(pPlayer->m_Account.m_PoliceRank < 5)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "You have to be police rank 5 or higher to use this value.");
 				return;
@@ -6378,31 +6378,31 @@ void CGameContext::ConTaser(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() == 0 || !str_comp_nocase(pResult->GetString(0), "help") || !str_comp_nocase(pResult->GetString(0), "info"))
 	{
-		if(pPlayer->m_TaserLevel == 0)
+		if(pPlayer->m_Account.m_TaserLevel == 0)
 		{
 			pPlayer->m_TaserPrice = 50000;
 		}
-		else if(pPlayer->m_TaserLevel == 1)
+		else if(pPlayer->m_Account.m_TaserLevel == 1)
 		{
 			pPlayer->m_TaserPrice = 75000;
 		}
-		else if(pPlayer->m_TaserLevel == 2)
+		else if(pPlayer->m_Account.m_TaserLevel == 2)
 		{
 			pPlayer->m_TaserPrice = 100000;
 		}
-		else if(pPlayer->m_TaserLevel == 3)
+		else if(pPlayer->m_Account.m_TaserLevel == 3)
 		{
 			pPlayer->m_TaserPrice = 150000;
 		}
-		else if(pPlayer->m_TaserLevel == 4)
+		else if(pPlayer->m_Account.m_TaserLevel == 4)
 		{
 			pPlayer->m_TaserPrice = 200000;
 		}
-		else if(pPlayer->m_TaserLevel == 5)
+		else if(pPlayer->m_Account.m_TaserLevel == 5)
 		{
 			pPlayer->m_TaserPrice = 200000;
 		}
-		else if(pPlayer->m_TaserLevel == 6)
+		else if(pPlayer->m_Account.m_TaserLevel == 6)
 		{
 			pPlayer->m_TaserPrice = 200000;
 		}
@@ -6417,12 +6417,12 @@ void CGameContext::ConTaser(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Police with rank 3 or higher are allowed to carry a taser.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Taser makes rifle freeze players.");
 		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR TASER STATS ~~~");
-		str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_TaserLevel);
+		str_format(aBuf, sizeof(aBuf), "TaserLevel: %d/7", pPlayer->m_Account.m_TaserLevel);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Price for the next level: %d", pPlayer->m_TaserPrice);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		//str_format(aBuf, sizeof(aBuf), "FreezeTime: %.4f seconds", (pPlayer->m_TaserLevel * 5) / pSelf->Server()->TickSpeed());
-		str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_TaserLevel * 10);
+		//str_format(aBuf, sizeof(aBuf), "FreezeTime: %.4f seconds", (pPlayer->m_Account.m_TaserLevel * 5) / pSelf->Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "FreezeTime: 0.%d seconds", pPlayer->m_Account.m_TaserLevel * 10);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "FailRate: %d%%", 0);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -6432,7 +6432,7 @@ void CGameContext::ConTaser(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "on"))
 	{
-		if(pPlayer->m_TaserLevel < 1)
+		if(pPlayer->m_Account.m_TaserLevel < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
 			return;
@@ -6444,7 +6444,7 @@ void CGameContext::ConTaser(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "off"))
 	{
-		if(pPlayer->m_TaserLevel < 1)
+		if(pPlayer->m_Account.m_TaserLevel < 1)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You don't own a taser.");
 			return;
@@ -8188,10 +8188,10 @@ void CGameContext::ConWanted(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "=== Wanted Players ===");
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_EscapeTime)
+		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_EscapeTime)
 		{
 			gangster++;
-			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%ld]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_EscapeTime / pSelf->Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%ld]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed());
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -8405,17 +8405,17 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded shit '%d'", atoi(aData));
-	pPlayer->m_shit = atoi(aData);
+	pPlayer->m_Account.m_Shit = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded policerank '%d'", atoi(aData));
-	pPlayer->m_PoliceRank = atoi(aData);
+	pPlayer->m_Account.m_PoliceRank = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded taserlevel '%d'", atoi(aData));
-	pPlayer->m_TaserLevel = atoi(aData);
+	pPlayer->m_Account.m_TaserLevel = atoi(aData);
 
 	pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
 

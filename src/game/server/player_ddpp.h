@@ -204,17 +204,11 @@ public:
 	char m_LastViewedProfile[32];
 	bool m_IsProfileViewLoaded;
 
-	//PvP-arena ChillerDragon
-	int m_pvp_arena_tickets;
 	//bool m_IsHammerfight; //moved to character and renamed to --> m_IsHammerarena
 	int m_PVP_return_posX;
 	int m_PVP_return_posY;
 	int m_pvp_arena_last_kill_id;
 	vec2 m_PVP_return_pos;
-
-	int m_pvp_arena_games_played;
-	int m_pvp_arena_kills;
-	int m_pvp_arena_deaths;
 
 	bool m_IsInstaArena_gdm;
 	bool m_IsInstaArena_idm;
@@ -332,27 +326,11 @@ public:
 
 	bool m_IsAccFrozen; //cant use the sql acc if true
 
-	char m_LastLogoutIGN1[32];
-	char m_LastLogoutIGN2[32];
-	char m_LastLogoutIGN3[32];
-	char m_LastLogoutIGN4[32];
-	char m_LastLogoutIGN5[32];
-
 	int m_iLastLogoutIGN1_usage;
 	int m_iLastLogoutIGN2_usage;
 	int m_iLastLogoutIGN3_usage;
 	int m_iLastLogoutIGN4_usage;
 	int m_iLastLogoutIGN5_usage;
-
-	char m_aIP_1[32];
-	char m_aIP_2[32];
-	char m_aIP_3[32];
-
-	char m_aClan1[32];
-	char m_aClan2[32];
-	char m_aClan3[32];
-
-	char m_aAccSkin[32];
 
 	/*
 		PlayerHumanLevel
@@ -409,14 +387,10 @@ public:
 	int m_ShopBotMesssagesRecieved;
 
 	void JailPlayer(int seconds);
-	int m_PoliceRank;
-	bool m_PoliceHelper;
-	int m_TaserLevel;
 	int m_TaserPrice;
 	bool m_TaserOn;
 	bool m_IsJailed;
-	int64_t m_JailTime;
-	int64_t m_EscapeTime;
+	bool m_PoliceHelper;
 	char m_aEscapeReason[256];
 	bool m_IsJailDoorOpen;
 	//bool m_IsJailHammer;
@@ -553,7 +527,6 @@ public:
 	bool m_escape_plan_c;
 	bool m_BoughtRoom;
 	int m_aliveplusxp;
-	int m_shit;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
 	//int64_t m_LastGift;

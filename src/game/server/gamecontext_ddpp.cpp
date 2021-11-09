@@ -938,7 +938,7 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "Money[%lu]", pPlayer->GetMoney());
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_pvp_arena_tickets);
+	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
 	SendChatTarget(requestID, aBuf);
 	SendChatTarget(requestID, "---- BLOCK ----");
 	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
@@ -1956,7 +1956,7 @@ void CGameContext::SendAllPolice(const char *pMessage)
 	str_format(aBuf, sizeof(aBuf), "[POLICE-CHANNEL] %s", pMessage);
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_PoliceRank)
+		if(m_apPlayers[i] && m_apPlayers[i]->m_Account.m_PoliceRank)
 		{
 			SendChatTarget(i, aBuf);
 		}
@@ -2050,7 +2050,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Money: %ld", m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
 	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 1) //shit
@@ -2060,7 +2060,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
 	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 2) //social
@@ -2090,11 +2090,11 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[ViewedID]->m_ProfileViews);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_PoliceRank);
+		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_Account.m_PoliceRank);
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_shit);
+		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
 	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 4) //pvp
@@ -2104,13 +2104,13 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[ViewedID]->m_pvp_arena_games_played);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaGamesPlayed);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Kills: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaKills);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[ViewedID]->m_pvp_arena_deaths);
+		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Deaths: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaDeaths);
 		SendChatTarget(ViewerID, aBuf);
-		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
+		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaKills / m_Account.m_PvpArenaDeaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
 	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 5) //bomber
@@ -2124,7 +2124,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
 		SendChatTarget(ViewerID, aBuf);
-		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_pvp_arena_kills / m_pvp_arena_deaths);
+		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaKills / m_Account.m_PvpArenaDeaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
 }

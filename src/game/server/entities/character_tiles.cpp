@@ -537,7 +537,7 @@ void CCharacter::MoneyTile()
 		// skip if other broadcasts activated:
 		if(!m_pPlayer->m_hidejailmsg)
 		{
-			if(m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
 				return;
 			}
@@ -640,7 +640,7 @@ void CCharacter::MoneyTilePolice()
 
 	// tile gain and survival bonus
 	XP += 2 + m_survivexpvalue;
-	Money += 1 + m_pPlayer->m_PoliceRank;
+	Money += 1 + m_pPlayer->m_Account.m_PoliceRank;
 
 	// give money & xp
 	m_pPlayer->GiveXP(XP);
@@ -653,7 +653,7 @@ void CCharacter::MoneyTilePolice()
 		// skip if other broadcasts activated:
 		if(!m_pPlayer->m_hidejailmsg)
 		{
-			if(m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
 				return;
 			}
@@ -666,21 +666,21 @@ void CCharacter::MoneyTilePolice()
 			FixBroadcast[0] = '\0';
 
 		char aBuf[128];
-		if(m_pPlayer->m_PoliceRank > 0)
+		if(m_pPlayer->m_Account.m_PoliceRank > 0)
 		{
 			if(VIPBonus)
 			{
 				if(m_survivexpvalue == 0)
-					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police +%d vip\nXP [%lu/%lu] +2 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police +%d vip\nXP [%lu/%lu] +2 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_Account.m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
 				else if(m_survivexpvalue > 0)
-					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police +%d vip\nXP [%lu/%lu] +2 +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police +%d vip\nXP [%lu/%lu] +2 +%d vip +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_Account.m_PoliceRank, VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue, m_pPlayer->GetLevel());
 			}
 			else
 			{
 				if(m_survivexpvalue == 0)
-					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police\nXP [%lu/%lu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police\nXP [%lu/%lu] +2\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_Account.m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 				else if(m_survivexpvalue > 0)
-					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police\nXP [%lu/%lu] +2 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Money [%lu] +1 +%d police\nXP [%lu/%lu] +2 +%d survival\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->m_Account.m_PoliceRank, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue, m_pPlayer->GetLevel());
 			}
 		}
 		else
@@ -785,7 +785,7 @@ void CCharacter::MoneyTileDouble()
 		// skip if other broadcasts activated:
 		if(!m_pPlayer->m_hidejailmsg)
 		{
-			if(m_pPlayer->m_EscapeTime > 0 || m_pPlayer->m_JailTime > 0)
+			if(m_pPlayer->m_Account.m_EscapeTime > 0 || m_pPlayer->m_Account.m_JailTime > 0)
 			{
 				return;
 			}
