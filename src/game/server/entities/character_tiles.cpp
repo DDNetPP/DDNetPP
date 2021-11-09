@@ -508,14 +508,14 @@ void CCharacter::MoneyTile()
 	}
 
 	// vip+ get 2 bonus
-	if(m_pPlayer->m_IsSuperModerator)
+	if(m_pPlayer->m_Account.m_IsSuperModerator)
 	{
 		XP += 2;
 		Money += 2;
 		VIPBonus = 2; // only for broadcast not used in calculation
 	}
 	// vip get 1 bonus
-	else if(m_pPlayer->m_IsModerator)
+	else if(m_pPlayer->m_Account.m_IsModerator)
 	{
 		XP += 1;
 		Money += 1;
@@ -624,14 +624,14 @@ void CCharacter::MoneyTilePolice()
 	int VIPBonus = 0;
 
 	// vip+ get 2 bonus
-	if(m_pPlayer->m_IsSuperModerator)
+	if(m_pPlayer->m_Account.m_IsSuperModerator)
 	{
 		XP += 2;
 		Money += 2;
 		VIPBonus = 2; // only for broadcast not used in calculation
 	}
 	// vip get 1 bonus
-	else if(m_pPlayer->m_IsModerator)
+	else if(m_pPlayer->m_Account.m_IsModerator)
 	{
 		XP += 1;
 		Money += 1;
@@ -836,26 +836,26 @@ void CCharacter::MoneyTilePlus()
 
 void CCharacter::SetSpawnWeapons()
 {
-	if(m_pPlayer->m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->m_IsSurvivaling)
+	if(m_pPlayer->m_Account.m_UseSpawnWeapons && !m_pPlayer->IsInstagibMinigame() && !m_pPlayer->m_IsSurvivaling)
 	{
-		if(m_pPlayer->m_SpawnWeaponShotgun)
+		if(m_pPlayer->m_Account.m_SpawnWeaponShotgun)
 		{
 			m_aWeapons[2].m_Got = true;
-			m_aWeapons[2].m_Ammo = m_pPlayer->m_SpawnWeaponShotgun;
+			m_aWeapons[2].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponShotgun;
 			m_pPlayer->m_SpawnShotgunActive = 1;
 		}
 
-		if(m_pPlayer->m_SpawnWeaponGrenade)
+		if(m_pPlayer->m_Account.m_SpawnWeaponGrenade)
 		{
 			m_aWeapons[3].m_Got = true;
-			m_aWeapons[3].m_Ammo = m_pPlayer->m_SpawnWeaponGrenade;
+			m_aWeapons[3].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponGrenade;
 			m_pPlayer->m_SpawnGrenadeActive = 1;
 		}
 
-		if(m_pPlayer->m_SpawnWeaponRifle)
+		if(m_pPlayer->m_Account.m_SpawnWeaponRifle)
 		{
 			m_aWeapons[4].m_Got = true;
-			m_aWeapons[4].m_Ammo = m_pPlayer->m_SpawnWeaponRifle;
+			m_aWeapons[4].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponRifle;
 			m_pPlayer->m_SpawnRifleActive = 1;
 		}
 	}

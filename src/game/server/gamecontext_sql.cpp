@@ -71,16 +71,16 @@ void CQueryLogin::OnData()
 #endif
 
 				//basic
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountLoginName));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountRegDate));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aUsername, GetText(GetID("Username")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aUsername));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword, GetText(GetID("Password")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aRegisterDate, GetText(GetID("RegisterDate")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aRegisterDate));
 				m_pGameServer->m_apPlayers[m_ClientID]->SetAccID(GetInt(GetID("ID")));
 
 				//Accounts
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsModerator = GetInt(GetID("IsModerator"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsSupporter = GetInt(GetID("IsSupporter"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_IsModerator = GetInt(GetID("IsModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_IsSuperModerator = GetInt(GetID("IsSuperModerator"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_IsSupporter = GetInt(GetID("IsSupporter"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_IsAccFrozen = GetInt(GetID("IsAccFrozen"));
 
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN1, GetText(GetID("LastLogoutIGN1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN1));
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN2, GetText(GetID("LastLogoutIGN2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_LastLogoutIGN2));
@@ -99,16 +99,16 @@ void CQueryLogin::OnData()
 				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aSkin, GetText(GetID("Skin")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aSkin));
 
 				//ninjajetpack
-				m_pGameServer->m_apPlayers[m_ClientID]->m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_NinjaJetpackBought = GetInt(GetID("NinjaJetpackBought"));
 
 				//spooky ghost
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SpookyGhost = GetInt(GetID("SpookyGhost"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SpookyGhost = GetInt(GetID("SpookyGhost"));
 
 				//spawn weapons
-				m_pGameServer->m_apPlayers[m_ClientID]->m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_UseSpawnWeapons = GetInt(GetID("UseSpawnWeapons"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SpawnWeaponShotgun = GetInt(GetID("SpawnWeaponShotgun"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SpawnWeaponGrenade = GetInt(GetID("SpawnWeaponGrenade"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SpawnWeaponRifle = GetInt(GetID("SpawnWeaponRifle"));
 
 				//city
 				m_pGameServer->m_apPlayers[m_ClientID]->SetLevel(GetInt(GetID("Level")));
@@ -130,69 +130,69 @@ void CQueryLogin::OnData()
 				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_PvpArenaDeaths = GetInt(GetID("PvPArenaDeaths"));
 
 				//profiles (int)
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStyle = GetInt(GetID("ProfileStyle"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileViews = GetInt(GetID("ProfileViews"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileStyle = GetInt(GetID("ProfileStyle"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileViews = GetInt(GetID("ProfileViews"));
 
 				//profiles (str)
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileStatus));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileYoutube));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, GetText(GetID("ProfileEmail")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileHomepage));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileTwitter));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileStatus, GetText(GetID("ProfileStatus")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileStatus));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileSkype, GetText(GetID("ProfileSkype")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileSkype));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileYoutube, GetText(GetID("ProfileYoutube")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileYoutube));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileEmail, GetText(GetID("ProfileEmail")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileEmail));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileHomepage, GetText(GetID("ProfileHomepage")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileHomepage));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileTwitter, GetText(GetID("ProfileTwitter")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileTwitter));
 
 				//ascii animation
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsDefault = GetInt(GetID("AsciiViewsDefault"));
 				m_pGameServer->m_apPlayers[m_ClientID]->m_AsciiViewsProfile = GetInt(GetID("AsciiViewsProfile"));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState, GetText(GetID("AsciiState")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiPublishState));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0, GetText(GetID("AsciiFrame0")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame0));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1, GetText(GetID("AsciiFrame1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame1));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2, GetText(GetID("AsciiFrame2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame2));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3, GetText(GetID("AsciiFrame3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame3));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4, GetText(GetID("AsciiFrame4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame4));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5, GetText(GetID("AsciiFrame5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame5));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6, GetText(GetID("AsciiFrame6")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame6));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7, GetText(GetID("AsciiFrame7")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame7));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8, GetText(GetID("AsciiFrame8")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame8));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9, GetText(GetID("AsciiFrame9")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame9));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10, GetText(GetID("AsciiFrame10")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame10));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11, GetText(GetID("AsciiFrame11")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame11));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12, GetText(GetID("AsciiFrame12")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame12));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13, GetText(GetID("AsciiFrame13")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame13));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14, GetText(GetID("AsciiFrame14")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame14));
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15, GetText(GetID("AsciiFrame15")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAsciiFrame15));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiPublishState, GetText(GetID("AsciiState")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiPublishState));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[0], GetText(GetID("AsciiFrame0")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[0]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[1], GetText(GetID("AsciiFrame1")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[1]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[2], GetText(GetID("AsciiFrame2")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[2]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[3], GetText(GetID("AsciiFrame3")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[3]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[4], GetText(GetID("AsciiFrame4")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[4]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[5], GetText(GetID("AsciiFrame5")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[5]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[6], GetText(GetID("AsciiFrame6")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[6]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[7], GetText(GetID("AsciiFrame7")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[7]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[8], GetText(GetID("AsciiFrame8")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[8]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[9], GetText(GetID("AsciiFrame9")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[9]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[10], GetText(GetID("AsciiFrame10")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[10]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[11], GetText(GetID("AsciiFrame11")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[11]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[12], GetText(GetID("AsciiFrame12")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[12]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[13], GetText(GetID("AsciiFrame13")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[13]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[14], GetText(GetID("AsciiFrame14")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[14]));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[15], GetText(GetID("AsciiFrame15")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aAsciiFrame[15]));
 
 				//Missiles
-				m_pGameServer->m_apPlayers[m_ClientID]->m_homing_missiles_ammo = GetInt(GetID("HomingMissiles"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_HomingMissilesAmmo = GetInt(GetID("HomingMissiles"));
 
 				//Block
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints = GetInt(GetID("BlockPoints"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Kills = GetInt(GetID("BlockKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockPoints_Deaths = GetInt(GetID("BlockDeaths"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BlockSkill = GetInt(GetID("BlockSkill"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BlockPoints = GetInt(GetID("BlockPoints"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BlockPoints_Kills = GetInt(GetID("BlockKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BlockPoints_Deaths = GetInt(GetID("BlockDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BlockSkill = GetInt(GetID("BlockSkill"));
 
 				//bomb
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesPlayed = GetInt(GetID("BombGamesPlayed"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BombGamesWon = GetInt(GetID("BombGamesWon"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_BombBanTime = GetInt(GetID("BombBanTime"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BombGamesPlayed = GetInt(GetID("BombGamesPlayed"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BombGamesWon = GetInt(GetID("BombGamesWon"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_BombBanTime = GetInt(GetID("BombBanTime"));
 
 				//survival
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalKills = GetInt(GetID("SurvivalKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalDeaths = GetInt(GetID("SurvivalDeaths"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_SurvivalWins = GetInt(GetID("SurvivalWins"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SurvivalKills = GetInt(GetID("SurvivalKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SurvivalDeaths = GetInt(GetID("SurvivalDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_SurvivalWins = GetInt(GetID("SurvivalWins"));
 
 				//instagib
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeKills = GetInt(GetID("GrenadeKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeDeaths = GetInt(GetID("GrenadeDeaths"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeSpree = GetInt(GetID("GrenadeSpree"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeShots = GetInt(GetID("GrenadeShots"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeShotsNoRJ = GetInt(GetID("GrenadeShotsNoRJ"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_GrenadeWins = GetInt(GetID("GrenadeWins")); //zCatch
-				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleKills = GetInt(GetID("RifleKills"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleDeaths"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleDeaths = GetInt(GetID("RifleSpree"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleShots = GetInt(GetID("RifleShots"));
-				m_pGameServer->m_apPlayers[m_ClientID]->m_RifleWins = GetInt(GetID("RifleWins")); //zCatch
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeKills = GetInt(GetID("GrenadeKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeDeaths = GetInt(GetID("GrenadeDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeSpree = GetInt(GetID("GrenadeSpree"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeShots = GetInt(GetID("GrenadeShots"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeShotsNoRJ = GetInt(GetID("GrenadeShotsNoRJ"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_GrenadeWins = GetInt(GetID("GrenadeWins")); //zCatch
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_RifleKills = GetInt(GetID("RifleKills"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_RifleDeaths = GetInt(GetID("RifleDeaths"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_RifleDeaths = GetInt(GetID("RifleSpree"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_RifleShots = GetInt(GetID("RifleShots"));
+				m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_RifleWins = GetInt(GetID("RifleWins")); //zCatch
 				if(g_Config.m_SvInstaScore) //load scoreboard scores
 				{
 					if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
@@ -204,11 +204,11 @@ void CQueryLogin::OnData()
 						m_pGameServer->m_apPlayers[m_ClientID]->m_Score = GetInt(GetID("RifleKills"));
 					}
 				}
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aFngConfig, GetText(GetID("FngConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aFngConfig));
 
 				//ShowHide config
 				/*
-				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aShowHideConfig));
+				str_copy(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aShowHideConfig, GetText(GetID("ShowHideConfig")), sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aShowHideConfig));
 				m_pGameServer->ShowHideConfigCharToBool(m_ClientID); //update the actual bools used ingame
                 */
 			}
@@ -217,7 +217,7 @@ void CQueryLogin::OnData()
 			// ABORT LOGIN AFTER LOADING DATA
 			//================================
 
-			if(m_pGameServer->m_apPlayers[m_ClientID]->m_IsAccFrozen)
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_IsAccFrozen)
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed.(Account is frozen)");
 				m_pGameServer->m_apPlayers[m_ClientID]->Logout();
@@ -265,7 +265,7 @@ void CQueryLogin::OnData()
 			}
 
 			//auto joins
-			if(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '1') //auto fng join
+			if(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aFngConfig[0] == '1') //auto fng join
 			{
 				if(!g_Config.m_SvAllowInsta)
 				{
@@ -277,7 +277,7 @@ void CQueryLogin::OnData()
 					m_pGameServer->JoinInstagib(5, true, m_ClientID);
 				}
 			}
-			else if(m_pGameServer->m_apPlayers[m_ClientID]->m_aFngConfig[0] == '2') //auto boomfng join
+			else if(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aFngConfig[0] == '2') //auto boomfng join
 			{
 				if(!g_Config.m_SvAllowInsta)
 				{
@@ -291,7 +291,7 @@ void CQueryLogin::OnData()
 			}
 
 			//account reset info
-			if(!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_ProfileSkype, ""))
+			if(!str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileEmail, "") && !str_comp(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_ProfileSkype, ""))
 			{
 				m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 			}
@@ -320,7 +320,7 @@ void CQueryChangePassword::OnData()
 		if(m_pGameServer->m_apPlayers[m_ClientID])
 		{
 			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
-			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_aAccountPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
+			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
 			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Changed password.");
 		}
 	}

@@ -215,7 +215,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 	{
 		m_apPlayers[id]->m_IsSurvivalAlive = false;
 		m_apPlayers[id]->m_IsSurvivalLobby = true;
-		m_apPlayers[id]->m_SurvivalDeaths++;
+		m_apPlayers[id]->m_Account.m_SurvivalDeaths++;
 	}
 	else
 	{
@@ -395,8 +395,8 @@ bool CGameContext::SurvivalPickWinner()
 	}
 
 	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerID), sizeof(m_aLastSurvivalWinnerName));
-	m_apPlayers[winnerID]->m_SurvivalWins++;
-	m_apPlayers[winnerID]->m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
+	m_apPlayers[winnerID]->m_Account.m_SurvivalWins++;
+	m_apPlayers[winnerID]->m_Account.m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
 	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }

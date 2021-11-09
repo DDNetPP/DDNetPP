@@ -104,25 +104,6 @@ public:
 	/* defined in accounts.h and copied over on sql query result */
 	CAccountData m_Account;
 
-	//ascii animation frames
-	char m_aAsciiFrame0[64];
-	char m_aAsciiFrame1[64];
-	char m_aAsciiFrame2[64];
-	char m_aAsciiFrame3[64];
-	char m_aAsciiFrame4[64];
-	char m_aAsciiFrame5[64];
-	char m_aAsciiFrame6[64];
-	char m_aAsciiFrame7[64];
-	char m_aAsciiFrame8[64];
-	char m_aAsciiFrame9[64];
-	char m_aAsciiFrame10[64];
-	char m_aAsciiFrame11[64];
-	char m_aAsciiFrame12[64];
-	char m_aAsciiFrame13[64];
-	char m_aAsciiFrame14[64];
-	char m_aAsciiFrame15[64];
-
-	char m_aAsciiPublishState[4]; // 4 digit int 0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
 	int m_AsciiAnimLen; //not used yet
 	int m_AsciiAnimSpeed;
 	int m_AsciiWatchFrame;
@@ -159,10 +140,7 @@ public:
 	//int m_BombColor;
 	//bool m_bwff; //black whithe flip flip
 
-	//bomb stats
-	int m_BombGamesPlayed;
-	int m_BombGamesWon;
-	int m_BombBanTime;
+	//bomb
 	int m_BombTicksUnready;
 
 	//block tourna
@@ -193,14 +171,6 @@ public:
 	int m_C3_GameState; //0=off 1=singleplayer 2=multiplayer
 
 	//profiles
-	int m_ProfileStyle; // 0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber
-	int m_ProfileViews;
-	char m_ProfileStatus[50];
-	char m_ProfileSkype[50];
-	char m_ProfileYoutube[50];
-	char m_ProfileEmail[50];
-	char m_ProfileHomepage[50];
-	char m_ProfileTwitter[50];
 	char m_LastViewedProfile[32];
 	bool m_IsProfileViewLoaded;
 
@@ -227,8 +197,6 @@ public:
 	int m_multi;
 	int m_max_multi;
 
-	char m_aFngConfig[4]; //[0] = autojoin [1] = hammertune [2] = coming soon [3] = coming soon
-
 	int m_BalanceBattle_id;
 	bool m_IsBalanceBatteling;
 	bool m_IsBalanceBattlePlayer1;
@@ -242,10 +210,6 @@ public:
 	bool m_IsSurvivalAlive;
 	bool m_IsSurvivalLobby;
 	bool m_IsSurvivalWinner;
-
-	int m_SurvivalKills;
-	int m_SurvivalDeaths;
-	int m_SurvivalWins;
 
 	//no name chat fix
 	void FixForNoName(int ID);
@@ -261,24 +225,7 @@ public:
 	int m_MsgWeapon;
 	int m_MsgModeSpecial;
 
-	//zCatch ChillerDragon (instagib)
-	int m_GrenadeKills;
-	int m_GrenadeDeaths;
-	int m_GrenadeSpree;
-	int m_GrenadeShots;
-	int m_GrenadeShotsNoRJ;
-	int m_GrenadeWins;
-	int m_RifleKills;
-	int m_RifleDeaths;
-	int m_RifleSpree;
-	int m_RifleShots;
-	int m_RifleWins;
-
-	//ninjajetpack
-	int m_NinjaJetpackBought;
-
 	//spooky ghost
-	int m_SpookyGhost;
 	int m_SpookyGhostActive;
 
 	int m_RealUseCustomColor;
@@ -289,10 +236,6 @@ public:
 	int m_RealColorFeet;
 
 	//spawn weapons
-	int m_UseSpawnWeapons;
-	int m_SpawnWeaponShotgun;
-	int m_SpawnWeaponGrenade;
-	int m_SpawnWeaponRifle;
 	int m_SpawnShotgunActive;
 	int m_SpawnGrenadeActive;
 	int m_SpawnRifleActive;
@@ -318,13 +261,7 @@ public:
 	//Account stuff:
 	bool m_IsFileAcc;
 
-	//Moderator and SuperModerator
-	bool m_IsModerator;
-	bool m_IsSuperModerator;
 	bool m_IsSuperModSpawn;
-	bool m_IsSupporter;
-
-	bool m_IsAccFrozen; //cant use the sql acc if true
 
 	int m_iLastLogoutIGN1_usage;
 	int m_iLastLogoutIGN2_usage;
@@ -358,7 +295,6 @@ public:
 	void PlayerHumanLevelTick();
 
 	CCaptcha *m_pCaptcha;
-	int m_homing_missiles_ammo;
 
 	//money and traiding
 
@@ -410,7 +346,6 @@ public:
 	bool m_xpmsg;
 	bool m_hidejailmsg;
 	bool m_ShowInstaScoreBroadcast;
-	char m_aShowHideConfig[16]; // [0]=blockpoints [1]=blockxp [2]=xp [3]=jail [4]=instafeed(1n1) [5]=questprogress [6]=questwarning [7]=instabroadcast
 
 	// quests
 	int m_QuestUnlocked; // maybe save this in sql and later people can choose all quests untill unlocked
@@ -529,14 +464,9 @@ public:
 	int m_aliveplusxp;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;
-	//int64_t m_LastGift;
-	int m_GiftDelay; //is still in sql as LastGift
 	int64_t m_LastFight;
 
-	char m_aAccountLoginName[32];
 	char m_aChangePassword[MAX_PW_LEN + 1];
-	char m_aAccountPassword[MAX_PW_LEN + 1];
-	char m_aAccountRegDate[32];
 
 	char m_aSetPassword[MAX_PW_LEN + 1]; //admin sql save string (used to resett passwords)
 	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
@@ -601,10 +531,6 @@ public:
 
 	//BLOCK POINTS
 
-	int m_BlockSkill;
-	int m_BlockPoints; //KILLS + other stuff like block tournaments won
-	int m_BlockPoints_Kills; //Block points (blocked others)
-	int m_BlockPoints_Deaths; //Block -points (blocked by others)
 	//bool m_BlockWasTouchedAndFreezed;  //This bool is used for: check if someone was touched and freezed and if we have this info we can set the touch id to -1 if this bool is true and he is unfreeze ---> if you get blocked and unfreezed agian and suicide you wont block die
 	int m_SpawnBlocks;
 	int m_BlockSpreeHighscore;

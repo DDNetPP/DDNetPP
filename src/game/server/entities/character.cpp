@@ -408,7 +408,7 @@ void CCharacter::FireWeapon(bool Bot)
 	if(CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
 	{
 		WillFire = true;
-		if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_Account.m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		{
 			m_CountSpookyGhostInputs = true;
 		}
@@ -490,7 +490,7 @@ void CCharacter::FireWeapon(bool Bot)
 				GameServer()->CreateHammerHit(ProjStartPos, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
 			vec2 Dir = vec2(0.f, 0.f);
-			if(m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_aFngConfig[1] == '1')
+			if(m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_Account.m_aFngConfig[1] == '1')
 			{
 				pTarget->TakeHammerHit(this);
 			}
@@ -622,8 +622,8 @@ void CCharacter::FireWeapon(bool Bot)
 	{
 		if(g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaMode_gdm)
 		{
-			m_pPlayer->m_GrenadeShots++;
-			m_pPlayer->m_GrenadeShotsNoRJ++;
+			m_pPlayer->m_Account.m_GrenadeShots++;
+			m_pPlayer->m_Account.m_GrenadeShotsNoRJ++;
 		}
 
 		int Lifetime;
@@ -669,7 +669,7 @@ void CCharacter::FireWeapon(bool Bot)
 	case WEAPON_LASER:
 	{
 		if(g_Config.m_SvInstagibMode)
-			m_pPlayer->m_RifleShots++;
+			m_pPlayer->m_Account.m_RifleShots++;
 		float LaserReach;
 		if(!m_TuneZone)
 			LaserReach = GameServer()->Tuning()->m_LaserReach;

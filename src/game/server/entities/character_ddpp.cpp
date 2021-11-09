@@ -149,7 +149,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 	{
 		if(From == m_pPlayer->GetCID())
 		{
-			m_pPlayer->m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
+			m_pPlayer->m_Account.m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
 		}
 
 		if(From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
@@ -196,11 +196,11 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//{
 			//	if (g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[From]->m_IsInstaArena_gdm) //gdm & zCatch grenade
 			//	{
-			//		GameServer()->m_apPlayers[From]->m_GrenadeKills++;
+			//		GameServer()->m_apPlayers[From]->m_Account.m_GrenadeKills++;
 			//	}
 			//	else if (g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[From]->m_IsInstaArena_idm) // idm & zCatch rifle
 			//	{
-			//		GameServer()->m_apPlayers[From]->m_RifleKills++;
+			//		GameServer()->m_apPlayers[From]->m_Account.m_RifleKills++;
 			//	}
 			//}
 
@@ -892,7 +892,7 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 21 to buy ninjajetpack.");
 			return;
 		}
-		else if(m_pPlayer->m_NinjaJetpackBought)
+		else if(m_pPlayer->m_Account.m_NinjaJetpackBought)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own ninjajetpack.");
 		}
@@ -900,7 +900,7 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-10000, "bought 'ninjajetpack'");
 
-			m_pPlayer->m_NinjaJetpackBought = 1;
+			m_pPlayer->m_Account.m_NinjaJetpackBought = 1;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought ninjajetpack. Turn it on using '/ninjajetpack'.");
 		}
 		else
@@ -915,7 +915,7 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn shotgun.");
 			return;
 		}
-		else if(m_pPlayer->m_SpawnWeaponShotgun == 5)
+		else if(m_pPlayer->m_Account.m_SpawnWeaponShotgun == 5)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn shotgun.");
 		}
@@ -923,12 +923,12 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_shotgun'");
 
-			m_pPlayer->m_SpawnWeaponShotgun++;
-			if(m_pPlayer->m_SpawnWeaponShotgun == 1)
+			m_pPlayer->m_Account.m_SpawnWeaponShotgun++;
+			if(m_pPlayer->m_Account.m_SpawnWeaponShotgun == 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn shotgun. For more infos check '/spawnweaponsinfo'.");
 			}
-			else if(m_pPlayer->m_SpawnWeaponShotgun > 1)
+			else if(m_pPlayer->m_Account.m_SpawnWeaponShotgun > 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn shotgun upgraded.");
 			}
@@ -945,7 +945,7 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn grenade.");
 			return;
 		}
-		else if(m_pPlayer->m_SpawnWeaponGrenade == 5)
+		else if(m_pPlayer->m_Account.m_SpawnWeaponGrenade == 5)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn grenade.");
 		}
@@ -953,12 +953,12 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_grenade'");
 
-			m_pPlayer->m_SpawnWeaponGrenade++;
-			if(m_pPlayer->m_SpawnWeaponGrenade == 1)
+			m_pPlayer->m_Account.m_SpawnWeaponGrenade++;
+			if(m_pPlayer->m_Account.m_SpawnWeaponGrenade == 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn grenade. For more infos check '/spawnweaponsinfo'.");
 			}
-			else if(m_pPlayer->m_SpawnWeaponGrenade > 1)
+			else if(m_pPlayer->m_Account.m_SpawnWeaponGrenade > 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn grenade upgraded.");
 			}
@@ -975,7 +975,7 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 33 to buy spawn rifle.");
 			return;
 		}
-		else if(m_pPlayer->m_SpawnWeaponRifle == 5)
+		else if(m_pPlayer->m_Account.m_SpawnWeaponRifle == 5)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the maximum level for spawn rifle.");
 		}
@@ -983,12 +983,12 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-600000, "bought 'spawn_rifle'");
 
-			m_pPlayer->m_SpawnWeaponRifle++;
-			if(m_pPlayer->m_SpawnWeaponRifle == 1)
+			m_pPlayer->m_Account.m_SpawnWeaponRifle++;
+			if(m_pPlayer->m_Account.m_SpawnWeaponRifle == 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought spawn rifle. For more infos check '/spawnweaponsinfo'.");
 			}
-			else if(m_pPlayer->m_SpawnWeaponRifle > 1)
+			else if(m_pPlayer->m_Account.m_SpawnWeaponRifle > 1)
 			{
 				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Spawn rifle upgraded.");
 			}
@@ -1005,7 +1005,7 @@ void CCharacter::BuyItem(int ItemID)
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Level is too low! You need lvl 1 to buy the spooky ghost.");
 			return;
 		}
-		else if(m_pPlayer->m_SpookyGhost)
+		else if(m_pPlayer->m_Account.m_SpookyGhost)
 		{
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already have the spooky ghost.");
 		}
@@ -1013,7 +1013,7 @@ void CCharacter::BuyItem(int ItemID)
 		{
 			m_pPlayer->MoneyTransaction(-1000000, "bought 'spooky_ghost'");
 
-			m_pPlayer->m_SpookyGhost = 1;
+			m_pPlayer->m_Account.m_SpookyGhost = 1;
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought the spooky ghost. For more infos check '/spookyghostinfo'.");
 		}
 		else
@@ -2159,7 +2159,7 @@ void CCharacter::DDPP_FlagTick()
 		int VIPBonus = 0;
 
 		// vip+ get 2 bonus
-		if(m_pPlayer->m_IsSuperModerator)
+		if(m_pPlayer->m_Account.m_IsSuperModerator)
 		{
 			m_pPlayer->GiveXP(2);
 			m_pPlayer->MoneyTransaction(+2);
@@ -2168,7 +2168,7 @@ void CCharacter::DDPP_FlagTick()
 		}
 
 		// vip get 1 bonus
-		else if(m_pPlayer->m_IsModerator)
+		else if(m_pPlayer->m_Account.m_IsModerator)
 		{
 			m_pPlayer->GiveXP(1);
 			m_pPlayer->MoneyTransaction(+1);
@@ -2714,8 +2714,8 @@ void CCharacter::BlockTourna_Die(int Killer)
 			}
 			else
 			{
-				int deadskill = m_pPlayer->m_BlockSkill;
-				int killskill = GameServer()->m_apPlayers[Killer]->m_BlockSkill;
+				int deadskill = m_pPlayer->m_Account.m_BlockSkill;
+				int killskill = GameServer()->m_apPlayers[Killer]->m_Account.m_BlockSkill;
 				int skilldiff = abs(deadskill - killskill);
 				if(skilldiff < 1500) //pretty same skill lvl
 				{
@@ -2909,23 +2909,23 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
 					{
 						//dbg_msg("insta", "checking for highscore grenade");
-						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
+						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_GrenadeSpree)
 						{
-							pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
+							pVictim->GetPlayer()->m_Account.m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
 							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
 						}
-						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 						//dbg_msg("insta", aBuf);
 					}
 					else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 					{
 						//dbg_msg("insta", "checking for highscore rifle");
-						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
+						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_RifleSpree)
 						{
-							pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
+							pVictim->GetPlayer()->m_Account.m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
 							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
 						}
-						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 						//dbg_msg("insta", aBuf);
 					}
 
@@ -2942,23 +2942,23 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 				if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
 				{
 					//dbg_msg("insta", "checking for highscore grenade");
-					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_GrenadeSpree)
+					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_GrenadeSpree)
 					{
-						pVictim->GetPlayer()->m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
+						pVictim->GetPlayer()->m_Account.m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
 						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
 					}
-					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 					//dbg_msg("insta", aBuf);
 				}
 				else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 				{
 					//dbg_msg("insta", "checking for highscore rifle");
-					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_RifleSpree)
+					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_RifleSpree)
 					{
-						pVictim->GetPlayer()->m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
+						pVictim->GetPlayer()->m_Account.m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
 						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
 					}
-					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_GrenadeSpree);
+					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 					//dbg_msg("insta", aBuf);
 				}
 
@@ -3043,11 +3043,11 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 	{
 		if(m_pPlayer->m_IsInstaArena_gdm)
 		{
-			//m_pPlayer->m_GrenadeDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
+			//m_pPlayer->m_Account.m_GrenadeDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
 		}
 		else if(m_pPlayer->m_IsInstaArena_idm)
 		{
-			//m_pPlayer->m_RifleDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
+			//m_pPlayer->m_Account.m_RifleDeaths++; // probably doesn't belong into blockmain but whatever //ye rly doesnt --> moved
 		}
 		else
 		{
@@ -3055,12 +3055,12 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 			{
 				if(g_Config.m_SvDummyBlockPoints)
 				{
-					m_pPlayer->m_BlockPoints_Deaths++;
+					m_pPlayer->m_Account.m_BlockPoints_Deaths++;
 				}
 			}
 			else
 			{
-				m_pPlayer->m_BlockPoints_Deaths++;
+				m_pPlayer->m_Account.m_BlockPoints_Deaths++;
 			}
 		}
 	}
@@ -3078,7 +3078,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 					{
 						GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 					}
-					GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+					GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPoints_Kills++;
 				}
 			}
 			else
@@ -3087,7 +3087,7 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 				{
 					GameServer()->m_apPlayers[Killer]->GiveBlockPoints(1);
 				}
-				GameServer()->m_apPlayers[Killer]->m_BlockPoints_Kills++;
+				GameServer()->m_apPlayers[Killer]->m_Account.m_BlockPoints_Kills++;
 			}
 		}
 		// bounty money reward to the blocker
@@ -3522,7 +3522,7 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		{
 			if(GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->m_IsSurvivaling)
 			{
-				GameServer()->m_apPlayers[Killer]->m_SurvivalKills++;
+				GameServer()->m_apPlayers[Killer]->m_Account.m_SurvivalKills++;
 			}
 		}
 	}
@@ -3535,22 +3535,22 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 	{
 		if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2) //gdm & zCatch grenade
 		{
-			m_pPlayer->m_GrenadeDeaths++;
+			m_pPlayer->m_Account.m_GrenadeDeaths++;
 		}
 		else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4) // idm & zCatch rifle
 		{
-			m_pPlayer->m_RifleDeaths++;
+			m_pPlayer->m_Account.m_RifleDeaths++;
 		}
 
 		InstagibKillingSpree(Killer, Weapon);
 	}
 	else if(m_pPlayer->m_IsInstaArena_gdm)
 	{
-		m_pPlayer->m_GrenadeDeaths++;
+		m_pPlayer->m_Account.m_GrenadeDeaths++;
 	}
 	else if(m_pPlayer->m_IsInstaArena_idm)
 	{
-		m_pPlayer->m_RifleDeaths++;
+		m_pPlayer->m_Account.m_RifleDeaths++;
 	}
 
 	//=== KILLS ===
@@ -3558,11 +3558,11 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 	{
 		if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) //gdm & zCatch grenade
 		{
-			GameServer()->m_apPlayers[Killer]->m_GrenadeKills++;
+			GameServer()->m_apPlayers[Killer]->m_Account.m_GrenadeKills++;
 		}
 		else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // idm & zCatch rifle
 		{
-			GameServer()->m_apPlayers[Killer]->m_RifleKills++;
+			GameServer()->m_apPlayers[Killer]->m_Account.m_RifleKills++;
 		}
 
 		//=== MULTIS (credit to noby) ===
@@ -3729,7 +3729,7 @@ void CCharacter::DDPPGunFire(vec2 Direction)
 	}
 
 	//spooky ghost
-	if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN && m_CountSpookyGhostInputs)
+	if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_Account.m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN && m_CountSpookyGhostInputs)
 	{
 		m_TimesShot++;
 		if((m_TimesShot == 2) && !m_pPlayer->m_SpookyGhostActive)

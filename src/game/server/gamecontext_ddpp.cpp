@@ -583,7 +583,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 
 	if(medium == 0) // '/ascii view <cid>'
 	{
-		if(m_apPlayers[creatorID]->m_aAsciiPublishState[0] == '0')
+		if(m_apPlayers[creatorID]->m_Account.m_aAsciiPublishState[0] == '0')
 		{
 			SendChatTarget(viewerID, "ascii art not public.");
 			return;
@@ -594,7 +594,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	}
 	else if(medium == 1) // '/profile view <player>'
 	{
-		if(m_apPlayers[creatorID]->m_aAsciiPublishState[1] == '0')
+		if(m_apPlayers[creatorID]->m_Account.m_aAsciiPublishState[1] == '0')
 		{
 			//SendChatTarget(viewerID, "ascii art not published on profile");
 			return;
@@ -604,7 +604,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	}
 	else if(medium == 2) // not used yet
 	{
-		if(m_apPlayers[creatorID]->m_aAsciiPublishState[2] == '0')
+		if(m_apPlayers[creatorID]->m_Account.m_aAsciiPublishState[2] == '0')
 		{
 			SendChatTarget(viewerID, "ascii art not published on medium 2");
 			return;
@@ -612,7 +612,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 	}
 	else if(medium == 3) // not used yet
 	{
-		if(m_apPlayers[creatorID]->m_aAsciiPublishState[3] == '0')
+		if(m_apPlayers[creatorID]->m_Account.m_aAsciiPublishState[3] == '0')
 		{
 			SendChatTarget(viewerID, "ascii art not published on medium 3");
 			return;
@@ -674,16 +674,16 @@ void CGameContext::ShowHideConfigBoolToChar(int id)
 	if(!pPlayer)
 		return;
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
-	pPlayer->m_aShowHideConfig[0] = BoolToChar(pPlayer->m_ShowBlockPoints);
-	pPlayer->m_aShowHideConfig[1] = BoolToChar(pPlayer->m_HideBlockXp);
-	pPlayer->m_aShowHideConfig[2] = BoolToChar(pPlayer->m_xpmsg);
-	pPlayer->m_aShowHideConfig[3] = BoolToChar(pPlayer->m_hidejailmsg);
-	pPlayer->m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1_killmessages);
-	pPlayer->m_aShowHideConfig[5] = BoolToChar(pPlayer->m_HideQuestProgress);
-	pPlayer->m_aShowHideConfig[6] = BoolToChar(pPlayer->m_HideQuestWarning);
-	pPlayer->m_aShowHideConfig[7] = '\0';
+	pPlayer->m_Account.m_aShowHideConfig[0] = BoolToChar(pPlayer->m_ShowBlockPoints);
+	pPlayer->m_Account.m_aShowHideConfig[1] = BoolToChar(pPlayer->m_HideBlockXp);
+	pPlayer->m_Account.m_aShowHideConfig[2] = BoolToChar(pPlayer->m_xpmsg);
+	pPlayer->m_Account.m_aShowHideConfig[3] = BoolToChar(pPlayer->m_hidejailmsg);
+	pPlayer->m_Account.m_aShowHideConfig[4] = BoolToChar(pPlayer->m_HideInsta1on1_killmessages);
+	pPlayer->m_Account.m_aShowHideConfig[5] = BoolToChar(pPlayer->m_HideQuestProgress);
+	pPlayer->m_Account.m_aShowHideConfig[6] = BoolToChar(pPlayer->m_HideQuestWarning);
+	pPlayer->m_Account.m_aShowHideConfig[7] = '\0';
 #if defined(CONF_DEBUG)
-	//dbg_msg("BoolToChar", "UPDATED ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+	//dbg_msg("BoolToChar", "UPDATED ShowHideChar='%s'", pPlayer->m_Account.m_aShowHideConfig);
 #endif
 }
 
@@ -693,16 +693,16 @@ void CGameContext::ShowHideConfigCharToBool(int id)
 	if(!pPlayer)
 		return;
 	//[0] = blockpoints [1] = blockxp [2] = xp [3] = jail [4] = instafeed(1n1) [5] = questprogress [6] = questwarning
-	pPlayer->m_ShowBlockPoints = CharToBool(pPlayer->m_aShowHideConfig[0]);
-	pPlayer->m_HideBlockXp = CharToBool(pPlayer->m_aShowHideConfig[1]);
-	pPlayer->m_xpmsg = CharToBool(pPlayer->m_aShowHideConfig[2]);
-	pPlayer->m_hidejailmsg = CharToBool(pPlayer->m_aShowHideConfig[3]);
-	pPlayer->m_HideInsta1on1_killmessages = CharToBool(pPlayer->m_aShowHideConfig[4]);
-	pPlayer->m_HideQuestProgress = CharToBool(pPlayer->m_aShowHideConfig[5]);
-	pPlayer->m_HideQuestWarning = CharToBool(pPlayer->m_aShowHideConfig[6]);
+	pPlayer->m_ShowBlockPoints = CharToBool(pPlayer->m_Account.m_aShowHideConfig[0]);
+	pPlayer->m_HideBlockXp = CharToBool(pPlayer->m_Account.m_aShowHideConfig[1]);
+	pPlayer->m_xpmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[2]);
+	pPlayer->m_hidejailmsg = CharToBool(pPlayer->m_Account.m_aShowHideConfig[3]);
+	pPlayer->m_HideInsta1on1_killmessages = CharToBool(pPlayer->m_Account.m_aShowHideConfig[4]);
+	pPlayer->m_HideQuestProgress = CharToBool(pPlayer->m_Account.m_aShowHideConfig[5]);
+	pPlayer->m_HideQuestWarning = CharToBool(pPlayer->m_Account.m_aShowHideConfig[6]);
 #if defined(CONF_DEBUG)
 	/*
-	dbg_msg("CharToBool", "ShowHideChar='%s'", pPlayer->m_aShowHideConfig);
+	dbg_msg("CharToBool", "ShowHideChar='%s'", pPlayer->m_Account.m_aShowHideConfig);
 	dbg_msg("ShowHide", "BlockPoints	: %d", pPlayer->m_ShowBlockPoints);
 	dbg_msg("ShowHide", "BlockXp		: %d", pPlayer->m_HideBlockXp);
 	dbg_msg("ShowHide", "Xp				: %d", pPlayer->m_xpmsg);
@@ -869,29 +869,29 @@ void CGameContext::ShowInstaStats(int requestID, int requestedID)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Grenade instagib ~~~", Server()->ClientName(pPlayer->GetCID()));
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_GrenadeKills);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_GrenadeKills);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_GrenadeDeaths);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_GrenadeDeaths);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_GrenadeSpree);
+	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_GrenadeSpree);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_GrenadeShots);
+	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_GrenadeShots);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_GrenadeShotsNoRJ);
+	str_format(aBuf, sizeof(aBuf), "Shots without RJ: %d", pPlayer->m_Account.m_GrenadeShotsNoRJ);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ);
+	str_format(aBuf, sizeof(aBuf), "Rocketjumps: %d", pPlayer->m_Account.m_GrenadeShots - pPlayer->m_Account.m_GrenadeShotsNoRJ);
 	SendChatTarget(requestID, aBuf);
-	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
+	//str_format(aBuf, sizeof(aBuf), "Failed shots (no kill, no rj): %d", pPlayer->m_GrenadeShots - (pPlayer->m_GrenadeShots - pPlayer->m_GrenadeShotsNoRJ) - pPlayer->m_Account.m_GrenadeKills); //can be negative with double and tripple kills but this isnt a bug its a feature xd
 	//SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's Rifle instagib ~~~", Server()->ClientName(pPlayer->GetCID()));
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_RifleKills);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_RifleKills);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_RifleDeaths);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_RifleDeaths);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_RifleSpree);
+	str_format(aBuf, sizeof(aBuf), "Highest spree: %d", pPlayer->m_Account.m_RifleSpree);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_RifleShots);
+	str_format(aBuf, sizeof(aBuf), "Total shots: %d", pPlayer->m_Account.m_RifleShots);
 	SendChatTarget(requestID, aBuf);
 }
 
@@ -906,11 +906,11 @@ void CGameContext::ShowSurvivalStats(int requestID, int requestedID)
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "~~~ '%s's survival stats ~~~", Server()->ClientName(pPlayer->GetCID()));
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_SurvivalKills);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_SurvivalKills);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_SurvivalDeaths);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_SurvivalDeaths);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Wins: %d", pPlayer->m_SurvivalWins);
+	str_format(aBuf, sizeof(aBuf), "Wins: %d", pPlayer->m_Account.m_SurvivalWins);
 	SendChatTarget(requestID, aBuf);
 }
 
@@ -941,11 +941,11 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
 	SendChatTarget(requestID, aBuf);
 	SendChatTarget(requestID, "---- BLOCK ----");
-	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_BlockPoints);
+	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_Account.m_BlockPoints);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_BlockPoints_Kills);
+	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_BlockPoints_Kills);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_BlockPoints_Deaths);
+	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_BlockPoints_Deaths);
 	SendChatTarget(requestID, aBuf);
 
 	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsID));
@@ -1517,67 +1517,67 @@ void CGameContext::AsciiTick(int i)
 				{
 					if(m_apPlayers[i]->m_AsciiWatchFrame == 0)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame0, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[0], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 1)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame1, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[1], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 2)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame2, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[2], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 3)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame3, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[3], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 4)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame4, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[4], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 5)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame5, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[5], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 6)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame6, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[6], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 7)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame7, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[7], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 8)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame8, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[8], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 9)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame9, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[9], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 10)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame10, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[10], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 11)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame11, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[11], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 12)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame12, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[12], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 13)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame13, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[13], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 14)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame14, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[14], i);
 					}
 					else if(m_apPlayers[i]->m_AsciiWatchFrame == 15)
 					{
-						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_aAsciiFrame15, i);
+						SendBroadcast(m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_Account.m_aAsciiFrame[15], i);
 					}
 					else
 					{
@@ -2031,7 +2031,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 
 	if(GiveView)
 	{
-		m_apPlayers[ViewedID]->m_ProfileViews++;
+		m_apPlayers[ViewedID]->m_Account.m_ProfileViews++;
 		str_copy(m_apPlayers[ViewerID]->m_LastViewedProfile, Server()->ClientName(ViewedID), 32);
 		m_apPlayers[ViewerID]->m_IsProfileViewLoaded = false;
 	}
@@ -2039,11 +2039,11 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 	//ASCII - ANIMATIONS
 	StartAsciiAnimation(ViewerID, ViewedID, 1);
 
-	if(m_apPlayers[ViewedID]->m_ProfileStyle == 0) //default
+	if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 0) //default
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
@@ -2053,42 +2053,42 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
-	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 1) //shit
+	else if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 1) //shit
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
-	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 2) //social
+	else if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 2) //social
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Skype: %s", m_apPlayers[ViewedID]->m_ProfileSkype);
+		str_format(aBuf, sizeof(aBuf), "Skype: %s", m_apPlayers[ViewedID]->m_Account.m_ProfileSkype);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Youtube: %s", m_apPlayers[ViewedID]->m_ProfileYoutube);
+		str_format(aBuf, sizeof(aBuf), "Youtube: %s", m_apPlayers[ViewedID]->m_Account.m_ProfileYoutube);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "e-mail: %s", m_apPlayers[ViewedID]->m_ProfileEmail);
+		str_format(aBuf, sizeof(aBuf), "e-mail: %s", m_apPlayers[ViewedID]->m_Account.m_ProfileEmail);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Homepage: %s", m_apPlayers[ViewedID]->m_ProfileHomepage);
+		str_format(aBuf, sizeof(aBuf), "Homepage: %s", m_apPlayers[ViewedID]->m_Account.m_ProfileHomepage);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Twitter: %s", m_apPlayers[ViewedID]->m_ProfileTwitter);
+		str_format(aBuf, sizeof(aBuf), "Twitter: %s", m_apPlayers[ViewedID]->m_Account.m_ProfileTwitter);
 		SendChatTarget(ViewerID, aBuf);
 	}
-	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 3) //show-off
+	else if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 3) //show-off
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[ViewedID]->m_ProfileViews);
+		str_format(aBuf, sizeof(aBuf), "Profileviews: %d", m_apPlayers[ViewedID]->m_Account.m_ProfileViews);
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Policerank: %d", m_apPlayers[ViewedID]->m_Account.m_PoliceRank);
 		SendChatTarget(ViewerID, aBuf);
@@ -2097,11 +2097,11 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);
 	}
-	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 4) //pvp
+	else if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 4) //pvp
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "PVP-ARENA Games: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaGamesPlayed);
@@ -2113,16 +2113,16 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaKills / m_Account.m_PvpArenaDeaths);
 		//SendChatTarget(ViewerID, aBuf);
 	}
-	else if(m_apPlayers[ViewedID]->m_ProfileStyle == 5) //bomber
+	else if(m_apPlayers[ViewedID]->m_Account.m_ProfileStyle == 5) //bomber
 	{
 		str_format(aBuf, sizeof(aBuf), "---  %s's Profile  ---", Server()->ClientName(ViewedID));
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_ProfileStatus);
+		str_format(aBuf, sizeof(aBuf), "%s", m_apPlayers[ViewedID]->m_Account.m_ProfileStatus);
 		SendChatTarget(ViewerID, aBuf);
 		SendChatTarget(ViewerID, "-------------------------");
-		str_format(aBuf, sizeof(aBuf), "Bomb Games Played: %d", m_apPlayers[ViewedID]->m_BombGamesPlayed);
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Played: %d", m_apPlayers[ViewedID]->m_Account.m_BombGamesPlayed);
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_BombGamesWon);
+		str_format(aBuf, sizeof(aBuf), "Bomb Games Won: %d", m_apPlayers[ViewedID]->m_Account.m_BombGamesWon);
 		SendChatTarget(ViewerID, aBuf);
 		//str_format(aBuf, sizeof(aBuf), "PVP-ARENA K/D: %d", m_apPlayers[ViewedID]->m_Account.m_PvpArenaKills / m_Account.m_PvpArenaDeaths);
 		//SendChatTarget(ViewerID, aBuf);
@@ -2196,15 +2196,15 @@ int CGameContext::PrintSpecialCharUsers(int ID)
 	{
 		if(m_apPlayers[i] && m_apPlayers[i]->IsLoggedIn())
 		{
-			if(IsAllowedCharSet(m_apPlayers[i]->m_aAccountLoginName) == false)
+			if(IsAllowedCharSet(m_apPlayers[i]->m_Account.m_aUsername) == false)
 			{
 				if(!users)
 				{
-					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", i, m_apPlayers[i]->m_aAccountLoginName);
+					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", i, m_apPlayers[i]->m_Account.m_aUsername);
 				}
 				else
 				{
-					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, i, m_apPlayers[i]->m_aAccountLoginName);
+					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, i, m_apPlayers[i]->m_Account.m_aUsername);
 				}
 				users++;
 			}
@@ -2523,18 +2523,18 @@ void CGameContext::GetSpreeType(int ClientID, char *pBuf, size_t BufSize, bool I
 	}
 	else if(pPlayer->m_IsInstaArena_gdm)
 	{
-		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_GrenadeSpree)
+		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_Account.m_GrenadeSpree)
 		{
-			pPlayer->m_GrenadeSpree = pPlayer->m_KillStreak;
+			pPlayer->m_Account.m_GrenadeSpree = pPlayer->m_KillStreak;
 			SendChatTarget(pPlayer->GetCID(), "New grenade spree record!");
 		}
 		str_copy(pBuf, "grenade", BufSize);
 	}
 	else if(pPlayer->m_IsInstaArena_idm)
 	{
-		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_RifleSpree)
+		if(IsRecord && pPlayer->m_KillStreak > pPlayer->m_Account.m_RifleSpree)
 		{
-			pPlayer->m_RifleSpree = pPlayer->m_KillStreak;
+			pPlayer->m_Account.m_RifleSpree = pPlayer->m_KillStreak;
 			SendChatTarget(pPlayer->GetCID(), "New rifle spree record!");
 		}
 		str_copy(pBuf, "rifle", BufSize);

@@ -27,22 +27,22 @@ void CPlayer::ResetDDPP()
 	//ChillerDragon constructor Konstructor init
 	if(g_Config.m_SvTestingCommands)
 	{
-		str_format(m_aAsciiFrame0, sizeof(m_aAsciiFrame0), "x");
-		str_format(m_aAsciiFrame1, sizeof(m_aAsciiFrame1), "+");
-		str_format(m_aAsciiFrame2, sizeof(m_aAsciiFrame2), "++");
-		str_format(m_aAsciiFrame3, sizeof(m_aAsciiFrame3), "xxx");
-		str_format(m_aAsciiFrame4, sizeof(m_aAsciiFrame4), "++++");
-		str_format(m_aAsciiFrame5, sizeof(m_aAsciiFrame5), "xxxxx");
-		str_format(m_aAsciiFrame6, sizeof(m_aAsciiFrame6), "++++++");
-		str_format(m_aAsciiFrame7, sizeof(m_aAsciiFrame7), "xxxxxxx");
-		str_format(m_aAsciiFrame8, sizeof(m_aAsciiFrame8), "++++++++");
-		str_format(m_aAsciiFrame9, sizeof(m_aAsciiFrame9), "ChillerDragon's sample animation");
-		str_format(m_aAsciiFrame10, sizeof(m_aAsciiFrame10), "ChillerDragon's sample animation");
-		str_format(m_aAsciiFrame11, sizeof(m_aAsciiFrame11), "ChillerDragon's sample animation");
-		str_format(m_aAsciiFrame12, sizeof(m_aAsciiFrame12), "ChillerDragon's sample animation");
-		str_format(m_aAsciiFrame13, sizeof(m_aAsciiFrame13), ".");
-		str_format(m_aAsciiFrame14, sizeof(m_aAsciiFrame14), ":");
-		str_format(m_aAsciiFrame15, sizeof(m_aAsciiFrame15), ".:.");
+		str_format(m_Account.m_aAsciiFrame[0], sizeof(m_Account.m_aAsciiFrame[0]), "x");
+		str_format(m_Account.m_aAsciiFrame[1], sizeof(m_Account.m_aAsciiFrame[1]), "+");
+		str_format(m_Account.m_aAsciiFrame[2], sizeof(m_Account.m_aAsciiFrame[2]), "++");
+		str_format(m_Account.m_aAsciiFrame[3], sizeof(m_Account.m_aAsciiFrame[3]), "xxx");
+		str_format(m_Account.m_aAsciiFrame[4], sizeof(m_Account.m_aAsciiFrame[4]), "++++");
+		str_format(m_Account.m_aAsciiFrame[5], sizeof(m_Account.m_aAsciiFrame[5]), "xxxxx");
+		str_format(m_Account.m_aAsciiFrame[6], sizeof(m_Account.m_aAsciiFrame[6]), "++++++");
+		str_format(m_Account.m_aAsciiFrame[7], sizeof(m_Account.m_aAsciiFrame[7]), "xxxxxxx");
+		str_format(m_Account.m_aAsciiFrame[8], sizeof(m_Account.m_aAsciiFrame[8]), "++++++++");
+		str_format(m_Account.m_aAsciiFrame[9], sizeof(m_Account.m_aAsciiFrame[9]), "ChillerDragon's sample animation");
+		str_format(m_Account.m_aAsciiFrame[10], sizeof(m_Account.m_aAsciiFrame[10]), "ChillerDragon's sample animation");
+		str_format(m_Account.m_aAsciiFrame[11], sizeof(m_Account.m_aAsciiFrame[11]), "ChillerDragon's sample animation");
+		str_format(m_Account.m_aAsciiFrame[12], sizeof(m_Account.m_aAsciiFrame[12]), "ChillerDragon's sample animation");
+		str_format(m_Account.m_aAsciiFrame[13], sizeof(m_Account.m_aAsciiFrame[13]), ".");
+		str_format(m_Account.m_aAsciiFrame[14], sizeof(m_Account.m_aAsciiFrame[14]), ":");
+		str_format(m_Account.m_aAsciiFrame[15], sizeof(m_Account.m_aAsciiFrame[15]), ".:.");
 	}
 	for(unsigned i = 0; i < sizeof(m_aCatchedID) / sizeof(m_aCatchedID[0]); i++)
 		m_aCatchedID[i] = -1;
@@ -70,7 +70,6 @@ void CPlayer::ResetDDPP()
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
 	m_QuestPlayerID = -1;
 	m_JailHammer = true;
-	str_format(m_aAsciiPublishState, sizeof(m_aAsciiPublishState), "0000");
 	m_AsciiWatchingID = -1;
 	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
@@ -91,25 +90,17 @@ void CPlayer::ResetDDPP()
 	m_TradeItem = -1;
 	m_TradeMoney = -1;
 	m_TradeID = -1;
-	//m_aFngConfig[0] = '0';
-	//m_aFngConfig[1] = '0';
-	//m_aFngConfig[2] = '0';
-	//m_aFngConfig[3] = '0';
-	str_format(m_aFngConfig, sizeof(m_aFngConfig), "0000");
 
-	//ShowHideConfig
-
-	str_copy(m_aShowHideConfig, "0010000000", sizeof(m_aShowHideConfig));
-	//dbg_msg("debug", "init player showhide='%s'", m_aShowHideConfig);
-	m_ShowBlockPoints = GameServer()->CharToBool(m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
-	m_HideBlockXp = GameServer()->CharToBool(m_aShowHideConfig[1]);
-	m_xpmsg = GameServer()->CharToBool(m_aShowHideConfig[2]);
-	m_hidejailmsg = GameServer()->CharToBool(m_aShowHideConfig[3]);
-	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_aShowHideConfig[4]);
-	m_HideQuestProgress = GameServer()->CharToBool(m_aShowHideConfig[5]);
-	m_HideQuestWarning = GameServer()->CharToBool(m_aShowHideConfig[6]);
+	//dbg_msg("debug", "init player showhide='%s'", m_Account.m_aShowHideConfig);
+	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
+	m_HideBlockXp = GameServer()->CharToBool(m_Account.m_aShowHideConfig[1]);
+	m_xpmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[2]);
+	m_hidejailmsg = GameServer()->CharToBool(m_Account.m_aShowHideConfig[3]);
+	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_Account.m_aShowHideConfig[4]);
+	m_HideQuestProgress = GameServer()->CharToBool(m_Account.m_aShowHideConfig[5]);
+	m_HideQuestWarning = GameServer()->CharToBool(m_Account.m_aShowHideConfig[6]);
 	//GameServer()->ShowHideConfigCharToBool(this->GetCID()); //cant be called because somehow players doesnt exist for gameconext idk
-	//str_format(m_aShowHideConfig, sizeof(m_aShowHideConfig), "%s", "0010000000000000"); // <3
+	//str_format(m_Account.m_aShowHideConfig, sizeof(m_Account.m_aShowHideConfig), "%s", "0010000000000000"); // <3
 	//m_xpmsg = true;
 
 	// disable infinite cosmetics by default
@@ -150,10 +141,10 @@ void CPlayer::DDPPTick()
 	}
 
 	//bomb
-	if(m_BombBanTime)
+	if(m_Account.m_BombBanTime)
 	{
-		m_BombBanTime--;
-		if(m_BombBanTime == 1)
+		m_Account.m_BombBanTime--;
+		if(m_Account.m_BombBanTime == 1)
 		{
 			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
 		}
@@ -252,7 +243,7 @@ void CPlayer::PlayerHumanLevelTick()
 		if(GetCharacter())
 		{
 			if(GetCharacter()->m_DDRaceState == DDRACE_FINISHED ||
-				m_BlockPoints > 5 ||
+				m_Account.m_BlockPoints > 5 ||
 				IsLoggedIn())
 			{
 				m_PlayerHumanLevel++;
@@ -278,7 +269,7 @@ void CPlayer::PlayerHumanLevelTick()
 	else if(m_PlayerHumanLevel == 7)
 	{
 		if((m_QuestLevelUnlocked > 0 || m_QuestUnlocked > 2) || // played quest until finish map
-			m_BlockPoints > 10)
+			m_Account.m_BlockPoints > 10)
 		{
 			m_PlayerHumanLevel++;
 			m_HumanLevelTime = Server()->TickSpeed() * 60; // 1 min
@@ -425,9 +416,9 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 		if(m_IsSurvivaling)
 		{
 			if(pSnapping->m_ScoreFixForDDNet)
-				pPlayerInfo->m_Score = m_SurvivalKills * 60;
+				pPlayerInfo->m_Score = m_Account.m_SurvivalKills * 60;
 			else
-				pPlayerInfo->m_Score = m_SurvivalKills;
+				pPlayerInfo->m_Score = m_Account.m_SurvivalKills;
 		}
 		else
 			pPlayerInfo->m_Score = -9999;
@@ -453,9 +444,9 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 			if(IsLoggedIn())
 			{
 				if(pSnapping->m_ScoreFixForDDNet)
-					pPlayerInfo->m_Score = m_BlockPoints * 60;
+					pPlayerInfo->m_Score = m_Account.m_BlockPoints * 60;
 				else
-					pPlayerInfo->m_Score = m_BlockPoints;
+					pPlayerInfo->m_Score = m_Account.m_BlockPoints;
 			}
 			else if(pSnapping->m_ScoreFixForDDNet)
 				pPlayerInfo->m_Score = -9999;
@@ -509,44 +500,10 @@ void CPlayer::Logout(int SetLoggedIn)
 	// TODO: remove all and call m_Account constructor
 
 	//reset values to default to prevent cheating
-	m_IsModerator = 0;
-	m_IsSuperModerator = 0;
-	m_IsAccFrozen = 0;
 	m_neededxp = 0;
 	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
-	m_NinjaJetpackBought = 0;
-	m_SpookyGhost = 0;
-	m_UseSpawnWeapons = 0;
-	m_SpawnWeaponShotgun = 0;
-	m_SpawnWeaponGrenade = 0;
-	m_SpawnWeaponRifle = 0;
 	m_TaserOn = false;
-	m_ProfileStyle = 0;
-	m_ProfileViews = 0;
-	m_ProfileStatus[0] = '\0';
-	m_ProfileSkype[0] = '\0';
-	m_ProfileYoutube[0] = '\0';
-	m_ProfileEmail[0] = '\0';
-	m_ProfileHomepage[0] = '\0';
-	m_ProfileTwitter[0] = '\0';
-	m_homing_missiles_ammo = 0;
-	m_BlockPoints = 0;
-	m_BlockPoints_Kills = 0;
-	m_BlockPoints_Deaths = 0;
-	m_BombGamesPlayed = 0;
-	m_BombGamesWon = 0;
-	//m_BombBanTime = 0; //could be set to 0 because you need to belogged in anyways to play bomb            ...but yolo comments are kewl and stuff
-	m_GrenadeKills = 0;
-	m_GrenadeDeaths = 0;
-	m_GrenadeSpree = 0;
-	m_GrenadeShots = 0;
-	m_GrenadeShotsNoRJ = 0;
-	m_GrenadeWins = 0;
-	m_RifleKills = 0;
-	m_RifleDeaths = 0;
-	m_RifleDeaths = 0;
-	m_RifleShots = 0;
-	m_RifleWins = 0;
+	//m_Account.m_BombBanTime = 0; //could be set to 0 because you need to belogged in anyways to play bomb            ...but yolo comments are kewl and stuff
 	m_money_transaction9[0] = '\0';
 	m_money_transaction8[0] = '\0';
 	m_money_transaction7[0] = '\0';
@@ -712,39 +669,41 @@ void CPlayer::Save(int SetLoggedIn)
 				 ", `Skin` = '%q'"
 				 ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
 				 ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-				 ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i', `FngConfig` = '%q'"
+				 ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
+				 ", `FngConfig` = '%q'"
 				 ", `ShowHideConfig` = '%q'"
 				 ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
 				 ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
 				 ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
 				 " WHERE `ID` = '%i'",
-		m_aAccountPassword, GetLevel(), GetXP(), GetMoney(), m_Account.m_Shit,
+		m_Account.m_aPassword, GetLevel(), GetXP(), GetMoney(), m_Account.m_Shit,
 		m_Account.m_GiftDelay,
 		m_Account.m_PoliceRank,
 		m_Account.m_JailTime, m_Account.m_EscapeTime,
 		m_Account.m_TaserLevel,
-		m_NinjaJetpackBought,
-		m_SpookyGhost,
-		m_UseSpawnWeapons,
-		m_SpawnWeaponShotgun,
-		m_SpawnWeaponGrenade,
-		m_SpawnWeaponRifle,
+		m_Account.m_NinjaJetpackBought,
+		m_Account.m_SpookyGhost,
+		m_Account.m_UseSpawnWeapons,
+		m_Account.m_SpawnWeaponShotgun,
+		m_Account.m_SpawnWeaponGrenade,
+		m_Account.m_SpawnWeaponRifle,
 		m_Account.m_PvpArenaTickets, m_Account.m_PvpArenaGamesPlayed, m_Account.m_PvpArenaKills, m_Account.m_PvpArenaDeaths,
-		m_ProfileStyle, m_ProfileViews, m_ProfileStatus, m_ProfileSkype, m_ProfileYoutube, m_ProfileEmail, m_ProfileHomepage, m_ProfileTwitter,
-		m_homing_missiles_ammo,
-		m_BlockPoints, m_BlockPoints_Kills, m_BlockPoints_Deaths, m_BlockSkill,
-		m_IsModerator, m_IsSuperModerator, m_IsSupporter, m_IsAccFrozen, SetLoggedIn,
+		m_Account.m_ProfileStyle, m_Account.m_ProfileViews, m_Account.m_ProfileStatus, m_Account.m_ProfileSkype, m_Account.m_ProfileYoutube, m_Account.m_ProfileEmail, m_Account.m_ProfileHomepage, m_Account.m_ProfileTwitter,
+		m_Account.m_HomingMissilesAmmo,
+		m_Account.m_BlockPoints, m_Account.m_BlockPoints_Kills, m_Account.m_BlockPoints_Deaths, m_Account.m_BlockSkill,
+		m_Account.m_IsModerator, m_Account.m_IsSuperModerator, m_Account.m_IsSupporter, m_Account.m_IsAccFrozen, SetLoggedIn,
 		m_Account.m_LastLogoutIGN1, m_Account.m_LastLogoutIGN2, m_Account.m_LastLogoutIGN3, m_Account.m_LastLogoutIGN4, m_Account.m_LastLogoutIGN5,
 		m_Account.m_aIP_1, m_Account.m_aIP_2, m_Account.m_aIP_3,
 		m_Account.m_aClan1, m_Account.m_aClan2, m_Account.m_aClan3,
 		m_TeeInfos.m_SkinName,
-		m_BombGamesPlayed, m_BombGamesWon, m_BombBanTime,
-		m_GrenadeKills, m_GrenadeDeaths, m_GrenadeSpree, m_GrenadeShots, m_GrenadeShotsNoRJ, m_GrenadeWins,
-		m_RifleKills, m_RifleDeaths, m_RifleSpree, m_RifleShots, m_RifleWins, m_aFngConfig,
-		m_aShowHideConfig,
-		m_SurvivalKills, m_SurvivalDeaths, m_SurvivalWins,
-		m_aAsciiPublishState, m_AsciiViewsDefault, m_AsciiViewsProfile,
-		m_aAsciiFrame0, m_aAsciiFrame1, m_aAsciiFrame2, m_aAsciiFrame3, m_aAsciiFrame4, m_aAsciiFrame5, m_aAsciiFrame6, m_aAsciiFrame7, m_aAsciiFrame8, m_aAsciiFrame9, m_aAsciiFrame10, m_aAsciiFrame11, m_aAsciiFrame12, m_aAsciiFrame13, m_aAsciiFrame14, m_aAsciiFrame15,
+		m_Account.m_BombGamesPlayed, m_Account.m_BombGamesWon, m_Account.m_BombBanTime,
+		m_Account.m_GrenadeKills, m_Account.m_GrenadeDeaths, m_Account.m_GrenadeSpree, m_Account.m_GrenadeShots, m_Account.m_GrenadeShotsNoRJ, m_Account.m_GrenadeWins,
+		m_Account.m_RifleKills, m_Account.m_RifleDeaths, m_Account.m_RifleSpree, m_Account.m_RifleShots, m_Account.m_RifleWins,
+		m_Account.m_aFngConfig,
+		m_Account.m_aShowHideConfig,
+		m_Account.m_SurvivalKills, m_Account.m_SurvivalDeaths, m_Account.m_SurvivalWins,
+		m_Account.m_aAsciiPublishState, m_Account.m_AsciiViewsDefault, m_Account.m_AsciiViewsProfile,
+		m_Account.m_aAsciiFrame[0], m_Account.m_aAsciiFrame[1], m_Account.m_aAsciiFrame[2], m_Account.m_aAsciiFrame[3], m_Account.m_aAsciiFrame[4], m_Account.m_aAsciiFrame[5], m_Account.m_aAsciiFrame[6], m_Account.m_aAsciiFrame[7], m_Account.m_aAsciiFrame[8], m_Account.m_aAsciiFrame[9], m_Account.m_aAsciiFrame[10], m_Account.m_aAsciiFrame[11], m_Account.m_aAsciiFrame[12], m_Account.m_aAsciiFrame[13], m_Account.m_aAsciiFrame[14], m_Account.m_aAsciiFrame[15],
 		GetAccID());
 }
 
@@ -752,20 +711,20 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 {
 	std::string data;
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, m_aAccountLoginName);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.acc", g_Config.m_SvFileAccPath, m_Account.m_aUsername);
 	std::ofstream Acc2File(aBuf);
 
 	if(Acc2File.is_open())
 	{
-		dbg_msg("acc2", "saved acc '%s'", m_aAccountLoginName);
+		dbg_msg("acc2", "saved acc '%s'", m_Account.m_aUsername);
 
-		Acc2File << m_aAccountPassword << "\n";
+		Acc2File << m_Account.m_aPassword << "\n";
 		Acc2File << SetLoggedIn << "\n";
 		Acc2File << g_Config.m_SvPort << "\n";
-		Acc2File << m_IsAccFrozen << "\n";
-		Acc2File << m_IsModerator << "\n";
-		Acc2File << m_IsSuperModerator << "\n";
-		Acc2File << m_IsSupporter << "\n";
+		Acc2File << m_Account.m_IsAccFrozen << "\n";
+		Acc2File << m_Account.m_IsModerator << "\n";
+		Acc2File << m_Account.m_IsSuperModerator << "\n";
+		Acc2File << m_Account.m_IsSupporter << "\n";
 		Acc2File << GetMoney() << "\n";
 		Acc2File << GetLevel() << "\n";
 		Acc2File << GetXP() << "\n";
@@ -777,7 +736,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 	}
 	else
 	{
-		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", m_aAccountLoginName, aBuf);
+		dbg_msg("acc2", "[WARNING] account '%s' (%s) failed to save", m_Account.m_aUsername, aBuf);
 		Acc2File.close();
 	}
 }
@@ -1294,7 +1253,7 @@ void CPlayer::GiveBlockPoints(int Points)
 		FlagBonus = true;
 	}
 
-	m_BlockPoints += Points;
+	m_Account.m_BlockPoints += Points;
 	if(m_ShowBlockPoints)
 	{
 		if(IsLoggedIn())
@@ -1313,9 +1272,9 @@ void CPlayer::GiveBlockPoints(int Points)
 		if(!IsLoggedIn())
 		{
 			// after 5 and 10 unsaved kills and no messages actiavted --> inform the player about accounts
-			if(m_BlockPoints == 5 || m_BlockPoints == 10)
+			if(m_Account.m_BlockPoints == 5 || m_Account.m_BlockPoints == 10)
 			{
-				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_BlockPoints);
+				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_Account.m_BlockPoints);
 				GameServer()->SendChatTarget(GetCID(), aBuf);
 				GameServer()->SendChatTarget(GetCID(), "Use '/accountinfo' for more information.");
 			}

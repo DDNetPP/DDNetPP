@@ -684,27 +684,27 @@ const char *CGameContext::GetBlockSkillGroup(int id)
 	if(!pPlayer)
 		return "error";
 
-	if(pPlayer->m_BlockSkill < 1000)
+	if(pPlayer->m_Account.m_BlockSkill < 1000)
 	{
 		return "nameless tee";
 	}
-	else if(pPlayer->m_BlockSkill < 3000)
+	else if(pPlayer->m_Account.m_BlockSkill < 3000)
 	{
 		return "brainless tee";
 	}
-	else if(pPlayer->m_BlockSkill < 6000)
+	else if(pPlayer->m_Account.m_BlockSkill < 6000)
 	{
 		return "novice tee";
 	}
-	else if(pPlayer->m_BlockSkill < 9000)
+	else if(pPlayer->m_Account.m_BlockSkill < 9000)
 	{
 		return "moderate tee";
 	}
-	else if(pPlayer->m_BlockSkill < 15000)
+	else if(pPlayer->m_Account.m_BlockSkill < 15000)
 	{
 		return "brutal tee";
 	}
-	else if(pPlayer->m_BlockSkill >= 20000)
+	else if(pPlayer->m_Account.m_BlockSkill >= 20000)
 	{
 		return "insane tee";
 	}
@@ -720,27 +720,27 @@ int CGameContext::GetBlockSkillGroupInt(int id)
 	if(!pPlayer)
 		return -1;
 
-	if(pPlayer->m_BlockSkill < 1000)
+	if(pPlayer->m_Account.m_BlockSkill < 1000)
 	{
 		return 1;
 	}
-	else if(pPlayer->m_BlockSkill < 3000)
+	else if(pPlayer->m_Account.m_BlockSkill < 3000)
 	{
 		return 2;
 	}
-	else if(pPlayer->m_BlockSkill < 6000)
+	else if(pPlayer->m_Account.m_BlockSkill < 6000)
 	{
 		return 3;
 	}
-	else if(pPlayer->m_BlockSkill < 9000)
+	else if(pPlayer->m_Account.m_BlockSkill < 9000)
 	{
 		return 4;
 	}
-	else if(pPlayer->m_BlockSkill < 15000)
+	else if(pPlayer->m_Account.m_BlockSkill < 15000)
 	{
 		return 5;
 	}
-	else if(pPlayer->m_BlockSkill >= 20000)
+	else if(pPlayer->m_Account.m_BlockSkill >= 20000)
 	{
 		return 6;
 	}
@@ -757,14 +757,14 @@ void CGameContext::UpdateBlockSkill(int value, int id)
 		return;
 
 	int oldrank = GetBlockSkillGroupInt(id);
-	pPlayer->m_BlockSkill += value; //update skill
-	if(pPlayer->m_BlockSkill < 0)
+	pPlayer->m_Account.m_BlockSkill += value; //update skill
+	if(pPlayer->m_Account.m_BlockSkill < 0)
 	{
-		pPlayer->m_BlockSkill = 0; //never go less than zero
+		pPlayer->m_Account.m_BlockSkill = 0; //never go less than zero
 	}
-	else if(pPlayer->m_BlockSkill > 25000)
+	else if(pPlayer->m_Account.m_BlockSkill > 25000)
 	{
-		pPlayer->m_BlockSkill = 25000; //max skill lvl
+		pPlayer->m_Account.m_BlockSkill = 25000; //max skill lvl
 	}
 	int newrank = GetBlockSkillGroupInt(id);
 	if(newrank != oldrank)
@@ -1282,8 +1282,8 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
 	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%ld money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
-	m_apPlayers[WinnerID]->m_BombGamesWon++;
-	m_apPlayers[WinnerID]->m_BombGamesPlayed++;
+	m_apPlayers[WinnerID]->m_Account.m_BombGamesWon++;
+	m_apPlayers[WinnerID]->m_Account.m_BombGamesPlayed++;
 	if(!str_comp_nocase(m_BombMap, "NoArena"))
 	{
 		//GetPlayerChar(i)->ChillTelePortTile(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
@@ -1386,7 +1386,7 @@ void CGameContext::BombTick()
 			{
 				if(GetPlayerChar(i)->m_IsBomb)
 				{
-					m_apPlayers[i]->m_BombGamesPlayed++;
+					m_apPlayers[i]->m_Account.m_BombGamesPlayed++;
 					CreateExplosion(GetPlayerChar(i)->m_Pos, i, WEAPON_GRENADE, false, 0, GetPlayerChar(i)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
 					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(i));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
@@ -1531,7 +1531,7 @@ int CGameContext::CountBannedBombPlayers()
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_BombBanTime)
+		if(m_apPlayers[i] && m_apPlayers[i]->m_Account.m_BombBanTime)
 		{
 			BannedPlayers++;
 		}

@@ -1532,7 +1532,7 @@ void CGameContext::OnClientConnected(int ClientID, void *pData)
 	//lass mal durch alle spieler iterieren und schauen ob n mod online is
 	for(int i = 0; i < MAX_CLIENTS; i++) //iteriert durch alle 64 client ids
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsSupporter) //schaut ob der spieler existiert und supporter is
+		if(m_apPlayers[i] && m_apPlayers[i]->m_Account.m_IsSupporter) //schaut ob der spieler existiert und supporter is
 		{
 			str_format(aBuf, sizeof(aBuf), "• '%s'\n", Server()->ClientName(i));
 			str_append(aBroad, aBuf, sizeof(aBroad));

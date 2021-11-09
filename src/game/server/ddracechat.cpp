@@ -1222,7 +1222,7 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(!pPlayer)
 		return;
-	if(pPlayer->m_NinjaJetpackBought)
+	if(pPlayer->m_Account.m_NinjaJetpackBought)
 	{
 		if(pPlayer->m_NinjaJetpack)
 		{

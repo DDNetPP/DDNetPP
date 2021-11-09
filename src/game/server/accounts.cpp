@@ -94,7 +94,28 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		"	Shit, LastGift,"
 		"	PoliceRank," // 24
 		"	JailTime, EscapeTime,"
-		"	TaserLevel "
+		"	TaserLevel, "
+		"	PvPArenaTickets, PvPArenaGames, PvPArenaKills, PvPArenaDeaths, "
+		"	ProfileStyle, ProfileViews, ProfileStatus,"
+		"	ProfileSkype, ProfileYoutube, ProfileEmail, ProfileHomepage, ProfileTwitter"
+		"	HomingMissiles,"
+		"	BlockPoints, BlockKills, BlockDeaths, BlockSkill,"
+		"	IsModerator, IsSuperModerator, IsSupporter, IsAccFrozen,"
+		"	BombGamesPlayed, BombGamesWon, BombBanTime,"
+		"	GrenadeKills, GrenadeDeaths, GrenadeSpree,"
+		"	GrenadeShots, GrenadeShotsNoRJ, GrenadeWins,"
+		"	RifleKills, RifleDeaths, RifleSpree,"
+		"	RifleShots, RifleWins,"
+		"	FngConfig, ShowHideConfig,"
+		"	SurvivalKills, SurvivalDeaths, SurvivalWins,"
+		"	NinjaJetpackBought, SpookyGhost,"
+		"	UseSpawnWeapons,"
+		"	SpawnWeaponShotgun, SpawnWeaponGrenade, SpawnWeaponRifle,"
+		"	AsciiState, AsciiViewsDefault, AsciiViewsProfile,"
+		"	AsciiFrame0,"
+		"	AsciiFrame1, AsciiFrame2, AsciiFrame3, AsciiFrame4, AsciiFrame5,"
+		"	AsciiFrame6, AsciiFrame7, AsciiFrame8, AsciiFrame9, AsciiFrame10,"
+		"	AsciiFrame11, AsciiFrame12, AsciiFrame13, AsciiFrame14, AsciiFrame15"
 		"FROM Accounts "
 		"WHERE Username = ? AND Password = ?;",
 		sizeof(aBuf));
@@ -146,16 +167,58 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pResult->m_Account.m_XP = pSqlServer->GetInt64(Index++);
 		pResult->m_Account.m_Shit = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_GiftDelay = pSqlServer->GetInt(Index++); // 23
-
 		pResult->m_Account.m_PoliceRank = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_JailTime = pSqlServer->GetInt64(Index++);
 		pResult->m_Account.m_EscapeTime = pSqlServer->GetInt64(Index++);
 		pResult->m_Account.m_TaserLevel = pSqlServer->GetInt(Index++);
-
 		pResult->m_Account.m_PvpArenaTickets = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_PvpArenaGamesPlayed = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_PvpArenaKills = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_PvpArenaDeaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_ProfileStyle = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_ProfileViews = pSqlServer->GetInt(Index++);
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileStatus, sizeof(pResult->m_Account.m_ProfileStatus));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileSkype, sizeof(pResult->m_Account.m_ProfileSkype));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileYoutube, sizeof(pResult->m_Account.m_ProfileYoutube));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileEmail, sizeof(pResult->m_Account.m_ProfileEmail));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileHomepage, sizeof(pResult->m_Account.m_ProfileHomepage));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_ProfileTwitter, sizeof(pResult->m_Account.m_ProfileTwitter));
+		pResult->m_Account.m_HomingMissilesAmmo = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockPoints = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockPoints_Kills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockPoints_Deaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BlockSkill = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_IsModerator = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_IsSuperModerator = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_IsSupporter = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_IsAccFrozen = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BombGamesPlayed = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BombGamesWon = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_BombBanTime = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeKills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeDeaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeSpree = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeShots = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeWins = pSqlServer->GetInt(Index++);
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aFngConfig, sizeof(pResult->m_Account.m_aFngConfig));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aShowHideConfig, sizeof(pResult->m_Account.m_aShowHideConfig));
+		pResult->m_Account.m_SurvivalKills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SurvivalDeaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SurvivalWins = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_NinjaJetpackBought = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SpookyGhost = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_UseSpawnWeapons = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SpawnWeaponShotgun = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SpawnWeaponGrenade = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_SpawnWeaponRifle = pSqlServer->GetInt(Index++);
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aAsciiPublishState, sizeof(pResult->m_Account.m_aAsciiPublishState));
+		pResult->m_Account.m_AsciiViewsDefault = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_AsciiViewsProfile = pSqlServer->GetInt(Index++);
+		for(int i = 0; i < MAX_ASCII_FRAMES; i++)
+		{
+			pSqlServer->GetString(Index, pResult->m_Account.m_aAsciiFrame[Index], sizeof(pResult->m_Account.m_aAsciiFrame[Index]));
+			Index++;
+		}
 	}
 	else
 	{

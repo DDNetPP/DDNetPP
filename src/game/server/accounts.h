@@ -19,6 +19,8 @@ class IDbConnection;
 class IServer;
 class CGameContext;
 
+#define MAX_ASCII_FRAMES 16
+
 /*
 	CAccountData
 
@@ -63,10 +65,57 @@ struct CAccountData
 		m_PvpArenaKills = 0;
 		m_PvpArenaDeaths = 0;
 
+		m_ProfileStyle = 0;
+		m_ProfileViews = 0;
+		m_ProfileStatus[0] = '\0';
+		m_ProfileSkype[0] = '\0';
+		m_ProfileYoutube[0] = '\0';
+		m_ProfileEmail[0] = '\0';
+		m_ProfileHomepage[0] = '\0';
+		m_ProfileTwitter[0] = '\0';
+
+		m_HomingMissilesAmmo = 0;
+
 		m_IsModerator = false;
 		m_IsSuperModerator = false;
 		m_IsSupporter = false;
 		m_IsAccFrozen = false;
+
+		m_BombGamesPlayed = 0;
+		m_BombGamesWon = 0;
+		m_BombBanTime = 0;
+
+		m_GrenadeKills = 0;
+		m_GrenadeDeaths = 0;
+		m_GrenadeSpree = 0;
+		m_GrenadeShots = 0;
+		m_GrenadeShotsNoRJ = 0;
+		m_GrenadeWins = 0;
+		m_RifleKills = 0;
+		m_RifleDeaths = 0;
+		m_RifleSpree = 0;
+		m_RifleShots = 0;
+		m_RifleWins = 0;
+
+		str_copy(m_aFngConfig, "0000", sizeof(m_aFngConfig));
+		str_copy(m_aShowHideConfig, "0010000000", sizeof(m_aShowHideConfig));
+
+		m_SurvivalKills = 0;
+		m_SurvivalDeaths = 0;
+		m_SurvivalWins = 0;
+
+		m_NinjaJetpackBought = 0;
+		m_SpookyGhost = 0;
+		m_UseSpawnWeapons = 0;
+		m_SpawnWeaponShotgun = 0;
+		m_SpawnWeaponGrenade = 0;
+		m_SpawnWeaponRifle = 0;
+
+		str_copy(m_aAsciiPublishState, "0000", sizeof(m_aAsciiPublishState));
+		m_AsciiViewsDefault = 0;
+		m_AsciiViewsProfile = 0;
+		for(auto &aAsciiFrame : m_aAsciiFrame)
+			aAsciiFrame[0] = '\0';
 	}
 
 	// meta
@@ -106,10 +155,95 @@ struct CAccountData
 	int m_PvpArenaKills;
 	int m_PvpArenaDeaths;
 
+	/*
+		m_ProfileStyle
+
+		0=default 1=shit 2=social 3=show-off 4=pvp 5=bomber
+		TODO: create enum
+	*/
+	int m_ProfileStyle;
+	int m_ProfileViews;
+	char m_ProfileStatus[50];
+	char m_ProfileSkype[50];
+	char m_ProfileYoutube[50];
+	char m_ProfileEmail[50];
+	char m_ProfileHomepage[50];
+	char m_ProfileTwitter[50];
+
+	int m_HomingMissilesAmmo;
+
+	int m_BlockPoints; //KILLS + other stuff like block tournaments won
+	int m_BlockPoints_Kills; //Block points (blocked others)
+	int m_BlockPoints_Deaths; //Block -points (blocked by others)
+	int m_BlockSkill;
+
 	bool m_IsModerator;
 	bool m_IsSuperModerator;
 	bool m_IsSupporter;
 	bool m_IsAccFrozen;
+
+	int m_BombGamesPlayed;
+	int m_BombGamesWon;
+	int m_BombBanTime;
+
+	int m_GrenadeKills;
+	int m_GrenadeDeaths;
+	int m_GrenadeSpree;
+	int m_GrenadeShots;
+	int m_GrenadeShotsNoRJ;
+	int m_GrenadeWins;
+	int m_RifleKills;
+	int m_RifleDeaths;
+	int m_RifleSpree;
+	int m_RifleShots;
+	int m_RifleWins;
+
+	/*
+		m_aFngConfig
+
+		[0] = autojoin
+		[1] = hammertune
+		[2] = coming soon
+		[3] = coming soon
+	*/
+	char m_aFngConfig[4];
+
+	/*
+		m_aShowHideConfig
+
+		[0]=blockpoints
+		[1]=blockxp
+		[2]=xp
+		[3]=jail
+		[4]=instafeed(1n1)
+		[5]=questprogress
+		[6]=questwarning
+		[7]=instabroadcast
+	*/
+	char m_aShowHideConfig[16];
+
+	int m_SurvivalKills;
+	int m_SurvivalDeaths;
+	int m_SurvivalWins;
+
+	int m_NinjaJetpackBought;
+	int m_SpookyGhost;
+	int m_UseSpawnWeapons;
+	int m_SpawnWeaponShotgun;
+	int m_SpawnWeaponGrenade;
+	int m_SpawnWeaponRifle;
+
+	/*
+		m_aAsciiPublishState
+
+		4 digit int str
+
+		0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
+	*/
+	char m_aAsciiPublishState[4];
+	int m_AsciiViewsDefault;
+	int m_AsciiViewsProfile;
+	char m_aAsciiFrame[MAX_ASCII_FRAMES][64];
 };
 
 struct CAccountResult : ISqlResult

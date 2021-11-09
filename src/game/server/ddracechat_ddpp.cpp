@@ -85,12 +85,12 @@ bool CGameContext::DDPPPoints(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return true;
 			}
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsID]->m_BlockPoints, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Kills, pSelf->m_apPlayers[pointsID]->m_BlockPoints_Deaths);
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pResult->GetString(0), pSelf->m_apPlayers[pointsID]->m_Account.m_BlockPoints, pSelf->m_apPlayers[pointsID]->m_Account.m_BlockPoints_Kills, pSelf->m_apPlayers[pointsID]->m_Account.m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else //show own
 		{
-			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_BlockPoints, pPlayer->m_BlockPoints_Kills, pPlayer->m_BlockPoints_Deaths);
+			str_format(aBuf, sizeof(aBuf), "'%s' points[%d] kills[%d] deaths[%d]", pSelf->Server()->ClientName(pResult->m_ClientID), pPlayer->m_Account.m_BlockPoints, pPlayer->m_Account.m_BlockPoints_Kills, pPlayer->m_Account.m_BlockPoints_Deaths);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 	}
@@ -125,7 +125,7 @@ void CGameContext::ConToggleSpawn(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if(!pPlayer->m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a VIP+.");
 		return;
@@ -163,13 +163,13 @@ void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if((!pPlayer->m_SpawnWeaponShotgun) && (!pPlayer->m_SpawnWeaponGrenade) && (!pPlayer->m_SpawnWeaponRifle))
+	if((!pPlayer->m_Account.m_SpawnWeaponShotgun) && (!pPlayer->m_Account.m_SpawnWeaponGrenade) && (!pPlayer->m_Account.m_SpawnWeaponRifle))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have any spawn weapons.");
 		return;
 	}
 
-	if(!pPlayer->m_UseSpawnWeapons)
+	if(!pPlayer->m_Account.m_UseSpawnWeapons)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons activated");
 	}
@@ -178,7 +178,7 @@ void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons deactivated");
 	}
 
-	pPlayer->m_UseSpawnWeapons ^= true;
+	pPlayer->m_Account.m_UseSpawnWeapons ^= true;
 }
 
 void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
@@ -190,7 +190,7 @@ void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(!pPlayer->m_IsSuperModerator && !pPlayer->m_IsModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator && !pPlayer->m_Account.m_IsModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SAY] Missing permission.");
 		return;
@@ -1067,7 +1067,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
-					pSelf->m_apPlayers[i]->m_IsSupporter = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsSupporter = value;
 					if(value == 1)
 					{
 						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
@@ -1103,7 +1103,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
-					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsSuperModerator = value;
 					if(value == 1)
 					{
 						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+.");
@@ -1139,7 +1139,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
-					pSelf->m_apPlayers[i]->m_IsModerator = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsModerator = value;
 					if(value == 1)
 					{
 						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
@@ -1175,7 +1175,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
 				{
-					pSelf->m_apPlayers[i]->m_IsAccFrozen = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsAccFrozen = value;
 					pSelf->m_apPlayers[i]->Logout(); //always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
 					pSelf->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is logged in)", value);
@@ -1245,9 +1245,9 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "==== '%s' Account Info ====", pSelf->Server()->ClientName(pSelf->m_apPlayers[InfoID]->GetCID()));
 		pSelf->SendChatTarget(ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Register date [%s]", pSelf->m_apPlayers[InfoID]->m_aAccountRegDate);
+		str_format(aBuf, sizeof(aBuf), "Register date [%s]", pSelf->m_apPlayers[InfoID]->m_Account.m_aRegisterDate);
 		pSelf->SendChatTarget(ClientID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_aAccountLoginName, pSelf->m_apPlayers[InfoID]->GetAccID());
+		str_format(aBuf, sizeof(aBuf), "==== Username: '%s' SQL: %d ====", pSelf->m_apPlayers[InfoID]->m_Account.m_aUsername, pSelf->m_apPlayers[InfoID]->GetAccID());
 		pSelf->SendChatTarget(ClientID, aBuf);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN1);
 		pSelf->SendChatTarget(ClientID, pSelf->m_apPlayers[InfoID]->m_Account.m_LastLogoutIGN2);
@@ -1383,32 +1383,32 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(!str_comp_nocase(aPara1, "default"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 0;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 0;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: default");
 			}
 			else if(!str_comp_nocase(aPara1, "shit"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 1;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 1;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: shit");
 			}
 			else if(!str_comp_nocase(aPara1, "social"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 2;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 2;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: social");
 			}
 			else if(!str_comp_nocase(aPara1, "show-off"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 3;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 3;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: show-off");
 			}
 			else if(!str_comp_nocase(aPara1, "pvp"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 4;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 4;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: pvp");
 			}
 			else if(!str_comp_nocase(aPara1, "bomber"))
 			{
-				pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStyle = 5;
+				pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStyle = 5;
 				pSelf->SendChatTarget(pResult->m_ClientID, "Changed profile-style to: bomber");
 			}
 			else
@@ -1421,7 +1421,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] status: %s", pPlayer->m_ProfileStatus);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] status: %s", pPlayer->m_Account.m_ProfileStatus);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1432,15 +1432,15 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileStatus);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStatus, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStatus));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile status: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileStatus);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else if(!str_comp_nocase(aPara0, "skype"))
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] skype: %s", pPlayer->m_ProfileSkype);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] skype: %s", pPlayer->m_Account.m_ProfileSkype);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1451,15 +1451,15 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile skype: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileSkype);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileSkype, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileSkype));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile skype: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileSkype);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else if(!str_comp_nocase(aPara0, "youtube"))
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] youtube: %s", pPlayer->m_ProfileYoutube);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] youtube: %s", pPlayer->m_Account.m_ProfileYoutube);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1470,15 +1470,15 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile youtube: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileYoutube);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileYoutube, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileYoutube));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile youtube: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileYoutube);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else if(!str_comp_nocase(aPara0, "email") || !str_comp_nocase(aPara0, "e-mail"))
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] email: %s", pPlayer->m_ProfileEmail);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] email: %s", pPlayer->m_Account.m_ProfileEmail);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1489,15 +1489,15 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile e-mail: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileEmail);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileEmail, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileEmail));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile e-mail: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileEmail);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else if(!str_comp_nocase(aPara0, "homepage") || !str_comp_nocase(aPara0, "website"))
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] homepage: %s", pPlayer->m_ProfileHomepage);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] homepage: %s", pPlayer->m_Account.m_ProfileHomepage);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1508,15 +1508,15 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile homepage: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileHomepage);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileHomepage, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileHomepage));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile homepage: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileHomepage);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else if(!str_comp_nocase(aPara0, "twitter"))
 		{
 			if(pResult->NumArguments() < 2)
 			{
-				str_format(aBuf, sizeof(aBuf), "[PROFILE] twitter: %s", pPlayer->m_ProfileTwitter);
+				str_format(aBuf, sizeof(aBuf), "[PROFILE] twitter: %s", pPlayer->m_Account.m_ProfileTwitter);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
@@ -1527,8 +1527,8 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				return;
 			}
 
-			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter));
-			str_format(aBuf, sizeof(aBuf), "Updated your profile twitter: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_ProfileTwitter);
+			str_copy(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileTwitter, aPara1, sizeof(pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileTwitter));
+			str_format(aBuf, sizeof(aBuf), "Updated your profile twitter: %s", pSelf->m_apPlayers[pResult->m_ClientID]->m_Account.m_ProfileTwitter);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		}
 		else
@@ -1694,7 +1694,7 @@ void CGameContext::ConChangePassword(IConsole::IResult *pResult, void *pUserData
 	}
 
 	str_format(pPlayer->m_aChangePassword, sizeof(pPlayer->m_aChangePassword), "%s", aNewPass);
-	pSelf->SQLaccount(pSelf->SQL_CHANGE_PASSWORD, pResult->m_ClientID, pPlayer->m_aAccountLoginName, aOldPass);
+	pSelf->SQLaccount(pSelf->SQL_CHANGE_PASSWORD, pResult->m_ClientID, pPlayer->m_Account.m_aUsername, aOldPass);
 }
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)
@@ -3273,7 +3273,7 @@ void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if(!pPlayer->m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
 		return;
@@ -3314,7 +3314,7 @@ void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if(!pPlayer->m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
 		return;
@@ -4074,7 +4074,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if(pPlayer->m_IsSuperModerator)
+	else if(pPlayer->m_Account.m_IsSuperModerator)
 	{
 		if(pResult->NumArguments() == 1) //only item no player --> give it ur self
 		{
@@ -4198,7 +4198,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if(pPlayer->m_IsModerator)
+	else if(pPlayer->m_Account.m_IsModerator)
 	{
 		if(pResult->NumArguments() == 1) //only item no player --> give it ur self
 		{
@@ -4392,9 +4392,9 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to create a bomb game. More info at '/accountinfo'.");
 			return;
 		}
-		if(pPlayer->m_BombBanTime)
+		if(pPlayer->m_Account.m_BombBanTime)
 		{
-			str_format(aBuf, sizeof(aBuf), "You are banned from bomb gamesfor %d second(s).", pPlayer->m_BombBanTime / 60);
+			str_format(aBuf, sizeof(aBuf), "You are banned from bomb gamesfor %d second(s).", pPlayer->m_Account.m_BombBanTime / 60);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -4464,9 +4464,9 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "You need to be logged in to join a bomb game. More info at '/accountinfo'.");
 			return;
 		}
-		if(pPlayer->m_BombBanTime)
+		if(pPlayer->m_Account.m_BombBanTime)
 		{
-			str_format(aBuf, sizeof(aBuf), "You are banned from bomb games for %d second(s).", pPlayer->m_BombBanTime / 60);
+			str_format(aBuf, sizeof(aBuf), "You are banned from bomb games for %d second(s).", pPlayer->m_Account.m_BombBanTime / 60);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
@@ -4744,7 +4744,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
@@ -4763,7 +4763,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
@@ -4776,7 +4776,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
 			}
 		}
-		else if(pPlayer->m_IsSuperModerator)
+		else if(pPlayer->m_Account.m_IsSuperModerator)
 		{
 			int Bantime = pResult->GetInteger(1);
 			char aBanname[32];
@@ -4807,7 +4807,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP+ '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
@@ -4826,7 +4826,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP+ '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
@@ -4839,7 +4839,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
 			}
 		}
-		else if(pPlayer->m_IsModerator)
+		else if(pPlayer->m_Account.m_IsModerator)
 		{
 			int Bantime = pResult->GetInteger(1);
 			char aBanname[32];
@@ -4852,7 +4852,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->Server()->GetAuthedState(BanID) == AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator)
+			if(pSelf->Server()->GetAuthedState(BanID) == AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_Account.m_IsSuperModerator)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
 				return;
@@ -4870,7 +4870,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 			}
@@ -4889,7 +4889,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->GetPlayerChar(BanID)->m_IsBombReady = false;
 
 				//do the ban
-				pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+				pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 				str_format(aBuf, sizeof(aBuf), "[BOMB] You were banned by VIP '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
 				pSelf->SendChatTarget(BanID, aBuf);
 
@@ -4915,7 +4915,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->Server()->GetAuthedState(BanID) == AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_IsSuperModerator || pSelf->m_apPlayers[BanID]->m_IsModerator)
+			if(pSelf->Server()->GetAuthedState(BanID) == AUTHED_ADMIN || pSelf->m_apPlayers[BanID]->m_Account.m_IsSuperModerator || pSelf->m_apPlayers[BanID]->m_Account.m_IsModerator)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission to kick this player.");
 				return;
@@ -4937,7 +4937,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendBroadcast("", BanID);
 
 			//do the kick
-			pSelf->m_apPlayers[BanID]->m_BombBanTime = Bantime * 60;
+			pSelf->m_apPlayers[BanID]->m_Account.m_BombBanTime = Bantime * 60;
 			str_format(aBuf, sizeof(aBuf), "[BOMB] You were kicked by rcon_mod '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 			pSelf->SendChatTarget(BanID, aBuf);
 
@@ -4971,14 +4971,14 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		{
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
-				if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+				if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_BombBanTime)
 				{
 					//UNBANNING PLAYER
-					str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+					str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_Account.m_BombBanTime / 60);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 					//UNBANNED PLAYER
-					pSelf->m_apPlayers[i]->m_BombBanTime = 0;
+					pSelf->m_apPlayers[i]->m_Account.m_BombBanTime = 0;
 					str_format(aBuf, sizeof(aBuf), "You were unbanned from bomb games by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 					pSelf->SendChatTarget(pSelf->m_apPlayers[i]->GetCID(), aBuf);
 				}
@@ -4988,14 +4988,14 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 		if(pSelf->m_apPlayers[UnbanID])
 		{
-			if(pSelf->m_apPlayers[UnbanID]->m_BombBanTime)
+			if(pSelf->m_apPlayers[UnbanID]->m_Account.m_BombBanTime)
 			{
 				//UNBANNING PLAYER
-				str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(UnbanID), pSelf->m_apPlayers[UnbanID]->m_BombBanTime / 60);
+				str_format(aBuf, sizeof(aBuf), "You unbanned '%s' (he had %d seconds bantime left).", pSelf->Server()->ClientName(UnbanID), pSelf->m_apPlayers[UnbanID]->m_Account.m_BombBanTime / 60);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 				//UNBANNED PLAYER
-				pSelf->m_apPlayers[UnbanID]->m_BombBanTime = 0;
+				pSelf->m_apPlayers[UnbanID]->m_Account.m_BombBanTime = 0;
 				str_format(aBuf, sizeof(aBuf), "You were unbanned from bomb games by '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
 				pSelf->SendChatTarget(pSelf->m_apPlayers[UnbanID]->GetCID(), aBuf);
 			}
@@ -5050,11 +5050,11 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//for (int i = page * 5; i < MAX_CLIENTS; i++) yes it is an minor performance improvement but fuck it (did that cuz something didnt work) ((would be -1 anyways because human page 2 is computer page 1))
 				for(int i = 0; i < MAX_CLIENTS; i++)
 				{
-					if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+					if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_BombBanTime)
 					{
 						if(PlayersShownOnPreviousPages >= (page - 1) * 5)
 						{
-							str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+							str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_Account.m_BombBanTime / 60);
 							pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 							PlayersShownOnPage++;
 						}
@@ -5081,9 +5081,9 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
-				if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_BombBanTime)
+				if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_BombBanTime)
 				{
-					str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_BombBanTime / 60);
+					str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_Account.m_BombBanTime / 60);
 					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 					PlayersShownOnPage++;
 				}
@@ -5348,7 +5348,7 @@ void CGameContext::ConRoom(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
-		if(!pPlayer->m_IsSuperModerator)
+		if(!pPlayer->m_Account.m_IsSuperModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
@@ -5400,7 +5400,7 @@ void CGameContext::ConRoom(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 			return;
 		}
-		if(!pPlayer->m_IsSuperModerator)
+		if(!pPlayer->m_Account.m_IsSuperModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
 			return;
@@ -5992,7 +5992,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if(pResult->GetInteger(1) == 0)
 		{
-			if(pPlayer->m_aAsciiPublishState[1] == '0')
+			if(pPlayer->m_Account.m_aAsciiPublishState[1] == '0')
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
 			}
@@ -6000,12 +6000,12 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
 				pSelf->SendChatTarget(pResult->m_ClientID, "It can no longer be viewed with '/profile view <you>'.");
-				pPlayer->m_aAsciiPublishState[1] = '0';
+				pPlayer->m_Account.m_aAsciiPublishState[1] = '0';
 			}
 		}
 		else if(pResult->GetInteger(1) == 1)
 		{
-			if(pPlayer->m_aAsciiPublishState[1] == '1')
+			if(pPlayer->m_Account.m_aAsciiPublishState[1] == '1')
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public on your profile.");
 			}
@@ -6013,7 +6013,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
 				pSelf->SendChatTarget(pResult->m_ClientID, "It can be viewed with '/profile view <you>'.");
-				pPlayer->m_aAsciiPublishState[1] = '1';
+				pPlayer->m_Account.m_aAsciiPublishState[1] = '1';
 			}
 		}
 		else
@@ -6039,7 +6039,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if(pResult->GetInteger(1) == 0)
 		{
-			if(pPlayer->m_aAsciiPublishState[0] == '0')
+			if(pPlayer->m_Account.m_aAsciiPublishState[0] == '0')
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already private.");
 			}
@@ -6047,12 +6047,12 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now private.");
 				pSelf->SendChatTarget(pResult->m_ClientID, "It can no longer be viewed with '/ascii view <your id>'");
-				pPlayer->m_aAsciiPublishState[0] = '0';
+				pPlayer->m_Account.m_aAsciiPublishState[0] = '0';
 			}
 		}
 		else if(pResult->GetInteger(1) == 1)
 		{
-			if(pPlayer->m_aAsciiPublishState[0] == '1')
+			if(pPlayer->m_Account.m_aAsciiPublishState[0] == '1')
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is already public.");
 			}
@@ -6060,7 +6060,7 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "Your animation is now public.");
 				pSelf->SendChatTarget(pResult->m_ClientID, "It can be viewed with '/ascii view <your id>'");
-				pPlayer->m_aAsciiPublishState[0] = '1';
+				pPlayer->m_Account.m_aAsciiPublishState[0] = '1';
 			}
 		}
 		else
@@ -6086,115 +6086,115 @@ void CGameContext::ConAscii(IConsole::IResult *pResult, void *pUserData)
 
 		if(pResult->GetInteger(1) == 0)
 		{
-			str_format(pPlayer->m_aAsciiFrame0, sizeof(pPlayer->m_aAsciiFrame0), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame0);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[0], sizeof(pPlayer->m_Account.m_aAsciiFrame[0]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[0]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame0, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[0], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 1)
 		{
-			str_format(pPlayer->m_aAsciiFrame1, sizeof(pPlayer->m_aAsciiFrame1), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame1);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[1], sizeof(pPlayer->m_Account.m_aAsciiFrame[1]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[1]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame1, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[1], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 2)
 		{
-			str_format(pPlayer->m_aAsciiFrame2, sizeof(pPlayer->m_aAsciiFrame2), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame2);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[2], sizeof(pPlayer->m_Account.m_aAsciiFrame[2]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[2]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame2, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[2], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 3)
 		{
-			str_format(pPlayer->m_aAsciiFrame3, sizeof(pPlayer->m_aAsciiFrame3), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame3);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[3], sizeof(pPlayer->m_Account.m_aAsciiFrame[3]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[3]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame3, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[3], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 4)
 		{
-			str_format(pPlayer->m_aAsciiFrame4, sizeof(pPlayer->m_aAsciiFrame4), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame4);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[4], sizeof(pPlayer->m_Account.m_aAsciiFrame[4]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[4]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame4, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[4], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 5)
 		{
-			str_format(pPlayer->m_aAsciiFrame5, sizeof(pPlayer->m_aAsciiFrame5), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame5);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[5], sizeof(pPlayer->m_Account.m_aAsciiFrame[5]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[5]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame5, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[5], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 6)
 		{
-			str_format(pPlayer->m_aAsciiFrame6, sizeof(pPlayer->m_aAsciiFrame6), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame6);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[6], sizeof(pPlayer->m_Account.m_aAsciiFrame[6]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[6]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame6, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[6], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 7)
 		{
-			str_format(pPlayer->m_aAsciiFrame7, sizeof(pPlayer->m_aAsciiFrame7), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame7);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[7], sizeof(pPlayer->m_Account.m_aAsciiFrame[7]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[7]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame7, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[7], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 8)
 		{
-			str_format(pPlayer->m_aAsciiFrame8, sizeof(pPlayer->m_aAsciiFrame8), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame8);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[8], sizeof(pPlayer->m_Account.m_aAsciiFrame[8]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[8]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame8, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[8], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 9)
 		{
-			str_format(pPlayer->m_aAsciiFrame9, sizeof(pPlayer->m_aAsciiFrame9), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame9);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[9], sizeof(pPlayer->m_Account.m_aAsciiFrame[9]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[9]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame9, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[9], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 10)
 		{
-			str_format(pPlayer->m_aAsciiFrame10, sizeof(pPlayer->m_aAsciiFrame10), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame10);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[10], sizeof(pPlayer->m_Account.m_aAsciiFrame[10]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[10]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame10, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[10], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 11)
 		{
-			str_format(pPlayer->m_aAsciiFrame11, sizeof(pPlayer->m_aAsciiFrame11), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame11);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[11], sizeof(pPlayer->m_Account.m_aAsciiFrame[11]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[11]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame11, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[11], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 12)
 		{
-			str_format(pPlayer->m_aAsciiFrame12, sizeof(pPlayer->m_aAsciiFrame12), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame12);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[12], sizeof(pPlayer->m_Account.m_aAsciiFrame[12]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[12]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame12, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[12], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 13)
 		{
-			str_format(pPlayer->m_aAsciiFrame13, sizeof(pPlayer->m_aAsciiFrame13), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame13);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[13], sizeof(pPlayer->m_Account.m_aAsciiFrame[13]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[13]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame13, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[13], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 14)
 		{
-			str_format(pPlayer->m_aAsciiFrame14, sizeof(pPlayer->m_aAsciiFrame14), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame14);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[14], sizeof(pPlayer->m_Account.m_aAsciiFrame[14]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[14]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame14, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[14], pResult->m_ClientID);
 		}
 		else if(pResult->GetInteger(1) == 15)
 		{
-			str_format(pPlayer->m_aAsciiFrame15, sizeof(pPlayer->m_aAsciiFrame15), "%s", pResult->GetString(2));
-			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_aAsciiFrame15);
+			str_format(pPlayer->m_Account.m_aAsciiFrame[15], sizeof(pPlayer->m_Account.m_aAsciiFrame[15]), "%s", pResult->GetString(2));
+			str_format(aBuf, sizeof(aBuf), "updated frame[%d]: %s", pResult->GetInteger(1), pPlayer->m_Account.m_aAsciiFrame[15]);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			pSelf->SendBroadcast(pPlayer->m_aAsciiFrame15, pResult->m_ClientID);
+			pSelf->SendBroadcast(pPlayer->m_Account.m_aAsciiFrame[15], pResult->m_ClientID);
 		}
 		else
 		{
@@ -6271,7 +6271,7 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "rainbow"))
 	{
-		if(pPlayer->m_IsSuperModerator || pPlayer->m_IsModerator)
+		if(pPlayer->m_Account.m_IsSuperModerator || pPlayer->m_Account.m_IsModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You got rainbow hook.");
 			pPlayer->m_HookPower = 1;
@@ -6283,7 +6283,7 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "bloody"))
 	{
-		if(pPlayer->m_IsSuperModerator)
+		if(pPlayer->m_Account.m_IsSuperModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You got bloody hook.");
 			pPlayer->m_HookPower = 2;
@@ -6478,11 +6478,11 @@ void CGameContext::ConSpawnWeaponsInfo(IConsole::IResult *pResult, void *pUserDa
 	pSelf->SendChatTarget(pResult->m_ClientID, "You can have max. 5 bullets per weapon.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "Each bullet costs 600.000 money.");
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ YOUR SPAWN WEAPON STATS ~~~");
-	str_format(aBuf, sizeof(aBuf), "Spawn shotgun bullets: %d", pPlayer->m_SpawnWeaponShotgun);
+	str_format(aBuf, sizeof(aBuf), "Spawn shotgun bullets: %d", pPlayer->m_Account.m_SpawnWeaponShotgun);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Spawn grenade bullets: %d", pPlayer->m_SpawnWeaponGrenade);
+	str_format(aBuf, sizeof(aBuf), "Spawn grenade bullets: %d", pPlayer->m_Account.m_SpawnWeaponGrenade);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Spawn rifle bullets: %d", pPlayer->m_SpawnWeaponRifle);
+	str_format(aBuf, sizeof(aBuf), "Spawn rifle bullets: %d", pPlayer->m_Account.m_SpawnWeaponRifle);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~ SPAWN WEAPON COMMANDS ~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, "'/spawnweapons to activate/deactivate it.");
@@ -6550,7 +6550,7 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN && !pPlayer->m_IsSupporter)
+	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN && !pPlayer->m_Account.m_IsSupporter)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[LIVE] missing permission to use this command.");
 		return;
@@ -6594,7 +6594,7 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 	}
 	if(pLive->IsLoggedIn())
 	{
-		str_format(aBuf, sizeof(aBuf), "Account: %s", pLive->m_aAccountLoginName);
+		str_format(aBuf, sizeof(aBuf), "Account: %s", pLive->m_Account.m_aUsername);
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "AccountID: %d", pLive->GetAccID());
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -6700,7 +6700,7 @@ void CGameContext::ConRegex(IConsole::IResult *pResult, void *pUserData)
 		Since regex can be used as denial of service attack vector
 		it is probably safer to make it staff only command
 	*/
-	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN && !pPlayer->m_IsSupporter)
+	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN && !pPlayer->m_Account.m_IsSupporter)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[REGEX] missing permission to use this command.");
 		return;
@@ -7943,7 +7943,7 @@ void CGameContext::ConBroadcastServer(IConsole::IResult *pResult, void *pUserDat
 	if(!pPlayer)
 		return;
 
-	if(!pPlayer->m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission. You are not a VIP+.");
 		return;
@@ -8028,19 +8028,19 @@ void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)
 			if(pResult->GetInteger(1) == 0)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are no longer joining games on account login.");
-				pPlayer->m_aFngConfig[0] = '0';
+				pPlayer->m_Account.m_aFngConfig[0] = '0';
 				return;
 			}
 			else if(pResult->GetInteger(1) == 1)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining fng on account login.");
-				pPlayer->m_aFngConfig[0] = '1';
+				pPlayer->m_Account.m_aFngConfig[0] = '1';
 				return;
 			}
 			else if(pResult->GetInteger(1) == 2)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now automatically joining boomfng on account login.");
-				pPlayer->m_aFngConfig[0] = '2';
+				pPlayer->m_Account.m_aFngConfig[0] = '2';
 				return;
 			}
 		}
@@ -8054,13 +8054,13 @@ void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)
 			if(pResult->GetInteger(1) == 0)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using VANILLA hammer.");
-				pPlayer->m_aFngConfig[1] = '0';
+				pPlayer->m_Account.m_aFngConfig[1] = '0';
 				return;
 			}
 			else if(pResult->GetInteger(1) == 1)
 			{
 				pSelf->SendChatTarget(pResult->m_ClientID, "[FNG] you are now using FNG hammer.");
-				pPlayer->m_aFngConfig[1] = '1';
+				pPlayer->m_Account.m_aFngConfig[1] = '1';
 				return;
 			}
 		}
@@ -8092,7 +8092,7 @@ void CGameContext::ConSQLLogout(IConsole::IResult *pResult, void *pUserData)
 	{
 		if(g_Config.m_SvSupAccReset > 0) // 1 or 2 are allowed to use this
 		{
-			if(pPlayer->m_IsSupporter)
+			if(pPlayer->m_Account.m_IsSupporter)
 			{
 				//supporters are allowed
 			}
@@ -8142,7 +8142,7 @@ void CGameContext::ConSQLLogoutAll(IConsole::IResult *pResult, void *pUserData)
 	{
 		if(g_Config.m_SvSupAccReset == 2)
 		{
-			if(pPlayer->m_IsSupporter)
+			if(pPlayer->m_Account.m_IsSupporter)
 			{
 				//supporters are allowed
 			}
@@ -8367,25 +8367,25 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	//ALL CHECKS DONE --> load stats
 	//==============================
 
-	str_copy(pPlayer->m_aAccountLoginName, aUsername, sizeof(pPlayer->m_aAccountLoginName));
-	str_copy(pPlayer->m_aAccountPassword, aPassword, sizeof(pPlayer->m_aAccountPassword));
+	str_copy(pPlayer->m_Account.m_aUsername, aUsername, sizeof(pPlayer->m_Account.m_aUsername));
+	str_copy(pPlayer->m_Account.m_aPassword, aPassword, sizeof(pPlayer->m_Account.m_aPassword));
 	pPlayer->SetAccID(-1);
 	pPlayer->m_IsFileAcc = true;
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded vip '%d'", atoi(aData));
-	pPlayer->m_IsModerator = atoi(aData);
+	pPlayer->m_Account.m_IsModerator = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded vip++ '%d'", atoi(aData));
-	pPlayer->m_IsSuperModerator = atoi(aData);
+	pPlayer->m_Account.m_IsSuperModerator = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
 	dbg_msg("acc2", "loaded supporter '%d'", atoi(aData));
-	pPlayer->m_IsSupporter = atoi(aData);
+	pPlayer->m_Account.m_IsSupporter = atoi(aData);
 
 	getline(Acc2File, data);
 	str_copy(aData, data.c_str(), sizeof(aData));
@@ -8635,9 +8635,9 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(pSelf->m_apPlayers[i])
 			{
-				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_Account.m_aUsername, aName))
 				{
-					pSelf->m_apPlayers[i]->m_IsSupporter = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsSupporter = value;
 					if(value == 1)
 					{
 						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
@@ -8681,9 +8681,9 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 		{
 			if(pSelf->m_apPlayers[i])
 			{
-				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_aAccountLoginName, aName))
+				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_Account.m_aUsername, aName))
 				{
-					pSelf->m_apPlayers[i]->m_IsSuperModerator = value;
+					pSelf->m_apPlayers[i]->m_Account.m_IsSuperModerator = value;
 					if(value == 1)
 					{
 						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+");
@@ -8728,7 +8728,7 @@ void CGameContext::ConAdmin(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(!(pSelf->Server()->GetAuthedState(pResult->m_ClientID) == AUTHED_ADMIN || (pSelf->Server()->GetAuthedState(ClientID) && pPlayer->m_IsSupporter)))
+	if(!(pSelf->Server()->GetAuthedState(pResult->m_ClientID) == AUTHED_ADMIN || (pSelf->Server()->GetAuthedState(ClientID) && pPlayer->m_Account.m_IsSupporter)))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[ADMIN] Missing permission.");
 		return;
