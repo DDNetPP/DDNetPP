@@ -120,3 +120,12 @@ As a fix admin can use the '/sql_logout_all' chat command which updates the data
 The fix is not supported well if the database holds more than 99 999 999 accounts.
 
 An alternative is to do it for every account manually with the chat command '/sql_logout (accname)' but this is less save than sql_logout_all because this one does no check if the account is currently playing and is not limited to this port. So it could set a account logged out in the database while the account is logged in. And thus allow another login.
+
+*Bug*:
+```
+*** [ACCOUNT] Login failed. This account is already logged in on another server.
+```
+
+*Explanation & fix*:
+
+If you run multiple servers on different ports the server has to save which port the accounts are logged in. Newer ddnet allows you to not set ``sv_port`` or set it to 0 which picks a free port for you. But the database will then store 0 for all servers. So if you are using multiple servers sharing the same database you have to explicitly set ``sv_port`` to something non zero.
