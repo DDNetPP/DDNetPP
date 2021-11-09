@@ -36,6 +36,7 @@ struct CAccountData
 		m_aUsername[0] = '\0';
 		m_aPassword[0] = '\0';
 		m_aRegisterDate[0] = '\0';
+		m_IsLoggedIn = 0;
 		m_LastLogoutIGN1[0] = '\0';
 		m_LastLogoutIGN2[0] = '\0';
 		m_LastLogoutIGN3[0] = '\0';
@@ -125,6 +126,7 @@ struct CAccountData
 	char m_aUsername[64];
 	char m_aPassword[64];
 	char m_aRegisterDate[64];
+	int m_IsLoggedIn;
 	char m_LastLogoutIGN1[32];
 	char m_LastLogoutIGN2[32];
 	char m_LastLogoutIGN3[32];
@@ -281,6 +283,18 @@ struct CSqlAccountRequest : ISqlData
 	char m_aPassword[64];
 };
 
+struct CSqlSetLoginData : ISqlData
+{
+	CSqlSetLoginData() :
+		ISqlData(nullptr)
+	{
+	}
+
+	int m_AccountID;
+	int m_LoggedIn;
+	int m_Port;
+};
+
 // for server scoped querys (not per player)
 
 // struct CScoreInitResult : ISqlResult
@@ -301,6 +315,7 @@ class CAccounts
 	IServer *m_pServer;
 
 	static bool LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
 	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientID);
@@ -317,6 +332,7 @@ public:
 	~CAccounts() {}
 
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
+	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 };
 
 #endif

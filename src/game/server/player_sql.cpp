@@ -48,6 +48,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 		case CAccountResult::LOGIN_INFO:
 			GameServer()->SendChatTarget(m_ClientID, "login  suscce");
 			m_Account = Result.m_Account;
+			// GameServer()->Accounts()->SetLoggedIn(m_ClientID, 1, m_Account.m_ID, g_Config.m_SvPort);
 			break;
 		}
 	}

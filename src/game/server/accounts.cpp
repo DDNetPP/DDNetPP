@@ -72,7 +72,6 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
 	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
 
-	// check sort method
 	char aBuf[512];
 	str_copy(aBuf,
 		"SELECT "
@@ -148,7 +147,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aUsername, sizeof(pResult->m_Account.m_aUsername));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aPassword, sizeof(pResult->m_Account.m_aPassword));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
-		Index++; // 5 IsLoggedIn (not needed here)
+		pResult->m_Account.m_IsLoggedIn = pSqlServer->GetInt(Index++);
 		Index++; // 6 LastLoginPort (not needed)
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN1, sizeof(pResult->m_Account.m_LastLogoutIGN1));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN2, sizeof(pResult->m_Account.m_LastLogoutIGN2));
@@ -228,4 +227,40 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 			sizeof(pResult->m_aaMessages[0]));
 	}
 	return false;
+}
+
+void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
+{
+	auto Tmp = std::unique_ptr<CSqlSetLoginData>(new CSqlSetLoginData());
+	Tmp->m_Port = Port;
+	Tmp->m_LoggedIn = LoggedIn;
+	Tmp->m_AccountID = AccountID;
+
+	m_pPool->ExecuteWrite(SetLoggedInThread, std::move(Tmp), "set logged in");
+}
+
+bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+{
+	const CSqlSetLoginData *pData = dynamic_cast<const CSqlSetLoginData *>(pGameData);
+
+	char aBuf[512];
+	str_copy(aBuf,
+		"UPDATE Accounts SET IsLoggedIn = ?, LastLoginPort = ? WHERE ID = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return true;
+	}
+	pSqlServer->BindInt(1, pData->m_LoggedIn);
+	pSqlServer->BindInt(2, pData->m_Port);
+	pSqlServer->BindInt(3, pData->m_AccountID);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_assert(false, "SetLoggedInThread did not step");
+		return true;
+	}
+	return End;
 }
