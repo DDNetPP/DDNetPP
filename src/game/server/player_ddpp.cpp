@@ -493,17 +493,18 @@ void CPlayer::Logout(int SetLoggedIn)
 	Save(SetLoggedIn);
 	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", GetAccID(), SetLoggedIn);
 
+	// Keep jail and escape time on logout
+	int64_t JailTime = m_Account.m_JailTime;
+	int64_t EscapeTime = m_Account.m_EscapeTime;
 
-	m_Account.m_JailTime = 0; //logout doesnt release :p
-	//m_EscapeTime = 0; // TODO: logout doesnt remove jail time 
+	m_Account = CAccountData();
 
-	// TODO: remove all and call m_Account constructor
+	m_Account.m_JailTime = JailTime;
+	m_Account.m_EscapeTime = EscapeTime;
 
 	//reset values to default to prevent cheating
 	m_neededxp = 0;
-	//m_LastGift = Server(WhatEver)->Trick ** 420; //let gift delay also last in logout makes sense
 	m_TaserOn = false;
-	//m_Account.m_BombBanTime = 0; //could be set to 0 because you need to belogged in anyways to play bomb            ...but yolo comments are kewl and stuff
 	m_money_transaction9[0] = '\0';
 	m_money_transaction8[0] = '\0';
 	m_money_transaction7[0] = '\0';

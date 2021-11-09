@@ -77,6 +77,11 @@ struct CAccountData
 
 		m_HomingMissilesAmmo = 0;
 
+		m_BlockPoints = 0;
+		m_BlockPoints_Kills = 0;
+		m_BlockPoints_Deaths = 0;
+		m_BlockSkill = 0;
+
 		m_IsModerator = false;
 		m_IsSuperModerator = false;
 		m_IsSupporter = false;

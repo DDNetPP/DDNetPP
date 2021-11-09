@@ -262,5 +262,5 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		dbg_assert(false, "SetLoggedInThread did not step");
 		return true;
 	}
-	return End;
+	return !End;
 }
