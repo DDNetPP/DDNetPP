@@ -49,15 +49,6 @@ void CQueryLogin::OnData()
 		}
 		else
 		{
-			if(g_Config.m_SvSpeedLogin)
-			{
-				if(m_pGameServer->m_apPlayers[m_ClientID])
-				{
-					m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] speed login success.");
-					//m_pGameServer->m_apPlayers[m_ClientID]->ThreadLoginStart(this); //crashes the server still in work
-				}
-				return;
-			}
 			if(m_pGameServer->m_apPlayers[m_ClientID])
 			{
 				//#####################################################

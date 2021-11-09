@@ -240,6 +240,4 @@ MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLA
 //MACRO_CONFIG_STR(SvFilterLogString, sv_filter_log_str, 256, "", CFGFLAG_SERVER, "Is used to filter the server log depending on sv_filter_log_state")
 MACRO_CONFIG_INT(SvMasterServerLogs, sv_mastersrv_logs, 1, 0, 1, CFGFLAG_SERVER, "1=on: show firewall/mastersrv msgs in console 0=off: save to ddnet++ variable (rcon cmd 'logs')")
 
-//test
-MACRO_CONFIG_INT(SvSpeedLogin, sv_speed_login, 0, 0, 1, CFGFLAG_SERVER, "only for testing login speed")
 #endif
