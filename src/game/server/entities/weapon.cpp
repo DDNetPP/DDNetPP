@@ -34,7 +34,7 @@ void CWeapon::Reset()
 {
 	if(m_EreaseWeapon)
 	{
-		if(m_Owner != -1)
+		if(m_Owner == -1)
 			return;
 		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
 		if(pOwner)
