@@ -93,8 +93,8 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		"	Shit, LastGift,"
 		"	PoliceRank," // 24
 		"	JailTime, EscapeTime,"
-		"	TaserLevel, "
-		"	PvPArenaTickets, PvPArenaGames, PvPArenaKills, PvPArenaDeaths, "
+		"	TaserLevel,"
+		"	PvPArenaTickets, PvPArenaGames, PvPArenaKills, PvPArenaDeaths,"
 		"	ProfileStyle, ProfileViews, ProfileStatus,"
 		"	ProfileSkype, ProfileYoutube, ProfileEmail, ProfileHomepage, ProfileTwitter"
 		"	HomingMissiles,"
@@ -114,9 +114,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		"	AsciiFrame0,"
 		"	AsciiFrame1, AsciiFrame2, AsciiFrame3, AsciiFrame4, AsciiFrame5,"
 		"	AsciiFrame6, AsciiFrame7, AsciiFrame8, AsciiFrame9, AsciiFrame10,"
-		"	AsciiFrame11, AsciiFrame12, AsciiFrame13, AsciiFrame14, AsciiFrame15"
-		"FROM Accounts "
-		"WHERE Username = ? AND Password = ?;",
+		"	AsciiFrame11, AsciiFrame12, AsciiFrame13, AsciiFrame14, AsciiFrame15 "
+		"	FROM Accounts "
+		"	WHERE Username = ? AND Password = ?;",
 		sizeof(aBuf));
 
 	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
