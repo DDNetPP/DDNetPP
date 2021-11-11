@@ -30,8 +30,6 @@ private:
 	bool m_Jetpack;
 	bool m_SpreadGun;
 
-	bool m_EreaseWeapon;
-
 	static int const ms_PhysSize = 14;
 
 	// have to define a new ID variable for the bullet

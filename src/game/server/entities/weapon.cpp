@@ -32,22 +32,14 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 void CWeapon::Reset()
 {
-	if(m_EreaseWeapon)
-	{
-		if(m_Owner == -1)
-			return;
-		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
-		if(pOwner)
-		{
-			for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-			{
-				if(pOwner->m_vWeaponLimit[m_Type][i] == this)
-				{
-					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-				}
-			}
-		}
-	}
+	if(m_Owner < 0)
+		return;
+	CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
+	if(!pOwner)
+		return;
+	for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+		if(pOwner->m_vWeaponLimit[m_Type][i] == this)
+			pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
 
 	if(IsCharacterNear() == -1)
 		GameServer()->CreateDeath(m_Pos, -1);
@@ -72,7 +64,6 @@ void CWeapon::IsShieldNear()
 		if(pShield->GetType() == POWERUP_ARMOR)
 		{
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
-			m_EreaseWeapon = true;
 			Reset();
 		}
 	}
@@ -158,7 +149,6 @@ void CWeapon::Pickup()
 		else if(m_Type == WEAPON_HAMMER || m_Type == WEAPON_GUN)
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR, pChar->Teams()->TeamMask(pChar->Team()));
 
-		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
@@ -176,14 +166,12 @@ void CWeapon::Tick()
 	{
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", "weapon_return");
 
-		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
 
 	if(m_Lifetime == 0)
 	{
-		m_EreaseWeapon = true;
 		Reset();
 		return;
 	}
