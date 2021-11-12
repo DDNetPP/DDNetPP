@@ -80,7 +80,7 @@ long long fpost_get_pos(fpos_t pos)
 {
 #if defined(CONF_FAMILY_WINDOWS)
 	return pos;
-#elif defined(CONF_PLATFORM_MACOSX)
+#elif defined(CONF_PLATFORM_MACOS)
 	return pos;
 #else
 	return pos.__pos;
