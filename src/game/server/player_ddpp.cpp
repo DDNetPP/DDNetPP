@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <limits>
+#include <cinttypes>
 
 #include "gamecontext.h"
 #include "gamecontext_sql.h"
@@ -745,7 +746,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 void CPlayer::CalcExp()
 {
 	int64_t OldNeededXp = m_neededxp;
-	dbg_msg("account", "CalcExp() neededxp=%ld xp=%ld", OldNeededXp, GetXP());
+	dbg_msg("account", "CalcExp() neededxp=%" PRId64 " xp=%" PRId64 "", OldNeededXp, GetXP());
 
 	//										xp diff
 	if(GetLevel() == 0)
@@ -1010,7 +1011,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if(GetMoney() < 0)
 	{
-		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%ld", GetCID(), Server()->ClientName(GetCID()), GetMoney());
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%" PRId64 "", GetCID(), Server()->ClientName(GetCID()), GetMoney());
 	}
 #endif
 	if(!str_comp(Description, ""))

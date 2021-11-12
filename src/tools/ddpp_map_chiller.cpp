@@ -186,7 +186,9 @@ int main(int argc, const char **argv)
 		{
 			pItem = (CMapItemLayer *)DataFile.GetItem(i, 0, 0);
 			pTilemap = (CMapItemLayerTilemap *)pItem;
-			(CTile *)DataFile.GetData(pTilemap->m_Data);
+			CTile *pUnused = (CTile *)DataFile.GetData(pTilemap->m_Data);
+			if(!pUnused)
+				return 0;
 			char aName[16];
 			IntsToStr(pTilemap->m_aName, sizeof(pTilemap->m_aName) / sizeof(int), aName);
 			if(str_comp_num(aName, "Game", sizeof("Game")) == 0)
@@ -243,7 +245,7 @@ int main(int argc, const char **argv)
 			if(mapwidthFreeze != mapwidth || mapheightFreeze != mapheight)
 			{
 				dbg_msg("ERROR", "Freeze layer (%d x %d) is not the same size as Game (%d x %d)", mapwidthFreeze, mapheightFreeze, mapwidth, mapheight);
-				return false;
+				return 0;
 			}
 			CTile *pTile;
 			pTile = (CTile *)DataFile.GetData(i);
@@ -257,7 +259,7 @@ int main(int argc, const char **argv)
 			if(mapwidthStones != mapwidth || mapheightStones != mapheight)
 			{
 				dbg_msg("ERROR", "Stones layer (%d x %d) is not the same size as Game (%d x %d)", mapwidthStones, mapheightStones, mapwidth, mapheight);
-				return false;
+				return 0;
 			}
 			CTile *pTile;
 			pTile = (CTile *)DataFile.GetData(i);
@@ -271,7 +273,7 @@ int main(int argc, const char **argv)
 			if(mapwidthChiller != mapwidth || mapheightStones != mapheight)
 			{
 				dbg_msg("ERROR", "Chiller layer (%d x %d) is not the same size as Game (%d x %d)", mapwidthChiller, mapheightChiller, mapwidth, mapheight);
-				return false;
+				return 0;
 			}
 			CTile *pTile;
 			pTile = (CTile *)DataFile.GetData(i);

@@ -1,14 +1,17 @@
 // gamecontext scoped ddnet++ methods
 
 #include "accounts.h"
+
 #include <base/ddpp_logs.h>
 #include <base/system_ddpp.h>
-#include <cstring>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
-#include <fstream> //acc2 sys
 #include <game/server/teams.h>
+
+#include <cstring>
+#include <fstream> //acc2 sys
 #include <limits> //acc2 sys
+#include <cinttypes>
 
 #include "save.h"
 
@@ -932,11 +935,11 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
 	SendChatTarget(requestID, aBuf);
 	if(!pPlayer->IsLoggedIn())
-		str_format(aBuf, sizeof(aBuf), "Xp[%lu] (not logged in)", pPlayer->GetXP());
+		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (not logged in)", pPlayer->GetXP());
 	else
-		str_format(aBuf, sizeof(aBuf), "Xp[%lu/%lu]", pPlayer->GetXP(), pPlayer->GetNeededXP());
+		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "/%" PRId64 "]", pPlayer->GetXP(), pPlayer->GetNeededXP());
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Money[%lu]", pPlayer->GetMoney());
+	str_format(aBuf, sizeof(aBuf), "Money[%" PRId64 "]", pPlayer->GetMoney());
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
 	SendChatTarget(requestID, aBuf);

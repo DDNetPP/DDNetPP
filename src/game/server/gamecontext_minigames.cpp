@@ -4,6 +4,7 @@
 #include <game/server/teams.h>
 
 #include <cstring>
+#include <cinttypes>
 
 #include "gamecontext.h"
 
@@ -1280,7 +1281,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	//winner private
 	char aBuf[128];
 	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
-	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%ld money.", m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%" PRId64 " money.", m_BombMoney * m_BombStartPlayers);
 	SendChatTarget(WinnerID, aBuf);
 	m_apPlayers[WinnerID]->m_Account.m_BombGamesWon++;
 	m_apPlayers[WinnerID]->m_Account.m_BombGamesPlayed++;
@@ -1294,7 +1295,7 @@ void CGameContext::EndBombGame(int WinnerID)
 	}
 
 	//winner public
-	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %ld money!", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %" PRId64 " money!", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 }
 
@@ -1361,7 +1362,7 @@ void CGameContext::CheckStartBomb()
 						GetPlayerChar(i)->ChillTelePort((g_Config.m_SvBombSpawnX * 32) + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY * 32);
 						//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary)
 					}
-					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%ld money for the winner!", m_BombMoney * m_BombStartPlayers);
+					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%" PRId64 " money for the winner!", m_BombMoney * m_BombStartPlayers);
 					SendBroadcast(aBuf, i);
 					GetPlayerChar(i)->m_BombPosX = GetPlayerChar(i)->m_Pos.x / 32;
 					GetPlayerChar(i)->m_BombPosY = GetPlayerChar(i)->m_Pos.y / 32;
@@ -1408,11 +1409,11 @@ void CGameContext::BombTick()
 				{
 					if(GetPlayerChar(i)->m_IsBombReady)
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %ld", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %" PRId64, CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %ld\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %" PRId64 "\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
 					}
 					SendBroadcast(aBuf, i);
 				}

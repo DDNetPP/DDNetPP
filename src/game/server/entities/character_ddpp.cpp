@@ -7,12 +7,15 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
+#include <cinttypes>
+
 #include "flag.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
 
 #include "character.h"
+
 
 void CCharacter::DDPPDDRacePostCoreTick()
 {
@@ -2185,14 +2188,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2207,14 +2210,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2230,14 +2233,14 @@ void CCharacter::DDPP_FlagTick()
 			else if(m_survivexpvalue == 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 				m_pPlayer->GiveXP(1);
 			}
 			else if(m_survivexpvalue > 0)
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 				m_pPlayer->GiveXP(1); //flag
 				m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2251,14 +2254,14 @@ void CCharacter::DDPP_FlagTick()
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2274,14 +2277,14 @@ void CCharacter::DDPP_FlagTick()
 					if(m_survivexpvalue == 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
+						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
+						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
@@ -2295,14 +2298,14 @@ void CCharacter::DDPP_FlagTick()
 					if(m_survivexpvalue == 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
+						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "XP [%lu/%lu] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
+						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
 						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
