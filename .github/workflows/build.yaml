@@ -111,7 +111,7 @@ jobs:
     - name: Test headless client
       run: |
         cd headless
-        ./DDNetPP &
+        ./DDNetPP "sv_map BlmapChill" &
         ./DDNet "cl_download_skins 0;connect localhost:8303;quit"
 
     - name: Build in release mode with debug info and all features on
