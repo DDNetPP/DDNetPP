@@ -763,6 +763,19 @@ void CCharacter::HandleWeapons()
 	return;
 }
 
+void CCharacter::GiveNinja()
+{
+	m_Ninja.m_ActivationTick = Server()->Tick();
+	m_aWeapons[WEAPON_NINJA].m_Got = true;
+	m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
+	if(m_Core.m_ActiveWeapon != WEAPON_NINJA)
+		m_LastWeapon = m_Core.m_ActiveWeapon;
+	m_Core.m_ActiveWeapon = WEAPON_NINJA;
+
+	if(!m_aWeapons[WEAPON_NINJA].m_Got)
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_NINJA, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+}
+
 void CCharacter::RemoveNinja()
 {
 	m_Ninja.m_CurrentMoveTime = 0;
@@ -778,26 +791,15 @@ void CCharacter::SetEmote(int Emote, int Tick)
 	m_EmoteStop = Tick;
 }
 
-void CCharacter::GiveNinja()
-{
-	m_Ninja.m_ActivationTick = GameWorld()->GameTick();
-	m_aWeapons[WEAPON_NINJA].m_Got = true;
-	if(!m_FreezeTime)
-		m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
-	if(m_Core.m_ActiveWeapon != WEAPON_NINJA)
-		m_LastWeapon = m_Core.m_ActiveWeapon;
-	m_Core.m_ActiveWeapon = WEAPON_NINJA;
-}
-
 void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 {
-	// skip the input if chat is active
-	if(pNewInput->m_PlayerFlags & PLAYERFLAG_CHATTING)
-		return;
+	// check for changes
+	if(mem_comp(&m_SavedInput, pNewInput, sizeof(CNetObj_PlayerInput)) != 0)
+		m_LastAction = Server()->Tick();
 
 	// copy new input
 	mem_copy(&m_Input, pNewInput, sizeof(m_Input));
-	//m_NumInputs++;
+	m_NumInputs++;
 
 	// it is not allowed to aim in the center
 	if(m_Input.m_TargetX == 0 && m_Input.m_TargetY == 0)
@@ -808,16 +810,6 @@ void CCharacter::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 
 void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 {
-	// skip the input if chat is active
-	if(pNewInput->m_PlayerFlags & PLAYERFLAG_CHATTING)
-	{
-		// reset input
-		ResetInput();
-
-		return;
-	}
-
-	m_NumInputs++;
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 	mem_copy(&m_LatestInput, pNewInput, sizeof(m_LatestInput));
 
@@ -825,12 +817,15 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 	if(m_LatestInput.m_TargetX == 0 && m_LatestInput.m_TargetY == 0)
 		m_LatestInput.m_TargetY = -1;
 
-	if(m_NumInputs > 2 && Team() != TEAM_SPECTATORS)
+	Antibot()->OnDirectInput(m_pPlayer->GetCID());
+
+	if(m_NumInputs > 2 && m_pPlayer->GetTeam() != TEAM_SPECTATORS)
 	{
 		HandleWeaponSwitch();
 		FireWeapon();
 	}
 
+	mem_copy(&m_LatestPrevPrevInput, &m_LatestPrevInput, sizeof(m_LatestInput));
 	mem_copy(&m_LatestPrevInput, &m_LatestInput, sizeof(m_LatestInput));
 }
 

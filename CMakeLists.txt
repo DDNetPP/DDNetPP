@@ -2194,6 +2194,7 @@ if(SERVER)
     gameworld.cpp
     gameworld.h
     gameworld_ddpp.cpp
+    gameworld_ddpp.h
     letters.cpp
     letters.h
     player.cpp
