@@ -20,10 +20,6 @@
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
 
-#if defined(CONF_SQL)
-#include <game/server/score/sql_score.h>
-#endif
-
 bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
 bool CGameContext::DDPPCredits()

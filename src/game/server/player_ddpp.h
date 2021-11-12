@@ -558,10 +558,6 @@ public:
 
 	char m_aWrongLogin[256];
 
-#if defined(CONF_SQL)
-	int64_t m_LastSQLQuery;
-#endif
-
 	int64_t m_LastWarning;
 	int m_ChilliWarnings;
 	bool m_TROLL166;
