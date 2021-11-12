@@ -740,12 +740,12 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	}
 
 	ServerInfoRequest();
-	if(net_host_lookup(m_aServerAddressStr, &m_ServerAddress, m_NetClient[CLIENT_MAIN].NetType()) != 0, 0)
+	if(net_host_lookup(m_aServerAddressStr, &m_ServerAddress, m_NetClient[CLIENT_MAIN].NetType(), g_Config.m_SvMasterServerLogs) != 0)
 	{
 		char aBufMsg[256];
 		str_format(aBufMsg, sizeof(aBufMsg), "could not find the address of %s, connecting to localhost", aBuf);
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBufMsg);
-		net_host_lookup("localhost", &m_ServerAddress, m_NetClient[CLIENT_MAIN].NetType(), 0);
+		net_host_lookup("localhost", &m_ServerAddress, m_NetClient[CLIENT_MAIN].NetType(), g_Config.m_SvMasterServerLogs);
 	}
 
 	if(m_SendPassword)
