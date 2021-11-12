@@ -28,6 +28,25 @@ public:
 		NUM_ENTTYPES
 	};
 
+	CWorldCore m_Core;
+	CTeamsCore m_Teams;
+
+	CGameWorld();
+	~CGameWorld();
+
+	int m_GameTick;
+	int m_GameTickSpeed;
+	CCollision *m_pCollision;
+
+	// getter for server variables
+	int GameTick() { return m_GameTick; }
+	int GameTickSpeed() { return m_GameTickSpeed; }
+	class CCollision *Collision() { return m_pCollision; }
+	CTeamsCore *Teams() { return &m_Teams; }
+	CTuningParams *Tuning();
+	CEntity *GetEntity(int ID, int EntityType);
+	class CCharacter *GetCharacterByID(int ID) { return (ID >= 0 && ID < MAX_CLIENTS) ? m_apCharacters[ID] : 0; }
+
 private:
 	void Reset();
 	void RemoveEntities();
@@ -35,6 +54,7 @@ private:
 	CEntity *m_pNextTraverseEntity;
 	CEntity *m_apFirstEntityTypes[NUM_ENTTYPES];
 
+	class CCharacter *m_apCharacters[MAX_CLIENTS];
 	class CGameContext *m_pGameServer;
 	class CConfig *m_pConfig;
 	class IServer *m_pServer;
@@ -48,10 +68,6 @@ public:
 
 	bool m_ResetRequested;
 	bool m_Paused;
-	CWorldCore m_Core;
-
-	CGameWorld();
-	~CGameWorld();
 
 	void SetGameServer(CGameContext *pGameServer);
 
