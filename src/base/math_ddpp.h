@@ -7,6 +7,11 @@
 
 #include "vmath.h"
 
+// M_PI defined in math.h on linux bot not on windows
+#ifndef M_PI
+#define M_PI		3.14159265358979323846	/* pi */
+#endif
+
 inline int _random(int max) { return rand() % max; }
 inline int _random(int min, int max) { return min + rand() % (max + 1 - min); }
 
