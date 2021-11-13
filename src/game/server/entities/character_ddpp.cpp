@@ -1599,7 +1599,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		char aBuf[128];
 		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
 		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %ld sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
 			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
@@ -1903,7 +1903,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_Account.m_EscapeTime = 0;
 		m_pPlayer->m_Account.m_JailTime--;
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Your are arrested for %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_JailTime / Server()->TickSpeed());
+		str_format(aBuf, sizeof(aBuf), "Your are arrested for %" PRId64 " seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_JailTime / Server()->TickSpeed());
 		if(Server()->Tick() % 40 == 0)
 		{
 			if(!m_pPlayer->m_hidejailmsg)
@@ -1935,11 +1935,11 @@ void CCharacter::DDPP_Tick()
 		char aBuf[256];
 		if(m_isDmg)
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %" PRId64 " seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
 		}
 		else
 		{
-			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %ld seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %" PRId64 " seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
 		}
 
 		if(Server()->Tick() % Server()->TickSpeed() * 60 == 0)
@@ -3611,7 +3611,7 @@ bool CCharacter::IsHammerBlocked()
 	if(m_pPlayer->m_JailHammer > 1 && m_pPlayer->m_JailHammerDelay)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "You have to wait %ld minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
+		str_format(aBuf, sizeof(aBuf), "You have to wait %" PRId64 " minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 		return true;
 	}

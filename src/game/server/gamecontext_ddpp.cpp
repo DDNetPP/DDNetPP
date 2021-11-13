@@ -2051,7 +2051,7 @@ void CGameContext::ShowProfile(int ViewerID, int ViewedID)
 		SendChatTarget(ViewerID, "-------------------------");
 		str_format(aBuf, sizeof(aBuf), "Level: %d", m_apPlayers[ViewedID]->GetLevel());
 		SendChatTarget(ViewerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "Money: %ld", m_apPlayers[ViewedID]->GetMoney());
+		str_format(aBuf, sizeof(aBuf), "Money: %" PRId64, m_apPlayers[ViewedID]->GetMoney());
 		SendChatTarget(ViewerID, aBuf);
 		str_format(aBuf, sizeof(aBuf), "Shit: %d", m_apPlayers[ViewedID]->m_Account.m_Shit);
 		SendChatTarget(ViewerID, aBuf);

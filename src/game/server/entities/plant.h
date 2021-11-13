@@ -21,7 +21,7 @@ class CPlant : public CEntity
 	void CalculateVel();
 
 	CStableProjectile *m_apPlantProj[MAX_PLANT_PROJS];
-	CStableProjectile *pPlant;
+	// CStableProjectile *pPlant;
 	void ResetProjectiles();
 
 public:

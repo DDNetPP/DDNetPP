@@ -20,7 +20,6 @@ class CPlasmaBullet : public CEntity
 
 	int m_Owner;
 	float m_Accel;
-	float m_Speed;
 
 	int m_IsInsideWall;
 

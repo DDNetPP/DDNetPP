@@ -2,6 +2,8 @@
 
 #include <engine/shared/config.h>
 
+#include <cinttypes>
+
 #include "gamecontext.h"
 
 int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *pItemName, int Price, bool IsPublic)
@@ -180,7 +182,7 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 
 	if(pSPlayer->m_TradeMoney > pBPlayer->GetMoney()) // ENOUGH MONEY ??
 	{
-		str_format(aBuf, sizeof(aBuf), "[TRADE] %ld/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
+		str_format(aBuf, sizeof(aBuf), "[TRADE] %" PRId64 "/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
 		SendChatTarget(BuyerID, aBuf);
 		return -1;
 	}

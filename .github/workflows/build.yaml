@@ -19,7 +19,7 @@ jobs:
         - os: ubuntu-latest
           cmake-args: -G "Unix Makefiles"
           build-args: --parallel
-          package-file: DDNet-*-linux_x86_64.tar.xz
+          package-file: DDNetPP-*-linux_x86_64.tar.xz
           fancy: true
           env:
             CFLAGS: -Wdeclaration-after-statement -Werror
@@ -27,7 +27,7 @@ jobs:
         - os: ubuntu-18.04
           cmake-path: /usr/bin/
           cmake-args: -G "Unix Makefiles"
-          package-file: DDNet-*-linux_x86_64.tar.xz
+          package-file: DDNetPP-*-linux_x86_64.tar.xz
           fancy: false
           env:
             CFLAGS: -Wdeclaration-after-statement -Werror
@@ -35,14 +35,14 @@ jobs:
         - os: macOS-latest
           cmake-args: -G "Unix Makefiles"
           build-args: --parallel
-          package-file: DDNet-*-osx.dmg
+          package-file: DDNetPP-*-osx.dmg
           fancy: false
           env:
             CFLAGS: -Wdeclaration-after-statement -Werror
             CXXFLAGS: -Werror
         - os: windows-latest
           cmake-args: -G "Visual Studio 16 2019" -A x64
-          package-file: DDNet-*-win64.zip
+          package-file: DDNetPP-*-win64.zip
           fancy: false
           env:
             CFLAGS: /WX
