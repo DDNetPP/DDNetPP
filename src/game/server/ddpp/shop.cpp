@@ -7,24 +7,40 @@
 CShopItem::CShopItem(
 	const char *pTitle,
 	const char *pName,
-	int Price,
+	const char *pPrice,
 	int Level,
 	const char *pDescription,
 	const char *pOwnedUntil) :
-	m_Price(Price),
 	m_NeededLevel(Level)
 {
 	str_copy(m_aTitle, pTitle, sizeof(m_aTitle));
 	str_copy(m_aName, pName, sizeof(m_aName));
+	str_copy(m_aPriceStr, pPrice, sizeof(m_aPriceStr));
 	str_copy(m_aDescription, pDescription, sizeof(m_aDescription));
 	str_copy(m_aOwnUntil, pOwnedUntil, sizeof(m_aOwnUntil));
+	Price();
 	m_Active = true;
 }
 
-const char *CShopItem::PriceStr()
+int CShopItem::Price()
 {
-	str_format(m_aPriceStr, sizeof(m_aPriceStr), "%d", Price());
-	return m_aPriceStr;
+	char aPrice[64];
+	char *c = m_aPriceStr;
+	int i = 0;
+	while(*c++)
+	{
+		if(*c == ' ')
+			continue;
+		aPrice[i++] = *c;
+	}
+	m_Price = atoi(aPrice);
+	return m_Price;
+}
+
+int CShopItemRoomKey::Price()
+{
+	str_copy(m_aPriceStr, g_Config.m_SvRoomPrice, sizeof(m_aPriceStr));
+	return CShopItem::Price();
 }
 
 const char *CShopItem::NeededLevelStr(int ClientID)
@@ -64,31 +80,31 @@ void CShop::OnInit()
 {
 	// TODO: remove title from constructor and generate it based on name
 	m_vItems.push_back(new CShopItem(
-		"        ~  R A I N B O W  ~      ", "rainbow", 1500, 5, "test desc", "dead"));
+		"        ~  R A I N B O W  ~      ", "rainbow", "1 500", 5, "test desc", "dead"));
 	m_vItems.push_back(new CShopItem(
-		"        ~  B L O O D Y  ~      ", "bloody", 3500, 15, "test desc", "dead"));
+		"        ~  B L O O D Y  ~      ", "bloody", "3 500", 15, "test desc", "dead"));
 	m_vItems.push_back(new CShopItem(
-		"        ~  C H I D R A Q U L  ~      ", "chidraqul", 250, 2, "test desc", "disconnect"));
+		"        ~  C H I D R A Q U L  ~      ", "chidraqul", "250", 2, "test desc", "disconnect"));
 	m_vItems.push_back(new CShopItem(
-		"        ~  S H I T  ~      ", "shit", 5, 0, "desc", "forever"));
+		"        ~  S H I T  ~      ", "shit", "5", 0, "desc", "forever"));
 	m_vItems.push_back(new CShopItemRoomKey(
 		"        ~  R O O M K E Y  ~      ", "room_key", g_Config.m_SvRoomPrice, 16, "test desc", "disconnect"));
 	m_vItems.push_back(new CShopItem(
-		"        ~  P O L I C E  ~      ", "police", 100000, 18, "desc", "forever"));
+		"        ~  P O L I C E  ~      ", "police", "100 000", 18, "desc", "forever"));
 	m_vItems.push_back(new CShopItemTaser(
-		"        ~  T A S E R  ~      ", "taser", 50000, -1, "desc", "forever"));
+		"        ~  T A S E R  ~      ", "taser", "50 000", -1, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"    ~  P V P A R E N A T I C K E T  ~  ", "pvp_arena_ticket", 150, 0, "desc", "forever"));
+		"    ~  P V P A R E N A T I C K E T  ~  ", "pvp_arena_ticket", "150", 0, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"       ~  N I N J A J E T P A C K  ~     ", "ninjajetpack", 10000, 21, "desc", "forever"));
+		"       ~  N I N J A J E T P A C K  ~     ", "ninjajetpack", "10 000", 21, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"     ~  S P A W N S H O T G U N  ~   ", "spawn_shotgun", 600000, 33, "desc", "forever"));
+		"     ~  S P A W N S H O T G U N  ~   ", "spawn_shotgun", "600 000", 33, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"      ~  S P A W N G R E N A D E  ~    ", "spawn_grenade", 600000, 33, "desc", "forever"));
+		"      ~  S P A W N G R E N A D E  ~    ", "spawn_grenade", "600 000", 33, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"       ~  S P A W N R I F L E  ~       ", "spawn_rifle", 600000, 33, "desc", "forever"));
+		"       ~  S P A W N R I F L E  ~       ", "spawn_rifle", "600 000", 33, "desc", "forever"));
 	m_vItems.push_back(new CShopItem(
-		"       ~  S P O O K Y G H O S T  ~     ", "spooky_ghost", 1000000, 1, "desc", "forever"));
+		"       ~  S P O O K Y G H O S T  ~     ", "spooky_ghost", "1 000 000", 1, "desc", "forever"));
 }
 
 CShop::CShop(CGameContext *pGameContext)

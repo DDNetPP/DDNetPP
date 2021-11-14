@@ -724,31 +724,32 @@ void CCharacter::BuyItem(int ItemID)
 	}
 	else if(ItemID == 5)
 	{
-		if(m_pPlayer->GetLevel() < 16)
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You need to be Lv.16 or higher to buy a key.");
-			return;
-		}
-		if(m_pPlayer->m_BoughtRoom)
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own this item.");
-			return;
-		}
-		if(g_Config.m_SvRoomState == 0)
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Room has been turned off by admin.");
-			return;
-		}
-		if(m_pPlayer->GetMoney() >= g_Config.m_SvRoomPrice)
-		{
-			m_pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, "bought 'room_key'");
-			m_pPlayer->m_BoughtRoom = true;
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a key. You can now enter the bankroom until you disconnect.");
-		}
-		else
-		{
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 5.000 money.");
-		}
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Shop is currently in maintenance and room key can not be bought at the moment.");
+		// if(m_pPlayer->GetLevel() < 16)
+		// {
+		// 	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You need to be Lv.16 or higher to buy a key.");
+		// 	return;
+		// }
+		// if(m_pPlayer->m_BoughtRoom)
+		// {
+		// 	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You already own this item.");
+		// 	return;
+		// }
+		// if(g_Config.m_SvRoomState == 0)
+		// {
+		// 	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "Room has been turned off by admin.");
+		// 	return;
+		// }
+		// if(m_pPlayer->GetMoney() >= g_Config.m_SvRoomPrice)
+		// {
+		// 	m_pPlayer->MoneyTransaction(-g_Config.m_SvRoomPrice, "bought 'room_key'");
+		// 	m_pPlayer->m_BoughtRoom = true;
+		// 	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You bought a key. You can now enter the bankroom until you disconnect.");
+		// }
+		// else
+		// {
+		// 	GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You don't have enough money! You need 5.000 money.");
+		// }
 	}
 	else if(ItemID == 6)
 	{

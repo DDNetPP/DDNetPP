@@ -9,6 +9,7 @@
 
 class CShopItem
 {
+protected:
 	int m_Price;
 	int m_NeededLevel;
 
@@ -79,13 +80,13 @@ public:
 	CShopItem(
 		const char *pTitle,
 		const char *pName,
-		int Price,
+		const char *pPrice,
 		int Level,
 		const char *pDescription,
 		const char *pOwnedUntil);
 
-	int Price() { return m_Price; }
-	const char *PriceStr();
+	int Price();
+	const char *PriceStr() { return m_aPriceStr; };
 	int NeededLevel() { return m_NeededLevel; }
 	virtual const char *NeededLevelStr(int ClientID);
 	const char *Name() { return m_aName; }
@@ -104,7 +105,7 @@ class CShopItemRoomKey : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	int Price() { return g_Config.m_SvRoomPrice; }
+	int Price();
 };
 
 class CShopItemTaser : public CShopItem
