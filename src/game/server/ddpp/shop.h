@@ -92,6 +92,7 @@ public:
 	const char *Title();
 	const char *Description() { return m_aDescription; }
 	const char *OwnUntil() { return m_aOwnUntil; }
+	const char *OwnUntilLong();
 
 	bool IsActive() { return m_Active; }
 	void Deactivate() { m_Active = false; }
