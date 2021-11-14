@@ -2110,13 +2110,15 @@ if(SERVER)
     upnp.h
   )
   set_src(GAME_SERVER GLOB_RECURSE src/game/server
-    accounts.cpp
-    accounts.h
     alloc.h
     captcha.cpp
     captcha.h
     db_sqlite3.cpp
     db_sqlite3.h
+    ddpp/accounts.cpp
+    ddpp/accounts.h
+    ddpp/shop.cpp
+    ddpp/shop.h
     ddracechat.cpp
     ddracechat_ddpp.cpp
     ddracecommands.cpp

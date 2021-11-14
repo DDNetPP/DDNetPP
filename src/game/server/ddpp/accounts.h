@@ -1,5 +1,5 @@
-#ifndef GAME_SERVER_ACCOUNTS_H
-#define GAME_SERVER_ACCOUNTS_H
+#ifndef GAME_SERVER_DDPP_ACCOUNTS_H
+#define GAME_SERVER_DDPP_ACCOUNTS_H
 
 #include <atomic>
 #include <memory>
@@ -12,7 +12,7 @@
 #include <game/prng.h>
 #include <game/voting.h>
 
-#include "save.h"
+#include "../save.h"
 
 struct ISqlData;
 class IDbConnection;

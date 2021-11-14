@@ -1,6 +1,6 @@
 // gamecontext scoped ddnet++ methods
 
-#include "accounts.h"
+#include "ddpp/accounts.h"
 
 #include <base/ddpp_logs.h>
 #include <base/system_ddpp.h>

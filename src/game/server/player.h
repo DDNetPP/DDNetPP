@@ -10,7 +10,7 @@
 #include "teeinfo.h"
 
 // ddnet++ includes start
-#include "accounts.h"
+#include "ddpp/accounts.h"
 #include "captcha.h"
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 #include "entities/character.h"
