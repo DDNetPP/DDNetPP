@@ -1,6 +1,7 @@
 // gamecontext scoped ddnet++ methods
 
 #include "ddpp/accounts.h"
+#include "ddpp/shop.h"
 
 #include <base/ddpp_logs.h>
 #include <base/system_ddpp.h>
@@ -8,10 +9,10 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
+#include <cinttypes>
 #include <cstring>
 #include <fstream> //acc2 sys
 #include <limits> //acc2 sys
-#include <cinttypes>
 
 #include "save.h"
 
@@ -20,6 +21,7 @@
 void CGameContext::ConstructDDPP()
 {
 	m_pAccounts = NULL;
+	m_pShop = NULL;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -53,9 +55,9 @@ void CGameContext::OnInitDDPP()
 {
 	m_Database->CreateDatabase();
 	if(!m_pAccounts)
-	{
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
-	}
+	if(!m_pShop)
+		m_pShop = new CShop(this);
 	LoadSinglePlayer();
 
 	// by fokkonaut from F-DDrace

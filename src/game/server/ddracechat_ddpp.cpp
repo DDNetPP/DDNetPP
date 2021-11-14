@@ -11,14 +11,16 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
+#include <game/server/ddpp/shop.h>
+
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
 #include <time.h> //ChillerDragon
 //#include <stdio.h> //strcat
+#include <cinttypes>
 #include <stdio.h> //acc2 to_str()
 #include <stdlib.h> //acc2 to_str()
 #include <string.h> //strcat
-#include <cinttypes>
 //#include <string> //acc2 std::to_string
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
@@ -633,8 +635,6 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "room_key | %d | 16 | disconnect", g_Config.m_SvRoomPrice);
 
 	if(!str_comp_nocase(pResult->GetString(0), "help"))
 	{
@@ -699,31 +699,7 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 		"spawn_rifle     600 000 | 38 | forever");
 		*/
 
-		char aShop[2048];
-		str_format(aShop, sizeof(aShop),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n"
-			"Usage: '/buy (itemname)'\n"
-			"***************************\n"
-			"Item | Price | Level | Time:\n"
-			"-------+------+--------+-------\n"
-			"rainbow  | 1 500 | 5 | dead\n"
-			"bloody    | 3 500 | 15 | dead\n"
-			"chidraqul | 250 | 2 | disconnect\n"
-			"shit   | 5 | 0 | forever\n"
-			"%s\n"
-			"police | 100 000 | 18 | forever\n"
-			"taser | 50 000 | Police[3] | forever\n"
-			"pvp_arena_ticket | 150 | 0 | forever\n"
-			"ninjajetpack | 10 000 | 21 | forever\n"
-			"spawn_shotgun | 600 000 | 33 | forever\n"
-			"spawn_grenade | 600 000 | 33 | forever\n"
-			"spawn_rifle | 600 000 | 33 | forever\n"
-			"spooky_ghost | 1 000 000 | 1 | forever\n",
-			aBuf);
-
-		pSelf->AbuseMotd(aShop, pResult->m_ClientID);
+		pSelf->Shop()->ShowShopMotdCompressed(pResult->m_ClientID);
 	}
 }
 

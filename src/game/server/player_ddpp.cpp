@@ -3,9 +3,9 @@
 #include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
 
+#include <cinttypes>
 #include <fstream>
 #include <limits>
-#include <cinttypes>
 
 #include "gamecontext.h"
 #include "gamecontext_sql.h"

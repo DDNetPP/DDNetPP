@@ -19,6 +19,7 @@ class CGameContext : public IGameServer
 #endif
 
 	class CAccounts *m_pAccounts;
+	class CShop *m_pShop;
 
 public:
 	// DDRace & DDnetPlusPlus (ddpp)
@@ -31,6 +32,7 @@ public:
 	//virtual void OnDDPPshutdown();
 
 	class CAccounts *Accounts() { return m_pAccounts; }
+	class CShop *Shop() { return m_pShop; }
 
 	void ShowProfile(int ViewerID, int ViewedID);
 	void ShowAdminWelcome(int ID);

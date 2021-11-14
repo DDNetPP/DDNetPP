@@ -6,15 +6,14 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
+#include <cinttypes>
+
 #include "flag.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
 
 #include "character.h"
-
-#include <cinttypes>
-
 
 void CCharacter::HandleTilesDDPP(int Index)
 {

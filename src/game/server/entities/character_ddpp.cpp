@@ -16,7 +16,6 @@
 
 #include "character.h"
 
-
 void CCharacter::DDPPDDRacePostCoreTick()
 {
 	if(!isFreezed)

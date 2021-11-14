@@ -3,8 +3,8 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
-#include <cstring>
 #include <cinttypes>
+#include <cstring>
 
 #include "gamecontext.h"
 

@@ -7,8 +7,8 @@
 #include <engine/client/http.h>
 #include <game/version.h>
 
-#include "ddpp/accounts.h"
 #include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
+#include "ddpp/accounts.h"
 
 #include <memory>
 #include <vector>
