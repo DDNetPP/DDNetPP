@@ -1665,6 +1665,7 @@ set_src(GAME_SHARED GLOB src/game
   ddracechat.h
   ddracechat_ddpp.h
   ddracecommands.h
+  ddracecommands_ddpp.h
   gamecore.cpp
   gamecore.h
   gamecore_ddpp.cpp

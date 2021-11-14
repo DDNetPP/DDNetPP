@@ -93,9 +93,9 @@ public:
 	const char *Description() { return m_aDescription; }
 	const char *OwnUntil() { return m_aOwnUntil; }
 
-	bool IsAcitve() { return m_Active; }
+	bool IsActive() { return m_Active; }
 	void Deactivate() { m_Active = false; }
-	void Activated() { m_Active = true; }
+	void Activate() { m_Active = true; }
 	virtual bool CanBuy(int ClientID);
 };
 
@@ -123,11 +123,12 @@ class CGameContext;
 
 class CShop
 {
-	std::vector<CShopItem *> m_vItems;
 	CGameContext *m_pGameContext;
 
 public:
 	CShop(class CGameContext *pGameContext);
+
+	std::vector<CShopItem *> m_vItems;
 
 	void OnInit();
 	void ShowShopMotdCompressed(int ClientID);

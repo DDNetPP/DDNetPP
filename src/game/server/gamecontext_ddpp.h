@@ -555,6 +555,195 @@ private:
 	void OnClientEnterDDPP(int ClientID);
 	void OnInitDDPP();
 
+	//====================
+	//ChillerDragon (ddpp)
+	//====================
+
+	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanID(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnLoginBan(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBans(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConNameChangeMute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
+
+	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
+	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
+	static void Conheal(IConsole::IResult *pResult, void *pUserData);
+	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
+	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
+	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
+	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
+	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
+
+	// cosmetics
+	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfBloody(IConsole::IResult *pResult, void *pUserData);
+	static void ConAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConAutoSpreadGun(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfAtom(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConOldTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConInfTrail(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
+
+	//SQL
+	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
+
+	//rcon api
+	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
+
+	//account stuff
+	static void ConChangePassword(IConsole::IResult *pResult, void *pUserData);
+	static void ConAccLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConLogin(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
+	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
+	static void ConACC2(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConSQLLogoutAll(IConsole::IResult *pResult, void *pUserData);
+	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
+	static void ConStats(IConsole::IResult *pResult, void *pUserData);
+	static void ConProfile(IConsole::IResult *pResult, void *pUserData);
+	static void ConAscii(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConActivateShopItem(IConsole::IResult *pResult, void *pUserData);
+	static void ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData);
+
+	//minigame (chidraqul)
+	static void ConChidraqul(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConMinigames(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConToggleSpawn(IConsole::IResult *pResult, void *pUserData);
+
+	//display score
+	static void ConScore(IConsole::IResult *pResult, void *pUserData);
+
+	//spooky ghost
+	static void ConSpookyGhostInfo(IConsole::IResult *pResult, void *pUserData);
+
+	//spawn weapons
+	static void ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData);
+	static void ConSpawnWeaponsInfo(IConsole::IResult *pResult, void *pUserData);
+
+	//supermod
+	static void ConSayServer(IConsole::IResult *pResult, void *pUserData);
+	static void ConBroadcastServer(IConsole::IResult *pResult, void *pUserData);
+
+	//police
+	static void ConPolicehelper(IConsole::IResult *pResult, void *pUserData);
+	//static void ConTaserinfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoliceInfo(IConsole::IResult *pResult, void *pUserData);
+	//static void ConPolicetaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoliceChat(IConsole::IResult *pResult, void *pUserData);
+	static void ConJail(IConsole::IResult *pResult, void *pUserData);
+	static void ConJailCode(IConsole::IResult *pResult, void *pUserData);
+	static void ConReport(IConsole::IResult *pResult, void *pUserData);
+	static void ConTaser(IConsole::IResult *pResult, void *pUserData);
+	static void ConWanted(IConsole::IResult *pResult, void *pUserData);
+
+	//money
+	static void ConMoney(IConsole::IResult *pResult, void *pUserData);
+	static void ConPay(IConsole::IResult *pResult, void *pUserData);
+	static void ConBank(IConsole::IResult *pResult, void *pUserData);
+	static void ConGangsterBag(IConsole::IResult *pResult, void *pUserData);
+	static void ConGift(IConsole::IResult *pResult, void *pUserData);
+	static void ConTrade(IConsole::IResult *pResult, void *pUserData);
+	static void ConTr(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConBalance(IConsole::IResult *pResult, void *pUserData);
+	static void ConInsta(IConsole::IResult *pResult, void *pUserData);
+	static void ConJoin(IConsole::IResult *pResult, void *pUserData); //join the current event
+	static void ConBlock(IConsole::IResult *pResult, void *pUserData);
+	static void ConPvpArena(IConsole::IResult *pResult, void *pUserData);
+	static void ConEvent(IConsole::IResult *pResult, void *pUserData);
+
+	//info
+	static void ConAccountInfo(IConsole::IResult *pResult, void *pUserData);
+	//static void ConProfileInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConOfferInfo(IConsole::IResult *pResult, void *pUserData);
+	static void ConViewers(IConsole::IResult *pResult, void *pUserData);
+	static void ConIp(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConChangelog(IConsole::IResult *pResult, void *pUserData);
+	static void ConDDPPLogs(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConGive(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
+	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
+	static void ConHumanLevel(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConBomb(IConsole::IResult *pResult, void *pUserData);
+	static void ConSurvival(IConsole::IResult *pResult, void *pUserData);
+	static void ConBlockWave(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConRoom(IConsole::IResult *pResult, void *pUserData);
+	static void ConSpawn(IConsole::IResult *pResult, void *pUserData);
+	static void ConGodmode(IConsole::IResult *pResult, void *pUserData);
+	static void ConHook(IConsole::IResult *pResult, void *pUserData);
+	static void ConQuest(IConsole::IResult *pResult, void *pUserData);
+	static void ConBounty(IConsole::IResult *pResult, void *pUserData);
+	static void ConFng(IConsole::IResult *pResult, void *pUserData);
+
+	//admin
+	static void ConDcDummy(IConsole::IResult *pResult, void *pUserData);
+	static void ConTROLL166(IConsole::IResult *pResult, void *pUserData);
+	static void ConTROLL420(IConsole::IResult *pResult, void *pUserData);
+	static void ConTCMD3000(IConsole::IResult *pResult, void *pUserData);
+	static void ConAntiFlood(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdmin(IConsole::IResult *pResult, void *pUserData);
+	static void ConFNN(IConsole::IResult *pResult, void *pUserData);
+	static void ConAdminChat(IConsole::IResult *pResult, void *pUserData);
+	static void ConLive(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegex(IConsole::IResult *pResult, void *pUserData);
+	static void ConMapsave(IConsole::IResult *pResult, void *pUserData);
+
+	bool DDPPCredits();
+	bool DDPPInfo();
+	bool DDPPPoints(IConsole::IResult *pResult, void *pUserData);
+
 #ifndef IN_CLASS_GAMECONTEXT
 }
 #endif

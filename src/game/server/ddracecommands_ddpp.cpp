@@ -9,6 +9,8 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
+#include <game/server/ddpp/shop.h>
+
 bool CheckClientID(int ClientID);
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
@@ -910,6 +912,50 @@ void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
 	//	return;
 
 	//char aBuf[128];
+}
+
+void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "item '%s' not found in shop items.", pResult->GetString(0));
+	for(auto &Item : pSelf->Shop()->m_vItems)
+	{
+		if(str_comp(pResult->GetString(0), Item->Name()))
+			continue;
+
+		str_copy(aBuf, !Item->IsActive() ? "activated item" : "item already activated", sizeof(aBuf));
+		Item->Activate();
+	}
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
+}
+
+void CGameContext::ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	char aBuf[512];
+	str_format(aBuf, sizeof(aBuf), "item '%s' not found in shop items.", pResult->GetString(0));
+	for(auto &Item : pSelf->Shop()->m_vItems)
+	{
+		if(str_comp(pResult->GetString(0), Item->Name()))
+			continue;
+
+		str_copy(aBuf, Item->IsActive() ? "deactivated item" : "item already deactivated", sizeof(aBuf));
+		Item->Deactivate();
+	}
+	pSelf->Console()->Print(
+		IConsole::OUTPUT_LEVEL_STANDARD,
+		"shop",
+		aBuf);
 }
 
 void CGameContext::ConHammer(IConsole::IResult *pResult, void *pUserData)

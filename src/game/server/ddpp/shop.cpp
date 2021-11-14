@@ -18,6 +18,7 @@ CShopItem::CShopItem(
 	str_copy(m_aName, pName, sizeof(m_aName));
 	str_copy(m_aDescription, pDescription, sizeof(m_aDescription));
 	str_copy(m_aOwnUntil, pOwnedUntil, sizeof(m_aOwnUntil));
+	m_Active = true;
 }
 
 const char *CShopItem::PriceStr()
@@ -110,6 +111,9 @@ void CShop::ShowShopMotdCompressed(int ClientID)
 		sizeof(aBuf));
 	for(auto &Item : m_vItems)
 	{
+		if(!Item->IsActive())
+			continue;
+
 		char aItem[128];
 		str_format(
 			aItem,
