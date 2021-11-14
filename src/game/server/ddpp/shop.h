@@ -78,7 +78,6 @@ protected:
 
 public:
 	CShopItem(
-		const char *pTitle,
 		const char *pName,
 		const char *pPrice,
 		int Level,
@@ -90,7 +89,7 @@ public:
 	int NeededLevel() { return m_NeededLevel; }
 	virtual const char *NeededLevelStr(int ClientID);
 	const char *Name() { return m_aName; }
-	const char *Title() { return m_aTitle; }
+	const char *Title();
 	const char *Description() { return m_aDescription; }
 	const char *OwnUntil() { return m_aOwnUntil; }
 
