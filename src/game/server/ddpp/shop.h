@@ -7,8 +7,12 @@
 
 #include <vector>
 
+class CGameContext;
+
 class CShopItem
 {
+	CGameContext *m_pGameContext;
+
 protected:
 	int m_Price;
 	int m_NeededLevel;
@@ -82,11 +86,20 @@ public:
 		const char *pPrice,
 		int Level,
 		const char *pDescription,
-		const char *pOwnedUntil);
+		const char *pOwnedUntil,
+		CGameContext *pGameContext);
 
-	int Price();
-	const char *PriceStr() { return m_aPriceStr; };
-	int NeededLevel() { return m_NeededLevel; }
+	CGameContext *GameServer();
+
+	/*
+		Price(ClientID)
+
+		Uses PriceStr() as source of truth.
+		So if you want changing prices add that logic in PriceStr().
+	*/
+	virtual int Price(int ClientID = -1);
+	virtual const char *PriceStr(int ClientID = -1) { return m_aPriceStr; };
+	virtual int NeededLevel(int ClientID) { return m_NeededLevel; }
 	virtual const char *NeededLevelStr(int ClientID);
 	const char *Name() { return m_aName; }
 	const char *Title();
@@ -98,6 +111,39 @@ public:
 	void Deactivate() { m_Active = false; }
 	void Activate() { m_Active = true; }
 	virtual bool CanBuy(int ClientID);
+	virtual bool Buy(int ClientID);
+};
+
+class CShopItemRainbow : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemBloody : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemChidraqul : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemShit : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
 };
 
 class CShopItemRoomKey : public CShopItem
@@ -105,7 +151,17 @@ class CShopItemRoomKey : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	int Price();
+	virtual bool Buy(int ClientID) override;
+	virtual const char *PriceStr(int ClientID = -1) override;
+};
+
+class CShopItemPolice : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+	virtual int NeededLevel(int ClientID) override;
 };
 
 class CShopItemTaser : public CShopItem
@@ -115,12 +171,59 @@ class CShopItemTaser : public CShopItem
 public:
 	using CShopItem::CShopItem;
 
-	int NeededPoliceRank(int ClientID);
+	virtual bool Buy(int ClientID) override;
 	virtual const char *NeededLevelStr(int ClientID) override;
-	bool CanBuy(int ClientID);
+	virtual const char *PriceStr(int ClientID = -1) override;
+	int NeededPoliceRank(int ClientID);
 };
 
-class CGameContext;
+class CShopItemPvpArenaTicket : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemNinjaJetpack : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemSpawnShotgun : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemSpawnGrenade : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemSpawnRifle : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
+class CShopItemSpookyGhost : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
 
 class CShop
 {
@@ -156,6 +259,8 @@ public:
 	void ShopWindow(int Dir, int ClientID);
 	void FireWeapon(int Dir, int ClientID);
 	void WillFireWeapon(int ClientID);
+	void BuyItem(int ClientID, const char *pItemName);
+	const char *GetItemNameById(int ItemID);
 };
 
 #endif
