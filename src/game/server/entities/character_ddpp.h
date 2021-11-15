@@ -242,24 +242,9 @@ public:
 	bool m_HarvestPlant;
 
 	// shop
-	bool m_InShop;
-	bool m_EnteredShop;
-	bool m_LeftShop;
-
-	void ShopWindow(int Dir);
-	int m_ShopWindowPage;
-
-	int64_t m_ShopMotdTick;
+	bool m_EnteredShop; // TODO: move to CShop ?
 
 	void BuyItem(int ItemID);
-	void ConfirmPurchase();
-	void StartShop();
-
-	int m_PurchaseState;
-
-	void PurchaseEnd(bool canceled);
-
-	bool m_ChangeShopPage;
 
 	//bank
 	bool m_InBank;

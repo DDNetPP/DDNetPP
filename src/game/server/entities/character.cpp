@@ -8,6 +8,8 @@
 #include <game/server/player.h>
 #include <new>
 
+#include <game/server/ddpp/shop.h>
+
 #include "character.h"
 #include "homing_missile.h"
 #include "laser.h"
@@ -413,10 +415,7 @@ void CCharacter::FireWeapon(bool Bot)
 			m_CountSpookyGhostInputs = true;
 		}
 
-		if((m_ShopWindowPage != -1) && (m_PurchaseState == 1))
-		{
-			m_ChangeShopPage = true;
-		}
+		GameServer()->Shop()->WillFireWeapon(GetPlayer()->GetCID());
 	}
 
 	if(FullAuto && (m_LatestInput.m_Fire & 1) && m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)

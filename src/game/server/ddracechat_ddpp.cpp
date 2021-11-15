@@ -740,7 +740,7 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if((g_Config.m_SvShopState == 1) && !pChr->m_InShop)
+	if((g_Config.m_SvShopState == 1) && !pSelf->Shop()->IsInShop(pChr->GetPlayer()->GetCID()))
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in the shop to buy some items.");
 		return;

@@ -5,8 +5,11 @@
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
-#include <fstream> //ChillerDragon saving bot move records
 #include <game/server/gamecontext.h>
+
+#include <game/server/ddpp/shop.h>
+
+#include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
 
 void CCharacter::Fire(bool Fire)
@@ -9366,7 +9369,7 @@ void CCharacter::DummyTick()
 			m_Input.m_Direction = 0;
 
 			CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
-			if(pChr && pChr->IsAlive() && pChr->m_InShop)
+			if(pChr && pChr->IsAlive() && GameServer()->Shop()->IsInShop(pChr->GetPlayer()->GetCID()))
 			{
 				m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 				m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -9376,7 +9379,7 @@ void CCharacter::DummyTick()
 
 			if(m_IsFreeShopBot)
 			{
-				if(Server()->Tick() % 500 == 0 && !m_InShop)
+				if(Server()->Tick() % 500 == 0 && !GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
 				{
 					Die(m_pPlayer->GetCID(), WEAPON_SELF);
 				}

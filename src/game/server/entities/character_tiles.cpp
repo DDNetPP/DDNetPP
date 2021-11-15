@@ -6,6 +6,8 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
+#include <game/server/ddpp/shop.h>
+
 #include <cinttypes>
 
 #include "flag.h"
@@ -375,10 +377,10 @@ void CCharacter::HandleTilesDDPP(int Index)
 
 	if(m_TileIndex == TILE_SHOP || m_TileFIndex == TILE_SHOP) // SHOP
 	{
-		if(!m_InShop)
+		if(!GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
 		{
 			m_EnteredShop = true;
-			m_InShop = true;
+			GameServer()->Shop()->EnterShop(GetPlayer()->GetCID());
 		}
 		if(Server()->Tick() % 450 == 0 || m_EnteredShop)
 		{

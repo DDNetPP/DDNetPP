@@ -7,6 +7,8 @@
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
 
+#include <game/server/ddpp/shop.h>
+
 #include <cinttypes>
 
 #include "flag.h"
@@ -343,289 +345,9 @@ bool CCharacter::SetWeaponThatChrHas()
 	return true;
 }
 
-void CCharacter::ShopWindow(int Dir)
-{
-	m_ShopMotdTick = 0;
-
-	// if you add something to the shop make sure to also add pages here and extend conshop in ddracechat.cpp.
-
-	int m_MaxShopPage = 13; // UPDATE THIS WITH EVERY PAGE YOU ADD!!!!!
-
-	if(Dir == 0)
-	{
-		m_ShopWindowPage = 0;
-	}
-	else if(Dir == 1)
-	{
-		m_ShopWindowPage++;
-		if(m_ShopWindowPage > m_MaxShopPage)
-		{
-			m_ShopWindowPage = 0;
-		}
-	}
-	else if(Dir == -1)
-	{
-		m_ShopWindowPage--;
-		if(m_ShopWindowPage < 0)
-		{
-			m_ShopWindowPage = m_MaxShopPage;
-		}
-	}
-
-	char aItem[256];
-	char aLevelTmp[128];
-	char aPriceTmp[16];
-	char aTimeTmp[256];
-	char aInfo[1028];
-
-	if(m_ShopWindowPage == 0)
-	{
-		str_format(aItem, sizeof(aItem), "Welcome to the shop! If you need help, use '/shop help'.\n\n"
-						 "By shooting to the right you go one site forward,\n"
-						 "and by shooting left you go one site backwards.\n\n"
-						 "If you need more help, visit '/shop help'.");
-	}
-	else if(m_ShopWindowPage == 1)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  R A I N B O W  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "5");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "1.500");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until you're dead.");
-		str_format(aInfo, sizeof(aInfo), "Rainbow will make your tee change the color very fast.");
-	}
-	else if(m_ShopWindowPage == 2)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  B L O O D Y  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "15");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "3.500");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until you're dead.");
-		str_format(aInfo, sizeof(aInfo), "Bloody will give your tee a permanent kill effect.");
-	}
-	else if(m_ShopWindowPage == 3)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  C H I D R A Q U L  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "2");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "250");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until\n"
-						       "you disconnect.");
-		str_format(aInfo, sizeof(aInfo), "Chidraqul is a minigame by ChillerDragon.\n"
-						 "More information about this game coming soon.");
-	}
-	else if(m_ShopWindowPage == 4)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  S H I T  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "0");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "5");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "Shit is a fun item. You can use to '/poop' on other players.\n"
-						 "You can also see your shit amount in your '/profile'.");
-	}
-	else if(m_ShopWindowPage == 5)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  R O O M K E Y  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "16");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "%d", g_Config.m_SvRoomPrice);
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item until\n"
-						       "you disconnect.");
-		str_format(aInfo, sizeof(aInfo), "If you have the room key you can enter the bank room.\n"
-						 "It's under the spawn and there is a money tile.");
-	}
-	else if(m_ShopWindowPage == 6)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  P O L I C E  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "18");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "100.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "Police officers get help from the police bot.\n"
-						 "For more information about the specific police ranks\n"
-						 "please visit '/policeinfo'.");
-	}
-	else if(m_ShopWindowPage == 7)
-	{
-		str_format(aItem, sizeof(aItem), "        ~  T A S E R  ~      ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "30");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "50.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "Taser replaces your unfreeze rifle with a rifle that freezes\n"
-						 "other tees. You can toggle it using '/taser <on/off>'.\n"
-						 "For more information about the taser and your taser stats,\n"
-						 "plase visit '/taser info'.");
-	}
-	else if(m_ShopWindowPage == 8)
-	{
-		str_format(aItem, sizeof(aItem), "    ~  P V P A R E N A T I C K E T  ~  ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "0");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "150");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "You can join the pvp arena using '/pvp_arena join' if you have a ticket.");
-	}
-	else if(m_ShopWindowPage == 9)
-	{
-		str_format(aItem, sizeof(aItem), "       ~  N I N J A J E T P A C K  ~     ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "21");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "10.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "It will make your jetpack gun be a ninja.\n"
-						 "Toggle it using '/ninjajetpack'.");
-	}
-	else if(m_ShopWindowPage == 10)
-	{
-		str_format(aItem, sizeof(aItem), "     ~  S P A W N S H O T G U N  ~   ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "You will have shotgun if you respawn.\n"
-						 "For more information about spawn weapons,\n"
-						 "please visit '/spawnweaponsinfo'.");
-	}
-	else if(m_ShopWindowPage == 11)
-	{
-		str_format(aItem, sizeof(aItem), "      ~  S P A W N G R E N A D E  ~    ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "You will have grenade if you respawn.\n"
-						 "For more information about spawn weapons,\n"
-						 "please visit '/spawnweaponsinfo'.");
-	}
-	else if(m_ShopWindowPage == 12)
-	{
-		str_format(aItem, sizeof(aItem), "       ~  S P A W N R I F L E  ~       ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "33");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "600.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "You will have rifle if you respawn.\n"
-						 "For more information about spawn weapons,\n"
-						 "please visit '/spawnweaponsinfo'.");
-	}
-	else if(m_ShopWindowPage == 13)
-	{
-		str_format(aItem, sizeof(aItem), "       ~  S P O O K Y G H O S T  ~     ");
-		str_format(aLevelTmp, sizeof(aLevelTmp), "1");
-		str_format(aPriceTmp, sizeof(aPriceTmp), "1.000.000");
-		str_format(aTimeTmp, sizeof(aTimeTmp), "You own this item forever.");
-		str_format(aInfo, sizeof(aInfo), "Using this item you can hide from other players behind bushes.\n"
-						 "If your ghost is activated you will be able to shoot plasma\n"
-						 "projectiles. For more information please visit '/spookyghostinfo'.");
-	}
-	else
-	{
-		aItem[0] = '\0';
-	}
-	//////////////////// UPDATE m_MaxShopPage ON TOP OF THIS FUNCTION!!! /////////////////////////
-
-	char aLevel[128];
-	str_format(aLevel, sizeof(aLevel), "Needed level: %s", aLevelTmp);
-	char aPrice[16];
-	str_format(aPrice, sizeof(aPrice), "Price: %s", aPriceTmp);
-	char aTime[256];
-	str_format(aTime, sizeof(aTime), "Time: %s", aTimeTmp);
-
-	char aBase[512];
-	if(m_ShopWindowPage > 0)
-	{
-		str_format(aBase, sizeof(aBase),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
-			"%s\n\n"
-			"%s\n"
-			"%s\n"
-			"%s\n\n"
-			"%s\n\n"
-			"***************************\n"
-			"If you want to buy an item press f3.\n\n\n"
-			"              ~ %d ~              ",
-			aItem, aLevel, aPrice, aTime, aInfo, m_ShopWindowPage);
-	}
-	else
-	{
-		str_format(aBase, sizeof(aBase),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
-			"%s\n\n"
-			"***************************\n"
-			"If you want to buy an item press f3.",
-			aItem);
-	}
-
-	GameServer()->AbuseMotd(aBase, GetPlayer()->GetCID());
-
-	m_ShopMotdTick = Server()->Tick() + Server()->TickSpeed() * 10; // motd is there for 10 sec
-
-	return;
-}
-
-void CCharacter::StartShop()
-{
-	if(!m_InShop)
-		return;
-	if(m_PurchaseState == 2) // already in buy confirmation state
-		return;
-	if(m_ShopWindowPage != -1)
-		return;
-
-	ShopWindow(0);
-	m_PurchaseState = 1;
-}
-
-void CCharacter::ConfirmPurchase()
-{
-	if((m_ShopWindowPage == -1) || (m_ShopWindowPage == 0))
-		return;
-
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf),
-		"***************************\n"
-		"        ~  S H O P  ~      \n"
-		"***************************\n\n"
-		"Are you sure you want to buy this item?\n\n"
-		"f3 - yes\n"
-		"f4 - no\n\n"
-		"***************************\n");
-
-	GameServer()->AbuseMotd(aBuf, GetPlayer()->GetCID());
-
-	m_PurchaseState = 2;
-
-	return;
-}
-
-void CCharacter::PurchaseEnd(bool canceled)
-{
-	if(m_PurchaseState != 2) // nothing to end here
-		return;
-
-	char aResult[256];
-	if(canceled)
-	{
-		char aBuf[256];
-		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
-		str_format(aBuf, sizeof(aBuf),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
-			"%s\n\n"
-			"***************************\n",
-			aResult);
-
-		GameServer()->AbuseMotd(aBuf, GetPlayer()->GetCID());
-	}
-	else
-	{
-		BuyItem(m_ShopWindowPage);
-		ShopWindow(0);
-	}
-
-	m_PurchaseState = 1;
-
-	return;
-}
-
 void CCharacter::BuyItem(int ItemID)
 {
-	if((g_Config.m_SvShopState == 1) && !m_InShop)
+	if((g_Config.m_SvShopState == 1) && !GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
 	{
 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You have to be in the shop to buy some items.");
 		return;
@@ -1395,11 +1117,7 @@ void CCharacter::DDPPPostCoreTick()
 	}
 	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
 
-	if(m_ShopMotdTick < Server()->Tick())
-	{
-		m_ShopWindowPage = -1;
-		m_PurchaseState = 0;
-	}
+	GameServer()->Shop()->MotdTick(GetPlayer()->GetCID());
 }
 
 void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
@@ -2088,7 +1806,7 @@ void CCharacter::DDPP_Tick()
 				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
 			}
 		}
-		if(m_InShop)
+		if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
 		{
 			if(m_TileIndex != TILE_SHOP && m_TileFIndex != TILE_SHOP)
 			{
@@ -2097,18 +1815,8 @@ void CCharacter::DDPP_Tick()
 					SendShopMessage("Bye! Come back if you need something.");
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
-
-				if(m_ShopWindowPage != -1)
-				{
-					GameServer()->AbuseMotd("", GetPlayer()->GetCID());
-				}
-
 				GameServer()->SendBroadcast("", m_pPlayer->GetCID(), 0);
-
-				m_PurchaseState = 0;
-				m_ShopWindowPage = -1;
-
-				m_InShop = false;
+				GameServer()->Shop()->LeaveShop(GetPlayer()->GetCID());
 			}
 		}
 	}
@@ -2224,7 +1932,7 @@ void CCharacter::DDPP_FlagTick()
 				}
 			}
 		}
-		else if(m_InShop)
+		else if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
 		{
 			if(!m_pPlayer->m_xpmsg)
 			{
@@ -3628,7 +3336,7 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 	{
 		if(pTarget->m_pPlayer->m_DummyMode == 99)
 		{
-			StartShop();
+			GameServer()->Shop()->StartShop(GetPlayer()->GetCID());
 		}
 	}
 
@@ -3990,12 +3698,7 @@ void CCharacter::DDPPFireWeapon()
 		}
 	}
 
-	// shop window
-	if((m_ChangeShopPage) && (m_ShopWindowPage != -1) && (m_PurchaseState == 1))
-	{
-		ShopWindow(GetAimDir());
-		m_ChangeShopPage = false;
-	}
+	GameServer()->Shop()->FireWeapon(GetAimDir(), GetPlayer()->GetCID());
 
 	//spawn weapons
 

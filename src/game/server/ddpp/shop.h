@@ -125,14 +125,36 @@ class CGameContext;
 class CShop
 {
 	CGameContext *m_pGameContext;
+	int64_t m_MotdTick[MAX_CLIENTS];
+	int m_Page[MAX_CLIENTS];
+	int m_PurchaseState[MAX_CLIENTS];
+	bool m_ChangePage[MAX_CLIENTS];
+	bool m_InShop[MAX_CLIENTS];
+	IServer *Server();
 
 public:
 	CShop(class CGameContext *pGameContext);
 
 	std::vector<CShopItem *> m_vItems;
 
+	bool IsInShop(int ClientID) { return m_InShop[ClientID]; }
+
+	void EnterShop(int ClientID) { m_InShop[ClientID] = true; }
+	void LeaveShop(int ClientID);
+	void SetMotdTick(int ClientID, int64_t Value) { m_MotdTick[ClientID] = Value; }
+	void MotdTick(int ClientID);
+	void StartShop(int ClientID);
+	void ConfirmPurchase(int ClientID);
+	void PurchaseEnd(int ClientID, bool IsCancel);
+	bool VoteNo(int ClientID);
+	bool VoteYes(int ClientID);
+	void OnOpenScoreboard(int ClientID);
+
 	void OnInit();
 	void ShowShopMotdCompressed(int ClientID);
+	void ShopWindow(int Dir, int ClientID);
+	void FireWeapon(int Dir, int ClientID);
+	void WillFireWeapon(int ClientID);
 };
 
 #endif

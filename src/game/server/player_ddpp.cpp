@@ -7,6 +7,8 @@
 #include <fstream>
 #include <limits>
 
+#include <game/server/ddpp/shop.h>
+
 #include "gamecontext.h"
 #include "gamecontext_sql.h"
 
@@ -310,19 +312,12 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		StrToInts(&pClientInfo->m_Name0, 4, " ");
 	}
 
-	if(m_PlayerFlags & PLAYERFLAG_SCOREBOARD)
+	if(GetCharacter())
 	{
-		if(GetCharacter())
-		{
-			GetCharacter()->m_ShopMotdTick = 0;
-		}
-	}
-	else
-	{
-		if(GetCharacter())
-		{
+		if(m_PlayerFlags & PLAYERFLAG_SCOREBOARD)
+			GameServer()->Shop()->OnOpenScoreboard(GetCID());
+		else
 			GetCharacter()->m_TimesShot = 0;
-		}
 	}
 
 	if(GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
