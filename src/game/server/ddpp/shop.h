@@ -137,6 +137,7 @@ public:
 
 	std::vector<CShopItem *> m_vItems;
 
+	int NumShopItems();
 	bool IsInShop(int ClientID) { return m_InShop[ClientID]; }
 
 	void EnterShop(int ClientID) { m_InShop[ClientID] = true; }

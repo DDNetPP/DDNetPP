@@ -350,13 +350,22 @@ bool CShop::VoteYes(int ClientID)
 	return true;
 }
 
+int CShop::NumShopItems()
+{
+	int Total = 0;
+	for(auto &Item : m_vItems)
+		if(Item->IsActive())
+			Total++;
+	return Total;
+}
+
 void CShop::ShopWindow(int Dir, int ClientID)
 {
 	// motd is there for 10 sec
 	m_MotdTick[ClientID] = Server()->Tick() + Server()->TickSpeed() * 10;
 
-	// all items plus the start page
-	int MaxShopPages = m_vItems.size();
+	// all active items plus the start page
+	int MaxShopPages = NumShopItems();
 
 	if(Dir == 0)
 	{
@@ -398,24 +407,32 @@ void CShop::ShopWindow(int Dir, int ClientID)
 		m_pGameContext->AbuseMotd(aMotd, ClientID);
 		return;
 	}
-	CShopItem *pItem = m_vItems[m_Page[ClientID] - 1];
-	str_format(aMotd, sizeof(aMotd),
-		"***************************\n"
-		"        ~  S H O P  ~      \n"
-		"***************************\n\n"
-		"%s\n\n"
-		"Needed level: %s\n"
-		"Price: %s\n"
-		"Time: %s\n\n"
-		"%s\n\n"
-		"***************************\n"
-		"If you want to buy an item press f3.\n\n\n"
-		"              ~ %d/%d ~              ",
-		pItem->Title(),
-		pItem->NeededLevelStr(ClientID),
-		pItem->PriceStr(),
-		pItem->OwnUntilLong(),
-		pItem->Description(),
-		m_Page[ClientID], MaxShopPages);
+	int ItemIndex = 0;
+	for(auto &Item : m_vItems)
+	{
+		if(!Item->IsActive())
+			continue;
+		if(++ItemIndex != m_Page[ClientID])
+			continue;
+
+		str_format(aMotd, sizeof(aMotd),
+			"***************************\n"
+			"        ~  S H O P  ~      \n"
+			"***************************\n\n"
+			"%s\n\n"
+			"Needed level: %s\n"
+			"Price: %s\n"
+			"Time: %s\n\n"
+			"%s\n\n"
+			"***************************\n"
+			"If you want to buy an item press f3.\n\n\n"
+			"              ~ %d/%d ~              ",
+			Item->Title(),
+			Item->NeededLevelStr(ClientID),
+			Item->PriceStr(),
+			Item->OwnUntilLong(),
+			Item->Description(),
+			m_Page[ClientID], MaxShopPages);
+	}
 	m_pGameContext->AbuseMotd(aMotd, ClientID);
 }
