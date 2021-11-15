@@ -244,8 +244,6 @@ public:
 	// shop
 	bool m_EnteredShop; // TODO: move to CShop ?
 
-	void BuyItem(int ItemID);
-
 	//bank
 	bool m_InBank;
 

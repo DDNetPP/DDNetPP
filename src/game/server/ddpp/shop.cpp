@@ -797,6 +797,11 @@ void CShop::BuyItem(int ClientID, const char *pItemName)
 	if(!pItemName)
 		return;
 
+	if((g_Config.m_SvShopState == 1) && !IsInShop(ClientID))
+	{
+		m_pGameContext->SendChatTarget(ClientID, "You have to be in the shop to buy some items.");
+		return;
+	}
 	char aBuf[512];
 	for(auto &Item : m_vItems)
 	{
@@ -808,6 +813,6 @@ void CShop::BuyItem(int ClientID, const char *pItemName)
 		Item->Buy(ClientID);
 		return;
 	}
-	str_format(aBuf, sizeof(aBuf), "No such item '%s'", pItemName);
+	str_format(aBuf, sizeof(aBuf), "No such item '%s' see '/shop' for a full list.", pItemName);
 	m_pGameContext->SendChatTarget(ClientID, aBuf);
 }

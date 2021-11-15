@@ -656,49 +656,6 @@ void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
 	}
 	else
 	{
-		/*
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"***************************");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"          ~ SHOP ~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"***************************");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"Type '/buy <itemname>'");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"***************************");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"ItemName | Price | Needed Level | OwnTime:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"rainbow       1 500 | 5 | dead");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"bloody         3 500 | 15 | dead");
-		//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		//	"atom         3 500 money | 3 | dead");
-		//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		//	"trail         3 500 money | 3 | dead");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"chidraqul     250 | 2 | disconnect");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"shit              5 | 0 | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		aBuf);
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"police		   100 000 | 18 | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"taser		  50 000 | Police[3] | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"pvp_arena_ticket     150 | 0 | 1 use");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"ninjajetpack     10 000 | 21 | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_shotgun     600 000 | 38 | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_grenade     600 000 | 38 | forever");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Shop",
-		"spawn_rifle     600 000 | 38 | forever");
-		*/
-
 		pSelf->Shop()->ShowShopMotdCompressed(pResult->m_ClientID);
 	}
 }
@@ -739,57 +696,12 @@ void CGameContext::ConBuy(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
-
-	if((g_Config.m_SvShopState == 1) && !pSelf->Shop()->IsInShop(pChr->GetPlayer()->GetCID()))
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You have to be in the shop to buy some items.");
-		return;
-	}
-
 	if(pResult->NumArguments() != 1)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Unknown item. Type '/buy <itemname>' use '/shop' to see the full itemlist.");
 		return;
 	}
-
-	int ItemID = -1;
-
-	char aItem[32];
-	str_copy(aItem, pResult->GetString(0), 32);
-
-	if(!str_comp_nocase(aItem, "rainbow"))
-		ItemID = 1;
-	else if(!str_comp_nocase(aItem, "bloody"))
-		ItemID = 2;
-	else if(!str_comp_nocase(aItem, "chidraqul"))
-		ItemID = 3;
-	else if(!str_comp_nocase(aItem, "shit"))
-		ItemID = 4;
-	else if(!str_comp_nocase(aItem, "room_key"))
-		ItemID = 5;
-	else if(!str_comp_nocase(aItem, "police"))
-		ItemID = 6;
-	else if(!str_comp_nocase(aItem, "taser"))
-		ItemID = 7;
-	else if(!str_comp_nocase(aItem, "pvp_arena_ticket"))
-		ItemID = 8;
-	else if(!str_comp_nocase(aItem, "ninjajetpack"))
-		ItemID = 9;
-	else if(!str_comp_nocase(aItem, "spawn_shotgun"))
-		ItemID = 10;
-	else if(!str_comp_nocase(aItem, "spawn_grenade"))
-		ItemID = 11;
-	else if(!str_comp_nocase(aItem, "spawn_rifle"))
-		ItemID = 12;
-	else if(!str_comp_nocase(aItem, "spooky_ghost"))
-		ItemID = 13;
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid shop item. Choose another one.");
-		return;
-	}
-
-	pChr->BuyItem(ItemID);
+	pSelf->Shop()->BuyItem(pResult->m_ClientID, pResult->GetString(0));
 }
 
 void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
