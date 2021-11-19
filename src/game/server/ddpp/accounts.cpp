@@ -86,36 +86,36 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	str_copy(aBuf,
 		"UPDATE Accounts SET "
 		"	IsLoggedIn = ?, LastLoginPort = ?,"
-		// "	LastLogoutIGN1 = ?, LastLogoutIGN2 = ?, LastLogoutIGN3 = ?, LastLogoutIGN4 = ?, LastLogoutIGN5 = ?,"
-		// "	IP_1 = ?, IP_2 = ?, IP_3 = ?,"
-		// "	Clan1 = ?, Clan2 = ?, Clan3 = ?,"
-		// "	Skin = ?,"
+		"	LastLogoutIGN1 = ?, LastLogoutIGN2 = ?, LastLogoutIGN3 = ?, LastLogoutIGN4 = ?, LastLogoutIGN5 = ?,"
+		"	IP_1 = ?, IP_2 = ?, IP_3 = ?,"
+		"	Clan1 = ?, Clan2 = ?, Clan3 = ?,"
+		"	Skin = ?,"
 		"	Level = ?, Money = ?, Exp = ?,"
-		// "	Shit = ?, LastGift = ?,"
-		// "	PoliceRank = ?,"
-		// "	JailTime = ?, EscapeTime = ?,"
-		// "	TaserLevel = ?,"
-		// "	PvPArenaTickets = ?, PvPArenaGames = ?, PvPArenaKills = ?, PvPArenaDeaths = ?,"
-		// "	ProfileStyle = ?, ProfileViews = ?, ProfileStatus = ?,"
-		// "	ProfileSkype = ?, ProfileYoutube = ?, ProfileEmail = ?, ProfileHomepage = ?, ProfileTwitter"
-		// "	HomingMissiles = ?,"
-		// "	BlockPoints = ?, BlockKills = ?, BlockDeaths = ?, BlockSkill = ?,"
-		// "	IsModerator = ?, IsSuperModerator = ?, IsSupporter = ?, IsAccFrozen = ?,"
-		// "	BombGamesPlayed = ?, BombGamesWon = ?, BombBanTime = ?,"
-		// "	GrenadeKills = ?, GrenadeDeaths = ?, GrenadeSpree = ?,"
-		// "	GrenadeShots = ?, GrenadeShotsNoRJ = ?, GrenadeWins = ?,"
-		// "	RifleKills = ?, RifleDeaths = ?, RifleSpree = ?,"
-		// "	RifleShots = ?, RifleWins = ?,"
-		// "	FngConfig = ?, ShowHideConfig = ?,"
-		// "	SurvivalKills = ?, SurvivalDeaths = ?, SurvivalWins = ?,"
-		// "	NinjaJetpackBought = ?, SpookyGhost = ?,"
-		// "	UseSpawnWeapons = ?,"
-		// "	SpawnWeaponShotgun = ?, SpawnWeaponGrenade = ?, SpawnWeaponRifle = ?,"
-		// "	AsciiState = ?, AsciiViewsDefault = ?, AsciiViewsProfile = ?,"
-		// "	AsciiFrame0 = ?,"
-		// "	AsciiFrame1 = ?, AsciiFrame2 = ?, AsciiFrame3 = ?, AsciiFrame4 = ?, AsciiFrame5 = ?,"
-		// "	AsciiFrame6 = ?, AsciiFrame7 = ?, AsciiFrame8 = ?, AsciiFrame9 = ?, AsciiFrame10 = ?,"
-		// "	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 "
+		"	Shit = ?, LastGift = ?,"
+		"	PoliceRank = ?,"
+		"	JailTime = ?, EscapeTime = ?,"
+		"	TaserLevel = ?,"
+		"	PvPArenaTickets = ?, PvPArenaGames = ?, PvPArenaKills = ?, PvPArenaDeaths = ?,"
+		"	ProfileStyle = ?, ProfileViews = ?, ProfileStatus = ?,"
+		"	ProfileSkype = ?, ProfileYoutube = ?, ProfileEmail = ?, ProfileHomepage = ?, ProfileTwitter"
+		"	HomingMissiles = ?,"
+		"	BlockPoints = ?, BlockKills = ?, BlockDeaths = ?, BlockSkill = ?,"
+		"	IsModerator = ?, IsSuperModerator = ?, IsSupporter = ?, IsAccFrozen = ?,"
+		"	BombGamesPlayed = ?, BombGamesWon = ?, BombBanTime = ?,"
+		"	GrenadeKills = ?, GrenadeDeaths = ?, GrenadeSpree = ?,"
+		"	GrenadeShots = ?, GrenadeShotsNoRJ = ?, GrenadeWins = ?,"
+		"	RifleKills = ?, RifleDeaths = ?, RifleSpree = ?,"
+		"	RifleShots = ?, RifleWins = ?,"
+		"	FngConfig = ?, ShowHideConfig = ?,"
+		"	SurvivalKills = ?, SurvivalDeaths = ?, SurvivalWins = ?,"
+		"	NinjaJetpackBought = ?, SpookyGhost = ?,"
+		"	UseSpawnWeapons = ?,"
+		"	SpawnWeaponShotgun = ?, SpawnWeaponGrenade = ?, SpawnWeaponRifle = ?,"
+		"	AsciiState = ?, AsciiViewsDefault = ?, AsciiViewsProfile = ?,"
+		"	AsciiFrame0 = ?,"
+		"	AsciiFrame1 = ?, AsciiFrame2 = ?, AsciiFrame3 = ?, AsciiFrame4 = ?, AsciiFrame5 = ?,"
+		"	AsciiFrame6 = ?, AsciiFrame7 = ?, AsciiFrame8 = ?, AsciiFrame9 = ?, AsciiFrame10 = ?,"
+		"	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 "
 		"	WHERE ID = ?;",
 		sizeof(aBuf));
 
@@ -123,13 +123,83 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	{
 		return true;
 	}
+	const CAccountData *pAcc = &pData->m_AccountData;
 	int Index = 1;
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_IsLoggedIn);
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_LastLoginPort);
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_Level); // TODO: BindInt64
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_Money);
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_XP);
-	pSqlServer->BindInt(Index++, pData->m_AccountData.m_ID);
+	pSqlServer->BindInt(Index++, pAcc->m_IsLoggedIn);
+	pSqlServer->BindInt(Index++, pAcc->m_LastLoginPort);
+	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN1);
+	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN2);
+	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN3);
+	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN4);
+	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN5);
+	pSqlServer->BindString(Index++, pAcc->m_aIP_1);
+	pSqlServer->BindString(Index++, pAcc->m_aIP_2);
+	pSqlServer->BindString(Index++, pAcc->m_aIP_3);
+	pSqlServer->BindString(Index++, pAcc->m_aClan1);
+	pSqlServer->BindString(Index++, pAcc->m_aClan2);
+	pSqlServer->BindString(Index++, pAcc->m_aClan3);
+	pSqlServer->BindString(Index++, pAcc->m_aSkin);
+	// pSqlServer->BindInt64(Index++, pAcc->m_Level);
+	// pSqlServer->BindInt64(Index++, pAcc->m_Money);
+	// pSqlServer->BindInt64(Index++, pAcc->m_XP);
+	pSqlServer->BindInt(Index++, pAcc->m_Shit);
+	pSqlServer->BindInt(Index++, pAcc->m_GiftDelay);
+	pSqlServer->BindInt(Index++, pAcc->m_PoliceRank);
+	// pSqlServer->BindInt64(Index++, pAcc->m_JailTime);
+	// pSqlServer->BindInt64(Index++, pAcc->m_EscapeTime);
+	pSqlServer->BindInt(Index++, pAcc->m_TaserLevel);
+	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaTickets);
+	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaGamesPlayed);
+	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaKills);
+	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaDeaths);
+	pSqlServer->BindInt(Index++, pAcc->m_ProfileStyle);
+	pSqlServer->BindInt(Index++, pAcc->m_ProfileViews);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileStatus);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileSkype);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileYoutube);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileEmail);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileHomepage);
+	pSqlServer->BindString(Index++, pAcc->m_ProfileTwitter);
+	pSqlServer->BindInt(Index++, pAcc->m_HomingMissilesAmmo);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints_Kills);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockPoints_Deaths);
+	pSqlServer->BindInt(Index++, pAcc->m_BlockSkill);
+	pSqlServer->BindInt(Index++, pAcc->m_IsModerator);
+	pSqlServer->BindInt(Index++, pAcc->m_IsSuperModerator);
+	pSqlServer->BindInt(Index++, pAcc->m_IsSupporter);
+	pSqlServer->BindInt(Index++, pAcc->m_IsAccFrozen);
+	pSqlServer->BindInt(Index++, pAcc->m_BombGamesPlayed);
+	pSqlServer->BindInt(Index++, pAcc->m_BombGamesWon);
+	pSqlServer->BindInt(Index++, pAcc->m_BombBanTime);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeKills);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeDeaths);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeSpree);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeShots);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeShotsNoRJ);
+	pSqlServer->BindInt(Index++, pAcc->m_GrenadeWins);
+	pSqlServer->BindInt(Index++, pAcc->m_RifleKills);
+	pSqlServer->BindInt(Index++, pAcc->m_RifleDeaths);
+	pSqlServer->BindInt(Index++, pAcc->m_RifleSpree);
+	pSqlServer->BindInt(Index++, pAcc->m_RifleShots);
+	pSqlServer->BindInt(Index++, pAcc->m_RifleWins);
+	pSqlServer->BindString(Index++, pAcc->m_aFngConfig);
+	pSqlServer->BindString(Index++, pAcc->m_aShowHideConfig);
+	pSqlServer->BindInt(Index++, pAcc->m_SurvivalKills);
+	pSqlServer->BindInt(Index++, pAcc->m_SurvivalDeaths);
+	pSqlServer->BindInt(Index++, pAcc->m_SurvivalWins);
+	pSqlServer->BindInt(Index++, pAcc->m_NinjaJetpackBought);
+	pSqlServer->BindInt(Index++, pAcc->m_SpookyGhost);
+	pSqlServer->BindInt(Index++, pAcc->m_UseSpawnWeapons);
+	pSqlServer->BindInt(Index++, pAcc->m_SpawnWeaponShotgun);
+	pSqlServer->BindInt(Index++, pAcc->m_SpawnWeaponGrenade);
+	pSqlServer->BindInt(Index++, pAcc->m_SpawnWeaponRifle);
+	pSqlServer->BindString(Index++, pAcc->m_aAsciiPublishState);
+	pSqlServer->BindInt(Index++, pAcc->m_AsciiViewsDefault);
+	pSqlServer->BindInt(Index++, pAcc->m_AsciiViewsProfile);
+	for(auto &AsciiFrame : pAcc->m_aAsciiFrame)
+		pSqlServer->BindString(Index++, AsciiFrame);
+	pSqlServer->BindInt(Index++, pAcc->m_ID);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
