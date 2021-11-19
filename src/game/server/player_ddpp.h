@@ -473,7 +473,7 @@ public:
 
 	void ChangePassword();
 	void Save(int SetLoggedIn);
-	void SaveFileBased(int SetLoggedIn);
+	void SaveFileBased();
 	void Logout(int SetLoggedIn = 0);
 	void CheckLevel();
 	void CalcExp();

@@ -8307,7 +8307,8 @@ void CGameContext::ConLogin2(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(ClientID, "[ACCOUNT] logged in.");
 
 	//save the acc with the new data and set islogged in to true
-	pPlayer->SaveFileBased(1);
+	pPlayer->m_Account.m_IsLoggedIn = 1;
+	pPlayer->SaveFileBased();
 }
 
 void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)

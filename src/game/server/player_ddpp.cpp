@@ -551,14 +551,16 @@ void CPlayer::Save(int SetLoggedIn)
 	if(!IsLoggedIn())
 		return;
 
-	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
-	// return;
+	m_Account.m_IsLoggedIn = SetLoggedIn
 
 	if(m_IsFileAcc)
 	{
-		SaveFileBased(SetLoggedIn);
+		SaveFileBased();
 		return;
 	}
+
+	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
+	// return;
 
 	// Proccess Clan Data...
 	char aClan[32];
@@ -707,7 +709,7 @@ void CPlayer::Save(int SetLoggedIn)
 		GetAccID());
 }
 
-void CPlayer::SaveFileBased(int SetLoggedIn)
+void CPlayer::SaveFileBased()
 {
 	std::string data;
 	char aBuf[128];
@@ -719,7 +721,7 @@ void CPlayer::SaveFileBased(int SetLoggedIn)
 		dbg_msg("acc2", "saved acc '%s'", m_Account.m_aUsername);
 
 		Acc2File << m_Account.m_aPassword << "\n";
-		Acc2File << SetLoggedIn << "\n";
+		Acc2File << m_Account.m_IsLoggedIn << "\n";
 		Acc2File << g_Config.m_SvPort << "\n";
 		Acc2File << m_Account.m_IsAccFrozen << "\n";
 		Acc2File << m_Account.m_IsModerator << "\n";
