@@ -55,6 +55,7 @@ void CAccounts::ExecUserThread(
 	int ClientID,
 	const char *pUsername,
 	const char *pPassword,
+	const char *pNewPassword,
 	CAccountData *pAccountData)
 {
 	auto pResult = NewSqlAccountResult(ClientID);
@@ -63,6 +64,7 @@ void CAccounts::ExecUserThread(
 	auto Tmp = std::unique_ptr<CSqlAccountRequest>(new CSqlAccountRequest(pResult));
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
+	str_copy(Tmp->m_aNewPassword, pNewPassword, sizeof(Tmp->m_aNewPassword));
 	if(pAccountData)
 		Tmp->m_AccountData = *pAccountData;
 	else
@@ -73,7 +75,7 @@ void CAccounts::ExecUserThread(
 
 void CAccounts::Save(int ClientID, CAccountData *pAccountData)
 {
-	ExecUserThread(SaveThread, "save user", ClientID, "", "", pAccountData);
+	ExecUserThread(SaveThread, "save user", ClientID, "", "", "", pAccountData);
 }
 
 bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -225,7 +227,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 
 void CAccounts::Login(int ClientID, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword, NULL);
+	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword, "", NULL);
 }
 
 bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -383,6 +385,51 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pResult->SetVariant(CAccountResult::DIRECT);
 		str_copy(pResult->m_aaMessages[0],
 			"[ACCOUNT] Login failed. Wrong password or username.",
+			sizeof(pResult->m_aaMessages[0]));
+	}
+	return false;
+}
+
+void CAccounts::ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
+{
+	ExecUserThread(ChangePasswordThread, "change password", ClientID, pUsername, pOldPassword, pNewPassword, NULL);
+}
+
+bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
+	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
+	pResult->SetVariant(CAccountResult::DIRECT);
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"UPDATE Accounts SET "
+		"	Password = ?"
+		"	WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return true;
+	}
+	pSqlServer->BindString(1, pData->m_aUsername);
+	pSqlServer->BindString(2, pData->m_aNewPassword);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		return true;
+	}
+	if(!End)
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"[ACCOUNT] Password change failed.",
+			sizeof(pResult->m_aaMessages[0]));
+	}
+	else
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"[ACCOUNT] Successfully changed your password.",
 			sizeof(pResult->m_aaMessages[0]));
 	}
 	return false;

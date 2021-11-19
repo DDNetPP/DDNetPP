@@ -534,15 +534,6 @@ void CPlayer::JailPlayer(int seconds)
 	}
 }
 
-void CPlayer::ChangePassword() //DROPS AN : "NO SUCH COLUM %m_aChangePassword%" SQLite ERROR
-{
-	if(!IsLoggedIn())
-		return;
-
-	dbg_msg("sql", "pass: %s id: %d", m_aChangePassword, GetAccID());
-	GameServer()->ExecuteSQLf("UPDATE `Accounts` SET `Password` = '%q'  WHERE `ID` = %i", m_aChangePassword, GetAccID());
-}
-
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)

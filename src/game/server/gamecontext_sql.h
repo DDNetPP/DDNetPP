@@ -10,14 +10,6 @@ public:
 };
 
 // TODO: remove
-class CQueryChangePassword : public CQueryPlayer
-{
-	void OnData();
-
-public:
-};
-
-// TODO: remove
 class CQuerySetPassword : public CQueryPlayer
 {
 	void OnData();

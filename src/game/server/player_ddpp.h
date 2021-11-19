@@ -460,12 +460,9 @@ public:
 	bool m_fake_admin;
 	int64_t m_LastFight;
 
-	char m_aChangePassword[MAX_PW_LEN + 1];
-
 	char m_aSetPassword[MAX_PW_LEN + 1]; //admin sql save string (used to resett passwords)
 	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
 
-	void ChangePassword();
 	void Save(int SetLoggedIn);
 	void SaveFileBased();
 	void Logout(int SetLoggedIn = 0);

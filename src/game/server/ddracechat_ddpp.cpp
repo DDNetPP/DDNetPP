@@ -11,6 +11,7 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
+#include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/shop.h>
 
 #include <fstream> //ChillerDragon acc sys2
@@ -1576,12 +1577,20 @@ void CGameContext::ConChangePassword(IConsole::IResult *pResult, void *pUserData
 
 	if(str_comp_nocase(aNewPass, aNewPass2) != 0)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Passwords have to be identical.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "New passwords have to be identical.");
 		return;
 	}
 
-	str_format(pPlayer->m_aChangePassword, sizeof(pPlayer->m_aChangePassword), "%s", aNewPass);
-	pSelf->SQLaccount(pSelf->SQL_CHANGE_PASSWORD, pResult->m_ClientID, pPlayer->m_Account.m_aUsername, aOldPass);
+	if(str_comp(aOldPass, pPlayer->m_Account.m_aPassword))
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Wrong old password.");
+		return;
+	}
+
+	// even if the sql query fails passwords are not saved on logout
+	// but this makes sure that if a password is changed multiple times its compared against the new one
+	str_copy(pPlayer->m_Account.m_aPassword, aNewPass, sizeof(pPlayer->m_Account.m_aPassword));
+	pSelf->Accounts()->ChangePassword(pResult->m_ClientID, pPlayer->m_Account.m_aUsername, pPlayer->m_Account.m_aPassword, aNewPass);
 }
 
 void CGameContext::ConAccLogout(IConsole::IResult *pResult, void *pUserData)

@@ -304,23 +304,6 @@ void CQueryLogin::OnData()
 	}
 }
 
-void CQueryChangePassword::OnData()
-{
-	if(Next())
-	{
-		if(m_pGameServer->m_apPlayers[m_ClientID])
-		{
-			//m_pGameServer->m_apPlayers[m_ClientID]->ChangePassword();
-			str_format(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword, sizeof(m_pGameServer->m_apPlayers[m_ClientID]->m_Account.m_aPassword), "%s", m_pGameServer->m_apPlayers[m_ClientID]->m_aChangePassword);
-			m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Changed password.");
-		}
-	}
-	else
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Wrong old password.");
-	}
-}
-
 void CQuerySetPassword::OnData()
 {
 	if(Next())
@@ -410,15 +393,6 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, con
 		pQuery->m_Name = pUsername;
 		pQuery->m_Password = pPassword;
 		pQuery->m_Date = time_str;
-		pQuery->Query(m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-	}
-	else if(mode == SQL_CHANGE_PASSWORD)
-	{
-		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q' AND Password='%q'", pUsername, pPassword);
-		CQueryChangePassword *pQuery = new CQueryChangePassword();
-		pQuery->m_ClientID = ClientID;
-		pQuery->m_pGameServer = this;
 		pQuery->Query(m_Database, pQueryBuf);
 		sqlite3_free(pQueryBuf);
 	}

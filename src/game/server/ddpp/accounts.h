@@ -291,6 +291,7 @@ struct CSqlAccountRequest : ISqlData
 	CAccountData m_AccountData;
 	char m_aUsername[64];
 	char m_aPassword[64];
+	char m_aNewPassword[64];
 };
 
 struct CSqlSetLoginData : ISqlData
@@ -326,6 +327,7 @@ class CAccounts
 
 	static bool LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
@@ -337,6 +339,7 @@ class CAccounts
 		int ClientID,
 		const char *pUsername,
 		const char *pPassword,
+		const char *pNewPassword,
 		CAccountData *pAccountData);
 
 public:
@@ -348,14 +351,13 @@ public:
 			Save
 
 		Remarks:
-			Shares a ratelimit lock with Login() so account saves
-			will not execute if the player is currently executing
-			a login query
-
-			It is also planned to b shared with password changes
+			Shares a ratelimit lock with Login() and ChangePassword()
+			so account saves will not execute if the player
+			is currently executing a login query or changing his password
 	*/
 	void Save(int ClientID, CAccountData *pAccountData);
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
+	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 };
 
