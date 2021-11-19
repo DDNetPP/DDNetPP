@@ -263,12 +263,6 @@ public:
 
 	bool m_IsSuperModSpawn;
 
-	int m_iLastLogoutIGN1_usage;
-	int m_iLastLogoutIGN2_usage;
-	int m_iLastLogoutIGN3_usage;
-	int m_iLastLogoutIGN4_usage;
-	int m_iLastLogoutIGN5_usage;
-
 	/*
 		PlayerHumanLevel
 

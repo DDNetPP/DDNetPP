@@ -551,16 +551,7 @@ void CPlayer::Save(int SetLoggedIn)
 	if(!IsLoggedIn())
 		return;
 
-	m_Account.m_IsLoggedIn = SetLoggedIn
-
-	if(m_IsFileAcc)
-	{
-		SaveFileBased();
-		return;
-	}
-
-	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
-	// return;
+	m_Account.m_IsLoggedIn = SetLoggedIn;
 
 	// Proccess Clan Data...
 	char aClan[32];
@@ -590,30 +581,8 @@ void CPlayer::Save(int SetLoggedIn)
 	char aName[32];
 	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
 
-	if(!str_comp(aName, m_Account.m_LastLogoutIGN1) || !str_comp(aName, m_Account.m_LastLogoutIGN2) || !str_comp(aName, m_Account.m_LastLogoutIGN3) || !str_comp(aName, m_Account.m_LastLogoutIGN4) || !str_comp(aName, m_Account.m_LastLogoutIGN5))
-	{
-		if(!str_comp(aName, m_Account.m_LastLogoutIGN1))
-		{
-			m_iLastLogoutIGN1_usage++;
-		}
-		else if(!str_comp(aName, m_Account.m_LastLogoutIGN2))
-		{
-			m_iLastLogoutIGN2_usage++;
-		}
-		else if(!str_comp(aName, m_Account.m_LastLogoutIGN3))
-		{
-			m_iLastLogoutIGN3_usage++;
-		}
-		else if(!str_comp(aName, m_Account.m_LastLogoutIGN4))
-		{
-			m_iLastLogoutIGN4_usage++;
-		}
-		else if(!str_comp(aName, m_Account.m_LastLogoutIGN5))
-		{
-			m_iLastLogoutIGN5_usage++;
-		}
-	}
-	else // new name --> add it in history and overwrite the oldest
+	// new name --> add it in history and overwrite the oldest
+	if(str_comp(aName, m_Account.m_LastLogoutIGN1) && str_comp(aName, m_Account.m_LastLogoutIGN2) && str_comp(aName, m_Account.m_LastLogoutIGN3) && str_comp(aName, m_Account.m_LastLogoutIGN4) && str_comp(aName, m_Account.m_LastLogoutIGN5))
 	{
 		//dbg_msg("debug", "'%s' was not equal to...", aName);
 		//dbg_msg("debug", "'%s'", m_Account.m_LastLogoutIGN1);
@@ -627,16 +596,19 @@ void CPlayer::Save(int SetLoggedIn)
 		str_format(m_Account.m_LastLogoutIGN3, sizeof(m_Account.m_LastLogoutIGN3), "%s", m_Account.m_LastLogoutIGN2);
 		str_format(m_Account.m_LastLogoutIGN2, sizeof(m_Account.m_LastLogoutIGN2), "%s", m_Account.m_LastLogoutIGN1);
 		str_format(m_Account.m_LastLogoutIGN1, sizeof(m_Account.m_LastLogoutIGN1), "%s", aName);
-
-		m_iLastLogoutIGN5_usage = m_iLastLogoutIGN4_usage;
-		m_iLastLogoutIGN4_usage = m_iLastLogoutIGN3_usage;
-		m_iLastLogoutIGN3_usage = m_iLastLogoutIGN2_usage;
-		m_iLastLogoutIGN2_usage = m_iLastLogoutIGN1_usage;
-		m_iLastLogoutIGN1_usage = 0;
 	}
 
 	// read showhide bools to char array that is being saved
 	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+
+	if(m_IsFileAcc)
+	{
+		SaveFileBased();
+		return;
+	}
+
+	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
+	// return;
 
 	/*
 		It was planned to use the function pointer
