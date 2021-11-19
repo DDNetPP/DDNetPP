@@ -99,7 +99,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		"	TaserLevel = ?,"
 		"	PvPArenaTickets = ?, PvPArenaGames = ?, PvPArenaKills = ?, PvPArenaDeaths = ?,"
 		"	ProfileStyle = ?, ProfileViews = ?, ProfileStatus = ?,"
-		"	ProfileSkype = ?, ProfileYoutube = ?, ProfileEmail = ?, ProfileHomepage = ?, ProfileTwitter"
+		"	ProfileSkype = ?, ProfileYoutube = ?, ProfileEmail = ?, ProfileHomepage = ?, ProfileTwitter = ?,"
 		"	HomingMissiles = ?,"
 		"	BlockPoints = ?, BlockKills = ?, BlockDeaths = ?, BlockSkill = ?,"
 		"	IsModerator = ?, IsSuperModerator = ?, IsSupporter = ?, IsAccFrozen = ?,"
@@ -117,7 +117,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		"	AsciiFrame0 = ?,"
 		"	AsciiFrame1 = ?, AsciiFrame2 = ?, AsciiFrame3 = ?, AsciiFrame4 = ?, AsciiFrame5 = ?,"
 		"	AsciiFrame6 = ?, AsciiFrame7 = ?, AsciiFrame8 = ?, AsciiFrame9 = ?, AsciiFrame10 = ?,"
-		"	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 "
+		"	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 = ?"
 		"	WHERE ID = ?;",
 		sizeof(aBuf));
 
@@ -141,14 +141,14 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindString(Index++, pAcc->m_aClan2);
 	pSqlServer->BindString(Index++, pAcc->m_aClan3);
 	pSqlServer->BindString(Index++, pAcc->m_aSkin);
-	// pSqlServer->BindInt64(Index++, pAcc->m_Level);
-	// pSqlServer->BindInt64(Index++, pAcc->m_Money);
-	// pSqlServer->BindInt64(Index++, pAcc->m_XP);
+	pSqlServer->BindInt64(Index++, pAcc->m_Level);
+	pSqlServer->BindInt64(Index++, pAcc->m_Money);
+	pSqlServer->BindInt64(Index++, pAcc->m_XP);
 	pSqlServer->BindInt(Index++, pAcc->m_Shit);
 	pSqlServer->BindInt(Index++, pAcc->m_GiftDelay);
 	pSqlServer->BindInt(Index++, pAcc->m_PoliceRank);
-	// pSqlServer->BindInt64(Index++, pAcc->m_JailTime);
-	// pSqlServer->BindInt64(Index++, pAcc->m_EscapeTime);
+	pSqlServer->BindInt64(Index++, pAcc->m_JailTime);
+	pSqlServer->BindInt64(Index++, pAcc->m_EscapeTime);
 	pSqlServer->BindInt(Index++, pAcc->m_TaserLevel);
 	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaTickets);
 	pSqlServer->BindInt(Index++, pAcc->m_PvpArenaGamesPlayed);

@@ -593,83 +593,9 @@ void CPlayer::Save(int SetLoggedIn)
 	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
 
 	if(m_IsFileAcc)
-	{
 		SaveFileBased();
-		return;
-	}
-
-	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
-	// return;
-
-	/*
-		It was planned to use the function pointer
-		to switch between ExecuteSQLf and ExecuteSQLBlockingf
-		to ensure execution on mapchange and server shutdown
-		but somehow it didnt block anyways :c
-		i left the function pointer here in case i pick this up in the future.
-	*/
-	// void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLBlockingf;
-	void (CGameContext::*ExecSql)(const char *, ...) = &CGameContext::ExecuteSQLf;
-
-	(*GameServer().*ExecSql)("UPDATE `Accounts` SET"
-				 "  `Password` = '%q', `Level` = '%i', `Exp` = '%lu', `Money` = '%lu', `Shit` = '%i'"
-				 ", `LastGift` = '%i'" /*is actually m_GiftDelay*/
-				 ", `PoliceRank` = '%i'"
-				 ", `JailTime` = '%lu', `EscapeTime` = '%lu'"
-				 ", `TaserLevel` = '%i'"
-				 ", `NinjaJetpackBought` = '%i'"
-				 ", `SpookyGhost` = '%i'"
-				 ", `UseSpawnWeapons` = '%i'"
-				 ", `SpawnWeaponShotgun` = '%i'"
-				 ", `SpawnWeaponGrenade` = '%i'"
-				 ", `SpawnWeaponRifle` = '%i'"
-				 ", `PvPArenaTickets` = '%i', `PvPArenaGames` = '%i', `PvPArenaKills` = '%i', `PvPArenaDeaths` = '%i'"
-				 ", `ProfileStyle` = '%i', `ProfileViews` = '%i', `ProfileStatus` = '%q', `ProfileSkype` = '%q', `ProfileYoutube` = '%q', `ProfileEmail` = '%q', `ProfileHomepage` = '%q', `ProfileTwitter` = '%q'"
-				 ", `HomingMissiles` = '%i'"
-				 ", `BlockPoints` = '%i', `BlockKills` = '%i', `BlockDeaths` = '%i', `BlockSkill` = '%i'"
-				 ", `IsModerator` = '%i', `IsSuperModerator` = '%i', `IsSupporter` = '%i',`IsAccFrozen` = '%i', `IsLoggedIn` = '%i'"
-				 ", `LastLogoutIGN1` = '%q', `LastLogoutIGN2` = '%q', `LastLogoutIGN3` = '%q', `LastLogoutIGN4` = '%q', `LastLogoutIGN5` = '%q'"
-				 ", `IP_1` = '%q', `IP_2` = '%q', `IP_3` = '%q'"
-				 ", `Clan1` = '%q', `Clan2` = '%q', `Clan3` = '%q'"
-				 ", `Skin` = '%q'"
-				 ", `BombGamesPlayed` = '%i', `BombGamesWon` = '%i', `BombBanTime` = '%i'"
-				 ", `GrenadeKills` = '%i', `GrenadeDeaths` = '%i', `GrenadeSpree` = '%i', `GrenadeShots` = '%i',  `GrenadeShotsNoRJ` = '%i', `GrenadeWins` = '%i'"
-				 ", `RifleKills` = '%i', `RifleDeaths` = '%i', `RifleSpree` = '%i', `RifleShots` = '%i', `RifleWins` = '%i'"
-				 ", `FngConfig` = '%q'"
-				 ", `ShowHideConfig` = '%q'"
-				 ", `SurvivalKills` = '%i', `SurvivalDeaths` = '%i', `SurvivalWins` = '%i'"
-				 ", `AsciiState` = '%q', `AsciiViewsDefault` = '%i', `AsciiViewsProfile` = '%i'"
-				 ", `AsciiFrame0` = '%q', `AsciiFrame1` = '%q', `AsciiFrame2` = '%q', `AsciiFrame3` = '%q', `AsciiFrame4` = '%q', `AsciiFrame5` = '%q', `AsciiFrame6` = '%q', `AsciiFrame7` = '%q', `AsciiFrame8` = '%q', `AsciiFrame9` = '%q', `AsciiFrame10` = '%q', `AsciiFrame11` = '%q', `AsciiFrame12` = '%q', `AsciiFrame13` = '%q', `AsciiFrame14` = '%q', `AsciiFrame15` = '%q'"
-				 " WHERE `ID` = '%i'",
-		m_Account.m_aPassword, GetLevel(), GetXP(), GetMoney(), m_Account.m_Shit,
-		m_Account.m_GiftDelay,
-		m_Account.m_PoliceRank,
-		m_Account.m_JailTime, m_Account.m_EscapeTime,
-		m_Account.m_TaserLevel,
-		m_Account.m_NinjaJetpackBought,
-		m_Account.m_SpookyGhost,
-		m_Account.m_UseSpawnWeapons,
-		m_Account.m_SpawnWeaponShotgun,
-		m_Account.m_SpawnWeaponGrenade,
-		m_Account.m_SpawnWeaponRifle,
-		m_Account.m_PvpArenaTickets, m_Account.m_PvpArenaGamesPlayed, m_Account.m_PvpArenaKills, m_Account.m_PvpArenaDeaths,
-		m_Account.m_ProfileStyle, m_Account.m_ProfileViews, m_Account.m_ProfileStatus, m_Account.m_ProfileSkype, m_Account.m_ProfileYoutube, m_Account.m_ProfileEmail, m_Account.m_ProfileHomepage, m_Account.m_ProfileTwitter,
-		m_Account.m_HomingMissilesAmmo,
-		m_Account.m_BlockPoints, m_Account.m_BlockPoints_Kills, m_Account.m_BlockPoints_Deaths, m_Account.m_BlockSkill,
-		m_Account.m_IsModerator, m_Account.m_IsSuperModerator, m_Account.m_IsSupporter, m_Account.m_IsAccFrozen, SetLoggedIn,
-		m_Account.m_LastLogoutIGN1, m_Account.m_LastLogoutIGN2, m_Account.m_LastLogoutIGN3, m_Account.m_LastLogoutIGN4, m_Account.m_LastLogoutIGN5,
-		m_Account.m_aIP_1, m_Account.m_aIP_2, m_Account.m_aIP_3,
-		m_Account.m_aClan1, m_Account.m_aClan2, m_Account.m_aClan3,
-		m_TeeInfos.m_SkinName,
-		m_Account.m_BombGamesPlayed, m_Account.m_BombGamesWon, m_Account.m_BombBanTime,
-		m_Account.m_GrenadeKills, m_Account.m_GrenadeDeaths, m_Account.m_GrenadeSpree, m_Account.m_GrenadeShots, m_Account.m_GrenadeShotsNoRJ, m_Account.m_GrenadeWins,
-		m_Account.m_RifleKills, m_Account.m_RifleDeaths, m_Account.m_RifleSpree, m_Account.m_RifleShots, m_Account.m_RifleWins,
-		m_Account.m_aFngConfig,
-		m_Account.m_aShowHideConfig,
-		m_Account.m_SurvivalKills, m_Account.m_SurvivalDeaths, m_Account.m_SurvivalWins,
-		m_Account.m_aAsciiPublishState, m_Account.m_AsciiViewsDefault, m_Account.m_AsciiViewsProfile,
-		m_Account.m_aAsciiFrame[0], m_Account.m_aAsciiFrame[1], m_Account.m_aAsciiFrame[2], m_Account.m_aAsciiFrame[3], m_Account.m_aAsciiFrame[4], m_Account.m_aAsciiFrame[5], m_Account.m_aAsciiFrame[6], m_Account.m_aAsciiFrame[7], m_Account.m_aAsciiFrame[8], m_Account.m_aAsciiFrame[9], m_Account.m_aAsciiFrame[10], m_Account.m_aAsciiFrame[11], m_Account.m_aAsciiFrame[12], m_Account.m_aAsciiFrame[13], m_Account.m_aAsciiFrame[14], m_Account.m_aAsciiFrame[15],
-		GetAccID());
+	else
+		GameServer()->Accounts()->Save(GetCID(), &m_Account);
 }
 
 void CPlayer::SaveFileBased()
