@@ -551,6 +551,9 @@ void CPlayer::Save(int SetLoggedIn)
 	if(!IsLoggedIn())
 		return;
 
+	// GameServer()->Accounts()->Save(GetCID(), &m_Account);
+	// return;
+
 	if(m_IsFileAcc)
 	{
 		SaveFileBased(SetLoggedIn);

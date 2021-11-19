@@ -37,6 +37,7 @@ struct CAccountData
 		m_aPassword[0] = '\0';
 		m_aRegisterDate[0] = '\0';
 		m_IsLoggedIn = 0;
+		m_LastLoginPort = 0;
 		m_LastLogoutIGN1[0] = '\0';
 		m_LastLogoutIGN2[0] = '\0';
 		m_LastLogoutIGN3[0] = '\0';
@@ -132,6 +133,7 @@ struct CAccountData
 	char m_aPassword[64];
 	char m_aRegisterDate[64];
 	int m_IsLoggedIn;
+	int m_LastLoginPort;
 	char m_LastLogoutIGN1[32];
 	char m_LastLogoutIGN2[32];
 	char m_LastLogoutIGN3[32];
@@ -269,6 +271,7 @@ struct CAccountResult : ISqlResult
 		BROADCAST,
 		LOGGED_IN_ALREADY,
 		LOGIN_INFO,
+		LOG_ONLY,
 	} m_MessageKind;
 
 	char m_aaMessages[MAX_MESSAGES][512];
@@ -285,6 +288,7 @@ struct CSqlAccountRequest : ISqlData
 	{
 	}
 
+	CAccountData m_AccountData;
 	char m_aUsername[64];
 	char m_aPassword[64];
 };
@@ -321,6 +325,7 @@ class CAccounts
 	IServer *m_pServer;
 
 	static bool LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
@@ -331,12 +336,25 @@ class CAccounts
 		const char *pThreadName,
 		int ClientID,
 		const char *pUsername,
-		const char *pPassword);
+		const char *pPassword,
+		CAccountData *pAccountData);
 
 public:
 	CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool);
 	~CAccounts() {}
 
+	/*
+		Function:
+			Save
+
+		Remarks:
+			Shares a ratelimit lock with Login() so account saves
+			will not execute if the player is currently executing
+			a login query
+
+			It is also planned to b shared with password changes
+	*/
+	void Save(int ClientID, CAccountData *pAccountData);
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 };

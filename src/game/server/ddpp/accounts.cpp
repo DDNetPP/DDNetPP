@@ -28,6 +28,8 @@ void CAccountResult::SetVariant(Variant v)
 	case LOGIN_INFO:
 		m_Account = CAccountData();
 		break;
+	case LOG_ONLY:
+		break;
 	}
 }
 
@@ -52,7 +54,8 @@ void CAccounts::ExecUserThread(
 	const char *pThreadName,
 	int ClientID,
 	const char *pUsername,
-	const char *pPassword)
+	const char *pPassword,
+	CAccountData *pAccountData)
 {
 	auto pResult = NewSqlAccountResult(ClientID);
 	if(pResult == nullptr)
@@ -60,13 +63,99 @@ void CAccounts::ExecUserThread(
 	auto Tmp = std::unique_ptr<CSqlAccountRequest>(new CSqlAccountRequest(pResult));
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
+	if(pAccountData)
+		Tmp->m_AccountData = *pAccountData;
+	else
+		Tmp->m_AccountData = CAccountData();
 
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
+void CAccounts::Save(int ClientID, CAccountData *pAccountData)
+{
+	ExecUserThread(SaveThread, "save user", ClientID, "", "", pAccountData);
+}
+
+bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
+	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
+	pResult->SetVariant(CAccountResult::LOG_ONLY);
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"UPDATE Accounts SET "
+		"	IsLoggedIn = ?, LastLoginPort = ?,"
+		// "	LastLogoutIGN1 = ?, LastLogoutIGN2 = ?, LastLogoutIGN3 = ?, LastLogoutIGN4 = ?, LastLogoutIGN5 = ?,"
+		// "	IP_1 = ?, IP_2 = ?, IP_3 = ?,"
+		// "	Clan1 = ?, Clan2 = ?, Clan3 = ?,"
+		// "	Skin = ?,"
+		"	Level = ?, Money = ?, Exp = ?,"
+		// "	Shit = ?, LastGift = ?,"
+		// "	PoliceRank = ?,"
+		// "	JailTime = ?, EscapeTime = ?,"
+		// "	TaserLevel = ?,"
+		// "	PvPArenaTickets = ?, PvPArenaGames = ?, PvPArenaKills = ?, PvPArenaDeaths = ?,"
+		// "	ProfileStyle = ?, ProfileViews = ?, ProfileStatus = ?,"
+		// "	ProfileSkype = ?, ProfileYoutube = ?, ProfileEmail = ?, ProfileHomepage = ?, ProfileTwitter"
+		// "	HomingMissiles = ?,"
+		// "	BlockPoints = ?, BlockKills = ?, BlockDeaths = ?, BlockSkill = ?,"
+		// "	IsModerator = ?, IsSuperModerator = ?, IsSupporter = ?, IsAccFrozen = ?,"
+		// "	BombGamesPlayed = ?, BombGamesWon = ?, BombBanTime = ?,"
+		// "	GrenadeKills = ?, GrenadeDeaths = ?, GrenadeSpree = ?,"
+		// "	GrenadeShots = ?, GrenadeShotsNoRJ = ?, GrenadeWins = ?,"
+		// "	RifleKills = ?, RifleDeaths = ?, RifleSpree = ?,"
+		// "	RifleShots = ?, RifleWins = ?,"
+		// "	FngConfig = ?, ShowHideConfig = ?,"
+		// "	SurvivalKills = ?, SurvivalDeaths = ?, SurvivalWins = ?,"
+		// "	NinjaJetpackBought = ?, SpookyGhost = ?,"
+		// "	UseSpawnWeapons = ?,"
+		// "	SpawnWeaponShotgun = ?, SpawnWeaponGrenade = ?, SpawnWeaponRifle = ?,"
+		// "	AsciiState = ?, AsciiViewsDefault = ?, AsciiViewsProfile = ?,"
+		// "	AsciiFrame0 = ?,"
+		// "	AsciiFrame1 = ?, AsciiFrame2 = ?, AsciiFrame3 = ?, AsciiFrame4 = ?, AsciiFrame5 = ?,"
+		// "	AsciiFrame6 = ?, AsciiFrame7 = ?, AsciiFrame8 = ?, AsciiFrame9 = ?, AsciiFrame10 = ?,"
+		// "	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 "
+		"	WHERE ID = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return true;
+	}
+	int Index = 1;
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_IsLoggedIn);
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_LastLoginPort);
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_Level); // TODO: BindInt64
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_Money);
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_XP);
+	pSqlServer->BindInt(Index++, pData->m_AccountData.m_ID);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		return true;
+	}
+	if(!End)
+	{
+		str_format(pResult->m_aaMessages[0],
+			sizeof(pResult->m_aaMessages[0]),
+			"save ID=%d finished with status=success",
+			pData->m_AccountData.m_ID);
+	}
+	else
+	{
+		str_format(pResult->m_aaMessages[0],
+			sizeof(pResult->m_aaMessages[0]),
+			"save ID=%d finished with status=fail",
+			pData->m_AccountData.m_ID);
+	}
+	return false;
+}
+
 void CAccounts::Login(int ClientID, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword);
+	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword, NULL);
 }
 
 bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)

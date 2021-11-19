@@ -57,6 +57,14 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			m_Account = Result.m_Account;
 			GameServer()->Accounts()->SetLoggedIn(m_ClientID, 1, m_Account.m_ID, g_Config.m_SvPort);
 			break;
+		case CAccountResult::LOG_ONLY:
+			for(auto &aMessage : Result.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
+				dbg_msg("account", "%s", aMessage);
+			}
+			break;
 		}
 	}
 }
