@@ -14,7 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-18.04]
+        # os: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-18.04]
+        os: [ubuntu-latest, windows-latest, ubuntu-18.04]
         include:
         - os: ubuntu-latest
           cmake-args: -G "Unix Makefiles"
@@ -32,14 +33,14 @@ jobs:
           env:
             CFLAGS: -Wdeclaration-after-statement -Werror
             CXXFLAGS: -Werror
-        - os: macOS-latest
-          cmake-args: -G "Unix Makefiles"
-          build-args: --parallel
-          package-file: DDNetPP-*-osx.dmg
-          fancy: false
-          env:
-            CFLAGS: -Wdeclaration-after-statement -Werror
-            CXXFLAGS: -Werror
+        # - os: macOS-latest
+        #   cmake-args: -G "Unix Makefiles"
+        #   build-args: --parallel
+        #   package-file: DDNetPP-*-osx.dmg
+        #   fancy: false
+        #   env:
+        #     CFLAGS: -Wdeclaration-after-statement -Werror
+        #     CXXFLAGS: -Werror
         - os: windows-latest
           cmake-args: -G "Visual Studio 16 2019" -A x64
           package-file: DDNetPP-*-win64.zip
@@ -65,13 +66,13 @@ jobs:
       run: |
         sudo apt-get install libmariadbclient-dev libwebsockets-dev -y
 
-    - name: Prepare macOS
-      if: contains(matrix.os, 'macOS')
-      run: |
-        brew update || true
-        brew install pkg-config sdl2
-        brew upgrade freetype
-        sudo rm -rf /Library/Developer/CommandLineTools
+    # - name: Prepare macOS
+    #   if: contains(matrix.os, 'macOS')
+    #   run: |
+    #     brew update || true
+    #     brew install pkg-config sdl2
+    #     brew upgrade freetype
+    #     sudo rm -rf /Library/Developer/CommandLineTools
 
     - name: Build in debug mode
       env: ${{ matrix.env }}
