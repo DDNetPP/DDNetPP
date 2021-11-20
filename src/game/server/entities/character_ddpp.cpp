@@ -420,6 +420,20 @@ void CCharacter::DropArmor(int amount)
 
 void CCharacter::DropWeapon(int WeaponID)
 {
+#ifdef CONF_DEBUG
+	// TODO: remove when https://github.com/DDNetPP/DDNetPP/issues/317 is closed
+	dbg_msg(
+		"drop",
+		"dropping weapon=%d (%s) dropped=%ld",
+		WeaponID,
+		WeaponID == WEAPON_GUN ? "gun" :
+					 WeaponID == WEAPON_SHOTGUN ? "shotgun" :
+								      WeaponID == WEAPON_GRENADE ? "grenade" :
+												   WeaponID == WEAPON_LASER ? "laser" :
+															      WeaponID == WEAPON_NINJA ? "ninja" :
+																			 WeaponID == WEAPON_HAMMER ? "hammer" : "unknown",
+		m_pPlayer->m_vWeaponLimit[WeaponID].size());
+#endif
 	if(isFreezed || m_FreezeTime)
 		return;
 	if(!m_aWeapons[WeaponID].m_Got)
