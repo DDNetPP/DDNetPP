@@ -466,6 +466,7 @@ public:
 	void Save(int SetLoggedIn);
 	void SaveFileBased();
 	void Logout(int SetLoggedIn = 0);
+	void OnLogin();
 	void CheckLevel();
 	void CalcExp();
 

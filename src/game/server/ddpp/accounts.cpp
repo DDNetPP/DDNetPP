@@ -25,6 +25,7 @@ void CAccountResult::SetVariant(Variant v)
 		break;
 	case LOGGED_IN_ALREADY:
 		break;
+	case LOGIN_WRONG_PASS:
 	case LOGIN_INFO:
 		m_Account = CAccountData();
 		break;
@@ -382,10 +383,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	}
 	else
 	{
-		pResult->SetVariant(CAccountResult::DIRECT);
-		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Login failed. Wrong password or username.",
-			sizeof(pResult->m_aaMessages[0]));
+		pResult->SetVariant(CAccountResult::LOGIN_WRONG_PASS);
+		str_copy(pResult->m_Account.m_aPassword, pData->m_aPassword, sizeof(pResult->m_Account.m_aPassword));
+		str_copy(pResult->m_Account.m_aUsername, pData->m_aUsername, sizeof(pResult->m_Account.m_aUsername));
 	}
 	return false;
 }

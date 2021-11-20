@@ -270,6 +270,7 @@ struct CAccountResult : ISqlResult
 		ALL,
 		BROADCAST,
 		LOGGED_IN_ALREADY,
+		LOGIN_WRONG_PASS,
 		LOGIN_INFO,
 		LOG_ONLY,
 	} m_MessageKind;

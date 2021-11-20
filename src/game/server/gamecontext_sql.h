@@ -32,19 +32,3 @@ public:
 	std::string m_Password;
 	std::string m_Date;
 };
-
-// TODO: remove
-class CQueryLogin : public CQueryPlayer
-{
-	void OnData();
-
-public:
-};
-
-// TODO: remove
-class CQueryLoginThreaded : public CQueryPlayer
-{
-	void OnData();
-
-public:
-};
