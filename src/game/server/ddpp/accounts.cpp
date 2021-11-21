@@ -214,16 +214,14 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	{
 		str_format(pResult->m_aaMessages[0],
 			sizeof(pResult->m_aaMessages[0]),
-			"save ID=%d finished with status=success",
-			pData->m_AccountData.m_ID);
-	}
-	else
-	{
-		str_format(pResult->m_aaMessages[0],
-			sizeof(pResult->m_aaMessages[0]),
 			"save ID=%d finished with status=fail",
 			pData->m_AccountData.m_ID);
+		return true;
 	}
+	str_format(pResult->m_aaMessages[0],
+		sizeof(pResult->m_aaMessages[0]),
+		"save ID=%d finished with status=success",
+		pData->m_AccountData.m_ID);
 	return false;
 }
 
