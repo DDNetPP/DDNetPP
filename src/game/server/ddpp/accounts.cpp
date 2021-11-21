@@ -261,7 +261,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		"	TaserLevel,"
 		"	PvPArenaTickets, PvPArenaGames, PvPArenaKills, PvPArenaDeaths,"
 		"	ProfileStyle, ProfileViews, ProfileStatus,"
-		"	ProfileSkype, ProfileYoutube, ProfileEmail, ProfileHomepage, ProfileTwitter"
+		"	ProfileSkype, ProfileYoutube, ProfileEmail, ProfileHomepage, ProfileTwitter,"
 		"	HomingMissiles,"
 		"	BlockPoints, BlockKills, BlockDeaths, BlockSkill,"
 		"	IsModerator, IsSuperModerator, IsSupporter, IsAccFrozen,"
