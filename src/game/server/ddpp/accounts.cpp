@@ -361,7 +361,13 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pResult->m_Account.m_GrenadeDeaths = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_GrenadeSpree = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_GrenadeShots = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_GrenadeShotsNoRJ = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_GrenadeWins = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_RifleKills = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_RifleDeaths = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_RifleSpree = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_RifleShots = pSqlServer->GetInt(Index++);
+		pResult->m_Account.m_RifleWins = pSqlServer->GetInt(Index++);
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aFngConfig, sizeof(pResult->m_Account.m_aFngConfig));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aShowHideConfig, sizeof(pResult->m_Account.m_aShowHideConfig));
 		pResult->m_Account.m_SurvivalKills = pSqlServer->GetInt(Index++);

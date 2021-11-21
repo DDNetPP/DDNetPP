@@ -104,7 +104,7 @@ struct CAccountData
 		m_RifleShots = 0;
 		m_RifleWins = 0;
 
-		str_copy(m_aFngConfig, "0000", sizeof(m_aFngConfig));
+		str_copy(m_aFngConfig, "000", sizeof(m_aFngConfig));
 		str_copy(m_aShowHideConfig, "0010000000", sizeof(m_aShowHideConfig));
 
 		m_SurvivalKills = 0;
@@ -118,7 +118,7 @@ struct CAccountData
 		m_SpawnWeaponGrenade = 0;
 		m_SpawnWeaponRifle = 0;
 
-		str_copy(m_aAsciiPublishState, "0000", sizeof(m_aAsciiPublishState));
+		str_copy(m_aAsciiPublishState, "000", sizeof(m_aAsciiPublishState));
 		m_AsciiViewsDefault = 0;
 		m_AsciiViewsProfile = 0;
 		for(auto &aAsciiFrame : m_aAsciiFrame)
@@ -213,7 +213,7 @@ struct CAccountData
 		[0] = autojoin
 		[1] = hammertune
 		[2] = coming soon
-		[3] = coming soon
+		[3] = nullbyte
 	*/
 	char m_aFngConfig[4];
 
@@ -247,7 +247,7 @@ struct CAccountData
 
 		4 digit int str
 
-		0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=not used yet
+		0 = off 1 = on and each digit stands for different stuff.  1=visible at all 2=profile 3=not used yet 4=nullbyte
 	*/
 	char m_aAsciiPublishState[4];
 	int m_AsciiViewsDefault;

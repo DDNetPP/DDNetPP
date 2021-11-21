@@ -228,7 +228,7 @@ void CSql::CreateDatabase()
 		RifleSpree					INTEGER			DEFAULT 0,\n\
 		RifleShots					INTEGER			DEFAULT 0,\n\
 		RifleWins					INTEGER			DEFAULT 0,\n\
-		FngConfig					VARCHAR(4)		DEFAULT '0000',\n\
+		FngConfig					VARCHAR(4)		DEFAULT '000',\n\
 		ShowHideConfig				VARCHAR(16)		DEFAULT '0010000000',\n\
 		SurvivalKills				INTEGER			DEFAULT 0,\n\
 		SurvivalDeaths				INTEGER			DEFAULT 0,\n\

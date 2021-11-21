@@ -615,14 +615,6 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 			return;
 		}
 	}
-	else if(medium == 3) // not used yet
-	{
-		if(m_apPlayers[creatorID]->m_Account.m_aAsciiPublishState[3] == '0')
-		{
-			SendChatTarget(viewerID, "ascii art not published on medium 3");
-			return;
-		}
-	}
 
 	m_apPlayers[viewerID]->m_AsciiWatchingID = creatorID;
 }
