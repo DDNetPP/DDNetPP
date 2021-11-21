@@ -283,6 +283,11 @@ bool CShopItemChidraqul::Buy(int ClientID)
 		return false;
 	if(!CShopItem::Buy(ClientID))
 		return false;
+	if(pPlayer->m_BoughtGame)
+	{
+		GameServer()->SendChatTarget(ClientID, "You already own this item.");
+		return false;
+	}
 	pPlayer->m_BoughtGame = true;
 	return true;
 }
