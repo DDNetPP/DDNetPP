@@ -21,14 +21,3 @@ class CQuerySQLstatus : public CQueryPlayer
 {
 	void OnData();
 };
-
-// TODO: remove
-class CQueryRegister : public CQueryPlayer
-{
-	void OnData();
-
-public:
-	std::string m_Name;
-	std::string m_Password;
-	std::string m_Date;
-};

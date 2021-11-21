@@ -799,7 +799,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	pSelf->SQLaccount(pSelf->SQL_REGISTER, ClientID, aUsername, aPassword);
+	pSelf->Accounts()->Register(ClientID, aUsername, aPassword);
 }
 
 void CGameContext::ConSQLName(IConsole::IResult *pResult, void *pUserData)

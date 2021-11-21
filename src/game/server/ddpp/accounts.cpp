@@ -15,6 +15,7 @@ void CAccountResult::SetVariant(Variant v)
 	m_MessageKind = v;
 	switch(v)
 	{
+	case REGISTER:
 	case DIRECT:
 	case ALL:
 		for(auto &aMessage : m_aaMessages)
@@ -469,4 +470,88 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 		return true;
 	}
 	return !End;
+}
+
+void CAccounts::Register(int ClientID, const char *pUsername, const char *pPassword)
+{
+	ExecUserThread(RegisterThread, "register user", ClientID, pUsername, pPassword, "", NULL);
+}
+
+bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
+	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"SELECT ID FROM Accounts WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		return true;
+
+	pSqlServer->BindString(1, pData->m_aUsername);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+		return true;
+
+	if(!End)
+	{
+		pResult->SetVariant(CAccountResult::DIRECT);
+		str_copy(pResult->m_aaMessages[0],
+			"[ACCOUNT] Username already exists.",
+			sizeof(pResult->m_aaMessages[0]));
+	}
+	else
+	{
+		pResult->SetVariant(CAccountResult::REGISTER);
+		char aDate[64];
+		time_t RawTime;
+		struct tm *TimeInfo;
+		time(&RawTime);
+		TimeInfo = localtime(&RawTime);
+		str_format(aDate,
+			sizeof(aDate),
+			"%d-%02d-%02d_%02d:%02d:%02d",
+			TimeInfo->tm_year + 1900,
+			TimeInfo->tm_mon + 1,
+			TimeInfo->tm_mday,
+			TimeInfo->tm_hour,
+			TimeInfo->tm_min,
+			TimeInfo->tm_sec);
+		str_copy(aBuf,
+			"INSERT INTO Accounts "
+			"  (Username, Password, RegisterDate) "
+			"  VALUES "
+			"  (?, ?, ?);",
+			sizeof(aBuf));
+
+		if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+			return true;
+
+		pSqlServer->BindString(1, pData->m_aUsername);
+		pSqlServer->BindString(2, pData->m_aPassword);
+		pSqlServer->BindString(3, aDate);
+
+		if(pSqlServer->Step(&End, pError, ErrorSize))
+			return true;
+
+		if(!End)
+		{
+			str_copy(pResult->m_aaMessages[0],
+				"[ACCOUNT] Something went wrong.",
+				sizeof(pResult->m_aaMessages[0]));
+		}
+		else
+		{
+			str_copy(pResult->m_aaMessages[0],
+				"[ACCOUNT] Account has been registered.",
+				sizeof(pResult->m_aaMessages[0]));
+			str_copy(pResult->m_aaMessages[1],
+				"[ACCOUNT] Login with: /login <name> <pass>",
+				sizeof(pResult->m_aaMessages[1]));
+		}
+	}
+	return false;
 }

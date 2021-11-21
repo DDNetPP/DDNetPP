@@ -159,6 +159,15 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			m_Account = Result.m_Account;
 			OnLogin();
 			break;
+		case CAccountResult::REGISTER:
+			for(auto &aMessage : Result.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					continue;
+				GameServer()->SendChatTarget(m_ClientID, aMessage);
+			}
+			GameServer()->RegisterBanCheck(m_ClientID);
+			break;
 		case CAccountResult::LOG_ONLY:
 			for(auto &aMessage : Result.m_aaMessages)
 			{

@@ -18,27 +18,6 @@ void CQuerySQLstatus::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
 }
 
-void CQueryRegister::OnData()
-{
-	if(Next())
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Username already exists.");
-	}
-	else
-	{
-		char *pQueryBuf = sqlite3_mprintf("INSERT INTO Accounts (Username, Password, RegisterDate) VALUES ('%q', '%q', '%q');", m_Name.c_str(), m_Password.c_str(), m_Date.c_str());
-
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(m_pDatabase, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Account has been registered.");
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Login with: /login <name> <pass>");
-
-		m_pGameServer->RegisterBanCheck(m_ClientID);
-	}
-}
-
 void CQuerySetPassword::OnData()
 {
 	if(Next())
@@ -103,26 +82,7 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 
 void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword)
 {
-	if(mode == SQL_REGISTER)
-	{
-		char time_str[64];
-		time_t rawtime;
-		struct tm *timeinfo;
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-		str_format(time_str, sizeof(time_str), "%d-%d-%d_%d:%d:%d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
-
-		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pUsername);
-		CQueryRegister *pQuery = new CQueryRegister();
-		pQuery->m_ClientID = ClientID;
-		pQuery->m_pGameServer = this;
-		pQuery->m_Name = pUsername;
-		pQuery->m_Password = pPassword;
-		pQuery->m_Date = time_str;
-		pQuery->Query(m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-	}
-	else if(mode == SQL_SET_PASSWORD)
+	if(mode == SQL_SET_PASSWORD)
 	{
 		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pUsername);
 		CQuerySetPassword *pQuery = new CQuerySetPassword();

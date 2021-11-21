@@ -272,6 +272,7 @@ struct CAccountResult : ISqlResult
 		LOGGED_IN_ALREADY,
 		LOGIN_WRONG_PASS,
 		LOGIN_INFO,
+		REGISTER,
 		LOG_ONLY,
 	} m_MessageKind;
 
@@ -327,6 +328,7 @@ class CAccounts
 	IServer *m_pServer;
 
 	static bool LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
@@ -352,12 +354,13 @@ public:
 			Save
 
 		Remarks:
-			Shares a ratelimit lock with Login() and ChangePassword()
+			Shares a ratelimit lock with Login(), Register() and ChangePassword()
 			so account saves will not execute if the player
 			is currently executing a login query or changing his password
 	*/
 	void Save(int ClientID, CAccountData *pAccountData);
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
+	void Register(int ClientID, const char *pUsername, const char *pPassword);
 	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 };
