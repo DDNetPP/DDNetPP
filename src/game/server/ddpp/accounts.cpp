@@ -559,3 +559,133 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 	}
 	return false;
 }
+
+void CAccounts::CreateDatabase()
+{
+	auto Tmp = std::unique_ptr<CSqlCreateTableRequest>(new CSqlCreateTableRequest());
+	m_pPool->ExecuteWrite(CreateTableThread, std::move(Tmp), "create table");
+}
+
+bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+{
+	CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"CREATE TABLE IF NOT EXISTS Accounts ("
+		"  ID					INTEGER			PRIMARY KEY		AUTOINCREMENT,"
+		"  Username				VARCHAR(32)		NOT NULL,"
+		"  Password				VARCHAR(128)	NOT NULL,"
+		"  RegisterDate			VARCHAR(32)		DEFAULT '',"
+		"  IsLoggedIn			INTEGER			DEFAULT 0,"
+		"  LastLoginPort		INTEGER			DEFAULT 0,"
+		"  LastLogoutIGN1		VARCHAR(32)		DEFAULT '',"
+		"  LastLogoutIGN2		VARCHAR(32)		DEFAULT '',"
+		"  LastLogoutIGN3		VARCHAR(32)		DEFAULT '',"
+		"  LastLogoutIGN4		VARCHAR(32)		DEFAULT '',"
+		"  LastLogoutIGN5		VARCHAR(32)		DEFAULT '',"
+		"  IP_1					VARCHAR(32)		DEFAULT '',"
+		"  IP_2					VARCHAR(32)		DEFAULT '',"
+		"  IP_3					VARCHAR(32)		DEFAULT '',"
+		"  Clan1				VARCHAR(32)		DEFAULT '',"
+		"  Clan2				VARCHAR(32)		DEFAULT '',"
+		"  Clan3				VARCHAR(32)		DEFAULT '',"
+		"  Skin					VARCHAR(32)		DEFAULT '',"
+		"  Level				INTEGER			DEFAULT 0,"
+		"  Money				INTEGER			DEFAULT 0,"
+		"  Exp					INTEGER			DEFAULT 0,"
+		"  Shit					INTEGER			DEFAULT 0,"
+		"  LastGift				INTEGER			DEFAULT 0,"
+		"  PoliceRank			INTEGER			DEFAULT 0,"
+		"  JailTime				INTEGER			DEFAULT 0,"
+		"  EscapeTime			INTEGER			DEFAULT 0,"
+		"  TaserLevel			INTEGER			DEFAULT 0,"
+		"  PvPArenaTickets		INTEGER			DEFAULT 0,"
+		"  PvPArenaGames		INTEGER			DEFAULT 0,"
+		"  PvPArenaKills		INTEGER			DEFAULT 0,"
+		"  PvPArenaDeaths		INTEGER			DEFAULT 0,"
+		"  ProfileStyle			INTEGER			DEFAULT 0,"
+		"  ProfileViews			INTEGER			DEFAULT 0,"
+		"  ProfileStatus		VARCHAR(128)	DEFAULT '',"
+		"  ProfileSkype			VARCHAR(128)	DEFAULT '',"
+		"  ProfileYoutube		VARCHAR(128)	DEFAULT '',"
+		"  ProfileEmail			VARCHAR(128)	DEFAULT '',"
+		"  ProfileHomepage		VARCHAR(128)	DEFAULT '',"
+		"  ProfileTwitter		VARCHAR(128)	DEFAULT '',"
+		"  HomingMissiles		INTEGER			DEFAULT 0,"
+		"  BlockPoints			INTEGER			DEFAULT 0,"
+		"  BlockKills			INTEGER			DEFAULT 0,"
+		"  BlockDeaths			INTEGER			DEFAULT 0,"
+		"  BlockSkill			INTEGER			DEFAULT 0,"
+		"  IsModerator			INTEGER			DEFAULT 0,"
+		"  IsSuperModerator		INTEGER			DEFAULT 0,"
+		"  IsSupporter			INTEGER			DEFAULT 0,"
+		"  IsAccFrozen			INTEGER			DEFAULT 0,"
+		"  BombGamesPlayed		INTEGER			DEFAULT 0,"
+		"  BombGamesWon			INTEGER			DEFAULT 0,"
+		"  BombBanTime			INTEGER			DEFAULT 0,"
+		"  GrenadeKills			INTEGER			DEFAULT 0,"
+		"  GrenadeDeaths		INTEGER			DEFAULT 0,"
+		"  GrenadeSpree			INTEGER			DEFAULT 0,"
+		"  GrenadeShots			INTEGER			DEFAULT 0,"
+		"  GrenadeShotsNoRJ		INTEGER			DEFAULT 0,"
+		"  GrenadeWins			INTEGER			DEFAULT 0,"
+		"  RifleKills			INTEGER			DEFAULT 0,"
+		"  RifleDeaths			INTEGER			DEFAULT 0,"
+		"  RifleSpree			INTEGER			DEFAULT 0,"
+		"  RifleShots			INTEGER			DEFAULT 0,"
+		"  RifleWins			INTEGER			DEFAULT 0,"
+		"  FngConfig			VARCHAR(4)		DEFAULT '000',"
+		"  ShowHideConfig		VARCHAR(16)		DEFAULT '0010000000',"
+		"  SurvivalKills		INTEGER			DEFAULT 0,"
+		"  SurvivalDeaths		INTEGER			DEFAULT 0,"
+		"  SurvivalWins			INTEGER			DEFAULT 0,"
+		"  NinjaJetpackBought	INTEGER			DEFAULT 0,"
+		"  SpookyGhost			INTEGER			DEFAULT 0,"
+		"  UseSpawnWeapons		INTEGER			DEFAULT 0,"
+		"  SpawnWeaponShotgun	INTEGER			DEFAULT 0,"
+		"  SpawnWeaponGrenade	INTEGER			DEFAULT 0,"
+		"  SpawnWeaponRifle		INTEGER			DEFAULT 0,"
+		"  AsciiState			VARCHAR(4)		DEFAULT '',"
+		"  AsciiViewsDefault	INTEGER			DEFAULT 0,"
+		"  AsciiViewsProfile	INTEGER			DEFAULT 0,"
+		"  AsciiFrame0			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame1			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame2			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame3			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame4			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame5			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame6			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame7			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame8			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame9			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame10			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame11			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame12			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame13			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame14			VARCHAR(64)		DEFAULT '',"
+		"  AsciiFrame15			VARCHAR(64)		DEFAULT '');",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return true;
+	}
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		return true;
+	}
+	if(!End)
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"create table finished with status=fail",
+			sizeof(pResult->m_aaMessages[0]));
+		return true;
+	}
+	str_copy(pResult->m_aaMessages[0],
+		"create table finished with status=success",
+		sizeof(pResult->m_aaMessages[0]));
+	return false;
+}

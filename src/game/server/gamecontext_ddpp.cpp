@@ -58,6 +58,7 @@ void CGameContext::OnInitDDPP()
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
+	// m_pAccounts->CreateDatabase();
 	LoadSinglePlayer();
 
 	// by fokkonaut from F-DDrace

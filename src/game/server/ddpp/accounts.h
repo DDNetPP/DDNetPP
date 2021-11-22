@@ -308,6 +308,15 @@ struct CSqlSetLoginData : ISqlData
 	int m_Port;
 };
 
+struct CSqlCreateTableRequest : ISqlData
+{
+	CSqlCreateTableRequest() :
+		ISqlData(nullptr)
+	{
+	}
+	char m_aaMessages[10][512];
+};
+
 // for server scoped querys (not per player)
 
 // struct CScoreInitResult : ISqlResult
@@ -331,6 +340,8 @@ class CAccounts
 	static bool RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+
+	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
@@ -362,6 +373,8 @@ public:
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
 	void Register(int ClientID, const char *pUsername, const char *pPassword);
 	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
+
+	void CreateDatabase();
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 };
 
