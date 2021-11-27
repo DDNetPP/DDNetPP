@@ -456,7 +456,8 @@ void CCharacter::DropWeapon(int WeaponID)
 		return;
 
 	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
-		m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
+		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
+			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 
 	int m_CountWeapons = 0;
 
