@@ -189,7 +189,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			}
 
 			//do scoring (by ChillerDragon)
-			if(g_Config.m_SvInstagibMode || g_Config.m_SvDDPPscore == 0)
+			if(g_Config.m_SvInstagibMode)
 			{
 				GameServer()->m_apPlayers[From]->m_Score++;
 			}
@@ -1659,7 +1659,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 
-	if(GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
+	if(g_Config.m_SvDDPPscore == 0)
 		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
 			GameServer()->m_apPlayers[Killer]->m_Score++;
 
