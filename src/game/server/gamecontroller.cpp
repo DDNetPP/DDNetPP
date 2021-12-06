@@ -518,7 +518,7 @@ void IGameController::EndRound()
 	if(m_Warmup) // game can't end when we are running warmup
 		return;
 
-	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores"))
+	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
 	{
 		GameServer()->m_World.m_Paused = true;
 		m_GameOverTick = Server()->Tick();
@@ -783,7 +783,8 @@ void IGameController::Snap(int SnappingClient)
 		}
 	}
 
-	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores"))
+	// TODO: cache this string compare
+	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
 		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
 	else if(pPlayer->IsInstagibMinigame())
 	{

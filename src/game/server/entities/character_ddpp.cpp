@@ -1659,7 +1659,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 
-	if(GameServer()->IsDDPPgametype("battlegores"))
+	if(GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
 		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
 			GameServer()->m_apPlayers[Killer]->m_Score++;
 

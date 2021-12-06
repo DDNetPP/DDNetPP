@@ -89,8 +89,14 @@ void CGameContext::OnClientEnterDDPP(int ClientID)
 			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
 		}
 	}
+	else if(IsDDPPgametype("block"))
+	{
+		if(m_apPlayers[ClientID])
+			m_apPlayers[ClientID]->m_Score = 0;
+	}
 	if(g_Config.m_SvDDPPscore == 0)
-		m_apPlayers[ClientID]->m_Score = 0;
+		if(m_apPlayers[ClientID])
+			m_apPlayers[ClientID]->m_Score = 0;
 }
 
 bool CGameContext::InitTileDDPP(int Index, int x, int y)
