@@ -1009,6 +1009,7 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 					Server()->ClientName(m_ClientID), Birthday, Birthday > 1 ? "s" : "");
 				GameServer()->SendBroadcast(aBuf, m_ClientID);
 			}
+			GameServer()->InitDDPPScore(m_ClientID);
 			break;
 		}
 	}

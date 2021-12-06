@@ -89,7 +89,12 @@ void CGameContext::OnClientEnterDDPP(int ClientID)
 			m_apPlayers[ClientID]->m_IsInstaMode_fng = true;
 		}
 	}
-	else if(IsDDPPgametype("block"))
+	InitDDPPScore(ClientID);
+}
+
+void CGameContext::InitDDPPScore(int ClientID)
+{
+	if(IsDDPPgametype("block"))
 	{
 		if(m_apPlayers[ClientID])
 			m_apPlayers[ClientID]->m_Score = 0;

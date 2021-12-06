@@ -419,6 +419,10 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 		else
 			pPlayerInfo->m_Score = -9999;
 	}
+	else if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
+	{
+		pPlayerInfo->m_Score = m_Score;
+	}
 	else if(pSnapping->m_DisplayScore != SCORE_TIME)
 	{
 		if(pSnapping->m_DisplayScore == SCORE_LEVEL)
@@ -448,17 +452,6 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 				pPlayerInfo->m_Score = -9999;
 			else
 				pPlayerInfo->m_Score = 0;
-		}
-	}
-	else
-	{
-		if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
-		{
-			pPlayerInfo->m_Score = m_Score;
-		}
-		else
-		{
-			pPlayerInfo->m_Score = abs(m_Score) * -1;
 		}
 	}
 }

@@ -119,7 +119,7 @@ MACRO_CONFIG_INT(SvKillsToFinish, sv_kills_to_finish, 16, 5, 100, CFGFLAG_SERVER
 MACRO_CONFIG_INT(SvDDPPscore, sv_ddpp_score, 1, 0, 1, CFGFLAG_SERVER, "rank scoreboad by times or kills 0=pvp(vanilla) 1=ddpp(ddrace)")
 /*
     "" is normal ddnet++ so ddrace with extensions and minigames
-    "block" is round based pvp block game. Block others increase score until score limit is reached
+    "block" is round based pvp block game. Block others increase score until score limit is reached. needs "sv_ddpp_score 0"
     "fly"
     "survival"
     "vanilla"
