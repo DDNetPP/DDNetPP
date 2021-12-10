@@ -434,6 +434,8 @@ void CCharacter::DropWeapon(int WeaponID)
 																			 WeaponID == WEAPON_HAMMER ? "hammer" : "unknown",
 		m_pPlayer->m_vWeaponLimit[WeaponID].size());
 #endif
+	if(!g_Config.m_SvAllowDroppingWeapons)
+		return;
 	if(isFreezed || m_FreezeTime)
 		return;
 	if(!m_aWeapons[WeaponID].m_Got)
