@@ -215,6 +215,7 @@ public:
 	virtual const char *GetAuthName(int ClientID) const = 0;
 	virtual void Kick(int ClientID, const char *pReason) = 0;
 	virtual void Ban(int ClientID, int Seconds, const char *pReason) = 0;
+	virtual void ChangeMap(const char *pMap) = 0;
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
@@ -247,7 +248,7 @@ public:
 
 	virtual void SendMsgRaw(int ClientID, const void *pData, int Size, int Flags) = 0;
 
-	virtual char *GetMapName() const = 0;
+	virtual const char *GetMapName() const = 0;
 
 	virtual bool IsSixup(int ClientID) const = 0;
 };

@@ -1161,7 +1161,7 @@ int CEditor::PopupEvent(CEditor *pEditor, CUIRect View, void *pContext)
 	ButtonBar.VSplitLeft(30.0f, 0, &ButtonBar);
 	ButtonBar.VSplitLeft(110.0f, &Label, &ButtonBar);
 	static int s_OkButton = 0;
-	if(pEditor->DoButton_Editor(&s_OkButton, "Ok", 0, &Label, 0, 0))
+	if(pEditor->DoButton_Editor(&s_OkButton, "Ok", 0, &Label, 0, 0) || pEditor->Input()->KeyPress(KEY_RETURN) || pEditor->Input()->KeyPress(KEY_KP_ENTER))
 	{
 		if(pEditor->m_PopupEventType == POPEVENT_EXIT)
 			g_Config.m_ClEditor = 0;
@@ -1186,7 +1186,7 @@ int CEditor::PopupEvent(CEditor *pEditor, CUIRect View, void *pContext)
 	if(pEditor->m_PopupEventType != POPEVENT_LARGELAYER && pEditor->m_PopupEventType != POPEVENT_PREVENTUNUSEDTILES && pEditor->m_PopupEventType != POPEVENT_IMAGEDIV16 && pEditor->m_PopupEventType != POPEVENT_IMAGE_MAX)
 	{
 		static int s_AbortButton = 0;
-		if(pEditor->DoButton_Editor(&s_AbortButton, "Abort", 0, &Label, 0, 0))
+		if(pEditor->DoButton_Editor(&s_AbortButton, "Abort", 0, &Label, 0, 0) || pEditor->Input()->KeyPress(KEY_ESCAPE))
 		{
 			pEditor->m_PopupEventWasActivated = false;
 			return 1;
@@ -1397,7 +1397,21 @@ static int s_GametileOpSelected = -1;
 
 int CEditor::PopupSelectGametileOp(CEditor *pEditor, CUIRect View, void *pContext)
 {
-	static const char *s_pButtonNames[] = {"Air", "Hookable", "Death", "Unhookable", "Hookthrough", "Freeze", "Unfreeze", "Deep Freeze", "Deep Unfreeze", "Blue Check-Tele", "Red Check-Tele"};
+	static const char *s_pButtonNames[] = {
+		"Air",
+		"Hookable",
+		"Death",
+		"Unhookable",
+		"Hookthrough",
+		"Freeze",
+		"Unfreeze",
+		"Deep Freeze",
+		"Deep Unfreeze",
+		"Blue Check-Tele",
+		"Red Check-Tele",
+		"Live Freeze",
+		"Live Unfreeze",
+	};
 	static unsigned s_NumButtons = sizeof(s_pButtonNames) / sizeof(char *);
 	CUIRect Button;
 
@@ -1416,7 +1430,7 @@ void CEditor::PopupSelectGametileOpInvoke(float x, float y)
 {
 	static int s_SelectGametileOpPopupId = 0;
 	s_GametileOpSelected = -1;
-	UiInvokePopupMenu(&s_SelectGametileOpPopupId, 0, x, y, 120.0f, 165.0f, PopupSelectGametileOp);
+	UiInvokePopupMenu(&s_SelectGametileOpPopupId, 0, x, y, 120.0f, 189.0f, PopupSelectGametileOp);
 }
 
 int CEditor::PopupSelectGameTileOpResult()

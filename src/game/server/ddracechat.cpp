@@ -687,9 +687,6 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
-		return;
-
 	if(!g_Config.m_SvSwap)
 	{
 		pSelf->Console()->Print(
@@ -752,6 +749,9 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	bool SwapPending = pSwapPlayer->m_SwapTargetsClientID != pResult->m_ClientID;
 	if(SwapPending)
 	{
+		if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+			return;
+
 		Teams.RequestTeamSwap(pPlayer, pSwapPlayer, Team);
 		return;
 	}
@@ -1041,10 +1041,10 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 						"This team is locked using /lock. Only members of the team can unlock it using /lock." :
 						"This team is locked using /lock. Only members of the team can invite you or unlock it using /lock.");
 			}
-			else if(Team > 0 && Team < MAX_CLIENTS && pController->m_Teams.Count(Team) >= g_Config.m_SvTeamMaxSize)
+			else if(Team > 0 && Team < MAX_CLIENTS && pController->m_Teams.Count(Team) >= g_Config.m_SvMaxTeamSize)
 			{
 				char aBuf[512];
-				str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvTeamMaxSize);
+				str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvMaxTeamSize);
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join", aBuf);
 			}
 			else if(const char *pError = pController->m_Teams.SetCharacterTeam(pPlayer->GetCID(), Team))

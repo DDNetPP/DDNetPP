@@ -46,13 +46,13 @@ const char *CEditor::Explain(int ExplanationID, int Tile, int Layer) //TODO: Add
 				return "JUMP: Sets defined amount of jumps (default is 2).";
 			break;
 		case TILE_FREEZE:
-			if(Layer == LAYER_GAME || Layer == LAYER_FRONT)
+			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
 				return "FREEZE: Freezes tees for 3 seconds.";
 			if(Layer == LAYER_SWITCH)
 				return "FREEZE: Freezes tees for defined amount of seconds.";
 			break;
 		case TILE_UNFREEZE:
-			if(Layer == LAYER_GAME || Layer == LAYER_FRONT)
+			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
 				return "UNFREEZE: Unfreezes tees immediately.";
 			break;
 		case TILE_TELEINEVIL:
@@ -66,6 +66,14 @@ const char *CEditor::Explain(int ExplanationID, int Tile, int Layer) //TODO: Add
 		case TILE_DUNFREEZE:
 			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
 				return "UNDEEP: Removes DEEP FREEZE effect.";
+			break;
+		case TILE_LFREEZE:
+			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
+				return "LIVE FREEZE: Live frozen tees cannot move or jump, while hook and weapons can still be used.";
+			break;
+		case TILE_LUNFREEZE:
+			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
+				return "LIVE UNFREEZE: Removes LIVE FREEZE effect.";
 			break;
 		case TILE_TELEINWEAPON:
 			if(Layer == LAYER_TELE)
@@ -392,7 +400,7 @@ const char *CEditor::Explain(int ExplanationID, int Tile, int Layer) //TODO: Add
 			break;
 		case ENTITY_OFFSET + ENTITY_CRAZY_SHOTGUN:
 			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)
-				return "EXPLODING BULLET: Bounces off the walls without explosion. Touching the bullet works like FREEZE tile (freezes for 3 seconds by default).";
+				return "BULLET: Bounces off the walls without explosion. Touching the bullet works like FREEZE tile (freezes for 3 seconds by default).";
 			break;
 		case ENTITY_OFFSET + ENTITY_DRAGGER_WEAK:
 			if(Layer == LAYER_GAME || Layer == LAYER_FRONT || Layer == LAYER_SWITCH)

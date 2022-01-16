@@ -2315,63 +2315,97 @@ void CGraphics_Threaded::SetWindowParams(int FullscreenMode, bool IsBorderless)
 	m_pBackend->SetWindowParams(FullscreenMode, IsBorderless);
 	CVideoMode CurMode;
 	m_pBackend->GetCurrentVideoMode(CurMode, m_ScreenHiDPIScale, g_Config.m_GfxDesktopWidth, g_Config.m_GfxDesktopHeight, g_Config.m_GfxScreen);
-	Resize(CurMode.m_WindowWidth, CurMode.m_WindowHeight, CurMode.m_RefreshRate, false, true);
+	GotResized(CurMode.m_WindowWidth, CurMode.m_WindowHeight, CurMode.m_RefreshRate);
 }
 
 bool CGraphics_Threaded::SetWindowScreen(int Index)
 {
-	return m_pBackend->SetWindowScreen(Index);
+	if(!m_pBackend->SetWindowScreen(Index))
+	{
+		return false;
+	}
+
+	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
+	m_ScreenHiDPIScale = m_ScreenWidth / (float)g_Config.m_GfxScreenWidth;
+	return true;
 }
 
-void CGraphics_Threaded::Resize(int w, int h, int RefreshRate, bool SetWindowSize, bool ForceResizeEvent)
+void CGraphics_Threaded::Move(int x, int y)
 {
 #if defined(CONF_VIDEORECORDER)
 	if(IVideo::Current() && IVideo::Current()->IsRecording())
 		return;
 #endif
 
-	if(!ForceResizeEvent && WindowWidth() == w && WindowHeight() == h && (RefreshRate != -1 && RefreshRate == m_ScreenRefreshRate))
+	// Only handling CurScreen != m_GfxScreen doesn't work reliably
+	const int CurScreen = m_pBackend->GetWindowScreen();
+	m_pBackend->UpdateDisplayMode(CurScreen);
+	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
+	m_ScreenHiDPIScale = m_ScreenWidth / (float)g_Config.m_GfxScreenWidth;
+}
+
+void CGraphics_Threaded::Resize(int w, int h, int RefreshRate)
+{
+#if defined(CONF_VIDEORECORDER)
+	if(IVideo::Current() && IVideo::Current()->IsRecording())
+		return;
+#endif
+
+	if(WindowWidth() == w && WindowHeight() == h && RefreshRate == m_ScreenRefreshRate)
 		return;
 
 	// if the size is changed manually, only set the window resize, a window size changed event is triggered anyway
-	if(SetWindowSize)
+	if(m_pBackend->ResizeWindow(w, h, RefreshRate))
 	{
-		m_pBackend->ResizeWindow(w, h, RefreshRate);
+		CVideoMode CurMode;
+		m_pBackend->GetCurrentVideoMode(CurMode, m_ScreenHiDPIScale, g_Config.m_GfxDesktopWidth, g_Config.m_GfxDesktopHeight, g_Config.m_GfxScreen);
+		GotResized(w, h, RefreshRate);
 	}
-	else
+}
+
+void CGraphics_Threaded::GotResized(int w, int h, int RefreshRate)
+{
+#if defined(CONF_VIDEORECORDER)
+	if(IVideo::Current() && IVideo::Current()->IsRecording())
+		return;
+#endif
+
+	// if RefreshRate is -1 use the current config refresh rate
+	if(RefreshRate == -1)
+		RefreshRate = g_Config.m_GfxScreenRefreshRate;
+
+	// if the size change event is triggered, set all parameters and change the viewport
+	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
+
+	// adjust the viewport to only allow certain aspect ratios
+	if(m_ScreenHeight > 4 * m_ScreenWidth / 5)
+		m_ScreenHeight = 4 * m_ScreenWidth / 5;
+
+	m_ScreenRefreshRate = RefreshRate;
+
+	g_Config.m_GfxScreenWidth = w;
+	g_Config.m_GfxScreenHeight = h;
+	g_Config.m_GfxScreenRefreshRate = m_ScreenRefreshRate;
+	m_ScreenHiDPIScale = m_ScreenWidth / (float)g_Config.m_GfxScreenWidth;
+
+	CCommandBuffer::SCommand_Update_Viewport Cmd;
+	Cmd.m_X = 0;
+	Cmd.m_Y = 0;
+	Cmd.m_Width = m_ScreenWidth;
+	Cmd.m_Height = m_ScreenHeight;
+
+	if(!AddCmd(
+		   Cmd, [] { return true; }, "failed to add resize command"))
 	{
-		// if the size change event is triggered, set all parameters and change the viewport
-		m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
-
-		// adjust the viewport to only allow certain aspect ratios
-		if(m_ScreenHeight > 4 * m_ScreenWidth / 5)
-			m_ScreenHeight = 4 * m_ScreenWidth / 5;
-
-		m_ScreenRefreshRate = RefreshRate == -1 ? m_ScreenRefreshRate : RefreshRate;
-
-		g_Config.m_GfxScreenWidth = w;
-		g_Config.m_GfxScreenHeight = h;
-		g_Config.m_GfxScreenRefreshRate = m_ScreenRefreshRate;
-
-		CCommandBuffer::SCommand_Update_Viewport Cmd;
-		Cmd.m_X = 0;
-		Cmd.m_Y = 0;
-		Cmd.m_Width = m_ScreenWidth;
-		Cmd.m_Height = m_ScreenHeight;
-
-		if(!AddCmd(
-			   Cmd, [] { return true; }, "failed to add resize command"))
-		{
-			return;
-		}
-
-		// kick the command buffer
-		KickCommandBuffer();
-		WaitForIdle();
-
-		for(auto &ResizeListener : m_ResizeListeners)
-			ResizeListener.m_pFunc(ResizeListener.m_pUser);
+		return;
 	}
+
+	// kick the command buffer and wait
+	KickCommandBuffer();
+	WaitForIdle();
+
+	for(auto &ResizeListener : m_ResizeListeners)
+		ResizeListener.m_pFunc(ResizeListener.m_pUser);
 }
 
 void CGraphics_Threaded::AddWindowResizeListener(WINDOW_RESIZE_FUNC pFunc, void *pUser)
@@ -2484,6 +2518,11 @@ void CGraphics_Threaded::Swap()
 
 	// kick the command buffer
 	KickCommandBuffer();
+	// TODO: Remove when https://github.com/libsdl-org/SDL/issues/5203 is fixed
+#ifdef CONF_PLATFORM_MACOS
+	if(str_find(GetVersionString(), "Metal"))
+		WaitForIdle();
+#endif
 }
 
 bool CGraphics_Threaded::SetVSync(bool State)

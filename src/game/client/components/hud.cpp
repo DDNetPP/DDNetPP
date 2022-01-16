@@ -127,8 +127,7 @@ void CHud::RenderGameTimer()
 
 		str_time(Time * 100, TIME_DAYS, aBuf, sizeof(aBuf));
 		float FontSize = 10.0f;
-		float w;
-		w = TextRender()->TextWidth(0, 12,
+		float w = TextRender()->TextWidth(0, FontSize,
 			Time >= 3600 * 24 ? "00d 00:00:00" : Time >= 3600 ? "00:00:00" : "00:00",
 			-1, -1.0f);
 		// last 60 sec red, last 10 sec blink
@@ -350,7 +349,9 @@ void CHud::RenderScoreHud()
 					aScore[t][0] = 0;
 			}
 
-			bool RecreateScores = str_comp(aScore[0], m_aScoreInfo[0].m_aScoreText) != 0 || str_comp(aScore[1], m_aScoreInfo[1].m_aScoreText) != 0;
+			static int LocalClientID = -1;
+			bool RecreateScores = str_comp(aScore[0], m_aScoreInfo[0].m_aScoreText) != 0 || str_comp(aScore[1], m_aScoreInfo[1].m_aScoreText) != 0 || LocalClientID != m_pClient->m_Snap.m_LocalClientID;
+			LocalClientID = m_pClient->m_Snap.m_LocalClientID;
 
 			bool RecreateRect = ForceScoreInfoInit;
 			for(int t = 0; t < 2; t++)

@@ -45,17 +45,18 @@ void CUIEx::ConvertMouseMove(float *pX, float *pY) const
 
 float CUIEx::DoScrollbarV(const void *pID, const CUIRect *pRect, float Current)
 {
-	static float s_OffsetY;
+	Current = clamp(Current, 0.0f, 1.0f);
 
+	// layout
 	CUIRect Rail;
 	pRect->Margin(5.0f, &Rail);
 
 	CUIRect Handle;
-	Rail.HSplitTop(clamp(33.0f, Rail.h / 8.0f, Rail.h), &Handle, 0);
-	Current = clamp(Current, 0.0f, 1.0f);
+	Rail.HSplitTop(clamp(33.0f, Rail.w, Rail.h / 3.0f), &Handle, 0);
 	Handle.y = Rail.y + (Rail.h - Handle.h) * Current;
 
 	// logic
+	static float s_OffsetY;
 	const bool InsideRail = UI()->MouseInside(&Rail);
 	const bool InsideHandle = UI()->MouseInside(&Handle);
 	bool Grabbed = false; // whether to apply the offset
@@ -85,12 +86,14 @@ float CUIEx::DoScrollbarV(const void *pID, const CUIRect *pRect, float Current)
 	else if(UI()->MouseButtonClicked(0) && !InsideHandle && InsideRail)
 	{
 		UI()->SetActiveItem(pID);
-		s_OffsetY = Handle.h * 0.5f;
+		s_OffsetY = Handle.h / 2.0f;
 		Grabbed = true;
 	}
 
 	if(InsideHandle)
+	{
 		UI()->SetHotItem(pID);
+	}
 
 	float ReturnValue = Current;
 	if(Grabbed)
@@ -102,25 +105,26 @@ float CUIEx::DoScrollbarV(const void *pID, const CUIRect *pRect, float Current)
 	}
 
 	// render
-	RenderTools()->DrawUIRect(&Rail, ColorRGBA(0, 0, 0, 0.25f), CUI::CORNER_ALL, Rail.w / 2.0f);
+	RenderTools()->DrawUIRect(&Rail, ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), CUI::CORNER_ALL, Rail.w / 2.0f);
 
 	float ColorSlider;
 	if(UI()->ActiveItem() == pID)
-		ColorSlider = 1.0f;
-	else if(UI()->HotItem() == pID)
 		ColorSlider = 0.9f;
+	else if(UI()->HotItem() == pID)
+		ColorSlider = 1.0f;
 	else
-		ColorSlider = 0.75f;
+		ColorSlider = 0.8f;
 
-	RenderTools()->DrawUIRect(&Handle, ColorRGBA(ColorSlider, ColorSlider, ColorSlider, 0.75f), CUI::CORNER_ALL, Handle.w / 2.0f);
+	RenderTools()->DrawUIRect(&Handle, ColorRGBA(ColorSlider, ColorSlider, ColorSlider, 1.0f), CUI::CORNER_ALL, Handle.w / 2.0f);
 
 	return ReturnValue;
 }
 
 float CUIEx::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current, const ColorRGBA *pColorInner)
 {
-	static float s_OffsetX;
+	Current = clamp(Current, 0.0f, 1.0f);
 
+	// layout
 	CUIRect Rail;
 	if(pColorInner)
 		Rail = *pRect;
@@ -128,11 +132,11 @@ float CUIEx::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current, 
 		pRect->HMargin(5.0f, &Rail);
 
 	CUIRect Handle;
-	Rail.VSplitLeft(pColorInner ? 8.0f : clamp(33.0f, Rail.w / 8.0f, Rail.w), &Handle, 0);
-	Current = clamp(Current, 0.0f, 1.0f);
+	Rail.VSplitLeft(pColorInner ? 8.0f : clamp(33.0f, Rail.h, Rail.w / 3.0f), &Handle, 0);
 	Handle.x += (Rail.w - Handle.w) * Current;
 
 	// logic
+	static float s_OffsetX;
 	const bool InsideRail = UI()->MouseInside(&Rail);
 	const bool InsideHandle = UI()->MouseInside(&Handle);
 	bool Grabbed = false; // whether to apply the offset
@@ -162,12 +166,14 @@ float CUIEx::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current, 
 	else if(UI()->MouseButtonClicked(0) && !InsideHandle && InsideRail)
 	{
 		UI()->SetActiveItem(pID);
-		s_OffsetX = Handle.w * 0.5f;
+		s_OffsetX = Handle.w / 2.0f;
 		Grabbed = true;
 	}
 
 	if(InsideHandle)
+	{
 		UI()->SetHotItem(pID);
+	}
 
 	float ReturnValue = Current;
 	if(Grabbed)
@@ -190,17 +196,17 @@ float CUIEx::DoScrollbarH(const void *pID, const CUIRect *pRect, float Current, 
 	}
 	else
 	{
-		RenderTools()->DrawUIRect(&Rail, ColorRGBA(0, 0, 0, 0.25f), CUI::CORNER_ALL, Rail.h / 2.0f);
+		RenderTools()->DrawUIRect(&Rail, ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), CUI::CORNER_ALL, Rail.h / 2.0f);
 
 		float ColorSlider;
 		if(UI()->ActiveItem() == pID)
-			ColorSlider = 1.0f;
-		else if(UI()->HotItem() == pID)
 			ColorSlider = 0.9f;
+		else if(UI()->HotItem() == pID)
+			ColorSlider = 1.0f;
 		else
-			ColorSlider = 0.75f;
+			ColorSlider = 0.8f;
 
-		RenderTools()->DrawUIRect(&Handle, ColorRGBA(ColorSlider, ColorSlider, ColorSlider, 0.75f), CUI::CORNER_ALL, Handle.h / 2.0f);
+		RenderTools()->DrawUIRect(&Handle, ColorRGBA(ColorSlider, ColorSlider, ColorSlider, 1.0f), CUI::CORNER_ALL, Handle.h / 2.0f);
 	}
 
 	return ReturnValue;
@@ -229,9 +235,9 @@ bool CUIEx::DoEditBox(const void *pID, const CUIRect *pRect, char *pStr, unsigne
 		m_CurCursor = minimum(str_length(pStr), m_CurCursor);
 
 		bool IsShiftPressed = Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT);
-		bool IsCtrlPressed = Input()->KeyIsPressed(KEY_LCTRL) || Input()->KeyIsPressed(KEY_RCTRL);
+		bool IsModPressed = Input()->ModifierIsPressed();
 
-		if(!IsShiftPressed && IsCtrlPressed && Input()->KeyPress(KEY_V))
+		if(!IsShiftPressed && IsModPressed && Input()->KeyPress(KEY_V))
 		{
 			const char *pText = Input()->GetClipboardText();
 			if(pText)
@@ -288,7 +294,7 @@ bool CUIEx::DoEditBox(const void *pID, const CUIRect *pRect, char *pStr, unsigne
 			}
 		}
 
-		if(!IsShiftPressed && IsCtrlPressed && (Input()->KeyPress(KEY_C) || Input()->KeyPress(KEY_X)))
+		if(!IsShiftPressed && IsModPressed && (Input()->KeyPress(KEY_C) || Input()->KeyPress(KEY_X)))
 		{
 			if(m_HasSelection)
 			{
@@ -316,7 +322,7 @@ bool CUIEx::DoEditBox(const void *pID, const CUIRect *pRect, char *pStr, unsigne
 				Input()->SetClipboardText(pStr);
 		}
 
-		if(!IsShiftPressed && IsCtrlPressed && Input()->KeyPress(KEY_A))
+		if(!IsShiftPressed && IsModPressed && Input()->KeyPress(KEY_A))
 		{
 			m_CurSelStart = 0;
 			int StrLen = str_length(pStr);
@@ -325,7 +331,7 @@ bool CUIEx::DoEditBox(const void *pID, const CUIRect *pRect, char *pStr, unsigne
 			m_CurCursor = StrLen;
 		}
 
-		if(!IsShiftPressed && IsCtrlPressed && Input()->KeyPress(KEY_U))
+		if(!IsShiftPressed && IsModPressed && Input()->KeyPress(KEY_U))
 		{
 			pStr[0] = '\0';
 			m_CurCursor = 0;
@@ -337,7 +343,7 @@ bool CUIEx::DoEditBox(const void *pID, const CUIRect *pRect, char *pStr, unsigne
 			int LastCursor = m_CurCursor;
 			int Len, NumChars;
 			str_utf8_stats(pStr, StrSize, StrSize, &Len, &NumChars);
-			int32_t ManipulateChanges = CLineInput::Manipulate(m_pInputEventsArray[i], pStr, StrSize, StrSize, &Len, &m_CurCursor, &NumChars, m_HasSelection ? CLineInput::LINE_INPUT_MODIFY_DONT_DELETE : 0, IsCtrlPressed ? KEY_LCTRL : 0);
+			int32_t ManipulateChanges = CLineInput::Manipulate(m_pInputEventsArray[i], pStr, StrSize, StrSize, &Len, &m_CurCursor, &NumChars, m_HasSelection ? CLineInput::LINE_INPUT_MODIFY_DONT_DELETE : 0, IsModPressed ? KEY_LCTRL : 0);
 			ReturnValue |= (ManipulateChanges & (CLineInput::LINE_INPUT_CHANGE_STRING | CLineInput::LINE_INPUT_CHANGE_CHARACTERS_DELETE)) != 0;
 
 			// if cursor changed, reset selection
