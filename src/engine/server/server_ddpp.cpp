@@ -298,6 +298,95 @@ void CServer::ConStartBlockTourna(IConsole::IResult *pResult, void *pUser)
 	((CServer *)pUser)->GameServer()->OnStartBlockTournament();
 }
 
+int CServer::LoadMapLive(const char *pMapName)
+{
+	char aBuf[IO_MAX_PATH_LENGTH];
+	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
+	GameServer()->OnMapChange(aBuf, sizeof(aBuf));
+
+	if(!m_pMap->Load(aBuf))
+		return 0;
+
+	// stop recording when we change map
+	for(int i = 0; i < MAX_CLIENTS + 1; i++)
+	{
+		if(!m_aDemoRecorder[i].IsRecording())
+			continue;
+
+		m_aDemoRecorder[i].Stop();
+
+		// remove tmp demos
+		if(i < MAX_CLIENTS)
+		{
+			char aPath[256];
+			str_format(aPath, sizeof(aPath), "demos/%s_%d_%d_tmp.demo", m_aCurrentMap, m_NetServer.Address().port, i);
+			Storage()->RemoveFile(aPath, IStorage::TYPE_SAVE);
+		}
+	}
+
+	// reinit snapshot ids
+	m_IDPool.TimeoutIDs();
+
+	// get the crc of the map
+	m_aCurrentMapSha256[SIX] = m_pMap->Sha256();
+	m_aCurrentMapCrc[SIX] = m_pMap->Crc();
+	char aBufMsg[256];
+	char aSha256[SHA256_MAXSTRSIZE];
+	sha256_str(m_aCurrentMapSha256[SIX], aSha256, sizeof(aSha256));
+	str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
+	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBufMsg);
+
+	str_copy(m_aCurrentMap, pMapName, sizeof(m_aCurrentMap));
+
+	// load complete map into memory for download
+	{
+		IOHANDLE File = Storage()->OpenFile(aBuf, IOFLAG_READ, IStorage::TYPE_ALL);
+		m_aCurrentMapSize[SIX] = (unsigned int)io_length(File);
+		free(m_apCurrentMapData[SIX]);
+		m_apCurrentMapData[SIX] = (unsigned char *)malloc(m_aCurrentMapSize[SIX]);
+		io_read(File, m_apCurrentMapData[SIX], m_aCurrentMapSize[SIX]);
+		io_close(File);
+	}
+
+	// load sixup version of the map
+	if(Config()->m_SvSixup)
+	{
+		str_format(aBuf, sizeof(aBuf), "maps7/%s.map", pMapName);
+		IOHANDLE File = Storage()->OpenFile(aBuf, IOFLAG_READ, IStorage::TYPE_ALL);
+		if(!File)
+		{
+			Config()->m_SvSixup = 0;
+			str_format(aBufMsg, sizeof(aBufMsg), "couldn't load map %s", aBuf);
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", aBufMsg);
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", "disabling 0.7 compatibility");
+		}
+		else
+		{
+			m_aCurrentMapSize[SIXUP] = (unsigned int)io_length(File);
+			free(m_apCurrentMapData[SIXUP]);
+			m_apCurrentMapData[SIXUP] = (unsigned char *)malloc(m_aCurrentMapSize[SIXUP]);
+			io_read(File, m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
+			io_close(File);
+
+			m_aCurrentMapSha256[SIXUP] = sha256(m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
+			m_aCurrentMapCrc[SIXUP] = crc32(0, m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
+			sha256_str(m_aCurrentMapSha256[SIXUP], aSha256, sizeof(aSha256));
+			str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", aBufMsg);
+		}
+	}
+	if(!Config()->m_SvSixup && m_apCurrentMapData[SIXUP])
+	{
+		free(m_apCurrentMapData[SIXUP]);
+		m_apCurrentMapData[SIXUP] = 0;
+	}
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		m_aPrevStates[i] = m_aClients[i].m_State;
+
+	return 1;
+}
+
 //void CServer::ConDDPPshutdown(IConsole::IResult * pResult, void * pUser)
 //{
 //#if defined(CONF_DEBUG)

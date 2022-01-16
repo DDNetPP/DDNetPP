@@ -233,6 +233,7 @@ public:
 
 	virtual void BotJoin(int BotID) = 0;
 	virtual void BotLeave(int BotID, bool silet = false) = 0;
+	virtual int LoadMapLive(const char *pMapName) = 0;
 	virtual bool DnsblWhite(int ClientID) = 0;
 	virtual bool DnsblPending(int ClientID) = 0;
 	virtual bool DnsblBlack(int ClientID) = 0;

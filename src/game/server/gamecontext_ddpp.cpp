@@ -51,6 +51,14 @@ void CGameContext::ConstructDDPP()
 	mem_zero(m_ClientLeftServer, sizeof(m_ClientLeftServer));
 }
 
+void CGameContext::LoadMapLive(const char *pMapName)
+{
+	int LoadMap = Server()->LoadMapLive(pMapName);
+	dbg_msg("live-map", "loadmap=%d", LoadMap);
+	m_Layers.Init(Kernel());
+	m_Collision.Init(&m_Layers);
+}
+
 void CGameContext::OnInitDDPP()
 {
 	m_Database->CreateDatabase();

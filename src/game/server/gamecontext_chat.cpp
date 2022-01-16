@@ -146,6 +146,8 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 			SendChatTarget(ClientID, "This is not a test server.");
 			return true;
 		}
+		// TODO: make this a rcon command?
+		// LoadMapLive("BlmapChill");
 		pPlayer->MoneyTransaction(1000000, "testcommand3000");
 		pPlayer->GiveXP(1000000);
 	}

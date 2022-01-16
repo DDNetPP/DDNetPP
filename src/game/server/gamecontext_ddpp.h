@@ -39,6 +39,19 @@ public:
 	int PrintSpecialCharUsers(int ID);
 	int TestSurvivalSpawns();
 
+	/*
+		LoadMapLive
+
+		description:
+			Loads a new map without resetting game state.
+			Also do not resend map to in game players only to newly connected.
+			This allows to update the map without interrupting gameplay
+
+		bugs:
+			default switcher state seems to be bugged
+	*/
+	void LoadMapLive(const char *pMapName);
+
 	void ChatCommands();
 	void DummyChat();
 	void SaveWrongLogin(const char *pLogin);
