@@ -34,22 +34,6 @@ jobs:
             CFLAGS: -Wdeclaration-after-statement -Werror
             CXXFLAGS: -Werror
             GTEST_FILTER: -*SQLite*
-        - os: macOS-latest
-          cmake-args: -G "Unix Makefiles"
-          build-args: --parallel
-          package-file: DDNet-*-macos.dmg
-          fancy: false
-          env:
-            CFLAGS: -Wdeclaration-after-statement -Werror
-            CXXFLAGS: -Werror
-        # - os: macOS-latest
-        #   cmake-args: -G "Unix Makefiles"
-        #   build-args: --parallel
-        #   package-file: DDNetPP-*-osx.dmg
-        #   fancy: false
-        #   env:
-        #     CFLAGS: -Wdeclaration-after-statement -Werror
-        #     CXXFLAGS: -Werror
         - os: windows-latest
           cmake-args: -G "Visual Studio 16 2019" -A x64
           package-file: DDNetPP-*-win64.zip
