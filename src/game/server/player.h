@@ -201,6 +201,7 @@ public:
 	int m_LastBroadcastImportance; // ddnet++ uses int for importance levels and ddnet bool for important or not
 
 	CNetObj_PlayerInput *m_pLastTarget;
+	bool m_LastTargetInit;
 	/* 
 		afk timer's 1st warning after 50% of sv_max_afk_time
 		2nd warning after 90%

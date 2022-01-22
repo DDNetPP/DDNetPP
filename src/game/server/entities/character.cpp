@@ -569,7 +569,7 @@ void CCharacter::FireWeapon(bool Bot)
 
 			if(!SpecialGunProjectile(Direction, ProjStartPos, Lifetime))
 			{
-				CProjectile *pProj = new CProjectile(
+				new CProjectile(
 					GameWorld(),
 					WEAPON_GUN, //Type
 					m_pPlayer->GetCID(), //Owner
@@ -581,17 +581,6 @@ void CCharacter::FireWeapon(bool Bot)
 					0, //Force
 					-1 //SoundImpact
 				);
-
-				// pack the Projectile and send it to the client Directly
-				CNetObj_Projectile p;
-				pProj->FillInfo(&p);
-
-				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-				Msg.AddInt(1);
-				for(unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-					Msg.AddInt(((int *)&p)[i]);
-
-				Server()->SendMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCID());
 				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 			}
 		}
@@ -638,7 +627,7 @@ void CCharacter::FireWeapon(bool Bot)
 		}
 		else
 		{
-			CProjectile *pProj = new CProjectile(
+			new CProjectile(
 				GameWorld(),
 				WEAPON_GRENADE, //Type
 				m_pPlayer->GetCID(), //Owner
@@ -650,16 +639,6 @@ void CCharacter::FireWeapon(bool Bot)
 				0, //Force
 				SOUND_GRENADE_EXPLODE //SoundImpact
 			); //SoundImpact
-
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
-
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
-			Server()->SendMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCID());
 		}
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 

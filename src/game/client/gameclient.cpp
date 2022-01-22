@@ -422,8 +422,6 @@ void CGameClient::OnConnected()
 	m_Layers.Init(Kernel());
 	m_Collision.Init(Layers());
 
-	RenderTools()->RenderTilemapGenerateSkip(Layers());
-
 	CRaceHelper::ms_aFlagIndex[0] = -1;
 	CRaceHelper::ms_aFlagIndex[1] = -1;
 
@@ -659,28 +657,10 @@ void CGameClient::OnRelease()
 		m_All.m_paComponents[i]->OnRelease();
 }
 
-void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
+void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dummy)
 {
 	// special messages
-	if(MsgId == NETMSGTYPE_SV_EXTRAPROJECTILE && !IsDummy)
-	{
-		int Num = pUnpacker->GetInt();
-
-		for(int k = 0; k < Num; k++)
-		{
-			CNetObj_Projectile Proj;
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-				((int *)&Proj)[i] = pUnpacker->GetInt();
-
-			if(pUnpacker->Error())
-				return;
-
-			m_Items.AddExtraProjectile(&Proj);
-		}
-
-		return;
-	}
-	else if(MsgId == NETMSGTYPE_SV_TUNEPARAMS)
+	if(MsgId == NETMSGTYPE_SV_TUNEPARAMS)
 	{
 		// unpack the new tuning
 		CTuningParams NewTuning;
@@ -700,9 +680,9 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 
 		m_ServerMode = SERVERMODE_PURE;
 
-		m_ReceivedTuning[IsDummy ? !g_Config.m_ClDummy : g_Config.m_ClDummy] = true;
+		m_ReceivedTuning[Conn] = true;
 		// apply new tuning
-		m_Tuning[IsDummy ? !g_Config.m_ClDummy : g_Config.m_ClDummy] = NewTuning;
+		m_Tuning[Conn] = NewTuning;
 		return;
 	}
 
@@ -715,7 +695,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 		return;
 	}
 
-	if(IsDummy)
+	if(Dummy)
 	{
 		if(MsgId == NETMSGTYPE_SV_CHAT && m_LocalIDs[0] >= 0 && m_LocalIDs[1] >= 0)
 		{
@@ -735,7 +715,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 
 	if(MsgId == NETMSGTYPE_SV_READYTOENTER)
 	{
-		Client()->EnterGame(IsDummy ? !g_Config.m_ClDummy : g_Config.m_ClDummy);
+		Client()->EnterGame(Conn);
 	}
 	else if(MsgId == NETMSGTYPE_SV_EMOTICON)
 	{
@@ -743,8 +723,8 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, bool IsDummy)
 
 		// apply
 		m_aClients[pMsg->m_ClientID].m_Emoticon = pMsg->m_Emoticon;
-		m_aClients[pMsg->m_ClientID].m_EmoticonStartTick = Client()->GameTick(g_Config.m_ClDummy);
-		m_aClients[pMsg->m_ClientID].m_EmoticonStartFraction = Client()->IntraGameTickSincePrev(g_Config.m_ClDummy);
+		m_aClients[pMsg->m_ClientID].m_EmoticonStartTick = Client()->GameTick(Conn);
+		m_aClients[pMsg->m_ClientID].m_EmoticonStartFraction = Client()->IntraGameTickSincePrev(Conn);
 	}
 	else if(MsgId == NETMSGTYPE_SV_SOUNDGLOBAL)
 	{
@@ -824,9 +804,8 @@ void CGameClient::OnStateChange(int NewState, int OldState)
 
 void CGameClient::OnShutdown()
 {
-	m_Menus.KillServer();
-	m_RaceDemo.OnReset();
-	m_Ghost.OnReset();
+	for(int i = 0; i < m_All.m_Num; i++)
+		m_All.m_paComponents[i]->OnShutdown();
 }
 
 void CGameClient::OnEnterGame()
@@ -1142,7 +1121,7 @@ void CGameClient::OnNewSnapshot()
 			CNetMsg_Cl_Say Msg;
 			Msg.m_Team = rand() & 1;
 			Msg.m_pMessage = aMessage;
-			Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+			Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 		}
 	}
 #endif
@@ -1589,23 +1568,23 @@ void CGameClient::OnNewSnapshot()
 		int *pParams = (int *)&m_Tuning[g_Config.m_ClDummy];
 		for(unsigned i = 0; i < sizeof(m_Tuning[0]) / sizeof(int); i++)
 			Msg.AddInt(pParams[i]);
-		Client()->SendMsg(&Msg, MSGFLAG_RECORD | MSGFLAG_NOSEND);
+		Client()->SendMsgActive(&Msg, MSGFLAG_RECORD | MSGFLAG_NOSEND);
 	}
 
-	if(!m_DDRaceMsgSent[0] && m_Snap.m_pLocalInfo)
+	for(int i = 0; i < 2; i++)
 	{
+		if(!m_DDRaceMsgSent[i] && m_Snap.m_pLocalInfo)
+		{
+			continue;
+		}
+		if(i == IClient::CONN_DUMMY && !Client()->DummyConnected())
+		{
+			continue;
+		}
 		CMsgPacker Msg(NETMSGTYPE_CL_ISDDNETLEGACY, false);
 		Msg.AddInt(CLIENT_VERSIONNR);
-		Client()->SendMsgY(&Msg, MSGFLAG_VITAL, 0);
-		m_DDRaceMsgSent[0] = true;
-	}
-
-	if(!m_DDRaceMsgSent[1] && m_Snap.m_pLocalInfo && Client()->DummyConnected())
-	{
-		CMsgPacker Msg(NETMSGTYPE_CL_ISDDNETLEGACY, false);
-		Msg.AddInt(CLIENT_VERSIONNR);
-		Client()->SendMsgY(&Msg, MSGFLAG_VITAL, 1);
-		m_DDRaceMsgSent[1] = true;
+		Client()->SendMsg(i, &Msg, MSGFLAG_VITAL);
+		m_DDRaceMsgSent[i] = true;
 	}
 
 	if(m_ShowOthers[g_Config.m_ClDummy] == -1 || (m_ShowOthers[g_Config.m_ClDummy] != -1 && m_ShowOthers[g_Config.m_ClDummy] != g_Config.m_ClShowOthers))
@@ -1613,7 +1592,7 @@ void CGameClient::OnNewSnapshot()
 		{
 			CNetMsg_Cl_ShowOthers Msg;
 			Msg.m_Show = g_Config.m_ClShowOthers;
-			Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+			Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 		}
 
 		// update state
@@ -1639,9 +1618,9 @@ void CGameClient::OnNewSnapshot()
 		CMsgPacker Packer(Msg.MsgID(), false);
 		Msg.Pack(&Packer);
 		if(ZoomToSend != m_LastZoom)
-			Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 0);
+			Client()->SendMsg(IClient::CONN_MAIN, &Packer, MSGFLAG_VITAL);
 		if(Client()->DummyConnected())
-			Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 1);
+			Client()->SendMsg(IClient::CONN_DUMMY, &Packer, MSGFLAG_VITAL);
 		m_LastZoom = ZoomToSend;
 		m_LastScreenAspect = Graphics()->ScreenAspect();
 	}
@@ -2021,7 +2000,7 @@ void CGameClient::SendSwitchTeam(int Team)
 {
 	CNetMsg_Cl_SetTeam Msg;
 	Msg.m_Team = Team;
-	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 
 	if(Team != TEAM_SPECTATORS)
 		m_Camera.OnReset();
@@ -2041,7 +2020,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
 		CMsgPacker Packer(Msg.MsgID(), false);
 		Msg.Pack(&Packer);
-		Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 0);
+		Client()->SendMsg(IClient::CONN_MAIN, &Packer, MSGFLAG_VITAL);
 		m_CheckInfo[0] = -1;
 	}
 	else
@@ -2056,7 +2035,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_ClPlayerColorFeet;
 		CMsgPacker Packer(Msg.MsgID(), false);
 		Msg.Pack(&Packer);
-		Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 0);
+		Client()->SendMsg(IClient::CONN_MAIN, &Packer, MSGFLAG_VITAL);
 		m_CheckInfo[0] = Client()->GameTickSpeed();
 	}
 }
@@ -2075,7 +2054,7 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
 		CMsgPacker Packer(Msg.MsgID(), false);
 		Msg.Pack(&Packer);
-		Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 1);
+		Client()->SendMsg(IClient::CONN_DUMMY, &Packer, MSGFLAG_VITAL);
 		m_CheckInfo[1] = -1;
 	}
 	else
@@ -2090,7 +2069,7 @@ void CGameClient::SendDummyInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_ClDummyColorFeet;
 		CMsgPacker Packer(Msg.MsgID(), false);
 		Msg.Pack(&Packer);
-		Client()->SendMsgY(&Packer, MSGFLAG_VITAL, 1);
+		Client()->SendMsg(IClient::CONN_DUMMY, &Packer, MSGFLAG_VITAL);
 		m_CheckInfo[1] = Client()->GameTickSpeed();
 	}
 }
@@ -2098,12 +2077,12 @@ void CGameClient::SendDummyInfo(bool Start)
 void CGameClient::SendKill(int ClientID)
 {
 	CNetMsg_Cl_Kill Msg;
-	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
 
 	if(g_Config.m_ClDummyCopyMoves)
 	{
 		CMsgPacker Msg(NETMSGTYPE_CL_KILL, false);
-		Client()->SendMsgY(&Msg, MSGFLAG_VITAL, !g_Config.m_ClDummy);
+		Client()->SendMsg(!g_Config.m_ClDummy, &Msg, MSGFLAG_VITAL);
 	}
 }
 

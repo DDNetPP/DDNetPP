@@ -61,6 +61,10 @@ class CSmoothTime
 	int64_t m_Current;
 	int64_t m_Target;
 
+	int64_t m_SnapMargin;
+	int64_t m_CurrentMargin;
+	int64_t m_TargetMargin;
+
 	CGraph m_Graph;
 
 	int m_SpikeCounter;
@@ -74,6 +78,9 @@ public:
 
 	void UpdateInt(int64_t Target);
 	void Update(CGraph *pGraph, int64_t Target, int TimeLeft, int AdjustDirection);
+
+	int64_t GetMargin(int64_t Now);
+	void UpdateMargin(int64_t TargetMargin);
 };
 
 class CServerCapabilities
@@ -83,6 +90,7 @@ public:
 	bool m_AnyPlayerFlag;
 	bool m_PingEx;
 	bool m_AllowDummy;
+	bool m_SyncWeaponInput;
 };
 
 class CClient : public IClient, public CDemoPlayer::IListener
@@ -106,18 +114,9 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	enum
 	{
 		NUM_SNAPSHOT_TYPES = 2,
-		PREDICTION_MARGIN = 1000 / 50 / 2, // magic network prediction value
 	};
 
-	enum
-	{
-		CLIENT_MAIN = 0,
-		CLIENT_DUMMY,
-		CLIENT_CONTACT,
-		NUM_CLIENTS,
-	};
-
-	class CNetClient m_NetClient[NUM_CLIENTS];
+	class CNetClient m_NetClient[NUM_CONNS];
 	class CDemoPlayer m_DemoPlayer;
 	class CDemoRecorder m_DemoRecorder[RECORDER_MAX];
 	class CDemoEditor m_DemoEditor;
@@ -210,6 +209,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 		int m_aData[MAX_INPUT_SIZE]; // the input data
 		int m_Tick; // the tick that the input is for
 		int64_t m_PredictedTime; // prediction latency when we sent this input
+		int64_t m_PredictionMargin; // prediction margin when we sent this input
 		int64_t m_Time;
 	} m_aInputs[NUM_DUMMIES][200];
 
@@ -280,6 +280,8 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int64_t m_BenchmarkStopTime;
 
 	void UpdateDemoIntraTimers();
+	int MaxLatencyTicks() const;
+	int PredictionMargin() const;
 
 public:
 	IEngine *Engine() { return m_pEngine; }
@@ -297,11 +299,12 @@ public:
 	CClient();
 
 	// ----- send functions -----
-	virtual int SendMsg(CMsgPacker *pMsg, int Flags);
-	virtual int SendMsgY(CMsgPacker *pMsg, int Flags, int NetClient = 1);
+	virtual int SendMsg(int Conn, CMsgPacker *pMsg, int Flags);
+	// Send via the currently active client (main/dummy)
+	virtual int SendMsgActive(CMsgPacker *pMsg, int Flags);
 
 	void SendInfo();
-	void SendEnterGame(bool Dummy);
+	void SendEnterGame(int Conn);
 	void SendReady();
 	void SendMapRequest();
 
@@ -330,7 +333,7 @@ public:
 
 	// called when the map is loaded and we should init for a new round
 	void OnEnterGame(bool Dummy);
-	virtual void EnterGame(bool Dummy);
+	virtual void EnterGame(int Conn);
 
 	virtual void Connect(const char *pAddress, const char *pPassword = NULL);
 	void DisconnectWithReason(const char *pReason);
@@ -374,8 +377,7 @@ public:
 
 	void ProcessConnlessPacket(CNetChunk *pPacket);
 	void ProcessServerInfo(int Type, NETADDR *pFrom, const void *pData, int DataSize);
-	void ProcessServerPacket(CNetChunk *pPacket);
-	void ProcessServerPacketDummy(CNetChunk *pPacket);
+	void ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy);
 
 	void ResetMapDownload();
 	void FinishMapDownload();

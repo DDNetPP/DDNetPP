@@ -50,6 +50,10 @@
 #include <windows.h>
 #endif
 
+#include <signal.h>
+
+volatile sig_atomic_t InterruptSignaled = 0;
+
 CSnapIDPool::CSnapIDPool()
 {
 	Reset();
@@ -1163,7 +1167,7 @@ void CServer::SendCapabilities(int ClientID)
 {
 	CMsgPacker Msg(NETMSG_CAPABILITIES, true);
 	Msg.AddInt(SERVERCAP_CURVERSION); // version
-	Msg.AddInt(SERVERCAPFLAG_DDNET | SERVERCAPFLAG_CHATTIMEOUTCODE | SERVERCAPFLAG_ANYPLAYERFLAG | SERVERCAPFLAG_PINGEX | SERVERCAPFLAG_ALLOWDUMMY); // flags
+	Msg.AddInt(SERVERCAPFLAG_DDNET | SERVERCAPFLAG_CHATTIMEOUTCODE | SERVERCAPFLAG_ANYPLAYERFLAG | SERVERCAPFLAG_PINGEX | SERVERCAPFLAG_ALLOWDUMMY | SERVERCAPFLAG_SYNCWEAPONINPUT); // flags
 	SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
@@ -2758,6 +2762,11 @@ int CServer::Run()
 
 				PacketWaiting = x > 0 ? net_socket_read_wait(m_NetServer.Socket(), x) : true;
 			}
+			if(InterruptSignaled)
+			{
+				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "interrupted");
+				break;
+			}
 		}
 	}
 	const char *pDisconnectReason = "Server shutdown";
@@ -3648,6 +3657,15 @@ void CServer::SnapSetStaticsize(int ItemType, int Size)
 
 static CServer *CreateServer() { return new CServer(); }
 
+void HandleSigIntTerm(int Param)
+{
+	InterruptSignaled = 1;
+
+	// Exit the next time a signal is received
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+}
+
 int main(int argc, const char **argv) // ignore_convention
 {
 	cmdline_fix(&argc, &argv);
@@ -3675,6 +3693,9 @@ int main(int argc, const char **argv) // ignore_convention
 		dbg_msg("mysql", "failed to initialize MySQL library");
 		return -1;
 	}
+
+	signal(SIGINT, HandleSigIntTerm);
+	signal(SIGTERM, HandleSigIntTerm);
 
 	CServer *pServer = CreateServer();
 	IKernel *pKernel = IKernel::Create();
