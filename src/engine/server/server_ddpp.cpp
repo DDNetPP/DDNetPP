@@ -52,11 +52,6 @@
 
 void CServer::RunDDPP()
 {
-	//DDNet++ Logout all Accounts on this port (ChillerDragon)
-	CGameContext *cGameServer = (CGameContext *)m_pGameServer; //much wow much hacky scary random code by ChillerDragon
-	cGameServer->SQLPortLogout(g_Config.m_SvPort);
-	cGameServer->LoadFNNvalues();
-
 	if(g_Config.m_SvDatabasePath[0] != '\0')
 	{
 		auto pSqlServers = std::unique_ptr<IDbConnection>(CreateSqliteConnection(

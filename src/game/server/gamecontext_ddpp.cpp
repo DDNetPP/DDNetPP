@@ -91,6 +91,8 @@ void CGameContext::OnInitDDPP()
 	if(!m_pLetters)
 		m_pLetters = new CLetters(this);
 	m_Database->CreateDatabase();
+	SQLPortLogout(g_Config.m_SvPort);
+	LoadFNNvalues();
 	// m_pAccounts->CreateDatabase();
 	LoadSinglePlayer();
 	//dummy_init
