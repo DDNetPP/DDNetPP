@@ -23,6 +23,7 @@ enum
 };
 
 typedef bool (*CLIENTFUNC_FILTER)(const void *pData, int DataSize, void *pUser);
+struct CChecksumData;
 
 class IClient : public IInterface
 {
@@ -136,7 +137,7 @@ public:
 
 	// gfx
 	virtual void SwitchWindowScreen(int Index) = 0;
-	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless) = 0;
+	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless, bool AllowResizing) = 0;
 	virtual void ToggleWindowVSync() = 0;
 	virtual void LoadFont() = 0;
 	virtual void Notify(const char *pTitle, const char *pMessage) = 0;
@@ -231,6 +232,7 @@ public:
 	virtual void GetSmoothTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount) = 0;
 
 	virtual SWarning *GetCurWarning() = 0;
+	virtual CChecksumData *ChecksumData() = 0;
 };
 
 class IGameClient : public IInterface

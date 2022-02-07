@@ -69,14 +69,7 @@ static const char *VANILLA_IMAGES[] = {
 
 static bool IsVanillaImage(const char *pImage)
 {
-	for(const auto *pVanillaImage : VANILLA_IMAGES)
-	{
-		if(str_comp(pImage, pVanillaImage) == 0)
-		{
-			return true;
-		}
-	}
-	return false;
+	return std::any_of(std::begin(VANILLA_IMAGES), std::end(VANILLA_IMAGES), [pImage](const char *pVanillaImage) { return str_comp(pImage, pVanillaImage) == 0; });
 }
 
 const void *CEditor::ms_pUiGotContext;
@@ -834,10 +827,7 @@ void CEditor::DoToolbar(CUIRect ToolBar)
 	CUIRect TB_Top, TB_Bottom;
 	CUIRect Button;
 
-	ToolBar.HSplitTop(ToolBar.h / 2.0f, &TB_Top, &TB_Bottom);
-
-	TB_Top.HSplitBottom(2.5f, &TB_Top, 0);
-	TB_Bottom.HSplitTop(2.5f, 0, &TB_Bottom);
+	ToolBar.HSplitMid(&TB_Top, &TB_Bottom, 5.0f);
 
 	// top line buttons
 	{
@@ -1251,10 +1241,7 @@ void CEditor::DoSoundSource(CSoundSource *pSource, int Index)
 		UI()->SetHotItem(pID);
 
 	bool IgnoreGrid;
-	if(Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT))
-		IgnoreGrid = true;
-	else
-		IgnoreGrid = false;
+	IgnoreGrid = Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT);
 
 	if(UI()->ActiveItem() == pID)
 	{
@@ -1352,7 +1339,7 @@ void CEditor::DoSoundSource(CSoundSource *pSource, int Index)
 	Graphics()->QuadsDraw(&QuadItem, 1);
 }
 
-void CEditor::DoQuad(CQuad *q, int Index)
+void CEditor::DoQuad(CQuad *pQuad, int Index)
 {
 	enum
 	{
@@ -1365,7 +1352,7 @@ void CEditor::DoQuad(CQuad *q, int Index)
 	};
 
 	// some basic values
-	void *pID = &q->m_aPoints[4]; // use pivot addr as id
+	void *pID = &pQuad->m_aPoints[4]; // use pivot addr as id
 	static array<array<CPoint>> s_lRotatePoints;
 	static int s_Operation = OP_NONE;
 	static float s_RotateAngle = 0;
@@ -1373,8 +1360,8 @@ void CEditor::DoQuad(CQuad *q, int Index)
 	float wy = UI()->MouseWorldY();
 
 	// get pivot
-	float CenterX = fx2f(q->m_aPoints[4].x);
-	float CenterY = fx2f(q->m_aPoints[4].y);
+	float CenterX = fx2f(pQuad->m_aPoints[4].x);
+	float CenterY = fx2f(pQuad->m_aPoints[4].y);
 
 	float dx = (CenterX - wx) / m_WorldZoom;
 	float dy = (CenterY - wy) / m_WorldZoom;
@@ -1382,10 +1369,7 @@ void CEditor::DoQuad(CQuad *q, int Index)
 		UI()->SetHotItem(pID);
 
 	bool IgnoreGrid;
-	if(Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT))
-		IgnoreGrid = true;
-	else
-		IgnoreGrid = false;
+	IgnoreGrid = Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT);
 
 	// draw selection background
 	if(IsQuadSelected(Index))
@@ -1417,13 +1401,13 @@ void CEditor::DoQuad(CQuad *q, int Index)
 					else
 						y = (int)((wy - (LineDistance / 2) * m_GridFactor) / (LineDistance * m_GridFactor)) * (LineDistance * m_GridFactor);
 
-					q->m_aPoints[4].x = f2fx(x);
-					q->m_aPoints[4].y = f2fx(y);
+					pQuad->m_aPoints[4].x = f2fx(x);
+					pQuad->m_aPoints[4].y = f2fx(y);
 				}
 				else
 				{
-					q->m_aPoints[4].x = f2fx(wx);
-					q->m_aPoints[4].y = f2fx(wy);
+					pQuad->m_aPoints[4].x = f2fx(wx);
+					pQuad->m_aPoints[4].y = f2fx(wy);
 				}
 			}
 			else if(s_Operation == OP_MOVE_ALL)
@@ -1445,8 +1429,8 @@ void CEditor::DoQuad(CQuad *q, int Index)
 					else
 						y = (int)((wy - (LineDistance / 2) * m_GridFactor) / (LineDistance * m_GridFactor)) * (LineDistance * m_GridFactor);
 
-					int OffsetX = f2fx(x) - q->m_aPoints[4].x;
-					int OffsetY = f2fx(y) - q->m_aPoints[4].y;
+					int OffsetX = f2fx(x) - pQuad->m_aPoints[4].x;
+					int OffsetY = f2fx(y) - pQuad->m_aPoints[4].y;
 
 					for(int i = 0; i < m_lSelectedQuads.size(); ++i)
 					{
@@ -1460,8 +1444,8 @@ void CEditor::DoQuad(CQuad *q, int Index)
 				}
 				else
 				{
-					int OffsetX = f2fx(wx) - q->m_aPoints[4].x;
-					int OffsetY = f2fx(wy) - q->m_aPoints[4].y;
+					int OffsetX = f2fx(wx) - pQuad->m_aPoints[4].x;
+					int OffsetY = f2fx(wy) - pQuad->m_aPoints[4].y;
 
 					for(int i = 0; i < m_lSelectedQuads.size(); ++i)
 					{
@@ -1654,10 +1638,7 @@ void CEditor::DoQuadPoint(CQuad *pQuad, int QuadIndex, int V)
 	static int s_Operation = OP_NONE;
 
 	bool IgnoreGrid;
-	if(Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT))
-		IgnoreGrid = true;
-	else
-		IgnoreGrid = false;
+	IgnoreGrid = Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT);
 
 	if(UI()->ActiveItem() == pID)
 	{
@@ -1983,10 +1964,7 @@ void CEditor::DoQuadEnvPoint(const CQuad *pQuad, int QIndex, int PIndex)
 	}
 
 	bool IgnoreGrid;
-	if(Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT))
-		IgnoreGrid = true;
-	else
-		IgnoreGrid = false;
+	IgnoreGrid = Input()->KeyIsPressed(KEY_LALT) || Input()->KeyIsPressed(KEY_RALT);
 
 	if(UI()->ActiveItem() == pID && s_ActQIndex == QIndex)
 	{
@@ -2939,9 +2917,7 @@ int CEditor::DoProperties(CUIRect *pToolBox, CProperty *pProps, int *pIDs, int *
 		else if(pProps[i].m_Type == PROPTYPE_SHIFT)
 		{
 			CUIRect Left, Right, Up, Down;
-			Shifter.VSplitMid(&Left, &Up);
-			Left.VSplitRight(1.0f, &Left, 0);
-			Up.VSplitLeft(1.0f, 0, &Up);
+			Shifter.VSplitMid(&Left, &Up, 2.0f);
 			Left.VSplitLeft(10.0f, &Left, &Shifter);
 			Shifter.VSplitRight(10.0f, &Shifter, &Right);
 			RenderTools()->DrawUIRect(&Shifter, ColorRGBA(1, 1, 1, 0.5f), 0, 0.0f);
@@ -4288,11 +4264,11 @@ void CEditor::RenderFileDialog()
 				}
 			}
 		}
-		if(m_PreviewImageIsLoaded)
+		if(m_FileDialogFileType == CEditor::FILETYPE_IMG && m_PreviewImageIsLoaded)
 		{
 			int w = m_FilePreviewImageInfo.m_Width;
 			int h = m_FilePreviewImageInfo.m_Height;
-			if(m_FilePreviewImageInfo.m_Width > Preview.w)
+			if(m_FilePreviewImageInfo.m_Width > Preview.w) // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
 			{
 				h = m_FilePreviewImageInfo.m_Height * Preview.w / m_FilePreviewImageInfo.m_Width;
 				w = Preview.w;

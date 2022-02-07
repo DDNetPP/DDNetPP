@@ -27,6 +27,7 @@
 #if defined(CONF_FAMILY_UNIX)
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/utsname.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -50,6 +51,7 @@
 #define _task_user_
 
 #include <Carbon/Carbon.h>
+#include <mach-o/dyld.h>
 #include <mach/mach_time.h>
 #endif
 
@@ -68,6 +70,7 @@
 #include <direct.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <io.h>
 #include <process.h>
 #include <share.h>
 #include <shellapi.h>
@@ -88,6 +91,47 @@ IOHANDLE io_stdin()
 }
 IOHANDLE io_stdout() { return (IOHANDLE)stdout; }
 IOHANDLE io_stderr() { return (IOHANDLE)stderr; }
+
+IOHANDLE io_current_exe()
+{
+	// From https://stackoverflow.com/a/1024937.
+#if defined(CONF_FAMILY_WINDOWS)
+	wchar_t wpath[IO_MAX_PATH_LENGTH];
+	char path[IO_MAX_PATH_LENGTH];
+	if(!GetModuleFileNameW(NULL, wpath, sizeof(wpath) / sizeof(wpath[0])))
+	{
+		return 0;
+	}
+	if(!WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, sizeof(path), NULL, NULL))
+	{
+		return 0;
+	}
+	return io_open(path, IOFLAG_READ);
+#elif defined(CONF_PLATFORM_MACOS)
+	char path[IO_MAX_PATH_LENGTH];
+	uint32_t path_size = sizeof(path);
+	if(_NSGetExecutablePath(path, &path_size))
+	{
+		return 0;
+	}
+	return io_open(path, IOFLAG_READ);
+#else
+	static const char *NAMES[] = {
+		"/proc/self/exe", // Linux, Android
+		"/proc/curproc/exe", // NetBSD
+		"/proc/curproc/file", // DragonFly
+	};
+	for(auto &name : NAMES)
+	{
+		IOHANDLE result = io_open(name, IOFLAG_READ);
+		if(result)
+		{
+			return result;
+		}
+	}
+	return 0;
+#endif
+}
 
 typedef struct
 {
@@ -425,6 +469,19 @@ int io_close(IOHANDLE io)
 int io_flush(IOHANDLE io)
 {
 	return fflush((FILE *)io);
+}
+
+int io_sync(IOHANDLE io)
+{
+	if(io_flush(io))
+	{
+		return 1;
+	}
+#if defined(CONF_FAMILY_WINDOWS)
+	return FlushFileBuffers((HANDLE)_get_osfhandle(_fileno((FILE *)io))) == 0;
+#else
+	return fsync(fileno((FILE *)io)) != 0;
+#endif
 }
 
 #define ASYNC_BUFSIZE 8 * 1024
@@ -773,7 +830,12 @@ void *thread_init(void (*threadfunc)(void *), void *u, const char *name)
 #if defined(CONF_FAMILY_UNIX)
 	{
 		pthread_t id;
-		int result = pthread_create(&id, NULL, thread_run, data);
+		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+#if defined(CONF_PLATFORM_MACOS)
+		pthread_attr_set_qos_class_np(&attr, QOS_CLASS_USER_INTERACTIVE, 0);
+#endif
+		int result = pthread_create(&id, &attr, thread_run, data);
 		if(result != 0)
 		{
 			dbg_msg("thread", "creating %s thread failed: %d", name, result);
@@ -2099,7 +2161,7 @@ void fs_listdir(const char *dir, FS_LISTDIR_CALLBACK cb, int type, void *user)
 	{
 		WideCharToMultiByte(CP_UTF8, 0, finddata.cFileName, -1, buffer2, sizeof(buffer2), NULL, NULL);
 		str_copy(buffer + length, buffer2, (int)sizeof(buffer) - length);
-		if(cb(buffer2, fs_is_dir(buffer), type, user))
+		if(cb(buffer2, (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0, type, user))
 			break;
 	} while(FindNextFileW(handle, &finddata));
 
@@ -2119,7 +2181,7 @@ void fs_listdir(const char *dir, FS_LISTDIR_CALLBACK cb, int type, void *user)
 	while((entry = readdir(d)) != NULL)
 	{
 		str_copy(buffer + length, entry->d_name, (int)sizeof(buffer) - length);
-		if(cb(entry->d_name, fs_is_dir(buffer), type, user))
+		if(cb(entry->d_name, entry->d_type == DT_UNKNOWN ? fs_is_dir(buffer) : entry->d_type == DT_DIR, type, user))
 			break;
 	}
 
@@ -2159,7 +2221,7 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 		info.m_TimeCreated = filetime_to_unixtime(&finddata.ftCreationTime);
 		info.m_TimeModified = filetime_to_unixtime(&finddata.ftLastWriteTime);
 
-		if(cb(&info, fs_is_dir(buffer), type, user))
+		if(cb(&info, (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0, type, user))
 			break;
 	} while(FindNextFileW(handle, &finddata));
 
@@ -2188,7 +2250,7 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 		info.m_TimeCreated = created;
 		info.m_TimeModified = modified;
 
-		if(cb(&info, fs_is_dir(buffer), type, user))
+		if(cb(&info, entry->d_type == DT_UNKNOWN ? fs_is_dir(buffer) : entry->d_type == DT_DIR, type, user))
 			break;
 	}
 
@@ -2450,7 +2512,7 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 	tv.tv_usec = time % 1000000;
 	sockid = 0;
 
-	FD_ZERO(&readfds);
+	FD_ZERO(&readfds); // NOLINT(clang-analyzer-security.insecureAPI.bzero)
 	if(sock.ipv4sock >= 0)
 	{
 		FD_SET(sock.ipv4sock, &readfds);
@@ -3898,6 +3960,85 @@ void set_console_msg_color(const void *rgbvoid)
 		str_format(buff, sizeof(buff), "%c[38;2;%d;%d;%dm", esc_seq, (int)uint8_t(rgb->r * 255.0f), (int)uint8_t(rgb->g * 255.0f), (int)uint8_t(rgb->b * 255.0f));
 	if(has_stdout_logger)
 		stdout_nonewline_logger.logger(buff, stdout_nonewline_logger.user);
+#endif
+}
+
+int os_version_str(char *version, int length)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	const char *DLL = "C:\\Windows\\System32\\user32.dll";
+	DWORD handle;
+	DWORD size = GetFileVersionInfoSizeA(DLL, &handle);
+	if(!size)
+	{
+		return 1;
+	}
+	void *data = malloc(size);
+	if(!GetFileVersionInfoA(DLL, handle, size, data))
+	{
+		free(data);
+		return 1;
+	}
+	VS_FIXEDFILEINFO *fileinfo;
+	UINT unused;
+	if(!VerQueryValueA(data, "\\", (void **)&fileinfo, &unused))
+	{
+		free(data);
+		return 1;
+	}
+	str_format(version, length, "Windows %d.%d.%d.%d",
+		HIWORD(fileinfo->dwProductVersionMS),
+		LOWORD(fileinfo->dwProductVersionMS),
+		HIWORD(fileinfo->dwProductVersionLS),
+		LOWORD(fileinfo->dwProductVersionLS));
+	free(data);
+	return 0;
+#else
+	struct utsname u;
+	if(uname(&u))
+	{
+		return 1;
+	}
+	char extra[128];
+	extra[0] = 0;
+
+	do
+	{
+		IOHANDLE os_release = io_open("/etc/os-release", IOFLAG_READ);
+		char buf[4096];
+		int read;
+		int offset;
+		char *newline;
+		if(!os_release)
+		{
+			break;
+		}
+		read = io_read(os_release, buf, sizeof(buf) - 1);
+		io_close(os_release);
+		buf[read] = 0;
+		if(str_startswith(buf, "PRETTY_NAME="))
+		{
+			offset = 0;
+		}
+		else
+		{
+			const char *found = str_find(buf, "\nPRETTY_NAME=");
+			if(!found)
+			{
+				break;
+			}
+			offset = found - buf + 1;
+		}
+		newline = (char *)str_find(buf + offset, "\n");
+		if(newline)
+		{
+			*newline = 0;
+		}
+		str_format(extra, sizeof(extra), "; %s", buf + offset + 12);
+	} while(0);
+
+	str_format(version, length, "%s %s (%s, %s)%s", u.sysname, u.release, u.machine, u.version, extra);
+	return 0;
 #endif
 }
 }

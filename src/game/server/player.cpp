@@ -724,7 +724,7 @@ void CPlayer::TryRespawn()
 {
 	vec2 SpawnPos;
 
-	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this))
+	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this, GameServer()->GetDDRaceTeam(m_ClientID)))
 		return;
 
 	m_WeakHookSpawn = false;
@@ -921,9 +921,7 @@ int CPlayer::IsPaused()
 
 bool CPlayer::IsPlaying()
 {
-	if(m_pCharacter && m_pCharacter->IsAlive())
-		return true;
-	return false;
+	return m_pCharacter && m_pCharacter->IsAlive();
 }
 
 void CPlayer::SpectatePlayerName(const char *pName)

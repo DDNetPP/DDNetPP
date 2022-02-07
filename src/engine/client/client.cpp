@@ -402,6 +402,8 @@ CClient::CClient() :
 	m_FrameTimeAvg = 0.0001f;
 	m_BenchmarkFile = 0;
 	m_BenchmarkStopTime = 0;
+
+	mem_zero(&m_Checksum, sizeof(m_Checksum));
 }
 
 // ----- send functions -----
@@ -1556,6 +1558,7 @@ static CServerCapabilities GetServerCapabilities(int Version, int Flags)
 	Result.m_AnyPlayerFlag = DDNet;
 	Result.m_PingEx = false;
 	Result.m_AllowDummy = true;
+	Result.m_SyncWeaponInput = false;
 	if(Version >= 1)
 	{
 		Result.m_ChatTimeoutCode = Flags & SERVERCAPFLAG_CHATTIMEOUTCODE;
@@ -1812,7 +1815,23 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf);
 			}
 		}
-		else if(!Dummy && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_ADD)
+		else if(Msg == NETMSG_CHECKSUM_REQUEST)
+		{
+			CUuid *pUuid = (CUuid *)Unpacker.GetRaw(sizeof(*pUuid));
+			if(Unpacker.Error())
+			{
+				return;
+			}
+			int Result = HandleChecksum(Conn, *pUuid, &Unpacker);
+			if(Result)
+			{
+				CMsgPacker Msg(NETMSG_CHECKSUM_ERROR, true);
+				Msg.AddRaw(pUuid, sizeof(*pUuid));
+				Msg.AddInt(Result);
+				SendMsg(Conn, &Msg, MSGFLAG_VITAL);
+			}
+		}
+		else if(Conn == CONN_MAIN && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_ADD)
 		{
 			const char *pName = Unpacker.GetString(CUnpacker::SANITIZE_CC);
 			const char *pHelp = Unpacker.GetString(CUnpacker::SANITIZE_CC);
@@ -1820,7 +1839,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			if(Unpacker.Error() == 0)
 				m_pConsole->RegisterTemp(pName, pParams, CFGFLAG_SERVER, pHelp);
 		}
-		else if(!Dummy && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_REM)
+		else if(Conn == CONN_MAIN && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_REM)
 		{
 			const char *pName = Unpacker.GetString(CUnpacker::SANITIZE_CC);
 			if(Unpacker.Error() == 0)
@@ -2015,18 +2034,21 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 					// add new
 					m_SnapshotStorage[Conn].Add(GameTick, time_get(), SnapSize, pTmpBuffer3, 1);
 
-					// for antiping: if the projectile netobjects from the server contains extra data, this is removed and the original content restored before recording demo
-					unsigned char aExtraInfoRemoved[CSnapshot::MAX_SIZE];
-					mem_copy(aExtraInfoRemoved, pTmpBuffer3, SnapSize);
-					SnapshotRemoveExtraProjectileInfo(aExtraInfoRemoved);
-
-					// add snapshot to demo
-					for(auto &DemoRecorder : m_DemoRecorder)
+					if(!Dummy)
 					{
-						if(DemoRecorder.IsRecording())
+						// for antiping: if the projectile netobjects from the server contains extra data, this is removed and the original content restored before recording demo
+						unsigned char aExtraInfoRemoved[CSnapshot::MAX_SIZE];
+						mem_copy(aExtraInfoRemoved, pTmpBuffer3, SnapSize);
+						SnapshotRemoveExtraProjectileInfo(aExtraInfoRemoved);
+
+						// add snapshot to demo
+						for(auto &DemoRecorder : m_DemoRecorder)
 						{
-							// write snapshot
-							DemoRecorder.RecordSnapshot(GameTick, aExtraInfoRemoved, SnapSize);
+							if(DemoRecorder.IsRecording())
+							{
+								// write snapshot
+								DemoRecorder.RecordSnapshot(GameTick, aExtraInfoRemoved, SnapSize);
+							}
 						}
 					}
 
@@ -2706,7 +2728,7 @@ void CClient::Update()
 
 	if(State() == IClient::STATE_ONLINE)
 	{
-		if(m_EditJobs.size() > 0)
+		if(!m_EditJobs.empty())
 		{
 			std::shared_ptr<CDemoEdit> e = m_EditJobs.front();
 			if(e->Status() == IJob::STATE_DONE)
@@ -2937,6 +2959,9 @@ void CClient::Run()
 #if defined(CONF_FAMILY_UNIX)
 	m_Fifo.Init(m_pConsole, g_Config.m_ClInputFifo, CFGFLAG_CLIENT);
 #endif
+
+	InitChecksum();
+	m_pConsole->InitChecksum(ChecksumData());
 
 	// loads the existing ddnet info file if it exists
 	LoadDDNetInfo();
@@ -3390,7 +3415,10 @@ void CClient::Con_StartVideo(IConsole::IResult *pResult, void *pUserData)
 	CClient *pSelf = (CClient *)pUserData;
 
 	if(pSelf->State() != IClient::STATE_DEMOPLAYBACK)
+	{
 		pSelf->m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "videorecorder", "Can not start videorecorder outside of demoplayer.");
+		return;
+	}
 
 	if(!IVideo::Current())
 	{
@@ -3798,15 +3826,134 @@ void CClient::ConchainServerBrowserUpdate(IConsole::IResult *pResult, void *pUse
 		((CClient *)pUserData)->ServerBrowserUpdate();
 }
 
+void CClient::InitChecksum()
+{
+	CChecksumData *pData = &m_Checksum.m_Data;
+	pData->m_SizeofData = sizeof(*pData);
+	str_copy(pData->m_aVersionStr, GAME_NAME " " GAME_RELEASE_VERSION " (" CONF_PLATFORM_STRING "; " CONF_ARCH_STRING ")", sizeof(pData->m_aVersionStr));
+	pData->m_Start = time_get();
+	os_version_str(pData->m_aOsVersion, sizeof(pData->m_aOsVersion));
+	secure_random_fill(&pData->m_Random, sizeof(pData->m_Random));
+	pData->m_Version = GameClient()->DDNetVersion();
+	pData->m_SizeofClient = sizeof(*this);
+	pData->m_SizeofConfig = sizeof(pData->m_Config);
+}
+
+#ifndef DDNET_CHECKSUM_SALT
+// salt@checksum.ddnet.tw: db877f2b-2ddb-3ba6-9f67-a6d169ec671d
+#define DDNET_CHECKSUM_SALT \
+	{ \
+		{ \
+			0xdb, 0x87, 0x7f, 0x2b, 0x2d, 0xdb, 0x3b, 0xa6, \
+				0x9f, 0x67, 0xa6, 0xd1, 0x69, 0xec, 0x67, 0x1d, \
+		} \
+	}
+#endif
+
+int CClient::HandleChecksum(int Conn, CUuid Uuid, CUnpacker *pUnpacker)
+{
+	int Start = pUnpacker->GetInt();
+	int Length = pUnpacker->GetInt();
+	if(pUnpacker->Error())
+	{
+		return 1;
+	}
+	if(Start < 0 || Length < 0 || Start > INT_MAX - Length)
+	{
+		return 2;
+	}
+	int End = Start + Length;
+	int ChecksumBytesEnd = minimum(End, (int)sizeof(m_Checksum.m_aBytes));
+	int FileStart = maximum(Start, (int)sizeof(m_Checksum.m_aBytes));
+	unsigned char aStartBytes[4];
+	unsigned char aEndBytes[4];
+	int_to_bytes_be(aStartBytes, Start);
+	int_to_bytes_be(aEndBytes, End);
+
+	if(Start <= (int)sizeof(m_Checksum.m_aBytes))
+	{
+		mem_zero(&m_Checksum.m_Data.m_Config, sizeof(m_Checksum.m_Data.m_Config));
+#define CHECKSUM_RECORD(Flags) (((Flags)&CFGFLAG_CLIENT) == 0 || ((Flags)&CFGFLAG_INSENSITIVE) != 0)
+#define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
+	if(CHECKSUM_RECORD(Flags)) \
+	{ \
+		m_Checksum.m_Data.m_Config.m_##Name = g_Config.m_##Name; \
+	}
+#define MACRO_CONFIG_COL(Name, ScriptName, Def, Flags, Desc) \
+	if(CHECKSUM_RECORD(Flags)) \
+	{ \
+		m_Checksum.m_Data.m_Config.m_##Name = g_Config.m_##Name; \
+	}
+#define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
+	if(CHECKSUM_RECORD(Flags)) \
+	{ \
+		str_copy(m_Checksum.m_Data.m_Config.m_##Name, g_Config.m_##Name, sizeof(m_Checksum.m_Data.m_Config.m_##Name)); \
+	}
+#include <engine/shared/config_variables.h>
+#undef CHECKSUM_RECORD
+#undef MACRO_CONFIG_INT
+#undef MACRO_CONFIG_COL
+#undef MACRO_CONFIG_STR
+	}
+	if(End > (int)sizeof(m_Checksum.m_aBytes))
+	{
+		if(m_OwnExecutableSize == 0)
+		{
+			m_OwnExecutable = io_current_exe();
+			// io_length returns -1 on error.
+			m_OwnExecutableSize = m_OwnExecutable ? io_length(m_OwnExecutable) : -1;
+		}
+		// Own executable not available.
+		if(m_OwnExecutableSize < 0)
+		{
+			return 3;
+		}
+		if(End - (int)sizeof(m_Checksum.m_aBytes) > m_OwnExecutableSize)
+		{
+			return 4;
+		}
+	}
+
+	SHA256_CTX Sha256Ctxt;
+	sha256_init(&Sha256Ctxt);
+	CUuid Salt = DDNET_CHECKSUM_SALT;
+	sha256_update(&Sha256Ctxt, &Salt, sizeof(Salt));
+	sha256_update(&Sha256Ctxt, &Uuid, sizeof(Uuid));
+	sha256_update(&Sha256Ctxt, aStartBytes, sizeof(aStartBytes));
+	sha256_update(&Sha256Ctxt, aEndBytes, sizeof(aEndBytes));
+	sha256_update(&Sha256Ctxt, m_Checksum.m_aBytes + Start, ChecksumBytesEnd - Start);
+	if(End > (int)sizeof(m_Checksum.m_aBytes))
+	{
+		unsigned char aBuf[2048];
+		if(io_seek(m_OwnExecutable, FileStart - sizeof(m_Checksum.m_aBytes), IOSEEK_START))
+		{
+			return 5;
+		}
+		for(int i = FileStart; i < End; i += sizeof(aBuf))
+		{
+			int Read = io_read(m_OwnExecutable, aBuf, minimum((int)sizeof(aBuf), End - i));
+			sha256_update(&Sha256Ctxt, aBuf, Read);
+		}
+	}
+	SHA256_DIGEST Sha256 = sha256_finish(&Sha256Ctxt);
+
+	CMsgPacker Msg(NETMSG_CHECKSUM_RESPONSE, true);
+	Msg.AddRaw(&Uuid, sizeof(Uuid));
+	Msg.AddRaw(&Sha256, sizeof(Sha256));
+	SendMsg(Conn, &Msg, MSGFLAG_VITAL);
+
+	return 0;
+}
+
 void CClient::SwitchWindowScreen(int Index)
 {
 	// Todo SDL: remove this when fixed (changing screen when in fullscreen is bugged)
 	if(g_Config.m_GfxFullscreen)
 	{
-		SetWindowParams(0, g_Config.m_GfxBorderless);
+		SetWindowParams(0, g_Config.m_GfxBorderless, g_Config.m_GfxFullscreen != 3);
 		if(Graphics()->SetWindowScreen(Index))
 			g_Config.m_GfxScreen = Index;
-		SetWindowParams(g_Config.m_GfxFullscreen, g_Config.m_GfxBorderless);
+		SetWindowParams(g_Config.m_GfxFullscreen, g_Config.m_GfxBorderless, g_Config.m_GfxFullscreen != 3);
 	}
 	else
 	{
@@ -3827,11 +3974,11 @@ void CClient::ConchainWindowScreen(IConsole::IResult *pResult, void *pUserData, 
 		pfnCallback(pResult, pCallbackUserData);
 }
 
-void CClient::SetWindowParams(int FullscreenMode, bool IsBorderless)
+void CClient::SetWindowParams(int FullscreenMode, bool IsBorderless, bool AllowResizing)
 {
-	g_Config.m_GfxFullscreen = clamp(FullscreenMode, 0, 2);
+	g_Config.m_GfxFullscreen = clamp(FullscreenMode, 0, 3);
 	g_Config.m_GfxBorderless = (int)IsBorderless;
-	Graphics()->SetWindowParams(FullscreenMode, IsBorderless);
+	Graphics()->SetWindowParams(FullscreenMode, IsBorderless, AllowResizing);
 }
 
 void CClient::ConchainFullscreen(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -3840,7 +3987,7 @@ void CClient::ConchainFullscreen(IConsole::IResult *pResult, void *pUserData, IC
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
 		if(g_Config.m_GfxFullscreen != pResult->GetInteger(0))
-			pSelf->SetWindowParams(pResult->GetInteger(0), g_Config.m_GfxBorderless);
+			pSelf->SetWindowParams(pResult->GetInteger(0), g_Config.m_GfxBorderless, pResult->GetInteger(0) != 3);
 	}
 	else
 		pfnCallback(pResult, pCallbackUserData);
@@ -3852,7 +3999,7 @@ void CClient::ConchainWindowBordered(IConsole::IResult *pResult, void *pUserData
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
 		if(!g_Config.m_GfxFullscreen && (g_Config.m_GfxBorderless != pResult->GetInteger(0)))
-			pSelf->SetWindowParams(g_Config.m_GfxFullscreen, !g_Config.m_GfxBorderless);
+			pSelf->SetWindowParams(g_Config.m_GfxFullscreen, !g_Config.m_GfxBorderless, g_Config.m_GfxFullscreen != 3);
 	}
 	else
 		pfnCallback(pResult, pCallbackUserData);
@@ -4133,7 +4280,7 @@ int main(int argc, const char **argv) // ignore_convention
 	pClient->RegisterInterfaces();
 
 	// create the components
-	IEngine *pEngine = CreateEngine("DDNet", Silent, 2);
+	IEngine *pEngine = CreateEngine(GAME_NAME, Silent, 2);
 	IConsole *pConsole = CreateConsole(CFGFLAG_CLIENT);
 	IStorage *pStorage = CreateStorage("Teeworlds", IStorage::STORAGETYPE_CLIENT, argc, (const char **)argv); // ignore_convention
 	IConfigManager *pConfigManager = CreateConfigManager();

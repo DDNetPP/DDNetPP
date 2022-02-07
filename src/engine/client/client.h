@@ -8,6 +8,7 @@
 
 #include <base/hash.h>
 #include <engine/client.h>
+#include <engine/client/checksum.h>
 #include <engine/client/demoedit.h>
 #include <engine/client/friends.h>
 #include <engine/client/ghost.h>
@@ -279,6 +280,10 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IOHANDLE m_BenchmarkFile;
 	int64_t m_BenchmarkStopTime;
 
+	CChecksum m_Checksum;
+	int m_OwnExecutableSize = 0;
+	IOHANDLE m_OwnExecutable;
+
 	void UpdateDemoIntraTimers();
 	int MaxLatencyTicks() const;
 	int PredictionMargin() const;
@@ -477,9 +482,12 @@ public:
 	void HandleDemoPath(const char *pPath);
 	void HandleMapPath(const char *pPath);
 
+	virtual void InitChecksum();
+	virtual int HandleChecksum(int Conn, CUuid Uuid, CUnpacker *pUnpacker);
+
 	// gfx
 	virtual void SwitchWindowScreen(int Index);
-	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless);
+	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless, bool AllowResizing);
 	virtual void ToggleWindowVSync();
 	virtual void LoadFont();
 	virtual void Notify(const char *pTitle, const char *pMessage);
@@ -504,7 +512,7 @@ public:
 	virtual void DemoSliceBegin();
 	virtual void DemoSliceEnd();
 	virtual void DemoSlice(const char *pDstPath, CLIENTFUNC_FILTER pfnFilter, void *pUser);
-	virtual void SaveReplay(const int Length);
+	virtual void SaveReplay(int Length);
 
 	virtual bool EditorHasUnsavedData() const { return m_pEditor->HasUnsavedData(); }
 
@@ -513,6 +521,7 @@ public:
 	virtual void GetSmoothTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount);
 
 	virtual SWarning *GetCurWarning();
+	virtual CChecksumData *ChecksumData() { return &m_Checksum.m_Data; }
 };
 
 #endif

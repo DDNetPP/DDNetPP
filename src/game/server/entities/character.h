@@ -216,7 +216,7 @@ public:
 
 	void FillAntibot(CAntibotCharacterData *pData);
 	void Pause(bool Pause);
-	bool Freeze(float Time);
+	bool Freeze(int Seconds);
 	bool Freeze();
 	bool UnFreeze();
 	void GiveAllWeapons();

@@ -305,6 +305,18 @@ int io_close(IOHANDLE io);
 int io_flush(IOHANDLE io);
 
 /*
+	Function: io_sync
+		Synchronize file changes to disk.
+
+	Parameters:
+		io - Handle to the file.
+
+	Returns:
+		Returns 0 on success.
+*/
+int io_sync(IOHANDLE io);
+
+/*
 	Function: io_error
 		Checks whether an error occurred during I/O with the file.
 
@@ -333,6 +345,12 @@ IOHANDLE io_stdout();
 		Returns an <IOHANDLE> to the standard error.
 */
 IOHANDLE io_stderr();
+
+/*
+	Function: io_current_exe
+		Returns an <IOHANDLE> to the current executable.
+*/
+IOHANDLE io_current_exe();
 
 typedef struct ASYNCIO ASYNCIO;
 
@@ -1860,14 +1878,14 @@ int str_utf8_to_skeleton(const char *str, int *buf, int buf_len);
 		Compares two strings for visual appearance.
 
 	Parameters:
-		a - String to compare.
-		b - String to compare.
+		str1 - String to compare.
+		str2 - String to compare.
 
 	Returns:
 		0 if the strings are confusable.
 		!=0 otherwise.
 */
-int str_utf8_comp_confusable(const char *a, const char *b);
+int str_utf8_comp_confusable(const char *str1, const char *str2);
 
 /*
 	Function: str_utf8_tolower
@@ -1965,13 +1983,13 @@ const char *str_utf8_skip_whitespaces(const char *str);
 		the string in-place.
 
 	Parameters:
-		str - Pointer to the string.
+		param - Pointer to the string.
 
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 		- The string is modified in-place.
 */
-void str_utf8_trim_right(char *str);
+void str_utf8_trim_right(char *param);
 
 /*
 	Function: str_utf8_rewind
@@ -2312,6 +2330,20 @@ int secure_rand_below(int below);
 		rgb - If NULL it will reset the console color to default, else it will transform the rgb color to a console color
 */
 void set_console_msg_color(const void *rgbvoid);
+
+/*
+	Function: os_version_str
+		Returns a human-readable version string of the operating system
+
+	Parameters:
+		version - Buffer to use for the output.
+		length - Length of the output buffer.
+
+	Returns:
+		0 - Success in getting the version.
+		1 - Failure in getting the version.
+*/
+int os_version_str(char *version, int length);
 
 #if defined(__cplusplus)
 }

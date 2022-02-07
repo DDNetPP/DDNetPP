@@ -100,25 +100,24 @@ void IGameController::DoActivityCheck()
 	}
 }
 
-float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos)
+float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int DDTeam)
 {
 	float Score = 0.0f;
 	CCharacter *pC = static_cast<CCharacter *>(GameServer()->m_World.FindFirst(CGameWorld::ENTTYPE_CHARACTER));
 	for(; pC; pC = (CCharacter *)pC->TypeNext())
 	{
-		// team mates are not as dangerous as enemies
-		float Scoremod = 1.0f;
-		if(pEval->m_FriendlyTeam != -1 && pC->GetPlayer()->GetTeam() == pEval->m_FriendlyTeam)
-			Scoremod = 0.5f;
+		// ignore players in other teams
+		if(GameServer()->GetDDRaceTeam(pC->GetPlayer()->GetCID()) != DDTeam)
+			continue;
 
 		float d = distance(Pos, pC->m_Pos);
-		Score += Scoremod * (d == 0 ? 1000000000.0f : 1.0f / d);
+		Score += d == 0 ? 1000000000.0f : 1.0f / d;
 	}
 
 	return Score;
 }
 
-void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
+void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type, int DDTeam)
 {
 	// j == 0: Find an empty slot, j == 1: Take any slot if no empty one found
 	for(int j = 0; j < 2 && !pEval->m_Got; j++)
@@ -154,7 +153,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 				P += Positions[Result];
 			}
 
-			float S = EvaluateSpawnPos(pEval, P);
+			float S = EvaluateSpawnPos(pEval, P, DDTeam);
 			if(!pEval->m_Got || (j == 0 && pEval->m_Score > S))
 			{
 				pEval->m_Got = true;
@@ -165,7 +164,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 	}
 }
 
-bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
+bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, int DDTeam)
 {
 	CSpawnEval Eval;
 
@@ -208,31 +207,31 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer)
 	{
 		if(pPlayer->m_IsInstaArena_gdm)
 		{
-			EvaluateSpawnType(&Eval, 1); //red (not bloody anymore)
+			EvaluateSpawnType(&Eval, 1, DDTeam); //red (not bloody anymore)
 		}
 		else if(pPlayer->m_IsInstaArena_idm)
 		{
-			EvaluateSpawnType(&Eval, 2); //blue
+			EvaluateSpawnType(&Eval, 2, DDTeam); //blue
 		}
 		else if(pPlayer->m_IsSurvivaling)
 		{
 			int Id = pPlayer->GetCID();
 			Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);
 			if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
-				EvaluateSpawnType(&Eval, 0); //default
+				EvaluateSpawnType(&Eval, 0, DDTeam); //default
 			else
 				Eval.m_Got = true;
 		}
 		else
 		{
-			EvaluateSpawnType(&Eval, 0); //default
+			EvaluateSpawnType(&Eval, 0, DDTeam); //default
 		}
 	}
 	else
 	{
-		EvaluateSpawnType(&Eval, 0); //default
-		EvaluateSpawnType(&Eval, 1); //red (bloody)
-		EvaluateSpawnType(&Eval, 2); //blue
+		EvaluateSpawnType(&Eval, 0, DDTeam); //default
+		EvaluateSpawnType(&Eval, 1, DDTeam); //red (bloody)
+		EvaluateSpawnType(&Eval, 2, DDTeam); //blue
 	}
 	//}
 	//}

@@ -1599,7 +1599,7 @@ bool CCharacter::DDPP_Respawn()
 {
 	vec2 SpawnPos;
 
-	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer))
+	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
 		return false;
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))

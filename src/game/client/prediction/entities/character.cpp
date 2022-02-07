@@ -37,12 +37,7 @@ bool CCharacter::IsGrounded()
 		return true;
 
 	int MoveRestrictionsBelow = Collision()->GetMoveRestrictions(m_Pos + vec2(0, m_ProximityRadius / 2 + 4), 0.0f);
-	if(MoveRestrictionsBelow & CANTMOVE_DOWN)
-	{
-		return true;
-	}
-
-	return false;
+	return (MoveRestrictionsBelow & CANTMOVE_DOWN) != 0;
 }
 
 void CCharacter::HandleJetpack()
@@ -184,8 +179,6 @@ void CCharacter::HandleNinja()
 
 		return;
 	}
-
-	return;
 }
 
 void CCharacter::DoWeaponSwitch()
@@ -485,8 +478,6 @@ void CCharacter::HandleWeapons()
 
 	// fire Weapon, if wanted
 	FireWeapon();
-
-	return;
 }
 
 void CCharacter::GiveNinja()
@@ -574,7 +565,6 @@ void CCharacter::Tick()
 
 	m_PrevPrevPos = m_PrevPos;
 	m_PrevPos = m_Core.m_Pos;
-	return;
 }
 
 void CCharacter::TickDefered()
@@ -761,9 +751,14 @@ void CCharacter::HandleTiles(int Index)
 	}
 	else if(Collision()->GetSwitchType(MapIndex) == TILE_JUMP)
 	{
-		int newJumps = Collision()->GetSwitchDelay(MapIndex);
-		if(newJumps != m_Core.m_Jumps)
-			m_Core.m_Jumps = newJumps;
+		int NewJumps = Collision()->GetSwitchDelay(MapIndex);
+		if(NewJumps == 255)
+		{
+			NewJumps = -1;
+		}
+
+		if(NewJumps != m_Core.m_Jumps)
+			m_Core.m_Jumps = NewJumps;
 	}
 	else if(Collision()->GetSwitchType(MapIndex) == TILE_LFREEZE && Team() != TEAM_SUPER)
 	{
@@ -955,7 +950,9 @@ void CCharacter::DDRacePostCoreTick()
 	if(m_DeepFreeze && !m_Super)
 		Freeze();
 
-	if(m_Core.m_Jumps == 0 && !m_Super)
+	if(m_Core.m_Jumps == -1 && !m_Super)
+		m_Core.m_Jumped |= 2;
+	else if(m_Core.m_Jumps == 0 && !m_Super)
 		m_Core.m_Jumped = 3;
 	else if(m_Core.m_Jumps == 1 && m_Core.m_Jumped > 0)
 		m_Core.m_Jumped = 3;
@@ -1316,9 +1313,7 @@ void CCharacter::SetCoreWorld(CGameWorld *pGameWorld)
 
 bool CCharacter::Match(CCharacter *pChar)
 {
-	if(distance(pChar->m_Core.m_Pos, m_Core.m_Pos) > 32.f)
-		return false;
-	return true;
+	return distance(pChar->m_Core.m_Pos, m_Core.m_Pos) <= 32.f;
 }
 
 void CCharacter::SetActiveWeapon(int ActiveWeap)

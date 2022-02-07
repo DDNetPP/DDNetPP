@@ -47,7 +47,6 @@ public: // TODO: Maybe make protected
 	/* Getters */
 	int GetID() const { return m_ID; }
 
-public:
 	/* Constructor */
 	CEntity(CGameWorld *pGameWorld, int Objtype, vec2 Pos = vec2(0, 0), int ProximityRadius = 0);
 
@@ -143,7 +142,7 @@ public:
 
 	// DDRace
 
-	bool GetNearestAirPos(vec2 Pos, vec2 ColPos, vec2 *pOutPos);
+	bool GetNearestAirPos(vec2 Pos, vec2 PrevPos, vec2 *pOutPos);
 	bool GetNearestAirPosPlayer(vec2 PlayerPos, vec2 *OutPos);
 
 	int m_Number;

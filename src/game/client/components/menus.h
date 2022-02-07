@@ -50,9 +50,10 @@ public:
 	bool m_TakeKey;
 	bool m_GotKey;
 	IInput::CEvent m_Key;
-	int m_Modifier;
+	int m_ModifierCombination;
 	CMenusKeyBinder();
-	virtual bool OnInput(IInput::CEvent Event);
+	virtual int Sizeof() const override { return sizeof(*this); }
+	virtual bool OnInput(IInput::CEvent Event) override;
 };
 
 class CMenus : public CComponent
@@ -87,14 +88,14 @@ class CMenus : public CComponent
 	int DoButton_CheckBox(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 	int DoButton_CheckBoxAutoVMarginAndSet(const void *pID, const char *pText, int *pValue, CUIRect *pRect, float VMargin);
 	int DoButton_CheckBox_Number(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
-	ColorHSLA DoLine_ColorPicker(int *pResetID, const float LineSize, const float WantedPickerPosition, const float LabelSize, const float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, const ColorRGBA DefaultColor, bool CheckBoxSpacing = true, bool UseCheckBox = false, int *pCheckBoxValue = NULL);
-	void DoLaserPreview(const CUIRect *pRect, const ColorHSLA OutlineColor, const ColorHSLA InnerColor);
+	ColorHSLA DoLine_ColorPicker(int *pResetID, float LineSize, float WantedPickerPosition, float LabelSize, float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, bool CheckBoxSpacing = true, bool UseCheckBox = false, int *pCheckBoxValue = NULL);
+	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor);
 	int DoValueSelector(void *pID, CUIRect *pRect, const char *pLabel, bool UseScroll, int Current, int Min, int Max, int Step, float Scale, bool IsHex, float Round, ColorRGBA *Color);
 	int DoButton_Icon(int ImageId, int SpriteId, const CUIRect *pRect);
 	int DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
 	void DoButton_KeySelect(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
-	int DoKeyReader(void *pID, const CUIRect *pRect, int Key, int Modifier, int *NewModifier);
+	int DoKeyReader(void *pID, const CUIRect *pRect, int Key, int ModifierCombination, int *NewModifierCombination);
 
 	void UiDoGetButtons(int Start, int Stop, CUIRect View, CUIRect ScopeView);
 
@@ -514,6 +515,7 @@ public:
 	static CMenusKeyBinder m_Binder;
 
 	CMenus();
+	virtual int Sizeof() const override { return sizeof(*this); }
 
 	void RenderLoading();
 	void RenderUpdating(const char *pCaption, int current = 0, int total = 0);
@@ -521,14 +523,14 @@ public:
 	bool IsActive() const { return m_MenuActive; }
 	void KillServer();
 
-	virtual void OnInit();
+	virtual void OnInit() override;
 
-	virtual void OnStateChange(int NewState, int OldState);
-	virtual void OnReset();
-	virtual void OnRender();
-	virtual bool OnInput(IInput::CEvent Event);
-	virtual bool OnMouseMove(float x, float y);
-	virtual void OnShutdown();
+	virtual void OnStateChange(int NewState, int OldState) override;
+	virtual void OnReset() override;
+	virtual void OnRender() override;
+	virtual bool OnInput(IInput::CEvent Event) override;
+	virtual bool OnMouseMove(float x, float y) override;
+	virtual void OnShutdown() override;
 
 	enum
 	{

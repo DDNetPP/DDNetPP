@@ -35,7 +35,7 @@ jobs:
             CXXFLAGS: -Werror
             GTEST_FILTER: -*SQLite*
         - os: windows-latest
-          cmake-args: -G "Visual Studio 16 2019" -A x64
+          cmake-args: -A x64
           package-file: DDNetPP-*-win64.zip
           fancy: false
           env:

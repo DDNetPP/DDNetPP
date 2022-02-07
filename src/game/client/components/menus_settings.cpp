@@ -38,7 +38,7 @@ CMenusKeyBinder::CMenusKeyBinder()
 {
 	m_TakeKey = false;
 	m_GotKey = false;
-	m_Modifier = 0;
+	m_ModifierCombination = 0;
 }
 
 bool CMenusKeyBinder::OnInput(IInput::CEvent Event)
@@ -52,15 +52,11 @@ bool CMenusKeyBinder::OnInput(IInput::CEvent Event)
 			m_GotKey = true;
 			m_TakeKey = false;
 
-			int Mask = CBinds::GetModifierMask(Input());
-			m_Modifier = 0;
-			while(!(Mask & 1))
+			m_ModifierCombination = CBinds::GetModifierMask(Input());
+			if(m_ModifierCombination == CBinds::GetModifierMaskOfKey(Event.m_Key))
 			{
-				Mask >>= 1;
-				m_Modifier++;
+				m_ModifierCombination = 0;
 			}
-			if(CBinds::ModifierMatchesKey(m_Modifier, Event.m_Key))
-				m_Modifier = 0;
 		}
 		return true;
 	}
@@ -267,7 +263,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		if(DoButton_Menu(&s_SettingsButtonID, Localize("Settings file"), 0, &SettingsButton))
 		{
 			char aBuf[IO_MAX_PATH_LENGTH];
-			Storage()->GetCompletePath(IStorage::TYPE_SAVE, "settings_ddnet.cfg", aBuf, sizeof(aBuf));
+			Storage()->GetCompletePath(IStorage::TYPE_SAVE, CONFIG_FILE, aBuf, sizeof(aBuf));
 			if(!open_file(aBuf))
 			{
 				dbg_msg("menus", "couldn't open file");
@@ -616,9 +612,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	if(*UseCustomColor)
 	{
 		CUIRect aRects[2];
-		Label.VSplitMid(&aRects[0], &aRects[1]);
-		aRects[0].VSplitRight(10.0f, &aRects[0], 0);
-		aRects[1].VSplitLeft(10.0f, 0, &aRects[1]);
+		Label.VSplitMid(&aRects[0], &aRects[1], 20.0f);
 
 		unsigned *paColors[2] = {ColorBody, ColorFeet};
 		const char *paParts[] = {Localize("Body"), Localize("Feet")};
@@ -792,7 +786,7 @@ typedef struct
 	CLocConstString m_Name;
 	const char *m_pCommand;
 	int m_KeyId;
-	int m_Modifier;
+	int m_ModifierCombination;
 } CKeyInfo;
 
 static CKeyInfo gs_aKeys[] =
@@ -876,14 +870,14 @@ void CMenus::UiDoGetButtons(int Start, int Stop, CUIRect View, CUIRect ScopeView
 			str_format(aBuf, sizeof(aBuf), "%s:", Localize((const char *)Key.m_Name));
 
 			UI()->DoLabelScaled(&Label, aBuf, 13.0f, TEXTALIGN_LEFT);
-			int OldId = Key.m_KeyId, OldModifier = Key.m_Modifier, NewModifier;
-			int NewId = DoKeyReader((void *)&gs_aKeys[i].m_Name, &Button, OldId, OldModifier, &NewModifier);
-			if(NewId != OldId || NewModifier != OldModifier)
+			int OldId = Key.m_KeyId, OldModifierCombination = Key.m_ModifierCombination, NewModifierCombination;
+			int NewId = DoKeyReader((void *)&Key.m_Name, &Button, OldId, OldModifierCombination, &NewModifierCombination);
+			if(NewId != OldId || NewModifierCombination != OldModifierCombination)
 			{
 				if(OldId != 0 || NewId == 0)
-					m_pClient->m_Binds.Bind(OldId, "", false, OldModifier);
+					m_pClient->m_Binds.Bind(OldId, "", false, OldModifierCombination);
 				if(NewId != 0)
-					m_pClient->m_Binds.Bind(NewId, gs_aKeys[i].m_pCommand, false, NewModifier);
+					m_pClient->m_Binds.Bind(NewId, gs_aKeys[i].m_pCommand, false, NewModifierCombination);
 			}
 		}
 
@@ -897,9 +891,9 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 
 	// this is kinda slow, but whatever
 	for(auto &Key : gs_aKeys)
-		Key.m_KeyId = Key.m_Modifier = 0;
+		Key.m_KeyId = Key.m_ModifierCombination = 0;
 
-	for(int Mod = 0; Mod < CBinds::MODIFIER_COUNT; Mod++)
+	for(int Mod = 0; Mod < CBinds::MODIFIER_COMBINATION_COUNT; Mod++)
 	{
 		for(int KeyId = 0; KeyId < KEY_LAST; KeyId++)
 		{
@@ -911,7 +905,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 				if(str_comp(pBind, Key.m_pCommand) == 0)
 				{
 					Key.m_KeyId = KeyId;
-					Key.m_Modifier = Mod;
+					Key.m_ModifierCombination = Mod;
 					break;
 				}
 		}
@@ -1172,27 +1166,29 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 
 	// switches
 	static float s_ScrollValueDrop = 0;
-	static const int s_NumWindowMode = 4;
+	const char *pWindowModes[] = {Localize("Windowed"), Localize("Windowed borderless"), Localize("Windowed fullscreen"), Localize("Desktop fullscreen"), Localize("Fullscreen")};
+	static const int s_NumWindowMode = sizeof(pWindowModes) / sizeof(pWindowModes[0]);
 	static int s_aWindowModeIDs[s_NumWindowMode];
 	const void *aWindowModeIDs[s_NumWindowMode];
 	for(int i = 0; i < s_NumWindowMode; ++i)
 		aWindowModeIDs[i] = &s_aWindowModeIDs[i];
 	static int s_WindowModeDropDownState = 0;
-	const char *pWindowModes[] = {Localize("Windowed"), Localize("Windowed borderless"), Localize("Desktop fullscreen"), Localize("Fullscreen")};
 
-	OldSelected = (g_Config.m_GfxFullscreen ? (g_Config.m_GfxFullscreen == 1 ? 3 : 2) : (g_Config.m_GfxBorderless ? 1 : 0));
+	OldSelected = (g_Config.m_GfxFullscreen ? (g_Config.m_GfxFullscreen == 1 ? 4 : (g_Config.m_GfxFullscreen == 2 ? 3 : 2)) : (g_Config.m_GfxBorderless ? 1 : 0));
 
 	const int NewWindowMode = RenderDropDown(s_WindowModeDropDownState, &MainView, OldSelected, aWindowModeIDs, pWindowModes, s_NumWindowMode, &s_NumWindowMode, s_ScrollValueDrop);
 	if(OldSelected != NewWindowMode)
 	{
 		if(NewWindowMode == 0)
-			Client()->SetWindowParams(0, false);
+			Client()->SetWindowParams(0, false, true);
 		else if(NewWindowMode == 1)
-			Client()->SetWindowParams(0, true);
+			Client()->SetWindowParams(0, true, true);
 		else if(NewWindowMode == 2)
-			Client()->SetWindowParams(2, false);
+			Client()->SetWindowParams(3, false, false);
 		else if(NewWindowMode == 3)
-			Client()->SetWindowParams(1, false);
+			Client()->SetWindowParams(2, false, true);
+		else if(NewWindowMode == 4)
+			Client()->SetWindowParams(1, false, true);
 	}
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
@@ -1287,14 +1283,11 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	// check if the new settings require a restart
 	if(CheckSettings)
 	{
-		if(s_GfxFsaaSamples == g_Config.m_GfxFsaaSamples &&
-			s_GfxOpenGLVersion == (int)IsNewOpenGL &&
-			s_GfxUsePreinitBuffer == g_Config.m_GfxUsePreinitBuffer &&
-			s_GfxEnableTextureUnitOptimization == g_Config.m_GfxEnableTextureUnitOptimization &&
-			s_GfxHighdpi == g_Config.m_GfxHighdpi)
-			m_NeedRestartGraphics = false;
-		else
-			m_NeedRestartGraphics = true;
+		m_NeedRestartGraphics = !(s_GfxFsaaSamples == g_Config.m_GfxFsaaSamples &&
+					  s_GfxOpenGLVersion == (int)IsNewOpenGL &&
+					  s_GfxUsePreinitBuffer == g_Config.m_GfxUsePreinitBuffer &&
+					  s_GfxEnableTextureUnitOptimization == g_Config.m_GfxEnableTextureUnitOptimization &&
+					  s_GfxHighdpi == g_Config.m_GfxHighdpi);
 	}
 
 	MainView.HSplitTop(20.0f, &Label, &MainView);
@@ -2071,7 +2064,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 		Section, SectionTwo;
 
 	MainView.HSplitTop(20, &TabLabel1, &MainView);
-	TabLabel1.VSplitLeft(TabLabel1.w / 2, &TabLabel1, &TabLabel2);
+	TabLabel1.VSplitMid(&TabLabel1, &TabLabel2);
 
 	static int s_aPageTabs[2] = {};
 
@@ -2172,7 +2165,7 @@ void CMenus::RenderSettingsHUD(CUIRect MainView)
 	else if(s_CurTab == 1)
 	{ // ***** CHAT TAB ***** //
 
-		MainView.VSplitLeft(MainView.w / 2, &MainView, &Column);
+		MainView.VSplitMid(&MainView, &Column);
 
 		if(DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClChatOld, Localize("Use old chat style"), &g_Config.m_ClChatOld, &MainView, LineMargin))
 			GameClient()->m_Chat.RebuildChat();
