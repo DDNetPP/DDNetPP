@@ -88,7 +88,7 @@ public:
 		const char *pDescription,
 		const char *pOwnedUntil,
 		CGameContext *pGameContext);
-
+	virtual ~CShopItem() {};
 	CGameContext *GameServer();
 
 	/*
@@ -237,6 +237,7 @@ class CShop
 
 public:
 	CShop(class CGameContext *pGameContext);
+	~CShop();
 
 	std::vector<CShopItem *> m_vItems;
 

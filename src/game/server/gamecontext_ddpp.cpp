@@ -20,8 +20,10 @@
 
 void CGameContext::ConstructDDPP()
 {
-	m_pAccounts = NULL;
-	m_pShop = NULL;
+	m_pShop = nullptr;
+	m_pLetters = nullptr;
+	m_pAccounts = nullptr;
+	m_Database = nullptr;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -51,6 +53,25 @@ void CGameContext::ConstructDDPP()
 	mem_zero(m_ClientLeftServer, sizeof(m_ClientLeftServer));
 }
 
+void CGameContext::DestructDDPP()
+{
+	if(m_pShop)
+	{
+		delete m_pShop;
+		m_pShop = nullptr;
+	}
+	if(m_pLetters)
+	{
+		delete m_pLetters;
+		m_pLetters = nullptr;
+	}
+	if(m_pAccounts)
+	{
+		delete m_pAccounts;
+		m_pAccounts = nullptr;
+	}
+}
+
 void CGameContext::LoadMapLive(const char *pMapName)
 {
 	int LoadMap = Server()->LoadMapLive(pMapName);
@@ -61,17 +82,20 @@ void CGameContext::LoadMapLive(const char *pMapName)
 
 void CGameContext::OnInitDDPP()
 {
-	m_Database->CreateDatabase();
 	if(!m_pAccounts)
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
+	if(!m_Database)
+		m_Database = new CSql();
+	if(!m_pLetters)
+		m_pLetters = new CLetters(this);
+	m_Database->CreateDatabase();
 	// m_pAccounts->CreateDatabase();
 	LoadSinglePlayer();
-
-	// by fokkonaut from F-DDrace
-	Collision()->m_vTiles.clear();
-	Collision()->m_vTiles.resize(NUM_INDICES);
+	//dummy_init
+	if(g_Config.m_SvBasicDummys)
+		CreateBasicDummys();
 }
 
 void CGameContext::OnClientEnterDDPP(int ClientID)

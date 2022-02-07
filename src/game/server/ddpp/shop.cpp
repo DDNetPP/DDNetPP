@@ -543,6 +543,12 @@ CShop::CShop(CGameContext *pGameContext)
 	OnInit();
 }
 
+CShop::~CShop()
+{
+	for(auto &Item : m_vItems)
+		delete Item;
+}
+
 void CShop::ShowShopMotdCompressed(int ClientID)
 {
 	char aBuf[2048];

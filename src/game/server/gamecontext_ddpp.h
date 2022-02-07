@@ -564,6 +564,7 @@ public:
 	std::vector<CBlockDMA2> m_BlockDMA2;
 
 	void InitDDPPScore(int ClientID);
+	void DestructDDPP();
 
 private:
 	bool InitTileDDPP(int Index, int x, int y);

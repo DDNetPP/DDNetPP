@@ -61,8 +61,6 @@ void CGameContext::Construct(int Resetting)
 	m_NumVoteOptions = 0;
 	m_LastMapVote = 0;
 
-	m_Database = new CSql();
-	m_pLetters = new CLetters(this);
 	m_SqlRandomMapResult = nullptr;
 
 	m_pScore = nullptr;
@@ -75,6 +73,8 @@ void CGameContext::Construct(int Resetting)
 	m_ChatResponseTargetID = -1;
 	m_aDeleteTempfile[0] = 0;
 	m_TeeHistorianActive = false;
+
+	ConstructDDPP();
 }
 
 void CGameContext::Destruct(int Resetting)
@@ -90,12 +90,13 @@ void CGameContext::Destruct(int Resetting)
 		delete m_pScore;
 		m_pScore = nullptr;
 	}
+
+	DestructDDPP();
 }
 
 CGameContext::CGameContext()
 {
 	Construct(NO_RESET);
-	ConstructDDPP();
 }
 
 CGameContext::CGameContext(int Reset)
@@ -3288,7 +3289,6 @@ void CGameContext::OnConsoleInit()
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
-	OnInitDDPP();
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -3528,6 +3528,10 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	int ShopTiles = 0;
 
+	// by fokkonaut from F-DDrace
+	Collision()->m_vTiles.clear();
+	Collision()->m_vTiles.resize(NUM_INDICES);
+
 	for(int y = 0; y < pTileMap->m_Height; y++)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
@@ -3632,12 +3636,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	//game.world.insert_entity(game.Controller);
 
-	//ChillerDragon
-	//dummy_init
-	if(g_Config.m_SvBasicDummys)
-		CreateBasicDummys();
 	if(GIT_SHORTREV_HASH)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "git-revision", GIT_SHORTREV_HASH);
+	OnInitDDPP();
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
