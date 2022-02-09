@@ -269,6 +269,7 @@ void CSql::CreateDatabase()
 
 CSql::~CSql()
 {
+	dbg_msg("ddnet++", "legacy account system shutting down ...");
 	m_Running = false;
 	lock_wait(m_Lock);
 	while(m_lpQueries.size())

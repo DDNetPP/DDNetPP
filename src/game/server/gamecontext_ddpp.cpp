@@ -71,6 +71,11 @@ void CGameContext::DestructDDPP()
 		delete m_pAccounts;
 		m_pAccounts = nullptr;
 	}
+	if(m_Database)
+	{
+		delete m_Database;
+		m_Database = nullptr;
+	}
 }
 
 void CGameContext::LoadMapLive(const char *pMapName)
