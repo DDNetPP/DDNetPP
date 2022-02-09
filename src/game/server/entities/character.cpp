@@ -42,13 +42,16 @@ CCharacter::CCharacter(CGameWorld *pWorld) :
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
 	//}
 
-	m_pDummyBlmapChillPolice = 0;
+	m_pDummyBlmapChillPolice = nullptr;
 }
 
 CCharacter::~CCharacter()
 {
 	if(m_pDummyBlmapChillPolice)
+	{
 		delete m_pDummyBlmapChillPolice;
+		m_pDummyBlmapChillPolice = nullptr;
+	}
 	m_StrongWeakID = 0;
 
 	// never intilize both to zero
@@ -103,7 +106,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
-	m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
 	GameServer()->m_pController->OnCharacterSpawn(this);
 
 	DDRaceInit();
