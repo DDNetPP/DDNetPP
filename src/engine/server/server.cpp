@@ -589,6 +589,16 @@ int CServer::GetClientInfo(int ClientID, CClientInfo *pInfo) const
 		}
 		return 1;
 	}
+	else if(m_aClients[ClientID].m_State == CClient::STATE_BOT)
+	{
+		pInfo->m_pName = m_aClients[ClientID].m_aName;
+		pInfo->m_Latency = 999;
+		pInfo->m_GotDDNetVersion = false;
+		pInfo->m_DDNetVersion = VERSION_VANILLA;
+		pInfo->m_pConnectionID = 0;
+		pInfo->m_pDDNetVersionStr = 0;
+		return 1;
+	}
 	return 0;
 }
 
