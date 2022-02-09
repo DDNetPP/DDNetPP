@@ -290,7 +290,6 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 	{
 		ev->m_X = (int)Pos.x;
 		ev->m_Y = (int)Pos.y;
-		//SendChatTarget(SpamProtectionClientID, "Spauuuuuuuuuuuuuuuuun!");
 	}
 }
 
@@ -346,20 +345,9 @@ void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, c
 		return;
 
 	int64_t Now = Server()->Tick();
-	if(ClientID == -1) //Server vote
-	{
-		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg);
-		if(!pSixupDesc)
-			pSixupDesc = pDesc;
-
-		StartVote(pDesc, pCmd, pReason, pSixupDesc);
-		m_VoteCreator = ClientID;
-		return;
-	}
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 	if(!pPlayer)
 		return;
-
 	SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
 	if(!pSixupDesc)
 		pSixupDesc = pDesc;
@@ -3580,6 +3568,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			if(Index >= ENTITY_OFFSET)
 			{
 				vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
+				//m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
 				m_pController->OnEntity(Index - ENTITY_OFFSET, Pos, LAYER_GAME, pTiles[y * pTileMap->m_Width + x].m_Flags);
 			}
 
@@ -4238,6 +4227,9 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 
 void CGameContext::WhisperID(int ClientID, int VictimID, const char *pMessage)
 {
+	if(!CheckClientID2(ClientID))
+		return;
+
 	if(!CheckClientID2(VictimID))
 		return;
 

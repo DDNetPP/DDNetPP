@@ -2604,5 +2604,16 @@ void CGameContext::CallVetoVote(int ClientID, const char *pDesc, const char *pCm
 		return;
 
 	m_IsDDPPVetoVote = true;
-	CallVote(ClientID, pDesc, pCmd, pReason, pChatmsg, pSixupDesc);
+	if(ClientID == -1) //Server vote
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg);
+		if(!pSixupDesc)
+			pSixupDesc = pDesc;
+
+		StartVote(pDesc, pCmd, pReason, pSixupDesc);
+		m_VoteCreator = ClientID;
+		return;
+	}
+	else
+		CallVote(ClientID, pDesc, pCmd, pReason, pChatmsg, pSixupDesc);
 }
