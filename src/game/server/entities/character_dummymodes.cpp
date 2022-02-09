@@ -30,6 +30,10 @@ void CCharacter::DummyTick()
 {
 	if(m_pPlayer->m_IsDummy)
 	{
+		m_Input.m_TargetX = 200;
+		m_Input.m_TargetY = 200;
+		m_LatestInput.m_TargetX = 200;
+		m_LatestInput.m_TargetY = 200;
 		if((m_pPlayer->m_rainbow_offer != m_pPlayer->m_DummyRainbowOfferAmount) && !m_Rainbow)
 		{
 			m_Rainbow = true;
