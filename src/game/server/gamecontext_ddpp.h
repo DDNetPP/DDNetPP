@@ -400,6 +400,13 @@ public:
 	void VotedNo(CCharacter *pChr);
 	bool AbortTeamChange(int ClientID, CPlayer *pPlayer);
 	bool AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr);
+	/*
+		CallVetoVote
+
+		Veto votes only pass if nobody voted agianst it
+		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
+	*/
+	void CallVetoVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
 
 	//Chiller
 	//ChillerDragihn!

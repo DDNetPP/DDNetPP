@@ -1233,7 +1233,7 @@ void CGameContext::CheckDDPPshutdown()
 			if(players < g_Config.m_SvDDPPshutdownPlayers)
 			{
 				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
-				CallVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0, true);
+				CallVetoVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0);
 			}
 			else
 			{
@@ -2595,4 +2595,14 @@ void CGameContext::GetSpreeType(int ClientID, char *pBuf, size_t BufSize, bool I
 		}
 		str_copy(pBuf, "blocking", BufSize);
 	}
+}
+
+void CGameContext::CallVetoVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc)
+{
+	// check if a vote is already running
+	if(m_VoteCloseTime)
+		return;
+
+	m_IsDDPPVetoVote = true;
+	CallVote(ClientID, pDesc, pCmd, pReason, pChatmsg, pSixupDesc);
 }

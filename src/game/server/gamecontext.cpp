@@ -339,13 +339,11 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 	}
 }
 
-void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc, bool IsDDPPVetoVote)
+void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc)
 {
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
-
-	m_IsDDPPVetoVote = IsDDPPVetoVote; // Veto votes only pass if nobody voted agianst it (vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 
 	int64_t Now = Server()->Tick();
 	if(ClientID == -1) //Server vote
@@ -650,6 +648,7 @@ void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char
 
 void CGameContext::EndVote()
 {
+	m_IsDDPPVetoVote = false;
 	m_VoteCloseTime = 0;
 	SendVoteSet(-1);
 }
