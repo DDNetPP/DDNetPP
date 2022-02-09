@@ -292,4 +292,5 @@ CSql::~CSql()
 
 	lock_unlock(m_CallbackLock);
 	lock_destroy(m_CallbackLock);
+	sqlite3_close(m_pDB);
 }
