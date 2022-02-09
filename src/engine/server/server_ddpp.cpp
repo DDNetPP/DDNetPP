@@ -262,9 +262,27 @@ void CServer::BotJoin(int BotID)
 		"63",
 		"64"};
 
+	m_aClients[BotID].m_State = CClient::STATE_PREAUTH;
+	m_aClients[BotID].m_DnsblState = CClient::DNSBL_STATE_NONE;
+	m_aClients[BotID].m_aName[0] = 0;
+	m_aClients[BotID].m_aClan[0] = 0;
+	m_aClients[BotID].m_Country = -1;
+	m_aClients[BotID].m_Authed = AUTHED_NO;
+	m_aClients[BotID].m_AuthKey = -1;
+	m_aClients[BotID].m_AuthTries = 0;
+	m_aClients[BotID].m_pRconCmdToSend = 0;
+	m_aClients[BotID].m_Traffic = 0;
+	m_aClients[BotID].m_TrafficSince = 0;
+	m_aClients[BotID].m_ShowIps = false;
+	m_aClients[BotID].m_DDNetVersion = VERSION_NONE;
+	m_aClients[BotID].m_GotDDNetVersionPacket = false;
+	m_aClients[BotID].m_DDNetVersionSettled = false;
+	memset(&m_aClients[BotID].m_Addr, 0, sizeof(NETADDR));
+	m_aClients[BotID].Reset();
+	m_aClients[BotID].m_Sixup = false;
+
 	m_NetServer.BotInit(BotID);
 	m_aClients[BotID].m_State = CClient::STATE_BOT;
-	m_aClients[BotID].m_Authed = AUTHED_NO;
 
 	str_copy(m_aClients[BotID].m_aName, pNames[BotID], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
 	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten

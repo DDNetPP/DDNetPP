@@ -2344,17 +2344,15 @@ void CGameContext::CreateBasicDummys()
 int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 {
 	int DummyID = GetNextClientID();
-	if(DummyID < 0)
+	if(DummyID < 0 || DummyID >= MAX_CLIENTS)
 	{
 		dbg_msg("dummy", "Can't get ClientID. Server is full or something like that.");
 		return -1;
 	}
-
 	if(m_apPlayers[DummyID])
 	{
-		m_pController->OnPlayerDisconnect(m_apPlayers[DummyID], "");
-		delete m_apPlayers[DummyID];
-		m_apPlayers[DummyID] = 0;
+		dbg_msg("dummy", "Can't create dummy. ID occopied already");
+		return -1;
 	}
 
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED, true);

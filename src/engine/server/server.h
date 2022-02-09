@@ -197,7 +197,6 @@ public:
 
 		// DDNet++
 		bool m_IsClientDummy; //ddnet++ hide dummy in master
-		void RunDDPP();
 
 		// DNSBL
 		int m_DnsblState;
