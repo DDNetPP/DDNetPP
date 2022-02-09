@@ -1325,7 +1325,11 @@ void CGameContext::ProgressVoteOptions(int ClientID)
 
 void CGameContext::OnClientEnter(int ClientID, bool Silent)
 {
-	m_pController->OnPlayerConnect(m_apPlayers[ClientID], Silent);
+	if(m_TeeHistorianActive)
+	{
+		m_TeeHistorian.RecordPlayerReady(ClientID);
+	}
+	m_pController->OnPlayerConnect(m_apPlayers[ClientID]);
 	OnClientEnterDDPP(ClientID);
 
 	if(Server()->IsSixup(ClientID))
