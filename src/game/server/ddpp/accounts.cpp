@@ -10,6 +10,8 @@ CAdminCommandResult::CAdminCommandResult()
 	SetVariant(Variant::DIRECT, NULL);
 }
 
+// TODO: remove SetVariant and use constructor instead.
+//       we are not doing any union magic in the CAdminCommandResult
 void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *pRequest)
 {
 	if(pRequest)
@@ -34,6 +36,9 @@ void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *p
 	switch(v)
 	{
 	case FREEZE_ACC:
+	case MODERATOR:
+	case SUPER_MODERATOR:
+	case SUPPORTER:
 	case DIRECT:
 	case ALL:
 		for(auto &aMessage : m_aaMessages)

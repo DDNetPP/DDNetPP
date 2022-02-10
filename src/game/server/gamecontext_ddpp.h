@@ -180,7 +180,6 @@ public:
 	float m_FNN_best_fitness;
 	float m_FNN_best_distance_finish;
 	void LoadFNNvalues();
-	void SQLPortLogout(int port);
 
 	void DDPP_Tick();
 	void DDPP_SlowTick();

@@ -573,11 +573,6 @@ void CGameContext::LoadFNNvalues()
 	}
 }
 
-void CGameContext::SQLPortLogout(int port)
-{
-	ExecuteSQLf("UPDATE `Accounts` SET `IsLoggedIn` = '%i' WHERE `LastLoginPort` = '%i'", 0, g_Config.m_SvPort);
-}
-
 bool CGameContext::IsPosition(int playerID, int pos)
 {
 #if defined(CONF_DEBUG)

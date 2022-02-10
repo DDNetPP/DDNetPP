@@ -206,9 +206,78 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				}
 			}
 			GameServer()->SendChatTarget(m_ClientID, aBuf);
-			[[fallthrough]];
+			break;
 		}
-		case CAccountResult::DIRECT:
+		case CAdminCommandResult::MODERATOR:
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is not logged in)", Result.m_State);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(!GameServer()->m_apPlayers[i])
+					continue;
+
+				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				{
+					GameServer()->m_apPlayers[i]->m_Account.m_IsModerator = Result.m_State;
+					if(Result.m_State == 1)
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
+					else
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer VIP.");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
+					break;
+				}
+			}
+			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			break;
+		}
+		case CAdminCommandResult::SUPER_MODERATOR:
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", Result.m_State);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(!GameServer()->m_apPlayers[i])
+					continue;
+
+				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				{
+					GameServer()->m_apPlayers[i]->m_Account.m_IsSuperModerator = Result.m_State;
+					if(Result.m_State == 1)
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now VIP+.");
+					else
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+.");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
+					break;
+				}
+			}
+			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			break;
+		}
+		case CAdminCommandResult::SUPPORTER:
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is not logged in)", Result.m_State);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(!GameServer()->m_apPlayers[i])
+					continue;
+
+				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				{
+					GameServer()->m_apPlayers[i]->m_Account.m_IsSupporter = Result.m_State;
+					if(Result.m_State == 1)
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
+					else
+						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer Supporter.");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
+					break;
+				}
+			}
+			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			break;
+		}
+		case CAdminCommandResult::DIRECT:
 			for(auto &aMessage : Result.m_aaMessages)
 			{
 				if(aMessage[0] == 0)
@@ -216,7 +285,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				GameServer()->SendChatTarget(m_ClientID, aMessage);
 			}
 			break;
-		case CAccountResult::ALL:
+		case CAdminCommandResult::ALL:
 		{
 			bool PrimaryMessage = true;
 			for(auto &aMessage : Result.m_aaMessages)

@@ -271,6 +271,9 @@ struct CAdminCommandResult : ISqlResult
 		ALL,
 		BROADCAST,
 		FREEZE_ACC,
+		MODERATOR,
+		SUPER_MODERATOR,
+		SUPPORTER,
 		LOG_ONLY,
 	} m_MessageKind;
 

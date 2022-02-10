@@ -945,31 +945,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		pSelf->ExecuteSQLf("UPDATE Accounts SET IsSupporter='%d' WHERE ID='%d'", value, SQL_ID);
-
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i])
-			{
-				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
-				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsSupporter = value;
-					if(value == 1)
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
-					}
-					else
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer Supporter.");
-					}
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", value);
-					pSelf->SendChatTarget(ClientID, aBuf);
-					return;
-				}
-			}
-		}
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, CAdminCommandResult::SUPPORTER, "UPDATE Accounts SET IsSupporter = ? WHERE ID = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "super_mod"))
 	{
@@ -981,31 +957,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		pSelf->ExecuteSQLf("UPDATE Accounts SET IsSuperModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i])
-			{
-				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
-				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsSuperModerator = value;
-					if(value == 1)
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+.");
-					}
-					else
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+.");
-					}
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
-					pSelf->SendChatTarget(ClientID, aBuf);
-					return;
-				}
-			}
-		}
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, CAdminCommandResult::SUPER_MODERATOR, "UPDATE Accounts SET IsSuperModerator = ? WHERE ID = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "mod"))
 	{
@@ -1017,31 +969,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		pSelf->ExecuteSQLf("UPDATE Accounts SET IsModerator='%d' WHERE ID='%d'", value, SQL_ID);
-
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i])
-			{
-				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
-				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsModerator = value;
-					if(value == 1)
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
-					}
-					else
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP.");
-					}
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is logged in)", value);
-					pSelf->SendChatTarget(ClientID, aBuf);
-					return;
-				}
-			}
-		}
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, CAdminCommandResult::MODERATOR, "UPDATE Accounts SET IsModerator = ? WHERE ID = ?;");
 	}
 	else if(!str_comp_nocase(aCommand, "freeze_acc"))
 	{
