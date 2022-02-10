@@ -408,7 +408,6 @@ class CAccounts
 	CGameContext *m_pGameServer;
 	IServer *m_pServer;
 
-
 	// per player queries user
 	static bool LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);

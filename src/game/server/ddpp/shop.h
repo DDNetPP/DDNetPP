@@ -88,7 +88,7 @@ public:
 		const char *pDescription,
 		const char *pOwnedUntil,
 		CGameContext *pGameContext);
-	virtual ~CShopItem() {};
+	virtual ~CShopItem(){};
 	CGameContext *GameServer();
 
 	/*
