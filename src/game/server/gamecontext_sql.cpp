@@ -47,7 +47,6 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 
 		related issue https://github.com/DDNetPP/DDNetPP/issues/279
 	*/
-	static const int MAX_SQL_ID_LENGTH = 8;
 	char aBuf[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
 	bool IsLoggedIns = false;
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -77,7 +76,8 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 		aBuf[strlen(aBuf) - 1] = '\0'; // chop of the last comma
 		str_append(aBuf, ")", sizeof(aBuf));
 	}
-	ExecuteSQLvf(ClientID, aBuf);
+	dbg_msg("accounts", "clean broken accounts: %s", aBuf);
+	m_pAccounts->CleanZombieAccounts(ClientID, g_Config.m_SvPort, aBuf);
 }
 
 void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword)

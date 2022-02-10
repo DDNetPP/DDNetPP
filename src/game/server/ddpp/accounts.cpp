@@ -440,6 +440,40 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	return false;
 }
 
+void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
+{
+	auto Tmp = std::unique_ptr<CSqlCleanZombieAccountsData>(new CSqlCleanZombieAccountsData());
+	Tmp->m_ClientID = ClientID;
+	Tmp->m_Port = Port;
+	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
+
+	m_pPool->ExecuteWrite(CleanZombieAccountsThread, std::move(Tmp), "clean zombies");
+}
+
+bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+{
+	const CSqlCleanZombieAccountsData *pData = dynamic_cast<const CSqlCleanZombieAccountsData *>(pGameData);
+
+	// char aBuf[512];
+	// str_copy(aBuf,
+	// 	"UPDATE Accounts SET IsLoggedIn = 0, LastLoginPort = ?;",
+	// 	sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
+	{
+		return true;
+	}
+	pSqlServer->BindInt(1, pData->m_Port);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_assert(false, "CleanZombieAccountsThread did not step");
+		return true;
+	}
+	return !End;
+}
+
 void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
 {
 	auto Tmp = std::unique_ptr<CSqlSetLoginData>(new CSqlSetLoginData());

@@ -20,6 +20,7 @@ class IServer;
 class CGameContext;
 
 #define MAX_ASCII_FRAMES 16
+#define MAX_SQL_ID_LENGTH 8
 
 /*
 	CAccountData
@@ -308,6 +309,18 @@ struct CSqlSetLoginData : ISqlData
 	int m_Port;
 };
 
+struct CSqlCleanZombieAccountsData : ISqlData
+{
+	CSqlCleanZombieAccountsData() :
+		ISqlData(nullptr)
+	{
+	}
+
+	char m_aQuery[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
+	int m_ClientID;
+	int m_Port;
+};
+
 struct CSqlCreateTableRequest : ISqlData
 {
 	CSqlCreateTableRequest() :
@@ -343,6 +356,7 @@ class CAccounts
 
 	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
+	static bool CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
 	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientID);
@@ -376,6 +390,7 @@ public:
 
 	void CreateDatabase();
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
+	void CleanZombieAccounts(int ClientID, int Port, const char *pQuery);
 };
 
 #endif
