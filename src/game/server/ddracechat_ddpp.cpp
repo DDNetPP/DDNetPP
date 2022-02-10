@@ -1053,7 +1053,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, "UPDATE Accounts SET IsAccFrozen = ? WHERE ID = ?;");
+		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, CAdminCommandResult::FREEZE_ACC, "UPDATE Accounts SET IsAccFrozen = ? WHERE ID = ?;");
 	}
 	else
 	{

@@ -281,6 +281,7 @@ struct CAdminCommandResult : ISqlResult
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
+	Variant m_Type;
 
 	void SetVariant(Variant v, const struct CSqlAdminCommandRequest *pRequest);
 };
@@ -339,6 +340,7 @@ struct CSqlAdminCommandRequest : ISqlData
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
+	CAdminCommandResult::Variant m_Type;
 };
 
 struct CSqlSetLoginData : ISqlData
@@ -438,6 +440,7 @@ class CAccounts
 		int AdminClientID,
 		int TargetAccountID,
 		int State,
+		CAdminCommandResult::Variant Type,
 		const char *pUsername,
 		const char *pPassword,
 		const char *pQuery);
@@ -461,7 +464,7 @@ public:
 	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
 	void AdminSetPassword(int ClientID, const char *pUsername, const char *pPassword);
 
-	void UpdateAccountState(int AdminClientID, int TargetAccountID, int State, const char *pQuery);
+	void UpdateAccountState(int AdminClientID, int TargetAccountID, int State, CAdminCommandResult::Variant Type, const char *pQuery);
 
 	void CreateDatabase();
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);

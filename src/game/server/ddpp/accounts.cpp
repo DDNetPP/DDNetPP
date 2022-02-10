@@ -17,6 +17,7 @@ void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *p
 		m_AdminClientID = pRequest->m_AdminClientID;
 		m_TargetAccountID = pRequest->m_TargetAccountID;
 		m_State = pRequest->m_State;
+		m_Type = pRequest->m_Type;
 		str_copy(m_aUsername, pRequest->m_aUsername, sizeof(m_aUsername));
 		str_copy(m_aPassword, pRequest->m_aPassword, sizeof(m_aPassword));
 	}
@@ -25,6 +26,7 @@ void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *p
 		m_AdminClientID = -1;
 		m_TargetAccountID = -1;
 		m_State = -1;
+		m_Type = DIRECT;
 		m_aUsername[0] = '\0';
 		m_aPassword[0] = '\0';
 	}
@@ -97,6 +99,7 @@ void CAccounts::ExecAdminThread(
 	int AdminClientID,
 	int TargetAccountID,
 	int State,
+	CAdminCommandResult::Variant Type,
 	const char *pUsername,
 	const char *pPassword,
 	const char *pQuery)
@@ -108,6 +111,7 @@ void CAccounts::ExecAdminThread(
 	Tmp->m_AdminClientID = AdminClientID;
 	Tmp->m_TargetAccountID = TargetAccountID;
 	Tmp->m_State = State;
+	Tmp->m_Type = Type;
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
@@ -468,16 +472,16 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	return false;
 }
 
-void CAccounts::UpdateAccountState(int AdminClientID, int TargetAccountID, int State, const char *pQuery)
+void CAccounts::UpdateAccountState(int AdminClientID, int TargetAccountID, int State, CAdminCommandResult::Variant Type, const char *pQuery)
 {
-	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientID, TargetAccountID, State, "", "", pQuery);
+	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientID, TargetAccountID, State, Type, "", "", pQuery);
 }
 
 bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
 {
 	const CSqlAdminCommandRequest *pData = dynamic_cast<const CSqlAdminCommandRequest *>(pGameData);
 	CAdminCommandResult *pResult = dynamic_cast<CAdminCommandResult *>(pGameData->m_pResult.get());
-	pResult->SetVariant(CAdminCommandResult::FREEZE_ACC, pData);
+	pResult->SetVariant(pData->m_Type, pData);
 
 	// char aBuf[2048];
 	// str_copy(aBuf,
