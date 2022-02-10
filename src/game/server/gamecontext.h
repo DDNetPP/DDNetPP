@@ -13,7 +13,8 @@
 
 #include <base/tl/array.h>
 #include <base/tl/string.h>
-#include <game/server/letters.h>
+
+#include <game/server/ddpp/letters.h>
 
 #include "eventhandler.h"
 //#include "gamecontroller.h"

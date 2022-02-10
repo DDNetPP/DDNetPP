@@ -2122,6 +2122,8 @@ if(SERVER)
     captcha.h
     ddpp/accounts.cpp
     ddpp/accounts.h
+    ddpp/letters.cpp
+    ddpp/letters.h
     ddpp/shop.cpp
     ddpp/shop.h
     ddracechat.cpp
@@ -2201,8 +2203,6 @@ if(SERVER)
     gameworld.h
     gameworld_ddpp.cpp
     gameworld_ddpp.h
-    letters.cpp
-    letters.h
     player.cpp
     player.h
     player_ddpp.cpp

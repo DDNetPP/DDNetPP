@@ -1,7 +1,7 @@
 #ifndef GAME_SERVER_LETTERS_H
 #define GAME_SERVER_LETTERS_H
 
-#include "gamecontext.h"
+#include "../gamecontext.h"
 
 #define ASCII_TABLE_SIZE 256
 #define ASCII_BUF_LENGTH 6
