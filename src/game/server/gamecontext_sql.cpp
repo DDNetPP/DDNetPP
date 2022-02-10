@@ -59,7 +59,7 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 			break;
 		}
 	}
-	str_format(aBuf, sizeof(aBuf), "UPDATE Accounts SET IsLoggedIn = 0 WHERE LastLoginPort = '%i' ", g_Config.m_SvPort);
+	str_copy(aBuf, "UPDATE Accounts SET IsLoggedIn = 0 WHERE LastLoginPort = ? ", sizeof(aBuf));
 	if(IsLoggedIns)
 	{
 		str_append(aBuf, " AND ID NOT IN (", sizeof(aBuf));
