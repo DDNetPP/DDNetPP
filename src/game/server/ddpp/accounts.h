@@ -363,6 +363,7 @@ class CAccounts
 	static bool RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 	static bool ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
+	static bool AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 
 	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
@@ -398,6 +399,7 @@ public:
 	void Login(int ClientID, const char *pUsername, const char *pPassword);
 	void Register(int ClientID, const char *pUsername, const char *pPassword);
 	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
+	void AdminSetPassword(int ClientID, const char *pUsername, const char *pPassword);
 
 	void CreateDatabase();
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);

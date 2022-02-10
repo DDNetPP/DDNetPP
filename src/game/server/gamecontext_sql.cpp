@@ -18,27 +18,6 @@ void CQuerySQLstatus::OnData()
 		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
 }
 
-void CQuerySetPassword::OnData()
-{
-	if(Next())
-	{
-		//send acc infos on found
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[SQL] Updated '%s's password to [ %s ]", m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName, m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword);
-		m_pGameServer->SendChatTarget(m_ClientID, aBuf);
-
-		//do the actual sql update
-		char *pQueryBuf = sqlite3_mprintf("UPDATE Accounts SET Password='%q' WHERE Username='%q'", m_pGameServer->m_apPlayers[m_ClientID]->m_aSetPassword, m_pGameServer->m_apPlayers[m_ClientID]->m_aSQLNameName);
-		CQuery *pQuery = new CQuery();
-		pQuery->Query(m_pDatabase, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-	}
-	else
-	{
-		m_pGameServer->SendChatTarget(m_ClientID, "[ACCOUNT] Invalid account.");
-	}
-}
-
 void CGameContext::SQLcleanZombieAccounts(int ClientID)
 {
 	/*
@@ -78,19 +57,6 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 	}
 	dbg_msg("accounts", "clean broken accounts: %s", aBuf);
 	m_pAccounts->CleanZombieAccounts(ClientID, g_Config.m_SvPort, aBuf);
-}
-
-void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword)
-{
-	if(mode == SQL_SET_PASSWORD)
-	{
-		char *pQueryBuf = sqlite3_mprintf("SELECT * FROM Accounts WHERE Username='%q'", pUsername);
-		CQuerySetPassword *pQuery = new CQuerySetPassword();
-		pQuery->m_ClientID = ClientID;
-		pQuery->m_pGameServer = this;
-		pQuery->Query(m_Database, pQueryBuf);
-		sqlite3_free(pQueryBuf);
-	}
 }
 
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)

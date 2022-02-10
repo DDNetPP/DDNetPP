@@ -9,14 +9,6 @@ public:
 	CGameContext *m_pGameServer;
 };
 
-// TODO: remove
-class CQuerySetPassword : public CQueryPlayer
-{
-	void OnData();
-
-public:
-};
-
 class CQuerySQLstatus : public CQueryPlayer
 {
 	void OnData();

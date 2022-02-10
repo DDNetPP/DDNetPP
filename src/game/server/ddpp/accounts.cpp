@@ -395,6 +395,72 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	return false;
 }
 
+void CAccounts::AdminSetPassword(int ClientID, const char *pUsername, const char *pPassword)
+{
+	ExecUserThread(AdminSetPasswordThread, "admin set password", ClientID, pUsername, pPassword, "", NULL);
+}
+
+bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAccountRequest *pData = dynamic_cast<const CSqlAccountRequest *>(pGameData);
+	CAccountResult *pResult = dynamic_cast<CAccountResult *>(pGameData->m_pResult.get());
+	pResult->SetVariant(CAccountResult::DIRECT);
+
+	char aBuf[2048];
+	str_copy(aBuf,
+		"SELECT ID FROM Accounts WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		return true;
+
+	pSqlServer->BindString(1, pData->m_aUsername);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+		return true;
+
+	if(End)
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"[SQL] Username not found.",
+			sizeof(pResult->m_aaMessages[0]));
+	}
+	else
+	{
+		str_copy(aBuf,
+			"UPDATE Accounts SET "
+			"	Password = ?"
+			"	WHERE Username = ?;",
+			sizeof(aBuf));
+
+		if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+		{
+			return true;
+		}
+		pSqlServer->BindString(1, pData->m_aPassword);
+		pSqlServer->BindString(2, pData->m_aUsername);
+
+		if(pSqlServer->Step(&End, pError, ErrorSize))
+		{
+			return true;
+		}
+		if(!End)
+		{
+			str_copy(pResult->m_aaMessages[0],
+				"[SQL] Password set failed.",
+				sizeof(pResult->m_aaMessages[0]));
+		}
+		else
+		{
+			str_copy(pResult->m_aaMessages[0],
+				"[SQL] Successfully updated password.",
+				sizeof(pResult->m_aaMessages[0]));
+		}
+	}
+	return false;
+}
+
 void CAccounts::ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
 {
 	ExecUserThread(ChangePasswordThread, "change password", ClientID, pUsername, pOldPassword, pNewPassword, NULL);
