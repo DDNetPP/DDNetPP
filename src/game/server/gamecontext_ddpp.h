@@ -99,7 +99,6 @@ public:
 
 	// sql
 	void SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword = "");
-	void ExecuteSQLf(const char *pSQL, ...);
 	void SQLcleanZombieAccounts(int ClientID);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
@@ -380,7 +379,6 @@ public:
 	bool PlayerModerating() const;
 	void ForceVote(int EnforcerID, bool Success);
 
-	CSql *m_Database;
 	bool CheckAccounts(int AccountID);
 
 	void GlobalChat(int ClientID, const char *pMsg);

@@ -7,7 +7,6 @@
 #include <limits>
 
 #include "gamecontext.h"
-#include "gamecontext_sql.h"
 
 #include "player.h"
 

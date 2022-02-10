@@ -5,18 +5,6 @@
 #include <cstring>
 
 #include "gamecontext.h"
-#include "gamecontext_sql.h"
-
-void CQuerySQLstatus::OnData()
-{
-	int n = Next();
-	if(m_ClientID == -1)
-		return;
-	if(n)
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: got rows.");
-	else
-		m_pGameServer->SendChatTarget(m_ClientID, "[SQL] result: no rows.");
-}
 
 void CGameContext::SQLcleanZombieAccounts(int ClientID)
 {

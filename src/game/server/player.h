@@ -11,7 +11,6 @@
 
 // ddnet++ includes start
 #include "captcha.h"
-#include "db_sqlite3.h" //ddpp ChillerDragon for threaded login
 #include "ddpp/accounts.h"
 #include "entities/character.h"
 #include <engine/client/http.h>

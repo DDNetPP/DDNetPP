@@ -23,7 +23,6 @@ void CGameContext::ConstructDDPP()
 	m_pShop = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
-	m_Database = nullptr;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -71,11 +70,6 @@ void CGameContext::DestructDDPP()
 		delete m_pAccounts;
 		m_pAccounts = nullptr;
 	}
-	if(m_Database)
-	{
-		delete m_Database;
-		m_Database = nullptr;
-	}
 }
 
 void CGameContext::LoadMapLive(const char *pMapName)
@@ -92,8 +86,6 @@ void CGameContext::OnInitDDPP()
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
-	if(!m_Database)
-		m_Database = new CSql();
 	if(!m_pLetters)
 		m_pLetters = new CLetters(this);
 	LoadFNNvalues();
@@ -1296,9 +1288,6 @@ void CGameContext::DDPP_Tick()
 		CreateNewDummy(99); //shop bot
 		m_CreateShopBot = false;
 	}
-	// process sql queries
-	m_Database->Tick();
-
 	// all the tick stuff which needs all players
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{

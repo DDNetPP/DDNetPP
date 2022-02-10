@@ -21,8 +21,6 @@
 #include "player.h"
 #include "teehistorian.h"
 
-#include "db_sqlite3.h"
-
 #include <memory>
 
 /*

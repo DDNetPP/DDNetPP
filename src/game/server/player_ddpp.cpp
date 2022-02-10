@@ -10,7 +10,6 @@
 #include <game/server/ddpp/shop.h>
 
 #include "gamecontext.h"
-#include "gamecontext_sql.h"
 
 #include "player.h"
 

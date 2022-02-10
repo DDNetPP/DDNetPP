@@ -2120,8 +2120,6 @@ if(SERVER)
     alloc.h
     captcha.cpp
     captcha.h
-    db_sqlite3.cpp
-    db_sqlite3.h
     ddpp/accounts.cpp
     ddpp/accounts.h
     ddpp/shop.cpp
@@ -2190,7 +2188,6 @@ if(SERVER)
     gamecontext_quests.cpp
     gamecontext_ratelimits.cpp
     gamecontext_sql.cpp
-    gamecontext_sql.h
     gamecontext_survival.cpp
     gamecontext_trades.cpp
     gamecontext_votes.cpp
