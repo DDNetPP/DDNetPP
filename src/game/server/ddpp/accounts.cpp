@@ -602,9 +602,9 @@ void CAccounts::CreateDatabase()
 
 bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
 {
-	CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
+	// CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
 
-	char aBuf[2048];
+	char aBuf[4096];
 	str_copy(aBuf,
 		"CREATE TABLE IF NOT EXISTS Accounts ("
 		"  ID					INTEGER			PRIMARY KEY		AUTOINCREMENT,"
@@ -713,13 +713,13 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	}
 	if(!End)
 	{
-		str_copy(pResult->m_aaMessages[0],
-			"create table finished with status=fail",
-			sizeof(pResult->m_aaMessages[0]));
+		// str_copy(pResult->m_aaMessages[0],
+		// 	"create table finished with status=fail",
+		// 	sizeof(pResult->m_aaMessages[0]));
 		return true;
 	}
-	str_copy(pResult->m_aaMessages[0],
-		"create table finished with status=success",
-		sizeof(pResult->m_aaMessages[0]));
+	// str_copy(pResult->m_aaMessages[0],
+	// 	"create table finished with status=success",
+	// 	sizeof(pResult->m_aaMessages[0]));
 	return false;
 }
