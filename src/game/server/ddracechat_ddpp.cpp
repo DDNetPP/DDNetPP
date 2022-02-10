@@ -1053,25 +1053,7 @@ void CGameContext::ConSQL(IConsole::IResult *pResult, void *pUserData)
 		int value;
 		value = pResult->GetInteger(2);
 
-		pSelf->ExecuteSQLf("UPDATE Accounts SET IsAccFrozen='%d' WHERE ID='%d'", value, SQL_ID);
-
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i])
-			{
-				if(pSelf->m_apPlayers[i]->GetAccID() == SQL_ID)
-				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsAccFrozen = value;
-					pSelf->m_apPlayers[i]->Logout(); //always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
-					pSelf->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is logged in)", value);
-					pSelf->SendChatTarget(ClientID, aBuf);
-					return;
-				}
-			}
-		}
-		str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in)", value);
-		pSelf->SendChatTarget(ClientID, aBuf);
+		pSelf->m_pAccounts->UpdateAccountState(ClientID, SQL_ID, value, "UPDATE Accounts SET IsAccFrozen = ? WHERE ID = ?;");
 	}
 	else
 	{

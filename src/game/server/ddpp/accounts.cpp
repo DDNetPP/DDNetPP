@@ -5,6 +5,46 @@
 
 #include "accounts.h"
 
+CAdminCommandResult::CAdminCommandResult()
+{
+	SetVariant(Variant::DIRECT, NULL);
+}
+
+void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *pRequest)
+{
+	if(pRequest)
+	{
+		m_AdminClientID = pRequest->m_AdminClientID;
+		m_TargetAccountID = pRequest->m_TargetAccountID;
+		m_State = pRequest->m_State;
+		str_copy(m_aUsername, pRequest->m_aUsername, sizeof(m_aUsername));
+		str_copy(m_aPassword, pRequest->m_aPassword, sizeof(m_aPassword));
+	}
+	else
+	{
+		m_AdminClientID = -1;
+		m_TargetAccountID = -1;
+		m_State = -1;
+		m_aUsername[0] = '\0';
+		m_aPassword[0] = '\0';
+	}
+	m_MessageKind = v;
+	switch(v)
+	{
+	case FREEZE_ACC:
+	case DIRECT:
+	case ALL:
+		for(auto &aMessage : m_aaMessages)
+			aMessage[0] = 0;
+		break;
+	case BROADCAST:
+		m_aBroadcast[0] = 0;
+		break;
+	case LOG_ONLY:
+		break;
+	}
+}
+
 CAccountResult::CAccountResult()
 {
 	SetVariant(Variant::DIRECT);
@@ -40,6 +80,39 @@ CAccounts::CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool) :
 	m_pGameServer(pGameServer),
 	m_pServer(pGameServer->Server())
 {
+}
+
+std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int ClientID)
+{
+	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientID];
+	if(pCurPlayer->m_AdminCommandQueryResult != nullptr) // TODO: send player a message: "too many requests"
+		return nullptr;
+	pCurPlayer->m_AdminCommandQueryResult = std::make_shared<CAdminCommandResult>();
+	return pCurPlayer->m_AdminCommandQueryResult;
+}
+
+void CAccounts::ExecAdminThread(
+	bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
+	const char *pThreadName,
+	int AdminClientID,
+	int TargetAccountID,
+	int State,
+	const char *pUsername,
+	const char *pPassword,
+	const char *pQuery)
+{
+	auto pResult = NewSqlAdminCommandResult(AdminClientID);
+	if(pResult == nullptr)
+		return;
+	auto Tmp = std::unique_ptr<CSqlAdminCommandRequest>(new CSqlAdminCommandRequest(pResult));
+	Tmp->m_AdminClientID = AdminClientID;
+	Tmp->m_TargetAccountID = TargetAccountID;
+	Tmp->m_State = State;
+	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
+	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
+	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
+
+	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
 std::shared_ptr<CAccountResult> CAccounts::NewSqlAccountResult(int ClientID)
@@ -391,6 +464,51 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pResult->SetVariant(CAccountResult::LOGIN_WRONG_PASS);
 		str_copy(pResult->m_Account.m_aPassword, pData->m_aPassword, sizeof(pResult->m_Account.m_aPassword));
 		str_copy(pResult->m_Account.m_aUsername, pData->m_aUsername, sizeof(pResult->m_Account.m_aUsername));
+	}
+	return false;
+}
+
+void CAccounts::UpdateAccountState(int AdminClientID, int TargetAccountID, int State, const char *pQuery)
+{
+	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientID, TargetAccountID, State, "", "", pQuery);
+}
+
+bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
+{
+	const CSqlAdminCommandRequest *pData = dynamic_cast<const CSqlAdminCommandRequest *>(pGameData);
+	CAdminCommandResult *pResult = dynamic_cast<CAdminCommandResult *>(pGameData->m_pResult.get());
+	pResult->SetVariant(CAdminCommandResult::FREEZE_ACC, pData);
+
+	// char aBuf[2048];
+	// str_copy(aBuf,
+	// 	"UPDATE Accounts SET "
+	// 	"	IsFrozen = ?"
+	// 	"	WHERE ID = ?;",
+	// 	sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
+	{
+		return true;
+	}
+	pSqlServer->BindInt(1, pData->m_State);
+	pSqlServer->BindInt(2, pData->m_TargetAccountID);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		return true;
+	}
+	if(!End)
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"[ACCOUNT] Update state failed.",
+			sizeof(pResult->m_aaMessages[0]));
+	}
+	else
+	{
+		str_copy(pResult->m_aaMessages[0],
+			"[ACCOUNT] Successfully updated account state.",
+			sizeof(pResult->m_aaMessages[0]));
 	}
 	return false;
 }

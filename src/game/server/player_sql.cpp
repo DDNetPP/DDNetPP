@@ -179,3 +179,71 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 		}
 	}
 }
+
+void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
+{
+	if(Result.m_Success) // SQL request was successful
+	{
+		switch(Result.m_MessageKind)
+		{
+		case CAdminCommandResult::FREEZE_ACC:
+		{
+			char aBuf[512];
+			str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (account is not logged in on this server)", Result.m_State);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(!GameServer()->m_apPlayers[i])
+					continue;
+
+				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				{
+					GameServer()->m_apPlayers[i]->m_Account.m_IsAccFrozen = Result.m_State;
+					// always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
+					GameServer()->m_apPlayers[i]->Logout();
+					GameServer()->SendChatTarget(i, "Logged out. (Reason: Account frozen)");
+					str_format(aBuf, sizeof(aBuf), "UPDATED IsAccFrozen = %d (logged out %d:'%s')", Result.m_State, i, Server()->ClientName(i));
+					break;
+				}
+			}
+			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			[[fallthrough]];
+		}
+		case CAccountResult::DIRECT:
+			for(auto &aMessage : Result.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
+				GameServer()->SendChatTarget(m_ClientID, aMessage);
+			}
+			break;
+		case CAccountResult::ALL:
+		{
+			bool PrimaryMessage = true;
+			for(auto &aMessage : Result.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
+
+				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
+					break;
+
+				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
+				PrimaryMessage = false;
+			}
+			break;
+		}
+		case CAdminCommandResult::BROADCAST:
+			// if(Result.m_aBroadcast[0] != 0)
+			// 	GameServer()->SendBroadcast(Result.m_aBroadcast, -1);
+			break;
+		case CAdminCommandResult::LOG_ONLY:
+			for(auto &aMessage : Result.m_aaMessages)
+			{
+				if(aMessage[0] == 0)
+					break;
+				dbg_msg("account", "%s", aMessage);
+			}
+			break;
+		}
+	}
+}

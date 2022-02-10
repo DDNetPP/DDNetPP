@@ -130,6 +130,11 @@ void CPlayer::DDPPTick()
 		DDPPProcessScoreResult(*m_AccountQueryResult);
 		m_AccountQueryResult = nullptr;
 	}
+	if(m_AdminCommandQueryResult != nullptr && m_AdminCommandQueryResult->m_Completed)
+	{
+		DDPPProcessAdminCommandResult(*m_AdminCommandQueryResult);
+		m_AdminCommandQueryResult = nullptr;
+	}
 	//ChillerDragon chidraqul3 the hash game
 	if(m_C3_GameState == 1) //singleplayer
 	{
