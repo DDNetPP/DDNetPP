@@ -1008,7 +1008,7 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(CheckClientID(pResult->m_ClientID))
 	{
 		dbg_msg("RCON_API", "some ingame admin tried to abuse the api");
 		return;
@@ -1025,9 +1025,9 @@ void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(CheckClientID(pResult->m_ClientID))
 	{
-		dbg_msg("RCON_API", "some ingame admin tried to abuse the api");
+		dbg_msg("RCON_API", "some ingame admin tried to abuse the api ClientID=%d", pResult->m_ClientID);
 		return;
 	}
 	dbg_msg("RCON_API", "some non client executed an api command");
@@ -1039,36 +1039,49 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 	if(Type == 0)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type INTEGER", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` INTEGER DEFAULT 0", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s INTEGER DEFAULT 0", pResult->GetString(1));
 	}
 	else if(Type == 1)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(4)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(4) DEFAULT ''", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(4) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 2)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(16)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(16) DEFAULT ''", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(16) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 3)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(32)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(32) DEFAULT ''", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(32) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 4)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(64)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(64) DEFAULT ''", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(64) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 5)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(128)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE `Accounts` ADD `%s` VARCHAR(128) DEFAULT ''", pResult->GetString(1));
+		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(128) DEFAULT ''", pResult->GetString(1));
 	}
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "failed to add column '%s' of unsupported type %d", pResult->GetString(1), Type);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RCON_API", aBuf);
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"RCON_API",
+			"usage: rcon_api_alter_table s[type]s[column]");
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"RCON_API",
+			"types: 0=INTEGER 1=VARCHAR(4) 2=VARCHAR(16) 3=VARCHAR(32) 4=VARCHAR(64) 5=VARCHAR(128)");
+		pSelf->Console()->Print(
+			IConsole::OUTPUT_LEVEL_STANDARD,
+			"RCON_API",
+			"example: rcon_api_alter_table 1 MyNewInteger");
 		return;
 	}
 
@@ -1076,5 +1089,5 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 #if defined(CONF_DEBUG)
 	dbg_msg("SQL", "RCON_API: %s", aSQL);
 #endif
-	pSelf->ExecuteSQLf(aSQL);
+	pSelf->m_pAccounts->ExecuteSQL(aSQL);
 }

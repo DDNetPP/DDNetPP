@@ -370,14 +370,14 @@ struct CSqlCleanZombieAccountsData : ISqlData
 	int m_Port;
 };
 
-struct CSqlLogoutUsernameData : ISqlData
+struct CSqlStringData : ISqlData
 {
-	CSqlLogoutUsernameData() :
+	CSqlStringData() :
 		ISqlData(nullptr)
 	{
 	}
 
-	char m_aUsername[128];
+	char m_aString[1024];
 };
 
 struct CSqlCreateTableRequest : ISqlData
@@ -424,6 +424,7 @@ class CAccounts
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 	static bool CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 	static bool LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
+	static bool ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
 	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientID);
@@ -473,6 +474,7 @@ public:
 	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
 	void CleanZombieAccounts(int ClientID, int Port, const char *pQuery);
 	void LogoutUsername(const char *pUsername);
+	void ExecuteSQL(const char *pQuery);
 };
 
 #endif

@@ -633,17 +633,48 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	return false;
 }
 
+void CAccounts::ExecuteSQL(const char *pQuery)
+{
+	auto Tmp = std::unique_ptr<CSqlStringData>(new CSqlStringData());
+	str_copy(Tmp->m_aString, pQuery, sizeof(Tmp->m_aString));
+
+	m_pPool->ExecuteWrite(ExecuteSQLThread, std::move(Tmp), "add table column");
+}
+
+bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+{
+	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
+
+	// char aBuf[512];
+	// str_copy(aBuf,
+	// 	"ALTER TABLE 'Accounts' ADD ColName VARCHAR(64) DEFAULT ''",
+	// 	sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(pData->m_aString, pError, ErrorSize))
+	{
+		return true;
+	}
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_assert(false, "ExecuteSQLThread did not step");
+		return true;
+	}
+	return !End;
+}
+
 void CAccounts::LogoutUsername(const char *pUsername)
 {
-	auto Tmp = std::unique_ptr<CSqlLogoutUsernameData>(new CSqlLogoutUsernameData());
-	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
+	auto Tmp = std::unique_ptr<CSqlStringData>(new CSqlStringData());
+	str_copy(Tmp->m_aString, pUsername, sizeof(Tmp->m_aString));
 
 	m_pPool->ExecuteWrite(LogoutUsernameThread, std::move(Tmp), "logout username");
 }
 
 bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
 {
-	const CSqlLogoutUsernameData *pData = dynamic_cast<const CSqlLogoutUsernameData *>(pGameData);
+	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
 	char aBuf[512];
 	str_copy(aBuf,
@@ -654,7 +685,7 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 	{
 		return true;
 	}
-	pSqlServer->BindString(1, pData->m_aUsername);
+	pSqlServer->BindString(1, pData->m_aString);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))

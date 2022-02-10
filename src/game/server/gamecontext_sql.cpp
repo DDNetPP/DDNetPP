@@ -58,14 +58,3 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 	dbg_msg("accounts", "clean broken accounts: %s", aBuf);
 	m_pAccounts->CleanZombieAccounts(ClientID, g_Config.m_SvPort, aBuf);
 }
-
-void CGameContext::ExecuteSQLf(const char *pSQL, ...)
-{
-	va_list ap;
-	va_start(ap, pSQL);
-	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
-	va_end(ap);
-	CQuery *pQuery = new CQuery();
-	pQuery->Query(m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
-}
