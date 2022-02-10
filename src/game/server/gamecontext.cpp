@@ -68,7 +68,10 @@ void CGameContext::Construct(int Resetting)
 	m_NumVoteMutes = 0;
 
 	if(Resetting == NO_RESET)
+	{
+		m_NonEmptySince = 0;
 		m_pVoteOptionHeap = new CHeap();
+	}
 
 	m_ChatResponseTargetID = -1;
 	m_aDeleteTempfile[0] = 0;
