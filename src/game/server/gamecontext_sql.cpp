@@ -93,19 +93,6 @@ void CGameContext::SQLaccount(int mode, int ClientID, const char *pUsername, con
 	}
 }
 
-void CGameContext::ExecuteSQLBlockingf(const char *pSQL, ...)
-{
-	va_list ap;
-	va_start(ap, pSQL);
-	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
-	va_end(ap);
-	CQuery *pQuery = new CQuery();
-	pQuery->QueryBlocking(m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
-	delete pQuery;
-	dbg_msg("blocking-sql", "should be last...");
-}
-
 void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 {
 	va_list ap;
@@ -113,26 +100,6 @@ void CGameContext::ExecuteSQLf(const char *pSQL, ...)
 	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
 	va_end(ap);
 	CQuery *pQuery = new CQuery();
-	pQuery->Query(m_Database, pQueryBuf);
-	sqlite3_free(pQueryBuf);
-}
-
-void CGameContext::ExecuteSQLvf(int VerboseID, const char *pSQL, ...)
-{
-	va_list ap;
-	va_start(ap, pSQL);
-	char *pQueryBuf = sqlite3_vmprintf(pSQL, ap);
-	va_end(ap);
-	if(VerboseID != -1)
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[SQL] executing: %s", pQueryBuf);
-		SendChatTarget(VerboseID, aBuf);
-	}
-	CQuerySQLstatus *pQuery;
-	pQuery = new CQuerySQLstatus();
-	pQuery->m_ClientID = VerboseID;
-	pQuery->m_pGameServer = this;
 	pQuery->Query(m_Database, pQueryBuf);
 	sqlite3_free(pQueryBuf);
 }

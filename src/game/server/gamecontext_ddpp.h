@@ -100,15 +100,6 @@ public:
 	// sql
 	void SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword = "");
 	void ExecuteSQLf(const char *pSQL, ...);
-	void ExecuteSQLBlockingf(const char *pSQL, ...);
-	void ExecuteSQLvf(int VerboseID, const char *pSQL, ...);
-	enum
-	{
-		SQL_REGISTER,
-		SQL_LOGIN,
-		SQL_CHANGE_PASSWORD,
-		SQL_SET_PASSWORD
-	};
 	void SQLcleanZombieAccounts(int ClientID);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];

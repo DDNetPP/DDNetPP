@@ -440,6 +440,38 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	return false;
 }
 
+void CAccounts::LogoutUsername(const char *pUsername)
+{
+	auto Tmp = std::unique_ptr<CSqlLogoutUsernameData>(new CSqlLogoutUsernameData());
+	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
+
+	m_pPool->ExecuteWrite(LogoutUsernameThread, std::move(Tmp), "logout username");
+}
+
+bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+{
+	const CSqlLogoutUsernameData *pData = dynamic_cast<const CSqlLogoutUsernameData *>(pGameData);
+
+	char aBuf[512];
+	str_copy(aBuf,
+		"UPDATE Accounts SET IsLoggedIn = 0 WHERE Username = ?;",
+		sizeof(aBuf));
+
+	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
+	{
+		return true;
+	}
+	pSqlServer->BindString(1, pData->m_aUsername);
+
+	bool End;
+	if(pSqlServer->Step(&End, pError, ErrorSize))
+	{
+		dbg_assert(false, "LogoutUsernameThread did not step");
+		return true;
+	}
+	return !End;
+}
+
 void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
 {
 	auto Tmp = std::unique_ptr<CSqlCleanZombieAccountsData>(new CSqlCleanZombieAccountsData());

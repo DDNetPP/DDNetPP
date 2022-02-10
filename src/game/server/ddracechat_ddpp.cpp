@@ -8008,9 +8008,10 @@ void CGameContext::ConSQLLogout(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	char aUsername[32];
-	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
-	pSelf->ExecuteSQLvf(pResult->m_ClientID, "UPDATE Accounts SET IsLoggedIn = 0 WHERE Username='%s'", aUsername);
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[SQL] UPDATE Accounts SET IsLoggedIn = 0 WHERE Username = '%s'", pResult->GetString(0));
+	pSelf->SendChatTarget(ClientID, aBuf);
+	pSelf->m_pAccounts->LogoutUsername(pResult->GetString(0));
 }
 
 void CGameContext::ConSQLLogoutAll(IConsole::IResult *pResult, void *pUserData)
