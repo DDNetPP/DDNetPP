@@ -98,7 +98,12 @@ void CGameContext::OnInitDDPP()
 		m_pLetters = new CLetters(this);
 	LoadFNNvalues();
 	m_pAccounts->CreateDatabase();
-	SQLPortLogout(g_Config.m_SvPort);
+	char aBuf[512];
+	str_copy(aBuf,
+		"UPDATE Accounts SET IsLoggedIn = 0, LastLoginPort = ?;",
+		sizeof(aBuf));
+	m_pAccounts->CleanZombieAccounts(-1, g_Config.m_SvPort, aBuf);
+
 	LoadSinglePlayer();
 	//dummy_init
 	if(g_Config.m_SvBasicDummys)

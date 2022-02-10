@@ -149,6 +149,9 @@ CQuery *CSql::Query(CQuery *pQuery, std::string QueryString)
 
 CSql::CSql()
 {
+	m_pDB = nullptr;
+	m_Lock = lock_create();
+	m_CallbackLock = lock_create();
 }
 
 void CSql::CreateDatabase()
@@ -261,8 +264,6 @@ void CSql::CreateDatabase()
 
 	sqlite3_exec(m_pDB, Query, 0, 0, 0);
 
-	m_Lock = lock_create();
-	m_CallbackLock = lock_create();
 	m_Running = true;
 	thread_init(InitWorker, this, "sql init");
 }
@@ -293,5 +294,6 @@ CSql::~CSql()
 
 	lock_unlock(m_CallbackLock);
 	lock_destroy(m_CallbackLock);
-	sqlite3_close(m_pDB);
+	if(m_pDB)
+		sqlite3_close(m_pDB);
 }
