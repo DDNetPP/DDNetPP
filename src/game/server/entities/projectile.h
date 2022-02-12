@@ -47,6 +47,7 @@ private:
 	int m_Bouncing;
 	bool m_Freeze;
 	int m_TuneZone;
+	bool m_BelongsToPracticeTeam;
 
 	bool IsDDPPVanillaProjectile(int Collide, vec2 PrevPos, vec2 CurPos, vec2 ColPos, vec2 NewPos, CCharacter *pOwnerChar, float Pt, float Ct);
 

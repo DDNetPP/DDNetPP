@@ -40,6 +40,8 @@ private:
 	bool m_TeleportCancelled;
 	bool m_IsBlueTeleport;
 
+	bool m_BelongsToPracticeTeam;
+
 	// DDNet++
 
 	void QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar);
