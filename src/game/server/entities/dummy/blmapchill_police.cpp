@@ -1177,7 +1177,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 			CCharacter *pClosestChr = GameWorld()->ClosestCharacterNoRange(GetPos(), m_pCharacter);
 			// if on left side and closes char is not police
 			// make sure that boi is blocked first otherwise he is just in the way
-			if(!IsPolice(pClosestChr) && !pClosestChr->isFreezed)
+			if(!IsPolice(pClosestChr) && !IsFrozen(pClosestChr))
 			{
 				AimPos(pClosestChr->GetPos());
 				// push into freeze when both grounded
@@ -1206,7 +1206,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 					Right();
 			}
 			// release hook on enemy when he is frozen on the left side
-			if(!IsPolice(pClosestChr) && pClosestChr->isFreezed)
+			if(!IsPolice(pClosestChr) && IsFrozen(pClosestChr))
 				if(pClosestChr->GetPos().x < RAW(364))
 					if(m_pCharacter->Core()->m_HookedPlayer == pClosestChr->GetPlayer()->GetCID())
 						Hook(0);
@@ -1250,7 +1250,7 @@ bool CDummyBlmapChillPolice::HelpOfficerRight()
 					// officer on right side -> hook random to the left
 					if(pChr->GetPos().x > RAW(442))
 					{
-						if(!pCharHooked->isFreezed)
+						if(!IsFrozen(pCharHooked))
 							Hook(0);
 					}
 					// officer on left side -> hook random to the right

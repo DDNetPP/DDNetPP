@@ -59,7 +59,7 @@ protected:
 	int JumpedTotal();
 	int Jumps();
 	bool IsGrounded();
-	bool IsFrozen();
+	bool IsFrozen(CCharacter *pChr = NULL);
 
 	int GetTargetX();
 	int GetTargetY();
