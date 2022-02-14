@@ -1513,6 +1513,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				m_aClients[ClientID].m_State = CClient::STATE_READY;
 				m_aClients[ClientID].m_IsDummy = false;
+				m_aClients[ClientID].m_IsClientDummy = false;
 				char aIP[32];
 				char aCheckIP[32];
 				net_addr_str(m_NetServer.ClientAddr(ClientID), aCheckIP, sizeof(aCheckIP), false);
