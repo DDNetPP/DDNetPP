@@ -1837,17 +1837,20 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	if(From == m_pPlayer->GetCID())
 		Dmg = maximum(1, Dmg / 2);
 	//Block points check for touchers (weapons)
-	if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
+	if(From >= 0)
 	{
-		if(From != m_pPlayer->GetCID())
+		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
-			m_pPlayer->UpdateLastToucher(From);
-			m_LastHitWeapon = Weapon;
+			if(From != m_pPlayer->GetCID())
+			{
+				m_pPlayer->UpdateLastToucher(From);
+				m_LastHitWeapon = Weapon;
+			}
 		}
 	}
 
 	////dragon test [FNN] isTouched check
-	if(m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
+	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
@@ -1860,10 +1863,13 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		//return false; //removes hammer knockback
 	}
 	//zCatch ChillerDragon
-	if(g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaMode_gdm && GameServer()->m_apPlayers[From]->m_IsInstaMode_gdm) || (m_pPlayer->m_IsInstaMode_idm && GameServer()->m_apPlayers[From]->m_IsInstaMode_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
+	if(From >= 0)
 	{
-		DDPP_TakeDamageInstagib(Dmg, From, Weapon);
-		return true;
+		if(g_Config.m_SvInstagibMode || (m_pPlayer->m_IsInstaMode_gdm && GameServer()->m_apPlayers[From]->m_IsInstaMode_gdm) || (m_pPlayer->m_IsInstaMode_idm && GameServer()->m_apPlayers[From]->m_IsInstaMode_idm)) //in (all instagib modes) or (both players in gdm/idm mode) --->  1hit
+		{
+			DDPP_TakeDamageInstagib(Dmg, From, Weapon);
+			return true;
+		}
 	}
 	if((m_isDmg || m_pPlayer->m_IsVanillaDmg) /*&& !m_pPlayer->m_IsSurvivalLobby*/)
 	{
