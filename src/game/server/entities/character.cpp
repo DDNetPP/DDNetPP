@@ -571,8 +571,8 @@ void CCharacter::FireWeapon(bool Bot)
 					ProjStartPos, //Pos
 					Direction, //Dir
 					Lifetime, //Span
-					0, //Freeze
-					0, //Explosive
+					false, //Freeze
+					false, //Explosive
 					0, //Force
 					-1 //SoundImpact
 				);
@@ -629,7 +629,7 @@ void CCharacter::FireWeapon(bool Bot)
 				ProjStartPos, //Pos
 				Direction, //Dir
 				Lifetime, //Span
-				0, //Freeze
+				false, //Freeze
 				true, //Explosive
 				0, //Force
 				SOUND_GRENADE_EXPLODE //SoundImpact

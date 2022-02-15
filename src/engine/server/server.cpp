@@ -50,7 +50,7 @@
 #include <windows.h>
 #endif
 
-#include <signal.h>
+#include <csignal>
 
 volatile sig_atomic_t InterruptSignaled = 0;
 
@@ -3781,6 +3781,7 @@ int main(int argc, const char **argv) // ignore_convention
 	int Ret = pServer->Run();
 
 	MysqlUninit();
+	secure_random_uninit();
 
 	// free
 	delete pKernel;
