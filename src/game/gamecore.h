@@ -298,6 +298,7 @@ private:
 	void DDPPRead(const CNetObj_CharacterCore *pObjCore);
 	void DDPPTickHookFlying(vec2 NewPos);
 	void DDPPTick();
+	bool HookFlag();
 };
 
 //input count

@@ -45,43 +45,77 @@ void CCharacterCore::DDPPRead(const CNetObj_CharacterCore *pObjCore)
 
 void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 {
-	float PhysSize = 28.0f;
-	if(m_HookState == HOOK_FLYING)
-	{
-		//Check against Flags: DELETE IF IT DOSNT WORK
-		vec2 ClosestPoint;
-		if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos1, ClosestPoint))
-		{
-			if(distance(m_FlagPos1, ClosestPoint) < PhysSize + 2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
-			{
-				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
-				{
-					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-					m_HookState = HOOK_GRABBED;
-					m_HookedPlayer = FLAG_BLUE;
-				}
-			}
-		}
+	// TODO: hooking is a bit borked at the moment
 
-		if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos2, ClosestPoint))
+	// vec2 ClosestPoint;
+	// if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos1, ClosestPoint))
+	// {
+	// 	if(distance(m_FlagPos1, ClosestPoint) < CFlag::ms_PhysSize + 2.0f  && m_AtStand1 == 0 && m_carryFlagChar1 == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
+	// 	{
+	// 		if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
+	// 		{
+	// 			m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+	// 			m_HookState = HOOK_GRABBED;
+	// 			m_HookedPlayer = FLAG_RED;
+	// 		}
+	// 	}
+	// 	else
+	// 		dbg_msg(
+	// 			"flag",
+	// 			"distance=%s %.2f < %.2f flag=(%.2f/%.2f) pos=(%.2f/%.2f) carry=%d hookedPlayer=%s",
+	// 			(distance(m_FlagPos1, ClosestPoint) < CFlag::ms_PhysSize + 2.0f) ? "close_enough" : "toofar",
+	// 			distance(m_FlagPos1, ClosestPoint), CFlag::ms_PhysSize + 2.0f,
+	// 			m_FlagPos1.x / 32, m_FlagPos1.y / 32,
+	// 			ClosestPoint.x / 32, ClosestPoint.y / 32,
+	// 			m_carryFlagChar1,
+	// 			(m_HookedPlayer == FLAG_RED || m_HookedPlayer == FLAG_BLUE) ? "flag" : "no_flag");
+	// }
+
+	// if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos2, ClosestPoint))
+	// {
+	// 	if(distance(m_FlagPos2, ClosestPoint) < CFlag::ms_PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == -1 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
+	// 	{
+	// 		if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
+	// 		{
+	// 			m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+	// 			m_HookState = HOOK_GRABBED;
+	// 			m_HookedPlayer = FLAG_BLUE;
+	// 		}
+	// 	}
+	// }
+}
+
+bool CCharacterCore::HookFlag()
+{
+	if(m_HookedPlayer == FLAG_RED)
+	{
+		if(m_carryFlagChar1 == -1)
+			m_HookPos = m_FlagPos1;
+		else
 		{
-			if(distance(m_FlagPos2, ClosestPoint) < PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
-			{
-				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
-				{
-					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-					m_HookState = HOOK_GRABBED;
-					m_HookedPlayer = FLAG_RED;
-				}
-			}
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;
 		}
-		//Check against Flags: DELETE IF IT DOSNT WORK
+		return true;
 	}
+	else if(m_HookedPlayer == FLAG_BLUE)
+	{
+		if(m_carryFlagChar2 == -1)
+			m_HookPos = m_FlagPos2;
+		else
+		{
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;
+		}
+		return true;
+	}
+	return false;
 }
 
 void CCharacterCore::DDPPTick()
 {
-	float PhysSize = 28.0f;
 	m_updateFlagVel = 0;
 
 	if(m_LastHookedTick != -1)
@@ -96,47 +130,21 @@ void CCharacterCore::DDPPTick()
 	}
 	if(m_HookState == HOOK_GRABBED)
 	{
-		// UPDATE HOOK POS ON FLAG POS!!!!!
-		if(m_HookedPlayer == FLAG_BLUE)
-		{
-			if(!m_carryFlagChar1)
-			{
-				m_HookPos = m_FlagPos1;
-			}
-			else
-			{
-				m_HookedPlayer = -1;
-				m_HookState = HOOK_RETRACTED;
-				m_HookPos = m_Pos;
-			}
-		}
-		else if(m_HookedPlayer == FLAG_RED)
-		{
-			if(!m_carryFlagChar2)
-			{
-				m_HookPos = m_FlagPos2;
-			}
-			else
-			{
-				m_HookedPlayer = -1;
-				m_HookState = HOOK_RETRACTED;
-				m_HookPos = m_Pos;
-			}
-		}
-		// UPDATE HOOK POS ON FLAG POS!!!!!
+		// TODO: do not call this 3 times
+		HookFlag();
 
-		if(m_HookedPlayer == FLAG_BLUE)
-		{
-			if(m_AtStand1 == 1 /*|| !m_carryFlagChar1*/ || m_carryFlagChar1 == -1)
-			{
-				m_HookedPlayer = -1;
-				m_HookState = HOOK_RETRACTED;
-				m_HookPos = m_Pos;
-			}
-		}
 		if(m_HookedPlayer == FLAG_RED)
 		{
-			if(m_AtStand2 == 1 /*|| !m_carryFlagChar2*/ || m_carryFlagChar2 == -1)
+			if(m_AtStand1 == 1)
+			{
+				m_HookedPlayer = -1;
+				m_HookState = HOOK_RETRACTED;
+				m_HookPos = m_Pos;
+			}
+		}
+		if(m_HookedPlayer == FLAG_BLUE)
+		{
+			if(m_AtStand2 == 1)
 			{
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
@@ -145,7 +153,7 @@ void CCharacterCore::DDPPTick()
 		}
 	}
 
-	if(m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_LastHookedPlayer])
+	if(m_LastHookedPlayer != FLAG_BLUE && m_LastHookedPlayer != FLAG_RED && m_LastHookedPlayer != -1 && !m_pWorld->m_apCharacters[m_LastHookedPlayer])
 	{
 		m_LastHookedPlayer = -1;
 	}
@@ -160,18 +168,18 @@ void CCharacterCore::DDPPTick()
 			vec2 FPos;
 			vec2 Temp;
 
-			if(m_HookedPlayer == FLAG_BLUE)
+			if(m_HookedPlayer == FLAG_RED)
 			{
-				m_updateFlagVel = FLAG_BLUE;
+				m_updateFlagVel = FLAG_RED;
 				Temp = m_FlagVel1;
 				FlagVel = m_FlagVel1;
 				FPos = m_FlagPos1;
 				Distance = distance(m_Pos, m_FlagPos1);
 				Dir = normalize(m_Pos - m_FlagPos1);
 			}
-			if(m_HookedPlayer == FLAG_RED)
+			if(m_HookedPlayer == FLAG_BLUE)
 			{
-				m_updateFlagVel = FLAG_RED;
+				m_updateFlagVel = FLAG_BLUE;
 				Temp = m_FlagVel2;
 				FlagVel = m_FlagVel2;
 				FPos = m_FlagPos2;
@@ -179,7 +187,7 @@ void CCharacterCore::DDPPTick()
 				Dir = normalize(m_Pos - m_FlagPos2);
 			}
 
-			if(Distance > PhysSize * 1.50f) // TODO: fix tweakable variable
+			if(Distance > CFlag::ms_PhysSize * 1.50f) // TODO: fix tweakable variable
 			{
 				float Accel = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragAccel * (Distance / m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookLength);
 				float DragSpeed = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragSpeed;

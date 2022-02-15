@@ -135,7 +135,7 @@ void CGameControllerDDRace::FlagTick()
 
 		if(!F->m_AtStand)
 		{
-			if(Server()->Tick() > F->m_DropTick + Server()->TickSpeed() * 90)
+			if(F->m_DropTick && Server()->Tick() > F->m_DropTick + Server()->TickSpeed() * 90)
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 				F->Reset();
@@ -143,11 +143,10 @@ void CGameControllerDDRace::FlagTick()
 			else
 			{
 				//Friction
-				float PhysSize = 28.0f;
 				m_IsGrounded = false;
-				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x + PhysSize / 2, F->m_Pos.y + PhysSize / 2 + 5))
+				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x + CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
 					m_IsGrounded = true;
-				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x - PhysSize / 2, F->m_Pos.y + PhysSize / 2 + 5))
+				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x - CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
 					m_IsGrounded = true;
 
 				if(m_IsGrounded == true)

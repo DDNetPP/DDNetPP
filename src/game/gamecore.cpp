@@ -292,6 +292,8 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 			DDPPTickHookFlying(NewPos);
 		}
+		else
+			dbg_msg("gamecore", "hook flying hook=%d world=%p playehrioking=%d", this->m_Hook, m_pWorld, m_Tuning.m_PlayerHooking);
 
 		if(m_HookState == HOOK_FLYING)
 		{
@@ -327,7 +329,7 @@ void CCharacterCore::Tick(bool UseInput)
 
 	if(m_HookState == HOOK_GRABBED)
 	{
-		if(m_HookedPlayer != -1 && m_pWorld)
+		if(!HookFlag() && m_HookedPlayer != -1 && m_pWorld)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
 			if(pCharCore && m_Id != -1 && m_pTeams->CanKeepHook(m_Id, pCharCore->m_Id))
@@ -370,7 +372,7 @@ void CCharacterCore::Tick(bool UseInput)
 
 		// release hook (max default hook time is 1.25 s)
 		m_HookTick++;
-		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer]) || (m_HookedPlayer < 97 && !m_pWorld->m_apCharacters[m_HookedPlayer])))
+		if(!HookFlag() && m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer]) || (m_HookedPlayer < 97 && !m_pWorld->m_apCharacters[m_HookedPlayer])))
 		{
 			m_HookedPlayer = -1;
 			m_HookState = HOOK_RETRACTED;

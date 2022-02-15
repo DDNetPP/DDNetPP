@@ -6,13 +6,17 @@
 
 #include <game/server/entity.h>
 
+// TODO: use -2 and -3 instead and update all checks from upstream to use > -1 instead of != -1
+// m_HookedPlayer != -1
+// m_HookedPlayer > -1
+// m_LastHookedPlayer as well and probably others
 #define FLAG_RED 99
 #define FLAG_BLUE 98
 
 class CFlag : public CEntity
 {
 public:
-	static const int ms_PhysSize = 14;
+	static constexpr float ms_PhysSize = 28.0f;;
 	CCharacter *m_pCarryingCharacter;
 	CCharacter *m_pLastCarryingCharacter;
 

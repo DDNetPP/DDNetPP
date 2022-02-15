@@ -674,11 +674,11 @@ void CCharacter::CosmeticTick()
 
 void CCharacter::DDPPPostCoreTick()
 {
-	if(m_Core.m_updateFlagVel == 98)
+	if(m_Core.m_updateFlagVel == FLAG_RED)
 	{
 		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_Vel = m_Core.m_UFlagVel;
 	}
-	else if(m_Core.m_updateFlagVel == 99)
+	else if(m_Core.m_updateFlagVel == FLAG_BLUE)
 	{
 		((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_Vel = m_Core.m_UFlagVel;
 	}
