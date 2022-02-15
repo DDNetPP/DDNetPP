@@ -5,10 +5,13 @@
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
 
+#include <game/server/entities/flag.h>
+
 void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry)
 {
 	if(id == 0)
 	{
+		// dbg_msg("chiller", "red flag at pos %.2f %.2f", Pos.x / 32, Pos.y / 32);
 		m_FlagPos1 = Pos;
 		m_AtStand1 = Stand;
 		m_FlagVel1 = Vel;
@@ -25,7 +28,7 @@ void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry
 
 void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore)
 {
-	if(m_HookedPlayer == 98 || m_HookedPlayer == 99)
+	if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
 		pObjCore->m_HookedPlayer = -1;
 	else
 		pObjCore->m_HookedPlayer = m_HookedPlayer;
@@ -33,7 +36,7 @@ void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore)
 
 void CCharacterCore::DDPPRead(const CNetObj_CharacterCore *pObjCore)
 {
-	if(m_HookedPlayer == 98 || m_HookedPlayer == 99)
+	if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
 	{
 		// pass
 	}
@@ -46,38 +49,34 @@ void CCharacterCore::DDPPTickHookFlying(vec2 NewPos)
 	float PhysSize = 28.0f;
 	if(m_HookState == HOOK_FLYING)
 	{
-		// Check against other players first
-		if(this->m_Hook && m_pWorld && m_pWorld->m_Tuning[g_Config.m_ClDummy].m_PlayerHooking)
+		//Check against Flags: DELETE IF IT DOSNT WORK
+		vec2 ClosestPoint;
+		if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos1, ClosestPoint))
 		{
-			//Check against Flags: DELETE IF IT DOSNT WORK
-			vec2 ClosestPoint;
-			if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos1, ClosestPoint))
+			if(distance(m_FlagPos1, ClosestPoint) < PhysSize + 2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
 			{
-				if(distance(m_FlagPos1, ClosestPoint) < PhysSize + 2.0f && m_AtStand1 == 0 && m_carryFlagChar1 == 0 && m_HookedPlayer != 99 && m_HookedPlayer != 98)
+				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
 				{
-					if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos1) < Distance*/)
-					{
-						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-						m_HookState = HOOK_GRABBED;
-						m_HookedPlayer = 98;
-					}
+					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+					m_HookState = HOOK_GRABBED;
+					m_HookedPlayer = FLAG_BLUE;
 				}
 			}
-
-			if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos2, ClosestPoint))
-			{
-				if(distance(m_FlagPos2, ClosestPoint) < PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != 98 && m_HookedPlayer != 99)
-				{
-					if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
-					{
-						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-						m_HookState = HOOK_GRABBED;
-						m_HookedPlayer = 99;
-					}
-				}
-			}
-			//Check against Flags: DELETE IF IT DOSNT WORK
 		}
+
+		if(closest_point_on_line(m_HookPos, NewPos, m_FlagPos2, ClosestPoint))
+		{
+			if(distance(m_FlagPos2, ClosestPoint) < PhysSize + 2.0f && m_AtStand2 == 0 && m_carryFlagChar2 == 0 && m_HookedPlayer != FLAG_RED && m_HookedPlayer != FLAG_BLUE)
+			{
+				if(m_HookedPlayer == -1 /*|| distance(m_HookPos, m_FlagPos2) < Distance*/)
+				{
+					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+					m_HookState = HOOK_GRABBED;
+					m_HookedPlayer = FLAG_RED;
+				}
+			}
+		}
+		//Check against Flags: DELETE IF IT DOSNT WORK
 	}
 }
 
@@ -99,7 +98,7 @@ void CCharacterCore::DDPPTick()
 	if(m_HookState == HOOK_GRABBED)
 	{
 		// UPDATE HOOK POS ON FLAG POS!!!!!
-		if(m_HookedPlayer == 98)
+		if(m_HookedPlayer == FLAG_BLUE)
 		{
 			if(!m_carryFlagChar1)
 			{
@@ -112,7 +111,7 @@ void CCharacterCore::DDPPTick()
 				m_HookPos = m_Pos;
 			}
 		}
-		else if(m_HookedPlayer == 99)
+		else if(m_HookedPlayer == FLAG_RED)
 		{
 			if(!m_carryFlagChar2)
 			{
@@ -127,7 +126,7 @@ void CCharacterCore::DDPPTick()
 		}
 		// UPDATE HOOK POS ON FLAG POS!!!!!
 
-		if(m_HookedPlayer == 98)
+		if(m_HookedPlayer == FLAG_BLUE)
 		{
 			if(m_AtStand1 == 1 /*|| !m_carryFlagChar1*/ || m_carryFlagChar1 == -1)
 			{
@@ -136,7 +135,7 @@ void CCharacterCore::DDPPTick()
 				m_HookPos = m_Pos;
 			}
 		}
-		if(m_HookedPlayer == 99)
+		if(m_HookedPlayer == FLAG_RED)
 		{
 			if(m_AtStand2 == 1 /*|| !m_carryFlagChar2*/ || m_carryFlagChar2 == -1)
 			{
@@ -154,7 +153,7 @@ void CCharacterCore::DDPPTick()
 
 	if(m_pWorld)
 	{
-		if(m_HookedPlayer == 98 || m_HookedPlayer == 99)
+		if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
 		{
 			float Distance;
 			vec2 FlagVel;
@@ -162,18 +161,18 @@ void CCharacterCore::DDPPTick()
 			vec2 FPos;
 			vec2 Temp;
 
-			if(m_HookedPlayer == 98)
+			if(m_HookedPlayer == FLAG_BLUE)
 			{
-				m_updateFlagVel = 98;
+				m_updateFlagVel = FLAG_BLUE;
 				Temp = m_FlagVel1;
 				FlagVel = m_FlagVel1;
 				FPos = m_FlagPos1;
 				Distance = distance(m_Pos, m_FlagPos1);
 				Dir = normalize(m_Pos - m_FlagPos1);
 			}
-			if(m_HookedPlayer == 99)
+			if(m_HookedPlayer == FLAG_RED)
 			{
-				m_updateFlagVel = 99;
+				m_updateFlagVel = FLAG_RED;
 				Temp = m_FlagVel2;
 				FlagVel = m_FlagVel2;
 				FPos = m_FlagPos2;

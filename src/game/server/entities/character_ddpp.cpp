@@ -964,26 +964,16 @@ void CCharacter::DDPP_Tick()
 	CosmeticTick();
 	PvPArenaTick();
 
-	int carry1 = 1;
-	int carry2 = 1;
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
+	for(int i = 0; i < 2; i++)
 	{
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == NULL)
-		{
-			carry1 = 0;
-		}
-
-		m_Core.setFlagPos(0, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_Pos, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_AtStand, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_Vel, carry1);
+		CFlag* Flag = ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[i];
+		int CarryId = -1;
+		if(Flag->m_pCarryingCharacter)
+			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCID();
+		if(Flag)
+			m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
-	{
-		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == NULL)
-		{
-			carry2 = 0;
-		}
 
-		m_Core.setFlagPos(1, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_Pos, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_AtStand, ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_Vel, carry2);
-	}
 	if(m_RandomCosmetics)
 	{
 		if(Server()->Tick() % 22 == 0)

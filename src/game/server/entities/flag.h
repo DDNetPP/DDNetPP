@@ -6,6 +6,9 @@
 
 #include <game/server/entity.h>
 
+#define FLAG_RED 99
+#define FLAG_BLUE 98
+
 class CFlag : public CEntity
 {
 public:
