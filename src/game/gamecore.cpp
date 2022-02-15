@@ -292,8 +292,6 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 			DDPPTickHookFlying(NewPos);
 		}
-		else
-			dbg_msg("gamecore", "hook flying hook=%d world=%p playehrioking=%d", this->m_Hook, m_pWorld, m_Tuning.m_PlayerHooking);
 
 		if(m_HookState == HOOK_FLYING)
 		{
