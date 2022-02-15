@@ -30,7 +30,7 @@ void CGameControllerDDRace::FlagTick()
 		}
 
 		//
-		if(F->m_pCarryingCharacter && F->m_pCarryingCharacter != 0)
+		if(F->m_pCarryingCharacter)
 		{
 			// update flag position
 			F->m_Pos = F->m_pCarryingCharacter->m_Pos;
@@ -133,14 +133,13 @@ void CGameControllerDDRace::FlagTick()
 			}
 		}
 
-		if(F->m_pCarryingCharacter && !F->m_AtStand)
+		if(!F->m_AtStand)
 		{
 			if(Server()->Tick() > F->m_DropTick + Server()->TickSpeed() * 90)
 			{
 				GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 				F->Reset();
 			}
-
 			else
 			{
 				//Friction

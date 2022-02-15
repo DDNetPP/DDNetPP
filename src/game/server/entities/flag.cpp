@@ -22,6 +22,7 @@ void CFlag::Reset()
 	m_Vel = vec2(0, 0);
 	m_GrabTick = 0;
 	m_DropFreezeTick = 0;
+	m_DropTick = 0;
 }
 
 void CFlag::TickPaused()

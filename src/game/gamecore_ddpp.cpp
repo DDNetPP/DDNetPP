@@ -11,7 +11,6 @@ void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry
 {
 	if(id == 0)
 	{
-		// dbg_msg("chiller", "red flag at pos %.2f %.2f", Pos.x / 32, Pos.y / 32);
 		m_FlagPos1 = Pos;
 		m_AtStand1 = Stand;
 		m_FlagVel1 = Vel;
