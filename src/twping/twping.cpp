@@ -1,7 +1,7 @@
 #include <base/math.h>
 #include <base/system.h>
-#include <engine/shared/config.h>
 #include <cstdio>
+#include <engine/shared/config.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <mastersrv/mastersrv.h>

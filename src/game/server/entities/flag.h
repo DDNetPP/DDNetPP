@@ -16,7 +16,8 @@
 class CFlag : public CEntity
 {
 public:
-	static constexpr float ms_PhysSize = 28.0f;;
+	static constexpr float ms_PhysSize = 28.0f;
+	;
 	CCharacter *m_pCarryingCharacter;
 	CCharacter *m_pLastCarryingCharacter;
 

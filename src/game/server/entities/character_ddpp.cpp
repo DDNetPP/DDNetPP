@@ -966,7 +966,7 @@ void CCharacter::DDPP_Tick()
 
 	for(int i = 0; i < 2; i++)
 	{
-		CFlag* Flag = ((CGameControllerDDRace*)GameServer()->m_pController)->m_apFlags[i];
+		CFlag *Flag = ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[i];
 		int CarryId = -1;
 		if(Flag->m_pCarryingCharacter)
 			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCID();
