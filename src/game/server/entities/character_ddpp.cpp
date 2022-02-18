@@ -972,8 +972,7 @@ void CCharacter::DDPP_Tick()
 		int CarryId = -1;
 		if(Flag->m_pCarryingCharacter)
 			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCID();
-		if(Flag)
-			m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
+		m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
 
 	if(m_RandomCosmetics)
