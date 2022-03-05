@@ -39,7 +39,10 @@ void CWeapon::Reset()
 		return;
 	for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
 		if(pOwner->m_vWeaponLimit[m_Type][i] == this)
+		{
 			pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+			break;
+		}
 
 	if(IsCharacterNear() == -1)
 		GameServer()->CreateDeath(m_Pos, -1);

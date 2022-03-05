@@ -347,6 +347,10 @@ bool CCharacter::SetWeaponThatChrHas()
 
 void CCharacter::DropLoot()
 {
+#ifdef CONF_DEBUG
+	// https://github.com/DDNetPP/DDNetPP/issues/325
+	dbg_msg("drop", "DropLoot() ClientID=%d", m_pPlayer->GetCID());
+#endif
 	if(m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)
 	{
 		// survival weapon, health and weapon drops
