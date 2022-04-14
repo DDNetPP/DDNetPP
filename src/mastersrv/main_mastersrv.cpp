@@ -350,7 +350,7 @@ int main(int argc, const char **argv)
 	if(argc > 1)
 		m_pConsole->ParseArguments(argc - 1, &argv[1]);
 
-	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
+	if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
 	{
 		// got bindaddr
 		BindAddr.type = NETTYPE_ALL;
