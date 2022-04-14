@@ -114,7 +114,7 @@ struct CAccountData
 
 		m_NinjaJetpackBought = 0;
 		m_SpookyGhost = 0;
-		m_UseSpawnWeapons = 0;
+		m_UseSpawnWeapons = false;
 		m_SpawnWeaponShotgun = 0;
 		m_SpawnWeaponGrenade = 0;
 		m_SpawnWeaponRifle = 0;
@@ -238,7 +238,7 @@ struct CAccountData
 
 	int m_NinjaJetpackBought;
 	int m_SpookyGhost;
-	int m_UseSpawnWeapons;
+	bool m_UseSpawnWeapons;
 	int m_SpawnWeaponShotgun;
 	int m_SpawnWeaponGrenade;
 	int m_SpawnWeaponRifle;
