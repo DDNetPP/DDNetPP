@@ -1,4 +1,5 @@
 autoexec_server.cfg merge=ours
+data/maps merge=ours
 README.md merge=ours
 license.txt merge=ours
 .github/workflows/main.yml merge=ours
