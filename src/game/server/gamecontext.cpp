@@ -1,6 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <base/tl/sorted_array.h>
+#include <iostream>
 
 #include <antibot/antibot_data.h>
 #include <base/ddpp_logs.h>
@@ -374,7 +375,7 @@ void CGameContext::SendChatTarget(int To, const char *pText, int Flags)
 
 	if(To == -1)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < Server()->MaxClients(); i++)
 		{
 			if(!((Server()->IsSixup(i) && (Flags & CHAT_SIXUP)) ||
 				   (!Server()->IsSixup(i) && (Flags & CHAT_SIX))))
@@ -432,7 +433,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
 
 		// send to the clients
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < Server()->MaxClients(); i++)
 		{
 			if(!m_apPlayers[i])
 				continue;
@@ -471,7 +472,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
 
 		// send to the clients
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < Server()->MaxClients(); i++)
 		{
 			if(m_apPlayers[i] != 0)
 			{
@@ -685,7 +686,7 @@ void CGameContext::SendVoteSet(int ClientID)
 
 	if(ClientID == -1)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(int i = 0; i < Server()->MaxClients(); i++)
 		{
 			if(!m_apPlayers[i])
 				continue;
@@ -1344,11 +1345,11 @@ void CGameContext::OnClientEnter(int ClientID, bool Silent)
 		for(const IConsole::CCommandInfo *pCmd = Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_USER, CFGFLAG_CHAT);
 			pCmd; pCmd = pCmd->NextCommandInfo(IConsole::ACCESS_LEVEL_USER, CFGFLAG_CHAT))
 		{
-			if(!str_comp(pCmd->m_pName, "w") || !str_comp(pCmd->m_pName, "whisper"))
+			if(!str_comp_nocase(pCmd->m_pName, "w") || !str_comp_nocase(pCmd->m_pName, "whisper"))
 				continue;
 
 			const char *pName = pCmd->m_pName;
-			if(!str_comp(pCmd->m_pName, "r"))
+			if(!str_comp_nocase(pCmd->m_pName, "r"))
 				pName = "rescue";
 
 			protocol7::CNetMsg_Sv_CommandInfo Msg;
@@ -1390,7 +1391,7 @@ void CGameContext::OnClientEnter(int ClientID, bool Silent)
 		if(g_Config.m_SvWelcome[0] != 0)
 			SendChatTarget(ClientID, g_Config.m_SvWelcome);
 
-		if(g_Config.m_SvShowOthersDefault > 0)
+		if(g_Config.m_SvShowOthersDefault > SHOW_OTHERS_OFF)
 		{
 			if(g_Config.m_SvShowOthers)
 				SendChatTarget(ClientID, "You can see other players. To disable this use DDNet client and type /showothers .");
@@ -1426,7 +1427,7 @@ void CGameContext::OnClientEnter(int ClientID, bool Silent)
 	}
 
 	// update client infos (others before local)
-	for(int i = 0; i < MAX_CLIENTS; ++i)
+	for(int i = 0; i < Server()->MaxClients(); ++i)
 	{
 		if(i == ClientID || !m_apPlayers[i] || !Server()->ClientIngame(i))
 			continue;
@@ -1901,7 +1902,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			int GameTeam = ((CGameControllerDDRace *)m_pController)->m_Teams.m_Core.Team(pPlayer->GetCID());
 			if(Team)
-				Team = ((pPlayer->GetTeam() == -1) ? CHAT_SPEC : GameTeam);
+				Team = ((pPlayer->GetTeam() == TEAM_SPECTATORS) ? CHAT_SPEC : GameTeam);
 			else
 				Team = CHAT_ALL;
 
@@ -1914,25 +1915,25 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					// pass
 				}
-				else if(str_comp_nocase_num(pMsg->m_pMessage + 1, "w ", 2) == 0)
+				else if(str_startswith(pMsg->m_pMessage + 1, "w "))
 				{
 					char aWhisperMsg[256];
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Whisper(pPlayer->GetCID(), aWhisperMsg);
 				}
-				else if(str_comp_nocase_num(pMsg->m_pMessage + 1, "whisper ", 8) == 0)
+				else if(str_startswith(pMsg->m_pMessage + 1, "whisper "))
 				{
 					char aWhisperMsg[256];
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 9, 256);
 					Whisper(pPlayer->GetCID(), aWhisperMsg);
 				}
-				else if(str_comp_nocase_num(pMsg->m_pMessage + 1, "c ", 2) == 0)
+				else if(str_startswith(pMsg->m_pMessage + 1, "c "))
 				{
 					char aWhisperMsg[256];
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 3, 256);
 					Converse(pPlayer->GetCID(), aWhisperMsg);
 				}
-				else if(str_comp_nocase_num(pMsg->m_pMessage + 1, "converse ", 9) == 0)
+				else if(str_startswith(pMsg->m_pMessage + 1, "converse "))
 				{
 					char aWhisperMsg[256];
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 10, 256);
@@ -2233,7 +2234,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_VoteVictim = SpectateID;
 			}
 
-			if(aCmd[0] && str_comp(aCmd, "info") != 0)
+			if(aCmd[0] && str_comp_nocase(aCmd, "info") != 0)
 				CallVote(ClientID, aDesc, aCmd, aReason, aChatmsg, aSixupDesc[0] ? aSixupDesc : 0);
 		}
 		else if(MsgID == NETMSGTYPE_CL_VOTE)
@@ -2472,7 +2473,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					Info.m_aUseCustomColors[p] = pPlayer->m_TeeInfos.m_aUseCustomColors[p];
 				}
 
-				for(int i = 0; i < MAX_CLIENTS; i++)
+				for(int i = 0; i < Server()->MaxClients(); i++)
 				{
 					if(i != ClientID)
 					{
@@ -3388,8 +3389,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		g_Config.m_SvOldTeleportHook = 0;
 		g_Config.m_SvOldTeleportWeapons = 0;
 		g_Config.m_SvTeleportHoldHook = 0;
-		g_Config.m_SvTeam = 1;
-		g_Config.m_SvShowOthersDefault = 0;
+		g_Config.m_SvTeam = SV_TEAM_ALLOWED;
+		g_Config.m_SvShowOthersDefault = SHOW_OTHERS_OFF;
 
 		if(Collision()->m_NumSwitchers > 0)
 			for(int i = 0; i < Collision()->m_NumSwitchers + 1; ++i)
@@ -3405,8 +3406,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	if(g_Config.m_SvSoloServer)
 	{
-		g_Config.m_SvTeam = 3;
-		g_Config.m_SvShowOthersDefault = 1;
+		g_Config.m_SvTeam = SV_TEAM_FORCED_SOLO;
+		g_Config.m_SvShowOthersDefault = SHOW_OTHERS_ON;
 
 		Tuning()->Set("player_collision", 0);
 		Tuning()->Set("player_hooking", 0);
@@ -3447,8 +3448,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		char aFilename[IO_MAX_PATH_LENGTH];
 		str_format(aFilename, sizeof(aFilename), "teehistorian/%s.teehistorian", aGameUuid);
 
-		IOHANDLE File = Storage()->OpenFile(aFilename, IOFLAG_WRITE, IStorage::TYPE_SAVE);
-		if(!File)
+		IOHANDLE THFile = Storage()->OpenFile(aFilename, IOFLAG_WRITE, IStorage::TYPE_SAVE);
+		if(!THFile)
 		{
 			dbg_msg("teehistorian", "failed to open '%s'", aFilename);
 			Server()->SetErrorShutdown("teehistorian open error");
@@ -3458,7 +3459,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		{
 			dbg_msg("teehistorian", "recording to '%s'", aFilename);
 		}
-		m_pTeeHistorianFile = aio_new(File);
+		m_pTeeHistorianFile = aio_new(THFile);
 
 		char aVersion[128];
 		if(GIT_SHORTREV_HASH)
@@ -4058,7 +4059,7 @@ int CGameContext::ProcessSpamProtection(int ClientID, bool RespectChatInitialDel
 		return 1;
 	}
 
-	if((m_apPlayers[ClientID]->m_ChatScore += g_Config.m_SvChatPenalty) > g_Config.m_SvChatThreshold)
+	if(g_Config.m_SvSpamMuteDuration && (m_apPlayers[ClientID]->m_ChatScore += g_Config.m_SvChatPenalty) > g_Config.m_SvChatThreshold)
 	{
 		Mute(&Addr, g_Config.m_SvSpamMuteDuration, Server()->ClientName(ClientID));
 		m_apPlayers[ClientID]->m_ChatScore = 0;

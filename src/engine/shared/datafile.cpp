@@ -131,7 +131,7 @@ bool CDataFileReader::Open(class IStorage *pStorage, const char *pFilename, int 
 			unsigned Bytes = io_read(File, aBuffer, BUFFER_SIZE);
 			if(Bytes <= 0)
 				break;
-			Crc = crc32(Crc, aBuffer, Bytes); // ignore_convention
+			Crc = crc32(Crc, aBuffer, Bytes);
 			sha256_update(&Sha256Ctxt, aBuffer, Bytes);
 		}
 		Sha256 = sha256_finish(&Sha256Ctxt);
@@ -337,7 +337,7 @@ void *CDataFileReader::GetDataImpl(int Index, int Swap)
 
 			// decompress the data, TODO: check for errors
 			s = UncompressedSize;
-			uncompress((Bytef *)m_pDataFile->m_ppDataPtrs[Index], &s, (Bytef *)pTemp, DataSize); // ignore_convention
+			uncompress((Bytef *)m_pDataFile->m_ppDataPtrs[Index], &s, (Bytef *)pTemp, DataSize);
 #if defined(CONF_ARCH_ENDIAN_BIG)
 			SwapSize = s;
 #endif
@@ -578,11 +578,9 @@ CDataFileWriter::~CDataFileWriter()
 	free(m_pItemTypes);
 	m_pItemTypes = 0;
 	for(int i = 0; i < m_NumItems; i++)
-		if(m_pItems[i].m_pData)
-			free(m_pItems[i].m_pData);
+		free(m_pItems[i].m_pData);
 	for(int i = 0; i < m_NumDatas; ++i)
-		if(m_pDatas[i].m_pCompressedData)
-			free(m_pDatas[i].m_pCompressedData);
+		free(m_pDatas[i].m_pCompressedData);
 	free(m_pItems);
 	m_pItems = 0;
 	free(m_pDatas);
@@ -686,7 +684,7 @@ int CDataFileWriter::AddData(int Size, void *pData, int CompressionLevel)
 	unsigned long s = compressBound(Size);
 	void *pCompData = malloc(s); // temporary buffer that we use during compression
 
-	int Result = compress2((Bytef *)pCompData, &s, (Bytef *)pData, Size, CompressionLevel); // ignore_convention
+	int Result = compress2((Bytef *)pCompData, &s, (Bytef *)pData, Size, CompressionLevel);
 	if(Result != Z_OK)
 	{
 		dbg_msg("datafile", "compression error %d", Result);

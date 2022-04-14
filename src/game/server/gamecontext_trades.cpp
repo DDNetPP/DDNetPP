@@ -38,7 +38,6 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 	int item = TradeItemToInt(pItemName); // ITEM EXIST ???
 	if(item == -1)
 	{
-		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
 		SendChatTarget(FromID, aBuf);
 		return -1;

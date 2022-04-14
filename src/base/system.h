@@ -721,24 +721,21 @@ Current value of the timer in microseconds.
 int64_t time_get_microseconds();
 
 /* Group: Network General */
-typedef struct
-{
-	int type;
-	int ipv4sock;
-	int ipv6sock;
-	int web_ipv4sock;
-} NETSOCKET;
+typedef struct NETSOCKET_INTERNAL *NETSOCKET;
 
 enum
 {
 	NETADDR_MAXSTRSIZE = 1 + (8 * 4 + 7) + 1 + 1 + 5 + 1, // [XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX]:XXXXX
 
+	NETTYPE_LINK_BROADCAST = 4,
+
 	NETTYPE_INVALID = 0,
 	NETTYPE_IPV4 = 1,
 	NETTYPE_IPV6 = 2,
-	NETTYPE_LINK_BROADCAST = 4,
 	NETTYPE_WEBSOCKET_IPV4 = 8,
-	NETTYPE_ALL = NETTYPE_IPV4 | NETTYPE_IPV6 | NETTYPE_WEBSOCKET_IPV4
+
+	NETTYPE_ALL = NETTYPE_IPV4 | NETTYPE_IPV6 | NETTYPE_WEBSOCKET_IPV4,
+	NETTYPE_MASK = NETTYPE_ALL | NETTYPE_LINK_BROADCAST,
 };
 
 typedef struct
@@ -843,6 +840,19 @@ int net_addr_from_str(NETADDR *addr, const char *string);
 /* Group: Network UDP */
 
 /*
+	Function: net_socket_type
+		Determine a socket's type.
+
+	Parameters:
+		sock - Socket whose type should be determined.
+
+	Returns:
+		The socket type, a bitset of `NETTYPE_IPV4`, `NETTYPE_IPV6` and
+		`NETTYPE_WEBSOCKET_IPV4`.
+*/
+int net_socket_type(NETSOCKET sock);
+
+/*
 	Function: net_udp_create
 		Creates a UDP socket and binds it to a port.
 
@@ -871,24 +881,6 @@ NETSOCKET net_udp_create(NETADDR bindaddr);
 */
 int net_udp_send(NETSOCKET sock, const NETADDR *addr, const void *data, int size);
 
-#define VLEN 128
-#define PACKETSIZE 1400
-typedef struct
-{
-#ifdef CONF_PLATFORM_LINUX
-	int pos;
-	int size;
-	struct mmsghdr msgs[VLEN];
-	struct iovec iovecs[VLEN];
-	char bufs[VLEN][PACKETSIZE];
-	char sockaddrs[VLEN][128];
-#else
-	int dummy;
-#endif
-} MMSGS;
-
-void net_init_mmsgs(MMSGS *m);
-
 /*
 	Function: net_udp_recv
 		Receives a packet over an UDP socket.
@@ -896,15 +888,14 @@ void net_init_mmsgs(MMSGS *m);
 	Parameters:
 		sock - Socket to use.
 		addr - Pointer to an NETADDR that will receive the address.
-		buffer - Pointer to a buffer that can be used to receive the data.
-		maxsize - Maximum size to receive.
-		data - Will get set to the actual data, might be the passed buffer or an internal one
+		data - Received data. Will be invalidated when this function is
+		called again.
 
 	Returns:
 		On success it returns the number of bytes received. Returns -1
 		on error.
 */
-int net_udp_recv(NETSOCKET sock, NETADDR *addr, void *buffer, int maxsize, MMSGS *m, unsigned char **data);
+int net_udp_recv(NETSOCKET sock, NETADDR *addr, unsigned char **data);
 
 /*
 	Function: net_udp_close
@@ -1364,8 +1355,26 @@ int str_comp_num(const char *a, const char *b, int num);
 int str_comp_filenames(const char *a, const char *b);
 
 /*
+       Function: str_startswith_nocase
+               Checks case insensitive whether the string begins with a certain prefix.
+
+       Parameter:
+               str - String to check.
+               prefix - Prefix to look for.
+
+       Returns:
+               A pointer to the string str after the string prefix, or 0 if
+               the string prefix isn't a prefix of the string str.
+
+       Remarks:
+               - The strings are treated as zero-terminated strings.
+*/
+const char *str_startswith_nocase(const char *str, const char *prefix);
+
+/*
 	Function: str_startswith
-		Checks whether the string begins with a certain prefix.
+		Checks case sensitive whether the string begins with a certain prefix.
+
 	Parameter:
 		str - String to check.
 		prefix - Prefix to look for.
@@ -1378,8 +1387,26 @@ int str_comp_filenames(const char *a, const char *b);
 const char *str_startswith(const char *str, const char *prefix);
 
 /*
+       Function: str_endswith_nocase
+               Checks case insensitive whether the string ends with a certain suffix.
+
+       Parameter:
+               str - String to check.
+               suffix - Suffix to look for.
+
+       Returns:
+               A pointer to the beginning of the suffix in the string str, or
+               0 if the string suffix isn't a suffix of the string str.
+
+       Remarks:
+               - The strings are treated as zero-terminated strings.
+*/
+const char *str_endswith_nocase(const char *str, const char *suffix);
+
+/*
 	Function: str_endswith
-		Checks whether the string ends with a certain suffix.
+		Checks case sensitive whether the string ends with a certain suffix.
+
 	Parameter:
 		str - String to check.
 		suffix - Suffix to look for.
@@ -1844,6 +1871,9 @@ void swap_endian(void *data, unsigned elem_size, unsigned num);
 typedef void (*DBG_LOGGER)(const char *line, void *user);
 typedef void (*DBG_LOGGER_FINISH)(void *user);
 void dbg_logger(DBG_LOGGER logger, DBG_LOGGER_FINISH finish, void *user);
+
+typedef void (*DBG_LOGGER_ASSERTION)(void *user);
+void dbg_logger_assertion(DBG_LOGGER logger, DBG_LOGGER_FINISH finish, DBG_LOGGER_ASSERTION on_assert, void *user);
 
 void dbg_logger_stdout();
 void dbg_logger_debugger();
@@ -2354,6 +2384,11 @@ void set_console_msg_color(const void *rgbvoid);
 		1 - Failure in getting the version.
 */
 int os_version_str(char *version, int length);
+
+#if defined(CONF_EXCEPTION_HANDLING)
+void init_exception_handler();
+void set_exception_handler_log_file(const char *log_file_path);
+#endif
 
 #if defined(__cplusplus)
 }

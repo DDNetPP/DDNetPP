@@ -1481,7 +1481,6 @@ void CGameContext::BombTick()
 			}
 			else
 			{
-				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "Failed to pick new bomb. Bombfound: %d", FindNextBomb());
 				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 			}

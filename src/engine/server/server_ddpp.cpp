@@ -341,11 +341,11 @@ int CServer::LoadMapLive(const char *pMapName)
 	m_IDPool.TimeoutIDs();
 
 	// get the crc of the map
-	m_aCurrentMapSha256[SIX] = m_pMap->Sha256();
-	m_aCurrentMapCrc[SIX] = m_pMap->Crc();
+	m_aCurrentMapSha256[MAP_TYPE_SIX] = m_pMap->Sha256();
+	m_aCurrentMapCrc[MAP_TYPE_SIX] = m_pMap->Crc();
 	char aBufMsg[256];
 	char aSha256[SHA256_MAXSTRSIZE];
-	sha256_str(m_aCurrentMapSha256[SIX], aSha256, sizeof(aSha256));
+	sha256_str(m_aCurrentMapSha256[MAP_TYPE_SIX], aSha256, sizeof(aSha256));
 	str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
 	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBufMsg);
 
@@ -354,10 +354,10 @@ int CServer::LoadMapLive(const char *pMapName)
 	// load complete map into memory for download
 	{
 		IOHANDLE File = Storage()->OpenFile(aBuf, IOFLAG_READ, IStorage::TYPE_ALL);
-		m_aCurrentMapSize[SIX] = (unsigned int)io_length(File);
-		free(m_apCurrentMapData[SIX]);
-		m_apCurrentMapData[SIX] = (unsigned char *)malloc(m_aCurrentMapSize[SIX]);
-		io_read(File, m_apCurrentMapData[SIX], m_aCurrentMapSize[SIX]);
+		m_aCurrentMapSize[MAP_TYPE_SIX] = (unsigned int)io_length(File);
+		free(m_apCurrentMapData[MAP_TYPE_SIX]);
+		m_apCurrentMapData[MAP_TYPE_SIX] = (unsigned char *)malloc(m_aCurrentMapSize[MAP_TYPE_SIX]);
+		io_read(File, m_apCurrentMapData[MAP_TYPE_SIX], m_aCurrentMapSize[MAP_TYPE_SIX]);
 		io_close(File);
 	}
 
@@ -375,23 +375,23 @@ int CServer::LoadMapLive(const char *pMapName)
 		}
 		else
 		{
-			m_aCurrentMapSize[SIXUP] = (unsigned int)io_length(File);
-			free(m_apCurrentMapData[SIXUP]);
-			m_apCurrentMapData[SIXUP] = (unsigned char *)malloc(m_aCurrentMapSize[SIXUP]);
-			io_read(File, m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
+			m_aCurrentMapSize[MAP_TYPE_SIXUP] = (unsigned int)io_length(File);
+			free(m_apCurrentMapData[MAP_TYPE_SIXUP]);
+			m_apCurrentMapData[MAP_TYPE_SIXUP] = (unsigned char *)malloc(m_aCurrentMapSize[MAP_TYPE_SIXUP]);
+			io_read(File, m_apCurrentMapData[MAP_TYPE_SIXUP], m_aCurrentMapSize[MAP_TYPE_SIXUP]);
 			io_close(File);
 
-			m_aCurrentMapSha256[SIXUP] = sha256(m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
-			m_aCurrentMapCrc[SIXUP] = crc32(0, m_apCurrentMapData[SIXUP], m_aCurrentMapSize[SIXUP]);
-			sha256_str(m_aCurrentMapSha256[SIXUP], aSha256, sizeof(aSha256));
+			m_aCurrentMapSha256[MAP_TYPE_SIXUP] = sha256(m_apCurrentMapData[MAP_TYPE_SIXUP], m_aCurrentMapSize[MAP_TYPE_SIXUP]);
+			m_aCurrentMapCrc[MAP_TYPE_SIXUP] = crc32(0, m_apCurrentMapData[MAP_TYPE_SIXUP], m_aCurrentMapSize[MAP_TYPE_SIXUP]);
+			sha256_str(m_aCurrentMapSha256[MAP_TYPE_SIXUP], aSha256, sizeof(aSha256));
 			str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
 			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "sixup", aBufMsg);
 		}
 	}
-	if(!Config()->m_SvSixup && m_apCurrentMapData[SIXUP])
+	if(!Config()->m_SvSixup && m_apCurrentMapData[MAP_TYPE_SIXUP])
 	{
-		free(m_apCurrentMapData[SIXUP]);
-		m_apCurrentMapData[SIXUP] = 0;
+		free(m_apCurrentMapData[MAP_TYPE_SIXUP]);
+		m_apCurrentMapData[MAP_TYPE_SIXUP] = 0;
 	}
 
 	for(int i = 0; i < MAX_CLIENTS; i++)

@@ -468,6 +468,8 @@ bool CGameContext::TryMute(const NETADDR *pAddr, int Secs, const char *pReason, 
 
 void CGameContext::Mute(const NETADDR *pAddr, int Secs, const char *pDisplayName, const char *pReason, bool InitialChatDelay)
 {
+	if(Secs <= 0)
+		return;
 	if(!TryMute(pAddr, Secs, pReason, InitialChatDelay))
 		return;
 	if(InitialChatDelay)
@@ -709,7 +711,7 @@ void CGameContext::ConSetDDRTeam(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	CGameControllerDDRace *pController = (CGameControllerDDRace *)pSelf->m_pController;
 
-	if(g_Config.m_SvTeam == 0 || g_Config.m_SvTeam == 3)
+	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "join",
 			"Teams are disabled");

@@ -23,8 +23,6 @@ private:
 	int m_Timer;
 
 	bool Attracting;
-
-	vec2 m_Pos;
 };
 
 #endif
