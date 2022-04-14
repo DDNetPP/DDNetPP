@@ -1187,7 +1187,6 @@ void CCharacter::DDPP_Tick()
 	{
 		m_pPlayer->m_Account.m_EscapeTime = 0;
 		m_pPlayer->m_Account.m_JailTime--;
-		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Your are arrested for %" PRId64 " seconds. \nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_JailTime / Server()->TickSpeed());
 		if(Server()->Tick() % 40 == 0)
 		{
@@ -1217,7 +1216,6 @@ void CCharacter::DDPP_Tick()
 	if(m_pPlayer->m_Account.m_EscapeTime > 0)
 	{
 		m_pPlayer->m_Account.m_EscapeTime--;
-		char aBuf[256];
 		if(m_isDmg)
 		{
 			str_format(aBuf, sizeof(aBuf), "Avoid policehammers for the next %" PRId64 " seconds. \n!WARNING! DAMAGE IS ACTIVATED ON YOU!\nType '/hide jail' to hide this info.", m_pPlayer->m_Account.m_EscapeTime / Server()->TickSpeed());
@@ -3236,8 +3234,8 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			CNetObj_Projectile p;
 			pProj->FillInfo(&p);
 
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
+			for(unsigned k = 0; k < sizeof(CNetObj_Projectile) / sizeof(int); k++)
+				Msg.AddInt(((int *)&p)[k]);
 		}
 
 		Server()->SendMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCID());
