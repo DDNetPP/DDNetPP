@@ -155,32 +155,7 @@ void CGameContext::ConSpawnWeapons(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if(!pChr)
-		return;
-
-	if(!g_Config.m_SvAllowSpawnWeapons)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons are deactivated by an administrator.");
-		return;
-	}
-
-	if((!pPlayer->m_Account.m_SpawnWeaponShotgun) && (!pPlayer->m_Account.m_SpawnWeaponGrenade) && (!pPlayer->m_Account.m_SpawnWeaponRifle))
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have any spawn weapons.");
-		return;
-	}
-
-	if(!pPlayer->m_Account.m_UseSpawnWeapons)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons activated");
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Spawn weapons deactivated");
-	}
-
-	pPlayer->m_Account.m_UseSpawnWeapons ^= true;
+	pSelf->SetSpawnweapons(!pPlayer->m_Account.m_UseSpawnWeapons, pResult->m_ClientID);
 }
 
 void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
@@ -760,7 +735,6 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 	if(RegBanned > 0)
 	{
-		char aBuf[128];
 		str_format(aBuf, sizeof aBuf, "[ACCOUNT] you have to wait %d seconds before you can register again.", RegBanned);
 		pSelf->SendChatTarget(ClientID, aBuf);
 		return;
@@ -5557,7 +5531,6 @@ void CGameContext::ConJail(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Get closer to the cell.");
 			return;
 		}
-		char aBuf[256];
 		int jailedID = pSelf->GetCIDByName(pResult->GetString(2));
 		if(!pSelf->m_apPlayers[jailedID])
 		{
@@ -6587,12 +6560,12 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientID, "[MAPSAVE] listing player stats check rcon console...");
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			CPlayer *pPlayer = pSelf->m_apPlayers[i];
-			if(!pPlayer)
+			CPlayer *p = pSelf->m_apPlayers[i];
+			if(!p)
 				continue;
 
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), pPlayer->m_aTimeoutCode, pPlayer->m_MapSaveLoaded);
+			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), p->m_aTimeoutCode, p->m_MapSaveLoaded);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mapsave", aBuf);
 		}
 	}
@@ -6601,10 +6574,10 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 		int NoCode = 0;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			CPlayer *pPlayer = pSelf->m_apPlayers[i];
-			if(!pPlayer)
+			CPlayer *p = pSelf->m_apPlayers[i];
+			if(!p)
 				continue;
-			if(pPlayer->m_aTimeoutCode[0])
+			if(p->m_aTimeoutCode[0])
 				continue;
 
 			NoCode++;

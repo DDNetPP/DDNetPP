@@ -72,6 +72,45 @@ void CGameContext::DestructDDPP()
 	}
 }
 
+void CGameContext::SetSpawnweapons(bool Active, int ClientID)
+{
+	if(ClientID < 0 || ClientID > MAX_CLIENTS)
+		return;
+	CPlayer *pPlayer = m_apPlayers[ClientID];
+	if(!pPlayer)
+		return;
+
+	if(Active)
+	{
+		if(!g_Config.m_SvAllowSpawnWeapons)
+		{
+			SendChatTarget(ClientID, "Spawn weapons are deactivated by an administrator.");
+			return;
+		}
+
+		if((!pPlayer->m_Account.m_SpawnWeaponShotgun) && (!pPlayer->m_Account.m_SpawnWeaponGrenade) && (!pPlayer->m_Account.m_SpawnWeaponRifle))
+		{
+			SendChatTarget(ClientID, "You don't have any spawn weapons.");
+			return;
+		}
+	}
+
+	// only print messages on changed state
+	if(pPlayer->m_Account.m_UseSpawnWeapons == Active)
+		return;
+
+	if(!pPlayer->m_Account.m_UseSpawnWeapons)
+	{
+		SendChatTarget(ClientID, "Spawn weapons activated. Use '/spawnweapons' to toggle.");
+	}
+	else
+	{
+		SendChatTarget(ClientID, "Spawn weapons deactivated. Use '/spawnweapons' to toggle.");
+	}
+
+	pPlayer->m_Account.m_UseSpawnWeapons = Active;
+}
+
 void CGameContext::LoadMapLive(const char *pMapName)
 {
 	int LoadMap = Server()->LoadMapLive(pMapName);

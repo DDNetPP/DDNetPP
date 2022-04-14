@@ -51,6 +51,8 @@ public:
 			default switcher state seems to be bugged
 	*/
 	void LoadMapLive(const char *pMapName);
+	void SetSpawnweapons(bool Active, int ClientID);
+
 
 	void ChatCommands();
 	void DummyChat();

@@ -481,6 +481,7 @@ bool CShopItemSpawnShotgun::Buy(int ClientID)
 	if(!CShopItem::Buy(ClientID))
 		return false;
 	pPlayer->m_Account.m_SpawnWeaponShotgun++;
+	GameServer()->SetSpawnweapons(true, ClientID);
 	return true;
 }
 
@@ -497,6 +498,7 @@ bool CShopItemSpawnGrenade::Buy(int ClientID)
 	if(!CShopItem::Buy(ClientID))
 		return false;
 	pPlayer->m_Account.m_SpawnWeaponGrenade++;
+	GameServer()->SetSpawnweapons(true, ClientID);
 	return true;
 }
 
@@ -513,6 +515,7 @@ bool CShopItemSpawnRifle::Buy(int ClientID)
 	if(!CShopItem::Buy(ClientID))
 		return false;
 	pPlayer->m_Account.m_SpawnWeaponRifle++;
+	GameServer()->SetSpawnweapons(true, ClientID);
 	return true;
 }
 
