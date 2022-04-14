@@ -1655,10 +1655,10 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						AuthLevel = AUTHED_HELPER;
 					else if(g_Config.m_SvRconFakePassword[0] && str_comp(pPw, g_Config.m_SvRconFakePassword) == 0)
 					{
-						CMsgPacker Msg(NETMSG_RCON_AUTH_STATUS, true);
-						Msg.AddInt(1); //authed
-						Msg.AddInt(1); //cmdlist
-						SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
+						CMsgPacker MsgAuth(NETMSG_RCON_AUTH_STATUS, true);
+						MsgAuth.AddInt(1); //authed
+						MsgAuth.AddInt(1); //cmdlist
+						SendMsg(&MsgAuth, MSGFLAG_VITAL, ClientID);
 					}
 					else if(g_Config.m_SvRconHoneyPassword[0] && str_comp(pPw, g_Config.m_SvRconHoneyPassword) == 0)
 						AuthLevel = AUTHED_HONEY;
