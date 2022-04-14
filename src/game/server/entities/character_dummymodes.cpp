@@ -2409,7 +2409,7 @@ void CCharacter::DummyTick()
 
 								// normal wayblock
 								// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this); //position anderer spieler mit pikus aimbot abfragen
-								// if(pChr && pChr->IsAlive())
+								if(pChr && pChr->IsAlive())
 								{
 									//Check ob jemand special angeflogen kommt dann mode18 = 3 starten
 									//Check ob special_defend aktiviert werden sollte
@@ -2511,7 +2511,7 @@ void CCharacter::DummyTick()
 										if(!m_Dummy_emergency) //auch hier wieder nur wenn kein notfall is
 										{
 											// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-											// if(pChr && pChr->IsAlive())
+											if(pChr && pChr->IsAlive())
 											{
 												if(pChr->m_Pos.y > 213 * 32 - 5 && m_Core.m_HookState == HOOK_GRABBED && pChr->m_Pos.y < 213 * 32 + 5)
 												{
@@ -3520,7 +3520,7 @@ void CCharacter::DummyTick()
 							}
 
 							// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-							// if(pChr && pChr->IsAlive())
+							if(pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 								m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -3671,7 +3671,7 @@ void CCharacter::DummyTick()
 					if(m_Core.m_Pos.x > 466 * 32)
 					{
 						// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-						// if(pChr && pChr->IsAlive())
+						if(pChr && pChr->IsAlive())
 						{
 							m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 							m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -4681,7 +4681,7 @@ void CCharacter::DummyTick()
 						{
 							SetWeapon(0);
 							// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-							// if(pChr && pChr->IsAlive())
+							if(pChr && pChr->IsAlive())
 							{
 								m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 								m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -6881,7 +6881,7 @@ void CCharacter::DummyTick()
 					if(m_Core.m_Pos.x < 415 * 32)
 					{
 						// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this); //hammer player up in freeze if in right pos
-						// if(pChr && pChr->IsAlive())
+						if(pChr && pChr->IsAlive())
 						{
 							if(pChr->m_Core.m_Pos.x > m_Core.m_Pos.x - 100 && pChr->m_Core.m_Pos.x < m_Core.m_Pos.x + 100 && pChr->m_Core.m_Pos.y > m_Core.m_Pos.y - 100 && pChr->m_Core.m_Pos.y < m_Core.m_Pos.y + 100)
 							{
@@ -6976,7 +6976,7 @@ void CCharacter::DummyTick()
 						if(m_Core.m_Pos.x < 406 * 32)
 						{
 							// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-							// if(pChr && pChr->IsAlive())
+							if(pChr && pChr->IsAlive())
 							{
 								m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 								m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -7045,7 +7045,7 @@ void CCharacter::DummyTick()
 							}
 
 							// CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, true, this);
-							// if(pChr && pChr->IsAlive())
+							if(pChr && pChr->IsAlive())
 							{
 								r = rand() % 10 - 10;
 
