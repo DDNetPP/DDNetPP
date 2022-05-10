@@ -62,6 +62,7 @@ void CGameContext::BlockTournaTick()
 			m_BlockTournaTick = 0;
 
 			//ready all players
+			int SpawnIndex = 0;
 			for(auto &Player : m_apPlayers)
 			{
 				if(Player && Player->m_IsBlockTourning)
@@ -86,7 +87,7 @@ void CGameContext::BlockTournaTick()
 						Player->GetCharacter()->KillSpeed();
 
 						//teleport
-						vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
+						vec2 BlockPlayerSpawn = Collision()->GetBlockTournamentSpawn(SpawnIndex++);
 
 						if(BlockPlayerSpawn != vec2(-1, -1))
 						{

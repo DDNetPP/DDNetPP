@@ -43,6 +43,11 @@ vec2 CCollision::GetSurvivalSpawn(int Num)
 	return GetTileAtNum(TILE_SURVIVAL_SPAWN, Num);
 }
 
+vec2 CCollision::GetBlockTournamentSpawn(int Num)
+{
+	return GetTileAtNum(TILE_BLOCK_TOURNA_SPAWN, Num);
+}
+
 vec2 CCollision::GetTileAtNum(int Tile, int Num)
 {
 	if(!m_vTiles[Tile].empty())

@@ -116,6 +116,7 @@ public:
 	vec2 GetRandomTile(int Tile);
 	vec2 GetTileAtNum(int Tile, int Num);
 	vec2 GetSurvivalSpawn(int Num);
+	vec2 GetBlockTournamentSpawn(int Num);
 	int CountSurvivalSpawns() { return m_NumSurvivalSpawns; };
 
 	class CTeleTile *TeleLayer() { return m_pTele; }
