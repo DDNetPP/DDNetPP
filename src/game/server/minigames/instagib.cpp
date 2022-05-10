@@ -57,12 +57,7 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 		}
 	}
 
-	if(cPlayer && PrivateMatch)
-	{
-		return false;
-	}
-
-	return true;
+	return !cPlayer || !PrivateMatch;
 }
 
 void CGameContext::WinInsta1on1(int WinnerID, int LooserID)

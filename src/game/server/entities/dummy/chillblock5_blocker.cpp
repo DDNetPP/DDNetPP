@@ -1151,7 +1151,7 @@ void CDummyChillBlock5Blocker::OnTick()
 				//                                               --->   Ruler   <---    testy own class just search in ruler area
 
 				CCharacter *pChrRuler = GameServer()->m_World.ClosestCharTypeRuler(GetPos(), true, m_pCharacter); //position anderer spieler mit pikus aimbot abfragen
-				if(pChrRuler && pChrRuler->IsAlive())
+				if(pChrRuler && pChrRuler->IsAlive() && pChr && pChr->IsAlive())
 				{
 					//sometimes walk to enemys.   to push them in freeze or super hammer them away
 					if(pChrRuler->m_Pos.y < GetPos().y + 2 && pChrRuler->m_Pos.y > GetPos().y - 9)
@@ -2191,9 +2191,12 @@ void CDummyChillBlock5Blocker::OnTick()
 				}
 
 				//go home if its oky, oky?
-				if((GetPos().x < 458 * 32 && IsGrounded() && IsFrozen(pChr)) || (GetPos().x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > GetPos().x + (10 * 32)))
+				if(pChr && pChr->IsAlive())
 				{
-					Left();
+					if((GetPos().x < 458 * 32 && IsGrounded() && IsFrozen(pChr)) || (GetPos().x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > GetPos().x + (10 * 32)))
+					{
+						Left();
+					}
 				}
 				//keep going also in the air xD
 				if(GetPos().x < 450 * 32 && GetVel().x < 1.1f && Jumped() < 2)

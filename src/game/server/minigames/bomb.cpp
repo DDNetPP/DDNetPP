@@ -324,13 +324,9 @@ int CGameContext::CountBannedBombPlayers()
 {
 	int BannedPlayers = 0;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_Account.m_BombBanTime)
-		{
+	for(auto &Player : m_apPlayers)
+		if(Player && Player->m_Account.m_BombBanTime)
 			BannedPlayers++;
-		}
-	}
 
 	return BannedPlayers;
 }

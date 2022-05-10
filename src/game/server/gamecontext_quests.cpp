@@ -585,23 +585,23 @@ void CGameContext::CheckConnectQuestBot()
 	int NumConnectedPlayers = 0;
 	int NumIngamePlayers = 0;
 	int NumIngameHumans = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
 
 		NumConnectedPlayers++;
-		if(m_apPlayers[i]->IsQuesting())
+		if(Player->IsQuesting())
 			NumQuestPlayers++;
 
-		if(!m_apPlayers[i]->GetCharacter())
+		if(!Player->GetCharacter())
 			continue;
 
 		NumIngamePlayers++;
 
-		if(!m_apPlayers[i]->m_IsDummy)
+		if(!Player->m_IsDummy)
 			NumIngameHumans++;
-		else if(m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+		else if(Player->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
 			NumQuestBots++;
 	}
 

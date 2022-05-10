@@ -70,8 +70,6 @@ void CWeapon::IsShieldNear()
 			Reset();
 		}
 	}
-
-	return;
 }
 
 int CWeapon::IsCharacterNear()

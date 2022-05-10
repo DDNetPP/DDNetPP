@@ -287,19 +287,19 @@ void CCharacter::HandleTilesDDPP(int Index)
 	}
 	else if(g_Config.m_SvRoomState == 1) //buy
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom) ? true : false;
+		Allowed = m_pPlayer->m_BoughtRoom;
 	}
 	else if(g_Config.m_SvRoomState == 2) //buy invite
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator) ? true : false;
+		Allowed = m_pPlayer->m_BoughtRoom || m_HasRoomKeyBySuperModerator;
 	}
 	else if(g_Config.m_SvRoomState == 3) //buy admin
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID())) ? true : false;
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID());
 	}
 	else if(g_Config.m_SvRoomState == 4) //buy admin invite
 	{
-		Allowed = (m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID()) || m_HasRoomKeyBySuperModerator) ? true : false;
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID()) || m_HasRoomKeyBySuperModerator;
 	}
 
 	//ROOMTILE

@@ -2864,58 +2864,58 @@ void CCharacter::DummyTick()
 					}
 				}
 			}
-			else if(false && m_Core.m_Pos.y < 193 * 32 && m_Core.m_Pos.x < 450 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
-			{
-				m_Input.m_TargetX = 200;
-				m_Input.m_TargetY = -80;
+			// else if(false && m_Core.m_Pos.y < 193 * 32 && m_Core.m_Pos.x < 450 * 32 /*&& g_Config.m_SvChillBlock5Version == 1*/) //new spawn
+			// {
+			// 	m_Input.m_TargetX = 200;
+			// 	m_Input.m_TargetY = -80;
 
-				//not falling in freeze is bad
-				if(m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
-				{
-					if(Server()->Tick() % 40 == 0)
-					{
-						Die(m_pPlayer->GetCID(), WEAPON_SELF);
-					}
-				}
-				if(m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-				}
+			// 	//not falling in freeze is bad
+			// 	if(m_Core.m_Vel.y < 0.01f && m_FreezeTime > 0)
+			// 	{
+			// 		if(Server()->Tick() % 40 == 0)
+			// 		{
+			// 			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			// 		}
+			// 	}
+			// 	if(m_Core.m_Pos.y > 116 * 32 && m_Core.m_Pos.x > 394 * 32)
+			// 	{
+			// 		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			// 	}
 
-				if(m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
-				{
-					if(m_Core.m_Vel.y > -1.0f)
-					{
-						m_Input.m_Hook = 1;
-					}
-				}
+			// 	if(m_Core.m_Pos.x > 364 * 32 && m_Core.m_Pos.y < 126 * 32 && m_Core.m_Pos.y > 122 * 32 + 10)
+			// 	{
+			// 		if(m_Core.m_Vel.y > -1.0f)
+			// 		{
+			// 			m_Input.m_Hook = 1;
+			// 		}
+			// 	}
 
-				if(m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
-				{
-					m_Input.m_Direction = -1;
-				}
-				else
-				{
-					m_Input.m_Direction = 1;
-				}
-				if(m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
-				{
-					m_Input.m_Direction = 1;
-				}
+			// 	if(m_Core.m_Pos.y < 121 * 32 && m_Core.m_Pos.x > 369 * 32)
+			// 	{
+			// 		m_Input.m_Direction = -1;
+			// 	}
+			// 	else
+			// 	{
+			// 		m_Input.m_Direction = 1;
+			// 	}
+			// 	if(m_Core.m_Pos.y < 109 * 32 && m_Core.m_Pos.x > 377 * 32 && m_Core.m_Pos.x < 386 * 32)
+			// 	{
+			// 		m_Input.m_Direction = 1;
+			// 	}
 
-				if(m_Core.m_Pos.y > 128 * 32)
-				{
-					m_Input.m_Jump = 1;
-				}
+			// 	if(m_Core.m_Pos.y > 128 * 32)
+			// 	{
+			// 		m_Input.m_Jump = 1;
+			// 	}
 
-				//speeddown at end to avoid selfkill cuz to slow falling in freeze
-				if(m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
-				{
-					m_Input.m_TargetX = 200;
-					m_Input.m_TargetY = 300;
-					m_Input.m_Hook = 1;
-				}
-			}
+			// 	//speeddown at end to avoid selfkill cuz to slow falling in freeze
+			// 	if(m_Core.m_Pos.x > 384 * 32 && m_Core.m_Pos.y > 121 * 32)
+			// 	{
+			// 		m_Input.m_TargetX = 200;
+			// 		m_Input.m_TargetY = 300;
+			// 		m_Input.m_Hook = 1;
+			// 	}
+			// }
 			else //under 193 (above 193 is new spawn)
 			{
 				//Selfkill
@@ -4414,13 +4414,16 @@ void CCharacter::DummyTick()
 					{
 						if(m_Core.m_Pos.x > 491 * 32)
 						{
-							if(m_Core.m_Pos.x <= 514 * 32 - 5 && pChr->m_Pos.y < 198 * 32)
+							if(pChr && pChr->IsAlive())
 							{
-								SetWeapon(0);
+								if(m_Core.m_Pos.x <= 514 * 32 - 5 && pChr->m_Pos.y < 198 * 32)
+								{
+									SetWeapon(0);
+								}
 							}
 
 							CCharacter *pChrFreeze = GameServer()->m_World.ClosestCharTypeFreeze(m_Pos, true, this); //new 11.11.2017 Updated from ClosestCharType to TypeFreeze
-							if(pChrFreeze && pChrFreeze->IsAlive())
+							if(pChrFreeze && pChrFreeze->IsAlive() && pChr && pChr->IsAlive())
 							{
 								//if (pChrFreeze->m_Pos.x > 485 * 32) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
 								if(pChrFreeze->m_Pos.x > 490 * 32 + 2) //newly added this to improve the 2p_state = 5 skills (go on edge if mate made the part)
@@ -7534,82 +7537,85 @@ void CCharacter::DummyTick()
 
 								//freeze protection decke mit double jump wenn hammer
 
-								if(m_Core.m_Vel.y < 20.0f && m_Core.m_Pos.y < 207 * 32) // wenn der tee nach oben gehammert wird
+								if(pChr && pChr->IsAlive())
 								{
-									if(m_Core.m_Pos.y > 206 * 32) //ab 206 würd er so oder so ins freeze springen
-										m_Input.m_Jump = 1;
+									if(m_Core.m_Vel.y < 20.0f && m_Core.m_Pos.y < 207 * 32) // wenn der tee nach oben gehammert wird
+									{
+										if(m_Core.m_Pos.y > 206 * 32) //ab 206 würd er so oder so ins freeze springen
+											m_Input.m_Jump = 1;
 
-									if(m_Core.m_Pos.y < pChr->m_Pos.y) //wenn der bot über dem spieler is soll er hooken
+										if(m_Core.m_Pos.y < pChr->m_Pos.y) //wenn der bot über dem spieler is soll er hooken
+											m_Input.m_Hook = 1;
+										else
+											m_Input.m_Hook = 0;
+									}
+
+									//wenn der tee hcoh geschleudert wird
+									//                 old 4 (macht aber im postiven bereich kein sinn aber hat geklappt)
+									//                 HALLO HIER IST DEIN ICH AUS DER ZUKUNFT: du dummes kind wenn er in der luft hammert dann fliegt er doch nicht nach oben und gerade da musst du es ja perfekt haben ... low
+									//if (m_Core.m_Vel.y < 4.0f && m_Core.m_Pos.y < pChr->m_Pos.y) //wenn er schneller als 4 nach oben fliegt und höher als der Gegener ist
+									// lass das mit speed weg und mach lieber was mit höhe
+									if(m_Core.m_Pos.y < 207 * 32 && m_Core.m_Pos.y < pChr->m_Pos.y)
+									{
+										//in hammer position bewegen
+										if(m_Core.m_Pos.x > 418 * 32 + 20) //nicht ins freeze laufen
+										{
+											if(m_Core.m_Pos.x > pChr->m_Pos.x - 45) //zu weit rechts von hammer position
+											{
+												m_Input.m_Direction = -1; //gehe links
+													//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich will da nich rein laufen");
+											}
+											else if(m_Core.m_Pos.x < pChr->m_Pos.x - 39) // zu weit links von hammer position
+											{
+												m_Input.m_Direction = 1;
+												//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "stop error code: 3");
+											}
+											else //im hammer bereich
+											{
+												m_Input.m_Direction = 0; //bleib da
+											}
+										}
+									}
+
+									//Check ob der gegener freeze is
+
+									if(pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 208 * 32 && !pChr->isFreezed) //wenn der Gegner tief und freeze is macht es wenig sinn den frei zu hammern
+									{
+										m_LatestInput.m_Fire = 0; //nicht schiessen
+										m_Input.m_Fire = 0;
+										//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "haha owned");
+									}
+
+									//Hau den weg (wie dummymode 21)
+									if(pChr->m_Pos.x > 418 * 32 && pChr->m_Pos.y > 209 * 32) //das ganze findet nur im bereich statt wo sonst eh nichts passiert
+									{
+										//wenn der bot den gegner nicht boosten würde hammer den auch nich weg
+										m_LatestInput.m_Fire = 0;
+										m_Input.m_Fire = 0;
+
+										if(pChr->m_Core.m_Vel.y < -0.5f && m_Core.m_Pos.y + 15 > pChr->m_Pos.y) //wenn der dude speed nach oben hat
+										{
+											m_Input.m_Jump = 1;
+											if(m_FreezeTime == 0)
+											{
+												m_LatestInput.m_Fire++;
+												m_Input.m_Fire++;
+											}
+										}
+									}
+
+									//TODO: FIX:
+									//der bot unfreezed den gegner ab einer gewissen höhe wenn er rein gehammert wird schau das da was passiert
+
+									//wenn ein tee freeze links neben dem bot liegt werf den einfach wieder ins freeze becken
+									//das is bisher ja noch die einzige sicherheits lücke beim wayblocken
+									//wenn man ein tee über den bot hammert
+
+									if(pChr->m_Pos.x > 421 * 32 && pChr->m_FreezeTick > 0 && pChr->m_Pos.x < m_Core.m_Pos.x)
+									{
+										m_Input.m_Jump = 1;
 										m_Input.m_Hook = 1;
-									else
-										m_Input.m_Hook = 0;
-								}
-
-								//wenn der tee hcoh geschleudert wird
-								//                 old 4 (macht aber im postiven bereich kein sinn aber hat geklappt)
-								//                 HALLO HIER IST DEIN ICH AUS DER ZUKUNFT: du dummes kind wenn er in der luft hammert dann fliegt er doch nicht nach oben und gerade da musst du es ja perfekt haben ... low
-								//if (m_Core.m_Vel.y < 4.0f && m_Core.m_Pos.y < pChr->m_Pos.y) //wenn er schneller als 4 nach oben fliegt und höher als der Gegener ist
-								// lass das mit speed weg und mach lieber was mit höhe
-								if(m_Core.m_Pos.y < 207 * 32 && m_Core.m_Pos.y < pChr->m_Pos.y)
-								{
-									//in hammer position bewegen
-									if(m_Core.m_Pos.x > 418 * 32 + 20) //nicht ins freeze laufen
-									{
-										if(m_Core.m_Pos.x > pChr->m_Pos.x - 45) //zu weit rechts von hammer position
-										{
-											m_Input.m_Direction = -1; //gehe links
-												//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich will da nich rein laufen");
-										}
-										else if(m_Core.m_Pos.x < pChr->m_Pos.x - 39) // zu weit links von hammer position
-										{
-											m_Input.m_Direction = 1;
-											//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "stop error code: 3");
-										}
-										else //im hammer bereich
-										{
-											m_Input.m_Direction = 0; //bleib da
-										}
 									}
-								}
-
-								//Check ob der gegener freeze is
-
-								if(pChr->m_FreezeTime > 0 && pChr->m_Pos.y > 208 * 32 && !pChr->isFreezed) //wenn der Gegner tief und freeze is macht es wenig sinn den frei zu hammern
-								{
-									m_LatestInput.m_Fire = 0; //nicht schiessen
-									m_Input.m_Fire = 0;
-									//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "haha owned");
-								}
-
-								//Hau den weg (wie dummymode 21)
-								if(pChr->m_Pos.x > 418 * 32 && pChr->m_Pos.y > 209 * 32) //das ganze findet nur im bereich statt wo sonst eh nichts passiert
-								{
-									//wenn der bot den gegner nicht boosten würde hammer den auch nich weg
-									m_LatestInput.m_Fire = 0;
-									m_Input.m_Fire = 0;
-
-									if(pChr->m_Core.m_Vel.y < -0.5f && m_Core.m_Pos.y + 15 > pChr->m_Pos.y) //wenn der dude speed nach oben hat
-									{
-										m_Input.m_Jump = 1;
-										if(m_FreezeTime == 0)
-										{
-											m_LatestInput.m_Fire++;
-											m_Input.m_Fire++;
-										}
-									}
-								}
-
-								//TODO: FIX:
-								//der bot unfreezed den gegner ab einer gewissen höhe wenn er rein gehammert wird schau das da was passiert
-
-								//wenn ein tee freeze links neben dem bot liegt werf den einfach wieder ins freeze becken
-								//das is bisher ja noch die einzige sicherheits lücke beim wayblocken
-								//wenn man ein tee über den bot hammert
-
-								if(pChr->m_Pos.x > 421 * 32 && pChr->m_FreezeTick > 0 && pChr->m_Pos.x < m_Core.m_Pos.x)
-								{
-									m_Input.m_Jump = 1;
-									m_Input.m_Hook = 1;
 								}
 
 								//##############################
@@ -8384,9 +8390,12 @@ void CCharacter::DummyTick()
 						}
 
 						//go home if its oky, oky?
-						if((m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->isFreezed) || (m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > m_Core.m_Pos.x + (10 * 32)))
+						if(pChr && pChr->IsAlive())
 						{
-							m_Input.m_Direction = -1;
+							if((m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->isFreezed) || (m_Core.m_Pos.x < 458 * 32 && IsGrounded() && pChr->m_Pos.x > m_Core.m_Pos.x + (10 * 32)))
+							{
+								m_Input.m_Direction = -1;
+							}
 						}
 						//keep going also in the air xD
 						if(m_Core.m_Pos.x < 450 * 32 && m_Core.m_Vel.x < 1.1f && m_Core.m_Jumped < 2)
