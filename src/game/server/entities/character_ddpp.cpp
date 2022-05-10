@@ -252,7 +252,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			{
 				if(From != m_pPlayer->GetCID())
 				{
-					m_pPlayer->SetTeam(-1, 0);
+					m_pPlayer->SetTeam(-1, false);
 				}
 
 				//Save The Player in catch array
@@ -277,7 +277,7 @@ void CCharacter::SetSpookyGhost()
 			m_aWeapons[i].m_Got = false;
 		}
 		m_SpookyGhostWeaponsBackupped = true;
-		m_aWeapons[1].m_Got = 1;
+		m_aWeapons[1].m_Got = true;
 		m_aWeapons[1].m_Ammo = -1;
 	}
 
@@ -310,8 +310,6 @@ void CCharacter::UnsetSpookyGhost()
 	m_pPlayer->m_TeeInfos.m_UseCustomColor = m_pPlayer->m_RealUseCustomColor;
 
 	m_pPlayer->m_SpookyGhostActive = 0;
-
-	return;
 }
 
 void CCharacter::SaveRealInfos()
@@ -323,8 +321,6 @@ void CCharacter::SaveRealInfos()
 		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealClan));
 		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealName));
 	}
-
-	return;
 }
 
 bool CCharacter::SetWeaponThatChrHas()
@@ -614,7 +610,7 @@ void CCharacter::CosmeticTick()
 			m_TrailHistoryLength += FrontLength;
 		}
 
-		while(1)
+		while(true)
 		{
 			float LastDist = m_TrailHistory.back().m_Dist;
 			if(m_TrailHistoryLength - LastDist >= NUM_TRAILS * TRAIL_DIST)
@@ -635,7 +631,7 @@ void CCharacter::CosmeticTick()
 		{
 			float Length = (i + 1) * TRAIL_DIST;
 			float NextDist = 0.0f;
-			while(1)
+			while(true)
 			{
 				// in case floating point arithmetic errors should fuck us up
 				// don't crash and recalculate total history length
@@ -2288,7 +2284,8 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 			}
 		}
 	}
-	pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
+	if(pVictim && pVictim->GetPlayer())
+		pVictim->GetPlayer()->m_KillStreak = 0; //Important always clear killingspree of ded dude
 }
 
 int CCharacter::BlockPointsMain(int Killer, bool fngscore)

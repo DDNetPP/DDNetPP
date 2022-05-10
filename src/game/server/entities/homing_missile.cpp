@@ -143,8 +143,6 @@ void CHomingMissile::Move(CCharacter *pTarget)
 		m_Pos.y -= 5;
 	if(m_Pos.y < TargetPos.y)
 		m_Pos.y += 5;
-
-	return;
 }
 
 bool CHomingMissile::Hit(CCharacter *pHitTarget)

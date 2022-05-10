@@ -351,7 +351,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
-		for(auto aScorePlayer : aaScorePlayers) //prepare array
+		for(auto &aScorePlayer : aaScorePlayers) //prepare array
 		{
 			//aaScorePlayers[i][1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
 			aScorePlayer[0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
@@ -387,7 +387,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		str_format(m_aInstaGrenadeScoreboard, sizeof(m_aInstaGrenadeScoreboard), "==== Scoreboard [GRENADE] ====\n");
 		int Rank = 1;
 
-		for(auto aScorePlayer : aaScorePlayers) //print array in scoreboard
+		for(auto &aScorePlayer : aaScorePlayers) //print array in scoreboard
 		{
 			if(aScorePlayer[0] != -1)
 			{

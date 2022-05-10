@@ -13,7 +13,7 @@ void CGameContext::QuestReset(int playerID)
 	}
 	m_apPlayers[playerID]->m_QuestProgressValue = 0;
 	m_apPlayers[playerID]->m_QuestProgressValue2 = 0;
-	m_apPlayers[playerID]->m_QuestProgressBool = 0;
+	m_apPlayers[playerID]->m_QuestProgressBool = false;
 	m_apPlayers[playerID]->m_QuestPlayerID = -1;
 	m_apPlayers[playerID]->m_QuestLastQuestedPlayerID = -1;
 	m_apPlayers[playerID]->m_aQuestProgress[0] = -1;
@@ -496,43 +496,43 @@ int CGameContext::PickQuestPlayer(int playerID)
 	int FoundDeadTees[MAX_CLIENTS];
 	int IndexDead = 0;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 		{
 			//dbg_msg("QUEST", "<PickPlayer> warning not exsisting player found");
 			continue;
 		}
-		if(m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS)
+		if(Player->GetTeam() == TEAM_SPECTATORS)
 		{
 			dbg_msg("QUEST", "<PickPlayer> warning spec player found");
 			continue;
 		}
-		if(IsSameIP(i, playerID))
+		if(IsSameIP(Player->GetCID(), playerID))
 		{
 			//dummy found (also used to ignore the questing player it self. Keep this in mind if you remove or edit this one day)
-			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(i)); //this will be triggerd for all serverside dummys if ur playing local -.-
+			dbg_msg("QUEST", "<PickPlayer> warning dummy found [%s]", Server()->ClientName(Player->GetCID())); //this will be triggerd for all serverside dummys if ur playing local -.-
 			continue;
 		}
-		if(m_apPlayers[i]->m_IsDummy && !g_Config.m_SvQuestCountBots)
+		if(Player->m_IsDummy && !g_Config.m_SvQuestCountBots)
 		{
 			//server side bot found
-			dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]", Server()->ClientName(i));
+			dbg_msg("QUEST", "<PickPlayer> warning found bot [%s]", Server()->ClientName(Player->GetCID()));
 			continue;
 		}
 
 		//found valid non dummy or serverside bot
-		if(!GetPlayerChar(i)) //spec/dead players always second choice
+		if(!GetPlayerChar(Player->GetCID())) //spec/dead players always second choice
 		{
 			// ---> store id + 1 in array so no 0 is in array and we can check if a tee is existing and stuff
-			FoundDeadTees[Index] = i + 1;
+			FoundDeadTees[Index] = Player->GetCID() + 1;
 			IndexDead++;
 			//dbg_msg("QUEST", "+1 dead player");
 		}
 		else //alive players primary choice
 		{
 			// ---> store id + 1 in array so no 0 is in array and we can check if a tee is existing and stuff
-			FoundTees[Index] = i + 1;
+			FoundTees[Index] = Player->GetCID() + 1;
 			Index++;
 			//dbg_msg("QUEST", "+1 alive player");
 		}

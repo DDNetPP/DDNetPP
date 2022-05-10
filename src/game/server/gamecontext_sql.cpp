@@ -16,11 +16,11 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 	*/
 	char aBuf[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
 	bool IsLoggedIns = false;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(m_apPlayers[i]->IsLoggedIn())
+		if(Player->IsLoggedIn())
 		{
 			IsLoggedIns = true;
 			break;
@@ -30,14 +30,14 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 	if(IsLoggedIns)
 	{
 		str_append(aBuf, " AND ID NOT IN (", sizeof(aBuf));
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(!m_apPlayers[i])
+			if(!Player)
 				continue;
-			if(!m_apPlayers[i]->IsLoggedIn())
+			if(!Player->IsLoggedIn())
 				continue;
 			char aBufBuf[MAX_SQL_ID_LENGTH + 2]; // max supported id len + comma + nullterm
-			str_format(aBufBuf, sizeof(aBufBuf), "%d,", m_apPlayers[i]->GetAccID());
+			str_format(aBufBuf, sizeof(aBufBuf), "%d,", Player->GetAccID());
 			str_append(aBuf, aBufBuf, sizeof(aBuf));
 		}
 		aBuf[strlen(aBuf) - 1] = '\0'; // chop of the last comma

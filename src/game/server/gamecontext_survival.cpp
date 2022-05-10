@@ -48,9 +48,9 @@ void CGameContext::SurvivalLobbyTick()
 
 			if(m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
 			{
-				for(int i = 0; i < MAX_CLIENTS; i++)
+				for(auto &Player : m_apPlayers)
 				{
-					if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalWinner)
+					if(Player && Player->GetCharacter() && Player->m_IsSurvivaling && Player->m_IsSurvivalWinner)
 					{
 						vec2 SurvivalLobbySpawnTile = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
 
@@ -60,7 +60,7 @@ void CGameContext::SurvivalLobbyTick()
 						}
 						else
 						{
-							m_apPlayers[i]->GetCharacter()->SetPosition(SurvivalLobbySpawnTile);
+							Player->GetCharacter()->SetPosition(SurvivalLobbySpawnTile);
 						}
 					}
 				}
@@ -147,13 +147,13 @@ void CGameContext::SurvivalStartGame()
 
 void CGameContext::SendSurvivalChat(const char *pMsg)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			if(m_apPlayers[i]->m_IsSurvivaling)
+			if(Player->m_IsSurvivaling)
 			{
-				SendChatTarget(i, pMsg);
+				SendChatTarget(Player->GetCID(), pMsg);
 			}
 		}
 	}
@@ -161,13 +161,13 @@ void CGameContext::SendSurvivalChat(const char *pMsg)
 
 void CGameContext::SendSurvivalBroadcast(const char *pMsg, int Importance)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			if(m_apPlayers[i]->m_IsSurvivaling)
+			if(Player->m_IsSurvivaling)
 			{
-				SendBroadcast(pMsg, i, Importance);
+				SendBroadcast(pMsg, Player->GetCID(), Importance);
 			}
 		}
 	}
@@ -227,19 +227,16 @@ int CGameContext::SurvivalGetRandomAliveID(int NotThis)
 {
 	int r = rand() % CountSurvivalPlayers(true);
 	int x = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(i == NotThis)
+		if(!Player)
 			continue;
-		if(!m_apPlayers[i])
+		if(Player->GetCID() == NotThis)
 			continue;
-		if(m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
-		{
+
+		if(Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 			if(x++ == r)
-			{
-				return i;
-			}
-		}
+				return Player->GetCID();
 	}
 	return -1;
 }
@@ -264,13 +261,13 @@ void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
 
 void CGameContext::SurvivalUpdateSpectators(int DiedID, int KillerID)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i] || !m_apPlayers[i]->m_IsSurvivaling)
+		if(!Player || !Player->m_IsSurvivaling)
 			continue;
-		if(m_apPlayers[i]->m_SpectatorID == DiedID)
+		if(Player->m_SpectatorID == DiedID)
 		{
-			SurvivalGetNextSpectator(i, KillerID);
+			SurvivalGetNextSpectator(Player->GetCID(), KillerID);
 		}
 	}
 }
@@ -278,16 +275,10 @@ void CGameContext::SurvivalUpdateSpectators(int DiedID, int KillerID)
 int CGameContext::CountSurvivalPlayers(bool Alive)
 {
 	int x = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i])
-		{
-			if(m_apPlayers[i]->m_IsSurvivaling && (!Alive || m_apPlayers[i]->m_IsSurvivalAlive))
-			{
+	for(auto &Player : m_apPlayers)
+		if(Player)
+			if(Player->m_IsSurvivaling && (!Alive || Player->m_IsSurvivalAlive))
 				x++;
-			}
-		}
-	}
 	return x;
 }
 
@@ -296,40 +287,32 @@ void CGameContext::SurvivalSetGameState(int state)
 	m_survivalgamestate = state;
 	if(state == SURVIVAL_OFF)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(m_apPlayers[i])
-			{
-				SetPlayerSurvival(i, SURVIVAL_OFF);
-			}
-		}
+		for(auto &Player : m_apPlayers)
+			if(Player)
+				SetPlayerSurvival(Player->GetCID(), SURVIVAL_OFF);
 	}
 	else if(state == SURVIVAL_LOBBY)
 	{
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
-			{
-				m_apPlayers[i]->Pause(CPlayer::PAUSE_NONE, true);
-			}
-		}
+		for(auto &Player : m_apPlayers)
+			if(Player && Player->m_IsSurvivaling)
+				Player->Pause(CPlayer::PAUSE_NONE, true);
 	}
 	else if(state == SURVIVAL_INGAME)
 	{
 		m_survival_spawn_counter = 0;
 		m_survival_game_countdown = g_Config.m_SvSurvivalMaxGameTime ? Server()->TickSpeed() * (g_Config.m_SvSurvivalMaxGameTime * 60) : -1;
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+			if(Player && Player->m_IsSurvivaling)
 			{
-				if(m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
+				if(Player->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
 				{
-					SaveCosmetics(i);
-					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+					SaveCosmetics(Player->GetCID());
+					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
 				}
-				m_apPlayers[i]->Pause(CPlayer::PAUSE_NONE, true);
-				SetPlayerSurvival(i, SURVIVAL_INGAME);
+				Player->Pause(CPlayer::PAUSE_NONE, true);
+				SetPlayerSurvival(Player->GetCID(), SURVIVAL_INGAME);
 			}
 		}
 		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
@@ -342,15 +325,15 @@ void CGameContext::SurvivalSetGameState(int state)
 	{
 		SendSurvivalChat("[SURVIVAL] teleporting survivors to deathmatch arena.");
 
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
+			if(Player && Player->GetCharacter() && Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 			{
 				vec2 SurvivalSpawn = Collision()->GetRandomTile(TILE_SURVIVAL_DEATHMATCH);
 
 				if(SurvivalSpawn != vec2(-1, -1))
 				{
-					m_apPlayers[i]->GetCharacter()->SetPosition(SurvivalSpawn);
+					Player->GetCharacter()->SetPosition(SurvivalSpawn);
 				}
 				else //no dm spawn tile
 				{
@@ -365,11 +348,11 @@ void CGameContext::SurvivalSetGameState(int state)
 bool CGameContext::SurvivalPickWinner()
 {
 	int winnerID = -1;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling && m_apPlayers[i]->m_IsSurvivalAlive)
+		if(Player && Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 		{
-			winnerID = i;
+			winnerID = Player->GetCID();
 			break;
 		}
 	}

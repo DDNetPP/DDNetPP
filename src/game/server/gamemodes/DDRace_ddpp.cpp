@@ -149,7 +149,7 @@ void CGameControllerDDRace::FlagTick()
 				if(GameServer()->Collision()->CheckPoint(F->m_Pos.x - CFlag::ms_PhysSize / 2, F->m_Pos.y + CFlag::ms_PhysSize / 2 + 5))
 					m_IsGrounded = true;
 
-				if(m_IsGrounded == true)
+				if(m_IsGrounded)
 				{
 					F->m_Vel.x *= 0.75f;
 				}

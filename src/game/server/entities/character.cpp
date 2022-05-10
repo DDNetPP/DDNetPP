@@ -740,8 +740,6 @@ void CCharacter::HandleWeapons()
 			}
 		}
 	}
-
-	return;
 }
 
 void CCharacter::GiveNinja()

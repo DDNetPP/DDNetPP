@@ -993,16 +993,8 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	char aUsername[32];
-	int InfoID = -1;
 	str_copy(aUsername, pResult->GetString(0), sizeof(aUsername));
-
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(!str_comp_nocase(aUsername, pSelf->Server()->ClientName(i)))
-		{
-			InfoID = i;
-		}
-	}
+	int InfoID = pSelf->GetCIDByName(aUsername);
 
 	if(InfoID > -1)
 	{
@@ -3738,18 +3730,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
 			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 
-			int GiveID = -1;
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(pSelf->m_apPlayers[i])
-				{
-					if(!str_comp(pSelf->Server()->ClientName(i), aUsername))
-					{
-						GiveID = i;
-						break;
-					}
-				}
-			}
+			int GiveID = pSelf->GetCIDByName(aUsername);
 
 			if(GiveID != -1)
 			{
@@ -3895,18 +3876,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
 			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 
-			int GiveID = -1;
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(pSelf->m_apPlayers[i])
-				{
-					if(!str_comp(pSelf->Server()->ClientName(i), aUsername))
-					{
-						GiveID = i;
-						break;
-					}
-				}
-			}
+			int GiveID = pSelf->GetCIDByName(aUsername);
 
 			if(GiveID != -1)
 			{
@@ -4014,18 +3984,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			str_copy(aItem, pResult->GetString(0), sizeof(aItem));
 			str_copy(aUsername, pResult->GetString(1), sizeof(aUsername));
 
-			int GiveID = -1;
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(pSelf->m_apPlayers[i])
-				{
-					if(!str_comp(pSelf->Server()->ClientName(i), aUsername))
-					{
-						GiveID = i;
-						break;
-					}
-				}
-			}
+			int GiveID = pSelf->GetCIDByName(aUsername);
 
 			if(GiveID != -1)
 			{
@@ -4820,22 +4779,30 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				str_format(aBuf, sizeof(aBuf), "=== (%d) Banned Bombers (PAGE: %d/%d) ===", pSelf->CountBannedBombPlayers(), page, pages);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				//for (int i = page * 5; i < MAX_CLIENTS; i++) yes it is an minor performance improvement but fuck it (did that cuz something didnt work) ((would be -1 anyways because human page 2 is computer page 1))
-				for(int i = 0; i < MAX_CLIENTS; i++)
+				for(auto &Player : pSelf->m_apPlayers)
 				{
-					if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_BombBanTime)
+					if(!Player)
+						continue;
+					if(!Player->m_Account.m_BombBanTime)
+						continue;
+
+					if(PlayersShownOnPreviousPages >= (page - 1) * 5)
 					{
-						if(PlayersShownOnPreviousPages >= (page - 1) * 5)
-						{
-							str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_Account.m_BombBanTime / 60);
-							pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-							PlayersShownOnPage++;
-						}
-						else
-						{
-							//str_format(aBuf, sizeof(aBuf), "No list cuz  NOT Previous: %d > (page - 1) * 5: %d", PlayersShownOnPreviousPages, (page - 1) * 5);
-							//dbg_msg("bomb", aBuf);
-							PlayersShownOnPreviousPages++;
-						}
+						str_format(
+							aBuf,
+							sizeof(aBuf),
+							"ID: %d '%s' (%d seconds)",
+							Player->GetCID(),
+							pSelf->Server()->ClientName(Player->GetCID()),
+							Player->m_Account.m_BombBanTime / 60);
+						pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+						PlayersShownOnPage++;
+					}
+					else
+					{
+						//str_format(aBuf, sizeof(aBuf), "No list cuz  NOT Previous: %d > (page - 1) * 5: %d", PlayersShownOnPreviousPages, (page - 1) * 5);
+						//dbg_msg("bomb", aBuf);
+						PlayersShownOnPreviousPages++;
 					}
 					if(PlayersShownOnPage > 4) //show only 5 players on one site
 					{
@@ -4851,14 +4818,22 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 		{
 			str_format(aBuf, sizeof(aBuf), "=== (%d) Banned Bombers (PAGE: %d/%d) ===", pSelf->CountBannedBombPlayers(), 1, pages);
 			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : pSelf->m_apPlayers)
 			{
-				if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_BombBanTime)
-				{
-					str_format(aBuf, sizeof(aBuf), "ID: %d '%s' (%d seconds)", pSelf->m_apPlayers[i]->GetCID(), pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_Account.m_BombBanTime / 60);
-					pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-					PlayersShownOnPage++;
-				}
+				if(!Player)
+					continue;
+				if(!Player->m_Account.m_BombBanTime)
+					continue;
+
+				str_format(
+					aBuf,
+					sizeof(aBuf),
+					"ID: %d '%s' (%d seconds)",
+					Player->GetCID(),
+					pSelf->Server()->ClientName(Player->GetCID()),
+					Player->m_Account.m_BombBanTime / 60);
+				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+				PlayersShownOnPage++;
 				if(PlayersShownOnPage > 4) //show only 5 players on one site
 				{
 					break;
@@ -5291,13 +5266,9 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		int policedudesfound = 0;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_PoliceRank && pSelf->m_apPlayers[i] != pPlayer)
-			{
+		for(auto &Player : pSelf->m_apPlayers)
+			if(Player && Player->m_Account.m_PoliceRank && Player != pPlayer)
 				policedudesfound++;
-			}
-		}
 
 		if(!policedudesfound)
 		{
@@ -6302,13 +6273,9 @@ void CGameContext::ConAdminChat(IConsole::IResult *pResult, void *pUserData)
 	char aMsg[256];
 	str_format(aMsg, sizeof(aMsg), "[%s]: %s", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetString(0));
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(pSelf->m_apPlayers[i] && pSelf->Server()->GetAuthedState(i) == AUTHED_ADMIN)
-		{
-			pSelf->SendChatTarget(i, aMsg);
-		}
-	}
+	for(auto &Player : pSelf->m_apPlayers)
+		if(Player && pSelf->Server()->GetAuthedState(Player->GetCID()) == AUTHED_ADMIN)
+			pSelf->SendChatTarget(Player->GetCID(), aMsg);
 }
 
 void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
@@ -6440,13 +6407,9 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 
 		int viewers = 0;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_SpectatorID == liveID)
-			{
+		for(auto &Player : pSelf->m_apPlayers)
+			if(Player && Player->m_SpectatorID == liveID)
 				viewers++;
-			}
-		}
 		if(viewers)
 		{
 			str_format(aBuf, sizeof(aBuf), "Viewers: %d", viewers);
@@ -6547,7 +6510,7 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 	{
 		pSelf->SendChatTarget(ClientID, "[MAPSAVE] saving map data...");
 		pSelf->SaveMapPlayerData();
-		pSelf->m_World.m_Paused = 1;
+		pSelf->m_World.m_Paused = true;
 		pSelf->LogoutAllPlayersMessage();
 	}
 	else if(!str_comp_nocase(aCommand, "debug"))
@@ -6558,32 +6521,37 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 	else if(!str_comp_nocase(aCommand, "players"))
 	{
 		pSelf->SendChatTarget(ClientID, "[MAPSAVE] listing player stats check rcon console...");
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			CPlayer *p = pSelf->m_apPlayers[i];
-			if(!p)
+			if(!Player)
 				continue;
 
 			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "%d:'%s' code=%s loaded=%d", i, pSelf->Server()->ClientName(i), p->m_aTimeoutCode, p->m_MapSaveLoaded);
+			str_format(
+				aBuf,
+				sizeof(aBuf),
+				"%d:'%s' code=%s loaded=%d",
+				Player->GetCID(),
+				pSelf->Server()->ClientName(Player->GetCID()),
+				Player->m_aTimeoutCode,
+				Player->m_MapSaveLoaded);
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mapsave", aBuf);
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "check"))
 	{
 		int NoCode = 0;
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			CPlayer *p = pSelf->m_apPlayers[i];
-			if(!p)
+			if(!Player)
 				continue;
-			if(p->m_aTimeoutCode[0])
+			if(Player->m_aTimeoutCode[0])
 				continue;
 
 			NoCode++;
-			pSelf->SendChatTarget(i, "[MAPSAVE] please type '/timeout (code)'.");
-			pSelf->SendChatTarget(i, "[MAPSAVE] the admin wants to restart the server.");
-			pSelf->SendChatTarget(i, "[MAPSAVE] create a code to load and save your stats.");
+			pSelf->SendChatTarget(Player->GetCID(), "[MAPSAVE] please type '/timeout (code)'.");
+			pSelf->SendChatTarget(Player->GetCID(), "[MAPSAVE] the admin wants to restart the server.");
+			pSelf->SendChatTarget(Player->GetCID(), "[MAPSAVE] create a code to load and save your stats.");
 		}
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "[MAPSAVE] players without code: %d ('/mapsave players').", NoCode);
@@ -7117,13 +7085,13 @@ void CGameContext::ConBounty(IConsole::IResult *pResult, void *pUserData)
 		if(pResult->NumArguments() == 2)
 		{
 			int ID = -1;
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : pSelf->m_apPlayers)
 			{
-				if(pSelf->m_apPlayers[i])
+				if(Player)
 				{
-					if(i == pResult->GetInteger(1))
+					if(Player->GetCID() == pResult->GetInteger(1))
 					{
-						ID = i;
+						ID = Player->GetCID();
 						break;
 					}
 				}
@@ -7296,7 +7264,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		int Price = pResult->GetInteger(2);
 		str_copy(aWeaponName, pResult->GetString(1), sizeof(aWeaponName));
 
-		int TradeID = pSelf->TradePrepareSell(/*pToName=*/pResult->GetString(3), /*FromID=*/pResult->m_ClientID, aWeaponName, Price, /*Public=*/true);
+		int TradeID = pSelf->TradePrepareSell(/*pToName=*/pResult->GetString(3), /*FromID=*/pResult->m_ClientID, aWeaponName, Price, /*IsPublic=*/true);
 		if(TradeID == -1)
 		{
 			return;
@@ -7306,15 +7274,20 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		str_format(aBuf, sizeof(aBuf), "[TRADE] '%s' created a public offer [ %s ] for [ %d ] money (use '/trade' command to accept it)", pSelf->Server()->ClientName(pResult->m_ClientID), aWeaponName, pResult->GetInteger(2));
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		//and save it for all players so it can be seen later in '/trade'
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i])
-			{
-				if(i != pResult->m_ClientID) // don't offer own trade
-				{
-					str_format(pSelf->m_apPlayers[i]->m_aTradeOffer, sizeof(pSelf->m_apPlayers[i]->m_aTradeOffer), "[OPEN] '/trade buy %s %d %s'", aWeaponName, pResult->GetInteger(2), pSelf->Server()->ClientName(pResult->m_ClientID));
-				}
-			}
+			if(!Player)
+				continue;
+			if(Player->GetCID() == pResult->m_ClientID) // don't offer own trade
+				continue;
+
+			str_format(
+				Player->m_aTradeOffer,
+				sizeof(Player->m_aTradeOffer),
+				"[OPEN] '/trade buy %s %d %s'",
+				aWeaponName,
+				pResult->GetInteger(2),
+				pSelf->Server()->ClientName(pResult->m_ClientID));
 		}
 
 		//send same info to the trading dude (he gets the public message)
@@ -7334,7 +7307,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 		int Price = pResult->GetInteger(2);
 		str_copy(aWeaponName, pResult->GetString(1), sizeof(aWeaponName));
 
-		int TradeID = pSelf->TradePrepareSell(/*pToName=*/pResult->GetString(3), /*FromID=*/pResult->m_ClientID, aWeaponName, Price, /*Public=*/false);
+		int TradeID = pSelf->TradePrepareSell(/*pToName=*/pResult->GetString(3), /*FromID=*/pResult->m_ClientID, aWeaponName, Price, /*IsPublic=*/false);
 		if(TradeID == -1)
 		{
 			return;
@@ -7958,14 +7931,22 @@ void CGameContext::ConWanted(IConsole::IResult *pResult, void *pUserData)
 	int gangster = 0;
 
 	pSelf->SendChatTarget(pResult->m_ClientID, "=== Wanted Players ===");
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : pSelf->m_apPlayers)
 	{
-		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_Account.m_EscapeTime)
-		{
-			gangster++;
-			str_format(aBuf, sizeof(aBuf), "'%s' reason [%s] seconds [%" PRId64 "]", pSelf->Server()->ClientName(i), pSelf->m_apPlayers[i]->m_aEscapeReason, pSelf->m_apPlayers[i]->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed());
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-		}
+		if(Player)
+			continue;
+		if(!Player->m_Account.m_EscapeTime)
+			continue;
+
+		gangster++;
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			"'%s' reason [%s] seconds [%" PRId64 "]",
+			pSelf->Server()->ClientName(Player->GetCID()),
+			Player->m_aEscapeReason,
+			Player->m_Account.m_EscapeTime / pSelf->Server()->TickSpeed());
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 	str_format(aBuf, sizeof(aBuf), "=== %d gangster wanted ===", gangster);
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -7986,18 +7967,18 @@ void CGameContext::ConViewers(IConsole::IResult *pResult, void *pUserData)
 	char aMsg[128];
 	int viewers = 0;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : pSelf->m_apPlayers)
 	{
-		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_SpectatorID == pResult->m_ClientID)
+		if(Player && Player->m_SpectatorID == pResult->m_ClientID)
 		{
 			viewers++;
 			if(viewers == 1)
 			{
-				str_format(aMsg, sizeof(aMsg), "'%s'", pSelf->Server()->ClientName(i));
+				str_format(aMsg, sizeof(aMsg), "'%s'", pSelf->Server()->ClientName(Player->GetCID()));
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), ", '%s'", pSelf->Server()->ClientName(i));
+				str_format(aBuf, sizeof(aBuf), ", '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				strcat(aMsg, aBuf);
 			}
 		}
@@ -8404,20 +8385,20 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 		value = pResult->GetInteger(2);
 		str_format(str_value, sizeof(str_value), "%d", value);
 
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i])
+			if(Player)
 			{
-				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_Account.m_aUsername, aName))
+				if(Player->IsLoggedIn() && !str_comp(Player->m_Account.m_aUsername, aName))
 				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsSupporter = value;
+					Player->m_Account.m_IsSupporter = value;
 					if(value == 1)
 					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are now Supporter.");
+						pSelf->SendChatTarget(Player->GetCID(), "[ACCOUNT] You are now Supporter.");
 					}
 					else
 					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer Supporter.");
+						pSelf->SendChatTarget(Player->GetCID(), "[ACCOUNT] You are no longer Supporter.");
 					}
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsSupporter = %d (account is logged in)", value);
 					pSelf->SendChatTarget(ClientID, aBuf);
@@ -8450,25 +8431,25 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 		value = pResult->GetInteger(2);
 		str_format(str_value, sizeof(str_value), "%d", value);
 
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i])
+			if(!Player)
+				continue;
+
+			if(Player->IsLoggedIn() && !str_comp(Player->m_Account.m_aUsername, aName))
 			{
-				if(pSelf->m_apPlayers[i]->IsLoggedIn() && !str_comp(pSelf->m_apPlayers[i]->m_Account.m_aUsername, aName))
+				Player->m_Account.m_IsSuperModerator = value;
+				if(value == 1)
 				{
-					pSelf->m_apPlayers[i]->m_Account.m_IsSuperModerator = value;
-					if(value == 1)
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are now VIP+");
-					}
-					else
-					{
-						pSelf->SendChatTarget(i, "[ACCOUNT] You are no longer VIP+");
-					}
-					str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
-					pSelf->SendChatTarget(ClientID, aBuf);
-					return;
+					pSelf->SendChatTarget(Player->GetCID(), "[ACCOUNT] You are now VIP+");
 				}
+				else
+				{
+					pSelf->SendChatTarget(Player->GetCID(), "[ACCOUNT] You are no longer VIP+");
+				}
+				str_format(aBuf, sizeof(aBuf), "UPDATED IsSuperModerator = %d (account is logged in)", value);
+				pSelf->SendChatTarget(ClientID, aBuf);
+				return;
 			}
 		}
 
@@ -8624,76 +8605,76 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 
 	if(!str_comp_nocase(aCommand, "train"))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			if(Player && Player->m_IsDummy && Player->m_DummyMode == 25)
 			{
-				pSelf->m_apPlayers[i]->m_dmm25 = 0;
-				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to training for '%s'", pSelf->Server()->ClientName(i));
+				Player->m_dmm25 = 0;
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to training for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				pSelf->SendChatTarget(ClientID, aBuf);
 			}
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "play_distance"))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			if(Player && Player->m_IsDummy && Player->m_DummyMode == 25)
 			{
-				pSelf->m_apPlayers[i]->m_dmm25 = 1; //load distance
-				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance for '%s'", pSelf->Server()->ClientName(i));
+				Player->m_dmm25 = 1; //load distance
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				pSelf->SendChatTarget(ClientID, aBuf);
-				if(pSelf->m_apPlayers[i]->GetCharacter())
+				if(Player->GetCharacter())
 				{
-					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_SELF);
 				}
 			}
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "play_fitness"))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			if(Player && Player->m_IsDummy && Player->m_DummyMode == 25)
 			{
-				pSelf->m_apPlayers[i]->m_dmm25 = 2; //load fitness
-				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best fitness for '%s'", pSelf->Server()->ClientName(i));
+				Player->m_dmm25 = 2; //load fitness
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best fitness for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				pSelf->SendChatTarget(ClientID, aBuf);
-				if(pSelf->m_apPlayers[i]->GetCharacter())
+				if(Player->GetCharacter())
 				{
-					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_SELF);
 				}
 			}
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "play_distance_finish"))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			if(Player && Player->m_IsDummy && Player->m_DummyMode == 25)
 			{
-				pSelf->m_apPlayers[i]->m_dmm25 = 3; //load distance_finish
-				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance_finish for '%s'", pSelf->Server()->ClientName(i));
+				Player->m_dmm25 = 3; //load distance_finish
+				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance_finish for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				pSelf->SendChatTarget(ClientID, aBuf);
-				if(pSelf->m_apPlayers[i]->GetCharacter())
+				if(Player->GetCharacter())
 				{
-					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_SELF);
 				}
 			}
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "stop"))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->m_IsDummy && pSelf->m_apPlayers[i]->m_DummyMode == 25)
+			if(Player && Player->m_IsDummy && Player->m_DummyMode == 25)
 			{
-				pSelf->m_apPlayers[i]->m_dmm25 = -2; //set to stop all
-				str_format(aBuf, sizeof(aBuf), "[FNN] stopped '%s'", pSelf->Server()->ClientName(i));
+				Player->m_dmm25 = -2; //set to stop all
+				str_format(aBuf, sizeof(aBuf), "[FNN] stopped '%s'", pSelf->Server()->ClientName(Player->GetCID()));
 				pSelf->SendChatTarget(ClientID, aBuf);
-				if(pSelf->m_apPlayers[i]->GetCharacter())
+				if(Player->GetCharacter())
 				{
-					pSelf->m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_SELF);
+					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_SELF);
 				}
 			}
 		}

@@ -199,7 +199,7 @@ void generate_maze(CTile *pTile, int c, int r, int w, int h, int s)
 			for(y = 0; y < r; y++)
 			{
 				dprintf("%d, %d\n", x, y);
-				while(1)
+				while(true)
 				{
 					int px = xt[x + y * c];
 					int py = yt[x + y * c];
@@ -208,7 +208,7 @@ void generate_maze(CTile *pTile, int c, int r, int w, int h, int s)
 						break;
 					dprintf("\tstarting\n");
 
-					while(1)
+					while(true)
 					{
 						wp = 0;
 
@@ -288,7 +288,7 @@ void generate_maze(CTile *pTile, int c, int r, int w, int h, int s)
 				int py = y;
 				int ways[4], wp;
 
-				while(1)
+				while(true)
 				{
 					wp = 0;
 

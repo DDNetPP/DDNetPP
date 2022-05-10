@@ -151,7 +151,7 @@ void CDropPickup::Tick()
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x - ms_PhysSize / 2, m_Pos.y + ms_PhysSize / 2 + 5))
 		Grounded = true;
 
-	if(Grounded == true)
+	if(Grounded)
 		m_Vel.x *= 0.75f;
 	else
 		m_Vel.x *= 0.98f;
