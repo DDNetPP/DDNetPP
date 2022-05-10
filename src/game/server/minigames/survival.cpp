@@ -2,7 +2,7 @@
 
 #include <engine/shared/config.h>
 
-#include "gamecontext.h"
+#include "../gamecontext.h"
 
 vec2 CGameContext::GetNextSurvivalSpawn(int ClientID)
 {

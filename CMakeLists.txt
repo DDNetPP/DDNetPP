@@ -2299,7 +2299,6 @@ if(SERVER)
     gamecontext_quests.cpp
     gamecontext_ratelimits.cpp
     gamecontext_sql.cpp
-    gamecontext_survival.cpp
     gamecontext_trades.cpp
     gamecontext_votes.cpp
     gamecontroller.cpp
@@ -2312,6 +2311,13 @@ if(SERVER)
     gameworld.h
     gameworld_ddpp.cpp
     gameworld_ddpp.h
+    minigames/balance.cpp
+    minigames/block_tournament.cpp
+    minigames/blockwave.cpp
+    minigames/bomb.cpp
+    minigames/chidraqul3.cpp
+    minigames/instagib.cpp
+    minigames/survival.cpp
     player.cpp
     player.h
     player_ddpp.cpp
