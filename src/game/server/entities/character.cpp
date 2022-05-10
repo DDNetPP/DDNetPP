@@ -88,6 +88,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	mem_zero(&m_LatestPrevPrevInput, sizeof(m_LatestPrevPrevInput));
 	m_LatestPrevPrevInput.m_TargetY = -1;
+	m_NumInputs = 0;
 	m_SpawnTick = Server()->Tick();
 	m_WeaponChangeTick = Server()->Tick();
 	Antibot()->OnSpawn(m_pPlayer->GetCID());
@@ -155,6 +156,12 @@ void CCharacter::SetSolo(bool Solo)
 		m_NeededFaketuning &= ~FAKETUNE_SOLO;
 
 	GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone); // update tunings
+}
+
+void CCharacter::SetLiveFrozen(bool Active)
+{
+	m_LiveFreeze = Active;
+	m_Core.m_LiveFrozen = Active;
 }
 
 bool CCharacter::IsGrounded()
@@ -1710,13 +1717,11 @@ void CCharacter::HandleTiles(int Index)
 	// live freeze
 	if(((m_TileIndex == TILE_LFREEZE) || (m_TileFIndex == TILE_LFREEZE)) && !m_Super)
 	{
-		m_LiveFreeze = true;
-		m_Core.m_LiveFrozen = true;
+		SetLiveFrozen(true);
 	}
 	else if(((m_TileIndex == TILE_LUNFREEZE) || (m_TileFIndex == TILE_LUNFREEZE)) && !m_Super)
 	{
-		m_LiveFreeze = false;
-		m_Core.m_LiveFrozen = false;
+		SetLiveFrozen(false);
 	}
 
 	// endless hook
@@ -2286,7 +2291,7 @@ void CCharacter::DDRaceTick()
 	if(m_Input.m_Direction != 0 || m_Input.m_Jump != 0)
 		m_LastMove = Server()->Tick();
 
-	if(m_LiveFreeze)
+	if(m_LiveFreeze && !m_Super)
 	{
 		m_Input.m_Direction = 0;
 		m_Input.m_Jump = 0;
@@ -2707,4 +2712,9 @@ void CCharacter::Rescue()
 int64_t CCharacter::TeamMask()
 {
 	return Teams()->TeamMask(Team(), -1, GetPlayer()->GetCID());
+}
+
+void CCharacter::SwapClients(int Client1, int Client2)
+{
+	m_Core.m_HookedPlayer = m_Core.m_HookedPlayer == Client1 ? Client2 : m_Core.m_HookedPlayer == Client2 ? Client1 : m_Core.m_HookedPlayer;
 }

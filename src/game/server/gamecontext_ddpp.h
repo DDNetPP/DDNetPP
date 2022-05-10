@@ -608,8 +608,6 @@ private:
 	static void ConForceJail(IConsole::IResult *pResult, void *pUserData);
 	static void ConHammerfightMode(IConsole::IResult *pResult, void *pUserData); //this is the hammerfightmode rcon command
 	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnSuper(IConsole::IResult *pResult, void *pUserData);
-	static void ConSuper(IConsole::IResult *pResult, void *pUserData);
 	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
 	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
 

@@ -156,7 +156,7 @@ int main(int argc, const char **argv)
 
 	CDataFileWriter df;
 	df.Init();
-	dbg_logger_stdout();
+	// dbg_logger_stdout();
 	int SettingsIndex = DataFile.NumData();
 	//dbg_msg("chiller", "settingsindex: %d", SettingsIndex); //holds the number of all tile layers in the base map
 

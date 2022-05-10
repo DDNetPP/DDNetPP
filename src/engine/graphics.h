@@ -179,10 +179,21 @@ enum EBackendType
 
 struct STWGraphicGPU
 {
+	enum ETWGraphicsGPUType
+	{
+		GRAPHICS_GPU_TYPE_DISCRETE = 0,
+		GRAPHICS_GPU_TYPE_INTEGRATED,
+		GRAPHICS_GPU_TYPE_VIRTUAL,
+		GRAPHICS_GPU_TYPE_CPU,
+
+		// should stay at last position in this enum
+		GRAPHICS_GPU_TYPE_INVALID,
+	};
+
 	struct STWGraphicGPUItem
 	{
 		char m_Name[256];
-		bool m_IsDiscreteGPU;
+		ETWGraphicsGPUType m_GPUType;
 	};
 	std::vector<STWGraphicGPUItem> m_GPUs;
 	STWGraphicGPUItem m_AutoGPU;
@@ -245,10 +256,12 @@ public:
 	virtual void SetWindowParams(int FullscreenMode, bool IsBorderless, bool AllowResizing) = 0;
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool SetVSync(bool State) = 0;
+	virtual bool SetMultiSampling(uint32_t ReqMultiSamplingCount, uint32_t &MultiSamplingCountBackend) = 0;
 	virtual int GetWindowScreen() = 0;
 	virtual void Move(int x, int y) = 0;
 	virtual void Resize(int w, int h, int RefreshRate) = 0;
 	virtual void GotResized(int w, int h, int RefreshRate) = 0;
+	virtual void UpdateViewport(int X, int Y, int W, int H, bool ByResize) = 0;
 	virtual void AddWindowResizeListener(WINDOW_RESIZE_FUNC pFunc, void *pUser) = 0;
 
 	virtual void WindowDestroyNtf(uint32_t WindowID) = 0;
@@ -409,8 +422,8 @@ public:
 	virtual int CreateQuadContainer(bool AutomaticUpload = true) = 0;
 	virtual void QuadContainerChangeAutomaticUpload(int ContainerIndex, bool AutomaticUpload) = 0;
 	virtual void QuadContainerUpload(int ContainerIndex) = 0;
-	virtual void QuadContainerAddQuads(int ContainerIndex, CQuadItem *pArray, int Num) = 0;
-	virtual void QuadContainerAddQuads(int ContainerIndex, CFreeformItem *pArray, int Num) = 0;
+	virtual int QuadContainerAddQuads(int ContainerIndex, CQuadItem *pArray, int Num) = 0;
+	virtual int QuadContainerAddQuads(int ContainerIndex, CFreeformItem *pArray, int Num) = 0;
 	virtual void QuadContainerReset(int ContainerIndex) = 0;
 	virtual void DeleteQuadContainer(int ContainerIndex) = 0;
 	virtual void RenderQuadContainer(int ContainerIndex, int QuadDrawNum) = 0;

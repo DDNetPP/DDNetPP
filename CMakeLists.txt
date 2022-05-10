@@ -1611,7 +1611,7 @@ add_custom_command(OUTPUT "src/game/generated/wordlist.h"
 # Sources
 set_src(BASE GLOB_RECURSE src/base
   color.h
-  ddpp_logs.c
+  ddpp_logs.cpp
   ddpp_logs.h
   detect.h
   dynamic.h
@@ -1621,11 +1621,14 @@ set_src(BASE GLOB_RECURSE src/base
   hash_ctxt.h
   hash_libtomcrypt.cpp
   hash_openssl.cpp
+  log.cpp
+  log.h
+  logger.h
   math.h
   math_ddpp.h
   system.cpp
   system.h
-  system_ddpp.c
+  system_ddpp.cpp
   system_ddpp.h
   tl/algorithm.h
   tl/allocator.h
@@ -1633,7 +1636,6 @@ set_src(BASE GLOB_RECURSE src/base
   tl/base.h
   tl/range.h
   tl/sorted_array.h
-  tl/string.h
   tl/threading.h
   unicode/confusables.cpp
   unicode/confusables_data.h
@@ -1863,6 +1865,8 @@ if(CLIENT)
     backend/backend_base.h
     backend/glsl_shader_compiler.cpp
     backend/glsl_shader_compiler.h
+    backend/null/backend_null.cpp
+    backend/null/backend_null.h
     backend/opengl/backend_opengl.cpp
     backend/opengl/backend_opengl.h
     backend/opengl/backend_opengl3.cpp
@@ -1897,7 +1901,6 @@ if(CLIENT)
     graphics_defines.h
     graphics_threaded.cpp
     graphics_threaded.h
-    graphics_threaded_null.h
     http.cpp
     http.h
     input.cpp
@@ -1996,6 +1999,8 @@ if(CLIENT)
     components/spectator.h
     components/statboard.cpp
     components/statboard.h
+    components/tooltips.cpp
+    components/tooltips.h
     components/voting.cpp
     components/voting.h
     gameclient.cpp
@@ -2764,6 +2769,8 @@ set(CPACK_GEN_FILES
 
 if(TARGET_OS STREQUAL "windows")
   list(APPEND CPACK_FILES other/config_directory.bat)
+else()
+  list(APPEND CPACK_FILES other/config_directory.sh)
 endif()
 
 if(NOT DEV)
