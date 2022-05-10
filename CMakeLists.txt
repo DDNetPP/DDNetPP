@@ -2412,8 +2412,6 @@ if(TOOLS)
     config_retrieve.cpp
     config_store.cpp
     crapnet.cpp
-    ddpp_map_chiller.cpp
-    ddpp_map_gen.cpp
     dilate.cpp
     dummy_map.cpp
     fake_server.cpp
