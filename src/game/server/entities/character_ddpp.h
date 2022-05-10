@@ -105,6 +105,7 @@ public:
 	void KillSpeed();
 	int GetAimDir();
 	bool InputActive();
+	void UnDeep() { m_DeepFreeze = false; }
 
 	//Chillintelligenz
 	void CITick();

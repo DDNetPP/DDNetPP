@@ -102,6 +102,7 @@ void CGameContext::BlockTournaTick()
 
 						//freeze to get a fair start nobody should be surprised
 						Player->GetCharacter()->UnFreeze();
+						Player->GetCharacter()->UnDeep();
 						Player->GetCharacter()->Freeze(6);
 					}
 					else
