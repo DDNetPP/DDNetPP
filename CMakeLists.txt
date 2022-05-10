@@ -2254,6 +2254,8 @@ if(SERVER)
     entities/drop_pickup.h
     entities/dummy/blmapchill_police.cpp
     entities/dummy/blmapchill_police.h
+    entities/dummy/chillblock5_blocker.cpp
+    entities/dummy/chillblock5_blocker.h
     entities/dummy/dummybase.cpp
     entities/dummy/dummybase.h
     entities/flag.cpp

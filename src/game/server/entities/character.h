@@ -14,6 +14,8 @@
 #include <game/gamecore.h>
 
 #include "dummy/blmapchill_police.h"
+#include "dummy/chillblock5_blocker.h"
+
 #include <vector>
 
 #include "drop_pickup.h"

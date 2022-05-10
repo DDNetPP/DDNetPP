@@ -681,6 +681,8 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	m_IsSpecHF = false;
 	if(!m_pDummyBlmapChillPolice)
 		m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
+	if(!m_pDummyChillBlock5Blocker)
+		m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer);
 	//zCatch ChillerDragon
 	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{

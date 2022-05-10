@@ -10,6 +10,8 @@
 #include <game/gamecore.h>
 
 #include "dummy/blmapchill_police.h"
+#include "dummy/chillblock5_blocker.h"
+
 #include <vector>
 
 #include "drop_pickup.h"
@@ -354,6 +356,7 @@ public:
 	//dummy 29 vars !!!!! also use 18 vars in 29 xD
 
 	CDummyBlmapChillPolice *m_pDummyBlmapChillPolice;
+	CDummyChillBlock5Blocker *m_pDummyChillBlock5Blocker;
 
 	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };

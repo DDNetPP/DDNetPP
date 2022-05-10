@@ -10,6 +10,7 @@
 #include <game/gamecore.h>
 
 #include "dummy/blmapchill_police.h"
+#include "dummy/chillblock5_blocker.h"
 #include <vector>
 
 #include "drop_pickup.h"
@@ -61,11 +62,19 @@ public:
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);
 	int m_insta_survival_gamestate; //0=prepearing 1=running 2=deathmatch
 	int m_insta_survival_delay;
+	int GetNextClientID();
 
-	//dummy
+	// dummy
 	void CreateBasicDummys();
 	int CreateNewDummy(int dummymode, bool silent = false, int tile = 0);
-	int GetNextClientID();
+	enum
+	{
+		MODE_CHILLBLOCK5_RACER = 23,
+		MODE_BLMAPCHILL_RACE = 28,
+		MODE_CHILLBLOCK5_BLOCKER = 29,
+		MODE_CHILLBLOCK5_POLICE = 31,
+		MODE_BLMAPCHILL_POLICE = 32,
+	};
 
 	//usefull everywhere
 	void AbuseMotd(const char *pMsg, int ClientID);

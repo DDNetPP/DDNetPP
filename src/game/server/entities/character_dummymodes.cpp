@@ -8992,7 +8992,11 @@ void CCharacter::DummyTick()
 				//no basic moves for this submode
 			}
 		}
-		else if(m_pPlayer->m_DummyMode == 32) // solo police base bot using 5 jumps and insane grenade jump
+		else if(m_pPlayer->m_DummyMode == CGameContext::MODE_CHILLBLOCK5_BLOCKER)
+		{
+			m_pDummyChillBlock5Blocker->Tick();
+		}
+		else if(m_pPlayer->m_DummyMode == CGameContext::MODE_BLMAPCHILL_POLICE) // solo police base bot using 5 jumps and insane grenade jump
 		{
 			m_pDummyBlmapChillPolice->Tick();
 		}

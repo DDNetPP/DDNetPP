@@ -2325,16 +2325,16 @@ void CGameContext::CreateBasicDummys()
 {
 	if(!str_comp(Server()->GetMapName(), "ChillBlock5"))
 	{
-		CreateNewDummy(31); //police
-		CreateNewDummy(29); //blocker
-		CreateNewDummy(29); //blocker 2
-		CreateNewDummy(23); //racer
+		CreateNewDummy(MODE_CHILLBLOCK5_POLICE); //police
+		CreateNewDummy(MODE_CHILLBLOCK5_BLOCKER); //blocker
+		CreateNewDummy(MODE_CHILLBLOCK5_BLOCKER); //blocker 2
+		CreateNewDummy(MODE_CHILLBLOCK5_RACER); //racer
 		CreateNewDummy(-6); //blocker dm v3
 	}
 	else if(!str_comp(Server()->GetMapName(), "BlmapChill"))
 	{
 		CreateNewDummy(32); //police
-		//CreateNewDummy(28);//racer
+		//CreateNewDummy(MODE_BLMAPCHILL_RACE);//racer
 	}
 	else if(!str_comp(Server()->GetMapName(), "blmapV5"))
 	{
