@@ -53,7 +53,6 @@ public:
 	void LoadMapLive(const char *pMapName);
 	void SetSpawnweapons(bool Active, int ClientID);
 
-
 	void ChatCommands();
 	void DummyChat();
 	void SaveWrongLogin(const char *pLogin);
