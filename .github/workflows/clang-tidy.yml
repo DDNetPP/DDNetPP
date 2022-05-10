@@ -3,7 +3,6 @@ name: Check clang-tidy
 on:
   push:
     branches-ignore:
-      - master
       - staging.tmp
       - trying.tmp
       - staging-squash-merge.tmp
