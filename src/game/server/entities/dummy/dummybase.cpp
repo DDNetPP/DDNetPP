@@ -447,12 +447,12 @@ void CDummyBase::DebugColor(int DebugColor)
 		return;
 	}
 
-	int BaseColor = (DebugColor * 30) * 0x010000;
+	// int BaseColor = (DebugColor * 30) * 0x010000;
 	int Color = 0xff32;
-	if(DebugColor == COLOR_BLACK)
-		Color = BaseColor = 0;
-	else if(DebugColor == COLOR_WHITE)
-		Color = BaseColor = 255;
+	// if(DebugColor == COLOR_BLACK)
+	// 	Color = BaseColor = 0;
+	// else if(DebugColor == COLOR_WHITE)
+	// 	Color = BaseColor = 255;
 
 	m_pPlayer->m_TeeInfos.m_ColorBody = Color;
 }

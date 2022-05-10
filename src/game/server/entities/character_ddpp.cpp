@@ -264,7 +264,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 
 void CCharacter::SetSpookyGhost()
 {
-	if(m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && m_pPlayer->m_IsSurvivalLobby == false)) // no ghost in competetive minigames
+	if(m_pPlayer->m_IsBlockTourning || (m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)) // no ghost in competetive minigames
 		return;
 
 	if(!m_SpookyGhostWeaponsBackupped)
@@ -513,7 +513,6 @@ void CCharacter::DropWeapon(int WeaponID)
 	}
 
 	SetWeaponThatChrHas();
-	return;
 }
 
 void CCharacter::PvPArenaTick()
@@ -563,29 +562,21 @@ void CCharacter::CosmeticTick()
 		if(m_AtomProjs.empty())
 		{
 			for(int i = 0; i < NUM_ATOMS; i++)
-			{
 				m_AtomProjs.push_back(new CStableProjectile(GameWorld(), i % 2 ? WEAPON_GRENADE : WEAPON_SHOTGUN));
-			}
 			m_AtomPosition = 0;
 		}
 		if(++m_AtomPosition >= 60)
-		{
 			m_AtomPosition = 0;
-		}
 		vec2 AtomPos;
 		AtomPos.x = m_Pos.x + 200 * cos(m_AtomPosition * M_PI * 2 / 60);
 		AtomPos.y = m_Pos.y + 80 * sin(m_AtomPosition * M_PI * 2 / 60);
 		for(int i = 0; i < NUM_ATOMS; i++)
-		{
 			m_AtomProjs[i]->m_Pos = rotate_around_point(AtomPos, m_Pos, i * M_PI * 2 / NUM_ATOMS);
-		}
 	}
 	else if(!m_AtomProjs.empty())
 	{
-		for(std::vector<CStableProjectile *>::iterator it = m_AtomProjs.begin(); it != m_AtomProjs.end(); ++it)
-		{
-			(*it)->m_MarkedForDestroy = true;
-		}
+		for(auto &AtomProj : m_AtomProjs)
+			AtomProj->m_MarkedForDestroy = true;
 		m_AtomProjs.clear();
 	}
 
@@ -594,9 +585,7 @@ void CCharacter::CosmeticTick()
 		if(m_TrailProjs.empty())
 		{
 			for(int i = 0; i < NUM_TRAILS; i++)
-			{
 				m_TrailProjs.push_back(new CStableProjectile(GameWorld(), WEAPON_SHOTGUN));
-			}
 			m_TrailHistory.clear();
 			m_TrailHistory.push_front(HistoryPoint(m_Pos, 0.0f));
 			m_TrailHistory.push_front(HistoryPoint(m_Pos, NUM_TRAILS * TRAIL_DIST));
@@ -638,10 +627,8 @@ void CCharacter::CosmeticTick()
 				if((unsigned int)HistoryPos >= m_TrailHistory.size())
 				{
 					m_TrailHistoryLength = 0.0f;
-					for(std::deque<HistoryPoint>::iterator it = m_TrailHistory.begin(); it != m_TrailHistory.end(); ++it)
-					{
-						m_TrailHistoryLength += it->m_Dist;
-					}
+					for(auto &TrailHistoryEntry : m_TrailHistory)
+						m_TrailHistoryLength += TrailHistoryEntry.m_Dist;
 					break;
 				}
 				NextDist = m_TrailHistory[HistoryPos].m_Dist;
@@ -664,10 +651,8 @@ void CCharacter::CosmeticTick()
 	}
 	else if(!m_TrailProjs.empty())
 	{
-		for(std::vector<CStableProjectile *>::iterator it = m_TrailProjs.begin(); it != m_TrailProjs.end(); ++it)
-		{
-			(*it)->m_MarkedForDestroy = true;
-		}
+		for(auto &TrailProj : m_TrailProjs)
+			TrailProj->m_MarkedForDestroy = true;
 		m_TrailProjs.clear();
 	}
 }
@@ -930,7 +915,7 @@ void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
-	if(GetPlayer()->m_IsSurvivaling && GetPlayer()->m_IsSurvivalAlive == false)
+	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
 	{
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
 	}
@@ -1623,20 +1608,16 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	// remove atom projectiles on death
 	if(!m_AtomProjs.empty())
 	{
-		for(std::vector<CStableProjectile *>::iterator it = m_AtomProjs.begin(); it != m_AtomProjs.end(); ++it)
-		{
-			(*it)->m_MarkedForDestroy = true;
-		}
+		for(auto &AtomProj : m_AtomProjs)
+			AtomProj->m_MarkedForDestroy = true;
 		m_AtomProjs.clear();
 	}
 
 	// remove trail projectiles on death
 	if(!m_TrailProjs.empty())
 	{
-		for(std::vector<CStableProjectile *>::iterator it = m_TrailProjs.begin(); it != m_TrailProjs.end(); ++it)
-		{
-			(*it)->m_MarkedForDestroy = true;
-		}
+		for(auto &TrailProj : m_TrailProjs)
+			TrailProj->m_MarkedForDestroy = true;
 		m_TrailProjs.clear();
 	}
 
@@ -2030,12 +2011,10 @@ void CCharacter::BlockTourna_Die(int Killer)
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 				GameServer()->m_BlockTournaState = 0;
 			}
-			else if(wonID < 0 || wonID == -420)
+			else if(wonID < 0)
 			{
 				if(wonID == -420)
-				{
 					wonID = 0;
-				}
 				wonID *= -1;
 				str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -2141,22 +2120,14 @@ void CCharacter::ChillTelePortTile(int X, int Y)
 
 void CCharacter::FreezeAll(int seconds)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCharacter())
-		{
-			GameServer()->m_apPlayers[i]->GetCharacter()->Freeze(seconds);
-		}
-	}
+	for(auto &Player : GameServer()->m_apPlayers)
+		if(Player && Player->GetCharacter())
+			Player->GetCharacter()->Freeze(seconds);
 }
 
 bool CCharacter::HasWeapon(int weapon)
 {
-	if(m_aWeapons[weapon].m_Got)
-	{
-		return true;
-	}
-	return false;
+	return m_aWeapons[weapon].m_Got;
 }
 
 void CCharacter::KillSpeed()
@@ -3360,12 +3331,11 @@ void CCharacter::TakeHammerHit(CCharacter *pFrom)
 
 	vec2 Push = vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f;
 	//if (GameServer()->m_pController->IsTeamplay() && pFrom->GetPlayer() && m_pPlayer->GetTeam() == pFrom->GetPlayer()->GetTeam() && IsFreezed())
-	if(false)
-	{
-		Push.x *= g_Config.m_SvMeltHammerScaleX * 0.01f;
-		Push.y *= g_Config.m_SvMeltHammerScaleY * 0.01f;
-	}
-	else
+	// {
+	// 	Push.x *= g_Config.m_SvMeltHammerScaleX * 0.01f;
+	// 	Push.y *= g_Config.m_SvMeltHammerScaleY * 0.01f;
+	// }
+	// else
 	{
 		Push.x *= g_Config.m_SvHammerScaleX * 0.01f;
 		Push.y *= g_Config.m_SvHammerScaleY * 0.01f;

@@ -14,14 +14,12 @@
 #include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/shop.h>
 
-#include <ctime> //ChillerDragon
-#include <fstream> //ChillerDragon acc sys2
-#include <limits> //ChillerDragon acc sys2 get specific line
-//#include <stdio.h> //strcat
 #include <cinttypes>
 #include <cstdio> //acc2 to_str()
 #include <cstdlib> //acc2 to_str()
-#include <cstring> //strcat
+#include <ctime> //ChillerDragon
+#include <fstream> //ChillerDragon acc sys2
+#include <limits> //ChillerDragon acc sys2 get specific line
 //#include <string> //acc2 std::to_string
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
@@ -600,8 +598,6 @@ void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] You can choose what the player score will display:");
 		pSelf->SendChatTarget(pResult->m_ClientID, "time, level, block");
 	}
-
-	return;
 }
 
 void CGameContext::ConShop(IConsole::IResult *pResult, void *pUserData)
@@ -766,7 +762,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	//if (EvilChar)
-	if(pSelf->IsAllowedCharSet(aUsername) == false)
+	if(!pSelf->IsAllowedCharSet(aUsername))
 	{
 		str_format(aBuf, sizeof(aBuf), "[ACCOUNT] please use only the following characters in your username '%s'", pSelf->m_aAllowedCharSet);
 		pSelf->SendChatTarget(ClientID, aBuf);
@@ -7933,7 +7929,7 @@ void CGameContext::ConWanted(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "=== Wanted Players ===");
 	for(auto &Player : pSelf->m_apPlayers)
 	{
-		if(Player)
+		if(!Player)
 			continue;
 		if(!Player->m_Account.m_EscapeTime)
 			continue;
@@ -7979,7 +7975,7 @@ void CGameContext::ConViewers(IConsole::IResult *pResult, void *pUserData)
 			else
 			{
 				str_format(aBuf, sizeof(aBuf), ", '%s'", pSelf->Server()->ClientName(Player->GetCID()));
-				strcat(aMsg, aBuf);
+				str_append(aMsg, aBuf, sizeof(aMsg));
 			}
 		}
 	}

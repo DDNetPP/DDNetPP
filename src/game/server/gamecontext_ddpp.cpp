@@ -698,6 +698,9 @@ bool CGameContext::IsHooked(int hookedID, int power)
 {
 	for(auto &Player : m_apPlayers)
 	{
+		if(!Player)
+			continue;
+
 		CCharacter *pChar = GetPlayerChar(Player->GetCID());
 
 		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCID() == hookedID)
@@ -2517,21 +2520,20 @@ bool CGameContext::AdminChatPing(const char *pMsg)
 	if(!g_Config.m_SvMinAdminPing)
 		return false;
 
-	for(auto &Player : m_apPlayers)
-	{
-		if(!Player)
-			continue;
-		if(Server()->GetAuthedState(Player->GetCID()))
-			continue;
-		if(str_find_nocase(pMsg, Server()->ClientName(Player->GetCID())))
+	return std::any_of(std::begin(m_apPlayers), std::end(m_apPlayers), [this, pMsg](const CPlayer *pPlayer) {
+		if(!pPlayer)
+			return false;
+		if(!Server()->GetAuthedState(pPlayer->GetCID()))
+			return false;
+		if(str_find_nocase(pMsg, Server()->ClientName(pPlayer->GetCID())))
 		{
-			int len_name = str_length(Server()->ClientName(Player->GetCID()));
+			int len_name = str_length(Server()->ClientName(pPlayer->GetCID()));
 			int len_msg = str_length(pMsg);
 			if(len_msg - len_name - 2 < g_Config.m_SvMinAdminPing)
 				return true;
 		}
-	}
-	return false;
+		return false;
+	});
 }
 
 bool CGameContext::ShowJoinMessage(int ClientID)

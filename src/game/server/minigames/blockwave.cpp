@@ -8,7 +8,6 @@
 
 #include "../gamecontext.h"
 
-
 void CGameContext::BlockWaveAddBots()
 {
 	int OccSlots = CountConnectedPlayers();

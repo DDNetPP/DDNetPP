@@ -124,7 +124,6 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
 }
 
-
 void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 {
 #if defined(CONF_DEBUG)
@@ -378,7 +377,7 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 			if(aScorePlayer[0] != -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aScorePlayer[0]), aScorePlayer[1]);
-				strcat(m_aInstaGrenadeScoreboard, aBuf);
+				str_append(m_aInstaGrenadeScoreboard, aBuf, sizeof(m_aInstaGrenadeScoreboard));
 			}
 		}
 	}
@@ -476,7 +475,7 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 			if(aScorePlayer[0] != -1)
 			{
 				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aScorePlayer[0]), aScorePlayer[1]);
-				strcat(m_aInstaRifleScoreboard, aBuf);
+				str_append(m_aInstaRifleScoreboard, aBuf, sizeof(m_aInstaRifleScoreboard));
 			}
 		}
 	}

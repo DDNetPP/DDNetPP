@@ -66,7 +66,6 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 	return 0;
 }
 
-
 const char *CGameContext::GetBlockSkillGroup(int id)
 {
 	CPlayer *pPlayer = m_apPlayers[id];

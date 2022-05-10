@@ -8,7 +8,6 @@
 
 #include "../gamecontext.h"
 
-
 int CGameContext::C3_GetFreeSlots()
 {
 	int c = g_Config.m_SvChidraqulSlots;

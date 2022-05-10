@@ -835,7 +835,7 @@ void CCharacter::DummyTick()
 						m_Input.m_Direction = 1;
 					}
 
-					if(m_Core.m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && IsGrounded() == false)
+					if(m_Core.m_Pos.y > 77 * 32 - 1 + V3_OFFSET_Y && !IsGrounded())
 					{
 						m_Input.m_Jump = 1;
 						if(m_Core.m_Jumped > 2) //no jumps == rip   --> panic hook
@@ -929,7 +929,7 @@ void CCharacter::DummyTick()
 			//m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 
 			//happy finish
-			if(m_DummyFinished == true)
+			if(m_DummyFinished)
 			{
 				if(m_DummyFinishes == 1)
 				{
@@ -954,7 +954,7 @@ void CCharacter::DummyTick()
 				}
 			}
 			//showing rank
-			if(m_DummyShowRank == true)
+			if(m_DummyShowRank)
 			{
 				if(random_float() * 100 < 2)
 				{
@@ -3532,7 +3532,7 @@ void CCharacter::DummyTick()
 								{
 									//shot schiessen schissen
 									//im freeze nicht schiessen
-									if(m_DummyFreezed == false)
+									if(!m_DummyFreezed)
 									{
 										m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
 										m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
@@ -3564,7 +3564,7 @@ void CCharacter::DummyTick()
 											}
 										}
 									}
-									else if(m_DummyFreezed == true) //if (m_DummyFreezed == false)
+									else if(m_DummyFreezed) //if (m_DummyFreezed == false)
 									{
 										m_LatestInput.m_Fire = 0;
 										m_Input.m_Fire = 0;
@@ -5659,7 +5659,7 @@ void CCharacter::DummyTick()
 							m_Input.m_Direction = -1;
 							if(m_Core.m_Pos.y < 433 * 32)
 							{
-								if(m_Core.m_Vel.y > 0.01f && m_DummyUsedDJ == false)
+								if(m_Core.m_Vel.y > 0.01f && !m_DummyUsedDJ)
 								{
 									m_Input.m_Jump = 1; //double jump
 									if(!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
@@ -5668,7 +5668,7 @@ void CCharacter::DummyTick()
 									}
 								}
 							}
-							if(m_DummyUsedDJ == true && IsGrounded())
+							if(m_DummyUsedDJ && IsGrounded())
 							{
 								m_DummyUsedDJ = false;
 							}
@@ -5944,7 +5944,7 @@ void CCharacter::DummyTick()
 					}
 
 					//do the doublejump
-					if(m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32 && m_DummyUsedDJ == false) //falling and not too high to hit roof with head
+					if(m_Core.m_Vel.y > 6.9f && m_Core.m_Pos.y > 430 * 32 && m_Core.m_Pos.x < 433 * 32 && !m_DummyUsedDJ) //falling and not too high to hit roof with head
 					{
 						m_Input.m_Jump = 1;
 						//m_LatestInput.m_Fire++;
@@ -5954,7 +5954,7 @@ void CCharacter::DummyTick()
 							m_DummyUsedDJ = true;
 						}
 					}
-					if(m_DummyUsedDJ == true && IsGrounded())
+					if(m_DummyUsedDJ && IsGrounded())
 					{
 						m_DummyUsedDJ = false;
 					}
@@ -8113,7 +8113,7 @@ void CCharacter::DummyTick()
 					if(m_Core.m_Pos.x > 429 * 32 && m_Core.m_Pos.x < 436 * 32 && m_Core.m_Pos.y < 214 * 32) //dangerous area over the freeze
 					{
 						//first check! too low?
-						if(m_Core.m_Pos.y > 211 * 32 + 10 && IsGrounded() == false)
+						if(m_Core.m_Pos.y > 211 * 32 + 10 && !IsGrounded())
 						{
 							m_Input.m_Jump = 1;
 							m_Input.m_Hook = 1;
@@ -8226,7 +8226,7 @@ void CCharacter::DummyTick()
 						m_LatestInput.m_Fire = 0;
 						m_Input.m_Fire = 0;
 
-						if(m_Core.m_Pos.x < 451 * 32 + 20 && IsGrounded() == false && m_Core.m_Jumped > 2)
+						if(m_Core.m_Pos.x < 451 * 32 + 20 && !IsGrounded() && m_Core.m_Jumped > 2)
 						{
 							m_Input.m_Direction = 1;
 						}
@@ -9262,16 +9262,10 @@ void CCharacter::DummyTick()
 					if(m_pPlayer->m_IsSurvivalAlive)
 					{
 						int AliveHumans = 0;
-						for(int i = 0; i < MAX_CLIENTS; i++)
-						{
-							if(GameServer()->m_apPlayers[i] && !GameServer()->m_apPlayers[i]->m_IsDummy) //check all humans
-							{
-								if(GameServer()->m_apPlayers[i]->m_IsSurvivaling && GameServer()->m_apPlayers[i]->m_IsSurvivalAlive) // surival alive
-								{
+						for(auto &Player : GameServer()->m_apPlayers)
+							if(Player && !Player->m_IsDummy) //check all humans
+								if(Player->m_IsSurvivaling && Player->m_IsSurvivalAlive) // surival alive
 									AliveHumans++;
-								}
-							}
-						}
 						if(!AliveHumans) //all humans dead --> suicide to get new round running
 						{
 							Die(m_pPlayer->GetCID(), WEAPON_SELF);
