@@ -17,7 +17,7 @@ public:
 	void CalculateVel();
 	virtual void TickDefered();
 	void Move(CCharacter *pTarget);
-	bool Hit(CCharacter *pHitCharacter);
+	bool Hit(CCharacter *pHitTarget);
 
 private:
 	vec2 m_LastResetPos;

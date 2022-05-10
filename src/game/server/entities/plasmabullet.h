@@ -1,6 +1,7 @@
-/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
-#ifndef PLASMA_TYPE
-#define PLASMA_TYPE
+// fokkonaut
+
+#ifndef GAME_SERVER_ENTITIES_PLASMABULLET_H
+#define GAME_SERVER_ENTITIES_PLASMABULLET_H
 
 #include <game/server/entity.h>
 

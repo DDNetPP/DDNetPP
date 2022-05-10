@@ -863,6 +863,4 @@ void CCharacter::SetSpawnWeapons()
 			m_pPlayer->m_SpawnRifleActive = 1;
 		}
 	}
-
-	return;
 }

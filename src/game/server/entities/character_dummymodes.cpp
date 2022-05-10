@@ -1735,7 +1735,8 @@ void CCharacter::DummyTick()
 					if(pChr && pChr->IsAlive()) // wenn ein spieler rechts im freeze lebt
 					{ //----> versuche im notstand nicht den gegner auch da rein zu hauen da ist ja jetzt voll
 
-						m_Dummy_left_freeze_full = true;
+						// clang tidy redundant bool
+						// m_Dummy_left_freeze_full = true;
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Da liegt einer im freeze");
 					}
 					else // wenn da keiner is fülle diesen spot (linke freeze wand im ruler spot)
@@ -3256,7 +3257,7 @@ void CCharacter::DummyTick()
 				//Check ob der dummy schon waffen hat
 				if(m_aWeapons[3].m_Got && m_aWeapons[2].m_Got)
 				{
-					m_Dummy_collected_weapons = true;
+					// m_Dummy_collected_weapons = true;
 				}
 				else //wenn er sie wd verliert zb durch shields
 				{

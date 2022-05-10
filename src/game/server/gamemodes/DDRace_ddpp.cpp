@@ -46,12 +46,12 @@ void CGameControllerDDRace::FlagTick()
 					/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
 					F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-					if(m_apFlags[0]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					if(m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter && m_apFlags[0]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
 						DropFlag(0, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
 						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped red flag");
 					}
-					else if(m_apFlags[1]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
+					else if(m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter && m_apFlags[1]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
 						DropFlag(1, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
 						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped blue flag");
@@ -254,12 +254,14 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 	int HadFlag = 0;
 
 	// drop flags
-	for(int i = 0; i < 2; i++)
+	for(auto &Flag : m_apFlags)
 	{
-		CFlag *F = m_apFlags[i];
-		if(F && pKiller && pKiller->GetCharacter() && F->m_pCarryingCharacter == pKiller->GetCharacter())
+		if(!Flag)
+			continue;
+
+		if(pKiller && pKiller->GetCharacter() && Flag->m_pCarryingCharacter == pKiller->GetCharacter())
 			HadFlag |= 2;
-		if(F && F->m_pCarryingCharacter == pVictim)
+		if(Flag->m_pCarryingCharacter == pVictim)
 		{
 			if(g_Config.m_SvFlagSounds)
 			{
@@ -268,14 +270,14 @@ int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPl
 			/*pVictim->GetPlayer()->m_Rainbow = false;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorBody = pVictim->GetPlayer()->m_ColorBodyOld;
 			pVictim->GetPlayer()->m_TeeInfos.m_ColorFeet = pVictim->GetPlayer()->m_ColorFeetOld;*/
-			F->m_DropTick = Server()->Tick();
-			F->m_pCarryingCharacter = 0;
-			F->m_Vel = vec2(0, 0);
+			Flag->m_DropTick = Server()->Tick();
+			Flag->m_pCarryingCharacter = 0;
+			Flag->m_Vel = vec2(0, 0);
 
 			HadFlag |= 1;
 		}
-		if(F && F->m_pLastCarryingCharacter == pVictim)
-			F->m_pLastCarryingCharacter = 0;
+		if(Flag->m_pLastCarryingCharacter == pVictim)
+			Flag->m_pLastCarryingCharacter = 0;
 	}
 
 	return HadFlag;
@@ -331,18 +333,23 @@ int CGameControllerDDRace::HasFlag(CCharacter *character)
 void CGameControllerDDRace::DropFlag(int id, int dir)
 {
 	CFlag *F = m_apFlags[id]; //red=0 blue=1
+	if(!F)
+		return;
 
 	if(g_Config.m_SvFlagSounds)
 	{
 		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
-	/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
-	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
-	F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
-	F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+	if(F->m_pCarryingCharacter && F->m_pCarryingCharacter->GetPlayer())
+	{
+		/*F->m_pCarryingCharacter->GetPlayer()->m_Rainbow = false;
+		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorBody = F->m_pCarryingCharacter->GetPlayer()->m_ColorBodyOld;
+		F->m_pCarryingCharacter->GetPlayer()->m_TeeInfos.m_ColorFeet = F->m_pCarryingCharacter->GetPlayer()->m_ColorFeetOld;*/
+		F->m_pCarryingCharacter->GetPlayer()->m_ChangeTeamOnFlag = true;
+		F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
+	}
 	F->m_DropTick = Server()->Tick();
 	F->m_DropFreezeTick = Server()->Tick();
-	F->m_pLastCarryingCharacter = F->m_pCarryingCharacter;
 	F->m_pCarryingCharacter = 0;
 	F->m_Vel = vec2(5 * dir, -5);
 }

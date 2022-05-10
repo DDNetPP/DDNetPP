@@ -416,8 +416,8 @@ void CDummyChillBlock5Blocker::OnTick()
 		CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerLeftFreeze(GetPos(), true, m_pCharacter); //wenn jemand rechts im freeze liegt
 		if(pChr && pChr->IsAlive()) // wenn ein spieler rechts im freeze lebt
 		{ //----> versuche im notstand nicht den gegner auch da rein zu hauen da ist ja jetzt voll
-
-			m_Dummy_left_freeze_full = true;
+			// clang tidy redundant bool
+			// m_Dummy_left_freeze_full = true;
 			//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Da liegt einer im freeze");
 		}
 		else // wenn da keiner is fülle diesen spot (linke freeze wand im ruler spot)
