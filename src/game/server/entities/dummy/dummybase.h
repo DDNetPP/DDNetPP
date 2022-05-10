@@ -39,9 +39,9 @@ protected:
 	void Right();
 	void SetDirection(int Direction);
 	void StopMoving();
-	void Hook(bool Stroke = true);
-	void Jump(bool Stroke = true);
-	void Fire(bool Stroke = true);
+	void Hook(int Stroke = 1);
+	void Jump(int Stroke = 1);
+	void Fire(int Stroke = 1);
 	void Aim(int TargetX, int TargetY);
 	void AimPos(vec2 Pos);
 	void AimX(int TargetX);

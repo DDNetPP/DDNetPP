@@ -14,14 +14,14 @@
 #include <game/server/ddpp/accounts.h>
 #include <game/server/ddpp/shop.h>
 
+#include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
-#include <time.h> //ChillerDragon
 //#include <stdio.h> //strcat
 #include <cinttypes>
-#include <stdio.h> //acc2 to_str()
-#include <stdlib.h> //acc2 to_str()
-#include <string.h> //strcat
+#include <cstdio> //acc2 to_str()
+#include <cstdlib> //acc2 to_str()
+#include <cstring> //strcat
 //#include <string> //acc2 std::to_string
 //#include <iostream> //acc2 std::to_string
 //#include <sstream> //acc2 std::to_string
@@ -1195,7 +1195,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your status '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1214,7 +1214,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your skype '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1233,7 +1233,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your youtube '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1252,7 +1252,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your email '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1271,7 +1271,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your homepage '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
@@ -1290,7 +1290,7 @@ void CGameContext::ConProfile(IConsole::IResult *pResult, void *pUserData)
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 				return;
 			}
-			if(pSelf->IsAllowedCharSet(aPara1) == false)
+			if(!pSelf->IsAllowedCharSet(aPara1))
 			{
 				str_format(aBuf, sizeof(aBuf), "[PROFILE] please use only the following characters in your twitter '%s'", pSelf->m_aAllowedCharSet);
 				pSelf->SendChatTarget(pResult->m_ClientID, aBuf);

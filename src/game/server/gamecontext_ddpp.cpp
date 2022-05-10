@@ -335,12 +335,12 @@ bool CGameContext::InitTileDDPP(int Index, int x, int y)
 
 bool CGameContext::CheckAccounts(int AccountID)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
 
-		if(m_apPlayers[i]->GetAccID() == AccountID)
+		if(Player->GetAccID() == AccountID)
 			return true;
 	}
 	return false;
@@ -404,30 +404,30 @@ bool CGameContext::IsDDPPgametype(const char *pGametype)
 
 int CGameContext::GetCIDByName(const char *pName)
 {
-	int nameID = -1;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	int NameID = -1;
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(!Player)
+			continue;
+
+		if(!str_comp(pName, Server()->ClientName(Player->GetCID())))
 		{
-			if(!str_comp(pName, Server()->ClientName(i)))
-			{
-				nameID = i;
-				break;
-			}
+			NameID = Player->GetCID();
+			break;
 		}
 	}
-	return nameID;
+	return NameID;
 }
 
 int CGameContext::GetShopBot()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			if(m_apPlayers[i]->m_DummyMode == 99)
+			if(Player->m_DummyMode == 99)
 			{
-				return i;
+				return Player->GetCID();
 			}
 		}
 	}
@@ -436,26 +436,19 @@ int CGameContext::GetShopBot()
 
 int CGameContext::CountConnectedPlayers()
 {
-	int cPlayers = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i])
-		{
-			cPlayers++;
-		}
-	}
-	//char aBuf[64];
-	//str_format(aBuf, sizeof(aBuf), "counted %d players", i);
-	//dbg_msg("count", aBuf);
-	return cPlayers;
+	int Num = 0;
+	for(auto &Player : m_apPlayers)
+		if(Player)
+			Num++;
+	return Num;
 }
 
 int CGameContext::CountConnectedHumans()
 {
 	int cPlayers = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && !m_apPlayers[i]->m_IsDummy)
+		if(Player && !Player->m_IsDummy)
 		{
 			cPlayers++;
 		}
@@ -466,9 +459,9 @@ int CGameContext::CountConnectedHumans()
 int CGameContext::CountIngameHumans()
 {
 	int cPlayers = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter() && !m_apPlayers[i]->m_IsDummy)
+		if(Player && Player->GetCharacter() && !Player->m_IsDummy)
 		{
 			cPlayers++;
 		}
@@ -514,15 +507,15 @@ bool CGameContext::IsAllowedCharSet(const char *pStr)
 
 int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(!m_apPlayers[i]->m_aTimeoutCode[0])
+		if(!Player->m_aTimeoutCode[0])
 			continue;
-		if(str_comp(m_apPlayers[i]->m_aTimeoutCode, pTimeout))
+		if(str_comp(Player->m_aTimeoutCode, pTimeout))
 			continue;
-		return i;
+		return Player->GetCID();
 	}
 	return -1;
 }
@@ -530,9 +523,9 @@ int CGameContext::GetPlayerByTimeoutcode(const char *pTimeout)
 int CGameContext::CountConnectedBots()
 {
 	int lum_tt_zv_1_zz_04032018_lt3 = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsDummy)
+		if(Player && Player->m_IsDummy)
 		{
 			lum_tt_zv_1_zz_04032018_lt3++;
 		}
@@ -543,11 +536,11 @@ int CGameContext::CountConnectedBots()
 int CGameContext::CountTimeoutCodePlayers()
 {
 	int p = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(!m_apPlayers[i]->m_aTimeoutCode[0])
+		if(!Player->m_aTimeoutCode[0])
 			continue;
 		p++;
 	}
@@ -556,22 +549,22 @@ int CGameContext::CountTimeoutCodePlayers()
 
 void CGameContext::SendBroadcastAll(const char *pText, int importance, bool supermod)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			SendBroadcast(pText, m_apPlayers[i]->GetCID(), importance, supermod);
+			SendBroadcast(pText, Player->GetCID(), importance, supermod);
 		}
 	}
 }
 
 void CGameContext::KillAll()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->GetCharacter()) //only kill alive dudes
+		if(Player && Player->GetCharacter()) //only kill alive dudes
 		{
-			GetPlayerChar(i)->Die(i, WEAPON_WORLD);
+			GetPlayerChar(Player->GetCID())->Die(Player->GetCID(), WEAPON_WORLD);
 		}
 	}
 }
@@ -703,9 +696,9 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 
 bool CGameContext::IsHooked(int hookedID, int power)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		CCharacter *pChar = GetPlayerChar(i);
+		CCharacter *pChar = GetPlayerChar(Player->GetCID());
 
 		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCID() == hookedID)
 			continue;
@@ -724,13 +717,7 @@ bool CGameContext::IsSameIP(int ID_1, int ID_2)
 	char aIP_2[64];
 	Server()->GetClientAddr(ID_1, aIP_1, sizeof(aIP_1));
 	Server()->GetClientAddr(ID_2, aIP_2, sizeof(aIP_2));
-	if(!str_comp_nocase(aIP_1, aIP_2))
-	{
-		//dbg_msg("IP_CHECKER", "[%s] [%s]  EQUAL", aIP_1, aIP_2);
-		return true;
-	}
-	//dbg_msg("IP_CHECKER", "[%s] [%s] UNQUAL", aIP_1, aIP_2);
-	return false;
+	return !str_comp_nocase(aIP_1, aIP_2);
 }
 
 char CGameContext::BoolToChar(bool b)
@@ -742,9 +729,7 @@ char CGameContext::BoolToChar(bool b)
 
 bool CGameContext::CharToBool(char c)
 {
-	if(c == '0')
-		return false;
-	return true;
+	return c == '0';
 }
 
 void CGameContext::ShowHideConfigBoolToChar(int id)
@@ -1303,14 +1288,14 @@ void CGameContext::DDPP_Tick()
 		{
 			SendSurvivalChat("[SURVIVAL] Game ended due to timeout. Nobody won.");
 			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : m_apPlayers)
 			{
-				if(m_apPlayers[i] && m_apPlayers[i]->m_IsSurvivaling)
+				if(Player && Player->m_IsSurvivaling)
 				{
-					SetPlayerSurvival(i, SURVIVAL_LOBBY);
-					if(m_apPlayers[i]->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
+					SetPlayerSurvival(Player->GetCID(), SURVIVAL_LOBBY);
+					if(Player->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
 					{
-						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
 					}
 				}
 			}
@@ -1328,25 +1313,26 @@ void CGameContext::DDPP_Tick()
 		m_CreateShopBot = false;
 	}
 	// all the tick stuff which needs all players
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
 
+		int PlayerID = Player->GetCID();
 		if(m_LastAccountMode != g_Config.m_SvAccountStuff)
 		{
-			if(m_apPlayers[i]->IsLoggedIn())
+			if(Player->IsLoggedIn())
 			{
-				SendChatTarget(i, "[ACCOUNT] you have been logged out due to changes in the system");
-				m_apPlayers[i]->Logout();
+				SendChatTarget(PlayerID, "[ACCOUNT] you have been logged out due to changes in the system");
+				Player->Logout();
 			}
 		}
 
-		ChilliClanTick(i);
-		AsciiTick(i);
-		InstaGrenadeRoundEndTick(i);
-		InstaRifleRoundEndTick(i);
-		C3_MultiPlayer_GameTick(i);
+		ChilliClanTick(PlayerID);
+		AsciiTick(PlayerID);
+		InstaGrenadeRoundEndTick(PlayerID);
+		InstaRifleRoundEndTick(PlayerID);
+		C3_MultiPlayer_GameTick(PlayerID);
 	}
 	if(m_InstaGrenadeRoundEndTickTicker)
 		m_InstaGrenadeRoundEndTickTicker--;
@@ -1360,29 +1346,31 @@ void CGameContext::DDPP_Tick()
 
 void CGameContext::LogoutAllPlayers()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(m_apPlayers[i]->IsLoggedIn())
+
+		if(Player->IsLoggedIn())
 		{
-			dbg_msg("ddnet++", "logging out id=%d", i);
-			m_apPlayers[i]->Logout();
+			dbg_msg("ddnet++", "logging out id=%d", Player->GetCID());
+			Player->Logout();
 		}
 	}
 }
 
 void CGameContext::LogoutAllPlayersMessage()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(m_apPlayers[i]->IsLoggedIn())
+
+		if(Player->IsLoggedIn())
 		{
-			dbg_msg("ddnet++", "logging out id=%d", i);
-			m_apPlayers[i]->Logout();
-			SendChatTarget(i, "[ACCOUNT] you were logged out.");
+			dbg_msg("ddnet++", "logging out id=%d", Player->GetCID());
+			Player->Logout();
+			SendChatTarget(Player->GetCID(), "[ACCOUNT] you were logged out.");
 		}
 	}
 }
@@ -1398,50 +1386,51 @@ void CGameContext::DDPP_SlowTick()
 	int NumQuesting = 0;
 	int TotalPlayers = 0;
 	int NumAdventureBots = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
 
+		int PlayerID = Player->GetCID();
 		TotalPlayers++;
-		CheckDeleteLoginBanEntry(i);
-		CheckDeleteRegisterBanEntry(i);
-		CheckDeleteNamechangeMuteEntry(i);
-		if(m_apPlayers[i]->IsQuesting())
+		CheckDeleteLoginBanEntry(PlayerID);
+		CheckDeleteRegisterBanEntry(PlayerID);
+		CheckDeleteNamechangeMuteEntry(PlayerID);
+		if(Player->IsQuesting())
 		{
 			NumQuesting++;
-			if(m_apPlayers[i]->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
+			if(Player->m_QuestPlayerID != -1) //if player is on a <specfic player> quest
 			{
-				if(!m_apPlayers[m_apPlayers[i]->m_QuestPlayerID])
+				if(!m_apPlayers[Player->m_QuestPlayerID])
 				{
-					SendChatTarget(i, "[QUEST] Looks like your quest destination left the server.");
-					QuestFailed(i);
+					SendChatTarget(PlayerID, "[QUEST] Looks like your quest destination left the server.");
+					QuestFailed(PlayerID);
 				}
-				else if(m_apPlayers[m_apPlayers[i]->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
+				else if(m_apPlayers[Player->m_QuestPlayerID]->GetTeam() == TEAM_SPECTATORS)
 				{
-					SendChatTarget(i, "[QUEST] Looks like your quest destination is a spectator.");
-					QuestFailed(i);
+					SendChatTarget(PlayerID, "[QUEST] Looks like your quest destination is a spectator.");
+					QuestFailed(PlayerID);
 				}
 			}
 		}
-		if(m_apPlayers[i]->m_IsSurvivaling)
+		if(Player->m_IsSurvivaling)
 		{
 			StopSurvival = false;
 		}
 		if(m_BlockTournaState == 3)
 		{
-			if(m_apPlayers[i]->m_IsBlockTourning)
+			if(Player->m_IsBlockTourning)
 			{
-				m_apPlayers[i]->m_IsBlockTourning = false;
-				if(m_apPlayers[i]->GetCharacter())
+				Player->m_IsBlockTourning = false;
+				if(Player->GetCharacter())
 				{
-					m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+					Player->GetCharacter()->Die(PlayerID, WEAPON_GAME);
 				}
 			}
 		}
-		if(m_apPlayers[i]->m_IsDummy)
+		if(Player->m_IsDummy)
 		{
-			if(m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
+			if(Player->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
 				NumAdventureBots++;
 		}
 	}
@@ -1449,14 +1438,15 @@ void CGameContext::DDPP_SlowTick()
 	if(TotalPlayers + 3 > g_Config.m_SvMaxClients ||
 		NumQuesting == 0)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(!m_apPlayers[i])
+			if(!Player)
 				continue;
-			if(!m_apPlayers[i]->m_IsDummy)
+
+			if(!Player->m_IsDummy)
 				continue;
-			if(m_apPlayers[i]->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
-				Server()->BotLeave(i);
+			if(Player->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+				Server()->BotLeave(Player->GetCID());
 		}
 	}
 	if(NumAdventureBots < g_Config.m_SvAdventureBots)
@@ -1479,12 +1469,12 @@ void CGameContext::DDPP_SlowTick()
 
 	if(g_Config.m_SvMinDoubleTilePlayers > 0)
 	{
-		if(CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == true) // MoneyTileDouble();  bla bla
+		if(CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers) // MoneyTileDouble();  bla bla
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
 			MoneyDoubleEnoughPlayers = false;
 		}
-		if(CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers == false)
+		if(CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && !MoneyDoubleEnoughPlayers)
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
 			MoneyDoubleEnoughPlayers = true;
@@ -1726,19 +1716,18 @@ void CGameContext::SaveMapPlayerData()
 	int saved = 0;
 	int players = CountTimeoutCodePlayers();
 	fwrite(&players, sizeof(players), 1, pFile);
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		CPlayer *pPlayer = m_apPlayers[i];
-		if(!pPlayer)
+		if(!Player)
 			continue;
-		CCharacter *pChr = pPlayer->GetCharacter();
+		CCharacter *pChr = Player->GetCharacter();
 		if(!pChr)
 			continue;
-		if(!pPlayer->m_aTimeoutCode[0])
+		if(!Player->m_aTimeoutCode[0])
 			continue;
 		if(!pChr)
 			continue;
-		fwrite(&pPlayer->m_aTimeoutCode, 64, 1, pFile);
+		fwrite(&Player->m_aTimeoutCode, 64, 1, pFile);
 		char IsLoaded = 0;
 		fpos_t pos;
 		fgetpos(pFile, &pos);
@@ -1749,7 +1738,7 @@ void CGameContext::SaveMapPlayerData()
 		savetee.Save(pChr);
 		fwrite(&savetee, sizeof(savetee), 1, pFile);
 
-		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(i), pPlayer->m_aTimeoutCode);
+		dbg_msg("ddpp-mapsave", "save player=%s code=%s", Server()->ClientName(Player->GetCID()), Player->m_aTimeoutCode);
 		saved++;
 	}
 	fclose(pFile);
@@ -2030,11 +2019,11 @@ void CGameContext::SendAllPolice(const char *pMessage)
 {
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[POLICE-CHANNEL] %s", pMessage);
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_Account.m_PoliceRank)
+		if(Player && Player->m_Account.m_PoliceRank)
 		{
-			SendChatTarget(i, aBuf);
+			SendChatTarget(Player->GetCID(), aBuf);
 		}
 	}
 }
@@ -2268,19 +2257,19 @@ int CGameContext::PrintSpecialCharUsers(int ID)
 {
 	char aUsers[2048]; //wont show all users if too many special char users are there but this shouldnt be the case
 	int users = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->IsLoggedIn())
+		if(Player && Player->IsLoggedIn())
 		{
-			if(IsAllowedCharSet(m_apPlayers[i]->m_Account.m_aUsername) == false)
+			if(!IsAllowedCharSet(Player->m_Account.m_aUsername))
 			{
 				if(!users)
 				{
-					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", i, m_apPlayers[i]->m_Account.m_aUsername);
+					str_format(aUsers, sizeof(aUsers), "[id='%d' acc='%s']", Player->GetCID(), Player->m_Account.m_aUsername);
 				}
 				else
 				{
-					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, i, m_apPlayers[i]->m_Account.m_aUsername);
+					str_format(aUsers, sizeof(aUsers), "%s, [id='%d' acc='%s']", aUsers, Player->GetCID(), Player->m_Account.m_aUsername);
 				}
 				users++;
 			}
@@ -2527,15 +2516,16 @@ bool CGameContext::AdminChatPing(const char *pMsg)
 {
 	if(!g_Config.m_SvMinAdminPing)
 		return false;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+
+	for(auto &Player : m_apPlayers)
 	{
-		if(!m_apPlayers[i])
+		if(!Player)
 			continue;
-		if(Server()->GetAuthedState(i))
+		if(Server()->GetAuthedState(Player->GetCID()))
 			continue;
-		if(str_find_nocase(pMsg, Server()->ClientName(i)))
+		if(str_find_nocase(pMsg, Server()->ClientName(Player->GetCID())))
 		{
-			int len_name = str_length(Server()->ClientName(i));
+			int len_name = str_length(Server()->ClientName(Player->GetCID()));
 			int len_msg = str_length(pMsg);
 			if(len_msg - len_name - 2 < g_Config.m_SvMinAdminPing)
 				return true;

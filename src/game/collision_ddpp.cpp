@@ -4,9 +4,9 @@
 #include <base/system.h>
 #include <base/vmath.h>
 
+#include <cmath>
 #include <engine/kernel.h>
 #include <engine/map.h>
-#include <math.h>
 
 #include <game/collision.h>
 #include <game/layers.h>
@@ -45,7 +45,7 @@ vec2 CCollision::GetSurvivalSpawn(int Num)
 
 vec2 CCollision::GetTileAtNum(int Tile, int Num)
 {
-	if(m_vTiles[Tile].size())
+	if(!m_vTiles[Tile].empty())
 	{
 		int Amount = m_vTiles[Tile].size();
 		if(Num > Amount)
@@ -61,7 +61,7 @@ vec2 CCollision::GetTileAtNum(int Tile, int Num)
 // by fokkonaut from F-DDrace
 vec2 CCollision::GetRandomTile(int Tile)
 {
-	if(m_vTiles[Tile].size())
+	if(!m_vTiles[Tile].empty())
 	{
 		int Rand = rand() % m_vTiles[Tile].size();
 		return m_vTiles[Tile][Rand];

@@ -62,13 +62,13 @@ int CPlant::IsCharacterNear()
 
 void CPlant::ResetProjectiles()
 {
-	for(unsigned i = 0; i < MAX_PLANT_PROJS; i++)
+	for(auto &PlantProj : m_apPlantProj)
 	{
-		if(m_apPlantProj[i])
+		if(PlantProj)
 		{
-			m_apPlantProj[i]->Reset();
-			m_apPlantProj[i] = NULL;
-			// delete m_apPlantProj[i];
+			PlantProj->Reset();
+			PlantProj = NULL;
+			// delete PlantProj;
 		}
 	}
 }

@@ -3034,50 +3034,50 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), //owner
-			ProjStartPos, //pos
-			Direction, //dir
-			0, //freeze
-			0, //explosive
-			0, //unfreeze
-			1, //bloody
-			1, //ghost
-			Team(), //responibleteam
-			6, //lifetime
-			1.0f, //accel
-			10.0f //speed
+			m_pPlayer->GetCID(), // owner
+			ProjStartPos, // pos
+			Direction, // dir
+			false, // freeze
+			false, // explosive
+			false, // unfreeze
+			true, // bloody
+			true, // ghost
+			Team(), // responibleteam
+			6, // lifetime
+			1.0f, // accel
+			10.0f // speed
 		);
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), //owner
-			ProjStartPos, //pos
-			vec2(cosf(a - 0.200f), sinf(a - 0.200f)), //dir
-			0, //freeze
-			0, //explosive
-			0, //unfreeze
-			1, //bloody
-			1, //ghost
-			Team(), //responibleteam
-			6, //lifetime
-			1.0f, //accel
-			10.0f //speed
+			m_pPlayer->GetCID(), // owner
+			ProjStartPos, // pos
+			vec2(cosf(a - 0.200f), sinf(a - 0.200f)), // dir
+			false, // freeze
+			false, // explosive
+			false, // unfreeze
+			true, // bloody
+			true, // ghost
+			Team(), // responibleteam
+			6, // lifetime
+			1.0f, // accel
+			10.0f // speed
 		);
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), //owner
-			ProjStartPos, //pos
-			vec2(cosf(a - 0.040f), sinf(a - 0.040f)), //dir
-			0, //freeze
-			0, //explosive
-			0, //unfreeze
-			1, //bloody
-			1, //ghost
-			Team(), //responibleteam
-			6, //lifetime
-			1.0f, //accel
-			10.0f //speed
+			m_pPlayer->GetCID(), // owner
+			ProjStartPos, // pos
+			vec2(cosf(a - 0.040f), sinf(a - 0.040f)), // dir
+			false, // freeze
+			false, // explosive
+			false, // unfreeze
+			true, // bloody
+			true, // ghost
+			Team(), // responibleteam
+			6, // lifetime
+			1.0f, // accel
+			10.0f // speed
 		);
 
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
@@ -3103,58 +3103,58 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		new CProjectile(
 			GameWorld(),
-			WEAPON_GUN, //Type
-			m_pPlayer->GetCID(), //Owner
-			ProjStartPos, //Pos
-			vec2(cosf(a), sinf(a)), //Dir
-			Lifetime, //Span
-			0, //Freeze
-			0, //Explosive
-			0, //Force
-			-1, //SoundImpact
-			WEAPON_GUN //Weapon
+			WEAPON_GUN, // Type
+			m_pPlayer->GetCID(), // Owner
+			ProjStartPos, // Pos
+			vec2(cosf(a), sinf(a)), // Dir
+			Lifetime, // Span
+			false, // Freeze
+			false, // Explosive
+			0, // Force
+			-1, // SoundImpact
+			WEAPON_GUN // Weapon
 		);
 
 		new CProjectile(
 			GameWorld(),
-			WEAPON_GUN, //Type
-			m_pPlayer->GetCID(), //Owner
-			ProjStartPos, //Pos
-			vec2(cosf(a - 0.070f), sinf(a - 0.070f)), //Dir
-			Lifetime, //Span
-			0, //Freeze
-			0, //Explosive
-			0, //Force
-			-1, //SoundImpact
-			WEAPON_GUN //Weapon
+			WEAPON_GUN, // Type
+			m_pPlayer->GetCID(), // Owner
+			ProjStartPos, // Pos
+			vec2(cosf(a - 0.070f), sinf(a - 0.070f)), // Dir
+			Lifetime, // Span
+			false, // Freeze
+			false, // Explosive
+			0, // Force
+			-1, // SoundImpact
+			WEAPON_GUN // Weapon
 		);
 
 		new CProjectile(
 			GameWorld(),
-			WEAPON_GUN, //Type
-			m_pPlayer->GetCID(), //Owner
-			ProjStartPos, //Pos
-			vec2(cosf(a - 0.170f), sinf(a - 0.170f)), //Dir
-			Lifetime, //Span
-			0, //Freeze
-			0, //Explosive
-			0, //Force
-			-1, //SoundImpact
-			WEAPON_GUN //Weapon
+			WEAPON_GUN, // Type
+			m_pPlayer->GetCID(), // Owner
+			ProjStartPos, // Pos
+			vec2(cosf(a - 0.170f), sinf(a - 0.170f)), // Dir
+			Lifetime, // Span
+			false, // Freeze
+			false, // Explosive
+			0, // Force
+			-1, // SoundImpact
+			WEAPON_GUN // Weapon
 		);
 
 		CProjectile *pProj = new CProjectile(
 			GameWorld(),
-			WEAPON_GUN, //Type
-			m_pPlayer->GetCID(), //Owner
-			ProjStartPos, //Pos
-			Direction, //Dir
-			Lifetime, //Span
-			0, //Freeze
-			0, //Explosive
-			0, //Force
-			-1, //SoundImpact
-			WEAPON_GUN //Weapon
+			WEAPON_GUN, // Type
+			m_pPlayer->GetCID(), // Owner
+			ProjStartPos, // Pos
+			Direction, // Dir
+			Lifetime, // Span
+			false, // Freeze
+			false, // Explosive
+			0, // Force
+			-1, // SoundImpact
+			WEAPON_GUN // Weapon
 		);
 
 		// pack the Projectile and send it to the client Directly
@@ -3173,18 +3173,18 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 	{
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), //owner
-			ProjStartPos, //pos
-			Direction, //dir
-			0, //freeze
-			0, //explosive
-			0, //unfreeze
-			1, //bloody
-			1, //ghost
-			Team(), //responibleteam
-			6, //lifetime
-			1.0f, //accel
-			10.0f //speed
+			m_pPlayer->GetCID(), // owner
+			ProjStartPos, // pos
+			Direction, // dir
+			false, // freeze
+			false, // explosive
+			false, // unfreeze
+			true, // bloody
+			true, // ghost
+			Team(), // responibleteam
+			6, // lifetime
+			1.0f, // accel
+			10.0f // speed
 		);
 		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	}
@@ -3228,7 +3228,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 				ProjStartPos,
 				vec2(cosf(a), sinf(a)) * Speed,
 				(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime),
-				1, 0, 0, -1, WEAPON_SHOTGUN);
+				true, false, 0, -1, WEAPON_SHOTGUN);
 
 			// pack the Projectile and send it to the client Directly
 			CNetObj_Projectile p;

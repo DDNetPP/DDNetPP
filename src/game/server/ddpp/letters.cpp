@@ -9,9 +9,9 @@ CLetters::CLetters(CGameContext *pGameServer)
 	m_pGameServer = pGameServer;
 }
 
-void CLetters::UpdateBuffers(int ascii, int offset)
+void CLetters::UpdateBuffers(int Ascii, int offset)
 {
-	if(ascii <= 0 || ascii >= ASCII_TABLE_SIZE)
+	if(Ascii <= 0 || Ascii >= ASCII_TABLE_SIZE)
 		return;
 
 	// printf("**** Updating buffers ascii=%d ****\n", ascii);
@@ -29,8 +29,8 @@ void CLetters::UpdateBuffers(int ascii, int offset)
 		int numK = NumOffset + ASCII_CHAR_WIDTH + ASCII_PADDING;
 		for(int k = NumOffset + ASCII_PADDING, kt = 0; k < numK; k++, kt++)
 		{
-			m_aaAsciiBuf[i][k * 2] = m_aaaAsciiTable[ascii][i][kt] ? ':' : ' '; // colons have same width as spaces in default tw chat font
-			m_aaAsciiBuf[i][k * 2 + 1] = m_aaaAsciiTable[ascii][i][kt] ? ':' : ' ';
+			m_aaAsciiBuf[i][k * 2] = m_aaaAsciiTable[Ascii][i][kt] ? ':' : ' '; // colons have same width as spaces in default tw chat font
+			m_aaAsciiBuf[i][k * 2 + 1] = m_aaaAsciiTable[Ascii][i][kt] ? ':' : ' ';
 			// printf("filling indicies %d %d  k %d/%d\n", k*2, k*2+1, k, numK);
 		}
 		int nullterm = (offset + 1) * ASCII_CHAR_SIZE;
@@ -39,11 +39,11 @@ void CLetters::UpdateBuffers(int ascii, int offset)
 	}
 }
 
-void CLetters::SendChat(int ClientID, int ascii)
+void CLetters::SendChat(int ClientID, int Ascii)
 {
-	UpdateBuffers(ascii);
-	for(int i = 0; i < 5; i++)
-		GameServer()->SendChatTarget(ClientID, m_aaAsciiBuf[i]);
+	UpdateBuffers(Ascii);
+	for(auto &AsciiBuf : m_aaAsciiBuf)
+		GameServer()->SendChatTarget(ClientID, AsciiBuf);
 }
 
 void CLetters::ToUpper(char *pStr)
@@ -65,13 +65,13 @@ void CLetters::SendChat(int ClientID, const char *pStr)
 
 		UpdateBuffers((int)aUpper[i], i);
 	}
-	for(int i = 0; i < 5; i++)
-		GameServer()->SendChatTarget(ClientID, m_aaAsciiBuf[i]);
+	for(auto &AsciiBuf : m_aaAsciiBuf)
+		GameServer()->SendChatTarget(ClientID, AsciiBuf);
 }
 
-void CLetters::DebugPrint(int ascii)
+void CLetters::DebugPrint(int Ascii)
 {
-	UpdateBuffers(ascii);
-	for(int i = 0; i < 5; i++)
-		printf("%s\n", m_aaAsciiBuf[i]);
+	UpdateBuffers(Ascii);
+	for(auto &AsciiBuf : m_aaAsciiBuf)
+		printf("%s\n", AsciiBuf);
 }

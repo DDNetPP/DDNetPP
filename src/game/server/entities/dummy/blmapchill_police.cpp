@@ -153,14 +153,14 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 				Left();
 				if(Y < 433)
 				{
-					if(GetVel().y > 0.01f && m_IsDJUsed == false)
+					if(GetVel().y > 0.01f && !m_IsDJUsed)
 					{
 						Jump(); // double jump
 						if(!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
 							m_IsDJUsed = true;
 					}
 				}
-				if(m_IsDJUsed == true && IsGrounded())
+				if(m_IsDJUsed && IsGrounded())
 					m_IsDJUsed = false;
 			}
 
@@ -374,13 +374,13 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 		}
 
 		//do the doublejump
-		if(GetVel().y > 6.9f && Y > 430 && X < 433 && m_IsDJUsed == false) //falling and not too high to hit roof with head
+		if(GetVel().y > 6.9f && Y > 430 && X < 433 && !m_IsDJUsed) //falling and not too high to hit roof with head
 		{
 			Jump();
 			if(!IsGrounded()) // this dummyuseddj is for only using default 2 jumps even if 5 jump is on
 				m_IsDJUsed = true;
 		}
-		if(m_IsDJUsed == true && IsGrounded())
+		if(m_IsDJUsed && IsGrounded())
 			m_IsDJUsed = false;
 	}
 	// left side of police the freeze pit
@@ -816,7 +816,7 @@ void CDummyBlmapChillPolice::OnTick()
 			{
 				if(IsGrounded())
 					m_HasTouchedGround = true;
-				if(m_HasTouchedGround == true)
+				if(m_HasTouchedGround)
 					Left();
 				if(GetVel().y > 0.1f && IsGrounded())
 				{
@@ -842,7 +842,7 @@ void CDummyBlmapChillPolice::OnTick()
 				Jump();
 				m_HasStartGrenade = true;
 			}
-			if(m_HasStartGrenade == true)
+			if(m_HasStartGrenade)
 			{
 				Aim(-100, 170);
 				Fire();
@@ -882,7 +882,7 @@ void CDummyBlmapChillPolice::OnTick()
 	{
 		Hook(0);
 		Aim(100, 50);
-		if(m_HasAlreadyBeenHere == false)
+		if(!m_HasAlreadyBeenHere)
 		{
 			if(X < 339)
 			{
@@ -891,7 +891,7 @@ void CDummyBlmapChillPolice::OnTick()
 					m_HasAlreadyBeenHere = true;
 			}
 		}
-		if(m_HasAlreadyBeenHere == true) //using grenade to get throug the freeze in this tunnel thingy
+		if(m_HasAlreadyBeenHere) //using grenade to get throug the freeze in this tunnel thingy
 		{
 			Left();
 			if(X < 338)

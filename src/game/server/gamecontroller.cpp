@@ -791,7 +791,7 @@ void IGameController::Snap(int SnappingClient)
 	// TODO: cache this string compare
 	if(GameServer()->IsDDPPgametype("fng") || GameServer()->IsDDPPgametype("battlegores") || GameServer()->IsDDPPgametype("block"))
 		pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
-	else if(pPlayer->IsInstagibMinigame())
+	else if(pPlayer && pPlayer->IsInstagibMinigame())
 	{
 		if(pPlayer->m_IsInstaMode_fng)
 		{
@@ -827,8 +827,9 @@ void IGameController::Snap(int SnappingClient)
 		GAMEINFOFLAG_RACE;
 	pGameInfoEx->m_Flags2 = 0;
 
-	if(pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
-		pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
+	if(pPlayer)
+		if(pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
+			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
 	if(Server()->IsSixup(SnappingClient))
@@ -969,16 +970,16 @@ void IGameController::DoWincheck()
 			// gather some stats
 			int Topscore = 0;
 			int TopscoreCount = 0;
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : GameServer()->m_apPlayers)
 			{
-				if(GameServer()->m_apPlayers[i])
+				if(Player)
 				{
-					if(GameServer()->m_apPlayers[i]->m_Score > Topscore)
+					if(Player->m_Score > Topscore)
 					{
-						Topscore = GameServer()->m_apPlayers[i]->m_Score;
+						Topscore = Player->m_Score;
 						TopscoreCount = 1;
 					}
-					else if(GameServer()->m_apPlayers[i]->m_Score == Topscore)
+					else if(Player->m_Score == Topscore)
 						TopscoreCount++;
 				}
 			}

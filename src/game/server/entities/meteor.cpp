@@ -13,11 +13,11 @@ void CMeteor::Tick()
 	float Friction = g_Config.m_SvMeteorFriction / 1000000.f;
 	float MaxAccel = g_Config.m_SvMeteorMaxAccel / 1000.f;
 	float AccelPreserve = g_Config.m_SvMeteorAccelPreserve / 1000.f;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : GameServer()->m_apPlayers)
 	{
-		if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCharacter())
+		if(Player && Player->GetCharacter())
 		{
-			vec2 CharPos = GameServer()->m_apPlayers[i]->GetCharacter()->m_Pos;
+			vec2 CharPos = Player->GetCharacter()->m_Pos;
 			m_Vel += normalize(CharPos - m_Pos) * (MaxAccel * AccelPreserve / (distance(CharPos, m_Pos) + AccelPreserve));
 		}
 	}

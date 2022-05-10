@@ -29,9 +29,9 @@
 
 // DDRace
 #include <base/ddpp_logs.h>
+#include <cstring>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
-#include <string.h>
 #include <vector>
 
 #include "register.h"

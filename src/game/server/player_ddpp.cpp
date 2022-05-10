@@ -918,9 +918,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 
 bool CPlayer::IsInstagibMinigame()
 {
-	if(m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng)
-		return true;
-	return false;
+	return m_IsInstaArena_gdm || m_IsInstaArena_idm || m_IsInstaArena_fng;
 }
 
 void CPlayer::chidraqul3_GameTick()

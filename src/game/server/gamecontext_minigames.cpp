@@ -69,26 +69,18 @@ int CGameContext::IsMinigame(int playerID) //if you update this function please 
 int CGameContext::C3_GetFreeSlots()
 {
 	int c = g_Config.m_SvChidraqulSlots;
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
-		{
+	for(auto &Player : m_apPlayers)
+		if(Player && Player->m_C3_GameState == 2)
 			c--;
-		}
-	}
 	return c;
 }
 
 int CGameContext::C3_GetOnlinePlayers()
 {
 	int c = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
-		{
+	for(auto &Player : m_apPlayers)
+		if(Player && Player->m_C3_GameState == 2)
 			c++;
-		}
-	}
 	return c;
 }
 
@@ -97,11 +89,11 @@ void CGameContext::C3_MultiPlayer_GameTick(int id)
 	if(m_apPlayers[id]->m_C3_UpdateFrame || Server()->Tick() % 120 == 0)
 	{
 		C3_RenderFrame();
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i])
+			if(Player)
 			{
-				m_apPlayers[i]->m_C3_UpdateFrame = false; //only render once a tick
+				Player->m_C3_UpdateFrame = false; //only render once a tick
 			}
 		}
 	}
@@ -121,11 +113,11 @@ void CGameContext::C3_RenderFrame()
 	}
 
 	//place players
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		if(Player && Player->m_C3_GameState == 2)
 		{
-			aWorld[m_apPlayers[i]->m_HashPos] = m_apPlayers[i]->m_HashSkin[0];
+			aWorld[Player->m_HashPos] = Player->m_HashSkin[0];
 		}
 	}
 
@@ -133,16 +125,16 @@ void CGameContext::C3_RenderFrame()
 	aWorld[g_Config.m_SvChidraqulWorldX] = '\0';
 
 	//add hud and send to players
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_C3_GameState == 2)
+		if(Player && Player->m_C3_GameState == 2)
 		{
-			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", m_apPlayers[i]->m_HashPos, players, g_Config.m_SvChidraqulSlots);
+			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d Players: %d/%d", Player->m_HashPos, players, g_Config.m_SvChidraqulSlots);
 			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
 
 			//dbg_msg("debug", "printing: %s", aBuf);
 
-			SendBroadcast(aBuf, i, 0);
+			SendBroadcast(aBuf, Player->GetCID(), 0);
 		}
 	}
 }
@@ -275,22 +267,22 @@ void CGameContext::SayInsta(const char *pMsg, int weapon)
 #if defined(CONF_DEBUG)
 	//dbg_msg("cBug", "SayInsta got called with weapon %d and message '%s'", weapon, pMsg);
 #endif
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
 			if(weapon == 4) //grenade
 			{
-				if(m_apPlayers[i]->m_IsInstaArena_gdm)
+				if(Player->m_IsInstaArena_gdm)
 				{
-					SendChatTarget(i, pMsg);
+					SendChatTarget(Player->GetCID(), pMsg);
 				}
 			}
 			else if(weapon == 5) //rifle
 			{
-				if(m_apPlayers[i]->m_IsInstaArena_idm)
+				if(Player->m_IsInstaArena_idm)
 				{
-					SendChatTarget(i, pMsg);
+					SendChatTarget(Player->GetCID(), pMsg);
 				}
 			}
 		}
@@ -359,10 +351,10 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
-		for(int i = 0; i < MAX_CLIENTS; i++) //prepare array
+		for(auto aScorePlayer : aaScorePlayers) //prepare array
 		{
 			//aaScorePlayers[i][1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
-			aaScorePlayers[i][0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
+			aScorePlayer[0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
 		}
 
 		for(int i = 0; i < MAX_CLIENTS; i++) //fill array
@@ -395,11 +387,11 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 		str_format(m_aInstaGrenadeScoreboard, sizeof(m_aInstaGrenadeScoreboard), "==== Scoreboard [GRENADE] ====\n");
 		int Rank = 1;
 
-		for(int i = 0; i < MAX_CLIENTS; i++) //print array in scoreboard
+		for(auto aScorePlayer : aaScorePlayers) //print array in scoreboard
 		{
-			if(aaScorePlayers[i][0] != -1)
+			if(aScorePlayer[0] != -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aaScorePlayers[i][0]), aaScorePlayers[i][1]);
+				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aScorePlayer[0]), aScorePlayer[1]);
 				strcat(m_aInstaGrenadeScoreboard, aBuf);
 			}
 		}
@@ -457,10 +449,10 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
-		for(int i = 0; i < MAX_CLIENTS; i++) //prepare array
+		for(auto &aScorePlayer : aaScorePlayers) //prepare array
 		{
-			//aaScorePlayers[i][1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
-			aaScorePlayers[i][0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
+			//aScorePlayer[1] = -1; //set all score to -1 to lateron filter them so please keep in mind to never let the score become negative or the poor tees will be hidden in scoreboard
+			aScorePlayer[0] = -1; //set all ids to -1 to lateron filter these out of scoreboard
 		}
 
 		for(int i = 0; i < MAX_CLIENTS; i++) //fill array
@@ -493,11 +485,11 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 		str_format(m_aInstaRifleScoreboard, sizeof(m_aInstaRifleScoreboard), "==== Scoreboard [Rifle] ====\n");
 		int Rank = 1;
 
-		for(int i = 0; i < MAX_CLIENTS; i++) //print array in scoreboard
+		for(auto &aScorePlayer : aaScorePlayers) //print array in scoreboard
 		{
-			if(aaScorePlayers[i][0] != -1)
+			if(aScorePlayer[0] != -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aaScorePlayers[i][0]), aaScorePlayers[i][1]);
+				str_format(aBuf, sizeof(aBuf), "%d. '%s' - %d \n", Rank++, Server()->ClientName(aScorePlayer[0]), aScorePlayer[1]);
 				strcat(m_aInstaRifleScoreboard, aBuf);
 			}
 		}
@@ -538,14 +530,14 @@ void CGameContext::BlockTournaTick()
 		if(m_BlockTournaTick > g_Config.m_SvBlockTournaGameTime * Server()->TickSpeed() * 60) //time over --> draw
 		{
 			//kill all tournas
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : m_apPlayers)
 			{
-				if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockTourning)
+				if(Player && Player->m_IsBlockTourning)
 				{
-					m_apPlayers[i]->m_IsBlockTourning = false;
-					if(m_apPlayers[i]->GetCharacter())
+					Player->m_IsBlockTourning = false;
+					if(Player->GetCharacter())
 					{
-						m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
+						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
 					}
 				}
 			}
@@ -582,35 +574,35 @@ void CGameContext::BlockTournaTick()
 			m_BlockTournaTick = 0;
 
 			//ready all players
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : m_apPlayers)
 			{
-				if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockTourning)
+				if(Player && Player->m_IsBlockTourning)
 				{
-					if(m_apPlayers[i]->GetCharacter())
+					if(Player->GetCharacter())
 					{
 						//delete weapons
-						m_apPlayers[i]->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
-						m_apPlayers[i]->GetCharacter()->SetWeaponGot(2, false);
-						m_apPlayers[i]->GetCharacter()->SetWeaponGot(3, false);
-						m_apPlayers[i]->GetCharacter()->SetWeaponGot(4, false);
+						Player->GetCharacter()->SetActiveWeapon(WEAPON_GUN);
+						Player->GetCharacter()->SetWeaponGot(2, false);
+						Player->GetCharacter()->SetWeaponGot(3, false);
+						Player->GetCharacter()->SetWeaponGot(4, false);
 
 						//delete cosmentics (they are not competetive)
-						DeleteCosmetics(i);
+						DeleteCosmetics(Player->GetCID());
 
 						//delete "cheats" from the race
-						m_apPlayers[i]->GetCharacter()->m_Jetpack = false;
-						m_apPlayers[i]->GetCharacter()->m_EndlessHook = false;
-						m_apPlayers[i]->GetCharacter()->m_SuperJump = false;
+						Player->GetCharacter()->m_Jetpack = false;
+						Player->GetCharacter()->m_EndlessHook = false;
+						Player->GetCharacter()->m_SuperJump = false;
 
 						//kill speed
-						m_apPlayers[i]->GetCharacter()->KillSpeed();
+						Player->GetCharacter()->KillSpeed();
 
 						//teleport
 						vec2 BlockPlayerSpawn = Collision()->GetRandomTile(TILE_BLOCK_TOURNA_SPAWN);
 
 						if(BlockPlayerSpawn != vec2(-1, -1))
 						{
-							m_apPlayers[i]->GetCharacter()->SetPosition(BlockPlayerSpawn);
+							Player->GetCharacter()->SetPosition(BlockPlayerSpawn);
 						}
 						else //no tile found
 						{
@@ -620,13 +612,13 @@ void CGameContext::BlockTournaTick()
 						}
 
 						//freeze to get a fair start nobody should be surprised
-						m_apPlayers[i]->GetCharacter()->UnFreeze();
-						m_apPlayers[i]->GetCharacter()->Freeze(6);
+						Player->GetCharacter()->UnFreeze();
+						Player->GetCharacter()->Freeze(6);
 					}
 					else
 					{
-						m_apPlayers[i]->m_IsBlockTourning = false;
-						SendChatTarget(i, "[BLOCK] you didn't join because you were dead on tournament start.");
+						Player->m_IsBlockTourning = false;
+						SendChatTarget(Player->GetCID(), "[BLOCK] you didn't join because you were dead on tournament start.");
 					}
 				}
 			}
@@ -638,13 +630,9 @@ void CGameContext::EndBlockTourna()
 {
 	m_BlockTournaState = 0;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i])
-		{
-			m_apPlayers[i]->m_IsBlockTourning = false;
-		}
-	}
+	for(auto &Player : m_apPlayers)
+		if(Player)
+			Player->m_IsBlockTourning = false;
 }
 
 int CGameContext::CountBlockTournaAlive()
@@ -652,14 +640,14 @@ int CGameContext::CountBlockTournaAlive()
 	int c = 0;
 	int id = -404;
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			if(m_apPlayers[i]->m_IsBlockTourning)
+			if(Player->m_IsBlockTourning)
 			{
 				c++;
-				id = i;
+				id = Player->GetCID();
 			}
 		}
 	}
@@ -788,14 +776,7 @@ void CGameContext::UpdateBlockSkill(int value, int id)
 
 void CGameContext::BlockWaveAddBots()
 {
-	int OccSlots = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(m_apPlayers[i])
-		{
-			OccSlots++;
-		}
-	}
+	int OccSlots = CountConnectedPlayers();
 	int FreeSlots = MAX_CLIENTS - OccSlots;
 
 	if(m_BlockWaveRound < 15 + 1) //max 15 bots
@@ -835,17 +816,17 @@ void CGameContext::BlockWaveWonRound()
 
 	if(BlockWaveSpawnTile != vec2(-1, -1))
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+			if(Player && Player->m_IsBlockWaving)
 			{
-				if((!m_apPlayers[i]->m_IsDummy && m_apPlayers[i]->GetCharacter()) && (m_apPlayers[i]->GetCharacter()->m_FreezeTime || m_apPlayers[i]->m_IsBlockWaveWaiting)) //queue dudes waiting to join on new round or frozen ingames
+				if((!Player->m_IsDummy && Player->GetCharacter()) && (Player->GetCharacter()->m_FreezeTime || Player->m_IsBlockWaveWaiting)) //queue dudes waiting to join on new round or frozen ingames
 				{
-					m_apPlayers[i]->GetCharacter()->SetPosition(BlockWaveSpawnTile);
+					Player->GetCharacter()->SetPosition(BlockWaveSpawnTile);
 				}
-				if(!m_apPlayers[i]->GetCharacter() || m_apPlayers[i]->m_IsBlockWaveWaiting) //if some queue dude is dead while waiting to join set him unqueue --> so on respawn he will enter the area
+				if(!Player->GetCharacter() || Player->m_IsBlockWaveWaiting) //if some queue dude is dead while waiting to join set him unqueue --> so on respawn he will enter the area
 				{
-					m_apPlayers[i]->m_IsBlockWaveWaiting = false;
+					Player->m_IsBlockWaveWaiting = false;
 				}
 			}
 		}
@@ -856,14 +837,14 @@ void CGameContext::BlockWaveWonRound()
 		m_BlockWaveGameState = 0;
 	}
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			m_apPlayers[i]->m_IsBlockWaveDead = false; //noboy is dead on new round
-			if(m_apPlayers[i]->m_IsBlockWaving && m_apPlayers[i]->m_IsDummy) //disconnect dummys
+			Player->m_IsBlockWaveDead = false; //noboy is dead on new round
+			if(Player->m_IsBlockWaving && Player->m_IsDummy) //disconnect dummys
 			{
-				Server()->BotLeave(i, true);
+				Server()->BotLeave(Player->GetCID(), true);
 			}
 		}
 	}
@@ -881,11 +862,11 @@ void CGameContext::StartBlockWaveGame()
 	m_BlockWaveGameState = 1;
 	m_BlockWaveRound = 1; //reset rounds
 	m_BlockWavePrepareDelay = (10 * Server()->TickSpeed());
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			m_apPlayers[i]->m_IsBlockWaveDead = false;
+			Player->m_IsBlockWaveDead = false;
 		}
 	}
 }
@@ -917,17 +898,17 @@ void CGameContext::BlockWaveGameTick()
 		{
 			bool ripall = true;
 			bool won = true;
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : m_apPlayers)
 			{
-				if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsBlockWaveDead && !m_apPlayers[i]->m_IsDummy)
+				if(Player && Player->m_IsBlockWaving && !Player->m_IsBlockWaveDead && !Player->m_IsDummy)
 				{
 					ripall = false;
 					break;
 				}
 			}
-			for(int i = 0; i < MAX_CLIENTS; i++)
+			for(auto &Player : m_apPlayers)
 			{
-				if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && !m_apPlayers[i]->m_IsBlockWaveDead && m_apPlayers[i]->m_IsDummy)
+				if(Player && Player->m_IsBlockWaving && !Player->m_IsBlockWaveDead && Player->m_IsDummy)
 				{
 					won = false;
 					break;
@@ -957,14 +938,14 @@ void CGameContext::BlockWaveStartNewGame()
 	BlockWaveEndGame(); //send message to all players
 	m_BlockWaveGameState = 0; //end old game
 	StartBlockWaveGame(); //start new game
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving && m_apPlayers[i]->GetCharacter())
+		if(Player && Player->m_IsBlockWaving && Player->GetCharacter())
 		{
-			m_apPlayers[i]->GetCharacter()->Die(i, WEAPON_GAME);
-			if(m_apPlayers[i]->m_IsDummy)
+			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+			if(Player->m_IsDummy)
 			{
-				Server()->BotLeave(i, true);
+				Server()->BotLeave(Player->GetCID(), true);
 			}
 		}
 	}
@@ -973,9 +954,9 @@ void CGameContext::BlockWaveStartNewGame()
 int CGameContext::CountBlockWavePlayers()
 {
 	int c = 0;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		if(Player && Player->m_IsBlockWaving)
 		{
 			c++;
 		}
@@ -985,22 +966,22 @@ int CGameContext::CountBlockWavePlayers()
 
 void CGameContext::SendBlockWaveBroadcast(const char *pMsg)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		if(Player && Player->m_IsBlockWaving)
 		{
-			SendBroadcast(pMsg, i);
+			SendBroadcast(pMsg, Player->GetCID());
 		}
 	}
 }
 
 void CGameContext::SendBlockWaveSay(const char *pMsg)
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && m_apPlayers[i]->m_IsBlockWaving)
+		if(Player && Player->m_IsBlockWaving)
 		{
-			SendChatTarget(i, pMsg);
+			SendChatTarget(Player->GetCID(), pMsg);
 		}
 	}
 }
@@ -1070,14 +1051,14 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 
 	if(grenade)
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i])
+			if(Player)
 			{
-				if(m_apPlayers[i]->m_IsInstaArena_gdm)
+				if(Player->m_IsInstaArena_gdm)
 				{
 					cPlayer++;
-					if(m_apPlayers[i]->m_Insta1on1_id != -1) //if some1 is in 1on1
+					if(Player->m_Insta1on1_id != -1) //if some1 is in 1on1
 					{
 						return false;
 					}
@@ -1092,14 +1073,14 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 	}
 	else //rifle
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(m_apPlayers[i])
+			if(Player)
 			{
-				if(m_apPlayers[i]->m_IsInstaArena_idm)
+				if(Player->m_IsInstaArena_idm)
 				{
 					cPlayer++;
-					if(m_apPlayers[i]->m_Insta1on1_id != -1) //if some1 is in 1on1
+					if(Player->m_Insta1on1_id != -1) //if some1 is in 1on1
 					{
 						return false;
 					}
@@ -1123,17 +1104,17 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 
 void CGameContext::StopBalanceBattle()
 {
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i])
+		if(Player)
 		{
-			if(m_apPlayers[i]->m_BalanceBattle_id != -1)
+			if(Player->m_BalanceBattle_id != -1)
 			{
-				m_apPlayers[i]->m_BalanceBattle_id = -1;
+				Player->m_BalanceBattle_id = -1;
 			}
-			if(m_apPlayers[i]->m_IsBalanceBattleDummy)
+			if(Player->m_IsBalanceBattleDummy)
 			{
-				Server()->BotLeave(i, true);
+				Server()->BotLeave(Player->GetCID(), true);
 			}
 		}
 	}
@@ -1303,27 +1284,34 @@ void CGameContext::CheckStartBomb()
 {
 	char aBuf[128];
 	bool AllReady = true;
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(auto &Player : m_apPlayers)
 	{
-		if(m_apPlayers[i] && GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing && !GetPlayerChar(i)->m_IsBombReady)
+		if(!Player)
+			continue;
+
+		int PlayerID = Player->GetCID();
+		if(!GetPlayerChar(PlayerID))
+			continue;
+
+		if(GetPlayerChar(PlayerID)->m_IsBombing && !GetPlayerChar(PlayerID)->m_IsBombReady)
 		{
 			AllReady = false;
 			//break; //back in the times this was an performance improvement but nowerdays we need all id's of the unready players to kick em
 
 			//Kick unready players
-			m_apPlayers[i]->m_BombTicksUnready++;
-			if(m_apPlayers[i]->m_BombTicksUnready + 500 == g_Config.m_SvBombUnreadyKickDelay)
+			Player->m_BombTicksUnready++;
+			if(Player->m_BombTicksUnready + 500 == g_Config.m_SvBombUnreadyKickDelay)
 			{
-				SendChatTarget(i, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
+				SendChatTarget(PlayerID, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
 			}
-			if(m_apPlayers[i]->m_BombTicksUnready > g_Config.m_SvBombUnreadyKickDelay)
+			if(Player->m_BombTicksUnready > g_Config.m_SvBombUnreadyKickDelay)
 			{
-				SendBroadcast("", i); //send empty broadcast to signalize lobby leave
-				SendChatTarget(i, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
+				SendBroadcast("", PlayerID); //send empty broadcast to signalize lobby leave
+				SendChatTarget(PlayerID, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
 
-				GetPlayerChar(i)->m_IsBombing = false;
-				GetPlayerChar(i)->m_IsBomb = false;
-				GetPlayerChar(i)->m_IsBombReady = false;
+				GetPlayerChar(PlayerID)->m_IsBombing = false;
+				GetPlayerChar(PlayerID)->m_IsBomb = false;
+				GetPlayerChar(PlayerID)->m_IsBombReady = false;
 			}
 		}
 	}
@@ -1381,17 +1369,21 @@ void CGameContext::BombTick()
 	if(m_BombTick == 0) //time over --> kill the bomb (bomb explode)
 	{
 		m_BombTick = g_Config.m_SvBombTicks;
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(GetPlayerChar(i))
+			if(!Player)
+				continue;
+
+			int PlayerID = Player->GetCID();
+			if(GetPlayerChar(PlayerID))
 			{
-				if(GetPlayerChar(i)->m_IsBomb)
+				if(GetPlayerChar(PlayerID)->m_IsBomb)
 				{
-					m_apPlayers[i]->m_Account.m_BombGamesPlayed++;
-					CreateExplosion(GetPlayerChar(i)->m_Pos, i, WEAPON_GRENADE, false, 0, GetPlayerChar(i)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
-					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(i));
+					Player->m_Account.m_BombGamesPlayed++;
+					CreateExplosion(GetPlayerChar(PlayerID)->m_Pos, PlayerID, WEAPON_GRENADE, false, 0, GetPlayerChar(PlayerID)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
+					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(PlayerID));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-					GetPlayerChar(i)->Die(i, WEAPON_GAME);
+					GetPlayerChar(PlayerID)->Die(PlayerID, WEAPON_GAME);
 					break;
 				}
 			}
@@ -1401,21 +1393,47 @@ void CGameContext::BombTick()
 	//check start game
 	if(m_BombGameState < 3) //not ingame
 	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		for(auto &Player : m_apPlayers)
 		{
-			if(GetPlayerChar(i) && GetPlayerChar(i)->m_IsBombing)
+			if(!Player)
+				continue;
+
+			CCharacter *pChr = Player->GetCharacter();
+			if(!pChr)
+				continue;
+
+			if(pChr->m_IsBombing)
 			{
 				if(Server()->Tick() % 40 == 0)
 				{
-					if(GetPlayerChar(i)->m_IsBombReady)
+					if(pChr->m_IsBombReady)
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %" PRId64, CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(
+							aBuf,
+							sizeof(aBuf),
+							"--== Bomb Lobby ==--\n"
+							"[%d/%d] players ready\n"
+							"Map: %s   Money: %" PRId64,
+							CountReadyBombPlayers(),
+							CountBombPlayers(),
+							m_BombMap,
+							m_BombMoney);
 					}
 					else
 					{
-						str_format(aBuf, sizeof(aBuf), "--== Bomb Lobby ==--\n[%d/%d] players ready\nMap: %s   Money: %" PRId64 "\n\n\nType '/bomb start' to start.", CountReadyBombPlayers(), CountBombPlayers(), m_BombMap, m_BombMoney);
+						str_format(
+							aBuf,
+							sizeof(aBuf),
+							"--== Bomb Lobby ==--\n"
+							"[%d/%d] players ready\n"
+							"Map: %s   Money: %" PRId64 "\n\n\n"
+							"Type '/bomb start' to start.",
+							CountReadyBombPlayers(),
+							CountBombPlayers(),
+							m_BombMap,
+							m_BombMoney);
 					}
-					SendBroadcast(aBuf, i);
+					SendBroadcast(aBuf, Player->GetCID());
 				}
 			}
 		}

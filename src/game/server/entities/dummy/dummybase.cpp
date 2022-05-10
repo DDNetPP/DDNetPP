@@ -73,8 +73,8 @@ void CDummyBase::Left() { m_pCharacter->Input()->m_Direction = DIRECTION_LEFT; }
 void CDummyBase::Right() { m_pCharacter->Input()->m_Direction = DIRECTION_RIGHT; }
 void CDummyBase::StopMoving() { m_pCharacter->Input()->m_Direction = DIRECTION_NONE; }
 void CDummyBase::SetDirection(int Direction) { m_pCharacter->Input()->m_Direction = Direction; }
-void CDummyBase::Hook(bool Stroke) { m_pCharacter->Input()->m_Hook = Stroke; }
-void CDummyBase::Jump(bool Stroke) { m_pCharacter->Input()->m_Jump = Stroke; }
+void CDummyBase::Hook(int Stroke) { m_pCharacter->Input()->m_Hook = Stroke; }
+void CDummyBase::Jump(int Stroke) { m_pCharacter->Input()->m_Jump = Stroke; }
 void CDummyBase::Aim(int TargetX, int TargetY)
 {
 	AimX(TargetX);
@@ -91,7 +91,7 @@ void CDummyBase::AimY(int TargetY)
 	m_pCharacter->Input()->m_TargetY = TargetY;
 }
 void CDummyBase::AimPos(vec2 Pos) { Aim(Pos.x - GetPos().x, Pos.y - GetPos().y); }
-void CDummyBase::Fire(bool Stroke)
+void CDummyBase::Fire(int Stroke)
 {
 	if(Stroke)
 	{

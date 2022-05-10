@@ -80,7 +80,7 @@ bool CGameContext::AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr)
 			SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
 			return true;
 		}
-		else if(g_Config.m_SvSurvivalKillProtection == 1 && m_apPlayers[ClientID]->m_IsSurvivalLobby == false) //allowed in lobby
+		else if(g_Config.m_SvSurvivalKillProtection == 1 && !m_apPlayers[ClientID]->m_IsSurvivalLobby) //allowed in lobby
 		{
 			SendChatTarget(ClientID, "[SURVIVAL] kill protection. '/survival leave' first to kill.");
 			return true;

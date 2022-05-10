@@ -4876,9 +4876,12 @@ void CCharacter::DummyTick()
 
 				//int m_aMoveID = -1;
 				//int Hooked = false;
-				for(int i = 0; i < MAX_CLIENTS; i++)
+				for(auto &Player : GameServer()->m_apPlayers)
 				{
-					CCharacter *pChar = GameServer()->GetPlayerChar(i);
+					if(!Player)
+						continue;
+
+					CCharacter *pChar = Player->GetCharacter();
 
 					if(!pChar || !pChar->IsAlive() || pChar == this)
 						continue;

@@ -41,7 +41,7 @@ void ddpp_log(int type, const char *pMsg)
 	if(type < 0 || type > DDPP_NUM_LOGS)
 	{
 		printf("[ddpp_logs] Error: invalid log type=%d (max %d)\n", type, DDPP_NUM_LOGS);
-		*((volatile unsigned *)0) = 0x0;
+		dbg_break();
 	}
 	ddpp_log_append(type, pMsg);
 }

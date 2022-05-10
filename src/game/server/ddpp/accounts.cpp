@@ -112,7 +112,7 @@ void CAccounts::ExecAdminThread(
 	auto pResult = NewSqlAdminCommandResult(AdminClientID);
 	if(pResult == nullptr)
 		return;
-	auto Tmp = std::unique_ptr<CSqlAdminCommandRequest>(new CSqlAdminCommandRequest(pResult));
+	auto Tmp = std::make_unique<CSqlAdminCommandRequest>(pResult);
 	Tmp->m_AdminClientID = AdminClientID;
 	Tmp->m_TargetAccountID = TargetAccountID;
 	Tmp->m_State = State;
@@ -145,7 +145,7 @@ void CAccounts::ExecUserThread(
 	auto pResult = NewSqlAccountResult(ClientID);
 	if(pResult == nullptr)
 		return;
-	auto Tmp = std::unique_ptr<CSqlAccountRequest>(new CSqlAccountRequest(pResult));
+	auto Tmp = std::make_unique<CSqlAccountRequest>(pResult);
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
 	str_copy(Tmp->m_aPassword, pPassword, sizeof(Tmp->m_aPassword));
 	str_copy(Tmp->m_aNewPassword, pNewPassword, sizeof(Tmp->m_aNewPassword));
@@ -283,7 +283,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindString(Index++, pAcc->m_aAsciiPublishState);
 	pSqlServer->BindInt(Index++, pAcc->m_AsciiViewsDefault);
 	pSqlServer->BindInt(Index++, pAcc->m_AsciiViewsProfile);
-	for(auto &AsciiFrame : pAcc->m_aAsciiFrame)
+	for(const auto &AsciiFrame : pAcc->m_aAsciiFrame)
 		pSqlServer->BindString(Index++, AsciiFrame);
 	pSqlServer->BindInt(Index++, pAcc->m_ID);
 
@@ -462,9 +462,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aAsciiPublishState, sizeof(pResult->m_Account.m_aAsciiPublishState));
 		pResult->m_Account.m_AsciiViewsDefault = pSqlServer->GetInt(Index++);
 		pResult->m_Account.m_AsciiViewsProfile = pSqlServer->GetInt(Index++);
-		for(int i = 0; i < MAX_ASCII_FRAMES; i++)
+		for(auto &AsciiFrame : pResult->m_Account.m_aAsciiFrame)
 		{
-			pSqlServer->GetString(Index, pResult->m_Account.m_aAsciiFrame[i], sizeof(pResult->m_Account.m_aAsciiFrame[i]));
+			pSqlServer->GetString(Index, AsciiFrame, sizeof(AsciiFrame));
 			Index++;
 		}
 	}
@@ -635,7 +635,7 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 
 void CAccounts::ExecuteSQL(const char *pQuery)
 {
-	auto Tmp = std::unique_ptr<CSqlStringData>(new CSqlStringData());
+	auto Tmp = std::make_unique<CSqlStringData>();
 	str_copy(Tmp->m_aString, pQuery, sizeof(Tmp->m_aString));
 
 	m_pPool->ExecuteWrite(ExecuteSQLThread, std::move(Tmp), "add table column");
@@ -666,7 +666,7 @@ bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGam
 
 void CAccounts::LogoutUsername(const char *pUsername)
 {
-	auto Tmp = std::unique_ptr<CSqlStringData>(new CSqlStringData());
+	auto Tmp = std::make_unique<CSqlStringData>();
 	str_copy(Tmp->m_aString, pUsername, sizeof(Tmp->m_aString));
 
 	m_pPool->ExecuteWrite(LogoutUsernameThread, std::move(Tmp), "logout username");
@@ -698,7 +698,7 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 
 void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
 {
-	auto Tmp = std::unique_ptr<CSqlCleanZombieAccountsData>(new CSqlCleanZombieAccountsData());
+	auto Tmp = std::make_unique<CSqlCleanZombieAccountsData>();
 	Tmp->m_ClientID = ClientID;
 	Tmp->m_Port = Port;
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
@@ -732,7 +732,7 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 
 void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
 {
-	auto Tmp = std::unique_ptr<CSqlSetLoginData>(new CSqlSetLoginData());
+	auto Tmp = std::make_unique<CSqlSetLoginData>();
 	Tmp->m_Port = Port;
 	Tmp->m_LoggedIn = LoggedIn;
 	Tmp->m_AccountID = AccountID;
@@ -852,7 +852,7 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 
 void CAccounts::CreateDatabase()
 {
-	auto Tmp = std::unique_ptr<CSqlCreateTableRequest>(new CSqlCreateTableRequest());
+	auto Tmp = std::make_unique<CSqlCreateTableRequest>();
 	m_pPool->ExecuteWrite(CreateTableThread, std::move(Tmp), "create table");
 }
 

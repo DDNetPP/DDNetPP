@@ -45,7 +45,7 @@ bool CProjectile::IsDDPPVanillaProjectile(int Collide, vec2 PrevPos, vec2 CurPos
 		z = GameServer()->Collision()->IsTeleport(x);
 	else
 		z = GameServer()->Collision()->IsTeleportWeapon(x);
-	if(z && ((CGameControllerDDRace *)GameServer()->m_pController)->m_TeleOuts[z - 1].size())
+	if(z && !((CGameControllerDDRace *)GameServer()->m_pController)->m_TeleOuts[z - 1].empty())
 	{
 		int Num = ((CGameControllerDDRace *)GameServer()->m_pController)->m_TeleOuts[z - 1].size();
 		m_Pos = ((CGameControllerDDRace *)GameServer()->m_pController)->m_TeleOuts[z - 1][(!Num) ? Num : rand() % Num];
