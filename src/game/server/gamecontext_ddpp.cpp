@@ -9,6 +9,8 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
+#include "minigames/block_tournament.h"
+
 #include <cinttypes>
 #include <cstring>
 #include <fstream> //acc2 sys
@@ -23,6 +25,7 @@ void CGameContext::ConstructDDPP()
 	m_pShop = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
+	m_pBlockTournament = nullptr;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -69,6 +72,11 @@ void CGameContext::DestructDDPP()
 	{
 		delete m_pAccounts;
 		m_pAccounts = nullptr;
+	}
+	for(auto Minigame : m_vMinigames)
+	{
+		delete Minigame;
+		Minigame = nullptr;
 	}
 }
 
@@ -127,6 +135,11 @@ void CGameContext::OnInitDDPP()
 		m_pShop = new CShop(this);
 	if(!m_pLetters)
 		m_pLetters = new CLetters(this);
+
+	if(!m_pBlockTournament)
+		m_pBlockTournament = new CBlockTournament(this);
+	m_vMinigames.push_back(m_pBlockTournament);
+
 	LoadFNNvalues();
 	m_pAccounts->CreateDatabase();
 	char aBuf[512];
@@ -1271,8 +1284,10 @@ void CGameContext::DDPP_Tick()
 {
 	if(m_iBroadcastDelay > 0)
 		m_iBroadcastDelay--;
-	if(m_BlockTournaState)
-		BlockTournaTick();
+
+	for(auto Minigame : m_vMinigames)
+		Minigame->Tick();
+
 	if(m_BalanceBattleState == 1)
 		BalanceBattleTick();
 	if(m_BombGameState)

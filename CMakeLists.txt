@@ -2315,10 +2315,13 @@ if(SERVER)
     gameworld_ddpp.h
     minigames/balance.cpp
     minigames/block_tournament.cpp
+    minigames/block_tournament.h
     minigames/blockwave.cpp
     minigames/bomb.cpp
     minigames/chidraqul3.cpp
     minigames/instagib.cpp
+    minigames/minigame_base.cpp
+    minigames/minigame_base.h
     minigames/survival.cpp
     player.cpp
     player.h

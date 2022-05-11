@@ -8,6 +8,14 @@
 
 #include "../gamecontext.h"
 
+#include "block_tournament.h"
+
+void CBlockTournament::Tick()
+{
+	// TODO: copy code in here
+	m_pGameServer->BlockTournaTick();
+}
+
 vec2 CGameContext::GetNextBlockTournaSpawn(int ClientID)
 {
 	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_BlockTournaSpawnCounter++);
@@ -21,6 +29,9 @@ vec2 CGameContext::GetNextBlockTournaSpawn(int ClientID)
 
 void CGameContext::BlockTournaTick()
 {
+	if(!m_BlockTournaState)
+		return;
+
 	char aBuf[128];
 
 	if(m_BlockTournaState == BLOCKTOURNA_IN_GAME) //ingame

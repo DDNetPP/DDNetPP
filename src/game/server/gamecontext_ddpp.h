@@ -11,7 +11,12 @@
 
 #include "dummy/blmapchill_police.h"
 #include "dummy/chillblock5_blocker.h"
+
 #include <vector>
+
+#include "minigames/minigame_base.h"
+
+#include "minigames/block_tournament.h"
 
 #include "drop_pickup.h"
 #include "weapon.h"
@@ -220,6 +225,9 @@ public:
 	void GlobalChatPrintMessage();
 	void GlobalChatUpdateConfirms(const char *pStr);
 	char m_aLastPrintedGlobalChatMessage[1024];
+
+	CBlockTournament *m_pBlockTournament;
+	std::vector<CMinigame *> m_vMinigames;
 
 	//survival
 
