@@ -601,7 +601,7 @@ void CGameContext::CheckConnectQuestBot()
 
 		if(!Player->m_IsDummy)
 			NumIngameHumans++;
-		else if(Player->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+		else if(Player->m_DummyMode == DUMMYMODE_QUEST)
 			NumQuestBots++;
 	}
 
@@ -614,5 +614,5 @@ void CGameContext::CheckConnectQuestBot()
 	if(NumConnectedPlayers + 3 > g_Config.m_SvMaxClients)
 		return;
 
-	CreateNewDummy(CCharacter::DUMMYMODE_QUEST);
+	CreateNewDummy(DUMMYMODE_QUEST);
 }

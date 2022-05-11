@@ -48,7 +48,7 @@ void CCharacter::DummyTick()
 		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;
 	}
 
-	if(m_pPlayer->m_DummyMode == DUMMYMODE_DEFAULT) // 0
+	if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_DEFAULT) // 0
 	{
 		/********************************
 		*           weapons            *
@@ -862,7 +862,7 @@ void CCharacter::DummyTick()
 			}
 		}
 	}
-	else if(m_pPlayer->m_DummyMode == DUMMYMODE_ADVENTURE) // -7
+	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_ADVENTURE) // -7
 	{
 		m_Input.m_Jump = 0;
 		m_Input.m_Fire = 0;
@@ -6703,11 +6703,11 @@ void CCharacter::DummyTick()
 			//no basic moves for this submode
 		}
 	}
-	else if(m_pPlayer->m_DummyMode == CGameContext::MODE_CHILLBLOCK5_BLOCKER) // m_pPlayer->m_DummyMode == 29 
+	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER) // m_pPlayer->m_DummyMode == 29 
 	{
 		m_pDummyChillBlock5Blocker->Tick();
 	}
-	else if(m_pPlayer->m_DummyMode == CGameContext::MODE_BLMAPCHILL_POLICE) // solo police base bot using 5 jumps and insane grenade jump
+	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_BLMAPCHILL_POLICE) // solo police base bot using 5 jumps and insane grenade jump
 	{
 		m_pDummyBlmapChillPolice->Tick();
 	}
@@ -7021,7 +7021,7 @@ void CCharacter::DummyTick()
 			}
 		}
 	}
-	else if(m_pPlayer->m_DummyMode == DUMMYMODE_QUEST) // 36
+	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_QUEST) // 36
 	{
 		m_Input.m_Jump = 0;
 		m_Input.m_Fire = 0;

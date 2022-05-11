@@ -1380,7 +1380,7 @@ void CGameContext::LogoutAllPlayersMessage()
 
 void CGameContext::ConnectAdventureBots()
 {
-	CreateNewDummy(CCharacter::DUMMYMODE_ADVENTURE, true, 1);
+	CreateNewDummy(DUMMYMODE_ADVENTURE, true, 1);
 }
 
 void CGameContext::DDPP_SlowTick()
@@ -1433,7 +1433,7 @@ void CGameContext::DDPP_SlowTick()
 		}
 		if(Player->m_IsDummy)
 		{
-			if(Player->m_DummyMode == CCharacter::DUMMYMODE_ADVENTURE)
+			if(Player->m_DummyMode == DUMMYMODE_ADVENTURE)
 				NumAdventureBots++;
 		}
 	}
@@ -1448,7 +1448,7 @@ void CGameContext::DDPP_SlowTick()
 
 			if(!Player->m_IsDummy)
 				continue;
-			if(Player->m_DummyMode == CCharacter::DUMMYMODE_QUEST)
+			if(Player->m_DummyMode == DUMMYMODE_QUEST)
 				Server()->BotLeave(Player->GetCID());
 		}
 	}
@@ -2325,10 +2325,10 @@ void CGameContext::CreateBasicDummys()
 {
 	if(!str_comp(Server()->GetMapName(), "ChillBlock5"))
 	{
-		CreateNewDummy(MODE_CHILLBLOCK5_POLICE); //police
-		CreateNewDummy(MODE_CHILLBLOCK5_BLOCKER); //blocker
-		CreateNewDummy(MODE_CHILLBLOCK5_BLOCKER); //blocker 2
-		CreateNewDummy(MODE_CHILLBLOCK5_RACER); //racer
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_POLICE); //police
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER); //blocker
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER); //blocker 2
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_RACER); //racer
 		CreateNewDummy(-6); //blocker dm v3
 	}
 	else if(!str_comp(Server()->GetMapName(), "BlmapChill"))
