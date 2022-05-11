@@ -28,34 +28,34 @@ bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
 bool CGameContext::DDPPCredits()
 {
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"ChillerDragon's Block Mod (" DDNETPP_VERSION ").");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"heinrich5991, QshaR, Teecloud, noby, SarKro, Pikotee, toast");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Blue, Zwelf");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDNet.");
 	return true;
 }
 
 bool CGameContext::DDPPInfo()
 {
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "credit",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"ChillerDragon's Block mod. " DDNETPP_VERSION " (more info '/changelog')");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDNet Version: " GAME_VERSION);
 	if(GIT_SHORTREV_HASH)
 	{
 		char aBuf[64];
 		str_format(aBuf, sizeof(aBuf), "Git revision hash: %s", GIT_SHORTREV_HASH);
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 	}
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Official site: DDNet.tw");
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info",
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"For more info: /cmdlist");
 	return true;
 }
@@ -401,174 +401,174 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 
 	if(page == 1)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.7) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fix flag crashbug");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fix account system (database) on windows");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* finally own gametype name");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add new shop (map/motd/dummy)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/score' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/drop_armor' and '/drop_health' commands");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/spawn' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/survival' minigame");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/regex' staff command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ add '/mapsave' staff command");
 	}
 	else if(page == 2)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.6) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fix tons of bugs");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved trade command and added public trades");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* new shop");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* upgraded fng (multis/onfire-mode/fng only mode)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added spawnweapons to shop");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added drop weapons (on vote no key)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added vanilla/ddrace mode tiles");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added spooky_ghost to shop");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added nobo spawn");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 3)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.5) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* drop flags in aim direction");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added cosmetic tiles");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fixed the chidraqul minigame");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added dummymodes for BlmapChill and blmapV5");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 4)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.4) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added spreading guns for VIP+");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added global chat (@all)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added block tournaments");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added fng settings (check '/fng')");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/wanted' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/viewers' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/blockwave' minigame");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 5)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.3) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added minigames overview (check '/minigames')");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added balance battles (check '/balance')");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added new '/insta' commands and gametypes");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added new '/bounty' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added new '/trade' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 6)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.2) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/ascii' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added block points check '/points'");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/hook <power>' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/hide' and '/show' commands");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added quests ('/quest' for more info)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/insta gdm' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved the racer bot");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 7)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"=== Changelog (DDNet++ v.0.0.1) ===");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added VIP+");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added VIP");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added VIP+ Spawn");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/acc_logout' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/changepassword <old> <new> <new>' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/poop <amount> <player>' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/pay <amount> <player>' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/policeinfo' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added '/bomb <command>' command more info '/bomb help'");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"+ added instagib modes (gdm, idm, gSurvival and iSurvival)");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* dummys now join automatically on server start");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* improved the blocker bot");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "changelog",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"unknow page.");
 	}
 }
@@ -3194,125 +3194,125 @@ void CGameContext::ConPoliceInfo(IConsole::IResult *pResult, void *pUserData)
 
 	if(page == 1)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[GENERAL INFORMATION]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Police can be bought in shop using '/buy police'.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"There are multiple police ranks, each cost 100 000 money.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"The policebot will help every police officer.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Every police rank will give you more benefits.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 2)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[POLICE 1]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Level needed to buy: [LVL 18]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Benefits:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- '/policechat'");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 3)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[POLICE 2]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Level needed to buy: [LVL 25]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Benefits:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- full access to '/jail' command");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- '/policehelper'");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if(page == 4)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[POLICE 3]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Level needed to buy: [LVL 30]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Benefits:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- taser license ('/taser')");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	/*else if (page == 5)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[POLICE 4]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Level needed to buy: [LVL 40]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Benefits:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- PASTE FEATURES HERE");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}
 	else if (page == 6)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"~~~ Police Info ~~~");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"[POLICE 5]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Level needed to buy: [LVL 50]");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Benefits:");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"- PASTE FEATURES HERE");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"------------------------");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Use '/policeinfo <page>' to check out what other police ranks can do.");
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			aBuf);
 	}*/
 	else
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "policeinfo",
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"Unknow page.");
 	}
 }
@@ -4482,7 +4482,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
 				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by admin '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
-				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}
 		else if(pPlayer->m_Account.m_IsSuperModerator)
@@ -4545,7 +4545,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
 				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by supermoderator '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
-				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}
 		else if(pPlayer->m_Account.m_IsModerator)
@@ -4608,7 +4608,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 				//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
 				//str_format(aBuf, sizeof(aBuf), "'%s' were banned by vip '%s' for %d seconds.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID), Bantime);
-				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}
 		else if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) == AUTHED_MOD)
@@ -4656,7 +4656,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			//ADMIN CONSOLE (isnt admin console ._. itz chat :c)
 			//str_format(aBuf, sizeof(aBuf), "'%s' were kicked by rcon_mod '%s'.", aBanname, pSelf->Server()->ClientName(pResult->m_ClientID));
-			//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "bomb", aBuf);
+			//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 		}
 		else
 		{
@@ -6513,7 +6513,7 @@ void CGameContext::ConMapsave(IConsole::IResult *pResult, void *pUserData)
 				pSelf->Server()->ClientName(Player->GetCID()),
 				Player->m_aTimeoutCode,
 				Player->m_MapSaveLoaded);
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mapsave", aBuf);
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 		}
 	}
 	else if(!str_comp_nocase(aCommand, "check"))
