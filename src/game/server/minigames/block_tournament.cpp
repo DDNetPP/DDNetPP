@@ -142,7 +142,7 @@ void CBlockTournament::Tick()
 
 void CGameContext::EndBlockTourna()
 {
-	m_pBlockTournament->m_State = 0;
+	m_pBlockTournament->m_State = BLOCKTOURNA_OFF;
 
 	for(auto &Player : m_apPlayers)
 		if(Player)

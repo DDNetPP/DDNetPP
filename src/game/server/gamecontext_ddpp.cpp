@@ -389,7 +389,7 @@ void CGameContext::OnStartBlockTournament()
 		return;
 	}
 
-	m_pBlockTournament->m_State = 1;
+	m_pBlockTournament->m_State = CGameContext::BLOCKTOURNA_LOBBY;
 	m_pBlockTournament->m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
 }
 
@@ -1437,7 +1437,7 @@ void CGameContext::DDPP_SlowTick()
 		{
 			StopSurvival = false;
 		}
-		if(m_pBlockTournament->m_State == 3)
+		if(m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_ENDING)
 		{
 			if(Player->m_IsBlockTourning)
 			{
@@ -1478,9 +1478,9 @@ void CGameContext::DDPP_SlowTick()
 	{
 		m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
 	}
-	if(m_pBlockTournament->m_State == 3)
+	if(m_pBlockTournament->m_State == BLOCKTOURNA_ENDING)
 	{
-		m_pBlockTournament->m_State = 0;
+		m_pBlockTournament->m_State = BLOCKTOURNA_OFF;
 	}
 	if(g_Config.m_SvAllowGlobalChat)
 	{
