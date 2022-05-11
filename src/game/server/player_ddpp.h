@@ -318,6 +318,7 @@ public:
 	int m_ShopBotMesssagesRecieved;
 
 	void JailPlayer(int seconds);
+	int TaserFreezeTime();
 	int m_TaserPrice;
 	bool m_TaserOn;
 	bool m_IsJailed;

@@ -531,6 +531,16 @@ void CPlayer::JailPlayer(int seconds)
 	}
 }
 
+int CPlayer::TaserFreezeTime()
+{
+	if(!IsLoggedIn())
+		return 0;
+	if(!m_Account.m_TaserLevel)
+		return 0;
+
+	return m_Account.m_TaserLevel;
+}
+
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
