@@ -53,6 +53,7 @@ void CMinigame::LoadPosition(CCharacter *pChr)
 	if(!m_aRestorePos[pPlayer->GetCID()])
 		return;
 
+	m_aRestorePos[pPlayer->GetCID()] = false;
 	m_apSavedPositions[pPlayer->GetCID()]->Load(pChr, 0);
 	delete m_apSavedPositions[pPlayer->GetCID()];
 	m_apSavedPositions[pPlayer->GetCID()] = nullptr;
