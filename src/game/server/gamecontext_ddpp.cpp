@@ -732,7 +732,7 @@ char CGameContext::BoolToChar(bool b)
 
 bool CGameContext::CharToBool(char c)
 {
-	return c == '0';
+	return c != '0';
 }
 
 void CGameContext::ShowHideConfigBoolToChar(int id)
