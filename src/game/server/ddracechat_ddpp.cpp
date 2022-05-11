@@ -3373,6 +3373,9 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvTestingCommands)
 	{
+		// pPlayer->m_QuestState = pResult->GetInteger(0);
+		// pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
+		// pSelf->StartQuest(pPlayer->GetCID());
 		/*
         pSelf->m_MissionUnlockedLevel = pResult->GetInteger(0);
         pSelf->m_MissionCurrentLevel = pResult->GetInteger(1);
@@ -3392,9 +3395,6 @@ void CGameContext::ConTCMD3000(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Quest cheater: /tcmd3000 <quest> <level>");
 		}
 
-		pPlayer->m_QuestState = pResult->GetInteger(0);
-		pPlayer->m_QuestStateLevel = pResult->GetInteger(1);
-		pSelf->StartQuest(pPlayer->GetCID());
 		*/
 
 		//str_format(aBuf, sizeof(aBuf), "InJailReleaseArea=%d", pChr->m_InJailOpenArea);

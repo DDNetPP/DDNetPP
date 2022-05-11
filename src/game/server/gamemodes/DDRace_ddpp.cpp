@@ -316,17 +316,11 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 	}
 }
 
-int CGameControllerDDRace::HasFlag(CCharacter *character)
+int CGameControllerDDRace::HasFlag(CCharacter *pChr)
 {
-	for(int i = 0; i < 2; i++)
-	{
-		if(!m_apFlags[i])
-			continue;
-		if(m_apFlags[i]->m_pCarryingCharacter == character)
-		{
-			return i;
-		}
-	}
+	for(auto &Flag : m_apFlags)
+		if(Flag && Flag->m_pCarryingCharacter == pChr)
+			return pChr->GetPlayer()->GetCID();
 	return -1;
 }
 
@@ -400,10 +394,9 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 	}
 }
 
-void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4)
+void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState)
 {
 	int ClientID = pChr->GetPlayer()->GetCID();
-	const int PlayerDDRaceState = pChr->m_DDRaceState;
 	// start
 	if(((m_TileIndex == TILE_START) || (m_TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GetPlayerTeam(ClientID) && g_Config.m_SvTeam != 3)))
 	{

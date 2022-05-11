@@ -119,7 +119,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		GameServer()->SendChatTarget(ClientID, "You are now out of the solo part");
 		pChr->SetSolo(false);
 	}
-	HandleCharacterTilesDDPP(pChr, m_TileIndex, m_TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4);
+	HandleCharacterTilesDDPP(pChr, m_TileIndex, m_TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);
 }
 
 void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
