@@ -72,7 +72,7 @@ void CGameContext::DestructDDPP()
 		delete m_pAccounts;
 		m_pAccounts = nullptr;
 	}
-	for(auto Minigame : m_vMinigames)
+	for(auto &Minigame : m_vMinigames)
 	{
 		delete Minigame;
 		Minigame = nullptr;
@@ -1270,7 +1270,7 @@ void CGameContext::DDPP_Tick()
 	if(m_iBroadcastDelay > 0)
 		m_iBroadcastDelay--;
 
-	for(auto Minigame : m_vMinigames)
+	for(auto &Minigame : m_vMinigames)
 		Minigame->Tick();
 
 	if(m_BalanceBattleState == 1)

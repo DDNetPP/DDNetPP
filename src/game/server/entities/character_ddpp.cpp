@@ -918,9 +918,9 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
-	for(auto Minigame : GameServer()->m_vMinigames)
+	for(auto &Minigame : GameServer()->m_vMinigames)
 		Minigame->PostSpawn(this, Pos);
-	for(auto Minigame : GameServer()->m_vMinigames)
+	for(auto &Minigame : GameServer()->m_vMinigames)
 		Minigame->LoadPosition(this);
 
 	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)

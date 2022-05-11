@@ -223,7 +223,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 		else
 		{
 			bool IsMinigameSpawn = false;
-			for(auto Minigame : GameServer()->m_vMinigames)
+			for(auto &Minigame : GameServer()->m_vMinigames)
 			{
 				if(Minigame->PickSpawn(&Eval.m_Pos, pPlayer))
 				{

@@ -56,7 +56,6 @@ void CMinigame::LoadPosition(CCharacter *pChr)
 	m_apSavedPositions[pPlayer->GetCID()]->Load(pChr, 0);
 	delete m_apSavedPositions[pPlayer->GetCID()];
 	m_apSavedPositions[pPlayer->GetCID()] = nullptr;
-	return;
 }
 
 void CMinigame::SendChatAll(const char *pMessage)
