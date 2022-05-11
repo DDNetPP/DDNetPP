@@ -361,3 +361,37 @@ int CGameContext::CountReadyBombPlayers()
 	}
 	return RdyPlrs;
 }
+
+void CGameContext::SendBroadcastBomb(const char *pMsg)
+{
+	for(auto &Player : m_apPlayers)
+	{
+		if(!Player)
+			continue;
+
+		CCharacter *pChr = Player->GetCharacter();
+		if(!pChr)
+			continue;
+		if(!pChr->m_IsBombing)
+			continue;
+
+		SendBroadcast(pMsg, Player->GetCID());
+	}
+}
+
+void CGameContext::SendChatBomb(const char *pMsg)
+{
+	for(auto &Player : m_apPlayers)
+	{
+		if(!Player)
+			continue;
+
+		CCharacter *pChr = Player->GetCharacter();
+		if(!pChr)
+			continue;
+		if(!pChr->m_IsBombing)
+			continue;
+
+		SendChatTarget(Player->GetCID(), pMsg);
+	}
+}

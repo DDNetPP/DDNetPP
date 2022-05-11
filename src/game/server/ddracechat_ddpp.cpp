@@ -4325,16 +4325,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			//send lock message to all bombers
 			str_format(aBuf, sizeof(aBuf), "'%s' locked the bomb lobby.", pSelf->Server()->ClientName(pResult->m_ClientID));
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(pSelf->GetPlayerChar(i))
-				{
-					if(pSelf->GetPlayerChar(i)->m_IsBombing)
-					{
-						pSelf->SendChatTarget(i, aBuf);
-					}
-				}
-			}
+			pSelf->SendChatBomb(aBuf);
 		}
 		else if(pSelf->m_BombGameState == 2) //locked --> unlock
 		{
@@ -4343,16 +4334,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 
 			//send unlock message to all bombers
 			str_format(aBuf, sizeof(aBuf), "'%s' unlocked the bomb lobby.", pSelf->Server()->ClientName(pResult->m_ClientID));
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(pSelf->GetPlayerChar(i))
-				{
-					if(pSelf->GetPlayerChar(i)->m_IsBombing)
-					{
-						pSelf->SendChatTarget(i, aBuf);
-					}
-				}
-			}
+			pSelf->SendChatBomb(aBuf);
 		}
 	}
 	else if(!str_comp_nocase(aCmd, "status"))

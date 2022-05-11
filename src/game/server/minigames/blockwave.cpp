@@ -42,7 +42,7 @@ void CGameContext::BlockWaveAddBots()
 void CGameContext::BlockWaveWonRound()
 {
 	m_BlockWaveRound++;
-	SendBlockWaveSay("[BlockWave] round survived.");
+	SendChatBlockWave("[BlockWave] round survived.");
 	m_BlockWaveGameState = 1;
 
 	//respawn all dead humans
@@ -115,11 +115,11 @@ void CGameContext::BlockWaveGameTick()
 		if(m_BlockWavePrepareDelay % Server()->TickSpeed() == 0)
 		{
 			str_format(aBuf, sizeof(aBuf), "[BlockWave] round %d starts in %d seconds", m_BlockWaveRound, m_BlockWavePrepareDelay / Server()->TickSpeed());
-			SendBlockWaveBroadcast(aBuf);
+			SendBroadcastBlockWave(aBuf);
 		}
 		if(m_BlockWavePrepareDelay < 0)
 		{
-			SendBlockWaveBroadcast("[BlockWave] Have fun and good luck!");
+			SendBroadcastBlockWave("[BlockWave] Have fun and good luck!");
 			m_BlockWaveGameState = 2; //start round!
 			m_BlockWavePrepareDelay = (10 * Server()->TickSpeed()); //could add a cfg var in secs instead of 10 here
 			BlockWaveAddBots();
@@ -164,7 +164,7 @@ void CGameContext::BlockWaveEndGame()
 {
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[BlockWave] You lost! Survived %d rounds.", m_BlockWaveRound);
-	SendBlockWaveSay(aBuf);
+	SendChatBlockWave(aBuf);
 }
 
 void CGameContext::BlockWaveStartNewGame()
@@ -198,7 +198,7 @@ int CGameContext::CountBlockWavePlayers()
 	return c;
 }
 
-void CGameContext::SendBlockWaveBroadcast(const char *pMsg)
+void CGameContext::SendBroadcastBlockWave(const char *pMsg)
 {
 	for(auto &Player : m_apPlayers)
 	{
@@ -209,7 +209,7 @@ void CGameContext::SendBlockWaveBroadcast(const char *pMsg)
 	}
 }
 
-void CGameContext::SendBlockWaveSay(const char *pMsg)
+void CGameContext::SendChatBlockWave(const char *pMsg)
 {
 	for(auto &Player : m_apPlayers)
 	{

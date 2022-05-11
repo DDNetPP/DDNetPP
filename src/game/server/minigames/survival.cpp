@@ -44,7 +44,7 @@ void CGameContext::SurvivalLobbyTick()
 			{
 				str_format(aBuf, sizeof(aBuf), "Winner: %s\nsurvival game starts in %d seconds", m_aLastSurvivalWinnerName, m_survivallobbycountdown / Server()->TickSpeed());
 			}
-			SendSurvivalBroadcast(aBuf);
+			SendBroadcastSurvival(aBuf);
 
 			if(m_survivallobbycountdown == (Server()->TickSpeed() * 9)) //teleport winner in lobby on last 10 sec countdown
 			{
@@ -56,7 +56,7 @@ void CGameContext::SurvivalLobbyTick()
 
 						if(SurvivalLobbySpawnTile == vec2(-1, -1)) //no survival lobby
 						{
-							SendSurvivalChat("[SURVIVAL] no survival lobby set.");
+							SendChatSurvival("[SURVIVAL] no survival lobby set.");
 						}
 						else
 						{
@@ -72,7 +72,7 @@ void CGameContext::SurvivalLobbyTick()
 		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] %d/%d players to start a game", CountSurvivalPlayers(), g_Config.m_SvSurvivalStartPlayers);
 		if(Server()->Tick() % 30 == 0)
 		{
-			SendSurvivalBroadcast(aBuf);
+			SendBroadcastSurvival(aBuf);
 		}
 		m_survivallobbycountdown = Server()->TickSpeed() * g_Config.m_SvSurvivalLobbyDelay;
 	}
@@ -91,12 +91,12 @@ void CGameContext::SurvivalDeathmatchTick()
 	if(m_survival_dm_countdown % Server()->TickSpeed() == 0 && m_survival_dm_countdown - 10 < Server()->TickSpeed() * 10) //every second if seconds < 10
 	{
 		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d seconds", m_survival_dm_countdown / Server()->TickSpeed());
-		SendSurvivalBroadcast(aBuf);
+		SendBroadcastSurvival(aBuf);
 	}
 	else if(m_survival_dm_countdown % (Server()->TickSpeed() * 60) == 0 && m_survival_dm_countdown - 10 < (Server()->TickSpeed() * 60) * 5) //every minute if minutes < 5
 	{
 		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
-		SendSurvivalChat(aBuf);
+		SendChatSurvival(aBuf);
 	}
 
 	if(m_survival_dm_countdown < 1)
@@ -113,7 +113,7 @@ void CGameContext::SurvivalCheckWinnerAndDeathMatch()
 	{
 		if(!SurvivalPickWinner())
 		{
-			SendSurvivalChat("[SURVIVAL] Nobody won.");
+			SendChatSurvival("[SURVIVAL] Nobody won.");
 		}
 		SurvivalSetGameState(SURVIVAL_LOBBY);
 	}
@@ -121,7 +121,7 @@ void CGameContext::SurvivalCheckWinnerAndDeathMatch()
 	{
 		SurvivalSetGameState(SURVIVAL_DM_COUNTDOWN);
 		str_format(aBuf, sizeof(aBuf), "[SURVIVAL] deathmatch starts in %d minutes", m_survival_dm_countdown / (Server()->TickSpeed() * 60));
-		SendSurvivalChat(aBuf);
+		SendChatSurvival(aBuf);
 	}
 }
 
@@ -132,20 +132,20 @@ void CGameContext::SurvivalStartGame()
 	if(SurvivalGameSpawnTile == vec2(-1, -1)) //no survival arena
 	{
 		SurvivalSetGameState(SURVIVAL_LOBBY);
-		SendSurvivalChat("[SURVIVAL] no survival arena set.");
+		SendChatSurvival("[SURVIVAL] no survival arena set.");
 		return;
 	}
 	else
 	{
 		SurvivalSetGameState(SURVIVAL_INGAME);
-		SendSurvivalChat("[SURVIVAL] GAME STARTED !!!");
-		//SendSurvivalBroadcast("STAY ALIVE!!!");
-		SendSurvivalBroadcast(""); // clear countdown
+		SendChatSurvival("[SURVIVAL] GAME STARTED !!!");
+		//SendBroadcastSurvival("STAY ALIVE!!!");
+		SendBroadcastSurvival(""); // clear countdown
 		SurvivalCheckWinnerAndDeathMatch();
 	}
 }
 
-void CGameContext::SendSurvivalChat(const char *pMsg)
+void CGameContext::SendChatSurvival(const char *pMsg)
 {
 	for(auto &Player : m_apPlayers)
 	{
@@ -159,7 +159,7 @@ void CGameContext::SendSurvivalChat(const char *pMsg)
 	}
 }
 
-void CGameContext::SendSurvivalBroadcast(const char *pMsg, int Importance)
+void CGameContext::SendBroadcastSurvival(const char *pMsg, int Importance)
 {
 	for(auto &Player : m_apPlayers)
 	{
@@ -323,7 +323,7 @@ void CGameContext::SurvivalSetGameState(int state)
 	}
 	else if(state == SURVIVAL_DM)
 	{
-		SendSurvivalChat("[SURVIVAL] teleporting survivors to deathmatch arena.");
+		SendChatSurvival("[SURVIVAL] teleporting survivors to deathmatch arena.");
 
 		for(auto &Player : m_apPlayers)
 		{
@@ -337,7 +337,7 @@ void CGameContext::SurvivalSetGameState(int state)
 				}
 				else //no dm spawn tile
 				{
-					SendSurvivalChat("[SURVIVAL] error no deathmatch arena found.");
+					SendChatSurvival("[SURVIVAL] error no deathmatch arena found.");
 					break;
 				}
 			}
@@ -362,8 +362,8 @@ bool CGameContext::SurvivalPickWinner()
 	}
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(winnerID));
-	SendSurvivalChat(aBuf);
-	SendSurvivalBroadcast(aBuf);
+	SendChatSurvival(aBuf);
+	SendBroadcastSurvival(aBuf);
 	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
 
 	if(m_apPlayers[winnerID]->IsLoggedIn())

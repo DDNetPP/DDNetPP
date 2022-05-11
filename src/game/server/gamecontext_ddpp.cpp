@@ -1289,7 +1289,7 @@ void CGameContext::DDPP_Tick()
 		}
 		if(m_survival_game_countdown == 0)
 		{
-			SendSurvivalChat("[SURVIVAL] Game ended due to timeout. Nobody won.");
+			SendChatSurvival("[SURVIVAL] Game ended due to timeout. Nobody won.");
 			str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 			for(auto &Player : m_apPlayers)
 			{

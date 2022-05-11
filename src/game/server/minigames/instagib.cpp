@@ -159,7 +159,7 @@ void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
 
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(ID));
-	SayInsta(aBuf, weapon);
+	SendChatInsta(aBuf, weapon);
 }
 
 void CGameContext::LeaveInstagib(int ID)
@@ -174,11 +174,11 @@ void CGameContext::LeaveInstagib(int ID)
 	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' left the game.", Server()->ClientName(ID));
 	if(pPlayer->m_IsInstaArena_gdm)
 	{
-		SayInsta(aBuf, 4);
+		SendChatInsta(aBuf, 4);
 	}
 	else if(pPlayer->m_IsInstaArena_idm)
 	{
-		SayInsta(aBuf, 5);
+		SendChatInsta(aBuf, 5);
 	}
 
 	if((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
@@ -242,23 +242,23 @@ void CGameContext::LeaveInstagib(int ID)
 	}
 }
 
-void CGameContext::SayInsta(const char *pMsg, int weapon)
+void CGameContext::SendChatInsta(const char *pMsg, int Weapon)
 {
 #if defined(CONF_DEBUG)
-	//dbg_msg("cBug", "SayInsta got called with weapon %d and message '%s'", weapon, pMsg);
+	//dbg_msg("cBug", "SendChatInsta got called with weapon %d and message '%s'", Weapon, pMsg);
 #endif
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player)
 		{
-			if(weapon == 4) //grenade
+			if(Weapon == WEAPON_GRENADE) //grenade
 			{
 				if(Player->m_IsInstaArena_gdm)
 				{
 					SendChatTarget(Player->GetCID(), pMsg);
 				}
 			}
-			else if(weapon == 5) //rifle
+			else if(Weapon == WEAPON_LASER) //rifle
 			{
 				if(Player->m_IsInstaArena_idm)
 				{

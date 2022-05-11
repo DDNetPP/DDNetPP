@@ -140,7 +140,7 @@ public:
 	void ShowSurvivalStats(int requestID, int requestedID);
 	void ShowDDPPStats(int requestID, int requestedID);
 	void LeaveInstagib(int ID);
-	void SayInsta(const char *pMsg, int weapon);
+	void SendChatInsta(const char *pMsg, int Weapon);
 	void DoInstaScore(int score, int id);
 	void CheckInstaWin(int ID);
 	void InstaGrenadeRoundEndTick(int ID);
@@ -225,8 +225,8 @@ public:
 	void SurvivalLobbyTick();
 	void SurvivalDeathmatchTick();
 	void SurvivalStartGame();
-	void SendSurvivalChat(const char *pMsg);
-	void SendSurvivalBroadcast(const char *pMsg, int Importance = 1);
+	void SendChatSurvival(const char *pMsg);
+	void SendBroadcastSurvival(const char *pMsg, int Importance = 1);
 	/*
 		SetPlayerSurvival()
 		0	SURVIVAL_OFF
@@ -299,8 +299,8 @@ public:
 	void BlockWaveGameTick();
 	void BlockWaveEndGame();
 	void BlockWaveStartNewGame();
-	void SendBlockWaveBroadcast(const char *pMsg);
-	void SendBlockWaveSay(const char *pMsg);
+	void SendBroadcastBlockWave(const char *pMsg);
+	void SendChatBlockWave(const char *pMsg);
 	int CountBlockWavePlayers();
 	int m_BlockWaveGameState; // 0=offline 1=preparing 2=round running
 	int m_BlockWavePrepareDelay;
@@ -338,6 +338,8 @@ public:
 	int m_BalanceDummyID2;
 
 	//bomb
+	void SendBroadcastBomb(const char *pMsg);
+	void SendChatBomb(const char *pMsg);
 	void EndBombGame(int WinnerID);
 	void CheckStartBomb();
 	void BombTick();

@@ -1013,7 +1013,7 @@ void CCharacter::DDPP_Tick()
 				if(BlockWaveFreezeTicks > Server()->TickSpeed() * 4)
 				{
 					str_format(aBuf, sizeof(aBuf), "[BlockWave] '%s' died.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendBlockWaveSay(aBuf);
+					GameServer()->SendChatBlockWave(aBuf);
 					m_pPlayer->m_IsBlockWaveDead = true; //also gets set to zer0 on Unfreezefunc
 				}
 			}
@@ -2836,12 +2836,12 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 					if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm) // grenade
 					{
 						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
-						GameServer()->SayInsta(aBuf, 4);
+						GameServer()->SendChatInsta(aBuf, WEAPON_GRENADE);
 					}
 					else if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm) // rifle
 					{
 						str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
-						GameServer()->SayInsta(aBuf, 5);
+						GameServer()->SendChatInsta(aBuf, WEAPON_LASER);
 					}
 				}
 			}
