@@ -139,6 +139,9 @@ void CGameContext::OnInitDDPP()
 		m_pBlockTournament = new CBlockTournament(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 
+	for(auto &Minigame : m_vMinigames)
+		Minigame->OnInit();
+
 	LoadFNNvalues();
 	m_pAccounts->CreateDatabase();
 	char aBuf[512];
@@ -387,7 +390,7 @@ void CGameContext::OnStartBlockTournament()
 	}
 
 	m_pBlockTournament->m_State = 1;
-	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+	m_pBlockTournament->m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
 }
 
 //void CGameContext::OnDDPPshutdown()

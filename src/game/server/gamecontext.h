@@ -13,8 +13,8 @@
 
 #include <base/tl/array.h>
 
-#include <game/server/ddpp/letters.h>
 #include "minigames/minigame_base.h"
+#include <game/server/ddpp/letters.h>
 
 #include "minigames/block_tournament.h"
 

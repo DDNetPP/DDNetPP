@@ -896,7 +896,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	}
 }
 
-void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
+void CCharacter::PostSpawnDDPP(vec2 Pos)
 {
 	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
@@ -918,11 +918,8 @@ void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
-	if(m_pPlayer->m_IsBlockTourning && !m_pPlayer->m_IsBlockTourningDead && GameServer()->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_IN_GAME)
-	{
-		Freeze(6);
-		m_pPlayer->m_IsBlockTourningInArena = true;
-	}
+	for(auto Minigame : GameServer()->m_vMinigames)
+		Minigame->PostSpawn(this, Pos);
 
 	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
 	{
@@ -1636,8 +1633,9 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	//BlockQuestSubDieFuncBlockKill(Killer); //leave this before killing sprees to also have information about killingspree values from dead tees (needed for quest2 lvl6) //included in BlockPointsMain because it handels block kills
 	BlockQuestSubDieFuncDeath(Killer); //only handling quest failed (using external func because the other player is needed and its good to extract it in antoher func and because im funcy now c:) //new reason the first func is blockkill and this one is all kinds of death
 	KillingSpree(Killer); // previously called BlockKillingSpree()
-	BlockTourna_Die(Killer);
 	DropLoot(); // has to be called before survival because it only droops loot if survival alive
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		Minigame->OnDeath(this, Killer);
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
 

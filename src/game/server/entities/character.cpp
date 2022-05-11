@@ -125,7 +125,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	Server()->StartRecord(m_pPlayer->GetCID());
 
-	PostSpawnDDPP(pPlayer, Pos);
+	PostSpawnDDPP(Pos);
 	return true;
 }
 

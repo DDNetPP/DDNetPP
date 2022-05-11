@@ -290,9 +290,7 @@ public:
 
 	//block tourna
 
-	void BlockTournaTick();
 	void EndBlockTourna(); //sets all player bools to false and the state
-	int m_BlockTournaLobbyTick;
 	/*
 		m_BlockTournaStart
 
@@ -304,7 +302,8 @@ public:
 	int m_BlockTournaStartPlayers;
 	vec2 GetNextBlockTournaSpawn(int ClientID);
 	// int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
-	enum {
+	enum
+	{
 		BLOCKTOURNA_OFF = 0,
 		BLOCKTOURNA_LOBBY,
 		BLOCKTOURNA_IN_GAME,
