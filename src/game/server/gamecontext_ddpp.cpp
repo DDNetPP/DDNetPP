@@ -39,7 +39,7 @@ void CGameContext::ConstructDDPP()
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 	m_iBroadcastDelay = 0;
-	m_BlockTournaState = 0;
+	m_BlockTournaState = BLOCKTOURNA_OFF;
 	m_BombGameState = 0;
 	m_survivalgamestate = 0;
 	m_BalanceBattleState = 0;

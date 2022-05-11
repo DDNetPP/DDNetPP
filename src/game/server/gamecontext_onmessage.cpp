@@ -50,11 +50,12 @@ bool CGameContext::AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr)
 	if(m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_idm)
 		return true; //yy evil silent return
 
-	if(m_apPlayers[ClientID]->m_IsBlockTourning)
+	if(m_apPlayers[ClientID]->m_IsBlockTourning && m_BlockTournaState == BLOCKTOURNA_IN_GAME)
 	{
-		if(Server()->TickSpeed() * 5 > m_BlockTournaLobbyTick)
+		if(m_BlockTournaStart > time_get() - time_freq() * 10)
 		{
-			//silent return selfkill in last 5 secs of lobby tick to prevent the char being dead on tourna start
+			// silent abort selfkill first 10 secs of the tournament
+			// to avoid accidental selfkill when it starts
 			return true;
 		}
 	}

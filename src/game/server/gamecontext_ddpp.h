@@ -284,11 +284,26 @@ public:
 
 	void BlockTournaTick();
 	void EndBlockTourna(); //sets all player bools to false and the state
-	int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
 	int m_BlockTournaLobbyTick;
 	int m_BlockTournaTick;
+	/*
+		m_BlockTournaStart
+
+		Start time_get() used to prevent selfkill in beginning
+		and should be used to limit total tournament run time
+	*/
+	int64_t m_BlockTournaStart;
 	int CountBlockTournaAlive();
 	int m_BlockTournaStartPlayers;
+	int m_BlockTournaSpawnCounter;
+	vec2 GetNextBlockTournaSpawn(int ClientID);
+	int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
+	enum {
+		BLOCKTOURNA_OFF = 0,
+		BLOCKTOURNA_LOBBY,
+		BLOCKTOURNA_IN_GAME,
+		BLOCKTOURNA_ENDING,
+	};
 
 	const char *GetBlockSkillGroup(int id);
 	int GetBlockSkillGroupInt(int id);

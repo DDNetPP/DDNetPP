@@ -220,6 +220,15 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 			else
 				Eval.m_Got = true;
 		}
+		else if(pPlayer->m_IsBlockTourning && !pPlayer->m_IsBlockTourningDead && GameServer()->m_BlockTournaState == CGameContext::BLOCKTOURNA_IN_GAME)
+		{
+			int Id = pPlayer->GetCID();
+			Eval.m_Pos = GameServer()->GetNextBlockTournaSpawn(Id);
+			if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
+				EvaluateSpawnType(&Eval, 0, DDTeam); //default
+			else
+				Eval.m_Got = true;
+		}
 		else
 		{
 			EvaluateSpawnType(&Eval, 0, DDTeam); //default

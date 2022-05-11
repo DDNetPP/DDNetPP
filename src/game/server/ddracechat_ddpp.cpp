@@ -2444,6 +2444,8 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You joined a block tournament.");
 		pPlayer->m_IsBlockTourning = true;
+		pPlayer->m_IsBlockTourningDead = false;
+		pPlayer->m_IsBlockTourningInArena = false;
 		return;
 	}
 }

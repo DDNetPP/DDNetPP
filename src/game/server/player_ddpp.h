@@ -147,6 +147,8 @@ public:
 	//block tourna
 
 	bool m_IsBlockTourning;
+	bool m_IsBlockTourningDead;
+	bool m_IsBlockTourningInArena;
 
 	bool m_IsBlockDeathmatch;
 

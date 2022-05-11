@@ -918,6 +918,12 @@ void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
+	if(m_pPlayer->m_IsBlockTourning && !m_pPlayer->m_IsBlockTourningDead && GameServer()->m_BlockTournaState == CGameContext::BLOCKTOURNA_IN_GAME)
+	{
+		Freeze(6);
+		m_pPlayer->m_IsBlockTourningInArena = true;
+	}
+
 	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
 	{
 		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
@@ -1955,152 +1961,6 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	else //normal ddnet code (else to IsDmg)
 		return false;
 	return true;
-}
-
-void CCharacter::BlockTourna_Die(int Killer)
-{
-	char aBuf[128];
-
-	//Block tourna
-	if(GameServer()->m_BlockTournaState == 2) //ingame
-	{
-		if(m_pPlayer->m_IsBlockTourning)
-		{
-			//update skill levels
-			if(m_pPlayer->GetCID() == Killer) //selfkill
-			{
-				GameServer()->UpdateBlockSkill(-40, Killer);
-			}
-			else
-			{
-				int deadskill = m_pPlayer->m_Account.m_BlockSkill;
-				int killskill = GameServer()->m_apPlayers[Killer]->m_Account.m_BlockSkill;
-				int skilldiff = abs(deadskill - killskill);
-				if(skilldiff < 1500) //pretty same skill lvl
-				{
-					if(deadskill < killskill) //the killer is better
-					{
-						GameServer()->UpdateBlockSkill(-29, m_pPlayer->GetCID()); //killed
-						GameServer()->UpdateBlockSkill(+30, Killer); //killer
-					}
-					else //the killer is worse
-					{
-						GameServer()->UpdateBlockSkill(-40, m_pPlayer->GetCID()); //killed
-						GameServer()->UpdateBlockSkill(+40, Killer); //killer
-					}
-				}
-				else //unbalanced skill lvl --> punish harder and reward nicer
-				{
-					if(deadskill < killskill) //the killer is better
-					{
-						GameServer()->UpdateBlockSkill(-19, m_pPlayer->GetCID()); //killed
-						GameServer()->UpdateBlockSkill(+20, Killer); //killer
-					}
-					else //the killer is worse
-					{
-						GameServer()->UpdateBlockSkill(-60, m_pPlayer->GetCID()); //killed
-						GameServer()->UpdateBlockSkill(+60, Killer); //killer
-					}
-				}
-			}
-
-			//let him die and check for tourna win
-			m_pPlayer->m_IsBlockTourning = false;
-			int wonID = GameServer()->CountBlockTournaAlive();
-
-			if(wonID == -404)
-			{
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				GameServer()->m_BlockTournaState = 0;
-			}
-			else if(wonID < 0)
-			{
-				if(wonID == -420)
-					wonID = 0;
-				wonID *= -1;
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				GameServer()->m_BlockTournaState = 3; //set end state
-
-				//give price to the winner
-				int xp_rew;
-				int points_rew;
-				int money_rew;
-				int skill_rew;
-				if(GameServer()->m_BlockTournaStartPlayers <= 5) //depending on how many tees participated
-				{
-					xp_rew = 100;
-					points_rew = 3;
-					money_rew = 50;
-					skill_rew = 10;
-				}
-				else if(GameServer()->m_BlockTournaStartPlayers <= 10)
-				{
-					xp_rew = 150;
-					points_rew = 5;
-					money_rew = 100;
-					skill_rew = 20;
-				}
-				else if(GameServer()->m_BlockTournaStartPlayers <= 15)
-				{
-					xp_rew = 300;
-					points_rew = 10;
-					money_rew = 200;
-					skill_rew = 30;
-				}
-				else if(GameServer()->m_BlockTournaStartPlayers <= 32)
-				{
-					xp_rew = 700;
-					points_rew = 25;
-					money_rew = 500;
-					skill_rew = 120;
-				}
-				else if(GameServer()->m_BlockTournaStartPlayers <= 44)
-				{
-					xp_rew = 1200;
-					points_rew = 30;
-					money_rew = 1000;
-					skill_rew = 400;
-				}
-				else
-				{
-					xp_rew = 25000;
-					points_rew = 100;
-					money_rew = 15000;
-					skill_rew = 900;
-				}
-
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", xp_rew);
-				GameServer()->SendChatTarget(wonID, aBuf);
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", money_rew);
-				GameServer()->SendChatTarget(wonID, aBuf);
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
-				GameServer()->SendChatTarget(wonID, aBuf);
-
-				GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "block tournament");
-				GameServer()->m_apPlayers[wonID]->GiveXP(xp_rew);
-				GameServer()->m_apPlayers[wonID]->GiveBlockPoints(points_rew);
-				GameServer()->UpdateBlockSkill(+skill_rew, wonID);
-			}
-			else if(wonID == 0)
-			{
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
-				GameServer()->m_BlockTournaState = 0;
-			}
-			else if(wonID > 1)
-			{
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID + 1);
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-			}
-			else
-			{
-				str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				GameServer()->m_BlockTournaState = 0;
-			}
-		}
-	}
 }
 
 void CCharacter::MoveTee(int x, int y)
