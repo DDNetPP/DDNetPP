@@ -220,7 +220,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 			else
 				Eval.m_Got = true;
 		}
-		else if(pPlayer->m_IsBlockTourning && !pPlayer->m_IsBlockTourningDead && GameServer()->m_BlockTournaState == CGameContext::BLOCKTOURNA_IN_GAME)
+		else if(pPlayer->m_IsBlockTourning && !pPlayer->m_IsBlockTourningDead && GameServer()->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_IN_GAME)
 		{
 			int Id = pPlayer->GetCID();
 			Eval.m_Pos = GameServer()->GetNextBlockTournaSpawn(Id);

@@ -10,15 +10,17 @@
 
 #include "block_tournament.h"
 
-void CBlockTournament::Tick()
+bool CBlockTournament::IsActive(int ClientID)
 {
-	// TODO: copy code in here
-	m_pGameServer->BlockTournaTick();
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	return pPlayer->m_IsBlockTourning;
 }
 
 vec2 CGameContext::GetNextBlockTournaSpawn(int ClientID)
 {
-	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_BlockTournaSpawnCounter++);
+	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_pBlockTournament->m_SpawnCounter++);
 	if(Spawn == vec2(-1, -1))
 	{
 		SendChatTarget(ClientID, "[EVENT] No block tournament arena found.");
@@ -29,18 +31,23 @@ vec2 CGameContext::GetNextBlockTournaSpawn(int ClientID)
 
 void CGameContext::BlockTournaTick()
 {
-	if(!m_BlockTournaState)
+	// TODO: delete me
+}
+
+void CBlockTournament::Tick()
+{
+	if(!m_State)
 		return;
 
 	char aBuf[128];
 
-	if(m_BlockTournaState == BLOCKTOURNA_IN_GAME) //ingame
+	if(m_State == CGameContext::BLOCKTOURNA_IN_GAME) //ingame
 	{
-		m_BlockTournaTick++;
-		if(m_BlockTournaTick > g_Config.m_SvBlockTournaGameTime * Server()->TickSpeed() * 60) //time over --> draw
+		m_Tick++;
+		if(m_Tick > g_Config.m_SvBlockTournaGameTime * GameServer()->Server()->TickSpeed() * 60) //time over --> draw
 		{
 			//kill all tournas
-			for(auto &Player : m_apPlayers)
+			for(auto &Player : GameServer()->m_apPlayers)
 			{
 				if(Player && Player->m_IsBlockTourning)
 				{
@@ -51,42 +58,42 @@ void CGameContext::BlockTournaTick()
 					}
 				}
 			}
-			SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
-			m_BlockTournaState = 0;
+			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
+			m_State = 0;
 		}
 	}
-	else if(m_BlockTournaState == 1)
+	else if(m_State == 1)
 	{
-		m_BlockTournaLobbyTick--;
-		if(m_BlockTournaLobbyTick % Server()->TickSpeed() == 0)
+		GameServer()->m_BlockTournaLobbyTick--;
+		if(GameServer()->m_BlockTournaLobbyTick % GameServer()->Server()->TickSpeed() == 0)
 		{
-			int blockers = CountBlockTournaAlive();
+			int blockers = GameServer()->CountBlockTournaAlive();
 			if(blockers < 0)
 			{
 				blockers = 1;
 			}
-			str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", m_BlockTournaLobbyTick / Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
-			SendBroadcastAll(aBuf, 2);
+			str_format(aBuf, sizeof(aBuf), "[EVENT] BLOCK IN %d SECONDS\n[%d/%d] '/join'ed already", GameServer()->m_BlockTournaLobbyTick / GameServer()->Server()->TickSpeed(), blockers, g_Config.m_SvBlockTournaPlayers);
+			GameServer()->SendBroadcastAll(aBuf, 2);
 		}
 
-		if(m_BlockTournaLobbyTick < 0)
+		if(GameServer()->m_BlockTournaLobbyTick < 0)
 		{
-			m_BlockTournaStartPlayers = CountBlockTournaAlive();
-			if(m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
+			GameServer()->m_BlockTournaStartPlayers = GameServer()->CountBlockTournaAlive();
+			if(GameServer()->m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
 			{
-				SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.", 2);
-				EndBlockTourna();
+				GameServer()->SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.", 2);
+				GameServer()->EndBlockTourna();
 				return;
 			}
 
-			SendBroadcastAll("[EVENT] Block tournament started!", 2);
-			m_BlockTournaState = 2;
-			m_BlockTournaTick = 0;
-			m_BlockTournaStart = time_get();
+			GameServer()->SendBroadcastAll("[EVENT] Block tournament started!", 2);
+			m_State = 2;
+			m_Tick = 0;
+			GameServer()->m_BlockTournaStart = time_get();
 
 			//ready all players
-			m_BlockTournaSpawnCounter = 0;
-			for(auto &Player : m_apPlayers)
+			m_SpawnCounter = 0;
+			for(auto &Player : GameServer()->m_apPlayers)
 				if(Player && Player->m_IsBlockTourning)
 					if(Player->GetCharacter()) // TODO: use CSaveTee to restore state after tournament 
 						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
@@ -96,7 +103,7 @@ void CGameContext::BlockTournaTick()
 
 void CGameContext::EndBlockTourna()
 {
-	m_BlockTournaState = 0;
+	m_pBlockTournament->m_State = 0;
 
 	for(auto &Player : m_apPlayers)
 		if(Player)
@@ -144,7 +151,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 		return;
 	if(!m_pPlayer->m_IsBlockTourningInArena)
 		return;
-	if(GameServer()->m_BlockTournaState != CGameContext::BLOCKTOURNA_IN_GAME) //ingame
+	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_IN_GAME) //ingame
 		return;
 
 	char aBuf[128];
@@ -196,7 +203,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		GameServer()->m_BlockTournaState = 0;
+		GameServer()->m_pBlockTournament->m_State = 0;
 	}
 	else if(wonID < 0)
 	{
@@ -205,7 +212,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 		wonID *= -1;
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		GameServer()->m_BlockTournaState = 3; //set end state
+		GameServer()->m_pBlockTournament->m_State = 3; //set end state
 
 		//give price to the winner
 		int xp_rew;
@@ -270,7 +277,7 @@ void CCharacter::BlockTourna_Die(int Killer)
 	else if(wonID == 0)
 	{
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
-		GameServer()->m_BlockTournaState = 0;
+		GameServer()->m_pBlockTournament->m_State = 0;
 	}
 	else if(wonID > 1)
 	{
@@ -281,6 +288,6 @@ void CCharacter::BlockTourna_Die(int Killer)
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		GameServer()->m_BlockTournaState = 0;
+		GameServer()->m_pBlockTournament->m_State = 0;
 	}
 }

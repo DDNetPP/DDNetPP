@@ -918,7 +918,7 @@ void CCharacter::PostSpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
-	if(m_pPlayer->m_IsBlockTourning && !m_pPlayer->m_IsBlockTourningDead && GameServer()->m_BlockTournaState == CGameContext::BLOCKTOURNA_IN_GAME)
+	if(m_pPlayer->m_IsBlockTourning && !m_pPlayer->m_IsBlockTourningDead && GameServer()->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_IN_GAME)
 	{
 		Freeze(6);
 		m_pPlayer->m_IsBlockTourningInArena = true;
@@ -1029,7 +1029,7 @@ void CCharacter::DDPP_Tick()
 
 	if(m_pPlayer->m_IsBlockTourning)
 	{
-		if(GameServer()->m_BlockTournaState == 2) //only do it ingame
+		if(GameServer()->m_pBlockTournament->m_State == 2) //only do it ingame
 		{
 			if(m_FreezeTime)
 			{

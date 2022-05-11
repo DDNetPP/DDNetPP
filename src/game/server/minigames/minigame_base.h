@@ -10,6 +10,7 @@ class CGameContext;
 class CMinigame {
 protected:
     CGameContext *m_pGameServer;
+    CGameContext *GameServer();
 
 public:
     CMinigame(CGameContext *pGameContext);
@@ -17,7 +18,18 @@ public:
 
     virtual void Tick() {};
 
-private:
+    /*
+        IsActive
+
+        Returns true if the ClientID is playing the minigame
+    */
+    virtual bool IsActive(int ClientID) = 0;
+
+    void SendChatAll(const char *pMessage);
+    void SendBroadcastAll(const char *pMessage);
+
+    // TODO: make this protected
+    int m_State;
 };
 
 #endif

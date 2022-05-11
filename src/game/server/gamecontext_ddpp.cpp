@@ -42,7 +42,6 @@ void CGameContext::ConstructDDPP()
 	str_copy(m_aAllowedCharSet, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:+@-_", sizeof(m_aAllowedCharSet));
 	str_copy(m_aLastSurvivalWinnerName, "", sizeof(m_aLastSurvivalWinnerName));
 	m_iBroadcastDelay = 0;
-	m_BlockTournaState = BLOCKTOURNA_OFF;
 	m_BombGameState = 0;
 	m_survivalgamestate = 0;
 	m_BalanceBattleState = 0;
@@ -376,7 +375,7 @@ int CGameContext::GetNextClientID()
 
 void CGameContext::OnStartBlockTournament()
 {
-	if(m_BlockTournaState)
+	if(m_pBlockTournament->m_State)
 	{
 		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
 		return;
@@ -387,7 +386,7 @@ void CGameContext::OnStartBlockTournament()
 		return;
 	}
 
-	m_BlockTournaState = 1;
+	m_pBlockTournament->m_State = 1;
 	m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
 }
 
@@ -1435,7 +1434,7 @@ void CGameContext::DDPP_SlowTick()
 		{
 			StopSurvival = false;
 		}
-		if(m_BlockTournaState == 3)
+		if(m_pBlockTournament->m_State == 3)
 		{
 			if(Player->m_IsBlockTourning)
 			{
@@ -1476,9 +1475,9 @@ void CGameContext::DDPP_SlowTick()
 	{
 		m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
 	}
-	if(m_BlockTournaState == 3)
+	if(m_pBlockTournament->m_State == 3)
 	{
-		m_BlockTournaState = 0;
+		m_pBlockTournament->m_State = 0;
 	}
 	if(g_Config.m_SvAllowGlobalChat)
 	{
