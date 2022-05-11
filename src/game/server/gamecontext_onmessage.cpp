@@ -50,7 +50,7 @@ bool CGameContext::AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr)
 	if(m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_idm)
 		return true; //yy evil silent return
 
-	if(m_apPlayers[ClientID]->m_IsBlockTourning && m_pBlockTournament->m_State == BLOCKTOURNA_IN_GAME)
+	if(m_apPlayers[ClientID]->m_IsBlockTourning && (m_pBlockTournament->m_State == BLOCKTOURNA_IN_GAME || m_pBlockTournament->m_State == BLOCKTOURNA_COOLDOWN))
 	{
 		if(m_BlockTournaStart > time_get() - time_freq() * 10)
 		{

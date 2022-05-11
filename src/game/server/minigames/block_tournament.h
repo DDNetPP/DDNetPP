@@ -5,6 +5,8 @@
 
 #include "minigame_base.h"
 
+#define BLOCKTOURNAMENT_COOLDOWN 6
+
 class CBlockTournament : public CMinigame
 {
 public:
@@ -21,8 +23,10 @@ public:
 	// m_BlockTournaSpawnCounter
 	int m_SpawnCounter; // is this generic enough for all games?
 	int m_LobbyTick;
+    int m_CoolDown; // MAKE PRIVTAE
 
 private:
+    // TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
 	int m_Tick; // TODO: add minigame init and zero it there
 };
 

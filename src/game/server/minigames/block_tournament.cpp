@@ -24,6 +24,25 @@ void CBlockTournament::OnInit()
 	m_SpawnCounter = 0;
 	m_LobbyTick = 0;
 	m_Tick = 0;
+	m_CoolDown = 0;
+}
+
+void CGameContext::OnStartBlockTournament()
+{
+	if(m_pBlockTournament->m_State)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		return;
+	}
+	if(g_Config.m_SvAllowBlockTourna == 0)
+	{
+		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		return;
+	}
+
+	m_pBlockTournament->m_State = CGameContext::BLOCKTOURNA_LOBBY;
+	m_pBlockTournament->m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+	m_pBlockTournament->m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
 }
 
 bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
@@ -32,7 +51,7 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 		return false;
 	if(pPlayer->m_IsBlockTourningDead)
 		return false;
-	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_IN_GAME)
+	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
 		return false;
 
 	int Id = pPlayer->GetCID();
@@ -55,10 +74,10 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 		return;
 	if(pPlayer->m_IsBlockTourningDead)
 		return;
-	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_IN_GAME)
+	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
 		return;
 
-	pChr->Freeze(6);
+	pChr->Freeze(BLOCKTOURNAMENT_COOLDOWN);
 	pPlayer->m_IsBlockTourningInArena = true;
 }
 
@@ -98,10 +117,10 @@ void CBlockTournament::Tick()
 				}
 			}
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
-			m_State = 0;
+			m_State = CGameContext::BLOCKTOURNA_OFF;
 		}
 	}
-	else if(m_State == 1)
+	else if(m_State == CGameContext::BLOCKTOURNA_LOBBY)
 	{
 		m_LobbyTick--;
 		if(m_LobbyTick % Server()->TickSpeed() == 0)
@@ -126,8 +145,9 @@ void CBlockTournament::Tick()
 			}
 
 			GameServer()->SendBroadcastAll("[EVENT] Block tournament started!", 2);
-			m_State = 2;
+			m_State = CGameContext::BLOCKTOURNA_COOLDOWN;
 			m_Tick = 0;
+			m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
 			GameServer()->m_BlockTournaStart = time_get();
 
 			//ready all players
@@ -136,6 +156,36 @@ void CBlockTournament::Tick()
 				if(Player && Player->m_IsBlockTourning)
 					if(Player->GetCharacter()) // TODO: use CSaveTee to restore state after tournament
 						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+		}
+	}
+	else if(m_State == CGameContext::BLOCKTOURNA_COOLDOWN)
+	{
+		m_CoolDown--;
+		if(m_CoolDown % Server()->TickSpeed() == 0)
+		{
+			str_format(aBuf, sizeof(aBuf), "Start in %d", m_CoolDown / Server()->TickSpeed());
+			SendBroadcastAll(aBuf);
+		}
+		if(m_CoolDown < 0)
+		{
+			SendBroadcastAll("Last alive wins!");
+			SendBroadcastAll(" ");
+			m_State = CGameContext::BLOCKTOURNA_IN_GAME;
+			for(auto &Player : GameServer()->m_apPlayers)
+			{
+				if(!Player)
+					continue;
+				if(!Player->m_IsBlockTourning)
+					continue;
+				if(Player->m_IsBlockTourningDead)
+					continue;
+
+				CCharacter *pChr = Player->GetCharacter();
+				if(!pChr)
+					continue;
+
+				pChr->UnFreeze();
+			}
 		}
 	}
 }
@@ -196,7 +246,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		return;
 	if(!pPlayer->m_IsBlockTourningInArena)
 		return;
-	if(m_State != CGameContext::BLOCKTOURNA_IN_GAME) //ingame
+	if(m_State != CGameContext::BLOCKTOURNA_IN_GAME && m_State != CGameContext::BLOCKTOURNA_COOLDOWN) //ingame
 		return;
 
 	char aBuf[128];
@@ -248,7 +298,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		m_State = 0;
+		m_State = CGameContext::BLOCKTOURNA_OFF;
 	}
 	else if(wonID < 0)
 	{
@@ -257,7 +307,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		wonID *= -1;
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		m_State = 3; //set end state
+		m_State = CGameContext::BLOCKTOURNA_ENDING; //set end state
 
 		//give price to the winner
 		int xp_rew;
@@ -322,7 +372,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	else if(wonID == 0)
 	{
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
-		m_State = 0;
+		m_State = CGameContext::BLOCKTOURNA_OFF;
 	}
 	else if(wonID > 1)
 	{
@@ -333,6 +383,6 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		m_State = 0;
+		m_State = CGameContext::BLOCKTOURNA_OFF;
 	}
 }

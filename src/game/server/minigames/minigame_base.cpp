@@ -33,5 +33,5 @@ void CMinigame::SendBroadcastAll(const char *pMessage)
 	for(auto &Player : GameServer()->m_apPlayers)
 		if(Player)
 			if(IsActive(Player->GetCID()))
-				GameServer()->SendChatTarget(Player->GetCID(), pMessage);
+				GameServer()->SendBroadcast(pMessage, Player->GetCID());
 }

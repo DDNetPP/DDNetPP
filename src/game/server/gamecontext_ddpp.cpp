@@ -376,23 +376,6 @@ int CGameContext::GetNextClientID()
 	return ClientID;
 }
 
-void CGameContext::OnStartBlockTournament()
-{
-	if(m_pBlockTournament->m_State)
-	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
-		return;
-	}
-	if(g_Config.m_SvAllowBlockTourna == 0)
-	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
-		return;
-	}
-
-	m_pBlockTournament->m_State = CGameContext::BLOCKTOURNA_LOBBY;
-	m_pBlockTournament->m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
-}
-
 //void CGameContext::OnDDPPshutdown()
 //{
 //#if defined(CONF_DEBUG)
