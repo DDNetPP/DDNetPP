@@ -101,7 +101,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 		{
 			if(pOwnerChar->GetPlayer()->m_TaserOn)
 			{
-				pHit->Freeze(GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->TaserFreezeTime());
+				pHit->FreezeFloat(GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->TaserFreezeTime());
 				pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
 				pHit->m_GotTasered = true;
 			}

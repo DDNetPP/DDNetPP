@@ -531,14 +531,28 @@ void CPlayer::JailPlayer(int seconds)
 	}
 }
 
-int CPlayer::TaserFreezeTime()
+float CPlayer::TaserFreezeTime()
 {
 	if(!IsLoggedIn())
 		return 0;
 	if(!m_Account.m_TaserLevel)
 		return 0;
 
-	return m_Account.m_TaserLevel;
+	int64_t LastUse = 0;
+	CCharacter *pChr = GetCharacter();
+	if(pChr)
+		LastUse = pChr->m_LastTaserUse;
+
+	int Strength = clamp((int)((Server()->Tick() - LastUse) * 2 / Server()->TickSpeed()),
+		0,
+		m_Account.m_TaserLevel);
+
+	dbg_msg("taser", "stregth=%d taserlvel=%d lastuse=%" PRId64 " time=%.2f", Strength, m_Account.m_TaserLevel, LastUse, (float)(Strength / 10.0f));
+	float Time = (float)(Strength / 10.0f);
+
+	dbg_msg("taser", "return time=%.2f", Time);
+
+	return Time;
 }
 
 void CPlayer::Save(int SetLoggedIn)

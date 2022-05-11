@@ -204,6 +204,15 @@ public:
 	int m_LastHitWeapon;
 	int m_OldLastHookedPlayer;
 	bool m_GotTasered;
+	int64_t m_LastTaserUse;
+	/*
+		FreezeFloat
+
+		ddnet++ overload of ddnets Freeze(int)
+		for more precise freeze times
+		used for taser
+	*/
+	bool FreezeFloat(float Seconds);
 
 	// drop pickups
 	void DropHealth(int amount = 1);

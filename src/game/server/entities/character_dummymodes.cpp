@@ -5471,7 +5471,7 @@ void CCharacter::DummyTick()
 			}
 			m_Input.m_Direction = -1;
 			if(((m_Core.m_Vel.y > 0.01f) || //jump when falling down
-					(m_Core.m_Vel.x > -0.1f && IsGrounded() && Server()->Tick() % 26 == 0)) && //getting stuck
+				   (m_Core.m_Vel.x > -0.1f && IsGrounded() && Server()->Tick() % 26 == 0)) && //getting stuck
 				!(m_Core.m_Pos.x < 469 * 32)) //but not if too far left (at spawn spawn and before jump <--)
 			{
 				m_Input.m_Jump = 1;
@@ -6703,7 +6703,7 @@ void CCharacter::DummyTick()
 			//no basic moves for this submode
 		}
 	}
-	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER) // m_pPlayer->m_DummyMode == 29 
+	else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER) // m_pPlayer->m_DummyMode == 29
 	{
 		m_pDummyChillBlock5Blocker->Tick();
 	}
