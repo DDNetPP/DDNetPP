@@ -23,10 +23,12 @@ public:
 	// m_BlockTournaSpawnCounter
 	int m_SpawnCounter; // is this generic enough for all games?
 	int m_LobbyTick;
-    int m_CoolDown; // MAKE PRIVTAE
+	int m_CoolDown; // MAKE PRIVTAE
+
+	void Leave(CPlayer *pPlayer); // move to base?
 
 private:
-    // TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
+	// TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
 	int m_Tick; // TODO: add minigame init and zero it there
 };
 

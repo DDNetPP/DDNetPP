@@ -1424,7 +1424,7 @@ void CGameContext::DDPP_SlowTick()
 		{
 			if(Player->m_IsBlockTourning)
 			{
-				Player->m_IsBlockTourning = false;
+				m_pBlockTournament->Leave(Player);
 				if(Player->GetCharacter())
 				{
 					Player->GetCharacter()->Die(PlayerID, WEAPON_GAME);

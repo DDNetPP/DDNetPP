@@ -4,12 +4,15 @@
 #define GAME_SERVER_MINIGAMES_MINIGAME_BASE_H
 
 #include <base/system.h>
+#include <engine/shared/network.h>
+#include <game/server/save.h>
 
 class CCharacter;
 class CPlayer;
 class CGameContext;
 class IServer;
 class CSpawnEval;
+class CSaveTee;
 
 class CMinigame
 {
@@ -17,6 +20,8 @@ protected:
 	CGameContext *m_pGameServer;
 	CGameContext *GameServer();
 	IServer *Server();
+	CSaveTee *m_apSavedPositions[MAX_CLIENTS];
+	bool m_aRestorePos[MAX_CLIENTS];
 
 public:
 	CMinigame(CGameContext *pGameContext);
@@ -72,6 +77,24 @@ public:
         Returns true if the ClientID is playing the minigame
     */
 	virtual bool IsActive(int ClientID) = 0;
+
+	/*
+        SavePosition
+
+        Presist player position when joining the minigame
+        to be later able to load it again
+    */
+	virtual void SavePosition(CPlayer *pPlayer);
+
+	/*
+        LoadPosition
+
+        Make sure SavePosition is called first.
+        Use this to restore position after leaving the minigame.
+
+        m_aRestorePos[ClientID] has to be set to true
+    */
+	virtual void LoadPosition(CCharacter *pChr);
 
 	/*
         SendChatAll

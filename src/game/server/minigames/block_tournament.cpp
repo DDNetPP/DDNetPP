@@ -27,6 +27,15 @@ void CBlockTournament::OnInit()
 	m_CoolDown = 0;
 }
 
+void CBlockTournament::Leave(CPlayer *pPlayer)
+{
+	if(!pPlayer)
+		return;
+
+	pPlayer->m_IsBlockTourning = false;
+	m_aRestorePos[pPlayer->GetCID()] = true;
+}
+
 void CGameContext::OnStartBlockTournament()
 {
 	if(m_pBlockTournament->m_State)
@@ -109,7 +118,7 @@ void CBlockTournament::Tick()
 			{
 				if(Player && Player->m_IsBlockTourning)
 				{
-					Player->m_IsBlockTourning = false;
+					Leave(Player);
 					if(Player->GetCharacter())
 					{
 						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
@@ -154,8 +163,11 @@ void CBlockTournament::Tick()
 			m_SpawnCounter = 0;
 			for(auto &Player : GameServer()->m_apPlayers)
 				if(Player && Player->m_IsBlockTourning)
-					if(Player->GetCharacter()) // TODO: use CSaveTee to restore state after tournament
+					if(Player->GetCharacter())
+					{
+						SavePosition(Player);
 						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+					}
 		}
 	}
 	else if(m_State == CGameContext::BLOCKTOURNA_COOLDOWN)
@@ -196,7 +208,7 @@ void CGameContext::EndBlockTourna()
 
 	for(auto &Player : m_apPlayers)
 		if(Player)
-			Player->m_IsBlockTourning = false;
+			m_pBlockTournament->Leave(Player);
 }
 
 int CGameContext::CountBlockTournaAlive()
@@ -251,7 +263,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 
 	char aBuf[128];
 	//let him die and check for tourna win
-	pPlayer->m_IsBlockTourning = false;
+	Leave(pPlayer);
 	pPlayer->m_IsBlockTourningDead = true;
 	pPlayer->m_IsBlockTourningInArena = false;
 	int wonID = GameServer()->CountBlockTournaAlive();
