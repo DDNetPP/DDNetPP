@@ -300,7 +300,6 @@ public:
 	int64_t m_BlockTournaStart;
 	int CountBlockTournaAlive();
 	int m_BlockTournaStartPlayers;
-	vec2 GetNextBlockTournaSpawn(int ClientID);
 	// int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
 	enum
 	{

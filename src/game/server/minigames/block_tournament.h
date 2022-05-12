@@ -28,6 +28,9 @@ public:
 	void Leave(CPlayer *pPlayer); // move to base?
 
 private:
+
+	vec2 GetNextArenaSpawn(int ClientID);
+
 	// TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
 	int m_Tick; // TODO: add minigame init and zero it there
 };

@@ -64,8 +64,8 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 		return false;
 
 	int Id = pPlayer->GetCID();
-	vec2 Pos = GameServer()->GetNextBlockTournaSpawn(Id);
-	if(*pPos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
+	vec2 Pos = GetNextArenaSpawn(Id);
+	if(Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
 		return false;
 
 	*pPos = Pos;
@@ -90,13 +90,22 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 	pPlayer->m_IsBlockTourningInArena = true;
 }
 
-vec2 CGameContext::GetNextBlockTournaSpawn(int ClientID)
+vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
 {
-	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_pBlockTournament->m_SpawnCounter++);
+	vec2 Spawn = GameServer()->Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
 	if(Spawn == vec2(-1, -1))
 	{
-		SendChatTarget(ClientID, "[EVENT] No block tournament arena found.");
-		EndBlockTourna();
+		// start re using spawns when there is not enough
+		// but abort when we have to reuse in the beginning already
+		if(m_SpawnCounter > 1)
+		{
+			m_SpawnCounter = 0;
+			Spawn = GameServer()->Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
+			if(Spawn != vec2(-1, -1))
+				return Spawn;
+		}
+		SendChatAll("[EVENT] No block tournament arena found.");
+		GameServer()->EndBlockTourna();
 	}
 	return Spawn;
 }
