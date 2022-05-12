@@ -7,7 +7,7 @@
 #include "pickup.h"
 
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam) :
-	CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
+	CEntity(pGameWorld, CGameWorld::ENTTYPE_DROP_PICKUP)
 {
 	if(GameServer()->GetPlayerChar(Owner))
 	{
