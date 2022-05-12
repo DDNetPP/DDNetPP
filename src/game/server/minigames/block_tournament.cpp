@@ -338,44 +338,44 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		int skill_rew;
 		if(m_StartPlayers <= 5) //depending on how many tees participated
 		{
-			xp_rew = 100;
+			xp_rew = 200;
 			points_rew = 3;
-			money_rew = 50;
+			money_rew = 100;
 			skill_rew = 10;
 		}
 		else if(m_StartPlayers <= 10)
 		{
-			xp_rew = 150;
+			xp_rew = 500;
 			points_rew = 5;
-			money_rew = 100;
+			money_rew = 500;
 			skill_rew = 20;
 		}
 		else if(m_StartPlayers <= 15)
 		{
-			xp_rew = 300;
+			xp_rew = 3000;
 			points_rew = 10;
-			money_rew = 200;
+			money_rew = 1000;
 			skill_rew = 30;
 		}
 		else if(m_StartPlayers <= 32)
 		{
-			xp_rew = 700;
+			xp_rew = 5000;
 			points_rew = 25;
-			money_rew = 500;
+			money_rew = 2000;
 			skill_rew = 120;
 		}
 		else if(m_StartPlayers <= 44)
 		{
-			xp_rew = 1200;
+			xp_rew = 20000;
 			points_rew = 30;
-			money_rew = 1000;
+			money_rew = 10000;
 			skill_rew = 400;
 		}
 		else
 		{
 			xp_rew = 25000;
 			points_rew = 100;
-			money_rew = 15000;
+			money_rew = 50000;
 			skill_rew = 900;
 		}
 
