@@ -5,6 +5,7 @@ class CWeapon : public CEntity
 {
 public:
 	CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, int Direction, int ResponsibleTeam, int Bullets, bool Jetpack = false, bool SpreadGun = false);
+	~CWeapon();
 
 	virtual void Reset();
 	virtual void Tick();

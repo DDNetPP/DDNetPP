@@ -30,27 +30,31 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 	GameWorld()->InsertEntity(this);
 }
 
-void CWeapon::Reset()
+CWeapon::~CWeapon()
 {
-	if(m_Owner < 0)
-		return;
-	CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
-	if(!pOwner)
-		return;
-	for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-		if(pOwner->m_vWeaponLimit[m_Type][i] == this)
-		{
-			pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
-			break;
-		}
-
-	if(IsCharacterNear() == -1)
-		GameServer()->CreateDeath(m_Pos, -1);
-
 	Server()->SnapFreeID(m_ID2);
 	Server()->SnapFreeID(m_ID3);
 	Server()->SnapFreeID(m_ID4);
 	Server()->SnapFreeID(m_ID5);
+}
+
+void CWeapon::Reset()
+{
+	if(m_Owner >= 0)
+	{
+		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
+		if(pOwner)
+			for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
+				if(pOwner->m_vWeaponLimit[m_Type][i] == this)
+				{
+					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+					break;
+				}
+	}
+
+	if(IsCharacterNear() == -1)
+		GameServer()->CreateDeath(m_Pos, -1);
+
 	m_MarkedForDestroy = true;
 }
 
