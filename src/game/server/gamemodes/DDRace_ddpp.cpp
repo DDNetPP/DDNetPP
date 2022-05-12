@@ -318,9 +318,12 @@ void CGameControllerDDRace::ChangeFlagOwner(int id, int character)
 
 int CGameControllerDDRace::HasFlag(CCharacter *pChr)
 {
+	if(!pChr)
+		return -1;
+
 	for(auto &Flag : m_apFlags)
 		if(Flag && Flag->m_pCarryingCharacter == pChr)
-			return pChr->GetPlayer()->GetCID();
+				return pChr->GetPlayer()->GetCID();
 	return -1;
 }
 
