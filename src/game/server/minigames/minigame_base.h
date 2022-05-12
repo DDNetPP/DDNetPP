@@ -10,6 +10,7 @@
 class CCharacter;
 class CPlayer;
 class CGameContext;
+class CCollision;
 class IServer;
 class CSpawnEval;
 class CSaveTee;
@@ -20,6 +21,7 @@ protected:
 	CGameContext *m_pGameServer;
 	CGameContext *GameServer();
 	IServer *Server();
+	CCollision *Collision();
 	CSaveTee *m_apSavedPositions[MAX_CLIENTS];
 	bool m_aRestorePos[MAX_CLIENTS];
 

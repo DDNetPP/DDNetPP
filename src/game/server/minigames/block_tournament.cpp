@@ -25,6 +25,7 @@ void CBlockTournament::OnInit()
 	m_LobbyTick = 0;
 	m_Tick = 0;
 	m_CoolDown = 0;
+	m_StartPlayers = 0;
 }
 
 void CBlockTournament::Leave(CPlayer *pPlayer)
@@ -60,7 +61,7 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 		return false;
 	if(pPlayer->m_IsBlockTourningDead)
 		return false;
-	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
+	if(m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
 		return false;
 
 	int Id = pPlayer->GetCID();
@@ -83,7 +84,7 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 		return;
 	if(pPlayer->m_IsBlockTourningDead)
 		return;
-	if(GameServer()->m_pBlockTournament->m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
+	if(m_State != CGameContext::BLOCKTOURNA_COOLDOWN)
 		return;
 
 	pChr->Freeze(BLOCKTOURNAMENT_COOLDOWN);
@@ -92,7 +93,7 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 
 vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
 {
-	vec2 Spawn = GameServer()->Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
+	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
 	if(Spawn == vec2(-1, -1))
 	{
 		// start re using spawns when there is not enough
@@ -100,12 +101,12 @@ vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
 		if(m_SpawnCounter > 1)
 		{
 			m_SpawnCounter = 0;
-			Spawn = GameServer()->Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
+			Spawn = Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
 			if(Spawn != vec2(-1, -1))
 				return Spawn;
 		}
 		SendChatAll("[EVENT] No block tournament arena found.");
-		GameServer()->EndBlockTourna();
+		EndRound();
 	}
 	return Spawn;
 }
@@ -154,11 +155,11 @@ void CBlockTournament::Tick()
 
 		if(m_LobbyTick < 0)
 		{
-			GameServer()->m_BlockTournaStartPlayers = GameServer()->CountBlockTournaAlive();
-			if(GameServer()->m_BlockTournaStartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
+			m_StartPlayers = GameServer()->CountBlockTournaAlive();
+			if(m_StartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
 			{
 				GameServer()->SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.", 2);
-				GameServer()->EndBlockTourna();
+				EndRound();
 				return;
 			}
 
@@ -211,13 +212,13 @@ void CBlockTournament::Tick()
 	}
 }
 
-void CGameContext::EndBlockTourna()
+void CBlockTournament::EndRound()
 {
-	m_pBlockTournament->m_State = BLOCKTOURNA_OFF;
+	m_State = CGameContext::BLOCKTOURNA_OFF;
 
-	for(auto &Player : m_apPlayers)
+	for(auto &Player : GameServer()->m_apPlayers)
 		if(Player)
-			m_pBlockTournament->Leave(Player);
+			Leave(Player);
 }
 
 int CGameContext::CountBlockTournaAlive()
@@ -326,7 +327,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		if(wonID == -420)
 			wonID = 0;
 		wonID *= -1;
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), GameServer()->m_BlockTournaStartPlayers);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), m_StartPlayers);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = CGameContext::BLOCKTOURNA_ENDING; //set end state
 
@@ -335,35 +336,35 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		int points_rew;
 		int money_rew;
 		int skill_rew;
-		if(GameServer()->m_BlockTournaStartPlayers <= 5) //depending on how many tees participated
+		if(m_StartPlayers <= 5) //depending on how many tees participated
 		{
 			xp_rew = 100;
 			points_rew = 3;
 			money_rew = 50;
 			skill_rew = 10;
 		}
-		else if(GameServer()->m_BlockTournaStartPlayers <= 10)
+		else if(m_StartPlayers <= 10)
 		{
 			xp_rew = 150;
 			points_rew = 5;
 			money_rew = 100;
 			skill_rew = 20;
 		}
-		else if(GameServer()->m_BlockTournaStartPlayers <= 15)
+		else if(m_StartPlayers <= 15)
 		{
 			xp_rew = 300;
 			points_rew = 10;
 			money_rew = 200;
 			skill_rew = 30;
 		}
-		else if(GameServer()->m_BlockTournaStartPlayers <= 32)
+		else if(m_StartPlayers <= 32)
 		{
 			xp_rew = 700;
 			points_rew = 25;
 			money_rew = 500;
 			skill_rew = 120;
 		}
-		else if(GameServer()->m_BlockTournaStartPlayers <= 44)
+		else if(m_StartPlayers <= 44)
 		{
 			xp_rew = 1200;
 			points_rew = 30;

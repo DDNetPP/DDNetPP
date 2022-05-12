@@ -24,6 +24,11 @@ IServer *CMinigame::Server()
 	return GameServer()->Server();
 }
 
+CCollision *CMinigame::Collision()
+{
+	return GameServer()->Collision();
+}
+
 void CMinigame::SavePosition(CPlayer *pPlayer)
 {
 	if(!pPlayer)
