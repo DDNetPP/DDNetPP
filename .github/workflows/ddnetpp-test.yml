@@ -32,4 +32,4 @@ jobs:
         make -j"$(nproc)"
     - name: Run integration tests with ASan and UBSan
       run: |
-        ./scripts/integration_test.sh san
+        ./scripts/ddpp_test.sh san
