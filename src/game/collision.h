@@ -127,7 +127,6 @@ public:
 
 	std::vector<std::vector<vec2>> m_vTiles;
 
-private:
 	struct SSwitchers
 	{
 		bool m_Status[MAX_CLIENTS];
@@ -135,6 +134,8 @@ private:
 		int m_EndTick[MAX_CLIENTS];
 		int m_Type[MAX_CLIENTS];
 	};
+
+private:
 
 	// DDNet++
 
