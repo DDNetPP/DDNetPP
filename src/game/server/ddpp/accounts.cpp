@@ -171,7 +171,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	char aBuf[2048];
 	str_copy(aBuf,
 		"UPDATE Accounts SET "
-		"	IsLoggedIn = ?, LastLoginPort = ?,"
+		"	IsLoggedIn = ?,"
 		"	LastLogoutIGN1 = ?, LastLogoutIGN2 = ?, LastLogoutIGN3 = ?, LastLogoutIGN4 = ?, LastLogoutIGN5 = ?,"
 		"	IP_1 = ?, IP_2 = ?, IP_3 = ?,"
 		"	Clan1 = ?, Clan2 = ?, Clan3 = ?,"
@@ -212,7 +212,6 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	const CAccountData *pAcc = &pData->m_AccountData;
 	int Index = 1;
 	pSqlServer->BindInt(Index++, pAcc->m_IsLoggedIn);
-	pSqlServer->BindInt(Index++, pAcc->m_LastLoginPort);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN1);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN2);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN3);

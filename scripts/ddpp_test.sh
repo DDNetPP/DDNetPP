@@ -292,7 +292,7 @@ else
 	check_account GrenadeDeaths 0
 	check_account GrenadeShots 0
 	check_account SpookyGhost 0
-	# check_account LastLoginPort "$port"
+	check_account LastLoginPort "$port"
 fi
 
 if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"
