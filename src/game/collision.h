@@ -136,7 +136,6 @@ public:
 	};
 
 private:
-
 	// DDNet++
 
 	int m_NumSurvivalSpawns;
