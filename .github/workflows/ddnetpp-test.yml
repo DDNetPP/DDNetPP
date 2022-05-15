@@ -1,0 +1,35 @@
+name: Check ddnet++ features
+
+on:
+  push:
+    branches-ignore:
+      - staging.tmp
+      - trying.tmp
+      - staging-squash-merge.tmp
+  pull_request:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Prepare linux
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install pkg-config cmake ninja-build libfreetype6-dev libnotify-dev libsdl2-dev libsqlite3-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev libx264-dev libvulkan-dev glslang-tools spirv-tools -y
+    - name: Build with ASan and UBSan
+      run: |
+        mkdir san
+        cd san
+        export CC=clang
+        export CXX=clang++
+        export CXXFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
+        export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCLIENT=ON -DHEADLESS_CLIENT=ON ..
+        make -j"$(nproc)"
+    - name: Run integration tests with ASan and UBSan
+      run: |
+        ./scripts/integration_test.sh san
