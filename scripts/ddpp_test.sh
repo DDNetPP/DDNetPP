@@ -114,6 +114,10 @@ if [ -f ddnet-server.sqlite ]
 then
 	rm ddnet-server.sqlite
 fi
+if [ -f accounts.db ]
+then
+	rm accounts.db
+fi
 
 # TODO: check for open ports instead
 port=17822
@@ -137,6 +141,8 @@ function print_san() {
 	"sv_input_fifo server.fifo;
 	sv_map ddnetpp-test;
 	sv_sqlite_file ddnet-server.sqlite;
+	sv_account_stuff 1;
+	sv_database_path accounts.db;
 	sv_port $port" &> server.log || fail server "$?" &
 
 ./DDNet \
@@ -173,27 +179,44 @@ do
 	sleep 1
 done
 
-sleep 2
+sleep 1
+echo "say /register foo bar bar" > client1.fifo
+
+sleep 1
+echo "say /login foo bar" > client1.fifo
+
+sleep 5
+echo "rcon_auth rcon" > client1.fifo
+
+sleep 1
+echo "rcon shutdown" > client1.fifo
 
 kill_all
 wait
 
 sleep 1
 
-ranks="$(sqlite3 ddnet-server.sqlite < <(echo "select * from record_race;"))"
-if [ "$ranks" == "" ]
+accs="$(sqlite3 accounts.db < <(echo "select * from Accounts;"))"
+if [ "$accs" == "" ]
 then
-	touch fail_ranks.txt
-	echo "[-] Error: no ranks found in database"
-elif [ "$(echo "$ranks" | wc -l)" != "1" ]
+	touch fail_accs.txt
+	echo "[-] Error: no accounts found in database"
+elif [ "$(echo "$accs" | wc -l)" != "1" ]
 then
-	touch fail_ranks.txt
-	echo "[-] Error: expected 1 rank got $(echo "$ranks" | wc -l)"
-elif ! echo "$ranks" | grep -q client1
+	touch fail_accs.txt
+	echo "[-] Error: expected 1 account got $(echo "$accs" | wc -l)"
+elif ! echo "$accs" | grep -q client1
 then
-	touch fail_ranks.txt
-	echo "[-] Error: expected a rank from client1 instead got:"
-	echo "  $ranks"
+	touch fail_accs.txt
+	echo "[-] Error: expected an account from client1 instead got:"
+	echo "  $accs"
+else
+	money="$(sqlite3 accounts.db < <(echo "select Money from Accounts;"))"
+	if [ "$money" != "6" ]
+	then
+		touch fail_accs.txt
+		echo "[-] Error: expected client1 to farm '6' money but got '$money'"
+	fi
 fi
 
 if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"

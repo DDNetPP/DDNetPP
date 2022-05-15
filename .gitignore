@@ -76,6 +76,7 @@ versionsrv
 generated
 
 /build*
+/test/*
 
 # IDE project files
 .cache
