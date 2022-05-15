@@ -495,7 +495,7 @@ public:
 
 	void BotJoin(int BotID);
 	void BotLeave(int BotID, bool silent = false);
-	void RunDDPP();
+	void DDPPRegisterDatabases();
 	int LoadMapLive(const char *pMapName);
 };
 

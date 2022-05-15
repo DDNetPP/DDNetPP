@@ -50,7 +50,7 @@
 #include "databases/connection.h"
 #include "databases/connection_pool.h"
 
-void CServer::RunDDPP()
+void CServer::DDPPRegisterDatabases()
 {
 	if(g_Config.m_SvDatabasePath[0] != '\0')
 	{

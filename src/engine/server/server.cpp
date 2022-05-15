@@ -2574,6 +2574,7 @@ int CServer::Run()
 			DbPool()->RegisterDatabase(std::move(pCopy), CDbConnectionPool::WRITE);
 		}
 	}
+	DDPPRegisterDatabases();
 
 	// start server
 	NETADDR BindAddr;
@@ -2635,8 +2636,6 @@ int CServer::Run()
 		dbg_msg("server", "| rcon password: '%s' |", Config()->m_SvRconPassword);
 		dbg_msg("server", "+-------------------------+");
 	}
-
-	RunDDPP();
 
 	// start game
 	{
