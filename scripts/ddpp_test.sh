@@ -185,6 +185,38 @@ echo "say /register foo bar bar" > client1.fifo
 sleep 1
 echo "say /login foo bar" > client1.fifo
 
+sleep 1
+echo "say /profile email client1@zillyhuhn.com" > client1.fifo
+
+sleep 1
+echo "say /profile homepage zillyhuhn.com" > client1.fifo
+
+sleep 1
+echo "say /profile twitter @chillerdragon" > client1.fifo
+
+sleep 1
+echo "say /profile youtube chillerdragon" > client1.fifo
+
+sleep 1
+echo 'say /profile skype "discord:chillerdragon@xxxx"' > client1.fifo
+
+sleep 1
+echo 'say /profile skype "invalid @[²¹[»ĸæ→@<script>"' > client1.fifo
+
+sleep 1
+echo "say /hide block_xp" > client1.fifo
+
+sleep 1
+echo "say /hide xp" > client1.fifo
+
+sleep 1
+echo "say /fng autojoin 1" > client1.fifo
+
+sleep 1
+echo "say /buy shit" > client1.fifo
+
+cp accounts.db before_logout.db
+
 sleep 5
 echo "rcon_auth rcon" > client1.fifo
 
@@ -195,6 +227,27 @@ kill_all
 wait
 
 sleep 1
+
+function check_account() {
+	# check_account <sql column> <expected value> [database]
+	#
+	#   example:
+	#	check_account ProfileEmail client1@zillyhuhn.com
+	local column="$1"
+	local expected="$2"
+	local database="${3:-accounts.db}"
+	got="$(sqlite3 "$database" < <(echo "select $column from Accounts;"))"
+	if [ "$got" != "$expected" ]
+	then
+		touch fail_accs.txt
+		local db_note=''
+		if [ "$database" != "accounts.db" ]
+		then
+			db_note=" ($database)"
+		fi
+		echo "[-] Error: $column to be '$expected' but got '$got'$db_note"
+	fi
+}
 
 accs="$(sqlite3 accounts.db < <(echo "select * from Accounts;"))"
 if [ "$accs" == "" ]
@@ -211,12 +264,35 @@ then
 	echo "[-] Error: expected an account from client1 instead got:"
 	echo "  $accs"
 else
-	money="$(sqlite3 accounts.db < <(echo "select Money from Accounts;"))"
-	if [ "$money" != "6" ]
+	user="$(sqlite3 accounts.db < <(echo "
+		select * from Accounts
+		where LastLogoutIGN1 = 'client1'
+		and Username = 'foo';
+	"))"
+	if [ "$user" == "" ]
 	then
 		touch fail_accs.txt
-		echo "[-] Error: expected client1 to farm '6' money but got '$money'"
+		echo "[-] Error: user client1 with account foo not found"
 	fi
+	check_account Shit 1
+	check_account Money 11
+	check_account Level 0
+	check_account ProfileEmail client1@zillyhuhn.com
+	check_account ProfileHomepage zillyhuhn.com
+	check_account ProfileTwitter @chillerdragon
+	check_account ProfileYoutube chillerdragon
+	check_account ProfileSkype "discord:chillerdragon@xxxx"
+	check_account ShowHideConfig 0010000000
+	check_account FngConfig 100
+	check_account IsLoggedIn 0
+	check_account IsLoggedIn 1 before_logout.db
+	check_account IsModerator 0
+	check_account IsAccFrozen 0
+	check_account GrenadeKills 0
+	check_account GrenadeDeaths 0
+	check_account GrenadeShots 0
+	check_account SpookyGhost 0
+	# check_account LastLoginPort "$port"
 fi
 
 if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"
