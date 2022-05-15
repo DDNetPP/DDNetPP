@@ -505,8 +505,8 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 					if(ParseArgs(&Result, pCommand->m_pParams))
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "Invalid! Usage: %s %s", pCommand->m_pName, pCommand->m_pParams);
-						Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+						str_format(aBuf, sizeof(aBuf), "Invalid arguments... Usage: %s %s", pCommand->m_pName, pCommand->m_pParams);
+						Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 					}
 					else if(m_StoreCommands && pCommand->m_Flags & CFGFLAG_STORE)
 					{
@@ -557,7 +557,7 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 		{
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "No such command: %s.", Result.m_pCommand);
-			Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+			Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 		}
 
 		pStr = pNextPart;
@@ -713,7 +713,7 @@ void CConsole::ConCommandStatus(IResult *pResult, void *pUser)
 			}
 			else
 			{
-				pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+				pConsole->Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 				mem_zero(aBuf, sizeof(aBuf));
 				str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
 				Used = Length;
@@ -721,7 +721,7 @@ void CConsole::ConCommandStatus(IResult *pResult, void *pUser)
 		}
 	}
 	if(Used > 0)
-		pConsole->Print(OUTPUT_LEVEL_STANDARD, "console", aBuf);
+		pConsole->Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 }
 
 void CConsole::ConUserCommandStatus(IResult *pResult, void *pUser)
