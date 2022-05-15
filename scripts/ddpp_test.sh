@@ -217,6 +217,15 @@ echo "say /buy shit" > client1.fifo
 
 cp accounts.db before_logout.db
 
+sleep 1
+echo "say /acc_logout" > client1.fifo
+
+sleep 1
+echo "player_name client1_alt" > client1.fifo
+
+sleep 1
+echo "say /login foo bar" > client1.fifo
+
 sleep 5
 echo "rcon_auth rcon" > client1.fifo
 
@@ -266,7 +275,7 @@ then
 else
 	user="$(sqlite3 accounts.db < <(echo "
 		select * from Accounts
-		where LastLogoutIGN1 = 'client1'
+		where LastLogoutIGN1 = 'client1_alt'
 		and Username = 'foo';
 	"))"
 	if [ "$user" == "" ]
@@ -274,8 +283,9 @@ else
 		touch fail_accs.txt
 		echo "[-] Error: user client1 with account foo not found"
 	fi
+	check_account LastLogoutIGN2 client1
 	check_account Shit 1
-	check_account Money 11
+	check_account Money 6
 	check_account Level 0
 	check_account ProfileEmail client1@zillyhuhn.com
 	check_account ProfileHomepage zillyhuhn.com
