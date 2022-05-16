@@ -2424,12 +2424,12 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
 		return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_IN_GAME)
+	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_IN_GAME)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
 		return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_OFF)
+	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_OFF)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] No block tournament running.");
 		return;
@@ -2440,7 +2440,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		//pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
 		//return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_LOBBY)
+	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_LOBBY)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You joined a block tournament.");
 		pPlayer->m_IsBlockTourning = true;

@@ -1028,7 +1028,7 @@ void CCharacter::DDPP_Tick()
 
 	if(m_pPlayer->m_IsBlockTourning)
 	{
-		if(GameServer()->m_pBlockTournament->m_State == CGameContext::BLOCKTOURNA_IN_GAME) //only do it ingame
+		if(GameServer()->m_pBlockTournament->m_State == CBlockTournament::STATE_IN_GAME) //only do it ingame
 		{
 			if(m_FreezeTime)
 			{

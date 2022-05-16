@@ -27,7 +27,17 @@ public:
 
 	void Leave(CPlayer *pPlayer); // move to base?
 
+	enum
+	{
+		STATE_OFF = 0,
+		STATE_LOBBY,
+		STATE_COOLDOWN,
+		STATE_IN_GAME,
+		STATE_ENDING,
+	};
+
 private:
+	int CountAlive();
 	void EndRound();
 	vec2 GetNextArenaSpawn(int ClientID);
 

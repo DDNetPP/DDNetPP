@@ -290,7 +290,6 @@ public:
 
 	//block tourna
 
-	void EndBlockTourna(); //sets all player bools to false and the state
 	/*
 		m_BlockTournaStart
 
@@ -298,16 +297,6 @@ public:
 		and should be used to limit total tournament run time
 	*/
 	int64_t m_BlockTournaStart;
-	int CountBlockTournaAlive();
-	// int m_BlockTournaState; //1 = lobby 2 = ingame 3 = ending (keep winner in arena some secs)
-	enum
-	{
-		BLOCKTOURNA_OFF = 0,
-		BLOCKTOURNA_LOBBY,
-		BLOCKTOURNA_COOLDOWN,
-		BLOCKTOURNA_IN_GAME,
-		BLOCKTOURNA_ENDING,
-	};
 
 	const char *GetBlockSkillGroup(int id);
 	int GetBlockSkillGroupInt(int id);
