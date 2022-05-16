@@ -169,7 +169,7 @@ void CBlockTournament::SlowTick()
 
 	for(auto &Player : GameServer()->m_apPlayers)
 	{
-		if(!pPlayer)
+		if(!Player)
 			continue;
 		if(!Player->m_IsBlockTourning)
 			continue;
