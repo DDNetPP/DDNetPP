@@ -4,7 +4,6 @@
 // this include should perhaps be removed
 #include "captcha.h"
 #include "entities/character.h"
-#include <engine/client/http.h>
 #include <game/version.h>
 
 #include "ddpp/accounts.h"

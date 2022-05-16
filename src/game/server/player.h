@@ -13,7 +13,6 @@
 #include "captcha.h"
 #include "ddpp/accounts.h"
 #include "entities/character.h"
-#include <engine/client/http.h>
 #include <game/version.h>
 #include <memory>
 #include <vector>
