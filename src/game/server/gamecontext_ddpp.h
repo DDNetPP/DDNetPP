@@ -288,16 +288,6 @@ public:
 		SURVIVAL_DIE = 3 // playerstate
 	};
 
-	//block tourna
-
-	/*
-		m_BlockTournaStart
-
-		Start time_get() used to prevent selfkill in beginning
-		and should be used to limit total tournament run time
-	*/
-	int64_t m_BlockTournaStart;
-
 	const char *GetBlockSkillGroup(int id);
 	int GetBlockSkillGroupInt(int id);
 	void UpdateBlockSkill(int value, int id);

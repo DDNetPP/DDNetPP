@@ -50,19 +50,27 @@ public:
     */
 	virtual void Tick(){};
 
-    /*
+	/*
         SlowTick
 
         will be called every 600 ticks
     */
 	virtual void SlowTick(){};
 
-    /*
+	/*
         CharacterTick
 
         will be called every tick for every alive player
     */
-    virtual void CharacterTick(CCharacter *pChr){};
+	virtual void CharacterTick(CCharacter *pChr){};
+
+	/*
+        AllowSelfKill
+
+        Will be called for every client that tries to selfkill
+        can be overwritten to disallow selfkill during the minigame
+    */
+	virtual bool AllowSelfKill(int ClientID) { return true; }
 
 	/*
         OnDeath
@@ -127,19 +135,19 @@ public:
     */
 	void SendBroadcastAll(const char *pMessage);
 
-    /*
+	/*
         State
 
         m_State getter
     */
-    virtual int State() { return m_State; }
+	virtual int State() { return m_State; }
 
-    /*
+	/*
         State
 
         m_State setter. You might want to overwrite that.
     */
-    virtual int State(int State) { return m_State = State; }
+	virtual int State(int State) { return m_State = State; }
 };
 
 #endif

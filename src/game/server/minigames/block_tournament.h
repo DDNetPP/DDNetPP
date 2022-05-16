@@ -1,4 +1,4 @@
-// DDNet** block tournaments
+// DDNet++ block tournaments
 
 #ifndef GAME_SERVER_MINIGAMES_BLOCK_TOURNAMENT_H
 #define GAME_SERVER_MINIGAMES_BLOCK_TOURNAMENT_H
@@ -16,6 +16,7 @@ public:
 	void Tick() override;
 	void SlowTick() override;
 	void CharacterTick(CCharacter *pChr) override;
+	bool AllowSelfKill(int ClientID) override;
 	void OnDeath(CCharacter *pChr, int Killer) override;
 	void PostSpawn(CCharacter *pChr, vec2 Pos) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
@@ -46,8 +47,7 @@ private:
 	int m_StartPlayers;
 
 	int m_CoolDown;
-	// TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
-	int m_Tick;
+	int m_Tick; // TODO: use this for max round time
 	int m_SpawnCounter; // is this generic enough for all games?
 	int m_LobbyTick;
 };

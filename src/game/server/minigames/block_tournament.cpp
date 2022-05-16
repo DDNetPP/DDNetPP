@@ -37,6 +37,28 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 	m_aRestorePos[pPlayer->GetCID()] = true;
 }
 
+bool CBlockTournament::AllowSelfKill(int ClientID)
+{
+	if(ClientID < 0 || ClientID > MAX_CLIENTS)
+		return true;
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return true;
+	if(!IsActive(ClientID))
+		return true;
+
+	if(State() == STATE_IN_GAME || State() == STATE_COOLDOWN)
+	{
+		if(m_Tick < Server()->TickSpeed() * 10)
+		{
+			// silent abort selfkill first 10 secs of the tournament
+			// to avoid accidental selfkill when it starts
+			return false;
+		}
+	}
+	return true;
+}
+
 void CGameContext::OnStartBlockTournament()
 {
 	m_pBlockTournament->StartRound();
@@ -147,6 +169,8 @@ void CBlockTournament::SlowTick()
 
 	for(auto &Player : GameServer()->m_apPlayers)
 	{
+		if(!pPlayer)
+			continue;
 		if(!Player->m_IsBlockTourning)
 			continue;
 
@@ -219,7 +243,6 @@ void CBlockTournament::Tick()
 			m_State = STATE_COOLDOWN;
 			m_Tick = 0;
 			m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
-			GameServer()->m_BlockTournaStart = time_get();
 
 			//ready all players
 			m_SpawnCounter = 0;

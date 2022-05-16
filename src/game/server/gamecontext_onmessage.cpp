@@ -50,15 +50,10 @@ bool CGameContext::AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr)
 	if(m_InstaRifleRoundEndTickTicker && m_apPlayers[ClientID]->m_IsInstaArena_idm)
 		return true; //yy evil silent return
 
-	if(m_apPlayers[ClientID]->m_IsBlockTourning && (m_pBlockTournament->State() == CBlockTournament::STATE_IN_GAME || m_pBlockTournament->State() == CBlockTournament::STATE_COOLDOWN))
-	{
-		if(m_BlockTournaStart > time_get() - time_freq() * 10)
-		{
-			// silent abort selfkill first 10 secs of the tournament
-			// to avoid accidental selfkill when it starts
+	for(auto &Minigame : m_vMinigames)
+		if(!Minigame->AllowSelfKill(ClientID))
 			return true;
-		}
-	}
+
 	if(m_apPlayers[ClientID]->m_IsBlockWaving && !pPlayer->m_IsBlockWaveWaiting)
 	{
 		SendChatTarget(ClientID, "[BlockWave] you can't selfkill while block waving. try '/blockwave leave'.");
