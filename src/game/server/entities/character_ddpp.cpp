@@ -1026,24 +1026,8 @@ void CCharacter::DDPP_Tick()
 		}
 	}
 
-	if(m_pPlayer->m_IsBlockTourning)
-	{
-		if(GameServer()->m_pBlockTournament->m_State == CBlockTournament::STATE_IN_GAME) //only do it ingame
-		{
-			if(m_FreezeTime)
-			{
-				m_BlockTournaDeadTicks++;
-				if(m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
-				{
-					Die(m_pPlayer->GetCID(), WEAPON_SELF);
-				}
-			}
-			else
-			{
-				m_BlockTournaDeadTicks = 0;
-			}
-		}
-	}
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		Minigame->CharacterTick(this);
 
 	//spawnblock reducer
 	if(Server()->Tick() % 1200 == 0 && m_pPlayer->m_SpawnBlocks > 0)

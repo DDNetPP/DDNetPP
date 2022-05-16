@@ -39,20 +39,25 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 
 void CGameContext::OnStartBlockTournament()
 {
-	if(m_pBlockTournament->m_State)
+	m_pBlockTournament->StartRound();
+}
+
+void CBlockTournament::StartRound()
+{
+	if(State() != STATE_OFF)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
 		return;
 	}
 	if(g_Config.m_SvAllowBlockTourna == 0)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
 		return;
 	}
 
-	m_pBlockTournament->m_State = CBlockTournament::STATE_LOBBY;
-	m_pBlockTournament->m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
-	m_pBlockTournament->m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
+	m_State = STATE_LOBBY;
+	m_LobbyTick = g_Config.m_SvBlockTournaDelay * Server()->TickSpeed();
+	m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
 }
 
 bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
@@ -61,7 +66,7 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 		return false;
 	if(pPlayer->m_IsBlockTourningDead)
 		return false;
-	if(m_State != STATE_COOLDOWN)
+	if(State() != STATE_COOLDOWN)
 		return false;
 
 	int Id = pPlayer->GetCID();
@@ -84,11 +89,12 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 		return;
 	if(pPlayer->m_IsBlockTourningDead)
 		return;
-	if(m_State != STATE_COOLDOWN)
+	if(State() != STATE_COOLDOWN)
 		return;
 
 	pChr->Freeze(BLOCKTOURNAMENT_COOLDOWN);
 	pPlayer->m_IsBlockTourningInArena = true;
+	pChr->m_BlockTournaDeadTicks = 0;
 }
 
 vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
@@ -111,14 +117,54 @@ vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
 	return Spawn;
 }
 
+void CBlockTournament::CharacterTick(CCharacter *pChr)
+{
+	if(State() != STATE_IN_GAME)
+		return;
+	if(!pChr)
+		return;
+	CPlayer *pPlayer = pChr->GetPlayer();
+	if(!pPlayer)
+		return;
+	if(!IsActive(pPlayer->GetCID()))
+		return;
+
+	if(!pChr->m_FreezeTime)
+	{
+		pChr->m_BlockTournaDeadTicks = 0;
+		return;
+	}
+
+	pChr->m_BlockTournaDeadTicks++;
+	if(pChr->m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
+		pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+}
+
+void CBlockTournament::SlowTick()
+{
+	if(State() != CBlockTournament::STATE_ENDING)
+		return;
+
+	for(auto &Player : GameServer()->m_apPlayers)
+	{
+		if(!Player->m_IsBlockTourning)
+			continue;
+
+		Leave(Player);
+		if(Player->GetCharacter())
+			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+	}
+	State(CBlockTournament::STATE_OFF);
+}
+
 void CBlockTournament::Tick()
 {
-	if(!m_State)
+	if(State() == STATE_OFF)
 		return;
 
 	char aBuf[128];
 
-	if(m_State == STATE_IN_GAME) //ingame
+	if(State() == STATE_IN_GAME) //ingame
 	{
 		m_Tick++;
 		if(m_Tick > g_Config.m_SvBlockTournaGameTime * Server()->TickSpeed() * 60) //time over --> draw
@@ -186,7 +232,7 @@ void CBlockTournament::Tick()
 					}
 		}
 	}
-	else if(m_State == STATE_COOLDOWN)
+	else if(State() == STATE_COOLDOWN)
 	{
 		m_CoolDown--;
 		if(m_CoolDown % Server()->TickSpeed() == 0)
@@ -274,7 +320,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		return;
 	if(!pPlayer->m_IsBlockTourningInArena)
 		return;
-	if(m_State != STATE_IN_GAME && m_State != STATE_COOLDOWN) //ingame
+	if(State() != STATE_IN_GAME && State() != STATE_COOLDOWN) //ingame
 		return;
 
 	char aBuf[128];

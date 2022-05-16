@@ -24,6 +24,7 @@ protected:
 	CCollision *Collision();
 	CSaveTee *m_apSavedPositions[MAX_CLIENTS];
 	bool m_aRestorePos[MAX_CLIENTS];
+	int m_State;
 
 public:
 	CMinigame(CGameContext *pGameContext);
@@ -48,6 +49,20 @@ public:
         will be called every tick
     */
 	virtual void Tick(){};
+
+    /*
+        SlowTick
+
+        will be called every 600 ticks
+    */
+	virtual void SlowTick(){};
+
+    /*
+        CharacterTick
+
+        will be called every tick for every alive player
+    */
+    virtual void CharacterTick(CCharacter *pChr){};
 
 	/*
         OnDeath
@@ -112,8 +127,19 @@ public:
     */
 	void SendBroadcastAll(const char *pMessage);
 
-	// TODO: make this protected
-	int m_State;
+    /*
+        State
+
+        m_State getter
+    */
+    virtual int State() { return m_State; }
+
+    /*
+        State
+
+        m_State setter. You might want to overwrite that.
+    */
+    virtual int State(int State) { return m_State = State; }
 };
 
 #endif

@@ -1420,17 +1420,6 @@ void CGameContext::DDPP_SlowTick()
 		{
 			StopSurvival = false;
 		}
-		if(m_pBlockTournament->m_State == CBlockTournament::STATE_ENDING)
-		{
-			if(Player->m_IsBlockTourning)
-			{
-				m_pBlockTournament->Leave(Player);
-				if(Player->GetCharacter())
-				{
-					Player->GetCharacter()->Die(PlayerID, WEAPON_GAME);
-				}
-			}
-		}
 		if(Player->m_IsDummy)
 		{
 			if(Player->m_DummyMode == DUMMYMODE_ADVENTURE)
@@ -1461,10 +1450,6 @@ void CGameContext::DDPP_SlowTick()
 	{
 		m_survivalgamestate = 0; //don't waste ressource on lobby checks if nobody is playing
 	}
-	if(m_pBlockTournament->m_State == CBlockTournament::STATE_ENDING)
-	{
-		m_pBlockTournament->m_State = CBlockTournament::STATE_OFF;
-	}
 	if(g_Config.m_SvAllowGlobalChat)
 	{
 		GlobalChatPrintMessage();
@@ -1486,6 +1471,9 @@ void CGameContext::DDPP_SlowTick()
 	CheckDDPPshutdown();
 	if(g_Config.m_SvAutoFixBrokenAccs)
 		SQLcleanZombieAccounts(-1);
+
+	for(auto &Minigame : m_vMinigames)
+		Minigame->SlowTick();
 }
 
 void CGameContext::ChilliClanTick(int i)

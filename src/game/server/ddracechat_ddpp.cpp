@@ -2424,23 +2424,23 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
 		return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_IN_GAME)
+	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_IN_GAME)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
 		return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_OFF)
+	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_OFF)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] No block tournament running.");
 		return;
 
 		//pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
 		//pPlayer->m_IsBlockTourning = true;
-		//pSelf->m_pBlockTournament->m_State = 1;
+		//pSelf->m_pBlockTournament->State() = 1;
 		//pSelf->m_BlockTournaLobbyTick = g_Config.m_SvBlockTournaDelay * pSelf->Server()->TickSpeed();
 		//return;
 	}
-	else if(pSelf->m_pBlockTournament->m_State == CBlockTournament::STATE_LOBBY)
+	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_LOBBY)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You joined a block tournament.");
 		pPlayer->m_IsBlockTourning = true;
@@ -2783,7 +2783,7 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(pResult->m_ClientID, "Info: You get more xp for finishing the map!");
 		IsEvent = true;
 	}
-	if(pSelf->m_pBlockTournament->m_State)
+	if(pSelf->m_pBlockTournament->State())
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "~~~ Block Event ~~~");
 		pSelf->SendChatTarget(pResult->m_ClientID, "Info: last ma standing fight in a block tournament use '/join' to join");

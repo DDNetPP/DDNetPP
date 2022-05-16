@@ -14,17 +14,13 @@ public:
 
 	void OnInit() override;
 	void Tick() override;
+	void SlowTick() override;
+	void CharacterTick(CCharacter *pChr) override;
 	void OnDeath(CCharacter *pChr, int Killer) override;
 	void PostSpawn(CCharacter *pChr, vec2 Pos) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 
 	bool IsActive(int ClientID) override;
-
-	// m_BlockTournaSpawnCounter
-	int m_SpawnCounter; // is this generic enough for all games?
-	int m_LobbyTick;
-	int m_CoolDown; // MAKE PRIVTAE
-
 	void Leave(CPlayer *pPlayer); // move to base?
 
 	enum
@@ -35,6 +31,7 @@ public:
 		STATE_IN_GAME,
 		STATE_ENDING,
 	};
+	void StartRound();
 
 private:
 	int CountAlive();
@@ -48,8 +45,11 @@ private:
 	*/
 	int m_StartPlayers;
 
+	int m_CoolDown;
 	// TODO: m_Tick does the same as int64_t CGameContext::m_BlockTournaStart;
-	int m_Tick; // TODO: add minigame init and zero it there
+	int m_Tick;
+	int m_SpawnCounter; // is this generic enough for all games?
+	int m_LobbyTick;
 };
 
 #endif
