@@ -236,8 +236,6 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 
 bool CGameContext::IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage)
 {
-	dbg_msg("chiller", "check if message is blocked");
-	dbg_msg("chiller", "check if message is blocked player=%p auth=%d adminping=%d", m_apPlayers[ClientID], !Server()->GetAuthedState(ClientID), AdminChatPing(pMesage));
 	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
 		char aBuf[256];
