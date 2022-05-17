@@ -59,8 +59,6 @@ private:
 	bool m_DummyFreezed;
 	bool m_DummyHammer;
 
-	bool m_getxp;
-
 	int m_FreezeKillNext;
 	int m_MoveTick;
 	int m_LastMoveDirection;
@@ -68,8 +66,6 @@ private:
 	bool m_IsFreeShopBot;
 	void ClearFakeMotd();
 	void SendShopMessage(const char *pMsg);
-	int m_aWeaponsBackup[NUM_WEAPONS][2];
-	bool m_WeaponsBackupped;
 
 public:
 	bool m_DummyFinished;
@@ -77,8 +73,6 @@ public:
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
-	int64_t m_AliveSince;
-	bool m_IsSpecHF;
 	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
 	bool m_OnFire;
@@ -168,7 +162,6 @@ public:
 	void MoneyTilePolice();
 	void MoneyTilePlus();
 	void MoneyTileDouble();
-	int m_survivexpvalue;
 	bool m_hammerfight; //used for the rcon command has nothing todo with arenas yet
 	//bool m_IsHammerarena; //used for chillerdragons hammerfight arena '/hammerfight'
 	//bool m_Hammerarena_exit_request;
@@ -185,7 +178,6 @@ public:
 	bool m_fake_super;
 	bool m_Godmode;
 	bool m_Fire;
-	bool m_DDPP_Finished;
 	/*
 		ForceFreeze
 
@@ -272,21 +264,6 @@ public:
 	void KillFreeze(bool unfreeze);
 
 	bool HandleConfigTile(int Type);
-
-	// finite cosmetics
-	bool m_Rainbow;
-	bool m_Bloody;
-	bool m_StrongBloody;
-	bool m_WaveBloody;
-	bool m_WaveBloodyGrow;
-	int m_WaveBloodyStrength;
-	bool m_Atom;
-	bool m_Trail;
-	bool m_autospreadgun;
-	bool m_ninjasteam;
-	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
-
-	bool m_HomingMissile;
 
 	// atom vars (not to be confused with atom wars) <--- made chillidreghuhn giggle xd
 	std::vector<CStableProjectile *> m_AtomProjs;
@@ -437,6 +414,34 @@ public:
 
 	int m_Dummy_mode18; //yes dummymode18 has his own modes o.O
 	//bool mode18_main_init;              //yep one of the randomesteztes booleans in ze world
+
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+	 *	All these variables are stored in CSaveTeeDDPP                       *
+	 *                                                                       *
+	 *	Add variables that have to be saved here and also in save_ddpp.h     *
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+	int m_aWeaponsBackup[NUM_WEAPONS][2];
+	bool m_WeaponsBackupped;
+	int64_t m_AliveSince;
+	int m_survivexpvalue;
+	bool m_DDPP_Finished;
+
+	// finite cosmetics
+	bool m_Rainbow;
+	bool m_Bloody;
+	bool m_StrongBloody;
+	bool m_WaveBloody;
+	bool m_WaveBloodyGrow;
+	int m_WaveBloodyStrength;
+	bool m_Atom;
+	bool m_Trail;
+	bool m_autospreadgun;
+	bool m_ninjasteam;
+	bool m_RandomCosmetics; // admin only cosmetic doesn't have to be backupped or anything. Because it won't check if u have these cosmetics unlocked.
+
+	bool m_HomingMissile;
+
 private:
 #ifndef IN_CLASS_CHARACTER
 }

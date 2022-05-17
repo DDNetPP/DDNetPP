@@ -37,6 +37,7 @@ CCharacter::CCharacter(CGameWorld *pWorld) :
 	m_ci_freezetime = 0;
 	m_DummyDriveDuration = 0;
 	m_pvp_arena_tele_request_time = -1;
+	m_DDPP_Finished = false;
 	//if (g_Config.m_SvInstagibMode)
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
@@ -89,8 +90,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
-
-	m_IsSpecHF = false;
 
 	mem_zero(&m_LatestPrevPrevInput, sizeof(m_LatestPrevPrevInput));
 	m_LatestPrevPrevInput.m_TargetY = -1;

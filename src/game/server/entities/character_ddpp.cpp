@@ -679,7 +679,6 @@ void CCharacter::DDPPPostCoreTick()
 void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 {
 	m_LastTaserUse = Server()->Tick();
-	m_IsSpecHF = false;
 	if(!m_pDummyBlmapChillPolice)
 		m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
 	if(!m_pDummyChillBlock5Blocker)

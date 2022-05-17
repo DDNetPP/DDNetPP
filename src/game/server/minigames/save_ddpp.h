@@ -4,6 +4,8 @@
 #ifndef GAME_SERVER_MINIGAMES_SAVE_DDPP_H
 #define GAME_SERVER_MINIGAMES_SAVE_DDPP_H
 
+#include <game/generated/protocol.h>
+
 class CCharacter;
 
 class CSaveTeeDDPP
@@ -13,6 +15,11 @@ public:
     void Load(CCharacter *pChr);
 
 private:
+    int m_aWeaponsBackup[NUM_WEAPONS][2];
+	bool m_WeaponsBackupped;
+    int64_t m_AliveSince;
+    int m_survivexpvalue;
+    bool m_DDPP_Finished;
     bool m_Rainbow;
 	bool m_Bloody;
 	bool m_StrongBloody;
