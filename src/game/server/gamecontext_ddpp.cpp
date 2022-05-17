@@ -1561,7 +1561,6 @@ void CGameContext::AsciiTick(int i)
 			if(m_apPlayers[i]->m_AsciiWatchTicker >= m_apPlayers[m_apPlayers[i]->m_AsciiWatchingID]->m_AsciiAnimSpeed) //new frame
 			{
 				m_apPlayers[i]->m_AsciiWatchTicker = 0;
-				m_apPlayers[i]->m_AsciiWatchFrame++;
 				if(m_apPlayers[i]->m_AsciiWatchFrame > 15) //animation over -> stop animation
 				{
 					//SendChatTarget(i, "Ascii animation is over.");
@@ -1641,6 +1640,7 @@ void CGameContext::AsciiTick(int i)
 						SendChatTarget(i, "error loading frame");
 					}
 				}
+				m_apPlayers[i]->m_AsciiWatchFrame++;
 			}
 		}
 	}

@@ -7,6 +7,7 @@ then
 fi
 
 source ./scripts/ddnetpp/logger.sh
+source ./scripts/ddnetpp/test_ascii.sh # will be called by test_tournament.sh
 source ./scripts/ddnetpp/test_tournament.sh
 source ./scripts/ddnetpp/test_account.sh
 

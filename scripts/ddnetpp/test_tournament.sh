@@ -17,14 +17,8 @@ function test_tournament() {
 	echo "say /buy shit" > client1.fifo
 
 	# 10 seconds until selfkill is allowed
-	sleep 10
-	tr -d '\n' > client1.fifo <<- EOF
-	say "/mc
-	;ascii frame -1 invalid
-	;ascii frame 0 foo
-	;ascii frame 1 bar
-	;ascii frame 2 baz"
-	EOF
+	# use this time to run some ascii tests
+	test_ascii
 
 	sleep 1
 	echo "kill" > client1.fifo
