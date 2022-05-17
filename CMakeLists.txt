@@ -2368,6 +2368,8 @@ if(SERVER)
     minigames/instagib.cpp
     minigames/minigame_base.cpp
     minigames/minigame_base.h
+    minigames/save_ddpp.cpp
+    minigames/save_ddpp.h
     minigames/survival.cpp
     player.cpp
     player.h

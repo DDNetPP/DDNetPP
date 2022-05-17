@@ -14,6 +14,7 @@ class CCollision;
 class IServer;
 class CSpawnEval;
 class CSaveTee;
+class CSaveTeeDDPP;
 
 class CMinigame
 {
@@ -23,6 +24,7 @@ protected:
 	IServer *Server();
 	CCollision *Collision();
 	CSaveTee *m_apSavedPositions[MAX_CLIENTS];
+	CSaveTeeDDPP *m_apSavedPositionsDDPP[MAX_CLIENTS];
 	bool m_aRestorePos[MAX_CLIENTS];
 	int m_State;
 
