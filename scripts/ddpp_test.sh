@@ -6,6 +6,10 @@ then
 	exit 1
 fi
 
+source ./scripts/ddnetpp/logger.sh
+source ./scripts/ddnetpp/test_tournament.sh
+source ./scripts/ddnetpp/test_account.sh
+
 arg_build_dir="build"
 arg_end_args=0
 arg_verbose=0
@@ -136,6 +140,7 @@ function print_san() {
 	return 0
 }
 
+log "connecting clients to server at port $port"
 
 ./DDNetPP \
 	"sv_input_fifo server.fifo;
@@ -143,6 +148,9 @@ function print_san() {
 	sv_sqlite_file ddnet-server.sqlite;
 	sv_account_stuff 1;
 	sv_database_path accounts.db;
+	sv_allow_block_tourna 1;
+	sv_block_tourna_players 2;
+	sv_block_tourna_delay 5;
 	sv_port $port" &> server.log || fail server "$?" &
 
 ./DDNet \
@@ -179,55 +187,12 @@ do
 	sleep 1
 done
 
-sleep 1
-echo "say /register foo bar bar" > client1.fifo
-
-sleep 1
-echo "say /login foo bar" > client1.fifo
-
-sleep 1
-echo "say /profile email client1@zillyhuhn.com" > client1.fifo
-
-sleep 1
-echo "say /profile homepage zillyhuhn.com" > client1.fifo
-
-sleep 1
-echo "say /profile twitter @chillerdragon" > client1.fifo
-
-sleep 1
-echo "say /profile youtube chillerdragon" > client1.fifo
-
-sleep 1
-echo 'say /profile skype "discord:chillerdragon@xxxx"' > client1.fifo
-
-sleep 1
-echo 'say /profile skype "invalid @[²¹[»ĸæ→@<script>"' > client1.fifo
-
-sleep 1
-echo "say /hide block_xp" > client1.fifo
-
-sleep 1
-echo "say /hide xp" > client1.fifo
-
-sleep 1
-echo "say /fng autojoin 1" > client1.fifo
-
-sleep 1
-echo "say /buy shit" > client1.fifo
-
-cp accounts.db before_logout.db
-
-sleep 1
-echo "say /acc_logout" > client1.fifo
-
-sleep 1
-echo "player_name client1_alt" > client1.fifo
-
-sleep 1
-echo "say /login foo bar" > client1.fifo
 
 sleep 5
 echo "rcon_auth rcon" > client1.fifo
+
+test_account
+test_tournament
 
 sleep 1
 echo "rcon shutdown" > client1.fifo
@@ -285,7 +250,7 @@ else
 	fi
 	check_account LastLogoutIGN2 client1
 	check_account Shit 1
-	check_account Money 6
+	check_account Money 2
 	check_account Level 0
 	check_account ProfileEmail client1@zillyhuhn.com
 	check_account ProfileHomepage zillyhuhn.com

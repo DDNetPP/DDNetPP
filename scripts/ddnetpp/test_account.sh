@@ -1,0 +1,48 @@
+#!/bin/bash
+
+function test_account() {
+	log "test account"
+	log " - create account"
+
+	sleep 0.5
+	echo "say /register foo bar bar" > client1.fifo
+
+	sleep 0.5
+	echo 'say /login foo bar' > client1.fifo
+
+	log " - profile"
+
+	sleep 0.5
+	echo "say /profile email client1@zillyhuhn.com" > client1.fifo
+
+	sleep 0.5
+	tr -d '\n' > client1.fifo <<- EOF
+	say "/mc
+	;profile twitter @chillerdragon
+	;profile youtube chillerdragon
+	;profile skype \"discord:chillerdragon@xxxx\"
+	;profile skype \"invalid @[²¹[»ĸæ→@<script>\"
+	;profile homepage zillyhuhn.com"
+	EOF
+
+	sleep 0.5
+	echo 'say "/mc;hide block_xp;hide xp;fng autojoin 1"' > client1.fifo
+
+	cp accounts.db before_logout.db
+
+	sleep 0.5
+	echo "say /acc_logout" > client1.fifo
+
+	sleep 0.5
+	echo "player_name client1_alt" > client1.fifo
+
+	sleep 0.5
+	echo "say /login foo bar" > client1.fifo
+
+	sleep 0.5
+	echo "say /insta leave" > client1.fifo
+
+	# wait 2 secs to respawn after /insta leave
+	sleep 2
+}
+
