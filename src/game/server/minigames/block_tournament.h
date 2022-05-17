@@ -47,7 +47,7 @@ private:
 	int m_StartPlayers;
 
 	int m_CoolDown;
-	int m_Tick; // TODO: use this for max round time
+	int m_Tick;
 	int m_SpawnCounter; // is this generic enough for all games?
 	int m_LobbyTick;
 };

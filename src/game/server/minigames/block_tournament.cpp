@@ -199,7 +199,7 @@ void CBlockTournament::Tick()
 				if(Player && Player->m_IsBlockTourning)
 				{
 					Leave(Player);
-					if(Player->GetCharacter())
+					if(Player->GetCharacter() && !Player->m_IsBlockTourningDead)
 					{
 						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
 					}
