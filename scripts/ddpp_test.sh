@@ -268,6 +268,9 @@ else
 	check_account GrenadeShots 0
 	check_account SpookyGhost 0
 	check_account LastLoginPort "$port"
+	check_account AsciiFrame0 foo
+	check_account AsciiFrame1 bar
+	check_account AsciiFrame2 baz
 fi
 
 if test -n "$(find . -maxdepth 1 -name 'fail_*' -print -quit)"
