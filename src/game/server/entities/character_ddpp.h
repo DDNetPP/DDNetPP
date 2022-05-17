@@ -10,6 +10,8 @@
 #include <game/gamecore.h>
 
 #include "dummy/blmapchill_police.h"
+#include "dummy/blmapv5_lower_blocker.h"
+#include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
 
 #include <vector>
@@ -73,7 +75,8 @@ public:
 	int m_LastIndexTile;
 	int m_LastIndexFrontTile;
 	vec2 MousePos() { return vec2(m_Core.m_Input.m_TargetX + m_Pos.x, m_Core.m_Input.m_TargetY + m_Pos.y); };
-	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon
+	vec2 GetPosition() { return m_Core.m_Pos; } //proudly mede by ChillerDragon dupe of CEntitiy::GetPos() ??
+	vec2 GetVel() { return m_Core.m_Vel; }
 	void TakeHammerHit(CCharacter *pFrom); //ddpp implemented from fng2
 	bool m_OnFire;
 	bool m_WasInRoom;
@@ -336,6 +339,8 @@ public:
 
 	CDummyBlmapChillPolice *m_pDummyBlmapChillPolice;
 	CDummyChillBlock5Blocker *m_pDummyChillBlock5Blocker;
+	CDummyBlmapV5UpperBlocker *m_pDummyBlmapV5UpperBlocker;
+	CDummyBlmapV5LowerBlocker *m_pDummyBlmapV5LowerBlocker;
 
 	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
@@ -414,7 +419,6 @@ public:
 
 	int m_Dummy_mode18; //yes dummymode18 has his own modes o.O
 	//bool mode18_main_init;              //yep one of the randomesteztes booleans in ze world
-
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 	 *	All these variables are stored in CSaveTeeDDPP                       *

@@ -11,16 +11,16 @@ class CCharacter;
 class CSaveTeeDDPP
 {
 public:
-    void Save(CCharacter *pChr);
-    void Load(CCharacter *pChr);
+	void Save(CCharacter *pChr);
+	void Load(CCharacter *pChr);
 
 private:
-    int m_aWeaponsBackup[NUM_WEAPONS][2];
+	int m_aWeaponsBackup[NUM_WEAPONS][2];
 	bool m_WeaponsBackupped;
-    int64_t m_AliveSince;
-    int m_survivexpvalue;
-    bool m_DDPP_Finished;
-    bool m_Rainbow;
+	int64_t m_AliveSince;
+	int m_survivexpvalue;
+	bool m_DDPP_Finished;
+	bool m_Rainbow;
 	bool m_Bloody;
 	bool m_StrongBloody;
 	bool m_WaveBloody;

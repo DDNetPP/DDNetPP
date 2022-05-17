@@ -45,6 +45,7 @@ CCharacter::CCharacter(CGameWorld *pWorld) :
 
 	m_pDummyBlmapChillPolice = nullptr;
 	m_pDummyChillBlock5Blocker = nullptr;
+	m_pDummyBlmapV5UpperBlocker = nullptr;
 }
 
 CCharacter::~CCharacter()
@@ -58,6 +59,11 @@ CCharacter::~CCharacter()
 	{
 		delete m_pDummyChillBlock5Blocker;
 		m_pDummyChillBlock5Blocker = nullptr;
+	}
+	if(m_pDummyBlmapV5UpperBlocker)
+	{
+		delete m_pDummyBlmapV5UpperBlocker;
+		m_pDummyBlmapV5UpperBlocker = nullptr;
 	}
 	m_StrongWeakID = 0;
 

@@ -2300,6 +2300,10 @@ if(SERVER)
     entities/drop_pickup.h
     entities/dummy/blmapchill_police.cpp
     entities/dummy/blmapchill_police.h
+    entities/dummy/blmapv5_lower_blocker.cpp
+    entities/dummy/blmapv5_lower_blocker.h
+    entities/dummy/blmapv5_upper_blocker.cpp
+    entities/dummy/blmapv5_upper_blocker.h
     entities/dummy/chillblock5_blocker.cpp
     entities/dummy/chillblock5_blocker.h
     entities/dummy/dummybase.cpp

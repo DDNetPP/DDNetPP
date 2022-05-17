@@ -10,6 +10,8 @@
 #include <game/gamecore.h>
 
 #include "dummy/blmapchill_police.h"
+#include "dummy/blmapv5_lower_blocker.h"
+#include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
 
 #include <vector>
