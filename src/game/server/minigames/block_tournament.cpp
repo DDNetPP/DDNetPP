@@ -292,8 +292,14 @@ void CBlockTournament::EndRound()
 	m_State = STATE_OFF;
 
 	for(auto &Player : GameServer()->m_apPlayers)
-		if(Player)
-			Leave(Player);
+	{
+		if(!Player)
+			continue;
+
+		Leave(Player);
+		if(Player->GetCharacter() && !Player->m_IsBlockTourningDead)
+			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+	}
 }
 
 int CBlockTournament::CountAlive()
