@@ -23,6 +23,7 @@ public:
 
 	bool IsActive(int ClientID) override;
 	void Leave(CPlayer *pPlayer); // move to base?
+	void Join(CPlayer *pPlayer);
 
 	enum
 	{

@@ -37,6 +37,16 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 	m_aRestorePos[pPlayer->GetCID()] = true;
 }
 
+void CBlockTournament::Join(CPlayer *pPlayer)
+{
+	if(!pPlayer)
+		return;
+
+	pPlayer->m_IsBlockTourning = true;
+	pPlayer->m_IsBlockTourningDead = false;
+	pPlayer->m_IsBlockTourningInArena = false;
+}
+
 bool CBlockTournament::AllowSelfKill(int ClientID)
 {
 	if(ClientID < 0 || ClientID > MAX_CLIENTS)
