@@ -224,9 +224,6 @@ public:
 	int m_LastHookedPlayer;
 	int m_LastHookedTick;
 	int m_ActiveWeapon;
-
-	bool m_hookedFlag;
-
 	bool m_NewHook;
 
 	int m_Jumped;
@@ -243,22 +240,6 @@ public:
 	void Reset();
 	void Tick(bool UseInput);
 	void Move();
-
-	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
-
-	vec2 m_FlagPos1;
-	vec2 m_FlagPos2;
-	int m_AtStand1;
-	int m_AtStand2;
-	vec2 m_FlagVel1;
-	vec2 m_FlagVel2;
-
-	int m_updateFlagVel;
-	vec2 m_UFlagVel;
-
-	int m_carryFlagChar1;
-	int m_carryFlagChar2;
-
 	void Read(const CNetObj_CharacterCore *pObjCore);
 	void Write(CNetObj_CharacterCore *pObjCore);
 	void Quantize();
@@ -308,6 +289,20 @@ private:
 	void DDPPTickHookFlying(vec2 NewPos);
 	void DDPPTick();
 	bool HookFlag();
+	void setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry);
+
+	vec2 m_FlagPos1;
+	vec2 m_FlagPos2;
+	int m_AtStand1;
+	int m_AtStand2;
+	vec2 m_FlagVel1;
+	vec2 m_FlagVel2;
+
+	int m_updateFlagVel;
+	vec2 m_UFlagVel;
+
+	int m_carryFlagChar1;
+	int m_carryFlagChar2;
 };
 
 //input count

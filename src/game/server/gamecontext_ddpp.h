@@ -113,6 +113,19 @@ public:
 		CON_SHOW_JOIN_LEAVE,
 		CON_SHOW_ALL,
 	};
+	enum
+	{
+		// CHAT_ALL = -2,
+		// CHAT_SPEC = -1,
+		// CHAT_RED = 0,
+		// CHAT_BLUE = 1,
+		// CHAT_WHISPER_SEND = 2,
+		// CHAT_WHISPER_RECV = 3,
+		CHAT_TO_ONE_CLIENT = 4,
+
+		// CHAT_SIX = 1 << 0,
+		// CHAT_SIXUP = 1 << 1,
+	};
 
 	int m_WrongRconAttempts;
 	void ConnectAdventureBots();
@@ -380,21 +393,6 @@ public:
 	const char *TradeItemToStr(int ItemID);
 	int TradeHasItem(int ItemID, int ID);
 
-	// DDRace
-	void OnPreTickTeehistorian();
-	bool OnClientDDNetVersionKnown(int ClientID);
-	virtual void FillAntibot(CAntibotRoundData *pData);
-	int ProcessSpamProtection(int ClientID, bool RespectChatInitialDelay = true);
-	int GetDDRaceTeam(int ClientID);
-	// Describes the time when the first player joined the server.
-	int64_t m_NonEmptySince;
-	int64_t m_LastMapVote;
-	int GetClientVersion(int ClientID) const;
-	bool PlayerExists(int ClientID) const { return m_apPlayers[ClientID]; }
-	// Returns true if someone is actively moderating.
-	bool PlayerModerating() const;
-	void ForceVote(int EnforcerID, bool Success);
-
 	bool CheckAccounts(int AccountID);
 
 	void GlobalChat(int ClientID, const char *pMsg);
@@ -411,6 +409,7 @@ public:
 		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 	*/
 	void CallVetoVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
+	bool m_IsDDPPVetoVote;
 
 	//Chiller
 	//ChillerDragihn!
@@ -577,18 +576,57 @@ public:
 	void InitDDPPScore(int ClientID);
 	void DestructDDPP();
 
+	static const int LOGIN_BAN_DELAY = 60 * 60 * 12; // reset login attempts counter every day
+	static const int REGISTER_BAN_DELAY = 60 * 60 * 12 * 7; // reset register attempts counter every week
+	static const int NAMECHANGE_BAN_DELAY = 60 * 60 * 12; // reset namechange counter every day
+	void RegisterBanCheck(int ClientID);
+	void LoginBanCheck(int ClientID);
+	void CheckDeleteLoginBanEntry(int ClientID);
+	void CheckDeleteRegisterBanEntry(int ClientID);
+	void CheckDeleteNamechangeMuteEntry(int ClientID);
+	int64_t NameChangeMuteCheck(int ClientID);
+	void SetIpJailed(int ClientID);
+	bool CheckIpJailed(int ClientID);
+
+	virtual void IncrementWrongRconAttempts();
+
 private:
 	bool InitTileDDPP(int Index, int x, int y);
 	void OnClientEnterDDPP(int ClientID);
 	void OnInitDDPP();
 
-	//====================
-	//ChillerDragon (ddpp)
-	//====================
+	enum
+	{
+		MAX_REGISTER_BANS = 128,
+		MAX_LOGIN_BANS = 128,
+		MAX_NAME_CHANGE_MUTES = 32,
+		MAX_JAILS = 16,
+	};
+
+	struct CGenericBan
+	{
+		NETADDR m_Addr;
+		int m_Expire;
+		int64_t m_LastAttempt;
+		int m_NumAttempts;
+	};
+	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
+	CGenericBan m_aLoginBans[MAX_LOGIN_BANS];
+	CGenericBan m_aNameChangeMutes[MAX_NAME_CHANGE_MUTES];
+	NETADDR m_aJailIPs[MAX_JAILS];
+	int m_NumRegisterBans;
+	int m_NumLoginBans;
+	int m_NumNameChangeMutes;
+	int m_NumJailIPs;
+	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
+	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
+	int64_t NameChangeMuteTime(int ClientID);
 
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConBuy(IConsole::IResult *pResult, void *pUserData);
+	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
@@ -609,7 +647,10 @@ private:
 	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
+	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConCC(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
@@ -624,6 +665,8 @@ private:
 	static void Conhammerfight(IConsole::IResult *pResult, void *pUserData);
 	static void ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData);
 	static void ConDamage(IConsole::IResult *pResult, void *pUserData);
+	static void ConShow(IConsole::IResult *pResult, void *pUserData);
+	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);

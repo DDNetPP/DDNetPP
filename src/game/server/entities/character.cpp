@@ -2427,44 +2427,6 @@ void CCharacter::DDRacePostCoreTick()
 	HandleBroadcast();
 }
 
-bool CCharacter::ForceFreeze(int Seconds)
-{
-	isFreezed = true;
-	if(Seconds <= 0 || m_FreezeTime == -1)
-		return false;
-	if(m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
-	{
-		if(!m_WeaponsBackupped) //only save once
-		{
-			for(int i = 0; i < NUM_WEAPONS; i++)
-			{
-				if(m_aWeapons[i].m_Got)
-				{
-					m_aWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
-						//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
-					m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
-				}
-			}
-			m_WeaponsBackupped = true;
-		}
-
-		if(!m_pPlayer->m_IsVanillaWeapons)
-		{
-			m_Armor = 0;
-		}
-
-		if(m_FreezeTick == 0 || m_FirstFreezeTick == 0)
-		{
-			m_FirstFreezeTick = Server()->Tick();
-		}
-
-		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
-		m_FreezeTick = Server()->Tick();
-		return true;
-	}
-	return false;
-}
-
 bool CCharacter::Freeze(int Seconds)
 {
 	KillFreeze(false);

@@ -174,7 +174,6 @@ public:
 	void AbortVoteKickOnDisconnect(int ClientID);
 
 	int m_VoteCreator;
-	bool m_IsDDPPVetoVote;
 	int m_VoteType;
 	int64_t m_VoteCloseTime;
 	bool m_VoteUpdate;
@@ -219,7 +218,6 @@ public:
 		CHAT_BLUE = 1,
 		CHAT_WHISPER_SEND = 2,
 		CHAT_WHISPER_RECV = 3,
-		CHAT_TO_ONE_CLIENT = 4,
 
 		CHAT_SIX = 1 << 0,
 		CHAT_SIXUP = 1 << 1,
@@ -284,6 +282,21 @@ public:
 	virtual const char *Version() const;
 	virtual const char *NetVersion() const;
 
+	// DDRace
+	void OnPreTickTeehistorian();
+	bool OnClientDDNetVersionKnown(int ClientID);
+	virtual void FillAntibot(CAntibotRoundData *pData);
+	int ProcessSpamProtection(int ClientID, bool RespectChatInitialDelay = true);
+	int GetDDRaceTeam(int ClientID);
+	// Describes the time when the first player joined the server.
+	int64_t m_NonEmptySince;
+	int64_t m_LastMapVote;
+	int GetClientVersion(int ClientID) const;
+	bool PlayerExists(int ClientID) const { return m_apPlayers[ClientID]; }
+	// Returns true if someone is actively moderating.
+	bool PlayerModerating() const;
+	void ForceVote(int EnforcerID, bool Success);
+
 	// Checks if player can vote and notify them about the reason
 	bool RateLimitPlayerVote(int ClientID);
 	bool RateLimitPlayerMapVote(int ClientID);
@@ -320,8 +333,6 @@ private:
 	static void ConAddWeapon(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemoveWeapon(IConsole::IResult *pResult, void *pUserData);
 
-	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
 
 	void ModifyWeapons(IConsole::IResult *pResult, void *pUserData, int Weapon, bool Remove);
 	void MoveCharacter(int ClientID, int X, int Y, bool Raw = false);
@@ -339,14 +350,10 @@ private:
 
 	static void ConCredits(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfo(IConsole::IResult *pResult, void *pUserData);
-	static void ConCC(IConsole::IResult *pResult, void *pUserData);
-	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 	static void ConHelp(IConsole::IResult *pResult, void *pUserData);
 	static void ConSettings(IConsole::IResult *pResult, void *pUserData);
 	static void ConRules(IConsole::IResult *pResult, void *pUserData);
 	static void ConKill(IConsole::IResult *pResult, void *pUserData);
-	static void ConShow(IConsole::IResult *pResult, void *pUserData);
-	static void ConHide(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConTogglePauseVoted(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleSpec(IConsole::IResult *pResult, void *pUserData);
@@ -354,8 +361,8 @@ private:
 	static void ConForcePause(IConsole::IResult *pResult, void *pUserData);
 	static void ConTeamTop5(IConsole::IResult *pResult, void *pUserData);
 	static void ConTop(IConsole::IResult *pResult, void *pUserData);
-	static void ConPoints(IConsole::IResult *pResult, void *pUserData);
 	static void ConTimes(IConsole::IResult *pResult, void *pUserData);
+	static void ConPoints(IConsole::IResult *pResult, void *pUserData);
 	static void ConTopPoints(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConUTF8(IConsole::IResult *pResult, void *pUserData);
@@ -375,7 +382,6 @@ private:
 	static void ConUnlockTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConInviteTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConMe(IConsole::IResult *pResult, void *pUserData);
-	//static void ConPlayerinfo(IConsole::IResult *pResult, void *pUserData);
 	static void ConWhisper(IConsole::IResult *pResult, void *pUserData);
 	static void ConConverse(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetEyeEmote(IConsole::IResult *pResult, void *pUserData);
@@ -413,9 +419,6 @@ private:
 	enum
 	{
 		MAX_MUTES = 32,
-		MAX_REGISTER_BANS = 128,
-		MAX_LOGIN_BANS = 128,
-		MAX_JAILS = 16,
 		MAX_VOTE_MUTES = 32,
 	};
 	struct CMute
@@ -425,28 +428,9 @@ private:
 		char m_aReason[128];
 		bool m_InitialChatDelay;
 	};
-	struct CGenericBan
-	{
-		NETADDR m_Addr;
-		int m_Expire;
-		int64_t m_LastAttempt;
-		int m_NumAttempts;
-	};
 
 	CMute m_aMutes[MAX_MUTES];
-	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
-	CGenericBan m_aLoginBans[MAX_LOGIN_BANS];
-	CGenericBan m_aNameChangeMutes[MAX_MUTES];
-	NETADDR m_aJailIPs[MAX_JAILS];
 	int m_NumMutes;
-	int m_NumRegisterBans;
-	int m_NumLoginBans;
-	int m_NumNameChangeMutes;
-	int m_NumJailIPs;
-	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
-	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
-	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
-	int64_t NameChangeMuteTime(int ClientID);
 	CMute m_aVoteMutes[MAX_VOTE_MUTES];
 	int m_NumVoteMutes;
 	bool TryMute(const NETADDR *pAddr, int Secs, const char *pReason, bool InitialChatDelay);
@@ -461,18 +445,6 @@ private:
 	void UnlockTeam(int ClientID, int Team);
 
 public:
-	static const int LOGIN_BAN_DELAY = 60 * 60 * 12; // reset login attempts counter every day
-	static const int REGISTER_BAN_DELAY = 60 * 60 * 12 * 7; // reset register attempts counter every week
-	static const int NAMECHANGE_BAN_DELAY = 60 * 60 * 12; // reset namechange counter every day
-	void RegisterBanCheck(int ClientID);
-	void LoginBanCheck(int ClientID);
-	void CheckDeleteLoginBanEntry(int ClientID);
-	void CheckDeleteRegisterBanEntry(int ClientID);
-	void CheckDeleteNamechangeMuteEntry(int ClientID);
-	int64_t NameChangeMuteCheck(int ClientID);
-	void SetIpJailed(int ClientID);
-	bool CheckIpJailed(int ClientID);
-
 	CLayers *Layers() { return &m_Layers; }
 	class CScore *Score() { return m_pScore; }
 
@@ -501,9 +473,6 @@ public:
 
 	void ResetTuning();
 
-	// ddnet++
-
-	virtual void IncrementWrongRconAttempts();
 };
 
 inline int64_t CmaskAll() { return -1LL; }
