@@ -99,6 +99,17 @@ public:
 	virtual bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) { return false; }
 
 	/*
+        HandleCharacterTiles
+
+        Will be called for every character on every tick
+        Add your minigame related tile logic here
+
+        return true if you want to abort the other tile checks
+        useful when calling Die() to avoid crashes
+    */
+	virtual bool HandleCharacterTiles(CCharacter *pChr, int MapIndex) { return false; };
+
+	/*
         IsActive
 
         Returns true if the ClientID is playing the minigame

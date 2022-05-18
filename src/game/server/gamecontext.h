@@ -16,6 +16,7 @@
 #include "minigames/minigame_base.h"
 #include <game/server/ddpp/letters.h>
 
+#include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 
 #include "eventhandler.h"
@@ -333,7 +334,6 @@ private:
 	static void ConAddWeapon(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemoveWeapon(IConsole::IResult *pResult, void *pUserData);
 
-
 	void ModifyWeapons(IConsole::IResult *pResult, void *pUserData, int Weapon, bool Remove);
 	void MoveCharacter(int ClientID, int X, int Y, bool Raw = false);
 	static void ConGoLeft(IConsole::IResult *pResult, void *pUserData);
@@ -472,7 +472,6 @@ public:
 	virtual float PlayerJetpack();
 
 	void ResetTuning();
-
 };
 
 inline int64_t CmaskAll() { return -1LL; }

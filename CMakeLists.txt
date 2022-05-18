@@ -2366,6 +2366,7 @@ if(SERVER)
     gameworld_ddpp.cpp
     gameworld_ddpp.h
     minigames/balance.cpp
+    minigames/balance.h
     minigames/block_tournament.cpp
     minigames/block_tournament.h
     minigames/blockwave.cpp

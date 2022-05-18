@@ -9,6 +9,7 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
+#include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 
 #include <cinttypes>
@@ -26,6 +27,7 @@ void CGameContext::ConstructDDPP()
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
 	m_pBlockTournament = nullptr;
+	m_pBalance = nullptr;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
@@ -137,7 +139,10 @@ void CGameContext::OnInitDDPP()
 
 	if(!m_pBlockTournament)
 		m_pBlockTournament = new CBlockTournament(this);
+	if(!m_pBalance)
+		m_pBalance = new CBalance(this);
 	m_vMinigames.push_back(m_pBlockTournament);
+	m_vMinigames.push_back(m_pBalance);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();

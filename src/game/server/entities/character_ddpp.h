@@ -31,7 +31,7 @@ private:
 	*/
 
 	void SnapCharacterDDPP();
-	void HandleTilesDDPP(int Index);
+	bool HandleTilesDDPP(int Index);
 	void DDPPDDRacePostCoreTick();
 
 	// also: es gibt eine start- und endposition f�r die augen

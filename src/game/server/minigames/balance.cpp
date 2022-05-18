@@ -8,6 +8,31 @@
 
 #include "../gamecontext.h"
 
+#include "balance.h"
+
+bool CBalance::IsActive(int ClientID)
+{
+	return ClientID == GameServer()->m_BalanceID1 || ClientID == GameServer()->m_BalanceID2;
+}
+
+bool CBalance::HandleCharacterTiles(CCharacter *pChr, int Index)
+{
+	CPlayer *pPlayer = pChr->GetPlayer();
+
+	int m_TileIndex = GameServer()->Collision()->GetTileIndex(Index);
+	int m_TileFIndex = GameServer()->Collision()->GetFTileIndex(Index);
+	// freeze
+	if((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE))
+	{
+		if((pPlayer->GetCID() == GameServer()->m_BalanceID1 || pPlayer->GetCID() == GameServer()->m_BalanceID2) && GameServer()->m_BalanceBattleState == 2)
+		{
+			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			return true;
+		}
+	}
+	return false;
+}
+
 void CGameContext::StopBalanceBattle()
 {
 	for(auto &Player : m_apPlayers)

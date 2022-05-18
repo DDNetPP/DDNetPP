@@ -17,8 +17,12 @@
 
 #include "character.h"
 
-void CCharacter::HandleTilesDDPP(int Index)
+bool CCharacter::HandleTilesDDPP(int Index)
 {
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		if(Minigame->HandleCharacterTiles(this, Index))
+			return true;
+
 	CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
 	// DDNet++ finish tile
 	if(((m_TileIndex == TILE_DDPP_END) || (m_TileFIndex == TILE_DDPP_END)) && !m_DDPP_Finished)
@@ -28,7 +32,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 		{
 			float time = (float)(Server()->Tick() - Controller->m_Teams.GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
 			if(time < 0.000001f)
-				return;
+				return false;
 			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCID()), (int)time / 60, time - ((int)time / 60 * 60));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
@@ -90,12 +94,12 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if((m_TileIndex == TILE_CONFIG_1) || (m_TileFIndex == TILE_CONFIG_1))
 	{
 		if(HandleConfigTile(g_Config.m_SvCfgTile1))
-			return;
+			return false;
 	}
 	else if((m_TileIndex == TILE_CONFIG_2) || (m_TileFIndex == TILE_CONFIG_2))
 	{
 		if(HandleConfigTile(g_Config.m_SvCfgTile2))
-			return;
+			return false;
 	}
 
 	// // TODO: use enum here instead of magic number
@@ -147,7 +151,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_RAINBOW) || (m_TileFIndex == TILE_RAINBOW)))
 	{
 		if(((m_LastIndexTile == TILE_RAINBOW) || (m_LastIndexFrontTile == TILE_RAINBOW)))
-			return;
+			return false;
 
 		if((m_Rainbow) || (m_pPlayer->m_InfRainbow))
 		{
@@ -166,7 +170,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_BLOODY) || (m_TileFIndex == TILE_BLOODY)))
 	{
 		if(((m_LastIndexTile == TILE_BLOODY) || (m_LastIndexFrontTile == TILE_BLOODY)))
-			return;
+			return false;
 
 		if((m_Bloody) || (m_StrongBloody) || (m_pPlayer->m_InfBloody))
 		{
@@ -186,7 +190,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_ATOM) || (m_TileFIndex == TILE_ATOM)))
 	{
 		if(((m_LastIndexTile == TILE_ATOM) || (m_LastIndexFrontTile == TILE_ATOM)))
-			return;
+			return false;
 
 		if((m_Atom) || (m_pPlayer->m_InfAtom))
 		{
@@ -205,7 +209,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_TRAIL) || (m_TileFIndex == TILE_TRAIL)))
 	{
 		if(((m_LastIndexTile == TILE_TRAIL) || (m_LastIndexFrontTile == TILE_TRAIL)))
-			return;
+			return false;
 
 		if((m_Trail) || (m_pPlayer->m_InfTrail))
 		{
@@ -224,7 +228,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 	if(((m_TileIndex == TILE_SPREAD_GUN) || (m_TileFIndex == TILE_SPREAD_GUN)))
 	{
 		if(((m_LastIndexTile == TILE_SPREAD_GUN) || (m_LastIndexFrontTile == TILE_SPREAD_GUN)))
-			return;
+			return false;
 
 		if((m_autospreadgun) || (m_pPlayer->m_InfAutoSpreadGun))
 		{
@@ -456,6 +460,7 @@ void CCharacter::HandleTilesDDPP(int Index)
 		else
 			m_DummyFreezed = true;
 	}
+	return false;
 }
 
 void CCharacter::MoneyTile()

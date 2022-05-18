@@ -19,6 +19,7 @@
 
 #include "minigames/minigame_base.h"
 
+#include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 
 #include "drop_pickup.h"
@@ -243,6 +244,7 @@ public:
 	char m_aLastPrintedGlobalChatMessage[1024];
 
 	CBlockTournament *m_pBlockTournament;
+	CBalance *m_pBalance;
 	std::vector<CMinigame *> m_vMinigames;
 
 	//survival
