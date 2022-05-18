@@ -7035,53 +7035,7 @@ void CCharacter::DummyTick()
 	}
 	else if(m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 	{
-		m_Input.m_Jump = 0;
-		m_Input.m_Fire = 0;
-		m_LatestInput.m_Fire = 0;
-		m_Input.m_Hook = 0;
-		m_Input.m_Direction = 0;
-
-		CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
-		if(pChr && pChr->IsAlive())
-		{
-			m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-			m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
-			m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-			m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y - 20;
-
-			m_Input.m_Fire++;
-			m_LatestInput.m_Fire++;
-
-			if(m_Core.m_Pos.y - 4 * 32 > pChr->m_Pos.y)
-			{
-				if(Server()->Tick() % 20 == 0)
-				{
-					m_Input.m_Jump = 1;
-				}
-			}
-			if(m_Core.m_Pos.x > pChr->m_Pos.x)
-			{
-				m_Input.m_Direction = -1;
-				if(m_Core.m_Vel.x == 0.0f)
-				{
-					if(Server()->Tick() % 20 == 0)
-					{
-						m_Input.m_Jump = 1;
-					}
-				}
-			}
-			else
-			{
-				m_Input.m_Direction = 1;
-				if(m_Core.m_Vel.x == 0.0f)
-				{
-					if(Server()->Tick() % 20 == 0)
-					{
-						m_Input.m_Jump = 1;
-					}
-				}
-			}
-		}
+		m_pDummyCtf5Pvp->Tick();
 	}
 	else if(m_pPlayer->m_DummyMode == 104) //blmapV5 lower areas blocker
 	{

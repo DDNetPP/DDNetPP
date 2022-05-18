@@ -2306,6 +2306,8 @@ if(SERVER)
     entities/dummy/blmapv5_upper_blocker.h
     entities/dummy/chillblock5_blocker.cpp
     entities/dummy/chillblock5_blocker.h
+    entities/dummy/ctf5_pvp.cpp
+    entities/dummy/ctf5_pvp.h
     entities/dummy/dummybase.cpp
     entities/dummy/dummybase.h
     entities/flag.cpp

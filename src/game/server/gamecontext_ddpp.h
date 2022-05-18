@@ -13,6 +13,7 @@
 #include "dummy/blmapv5_lower_blocker.h"
 #include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
+#include "dummy/ctf5_pvp.h"
 
 #include <vector>
 

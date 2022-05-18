@@ -13,6 +13,7 @@
 #include "dummy/blmapv5_lower_blocker.h"
 #include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
+#include "dummy/ctf5_pvp.h"
 
 #include <vector>
 
@@ -341,6 +342,7 @@ public:
 	CDummyChillBlock5Blocker *m_pDummyChillBlock5Blocker;
 	CDummyBlmapV5UpperBlocker *m_pDummyBlmapV5UpperBlocker;
 	CDummyBlmapV5LowerBlocker *m_pDummyBlmapV5LowerBlocker;
+	CDummyCtf5Pvp *m_pDummyCtf5Pvp;
 
 	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
