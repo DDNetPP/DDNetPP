@@ -2310,6 +2310,8 @@ if(SERVER)
     entities/dummy/ctf5_pvp.h
     entities/dummy/dummybase.cpp
     entities/dummy/dummybase.h
+    entities/dummy/shopbot.cpp
+    entities/dummy/shopbot.h
     entities/flag.cpp
     entities/flag.h
     entities/gun.cpp

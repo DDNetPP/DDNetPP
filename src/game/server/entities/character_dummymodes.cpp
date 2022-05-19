@@ -7010,28 +7010,7 @@ void CCharacter::DummyTick()
 	}
 	else if(m_pPlayer->m_DummyMode == 99) // shop bot
 	{
-		m_Input.m_Jump = 0;
-		m_Input.m_Fire = 0;
-		m_LatestInput.m_Fire = 0;
-		m_Input.m_Hook = 0;
-		m_Input.m_Direction = 0;
-
-		CCharacter *pChr = GameServer()->m_World.ClosestCharType(m_Pos, false, this);
-		if(pChr && pChr->IsAlive() && GameServer()->Shop()->IsInShop(pChr->GetPlayer()->GetCID()))
-		{
-			m_Input.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-			m_Input.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-			m_LatestInput.m_TargetX = pChr->m_Pos.x - m_Pos.x;
-			m_LatestInput.m_TargetY = pChr->m_Pos.y - m_Pos.y;
-		}
-
-		if(m_IsFreeShopBot)
-		{
-			if(Server()->Tick() % 500 == 0 && !GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
-			{
-				Die(m_pPlayer->GetCID(), WEAPON_SELF);
-			}
-		}
+		m_pDummyShopBot->Tick();
 	}
 	else if(m_pPlayer->m_DummyMode == 103) //ctf5 pvp
 	{

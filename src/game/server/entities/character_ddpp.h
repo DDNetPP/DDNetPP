@@ -14,6 +14,7 @@
 #include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
 #include "dummy/ctf5_pvp.h"
+#include "dummy/shopbot.h"
 
 #include <vector>
 
@@ -66,11 +67,11 @@ private:
 	int m_MoveTick;
 	int m_LastMoveDirection;
 	int m_StopMoveTick;
-	bool m_IsFreeShopBot;
 	void ClearFakeMotd();
 	void SendShopMessage(const char *pMsg);
 
 public:
+	bool m_IsFreeShopBot;
 	bool m_DummyFinished;
 	int m_DummyFinishes;
 	int m_LastIndexTile;
@@ -343,6 +344,7 @@ public:
 	CDummyBlmapV5UpperBlocker *m_pDummyBlmapV5UpperBlocker;
 	CDummyBlmapV5LowerBlocker *m_pDummyBlmapV5LowerBlocker;
 	CDummyCtf5Pvp *m_pDummyCtf5Pvp;
+	CDummyShopBot *m_pDummyShopBot;
 
 	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };

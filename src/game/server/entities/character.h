@@ -18,6 +18,7 @@
 #include "dummy/blmapv5_upper_blocker.h"
 #include "dummy/chillblock5_blocker.h"
 #include "dummy/ctf5_pvp.h"
+#include "dummy/shopbot.h"
 
 #include <vector>
 

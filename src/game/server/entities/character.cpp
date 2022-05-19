@@ -47,6 +47,7 @@ CCharacter::CCharacter(CGameWorld *pWorld) :
 	m_pDummyChillBlock5Blocker = nullptr;
 	m_pDummyBlmapV5UpperBlocker = nullptr;
 	m_pDummyCtf5Pvp = nullptr;
+	m_pDummyShopBot = nullptr;
 }
 
 CCharacter::~CCharacter()
@@ -70,6 +71,11 @@ CCharacter::~CCharacter()
 	{
 		delete m_pDummyCtf5Pvp;
 		m_pDummyCtf5Pvp = nullptr;
+	}
+	if(m_pDummyShopBot)
+	{
+		delete m_pDummyShopBot;
+		m_pDummyShopBot = nullptr;
 	}
 	m_StrongWeakID = 0;
 
