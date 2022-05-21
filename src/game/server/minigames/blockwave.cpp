@@ -17,7 +17,7 @@ void CGameContext::BlockWaveAddBots()
 	{
 		for(int i = 1; i < m_BlockWaveRound + 1; i++)
 		{
-			CreateNewDummy(-3, true);
+			CreateNewDummy(DUMMYMODE_BLOCKWAVE, true);
 			if(i > FreeSlots - 5) //always leave 5 slots free for people to join
 			{
 				dbg_msg("BlockWave", "Stopped connecting at %d/%d bots because server has only %d free slots", i, m_BlockWaveRound + 1, FreeSlots);
@@ -29,7 +29,7 @@ void CGameContext::BlockWaveAddBots()
 	{
 		for(int i = 1; i < 15 + 1; i++)
 		{
-			CreateNewDummy(-3, true);
+			CreateNewDummy(DUMMYMODE_BLOCKWAVE, true);
 			if(i > FreeSlots - 5) //always leave 5 slots free for people to join
 			{
 				dbg_msg("BlockWave", "Stopped connecting at %d/15 + 1 bots because server has only %d free slots", i, FreeSlots);

@@ -2298,20 +2298,46 @@ if(SERVER)
     entities/dragger.h
     entities/drop_pickup.cpp
     entities/drop_pickup.h
+    entities/dummy/adventure.cpp
+    entities/dummy/adventure.h
     entities/dummy/blmapchill_police.cpp
     entities/dummy/blmapchill_police.h
+    entities/dummy/blmapv3_arena.cpp
+    entities/dummy/blmapv3_arena.h
     entities/dummy/blmapv5_lower_blocker.cpp
     entities/dummy/blmapv5_lower_blocker.h
     entities/dummy/blmapv5_upper_blocker.cpp
     entities/dummy/blmapv5_upper_blocker.h
+    entities/dummy/blockwave.cpp
+    entities/dummy/blockwave.h
+    entities/dummy/chillblock5_balance.cpp
+    entities/dummy/chillblock5_balance.h
     entities/dummy/chillblock5_blocker.cpp
     entities/dummy/chillblock5_blocker.h
+    entities/dummy/chillblock5_blocker_tryhard.cpp
+    entities/dummy/chillblock5_blocker_tryhard.h
+    entities/dummy/chillblock5_police.cpp
+    entities/dummy/chillblock5_police.h
+    entities/dummy/chillblock5_race.cpp
+    entities/dummy/chillblock5_race.h
     entities/dummy/ctf5_pvp.cpp
     entities/dummy/ctf5_pvp.h
     entities/dummy/dummybase.cpp
     entities/dummy/dummybase.h
+    entities/dummy/fnn.cpp
+    entities/dummy/fnn.h
+    entities/dummy/grenade_fng.cpp
+    entities/dummy/grenade_fng.h
+    entities/dummy/quest.cpp
+    entities/dummy/quest.h
+    entities/dummy/rifle_fng.cpp
+    entities/dummy/rifle_fng.h
+    entities/dummy/sample.cpp
+    entities/dummy/sample.h
     entities/dummy/shopbot.cpp
     entities/dummy/shopbot.h
+    entities/dummy/survival.cpp
+    entities/dummy/survival.h
     entities/flag.cpp
     entities/flag.h
     entities/gun.cpp

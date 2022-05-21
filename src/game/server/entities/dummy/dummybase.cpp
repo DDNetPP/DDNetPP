@@ -62,6 +62,8 @@ bool CDummyBase::IsFrozen(CCharacter *pChr)
 int CDummyBase::GetTargetX() { return m_pCharacter->Input()->m_TargetX; }
 int CDummyBase::GetTargetY() { return m_pCharacter->Input()->m_TargetY; }
 int CDummyBase::GetDirection() { return m_pCharacter->Input()->m_Direction; }
+int CDummyBase::GetJump() { return m_pCharacter->Input()->m_Jump; }
+int CDummyBase::GetHook() { return m_pCharacter->Input()->m_Hook; }
 
 void CDummyBase::SetWeapon(int Weapon)
 {

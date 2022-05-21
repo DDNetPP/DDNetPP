@@ -1,0 +1,14 @@
+#ifndef GAME_SERVER_ENTITIES_DUMMY_GRENADE_FNG_H
+#define GAME_SERVER_ENTITIES_DUMMY_GRENADE_FNG_H
+
+#include "dummybase.h"
+
+class CDummyGrenadeFng : public CDummyBase
+{
+public:
+	CDummyGrenadeFng(class CCharacter *pChr, class CPlayer *pPlayer);
+	virtual void OnTick();
+	virtual ~CDummyGrenadeFng(){};
+};
+
+#endif

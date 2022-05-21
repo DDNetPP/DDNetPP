@@ -303,6 +303,9 @@ private:
 
 	int m_carryFlagChar1;
 	int m_carryFlagChar2;
+
+public:
+	int HookedPlayer() { return m_HookedPlayer; }
 };
 
 //input count

@@ -18,6 +18,443 @@
 
 #include "character.h"
 
+void CCharacter::ConstructDDPP()
+{
+	// variable initializations constructor
+	m_ci_freezetime = 0;
+	m_pvp_arena_tele_request_time = -1;
+	m_DDPP_Finished = false;
+	//if (g_Config.m_SvInstagibMode)
+	//{
+	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
+	//}
+
+	m_pDummySample = nullptr;
+	m_pDummyAdventure = nullptr;
+	m_pDummyBlmapChillPolice = nullptr;
+	m_pDummyChillBlock5Balance = nullptr;
+	m_pDummyChillBlock5Blocker = nullptr;
+	m_pDummyChillBlock5BlockerTryHard = nullptr;
+	m_pDummyChillBlock5Race = nullptr;
+	m_pDummyChillBlock5Police = nullptr;
+	m_pDummyChillBlock5Race = nullptr;
+	m_pDummyBlmapV3Arena = nullptr;
+	m_pDummyBlmapV5UpperBlocker = nullptr;
+	m_pDummyBlmapV5LowerBlocker = nullptr;
+	m_pDummyCtf5Pvp = nullptr;
+	m_pDummyShopBot = nullptr;
+	m_pDummySurvival = nullptr;
+	m_pDummyGrenadeFng = nullptr;
+	m_pDummyRifleFng = nullptr;
+	m_pDummyBlockWave = nullptr;
+	m_pDummyQuest = nullptr;
+	m_pDummyFNN = nullptr;
+}
+
+void CCharacter::DestructDDPP()
+{
+	if(m_pDummySample)
+	{
+		delete m_pDummySample;
+		m_pDummySample = nullptr;
+	}
+	if(m_pDummyAdventure)
+	{
+		delete m_pDummyAdventure;
+		m_pDummyAdventure = nullptr;
+	}
+	if(m_pDummyBlmapChillPolice)
+	{
+		delete m_pDummyBlmapChillPolice;
+		m_pDummyBlmapChillPolice = nullptr;
+	}
+	if(m_pDummyChillBlock5Balance)
+	{
+		delete m_pDummyChillBlock5Balance;
+		m_pDummyChillBlock5Balance = nullptr;
+	}
+	if(m_pDummyChillBlock5Blocker)
+	{
+		delete m_pDummyChillBlock5Blocker;
+		m_pDummyChillBlock5Blocker = nullptr;
+	}
+	if(m_pDummyChillBlock5BlockerTryHard)
+	{
+		delete m_pDummyChillBlock5BlockerTryHard;
+		m_pDummyChillBlock5BlockerTryHard = nullptr;
+	}
+	if(m_pDummyChillBlock5Race)
+	{
+		delete m_pDummyChillBlock5Race;
+		m_pDummyChillBlock5Race = nullptr;
+	}
+	if(m_pDummyChillBlock5Police)
+	{
+		delete m_pDummyChillBlock5Police;
+		m_pDummyChillBlock5Police = nullptr;
+	}
+	if(m_pDummyBlmapV3Arena)
+	{
+		delete m_pDummyBlmapV3Arena;
+		m_pDummyBlmapV3Arena = nullptr;
+	}
+	if(m_pDummyBlmapV5UpperBlocker)
+	{
+		delete m_pDummyBlmapV5UpperBlocker;
+		m_pDummyBlmapV5UpperBlocker = nullptr;
+	}
+	if(m_pDummyBlmapV5LowerBlocker)
+	{
+		delete m_pDummyBlmapV5LowerBlocker;
+		m_pDummyBlmapV5LowerBlocker = nullptr;
+	}
+	if(m_pDummyCtf5Pvp)
+	{
+		delete m_pDummyCtf5Pvp;
+		m_pDummyCtf5Pvp = nullptr;
+	}
+	if(m_pDummyShopBot)
+	{
+		delete m_pDummyShopBot;
+		m_pDummyShopBot = nullptr;
+	}
+	if(m_pDummySurvival)
+	{
+		delete m_pDummySurvival;
+		m_pDummySurvival = nullptr;
+	}
+	if(m_pDummyGrenadeFng)
+	{
+		delete m_pDummyGrenadeFng;
+		m_pDummyGrenadeFng = nullptr;
+	}
+	if(m_pDummyRifleFng)
+	{
+		delete m_pDummyRifleFng;
+		m_pDummyRifleFng = nullptr;
+	}
+	if(m_pDummyBlockWave)
+	{
+		delete m_pDummyBlockWave;
+		m_pDummyBlockWave = nullptr;
+	}
+	if(m_pDummyQuest)
+	{
+		delete m_pDummyQuest;
+		m_pDummyQuest = nullptr;
+	}
+	if(m_pDummyFNN)
+	{
+		delete m_pDummyFNN;
+		m_pDummyFNN = nullptr;
+	}
+}
+
+void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
+{
+	m_LastTaserUse = Server()->Tick();
+	if(!m_pDummySample)
+		m_pDummySample = new CDummySample(this, pPlayer);
+	if(!m_pDummyAdventure)
+		m_pDummyAdventure = new CDummyAdventure(this, pPlayer);
+	if(!m_pDummyBlmapChillPolice)
+		m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
+	if(!m_pDummyChillBlock5Balance)
+		m_pDummyChillBlock5Balance = new CDummyChillBlock5Balance(this, pPlayer);
+	if(!m_pDummyChillBlock5Blocker)
+		m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer);
+	if(!m_pDummyChillBlock5BlockerTryHard)
+		m_pDummyChillBlock5BlockerTryHard = new CDummyChillBlock5BlockerTryHard(this, pPlayer);
+	if(!m_pDummyChillBlock5Race)
+		m_pDummyChillBlock5Race = new CDummyChillBlock5Race(this, pPlayer);
+	if(!m_pDummyChillBlock5Police)
+		m_pDummyChillBlock5Police = new CDummyChillBlock5Police(this, pPlayer);
+	if(!m_pDummyBlmapV3Arena)
+		m_pDummyBlmapV3Arena = new CDummyBlmapV3Arena(this, pPlayer);
+	if(!m_pDummyBlmapV5UpperBlocker)
+		m_pDummyBlmapV5UpperBlocker = new CDummyBlmapV5UpperBlocker(this, pPlayer);
+	if(!m_pDummyBlmapV5LowerBlocker)
+		m_pDummyBlmapV5LowerBlocker = new CDummyBlmapV5LowerBlocker(this, pPlayer);
+	if(!m_pDummyCtf5Pvp)
+		m_pDummyCtf5Pvp = new CDummyCtf5Pvp(this, pPlayer);
+	if(!m_pDummyShopBot)
+		m_pDummyShopBot = new CDummyShopBot(this, pPlayer);
+	if(!m_pDummySurvival)
+		m_pDummySurvival = new CDummySurvival(this, pPlayer);
+	if(!m_pDummyGrenadeFng)
+		m_pDummyGrenadeFng = new CDummyGrenadeFng(this, pPlayer);
+	if(!m_pDummyRifleFng)
+		m_pDummyRifleFng = new CDummyRifleFng(this, pPlayer);
+	if(!m_pDummyQuest)
+		m_pDummyQuest = new CDummyQuest(this, pPlayer);
+	if(!m_pDummyFNN)
+		m_pDummyFNN = new CDummyFNN(this, pPlayer);
+	//zCatch ChillerDragon
+	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
+	{
+		m_Core.m_ActiveWeapon = WEAPON_GRENADE;
+	}
+	else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaMode_idm) //idm & zCatch rifle
+	{
+		m_Core.m_ActiveWeapon = WEAPON_LASER;
+	}
+	else
+	{
+		m_Core.m_ActiveWeapon = WEAPON_GUN;
+	}
+
+	/*
+	if ("ddpp gametype survival forced") //survival server (forced)
+	{
+		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
+		{
+			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
+		}
+	}
+	*/
+
+	if(m_pPlayer->m_DummyMode == 99)
+	{
+		vec2 ShopSpawn = GameServer()->Collision()->GetRandomTile(TILE_SHOP_SPAWN);
+
+		if(ShopSpawn != vec2(-1, -1))
+		{
+			SetPosition(ShopSpawn);
+		}
+		else // no shop spawn tile -> fallback to shop tile
+		{
+			vec2 ShopTile = GameServer()->Collision()->GetRandomTile(TILE_SHOP);
+
+			if(ShopTile != vec2(-1, -1))
+			{
+				SetPosition(ShopTile);
+				m_IsFreeShopBot = true;
+			}
+			else // no shop tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+			}
+		}
+	}
+	else if(m_pPlayer->m_Account.m_JailTime)
+	{
+		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
+
+		if(JailPlayerSpawn != vec2(-1, -1))
+		{
+			SetPosition(JailPlayerSpawn);
+		}
+		else //no jailplayer
+		{
+			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
+		}
+	}
+	else if(m_pPlayer->m_IsBlockWaving && !m_pPlayer->m_IsBlockWaveWaiting)
+	{
+		if(m_pPlayer->m_IsDummy)
+		{
+			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_BOT);
+
+			if(BlockWaveSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(BlockWaveSpawnTile);
+			}
+			else //no BlockWaveSpawnTile
+			{
+				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				GameServer()->m_BlockWaveGameState = 0;
+			}
+		}
+		else
+		{
+			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_HUMAN);
+
+			if(BlockWaveSpawnTile != vec2(-1, -1))
+			{
+				SetPosition(BlockWaveSpawnTile);
+			}
+			else //no BlockWaveSpawnTile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				GameServer()->m_BlockWaveGameState = 0;
+			}
+		}
+	}
+	else if(m_pPlayer->m_DummySpawnTile)
+	{
+		vec2 SpawnTile(0.0f, 0.0f);
+		if(m_pPlayer->m_DummySpawnTile == 1)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_1);
+		else if(m_pPlayer->m_DummySpawnTile == 2)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_2);
+		else if(m_pPlayer->m_DummySpawnTile == 3)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_3);
+		else if(m_pPlayer->m_DummySpawnTile == 4)
+			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_4);
+
+		if(SpawnTile != vec2(-1, -1))
+		{
+			SetPosition(SpawnTile);
+		}
+		else //no botspawn tile
+		{
+			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d",
+				m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_DummySpawnTile);
+			m_pPlayer->m_DummySpawnTile = 0;
+		}
+	}
+	else if(m_pPlayer->m_IsBlockDeathmatch)
+	{
+		if(g_Config.m_SvBlockDMarena == 1)
+		{
+			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A1);
+			if(BlockDMSpawn != vec2(-1, -1))
+			{
+				SetPosition(BlockDMSpawn);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 1 found.");
+				m_pPlayer->m_IsBlockDeathmatch = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+		else if(g_Config.m_SvBlockDMarena == 2)
+		{
+			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A2);
+			if(BlockDMSpawn != vec2(-1, -1))
+			{
+				SetPosition(BlockDMSpawn);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 2 found.");
+				m_pPlayer->m_IsBlockDeathmatch = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+		else
+		{
+			dbg_msg("WARNING", "Invalid block deathmatch arena");
+		}
+	}
+	else if(m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
+	{
+		if(m_pPlayer->m_IsBalanceBattlePlayer1)
+		{
+			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_1);
+
+			if(BalanceBattleSpawn != vec2(-1, -1))
+			{
+				SetPosition(BalanceBattleSpawn);
+			}
+			else //no balance battle spawn tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				m_pPlayer->m_IsBalanceBatteling = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+		else
+		{
+			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_2);
+
+			if(BalanceBattleSpawn != vec2(-1, -1))
+			{
+				SetPosition(BalanceBattleSpawn);
+			}
+			else //no balance battle spawn tile
+			{
+				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				m_pPlayer->m_IsBalanceBatteling = false;
+				m_Core.m_Pos = m_Pos;
+			}
+		}
+	}
+	else if(m_pPlayer->m_IsSuperModSpawn && !m_pPlayer->IsInstagibMinigame())
+	{
+		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
+		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
+	}
+	else if(m_pPlayer->m_IsNoboSpawn)
+	{
+		char aBuf[128];
+		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
+		{
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
+			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
+		}
+		else
+		{
+			m_Core.m_Pos = m_Pos;
+			m_pPlayer->m_IsNoboSpawn = false;
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Welcome to the real spawn!");
+			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		}
+	}
+	else
+	{
+		m_Core.m_Pos = m_Pos;
+	}
+}
+
+void CCharacter::PostSpawnDDPP(vec2 Pos)
+{
+	m_AliveSince = time_get();
+	if(g_Config.m_SvInstagibMode)
+	{
+		Teams()->OnCharacterStart(m_pPlayer->GetCID());
+		m_CpActive = -2;
+	}
+
+	m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
+
+	if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsVanillaWeapons)
+	{
+		m_aWeapons[1].m_Ammo = -1; // added by fokkonaut to have -1 (infinite) bullets of gun at spawn and not 10. after freeze you would have -1 anyways so why not when spawning
+	}
+
+	if(m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
+	{
+		m_aWeapons[1].m_Got = false;
+		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
+	}
+
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		Minigame->PostSpawn(this, Pos);
+	for(auto &Minigame : GameServer()->m_vMinigames)
+		Minigame->LoadPosition(this);
+
+	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
+	{
+		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
+	}
+
+	m_LastHitWeapon = -1;
+
+	m_pPlayer->m_SpawnShotgunActive = 0;
+	m_pPlayer->m_SpawnGrenadeActive = 0;
+	m_pPlayer->m_SpawnRifleActive = 0;
+
+	if(g_Config.m_SvAllowSpawnWeapons)
+	{
+		SetSpawnWeapons();
+	}
+
+	SaveRealInfos();
+
+	UnsetSpookyGhost();
+
+	if(m_pPlayer->m_HadFlagOnDeath)
+	{
+		m_pPlayer->m_ChangeTeamOnFlag = true;
+		m_pPlayer->m_HadFlagOnDeath = false;
+	}
+}
+
 void CCharacter::DDPPDDRacePostCoreTick()
 {
 	if(!isFreezed)
@@ -674,287 +1111,6 @@ void CCharacter::DDPPPostCoreTick()
 	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
 
 	GameServer()->Shop()->MotdTick(GetPlayer()->GetCID());
-}
-
-void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
-{
-	m_LastTaserUse = Server()->Tick();
-	if(!m_pDummyBlmapChillPolice)
-		m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
-	if(!m_pDummyChillBlock5Blocker)
-		m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer);
-	if(!m_pDummyBlmapV5UpperBlocker)
-		m_pDummyBlmapV5UpperBlocker = new CDummyBlmapV5UpperBlocker(this, pPlayer);
-	if(!m_pDummyBlmapV5LowerBlocker)
-		m_pDummyBlmapV5LowerBlocker = new CDummyBlmapV5LowerBlocker(this, pPlayer);
-	if(!m_pDummyCtf5Pvp)
-		m_pDummyCtf5Pvp = new CDummyCtf5Pvp(this, pPlayer);
-	if(!m_pDummyShopBot)
-		m_pDummyShopBot = new CDummyShopBot(this, pPlayer);
-	//zCatch ChillerDragon
-	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
-	{
-		m_Core.m_ActiveWeapon = WEAPON_GRENADE;
-	}
-	else if(g_Config.m_SvInstagibMode == 3 || g_Config.m_SvInstagibMode == 4 || m_pPlayer->m_IsInstaMode_idm) //idm & zCatch rifle
-	{
-		m_Core.m_ActiveWeapon = WEAPON_LASER;
-	}
-	else
-	{
-		m_Core.m_ActiveWeapon = WEAPON_GUN;
-	}
-
-	/*
-	if ("ddpp gametype survival forced") //survival server (forced)
-	{
-		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
-		{
-			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
-		}
-	}
-	*/
-
-	if(m_pPlayer->m_DummyMode == 99)
-	{
-		vec2 ShopSpawn = GameServer()->Collision()->GetRandomTile(TILE_SHOP_SPAWN);
-
-		if(ShopSpawn != vec2(-1, -1))
-		{
-			SetPosition(ShopSpawn);
-		}
-		else // no shop spawn tile -> fallback to shop tile
-		{
-			vec2 ShopTile = GameServer()->Collision()->GetRandomTile(TILE_SHOP);
-
-			if(ShopTile != vec2(-1, -1))
-			{
-				SetPosition(ShopTile);
-				m_IsFreeShopBot = true;
-			}
-			else // no shop tile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
-			}
-		}
-	}
-	else if(m_pPlayer->m_Account.m_JailTime)
-	{
-		vec2 JailPlayerSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
-
-		if(JailPlayerSpawn != vec2(-1, -1))
-		{
-			SetPosition(JailPlayerSpawn);
-		}
-		else //no jailplayer
-		{
-			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
-		}
-	}
-	else if(m_pPlayer->m_IsBlockWaving && !m_pPlayer->m_IsBlockWaveWaiting)
-	{
-		if(m_pPlayer->m_IsDummy)
-		{
-			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_BOT);
-
-			if(BlockWaveSpawnTile != vec2(-1, -1))
-			{
-				SetPosition(BlockWaveSpawnTile);
-			}
-			else //no BlockWaveSpawnTile
-			{
-				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
-				GameServer()->m_BlockWaveGameState = 0;
-			}
-		}
-		else
-		{
-			vec2 BlockWaveSpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BLOCKWAVE_HUMAN);
-
-			if(BlockWaveSpawnTile != vec2(-1, -1))
-			{
-				SetPosition(BlockWaveSpawnTile);
-			}
-			else //no BlockWaveSpawnTile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
-				GameServer()->m_BlockWaveGameState = 0;
-			}
-		}
-	}
-	else if(m_pPlayer->m_DummySpawnTile)
-	{
-		vec2 SpawnTile(0.0f, 0.0f);
-		if(m_pPlayer->m_DummySpawnTile == 1)
-			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_1);
-		else if(m_pPlayer->m_DummySpawnTile == 2)
-			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_2);
-		else if(m_pPlayer->m_DummySpawnTile == 3)
-			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_3);
-		else if(m_pPlayer->m_DummySpawnTile == 4)
-			SpawnTile = GameServer()->Collision()->GetRandomTile(TILE_BOTSPAWN_4);
-
-		if(SpawnTile != vec2(-1, -1))
-		{
-			SetPosition(SpawnTile);
-		}
-		else //no botspawn tile
-		{
-			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d",
-				m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_DummySpawnTile);
-			m_pPlayer->m_DummySpawnTile = 0;
-		}
-	}
-	else if(m_pPlayer->m_IsBlockDeathmatch)
-	{
-		if(g_Config.m_SvBlockDMarena == 1)
-		{
-			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A1);
-			if(BlockDMSpawn != vec2(-1, -1))
-			{
-				SetPosition(BlockDMSpawn);
-			}
-			else
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 1 found.");
-				m_pPlayer->m_IsBlockDeathmatch = false;
-				m_Core.m_Pos = m_Pos;
-			}
-		}
-		else if(g_Config.m_SvBlockDMarena == 2)
-		{
-			vec2 BlockDMSpawn = GameServer()->Collision()->GetRandomTile(TILE_BLOCK_DM_A2);
-			if(BlockDMSpawn != vec2(-1, -1))
-			{
-				SetPosition(BlockDMSpawn);
-			}
-			else
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 2 found.");
-				m_pPlayer->m_IsBlockDeathmatch = false;
-				m_Core.m_Pos = m_Pos;
-			}
-		}
-		else
-		{
-			dbg_msg("WARNING", "Invalid block deathmatch arena");
-		}
-	}
-	else if(m_pPlayer->m_IsBalanceBatteling || m_pPlayer->m_IsBalanceBattleDummy)
-	{
-		if(m_pPlayer->m_IsBalanceBattlePlayer1)
-		{
-			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_1);
-
-			if(BalanceBattleSpawn != vec2(-1, -1))
-			{
-				SetPosition(BalanceBattleSpawn);
-			}
-			else //no balance battle spawn tile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
-				m_pPlayer->m_IsBalanceBatteling = false;
-				m_Core.m_Pos = m_Pos;
-			}
-		}
-		else
-		{
-			vec2 BalanceBattleSpawn = GameServer()->Collision()->GetRandomTile(TILE_BALANCE_BATTLE_2);
-
-			if(BalanceBattleSpawn != vec2(-1, -1))
-			{
-				SetPosition(BalanceBattleSpawn);
-			}
-			else //no balance battle spawn tile
-			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
-				m_pPlayer->m_IsBalanceBatteling = false;
-				m_Core.m_Pos = m_Pos;
-			}
-		}
-	}
-	else if(m_pPlayer->m_IsSuperModSpawn && !m_pPlayer->IsInstagibMinigame())
-	{
-		m_Core.m_Pos.x = g_Config.m_SvSuperSpawnX * 32;
-		m_Core.m_Pos.y = g_Config.m_SvSuperSpawnY * 32;
-	}
-	else if(m_pPlayer->m_IsNoboSpawn)
-	{
-		char aBuf[128];
-		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
-		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
-			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
-		}
-		else
-		{
-			m_Core.m_Pos = m_Pos;
-			m_pPlayer->m_IsNoboSpawn = false;
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Welcome to the real spawn!");
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-		}
-	}
-	else
-	{
-		m_Core.m_Pos = m_Pos;
-	}
-}
-
-void CCharacter::PostSpawnDDPP(vec2 Pos)
-{
-	m_AliveSince = time_get();
-	if(g_Config.m_SvInstagibMode)
-	{
-		Teams()->OnCharacterStart(m_pPlayer->GetCID());
-		m_CpActive = -2;
-	}
-
-	m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
-
-	if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsVanillaWeapons)
-	{
-		m_aWeapons[1].m_Ammo = -1; // added by fokkonaut to have -1 (infinite) bullets of gun at spawn and not 10. after freeze you would have -1 anyways so why not when spawning
-	}
-
-	if(m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
-	{
-		m_aWeapons[1].m_Got = false;
-		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
-	}
-
-	for(auto &Minigame : GameServer()->m_vMinigames)
-		Minigame->PostSpawn(this, Pos);
-	for(auto &Minigame : GameServer()->m_vMinigames)
-		Minigame->LoadPosition(this);
-
-	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
-	{
-		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
-	}
-
-	m_LastHitWeapon = -1;
-
-	m_pPlayer->m_SpawnShotgunActive = 0;
-	m_pPlayer->m_SpawnGrenadeActive = 0;
-	m_pPlayer->m_SpawnRifleActive = 0;
-
-	if(g_Config.m_SvAllowSpawnWeapons)
-	{
-		SetSpawnWeapons();
-	}
-
-	SaveRealInfos();
-
-	UnsetSpookyGhost();
-
-	if(m_pPlayer->m_HadFlagOnDeath)
-	{
-		m_pPlayer->m_ChangeTeamOnFlag = true;
-		m_pPlayer->m_HadFlagOnDeath = false;
-	}
 }
 
 void CCharacter::DDPP_Tick()
@@ -1820,11 +1976,11 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
+	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
-			m_Dummy_nn_touched_by_humans = true;
+			m_pDummyFNN->m_Dummy_nn_touched_by_humans = true;
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
 			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);

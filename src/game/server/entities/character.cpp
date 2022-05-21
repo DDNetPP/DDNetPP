@@ -33,50 +33,12 @@ CCharacter::CCharacter(CGameWorld *pWorld) :
 	m_Health = 0;
 	m_Armor = 0;
 
-	// variable initializations constructor
-	m_ci_freezetime = 0;
-	m_DummyDriveDuration = 0;
-	m_pvp_arena_tele_request_time = -1;
-	m_DDPP_Finished = false;
-	//if (g_Config.m_SvInstagibMode)
-	//{
-	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
-	//}
-
-	m_pDummyBlmapChillPolice = nullptr;
-	m_pDummyChillBlock5Blocker = nullptr;
-	m_pDummyBlmapV5UpperBlocker = nullptr;
-	m_pDummyCtf5Pvp = nullptr;
-	m_pDummyShopBot = nullptr;
+	ConstructDDPP();
 }
 
 CCharacter::~CCharacter()
 {
-	if(m_pDummyBlmapChillPolice)
-	{
-		delete m_pDummyBlmapChillPolice;
-		m_pDummyBlmapChillPolice = nullptr;
-	}
-	if(m_pDummyChillBlock5Blocker)
-	{
-		delete m_pDummyChillBlock5Blocker;
-		m_pDummyChillBlock5Blocker = nullptr;
-	}
-	if(m_pDummyBlmapV5UpperBlocker)
-	{
-		delete m_pDummyBlmapV5UpperBlocker;
-		m_pDummyBlmapV5UpperBlocker = nullptr;
-	}
-	if(m_pDummyCtf5Pvp)
-	{
-		delete m_pDummyCtf5Pvp;
-		m_pDummyCtf5Pvp = nullptr;
-	}
-	if(m_pDummyShopBot)
-	{
-		delete m_pDummyShopBot;
-		m_pDummyShopBot = nullptr;
-	}
+	DestructDDPP();
 	m_StrongWeakID = 0;
 
 	// never intilize both to zero
@@ -2624,9 +2586,6 @@ void CCharacter::DDRaceInit()
 	m_isDmg = false;
 	m_Core.m_Jumps = 2;
 	m_FreezeHammer = false;
-	//Testy testy Chilliwashere
-	m_Dummy_mode18 = 0;
-	m_Dummy_panic_weapon = 0;
 
 	// disable finite cosmetics by default
 	m_Rainbow = false;

@@ -64,6 +64,8 @@ protected:
 	int GetTargetX();
 	int GetTargetY();
 	int GetDirection();
+	int GetJump();
+	int GetHook();
 
 	enum Directions
 	{

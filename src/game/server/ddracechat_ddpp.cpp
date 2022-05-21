@@ -20,9 +20,6 @@
 #include <ctime> //ChillerDragon
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
-//#include <string> //acc2 std::to_string
-//#include <iostream> //acc2 std::to_string
-//#include <sstream> //acc2 std::to_string
 
 bool CheckClientID(int ClientID); //TODO: whats this ? xd
 

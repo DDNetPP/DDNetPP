@@ -1,0 +1,14 @@
+#ifndef GAME_SERVER_ENTITIES_DUMMY_BLOCKWAVE_H
+#define GAME_SERVER_ENTITIES_DUMMY_BLOCKWAVE_H
+
+#include "dummybase.h"
+
+class CDummyBlockWave : public CDummyBase
+{
+public:
+	CDummyBlockWave(class CCharacter *pChr, class CPlayer *pPlayer);
+	virtual void OnTick();
+	virtual ~CDummyBlockWave(){};
+};
+
+#endif

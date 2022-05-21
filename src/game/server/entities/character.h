@@ -13,12 +13,25 @@
 
 #include <game/gamecore.h>
 
+#include "dummy/adventure.h"
 #include "dummy/blmapchill_police.h"
+#include "dummy/blmapv3_arena.h"
 #include "dummy/blmapv5_lower_blocker.h"
 #include "dummy/blmapv5_upper_blocker.h"
+#include "dummy/blockwave.h"
+#include "dummy/chillblock5_balance.h"
 #include "dummy/chillblock5_blocker.h"
+#include "dummy/chillblock5_blocker_tryhard.h"
+#include "dummy/chillblock5_police.h"
+#include "dummy/chillblock5_race.h"
 #include "dummy/ctf5_pvp.h"
+#include "dummy/fnn.h"
+#include "dummy/grenade_fng.h"
+#include "dummy/quest.h"
+#include "dummy/rifle_fng.h"
+#include "dummy/sample.h"
 #include "dummy/shopbot.h"
+#include "dummy/survival.h"
 
 #include <vector>
 
@@ -28,11 +41,6 @@
 #define NUM_ATOMS 6
 #define NUM_TRAILS 20
 #define TRAIL_DIST 20
-
-#define FNN_MOVE_LEN 32768
-
-#define V3_OFFSET_X 0 * 32 //was 277
-#define V3_OFFSET_Y 0 * 32 //was 48
 
 class CAntibot;
 class CGameTeams;

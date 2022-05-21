@@ -800,7 +800,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 	}
 
 	//reset values
-	pChr->m_FNN_CurrentMoveIndex = 0;
+	pChr->m_pDummyFNN->m_FNN_CurrentMoveIndex = 0;
 	float loaded_distance = 0;
 	float loaded_fitness = 0;
 	float loaded_distance_finish = 0;
@@ -820,7 +820,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 		std::getline(readfile, line); // read but ignore header
 
 		std::getline(readfile, line); //moveticks
-		pChr->m_FNN_ticks_loaded_run = atoi(line.c_str());
+		pChr->m_pDummyFNN->m_FNN_ticks_loaded_run = atoi(line.c_str());
 
 		std::getline(readfile, line); //distance
 		loaded_distance = atof(line.c_str());
@@ -833,7 +833,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 
 		while(std::getline(readfile, line))
 		{
-			pChr->m_aRecMove[i] = atoi(line.c_str());
+			pChr->m_pDummyFNN->m_aRecMove[i] = atoi(line.c_str());
 			i++;
 		}
 	}
@@ -845,7 +845,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 
 	//start run
 	pPlayer->m_dmm25 = 4; //replay submode
-	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pChr->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
+	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pChr->m_pDummyFNN->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
 	SendChat(botID, CGameContext::CHAT_ALL, aBuf);
 }
 
@@ -1170,11 +1170,11 @@ void CGameContext::ConnectFngBots(int amount, int mode)
 	{
 		if(mode == 0) //rifle
 		{
-			CreateNewDummy(-4);
+			CreateNewDummy(DUMMYMODE_RIFLE_FNG);
 		}
 		else if(mode == 1) // grenade
 		{
-			CreateNewDummy(-5);
+			CreateNewDummy(DUMMYMODE_GRENADE_FNG);
 		}
 		else
 		{
@@ -1317,7 +1317,7 @@ void CGameContext::DDPP_Tick()
 
 	if(m_CreateShopBot && (Server()->Tick() % 50 == 0))
 	{
-		CreateNewDummy(99); //shop bot
+		CreateNewDummy(DUMMYMODE_SHOPBOT);
 		m_CreateShopBot = false;
 	}
 	// all the tick stuff which needs all players
@@ -2318,38 +2318,37 @@ void CGameContext::CreateBasicDummys()
 {
 	if(!str_comp(Server()->GetMapName(), "ChillBlock5"))
 	{
-		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_POLICE); //police
-		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER); //blocker
-		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER); //blocker 2
-		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_RACER); //racer
-		CreateNewDummy(-6); //blocker dm v3
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_POLICE);
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER);
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_BLOCKER);
+		CreateNewDummy(DUMMYMODE_CHILLBLOCK5_RACER);
+		CreateNewDummy(DUMMYMODE_BLMAPV3_ARENA);
 	}
 	else if(!str_comp(Server()->GetMapName(), "BlmapChill"))
 	{
-		CreateNewDummy(32); //police
-		//CreateNewDummy(MODE_BLMAPCHILL_RACE);//racer
+		CreateNewDummy(DUMMYMODE_BLMAPCHILL_POLICE);
 	}
 	else if(!str_comp(Server()->GetMapName(), "blmapV5"))
 	{
-		CreateNewDummy(104); //lower blocker
-		CreateNewDummy(104); //lower blocker
-		CreateNewDummy(105); //upper blocker
+		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
+		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
+		CreateNewDummy(DUMMYMODE_BLMAPV5_UPPER_BLOCKER);
 	}
 	else if(!str_comp(Server()->GetMapName(), "blmapV5_ddpp"))
 	{
-		CreateNewDummy(104); //lower blocker
-		CreateNewDummy(104); //lower blocker
-		CreateNewDummy(105); //upper blocker
+		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
+		CreateNewDummy(DUMMYMODE_BLMAPV5_LOWER_BLOCKER);
+		CreateNewDummy(DUMMYMODE_BLMAPV5_UPPER_BLOCKER);
 		g_Config.m_SvDummyMapOffsetX = -226;
 	}
 	else if(!str_comp(Server()->GetMapName(), "ddpp_survival"))
 	{
-		CreateNewDummy(34); //dynamic pvp mode
-		CreateNewDummy(34); //dynamic pvp mode
+		CreateNewDummy(DUMMYMODE_SURVIVAL);
+		CreateNewDummy(DUMMYMODE_SURVIVAL);
 	}
 	else
 	{
-		CreateNewDummy(0); //dummy
+		CreateNewDummy(DUMMYMODE_DEFAULT);
 		dbg_msg("basic_dummys", "waring map=%s not supported", Server()->GetMapName());
 	}
 	if(m_ShopBotTileExists)
@@ -2359,7 +2358,7 @@ void CGameContext::CreateBasicDummys()
 	dbg_msg("basic_dummys", "map=%s", Server()->GetMapName());
 }
 
-int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
+int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 {
 	int DummyID = GetNextClientID();
 	if(DummyID < 0 || DummyID >= MAX_CLIENTS)
@@ -2376,51 +2375,51 @@ int CGameContext::CreateNewDummy(int dummymode, bool silent, int tile)
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED, true);
 
 	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
-	m_apPlayers[DummyID]->m_DummyMode = dummymode;
+	m_apPlayers[DummyID]->m_DummyMode = Mode;
 	Server()->BotJoin(DummyID);
 
 	str_copy(m_apPlayers[DummyID]->m_TeeInfos.m_SkinName, "greensward", MAX_NAME_LENGTH);
 	m_apPlayers[DummyID]->m_TeeInfos.m_UseCustomColor = true;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorFeet = 0;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorBody = 0;
-	m_apPlayers[DummyID]->m_DummySpawnTile = tile;
+	m_apPlayers[DummyID]->m_DummySpawnTile = Tile;
 
 	dbg_msg("dummy", "Dummy connected: %d", DummyID);
 
-	if(dummymode == -1) //balancedummy1
+	if(Mode == DUMMYMODE_BALANCE1)
 	{
 		m_apPlayers[DummyID]->m_IsBalanceBattlePlayer1 = true;
 		m_apPlayers[DummyID]->m_IsBalanceBattleDummy = true;
 	}
-	else if(dummymode == -2) //balancedummy2
+	else if(Mode == DUMMYMODE_BALANCE2)
 	{
 		m_apPlayers[DummyID]->m_IsBalanceBattlePlayer1 = false;
 		m_apPlayers[DummyID]->m_IsBalanceBattleDummy = true;
 	}
-	else if(dummymode == -3) //blockwavebot
+	else if(Mode == DUMMYMODE_BLOCKWAVE)
 	{
 		m_apPlayers[DummyID]->m_IsBlockWaving = true;
 	}
-	else if(dummymode == -4) //laser fng
+	else if(Mode == DUMMYMODE_RIFLE_FNG)
 	{
 		JoinInstagib(5, true, DummyID);
 	}
-	else if(dummymode == -5) //grenade fng
+	else if(Mode == DUMMYMODE_GRENADE_FNG)
 	{
 		JoinInstagib(4, true, DummyID);
 	}
-	else if(dummymode == -6) //ChillBlock5 v3 deathmatch
+	else if(Mode == DUMMYMODE_BLMAPV3_ARENA)
 	{
 		m_apPlayers[DummyID]->m_IsBlockDeathmatch = true;
 	}
-	else if(dummymode == -7) // vanilla based mode
+	else if(Mode == DUMMYMODE_ADVENTURE)
 	{
 		m_apPlayers[DummyID]->m_IsVanillaDmg = true;
 		m_apPlayers[DummyID]->m_IsVanillaWeapons = true;
 		m_apPlayers[DummyID]->m_IsVanillaCompetetive = true;
 	}
 
-	OnClientEnter(DummyID, silent);
+	OnClientEnter(DummyID, Silent);
 
 	return DummyID;
 }

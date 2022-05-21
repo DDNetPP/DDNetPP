@@ -1,0 +1,260 @@
+// generic survival minigame bot
+// attacking and approaching close players
+
+#include "survival.h"
+
+#include "../character.h"
+#include <base/math_ddpp.h>
+#include <engine/shared/config.h>
+#include <game/server/gamecontext.h>
+#include <game/server/player.h>
+
+#define X (GetPos().x / 32)
+#define Y (GetPos().y / 32)
+#define RAW(pos) ((pos)*32)
+
+CDummySurvival::CDummySurvival(class CCharacter *pChr, class CPlayer *pPlayer) :
+	CDummyBase(pChr, pPlayer)
+{
+}
+
+void CDummySurvival::OnTick()
+{
+	Jump(0);
+	Fire(0);
+	Hook(0);
+	StopMoving();
+	//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
+
+	CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), false, m_pCharacter);
+	if(pChr && pChr->IsAlive())
+	{
+		AimPos(pChr->GetPos());
+
+		if(Server()->Tick() % 10 == 0) //random aim strong every 10 secs
+		{
+			int rand_x_inp = pChr->GetPos().x - GetPos().x + rand() % 200 - 100;
+			int rand_y_inp = pChr->GetPos().y - GetPos().y + rand() % 200 - 100;
+
+			AimX(rand_x_inp);
+			AimY(rand_y_inp);
+		}
+		else //aim normal bad
+		{
+			int rand_x_inp = pChr->GetPos().x - GetPos().x + rand() % 20 - 10;
+			int rand_y_inp = pChr->GetPos().y - GetPos().y + rand() % 20 - 10;
+
+			AimX(rand_x_inp);
+			AimY(rand_y_inp);
+		}
+
+		//Fire();
+
+		if(Server()->Tick() % 120 == 0)
+		{
+			SetWeapon(1); //randomly swap to gun
+		}
+
+		if(GetPos().x > pChr->GetPos().x - 80 && GetPos().x < pChr->GetPos().x + 80)
+		{
+			if(Server()->Tick() % 20 == 0)
+			{
+				SetWeapon(0); //switch hammer in close range
+			}
+			Fire();
+		}
+		else if(GetPos().x > pChr->GetPos().x)
+		{
+			Left();
+		}
+		else
+		{
+			Right();
+		}
+
+		if(Server()->Tick() % 20 == 0)
+		{
+			if(rand() % 20 > 8)
+			{
+				Fire();
+			}
+		}
+
+		if(GetPos().y > pChr->GetPos().y - 5 * 32 && GetPos().y < pChr->GetPos().y + 5 * 32) //same height
+		{
+			if(GetPos().x > pChr->GetPos().x - 6 * 32 && GetPos().x < pChr->GetPos().x + 6 * 32) //hook range
+			{
+				if(Server()->Tick() % 10 == 0) //angry
+				{
+					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+				}
+
+				Hook();
+				if(rand() % 6 == 0)
+				{
+					Hook(0);
+				}
+			}
+			else if(GetPos().x > pChr->GetPos().x - 15 * 32 && GetPos().x < pChr->GetPos().x + 15 * 32) //combat range
+			{
+			}
+			else if(GetPos().x > pChr->GetPos().x) //move towards enemy from to right side <---
+			{
+				int rand_x_inp = (rand() % 60 + 15) * -1;
+				int rand_y_inp = rand() % 100 * -1;
+
+				AimX(rand_x_inp);
+				AimY(rand_y_inp);
+
+				if(GetVel().y > -0.6f)
+				{
+					Hook();
+				}
+				if(IsGrounded())
+				{
+					Jump();
+				}
+			}
+			else if(GetPos().x < pChr->GetPos().x) //move towards enemy from the left side ---->
+			{
+				int rand_x_inp = rand() % 60 + 15;
+				int rand_y_inp = rand() % 100 * -1;
+
+				AimX(rand_x_inp);
+				AimY(rand_y_inp);
+
+				if(GetVel().y > -0.6f)
+				{
+					Hook();
+				}
+				if(IsGrounded())
+				{
+					Jump();
+				}
+			}
+		}
+		else if(GetPos().y > pChr->GetPos().y) //too low
+		{
+			int rand_x_inp = rand() % 60 - 30;
+			int rand_y_inp = rand() % 120 * -1;
+			Hook();
+
+			AimX(rand_x_inp);
+			AimY(rand_y_inp);
+
+			if(rand() % 3 == 1)
+			{
+				Hook(0);
+			}
+
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1) //collsion in the way
+			{
+				Right();
+				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+			}
+		}
+		else if(GetPos().y < pChr->GetPos().y) //too high
+		{
+			int rand_x_inp = rand() % 60 - 30;
+			int rand_y_inp = rand() % 120;
+			Hook();
+
+			AimX(rand_x_inp);
+			AimY(rand_y_inp);
+
+			if(rand() % 3 == 1)
+			{
+				Hook(0);
+			}
+		}
+
+		//tile bypassing
+
+		if(GetPos().y > pChr->GetPos().y + 50) //too low
+		{
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y - 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collsion in the way
+			{
+				SetDirection(m_DummyDir);
+				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+			}
+		}
+		else if(GetPos().y < pChr->GetPos().y - 50) //high low
+		{
+			if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 32) == 3) //collsion in the way
+			{
+				SetDirection(m_DummyDir);
+				//m_pPlayer->m_TeeInfos.m_ColorBody = (120 * 255 / 360);
+			}
+		}
+	}
+
+	//avoid killtiles
+	if(GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x - 60, GetPos().y + 30) == 2) //deathtiles on the left side
+	{
+		Right();
+	}
+	else if(GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y) == 2 || GameServer()->Collision()->GetCollisionAt(GetPos().x + 60, GetPos().y + 30) == 2) //deathtiles on the right side
+	{
+		Left();
+	}
+	if(!IsGrounded()) //flybot for fly parts (working in 10% of the cases)
+	{
+		if(GameServer()->Collision()->GetCollisionAt(GetPos().x, GetPos().y + 5 * 32) == 2) //falling on killtiles
+		{
+			AimX(2);
+			AimY(-200);
+			if(GetVel().y > 0.0f)
+			{
+				Hook();
+			}
+			else
+			{
+				Hook(0);
+			}
+		}
+	}
+
+	//check for stucking in walls
+	if(GetDirection() != 0 && GetVel().x == 0.0f)
+		if(Server()->Tick() % 60 == 0)
+			Jump();
+
+	//slow tick
+	if(Server()->Tick() % 200 == 0)
+	{
+		//escape stuck hook
+		Hook(0);
+
+		//anti stuck whatever
+		if(m_DummyDir == 1 && (GameServer()->Collision()->GetCollisionAt(GetPos().x + 20, GetPos().y) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x + 20, GetPos().y) == 3))
+		{
+			m_DummyDir = -1;
+		}
+		else // if (m_DummyDir == -1 && (GameServer()->Collision()->GetCollisionAt(GetPos().x - 20, GetPos().y) == 1 || GameServer()->Collision()->GetCollisionAt(GetPos().x - 20, GetPos().y) == 3))
+		{
+			m_DummyDir = 1;
+		}
+
+		//end game if all humans dead
+		if(GameServer()->m_survivalgamestate > 1) //survival game running
+		{
+			if(m_pPlayer->m_IsSurvivalAlive)
+			{
+				int AliveHumans = 0;
+				for(auto &Player : GameServer()->m_apPlayers)
+					if(Player && !Player->m_IsDummy) //check all humans
+						if(Player->m_IsSurvivaling && Player->m_IsSurvivalAlive) // surival alive
+							AliveHumans++;
+				if(!AliveHumans) //all humans dead --> suicide to get new round running
+				{
+					Die();
+					//dbg_msg("survival", "all humans dead suicide");
+				}
+				//else
+				//{
+				//	dbg_msg("survival","%d humans alive", AliveHumans);
+				//}
+			}
+		}
+	}
+}

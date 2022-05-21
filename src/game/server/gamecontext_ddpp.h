@@ -9,13 +9,6 @@
 
 #include <game/gamecore.h>
 
-#include "dummy/blmapchill_police.h"
-#include "dummy/blmapv5_lower_blocker.h"
-#include "dummy/blmapv5_upper_blocker.h"
-#include "dummy/chillblock5_blocker.h"
-#include "dummy/ctf5_pvp.h"
-#include "dummy/shopbot.h"
-
 #include <vector>
 
 #include "minigames/minigame_base.h"
@@ -76,18 +69,33 @@ public:
 
 	// dummy
 	void CreateBasicDummys();
-	int CreateNewDummy(int dummymode, bool silent = false, int tile = 0);
-	enum
+	enum EDummyMode
 	{
-		DUMMYMODE_ADVENTURE = -7,
+		DUMMYMODE_BALANCE1 = -1,
+		DUMMYMODE_BALANCE2 = -2,
+		DUMMYMODE_BLOCKWAVE = -3,
+		DUMMYMODE_RIFLE_FNG = -4,
+		DUMMYMODE_GRENADE_FNG = -5,
+		DUMMYMODE_BLMAPV3_ARENA = -6,
+		DUMMYMODE_ADVENTURE = -7, /* vanilla are pvp bot */
 		DUMMYMODE_DEFAULT = 0,
+		DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD = 18,
 		DUMMYMODE_CHILLBLOCK5_RACER = 23,
+		DUMMYMODE_FNN = 25, /* testy fake nural network lol (2.0 revived) */
 		DUMMYMODE_BLMAPCHILL_RACE = 28,
 		DUMMYMODE_CHILLBLOCK5_BLOCKER = 29,
+		DUMMYMODE_CHILLBLOCK5_BALANCE = 30,
 		DUMMYMODE_CHILLBLOCK5_POLICE = 31,
 		DUMMYMODE_BLMAPCHILL_POLICE = 32,
+		DUMMYMODE_CHILLINTELLIGENCE = 33,
+		DUMMYMODE_SURVIVAL = 34,
 		DUMMYMODE_QUEST = 36,
+		DUMMYMODE_SHOPBOT = 99,
+		DUMMYNODE_CTF5_PVP = 103,
+		DUMMYMODE_BLMAPV5_LOWER_BLOCKER = 104,
+		DUMMYMODE_BLMAPV5_UPPER_BLOCKER = 105,
 	};
+	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0);
 
 	//usefull everywhere
 	void AbuseMotd(const char *pMsg, int ClientID);

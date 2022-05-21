@@ -198,7 +198,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 			{
 				for(int i = 0; i < Value; i++)
 				{
-					CreateNewDummy(0);
+					CreateNewDummy(DUMMYMODE_DEFAULT);
 					SendChatTarget(ClientID, "Bot has been added.");
 				}
 			}
