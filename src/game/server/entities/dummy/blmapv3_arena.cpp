@@ -18,7 +18,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyBlmapV3Arena::CDummyBlmapV3Arena(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV3_ARENA)
 {
 }
 

@@ -7,8 +7,9 @@ class CDummyBlmapV5UpperBlocker : public CDummyBase
 {
 public:
 	CDummyBlmapV5UpperBlocker(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyBlmapV5UpperBlocker(){};
+	const char *ModeStr() override { return "BlmapV5 upper"; }
 
 private:
 	bool m_move_left;

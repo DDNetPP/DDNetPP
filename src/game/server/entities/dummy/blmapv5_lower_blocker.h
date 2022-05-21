@@ -7,8 +7,9 @@ class CDummyBlmapV5LowerBlocker : public CDummyBase
 {
 public:
 	CDummyBlmapV5LowerBlocker(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyBlmapV5LowerBlocker(){};
+	const char *ModeStr() override { return "BlmapV5 lower"; }
 
 private:
 	bool m_rj_failed;

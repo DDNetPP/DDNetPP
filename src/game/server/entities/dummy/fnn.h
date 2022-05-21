@@ -9,8 +9,9 @@ class CDummyFNN : public CDummyBase
 {
 public:
 	CDummyFNN(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyFNN(){};
+	const char *ModeStr() override { return "FNN"; }
 
 	bool m_Dummy_nn_ready;
 	bool m_Dummy_nn_touched_by_humans;

@@ -8,8 +8,9 @@ class CDummyChillBlock5Race : public CDummyBase
 {
 public:
 	CDummyChillBlock5Race(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyChillBlock5Race(){};
+	const char *ModeStr() override { return "ChillBlock5 Race"; }
 
 private:
 	int m_Dummy_help_m8_before_hf_hook; //yep a bool int timer

@@ -16,7 +16,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyChillBlock5Police::CDummyChillBlock5Police(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_POLICE)
 {
 	m_Dummy_GotStuck = false;
 	m_Dummy_GetSpeed = false;

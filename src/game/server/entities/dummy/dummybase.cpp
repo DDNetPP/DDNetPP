@@ -6,10 +6,11 @@
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
-CDummyBase::CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer)
+CDummyBase::CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer, int Mode)
 {
 	m_pCharacter = pChr;
 	m_pPlayer = pPlayer;
+	m_Mode = Mode;
 	m_DebugColor = -1;
 	m_WantedWeapon = -1;
 	m_RtfGetSpeed = 0;

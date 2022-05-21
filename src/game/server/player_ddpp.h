@@ -474,7 +474,9 @@ public:
 
 	bool m_HammerRequest;
 
-	int m_DummyMode;
+	void SetDummyMode(int Mode);
+	int m_DummyMode; // TODO: make private
+	char m_aDummyMode[128];
 	int m_dmm25; //change dummy modes in the mode 25  ( choose sub modes)
 	float m_Dummy_nn_latest_Distance;
 	float m_Dummy_nn_highest_Distance;

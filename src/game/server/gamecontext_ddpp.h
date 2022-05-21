@@ -254,6 +254,7 @@ public:
 
 	CBlockTournament *m_pBlockTournament;
 	CBalance *m_pBalance;
+
 	std::vector<CMinigame *> m_vMinigames;
 
 	//survival
@@ -656,6 +657,8 @@ private:
 	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConDummies(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);

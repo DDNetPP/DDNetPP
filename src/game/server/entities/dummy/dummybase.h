@@ -9,11 +9,16 @@ class CPlayer;
 class CDummyBase
 {
 public:
-	CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer, int Mode);
+	virtual ~CDummyBase(){};
+	virtual const char *ModeStr() = 0;
 	void Tick();
+	int Mode() { return m_Mode; }
 
 private:
 	virtual void OnTick() {}
+
+	int m_Mode;
 
 	int m_RtfGetSpeed;
 	int m_LtfGetSpeed;

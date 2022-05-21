@@ -199,6 +199,12 @@ void CPlayer::DDPPTick()
 	PlayerHumanLevelTick();
 }
 
+void CPlayer::SetDummyMode(int Mode)
+{
+	m_DummyMode = Mode;
+	m_aDummyMode[0] = '\0';
+}
+
 void CPlayer::PlayerHumanLevelTick()
 {
 	if(m_HumanLevelTime >= 1)

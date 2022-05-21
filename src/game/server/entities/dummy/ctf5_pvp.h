@@ -7,8 +7,9 @@ class CDummyCtf5Pvp : public CDummyBase
 {
 public:
 	CDummyCtf5Pvp(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyCtf5Pvp(){};
+	const char *ModeStr() override { return "CTF5 PvP"; }
 };
 
 #endif

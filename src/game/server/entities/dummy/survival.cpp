@@ -14,7 +14,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummySurvival::CDummySurvival(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_SURVIVAL)
 {
 }
 

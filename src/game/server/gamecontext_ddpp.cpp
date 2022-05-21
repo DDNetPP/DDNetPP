@@ -2375,7 +2375,7 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED, true);
 
 	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
-	m_apPlayers[DummyID]->m_DummyMode = Mode;
+	m_apPlayers[DummyID]->SetDummyMode(Mode);
 	Server()->BotJoin(DummyID);
 
 	str_copy(m_apPlayers[DummyID]->m_TeeInfos.m_SkinName, "greensward", MAX_NAME_LENGTH);

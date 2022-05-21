@@ -8,8 +8,9 @@ class CDummyChillBlock5BlockerTryHard : public CDummyBase
 {
 public:
 	CDummyChillBlock5BlockerTryHard(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyChillBlock5BlockerTryHard(){};
+	const char *ModeStr() override { return "ChillBlock5 Blocker TryHard"; }
 
 private:
 	//notstand vars fuer mode 18 (also used in 29)

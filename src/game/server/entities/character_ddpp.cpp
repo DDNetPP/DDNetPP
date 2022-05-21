@@ -53,100 +53,13 @@ void CCharacter::ConstructDDPP()
 
 void CCharacter::DestructDDPP()
 {
-	if(m_pDummySample)
+	for(auto &DummyMode : m_vDummyModes)
 	{
-		delete m_pDummySample;
-		m_pDummySample = nullptr;
-	}
-	if(m_pDummyAdventure)
-	{
-		delete m_pDummyAdventure;
-		m_pDummyAdventure = nullptr;
-	}
-	if(m_pDummyBlmapChillPolice)
-	{
-		delete m_pDummyBlmapChillPolice;
-		m_pDummyBlmapChillPolice = nullptr;
-	}
-	if(m_pDummyChillBlock5Balance)
-	{
-		delete m_pDummyChillBlock5Balance;
-		m_pDummyChillBlock5Balance = nullptr;
-	}
-	if(m_pDummyChillBlock5Blocker)
-	{
-		delete m_pDummyChillBlock5Blocker;
-		m_pDummyChillBlock5Blocker = nullptr;
-	}
-	if(m_pDummyChillBlock5BlockerTryHard)
-	{
-		delete m_pDummyChillBlock5BlockerTryHard;
-		m_pDummyChillBlock5BlockerTryHard = nullptr;
-	}
-	if(m_pDummyChillBlock5Race)
-	{
-		delete m_pDummyChillBlock5Race;
-		m_pDummyChillBlock5Race = nullptr;
-	}
-	if(m_pDummyChillBlock5Police)
-	{
-		delete m_pDummyChillBlock5Police;
-		m_pDummyChillBlock5Police = nullptr;
-	}
-	if(m_pDummyBlmapV3Arena)
-	{
-		delete m_pDummyBlmapV3Arena;
-		m_pDummyBlmapV3Arena = nullptr;
-	}
-	if(m_pDummyBlmapV5UpperBlocker)
-	{
-		delete m_pDummyBlmapV5UpperBlocker;
-		m_pDummyBlmapV5UpperBlocker = nullptr;
-	}
-	if(m_pDummyBlmapV5LowerBlocker)
-	{
-		delete m_pDummyBlmapV5LowerBlocker;
-		m_pDummyBlmapV5LowerBlocker = nullptr;
-	}
-	if(m_pDummyCtf5Pvp)
-	{
-		delete m_pDummyCtf5Pvp;
-		m_pDummyCtf5Pvp = nullptr;
-	}
-	if(m_pDummyShopBot)
-	{
-		delete m_pDummyShopBot;
-		m_pDummyShopBot = nullptr;
-	}
-	if(m_pDummySurvival)
-	{
-		delete m_pDummySurvival;
-		m_pDummySurvival = nullptr;
-	}
-	if(m_pDummyGrenadeFng)
-	{
-		delete m_pDummyGrenadeFng;
-		m_pDummyGrenadeFng = nullptr;
-	}
-	if(m_pDummyRifleFng)
-	{
-		delete m_pDummyRifleFng;
-		m_pDummyRifleFng = nullptr;
-	}
-	if(m_pDummyBlockWave)
-	{
-		delete m_pDummyBlockWave;
-		m_pDummyBlockWave = nullptr;
-	}
-	if(m_pDummyQuest)
-	{
-		delete m_pDummyQuest;
-		m_pDummyQuest = nullptr;
-	}
-	if(m_pDummyFNN)
-	{
-		delete m_pDummyFNN;
-		m_pDummyFNN = nullptr;
+		if(!DummyMode)
+			continue;
+
+		delete DummyMode;
+		DummyMode = nullptr;
 	}
 }
 
@@ -154,41 +67,41 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 {
 	m_LastTaserUse = Server()->Tick();
 	if(!m_pDummySample)
-		m_pDummySample = new CDummySample(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummySample = new CDummySample(this, pPlayer));
 	if(!m_pDummyAdventure)
-		m_pDummyAdventure = new CDummyAdventure(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyAdventure = new CDummyAdventure(this, pPlayer));
 	if(!m_pDummyBlmapChillPolice)
-		m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer));
 	if(!m_pDummyChillBlock5Balance)
-		m_pDummyChillBlock5Balance = new CDummyChillBlock5Balance(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyChillBlock5Balance = new CDummyChillBlock5Balance(this, pPlayer));
 	if(!m_pDummyChillBlock5Blocker)
-		m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer));
 	if(!m_pDummyChillBlock5BlockerTryHard)
-		m_pDummyChillBlock5BlockerTryHard = new CDummyChillBlock5BlockerTryHard(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyChillBlock5BlockerTryHard = new CDummyChillBlock5BlockerTryHard(this, pPlayer));
 	if(!m_pDummyChillBlock5Race)
-		m_pDummyChillBlock5Race = new CDummyChillBlock5Race(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyChillBlock5Race = new CDummyChillBlock5Race(this, pPlayer));
 	if(!m_pDummyChillBlock5Police)
-		m_pDummyChillBlock5Police = new CDummyChillBlock5Police(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyChillBlock5Police = new CDummyChillBlock5Police(this, pPlayer));
 	if(!m_pDummyBlmapV3Arena)
-		m_pDummyBlmapV3Arena = new CDummyBlmapV3Arena(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyBlmapV3Arena = new CDummyBlmapV3Arena(this, pPlayer));
 	if(!m_pDummyBlmapV5UpperBlocker)
-		m_pDummyBlmapV5UpperBlocker = new CDummyBlmapV5UpperBlocker(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyBlmapV5UpperBlocker = new CDummyBlmapV5UpperBlocker(this, pPlayer));
 	if(!m_pDummyBlmapV5LowerBlocker)
-		m_pDummyBlmapV5LowerBlocker = new CDummyBlmapV5LowerBlocker(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyBlmapV5LowerBlocker = new CDummyBlmapV5LowerBlocker(this, pPlayer));
 	if(!m_pDummyCtf5Pvp)
-		m_pDummyCtf5Pvp = new CDummyCtf5Pvp(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyCtf5Pvp = new CDummyCtf5Pvp(this, pPlayer));
 	if(!m_pDummyShopBot)
-		m_pDummyShopBot = new CDummyShopBot(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyShopBot = new CDummyShopBot(this, pPlayer));
 	if(!m_pDummySurvival)
-		m_pDummySurvival = new CDummySurvival(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummySurvival = new CDummySurvival(this, pPlayer));
 	if(!m_pDummyGrenadeFng)
-		m_pDummyGrenadeFng = new CDummyGrenadeFng(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyGrenadeFng = new CDummyGrenadeFng(this, pPlayer));
 	if(!m_pDummyRifleFng)
-		m_pDummyRifleFng = new CDummyRifleFng(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyRifleFng = new CDummyRifleFng(this, pPlayer));
 	if(!m_pDummyQuest)
-		m_pDummyQuest = new CDummyQuest(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyQuest = new CDummyQuest(this, pPlayer));
 	if(!m_pDummyFNN)
-		m_pDummyFNN = new CDummyFNN(this, pPlayer);
+		m_vDummyModes.push_back(m_pDummyFNN = new CDummyFNN(this, pPlayer));
 	//zCatch ChillerDragon
 	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{

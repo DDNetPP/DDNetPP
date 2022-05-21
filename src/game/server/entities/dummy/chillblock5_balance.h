@@ -8,8 +8,9 @@ class CDummyChillBlock5Balance : public CDummyBase
 {
 public:
 	CDummyChillBlock5Balance(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyChillBlock5Balance(){};
+	const char *ModeStr() override { return "ChillBlock5 Balance"; }
 };
 
 #endif

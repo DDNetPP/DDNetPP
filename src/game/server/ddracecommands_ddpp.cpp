@@ -171,7 +171,7 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 		else
-			pPlayer->m_DummyMode = pResult->GetInteger(0);
+			pPlayer->SetDummyMode(pResult->GetInteger(0));
 	}
 }
 
@@ -885,6 +885,32 @@ void CGameContext::ConNameChangeMutes(IConsole::IResult *pResult, void *pUserDat
 			(pSelf->m_aNameChangeMutes[i].m_Expire - pSelf->Server()->Tick()) / pSelf->Server()->TickSpeed());
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_change_mutes", aBuf);
 	}
+}
+
+void CGameContext::ConDummies(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	char aBuf[128];
+	bool Found = false;
+	for(auto &Player : pSelf->m_apPlayers)
+	{
+		if(!Player)
+			continue;
+		if(!Player->m_IsDummy)
+			continue;
+
+		Found = true;
+		str_format(
+			aBuf,
+			sizeof(aBuf),
+			"%d (%s): %s",
+			Player->m_DummyMode,
+			Player->m_aDummyMode,
+			pSelf->Server()->ClientName(Player->GetCID()));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dummies", aBuf);
+	}
+	if(!Found)
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dummies", "no server dummies connected.");
 }
 
 void CGameContext::ConDestroyLaser(IConsole::IResult *pResult, void *pUserData)

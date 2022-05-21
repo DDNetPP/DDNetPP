@@ -10,8 +10,9 @@ class CDummyBlmapV3Arena : public CDummyBase
 {
 public:
 	CDummyBlmapV3Arena(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyBlmapV3Arena(){};
+	const char *ModeStr() override { return "BlmapV3 area"; }
 };
 
 #endif

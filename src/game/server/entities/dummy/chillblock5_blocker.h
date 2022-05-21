@@ -8,8 +8,9 @@ class CDummyChillBlock5Blocker : public CDummyBase
 {
 public:
 	CDummyChillBlock5Blocker(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyChillBlock5Blocker(){};
+	const char *ModeStr() override { return "ChillBlock5 Blocker"; }
 
 private:
 	//dummymode 29 vars (ChillBlock5 blocker)

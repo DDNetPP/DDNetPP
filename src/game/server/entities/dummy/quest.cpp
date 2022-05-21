@@ -15,7 +15,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyQuest::CDummyQuest(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_QUEST)
 {
 }
 

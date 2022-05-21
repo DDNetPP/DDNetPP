@@ -13,7 +13,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyCtf5Pvp::CDummyCtf5Pvp(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYNODE_CTF5_PVP)
 {
 }
 

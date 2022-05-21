@@ -7,8 +7,9 @@ class CDummySurvival : public CDummyBase
 {
 public:
 	CDummySurvival(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummySurvival(){};
+	const char *ModeStr() override { return "Survival"; }
 
 private:
 	int m_DummyDir;

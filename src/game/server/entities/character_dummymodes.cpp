@@ -48,70 +48,31 @@ void CCharacter::DummyTick()
 		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;
 	}
 
-	switch(m_pPlayer->m_DummyMode)
+	bool Found = false;
+	for(auto &DummyMode : m_vDummyModes)
 	{
-	case CGameContext::DUMMYMODE_DEFAULT:
-		m_pDummySample->Tick();
-		break;
-	case CGameContext::DUMMYMODE_BLOCKWAVE:
-		m_pDummyBlockWave->Tick();
-		break;
-	case CGameContext::DUMMYMODE_RIFLE_FNG:
-		m_pDummyRifleFng->Tick();
-		break;
-	case CGameContext::DUMMYMODE_GRENADE_FNG:
-		m_pDummyGrenadeFng->Tick();
-		break;
-	case CGameContext::DUMMYMODE_BLMAPV3_ARENA:
-		m_pDummyBlmapV3Arena->Tick();
-		break;
-	case CGameContext::DUMMYMODE_ADVENTURE:
-		m_pDummyAdventure->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD:
-		m_pDummyChillBlock5BlockerTryHard->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLBLOCK5_RACER:
-		m_pDummyChillBlock5Race->Tick();
-		break;
-	case CGameContext::DUMMYMODE_FNN:
-		m_pDummyFNN->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLBLOCK5_BALANCE:
-		m_pDummyChillBlock5Balance->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLBLOCK5_POLICE:
-		m_pDummyChillBlock5Police->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER:
-		m_pDummyChillBlock5Blocker->Tick();
-		break;
-	case CGameContext::DUMMYMODE_BLMAPCHILL_POLICE:
-		m_pDummyBlmapChillPolice->Tick();
-		break;
-	case CGameContext::DUMMYMODE_CHILLINTELLIGENCE:
-		CITick();
-		break;
-	case CGameContext::DUMMYMODE_SURVIVAL:
-		m_pDummySurvival->Tick();
-		break;
-	case CGameContext::DUMMYMODE_QUEST:
-		m_pDummyQuest->Tick();
-		break;
-	case CGameContext::DUMMYMODE_SHOPBOT:
-		m_pDummyShopBot->Tick();
-		break;
-	case CGameContext::DUMMYNODE_CTF5_PVP:
-		m_pDummyCtf5Pvp->Tick();
-		break;
-	case CGameContext::DUMMYMODE_BLMAPV5_LOWER_BLOCKER:
-		m_pDummyBlmapV5LowerBlocker->Tick();
-		break;
-	case CGameContext::DUMMYMODE_BLMAPV5_UPPER_BLOCKER:
-		m_pDummyBlmapV5UpperBlocker->Tick();
-		break;
-	default:
-		m_pPlayer->m_DummyMode = CGameContext::DUMMYMODE_DEFAULT;
-		break;
+		// should assert instead
+		if(!DummyMode)
+			continue;
+
+		if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_CHILLINTELLIGENCE)
+		{
+			Found = true;
+			CITick();
+		}
+		else if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_BALANCE1 || m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_BALANCE2)
+		{
+			Found = true;
+			m_pDummyChillBlock5Balance->Tick();
+		}
+		else if(m_pPlayer->m_DummyMode == DummyMode->Mode())
+		{
+			Found = true;
+			DummyMode->Tick();
+			if(!m_pPlayer->m_aDummyMode[0])
+				str_copy(m_pPlayer->m_aDummyMode, DummyMode->ModeStr(), sizeof(m_pPlayer->m_aDummyMode));
+		}
 	}
+	if(!Found)
+		m_pPlayer->SetDummyMode(CGameContext::DUMMYMODE_DEFAULT);
 }

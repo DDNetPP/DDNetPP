@@ -14,7 +14,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyChillBlock5Race::CDummyChillBlock5Race(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPCHILL_RACE)
 {
 }
 

@@ -13,7 +13,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyBlmapV5LowerBlocker::CDummyBlmapV5LowerBlocker(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV5_LOWER_BLOCKER)
 {
 	m_angry = 0;
 	m_rj_failed = false;

@@ -13,7 +13,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPCHILL_POLICE)
 {
 	m_LovedX = 0;
 	m_LovedY = 0;

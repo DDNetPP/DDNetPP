@@ -9,7 +9,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummySample::CDummySample(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_DEFAULT)
 {
 }
 

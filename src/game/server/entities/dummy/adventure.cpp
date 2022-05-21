@@ -19,7 +19,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyAdventure::CDummyAdventure(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_ADVENTURE)
 {
 }
 

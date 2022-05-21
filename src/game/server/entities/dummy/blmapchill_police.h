@@ -10,8 +10,9 @@ class CDummyBlmapChillPolice : public CDummyBase
 {
 public:
 	CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyBlmapChillPolice(){};
+	const char *ModeStr() override { return "BlmapChill Police"; }
 
 private:
 	bool CheckStuck();

@@ -17,7 +17,7 @@
 #define RAW(pos) ((pos)*32)
 
 CDummyChillBlock5Blocker::CDummyChillBlock5Blocker(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer)
+	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER)
 {
 }
 

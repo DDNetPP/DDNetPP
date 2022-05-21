@@ -7,8 +7,9 @@ class CDummyQuest : public CDummyBase
 {
 public:
 	CDummyQuest(class CCharacter *pChr, class CPlayer *pPlayer);
-	virtual void OnTick();
+	virtual void OnTick() override;
 	virtual ~CDummyQuest(){};
+	const char *ModeStr() override { return "Quest"; }
 };
 
 #endif
