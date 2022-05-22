@@ -41,6 +41,21 @@ void CDummyFNN::OnDeath()
 	m_StartPos = vec2(0, 0);
 }
 
+void CDummyFNN::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
+{
+	// isTouched check
+	if(From >= 0 && m_Dummy_nn_ready && From != m_pPlayer->GetCID())
+	{
+		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
+		{
+			m_Dummy_nn_touched_by_humans = true;
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
+			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+		}
+	}
+}
+
 void CDummyFNN::OnTick()
 {
 	char aBuf[256];

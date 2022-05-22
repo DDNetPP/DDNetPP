@@ -14,6 +14,7 @@ public:
 	virtual const char *ModeStr() = 0;
 	void Tick(class CCharacter *pChr);
 	virtual void OnDeath(){};
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon){};
 	int Mode() { return m_Mode; }
 
 private:

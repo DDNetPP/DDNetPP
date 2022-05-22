@@ -1831,23 +1831,9 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 	}
 
-	////dragon test [FNN] isTouched check
-	// TODO: use dummymode callack here and uncomment this shit
-	// if(m_pPlayer->DummyMode() == DUMMYMODE_FNN)
-	// {
-	// 	if(From >= 0 && m_pPlayer->m_IsDummy && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
-	// 	{
-	// 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
-	// 		{
-	// 			m_pDummyFNN->m_Dummy_nn_touched_by_humans = true;
-	// 			char aBuf[128];
-	// 			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
-	// 			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
-	// 		}
+	if(GetPlayer()->m_IsDummy && GetPlayer()->m_pDummyMode)
+		GetPlayer()->m_pDummyMode->TakeDamage(Force, Dmg, From, Weapon);
 
-	// 		//return false; //removes hammer knockback
-	// 	}
-	// }
 	//zCatch ChillerDragon
 	if(From >= 0)
 	{

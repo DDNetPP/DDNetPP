@@ -11,6 +11,7 @@ public:
 	CDummyFNN(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual void OnDeath() override;
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon) override;
 	virtual ~CDummyFNN(){};
 	const char *ModeStr() override { return "FNN"; }
 
