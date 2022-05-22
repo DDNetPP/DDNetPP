@@ -444,7 +444,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					SetWeapon(0); //hol den hammer raus!
 					if(pChr->GetPos().x - GetPos().x < 30) //wenn der typ nahe bei dem bot ist
 					{
-						if(m_pCharacter->m_FreezeTick == 0) //nicht rum schrein
+						if(m_pCharacter->Core()->m_FreezeTick == 0) //nicht rum schrein
 						{
 							Fire();
 						}
@@ -477,7 +477,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					AimX(pChr->GetPos().x - GetPos().x);
 					AimY(pChr->GetPos().y - GetPos().y);
 
-					if(m_pCharacter->m_FreezeTick == 0) //nicht rum schrein
+					if(m_pCharacter->Core()->m_FreezeTick == 0) //nicht rum schrein
 					{
 						Fire();
 					}
@@ -765,7 +765,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
 
-						if(m_pCharacter->m_FreezeTick == 0) //nicht rum schrein
+						if(m_pCharacter->Core()->m_FreezeTick == 0) //nicht rum schrein
 						{
 							Fire();
 						}
@@ -952,7 +952,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					//das is bisher ja noch die einzige sicherheits lücke beim wayblocken
 					//wenn man ein tee über den bot hammert
 
-					if(pChr->GetPos().x > 421 * 32 && pChr->m_FreezeTick > 0 && pChr->GetPos().x < GetPos().x)
+					if(pChr->GetPos().x > 421 * 32 && pChr->Core()->m_FreezeTick > 0 && pChr->GetPos().x < GetPos().x)
 					{
 						Jump();
 						Hook();

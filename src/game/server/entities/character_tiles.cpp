@@ -249,10 +249,10 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	//hammer tiles
 	if(((m_TileIndex == TILE_NO_HAMMER) || (m_TileFIndex == TILE_NO_HAMMER)))
 	{
-		m_aWeapons[WEAPON_HAMMER].m_Got = false;
+		m_Core.m_aWeapons[WEAPON_HAMMER].m_Got = false;
 		if(!SetWeaponThatChrHas()) // Cheat gun if hammer was last weapon
 		{
-			m_aWeapons[WEAPON_GUN].m_Got = true;
+			m_Core.m_aWeapons[WEAPON_GUN].m_Got = true;
 		}
 		SetWeaponThatChrHas();
 	}
@@ -849,22 +849,22 @@ void CCharacter::SetSpawnWeapons()
 	{
 		if(m_pPlayer->m_Account.m_SpawnWeaponShotgun)
 		{
-			m_aWeapons[2].m_Got = true;
-			m_aWeapons[2].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponShotgun;
+			m_Core.m_aWeapons[2].m_Got = true;
+			m_Core.m_aWeapons[2].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponShotgun;
 			m_pPlayer->m_SpawnShotgunActive = 1;
 		}
 
 		if(m_pPlayer->m_Account.m_SpawnWeaponGrenade)
 		{
-			m_aWeapons[3].m_Got = true;
-			m_aWeapons[3].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponGrenade;
+			m_Core.m_aWeapons[3].m_Got = true;
+			m_Core.m_aWeapons[3].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponGrenade;
 			m_pPlayer->m_SpawnGrenadeActive = 1;
 		}
 
 		if(m_pPlayer->m_Account.m_SpawnWeaponRifle)
 		{
-			m_aWeapons[4].m_Got = true;
-			m_aWeapons[4].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponRifle;
+			m_Core.m_aWeapons[4].m_Got = true;
+			m_Core.m_aWeapons[4].m_Ammo = m_pPlayer->m_Account.m_SpawnWeaponRifle;
 			m_pPlayer->m_SpawnRifleActive = 1;
 		}
 	}

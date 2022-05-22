@@ -323,16 +323,16 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		m_CpActive = -2;
 	}
 
-	m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
+	m_Core.m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
 
 	if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsVanillaWeapons)
 	{
-		m_aWeapons[1].m_Ammo = -1; // added by fokkonaut to have -1 (infinite) bullets of gun at spawn and not 10. after freeze you would have -1 anyways so why not when spawning
+		m_Core.m_aWeapons[1].m_Ammo = -1; // added by fokkonaut to have -1 (infinite) bullets of gun at spawn and not 10. after freeze you would have -1 anyways so why not when spawning
 	}
 
 	if(m_pPlayer->m_IsSurvivaling && !g_Config.m_SvSurvivalGunAmmo)
 	{
-		m_aWeapons[1].m_Got = false;
+		m_Core.m_aWeapons[1].m_Got = false;
 		m_Core.m_ActiveWeapon = WEAPON_HAMMER;
 	}
 
@@ -387,10 +387,10 @@ void CCharacter::ClearFakeMotd()
 
 void CCharacter::BulletAmounts()
 {
-	m_GunBullets = m_aWeapons[1].m_Ammo;
-	m_ShotgunBullets = m_aWeapons[2].m_Ammo;
-	m_GrenadeBullets = m_aWeapons[3].m_Ammo;
-	m_RifleBullets = m_aWeapons[4].m_Ammo;
+	m_GunBullets = m_Core.m_aWeapons[1].m_Ammo;
+	m_ShotgunBullets = m_Core.m_aWeapons[2].m_Ammo;
+	m_GrenadeBullets = m_Core.m_aWeapons[3].m_Ammo;
+	m_RifleBullets = m_Core.m_aWeapons[4].m_Ammo;
 }
 
 bool CCharacter::HandleConfigTile(int Type)
@@ -621,14 +621,14 @@ void CCharacter::SetSpookyGhost()
 	{
 		for(int i = 0; i < NUM_WEAPONS; i++)
 		{
-			m_aSpookyGhostWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo;
-			m_aSpookyGhostWeaponsBackupGot[i][1] = m_aWeapons[i].m_Got;
-			m_aWeapons[i].m_Ammo = 0;
-			m_aWeapons[i].m_Got = false;
+			m_aSpookyGhostWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo;
+			m_aSpookyGhostWeaponsBackupGot[i][1] = m_Core.m_aWeapons[i].m_Got;
+			m_Core.m_aWeapons[i].m_Ammo = 0;
+			m_Core.m_aWeapons[i].m_Got = false;
 		}
 		m_SpookyGhostWeaponsBackupped = true;
-		m_aWeapons[1].m_Got = true;
-		m_aWeapons[1].m_Ammo = -1;
+		m_Core.m_aWeapons[1].m_Got = true;
+		m_Core.m_aWeapons[1].m_Ammo = -1;
 	}
 
 	str_copy(m_pPlayer->m_TeeInfos.m_SkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_SkinName));
@@ -643,14 +643,14 @@ void CCharacter::UnsetSpookyGhost()
 	{
 		for(int i = 0; i < NUM_WEAPONS; i++)
 		{
-			m_aWeapons[i].m_Got = m_aSpookyGhostWeaponsBackupGot[i][1];
+			m_Core.m_aWeapons[i].m_Got = m_aSpookyGhostWeaponsBackupGot[i][1];
 			if(m_pPlayer->m_IsVanillaWeapons || m_pPlayer->m_SpawnShotgunActive || m_pPlayer->m_SpawnGrenadeActive || m_pPlayer->m_SpawnRifleActive)
 			{
-				m_aWeapons[i].m_Ammo = m_aSpookyGhostWeaponsBackup[i][1];
+				m_Core.m_aWeapons[i].m_Ammo = m_aSpookyGhostWeaponsBackup[i][1];
 			}
 			else
 			{
-				m_aWeapons[i].m_Ammo = -1;
+				m_Core.m_aWeapons[i].m_Ammo = -1;
 			}
 		}
 		m_SpookyGhostWeaponsBackupped = false;
@@ -675,15 +675,15 @@ void CCharacter::SaveRealInfos()
 
 bool CCharacter::SetWeaponThatChrHas()
 {
-	if(m_aWeapons[WEAPON_GUN].m_Got)
+	if(m_Core.m_aWeapons[WEAPON_GUN].m_Got)
 		SetWeapon(WEAPON_GUN);
-	else if(m_aWeapons[WEAPON_HAMMER].m_Got)
+	else if(m_Core.m_aWeapons[WEAPON_HAMMER].m_Got)
 		SetWeapon(WEAPON_HAMMER);
-	else if(m_aWeapons[WEAPON_GRENADE].m_Got)
+	else if(m_Core.m_aWeapons[WEAPON_GRENADE].m_Got)
 		SetWeapon(WEAPON_GRENADE);
-	else if(m_aWeapons[WEAPON_SHOTGUN].m_Got)
+	else if(m_Core.m_aWeapons[WEAPON_SHOTGUN].m_Got)
 		SetWeapon(WEAPON_SHOTGUN);
-	else if(m_aWeapons[WEAPON_LASER].m_Got)
+	else if(m_Core.m_aWeapons[WEAPON_LASER].m_Got)
 		SetWeapon(WEAPON_LASER);
 	else
 		return false;
@@ -788,7 +788,7 @@ void CCharacter::DropWeapon(int WeaponID)
 		return;
 	if(isFreezed || m_FreezeTime)
 		return;
-	if(!m_aWeapons[WeaponID].m_Got)
+	if(!m_Core.m_aWeapons[WeaponID].m_Got)
 		return;
 	if(m_pPlayer->IsInstagibMinigame())
 		return;
@@ -815,7 +815,7 @@ void CCharacter::DropWeapon(int WeaponID)
 
 	for(int i = 5; i > -1; i--)
 	{
-		if(m_aWeapons[i].m_Got)
+		if(m_Core.m_aWeapons[i].m_Got)
 			m_CountWeapons++;
 	}
 
@@ -830,7 +830,7 @@ void CCharacter::DropWeapon(int WeaponID)
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true, true);
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo, true, true);
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 		else if(m_Jetpack)
@@ -839,7 +839,7 @@ void CCharacter::DropWeapon(int WeaponID)
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, true);
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo, true);
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 		else if(m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
@@ -849,16 +849,16 @@ void CCharacter::DropWeapon(int WeaponID)
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo, false, true);
+			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo, false, true);
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
 	}
 	else if(m_CountWeapons > 1)
 	{
-		m_aWeapons[WeaponID].m_Got = false;
+		m_Core.m_aWeapons[WeaponID].m_Got = false;
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_aWeapons[WeaponID].m_Ammo);
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo);
 		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
 	}
 
@@ -2050,7 +2050,7 @@ void CCharacter::FreezeAll(int seconds)
 
 bool CCharacter::HasWeapon(int weapon)
 {
-	return m_aWeapons[weapon].m_Got;
+	return m_Core.m_aWeapons[weapon].m_Got;
 }
 
 void CCharacter::KillSpeed()
@@ -3144,18 +3144,18 @@ void CCharacter::DDPPFireWeapon()
 
 	if(m_pPlayer->m_IsVanillaWeapons)
 	{
-		if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
-			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
+			m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 	}
 
 	if(m_aDecreaseAmmo[m_Core.m_ActiveWeapon]) // picked up a dropped weapon without infinite bullets (-1)
 	{
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
 
-		if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_aDecreaseAmmo[m_Core.m_ActiveWeapon] = false;
-			m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
+			m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Got = false;
 			SetWeaponThatChrHas();
 		}
 	}
@@ -3166,8 +3166,8 @@ void CCharacter::DDPPFireWeapon()
 
 	if(m_pPlayer->m_SpawnShotgunActive && m_Core.m_ActiveWeapon == WEAPON_SHOTGUN)
 	{
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
-		if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_pPlayer->m_SpawnShotgunActive = 0;
 			SetWeaponGot(WEAPON_SHOTGUN, false);
@@ -3177,8 +3177,8 @@ void CCharacter::DDPPFireWeapon()
 
 	if(m_pPlayer->m_SpawnGrenadeActive && m_Core.m_ActiveWeapon == WEAPON_GRENADE)
 	{
-		m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
-		if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+		if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 		{
 			m_pPlayer->m_SpawnGrenadeActive = 0;
 			SetWeaponGot(WEAPON_GRENADE, false);
@@ -3192,8 +3192,8 @@ void CCharacter::DDPPFireWeapon()
 			m_LastTaserUse = Server()->Tick();
 		if(m_pPlayer->m_SpawnRifleActive)
 		{
-			m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
-			if(m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
+			m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;
+			if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo == 0)
 			{
 				m_pPlayer->m_SpawnRifleActive = 0;
 				SetWeaponGot(WEAPON_LASER, false);
@@ -3298,17 +3298,17 @@ bool CCharacter::ForceFreeze(int Seconds)
 	isFreezed = true;
 	if(Seconds <= 0 || m_FreezeTime == -1)
 		return false;
-	if(m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
+	if(m_Core.m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
 	{
 		if(!m_WeaponsBackupped) //only save once
 		{
 			for(int i = 0; i < NUM_WEAPONS; i++)
 			{
-				if(m_aWeapons[i].m_Got)
+				if(m_Core.m_aWeapons[i].m_Got)
 				{
-					m_aWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
+					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
 						//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
-					m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
+					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}
 			m_WeaponsBackupped = true;
@@ -3319,13 +3319,13 @@ bool CCharacter::ForceFreeze(int Seconds)
 			m_Armor = 0;
 		}
 
-		if(m_FreezeTick == 0 || m_FirstFreezeTick == 0)
+		if(m_Core.m_FreezeTick == 0 || m_FirstFreezeTick == 0)
 		{
 			m_FirstFreezeTick = Server()->Tick();
 		}
 
 		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
-		m_FreezeTick = Server()->Tick();
+		m_Core.m_FreezeTick = Server()->Tick();
 		return true;
 	}
 	return false;
@@ -3337,17 +3337,17 @@ bool CCharacter::FreezeFloat(float Seconds)
 	isFreezed = true;
 	if((Seconds <= 0 || m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
 		return false;
-	if(m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
+	if(m_Core.m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
 	{
 		if(!m_WeaponsBackupped) //only save once
 		{
 			for(int i = 0; i < NUM_WEAPONS; i++)
 			{
-				if(m_aWeapons[i].m_Got)
+				if(m_Core.m_aWeapons[i].m_Got)
 				{
-					m_aWeaponsBackup[i][1] = m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
+					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
 					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
-					m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
+					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}
 			m_WeaponsBackupped = true;
@@ -3358,13 +3358,13 @@ bool CCharacter::FreezeFloat(float Seconds)
 			m_Armor = 0;
 		}
 
-		if(m_FreezeTick == 0 || m_FirstFreezeTick == 0)
+		if(m_Core.m_FreezeTick == 0 || m_FirstFreezeTick == 0)
 		{
 			m_FirstFreezeTick = Server()->Tick();
 		}
 
 		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
-		m_FreezeTick = Server()->Tick();
+		m_Core.m_FreezeTick = Server()->Tick();
 		return true;
 	}
 	return false;

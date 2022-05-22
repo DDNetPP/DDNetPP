@@ -10,11 +10,12 @@ class CBlackHole : public CEntity
 public:
 	CBlackHole(CGameWorld *pGameWorld, vec2 Pos, int Owner);
 
-	virtual void Reset();
 	virtual void Attract();
 	virtual void CreateHole();
-	virtual void Tick();
-	virtual void Snap(int SnappingClient);
+
+	virtual void Reset() override;
+	virtual void Tick() override;
+	virtual void Snap(int SnappingClient) override;
 
 private:
 	int m_Owner;

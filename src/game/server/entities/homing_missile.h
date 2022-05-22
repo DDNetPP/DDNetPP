@@ -8,14 +8,14 @@ class CHomingMissile : public CEntity
 public:
 	CHomingMissile(CGameWorld *pGameWorld, int Lifetime, int Owner, float Force, vec2 Dir);
 
-	virtual void Reset();
-	virtual void Tick();
-	virtual void Snap(int SnappingClient);
+	virtual void Reset() override;
+	virtual void Tick() override;
+	virtual void TickDefered() override;
+	virtual void Snap(int SnappingClient) override;
 
 	CCharacter *CharacterNear();
 
 	void CalculateVel();
-	virtual void TickDefered();
 	void Move(CCharacter *pTarget);
 	bool Hit(CCharacter *pHitTarget);
 

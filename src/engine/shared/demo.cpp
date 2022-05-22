@@ -404,9 +404,6 @@ void CDemoPlayer::Construct(class CSnapshotDelta *pSnapshotDelta)
 	m_pKeyFrames = 0;
 	m_SpeedIndex = 4;
 
-	m_TickTime = 0;
-	m_Time = 0;
-
 	m_pSnapshotDelta = pSnapshotDelta;
 	m_LastSnapshotDataSize = -1;
 }
@@ -1026,7 +1023,6 @@ int CDemoPlayer::Update(bool RealTime)
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "demo_player", aBuf);
 			}
 		}
-		m_Time += m_TickTime;
 	}
 	return 0;
 }

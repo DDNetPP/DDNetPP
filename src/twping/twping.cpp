@@ -1,10 +1,11 @@
 #include <base/math.h>
 #include <base/system.h>
 #include <cstdio>
-#include <engine/shared/config.h>
+#include <engine/shared/masterserver.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
-#include <mastersrv/mastersrv.h>
+
+#include <engine/shared/config.h> // ddnet++ logging
 
 static CNetClient g_NetOp; // main
 

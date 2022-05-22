@@ -17,9 +17,9 @@ class CStableProjectile : public CEntity
 public:
 	CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos = vec2());
 
-	virtual void Reset();
-	virtual void TickDefered();
-	virtual void Snap(int SnappingClient);
+	virtual void Reset() override;
+	virtual void TickDefered() override;
+	virtual void Snap(int SnappingClient) override;
 };
 
 #endif

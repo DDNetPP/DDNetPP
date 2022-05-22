@@ -10,7 +10,7 @@ class CMeteor : public CStableProjectile
 public:
 	CMeteor(CGameWorld *pGameWorld, vec2 Pos = vec2());
 
-	virtual void Tick();
+	virtual void Tick() override;
 };
 
 #endif

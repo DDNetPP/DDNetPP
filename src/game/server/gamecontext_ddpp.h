@@ -31,8 +31,8 @@ public:
 
 	void ConstructDDPP();
 
-	virtual void LogoutAllPlayers();
-	virtual void OnStartBlockTournament();
+	virtual void LogoutAllPlayers() override;
+	virtual void OnStartBlockTournament() override;
 	//virtual void OnDDPPshutdown();
 
 	class CAccounts *Accounts() { return m_pAccounts; }
@@ -600,7 +600,7 @@ public:
 	void SetIpJailed(int ClientID);
 	bool CheckIpJailed(int ClientID);
 
-	virtual void IncrementWrongRconAttempts();
+	virtual void IncrementWrongRconAttempts() override;
 
 private:
 	bool InitTileDDPP(int Index, int x, int y);
