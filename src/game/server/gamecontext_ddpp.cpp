@@ -2376,7 +2376,8 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 		return -1;
 	}
 
-	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, DummyID, TEAM_RED, true);
+	m_apPlayers[DummyID] = new(DummyID) CPlayer(this, NextUniqueClientID, DummyID, TEAM_RED, true);
+	NextUniqueClientID += 1;
 
 	m_apPlayers[DummyID]->m_NoboSpawnStop = 0;
 	m_apPlayers[DummyID]->SetDummyMode(Mode);
