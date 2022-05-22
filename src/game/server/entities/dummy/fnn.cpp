@@ -29,6 +29,11 @@ ModeStructure:
 CDummyFNN::CDummyFNN(class CCharacter *pChr, class CPlayer *pPlayer) :
 	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_FNN)
 {
+	m_Dummy_nn_stop = false;
+	m_Dummy_nn_ready_time = 0;
+	m_FNN_start_servertick = 0;
+	m_FNN_stop_servertick = 0;
+	m_StartPos = vec2(0, 0);
 }
 
 void CDummyFNN::OnTick()

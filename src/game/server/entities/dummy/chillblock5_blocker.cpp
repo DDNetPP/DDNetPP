@@ -19,6 +19,37 @@
 CDummyChillBlock5Blocker::CDummyChillBlock5Blocker(class CCharacter *pChr, class CPlayer *pPlayer) :
 	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER)
 {
+	m_DummyFreezeBlockTrick = 0;
+	m_Dummy_trick_panic_check_delay = 0;
+	m_Dummy_start_hook = false;
+	m_Dummy_speedright = false;
+	m_Dummy_trick3_panic_check = false;
+	m_Dummy_trick3_panic = false;
+	m_Dummy_trick3_start_count = false;
+	m_Dummy_trick3_panic_left = false;
+	m_Dummy_trick4_hasstartpos = false;
+	m_Dummy_lock_bored = false;
+	m_Dummy_doBalance = false;
+	m_Dummy_AttackedOnSpawn = false;
+	m_Dummy_bored_cuz_nothing_happens = false;
+	m_Dummy_movement_to_block_area_style_window = false;
+	m_Dummy_planned_movment = false;
+	m_Dummy_jumped = false;
+	m_Dummy_hooked = false;
+	m_Dummy_moved_left = false;
+	m_Dummy_hook_delay = false;
+	m_Dummy_ruled = false;
+	m_Dummy_pushing = false;
+	m_Dummy_emergency = false;
+	m_Dummy_wb_hooked = false;
+	m_Dummy_left_freeze_full = false;
+	m_Dummy_happy = false;
+	m_Dummy_get_speed = false;
+	m_Dummy_bored = false;
+	m_Dummy_special_defend = false;
+	m_Dummy_special_defend_attack = false;
+	m_Dummy_bored_counter = 0;
+	m_Dummy_mode18 = 0;
 }
 
 void CDummyChillBlock5Blocker::OnTick()

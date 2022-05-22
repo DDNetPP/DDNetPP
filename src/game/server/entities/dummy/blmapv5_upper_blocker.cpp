@@ -15,6 +15,7 @@
 CDummyBlmapV5UpperBlocker::CDummyBlmapV5UpperBlocker(class CCharacter *pChr, class CPlayer *pPlayer) :
 	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV5_UPPER_BLOCKER)
 {
+	m_move_left = false;
 }
 
 void CDummyBlmapV5UpperBlocker::OnTick()

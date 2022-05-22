@@ -20,6 +20,23 @@
 CDummyChillBlock5BlockerTryHard::CDummyChillBlock5BlockerTryHard(class CCharacter *pChr, class CPlayer *pPlayer) :
 	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD)
 {
+	m_Dummy_jumped = false;
+	m_Dummy_hooked = false;
+	m_Dummy_moved_left = false;
+	m_Dummy_hook_delay = false;
+	m_Dummy_ruled = false;
+	m_Dummy_pushing = false;
+	m_Dummy_emergency = false;
+	m_Dummy_wb_hooked = false;
+	m_Dummy_left_freeze_full = false;
+	m_Dummy_happy = false;
+	m_Dummy_get_speed = false;
+	m_Dummy_bored = false;
+	m_Dummy_special_defend = false;
+	m_Dummy_special_defend_attack = false;
+	m_Dummy_bored_counter = 0;
+	m_Dummy_mode18 = 0;
+	m_EmoteTickNext = 0;
 }
 
 void CDummyChillBlock5BlockerTryHard::OnTick()

@@ -16,6 +16,7 @@
 CDummySurvival::CDummySurvival(class CCharacter *pChr, class CPlayer *pPlayer) :
 	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_SURVIVAL)
 {
+	m_DummyDir = 0;
 }
 
 void CDummySurvival::OnTick()
