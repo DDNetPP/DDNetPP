@@ -18,6 +18,11 @@
 
 #include "character.h"
 
+CCharacter::~CCharacter()
+{
+	DestructDDPP();
+}
+
 void CCharacter::ConstructDDPP()
 {
 	// variable initializations constructor

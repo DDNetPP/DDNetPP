@@ -37,12 +37,10 @@ class CCharacter : public CEntity
 {
 #endif
 
+public:
+	~CCharacter();
+
 private:
-	/*
-
-		DDNet++
-
-	*/
 
 	void ConstructDDPP();
 	void DestructDDPP();
