@@ -425,7 +425,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if((m_TileIndex == TILE_VANILLA_MODE || m_TileFIndex == TILE_VANILLA_MODE) && !(m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
 	{
-		if(m_pPlayer->m_DummyMode != CGameContext::DUMMYMODE_ADVENTURE)
+		if(m_pPlayer->DummyMode() != CGameContext::DUMMYMODE_ADVENTURE)
 		{
 			m_pPlayer->m_IsVanillaModeByTile = true;
 			m_pPlayer->m_IsVanillaDmg = true;
@@ -437,7 +437,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if((m_TileIndex == TILE_DDRACE_MODE || m_TileFIndex == TILE_DDRACE_MODE) && (m_pPlayer->m_IsVanillaDmg && m_pPlayer->m_IsVanillaWeapons))
 	{
-		if(m_pPlayer->m_DummyMode == CGameContext::DUMMYMODE_ADVENTURE)
+		if(m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_ADVENTURE)
 		{
 			Die(m_pPlayer->GetCID(), WEAPON_SELF);
 		}

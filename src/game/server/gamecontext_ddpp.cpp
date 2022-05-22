@@ -428,7 +428,7 @@ int CGameContext::GetShopBot()
 	{
 		if(Player)
 		{
-			if(Player->m_DummyMode == 99)
+			if(Player->DummyMode() == DUMMYMODE_SHOPBOT)
 			{
 				return Player->GetCID();
 			}
@@ -1427,7 +1427,7 @@ void CGameContext::DDPP_SlowTick()
 		}
 		if(Player->m_IsDummy)
 		{
-			if(Player->m_DummyMode == DUMMYMODE_ADVENTURE)
+			if(Player->DummyMode() == DUMMYMODE_ADVENTURE)
 				NumAdventureBots++;
 		}
 	}
@@ -1442,7 +1442,7 @@ void CGameContext::DDPP_SlowTick()
 
 			if(!Player->m_IsDummy)
 				continue;
-			if(Player->m_DummyMode == DUMMYMODE_QUEST)
+			if(Player->DummyMode() == DUMMYMODE_QUEST)
 				Server()->BotLeave(Player->GetCID());
 		}
 	}

@@ -20,6 +20,26 @@ void CPlayer::FixForNoName(int ID)
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
 }
 
+void CPlayer::ConstructDDPP()
+{
+	m_pCaptcha = new CCaptcha(GameServer(), GetCID());
+	m_pDummyMode = nullptr;
+}
+
+void CPlayer::DestructDDPP()
+{
+	if(m_pDummyMode)
+	{
+		delete m_pDummyMode;
+		m_pDummyMode = nullptr;
+	}
+	if(m_pCaptcha)
+	{
+		delete m_pCaptcha;
+		m_pCaptcha = nullptr;
+	}
+}
+
 void CPlayer::ResetDDPP()
 {
 	/*****************************

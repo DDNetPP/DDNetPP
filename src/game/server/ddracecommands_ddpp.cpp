@@ -904,8 +904,8 @@ void CGameContext::ConDummies(IConsole::IResult *pResult, void *pUserData)
 			aBuf,
 			sizeof(aBuf),
 			"%d (%s): %s",
-			Player->m_DummyMode,
-			Player->m_aDummyMode,
+			Player->DummyMode(),
+			Player->DummyModeStr(),
 			pSelf->Server()->ClientName(Player->GetCID()));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dummies", aBuf);
 	}

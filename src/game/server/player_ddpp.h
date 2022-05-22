@@ -35,6 +35,9 @@ public:
 
 	*/
 
+	void ConstructDDPP();
+	void DestructDDPP();
+
 	void DDPPProcessScoreResult(CAccountResult &Result);
 	void DDPPProcessAdminCommandResult(CAdminCommandResult &Result);
 	std::shared_ptr<CAccountResult> m_AccountQueryResult;
@@ -114,19 +117,6 @@ public:
 
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
-
-	bool m_IsDummy;
-
-	// dummy 32 vars
-	bool m_Dummy_32dummy;
-	int m_Dummy_32look;
-
-	//REAL DUMMY 32 VARS blmapchill police
-	int m_DummyModeSpawn;
-
-	//dummy 33 vars (Chillintelligenz)
-	long m_ci_lowest_dest_dist; //max long len 2147483647
-	long m_ci_latest_dest_dist;
 
 	//###########
 	//minigames
@@ -475,8 +465,12 @@ public:
 	bool m_HammerRequest;
 
 	void SetDummyMode(int Mode);
-	int m_DummyMode; // TODO: make private
+	int DummyMode() { return m_DummyMode; }
+	bool m_IsDummy;
+	const char *DummyModeStr() { return m_aDummyMode; }
 	char m_aDummyMode[128];
+	CDummyBase *m_pDummyMode;
+
 	int m_dmm25; //change dummy modes in the mode 25  ( choose sub modes)
 	float m_Dummy_nn_latest_Distance;
 	float m_Dummy_nn_highest_Distance;
@@ -484,6 +478,18 @@ public:
 	float m_Dummy_nn_latest_fitness;
 	float m_Dummy_nn_highest_fitness;
 	int m_Dummy_nn_time;
+
+	// dummy 32 vars
+	bool m_Dummy_32dummy;
+	int m_Dummy_32look;
+
+	//REAL DUMMY 32 VARS blmapchill police
+	int m_DummyModeSpawn;
+
+	//dummy 33 vars (Chillintelligenz)
+	long m_ci_lowest_dest_dist; //max long len 2147483647
+	long m_ci_latest_dest_dist;
+
 
 	//########
 	//extras
@@ -562,6 +568,7 @@ public:
 
 private: // private ddnet+++
 	int64_t m_neededxp;
+	int m_DummyMode;
 
 #ifndef IN_CLASS_PLAYER
 }

@@ -601,7 +601,7 @@ void CGameContext::CheckConnectQuestBot()
 
 		if(!Player->m_IsDummy)
 			NumIngameHumans++;
-		else if(Player->m_DummyMode == DUMMYMODE_QUEST)
+		else if(Player->DummyMode() == DUMMYMODE_QUEST)
 			NumQuestBots++;
 	}
 

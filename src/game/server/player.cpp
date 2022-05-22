@@ -19,10 +19,10 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team, bool IsDummy
 	m_ClientID = ClientID;
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
 	m_NumInputs = 0;
-	m_pCaptcha = new CCaptcha(pGameServer, ClientID);
 	m_IsDummy = IsDummy;
 	Reset();
 	GameServer()->Antibot()->OnPlayerInit(m_ClientID);
+	ConstructDDPP();
 }
 
 CPlayer::~CPlayer()
@@ -30,8 +30,8 @@ CPlayer::~CPlayer()
 	GameServer()->Antibot()->OnPlayerDestroy(m_ClientID);
 	delete m_pLastTarget;
 	delete m_pCharacter;
-	delete m_pCaptcha;
 	m_pCharacter = 0;
+	DestructDDPP();
 }
 
 void CPlayer::Reset()

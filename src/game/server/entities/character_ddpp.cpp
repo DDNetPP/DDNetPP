@@ -126,7 +126,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	}
 	*/
 
-	if(m_pPlayer->m_DummyMode == 99)
+	if(m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_SHOPBOT)
 	{
 		vec2 ShopSpawn = GameServer()->Collision()->GetRandomTile(TILE_SHOP_SPAWN);
 
@@ -1668,7 +1668,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		m_pPlayer->m_IsVanillaCompetetive = true;
 	}
 
-	if(m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 33) //chillintelligenz
+	if(m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_CHILLINTELLIGENCE) //chillintelligenz
 	{
 		CIRestart();
 	}
@@ -1889,7 +1889,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->m_DummyMode == 25 && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
+	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_FNN && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
@@ -2796,7 +2796,7 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 	// shop bot
 	if(pTarget->m_pPlayer->m_IsDummy)
 	{
-		if(pTarget->m_pPlayer->m_DummyMode == 99)
+		if(pTarget->m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_SHOPBOT)
 		{
 			GameServer()->Shop()->StartShop(GetPlayer()->GetCID());
 		}
