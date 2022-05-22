@@ -19,6 +19,8 @@
 #include "minigames/balance.h"
 #include "minigames/block_tournament.h"
 
+#include "ddpp/dummymode.h"
+
 #include "eventhandler.h"
 //#include "gamecontroller.h"
 #include "gameworld.h"

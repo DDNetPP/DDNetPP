@@ -26,8 +26,13 @@ ModeStructure:
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyFNN::CDummyFNN(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_FNN)
+CDummyFNN::CDummyFNN(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_FNN)
+{
+	OnDeath();
+}
+
+void CDummyFNN::OnDeath()
 {
 	m_Dummy_nn_stop = false;
 	m_Dummy_nn_ready_time = 0;

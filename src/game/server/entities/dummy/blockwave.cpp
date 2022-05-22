@@ -9,8 +9,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyBlockWave::CDummyBlockWave(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLOCKWAVE)
+CDummyBlockWave::CDummyBlockWave(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BLOCKWAVE)
 {
 }
 

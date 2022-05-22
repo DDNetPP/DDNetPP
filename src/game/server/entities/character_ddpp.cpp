@@ -28,80 +28,15 @@ void CCharacter::ConstructDDPP()
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
 	//}
-
-	m_pDummySample = nullptr;
-	m_pDummyAdventure = nullptr;
-	m_pDummyBlmapChillPolice = nullptr;
-	m_pDummyChillBlock5Balance = nullptr;
-	m_pDummyChillBlock5Blocker = nullptr;
-	m_pDummyChillBlock5BlockerTryHard = nullptr;
-	m_pDummyChillBlock5Race = nullptr;
-	m_pDummyChillBlock5Police = nullptr;
-	m_pDummyChillBlock5Race = nullptr;
-	m_pDummyBlmapV3Arena = nullptr;
-	m_pDummyBlmapV5UpperBlocker = nullptr;
-	m_pDummyBlmapV5LowerBlocker = nullptr;
-	m_pDummyCtf5Pvp = nullptr;
-	m_pDummyShopBot = nullptr;
-	m_pDummySurvival = nullptr;
-	m_pDummyGrenadeFng = nullptr;
-	m_pDummyRifleFng = nullptr;
-	m_pDummyBlockWave = nullptr;
-	m_pDummyQuest = nullptr;
-	m_pDummyFNN = nullptr;
 }
 
 void CCharacter::DestructDDPP()
 {
-	for(auto &DummyMode : m_vDummyModes)
-	{
-		if(!DummyMode)
-			continue;
-
-		delete DummyMode;
-		DummyMode = nullptr;
-	}
 }
 
 void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 {
 	m_LastTaserUse = Server()->Tick();
-	if(!m_pDummySample)
-		m_vDummyModes.push_back(m_pDummySample = new CDummySample(this, pPlayer));
-	if(!m_pDummyAdventure)
-		m_vDummyModes.push_back(m_pDummyAdventure = new CDummyAdventure(this, pPlayer));
-	if(!m_pDummyBlmapChillPolice)
-		m_vDummyModes.push_back(m_pDummyBlmapChillPolice = new CDummyBlmapChillPolice(this, pPlayer));
-	if(!m_pDummyChillBlock5Balance)
-		m_vDummyModes.push_back(m_pDummyChillBlock5Balance = new CDummyChillBlock5Balance(this, pPlayer));
-	if(!m_pDummyChillBlock5Blocker)
-		m_vDummyModes.push_back(m_pDummyChillBlock5Blocker = new CDummyChillBlock5Blocker(this, pPlayer));
-	if(!m_pDummyChillBlock5BlockerTryHard)
-		m_vDummyModes.push_back(m_pDummyChillBlock5BlockerTryHard = new CDummyChillBlock5BlockerTryHard(this, pPlayer));
-	if(!m_pDummyChillBlock5Race)
-		m_vDummyModes.push_back(m_pDummyChillBlock5Race = new CDummyChillBlock5Race(this, pPlayer));
-	if(!m_pDummyChillBlock5Police)
-		m_vDummyModes.push_back(m_pDummyChillBlock5Police = new CDummyChillBlock5Police(this, pPlayer));
-	if(!m_pDummyBlmapV3Arena)
-		m_vDummyModes.push_back(m_pDummyBlmapV3Arena = new CDummyBlmapV3Arena(this, pPlayer));
-	if(!m_pDummyBlmapV5UpperBlocker)
-		m_vDummyModes.push_back(m_pDummyBlmapV5UpperBlocker = new CDummyBlmapV5UpperBlocker(this, pPlayer));
-	if(!m_pDummyBlmapV5LowerBlocker)
-		m_vDummyModes.push_back(m_pDummyBlmapV5LowerBlocker = new CDummyBlmapV5LowerBlocker(this, pPlayer));
-	if(!m_pDummyCtf5Pvp)
-		m_vDummyModes.push_back(m_pDummyCtf5Pvp = new CDummyCtf5Pvp(this, pPlayer));
-	if(!m_pDummyShopBot)
-		m_vDummyModes.push_back(m_pDummyShopBot = new CDummyShopBot(this, pPlayer));
-	if(!m_pDummySurvival)
-		m_vDummyModes.push_back(m_pDummySurvival = new CDummySurvival(this, pPlayer));
-	if(!m_pDummyGrenadeFng)
-		m_vDummyModes.push_back(m_pDummyGrenadeFng = new CDummyGrenadeFng(this, pPlayer));
-	if(!m_pDummyRifleFng)
-		m_vDummyModes.push_back(m_pDummyRifleFng = new CDummyRifleFng(this, pPlayer));
-	if(!m_pDummyQuest)
-		m_vDummyModes.push_back(m_pDummyQuest = new CDummyQuest(this, pPlayer));
-	if(!m_pDummyFNN)
-		m_vDummyModes.push_back(m_pDummyFNN = new CDummyFNN(this, pPlayer));
 	//zCatch ChillerDragon
 	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
 	{
@@ -126,7 +61,7 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	}
 	*/
 
-	if(m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_SHOPBOT)
+	if(m_pPlayer->DummyMode() == DUMMYMODE_SHOPBOT)
 	{
 		vec2 ShopSpawn = GameServer()->Collision()->GetRandomTile(TILE_SHOP_SPAWN);
 
@@ -1668,7 +1603,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		m_pPlayer->m_IsVanillaCompetetive = true;
 	}
 
-	if(m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_CHILLINTELLIGENCE) //chillintelligenz
+	if(m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == DUMMYMODE_CHILLINTELLIGENCE) //chillintelligenz
 	{
 		CIRestart();
 	}
@@ -1700,6 +1635,9 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		Minigame->OnDeath(this, Killer);
 	InstagibSubDieFunc(Killer, Weapon);
 	SurvivalSubDieFunc(Killer, Weapon);
+
+	if(GetPlayer()->m_IsDummy && GetPlayer()->m_pDummyMode)
+		GetPlayer()->m_pDummyMode->OnDeath();
 
 	if(g_Config.m_SvDDPPscore == 0)
 		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
@@ -1889,18 +1827,22 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	}
 
 	////dragon test [FNN] isTouched check
-	if(From >= 0 && m_pPlayer->m_IsDummy && m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_FNN && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
-	{
-		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
-		{
-			m_pDummyFNN->m_Dummy_nn_touched_by_humans = true;
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
-			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
-		}
+	// TODO: use dummymode callack here and uncomment this shit
+	// if(m_pPlayer->DummyMode() == DUMMYMODE_FNN)
+	// {
+	// 	if(From >= 0 && m_pPlayer->m_IsDummy && m_pDummyFNN->m_Dummy_nn_ready && From != m_pPlayer->GetCID())
+	// 	{
+	// 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
+	// 		{
+	// 			m_pDummyFNN->m_Dummy_nn_touched_by_humans = true;
+	// 			char aBuf[128];
+	// 			str_format(aBuf, sizeof(aBuf), "[FNN] please stop shooting me %s", Server()->ClientName(From));
+	// 			GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
+	// 		}
 
-		//return false; //removes hammer knockback
-	}
+	// 		//return false; //removes hammer knockback
+	// 	}
+	// }
 	//zCatch ChillerDragon
 	if(From >= 0)
 	{
@@ -2796,7 +2738,7 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 	// shop bot
 	if(pTarget->m_pPlayer->m_IsDummy)
 	{
-		if(pTarget->m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_SHOPBOT)
+		if(pTarget->m_pPlayer->DummyMode() == DUMMYMODE_SHOPBOT)
 		{
 			GameServer()->Shop()->StartShop(GetPlayer()->GetCID());
 		}

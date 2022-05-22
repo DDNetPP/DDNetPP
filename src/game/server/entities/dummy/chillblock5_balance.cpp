@@ -13,8 +13,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyChillBlock5Balance::CDummyChillBlock5Balance(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BALANCE1)
+CDummyChillBlock5Balance::CDummyChillBlock5Balance(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BALANCE1)
 {
 }
 

@@ -7,8 +7,9 @@
 class CDummyChillBlock5BlockerTryHard : public CDummyBase
 {
 public:
-	CDummyChillBlock5BlockerTryHard(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyChillBlock5BlockerTryHard(class CPlayer *pPlayer);
 	virtual void OnTick() override;
+	virtual void OnDeath() override;
 	virtual ~CDummyChillBlock5BlockerTryHard(){};
 	const char *ModeStr() override { return "ChillBlock5 Blocker TryHard"; }
 

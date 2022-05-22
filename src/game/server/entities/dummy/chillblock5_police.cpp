@@ -15,8 +15,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyChillBlock5Police::CDummyChillBlock5Police(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_POLICE)
+CDummyChillBlock5Police::CDummyChillBlock5Police(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_POLICE)
+{
+	OnDeath();
+}
+
+void CDummyChillBlock5Police::OnDeath()
 {
 	m_Dummy_GotStuck = false;
 	m_Dummy_GetSpeed = false;

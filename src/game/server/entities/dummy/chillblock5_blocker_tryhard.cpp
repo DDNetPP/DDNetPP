@@ -17,8 +17,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyChillBlock5BlockerTryHard::CDummyChillBlock5BlockerTryHard(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD)
+CDummyChillBlock5BlockerTryHard::CDummyChillBlock5BlockerTryHard(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BLOCKER_TRYHARD)
+{
+	OnDeath();
+}
+
+void CDummyChillBlock5BlockerTryHard::OnDeath()
 {
 	m_Dummy_jumped = false;
 	m_Dummy_hooked = false;

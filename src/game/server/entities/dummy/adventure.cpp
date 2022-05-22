@@ -18,8 +18,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyAdventure::CDummyAdventure(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_ADVENTURE)
+CDummyAdventure::CDummyAdventure(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_ADVENTURE)
 {
 }
 

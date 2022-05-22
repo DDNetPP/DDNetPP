@@ -464,12 +464,12 @@ public:
 
 	bool m_HammerRequest;
 
-	void SetDummyMode(int Mode);
+	void SetDummyMode(EDummyMode Mode);
 	int DummyMode() { return m_DummyMode; }
 	bool m_IsDummy;
 	const char *DummyModeStr() { return m_aDummyMode; }
 	char m_aDummyMode[128];
-	CDummyBase *m_pDummyMode;
+	CDummyBase *m_pDummyMode; // TODO: make private
 
 	int m_dmm25; //change dummy modes in the mode 25  ( choose sub modes)
 	float m_Dummy_nn_latest_Distance;
@@ -489,7 +489,6 @@ public:
 	//dummy 33 vars (Chillintelligenz)
 	long m_ci_lowest_dest_dist; //max long len 2147483647
 	long m_ci_latest_dest_dist;
-
 
 	//########
 	//extras
@@ -568,7 +567,7 @@ public:
 
 private: // private ddnet+++
 	int64_t m_neededxp;
-	int m_DummyMode;
+	EDummyMode m_DummyMode;
 
 #ifndef IN_CLASS_PLAYER
 }

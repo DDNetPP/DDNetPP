@@ -13,9 +13,37 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyChillBlock5Race::CDummyChillBlock5Race(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPCHILL_RACE)
+CDummyChillBlock5Race::CDummyChillBlock5Race(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_RACE)
 {
+	OnDeath();
+}
+
+void CDummyChillBlock5Race::OnDeath()
+{
+	m_Dummy_help_m8_before_hf_hook = 0;
+	m_Dummy_help_emergency = false;
+	m_Dummy_help_no_emergency = false;
+	m_Dummy_hook_mate_after_hammer = false;
+	m_Dummy_help_before_fly = false;
+	m_Dummy_2p_panic_while_helping = false;
+	m_Dummy_panic_balance = false;
+	m_Dummy_mate_failed = false;
+	m_Dummy_hh_hook = false;
+	m_Dummy_collected_weapons = false;
+	m_Dummy_mate_collected_weapons = false;
+	m_Dummy_rjumped2 = false;
+	m_Dummy_dd_helphook = false;
+	m_Dummy_2p_hook = false;
+	m_Dummy_2p_state = 0;
+	m_Dummy_mode23 = 0;
+	m_Dummy_nothing_happens_counter = 0;
+	m_Dummy_panic_weapon = 0;
+	m_Dummy_sent_chat_msg = 0;
+	m_Dummy_mate_help_mode = 0;
+	m_Dummy_movement_mode23 = 0;
+	m_DummyFreezed = false;
+	m_EmoteTickNext = 0;
 }
 
 void CDummyChillBlock5Race::OnTick()

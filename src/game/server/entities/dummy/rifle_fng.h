@@ -6,7 +6,7 @@
 class CDummyRifleFng : public CDummyBase
 {
 public:
-	CDummyRifleFng(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyRifleFng(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual ~CDummyRifleFng(){};
 	const char *ModeStr() override { return "Rifle FNG"; }

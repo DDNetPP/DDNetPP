@@ -17,8 +17,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyBlmapV3Arena::CDummyBlmapV3Arena(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV3_ARENA)
+CDummyBlmapV3Arena::CDummyBlmapV3Arena(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BLMAPV3_ARENA)
 {
 }
 

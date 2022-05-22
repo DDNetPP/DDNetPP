@@ -12,8 +12,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyBlmapV5LowerBlocker::CDummyBlmapV5LowerBlocker(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV5_LOWER_BLOCKER)
+CDummyBlmapV5LowerBlocker::CDummyBlmapV5LowerBlocker(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BLMAPV5_LOWER_BLOCKER)
+{
+	OnDeath();
+}
+
+void CDummyBlmapV5LowerBlocker::OnDeath()
 {
 	m_angry = 0;
 	m_rj_failed = false;

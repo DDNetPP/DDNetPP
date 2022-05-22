@@ -2255,6 +2255,7 @@ if(SERVER)
     captcha.h
     ddpp/accounts.cpp
     ddpp/accounts.h
+    ddpp/dummymode.h
     ddpp/letters.cpp
     ddpp/letters.h
     ddpp/shop.cpp

@@ -6,7 +6,7 @@
 class CDummyGrenadeFng : public CDummyBase
 {
 public:
-	CDummyGrenadeFng(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyGrenadeFng(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual ~CDummyGrenadeFng(){};
 	const char *ModeStr() override { return "Grenade FNG"; }

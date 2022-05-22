@@ -6,7 +6,7 @@
 class CDummyQuest : public CDummyBase
 {
 public:
-	CDummyQuest(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyQuest(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual ~CDummyQuest(){};
 	const char *ModeStr() override { return "Quest"; }

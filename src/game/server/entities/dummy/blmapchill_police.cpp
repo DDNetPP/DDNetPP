@@ -12,8 +12,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPCHILL_POLICE)
+CDummyBlmapChillPolice::CDummyBlmapChillPolice(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BLMAPCHILL_POLICE)
+{
+	OnDeath();
+}
+
+void CDummyBlmapChillPolice::OnDeath()
 {
 	m_LovedX = 0;
 	m_LovedY = 0;

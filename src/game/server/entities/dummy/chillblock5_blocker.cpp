@@ -16,8 +16,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyChillBlock5Blocker::CDummyChillBlock5Blocker(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_CHILLBLOCK5_BLOCKER)
+CDummyChillBlock5Blocker::CDummyChillBlock5Blocker(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_CHILLBLOCK5_BLOCKER)
+{
+	OnDeath();
+}
+
+void CDummyChillBlock5Blocker::OnDeath()
 {
 	m_DummyFreezeBlockTrick = 0;
 	m_Dummy_trick_panic_check_delay = 0;

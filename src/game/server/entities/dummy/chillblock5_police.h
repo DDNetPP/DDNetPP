@@ -6,8 +6,9 @@
 class CDummyChillBlock5Police : public CDummyBase
 {
 public:
-	CDummyChillBlock5Police(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyChillBlock5Police(class CPlayer *pPlayer);
 	virtual void OnTick() override;
+	virtual void OnDeath() override;
 	virtual ~CDummyChillBlock5Police(){};
 	const char *ModeStr() override { return "ChillBlock5 Police"; }
 

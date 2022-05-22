@@ -13,8 +13,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummySurvival::CDummySurvival(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_SURVIVAL)
+CDummySurvival::CDummySurvival(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_SURVIVAL)
+{
+	OnDeath();
+}
+
+void CDummySurvival::OnDeath()
 {
 	m_DummyDir = 0;
 }

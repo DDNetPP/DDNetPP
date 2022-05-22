@@ -6,7 +6,7 @@
 class CDummySample : public CDummyBase
 {
 public:
-	CDummySample(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummySample(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual ~CDummySample(){};
 	const char *ModeStr() override { return "Sample"; }

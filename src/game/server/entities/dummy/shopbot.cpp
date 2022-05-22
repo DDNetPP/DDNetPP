@@ -13,8 +13,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyShopBot::CDummyShopBot(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_SHOPBOT)
+CDummyShopBot::CDummyShopBot(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_SHOPBOT)
 {
 }
 

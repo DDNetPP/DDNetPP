@@ -8,8 +8,8 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummySample::CDummySample(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_DEFAULT)
+CDummySample::CDummySample(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_DEFAULT)
 {
 }
 

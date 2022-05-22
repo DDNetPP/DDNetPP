@@ -6,7 +6,7 @@
 class CDummyShopBot : public CDummyBase
 {
 public:
-	CDummyShopBot(class CCharacter *pChr, class CPlayer *pPlayer);
+	CDummyShopBot(class CPlayer *pPlayer);
 	virtual void OnTick() override;
 	virtual ~CDummyShopBot(){};
 	const char *ModeStr() override { return "Shopbot"; }

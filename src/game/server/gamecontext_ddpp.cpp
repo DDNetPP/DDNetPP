@@ -798,9 +798,13 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 		dbg_msg("FNN", "failed to load run character with id=%d, name=%s doesn't exist", botID, Server()->ClientName(botID));
 		return;
 	}
+	if(pPlayer->DummyMode() != DUMMYMODE_FNN)
+		return;
+
+	CDummyFNN *pDummyFNN = (CDummyFNN *)pPlayer->m_pDummyMode;
 
 	//reset values
-	pChr->m_pDummyFNN->m_FNN_CurrentMoveIndex = 0;
+	pDummyFNN->m_FNN_CurrentMoveIndex = 0;
 	float loaded_distance = 0;
 	float loaded_fitness = 0;
 	float loaded_distance_finish = 0;
@@ -820,7 +824,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 		std::getline(readfile, line); // read but ignore header
 
 		std::getline(readfile, line); //moveticks
-		pChr->m_pDummyFNN->m_FNN_ticks_loaded_run = atoi(line.c_str());
+		pDummyFNN->m_FNN_ticks_loaded_run = atoi(line.c_str());
 
 		std::getline(readfile, line); //distance
 		loaded_distance = atof(line.c_str());
@@ -833,7 +837,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 
 		while(std::getline(readfile, line))
 		{
-			pChr->m_pDummyFNN->m_aRecMove[i] = atoi(line.c_str());
+			pDummyFNN->m_aRecMove[i] = atoi(line.c_str());
 			i++;
 		}
 	}
@@ -845,7 +849,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botID)
 
 	//start run
 	pPlayer->m_dmm25 = 4; //replay submode
-	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pChr->m_pDummyFNN->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
+	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
 	SendChat(botID, CGameContext::CHAT_ALL, aBuf);
 }
 

@@ -6,9 +6,9 @@
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
-CDummyBase::CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer, int Mode)
+CDummyBase::CDummyBase(class CPlayer *pPlayer, int Mode)
 {
-	m_pCharacter = pChr;
+	m_pCharacter = nullptr;
 	m_pPlayer = pPlayer;
 	m_Mode = Mode;
 	m_DebugColor = -1;
@@ -108,8 +108,9 @@ void CDummyBase::Fire(int Stroke)
 	}
 }
 
-void CDummyBase::Tick()
+void CDummyBase::Tick(CCharacter *pChr)
 {
+	m_pCharacter = pChr;
 	if(!m_pCharacter->IsAlive() || !m_pPlayer->m_IsDummy)
 		return;
 

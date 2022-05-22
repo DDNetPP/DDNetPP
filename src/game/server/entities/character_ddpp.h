@@ -301,34 +301,6 @@ public:
 	std::deque<HistoryPoint> m_TrailHistory;
 	float m_TrailHistoryLength;
 
-	// TODO: move all dummymodes to player instead
-	//       avoiding all these classes on the heap
-	//       for every respawn is probably affecting performance
-	//       maybe heap allocation can be avoided all together
-	//       or only allocate the needed mode on change
-
-	CDummySample *m_pDummySample;
-	CDummyAdventure *m_pDummyAdventure;
-	CDummyBlmapChillPolice *m_pDummyBlmapChillPolice;
-	CDummyChillBlock5Balance *m_pDummyChillBlock5Balance;
-	CDummyChillBlock5Blocker *m_pDummyChillBlock5Blocker;
-	CDummyChillBlock5BlockerTryHard *m_pDummyChillBlock5BlockerTryHard;
-	CDummyChillBlock5Race *m_pDummyChillBlock5Race;
-	CDummyChillBlock5Police *m_pDummyChillBlock5Police;
-	CDummyBlmapV3Arena *m_pDummyBlmapV3Arena;
-	CDummyBlmapV5UpperBlocker *m_pDummyBlmapV5UpperBlocker;
-	CDummyBlmapV5LowerBlocker *m_pDummyBlmapV5LowerBlocker;
-	CDummyCtf5Pvp *m_pDummyCtf5Pvp;
-	CDummyShopBot *m_pDummyShopBot;
-	CDummySurvival *m_pDummySurvival;
-	CDummyGrenadeFng *m_pDummyGrenadeFng;
-	CDummyRifleFng *m_pDummyRifleFng;
-	CDummyBlockWave *m_pDummyBlockWave;
-	CDummyQuest *m_pDummyQuest;
-	CDummyFNN *m_pDummyFNN;
-
-	std::vector<CDummyBase *> m_vDummyModes;
-
 	CNetObj_PlayerInput *Input() { return &m_SavedInput; };
 	CNetObj_PlayerInput *LatestInput() { return &m_LatestInput; };
 	void Fire(bool Fire = true);

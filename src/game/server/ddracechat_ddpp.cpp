@@ -8582,7 +8582,7 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 	{
 		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(Player && Player->m_IsDummy && Player->DummyMode() == CGameContext::DUMMYMODE_FNN)
+			if(Player && Player->m_IsDummy && Player->DummyMode() == DUMMYMODE_FNN)
 			{
 				Player->m_dmm25 = 0;
 				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to training for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
@@ -8594,7 +8594,7 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 	{
 		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(Player && Player->m_IsDummy && Player->DummyMode() == CGameContext::DUMMYMODE_FNN)
+			if(Player && Player->m_IsDummy && Player->DummyMode() == DUMMYMODE_FNN)
 			{
 				Player->m_dmm25 = 1; //load distance
 				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
@@ -8610,7 +8610,7 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 	{
 		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(Player && Player->m_IsDummy && Player->DummyMode() == CGameContext::DUMMYMODE_FNN)
+			if(Player && Player->m_IsDummy && Player->DummyMode() == DUMMYMODE_FNN)
 			{
 				Player->m_dmm25 = 2; //load fitness
 				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best fitness for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
@@ -8626,7 +8626,7 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 	{
 		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(Player && Player->m_IsDummy && Player->DummyMode() == CGameContext::DUMMYMODE_FNN)
+			if(Player && Player->m_IsDummy && Player->DummyMode() == DUMMYMODE_FNN)
 			{
 				Player->m_dmm25 = 3; //load distance_finish
 				str_format(aBuf, sizeof(aBuf), "[FNN] set submode to play best distance_finish for '%s'", pSelf->Server()->ClientName(Player->GetCID()));
@@ -8642,7 +8642,7 @@ void CGameContext::ConFNN(IConsole::IResult *pResult, void *pUserData)
 	{
 		for(auto &Player : pSelf->m_apPlayers)
 		{
-			if(Player && Player->m_IsDummy && Player->DummyMode() == CGameContext::DUMMYMODE_FNN)
+			if(Player && Player->m_IsDummy && Player->DummyMode() == DUMMYMODE_FNN)
 			{
 				Player->m_dmm25 = -2; //set to stop all
 				str_format(aBuf, sizeof(aBuf), "[FNN] stopped '%s'", pSelf->Server()->ClientName(Player->GetCID()));

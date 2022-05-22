@@ -12,8 +12,13 @@
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)
 
-CDummyBlmapV5UpperBlocker::CDummyBlmapV5UpperBlocker(class CCharacter *pChr, class CPlayer *pPlayer) :
-	CDummyBase(pChr, pPlayer, CGameContext::DUMMYMODE_BLMAPV5_UPPER_BLOCKER)
+CDummyBlmapV5UpperBlocker::CDummyBlmapV5UpperBlocker(class CPlayer *pPlayer) :
+	CDummyBase(pPlayer, DUMMYMODE_BLMAPV5_UPPER_BLOCKER)
+{
+	OnDeath();
+}
+
+void CDummyBlmapV5UpperBlocker::OnDeath()
 {
 	m_move_left = false;
 }

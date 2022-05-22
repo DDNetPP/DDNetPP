@@ -9,10 +9,11 @@ class CPlayer;
 class CDummyBase
 {
 public:
-	CDummyBase(class CCharacter *pChr, class CPlayer *pPlayer, int Mode);
+	CDummyBase(class CPlayer *pPlayer, int Mode);
 	virtual ~CDummyBase(){};
 	virtual const char *ModeStr() = 0;
-	void Tick();
+	void Tick(class CCharacter *pChr);
+	virtual void OnDeath(){};
 	int Mode() { return m_Mode; }
 
 private:

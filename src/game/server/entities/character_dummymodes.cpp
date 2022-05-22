@@ -48,37 +48,10 @@ void CCharacter::DummyTick()
 		m_pPlayer->m_DummyRainbowOfferAmount = m_pPlayer->m_rainbow_offer;
 	}
 
-	if(m_pPlayer->m_pDummyMode)
-	{
-		m_pPlayer->m_pDummyMode->Tick();
-		return;
-	}
-
-	bool Found = false;
-	for(auto &DummyMode : m_vDummyModes)
-	{
-		// should assert instead
-		if(!DummyMode)
-			continue;
-
-		if(m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_CHILLINTELLIGENCE)
-		{
-			Found = true;
-			CITick();
-		}
-		else if(m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_BALANCE1 || m_pPlayer->DummyMode() == CGameContext::DUMMYMODE_BALANCE2)
-		{
-			Found = true;
-			m_pDummyChillBlock5Balance->Tick();
-		}
-		else if(m_pPlayer->DummyMode() == DummyMode->Mode())
-		{
-			Found = true;
-			DummyMode->Tick();
-			if(!m_pPlayer->DummyModeStr()[0])
-				str_copy(m_pPlayer->m_aDummyMode, DummyMode->ModeStr(), sizeof(m_pPlayer->m_aDummyMode));
-		}
-	}
-	if(!Found)
-		m_pPlayer->SetDummyMode(CGameContext::DUMMYMODE_DEFAULT);
+	if(m_pPlayer->DummyMode() == DUMMYMODE_CHILLINTELLIGENCE)
+		CITick();
+	else if(m_pPlayer->m_pDummyMode)
+		m_pPlayer->m_pDummyMode->Tick(this);
+	else
+		m_pPlayer->SetDummyMode(DUMMYMODE_DEFAULT);
 }
