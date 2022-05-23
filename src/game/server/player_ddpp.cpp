@@ -219,10 +219,13 @@ void CPlayer::DDPPTick()
 	PlayerHumanLevelTick();
 }
 
-void CPlayer::SetDummyMode(EDummyMode Mode)
+bool CPlayer::SetDummyMode(EDummyMode Mode)
 {
 	if(m_DummyMode == Mode)
-		return;
+	{
+		dbg_msg("dummy", "mode already set to %d", Mode);
+		return true;
+	}
 
 	m_DummyMode = Mode;
 	m_aDummyMode[0] = '\0';
@@ -247,25 +250,26 @@ void CPlayer::SetDummyMode(EDummyMode Mode)
 	case DUMMYMODE_CHILLBLOCK5_RACER: m_pDummyMode = new CDummyChillBlock5Race(this); break;
 	case DUMMYMODE_FNN: m_pDummyMode = new CDummyFNN(this); break;
 	case DUMMYMODE_CHILLBLOCK5_RACE: m_pDummyMode = new CDummyBlmapChillPolice(this); break;
-	case DUMMYMODE_CHILLBLOCK5_BLOCKER: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_CHILLBLOCK5_BALANCE: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_CHILLBLOCK5_POLICE: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_BLMAPCHILL_POLICE: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_CHILLINTELLIGENCE: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_SURVIVAL: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_QUEST: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_SHOPBOT: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_CTF5_PVP: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_BLMAPV5_LOWER_BLOCKER: m_pDummyMode = new CDummySample(this); break;
-	case DUMMYMODE_BLMAPV5_UPPER_BLOCKER: m_pDummyMode = new CDummySample(this); break;
+	case DUMMYMODE_CHILLBLOCK5_BLOCKER: m_pDummyMode = new CDummyChillBlock5Blocker(this); break;
+	case DUMMYMODE_CHILLBLOCK5_BALANCE: m_pDummyMode = new CDummyChillBlock5Balance(this); break;
+	case DUMMYMODE_CHILLBLOCK5_POLICE: m_pDummyMode = new CDummyChillBlock5Police(this); break;
+	case DUMMYMODE_BLMAPCHILL_POLICE: m_pDummyMode = new CDummyBlmapChillPolice(this); break;
+	case DUMMYMODE_CHILLINTELLIGENCE: m_pDummyMode = new CDummySample(this); break; // TODO:
+	case DUMMYMODE_SURVIVAL: m_pDummyMode = new CDummySurvival(this); break;
+	case DUMMYMODE_QUEST: m_pDummyMode = new CDummyQuest(this); break;
+	case DUMMYMODE_SHOPBOT: m_pDummyMode = new CDummyShopBot(this); break;
+	case DUMMYMODE_CTF5_PVP: m_pDummyMode = new CDummyCtf5Pvp(this); break;
+	case DUMMYMODE_BLMAPV5_LOWER_BLOCKER: m_pDummyMode = new CDummyBlmapV5LowerBlocker(this); break;
+	case DUMMYMODE_BLMAPV5_UPPER_BLOCKER: m_pDummyMode = new CDummyBlmapV5UpperBlocker(this); break;
 	default:
 		dbg_msg("dummy", "invalid dummy mode %d", Mode);
-		dbg_break();
+		return false;
 		break;
 	}
 
-	if(!DummyModeStr()[0])
-		str_copy(m_aDummyMode, m_pDummyMode->ModeStr(), sizeof(m_aDummyMode));
+	str_copy(m_aDummyMode, m_pDummyMode->ModeStr(), sizeof(m_aDummyMode));
+	dbg_msg("dummy", "set mode %d (%s) for player %d:'%s'", Mode, m_pDummyMode->ModeStr(), GetCID(), Server()->ClientName(GetCID()));
+	return true;
 }
 
 void CPlayer::PlayerHumanLevelTick()

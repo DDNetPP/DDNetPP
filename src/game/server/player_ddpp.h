@@ -464,7 +464,13 @@ public:
 
 	bool m_HammerRequest;
 
-	void SetDummyMode(EDummyMode Mode);
+	/*
+		SetDummyMode
+
+		returns false on error
+		error is usually non existant dummy mode
+	*/
+	bool SetDummyMode(EDummyMode Mode);
 	int DummyMode() { return m_DummyMode; }
 	bool m_IsDummy;
 	const char *DummyModeStr() { return m_aDummyMode; }

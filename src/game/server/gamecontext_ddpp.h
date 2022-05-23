@@ -83,6 +83,8 @@ public:
 	int CountIngameHumans();
 	int CountConnectedBots();
 	int CountTimeoutCodePlayers();
+	bool IsServerEmpty() { return m_IsServerEmpty; }
+	void CheckServerEmpty();
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
 	void GetSpreeType(int ClientID, char *pBuf, size_t BufSize, bool IsRecord = false);
@@ -582,6 +584,8 @@ private:
 	bool InitTileDDPP(int Index, int x, int y);
 	void OnClientEnterDDPP(int ClientID);
 	void OnInitDDPP();
+
+	bool m_IsServerEmpty;
 
 	enum
 	{

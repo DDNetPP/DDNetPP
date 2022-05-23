@@ -41,7 +41,6 @@ public:
 	~CCharacter();
 
 private:
-
 	void ConstructDDPP();
 	void DestructDDPP();
 	void SnapCharacterDDPP();

@@ -55,6 +55,7 @@ void CGameContext::ConstructDDPP()
 	m_NumNameChangeMutes = 0;
 	mem_zero(m_ClientLeftServer, sizeof(m_ClientLeftServer));
 	m_LastAccountMode = g_Config.m_SvAccountStuff;
+	m_IsServerEmpty = false;
 }
 
 void CGameContext::DestructDDPP()
@@ -185,6 +186,7 @@ void CGameContext::OnClientEnterDDPP(int ClientID)
 		}
 	}
 	InitDDPPScore(ClientID);
+	CheckServerEmpty();
 }
 
 void CGameContext::InitDDPPScore(int ClientID)
@@ -1481,8 +1483,15 @@ void CGameContext::DDPP_SlowTick()
 	if(g_Config.m_SvAutoFixBrokenAccs)
 		SQLcleanZombieAccounts(-1);
 
+	CheckServerEmpty();
+
 	for(auto &Minigame : m_vMinigames)
 		Minigame->SlowTick();
+}
+
+void CGameContext::CheckServerEmpty()
+{
+	m_IsServerEmpty = CountConnectedHumans() == 0;
 }
 
 void CGameContext::ChilliClanTick(int i)

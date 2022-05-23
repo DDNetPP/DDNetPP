@@ -159,11 +159,12 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	int ClientID = pResult->GetVictim();
+	int Mode = pResult->GetInteger(1);
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if(pPlayer)
 	{
-		if(pResult->GetInteger(0) == DUMMYMODE_SHOPBOT && pSelf->GetShopBot() != -1) // there can only be one shop bot
+		if(Mode == DUMMYMODE_SHOPBOT && pSelf->GetShopBot() != -1) // there can only be one shop bot
 		{
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "There is already a shop bot: '%s'", pSelf->Server()->ClientName(pSelf->GetShopBot()));
@@ -171,7 +172,7 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 		else
-			pPlayer->SetDummyMode((EDummyMode)pResult->GetInteger(0));
+			pPlayer->SetDummyMode((EDummyMode)Mode);
 	}
 }
 

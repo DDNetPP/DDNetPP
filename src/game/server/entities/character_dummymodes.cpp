@@ -30,6 +30,8 @@ void CCharacter::DummyTick()
 {
 	if(!m_pPlayer->m_IsDummy)
 		return;
+	if(GameServer()->IsServerEmpty())
+		return;
 
 	m_Input.m_TargetX = 200;
 	m_Input.m_TargetY = 200;
