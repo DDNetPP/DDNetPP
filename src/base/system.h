@@ -16,7 +16,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -1438,9 +1437,11 @@ const char *str_endswith_nocase(const char *str, const char *suffix);
 	Parameter:
 		str - String to check.
 		suffix - Suffix to look for.
+
 	Returns:
 		A pointer to the beginning of the suffix in the string str, or
 		0 if the string suffix isn't a suffix of the string str.
+
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
@@ -1480,6 +1481,7 @@ int str_utf8_dist_buffer(const char *a, const char *b, int *buf, int buf_len);
 	Function: str_utf32_dist_buffer
 		Computes the edit distance between two strings, allows buffers
 		to be passed in.
+
 	Parameters:
 		a - First string for the edit distance.
 		a_len - Length of the first string.
@@ -1488,8 +1490,10 @@ int str_utf8_dist_buffer(const char *a, const char *b, int *buf, int buf_len);
 		buf - Buffer for the function.
 		buf_len - Length of the buffer, must be at least as long as
 		          the length of both strings combined plus two.
+
 	Returns:
 		The edit distance between the both strings.
+
 	Remarks:
 		- The strings are treated as zero-terminated strings.
 */
@@ -1552,11 +1556,13 @@ const char *str_rchr(const char *haystack, char needle);
 	Function: str_hex
 		Takes a datablock and generates a hex string of it, with spaces
 		between bytes.
+
 	Parameters:
 		dst - Buffer to fill with hex data
 		dst_size - size of the buffer
 		data - Data to turn into hex
 		data - Size of the data
+
 	Remarks:
 		- The destination buffer will be zero-terminated
 */
@@ -1566,14 +1572,17 @@ void str_hex(char *dst, int dst_size, const void *data, int data_size);
 	Function: str_hex_decode
 		Takes a hex string *without spaces between bytes* and returns a
 		byte array.
+
 	Parameters:
 		dst - Buffer for the byte array
 		dst_size - size of the buffer
 		data - String to decode
+
 	Returns:
 		2 - String doesn't exactly fit the buffer
 		1 - Invalid character in string
 		0 - Success
+
 	Remarks:
 		- The contents of the buffer is only valid on success
 */
