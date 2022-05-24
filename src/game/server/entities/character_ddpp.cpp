@@ -256,6 +256,15 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 
 void CCharacter::PostSpawnDDPP(vec2 Pos)
 {
+	m_freezeShotgun = false;
+	m_isDmg = false;
+
+	// disable finite cosmetics by default
+	m_Rainbow = false;
+	m_Bloody = false;
+	m_Atom = false;
+	m_Trail = false;
+
 	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
 	{
@@ -1594,6 +1603,10 @@ bool CCharacter::DDPP_Respawn()
 
 int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 {
+#if defined(CONF_DEBUG)
+	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
+#endif
+	ClearFakeMotd();
 	char aBuf[256];
 
 	if(m_pPlayer->m_IsVanillaModeByTile) //reset vanilla mode but never go out of vanilla mode in survival

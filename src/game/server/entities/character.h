@@ -3,16 +3,14 @@
 #ifndef GAME_SERVER_ENTITIES_CHARACTER_H
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
-#include <deque>
 #include <engine/antibot.h>
-#include <game/generated/protocol.h>
-#include <game/generated/server_data.h>
-#include <game/server/entities/stable_projectile.h>
 #include <game/server/entity.h>
 #include <game/server/save.h>
 
 #include <game/gamecore.h>
 
+// ddnet++
+#include "drop_pickup.h"
 #include "dummy/adventure.h"
 #include "dummy/blmapchill_police.h"
 #include "dummy/blmapv3_arena.h"
@@ -32,11 +30,11 @@
 #include "dummy/sample.h"
 #include "dummy/shopbot.h"
 #include "dummy/survival.h"
-
-#include <vector>
-
-#include "drop_pickup.h"
 #include "weapon.h"
+#include <deque>
+#include <game/generated/server_data.h>
+#include <game/server/entities/stable_projectile.h>
+#include <vector>
 
 #define NUM_ATOMS 6
 #define NUM_TRAILS 20

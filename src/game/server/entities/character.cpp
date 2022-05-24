@@ -8,21 +8,21 @@
 #include <game/server/player.h>
 #include <new>
 
-#include <game/server/ddpp/shop.h>
-
 #include "character.h"
-#include "homing_missile.h"
 #include "laser.h"
-#include "meteor.h"
-#include "plasmabullet.h"
 #include "projectile.h"
 
-#include "flag.h"
 #include "light.h"
 #include <game/server/score.h>
 #include <game/server/teams.h>
 
+// ddnet++
+#include "flag.h"
+#include "homing_missile.h"
+#include "meteor.h"
+#include "plasmabullet.h"
 #include "weapon.h"
+#include <game/server/ddpp/shop.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
 
@@ -998,11 +998,6 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 {
-#if defined(CONF_DEBUG)
-	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
-#endif
-	char aBuf[256];
-	ClearFakeMotd();
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
@@ -1022,6 +1017,7 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
+	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 		Killer, Server()->ClientName(Killer),
 		m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
@@ -1080,12 +1076,16 @@ void CCharacter::Die(int Killer, int Weapon, bool fngscore)
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	/*m_Core.m_Vel += Force;
+
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
+
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCID())
 		Dmg = maximum(1, Dmg/2);
+
 	m_DamageTaken++;
+
 	// create healthmod indicator
 	if(Server()->Tick() < m_DamageTakenTick+25)
 	{
@@ -1097,6 +1097,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		m_DamageTaken = 0;
 		GameServer()->CreateDamageInd(m_Pos, 0, Dmg);
 	}
+
 	if(Dmg)
 	{
 		if(m_Armor)
@@ -1106,6 +1107,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 				m_Health--;
 				Dmg--;
 			}
+
 			if(Dmg > m_Armor)
 			{
 				Dmg -= m_Armor;
@@ -1117,9 +1119,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 				Dmg = 0;
 			}
 		}
+
 		m_Health -= Dmg;
 	}
+
 	m_DamageTakenTick = Server()->Tick();
+
 	// do damage Hit sound
 	if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 	{
@@ -1131,10 +1136,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		}
 		GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
 	}
+
 	// check for death
 	if(m_Health <= 0)
 	{
 		Die(From, Weapon);
+
 		// set attacker's face to happy (taunt!)
 		if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
@@ -1145,8 +1152,10 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 				pChr->m_EmoteStop = Server()->Tick() + Server()->TickSpeed();
 			}
 		}
+
 		return false;
 	}
+
 	if (Dmg > 2)
 		GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG);
 	else
@@ -1417,43 +1426,6 @@ bool CCharacter::SameTeam(int ClientID)
 	return Teams()->m_Core.SameTeam(GetPlayer()->GetCID(), ClientID);
 }
 
-// void CCharacter::TestPrintTiles(int Index)
-// {
-// #if defined(CONF_DEBUG)
-// #endif
-// 	int MapIndex = Index;
-// 	//int PureMapIndex = GameServer()->Collision()->GetPureMapIndex(m_Pos);
-// 	float Offset = 4.0f;
-// 	int MapIndexL = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x + (m_ProximityRadius / 2) + Offset, m_Pos.y));
-// 	int MapIndexR = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x - (m_ProximityRadius / 2) - Offset, m_Pos.y));
-// 	int MapIndexT = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y + (m_ProximityRadius / 2) + Offset));
-// 	int MapIndexB = GameServer()->Collision()->GetPureMapIndex(vec2(m_Pos.x, m_Pos.y - (m_ProximityRadius / 2) - Offset));
-// 	//dbg_msg("","N%d L%d R%d B%d T%d",MapIndex,MapIndexL,MapIndexR,MapIndexB,MapIndexT);
-// 	m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
-// 	m_TileIndexL = GameServer()->Collision()->GetTileIndex(MapIndexL);
-// 	m_TileIndexR = GameServer()->Collision()->GetTileIndex(MapIndexR);
-// 	m_TileIndexB = GameServer()->Collision()->GetTileIndex(MapIndexB);
-// 	m_TileIndexT = GameServer()->Collision()->GetTileIndex(MapIndexT);
-
-// 	if (m_TileIndexR == TILE_BEGIN)
-// 	{
-// 		dbg_msg("FNN","finish tile on the right");
-// 	}
-// 	else  if (m_TileIndex == TILE_BEGIN)
-// 	{
-// 		dbg_msg("FNN","in startline");
-// 	}
-// 	else if (m_TileIndexR == TILE_FREEZE)
-// 	{
-// 		dbg_msg("FNN", "freeze spottedt at the right freeze=%d",m_TileIndexR);
-// 	}
-// 	else
-// 	{
-// 		if (GameServer()->m_IsDebug)
-// 			dbg_msg("FNN","tile=%d tileR=%d", m_TileIndex, m_TileIndexR);
-// 	}
-// }
-
 int CCharacter::Team()
 {
 	return Teams()->m_Core.Team(m_pPlayer->GetCID());
@@ -1525,21 +1497,6 @@ void CCharacter::HandleSkippableTiles(int Index)
 		return;
 	}
 
-	//// handle fng score tiles (mede by ChillerDragon hehe)
-	//if ((GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x + m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetFCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y - m_ProximityRadius / 3.f) == TILE_FNG_SCORE ||
-	//	GameServer()->Collision()->GetCollisionAt(m_Pos.x - m_ProximityRadius / 3.f, m_Pos.y + m_ProximityRadius / 3.f) == TILE_FNG_SCORE) &&
-	//	!m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID()))) //yolo leave super cheats also activated in fng cuz whatever
-	//{
-	//	dbg_msg("fok","fak"); //doesnt get triggerd
-	//	Die(m_pPlayer->GetCID(), WEAPON_WORLD, true);
-	//	return;
-	//}
-
 	if(GameLayerClipped(m_Pos))
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
@@ -1590,7 +1547,7 @@ void CCharacter::HandleSkippableTiles(int Index)
 				if(TeeAngle < 0)
 					TeeAngle = 4.0f * asin(1.0f) + TeeAngle;
 
-				TeeSpeed = sqrt((double)(pow(TempVel.x, 2) + pow(TempVel.y, 2)));
+				TeeSpeed = sqrt(pow(TempVel.x, 2) + pow(TempVel.y, 2));
 
 				DiffAngle = SpeederAngle - TeeAngle;
 				SpeedLeft = MaxSpeed / 5.0f - cos(DiffAngle) * TeeSpeed;
@@ -1694,9 +1651,7 @@ void CCharacter::HandleTiles(int Index)
 		Freeze();
 	}
 	else if(((m_TileIndex == TILE_UNFREEZE) || (m_TileFIndex == TILE_UNFREEZE)) && !m_DeepFreeze)
-	{
 		UnFreeze();
-	}
 
 	// deep freeze
 	if(((m_TileIndex == TILE_DFREEZE) || (m_TileFIndex == TILE_DFREEZE)) && !m_Super && !m_DeepFreeze)
@@ -2616,16 +2571,8 @@ void CCharacter::DDRaceInit()
 	m_Hit = g_Config.m_SvHit ? HIT_ALL : DISABLE_HIT_GRENADE | DISABLE_HIT_HAMMER | DISABLE_HIT_LASER | DISABLE_HIT_SHOTGUN;
 	m_SuperJump = false;
 	m_Jetpack = false;
-	m_freezeShotgun = false;
-	m_isDmg = false;
 	m_Core.m_Jumps = 2;
 	m_FreezeHammer = false;
-
-	// disable finite cosmetics by default
-	m_Rainbow = false;
-	m_Bloody = false;
-	m_Atom = false;
-	m_Trail = false;
 
 	int Team = Teams()->m_Core.Team(m_Core.m_Id);
 

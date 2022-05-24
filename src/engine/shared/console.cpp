@@ -7,6 +7,7 @@
 #include <base/log.h>
 #include <base/math.h>
 #include <base/system.h>
+#include <base/vmath.h>
 
 #include <engine/client/checksum.h>
 #include <engine/shared/protocol.h>
