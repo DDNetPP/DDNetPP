@@ -257,7 +257,6 @@ public:
 	void Reset();
 	void Tick(bool UseInput);
 	void Move();
-	void Read(const CNetObj_CharacterCore *pObjCore);
 
 	void ReadCharacterCore(const CNetObj_CharacterCore *pObjCore);
 	void ReadCharacter(const CNetObj_Character *pObjChar);
