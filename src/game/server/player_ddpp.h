@@ -429,15 +429,9 @@ public:
 
 	// other
 
-	enum
-	{
-		SCORE_TIME,
-		SCORE_LEVEL,
-		SCORE_BLOCK
-	};
+	EScore m_DisplayScore;
 	bool m_ScoreFixForDDNet;
 	int m_AllowTimeScore;
-	int m_DisplayScore;
 
 	bool m_CanClearFakeMotd;
 	bool m_IsFakeMotd;

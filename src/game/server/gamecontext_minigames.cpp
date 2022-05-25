@@ -8,6 +8,19 @@
 
 #include "gamecontext.h"
 
+EScore CGameContext::MinigameScoreType(int ClientID)
+{
+	for(auto &Minigame : m_vMinigames)
+	{
+		if(!Minigame)
+			continue;
+
+		if(Minigame->IsActive(ClientID))
+			return Minigame->ScoreType();
+	}
+	return SCORE_BLOCK;
+}
+
 int CGameContext::IsMinigame(int playerID) //if you update this function please also update the '/minigames' chat command
 {
 	CPlayer *pPlayer = m_apPlayers[playerID];

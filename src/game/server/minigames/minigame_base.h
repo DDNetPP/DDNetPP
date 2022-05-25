@@ -16,6 +16,13 @@ class CSpawnEval;
 class CSaveTee;
 class CSaveTeeDDPP;
 
+enum EScore
+{
+	SCORE_TIME,
+	SCORE_LEVEL,
+	SCORE_BLOCK
+};
+
 class CMinigame
 {
 protected:
@@ -115,6 +122,15 @@ public:
         Returns true if the ClientID is playing the minigame
     */
 	virtual bool IsActive(int ClientID) = 0;
+
+    /*
+        ScoreType
+
+        If your minigame is race based
+        you probably want to overwrite this method
+        and return EScore::SCORE_TIME
+    */
+	virtual EScore ScoreType() { return EScore::SCORE_BLOCK; }
 
 	/*
         SavePosition

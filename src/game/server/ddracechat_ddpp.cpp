@@ -577,17 +577,17 @@ void CGameContext::ConScore(IConsole::IResult *pResult, void *pUserData)
 
 	if(!str_comp_nocase(pResult->GetString(0), "time"))
 	{
-		pPlayer->m_DisplayScore = CPlayer::SCORE_TIME;
+		pPlayer->m_DisplayScore = SCORE_TIME;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'time'.");
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "level"))
 	{
-		pPlayer->m_DisplayScore = CPlayer::SCORE_LEVEL;
+		pPlayer->m_DisplayScore = SCORE_LEVEL;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'level'.");
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "block"))
 	{
-		pPlayer->m_DisplayScore = CPlayer::SCORE_BLOCK;
+		pPlayer->m_DisplayScore = SCORE_BLOCK;
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SCORE] Changed displayed score to 'blockpoints'.");
 	}
 	else

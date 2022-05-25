@@ -840,7 +840,7 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoEx->m_Flags2 = 0;
 
 	if(pPlayer)
-		if(pPlayer->m_DisplayScore == CPlayer::SCORE_TIME || GameServer()->IsMinigame(SnappingClient)) // time score
+		if(pPlayer->m_DisplayScore == SCORE_TIME || GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
