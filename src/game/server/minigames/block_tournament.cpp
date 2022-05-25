@@ -305,10 +305,14 @@ void CBlockTournament::EndRound()
 	{
 		if(!Player)
 			continue;
+		if(!IsActive(Player->GetCID()))
+			continue;
 
 		Leave(Player);
-		if(Player->GetCharacter() && !Player->m_IsBlockTourningDead)
+		if(Player->GetCharacter() && !Player->m_IsBlockTourningDead && Player->m_IsBlockTourningInArena)
 			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+		else if(Player->GetCharacter())
+			m_aRestorePos[Player->GetCID()] = false;
 	}
 }
 
