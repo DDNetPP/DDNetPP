@@ -95,7 +95,7 @@ public:
 	void OnDirectInput(CNetObj_PlayerInput *pNewInput);
 	void ResetHook();
 	void ResetInput();
-	void FireWeapon(bool Bot = false);
+	void FireWeapon();
 
 	void Die(int Killer, int Weapon, bool fngscore = false);
 	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon);

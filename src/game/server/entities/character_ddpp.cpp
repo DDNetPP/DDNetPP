@@ -12,6 +12,7 @@
 #include <cinttypes>
 
 #include "flag.h"
+#include "homing_missile.h"
 #include "laser.h"
 #include "plasmabullet.h"
 #include "projectile.h"
@@ -3083,7 +3084,248 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 	return false;
 }
 
-void CCharacter::DDPPFireWeapon()
+bool CCharacter::FireWeaponDDPP(bool &FullAuto)
+{
+	if(m_ReloadTimer != 0)
+		return false;
+
+	DoWeaponSwitch();
+	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+
+	if(m_autospreadgun && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		FullAuto = true;
+	if(m_pPlayer->m_InfAutoSpreadGun && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		FullAuto = true;
+
+	// don't fire hammer when player is deep and sv_deepfly is disabled
+	if(!g_Config.m_SvDeepfly && m_Core.m_ActiveWeapon == WEAPON_HAMMER && m_DeepFreeze)
+		return false;
+
+	// check if we gonna fire
+	bool WillFire = false;
+	if(CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
+	{
+		WillFire = true;
+		if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_Account.m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN)
+		{
+			m_CountSpookyGhostInputs = true;
+		}
+
+		GameServer()->Shop()->WillFireWeapon(GetPlayer()->GetCID());
+	}
+
+	if(FullAuto && (m_LatestInput.m_Fire & 1) && m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
+		WillFire = true;
+
+	if(!WillFire && !m_Fire)
+		return false;
+
+	if(m_FreezeTime)
+		return false;
+
+	// check for ammo
+	if(!m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
+	{
+		if(m_pPlayer->m_IsVanillaWeapons)
+		{
+			// 125ms is a magical limit of how fast a human can click
+			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
+		}
+		return true;
+	}
+
+	bool IsDDNetPPHit = false;
+	vec2 ProjStartPos = m_Pos + Direction * GetProximityRadius() * 0.75f;
+
+	switch(m_Core.m_ActiveWeapon)
+	{
+	case WEAPON_HAMMER:
+	{
+		if(IsHammerBlocked())
+			return true;
+
+		// reset objects Hit
+		m_NumObjectsHit = 0;
+		GameServer()->CreateSound(m_Pos, SOUND_HAMMER_FIRE, TeamMask());
+
+		Antibot()->OnHammerFire(m_pPlayer->GetCID());
+
+		if(m_Hit & DISABLE_HIT_HAMMER)
+			break;
+
+		CCharacter *apEnts[MAX_CLIENTS];
+		int Hits = 0;
+		int Num = GameServer()->m_World.FindEntities(ProjStartPos, GetProximityRadius() * 0.5f, (CEntity **)apEnts,
+			MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+
+		for(int i = 0; i < Num; ++i)
+		{
+			CCharacter *pTarget = apEnts[i];
+
+			//if ((pTarget == this) || GameServer()->Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, NULL, NULL))
+			if((pTarget == this || (pTarget->IsAlive() && !CanCollide(pTarget->GetPlayer()->GetCID()))))
+				continue;
+
+			if(m_pPlayer->m_IsInstaMode_fng)
+			{
+				// set his velocity to fast upward (for now)
+				if(length(pTarget->m_Pos - ProjStartPos) > 0.0f)
+					GameServer()->CreateHammerHit(pTarget->m_Pos - normalize(pTarget->m_Pos - ProjStartPos) * GetProximityRadius() * 0.5f, TeamMask());
+				else
+					GameServer()->CreateHammerHit(ProjStartPos, TeamMask());
+			}
+
+			vec2 Dir = vec2(0.f, 0.f);
+			if(m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_Account.m_aFngConfig[1] == '1')
+			{
+				pTarget->TakeHammerHit(this);
+				IsDDNetPPHit = true;
+			}
+			else
+			{
+				if(length(pTarget->m_Pos - m_Pos) > 0.0f)
+					Dir = normalize(pTarget->m_Pos - m_Pos);
+				else
+					Dir = vec2(0.f, -1.f);
+			}
+
+			DDPPHammerHit(pTarget);
+
+			float Strength;
+			if(!m_TuneZone)
+				Strength = GameServer()->Tuning()->m_HammerStrength;
+			else
+				Strength = GameServer()->TuningList()[m_TuneZone].m_HammerStrength;
+
+			if(m_pPlayer->m_IsInstaMode_fng) // don't damage with hammer in fng
+			{
+				vec2 Temp = pTarget->m_Core.m_Vel + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f;
+				Temp = ClampVel(pTarget->m_MoveRestrictions, Temp);
+				Temp -= pTarget->m_Core.m_Vel;
+				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
+					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+				IsDDNetPPHit = true;
+			}
+
+			if(m_FreezeHammer)
+				pTarget->Freeze();
+
+			Hits++;
+		}
+
+		if(Hits > 1)
+		{
+			if(m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
+			{
+				if(m_pPlayer->m_QuestStateLevel == 8) // Hammer 2+ tees in one hit
+				{
+					GameServer()->QuestCompleted(m_pPlayer->GetCID());
+				}
+			}
+		}
+
+		if(m_CanHarvestPlant)
+		{
+			m_HarvestPlant = true;
+		}
+
+		// if we Hit anything, we have to wait for the reload
+		if(Hits)
+		{
+			float FireDelay;
+			if(!m_TuneZone)
+				FireDelay = GameServer()->Tuning()->m_HammerHitFireDelay;
+			else
+				FireDelay = GameServer()->TuningList()[m_TuneZone].m_HammerHitFireDelay;
+			m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		}
+	}
+	break;
+
+	case WEAPON_GUN:
+	{
+		if(!m_Jetpack || !m_pPlayer->m_NinjaJetpack || m_Core.m_HasTelegunGun)
+		{
+			int Lifetime;
+			if(!m_TuneZone)
+				Lifetime = (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GunLifetime);
+			else
+				Lifetime = (int)(Server()->TickSpeed() * GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
+
+			if(SpecialGunProjectile(Direction, ProjStartPos, Lifetime))
+				IsDDNetPPHit = true;
+		}
+
+		DDPPGunFire(Direction);
+	}
+	break;
+
+	case WEAPON_SHOTGUN:
+	{
+		if(FreezeShotgun(Direction, ProjStartPos))
+			IsDDNetPPHit = true;
+
+		QuestShotgun();
+	}
+	break;
+
+	case WEAPON_GRENADE:
+	{
+		if(g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaMode_gdm)
+		{
+			m_pPlayer->m_Account.m_GrenadeShots++;
+			m_pPlayer->m_Account.m_GrenadeShotsNoRJ++;
+		}
+
+		if(m_HomingMissile)
+		{
+			/* CHomingMissile *pMissile = */ new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCID(), 0, Direction);
+			IsDDNetPPHit = true;
+		}
+		QuestGrenade();
+	}
+	break;
+	case WEAPON_LASER:
+	{
+		if(g_Config.m_SvInstagibMode)
+			m_pPlayer->m_Account.m_RifleShots++;
+		QuestRifle();
+	}
+	break;
+
+	case WEAPON_NINJA:
+	{
+		QuestNinja();
+	}
+	break;
+	}
+
+	OnWeaponFire();
+	m_AttackTick = Server()->Tick();
+
+	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
+		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;*/
+
+	if(!m_ReloadTimer && !IsDDNetPPHit)
+	{
+		float FireDelay;
+		if(!m_TuneZone)
+			GameServer()->Tuning()->Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+		else
+			GameServer()->TuningList()[m_TuneZone].Get(38 + m_Core.m_ActiveWeapon, &FireDelay);
+		m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
+		if(m_OnFire)
+		{
+			m_OnFire = false;
+			m_ReloadTimer = 200 * Server()->TickSpeed() / 1000;
+		}
+	}
+
+	return IsDDNetPPHit;
+}
+
+void CCharacter::OnWeaponFire()
 {
 	QuestFireWeapon();
 	m_AttackTick = Server()->Tick();

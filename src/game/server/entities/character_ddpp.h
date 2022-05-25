@@ -41,11 +41,19 @@ public:
 	~CCharacter();
 
 private:
+	// hooks
 	void ConstructDDPP();
 	void DestructDDPP();
 	void SnapCharacterDDPP();
 	bool HandleTilesDDPP(int Index);
 	void DDPPDDRacePostCoreTick();
+	/*
+		FireWeaponDDPP
+
+		abort ddnet fire when returning true
+	*/
+	bool FireWeaponDDPP(bool &FullAuto);
+	void OnWeaponFire();
 
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)
@@ -141,7 +149,6 @@ public:
 	void QuestRifle();
 	void QuestNinja();
 	void QuestFireWeapon();
-	void DDPPFireWeapon();
 	void PoliceHammerHit(CCharacter *pTarget);
 	void DDPPHammerHit(CCharacter *pTarget);
 	bool IsHammerBlocked();

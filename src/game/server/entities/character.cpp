@@ -357,7 +357,7 @@ void CCharacter::HandleWeaponSwitch()
 	DoWeaponSwitch();
 }
 
-void CCharacter::FireWeapon(bool Bot)
+void CCharacter::FireWeapon()
 {
 	if(m_ReloadTimer != 0)
 	{
@@ -380,10 +380,9 @@ void CCharacter::FireWeapon(bool Bot)
 	// by something
 	if(m_FrozenLastTick)
 		FullAuto = true;
-	if(m_autospreadgun && m_Core.m_ActiveWeapon == WEAPON_GUN)
-		FullAuto = true;
-	if(m_pPlayer->m_InfAutoSpreadGun && m_Core.m_ActiveWeapon == WEAPON_GUN)
-		FullAuto = true;
+
+	if(FireWeaponDDPP(FullAuto))
+		return;
 
 	// don't fire hammer when player is deep and sv_deepfly is disabled
 	if(!g_Config.m_SvDeepfly && m_Core.m_ActiveWeapon == WEAPON_HAMMER && m_DeepFreeze)
@@ -392,20 +391,12 @@ void CCharacter::FireWeapon(bool Bot)
 	// check if we gonna fire
 	bool WillFire = false;
 	if(CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
-	{
 		WillFire = true;
-		if(m_pPlayer->m_PlayerFlags & PLAYERFLAG_SCOREBOARD && m_pPlayer->m_Account.m_SpookyGhost && m_Core.m_ActiveWeapon == WEAPON_GUN)
-		{
-			m_CountSpookyGhostInputs = true;
-		}
-
-		GameServer()->Shop()->WillFireWeapon(GetPlayer()->GetCID());
-	}
 
 	if(FullAuto && (m_LatestInput.m_Fire & 1) && m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 		WillFire = true;
 
-	if(!WillFire && !m_Fire)
+	if(!WillFire)
 		return;
 
 	if(m_FreezeTime)
@@ -420,19 +411,11 @@ void CCharacter::FireWeapon(bool Bot)
 	}
 
 	// check for ammo
-	if(!m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
+	if(!m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 	{
-		if(m_pPlayer->m_IsVanillaWeapons)
-		{
-			// 125ms is a magical limit of how fast a human can click
-			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
-			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
-		}
-		else if(m_PainSoundTimer <= 0)
-		{
-			m_PainSoundTimer = 1 * Server()->TickSpeed();
-			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
-		}
+		/*// 125ms is a magical limit of how fast a human can click
+		m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);*/
 		return;
 	}
 
@@ -442,9 +425,6 @@ void CCharacter::FireWeapon(bool Bot)
 	{
 	case WEAPON_HAMMER:
 	{
-		if(IsHammerBlocked())
-			return;
-
 		// reset objects Hit
 		m_NumObjectsHit = 0;
 		GameServer()->CreateSound(m_Pos, SOUND_HAMMER_FIRE, TeamMask());
@@ -473,20 +453,13 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				GameServer()->CreateHammerHit(ProjStartPos, TeamMask());
 
-			vec2 Dir = vec2(0.f, 0.f);
-			if(m_pPlayer->m_IsInstaMode_fng && m_pPlayer->m_Account.m_aFngConfig[1] == '1')
-			{
-				pTarget->TakeHammerHit(this);
-			}
+			vec2 Dir;
+			if(length(pTarget->m_Pos - m_Pos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - m_Pos);
 			else
-			{
-				if(length(pTarget->m_Pos - m_Pos) > 0.0f)
-					Dir = normalize(pTarget->m_Pos - m_Pos);
-				else
-					Dir = vec2(0.f, -1.f);
-			}
-
-			DDPPHammerHit(pTarget);
+				Dir = vec2(0.f, -1.f);
+			/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
+					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
 
 			float Strength;
 			if(!m_TuneZone)
@@ -498,16 +471,8 @@ void CCharacter::FireWeapon(bool Bot)
 			Temp = ClampVel(pTarget->m_MoveRestrictions, Temp);
 			Temp -= pTarget->m_Core.m_Vel;
 
-			if(m_pPlayer->m_IsInstaMode_fng) // don't damage with hammer in fng
-			{
-				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
-					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
-			}
-			else
-			{
-				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
-					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
-			}
+			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
+				m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 
 			if(!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
 				pTarget->UnFreeze();
@@ -522,22 +487,13 @@ void CCharacter::FireWeapon(bool Bot)
 
 		// if we Hit anything, we have to wait for the reload
 		if(Hits)
-			m_ReloadTimer = Server()->TickSpeed() / 3;
-
-		if(Hits > 1)
 		{
-			if(m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
-			{
-				if(m_pPlayer->m_QuestStateLevel == 8) // Hammer 2+ tees in one hit
-				{
-					GameServer()->QuestCompleted(m_pPlayer->GetCID());
-				}
-			}
-		}
-
-		if(m_CanHarvestPlant)
-		{
-			m_HarvestPlant = true;
+			float FireDelay;
+			if(!m_TuneZone)
+				FireDelay = GameServer()->Tuning()->m_HammerHitFireDelay;
+			else
+				FireDelay = GameServer()->TuningList()[m_TuneZone].m_HammerHitFireDelay;
+			m_ReloadTimer = FireDelay * Server()->TickSpeed() / 1000;
 		}
 	}
 	break;
@@ -552,96 +508,90 @@ void CCharacter::FireWeapon(bool Bot)
 			else
 				Lifetime = (int)(Server()->TickSpeed() * GameServer()->TuningList()[m_TuneZone].m_GunLifetime);
 
-			if(!SpecialGunProjectile(Direction, ProjStartPos, Lifetime))
-			{
-				new CProjectile(
-					GameWorld(),
-					WEAPON_GUN, //Type
-					m_pPlayer->GetCID(), //Owner
-					ProjStartPos, //Pos
-					Direction, //Dir
-					Lifetime, //Span
-					false, //Freeze
-					false, //Explosive
-					0, //Force
-					-1 //SoundImpact
-				);
-				GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, TeamMask());
-			}
-		}
+			new CProjectile(
+				GameWorld(),
+				WEAPON_GUN, //Type
+				m_pPlayer->GetCID(), //Owner
+				ProjStartPos, //Pos
+				Direction, //Dir
+				Lifetime, //Span
+				false, //Freeze
+				false, //Explosive
+				0, //Force
+				-1 //SoundImpact
+			);
 
-		DDPPGunFire(Direction);
+			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, TeamMask());
+		}
 	}
 	break;
 
 	case WEAPON_SHOTGUN:
 	{
-		if(!FreezeShotgun(Direction, ProjStartPos))
-		{
-			float LaserReach;
-			if(!m_TuneZone)
-				LaserReach = GameServer()->Tuning()->m_LaserReach;
-			else
-				LaserReach = GameServer()->TuningList()[m_TuneZone].m_LaserReach;
+		/*int ShotSpread = 2;
 
-			new CLaser(&GameServer()->m_World, m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_SHOTGUN);
-			GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE, TeamMask());
-		}
+			for(int i = -ShotSpread; i <= ShotSpread; ++i)
+			{
+				float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
+				float a = angle(Direction);
+				a += Spreading[i+2];
+				float v = 1-(absolute(i)/(float)ShotSpread);
+				float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
+				CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
+					m_pPlayer->GetCID(),
+					ProjStartPos,
+					vec2(cosf(a), sinf(a))*Speed,
+					(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_ShotgunLifetime),
+					1, 0, 0, -1);
+			}
 
-		QuestShotgun();
+			GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);*/
+		float LaserReach;
+		if(!m_TuneZone)
+			LaserReach = GameServer()->Tuning()->m_LaserReach;
+		else
+			LaserReach = GameServer()->TuningList()[m_TuneZone].m_LaserReach;
+
+		new CLaser(&GameServer()->m_World, m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_SHOTGUN);
+		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE, TeamMask());
 	}
 	break;
 
 	case WEAPON_GRENADE:
 	{
-		if(g_Config.m_SvInstagibMode || m_pPlayer->m_IsInstaMode_gdm)
-		{
-			m_pPlayer->m_Account.m_GrenadeShots++;
-			m_pPlayer->m_Account.m_GrenadeShotsNoRJ++;
-		}
-
 		int Lifetime;
 		if(!m_TuneZone)
 			Lifetime = (int)(Server()->TickSpeed() * GameServer()->Tuning()->m_GrenadeLifetime);
 		else
 			Lifetime = (int)(Server()->TickSpeed() * GameServer()->TuningList()[m_TuneZone].m_GrenadeLifetime);
 
-		if(m_HomingMissile)
-		{
-			/* CHomingMissile *pMissile = */ new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCID(), 0, Direction);
-		}
-		else
-		{
-			new CProjectile(
-				GameWorld(),
-				WEAPON_GRENADE, //Type
-				m_pPlayer->GetCID(), //Owner
-				ProjStartPos, //Pos
-				Direction, //Dir
-				Lifetime, //Span
-				false, //Freeze
-				true, //Explosive
-				0, //Force
-				SOUND_GRENADE_EXPLODE //SoundImpact
-			); //SoundImpact
-		}
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, TeamMask());
+		new CProjectile(
+			GameWorld(),
+			WEAPON_GRENADE, //Type
+			m_pPlayer->GetCID(), //Owner
+			ProjStartPos, //Pos
+			Direction, //Dir
+			Lifetime, //Span
+			false, //Freeze
+			true, //Explosive
+			0, //Force
+			SOUND_GRENADE_EXPLODE //SoundImpact
+		); //SoundImpact
 
-		QuestGrenade();
+		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_FIRE, TeamMask());
 	}
 	break;
+
 	case WEAPON_LASER:
 	{
-		if(g_Config.m_SvInstagibMode)
-			m_pPlayer->m_Account.m_RifleShots++;
 		float LaserReach;
 		if(!m_TuneZone)
 			LaserReach = GameServer()->Tuning()->m_LaserReach;
 		else
 			LaserReach = GameServer()->TuningList()[m_TuneZone].m_LaserReach;
+
 		new CLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_LASER);
 		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask());
-		QuestRifle();
 	}
 	break;
 
@@ -654,13 +604,11 @@ void CCharacter::FireWeapon(bool Bot)
 		m_Core.m_Ninja.m_CurrentMoveTime = g_pData->m_Weapons.m_Ninja.m_Movetime * Server()->TickSpeed() / 1000;
 		m_Core.m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
 
-		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask());
-		QuestNinja();
+		GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE, TeamMask());
 	}
 	break;
 	}
 
-	DDPPFireWeapon();
 	m_AttackTick = Server()->Tick();
 
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
@@ -822,6 +770,7 @@ void CCharacter::Tick()
 		char Buf[128];
 		str_format(Buf, sizeof(Buf), "You were moved to %s due to team balancing", GameServer()->m_pController->GetTeamName(m_pPlayer->GetTeam()));
 		GameServer()->SendBroadcast(Buf, m_pPlayer->GetCID());
+
 		m_pPlayer->m_ForceBalanced = false;
 	}*/
 
