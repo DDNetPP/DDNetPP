@@ -137,6 +137,7 @@ public: // TODO: Maybe make protected
 	*/
 	bool NetworkClipped(int SnappingClient) const;
 	bool NetworkClipped(int SnappingClient, vec2 CheckPos) const;
+	bool NetworkClippedLine(int SnappingClient, vec2 StartPos, vec2 EndPos) const;
 
 	bool GameLayerClipped(vec2 CheckPos);
 
@@ -150,5 +151,6 @@ public: // TODO: Maybe make protected
 };
 
 bool NetworkClipped(const CGameContext *pGameServer, int SnappingClient, vec2 CheckPos);
+bool NetworkClippedLine(const CGameContext *pGameServer, int SnappingClient, vec2 StartPos, vec2 EndPos);
 
 #endif

@@ -2336,6 +2336,8 @@ if(SERVER)
     entities/door.h
     entities/dragger.cpp
     entities/dragger.h
+    entities/dragger_beam.cpp
+    entities/dragger_beam.h
     entities/drop_pickup.cpp
     entities/drop_pickup.h
     entities/dummy/adventure.cpp

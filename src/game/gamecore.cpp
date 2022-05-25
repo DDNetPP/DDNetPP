@@ -80,7 +80,8 @@ void CCharacterCore::Reset()
 	m_HookTick = 0;
 	m_HookState = HOOK_IDLE;
 	m_LastHookedPlayer = -1;
-	m_HookedPlayer = -1;
+	SetHookedPlayer(-1);
+	m_AttachedPlayers.clear();
 	m_Jumped = 0;
 	m_JumpedTotal = 0;
 	m_Jumps = 2;
@@ -198,14 +199,14 @@ void CCharacterCore::Tick(bool UseInput)
 				m_HookState = HOOK_FLYING;
 				m_HookPos = m_Pos + TargetDirection * PhysSize * 1.5f;
 				m_HookDir = TargetDirection;
-				m_HookedPlayer = -1;
+				SetHookedPlayer(-1);
 				m_HookTick = (float)SERVER_TICK_SPEED * (1.25f - m_Tuning.m_HookDuration);
 				m_TriggeredEvents |= COREEVENT_HOOK_LAUNCH;
 			}
 		}
 		else
 		{
-			m_HookedPlayer = -1;
+			SetHookedPlayer(-1);
 			m_HookState = HOOK_IDLE;
 			m_HookPos = m_Pos;
 		}
@@ -231,7 +232,7 @@ void CCharacterCore::Tick(bool UseInput)
 	// do hook
 	if(m_HookState == HOOK_IDLE)
 	{
-		m_HookedPlayer = -1;
+		SetHookedPlayer(-1);
 		m_HookState = HOOK_IDLE;
 		m_HookPos = m_Pos;
 	}
@@ -297,7 +298,7 @@ void CCharacterCore::Tick(bool UseInput)
 						{
 							m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
 							m_HookState = HOOK_GRABBED;
-							m_HookedPlayer = i;
+							SetHookedPlayer(i);
 							Distance = distance(m_HookPos, pCharCore->m_Pos);
 							pCharCore->m_LastHookedPlayer = m_Id;
 							pCharCore->m_LastHookedTick = 0;
@@ -325,7 +326,7 @@ void CCharacterCore::Tick(bool UseInput)
 			if(GoingThroughTele && m_pWorld && m_pTeleOuts && !m_pTeleOuts->empty() && !(*m_pTeleOuts)[teleNr - 1].empty())
 			{
 				m_TriggeredEvents = 0;
-				m_HookedPlayer = -1;
+				SetHookedPlayer(-1);
 
 				m_NewHook = true;
 				int RandomOut = m_pWorld->RandomOr0((*m_pTeleOuts)[teleNr - 1].size());
@@ -350,7 +351,7 @@ void CCharacterCore::Tick(bool UseInput)
 			else
 			{
 				// release hook
-				m_HookedPlayer = -1;
+				SetHookedPlayer(-1);
 				m_HookState = HOOK_RETRACTED;
 				m_HookPos = m_Pos;
 			}
@@ -387,7 +388,7 @@ void CCharacterCore::Tick(bool UseInput)
 		m_HookTick++;
 		if(!HookFlag() && m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED + SERVER_TICK_SPEED / 5 || (m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer]) || (m_HookedPlayer < 97 && m_pWorld && !m_pWorld->m_apCharacters[m_HookedPlayer])))
 		{
-			m_HookedPlayer = -1;
+			SetHookedPlayer(-1);
 			m_HookState = HOOK_RETRACTED;
 			m_HookPos = m_Pos;
 		}
@@ -560,7 +561,7 @@ void CCharacterCore::ReadCharacterCore(const CNetObj_CharacterCore *pObjCore)
 	m_HookPos.y = pObjCore->m_HookY;
 	m_HookDir.x = pObjCore->m_HookDx / 256.0f;
 	m_HookDir.y = pObjCore->m_HookDy / 256.0f;
-	m_HookedPlayer = pObjCore->m_HookedPlayer;
+	SetHookedPlayer(pObjCore->m_HookedPlayer);
 	m_Jumped = pObjCore->m_Jumped;
 	m_Direction = pObjCore->m_Direction;
 	m_Angle = pObjCore->m_Angle;
@@ -627,6 +628,30 @@ void CCharacterCore::Quantize()
 	CNetObj_CharacterCore Core;
 	Write(&Core);
 	ReadCharacterCore(&Core);
+}
+
+void CCharacterCore::SetHookedPlayer(int HookedPlayer)
+{
+	if(HookedPlayer != m_HookedPlayer)
+	{
+		if(m_HookedPlayer != -1 && m_Id != -1 && m_pWorld)
+		{
+			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
+			if(pCharCore)
+			{
+				pCharCore->m_AttachedPlayers.erase(m_Id);
+			}
+		}
+		if(HookedPlayer != -1 && m_Id != -1 && m_pWorld)
+		{
+			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[HookedPlayer];
+			if(pCharCore)
+			{
+				pCharCore->m_AttachedPlayers.insert(m_Id);
+			}
+		}
+		m_HookedPlayer = HookedPlayer;
+	}
 }
 
 // DDRace
