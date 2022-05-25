@@ -302,7 +302,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 	m_pPlayer->m_SpawnGrenadeActive = 0;
 	m_pPlayer->m_SpawnRifleActive = 0;
 
-	if(g_Config.m_SvAllowSpawnWeapons)
+	if(g_Config.m_SvAllowSpawnWeapons && !GameServer()->IsMinigame(m_pPlayer->GetCID()))
 	{
 		SetSpawnWeapons();
 	}
