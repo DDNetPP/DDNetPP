@@ -78,7 +78,6 @@ generated
 target
 
 /build*
-/test/*
 /integration_test/*
 
 # IDE project files
