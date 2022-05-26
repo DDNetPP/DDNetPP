@@ -81,13 +81,13 @@ void CDraggerBeam::Snap(int SnappingClient)
 
 	// Only players who can see the player attached to the dragger can see the dragger beam
 	CCharacter *pTarget = GameServer()->GetPlayerChar(m_ForClientID);
-	if(!pTarget->CanSnapCharacter(SnappingClient))
+	if(!pTarget || !pTarget->CanSnapCharacter(SnappingClient))
 	{
 		return;
 	}
 	// Only players with the dragger beam in their field of view or who want to see everything will receive the snap
 	vec2 TargetPos = vec2(pTarget->m_Pos.x, pTarget->m_Pos.y);
-	if(NetworkClippedLine(SnappingClient, m_Pos, TargetPos))
+	if(distance(pTarget->m_Pos, m_Pos) >= g_Config.m_SvDraggerRange || NetworkClippedLine(SnappingClient, m_Pos, TargetPos))
 	{
 		return;
 	}
