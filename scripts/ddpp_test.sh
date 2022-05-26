@@ -68,10 +68,20 @@ function kill_all() {
 	then
 		echo "[*] shutting down test clients and server ..."
 	fi
+	local srv_pid
+	local client1_pid
+	local client2_pid
 	sleep 1
-	echo "shutdown" > server.fifo
-	echo "quit" > client1.fifo
-	echo "quit" > client2.fifo
+	echo "shutdown" > server.fifo &
+	srv_pid="$!"
+	echo "quit" > client1.fifo &
+	client1_pid="$!"
+	echo "quit" > client2.fifo &
+	client2_pid="$!"
+	sleep 1
+	kill -9 "$srv_pid" &> /dev/null
+	kill -9 "$client1_pid" &> /dev/null
+	kill -9 "$client2_pid" &> /dev/null
 }
 
 got_cleanup=0
@@ -97,10 +107,16 @@ trap cleanup EXIT
 
 function fail()
 {
+	local parent_pid="$1"
+	local type="$2"
+	local exit_code="$3"
 	sleep 1
-	tail -n2 "$1".log > fail_"$1".txt
-	echo "$1 exited with code $2" >> fail_"$1".txt
-	echo "[-] $1 exited with code $2"
+	tail -n2 "$type".log > fail_"$type".txt
+	echo "$type exited with code $exit_code" >> fail_"$type".txt
+	echo "[-] $type exited with code $exit_code"
+	kill_all
+	kill -9 "$parent_pid"
+	exit 1
 }
 
 if test -n "$(find . -maxdepth 1 -name '*.fifo' -print -quit)"
@@ -152,13 +168,13 @@ log "connecting clients to server at port $port"
 	sv_allow_block_tourna 1;
 	sv_block_tourna_players 2;
 	sv_block_tourna_delay 5;
-	sv_port $port" &> server.log || fail server "$?" &
+	sv_port $port" &> server.log || fail "$$" server "$?" &
 
 ./DDNet \
 	"cl_input_fifo client1.fifo;
 	player_name client1;
 	cl_download_skins 0;
-	connect localhost:$port" &> client1.log || fail client1 "$?" &
+	connect localhost:$port" &> client1.log || fail "$$" client1 "$?" &
 
 sleep 0.5
 
@@ -166,7 +182,7 @@ sleep 0.5
 	"cl_input_fifo client2.fifo;
 	player_name client2;
 	cl_download_skins 0;
-	connect localhost:$port" &> client2.log || fail client2 "$?" &
+	connect localhost:$port" &> client2.log || fail "$$" client2 "$?" &
 
 fails=0
 # give the client time to launch and create the fifo file
