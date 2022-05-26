@@ -26,8 +26,8 @@ jobs:
         cd san
         export CC=clang
         export CXX=clang++
-        # export CXXFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
-        # export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
+        export CXXFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
+        export CFLAGS="-fsanitize=address,undefined -fsanitize-recover=address,undefined -fno-omit-frame-pointer"
         cmake -DCMAKE_BUILD_TYPE=Debug -DCLIENT=ON -DHEADLESS_CLIENT=ON ..
         make -j"$(nproc)"
     - name: Run integration tests with ASan and UBSan
