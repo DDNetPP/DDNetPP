@@ -2984,6 +2984,8 @@ int CServer::Run()
 
 	m_NetServer.Close();
 
+	if(ErrorShutdown())
+		printf("error: %s\n", m_aErrorShutdownReason);
 	return ErrorShutdown();
 }
 
