@@ -53,7 +53,7 @@ private:
 		abort ddnet fire when returning true
 	*/
 	bool FireWeaponDDPP(bool &FullAuto);
-	void OnWeaponFire();
+	void PostFireWeapon();
 
 	// also: es gibt eine start- und endposition f�r die augen
 	// ebenso wie eine startzeit und eine endzeit (bzw. eigentlich nur wie lange die animation geht)

@@ -3301,7 +3301,6 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	break;
 	}
 
-	OnWeaponFire();
 	m_AttackTick = Server()->Tick();
 
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
@@ -3325,7 +3324,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	return IsDDNetPPHit;
 }
 
-void CCharacter::OnWeaponFire()
+void CCharacter::PostFireWeapon()
 {
 	QuestFireWeapon();
 	m_AttackTick = Server()->Tick();

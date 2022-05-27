@@ -609,6 +609,7 @@ void CCharacter::FireWeapon()
 	break;
 	}
 
+	PostFireWeapon();
 	m_AttackTick = Server()->Tick();
 
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
