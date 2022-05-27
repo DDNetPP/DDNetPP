@@ -111,6 +111,10 @@ function fail()
 	local type="$2"
 	local exit_code="$3"
 	sleep 1
+	if [ "$type" == "server" ]
+	then
+		tail server.log
+	fi
 	tail -n2 "$type".log > fail_"$type".txt
 	echo "$type exited with code $exit_code" >> fail_"$type".txt
 	echo "[-] $type exited with code $exit_code"
@@ -159,7 +163,13 @@ function print_san() {
 
 log "connecting clients to server at port $port"
 
-./DDNetPP \
+gdb \
+	-ex='set pagination off' \
+	-ex='set confirm off' \
+	-ex=run \
+	-ex=bt \
+	-ex="quit \$_exitcode" \
+	-ex='quit 1' --args ./DDNetPP \
 	"sv_input_fifo server.fifo;
 	sv_map ddnetpp-test;
 	sv_sqlite_file ddnet-server.sqlite;
