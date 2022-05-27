@@ -3983,6 +3983,7 @@ int main(int argc, const char **argv)
 	delete pKernel;
 
 	cmdline_free(argc, argv);
+	dbg_msg("ddnet++", "return code=%d", Ret);
 	return Ret;
 }
 
