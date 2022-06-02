@@ -123,25 +123,15 @@ public:
 	class CSwitchTile *SwitchLayer() { return m_pSwitch; }
 	class CTuneTile *TuneLayer() { return m_pTune; }
 	class CLayers *Layers() { return m_pLayers; }
-	int m_NumSwitchers;
+	int m_HighestSwitchNumber;
 
-	std::vector<std::vector<vec2>> m_vTiles;
-
-	struct SSwitchers
-	{
-		bool m_Status[MAX_CLIENTS];
-		bool m_Initial;
-		int m_EndTick[MAX_CLIENTS];
-		int m_Type[MAX_CLIENTS];
-	};
-
+	// DDNet++ start
 private:
-	// DDNet++
-
 	int m_NumSurvivalSpawns;
 
 public:
-	SSwitchers *m_pSwitchers;
+	std::vector<std::vector<vec2>> m_vTiles;
+	// DDNet++ end
 
 private:
 	class CTeleTile *m_pTele;

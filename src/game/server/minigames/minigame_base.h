@@ -123,7 +123,7 @@ public:
     */
 	virtual bool IsActive(int ClientID) = 0;
 
-    /*
+	/*
         ScoreType
 
         If your minigame is race based

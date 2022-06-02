@@ -2,13 +2,10 @@
 #include "dragger_beam.h"
 #include "character.h"
 #include "dragger.h"
-#include <engine/config.h>
 #include <engine/server.h>
+#include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
-#include <game/server/gamemodes/DDRace.h>
-#include <game/server/player.h>
-#include <game/server/teams.h>
 
 CDraggerBeam::CDraggerBeam(CGameWorld *pGameWorld, CDragger *pDragger, vec2 Pos, float Strength, bool IgnoreWalls,
 	int ForClientID, int Layer, int Number) :
@@ -42,13 +39,18 @@ void CDraggerBeam::Tick()
 		return;
 	}
 
-	// The following checks are necessary, because the checks in CDragger::LookForPlayersToDrag only take place every 150ms
-	// When the dragger is disabled for the target player's team, the dragger beam dissolves
-	if(m_Layer == LAYER_SWITCH && m_Number > 0 &&
-		!GameServer()->Collision()->m_pSwitchers[m_Number].m_Status[pTarget->Team()])
+	// The following checks are necessary, because the checks in CDragger::LookForPlayersToDrag only take place
+	// after CDraggerBeam::Tick and only every 150ms
+	// When the dragger is disabled for the target player's team, the dragger beam dissolves. The check if a dragger
+	// is disabled is only executed every 150ms, so the beam can stay activated up to 6 extra ticks
+	if(Server()->Tick() % int(Server()->TickSpeed() * 0.15f) == 0)
 	{
-		Reset();
-		return;
+		if(m_Layer == LAYER_SWITCH && m_Number > 0 &&
+			!Switchers()[m_Number].m_Status[pTarget->Team()])
+		{
+			Reset();
+			return;
+		}
 	}
 
 	// When the dragger can no longer reach the target player, the dragger beam dissolves

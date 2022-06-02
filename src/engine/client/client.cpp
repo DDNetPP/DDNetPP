@@ -5,19 +5,15 @@
 
 #include <climits>
 #include <new>
-
-#include <cstdarg>
 #include <tuple>
 
 #include <base/hash_ctxt.h>
 #include <base/logger.h>
 #include <base/math.h>
 #include <base/system.h>
-#include <base/vmath.h>
 
 #include <game/client/components/menus.h>
-#include <game/client/gameclient.h>
-#include <game/editor/editor.h>
+#include <game/generated/protocol.h>
 
 #include <engine/client.h>
 #include <engine/config.h>
@@ -38,27 +34,24 @@
 #include <engine/shared/assertion_logger.h>
 #include <engine/shared/compression.h>
 #include <engine/shared/config.h>
-#include <engine/shared/datafile.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/fifo.h>
 #include <engine/shared/filecollection.h>
 #include <engine/shared/http.h>
-#include <engine/shared/json.h>
 #include <engine/shared/masterserver.h>
 #include <engine/shared/network.h>
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
 #include <engine/shared/protocol_ex.h>
-#include <engine/shared/ringbuffer.h>
 #include <engine/shared/snapshot.h>
 #include <engine/shared/uuid_manager.h>
 
 #include <base/system.h>
 
+#include <game/localization.h>
 #include <game/version.h>
 
 #include <engine/client/demoedit.h>
-#include <engine/client/serverbrowser.h>
 
 #if defined(CONF_FAMILY_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
@@ -73,15 +66,11 @@
 #include "video.h"
 #endif
 
-#include <zlib.h>
-
 #include "SDL.h"
 #ifdef main
 #undef main
 #endif
 
-// for android
-#include "SDL_rwops.h"
 #include "base/hash.h"
 
 // for msvc
@@ -1744,7 +1733,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 						str_format(aUrl, sizeof(aUrl), "%s/%s", UseConfigUrl ? g_Config.m_ClMapDownloadUrl : m_aMapDownloadUrl, aEscaped);
 
 						m_pMapdownloadTask = HttpGetFile(aUrl, Storage(), m_aMapdownloadFilenameTemp, IStorage::TYPE_SAVE);
-						m_pMapdownloadTask->Timeout(CTimeout{g_Config.m_ClMapDownloadConnectTimeoutMs, g_Config.m_ClMapDownloadLowSpeedLimit, g_Config.m_ClMapDownloadLowSpeedTime});
+						m_pMapdownloadTask->Timeout(CTimeout{g_Config.m_ClMapDownloadConnectTimeoutMs, 0, g_Config.m_ClMapDownloadLowSpeedLimit, g_Config.m_ClMapDownloadLowSpeedTime});
 						Engine()->AddJob(m_pMapdownloadTask);
 					}
 					else
@@ -2987,7 +2976,12 @@ void CClient::Run()
 		}
 		for(unsigned int i = 0; i < std::size(m_NetClient); i++)
 		{
-			BindAddr.port = i == CONN_MAIN ? g_Config.m_ClPort : i == CONN_DUMMY ? g_Config.m_ClDummyPort : g_Config.m_ClContactPort;
+			int &PortRef = i == CONN_MAIN ? g_Config.m_ClPort : i == CONN_DUMMY ? g_Config.m_ClDummyPort : g_Config.m_ClContactPort;
+			if(PortRef < 1024) // Reject users setting ports that we don't want to use
+			{
+				PortRef = 0;
+			}
+			BindAddr.port = PortRef;
 			while(BindAddr.port == 0 || !m_NetClient[i].Open(BindAddr))
 			{
 				BindAddr.port = (secure_rand() % 64511) + 1024;
@@ -4644,7 +4638,7 @@ void CClient::RequestDDNetInfo()
 
 	// Use ipv4 so we can know the ingame ip addresses of players before they join game servers
 	m_pDDNetInfoTask = HttpGetFile(aUrl, Storage(), m_aDDNetInfoTmp, IStorage::TYPE_SAVE);
-	m_pDDNetInfoTask->Timeout(CTimeout{10000, 500, 10});
+	m_pDDNetInfoTask->Timeout(CTimeout{10000, 0, 500, 10});
 	m_pDDNetInfoTask->IpResolve(IPRESOLVE::V4);
 	Engine()->AddJob(m_pDDNetInfoTask);
 }

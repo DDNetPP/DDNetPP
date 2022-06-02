@@ -19,7 +19,6 @@
 #include <engine/shared/assertion_logger.h>
 #include <engine/shared/compression.h>
 #include <engine/shared/config.h>
-#include <engine/shared/datafile.h>
 #include <engine/shared/demo.h>
 #include <engine/shared/econ.h>
 #include <engine/shared/fifo.h>
@@ -453,7 +452,7 @@ bool CServer::SetClientNameImpl(int ClientID, const char *pNameRequest, bool Set
 	if(m_aClients[ClientID].m_State < CClient::STATE_READY)
 		return false;
 
-	CNameBan *pBanned = IsNameBanned(pNameRequest, m_aNameBans.base_ptr(), m_aNameBans.size());
+	CNameBan *pBanned = IsNameBanned(pNameRequest, m_vNameBans);
 	if(pBanned)
 	{
 		if(m_aClients[ClientID].m_State == CClient::STATE_READY && Set)
@@ -576,20 +575,10 @@ void CServer::Ban(int ClientID, int Seconds, const char *pReason)
 	m_NetServer.NetBan()->BanAddr(&Addr, Seconds, pReason);
 }
 
-/*int CServer::Tick()
-{
-	return m_CurrentGameTick;
-}*/
-
 int64_t CServer::TickStartTime(int Tick)
 {
 	return m_GameStartTime + (time_freq() * Tick) / SERVER_TICK_SPEED;
 }
-
-/*int CServer::TickSpeed()
-{
-	return SERVER_TICK_SPEED;
-}*/
 
 int CServer::Init()
 {
@@ -1453,8 +1442,8 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	{
 		int64_t Now = time_get();
 		int64_t Diff = Now - m_aClients[ClientID].m_TrafficSince;
-		float Alpha = Config()->m_SvNetlimitAlpha / 100.0f;
-		float Limit = (float)Config()->m_SvNetlimit * 1024 / time_freq();
+		double Alpha = Config()->m_SvNetlimitAlpha / 100.0;
+		double Limit = (double)(Config()->m_SvNetlimit * 1024) / time_freq();
 
 		if(m_aClients[ClientID].m_Traffic > Limit)
 		{
@@ -1463,7 +1452,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 		}
 		if(Diff > 100)
 		{
-			m_aClients[ClientID].m_Traffic = (Alpha * ((float)pPacket->m_DataSize / Diff)) + (1.0f - Alpha) * m_aClients[ClientID].m_Traffic;
+			m_aClients[ClientID].m_Traffic = (Alpha * ((double)pPacket->m_DataSize / Diff)) + (1.0 - Alpha) * m_aClients[ClientID].m_Traffic;
 			m_aClients[ClientID].m_TrafficSince = Now;
 		}
 	}
@@ -2733,8 +2722,8 @@ int CServer::Run()
 			int64_t t = time_get();
 			int NewTicks = 0;
 
-			// load new map TODO: don't poll this
-			if(m_MapReload)
+			// load new map
+			if(m_MapReload || m_CurrentGameTick >= 0x6FFFFFFF) // force reload to make sure the ticks stay within a valid range
 			{
 				// load map
 				if(LoadMap(Config()->m_SvMap))
@@ -3295,21 +3284,20 @@ void CServer::ConNameBan(IConsole::IResult *pResult, void *pUser)
 	int Distance = pResult->NumArguments() > 1 ? pResult->GetInteger(1) : str_length(pName) / 3;
 	int IsSubstring = pResult->NumArguments() > 2 ? pResult->GetInteger(2) : 0;
 
-	for(int i = 0; i < pThis->m_aNameBans.size(); i++)
+	for(auto &Ban : pThis->m_vNameBans)
 	{
-		CNameBan *pBan = &pThis->m_aNameBans[i];
-		if(str_comp(pBan->m_aName, pName) == 0)
+		if(str_comp(Ban.m_aName, pName) == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "changed name='%s' distance=%d old_distance=%d is_substring=%d old_is_substring=%d reason='%s' old_reason='%s'", pName, Distance, pBan->m_Distance, IsSubstring, pBan->m_IsSubstring, pReason, pBan->m_aReason);
+			str_format(aBuf, sizeof(aBuf), "changed name='%s' distance=%d old_distance=%d is_substring=%d old_is_substring=%d reason='%s' old_reason='%s'", pName, Distance, Ban.m_Distance, IsSubstring, Ban.m_IsSubstring, pReason, Ban.m_aReason);
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
-			pBan->m_Distance = Distance;
-			pBan->m_IsSubstring = IsSubstring;
-			str_copy(pBan->m_aReason, pReason, sizeof(pBan->m_aReason));
+			Ban.m_Distance = Distance;
+			Ban.m_IsSubstring = IsSubstring;
+			str_copy(Ban.m_aReason, pReason, sizeof(Ban.m_aReason));
 			return;
 		}
 	}
 
-	pThis->m_aNameBans.add(CNameBan(pName, Distance, IsSubstring, pReason));
+	pThis->m_vNameBans.emplace_back(pName, Distance, IsSubstring, pReason);
 	str_format(aBuf, sizeof(aBuf), "added name='%s' distance=%d is_substring=%d reason='%s'", pName, Distance, IsSubstring, pReason);
 	pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 }
@@ -3319,15 +3307,15 @@ void CServer::ConNameUnban(IConsole::IResult *pResult, void *pUser)
 	CServer *pThis = (CServer *)pUser;
 	const char *pName = pResult->GetString(0);
 
-	for(int i = 0; i < pThis->m_aNameBans.size(); i++)
+	for(size_t i = 0; i < pThis->m_vNameBans.size(); i++)
 	{
-		CNameBan *pBan = &pThis->m_aNameBans[i];
+		CNameBan *pBan = &pThis->m_vNameBans[i];
 		if(str_comp(pBan->m_aName, pName) == 0)
 		{
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "removed name='%s' distance=%d is_substring=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_IsSubstring, pBan->m_aReason);
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
-			pThis->m_aNameBans.remove_index(i);
+			pThis->m_vNameBans.erase(pThis->m_vNameBans.begin() + i);
 		}
 	}
 }
@@ -3336,11 +3324,10 @@ void CServer::ConNameBans(IConsole::IResult *pResult, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
 
-	for(int i = 0; i < pThis->m_aNameBans.size(); i++)
+	for(auto &Ban : pThis->m_vNameBans)
 	{
-		CNameBan *pBan = &pThis->m_aNameBans[i];
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "name='%s' distance=%d is_substring=%d reason='%s'", pBan->m_aName, pBan->m_Distance, pBan->m_IsSubstring, pBan->m_aReason);
+		str_format(aBuf, sizeof(aBuf), "name='%s' distance=%d is_substring=%d reason='%s'", Ban.m_aName, Ban.m_Distance, Ban.m_IsSubstring, Ban.m_aReason);
 		pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 	}
 }
@@ -3970,7 +3957,7 @@ int main(int argc, const char **argv)
 			dbg_msg("client", "failed to open '%s' for logging", g_Config.m_Logfile);
 		}
 	}
-	pEngine->SetAdditionalLogger(std::unique_ptr<ILogger>(new CServerLogger(pServer)));
+	pEngine->SetAdditionalLogger(std::make_unique<CServerLogger>(pServer));
 
 	// run the server
 	dbg_msg("server", "starting...");

@@ -1,7 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <engine/graphics.h>
-#include <engine/serverbrowser.h>
 #include <engine/shared/config.h>
 #include <engine/textrender.h>
 
@@ -10,9 +9,10 @@
 #include <game/client/gameclient.h>
 #include <game/client/render.h>
 #include <game/generated/client_data.h>
-#include <game/generated/client_data7.h>
 #include <game/generated/protocol.h>
+
 #include <game/layers.h>
+#include <game/localization.h>
 
 #include <cmath>
 
@@ -441,11 +441,9 @@ void CHud::RenderScoreHud()
 							if(m_aScoreInfo[t].m_OptionalNameTextContainerIndex != -1)
 								TextRender()->DeleteTextContainer(m_aScoreInfo[t].m_OptionalNameTextContainerIndex);
 
-							float w = TextRender()->TextWidth(0, 8.0f, pName, -1, -1.0f);
-
 							CTextCursor Cursor;
-							TextRender()->SetCursor(&Cursor, minimum(m_Width - w - 1.0f, m_Width - ScoreWidthMax - ImageSize - 2 * Split - PosSize), StartY + (t + 1) * 20.0f - 2.0f, 8.0f, TEXTFLAG_RENDER);
-							Cursor.m_LineWidth = -1;
+							TextRender()->SetCursor(&Cursor, m_Width - ScoreWidthMax - ImageSize - 2 * Split - PosSize, StartY + (t + 1) * 20.0f - 2.0f, 8.0f, TEXTFLAG_RENDER | TEXTFLAG_ELLIPSIS_AT_END);
+							Cursor.m_LineWidth = m_Width - Cursor.m_X - Split;
 							m_aScoreInfo[t].m_OptionalNameTextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pName);
 						}
 
@@ -835,13 +833,13 @@ void CHud::RenderPlayerState(const int ClientID)
 	if(m_pClient->m_Snap.m_aCharacters[ClientID].m_HasExtendedDisplayInfo)
 	{
 		bool Grounded = false;
-		if(Collision()->CheckPoint(pCharacter->m_Pos.x + CCharacter::ms_PhysSize / 2,
-			   pCharacter->m_Pos.y + CCharacter::ms_PhysSize / 2 + 5))
+		if(Collision()->CheckPoint(pCharacter->m_Pos.x + CCharacterCore::PhysicalSize() / 2,
+			   pCharacter->m_Pos.y + CCharacterCore::PhysicalSize() / 2 + 5))
 		{
 			Grounded = true;
 		}
-		if(Collision()->CheckPoint(pCharacter->m_Pos.x - CCharacter::ms_PhysSize / 2,
-			   pCharacter->m_Pos.y + CCharacter::ms_PhysSize / 2 + 5))
+		if(Collision()->CheckPoint(pCharacter->m_Pos.x - CCharacterCore::PhysicalSize() / 2,
+			   pCharacter->m_Pos.y + CCharacterCore::PhysicalSize() / 2 + 5))
 		{
 			Grounded = true;
 		}

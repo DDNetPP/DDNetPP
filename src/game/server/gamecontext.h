@@ -11,8 +11,6 @@
 #include <game/mapbugs.h>
 #include <game/voting.h>
 
-#include <base/tl/array.h>
-
 #include "minigames/minigame_base.h"
 #include <game/server/ddpp/letters.h>
 
@@ -22,7 +20,6 @@
 #include "ddpp/dummymode.h"
 
 #include "eventhandler.h"
-//#include "gamecontroller.h"
 #include "game/generated/protocol.h"
 #include "gameworld.h"
 #include "player.h"
@@ -86,7 +83,7 @@ class CGameContext : public IGameServer
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
 	CTuningParams m_aTuningList[NUM_TUNEZONES];
-	array<std::string> m_aCensorlist;
+	std::vector<std::string> m_vCensorlist;
 
 	bool m_TeeHistorianActive;
 	CTeeHistorian m_TeeHistorian;
@@ -176,6 +173,7 @@ public:
 	// helper functions
 	class CCharacter *GetPlayerChar(int ClientID);
 	bool EmulateBug(int Bug);
+	std::vector<SSwitchers> &Switchers() { return m_World.m_Core.m_aSwitchers; }
 
 	// voting
 	void StartVote(const char *pDesc, const char *pCommand, const char *pReason, const char *pSixupDesc);

@@ -7,6 +7,11 @@
 #include <engine/client/graphics_threaded.h>
 #include <engine/sound.h>
 
+extern "C" {
+#include <libavutil/avutil.h>
+#include <libavutil/opt.h>
+};
+
 #include <memory>
 #include <mutex>
 
@@ -46,8 +51,6 @@ CVideo::CVideo(CGraphics_Threaded *pGraphics, ISound *pSound, IStorage *pStorage
 	m_Started = false;
 	m_ProcessingVideoFrame = 0;
 	m_ProcessingAudioFrame = 0;
-
-	m_NextFrame = false;
 
 	m_HasAudio = g_Config.m_ClVideoSndEnable;
 
@@ -154,7 +157,7 @@ void CVideo::Start()
 	for(size_t i = 0; i < m_VideoThreads; ++i)
 	{
 		std::unique_lock<std::mutex> Lock(m_vVideoThreads[i]->m_Mutex);
-		m_vVideoThreads[i]->m_Thread = std::thread([this, i]() { RunVideoThread(i == 0 ? (m_VideoThreads - 1) : (i - 1), i); });
+		m_vVideoThreads[i]->m_Thread = std::thread([this, i]() REQUIRES(!g_WriteLock) { RunVideoThread(i == 0 ? (m_VideoThreads - 1) : (i - 1), i); });
 		m_vVideoThreads[i]->m_Cond.wait(Lock, [this, i]() -> bool { return m_vVideoThreads[i]->m_Started; });
 	}
 
@@ -166,7 +169,7 @@ void CVideo::Start()
 	for(size_t i = 0; i < m_AudioThreads; ++i)
 	{
 		std::unique_lock<std::mutex> Lock(m_vAudioThreads[i]->m_Mutex);
-		m_vAudioThreads[i]->m_Thread = std::thread([this, i]() { RunAudioThread(i == 0 ? (m_AudioThreads - 1) : (i - 1), i); });
+		m_vAudioThreads[i]->m_Thread = std::thread([this, i]() REQUIRES(!g_WriteLock) { RunAudioThread(i == 0 ? (m_AudioThreads - 1) : (i - 1), i); });
 		m_vAudioThreads[i]->m_Cond.wait(Lock, [this, i]() -> bool { return m_vAudioThreads[i]->m_Started; });
 	}
 
@@ -294,7 +297,7 @@ void CVideo::Stop()
 
 void CVideo::NextVideoFrameThread()
 {
-	if(m_NextFrame && m_Recording)
+	if(m_Recording)
 	{
 		// #ifdef CONF_PLATFORM_MACOS
 		// 	CAutoreleasePool AutoreleasePool;
@@ -347,7 +350,6 @@ void CVideo::NextVideoFrameThread()
 				m_CurVideoThreadIndex = 0;
 		}
 
-		m_NextFrame = false;
 		// sync_barrier();
 		// m_Semaphore.signal();
 	}
@@ -359,7 +361,6 @@ void CVideo::NextVideoFrame()
 	{
 		ms_Time += ms_TickTime;
 		ms_LocalTime = (ms_Time - ms_LocalStartTime) / (float)time_freq();
-		m_NextFrame = true;
 		m_Vframe += 1;
 	}
 }

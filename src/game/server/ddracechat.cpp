@@ -1,6 +1,5 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
-#include <engine/engine.h>
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <game/server/gamemodes/DDRace.h>
@@ -583,8 +582,6 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(pSelf->m_apPlayers[i]->GetCharacter())
 					pSelf->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
-				/*if(pSelf->Server()->IsSixup(i))
-					pSelf->SendClientInfo(i, i);*/
 				return;
 			}
 		}
