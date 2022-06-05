@@ -83,9 +83,15 @@ bool CCaptcha::Prompt(const char *pAnswer)
 	if(m_Score >= g_Config.m_SvCaptchaScore)
 		return true;
 	if(CheckGenerate())
-		goto out;
+	{
+		ShowQuestion();
+		return correct;
+	}
 	if(!pAnswer || !str_comp("", pAnswer))
-		goto out;
+	{
+		ShowQuestion();
+		return correct;
+	}
 
 	if(!str_comp_nocase(pAnswer, m_aAnswer))
 	{
@@ -104,10 +110,8 @@ bool CCaptcha::Prompt(const char *pAnswer)
 	}
 	Generate();
 
-out:
 	ShowQuestion();
 	return correct;
-	;
 }
 
 void CCaptcha::ShowQuestion()

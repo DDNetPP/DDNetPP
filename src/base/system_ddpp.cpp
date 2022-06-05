@@ -33,15 +33,14 @@ int regex_compile(const char *pPattern, const char *pStr)
 	regex_t regex;
 	int reti;
 	char aBuf[128];
-	int ret = -1;
 
 	/* Compile regular expression */
 	reti = regcomp(&regex, pPattern, 0);
 	if(reti)
 	{
 		dbg_msg("regex", "Could not compile regex");
-		ret = -1;
-		goto end;
+		regfree(&regex);
+		return -1;
 	}
 
 	/* Execute regular expression */
@@ -49,28 +48,26 @@ int regex_compile(const char *pPattern, const char *pStr)
 	if(!reti)
 	{
 		dbg_msg("regex", "pattern matches");
-		ret = 0;
-		goto end;
+		regfree(&regex);
+		return 0;
 	}
 	else if(reti == REG_NOMATCH)
 	{
 		dbg_msg("regex", "pattern does not match");
-		ret = 1;
-		goto end;
+		regfree(&regex);
+		return 1;
 	}
 	else
 	{
 		regerror(reti, &regex, aBuf, sizeof(aBuf));
 		dbg_msg("regex", "Regex match failed: %s\n", aBuf);
-		ret = -1;
-		goto end;
+		regfree(&regex);
+		return -1;
 	}
 
-end:
 	/* Free memory allocated to the pattern buffer by regcomp() */
 	regfree(&regex);
-	return ret;
-	;
+	return -1;
 #else
 	return 0;
 #endif
