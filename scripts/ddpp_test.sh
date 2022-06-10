@@ -163,13 +163,8 @@ function print_san() {
 
 log "connecting clients to server at port $port"
 
-gdb \
-	-ex='set pagination off' \
-	-ex='set confirm off' \
-	-ex=run \
-	-ex=bt \
-	-ex="quit \$_exitcode" \
-	-ex='quit 1' --args ./DDNetPP \
+
+./DDNetPP \
 	"sv_input_fifo server.fifo;
 	sv_map ddnetpp-test;
 	sv_sqlite_file ddnet-server.sqlite;
