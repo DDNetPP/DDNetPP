@@ -39,6 +39,8 @@ public:
 	CMinigame(CGameContext *pGameContext);
 	virtual ~CMinigame(){};
 
+	void CleanupMinigame();
+
 	/*
         OnInit
 
@@ -51,6 +53,13 @@ public:
         on server start
     */
 	virtual void OnInit(){};
+
+	/*
+        OnShutdown
+
+        do your cleanup here
+    */
+	virtual void OnShutdown(){};
 
 	/*
         Tick

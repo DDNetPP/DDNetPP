@@ -33,6 +33,16 @@ CCollision *CMinigame::Collision()
 	return GameServer()->Collision();
 }
 
+void CMinigame::CleanupMinigame()
+{
+	for(auto &SavePos : m_apSavedPositions)
+		if(SavePos)
+			delete SavePos;
+	for(auto &SavePos : m_apSavedPositionsDDPP)
+		if(SavePos)
+			delete SavePos;
+}
+
 void CMinigame::SavePosition(CPlayer *pPlayer)
 {
 	if(!pPlayer)

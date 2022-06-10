@@ -77,6 +77,10 @@ void CGameContext::DestructDDPP()
 	}
 	for(auto &Minigame : m_vMinigames)
 	{
+		if(Minigame)
+			Minigame->OnShutdown();
+		if(Minigame)
+			Minigame->CleanupMinigame();
 		delete Minigame;
 		Minigame = nullptr;
 	}
