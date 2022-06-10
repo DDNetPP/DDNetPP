@@ -241,7 +241,7 @@ function check_account() {
 		then
 			db_note=" ($database)"
 		fi
-		echo "[-] Error: $column to be '$expected' but got '$got'$db_note"
+		echo "[-] Error: Expected $column to be '$expected' but got '$got'$db_note"
 	fi
 }
 
