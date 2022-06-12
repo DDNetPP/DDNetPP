@@ -232,8 +232,32 @@ function check_account() {
 	local column="$1"
 	local expected="$2"
 	local database="${3:-accounts.db}"
+	local from=''
+	local to=''
+	if [[ "$expected" =~ '-' ]]
+	then
+		from="$(echo "$expected" | cut -d'-' -f1)"
+		to="$(echo "$expected" | cut -d'-' -f2)"
+		if [ "$from" -gt "$to" ]
+		then
+			echo "[-] Error: from has to be smaller than to."
+			exit 1
+		fi
+	fi
 	got="$(sqlite3 "$database" < <(echo "select $column from Accounts;"))"
-	if [ "$got" != "$expected" ]
+	if [ "$from" != "" ] && [ "$to" != "" ]
+	then
+		if [ "$got" -gt "$to" ] || [ "$got" -lt "$from" ]
+		then
+			touch fail_accs.txt
+			local db_note=''
+			if [ "$database" != "accounts.db" ]
+			then
+				db_note=" ($database)"
+			fi
+			echo "[-] Error: Expected $column to be in range '$expected' but got '$got'$db_note"
+		fi
+	elif [ "$got" != "$expected" ]
 	then
 		touch fail_accs.txt
 		local db_note=''
@@ -272,7 +296,7 @@ else
 	fi
 	check_account LastLogoutIGN2 client1
 	check_account Shit 1
-	check_account Money 2
+	check_account Money '1-2'
 	check_account Level 0
 	check_account ProfileEmail client1@zillyhuhn.com
 	check_account ProfileHomepage zillyhuhn.com
