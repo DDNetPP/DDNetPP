@@ -64,7 +64,7 @@ jobs:
     - name: Test debug
       run: |
         cd debug
-        ./DDNetPP "sv_map BlmapChill;shutdown"
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Build in release mode
       env: ${{ matrix.env }}
@@ -76,7 +76,7 @@ jobs:
     - name: Test release
       run: |
         cd release
-        ./DDNetPP "sv_map BlmapChill;shutdown"
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Package
       run: |
