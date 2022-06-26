@@ -114,7 +114,7 @@ jobs:
       run: |
         cd debug
         ${{ matrix.cmake-path }}cmake --build . --config Debug --target run_tests ${{ matrix.build-args }}
-        ./DDNetPP "sv_map BlmapChill;shutdown"
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Build in release mode
       env: ${{ matrix.env }}
@@ -128,7 +128,7 @@ jobs:
       run: |
         cd release
         ${{ matrix.cmake-path }}cmake --build . --config Release --target run_tests ${{ matrix.build-args }}
-        ./DDNetPP "sv_map BlmapChill;shutdown"
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
 
     - name: Build headless client
@@ -140,7 +140,7 @@ jobs:
         ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCLIENT=ON -DHEADLESS_CLIENT=ON -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
         ${{ matrix.cmake-path }}cmake --build . --config Debug  ${{ matrix.build-args }}
         cp DDNetPP.exe DDNet-Server.exe || true
-        cp data/maps/BlmapChill.map data/maps/'Sunny Side Up'.map
+        cp data/maps/ddnetpp-test.map data/maps/'Sunny Side Up'.map
     - name: Rename binarys on nix
       env: ${{ matrix.env }}
       if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macOS')
@@ -167,7 +167,7 @@ jobs:
       run: |
         cd fancy
         ${{ matrix.cmake-path }}cmake --build . --config RelWithDebInfo --target run_tests ${{ matrix.build-args }}
-        ./DDNetPP "sv_map BlmapChill;shutdown"
+        ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Run integration tests with Valgrind's Memcheck
       if: contains(matrix.os, 'ubuntu')
