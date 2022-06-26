@@ -1,6 +1,9 @@
 /* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 #include <base/ddpp_logs.h>
+
+#include <engine/antibot.h>
+
 #include <engine/shared/config.h>
 #include <game/server/entities/character.h>
 #include <game/server/gamemodes/DDRace.h>

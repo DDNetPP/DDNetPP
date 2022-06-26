@@ -4,17 +4,19 @@
 #define GAME_GAMECORE_H
 
 #include <base/system.h>
+#include <base/vmath.h>
 
 #include <map>
 #include <set>
 #include <vector>
 
-#include "collision.h"
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 
 #include "prng.h"
-#include "teamscore.h"
+
+class CCollision;
+class CTeamsCore;
 
 class CTuneParam
 {
@@ -189,7 +191,7 @@ public:
 	CWorldCore()
 	{
 		mem_zero(m_apCharacters, sizeof(m_apCharacters));
-		m_pPrng = 0;
+		m_pPrng = nullptr;
 	}
 
 	int RandomOr0(int BelowThis)
@@ -279,7 +281,7 @@ public:
 
 	int m_Id;
 	bool m_pReset;
-	class CCollision *Collision() { return m_pCollision; }
+	CCollision *Collision() { return m_pCollision; }
 
 	vec2 m_LastVel;
 	int m_Colliding;

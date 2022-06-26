@@ -11,6 +11,8 @@
 
 #include "gamecontext.h"
 
+#include <game/mapitems.h>
+
 #include "player.h"
 
 void CPlayer::FixForNoName(int ID)

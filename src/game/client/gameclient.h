@@ -9,9 +9,10 @@
 #include <engine/client.h>
 #include <engine/console.h>
 #include <engine/shared/config.h>
+
+#include <game/collision.h>
 #include <game/gamecore.h>
 #include <game/layers.h>
-
 #include <game/teamscore.h>
 
 #include <game/client/prediction/gameworld.h>
@@ -89,6 +90,10 @@ public:
 
 	bool m_DontMaskEntities;
 	bool m_AllowXSkins;
+
+	bool m_HudHealthArmor;
+	bool m_HudAmmo;
+	bool m_HudDDRace;
 };
 
 class CSnapEntities
@@ -169,7 +174,7 @@ private:
 #endif
 
 	CLayers m_Layers;
-	class CCollision m_Collision;
+	CCollision m_Collision;
 	CUI m_UI;
 
 	void ProcessEvents();
@@ -216,7 +221,7 @@ public:
 	class IServerBrowser *ServerBrowser() const { return m_pServerBrowser; }
 	class CRenderTools *RenderTools() { return &m_RenderTools; }
 	class CLayers *Layers() { return &m_Layers; }
-	class CCollision *Collision() { return &m_Collision; }
+	CCollision *Collision() { return &m_Collision; }
 	class IEditor *Editor() { return m_pEditor; }
 	class IFriends *Friends() { return m_pFriends; }
 	class IFriends *Foes() { return m_pFoes; }
@@ -524,6 +529,7 @@ public:
 	void LoadEmoticonsSkin(const char *pPath, bool AsDir = false);
 	void LoadParticlesSkin(const char *pPath, bool AsDir = false);
 	void LoadHudSkin(const char *pPath, bool AsDir = false);
+	void LoadExtrasSkin(const char *pPath, bool AsDir = false);
 
 	void RefindSkins();
 
@@ -543,7 +549,7 @@ public:
 		IGraphics::CTextureHandle m_SpriteWeaponNinjaCursor;
 		IGraphics::CTextureHandle m_SpriteWeaponLaserCursor;
 
-		IGraphics::CTextureHandle m_SpriteWeaponCursors[6];
+		IGraphics::CTextureHandle m_aSpriteWeaponCursors[6];
 
 		// weapons and hook
 		IGraphics::CTextureHandle m_SpriteHookChain;
@@ -555,13 +561,13 @@ public:
 		IGraphics::CTextureHandle m_SpriteWeaponNinja;
 		IGraphics::CTextureHandle m_SpriteWeaponLaser;
 
-		IGraphics::CTextureHandle m_SpriteWeapons[6];
+		IGraphics::CTextureHandle m_aSpriteWeapons[6];
 
 		// particles
-		IGraphics::CTextureHandle m_SpriteParticles[9];
+		IGraphics::CTextureHandle m_aSpriteParticles[9];
 
 		// stars
-		IGraphics::CTextureHandle m_SpriteStars[3];
+		IGraphics::CTextureHandle m_aSpriteStars[3];
 
 		// projectiles
 		IGraphics::CTextureHandle m_SpriteWeaponGunProjectile;
@@ -571,7 +577,7 @@ public:
 		IGraphics::CTextureHandle m_SpriteWeaponNinjaProjectile;
 		IGraphics::CTextureHandle m_SpriteWeaponLaserProjectile;
 
-		IGraphics::CTextureHandle m_SpriteWeaponProjectiles[6];
+		IGraphics::CTextureHandle m_aSpriteWeaponProjectiles[6];
 
 		// muzzles
 		IGraphics::CTextureHandle m_SpriteWeaponGunMuzzles[3];
@@ -594,8 +600,8 @@ public:
 		IGraphics::CTextureHandle m_SpritePickupGun;
 		IGraphics::CTextureHandle m_SpritePickupHammer;
 
-		IGraphics::CTextureHandle m_SpritePickupWeapons[6];
-		IGraphics::CTextureHandle m_SpritePickupWeaponArmor[4];
+		IGraphics::CTextureHandle m_aSpritePickupWeapons[6];
+		IGraphics::CTextureHandle m_aSpritePickupWeaponArmor[4];
 
 		// flags
 		IGraphics::CTextureHandle m_SpriteFlagBlue;
@@ -620,13 +626,13 @@ public:
 	{
 		IGraphics::CTextureHandle m_SpriteParticleSlice;
 		IGraphics::CTextureHandle m_SpriteParticleBall;
-		IGraphics::CTextureHandle m_SpriteParticleSplat[3];
+		IGraphics::CTextureHandle m_aSpriteParticleSplat[3];
 		IGraphics::CTextureHandle m_SpriteParticleSmoke;
 		IGraphics::CTextureHandle m_SpriteParticleShell;
 		IGraphics::CTextureHandle m_SpriteParticleExpl;
 		IGraphics::CTextureHandle m_SpriteParticleAirJump;
 		IGraphics::CTextureHandle m_SpriteParticleHit;
-		IGraphics::CTextureHandle m_SpriteParticles[10];
+		IGraphics::CTextureHandle m_aSpriteParticles[10];
 	};
 
 	SClientParticlesSkin m_ParticlesSkin;
@@ -634,7 +640,7 @@ public:
 
 	struct SClientEmoticonsSkin
 	{
-		IGraphics::CTextureHandle m_SpriteEmoticons[16];
+		IGraphics::CTextureHandle m_aSpriteEmoticons[16];
 	};
 
 	SClientEmoticonsSkin m_EmoticonsSkin;
@@ -662,6 +668,7 @@ public:
 		IGraphics::CTextureHandle m_SpriteHudNoShotgunHit;
 		IGraphics::CTextureHandle m_SpriteHudNoGrenadeHit;
 		IGraphics::CTextureHandle m_SpriteHudNoLaserHit;
+		IGraphics::CTextureHandle m_SpriteHudNoGunHit;
 		IGraphics::CTextureHandle m_SpriteHudDeepFrozen;
 		IGraphics::CTextureHandle m_SpriteHudLiveFrozen;
 		IGraphics::CTextureHandle m_SpriteHudTeleportGrenade;
@@ -674,6 +681,15 @@ public:
 
 	SClientHudSkin m_HudSkin;
 	bool m_HudSkinLoaded;
+
+	struct SClientExtrasSkin
+	{
+		IGraphics::CTextureHandle m_SpriteParticleSnowflake;
+		IGraphics::CTextureHandle m_aSpriteParticles[1];
+	};
+
+	SClientExtrasSkin m_ExtrasSkin;
+	bool m_ExtrasSkinLoaded;
 
 	const std::vector<CSnapEntities> &SnapEntities() { return m_vSnapEntities; }
 

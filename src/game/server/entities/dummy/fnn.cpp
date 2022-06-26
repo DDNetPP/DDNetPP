@@ -22,6 +22,8 @@ ModeStructure:
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
+#include <game/mapitems.h>
+
 #define X (GetPos().x / 32)
 #define Y (GetPos().y / 32)
 #define RAW(pos) ((pos)*32)

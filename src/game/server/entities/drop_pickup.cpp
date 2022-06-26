@@ -6,6 +6,8 @@
 #include "drop_pickup.h"
 #include "pickup.h"
 
+#include <game/mapitems.h>
+
 CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Owner, int Direction, float Force, int ResponsibleTeam) :
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_DROP_PICKUP)
 {

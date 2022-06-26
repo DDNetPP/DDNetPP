@@ -1,6 +1,7 @@
 // gamecontext scoped blockwave ddnet++ methods
 
 #include <engine/shared/config.h>
+#include <game/mapitems.h>
 #include <game/server/teams.h>
 
 #include <cinttypes>

@@ -19,6 +19,8 @@
 
 #include "save.h"
 
+#include <game/mapitems.h>
+
 #include "gamecontext.h"
 
 void CGameContext::ConstructDDPP()

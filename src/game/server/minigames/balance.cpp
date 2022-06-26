@@ -8,6 +8,8 @@
 
 #include "../gamecontext.h"
 
+#include <game/mapitems.h>
+
 #include "balance.h"
 
 bool CBalance::IsActive(int ClientID)

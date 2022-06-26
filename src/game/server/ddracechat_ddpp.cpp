@@ -21,6 +21,8 @@
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
 
+#include <game/mapitems.h>
+
 bool CheckClientID(int ClientID); //TODO: whats this ? xd
 
 bool CGameContext::DDPPCredits()

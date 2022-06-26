@@ -3,10 +3,11 @@
 #ifndef GAME_SERVER_PLAYER_H
 #define GAME_SERVER_PLAYER_H
 
-#include "alloc.h"
+#include <base/vmath.h>
 
-// this include should perhaps be removed
-#include "score.h"
+#include <engine/shared/protocol.h>
+
+#include "alloc.h"
 #include "teeinfo.h"
 
 // ddnet++ includes start
@@ -19,6 +20,13 @@
 #define ACC_MAX_LEVEL 110 // WARNING!!! if you increase this value make sure to append needexp until max-1 in player.cpp:CalcExp()
 #include "gamecontext.h"
 // ddnet++ includes end
+#include <memory>
+
+class CCharacter;
+class CGameContext;
+class IServer;
+struct CNetObj_PlayerInput;
+struct CScorePlayerResult;
 
 enum
 {
@@ -192,9 +200,8 @@ public:
 
 	bool m_Moderating;
 
-	bool AfkTimer(CNetObj_PlayerInput *pNewTarget); // returns true if kicked
 	void UpdatePlaytime();
-	void AfkVoteTimer(CNetObj_PlayerInput *pNewTarget);
+	void AfkTimer();
 	int64_t m_LastPlaytime;
 	int64_t m_LastEyeEmote;
 	int64_t m_LastBroadcast;
@@ -202,12 +209,6 @@ public:
 
 	CNetObj_PlayerInput *m_pLastTarget;
 	bool m_LastTargetInit;
-	/* 
-		afk timer's 1st warning after 50% of sv_max_afk_time
-		2nd warning after 90%
-		kick after reaching 100% of sv_max_afk_time
-	*/
-	bool m_SentAfkWarning[2];
 
 	bool m_EyeEmoteEnabled;
 	int m_TimerType;

@@ -7,6 +7,8 @@
 
 #include <game/server/entities/flag.h>
 
+#include <game/collision.h>
+
 void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry)
 {
 	if(id == 0)

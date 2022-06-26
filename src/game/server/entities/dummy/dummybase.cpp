@@ -6,6 +6,8 @@
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
 
+#include <game/mapitems.h>
+
 CDummyBase::CDummyBase(class CPlayer *pPlayer, int Mode)
 {
 	m_pCharacter = nullptr;

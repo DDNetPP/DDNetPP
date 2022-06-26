@@ -3,13 +3,15 @@
 #ifndef ENGINE_SHARED_NETWORK_H
 #define ENGINE_SHARED_NETWORK_H
 
-#include "huffman.h"
 #include "ringbuffer.h"
 #include "stun.h"
 
 #include <base/math.h>
+#include <base/system.h>
 
-#include <engine/message.h>
+class CHuffman;
+class CMsgPacker;
+class CNetBan;
 
 /*
 
@@ -359,7 +361,7 @@ class CNetServer
 
 	NETADDR m_Address;
 	NETSOCKET m_Socket;
-	class CNetBan *m_pNetBan;
+	CNetBan *m_pNetBan;
 	CSlot m_aSlots[NET_MAX_CLIENTS];
 	int m_MaxClients;
 	int m_MaxClientsPerIP;
@@ -400,7 +402,7 @@ public:
 	int SetCallbacks(NETFUNC_NEWCLIENT pfnNewClient, NETFUNC_NEWCLIENT_NOAUTH pfnNewClientNoAuth, NETFUNC_CLIENTREJOIN pfnClientRejoin, NETFUNC_DELCLIENT pfnDelClient, void *pUser);
 
 	//
-	bool Open(NETADDR BindAddr, class CNetBan *pNetBan, int MaxClients, int MaxClientsPerIP);
+	bool Open(NETADDR BindAddr, CNetBan *pNetBan, int MaxClients, int MaxClientsPerIP);
 	int Close();
 
 	//
@@ -416,7 +418,7 @@ public:
 	bool HasSecurityToken(int ClientID) const { return m_aSlots[ClientID].m_Connection.SecurityToken() != NET_SECURITY_TOKEN_UNSUPPORTED; }
 	NETADDR Address() const { return m_Address; }
 	NETSOCKET Socket() const { return m_Socket; }
-	class CNetBan *NetBan() const { return m_pNetBan; }
+	CNetBan *NetBan() const { return m_pNetBan; }
 	int NetType() const { return net_socket_type(m_Socket); }
 	int MaxClients() const { return m_MaxClients; }
 
@@ -449,7 +451,7 @@ class CNetConsole
 	};
 
 	NETSOCKET m_Socket;
-	class CNetBan *m_pNetBan;
+	CNetBan *m_pNetBan;
 	CSlot m_aSlots[NET_MAX_CONSOLE_CLIENTS];
 
 	NETFUNC_NEWCLIENT_CON m_pfnNewClient;
@@ -462,11 +464,11 @@ public:
 	void SetCallbacks(NETFUNC_NEWCLIENT_CON pfnNewClient, NETFUNC_DELCLIENT pfnDelClient, void *pUser);
 
 	//
-	bool Open(NETADDR BindAddr, class CNetBan *pNetBan);
+	bool Open(NETADDR BindAddr, CNetBan *pNetBan);
 	int Close();
 
 	//
-	int Recv(char *pLine, int MaxLength, int *pClientID = 0);
+	int Recv(char *pLine, int MaxLength, int *pClientID = nullptr);
 	int Send(int ClientID, const char *pLine);
 	int Update();
 
@@ -476,7 +478,7 @@ public:
 
 	// status requests
 	const NETADDR *ClientAddr(int ClientID) const { return m_aSlots[ClientID].m_Connection.PeerAddress(); }
-	class CNetBan *NetBan() const { return m_pNetBan; }
+	CNetBan *NetBan() const { return m_pNetBan; }
 };
 
 // client side
@@ -539,7 +541,7 @@ public:
 	static void SendPacketConnless(NETSOCKET Socket, NETADDR *pAddr, const void *pData, int DataSize, bool Extended, unsigned char aExtra[4]);
 	static void SendPacket(NETSOCKET Socket, NETADDR *pAddr, CNetPacketConstruct *pPacket, SECURITY_TOKEN SecurityToken, bool Sixup = false, bool NoCompress = false);
 
-	static int UnpackPacket(unsigned char *pBuffer, int Size, CNetPacketConstruct *pPacket, bool &Sixup, SECURITY_TOKEN *pSecurityToken = 0, SECURITY_TOKEN *pResponseToken = 0);
+	static int UnpackPacket(unsigned char *pBuffer, int Size, CNetPacketConstruct *pPacket, bool &Sixup, SECURITY_TOKEN *pSecurityToken = nullptr, SECURITY_TOKEN *pResponseToken = nullptr);
 
 	// The backroom is ack-NET_MAX_SEQUENCE/2. Used for knowing if we acked a packet or not
 	static int IsSeqInBackroom(int Seq, int Ack);

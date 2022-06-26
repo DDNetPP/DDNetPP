@@ -17,6 +17,8 @@
 #include "plasmabullet.h"
 #include "projectile.h"
 
+#include <game/mapitems.h>
+
 #include "character.h"
 
 CCharacter::~CCharacter()

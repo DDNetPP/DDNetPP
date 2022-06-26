@@ -10,6 +10,8 @@
 
 #include "player.h"
 
+#include <game/mapitems.h>
+
 void CPlayer::OnLogin()
 {
 	//================================

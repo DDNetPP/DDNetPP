@@ -1,6 +1,7 @@
 // gamecontext scoped survival ddnet++ methods
 
 #include <engine/shared/config.h>
+#include <game/mapitems.h>
 
 #include "../gamecontext.h"
 

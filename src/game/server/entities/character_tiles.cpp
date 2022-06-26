@@ -17,6 +17,8 @@
 
 #include "character.h"
 
+#include <game/mapitems.h>
+
 bool CCharacter::HandleTilesDDPP(int Index)
 {
 	for(auto &Minigame : GameServer()->m_vMinigames)

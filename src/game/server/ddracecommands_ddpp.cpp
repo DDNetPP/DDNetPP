@@ -9,6 +9,8 @@
 #include <game/server/teams.h>
 #include <game/version.h>
 
+#include <game/mapitems.h>
+
 #include <game/server/ddpp/shop.h>
 
 bool CheckClientID(int ClientID);

@@ -8,6 +8,7 @@
 
 #include "entities/character.h"
 #include "player.h"
+#include "score.h"
 
 bool CheckClientID(int ClientID);
 
@@ -1489,6 +1490,7 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	pChr->Rescue();
+	pChr->UnFreeze();
 }
 
 void CGameContext::ConTele(IConsole::IResult *pResult, void *pUserData)
@@ -1537,6 +1539,7 @@ void CGameContext::ConTele(IConsole::IResult *pResult, void *pUserData)
 
 	pSelf->Teleport(pChr, Pos);
 	pChr->UnFreeze();
+	pChr->Core()->m_Vel = vec2(0, 0);
 }
 
 void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)

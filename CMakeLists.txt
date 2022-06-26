@@ -545,7 +545,7 @@ endif()
 find_package(Ogg)
 find_package(Opus)
 find_package(Opusfile)
-find_package(Pnglite)
+find_package(PNG)
 find_package(PythonInterp 3)
 find_package(SDL2)
 find_package(SQLite3)
@@ -631,7 +631,7 @@ show_dependency_status("Ogg" OGG)
 show_dependency_status("OpenSSL Crypto" CRYPTO)
 show_dependency_status("Opus" OPUS)
 show_dependency_status("Opusfile" OPUSFILE)
-show_dependency_status("Pnglite" PNGLITE)
+show_dependency_status("PNG" PNG)
 show_dependency_status("PythonInterp" PYTHONINTERP)
 show_dependency_status("SDL2" SDL2)
 show_dependency_status("SQLite3" SQLite3)
@@ -679,6 +679,9 @@ if(DISCORD_DYNAMIC)
   if(NOT DISCORD)
     message(SEND_ERROR "You must enable the DISCORD flag if you want to link the Discord SDK")
   endif()
+endif()
+if(NOT(PNG_FOUND))
+  message(SEND_ERROR "You must install libpng to compile DDNet")
 endif()
 if(CLIENT AND NOT(FREETYPE_FOUND))
   message(SEND_ERROR "You must install Freetype to compile the ${CMAKE_PROJECT_NAME} client")
@@ -1266,6 +1269,7 @@ set(EXPECTED_DATA
   editor/water.rules
   editor/winter_main.rules
   emoticons.png
+  extras.png
   file_icons.png
   fonts/DejaVuSans.ttf
   fonts/GlowSansJCompressed-Book.otf
@@ -1404,7 +1408,9 @@ set(EXPECTED_DATA
   maps/ChillBlock_versions/ChillBlock5_v007.map
   maps/ChillBlock_versions/ChillBlock5_v008.map
   maps/blmapV5_ddpp.map
+  maps/coverage.map
   maps/ctf5_fngores.map
+  maps/ddnetpp-test.map
   maps/ddpp_survival.map
   maps/fly_shy_cry.map
   maps7/Gold\ Mine.map
@@ -1583,10 +1589,18 @@ foreach(datafile ${DATA})
   file(MAKE_DIRECTORY ${DESTINATION})
   file(COPY ${datafile} DESTINATION ${DESTINATION})
 endforeach()
+set(INTEGRATION_TEST_COPY_FILES
+  lsan.supp
+  memcheck.supp
+  ubsan.supp
+  valgrind.supp
+  scripts/integration_test.sh
+)
 set(COPY_FILES
   ${CURL_COPY_FILES}
   ${FREETYPE_COPY_FILES}
   ${OPUSFILE_COPY_FILES}
+  ${PNG_COPY_FILES}
   ${SDL2_COPY_FILES}
   ${SQLite3_COPY_FILES}
   ${FFMPEG_COPY_FILES}
@@ -1594,6 +1608,7 @@ set(COPY_FILES
   ${DISCORDSDK_COPY_FILES}
   ${VULKAN_COPY_FILES}
   ${EXCEPTION_HANDLING_COPY_FILES}
+  ${INTEGRATION_TEST_COPY_FILES}
 )
 file(COPY ${COPY_FILES} DESTINATION .)
 
@@ -1787,8 +1802,6 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   http.h
   huffman.cpp
   huffman.h
-  image_manipulation.cpp
-  image_manipulation.h
   jobs.cpp
   jobs.h
   json.cpp
@@ -1837,6 +1850,12 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   video.h
   websockets.cpp
   websockets.h
+)
+set_src(ENGINE_GFX GLOB src/engine/gfx
+  image_loader.cpp
+  image_loader.h
+  image_manipulation.cpp
+  image_manipulation.h
 )
 set_src(GAME_SHARED GLOB src/game
   bezier.cpp
@@ -1915,9 +1934,11 @@ set(LIBS
 )
 
 # Targets
+add_library(engine-gfx EXCLUDE_FROM_ALL OBJECT ${ENGINE_GFX})
+target_include_directories(engine-gfx PRIVATE ${PNG_INCLUDE_DIRS})
 add_library(engine-shared EXCLUDE_FROM_ALL OBJECT ${ENGINE_INTERFACE} ${ENGINE_SHARED} ${ENGINE_UUID_SHARED} ${BASE})
 add_library(game-shared EXCLUDE_FROM_ALL OBJECT ${GAME_SHARED} ${GAME_GENERATED_SHARED})
-list(APPEND TARGETS_OWN engine-shared game-shared)
+list(APPEND TARGETS_OWN engine-gfx engine-shared game-shared)
 
 if(DISCORD AND NOT DISCORD_DYNAMIC)
   add_library(discord-shared SHARED IMPORTED)
@@ -2141,14 +2162,14 @@ if(CLIENT)
   )
   set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR} ${GAME_GENERATED_CLIENT})
 
-  set(DEPS_CLIENT ${DEPS} ${GLEW_DEP} ${PNGLITE_DEP} ${WAVPACK_DEP})
+  set(DEPS_CLIENT ${DEPS} ${GLEW_DEP} ${WAVPACK_DEP})
 
   # Libraries
   set(LIBS_CLIENT
     ${LIBS}
     ${FREETYPE_LIBRARIES}
     ${GLEW_LIBRARIES}
-    ${PNGLITE_LIBRARIES}
+    ${PNG_LIBRARIES}
     ${SDL2_LIBRARIES}
     ${WAVPACK_LIBRARIES}
     ${FFMPEG_LIBRARIES}
@@ -2199,6 +2220,7 @@ if(CLIENT)
       ${CLIENT_ICON}
       ${CLIENT_MANIFEST}
       ${DEPS_CLIENT}
+      $<TARGET_OBJECTS:engine-gfx>
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
     )
@@ -2208,6 +2230,7 @@ if(CLIENT)
       ${CLIENT_ICON}
       ${CLIENT_MANIFEST}
       ${DEPS_CLIENT}
+      $<TARGET_OBJECTS:engine-gfx>
       $<TARGET_OBJECTS:engine-shared>
       $<TARGET_OBJECTS:game-shared>
     )
@@ -2224,7 +2247,7 @@ if(CLIENT)
     ${OGG_INCLUDE_DIRS}
     ${OPUSFILE_INCLUDE_DIRS}
     ${OPUS_INCLUDE_DIRS}
-    ${PNGLITE_INCLUDE_DIRS}
+    ${PNG_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
     ${WAVPACK_INCLUDE_DIRS}
     ${FFMPEG_INCLUDE_DIRS}
@@ -2257,15 +2280,15 @@ if(CLIENT)
   endif()
 
   if(WAVPACK_CLOSE_FILE)
-	  target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_WAVPACK_CLOSE_FILE)
+    target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_WAVPACK_CLOSE_FILE)
   endif()
 
   if(GLEW_BUNDLED)
-	  target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_GLEW_HAS_CONTEXT_INIT)
+    target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_GLEW_HAS_CONTEXT_INIT)
   endif()
 
   if(VULKAN)
-	  target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_BACKEND_VULKAN)
+    target_compile_definitions(${TARGET_CLIENT} PRIVATE CONF_BACKEND_VULKAN)
   endif()
 
   list(APPEND TARGETS_OWN ${TARGET_CLIENT})
@@ -2505,6 +2528,7 @@ if(SERVER)
     $<TARGET_OBJECTS:game-shared>
   )
   target_link_libraries(${TARGET_SERVER} ${LIBS_SERVER})
+  target_include_directories(${TARGET_SERVER} PRIVATE ${PNG_INCLUDE_DIRS})
   list(APPEND TARGETS_OWN ${TARGET_SERVER})
   list(APPEND TARGETS_LINK ${TARGET_SERVER})
 
@@ -2523,14 +2547,6 @@ endif()
 ########################################################################
 
 if(TOOLS)
-  set_src(TWPING_SRC GLOB src/twping twping.cpp)
-  set(TARGET_TWPING twping)
-  add_executable(${TARGET_TWPING} EXCLUDE_FROM_ALL ${TWPING_SRC} $<TARGET_OBJECTS:engine-shared> ${DEPS})
-  target_link_libraries(${TARGET_TWPING} ${LIBS})
-
-  list(APPEND TARGETS_OWN ${TARGET_TWPING})
-  list(APPEND TARGETS_LINK ${TARGET_TWPING})
-
   set(TARGETS_TOOLS)
   set_src(TOOLS_SRC GLOB src/tools
     config_common.h
@@ -2543,10 +2559,12 @@ if(TOOLS)
     map_diff.cpp
     map_extract.cpp
     map_optimize.cpp
+    map_replace_area.cpp
     map_replace_image.cpp
     map_resave.cpp
     packetgen.cpp
     stun.cpp
+    twping.cpp
     unicode_confusables.cpp
     uuid.cpp
   )
@@ -2557,9 +2575,9 @@ if(TOOLS)
       set(TOOL_DEPS ${DEPS})
       set(TOOL_LIBS ${LIBS})
       if(TOOL MATCHES "^(dilate|map_convert_07|map_optimize|map_extract|map_replace_image)$")
-        list(APPEND TOOL_DEPS ${PNGLITE_DEP})
-        list(APPEND TOOL_LIBS ${PNGLITE_LIBRARIES})
-        list(APPEND TOOL_INCLUDE_DIRS ${PNGLITE_INCLUDE_DIRS})
+        list(APPEND TOOL_INCLUDE_DIRS ${PNG_INCLUDE_DIRS})
+	list(APPEND TOOL_DEPS $<TARGET_OBJECTS:engine-gfx>)
+        list(APPEND TOOL_LIBS ${PNG_LIBRARIES})
       endif()
       if(TOOL MATCHES "^config_")
         list(APPEND EXTRA_TOOL_SRC "src/tools/config_common.h")
@@ -2684,11 +2702,12 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
   add_executable(${TARGET_TESTRUNNER} EXCLUDE_FROM_ALL
     ${TESTS}
     ${TESTS_EXTRA}
+    $<TARGET_OBJECTS:engine-gfx>
     $<TARGET_OBJECTS:engine-shared>
     $<TARGET_OBJECTS:game-shared>
     ${DEPS}
   )
-  target_link_libraries(${TARGET_TESTRUNNER} ${LIBS} ${MYSQL_LIBRARIES} ${GTEST_LIBRARIES})
+  target_link_libraries(${TARGET_TESTRUNNER} ${LIBS} ${MYSQL_LIBRARIES} ${PNG_LIBRARIES} ${GTEST_LIBRARIES})
   target_include_directories(${TARGET_TESTRUNNER} SYSTEM PRIVATE ${GTEST_INCLUDE_DIRS})
 
   list(APPEND TARGETS_OWN ${TARGET_TESTRUNNER})
@@ -2696,11 +2715,18 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
 
   add_custom_target(run_tests
     COMMAND $<TARGET_FILE:${TARGET_TESTRUNNER}> ${TESTRUNNER_ARGS}
-    COMMENT Running tests
+    COMMENT Running unit tests
     DEPENDS ${TARGET_TESTRUNNER}
     USES_TERMINAL
   )
 endif()
+
+add_custom_target(run_integration_tests
+  COMMAND ${PROJECT_BINARY_DIR}/integration_test.sh ${INTEGRATIONTESTRUNNER_ARGS}
+  COMMENT Running integration tests
+  DEPENDS ${TARGET_CLIENT} ${TARGET_SERVER}
+  USES_TERMINAL
+)
 
 ########################################################################
 # INSTALLATION
@@ -2827,10 +2853,14 @@ set(CPACK_SOURCE_FILES
   datasrc/
   ddnet-libs/
   license.txt
+  lsan.supp
+  memcheck.supp
   other/
   scripts/
   src/
   storage.cfg
+  ubsan.supp
+  valgrind.supp
 )
 set(CPACK_SOURCE_IGNORE_FILES
   "\\\\.pyc$"
@@ -2950,11 +2980,6 @@ if(CLIENT AND DMGBUILD)
     list(APPEND DMG_MKDIR_COMMANDS COMMAND ${CMAKE_COMMAND} -E make_directory ${DMG_TMPDIR}/${dir})
   endforeach()
 
-  set(DMG_DISCORD_COPY_COMMAND)
-  if(FAT OR NOT TARGET_CPU_ARCHITECTURE STREQUAL "arm64")
-    set(DMG_DISCORD_COPY_COMMAND COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/discord/${LIB_DIR}/discord_game_sdk.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/)
-  endif()
-
   set(TARGET_TOOLS_FILES)
   foreach(target ${TARGET_TOOLS})
     list(APPEND TARGET_TOOLS_FILES $<TARGET_FILE:${target}>)
@@ -2970,7 +2995,7 @@ if(CLIENT AND DMGBUILD)
     COMMAND ${CMAKE_COMMAND} -E copy bundle/client/Info.plist ${PROJECT_SOURCE_DIR}/other/bundle/client/PkgInfo ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_CLIENT}> ${TARGET_TOOLS_FILES} ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/MacOS/
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/ddnet-libs/sdl/${LIB_DIR}/SDL2.framework ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/SDL2.framework
-    ${DMG_DISCORD_COPY_COMMAND}
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/discord/${LIB_DIR}/discord_game_sdk.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/freetype/${LIB_DIR}/libfreetype.6.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libavcodec.59.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libavformat.59.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/

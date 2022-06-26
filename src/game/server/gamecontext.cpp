@@ -19,6 +19,7 @@
 #include <engine/shared/linereader.h>
 #include <engine/shared/memheap.h>
 #include <engine/storage.h>
+
 #include <game/collision.h>
 #include <game/gamecore.h>
 #include <game/server/entities/flag.h>
@@ -28,6 +29,7 @@
 #include <cstdio>
 #include <engine/server/server.h> // ddpp
 
+#include <game/mapitems.h>
 #include <game/version.h>
 
 #include <game/generated/protocol7.h>
@@ -828,19 +830,7 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 	else
 		pParams = (int *)&(m_aTuningList[Zone]);
 
-	unsigned int Last = sizeof(m_Tuning) / sizeof(int);
-	if(m_apPlayers[ClientID])
-	{
-		int ClientVersion = m_apPlayers[ClientID]->GetClientVersion();
-		if(ClientVersion < VERSION_DDNET_EXTRATUNES)
-			Last = 33;
-		else if(ClientVersion < VERSION_DDNET_HOOKDURATION_TUNE)
-			Last = 37;
-		else if(ClientVersion < VERSION_DDNET_FIREDELAY_TUNE)
-			Last = 38;
-	}
-
-	for(unsigned i = 0; i < Last; i++)
+	for(unsigned i = 0; i < sizeof(m_Tuning) / sizeof(int); i++)
 	{
 		if(m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetCharacter())
 		{
@@ -1719,7 +1709,7 @@ bool CGameContext::OnClientDDNetVersionKnown(int ClientID)
 	SendRecord(ClientID);
 
 	// And report correct tunings.
-	if(ClientVersion >= VERSION_DDNET_EXTRATUNES)
+	if(ClientVersion < VERSION_DDNET_EARLY_VERSION)
 		SendTuningParams(ClientID, pPlayer->m_TuneZone);
 
 	// Tell old clients to update.
@@ -2379,7 +2369,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 
-			// Switch team on given client and kill/respawn him
+			// Switch team on given client and kill/respawn them
 			if(m_pController->CanJoinTeam(pMsg->m_Team, ClientID))
 			{
 				if(pPlayer->IsPaused())
@@ -3245,11 +3235,11 @@ void CGameContext::ConAddMapVotes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	std::vector<CMapNameItem> MapList;
-	pSelf->Storage()->ListDirectory(IStorage::TYPE_ALL, "maps", MapScan, &MapList);
-	std::sort(MapList.begin(), MapList.end());
+	std::vector<CMapNameItem> vMapList;
+	pSelf->Storage()->ListDirectory(IStorage::TYPE_ALL, "maps", MapScan, &vMapList);
+	std::sort(vMapList.begin(), vMapList.end());
 
-	for(auto &Item : MapList)
+	for(auto &Item : vMapList)
 	{
 		char aDescription[64];
 		str_format(aDescription, sizeof(aDescription), "Map: %s", Item.m_aName);
@@ -4392,6 +4382,18 @@ int CGameContext::GetClientVersion(int ClientID) const
 	IServer::CClientInfo Info = {0};
 	Server()->GetClientInfo(ClientID, &Info);
 	return Info.m_DDNetVersion;
+}
+
+int64_t CGameContext::ClientsMaskExcludeClientVersionAndHigher(int Version)
+{
+	int64_t Mask = 0;
+	for(int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		if(GetClientVersion(i) >= Version)
+			continue;
+		Mask |= 1LL << i;
+	}
+	return Mask;
 }
 
 bool CGameContext::PlayerModerating() const

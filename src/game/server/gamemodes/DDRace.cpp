@@ -9,6 +9,7 @@
 #include <game/server/entities/flag.h>
 #include <game/server/gamecontext.h>
 #include <game/server/player.h>
+#include <game/server/score.h>
 #include <game/version.h>
 
 #define GAME_TYPE_NAME "DDraceNetwork"
@@ -45,7 +46,7 @@ void CGameControllerDDRace::OnCharacterSpawn(CCharacter *pChr)
 void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
-	int ClientID = pPlayer->GetCID();
+	const int ClientID = pPlayer->GetCID();
 
 	int m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
 	int m_TileFIndex = GameServer()->Collision()->GetFTileIndex(MapIndex);
@@ -111,12 +112,18 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	// solo part
 	if(((m_TileIndex == TILE_SOLO_ENABLE) || (m_TileFIndex == TILE_SOLO_ENABLE)) && !m_Teams.m_Core.GetSolo(ClientID))
 	{
-		GameServer()->SendChatTarget(ClientID, "You are now in a solo part");
+		if(GameServer()->GetClientVersion(ClientID) < VERSION_DDNET_NEW_HUD)
+		{
+			GameServer()->SendChatTarget(ClientID, "You are now in a solo part");
+		}
 		pChr->SetSolo(true);
 	}
 	else if(((m_TileIndex == TILE_SOLO_DISABLE) || (m_TileFIndex == TILE_SOLO_DISABLE)) && m_Teams.m_Core.GetSolo(ClientID))
 	{
-		GameServer()->SendChatTarget(ClientID, "You are now out of the solo part");
+		if(GameServer()->GetClientVersion(ClientID) < VERSION_DDNET_NEW_HUD)
+		{
+			GameServer()->SendChatTarget(ClientID, "You are now out of the solo part");
+		}
 		pChr->SetSolo(false);
 	}
 	HandleCharacterTilesDDPP(pChr, m_TileIndex, m_TileFIndex, Tile1, Tile2, Tile3, Tile4, FTile1, FTile2, FTile3, FTile4, PlayerDDRaceState);

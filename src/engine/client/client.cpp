@@ -12,12 +12,15 @@
 #include <base/math.h>
 #include <base/system.h>
 
+#include <engine/external/json-parser/json.h>
+
 #include <game/client/components/menus.h>
 #include <game/generated/protocol.h>
 
 #include <engine/client.h>
 #include <engine/config.h>
 #include <engine/console.h>
+#include <engine/discord.h>
 #include <engine/editor.h>
 #include <engine/engine.h>
 #include <engine/graphics.h>
@@ -2816,8 +2819,10 @@ void CClient::Update()
 	m_ServerBrowser.Update(m_ResortServerBrowser);
 	m_ResortServerBrowser = false;
 
-	// update gameclient
-	if(!m_EditorActive)
+	// update editor/gameclient
+	if(m_EditorActive)
+		m_pEditor->OnUpdate();
+	else
 		GameClient()->OnUpdate();
 
 	Discord()->Update();
@@ -3050,7 +3055,7 @@ void CClient::Run()
 	bool LastE = false;
 	bool LastG = false;
 
-	auto LastTime = tw::time_get();
+	auto LastTime = time_get_nanoseconds();
 	int64_t LastRenderTime = time_get();
 
 	while(true)
@@ -3224,7 +3229,7 @@ void CClient::Run()
 							Render();
 						else
 						{
-							m_pEditor->UpdateAndRender();
+							m_pEditor->OnRender();
 							DebugRender();
 						}
 						m_pGraphics->Swap();
@@ -3237,7 +3242,7 @@ void CClient::Run()
 						Render();
 					else
 					{
-						m_pEditor->UpdateAndRender();
+						m_pEditor->OnRender();
 						DebugRender();
 					}
 					m_pGraphics->Swap();
@@ -3289,7 +3294,7 @@ void CClient::Run()
 #endif
 
 		// beNice
-		auto Now = tw::time_get();
+		auto Now = time_get_nanoseconds();
 		decltype(Now) SleepTimeInNanoSeconds{0};
 		bool Slept = false;
 		if(
@@ -3306,7 +3311,7 @@ void CClient::Run()
 		{
 			SleepTimeInNanoSeconds = (std::chrono::nanoseconds(1s) / (int64_t)g_Config.m_ClRefreshRate) - (Now - LastTime);
 			if(SleepTimeInNanoSeconds > 0ns)
-				tw::net_socket_read_wait(m_NetClient[CONN_MAIN].m_Socket, SleepTimeInNanoSeconds);
+				net_socket_read_wait(m_NetClient[CONN_MAIN].m_Socket, SleepTimeInNanoSeconds);
 			Slept = true;
 		}
 		if(Slept)
@@ -3349,6 +3354,7 @@ void CClient::Run()
 		m_NetClient[i].Close();
 
 	delete m_pEditor;
+	m_pInput->Shutdown();
 	m_pGraphics->Shutdown();
 
 	// shutdown SDL
@@ -3515,7 +3521,7 @@ void CClient::Con_StartVideo(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Graphics()->WaitForIdle();
 		// pause the sound device while creating the video instance
 		pSelf->Sound()->PauseAudioDevice();
-		new CVideo((CGraphics_Threaded *)pSelf->m_pGraphics, pSelf->Sound(), pSelf->Storage(), pSelf->m_pConsole, pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), "");
+		new CVideo((CGraphics_Threaded *)pSelf->m_pGraphics, pSelf->Sound(), pSelf->Storage(), pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), "");
 		pSelf->Sound()->UnpauseAudioDevice();
 		IVideo::Current()->Start();
 		bool paused = pSelf->m_DemoPlayer.Info()->m_Info.m_Paused;
@@ -3540,7 +3546,7 @@ void CClient::StartVideo(IConsole::IResult *pResult, void *pUserData, const char
 		pSelf->Graphics()->WaitForIdle();
 		// pause the sound device while creating the video instance
 		pSelf->Sound()->PauseAudioDevice();
-		new CVideo((CGraphics_Threaded *)pSelf->m_pGraphics, pSelf->Sound(), pSelf->Storage(), pSelf->m_pConsole, pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), pVideoName);
+		new CVideo((CGraphics_Threaded *)pSelf->m_pGraphics, pSelf->Sound(), pSelf->Storage(), pSelf->Graphics()->ScreenWidth(), pSelf->Graphics()->ScreenHeight(), pVideoName);
 		pSelf->Sound()->UnpauseAudioDevice();
 		IVideo::Current()->Start();
 	}
@@ -4137,14 +4143,16 @@ void CClient::LoadFont()
 	IOHANDLE File = Storage()->OpenFile(pFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
-		size_t Size = io_length(File);
-		unsigned char *pBuf = (unsigned char *)malloc(Size);
-		io_read(File, pBuf, Size);
-		io_close(File);
 		IEngineTextRender *pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
 		pDefaultFont = pTextRender->GetFont(aFilename);
 		if(pDefaultFont == NULL)
-			pDefaultFont = pTextRender->LoadFont(aFilename, pBuf, Size);
+		{
+			void *pBuf;
+			unsigned Size;
+			io_read_all(File, &pBuf, &Size);
+			pDefaultFont = pTextRender->LoadFont(aFilename, (unsigned char *)pBuf, Size);
+		}
+		io_close(File);
 
 		for(auto &pFallbackFontFile : apFallbackFontFiles)
 		{
@@ -4152,12 +4160,11 @@ void CClient::LoadFont()
 			File = Storage()->OpenFile(pFallbackFontFile, IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 			if(File)
 			{
-				Size = io_length(File);
-				pBuf = (unsigned char *)malloc(Size);
-				io_read(File, pBuf, Size);
+				void *pBuf;
+				unsigned Size;
+				io_read_all(File, &pBuf, &Size);
 				io_close(File);
-				pTextRender = Kernel()->RequestInterface<IEngineTextRender>();
-				FontLoaded = pTextRender->LoadFallbackFont(pDefaultFont, aFilename, pBuf, Size);
+				FontLoaded = pTextRender->LoadFallbackFont(pDefaultFont, aFilename, (unsigned char *)pBuf, Size);
 			}
 
 			if(!FontLoaded)
@@ -4167,7 +4174,7 @@ void CClient::LoadFont()
 			}
 		}
 
-		Kernel()->RequestInterface<IEngineTextRender>()->SetDefaultFont(pDefaultFont);
+		pTextRender->SetDefaultFont(pDefaultFont);
 	}
 
 	if(!pDefaultFont)
@@ -4204,6 +4211,12 @@ void CClient::ConchainTimeoutSeed(IConsole::IResult *pResult, void *pUserData, I
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments())
 		pSelf->m_GenerateTimeoutSeed = false;
+}
+
+void CClient::ConchainLoglevel(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	pfnCallback(pResult, pCallbackUserData);
+	log_set_loglevel((LEVEL)g_Config.m_Loglevel);
 }
 
 void CClient::ConchainPassword(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -4286,6 +4299,7 @@ void CClient::RegisterCommands()
 	m_pConsole->Chain("cl_timeout_seed", ConchainTimeoutSeed, this);
 	m_pConsole->Chain("cl_replays", ConchainReplays, this);
 
+	m_pConsole->Chain("loglevel", ConchainLoglevel, this);
 	m_pConsole->Chain("password", ConchainPassword, this);
 
 	// used for server browser update
@@ -4357,7 +4371,7 @@ int main(int argc, const char **argv)
 #if defined(CONF_PLATFORM_ANDROID)
 	const char **argv = const_cast<const char **>(argv2);
 #endif
-	tw::CCmdlineFix CmdlineFix(&argc, &argv);
+	CCmdlineFix CmdlineFix(&argc, &argv);
 	bool Silent = false;
 	bool RandInitFailed = false;
 
@@ -4377,22 +4391,22 @@ int main(int argc, const char **argv)
 	init_exception_handler();
 #endif
 
-	std::vector<std::shared_ptr<ILogger>> apLoggers;
+	std::vector<std::shared_ptr<ILogger>> vpLoggers;
 #if defined(CONF_PLATFORM_ANDROID)
-	apLoggers.push_back(std::shared_ptr<ILogger>(log_logger_android()));
+	vpLoggers.push_back(std::shared_ptr<ILogger>(log_logger_android()));
 #else
 	if(!Silent)
 	{
-		apLoggers.push_back(std::shared_ptr<ILogger>(log_logger_stdout()));
+		vpLoggers.push_back(std::shared_ptr<ILogger>(log_logger_stdout()));
 	}
 #endif
 	std::shared_ptr<CFutureLogger> pFutureFileLogger = std::make_shared<CFutureLogger>();
-	apLoggers.push_back(pFutureFileLogger);
+	vpLoggers.push_back(pFutureFileLogger);
 	std::shared_ptr<CFutureLogger> pFutureConsoleLogger = std::make_shared<CFutureLogger>();
-	apLoggers.push_back(pFutureConsoleLogger);
+	vpLoggers.push_back(pFutureConsoleLogger);
 	std::shared_ptr<CFutureLogger> pFutureAssertionLogger = std::make_shared<CFutureLogger>();
-	apLoggers.push_back(pFutureAssertionLogger);
-	log_set_global_logger(log_logger_collection(std::move(apLoggers)).release());
+	vpLoggers.push_back(pFutureAssertionLogger);
+	log_set_global_logger(log_logger_collection(std::move(vpLoggers)).release());
 
 	if(secure_random_init() != 0)
 	{
@@ -4528,6 +4542,7 @@ int main(int argc, const char **argv)
 		pSteam->ClearConnectAddress();
 	}
 
+	log_set_loglevel((LEVEL)g_Config.m_Loglevel);
 	if(g_Config.m_Logfile[0])
 	{
 		IOHANDLE Logfile = io_open(g_Config.m_Logfile, IOFLAG_WRITE);
