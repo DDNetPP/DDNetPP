@@ -3032,7 +3032,7 @@ void CGameContext::ConDropHealth(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if(!pPlayer->m_Account.m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator && pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
 		return;
@@ -3073,7 +3073,7 @@ void CGameContext::ConDropArmor(IConsole::IResult *pResult, void *pUserData)
 	if(!pChr)
 		return;
 
-	if(!pPlayer->m_Account.m_IsSuperModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator && pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[DROP] Missing permission.");
 		return;
