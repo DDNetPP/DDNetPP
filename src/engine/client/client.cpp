@@ -774,7 +774,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	while((pNextAddr = str_next_token(pNextAddr, ",", aBuffer, sizeof(aBuffer))))
 	{
 		NETADDR NextAddr;
-		if(net_host_lookup(aBuffer, &NextAddr, m_aNetClient[CONN_MAIN].NetType()) != 0)
+		if(net_host_lookup(aBuffer, &NextAddr, m_aNetClient[CONN_MAIN].NetType(), 0) != 0)
 		{
 			log_error("client", "could not find address of %s", aBuffer);
 			continue;
