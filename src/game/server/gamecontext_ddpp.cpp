@@ -1511,7 +1511,7 @@ void CGameContext::ChilliClanTick(int i)
 	CPlayer *pPlayer = m_apPlayers[i];
 
 	int AbstandWarnungen = 10;
-	if((str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_SkinName, "greensward") != 0) && (!pPlayer->m_SpookyGhostActive))
+	if((str_comp_nocase(Server()->ClientClan(i), "Chilli.*") == 0 && str_comp_nocase(pPlayer->m_TeeInfos.m_aSkinName, "greensward") != 0) && (!pPlayer->m_SpookyGhostActive))
 	{
 		if(pPlayer->m_LastWarning + AbstandWarnungen * Server()->TickSpeed() <= Server()->Tick())
 		{
@@ -2393,7 +2393,7 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 	m_apPlayers[DummyID]->SetDummyMode(Mode);
 	Server()->BotJoin(DummyID);
 
-	str_copy(m_apPlayers[DummyID]->m_TeeInfos.m_SkinName, "greensward", MAX_NAME_LENGTH);
+	str_copy(m_apPlayers[DummyID]->m_TeeInfos.m_aSkinName, "greensward", MAX_NAME_LENGTH);
 	m_apPlayers[DummyID]->m_TeeInfos.m_UseCustomColor = true;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorFeet = 0;
 	m_apPlayers[DummyID]->m_TeeInfos.m_ColorBody = 0;

@@ -31,7 +31,7 @@ void CCountryFlags::LoadCountryflagsIndexfile()
 		if(!str_length(pLine) || pLine[0] == '#') // skip empty lines and comments
 			continue;
 
-		str_copy(aOrigin, pLine, sizeof(aOrigin));
+		str_copy(aOrigin, pLine);
 		char *pReplacement = LineReader.Get();
 		if(!pReplacement)
 		{
@@ -71,7 +71,7 @@ void CCountryFlags::LoadCountryflagsIndexfile()
 		// add entry
 		CCountryFlag CountryFlag;
 		CountryFlag.m_CountryCode = CountryCode;
-		str_copy(CountryFlag.m_aCountryCodeString, aOrigin, sizeof(CountryFlag.m_aCountryCodeString));
+		str_copy(CountryFlag.m_aCountryCodeString, aOrigin);
 		CountryFlag.m_Texture = Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, Info.m_Format, 0, aOrigin);
 		Graphics()->FreePNG(&Info);
 
@@ -96,12 +96,12 @@ void CCountryFlags::LoadCountryflagsIndexfile()
 
 	// init LUT
 	if(DefaultIndex != 0)
-		for(size_t &CodeIndexLUT : m_CodeIndexLUT)
+		for(size_t &CodeIndexLUT : m_aCodeIndexLUT)
 			CodeIndexLUT = DefaultIndex;
 	else
-		mem_zero(m_CodeIndexLUT, sizeof(m_CodeIndexLUT));
+		mem_zero(m_aCodeIndexLUT, sizeof(m_aCodeIndexLUT));
 	for(size_t i = 0; i < m_vCountryFlags.size(); ++i)
-		m_CodeIndexLUT[maximum(0, (m_vCountryFlags[i].m_CountryCode - CODE_LB) % CODE_RANGE)] = i;
+		m_aCodeIndexLUT[maximum(0, (m_vCountryFlags[i].m_CountryCode - CODE_LB) % CODE_RANGE)] = i;
 }
 
 void CCountryFlags::OnInit()
@@ -132,7 +132,7 @@ size_t CCountryFlags::Num() const
 
 const CCountryFlags::CCountryFlag *CCountryFlags::GetByCountryCode(int CountryCode) const
 {
-	return GetByIndex(m_CodeIndexLUT[maximum(0, (CountryCode - CODE_LB) % CODE_RANGE)]);
+	return GetByIndex(m_aCodeIndexLUT[maximum(0, (CountryCode - CODE_LB) % CODE_RANGE)]);
 }
 
 const CCountryFlags::CCountryFlag *CCountryFlags::GetByIndex(size_t Index) const

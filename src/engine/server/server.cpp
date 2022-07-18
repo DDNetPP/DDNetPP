@@ -473,7 +473,7 @@ bool CServer::SetClientNameImpl(int ClientID, const char *pNameRequest, bool Set
 			}
 			else
 			{
-				str_copy(aBuf, "Kicked (your name is banned)", sizeof(aBuf));
+				str_copy(aBuf, "Kicked (your name is banned)");
 			}
 			Kick(ClientID, aBuf);
 		}
@@ -482,11 +482,11 @@ bool CServer::SetClientNameImpl(int ClientID, const char *pNameRequest, bool Set
 
 	// trim the name
 	char aTrimmedName[MAX_NAME_LENGTH];
-	str_copy(aTrimmedName, str_utf8_skip_whitespaces(pNameRequest), sizeof(aTrimmedName));
+	str_copy(aTrimmedName, str_utf8_skip_whitespaces(pNameRequest));
 	str_utf8_trim_right(aTrimmedName);
 
 	char aNameTry[MAX_NAME_LENGTH];
-	str_copy(aNameTry, aTrimmedName, sizeof(aNameTry));
+	str_copy(aNameTry, aTrimmedName);
 
 	if(!IsClientNameAvailable(ClientID, aNameTry))
 	{
@@ -504,7 +504,7 @@ bool CServer::SetClientNameImpl(int ClientID, const char *pNameRequest, bool Set
 	if(Set)
 	{
 		// set the client name
-		str_copy(m_aClients[ClientID].m_aName, aNameTry, MAX_NAME_LENGTH);
+		str_copy(m_aClients[ClientID].m_aName, aNameTry);
 	}
 
 	return Changed;
@@ -525,7 +525,7 @@ void CServer::SetClientClan(int ClientID, const char *pClan)
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY || !pClan)
 		return;
 
-	str_copy(m_aClients[ClientID].m_aClan, pClan, MAX_CLAN_LENGTH);
+	str_copy(m_aClients[ClientID].m_aClan, pClan);
 }
 
 void CServer::SetClientCountry(int ClientID, int Country)
@@ -552,8 +552,7 @@ void CServer::SetClientFlags(int ClientID, int Flags)
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
 		return;
 
-	if(Flags > m_aClients[ClientID].m_Flags)
-		m_aClients[ClientID].m_Flags = Flags;
+	m_aClients[ClientID].m_Flags = Flags;
 }
 
 void CServer::Kick(int ClientID, const char *pReason)
@@ -852,9 +851,6 @@ static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer, bool Sixup
 int CServer::SendMsg(CMsgPacker *pMsg, int Flags, int ClientID)
 {
 	CNetChunk Packet;
-	if(!pMsg)
-		return -1;
-
 	mem_zero(&Packet, sizeof(CNetChunk));
 	if(Flags & MSGFLAG_VITAL)
 		Packet.m_Flags |= NETSENDFLAG_VITAL;
@@ -990,12 +986,12 @@ void CServer::DoSnapshot()
 
 			int Crc = pData->Crc();
 
-			// remove old snapshos
+			// remove old snapshots
 			// keep 3 seconds worth of snapshots
 			m_aClients[i].m_Snapshots.PurgeUntil(m_CurrentGameTick - SERVER_TICK_SPEED * 3);
 
-			// save it the snapshot
-			m_aClients[i].m_Snapshots.Add(m_CurrentGameTick, time_get(), SnapshotSize, pData, 0);
+			// save the snapshot
+			m_aClients[i].m_Snapshots.Add(m_CurrentGameTick, time_get(), SnapshotSize, pData, 0, nullptr);
 
 			// find snapshot that we can perform delta against
 			static CSnapshot s_EmptySnap;
@@ -1487,7 +1483,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 				m_aClients[ClientID].m_ConnectionID = *pConnectionID;
 				m_aClients[ClientID].m_DDNetVersion = DDNetVersion;
-				str_copy(m_aClients[ClientID].m_aDDNetVersionStr, pDDNetVersionStr, sizeof(m_aClients[ClientID].m_aDDNetVersionStr));
+				str_copy(m_aClients[ClientID].m_aDDNetVersionStr, pDDNetVersionStr);
 				m_aClients[ClientID].m_DDNetVersionSettled = true;
 				m_aClients[ClientID].m_GotDDNetVersionPacket = true;
 				m_aClients[ClientID].m_State = CClient::STATE_AUTH;
@@ -1671,6 +1667,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			for(int i = 0; i < Size / 4; i++)
 				pInput->m_aData[i] = Unpacker.GetInt();
 
+			GameServer()->OnClientPrepareInput(ClientID, pInput->m_aData);
 			mem_copy(m_aClients[ClientID].m_LatestInput.m_aData, pInput->m_aData, MAX_INPUT_SIZE * sizeof(int));
 
 			m_aClients[ClientID].m_CurrentInput++;
@@ -2501,7 +2498,7 @@ const char *CServer::GetMapName() const
 
 void CServer::ChangeMap(const char *pMap)
 {
-	str_copy(Config()->m_SvMap, pMap, sizeof(Config()->m_SvMap));
+	str_copy(Config()->m_SvMap, pMap);
 	m_MapReload = str_comp(Config()->m_SvMap, m_aCurrentMap) != 0;
 }
 
@@ -2548,7 +2545,7 @@ int CServer::LoadMap(const char *pMapName)
 	str_format(aBufMsg, sizeof(aBufMsg), "%s sha256 is %s", aBuf, aSha256);
 	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBufMsg);
 
-	str_copy(m_aCurrentMap, pMapName, sizeof(m_aCurrentMap));
+	str_copy(m_aCurrentMap, pMapName);
 
 	// load complete map into memory for download
 	{
@@ -2772,7 +2769,7 @@ int CServer::Run()
 				{
 					str_format(aBuf, sizeof(aBuf), "failed to load map. mapname='%s'", Config()->m_SvMap);
 					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
-					str_copy(Config()->m_SvMap, m_aCurrentMap, sizeof(Config()->m_SvMap));
+					str_copy(Config()->m_SvMap, m_aCurrentMap);
 				}
 			}
 
@@ -3293,7 +3290,7 @@ void CServer::ConNameBan(IConsole::IResult *pResult, void *pUser)
 			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "name_ban", aBuf);
 			Ban.m_Distance = Distance;
 			Ban.m_IsSubstring = IsSubstring;
-			str_copy(Ban.m_aReason, pReason, sizeof(Ban.m_aReason));
+			str_copy(Ban.m_aReason, pReason);
 			return;
 		}
 	}
@@ -3340,7 +3337,7 @@ void CServer::ConShutdown(IConsole::IResult *pResult, void *pUser)
 	const char *pReason = pResult->GetString(0);
 	if(pReason[0])
 	{
-		str_copy(pThis->m_aShutdownReason, pReason, sizeof(pThis->m_aShutdownReason));
+		str_copy(pThis->m_aShutdownReason, pReason);
 	}
 }
 
@@ -3807,10 +3804,6 @@ void CServer::SnapFreeID(int ID)
 
 void *CServer::SnapNewItem(int Type, int ID, int Size)
 {
-	if(Type > 0xffff)
-	{
-		g_UuidManager.GetUuid(Type);
-	}
 	dbg_assert(ID >= -1 && ID <= 0xffff, "incorrect id");
 	return ID < 0 ? 0 : m_SnapshotBuilder.NewItem(Type, ID, Size);
 }
@@ -4063,5 +4056,5 @@ bool CServer::SetTimedOut(int ClientID, int OrigID)
 
 void CServer::SetErrorShutdown(const char *pReason)
 {
-	str_copy(m_aErrorShutdownReason, pReason, sizeof(m_aErrorShutdownReason));
+	str_copy(m_aErrorShutdownReason, pReason);
 }

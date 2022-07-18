@@ -19,7 +19,7 @@ void CPickup::Tick()
 		{
 			if(GameWorld()->m_WorldConfig.m_IsVanilla && distance(m_Pos, pChr->m_Pos) >= 20.0f * 2) // pickup distance is shorter on vanilla due to using ClosestEntity
 				continue;
-			if(m_Layer == LAYER_SWITCH && m_Number > 0 && m_Number < (int)Switchers().size() && !Switchers()[m_Number].m_Status[pChr->Team()])
+			if(m_Layer == LAYER_SWITCH && m_Number > 0 && m_Number < (int)Switchers().size() && !Switchers()[m_Number].m_aStatus[pChr->Team()])
 				continue;
 			bool sound = false;
 			// player picked us up, is someone was hooking us, let them go
@@ -32,7 +32,7 @@ void CPickup::Tick()
 			case POWERUP_ARMOR:
 				if(!GameWorld()->m_WorldConfig.m_IsDDRace || !GameWorld()->m_WorldConfig.m_PredictDDRace)
 					continue;
-				if(pChr->m_Super)
+				if(pChr->IsSuper())
 					continue;
 				for(int j = WEAPON_SHOTGUN; j < NUM_WEAPONS; j++)
 				{

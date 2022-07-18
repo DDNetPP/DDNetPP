@@ -272,7 +272,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 	if(g_Config.m_SvInstagibMode)
 	{
 		Teams()->OnCharacterStart(m_pPlayer->GetCID());
-		m_CpActive = -2;
+		m_LastTimeCp = -2;
 	}
 
 	m_Core.m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
@@ -355,9 +355,9 @@ bool CCharacter::HandleConfigTile(int Type)
 	else if(Type == CFG_TILE_UNFREEZE)
 		UnFreeze();
 	else if(Type == CFG_TILE_DEEP)
-		m_DeepFreeze = true;
+		m_Core.m_DeepFrozen = true;
 	else if(Type == CFG_TILE_UNDEEP)
-		m_DeepFreeze = false;
+		m_Core.m_DeepFrozen = false;
 	else if(Type == CFG_TILE_DEATH)
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD); // TODO: probably should be in places where TILE_DEATH is and not here
@@ -583,7 +583,7 @@ void CCharacter::SetSpookyGhost()
 		m_Core.m_aWeapons[1].m_Ammo = -1;
 	}
 
-	str_copy(m_pPlayer->m_TeeInfos.m_SkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_SkinName));
+	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost", sizeof(m_pPlayer->m_TeeInfos.m_aSkinName));
 	m_pPlayer->m_TeeInfos.m_UseCustomColor = 0;
 
 	m_pPlayer->m_SpookyGhostActive = 1;
@@ -608,7 +608,7 @@ void CCharacter::UnsetSpookyGhost()
 		m_SpookyGhostWeaponsBackupped = false;
 	}
 
-	str_copy(m_pPlayer->m_TeeInfos.m_SkinName, m_pPlayer->m_RealSkinName, sizeof(m_pPlayer->m_TeeInfos.m_SkinName));
+	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, m_pPlayer->m_RealSkinName, sizeof(m_pPlayer->m_TeeInfos.m_aSkinName));
 	m_pPlayer->m_TeeInfos.m_UseCustomColor = m_pPlayer->m_RealUseCustomColor;
 
 	m_pPlayer->m_SpookyGhostActive = 0;
@@ -618,7 +618,7 @@ void CCharacter::SaveRealInfos()
 {
 	if(!m_pPlayer->m_SpookyGhostActive)
 	{
-		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->m_TeeInfos.m_SkinName, sizeof(m_pPlayer->m_RealSkinName));
+		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->m_TeeInfos.m_aSkinName, sizeof(m_pPlayer->m_RealSkinName));
 		m_pPlayer->m_RealUseCustomColor = m_pPlayer->m_TeeInfos.m_UseCustomColor;
 		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealClan));
 		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealName));
@@ -662,7 +662,7 @@ void CCharacter::DropLoot()
 	else if(!GameServer()->IsMinigame(m_pPlayer->GetCID()))
 	{
 		int SpecialGun = 0;
-		if(m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
+		if(m_Core.m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 			SpecialGun = 1;
 		// block drop 0-2 weapons
 		DropWeapon(rand() % (NUM_WEAPONS - (3 + SpecialGun)) + (2 - SpecialGun)); // no hammer or ninja and gun only if special gun
@@ -750,7 +750,7 @@ void CCharacter::DropWeapon(int WeaponID)
 		return;
 	if(WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		return;
-	if(WeaponID == WEAPON_GUN && !m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+	if(WeaponID == WEAPON_GUN && !m_Core.m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		return;
 	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 		return;
@@ -771,11 +771,11 @@ void CCharacter::DropWeapon(int WeaponID)
 			m_CountWeapons++;
 	}
 
-	if(WeaponID == WEAPON_GUN && (m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
+	if(WeaponID == WEAPON_GUN && (m_Core.m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
 	{
-		if(m_Jetpack && (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
+		if(m_Core.m_Jetpack && (m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun))
 		{
-			m_Jetpack = false;
+			m_Core.m_Jetpack = false;
 			m_autospreadgun = false;
 			m_pPlayer->m_InfAutoSpreadGun = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
@@ -785,9 +785,9 @@ void CCharacter::DropWeapon(int WeaponID)
 			CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo, true, true);
 			m_pPlayer->m_vWeaponLimit[WEAPON_GUN].push_back(Weapon);
 		}
-		else if(m_Jetpack)
+		else if(m_Core.m_Jetpack)
 		{
-			m_Jetpack = false;
+			m_Core.m_Jetpack = false;
 			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
 			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 
@@ -1957,7 +1957,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		else
 			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_SHORT);
 
-		if(!m_Jetpack)
+		if(!m_Core.m_Jetpack)
 		{
 			m_EmoteType = EMOTE_PAIN;
 			m_EmoteStop = Server()->Tick() + 500 * Server()->TickSpeed() / 1000;
@@ -3100,7 +3100,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 		FullAuto = true;
 
 	// don't fire hammer when player is deep and sv_deepfly is disabled
-	if(!g_Config.m_SvDeepfly && m_Core.m_ActiveWeapon == WEAPON_HAMMER && m_DeepFreeze)
+	if(!g_Config.m_SvDeepfly && m_Core.m_ActiveWeapon == WEAPON_HAMMER && m_Core.m_DeepFrozen)
 		return false;
 
 	// check if we gonna fire
@@ -3153,7 +3153,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 		Antibot()->OnHammerFire(m_pPlayer->GetCID());
 
-		if(m_Hit & DISABLE_HIT_HAMMER)
+		if(m_Core.m_HammerHitDisabled)
 			break;
 
 		CCharacter *apEnts[MAX_CLIENTS];
@@ -3247,7 +3247,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 	case WEAPON_GUN:
 	{
-		if(!m_Jetpack || !m_pPlayer->m_NinjaJetpack || m_Core.m_HasTelegunGun)
+		if(!m_Core.m_Jetpack || !m_pPlayer->m_NinjaJetpack || m_Core.m_HasTelegunGun)
 		{
 			int Lifetime;
 			if(!m_TuneZone)
@@ -3487,7 +3487,7 @@ bool CCharacter::ForceFreeze(int Seconds)
 	isFreezed = true;
 	if(Seconds <= 0 || m_FreezeTime == -1)
 		return false;
-	if(m_Core.m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
+	if(m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
 	{
 		if(!m_WeaponsBackupped) //only save once
 		{
@@ -3508,13 +3508,13 @@ bool CCharacter::ForceFreeze(int Seconds)
 			m_Armor = 0;
 		}
 
-		if(m_Core.m_FreezeTick == 0 || m_FirstFreezeTick == 0)
+		if(m_Core.m_FreezeStart == 0 || m_FirstFreezeTick == 0)
 		{
 			m_FirstFreezeTick = Server()->Tick();
 		}
 
 		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
-		m_Core.m_FreezeTick = Server()->Tick();
+		m_Core.m_FreezeStart = Server()->Tick();
 		return true;
 	}
 	return false;
@@ -3524,9 +3524,9 @@ bool CCharacter::FreezeFloat(float Seconds)
 {
 	KillFreeze(false);
 	isFreezed = true;
-	if((Seconds <= 0 || m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
+	if((Seconds <= 0 || m_Core.m_Super || m_FreezeTime == -1 || m_FreezeTime > Seconds * Server()->TickSpeed()) && Seconds != -1)
 		return false;
-	if(m_Core.m_FreezeTick < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
+	if(m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed() || Seconds == -1)
 	{
 		if(!m_WeaponsBackupped) //only save once
 		{
@@ -3547,13 +3547,13 @@ bool CCharacter::FreezeFloat(float Seconds)
 			m_Armor = 0;
 		}
 
-		if(m_Core.m_FreezeTick == 0 || m_FirstFreezeTick == 0)
+		if(m_Core.m_FreezeStart == 0 || m_FirstFreezeTick == 0)
 		{
 			m_FirstFreezeTick = Server()->Tick();
 		}
 
 		m_FreezeTime = Seconds == -1 ? Seconds : Seconds * Server()->TickSpeed();
-		m_Core.m_FreezeTick = Server()->Tick();
+		m_Core.m_FreezeStart = Server()->Tick();
 		return true;
 	}
 	return false;

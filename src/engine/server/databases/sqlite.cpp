@@ -12,7 +12,7 @@ class CSqliteConnection : public IDbConnection
 public:
 	CSqliteConnection(const char *pFilename, bool Setup);
 	virtual ~CSqliteConnection();
-	void Print(IConsole *pConsole, const char *Mode) override;
+	void Print(IConsole *pConsole, const char *pMode) override;
 
 	CSqliteConnection *Copy() override;
 
@@ -80,7 +80,7 @@ CSqliteConnection::CSqliteConnection(const char *pFilename, bool Setup) :
 	m_Done(true),
 	m_InUse(false)
 {
-	str_copy(m_aFilename, pFilename, sizeof(m_aFilename));
+	str_copy(m_aFilename, pFilename);
 }
 
 CSqliteConnection::~CSqliteConnection()
@@ -91,12 +91,12 @@ CSqliteConnection::~CSqliteConnection()
 	m_pDb = nullptr;
 }
 
-void CSqliteConnection::Print(IConsole *pConsole, const char *Mode)
+void CSqliteConnection::Print(IConsole *pConsole, const char *pMode)
 {
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf),
 		"SQLite-%s: DB: '%s'",
-		Mode, m_aFilename);
+		pMode, m_aFilename);
 	pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 }
 

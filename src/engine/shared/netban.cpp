@@ -247,7 +247,7 @@ int CNetBan::Ban(T *pBanPool, const typename T::CDataType *pData, int Seconds, c
 	// set up info
 	CBanInfo Info = {0};
 	Info.m_Expires = Stamp;
-	str_copy(Info.m_aReason, pReason, sizeof(Info.m_aReason));
+	str_copy(Info.m_aReason, pReason);
 
 	// check if it already exists
 	CNetHash NetHash(pData);
@@ -504,9 +504,9 @@ void CNetBan::ConBans(IConsole::IResult *pResult, void *pUser)
 	CNetBan *pThis = static_cast<CNetBan *>(pUser);
 
 	int Page = pResult->NumArguments() > 0 ? pResult->GetInteger(0) : 0;
-	static const int EntriesPerPage = 20;
-	const int Start = Page * EntriesPerPage;
-	const int End = (Page + 1) * EntriesPerPage;
+	static const int s_EntriesPerPage = 20;
+	const int Start = Page * s_EntriesPerPage;
+	const int End = (Page + 1) * s_EntriesPerPage;
 
 	int Count = 0;
 	char aBuf[256], aMsg[256];

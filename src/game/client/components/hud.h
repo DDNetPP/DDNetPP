@@ -85,25 +85,25 @@ public:
 private:
 	void RenderRecord();
 	void RenderDDRaceEffects();
-	float m_CheckpointDiff;
+	float m_TimeCpDiff;
 	float m_ServerRecord;
-	float m_PlayerRecord[NUM_DUMMIES];
+	float m_aPlayerRecord[NUM_DUMMIES];
+	float m_FinishTimeDiff;
 	int m_DDRaceTime;
-	int m_LastReceivedTimeTick;
-	int m_CheckpointTick;
-	bool m_FinishTime;
-	bool m_DDRaceTimeReceived;
+	int m_FinishTimeLastReceivedTick;
+	int m_TimeCpLastReceivedTick;
+	bool m_ShowFinishTime;
 
 	inline float GetMovementInformationBoxHeight();
 	inline int GetDigitsIndex(int Value, int Max);
 
 	// Quad Offsets
-	int m_AmmoOffset[NUM_WEAPONS];
+	int m_aAmmoOffset[NUM_WEAPONS];
 	int m_HealthOffset;
 	int m_EmptyHealthOffset;
 	int m_ArmorOffset;
 	int m_EmptyArmorOffset;
-	int m_CursorOffset[NUM_WEAPONS];
+	int m_aCursorOffset[NUM_WEAPONS];
 	int m_FlagOffset;
 	int m_AirjumpOffset;
 	int m_AirjumpEmptyOffset;
@@ -120,13 +120,13 @@ private:
 	int m_TeleportGunOffset;
 	int m_TeleportLaserOffset;
 	int m_SoloOffset;
-	int m_NoCollisionOffset;
-	int m_NoHookHitOffset;
-	int m_NoHammerHitOffset;
-	int m_NoGunHitOffset;
-	int m_NoShotgunHitOffset;
-	int m_NoGrenadeHitOffset;
-	int m_NoLaserHitOffset;
+	int m_CollisionDisabledOffset;
+	int m_HookHitDisabledOffset;
+	int m_HammerHitDisabledOffset;
+	int m_GunHitDisabledOffset;
+	int m_ShotgunHitDisabledOffset;
+	int m_GrenadeHitDisabledOffset;
+	int m_LaserHitDisabledOffset;
 	int m_DeepFrozenOffset;
 	int m_LiveFrozenOffset;
 	int m_DummyHammerOffset;

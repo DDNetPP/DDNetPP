@@ -7,6 +7,7 @@
 #include <engine/storage.h>
 
 #include <game/client/race.h>
+#include <game/localization.h>
 
 #include "race_demo.h"
 
@@ -39,7 +40,7 @@ void CRaceDemo::GetPath(char *pBuf, int Size, int Time) const
 	const char *pMap = Client()->GetCurrentMap();
 
 	char aPlayerName[MAX_NAME_LENGTH];
-	str_copy(aPlayerName, Client()->PlayerName(), sizeof(aPlayerName));
+	str_copy(aPlayerName, Client()->PlayerName());
 	str_sanitize_filename(aPlayerName);
 
 	if(Time < 0)
@@ -208,7 +209,7 @@ int CRaceDemo::RaceDemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, in
 	if(g_Config.m_ClDemoName)
 	{
 		char aPlayerName[MAX_NAME_LENGTH];
-		str_copy(aPlayerName, pParam->m_pThis->Client()->PlayerName(), sizeof(aPlayerName));
+		str_copy(aPlayerName, pParam->m_pThis->Client()->PlayerName());
 		str_sanitize_filename(aPlayerName);
 
 		if(pTEnd[0] != '_' || str_comp(pTEnd + 1, aPlayerName) != 0)
@@ -223,7 +224,7 @@ int CRaceDemo::RaceDemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, in
 
 	if(time_get_nanoseconds() - pRealUser->m_pThis->m_RaceDemosLoadStartTime > 500ms)
 	{
-		pRealUser->m_pThis->GameClient()->m_Menus.RenderLoading(false, false);
+		pRealUser->m_pThis->GameClient()->m_Menus.RenderLoading(Localize("Loading race demo files"), "", 0, false);
 	}
 
 	return 0;

@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iterator> // std::size
+#include <string_view>
 
 #include "ddpp_logs.h"
 #include "system.h"
@@ -386,8 +387,8 @@ int io_sync(IOHANDLE io)
 #endif
 }
 
-#define ASYNC_BUFSIZE 8 * 1024
-#define ASYNC_LOCAL_BUFSIZE 64 * 1024
+#define ASYNC_BUFSIZE (8 * 1024)
+#define ASYNC_LOCAL_BUFSIZE (64 * 1024)
 
 // TODO: Use Thread Safety Analysis when this file is converted to C++
 struct ASYNCIO
@@ -1041,6 +1042,11 @@ int net_addr_comp(const NETADDR *a, const NETADDR *b)
 	return mem_comp(a, b, sizeof(NETADDR));
 }
 
+bool NETADDR::operator==(const NETADDR &other) const
+{
+	return net_addr_comp(this, &other) == 0;
+}
+
 int net_addr_comp_noport(const NETADDR *a, const NETADDR *b)
 {
 	NETADDR ta = *a, tb = *b;
@@ -1178,7 +1184,7 @@ static int priv_net_extract(const char *hostname, char *host, int max_host, int 
 	return 0;
 }
 
-int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
+int net_host_lookup_impl(const char *hostname, NETADDR *addr, int types, int logtype)
 {
 	struct addrinfo hints;
 	struct addrinfo *result = NULL;
@@ -1208,10 +1214,6 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 		hints.ai_family = AF_INET;
 	else if(types == NETTYPE_IPV6)
 		hints.ai_family = AF_INET6;
-#if defined(CONF_WEBSOCKETS)
-	if(types & NETTYPE_WEBSOCKET_IPV4)
-		hints.ai_family = AF_INET;
-#endif
 
 	e = getaddrinfo(host, NULL, &hints, &result);
 
@@ -1228,6 +1230,25 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 	addr->port = port;
 	freeaddrinfo(result);
 	return 0;
+}
+
+int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
+{
+	const char *ws_hostname = str_startswith(hostname, "ws://");
+	if(ws_hostname)
+	{
+		if((types & NETTYPE_WEBSOCKET_IPV4) == 0)
+		{
+			return -1;
+		}
+		int result = net_host_lookup_impl(ws_hostname, addr, NETTYPE_IPV4, logtype);
+		if(result == 0 && addr->type == NETTYPE_IPV4)
+		{
+			addr->type = NETTYPE_WEBSOCKET_IPV4;
+		}
+		return result;
+	}
+	return net_host_lookup_impl(hostname, addr, types & ~NETTYPE_WEBSOCKET_IPV4, logtype);
 }
 
 static int parse_int(int *out, const char **str)
@@ -2034,7 +2055,7 @@ void net_unix_set_addr(UNIXSOCKETADDR *addr, const char *path)
 {
 	mem_zero(addr, sizeof(*addr));
 	addr->sun_family = AF_UNIX;
-	str_copy(addr->sun_path, path, sizeof(addr->sun_path));
+	str_copy(addr->sun_path, path);
 }
 
 void net_unix_close(UNIXSOCKET sock)
@@ -2230,7 +2251,7 @@ int fs_makedir_rec_for(const char *path)
 {
 	char buffer[1024 * 2];
 	char *p;
-	str_copy(buffer, path, sizeof(buffer));
+	str_copy(buffer, path);
 	for(p = buffer + 1; *p != '\0'; p++)
 	{
 		if(*p == '/' && *(p + 1) != '\0')
@@ -3813,7 +3834,7 @@ PROCESS shell_execute(const char *file)
 	}
 	if(pid == 0)
 	{
-		execv(file, argv);
+		execvp(file, argv);
 		_exit(1);
 	}
 	return pid;
@@ -4164,4 +4185,9 @@ int net_socket_read_wait(NETSOCKET sock, std::chrono::nanoseconds nanoseconds)
 {
 	using namespace std::chrono_literals;
 	return ::net_socket_read_wait(sock, (nanoseconds / std::chrono::nanoseconds(1us).count()).count());
+}
+
+size_t std::hash<NETADDR>::operator()(const NETADDR &Addr) const noexcept
+{
+	return std::hash<std::string_view>{}(std::string_view((const char *)&Addr, sizeof(Addr)));
 }

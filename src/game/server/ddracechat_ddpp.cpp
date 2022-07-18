@@ -6347,7 +6347,7 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "Char: ALIVE");
-		if(pLive->GetCharacter()->m_DeepFreeze)
+		if(pLive->GetCharacter()->Core()->m_DeepFrozen)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: DEEP");
 		}
@@ -6365,15 +6365,15 @@ void CGameContext::ConLive(IConsole::IResult *pResult, void *pUserData)
 			pSelf->SendChatTarget(pResult->m_ClientID, "Frozen: FALSE");
 		}
 
-		if(pLive->GetCharacter()->m_SuperJump)
+		if(pLive->GetCharacter()->Core()->m_EndlessJump)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "SuperJump: TRUE");
 		}
-		if(pLive->GetCharacter()->m_Jetpack)
+		if(pLive->GetCharacter()->Core()->m_Jetpack)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Jetpack: TRUE");
 		}
-		if(pLive->GetCharacter()->m_EndlessHook)
+		if(pLive->GetCharacter()->Core()->m_EndlessHook)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "Endless: TRUE");
 		}

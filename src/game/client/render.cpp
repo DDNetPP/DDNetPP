@@ -238,6 +238,14 @@ void CRenderTools::DrawRoundRectExt(float x, float y, float w, float h, float r,
 
 void CRenderTools::DrawRoundRectExt4(float x, float y, float w, float h, vec4 ColorTopLeft, vec4 ColorTopRight, vec4 ColorBottomLeft, vec4 ColorBottomRight, float r, int Corners)
 {
+	if(Corners == 0 || r == 0.0f)
+	{
+		Graphics()->SetColor4(ColorTopLeft, ColorTopRight, ColorBottomLeft, ColorBottomRight);
+		IGraphics::CQuadItem ItemQ = IGraphics::CQuadItem(x, y, w, h);
+		Graphics()->QuadsDrawTL(&ItemQ, 1);
+		return;
+	}
+
 	int Num = 8;
 	for(int i = 0; i < Num; i += 2)
 	{
@@ -386,6 +394,15 @@ int CRenderTools::CreateRoundRectQuadContainer(float x, float y, float w, float 
 {
 	int ContainerIndex = Graphics()->CreateQuadContainer(false);
 
+	if(Corners == 0 || r == 0.0f)
+	{
+		IGraphics::CQuadItem ItemQ = IGraphics::CQuadItem(x, y, w, h);
+		Graphics()->QuadContainerAddQuads(ContainerIndex, &ItemQ, 1);
+		Graphics()->QuadContainerUpload(ContainerIndex);
+		Graphics()->QuadContainerChangeAutomaticUpload(ContainerIndex, true);
+		return ContainerIndex;
+	}
+
 	IGraphics::CFreeformItem ArrayF[32];
 	int NumItems = 0;
 	int Num = 8;
@@ -485,42 +502,31 @@ void CRenderTools::DrawUIElRect(CUIElement::SUIElementRect &ElUIRect, const CUIR
 	Graphics()->RenderQuadContainer(ElUIRect.m_UIRectQuadContainer, -1);
 }
 
-void CRenderTools::DrawRoundRect(float x, float y, float w, float h, float r)
+void CRenderTools::DrawRect(float x, float y, float w, float h, ColorRGBA Color, int Corners, float Rounding)
 {
-	DrawRoundRectExt(x, y, w, h, r, 0xf);
+	Graphics()->TextureClear();
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(Color);
+	DrawRoundRectExt(x, y, w, h, Rounding, Corners);
+	Graphics()->QuadsEnd();
 }
 
 void CRenderTools::DrawUIRect(const CUIRect *pRect, ColorRGBA Color, int Corners, float Rounding)
 {
-	Graphics()->TextureClear();
+	DrawRect(pRect->x, pRect->y, pRect->w, pRect->h, Color, Corners, Rounding);
+}
 
-	// TODO: FIX US
+void CRenderTools::DrawRect4(float x, float y, float w, float h, vec4 ColorTopLeft, vec4 ColorTopRight, vec4 ColorBottomLeft, vec4 ColorBottomRight, int Corners, float Rounding)
+{
+	Graphics()->TextureClear();
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(Color);
-	DrawRoundRectExt(pRect->x, pRect->y, pRect->w, pRect->h, Rounding, Corners);
+	DrawRoundRectExt4(x, y, w, h, ColorTopLeft, ColorTopRight, ColorBottomLeft, ColorBottomRight, Rounding, Corners);
 	Graphics()->QuadsEnd();
 }
 
 void CRenderTools::DrawUIRect4(const CUIRect *pRect, vec4 ColorTopLeft, vec4 ColorTopRight, vec4 ColorBottomLeft, vec4 ColorBottomRight, int Corners, float Rounding)
 {
-	Graphics()->TextureClear();
-
-	Graphics()->QuadsBegin();
-	DrawRoundRectExt4(pRect->x, pRect->y, pRect->w, pRect->h, ColorTopLeft, ColorTopRight, ColorBottomLeft, ColorBottomRight, Rounding, Corners);
-	Graphics()->QuadsEnd();
-}
-
-void CRenderTools::DrawUIRect4NoRounding(const CUIRect *pRect, vec4 ColorTopLeft, vec4 ColorTopRight, vec4 ColorBottomLeft, vec4 ColorBottomRight)
-{
-	Graphics()->TextureClear();
-
-	Graphics()->QuadsBegin();
-
-	Graphics()->SetColor4(ColorTopLeft, ColorTopRight, ColorBottomLeft, ColorBottomRight);
-	IGraphics::CQuadItem ItemQ = IGraphics::CQuadItem(pRect->x, pRect->y, pRect->w, pRect->h);
-	Graphics()->QuadsDrawTL(&ItemQ, 1);
-
-	Graphics()->QuadsEnd();
+	DrawRect4(pRect->x, pRect->y, pRect->w, pRect->h, ColorTopLeft, ColorTopRight, ColorBottomLeft, ColorBottomRight, Corners, Rounding);
 }
 
 void CRenderTools::DrawCircle(float x, float y, float r, int Segments)
@@ -712,7 +718,7 @@ void CRenderTools::RenderTee(CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote
 					float EyeSeparation = (0.075f - 0.010f * absolute(Direction.x)) * BaseSize;
 					vec2 Offset = vec2(Direction.x * 0.125f, -0.05f + Direction.y * 0.10f) * BaseSize;
 
-					Graphics()->TextureSet(pSkinTextures->m_Eyes[TeeEye]);
+					Graphics()->TextureSet(pSkinTextures->m_aEyes[TeeEye]);
 					Graphics()->RenderQuadContainerAsSprite(m_TeeQuadContainerIndex, QuadOffset + EyeQuadOffset, BodyPos.x - EyeSeparation + Offset.x, BodyPos.y + Offset.y, EyeScale / (64.f * 0.4f), h / (64.f * 0.4f));
 					Graphics()->RenderQuadContainerAsSprite(m_TeeQuadContainerIndex, QuadOffset + EyeQuadOffset, BodyPos.x + EyeSeparation + Offset.x, BodyPos.y + Offset.y, -EyeScale / (64.f * 0.4f), h / (64.f * 0.4f));
 				}
@@ -749,31 +755,31 @@ void CRenderTools::RenderTee(CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote
 	Graphics()->QuadsSetRotation(0);
 }
 
-void CRenderTools::CalcScreenParams(float Aspect, float Zoom, float *w, float *h)
+void CRenderTools::CalcScreenParams(float Aspect, float Zoom, float *pWidth, float *pHeight)
 {
 	const float Amount = 1150 * 1000;
 	const float WMax = 1500;
 	const float HMax = 1050;
 
 	float f = sqrtf(Amount) / sqrtf(Aspect);
-	*w = f * Aspect;
-	*h = f;
+	*pWidth = f * Aspect;
+	*pHeight = f;
 
 	// limit the view
-	if(*w > WMax)
+	if(*pWidth > WMax)
 	{
-		*w = WMax;
-		*h = *w / Aspect;
+		*pWidth = WMax;
+		*pHeight = *pWidth / Aspect;
 	}
 
-	if(*h > HMax)
+	if(*pHeight > HMax)
 	{
-		*h = HMax;
-		*w = *h * Aspect;
+		*pHeight = HMax;
+		*pWidth = *pHeight * Aspect;
 	}
 
-	*w *= Zoom;
-	*h *= Zoom;
+	*pWidth *= Zoom;
+	*pHeight *= Zoom;
 }
 
 void CRenderTools::MapScreenToWorld(float CenterX, float CenterY, float ParallaxX, float ParallaxY,
@@ -791,8 +797,8 @@ void CRenderTools::MapScreenToWorld(float CenterX, float CenterY, float Parallax
 
 void CRenderTools::MapScreenToGroup(float CenterX, float CenterY, CMapItemGroup *pGroup, float Zoom)
 {
-	float Points[4];
+	float aPoints[4];
 	MapScreenToWorld(CenterX, CenterY, pGroup->m_ParallaxX, pGroup->m_ParallaxY,
-		pGroup->m_OffsetX, pGroup->m_OffsetY, Graphics()->ScreenAspect(), Zoom, Points);
-	Graphics()->MapScreen(Points[0], Points[1], Points[2], Points[3]);
+		pGroup->m_OffsetX, pGroup->m_OffsetY, Graphics()->ScreenAspect(), Zoom, aPoints);
+	Graphics()->MapScreen(aPoints[0], aPoints[1], aPoints[2], aPoints[3]);
 }

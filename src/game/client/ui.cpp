@@ -35,8 +35,8 @@ void CUIElement::SUIElementRect::Reset()
 	m_Height = -1;
 	m_Text.clear();
 	mem_zero(&m_Cursor, sizeof(m_Cursor));
-	m_TextColor.Set(-1, -1, -1, -1);
-	m_TextOutlineColor.Set(-1, -1, -1, -1);
+	m_TextColor = ColorRGBA(-1, -1, -1, -1);
+	m_TextOutlineColor = ColorRGBA(-1, -1, -1, -1);
 	m_QuadColor = ColorRGBA(-1, -1, -1, -1);
 }
 
@@ -106,9 +106,7 @@ void CUI::ResetUIElement(CUIElement &UIElement)
 		if(Rect.m_UIRectQuadContainer != -1)
 			Graphics()->DeleteQuadContainer(Rect.m_UIRectQuadContainer);
 		Rect.m_UIRectQuadContainer = -1;
-		if(Rect.m_UITextContainer != -1)
-			TextRender()->DeleteTextContainer(Rect.m_UITextContainer);
-		Rect.m_UITextContainer = -1;
+		TextRender()->DeleteTextContainer(Rect.m_UITextContainer);
 
 		Rect.Reset();
 	}
@@ -157,6 +155,11 @@ void CUI::Update(float MouseX, float MouseY, float MouseWorldX, float MouseWorld
 	if(m_pActiveItem)
 		m_pHotItem = m_pActiveItem;
 	m_pBecomingHotItem = 0;
+	if(!Enabled())
+	{
+		m_pHotItem = nullptr;
+		m_pActiveItem = nullptr;
+	}
 }
 
 bool CUI::MouseInside(const CUIRect *pRect) const
@@ -617,7 +620,7 @@ void CUI::DoLabel(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, cons
 	RectEl.m_TextOutlineColor = TextRender()->GetTextOutlineColor();
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
 	TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
-	RectEl.m_UITextContainer = TextRender()->CreateTextContainer(&Cursor, pText, StrLen);
+	TextRender()->CreateTextContainer(RectEl.m_UITextContainer, &Cursor, pText, StrLen);
 	TextRender()->TextColor(RectEl.m_TextColor);
 	TextRender()->TextOutlineColor(RectEl.m_TextOutlineColor);
 	RectEl.m_Cursor = Cursor;
@@ -646,9 +649,7 @@ void CUI::DoLabelStreamed(CUIElement::SUIElementRect &RectEl, float x, float y, 
 	}
 	if(NeedsRecreate)
 	{
-		if(RectEl.m_UITextContainer != -1)
-			TextRender()->DeleteTextContainer(RectEl.m_UITextContainer);
-		RectEl.m_UITextContainer = -1;
+		TextRender()->DeleteTextContainer(RectEl.m_UITextContainer);
 
 		RectEl.m_X = x;
 		RectEl.m_Y = y;
@@ -675,10 +676,10 @@ void CUI::DoLabelStreamed(CUIElement::SUIElementRect &RectEl, float x, float y, 
 		DoLabel(RectEl, &TmpRect, pText, Size, Align, Props, StrLen, pReadCursor);
 	}
 
-	STextRenderColor ColorText(RectEl.m_TextColor);
-	STextRenderColor ColorTextOutline(RectEl.m_TextOutlineColor);
+	ColorRGBA ColorText(RectEl.m_TextColor);
+	ColorRGBA ColorTextOutline(RectEl.m_TextOutlineColor);
 	if(RectEl.m_UITextContainer != -1)
-		TextRender()->RenderTextContainer(RectEl.m_UITextContainer, &ColorText, &ColorTextOutline);
+		TextRender()->RenderTextContainer(RectEl.m_UITextContainer, ColorText, ColorTextOutline);
 }
 
 void CUI::DoLabelStreamed(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, float MaxWidth, int AlignVertically, bool StopAtEnd, int StrLen, CTextCursor *pReadCursor)

@@ -32,10 +32,10 @@ CChat::CChat()
 
 #define CHAT_COMMAND(name, params, flags, callback, userdata, help) RegisterCommand(name, params, flags, help);
 #include <game/ddracechat.h>
+#undef CHAT_COMMAND
 	std::sort(m_vCommands.begin(), m_vCommands.end());
 
 	m_Mode = MODE_NONE;
-	Reset();
 }
 
 void CChat::RegisterCommand(const char *pName, const char *pParams, int flags, const char *pHelp)
@@ -47,15 +47,13 @@ void CChat::RebuildChat()
 {
 	for(auto &Line : m_aLines)
 	{
-		if(Line.m_TextContainerIndex != -1)
-			TextRender()->DeleteTextContainer(Line.m_TextContainerIndex);
-		Line.m_TextContainerIndex = -1;
+		TextRender()->DeleteTextContainer(Line.m_TextContainerIndex);
 		if(Line.m_QuadContainerIndex != -1)
 			Graphics()->DeleteQuadContainer(Line.m_QuadContainerIndex);
 		Line.m_QuadContainerIndex = -1;
 		// recalculate sizes
-		Line.m_YOffset[0] = -1.f;
-		Line.m_YOffset[1] = -1.f;
+		Line.m_aYOffset[0] = -1.f;
+		Line.m_aYOffset[1] = -1.f;
 	}
 }
 
@@ -68,8 +66,7 @@ void CChat::Reset()
 {
 	for(auto &Line : m_aLines)
 	{
-		if(Line.m_TextContainerIndex != -1)
-			TextRender()->DeleteTextContainer(Line.m_TextContainerIndex);
+		TextRender()->DeleteTextContainer(Line.m_TextContainerIndex);
 		if(Line.m_QuadContainerIndex != -1)
 			Graphics()->DeleteQuadContainer(Line.m_QuadContainerIndex);
 		Line.m_Time = 0;
@@ -169,6 +166,11 @@ void CChat::OnConsoleInit()
 	Console()->Chain("cl_chat_old", ConchainChatOld, this);
 }
 
+void CChat::OnInit()
+{
+	Reset();
+}
+
 bool CChat::OnInput(IInput::CEvent Event)
 {
 	if(m_Mode == MODE_NONE)
@@ -176,27 +178,27 @@ bool CChat::OnInput(IInput::CEvent Event)
 
 	if(Input()->ModifierIsPressed() && Input()->KeyPress(KEY_V))
 	{
-		const char *Text = Input()->GetClipboardText();
-		if(Text)
+		const char *pText = Input()->GetClipboardText();
+		if(pText)
 		{
 			// if the text has more than one line, we send all lines except the last one
 			// the last one is set as in the text field
 			char aLine[256];
 			int i, Begin = 0;
-			for(i = 0; i < str_length(Text); i++)
+			for(i = 0; i < str_length(pText); i++)
 			{
-				if(Text[i] == '\n')
+				if(pText[i] == '\n')
 				{
 					int max = minimum(i - Begin + 1, (int)sizeof(aLine));
-					str_copy(aLine, Text + Begin, max);
+					str_copy(aLine, pText + Begin, max);
 					Begin = i + 1;
 					SayChat(aLine);
-					while(Text[i] == '\n')
+					while(pText[i] == '\n')
 						i++;
 				}
 			}
 			int max = minimum(i - Begin + 1, (int)sizeof(aLine));
-			str_copy(aLine, Text + Begin, max);
+			str_copy(aLine, pText + Begin, max);
 			m_Input.Append(aLine);
 		}
 	}
@@ -324,7 +326,7 @@ bool CChat::OnInput(IInput::CEvent Event)
 			// Create the completion list of player names through which the player can iterate
 			const char *PlayerName, *FoundInput;
 			m_PlayerCompletionListLength = 0;
-			for(auto &PlayerInfo : m_pClient->m_Snap.m_paInfoByName)
+			for(auto &PlayerInfo : m_pClient->m_Snap.m_apInfoByName)
 			{
 				if(PlayerInfo)
 				{
@@ -420,7 +422,7 @@ bool CChat::OnInput(IInput::CEvent Event)
 			if(m_PlayerCompletionListLength > 0)
 			{
 				// We do this in a loop, if a player left the game during the repeated pressing of Tab, they are skipped
-				CGameClient::CClientData *CompletionClientData;
+				CGameClient::CClientData *pCompletionClientData;
 				for(int i = 0; i < m_PlayerCompletionListLength; ++i)
 				{
 					if(m_ReverseTAB && m_CompletionUsed)
@@ -438,13 +440,13 @@ bool CChat::OnInput(IInput::CEvent Event)
 					m_CompletionChosen %= m_PlayerCompletionListLength;
 					m_CompletionUsed = true;
 
-					CompletionClientData = &m_pClient->m_aClients[m_aPlayerCompletionList[m_CompletionChosen].ClientID];
-					if(!CompletionClientData->m_Active)
+					pCompletionClientData = &m_pClient->m_aClients[m_aPlayerCompletionList[m_CompletionChosen].ClientID];
+					if(!pCompletionClientData->m_Active)
 					{
 						continue;
 					}
 
-					pCompletionString = CompletionClientData->m_aName;
+					pCompletionString = pCompletionClientData->m_aName;
 					break;
 				}
 			}
@@ -741,16 +743,14 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 		if(pCurrentLine->m_TeamNumber == Team && pCurrentLine->m_ClientID == ClientID && str_comp(pCurrentLine->m_aText, pLine) == 0)
 		{
 			pCurrentLine->m_TimesRepeated++;
-			if(pCurrentLine->m_TextContainerIndex != -1)
-				TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
-			pCurrentLine->m_TextContainerIndex = -1;
+			TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
 
 			if(pCurrentLine->m_QuadContainerIndex != -1)
 				Graphics()->DeleteQuadContainer(pCurrentLine->m_QuadContainerIndex);
 			pCurrentLine->m_QuadContainerIndex = -1;
 			pCurrentLine->m_Time = time();
-			pCurrentLine->m_YOffset[0] = -1.f;
-			pCurrentLine->m_YOffset[1] = -1.f;
+			pCurrentLine->m_aYOffset[0] = -1.f;
+			pCurrentLine->m_aYOffset[1] = -1.f;
 
 			FChatMsgCheckAndPrint(pCurrentLine);
 			return;
@@ -761,17 +761,15 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 		pCurrentLine = &m_aLines[m_CurrentLine];
 		pCurrentLine->m_TimesRepeated = 0;
 		pCurrentLine->m_Time = time();
-		pCurrentLine->m_YOffset[0] = -1.0f;
-		pCurrentLine->m_YOffset[1] = -1.0f;
+		pCurrentLine->m_aYOffset[0] = -1.0f;
+		pCurrentLine->m_aYOffset[1] = -1.0f;
 		pCurrentLine->m_ClientID = ClientID;
 		pCurrentLine->m_TeamNumber = Team;
 		pCurrentLine->m_Team = Team == 1;
 		pCurrentLine->m_Whisper = Team >= 2;
 		pCurrentLine->m_NameColor = -2;
 
-		if(pCurrentLine->m_TextContainerIndex != -1)
-			TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
-		pCurrentLine->m_TextContainerIndex = -1;
+		TextRender()->DeleteTextContainer(pCurrentLine->m_TextContainerIndex);
 
 		if(pCurrentLine->m_QuadContainerIndex != -1)
 			Graphics()->DeleteQuadContainer(pCurrentLine->m_QuadContainerIndex);
@@ -780,20 +778,20 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 		// check for highlighted name
 		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
 		{
-			if(ClientID >= 0 && ClientID != m_pClient->m_LocalIDs[0])
+			if(ClientID >= 0 && ClientID != m_pClient->m_aLocalIDs[0])
 			{
 				// main character
-				if(LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_LocalIDs[0]].m_aName))
+				if(LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIDs[0]].m_aName))
 					Highlighted = true;
 				// dummy
-				if(m_pClient->Client()->DummyConnected() && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_LocalIDs[1]].m_aName))
+				if(m_pClient->Client()->DummyConnected() && LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_aLocalIDs[1]].m_aName))
 					Highlighted = true;
 			}
 		}
 		else
 		{
 			// on demo playback use local id from snap directly,
-			// since m_LocalIDs isn't valid there
+			// since m_aLocalIDs isn't valid there
 			if(LineShouldHighlight(pLine, m_pClient->m_aClients[m_pClient->m_Snap.m_LocalClientID].m_aName))
 				Highlighted = true;
 		}
@@ -802,7 +800,7 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 
 		if(pCurrentLine->m_ClientID < 0) // server or client message
 		{
-			str_copy(pCurrentLine->m_aName, "*** ", sizeof(pCurrentLine->m_aName));
+			str_copy(pCurrentLine->m_aName, "*** ");
 			str_format(pCurrentLine->m_aText, sizeof(pCurrentLine->m_aText), "%s", pLine);
 		}
 		else
@@ -853,7 +851,7 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 				else
 					pCurrentLine->m_RenderSkin = m_pClient->m_aClients[pCurrentLine->m_ClientID].m_RenderInfo.m_OriginalRenderSkin;
 
-				str_copy(pCurrentLine->m_aSkinName, m_pClient->m_aClients[pCurrentLine->m_ClientID].m_aSkinName, sizeof(pCurrentLine->m_aSkinName));
+				str_copy(pCurrentLine->m_aSkinName, m_pClient->m_aClients[pCurrentLine->m_ClientID].m_aSkinName);
 				pCurrentLine->m_ColorBody = m_pClient->m_aClients[pCurrentLine->m_ClientID].m_RenderInfo.m_ColorBody;
 				pCurrentLine->m_ColorFeet = m_pClient->m_aClients[pCurrentLine->m_ClientID].m_RenderInfo.m_ColorFeet;
 
@@ -986,10 +984,7 @@ void CChat::OnPrepareLines()
 		if(m_aLines[r].m_TextContainerIndex != -1 && !ForceRecreate)
 			continue;
 
-		if(m_aLines[r].m_TextContainerIndex != -1)
-			TextRender()->DeleteTextContainer(m_aLines[r].m_TextContainerIndex);
-
-		m_aLines[r].m_TextContainerIndex = -1;
+		TextRender()->DeleteTextContainer(m_aLines[r].m_TextContainerIndex);
 
 		if(m_aLines[r].m_QuadContainerIndex != -1)
 			Graphics()->DeleteQuadContainer(m_aLines[r].m_QuadContainerIndex);
@@ -1020,7 +1015,7 @@ void CChat::OnPrepareLines()
 		}
 
 		// get the y offset (calculate it if we haven't done that yet)
-		if(m_aLines[r].m_YOffset[OffsetType] < 0.0f)
+		if(m_aLines[r].m_aYOffset[OffsetType] < 0.0f)
 		{
 			TextRender()->SetCursor(&Cursor, TextBegin, 0.0f, FontSize, 0);
 			Cursor.m_LineWidth = LineWidth;
@@ -1054,10 +1049,10 @@ void CChat::OnPrepareLines()
 
 			TextRender()->TextEx(&AppendCursor, m_aLines[r].m_aText, -1);
 
-			m_aLines[r].m_YOffset[OffsetType] = AppendCursor.m_Y + AppendCursor.m_FontSize + RealMsgPaddingY;
+			m_aLines[r].m_aYOffset[OffsetType] = AppendCursor.m_Y + AppendCursor.m_FontSize + RealMsgPaddingY;
 		}
 
-		y -= m_aLines[r].m_YOffset[OffsetType];
+		y -= m_aLines[r].m_aYOffset[OffsetType];
 
 		// cut off if msgs waste too much space
 		if(y < HeightLimit)
@@ -1083,10 +1078,7 @@ void CChat::OnPrepareLines()
 				const char *pHeartStr = "♥ ";
 				ColorRGBA rgb = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClMessageFriendColor));
 				TextRender()->TextColor(rgb.WithAlpha(1.f));
-				if(m_aLines[r].m_TextContainerIndex == -1)
-					m_aLines[r].m_TextContainerIndex = TextRender()->CreateTextContainer(&Cursor, pHeartStr);
-				else
-					TextRender()->AppendTextContainer(&Cursor, m_aLines[r].m_TextContainerIndex, pHeartStr);
+				TextRender()->CreateOrAppendTextContainer(m_aLines[r].m_TextContainerIndex, &Cursor, pHeartStr);
 			}
 		}
 
@@ -1119,27 +1111,18 @@ void CChat::OnPrepareLines()
 
 		TextRender()->TextColor(NameColor);
 
-		if(m_aLines[r].m_TextContainerIndex == -1)
-			m_aLines[r].m_TextContainerIndex = TextRender()->CreateTextContainer(&Cursor, aName);
-		else
-			TextRender()->AppendTextContainer(&Cursor, m_aLines[r].m_TextContainerIndex, aName);
+		TextRender()->CreateOrAppendTextContainer(m_aLines[r].m_TextContainerIndex, &Cursor, aName);
 
 		if(m_aLines[r].m_TimesRepeated > 0)
 		{
 			TextRender()->TextColor(1.0f, 1.0f, 1.0f, 0.3f);
-			if(m_aLines[r].m_TextContainerIndex == -1)
-				m_aLines[r].m_TextContainerIndex = TextRender()->CreateTextContainer(&Cursor, aCount);
-			else
-				TextRender()->AppendTextContainer(&Cursor, m_aLines[r].m_TextContainerIndex, aCount);
+			TextRender()->CreateOrAppendTextContainer(m_aLines[r].m_TextContainerIndex, &Cursor, aCount);
 		}
 
 		if(m_aLines[r].m_ClientID >= 0 && m_aLines[r].m_aName[0] != '\0')
 		{
 			TextRender()->TextColor(NameColor);
-			if(m_aLines[r].m_TextContainerIndex == -1)
-				m_aLines[r].m_TextContainerIndex = TextRender()->CreateTextContainer(&Cursor, ": ");
-			else
-				TextRender()->AppendTextContainer(&Cursor, m_aLines[r].m_TextContainerIndex, ": ");
+			TextRender()->CreateOrAppendTextContainer(m_aLines[r].m_TextContainerIndex, &Cursor, ": ");
 		}
 
 		// render line
@@ -1164,14 +1147,11 @@ void CChat::OnPrepareLines()
 			AppendCursor.m_StartX = Cursor.m_X;
 		}
 
-		if(m_aLines[r].m_TextContainerIndex == -1)
-			m_aLines[r].m_TextContainerIndex = TextRender()->CreateTextContainer(&AppendCursor, m_aLines[r].m_aText);
-		else
-			TextRender()->AppendTextContainer(&AppendCursor, m_aLines[r].m_TextContainerIndex, m_aLines[r].m_aText);
+		TextRender()->CreateOrAppendTextContainer(m_aLines[r].m_TextContainerIndex, &AppendCursor, m_aLines[r].m_aText);
 
 		if(!g_Config.m_ClChatOld && (m_aLines[r].m_aText[0] != '\0' || m_aLines[r].m_aName[0] != '\0'))
 		{
-			float Height = m_aLines[r].m_YOffset[OffsetType];
+			float Height = m_aLines[r].m_aYOffset[OffsetType];
 			Graphics()->SetColor(1, 1, 1, 1);
 			m_aLines[r].m_QuadContainerIndex = RenderTools()->CreateRoundRectQuadContainer(Begin, y, (AppendCursor.m_LongestLineWidth - TextBegin) + RealMsgPaddingX * 1.5f, Height, MESSAGE_ROUNDING, CUI::CORNER_ALL);
 		}
@@ -1303,7 +1283,7 @@ void CChat::OnRender()
 		if(Now > m_aLines[r].m_Time + 16 * time_freq() && !m_PrevShowChat)
 			break;
 
-		y -= m_aLines[r].m_YOffset[OffsetType];
+		y -= m_aLines[r].m_aYOffset[OffsetType];
 
 		// cut off if msgs waste too much space
 		if(y < HeightLimit)
@@ -1349,9 +1329,9 @@ void CChat::OnRender()
 				RenderTools()->RenderTee(pIdleState, &RenderInfo, EMOTE_NORMAL, vec2(1, 0.1f), TeeRenderPos, Blend);
 			}
 
-			STextRenderColor TextOutline(0.f, 0.f, 0.f, 0.3f * Blend);
-			STextRenderColor Text(1.f, 1.f, 1.f, Blend);
-			TextRender()->RenderTextContainer(m_aLines[r].m_TextContainerIndex, &Text, &TextOutline, 0, (y + RealMsgPaddingY / 2.0f) - m_aLines[r].m_TextYOffset);
+			ColorRGBA TextOutline(0.f, 0.f, 0.f, 0.3f * Blend);
+			ColorRGBA Text(1.f, 1.f, 1.f, Blend);
+			TextRender()->RenderTextContainer(m_aLines[r].m_TextContainerIndex, Text, TextOutline, 0, (y + RealMsgPaddingY / 2.0f) - m_aLines[r].m_TextYOffset);
 		}
 	}
 }

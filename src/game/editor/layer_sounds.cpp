@@ -30,10 +30,10 @@ void CLayerSounds::Render(bool Tileset)
 
 		if(Source.m_PosEnv >= 0)
 		{
-			float aChannels[4];
-			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, aChannels, m_pEditor);
-			OffsetX = aChannels[0];
-			OffsetY = aChannels[1];
+			ColorRGBA Channels;
+			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
+			OffsetX = Channels.r;
+			OffsetY = Channels.g;
 		}
 
 		switch(Source.m_Shape.m_Type)
@@ -53,13 +53,13 @@ void CLayerSounds::Render(bool Tileset)
 		{
 			float Width = fx2f(Source.m_Shape.m_Rectangle.m_Width);
 			float Height = fx2f(Source.m_Shape.m_Rectangle.m_Height);
-			m_pEditor->RenderTools()->DrawRoundRect(fx2f(Source.m_Position.x) + OffsetX - Width / 2, fx2f(Source.m_Position.y) + OffsetY - Height / 2,
-				Width, Height, 0.0f);
+			m_pEditor->RenderTools()->DrawRoundRectExt(fx2f(Source.m_Position.x) + OffsetX - Width / 2, fx2f(Source.m_Position.y) + OffsetY - Height / 2,
+				Width, Height, 0.0f, CUI::CORNER_NONE);
 
 			float Falloff = ((float)Source.m_Falloff / 255.0f);
 			if(Falloff > 0.0f)
-				m_pEditor->RenderTools()->DrawRoundRect(fx2f(Source.m_Position.x) + OffsetX - Falloff * Width / 2, fx2f(Source.m_Position.y) + OffsetY - Falloff * Height / 2,
-					Width * Falloff, Height * Falloff, 0.0f);
+				m_pEditor->RenderTools()->DrawRoundRectExt(fx2f(Source.m_Position.x) + OffsetX - Falloff * Width / 2, fx2f(Source.m_Position.y) + OffsetY - Falloff * Height / 2,
+					Width * Falloff, Height * Falloff, 0.0f, CUI::CORNER_NONE);
 			break;
 		}
 		}
@@ -80,10 +80,10 @@ void CLayerSounds::Render(bool Tileset)
 
 		if(Source.m_PosEnv >= 0)
 		{
-			float aChannels[4];
-			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, aChannels, m_pEditor);
-			OffsetX = aChannels[0];
-			OffsetY = aChannels[1];
+			ColorRGBA Channels;
+			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
+			OffsetX = Channels.r;
+			OffsetY = Channels.g;
 		}
 
 		m_pEditor->RenderTools()->DrawSprite(fx2f(Source.m_Position.x) + OffsetX, fx2f(Source.m_Position.y) + OffsetY, s_SourceVisualSize * m_pEditor->m_WorldZoom);
@@ -162,8 +162,8 @@ int CLayerSounds::BrushGrab(CLayerGroup *pBrush, CUIRect Rect)
 
 void CLayerSounds::BrushPlace(CLayer *pBrush, float wx, float wy)
 {
-	CLayerSounds *l = (CLayerSounds *)pBrush;
-	for(const auto &Source : l->m_vSources)
+	CLayerSounds *pSoundLayer = (CLayerSounds *)pBrush;
+	for(const auto &Source : pSoundLayer->m_vSources)
 	{
 		CSoundSource n = Source;
 

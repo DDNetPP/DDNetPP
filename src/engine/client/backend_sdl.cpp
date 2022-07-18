@@ -1,21 +1,11 @@
 #include <base/detect.h>
 
-#if defined(CONF_FAMILY_WINDOWS)
-// For FlashWindowEx, FLASHWINFO, FLASHW_TRAY
-#define _WIN32_WINNT 0x0501
-#define WINVER 0x0501
-#endif
-
 #ifndef CONF_BACKEND_OPENGL_ES
 #include <GL/glew.h>
 #endif
 
 #include <SDL.h>
-#include <SDL_hints.h>
-#include <SDL_pixels.h>
-#include <SDL_video.h>
 
-#include <base/detect.h>
 #include <base/math.h>
 #include <cstdlib>
 
@@ -50,12 +40,6 @@
 #include <engine/graphics.h>
 
 class IStorage;
-
-#ifdef __MINGW32__
-extern "C" {
-int putenv(const char *);
-}
-#endif
 
 // ------------ CGraphicsBackend_Threaded
 
@@ -777,7 +761,7 @@ void CGraphicsBackend_SDL_GL::GetVideoModes(CVideoMode *pModes, int MaxModes, in
 		dbg_msg("gfx", "unable to get display mode: %s", SDL_GetError());
 	}
 
-	static constexpr int ModeCount = 256;
+	constexpr int ModeCount = 256;
 	SDL_DisplayMode aModes[ModeCount];
 	int NumModes = 0;
 	for(int i = 0; i < maxModes && NumModes < ModeCount; i++)
@@ -898,7 +882,7 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 		if(m_BackendType == BACKEND_TYPE_VULKAN)
 		{
 			// try default opengl settings
-			str_copy(g_Config.m_GfxBackend, "OpenGL", std::size(g_Config.m_GfxBackend));
+			str_copy(g_Config.m_GfxBackend, "OpenGL");
 			g_Config.m_GfxGLMajor = 3;
 			g_Config.m_GfxGLMinor = 0;
 			g_Config.m_GfxGLPatch = 0;
@@ -1224,7 +1208,7 @@ int CGraphicsBackend_SDL_GL::Init(const char *pName, int *pScreen, int *pWidth, 
 
 		if(pErrorStr != NULL)
 		{
-			str_copy(m_aErrorString, pErrorStr, std::size(m_aErrorString));
+			str_copy(m_aErrorString, pErrorStr);
 		}
 
 		return EGraphicsBackendErrorCodes::GRAPHICS_BACKEND_ERROR_CODE_GL_VERSION_FAILED;
@@ -1431,7 +1415,7 @@ bool CGraphicsBackend_SDL_GL::ResizeWindow(int w, int h, int RefreshRate)
 	{
 #ifdef CONF_FAMILY_WINDOWS
 		// in windows make the window windowed mode first, this prevents strange window glitches (other games probably do something similar)
-		SetWindowParams(0, 1, true);
+		SetWindowParams(0, true, true);
 #endif
 		SDL_DisplayMode SetMode = {};
 		SDL_DisplayMode ClosestMode = {};
@@ -1443,7 +1427,7 @@ bool CGraphicsBackend_SDL_GL::ResizeWindow(int w, int h, int RefreshRate)
 #ifdef CONF_FAMILY_WINDOWS
 		// now change it back to fullscreen, this will restore the above set state, bcs SDL saves fullscreen modes appart from other video modes (as of SDL 2.0.16)
 		// see implementation of SDL_SetWindowDisplayMode
-		SetWindowParams(1, 0, true);
+		SetWindowParams(1, false, true);
 #endif
 		return true;
 	}

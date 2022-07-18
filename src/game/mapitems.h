@@ -5,6 +5,7 @@
 
 #include "mapitems_ddpp.h"
 #include <engine/shared/protocol.h>
+#include <base/vmath.h>
 
 // layer types
 enum
@@ -136,8 +137,8 @@ enum
 	TILE_REFILL_JUMPS = 32,
 	TILE_START,
 	TILE_FINISH,
-	TILE_CHECKPOINT_FIRST = 35,
-	TILE_CHECKPOINT_LAST = 59,
+	TILE_TIME_CHECKPOINT_FIRST = 35,
+	TILE_TIME_CHECKPOINT_LAST = 59,
 	TILE_STOP = 60,
 	TILE_STOPS,
 	TILE_STOPA,
@@ -214,15 +215,8 @@ enum
 	ENTITY_OFFSET = 255 - 16 * 4,
 };
 
-struct CPoint
-{
-	int x, y; // 22.10 fixed point
-};
-
-struct CColor
-{
-	int r, g, b, a;
-};
+typedef ivec2 CPoint; // 22.10 fixed point
+typedef ivec4 CColor;
 
 struct CQuad
 {

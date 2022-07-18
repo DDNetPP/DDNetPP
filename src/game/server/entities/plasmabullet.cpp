@@ -136,7 +136,7 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	CPlayer *SnapPlayer = SnappingClient > -1 ? GameServer()->m_apPlayers[SnappingClient] : 0;
 	int Tick = (Server()->Tick() % Server()->TickSpeed()) % 11;
 
-	if(SnapChar && SnapChar->IsAlive() && (m_Layer == LAYER_SWITCH && !GameServer()->Switchers()[m_Number].m_Status[SnapChar->Team()]) && (!Tick))
+	if(SnapChar && SnapChar->IsAlive() && (m_Layer == LAYER_SWITCH && !GameServer()->Switchers()[m_Number].m_aStatus[SnapChar->Team()]) && (!Tick))
 		return;
 
 	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1 && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID) && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID)->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)

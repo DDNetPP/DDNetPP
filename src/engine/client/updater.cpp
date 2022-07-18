@@ -54,7 +54,7 @@ CUpdaterFetchTask::CUpdaterFetchTask(CUpdater *pUpdater, const char *pFile, cons
 void CUpdaterFetchTask::OnProgress()
 {
 	CLockScope ls(m_pUpdater->m_Lock);
-	str_copy(m_pUpdater->m_aStatus, Dest(), sizeof(m_pUpdater->m_aStatus));
+	str_copy(m_pUpdater->m_aStatus, Dest());
 	m_pUpdater->m_Percent = Progress();
 }
 
@@ -62,19 +62,19 @@ int CUpdaterFetchTask::OnCompletion(int State)
 {
 	State = CHttpRequest::OnCompletion(State);
 
-	const char *b = 0;
-	for(const char *a = Dest(); *a; a++)
-		if(*a == '/')
-			b = a + 1;
-	b = b ? b : Dest();
-	if(!str_comp(b, "update.json"))
+	const char *pFileName = 0;
+	for(const char *pPath = Dest(); *pPath; pPath++)
+		if(*pPath == '/')
+			pFileName = pPath + 1;
+	pFileName = pFileName ? pFileName : Dest();
+	if(!str_comp(pFileName, "update.json"))
 	{
 		if(State == HTTP_DONE)
 			m_pUpdater->SetCurrentState(IUpdater::GOT_MANIFEST);
 		else if(State == HTTP_ERROR)
 			m_pUpdater->SetCurrentState(IUpdater::FAIL);
 	}
-	else if(!str_comp(b, m_pUpdater->m_aLastFile))
+	else if(!str_comp(pFileName, m_pUpdater->m_aLastFile))
 	{
 		if(State == HTTP_DONE)
 			m_pUpdater->SetCurrentState(IUpdater::MOVE_FILES);
@@ -352,7 +352,7 @@ void CUpdater::PerformUpdate()
 		pLastFile = m_aClientExecTmp;
 	}
 
-	str_copy(m_aLastFile, pLastFile, sizeof(m_aLastFile));
+	str_copy(m_aLastFile, pLastFile);
 }
 
 void CUpdater::CommitUpdate()

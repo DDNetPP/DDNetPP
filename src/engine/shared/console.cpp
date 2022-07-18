@@ -710,7 +710,7 @@ void CConsole::ConCommandStatus(IResult *pResult, void *pUser)
 			{
 				pConsole->Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 				mem_zero(aBuf, sizeof(aBuf));
-				str_copy(aBuf, pCommand->m_pName, sizeof(aBuf));
+				str_copy(aBuf, pCommand->m_pName);
 				Used = Length;
 			}
 		}
@@ -1017,21 +1017,21 @@ void CConsole::Init()
 #define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
 	{ \
 		static CIntVariableData Data = {this, &g_Config.m_##Name, Min, Max, Def}; \
-		Register(#ScriptName, "?i", Flags, IntVariableCommand, &Data, Desc); \
+		Register(#ScriptName, "?i", Flags, IntVariableCommand, &Data, Desc " (default: " #Def ", min: " #Min ", max: " #Max ")"); \
 	}
 
 #define MACRO_CONFIG_COL(Name, ScriptName, Def, Flags, Desc) \
 	{ \
 		static CColVariableData Data = {this, &g_Config.m_##Name, static_cast<bool>((Flags)&CFGFLAG_COLLIGHT), \
 			static_cast<bool>((Flags)&CFGFLAG_COLALPHA), Def}; \
-		Register(#ScriptName, "?i", Flags, ColVariableCommand, &Data, Desc); \
+		Register(#ScriptName, "?i", Flags, ColVariableCommand, &Data, Desc " (default: " #Def ")"); \
 	}
 
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
 	{ \
-		static char OldValue[Len] = Def; \
-		static CStrVariableData Data = {this, g_Config.m_##Name, Len, OldValue}; \
-		Register(#ScriptName, "?r", Flags, StrVariableCommand, &Data, Desc); \
+		static char s_aOldValue[Len] = Def; \
+		static CStrVariableData Data = {this, g_Config.m_##Name, Len, s_aOldValue}; \
+		Register(#ScriptName, "?r", Flags, StrVariableCommand, &Data, Desc " (default: " #Def ", max length: " #Len ")"); \
 	}
 
 #include "config_variables.h"

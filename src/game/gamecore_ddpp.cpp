@@ -191,8 +191,8 @@ void CCharacterCore::DDPPTick()
 
 			if(Distance > CFlag::ms_PhysSize * 1.50f) // TODO: fix tweakable variable
 			{
-				float Accel = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragAccel * (Distance / m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookLength);
-				float DragSpeed = m_pWorld->m_Tuning[g_Config.m_ClDummy].m_HookDragSpeed;
+				float Accel = m_pWorld->m_aTuning[g_Config.m_ClDummy].m_HookDragAccel * (Distance / m_pWorld->m_aTuning[g_Config.m_ClDummy].m_HookLength);
+				float DragSpeed = m_pWorld->m_aTuning[g_Config.m_ClDummy].m_HookDragSpeed;
 
 				Temp.x = SaturatedAdd(-DragSpeed, DragSpeed, FlagVel.x, Accel * Dir.x * 1.5f);
 				Temp.y = SaturatedAdd(-DragSpeed, DragSpeed, FlagVel.y, Accel * Dir.y * 1.5f);

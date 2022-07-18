@@ -30,10 +30,7 @@ CGameWorld::CGameWorld()
 
 CGameWorld::~CGameWorld()
 {
-	// delete all entities
-	for(auto &pFirstEntityType : m_apFirstEntityTypes)
-		while(pFirstEntityType)
-			delete pFirstEntityType;
+	Clear();
 	if(m_pChild && m_pChild->m_pParent == this)
 	{
 		OnModified();
@@ -143,9 +140,18 @@ void CGameWorld::RemoveEntity(CEntity *pEnt)
 	pEnt->m_pNextTypeEntity = 0;
 	pEnt->m_pPrevTypeEntity = 0;
 
-	if(m_IsValidCopy && m_pParent && m_pParent->m_pChild == this && pEnt->m_pParent)
-		pEnt->m_pParent->m_DestroyTick = GameTick();
-	pEnt->m_pParent = 0;
+	if(pEnt->m_pParent)
+	{
+		if(m_IsValidCopy && m_pParent && m_pParent->m_pChild == this)
+			pEnt->m_pParent->m_DestroyTick = GameTick();
+		pEnt->m_pParent->m_pChild = nullptr;
+		pEnt->m_pParent = nullptr;
+	}
+	if(pEnt->m_pChild)
+	{
+		pEnt->m_pChild->m_pParent = nullptr;
+		pEnt->m_pChild = nullptr;
+	}
 }
 
 void CGameWorld::RemoveCharacter(CCharacter *pChar)
@@ -205,17 +211,17 @@ void CGameWorld::Tick()
 	{
 		for(int j = 0; j < MAX_CLIENTS; ++j)
 		{
-			if(Switcher.m_EndTick[j] <= GameTick() && Switcher.m_Type[j] == TILE_SWITCHTIMEDOPEN)
+			if(Switcher.m_aEndTick[j] <= GameTick() && Switcher.m_aType[j] == TILE_SWITCHTIMEDOPEN)
 			{
-				Switcher.m_Status[j] = false;
-				Switcher.m_EndTick[j] = 0;
-				Switcher.m_Type[j] = TILE_SWITCHCLOSE;
+				Switcher.m_aStatus[j] = false;
+				Switcher.m_aEndTick[j] = 0;
+				Switcher.m_aType[j] = TILE_SWITCHCLOSE;
 			}
-			else if(Switcher.m_EndTick[j] <= GameTick() && Switcher.m_Type[j] == TILE_SWITCHTIMEDCLOSE)
+			else if(Switcher.m_aEndTick[j] <= GameTick() && Switcher.m_aType[j] == TILE_SWITCHTIMEDCLOSE)
 			{
-				Switcher.m_Status[j] = true;
-				Switcher.m_EndTick[j] = 0;
-				Switcher.m_Type[j] = TILE_SWITCHOPEN;
+				Switcher.m_aStatus[j] = true;
+				Switcher.m_aEndTick[j] = 0;
+				Switcher.m_aType[j] = TILE_SWITCHOPEN;
 			}
 		}
 	}
@@ -290,19 +296,19 @@ void CGameWorld::ReleaseHooked(int ClientID)
 	CCharacter *pChr = (CCharacter *)CGameWorld::FindFirst(CGameWorld::ENTTYPE_CHARACTER);
 	for(; pChr; pChr = (CCharacter *)pChr->TypeNext())
 	{
-		CCharacterCore *Core = pChr->Core();
-		if(Core->m_HookedPlayer == ClientID)
+		CCharacterCore *pCore = pChr->Core();
+		if(pCore->m_HookedPlayer == ClientID)
 		{
-			Core->SetHookedPlayer(-1);
-			Core->m_HookState = HOOK_RETRACTED;
-			Core->m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+			pCore->SetHookedPlayer(-1);
+			pCore->m_HookState = HOOK_RETRACTED;
+			pCore->m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
 		}
 	}
 }
 
 CTuningParams *CGameWorld::Tuning()
 {
-	return &m_Core.m_Tuning[g_Config.m_ClDummy];
+	return &m_Core.m_aTuning[g_Config.m_ClDummy];
 }
 
 CEntity *CGameWorld::GetEntity(int ID, int EntityType)
@@ -340,14 +346,14 @@ void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage,
 
 		float Dmg = Strength * l;
 		if((int)Dmg)
-			if((GetCharacterByID(Owner) ? !(GetCharacterByID(Owner)->m_Hit & CCharacter::DISABLE_HIT_GRENADE) : g_Config.m_SvHit || NoDamage) || Owner == pChar->GetCID())
+			if((GetCharacterByID(Owner) ? !GetCharacterByID(Owner)->GrenadeHitDisabled() : g_Config.m_SvHit || NoDamage) || Owner == pChar->GetCID())
 			{
 				if(Owner != -1 && !pChar->CanCollide(Owner))
 					continue;
 				if(Owner == -1 && ActivatedTeam != -1 && pChar->Team() != ActivatedTeam)
 					continue;
 				pChar->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
-				if(GetCharacterByID(Owner) ? GetCharacterByID(Owner)->m_Hit & CCharacter::DISABLE_HIT_GRENADE : !g_Config.m_SvHit || NoDamage)
+				if(GetCharacterByID(Owner) ? GetCharacterByID(Owner)->GrenadeHitDisabled() : !g_Config.m_SvHit || NoDamage)
 					break;
 			}
 	}
@@ -365,17 +371,17 @@ void CGameWorld::NetObjBegin()
 	OnModified();
 }
 
-void CGameWorld::NetCharAdd(int ObjID, CNetObj_Character *pCharObj, CNetObj_DDNetCharacter *pExtended, CNetObj_DDNetCharacterDisplayInfo *pExtendedDisplayInfo, int GameTeam, bool IsLocal)
+void CGameWorld::NetCharAdd(int ObjID, CNetObj_Character *pCharObj, CNetObj_DDNetCharacter *pExtended, int GameTeam, bool IsLocal)
 {
 	CCharacter *pChar;
 	if((pChar = (CCharacter *)GetEntity(ObjID, ENTTYPE_CHARACTER)))
 	{
-		pChar->Read(pCharObj, pExtended, pExtendedDisplayInfo, IsLocal);
+		pChar->Read(pCharObj, pExtended, IsLocal);
 		pChar->Keep();
 	}
 	else
 	{
-		pChar = new CCharacter(this, ObjID, pCharObj, pExtended, pExtendedDisplayInfo);
+		pChar = new CCharacter(this, ObjID, pCharObj, pExtended);
 		InsertEntity(pChar);
 	}
 
@@ -547,15 +553,13 @@ void CGameWorld::CopyWorld(CGameWorld *pFrom)
 	m_WorldConfig = pFrom->m_WorldConfig;
 	for(int i = 0; i < 2; i++)
 	{
-		m_Core.m_Tuning[i] = pFrom->m_Core.m_Tuning[i];
+		m_Core.m_aTuning[i] = pFrom->m_Core.m_aTuning[i];
 	}
 	m_pTuningList = pFrom->m_pTuningList;
 	m_Teams = pFrom->m_Teams;
 	m_Core.m_vSwitchers = pFrom->m_Core.m_vSwitchers;
 	// delete the previous entities
-	for(auto &pFirstEntityType : m_apFirstEntityTypes)
-		while(pFirstEntityType)
-			delete pFirstEntityType;
+	Clear();
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		m_apCharacters[i] = 0;
@@ -578,6 +582,7 @@ void CGameWorld::CopyWorld(CGameWorld *pFrom)
 			if(pCopy)
 			{
 				pCopy->m_pParent = pEnt;
+				pEnt->m_pChild = pCopy;
 				this->InsertEntity(pCopy);
 			}
 		}

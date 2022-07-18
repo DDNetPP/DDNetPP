@@ -4,6 +4,7 @@
 #include <base/system.h>
 
 #include <engine/demo.h>
+#include <engine/favorites.h>
 #include <engine/friends.h>
 #include <engine/ghost.h>
 #include <engine/graphics.h>
@@ -69,7 +70,7 @@ void CMenus::RenderGame(CUIRect MainView)
 	static int s_DummyButton = 0;
 	if(!Client()->DummyAllowed())
 	{
-		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button, 0, 15, 5.0f, 0.0f, vec4(1.0f, 0.5f, 0.5f, 0.75f), vec4(1, 0.5f, 0.5f, 0.5f));
+		DoButton_Menu(&s_DummyButton, Localize("Connect Dummy"), 1, &Button, nullptr, CUI::CORNER_ALL, 5.0f, 0.0f, vec4(1.0f, 0.5f, 0.5f, 0.75f), vec4(1, 0.5f, 0.5f, 0.5f));
 	}
 	else if(DummyConnecting)
 	{
@@ -237,7 +238,7 @@ void CMenus::RenderPlayers(CUIRect MainView)
 
 	int TotalPlayers = 0;
 
-	for(auto &pInfoByName : m_pClient->m_Snap.m_paInfoByName)
+	for(auto &pInfoByName : m_pClient->m_Snap.m_apInfoByName)
 	{
 		if(!pInfoByName)
 			continue;
@@ -261,10 +262,10 @@ void CMenus::RenderPlayers(CUIRect MainView)
 
 	for(int i = 0, Count = 0; i < MAX_CLIENTS; ++i)
 	{
-		if(!m_pClient->m_Snap.m_paInfoByName[i])
+		if(!m_pClient->m_Snap.m_apInfoByName[i])
 			continue;
 
-		int Index = m_pClient->m_Snap.m_paInfoByName[i]->m_ClientID;
+		int Index = m_pClient->m_Snap.m_apInfoByName[i]->m_ClientID;
 
 		if(Index == m_pClient->m_Snap.m_LocalClientID)
 			continue;
@@ -402,15 +403,16 @@ void CMenus::RenderServerInfo(CUIRect MainView)
 
 	{
 		CUIRect Button;
-		int IsFavorite = ServerBrowser()->IsFavorite(CurrentServerInfo.m_NetAddr);
+		NETADDR ServerAddr = Client()->ServerAddress();
+		TRISTATE IsFavorite = Favorites()->IsFavorite(&ServerAddr, 1);
 		ServerInfo.HSplitBottom(20.0f, &ServerInfo, &Button);
 		static int s_AddFavButton = 0;
-		if(DoButton_CheckBox(&s_AddFavButton, Localize("Favorite"), IsFavorite, &Button))
+		if(DoButton_CheckBox(&s_AddFavButton, Localize("Favorite"), IsFavorite != TRISTATE::NONE, &Button))
 		{
-			if(IsFavorite)
-				ServerBrowser()->RemoveFavorite(CurrentServerInfo.m_NetAddr);
+			if(IsFavorite != TRISTATE::NONE)
+				Favorites()->Remove(&ServerAddr, 1);
 			else
-				ServerBrowser()->AddFavorite(CurrentServerInfo.m_NetAddr);
+				Favorites()->Add(&ServerAddr, 1);
 		}
 	}
 
@@ -507,7 +509,7 @@ bool CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 	int NumOptions = 0;
 	int Selected = 0;
 	static int aPlayerIDs[MAX_CLIENTS];
-	for(auto &pInfoByName : m_pClient->m_Snap.m_paInfoByName)
+	for(auto &pInfoByName : m_pClient->m_Snap.m_apInfoByName)
 	{
 		if(!pInfoByName)
 			continue;
@@ -648,7 +650,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 			else if(s_ControlPage == 1)
 			{
 				if(m_CallvoteSelectedPlayer >= 0 && m_CallvoteSelectedPlayer < MAX_CLIENTS &&
-					m_pClient->m_Snap.m_paPlayerInfos[m_CallvoteSelectedPlayer])
+					m_pClient->m_Snap.m_apPlayerInfos[m_CallvoteSelectedPlayer])
 				{
 					m_pClient->m_Voting.CallvoteKick(m_CallvoteSelectedPlayer, m_aCallvoteReason);
 					SetActive(false);
@@ -657,7 +659,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 			else if(s_ControlPage == 2)
 			{
 				if(m_CallvoteSelectedPlayer >= 0 && m_CallvoteSelectedPlayer < MAX_CLIENTS &&
-					m_pClient->m_Snap.m_paPlayerInfos[m_CallvoteSelectedPlayer])
+					m_pClient->m_Snap.m_apPlayerInfos[m_CallvoteSelectedPlayer])
 				{
 					m_pClient->m_Voting.CallvoteSpectate(m_CallvoteSelectedPlayer, m_aCallvoteReason);
 					SetActive(false);
@@ -700,7 +702,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 				else if(s_ControlPage == 1)
 				{
 					if(m_CallvoteSelectedPlayer >= 0 && m_CallvoteSelectedPlayer < MAX_CLIENTS &&
-						m_pClient->m_Snap.m_paPlayerInfos[m_CallvoteSelectedPlayer])
+						m_pClient->m_Snap.m_apPlayerInfos[m_CallvoteSelectedPlayer])
 					{
 						m_pClient->m_Voting.CallvoteKick(m_CallvoteSelectedPlayer, m_aCallvoteReason, true);
 						SetActive(false);
@@ -709,7 +711,7 @@ void CMenus::RenderServerControl(CUIRect MainView)
 				else if(s_ControlPage == 2)
 				{
 					if(m_CallvoteSelectedPlayer >= 0 && m_CallvoteSelectedPlayer < MAX_CLIENTS &&
-						m_pClient->m_Snap.m_paPlayerInfos[m_CallvoteSelectedPlayer])
+						m_pClient->m_Snap.m_apPlayerInfos[m_CallvoteSelectedPlayer])
 					{
 						m_pClient->m_Voting.CallvoteSpectate(m_CallvoteSelectedPlayer, m_aCallvoteReason, true);
 						SetActive(false);
@@ -848,15 +850,15 @@ int CMenus::GhostlistFetchCallback(const char *pName, int IsDir, int StorageType
 		return 0;
 
 	CGhostItem Item;
-	str_copy(Item.m_aFilename, aFilename, sizeof(Item.m_aFilename));
-	str_copy(Item.m_aPlayer, Info.m_aOwner, sizeof(Item.m_aPlayer));
+	str_copy(Item.m_aFilename, aFilename);
+	str_copy(Item.m_aPlayer, Info.m_aOwner);
 	Item.m_Time = Info.m_Time;
 	if(Item.m_Time > 0)
 		pSelf->m_vGhosts.push_back(Item);
 
 	if(time_get_nanoseconds() - pSelf->m_GhostPopulateStartTime > 500ms)
 	{
-		pSelf->GameClient()->m_Menus.RenderLoading(false, false);
+		pSelf->GameClient()->m_Menus.RenderLoading(Localize("Loading ghost files"), "", 0, false);
 	}
 
 	return 0;
@@ -937,8 +939,8 @@ void CMenus::RenderGhost(CUIRect MainView)
 
 	struct CColumn
 	{
-		int m_Id;
 		CLocConstString m_Caption;
+		int m_Id;
 		float m_Width;
 		CUIRect m_Rect;
 		CUIRect m_Spacer;
@@ -952,10 +954,10 @@ void CMenus::RenderGhost(CUIRect MainView)
 	};
 
 	static CColumn s_aCols[] = {
-		{-1, " ", 2.0f, {0}, {0}},
-		{COL_ACTIVE, " ", 30.0f, {0}, {0}},
-		{COL_NAME, "Name", 300.0f, {0}, {0}}, // Localize("Name")
-		{COL_TIME, "Time", 200.0f, {0}, {0}}, // Localize("Time")
+		{" ", -1, 2.0f, {0}, {0}},
+		{" ", COL_ACTIVE, 30.0f, {0}, {0}},
+		{"Name", COL_NAME, 300.0f, {0}, {0}}, // Localize("Name")
+		{"Time", COL_TIME, 200.0f, {0}, {0}}, // Localize("Time")
 	};
 
 	int NumCols = std::size(s_aCols);

@@ -401,7 +401,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 	if(GetCharacter() && GetCharacter()->m_IsBomb) //bomb (keep bomb 1st. Because bomb over all rainbow and other stuff shoudl be ignored if bomb)
 	{
-		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
 
 		if(GameServer()->m_BombTick < 75) //red glowup right before explode
@@ -456,7 +456,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 	}
 	else if(m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
-		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_SkinName);
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
 		m_RainbowColor = (m_RainbowColor + 1) % 256;
 		pClientInfo->m_ColorBody = m_RainbowColor * 0x010000 + 0xff00;
@@ -1223,7 +1223,7 @@ void CPlayer::UpdateLastToucher(int ID)
 	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
 	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
 	m_LastToucherTeeInfos.m_ColorFeet = pToucher->m_TeeInfos.m_ColorFeet;
-	str_copy(m_LastToucherTeeInfos.m_SkinName, pToucher->m_TeeInfos.m_SkinName, sizeof(pToucher->m_TeeInfos.m_SkinName));
+	str_copy(m_LastToucherTeeInfos.m_aSkinName, pToucher->m_TeeInfos.m_aSkinName, sizeof(pToucher->m_TeeInfos.m_aSkinName));
 	m_LastToucherTeeInfos.m_UseCustomColor = pToucher->m_TeeInfos.m_UseCustomColor;
 }
 

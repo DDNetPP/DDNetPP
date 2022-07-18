@@ -136,7 +136,7 @@ void CStatboard::RenderGlobalStats()
 	int NumPlayers = 0;
 
 	// sort red or dm players by score
-	for(const auto *pInfo : m_pClient->m_Snap.m_paInfoByScore)
+	for(const auto *pInfo : m_pClient->m_Snap.m_apInfoByScore)
 	{
 		if(!pInfo || !m_pClient->m_aStats[pInfo->m_ClientID].IsActive() || m_pClient->m_aClients[pInfo->m_ClientID].m_Team != TEAM_RED)
 			continue;
@@ -147,7 +147,7 @@ void CStatboard::RenderGlobalStats()
 	// sort blue players by score after
 	if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)
 	{
-		for(const auto *pInfo : m_pClient->m_Snap.m_paInfoByScore)
+		for(const auto *pInfo : m_pClient->m_Snap.m_apInfoByScore)
 		{
 			if(!pInfo || !m_pClient->m_aStats[pInfo->m_ClientID].IsActive() || m_pClient->m_aClients[pInfo->m_ClientID].m_Team != TEAM_BLUE)
 				continue;
@@ -189,12 +189,7 @@ void CStatboard::RenderGlobalStats()
 
 	Graphics()->MapScreen(0, 0, StatboardWidth, StatboardHeight);
 
-	Graphics()->BlendNormal();
-	Graphics()->TextureClear();
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(0, 0, 0, 0.5f);
-	RenderTools()->DrawRoundRect(x - 10.f, y - 10.f, StatboardContentWidth, StatboardContentHeight, 17.0f);
-	Graphics()->QuadsEnd();
+	RenderTools()->DrawRect(x - 10.f, y - 10.f, StatboardContentWidth, StatboardContentHeight, ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f), CUI::CORNER_ALL, 17.0f);
 
 	float tw;
 	int px = 325;
@@ -272,11 +267,7 @@ void CStatboard::RenderGlobalStats()
 		if(m_pClient->m_Snap.m_LocalClientID == pInfo->m_ClientID || (m_pClient->m_Snap.m_SpecInfo.m_Active && pInfo->m_ClientID == m_pClient->m_Snap.m_SpecInfo.m_SpectatorID))
 		{
 			// background so it's easy to find the local player
-			Graphics()->TextureClear();
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1, 1, 1, 0.25f);
-			RenderTools()->DrawRoundRect(x - 10, y + ContentLineOffset / 2, StatboardContentWidth, LineHeight - ContentLineOffset, 0);
-			Graphics()->QuadsEnd();
+			RenderTools()->DrawRect(x - 10, y + ContentLineOffset / 2, StatboardContentWidth, LineHeight - ContentLineOffset, ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f), CUI::CORNER_NONE, 0.0f);
 		}
 
 		CTeeRenderInfo Teeinfo = m_pClient->m_aClients[pInfo->m_ClientID].m_RenderInfo;
@@ -454,7 +445,7 @@ void CStatboard::FormatStats(char *pDest, size_t DestSize)
 	int NumPlayers = 0;
 
 	// sort red or dm players by score
-	for(const auto *pInfo : m_pClient->m_Snap.m_paInfoByScore)
+	for(const auto *pInfo : m_pClient->m_Snap.m_apInfoByScore)
 	{
 		if(!pInfo || !m_pClient->m_aStats[pInfo->m_ClientID].IsActive() || m_pClient->m_aClients[pInfo->m_ClientID].m_Team != TEAM_RED)
 			continue;
@@ -465,7 +456,7 @@ void CStatboard::FormatStats(char *pDest, size_t DestSize)
 	// sort blue players by score after
 	if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)
 	{
-		for(const auto *pInfo : m_pClient->m_Snap.m_paInfoByScore)
+		for(const auto *pInfo : m_pClient->m_Snap.m_apInfoByScore)
 		{
 			if(!pInfo || !m_pClient->m_aStats[pInfo->m_ClientID].IsActive() || m_pClient->m_aClients[pInfo->m_ClientID].m_Team != TEAM_BLUE)
 				continue;

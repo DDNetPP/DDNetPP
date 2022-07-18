@@ -66,29 +66,24 @@ public:
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
 
 	template<class T, typename std::enable_if<!protocol7::is_sixup<T>::value, int>::type = 0>
-	inline int SendPackMsg(T *pMsg, int Flags, int ClientID)
+	inline int SendPackMsg(const T *pMsg, int Flags, int ClientID)
 	{
 		int Result = 0;
-		T tmp;
 		if(ClientID == -1)
 		{
 			for(int i = 0; i < MaxClients(); i++)
 				if(ClientIngame(i))
-				{
-					mem_copy(&tmp, pMsg, sizeof(T));
-					Result = SendPackMsgTranslate(&tmp, Flags, i);
-				}
+					Result = SendPackMsgTranslate(pMsg, Flags, i);
 		}
 		else
 		{
-			mem_copy(&tmp, pMsg, sizeof(T));
-			Result = SendPackMsgTranslate(&tmp, Flags, ClientID);
+			Result = SendPackMsgTranslate(pMsg, Flags, ClientID);
 		}
 		return Result;
 	}
 
 	template<class T, typename std::enable_if<protocol7::is_sixup<T>::value, int>::type = 1>
-	inline int SendPackMsg(T *pMsg, int Flags, int ClientID)
+	inline int SendPackMsg(const T *pMsg, int Flags, int ClientID)
 	{
 		int Result = 0;
 		if(ClientID == -1)
@@ -104,51 +99,57 @@ public:
 	}
 
 	template<class T>
-	int SendPackMsgTranslate(T *pMsg, int Flags, int ClientID)
+	int SendPackMsgTranslate(const T *pMsg, int Flags, int ClientID)
 	{
 		return SendPackMsgOne(pMsg, Flags, ClientID);
 	}
 
-	int SendPackMsgTranslate(CNetMsg_Sv_Emoticon *pMsg, int Flags, int ClientID)
+	int SendPackMsgTranslate(const CNetMsg_Sv_Emoticon *pMsg, int Flags, int ClientID)
 	{
-		return Translate(pMsg->m_ClientID, ClientID) && SendPackMsgOne(pMsg, Flags, ClientID);
+		CNetMsg_Sv_Emoticon MsgCopy;
+		mem_copy(&MsgCopy, pMsg, sizeof(MsgCopy));
+		return Translate(MsgCopy.m_ClientID, ClientID) && SendPackMsgOne(&MsgCopy, Flags, ClientID);
 	}
 
-	char msgbuf[1000];
-
-	int SendPackMsgTranslate(CNetMsg_Sv_Chat *pMsg, int Flags, int ClientID)
+	int SendPackMsgTranslate(const CNetMsg_Sv_Chat *pMsg, int Flags, int ClientID)
 	{
-		if(pMsg->m_ClientID >= 0 && !Translate(pMsg->m_ClientID, ClientID))
+		CNetMsg_Sv_Chat MsgCopy;
+		mem_copy(&MsgCopy, pMsg, sizeof(MsgCopy));
+
+		char aBuf[1000];
+		if(MsgCopy.m_ClientID >= 0 && !Translate(MsgCopy.m_ClientID, ClientID))
 		{
-			str_format(msgbuf, sizeof(msgbuf), "%s: %s", ClientName(pMsg->m_ClientID), pMsg->m_pMessage);
-			pMsg->m_pMessage = msgbuf;
-			pMsg->m_ClientID = VANILLA_MAX_CLIENTS - 1;
+			str_format(aBuf, sizeof(aBuf), "%s: %s", ClientName(MsgCopy.m_ClientID), MsgCopy.m_pMessage);
+			MsgCopy.m_pMessage = aBuf;
+			MsgCopy.m_ClientID = VANILLA_MAX_CLIENTS - 1;
 		}
 
 		if(IsSixup(ClientID))
 		{
 			protocol7::CNetMsg_Sv_Chat Msg7;
-			Msg7.m_ClientID = pMsg->m_ClientID;
-			Msg7.m_pMessage = pMsg->m_pMessage;
-			Msg7.m_Mode = pMsg->m_Team > 0 ? protocol7::CHAT_TEAM : protocol7::CHAT_ALL;
+			Msg7.m_ClientID = MsgCopy.m_ClientID;
+			Msg7.m_pMessage = MsgCopy.m_pMessage;
+			Msg7.m_Mode = MsgCopy.m_Team > 0 ? protocol7::CHAT_TEAM : protocol7::CHAT_ALL;
 			Msg7.m_TargetID = -1;
 			return SendPackMsgOne(&Msg7, Flags, ClientID);
 		}
 
-		return SendPackMsgOne(pMsg, Flags, ClientID);
+		return SendPackMsgOne(&MsgCopy, Flags, ClientID);
 	}
 
-	int SendPackMsgTranslate(CNetMsg_Sv_KillMsg *pMsg, int Flags, int ClientID)
+	int SendPackMsgTranslate(const CNetMsg_Sv_KillMsg *pMsg, int Flags, int ClientID)
 	{
-		if(!Translate(pMsg->m_Victim, ClientID))
+		CNetMsg_Sv_KillMsg MsgCopy;
+		mem_copy(&MsgCopy, pMsg, sizeof(MsgCopy));
+		if(!Translate(MsgCopy.m_Victim, ClientID))
 			return 0;
-		if(!Translate(pMsg->m_Killer, ClientID))
-			pMsg->m_Killer = pMsg->m_Victim;
-		return SendPackMsgOne(pMsg, Flags, ClientID);
+		if(!Translate(MsgCopy.m_Killer, ClientID))
+			MsgCopy.m_Killer = MsgCopy.m_Victim;
+		return SendPackMsgOne(&MsgCopy, Flags, ClientID);
 	}
 
 	template<class T>
-	int SendPackMsgOne(T *pMsg, int Flags, int ClientID)
+	int SendPackMsgOne(const T *pMsg, int Flags, int ClientID)
 	{
 		dbg_assert(ClientID != -1, "SendPackMsgOne called with -1");
 		CMsgPacker Packer(pMsg->MsgID(), false, protocol7::is_sixup<T>::value);
@@ -248,7 +249,7 @@ public:
 	virtual bool DnsblWhite(int ClientID) = 0;
 	virtual bool DnsblPending(int ClientID) = 0;
 	virtual bool DnsblBlack(int ClientID) = 0;
-	virtual const char *GetAnnouncementLine(char const *FileName) = 0;
+	virtual const char *GetAnnouncementLine(char const *pFileName) = 0;
 	virtual bool ClientPrevIngame(int ClientID) = 0;
 	virtual const char *GetNetErrorString(int ClientID) = 0;
 	virtual void ResetNetErrorString(int ClientID) = 0;
@@ -311,6 +312,7 @@ public:
 
 	virtual void OnClientEnter(int ClientID, bool Silent = false) = 0;
 	virtual void OnClientDrop(int ClientID, const char *pReason, bool Silent = false) = 0;
+	virtual void OnClientPrepareInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientDirectInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientPredictedInput(int ClientID, void *pInput) = 0;
 	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput) = 0;

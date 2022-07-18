@@ -113,10 +113,10 @@ void CWeapon::Pickup()
 		if((m_Jetpack || m_SpreadGun) && !pChar->GetWeaponGot(WEAPON_GUN))
 			return;
 
-		if(m_SpreadGun && m_Jetpack && pChar->m_Jetpack && (pChar->m_autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
+		if(m_SpreadGun && m_Jetpack && pChar->Core()->m_Jetpack && (pChar->m_autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
 			return;
 
-		if(!m_SpreadGun && m_Jetpack && pChar->m_Jetpack)
+		if(!m_SpreadGun && m_Jetpack && pChar->Core()->m_Jetpack)
 			return;
 
 		if(!m_Jetpack && m_SpreadGun && (pChar->m_autospreadgun || pChar->GetPlayer()->m_InfAutoSpreadGun))
@@ -141,9 +141,9 @@ void CWeapon::Pickup()
 			pChar->m_autospreadgun = true;
 			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a spread gun");
 		}
-		if(m_Jetpack && !pChar->m_Jetpack)
+		if(m_Jetpack && !pChar->Core()->m_Jetpack)
 		{
-			pChar->m_Jetpack = true;
+			pChar->Core()->m_Jetpack = true;
 			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a jetpack gun");
 		}
 

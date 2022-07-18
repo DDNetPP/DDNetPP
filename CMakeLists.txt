@@ -973,6 +973,7 @@ set(EXPECTED_DATA
   audio/wp_switch-01.wv
   audio/wp_switch-02.wv
   audio/wp_switch-03.wv
+  autoexec_server.cfg
   blob.png
   censorlist.txt
   console.png
@@ -1535,7 +1536,7 @@ set(EXPECTED_DATA
   wordlist.txt
 )
 
-set_glob(DATA GLOB_RECURSE "frag;json;map;otf;png;rules;ttf;txt;vert;wv" data ${EXPECTED_DATA})
+set_glob(DATA GLOB_RECURSE "cfg;frag;json;map;otf;png;rules;ttf;txt;vert;wv" data ${EXPECTED_DATA})
 
 ########################################################################
 # COPY DATA AND SHARED LIBS
@@ -1694,6 +1695,7 @@ set_src(BASE GLOB_RECURSE src/base
   system_ddpp.cpp
   system_ddpp.h
   tl/threading.h
+  types.h
   unicode/confusables.cpp
   unicode/confusables.h
   unicode/confusables_data.h
@@ -1711,6 +1713,7 @@ set_src(ENGINE_INTERFACE GLOB src/engine
   discord.h
   editor.h
   engine.h
+  favorites.h
   friends.h
   ghost.h
   graphics.h
@@ -1960,6 +1963,7 @@ if(CLIENT)
     demoedit.cpp
     demoedit.h
     discord.cpp
+    favorites.cpp
     friends.cpp
     friends.h
     ghost.cpp

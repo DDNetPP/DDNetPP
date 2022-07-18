@@ -84,7 +84,7 @@ void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
 		else if(Seconds == -2)
 		{
-			pChr->m_DeepFreeze = true;
+			pChr->Core()->m_DeepFrozen = true;
 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
 		}
 		else
@@ -105,15 +105,15 @@ void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(!pChr)
 		return;
-	if(pChr->m_DeepFreeze && !Warning)
+	if(pChr->Core()->m_DeepFrozen && !Warning)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "warning", "This client is deeply frozen, repeat the command to defrost him.");
 		Warning = true;
 		return;
 	}
-	if(pChr->m_DeepFreeze && Warning)
+	if(pChr->Core()->m_DeepFrozen && Warning)
 	{
-		pChr->m_DeepFreeze = false;
+		pChr->Core()->m_DeepFrozen = false;
 		Warning = false;
 	}
 	pChr->m_FreezeTime = 2;
@@ -205,7 +205,7 @@ void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if(pPlayer && pResult->GetString(0)[0] && pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_SkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_SkinName));
+		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
 }
 
 void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
@@ -235,7 +235,7 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
 	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_SkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_SkinName));
+		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
 }
 
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)

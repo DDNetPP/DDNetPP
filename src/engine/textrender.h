@@ -105,39 +105,6 @@ public:
 	int m_CursorCharacter;
 };
 
-struct STextRenderColor
-{
-	STextRenderColor() {}
-	STextRenderColor(float r, float g, float b, float a)
-	{
-		Set(r, g, b, a);
-	}
-	STextRenderColor(const ColorRGBA &TextColorRGBA)
-	{
-		Set(TextColorRGBA.r, TextColorRGBA.g, TextColorRGBA.b, TextColorRGBA.a);
-	}
-
-	void Set(float r, float g, float b, float a)
-	{
-		m_R = r;
-		m_G = g;
-		m_B = b;
-		m_A = a;
-	}
-
-	bool operator!=(const STextRenderColor &Other)
-	{
-		return m_R != Other.m_R || m_G != Other.m_G || m_B != Other.m_B || m_A != Other.m_A;
-	}
-
-	operator ColorRGBA()
-	{
-		return ColorRGBA(m_R, m_G, m_B, m_A);
-	}
-
-	float m_R, m_G, m_B, m_A;
-};
-
 class ITextRender : public IInterface
 {
 	MACRO_INTERFACE("textrender", 0)
@@ -163,17 +130,19 @@ public:
 
 	//
 	virtual void TextEx(CTextCursor *pCursor, const char *pText, int Length) = 0;
-	virtual int CreateTextContainer(CTextCursor *pCursor, const char *pText, int Length = -1) = 0;
-	virtual void AppendTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1) = 0;
+	virtual bool CreateTextContainer(int &TextContainerIndex, CTextCursor *pCursor, const char *pText, int Length = -1) = 0;
+	virtual void AppendTextContainer(int TextContainerIndex, CTextCursor *pCursor, const char *pText, int Length = -1) = 0;
+	// either creates a new text container or appends to a existing one
+	virtual bool CreateOrAppendTextContainer(int &TextContainerIndex, CTextCursor *pCursor, const char *pText, int Length = -1) = 0;
 	// just deletes and creates text container
-	virtual void RecreateTextContainer(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1) = 0;
-	virtual void RecreateTextContainerSoft(CTextCursor *pCursor, int TextContainerIndex, const char *pText, int Length = -1) = 0;
-	virtual void DeleteTextContainer(int TextContainerIndex) = 0;
+	virtual void RecreateTextContainer(CTextCursor *pCursor, int &TextContainerIndex, const char *pText, int Length = -1) = 0;
+	virtual void RecreateTextContainerSoft(CTextCursor *pCursor, int &TextContainerIndex, const char *pText, int Length = -1) = 0;
+	virtual void DeleteTextContainer(int &TextContainerIndex) = 0;
 
 	virtual void UploadTextContainer(int TextContainerIndex) = 0;
 
-	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor) = 0;
-	virtual void RenderTextContainer(int TextContainerIndex, STextRenderColor *pTextColor, STextRenderColor *pTextOutlineColor, float X, float Y) = 0;
+	virtual void RenderTextContainer(int TextContainerIndex, const ColorRGBA &TextColor, const ColorRGBA &TextOutlineColor) = 0;
+	virtual void RenderTextContainer(int TextContainerIndex, const ColorRGBA &TextColor, const ColorRGBA &TextOutlineColor, float X, float Y) = 0;
 
 	virtual void UploadEntityLayerText(void *pTexBuff, int ImageColorChannelCount, int TexWidth, int TexHeight, int TexSubWidth, int TexSubHeight, const char *pText, int Length, float x, float y, int FontHeight) = 0;
 	virtual int AdjustFontSize(const char *pText, int TextLength, int MaxSize, int MaxWidth) = 0;

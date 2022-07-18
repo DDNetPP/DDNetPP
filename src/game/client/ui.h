@@ -144,8 +144,8 @@ public:
 
 		CTextCursor m_Cursor;
 
-		STextRenderColor m_TextColor;
-		STextRenderColor m_TextOutlineColor;
+		ColorRGBA m_TextColor;
+		ColorRGBA m_TextOutlineColor;
 
 		SUIElementRect();
 
@@ -239,6 +239,7 @@ public:
 
 	enum
 	{
+		CORNER_NONE = 0,
 		CORNER_TL = 1,
 		CORNER_TR = 2,
 		CORNER_BL = 4,
