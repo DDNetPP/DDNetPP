@@ -1184,7 +1184,7 @@ static int priv_net_extract(const char *hostname, char *host, int max_host, int 
 	return 0;
 }
 
-int net_host_lookup_impl(const char *hostname, NETADDR *addr, int types, int logtype)
+int net_host_lookup_impl(const char *hostname, NETADDR *addr, int types)
 {
 	struct addrinfo hints;
 	struct addrinfo *result = NULL;
@@ -1195,16 +1195,7 @@ int net_host_lookup_impl(const char *hostname, NETADDR *addr, int types, int log
 	if(priv_net_extract(hostname, host, sizeof(host), &port))
 		return -1;
 
-	if(logtype == 1)
-	{
-		dbg_msg("host lookup", "host='%s' port=%d %d", host, port, types);
-	}
-	else
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "[host lookup] host='%s' port=%d %d", host, port, types);
-		ddpp_log(DDPP_LOG_MASTER, aBuf);
-	}
+	dbg_msg("host_lookup", "host='%s' port=%d %d", host, port, types);
 
 	mem_zero(&hints, sizeof(hints));
 
@@ -1232,7 +1223,7 @@ int net_host_lookup_impl(const char *hostname, NETADDR *addr, int types, int log
 	return 0;
 }
 
-int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
+int net_host_lookup(const char *hostname, NETADDR *addr, int types)
 {
 	const char *ws_hostname = str_startswith(hostname, "ws://");
 	if(ws_hostname)
@@ -1241,14 +1232,14 @@ int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype)
 		{
 			return -1;
 		}
-		int result = net_host_lookup_impl(ws_hostname, addr, NETTYPE_IPV4, logtype);
+		int result = net_host_lookup_impl(ws_hostname, addr, NETTYPE_IPV4);
 		if(result == 0 && addr->type == NETTYPE_IPV4)
 		{
 			addr->type = NETTYPE_WEBSOCKET_IPV4;
 		}
 		return result;
 	}
-	return net_host_lookup_impl(hostname, addr, types & ~NETTYPE_WEBSOCKET_IPV4, logtype);
+	return net_host_lookup_impl(hostname, addr, types & ~NETTYPE_WEBSOCKET_IPV4);
 }
 
 static int parse_int(int *out, const char **str)

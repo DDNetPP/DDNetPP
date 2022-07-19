@@ -24,7 +24,7 @@ int main(int argc, const char **argv)
 	}
 
 	NETADDR Addr;
-	if(net_host_lookup(argv[1], &Addr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs))
+	if(net_host_lookup(argv[1], &Addr, NETTYPE_ALL))
 	{
 		fprintf(stderr, "host lookup failed\n");
 		return 1;

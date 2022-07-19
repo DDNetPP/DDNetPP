@@ -20,7 +20,7 @@ CHostLookup::CHostLookup(const char *pHostname, int Nettype)
 
 void CHostLookup::Run()
 {
-	m_Result = net_host_lookup(m_aHostname, &m_Addr, m_Nettype, g_Config.m_SvMasterServerLogs);
+	m_Result = net_host_lookup(m_aHostname, &m_Addr, m_Nettype);
 }
 
 class CEngine : public IEngine

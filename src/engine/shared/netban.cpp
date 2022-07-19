@@ -301,8 +301,8 @@ void CNetBan::Init(IConsole *pConsole, IStorage *pStorage)
 	m_BanAddrPool.Reset();
 	m_BanRangePool.Reset();
 
-	net_host_lookup("localhost", &m_LocalhostIPV4, NETTYPE_IPV4, g_Config.m_SvMasterServerLogs);
-	net_host_lookup("localhost", &m_LocalhostIPV6, NETTYPE_IPV6, g_Config.m_SvMasterServerLogs);
+	net_host_lookup("localhost", &m_LocalhostIPV4, NETTYPE_IPV4);
+	net_host_lookup("localhost", &m_LocalhostIPV6, NETTYPE_IPV6);
 
 	Console()->Register("ban", "s[ip|id] ?i[minutes] r[reason]", CFGFLAG_SERVER | CFGFLAG_MASTER | CFGFLAG_STORE, ConBan, this, "Ban ip for x minutes for any reason");
 	Console()->Register("ban_range", "s[first ip] s[last ip] ?i[minutes] r[reason]", CFGFLAG_SERVER | CFGFLAG_MASTER | CFGFLAG_STORE, ConBanRange, this, "Ban ip range for x minutes for any reason");

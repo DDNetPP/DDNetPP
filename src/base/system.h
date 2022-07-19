@@ -870,7 +870,7 @@ int net_init();
 	Returns:
 		0 on success.
 */
-int net_host_lookup(const char *hostname, NETADDR *addr, int types, int logtype);
+int net_host_lookup(const char *hostname, NETADDR *addr, int types);
 
 /**
  * Compares two network addresses.

@@ -774,7 +774,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	while((pNextAddr = str_next_token(pNextAddr, ",", aBuffer, sizeof(aBuffer))))
 	{
 		NETADDR NextAddr;
-		if(net_host_lookup(aBuffer, &NextAddr, m_aNetClient[CONN_MAIN].NetType(), 0) != 0)
+		if(net_host_lookup(aBuffer, &NextAddr, m_aNetClient[CONN_MAIN].NetType()) != 0)
 		{
 			log_error("client", "could not find address of %s", aBuffer);
 			continue;
@@ -798,7 +798,7 @@ void CClient::Connect(const char *pAddress, const char *pPassword)
 	if(NumConnectAddrs == 0)
 	{
 		log_error("client", "could not find any connect address, defaulting to localhost for whatever reason...");
-		net_host_lookup("localhost", &aConnectAddrs[0], m_aNetClient[CONN_MAIN].NetType(), 0);
+		net_host_lookup("localhost", &aConnectAddrs[0], m_aNetClient[CONN_MAIN].NetType());
 		NumConnectAddrs = 1;
 	}
 
@@ -3087,7 +3087,7 @@ void CClient::Run()
 	// open socket
 	{
 		NETADDR BindAddr;
-		if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL, 0) == 0)
+		if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
 		{
 			// got bindaddr
 			BindAddr.type = NETTYPE_ALL;

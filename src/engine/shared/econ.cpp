@@ -64,7 +64,7 @@ void CEcon::Init(CConfig *pConfig, IConsole *pConsole, CNetBan *pNetBan)
 		return;
 
 	NETADDR BindAddr;
-	if(g_Config.m_EcBindaddr[0] && net_host_lookup(g_Config.m_EcBindaddr, &BindAddr, NETTYPE_ALL, g_Config.m_SvMasterServerLogs) == 0)
+	if(g_Config.m_EcBindaddr[0] && net_host_lookup(g_Config.m_EcBindaddr, &BindAddr, NETTYPE_ALL) == 0)
 	{
 		// got bindaddr
 		BindAddr.type = NETTYPE_ALL;

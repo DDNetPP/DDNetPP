@@ -2644,7 +2644,7 @@ int CServer::Run()
 	NETADDR BindAddr;
 	int NetType = Config()->m_SvIpv4Only ? NETTYPE_IPV4 : NETTYPE_ALL;
 
-	if(!Config()->m_Bindaddr[0] || net_host_lookup(Config()->m_Bindaddr, &BindAddr, NetType, g_Config.m_SvMasterServerLogs) != 0)
+	if(!Config()->m_Bindaddr[0] || net_host_lookup(Config()->m_Bindaddr, &BindAddr, NetType) != 0)
 		mem_zero(&BindAddr, sizeof(BindAddr));
 
 	BindAddr.type = NetType;
