@@ -6,7 +6,6 @@
 #include "gamecontext.h"
 #include "teeinfo.h"
 #include <antibot/antibot_data.h>
-#include <base/ddpp_logs.h>
 #include <base/logger.h>
 #include <base/math.h>
 #include <cstring>
@@ -22,15 +21,10 @@
 
 #include <game/collision.h>
 #include <game/gamecore.h>
-#include <game/server/entities/flag.h>
-#include <new>
-
-#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
-#include <cstdio>
-#include <engine/server/server.h> // ddpp
-
 #include <game/mapitems.h>
+#include <game/server/entities/flag.h>
 #include <game/version.h>
+#include <new>
 
 #include <game/generated/protocol7.h>
 #include <game/generated/protocolglue.h>
@@ -41,6 +35,10 @@
 #include "score.h"
 
 //ChillerDragon (ddpp)
+#include "../../black_hole.h" //testy by ChillerDragon random back_hole.h file i recoved from random russian guy giving no information what it is
+#include <base/ddpp_logs.h>
+#include <cstdio>
+#include <engine/server/server.h> // ddpp
 #include <fstream>
 #include <game/server/teams.h>
 

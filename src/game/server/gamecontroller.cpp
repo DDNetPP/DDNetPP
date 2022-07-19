@@ -172,37 +172,6 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 	if(Team == TEAM_SPECTATORS)
 		return false;
 
-	/*if(IsTeamplay())
-	{
-	Eval.m_FriendlyTeam = Team;
-
-	// first try own team spawn, then normal spawn and then enemy
-	EvaluateSpawnType(&Eval, 1+(Team&1));
-	if(!Eval.m_Got)
-	{
-	EvaluateSpawnType(&Eval, 0);
-	if(!Eval.m_Got)
-	EvaluateSpawnType(&Eval, 1+((Team+1)&1));
-	}
-	}
-	else
-	{*/
-
-	//if (pPlayer->m_JailTime)
-	//{
-	//	vec2 JailSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAIL);
-
-	//	if (JailSpawn != vec2(-1, -1))
-	//	{
-	//		pPlayer->GetCharacter()->SetPosition(JailSpawn);
-	//	}
-	//	else //no jailrelease
-	//	{
-	//		EvaluateSpawnType(&Eval, 0); //tele to spawn
-	//	}
-	//}
-	//else
-	//{
 	if(g_Config.m_SvSpawntilesMode == 1)
 	{
 		if(pPlayer->m_IsInstaArena_gdm)
@@ -244,8 +213,6 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 		EvaluateSpawnType(&Eval, 1, DDTeam); //red (bloody)
 		EvaluateSpawnType(&Eval, 2, DDTeam); //blue
 	}
-	//}
-	//}
 
 	*pOutPos = Eval.m_Pos;
 	return Eval.m_Got;
@@ -663,19 +630,6 @@ bool IGameController::CanBeMovedOnBalance(int ClientID)
 
 void IGameController::Tick()
 {
-	/*if (m_FunPoint) {
-
-		CCharacter *apCloseCCharacters[MAX_CLIENTS];
-		int Num = m_pGameServer->m_World.FindEntities(m_FunPoint, 140, (CEntity**)apCloseCCharacters, 1, CGameWorld::ENTTYPE_CHARACTER);
-
-		if (Num == 1) {
-
-			m_pGameServer->CreateDeath(m_FunPoint, apCloseCCharacters[0]->GetPlayer()->GetCID(), apCloseCCharacters[0]->Teams()->TeamMask(apCloseCCharacters[0]->Team()));
-
-		}
-
-	}*/
-
 	// do warmup
 	if(m_Warmup)
 	{
@@ -693,57 +647,7 @@ void IGameController::Tick()
 			m_RoundCount++;
 		}
 	}
-	// game is Paused
-	if(GameServer()->m_World.m_Paused)
-		++m_RoundStartTick;
 
-	// check for inactive players
-	if(g_Config.m_SvInactiveKickTime > 0)
-	{
-		for(int i = 0; i < MAX_CLIENTS; ++i)
-		{
-#ifdef CONF_DEBUG
-			if(g_Config.m_DbgDummies)
-			{
-				if(i >= MAX_CLIENTS - g_Config.m_DbgDummies)
-					break;
-			}
-#endif
-			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS && Server()->GetAuthedState(i) == AUTHED_NO)
-			{
-				if(Server()->Tick() > GameServer()->m_apPlayers[i]->m_LastActionTick + g_Config.m_SvInactiveKickTime * Server()->TickSpeed() * 60)
-				{
-					switch(g_Config.m_SvInactiveKick)
-					{
-					case 0:
-					{
-						// move player to spectator
-						GameServer()->m_apPlayers[i]->SetTeam(TEAM_SPECTATORS);
-					}
-					break;
-					case 1:
-					{
-						// move player to spectator if the reserved slots aren't filled yet, kick him otherwise
-						int Spectators = 0;
-						for(auto &pPlayer : GameServer()->m_apPlayers)
-							if(pPlayer && pPlayer->GetTeam() == TEAM_SPECTATORS)
-								++Spectators;
-						if(Spectators >= g_Config.m_SvSpectatorSlots)
-							Server()->Kick(i, "Kicked for inactivity");
-						else
-							GameServer()->m_apPlayers[i]->SetTeam(TEAM_SPECTATORS);
-					}
-					break;
-					case 2:
-					{
-						// kick the player
-						Server()->Kick(i, "Kicked for inactivity");
-					}
-					}
-				}
-			}
-		}
-	}
 	DoWincheck();
 	DoActivityCheck();
 }

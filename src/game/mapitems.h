@@ -4,8 +4,8 @@
 #define GAME_MAPITEMS_H
 
 #include "mapitems_ddpp.h"
-#include <engine/shared/protocol.h>
 #include <base/vmath.h>
+#include <engine/shared/protocol.h>
 
 // layer types
 enum

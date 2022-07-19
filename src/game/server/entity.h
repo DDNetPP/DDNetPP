@@ -72,6 +72,7 @@ public: // TODO: Maybe make protected
 	float GetProximityRadius() const { return m_ProximityRadius; }
 
 	/* Other functions */
+
 	/*
 		Function: Destroy
 			Destroys the entity.
