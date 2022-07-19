@@ -195,7 +195,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitBottom(25.0f, &Left, &SettingsButton);
 
 		SettingsButton.HSplitTop(5.0f, 0, &SettingsButton);
-		static int s_SettingsButtonID = 0;
+		static CButtonContainer s_SettingsButtonID;
 		if(DoButton_Menu(&s_SettingsButtonID, Localize("Settings file"), 0, &SettingsButton))
 		{
 			Storage()->GetCompletePath(IStorage::TYPE_SAVE, CONFIG_FILE, aBuf, sizeof(aBuf));
@@ -210,7 +210,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		Left.HSplitBottom(25.0f, &Left, &ConfigButton);
 
 		ConfigButton.HSplitTop(5.0f, 0, &ConfigButton);
-		static int s_ConfigButtonID = 0;
+		static CButtonContainer s_ConfigButtonID;
 		if(DoButton_Menu(&s_ConfigButtonID, Localize("Config directory"), 0, &ConfigButton))
 		{
 			Storage()->GetCompletePath(IStorage::TYPE_SAVE, "", aBuf, sizeof(aBuf));
@@ -226,7 +226,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 		RenderThemeSelection(Left);
 
 		DirectoryButton.HSplitTop(5.0f, 0, &DirectoryButton);
-		static int s_ThemesButtonID = 0;
+		static CButtonContainer s_ThemesButtonID;
 		if(DoButton_Menu(&s_ThemesButtonID, Localize("Themes directory"), 0, &DirectoryButton))
 		{
 			Storage()->GetCompletePath(IStorage::TYPE_SAVE, "themes", aBuf, sizeof(aBuf));
@@ -511,7 +511,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		{
 			SkinPrefix.HSplitTop(20.0f, &Button, &SkinPrefix);
 			Button.HMargin(2.0f, &Button);
-			if(DoButton_Menu(&pPrefix, pPrefix, 0, &Button))
+			static CButtonContainer s_PrefixButton;
+			if(DoButton_Menu(&s_PrefixButton, pPrefix, 0, &Button))
 			{
 				str_copy(g_Config.m_ClSkinPrefix, pPrefix);
 			}
@@ -550,7 +551,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	EyesLabel.HSplitTop(50.0f, &EyesLabel, &Eyes);
 
 	float Highlight = 0.0f;
-	static int s_aEyeButtons[6];
+	static CButtonContainer s_aEyeButtons[6];
 	static int s_aEyesToolTip[6];
 	for(int CurrentEyeEmote = 0; CurrentEyeEmote < 6; CurrentEyeEmote++)
 	{
@@ -745,7 +746,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	SkinDB.VSplitLeft(150.0f, &SkinDB, &DirectoryButton);
 	SkinDB.HSplitTop(5.0f, 0, &SkinDB);
-	static int s_SkinDBDirID = 0;
+	static CButtonContainer s_SkinDBDirID;
 	if(DoButton_Menu(&s_SkinDBDirID, Localize("Skin Database"), 0, &SkinDB))
 	{
 		if(!open_link("https://ddnet.tw/skins/"))
@@ -758,7 +759,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	DirectoryButton.VSplitRight(175.0f, 0, &DirectoryButton);
 	DirectoryButton.VSplitRight(25.0f, &DirectoryButton, &RefreshButton);
 	DirectoryButton.VSplitRight(10.0f, &DirectoryButton, 0);
-	static int s_DirectoryButtonID = 0;
+	static CButtonContainer s_DirectoryButtonID;
 	if(DoButton_Menu(&s_DirectoryButtonID, Localize("Skins directory"), 0, &DirectoryButton))
 	{
 		Storage()->GetCompletePath(IStorage::TYPE_SAVE, "skins", aBuf, sizeof(aBuf));
@@ -771,7 +772,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 
 	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
-	static int s_SkinRefreshButtonID = 0;
+	static CButtonContainer s_SkinRefreshButtonID;
 	if(DoButton_Menu(&s_SkinRefreshButtonID, "\xEF\x80\x9E", 0, &RefreshButton, nullptr, CUI::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
 	{
 		// reset render flags for possible loading screen
@@ -939,7 +940,7 @@ float CMenus::RenderSettingsControlsJoystick(CUIRect View)
 			{
 				View.HSplitTop(Spacing, 0, &View);
 				View.HSplitTop(ButtonHeight, &Button, &View);
-				static int s_ButtonJoystickId;
+				static CButtonContainer s_ButtonJoystickId;
 				char aBuf[96];
 				str_format(aBuf, sizeof(aBuf), Localize("Controller %d: %s"), Input()->GetActiveJoystick()->GetIndex(), Input()->GetActiveJoystick()->GetName());
 				if(DoButton_Menu(&s_ButtonJoystickId, aBuf, 0, &Button))
@@ -1187,8 +1188,8 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 		ResetButton.HMargin(10.0f, &ResetButton);
 		ResetButton.VMargin(30.0f, &ResetButton);
 		ResetButton.HSplitTop(20.0f, &ResetButton, 0);
-		static int s_DefaultButton = 0;
-		if(DoButton_Menu((void *)&s_DefaultButton, Localize("Reset to defaults"), 0, &ResetButton))
+		static CButtonContainer s_DefaultButton;
+		if(DoButton_Menu(&s_DefaultButton, Localize("Reset to defaults"), 0, &ResetButton))
 		{
 			m_pClient->m_Binds.SetDefaults();
 
@@ -1261,14 +1262,14 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 	UiDoListboxEnd(&s_ScrollValue, 0);
 }
 
-int CMenus::RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelection, const void **pIDs, const char **pStr, int PickNum, const void *pID, float &ScrollVal)
+int CMenus::RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelection, const void **pIDs, const char **pStr, int PickNum, CButtonContainer *pButtonContainer, float &ScrollVal)
 {
 	if(CurDropDownState != 0)
 	{
 		CUIRect ListRect;
 		pRect->HSplitTop(24.0f * PickNum, &ListRect, pRect);
 		char aBuf[1024];
-		UiDoListboxStart(&pID, &ListRect, 24.0f, "", aBuf, PickNum, 1, CurSelection, ScrollVal);
+		UiDoListboxStart(&pButtonContainer, &ListRect, 24.0f, "", aBuf, PickNum, 1, CurSelection, ScrollVal);
 		for(int i = 0; i < PickNum; ++i)
 		{
 			CListboxItem Item = UiDoListboxNextItem(pIDs[i], CurSelection == i);
@@ -1292,7 +1293,7 @@ int CMenus::RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelecti
 	{
 		CUIRect Button;
 		pRect->HSplitTop(24.0f, &Button, pRect);
-		if(DoButton_MenuTab(pID, CurSelection > -1 ? pStr[CurSelection] : "", 0, &Button, CUI::CORNER_ALL, NULL, NULL, NULL, NULL, 4.0f))
+		if(DoButton_MenuTab(pButtonContainer, CurSelection > -1 ? pStr[CurSelection] : "", 0, &Button, CUI::CORNER_ALL, NULL, NULL, NULL, NULL, 4.0f))
 			CurDropDownState = 1;
 
 		CUIRect DropDownIcon = Button;
@@ -1407,7 +1408,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 
 	OldSelected = (g_Config.m_GfxFullscreen ? (g_Config.m_GfxFullscreen == 1 ? 4 : (g_Config.m_GfxFullscreen == 2 ? 3 : 2)) : (g_Config.m_GfxBorderless ? 1 : 0));
 
-	const int NewWindowMode = RenderDropDown(s_WindowModeDropDownState, &MainView, OldSelected, apWindowModeIDs, apWindowModes, s_NumWindowMode, &s_NumWindowMode, s_ScrollValueDrop);
+	static CButtonContainer s_WindowButton;
+	const int NewWindowMode = RenderDropDown(s_WindowModeDropDownState, &MainView, OldSelected, apWindowModeIDs, apWindowModes, s_NumWindowMode, &s_WindowButton, s_ScrollValueDrop);
 	if(OldSelected != NewWindowMode)
 	{
 		if(NewWindowMode == 0)
@@ -1558,18 +1560,18 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		static float s_ScrollValueDropBackend = 0;
 		static int s_BackendDropDownState = 0;
 
-		static std::vector<std::unique_ptr<int>> vBackendIDs;
-		static std::vector<const void *> vBackendIDPtrs;
-		static std::vector<std::string> vBackendIDNames;
-		static std::vector<const char *> vBackendIDNamesCStr;
-		static std::vector<SMenuBackendInfo> vBackendInfos;
+		static std::vector<std::unique_ptr<int>> s_vBackendIDs;
+		static std::vector<const void *> s_vBackendIDPtrs;
+		static std::vector<std::string> s_vBackendIDNames;
+		static std::vector<const char *> s_vBackendIDNamesCStr;
+		static std::vector<SMenuBackendInfo> s_vBackendInfos;
 
 		size_t BackendCount = FoundBackendCount + 1;
-		vBackendIDs.resize(BackendCount);
-		vBackendIDPtrs.resize(BackendCount);
-		vBackendIDNames.resize(BackendCount);
-		vBackendIDNamesCStr.resize(BackendCount);
-		vBackendInfos.resize(BackendCount);
+		s_vBackendIDs.resize(BackendCount);
+		s_vBackendIDPtrs.resize(BackendCount);
+		s_vBackendIDNames.resize(BackendCount);
+		s_vBackendIDNamesCStr.resize(BackendCount);
+		s_vBackendInfos.resize(BackendCount);
 
 		char aTmpBackendName[256];
 
@@ -1586,21 +1588,21 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 				auto &Info = aaSupportedBackends[i][n];
 				if(Info.m_Found)
 				{
-					if(vBackendIDs[CurCounter].get() == nullptr)
-						vBackendIDs[CurCounter] = std::make_unique<int>();
-					vBackendIDPtrs[CurCounter] = vBackendIDs[CurCounter].get();
+					if(s_vBackendIDs[CurCounter].get() == nullptr)
+						s_vBackendIDs[CurCounter] = std::make_unique<int>();
+					s_vBackendIDPtrs[CurCounter] = s_vBackendIDs[CurCounter].get();
 
 					{
 						bool IsDefault = IsInfoDefault(Info);
 						str_format(aTmpBackendName, sizeof(aTmpBackendName), "%s (%d.%d.%d)%s%s", Info.m_pBackendName, Info.m_Major, Info.m_Minor, Info.m_Patch, IsDefault ? " - " : "", IsDefault ? Localize("default") : "");
-						vBackendIDNames[CurCounter] = aTmpBackendName;
-						vBackendIDNamesCStr[CurCounter] = vBackendIDNames[CurCounter].c_str();
+						s_vBackendIDNames[CurCounter] = aTmpBackendName;
+						s_vBackendIDNamesCStr[CurCounter] = s_vBackendIDNames[CurCounter].c_str();
 						if(str_comp_nocase(Info.m_pBackendName, g_Config.m_GfxBackend) == 0 && g_Config.m_GfxGLMajor == Info.m_Major && g_Config.m_GfxGLMinor == Info.m_Minor && g_Config.m_GfxGLPatch == Info.m_Patch)
 						{
 							OldSelectedBackend = CurCounter;
 						}
 
-						vBackendInfos[CurCounter] = Info;
+						s_vBackendInfos[CurCounter] = Info;
 					}
 					++CurCounter;
 				}
@@ -1615,19 +1617,19 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		else
 		{
 			// custom selected one
-			if(vBackendIDs[CurCounter].get() == nullptr)
-				vBackendIDs[CurCounter] = std::make_unique<int>();
-			vBackendIDPtrs[CurCounter] = vBackendIDs[CurCounter].get();
+			if(s_vBackendIDs[CurCounter].get() == nullptr)
+				s_vBackendIDs[CurCounter] = std::make_unique<int>();
+			s_vBackendIDPtrs[CurCounter] = s_vBackendIDs[CurCounter].get();
 
 			str_format(aTmpBackendName, sizeof(aTmpBackendName), "%s (%s %d.%d.%d)", Localize("custom"), g_Config.m_GfxBackend, g_Config.m_GfxGLMajor, g_Config.m_GfxGLMinor, g_Config.m_GfxGLPatch);
-			vBackendIDNames[CurCounter] = aTmpBackendName;
-			vBackendIDNamesCStr[CurCounter] = vBackendIDNames[CurCounter].c_str();
+			s_vBackendIDNames[CurCounter] = aTmpBackendName;
+			s_vBackendIDNamesCStr[CurCounter] = s_vBackendIDNames[CurCounter].c_str();
 			OldSelectedBackend = CurCounter;
 
-			vBackendInfos[CurCounter].m_pBackendName = "custom";
-			vBackendInfos[CurCounter].m_Major = g_Config.m_GfxGLMajor;
-			vBackendInfos[CurCounter].m_Minor = g_Config.m_GfxGLMinor;
-			vBackendInfos[CurCounter].m_Patch = g_Config.m_GfxGLPatch;
+			s_vBackendInfos[CurCounter].m_pBackendName = "custom";
+			s_vBackendInfos[CurCounter].m_Major = g_Config.m_GfxGLMajor;
+			s_vBackendInfos[CurCounter].m_Minor = g_Config.m_GfxGLMinor;
+			s_vBackendInfos[CurCounter].m_Patch = g_Config.m_GfxGLPatch;
 		}
 
 		if(s_OldSelectedBackend == -1)
@@ -1636,13 +1638,14 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		static int s_BackendCount = 0;
 		s_BackendCount = BackendCount;
 
-		const int NewBackend = RenderDropDown(s_BackendDropDownState, &MainView, OldSelectedBackend, vBackendIDPtrs.data(), vBackendIDNamesCStr.data(), s_BackendCount, &s_BackendCount, s_ScrollValueDropBackend);
+		static CButtonContainer s_BackendButton;
+		const int NewBackend = RenderDropDown(s_BackendDropDownState, &MainView, OldSelectedBackend, s_vBackendIDPtrs.data(), s_vBackendIDNamesCStr.data(), s_BackendCount, &s_BackendButton, s_ScrollValueDropBackend);
 		if(OldSelectedBackend != NewBackend)
 		{
-			str_copy(g_Config.m_GfxBackend, vBackendInfos[NewBackend].m_pBackendName);
-			g_Config.m_GfxGLMajor = vBackendInfos[NewBackend].m_Major;
-			g_Config.m_GfxGLMinor = vBackendInfos[NewBackend].m_Minor;
-			g_Config.m_GfxGLPatch = vBackendInfos[NewBackend].m_Patch;
+			str_copy(g_Config.m_GfxBackend, s_vBackendInfos[NewBackend].m_pBackendName);
+			g_Config.m_GfxGLMajor = s_vBackendInfos[NewBackend].m_Major;
+			g_Config.m_GfxGLMinor = s_vBackendInfos[NewBackend].m_Minor;
+			g_Config.m_GfxGLPatch = s_vBackendInfos[NewBackend].m_Patch;
 
 			CheckSettings = true;
 			s_GfxBackendChanged = s_OldSelectedBackend != NewBackend;
@@ -1660,27 +1663,27 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		static float s_ScrollValueDropGPU = 0;
 		static int s_GPUDropDownState = 0;
 
-		static std::vector<std::unique_ptr<int>> vGPUIDs;
-		static std::vector<const void *> vGPUIDPtrs;
-		static std::vector<const char *> vGPUIDNames;
+		static std::vector<std::unique_ptr<int>> s_vGPUIDs;
+		static std::vector<const void *> s_vGPUIDPtrs;
+		static std::vector<const char *> s_vGPUIDNames;
 
 		size_t GPUCount = GPUList.m_vGPUs.size() + 1;
-		vGPUIDs.resize(GPUCount);
-		vGPUIDPtrs.resize(GPUCount);
-		vGPUIDNames.resize(GPUCount);
+		s_vGPUIDs.resize(GPUCount);
+		s_vGPUIDPtrs.resize(GPUCount);
+		s_vGPUIDNames.resize(GPUCount);
 
 		char aCurDeviceName[256 + 4];
 
 		int OldSelectedGPU = -1;
 		for(size_t i = 0; i < GPUCount; ++i)
 		{
-			if(vGPUIDs[i].get() == nullptr)
-				vGPUIDs[i] = std::make_unique<int>();
-			vGPUIDPtrs[i] = vGPUIDs[i].get();
+			if(s_vGPUIDs[i].get() == nullptr)
+				s_vGPUIDs[i] = std::make_unique<int>();
+			s_vGPUIDPtrs[i] = s_vGPUIDs[i].get();
 			if(i == 0)
 			{
 				str_format(aCurDeviceName, sizeof(aCurDeviceName), "%s(%s)", Localize("auto"), GPUList.m_AutoGPU.m_aName);
-				vGPUIDNames[i] = aCurDeviceName;
+				s_vGPUIDNames[i] = aCurDeviceName;
 				if(str_comp("auto", g_Config.m_GfxGPUName) == 0)
 				{
 					OldSelectedGPU = 0;
@@ -1688,7 +1691,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			}
 			else
 			{
-				vGPUIDNames[i] = GPUList.m_vGPUs[i - 1].m_aName;
+				s_vGPUIDNames[i] = GPUList.m_vGPUs[i - 1].m_aName;
 				if(str_comp(GPUList.m_vGPUs[i - 1].m_aName, g_Config.m_GfxGPUName) == 0)
 				{
 					OldSelectedGPU = i;
@@ -1702,7 +1705,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		if(s_OldSelectedGPU == -1)
 			s_OldSelectedGPU = OldSelectedGPU;
 
-		const int NewGPU = RenderDropDown(s_GPUDropDownState, &MainView, OldSelectedGPU, vGPUIDPtrs.data(), vGPUIDNames.data(), s_GPUCount, &s_GPUCount, s_ScrollValueDropGPU);
+		static CButtonContainer s_GpuButton;
+		const int NewGPU = RenderDropDown(s_GPUDropDownState, &MainView, OldSelectedGPU, s_vGPUIDPtrs.data(), s_vGPUIDNames.data(), s_GPUCount, &s_GpuButton, s_ScrollValueDropGPU);
 		if(OldSelectedGPU != NewGPU)
 		{
 			if(NewGPU == 0)
@@ -1993,6 +1997,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 		Localize("Sound"),
 		Localize("DDNet"),
 		Localize("Assets")};
+	static CButtonContainer s_aTabButtons[sizeof(apTabs)];
 
 	int NumTabs = (int)std::size(apTabs);
 	int PreviousPage = g_Config.m_UiSettingsPage;
@@ -2001,7 +2006,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 	{
 		TabBar.HSplitTop(10, &Button, &TabBar);
 		TabBar.HSplitTop(26, &Button, &TabBar);
-		if(DoButton_MenuTab(apTabs[i], apTabs[i], g_Config.m_UiSettingsPage == i, &Button, CUI::CORNER_R, &m_aAnimatorsSettingsTab[i]))
+		if(DoButton_MenuTab(&s_aTabButtons[i], apTabs[i], g_Config.m_UiSettingsPage == i, &Button, CUI::CORNER_R, &m_aAnimatorsSettingsTab[i]))
 			g_Config.m_UiSettingsPage = i;
 	}
 
@@ -2479,19 +2484,19 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 	Page4Tab.VSplitLeft(TabsW / NUMBER_OF_APPEARANCE_TABS, &Page4Tab, &Page5Tab);
 	Page5Tab.VSplitLeft(TabsW / NUMBER_OF_APPEARANCE_TABS, &Page5Tab, &Page6Tab);
 
-	static int s_aPageTabs[NUMBER_OF_APPEARANCE_TABS] = {};
+	static CButtonContainer s_aPageTabs[NUMBER_OF_APPEARANCE_TABS] = {};
 
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_HUD], Localize("HUD"), s_CurTab == APPEARANCE_TAB_HUD, &Page1Tab, CUI::CORNER_L, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_HUD], Localize("HUD"), s_CurTab == APPEARANCE_TAB_HUD, &Page1Tab, CUI::CORNER_L, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_HUD;
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_CHAT], Localize("Chat"), s_CurTab == APPEARANCE_TAB_CHAT, &Page2Tab, 0, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_CHAT], Localize("Chat"), s_CurTab == APPEARANCE_TAB_CHAT, &Page2Tab, 0, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_CHAT;
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_NAME_PLATE], Localize("Name Plate"), s_CurTab == APPEARANCE_TAB_NAME_PLATE, &Page3Tab, 0, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_NAME_PLATE], Localize("Name Plate"), s_CurTab == APPEARANCE_TAB_NAME_PLATE, &Page3Tab, 0, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_NAME_PLATE;
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_HOOK_COLLISION], Localize("Hook Collisions"), s_CurTab == APPEARANCE_TAB_HOOK_COLLISION, &Page4Tab, 0, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_HOOK_COLLISION], Localize("Hook Collisions"), s_CurTab == APPEARANCE_TAB_HOOK_COLLISION, &Page4Tab, 0, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_HOOK_COLLISION;
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_KILL_MESSAGES], Localize("Kill Messages"), s_CurTab == APPEARANCE_TAB_KILL_MESSAGES, &Page5Tab, 0, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_KILL_MESSAGES], Localize("Kill Messages"), s_CurTab == APPEARANCE_TAB_KILL_MESSAGES, &Page5Tab, 0, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_KILL_MESSAGES;
-	if(DoButton_MenuTab((void *)&s_aPageTabs[APPEARANCE_TAB_LASER], Localize("Laser"), s_CurTab == APPEARANCE_TAB_LASER, &Page6Tab, CUI::CORNER_R, NULL, NULL, NULL, NULL, 4))
+	if(DoButton_MenuTab(&s_aPageTabs[APPEARANCE_TAB_LASER], Localize("Laser"), s_CurTab == APPEARANCE_TAB_LASER, &Page6Tab, CUI::CORNER_R, NULL, NULL, NULL, NULL, 4))
 		s_CurTab = APPEARANCE_TAB_LASER;
 
 	MainView.HSplitTop(10.0f, 0x0, &MainView); // Margin
@@ -2620,7 +2625,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		Section.Margin(SectionMargin, &Section);
 
 		int i = 0;
-		static int s_aResetIDs[24];
+		static CButtonContainer s_aResetIDs[24];
 
 		DoLine_ColorPicker(&s_aResetIDs[i++], ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("System message"), &g_Config.m_ClMessageSystemColor, ColorRGBA(1.0f, 1.0f, 0.5f), true, true, &g_Config.m_ClShowChatSystem);
 		DoLine_ColorPicker(&s_aResetIDs[i++], ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Highlighted message"), &g_Config.m_ClMessageHighlightColor, ColorRGBA(1.0f, 0.5f, 0.5f));
@@ -2895,14 +2900,15 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 			g_Config.m_ClHookCollAlpha = (int)(UIEx()->DoScrollbarH(&g_Config.m_ClHookCollAlpha, &Button, g_Config.m_ClHookCollAlpha / 100.0f) * 100.0f);
 		}
 
-		static int HookCollNoCollResetID, HookCollHookableCollResetID, HookCollTeeCollResetID, HookCollToolTop;
+		static CButtonContainer s_HookCollNoCollResetID, s_HookCollHookableCollResetID, s_HookCollTeeCollResetID;
+		static int s_HookCollToolTip;
 
 		Section.HSplitTop(LineSize, &Label, &Section);
 		UI()->DoLabel(&Label, Localize("Colors of the hook collision line, in case of a possible collision with:"), 13.0f, TEXTALIGN_LEFT);
-		GameClient()->m_Tooltips.DoToolTip(&HookCollToolTop, &Label, Localize("Your movements are not taken into account when calculating the line colors"));
-		DoLine_ColorPicker(&HookCollNoCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Nothing hookable"), &g_Config.m_ClHookCollColorNoColl, ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), false);
-		DoLine_ColorPicker(&HookCollHookableCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Something hookable"), &g_Config.m_ClHookCollColorHookableColl, ColorRGBA(130.0f / 255.0f, 232.0f / 255.0f, 160.0f / 255.0f, 1.0f), false);
-		DoLine_ColorPicker(&HookCollTeeCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("A Tee"), &g_Config.m_ClHookCollColorTeeColl, ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f), false);
+		GameClient()->m_Tooltips.DoToolTip(&s_HookCollToolTip, &Label, Localize("Your movements are not taken into account when calculating the line colors"));
+		DoLine_ColorPicker(&s_HookCollNoCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Nothing hookable"), &g_Config.m_ClHookCollColorNoColl, ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollHookableCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Something hookable"), &g_Config.m_ClHookCollColorHookableColl, ColorRGBA(130.0f / 255.0f, 232.0f / 255.0f, 160.0f / 255.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_HookCollTeeCollResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("A Tee"), &g_Config.m_ClHookCollColorTeeColl, ColorRGBA(1.0f, 1.0f, 0.0f, 1.0f), false);
 	}
 	else if(s_CurTab == APPEARANCE_TAB_KILL_MESSAGES)
 	{
@@ -2916,10 +2922,10 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		LeftView.HSplitTop(SectionTotalMargin + 2 * ColorPickerLineSize, &Section, &LeftView);
 		Section.Margin(SectionMargin, &Section);
 
-		static int KillMessageNormalColorID, KillMessageHighlightColorID;
+		static CButtonContainer s_KillMessageNormalColorID, s_KillMessageHighlightColorID;
 
-		DoLine_ColorPicker(&KillMessageNormalColorID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Normal Color"), &g_Config.m_ClKillMessageNormalColor, ColorRGBA(1.0f, 1.0f, 1.0f), false);
-		DoLine_ColorPicker(&KillMessageHighlightColorID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Highlight Color"), &g_Config.m_ClKillMessageHighlightColor, ColorRGBA(1.0f, 1.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_KillMessageNormalColorID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Normal Color"), &g_Config.m_ClKillMessageNormalColor, ColorRGBA(1.0f, 1.0f, 1.0f), false);
+		DoLine_ColorPicker(&s_KillMessageHighlightColorID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Highlight Color"), &g_Config.m_ClKillMessageHighlightColor, ColorRGBA(1.0f, 1.0f, 1.0f), false);
 	}
 	else if(s_CurTab == APPEARANCE_TAB_LASER)
 	{
@@ -2933,10 +2939,10 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 		LeftView.HSplitTop(SectionTotalMargin + 2 * ColorPickerLineSize, &Section, &LeftView);
 		Section.Margin(SectionMargin, &Section);
 
-		static int LaserOutResetID, LaserInResetID;
+		static CButtonContainer s_LaserOutResetID, s_LaserInResetID;
 
-		ColorHSLA LaserOutlineColor = DoLine_ColorPicker(&LaserOutResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Laser Outline Color"), &g_Config.m_ClLaserOutlineColor, ColorRGBA(0.074402f, 0.074402f, 0.247166f, 1.0f), false);
-		ColorHSLA LaserInnerColor = DoLine_ColorPicker(&LaserInResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Laser Inner Color"), &g_Config.m_ClLaserInnerColor, ColorRGBA(0.498039f, 0.498039f, 1.0f, 1.0f), false);
+		ColorHSLA LaserOutlineColor = DoLine_ColorPicker(&s_LaserOutResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Laser Outline Color"), &g_Config.m_ClLaserOutlineColor, ColorRGBA(0.074402f, 0.074402f, 0.247166f, 1.0f), false);
+		ColorHSLA LaserInnerColor = DoLine_ColorPicker(&s_LaserInResetID, ColorPickerLineSize, LeftViewColorPickerPosition, ColorPickerLabelSize, ColorPickerLineSpacing, &Section, Localize("Laser Inner Color"), &g_Config.m_ClLaserInnerColor, ColorRGBA(0.498039f, 0.498039f, 1.0f, 1.0f), false);
 
 		// ***** Laser Preview ***** //
 		RightView.HSplitTop(HeadlineAndVMargin, &Label, &RightView);
@@ -3148,10 +3154,9 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 
 	UI()->DoLabel(&TempLabel, Localize("Miscellaneous"), 20.0f, TEXTALIGN_LEFT);
 
-	static int ResetID1 = 0;
-	static int ResetID2 = 0;
+	static CButtonContainer s_ResetID2;
 	ColorRGBA GreyDefault(0.5f, 0.5f, 0.5f, 1);
-	DoLine_ColorPicker(&ResetID2, 25.0f, 194.0f, 13.0f, 5.0f, &Left, Localize("Entities Background color"), &g_Config.m_ClBackgroundEntitiesColor, GreyDefault, false);
+	DoLine_ColorPicker(&s_ResetID2, 25.0f, 194.0f, 13.0f, 5.0f, &Left, Localize("Entities Background color"), &g_Config.m_ClBackgroundEntitiesColor, GreyDefault, false);
 
 	Left.VSplitLeft(5.0f, 0x0, &Left);
 	Left.HSplitTop(25.0f, &Background, &Left);
@@ -3176,14 +3181,15 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	if(DoButton_CheckBox(&g_Config.m_ClBackgroundShowTilesLayers, Localize("Show tiles layers from BG map"), g_Config.m_ClBackgroundShowTilesLayers, &Button))
 		g_Config.m_ClBackgroundShowTilesLayers ^= 1;
 
+	static CButtonContainer s_ResetID1;
 	Miscellaneous.HSplitTop(25.0f, &Button, &Right);
-	DoLine_ColorPicker(&ResetID1, 25.0f, 194.0f, 13.0f, 5.0f, &Button, Localize("Regular Background Color"), &g_Config.m_ClBackgroundColor, GreyDefault, false);
+	DoLine_ColorPicker(&s_ResetID1, 25.0f, 194.0f, 13.0f, 5.0f, &Button, Localize("Regular Background Color"), &g_Config.m_ClBackgroundColor, GreyDefault, false);
 	Right.HSplitTop(5.0f, 0x0, &Right);
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(DoButton_CheckBox(&g_Config.m_ClHttpMapDownload, Localize("Try fast HTTP map download first"), g_Config.m_ClHttpMapDownload, &Button))
 		g_Config.m_ClHttpMapDownload ^= 1;
 
-	static int s_ButtonTimeout = 0;
+	static CButtonContainer s_ButtonTimeout;
 	Right.HSplitTop(10.0f, 0x0, &Right);
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(DoButton_Menu(&s_ButtonTimeout, Localize("New random timeout code"), 0, &Button))
@@ -3216,7 +3222,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 			str_format(aBuf, sizeof(aBuf), Localize("DDNet %s is available:"), Client()->LatestVersion());
 			Label.VSplitLeft(TextRender()->TextWidth(0, 14.0f, aBuf, -1, -1.0f) + 10.0f, &Label, &Button);
 			Button.VSplitLeft(100.0f, &Button, 0);
-			static int s_ButtonUpdate = 0;
+			static CButtonContainer s_ButtonUpdate;
 			if(DoButton_Menu(&s_ButtonUpdate, Localize("Update now"), 0, &Button))
 			{
 				Updater()->InitiateUpdate();
@@ -3234,7 +3240,7 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 			str_format(aBuf, sizeof(aBuf), Localize("No updates available"));
 			Label.VSplitLeft(TextRender()->TextWidth(0, 14.0f, aBuf, -1, -1.0f) + 10.0f, &Label, &Button);
 			Button.VSplitLeft(100.0f, &Button, 0);
-			static int s_ButtonUpdate = 0;
+			static CButtonContainer s_ButtonUpdate;
 			if(DoButton_Menu(&s_ButtonUpdate, Localize("Check now"), 0, &Button))
 			{
 				Client()->RequestDDNetInfo();
