@@ -980,6 +980,9 @@ void CCharacter::DDPPPostCoreTick()
 
 void CCharacter::DDPP_Tick()
 {
+	if(g_Config.m_SvOffDDPP)
+		return;
+
 	char aBuf[256];
 	DummyTick();
 	CosmeticTick();

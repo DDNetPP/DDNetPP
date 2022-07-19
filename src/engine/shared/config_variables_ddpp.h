@@ -16,6 +16,9 @@
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc) char m_##Name[Len]; // Flawfinder: ignore
 #endif
 
+
+MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)")
+
 // vanilla modes
 MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")
 MACRO_CONFIG_INT(SvTimelimit, sv_timelimit, 0, 0, 1000, CFGFLAG_SERVER, "Time limit in minutes (0 disables)")

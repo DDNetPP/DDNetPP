@@ -146,6 +146,9 @@ void CPlayer::ResetDDPP()
 
 void CPlayer::DDPPTick()
 {
+	if(g_Config.m_SvOffDDPP)
+		return;
+
 	if(m_AccountQueryResult != nullptr && m_AccountQueryResult->m_Completed)
 	{
 		DDPPProcessScoreResult(*m_AccountQueryResult);

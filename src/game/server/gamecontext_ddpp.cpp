@@ -1284,6 +1284,9 @@ void CGameContext::CheckDDPPshutdown()
 
 void CGameContext::DDPP_Tick()
 {
+	if(g_Config.m_SvOffDDPP)
+		return;
+
 	if(m_iBroadcastDelay > 0)
 		m_iBroadcastDelay--;
 

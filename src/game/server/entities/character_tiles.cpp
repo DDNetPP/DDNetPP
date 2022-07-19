@@ -21,6 +21,9 @@
 
 bool CCharacter::HandleTilesDDPP(int Index)
 {
+	if(g_Config.m_SvOffDDPP)
+		return false;
+
 	for(auto &Minigame : GameServer()->m_vMinigames)
 		if(Minigame->HandleCharacterTiles(this, Index))
 			return true;
