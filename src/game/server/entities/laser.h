@@ -46,6 +46,12 @@ private:
 	// DDNet++
 
 	void QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar);
+	/*
+		HitCharacterDDPP
+
+		Return true to skip ddnet logic
+	*/
+	bool HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit);
 };
 
 #endif

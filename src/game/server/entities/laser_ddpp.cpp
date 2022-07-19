@@ -7,6 +7,66 @@
 #include <engine/shared/config.h>
 #include <game/server/teams.h>
 
+bool CLaser::HitCharacterDDPP(vec2 From, vec2 To, CCharacter *pHit)
+{
+	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+	if(m_Type == WEAPON_SHOTGUN)
+	{
+		if(pHit->GetPlayer()->GetCID() != m_Owner)
+		{
+			if(GameServer()->m_apPlayers[m_Owner]) // make sure hitter didnt rq during wallshot
+			{
+				pHit->GetPlayer()->UpdateLastToucher(m_Owner);
+				pHit->m_LastHitWeapon = WEAPON_SHOTGUN;
+			}
+		}
+	}
+	else if(m_Type == WEAPON_LASER)
+	{
+		if(!pOwnerChar)
+		{
+			pHit->UnFreeze();
+			return false;
+		}
+		//quests (before unfreeze to have information about the tee was being frozzn)
+		QuestHitCharacter(pHit, pOwnerChar);
+
+		if(pOwnerChar->GetPlayer()->m_IsInstaMode_fng)
+		{
+			if(g_Config.m_SvOnFireMode == 1 && pHit->m_FreezeTime == 0)
+			{
+				if(pHit->GetPlayer() && pHit->GetPlayer()->GetCID() != m_Owner)
+				{
+					pOwnerChar->m_OnFire = true;
+				}
+			}
+			pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
+		}
+		else
+		{
+			if(pOwnerChar->GetPlayer()->m_TaserOn)
+			{
+				pHit->FreezeFloat(GameServer()->GetPlayerChar(m_Owner)->GetPlayer()->TaserFreezeTime());
+				pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
+				pHit->m_GotTasered = true;
+			}
+			else
+			{
+				pHit->UnFreeze();
+				if(pOwnerChar->GetPlayer()->m_IsVanillaCompetetive)
+				{
+					pHit->TakeDamage(vec2(0.f, 0.f), 5, m_Owner, WEAPON_LASER);
+				}
+				else
+				{
+					pHit->TakeDamage(vec2(0.f, 0.f), 100, m_Owner, WEAPON_LASER);
+				}
+			}
+		}
+	}
+	return false;
+}
+
 void CLaser::QuestHitCharacter(CCharacter *pHit, CCharacter *pOwnerChar)
 {
 	// only check for quests in case both the hitter and the hitted are alive

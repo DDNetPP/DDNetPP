@@ -291,13 +291,6 @@ int CCollision::GetTile(int x, int y) const
 	return 0;
 }
 
-/*
-bool CCollision::IsTileSolid(int x, int y)
-{
-	return GetTile(x, y)&COLFLAG_SOLID;
-}
-*/
-
 // TODO: rewrite this smarter!
 int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision) const
 {
