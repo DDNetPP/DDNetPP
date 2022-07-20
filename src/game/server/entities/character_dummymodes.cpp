@@ -54,6 +54,6 @@ void CCharacter::DummyTick()
 		CITick();
 	else if(m_pPlayer->m_pDummyMode)
 		m_pPlayer->m_pDummyMode->Tick(this);
-	else
+	else if(m_pPlayer->m_pDummyMode != DUMMYMODE_DEFAULT)
 		m_pPlayer->SetDummyMode(DUMMYMODE_DEFAULT);
 }
