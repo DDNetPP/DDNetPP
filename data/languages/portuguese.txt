@@ -861,8 +861,8 @@ Speed
 Video name:
 == Nome do vídeo:
 
-transmits your player name to info2.ddnet.tw
-== transmite o teu nome de jogador para info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== transmite o teu nome de jogador para info.ddnet.org
 
 Theme
 == Tema
@@ -951,14 +951,14 @@ Particles
 Discord
 == Discord
 
-https://ddnet.tw/discord
-== https://ddnet.tw/discord
+https://ddnet.org/discord
+== https://ddnet.org/discord
 
 Learn
 == Aprender
 
-https://wiki.ddnet.tw/
-== https://wiki.ddnet.tw/
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/wiki/Main_Page/pt-br
 
 Website
 == Website
@@ -993,6 +993,9 @@ Connected
 == 
 
 Loading map file from storage
+== 
+
+Why are you slowmo replaying to read this?
 == 
 
 Initializing components
@@ -1044,9 +1047,6 @@ Getting game info
 == 
 
 Requesting to join the game
-== 
-
-Sending intial client info
 == 
 
 Render demo
@@ -1109,6 +1109,33 @@ Unfinished map
 Leak IP
 == 
 
+Play the current demo
+== 
+
+Pause the current demo
+== 
+
+Stop the current demo
+== 
+
+Slow down the demo
+== 
+
+Speed up the demo
+== 
+
+Mark the beginning of a cut
+== 
+
+Mark the end of a cut
+== 
+
+Export cut as a separate demo
+== 
+
+Toggle keyboard shortcuts
+== 
+
 Loading demo files
 == 
 
@@ -1136,6 +1163,9 @@ Demos directory
 Render
 == 
 
+Menu opened. Press Esc key again to close menu.
+== 
+
 Kill
 == 
 
@@ -1152,6 +1182,9 @@ Skip the main menu
 == 
 
 Config directory
+== 
+
+Loading skin files
 == 
 
 Toggle to edit your dummy settings
@@ -1176,9 +1209,6 @@ Choose default eyes when joining a server
 == 
 
 Skin Database
-== 
-
-Loading skin files
 == 
 
 Hook collisions
@@ -1411,10 +1441,37 @@ Normal Color
 Highlight Color
 == 
 
-Laser Outline Color
+Weapons
 == 
 
-Laser Inner Color
+Rifle Laser Outline Color
+== 
+
+Rifle Laser Inner Color
+== 
+
+Shotgun Laser Outline Color
+== 
+
+Shotgun Laser Inner Color
+== 
+
+Entities
+== 
+
+Door Laser Outline Color
+== 
+
+Door Laser Inner Color
+== 
+
+Freeze Laser Outline Color
+== 
+
+Freeze Laser Inner Color
+== 
+
+Set all to Rifle
 == 
 
 Enable replays
@@ -1462,16 +1519,10 @@ Show tiles layers from BG map
 Regular Background Color
 == 
 
-Try fast HTTP map download first
-== 
-
 Run on join
 == 
 
 Chat command (e.g. showall 1)
-== 
-
-Entities
 == 
 
 Emoticons

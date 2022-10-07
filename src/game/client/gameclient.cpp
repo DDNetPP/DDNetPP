@@ -163,9 +163,9 @@ void CGameClient::OnConsoleInit()
 	Console()->Register("kill", "", CFGFLAG_CLIENT, ConKill, this, "Kill yourself to restart");
 
 	// register server dummy commands for tab completion
-	Console()->Register("tune", "s[tuning] i[value]", CFGFLAG_SERVER, 0, 0, "Tune variable to value");
-	Console()->Register("tune_reset", "", CFGFLAG_SERVER, 0, 0, "Reset tuning");
-	Console()->Register("tune_dump", "", CFGFLAG_SERVER, 0, 0, "Dump tuning");
+	Console()->Register("tune", "s[tuning] ?i[value]", CFGFLAG_SERVER, 0, 0, "Tune variable to value or show current value");
+	Console()->Register("tune_reset", "?s[tuning]", CFGFLAG_SERVER, 0, 0, "Reset all or one tuning variable to default");
+	Console()->Register("tunes", "", CFGFLAG_SERVER, 0, 0, "List all tuning variables and their values");
 	Console()->Register("change_map", "?r[map]", CFGFLAG_SERVER, 0, 0, "Change map");
 	Console()->Register("restart", "?i[seconds]", CFGFLAG_SERVER, 0, 0, "Restart in x seconds");
 	Console()->Register("broadcast", "r[message]", CFGFLAG_SERVER, 0, 0, "Broadcast message");
@@ -228,7 +228,7 @@ void CGameClient::OnInit()
 	m_pGraphics->AddWindowResizeListener(OnWindowResizeCB, this);
 
 	// propagate pointers
-	m_UI.Init(Input(), Graphics(), TextRender());
+	m_UI.Init(Kernel());
 	m_RenderTools.Init(Graphics(), TextRender());
 
 	int64_t Start = time_get();
@@ -267,7 +267,7 @@ void CGameClient::OnInit()
 		if(m_Menus.IsInit())
 		{
 			char aBuff[256];
-			str_format(aBuff, std::size(aBuff), "%s [%d/%d]", Localize("Initializing components"), (CompCounter + 1), (int)ComponentCount());
+			str_format(aBuff, std::size(aBuff), "%s [%d/%d]", CompCounter == 40 ? Localize("Why are you slowmo replaying to read this?") : Localize("Initializing components"), (CompCounter + 1), (int)ComponentCount());
 			m_Menus.RenderLoading(pLoadingDDNetCaption, aBuff, 1 + SkippedComps);
 			SkippedComps = 0;
 		}
@@ -374,6 +374,8 @@ void CGameClient::OnInit()
 
 void CGameClient::OnUpdate()
 {
+	CUIElementBase::Init(UI()); // update static pointer because game and editor use separate UI
+
 	// handle mouse movement
 	float x = 0.0f, y = 0.0f;
 	IInput::ECursorType CursorType = Input()->CursorRelative(&x, &y);
@@ -1067,6 +1069,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_HudHealthArmor = true;
 	Info.m_HudAmmo = true;
 	Info.m_HudDDRace = false;
+	Info.m_NoWeakHookAndBounce = false;
 
 	if(Version >= 0)
 	{
@@ -1117,6 +1120,10 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 		Info.m_HudHealthArmor = Flags2 & GAMEINFOFLAG2_HUD_HEALTH_ARMOR;
 		Info.m_HudAmmo = Flags2 & GAMEINFOFLAG2_HUD_AMMO;
 		Info.m_HudDDRace = Flags2 & GAMEINFOFLAG2_HUD_DDRACE;
+	}
+	if(Version >= 8)
+	{
+		Info.m_NoWeakHookAndBounce = Flags2 & GAMEINFOFLAG2_NO_WEAK_HOOK_AND_BOUNCE;
 	}
 	return Info;
 }
@@ -1530,10 +1537,11 @@ void CGameClient::OnNewSnapshot()
 	}
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
+		if(m_Snap.m_LocalClientID == -1 && m_DemoSpecID == SPEC_FOLLOW)
+			m_DemoSpecID = SPEC_FREEVIEW;
 		if(m_DemoSpecID != SPEC_FOLLOW)
 		{
 			m_Snap.m_SpecInfo.m_Active = true;
-			m_Snap.m_SpecInfo.m_SpectatorID = m_Snap.m_LocalClientID;
 			if(m_DemoSpecID > SPEC_FREEVIEW && m_Snap.m_aCharacters[m_DemoSpecID].m_Active)
 				m_Snap.m_SpecInfo.m_SpectatorID = m_DemoSpecID;
 			else
@@ -1835,10 +1843,10 @@ void CGameClient::OnPredict()
 			m_NewPredictedTick = true;
 			vec2 Pos = pLocalChar->Core()->m_Pos;
 			int Events = pLocalChar->Core()->m_TriggeredEvents;
-			if(g_Config.m_ClPredict)
+			if(g_Config.m_ClPredict && !m_SuppressEvents)
 				if(Events & COREEVENT_AIR_JUMP)
 					m_Effects.AirJump(Pos);
-			if(g_Config.m_SndGame)
+			if(g_Config.m_SndGame && !m_SuppressEvents)
 			{
 				if(Events & COREEVENT_GROUND_JUMP)
 					m_Sounds.PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
@@ -1855,7 +1863,7 @@ void CGameClient::OnPredict()
 			m_aLastNewPredictedTick[!Dummy] = Tick;
 			vec2 Pos = pDummyChar->Core()->m_Pos;
 			int Events = pDummyChar->Core()->m_TriggeredEvents;
-			if(g_Config.m_ClPredict)
+			if(g_Config.m_ClPredict && !m_SuppressEvents)
 				if(Events & COREEVENT_AIR_JUMP)
 					m_Effects.AirJump(Pos);
 		}
@@ -2265,6 +2273,7 @@ void CGameClient::UpdatePrediction()
 	m_GameWorld.m_WorldConfig.m_PredictFreeze = g_Config.m_ClPredictFreeze;
 	m_GameWorld.m_WorldConfig.m_PredictWeapons = AntiPingWeapons();
 	m_GameWorld.m_WorldConfig.m_BugDDRaceInput = m_GameInfo.m_BugDDRaceInput;
+	m_GameWorld.m_WorldConfig.m_NoWeakHookAndBounce = m_GameInfo.m_NoWeakHookAndBounce;
 
 	// always update default tune zone, even without character
 	if(!m_GameWorld.m_WorldConfig.m_UseTuneZones)
@@ -3302,7 +3311,7 @@ void CGameClient::SnapCollectEntities()
 		const void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, Index, &Item);
 		if(Item.m_Type == NETOBJTYPE_ENTITYEX)
 			vItemEx.push_back({Item, pData, 0});
-		else if(Item.m_Type == NETOBJTYPE_PICKUP || Item.m_Type == NETOBJTYPE_LASER || Item.m_Type == NETOBJTYPE_PROJECTILE || Item.m_Type == NETOBJTYPE_DDNETPROJECTILE)
+		else if(Item.m_Type == NETOBJTYPE_PICKUP || Item.m_Type == NETOBJTYPE_LASER || Item.m_Type == NETOBJTYPE_DDNETLASER || Item.m_Type == NETOBJTYPE_PROJECTILE || Item.m_Type == NETOBJTYPE_DDNETPROJECTILE)
 			vItemData.push_back({Item, pData, 0});
 	}
 

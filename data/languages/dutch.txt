@@ -686,8 +686,8 @@ Video name:
 Show DDNet map finishes in server browser
 == Laat gefinishte maps zien in de verkenner
 
-transmits your player name to info2.ddnet.tw
-== verzendt je speler naam naar info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== verzendt je speler naam naar info.ddnet.org
 
 Search
 == Zoek
@@ -1009,9 +1009,6 @@ Old mouse mode
 Show tiles layers from BG map
 == Laat tegellagen van achtergrondmap zien
 
-Try fast HTTP map download first
-== Probeer eerst een snelle HTTP download voor deze map
-
 DDNet %s is available:
 == DDNet %s is beschikbaar
 
@@ -1246,12 +1243,6 @@ Assets
 Kill Messages
 == Kill Berichten
 
-Laser Outline Color
-== Laser Kleur Buitenzijde
-
-Laser Inner Color
-== Laser Kleur Binnenzijde
-
 Use old chat style
 == Oude chatstijl gebruiken
 
@@ -1312,11 +1303,11 @@ Assets directory
 Discord
 == Discord
 
-https://ddnet.tw/discord
-== https://ddnet.tw/discord
+https://ddnet.org/discord
+== https://ddnet.org/discord
 
-https://wiki.ddnet.tw/
-== https://wiki.ddnet.tw/
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/
 
 Tutorial
 == Tutorial
@@ -1367,6 +1358,9 @@ Connected
 Loading map file from storage
 == 
 
+Why are you slowmo replaying to read this?
+== 
+
 Initializing components
 == 
 
@@ -1409,22 +1403,49 @@ Getting game info
 Requesting to join the game
 == 
 
-Sending intial client info
+Loading menu images
 == 
 
-Loading menu images
+Play the current demo
+== 
+
+Pause the current demo
+== 
+
+Stop the current demo
+== 
+
+Slow down the demo
+== 
+
+Speed up the demo
+== 
+
+Mark the beginning of a cut
+== 
+
+Mark the end of a cut
+== 
+
+Export cut as a separate demo
+== 
+
+Toggle keyboard shortcuts
 == 
 
 Loading demo files
 == 
 
+Menu opened. Press Esc key again to close menu.
+== 
+
 Loading ghost files
 == 
 
-Download community skins
+Loading skin files
 == 
 
-Loading skin files
+Download community skins
 == 
 
 Enable controller
@@ -1556,6 +1577,36 @@ Normal Color
 == 
 
 Highlight Color
+== 
+
+Weapons
+== 
+
+Rifle Laser Outline Color
+== 
+
+Rifle Laser Inner Color
+== 
+
+Shotgun Laser Outline Color
+== 
+
+Shotgun Laser Inner Color
+== 
+
+Door Laser Outline Color
+== 
+
+Door Laser Inner Color
+== 
+
+Freeze Laser Outline Color
+== 
+
+Freeze Laser Inner Color
+== 
+
+Set all to Rifle
 == 
 
 Extras

@@ -20,7 +20,7 @@ void CStableProjectile::Reset()
 	m_MarkedForDestroy = true;
 }
 
-void CStableProjectile::TickDefered()
+void CStableProjectile::TickDeferred()
 {
 	if(Server()->Tick() % 4 == 1)
 	{

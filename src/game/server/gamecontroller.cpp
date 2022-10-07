@@ -399,9 +399,9 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 
 		for(int i = 0; i < 8; i++)
 		{
-			if(aSides2[i] >= ENTITY_LASER_SHORT && aSides2[i] <= ENTITY_LASER_LONG)
+			if(aSides[i] >= ENTITY_LASER_SHORT && aSides[i] <= ENTITY_LASER_LONG)
 			{
-				CLight *pLight = new CLight(&GameServer()->m_World, Pos, pi / 4 * i, 32 * 3 + 32 * (aSides2[i] - ENTITY_LASER_SHORT) * 3, Layer, Number);
+				CLight *pLight = new CLight(&GameServer()->m_World, Pos, pi / 4 * i, 32 * 3 + 32 * (aSides[i] - ENTITY_LASER_SHORT) * 3, Layer, Number);
 				pLight->m_AngularSpeed = AngularSpeed;
 				if(aSides2[i] >= ENTITY_LASER_C_SLOW && aSides2[i] <= ENTITY_LASER_C_FAST)
 				{
@@ -747,6 +747,8 @@ void IGameController::Snap(int SnappingClient)
 		if(pPlayer->m_DisplayScore == SCORE_TIME || GameServer()->MinigameScoreType(SnappingClient) == SCORE_TIME)
 			pGameInfoEx->m_Flags |= GAMEINFOFLAG_TIMESCORE;
 	pGameInfoEx->m_Flags2 = GAMEINFOFLAG2_HUD_DDRACE;
+	if(g_Config.m_SvNoWeakHookAndBounce)
+		pGameInfoEx->m_Flags2 |= GAMEINFOFLAG2_NO_WEAK_HOOK_AND_BOUNCE;
 	pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
 	if(Server()->IsSixup(SnappingClient))

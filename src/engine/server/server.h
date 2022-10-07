@@ -293,7 +293,6 @@ public:
 	void Ban(int ClientID, int Seconds, const char *pReason) override;
 
 	void DemoRecorder_HandleAutoStart() override;
-	bool DemoRecorder_IsRecording() override;
 
 	//int Tick()
 	int64_t TickStartTime(int Tick);
@@ -306,7 +305,7 @@ public:
 	int GetAuthedState(int ClientID) const override;
 	const char *GetAuthName(int ClientID) const override;
 	void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pMapSha256, int *pMapCrc) override;
-	int GetClientInfo(int ClientID, CClientInfo *pInfo) const override;
+	bool GetClientInfo(int ClientID, CClientInfo *pInfo) const override;
 	void SetClientDDNetVersion(int ClientID, int DDNetVersion) override;
 	void GetClientAddr(int ClientID, char *pAddrStr, int Size) const override;
 	const char *ClientName(int ClientID) const override;
@@ -319,6 +318,7 @@ public:
 	int ClientCount() const override;
 	int DistinctClientCount() const override;
 
+	int GetClientVersion(int ClientID) const override;
 	int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) override;
 
 	void DoSnapshot();
@@ -507,4 +507,5 @@ public:
 	int LoadMapLive(const char *pMapName) override;
 };
 
+extern CServer *CreateServer();
 #endif

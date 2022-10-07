@@ -73,7 +73,7 @@ void CHomingMissile::Tick()
 	}
 }
 
-void CHomingMissile::TickDefered()
+void CHomingMissile::TickDeferred()
 {
 	if(Server()->Tick() % 4 == 1)
 	{

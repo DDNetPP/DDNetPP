@@ -26,6 +26,8 @@
 # 2022-06-16 cheeser0613
 # 2022-06-27 cheeser0613
 # 2022-07-04 cheeser0613
+# 2022-08-08 cheeser0613
+# 2022-09-17 cheeser0613
 ##### /authors #####
 
 ##### translated strings #####
@@ -623,7 +625,7 @@ Length:
 == 时长：
 
 Laser
-== 激光枪
+== 激光
 
 Netversion:
 == 通信版本：
@@ -762,9 +764,6 @@ Show other players' key presses
 
 Show tiles layers from BG map
 == 显示实体层背景地图的图块层
-
-Try fast HTTP map download first
-== 优先尝试使用 HTTP 协议快速下载地图
 
 DDNet %s is available:
 == DDNet %s 现已可用：
@@ -925,8 +924,8 @@ Date
 Show DDNet map finishes in server browser
 == 在服务器浏览器中显示已完成的 DDNet 地图
 
-transmits your player name to info2.ddnet.tw
-== 将会发送你的玩家昵称到 info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== 将会发送你的玩家昵称到 info.ddnet.org
 
 Reload
 == 刷新
@@ -1093,8 +1092,8 @@ Use k key to kill (restart), q to pause and watch other players. See settings fo
 Country / Region
 == 国家 / 地区
 
-https://wiki.ddnet.tw/
-== https://docs.qq.com/doc/DWGFrV0xPRmVWVkla
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/wiki/Main_Page/zh
 
 Warning
 == 警告
@@ -1217,7 +1216,7 @@ Particles
 Assets directory
 == 资源目录
 
-https://ddnet.tw/discord
+https://ddnet.org/discord
 == http://chat.teeworlds.cn/
 
 Discord
@@ -1231,12 +1230,6 @@ Chat command
 
 Dummy
 == 分身
-
-Laser Outline Color
-== 激光边框颜色
-
-Laser Inner Color
-== 激光颜色
 
 Preview
 == 预览
@@ -1418,13 +1411,13 @@ Ingame controller mode
 == 游戏内控制器瞄准模式
 
 Ingame controller sens.
-== 类比摇杆灵敏度（游戏）
+== 摇杆灵敏度（游戏）
 
 UI controller sens.
-== 类比摇杆灵敏度（界面）
+== 摇杆灵敏度（界面）
 
 Controller jitter tolerance
-== 类比摇杆错位容错
+== 摇杆死区
 
 No controller found. Plug in a controller and restart the game.
 == 未检测到任何控制器。请尝试重新连接控制器并重启游戏。
@@ -1439,16 +1432,16 @@ Aim bind
 == 操作轴绑定
 
 Controller Axis #%d
-== 类比摇杆 #%d
+== 摇杆 #%d
 
 Mouse
-== 滑鼠
+== 鼠标
 
 Ingame mouse sens.
-== 滑鼠灵敏度（游戏）
+== 鼠标灵敏度（游戏）
 
 UI mouse sens.
-== 滑鼠灵敏度（界面）
+== 鼠标灵敏度（界面）
 
 Controller
 == 控制器
@@ -1481,106 +1474,166 @@ Extras
 == 其他
 
 Preparing demo playback
-== 
+== 正在准备回放
 
 Connected
-== 
+== 连接成功
 
 Loading map file from storage
-== 
+== 正在从硬盘中加载地图文件
+
+Why are you slowmo replaying to read this?
+== 所以你为什么要慢速回放来看这个
 
 Initializing components
-== 
+== 正在初始化游戏引擎
 
 Initializing assets
-== 
+== 正在初始化资源
 
 Initializing map logic
-== 
+== 正在初始化地图逻辑
 
 Sending initial client info
-== 
+== 正在发送初始客户端信息
 
 Uploading map data to GPU
-== 
+== 正在将地图数据传输至显卡
 
 Getting game info
-== 
+== 正在获取游戏信息
 
 Requesting to join the game
-== 
-
-Sending intial client info
-== 
+== 正在请求加入游戏
 
 Loading menu images
-== 
+== 正在加载主菜单图片
 
 Loading demo files
-== 
+== 正在加载回放文件
 
 Loading ghost files
-== 
+== 正在加载影子文件
 
 Loading skin files
-== 
+== 正在加载皮肤文件
 
 Appearance
-== 
+== 游戏界面
 
 Name Plate
-== 
+== 昵称板块
 
 Hook Collisions
-== 
+== 瞄准辅助
 
 Show health, shields and ammo
-== 
+== 显示生命、护甲与弹药栏
 
 DDRace HUD
-== 
+== DDRace HUD
 
 Show client IDs in scoreboard
-== 
+== 显示客户端 IDs （计分板中）
 
 Show DDRace HUD
-== 
+== 显示 DDRace HUD
 
 Show jumps indicator
-== 
+== 显示可跳跃次数
 
 Show hook strength indicator
-== 
+== 显示对其他玩家的钩索强度
 
 Hook collision line
-== 
+== 瞄准辅助线
 
 Hook collision line width
-== 
+== 辅助线宽度
 
 Hook collision line opacity
-== 
+== 辅助线不透明度
 
 Colors of the hook collision line, in case of a possible collision with:
-== 
+== 辅助线颜色（当瞄准以下实体物时）：
 
 Your movements are not taken into account when calculating the line colors
-== 
+== 移动所造成的瞄准偏移将不计入考量
 
 Nothing hookable
-== 
+== 未瞄准任何实体物
 
 Something hookable
-== 
+== 可钩索的方块
 
 A Tee
-== 
+== 其他玩家
 
 Loading assets
-== 
+== 正在加载资源
 
 Loading race demo files
-== 
+== 正在加载回放文件
 
 Loading sound files
+== 正在加载声音文件
+
+Play the current demo
+== 播放回放
+
+Pause the current demo
+== 暂停回放
+
+Stop the current demo
+== 结束回放
+
+Slow down the demo
+== 减慢播放速度
+
+Speed up the demo
+== 加快播放速度
+
+Mark the beginning of a cut
+== 标记裁剪起点
+
+Mark the end of a cut
+== 标记裁剪终点
+
+Export cut as a separate demo
+== 另存为新回放文件
+
+Toggle keyboard shortcuts
+== 启用/禁用键盘快捷键
+
+Weapons
+== 武器
+
+Rifle Laser Outline Color
+== 激光枪弹道外框颜色
+
+Rifle Laser Inner Color
+== 激光枪弹道实心颜色
+
+Shotgun Laser Outline Color
+== 霰弹枪弹道外框颜色
+
+Shotgun Laser Inner Color
+== 霰弹枪弹道实心颜色
+
+Door Laser Outline Color
+== 激光门外框颜色
+
+Door Laser Inner Color
+== 激光门实心颜色
+
+Freeze Laser Outline Color
+== 冻结激光外框颜色
+
+Freeze Laser Inner Color
+== 冻结激光实心颜色
+
+Menu opened. Press Esc key again to close menu.
+== 
+
+Set all to Rifle
 == 

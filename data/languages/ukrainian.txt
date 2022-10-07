@@ -550,8 +550,8 @@ Video name:
 Show DDNet map finishes in server browser
 == Показувати завершені карти DDNet в браузері сервера
 
-transmits your player name to info2.ddnet.tw
-== передає Ваш нікнейм на info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== передає Ваш нікнейм на info.ddnet.org
 
 Search
 == Пошук
@@ -994,9 +994,6 @@ Old mouse mode
 Show tiles layers from BG map
 == Показувати шари з тайлами з фонової карти
 
-Try fast HTTP map download first
-== Намагатися скакачати карту швидко по HTTP
-
 DDNet %s is available:
 == Доступний новий DDNet %s:
 
@@ -1201,12 +1198,6 @@ Assets
 Kill Messages
 == Повідомлення вбивств
 
-Laser Outline Color
-== Колір обводки лазеру
-
-Laser Inner Color
-== Колір лазеру
-
 Use old chat style
 == Використовувати стиль старого чату
 
@@ -1243,11 +1234,11 @@ Assets directory
 Discord
 == Діскорд
 
-https://ddnet.tw/discord
-== https://ddnet.tw/discord
+https://ddnet.org/discord
+== https://ddnet.org/discord
 
-https://wiki.ddnet.tw/
-== https://wiki.ddnet.tw/
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/
 
 Website
 == Вебсайт
@@ -1281,6 +1272,9 @@ Connected
 == 
 
 Loading map file from storage
+== 
+
+Why are you slowmo replaying to read this?
 == 
 
 Initializing components
@@ -1325,9 +1319,6 @@ Getting game info
 Requesting to join the game
 == 
 
-Sending intial client info
-== 
-
 Join Tutorial Server
 == 
 
@@ -1337,7 +1328,37 @@ Skip Tutorial
 Loading menu images
 == 
 
+Play the current demo
+== 
+
+Pause the current demo
+== 
+
+Stop the current demo
+== 
+
+Slow down the demo
+== 
+
+Speed up the demo
+== 
+
+Mark the beginning of a cut
+== 
+
+Mark the end of a cut
+== 
+
+Export cut as a separate demo
+== 
+
+Toggle keyboard shortcuts
+== 
+
 Loading demo files
+== 
+
+Menu opened. Press Esc key again to close menu.
 == 
 
 Loading ghost files
@@ -1349,6 +1370,9 @@ Settings file
 Config directory
 == 
 
+Loading skin files
+== 
+
 Toggle to edit your dummy settings
 == 
 
@@ -1356,9 +1380,6 @@ Download community skins
 == 
 
 Choose default eyes when joining a server
-== 
-
-Loading skin files
 == 
 
 Enable controller
@@ -1511,6 +1532,36 @@ Normal Color
 == 
 
 Highlight Color
+== 
+
+Weapons
+== 
+
+Rifle Laser Outline Color
+== 
+
+Rifle Laser Inner Color
+== 
+
+Shotgun Laser Outline Color
+== 
+
+Shotgun Laser Inner Color
+== 
+
+Door Laser Outline Color
+== 
+
+Door Laser Inner Color
+== 
+
+Freeze Laser Outline Color
+== 
+
+Freeze Laser Inner Color
+== 
+
+Set all to Rifle
 == 
 
 When you cross the start line, show a ghost tee replicating the movements of your best time

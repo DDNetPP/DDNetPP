@@ -749,9 +749,9 @@ Video name:
 Show DDNet map finishes in server browser
 == Mostra le mappe finite in DDNet nel tuo browser dei server
 
-transmits your player name to info2.ddnet.tw
+transmits your player name to info.ddnet.org
 
-== Trasmette il tuo nome da giocatore a info2.ddnet.tw
+== Trasmette il tuo nome da giocatore a info.ddnet.org
 
 
 Theme
@@ -1090,9 +1090,6 @@ Use current map as background
 Show tiles layers from BG map
 == Mostra i layer dei tile dalla mappa in sfondo
 
-Try fast HTTP map download first
-== Prova un download veloce della mappa con HTTP
-
 DDNet %s is available:
 == DDNet %s è disponibile:
 
@@ -1129,8 +1126,8 @@ Assets directory
 Learn
 == Impara
 
-https://wiki.ddnet.tw/
-== https://wiki.ddnet.tw/
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/
 
 
 Website
@@ -1224,6 +1221,9 @@ Connected
 Loading map file from storage
 == 
 
+Why are you slowmo replaying to read this?
+== 
+
 Initializing components
 == 
 
@@ -1264,9 +1264,6 @@ Getting game info
 == 
 
 Requesting to join the game
-== 
-
-Sending intial client info
 == 
 
 Are you sure that you want to disconnect and switch to a different server?
@@ -1311,6 +1308,33 @@ Refreshing...
 Leak IP
 == 
 
+Play the current demo
+== 
+
+Pause the current demo
+== 
+
+Stop the current demo
+== 
+
+Slow down the demo
+== 
+
+Speed up the demo
+== 
+
+Mark the beginning of a cut
+== 
+
+Mark the end of a cut
+== 
+
+Export cut as a separate demo
+== 
+
+Toggle keyboard shortcuts
+== 
+
 Loading demo files
 == 
 
@@ -1323,6 +1347,9 @@ Markers:
 %.2f KiB
 == 
 
+Menu opened. Press Esc key again to close menu.
+== 
+
 Loading ghost files
 == 
 
@@ -1332,6 +1359,9 @@ Settings file
 Config directory
 == 
 
+Loading skin files
+== 
+
 Toggle to edit your dummy settings
 == 
 
@@ -1339,9 +1369,6 @@ Download community skins
 == 
 
 Choose default eyes when joining a server
-== 
-
-Loading skin files
 == 
 
 Converse
@@ -1523,10 +1550,34 @@ Normal Color
 Highlight Color
 == 
 
-Laser Outline Color
+Weapons
 == 
 
-Laser Inner Color
+Rifle Laser Outline Color
+== 
+
+Rifle Laser Inner Color
+== 
+
+Shotgun Laser Outline Color
+== 
+
+Shotgun Laser Inner Color
+== 
+
+Door Laser Outline Color
+== 
+
+Door Laser Inner Color
+== 
+
+Freeze Laser Outline Color
+== 
+
+Freeze Laser Inner Color
+== 
+
+Set all to Rifle
 == 
 
 When you cross the start line, show a ghost tee replicating the movements of your best time
@@ -1571,7 +1622,7 @@ Loading assets
 Discord
 == 
 
-https://ddnet.tw/discord
+https://ddnet.org/discord
 == 
 
 Tutorial

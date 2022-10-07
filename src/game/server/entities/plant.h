@@ -29,7 +29,7 @@ public:
 
 	virtual void Tick() override;
 	virtual void Reset() override;
-	virtual void TickDefered() override;
+	virtual void TickDeferred() override;
 	virtual void Snap(int SnappingClient) override;
 };
 

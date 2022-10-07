@@ -1,21 +1,21 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include <antibot/antibot_data.h>
-
-#include <engine/antibot.h>
-
-#include <engine/shared/config.h>
-#include <game/generated/server_data.h>
-#include <game/mapitems.h>
-#include <game/server/gamecontext.h>
-#include <game/server/gamecontroller.h>
-#include <game/server/player.h>
-
 #include "character.h"
-#include "game/generated/protocol.h"
 #include "laser.h"
 #include "projectile.h"
 
+#include <antibot/antibot_data.h>
+
+#include <engine/antibot.h>
+#include <engine/shared/config.h>
+
+#include <game/generated/protocol.h>
+#include <game/generated/server_data.h>
+#include <game/mapitems.h>
+
+#include <game/server/gamecontext.h>
+#include <game/server/gamecontroller.h>
+#include <game/server/player.h>
 #include <game/server/score.h>
 #include <game/server/teams.h>
 
@@ -764,7 +764,7 @@ void CCharacter::ResetInput()
 	m_LatestPrevInput = m_LatestInput = m_Input;
 }
 
-void CCharacter::Tick()
+void CCharacter::PreTick()
 {
 	if(m_StartTime > Server()->Tick())
 	{
@@ -791,7 +791,22 @@ void CCharacter::Tick()
 	Antibot()->OnCharacterTick(m_pPlayer->GetCID());
 
 	m_Core.m_Input = m_Input;
-	m_Core.Tick(true);
+	m_Core.Tick(true, !g_Config.m_SvNoWeakHookAndBounce);
+}
+
+void CCharacter::Tick()
+{
+	if(g_Config.m_SvNoWeakHookAndBounce)
+	{
+		if(m_Paused)
+			return;
+
+		m_Core.TickDeferred();
+	}
+	else
+	{
+		PreTick();
+	}
 
 	if(!m_PrevInput.m_Hook && m_Input.m_Hook && !(m_Core.m_TriggeredEvents & COREEVENT_HOOK_ATTACH_PLAYER))
 	{
@@ -818,7 +833,7 @@ void CCharacter::Tick()
 	m_PrevPos = m_Core.m_Pos;
 }
 
-void CCharacter::TickDefered()
+void CCharacter::TickDeferred()
 {
 	// advance the dummy
 	{
@@ -1044,10 +1059,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 {
 	SnapCharacterDDPP();
 
-	// write down the m_Core
-	int SnappingClientVersion = SnappingClient != SERVER_DEMO_CLIENT ?
-					    GameServer()->GetClientVersion(SnappingClient) :
-					    CLIENT_VERSIONNR;
+	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	CCharacterCore *pCore;
 	int Tick, Emote = m_EmoteType, Weapon = m_Core.m_ActiveWeapon, AmmoCount = 0,
 		  Health = 0, Armor = 0;

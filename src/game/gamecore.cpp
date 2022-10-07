@@ -34,7 +34,7 @@ bool CTuningParams::Get(int Index, float *pValue) const
 bool CTuningParams::Set(const char *pName, float Value)
 {
 	for(int i = 0; i < Num(); i++)
-		if(str_comp_nocase(pName, ms_apNames[i]) == 0)
+		if(str_comp_nocase(pName, Name(i)) == 0)
 			return Set(i, Value);
 	return false;
 }
@@ -42,15 +42,38 @@ bool CTuningParams::Set(const char *pName, float Value)
 bool CTuningParams::Get(const char *pName, float *pValue) const
 {
 	for(int i = 0; i < Num(); i++)
-		if(str_comp_nocase(pName, ms_apNames[i]) == 0)
+		if(str_comp_nocase(pName, Name(i)) == 0)
 			return Get(i, pValue);
 
 	return false;
 }
 
-float HermiteBasis1(float v)
+int CTuningParams::PossibleTunings(const char *pStr, IConsole::FPossibleCallback pfnCallback, void *pUser)
 {
-	return 2 * v * v * v - 3 * v * v + 1;
+	int Index = 0;
+	for(int i = 0; i < Num(); i++)
+	{
+		if(str_find_nocase(Name(i), pStr))
+		{
+			pfnCallback(Index, Name(i), pUser);
+			Index++;
+		}
+	}
+	return Index;
+}
+
+float CTuningParams::GetWeaponFireDelay(int Weapon) const
+{
+	switch(Weapon)
+	{
+	case WEAPON_HAMMER: return (float)m_HammerHitFireDelay / 1000.0f;
+	case WEAPON_GUN: return (float)m_GunFireDelay / 1000.0f;
+	case WEAPON_SHOTGUN: return (float)m_ShotgunFireDelay / 1000.0f;
+	case WEAPON_GRENADE: return (float)m_GrenadeFireDelay / 1000.0f;
+	case WEAPON_LASER: return (float)m_LaserFireDelay / 1000.0f;
+	case WEAPON_NINJA: return (float)m_NinjaFireDelay / 1000.0f;
+	default: dbg_assert(false, "invalid weapon"); return 0.0f; // this value should not be reached
+	}
 }
 
 float VelocityRamp(float Value, float Start, float Range, float Curvature)
@@ -117,18 +140,13 @@ void CCharacterCore::Reset()
 	m_Input.m_TargetY = -1;
 }
 
-void CCharacterCore::Tick(bool UseInput)
+void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 {
 	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(UseInput ? IsSwitchActiveCb : 0, this, m_Pos);
 	m_TriggeredEvents = 0;
 
 	// get ground state
-	bool Grounded = false;
-	if(m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5))
-		Grounded = true;
-	if(m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5))
-		Grounded = true;
-
+	const bool Grounded = m_pCollision->CheckPoint(m_Pos.x + PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5) || m_pCollision->CheckPoint(m_Pos.x - PhysicalSize() / 2, m_Pos.y + PhysicalSize() / 2 + 5);
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
 	m_Vel.y += m_Tuning.m_Gravity;
@@ -263,7 +281,7 @@ void CCharacterCore::Tick(bool UseInput)
 		int teleNr = 0;
 		int Hit = m_pCollision->IntersectLineTeleHook(m_HookPos, NewPos, &NewPos, 0, &teleNr);
 
-		//m_NewHook = false;
+		// m_NewHook = false;
 
 		if(Hit)
 		{
@@ -358,8 +376,8 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 
 			// keep players hooked for a max of 1.5sec
-			//if(Server()->Tick() > hook_tick+(Server()->TickSpeed()*3)/2)
-			//release_hooked();
+			// if(Server()->Tick() > hook_tick+(Server()->TickSpeed()*3)/2)
+			// release_hooked();
 		}
 
 		// don't do this hook rutine when we are hook to a player
@@ -395,6 +413,12 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 	}
 
+	if(DoDeferredTick)
+		TickDeferred();
+}
+
+void CCharacterCore::TickDeferred()
+{
 	if(m_pWorld)
 	{
 		for(int i = 0; i < MAX_CLIENTS; i++)
@@ -403,8 +427,8 @@ void CCharacterCore::Tick(bool UseInput)
 			if(!pCharCore)
 				continue;
 
-			//player *p = (player*)ent;
-			//if(pCharCore == this) // || !(p->flags&FLAG_ALIVE)
+			// player *p = (player*)ent;
+			// if(pCharCore == this) // || !(p->flags&FLAG_ALIVE)
 
 			if(pCharCore == this || (m_Id != -1 && !m_pTeams->CanCollide(m_Id, i)))
 				continue; // make sure that we don't nudge our self

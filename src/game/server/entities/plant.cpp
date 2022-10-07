@@ -19,7 +19,7 @@ void CPlant::Reset()
 	m_MarkedForDestroy = true;
 }
 
-void CPlant::TickDefered()
+void CPlant::TickDeferred()
 {
 	if(Server()->Tick() % 4 == 1)
 	{

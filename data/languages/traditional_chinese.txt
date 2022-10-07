@@ -15,6 +15,8 @@
 # 2022-05-14 cheeser0613
 # 2022-06-16 cheeser0613
 # 2022-06-27 cheeser0613
+# 2022-08-08 cheeser0613
+# 2022-09-17 cheeser0613
 ##### /authors #####
 
 ##### translated strings #####
@@ -612,7 +614,7 @@ Length:
 == 長度：
 
 Laser
-== 鐳射槍
+== 鐳射
 
 Netversion:
 == 通訊版本：
@@ -751,9 +753,6 @@ Show other players' key presses
 
 Show tiles layers from BG map
 == 顯示實體層背景地圖的圖塊層
-
-Try fast HTTP map download first
-== 優先嘗試用HTTP高速下載地圖
 
 DDNet %s is available:
 == DDNet %s 現已可用：
@@ -914,8 +913,8 @@ Date
 Show DDNet map finishes in server browser
 == 在伺服器瀏覽器中顯示已完成的 DDNet 地圖
 
-transmits your player name to info2.ddnet.tw
-== 將會發送您的玩家名稱到 info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== 將會發送您的玩家名稱到 info.ddnet.org
 
 Reload
 == 重新整理
@@ -1082,8 +1081,8 @@ Use k key to kill (restart), q to pause and watch other players. See settings fo
 Country / Region
 == 國家/地區
 
-https://wiki.ddnet.tw/
-== https://docs.qq.com/doc/DWGFrV0xPRmVWVkla
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/wiki/Main_Page/zh
 
 Warning
 == 警告
@@ -1251,12 +1250,6 @@ Windowed borderless
 Desktop fullscreen
 == 無邊框全螢幕
 
-Laser Outline Color
-== 鐳射線邊框顏色
-
-Laser Inner Color
-== 鐳射線顏色
-
 Preview
 == 預覽
 
@@ -1272,8 +1265,8 @@ Regular Background Color
 Discord
 == Discord
 
-https://ddnet.tw/discord
-== https://ddnet.tw/discord
+https://ddnet.org/discord
+== https://ddnet.org/discord
 
 Are you sure that you want to disconnect and switch to a different server?
 == 您確定要中斷此伺服器并嘗試加入其他伺服器嗎？
@@ -1288,7 +1281,7 @@ Show local player's key presses
 == 顯示周圍玩家的按鍵輸入
 
 Settings file
-== 設定文件
+== 設定檔案
 
 Config directory
 == 配置目錄 (cfg)
@@ -1407,13 +1400,13 @@ Ingame controller mode
 == 游戲内控制器瞄準模式
 
 Ingame controller sens.
-== 類比搖桿靈敏度（游戲）
+== 搖桿靈敏度（游戲）
 
 UI controller sens.
-== 類比遙感靈敏度（界面）
+== 搖桿靈敏度（界面）
 
 Controller jitter tolerance
-== 類比搖桿錯位容錯
+== 搖桿錯位容錯
 
 No controller found. Plug in a controller and restart the game.
 == 未檢測到任何控制器。請重試重新連接控制器並重啓游戲。
@@ -1428,7 +1421,7 @@ Aim bind
 == 操作軸綁定
 
 Controller Axis #%d
-== 類比搖桿 #%d
+== 搖桿 #%d
 
 Mouse
 == 滑鼠
@@ -1470,106 +1463,166 @@ Extras
 == 其他
 
 Preparing demo playback
-== 
+== 正在準備回放
 
 Connected
-== 
+== 連接成功
 
 Loading map file from storage
-== 
+== 正在從硬盤中加載地圖檔案
+
+Why are you slowmo replaying to read this?
+== 所以你爲什麽要慢速回放來看這個
 
 Initializing components
-== 
+== 正在初始化游戲引擎
 
 Initializing assets
-== 
+== 正在初始化材質
 
 Initializing map logic
-== 
+== 正在初始化地圖邏輯
 
 Sending initial client info
-== 
+== 正在發送初始客戶端資訊
 
 Uploading map data to GPU
-== 
+== 正在將地圖數據傳輸至顯卡
 
 Getting game info
-== 
+== 正在獲取游戲資訊
 
 Requesting to join the game
-== 
-
-Sending intial client info
-== 
+== 正在請求加入游戲
 
 Loading menu images
-== 
+== 正在加載主菜單圖片
 
 Loading demo files
-== 
+== 正在加載回放檔案
 
 Loading ghost files
-== 
+== 正在加載影子檔案
 
 Loading skin files
-== 
+== 正在加載外觀檔案
 
 Appearance
-== 
+== 游戲界面
 
 Name Plate
-== 
+== 匿稱板塊
 
 Hook Collisions
-== 
+== 瞄準輔助
 
 Show health, shields and ammo
-== 
+== 顯示生命、護甲與彈藥欄
 
 DDRace HUD
-== 
+== DDRace HUD
 
 Show client IDs in scoreboard
-== 
+== 顯示客戶端 IDs （計分板中）
 
 Show DDRace HUD
-== 
+== 顯示 DDRace HUD
 
 Show jumps indicator
-== 
+== 顯示跳躍次數
 
 Show hook strength indicator
-== 
+== 顯示對其他玩家的鈎索强度
 
 Hook collision line
-== 
+== 瞄準輔助綫
 
 Hook collision line width
-== 
+== 輔助綫寬度
 
 Hook collision line opacity
-== 
+== 輔助綫不透明度
 
 Colors of the hook collision line, in case of a possible collision with:
-== 
+== 輔助綫顔色（當瞄準以下實體物時）：
 
 Your movements are not taken into account when calculating the line colors
-== 
+== 移動所造成的瞄準偏移將不計入考量
 
 Nothing hookable
-== 
+== 未瞄準任何實體物
 
 Something hookable
-== 
+== 可鈎索的方塊
 
 A Tee
-== 
+== 其他玩家
 
 Loading assets
-== 
+== 正在加載材質
 
 Loading race demo files
-== 
+== 正在加載回放檔案
 
 Loading sound files
+== 正在加載聲音檔案
+
+Play the current demo
+== 播放回放
+
+Pause the current demo
+== 暫停回放
+
+Stop the current demo
+== 結束回放
+
+Slow down the demo
+== 減慢播放速度
+
+Speed up the demo
+== 加快播放速度
+
+Mark the beginning of a cut
+== 標記裁剪起點
+
+Mark the end of a cut
+== 標記裁剪終點
+
+Export cut as a separate demo
+== 另存爲新回放檔案
+
+Toggle keyboard shortcuts
+== 啓用/禁用鍵盤快捷鍵
+
+Weapons
+== 武器
+
+Rifle Laser Outline Color
+== 鐳射槍彈道外框顔色
+
+Rifle Laser Inner Color
+== 鐳射槍彈道實心顔色
+
+Shotgun Laser Outline Color
+== 霰彈槍彈道外框顔色
+
+Shotgun Laser Inner Color
+== 霰彈槍彈道實心顔色
+
+Door Laser Outline Color
+== 鐳射門外框顔色
+
+Door Laser Inner Color
+== 鐳射門實心顔色
+
+Freeze Laser Outline Color
+== 凍結鐳射外框顔色
+
+Freeze Laser Inner Color
+== 凍結鐳射實心顔色
+
+Menu opened. Press Esc key again to close menu.
+== 
+
+Set all to Rifle
 == 

@@ -18,7 +18,7 @@ public:
 	CStableProjectile(CGameWorld *pGameWorld, int Type, vec2 Pos = vec2());
 
 	virtual void Reset() override;
-	virtual void TickDefered() override;
+	virtual void TickDeferred() override;
 	virtual void Snap(int SnappingClient) override;
 };
 

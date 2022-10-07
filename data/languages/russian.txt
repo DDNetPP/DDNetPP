@@ -397,7 +397,7 @@ Shotgun
 == Дробовик
 
 Show chat
-== Показать чат
+== Показывать чат
 
 Show friends only
 == Только с друзьями
@@ -553,7 +553,7 @@ Threaded sound loading
 == Фоновая загрузка музыки
 
 Use DDRace Scoreboard
-== Использовать DDRace табло
+== Использовать DDRace таблицу счета
 
 Show kill messages
 == Показывать сообщения о смерти
@@ -807,8 +807,8 @@ Video name:
 Show DDNet map finishes in server browser
 == Показывать в браузере статус завершения карты
 
-transmits your player name to info2.ddnet.tw
-== передает ваш псевдоним на info2.ddnet.tw
+transmits your player name to info.ddnet.org
+== передает ваш псевдоним на info.ddnet.org
 
 Exclude
 == Исключить
@@ -934,7 +934,7 @@ Lock team
 == Закрыть команду
 
 Show entities
-== Показать тайлы
+== Показывать тайлы
 
 Show HUD
 == Показывать HUD
@@ -1005,9 +1005,6 @@ Show other players' key presses
 Show tiles layers from BG map
 == Показывать тайловые слои фона
 
-Try fast HTTP map download first
-== Быстро загружать карты по HTTP
-
 DDNet %s is available:
 == Доступен DDNet %s:
 
@@ -1077,8 +1074,8 @@ Markers
 Skip the main menu
 == Пропускать главное меню
 
-https://wiki.ddnet.tw/
-== https://wiki.ddnet.tw/wiki/Main_Page/ru
+https://wiki.ddnet.org/
+== https://wiki.ddnet.org/wiki/Main_Page/ru
 
 Website
 == Сайт
@@ -1204,12 +1201,6 @@ The width of texture %s is not divisible by %d, or the height is not divisible b
 Dummy
 == Дамми
 
-Laser Outline Color
-== Цвет обводки лазера
-
-Laser Inner Color
-== Цвет лазера
-
 Preview
 == Превью
 
@@ -1228,8 +1219,8 @@ Chat command
 Discord
 == Дискорд
 
-https://ddnet.tw/discord
-== https://ddnet.tw/discord
+https://ddnet.org/discord
+== https://ddnet.org/discord
 
 AFR
 == AFR
@@ -1274,7 +1265,7 @@ Refreshing...
 == Обновление...
 
 Kill Messages
-== Сообщения об убийстве
+== Сообщения о смерти
 
 Show local player's key presses
 == Показывать нажатия клавиш игрока
@@ -1414,19 +1405,19 @@ Allows maps to render with more detail
 == Позволяет более детализированную прорисовку карты
 
 Show dummy actions
-== Показать действия дамми
+== Показывать действия дамми
 
 Show player position
-== Показать позицию игрока
+== Показывать позицию игрока
 
 Show player speed
-== Показать скорость игрока
+== Показывать скорость игрока
 
 Show player target angle
-== Показать угол прицела игрока
+== Показывать угол прицела игрока
 
 Show freeze bars
-== Показать полоску фриза
+== Показывать полоску фриза
 
 Opacity of freeze bars inside freeze
 == Прозрачность полоски фриза внутри фриза
@@ -1438,7 +1429,7 @@ Highlight Color
 == Цвет выделения
 
 When you cross the start line, show a ghost tee replicating the movements of your best time
-== При пересечении стартовой линии, показать призрак Tee, повторяющий прохождение лучшего времени
+== При пересечении стартовой линии, показать тень Tee, повторяющую прохождение лучшего времени
 
 Opacity
 == Прозрачность
@@ -1462,106 +1453,166 @@ Team %d
 == Команда %d
 
 Preparing demo playback
-== 
+== Подготовка воспроизведения демо
 
 Connected
-== 
+== Подключено
 
 Loading map file from storage
-== 
+== Загрузка файлов карты из памяти
 
 Initializing components
-== 
+== Подготовка компонентов
 
 Initializing assets
-== 
+== Подготовка ресурсов
 
 Initializing map logic
-== 
+== Подготовка алгоритмов карты
 
 Sending initial client info
-== 
+== Отправка начальных данных о клиенте
 
 Uploading map data to GPU
-== 
+== Загрузка данных о карте в GPU
 
 Getting game info
-== 
+== Получение игровых данных
 
 Requesting to join the game
-== 
-
-Sending intial client info
-== 
+== Запрашивается подключение к игре
 
 Loading menu images
-== 
+== Загрузка изображений меню
 
 Loading demo files
-== 
+== Загрузка файлов демо
 
 Loading ghost files
-== 
+== Загрузка файлов тени
 
 Loading skin files
-== 
+== Загрузка файлов скинов
 
 Appearance
-== 
+== Внешний вид
 
 Name Plate
-== 
+== Табличка имени
 
 Hook Collisions
-== 
+== Коллизии крюка
 
 Show health, shields and ammo
-== 
+== Показывать здоровье, щиты и патроны
 
 DDRace HUD
-== 
+== DDRace HUD
 
 Show client IDs in scoreboard
-== 
+== Показывать ID клиентов в таблице счета
 
 Show DDRace HUD
-== 
+== Показывать DDRace HUD
 
 Show jumps indicator
-== 
+== Показывать индикатор прыжка
 
 Show hook strength indicator
-== 
+== Показывать индикатор силы крюка
 
 Hook collision line
-== 
+== Линия коллизии крюка
 
 Hook collision line width
-== 
+== Ширина линии
 
 Hook collision line opacity
-== 
+== Прозрачность линии
 
 Colors of the hook collision line, in case of a possible collision with:
-== 
+== Цвет линии, в случае если:
 
 Your movements are not taken into account when calculating the line colors
-== 
+== Ваши движения не учитываются, когда рассчитывается цвет линии
 
 Nothing hookable
-== 
+== Невозможно зацепиться
 
 Something hookable
-== 
+== Возможно зацепиться
 
 A Tee
-== 
+== Столкновение с Tee
 
 Loading assets
-== 
+== Загрузка ресурсов
 
 Loading race demo files
-== 
+== Загрузка файлов демо
 
 Loading sound files
+== Загрузка звуковых файлов
+
+Why are you slowmo replaying to read this?
+== Зачем ты читаешь на это в замедлении?
+
+Play the current demo
+== Включить демо
+
+Pause the current demo
+== Поставить на паузу
+
+Stop the current demo
+== Остановить демо
+
+Slow down the demo
+== Замедлить демо
+
+Speed up the demo
+== Ускорить демо
+
+Mark the beginning of a cut
+== Отметить начало участка
+
+Mark the end of a cut
+== Отметить конец участка
+
+Export cut as a separate demo
+== Экспортировать участок отдельно
+
+Toggle keyboard shortcuts
+== Включить горячие клавиши
+
+Weapons
+== Оружия
+
+Rifle Laser Outline Color
+== Цвет обводки лазера
+
+Rifle Laser Inner Color
+== Цвет лазера
+
+Shotgun Laser Outline Color
+== Цвет обводки лазера дробовика
+
+Shotgun Laser Inner Color
+== Цвет лазера дробовика
+
+Door Laser Outline Color
+== Цвет обводки двери
+
+Door Laser Inner Color
+== Цвет двери
+
+Freeze Laser Outline Color
+== Цвет обводки фриз лазера
+
+Freeze Laser Inner Color
+== Цвет фриз лазера
+
+Menu opened. Press Esc key again to close menu.
+== 
+
+Set all to Rifle
 == 

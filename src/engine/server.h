@@ -15,7 +15,6 @@
 #include <game/generated/protocol.h>
 #include <game/generated/protocol7.h>
 #include <game/generated/protocolglue.h>
-#include <game/version.h>
 
 #define AUTHED_HONEY -1 // ddnet++
 struct CAntibotRoundData;
@@ -59,10 +58,21 @@ public:
 	virtual int ClientCountry(int ClientID) const = 0;
 	virtual bool ClientIngame(int ClientID) const = 0;
 	virtual bool ClientAuthed(int ClientID) const = 0;
-	virtual int GetClientInfo(int ClientID, CClientInfo *pInfo) const = 0;
+	virtual bool GetClientInfo(int ClientID, CClientInfo *pInfo) const = 0;
 	virtual void SetClientDDNetVersion(int ClientID, int DDNetVersion) = 0;
 	virtual void GetClientAddr(int ClientID, char *pAddrStr, int Size) const = 0;
 
+	/**
+	 * Returns the version of the client with the given client ID.
+	 *
+	 * @param ClientID the client ID, which must be between 0 and
+	 * MAX_CLIENTS - 1, or equal to SERVER_DEMO_CLIENT for server demos.
+	 *
+	 * @return The version of the client with the given client ID.
+	 * For server demos this is always the latest client version.
+	 * On errors, VERSION_NONE is returned.
+	 */
+	virtual int GetClientVersion(int ClientID) const = 0;
 	virtual int SendMsg(CMsgPacker *pMsg, int Flags, int ClientID) = 0;
 
 	template<class T, typename std::enable_if<!protocol7::is_sixup<T>::value, int>::type = 0>
@@ -159,19 +169,11 @@ public:
 		return SendMsg(&Packer, Flags, ClientID);
 	}
 
-	int GetClientVersion(int ClientID) const
-	{
-		CClientInfo Info;
-		GetClientInfo(ClientID, &Info);
-		return Info.m_DDNetVersion;
-	}
-
 	bool Translate(int &Target, int Client)
 	{
 		if(IsSixup(Client))
 			return true;
-		int ClientVersion = Client != SERVER_DEMO_CLIENT ? GetClientVersion(Client) : CLIENT_VERSIONNR;
-		if(ClientVersion >= VERSION_DDNET_OLD)
+		if(GetClientVersion(Client) >= VERSION_DDNET_OLD)
 			return true;
 		int *pMap = GetIdMap(Client);
 		bool Found = false;
@@ -191,8 +193,7 @@ public:
 	{
 		if(IsSixup(Client))
 			return true;
-		int ClientVersion = Client != SERVER_DEMO_CLIENT ? GetClientVersion(Client) : CLIENT_VERSIONNR;
-		if(ClientVersion >= VERSION_DDNET_OLD)
+		if(GetClientVersion(Client) >= VERSION_DDNET_OLD)
 			return true;
 		Target = clamp(Target, 0, VANILLA_MAX_CLIENTS - 1);
 		int *pMap = GetIdMap(Client);
@@ -230,7 +231,6 @@ public:
 	virtual void ChangeMap(const char *pMap) = 0;
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
-	virtual bool DemoRecorder_IsRecording() = 0;
 
 	// DDRace
 
@@ -283,8 +283,6 @@ public:
 	virtual void OnInit() = 0;
 	virtual void OnConsoleInit() = 0;
 	virtual void OnMapChange(char *pNewMapName, int MapNameSize) = 0;
-
-	// FullShutdown is true if the program is about to exit (not if the map is changed)
 	virtual void OnShutdown() = 0;
 
 	virtual void OnTick() = 0;

@@ -1246,8 +1246,22 @@ int str_format(char *buffer, int buffer_size, const char *format, ...)
  * @return Trimmed string
  *
  * @remark The strings are treated as zero-terminated strings.
+ * @remark Leading whitespace is always trimmed.
  */
-char *str_trim_words(char *str, int words);
+const char *str_trim_words(const char *str, int words);
+
+/**
+ * Check whether string has ASCII control characters.
+ *
+ * @ingroup Strings
+ *
+ * @param str String to check.
+ *
+ * @return Whether the string has ASCII control characters.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
+bool str_has_cc(const char *str);
 
 /**
  * Replaces all characters below 32 with whitespace.
@@ -1288,12 +1302,12 @@ void str_sanitize_filename(char *str);
  *
  * @param str String to clean up
  *
- * @remark The strings are treated as zero-termineted strings.
+ * @remark The strings are treated as zero-terminated strings.
  */
 void str_clean_whitespaces(char *str);
 
 /**
- * Skips leading non-whitespace characters(all but ' ', '\t', '\n', '\r').
+ * Skips leading non-whitespace characters.
  *
  * @ingroup Strings
  *
@@ -1303,6 +1317,7 @@ void str_clean_whitespaces(char *str);
  *		   within the string.
  *
  * @remark The strings are treated as zero-terminated strings.
+ * @remark Whitespace is defined according to str_isspace.
  */
 char *str_skip_to_whitespace(char *str);
 
@@ -1313,7 +1328,7 @@ char *str_skip_to_whitespace(char *str);
 const char *str_skip_to_whitespace_const(const char *str);
 
 /**
- * Skips leading whitespace characters(' ', '\t', '\n', '\r').
+ * Skips leading whitespace characters.
  *
  * @ingroup Strings
  *
@@ -1323,6 +1338,7 @@ const char *str_skip_to_whitespace_const(const char *str);
  * within the string.
  *
  * @remark The strings are treated as zero-terminated strings.
+ * @remark Whitespace is defined according to str_isspace.
  */
 char *str_skip_whitespaces(char *str);
 
@@ -1402,7 +1418,7 @@ int str_comp(const char *a, const char *b);
 int str_comp_num(const char *a, const char *b, int num);
 
 /**
- * Compares two strings case sensitive, digit chars will be compared as numbers.
+ * Compares two strings case insensitive, digit chars will be compared as numbers.
  *
  * @ingroup Strings
  *
@@ -1571,22 +1587,37 @@ const char *str_find_nocase(const char *haystack, const char *needle);
 */
 const char *str_find(const char *haystack, const char *needle);
 
-/*
-	Function: str_rchr
-		Finds the last occurance of a character
+/**
+ * Finds the last occurance of a character
+ *
+ * @ingroup Strings
+ *
+ * @param haystack String to search in
+ * @param needle Character to search for
 
-	Parameters:
-		haystack - String to search in
-		needle - Character to search for
-
-	Returns:
-		A pointer into haystack where the needle was found.
-		Returns NULL if needle could not be found.
-
-	Remarks:
-		- The strings are treated as zero-terminated strings.
-*/
+ * @return A pointer into haystack where the needle was found.
+ * Returns NULL if needle could not be found.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ * @remark The zero-terminator character can also be found with this function.
+ */
 const char *str_rchr(const char *haystack, char needle);
+
+/**
+ * Counts the number of occurrences of a character in a string.
+ *
+ * @ingroup Strings
+ *
+ * @param haystack String to count in
+ * @param needle Character to count
+
+ * @return The number of characters in the haystack string matching
+ * the needle character.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ * @remark The number of zero-terminator characters cannot be counted.
+ */
+int str_countchr(const char *haystack, char needle);
 
 /*
 	Function: str_hex
@@ -1822,6 +1853,15 @@ int fs_storage_path(const char *appname, char *path, int max);
 int fs_is_dir(const char *path);
 
 /*
+    Function: fs_is_relative_path
+        Checks whether a given path is relative or absolute.
+
+    Returns:
+        Returns 1 if relative, 0 if absolute.
+*/
+int fs_is_relative_path(const char *path);
+
+/*
 	Function: fs_chdir
 		Changes current working directory
 
@@ -1990,7 +2030,20 @@ int str_toint(const char *str);
 int str_toint_base(const char *str, int base);
 unsigned long str_toulong_base(const char *str, int base);
 float str_tofloat(const char *str);
+
+/**
+ * Determines whether a character is whitespace.
+ *
+ * @ingroup Strings
+ *
+ * @param c the character to check
+ *
+ * @return 1 if the character is whitespace, 0 otherwise.
+ *
+ * @remark The following characters are considered whitespace: ' ', '\n', '\r', '\t'
+ */
 int str_isspace(char c);
+
 char str_uppercase(char c);
 int str_isallnum(const char *str);
 unsigned str_quickhash(const char *str);
@@ -2505,6 +2558,19 @@ public:
 		cmdline_free(m_Argc, m_ppArgv);
 	}
 };
+
+#if defined(CONF_FAMILY_WINDOWS)
+/**
+ * This is a RAII wrapper to initialize/uninitialize the Windows COM library,
+ * which may be necessary for using the open_file and open_link functions.
+ */
+class CWindowsComLifecycle
+{
+public:
+	CWindowsComLifecycle();
+	~CWindowsComLifecycle();
+};
+#endif
 
 /**
  * Copies a string to a fixed-size array of chars.

@@ -122,19 +122,49 @@ void CSnapshot::DebugDump()
 	}
 }
 
-// CSnapshotDelta
-
-struct CItemList
+bool CSnapshot::IsValid(size_t ActualSize) const
 {
-	int m_Num;
-	int m_aKeys[64];
-	int m_aIndex[64];
-};
+	// validate total size
+	if(ActualSize < sizeof(CSnapshot) || m_NumItems < 0 || m_DataSize < 0 || ActualSize != TotalSize())
+		return false;
+
+	// validate item offsets
+	const int *pOffsets = Offsets();
+	for(int Index = 0; Index < m_NumItems; Index++)
+		if(pOffsets[Index] < 0 || pOffsets[Index] > m_DataSize)
+			return false;
+
+	// validate item sizes
+	for(int Index = 0; Index < m_NumItems; Index++)
+		if(GetItemSize(Index) < 0) // the offsets must be validated before using this
+			return false;
+
+	return true;
+}
+
+// CSnapshotDelta
 
 enum
 {
 	HASHLIST_SIZE = 256,
+	HASHLIST_BUCKET_SIZE = 64,
 };
+
+struct CItemList
+{
+	int m_Num;
+	int m_aKeys[HASHLIST_BUCKET_SIZE];
+	int m_aIndex[HASHLIST_BUCKET_SIZE];
+};
+
+inline size_t CalcHashID(int Key)
+{
+	// djb2 (http://www.cse.yorku.ca/~oz/hash.html)
+	unsigned Hash = 5381;
+	for(unsigned Shift = 0; Shift < sizeof(int); Shift++)
+		Hash = ((Hash << 5) + Hash) + ((Key >> (Shift * 8)) & 0xFF);
+	return Hash % HASHLIST_SIZE;
+}
 
 static void GenerateHash(CItemList *pHashlist, CSnapshot *pSnapshot)
 {
@@ -144,8 +174,8 @@ static void GenerateHash(CItemList *pHashlist, CSnapshot *pSnapshot)
 	for(int i = 0; i < pSnapshot->NumItems(); i++)
 	{
 		int Key = pSnapshot->GetItem(i)->Key();
-		int HashID = ((Key >> 12) & 0xf0) | (Key & 0xf);
-		if(pHashlist[HashID].m_Num != 64)
+		size_t HashID = CalcHashID(Key);
+		if(pHashlist[HashID].m_Num < HASHLIST_BUCKET_SIZE)
 		{
 			pHashlist[HashID].m_aIndex[pHashlist[HashID].m_Num] = i;
 			pHashlist[HashID].m_aKeys[pHashlist[HashID].m_Num] = Key;
@@ -156,7 +186,7 @@ static void GenerateHash(CItemList *pHashlist, CSnapshot *pSnapshot)
 
 static int GetItemIndexHashed(int Key, const CItemList *pHashlist)
 {
-	int HashID = ((Key >> 12) & 0xf0) | (Key & 0xf);
+	size_t HashID = CalcHashID(Key);
 	for(int i = 0; i < pHashlist[HashID].m_Num; i++)
 	{
 		if(pHashlist[HashID].m_aKeys[i] == Key)
@@ -574,14 +604,13 @@ int *CSnapshotBuilder::GetItemData(int Key)
 
 int CSnapshotBuilder::Finish(void *pSnapData)
 {
-	// flattern and make the snapshot
+	// flatten and make the snapshot
 	CSnapshot *pSnap = (CSnapshot *)pSnapData;
-	int OffsetSize = sizeof(int) * m_NumItems;
 	pSnap->m_DataSize = m_DataSize;
 	pSnap->m_NumItems = m_NumItems;
-	mem_copy(pSnap->Offsets(), m_aOffsets, OffsetSize);
+	mem_copy(pSnap->Offsets(), m_aOffsets, pSnap->OffsetSize());
 	mem_copy(pSnap->DataStart(), m_aData, m_DataSize);
-	return sizeof(CSnapshot) + OffsetSize + m_DataSize;
+	return pSnap->TotalSize();
 }
 
 int CSnapshotBuilder::GetTypeFromIndex(int Index)

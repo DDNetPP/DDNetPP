@@ -68,6 +68,9 @@ class CConsole : public IConsole
 	FTeeHistorianCommandCallback m_pfnTeeHistorianCommandCallback;
 	void *m_pTeeHistorianCommandUserdata;
 
+	FUnknownCommandCallback m_pfnUnknownCommandCallback = EmptyUnknownCommandCallback;
+	void *m_pUnknownCommandUserdata = nullptr;
+
 	enum
 	{
 		CONSOLE_MAX_STR_LENGTH = 8192,
@@ -196,7 +199,7 @@ public:
 	void Init() override;
 	const CCommandInfo *FirstCommandInfo(int AccessLevel, int FlagMask) const override;
 	const CCommandInfo *GetCommandInfo(const char *pName, int FlagMask, bool Temp) override;
-	void PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPossibleCallback pfnCallback, void *pUser) override;
+	int PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPossibleCallback pfnCallback, void *pUser) override;
 
 	void ParseArguments(int NumArgs, const char **ppArguments) override;
 	void Register(const char *pName, const char *pParams, int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp) override;
@@ -214,6 +217,7 @@ public:
 	char *Format(char *pBuf, int Size, const char *pFrom, const char *pStr) override;
 	void Print(int Level, const char *pFrom, const char *pStr, ColorRGBA PrintColor = gs_ConsoleDefaultColor) override;
 	void SetTeeHistorianCommandCallback(FTeeHistorianCommandCallback pfnCallback, void *pUser) override;
+	void SetUnknownCommandCallback(FUnknownCommandCallback pfnCallback, void *pUser) override;
 	void InitChecksum(CChecksumData *pData) const override;
 
 	void SetAccessLevel(int AccessLevel) override { m_AccessLevel = clamp(AccessLevel, (int)(ACCESS_LEVEL_ADMIN), (int)(ACCESS_LEVEL_USER)); }

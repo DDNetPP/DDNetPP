@@ -14,6 +14,13 @@ CLayerQuads::CLayerQuads()
 	m_Image = -1;
 }
 
+CLayerQuads::CLayerQuads(const CLayerQuads &Other) :
+	CLayer(Other)
+{
+	m_Image = Other.m_Image;
+	m_vQuads = Other.m_vQuads;
+}
+
 CLayerQuads::~CLayerQuads() = default;
 
 void CLayerQuads::Render(bool QuadPicker)
@@ -254,4 +261,22 @@ void CLayerQuads::ModifyEnvelopeIndex(INDEX_MODIFY_FUNC Func)
 		Func(&Quad.m_PosEnv);
 		Func(&Quad.m_ColorEnv);
 	}
+}
+
+CLayer *CLayerQuads::Duplicate() const
+{
+	return new CLayerQuads(*this);
+}
+
+int CLayerQuads::SwapQuads(int Index0, int Index1)
+{
+	if(Index0 < 0 || Index0 >= (int)m_vQuads.size())
+		return Index0;
+	if(Index1 < 0 || Index1 >= (int)m_vQuads.size())
+		return Index0;
+	if(Index0 == Index1)
+		return Index0;
+	m_pEditor->m_Map.m_Modified = true;
+	std::swap(m_vQuads[Index0], m_vQuads[Index1]);
+	return Index1;
 }

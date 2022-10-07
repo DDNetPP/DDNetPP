@@ -19,7 +19,6 @@
 
 #include <game/client/component.h>
 #include <game/client/ui.h>
-#include <game/client/ui_ex.h>
 #include <game/voting.h>
 
 #include <game/client/render.h>
@@ -78,22 +77,19 @@ class CMenus : public CComponent
 
 	char m_aLocalStringHelper[1024];
 
-	CUIEx m_UIEx;
-
-	CUIEx *UIEx() { return &m_UIEx; }
-
 	int DoButton_DemoPlayer(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
-	int DoButton_Sprite(CButtonContainer *pButtonContainer, int ImageID, int SpriteID, int Checked, const CUIRect *pRect, int Corners);
+	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, bool Enabled = true);
 	int DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, bool Active);
-	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = CUI::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1, bool CheckForActiveColorPicker = false);
+	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1, bool CheckForActiveColorPicker = false);
 	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10, int AlignVertically = 1);
 
 	int DoButton_CheckBox_Common(const void *pID, const char *pText, const char *pBoxText, const CUIRect *pRect);
 	int DoButton_CheckBox(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 	int DoButton_CheckBoxAutoVMarginAndSet(const void *pID, const char *pText, int *pValue, CUIRect *pRect, float VMargin);
 	int DoButton_CheckBox_Number(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
+
 	ColorHSLA DoLine_ColorPicker(CButtonContainer *pResetID, float LineSize, float WantedPickerPosition, float LabelSize, float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, bool CheckBoxSpacing = true, bool UseCheckBox = false, int *pCheckBoxValue = nullptr);
-	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor);
+	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor, const int LaserType);
 	int DoValueSelector(void *pID, CUIRect *pRect, const char *pLabel, bool UseScroll, int Current, int Min, int Max, int Step, float Scale, bool IsHex, float Round, ColorRGBA *pColor);
 	int DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
@@ -108,22 +104,24 @@ class CMenus : public CComponent
 
 	void RenderColorPicker();
 
+	void RefreshSkins();
+
 	// new gui with gui elements
 	template<typename T>
-	int DoButtonMenu(CUIElement &UIElement, const void *pID, T &&GetTextLambda, int Checked, const CUIRect *pRect, bool HintRequiresStringCheck, bool HintCanChangePositionOrSize = false, int Corners = CUI::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1)
+	int DoButtonMenu(CUIElement &UIElement, const void *pID, T &&GetTextLambda, int Checked, const CUIRect *pRect, bool HintRequiresStringCheck, bool HintCanChangePositionOrSize = false, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1)
 	{
 		CUIRect Text = *pRect;
 		Text.HMargin(pRect->h >= 20.0f ? 2.0f : 1.0f, &Text);
 		Text.HMargin((Text.h * FontFactor) / 2.0f, &Text);
 
-		if(!UIElement.AreRectsInit() || HintRequiresStringCheck || HintCanChangePositionOrSize || UIElement.Get(0)->m_UITextContainer == -1)
+		if(!UIElement.AreRectsInit() || HintRequiresStringCheck || HintCanChangePositionOrSize || UIElement.Rect(0)->m_UITextContainer == -1)
 		{
-			bool NeedsRecalc = !UIElement.AreRectsInit() || UIElement.Get(0)->m_UITextContainer == -1;
+			bool NeedsRecalc = !UIElement.AreRectsInit() || UIElement.Rect(0)->m_UITextContainer == -1;
 			if(HintCanChangePositionOrSize)
 			{
 				if(UIElement.AreRectsInit())
 				{
-					if(UIElement.Get(0)->m_X != pRect->x || UIElement.Get(0)->m_Y != pRect->y || UIElement.Get(0)->m_Width != pRect->w || UIElement.Get(0)->m_Y != pRect->h)
+					if(UIElement.Rect(0)->m_X != pRect->x || UIElement.Rect(0)->m_Y != pRect->y || UIElement.Rect(0)->m_Width != pRect->w || UIElement.Rect(0)->m_Y != pRect->h)
 					{
 						NeedsRecalc = true;
 					}
@@ -135,7 +133,7 @@ class CMenus : public CComponent
 				if(UIElement.AreRectsInit())
 				{
 					pText = GetTextLambda();
-					if(str_comp(UIElement.Get(0)->m_Text.c_str(), pText) != 0)
+					if(str_comp(UIElement.Rect(0)->m_Text.c_str(), pText) != 0)
 					{
 						NeedsRecalc = true;
 					}
@@ -161,8 +159,8 @@ class CMenus : public CComponent
 						Color.a *= UI()->ButtonColorMulDefault();
 					Graphics()->SetColor(Color);
 
-					CUIElement::SUIElementRect &NewRect = *UIElement.Get(i);
-					NewRect.m_UIRectQuadContainer = RenderTools()->CreateRoundRectQuadContainer(pRect->x, pRect->y, pRect->w, pRect->h, r, Corners);
+					CUIElement::SUIElementRect &NewRect = *UIElement.Rect(i);
+					NewRect.m_UIRectQuadContainer = Graphics()->CreateRectQuadContainer(pRect->x, pRect->y, pRect->w, pRect->h, r, Corners);
 
 					NewRect.m_X = pRect->x;
 					NewRect.m_Y = pRect->y;
@@ -188,11 +186,11 @@ class CMenus : public CComponent
 		else if(UI()->HotItem() == pID)
 			Index = 1;
 		Graphics()->TextureClear();
-		Graphics()->RenderQuadContainer(UIElement.Get(Index)->m_UIRectQuadContainer, -1);
+		Graphics()->RenderQuadContainer(UIElement.Rect(Index)->m_UIRectQuadContainer, -1);
 		ColorRGBA ColorText(TextRender()->DefaultTextColor());
 		ColorRGBA ColorTextOutline(TextRender()->DefaultTextOutlineColor());
-		if(UIElement.Get(0)->m_UITextContainer != -1)
-			TextRender()->RenderTextContainer(UIElement.Get(0)->m_UITextContainer, ColorText, ColorTextOutline);
+		if(UIElement.Rect(0)->m_UITextContainer != -1)
+			TextRender()->RenderTextContainer(UIElement.Rect(0)->m_UITextContainer, ColorText, ColorTextOutline);
 		return UI()->DoButtonLogic(pID, Checked, pRect);
 	}
 
@@ -351,11 +349,6 @@ protected:
 	bool m_NeedSendDummyinfo;
 	int m_SettingPlayerPage;
 
-	//
-	bool m_EscapePressed;
-	bool m_EnterPressed;
-	bool m_DeletePressed;
-
 	// for map download popup
 	int64_t m_DownloadLastCheckTime;
 	int m_DownloadLastCheckSize;
@@ -421,7 +414,7 @@ protected:
 			const CDemoItem &Right = g_Config.m_BrDemoSortOrder ? *this : Other;
 
 			if(g_Config.m_BrDemoSort == SORT_DEMONAME)
-				return str_comp_nocase(Left.m_aFilename, Right.m_aFilename) < 0;
+				return str_comp_filenames(Left.m_aFilename, Right.m_aFilename) < 0;
 			if(g_Config.m_BrDemoSort == SORT_DATE)
 				return Left.m_Date < Right.m_Date;
 
@@ -500,6 +493,7 @@ protected:
 	static bool DemoFilterChat(const void *pData, int Size, void *pUser);
 	bool FetchHeader(CDemoItem &Item);
 	void FetchAllHeaders();
+	void HandleDemoSeeking(float PositionToSeek, float TimeToSeek);
 	void RenderDemoPlayer(CUIRect MainView);
 	void RenderDemoList(CUIRect MainView);
 
@@ -513,6 +507,7 @@ protected:
 	void RenderServerControl(CUIRect MainView);
 	bool RenderServerControlKick(CUIRect MainView, bool FilterSpectators);
 	bool RenderServerControlServer(CUIRect MainView);
+	void RenderIngameHint();
 
 	// found in menus_browser.cpp
 	int m_SelectedIndex;
@@ -635,6 +630,7 @@ public:
 	int DoButton_CheckBox_Tristate(const void *pID, const char *pText, TRISTATE Checked, const CUIRect *pRect);
 	std::vector<CDemoItem> m_vDemos;
 	void DemolistPopulate();
+	void DemoSeekTick(IDemoPlayer::ETickOffset TickOffset);
 	bool m_Dummy;
 
 	const char *GetCurrentDemoFolder() const { return m_aCurrentDemoFolder; }
@@ -687,7 +683,6 @@ public:
 		POPUP_CONNECTING,
 		POPUP_MESSAGE,
 		POPUP_DISCONNECTED,
-		POPUP_PURE,
 		POPUP_LANGUAGE,
 		POPUP_COUNTRY,
 		POPUP_DELETE_DEMO,
@@ -711,6 +706,7 @@ public:
 private:
 	static int GhostlistFetchCallback(const char *pName, int IsDir, int StorageType, void *pUser);
 	void SetMenuPage(int NewPage);
+	void RefreshBrowserTab(int UiPage);
 	bool HandleListInputs(const CUIRect &View, float &ScrollValue, float ScrollAmount, int *pScrollOffset, float ElemHeight, int &SelectedIndex, int NumElems);
 
 	// found in menus_ingame.cpp

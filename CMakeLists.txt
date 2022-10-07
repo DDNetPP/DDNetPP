@@ -721,7 +721,7 @@ endif()
 if(TARGET_OS STREQUAL "windows")
   set(PLATFORM_CLIENT)
   set(PLATFORM_CLIENT_LIBS opengl32 winmm)
-  set(PLATFORM_LIBS version ws2_32) # Windows sockets
+  set(PLATFORM_LIBS shlwapi version ws2_32) # Windows sockets
 elseif(TARGET_OS STREQUAL "mac")
   find_library(CARBON Carbon)
   find_library(COCOA Cocoa)
@@ -1229,8 +1229,6 @@ set(EXPECTED_DATA
   countryflags/default.png
   countryflags/index.txt
   debug_font.png
-  demo_buttons.png
-  demo_buttons2.png
   editor/audio_source.png
   editor/background.png
   editor/basic_freeze.rules
@@ -1271,7 +1269,6 @@ set(EXPECTED_DATA
   editor/winter_main.rules
   emoticons.png
   extras.png
-  file_icons.png
   fonts/DejaVuSans.ttf
   fonts/GlowSansJCompressed-Book.otf
   fonts/Icons.otf
@@ -1414,7 +1411,6 @@ set(EXPECTED_DATA
   shader/vulkan/text.vert
   shader/vulkan/tile.frag
   shader/vulkan/tile.vert
-  skins/Aoe4leg.png
   skins/PaladiN.png
   skins/antiantey.png
   skins/beast.png
@@ -1675,6 +1671,8 @@ add_custom_command(OUTPUT "src/game/generated/wordlist.h"
 
 # Sources
 set_src(BASE GLOB_RECURSE src/base
+  bezier.cpp
+  bezier.h
   color.h
   ddpp_logs.cpp
   ddpp_logs.h
@@ -1821,8 +1819,6 @@ set_src(ENGINE_GFX GLOB src/engine/gfx
   image_manipulation.h
 )
 set_src(GAME_SHARED GLOB src/game
-  bezier.cpp
-  bezier.h
   collision.cpp
   collision.h
   collision_ddpp.cpp
@@ -1947,7 +1943,6 @@ if(CLIENT)
     backend/opengl/opengl_sl_program.cpp
     backend/opengl/opengl_sl_program.h
     backend/opengles/backend_opengles.cpp
-    backend/opengles/backend_opengles.h
     backend/opengles/backend_opengles3.cpp
     backend/opengles/backend_opengles3.h
     backend/opengles/gles_class_defines.h
@@ -2077,6 +2072,8 @@ if(CLIENT)
     components/voting.h
     gameclient.cpp
     gameclient.h
+    laser_data.cpp
+    laser_data.h
     lineinput.cpp
     lineinput.h
     prediction/entities/character.cpp
@@ -2101,8 +2098,10 @@ if(CLIENT)
     skin.h
     ui.cpp
     ui.h
-    ui_ex.cpp
-    ui_ex.h
+    ui_rect.cpp
+    ui_rect.h
+    ui_scrollregion.cpp
+    ui_scrollregion.h
   )
   set_src(GAME_EDITOR GLOB src/game/editor
     auto_map.cpp
@@ -2283,6 +2282,7 @@ if(SERVER)
     databases/connection_pool.h
     databases/mysql.cpp
     databases/sqlite.cpp
+    main.cpp
     name_ban.cpp
     name_ban.h
     register.cpp
@@ -2290,6 +2290,8 @@ if(SERVER)
     server.cpp
     server.h
     server_ddpp.cpp
+    server_logger.cpp
+    server_logger.h
     sql_string_helpers.cpp
     sql_string_helpers.h
     upnp.cpp
@@ -2520,8 +2522,10 @@ if(TOOLS)
     dilate.cpp
     dummy_map.cpp
     map_convert_07.cpp
+    map_create_pixelart.cpp
     map_diff.cpp
     map_extract.cpp
+    map_find_env.cpp
     map_optimize.cpp
     map_replace_area.cpp
     map_replace_image.cpp
@@ -2538,7 +2542,7 @@ if(TOOLS)
       string(REGEX REPLACE "\\.cpp$" "" TOOL "${T}")
       set(TOOL_DEPS ${DEPS})
       set(TOOL_LIBS ${LIBS})
-      if(TOOL MATCHES "^(dilate|map_convert_07|map_optimize|map_extract|map_replace_image)$")
+      if(TOOL MATCHES "^(dilate|map_convert_07|map_create_pixelart|map_optimize|map_extract|map_replace_image)$")
         list(APPEND TOOL_INCLUDE_DIRS ${PNG_INCLUDE_DIRS})
 	list(APPEND TOOL_DEPS $<TARGET_OBJECTS:engine-gfx>)
         list(APPEND TOOL_LIBS ${PNG_LIBRARIES})
@@ -2621,6 +2625,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     json.cpp
     mapbugs.cpp
     name_ban.cpp
+    net.cpp
     netaddr.cpp
     os.cpp
     packer.cpp
@@ -2961,6 +2966,7 @@ if(CLIENT AND DMGBUILD)
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/ddnet-libs/sdl/${LIB_DIR}/SDL2.framework ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/SDL2.framework
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/discord/${LIB_DIR}/discord_game_sdk.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/freetype/${LIB_DIR}/libfreetype.6.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/png/${LIB_DIR}/libpng16.16.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libavcodec.59.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libavformat.59.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libavutil.57.dylib ${DMG_TMPDIR}/${TARGET_CLIENT}.app/Contents/Frameworks/
