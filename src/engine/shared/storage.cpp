@@ -365,8 +365,18 @@ public:
 		return pBuffer;
 	}
 
+	void TranslateType(int &Type, const char *pPath)
+	{
+		if(Type == TYPE_SAVE_OR_ABSOLUTE)
+			Type = fs_is_relative_path(pPath) ? TYPE_SAVE : TYPE_ABSOLUTE;
+		else if(Type == TYPE_ALL_OR_ABSOLUTE)
+			Type = fs_is_relative_path(pPath) ? TYPE_ALL : TYPE_ABSOLUTE;
+	}
+
 	IOHANDLE OpenFile(const char *pFilename, int Flags, int Type, char *pBuffer = 0, int BufferSize = 0) override
 	{
+		TranslateType(Type, pFilename);
+
 		char aBuffer[IO_MAX_PATH_LENGTH];
 		if(!pBuffer)
 		{
@@ -376,7 +386,7 @@ public:
 
 		if(Type == TYPE_ABSOLUTE)
 		{
-			return io_open(pFilename, Flags);
+			return io_open(GetPath(TYPE_ABSOLUTE, pFilename, pBuffer, BufferSize), Flags);
 		}
 		if(str_startswith(pFilename, "mapres/../skins/"))
 		{
@@ -396,7 +406,7 @@ public:
 		}
 		else
 		{
-			if(Type <= TYPE_ALL)
+			if(Type == TYPE_ALL)
 			{
 				// check all available directories
 				for(int i = TYPE_SAVE; i < m_NumPaths; ++i)
@@ -520,6 +530,69 @@ public:
 		return pBuffer[0] != 0;
 	}
 
+	struct SFindFilesCallbackData
+	{
+		CStorage *m_pStorage;
+		const char *m_pFilename;
+		const char *m_pPath;
+		std::set<std::string> *m_pEntries;
+	};
+
+	static int FindFilesCallback(const char *pName, int IsDir, int Type, void *pUser)
+	{
+		SFindFilesCallbackData Data = *static_cast<SFindFilesCallbackData *>(pUser);
+		if(IsDir)
+		{
+			if(pName[0] == '.')
+				return 0;
+
+			// search within the folder
+			char aBuf[IO_MAX_PATH_LENGTH];
+			char aPath[IO_MAX_PATH_LENGTH];
+			str_format(aPath, sizeof(aPath), "%s/%s", Data.m_pPath, pName);
+			Data.m_pPath = aPath;
+			fs_listdir(Data.m_pStorage->GetPath(Type, aPath, aBuf, sizeof(aBuf)), FindFilesCallback, Type, &Data);
+		}
+		else if(!str_comp(pName, Data.m_pFilename))
+		{
+			char aBuffer[IO_MAX_PATH_LENGTH];
+			str_format(aBuffer, sizeof(aBuffer), "%s/%s", Data.m_pPath, Data.m_pFilename);
+			Data.m_pEntries->emplace(aBuffer);
+		}
+
+		return 0;
+	}
+
+	size_t FindFiles(const char *pFilename, const char *pPath, int Type, std::set<std::string> *pEntries) override
+	{
+		SFindFilesCallbackData Data;
+		Data.m_pStorage = this;
+		Data.m_pFilename = pFilename;
+		Data.m_pPath = pPath;
+		Data.m_pEntries = pEntries;
+
+		char aBuf[IO_MAX_PATH_LENGTH];
+		if(Type == TYPE_ALL)
+		{
+			// search within all available directories
+			for(int i = TYPE_SAVE; i < m_NumPaths; ++i)
+			{
+				fs_listdir(GetPath(i, pPath, aBuf, sizeof(aBuf)), FindFilesCallback, i, &Data);
+			}
+		}
+		else if(Type >= TYPE_SAVE && Type < m_NumPaths)
+		{
+			// search within wanted directory
+			fs_listdir(GetPath(Type, pPath, aBuf, sizeof(aBuf)), FindFilesCallback, Type, &Data);
+		}
+		else
+		{
+			dbg_assert(false, "Type invalid");
+		}
+
+		return pEntries->size();
+	}
+
 	bool RemoveFile(const char *pFilename, int Type) override
 	{
 		dbg_assert(Type == TYPE_ABSOLUTE || (Type >= TYPE_SAVE && Type < m_NumPaths), "Type invalid");
@@ -593,6 +666,7 @@ public:
 
 	void GetCompletePath(int Type, const char *pDir, char *pBuffer, unsigned BufferSize) override
 	{
+		TranslateType(Type, pDir);
 		dbg_assert(Type >= TYPE_SAVE && Type < m_NumPaths, "Type invalid");
 		GetPath(Type, pDir, pBuffer, BufferSize);
 	}

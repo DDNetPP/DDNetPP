@@ -46,17 +46,17 @@ int main(int argc, const char **argv)
 	}
 
 	char aFilenames[3][64];
-	snprintf(aFilenames[0], 64, "%s", argv[3]); //input_map
-	snprintf(aFilenames[1], 64, "%s", argv[9]); //output_map
-	snprintf(aFilenames[2], 64, "%s", argv[1]); //image_file
+	str_copy(aFilenames[0], argv[3]); //input_map
+	str_copy(aFilenames[1], argv[9]); //output_map
+	str_copy(aFilenames[2], argv[1]); //image_file
 
-	int aLayerID[2] = {atoi(argv[4]), atoi(argv[5])}; //layergroup_id, layer_id
-	int aStartingPos[2] = {atoi(argv[6]) * 32, atoi(argv[7]) * 32}; //pos_x, pos_y
-	int aPixelSizes[2] = {atoi(argv[2]), atoi(argv[8])}; //quad_pixelsize, img_pixelsize
+	int aLayerID[2] = {str_toint(argv[4]), str_toint(argv[5])}; //layergroup_id, layer_id
+	int aStartingPos[2] = {str_toint(argv[6]) * 32, str_toint(argv[7]) * 32}; //pos_x, pos_y
+	int aPixelSizes[2] = {str_toint(argv[2]), str_toint(argv[8])}; //quad_pixelsize, img_pixelsize
 
 	bool aArtOptions[3];
-	aArtOptions[0] = argc >= 10 ? atoi(argv[10]) : true; //optimize
-	aArtOptions[1] = argc >= 11 ? atoi(argv[11]) : false; //centralize
+	aArtOptions[0] = argc >= 10 ? str_toint(argv[10]) : true; //optimize
+	aArtOptions[1] = argc >= 11 ? str_toint(argv[11]) : false; //centralize
 
 	dbg_msg("map_create_pixelart", "image_file='%s'; image_pixelsize='%dpx'; input_map='%s'; layergroup_id='#%d'; layer_id='#%d'; pos_x='#%dpx'; pos_y='%dpx'; quad_pixelsize='%dpx'; output_map='%s'; optimize='%d'; centralize='%d'",
 		aFilenames[2], aPixelSizes[0], aFilenames[1], aLayerID[0], aLayerID[1], aStartingPos[0], aStartingPos[1], aPixelSizes[1], aFilenames[2], aArtOptions[0], aArtOptions[1]);
@@ -91,7 +91,7 @@ bool CreatePixelArt(const char aFilenames[3][64], const int aLayerID[2], const i
 	SaveOutputMap(InputMap, OutputMap, pQuadLayer, ItemNumber, pQuads, ((int)sizeof(CQuad)) * (pQuadLayer->m_NumQuads + 1));
 	delete[] pQuads;
 
-	dbg_msg("map_create_pixelart", "INFO: sucessfully added %d new pixelart quads.", QuadsCounter);
+	dbg_msg("map_create_pixelart", "INFO: successfully added %d new pixelart quads.", QuadsCounter);
 	return true;
 }
 
@@ -280,12 +280,12 @@ CMapItemLayerQuads *GetQuadLayer(CDataFileReader &InputMap, const int aLayerID[2
 	return (CMapItemLayerQuads *)pLayerItem;
 }
 
-CQuad CreateNewQuad(const float PosX, const float PosY, const int Width, const int Heigth, const uint8_t aColor[4], const int aForcedPivot[2] = 0x0)
+CQuad CreateNewQuad(const float PosX, const float PosY, const int Width, const int Height, const uint8_t aColor[4], const int aForcedPivot[2] = 0x0)
 {
 	CQuad Quad;
 	Quad.m_PosEnv = Quad.m_ColorEnv = -1;
 	Quad.m_PosEnvOffset = Quad.m_ColorEnvOffset = 0;
-	float x = f2fx(PosX), y = f2fx(PosY), w = f2fx(Width / 2.f), h = f2fx(Heigth / 2.f);
+	float x = f2fx(PosX), y = f2fx(PosY), w = f2fx(Width / 2.f), h = f2fx(Height / 2.f);
 
 	for(int i = 0; i < 2; i++)
 	{

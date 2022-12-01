@@ -37,7 +37,8 @@ class ISteam;
 class IStorage;
 class IUpdater;
 
-#define CONNECTLINK "ddnet:"
+#define CONNECTLINK_DOUBLE_SLASH "ddnet://"
+#define CONNECTLINK_NO_SLASH "ddnet:"
 
 class CGraph
 {
@@ -240,7 +241,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_aSnapshotIncomingDataSize[NUM_DUMMIES];
 
 	CSnapshotStorage::CHolder m_aDemorecSnapshotHolders[NUM_SNAPSHOT_TYPES];
-	char *m_aaapDemorecSnapshotData[NUM_SNAPSHOT_TYPES][2][CSnapshot::MAX_SIZE];
+	char m_aaaDemorecSnapshotData[NUM_SNAPSHOT_TYPES][2][CSnapshot::MAX_SIZE];
 
 	CSnapshotDelta m_SnapshotDelta;
 
@@ -250,8 +251,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	bool m_CanReceiveServerCapabilities;
 	bool m_ServerSentCapabilities;
 	CServerCapabilities m_ServerCapabilities;
-
-	bool ShouldSendChatTimeoutCodeHeuristic();
 
 	CServerInfo m_CurrentServerInfo;
 	int64_t m_CurrentServerInfoRequestTime; // >= 0 should request, == -1 got info
@@ -376,8 +375,7 @@ public:
 	int GetPredictionTime() override;
 	void *SnapGetItem(int SnapID, int Index, CSnapItem *pItem) const override;
 	int SnapItemSize(int SnapID, int Index) const override;
-	void SnapInvalidateItem(int SnapID, int Index) override;
-	void *SnapFindItem(int SnapID, int Type, int ID) const override;
+	const void *SnapFindItem(int SnapID, int Type, int ID) const override;
 	int SnapNumItems(int SnapID) const override;
 	void SnapSetStaticsize(int ItemType, int Size) override;
 

@@ -35,6 +35,8 @@ public:
 	void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false) override;
 	void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false) override;
 
+	void OnReset() override;
+
 	void Tick() override;
 
 	void DoTeamChange(class CPlayer *pPlayer, int Team, bool DoChatMsg = true) override;

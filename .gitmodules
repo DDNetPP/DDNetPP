@@ -4,3 +4,4 @@
 [submodule "data/maps"]
 	path = data/maps
 	url = git@github.com:DDNetPP/maps.git
+	shallow = true

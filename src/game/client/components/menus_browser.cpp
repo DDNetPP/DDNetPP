@@ -47,7 +47,7 @@ void FormatServerbrowserPing(char *pBuffer, int BufferLength, const CServerInfo 
 		"CHN", // LOC_CHINA // Localize("CHN")
 	};
 	dbg_assert(0 <= pInfo->m_Location && pInfo->m_Location < CServerInfo::NUM_LOCS, "location out of range");
-	str_format(pBuffer, BufferLength, "%s", Localize(LOCATION_NAMES[pInfo->m_Location]));
+	str_copy(pBuffer, Localize(LOCATION_NAMES[pInfo->m_Location]), BufferLength);
 }
 
 void CMenus::RenderServerbrowserServerList(CUIRect View)
@@ -98,7 +98,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		{COL_NAME, IServerBrowser::SORT_NAME, "Name", 0, 50.0f, 0, {0}, {0}}, // Localize - these strings are localized within CLocConstString
 		{COL_GAMETYPE, IServerBrowser::SORT_GAMETYPE, "Type", 1, 50.0f, 0, {0}, {0}},
 		{COL_MAP, IServerBrowser::SORT_MAP, "Map", 1, 120.0f + (Headers.w - 480) / 8, 0, {0}, {0}},
-		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, "Players", 1, 75.0f, 0, {0}, {0}},
+		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, "Players", 1, 85.0f, 0, {0}, {0}},
 		{-1, -1, " ", 1, 10.0f, 0, {0}, {0}},
 		{COL_PING, IServerBrowser::SORT_PING, "Ping", 1, 40.0f, FIXED, {0}, {0}},
 	};
@@ -190,7 +190,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 
 	if(UI()->ConsumeHotkey(CUI::HOTKEY_TAB))
 	{
-		const int Direction = Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT) ? -1 : 1;
+		const int Direction = Input()->ShiftIsPressed() ? -1 : 1;
 		g_Config.m_UiToolboxPage = (g_Config.m_UiToolboxPage + 3 + Direction) % 3;
 	}
 
@@ -255,12 +255,14 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			m_SelectedIndex = i;
 
 		// update friend counter
+		int FriendsOnServer = 0;
 		if(pItem->m_FriendState != IFriends::FRIEND_NO)
 		{
 			for(int j = 0; j < pItem->m_NumReceivedClients; ++j)
 			{
 				if(pItem->m_aClients[j].m_FriendState != IFriends::FRIEND_NO)
 				{
+					FriendsOnServer++;
 					unsigned NameHash = str_quickhash(pItem->m_aClients[j].m_aName);
 					unsigned ClanHash = str_quickhash(pItem->m_aClients[j].m_aClan);
 					for(auto &Friend : m_vFriends)
@@ -347,23 +349,34 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			else if(ID == COL_NAME)
 			{
 				float FontSize = 12.0f;
+				bool Printed = false;
 
 				if(g_Config.m_BrFilterString[0] && (pItem->m_QuickSearchHit & IServerBrowser::QUICK_SERVERNAME))
 				{
-					// highlight the parts that matches
-					const char *pStr = str_utf8_find_nocase(pItem->m_aName, g_Config.m_BrFilterString);
-					if(pStr)
+					const char *pStrToken = g_Config.m_BrFilterString;
+					char aFilterStr[sizeof(g_Config.m_BrFilterString)];
+					while((pStrToken = str_next_token(pStrToken, IServerBrowser::SEARCH_EXCLUDE_TOKEN, aFilterStr, sizeof(aFilterStr))))
 					{
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 0), &Button, pItem->m_aName, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)(pStr - pItem->m_aName));
-						TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1);
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 1), &Button, pStr, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)str_length(g_Config.m_BrFilterString), &pItem->m_pUIElement->Rect(gs_OffsetColName + 0)->m_Cursor);
-						TextRender()->TextColor(1, 1, 1, 1);
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 2), &Button, pStr + str_length(g_Config.m_BrFilterString), FontSize, TEXTALIGN_LEFT, Button.w, 1, true, -1, &pItem->m_pUIElement->Rect(gs_OffsetColName + 1)->m_Cursor);
+						if(aFilterStr[0] == '\0')
+						{
+							continue;
+						}
+
+						// highlight the parts that matches
+						const char *pStr = str_utf8_find_nocase(pItem->m_aName, aFilterStr);
+						if(pStr)
+						{
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 0), &Button, pItem->m_aName, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)(pStr - pItem->m_aName));
+							TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1);
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 1), &Button, pStr, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)str_length(aFilterStr), &pItem->m_pUIElement->Rect(gs_OffsetColName + 0)->m_Cursor);
+							TextRender()->TextColor(1, 1, 1, 1);
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName + 2), &Button, pStr + str_length(aFilterStr), FontSize, TEXTALIGN_LEFT, Button.w, 1, true, -1, &pItem->m_pUIElement->Rect(gs_OffsetColName + 1)->m_Cursor);
+							Printed = true;
+							break;
+						}
 					}
-					else
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName), &Button, pItem->m_aName, FontSize, TEXTALIGN_LEFT, Button.w, 1, true);
 				}
-				else
+				if(!Printed)
 					UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColName), &Button, pItem->m_aName, FontSize, TEXTALIGN_LEFT, Button.w, 1, true);
 			}
 			else if(ID == COL_MAP)
@@ -382,34 +395,49 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 				}
 
 				float FontSize = 12.0f;
+				bool Printed = false;
 
 				if(g_Config.m_BrFilterString[0] && (pItem->m_QuickSearchHit & IServerBrowser::QUICK_MAPNAME))
 				{
-					// highlight the parts that matches
-					const char *pStr = str_utf8_find_nocase(pItem->m_aMap, g_Config.m_BrFilterString);
-					if(pStr)
+					const char *pStrToken = g_Config.m_BrFilterString;
+					char aFilterStr[sizeof(g_Config.m_BrFilterString)];
+					while((pStrToken = str_next_token(pStrToken, IServerBrowser::SEARCH_EXCLUDE_TOKEN, aFilterStr, sizeof(aFilterStr))))
 					{
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 0), &Button, pItem->m_aMap, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)(pStr - pItem->m_aMap));
-						TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1);
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 1), &Button, pStr, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)str_length(g_Config.m_BrFilterString), &pItem->m_pUIElement->Rect(gs_OffsetColMap + 0)->m_Cursor);
-						TextRender()->TextColor(1, 1, 1, 1);
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 2), &Button, pStr + str_length(g_Config.m_BrFilterString), FontSize, TEXTALIGN_LEFT, Button.w, 1, true, -1, &pItem->m_pUIElement->Rect(gs_OffsetColMap + 1)->m_Cursor);
+						// highlight the parts that matches
+						const char *pStr = str_utf8_find_nocase(pItem->m_aMap, aFilterStr);
+						if(pStr)
+						{
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 0), &Button, pItem->m_aMap, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)(pStr - pItem->m_aMap));
+							TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1);
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 1), &Button, pStr, FontSize, TEXTALIGN_LEFT, Button.w, 1, true, (int)str_length(aFilterStr), &pItem->m_pUIElement->Rect(gs_OffsetColMap + 0)->m_Cursor);
+							TextRender()->TextColor(1, 1, 1, 1);
+							UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap + 2), &Button, pStr + str_length(aFilterStr), FontSize, TEXTALIGN_LEFT, Button.w, 1, true, -1, &pItem->m_pUIElement->Rect(gs_OffsetColMap + 1)->m_Cursor);
+							Printed = true;
+							break;
+						}
 					}
-					else
-						UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap), &Button, pItem->m_aMap, FontSize, TEXTALIGN_LEFT, Button.w, 1, true);
 				}
-				else
+				if(!Printed)
 					UI()->DoLabelStreamed(*pItem->m_pUIElement->Rect(gs_OffsetColMap), &Button, pItem->m_aMap, FontSize, TEXTALIGN_LEFT, Button.w, 1, true);
 			}
 			else if(ID == COL_PLAYERS)
 			{
-				CUIRect Icon;
-				Button.VMargin(4.0f, &Button);
+				CUIRect Icon, IconText;
+				Button.VMargin(2.0f, &Button);
 				if(pItem->m_FriendState != IFriends::FRIEND_NO)
 				{
-					Button.VSplitLeft(Button.h, &Icon, &Button);
+					Button.VSplitRight(50.0f, &Icon, &Button);
 					Icon.Margin(2.0f, &Icon);
-					RenderBrowserIcons(*pItem->m_pUIElement->Rect(gs_OffsetColFav + 1), &Icon, {0.94f, 0.4f, 0.4f, 1}, TextRender()->DefaultTextOutlineColor(), "\xEF\x80\x84", TEXTALIGN_LEFT);
+					Icon.HSplitBottom(6.0f, 0, &IconText);
+					RenderBrowserIcons(*pItem->m_pUIElement->Rect(gs_OffsetColFav + 1), &Icon, {0.94f, 0.4f, 0.4f, 1}, TextRender()->DefaultTextOutlineColor(), "\xEF\x80\x84", TEXTALIGN_CENTER);
+					if(FriendsOnServer > 1)
+					{
+						char aBufFriendsOnServer[64];
+						str_format(aBufFriendsOnServer, sizeof(aBufFriendsOnServer), "%i", FriendsOnServer);
+						TextRender()->TextColor(0.94f, 0.8f, 0.8f, 1);
+						UI()->DoLabel(&IconText, aBufFriendsOnServer, 10.0f, TEXTALIGN_CENTER);
+						TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1);
+					}
 				}
 
 				str_format(aTemp, sizeof(aTemp), "%i/%i", pItem->m_NumFilteredPlayers, ServerBrowser()->Max(*pItem));
@@ -447,19 +475,19 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 				{
 					ColorHSLA hsl = ColorHSLA(1.0f, 1.0f, 1.0f);
 
-					if(IsVanilla(pItem))
+					if(str_comp(pItem->m_aGameType, "DM") == 0 || str_comp(pItem->m_aGameType, "TDM") == 0 || str_comp(pItem->m_aGameType, "CTF") == 0)
 						hsl = ColorHSLA(0.33f, 1.0f, 0.75f);
-					else if(IsCatch(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "catch"))
 						hsl = ColorHSLA(0.17f, 1.0f, 0.75f);
-					else if(IsInsta(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "idm") || str_find_nocase(pItem->m_aGameType, "itdm") || str_find_nocase(pItem->m_aGameType, "ictf"))
 						hsl = ColorHSLA(0.00f, 1.0f, 0.75f);
-					else if(IsFNG(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "fng"))
 						hsl = ColorHSLA(0.83f, 1.0f, 0.75f);
-					else if(IsDDNet(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "ddracenet") || str_find_nocase(pItem->m_aGameType, "ddnet"))
 						hsl = ColorHSLA(0.58f, 1.0f, 0.75f);
-					else if(IsDDRace(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "ddrace") || str_find_nocase(pItem->m_aGameType, "mkrace"))
 						hsl = ColorHSLA(0.75f, 1.0f, 0.75f);
-					else if(IsRace(pItem))
+					else if(str_find_nocase(pItem->m_aGameType, "race") || str_find_nocase(pItem->m_aGameType, "fastcap"))
 						hsl = ColorHSLA(0.46f, 1.0f, 0.75f);
 
 					ColorRGBA rgb = color_cast<ColorRGBA>(hsl);
@@ -572,7 +600,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 
 		static int s_ClearButton = 0;
 		static float s_Offset = 0.0f;
-		if(Input()->KeyPress(KEY_X) && (Input()->KeyIsPressed(KEY_LSHIFT) || Input()->KeyIsPressed(KEY_RSHIFT)) && Input()->ModifierIsPressed())
+		if(Input()->KeyPress(KEY_X) && Input()->ShiftIsPressed() && Input()->ModifierIsPressed())
 			UI()->SetActiveItem(&g_Config.m_BrExcludeString);
 		if(UI()->DoClearableEditBox(&g_Config.m_BrExcludeString, &s_ClearButton, &QuickExclude, g_Config.m_BrExcludeString, sizeof(g_Config.m_BrExcludeString), 12.0f, &s_Offset, false, IGraphics::CORNER_ALL))
 			Client()->ServerBrowserUpdate();
@@ -1150,7 +1178,7 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 
 			if(!pSelectedServer->m_aClients[i].m_Player)
 				str_copy(aTemp, "SPEC");
-			else if(IsRace(pSelectedServer) && g_Config.m_ClDDRaceScoreBoard)
+			else if((str_find_nocase(pSelectedServer->m_aGameType, "race") || str_find_nocase(pSelectedServer->m_aGameType, "fastcap")) && g_Config.m_ClDDRaceScoreBoard)
 			{
 				if(pSelectedServer->m_aClients[i].m_Score == -9999 || pSelectedServer->m_aClients[i].m_Score == 0)
 					aTemp[0] = 0;
@@ -1172,44 +1200,56 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 			TextRender()->SetCursor(&Cursor, Name.x, Name.y + (Name.h - (FontSize - 2)) / 2.f, FontSize - 2, TEXTFLAG_RENDER | TEXTFLAG_STOP_AT_END);
 			Cursor.m_LineWidth = Name.w;
 			const char *pName = pSelectedServer->m_aClients[i].m_aName;
+			bool Printed = false;
 			if(g_Config.m_BrFilterString[0])
 			{
-				// highlight the parts that matches
-				const char *pFilteredStr = str_utf8_find_nocase(pName, g_Config.m_BrFilterString);
-				if(pFilteredStr)
+				const char *pStr = g_Config.m_BrFilterString;
+				char aFilterStr[sizeof(g_Config.m_BrFilterString)];
+				while((pStr = str_next_token(pStr, IServerBrowser::SEARCH_EXCLUDE_TOKEN, aFilterStr, sizeof(aFilterStr))))
 				{
-					TextRender()->TextEx(&Cursor, pName, (int)(pFilteredStr - pName));
-					TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1.0f);
-					TextRender()->TextEx(&Cursor, pFilteredStr, str_length(g_Config.m_BrFilterString));
-					TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
-					TextRender()->TextEx(&Cursor, pFilteredStr + str_length(g_Config.m_BrFilterString), -1);
+					// highlight the parts that matches
+					const char *pFilteredStr = str_utf8_find_nocase(pName, aFilterStr);
+					if(pFilteredStr)
+					{
+						TextRender()->TextEx(&Cursor, pName, (int)(pFilteredStr - pName));
+						TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1.0f);
+						TextRender()->TextEx(&Cursor, pFilteredStr, str_length(aFilterStr));
+						TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+						TextRender()->TextEx(&Cursor, pFilteredStr + str_length(aFilterStr), -1);
+						Printed = true;
+						break;
+					}
 				}
-				else
-					TextRender()->TextEx(&Cursor, pName, -1);
 			}
-			else
+			if(!Printed)
 				TextRender()->TextEx(&Cursor, pName, -1);
 
 			// clan
 			TextRender()->SetCursor(&Cursor, Clan.x, Clan.y + (Clan.h - (FontSize - 2)) / 2.f, FontSize - 2, TEXTFLAG_RENDER | TEXTFLAG_STOP_AT_END);
 			Cursor.m_LineWidth = Clan.w;
 			const char *pClan = pSelectedServer->m_aClients[i].m_aClan;
+			Printed = false;
 			if(g_Config.m_BrFilterString[0])
 			{
-				// highlight the parts that matches
-				const char *pFilteredString = str_utf8_find_nocase(pClan, g_Config.m_BrFilterString);
-				if(pFilteredString)
+				const char *pStr = g_Config.m_BrFilterString;
+				char aFilterStr[sizeof(g_Config.m_BrFilterString)];
+				while((pStr = str_next_token(pStr, IServerBrowser::SEARCH_EXCLUDE_TOKEN, aFilterStr, sizeof(aFilterStr))))
 				{
-					TextRender()->TextEx(&Cursor, pClan, (int)(pFilteredString - pClan));
-					TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1.0f);
-					TextRender()->TextEx(&Cursor, pFilteredString, str_length(g_Config.m_BrFilterString));
-					TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
-					TextRender()->TextEx(&Cursor, pFilteredString + str_length(g_Config.m_BrFilterString), -1);
+					// highlight the parts that matches
+					const char *pFilteredString = str_utf8_find_nocase(pClan, aFilterStr);
+					if(pFilteredString)
+					{
+						TextRender()->TextEx(&Cursor, pClan, (int)(pFilteredString - pClan));
+						TextRender()->TextColor(0.4f, 0.4f, 1.0f, 1.0f);
+						TextRender()->TextEx(&Cursor, pFilteredString, str_length(aFilterStr));
+						TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+						TextRender()->TextEx(&Cursor, pFilteredString + str_length(aFilterStr), -1);
+						Printed = true;
+						break;
+					}
 				}
-				else
-					TextRender()->TextEx(&Cursor, pClan, -1);
 			}
-			else
+			if(!Printed)
 				TextRender()->TextEx(&Cursor, pClan, -1);
 
 			// flag

@@ -150,7 +150,7 @@ void CGameClient::OnConsoleInit()
 	m_vpInput.insert(m_vpInput.end(), {&CMenus::m_Binder, // this will take over all input when we want to bind a key
 						  &m_Binds.m_SpecialBinds,
 						  &m_GameConsole,
-						  &m_Chat, // chat has higher prio due to tha you can quit it by pressing esc
+						  &m_Chat, // chat has higher prio, due to that you can quit it by pressing esc
 						  &m_Motd, // for pressing esc to remove it
 						  &m_Menus,
 						  &m_Spectator,
@@ -354,8 +354,8 @@ void CGameClient::OnInit()
 
 	m_MapImages.SetTextureScale(g_Config.m_ClTextEntitiesSize);
 
-	// Agressively try to grab window again since some Windows users report
-	// window not being focussed after starting client.
+	// Aggressively try to grab window again since some Windows users report
+	// window not being focused after starting client.
 	Graphics()->SetWindowGrab(true);
 
 	CChecksumData *pChecksum = Client()->ChecksumData();
@@ -1009,15 +1009,16 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	bool FDDrace;
 	if(Version < 1)
 	{
-		Race = IsRace(pFallbackServerInfo);
-		FastCap = IsFastCap(pFallbackServerInfo);
-		FNG = IsFNG(pFallbackServerInfo);
-		DDRace = IsDDRace(pFallbackServerInfo);
-		DDNet = IsDDNet(pFallbackServerInfo);
-		BlockWorlds = IsBlockWorlds(pFallbackServerInfo);
-		City = IsCity(pFallbackServerInfo);
-		Vanilla = IsVanilla(pFallbackServerInfo);
-		Plus = IsPlus(pFallbackServerInfo);
+		const char *pGameType = pFallbackServerInfo->m_aGameType;
+		Race = str_find_nocase(pGameType, "race") || str_find_nocase(pGameType, "fastcap");
+		FastCap = str_find_nocase(pGameType, "fastcap");
+		FNG = str_find_nocase(pGameType, "fng");
+		DDRace = str_find_nocase(pGameType, "ddrace") || str_find_nocase(pGameType, "mkrace");
+		DDNet = str_find_nocase(pGameType, "ddracenet") || str_find_nocase(pGameType, "ddnet");
+		BlockWorlds = str_startswith(pGameType, "bw  ") || str_comp_nocase(pGameType, "bw") == 0;
+		City = str_find_nocase(pGameType, "city");
+		Vanilla = str_comp(pGameType, "DM") == 0 || str_comp(pGameType, "TDM") == 0 || str_comp(pGameType, "CTF") == 0;
+		Plus = str_find(pGameType, "+");
 		FDDrace = false;
 	}
 	else
@@ -1123,7 +1124,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	}
 	if(Version >= 8)
 	{
-		Info.m_NoWeakHookAndBounce = Flags2 & GAMEINFOFLAG2_NO_WEAK_HOOK_AND_BOUNCE;
+		Info.m_NoWeakHookAndBounce = Flags2 & GAMEINFOFLAG2_NO_WEAK_HOOK;
 	}
 	return Info;
 }
@@ -1191,7 +1192,7 @@ void CGameClient::OnNewSnapshot()
 		Client.m_SpecCharPresent = false;
 	}
 
-	// go trough all the items in the snapshot and gather the info we want
+	// go through all the items in the snapshot and gather the info we want
 	{
 		m_Snap.m_aTeamSize[TEAM_RED] = m_Snap.m_aTeamSize[TEAM_BLUE] = 0;
 
@@ -1227,7 +1228,7 @@ void CGameClient::OnNewSnapshot()
 					pClient->m_SkinInfo.m_Size = 64;
 
 					// find new skin
-					const CSkin *pSkin = m_Skins.Get(m_Skins.Find(pClient->m_aSkinName));
+					const CSkin *pSkin = m_Skins.Find(pClient->m_aSkinName);
 					pClient->m_SkinInfo.m_OriginalRenderSkin = pSkin->m_OriginalSkin;
 					pClient->m_SkinInfo.m_ColorableRenderSkin = pSkin->m_ColorableSkin;
 					pClient->m_SkinInfo.m_SkinMetrics = pSkin->m_Metrics;
@@ -2441,7 +2442,7 @@ void CGameClient::UpdatePrediction()
 		if(m_Snap.m_aCharacters[i].m_Active)
 		{
 			bool IsLocal = (i == m_Snap.m_LocalClientID || (PredictDummy() && i == m_PredictedDummyID));
-			int GameTeam = (m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS) ? m_aClients[i].m_Team : i;
+			int GameTeam = (m_Snap.m_pGameInfoObj && (m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)) ? m_aClients[i].m_Team : i;
 			m_GameWorld.NetCharAdd(i, &m_Snap.m_aCharacters[i].m_Cur,
 				m_Snap.m_aCharacters[i].m_HasExtendedData ? &m_Snap.m_aCharacters[i].m_ExtendedData : 0,
 				GameTeam, IsLocal);
@@ -2772,7 +2773,7 @@ void CGameClient::LoadGameSkin(const char *pPath, bool AsDir)
 	bool IsDefault = false;
 	if(str_comp(pPath, "default") == 0)
 	{
-		str_format(aPath, sizeof(aPath), "%s", g_pData->m_aImages[IMAGE_GAME].m_pFilename);
+		str_copy(aPath, g_pData->m_aImages[IMAGE_GAME].m_pFilename);
 		IsDefault = true;
 	}
 	else
@@ -2934,7 +2935,7 @@ void CGameClient::LoadEmoticonsSkin(const char *pPath, bool AsDir)
 	bool IsDefault = false;
 	if(str_comp(pPath, "default") == 0)
 	{
-		str_format(aPath, sizeof(aPath), "%s", g_pData->m_aImages[IMAGE_EMOTICONS].m_pFilename);
+		str_copy(aPath, g_pData->m_aImages[IMAGE_EMOTICONS].m_pFilename);
 		IsDefault = true;
 	}
 	else
@@ -2988,7 +2989,7 @@ void CGameClient::LoadParticlesSkin(const char *pPath, bool AsDir)
 	bool IsDefault = false;
 	if(str_comp(pPath, "default") == 0)
 	{
-		str_format(aPath, sizeof(aPath), "%s", g_pData->m_aImages[IMAGE_PARTICLES].m_pFilename);
+		str_copy(aPath, g_pData->m_aImages[IMAGE_PARTICLES].m_pFilename);
 		IsDefault = true;
 	}
 	else
@@ -3075,7 +3076,7 @@ void CGameClient::LoadHudSkin(const char *pPath, bool AsDir)
 	bool IsDefault = false;
 	if(str_comp(pPath, "default") == 0)
 	{
-		str_format(aPath, sizeof(aPath), "%s", g_pData->m_aImages[IMAGE_HUD].m_pFilename);
+		str_copy(aPath, g_pData->m_aImages[IMAGE_HUD].m_pFilename);
 		IsDefault = true;
 	}
 	else
@@ -3148,7 +3149,7 @@ void CGameClient::LoadExtrasSkin(const char *pPath, bool AsDir)
 	bool IsDefault = false;
 	if(str_comp(pPath, "default") == 0)
 	{
-		str_format(aPath, sizeof(aPath), "%s", g_pData->m_aImages[IMAGE_EXTRAS].m_pFilename);
+		str_copy(aPath, g_pData->m_aImages[IMAGE_EXTRAS].m_pFilename);
 		IsDefault = true;
 	}
 	else
@@ -3185,7 +3186,7 @@ void CGameClient::RefindSkins()
 		Client.m_SkinInfo.m_ColorableRenderSkin.Reset();
 		if(Client.m_aSkinName[0] != '\0')
 		{
-			const CSkin *pSkin = m_Skins.Get(m_Skins.Find(Client.m_aSkinName));
+			const CSkin *pSkin = m_Skins.Find(Client.m_aSkinName);
 			Client.m_SkinInfo.m_OriginalRenderSkin = pSkin->m_OriginalSkin;
 			Client.m_SkinInfo.m_ColorableRenderSkin = pSkin->m_ColorableSkin;
 			Client.UpdateRenderInfo(IsTeamPlay());
@@ -3260,7 +3261,7 @@ void CGameClient::ConchainMenuMap(IConsole::IResult *pResult, void *pUserData, I
 	{
 		if(str_comp(g_Config.m_ClMenuMap, pResult->GetString(0)) != 0)
 		{
-			str_format(g_Config.m_ClMenuMap, sizeof(g_Config.m_ClMenuMap), "%s", pResult->GetString(0));
+			str_copy(g_Config.m_ClMenuMap, pResult->GetString(0));
 			pSelf->m_MenuBackground.LoadMenuBackground();
 		}
 	}

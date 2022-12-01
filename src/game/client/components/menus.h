@@ -7,6 +7,7 @@
 #include <base/vmath.h>
 
 #include <chrono>
+#include <unordered_set>
 #include <vector>
 
 #include <engine/console.h>
@@ -46,7 +47,7 @@ public:
 	unsigned int m_HSVColor;
 };
 
-// compnent to fetch keypresses, override all other input
+// component to fetch keypresses, override all other input
 class CMenusKeyBinder : public CComponent
 {
 public:
@@ -93,7 +94,7 @@ class CMenus : public CComponent
 	int DoValueSelector(void *pID, CUIRect *pRect, const char *pLabel, bool UseScroll, int Current, int Min, int Max, int Step, float Scale, bool IsHex, float Round, ColorRGBA *pColor);
 	int DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
-	void DoButton_KeySelect(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
+	void DoButton_KeySelect(const void *pID, const char *pText, const CUIRect *pRect);
 	int DoKeyReader(void *pID, const CUIRect *pRect, int Key, int ModifierCombination, int *pNewModifierCombination);
 
 	void DoSettingsControlsButtons(int Start, int Stop, CUIRect View);
@@ -373,7 +374,7 @@ protected:
 	struct CDemoItem
 	{
 		char m_aFilename[IO_MAX_PATH_LENGTH];
-		char m_aName[128];
+		char m_aName[IO_MAX_PATH_LENGTH];
 		bool m_IsDir;
 		int m_StorageType;
 		time_t m_Date;
@@ -433,8 +434,8 @@ protected:
 		}
 	};
 
-	char m_aCurrentDemoFolder[256];
-	char m_aCurrentDemoFile[64];
+	char m_aCurrentDemoFolder[IO_MAX_PATH_LENGTH];
+	char m_aCurrentDemoFile[IO_MAX_PATH_LENGTH];
 	int m_DemolistSelectedIndex;
 	bool m_DemolistSelectedIsDir;
 	int m_DemolistStorageType;
@@ -443,7 +444,6 @@ protected:
 	std::chrono::nanoseconds m_DemoPopulateStartTime{0};
 
 	void DemolistOnUpdate(bool Reset);
-	//void DemolistPopulate();
 	static int DemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser);
 
 	// friends
@@ -521,6 +521,14 @@ protected:
 	static void ConchainFriendlistUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainServerbrowserUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
+	// skin favorite list
+	bool m_SkinFavoritesChanged = false;
+	std::unordered_set<std::string> m_SkinFavorites;
+	static void Con_AddFavoriteSkin(IConsole::IResult *pResult, void *pUserData);
+	static void Con_RemFavoriteSkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConfigSaveCallback(IConfigManager *pConfigManager, void *pUserData);
+	void OnConfigSave(IConfigManager *pConfigManager);
+
 	// found in menus_settings.cpp
 	void RenderLanguageSelection(CUIRect MainView);
 	void RenderThemeSelection(CUIRect MainView, bool Header = true);
@@ -561,6 +569,7 @@ public:
 	void KillServer();
 
 	virtual void OnInit() override;
+	void OnConsoleInit() override;
 
 	virtual void OnStateChange(int NewState, int OldState) override;
 	virtual void OnReset() override;

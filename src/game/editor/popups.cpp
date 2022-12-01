@@ -32,10 +32,11 @@ void CEditor::UiInvokePopupMenu(void *pID, int Flags, float x, float y, float Wi
 	if(g_UiNumPopups > 7)
 		return;
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "editor", "invoked");
-	if(x + Width > UI()->Screen()->w)
-		x -= Width;
-	if(y + Height > UI()->Screen()->h)
-		y -= Height;
+	const float Margin = 5.0f;
+	if(x + Width > UI()->Screen()->w - Margin)
+		x = maximum<float>(x - Width, Margin);
+	if(y + Height > UI()->Screen()->h - Margin)
+		y = maximum<float>(y - Height, Margin);
 	s_UiPopups[g_UiNumPopups].m_pId = pID;
 	s_UiPopups[g_UiNumPopups].m_IsMenu = Flags;
 	s_UiPopups[g_UiNumPopups].m_Rect.x = x;
@@ -1507,11 +1508,13 @@ int CEditor::PopupTele(CEditor *pEditor, CUIRect View, void *pContext)
 
 	View.VSplitRight(15.f, &NumberPicker, &FindEmptySlot);
 	NumberPicker.VSplitRight(2.f, &NumberPicker, nullptr);
+	FindEmptySlot.HSplitTop(13.0f, &FindEmptySlot, nullptr);
+	FindEmptySlot.HMargin(1.0f, &FindEmptySlot);
 
 	// find empty number button
 	{
 		static int s_EmptySlotPid = 0;
-		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, 0, "[ctrl+f] Find empty slot") || pEditor->Input()->KeyPress(KEY_F))
+		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, 0, "[ctrl+f] Find empty slot") || (pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
 			int number = -1;
 			for(int i = 1; i <= 255; i++)
@@ -1550,7 +1553,7 @@ int CEditor::PopupTele(CEditor *pEditor, CUIRect View, void *pContext)
 		int Prop = pEditor->DoProperties(&NumberPicker, aProps, s_aIds, &NewVal, s_Color);
 		if(Prop == PROP_TELE)
 		{
-			pEditor->m_TeleNumber = (NewVal + 256) % 256;
+			pEditor->m_TeleNumber = (NewVal - 1 + 255) % 255 + 1;
 		}
 
 		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_TeleNumber)
@@ -1566,9 +1569,6 @@ int CEditor::PopupTele(CEditor *pEditor, CUIRect View, void *pContext)
 
 int CEditor::PopupSpeedup(CEditor *pEditor, CUIRect View, void *pContext)
 {
-	CUIRect Button;
-	View.HSplitBottom(12.0f, &View, &Button);
-
 	enum
 	{
 		PROP_FORCE = 0,
@@ -1578,7 +1578,7 @@ int CEditor::PopupSpeedup(CEditor *pEditor, CUIRect View, void *pContext)
 	};
 
 	CProperty aProps[] = {
-		{"Force", pEditor->m_SpeedupForce, PROPTYPE_INT_STEP, 0, 255},
+		{"Force", pEditor->m_SpeedupForce, PROPTYPE_INT_STEP, 1, 255},
 		{"Max Speed", pEditor->m_SpeedupMaxSpeed, PROPTYPE_INT_STEP, 0, 255},
 		{"Angle", pEditor->m_SpeedupAngle, PROPTYPE_ANGLE_SCROLL, 0, 359},
 		{nullptr},
@@ -1589,7 +1589,7 @@ int CEditor::PopupSpeedup(CEditor *pEditor, CUIRect View, void *pContext)
 	int Prop = pEditor->DoProperties(&View, aProps, s_aIds, &NewVal);
 
 	if(Prop == PROP_FORCE)
-		pEditor->m_SpeedupForce = clamp(NewVal, 0, 255);
+		pEditor->m_SpeedupForce = clamp(NewVal, 1, 255);
 	if(Prop == PROP_MAXSPEED)
 		pEditor->m_SpeedupMaxSpeed = clamp(NewVal, 0, 255);
 	if(Prop == PROP_ANGLE)
@@ -1605,16 +1605,15 @@ int CEditor::PopupSwitch(CEditor *pEditor, CUIRect View, void *pContext)
 	CUIRect NumberPicker;
 	CUIRect FindEmptySlot;
 
-	CUIRect DelayPicker;
-
-	View.HSplitMid(&NumberPicker, &DelayPicker);
-	NumberPicker.VSplitRight(15.f, &NumberPicker, &FindEmptySlot);
+	View.VSplitRight(15.f, &NumberPicker, &FindEmptySlot);
 	NumberPicker.VSplitRight(2.f, &NumberPicker, nullptr);
+	FindEmptySlot.HSplitTop(13.0f, &FindEmptySlot, nullptr);
+	FindEmptySlot.HMargin(1.0f, &FindEmptySlot);
 
 	// find empty number button
 	{
 		static int s_EmptySlotPid = 0;
-		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, 0, "[ctrl+f] Find empty slot") || pEditor->Input()->KeyPress(KEY_F))
+		if(pEditor->DoButton_Editor(&s_EmptySlotPid, "F", 0, &FindEmptySlot, 0, "[ctrl+f] Find empty slot") || (pEditor->Input()->ModifierIsPressed() && pEditor->Input()->KeyPress(KEY_F)))
 		{
 			int number = -1;
 			for(int i = 1; i <= 255; i++)
@@ -1645,7 +1644,7 @@ int CEditor::PopupSwitch(CEditor *pEditor, CUIRect View, void *pContext)
 		};
 
 		CProperty aProps[] = {
-			{"Number", pEditor->m_SwitchNum, PROPTYPE_INT_STEP, 1, 255},
+			{"Number", pEditor->m_SwitchNum, PROPTYPE_INT_STEP, 0, 255},
 			{"Delay", pEditor->m_SwitchDelay, PROPTYPE_INT_STEP, 0, 255},
 			{nullptr},
 		};
@@ -1675,9 +1674,6 @@ int CEditor::PopupSwitch(CEditor *pEditor, CUIRect View, void *pContext)
 
 int CEditor::PopupTune(CEditor *pEditor, CUIRect View, void *pContext)
 {
-	CUIRect Button;
-	View.HSplitBottom(12.0f, &View, &Button);
-
 	enum
 	{
 		PROP_TUNE = 0,
@@ -1701,12 +1697,6 @@ int CEditor::PopupTune(CEditor *pEditor, CUIRect View, void *pContext)
 
 int CEditor::PopupGoto(CEditor *pEditor, CUIRect View, void *pContext)
 {
-	CUIRect CoordXPicker;
-	CUIRect CoordYPicker;
-
-	View.HSplitMid(&CoordXPicker, &CoordYPicker);
-	CoordXPicker.VSplitRight(2.f, &CoordXPicker, nullptr);
-
 	static ColorRGBA s_Color = ColorRGBA(1, 1, 1, 0.5f);
 
 	enum
@@ -1724,7 +1714,7 @@ int CEditor::PopupGoto(CEditor *pEditor, CUIRect View, void *pContext)
 
 	static int s_aIds[NUM_PROPS] = {0};
 	int NewVal = 0;
-	int Prop = pEditor->DoProperties(&CoordXPicker, aProps, s_aIds, &NewVal, s_Color);
+	int Prop = pEditor->DoProperties(&View, aProps, s_aIds, &NewVal, s_Color);
 
 	if(Prop == PROP_CoordX)
 	{
@@ -1879,4 +1869,72 @@ int CEditor::PopupEntities(CEditor *pEditor, CUIRect View, void *pContext)
 	}
 
 	return 0;
+}
+
+void CEditor::SMessagePopupContext::DefaultColor(ITextRender *pTextRender)
+{
+	m_TextColor = pTextRender->DefaultTextColor();
+}
+
+void CEditor::SMessagePopupContext::ErrorColor()
+{
+	m_TextColor = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
+}
+
+int CEditor::PopupMessage(CEditor *pEditor, CUIRect View, void *pContext)
+{
+	SMessagePopupContext *pMessagePopup = static_cast<SMessagePopupContext *>(pContext);
+
+	CTextCursor Cursor;
+	pEditor->TextRender()->SetCursor(&Cursor, View.x, View.y, SMessagePopupContext::POPUP_FONT_SIZE, TEXTFLAG_RENDER);
+	Cursor.m_LineWidth = View.w;
+	pEditor->TextRender()->TextColor(pMessagePopup->m_TextColor);
+	pEditor->TextRender()->TextEx(&Cursor, pMessagePopup->m_aMessage, -1);
+	pEditor->TextRender()->TextColor(pEditor->TextRender()->DefaultTextColor());
+
+	return 0;
+}
+
+void CEditor::ShowPopupMessage(float X, float Y, SMessagePopupContext *pContext)
+{
+	const float TextWidth = minimum(TextRender()->TextWidth(nullptr, SMessagePopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f), SMessagePopupContext::POPUP_MAX_WIDTH);
+	const int LineCount = TextRender()->TextLineCount(nullptr, SMessagePopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, TextWidth);
+	UiInvokePopupMenu(pContext, 0, X, Y, TextWidth + 10.0f, LineCount * SMessagePopupContext::POPUP_FONT_SIZE + 10.0f, PopupMessage, pContext);
+}
+
+CEditor::SSelectionPopupContext::SSelectionPopupContext()
+{
+	m_pSelection = nullptr;
+}
+
+int CEditor::PopupSelection(CEditor *pEditor, CUIRect View, void *pContext)
+{
+	SSelectionPopupContext *pSelectionPopup = static_cast<SSelectionPopupContext *>(pContext);
+
+	CUIRect Slot;
+	const int LineCount = pEditor->TextRender()->TextLineCount(nullptr, SSelectionPopupContext::POPUP_FONT_SIZE, pSelectionPopup->m_aMessage, SSelectionPopupContext::POPUP_MAX_WIDTH);
+	View.HSplitTop(LineCount * SSelectionPopupContext::POPUP_FONT_SIZE, &Slot, &View);
+
+	CTextCursor Cursor;
+	pEditor->TextRender()->SetCursor(&Cursor, Slot.x, Slot.y, SSelectionPopupContext::POPUP_FONT_SIZE, TEXTFLAG_RENDER);
+	Cursor.m_LineWidth = Slot.w;
+	pEditor->TextRender()->TextEx(&Cursor, pSelectionPopup->m_aMessage, -1);
+
+	for(const auto &Entry : pSelectionPopup->m_Entries)
+	{
+		View.HSplitTop(SSelectionPopupContext::POPUP_ENTRY_SPACING, nullptr, &View);
+		View.HSplitTop(SSelectionPopupContext::POPUP_ENTRY_HEIGHT, &Slot, &View);
+		if(pEditor->DoButton_MenuItem(&Entry, Entry.c_str(), 0, &Slot, 0, nullptr))
+			pSelectionPopup->m_pSelection = &Entry;
+	}
+
+	return pSelectionPopup->m_pSelection == nullptr ? 0 : 1;
+}
+
+void CEditor::ShowPopupSelection(float X, float Y, SSelectionPopupContext *pContext)
+{
+	const int LineCount = TextRender()->TextLineCount(nullptr, SSelectionPopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, SSelectionPopupContext::POPUP_MAX_WIDTH);
+	const float PopupHeight = LineCount * SSelectionPopupContext::POPUP_FONT_SIZE + pContext->m_Entries.size() * (SSelectionPopupContext::POPUP_ENTRY_HEIGHT + SSelectionPopupContext::POPUP_ENTRY_SPACING) + 10.0f;
+	pContext->m_pSelection = nullptr;
+	UiInvokePopupMenu(pContext, 0, X, Y, SSelectionPopupContext::POPUP_MAX_WIDTH + 10.0f, PopupHeight, PopupSelection, pContext);
 }

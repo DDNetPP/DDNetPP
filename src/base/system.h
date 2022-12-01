@@ -580,7 +580,7 @@ void thread_detach(void *thread);
  * @param user Pointer to pass to the thread.
  * @param name Name describing the use of the thread
  *
- * @return The thread if no error occured, 0 on error.
+ * @return The thread if no error occurred, 0 on error.
  */
 void *thread_init_and_detach(void (*threadfunc)(void *), void *user, const char *name);
 
@@ -1201,7 +1201,7 @@ void str_utf8_truncate(char *dst, int dst_size, const char *src, int truncation_
  * counting the zero termination).
  *
  * @remark The strings are treated as zero-terminated strings.
- * @remark Garantees that dst string will contain zero-termination.
+ * @remark Guarantees that dst string will contain zero-termination.
  */
 void str_truncate(char *dst, int dst_size, const char *src, int truncation_len);
 
@@ -1588,7 +1588,7 @@ const char *str_find_nocase(const char *haystack, const char *needle);
 const char *str_find(const char *haystack, const char *needle);
 
 /**
- * Finds the last occurance of a character
+ * Finds the last occurrence of a character
  *
  * @ingroup Strings
  *
@@ -2048,9 +2048,6 @@ char str_uppercase(char c);
 int str_isallnum(const char *str);
 unsigned str_quickhash(const char *str);
 
-struct SKELETON;
-void str_utf8_skeleton_begin(struct SKELETON *skel, const char *str);
-int str_utf8_skeleton_next(struct SKELETON *skel);
 int str_utf8_to_skeleton(const char *str, int *buf, int buf_len);
 
 /*
@@ -2563,11 +2560,14 @@ public:
 /**
  * This is a RAII wrapper to initialize/uninitialize the Windows COM library,
  * which may be necessary for using the open_file and open_link functions.
+ * Must be used on every thread. It's automatically used on threads created
+ * with thread_init. Pass true to the constructor on threads that own a
+ * window (i.e. pump a message queue).
  */
 class CWindowsComLifecycle
 {
 public:
-	CWindowsComLifecycle();
+	CWindowsComLifecycle(bool HasWindow);
 	~CWindowsComLifecycle();
 };
 #endif

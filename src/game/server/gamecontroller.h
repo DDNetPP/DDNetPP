@@ -109,7 +109,7 @@ public:
 	virtual void OnPlayerConnect(class CPlayer *pPlayer, bool Silent = false);
 	virtual void OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent = false);
 
-	void OnReset();
+	virtual void OnReset();
 
 	// game
 	void DoWarmup(int Seconds);
