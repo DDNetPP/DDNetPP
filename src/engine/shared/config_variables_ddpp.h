@@ -16,7 +16,6 @@
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Save, Desc) char m_##Name[Len]; // Flawfinder: ignore
 #endif
 
-
 MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)")
 
 // vanilla modes
