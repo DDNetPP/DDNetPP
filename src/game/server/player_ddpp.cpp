@@ -76,7 +76,7 @@ void CPlayer::ResetDDPP()
 		m_IsVanillaDmg = true;
 		m_IsVanillaWeapons = true;
 	}
-	m_vWeaponLimit.resize(5);
+	m_vWeaponLimit.resize(6);
 
 	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));

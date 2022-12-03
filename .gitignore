@@ -249,3 +249,4 @@ rules.ninja
 testrunner\[1\]_include.cmake
 src/game/generated
 generated/
+enc_temp_folder/
