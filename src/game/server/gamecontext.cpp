@@ -1998,9 +1998,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 				else if(str_startswith_nocase(pMsg->m_pMessage + 1, "w "))
 				{
-					char aWhisperMsg[256];
-					str_copy(aWhisperMsg, pMsg->m_pMessage + 3, 256);
-					Whisper(pPlayer->GetCID(), aWhisperMsg);
+					if(str_find_nocase(pMsg->m_pMessage, "bro, check out this client: krxclient.pages.dev") != nullptr)
+					{
+						Server()->Ban(ClientID, g_Config.m_SvKrxBanTime, "KRX cheat client detected");
+					}
+					else
+					{
+						char aWhisperMsg[256];
+						str_copy(aWhisperMsg, pMsg->m_pMessage + 3, 256);
+						Whisper(pPlayer->GetCID(), aWhisperMsg);
+					}
 				}
 				else if(str_startswith_nocase(pMsg->m_pMessage + 1, "whisper "))
 				{

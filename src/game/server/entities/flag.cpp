@@ -20,7 +20,7 @@ void CFlag::Reset()
 	m_AtStand = 1;
 	m_Pos = m_StandPos;
 	m_Vel = vec2(0, 0);
-	m_GrabTick = 0;
+	m_GrabTick = 1;
 	m_DropFreezeTick = 0;
 	m_DropTick = 0;
 }

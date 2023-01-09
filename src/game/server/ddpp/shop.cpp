@@ -1,4 +1,4 @@
-/* DDNet++ shop */
+﻿/* DDNet++ shop */
 
 #include "../gamecontext.h"
 
@@ -138,18 +138,18 @@ IServer *CShop::Server()
 void CShop::OnInit()
 {
 	m_vItems.push_back(new CShopItemRainbow(
-		"rainbow",
+		"Rainbow",
 		"1 500",
 		5,
-		"Rainbow will make your tee change the color very fast.",
-		"dead",
+		"Радужный скин.",
+		"Смерть",
 		m_pGameContext));
 	m_vItems.push_back(new CShopItemBloody(
-		"bloody",
+		"Bloody",
 		"3 500",
 		15,
-		"Bloody will give your tee a permanent kill effect.",
-		"dead",
+		"Постоянные эффекты.",
+		"Смерть",
 		m_pGameContext));
 	m_vItems.push_back(new CShopItemChidraqul(
 		"chidraqul",

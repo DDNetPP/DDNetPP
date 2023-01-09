@@ -250,4 +250,6 @@ MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLA
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
 //MACRO_CONFIG_STR(SvFilterLogString, sv_filter_log_str, 256, "", CFGFLAG_SERVER, "Is used to filter the server log depending on sv_filter_log_state")
 
+MACRO_CONFIG_INT(SvKrxBanTime, sv_krx_ban_time, 86400, 60, 999999, CFGFLAG_SERVER, "Time in seconds to auto ban for krx whisper spam")
+
 #endif
