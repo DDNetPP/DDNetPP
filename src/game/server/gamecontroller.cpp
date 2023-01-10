@@ -258,7 +258,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 					&GameServer()->m_World, //GameWorld
 					Pos, //Pos
 					pi / 4 * i, //Rotation
-					32 * 3 + 32 * (aSides[i] - ENTITY_LASER_SHORT) * 3, //Length
+					32 * 3 + 32 * (aSides[i] - ENTITY_LASER_SHORT) * 3 * 9, //Length
 					Number //Number
 				);
 			}

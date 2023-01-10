@@ -148,12 +148,12 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		{
 			if(GameServer()->ShowJoinMessage(ClientID))
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "[+] %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "[+] %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
