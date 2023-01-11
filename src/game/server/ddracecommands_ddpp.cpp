@@ -28,7 +28,6 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	if(pChr)
 	{
 		pChr->m_freezeShotgun ^= true;
-		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_freezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
@@ -1119,4 +1118,25 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 	dbg_msg("SQL", "RCON_API: %s", aSQL);
 #endif
 	pSelf->m_pAccounts->ExecuteSQL(aSQL);
+}
+
+void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(pPlayer)
+	{
+		// pPlayer->m_freezeShotgun ^= true;
+		pPlayer->m_InfRainbow ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
 }

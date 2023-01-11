@@ -2797,61 +2797,6 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 
 // accept/turn-off cosmetic features
 
-void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if(!pPlayer)
-		return;
-
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if(!pChr)
-		return;
-
-	if(pResult->NumArguments() != 1)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow <accept/off>'.");
-		return;
-	}
-
-	char aInput[32];
-	str_copy(aInput, pResult->GetString(0), 32);
-
-	if(!str_comp_nocase(aInput, "off"))
-	{
-		pPlayer->GetCharacter()->m_Rainbow = false;
-		pPlayer->m_InfRainbow = false;
-		pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow turned off.");
-	}
-	else if(!str_comp_nocase(aInput, "accept"))
-	{
-		if(pPlayer->m_rainbow_offer > 0)
-		{
-			if(!pPlayer->GetCharacter()->m_Rainbow)
-			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
-				pPlayer->m_rainbow_offer--;
-				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted rainbow. You can turn it off with '/rainbow off'.");
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You already have rainbow.");
-			}
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you rainbow.");
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow <accept/off>'.");
-	}
-}
-
 void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

@@ -252,4 +252,5 @@ MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLA
 
 MACRO_CONFIG_INT(SvKrxBanTime, sv_krx_ban_time, 86400, 60, 999999, CFGFLAG_SERVER, "Time in seconds to auto ban for krx whisper spam")
 
+MACRO_CONFIG_INT(SvFreezeShotgunAngle, sv_freezeshotgun_angle, 70, 2, 180, CFGFLAG_SERVER, "allow users to play chidraqul")
 #endif

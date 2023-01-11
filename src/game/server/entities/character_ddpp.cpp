@@ -737,45 +737,23 @@ void CCharacter::DropWeapon(int WeaponID)
 	// 	m_pPlayer->m_vWeaponLimit[WeaponID].size());
 #endif
 	if(!g_Config.m_SvAllowDroppingWeapons)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3pizda.");
 		return;
-	}
 	if(isFreezed || m_FreezeTime)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3yayayayayayaya.");
 		return;
-	}
 	if(!m_Core.m_aWeapons[WeaponID].m_Got)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3assassassaasa.");
 		return;
-	}
 	if(m_pPlayer->IsInstagibMinigame())
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3sssssssssss.");
 		return;
-	}
+
 	if(m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать призрака.");
 		return;
-	}
 	if(WeaponID == WEAPON_NINJA)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать катану.");
 		return;
-	}
 	if(WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать молот.");
 		return;
-	}
 	if(WeaponID == WEAPON_GUN && !m_Core.m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
-	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать пистолет.");
 		return;
-	}
+
 //	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 //		return;
 //	if(WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
@@ -783,7 +761,7 @@ void CCharacter::DropWeapon(int WeaponID)
 //	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 //		return;
 
-	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
+	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 2)
 		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
 			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 
@@ -836,10 +814,6 @@ void CCharacter::DropWeapon(int WeaponID)
 
 		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo);
 		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
-
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Вы выбросили оружие.");
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 	}
 
 	if (!SetWeaponThatChrHas())
@@ -3085,16 +3059,20 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 {
 	if(m_freezeShotgun || m_pPlayer->m_IsVanillaWeapons) //freezeshotgun
 	{
-		int ShotSpread = 2;
+		int ShotSpread = 1;
 
 		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(ShotSpread * 2 + 1);
+		Msg.AddInt(ShotSpread);
+
+		float AnglePart = M_PI / g_Config.m_SvFreezeShotgunAngle;
+
 
 		for(int i = -ShotSpread; i <= ShotSpread; ++i)
 		{
-			float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
+			if(i == 0)
+				continue;
 			float a = angle(Direction);
-			a += Spreading[i + 2];
+			a += AnglePart * i;
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
 			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
@@ -3162,7 +3140,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	// check for ammo
 	if(!m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
 	{
-		if(m_pPlayer->m_IsVanillaWeapons)
+	    if(m_pPlayer->m_IsVanillaWeapons)
 		{
 			// 125ms is a magical limit of how fast a human can click
 			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
@@ -3342,7 +3320,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
 		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;*/
 
-	if(!m_ReloadTimer && !IsDDNetPPHit)
+	if(!m_ReloadTimer)
 	{
 		float FireDelay;
 		if(!m_TuneZone)

@@ -129,7 +129,9 @@ void CGameContext::ConSuper(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr && !pChr->IsSuper())
 	{
 		pChr->SetSuper(true);
@@ -142,7 +144,9 @@ void CGameContext::ConUnSuper(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr && pChr->IsSuper())
 	{
 		pChr->SetSuper(false);
@@ -174,7 +178,9 @@ void CGameContext::ConLiveFreeze(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetLiveFrozen(true);
 }
@@ -184,7 +190,9 @@ void CGameContext::ConUnLiveFreeze(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetLiveFrozen(false);
 }

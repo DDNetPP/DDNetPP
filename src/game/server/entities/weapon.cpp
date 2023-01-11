@@ -50,11 +50,16 @@ void CWeapon::Reset()
 					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
 					break;
 				}
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Reset weapons.");
+		GameServer()->SendChatTarget(m_Owner, aBuf);
 	}
 
 	if(IsCharacterNear() == -1)
 		GameServer()->CreateDeath(m_Pos, -1);
 
+	
 	m_MarkedForDestroy = true;
 }
 
