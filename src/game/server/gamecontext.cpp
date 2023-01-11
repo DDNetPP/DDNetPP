@@ -2000,7 +2000,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					if(str_find_nocase(pMsg->m_pMessage, "bro, check out this client: krxclient.pages.dev") != nullptr)
 					{
-						Server()->Ban(ClientID, g_Config.m_SvKrxBanTime, "KRX cheat client detected");
+						Server()->Ban(ClientID, g_Config.m_SvKrxBanTime, "KRX Client");
 					}
 					else
 					{

@@ -1,4 +1,4 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
+﻿/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <engine/shared/config.h>
 
@@ -483,9 +483,9 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 		if(!Silent)
 		{
 			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientID), pReason);
+				str_format(aBuf, sizeof(aBuf), "[-] %s", Server()->ClientName(ClientID), pReason);
 			else
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientID));
+				str_format(aBuf, sizeof(aBuf), "[-] %s", Server()->ClientName(ClientID));
 			if(GameServer()->ShowLeaveMessage(ClientID))
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			else

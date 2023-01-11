@@ -737,21 +737,45 @@ void CCharacter::DropWeapon(int WeaponID)
 	// 	m_pPlayer->m_vWeaponLimit[WeaponID].size());
 #endif
 	if(!g_Config.m_SvAllowDroppingWeapons)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3pizda.");
 		return;
+	}
 	if(isFreezed || m_FreezeTime)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3yayayayayayaya.");
 		return;
+	}
 	if(!m_Core.m_aWeapons[WeaponID].m_Got)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3assassassaasa.");
 		return;
+	}
 	if(m_pPlayer->IsInstagibMinigame())
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "K3sssssssssss.");
 		return;
+	}
 	if(m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать призрака.");
 		return;
+	}
 	if(WeaponID == WEAPON_NINJA)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать катану.");
 		return;
+	}
 	if(WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать молот.");
 		return;
+	}
 	if(WeaponID == WEAPON_GUN && !m_Core.m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Запрещено выкидывать пистолет.");
 		return;
+	}
 //	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 //		return;
 //	if(WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
@@ -759,9 +783,9 @@ void CCharacter::DropWeapon(int WeaponID)
 //	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 //		return;
 
-//	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
-//		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
-//			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
+	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
+		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
+			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 
 	int m_CountWeapons = 0;
 
@@ -812,9 +836,16 @@ void CCharacter::DropWeapon(int WeaponID)
 
 		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(), GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo);
 		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Вы выбросили оружие.");
+		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 	}
 
-	SetWeaponThatChrHas();
+	if (!SetWeaponThatChrHas())
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Can't set weapon :(");
+	}
 }
 
 void CCharacter::PvPArenaTick()
