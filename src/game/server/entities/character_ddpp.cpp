@@ -761,9 +761,9 @@ void CCharacter::DropWeapon(int WeaponID)
 //	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
 //		return;
 
-	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 2)
-		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
-			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
+//	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 2)
+//		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
+//			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 
 	int m_CountWeapons = 0;
 

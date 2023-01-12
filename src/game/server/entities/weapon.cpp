@@ -51,9 +51,9 @@ void CWeapon::Reset()
 					break;
 				}
 
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Reset weapons.");
-		GameServer()->SendChatTarget(m_Owner, aBuf);
+		// char aBuf[256];
+		// str_format(aBuf, sizeof(aBuf), "Reset weapons.");
+		// GameServer()->SendChatTarget(m_Owner, aBuf);
 	}
 
 	if(IsCharacterNear() == -1)

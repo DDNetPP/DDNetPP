@@ -138,32 +138,11 @@ IServer *CShop::Server()
 void CShop::OnInit()
 {
 	m_vItems.push_back(new CShopItemPolice(
-		"police",
-		"999 999",
-		100,
-		"Police officers get help from the police bot.\n"
-		"For more information about the specific police ranks\n"
-		"please visit '/policeinfo'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemTaser(
-		"taser",
-		"500 000",
-		-1,
-		"Taser replaces your unfreeze rifle with a rifle that freezes\n"
-		"other tees. You can toggle it using '/taser <on/off>'.\n"
-		"For more information about the taser and your taser stats,\n"
-		"plase visit '/taser info'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemSpookyGhost(
-		"spooky_ghost",
-		"1 000 000",
-		50,
-		"Using this item you can hide from other players behind bushes.\n"
-		"If your ghost is activated you will be able to shoot plasma\n"
-		"projectiles. For more information please visit '/spookyghostinfo'.",
-		"forever",
+		"Иди нахуй магаз не работает",
+		"100",
+		999,
+		"Я сказал иди нахуй.\n",
+		"Чушка",
 		m_pGameContext));
 }
 
@@ -477,12 +456,12 @@ void CShop::ShowShopMotdCompressed(int ClientID)
 	char aBuf[2048];
 	str_copy(aBuf,
 		"***************************\n"
-		"        ~  S H O P  ~      \n"
+		"        ~  Магазин Ашота  ~      \n"
 		"***************************\n"
-		"Usage: '/buy (itemname)'\n"
+		"Используй: '/buy (предмет)'\n"
 		"***************************\n"
-		"Item | Price | Level | Owned until\n"
-		"-------+------+--------+-------\n",
+		"Предмет | Цена | Уровень | Срок\n"
+		"--------+------+---------+-------\n",
 		sizeof(aBuf));
 	for(auto &Item : m_vItems)
 	{
@@ -564,11 +543,11 @@ void CShop::ConfirmPurchase(int ClientID)
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf),
 		"***************************\n"
-		"        ~  S H O P  ~      \n"
+		"        ~  Магаз Ашота  ~      \n"
 		"***************************\n\n"
-		"Are you sure you want to buy this item?\n\n"
-		"f3 - yes\n"
-		"f4 - no\n\n"
+		"Ты точно хочешь купить эту хуйню?\n\n"
+		"f3 - Да\n"
+		"f4 - Нет\n\n"
 		"***************************\n");
 
 	m_pGameContext->AbuseMotd(aBuf, ClientID);
@@ -587,7 +566,7 @@ void CShop::PurchaseEnd(int ClientID, bool IsCancel)
 		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
 		str_format(aBuf, sizeof(aBuf),
 			"***************************\n"
-			"        ~  S H O P  ~      \n"
+			"        ~  Магаз Ашота  ~      \n"
 			"***************************\n\n"
 			"%s\n\n"
 			"***************************\n",

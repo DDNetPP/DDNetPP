@@ -113,7 +113,7 @@ bool CCharacterCore::HookFlag()
 		}
 		return true;
 	}
-	return false;
+	return true;
 }
 
 void CCharacterCore::DDPPTick()
