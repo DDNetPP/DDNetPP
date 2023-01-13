@@ -138,11 +138,13 @@ IServer *CShop::Server()
 void CShop::OnInit()
 {
 	m_vItems.push_back(new CShopItemPolice(
-		"Иди нахуй магаз не работает",
-		"100",
-		999,
-		"Я сказал иди нахуй.\n",
-		"Чушка",
+		"Police",
+		"999 999",
+		100,
+		"Police officers get help from the police bot.\n"
+		"For more information about the specific police ranks\n"
+		"please visit '/policeinfo'.",
+		"Forever",
 		m_pGameContext));
 }
 
