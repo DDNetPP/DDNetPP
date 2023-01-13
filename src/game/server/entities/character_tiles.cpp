@@ -1,4 +1,4 @@
-// ddnet++ tile character stuff
+﻿// ddnet++ tile character stuff
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
@@ -373,12 +373,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ Банк ~", m_pPlayer->GetCID(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ Банк ~", m_pPlayer->GetCID(), 0);
 			}
 		}
 		m_InBank = true;
@@ -397,12 +397,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ Магазин Ашотика ~", m_pPlayer->GetCID(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ Магазин Ашотика ~", m_pPlayer->GetCID(), 0);
 			}
 		}
 		if(m_EnteredShop)
@@ -410,7 +410,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "Нажми F4 что бы начать разговор.", Server()->ClientName(m_pPlayer->GetCID()));
 				SendShopMessage(aBuf);
 			}
 			m_EnteredShop = false;
@@ -474,7 +474,7 @@ void CCharacter::MoneyTile()
 		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast("Тебе нужно войти в аккаунт. \nИспользуй '/register' или '/login'", m_pPlayer->GetCID(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -506,7 +506,7 @@ void CCharacter::MoneyTile()
 	{
 		if(m_pPlayer->m_xpmsg)
 		{
-			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast("У тебя уже максимальный уровень.", m_pPlayer->GetCID(), 0);
 		}
 		return;
 	}
@@ -569,16 +569,16 @@ void CCharacter::MoneyTile()
 			if(VIPBonus)
 			{
 				if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
-					str_format(aBuf, sizeof(aBuf), "Money [%" PRId64 "] +1 +%d vip\nXP [%" PRId64 "/%" PRId64 "] +1 +1 flag +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Бабло [%" PRId64 "] +1 +%d vip\nXP [%" PRId64 "/%" PRId64 "] +1 +1 flag +%d vip\nУровень [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
 				else
-					str_format(aBuf, sizeof(aBuf), "Money [%" PRId64 "] +1 +%d vip\nXP [%" PRId64 "/%" PRId64 "] +1 +%d vip\nLevel [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Бабло [%" PRId64 "] +1 +%d vip\nXP [%" PRId64 "/%" PRId64 "] +1 +%d vip\nУровень [%d]", m_pPlayer->GetMoney(), VIPBonus, m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_pPlayer->GetLevel());
 			}
 			else
 			{
 				if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
-					str_format(aBuf, sizeof(aBuf), "Money [%" PRId64 "] +1\nXP [%" PRId64 "/%" PRId64 "] +1 +1 flag\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Бабло [%" PRId64 "] +1\nXP [%" PRId64 "/%" PRId64 "] +1 +1 flag\nУровень [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 				else
-					str_format(aBuf, sizeof(aBuf), "Money [%" PRId64 "] +1\nXP [%" PRId64 "/%" PRId64 "] +1\nLevel [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
+					str_format(aBuf, sizeof(aBuf), "Бабло [%" PRId64 "] +1\nXP [%" PRId64 "/%" PRId64 "] +1\nУровень [%d]", m_pPlayer->GetMoney(), m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_pPlayer->GetLevel());
 			}
 		}
 		else if(m_survivexpvalue > 0)

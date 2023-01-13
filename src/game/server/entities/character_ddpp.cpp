@@ -1386,7 +1386,7 @@ void CCharacter::DDPP_Tick()
 			{
 				if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 				{
-					SendShopMessage("Bye! Come back if you need something.");
+					SendShopMessage("Ма ас-салама!");
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
 				GameServer()->SendBroadcast("", m_pPlayer->GetCID(), 0);

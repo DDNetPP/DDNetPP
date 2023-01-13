@@ -85,12 +85,11 @@ const char *CShopItem::Title()
 const char *CShopItem::OwnUntilLong()
 {
 	if(!str_comp(m_aOwnUntil, "dead"))
-		return "You own this item until you die";
+		return "Пока не сдохнешь";
 	if(!str_comp(m_aOwnUntil, "disconnect"))
-		return "You own this item until\n"
-		       "   you disconnect";
+		return "Пока не ливнешь\n";
 	if(!str_comp(m_aOwnUntil, "forever"))
-		return "You own this item forever";
+		return "Навсегда";
 	return "";
 }
 
@@ -102,13 +101,13 @@ bool CShopItem::CanBuy(int ClientID)
 	char aBuf[128];
 	if(pPlayer->GetLevel() < NeededLevel(ClientID))
 	{
-		str_format(aBuf, sizeof(aBuf), "You need to be Level %d to buy '%s'", NeededLevel(ClientID), Name());
+		str_format(aBuf, sizeof(aBuf), "Тебе нужен %d уровень что бы купить '%s'", NeededLevel(ClientID), Name());
 		GameServer()->SendChatTarget(ClientID, aBuf);
 		return false;
 	}
 	if(pPlayer->m_Account.m_Money < Price(ClientID))
 	{
-		str_format(aBuf, sizeof(aBuf), "You don't have enough money! You need %s money.", PriceStr(ClientID));
+		str_format(aBuf, sizeof(aBuf), "У тебя недостаточно средств! Твой баланс %s.", PriceStr(ClientID));
 		GameServer()->SendChatTarget(ClientID, aBuf);
 		return false;
 	}
@@ -139,12 +138,21 @@ void CShop::OnInit()
 {
 	m_vItems.push_back(new CShopItemPolice(
 		"Police",
-		"999 999",
-		100,
-		"Police officers get help from the police bot.\n"
-		"For more information about the specific police ranks\n"
-		"please visit '/policeinfo'.",
-		"Forever",
+		"777 000",
+		777,
+		"Я не ебу зачем нужен.\n"
+		"Но если купишь\n"
+		"Потом расскажешь.",
+		"forever",
+		m_pGameContext));
+
+	m_vItems.push_back(new CShopItemRoomKey(
+		"Room Key",
+		g_Config.m_SvRoomPrice,
+		50,
+		"Дает доступ к VIP комнате.\n"
+		"Ищи сам где она XD.",
+		"disconnect",
 		m_pGameContext));
 }
 
@@ -275,7 +283,7 @@ bool CShopItemTaser::Buy(int ClientID)
 		return false;
 	if(pPlayer->m_Account.m_TaserLevel > 6)
 	{
-		GameServer()->SendChatTarget(ClientID, "Taser already max level.");
+		GameServer()->SendChatTarget(ClientID, "Шокер уже максимального уровня.");
 		return false;
 	}
 	if(pPlayer->m_Account.m_PoliceRank < NeededPoliceRank(ClientID))
@@ -289,7 +297,7 @@ bool CShopItemTaser::Buy(int ClientID)
 	if(pPlayer->m_Account.m_TaserLevel == 1)
 		GameServer()->SendChatTarget(ClientID, "Type '/taser help' for all cmds");
 	else
-		GameServer()->SendChatTarget(ClientID, "Taser has been upgraded.");
+		GameServer()->SendChatTarget(ClientID, "Вы прокачали Шокер.");
 	return true;
 }
 
@@ -457,13 +465,13 @@ void CShop::ShowShopMotdCompressed(int ClientID)
 {
 	char aBuf[2048];
 	str_copy(aBuf,
-		"***************************\n"
-		"        ~  Магазин Ашота  ~      \n"
-		"***************************\n"
+		"************************************\n"
+		"        ~  Магазин Ашотика  ~      \n"
+		"************************************\n\n"
 		"Используй: '/buy (предмет)'\n"
 		"***************************\n"
 		"Предмет | Цена | Уровень | Срок\n"
-		"--------+------+---------+-------\n",
+		"-------------+--------+-------------+-------\n",
 		sizeof(aBuf));
 	for(auto &Item : m_vItems)
 	{
@@ -544,9 +552,9 @@ void CShop::ConfirmPurchase(int ClientID)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf),
-		"***************************\n"
-		"        ~  Магаз Ашота  ~      \n"
-		"***************************\n\n"
+		"************************************\n"
+		"        ~  Магазин Ашотика  ~      \n"
+		"************************************\n\n"
 		"Ты точно хочешь купить эту хуйню?\n\n"
 		"f3 - Да\n"
 		"f4 - Нет\n\n"
@@ -567,9 +575,9 @@ void CShop::PurchaseEnd(int ClientID, bool IsCancel)
 		char aBuf[256];
 		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
 		str_format(aBuf, sizeof(aBuf),
-			"***************************\n"
-			"        ~  Магаз Ашота  ~      \n"
-			"***************************\n\n"
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
 			"%s\n\n"
 			"***************************\n",
 			aResult);
@@ -663,16 +671,14 @@ void CShop::ShopWindow(int Dir, int ClientID)
 	if(m_Page[ClientID] == 0)
 	{
 		str_copy(aMotd,
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
-			"Welcome to the shop! If you need help, use '/shop help'.\n\n"
-			"By shooting to the right you go one site forward,\n"
-			"and by shooting left you go one site backwards.\n\n"
-			"If you need more help, visit '/shop help'."
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
+			"Ас-саляму алейкум брат мой!\n\n"
+			"Для того что бы переключаться между товарами, стреляй вправо или влево\n"
 			"\n\n"
 			"***************************\n"
-			"If you want to buy an item press f3.",
+			"Купить предмет - F3.",
 			sizeof(aMotd));
 		m_pGameContext->AbuseMotd(aMotd, ClientID);
 		return;
@@ -686,16 +692,16 @@ void CShop::ShopWindow(int Dir, int ClientID)
 			continue;
 
 		str_format(aMotd, sizeof(aMotd),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
 			"%s\n\n"
-			"Needed level: %s\n"
-			"Price: %s\n"
-			"Time: %s\n\n"
+			"Уровень: %s\n"
+			"Цена: %s\n"
+			"Срок: %s\n\n"
 			"%s\n\n"
 			"***************************\n"
-			"If you want to buy an item press f3.\n\n\n"
+			"Купить - F3.\n\n\n"
 			"              ~ %d/%d ~              ",
 			Item->Title(),
 			Item->NeededLevelStr(ClientID),
