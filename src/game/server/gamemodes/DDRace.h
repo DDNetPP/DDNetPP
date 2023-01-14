@@ -20,7 +20,7 @@ public:
 	int HasFlag(CCharacter *pChr);
 	void FlagTick();
 	void Snap(int SnappingClient) override;
-	bool OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number) override;
+	bool OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number) override;
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) override;
 
 	CGameControllerDDRace(class CGameContext *pGameServer);

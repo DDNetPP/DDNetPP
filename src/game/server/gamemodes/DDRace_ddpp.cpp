@@ -228,10 +228,11 @@ void CGameControllerDDRace::FlagTick()
 	}
 }
 
-bool CGameControllerDDRace::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number)
+bool CGameControllerDDRace::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
 {
-	IGameController::OnEntity(Index, Pos, Layer, Flags, Number);
+	IGameController::OnEntity(Index, x, y, Layer, Flags, Initial, Number);
 
+	vec2 Pos = vec2(x, y);
 	int Team = -1;
 	if(Index == ENTITY_FLAGSTAND_RED)
 		Team = TEAM_RED;
