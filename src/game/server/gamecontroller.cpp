@@ -234,7 +234,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 
 	if(Layer <= LAYER_FRONT) // F-DDrace plot support
 	{
-		if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE)
+		if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE && Initial)
 		{
 			int Type = Index - ENTITY_SPAWN;
 			m_avSpawnPoints[Type].push_back(Pos);
