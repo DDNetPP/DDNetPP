@@ -2486,6 +2486,8 @@ if(SERVER)
     ddpp/dummymode.h
     ddpp/letters.cpp
     ddpp/letters.h
+    ddpp/loc.cpp
+    ddpp/loc.h
     ddpp/shop.cpp
     ddpp/shop.h
     ddracechat.cpp

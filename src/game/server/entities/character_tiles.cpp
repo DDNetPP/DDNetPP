@@ -567,7 +567,7 @@ void CCharacter::MoneyTile()
 		char aMoney[128];
 		char aXp[128];
 		char aLevel[128];
-		str_format(aMoney, sizeof(aMoney), "Money [%" PRId64 "] +1", m_pPlayer->GetMoney());
+		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +1", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 		str_format(aLevel, sizeof(aLevel), "Level [%d]", m_pPlayer->GetLevel());
 
@@ -678,7 +678,7 @@ void CCharacter::MoneyTilePolice()
 		char aMoney[128];
 		char aXp[128];
 		char aLevel[128];
-		str_format(aMoney, sizeof(aMoney), "Money [%" PRId64 "] +1", m_pPlayer->GetMoney());
+		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
 		str_format(aLevel, sizeof(aLevel), "Level [%d]", m_pPlayer->GetLevel());
 
