@@ -682,6 +682,7 @@ private:
 	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
 	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConGiveHomingMissile(IConsole::IResult *pResult, void *pUserData);
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
 
 	//SQL

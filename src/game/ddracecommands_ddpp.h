@@ -1,4 +1,4 @@
-// DDNet++
+﻿// DDNet++
 
 // This file can be included several times.
 
@@ -11,7 +11,7 @@ CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer t
 // cosmetics
 // CONSOLE_COMMAND("OldRainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
 CONSOLE_COMMAND("GiveRainbow", "v", CFGFLAG_SERVER, ConInfRainbow, this, "activates rainbow until disconnect")
-CONSOLE_COMMAND("Rainbow", "", CFGFLAG_SERVER, ConRainbow, this, "activates rainbow until disconnect")
+CONSOLE_COMMAND("Rainbow", "", CFGFLAG_SERVER, ConRainbow, this, "Радужный скин")
 // CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) activates bloody until death")
 CONSOLE_COMMAND("GiveBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
 // CONSOLE_COMMAND("OldAtom", "v", CFGFLAG_SERVER, ConOldAtom, this, "(old) activates atom until death")
@@ -20,8 +20,8 @@ CONSOLE_COMMAND("GiveAtom", "v", CFGFLAG_SERVER, ConInfAtom, this, "activates at
 CONSOLE_COMMAND("GiveAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, this, "activates spread gun until disconnect")
 // CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
 CONSOLE_COMMAND("GiveTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
-
-CONSOLE_COMMAND("HomingGrenad", "v", CFGFLAG_SERVER, ConHomingMissile, this, "toggles homing missile activate/deactive (grenade launcher)")
+CONSOLE_COMMAND("GiveHomingGrenade", "v", CFGFLAG_SERVER, ConGiveHomingMissile, this, "ebal v rot")
+CONSOLE_COMMAND("HomingGrenade", "", CFGFLAG_SERVER, ConHomingMissile, this, "ebal v rot")
 
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")
 CONSOLE_COMMAND("dummymode", "vi", CFGFLAG_SERVER, Condummymode, this, "0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)")

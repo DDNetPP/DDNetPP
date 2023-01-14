@@ -484,7 +484,7 @@ void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	}
 }
 
-void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConGiveHomingMissile(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
@@ -503,6 +503,25 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 
 		str_format(aBuf, sizeof(aBuf), "Homing Missile was %s by %s", pChr->m_HomingMissile ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+
+	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	if(pChr)
+	{
+		pChr->m_HomingMissile ^= true;
+
+		char aBuf[256];
+
+		str_format(aBuf, sizeof(aBuf), "Вы %s самострел", pChr->m_HomingMissile ? "активировали" : "проебали");
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
 
