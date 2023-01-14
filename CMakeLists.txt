@@ -132,6 +132,7 @@ option(VULKAN "Enable the vulkan backend" ${AUTO_VULKAN_BACKEND})
 option(EXCEPTION_HANDLING "Enable exception handling (only works with Windows as of now)" OFF)
 option(IPO "Enable interprocedural optimizations" OFF)
 option(FUSE_LD "Linker to use" OFF)
+option(SECURITY_COMPILER_FLAGS "Whether to set security-relevant compiler flags like -D_FORTIFY_SOURCE=2 and -fstack-protector-all" ON)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   include(${PROJECT_SOURCE_DIR}/cmake/toolchains/Emscripten.toolchain)
@@ -256,7 +257,7 @@ if(CMAKE_GENERATOR STREQUAL "Ninja")
 endif()
 
 if(NOT MSVC AND NOT HAIKU)
-  IF(NOT TARGET_OS STREQUAL "mac")
+  if(NOT TARGET_OS STREQUAL "mac")
     if(NOT FUSE_LD STREQUAL OFF)
       add_linker_flag_if_supported(OUR_FLAGS_LINK -fuse-ld=${FUSE_LD})
       if(FLAG_SUPPORTED_fuse_ld_${FUSE_LD})
@@ -293,9 +294,11 @@ if(NOT MSVC AND NOT HAIKU)
     add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -std=gnu++17)
   endif()
 
-  # Protect the stack pointer.
-  # -fstack-protector-all doesn't work on MinGW.
-  add_cxx_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-all)
+  if(NOT SECURITY_COMPILER_FLAGS STREQUAL OFF)
+    # Protect the stack pointer.
+    # -fstack-protector-all doesn't work on MinGW.
+    add_cxx_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-all)
+  endif()
 
   # Disable exceptions as DDNet does not use them.
   add_cxx_compiler_flag_if_supported(OUR_FLAGS -fno-exceptions)
@@ -332,6 +335,7 @@ if(NOT MSVC AND NOT HAIKU)
     )
   endif()
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wextra)
+  add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-psabi) # parameter passing for argument of type ‘__gnu_cxx::__normal_iterator<CCommandProcessorFragment_Vulkan::SMemoryBlock<1>*, std::vector<CCommandProcessorFragment_Vulkan::SMemoryBlock<1>, std::allocator<CCommandProcessorFragment_Vulkan::SMemoryBlock<1> > > >’ changed in GCC 7.1
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-unused-parameter)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-missing-field-initializers)
   add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -Wformat=2) # Warn about format strings.
@@ -358,7 +362,7 @@ if(MSVC)
   endif()
 endif()
 
-if(NOT MSVC AND NOT HAIKU)
+if(NOT MSVC AND NOT HAIKU AND NOT SECURITY_COMPILER_FLAGS STREQUAL OFF)
   check_c_compiler_flag("-O2;-Wp,-Werror;-D_FORTIFY_SOURCE=2" DEFINE_FORTIFY_SOURCE) # Some distributions define _FORTIFY_SOURCE by themselves.
 endif()
 
@@ -576,6 +580,7 @@ if(TARGET_OS AND TARGET_OS STREQUAL "mac")
 endif()
 
 set(VULKAN_SHADER_FILE_LIST "" CACHE STRING "Vulkan shader file list")
+set(VULKAN_SHADER_FILE_SHA256 "" CACHE STRING "Vulkan shader file hash")
 if(CLIENT AND VULKAN)
   find_package(Vulkan)
   include(cmake/BuildVulkanShaders.cmake)
@@ -1943,6 +1948,7 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   kernel.cpp
   linereader.cpp
   linereader.h
+  localization.h
   map.cpp
   map.h
   masterserver.cpp
@@ -2271,6 +2277,8 @@ if(CLIENT)
     skin.h
     ui.cpp
     ui.h
+    ui_listbox.cpp
+    ui_listbox.h
     ui_rect.cpp
     ui_rect.h
     ui_scrollregion.cpp
@@ -2478,6 +2486,8 @@ if(SERVER)
     ddpp/dummymode.h
     ddpp/letters.cpp
     ddpp/letters.h
+    ddpp/loc.cpp
+    ddpp/loc.h
     ddpp/shop.cpp
     ddpp/shop.h
     ddracechat.cpp
@@ -2796,6 +2806,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     io.cpp
     jobs.cpp
     json.cpp
+    linereader.cpp
     mapbugs.cpp
     name_ban.cpp
     net.cpp
@@ -2855,11 +2866,14 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
   list(APPEND TARGETS_OWN ${TARGET_TESTRUNNER})
   list(APPEND TARGETS_LINK ${TARGET_TESTRUNNER})
 
-  add_custom_target(run_tests
+  add_custom_target(run_cxx_tests
     COMMAND $<TARGET_FILE:${TARGET_TESTRUNNER}> ${TESTRUNNER_ARGS}
     COMMENT Running unit tests
     DEPENDS ${TARGET_TESTRUNNER}
     USES_TERMINAL
+  )
+  add_custom_target(run_tests
+    DEPENDS run_cxx_tests
   )
   if(NOT MSVC OR CMAKE_BUILD_TYPE STREQUAL Release)
     # On MSVC, Rust tests only work in the release mode because we link our C++

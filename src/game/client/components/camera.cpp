@@ -81,7 +81,13 @@ void CCamera::OnRender()
 		}
 		else
 		{
+			const float OldLevel = m_Zoom;
 			m_Zoom = m_ZoomSmoothing.Evaluate(ZoomProgress(Time));
+			if((OldLevel < m_ZoomSmoothingTarget && m_Zoom > m_ZoomSmoothingTarget) || (OldLevel > m_ZoomSmoothingTarget && m_Zoom < m_ZoomSmoothingTarget))
+			{
+				m_Zoom = m_ZoomSmoothingTarget;
+				m_Zooming = false;
+			}
 		}
 		m_Zoom = clamp(m_Zoom, MinZoomLevel(), MaxZoomLevel());
 	}
@@ -114,10 +120,7 @@ void CCamera::OnRender()
 	{
 		if(m_CamType != CAMTYPE_PLAYER)
 		{
-			if((m_aLastPos[g_Config.m_ClDummy].x < g_Config.m_ClMouseMinDistance) || (m_aLastPos[g_Config.m_ClDummy].x < g_Config.m_ClDyncamMinDistance))
-				m_pClient->m_Controls.m_aMousePos[g_Config.m_ClDummy].x = m_aLastPos[g_Config.m_ClDummy].x + g_Config.m_ClMouseMinDistance + g_Config.m_ClDyncamMinDistance;
-			else
-				m_pClient->m_Controls.m_aMousePos[g_Config.m_ClDummy] = m_aLastPos[g_Config.m_ClDummy];
+			m_pClient->m_Controls.m_aMousePos[g_Config.m_ClDummy] = m_aLastPos[g_Config.m_ClDummy];
 			m_pClient->m_Controls.ClampMousePos();
 			m_CamType = CAMTYPE_PLAYER;
 		}

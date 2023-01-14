@@ -3,6 +3,9 @@
 #ifndef ENGINE_CLIENT_INPUT_H
 #define ENGINE_CLIENT_INPUT_H
 
+#include <SDL_events.h>
+#include <SDL_joystick.h>
+
 #include <engine/input.h>
 #include <engine/keys.h>
 
@@ -13,6 +16,8 @@ class CInput : public IEngineInput
 public:
 	class CJoystick : public IJoystick
 	{
+		friend class CInput;
+
 		CInput *m_pInput;
 		int m_Index;
 		char m_aName[64];
@@ -40,11 +45,11 @@ public:
 		int GetNumBalls() const override { return m_NumBalls; }
 		int GetNumHats() const override { return m_NumHats; }
 		float GetAxisValue(int Axis) override;
-		int GetHatValue(int Hat) override;
+		void GetHatValue(int Hat, int (&HatKeys)[2]) override;
 		bool Relative(float *pX, float *pY) override;
 		bool Absolute(float *pX, float *pY) override;
 
-		static int GetJoystickHatKey(int Hat, int HatValue);
+		static void GetJoystickHatKeys(int Hat, int HatValue, int (&HatKeys)[2]);
 	};
 
 private:
@@ -58,6 +63,7 @@ private:
 	std::vector<CJoystick> m_vJoysticks;
 	CJoystick *m_pActiveJoystick = nullptr;
 	void InitJoysticks();
+	bool OpenJoystick(int JoystickIndex);
 	void CloseJoysticks();
 	void UpdateActiveJoystick();
 	static void ConchainJoystickGuidChanged(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -82,9 +88,13 @@ private:
 
 	void UpdateMouseState();
 	void UpdateJoystickState();
-	void HandleJoystickAxisMotionEvent(const SDL_Event &Event);
-	void HandleJoystickButtonEvent(const SDL_Event &Event);
-	void HandleJoystickHatMotionEvent(const SDL_Event &Event);
+	void HandleJoystickAxisMotionEvent(const SDL_JoyAxisEvent &Event);
+	void HandleJoystickButtonEvent(const SDL_JoyButtonEvent &Event);
+	void HandleJoystickHatMotionEvent(const SDL_JoyHatEvent &Event);
+	void HandleJoystickAddedEvent(const SDL_JoyDeviceEvent &Event);
+	void HandleJoystickRemovedEvent(const SDL_JoyDeviceEvent &Event);
+
+	char m_aDropFile[IO_MAX_PATH_LENGTH];
 
 	// IME support
 	int m_NumTextInputInstances;
@@ -130,6 +140,8 @@ public:
 	const char *GetIMEEditingText() override;
 	int GetEditingCursor() override;
 	void SetEditingPosition(float X, float Y) override;
+
+	bool GetDropFile(char *aBuf, int Len) override;
 };
 
 #endif

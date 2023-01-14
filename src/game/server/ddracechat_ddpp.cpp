@@ -3463,6 +3463,17 @@ void CGameContext::ConCaptcha(IConsole::IResult *pResult, void *pUserData)
 	pCap->Prompt(pResult->GetString(0));
 }
 
+void CGameContext::ConLang(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+	pPlayer->SetLanguage(pResult->GetString(0));
+}
+
 void CGameContext::ConHumanLevel(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

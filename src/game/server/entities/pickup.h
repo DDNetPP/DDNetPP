@@ -28,6 +28,7 @@ private:
 	vec2 m_Core;
 
 	bool DDPPIntersect(CCharacter *pChr, int *pRespawnTime);
+	void SetSpawnTick();
 };
 
 #endif

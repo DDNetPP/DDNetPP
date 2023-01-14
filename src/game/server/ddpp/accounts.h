@@ -419,11 +419,11 @@ class CAccounts
 	static bool UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize);
 
 	// non ratelimited server side queries
-	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
-	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
-	static bool CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
-	static bool LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
-	static bool ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize);
+	static bool CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
+	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
+	static bool CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
+	static bool LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
+	static bool ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
 	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientID);

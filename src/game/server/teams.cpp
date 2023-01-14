@@ -24,6 +24,7 @@ void CGameTeams::Reset()
 		m_aTeeStarted[i] = false;
 		m_aTeeFinished[i] = false;
 		m_aLastChat[i] = 0;
+		SendTeamsState(i);
 	}
 
 	for(int i = 0; i < NUM_TEAMS; ++i)
@@ -41,7 +42,6 @@ void CGameTeams::ResetRoundState(int Team)
 	ResetInvited(Team);
 	if(Team != TEAM_SUPER)
 		ResetSwitchers(Team);
-	m_aLastSwap[Team] = 0;
 
 	m_aPractice[Team] = false;
 	m_aTeamUnfinishableKillTick[Team] = -1;
@@ -51,6 +51,7 @@ void CGameTeams::ResetRoundState(int Team)
 		{
 			GameServer()->m_apPlayers[i]->m_VotedForPractice = false;
 			GameServer()->m_apPlayers[i]->m_SwapTargetsClientID = -1;
+			m_aLastSwap[i] = 0;
 		}
 	}
 }
@@ -412,6 +413,7 @@ void CGameTeams::SetForceCharacterTeam(int ClientID, int Team)
 			GetPlayer(ClientID)->m_VotedForPractice = false;
 			GetPlayer(ClientID)->m_SwapTargetsClientID = -1;
 		}
+		m_pGameContext->m_World.RemoveEntitiesFromPlayer(ClientID);
 	}
 
 	if(Team != TEAM_SUPER && (m_aTeamState[Team] == TEAMSTATE_EMPTY || m_aTeamLocked[Team]))
@@ -784,7 +786,11 @@ void CGameTeams::OnFinish(CPlayer *Player, float Time, const char *pTimestamp)
 
 	bool NeedToSendNewServerRecord = false;
 	// update server best time
-	if(GameServer()->m_pController->m_CurrentRecord == 0 || Time < GameServer()->m_pController->m_CurrentRecord)
+	if(GameServer()->m_pController->m_CurrentRecord == 0)
+	{
+		GameServer()->Score()->LoadBestTime();
+	}
+	else if(Time < GameServer()->m_pController->m_CurrentRecord)
 	{
 		// check for nameless
 		if(g_Config.m_SvNamelessScore || !str_startswith(Server()->ClientName(ClientID), "nameless tee"))
@@ -862,7 +868,7 @@ void CGameTeams::RequestTeamSwap(CPlayer *pPlayer, CPlayer *pTargetPlayer, int T
 	}
 
 	pPlayer->m_SwapTargetsClientID = pTargetPlayer->GetCID();
-	m_aLastSwap[Team] = Server()->Tick();
+	m_aLastSwap[pPlayer->GetCID()] = Server()->Tick();
 }
 
 void CGameTeams::SwapTeamCharacters(CPlayer *pPrimaryPlayer, CPlayer *pTargetPlayer, int Team)
@@ -872,7 +878,7 @@ void CGameTeams::SwapTeamCharacters(CPlayer *pPrimaryPlayer, CPlayer *pTargetPla
 
 	char aBuf[128];
 
-	int Since = (Server()->Tick() - m_aLastSwap[Team]) / Server()->TickSpeed();
+	int Since = (Server()->Tick() - m_aLastSwap[pTargetPlayer->GetCID()]) / Server()->TickSpeed();
 	if(Since < g_Config.m_SvSaveSwapGamesDelay)
 	{
 		str_format(aBuf, sizeof(aBuf),
@@ -982,7 +988,7 @@ void CGameTeams::ProcessSaveTeam()
 			if(Count(Team) > 0)
 			{
 				// load weak/strong order to prevent switching weak/strong while saving
-				m_apSaveTeamResult[Team]->m_SavedTeam.Load(Team, false);
+				m_apSaveTeamResult[Team]->m_SavedTeam.Load(GameServer(), Team, false);
 			}
 			break;
 		case CScoreSaveResult::LOAD_SUCCESS:
@@ -997,7 +1003,7 @@ void CGameTeams::ProcessSaveTeam()
 			if(Count(Team) > 0)
 			{
 				// keep current weak/strong order as on some maps there is no other way of switching
-				m_apSaveTeamResult[Team]->m_SavedTeam.Load(Team, true);
+				m_apSaveTeamResult[Team]->m_SavedTeam.Load(GameServer(), Team, true);
 			}
 			char aSaveID[UUID_MAXSTRSIZE];
 			FormatUuid(m_apSaveTeamResult[Team]->m_SaveID, aSaveID, UUID_MAXSTRSIZE);

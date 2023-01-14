@@ -30,6 +30,7 @@
 #include <game/client/components/menu_background.h>
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
+#include <game/client/ui_listbox.h>
 #include <game/generated/client_data.h>
 #include <game/localization.h>
 
@@ -79,7 +80,6 @@ CMenus::CMenus()
 	m_aCallvoteReason[0] = 0;
 
 	m_FriendlistSelectedIndex = -1;
-	m_DoubleClickIndex = -1;
 
 	m_DemoPlayerState = DEMOPLAYER_NONE;
 	m_Dummy = false;
@@ -705,7 +705,6 @@ int CMenus::RenderMenubar(CUIRect r)
 		if(DoButton_MenuTab(&s_StartButton, pHomeScreenButtonLabel, false, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_HOME], pHomeButtonColor, pHomeButtonColor, pHomeButtonColorHover, 10.0f, 0))
 		{
 			m_ShowStart = true;
-			m_DoubleClickIndex = -1;
 		}
 
 		TextRender()->SetRenderFlags(0);
@@ -721,7 +720,6 @@ int CMenus::RenderMenubar(CUIRect r)
 			if(DoButton_MenuTab(&s_NewsButton, Localize("News"), m_ActivePage == PAGE_NEWS, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_NEWS]))
 			{
 				NewPage = PAGE_NEWS;
-				m_DoubleClickIndex = -1;
 			}
 		}
 		else if(m_ActivePage == PAGE_DEMOS)
@@ -732,7 +730,6 @@ int CMenus::RenderMenubar(CUIRect r)
 			{
 				DemolistPopulate();
 				NewPage = PAGE_DEMOS;
-				m_DoubleClickIndex = -1;
 			}
 		}
 		else
@@ -744,7 +741,6 @@ int CMenus::RenderMenubar(CUIRect r)
 				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
 					ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
 				NewPage = PAGE_INTERNET;
-				m_DoubleClickIndex = -1;
 			}
 
 			Box.VSplitLeft(100.0f, &Button, &Box);
@@ -754,7 +750,6 @@ int CMenus::RenderMenubar(CUIRect r)
 				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
 					ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
 				NewPage = PAGE_LAN;
-				m_DoubleClickIndex = -1;
 			}
 
 			Box.VSplitLeft(100.0f, &Button, &Box);
@@ -764,7 +759,6 @@ int CMenus::RenderMenubar(CUIRect r)
 				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_FAVORITES)
 					ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
 				NewPage = PAGE_FAVORITES;
-				m_DoubleClickIndex = -1;
 			}
 
 			Box.VSplitLeft(90.0f, &Button, &Box);
@@ -777,7 +771,6 @@ int CMenus::RenderMenubar(CUIRect r)
 					ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
 				}
 				NewPage = PAGE_DDNET;
-				m_DoubleClickIndex = -1;
 			}
 
 			Box.VSplitLeft(90.0f, &Button, &Box);
@@ -790,7 +783,6 @@ int CMenus::RenderMenubar(CUIRect r)
 					ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
 				}
 				NewPage = PAGE_KOG;
-				m_DoubleClickIndex = -1;
 			}
 		}
 	}
@@ -1058,20 +1050,43 @@ void CMenus::UpdateMusicState()
 		m_pClient->m_Sounds.Stop(SOUND_MENU);
 }
 
-void CMenus::PopupMessage(const char *pTopic, const char *pBody, const char *pButton)
+void CMenus::PopupMessage(const char *pTitle, const char *pMessage, const char *pButtonLabel, int NextPopup, FPopupButtonCallback pfnButtonCallback)
 {
 	// reset active item
 	UI()->SetActiveItem(nullptr);
 
-	str_copy(m_aMessageTopic, pTopic);
-	str_copy(m_aMessageBody, pBody);
-	str_copy(m_aMessageButton, pButton);
+	str_copy(m_aPopupTitle, pTitle);
+	str_copy(m_aPopupMessage, pMessage);
+	str_copy(m_aPopupButtons[BUTTON_CONFIRM].m_aLabel, pButtonLabel);
+	m_aPopupButtons[BUTTON_CONFIRM].m_NextPopup = NextPopup;
+	m_aPopupButtons[BUTTON_CONFIRM].m_pfnCallback = pfnButtonCallback;
 	m_Popup = POPUP_MESSAGE;
+}
+
+void CMenus::PopupConfirm(const char *pTitle, const char *pMessage, const char *pConfirmButtonLabel, const char *pCancelButtonLabel,
+	FPopupButtonCallback pfnConfirmButtonCallback, int ConfirmNextPopup, FPopupButtonCallback pfnCancelButtonCallback, int CancelNextPopup)
+{
+	// reset active item
+	UI()->SetActiveItem(nullptr);
+
+	str_copy(m_aPopupTitle, pTitle);
+	str_copy(m_aPopupMessage, pMessage);
+	str_copy(m_aPopupButtons[BUTTON_CONFIRM].m_aLabel, pConfirmButtonLabel);
+	m_aPopupButtons[BUTTON_CONFIRM].m_NextPopup = ConfirmNextPopup;
+	m_aPopupButtons[BUTTON_CONFIRM].m_pfnCallback = pfnConfirmButtonCallback;
+	str_copy(m_aPopupButtons[BUTTON_CANCEL].m_aLabel, pCancelButtonLabel);
+	m_aPopupButtons[BUTTON_CANCEL].m_NextPopup = CancelNextPopup;
+	m_aPopupButtons[BUTTON_CANCEL].m_pfnCallback = pfnCancelButtonCallback;
+	m_Popup = POPUP_CONFIRM;
 }
 
 void CMenus::PopupWarning(const char *pTopic, const char *pBody, const char *pButton, std::chrono::nanoseconds Duration)
 {
-	dbg_msg(pTopic, "%s", pBody);
+	// no multiline support for console
+	std::string BodyStr = pBody;
+	while(BodyStr.find('\n') != std::string::npos)
+		BodyStr.replace(BodyStr.find('\n'), 1, " ");
+	dbg_msg(pTopic, "%s", BodyStr.c_str());
 
 	// reset active item
 	UI()->SetActiveItem(nullptr);
@@ -1300,7 +1315,6 @@ int CMenus::Render()
 	{
 		UpdateMusicState();
 		s_Frame++;
-		m_DoubleClickIndex = -1;
 
 		RefreshBrowserTab(g_Config.m_UiPage);
 		if(g_Config.m_UiPage == PAGE_INTERNET)
@@ -1342,7 +1356,7 @@ int CMenus::Render()
 	if(!s_SoundCheck && m_Popup == POPUP_NONE)
 	{
 		if(Client()->SoundInitFailed())
-			m_Popup = POPUP_SOUNDERROR;
+			PopupMessage(Localize("Sound error"), Localize("The audio device couldn't be initialised."), Localize("Ok"));
 		s_SoundCheck = true;
 	}
 
@@ -1374,7 +1388,6 @@ int CMenus::Render()
 			{
 				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
 				SetMenuPage(PAGE_INTERNET);
-				m_DoubleClickIndex = -1;
 			}
 
 			// render current page
@@ -1465,11 +1478,10 @@ int CMenus::Render()
 		bool UseIpLabel = false;
 
 		ColorRGBA BgColor = ColorRGBA(0.0f, 0.0f, 0.0f, 0.5f);
-		if(m_Popup == POPUP_MESSAGE)
+		if(m_Popup == POPUP_MESSAGE || m_Popup == POPUP_CONFIRM)
 		{
-			pTitle = m_aMessageTopic;
-			pExtraText = m_aMessageBody;
-			pButtonText = m_aMessageButton;
+			pTitle = m_aPopupTitle;
+			pExtraText = m_aPopupMessage;
 		}
 		else if(m_Popup == POPUP_CONNECTING)
 		{
@@ -1542,11 +1554,6 @@ int CMenus::Render()
 			}
 			ExtraAlign = 0;
 		}
-		else if(m_Popup == POPUP_DELETE_DEMO)
-		{
-			pTitle = Localize("Delete demo");
-			pExtraText = Localize("Are you sure that you want to delete the demo?");
-		}
 		else if(m_Popup == POPUP_RENAME_DEMO)
 		{
 			pTitle = Localize("Rename demo");
@@ -1556,23 +1563,7 @@ int CMenus::Render()
 		{
 			pTitle = Localize("Render demo");
 		}
-		else if(m_Popup == POPUP_REPLACE_VIDEO)
-		{
-			pTitle = Localize("Replace video");
-			pExtraText = Localize("File already exists, do you want to overwrite it?");
-		}
 #endif
-		else if(m_Popup == POPUP_REMOVE_FRIEND)
-		{
-			pTitle = Localize("Remove friend");
-			pExtraText = Localize("Are you sure that you want to remove the player from your friends list?");
-		}
-		else if(m_Popup == POPUP_SOUNDERROR)
-		{
-			pTitle = Localize("Sound error");
-			pExtraText = Localize("The audio device couldn't be initialised.");
-			pButtonText = Localize("Ok");
-		}
 		else if(m_Popup == POPUP_PASSWORD)
 		{
 			pTitle = Localize("Password incorrect");
@@ -1582,16 +1573,6 @@ int CMenus::Render()
 		{
 			pTitle = Localize("Quit");
 			pExtraText = Localize("Are you sure that you want to quit?");
-		}
-		else if(m_Popup == POPUP_DISCONNECT)
-		{
-			pTitle = Localize("Disconnect");
-			pExtraText = Localize("Are you sure that you want to disconnect?");
-		}
-		else if(m_Popup == POPUP_DISCONNECT_DUMMY)
-		{
-			pTitle = Localize("Disconnect Dummy");
-			pExtraText = Localize("Are you sure that you want to disconnect your dummy?");
 		}
 		else if(m_Popup == POPUP_FIRST_LAUNCH)
 		{
@@ -1630,11 +1611,6 @@ int CMenus::Render()
 			pExtraText = m_aMessageBody;
 			pButtonText = m_aMessageButton;
 			ExtraAlign = -1;
-		}
-		else if(m_Popup == POPUP_SWITCH_SERVER)
-		{
-			pTitle = Localize("Disconnect");
-			pExtraText = Localize("Are you sure that you want to disconnect and switch to a different server?");
 		}
 
 		CUIRect Box, Part;
@@ -1680,7 +1656,43 @@ int CMenus::Render()
 				UI()->DoLabel(&Part, pExtraText, FontSize, TEXTALIGN_CENTER);
 		}
 
-		if(m_Popup == POPUP_QUIT)
+		if(m_Popup == POPUP_MESSAGE || m_Popup == POPUP_CONFIRM)
+		{
+			CUIRect ButtonBar;
+			Box.HSplitBottom(20.0f, &Box, nullptr);
+			Box.HSplitBottom(24.0f, &Box, &ButtonBar);
+			ButtonBar.VMargin(100.0f, &ButtonBar);
+
+			if(m_Popup == POPUP_MESSAGE)
+			{
+				static CButtonContainer s_ButtonConfirm;
+				if(DoButton_Menu(&s_ButtonConfirm, m_aPopupButtons[BUTTON_CONFIRM].m_aLabel, 0, &ButtonBar) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+				{
+					m_Popup = m_aPopupButtons[BUTTON_CONFIRM].m_NextPopup;
+					(this->*m_aPopupButtons[BUTTON_CONFIRM].m_pfnCallback)();
+				}
+			}
+			else if(m_Popup == POPUP_CONFIRM)
+			{
+				CUIRect CancelButton, ConfirmButton;
+				ButtonBar.VSplitMid(&CancelButton, &ConfirmButton, 40.0f);
+
+				static CButtonContainer s_ButtonCancel;
+				if(DoButton_Menu(&s_ButtonCancel, m_aPopupButtons[BUTTON_CANCEL].m_aLabel, 0, &CancelButton) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
+				{
+					m_Popup = m_aPopupButtons[BUTTON_CANCEL].m_NextPopup;
+					(this->*m_aPopupButtons[BUTTON_CANCEL].m_pfnCallback)();
+				}
+
+				static CButtonContainer s_ButtonConfirm;
+				if(DoButton_Menu(&s_ButtonConfirm, m_aPopupButtons[BUTTON_CONFIRM].m_aLabel, 0, &ConfirmButton) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+				{
+					m_Popup = m_aPopupButtons[BUTTON_CONFIRM].m_NextPopup;
+					(this->*m_aPopupButtons[BUTTON_CONFIRM].m_pfnCallback)();
+				}
+			}
+		}
+		else if(m_Popup == POPUP_QUIT)
 		{
 			CUIRect Yes, No;
 			Box.HSplitBottom(20.f, &Box, &Part);
@@ -1710,50 +1722,6 @@ int CMenus::Render()
 			{
 				m_Popup = POPUP_NONE;
 				Client()->Quit();
-			}
-		}
-		else if(m_Popup == POPUP_DISCONNECT)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-
-			// buttons
-			Part.VMargin(80.0f, &Part);
-			Part.VSplitMid(&No, &Yes);
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-				m_Popup = POPUP_NONE;
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-				Client()->Disconnect();
-		}
-		else if(m_Popup == POPUP_DISCONNECT_DUMMY)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-
-			// buttons
-			Part.VMargin(80.0f, &Part);
-			Part.VSplitMid(&No, &Yes);
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-				m_Popup = POPUP_NONE;
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-			{
-				Client()->DummyDisconnect(0);
-				m_Popup = POPUP_NONE;
-				SetActive(false);
 			}
 		}
 		else if(m_Popup == POPUP_PASSWORD)
@@ -1859,110 +1827,84 @@ int CMenus::Render()
 		}
 		else if(m_Popup == POPUP_LANGUAGE)
 		{
-			Box = Screen;
-			Box.Margin(150.0f, &Box);
-			Box.HSplitTop(20.f, &Part, &Box);
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-			Box.HSplitBottom(20.f, &Box, 0);
+			CUIRect Button;
+			Screen.Margin(150.0f, &Box);
+			Box.HSplitTop(20.0f, nullptr, &Box);
+			Box.HSplitBottom(20.0f, &Box, nullptr);
+			Box.HSplitBottom(24.0f, &Box, &Button);
+			Box.HSplitBottom(20.0f, &Box, nullptr);
 			Box.VMargin(20.0f, &Box);
-			RenderLanguageSelection(Box);
-			Part.VMargin(120.0f, &Part);
+			const bool Activated = RenderLanguageSelection(Box);
+			Button.VMargin(120.0f, &Button);
 
 			static CButtonContainer s_Button;
-			if(DoButton_Menu(&s_Button, Localize("Ok"), 0, &Part) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+			if(DoButton_Menu(&s_Button, Localize("Ok"), 0, &Button) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER) || Activated)
 				m_Popup = POPUP_FIRST_LAUNCH;
 		}
 		else if(m_Popup == POPUP_COUNTRY)
 		{
-			Box = Screen;
-			Box.Margin(150.0f, &Box);
-			Box.HSplitTop(20.f, &Part, &Box);
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-			Box.HSplitBottom(20.f, &Box, 0);
+			CUIRect ButtonBar;
+			Screen.Margin(150.0f, &Box);
+			Box.HSplitTop(20.0f, nullptr, &Box);
+			Box.HSplitBottom(20.0f, &Box, nullptr);
+			Box.HSplitBottom(24.0f, &Box, &ButtonBar);
+			Box.HSplitBottom(20.0f, &Box, nullptr);
 			Box.VMargin(20.0f, &Box);
+			ButtonBar.VMargin(100.0f, &ButtonBar);
 
-			static int CurSelection = -2;
-			if(CurSelection == -2)
-				CurSelection = g_Config.m_BrFilterCountryIndex;
-			static float s_ScrollValue = 0.0f;
+			static int s_CurSelection = -2;
+			if(s_CurSelection == -2)
+				s_CurSelection = g_Config.m_BrFilterCountryIndex;
+
+			static CListBox s_ListBox;
 			int OldSelected = -1;
-			UiDoListboxStart(&s_ScrollValue, &Box, 50.0f, Localize("Country / Region"), "", m_pClient->m_CountryFlags.Num(), 6, OldSelected, s_ScrollValue);
+			s_ListBox.DoStart(50.0f, m_pClient->m_CountryFlags.Num(), 10, 1, OldSelected, &Box);
 
 			for(size_t i = 0; i < m_pClient->m_CountryFlags.Num(); ++i)
 			{
 				const CCountryFlags::CCountryFlag *pEntry = m_pClient->m_CountryFlags.GetByIndex(i);
-				if(pEntry->m_CountryCode == CurSelection)
+				if(pEntry->m_CountryCode == s_CurSelection)
 					OldSelected = i;
 
-				CListboxItem Item = UiDoListboxNextItem(&pEntry->m_CountryCode, OldSelected >= 0 && (size_t)OldSelected == i);
-				if(Item.m_Visible)
-				{
-					CUIRect Label;
-					Item.m_Rect.Margin(5.0f, &Item.m_Rect);
-					Item.m_Rect.HSplitBottom(10.0f, &Item.m_Rect, &Label);
-					float OldWidth = Item.m_Rect.w;
-					Item.m_Rect.w = Item.m_Rect.h * 2;
-					Item.m_Rect.x += (OldWidth - Item.m_Rect.w) / 2.0f;
-					ColorRGBA Color(1.0f, 1.0f, 1.0f, 1.0f);
-					m_pClient->m_CountryFlags.Render(pEntry->m_CountryCode, &Color, Item.m_Rect.x, Item.m_Rect.y, Item.m_Rect.w, Item.m_Rect.h);
-					UI()->DoLabel(&Label, pEntry->m_aCountryCodeString, 10.0f, TEXTALIGN_CENTER);
-				}
+				const CListboxItem Item = s_ListBox.DoNextItem(pEntry, OldSelected >= 0 && (size_t)OldSelected == i);
+				if(!Item.m_Visible)
+					continue;
+
+				CUIRect FlagRect, Label;
+				Item.m_Rect.Margin(5.0f, &FlagRect);
+				FlagRect.HSplitBottom(12.0f, &FlagRect, &Label);
+				Label.HSplitTop(2.0f, nullptr, &Label);
+				const float OldWidth = FlagRect.w;
+				FlagRect.w = FlagRect.h * 2.0f;
+				FlagRect.x += (OldWidth - FlagRect.w) / 2.0f;
+				ColorRGBA Color(1.0f, 1.0f, 1.0f, 1.0f);
+				m_pClient->m_CountryFlags.Render(pEntry->m_CountryCode, &Color, FlagRect.x, FlagRect.y, FlagRect.w, FlagRect.h);
+
+				SLabelProperties ItemLabelProps;
+				ItemLabelProps.m_AlignVertically = 0;
+				UI()->DoLabel(&Label, pEntry->m_aCountryCodeString, 10.0f, TEXTALIGN_CENTER, ItemLabelProps);
 			}
 
-			const int NewSelected = UiDoListboxEnd(&s_ScrollValue, 0);
+			const int NewSelected = s_ListBox.DoEnd();
 			if(OldSelected != NewSelected)
-				CurSelection = m_pClient->m_CountryFlags.GetByIndex(NewSelected)->m_CountryCode;
+				s_CurSelection = m_pClient->m_CountryFlags.GetByIndex(NewSelected)->m_CountryCode;
 
-			Part.VMargin(120.0f, &Part);
+			CUIRect CancelButton, OkButton;
+			ButtonBar.VSplitMid(&CancelButton, &OkButton, 40.0f);
 
-			static CButtonContainer s_Button;
-			if(DoButton_Menu(&s_Button, Localize("Ok"), 0, &Part) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+			static CButtonContainer s_CancelButton;
+			if(DoButton_Menu(&s_CancelButton, Localize("Cancel"), 0, &CancelButton) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
 			{
-				g_Config.m_BrFilterCountryIndex = CurSelection;
+				s_CurSelection = g_Config.m_BrFilterCountryIndex;
+				m_Popup = POPUP_NONE;
+			}
+
+			static CButtonContainer s_OkButton;
+			if(DoButton_Menu(&s_OkButton, Localize("Ok"), 0, &OkButton) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER) || s_ListBox.WasItemActivated())
+			{
+				g_Config.m_BrFilterCountryIndex = s_CurSelection;
 				Client()->ServerBrowserUpdate();
 				m_Popup = POPUP_NONE;
-			}
-
-			if(UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-			{
-				CurSelection = g_Config.m_BrFilterCountryIndex;
-				m_Popup = POPUP_NONE;
-			}
-		}
-		else if(m_Popup == POPUP_DELETE_DEMO)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-			Part.VMargin(80.0f, &Part);
-
-			Part.VSplitMid(&No, &Yes);
-
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-				m_Popup = POPUP_NONE;
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-			{
-				m_Popup = POPUP_NONE;
-				// delete demo
-				if(m_DemolistSelectedIndex >= 0 && !m_DemolistSelectedIsDir)
-				{
-					str_format(aBuf, sizeof(aBuf), "%s/%s", m_aCurrentDemoFolder, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
-					if(Storage()->RemoveFile(aBuf, m_vDemos[m_DemolistSelectedIndex].m_StorageType))
-					{
-						DemolistPopulate();
-						DemolistOnUpdate(false);
-					}
-					else
-						PopupMessage(Localize("Error"), Localize("Unable to delete the demo"), Localize("Ok"));
-				}
 			}
 		}
 		else if(m_Popup == POPUP_RENAME_DEMO)
@@ -2019,7 +1961,7 @@ int CMenus::Render()
 #if defined(CONF_VIDEORECORDER)
 		else if(m_Popup == POPUP_RENDER_DEMO)
 		{
-			CUIRect Label, TextBox, Ok, Abort, IncSpeed, DecSpeed, Button, Buttons;
+			CUIRect Label, TextBox, Ok, Abort, IncSpeed, DecSpeed, Button;
 
 			Box.HSplitBottom(20.f, &Box, &Part);
 #if defined(__ANDROID__)
@@ -2029,8 +1971,7 @@ int CMenus::Render()
 #endif
 			Part.VMargin(80.0f, &Part);
 
-			Part.HSplitBottom(20.0f, &Part, &Buttons);
-			Buttons.VSplitMid(&Abort, &Ok);
+			Part.VSplitMid(&Abort, &Ok);
 
 			Ok.VMargin(20.0f, &Ok);
 			Abort.VMargin(20.0f, &Abort);
@@ -2046,22 +1987,19 @@ int CMenus::Render()
 				// name video
 				if(m_DemolistSelectedIndex >= 0 && !m_DemolistSelectedIsDir)
 				{
-					char aBufOld[IO_MAX_PATH_LENGTH];
-					str_format(aBufOld, sizeof(aBufOld), "%s/%s", m_aCurrentDemoFolder, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
 					if(!str_endswith(m_aCurrentDemoFile, ".mp4"))
 						str_append(m_aCurrentDemoFile, ".mp4", sizeof(m_aCurrentDemoFile));
 					char aWholePath[IO_MAX_PATH_LENGTH];
 					// store new video filename to origin buffer
 					if(Storage()->FindFile(m_aCurrentDemoFile, "videos", IStorage::TYPE_ALL, aWholePath, sizeof(aWholePath)))
 					{
-						m_Popup = POPUP_REPLACE_VIDEO;
+						char aMessage[128 + IO_MAX_PATH_LENGTH];
+						str_format(aMessage, sizeof(aMessage), Localize("File '%s' already exists, do you want to overwrite it?"), m_aCurrentDemoFile);
+						PopupConfirm(Localize("Replace video"), aMessage, Localize("Yes"), Localize("No"), &CMenus::PopupConfirmDemoReplaceVideo, POPUP_NONE, &CMenus::DefaultButtonCallback, POPUP_RENDER_DEMO);
 					}
 					else
 					{
-						const char *pError = Client()->DemoPlayer_Render(aBufOld, m_vDemos[m_DemolistSelectedIndex].m_StorageType, m_aCurrentDemoFile, m_Speed);
-						m_Speed = 4;
-						if(pError)
-							PopupMessage(Localize("Error"), str_comp(pError, "error loading demo") ? pError : Localize("Error loading demo"), Localize("Ok"));
+						PopupConfirmDemoReplaceVideo();
 					}
 				}
 			}
@@ -2132,69 +2070,7 @@ int CMenus::Render()
 			static float s_Offset = 0.0f;
 			UI()->DoEditBox(&s_Offset, &TextBox, m_aCurrentDemoFile, sizeof(m_aCurrentDemoFile), 12.0f, &s_Offset);
 		}
-		else if(m_Popup == POPUP_REPLACE_VIDEO)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-#if defined(__ANDROID__)
-			Box.HSplitBottom(60.f, &Box, &Part);
-#else
-			Box.HSplitBottom(24.f, &Box, &Part);
 #endif
-			Part.VMargin(80.0f, &Part);
-
-			Part.VSplitMid(&No, &Yes);
-
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-				m_Popup = POPUP_RENDER_DEMO;
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-			{
-				m_Popup = POPUP_NONE;
-				// render video
-				str_format(aBuf, sizeof(aBuf), "%s/%s", m_aCurrentDemoFolder, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
-				const char *pError = Client()->DemoPlayer_Render(aBuf, m_vDemos[m_DemolistSelectedIndex].m_StorageType, m_aCurrentDemoFile, m_Speed);
-				m_Speed = 4;
-				if(pError)
-					PopupMessage(Localize("Error"), str_comp(pError, "error loading demo") ? pError : Localize("Error loading demo"), Localize("Ok"));
-			}
-		}
-#endif
-		else if(m_Popup == POPUP_REMOVE_FRIEND)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-			Part.VMargin(80.0f, &Part);
-
-			Part.VSplitMid(&No, &Yes);
-
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-				m_Popup = POPUP_NONE;
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-			{
-				m_Popup = POPUP_NONE;
-				// remove friend
-				if(m_FriendlistSelectedIndex >= 0)
-				{
-					m_pClient->Friends()->RemoveFriend(m_vFriends[m_FriendlistSelectedIndex].m_pFriendInfo->m_aName,
-						m_vFriends[m_FriendlistSelectedIndex].m_pFriendInfo->m_aClan);
-					FriendlistOnUpdate();
-					Client()->ServerBrowserUpdate();
-				}
-			}
-		}
 		else if(m_Popup == POPUP_FIRST_LAUNCH)
 		{
 			CUIRect Label, TextBox, Skip, Join;
@@ -2280,29 +2156,6 @@ int CMenus::Render()
 				SetActive(false);
 			}
 		}
-		else if(m_Popup == POPUP_SWITCH_SERVER)
-		{
-			CUIRect Yes, No;
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(24.f, &Box, &Part);
-
-			// buttons
-			Part.VMargin(80.0f, &Part);
-			Part.VSplitMid(&No, &Yes);
-			Yes.VMargin(20.0f, &Yes);
-			No.VMargin(20.0f, &No);
-
-			static CButtonContainer s_ButtonAbort;
-			if(DoButton_Menu(&s_ButtonAbort, Localize("No"), 0, &No) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
-			{
-				m_Popup = POPUP_NONE;
-				m_aNextServer[0] = '\0';
-			}
-
-			static CButtonContainer s_ButtonTryAgain;
-			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
-				Client()->Connect(m_aNextServer);
-		}
 		else
 		{
 			Box.HSplitBottom(20.f, &Box, &Part);
@@ -2324,35 +2177,47 @@ int CMenus::Render()
 	return 0;
 }
 
-void CMenus::RenderThemeSelection(CUIRect MainView, bool Header)
+#if defined(CONF_VIDEORECORDER)
+void CMenus::PopupConfirmDemoReplaceVideo()
 {
-	std::vector<CTheme> &vThemesRef = m_pBackground->GetThemes();
+	char aBuf[IO_MAX_PATH_LENGTH];
+	str_format(aBuf, sizeof(aBuf), "%s/%s", m_aCurrentDemoFolder, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
+	const char *pError = Client()->DemoPlayer_Render(aBuf, m_vDemos[m_DemolistSelectedIndex].m_StorageType, m_aCurrentDemoFile, m_Speed);
+	m_Speed = 4;
+	if(pError)
+		PopupMessage(Localize("Error"), str_comp(pError, "error loading demo") ? pError : Localize("Error loading demo"), Localize("Ok"));
+}
+#endif
+
+void CMenus::RenderThemeSelection(CUIRect MainView)
+{
+	const std::vector<CTheme> &vThemes = m_pBackground->GetThemes();
 
 	int SelectedTheme = -1;
-	for(int i = 0; i < (int)vThemesRef.size(); i++)
+	for(int i = 0; i < (int)vThemes.size(); i++)
 	{
-		if(str_comp(vThemesRef[i].m_Name.c_str(), g_Config.m_ClMenuMap) == 0)
+		if(str_comp(vThemes[i].m_Name.c_str(), g_Config.m_ClMenuMap) == 0)
 		{
 			SelectedTheme = i;
 			break;
 		}
 	}
+	const int OldSelected = SelectedTheme;
 
-	static int s_ListBox = 0;
-	static float s_ScrollValue = 0.0f;
-	UiDoListboxStart(&s_ListBox, &MainView, 26.0f, Localize("Theme"), "", vThemesRef.size(), 1, -1, s_ScrollValue);
+	static CListBox s_ListBox;
+	s_ListBox.DoHeader(&MainView, Localize("Theme"), 20.0f);
+	s_ListBox.DoStart(20.0f, vThemes.size(), 1, 3, SelectedTheme, nullptr, true);
 
-	for(int i = 0; i < (int)vThemesRef.size(); i++)
+	for(int i = 0; i < (int)vThemes.size(); i++)
 	{
-		CListboxItem Item = UiDoListboxNextItem(&vThemesRef[i].m_Name, i == SelectedTheme);
-
-		CTheme &Theme = vThemesRef[i];
+		const CTheme &Theme = vThemes[i];
+		const CListboxItem Item = s_ListBox.DoNextItem(&Theme.m_Name, i == SelectedTheme);
 
 		if(!Item.m_Visible)
 			continue;
 
-		CUIRect Icon;
-		Item.m_Rect.VSplitLeft(Item.m_Rect.h * 2.0f, &Icon, &Item.m_Rect);
+		CUIRect Icon, Label;
+		Item.m_Rect.VSplitLeft(Item.m_Rect.h * 2.0f, &Icon, &Label);
 
 		// draw icon if it exists
 		if(Theme.m_IconTexture.IsValid())
@@ -2383,16 +2248,18 @@ void CMenus::RenderThemeSelection(CUIRect MainView, bool Header)
 		else // generic
 			str_copy(aName, Theme.m_Name.c_str());
 
-		UI()->DoLabel(&Item.m_Rect, aName, 16 * CUI::ms_FontmodHeight, TEXTALIGN_LEFT);
+		SLabelProperties Props;
+		Props.m_AlignVertically = 0;
+		UI()->DoLabel(&Label, aName, 16.0f * CUI::ms_FontmodHeight, TEXTALIGN_LEFT, Props);
 	}
 
-	bool ItemActive = false;
-	int NewSelected = UiDoListboxEnd(&s_ScrollValue, 0, &ItemActive);
+	SelectedTheme = s_ListBox.DoEnd();
 
-	if(ItemActive && NewSelected != SelectedTheme)
+	if(OldSelected != SelectedTheme)
 	{
-		str_copy(g_Config.m_ClMenuMap, vThemesRef[NewSelected].m_Name.c_str());
-		m_pBackground->LoadMenuBackground(vThemesRef[NewSelected].m_HasDay, vThemesRef[NewSelected].m_HasNight);
+		const CTheme &Theme = vThemes[SelectedTheme];
+		str_copy(g_Config.m_ClMenuMap, Theme.m_Name.c_str());
+		m_pBackground->LoadMenuBackground(Theme.m_HasDay, Theme.m_HasNight);
 	}
 }
 
@@ -2759,77 +2626,4 @@ void CMenus::RefreshBrowserTab(int UiPage)
 		Client()->RequestDDNetInfo();
 		ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
 	}
-}
-
-bool CMenus::HandleListInputs(const CUIRect &View, float &ScrollValue, const float ScrollAmount, int *pScrollOffset, const float ElemHeight, int &SelectedIndex, const int NumElems)
-{
-	if(NumElems == 0)
-	{
-		ScrollValue = 0;
-		SelectedIndex = 0;
-		return false;
-	}
-
-	int NewIndex = -1;
-	int Num = (int)(View.h / ElemHeight);
-	int ScrollNum = maximum(NumElems - Num, 0);
-	if(ScrollNum > 0)
-	{
-		if(pScrollOffset && *pScrollOffset >= 0)
-		{
-			ScrollValue = (float)(*pScrollOffset) / ScrollNum;
-			*pScrollOffset = -1;
-		}
-		if(Input()->KeyPress(KEY_MOUSE_WHEEL_UP) && UI()->MouseInside(&View))
-			ScrollValue -= 3.0f / ScrollNum;
-		if(Input()->KeyPress(KEY_MOUSE_WHEEL_DOWN) && UI()->MouseInside(&View))
-			ScrollValue += 3.0f / ScrollNum;
-	}
-
-	ScrollValue = clamp(ScrollValue, 0.0f, 1.0f);
-	SelectedIndex = clamp(SelectedIndex, 0, NumElems - 1);
-
-	for(int i = 0; i < m_NumInputEvents; i++)
-	{
-		if(m_aInputEvents[i].m_Flags & IInput::FLAG_PRESS)
-		{
-			if(UI()->LastActiveItem() == &g_Config.m_UiServerAddress)
-				return false;
-			else if(m_aInputEvents[i].m_Key == KEY_DOWN)
-				NewIndex = minimum(SelectedIndex + 1, NumElems - 1);
-			else if(m_aInputEvents[i].m_Key == KEY_UP)
-				NewIndex = maximum(SelectedIndex - 1, 0);
-			else if(m_aInputEvents[i].m_Key == KEY_PAGEUP)
-				NewIndex = maximum(SelectedIndex - 25, 0);
-			else if(m_aInputEvents[i].m_Key == KEY_PAGEDOWN)
-				NewIndex = minimum(SelectedIndex + 25, NumElems - 1);
-			else if(m_aInputEvents[i].m_Key == KEY_HOME)
-				NewIndex = 0;
-			else if(m_aInputEvents[i].m_Key == KEY_END)
-				NewIndex = NumElems - 1;
-		}
-		if(NewIndex > -1 && NewIndex < NumElems)
-		{
-			//scroll
-			float IndexY = View.y - ScrollValue * ScrollNum * ElemHeight + NewIndex * ElemHeight;
-			int Scroll = View.y > IndexY ? -1 : View.y + View.h < IndexY + ElemHeight ? 1 : 0;
-			if(Scroll)
-			{
-				if(Scroll < 0)
-				{
-					int NumScrolls = (View.y - IndexY + ElemHeight - 1.0f) / ElemHeight;
-					ScrollValue -= (1.0f / ScrollNum) * NumScrolls;
-				}
-				else
-				{
-					int NumScrolls = (IndexY + ElemHeight - (View.y + View.h) + ElemHeight - 1.0f) / ElemHeight;
-					ScrollValue += (1.0f / ScrollNum) * NumScrolls;
-				}
-			}
-
-			SelectedIndex = NewIndex;
-		}
-	}
-
-	return NewIndex != -1;
 }

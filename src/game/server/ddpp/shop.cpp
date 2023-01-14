@@ -461,18 +461,30 @@ CShop::~CShop()
 		delete Item;
 }
 
+CGameContext *CShop::GameServer()
+{
+	return m_pGameContext;
+}
+
 void CShop::ShowShopMotdCompressed(int ClientID)
 {
 	char aBuf[2048];
-	str_copy(aBuf,
-		"************************************\n"
-		"        ~  Магазин Ашотика  ~      \n"
-		"************************************\n\n"
-		"Используй: '/buy (предмет)'\n"
+	str_format(aBuf,
+		sizeof(aBuf),
 		"***************************\n"
-		"Предмет | Цена | Уровень | Срок\n"
-		"-------------+--------+-------------+-------\n",
-		sizeof(aBuf));
+		"        ~  %s  ~      \n" // S H O P
+		"***************************\n"
+		"%s: '/buy (%s)'\n" // usage: /buy itemname
+		"***************************\n"
+		"%s | %s | %s | %s\n" // Item | Price | Level | Owned until
+		"-------+------+--------+-------\n",
+		GameServer()->Loc("S H O P", ClientID),
+		GameServer()->Loc("usage", ClientID),
+		GameServer()->Loc("itemname", ClientID),
+		GameServer()->Loc("Item", ClientID),
+		GameServer()->Loc("Price", ClientID),
+		GameServer()->Loc("Level", ClientID),
+		GameServer()->Loc("Owned until", ClientID));
 	for(auto &Item : m_vItems)
 	{
 		if(!Item->IsActive())

@@ -14,8 +14,19 @@
 #define __USE_GNU
 #endif
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <time.h>
+
+#ifdef __MINGW32__
+#undef PRId64
+#undef PRIu64
+#define PRId64 "I64d"
+#define PRIu64 "I64u"
+#define PRIzu "Iu"
+#else
+#define PRIzu "zu"
+#endif
 
 #ifdef CONF_FAMILY_UNIX
 #include <sys/un.h>
@@ -28,8 +39,6 @@
 
 #include <chrono>
 #include <functional>
-
-extern "C" {
 
 /**
  * @defgroup Debug
@@ -2430,7 +2439,7 @@ int kill_process(PROCESS process);
 		random - Pointer to a randomly-initialized array of shorts.
 		random_length - Length of the short array.
 */
-void generate_password(char *buffer, unsigned length, unsigned short *random, unsigned random_length);
+void generate_password(char *buffer, unsigned length, const unsigned short *random, unsigned random_length);
 
 /*
 	Function: secure_random_init
@@ -2495,15 +2504,6 @@ int secure_rand();
 int secure_rand_below(int below);
 
 /*
-	Function: set_console_msg_color
-		Sets the console color.
-
-	Parameters:
-		rgb - If NULL it will reset the console color to default, else it will transform the rgb color to a console color
-*/
-void set_console_msg_color(const void *rgbvoid);
-
-/*
 	Function: os_version_str
 		Returns a human-readable version string of the operating system
 
@@ -2521,7 +2521,6 @@ int os_version_str(char *version, int length);
 void init_exception_handler();
 void set_exception_handler_log_file(const char *log_file_path);
 #endif
-}
 
 /**
  * Fetches a sample from a high resolution timer and converts it in nanoseconds.
@@ -2570,6 +2569,92 @@ public:
 	CWindowsComLifecycle(bool HasWindow);
 	~CWindowsComLifecycle();
 };
+
+/**
+ * Registers a protocol handler.
+ *
+ * @ingroup Shell
+ *
+ * @param protocol_name The name of the protocol.
+ * @param executable The absolute path of the executable that will be associated with the protocol.
+ * @param updated Pointer to a variable that will be set to true, iff the shell needs to be updated.
+ *
+ * @return true on success, false on failure.
+ *
+ * @remark The caller must later call shell_update, iff the shell needs to be updated.
+ */
+bool shell_register_protocol(const char *protocol_name, const char *executable, bool *updated);
+
+/**
+ * Registers a file extension.
+ *
+ * @ingroup Shell
+ *
+ * @param extension The file extension, including the leading dot.
+ * @param description A readable description for the file extension.
+ * @param executable_name A unique name that will used to describe the application.
+ * @param executable The absolute path of the executable that will be associated with the file extension.
+ * @param updated Pointer to a variable that will be set to true, iff the shell needs to be updated.
+ *
+ * @return true on success, false on failure.
+ *
+ * @remark The caller must later call shell_update, iff the shell needs to be updated.
+ */
+bool shell_register_extension(const char *extension, const char *description, const char *executable_name, const char *executable, bool *updated);
+
+/**
+ * Registers an application.
+ *
+ * @ingroup Shell
+ *
+ * @param name Readable name of the application.
+ * @param executable The absolute path of the executable being registered.
+ * @param updated Pointer to a variable that will be set to true, iff the shell needs to be updated.
+ *
+ * @return true on success, false on failure.
+ *
+ * @remark The caller must later call shell_update, iff the shell needs to be updated.
+ */
+bool shell_register_application(const char *name, const char *executable, bool *updated);
+
+/**
+ * Unregisters a protocol or file extension handler.
+ *
+ * @ingroup Shell
+ *
+ * @param shell_class The shell class to delete.
+ * For protocols this is the name of the protocol.
+ * For file extensions this is the program ID associated with the file extension.
+ * @param updated Pointer to a variable that will be set to true, iff the shell needs to be updated.
+ *
+ * @return true on success, false on failure.
+ *
+ * @remark The caller must later call shell_update, iff the shell needs to be updated.
+ */
+bool shell_unregister_class(const char *shell_class, bool *updated);
+
+/**
+ * Unregisters an application.
+ *
+ * @ingroup Shell
+ *
+ * @param executable The absolute path of the executable being unregistered.
+ * @param updated Pointer to a variable that will be set to true, iff the shell needs to be updated.
+ *
+ * @return true on success, false on failure.
+ *
+ * @remark The caller must later call shell_update, iff the shell needs to be updated.
+ */
+bool shell_unregister_application(const char *executable, bool *updated);
+
+/**
+ * Notifies the system that a protocol or file extension has been changed and the shell needs to be updated.
+ *
+ * @ingroup Shell
+ * 
+ * @remark This is a potentially expensive operation, so it should only be called when necessary.
+ */
+void shell_update();
 #endif
 
 /**
