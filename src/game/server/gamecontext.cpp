@@ -3637,6 +3637,7 @@ void CGameContext::OnInit()
 
 	if(GIT_SHORTREV_HASH)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "git-revision", GIT_SHORTREV_HASH);
+	OnInitDDPP();
 
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
@@ -3673,11 +3674,10 @@ void CGameContext::CreateAllEntities(bool Initial)
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
 			const int Index = y * pTileMap->m_Width + x;
-			Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
-
 			// Game layer
 			{
 				const int GameIndex = pTiles[Index].m_Index;
+				Collision()->m_vTiles[GameIndex].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 				if(GameIndex == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
@@ -3722,8 +3722,8 @@ void CGameContext::CreateAllEntities(bool Initial)
 
 			if(pFront)
 			{
-				Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 				const int FrontIndex = pFront[Index].m_Index;
+				Collision()->m_vTiles[FrontIndex].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 				if(FrontIndex == TILE_OLDLASER)
 				{
 					g_Config.m_SvOldLaser = 1;
@@ -3772,22 +3772,6 @@ void CGameContext::CreateAllEntities(bool Initial)
 		}
 	}
 	dbg_msg("Game Layer", "Found Shop Tiles (%d)", ShopTiles);
-
-	//game.world.insert_entity(game.Controller);
-
-	if(GIT_SHORTREV_HASH)
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "git-revision", GIT_SHORTREV_HASH);
-	OnInitDDPP();
-
-#ifdef CONF_DEBUG
-	if(g_Config.m_DbgDummies)
-	{
-		for(int i = 0; i < g_Config.m_DbgDummies; i++)
-		{
-			OnClientConnected(MAX_CLIENTS - i - 1, 0);
-		}
-	}
-#endif
 }
 
 void CGameContext::DeleteTempfile()
