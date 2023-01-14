@@ -2122,7 +2122,6 @@ void CCharacter::DDRaceTick()
 		m_Input.m_Direction = 0;
 		m_Input.m_Jump = 0;
 		m_Input.m_Hook = 0;
-		//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "drr sagt 0");
 
 		if(m_FreezeTime == 1)
 			UnFreeze();

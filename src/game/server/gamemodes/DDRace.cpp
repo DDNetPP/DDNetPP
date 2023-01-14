@@ -193,10 +193,6 @@ void CGameControllerDDRace::OnReset()
 void CGameControllerDDRace::Tick()
 {
 	IGameController::Tick();
-
-	if(GameServer()->m_World.m_ResetRequested || GameServer()->m_World.m_Paused)
-		return;
-
 	FlagTick();
 	m_Teams.ProcessSaveTeam();
 	m_Teams.Tick();
