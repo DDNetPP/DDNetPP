@@ -51,12 +51,8 @@ void CServer::DDPPRegisterDatabases()
 {
 	if(g_Config.m_SvDatabasePath[0] != '\0')
 	{
-		auto pSqlServers = std::unique_ptr<IDbConnection>(CreateSqliteConnection(
-			g_Config.m_SvDatabasePath, true));
-
-		auto pCopy = std::unique_ptr<IDbConnection>(pSqlServers->Copy());
-		DDPPDbPool()->RegisterDatabase(std::move(pSqlServers), CDbConnectionPool::READ);
-		DDPPDbPool()->RegisterDatabase(std::move(pCopy), CDbConnectionPool::WRITE);
+		DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::READ, g_Config.m_SvDatabasePath);
+		DDPPDbPool()->RegisterSqliteDatabase(CDbConnectionPool::WRITE, g_Config.m_SvDatabasePath);
 	}
 }
 
