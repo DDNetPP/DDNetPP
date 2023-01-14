@@ -26,6 +26,7 @@ class CGameContext : public IGameServer
 
 	class CAccounts *m_pAccounts;
 	class CShop *m_pShop;
+	class CLoc *m_pLoc;
 
 public:
 	// DDRace & DDnetPlusPlus (ddpp)
@@ -39,6 +40,7 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
+	const char *Loc(const char *pStr, int ClientID);
 
 	void ShowProfile(int ViewerID, int ViewedID);
 	void ShowAdminWelcome(int ID);
@@ -775,6 +777,7 @@ private:
 	static void ConStockMarket(IConsole::IResult *pResult, void *pUserData);
 	static void ConCaptcha(IConsole::IResult *pResult, void *pUserData);
 	static void ConHumanLevel(IConsole::IResult *pResult, void *pUserData);
+	static void ConLang(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConPoop(IConsole::IResult *pResult, void *pUserData);
 

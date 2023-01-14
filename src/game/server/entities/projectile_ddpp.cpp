@@ -34,7 +34,7 @@ bool CProjectile::IsDDPPVanillaProjectile(int Collide, vec2 PrevPos, vec2 CurPos
 			GameServer()->CreateExplosion(ColPos, m_Owner, m_Type, m_Owner == -1, (!TargetChr ? -1 : TargetChr->Team()), -1LL);
 
 		else if(TargetChr)
-			TargetChr->TakeDamage(m_Direction * maximum(0.001f, m_Force), 1, m_Owner, m_Type);
+			TargetChr->TakeDamage(m_Direction * 0.001f, 1, m_Owner, m_Type);
 
 		m_MarkedForDestroy = true;
 	}

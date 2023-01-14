@@ -5,6 +5,7 @@
 
 #include <engine/client.h>
 #include <engine/keys.h>
+#include <engine/shared/config.h>
 
 #include "ui_scrollregion.h"
 
@@ -20,7 +21,7 @@ CScrollRegion::CScrollRegion()
 	m_Params = CScrollRegionParams();
 }
 
-void CScrollRegion::Begin(CUIRect *pClipRect, vec2 *pOutOffset, CScrollRegionParams *pParams)
+void CScrollRegion::Begin(CUIRect *pClipRect, vec2 *pOutOffset, const CScrollRegionParams *pParams)
 {
 	if(pParams)
 		m_Params = *pParams;
@@ -67,7 +68,7 @@ void CScrollRegion::End()
 	CUIRect RegionRect = m_ClipRect;
 	RegionRect.w += m_Params.m_ScrollbarWidth;
 
-	const float AnimationDuration = 0.5f;
+	const float AnimationDuration = g_Config.m_UiSmoothScrollTime / 1000.0f;
 
 	if(UI()->Enabled() && UI()->MouseHovered(&RegionRect))
 	{

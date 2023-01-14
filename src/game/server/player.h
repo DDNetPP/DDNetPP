@@ -152,6 +152,7 @@ private:
 	int m_Paused;
 	int64_t m_ForcePauseTime;
 	int64_t m_LastPause;
+	bool m_Afk;
 
 	int m_DefEmote;
 	int m_OverrideEmote;
@@ -193,7 +194,6 @@ public:
 	vec2 m_ShowDistance;
 	bool m_SpecTeam;
 	bool m_NinjaJetpack;
-	bool m_Afk;
 	bool m_HasFinishScore;
 
 	int m_ChatScore;
@@ -202,6 +202,9 @@ public:
 
 	void UpdatePlaytime();
 	void AfkTimer();
+	void SetAfk(bool Afk);
+	bool IsAfk() const { return m_Afk; }
+
 	int64_t m_LastPlaytime;
 	int64_t m_LastEyeEmote;
 	int64_t m_LastBroadcast;

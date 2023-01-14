@@ -1,6 +1,7 @@
 // gamecontext scoped ddnet++ methods
 
 #include "ddpp/accounts.h"
+#include "ddpp/loc.h"
 #include "ddpp/shop.h"
 
 #include <base/ddpp_logs.h>
@@ -26,6 +27,7 @@
 void CGameContext::ConstructDDPP()
 {
 	m_pShop = nullptr;
+	m_pLoc = nullptr;
 	m_pLetters = nullptr;
 	m_pAccounts = nullptr;
 	m_pBlockTournament = nullptr;
@@ -66,6 +68,11 @@ void CGameContext::DestructDDPP()
 	{
 		delete m_pShop;
 		m_pShop = nullptr;
+	}
+	if(m_pLoc)
+	{
+		delete m_pLoc;
+		m_pLoc = nullptr;
 	}
 	if(m_pLetters)
 	{
@@ -135,12 +142,21 @@ void CGameContext::LoadMapLive(const char *pMapName)
 	m_Collision.Init(&m_Layers);
 }
 
+const char *CGameContext::Loc(const char *pStr, int ClientID)
+{
+	if(m_pLoc)
+		return m_pLoc->DDPPLocalize(pStr, ClientID);
+	return pStr;
+}
+
 void CGameContext::OnInitDDPP()
 {
 	if(!m_pAccounts)
 		m_pAccounts = new CAccounts(this, ((CServer *)Server())->DDPPDbPool());
 	if(!m_pShop)
 		m_pShop = new CShop(this);
+	if(!m_pLoc)
+		m_pLoc = new CLoc(this);
 	if(!m_pLetters)
 		m_pLetters = new CLetters(this);
 

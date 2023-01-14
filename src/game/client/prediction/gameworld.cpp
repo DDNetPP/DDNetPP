@@ -188,24 +188,29 @@ bool distCompare(std::pair<float, int> a, std::pair<float, int> b)
 void CGameWorld::Tick()
 {
 	// update all objects
-	if(m_WorldConfig.m_NoWeakHookAndBounce)
+	for(int i = 0; i < NUM_ENTTYPES; i++)
 	{
-		for(auto *pEnt : m_apFirstEntityTypes)
+		// It's important to call PreTick() and Tick() after each other.
+		// If we call PreTick() before, and Tick() after other entities have been processed, it causes physics changes such as a stronger shotgun or grenade.
+		if(m_WorldConfig.m_NoWeakHookAndBounce && i == ENTTYPE_CHARACTER)
+		{
+			auto *pEnt = m_apFirstEntityTypes[i];
 			for(; pEnt;)
 			{
 				m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
-				pEnt->PreTick();
+				((CCharacter *)pEnt)->PreTick();
 				pEnt = m_pNextTraverseEntity;
 			}
-	}
+		}
 
-	for(auto *pEnt : m_apFirstEntityTypes)
+		auto *pEnt = m_apFirstEntityTypes[i];
 		for(; pEnt;)
 		{
 			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 			pEnt->Tick();
 			pEnt = m_pNextTraverseEntity;
 		}
+	}
 
 	for(auto *pEnt : m_apFirstEntityTypes)
 		for(; pEnt;)
@@ -242,7 +247,7 @@ void CGameWorld::Tick()
 }
 
 // TODO: should be more general
-CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, CCharacter *pNotThis, int CollideWith, class CCharacter *pThisOnly)
+CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, const CCharacter *pNotThis, int CollideWith, const CCharacter *pThisOnly)
 {
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -280,7 +285,7 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 	return pClosest;
 }
 
-std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis)
+std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, const CEntity *pNotThis)
 {
 	std::list<CCharacter *> listOfChars;
 
@@ -484,7 +489,7 @@ void CGameWorld::NetObjAdd(int ObjID, int ObjType, const void *pObjData, const C
 	else if((ObjType == NETOBJTYPE_LASER || ObjType == NETOBJTYPE_DDNETLASER) && m_WorldConfig.m_PredictWeapons)
 	{
 		CLaserData Data;
-		if(ObjType == NETOBJTYPE_PROJECTILE)
+		if(ObjType == NETOBJTYPE_LASER)
 		{
 			Data = ExtractLaserInfo((const CNetObj_Laser *)pObjData, this);
 		}
@@ -564,7 +569,7 @@ void CGameWorld::CopyWorld(CGameWorld *pFrom)
 		return;
 	m_IsValidCopy = false;
 	m_pParent = pFrom;
-	if(m_pParent && m_pParent->m_pChild && m_pParent->m_pChild != this)
+	if(m_pParent->m_pChild && m_pParent->m_pChild != this)
 		m_pParent->m_pChild->m_IsValidCopy = false;
 	pFrom->m_pChild = this;
 

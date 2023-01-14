@@ -21,20 +21,25 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int N
 	m_Layer = Layer;
 	m_Number = Number;
 
-	Reset();
+	SetSpawnTick();
 
 	GameWorld()->InsertEntity(this);
 }
 
-void CPickup::Reset()
+void CPickup::SetSpawnTick()
 {
 	//testy all the code in this function was commented out in ddnet
 	//ChillerDragon uncommented all to let pickups respawn (needed if players in m_IsVanillaWeapons mode pick up pickups)
-
 	if(g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
 		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 	else
 		m_SpawnTick = -1;
+}
+
+void CPickup::Reset()
+{
+	SetSpawnTick();
+	m_MarkedForDestroy = true;
 }
 
 void CPickup::Tick()
