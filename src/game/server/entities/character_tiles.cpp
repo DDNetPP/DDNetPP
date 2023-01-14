@@ -569,7 +569,7 @@ void CCharacter::MoneyTile()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +1", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "Level [%d]", m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
 
 		// money
 		if(VIPBonus)
@@ -680,7 +680,7 @@ void CCharacter::MoneyTilePolice()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "Level [%d]", m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
 
 		// money
 		if(m_pPlayer->m_Account.m_PoliceRank > 0)
@@ -804,7 +804,7 @@ void CCharacter::MoneyTileDouble()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "Money [%" PRId64 "] +4", m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "Level [%d]", m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
 
 		// xp
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
@@ -843,10 +843,11 @@ void CCharacter::MoneyTilePlus()
 			sizeof(aBuf),
 			"Money [%" PRId64 "]\n"
 			"XP [%" PRId64 "/%" PRId64 "]\n"
-			"Level [%d]",
+			"%s [%d]",
 			m_pPlayer->GetMoney(),
 			m_pPlayer->GetXP(),
 			m_pPlayer->GetNeededXP(),
+			GameServer()->Loc("Level", m_pPlayer->GetCID()),
 			m_pPlayer->GetLevel());
 		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 1);
 	}
