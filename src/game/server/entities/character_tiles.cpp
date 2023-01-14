@@ -474,7 +474,7 @@ void CCharacter::MoneyTile()
 		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -604,7 +604,7 @@ void CCharacter::MoneyTilePolice()
 		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -730,7 +730,7 @@ void CCharacter::MoneyTileDouble()
 	}
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
