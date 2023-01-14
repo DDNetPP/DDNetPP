@@ -473,7 +473,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 		if(!Silent)
 		{
 			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "[-] %s", Server()->ClientName(ClientID), pReason);
+				str_format(aBuf, sizeof(aBuf), "[-] %s (%s)", Server()->ClientName(ClientID), pReason);
 			else
 				str_format(aBuf, sizeof(aBuf), "[-] %s", Server()->ClientName(ClientID));
 			if(GameServer()->ShowLeaveMessage(ClientID))

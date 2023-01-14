@@ -410,7 +410,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Нажми F4 что бы начать разговор.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "%s: Нажми F4 что бы начать разговор.", Server()->ClientName(m_pPlayer->GetCID()));
 				SendShopMessage(aBuf);
 			}
 			m_EnteredShop = false;
