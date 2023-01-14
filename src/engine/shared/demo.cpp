@@ -65,8 +65,6 @@ int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, con
 		return -1;
 	}
 
-	CDemoHeader Header;
-	CTimelineMarkers TimelineMarkers;
 	if(m_File)
 	{
 		io_close(DemoFile);
@@ -130,6 +128,7 @@ int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, con
 		MapSize = io_length(MapFile);
 
 	// write header
+	CDemoHeader Header;
 	mem_zero(&Header, sizeof(Header));
 	mem_copy(Header.m_aMarker, gs_aHeaderMarker, sizeof(Header.m_aMarker));
 	Header.m_Version = gs_CurVersion;
@@ -141,6 +140,9 @@ int CDemoRecorder::Start(class IStorage *pStorage, class IConsole *pConsole, con
 	// Header.m_Length - add this on stop
 	str_timestamp(Header.m_aTimestamp, sizeof(Header.m_aTimestamp));
 	io_write(DemoFile, &Header, sizeof(Header));
+
+	CTimelineMarkers TimelineMarkers;
+	mem_zero(&TimelineMarkers, sizeof(TimelineMarkers));
 	io_write(DemoFile, &TimelineMarkers, sizeof(TimelineMarkers)); // fill this on stop
 
 	//Write Sha256
@@ -371,18 +373,26 @@ int CDemoRecorder::Stop()
 
 void CDemoRecorder::AddDemoMarker()
 {
-	if(m_LastTickMarker < 0 || m_NumTimelineMarkers >= MAX_TIMELINE_MARKERS)
+	if(m_LastTickMarker < 0)
+		return;
+	AddDemoMarker(m_LastTickMarker);
+}
+
+void CDemoRecorder::AddDemoMarker(int Tick)
+{
+	dbg_assert(Tick >= 0, "invalid marker tick");
+	if(m_NumTimelineMarkers >= MAX_TIMELINE_MARKERS)
 		return;
 
 	// not more than 1 marker in a second
 	if(m_NumTimelineMarkers > 0)
 	{
-		int Diff = m_LastTickMarker - m_aTimelineMarkers[m_NumTimelineMarkers - 1];
+		int Diff = Tick - m_aTimelineMarkers[m_NumTimelineMarkers - 1];
 		if(Diff < (float)SERVER_TICK_SPEED)
 			return;
 	}
 
-	m_aTimelineMarkers[m_NumTimelineMarkers++] = m_LastTickMarker;
+	m_aTimelineMarkers[m_NumTimelineMarkers++] = Tick;
 
 	if(m_pConsole)
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demo_recorder", "Added timeline marker", gs_DemoPrintColor);
@@ -936,7 +946,27 @@ int CDemoPlayer::SeekTime(float Seconds)
 
 int CDemoPlayer::SeekTick(ETickOffset TickOffset)
 {
-	return SetPos(m_Info.m_Info.m_CurrentTick + (int)TickOffset);
+	int WantedTick;
+	switch(TickOffset)
+	{
+	case TICK_CURRENT:
+		WantedTick = m_Info.m_Info.m_CurrentTick;
+		break;
+	case TICK_PREVIOUS:
+		WantedTick = m_Info.m_PreviousTick;
+		break;
+	case TICK_NEXT:
+		WantedTick = m_Info.m_NextTick;
+		break;
+	default:
+		dbg_assert(false, "Invalid TickOffset");
+		WantedTick = -1;
+		break;
+	}
+
+	// +1 because SetPos will seek until the given tick is the next tick that
+	// will be played back, whereas we want the wanted tick to be played now.
+	return SetPos(WantedTick + 1);
 }
 
 int CDemoPlayer::SetPos(int WantedTick)
@@ -1170,6 +1200,15 @@ void CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int 
 
 		if(pInfo->m_Info.m_Paused)
 			break;
+	}
+
+	// Copy timeline markers to sliced demo
+	for(int i = 0; i < pInfo->m_Info.m_NumTimelineMarkers; i++)
+	{
+		if((m_SliceFrom == -1 || pInfo->m_Info.m_aTimelineMarkers[i] >= m_SliceFrom) && (m_SliceTo == -1 || pInfo->m_Info.m_aTimelineMarkers[i] <= m_SliceTo))
+		{
+			m_pDemoRecorder->AddDemoMarker(pInfo->m_Info.m_aTimelineMarkers[i]);
+		}
 	}
 
 	m_pDemoPlayer->Stop();

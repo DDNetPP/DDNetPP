@@ -195,22 +195,6 @@ class CMenus : public CComponent
 		return UI()->DoButtonLogic(pID, Checked, pRect);
 	}
 
-	struct CListboxItem
-	{
-		int m_Visible;
-		int m_Selected;
-		CUIRect m_Rect;
-		CUIRect m_HitRect;
-	};
-
-	void UiDoListboxStart(const void *pID, const CUIRect *pRect, float RowHeight, const char *pTitle, const char *pBottomText, int NumItems,
-		int ItemsPerRow, int SelectedIndex, float ScrollValue, bool LogicOnly = false);
-	CListboxItem UiDoListboxNextItem(const void *pID, bool Selected = false, bool KeyEvents = true, bool NoHoverEffects = false);
-	CListboxItem UiDoListboxNextRow();
-	int UiDoListboxEnd(float *pScrollValue, bool *pItemActivated, bool *pListBoxActive = nullptr);
-
-	int UiLogicGetCurrentClickedItem();
-
 	/**
 	 * Places and renders a tooltip near pNearRect.
 	 * For now only works correctly with single line tooltips, since Text width calculation gets broken when there are multiple lines.
@@ -324,7 +308,33 @@ protected:
 	CUIElement m_RefreshButton;
 	CUIElement m_ConnectButton;
 
-	void PopupMessage(const char *pTopic, const char *pBody, const char *pButton);
+	// generic popups
+	typedef void (CMenus::*FPopupButtonCallback)();
+	void DefaultButtonCallback()
+	{
+		// do nothing
+	}
+	enum
+	{
+		BUTTON_CONFIRM = 0, // confirm / yes / close / ok
+		BUTTON_CANCEL, // cancel / no
+		NUM_BUTTONS
+	};
+	char m_aPopupTitle[128];
+	char m_aPopupMessage[256];
+	struct
+	{
+		char m_aLabel[64];
+		int m_NextPopup;
+		FPopupButtonCallback m_pfnCallback;
+	} m_aPopupButtons[NUM_BUTTONS];
+
+	void PopupMessage(const char *pTitle, const char *pMessage,
+		const char *pButtonLabel, int NextPopup = POPUP_NONE, FPopupButtonCallback pfnButtonCallback = &CMenus::DefaultButtonCallback);
+	void PopupConfirm(const char *pTitle, const char *pMessage,
+		const char *pConfirmButtonLabel, const char *pCancelButtonLabel,
+		FPopupButtonCallback pfnConfirmButtonCallback = &CMenus::DefaultButtonCallback, int ConfirmNextPopup = POPUP_NONE,
+		FPopupButtonCallback pfnCancelButtonCallback = &CMenus::DefaultButtonCallback, int CancelNextPopup = POPUP_NONE);
 
 	// TODO: this is a bit ugly but.. well.. yeah
 	enum
@@ -482,8 +492,9 @@ protected:
 
 	// found in menus.cpp
 	int Render();
-	//void render_background();
-	//void render_loading(float percent);
+#if defined(CONF_VIDEORECORDER)
+	void PopupConfirmDemoReplaceVideo();
+#endif
 	int RenderMenubar(CUIRect r);
 	void RenderNews(CUIRect MainView);
 	static void ConchainUpdateMusicState(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
@@ -496,12 +507,15 @@ protected:
 	void HandleDemoSeeking(float PositionToSeek, float TimeToSeek);
 	void RenderDemoPlayer(CUIRect MainView);
 	void RenderDemoList(CUIRect MainView);
+	void PopupConfirmDeleteDemo();
 
 	// found in menus_start.cpp
 	void RenderStartMenu(CUIRect MainView);
 
 	// found in menus_ingame.cpp
 	void RenderGame(CUIRect MainView);
+	void PopupConfirmDisconnect();
+	void PopupConfirmDisconnectDummy();
 	void RenderPlayers(CUIRect MainView);
 	void RenderServerInfo(CUIRect MainView);
 	void RenderServerControl(CUIRect MainView);
@@ -511,13 +525,16 @@ protected:
 
 	// found in menus_browser.cpp
 	int m_SelectedIndex;
-	int m_DoubleClickIndex;
-	int m_ScrollOffset;
 	void RenderServerbrowserServerList(CUIRect View);
+	void Connect(const char *pAddress);
+	void PopupConfirmSwitchServer();
 	void RenderServerbrowserServerDetail(CUIRect View);
 	void RenderServerbrowserFilters(CUIRect View);
 	void RenderServerbrowserFriends(CUIRect View);
+	void PopupConfirmRemoveFriend();
 	void RenderServerbrowser(CUIRect MainView);
+	template<typename F>
+	bool PrintHighlighted(const char *pName, F &&PrintFn);
 	static void ConchainFriendlistUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainServerbrowserUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
@@ -530,13 +547,14 @@ protected:
 	void OnConfigSave(IConfigManager *pConfigManager);
 
 	// found in menus_settings.cpp
-	void RenderLanguageSelection(CUIRect MainView);
-	void RenderThemeSelection(CUIRect MainView, bool Header = true);
+	bool RenderLanguageSelection(CUIRect MainView);
+	void RenderThemeSelection(CUIRect MainView);
 	void RenderSettingsGeneral(CUIRect MainView);
 	void RenderSettingsPlayer(CUIRect MainView);
 	void RenderSettingsDummyPlayer(CUIRect MainView);
 	void RenderSettingsTee(CUIRect MainView);
 	void RenderSettingsControls(CUIRect MainView);
+	void ResetSettingsControls();
 	void RenderSettingsGraphics(CUIRect MainView);
 	void RenderSettingsSound(CUIRect MainView);
 	void RenderSettings(CUIRect MainView);
@@ -687,25 +705,19 @@ public:
 	enum
 	{
 		POPUP_NONE = 0,
+		POPUP_MESSAGE, // generic message popup (one button)
+		POPUP_CONFIRM, // generic confirmation popup (two buttons)
 		POPUP_FIRST_LAUNCH,
 		POPUP_POINTS,
 		POPUP_CONNECTING,
-		POPUP_MESSAGE,
 		POPUP_DISCONNECTED,
 		POPUP_LANGUAGE,
 		POPUP_COUNTRY,
-		POPUP_DELETE_DEMO,
 		POPUP_RENAME_DEMO,
 		POPUP_RENDER_DEMO,
-		POPUP_REPLACE_VIDEO,
-		POPUP_REMOVE_FRIEND,
-		POPUP_SOUNDERROR,
 		POPUP_PASSWORD,
 		POPUP_QUIT,
-		POPUP_DISCONNECT,
-		POPUP_DISCONNECT_DUMMY,
 		POPUP_WARNING,
-		POPUP_SWITCH_SERVER,
 
 		// demo player states
 		DEMOPLAYER_NONE = 0,
@@ -716,7 +728,6 @@ private:
 	static int GhostlistFetchCallback(const char *pName, int IsDir, int StorageType, void *pUser);
 	void SetMenuPage(int NewPage);
 	void RefreshBrowserTab(int UiPage);
-	bool HandleListInputs(const CUIRect &View, float &ScrollValue, float ScrollAmount, int *pScrollOffset, float ElemHeight, int &SelectedIndex, int NumElems);
 
 	// found in menus_ingame.cpp
 	void RenderInGameNetwork(CUIRect MainView);

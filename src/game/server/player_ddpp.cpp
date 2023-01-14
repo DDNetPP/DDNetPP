@@ -7,6 +7,7 @@
 #include <fstream>
 #include <limits>
 
+#include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 
 #include "gamecontext.h"
@@ -142,6 +143,21 @@ void CPlayer::ResetDDPP()
 	//Block points
 	m_LastToucherID = -1;
 	m_DisplayScore = SCORE_LEVEL;
+	m_Language = LANG_EN;
+}
+
+void CPlayer::SetLanguage(const char *pLang)
+{
+	if(!str_comp(pLang, "en") || !str_comp(pLang, "english") || !str_comp(pLang, "us"))
+		SetLanguage(LANG_EN);
+	else if(!str_comp(pLang, "ru") || !str_comp(pLang, "rus") || !str_comp(pLang, "russan"))
+		SetLanguage(LANG_RU);
+	else
+	{
+		GameServer()->SendChatTarget(m_ClientID, "[lang] invalid language pick one of those: en, ru");
+		return;
+	}
+	GameServer()->SendChatTarget(m_ClientID, "[lang] language set");
 }
 
 void CPlayer::DDPPTick()

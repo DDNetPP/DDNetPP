@@ -29,6 +29,8 @@ function test_account() {
 	echo 'say "/mc;hide block_xp;hide xp;fng autojoin 1"' > client1.fifo
 
 	cp accounts.db before_logout.db
+	[[ -f accounts.db-wal ]] &&  cp accounts.db-wal before_logout.db-wal
+	[[ -f accounts.db-shm ]] && cp accounts.db-shm before_logout.db-shm
 
 	sleep 0.5
 	echo "say /acc_logout" > client1.fifo

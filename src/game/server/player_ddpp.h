@@ -55,6 +55,11 @@ public:
 	void DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo);
 	void DDPPSnapChangePlayerInfo7(int SnappingClient, CPlayer *pSnapping, protocol7::CNetObj_PlayerInfo *pPlayerInfo);
 
+	int m_Language;
+	int Language() { return m_Language; }
+	void SetLanguage(int Lang) { m_Language = Lang; }
+	void SetLanguage(const char *pLang);
+
 	// usefull everywhere
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame();

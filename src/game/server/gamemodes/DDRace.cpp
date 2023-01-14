@@ -16,7 +16,7 @@
 #define TEST_TYPE_NAME "TestDDraceNetwork"
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
-	IGameController(pGameServer), m_Teams(pGameServer), m_pInitResult(nullptr)
+	IGameController(pGameServer), m_Teams(pGameServer), m_pLoadBestTimeResult(nullptr)
 {
 	m_apFlags[0] = 0;
 	m_apFlags[1] = 0;
@@ -193,21 +193,25 @@ void CGameControllerDDRace::OnReset()
 void CGameControllerDDRace::Tick()
 {
 	IGameController::Tick();
-
-	if(GameServer()->m_World.m_ResetRequested || GameServer()->m_World.m_Paused)
-		return;
-
 	FlagTick();
 	m_Teams.ProcessSaveTeam();
 	m_Teams.Tick();
 
-	if(m_pInitResult != nullptr && m_pInitResult->m_Completed)
+	if(m_pLoadBestTimeResult != nullptr && m_pLoadBestTimeResult->m_Completed)
 	{
-		if(m_pInitResult->m_Success)
+		if(m_pLoadBestTimeResult->m_Success)
 		{
-			m_CurrentRecord = m_pInitResult->m_CurrentRecord;
+			m_CurrentRecord = m_pLoadBestTimeResult->m_CurrentRecord;
+
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetClientVersion() >= VERSION_DDRACE)
+				{
+					GameServer()->SendRecord(i);
+				}
+			}
 		}
-		m_pInitResult = nullptr;
+		m_pLoadBestTimeResult = nullptr;
 	}
 }
 

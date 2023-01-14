@@ -640,8 +640,14 @@ void CAccounts::ExecuteSQL(const char *pQuery)
 	m_pPool->ExecuteWrite(ExecuteSQLThread, std::move(Tmp), "add table column");
 }
 
-bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	{
+		dbg_assert(false, "ExecuteSQLThread failed to write");
+		return true;
+	}
+
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
 	// char aBuf[512];
@@ -671,8 +677,13 @@ void CAccounts::LogoutUsername(const char *pUsername)
 	m_pPool->ExecuteWrite(LogoutUsernameThread, std::move(Tmp), "logout username");
 }
 
-bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	{
+		dbg_assert(false, "LogoutUsernameThread failed to write");
+		return true;
+	}
 	const CSqlStringData *pData = dynamic_cast<const CSqlStringData *>(pGameData);
 
 	char aBuf[512];
@@ -705,8 +716,13 @@ void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
 	m_pPool->ExecuteWrite(CleanZombieAccountsThread, std::move(Tmp), "clean zombies");
 }
 
-bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	{
+		dbg_assert(false, "CleanZombieAccountsThread failed to write");
+		return true;
+	}
 	const CSqlCleanZombieAccountsData *pData = dynamic_cast<const CSqlCleanZombieAccountsData *>(pGameData);
 
 	// char aBuf[512];
@@ -739,8 +755,13 @@ void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
 	m_pPool->ExecuteWrite(SetLoggedInThread, std::move(Tmp), "set logged in");
 }
 
-bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	{
+		dbg_assert(false, "SetLoggedInThread failed to write");
+		return true;
+	}
 	const CSqlSetLoginData *pData = dynamic_cast<const CSqlSetLoginData *>(pGameData);
 
 	char aBuf[512];
@@ -855,8 +876,13 @@ void CAccounts::CreateDatabase()
 	m_pPool->ExecuteWrite(CreateTableThread, std::move(Tmp), "create table");
 }
 
-bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, bool Failure, char *pError, int ErrorSize)
+bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
+	{
+		dbg_assert(false, "CreateTableThread failed to write");
+		return true;
+	}
 	// CSqlCreateTableRequest *pResult = dynamic_cast<CSqlCreateTableRequest *>(pGameData->m_pResult.get());
 
 	char aBuf[4096];

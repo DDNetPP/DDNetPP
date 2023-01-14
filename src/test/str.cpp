@@ -217,6 +217,27 @@ TEST(Str, Endswith)
 		str_length(ABCDEFG) - str_length(DEFG));
 }
 
+TEST(StrFormat, Positional)
+{
+	char aBuf[256];
+
+	// normal
+	str_format(aBuf, sizeof(aBuf), "%s %s", "first", "second");
+	EXPECT_STREQ(aBuf, "first second");
+
+	// normal with positional arguments
+	str_format(aBuf, sizeof(aBuf), "%1$s %2$s", "first", "second");
+	EXPECT_STREQ(aBuf, "first second");
+
+	// reverse
+	str_format(aBuf, sizeof(aBuf), "%2$s %1$s", "first", "second");
+	EXPECT_STREQ(aBuf, "second first");
+
+	// duplicate
+	str_format(aBuf, sizeof(aBuf), "%1$s %1$s %2$d %1$s %2$d", "str", 1);
+	EXPECT_STREQ(aBuf, "str str 1 str 1");
+}
+
 TEST(Str, EndswithNocase)
 {
 	EXPECT_TRUE(str_endswith_nocase("abcdef", "deF"));
@@ -799,6 +820,19 @@ TEST(Str, CompFilename)
 	EXPECT_GT(str_comp_filenames("b", "A"), 0);
 	EXPECT_LT(str_comp_filenames("a", "B"), 0);
 	EXPECT_GT(str_comp_filenames("B", "a"), 0);
+	EXPECT_EQ(str_comp_filenames("1A", "1a"), 0);
+	EXPECT_LT(str_comp_filenames("1a", "1B"), 0);
+	EXPECT_GT(str_comp_filenames("1B", "1a"), 0);
+	EXPECT_LT(str_comp_filenames("1a", "1b"), 0);
+	EXPECT_GT(str_comp_filenames("1b", "1a"), 0);
+	EXPECT_GT(str_comp_filenames("12a", "1B"), 0);
+	EXPECT_LT(str_comp_filenames("1B", "12a"), 0);
+	EXPECT_GT(str_comp_filenames("10a", "1B"), 0);
+	EXPECT_LT(str_comp_filenames("1B", "10a"), 0);
+	EXPECT_GT(str_comp_filenames("10a", "00B"), 0);
+	EXPECT_LT(str_comp_filenames("00B", "10a"), 0);
+	EXPECT_GT(str_comp_filenames("10a", "09B"), 0);
+	EXPECT_LT(str_comp_filenames("09B", "10a"), 0);
 	EXPECT_LT(str_comp_filenames("abc", "abcd"), 0);
 	EXPECT_GT(str_comp_filenames("abcd", "abc"), 0);
 	EXPECT_LT(str_comp_filenames("abc2", "abcd1"), 0);
@@ -808,12 +842,29 @@ TEST(Str, CompFilename)
 	EXPECT_EQ(str_comp_filenames("file0", "file0"), 0);
 	EXPECT_LT(str_comp_filenames("file0", "file1"), 0);
 	EXPECT_GT(str_comp_filenames("file1", "file0"), 0);
+	EXPECT_LT(str_comp_filenames("file1", "file09"), 0);
+	EXPECT_GT(str_comp_filenames("file09", "file1"), 0);
+	EXPECT_LT(str_comp_filenames("file1", "file009"), 0);
+	EXPECT_GT(str_comp_filenames("file009", "file1"), 0);
+	EXPECT_GT(str_comp_filenames("file10", "file00"), 0);
+	EXPECT_LT(str_comp_filenames("file00", "file10"), 0);
+	EXPECT_GT(str_comp_filenames("file10", "file09"), 0);
+	EXPECT_LT(str_comp_filenames("file09", "file10"), 0);
 	EXPECT_LT(str_comp_filenames("file13", "file37"), 0);
 	EXPECT_GT(str_comp_filenames("file37", "file13"), 0);
+	EXPECT_LT(str_comp_filenames("file1.ext", "file09.ext"), 0);
+	EXPECT_GT(str_comp_filenames("file09.ext", "file1.ext"), 0);
+	EXPECT_LT(str_comp_filenames("file1.ext", "file009.ext"), 0);
+	EXPECT_GT(str_comp_filenames("file009.ext", "file1.ext"), 0);
+	EXPECT_EQ(str_comp_filenames("file0.ext", "file0.ext"), 0);
 	EXPECT_LT(str_comp_filenames("file13.ext", "file37.ext"), 0);
 	EXPECT_GT(str_comp_filenames("file37.ext", "file13.ext"), 0);
 	EXPECT_LT(str_comp_filenames("FILE13.EXT", "file37.ext"), 0);
 	EXPECT_GT(str_comp_filenames("file37.ext", "FILE13.EXT"), 0);
+	EXPECT_GT(str_comp_filenames("file10.ext", "file00.ext"), 0);
+	EXPECT_LT(str_comp_filenames("file00.ext", "file10.ext"), 0);
+	EXPECT_GT(str_comp_filenames("file10.ext", "file09.ext"), 0);
+	EXPECT_LT(str_comp_filenames("file09.ext", "file10.ext"), 0);
 	EXPECT_LT(str_comp_filenames("file42", "file1337"), 0);
 	EXPECT_GT(str_comp_filenames("file1337", "file42"), 0);
 	EXPECT_LT(str_comp_filenames("file42.ext", "file1337.ext"), 0);

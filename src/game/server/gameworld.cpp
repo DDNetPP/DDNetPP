@@ -146,6 +146,33 @@ void CGameWorld::Reset()
 	RemoveEntities();
 
 	m_ResetRequested = false;
+
+	GameServer()->CreateAllEntities(false);
+}
+
+void CGameWorld::RemoveEntitiesFromPlayer(int PlayerId)
+{
+	RemoveEntitiesFromPlayers(&PlayerId, 1);
+}
+
+void CGameWorld::RemoveEntitiesFromPlayers(int PlayerIds[], int NumPlayers)
+{
+	for(auto *pEnt : m_apFirstEntityTypes)
+	{
+		for(; pEnt;)
+		{
+			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
+			for(int i = 0; i < NumPlayers; i++)
+			{
+				if(pEnt->GetOwnerID() == PlayerIds[i])
+				{
+					RemoveEntity(pEnt);
+					pEnt->Destroy();
+				}
+			}
+			pEnt = m_pNextTraverseEntity;
+		}
+	}
 }
 
 void CGameWorld::RemoveEntities()
@@ -339,8 +366,7 @@ void CGameWorld::SwapClients(int Client1, int Client2)
 }
 
 // TODO: should be more general
-//CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
-CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, CCharacter *pNotThis, int CollideWith, class CCharacter *pThisOnly)
+CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, const CCharacter *pNotThis, int CollideWith, const CCharacter *pThisOnly)
 {
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -378,7 +404,7 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 	return pClosest;
 }
 
-CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotThis)
+CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, const CEntity *pNotThis)
 {
 	// Find other players
 	float ClosestRange = Radius * 2;
@@ -404,7 +430,7 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotTh
 	return pClosest;
 }
 
-std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis)
+std::list<class CCharacter *> CGameWorld::IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, const CEntity *pNotThis)
 {
 	std::list<CCharacter *> listOfChars;
 
