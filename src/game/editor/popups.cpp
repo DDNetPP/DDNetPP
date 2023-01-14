@@ -86,22 +86,21 @@ void CEditor::UiDoPopupMenu()
 		r.Draw(ColorRGBA(0, 0, 0, 0.75f), Corners, 3.0f);
 		r.Margin(4.0f, &r);
 
-		if(s_UiPopups[i].m_pfnFunc(this, r, s_UiPopups[i].m_pContext))
-		{
-			m_LockMouse = false;
-			UI()->SetActiveItem(nullptr);
-			g_UiNumPopups--;
-			m_PopupEventWasActivated = false;
-		}
-
-		if(Input()->KeyPress(KEY_ESCAPE))
-		{
-			m_LockMouse = false;
-			UI()->SetActiveItem(nullptr);
-			g_UiNumPopups--;
-			m_PopupEventWasActivated = false;
-		}
+		if(s_UiPopups[i].m_pfnFunc(this, r, s_UiPopups[i].m_pContext) || Input()->KeyPress(KEY_ESCAPE))
+			UiClosePopupMenus(1);
 	}
+}
+
+void CEditor::UiClosePopupMenus(int Menus)
+{
+	if(Menus <= 0)
+		Menus = g_UiNumPopups;
+	if(Menus <= 0)
+		return;
+	m_LockMouse = false;
+	UI()->SetActiveItem(nullptr);
+	g_UiNumPopups = maximum(0, g_UiNumPopups - Menus);
+	m_PopupEventWasActivated = false;
 }
 
 bool CEditor::UiPopupExists(void *pid)
@@ -984,13 +983,13 @@ int CEditor::PopupPoint(CEditor *pEditor, CUIRect View, void *pContext)
 		{
 			for(int v = 0; v < 4; v++)
 				if(pEditor->m_SelectedPoints & (1 << v))
-					pQuad->m_aPoints[v].x = i2fx(NewVal);
+					pQuad->m_aPoints[v].x = i2fx(fx2i(pQuad->m_aPoints[v].x) + NewVal - x);
 		}
 		if(Prop == PROP_POS_Y)
 		{
 			for(int v = 0; v < 4; v++)
 				if(pEditor->m_SelectedPoints & (1 << v))
-					pQuad->m_aPoints[v].y = i2fx(NewVal);
+					pQuad->m_aPoints[v].y = i2fx(fx2i(pQuad->m_aPoints[v].y) + NewVal - y);
 		}
 		if(Prop == PROP_COLOR)
 		{
@@ -1009,13 +1008,13 @@ int CEditor::PopupPoint(CEditor *pEditor, CUIRect View, void *pContext)
 		{
 			for(int v = 0; v < 4; v++)
 				if(pEditor->m_SelectedPoints & (1 << v))
-					pQuad->m_aTexcoords[v].x = f2fx(NewVal / 1024.0f);
+					pQuad->m_aTexcoords[v].x = f2fx(fx2f(pQuad->m_aTexcoords[v].x) + (NewVal - tu) / 1024.0f);
 		}
 		if(Prop == PROP_TEX_V)
 		{
 			for(int v = 0; v < 4; v++)
 				if(pEditor->m_SelectedPoints & (1 << v))
-					pQuad->m_aTexcoords[v].y = f2fx(NewVal / 1024.0f);
+					pQuad->m_aTexcoords[v].y = f2fx(fx2f(pQuad->m_aTexcoords[v].y) + (NewVal - tv) / 1024.0f);
 		}
 	}
 
@@ -1244,7 +1243,7 @@ int CEditor::PopupEvent(CEditor *pEditor, CUIRect View, void *pContext)
 	if(pEditor->m_PopupEventType != POPEVENT_LARGELAYER && pEditor->m_PopupEventType != POPEVENT_PREVENTUNUSEDTILES && pEditor->m_PopupEventType != POPEVENT_IMAGEDIV16 && pEditor->m_PopupEventType != POPEVENT_IMAGE_MAX)
 	{
 		static int s_AbortButton = 0;
-		if(pEditor->DoButton_Editor(&s_AbortButton, "Abort", 0, &Label, 0, nullptr) || pEditor->Input()->KeyPress(KEY_ESCAPE))
+		if(pEditor->DoButton_Editor(&s_AbortButton, "Abort", 0, &Label, 0, nullptr))
 		{
 			pEditor->m_PopupEventWasActivated = false;
 			return 1;
@@ -1895,6 +1894,55 @@ int CEditor::PopupMessage(CEditor *pEditor, CUIRect View, void *pContext)
 	return 0;
 }
 
+CEditor::SConfirmPopupContext::SConfirmPopupContext()
+{
+	Reset();
+}
+
+void CEditor::SConfirmPopupContext::Reset()
+{
+	m_Result = SConfirmPopupContext::UNSET;
+}
+
+void CEditor::ShowPopupConfirm(float X, float Y, SConfirmPopupContext *pContext)
+{
+	const float TextWidth = minimum(TextRender()->TextWidth(nullptr, SConfirmPopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f), SConfirmPopupContext::POPUP_MAX_WIDTH);
+	const int LineCount = TextRender()->TextLineCount(nullptr, SConfirmPopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, TextWidth);
+	const float PopupHeight = LineCount * SConfirmPopupContext::POPUP_FONT_SIZE + SConfirmPopupContext::POPUP_BUTTON_HEIGHT + SConfirmPopupContext::POPUP_BUTTON_SPACING + 10.0f;
+	pContext->m_Result = SConfirmPopupContext::UNSET;
+	UiInvokePopupMenu(pContext, 0, X, Y, TextWidth + 10.0f, PopupHeight, PopupConfirm, pContext);
+}
+
+int CEditor::PopupConfirm(CEditor *pEditor, CUIRect View, void *pContext)
+{
+	SConfirmPopupContext *pConfirmPopup = static_cast<SConfirmPopupContext *>(pContext);
+
+	CUIRect Label, ButtonBar, CancelButton, ConfirmButton;
+	View.HSplitBottom(SConfirmPopupContext::POPUP_BUTTON_HEIGHT, &Label, &ButtonBar);
+	ButtonBar.VSplitMid(&CancelButton, &ConfirmButton, SConfirmPopupContext::POPUP_BUTTON_SPACING);
+
+	CTextCursor Cursor;
+	pEditor->TextRender()->SetCursor(&Cursor, Label.x, Label.y, SConfirmPopupContext::POPUP_FONT_SIZE, TEXTFLAG_RENDER);
+	Cursor.m_LineWidth = Label.w;
+	pEditor->TextRender()->TextEx(&Cursor, pConfirmPopup->m_aMessage, -1);
+
+	static int s_CancelButton = 0;
+	if(pEditor->DoButton_Editor(&s_CancelButton, "Cancel", 0, &CancelButton, 0, nullptr))
+	{
+		pConfirmPopup->m_Result = SConfirmPopupContext::CANCELED;
+		return 1;
+	}
+
+	static int s_ConfirmButton = 0;
+	if(pEditor->DoButton_Editor(&s_ConfirmButton, "Confirm", 0, &ConfirmButton, 0, nullptr))
+	{
+		pConfirmPopup->m_Result = SConfirmPopupContext::CONFIRMED;
+		return 1;
+	}
+
+	return 0;
+}
+
 void CEditor::ShowPopupMessage(float X, float Y, SMessagePopupContext *pContext)
 {
 	const float TextWidth = minimum(TextRender()->TextWidth(nullptr, SMessagePopupContext::POPUP_FONT_SIZE, pContext->m_aMessage, -1, -1.0f), SMessagePopupContext::POPUP_MAX_WIDTH);
@@ -1904,7 +1952,13 @@ void CEditor::ShowPopupMessage(float X, float Y, SMessagePopupContext *pContext)
 
 CEditor::SSelectionPopupContext::SSelectionPopupContext()
 {
+	Reset();
+}
+
+void CEditor::SSelectionPopupContext::Reset()
+{
 	m_pSelection = nullptr;
+	m_Entries.clear();
 }
 
 int CEditor::PopupSelection(CEditor *pEditor, CUIRect View, void *pContext)

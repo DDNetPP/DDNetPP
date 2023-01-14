@@ -70,11 +70,6 @@
 
 #include "base/hash.h"
 
-// for msvc
-#ifndef PRIu64
-#define PRIu64 "I64u"
-#endif
-
 #include <chrono>
 #include <thread>
 
@@ -420,7 +415,7 @@ static inline bool RepackMsg(const CMsgPacker *pMsg, CPacker &Packer)
 	}
 	else
 	{
-		Packer.AddInt((0 << 1) | (pMsg->m_System ? 1 : 0)); // NETMSG_EX, NETMSGTYPE_EX
+		Packer.AddInt(pMsg->m_System ? 1 : 0); // NETMSG_EX, NETMSGTYPE_EX
 		g_UuidManager.PackUuid(pMsg->m_MsgID, &Packer);
 	}
 	Packer.AddRaw(pMsg->Data(), pMsg->Size());
@@ -894,7 +889,7 @@ void CClient::Disconnect()
 	// make sure to remove replay tmp demo
 	if(g_Config.m_ClReplays)
 	{
-		Storage()->RemoveFile(m_aDemoRecorder[RECORDER_REPLAYS].GetCurrentFilename(), IStorage::TYPE_SAVE);
+		DemoRecorder_Stop(RECORDER_REPLAYS, true);
 	}
 }
 
@@ -2884,8 +2879,7 @@ void CClient::Update()
 	}
 
 	// update the server browser
-	m_ServerBrowser.Update(m_ResortServerBrowser);
-	m_ResortServerBrowser = false;
+	m_ServerBrowser.Update();
 
 	// update editor/gameclient
 	if(m_EditorActive)
@@ -2965,7 +2959,7 @@ void CClient::InitInterfaces()
 
 void CClient::Run()
 {
-	m_LocalStartTime = time_get();
+	m_LocalStartTime = m_GlobalStartTime = time_get();
 #if defined(CONF_VIDEORECORDER)
 	IVideo::SetLocalStartTime(m_LocalStartTime);
 #endif
@@ -3176,6 +3170,18 @@ void CClient::Run()
 			else
 				SetState(IClient::STATE_QUITTING); // SDL_QUIT
 		}
+
+		char aFile[IO_MAX_PATH_LENGTH];
+		if(Input()->GetDropFile(aFile, sizeof(aFile)))
+		{
+			if(str_startswith(aFile, CONNECTLINK_NO_SLASH))
+				HandleConnectLink(aFile);
+			else if(str_endswith(aFile, ".demo"))
+				HandleDemoPath(aFile);
+			else if(str_endswith(aFile, ".map"))
+				HandleMapPath(aFile);
+		}
+
 #if defined(CONF_AUTOUPDATE)
 		Updater()->Update();
 #endif
@@ -3384,8 +3390,9 @@ void CClient::Run()
 			g_Config.m_DbgHitch = 0;
 		}
 
-		// update local time
+		// update local and global time
 		m_LocalTime = (time_get() - m_LocalStartTime) / (float)time_freq();
+		m_GlobalTime = (time_get() - m_GlobalStartTime) / (float)time_freq();
 	}
 
 #if defined(CONF_FAMILY_UNIX)
@@ -3971,7 +3978,10 @@ void CClient::DemoRecorder_Stop(int Recorder, bool RemoveFile)
 	{
 		const char *pFilename = m_aDemoRecorder[Recorder].GetCurrentFilename();
 		if(pFilename[0] != '\0')
+		{
 			Storage()->RemoveFile(pFilename, IStorage::TYPE_SAVE);
+			m_aDemoRecorder[Recorder].ClearCurrentFilename();
+		}
 	}
 }
 
@@ -4031,7 +4041,7 @@ void CClient::UpdateAndSwap()
 
 void CClient::ServerBrowserUpdate()
 {
-	m_ResortServerBrowser = true;
+	m_ServerBrowser.RequestResort();
 }
 
 void CClient::ConchainServerBrowserUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
@@ -4052,10 +4062,11 @@ void CClient::InitChecksum()
 	pData->m_Version = GameClient()->DDNetVersion();
 	pData->m_SizeofClient = sizeof(*this);
 	pData->m_SizeofConfig = sizeof(pData->m_Config);
+	pData->InitFiles();
 }
 
 #ifndef DDNET_CHECKSUM_SALT
-// salt@checksum.ddnet.org: db877f2b-2ddb-3ba6-9f67-a6d169ec671d
+// salt@checksum.ddnet.tw: db877f2b-2ddb-3ba6-9f67-a6d169ec671d
 #define DDNET_CHECKSUM_SALT \
 	{ \
 		{ \
@@ -4694,6 +4705,11 @@ int main(int argc, const char **argv)
 		}
 	}
 
+	// Register protocol and file extensions
+#if defined(CONF_FAMILY_WINDOWS)
+	pClient->ShellRegister();
+#endif
+
 	// init SDL
 	if(SDL_Init(0) < 0)
 	{
@@ -4887,3 +4903,51 @@ int CClient::UdpConnectivity(int NetType)
 	}
 	return Connectivity;
 }
+
+#if defined(CONF_FAMILY_WINDOWS)
+void CClient::ShellRegister()
+{
+	char aFullPath[IO_MAX_PATH_LENGTH];
+	Storage()->GetBinaryPathAbsolute(PLAT_CLIENT_EXEC, aFullPath, sizeof(aFullPath));
+	if(!aFullPath[0])
+	{
+		dbg_msg("client", "Failed to register protocol and file extensions: could not determine absolute path");
+		return;
+	}
+
+	bool Updated = false;
+	if(!shell_register_protocol("ddnet", aFullPath, &Updated))
+		dbg_msg("client", "Failed to register ddnet protocol");
+	if(!shell_register_extension(".map", "Map File", GAME_NAME, aFullPath, &Updated))
+		dbg_msg("client", "Failed to register .map file extension");
+	if(!shell_register_extension(".demo", "Demo File", GAME_NAME, aFullPath, &Updated))
+		dbg_msg("client", "Failed to register .demo file extension");
+	if(!shell_register_application(GAME_NAME, aFullPath, &Updated))
+		dbg_msg("client", "Failed to register application");
+	if(Updated)
+		shell_update();
+}
+
+void CClient::ShellUnregister()
+{
+	char aFullPath[IO_MAX_PATH_LENGTH];
+	Storage()->GetBinaryPathAbsolute(PLAT_CLIENT_EXEC, aFullPath, sizeof(aFullPath));
+	if(!aFullPath[0])
+	{
+		dbg_msg("client", "Failed to unregister protocol and file extensions: could not determine absolute path");
+		return;
+	}
+
+	bool Updated = false;
+	if(!shell_unregister_class("ddnet", &Updated))
+		dbg_msg("client", "Failed to unregister ddnet protocol");
+	if(!shell_unregister_class(GAME_NAME ".map", &Updated))
+		dbg_msg("client", "Failed to unregister .map file extension");
+	if(!shell_unregister_class(GAME_NAME ".demo", &Updated))
+		dbg_msg("client", "Failed to unregister .demo file extension");
+	if(!shell_unregister_application(aFullPath, &Updated))
+		dbg_msg("client", "Failed to unregister application");
+	if(Updated)
+		shell_update();
+}
+#endif

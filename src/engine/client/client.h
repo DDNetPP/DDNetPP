@@ -143,6 +143,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 
 	uint64_t m_aSnapshotParts[NUM_DUMMIES];
 	int64_t m_LocalStartTime;
+	int64_t m_GlobalStartTime;
 
 	IGraphics::CTextureHandle m_DebugFont;
 	int m_DebugSoundIndex = 0;
@@ -158,7 +159,6 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	bool m_AutoCSVRecycle;
 	bool m_EditorActive;
 	bool m_SoundInitFailed;
-	bool m_ResortServerBrowser;
 
 	int m_aAckGameTick[NUM_DUMMIES];
 	int m_aCurrentRecvTick[NUM_DUMMIES];
@@ -546,6 +546,11 @@ public:
 	CChecksumData *ChecksumData() override { return &m_Checksum.m_Data; }
 	bool InfoTaskRunning() override { return m_pDDNetInfoTask != nullptr; }
 	int UdpConnectivity(int NetType) override;
+
+#if defined(CONF_FAMILY_WINDOWS)
+	void ShellRegister() override;
+	void ShellUnregister() override;
+#endif
 };
 
 #endif

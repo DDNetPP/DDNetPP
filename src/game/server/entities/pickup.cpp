@@ -21,8 +21,6 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Layer, int N
 	m_Layer = Layer;
 	m_Number = Number;
 
-	Reset();
-
 	GameWorld()->InsertEntity(this);
 }
 
@@ -35,6 +33,7 @@ void CPickup::Reset()
 		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 	else
 		m_SpawnTick = -1;
+	m_MarkedForDestroy = true;
 }
 
 void CPickup::Tick()

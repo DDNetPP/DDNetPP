@@ -312,7 +312,7 @@ public:
 
 	IGraphics::CTextureHandle m_Texture;
 	int m_External;
-	char m_aName[128];
+	char m_aName[IO_MAX_PATH_LENGTH];
 	unsigned char m_aTileFlags[256];
 	class CAutoMapper m_AutoMapper;
 };
@@ -335,7 +335,7 @@ public:
 	~CEditorSound();
 
 	int m_SoundID;
-	char m_aName[128];
+	char m_aName[IO_MAX_PATH_LENGTH];
 
 	void *m_pData;
 	unsigned m_DataSize;
@@ -373,10 +373,10 @@ public:
 		char m_aCreditsTmp[128];
 		char m_aLicenseTmp[32];
 
-		char m_aAuthor[32];
-		char m_aVersion[16];
-		char m_aCredits[128];
-		char m_aLicense[32];
+		char m_aAuthor[sizeof(m_aAuthorTmp)];
+		char m_aVersion[sizeof(m_aVersionTmp)];
+		char m_aCredits[sizeof(m_aCreditsTmp)];
+		char m_aLicense[sizeof(m_aLicenseTmp)];
 
 		void Reset()
 		{
@@ -770,8 +770,8 @@ public:
 
 		m_BrushColorEnabled = true;
 
-		m_aFileName[0] = 0;
-		m_aFileSaveName[0] = 0;
+		m_aFileName[0] = '\0';
+		m_aFileSaveName[0] = '\0';
 		m_ValidSaveFilename = false;
 
 		m_PopupEventActivated = false;
@@ -782,17 +782,14 @@ public:
 		m_pFileDialogTitle = nullptr;
 		m_pFileDialogButtonText = nullptr;
 		m_pFileDialogUser = nullptr;
-		m_aFileDialogFileName[0] = 0;
-		m_aFileDialogCurrentFolder[0] = 0;
-		m_aFileDialogCurrentLink[0] = 0;
+		m_aFileDialogFileName[0] = '\0';
+		m_aFileDialogCurrentFolder[0] = '\0';
+		m_aFileDialogCurrentLink[0] = '\0';
+		m_aFilesSelectedName[0] = '\0';
+		m_aFileDialogFilterString[0] = '\0';
 		m_pFileDialogPath = m_aFileDialogCurrentFolder;
-		m_FileDialogActivate = false;
 		m_FileDialogOpening = false;
-		m_FileDialogScrollValue = 0.0f;
 		m_FilesSelectedIndex = -1;
-		m_FilesStartAt = 0;
-		m_FilesCur = 0;
-		m_FilesStopAt = 999;
 
 		m_SelectEntitiesImage = "DDNet";
 
@@ -867,6 +864,7 @@ public:
 
 	CLayerGroup *m_apSavedBrushes[10];
 
+	void RefreshFilteredFileList();
 	void FilelistPopulate(int StorageType);
 	void InvokeFileDialog(int StorageType, int FileType, const char *pTitle, const char *pButtonText,
 		const char *pBasepath, const char *pDefaultName,
@@ -950,14 +948,12 @@ public:
 	char m_aFileDialogFileName[IO_MAX_PATH_LENGTH];
 	char m_aFileDialogCurrentFolder[IO_MAX_PATH_LENGTH];
 	char m_aFileDialogCurrentLink[IO_MAX_PATH_LENGTH];
-	char m_aFileDialogSearchText[64];
-	char m_aFileDialogPrevSearchText[64];
+	char m_aFilesSelectedName[IO_MAX_PATH_LENGTH];
+	char m_aFileDialogFilterString[IO_MAX_PATH_LENGTH];
 	char *m_pFileDialogPath;
-	bool m_FileDialogActivate;
 	int m_FileDialogFileType;
-	float m_FileDialogScrollValue;
 	int m_FilesSelectedIndex;
-	char m_aFileDialogNewFolderName[64];
+	char m_aFileDialogNewFolderName[IO_MAX_PATH_LENGTH];
 	char m_aFileDialogErrString[64];
 	IGraphics::CTextureHandle m_FilePreviewImage;
 	bool m_PreviewImageIsLoaded;
@@ -967,18 +963,15 @@ public:
 	struct CFilelistItem
 	{
 		char m_aFilename[IO_MAX_PATH_LENGTH];
-		char m_aName[128];
+		char m_aName[IO_MAX_PATH_LENGTH];
 		bool m_IsDir;
 		bool m_IsLink;
 		int m_StorageType;
-		bool m_IsVisible;
 
 		bool operator<(const CFilelistItem &Other) const { return !str_comp(m_aFilename, "..") ? true : !str_comp(Other.m_aFilename, "..") ? false : m_IsDir && !Other.m_IsDir ? true : !m_IsDir && Other.m_IsDir ? false : str_comp_filenames(m_aFilename, Other.m_aFilename) < 0; }
 	};
-	std::vector<CFilelistItem> m_vFileList;
-	int m_FilesStartAt;
-	int m_FilesCur;
-	int m_FilesStopAt;
+	std::vector<CFilelistItem> m_vCompleteFileList;
+	std::vector<const CFilelistItem *> m_vpFilteredFileList;
 
 	std::vector<std::string> m_vSelectEntitiesFiles;
 	std::string m_SelectEntitiesImage;
@@ -1092,9 +1085,11 @@ public:
 	void RenderBackground(CUIRect View, IGraphics::CTextureHandle Texture, float Size, float Brightness);
 
 	void RenderGrid(CLayerGroup *pGroup);
+	void SnapToGrid(float &x, float &y);
 
 	void UiInvokePopupMenu(void *pID, int Flags, float X, float Y, float W, float H, int (*pfnFunc)(CEditor *pEditor, CUIRect Rect, void *pContext), void *pContext = nullptr);
 	void UiDoPopupMenu();
+	void UiClosePopupMenus(int Menus = 0);
 	bool UiPopupExists(void *pID);
 	bool UiPopupOpen();
 
@@ -1118,6 +1113,7 @@ public:
 	static int PopupSelectGametileOp(CEditor *pEditor, CUIRect View, void *pContext);
 	static int PopupImage(CEditor *pEditor, CUIRect View, void *pContext);
 	static int PopupMenuFile(CEditor *pEditor, CUIRect View, void *pContext);
+	static int PopupMenuTools(CEditor *pEditor, CUIRect View, void *pContext);
 	static int PopupSelectConfigAutoMap(CEditor *pEditor, CUIRect View, void *pContext);
 	static int PopupSound(CEditor *pEditor, CUIRect View, void *pContext);
 	static int PopupSource(CEditor *pEditor, CUIRect View, void *pContext);
@@ -1137,6 +1133,27 @@ public:
 	static int PopupMessage(CEditor *pEditor, CUIRect View, void *pContext);
 	void ShowPopupMessage(float X, float Y, SMessagePopupContext *pContext);
 
+	struct SConfirmPopupContext
+	{
+		enum EConfirmationResult
+		{
+			UNSET = 0,
+			CONFIRMED,
+			CANCELED
+		};
+		static constexpr float POPUP_MAX_WIDTH = 200.0f;
+		static constexpr float POPUP_FONT_SIZE = 10.0f;
+		static constexpr float POPUP_BUTTON_HEIGHT = 12.0f;
+		static constexpr float POPUP_BUTTON_SPACING = 5.0f;
+		char m_aMessage[256];
+		EConfirmationResult m_Result;
+
+		SConfirmPopupContext();
+		void Reset();
+	};
+	static int PopupConfirm(CEditor *pEditor, CUIRect View, void *pContext);
+	void ShowPopupConfirm(float X, float Y, SConfirmPopupContext *pContext);
+
 	struct SSelectionPopupContext
 	{
 		static constexpr float POPUP_MAX_WIDTH = 300.0f;
@@ -1148,6 +1165,7 @@ public:
 		const std::string *m_pSelection;
 
 		SSelectionPopupContext();
+		void Reset();
 	};
 	static int PopupSelection(CEditor *pEditor, CUIRect View, void *pContext);
 	void ShowPopupSelection(float X, float Y, SSelectionPopupContext *pContext);
@@ -1190,6 +1208,7 @@ public:
 	static void AddSound(const char *pFileName, int StorageType, void *pUser);
 
 	bool IsEnvelopeUsed(int EnvelopeIndex) const;
+	void RemoveUnusedEnvelopes();
 
 	void RenderLayers(CUIRect LayersBox);
 	void RenderImagesList(CUIRect Toolbox);
@@ -1203,7 +1222,6 @@ public:
 	void RenderMenubar(CUIRect Menubar);
 	void RenderFileDialog();
 
-	void AddFileDialogEntry(int Index, CUIRect *pView);
 	void SelectGameLayer();
 	void SortImages();
 	bool SelectLayerByTile();

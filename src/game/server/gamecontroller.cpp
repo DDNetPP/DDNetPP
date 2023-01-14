@@ -41,10 +41,6 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_UnbalancedTick = -1;
 	m_ForceBalanced = false;
 
-	m_aNumSpawnPoints[0] = 0;
-	m_aNumSpawnPoints[1] = 0;
-	m_aNumSpawnPoints[2] = 0;
-
 	m_CurrentRecord = 0;
 }
 
@@ -123,15 +119,14 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type, int DDTeam)
 	for(int j = 0; j < 2 && !pEval->m_Got; j++)
 	{
 		// get spawn point
-		for(int i = 0; i < m_aNumSpawnPoints[Type]; i++)
+		for(const vec2 &SpawnPoint : m_avSpawnPoints[Type])
 		{
-			vec2 P = m_aaSpawnPoints[Type][i];
-
+			vec2 P = SpawnPoint;
 			if(j == 0)
 			{
 				// check if the position is occupado
 				CEntity *apEnts[MAX_CLIENTS];
-				int Num = GameServer()->m_World.FindEntities(m_aaSpawnPoints[Type][i], 64, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+				int Num = GameServer()->m_World.FindEntities(SpawnPoint, 64, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 				vec2 aPositions[5] = {vec2(0.0f, 0.0f), vec2(-32.0f, 0.0f), vec2(0.0f, -32.0f), vec2(32.0f, 0.0f), vec2(0.0f, 32.0f)}; // start, left, up, right, down
 				int Result = -1;
 				for(int Index = 0; Index < 5 && Result == -1; ++Index)
@@ -142,8 +137,8 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type, int DDTeam)
 					for(int c = 0; c < Num; ++c)
 					{
 						CCharacter *pChr = static_cast<CCharacter *>(apEnts[c]);
-						if(GameServer()->Collision()->CheckPoint(m_aaSpawnPoints[Type][i] + aPositions[Index]) ||
-							distance(pChr->m_Pos, m_aaSpawnPoints[Type][i] + aPositions[Index]) <= pChr->GetProximityRadius())
+						if(GameServer()->Collision()->CheckPoint(SpawnPoint + aPositions[Index]) ||
+							distance(pChr->m_Pos, SpawnPoint + aPositions[Index]) <= pChr->GetProximityRadius())
 						{
 							Result = -1;
 							break;
@@ -221,14 +216,12 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 	return Eval.m_Got;
 }
 
-bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Number)
+bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bool Initial, int Number)
 {
-	if(Index < 0)
-		return false;
+	dbg_assert(Index >= 0, "Invalid entity index");
 
-	int x, y;
-	x = (Pos.x - 16.0f) / 32.0f;
-	y = (Pos.y - 16.0f) / 32.0f;
+	const vec2 Pos(x * 32.0f + 16.0f, y * 32.0f + 16.0f);
+
 	int aSides[8];
 	aSides[0] = GameServer()->Collision()->Entity(x, y + 1, Layer);
 	aSides[1] = GameServer()->Collision()->Entity(x + 1, y + 1, Layer);
@@ -244,8 +237,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		if(Index >= ENTITY_SPAWN && Index <= ENTITY_SPAWN_BLUE)
 		{
 			int Type = Index - ENTITY_SPAWN;
-			m_aaSpawnPoints[Type][m_aNumSpawnPoints[Type]] = Pos;
-			m_aNumSpawnPoints[Type] = minimum(m_aNumSpawnPoints[Type] + 1, (int)std::size(m_aaSpawnPoints[0]));
+			m_avSpawnPoints[Type].push_back(Pos);
 		}
 	}
 	else if(Index == ENTITY_DOOR)
@@ -285,7 +277,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			-2, //Span
 			true, //Freeze
 			true, //Explosive
-			0, //Force
 			(g_Config.m_SvShotgunBulletSound) ? SOUND_GRENADE_EXPLODE : -1, //SoundImpact
 			Layer,
 			Number);
@@ -298,7 +289,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			Dir = 0;
 		else if(Flags == (TILEFLAG_ROTATE))
 			Dir = 1;
-		else if(Flags == (TILEFLAG_VFLIP | TILEFLAG_HFLIP))
+		else if(Flags == (TILEFLAG_XFLIP | TILEFLAG_YFLIP))
 			Dir = 2;
 		else
 			Dir = 3;
@@ -312,7 +303,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 			-2, //Span
 			true, //Freeze
 			false, //Explosive
-			0,
 			SOUND_GRENADE_EXPLODE,
 			Layer,
 			Number);
@@ -377,7 +367,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		aSides2[6] = GameServer()->Collision()->Entity(x - 2, y, Layer);
 		aSides2[7] = GameServer()->Collision()->Entity(x - 2, y + 2, Layer);
 
-		float AngularSpeed = 0.0f;
 		int Ind = Index - ENTITY_LASER_STOP;
 		int M;
 		if(Ind < 0)
@@ -390,6 +379,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos, int Layer, int Flags, int Nu
 		else
 			M = -1;
 
+		float AngularSpeed = 0.0f;
 		if(Ind == 0)
 			AngularSpeed = 0.0f;
 		else if(Ind == 1)
@@ -525,8 +515,6 @@ const char *IGameController::GetTeamName(int Team)
 		return "game";
 	return "spectators";
 }
-
-//static bool IsSeparator(char c) { return c == ';' || c == ' ' || c == ',' || c == '\t'; }
 
 void IGameController::StartRound()
 {
