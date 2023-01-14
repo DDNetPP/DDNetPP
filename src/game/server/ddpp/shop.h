@@ -239,6 +239,7 @@ public:
 	CShop(class CGameContext *pGameContext);
 	~CShop();
 
+	CGameContext *GameServer();
 	std::vector<CShopItem *> m_vItems;
 
 	int NumShopItems();

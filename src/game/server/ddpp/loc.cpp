@@ -27,6 +27,20 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientID)
 	{
 		if(!str_comp("Money", pStr))
 			return "Деньги";
+		if(!str_comp("S H O P", pStr))
+			return "Магазин Ашота";
+		if(!str_comp("usage", pStr))
+			return "Используй";
+		if(!str_comp("itemname", pStr))
+			return "предмет";
+		if(!str_comp("Item", pStr))
+			return "Предмет";
+		if(!str_comp("Price", pStr))
+			return "Цена";
+		if(!str_comp("Level", pStr))
+			return "Уровень";
+		if(!str_comp("Owned until", pStr))
+			return "Срок";
 	}
 	return pStr;
 }
