@@ -642,7 +642,7 @@ void CAccounts::ExecuteSQL(const char *pQuery)
 
 bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL)
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "ExecuteSQLThread failed to write");
 		return true;
@@ -679,7 +679,7 @@ void CAccounts::LogoutUsername(const char *pUsername)
 
 bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL)
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "LogoutUsernameThread failed to write");
 		return true;
@@ -718,7 +718,7 @@ void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
 
 bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL)
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CleanZombieAccountsThread failed to write");
 		return true;
@@ -757,7 +757,7 @@ void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
 
 bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL)
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "SetLoggedInThread failed to write");
 		return true;
@@ -878,7 +878,7 @@ void CAccounts::CreateDatabase()
 
 bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
-	if(w != Write::NORMAL)
+	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
 		dbg_assert(false, "CreateTableThread failed to write");
 		return true;
