@@ -3672,9 +3672,8 @@ void CGameContext::CreateAllEntities(bool Initial)
 	{
 		for(int x = 0; x < pTileMap->m_Width; x++)
 		{
-			int Index = pTiles[y * pTileMap->m_Width + x].m_Index;
-			Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 			const int Index = y * pTileMap->m_Width + x;
+			Collision()->m_vTiles[Index].push_back(vec2(x * 32.0f + 16.0f, y * 32.0f + 16.0f));
 
 			// Game layer
 			{
