@@ -29,8 +29,8 @@ void CLetters::UpdateBuffers(int Ascii, int offset)
 		int numK = NumOffset + ASCII_CHAR_WIDTH + ASCII_PADDING;
 		for(int k = NumOffset + ASCII_PADDING, kt = 0; k < numK; k++, kt++)
 		{
-			m_aaAsciiBuf[i][k * 2] = m_aaaAsciiTable[Ascii][i][kt] ? ':' : ' '; // colons have same width as spaces in default tw chat font
-			m_aaAsciiBuf[i][k * 2 + 1] = m_aaaAsciiTable[Ascii][i][kt] ? ':' : ' ';
+			m_aaAsciiBuf[i][k * 2] = gs_aaaAsciiTable[Ascii][i][kt] ? ':' : ' '; // colons have same width as spaces in default tw chat font
+			m_aaAsciiBuf[i][k * 2 + 1] = gs_aaaAsciiTable[Ascii][i][kt] ? ':' : ' ';
 			// printf("filling indicies %d %d  k %d/%d\n", k*2, k*2+1, k, numK);
 		}
 		int nullterm = (offset + 1) * ASCII_CHAR_SIZE;

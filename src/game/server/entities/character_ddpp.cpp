@@ -19,6 +19,8 @@
 
 #include <game/mapitems.h>
 
+#include <game/server/entities/laser_text.h>
+
 #include "character.h"
 
 CCharacter::~CCharacter()

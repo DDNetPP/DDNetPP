@@ -2483,6 +2483,7 @@ if(SERVER)
     captcha.h
     ddpp/accounts.cpp
     ddpp/accounts.h
+    ddpp/ascii_table.h
     ddpp/dummymode.h
     ddpp/letters.cpp
     ddpp/letters.h

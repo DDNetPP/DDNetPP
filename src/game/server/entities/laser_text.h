@@ -4,24 +4,26 @@
     https://github.com/fstd/teeworlds/blob/edceb914f47f3fb6407a85f8cd01060bf79b847a/src/game/server/entities/loltext.cpp
 */
 
-#ifndef GAME_SERVER_ENTITIES_LASER_H
-#define GAME_SERVER_ENTITIES_LASER_H
+#ifndef GAME_SERVER_ENTITIES_LASER_TEXT_H
+#define GAME_SERVER_ENTITIES_LASER_TEXT_H
 
 #include <game/server/entity.h>
 
-class CLaserChar : public CEntity
+class CLolPlasma : public CEntity
 {
 public:
-	CLaserChar(CGameWorld *pGameWorld, vec2 Pos) :
+	CLolPlasma(CGameWorld *pGameWorld, vec2 Pos) :
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos, 0)
 	{
 	}
+	int GetIDWrap() { return GetID(); }
 };
 
 class CLaserText : public CEntity
 {
 public:
-	CLaserText(CGameWorld *pGameWorld, vec2 Pos, int Owner, int pAliveTicks, char *pText, int pTextLen);
+	CLaserText(CGameWorld *pGameWorld, vec2 Pos, int Owner, int pAliveTicks, const char *pText, int pTextLen);
+	virtual ~CLaserText();
 
 	virtual void Reset() override;
 	virtual void Tick() override;
@@ -29,14 +31,31 @@ public:
 	virtual void Snap(int SnappingClient) override;
 
 private:
+	void CreateLetters();
+	void CreateLetter(unsigned char Ascii, int Offset);
+
 	int m_Owner;
 
 	int m_AliveTicks;
 	int m_CurTicks;
 	int m_StartTick;
 
-	CLaserChar **m_Chars;
-	int m_CharNum;
+	char *m_Text;
+	int m_TextLen;
+
+	CLolPlasma **m_LolPlasmas;
+	/*
+		variable: m_MaxPlasmas
+
+		Prepared expected plasmas
+	*/
+	int m_MaxPlasmas;
+	/*
+		variable: m_NumPlasma
+
+		Actually created entitys should not exceed m_MaxPlasmas
+	*/
+	int m_NumPlasma;
 };
 
 #endif
