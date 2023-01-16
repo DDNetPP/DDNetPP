@@ -21,6 +21,8 @@
 #include <fstream> //ChillerDragon acc sys2
 #include <limits> //ChillerDragon acc sys2 get specific line
 
+#include <game/server/entities/laser_text.h>
+
 #include <game/mapitems.h>
 
 bool CheckClientID(int ClientID); //TODO: whats this ? xd
@@ -7636,6 +7638,37 @@ void CGameContext::ConBroadcastServer(IConsole::IResult *pResult, void *pUserDat
 
 	//str_format(pSelf->aBroadcastMSG, sizeof(pSelf->aBroadcastMSG), pResult->GetString(0));
 	pSelf->SendBroadcastAll(pResult->GetString(0), 1, true); //send as important broadcast
+}
+
+void CGameContext::ConLasertext(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(!pPlayer->m_Account.m_IsSuperModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[lasertext] Missing permission. You are not a VIP+.");
+		return;
+	}
+
+	CCharacter *pChr = pPlayer->GetCharacter();
+	if(!pChr)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[lasertext] you have to be alive to run this command");
+		return;
+	}
+	new CLaserText(
+		&pSelf->m_World,
+		vec2(pChr->GetPos().x, pChr->GetPos().y - 5 * 32),
+		pPlayer->GetCID(),
+		pSelf->Server()->TickSpeed() * 3,
+		pResult->GetString(0),
+		(int)(str_length(pResult->GetString(0))));
 }
 
 void CGameContext::ConFng(IConsole::IResult *pResult, void *pUserData)

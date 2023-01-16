@@ -4,6 +4,8 @@
 #include <engine/shared/config.h>
 #include <game/server/player.h>
 
+#include <game/server/entities/laser_text.h>
+
 #include <cstring>
 #include <fstream>
 
