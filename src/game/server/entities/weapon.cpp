@@ -129,7 +129,7 @@ void CWeapon::Pickup()
 		else if(m_Type == WEAPON_GRENADE)
 			pChar->GetPlayer()->m_SpawnGrenadeActive = 0;
 
-		pChar->GiveWeapon(m_Type, m_Bullets);
+		pChar->GiveWeapon(m_Type, false, m_Bullets);
 
 		pChar->SetActiveWeapon(m_Type);
 
