@@ -2558,6 +2558,8 @@ if(SERVER)
     entities/laser.cpp
     entities/laser.h
     entities/laser_ddpp.cpp
+    entities/laser_text.cpp
+    entities/laser_text.h
     entities/light.cpp
     entities/light.h
     entities/meteor.cpp

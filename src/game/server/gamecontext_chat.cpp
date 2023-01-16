@@ -4,6 +4,8 @@
 #include <engine/shared/config.h>
 #include <game/server/player.h>
 
+#include <game/server/entities/laser_text.h>
+
 #include <cstring>
 #include <fstream>
 
@@ -150,6 +152,11 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 		// LoadMapLive("BlmapChill");
 		pPlayer->MoneyTransaction(1000000, "testcommand3000");
 		pPlayer->GiveXP(1000000);
+		CCharacter *pChr = pPlayer->GetCharacter();
+		if(pChr)
+		{
+			new CLaserText(&m_World, pChr->GetPos(), pPlayer->GetCID(), Server()->TickSpeed() * 3, "text", (int)(str_length("text")));
+		}
 	}
 	else if(!str_comp(pCommand, "hax_me_admin_mummy"))
 	{
