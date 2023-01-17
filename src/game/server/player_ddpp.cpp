@@ -144,7 +144,7 @@ void CPlayer::ResetDDPP()
 	//Block points
 	m_LastToucherID = -1;
 	m_DisplayScore = SCORE_LEVEL;
-	m_Language = LANG_EN;
+	m_Language = LANG_RU;
 }
 
 void CPlayer::SetLanguage(const char *pLang)
