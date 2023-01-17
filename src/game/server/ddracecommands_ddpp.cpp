@@ -233,8 +233,21 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 	int ClientID = pResult->GetVictim();
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+	if(pPlayer && pResult->GetString(1)[0])
+		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(1), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+}
+
+void CGameContext::ConChangeNick(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+		str_copy(pPlayer->newNickname, pResult->GetString(1), sizeof(pPlayer->newNickname));
 }
 
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)

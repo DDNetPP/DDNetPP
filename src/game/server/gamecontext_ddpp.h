@@ -654,6 +654,7 @@ private:
 	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConChangeNick(IConsole::IResult *pResult, void *pUserData);
 	static void Conheal(IConsole::IResult *pResult, void *pUserData);
 	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);

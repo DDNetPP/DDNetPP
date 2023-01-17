@@ -123,6 +123,8 @@ public:
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
 
+	char newNickname[MAX_NAME_LENGTH];
+
 	//###########
 	//minigames
 	//###########
