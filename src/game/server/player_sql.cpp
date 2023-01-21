@@ -1,4 +1,4 @@
-/* CPlayer related sql ddnet++ methods */
+﻿/* CPlayer related sql ddnet++ methods */
 
 #include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
@@ -20,7 +20,7 @@ void CPlayer::OnLogin()
 
 	if(m_Account.m_IsAccFrozen)
 	{
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed: Account is frozen.");
+		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Ошибка: Аккаунт заморожен.");
 		Logout();
 		return;
 	}
@@ -30,7 +30,7 @@ void CPlayer::OnLogin()
 	// Start to do something...
 	//==========================
 
-	GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
+	GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Вы успешно авторизовались.");
 
 	// load scoreboard scores
 	if(g_Config.m_SvInstaScore)

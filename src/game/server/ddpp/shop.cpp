@@ -136,14 +136,34 @@ IServer *CShop::Server()
 
 void CShop::OnInit()
 {
-	m_vItems.push_back(new CShopItemPolice(
-		"Police",
-		"777 000",
-		777,
-		"Я не ебу зачем нужен.\n"
+	m_vItems.push_back(new CShopItemGrenade(
+		"Grenade",
+		"500",
+		10,
+		"Выдаёт grenade прямо тебе в руки.\n"
 		"Но если купишь\n"
 		"Потом расскажешь.",
-		"forever",
+		"dead",
+		m_pGameContext));
+
+	m_vItems.push_back(new CShopItemShotgun(
+		"Shotgun",
+		"500",
+		10,
+		"Выдаёт grenade прямо тебе в руки.\n"
+		"Но если купишь\n"
+		"Потом расскажешь.",
+		"dead",
+		m_pGameContext));
+
+	m_vItems.push_back(new CShopItemLaser(
+		"Laser",
+		"500",
+		10,
+		"Выдаёт grenade прямо тебе в руки.\n"
+		"Но если купишь\n"
+		"Потом расскажешь.",
+		"dead",
 		m_pGameContext));
 
 	m_vItems.push_back(new CShopItemRoomKey(
@@ -441,6 +461,54 @@ bool CShopItemSpookyGhost::Buy(int ClientID)
 	if(!CShopItem::Buy(ClientID))
 		return false;
 	pPlayer->m_Account.m_SpookyGhost++;
+	return true;
+}
+
+bool CShopItemGrenade::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_GRENADE].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Grenade.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_GRENADE, false);
+	return true;
+}
+
+bool CShopItemShotgun::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_SHOTGUN].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Shotgun.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_SHOTGUN, false);
+	return true;
+}
+
+bool CShopItemLaser::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_LASER].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Laser.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_LASER, false);
 	return true;
 }
 
