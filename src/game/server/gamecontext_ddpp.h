@@ -648,6 +648,7 @@ private:
 	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
+	static void ConSayFrom(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);

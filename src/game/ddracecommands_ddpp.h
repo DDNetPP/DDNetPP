@@ -24,6 +24,7 @@ CONSOLE_COMMAND("GiveHomingGrenade", "v", CFGFLAG_SERVER, ConGiveHomingMissile, 
 CONSOLE_COMMAND("HomingGrenade", "", CFGFLAG_SERVER, ConHomingMissile, this, "ebal v rot")
 CONSOLE_COMMAND("Change_Nick", "vr", CFGFLAG_SERVER, ConChangeNick, this, "ebal v rot")
 
+CONSOLE_COMMAND("say_from", "vr", CFGFLAG_SERVER, ConSayFrom, this, "say from specific id")
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")
 CONSOLE_COMMAND("dummymode", "vi", CFGFLAG_SERVER, Condummymode, this, "0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)")
 CONSOLE_COMMAND("dummy_color", "vi", CFGFLAG_SERVER, ConDummyColor, this, "changes the color of a specific dummy")

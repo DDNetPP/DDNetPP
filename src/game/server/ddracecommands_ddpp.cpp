@@ -250,6 +250,22 @@ void CGameContext::ConChangeNick(IConsole::IResult *pResult, void *pUserData)
 		str_copy(pPlayer->newNickname, pResult->GetString(1), sizeof(pPlayer->newNickname));
 }
 
+
+void CGameContext::ConSayFrom(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+	{
+		pSelf->SendChat(ClientID, CGameContext::CHAT_ALL, pResult->GetString(1));
+	}
+}
+
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
