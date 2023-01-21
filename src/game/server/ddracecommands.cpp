@@ -283,7 +283,7 @@ void CGameContext::ModifyWeapons(IConsole::IResult *pResult, void *pUserData,
 
 	if(pChr->GetPlayer()->m_IsBlockTourning)
 	{
-		pSelf->SendChat(pResult->m_ClientID, CHAT_ALL, "No!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "No!");
 		return;
 	}
 
