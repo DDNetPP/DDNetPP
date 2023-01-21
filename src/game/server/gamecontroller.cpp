@@ -925,6 +925,12 @@ void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)
 	if(Team == pPlayer->GetTeam())
 		return;
 
+	if(!pPlayer->IsLoggedIn() && g_Config.m_SvTournamentMode)
+	{
+		GameServer()->SendChatTarget(pPlayer->GetCID(), "You need to login first.");
+		return;
+	}
+
 	pPlayer->SetTeam(Team);
 	int ClientID = pPlayer->GetCID();
 
