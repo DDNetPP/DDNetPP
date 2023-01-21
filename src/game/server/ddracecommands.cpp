@@ -1,4 +1,4 @@
-/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+﻿/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 #include <base/ddpp_logs.h>
 
@@ -283,7 +283,7 @@ void CGameContext::ModifyWeapons(IConsole::IResult *pResult, void *pUserData,
 
 	if(pChr->GetPlayer()->m_IsBlockTourning)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "No!");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Запрещено использовать Weapons на арене!");
 		return;
 	}
 

@@ -140,9 +140,7 @@ void CShop::OnInit()
 		"Grenade",
 		"500",
 		10,
-		"Выдаёт grenade прямо тебе в руки.\n"
-		"Но если купишь\n"
-		"Потом расскажешь.",
+		"Выдаёт Grenade прямо тебе в руки.",
 		"dead",
 		m_pGameContext));
 
@@ -150,9 +148,7 @@ void CShop::OnInit()
 		"Shotgun",
 		"500",
 		10,
-		"Выдаёт grenade прямо тебе в руки.\n"
-		"Но если купишь\n"
-		"Потом расскажешь.",
+		"Выдаёт Shotgun прямо тебе в руки.",
 		"dead",
 		m_pGameContext));
 
@@ -160,9 +156,7 @@ void CShop::OnInit()
 		"Laser",
 		"500",
 		10,
-		"Выдаёт grenade прямо тебе в руки.\n"
-		"Но если купишь\n"
-		"Потом расскажешь.",
+		"Выдаёт Lasere прямо тебе в руки.",
 		"dead",
 		m_pGameContext));
 
@@ -171,7 +165,7 @@ void CShop::OnInit()
 		g_Config.m_SvRoomPrice,
 		50,
 		"Дает доступ к VIP комнате.\n"
-		"Ищи сам где она XD.",
+		"Справа от спавна.",
 		"disconnect",
 		m_pGameContext));
 }

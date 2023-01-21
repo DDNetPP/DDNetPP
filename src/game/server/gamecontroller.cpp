@@ -927,7 +927,7 @@ void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)
 
 	if(!pPlayer->IsLoggedIn() && g_Config.m_SvTournamentMode)
 	{
-		GameServer()->SendChatTarget(pPlayer->GetCID(), "You need to login first.");
+		GameServer()->SendChatTarget(pPlayer->GetCID(), "Чтобы играть нужно авторизоваться. Используй /login или /register");
 		return;
 	}
 

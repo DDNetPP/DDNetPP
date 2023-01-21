@@ -544,7 +544,7 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 			GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
 
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "Hi '%s'", Server()->ClientName(m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Welcome to the club, '%s'", Server()->ClientName(m_ClientID));
 		GameServer()->SendBroadcast(aBuf, m_ClientID);
 	}
 	else if(m_NumInputs == 200 && Server()->IsSixup(m_ClientID))
