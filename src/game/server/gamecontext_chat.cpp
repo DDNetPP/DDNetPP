@@ -238,7 +238,11 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 
 bool CGameContext::IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage)
 {
-	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
+	if(!pPlayer->IsLoggedIn() && g_Config.m_SvChatAuthRequired)
+	{
+		SendChatTarget(ClientID, "Чтобы писать в чат нужно авторизоваться. Используй /login или /register");
+	}
+	else if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);

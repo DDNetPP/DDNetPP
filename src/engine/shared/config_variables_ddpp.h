@@ -238,6 +238,7 @@ MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "ho
 MACRO_CONFIG_INT(SvRegisterHumanLevel, sv_register_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use register command")
 MACRO_CONFIG_INT(SvLoginHumanLevel, sv_login_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use login command")
 MACRO_CONFIG_INT(SvChatHumanLevel, sv_chat_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use the chat")
+MACRO_CONFIG_INT(SvChatAuthRequired, sv_chat_auth_required, 1, 0, 1, CFGFLAG_SERVER, "is authorization required to use the chat")
 MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_SERVER, "how many accounts one ip can register before getting rate limited")
 MACRO_CONFIG_INT(SvMaxLoginPerIp, sv_max_login_per_ip, 12, 4, 128, CFGFLAG_SERVER, "failed login attempts before getting rate limited (after 3 for 1min anyways)")
 MACRO_CONFIG_INT(SvMaxNameChangesPerIp, sv_max_namechanges_per_ip, 2, 1, 120, CFGFLAG_SERVER, "how many times one ip can change the name (hourly) before the msg gets hidden")
