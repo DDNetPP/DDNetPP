@@ -381,6 +381,26 @@ void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConPullHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer && pPlayer->GetCharacter())
+	{
+		pPlayer->GetCharacter()->m_PullHammer ^= true;
+
+		char aBuf[256];
+
+		str_format(aBuf, sizeof(aBuf), "%s пиздатый молот", pPlayer->GetCharacter()->m_PullHammer ? "Вы включили" : "Вы проебали");
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

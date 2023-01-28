@@ -669,6 +669,7 @@ private:
 
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConPullHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void ConBloody(IConsole::IResult *pResult, void *pUserData);

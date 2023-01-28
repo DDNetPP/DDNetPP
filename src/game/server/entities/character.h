@@ -92,6 +92,7 @@ public:
 	void HandleWeapons();
 	void HandleNinja();
 	void HandleJetpack();
+	void HandlePullHammer();
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
 	void OnDirectInput(CNetObj_PlayerInput *pNewInput);
@@ -226,6 +227,9 @@ public:
 	int m_FreezeTime;
 	bool m_FrozenLastTick;
 	bool m_FreezeHammer;
+	bool m_PullHammer;
+	int m_PullingID;
+	bool m_IsFiring;
 	int m_TuneZone;
 	int m_TuneZoneOld;
 	int m_PainSoundTimer;

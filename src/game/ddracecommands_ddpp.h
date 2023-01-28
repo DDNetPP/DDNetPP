@@ -14,6 +14,7 @@ CONSOLE_COMMAND("GiveRainbow", "v", CFGFLAG_SERVER, ConInfRainbow, this, "activa
 CONSOLE_COMMAND("Rainbow", "", CFGFLAG_SERVER, ConRainbow, this, "Радужный скин")
 // CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) activates bloody until death")
 CONSOLE_COMMAND("GiveBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
+CONSOLE_COMMAND("PullHammer", "v", CFGFLAG_SERVER, ConPullHammer, this, "activates pullhammer")
 // CONSOLE_COMMAND("OldAtom", "v", CFGFLAG_SERVER, ConOldAtom, this, "(old) activates atom until death")
 CONSOLE_COMMAND("GiveAtom", "v", CFGFLAG_SERVER, ConInfAtom, this, "activates atom until disconnect")
 // CONSOLE_COMMAND("OldAutoSpreadGun", "v", CFGFLAG_SERVER, ConOldAutoSpreadGun, this, "activates spread gun until death")

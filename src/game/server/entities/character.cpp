@@ -69,6 +69,9 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_LastRefillJumps = false;
 	m_LastPenalty = false;
 	m_LastBonus = false;
+	m_IsFiring = false;
+	m_PullingID = -1;
+	m_PullHammer = false;
 
 	m_TeleGunTeleport = false;
 	m_IsBlueTeleGunTeleport = false;
@@ -400,7 +403,7 @@ void CCharacter::FireWeapon()
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = false;
-	if(m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_LASER)
+	if(m_PullHammer || m_Core.m_ActiveWeapon == WEAPON_GRENADE || m_Core.m_ActiveWeapon == WEAPON_SHOTGUN || m_Core.m_ActiveWeapon == WEAPON_LASER)
 		FullAuto = true;
 	if(m_Core.m_Jetpack && m_Core.m_ActiveWeapon == WEAPON_GUN)
 		FullAuto = true;
@@ -424,8 +427,14 @@ void CCharacter::FireWeapon()
 	if(FullAuto && (m_LatestInput.m_Fire & 1) && m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
 		WillFire = true;
 
-	if(!WillFire)
+	m_IsFiring = WillFire;
+
+	if(!m_IsFiring && !m_Fire)
+	{
+		if(m_PullHammer)
+			m_PullingID = -1;
 		return;
+	}
 
 	if(m_FreezeTime)
 	{
@@ -443,6 +452,11 @@ void CCharacter::FireWeapon()
 		return;
 
 	vec2 ProjStartPos = m_Pos + Direction * GetProximityRadius() * 0.75f;
+
+	if(m_PullHammer && m_Core.m_ActiveWeapon == WEAPON_HAMMER)
+	{
+		return;
+	}
 
 	switch(m_Core.m_ActiveWeapon)
 	{
@@ -812,6 +826,7 @@ void CCharacter::Tick()
 
 	// handle Weapons
 	HandleWeapons();
+	HandlePullHammer();
 
 	DDRacePostCoreTick();
 	DDPPPostCoreTick();
@@ -2507,4 +2522,39 @@ int64_t CCharacter::TeamMask()
 void CCharacter::SwapClients(int Client1, int Client2)
 {
 	m_Core.SetHookedPlayer(m_Core.m_HookedPlayer == Client1 ? Client2 : m_Core.m_HookedPlayer == Client2 ? Client1 : m_Core.m_HookedPlayer);
+}
+
+void CCharacter::HandlePullHammer()
+{
+	if(!m_PullHammer || m_Core.m_ActiveWeapon != WEAPON_HAMMER)
+		return;
+
+	if(!m_IsFiring)
+	{
+		m_PullingID = -1;
+		return;
+	}
+
+	if(m_PullingID == -1)
+	{
+		CCharacter *pTarget = GameWorld()->ClosestCharacter(MousePos(), 20.f, this);
+		if(pTarget)
+			m_PullingID = pTarget->GetPlayer()->GetCID();
+	}
+	else
+	{
+		CCharacter *pTarget = GameServer()->GetPlayerChar(m_PullingID);
+		CPlayer *pTargetPlayer = GameServer()->m_apPlayers[m_PullingID];
+
+		if(pTargetPlayer)
+		{
+			if(pTarget)
+			{
+				pTarget->Core()->m_Pos = MousePos();
+				pTarget->Core()->m_Vel.y = 0;
+			}
+		}
+		else
+			m_PullingID = -1;
+	}
 }

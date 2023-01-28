@@ -3102,7 +3102,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 
 bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 {
-	if(m_ReloadTimer != 0)
+	if(m_ReloadTimer != 0 || m_PullHammer)
 		return false;
 
 	DoWeaponSwitch();
