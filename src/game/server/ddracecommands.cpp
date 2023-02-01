@@ -217,8 +217,10 @@ void CGameContext::ConLaser(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConJetpack(IConsole::IResult *pResult, void *pUserData)
 {
+	int Victim = pResult->GetVictim();
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetJetpack(true);
 }
@@ -226,6 +228,17 @@ void CGameContext::ConJetpack(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConWeapons(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(!pPlayer->m_Account.m_IsModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Weapons] Недостаточно прав.");
+		return;
+	}
+
 	pSelf->ModifyWeapons(pResult, pUserData, -1, false);
 }
 

@@ -138,35 +138,26 @@ void CShop::OnInit()
 {
 	m_vItems.push_back(new CShopItemGrenade(
 		"Grenade",
-		"500",
-		10,
+		"1000",
+		15,
 		"Выдаёт Grenade прямо тебе в руки.",
 		"dead",
 		m_pGameContext));
 
 	m_vItems.push_back(new CShopItemShotgun(
 		"Shotgun",
-		"500",
-		10,
+		"1000",
+		15,
 		"Выдаёт Shotgun прямо тебе в руки.",
 		"dead",
 		m_pGameContext));
 
 	m_vItems.push_back(new CShopItemLaser(
 		"Laser",
-		"500",
-		10,
-		"Выдаёт Lasere прямо тебе в руки.",
+		"1000",
+		15,
+		"Выдаёт Laser прямо тебе в руки.",
 		"dead",
-		m_pGameContext));
-
-	m_vItems.push_back(new CShopItemRoomKey(
-		"Room Key",
-		g_Config.m_SvRoomPrice,
-		50,
-		"Дает доступ к VIP комнате.\n"
-		"Справа от спавна.",
-		"disconnect",
 		m_pGameContext));
 }
 

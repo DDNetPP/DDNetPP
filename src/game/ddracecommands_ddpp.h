@@ -11,7 +11,7 @@ CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer t
 // cosmetics
 // CONSOLE_COMMAND("OldRainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
 CONSOLE_COMMAND("GiveRainbow", "v", CFGFLAG_SERVER, ConInfRainbow, this, "activates rainbow until disconnect")
-CONSOLE_COMMAND("Rainbow", "", CFGFLAG_SERVER, ConRainbow, this, "Радужный скин")
+CONSOLE_COMMAND("Rainbow", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRainbow, this, "Радужный скин")
 // CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) activates bloody until death")
 CONSOLE_COMMAND("GiveBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
 CONSOLE_COMMAND("PullHammer", "v", CFGFLAG_SERVER, ConPullHammer, this, "activates pullhammer")
@@ -22,8 +22,9 @@ CONSOLE_COMMAND("GiveAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, t
 // CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
 CONSOLE_COMMAND("GiveTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
 CONSOLE_COMMAND("GiveHomingGrenade", "v", CFGFLAG_SERVER, ConGiveHomingMissile, this, "ebal v rot")
-CONSOLE_COMMAND("HomingGrenade", "", CFGFLAG_SERVER, ConHomingMissile, this, "ebal v rot")
-CONSOLE_COMMAND("Change_Nick", "vr", CFGFLAG_SERVER, ConChangeNick, this, "ebal v rot")
+CONSOLE_COMMAND("HomingGrenade", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHomingMissile, this, "Самострел")
+CONSOLE_COMMAND("change_nick", "vr", CFGFLAG_SERVER, ConChangeNick, this, "Меняет ник")
+CONSOLE_COMMAND("change_clan", "vr", CFGFLAG_SERVER, ConChangeClan, this, "Меняет клан")
 
 CONSOLE_COMMAND("say_from", "vr", CFGFLAG_SERVER, ConSayFrom, this, "say from specific id")
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")

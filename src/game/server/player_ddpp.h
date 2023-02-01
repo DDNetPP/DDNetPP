@@ -123,6 +123,8 @@ public:
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
 
+	char newClan[MAX_CLAN_LENGTH];
+	char newSkin[64];
 	char newNickname[MAX_NAME_LENGTH];
 
 	//###########

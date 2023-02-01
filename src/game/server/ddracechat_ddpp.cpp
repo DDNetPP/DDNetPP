@@ -166,7 +166,7 @@ void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(!pPlayer->m_Account.m_IsSuperModerator && !pPlayer->m_Account.m_IsModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator && !pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SAY] Missing permission.");
 		return;
@@ -979,13 +979,13 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Недостаточно прав.");
 		return;
 	}
 
 	if(pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Use '/acc_info <name>'.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Используй '/acc_info <name>'.");
 		return;
 	}
 
@@ -2405,6 +2405,21 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	*                                  *
 	************************************/
 
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(pResult->m_ClientID == i)
+			continue;
+		CPlayer *pSecondPlayer = pSelf->m_apPlayers[i];
+		if(!pSecondPlayer)
+			continue;
+
+		if(pSelf->IsSameIP(pResult->m_ClientID, i) && pSecondPlayer->m_IsBlockTourning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "С подсосами нельзя!");
+			return;
+		}
+	}
+
 	if(!g_Config.m_SvAllowBlockTourna)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] Block Tournament выключен.");
@@ -2589,7 +2604,6 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	str_format(aBuf, sizeof(aBuf), "Money: %" PRId64, pPlayer->GetMoney());
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction0);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction1);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction2);
@@ -3893,7 +3907,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if(pPlayer->m_Account.m_IsModerator)
+	else if(pPlayer->m_Account.m_IsSuperModerator)
 	{
 		if(pResult->NumArguments() == 1) //only item no player --> give it ur self
 		{
@@ -4505,7 +4519,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}
-		else if(pPlayer->m_Account.m_IsModerator)
+		else if(pPlayer->m_Account.m_IsSuperModerator)
 		{
 			int Bantime = pResult->GetInteger(1);
 			char aBanname[32];
@@ -5948,7 +5962,7 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "rainbow"))
 	{
-		if(pPlayer->m_Account.m_IsSuperModerator || pPlayer->m_Account.m_IsModerator)
+		if(pPlayer->m_Account.m_IsSuperModerator || pPlayer->m_Account.m_IsSuperModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You got rainbow hook.");
 			pPlayer->m_HookPower = 1;
@@ -8253,7 +8267,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 
 	if(Account2File.is_open())
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] sucessfully registered an account.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Вы успешно зарегистрировали аккаунт.");
 		Account2File
 			<< aPassword << "\n" /* 0 password */
 			<< "0"
@@ -8309,7 +8323,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Недостаточно прав.");
 		return;
 	}
 

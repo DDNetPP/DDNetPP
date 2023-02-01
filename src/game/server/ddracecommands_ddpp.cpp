@@ -233,8 +233,8 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 	int ClientID = pResult->GetVictim();
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if(pPlayer && pResult->GetString(1)[0])
-		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(1), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+	if(pPlayer)
+		str_copy(pPlayer->newSkin, pResult->GetString(1), sizeof(pPlayer->newSkin));
 }
 
 void CGameContext::ConChangeNick(IConsole::IResult *pResult, void *pUserData)
@@ -250,6 +250,18 @@ void CGameContext::ConChangeNick(IConsole::IResult *pResult, void *pUserData)
 		str_copy(pPlayer->newNickname, pResult->GetString(1), sizeof(pPlayer->newNickname));
 }
 
+void CGameContext::ConChangeClan(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+		str_copy(pPlayer->newClan, pResult->GetString(1), sizeof(pPlayer->newClan));
+}
 
 void CGameContext::ConSayFrom(IConsole::IResult *pResult, void *pUserData)
 {
@@ -561,6 +573,15 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
 
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(!pPlayer->m_Account.m_IsModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Homing Grenade] Недостаточно прав.");
+		return;
+	}
 
 	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
 	if(pChr)
@@ -1197,14 +1218,20 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(pPlayer)
 	{
+		if(!pPlayer->m_Account.m_IsModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[Rainbow] Недостаточно прав.");
+			return;
+		}
+
 		// pPlayer->m_freezeShotgun ^= true;
 		pPlayer->m_InfRainbow ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Rainbow %s для %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "Rainbow %s", pPlayer->m_InfRainbow ? "включён" : "выключен");
 		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
