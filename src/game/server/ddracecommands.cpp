@@ -233,6 +233,12 @@ void CGameContext::ConWeapons(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
+	if(!pPlayer->IsLoggedIn())
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Weapons] Авторизуйся ебланито.");
+		return;
+	}
+
 	if(!pPlayer->m_Account.m_IsModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[Weapons] Недостаточно прав.");

@@ -1,4 +1,4 @@
-/*************************************
+﻿/*************************************
 *                                    *
 *             DDNet++                *
 *                                    *
@@ -17,6 +17,12 @@
 #endif
 
 MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)")
+
+// DDPP
+MACRO_CONFIG_STR(SvKickHammerReason, sv_kickhammer_reason, 64, "Нахуй иди", CFGFLAG_SERVER, "Reason")
+
+
+
 
 // vanilla modes
 MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")

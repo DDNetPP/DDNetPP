@@ -93,6 +93,7 @@ public:
 	void HandleNinja();
 	void HandleJetpack();
 	void HandlePullHammer();
+	void HandleKickHammer();
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
 	void OnDirectInput(CNetObj_PlayerInput *pNewInput);
@@ -228,6 +229,7 @@ public:
 	bool m_FrozenLastTick;
 	bool m_FreezeHammer;
 	bool m_PullHammer;
+	bool m_KickHammer;
 	int m_PullingID;
 	bool m_IsFiring;
 	int m_TuneZone;

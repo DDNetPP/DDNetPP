@@ -38,6 +38,29 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConKickHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	if(pChr)
+	{
+		pChr->m_KickHammer ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "KickHammer has been %s for %s", pChr->m_KickHammer ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "KickHammer was %s by %s", pChr->m_KickHammer ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -576,6 +599,12 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(!pPlayer)
 		return;
+
+	if(!pPlayer->IsLoggedIn())
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Homing Grenade] Авторизуйся ебланито.");
+		return;
+	}
 
 	if(!pPlayer->m_Account.m_IsModerator)
 	{
@@ -1218,6 +1247,12 @@ void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	if(pPlayer)
 	{
+		if(!pPlayer->IsLoggedIn())
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[Rainbow] Авторизуйся ебланито.");
+			return;
+		}
+
 		if(!pPlayer->m_Account.m_IsModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[Rainbow] Недостаточно прав.");

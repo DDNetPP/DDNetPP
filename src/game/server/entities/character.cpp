@@ -827,6 +827,7 @@ void CCharacter::Tick()
 	// handle Weapons
 	HandleWeapons();
 	HandlePullHammer();
+	HandleKickHammer();
 
 	DDRacePostCoreTick();
 	DDPPPostCoreTick();
@@ -2556,5 +2557,22 @@ void CCharacter::HandlePullHammer()
 		}
 		else
 			m_PullingID = -1;
+	}
+}
+
+void CCharacter::HandleKickHammer()
+{
+	if(!m_KickHammer || m_Core.m_ActiveWeapon != WEAPON_HAMMER)
+		return;
+
+	if(!m_IsFiring)
+	{
+		return;
+	}
+
+	CCharacter *pTarget = GameWorld()->ClosestCharacter(MousePos(), 20.f, this);
+	if(pTarget)
+	{
+		GameServer()->Server()->Kick(pTarget->GetPlayer()->GetCID(), Config()->m_SvKickHammerReason);
 	}
 }
