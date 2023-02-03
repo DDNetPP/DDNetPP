@@ -355,6 +355,18 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		m_WasInRoom = true;
 	}
 
+	if(((m_TileIndex == TILE_MODER_ROOM) || (m_TileFIndex == TILE_MODER_ROOM)))
+	{
+		if(!Server()->GetAuthedState(GetPlayer()->GetCID()))
+		{
+			if(!m_pPlayer->IsLoggedIn() || !m_pPlayer->m_Account.m_IsModerator)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Not allowed.");
+			}
+		}
+	}
+
 	if(m_TileIndex == TILE_BLOCK_DM_JOIN || m_TileFIndex == TILE_BLOCK_DM_JOIN)
 	{
 		if(!m_pPlayer->m_IsBlockDeathmatch)
