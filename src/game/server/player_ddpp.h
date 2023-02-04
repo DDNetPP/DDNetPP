@@ -451,6 +451,7 @@ public:
 	bool m_escape_plan_b;
 	bool m_escape_plan_c;
 	bool m_BoughtRoom;
+	bool m_SuperHammer;
 	int m_aliveplusxp;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;

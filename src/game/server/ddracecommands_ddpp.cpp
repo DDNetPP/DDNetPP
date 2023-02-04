@@ -38,6 +38,29 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConSuperHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+	{
+		pPlayer->m_SuperHammer ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "SuperHammer has been %s for %s", pPlayer->m_SuperHammer ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "SuperHammer was %s by %s", pPlayer->m_SuperHammer ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConKickHammer(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()

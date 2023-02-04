@@ -246,6 +246,13 @@ public:
 
 	virtual bool Buy(int ClientID) override;
 };
+class CShopItemSuperHammer : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
 
 class CShop
 {

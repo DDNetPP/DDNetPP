@@ -136,6 +136,14 @@ IServer *CShop::Server()
 
 void CShop::OnInit()
 {
+	m_vItems.push_back(new CShopItemSuperHammer(
+		"SuperHammer",
+		"10 000",
+		50,
+		"Ну очень пиздатый молот.",
+		"disconnect",
+		m_pGameContext));
+
 	m_vItems.push_back(new CShopItemGrenade(
 		"Grenade",
 		"1000",
@@ -462,6 +470,22 @@ bool CShopItemGrenade::Buy(int ClientID)
 	if(!CShopItem::Buy(ClientID))
 		return false;
 	pPlayer->GetCharacter()->GiveWeapon(WEAPON_GRENADE, false);
+	return true;
+}
+
+bool CShopItemSuperHammer::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->m_SuperHammer)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть ну очень пиздатый молот.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->m_SuperHammer = true;
 	return true;
 }
 
