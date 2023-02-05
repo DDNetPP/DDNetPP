@@ -98,6 +98,8 @@ void CGameControllerDDRace::FlagTick()
 				int Team = apCloseCCharacters[i]->Teams()->m_Core.Team(apCloseCCharacters[i]->GetPlayer()->GetCID());
 				if(Team != TEAM_FLOCK)
 					continue;
+				if(apCloseCCharacters[i]->Core()->m_Solo)
+					continue;
 
 				// take the flag
 				if(F->m_AtStand)
