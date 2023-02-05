@@ -34,6 +34,7 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 		return;
 
 	pPlayer->m_IsBlockTourning = false;
+	pPlayer->m_IsBlockTourningInArena = false;
 	m_aRestorePos[pPlayer->GetCID()] = true;
 }
 
