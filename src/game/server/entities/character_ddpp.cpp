@@ -1811,7 +1811,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	}
 
 	m_pPlayer->UpdateLastToucher(-1);
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
+
+	int Team = Teams()->m_Core.Team(m_Core.m_Id);
+
+	if(Team == TEAM_FLOCK && ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
 	{
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
 		{
@@ -1824,7 +1827,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
+	if(Team == TEAM_FLOCK && ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
 	{
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this)
 		{

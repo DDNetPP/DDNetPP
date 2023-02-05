@@ -1063,11 +1063,11 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 1!");
 			}
-			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter())
+			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[0] && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter())
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 2!");
 			}
-			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter())
+			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[1] && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter())
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 3!");
 			}
