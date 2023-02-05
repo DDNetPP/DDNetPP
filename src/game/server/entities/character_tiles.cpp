@@ -362,7 +362,19 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			if(!m_pPlayer->IsLoggedIn() || !m_pPlayer->m_Account.m_IsModerator)
 			{
 				Die(m_pPlayer->GetCID(), WEAPON_SELF);
-				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Not allowed.");
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Только для Premium.");
+			}
+		}
+	}
+
+	if(((m_TileIndex == TILE_SUPERMODER_ROOM) || (m_TileFIndex == TILE_SUPERMODER_ROOM)))
+	{
+		if(!Server()->GetAuthedState(GetPlayer()->GetCID()))
+		{
+			if(!m_pPlayer->IsLoggedIn() || !m_pPlayer->m_Account.m_IsSuperModerator)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Только для Администрации.");
 			}
 		}
 	}
