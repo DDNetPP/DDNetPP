@@ -1228,6 +1228,9 @@ bool CCharacter::CanSnapCharacter(int SnappingClient)
 	}
 	else if(pSnapChar && !pSnapChar->m_Core.m_Super && !CanCollide(SnappingClient) && (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_OFF || (pSnapPlayer->m_ShowOthers == SHOW_OTHERS_ONLY_TEAM && !SameTeam(SnappingClient))))
 		return false;
+	
+	if(SnappingClient != m_pPlayer->GetCID() && m_Invisible)
+		return false;
 
 	return true;
 }

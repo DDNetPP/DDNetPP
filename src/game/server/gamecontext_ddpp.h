@@ -657,6 +657,7 @@ private:
 	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
 	static void ConSuperHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConKickHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConInvisible(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConChangeNick(IConsole::IResult *pResult, void *pUserData);
 	static void ConChangeClan(IConsole::IResult *pResult, void *pUserData);

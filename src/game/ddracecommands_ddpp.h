@@ -27,6 +27,7 @@ CONSOLE_COMMAND("change_nick", "vr", CFGFLAG_SERVER, ConChangeNick, this, "Ме�
 CONSOLE_COMMAND("change_clan", "vr", CFGFLAG_SERVER, ConChangeClan, this, "Меняет клан")
 CONSOLE_COMMAND("kickhammer", "v", CFGFLAG_SERVER, ConKickHammer, this, "Kick Nahui")
 CONSOLE_COMMAND("superhammer", "v", CFGFLAG_SERVER, ConSuperHammer, this, "Kick Nahui")
+CONSOLE_COMMAND("invisible", "v", CFGFLAG_SERVER, ConInvisible, this, "Hui")
 
 CONSOLE_COMMAND("say_from", "vr", CFGFLAG_SERVER, ConSayFrom, this, "say from specific id")
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")

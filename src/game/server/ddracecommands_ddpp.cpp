@@ -84,6 +84,29 @@ void CGameContext::ConKickHammer(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ConInvisible(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	if(pChr)
+	{
+		pChr->m_Invisible ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "KickHammer has been %s for %s", pChr->m_Invisible ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "KickHammer was %s by %s", pChr->m_Invisible ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
 void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;

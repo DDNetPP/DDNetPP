@@ -230,6 +230,7 @@ public:
 	bool m_FreezeHammer;
 	bool m_PullHammer;
 	bool m_KickHammer;
+	bool m_Invisible;
 	int m_PullingID;
 	bool m_IsFiring;
 	int m_TuneZone;
