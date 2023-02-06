@@ -502,7 +502,7 @@ void CCharacter::FireWeapon()
 			else
 				Strength = GameServer()->TuningList()[m_TuneZone].m_HammerStrength;
 
-			if(m_pPlayer->m_SuperHammer)
+			if(m_pPlayer->m_SuperHammer && !m_pPlayer->m_IsBlockTourningInArena)
 				Strength += g_Config.m_SvSuperHammerStrength;
 
 			vec2 Temp = pTarget->m_Core.m_Vel + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f;
