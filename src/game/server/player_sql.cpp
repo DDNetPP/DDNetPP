@@ -222,9 +222,9 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsModerator = Result.m_State;
 					if(Result.m_State == 1)
-						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
+						GameServer()->SendChatTarget(i, "[ACCOUNT] Ты не Premium.");
 					else
-						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer VIP.");
+						GameServer()->SendChatTarget(i, "[ACCOUNT] Ты больше не Premium.");
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
 					break;
 				}

@@ -146,7 +146,7 @@ void CShop::OnInit()
 
 	m_vItems.push_back(new CShopItemGrenade(
 		"Grenade",
-		"1000",
+		"1 000",
 		15,
 		"Выдаёт Grenade прямо тебе в руки.",
 		"dead",
@@ -154,7 +154,7 @@ void CShop::OnInit()
 
 	m_vItems.push_back(new CShopItemShotgun(
 		"Shotgun",
-		"1000",
+		"1 000",
 		15,
 		"Выдаёт Shotgun прямо тебе в руки.",
 		"dead",
@@ -162,7 +162,7 @@ void CShop::OnInit()
 
 	m_vItems.push_back(new CShopItemLaser(
 		"Laser",
-		"1000",
+		"1 000",
 		15,
 		"Выдаёт Laser прямо тебе в руки.",
 		"dead",

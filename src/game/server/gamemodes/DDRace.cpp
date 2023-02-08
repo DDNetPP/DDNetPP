@@ -167,7 +167,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		else
 		{
 			char aWelcome[128];
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
+			str_format(aWelcome, sizeof(aWelcome), "" GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
 			GameServer()->SendChatTarget(ClientID, aWelcome);
 		}
 	}

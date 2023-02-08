@@ -140,7 +140,7 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 	{
 		if(Server()->GetAuthedState(ClientID) != AUTHED_ADMIN)
 		{
-			SendChatTarget(ClientID, "Missing permission.");
+			SendChatTarget(ClientID, "Недостаточно прав.");
 			return true;
 		}
 		if(!g_Config.m_SvTestingCommands)

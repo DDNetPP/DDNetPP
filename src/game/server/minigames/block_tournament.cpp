@@ -233,7 +233,7 @@ void CBlockTournament::Tick()
 			str_format(aBuf,
 				sizeof(aBuf),
 				"Block Tournament через %d секунд\n"
-				"[Участников: %d] '/join' чтобы войти",
+				"[Участников: %d] /join чтобы войти",
 				m_LobbyTick / Server()->TickSpeed(),
 				blockers,
 				g_Config.m_SvBlockTournaPlayers);
@@ -495,12 +495,12 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	}
 	else if(wonID > 1)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID + 1);
+		str_format(aBuf, sizeof(aBuf), "[BT] Ты сдох и занял %d место.", wonID + 1);
 		GameServer()->SendChatTarget(pPlayer->GetCID(), aBuf);
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] Ошибка: %d", wonID);
+		str_format(aBuf, sizeof(aBuf), "[BT] Ошибка: %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_OFF;
 	}

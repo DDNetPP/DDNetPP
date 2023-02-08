@@ -1,4 +1,4 @@
-// ddnet++ accounts
+﻿// ddnet++ accounts
 #include <engine/server/databases/connection.h>
 
 #include "../gamecontext.h"
@@ -509,13 +509,13 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	if(!End)
 	{
 		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Update state failed.",
+			"[ACCOUNT] Ошибка обновления статистики.",
 			sizeof(pResult->m_aaMessages[0]));
 	}
 	else
 	{
 		str_copy(pResult->m_aaMessages[0],
-			"[ACCOUNT] Successfully updated account state.",
+			"[ACCOUNT] Успешное обновление статистики.",
 			sizeof(pResult->m_aaMessages[0]));
 	}
 	return false;
@@ -549,7 +549,7 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 	if(End)
 	{
 		str_copy(pResult->m_aaMessages[0],
-			"[SQL] Username not found.",
+			"[SQL] Имя не найдено.",
 			sizeof(pResult->m_aaMessages[0]));
 	}
 	else
@@ -574,13 +574,13 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 		if(!End)
 		{
 			str_copy(pResult->m_aaMessages[0],
-				"[SQL] Password set failed.",
+				"[SQL] Ошибка обновления пароля.",
 				sizeof(pResult->m_aaMessages[0]));
 		}
 		else
 		{
 			str_copy(pResult->m_aaMessages[0],
-				"[SQL] Successfully updated password.",
+				"[SQL] Успешное обновление пароля.",
 				sizeof(pResult->m_aaMessages[0]));
 		}
 	}
@@ -860,10 +860,10 @@ bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameD
 		else
 		{
 			str_copy(pResult->m_aaMessages[0],
-				"[ACCOUNT] Account has been registered.",
+				"[ACCOUNT] Аккаунт зарегистрирован.",
 				sizeof(pResult->m_aaMessages[0]));
 			str_copy(pResult->m_aaMessages[1],
-				"[ACCOUNT] Login with: /login <name> <pass>",
+				"[ACCOUNT] Авторизуйся: /login <логин> <пароль>",
 				sizeof(pResult->m_aaMessages[1]));
 		}
 	}

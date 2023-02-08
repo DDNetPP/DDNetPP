@@ -40,7 +40,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientID)
 		if(!str_comp("Level", pStr))
 			return "Уровень";
 		if(!str_comp("Owned until", pStr))
-			return "Срок";
+			return "Действует";
 		if(!str_comp("Level", pStr))
 			return "Уровень";
 		if(!str_comp("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", pStr))
