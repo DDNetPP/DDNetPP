@@ -379,6 +379,25 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		}
 	}
 
+	if(((m_TileIndex == TILE_FLAG_DROP) || (m_TileFIndex == TILE_FLAG_DROP)))
+	{
+		IGameController *ControllerDDrace = GameServer()->m_pController;
+		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0])
+		{
+			if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == this)
+			{
+				((CGameControllerDDRace *)ControllerDDrace)->DropFlag(0, -m_Input.m_Direction); //red
+			}
+		}
+		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1])
+		{
+			if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == this)
+			{
+				((CGameControllerDDRace *)ControllerDDrace)->DropFlag(1, -m_Input.m_Direction); //blue
+			}
+		}
+	}
+
 	if(m_TileIndex == TILE_BLOCK_DM_JOIN || m_TileFIndex == TILE_BLOCK_DM_JOIN)
 	{
 		if(!m_pPlayer->m_IsBlockDeathmatch)
