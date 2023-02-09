@@ -648,12 +648,19 @@ private:
 	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
+	static void ConSayFrom(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);
 	static void Condummymode(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummyColor(IConsole::IResult *pResult, void *pUserData);
 	static void ConDummySkin(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceColor(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceSkin(IConsole::IResult *pResult, void *pUserData);
+	static void ConSuperHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConKickHammer(IConsole::IResult *pResult, void *pUserData);
+	static void ConInvisible(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConChangeNick(IConsole::IResult *pResult, void *pUserData);
+	static void ConChangeClan(IConsole::IResult *pResult, void *pUserData);
 	static void Conheal(IConsole::IResult *pResult, void *pUserData);
 	static void Conninjasteam(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceUnJail(IConsole::IResult *pResult, void *pUserData);
@@ -667,6 +674,7 @@ private:
 
 	// cosmetics
 	static void ConRainbow(IConsole::IResult *pResult, void *pUserData);
+	static void ConPullHammer(IConsole::IResult *pResult, void *pUserData);
 	static void ConOldRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void ConInfRainbow(IConsole::IResult *pResult, void *pUserData);
 	static void ConBloody(IConsole::IResult *pResult, void *pUserData);
@@ -684,6 +692,7 @@ private:
 	static void ConDropHealth(IConsole::IResult *pResult, void *pUserData);
 	static void ConDropArmor(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConGiveHomingMissile(IConsole::IResult *pResult, void *pUserData);
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
 
 	//SQL

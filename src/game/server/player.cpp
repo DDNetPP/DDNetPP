@@ -538,8 +538,15 @@ void CPlayer::OnPredictedInput(CNetObj_PlayerInput *pNewInput)
 		m_pCharacter->OnPredictedInput(pNewInput);
 
 	// Magic number when we can hope that client has successfully identified itself
-	if(m_NumInputs == 20 && g_Config.m_SvClientSuggestion[0] != '\0' && GetClientVersion() <= VERSION_DDNET_OLD)
-		GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
+	if(m_NumInputs == 20)
+	{
+		if(g_Config.m_SvClientSuggestion[0] != '\0' && GetClientVersion() <= VERSION_DDNET_OLD)
+			GameServer()->SendBroadcast(g_Config.m_SvClientSuggestion, m_ClientID);
+
+		char aBuf[512];
+		str_format(aBuf, sizeof(aBuf), "Welcome to the club, '%s'", Server()->ClientName(m_ClientID));
+		GameServer()->SendBroadcast(aBuf, m_ClientID);
+	}
 	else if(m_NumInputs == 200 && Server()->IsSixup(m_ClientID))
 		GameServer()->SendBroadcast("This server uses an experimental translation from Teeworlds 0.7 to 0.6. Please report bugs on ddnet.org/discord", m_ClientID);
 }

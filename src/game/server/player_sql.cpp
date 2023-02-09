@@ -1,4 +1,4 @@
-/* CPlayer related sql ddnet++ methods */
+﻿/* CPlayer related sql ddnet++ methods */
 
 #include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
@@ -20,7 +20,7 @@ void CPlayer::OnLogin()
 
 	if(m_Account.m_IsAccFrozen)
 	{
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed: Account is frozen.");
+		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Ошибка: Аккаунт заморожен.");
 		Logout();
 		return;
 	}
@@ -30,7 +30,7 @@ void CPlayer::OnLogin()
 	// Start to do something...
 	//==========================
 
-	GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
+	GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Вы успешно авторизовались.");
 
 	// load scoreboard scores
 	if(g_Config.m_SvInstaScore)
@@ -222,9 +222,9 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsModerator = Result.m_State;
 					if(Result.m_State == 1)
-						GameServer()->SendChatTarget(i, "[ACCOUNT] You are now VIP.");
+						GameServer()->SendChatTarget(i, "[ACCOUNT] Ты не Premium.");
 					else
-						GameServer()->SendChatTarget(i, "[ACCOUNT] You are no longer VIP.");
+						GameServer()->SendChatTarget(i, "[ACCOUNT] Ты больше не Premium.");
 					str_format(aBuf, sizeof(aBuf), "UPDATED IsModerator = %d (%d:'%s')", Result.m_State, i, Server()->ClientName(i));
 					break;
 				}

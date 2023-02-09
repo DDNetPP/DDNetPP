@@ -1,4 +1,4 @@
-/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
+﻿/* (c) Shereef Marzouk. See "licence DDRace.txt" and the readme.txt in the root of the distribution for more information. */
 #include "gamecontext.h"
 #include <base/ddpp_logs.h>
 
@@ -129,7 +129,9 @@ void CGameContext::ConSuper(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr && !pChr->IsSuper())
 	{
 		pChr->SetSuper(true);
@@ -142,7 +144,9 @@ void CGameContext::ConUnSuper(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr && pChr->IsSuper())
 	{
 		pChr->SetSuper(false);
@@ -174,7 +178,9 @@ void CGameContext::ConLiveFreeze(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetLiveFrozen(true);
 }
@@ -184,7 +190,9 @@ void CGameContext::ConUnLiveFreeze(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 		return;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	int Victim = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetLiveFrozen(false);
 }
@@ -209,8 +217,10 @@ void CGameContext::ConLaser(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConJetpack(IConsole::IResult *pResult, void *pUserData)
 {
+	int Victim = pResult->GetVictim();
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
 	if(pChr)
 		pChr->SetJetpack(true);
 }
@@ -218,6 +228,23 @@ void CGameContext::ConJetpack(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConWeapons(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(!pPlayer->IsLoggedIn())
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Weapons] Авторизуйся ебланито.");
+		return;
+	}
+
+	if(!pPlayer->m_Account.m_IsModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Weapons] Недостаточно прав.");
+		return;
+	}
+
 	pSelf->ModifyWeapons(pResult, pUserData, -1, false);
 }
 
@@ -272,6 +299,12 @@ void CGameContext::ModifyWeapons(IConsole::IResult *pResult, void *pUserData,
 	CCharacter *pChr = GetPlayerChar(pResult->m_ClientID);
 	if(!pChr)
 		return;
+
+	if(pChr->GetPlayer()->m_IsBlockTourning)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "Запрещено использовать Weapons на арене!");
+		return;
+	}
 
 	if(clamp(Weapon, -1, NUM_WEAPONS - 1) != Weapon)
 	{

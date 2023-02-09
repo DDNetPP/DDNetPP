@@ -7,6 +7,7 @@
 #include <game/version.h>
 
 #include "entities/character.h"
+#include "entities/flag.h"
 #include "player.h"
 #include "score.h"
 
@@ -1057,6 +1058,18 @@ void CGameContext::ConJoinTeam(IConsole::IResult *pResult, void *pUserData)
 				char aBuf[512];
 				str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvMaxTeamSize);
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
+			}
+			else if(pPlayer->m_IsBlockTourning)
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 1!");
+			}
+			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[0] && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[0]->m_pCarryingCharacter == pPlayer->GetCharacter())
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 2!");
+			}
+			else if(pPlayer->GetCharacter() && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[1] && ((CGameControllerDDRace *)pSelf->m_pController)->m_apFlags[1]->m_pCarryingCharacter == pPlayer->GetCharacter())
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "No 3!");
 			}
 			else if(const char *pError = pController->m_Teams.SetCharacterTeam(pPlayer->GetCID(), Team))
 			{

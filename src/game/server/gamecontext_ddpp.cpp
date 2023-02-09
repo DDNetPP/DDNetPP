@@ -1,4 +1,4 @@
-// gamecontext scoped ddnet++ methods
+﻿// gamecontext scoped ddnet++ methods
 
 #include "ddpp/accounts.h"
 #include "ddpp/loc.h"
@@ -679,7 +679,7 @@ void CGameContext::StartAsciiAnimation(int viewerID, int creatorID, int medium)
 		return;
 	if(!m_apPlayers[creatorID])
 	{
-		SendChatTarget(viewerID, "player not found.");
+		SendChatTarget(viewerID, "игрок не найден.");
 		return;
 	}
 	//dont start new animation while old is running
@@ -1022,28 +1022,28 @@ void CGameContext::ShowDDPPStats(int requestID, int requestedID)
 
 	char aBuf[128];
 
-	str_format(aBuf, sizeof(aBuf), "--- %s's Stats ---", Server()->ClientName(requestedID));
+	str_format(aBuf, sizeof(aBuf), "--- %s's Статистика ---", Server()->ClientName(requestedID));
 	SendChatTarget(requestID, aBuf);
 	if(pPlayer->GetLevel() == ACC_MAX_LEVEL)
-		str_format(aBuf, sizeof(aBuf), "Level[%d] ( MAX LEVEL ! )", pPlayer->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "Уровень[%d] ( МАКСИМАЛЬНЫЙ! )", pPlayer->GetLevel());
 	else
-		str_format(aBuf, sizeof(aBuf), "Level[%d]", pPlayer->GetLevel());
+		str_format(aBuf, sizeof(aBuf), "Уровень[%d]", pPlayer->GetLevel());
 	SendChatTarget(requestID, aBuf);
 	if(!pPlayer->IsLoggedIn())
-		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "] (not logged in)", pPlayer->GetXP());
+		str_format(aBuf, sizeof(aBuf), "XP[%" PRId64 "] (Авторизуйся еблан)", pPlayer->GetXP());
 	else
-		str_format(aBuf, sizeof(aBuf), "Xp[%" PRId64 "/%" PRId64 "]", pPlayer->GetXP(), pPlayer->GetNeededXP());
+		str_format(aBuf, sizeof(aBuf), "XP[%" PRId64 "/%" PRId64 "]", pPlayer->GetXP(), pPlayer->GetNeededXP());
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Money[%" PRId64 "]", pPlayer->GetMoney());
+	str_format(aBuf, sizeof(aBuf), "Денег[%" PRId64 "]", pPlayer->GetMoney());
 	SendChatTarget(requestID, aBuf);
 	str_format(aBuf, sizeof(aBuf), "PvP-Arena Tickets[%d]", pPlayer->m_Account.m_PvpArenaTickets);
 	SendChatTarget(requestID, aBuf);
 	SendChatTarget(requestID, "---- BLOCK ----");
-	str_format(aBuf, sizeof(aBuf), "Points: %d", pPlayer->m_Account.m_BlockPoints);
+	str_format(aBuf, sizeof(aBuf), "Поинтов: %d", pPlayer->m_Account.m_BlockPoints);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Kills: %d", pPlayer->m_Account.m_BlockPoints_Kills);
+	str_format(aBuf, sizeof(aBuf), "Убийств: %d", pPlayer->m_Account.m_BlockPoints_Kills);
 	SendChatTarget(requestID, aBuf);
-	str_format(aBuf, sizeof(aBuf), "Deaths: %d", pPlayer->m_Account.m_BlockPoints_Deaths);
+	str_format(aBuf, sizeof(aBuf), "Смертей: %d", pPlayer->m_Account.m_BlockPoints_Deaths);
 	SendChatTarget(requestID, aBuf);
 
 	// str_format(aBuf, sizeof(aBuf), "Skillgroup: %s", GetBlockSkillGroup(StatsID));

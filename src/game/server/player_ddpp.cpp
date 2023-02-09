@@ -27,6 +27,9 @@ void CPlayer::ConstructDDPP()
 {
 	m_pCaptcha = new CCaptcha(GameServer(), GetCID());
 	m_pDummyMode = nullptr;
+	newNickname[0] = '\0';
+	newSkin[0] = '\0';
+	newClan[0] = '\0';
 }
 
 void CPlayer::DestructDDPP()
@@ -77,7 +80,7 @@ void CPlayer::ResetDDPP()
 		m_IsVanillaDmg = true;
 		m_IsVanillaWeapons = true;
 	}
-	m_vWeaponLimit.resize(5);
+	m_vWeaponLimit.resize(6);
 
 	m_MoneyTilesMoney = 0;
 	str_copy(m_aTradeOffer, "", sizeof(m_aTradeOffer));
@@ -143,7 +146,7 @@ void CPlayer::ResetDDPP()
 	//Block points
 	m_LastToucherID = -1;
 	m_DisplayScore = SCORE_LEVEL;
-	m_Language = LANG_EN;
+	m_Language = LANG_RU;
 }
 
 void CPlayer::SetLanguage(const char *pLang)
@@ -388,26 +391,59 @@ void CPlayer::PlayerHumanLevelTick()
 
 bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 {
-	//spooky ghost
+	/* spooky ghost
 	const char *pClan;
 	if(m_SpookyGhostActive)
 		pClan = m_RealName;
 	else
 		pClan = m_RealClan;
-	StrToInts(&pClientInfo->m_Clan0, 3, pClan);
+	StrToInts(&pClientInfo->m_Clan0, 3, pClan); */
 
 	if(m_SpookyGhostActive)
 	{
 		m_ShowName = false;
 	}
 
-	if(m_SetRealName || m_ShowName)
+	if((m_SetRealName || m_ShowName) && !m_IsBlockTourningInArena)
 	{
-		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
+		if(newNickname[0] != '\0')
+		{
+			StrToInts(&pClientInfo->m_Name0, 4, newNickname);
+		}
+		else
+		{
+			StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
+		}
 	}
 	else
 	{
 		StrToInts(&pClientInfo->m_Name0, 4, " ");
+	}
+
+	bool IsNewSkin = newSkin[0] != '\0';
+	if(IsNewSkin)
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, newSkin);
+	}
+	else
+	{
+		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
+	}
+
+	if(newClan[0] != '\0')
+	{
+		StrToInts(&pClientInfo->m_Clan0, 3, newClan);
+	}
+	else
+	{
+		StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
+	}
+
+	if(m_IsBlockTourningInArena)
+	{
+		StrToInts(&pClientInfo->m_Clan0, 3, "");
+		StrToInts(&pClientInfo->m_Skin0, 6, "default");
+		pClientInfo->m_UseCustomColor = false;
 	}
 
 	if(GetCharacter())
@@ -482,7 +518,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 		pClientInfo->m_ColorFeet = m_RainbowColor * 0x010000 + 0xff00;
 	}
 	else
-		return false;
+		return m_IsBlockTourningInArena || IsNewSkin;
 	return true;
 }
 

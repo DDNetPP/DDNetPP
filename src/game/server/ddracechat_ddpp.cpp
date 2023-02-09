@@ -166,7 +166,7 @@ void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
 	if(!pPlayer)
 		return;
 
-	if(!pPlayer->m_Account.m_IsSuperModerator && !pPlayer->m_Account.m_IsModerator)
+	if(!pPlayer->m_Account.m_IsSuperModerator && !pPlayer->m_Account.m_IsSuperModerator)
 	{
 		pSelf->SendChatTarget(pResult->m_ClientID, "[SAY] Missing permission.");
 		return;
@@ -979,13 +979,13 @@ void CGameContext::ConAcc_Info(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Missing permission.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Недостаточно прав.");
 		return;
 	}
 
 	if(pResult->NumArguments() != 1)
 	{
-		pSelf->SendChatTarget(ClientID, "[SQL] Use '/acc_info <name>'.");
+		pSelf->SendChatTarget(ClientID, "[SQL] Используй '/acc_info <name>'.");
 		return;
 	}
 
@@ -2399,40 +2399,63 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		return;
 	}
 
+	CGameControllerDDRace *pController = (CGameControllerDDRace *)pSelf->m_pController;
+	int Team = pController->m_Teams.m_Core.Team(pResult->m_ClientID);
+	if(Team != TEAM_FLOCK)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "No!");
+		return;
+	}
+
 	/***********************************
 	*                                  *
 	*          BLOCK TOURNAMENT        *
 	*                                  *
 	************************************/
 
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(pResult->m_ClientID == i)
+			continue;
+		CPlayer *pSecondPlayer = pSelf->m_apPlayers[i];
+		if(!pSecondPlayer)
+			continue;
+
+		if(pSelf->IsSameIP(pResult->m_ClientID, i) && pSecondPlayer->m_IsBlockTourning)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "С подсосами нельзя!");
+			return;
+		}
+	}
+
 	if(!g_Config.m_SvAllowBlockTourna)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournaments are deactivated by an admin.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] Block Tournament выключен.");
 		return;
 	}
 	else if(pPlayer->m_IsBlockTourning)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You already joined the block tournament.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] Ты уже подал заявку.");
 		return;
 	}
 	else if(pSelf->IsMinigame(pResult->m_ClientID))
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] This command is not allowed in jail or minigames. try '/leave' first.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] This command is not allowed in jail or minigames. try '/leave' first.");
 		return;
 	}
 	else if(g_Config.m_SvAllowBlockTourna == 2 && !pPlayer->IsLoggedIn())
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You have to be logged in to join block tournaments.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] You have to be logged in to join block tournaments.");
 		return;
 	}
 	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_IN_GAME)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] Block tournament is already running please wait until its finished.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] Block tournament is already running please wait until its finished.");
 		return;
 	}
 	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_OFF)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] No block tournament running.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] К чему ты подключаться собрался еблан?.");
 		return;
 
 		//pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] you started a block tournament.");
@@ -2443,7 +2466,7 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 	}
 	else if(pSelf->m_pBlockTournament->State() == CBlockTournament::STATE_LOBBY)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "[JOIN] You joined a block tournament.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "[BT] Вы подали заявку.");
 		pSelf->m_pBlockTournament->Join(pPlayer);
 		return;
 	}
@@ -2589,7 +2612,6 @@ void CGameContext::ConMoney(IConsole::IResult *pResult, void *pUserData)
 	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	str_format(aBuf, sizeof(aBuf), "Money: %" PRId64, pPlayer->GetMoney());
 	pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
-	pSelf->SendChatTarget(pResult->m_ClientID, "~~~~~~~~~~");
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction0);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction1);
 	pSelf->SendChatTarget(pResult->m_ClientID, pPlayer->m_money_transaction2);
@@ -2798,61 +2820,6 @@ void CGameContext::ConEvent(IConsole::IResult *pResult, void *pUserData)
 }
 
 // accept/turn-off cosmetic features
-
-void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
-		return;
-
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	if(!pPlayer)
-		return;
-
-	CCharacter *pChr = pPlayer->GetCharacter();
-	if(!pChr)
-		return;
-
-	if(pResult->NumArguments() != 1)
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow <accept/off>'.");
-		return;
-	}
-
-	char aInput[32];
-	str_copy(aInput, pResult->GetString(0), 32);
-
-	if(!str_comp_nocase(aInput, "off"))
-	{
-		pPlayer->GetCharacter()->m_Rainbow = false;
-		pPlayer->m_InfRainbow = false;
-		pSelf->SendChatTarget(pResult->m_ClientID, "Rainbow turned off.");
-	}
-	else if(!str_comp_nocase(aInput, "accept"))
-	{
-		if(pPlayer->m_rainbow_offer > 0)
-		{
-			if(!pPlayer->GetCharacter()->m_Rainbow)
-			{
-				pPlayer->GetCharacter()->m_Rainbow = true;
-				pPlayer->m_rainbow_offer--;
-				pSelf->SendChatTarget(pResult->m_ClientID, "You accepted rainbow. You can turn it off with '/rainbow off'.");
-			}
-			else
-			{
-				pSelf->SendChatTarget(pResult->m_ClientID, "You already have rainbow.");
-			}
-		}
-		else
-		{
-			pSelf->SendChatTarget(pResult->m_ClientID, "Nobody offered you rainbow.");
-		}
-	}
-	else
-	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Invalid. Type '/rainbow <accept/off>'.");
-	}
-}
 
 void CGameContext::ConBloody(IConsole::IResult *pResult, void *pUserData)
 {
@@ -3948,7 +3915,7 @@ void CGameContext::ConGive(IConsole::IResult *pResult, void *pUserData)
 			}
 		}
 	}
-	else if(pPlayer->m_Account.m_IsModerator)
+	else if(pPlayer->m_Account.m_IsSuperModerator)
 	{
 		if(pResult->NumArguments() == 1) //only item no player --> give it ur self
 		{
@@ -4560,7 +4527,7 @@ void CGameContext::ConBomb(IConsole::IResult *pResult, void *pUserData)
 				//pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}
-		else if(pPlayer->m_Account.m_IsModerator)
+		else if(pPlayer->m_Account.m_IsSuperModerator)
 		{
 			int Bantime = pResult->GetInteger(1);
 			char aBanname[32];
@@ -6003,7 +5970,7 @@ void CGameContext::ConHook(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "rainbow"))
 	{
-		if(pPlayer->m_Account.m_IsSuperModerator || pPlayer->m_Account.m_IsModerator)
+		if(pPlayer->m_Account.m_IsSuperModerator || pPlayer->m_Account.m_IsSuperModerator)
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "You got rainbow hook.");
 			pPlayer->m_HookPower = 1;
@@ -8308,7 +8275,7 @@ void CGameContext::ConRegister2(IConsole::IResult *pResult, void *pUserData)
 
 	if(Account2File.is_open())
 	{
-		pSelf->SendChatTarget(ClientID, "[ACCOUNT] sucessfully registered an account.");
+		pSelf->SendChatTarget(ClientID, "[ACCOUNT] Вы успешно зарегистрировали аккаунт.");
 		Account2File
 			<< aPassword << "\n" /* 0 password */
 			<< "0"
@@ -8364,7 +8331,7 @@ void CGameContext::ConACC2(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientID) != AUTHED_ADMIN)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Missing permission.");
+		pSelf->SendChatTarget(pResult->m_ClientID, "Недостаточно прав.");
 		return;
 	}
 

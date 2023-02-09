@@ -1,4 +1,4 @@
-// DDNet++
+﻿// DDNet++
 
 // This file can be included several times.
 
@@ -9,19 +9,27 @@
 CONSOLE_COMMAND("hammer", "", CFGFLAG_SERVER, ConHammer, this, "Gives a hammer to you") //added by ChillerDragon and not as a cheat... because a hammer comon xd
 
 // cosmetics
-CONSOLE_COMMAND("OldRainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
-CONSOLE_COMMAND("InfRainbow", "v", CFGFLAG_SERVER, ConInfRainbow, this, "activates rainbow until disconnect")
-CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) activates bloody until death")
-CONSOLE_COMMAND("InfBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
-CONSOLE_COMMAND("OldAtom", "v", CFGFLAG_SERVER, ConOldAtom, this, "(old) activates atom until death")
-CONSOLE_COMMAND("InfAtom", "v", CFGFLAG_SERVER, ConInfAtom, this, "activates atom until disconnect")
-CONSOLE_COMMAND("OldAutoSpreadGun", "v", CFGFLAG_SERVER, ConOldAutoSpreadGun, this, "activates spread gun until death")
-CONSOLE_COMMAND("InfAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, this, "activates spread gun until disconnect")
-CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
-CONSOLE_COMMAND("InfTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
+// CONSOLE_COMMAND("OldRainbow", "v", CFGFLAG_SERVER, ConOldRainbow, this, "(old) activates rainbow until death")
+CONSOLE_COMMAND("GiveRainbow", "v", CFGFLAG_SERVER, ConInfRainbow, this, "activates rainbow until disconnect")
+CONSOLE_COMMAND("Rainbow", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRainbow, this, "Радужный скин")
+// CONSOLE_COMMAND("OldBloody", "v", CFGFLAG_SERVER, ConOldBloody, this, "(old) activates bloody until death")
+CONSOLE_COMMAND("GiveBloody", "v", CFGFLAG_SERVER, ConInfBloody, this, "activates bloody until disconnect")
+CONSOLE_COMMAND("PullHammer", "v", CFGFLAG_SERVER, ConPullHammer, this, "activates pullhammer")
+// CONSOLE_COMMAND("OldAtom", "v", CFGFLAG_SERVER, ConOldAtom, this, "(old) activates atom until death")
+CONSOLE_COMMAND("GiveAtom", "v", CFGFLAG_SERVER, ConInfAtom, this, "activates atom until disconnect")
+// CONSOLE_COMMAND("OldAutoSpreadGun", "v", CFGFLAG_SERVER, ConOldAutoSpreadGun, this, "activates spread gun until death")
+CONSOLE_COMMAND("GiveAutoSpreadGun", "v", CFGFLAG_SERVER, ConInfAutoSpreadGun, this, "activates spread gun until disconnect")
+// CONSOLE_COMMAND("OldTrail", "v", CFGFLAG_SERVER, ConOldTrail, this, "(old) activates trail until death")
+CONSOLE_COMMAND("GiveTrail", "v", CFGFLAG_SERVER, ConInfTrail, this, "activates trail until disconnect")
+CONSOLE_COMMAND("GiveHomingGrenade", "v", CFGFLAG_SERVER, ConGiveHomingMissile, this, "ebal v rot")
+CONSOLE_COMMAND("HomingGrenade", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConHomingMissile, this, "Самострел")
+CONSOLE_COMMAND("change_nick", "vr", CFGFLAG_SERVER, ConChangeNick, this, "Меняет ник")
+CONSOLE_COMMAND("change_clan", "vr", CFGFLAG_SERVER, ConChangeClan, this, "Меняет клан")
+CONSOLE_COMMAND("kickhammer", "v", CFGFLAG_SERVER, ConKickHammer, this, "Kick Nahui")
+CONSOLE_COMMAND("superhammer", "v", CFGFLAG_SERVER, ConSuperHammer, this, "Kick Nahui")
+CONSOLE_COMMAND("invisible", "v", CFGFLAG_SERVER, ConInvisible, this, "Hui")
 
-CONSOLE_COMMAND("HomingMissile", "v", CFGFLAG_SERVER, ConHomingMissile, this, "toggles homing missile activate/deactive (grenade launcher)")
-
+CONSOLE_COMMAND("say_from", "vr", CFGFLAG_SERVER, ConSayFrom, this, "say from specific id")
 CONSOLE_COMMAND("disarm", "v", CFGFLAG_SERVER, Condisarm, this, "disarm a evil tee to prevent him doing evil stuff :)")
 CONSOLE_COMMAND("dummymode", "vi", CFGFLAG_SERVER, Condummymode, this, "0 default, 23 cb5(racer), 29 cb5(blocker), 103 ctf5, 27 blmapchill(policebot), 32 blmapchill(solo policebot)")
 CONSOLE_COMMAND("dummy_color", "vi", CFGFLAG_SERVER, ConDummyColor, this, "changes the color of a specific dummy")
@@ -34,7 +42,7 @@ CONSOLE_COMMAND("ForceJail", "vi", CFGFLAG_SERVER, ConForceJail, this, "jails pl
 CONSOLE_COMMAND("ninjasteam", "v", CFGFLAG_SERVER, Conninjasteam, this, "activates a awesome NINJASTEAM")
 CONSOLE_COMMAND("hammerfightmode", "v", CFGFLAG_SERVER, ConHammerfightMode, this, "activates hammerfightmode for a player")
 CONSOLE_COMMAND("freezeShotgun", "v", CFGFLAG_SERVER, ConfreezeShotgun, this, "Gives you a freeze Shotgun")
-CONSOLE_COMMAND("Damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
+CONSOLE_COMMAND("damage", "v", CFGFLAG_SERVER, ConDamage, this, "Makes a player vulnerable")
 
 CONSOLE_COMMAND("register_ban", "", CFGFLAG_SERVER, ConRegisterBan, this, "");
 CONSOLE_COMMAND("register_ban_id", "vi", CFGFLAG_SERVER, ConRegisterBanID, this, "");

@@ -1,4 +1,4 @@
-// ddnet++ tile character stuff
+﻿// ddnet++ tile character stuff
 
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
@@ -355,6 +355,49 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		m_WasInRoom = true;
 	}
 
+	if(((m_TileIndex == TILE_MODER_ROOM) || (m_TileFIndex == TILE_MODER_ROOM)))
+	{
+		if(!Server()->GetAuthedState(GetPlayer()->GetCID()))
+		{
+			if(!m_pPlayer->IsLoggedIn() || !m_pPlayer->m_Account.m_IsModerator)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Только для Premium.");
+			}
+		}
+	}
+
+	if(((m_TileIndex == TILE_SUPERMODER_ROOM) || (m_TileFIndex == TILE_SUPERMODER_ROOM)))
+	{
+		if(!Server()->GetAuthedState(GetPlayer()->GetCID()))
+		{
+			if(!m_pPlayer->IsLoggedIn() || !m_pPlayer->m_Account.m_IsSuperModerator)
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_SELF);
+				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Только для Администрации.");
+			}
+		}
+	}
+
+	if(((m_TileIndex == TILE_FLAG_DROP) || (m_TileFIndex == TILE_FLAG_DROP)))
+	{
+		IGameController *ControllerDDrace = GameServer()->m_pController;
+		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0])
+		{
+			if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == this)
+			{
+				((CGameControllerDDRace *)ControllerDDrace)->DropFlag(0, -m_Input.m_Direction); //red
+			}
+		}
+		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1])
+		{
+			if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == this)
+			{
+				((CGameControllerDDRace *)ControllerDDrace)->DropFlag(1, -m_Input.m_Direction); //blue
+			}
+		}
+	}
+
 	if(m_TileIndex == TILE_BLOCK_DM_JOIN || m_TileFIndex == TILE_BLOCK_DM_JOIN)
 	{
 		if(!m_pPlayer->m_IsBlockDeathmatch)
@@ -373,12 +416,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ Банк ~", m_pPlayer->GetCID(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ Банк ~", m_pPlayer->GetCID(), 0);
 			}
 		}
 		m_InBank = true;
@@ -397,12 +440,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ Магазин Ашотика ~", m_pPlayer->GetCID(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ Магазин Ашотика ~", m_pPlayer->GetCID(), 0);
 			}
 		}
 		if(m_EnteredShop)
@@ -410,7 +453,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "%s: Нажми F4 что бы начать разговор.", Server()->ClientName(m_pPlayer->GetCID()));
 				SendShopMessage(aBuf);
 			}
 			m_EnteredShop = false;
@@ -472,6 +515,8 @@ void CCharacter::MoneyTile()
 {
 	if(Server()->Tick() % 50)
 		return;
+	if(Team() != TEAM_FLOCK)
+		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
@@ -506,7 +551,7 @@ void CCharacter::MoneyTile()
 	{
 		if(m_pPlayer->m_xpmsg)
 		{
-			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast("У тебя уже максимальный уровень.", m_pPlayer->GetCID(), 0);
 		}
 		return;
 	}
@@ -601,6 +646,8 @@ void CCharacter::MoneyTile()
 void CCharacter::MoneyTilePolice()
 {
 	if(Server()->Tick() % 50)
+		return;
+	if(Team() != TEAM_FLOCK)
 		return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
@@ -716,6 +763,8 @@ void CCharacter::MoneyTileDouble()
 {
 	if(Server()->Tick() % 50)
 		return;
+	if(Team() != TEAM_FLOCK)
+		return;
 	if(g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
 		GameServer()->SendBroadcast("double moneytiles have been deactivated by an administrator", m_pPlayer->GetCID(), 0);
@@ -823,6 +872,8 @@ void CCharacter::MoneyTileDouble()
 void CCharacter::MoneyTilePlus()
 {
 	if(!m_pPlayer->m_MoneyTilePlus)
+		return;
+	if(Team() != TEAM_FLOCK)
 		return;
 	m_pPlayer->m_MoneyTilePlus = false;
 

@@ -28,13 +28,81 @@ void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 	if(pChr)
 	{
 		pChr->m_freezeShotgun ^= true;
-		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_freezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "freezeShotgun was %s by %s", pChr->m_freezeShotgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConSuperHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+	{
+		pPlayer->m_SuperHammer ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "SuperHammer has been %s for %s", pPlayer->m_SuperHammer ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "SuperHammer was %s by %s", pPlayer->m_SuperHammer ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConKickHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	if(pChr)
+	{
+		pChr->m_KickHammer ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "KickHammer has been %s for %s", pChr->m_KickHammer ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "KickHammer was %s by %s", pChr->m_KickHammer ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConInvisible(IConsole::IResult *pResult, void *pUserData)
+{
+	// pSelf = GameContext()
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	if(pChr)
+	{
+		pChr->m_Invisible ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "KickHammer has been %s for %s", pChr->m_Invisible ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "KickHammer was %s by %s", pChr->m_Invisible ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 }
@@ -234,8 +302,49 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 	int ClientID = pResult->GetVictim();
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
-	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
-		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
+	if(pPlayer)
+		str_copy(pPlayer->newSkin, pResult->GetString(1), sizeof(pPlayer->newSkin));
+}
+
+void CGameContext::ConChangeNick(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+		str_copy(pPlayer->newNickname, pResult->GetString(1), sizeof(pPlayer->newNickname));
+}
+
+void CGameContext::ConChangeClan(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+		str_copy(pPlayer->newClan, pResult->GetString(1), sizeof(pPlayer->newClan));
+}
+
+void CGameContext::ConSayFrom(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer)
+	{
+		pSelf->SendChat(ClientID, CGameContext::CHAT_ALL, pResult->GetString(1));
+	}
 }
 
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
@@ -349,6 +458,26 @@ void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConPullHammer(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	int ClientID = pResult->GetVictim();
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	if(pPlayer && pPlayer->GetCharacter())
+	{
+		pPlayer->GetCharacter()->m_PullHammer ^= true;
+
+		char aBuf[256];
+
+		str_format(aBuf, sizeof(aBuf), "%s пиздатый молот", pPlayer->GetCharacter()->m_PullHammer ? "Вы включили" : "Вы проебали");
 		pSelf->SendChatTarget(ClientID, aBuf);
 	}
 }
@@ -485,7 +614,7 @@ void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserDa
 	}
 }
 
-void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConGiveHomingMissile(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
@@ -504,6 +633,40 @@ void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 
 		str_format(aBuf, sizeof(aBuf), "Homing Missile was %s by %s", pChr->m_HomingMissile ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
 		pSelf->SendChatTarget(ClientID, aBuf);
+	}
+}
+
+void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+		return;
+
+	if(!pPlayer->IsLoggedIn())
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Homing Grenade] Авторизуйся ебланито.");
+		return;
+	}
+
+	if(!pPlayer->m_Account.m_IsModerator)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "[Homing Grenade] Недостаточно прав.");
+		return;
+	}
+
+	CCharacter *pChr = pSelf->GetPlayerChar(pResult->m_ClientID);
+	if(pChr)
+	{
+		pChr->m_HomingMissile ^= true;
+
+		char aBuf[256];
+
+		str_format(aBuf, sizeof(aBuf), "Вы %s самострел", pChr->m_HomingMissile ? "активировали" : "проебали");
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
 	}
 }
 
@@ -1119,4 +1282,37 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 	dbg_msg("SQL", "RCON_API: %s", aSQL);
 #endif
 	pSelf->m_pAccounts->ExecuteSQL(aSQL);
+}
+
+void CGameContext::ConRainbow(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+		return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(pPlayer)
+	{
+		if(!pPlayer->IsLoggedIn())
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[Rainbow] Авторизуйся ебланито.");
+			return;
+		}
+
+		if(!pPlayer->m_Account.m_IsModerator)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientID, "[Rainbow] Недостаточно прав.");
+			return;
+		}
+
+		// pPlayer->m_freezeShotgun ^= true;
+		pPlayer->m_InfRainbow ^= true;
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Rainbow %s для %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+
+		str_format(aBuf, sizeof(aBuf), "Rainbow %s", pPlayer->m_InfRainbow ? "включён" : "выключен");
+		pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+	}
 }

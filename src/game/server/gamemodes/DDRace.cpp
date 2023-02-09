@@ -13,7 +13,7 @@
 #include <game/version.h>
 
 #define GAME_TYPE_NAME "DDraceNetwork"
-#define TEST_TYPE_NAME "TestDDraceNetwork"
+#define TEST_TYPE_NAME "DDNet++"
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer), m_Teams(pGameServer), m_pLoadBestTimeResult(nullptr)
@@ -117,8 +117,11 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	// solo part
 	if(((m_TileIndex == TILE_SOLO_ENABLE) || (m_TileFIndex == TILE_SOLO_ENABLE)) && !m_Teams.m_Core.GetSolo(ClientID))
 	{
-		GameServer()->SendChatTarget(ClientID, "You are now in a solo part");
-		pChr->SetSolo(true);
+		if(m_apFlags[0]->m_pCarryingCharacter != pChr && m_apFlags[1]->m_pCarryingCharacter != pChr)
+		{
+			GameServer()->SendChatTarget(ClientID, "You are now in a solo part");
+			pChr->SetSolo(true);
+		}
 	}
 	else if(((m_TileIndex == TILE_SOLO_DISABLE) || (m_TileFIndex == TILE_SOLO_DISABLE)) && m_Teams.m_Core.GetSolo(ClientID))
 	{
@@ -148,12 +151,12 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		{
 			if(GameServer()->ShowJoinMessage(ClientID))
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "[+] %s", Server()->ClientName(ClientID));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "[+] %s", Server()->ClientName(ClientID));
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
@@ -164,7 +167,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		else
 		{
 			char aWelcome[128];
-			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
+			str_format(aWelcome, sizeof(aWelcome), "" GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSION);
 			GameServer()->SendChatTarget(ClientID, aWelcome);
 		}
 	}

@@ -746,6 +746,7 @@ void CCharacter::DropWeapon(int WeaponID)
 		return;
 	if(m_pPlayer->IsInstagibMinigame())
 		return;
+
 	if(m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
 		return;
 	if(WeaponID == WEAPON_NINJA)
@@ -754,16 +755,17 @@ void CCharacter::DropWeapon(int WeaponID)
 		return;
 	if(WeaponID == WEAPON_GUN && !m_Core.m_Jetpack && !m_autospreadgun && !m_pPlayer->m_InfAutoSpreadGun && !m_pPlayer->m_IsSurvivaling && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 2)
 		return;
-	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		return;
-	if(WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		return;
-	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
-		return;
 
-	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 5)
-		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
-			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
+//	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+//		return;
+//	if(WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+//		return;
+//	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && g_Config.m_SvAllowDroppingWeapons != 1 && g_Config.m_SvAllowDroppingWeapons != 3)
+//		return;
+
+//	if(m_pPlayer->m_vWeaponLimit[WeaponID].size() == 2)
+//		if(m_pPlayer->m_vWeaponLimit[WeaponID][0])
+//			m_pPlayer->m_vWeaponLimit[WeaponID][0]->Reset();
 
 	int m_CountWeapons = 0;
 
@@ -816,7 +818,10 @@ void CCharacter::DropWeapon(int WeaponID)
 		m_pPlayer->m_vWeaponLimit[WeaponID].push_back(Weapon);
 	}
 
-	SetWeaponThatChrHas();
+	if (!SetWeaponThatChrHas())
+	{
+		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Can't set weapon :(");
+	}
 }
 
 void CCharacter::PvPArenaTick()
@@ -1383,7 +1388,7 @@ void CCharacter::DDPP_Tick()
 			{
 				if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 				{
-					SendShopMessage("Bye! Come back if you need something.");
+					SendShopMessage("Ма ас-салама!");
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
 				GameServer()->SendBroadcast("", m_pPlayer->GetCID(), 0);
@@ -1806,7 +1811,10 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	}
 
 	m_pPlayer->UpdateLastToucher(-1);
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
+
+	int Team = Teams()->m_Core.Team(m_Core.m_Id);
+
+	if(Team == TEAM_FLOCK && ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0])
 	{
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[0]->m_pCarryingCharacter == this)
 		{
@@ -1819,7 +1827,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 	}
 
-	if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
+	if(Team == TEAM_FLOCK && ((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1])
 	{
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->m_apFlags[1]->m_pCarryingCharacter == this)
 		{
@@ -3056,16 +3064,20 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 {
 	if(m_freezeShotgun || m_pPlayer->m_IsVanillaWeapons) //freezeshotgun
 	{
-		int ShotSpread = 2;
+		int ShotSpread = 1;
 
 		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(ShotSpread * 2 + 1);
+		Msg.AddInt(ShotSpread);
+
+		float AnglePart = M_PI / g_Config.m_SvFreezeShotgunAngle;
+
 
 		for(int i = -ShotSpread; i <= ShotSpread; ++i)
 		{
-			float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
+			if(i == 0)
+				continue;
 			float a = angle(Direction);
-			a += Spreading[i + 2];
+			a += AnglePart * i;
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
 			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
@@ -3093,7 +3105,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 
 bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 {
-	if(m_ReloadTimer != 0)
+	if(m_ReloadTimer != 0 || m_PullHammer)
 		return false;
 
 	DoWeaponSwitch();
@@ -3133,7 +3145,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	// check for ammo
 	if(!m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo || m_FreezeTime)
 	{
-		if(m_pPlayer->m_IsVanillaWeapons)
+	    if(m_pPlayer->m_IsVanillaWeapons)
 		{
 			// 125ms is a magical limit of how fast a human can click
 			m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
@@ -3313,7 +3325,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 	/*if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0) // -1 == unlimited
 		m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo--;*/
 
-	if(!m_ReloadTimer && !IsDDNetPPHit)
+	if(!m_ReloadTimer)
 	{
 		float FireDelay;
 		if(!m_TuneZone)

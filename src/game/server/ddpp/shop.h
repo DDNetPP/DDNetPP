@@ -225,6 +225,35 @@ public:
 	virtual bool Buy(int ClientID) override;
 };
 
+class CShopItemGrenade : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+class CShopItemShotgun : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+class CShopItemLaser : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+class CShopItemSuperHammer : public CShopItem
+{
+public:
+	using CShopItem::CShopItem;
+
+	virtual bool Buy(int ClientID) override;
+};
+
 class CShop
 {
 	CGameContext *m_pGameContext;

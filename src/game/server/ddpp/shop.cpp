@@ -1,4 +1,4 @@
-/* DDNet++ shop */
+﻿/* DDNet++ shop */
 
 #include "../gamecontext.h"
 
@@ -85,12 +85,11 @@ const char *CShopItem::Title()
 const char *CShopItem::OwnUntilLong()
 {
 	if(!str_comp(m_aOwnUntil, "dead"))
-		return "You own this item until you die";
+		return "Пока не сдохнешь";
 	if(!str_comp(m_aOwnUntil, "disconnect"))
-		return "You own this item until\n"
-		       "   you disconnect";
+		return "Пока не ливнешь\n";
 	if(!str_comp(m_aOwnUntil, "forever"))
-		return "You own this item forever";
+		return "Навсегда";
 	return "";
 }
 
@@ -102,13 +101,13 @@ bool CShopItem::CanBuy(int ClientID)
 	char aBuf[128];
 	if(pPlayer->GetLevel() < NeededLevel(ClientID))
 	{
-		str_format(aBuf, sizeof(aBuf), "You need to be Level %d to buy '%s'", NeededLevel(ClientID), Name());
+		str_format(aBuf, sizeof(aBuf), "Тебе нужен %d уровень что бы купить '%s'", NeededLevel(ClientID), Name());
 		GameServer()->SendChatTarget(ClientID, aBuf);
 		return false;
 	}
 	if(pPlayer->m_Account.m_Money < Price(ClientID))
 	{
-		str_format(aBuf, sizeof(aBuf), "You don't have enough money! You need %s money.", PriceStr(ClientID));
+		str_format(aBuf, sizeof(aBuf), "У тебя недостаточно средств! Твой баланс %s.", PriceStr(ClientID));
 		GameServer()->SendChatTarget(ClientID, aBuf);
 		return false;
 	}
@@ -137,113 +136,36 @@ IServer *CShop::Server()
 
 void CShop::OnInit()
 {
-	m_vItems.push_back(new CShopItemRainbow(
-		"rainbow",
-		"1 500",
-		5,
-		"Rainbow will make your tee change the color very fast.",
-		"dead",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemBloody(
-		"bloody",
-		"3 500",
-		15,
-		"Bloody will give your tee a permanent kill effect.",
-		"dead",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemChidraqul(
-		"chidraqul",
-		"250",
-		2,
-		"Chidraqul is a minigame by ChillerDragon.\n"
-		"More information about this game coming soon.",
-		"disconnect",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemShit(
-		"shit",
-		"5",
-		0,
-		"Shit is a fun item. You can use to '/poop' on other players.\n"
-		"You can also see your shit amount in your '/profile'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemRoomKey(
-		"room_key",
-		g_Config.m_SvRoomPrice,
-		16,
-		"If you have the room key you can enter the bank room.\n"
-		"It's under the spawn and there is a money tile.",
-		"disconnect",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemPolice(
-		"police",
-		"100 000",
-		18,
-		"Police officers get help from the police bot.\n"
-		"For more information about the specific police ranks\n"
-		"please visit '/policeinfo'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemTaser(
-		"taser",
-		"50 000",
-		-1,
-		"Taser replaces your unfreeze rifle with a rifle that freezes\n"
-		"other tees. You can toggle it using '/taser <on/off>'.\n"
-		"For more information about the taser and your taser stats,\n"
-		"plase visit '/taser info'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemPvpArenaTicket(
-		"pvp_arena_ticket",
-		"150",
-		0,
-		"You can join the pvp arena using '/pvp_arena join' if you have a ticket.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemNinjaJetpack(
-		"ninjajetpack",
+	m_vItems.push_back(new CShopItemSuperHammer(
+		"SuperHammer",
 		"10 000",
-		21,
-		"It will make your jetpack gun be a ninja.\n"
-		"Toggle it using '/ninjajetpack'.",
-		"forever",
+		50,
+		"Ну очень пиздатый молот.",
+		"disconnect",
 		m_pGameContext));
-	m_vItems.push_back(new CShopItemSpawnShotgun(
-		"spawn_shotgun",
-		"600 000",
-		33,
-		"You will have shotgun if you respawn.\n"
-		"For more information about spawn weapons,\n"
-		"please visit '/spawnweaponsinfo'.",
-		"forever",
+
+	m_vItems.push_back(new CShopItemGrenade(
+		"Grenade",
+		"1 000",
+		15,
+		"Выдаёт Grenade прямо тебе в руки.",
+		"dead",
 		m_pGameContext));
-	m_vItems.push_back(new CShopItemSpawnGrenade(
-		"spawn_grenade",
-		"600 000",
-		33,
-		"You will have grenade if you respawn.\n"
-		"For more information about spawn weapons,\n"
-		"please visit '/spawnweaponsinfo'.",
-		"forever",
+
+	m_vItems.push_back(new CShopItemShotgun(
+		"Shotgun",
+		"1 000",
+		15,
+		"Выдаёт Shotgun прямо тебе в руки.",
+		"dead",
 		m_pGameContext));
-	m_vItems.push_back(new CShopItemSpawnRifle(
-		"spawn_rifle",
-		"600 000",
-		33,
-		"You will have rifle if you respawn.\n"
-		"For more information about spawn weapons,\n"
-		"please visit '/spawnweaponsinfo'.",
-		"forever",
-		m_pGameContext));
-	m_vItems.push_back(new CShopItemSpookyGhost(
-		"spooky_ghost",
-		"1 000 000",
-		1,
-		"Using this item you can hide from other players behind bushes.\n"
-		"If your ghost is activated you will be able to shoot plasma\n"
-		"projectiles. For more information please visit '/spookyghostinfo'.",
-		"forever",
+
+	m_vItems.push_back(new CShopItemLaser(
+		"Laser",
+		"1 000",
+		15,
+		"Выдаёт Laser прямо тебе в руки.",
+		"dead",
 		m_pGameContext));
 }
 
@@ -374,7 +296,7 @@ bool CShopItemTaser::Buy(int ClientID)
 		return false;
 	if(pPlayer->m_Account.m_TaserLevel > 6)
 	{
-		GameServer()->SendChatTarget(ClientID, "Taser already max level.");
+		GameServer()->SendChatTarget(ClientID, "Шокер уже максимального уровня.");
 		return false;
 	}
 	if(pPlayer->m_Account.m_PoliceRank < NeededPoliceRank(ClientID))
@@ -388,7 +310,7 @@ bool CShopItemTaser::Buy(int ClientID)
 	if(pPlayer->m_Account.m_TaserLevel == 1)
 		GameServer()->SendChatTarget(ClientID, "Type '/taser help' for all cmds");
 	else
-		GameServer()->SendChatTarget(ClientID, "Taser has been upgraded.");
+		GameServer()->SendChatTarget(ClientID, "Вы прокачали Шокер.");
 	return true;
 }
 
@@ -535,6 +457,70 @@ bool CShopItemSpookyGhost::Buy(int ClientID)
 	return true;
 }
 
+bool CShopItemGrenade::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_GRENADE].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Grenade.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_GRENADE, false);
+	return true;
+}
+
+bool CShopItemSuperHammer::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->m_SuperHammer)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть ну очень пиздатый молот.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->m_SuperHammer = true;
+	return true;
+}
+
+bool CShopItemShotgun::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_SHOTGUN].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Shotgun.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_SHOTGUN, false);
+	return true;
+}
+
+bool CShopItemLaser::Buy(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	if(pPlayer->GetCharacter()->Core()->m_aWeapons[WEAPON_LASER].m_Got)
+	{
+		GameServer()->SendChatTarget(ClientID, "У тебя уже есть Laser.");
+		return false;
+	}
+	if(!CShopItem::Buy(ClientID))
+		return false;
+	pPlayer->GetCharacter()->GiveWeapon(WEAPON_LASER, false);
+	return true;
+}
+
 CShop::CShop(CGameContext *pGameContext)
 {
 	m_pGameContext = pGameContext;
@@ -655,12 +641,12 @@ void CShop::ConfirmPurchase(int ClientID)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf),
-		"***************************\n"
-		"        ~  S H O P  ~      \n"
-		"***************************\n\n"
-		"Are you sure you want to buy this item?\n\n"
-		"f3 - yes\n"
-		"f4 - no\n\n"
+		"************************************\n"
+		"        ~  Магазин Ашотика  ~      \n"
+		"************************************\n\n"
+		"Ты точно хочешь купить эту хуйню?\n\n"
+		"f3 - Да\n"
+		"f4 - Нет\n\n"
 		"***************************\n");
 
 	m_pGameContext->AbuseMotd(aBuf, ClientID);
@@ -678,9 +664,9 @@ void CShop::PurchaseEnd(int ClientID, bool IsCancel)
 		char aBuf[256];
 		str_format(aResult, sizeof(aResult), "You canceled the purchase.");
 		str_format(aBuf, sizeof(aBuf),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
 			"%s\n\n"
 			"***************************\n",
 			aResult);
@@ -774,16 +760,14 @@ void CShop::ShopWindow(int Dir, int ClientID)
 	if(m_Page[ClientID] == 0)
 	{
 		str_copy(aMotd,
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
-			"Welcome to the shop! If you need help, use '/shop help'.\n\n"
-			"By shooting to the right you go one site forward,\n"
-			"and by shooting left you go one site backwards.\n\n"
-			"If you need more help, visit '/shop help'."
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
+			"Ас-саляму алейкум брат мой!\n\n"
+			"Для того что бы переключаться между товарами, стреляй вправо или влево\n"
 			"\n\n"
 			"***************************\n"
-			"If you want to buy an item press f3.",
+			"Купить предмет - F3.",
 			sizeof(aMotd));
 		m_pGameContext->AbuseMotd(aMotd, ClientID);
 		return;
@@ -797,16 +781,16 @@ void CShop::ShopWindow(int Dir, int ClientID)
 			continue;
 
 		str_format(aMotd, sizeof(aMotd),
-			"***************************\n"
-			"        ~  S H O P  ~      \n"
-			"***************************\n\n"
+			"************************************\n"
+			"        ~  Магазин Ашотика  ~      \n"
+			"************************************\n\n"
 			"%s\n\n"
-			"Needed level: %s\n"
-			"Price: %s\n"
-			"Time: %s\n\n"
+			"Уровень: %s\n"
+			"Цена: %s\n"
+			"Срок: %s\n\n"
 			"%s\n\n"
 			"***************************\n"
-			"If you want to buy an item press f3.\n\n\n"
+			"Купить - F3.\n\n\n"
 			"              ~ %d/%d ~              ",
 			Item->Title(),
 			Item->NeededLevelStr(ClientID),

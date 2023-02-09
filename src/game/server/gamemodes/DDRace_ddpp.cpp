@@ -95,6 +95,12 @@ void CGameControllerDDRace::FlagTick()
 					}
 				}
 
+				int Team = apCloseCCharacters[i]->Teams()->m_Core.Team(apCloseCCharacters[i]->GetPlayer()->GetCID());
+				if(Team != TEAM_FLOCK)
+					continue;
+				if(apCloseCCharacters[i]->Core()->m_Solo)
+					continue;
+
 				// take the flag
 				if(F->m_AtStand)
 				{
@@ -133,7 +139,7 @@ void CGameControllerDDRace::FlagTick()
 			}
 		}
 
-		if(!F->m_AtStand)
+		if(!F->m_AtStand && !F->m_pCarryingCharacter)
 		{
 			if(F->m_DropTick && Server()->Tick() > F->m_DropTick + Server()->TickSpeed() * 90)
 			{

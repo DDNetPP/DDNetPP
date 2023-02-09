@@ -32,7 +32,7 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientID)
 		if(!str_comp("usage", pStr))
 			return "Используй";
 		if(!str_comp("itemname", pStr))
-			return "предмет";
+			return "Предмет";
 		if(!str_comp("Item", pStr))
 			return "Предмет";
 		if(!str_comp("Price", pStr))
@@ -40,9 +40,9 @@ const char *CLoc::DDPPLocalize(const char *pStr, int ClientID)
 		if(!str_comp("Level", pStr))
 			return "Уровень";
 		if(!str_comp("Owned until", pStr))
-			return "Срок";
+			return "Действует";
 		if(!str_comp("Level", pStr))
-			return "nУровень";
+			return "Уровень";
 		if(!str_comp("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", pStr))
 			return "Tебе нужно войти в аккаунт. \nИспользуй '/register' или '/login'";
 	}

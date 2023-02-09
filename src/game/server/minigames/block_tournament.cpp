@@ -1,4 +1,4 @@
-// gamecontext scoped balance ddnet++ methods
+﻿// gamecontext scoped balance ddnet++ methods
 
 #include <engine/shared/config.h>
 #include <game/server/gamecontroller.h>
@@ -34,6 +34,7 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 		return;
 
 	pPlayer->m_IsBlockTourning = false;
+	pPlayer->m_IsBlockTourningInArena = false;
 	m_aRestorePos[pPlayer->GetCID()] = true;
 }
 
@@ -78,12 +79,12 @@ void CBlockTournament::StartRound()
 {
 	if(State() != STATE_OFF)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block Tournament уже начат.");
 		return;
 	}
 	if(g_Config.m_SvAllowBlockTourna == 0)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block Tournament выключен.");
 		return;
 	}
 
@@ -143,7 +144,7 @@ vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
 			if(Spawn != vec2(-1, -1))
 				return Spawn;
 		}
-		SendChatAll("[EVENT] No block tournament arena found.");
+		SendChatAll("[EVENT] Ошибка: не найдена арена.");
 		EndRound();
 	}
 	return Spawn;
@@ -215,7 +216,7 @@ void CBlockTournament::Tick()
 					}
 				}
 			}
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
+			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Время вышло!");
 			m_State = STATE_OFF;
 		}
 	}
@@ -231,25 +232,25 @@ void CBlockTournament::Tick()
 			}
 			str_format(aBuf,
 				sizeof(aBuf),
-				"[EVENT] BLOCK IN %d SECONDS\n"
-				"[%d/%d] '/join'ed already",
+				"Block Tournament через %d секунд\n"
+				"[Участников: %d] /join чтобы войти",
 				m_LobbyTick / Server()->TickSpeed(),
 				blockers,
 				g_Config.m_SvBlockTournaPlayers);
 			GameServer()->SendBroadcastAll(aBuf, 2);
 		}
-
+		
 		if(m_LobbyTick < 0)
 		{
 			m_StartPlayers = CountAlive();
 			if(m_StartPlayers < g_Config.m_SvBlockTournaPlayers) //minimum x players needed to start a tourna
 			{
-				GameServer()->SendBroadcastAll("[EVENT] Block tournament failed! Not enough players.", 2);
+				GameServer()->SendBroadcastAll("[EVENT] Ошибка! Недостаточно игроков.", 2);
 				EndRound();
 				return;
 			}
 
-			GameServer()->SendBroadcastAll("[EVENT] Block tournament started!", 2);
+			GameServer()->SendBroadcastAll("[EVENT] Приготовтесь!", 2);
 			m_State = STATE_COOLDOWN;
 			m_Tick = 0;
 			m_CoolDown = BLOCKTOURNAMENT_COOLDOWN * Server()->TickSpeed();
@@ -270,7 +271,7 @@ void CBlockTournament::Tick()
 		m_CoolDown--;
 		if(m_CoolDown % Server()->TickSpeed() == 0)
 		{
-			str_format(aBuf, sizeof(aBuf), "Start in %d", m_CoolDown / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "Начало через %d", m_CoolDown / Server()->TickSpeed());
 			SendBroadcastAll(aBuf);
 		}
 		if(m_CoolDown < 0)
@@ -413,7 +414,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 
 	if(wonID == -404)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+		str_format(aBuf, sizeof(aBuf), "[BT] Ошибка: %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
@@ -422,7 +423,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		if(wonID == -420)
 			wonID = 0;
 		wonID *= -1;
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), m_StartPlayers);
+		str_format(aBuf, sizeof(aBuf), "[BT] '%s' выиграл.", Server()->ClientName(wonID), m_StartPlayers);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_ENDING; //set end state
 
@@ -436,69 +437,70 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 			xp_rew = 200;
 			points_rew = 3;
 			money_rew = 100;
-			skill_rew = 10;
+			skill_rew = 5;
 		}
 		else if(m_StartPlayers <= 10)
 		{
 			xp_rew = 500;
 			points_rew = 5;
 			money_rew = 500;
-			skill_rew = 20;
+			skill_rew = 10;
 		}
 		else if(m_StartPlayers <= 15)
 		{
-			xp_rew = 3000;
+			xp_rew = 1000;
 			points_rew = 10;
 			money_rew = 1000;
-			skill_rew = 30;
+			skill_rew = 15;
 		}
 		else if(m_StartPlayers <= 32)
 		{
-			xp_rew = 5000;
+			xp_rew = 2000;
 			points_rew = 25;
-			money_rew = 2000;
-			skill_rew = 120;
+			money_rew = 1500;
+			skill_rew = 30;
 		}
 		else if(m_StartPlayers <= 44)
 		{
-			xp_rew = 20000;
+			xp_rew = 3000;
 			points_rew = 30;
-			money_rew = 10000;
-			skill_rew = 400;
+			money_rew = 3000;
+			skill_rew = 50;
 		}
 		else
 		{
-			xp_rew = 25000;
+			xp_rew = 5000;
 			points_rew = 100;
-			money_rew = 50000;
-			skill_rew = 900;
+			money_rew = 4999;
+			skill_rew = 80;
 		}
 
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", xp_rew);
+		str_format(aBuf, sizeof(aBuf), "[BT] +%d XP", xp_rew);
 		GameServer()->SendChatTarget(wonID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", money_rew);
+		str_format(aBuf, sizeof(aBuf), "[BT] +%d Баблишка", money_rew);
 		GameServer()->SendChatTarget(wonID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
+		str_format(aBuf, sizeof(aBuf), "[BT] +%d Поинтов", points_rew);
 		GameServer()->SendChatTarget(wonID, aBuf);
 
-		GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "block tournament");
+		GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "Block Tournament");
 		GameServer()->m_apPlayers[wonID]->GiveXP(xp_rew);
 		GameServer()->m_apPlayers[wonID]->GiveBlockPoints(points_rew);
+		GameServer()->m_apPlayers[wonID]->m_IsBlockTourningInArena = false;
 		GameServer()->UpdateBlockSkill(+skill_rew, wonID);
 	}
 	else if(wonID == 0)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
+		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BT] nobody won the tournament");
 		m_State = STATE_OFF;
 	}
 	else if(wonID > 1)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID + 1);
+		str_format(aBuf, sizeof(aBuf), "[BT] Ты сдох и занял %d место.", wonID + 1);
 		GameServer()->SendChatTarget(pPlayer->GetCID(), aBuf);
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+		str_format(aBuf, sizeof(aBuf), "[BT] Ошибка: %d", wonID);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_OFF;
 	}

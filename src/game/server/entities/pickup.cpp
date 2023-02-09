@@ -216,6 +216,9 @@ void CPickup::Snap(int SnappingClient)
 		return;
 	//--end4 uncommented for m_IsVanillaWeapons --
 
+	if(m_Type == POWERUP_ARMOR)
+		return;
+
 	CCharacter *pChar = GameServer()->GetPlayerChar(SnappingClient);
 
 	if(SnappingClient != SERVER_DEMO_CLIENT && (GameServer()->m_apPlayers[SnappingClient]->GetTeam() == TEAM_SPECTATORS || GameServer()->m_apPlayers[SnappingClient]->IsPaused()) && GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID != SPEC_FREEVIEW)

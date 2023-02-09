@@ -123,6 +123,10 @@ public:
 	//zCatch ChillerDragon
 	int m_aCatchedID[64];
 
+	char newClan[MAX_CLAN_LENGTH];
+	char newSkin[64];
+	char newNickname[MAX_NAME_LENGTH];
+
 	//###########
 	//minigames
 	//###########
@@ -447,6 +451,7 @@ public:
 	bool m_escape_plan_b;
 	bool m_escape_plan_c;
 	bool m_BoughtRoom;
+	bool m_SuperHammer;
 	int m_aliveplusxp;
 	bool m_MoneyTilePlus;
 	bool m_fake_admin;

@@ -1660,9 +1660,22 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			{
 				if(GameServer()->PlayerExists(ClientID))
 				{
-					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "ClientID=%d rcon='%s'", ClientID, pCmd);
-					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+					bool PrintCommand = true;
+					if(str_comp_nocase(pCmd, "up") > 0)
+						PrintCommand = false;
+					if(str_comp_nocase(pCmd, "down") > 0)
+						PrintCommand = false;
+					if(str_comp_nocase(pCmd, "right") > 0)
+						PrintCommand = false;
+					if(str_comp_nocase(pCmd, "left") > 0)
+						PrintCommand = false;
+
+					if(PrintCommand)
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "ClientID=%d rcon='%s'", ClientID, pCmd);
+						Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+					}
 					m_RconClientID = ClientID;
 					m_RconAuthLevel = m_aClients[ClientID].m_Authed;
 					Console()->SetAccessLevel(m_aClients[ClientID].m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : m_aClients[ClientID].m_Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : m_aClients[ClientID].m_Authed == AUTHED_HELPER ? IConsole::ACCESS_LEVEL_HELPER : IConsole::ACCESS_LEVEL_USER);

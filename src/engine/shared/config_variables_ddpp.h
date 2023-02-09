@@ -1,4 +1,4 @@
-/*************************************
+﻿/*************************************
 *                                    *
 *             DDNet++                *
 *                                    *
@@ -17,6 +17,10 @@
 #endif
 
 MACRO_CONFIG_INT(SvOffDDPP, sv_off_ddpp, 0, 0, 1, CFGFLAG_SERVER, "Turn off as many ddnet++ features as possible (aiming to run vanilla ddnet)")
+
+// DDPP
+MACRO_CONFIG_STR(SvKickHammerReason, sv_kickhammer_reason, 64, "Нахуй иди", CFGFLAG_SERVER, "Reason")
+MACRO_CONFIG_INT(SvSuperHammerStrength, sv_shs, 1, 0, 9999, CFGFLAG_SERVER, "")
 
 // vanilla modes
 MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")
@@ -238,6 +242,7 @@ MACRO_CONFIG_INT(SvCaptchaScore, sv_captcha_score, 3, 1, 10, CFGFLAG_SERVER, "ho
 MACRO_CONFIG_INT(SvRegisterHumanLevel, sv_register_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use register command")
 MACRO_CONFIG_INT(SvLoginHumanLevel, sv_login_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use login command")
 MACRO_CONFIG_INT(SvChatHumanLevel, sv_chat_human_level, 0, 0, 9, CFGFLAG_SERVER, "mimum human level to use the chat")
+MACRO_CONFIG_INT(SvChatAuthRequired, sv_chat_auth_required, 1, 0, 1, CFGFLAG_SERVER, "is authorization required to use the chat")
 MACRO_CONFIG_INT(SvMaxRegisterPerIp, sv_max_register_per_ip, 2, 1, 10, CFGFLAG_SERVER, "how many accounts one ip can register before getting rate limited")
 MACRO_CONFIG_INT(SvMaxLoginPerIp, sv_max_login_per_ip, 12, 4, 128, CFGFLAG_SERVER, "failed login attempts before getting rate limited (after 3 for 1min anyways)")
 MACRO_CONFIG_INT(SvMaxNameChangesPerIp, sv_max_namechanges_per_ip, 2, 1, 120, CFGFLAG_SERVER, "how many times one ip can change the name (hourly) before the msg gets hidden")
@@ -250,4 +255,7 @@ MACRO_CONFIG_INT(SvRconAttemptReport, sv_rcon_attempt_report, 3, 1, 9000, CFGFLA
 //MACRO_CONFIG_INT(SvFilterLogState, sv_filter_log_state, 0, 0, 1, CFGFLAG_SERVER, "0=off 1=only filter 2=exclude filter   (filter is sv_filter_log_str)")
 //MACRO_CONFIG_STR(SvFilterLogString, sv_filter_log_str, 256, "", CFGFLAG_SERVER, "Is used to filter the server log depending on sv_filter_log_state")
 
+MACRO_CONFIG_INT(SvKrxBanTime, sv_krx_ban_time, 86400, 60, 999999, CFGFLAG_SERVER, "Time in seconds to auto ban for krx whisper spam")
+
+MACRO_CONFIG_INT(SvFreezeShotgunAngle, sv_freezeshotgun_angle, 70, 2, 180, CFGFLAG_SERVER, "allow users to play chidraqul")
 #endif
