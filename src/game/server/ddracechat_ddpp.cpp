@@ -2399,6 +2399,14 @@ void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData) //this c
 		return;
 	}
 
+	CGameControllerDDRace *pController = (CGameControllerDDRace *)pSelf->m_pController;
+	int Team = pController->m_Teams.m_Core.Team(pResult->m_ClientID);
+	if(Team != TEAM_FLOCK)
+	{
+		pSelf->SendChatTarget(pResult->m_ClientID, "No!");
+		return;
+	}
+
 	/***********************************
 	*                                  *
 	*          BLOCK TOURNAMENT        *
