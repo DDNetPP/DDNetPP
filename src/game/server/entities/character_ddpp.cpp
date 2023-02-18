@@ -542,13 +542,14 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			// do damage Hit sound
 			if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 			{
-				int64_t Mask = CmaskOne(From);
-				for(int i = 0; i < MAX_CLIENTS; i++)
-				{
-					if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-						Mask |= CmaskOne(i);
-				}
-				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+				// int64_t Mask = CmaskOne(From);
+				// for(int i = 0; i < MAX_CLIENTS; i++)
+				// {
+				// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+				// 		Mask |= CmaskOne(i);
+				// }
+				// TODO: this was done to fix build after merge and is untested
+				GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, TeamMask());
 			}
 
 			//if zCatch mode --> move to spec
@@ -1928,13 +1929,15 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		// do damage Hit sound
 		if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
-			int64_t Mask = CmaskOne(From);
-			for(int i = 0; i < MAX_CLIENTS; i++)
-			{
-				if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-					Mask |= CmaskOne(i);
-			}
-			GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+			// int64_t Mask = CmaskOne(From);
+			// for(int i = 0; i < MAX_CLIENTS; i++)
+			// {
+			// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+			// 		Mask |= CmaskOne(i);
+			// }
+			// GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
+			// TODO: this was done to fix build after merge and is untested
+			GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, TeamMask());
 		}
 
 		// check for death
