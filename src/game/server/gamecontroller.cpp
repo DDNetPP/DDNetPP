@@ -650,7 +650,7 @@ bool IGameController::IsTeamplay() const
 
 void IGameController::Snap(int SnappingClient)
 {
-	CNetObj_GameInfo *pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
+	CNetObj_GameInfo *pGameInfoObj = Server()->SnapNewItem<CNetObj_GameInfo>(0);
 	if(!pGameInfoObj)
 		return;
 
@@ -712,7 +712,7 @@ void IGameController::Snap(int SnappingClient)
 	else
 		pGameInfoObj->m_ScoreLimit = 0;
 
-	CNetObj_GameInfoEx *pGameInfoEx = (CNetObj_GameInfoEx *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFOEX, 0, sizeof(CNetObj_GameInfoEx));
+	CNetObj_GameInfoEx *pGameInfoEx = Server()->SnapNewItem<CNetObj_GameInfoEx>(0);
 	if(!pGameInfoEx)
 		return;
 
@@ -744,7 +744,7 @@ void IGameController::Snap(int SnappingClient)
 
 	if(Server()->IsSixup(SnappingClient))
 	{
-		protocol7::CNetObj_GameData *pGameData = static_cast<protocol7::CNetObj_GameData *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATA, 0, sizeof(protocol7::CNetObj_GameData)));
+		protocol7::CNetObj_GameData *pGameData = Server()->SnapNewItem<protocol7::CNetObj_GameData>(0);
 		if(!pGameData)
 			return;
 
@@ -759,7 +759,7 @@ void IGameController::Snap(int SnappingClient)
 
 		pGameData->m_GameStateEndTick = 0;
 
-		protocol7::CNetObj_GameDataRace *pRaceData = static_cast<protocol7::CNetObj_GameDataRace *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATARACE, 0, sizeof(protocol7::CNetObj_GameDataRace)));
+		protocol7::CNetObj_GameDataRace *pRaceData = Server()->SnapNewItem<protocol7::CNetObj_GameDataRace>(0);
 		if(!pRaceData)
 			return;
 
@@ -778,7 +778,7 @@ void IGameController::Snap(int SnappingClient)
 		if(Team == TEAM_SUPER)
 			return;
 
-		CNetObj_SwitchState *pSwitchState = static_cast<CNetObj_SwitchState *>(Server()->SnapNewItem(NETOBJTYPE_SWITCHSTATE, Team, sizeof(CNetObj_SwitchState)));
+		CNetObj_SwitchState *pSwitchState = Server()->SnapNewItem<CNetObj_SwitchState>(Team);
 		if(!pSwitchState)
 			return;
 
@@ -796,7 +796,7 @@ void IGameController::Snap(int SnappingClient)
 			if(EndTick > 0 && EndTick < Server()->Tick() + 3 * Server()->TickSpeed() && GameServer()->Switchers()[i].m_aLastUpdateTick[Team] < Server()->Tick())
 			{
 				// only keep track of EndTicks that have less than three second left and are not currently being updated by a player being present on a switch tile, to limit how often these are sent
-				vEndTicks.emplace_back(std::pair<int, int>(GameServer()->Switchers()[i].m_aEndTick[Team], i));
+				vEndTicks.emplace_back(GameServer()->Switchers()[i].m_aEndTick[Team], i);
 			}
 		}
 
@@ -913,10 +913,10 @@ int IGameController::ClampTeam(int Team)
 	return 0;
 }
 
-int64_t IGameController::GetMaskForPlayerWorldEvent(int Asker, int ExceptID)
+CClientMask IGameController::GetMaskForPlayerWorldEvent(int Asker, int ExceptID)
 {
 	// Send all world events to everyone by default
-	return CmaskAllExceptOne(ExceptID);
+	return CClientMask().set().reset(ExceptID);
 }
 
 void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)

@@ -3,7 +3,7 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_VERSION})
 endif()
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE INTERNAL "")
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE INTERNAL "Minimum macOS deployment version")
 if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.13)
   message(WARNING "Building for macOS < 10.13 is not supported")
 endif()
@@ -1969,6 +1969,7 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   packer.cpp
   packer.h
   protocol.h
+  protocol7.h
   protocol_ex.cpp
   protocol_ex.h
   protocol_ex_msgs.h

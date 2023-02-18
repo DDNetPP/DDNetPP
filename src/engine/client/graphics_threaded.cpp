@@ -831,25 +831,26 @@ bool CGraphics_Threaded::ScreenshotDirect()
 
 	if(Image.m_pData)
 	{
-		// find filename
-		char aWholePath[1024];
+		char aWholePath[IO_MAX_PATH_LENGTH];
+		char aBuf[64 + IO_MAX_PATH_LENGTH];
 
 		IOHANDLE File = m_pStorage->OpenFile(m_aScreenshotName, IOFLAG_WRITE, IStorage::TYPE_SAVE, aWholePath, sizeof(aWholePath));
 		if(File)
 		{
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "saved screenshot to '%s'", aWholePath);
-
-			// save png
-			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ColorRGBA{1.0f, 0.6f, 0.3f, 1.0f});
-
 			TImageByteBuffer ByteBuffer;
 			SImageByteBuffer ImageByteBuffer(&ByteBuffer);
 
 			if(SavePNG(IMAGE_FORMAT_RGBA, (const uint8_t *)Image.m_pData, ImageByteBuffer, Image.m_Width, Image.m_Height))
 				io_write(File, &ByteBuffer.front(), ByteBuffer.size());
 			io_close(File);
+
+			str_format(aBuf, sizeof(aBuf), "saved screenshot to '%s'", aWholePath);
 		}
+		else
+		{
+			str_format(aBuf, sizeof(aBuf), "failed to save screenshot to '%s'", aWholePath);
+		}
+		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "client", aBuf, ColorRGBA(1.0f, 0.6f, 0.3f, 1.0f));
 
 		free(Image.m_pData);
 	}
@@ -1946,23 +1947,27 @@ int CGraphics_Threaded::QuadContainerAddQuads(int ContainerIndex, CFreeformItem 
 
 void CGraphics_Threaded::QuadContainerReset(int ContainerIndex)
 {
+	if(ContainerIndex == -1)
+		return;
+
 	SQuadContainer &Container = m_vQuadContainers[ContainerIndex];
 	if(IsQuadContainerBufferingEnabled())
-	{
-		if(Container.m_QuadBufferContainerIndex != -1)
-			DeleteBufferContainer(Container.m_QuadBufferContainerIndex, true);
-	}
+		DeleteBufferContainer(Container.m_QuadBufferContainerIndex, true);
 	Container.m_vQuads.clear();
-	Container.m_QuadBufferContainerIndex = Container.m_QuadBufferObjectIndex = -1;
+	Container.m_QuadBufferObjectIndex = -1;
 }
 
-void CGraphics_Threaded::DeleteQuadContainer(int ContainerIndex)
+void CGraphics_Threaded::DeleteQuadContainer(int &ContainerIndex)
 {
+	if(ContainerIndex == -1)
+		return;
+
 	QuadContainerReset(ContainerIndex);
 
 	// also clear the container index
 	m_vQuadContainers[ContainerIndex].m_FreeIndex = m_FirstFreeQuadContainer;
 	m_FirstFreeQuadContainer = ContainerIndex;
+	ContainerIndex = -1;
 }
 
 void CGraphics_Threaded::RenderQuadContainer(int ContainerIndex, int QuadDrawNum)
@@ -2533,10 +2538,11 @@ int CGraphics_Threaded::CreateBufferContainer(SBufferContainerInfo *pContainerIn
 	return Index;
 }
 
-void CGraphics_Threaded::DeleteBufferContainer(int ContainerIndex, bool DestroyAllBO)
+void CGraphics_Threaded::DeleteBufferContainer(int &ContainerIndex, bool DestroyAllBO)
 {
 	if(ContainerIndex == -1)
 		return;
+
 	CCommandBuffer::SCommand_DeleteBufferContainer Cmd;
 	Cmd.m_BufferContainerIndex = ContainerIndex;
 	Cmd.m_DestroyAllBO = DestroyAllBO;
@@ -2563,6 +2569,7 @@ void CGraphics_Threaded::DeleteBufferContainer(int ContainerIndex, bool DestroyA
 	// also clear the buffer object index
 	m_vVertexArrayInfo[ContainerIndex].m_FreeIndex = m_FirstFreeVertexArrayInfo;
 	m_FirstFreeVertexArrayInfo = ContainerIndex;
+	ContainerIndex = -1;
 }
 
 void CGraphics_Threaded::UpdateBufferContainerInternal(int ContainerIndex, SBufferContainerInfo *pContainerInfo)

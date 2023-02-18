@@ -244,7 +244,7 @@ void CGameContext::FillAntibot(CAntibotRoundData *pData)
 	}
 }
 
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Mask)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMask Mask)
 {
 	float a = 3 * pi / 2 + Angle;
 	//float a = get_angle(dir);
@@ -253,7 +253,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Ma
 	for(int i = 0; i < Amount; i++)
 	{
 		float f = mix(s, e, (i + 1) / (float)(Amount + 2));
-		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd), Mask);
+		CNetEvent_DamageInd *pEvent = m_Events.Create<CNetEvent_DamageInd>(Mask);
 		if(pEvent)
 		{
 			pEvent->m_X = (int)Pos.x;
@@ -263,10 +263,10 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64_t Ma
 	}
 }
 
-void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
+void CGameContext::CreateHammerHit(vec2 Pos, CClientMask Mask)
 {
 	// create the event
-	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
+	CNetEvent_HammerHit *pEvent = m_Events.Create<CNetEvent_HammerHit>(Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -274,10 +274,10 @@ void CGameContext::CreateHammerHit(vec2 Pos, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, int64_t Mask)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, CClientMask Mask)
 {
 	// create the event
-	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
+	CNetEvent_Explosion *pEvent = m_Events.Create<CNetEvent_Explosion>(Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -289,7 +289,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	float Radius = 135.0f;
 	float InnerRadius = 48.0f;
 	int Num = m_World.FindEntities(Pos, Radius, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-	int64_t TeamMask = -1;
+	CClientMask TeamMask = CClientMask().set();
 	for(int i = 0; i < Num; i++)
 	{
 		auto *pChr = static_cast<CCharacter *>(apEnts[i]);
@@ -320,9 +320,9 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			int PlayerTeam = pChr->Team();
 			if((GetPlayerChar(Owner) ? GetPlayerChar(Owner)->GrenadeHitDisabled() : !g_Config.m_SvHit) || NoDamage)
 			{
-				if(!CmaskIsSet(TeamMask, PlayerTeam))
+				if(!TeamMask.test(PlayerTeam))
 					continue;
-				TeamMask = CmaskUnset(TeamMask, PlayerTeam);
+				TeamMask.reset(PlayerTeam);
 			}
 
 			pChr->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
@@ -330,10 +330,10 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	}
 }
 
-void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
+void CGameContext::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 {
 	// create the event
-	CNetEvent_Spawn *pEvent = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
+	CNetEvent_Spawn *pEvent = m_Events.Create<CNetEvent_Spawn>(Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -341,10 +341,10 @@ void CGameContext::CreatePlayerSpawn(vec2 Pos, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
+void CGameContext::CreateDeath(vec2 Pos, int ClientID, CClientMask Mask)
 {
 	// create the event
-	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
+	CNetEvent_Death *pEvent = m_Events.Create<CNetEvent_Death>(Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -353,13 +353,13 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID, int64_t Mask)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int64_t Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, CClientMask Mask)
 {
 	if(Sound < 0)
 		return;
 
 	// create a sound
-	CNetEvent_SoundWorld *pEvent = (CNetEvent_SoundWorld *)m_Events.Create(NETEVENTTYPE_SOUNDWORLD, sizeof(CNetEvent_SoundWorld), Mask);
+	CNetEvent_SoundWorld *pEvent = m_Events.Create<CNetEvent_SoundWorld>(Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = (int)Pos.x;
@@ -384,6 +384,77 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 			Flag |= MSGFLAG_NORECORD;
 		Server()->SendPackMsg(&Msg, Flag, Target);
 	}
+}
+
+bool CGameContext::SnapLaserObject(const CSnapContext &Context, int SnapID, const vec2 &To, const vec2 &From, int StartTick, int Owner, int LaserType)
+{
+	if(Context.GetClientVersion() >= VERSION_DDNET_MULTI_LASER)
+	{
+		CNetObj_DDNetLaser *pObj = Server()->SnapNewItem<CNetObj_DDNetLaser>(SnapID);
+		if(!pObj)
+			return false;
+
+		pObj->m_ToX = (int)To.x;
+		pObj->m_ToY = (int)To.y;
+		pObj->m_FromX = (int)From.x;
+		pObj->m_FromY = (int)From.y;
+		pObj->m_StartTick = StartTick;
+		pObj->m_Owner = Owner;
+		pObj->m_Type = LaserType;
+	}
+	else
+	{
+		CNetObj_Laser *pObj = Server()->SnapNewItem<CNetObj_Laser>(SnapID);
+		if(!pObj)
+			return false;
+
+		pObj->m_X = (int)To.x;
+		pObj->m_Y = (int)To.y;
+		pObj->m_FromX = (int)From.x;
+		pObj->m_FromY = (int)From.y;
+		pObj->m_StartTick = StartTick;
+	}
+
+	return true;
+}
+
+bool CGameContext::SnapPickup(const CSnapContext &Context, int SnapID, const vec2 &Pos, int Type, int SubType)
+{
+	if(Context.IsSixup())
+	{
+		protocol7::CNetObj_Pickup *pPickup = Server()->SnapNewItem<protocol7::CNetObj_Pickup>(SnapID);
+		if(!pPickup)
+			return false;
+
+		pPickup->m_X = (int)Pos.x;
+		pPickup->m_Y = (int)Pos.y;
+
+		if(Type == POWERUP_WEAPON)
+			pPickup->m_Type = SubType == WEAPON_SHOTGUN ? protocol7::PICKUP_SHOTGUN : SubType == WEAPON_GRENADE ? protocol7::PICKUP_GRENADE : protocol7::PICKUP_LASER;
+		else if(Type == POWERUP_NINJA)
+			pPickup->m_Type = protocol7::PICKUP_NINJA;
+	}
+	else
+	{
+		CNetObj_Pickup *pPickup = Server()->SnapNewItem<CNetObj_Pickup>(SnapID);
+		if(!pPickup)
+			return false;
+
+		pPickup->m_X = (int)Pos.x;
+		pPickup->m_Y = (int)Pos.y;
+
+		pPickup->m_Type = Type;
+		if(Context.GetClientVersion() < VERSION_DDNET_WEAPON_SHIELDS)
+		{
+			if(Type >= POWERUP_ARMOR_SHOTGUN && Type <= POWERUP_ARMOR_LASER)
+			{
+				pPickup->m_Type = POWERUP_ARMOR;
+			}
+		}
+		pPickup->m_Subtype = SubType;
+	}
+
+	return true;
 }
 
 void CGameContext::CallVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc)
@@ -415,7 +486,7 @@ void CGameContext::SendChatTarget(int To, const char *pText, int Flags)
 	Msg.m_pMessage = pText;
 
 	if(g_Config.m_SvDemoChat)
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, SERVER_DEMO_CLIENT);
 
 	if(To == -1)
 	{
@@ -474,7 +545,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 
 		// pack one for the recording only
 		if(g_Config.m_SvDemoChat)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, SERVER_DEMO_CLIENT);
 
 		// send to the clients
 		for(int i = 0; i < Server()->MaxClients(); i++)
@@ -516,7 +587,7 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 
 		// pack one for the recording only
 		if(g_Config.m_SvDemoChat)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, SERVER_DEMO_CLIENT);
 
 		// send to the clients
 		for(int i = 0; i < Server()->MaxClients(); i++)
@@ -1010,7 +1081,7 @@ void CGameContext::OnTick()
 						continue;
 
 					// connecting clients with spoofed ips can clog slots without being ingame
-					if(((CServer *)Server())->m_aClients[i].m_State != CServer::CClient::STATE_INGAME)
+					if(!Server()->ClientIngame(i))
 						continue;
 
 					// don't count votes by blacklisted clients
@@ -1105,18 +1176,14 @@ void CGameContext::OnTick()
 			}
 			else if(m_VoteEnforce == VOTE_ENFORCE_YES_ADMIN)
 			{
-				char aBuf[64];
-				str_format(aBuf, sizeof(aBuf), "Vote passed enforced by authorized player");
 				Console()->ExecuteLine(m_aVoteCommand, m_VoteEnforcer);
-				SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CHAT_SIX);
+				SendChat(-1, CGameContext::CHAT_ALL, "Vote passed enforced by authorized player", -1, CHAT_SIX);
 				EndVote();
 			}
 			else if(m_VoteEnforce == VOTE_ENFORCE_NO_ADMIN)
 			{
-				char aBuf[64];
-				str_format(aBuf, sizeof(aBuf), "Vote failed enforced by authorized player");
 				EndVote();
-				SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CHAT_SIX);
+				SendChat(-1, CGameContext::CHAT_ALL, "Vote failed enforced by authorized player", -1, CHAT_SIX);
 			}
 			//else if(m_VoteEnforce == VOTE_ENFORCE_NO || time_get() > m_VoteCloseTime)
 			else if(m_VoteEnforce == VOTE_ENFORCE_NO || (time_get() > m_VoteCloseTime && g_Config.m_SvVoteMajority))
@@ -1596,7 +1663,8 @@ void CGameContext::OnClientConnected(int ClientID, void *pData)
 		bool Empty = true;
 		for(auto &pPlayer : m_apPlayers)
 		{
-			if(pPlayer)
+			// connecting clients with spoofed ips can clog slots without being ingame
+			if(pPlayer && Server()->ClientIngame(pPlayer->GetCID()))
 			{
 				Empty = false;
 				break;
@@ -4281,24 +4349,21 @@ void CGameContext::Whisper(int ClientID, char *pStr)
 	*pStr = 0;
 	pStr++;
 
-	char *pMessage = pStr;
-	char aBuf[256];
-
 	if(Error)
 	{
-		str_format(aBuf, sizeof(aBuf), "Invalid whisper");
-		SendChatTarget(ClientID, aBuf);
+		SendChatTarget(ClientID, "Invalid whisper");
 		return;
 	}
 
 	if(Victim >= MAX_CLIENTS || !CheckClientID2(Victim))
 	{
+		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "No player with name \"%s\" found", pName);
 		SendChatTarget(ClientID, aBuf);
 		return;
 	}
 
-	WhisperID(ClientID, Victim, pMessage);
+	WhisperID(ClientID, Victim, pStr);
 }
 
 void CGameContext::WhisperID(int ClientID, int VictimID, const char *pMessage)
@@ -4418,7 +4483,7 @@ void CGameContext::List(int ClientID, const char *pFilter)
 	if(pFilter[0])
 		str_format(aBuf, sizeof(aBuf), "Listing players with \"%s\" in name:", pFilter);
 	else
-		str_format(aBuf, sizeof(aBuf), "Listing all players:");
+		str_copy(aBuf, "Listing all players:");
 	SendChatTarget(ClientID, aBuf);
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -4456,14 +4521,14 @@ int CGameContext::GetClientVersion(int ClientID) const
 	return Server()->GetClientVersion(ClientID);
 }
 
-int64_t CGameContext::ClientsMaskExcludeClientVersionAndHigher(int Version)
+CClientMask CGameContext::ClientsMaskExcludeClientVersionAndHigher(int Version)
 {
-	int64_t Mask = 0;
+	CClientMask Mask;
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		if(GetClientVersion(i) >= Version)
 			continue;
-		Mask |= 1LL << i;
+		Mask.set(i);
 	}
 	return Mask;
 }

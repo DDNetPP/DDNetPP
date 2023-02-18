@@ -10,8 +10,8 @@
 #include <base/system.h>
 
 class CHuffman;
-class CMsgPacker;
 class CNetBan;
+class CPacker;
 
 /*
 
@@ -403,7 +403,7 @@ class CNetServer
 	int TryAcceptClient(NETADDR &Addr, SECURITY_TOKEN SecurityToken, bool VanillaAuth = false, bool Sixup = false, SECURITY_TOKEN Token = 0);
 	int NumClientsWithAddr(NETADDR Addr);
 	bool Connlimit(NETADDR Addr);
-	void SendMsgs(NETADDR &Addr, const CMsgPacker *apMsgs[], int Num);
+	void SendMsgs(NETADDR &Addr, const CPacker **ppMsgs, int Num);
 
 public:
 	int SetCallbacks(NETFUNC_NEWCLIENT pfnNewClient, NETFUNC_DELCLIENT pfnDelClient, void *pUser);

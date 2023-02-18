@@ -33,7 +33,7 @@ CGameWorld::~CGameWorld()
 	// delete all entities
 	for(auto &pFirstEntityType : m_apFirstEntityTypes)
 		while(pFirstEntityType)
-			delete pFirstEntityType;
+			delete pFirstEntityType; // NOLINT(clang-analyzer-cplusplus.NewDelete)
 }
 
 void CGameWorld::SetGameServer(CGameContext *pGameServer)
@@ -168,6 +168,7 @@ void CGameWorld::RemoveEntitiesFromPlayers(int PlayerIds[], int NumPlayers)
 				{
 					RemoveEntity(pEnt);
 					pEnt->Destroy();
+					break;
 				}
 			}
 			pEnt = m_pNextTraverseEntity;

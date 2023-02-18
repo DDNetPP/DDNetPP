@@ -18,9 +18,10 @@ public:
 		Reset();
 	}
 
-	void PackMessageSystem()
+	template<typename T>
+	CMsgPacker(const T *, bool System = false, bool NoTranslate = false) :
+		CMsgPacker(T::ms_MsgID, System, NoTranslate)
 	{
-		AddInt((m_MsgID << 1) | (m_System ? 1 : 0));
 	}
 };
 

@@ -54,6 +54,10 @@
 #include <Carbon/Carbon.h>
 #include <mach-o/dyld.h>
 #include <mach/mach_time.h>
+
+#if defined(__MAC_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_10
+#include <pthread/qos.h>
+#endif
 #endif
 
 #elif defined(CONF_FAMILY_WINDOWS)
@@ -743,7 +747,7 @@ void *thread_init(void (*threadfunc)(void *), void *u, const char *name)
 		pthread_t id;
 		pthread_attr_t attr;
 		pthread_attr_init(&attr);
-#if defined(CONF_PLATFORM_MACOS)
+#if defined(CONF_PLATFORM_MACOS) && defined(__MAC_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_10
 		pthread_attr_set_qos_class_np(&attr, QOS_CLASS_USER_INTERACTIVE, 0);
 #endif
 		int result = pthread_create(&id, &attr, thread_run, data);
@@ -1114,14 +1118,14 @@ void net_addr_str_v6(const unsigned short ip[8], int port, char *buffer, int buf
 		longest_seq_len = 0;
 		longest_seq_start = -1;
 	}
-	w += str_format(buffer + w, buffer_size - w, "[");
+	w += str_copy(buffer + w, "[", buffer_size - w);
 	for(i = 0; i < 8; i++)
 	{
 		if(longest_seq_start <= i && i < longest_seq_start + longest_seq_len)
 		{
 			if(i == longest_seq_start)
 			{
-				w += str_format(buffer + w, buffer_size - w, "::");
+				w += str_copy(buffer + w, "::", buffer_size - w);
 			}
 		}
 		else
@@ -1130,7 +1134,7 @@ void net_addr_str_v6(const unsigned short ip[8], int port, char *buffer, int buf
 			w += str_format(buffer + w, buffer_size - w, "%s%x", colon, ip[i]);
 		}
 	}
-	w += str_format(buffer + w, buffer_size - w, "]");
+	w += str_copy(buffer + w, "]", buffer_size - w);
 	if(port >= 0)
 	{
 		str_format(buffer + w, buffer_size - w, ":%d", port);
@@ -1438,7 +1442,7 @@ static int priv_net_close_all_sockets(NETSOCKET sock)
 }
 
 #if defined(CONF_FAMILY_WINDOWS)
-static char *windows_format_system_message(unsigned long error)
+char *windows_format_system_message(unsigned long error)
 {
 	WCHAR *wide_message;
 	const DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_MAX_WIDTH_MASK;
@@ -2334,6 +2338,21 @@ int fs_removedir(const char *path)
 #endif
 }
 
+int fs_is_file(const char *path)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	WCHAR wPath[IO_MAX_PATH_LENGTH];
+	dbg_assert(MultiByteToWideChar(CP_UTF8, 0, path, -1, wPath, std::size(wPath)) > 0, "MultiByteToWideChar failure");
+	DWORD attributes = GetFileAttributesW(wPath);
+	return attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY) ? 1 : 0;
+#else
+	struct stat sb;
+	if(stat(path, &sb) == -1)
+		return 0;
+	return S_ISREG(sb.st_mode) ? 1 : 0;
+#endif
+}
+
 int fs_is_dir(const char *path)
 {
 #if defined(CONF_FAMILY_WINDOWS)
@@ -2615,11 +2634,11 @@ void str_append(char *dst, const char *src, int dst_size)
 	str_utf8_fix_truncation(dst);
 }
 
-void str_copy(char *dst, const char *src, int dst_size)
+int str_copy(char *dst, const char *src, int dst_size)
 {
 	dst[0] = '\0';
 	strncat(dst, src, dst_size - 1);
-	str_utf8_fix_truncation(dst);
+	return str_utf8_fix_truncation(dst);
 }
 
 void str_utf8_truncate(char *dst, int dst_size, const char *src, int truncation_len)
@@ -3820,33 +3839,8 @@ const char *str_next_token(const char *str, const char *delim, char *buffer, int
 	return tok + len;
 }
 
-int bytes_be_to_int(const unsigned char *bytes)
-{
-	int Result;
-	unsigned char *pResult = (unsigned char *)&Result;
-	for(unsigned i = 0; i < sizeof(int); i++)
-	{
-#if defined(CONF_ARCH_ENDIAN_BIG)
-		pResult[i] = bytes[i];
-#else
-		pResult[i] = bytes[sizeof(int) - i - 1];
-#endif
-	}
-	return Result;
-}
-
-void int_to_bytes_be(unsigned char *bytes, int value)
-{
-	const unsigned char *pValue = (const unsigned char *)&value;
-	for(unsigned i = 0; i < sizeof(int); i++)
-	{
-#if defined(CONF_ARCH_ENDIAN_BIG)
-		bytes[i] = pValue[i];
-#else
-		bytes[sizeof(int) - i - 1] = pValue[i];
-#endif
-	}
-}
+static_assert(sizeof(unsigned) == 4, "unsigned must be 4 bytes in size");
+static_assert(sizeof(unsigned) == sizeof(int), "unsigned and int must have the same size");
 
 unsigned bytes_be_to_uint(const unsigned char *bytes)
 {

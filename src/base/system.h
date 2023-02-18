@@ -1147,6 +1147,20 @@ void net_unix_set_addr(UNIXSOCKETADDR *addr, const char *path);
  */
 void net_unix_close(UNIXSOCKET sock);
 
+#elif defined(CONF_FAMILY_WINDOWS)
+
+/**
+ * Formats a Windows error code as a human-readable string.
+ *
+ * @param error The Windows error code.
+ *
+ * @return A new string representing the error code.
+ *
+ * @remark Guarantees that result will contain zero-termination.
+ * @remark The result must be freed after it has been used.
+ */
+char *windows_format_system_message(unsigned long error);
+
 #endif
 
 /**
@@ -1178,10 +1192,12 @@ void str_append(char *dst, const char *src, int dst_size);
  * @param src String to be copied.
  * @param dst_size Size of the buffer dst.
  *
+ * @return Length of written string, even if it has been truncated
+ *
  * @remark The strings are treated as zero-terminated strings.
  * @remark Guarantees that dst string will contain zero-termination.
  */
-void str_copy(char *dst, const char *src, int dst_size);
+int str_copy(char *dst, const char *src, int dst_size);
 
 /**
  * Truncates a utf8 encoded string to a given length.
@@ -1772,18 +1788,24 @@ int str_time_float(float secs, int format, char *buffer, int buffer_size);
 */
 void str_escape(char **dst, const char *src, const char *end);
 
-/* Group: Filesystem */
+/**
+ * @defgroup Filesystem
+ *
+ * Utilities for accessing the file system.
+ */
 
-/*
-	Function: fs_listdir
-		Lists the files in a directory
-
-	Parameters:
-		dir - Directory to list
-		cb - Callback function to call for each entry
-		type - Type of the directory
-		user - Pointer to give to the callback
-*/
+/**
+ * Lists the files and folders in a directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param dir Directory to list.
+ * @param cb Callback function to call for each entry.
+ * @param type Type of the directory.
+ * @param user Pointer to give to the callback.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 typedef int (*FS_LISTDIR_CALLBACK)(const char *name, int is_dir, int dir_type, void *user);
 void fs_listdir(const char *dir, FS_LISTDIR_CALLBACK cb, int type, void *user);
 
@@ -1794,174 +1816,207 @@ typedef struct
 	time_t m_TimeModified; // seconds since UNIX Epoch
 } CFsFileInfo;
 
-/*
-	Function: fs_listdir_fileinfo
-		Lists the files in a directory and gets additional file information
-
-	Parameters:
-		dir - Directory to list
-		cb - Callback function to call for each entry
-		type - Type of the directory
-		user - Pointer to give to the callback
-*/
+/**
+ * Lists the files and folders in a directory and gets additional file information.
+ *
+ * @ingroup Filesystem
+ *
+ * @param dir Directory to list.
+ * @param cb Callback function to call for each entry.
+ * @param type Type of the directory.
+ * @param user Pointer to give to the callback.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 typedef int (*FS_LISTDIR_CALLBACK_FILEINFO)(const CFsFileInfo *info, int is_dir, int dir_type, void *user);
 void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int type, void *user);
 
-/*
-	Function: fs_makedir
-		Creates a directory
-
-	Parameters:
-		path - Directory to create
-
-	Returns:
-		Returns 0 on success. Negative value on failure.
-
-	Remarks:
-		Does not create several directories if needed. "a/b/c" will result
-		in a failure if b or a does not exist.
-*/
+/**
+ * Creates a directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path Directory to create.
+ *
+ * @return 0 on success. Negative value on failure.
+ *
+ * @remark Does not create several directories if needed. "a/b/c" will
+ * result in a failure if b or a does not exist.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_makedir(const char *path);
 
-/*
-	Function: fs_removedir
-		Removes a directory
-
-	Parameters:
-		path - Directory to remove
-
-	Returns:
-		Returns 0 on success. Negative value on failure.
-
-	Remarks:
-		Cannot remove a non-empty directory.
-*/
+/**
+ * Removes a directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path Directory to remove.
+ *
+ * @return 0 on success. Negative value on failure.
+ *
+ * @remark Cannot remove a non-empty directory.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_removedir(const char *path);
 
-/*
-	Function: fs_makedir_rec_for
-		Recursively create directories for a file
-
-	Parameters:
-		path - File for which to create directories
-
-	Returns:
-		Returns 0 on success. Negative value on failure.
-*/
+/**
+ * Recursively create directories for a file.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path - File for which to create directories.
+ *
+ * @return 0 on success. Negative value on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_makedir_rec_for(const char *path);
 
-/*
-	Function: fs_storage_path
-		Fetches per user configuration directory.
-
-	Returns:
-		Returns 0 on success. Negative value on failure.
-
-	Remarks:
-		- Returns ~/.appname on UNIX based systems
-		- Returns ~/Library/Applications Support/appname on macOS
-		- Returns %APPDATA%/Appname on Windows based systems
-*/
+/**
+ * Fetches per user configuration directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param appname Name of the application.
+ * @param path Buffer that will receive the storage path.
+ * @param max Size of the buffer.
+ *
+ * @return 0 on success. Negative value on failure.
+ *
+ * @remark Returns ~/.appname on UNIX based systems.
+ * @remark Returns ~/Library/Applications Support/appname on macOS.
+ * @remark Returns %APPDATA%/Appname on Windows based systems.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_storage_path(const char *appname, char *path, int max);
 
-/*
-	Function: fs_is_dir
-		Checks if directory exists
+/**
+ * Checks if a file exists.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path the path to check.
+ *
+ * @return 1 if a file with the given path exists,
+ * 0 on failure or if the file does not exist.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
+int fs_is_file(const char *path);
 
-	Returns:
-		Returns 1 on success, 0 on failure.
-*/
+/**
+ * Checks if a folder exists.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path the path to check.
+ *
+ * @return 1 if a folder with the given path exists,
+ * 0 on failure or if the folder does not exist.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_is_dir(const char *path);
 
-/*
-    Function: fs_is_relative_path
-        Checks whether a given path is relative or absolute.
-
-    Returns:
-        Returns 1 if relative, 0 if absolute.
-*/
+/**
+ * Checks whether a given path is relative or absolute.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path Path to check.
+ *
+ * @return 1 if relative, 0 if absolute.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_is_relative_path(const char *path);
 
-/*
-	Function: fs_chdir
-		Changes current working directory
-
-	Returns:
-		Returns 0 on success, 1 on failure.
-*/
+/**
+ * Changes the current working directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path New working directory path.
+ *
+ * @return 0 on success, 1 on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_chdir(const char *path);
 
-/*
-	Function: fs_getcwd
-		Gets the current working directory.
-
-	Returns:
-		Returns a pointer to the buffer on success, 0 on failure.
-*/
+/**
+ * Gets the current working directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param buffer Buffer that will receive the current working directory.
+ * @param buffer_size Size of the buffer.
+ *
+ * @return Pointer to the buffer on success, nullptr on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 char *fs_getcwd(char *buffer, int buffer_size);
 
-/*
-	Function: fs_parent_dir
-		Get the parent directory of a directory
-
-	Parameters:
-		path - The directory string
-
-	Returns:
-		Returns 0 on success, 1 on failure.
-
-	Remarks:
-		- The string is treated as zero-terminated string.
-*/
+/**
+ * Get the parent directory of a directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param path Path of the directory. The parent will be store in this buffer as well.
+ *
+ * @return 0 on success, 1 on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_parent_dir(char *path);
 
-/*
-	Function: fs_remove
-		Deletes the file with the specified name.
-
-	Parameters:
-		filename - The file to delete
-
-	Returns:
-		Returns 0 on success, 1 on failure.
-
-	Remarks:
-		- The strings are treated as zero-terminated strings.
-		- Returns an error if the path specifies a directory name.
-*/
+/**
+ * Deletes a file.
+ *
+ * @ingroup Filesystem
+ *
+ * @param filename Path of the file to delete.
+ *
+ * @return 0 on success, 1 on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ * @remark Returns an error if the path specifies a directory name.
+ */
 int fs_remove(const char *filename);
 
-/*
-	Function: fs_rename
-		Renames the file or directory. If the paths differ the file will be moved.
-
-	Parameters:
-		oldname - The current name
-		newname - The new name
-
-	Returns:
-		Returns 0 on success, 1 on failure.
-
-	Remarks:
-		- The strings are treated as zero-terminated strings.
-*/
+/**
+ * Renames the file or directory. If the paths differ the file will be moved.
+ *
+ * @ingroup Filesystem
+ *
+ * @param oldname The current path of a file or directory.
+ * @param newname The new path for the file or directory.
+ *
+ * @return 0 on success, 1 on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ */
 int fs_rename(const char *oldname, const char *newname);
 
-/*
-	Function: fs_file_time
-		Gets the creation and the last modification date of a file.
-
-	Parameters:
-		name - The filename.
-		created - Pointer to time_t
-		modified - Pointer to time_t
-
-	Returns:
-		0 on success, non-zero on failure
-
-	Remarks:
-		- Returned time is in seconds since UNIX Epoch
-*/
+/**
+ * Gets the creation and the last modification date of a file or directory.
+ *
+ * @ingroup Filesystem
+ *
+ * @param name Path of a file or directory.
+ * @param created Pointer where the creation time will be stored.
+ * @param modified Pointer where the modification time will be stored.
+ *
+ * @return 0 on success, non-zero on failure.
+ *
+ * @remark The strings are treated as zero-terminated strings.
+ * @remark Returned time is in seconds since UNIX Epoch.
+ */
 int fs_file_time(const char *name, time_t *created, time_t *modified);
 
 /*
@@ -2331,50 +2386,31 @@ const char *str_next_token(const char *str, const char *delim, char *buffer, int
 */
 int str_in_list(const char *list, const char *delim, const char *needle);
 
-/*
-	Function: bytes_be_to_int
-		Packs 4 big endian bytes into an int
-
-	Returns:
-		The packed int
-
-	Remarks:
-		- Assumes the passed array is 4 bytes
-		- Assumes int is 4 bytes
-*/
-int bytes_be_to_int(const unsigned char *bytes);
-
-/*
-	Function: int_to_bytes_be
-		Packs an int into 4 big endian bytes
-
-	Remarks:
-		- Assumes the passed array is 4 bytes
-		- Assumes int is 4 bytes
-*/
-void int_to_bytes_be(unsigned char *bytes, int value);
-
-/*
-	Function: bytes_be_to_uint
-		Packs 4 big endian bytes into an unsigned
-
-	Returns:
-		The packed unsigned
-
-	Remarks:
-		- Assumes the passed array is 4 bytes
-		- Assumes unsigned is 4 bytes
-*/
+/**
+ * Packs 4 big endian bytes into an unsigned.
+ *
+ * @param bytes Pointer to an array of bytes that will be packed.
+ *
+ * @return The packed unsigned.
+ *
+ * @remark Assumes the passed array is least 4 bytes in size.
+ * @remark Assumes unsigned is 4 bytes in size.
+ *
+ * @see uint_to_bytes_be
+ */
 unsigned bytes_be_to_uint(const unsigned char *bytes);
 
-/*
-	Function: uint_to_bytes_be
-		Packs an unsigned into 4 big endian bytes
-
-	Remarks:
-		- Assumes the passed array is 4 bytes
-		- Assumes unsigned is 4 bytes
-*/
+/**
+ * Packs an unsigned into 4 big endian bytes.
+ *
+ * @param bytes Pointer to an array where the bytes will be stored.
+ * @param value The values that will be packed into the array.
+ *
+ * @remark Assumes the passed array is least 4 bytes in size.
+ * @remark Assumes unsigned is 4 bytes in size.
+ *
+ * @see bytes_be_to_uint
+ */
 void uint_to_bytes_be(unsigned char *bytes, unsigned value);
 
 /*

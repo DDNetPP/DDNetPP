@@ -884,12 +884,12 @@ void CCharacter::TickDeferred()
 		int Events = m_Core.m_TriggeredEvents;
 		int CID = m_pPlayer->GetCID();
 
-		int64_t TeamMask = Teams()->TeamMask(Team(), -1, CID);
+		CClientMask TeamMask = Teams()->TeamMask(Team(), -1, CID);
 		// Some sounds are triggered client-side for the acting player
 		// so we need to avoid duplicating them
-		int64_t TeamMaskExceptSelf = Teams()->TeamMask(Team(), CID, CID);
+		CClientMask TeamMaskExceptSelf = Teams()->TeamMask(Team(), CID, CID);
 		// Some are triggered client-side but only on Sixup
-		int64_t TeamMaskExceptSelfIfSixup = Server()->IsSixup(CID) ? TeamMaskExceptSelf : TeamMask;
+		CClientMask TeamMaskExceptSelfIfSixup = Server()->IsSixup(CID) ? TeamMaskExceptSelf : TeamMask;
 
 		if(Events & COREEVENT_GROUND_JUMP)
 			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP, TeamMaskExceptSelf);
@@ -1139,7 +1139,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 
 	if(!Server()->IsSixup(SnappingClient))
 	{
-		CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ID, sizeof(CNetObj_Character)));
+		CNetObj_Character *pCharacter = Server()->SnapNewItem<CNetObj_Character>(ID);
 		if(!pCharacter)
 			return;
 
@@ -1164,7 +1164,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 	}
 	else
 	{
-		protocol7::CNetObj_Character *pCharacter = static_cast<protocol7::CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ID, sizeof(protocol7::CNetObj_Character)));
+		protocol7::CNetObj_Character *pCharacter = Server()->SnapNewItem<protocol7::CNetObj_Character>(ID);
 		if(!pCharacter)
 			return;
 
@@ -1250,7 +1250,7 @@ void CCharacter::Snap(int SnappingClient)
 
 	SnapCharacter(SnappingClient, ID);
 
-	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, ID, sizeof(CNetObj_DDNetCharacter)));
+	CNetObj_DDNetCharacter *pDDNetCharacter = Server()->SnapNewItem<CNetObj_DDNetCharacter>(ID);
 	if(!pDDNetCharacter)
 		return;
 
@@ -1834,7 +1834,7 @@ void CCharacter::HandleTiles(int Index)
 		{
 			char aBuf[256];
 			if(NewJumps == -1)
-				str_format(aBuf, sizeof(aBuf), "You only have your ground jump now");
+				str_copy(aBuf, "You only have your ground jump now");
 			else if(NewJumps == 1)
 				str_format(aBuf, sizeof(aBuf), "You can jump %d time", NewJumps);
 			else
@@ -2499,7 +2499,7 @@ void CCharacter::Rescue()
 	}
 }
 
-int64_t CCharacter::TeamMask()
+CClientMask CCharacter::TeamMask()
 {
 	return Teams()->TeamMask(Team(), -1, GetPlayer()->GetCID());
 }
