@@ -44,12 +44,17 @@ void CWeapon::Reset()
 	{
 		CPlayer *pOwner = GameServer()->m_apPlayers[m_Owner];
 		if(pOwner)
-			for(unsigned i = 0; i < pOwner->m_vWeaponLimit[m_Type].size(); i++)
-				if(pOwner->m_vWeaponLimit[m_Type][i] == this)
+		{
+			std::vector<CWeapon *> &DroppedWeapons = pOwner->m_aWeaponLimit[m_Type];
+			for(unsigned i = 0; i < DroppedWeapons.size(); i++)
+			{
+				if(DroppedWeapons[i] == this)
 				{
-					pOwner->m_vWeaponLimit[m_Type].erase(pOwner->m_vWeaponLimit[m_Type].begin() + i);
+					DroppedWeapons.erase(DroppedWeapons.begin() + i);
 					break;
 				}
+			}
+		}
 	}
 
 	if(IsCharacterNear() == -1)
