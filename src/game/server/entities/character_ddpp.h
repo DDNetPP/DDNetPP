@@ -104,7 +104,7 @@ public:
 	void DDPP_Tick();
 	void DDPP_FlagTick();
 	void CosmeticTick();
-	void SpawnDDPP(CPlayer *pPlayer, vec2 Pos);
+	void PreSpawnDDPP(vec2 Pos);
 	void PostSpawnDDPP(vec2 Pos);
 	void DDPPPostCoreTick();
 	bool DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon);

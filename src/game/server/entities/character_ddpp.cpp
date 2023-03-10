@@ -44,8 +44,32 @@ void CCharacter::DestructDDPP()
 {
 }
 
-void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
+void CCharacter::PreSpawnDDPP(vec2 Pos)
 {
+	// warning position and active weapon will be overwritten if set here
+	// you probably want to use PostSpawnDDPP instead
+}
+
+void CCharacter::PostSpawnDDPP(vec2 Pos)
+{
+	m_freezeShotgun = false;
+	m_isDmg = false;
+
+	// disable finite cosmetics by default
+	m_Rainbow = false;
+	m_Bloody = false;
+	m_Atom = false;
+	m_Trail = false;
+
+	m_AliveSince = time_get();
+	if(g_Config.m_SvInstagibMode)
+	{
+		Teams()->OnCharacterStart(m_pPlayer->GetCID());
+		m_LastTimeCp = -2;
+	}
+
+	m_Core.m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
+
 	m_LastTaserUse = Server()->Tick();
 	//zCatch ChillerDragon
 	if(g_Config.m_SvInstagibMode == 1 || g_Config.m_SvInstagibMode == 2 || m_pPlayer->m_IsInstaMode_gdm) //gdm & zCatch grenade
@@ -238,9 +262,9 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	else if(m_pPlayer->m_IsNoboSpawn)
 	{
 		char aBuf[128];
-		if(pPlayer->m_NoboSpawnStop > Server()->Tick())
+		if(m_pPlayer->m_NoboSpawnStop > Server()->Tick())
 		{
-			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
+			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (m_pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
 			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
 			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
 			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
@@ -257,27 +281,6 @@ void CCharacter::SpawnDDPP(CPlayer *pPlayer, vec2 Pos)
 	{
 		m_Core.m_Pos = m_Pos;
 	}
-}
-
-void CCharacter::PostSpawnDDPP(vec2 Pos)
-{
-	m_freezeShotgun = false;
-	m_isDmg = false;
-
-	// disable finite cosmetics by default
-	m_Rainbow = false;
-	m_Bloody = false;
-	m_Atom = false;
-	m_Trail = false;
-
-	m_AliveSince = time_get();
-	if(g_Config.m_SvInstagibMode)
-	{
-		Teams()->OnCharacterStart(m_pPlayer->GetCID());
-		m_LastTimeCp = -2;
-	}
-
-	m_Core.m_aWeapons[0].m_Ammo = -1; //this line is added by ChillerDragon to prevent hammer in vanilla mode to run out of ammo. Im sure this solution is a bit hacky ... to who ever who is reading this comment: feel free to fix the core of the problem.
 
 	if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsVanillaWeapons)
 	{
