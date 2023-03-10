@@ -237,7 +237,7 @@ public:
 	int m_SpawnGrenadeActive;
 	int m_SpawnRifleActive;
 
-	std::vector<std::vector<CWeapon *>> m_vWeaponLimit;
+	std::vector<CWeapon *> m_aWeaponLimit[NUM_WEAPONS];
 
 	//city stuff
 	//int m_broadcast_animation; //idk if this var will be used. plan: check for a running animation and animate it //try in gamecontext.cpp

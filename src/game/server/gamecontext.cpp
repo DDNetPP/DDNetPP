@@ -1685,6 +1685,8 @@ void CGameContext::OnClientConnected(int ClientID, void *pData)
 	m_apPlayers[ClientID]->SetAfk(Afk);
 	NextUniqueClientID += 1;
 
+	m_ClientLeftServer[ClientID] = false;
+
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
