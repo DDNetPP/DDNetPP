@@ -19,6 +19,7 @@
 # Deëivid!        2022-07-05 22:30:00
 # Deëivid!        2022-10-08 19:20:00
 # Deëivid!        2023-01-05 21:05:00
+# Deëivid!        2023-02-26 00:35:00
 ##### /authors #####
 
 ##### translated strings #####
@@ -414,9 +415,6 @@ Show name plates
 Show only chat messages from friends
 == Recibir mensajes solo de amigos
 
-Skins
-== Skins
-
 Sound
 == Sonido
 
@@ -586,9 +584,6 @@ Reset to defaults
 
 Quit anyway?
 == ¿Salir de todos modos?
-
-Display Modes
-== Modos de video
 
 Version:
 == Versión:
@@ -1078,9 +1073,6 @@ Your nickname '%s' is already used (%d points). Do you still want to use it?
 
 Checking for existing player with your name
 == Comprobando si ya existe un jugador con tu nombre
-
-Country / Region
-== País / Región
 
 Speed
 == Velocidad
@@ -1706,3 +1698,16 @@ Unregister protocol and file extensions
 
 Open the directory to add custom assets
 == Abrir la carpeta para agregar recursos personalizados
+
+[Graphics error]
+Could not initialize the given graphics backend, this is probably because you didn't install the driver of the integrated graphics card.
+== No se pudo inizializar el backend de gráficos dado, probablemente debido a que los controladores de la tarjeta gráfica integrada no están instalados.
+
+Could not save downloaded map. Try manually deleting this file: %s
+== No se pudo almacenar el mapa descargado. Intenta eliminar este archivo manualmente: %s
+
+Search:
+== Buscar:
+
+Copy info
+== Copiar información

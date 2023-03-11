@@ -7,6 +7,7 @@
 #include <engine/server.h>
 
 #include <game/collision.h>
+#include <game/generated/protocol.h>
 #include <game/layers.h>
 #include <game/mapbugs.h>
 #include <game/voting.h>
@@ -20,7 +21,6 @@
 #include "ddpp/dummymode.h"
 
 #include "eventhandler.h"
-#include "game/generated/protocol.h"
 #include "gameworld.h"
 #include "player.h"
 #include "teehistorian.h"
@@ -526,9 +526,6 @@ public:
 
 	void SendRecord(int ClientID);
 	void OnSetAuthed(int ClientID, int Level) override;
-	virtual bool PlayerCollision();
-	virtual bool PlayerHooking();
-	virtual float PlayerJetpack();
 
 	void ResetTuning();
 };

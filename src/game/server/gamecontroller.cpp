@@ -273,7 +273,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 			WEAPON_SHOTGUN, //Type
 			-1, //Owner
 			Pos, //Pos
-			vec2(sin(Deg), cos(Deg)), //Dir
+			vec2(std::sin(Deg), std::cos(Deg)), //Dir
 			-2, //Span
 			true, //Freeze
 			true, //Explosive
@@ -299,7 +299,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 			WEAPON_SHOTGUN, //Type
 			-1, //Owner
 			Pos, //Pos
-			vec2(sin(Deg), cos(Deg)), //Dir
+			vec2(std::sin(Deg), std::cos(Deg)), //Dir
 			-2, //Span
 			true, //Freeze
 			false, //Explosive

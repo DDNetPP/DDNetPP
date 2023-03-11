@@ -413,6 +413,8 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 						hsl = ColorHSLA(0.75f, 1.0f, 0.75f);
 					else if(str_find_nocase(pItem->m_aGameType, "race") || str_find_nocase(pItem->m_aGameType, "fastcap"))
 						hsl = ColorHSLA(0.46f, 1.0f, 0.75f);
+					else if(str_find_nocase(pItem->m_aGameType, "s-ddr"))
+						hsl = ColorHSLA(1.0f, 1.0f, 0.70f);
 
 					ColorRGBA rgb = color_cast<ColorRGBA>(hsl);
 					TextRender()->TextColor(rgb);
@@ -489,8 +491,8 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		SLabelProperties Props;
 		Props.m_AlignVertically = 0;
 		UI()->DoLabel(&QuickSearch, pSearchLabel, 16.0f, TEXTALIGN_LEFT, Props);
-		SearchIconWidth = TextRender()->TextWidth(0, 16.0f, pSearchLabel, -1, -1.0f);
-		ExcludeIconWidth = TextRender()->TextWidth(0, 16.0f, pExcludeLabel, -1, -1.0f);
+		SearchIconWidth = TextRender()->TextWidth(16.0f, pSearchLabel, -1, -1.0f);
+		ExcludeIconWidth = TextRender()->TextWidth(16.0f, pExcludeLabel, -1, -1.0f);
 		ExcludeSearchIconMax = maximum(SearchIconWidth, ExcludeIconWidth);
 		TextRender()->SetRenderFlags(0);
 		TextRender()->SetCurFont(NULL);
@@ -557,9 +559,9 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 
 	CUIRect SvrsOnline, PlysOnline;
 	Status3.HSplitTop(20.f, &PlysOnline, &SvrsOnline);
-	PlysOnline.VSplitRight(TextRender()->TextWidth(0, 12.0f, aBufPyr, -1, -1.0f), 0, &PlysOnline);
+	PlysOnline.VSplitRight(TextRender()->TextWidth(12.0f, aBufPyr, -1, -1.0f), 0, &PlysOnline);
 	UI()->DoLabel(&PlysOnline, aBufPyr, 12.0f, TEXTALIGN_LEFT);
-	SvrsOnline.VSplitRight(TextRender()->TextWidth(0, 12.0f, aBufSvr, -1, -1.0f), 0, &SvrsOnline);
+	SvrsOnline.VSplitRight(TextRender()->TextWidth(12.0f, aBufSvr, -1, -1.0f), 0, &SvrsOnline);
 	UI()->DoLabel(&SvrsOnline, aBufSvr, 12.0f, TEXTALIGN_LEFT);
 
 	// status box
@@ -778,7 +780,7 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 			ServerFilter.HSplitBottom(4.0f, &ServerFilter, 0);
 
 			const float TypesWidth = 40.0f;
-			const float TypesHeight = ServerFilter.h / ceil(MaxTypes / (float)PerLine);
+			const float TypesHeight = ServerFilter.h / std::ceil(MaxTypes / (float)PerLine);
 
 			CUIRect TypesRect, Left, Right;
 
@@ -1132,13 +1134,13 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 				if(CurrentClient.m_Score == -9999 || CurrentClient.m_Score == 0)
 					aTemp[0] = 0;
 				else
-					str_time((int64_t)abs(CurrentClient.m_Score) * 100, TIME_HOURS, aTemp, sizeof(aTemp));
+					str_time((int64_t)absolute(CurrentClient.m_Score) * 100, TIME_HOURS, aTemp, sizeof(aTemp));
 			}
 			else
 				str_format(aTemp, sizeof(aTemp), "%d", CurrentClient.m_Score);
 
 			float ScoreFontSize = 12.0f;
-			while(ScoreFontSize >= 4.0f && TextRender()->TextWidth(0, ScoreFontSize, aTemp, -1, -1.0f) > Score.w)
+			while(ScoreFontSize >= 4.0f && TextRender()->TextWidth(ScoreFontSize, aTemp, -1, -1.0f) > Score.w)
 				ScoreFontSize--;
 
 			TextRender()->SetCursor(&Cursor, Score.x, Score.y + (Score.h - ScoreFontSize) / 2.0f, ScoreFontSize, TEXTFLAG_RENDER | TEXTFLAG_STOP_AT_END);

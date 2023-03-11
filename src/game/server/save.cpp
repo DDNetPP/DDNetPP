@@ -1,13 +1,13 @@
 #include "save.h"
 
-#include <cstdio>
+#include <cstdio> // sscanf
 
-#include "engine/shared/protocol.h"
 #include "entities/character.h"
 #include "gamemodes/DDRace.h"
 #include "player.h"
 #include "teams.h"
 #include <engine/shared/config.h>
+#include <engine/shared/protocol.h>
 
 CSaveTee::CSaveTee() = default;
 
@@ -17,7 +17,7 @@ void CSaveTee::Save(CCharacter *pChr)
 	str_copy(m_aName, pChr->Server()->ClientName(m_ClientID), sizeof(m_aName));
 
 	m_Alive = pChr->m_Alive;
-	m_Paused = abs(pChr->m_pPlayer->IsPaused());
+	m_Paused = absolute(pChr->m_pPlayer->IsPaused());
 	m_NeededFaketuning = pChr->m_NeededFaketuning;
 
 	m_TeeStarted = pChr->Teams()->TeeStarted(m_ClientID);

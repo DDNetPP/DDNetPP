@@ -1262,12 +1262,12 @@ void CGraphics_Threaded::DrawRectExt(float x, float y, float w, float h, float r
 		float a1 = i * SegmentsAngle;
 		float a2 = (i + 1) * SegmentsAngle;
 		float a3 = (i + 2) * SegmentsAngle;
-		float Ca1 = cosf(a1);
-		float Ca2 = cosf(a2);
-		float Ca3 = cosf(a3);
-		float Sa1 = sinf(a1);
-		float Sa2 = sinf(a2);
-		float Sa3 = sinf(a3);
+		float Ca1 = std::cos(a1);
+		float Ca2 = std::cos(a2);
+		float Ca3 = std::cos(a3);
+		float Sa1 = std::sin(a1);
+		float Sa2 = std::sin(a2);
+		float Sa3 = std::sin(a3);
 
 		if(Corners & CORNER_TL)
 			aFreeform[NumItems++] = IGraphics::CFreeformItem(
@@ -1336,12 +1336,12 @@ void CGraphics_Threaded::DrawRectExt4(float x, float y, float w, float h, ColorR
 		float a1 = i * SegmentsAngle;
 		float a2 = (i + 1) * SegmentsAngle;
 		float a3 = (i + 2) * SegmentsAngle;
-		float Ca1 = cosf(a1);
-		float Ca2 = cosf(a2);
-		float Ca3 = cosf(a3);
-		float Sa1 = sinf(a1);
-		float Sa2 = sinf(a2);
-		float Sa3 = sinf(a3);
+		float Ca1 = std::cos(a1);
+		float Ca2 = std::cos(a2);
+		float Ca3 = std::cos(a3);
+		float Sa1 = std::sin(a1);
+		float Sa2 = std::sin(a2);
+		float Sa3 = std::sin(a3);
 
 		if(Corners & CORNER_TL)
 		{
@@ -1504,12 +1504,12 @@ int CGraphics_Threaded::CreateRectQuadContainer(float x, float y, float w, float
 		float a1 = i * SegmentsAngle;
 		float a2 = (i + 1) * SegmentsAngle;
 		float a3 = (i + 2) * SegmentsAngle;
-		float Ca1 = cosf(a1);
-		float Ca2 = cosf(a2);
-		float Ca3 = cosf(a3);
-		float Sa1 = sinf(a1);
-		float Sa2 = sinf(a2);
-		float Sa3 = sinf(a3);
+		float Ca1 = std::cos(a1);
+		float Ca2 = std::cos(a2);
+		float Ca3 = std::cos(a3);
+		float Sa1 = std::sin(a1);
+		float Sa2 = std::sin(a2);
+		float Sa3 = std::sin(a3);
 
 		if(Corners & CORNER_TL)
 			aFreeform[NumItems++] = IGraphics::CFreeformItem(
@@ -1598,9 +1598,9 @@ void CGraphics_Threaded::DrawCircle(float CenterX, float CenterY, float Radius, 
 		const float a3 = (i + 2) * SegmentsAngle;
 		aItems[NumItems++] = IGraphics::CFreeformItem(
 			CenterX, CenterY,
-			CenterX + cosf(a1) * Radius, CenterY + sinf(a1) * Radius,
-			CenterX + cosf(a3) * Radius, CenterY + sinf(a3) * Radius,
-			CenterX + cosf(a2) * Radius, CenterY + sinf(a2) * Radius);
+			CenterX + std::cos(a1) * Radius, CenterY + std::sin(a1) * Radius,
+			CenterX + std::cos(a3) * Radius, CenterY + std::sin(a3) * Radius,
+			CenterX + std::cos(a2) * Radius, CenterY + std::sin(a2) * Radius);
 		if(NumItems == std::size(aItems))
 		{
 			QuadsDrawFreeform(aItems, std::size(aItems));
@@ -2910,12 +2910,18 @@ int CGraphics_Threaded::GetNumScreens() const
 void CGraphics_Threaded::Minimize()
 {
 	m_pBackend->Minimize();
+
+	for(auto &PropChangedListener : m_vPropChangeListeners)
+		PropChangedListener();
 }
 
 void CGraphics_Threaded::Maximize()
 {
 	// TODO: SDL
 	m_pBackend->Maximize();
+
+	for(auto &PropChangedListener : m_vPropChangeListeners)
+		PropChangedListener();
 }
 
 void CGraphics_Threaded::WarnPngliteIncompatibleImages(bool Warn)
@@ -2929,6 +2935,9 @@ void CGraphics_Threaded::SetWindowParams(int FullscreenMode, bool IsBorderless, 
 	CVideoMode CurMode;
 	m_pBackend->GetCurrentVideoMode(CurMode, m_ScreenHiDPIScale, g_Config.m_GfxDesktopWidth, g_Config.m_GfxDesktopHeight, g_Config.m_GfxScreen);
 	GotResized(CurMode.m_WindowWidth, CurMode.m_WindowHeight, CurMode.m_RefreshRate);
+
+	for(auto &PropChangedListener : m_vPropChangeListeners)
+		PropChangedListener();
 }
 
 bool CGraphics_Threaded::SetWindowScreen(int Index)
@@ -2938,9 +2947,11 @@ bool CGraphics_Threaded::SetWindowScreen(int Index)
 		return false;
 	}
 
-	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
-	AdjustViewport(true);
-	m_ScreenHiDPIScale = m_ScreenWidth / (float)g_Config.m_GfxScreenWidth;
+	// send a got resized event so that the current canvas size is requested
+	GotResized(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, g_Config.m_GfxScreenRefreshRate);
+
+	for(auto &PropChangedListener : m_vPropChangeListeners)
+		PropChangedListener();
 	return true;
 }
 
@@ -2954,9 +2965,12 @@ void CGraphics_Threaded::Move(int x, int y)
 	// Only handling CurScreen != m_GfxScreen doesn't work reliably
 	const int CurScreen = m_pBackend->GetWindowScreen();
 	m_pBackend->UpdateDisplayMode(CurScreen);
-	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
-	AdjustViewport(true);
-	m_ScreenHiDPIScale = m_ScreenWidth / (float)g_Config.m_GfxScreenWidth;
+
+	// send a got resized event so that the current canvas size is requested
+	GotResized(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, g_Config.m_GfxScreenRefreshRate);
+
+	for(auto &PropChangedListener : m_vPropChangeListeners)
+		PropChangedListener();
 }
 
 void CGraphics_Threaded::Resize(int w, int h, int RefreshRate)
@@ -2990,6 +3004,8 @@ void CGraphics_Threaded::GotResized(int w, int h, int RefreshRate)
 		RefreshRate = g_Config.m_GfxScreenRefreshRate;
 
 	// if the size change event is triggered, set all parameters and change the viewport
+	auto PrevCanvasWidth = m_ScreenWidth;
+	auto PrevCanvasHeight = m_ScreenHeight;
 	m_pBackend->GetViewportSize(m_ScreenWidth, m_ScreenHeight);
 
 	AdjustViewport(false);
@@ -3007,13 +3023,21 @@ void CGraphics_Threaded::GotResized(int w, int h, int RefreshRate)
 	KickCommandBuffer();
 	WaitForIdle();
 
-	for(auto &ResizeListener : m_vResizeListeners)
-		ResizeListener.m_pFunc(ResizeListener.m_pUser);
+	if(PrevCanvasWidth != m_ScreenWidth || PrevCanvasHeight != m_ScreenHeight)
+	{
+		for(auto &ResizeListener : m_vResizeListeners)
+			ResizeListener();
+	}
 }
 
-void CGraphics_Threaded::AddWindowResizeListener(WINDOW_RESIZE_FUNC pFunc, void *pUser)
+void CGraphics_Threaded::AddWindowResizeListener(WINDOW_RESIZE_FUNC pFunc)
 {
-	m_vResizeListeners.emplace_back(pFunc, pUser);
+	m_vResizeListeners.emplace_back(pFunc);
+}
+
+void CGraphics_Threaded::AddWindowPropChangeListener(WINDOW_PROPS_CHANGED_FUNC pFunc)
+{
+	m_vPropChangeListeners.emplace_back(pFunc);
 }
 
 int CGraphics_Threaded::GetWindowScreen()

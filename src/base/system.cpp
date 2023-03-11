@@ -71,7 +71,7 @@
 #include <ws2tcpip.h>
 
 #include <cerrno>
-#include <fenv.h>
+#include <cfenv>
 #include <io.h>
 #include <objbase.h>
 #include <process.h>
@@ -209,19 +209,37 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 
 /* */
 
-void mem_copy(void *dest, const void *source, unsigned size)
+void mem_copy(void *dest, const void *source, size_t size)
 {
 	memcpy(dest, source, size);
 }
 
-void mem_move(void *dest, const void *source, unsigned size)
+void mem_move(void *dest, const void *source, size_t size)
 {
 	memmove(dest, source, size);
 }
 
-void mem_zero(void *block, unsigned size)
+void mem_zero(void *block, size_t size)
 {
 	memset(block, 0, size);
+}
+
+int mem_comp(const void *a, const void *b, size_t size)
+{
+	return memcmp(a, b, size);
+}
+
+bool mem_has_null(const void *block, size_t size)
+{
+	const unsigned char *bytes = (const unsigned char *)block;
+	for(size_t i = 0; i < size; i++)
+	{
+		if(bytes[i] == 0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 IOHANDLE io_open_impl(const char *filename, int flags)
@@ -365,12 +383,12 @@ unsigned io_write(IOHANDLE io, const void *buffer, unsigned size)
 	return fwrite(buffer, 1, size, (FILE *)io);
 }
 
-unsigned io_write_newline(IOHANDLE io)
+bool io_write_newline(IOHANDLE io)
 {
 #if defined(CONF_FAMILY_WINDOWS)
-	return fwrite("\r\n", 1, 2, (FILE *)io);
+	return io_write(io, "\r\n", 2) == 2;
 #else
-	return fwrite("\n", 1, 1, (FILE *)io);
+	return io_write(io, "\n", 1) == 1;
 #endif
 }
 
@@ -3427,25 +3445,6 @@ void str_escape(char **dst, const char *src, const char *end)
 	**dst = 0;
 }
 
-int mem_comp(const void *a, const void *b, int size)
-{
-	return memcmp(a, b, size);
-}
-
-int mem_has_null(const void *block, unsigned size)
-{
-	const unsigned char *bytes = (const unsigned char *)block;
-	unsigned i;
-	for(i = 0; i < size; i++)
-	{
-		if(bytes[i] == 0)
-		{
-			return 1;
-		}
-	}
-	return 0;
-}
-
 void net_stats(NETSTATS *stats_inout)
 {
 	*stats_inout = network_stats;
@@ -3949,7 +3948,12 @@ PROCESS shell_execute(const char *file)
 int kill_process(PROCESS process)
 {
 #if defined(CONF_FAMILY_WINDOWS)
-	return TerminateProcess(process, 0);
+	BOOL success = TerminateProcess(process, 0);
+	if(success)
+	{
+		CloseHandle(process);
+	}
+	return success;
 #elif defined(CONF_FAMILY_UNIX)
 	int status;
 	kill(process, SIGTERM);
