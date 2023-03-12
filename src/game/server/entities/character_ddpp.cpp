@@ -38,10 +38,16 @@ void CCharacter::ConstructDDPP()
 	//{
 	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
 	//}
+	m_OnMoneytile = MONEYTILE_NONE;
 }
 
 void CCharacter::DestructDDPP()
 {
+}
+
+void CCharacter::PreTickDDPP()
+{
+	m_OnMoneytile = MONEYTILE_NONE;
 }
 
 void CCharacter::PreSpawnDDPP(vec2 Pos)

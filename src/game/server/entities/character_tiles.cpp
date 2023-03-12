@@ -470,6 +470,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 void CCharacter::MoneyTile()
 {
+	m_OnMoneytile = MONEYTILE_NORMAL;
 	if(Server()->Tick() % 50)
 		return;
 	if(!g_Config.m_SvFreezeFarm)
@@ -603,8 +604,14 @@ void CCharacter::MoneyTile()
 
 void CCharacter::MoneyTilePolice()
 {
+	m_OnMoneytile = MONEYTILE_POLICE;
 	if(Server()->Tick() % 50)
 		return;
+	if(!GameServer()->m_IsPoliceFarmActive)
+	{
+		GameServer()->SendBroadcast("Too many players on police tiles", m_pPlayer->GetCID(), 0);
+		return;
+	}
 	if(!g_Config.m_SvFreezeFarm)
 		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
 			return;
@@ -720,6 +727,7 @@ void CCharacter::MoneyTilePolice()
 
 void CCharacter::MoneyTileDouble()
 {
+	m_OnMoneytile = MONEYTILE_DOUBLE;
 	if(Server()->Tick() % 50)
 		return;
 	if(!g_Config.m_SvFreezeFarm)
@@ -833,9 +841,6 @@ void CCharacter::MoneyTilePlus()
 {
 	if(!m_pPlayer->m_MoneyTilePlus)
 		return;
-	if(!g_Config.m_SvFreezeFarm)
-		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
-			return;
 	m_pPlayer->m_MoneyTilePlus = false;
 
 	if(m_pPlayer->IsMaxLevel())

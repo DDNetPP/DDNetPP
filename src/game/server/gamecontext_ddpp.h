@@ -228,6 +228,24 @@ public:
 	int m_MapsavePlayers;
 	int m_MapsaveLoadedPlayers;
 
+	// implements https://github.com/DDNetPP/DDNetPP/issues/356
+	// deactivate all police tiles if used by too many tees
+
+	/*
+		Variable: m_IsPoliceFarmActive
+
+		updated in the same tick speed as moneytiles update
+		AmountPoliceFarmPlayers() is greater or lower than g_Config.m_SvMaxPoliceFarmPlayers
+	*/
+	bool m_IsPoliceFarmActive;
+	/*
+		Function: AmountPoliceFarmPlayers()
+
+		returns amount of tees that currently sit on a police money tile
+	*/
+	int AmountPoliceFarmPlayers();
+	void CheckDeactivatePoliceFarm();
+
 	//global chat
 	void GlobalChatPrintMessage();
 	void GlobalChatUpdateConfirms(const char *pStr);

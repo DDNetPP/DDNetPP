@@ -46,6 +46,7 @@ private:
 	void DestructDDPP();
 	void SnapCharacterDDPP();
 	bool HandleTilesDDPP(int Index);
+	void PreTickDDPP();
 	void DDPPDDRacePostCoreTick();
 	/*
 		FireWeaponDDPP
@@ -282,6 +283,16 @@ public:
 	bool m_IsBombReady;
 	int m_BombPosX;
 	int m_BombPosY;
+
+	enum
+	{
+		MONEYTILE_NONE,
+		MONEYTILE_NORMAL,
+		MONEYTILE_POLICE,
+		MONEYTILE_DOUBLE,
+	};
+
+	int m_OnMoneytile;
 
 	//battlegores
 	void KillFreeze(bool unfreeze);

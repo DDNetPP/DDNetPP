@@ -60,6 +60,7 @@ void CGameContext::ConstructDDPP()
 	mem_zero(m_ClientLeftServer, sizeof(m_ClientLeftServer));
 	m_LastAccountMode = g_Config.m_SvAccountStuff;
 	m_IsServerEmpty = false;
+	m_IsPoliceFarmActive = true;
 }
 
 void CGameContext::DestructDDPP()
@@ -93,6 +94,35 @@ void CGameContext::DestructDDPP()
 		delete Minigame;
 		Minigame = nullptr;
 	}
+}
+
+int CGameContext::AmountPoliceFarmPlayers()
+{
+	int num = 0;
+	for(const auto &pPlayer : m_apPlayers)
+	{
+		if(!pPlayer)
+			continue;
+		if(!pPlayer->GetCharacter())
+			continue;
+		if(pPlayer->GetCharacter()->m_OnMoneytile == CCharacter::MONEYTILE_POLICE)
+			num++;
+	}
+	return num;
+}
+
+void CGameContext::CheckDeactivatePoliceFarm()
+{
+	if(!g_Config.m_SvMaxPoliceFarmPlayers)
+	{
+		m_IsPoliceFarmActive = true;
+		return;
+	}
+	if(Server()->Tick() % 50)
+		return;
+
+	// dbg_msg("check", "%d %d",  AmountPoliceFarmPlayers(), g_Config.m_SvMaxPoliceFarmPlayers);
+	m_IsPoliceFarmActive = AmountPoliceFarmPlayers() < g_Config.m_SvMaxPoliceFarmPlayers;
 }
 
 void CGameContext::SetSpawnweapons(bool Active, int ClientID)
@@ -1308,6 +1338,8 @@ void CGameContext::DDPP_Tick()
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->Tick();
+
+	CheckDeactivatePoliceFarm();
 
 	if(m_BalanceBattleState == 1)
 		BalanceBattleTick();

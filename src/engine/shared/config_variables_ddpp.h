@@ -220,6 +220,7 @@ MACRO_CONFIG_INT(SvCfgTile1, sv_cfg_tile_1, 0, 0, 10, CFGFLAG_SERVER, "use chat 
 MACRO_CONFIG_INT(SvCfgTile2, sv_cfg_tile_2, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 
 MACRO_CONFIG_INT(SvFreezeFarm, sv_freeze_farm, 1, 0, 1, CFGFLAG_SERVER, "wether tees have to be unfrozen or not to use money/xp tiles")
+MACRO_CONFIG_INT(SvMaxPoliceFarmPlayers, sv_max_police_farm_players, 0, 0, 64, CFGFLAG_SERVER, "deactivates all police tiles if too many players are on them (0 = no limit)")
 
 //TODO: move me to sql data or somehting
 //Supporter permissions
