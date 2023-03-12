@@ -219,6 +219,8 @@ MACRO_CONFIG_STR(SvGlobalChatFile, sv_global_chat_file, 128, "global_chat.txt", 
 MACRO_CONFIG_INT(SvCfgTile1, sv_cfg_tile_1, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 MACRO_CONFIG_INT(SvCfgTile2, sv_cfg_tile_2, 0, 0, 10, CFGFLAG_SERVER, "use chat cmd for help '/admin cfg_tiles'")
 
+MACRO_CONFIG_INT(SvFreezeFarm, sv_freeze_farm, 1, 0, 1, CFGFLAG_SERVER, "wether tees have to be unfrozen or not to use money/xp tiles")
+
 //TODO: move me to sql data or somehting
 //Supporter permissions
 MACRO_CONFIG_INT(SvSupAccReset, sv_sup_acc_reset, 0, 0, 2, CFGFLAG_SERVER, "allow supporters cmds 1='/sql_logout' 2=1 and '/sql_logout_all'")

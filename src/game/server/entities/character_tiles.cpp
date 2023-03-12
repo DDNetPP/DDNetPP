@@ -472,6 +472,9 @@ void CCharacter::MoneyTile()
 {
 	if(Server()->Tick() % 50)
 		return;
+	if(!g_Config.m_SvFreezeFarm)
+		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+			return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
@@ -602,6 +605,9 @@ void CCharacter::MoneyTilePolice()
 {
 	if(Server()->Tick() % 50)
 		return;
+	if(!g_Config.m_SvFreezeFarm)
+		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+			return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
 		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
@@ -716,6 +722,9 @@ void CCharacter::MoneyTileDouble()
 {
 	if(Server()->Tick() % 50)
 		return;
+	if(!g_Config.m_SvFreezeFarm)
+		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+			return;
 	if(g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
 		GameServer()->SendBroadcast("double moneytiles have been deactivated by an administrator", m_pPlayer->GetCID(), 0);
@@ -824,6 +833,9 @@ void CCharacter::MoneyTilePlus()
 {
 	if(!m_pPlayer->m_MoneyTilePlus)
 		return;
+	if(!g_Config.m_SvFreezeFarm)
+		if(m_pPlayer && m_pPlayer->GetCharacter() && m_pPlayer->GetCharacter()->m_FreezeTime)
+			return;
 	m_pPlayer->m_MoneyTilePlus = false;
 
 	if(m_pPlayer->IsMaxLevel())
