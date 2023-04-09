@@ -1566,9 +1566,6 @@ Could not save downloaded map. Try manually deleting this file: %s
 Initializing components
 == 
 
-Search:
-== 
-
 Cancel
 == 
 
@@ -1645,6 +1642,9 @@ Open the directory that contains the configuration and user files
 == 
 
 Open the directory to add custom themes
+== 
+
+Create a random skin
 == 
 
 Open the directory to add custom skins

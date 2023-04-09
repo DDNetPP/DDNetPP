@@ -27,6 +27,7 @@
 
 #if defined(CONF_FAMILY_UNIX)
 #include <csignal>
+#include <locale>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/utsname.h>
@@ -52,6 +53,7 @@
 #define _task_user_
 
 #include <Carbon/Carbon.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <mach-o/dyld.h>
 #include <mach/mach_time.h>
 
@@ -1894,56 +1896,39 @@ NETSOCKET net_tcp_create(NETADDR bindaddr)
 	return sock;
 }
 
-int net_set_non_blocking(NETSOCKET sock)
+static int net_set_blocking_impl(NETSOCKET sock, bool blocking)
 {
-	unsigned long mode = 1;
-	if(sock->ipv4sock >= 0)
-	{
-#if defined(CONF_FAMILY_WINDOWS)
-		ioctlsocket(sock->ipv4sock, FIONBIO, (unsigned long *)&mode);
-#else
-		if(ioctl(sock->ipv4sock, FIONBIO, (unsigned long *)&mode) == -1)
-			dbg_msg("socket", "setting ipv4 non-blocking failed: %d", errno);
-#endif
-	}
+	unsigned long mode = blocking ? 0 : 1;
+	const char *mode_str = blocking ? "blocking" : "non-blocking";
+	int sockets[] = {sock->ipv4sock, sock->ipv6sock};
+	const char *socket_str[] = {"ipv4", "ipv6"};
 
-	if(sock->ipv6sock >= 0)
+	for(size_t i = 0; i < std::size(sockets); ++i)
 	{
+		if(sockets[i] >= 0)
+		{
 #if defined(CONF_FAMILY_WINDOWS)
-		ioctlsocket(sock->ipv6sock, FIONBIO, (unsigned long *)&mode);
+			int result = ioctlsocket(sockets[i], FIONBIO, (unsigned long *)&mode);
+			if(result != NO_ERROR)
+				dbg_msg("socket", "setting %s %s failed: %d", socket_str[i], mode_str, result);
 #else
-		if(ioctl(sock->ipv6sock, FIONBIO, (unsigned long *)&mode) == -1)
-			dbg_msg("socket", "setting ipv6 non-blocking failed: %d", errno);
+			if(ioctl(sockets[i], FIONBIO, (unsigned long *)&mode) == -1)
+				dbg_msg("socket", "setting %s %s failed: %d", socket_str[i], mode_str, errno);
 #endif
+		}
 	}
 
 	return 0;
 }
 
+int net_set_non_blocking(NETSOCKET sock)
+{
+	return net_set_blocking_impl(sock, false);
+}
+
 int net_set_blocking(NETSOCKET sock)
 {
-	unsigned long mode = 0;
-	if(sock->ipv4sock >= 0)
-	{
-#if defined(CONF_FAMILY_WINDOWS)
-		ioctlsocket(sock->ipv4sock, FIONBIO, (unsigned long *)&mode);
-#else
-		if(ioctl(sock->ipv4sock, FIONBIO, (unsigned long *)&mode) == -1)
-			dbg_msg("socket", "setting ipv4 blocking failed: %d", errno);
-#endif
-	}
-
-	if(sock->ipv6sock >= 0)
-	{
-#if defined(CONF_FAMILY_WINDOWS)
-		ioctlsocket(sock->ipv6sock, FIONBIO, (unsigned long *)&mode);
-#else
-		if(ioctl(sock->ipv6sock, FIONBIO, (unsigned long *)&mode) == -1)
-			dbg_msg("socket", "setting ipv6 blocking failed: %d", errno);
-#endif
-	}
-
-	return 0;
+	return net_set_blocking_impl(sock, true);
 }
 
 int net_tcp_listen(NETSOCKET sock, int backlog)
@@ -2691,24 +2676,25 @@ int str_length(const char *str)
 	return (int)strlen(str);
 }
 
-int str_format(char *buffer, int buffer_size, const char *format, ...)
+int str_format_v(char *buffer, int buffer_size, const char *format, va_list args)
 {
 #if defined(CONF_FAMILY_WINDOWS)
-	va_list ap;
-	va_start(ap, format);
-	_vsprintf_p(buffer, buffer_size, format, ap);
-	va_end(ap);
-
+	_vsprintf_p(buffer, buffer_size, format, args);
 	buffer[buffer_size - 1] = 0; /* assure null termination */
 #else
-	va_list ap;
-	va_start(ap, format);
-	vsnprintf(buffer, buffer_size, format, ap);
-	va_end(ap);
-
+	vsnprintf(buffer, buffer_size, format, args);
 	/* null termination is assured by definition of vsnprintf */
 #endif
 	return str_utf8_fix_truncation(buffer);
+}
+
+int str_format(char *buffer, int buffer_size, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	int length = str_format_v(buffer, buffer_size, format, args);
+	va_end(args);
+	return length;
 }
 
 const char *str_trim_words(const char *str, int words)
@@ -3426,7 +3412,7 @@ int str_time(int64_t centisecs, int format, char *buffer, int buffer_size)
 
 int str_time_float(float secs, int format, char *buffer, int buffer_size)
 {
-	return str_time(llroundf(secs * 100), format, buffer, buffer_size);
+	return str_time(llroundf(secs * 1000) / 10, format, buffer, buffer_size);
 }
 
 void str_escape(char **dst, const char *src, const char *end)
@@ -4264,6 +4250,72 @@ int os_version_str(char *version, int length)
 	str_format(version, length, "%s %s (%s, %s)%s", u.sysname, u.release, u.machine, u.version, extra);
 	return 0;
 #endif
+}
+
+void os_locale_str(char *locale, size_t length)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	wchar_t wide_buffer[LOCALE_NAME_MAX_LENGTH];
+	dbg_assert(GetUserDefaultLocaleName(wide_buffer, std::size(wide_buffer)) > 0, "GetUserDefaultLocaleName failure");
+
+	// Assume maximum possible length for encoding as UTF-8.
+	char buffer[UTF8_BYTE_LENGTH * LOCALE_NAME_MAX_LENGTH + 1];
+	dbg_assert(WideCharToMultiByte(CP_UTF8, 0, wide_buffer, -1, buffer, sizeof(buffer), NULL, NULL) > 0, "WideCharToMultiByte failure");
+
+	str_copy(locale, buffer, length);
+#elif defined(CONF_PLATFORM_MACOS)
+	CFLocaleRef locale_ref = CFLocaleCopyCurrent();
+	CFStringRef locale_identifier_ref = static_cast<CFStringRef>(CFLocaleGetValue(locale_ref, kCFLocaleIdentifier));
+
+	// Count number of UTF16 codepoints, +1 for zero-termination.
+	// Assume maximum possible length for encoding as UTF-8.
+	CFIndex locale_identifier_size = (UTF8_BYTE_LENGTH * CFStringGetLength(locale_identifier_ref) + 1) * sizeof(char);
+	char *locale_identifier = (char *)malloc(locale_identifier_size);
+	dbg_assert(CFStringGetCString(locale_identifier_ref, locale_identifier, locale_identifier_size, kCFStringEncodingUTF8), "CFStringGetCString failure");
+
+	str_copy(locale, locale_identifier, length);
+
+	free(locale_identifier);
+	CFRelease(locale_ref);
+#else
+	static const char *ENV_VARIABLES[] = {
+		"LC_ALL",
+		"LC_MESSAGES",
+		"LANG",
+	};
+
+	locale[0] = '\0';
+	for(const char *env_variable : ENV_VARIABLES)
+	{
+		const char *env_value = getenv(env_variable);
+		if(env_value)
+		{
+			str_copy(locale, env_value, length);
+			break;
+		}
+	}
+#endif
+
+	// Ensure RFC 3066 format:
+	// - use hyphens instead of underscores
+	// - truncate locale string after first non-standard letter
+	for(int i = 0; i < str_length(locale); ++i)
+	{
+		if(locale[i] == '_')
+		{
+			locale[i] = '-';
+		}
+		else if(locale[i] != '-' && !(locale[i] >= 'a' && locale[i] <= 'z') && !(locale[i] >= 'A' && locale[i] <= 'Z') && !(locale[i] >= '0' && locale[i] <= '9'))
+		{
+			locale[i] = '\0';
+			break;
+		}
+	}
+
+	// Use default if we could not determine the locale,
+	// i.e. if only the C or POSIX locale is available.
+	if(locale[0] == '\0' || str_comp(locale, "C") == 0 || str_comp(locale, "POSIX") == 0)
+		str_copy(locale, "en-US", length);
 }
 
 #if defined(CONF_EXCEPTION_HANDLING)

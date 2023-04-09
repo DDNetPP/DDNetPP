@@ -672,9 +672,6 @@ Sending initial client info
 Warning
 == 
 
-Search:
-== 
-
 Debug mode enabled. Press Ctrl+Shift+D to disable debug mode.
 == 
 
@@ -1066,6 +1063,9 @@ Skin prefix
 == 
 
 Choose default eyes when joining a server
+== 
+
+Create a random skin
 == 
 
 Skin Database

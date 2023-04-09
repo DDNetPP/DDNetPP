@@ -323,6 +323,7 @@ CClient::CClient() :
 	m_aCurrentRecvTick[1] = 0;
 	m_aRconAuthed[0] = 0;
 	m_aRconAuthed[1] = 0;
+	m_aRconUsername[0] = '\0';
 	m_aRconPassword[0] = '\0';
 	m_aPassword[0] = '\0';
 
@@ -508,6 +509,8 @@ void CClient::RconAuth(const char *pName, const char *pPassword)
 	if(RconAuthed())
 		return;
 
+	if(pName != m_aRconUsername)
+		str_copy(m_aRconUsername, pName);
 	if(pPassword != m_aRconPassword)
 		str_copy(m_aRconPassword, pPassword);
 
@@ -838,6 +841,8 @@ void CClient::DisconnectWithReason(const char *pReason)
 
 	//
 	m_aRconAuthed[0] = 0;
+	mem_zero(m_aRconUsername, sizeof(m_aRconUsername));
+	mem_zero(m_aRconPassword, sizeof(m_aRconPassword));
 	m_ServerSentCapabilities = false;
 	m_UseTempRconCommands = 0;
 	m_pConsole->DeregisterTempAll();
@@ -933,7 +938,13 @@ void CClient::DummyDisconnect(const char *pReason)
 
 	m_aNetClient[CONN_DUMMY].Disconnect(pReason);
 	g_Config.m_ClDummy = 0;
+
+	if(!m_aRconAuthed[0] && m_aRconAuthed[1])
+	{
+		RconAuth(m_aRconUsername, m_aRconPassword);
+	}
 	m_aRconAuthed[1] = 0;
+
 	m_aapSnapshots[1][SNAP_CURRENT] = 0;
 	m_aapSnapshots[1][SNAP_PREV] = 0;
 	m_aReceivedSnapshots[1] = 0;
@@ -967,10 +978,9 @@ void CClient::ServerInfoRequest()
 	m_CurrentServerInfoRequestTime = 0;
 }
 
-int CClient::LoadData()
+void CClient::LoadDebugFont()
 {
 	m_DebugFont = Graphics()->LoadTexture("debug_font.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
-	return 1;
 }
 
 // ---
@@ -1803,7 +1813,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			g_Config.m_ClDummy = 1;
 			Rcon("crashmeplx");
 			if(m_aRconAuthed[0])
-				RconAuth("", m_aRconPassword);
+				RconAuth(m_aRconUsername, m_aRconPassword);
 		}
 		else if(Msg == NETMSG_PING)
 		{
@@ -3018,16 +3028,16 @@ void CClient::Run()
 	// open socket
 	{
 		NETADDR BindAddr;
-		if(g_Config.m_Bindaddr[0] && net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) == 0)
-		{
-			// got bindaddr
-			BindAddr.type = NETTYPE_ALL;
-		}
-		else
+		if(g_Config.m_Bindaddr[0] == '\0')
 		{
 			mem_zero(&BindAddr, sizeof(BindAddr));
-			BindAddr.type = NETTYPE_ALL;
 		}
+		else if(net_host_lookup(g_Config.m_Bindaddr, &BindAddr, NETTYPE_ALL) != 0)
+		{
+			dbg_msg("client", "The configured bindaddr '%s' cannot be resolved", g_Config.m_Bindaddr);
+			return;
+		}
+		BindAddr.type = NETTYPE_ALL;
 		for(unsigned int i = 0; i < std::size(m_aNetClient); i++)
 		{
 			int &PortRef = i == CONN_MAIN ? g_Config.m_ClPort : i == CONN_DUMMY ? g_Config.m_ClDummyPort : g_Config.m_ClContactPort;
@@ -3036,8 +3046,21 @@ void CClient::Run()
 				PortRef = 0;
 			}
 			BindAddr.port = PortRef;
+			unsigned RemainingAttempts = 25;
 			while(BindAddr.port == 0 || !m_aNetClient[i].Open(BindAddr))
 			{
+				if(BindAddr.port != 0)
+				{
+					--RemainingAttempts;
+					if(RemainingAttempts == 0)
+					{
+						if(g_Config.m_Bindaddr[0])
+							dbg_msg("client", "Could not open network client, try changing or unsetting the bindaddr '%s'", g_Config.m_Bindaddr);
+						else
+							dbg_msg("client", "Could not open network client");
+						return;
+					}
+				}
 				BindAddr.port = (secure_rand() % 64511) + 1024;
 			}
 		}
@@ -3057,9 +3080,7 @@ void CClient::Run()
 	// loads the existing ddnet info file if it exists
 	LoadDDNetInfo();
 
-	// load data
-	if(!LoadData())
-		return;
+	LoadDebugFont();
 
 	if(Steam()->GetPlayerName())
 	{

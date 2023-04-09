@@ -2342,7 +2342,7 @@ if(CLIENT)
 
   if(TARGET_OS STREQUAL "windows")
     configure_file("other/manifest/client.manifest.in" "client.manifest")
-    set(CLIENT_ICON "other/icons/${CLIENT_EXECUTABLE}.rc")
+    set(CLIENT_ICON "other/icons/DDNet.rc")
     if(NOT MINGW)
       set(CLIENT_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/client.manifest")
     else()

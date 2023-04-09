@@ -1393,9 +1393,6 @@ Initializing map logic
 Sending initial client info
 == 
 
-Search:
-== 
-
 Position:
 == 
 
@@ -1517,6 +1514,9 @@ Loading skin files
 == 
 
 Download community skins
+== 
+
+Create a random skin
 == 
 
 Open the directory to add custom skins

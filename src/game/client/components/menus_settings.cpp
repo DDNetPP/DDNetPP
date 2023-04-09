@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+using namespace FontIcons;
 using namespace std::chrono_literals;
 
 CMenusKeyBinder CMenus::m_Binder;
@@ -438,6 +439,36 @@ void CMenus::RefreshSkins()
 	}
 }
 
+void CMenus::RandomSkin()
+{
+	static const float s_aSchemes[] = {1.0f / 2.0f, 1.0f / 3.0f, 1.0f / -3.0f, 1.0f / 12.0f, 1.0f / -12.0f}; // complementary, triadic, analogous
+
+	float GoalSat = random_float(0.3f, 1.0f);
+	float MaxBodyLht = 1.0f - GoalSat * GoalSat; // max allowed lightness before we start losing saturation
+
+	ColorHSLA Body;
+	Body.h = random_float();
+	Body.l = random_float(0.0f, MaxBodyLht);
+	Body.s = clamp(GoalSat * GoalSat / (1.0f - Body.l), 0.0f, 1.0f);
+
+	ColorHSLA Feet;
+	Feet.h = std::fmod(Body.h + s_aSchemes[rand() % std::size(s_aSchemes)], 1.0f);
+	Feet.l = random_float();
+	Feet.s = clamp(GoalSat * GoalSat / (1.0f - Feet.l), 0.0f, 1.0f);
+
+	const char *pRandomSkinName = CSkins::VANILLA_SKINS[rand() % (std::size(CSkins::VANILLA_SKINS) - 2)]; // last 2 skins are x_ninja and x_spec
+
+	char *pSkinName = !m_Dummy ? g_Config.m_ClPlayerSkin : g_Config.m_ClDummySkin;
+	unsigned *pColorBody = !m_Dummy ? &g_Config.m_ClPlayerColorBody : &g_Config.m_ClDummyColorBody;
+	unsigned *pColorFeet = !m_Dummy ? &g_Config.m_ClPlayerColorFeet : &g_Config.m_ClDummyColorFeet;
+
+	mem_copy(pSkinName, pRandomSkinName, sizeof(g_Config.m_ClPlayerSkin));
+	*pColorBody = Body.Pack(false);
+	*pColorFeet = Feet.Pack(false);
+
+	SetNeedSendInfo();
+}
+
 void CMenus::Con_AddFavoriteSkin(IConsole::IResult *pResult, void *pUserData)
 {
 	auto *pSelf = (CMenus *)pUserData;
@@ -601,7 +632,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	OwnSkinInfo.m_Size = 50.0f;
 
 	MainView.HSplitTop(50.0f, &Label, &MainView);
-	Label.VSplitLeft(230.0f, &Label, 0);
+	Label.VSplitLeft(260.0f, &Label, 0);
 	CAnimState *pIdleState = CAnimState::GetIdle();
 	vec2 OffsetToMid;
 	RenderTools()->GetRenderTeeOffsetToRenderedTee(pIdleState, &OwnSkinInfo, OffsetToMid);
@@ -661,6 +692,8 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		RenderTools()->RenderTee(pIdleState, &OwnSkinInfo, CurrentEyeEmote, vec2(1, 0), vec2(EyesTee.x + 25.0f, EyesTee.y + EyesTee.h / 2.0f + OffsetToMid.y));
 	}
 
+	Label.VSplitRight(34.0f, &Label, &Button);
+
 	static float s_OffsetSkin = 0.0f;
 	static int s_ClearButton = 0;
 	SUIExEditBoxProperties EditProps;
@@ -669,6 +702,22 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	{
 		SetNeedSendInfo();
 	}
+
+	// random skin button
+	Button.VSplitRight(30.0f, 0, &Button);
+	static CButtonContainer s_RandomSkinButtonID;
+	static const char *s_apDice[] = {FONT_ICON_DICE_ONE, FONT_ICON_DICE_TWO, FONT_ICON_DICE_THREE, FONT_ICON_DICE_FOUR, FONT_ICON_DICE_FIVE, FONT_ICON_DICE_SIX};
+	static int s_CurrentDie = rand() % std::size(s_apDice);
+	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+	if(DoButton_Menu(&s_RandomSkinButtonID, s_apDice[s_CurrentDie], 1, &Button, nullptr, IGraphics::CORNER_ALL, 5.0f, -0.2f))
+	{
+		RandomSkin();
+		s_CurrentDie = rand() % std::size(s_apDice);
+	}
+	TextRender()->SetRenderFlags(0);
+	TextRender()->SetCurFont(nullptr);
+	GameClient()->m_Tooltips.DoToolTip(&s_RandomSkinButtonID, &Button, Localize("Create a random skin"));
 
 	// custom color selector
 	MainView.HSplitTop(20.0f + RenderEyesBelow * 25.0f, 0, &MainView);
@@ -778,7 +827,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
 		SLabelProperties Props;
 		Props.m_MaxWidth = FavIcon.w;
-		UI()->DoLabel(&FavIcon, "\xef\x80\x85", 12.0f, TEXTALIGN_RIGHT, Props);
+		UI()->DoLabel(&FavIcon, FONT_ICON_STAR, 12.0f, TEXTALIGN_RIGHT, Props);
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
 		TextRender()->SetRenderFlags(0);
 		TextRender()->SetCurFont(nullptr);
@@ -819,7 +868,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		}
 		if(g_Config.m_Debug)
 		{
-			ColorRGBA BloodColor = *pUseCustomColor ? color_cast<ColorRGBA>(ColorHSLA(*pColorBody)) : pSkinToBeDraw->m_BloodColor;
+			ColorRGBA BloodColor = *pUseCustomColor ? color_cast<ColorRGBA>(ColorHSLA(*pColorBody).UnclampLighting()) : pSkinToBeDraw->m_BloodColor;
 			Graphics()->TextureClear();
 			Graphics()->QuadsBegin();
 			Graphics()->SetColor(BloodColor.r, BloodColor.g, BloodColor.b, 1.0f);
@@ -873,14 +922,13 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		MainView.HSplitBottom(ms_ButtonHeight, &MainView, &QuickSearch);
 		QuickSearch.VSplitLeft(240.0f, &QuickSearch, &SkinDB);
 		QuickSearch.HSplitTop(5.0f, 0, &QuickSearch);
-		const char *pSearchLabel = "\xEF\x80\x82";
 		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 		SLabelProperties Props;
 		Props.m_AlignVertically = 0;
-		UI()->DoLabel(&QuickSearch, pSearchLabel, 14.0f, TEXTALIGN_LEFT, Props);
-		float wSearch = TextRender()->TextWidth(14.0f, pSearchLabel, -1, -1.0f);
+		UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 14.0f, TEXTALIGN_LEFT, Props);
+		float wSearch = TextRender()->TextWidth(14.0f, FONT_ICON_MAGNIFYING_GLASS, -1, -1.0f);
 		TextRender()->SetRenderFlags(0);
 		TextRender()->SetCurFont(NULL);
 		QuickSearch.VSplitLeft(wSearch, 0, &QuickSearch);
@@ -931,7 +979,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 	static CButtonContainer s_SkinRefreshButtonID;
-	if(DoButton_Menu(&s_SkinRefreshButtonID, "\xEF\x80\x9E", 0, &RefreshButton, nullptr, IGraphics::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
+	if(DoButton_Menu(&s_SkinRefreshButtonID, FONT_ICON_ARROW_ROTATE_RIGHT, 0, &RefreshButton, nullptr, IGraphics::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
 	{
 		// reset render flags for possible loading screen
 		TextRender()->SetRenderFlags(0);
@@ -1479,7 +1527,7 @@ int CMenus::RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelecti
 		DropDownIcon.VSplitRight(5.0f, &DropDownIcon, nullptr);
 		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
-		UI()->DoLabel(&DropDownIcon, "\xEF\x84\xBA", DropDownIcon.h * CUI::ms_FontmodHeight, TEXTALIGN_RIGHT);
+		UI()->DoLabel(&DropDownIcon, FONT_ICON_CIRCLE_CHEVRON_DOWN, DropDownIcon.h * CUI::ms_FontmodHeight, TEXTALIGN_RIGHT);
 		TextRender()->SetRenderFlags(0);
 		TextRender()->SetCurFont(NULL);
 		return CurSelection;
@@ -1693,7 +1741,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	CUIRect Text;
 	MainView.HSplitTop(20.0f, 0, &MainView);
 	MainView.HSplitTop(20.0f, &Text, &MainView);
-	//text.VSplitLeft(15.0f, 0, &text);
+	// text.VSplitLeft(15.0f, 0, &text);
 	UI()->DoLabel(&Text, Localize("UI Color"), 14.0f, TEXTALIGN_LEFT);
 	CUIRect HSLBar = MainView;
 	RenderHSLScrollbars(&HSLBar, &g_Config.m_UiColor, true);
@@ -2026,109 +2074,32 @@ void CMenus::RenderSettingsSound(CUIRect MainView)
 	}
 }
 
-class CLanguage
-{
-public:
-	CLanguage() = default;
-	CLanguage(const char *pName, const char *pFileName, int Code) :
-		m_Name(pName), m_FileName(pFileName), m_CountryCode(Code) {}
-
-	std::string m_Name;
-	std::string m_FileName;
-	int m_CountryCode;
-
-	bool operator<(const CLanguage &Other) const { return m_Name < Other.m_Name; }
-};
-
-void LoadLanguageIndexfile(IStorage *pStorage, IConsole *pConsole, std::vector<CLanguage> &vLanguages)
-{
-	const char *pFilename = "languages/index.txt";
-	IOHANDLE File = pStorage->OpenFile(pFilename, IOFLAG_READ | IOFLAG_SKIP_BOM, IStorage::TYPE_ALL);
-	if(!File)
-	{
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "couldn't open index file '%s'", pFilename);
-		pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", aBuf);
-		return;
-	}
-
-	char aOrigin[128];
-	char aReplacement[128];
-	CLineReader LineReader;
-	LineReader.Init(File);
-	char *pLine;
-	while((pLine = LineReader.Get()))
-	{
-		if(!str_length(pLine) || pLine[0] == '#') // skip empty lines and comments
-			continue;
-
-		str_copy(aOrigin, pLine);
-
-		pLine = LineReader.Get();
-		if(!pLine)
-		{
-			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", "unexpected end of index file");
-			break;
-		}
-
-		if(pLine[0] != '=' || pLine[1] != '=' || pLine[2] != ' ')
-		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "malform replacement for index '%s'", aOrigin);
-			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", aBuf);
-			(void)LineReader.Get();
-			continue;
-		}
-		str_copy(aReplacement, pLine + 3);
-
-		pLine = LineReader.Get();
-		if(!pLine)
-		{
-			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", "unexpected end of index file");
-			break;
-		}
-
-		if(pLine[0] != '=' || pLine[1] != '=' || pLine[2] != ' ')
-		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "malform replacement for index '%s'", aOrigin);
-			pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "localization", aBuf);
-			continue;
-		}
-
-		char aFileName[IO_MAX_PATH_LENGTH];
-		str_format(aFileName, sizeof(aFileName), "languages/%s.txt", aOrigin);
-		vLanguages.emplace_back(aReplacement, aFileName, str_toint(pLine + 3));
-	}
-	io_close(File);
-}
-
 bool CMenus::RenderLanguageSelection(CUIRect MainView)
 {
-	static int s_SelectedLanguage = -1;
-	static std::vector<CLanguage> s_vLanguages;
+	static int s_SelectedLanguage = -2; // -2 = unloaded, -1 = unset
 	static CListBox s_ListBox;
 
-	if(s_vLanguages.empty())
+	if(s_SelectedLanguage == -2)
 	{
-		s_vLanguages.emplace_back("English", "", 826);
-		LoadLanguageIndexfile(Storage(), Console(), s_vLanguages);
-		std::sort(s_vLanguages.begin(), s_vLanguages.end());
-		for(size_t i = 0; i < s_vLanguages.size(); i++)
-			if(str_comp(s_vLanguages[i].m_FileName.c_str(), g_Config.m_ClLanguagefile) == 0)
+		s_SelectedLanguage = -1;
+		for(size_t i = 0; i < g_Localization.Languages().size(); i++)
+		{
+			if(str_comp(g_Localization.Languages()[i].m_FileName.c_str(), g_Config.m_ClLanguagefile) == 0)
 			{
 				s_SelectedLanguage = i;
+				s_ListBox.ScrollToSelected();
 				break;
 			}
+		}
 	}
 
 	const int OldSelected = s_SelectedLanguage;
 
-	s_ListBox.DoStart(24.0f, s_vLanguages.size(), 1, 3, s_SelectedLanguage, &MainView, true);
+	s_ListBox.DoStart(24.0f, g_Localization.Languages().size(), 1, 3, s_SelectedLanguage, &MainView, true);
 
-	for(auto &Language : s_vLanguages)
+	for(const auto &Language : g_Localization.Languages())
 	{
-		const CListboxItem Item = s_ListBox.DoNextItem(&Language.m_Name, s_SelectedLanguage != -1 && !str_comp(s_vLanguages[s_SelectedLanguage].m_Name.c_str(), Language.m_Name.c_str()));
+		const CListboxItem Item = s_ListBox.DoNextItem(&Language.m_Name, s_SelectedLanguage != -1 && !str_comp(g_Localization.Languages()[s_SelectedLanguage].m_Name.c_str(), Language.m_Name.c_str()));
 		if(!Item.m_Visible)
 			continue;
 
@@ -2148,8 +2119,8 @@ bool CMenus::RenderLanguageSelection(CUIRect MainView)
 
 	if(OldSelected != s_SelectedLanguage)
 	{
-		str_copy(g_Config.m_ClLanguagefile, s_vLanguages[s_SelectedLanguage].m_FileName.c_str());
-		g_Localization.Load(s_vLanguages[s_SelectedLanguage].m_FileName.c_str(), Storage(), Console());
+		str_copy(g_Config.m_ClLanguagefile, g_Localization.Languages()[s_SelectedLanguage].m_FileName.c_str());
+		g_Localization.Load(g_Localization.Languages()[s_SelectedLanguage].m_FileName.c_str(), Storage(), Console());
 		GameClient()->OnLanguageChange();
 	}
 
@@ -2292,7 +2263,7 @@ ColorHSLA CMenus::RenderHSLColorPicker(const CUIRect *pRect, unsigned int *pColo
 				return HSLColor;
 		}
 
-		CUIRect *pScreen = UI()->Screen();
+		const CUIRect *pScreen = UI()->Screen();
 		ms_ColorPicker.m_X = minimum(UI()->MouseX(), pScreen->w - ms_ColorPicker.ms_Width);
 		ms_ColorPicker.m_Y = minimum(UI()->MouseY(), pScreen->h - ms_ColorPicker.ms_Height);
 		ms_ColorPicker.m_pColor = pColor;

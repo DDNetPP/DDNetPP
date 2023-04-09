@@ -1121,7 +1121,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 		if(m_pPlayer->m_IsVanillaWeapons)
 			AmmoCount = m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo;
 		else if(m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo > 0)
-			AmmoCount = (m_FreezeTime > 0) ? m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
+			AmmoCount = (m_FreezeTime == 0) ? m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo : 0;
 	}
 
 	if(GetPlayer()->IsAfk() || GetPlayer()->IsPaused())

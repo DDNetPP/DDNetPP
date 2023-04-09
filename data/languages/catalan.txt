@@ -1344,9 +1344,6 @@ Initializing map logic
 Sending initial client info
 == 
 
-Search:
-== 
-
 Position:
 == 
 
@@ -1474,6 +1471,9 @@ Download community skins
 == 
 
 Choose default eyes when joining a server
+== 
+
+Create a random skin
 == 
 
 Open the directory to add custom skins
