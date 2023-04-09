@@ -609,8 +609,8 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	{
 		return true;
 	}
-	pSqlServer->BindString(1, pData->m_aUsername);
-	pSqlServer->BindString(2, pData->m_aNewPassword);
+	pSqlServer->BindString(1, pData->m_aNewPassword);
+	pSqlServer->BindString(2, pData->m_aUsername);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
