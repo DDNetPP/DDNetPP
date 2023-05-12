@@ -8,6 +8,7 @@
 #include <engine/demo.h>
 #include <engine/graphics.h>
 #include <engine/keys.h>
+#include <engine/shared/localization.h>
 #include <engine/storage.h>
 #include <engine/textrender.h>
 
@@ -30,7 +31,7 @@ using namespace std::chrono_literals;
 int CMenus::DoButton_DemoPlayer(const void *pID, const char *pText, int Checked, const CUIRect *pRect)
 {
 	pRect->Draw(ColorRGBA(1, 1, 1, (Checked ? 0.10f : 0.5f) * UI()->ButtonColorMul(pID)), IGraphics::CORNER_ALL, 5.0f);
-	UI()->DoLabel(pRect, pText, 14.0f, TEXTALIGN_CENTER);
+	UI()->DoLabel(pRect, pText, 14.0f, TEXTALIGN_MC);
 	return UI()->DoButtonLogic(pID, Checked, pRect);
 }
 
@@ -41,17 +42,15 @@ int CMenus::DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pT
 	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 	TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
 	TextRender()->TextColor(TextRender()->DefaultTextColor());
-	CUIRect Rect = *pRect;
 	CUIRect Temp;
-	Rect.HMargin(2.0f, &Temp);
-	SLabelProperties Props;
-	UI()->DoLabel(&Temp, pText, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_CENTER, Props);
+	pRect->HMargin(2.0f, &Temp);
+	UI()->DoLabel(&Temp, pText, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 
 	if(!Enabled)
 	{
 		TextRender()->TextColor(ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f));
 		TextRender()->TextOutlineColor(ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
-		UI()->DoLabel(&Temp, FONT_ICON_SLASH, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_CENTER, Props);
+		UI()->DoLabel(&Temp, FONT_ICON_SLASH, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 		TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
 	}
@@ -133,11 +132,11 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 		Box.HSplitTop(20.f, 0, &Box);
 		Box.HSplitTop(24.f, &Part, &Box);
-		UI()->DoLabel(&Part, Localize("Select a name"), 24.f, TEXTALIGN_CENTER);
+		UI()->DoLabel(&Part, Localize("Select a name"), 24.f, TEXTALIGN_MC);
 		Box.HSplitTop(20.f, 0, &Box);
 		Box.HSplitTop(20.f, &Part, &Box);
 		Part.VMargin(20.f, &Part);
-		UI()->DoLabel(&Part, m_aDemoPlayerPopupHint, 20.f, TEXTALIGN_CENTER);
+		UI()->DoLabel(&Part, m_aDemoPlayerPopupHint, 20.f, TEXTALIGN_MC);
 		Box.HSplitTop(20.f, 0, &Box);
 
 		CUIRect Label, TextBox, Ok, Abort;
@@ -164,15 +163,15 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 			DemoPlayer()->GetDemoName(aDemoName, sizeof(aDemoName));
 			str_append(aDemoName, ".demo", sizeof(aDemoName));
 
-			if(!str_endswith(m_aCurrentDemoFile, ".demo"))
-				str_append(m_aCurrentDemoFile, ".demo", sizeof(m_aCurrentDemoFile));
+			if(!str_endswith(m_DemoSliceInput.GetString(), ".demo"))
+				m_DemoSliceInput.Append(".demo");
 
-			if(str_comp(aDemoName, m_aCurrentDemoFile) == 0)
+			if(str_comp(aDemoName, m_DemoSliceInput.GetString()) == 0)
 				str_copy(m_aDemoPlayerPopupHint, Localize("Please use a different name"));
 			else
 			{
 				char aPath[IO_MAX_PATH_LENGTH];
-				str_format(aPath, sizeof(aPath), "%s/%s", m_aCurrentDemoFolder, m_aCurrentDemoFile);
+				str_format(aPath, sizeof(aPath), "%s/%s", m_aCurrentDemoFolder, m_DemoSliceInput.GetString());
 
 				IOHANDLE DemoFile = Storage()->OpenFile(aPath, IOFLAG_READ, IStorage::TYPE_SAVE);
 				const char *pStr = Localize("File already exists, do you want to overwrite it?");
@@ -207,9 +206,8 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		Label.VSplitLeft(120.0f, 0, &TextBox);
 		TextBox.VSplitLeft(20.0f, 0, &TextBox);
 		TextBox.VSplitRight(60.0f, &TextBox, 0);
-		UI()->DoLabel(&Label, Localize("New name:"), 18.0f, TEXTALIGN_LEFT);
-		static float s_Offset = 0.0f;
-		if(UI()->DoEditBox(&s_Offset, &TextBox, m_aCurrentDemoFile, sizeof(m_aCurrentDemoFile), 12.0f, &s_Offset))
+		UI()->DoLabel(&Label, Localize("New name:"), 18.0f, TEXTALIGN_ML);
+		if(UI()->DoEditBox(&m_DemoSliceInput, &TextBox, 12.0f))
 		{
 			m_aDemoPlayerPopupHint[0] = '\0';
 		}
@@ -412,7 +410,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 		char aTotalTime[32];
 		str_time((int64_t)TotalTicks / SERVER_TICK_SPEED * 100, TIME_HOURS, aTotalTime, sizeof(aTotalTime));
 		str_format(aBuffer, sizeof(aBuffer), "%s / %s", aCurrentTime, aTotalTime);
-		UI()->DoLabel(&SeekBar, aBuffer, SeekBar.h * 0.70f, TEXTALIGN_CENTER);
+		UI()->DoLabel(&SeekBar, aBuffer, SeekBar.h * 0.70f, TEXTALIGN_MC);
 
 		// do the logic
 		const bool Inside = UI()->MouseInside(&SeekBar);
@@ -531,7 +529,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	ButtonBar.VSplitLeft(Margins * 12, &SpeedBar, &ButtonBar);
 	char aBuffer[64];
 	str_format(aBuffer, sizeof(aBuffer), "×%g", pInfo->m_Speed);
-	UI()->DoLabel(&SpeedBar, aBuffer, Button.h * 0.7f, TEXTALIGN_CENTER);
+	UI()->DoLabel(&SpeedBar, aBuffer, Button.h * 0.7f, TEXTALIGN_MC);
 
 	// slice begin button
 	ButtonBar.VSplitLeft(ButtonbarHeight, &Button, &ButtonBar);
@@ -562,8 +560,11 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 	static CButtonContainer s_SliceSaveButton;
 	if(DoButton_FontIcon(&s_SliceSaveButton, FONT_ICON_ARROW_UP_RIGHT_FROM_SQUARE, 0, &Button, IGraphics::CORNER_ALL))
 	{
-		DemoPlayer()->GetDemoName(m_aCurrentDemoFile, sizeof(m_aCurrentDemoFile));
-		str_append(m_aCurrentDemoFile, ".demo", sizeof(m_aCurrentDemoFile));
+		char aDemoName[IO_MAX_PATH_LENGTH];
+		DemoPlayer()->GetDemoName(aDemoName, sizeof(aDemoName));
+		m_DemoSliceInput.Set(aDemoName);
+		m_DemoSliceInput.Append(".demo");
+		UI()->SetActiveItem(&m_DemoSliceInput);
 		m_aDemoPlayerPopupHint[0] = '\0';
 		m_DemoPlayerState = DEMOPLAYER_SLICE_SAVE;
 	}
@@ -816,76 +817,76 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		// left side
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Created:"), 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Created:"), 14.0f, TEXTALIGN_ML);
 
 		char aTimestamp[256];
 		str_timestamp_ex(m_vDemos[m_DemolistSelectedIndex].m_Date, aTimestamp, sizeof(aTimestamp), FORMAT_SPACE);
 
-		UI()->DoLabel(&Right, aTimestamp, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Right, aTimestamp, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Type:"), 14.0f, TEXTALIGN_LEFT);
-		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aType, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Type:"), 14.0f, TEXTALIGN_ML);
+		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aType, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Length:"), 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Length:"), 14.0f, TEXTALIGN_ML);
 		int Length = m_vDemos[m_DemolistSelectedIndex].Length();
 		char aBuf[64];
 		str_time((int64_t)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
-		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Version:"), 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Version:"), 14.0f, TEXTALIGN_ML);
 		str_format(aBuf, sizeof(aBuf), "%d", m_vDemos[m_DemolistSelectedIndex].m_Info.m_Version);
-		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Markers:"), 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Markers:"), 14.0f, TEXTALIGN_ML);
 		str_format(aBuf, sizeof(aBuf), "%d", m_vDemos[m_DemolistSelectedIndex].NumMarkers());
-		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_ML);
 
 		// right side
 		Labels = MainView;
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Map:"), 14.0f, TEXTALIGN_LEFT);
-		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aMapName, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Map:"), 14.0f, TEXTALIGN_ML);
+		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aMapName, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Size:"), 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Size:"), 14.0f, TEXTALIGN_ML);
 		const float Size = m_vDemos[m_DemolistSelectedIndex].Size() / 1024.0f;
 		if(Size > 1024)
 			str_format(aBuf, sizeof(aBuf), Localize("%.2f MiB"), Size / 1024.0f);
 		else
 			str_format(aBuf, sizeof(aBuf), Localize("%.2f KiB"), Size);
-		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_ML);
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 		Left.VSplitLeft(150.0f, &Left, &Right);
 		if(m_vDemos[m_DemolistSelectedIndex].m_MapInfo.m_Sha256 != SHA256_ZEROED)
 		{
-			UI()->DoLabel(&Left, "SHA256:", 14.0f, TEXTALIGN_LEFT);
+			UI()->DoLabel(&Left, "SHA256:", 14.0f, TEXTALIGN_ML);
 			char aSha[SHA256_MAXSTRSIZE];
 			sha256_str(m_vDemos[m_DemolistSelectedIndex].m_MapInfo.m_Sha256, aSha, sizeof(aSha) / 2);
-			UI()->DoLabel(&Right, aSha, Right.w > 235 ? 14.0f : 11.0f, TEXTALIGN_LEFT);
+			UI()->DoLabel(&Right, aSha, Right.w > 235 ? 14.0f : 11.0f, TEXTALIGN_ML);
 		}
 		else
 		{
-			UI()->DoLabel(&Left, Localize("Crc:"), 14.0f, TEXTALIGN_LEFT);
+			UI()->DoLabel(&Left, Localize("Crc:"), 14.0f, TEXTALIGN_ML);
 			str_format(aBuf, sizeof(aBuf), "%08x", m_vDemos[m_DemolistSelectedIndex].m_MapInfo.m_Crc);
-			UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_LEFT);
+			UI()->DoLabel(&Right, aBuf, 14.0f, TEXTALIGN_ML);
 		}
 		Labels.HSplitTop(5.0f, 0, &Labels);
 		Labels.HSplitTop(20.0f, &Left, &Labels);
 
 		Left.VSplitLeft(150.0f, &Left, &Right);
-		UI()->DoLabel(&Left, Localize("Netversion:"), 14.0f, TEXTALIGN_LEFT);
-		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aNetversion, 14.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&Left, Localize("Netversion:"), 14.0f, TEXTALIGN_ML);
+		UI()->DoLabel(&Right, m_vDemos[m_DemolistSelectedIndex].m_Info.m_aNetversion, 14.0f, TEXTALIGN_ML);
 	}
 
 	// demo list
@@ -914,14 +915,11 @@ void CMenus::RenderDemoList(CUIRect MainView)
 	};
 
 	static CColumn s_aCols[] = {
-		{COL_DEMONAME, SORT_DEMONAME, "Demo", 0, 0.0f, {0}, {0}},
-		{COL_MARKERS, SORT_MARKERS, "Markers", 1, 75.0f, {0}, {0}},
-		{COL_LENGTH, SORT_LENGTH, "Length", 1, 75.0f, {0}, {0}},
-		{COL_DATE, SORT_DATE, "Date", 1, 160.0f, {0}, {0}},
+		{COL_DEMONAME, SORT_DEMONAME, Localizable("Demo"), 0, 0.0f, {0}, {0}},
+		{COL_MARKERS, SORT_MARKERS, Localizable("Markers"), 1, 75.0f, {0}, {0}},
+		{COL_LENGTH, SORT_LENGTH, Localizable("Length"), 1, 75.0f, {0}, {0}},
+		{COL_DATE, SORT_DATE, Localizable("Date"), 1, 160.0f, {0}, {0}},
 	};
-	/* This is just for scripts/update_localization.py to work correctly. Don't remove!
-		Localize("Demo");Localize("Markers");Localize("Length");Localize("Date");
-	*/
 
 	Headers.Draw(ColorRGBA(0.0f, 0, 0, 0.15f), 0, 0);
 
@@ -1010,7 +1008,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 
 		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 		TextRender()->TextColor(IconColor);
-		UI()->DoLabel(&FileIcon, pIconType, 12.0f, TEXTALIGN_LEFT);
+		UI()->DoLabel(&FileIcon, pIconType, 12.0f, TEXTALIGN_ML);
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
 		TextRender()->SetCurFont(nullptr);
 
@@ -1037,7 +1035,7 @@ void CMenus::RenderDemoList(CUIRect MainView)
 				char aBuf[3];
 				str_format(aBuf, sizeof(aBuf), "%d", Item.NumMarkers());
 				Button.VMargin(4.0f, &Button);
-				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_RIGHT);
+				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_MR);
 			}
 			else if(ID == COL_LENGTH && !Item.m_IsDir && Item.m_InfosLoaded)
 			{
@@ -1045,14 +1043,14 @@ void CMenus::RenderDemoList(CUIRect MainView)
 				char aBuf[32];
 				str_time((int64_t)Length * 100, TIME_HOURS, aBuf, sizeof(aBuf));
 				Button.VMargin(4.0f, &Button);
-				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_RIGHT);
+				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_MR);
 			}
 			else if(ID == COL_DATE && !Item.m_IsDir)
 			{
 				char aBuf[64];
 				str_timestamp_ex(Item.m_Date, aBuf, sizeof(aBuf), FORMAT_SPACE);
 				Button.VSplitRight(24.0f, &Button, 0);
-				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_RIGHT);
+				UI()->DoLabel(&Button, aBuf, 12.0f, TEXTALIGN_MR);
 			}
 		}
 	}
@@ -1146,9 +1144,9 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		{
 			if(m_DemolistSelectedIndex >= 0)
 			{
-				UI()->SetActiveItem(nullptr);
 				m_Popup = POPUP_RENAME_DEMO;
-				str_copy(m_aCurrentDemoFile, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
+				m_DemoRenameInput.Set(m_vDemos[m_DemolistSelectedIndex].m_aFilename);
+				UI()->SetActiveItem(&m_DemoRenameInput);
 				return;
 			}
 		}
@@ -1159,16 +1157,16 @@ void CMenus::RenderDemoList(CUIRect MainView)
 		{
 			if(m_DemolistSelectedIndex >= 0)
 			{
-				UI()->SetActiveItem(nullptr);
 				m_Popup = POPUP_RENDER_DEMO;
-				str_copy(m_aCurrentDemoFile, m_vDemos[m_DemolistSelectedIndex].m_aFilename);
+				m_DemoRenderInput.Set(m_vDemos[m_DemolistSelectedIndex].m_aFilename);
+				UI()->SetActiveItem(&m_DemoRenderInput);
 				return;
 			}
 		}
 #endif
 	}
 
-	UI()->DoLabel(&LabelRect, aFooterLabel, 14.0f, TEXTALIGN_LEFT);
+	UI()->DoLabel(&LabelRect, aFooterLabel, 14.0f, TEXTALIGN_ML);
 }
 
 void CMenus::PopupConfirmDeleteDemo()

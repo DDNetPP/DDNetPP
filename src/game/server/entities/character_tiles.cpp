@@ -280,7 +280,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if(((m_TileIndex == TILE_FNG_SCORE) || (m_TileFIndex == TILE_FNG_SCORE)))
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD, true);
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD, true, true);
 	}
 
 	if(((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))

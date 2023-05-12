@@ -99,7 +99,7 @@ public:
 	void ResetInput();
 	void FireWeapon();
 
-	void Die(int Killer, int Weapon, bool fngscore = false);
+	void Die(int Killer, int Weapon, bool SendKillMsg = true, bool fngscore = false);
 	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon);
 
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);

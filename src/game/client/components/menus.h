@@ -55,7 +55,7 @@ public:
 	int m_ModifierCombination;
 	CMenusKeyBinder();
 	virtual int Sizeof() const override { return sizeof(*this); }
-	virtual bool OnInput(IInput::CEvent Event) override;
+	virtual bool OnInput(const IInput::CEvent &Event) override;
 };
 
 class CMenus : public CComponent
@@ -79,8 +79,8 @@ class CMenus : public CComponent
 	int DoButton_DemoPlayer(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, bool Enabled = true);
 	int DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, bool Active);
-	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1, bool CheckForActiveColorPicker = false);
-	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10, int AlignVertically = 1);
+	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), bool CheckForActiveColorPicker = false);
+	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10);
 
 	int DoButton_CheckBox_Common(const void *pID, const char *pText, const char *pBoxText, const CUIRect *pRect);
 	int DoButton_CheckBox(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
@@ -109,15 +109,15 @@ class CMenus : public CComponent
 
 	// new gui with gui elements
 	template<typename T>
-	int DoButtonMenu(CUIElement &UIElement, const void *pID, T &&GetTextLambda, int Checked, const CUIRect *pRect, bool HintRequiresStringCheck, bool HintCanChangePositionOrSize = false, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), int AlignVertically = 1)
+	int DoButtonMenu(CUIElement &UIElement, const void *pID, T &&GetTextLambda, int Checked, const CUIRect *pRect, bool HintRequiresStringCheck, bool HintCanChangePositionOrSize = false, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f))
 	{
 		CUIRect Text = *pRect;
 		Text.HMargin(pRect->h >= 20.0f ? 2.0f : 1.0f, &Text);
 		Text.HMargin((Text.h * FontFactor) / 2.0f, &Text);
 
-		if(!UIElement.AreRectsInit() || HintRequiresStringCheck || HintCanChangePositionOrSize || UIElement.Rect(0)->m_UITextContainer == -1)
+		if(!UIElement.AreRectsInit() || HintRequiresStringCheck || HintCanChangePositionOrSize || !UIElement.Rect(0)->m_UITextContainer.Valid())
 		{
-			bool NeedsRecalc = !UIElement.AreRectsInit() || UIElement.Rect(0)->m_UITextContainer == -1;
+			bool NeedsRecalc = !UIElement.AreRectsInit() || !UIElement.Rect(0)->m_UITextContainer.Valid();
 			if(HintCanChangePositionOrSize)
 			{
 				if(UIElement.AreRectsInit())
@@ -172,9 +172,7 @@ class CMenus : public CComponent
 						if(pText == nullptr)
 							pText = GetTextLambda();
 						NewRect.m_Text = pText;
-						SLabelProperties Props;
-						Props.m_AlignVertically = AlignVertically;
-						UI()->DoLabel(NewRect, &Text, pText, Text.h * CUI::ms_FontmodHeight, TEXTALIGN_CENTER, Props);
+						UI()->DoLabel(NewRect, &Text, pText, Text.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 					}
 				}
 				Graphics()->SetColor(1, 1, 1, 1);
@@ -190,7 +188,7 @@ class CMenus : public CComponent
 		Graphics()->RenderQuadContainer(UIElement.Rect(Index)->m_UIRectQuadContainer, -1);
 		ColorRGBA ColorText(TextRender()->DefaultTextColor());
 		ColorRGBA ColorTextOutline(TextRender()->DefaultTextOutlineColor());
-		if(UIElement.Rect(0)->m_UITextContainer != -1)
+		if(UIElement.Rect(0)->m_UITextContainer.Valid())
 			TextRender()->RenderTextContainer(UIElement.Rect(0)->m_UITextContainer, ColorText, ColorTextOutline);
 		return UI()->DoButtonLogic(pID, Checked, pRect);
 	}
@@ -336,14 +334,6 @@ protected:
 		FPopupButtonCallback pfnConfirmButtonCallback = &CMenus::DefaultButtonCallback, int ConfirmNextPopup = POPUP_NONE,
 		FPopupButtonCallback pfnCancelButtonCallback = &CMenus::DefaultButtonCallback, int CancelNextPopup = POPUP_NONE);
 
-	// TODO: this is a bit ugly but.. well.. yeah
-	enum
-	{
-		MAX_INPUTEVENTS = 32
-	};
-	static IInput::CEvent m_aInputEvents[MAX_INPUTEVENTS];
-	static int m_NumInputEvents;
-
 	// some settings
 	static float ms_ButtonHeight;
 	static float ms_ListheaderHeight;
@@ -365,11 +355,14 @@ protected:
 	int m_DownloadLastCheckSize;
 	float m_DownloadSpeed;
 
+	// for password popup
+	CLineInput m_PasswordInput;
+
 	// for call vote
 	int m_CallvoteSelectedOption;
 	int m_CallvoteSelectedPlayer;
-	char m_aCallvoteReason[VOTE_REASON_LENGTH];
-	char m_aFilterString[25];
+	CLineInputBuffered<VOTE_REASON_LENGTH> m_CallvoteReasonInput;
+	CLineInputBuffered<64> m_FilterInput;
 	bool m_ControlPageOpening;
 
 	// demo
@@ -445,7 +438,9 @@ protected:
 	};
 
 	char m_aCurrentDemoFolder[IO_MAX_PATH_LENGTH];
-	char m_aCurrentDemoFile[IO_MAX_PATH_LENGTH];
+	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_DemoRenameInput;
+	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_DemoSliceInput;
+	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_DemoRenderInput;
 	int m_DemolistSelectedIndex;
 	bool m_DemolistSelectedIsDir;
 	int m_DemolistStorageType;
@@ -513,7 +508,7 @@ protected:
 	void RenderStartMenu(CUIRect MainView);
 
 	// found in menus_ingame.cpp
-	int m_MotdTextContainerIndex = -1;
+	STextContainerIndex m_MotdTextContainerIndex;
 	void RenderGame(CUIRect MainView);
 	void PopupConfirmDisconnect();
 	void PopupConfirmDisconnectDummy();
@@ -595,7 +590,7 @@ public:
 	virtual void OnWindowResize() override;
 	virtual void OnReset() override;
 	virtual void OnRender() override;
-	virtual bool OnInput(IInput::CEvent Event) override;
+	virtual bool OnInput(const IInput::CEvent &Event) override;
 	virtual bool OnCursorMove(float x, float y, IInput::ECursorType CursorType) override;
 	virtual void OnShutdown() override;
 
@@ -693,7 +688,6 @@ public:
 	void UpdateOwnGhost(CGhostItem Item);
 	void DeleteGhostItem(int Index);
 
-	void setPopup(int Popup) { m_Popup = Popup; }
 	int GetCurPopup() { return m_Popup; }
 	bool CanDisplayWarning();
 

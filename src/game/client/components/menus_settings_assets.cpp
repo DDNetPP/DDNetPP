@@ -259,7 +259,7 @@ static size_t gs_aCustomListSize[NUMBER_OF_ASSETS_TABS] = {
 	0,
 };
 
-static char s_aFilterString[NUMBER_OF_ASSETS_TABS][50];
+static CLineInputBuffered<64> s_aFilterInputs[NUMBER_OF_ASSETS_TABS];
 
 static int s_CurCustomTab = ASSETS_TAB_ENTITIES;
 
@@ -377,7 +377,7 @@ int InitSearchList(std::vector<const TName *> &vpSearchList, std::vector<TName> 
 		const TName *pAsset = &vAssetList[i];
 
 		// filter quick search
-		if(s_aFilterString[s_CurCustomTab][0] != '\0' && !str_utf8_find_nocase(pAsset->m_aName, s_aFilterString[s_CurCustomTab]))
+		if(!s_aFilterInputs[s_CurCustomTab].IsEmpty() && !str_utf8_find_nocase(pAsset->m_aName, s_aFilterInputs[s_CurCustomTab].GetString()))
 			continue;
 
 		vpSearchList.push_back(pAsset);
@@ -472,7 +472,7 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 				const SCustomEntities *pEntity = &m_vEntitiesList[i];
 
 				// filter quick search
-				if(s_aFilterString[s_CurCustomTab][0] != '\0' && !str_utf8_find_nocase(pEntity->m_aName, s_aFilterString[s_CurCustomTab]))
+				if(!s_aFilterInputs[s_CurCustomTab].IsEmpty() && !str_utf8_find_nocase(pEntity->m_aName, s_aFilterInputs[s_CurCustomTab].GetString()))
 					continue;
 
 				gs_vpSearchEntitiesList.push_back(pEntity);
@@ -583,7 +583,7 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 		CUIRect TextureRect;
 		ItemRect.HSplitTop(15, &ItemRect, &TextureRect);
 		TextureRect.HSplitTop(10, NULL, &TextureRect);
-		UI()->DoLabel(&ItemRect, pItem->m_aName, ItemRect.h - 2, TEXTALIGN_CENTER);
+		UI()->DoLabel(&ItemRect, pItem->m_aName, ItemRect.h - 2, TEXTALIGN_MC);
 		if(pItem->m_RenderTexture.IsValid())
 		{
 			Graphics()->WrapClamp();
@@ -643,25 +643,20 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
-		SLabelProperties Props;
-		Props.m_AlignVertically = 0;
-		UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 14.0f, TEXTALIGN_LEFT, Props);
+		UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 14.0f, TEXTALIGN_ML);
 		float wSearch = TextRender()->TextWidth(14.0f, FONT_ICON_MAGNIFYING_GLASS, -1, -1.0f);
 		TextRender()->SetRenderFlags(0);
 		TextRender()->SetCurFont(NULL);
 		QuickSearch.VSplitLeft(wSearch, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(QuickSearch.w - 15.0f, &QuickSearch, &QuickSearchClearButton);
-		static int s_ClearButton = 0;
-		static float s_Offset = 0.0f;
-		SUIExEditBoxProperties EditProps;
 		if(Input()->KeyPress(KEY_F) && Input()->ModifierIsPressed())
 		{
-			UI()->SetActiveItem(&s_aFilterString[s_CurCustomTab]);
-			EditProps.m_SelectText = true;
+			UI()->SetActiveItem(&s_aFilterInputs[s_CurCustomTab]);
+			s_aFilterInputs[s_CurCustomTab].SelectAll();
 		}
-		EditProps.m_pEmptyText = Localize("Search");
-		if(UI()->DoClearableEditBox(&s_aFilterString[s_CurCustomTab], &s_ClearButton, &QuickSearch, s_aFilterString[s_CurCustomTab], sizeof(s_aFilterString[0]), 14.0f, &s_Offset, false, IGraphics::CORNER_ALL, EditProps))
+		s_aFilterInputs[s_CurCustomTab].SetEmptyText(Localize("Search"));
+		if(UI()->DoClearableEditBox(&s_aFilterInputs[s_CurCustomTab], &QuickSearch, 14.0f))
 			gs_aInitCustomList[s_CurCustomTab] = true;
 	}
 
@@ -699,7 +694,7 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 	static CButtonContainer s_AssetsReloadBtnID;
-	if(DoButton_Menu(&s_AssetsReloadBtnID, FONT_ICON_ARROW_ROTATE_RIGHT, 0, &ReloadButton, nullptr, IGraphics::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f), 0))
+	if(DoButton_Menu(&s_AssetsReloadBtnID, FONT_ICON_ARROW_ROTATE_RIGHT, 0, &ReloadButton, nullptr, IGraphics::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f)))
 	{
 		ClearCustomItems(s_CurCustomTab);
 	}

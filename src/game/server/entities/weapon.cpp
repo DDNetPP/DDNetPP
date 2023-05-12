@@ -73,7 +73,7 @@ void CWeapon::IsShieldNear()
 	{
 		CPickup *pShield = apEnts[i];
 
-		if(pShield->GetType() == POWERUP_ARMOR)
+		if(pShield->Type() == POWERUP_ARMOR)
 		{
 			GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 			Reset();

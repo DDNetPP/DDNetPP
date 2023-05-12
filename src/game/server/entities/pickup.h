@@ -8,6 +8,8 @@
 class CPickup : public CEntity
 {
 public:
+	static const int ms_CollisionExtraSize = 6;
+
 	CPickup(CGameWorld *pGameWorld, int Type, int SubType = 0, int Layer = 0, int Number = 0);
 
 	void Reset() override;
@@ -15,7 +17,8 @@ public:
 	void TickPaused() override;
 	void Snap(int SnappingClient) override;
 
-	int GetType() { return m_Type; }
+	int Type() const { return m_Type; }
+	int Subtype() const { return m_Subtype; }
 
 private:
 	int m_Type;
