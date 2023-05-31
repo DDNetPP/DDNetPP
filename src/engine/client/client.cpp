@@ -913,7 +913,7 @@ void CClient::DummyConnect()
 	if(m_LastDummyConnectTime > 0 && m_LastDummyConnectTime + GameTickSpeed() * 5 > GameTick(g_Config.m_ClDummy))
 		return;
 
-	if(m_aNetClient[CONN_MAIN].State() != NET_CONNSTATE_ONLINE && m_aNetClient[CONN_MAIN].State() != NET_CONNSTATE_PENDING)
+	if(m_aNetClient[CONN_MAIN].State() != NETSTATE_ONLINE)
 		return;
 
 	if(m_DummyConnected || !DummyAllowed())
@@ -4629,10 +4629,21 @@ int main(int argc, const char **argv)
 		if(MainThreadId != std::this_thread::get_id())
 			return;
 		char aVersionStr[128];
-		if(os_version_str(aVersionStr, sizeof(aVersionStr)))
+		if(!os_version_str(aVersionStr, sizeof(aVersionStr)))
 			str_copy(aVersionStr, "unknown");
-		char aMessage[512];
-		str_format(aMessage, sizeof(aMessage), "An assertion error occured. Please write down or take a screenshot of the following information and report this error.\nPlease also share the assert log which you should find in the 'dumps' folder in your config directory.\n\n%s\n\nPlatform: %s\nGame version: %s %s\nOS version: %s", pMsg, CONF_PLATFORM_STRING, GAME_RELEASE_VERSION, GIT_SHORTREV_HASH != nullptr ? GIT_SHORTREV_HASH : "", aVersionStr);
+		char aGPUInfo[256];
+		pClient->GetGPUInfoString(aGPUInfo);
+		char aMessage[768];
+		str_format(aMessage, sizeof(aMessage),
+			"An assertion error occured. Please write down or take a screenshot of the following information and report this error.\n"
+			"Please also share the assert log which you should find in the 'dumps' folder in your config directory.\n\n"
+			"%s\n\n"
+			"Platform: %s\n"
+			"Game version: %s %s\n"
+			"OS version: %s\n\n"
+			"%s", // GPU info
+			pMsg, CONF_PLATFORM_STRING, GAME_RELEASE_VERSION, GIT_SHORTREV_HASH != nullptr ? GIT_SHORTREV_HASH : "", aVersionStr,
+			aGPUInfo);
 		pClient->ShowMessageBox("Assertion Error", aMessage);
 		// Client will crash due to assertion, don't call PerformAllCleanup in this inconsistent state
 	});
@@ -4785,6 +4796,12 @@ int main(int argc, const char **argv)
 	// Hints will not be set if there is an existing override hint or environment variable that takes precedence.
 	// So this respects cli environment overrides.
 	SDL_SetHint("SDL_MAC_OPENGL_ASYNC_DISPATCH", "1");
+#endif
+
+#if defined(CONF_FAMILY_WINDOWS)
+	SDL_SetHint("SDL_IME_SHOW_UI", g_Config.m_InpImeNativeUi ? "1" : "0");
+#else
+	SDL_SetHint("SDL_IME_SHOW_UI", "1");
 #endif
 
 	// init SDL
@@ -5039,4 +5056,16 @@ void CClient::ShowMessageBox(const char *pTitle, const char *pMessage, EMessageB
 {
 	if(m_pGraphics == nullptr || !m_pGraphics->ShowMessageBox(GetSdlMessageBoxFlags(Type), pTitle, pMessage))
 		SDL_ShowSimpleMessageBox(GetSdlMessageBoxFlags(Type), pTitle, pMessage, nullptr);
+}
+
+void CClient::GetGPUInfoString(char (&aGPUInfo)[256])
+{
+	if(m_pGraphics != nullptr && m_pGraphics->IsBackendInitialized())
+	{
+		str_format(aGPUInfo, std::size(aGPUInfo), "GPU: %s - %s - %s", m_pGraphics->GetVendorString(), m_pGraphics->GetRendererString(), m_pGraphics->GetVersionString());
+	}
+	else
+	{
+		str_copy(aGPUInfo, "Graphics backend was not yet initialized.");
+	}
 }

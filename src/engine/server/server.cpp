@@ -302,7 +302,7 @@ void CServer::CClient::Reset()
 	m_LastAckedSnapshot = -1;
 	m_LastInputTick = -1;
 	m_SnapRate = CClient::SNAPRATE_INIT;
-	m_Score = 0;
+	m_Score = -1;
 	m_NextMapChunk = 0;
 	m_Flags = 0;
 }
@@ -478,7 +478,7 @@ void CServer::SetClientCountry(int ClientID, int Country)
 	m_aClients[ClientID].m_Country = Country;
 }
 
-void CServer::SetClientScore(int ClientID, int Score)
+void CServer::SetClientScore(int ClientID, std::optional<int> Score)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
 		return;
@@ -1384,6 +1384,34 @@ static inline int MsgFromSixup(int Msg, bool System)
 	return Msg;
 }
 
+bool CServer::CheckReservedSlotAuth(int ClientID, const char *pPassword)
+{
+	char aBuf[256];
+
+	if(Config()->m_SvReservedSlotsPass[0] && !str_comp(Config()->m_SvReservedSlotsPass, pPassword))
+	{
+		str_format(aBuf, sizeof(aBuf), "cid=%d joining reserved slot with reserved pass", ClientID);
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+		return true;
+	}
+
+	// "^#(.*?)#(.*)$"
+	if(Config()->m_SvReservedSlotsAuthLevel != 4 && pPassword[0] == '#')
+	{
+		char aName[sizeof(Config()->m_Password)];
+		const char *pPass = str_next_token(pPassword + 1, "#", aName, sizeof(aName));
+		int Slot = m_AuthManager.FindKey(aName);
+		if(pPass && m_AuthManager.CheckKey(Slot, pPass + 1) && m_AuthManager.KeyLevel(Slot) >= Config()->m_SvReservedSlotsAuthLevel)
+		{
+			str_format(aBuf, sizeof(aBuf), "cid=%d joining reserved slot with key=%s", ClientID, m_AuthManager.KeyIdent(Slot));
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void CServer::ProcessClientPacket(CNetChunk *pPacket)
 {
 	int ClientID = pPacket->m_ClientID;
@@ -1484,7 +1512,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				}
 
 				// reserved slot
-				if(ClientID >= (Config()->m_SvMaxClients - Config()->m_SvReservedSlots) && Config()->m_SvReservedSlotsPass[0] != 0 && str_comp(Config()->m_SvReservedSlotsPass, pPassword) != 0)
+				if(ClientID >= Config()->m_SvMaxClients - Config()->m_SvReservedSlots && !CheckReservedSlotAuth(ClientID, pPassword))
 				{
 					m_NetServer.Drop(ClientID, "This server is full");
 					return;
@@ -2068,7 +2096,24 @@ void CServer::CacheServerInfo(CCache *pCache, int Type, bool SendClients)
 			q.AddString(ClientClan(i), MAX_CLAN_LENGTH); // client clan
 
 			ADD_INT(q, m_aClients[i].m_Country); // client country
-			ADD_INT(q, m_aClients[i].m_Score); // client score
+
+			int Score;
+			if(m_aClients[i].m_Score.has_value())
+			{
+				Score = m_aClients[i].m_Score.value();
+				if(Score == 9999)
+					Score = -10000;
+				else if(Score == 0) // 0 time isn't displayed otherwise.
+					Score = -1;
+				else
+					Score = -Score;
+			}
+			else
+			{
+				Score = -9999;
+			}
+
+			ADD_INT(q, Score); // client score
 			ADD_INT(q, GameServer()->IsClientPlayer(i) ? 1 : 0); // is player?
 			if(Type == SERVERINFO_EXTENDED)
 				q.AddString("", 0); // extra info, reserved
@@ -2150,7 +2195,7 @@ void CServer::CacheServerInfoSixup(CCache *pCache, bool SendClients)
 				Packer.AddString(ClientName(i), MAX_NAME_LENGTH); // client name
 				Packer.AddString(ClientClan(i), MAX_CLAN_LENGTH); // client clan
 				Packer.AddInt(m_aClients[i].m_Country); // client country
-				Packer.AddInt(m_aClients[i].m_Score == -9999 ? -1 : -m_aClients[i].m_Score); // client score
+				Packer.AddInt(m_aClients[i].m_Score.value_or(-1)); // client score
 				Packer.AddInt(GameServer()->IsClientPlayer(i) ? 0 : 1); // flag spectator=1, bot=2 (player=0)
 			}
 		}
@@ -2281,6 +2326,7 @@ void CServer::UpdateRegisterServerInfo()
 		"\"size\":%d"
 		"},"
 		"\"version\":\"%s\","
+		"\"client_score_kind\":\"time\","
 		"\"clients\":[",
 		MaxClients,
 		MaxPlayers,
@@ -2317,7 +2363,7 @@ void CServer::UpdateRegisterServerInfo()
 				EscapeJson(aCName, sizeof(aCName), ClientName(i)),
 				EscapeJson(aCClan, sizeof(aCClan), ClientClan(i)),
 				m_aClients[i].m_Country,
-				m_aClients[i].m_Score,
+				m_aClients[i].m_Score.value_or(-9999),
 				JsonBool(GameServer()->IsClientPlayer(i)),
 				aExtraPlayerInfo);
 			str_append(aInfo, aClientInfo, sizeof(aInfo));
@@ -3475,7 +3521,7 @@ void CServer::ConAddSqlServer(IConsole::IResult *pResult, void *pUserData)
 	str_copy(Config.m_aUser, pResult->GetString(3), sizeof(Config.m_aUser));
 	str_copy(Config.m_aPass, pResult->GetString(4), sizeof(Config.m_aPass));
 	str_copy(Config.m_aIp, pResult->GetString(5), sizeof(Config.m_aIp));
-	str_copy(Config.m_aBindaddr, Config.m_aBindaddr, sizeof(Config.m_aBindaddr));
+	Config.m_aBindaddr[0] = '\0';
 	Config.m_Port = pResult->GetInteger(6);
 	Config.m_Setup = pResult->NumArguments() == 8 ? pResult->GetInteger(7) : true;
 

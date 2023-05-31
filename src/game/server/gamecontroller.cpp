@@ -278,6 +278,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 			true, //Freeze
 			true, //Explosive
 			(g_Config.m_SvShotgunBulletSound) ? SOUND_GRENADE_EXPLODE : -1, //SoundImpact
+			vec2(std::sin(Deg), std::cos(Deg)), // InitDir
 			Layer,
 			Number);
 		pBullet->SetBouncing(2 - (Dir % 2));
@@ -304,6 +305,7 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 			true, //Freeze
 			false, //Explosive
 			SOUND_GRENADE_EXPLODE,
+			vec2(std::sin(Deg), std::cos(Deg)), // InitDir
 			Layer,
 			Number);
 		pBullet->SetBouncing(2 - (Dir % 2));
@@ -778,7 +780,11 @@ void IGameController::Snap(int SnappingClient)
 		if(Team == TEAM_SUPER)
 			return;
 
-		CNetObj_SwitchState *pSwitchState = Server()->SnapNewItem<CNetObj_SwitchState>(Team);
+		int SentTeam = Team;
+		if(g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
+			SentTeam = 0;
+
+		CNetObj_SwitchState *pSwitchState = Server()->SnapNewItem<CNetObj_SwitchState>(SentTeam);
 		if(!pSwitchState)
 			return;
 
@@ -883,12 +889,16 @@ void IGameController::DoWincheck()
 			{
 				if(Player)
 				{
-					if(Player->m_Score > Topscore)
+					int Score = 0;
+					if(Player->m_Score.has_value())
+						Score = Player->m_Score.value();
+					if(Score > Topscore)
 					{
-						Topscore = Player->m_Score;
+
+						Topscore = Score;
 						TopscoreCount = 1;
 					}
-					else if(Player->m_Score == Topscore)
+					else if(Score == Topscore)
 						TopscoreCount++;
 				}
 			}

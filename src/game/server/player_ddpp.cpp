@@ -143,6 +143,7 @@ void CPlayer::ResetDDPP()
 	m_LastToucherID = -1;
 	m_DisplayScore = SCORE_LEVEL;
 	m_Language = LANG_EN;
+	m_MinigameScore = 0;
 }
 
 void CPlayer::SetLanguage(const char *pLang)
@@ -518,7 +519,7 @@ void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, C
 	}
 	else if(g_Config.m_SvInstagibMode || !g_Config.m_SvDDPPscore)
 	{
-		pPlayerInfo->m_Score = m_Score;
+		pPlayerInfo->m_Score = m_MinigameScore;
 	}
 	else if(pSnapping->m_DisplayScore != SCORE_TIME)
 	{

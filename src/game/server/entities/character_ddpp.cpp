@@ -504,7 +504,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//do scoring (by ChillerDragon)
 			if(g_Config.m_SvInstagibMode)
 			{
-				GameServer()->m_apPlayers[From]->m_Score++;
+				GameServer()->m_apPlayers[From]->m_MinigameScore++;
 			}
 			GameServer()->DoInstaScore(1, From);
 
@@ -1653,7 +1653,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 
 	if(g_Config.m_SvDDPPscore == 0)
 		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
-			GameServer()->m_apPlayers[Killer]->m_Score++;
+			GameServer()->m_apPlayers[Killer]->m_MinigameScore++;
 
 	// TODO: combine with insta 1on1
 	// insta kills
@@ -1665,7 +1665,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		}
 		else if(GameServer()->IsDDPPgametype("fng"))
 		{
-			GameServer()->m_apPlayers[Killer]->m_Score += 3;
+			GameServer()->m_apPlayers[Killer]->m_MinigameScore += 3;
 		}
 	}
 
@@ -2943,9 +2943,8 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			Lifetime, // Span
 			false, // Freeze
 			false, // Explosive
-			0, // Force
 			-1, // SoundImpact
-			WEAPON_GUN // Weapon
+			Direction // InitDir
 		);
 
 		new CProjectile(
@@ -2957,9 +2956,8 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			Lifetime, // Span
 			false, // Freeze
 			false, // Explosive
-			0, // Force
 			-1, // SoundImpact
-			WEAPON_GUN // Weapon
+			Direction // InitDir
 		);
 
 		new CProjectile(
@@ -2971,9 +2969,8 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			Lifetime, // Span
 			false, // Freeze
 			false, // Explosive
-			0, // Force
 			-1, // SoundImpact
-			WEAPON_GUN // Weapon
+			Direction // InitDir
 		);
 
 		CProjectile *pProj = new CProjectile(
@@ -2985,9 +2982,8 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			Lifetime, // Span
 			false, // Freeze
 			false, // Explosive
-			0, // Force
 			-1, // SoundImpact
-			WEAPON_GUN // Weapon
+			Direction // InitDir
 		);
 
 		// pack the Projectile and send it to the client Directly
@@ -3056,12 +3052,18 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			a += Spreading[i + 2];
 			float v = 1 - (absolute(i) / (float)ShotSpread);
 			float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				vec2(cosf(a), sinf(a)) * Speed,
-				(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime),
-				true, false, 0, -1, WEAPON_SHOTGUN);
+			CProjectile *pProj = new CProjectile(
+				GameWorld(),
+				WEAPON_SHOTGUN, // Type
+				m_pPlayer->GetCID(), // Owner
+				ProjStartPos, // Pos
+				vec2(cosf(a), sinf(a)) * Speed, // Dir
+				(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime), // Span
+				true, // Freeze
+				false, //Explosive
+				-1, // SoundImpact,
+				ProjStartPos, // InitDir
+				WEAPON_SHOTGUN);
 
 			// pack the Projectile and send it to the client Directly
 			CNetObj_Projectile p;

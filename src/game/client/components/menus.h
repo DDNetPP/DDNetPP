@@ -13,16 +13,16 @@
 #include <engine/console.h>
 #include <engine/demo.h>
 #include <engine/friends.h>
+#include <engine/serverbrowser.h>
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
 #include <engine/textrender.h>
-#include <game/client/components/mapimages.h>
 
 #include <game/client/component.h>
+#include <game/client/components/mapimages.h>
+#include <game/client/render.h>
 #include <game/client/ui.h>
 #include <game/voting.h>
-
-#include <game/client/render.h>
 
 struct CServerProcess
 {
@@ -74,10 +74,7 @@ class CMenus : public CComponent
 	static SColorPicker ms_ColorPicker;
 	static bool ms_ValueSelectorTextMode;
 
-	char m_aLocalStringHelper[1024];
-
-	int DoButton_DemoPlayer(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
-	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, bool Enabled = true);
+	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners = IGraphics::CORNER_ALL, bool Enabled = true);
 	int DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, bool Active);
 	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), bool CheckForActiveColorPicker = false);
 	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10);
@@ -107,101 +104,6 @@ class CMenus : public CComponent
 
 	void RandomSkin();
 
-	// new gui with gui elements
-	template<typename T>
-	int DoButtonMenu(CUIElement &UIElement, const void *pID, T &&GetTextLambda, int Checked, const CUIRect *pRect, bool HintRequiresStringCheck, bool HintCanChangePositionOrSize = false, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f))
-	{
-		CUIRect Text = *pRect;
-		Text.HMargin(pRect->h >= 20.0f ? 2.0f : 1.0f, &Text);
-		Text.HMargin((Text.h * FontFactor) / 2.0f, &Text);
-
-		if(!UIElement.AreRectsInit() || HintRequiresStringCheck || HintCanChangePositionOrSize || !UIElement.Rect(0)->m_UITextContainer.Valid())
-		{
-			bool NeedsRecalc = !UIElement.AreRectsInit() || !UIElement.Rect(0)->m_UITextContainer.Valid();
-			if(HintCanChangePositionOrSize)
-			{
-				if(UIElement.AreRectsInit())
-				{
-					if(UIElement.Rect(0)->m_X != pRect->x || UIElement.Rect(0)->m_Y != pRect->y || UIElement.Rect(0)->m_Width != pRect->w || UIElement.Rect(0)->m_Y != pRect->h)
-					{
-						NeedsRecalc = true;
-					}
-				}
-			}
-			const char *pText = nullptr;
-			if(HintRequiresStringCheck)
-			{
-				if(UIElement.AreRectsInit())
-				{
-					pText = GetTextLambda();
-					if(str_comp(UIElement.Rect(0)->m_Text.c_str(), pText) != 0)
-					{
-						NeedsRecalc = true;
-					}
-				}
-			}
-			if(NeedsRecalc)
-			{
-				if(!UIElement.AreRectsInit())
-				{
-					UIElement.InitRects(3);
-				}
-				UI()->ResetUIElement(UIElement);
-
-				vec4 RealColor = Color;
-				for(int i = 0; i < 3; ++i)
-				{
-					Color.a = RealColor.a;
-					if(i == 0)
-						Color.a *= UI()->ButtonColorMulActive();
-					else if(i == 1)
-						Color.a *= UI()->ButtonColorMulHot();
-					else if(i == 2)
-						Color.a *= UI()->ButtonColorMulDefault();
-					Graphics()->SetColor(Color);
-
-					CUIElement::SUIElementRect &NewRect = *UIElement.Rect(i);
-					NewRect.m_UIRectQuadContainer = Graphics()->CreateRectQuadContainer(pRect->x, pRect->y, pRect->w, pRect->h, r, Corners);
-
-					NewRect.m_X = pRect->x;
-					NewRect.m_Y = pRect->y;
-					NewRect.m_Width = pRect->w;
-					NewRect.m_Height = pRect->h;
-					if(i == 0)
-					{
-						if(pText == nullptr)
-							pText = GetTextLambda();
-						NewRect.m_Text = pText;
-						UI()->DoLabel(NewRect, &Text, pText, Text.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
-					}
-				}
-				Graphics()->SetColor(1, 1, 1, 1);
-			}
-		}
-		// render
-		size_t Index = 2;
-		if(UI()->CheckActiveItem(pID))
-			Index = 0;
-		else if(UI()->HotItem() == pID)
-			Index = 1;
-		Graphics()->TextureClear();
-		Graphics()->RenderQuadContainer(UIElement.Rect(Index)->m_UIRectQuadContainer, -1);
-		ColorRGBA ColorText(TextRender()->DefaultTextColor());
-		ColorRGBA ColorTextOutline(TextRender()->DefaultTextOutlineColor());
-		if(UIElement.Rect(0)->m_UITextContainer.Valid())
-			TextRender()->RenderTextContainer(UIElement.Rect(0)->m_UITextContainer, ColorText, ColorTextOutline);
-		return UI()->DoButtonLogic(pID, Checked, pRect);
-	}
-
-	/**
-	 * Places and renders a tooltip near pNearRect.
-	 * For now only works correctly with single line tooltips, since Text width calculation gets broken when there are multiple lines.
-	 *
-	 * @param pID The ID of the tooltip. Usually a reference to some g_Config value.
-	 * @param pNearTo Place the tooltip near this rect.
-	 * @param pText The text to display in the tooltip
-	 */
-	void DoToolTip(const void *pID, const CUIRect *pNearRect, const char *pText, float WidthHint = -1.0f);
 	// menus_settings_assets.cpp
 public:
 	struct SCustomItem
@@ -452,36 +354,75 @@ protected:
 	static int DemolistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser);
 
 	// friends
-	struct CFriendItem
+	class CFriendItem
 	{
-		const CFriendInfo *m_pFriendInfo;
-		int m_NumFound;
+		char m_aName[MAX_NAME_LENGTH];
+		char m_aClan[MAX_CLAN_LENGTH];
+		const CServerInfo *m_pServerInfo;
+		int m_FriendState;
+		bool m_IsPlayer;
+		// skin
+		char m_aSkin[24 + 1];
+		bool m_CustomSkinColors;
+		int m_CustomSkinColorBody;
+		int m_CustomSkinColorFeet;
 
+	public:
 		CFriendItem() {}
 		CFriendItem(const CFriendInfo *pFriendInfo) :
-			m_pFriendInfo(pFriendInfo), m_NumFound(0)
+			m_pServerInfo(nullptr),
+			m_IsPlayer(false),
+			m_CustomSkinColors(false),
+			m_CustomSkinColorBody(0),
+			m_CustomSkinColorFeet(0)
 		{
+			str_copy(m_aName, pFriendInfo->m_aName);
+			str_copy(m_aClan, pFriendInfo->m_aClan);
+			m_FriendState = m_aName[0] == '\0' ? IFriends::FRIEND_CLAN : IFriends::FRIEND_PLAYER;
+			m_aSkin[0] = '\0';
 		}
+		CFriendItem(const CServerInfo::CClient &CurrentClient, const CServerInfo *pServerInfo) :
+			m_pServerInfo(pServerInfo),
+			m_FriendState(CurrentClient.m_FriendState),
+			m_IsPlayer(CurrentClient.m_Player),
+			m_CustomSkinColors(CurrentClient.m_CustomSkinColors),
+			m_CustomSkinColorBody(CurrentClient.m_CustomSkinColorBody),
+			m_CustomSkinColorFeet(CurrentClient.m_CustomSkinColorFeet)
+		{
+			str_copy(m_aName, CurrentClient.m_aName);
+			str_copy(m_aClan, CurrentClient.m_aClan);
+			str_copy(m_aSkin, CurrentClient.m_aSkin);
+		}
+
+		const char *Name() const { return m_aName; }
+		const char *Clan() const { return m_aClan; }
+		const CServerInfo *ServerInfo() const { return m_pServerInfo; }
+		int FriendState() const { return m_FriendState; }
+		bool IsPlayer() const { return m_IsPlayer; }
+		const char *Skin() const { return m_aSkin; }
+		bool CustomSkinColors() const { return m_CustomSkinColors; }
+		int CustomSkinColorBody() const { return m_CustomSkinColorBody; }
+		int CustomSkinColorFeet() const { return m_CustomSkinColorFeet; }
+
+		const void *ListItemId() const { return &m_aName; }
+		const void *RemoveButtonId() const { return &m_FriendState; }
 
 		bool operator<(const CFriendItem &Other) const
 		{
-			if(m_NumFound && !Other.m_NumFound)
-				return true;
-			else if(!m_NumFound && Other.m_NumFound)
-				return false;
-			else
-			{
-				int Result = str_comp(m_pFriendInfo->m_aName, Other.m_pFriendInfo->m_aName);
-				if(Result)
-					return Result < 0;
-				else
-					return str_comp(m_pFriendInfo->m_aClan, Other.m_pFriendInfo->m_aClan) < 0;
-			}
+			const int Result = str_comp(m_aName, Other.m_aName);
+			return Result < 0 || (Result == 0 && str_comp(m_aClan, Other.m_aClan) < 0);
 		}
 	};
 
-	std::vector<CFriendItem> m_vFriends;
-	int m_FriendlistSelectedIndex;
+	enum
+	{
+		FRIEND_PLAYER_ON = 0,
+		FRIEND_CLAN_ON,
+		FRIEND_OFF,
+		NUM_FRIEND_TYPES
+	};
+	std::vector<CFriendItem> m_avFriends[NUM_FRIEND_TYPES];
+	const CFriendItem *m_pRemoveFriend = nullptr;
 
 	void FriendlistOnUpdate();
 
@@ -501,6 +442,7 @@ protected:
 	void FetchAllHeaders();
 	void HandleDemoSeeking(float PositionToSeek, float TimeToSeek);
 	void RenderDemoPlayer(CUIRect MainView);
+	void RenderDemoPlayerSliceSavePopup(CUIRect MainView);
 	void RenderDemoList(CUIRect MainView);
 	void PopupConfirmDeleteDemo();
 
@@ -527,6 +469,13 @@ protected:
 	void PopupConfirmSwitchServer();
 	void RenderServerbrowserServerDetail(CUIRect View);
 	void RenderServerbrowserFilters(CUIRect View);
+	struct SPopupCountrySelectionContext
+	{
+		CMenus *m_pMenus;
+		int m_Selection;
+		bool m_New;
+	};
+	static CUI::EPopupMenuFunctionResult PopupCountrySelection(void *pContext, CUIRect View, bool Active);
 	void RenderServerbrowserFriends(CUIRect View);
 	void PopupConfirmRemoveFriend();
 	void RenderServerbrowser(CUIRect MainView);
@@ -697,7 +646,6 @@ public:
 	std::chrono::nanoseconds m_PopupWarningDuration;
 
 	int m_DemoPlayerState;
-	char m_aDemoPlayerPopupHint[256];
 
 	enum
 	{
@@ -709,7 +657,6 @@ public:
 		POPUP_CONNECTING,
 		POPUP_DISCONNECTED,
 		POPUP_LANGUAGE,
-		POPUP_COUNTRY,
 		POPUP_RENAME_DEMO,
 		POPUP_RENDER_DEMO,
 		POPUP_PASSWORD,
