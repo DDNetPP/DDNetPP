@@ -29,22 +29,6 @@ struct CServerProcess
 	PROCESS m_Process;
 };
 
-struct SColorPicker
-{
-public:
-	const float ms_Width = 160.0f;
-	const float ms_Height = 186.0f;
-
-	float m_X;
-	float m_Y;
-
-	bool m_Active;
-
-	CUIRect m_AttachedRect;
-	unsigned int *m_pColor;
-	unsigned int m_HSVColor;
-};
-
 // component to fetch keypresses, override all other input
 class CMenusKeyBinder : public CComponent
 {
@@ -71,12 +55,9 @@ class CMenus : public CComponent
 	static ColorRGBA ms_ColorTabbarActive;
 	static ColorRGBA ms_ColorTabbarHover;
 
-	static SColorPicker ms_ColorPicker;
-	static bool ms_ValueSelectorTextMode;
-
 	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners = IGraphics::CORNER_ALL, bool Enabled = true);
 	int DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, bool Active);
-	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f), bool CheckForActiveColorPicker = false);
+	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f));
 	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10);
 
 	int DoButton_CheckBox_Common(const void *pID, const char *pText, const char *pBoxText, const CUIRect *pRect);
@@ -84,9 +65,9 @@ class CMenus : public CComponent
 	int DoButton_CheckBoxAutoVMarginAndSet(const void *pID, const char *pText, int *pValue, CUIRect *pRect, float VMargin);
 	int DoButton_CheckBox_Number(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
-	ColorHSLA DoLine_ColorPicker(CButtonContainer *pResetID, float LineSize, float LabelSize, float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, bool CheckBoxSpacing = true, int *pCheckBoxValue = nullptr);
+	ColorHSLA DoLine_ColorPicker(CButtonContainer *pResetID, float LineSize, float LabelSize, float BottomMargin, CUIRect *pMainRect, const char *pText, unsigned int *pColorValue, ColorRGBA DefaultColor, bool CheckBoxSpacing = true, int *pCheckBoxValue = nullptr, bool Alpha = false);
+	ColorHSLA DoButton_ColorPicker(const CUIRect *pRect, unsigned int *pHslaColor, bool Alpha);
 	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor, const int LaserType);
-	int DoValueSelector(void *pID, CUIRect *pRect, const char *pLabel, bool UseScroll, int Current, int Min, int Max, int Step, float Scale, bool IsHex, float Round, ColorRGBA *pColor);
 	int DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
 	void DoButton_KeySelect(const void *pID, const char *pText, const CUIRect *pRect);
@@ -97,8 +78,6 @@ class CMenus : public CComponent
 	float RenderSettingsControlsJoystick(CUIRect View);
 	void DoJoystickAxisPicker(CUIRect View);
 	void DoJoystickBar(const CUIRect *pRect, float Current, float Tolerance, bool Active);
-
-	void RenderColorPicker();
 
 	void RefreshSkins();
 
@@ -178,7 +157,6 @@ protected:
 	int m_ActivePage;
 	bool m_ShowStart;
 	bool m_MenuActive;
-	vec2 m_MousePos;
 	bool m_JoinTutorial;
 
 	char m_aNextServer[256];
@@ -345,6 +323,7 @@ protected:
 	CLineInputBuffered<IO_MAX_PATH_LENGTH> m_DemoRenderInput;
 	int m_DemolistSelectedIndex;
 	bool m_DemolistSelectedIsDir;
+	bool m_DemolistSelectedReveal = false;
 	int m_DemolistStorageType;
 	int m_Speed = 4;
 
@@ -437,6 +416,7 @@ protected:
 	void UpdateMusicState();
 
 	// found in menus_demo.cpp
+	vec2 m_DemoControlsPositionOffset = vec2(0.0f, 0.0f);
 	static bool DemoFilterChat(const void *pData, int Size, void *pUser);
 	bool FetchHeader(CDemoItem &Item);
 	void FetchAllHeaders();
@@ -508,6 +488,7 @@ protected:
 
 	void SetNeedSendInfo();
 	void SetActive(bool Active);
+	void UpdateColors();
 
 	IGraphics::CTextureHandle m_TextureBlob;
 
@@ -680,10 +661,7 @@ private:
 	// found in menus_settings.cpp
 	void RenderSettingsDDNet(CUIRect MainView);
 	void RenderSettingsAppearance(CUIRect MainView);
-	ColorHSLA RenderHSLColorPicker(const CUIRect *pRect, unsigned int *pColor, bool Alpha);
 	ColorHSLA RenderHSLScrollbars(CUIRect *pRect, unsigned int *pColor, bool Alpha = false, bool ClampedLight = false);
-
-	int RenderDropDown(int &CurDropDownState, CUIRect *pRect, int CurSelection, const void **pIDs, const char **pStr, int PickNum, CButtonContainer *pButtonContainer, float &ScrollVal);
 
 	CServerProcess m_ServerProcess;
 };

@@ -64,7 +64,7 @@ void CDummyChillBlock5Police::OnTick()
 	{
 		if(Server()->Tick() % 20 == 0)
 		{
-			GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+			GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3, -1);
 		}
 
 		if(Server()->Tick() % 200 == 0)

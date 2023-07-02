@@ -393,7 +393,7 @@ void CDummyFNN::OnTick()
 			{
 				if(Server()->Tick() % 10 == 0)
 				{
-					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3, -1);
 				}
 				if(Server()->Tick() % 40 == 0)
 				{

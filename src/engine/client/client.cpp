@@ -2165,7 +2165,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 							if(g_Config.m_ClRunOnJoin[0])
 							{
 								str_format(aBuf, sizeof(aBuf), ";%s", g_Config.m_ClRunOnJoin);
-								str_append(aBufMsg, aBuf, sizeof(aBufMsg));
+								str_append(aBufMsg, aBuf);
 							}
 							if(g_Config.m_ClDummyDefaultEyes || g_Config.m_ClPlayerDefaultEyes)
 							{
@@ -2195,7 +2195,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 								if(aBufEmote[0])
 								{
 									str_format(aBuf, sizeof(aBuf), ";%s", aBufEmote);
-									str_append(aBufMsg, aBuf, sizeof(aBufMsg));
+									str_append(aBufMsg, aBuf);
 								}
 							}
 							MsgP.m_pMessage = aBufMsg;
@@ -2879,18 +2879,18 @@ void CClient::Update()
 
 	if(State() == IClient::STATE_ONLINE)
 	{
-		if(!m_lpEditJobs.empty())
+		if(!m_EditJobs.empty())
 		{
-			std::shared_ptr<CDemoEdit> e = m_lpEditJobs.front();
-			if(e->Status() == IJob::STATE_DONE)
+			std::shared_ptr<CDemoEdit> pJob = m_EditJobs.front();
+			if(pJob->Status() == IJob::STATE_DONE)
 			{
-				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Successfully saved the replay to %s!", e->Destination());
+				char aBuf[IO_MAX_PATH_LENGTH + 64];
+				str_format(aBuf, sizeof(aBuf), "Successfully saved the replay to %s!", pJob->Destination());
 				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "replay", aBuf);
 
 				GameClient()->Echo(Localize("Successfully saved the replay!"));
 
-				m_lpEditJobs.pop_front();
+				m_EditJobs.pop_front();
 			}
 		}
 	}
@@ -3343,8 +3343,15 @@ void CClient::Run()
 		else if(g_Config.m_ClRefreshRate)
 		{
 			SleepTimeInNanoSeconds = (std::chrono::nanoseconds(1s) / (int64_t)g_Config.m_ClRefreshRate) - (Now - LastTime);
-			if(SleepTimeInNanoSeconds > 0ns)
-				net_socket_read_wait(m_aNetClient[CONN_MAIN].m_Socket, SleepTimeInNanoSeconds);
+			auto SleepTimeInNanoSecondsInner = SleepTimeInNanoSeconds;
+			auto NowInner = Now;
+			while((SleepTimeInNanoSecondsInner / std::chrono::nanoseconds(1us).count()) > 0ns)
+			{
+				net_socket_read_wait(m_aNetClient[CONN_MAIN].m_Socket, SleepTimeInNanoSecondsInner);
+				auto NowInnerCalc = time_get_nanoseconds();
+				SleepTimeInNanoSecondsInner -= (NowInnerCalc - NowInner);
+				NowInner = NowInnerCalc;
+			}
 			Slept = true;
 		}
 		if(Slept)
@@ -3811,7 +3818,7 @@ void CClient::SaveReplay(const int Length, const char *pFilename)
 		// Create a job to do this slicing in background because it can be a bit long depending on the file size
 		std::shared_ptr<CDemoEdit> pDemoEditTask = std::make_shared<CDemoEdit>(GameClient()->NetVersion(), &m_SnapshotDelta, m_pStorage, pSrc, aFilename, StartTick, EndTick);
 		Engine()->AddJob(pDemoEditTask);
-		m_lpEditJobs.push_back(pDemoEditTask);
+		m_EditJobs.push_back(pDemoEditTask);
 
 		// And we restart the recorder
 		DemoRecorder_StartReplayRecorder();
@@ -4774,9 +4781,10 @@ int main(int argc, const char **argv)
 	}
 
 	log_set_loglevel((LEVEL)g_Config.m_Loglevel);
+	const int Mode = g_Config.m_Logappend ? IOFLAG_APPEND : IOFLAG_WRITE;
 	if(g_Config.m_Logfile[0])
 	{
-		IOHANDLE Logfile = pStorage->OpenFile(g_Config.m_Logfile, IOFLAG_WRITE, IStorage::TYPE_SAVE_OR_ABSOLUTE);
+		IOHANDLE Logfile = pStorage->OpenFile(g_Config.m_Logfile, Mode, IStorage::TYPE_SAVE_OR_ABSOLUTE);
 		if(Logfile)
 		{
 			pFutureFileLogger->Set(log_logger_file(Logfile));
@@ -4891,8 +4899,8 @@ void CClient::RequestDDNetInfo()
 	{
 		char aEscaped[128];
 		EscapeUrl(aEscaped, sizeof(aEscaped), PlayerName());
-		str_append(aUrl, "?name=", sizeof(aUrl));
-		str_append(aUrl, aEscaped, sizeof(aUrl));
+		str_append(aUrl, "?name=");
+		str_append(aUrl, aEscaped);
 	}
 
 	// Use ipv4 so we can know the ingame ip addresses of players before they join game servers

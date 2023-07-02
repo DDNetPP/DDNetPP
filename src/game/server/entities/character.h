@@ -77,6 +77,7 @@ public:
 	void SwapClients(int Client1, int Client2) override;
 
 	bool CanSnapCharacter(int SnappingClient);
+	bool IsSnappingCharacterInView(int SnappingClientID);
 
 	bool IsGrounded();
 

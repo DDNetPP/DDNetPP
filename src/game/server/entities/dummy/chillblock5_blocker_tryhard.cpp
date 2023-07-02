@@ -473,7 +473,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 						if(Server()->Tick() % 10 == 0)
 						{
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9); //angry
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1); //angry
 						}
 					}
 				}
@@ -506,7 +506,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 					if(Server()->Tick() % 10 == 0) //do angry emotes
 					{
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 					}
 				}
 			}
@@ -775,7 +775,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 					if(Server()->Tick() % 30 == 0) //angry emotes machen
 					{
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+						GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 					}
 
 					AimPos(pChr->GetPos());
@@ -785,7 +785,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					{
 						m_pPlayer->m_LastEmote = Server()->Tick();
 
-						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 
 						if(m_pCharacter->Core()->m_FreezeStart == 0) //nicht rum schrein
 						{
@@ -1083,7 +1083,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								//{
 								//		Hook();
 								//		m_Dummy_wb_hooked = true;
-								//		GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+								//		GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 
 								//}
 
@@ -1095,7 +1095,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 										AimX(pChrRulerWB->GetPos().x - GetPos().x);
 										AimY(pChrRulerWB->GetPos().y - GetPos().y);
 
-										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8);
+										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8, -1);
 										//                             noch eine vel abfrage weil der bot sonst daneben hookt
 										if(pChrRulerWB->GetPos().y > 211 * 32 && pChrRulerWB->GetVel().y > -1.0f && pChrRulerWB->GetVel().y < 2.0f && pChrRulerWB->GetPos().x > 435 * 32 /*&& pChrRulerWB->GetPos().y < 213 * 32*/) //wenn er nich zu schnell nach oben fliegt und zu weit oben ist
 										{
@@ -1107,7 +1107,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 											m_Dummy_wb_hooked = true;
 											if(Server()->Tick() % 30 == 0) //nicht zu hart spammen wenn iwas abgeht
 											{
-												GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+												GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 												m_Dummy_bored_counter++; //zähl mal mit wie lange der bot hier rum gurkt und wieviele spieler er so wayblockt
 												char aBuf[256];
 												str_format(aBuf, sizeof(aBuf), "dummy_bored_count: %d", m_Dummy_bored_counter);
@@ -1118,9 +1118,9 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									else
 									{
 										if(Server()->Tick() % 10 == 0) //nicht zu hart spammen wenn iwas abgeht
-											GameServer()->SendEmoticon(m_pPlayer->GetCID(), 15);
+											GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -15);
 										Hook(0);
-										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3);
+										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 3, -1);
 									}
 								}
 								//unnötiges festgehalte unten verhindern
@@ -1138,7 +1138,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 											// --> vermute ich mal das er genau diesen spieler hookt
 											// --> den los lassen da dieser sowieso keien gefahr mehr ist damit ein neuer gegner schneller geblockt werden kann
 											if(Server()->Tick() % 10 == 0) //nicht zu hart spammen wenn iwas abgeht
-												GameServer()->SendEmoticon(m_pPlayer->GetCID(), 5);
+												GameServer()->SendEmoticon(m_pPlayer->GetCID(), 5, -1);
 
 											Hook(0);
 										}
@@ -1152,14 +1152,14 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								//	{
 								//		Hook();
 								//		m_Dummy_wb_hooked = true;
-								//		//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+								//		//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 								//		//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "huke");
 								//		//schiess delay
 								//		if (Server()->Tick() >= m_EmoteTickNext)
 								//		{
 								//			m_pPlayer->m_LastEmote = Server()->Tick();
 
-								//			//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+								//			//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 
 								//			Fire();
 
@@ -1173,7 +1173,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								//	else
 								//	{
 								//		Hook(0);
-								//		GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+								//		GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 								//		//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "huke nich");
 
 								//	}
@@ -1197,7 +1197,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					Left();
 					//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 				}
-				//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+				//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 			}
 
 			// über das freeze springen wenn rechts der bevorzugenten camp stelle

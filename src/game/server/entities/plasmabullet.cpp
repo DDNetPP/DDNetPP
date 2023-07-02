@@ -45,7 +45,7 @@ bool CPlasmaBullet::HitCharacter()
 	else
 	{
 		Hit->SetEmote(3, Server()->Tick() + 2 * Server()->TickSpeed()); // eyeemote surprise
-		GameServer()->SendEmoticon(Hit->GetPlayer()->GetCID(), 7); //emoticon ghost
+		GameServer()->SendEmoticon(Hit->GetPlayer()->GetCID(), 7, -1); //emoticon ghost
 	}
 
 	if(m_Bloody)

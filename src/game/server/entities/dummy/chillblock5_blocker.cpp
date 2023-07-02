@@ -255,7 +255,7 @@ void CDummyChillBlock5Blocker::OnTick()
 		}
 		//if (Server()->Tick() % 5 == 0)
 		//{
-		//	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+		//	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 		//}
 
 		//Selfkills (bit random but they work)
@@ -889,7 +889,7 @@ void CDummyChillBlock5Blocker::OnTick()
 
 								if(Server()->Tick() % 10 == 0)
 								{
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9); //angry
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1); //angry
 								}
 							}
 						}
@@ -946,7 +946,7 @@ void CDummyChillBlock5Blocker::OnTick()
 
 						if(Server()->Tick() % 13 == 0)
 						{
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 						}
 
 						if(HookState() == HOOK_GRABBED || (GetPos().y < 216 * 32 && pChr->GetPos().x > 404 * 32) || (pChr->GetPos().x > 405 * 32 && GetPos().x > 404 * 32 + 20))
@@ -985,7 +985,7 @@ void CDummyChillBlock5Blocker::OnTick()
 
 							if(Server()->Tick() % 10 == 0) //angry emotes machen
 							{
-								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 							}
 						}
 					}
@@ -1207,7 +1207,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "NOTSTAND");
 
 						if(Server()->Tick() % 30 == 0) //angry emotes machen
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 
 						if(Server()->Tick() % 20 == 0)
 							SetWeapon(0);
@@ -1633,7 +1633,7 @@ void CDummyChillBlock5Blocker::OnTick()
 						Left();
 						//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
 					}
-					//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+					//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 				}
 
 				// über das freeze springen wenn rechts der bevorzugenten camp stelle
@@ -1726,7 +1726,7 @@ void CDummyChillBlock5Blocker::OnTick()
 								if(Server()->Tick() % 50 == 0)
 								{
 									m_Dummy_bored_counter++;
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 								}
 
 								if(GetPos().x < 438 * 32) //first go right

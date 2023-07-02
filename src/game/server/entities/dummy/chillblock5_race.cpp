@@ -590,7 +590,7 @@ void CDummyChillBlock5Race::OnTick()
 			if(Server()->Tick() % 3 == 0)
 			{
 				StopMoving();
-				//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+				//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 			}
 		}
 
@@ -720,7 +720,7 @@ void CDummyChillBlock5Race::OnTick()
 					{
 						AimPos(pChrFreeze->GetPos());
 
-						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 2);
+						//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 2, -1);
 
 						//Check where help is needed
 						if(pChrFreeze->GetPos().x > 457 * 32 + 10 && pChrFreeze->GetPos().x < 468 * 32 && pChrFreeze->GetPos().y < 213 * 32 + 5) //right freeze becken
@@ -899,7 +899,7 @@ void CDummyChillBlock5Race::OnTick()
 								if(Server()->Tick() >= m_EmoteTickNext && pChr->GetPos().y < 212 * 32 - 5)
 								{
 									m_pPlayer->m_LastEmote = Server()->Tick();
-									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+									GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 
 									Fire();
 
@@ -1288,7 +1288,7 @@ void CDummyChillBlock5Race::OnTick()
 
 						if(Server()->Tick() % 20 == 0)
 						{
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+							GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 						}
 
 						//Go on left edge to help:
@@ -1661,7 +1661,7 @@ void CDummyChillBlock5Race::OnTick()
 
 							if(Server()->Tick() % 20 == 0)
 							{
-								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+								GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 							}
 
 							AimX(0);
@@ -1888,7 +1888,7 @@ void CDummyChillBlock5Race::OnTick()
 											GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "whats going on here?!");
 										}
 
-										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 4);
+										//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 4, -1);
 										m_Dummy_sent_chat_msg = 1;
 									}
 								}
@@ -1935,7 +1935,7 @@ void CDummyChillBlock5Race::OnTick()
 								if(Server()->Tick() % 70 == 0)
 								{
 									Hook(0);
-									//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+									//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 								}
 							}
 							//if mate is too far for hook --> shotgun him
@@ -1957,7 +1957,7 @@ void CDummyChillBlock5Race::OnTick()
 									Fire();
 									if(Server()->Tick() % 10 == 0)
 									{
-										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+										GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 									}
 								}
 							}
@@ -2008,7 +2008,7 @@ void CDummyChillBlock5Race::OnTick()
 							if(/*GetPos().y - pChr->GetPos().y > 15 ||*/ (pChr->m_FreezeTime == 0 && pChr->GetVel().y < -2.5f && pChr->GetPos().y < GetPos().y) || pChr->GetVel().y > 3.4f)
 							{
 								m_Dummy_hh_hook = false;
-								//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1);
+								//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 1, -1);
 							}
 							//activate bool for hook if mate stands still
 							if(pChr->GetVel().y == 0.000000f) //wenn er am boden liegt anfangen oder wenn er zu schnell nach obenfliegt bremsen
@@ -2032,7 +2032,7 @@ void CDummyChillBlock5Race::OnTick()
 						else
 						{
 							m_Dummy_hh_hook = false; //reset hook if bot is freeze
-								//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7);
+								//GameServer()->SendEmoticon(m_pPlayer->GetCID(), 7, -1);
 						}
 					}
 				}

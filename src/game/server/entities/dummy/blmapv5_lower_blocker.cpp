@@ -233,7 +233,7 @@ void CDummyBlmapV5LowerBlocker::OnTick()
 			}
 			if(Server()->Tick() % 10 == 0) //angry emotes machen
 			{
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9);
+				GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
 			}
 		}
 		if(GetVel().y < -1.2f && GetPos().y < 88 * 32)
