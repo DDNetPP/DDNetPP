@@ -11,6 +11,7 @@
 #include <game/server/teams.h>
 
 #include "minigames/balance.h"
+#include "minigames/instagib.h"
 #include "minigames/block_tournament.h"
 
 #include <cinttypes>
@@ -194,8 +195,11 @@ void CGameContext::OnInitDDPP()
 		m_pBlockTournament = new CBlockTournament(this);
 	if(!m_pBalance)
 		m_pBalance = new CBalance(this);
+	if(!m_pInstagib)
+		m_pInstagib = new CInstagib(this);
 	m_vMinigames.push_back(m_pBlockTournament);
 	m_vMinigames.push_back(m_pBalance);
+	m_vMinigames.push_back(m_pInstagib);
 
 	for(auto &Minigame : m_vMinigames)
 		Minigame->OnInit();
@@ -2468,11 +2472,11 @@ int CGameContext::CreateNewDummy(EDummyMode Mode, bool Silent, int Tile)
 	}
 	else if(Mode == DUMMYMODE_RIFLE_FNG)
 	{
-		JoinInstagib(5, true, DummyID);
+		m_pInstagib->Join(m_apPlayers[DummyID], WEAPON_GRENADE, true);
 	}
 	else if(Mode == DUMMYMODE_GRENADE_FNG)
 	{
-		JoinInstagib(4, true, DummyID);
+		m_pInstagib->Join(m_apPlayers[DummyID], WEAPON_LASER, true);
 	}
 	else if(Mode == DUMMYMODE_BLMAPV3_ARENA)
 	{

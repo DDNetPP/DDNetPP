@@ -2626,6 +2626,7 @@ if(SERVER)
     minigames/bomb.cpp
     minigames/chidraqul3.cpp
     minigames/instagib.cpp
+    minigames/instagib.h
     minigames/minigame_base.cpp
     minigames/minigame_base.h
     minigames/save_ddpp.cpp

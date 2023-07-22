@@ -16,6 +16,7 @@
 #include <game/server/ddpp/letters.h>
 
 #include "minigames/balance.h"
+#include "minigames/instagib.h"
 #include "minigames/block_tournament.h"
 
 #include "ddpp/dummymode.h"

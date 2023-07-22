@@ -8,6 +8,72 @@
 
 #include "../gamecontext.h"
 
+#include "instagib.h"
+
+bool CInstagib::IsActive(int ClientID)
+{
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	if(!pPlayer)
+		return false;
+	return pPlayer->m_IsInstaArena_idm || pPlayer->m_IsInstaArena_gdm;
+}
+
+void CInstagib::Leave(CPlayer *pPlayer)
+{
+	if(!pPlayer)
+		return;
+
+	GameServer()->LeaveInstagib(pPlayer->GetCID());
+	m_aRestorePos[pPlayer->GetCID()] = true;
+}
+
+void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
+{
+	if(!pPlayer)
+		return;
+
+#if defined(CONF_DEBUG)
+	//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
+#endif
+
+	//die first to not count death
+	if(pPlayer->GetCharacter())
+	{
+		SavePosition(pPlayer);
+		pPlayer->GetCharacter()->Die(pPlayer->GetCID(), WEAPON_SELF);
+	}
+
+	//reset values
+	pPlayer->m_HasInstaRoundEndPos = false;
+	pPlayer->m_IsInstaArena_idm = false;
+	pPlayer->m_IsInstaArena_gdm = false;
+	pPlayer->m_IsInstaMode_idm = false;
+	pPlayer->m_IsInstaMode_gdm = false;
+	pPlayer->m_InstaScore = 0;
+
+	pPlayer->m_IsInstaArena_fng = fng;
+	pPlayer->m_IsInstaMode_fng = fng;
+	if(Weapon == WEAPON_LASER)
+	{
+		pPlayer->m_IsInstaArena_idm = true;
+		pPlayer->m_IsInstaMode_idm = true;
+	}
+	else if(Weapon == WEAPON_GRENADE)
+	{
+		pPlayer->m_IsInstaArena_gdm = true;
+		pPlayer->m_IsInstaMode_gdm = true;
+	}
+	else
+	{
+		GameServer()->SendChatTarget(pPlayer->GetCID(), "[WARNING] Something went horrible wrong please report an admin");
+		return;
+	}
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(pPlayer->GetCID()));
+	GameServer()->SendChatInsta(aBuf, Weapon);
+}
+
 bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 {
 	int cPlayer = 0;
@@ -117,49 +183,6 @@ void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
 		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
 	if(m_apPlayers[LooserID])
 		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
-}
-
-void CGameContext::JoinInstagib(int weapon, bool fng, int ID)
-{
-#if defined(CONF_DEBUG)
-	//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
-#endif
-
-	//die first to not count death
-	if(m_apPlayers[ID]->GetCharacter())
-	{
-		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_SELF);
-	}
-
-	//reset values
-	m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
-	m_apPlayers[ID]->m_IsInstaArena_idm = false;
-	m_apPlayers[ID]->m_IsInstaArena_gdm = false;
-	m_apPlayers[ID]->m_IsInstaMode_idm = false;
-	m_apPlayers[ID]->m_IsInstaMode_gdm = false;
-	m_apPlayers[ID]->m_InstaScore = 0;
-
-	m_apPlayers[ID]->m_IsInstaArena_fng = fng;
-	m_apPlayers[ID]->m_IsInstaMode_fng = fng;
-	if(weapon == 5)
-	{
-		m_apPlayers[ID]->m_IsInstaArena_idm = true;
-		m_apPlayers[ID]->m_IsInstaMode_idm = true;
-	}
-	else if(weapon == 4)
-	{
-		m_apPlayers[ID]->m_IsInstaArena_gdm = true;
-		m_apPlayers[ID]->m_IsInstaMode_gdm = true;
-	}
-	else
-	{
-		SendChatTarget(ID, "[WARNING] Something went horrible wrong please report an admin");
-		return;
-	}
-
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(ID));
-	SendChatInsta(aBuf, weapon);
 }
 
 void CGameContext::LeaveInstagib(int ID)

@@ -1960,7 +1960,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "leave"))
 	{
-		pSelf->LeaveInstagib(pResult->m_ClientID);
+		pSelf->m_pInstagib->Leave(pPlayer);
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "stats"))
 	{
@@ -1991,7 +1991,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a grenade game.");
-			pSelf->JoinInstagib(4, false, pResult->m_ClientID);
+			pSelf->m_pInstagib->Join(pPlayer, WEAPON_GRENADE, false);
 		}
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "idm"))
@@ -2019,7 +2019,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a rifle game.");
-			pSelf->JoinInstagib(5, false, pResult->m_ClientID);
+			pSelf->m_pInstagib->Join(pPlayer, WEAPON_LASER, false);
 		}
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "boomfng"))
@@ -2047,7 +2047,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a boomfng game.");
-			pSelf->JoinInstagib(4, true, pResult->m_ClientID);
+			pSelf->m_pInstagib->Join(pPlayer, WEAPON_GRENADE, true);
 		}
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "fng"))
@@ -2075,7 +2075,7 @@ void CGameContext::ConInsta(IConsole::IResult *pResult, void *pUserData)
 		else
 		{
 			pSelf->SendChatTarget(pResult->m_ClientID, "[INSTA] You joined a fng game.");
-			pSelf->JoinInstagib(5, true, pResult->m_ClientID);
+			pSelf->m_pInstagib->Join(pPlayer, WEAPON_LASER, true);
 		}
 	}
 	else if(!str_comp_nocase(pResult->GetString(0), "1on1"))

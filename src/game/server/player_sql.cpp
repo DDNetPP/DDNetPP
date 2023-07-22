@@ -77,7 +77,7 @@ void CPlayer::OnLogin()
 		else
 		{
 			GameServer()->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
-			GameServer()->JoinInstagib(5, true, m_ClientID);
+			GameServer()->m_pInstagib->Join(this, WEAPON_LASER, true);
 		}
 	}
 	else if(m_Account.m_aFngConfig[0] == '2') //auto boomfng join
@@ -89,7 +89,7 @@ void CPlayer::OnLogin()
 		else
 		{
 			GameServer()->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
-			GameServer()->JoinInstagib(4, true, m_ClientID);
+			GameServer()->m_pInstagib->Join(this, WEAPON_GRENADE, true);
 		}
 	}
 

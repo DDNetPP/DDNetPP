@@ -14,6 +14,7 @@
 #include "minigames/minigame_base.h"
 
 #include "minigames/balance.h"
+#include "minigames/instagib.h"
 #include "minigames/block_tournament.h"
 
 #include "ddpp/dummymode.h"
@@ -150,7 +151,6 @@ public:
 	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
 	bool IsHooked(int hookedID, int power);
 	bool IsSameIP(int ID_1, int ID_2);
-	void JoinInstagib(int weapon, bool fng, int ID);
 	void ShowInstaStats(int requestID, int requestedID);
 	void ShowSurvivalStats(int requestID, int requestedID);
 	void ShowDDPPStats(int requestID, int requestedID);
@@ -253,6 +253,7 @@ public:
 
 	CBlockTournament *m_pBlockTournament;
 	CBalance *m_pBalance;
+	CInstagib *m_pInstagib;
 
 	std::vector<CMinigame *> m_vMinigames;
 
