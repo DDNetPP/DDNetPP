@@ -894,7 +894,6 @@ void IGameController::DoWincheck()
 						Score = Player->m_Score.value();
 					if(Score > Topscore)
 					{
-
 						Topscore = Score;
 						TopscoreCount = 1;
 					}

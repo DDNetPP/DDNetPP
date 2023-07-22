@@ -22,7 +22,7 @@ public:
 
 	bool IsActive(int ClientID) override;
 
-    void Leave(CPlayer *pPlayer); // move to base?
+	void Leave(CPlayer *pPlayer); // move to base?
 	void Join(CPlayer *pPlayer, int weapon, bool fng);
 };
 
