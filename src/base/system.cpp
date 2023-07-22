@@ -3540,7 +3540,7 @@ int str_utf8_comp_nocase_num(const char *a, const char *b, int num)
 	return (unsigned char)*a - (unsigned char)*b;
 }
 
-const char *str_utf8_find_nocase(const char *haystack, const char *needle)
+const char *str_utf8_find_nocase(const char *haystack, const char *needle, const char **end)
 {
 	while(*haystack) /* native implementation */
 	{
@@ -3554,11 +3554,17 @@ const char *str_utf8_find_nocase(const char *haystack, const char *needle)
 			b = b_next;
 		}
 		if(!(*b))
+		{
+			if(end != nullptr)
+				*end = a_next;
 			return haystack;
+		}
 		str_utf8_decode(&haystack);
 	}
 
-	return 0;
+	if(end != nullptr)
+		*end = nullptr;
+	return nullptr;
 }
 
 int str_utf8_isspace(int code)

@@ -3200,7 +3200,7 @@ void CClient::Run()
 				{
 					Input()->MouseModeRelative();
 					GameClient()->OnActivateEditor();
-					m_pEditor->ResetMentions();
+					m_pEditor->OnActivate();
 					m_EditorActive = true;
 				}
 			}
@@ -3912,7 +3912,11 @@ const char *CClient::DemoPlayer_Render(const char *pFilename, int StorageType, c
 
 	this->CClient::StartVideo(NULL, this, pVideoName);
 	m_DemoPlayer.Play();
-	m_DemoPlayer.SetSpeed(g_aSpeeds[SpeedIndex]);
+	m_DemoPlayer.SetSpeedIndex(SpeedIndex);
+	if(Config()->m_ClVideoPauseOnStart)
+	{
+		m_DemoPlayer.Pause();
+	}
 	//m_pConsole->Print(IConsole::OUTPUT_LEVEL_DEBUG, "demo_recorder", "demo eof");
 	return 0;
 }
@@ -4690,7 +4694,13 @@ int main(int argc, const char **argv)
 	{
 		bool RegisterFail = false;
 
-		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngine);
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pEngine, false);
+
+		CleanerFunctions.push([pEngine]() {
+			// Has to be before destroying graphics so that skin download thread can finish
+			delete pEngine;
+		});
+
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConsole);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConfigManager);
 

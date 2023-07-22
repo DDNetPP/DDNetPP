@@ -1006,7 +1006,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 		m_pPlayer->m_MsgModeSpecial = ModeSpecial;
 		m_pPlayer->FixForNoName(2);
 	}
-	else if(SendKillMsg && (Team() == TEAM_FLOCK || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == CGameTeams::TEAMSTATE_OPEN))
+	else if(SendKillMsg && (Team() == TEAM_FLOCK || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == CGameTeams::TEAMSTATE_OPEN || Teams()->TeamLocked(Team()) == false))
 	{
 		CNetMsg_Sv_KillMsg Msg;
 		Msg.m_Killer = Killer;
