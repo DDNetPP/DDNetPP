@@ -132,7 +132,7 @@ option(VULKAN "Enable the vulkan backend" ${AUTO_VULKAN_BACKEND})
 option(EXCEPTION_HANDLING "Enable exception handling (only works with Windows as of now)" OFF)
 option(IPO "Enable interprocedural optimizations" OFF)
 option(FUSE_LD "Linker to use" OFF)
-option(SECURITY_COMPILER_FLAGS "Whether to set security-relevant compiler flags like -D_FORTIFY_SOURCE=2 and -fstack-protector-all" ON)
+option(SECURITY_COMPILER_FLAGS "Whether to set security-relevant compiler flags like -D_FORTIFY_SOURCE=2 and -fstack-protector-strong" ON)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   include(${PROJECT_SOURCE_DIR}/cmake/toolchains/Emscripten.toolchain)
@@ -294,10 +294,9 @@ if(NOT MSVC AND NOT HAIKU)
     add_cxx_compiler_flag_if_supported(OUR_FLAGS_OWN -std=gnu++17)
   endif()
 
-  if(NOT SECURITY_COMPILER_FLAGS STREQUAL OFF)
+  if(SECURITY_COMPILER_FLAGS)
     # Protect the stack pointer.
-    # -fstack-protector-all doesn't work on MinGW.
-    add_cxx_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-all)
+    add_cxx_compiler_flag_if_supported(OUR_FLAGS -fstack-protector-strong)
   endif()
 
   # Disable exceptions as DDNet does not use them.
@@ -362,7 +361,7 @@ if(MSVC)
   endif()
 endif()
 
-if(NOT MSVC AND NOT HAIKU AND NOT SECURITY_COMPILER_FLAGS STREQUAL OFF)
+if(NOT MSVC AND NOT HAIKU AND SECURITY_COMPILER_FLAGS)
   check_c_compiler_flag("-O2;-Wp,-Werror;-D_FORTIFY_SOURCE=2" DEFINE_FORTIFY_SOURCE) # Some distributions define _FORTIFY_SOURCE by themselves.
 endif()
 
@@ -550,7 +549,7 @@ find_package(Ogg)
 find_package(Opus)
 find_package(Opusfile)
 find_package(PNG)
-find_package(PythonInterp 3)
+find_package(Python3)
 find_package(Rust)
 find_package(SDL2)
 find_package(SQLite3)
@@ -639,7 +638,7 @@ show_dependency_status("OpenSSL Crypto" CRYPTO)
 show_dependency_status("Opus" OPUS)
 show_dependency_status("Opusfile" OPUSFILE)
 show_dependency_status("PNG" PNG)
-show_dependency_status("PythonInterp" PYTHONINTERP)
+show_dependency_status("Python3" Python3)
 show_dependency_status("SDL2" SDL2)
 show_dependency_status("SQLite3" SQLite3)
 show_dependency_status("Wavpack" WAVPACK)
@@ -658,7 +657,7 @@ endif()
 if(NOT(CURL_FOUND))
   message(SEND_ERROR "You must install Curl to compile ${CMAKE_PROJECT_NAME}")
 endif()
-if(NOT(PYTHONINTERP_FOUND))
+if(NOT(Python3_FOUND))
   message(SEND_ERROR "You must install Python to compile ${CMAKE_PROJECT_NAME}")
 endif()
 if(NOT(RUST_FOUND))
@@ -788,7 +787,7 @@ endif()
 ########################################################################
 
 if(NOT(GTEST_FOUND) AND DOWNLOAD_GTEST)
-  set(DDNET_GTEST_VERSION 5c8ca58edfb304b2dd5e6061f83387470826dd87) # master as of 2021-04-07
+  set(DDNET_GTEST_VERSION v1.13.0)
   configure_file(cmake/Download_GTest_CMakeLists.txt.in googletest-download/CMakeLists.txt)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE result
@@ -1757,7 +1756,7 @@ file(COPY ${COPY_DIRS} DESTINATION .)
 
 function(generate_source output_file script_parameter)
   add_custom_command(OUTPUT ${output_file}
-    COMMAND ${PYTHON_EXECUTABLE} datasrc/compile.py ${script_parameter}
+    COMMAND ${Python3_EXECUTABLE} datasrc/compile.py ${script_parameter}
       > "${PROJECT_BINARY_DIR}/${output_file}"
     DEPENDS
       datasrc/compile.py
@@ -1770,7 +1769,7 @@ endfunction()
 
 function(generate_source7 output_file script_parameter)
   add_custom_command(OUTPUT ${output_file}
-    COMMAND ${PYTHON_EXECUTABLE} -m datasrc.seven.compile ${script_parameter}
+    COMMAND ${Python3_EXECUTABLE} -m datasrc.seven.compile ${script_parameter}
       > "${PROJECT_BINARY_DIR}/${output_file}"
     DEPENDS
       datasrc/seven/compile.py
@@ -1783,7 +1782,7 @@ endfunction()
 
 function(generate_maps output_file script_parameter)
   add_custom_command(OUTPUT ${output_file}
-    COMMAND ${PYTHON_EXECUTABLE} datasrc/crosscompile.py ${script_parameter}
+    COMMAND ${Python3_EXECUTABLE} datasrc/crosscompile.py ${script_parameter}
       > "${PROJECT_BINARY_DIR}/${output_file}"
     DEPENDS
       datasrc/crosscompile.py
@@ -1814,7 +1813,7 @@ if(NOT PROJECT_GIT_DIR_ERROR)
   )
 endif()
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/game/generated/git_revision.cpp
-  COMMAND ${PYTHON_EXECUTABLE}
+  COMMAND ${Python3_EXECUTABLE}
     scripts/git_revision.py
     > ${PROJECT_BINARY_DIR}/src/game/generated/git_revision.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -1838,7 +1837,7 @@ generate_maps("src/game/generated/protocolglue.h" "map_header")
 generate_maps("src/game/generated/protocolglue.cpp" "map_source")
 
 add_custom_command(OUTPUT "src/game/generated/wordlist.h"
-  COMMAND ${PYTHON_EXECUTABLE} scripts/wordlist.py > ${PROJECT_BINARY_DIR}/src/game/generated/wordlist.h
+  COMMAND ${Python3_EXECUTABLE} scripts/wordlist.py > ${PROJECT_BINARY_DIR}/src/game/generated/wordlist.h
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   DEPENDS
     scripts/wordlist.py
@@ -1949,6 +1948,8 @@ set_src(ENGINE_SHARED GLOB_RECURSE src/engine/shared
   jobs.h
   json.cpp
   json.h
+  jsonwriter.cpp
+  jsonwriter.h
   kernel.cpp
   linereader.cpp
   linereader.h
@@ -2805,7 +2806,7 @@ string(REPLACE ";" "\n" CHECKSUM_SRC_FILE "${CHECKSUM_SRC}")
 file(WRITE ${PROJECT_BINARY_DIR}/checksummed_files.txt ${CHECKSUM_SRC_FILE})
 
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src/game/generated/checksum.cpp
-  COMMAND ${PYTHON_EXECUTABLE}
+  COMMAND ${Python3_EXECUTABLE}
     scripts/checksum.py
     ${PROJECT_BINARY_DIR}/checksummed_files.txt
     ${PROJECT_BINARY_DIR}/checksummed_extra.txt
@@ -2839,6 +2840,7 @@ if(GTEST_FOUND OR DOWNLOAD_GTEST)
     io.cpp
     jobs.cpp
     json.cpp
+    jsonwriter.cpp
     linereader.cpp
     mapbugs.cpp
     name_ban.cpp
@@ -3230,7 +3232,7 @@ if(CLIENT AND DMGBUILD)
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libswresample.4.dylib ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/ddnet-libs/ffmpeg/${LIB_DIR}/libswscale.7.dylib ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/Frameworks/
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/libsteam_api.dylib ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/Frameworks/
-    COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/darwin_strip_rpath.py ${CMAKE_OTOOL} ${CMAKE_INSTALL_NAME_TOOL} ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/MacOS/${CLIENT_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/darwin_strip_rpath.py ${CMAKE_OTOOL} ${CMAKE_INSTALL_NAME_TOOL} ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/MacOS/${CLIENT_EXECUTABLE}
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @loader_path/../Frameworks ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/MacOS/${CLIENT_EXECUTABLE}
 
     # SERVER
@@ -3238,7 +3240,7 @@ if(CLIENT AND DMGBUILD)
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/other/icons/${SERVER_EXECUTABLE}.icns ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/Resources/
     COMMAND ${CMAKE_COMMAND} -E copy bundle/server/Info.plist ${PROJECT_SOURCE_DIR}/other/bundle/server/PkgInfo ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:game-server> $<TARGET_FILE:game-server-launcher> ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/MacOS/
-    COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/darwin_strip_rpath.py ${CMAKE_OTOOL} ${CMAKE_INSTALL_NAME_TOOL} ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/MacOS/${SERVER_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/darwin_strip_rpath.py ${CMAKE_OTOOL} ${CMAKE_INSTALL_NAME_TOOL} ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/MacOS/${SERVER_EXECUTABLE}
     COMMAND ${CMAKE_COMMAND} -E copy ${DMG_TMPDIR}/${SERVER_EXECUTABLE}.app/Contents/MacOS/${SERVER_EXECUTABLE} ${DMG_TMPDIR}/${CLIENT_EXECUTABLE}.app/Contents/MacOS/${SERVER_EXECUTABLE}
 
     # DMG
