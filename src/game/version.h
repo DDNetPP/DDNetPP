@@ -13,7 +13,5 @@
 #define CLIENT_VERSIONNR 17011
 extern const char *GIT_SHORTREV_HASH;
 #define GAME_NAME "DDNet++"
-#define DDNETPP_VERSIONSTR "v.0.0.7"
-#define DDNETPP_BUILD_DATE __DATE__ ", " __TIME__
 
 #endif

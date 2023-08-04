@@ -30,7 +30,7 @@ bool CheckClientID(int ClientID); //TODO: whats this ? xd
 bool CGameContext::DDPPCredits()
 {
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"ChillerDragon's Block Mod (" DDNETPP_VERSION ").");
+		"ChillerDragon's Block Mod (" DDNETPP_VERSIONSTR ").");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Created by ChillerDragon, timakro, FruchtiHD, fokkonaut, ReiTW, Henritees");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
@@ -45,7 +45,7 @@ bool CGameContext::DDPPCredits()
 bool CGameContext::DDPPInfo()
 {
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"ChillerDragon's Block mod. " DDNETPP_VERSION " (more info '/changelog')");
+		"ChillerDragon's Block mod. " DDNETPP_VERSIONSTR " (more info '/changelog')");
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDNet Version: " GAME_VERSION);
 	if(GIT_SHORTREV_HASH)
@@ -403,7 +403,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	if(page == 1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"=== Changelog (DDNet++ " DDNETPP_VERSIONSTR ") ===");
+			"=== Changelog (DDNet++ v.0.0.7) ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fix flag crashbug");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
