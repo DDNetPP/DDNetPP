@@ -19,6 +19,8 @@
 
 // This file can be included several times.
 
+UUID(NETMSG_DDNETPP, "ddnet-plus-plus@zillyhuhn.com")
+
 UUID(NETMSG_WHATIS, "what-is@ddnet.tw")
 UUID(NETMSG_ITIS, "it-is@ddnet.tw")
 UUID(NETMSG_IDONTKNOW, "i-dont-know@ddnet.tw")

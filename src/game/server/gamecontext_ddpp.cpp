@@ -243,6 +243,21 @@ void CGameContext::OnClientEnterDDPP(int ClientID)
 	}
 	InitDDPPScore(ClientID);
 	CheckServerEmpty();
+	CMsgPacker Msg(NETMSG_DDNETPP);
+	Msg.AddInt(0); // ddnet++ feature flags1
+	Msg.AddInt(0); // ddnet++ feature flags2
+	Msg.AddInt(0); // ddnet++ allow flags
+	char aBuf[512];
+	str_format(
+		aBuf,
+		sizeof(aBuf),
+		"DDNet++ %s (built on %s, git rev %s)",
+		DDNETPP_VERSIONSTR,
+		DDNETPP_BUILD_DATE,
+		GIT_SHORTREV_HASH
+	);
+	Msg.AddString(aBuf);
+	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 void CGameContext::InitDDPPScore(int ClientID)

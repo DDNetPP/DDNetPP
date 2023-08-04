@@ -403,7 +403,7 @@ void CGameContext::ConChangelog(IConsole::IResult *pResult, void *pUserData)
 	if(page == 1)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-			"=== Changelog (DDNet++ v.0.0.7) ===");
+			"=== Changelog (DDNet++ " DDNETPP_VERSIONSTR ") ===");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 			"* fix flag crashbug");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
