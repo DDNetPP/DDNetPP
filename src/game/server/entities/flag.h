@@ -37,6 +37,8 @@ public:
 	virtual void Snap(int SnappingClient) override;
 
 	CCharacter *GetCarrier() const { return m_pCarryingCharacter; }
+
+	int m_TuneZone;
 };
 
 #endif

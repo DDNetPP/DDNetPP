@@ -38,6 +38,8 @@ private:
 	int m_ID3;
 	int m_ID4;
 	int m_ID5;
+
+	int m_TuneZone;
 };
 
 #endif

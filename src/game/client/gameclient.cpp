@@ -522,7 +522,7 @@ void CGameClient::OnConnected()
 	m_GameWorld.m_WorldConfig.m_InfiniteAmmo = true;
 	mem_zero(&m_GameInfo, sizeof(m_GameInfo));
 	m_PredictedDummyID = -1;
-	Console()->ResetServerGameSettings();
+	Console()->ResetGameSettings();
 	LoadMapSettings();
 
 	if(Client()->State() != IClient::STATE_DEMOPLAYBACK && g_Config.m_ClAutoDemoOnConnect)
@@ -635,6 +635,8 @@ void CGameClient::UpdatePositions()
 
 	if(!m_MultiViewActivated && m_MultiView.m_IsInit)
 		ResetMultiView();
+	else if(!m_Snap.m_SpecInfo.m_Active)
+		m_MultiViewPersonalZoom = 0;
 
 	UpdateRenderedCharacters();
 }
@@ -874,29 +876,25 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 			m_GameWorld.ReleaseHooked(pMsg->m_Victim);
 		}
 
-		// if we are spectating a static id set (team 0) and somebody killed, we remove him from the list
-		if(IsMultiViewIdSet() && m_aMultiViewId[pMsg->m_Victim] && !m_aClients[pMsg->m_Victim].m_Spec)
+		// if we are spectating a static id set (team 0) and somebody killed, and its not a guy in solo, we remove him from the list
+		if(IsMultiViewIdSet() && m_MultiViewTeam == 0 && m_aMultiViewId[pMsg->m_Victim] && !m_aClients[pMsg->m_Victim].m_Spec && !m_MultiView.m_Solo)
 		{
-			// is multi-view even activated and we are not spectating a solo guy
-			if(m_MultiViewActivated && !m_MultiView.m_Solo)
-			{
-				m_aMultiViewId[pMsg->m_Victim] = false;
+			m_aMultiViewId[pMsg->m_Victim] = false;
 
-				// if everyone of a team killed, we have no ids to spectate anymore, so we disable multi-view
-				if(!IsMultiViewIdSet())
-					m_MultiViewActivated = false;
-				else
+			// if everyone of a team killed, we have no ids to spectate anymore, so we disable multi view
+			if(!IsMultiViewIdSet())
+				m_MultiViewActivated = false;
+			else
+			{
+				// the "main" tee killed, search a new one
+				if(m_Snap.m_SpecInfo.m_SpectatorID == pMsg->m_Victim)
 				{
-					// the "main" tee killed, search a new one
-					if(m_Snap.m_SpecInfo.m_SpectatorID == pMsg->m_Victim)
+					int NewClientID = FindFirstMultiViewId();
+					if(NewClientID < MAX_CLIENTS && NewClientID >= 0)
 					{
-						int NewClientID = FindFirstMultiViewId();
-						if(NewClientID < MAX_CLIENTS && NewClientID >= 0)
-						{
-							CleanMultiViewId(NewClientID);
-							m_aMultiViewId[NewClientID] = true;
-							m_Spectator.Spectate(NewClientID);
-						}
+						CleanMultiViewId(NewClientID);
+						m_aMultiViewId[NewClientID] = true;
+						m_Spectator.Spectate(NewClientID);
 					}
 				}
 			}
@@ -917,6 +915,8 @@ void CGameClient::OnStateChange(int NewState, int OldState)
 
 void CGameClient::OnShutdown()
 {
+	RenderShutdownMessage();
+
 	for(auto &pComponent : m_vpAll)
 		pComponent->OnShutdown();
 }
@@ -972,6 +972,25 @@ void CGameClient::OnWindowResize()
 void CGameClient::OnLanguageChange()
 {
 	UI()->OnLanguageChange();
+}
+
+void CGameClient::RenderShutdownMessage()
+{
+	const char *pMessage = nullptr;
+	if(Client()->State() == IClient::STATE_QUITTING)
+		pMessage = Localize("Quitting. Please wait…");
+	else if(Client()->State() == IClient::STATE_RESTARTING)
+		pMessage = Localize("Restarting. Please wait…");
+	else
+		dbg_assert(false, "Invalid client state for quitting message");
+
+	// This function only gets called after the render loop has already terminated, so we have to call Swap manually.
+	Graphics()->Clear(0.0f, 0.0f, 0.0f);
+	UI()->MapScreen();
+	TextRender()->TextColor(TextRender()->DefaultTextColor());
+	UI()->DoLabel(UI()->Screen(), pMessage, 16.0f, TEXTALIGN_MC);
+	Graphics()->Swap();
+	Graphics()->Clear(0.0f, 0.0f, 0.0f);
 }
 
 void CGameClient::OnRconType(bool UsernameReq)
@@ -3526,6 +3545,9 @@ void CGameClient::HandleMultiView()
 	}
 	else if(m_MultiView.m_SecondChance != 0.0f)
 		m_MultiView.m_SecondChance = 0.0f;
+
+	// if we only have one tee thats in the list, we activate solo-mode
+	m_MultiView.m_Solo = std::count(std::begin(m_aMultiViewId), std::end(m_aMultiViewId), true) == 1;
 
 	vec2 TargetPos = vec2((Minpos.x + Maxpos.x) / 2.0f, (Minpos.y + Maxpos.y) / 2.0f);
 	// dont hide the position hud if its only one player

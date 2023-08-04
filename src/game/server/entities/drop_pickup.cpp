@@ -24,6 +24,7 @@ CDropPickup::CDropPickup(CGameWorld *pGameWorld, int Type, int Lifetime, int Own
 		m_Vel.y += (rand() % 10 - 5) * Force;
 
 		m_PickupDelay = Server()->TickSpeed() * 2;
+		m_TuneZone = GameServer()->Collision()->IsTune(GameServer()->Collision()->GetMapIndex(m_Pos));
 
 		GameWorld()->InsertEntity(this);
 	}
@@ -220,7 +221,12 @@ void CDropPickup::Tick()
 		m_Vel = TempVel;
 	}
 
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(ms_PhysSize, ms_PhysSize), 0.5f);
+	GameServer()->Collision()->MoveBox(
+		&m_Pos,
+		&m_Vel,
+		vec2(ms_PhysSize, ms_PhysSize),
+		vec2(GameServer()->TuningList()[m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[m_TuneZone].m_GroundElasticityY)
+	);
 }
 
 void CDropPickup::Snap(int SnappingClient)

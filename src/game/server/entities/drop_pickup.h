@@ -26,6 +26,7 @@ private:
 	bool m_EreasePickup;
 
 	static int const ms_PhysSize = 14;
+	int m_TuneZone;
 };
 
 #endif

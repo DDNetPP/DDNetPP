@@ -27,6 +27,8 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 	m_ID4 = Server()->SnapNewID();
 	m_ID5 = Server()->SnapNewID();
 
+	m_TuneZone = GameServer()->Collision()->IsTune(GameServer()->Collision()->GetMapIndex(m_Pos));
+
 	GameWorld()->InsertEntity(this);
 }
 
@@ -273,7 +275,12 @@ void CWeapon::Tick()
 		m_Vel = TempVel;
 	}
 
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(ms_PhysSize, ms_PhysSize), 0.5f);
+	GameServer()->Collision()->MoveBox(
+		&m_Pos,
+		&m_Vel,
+		vec2(ms_PhysSize, ms_PhysSize),
+		vec2(GameServer()->TuningList()[m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[m_TuneZone].m_GroundElasticityY)
+	);
 }
 
 void CWeapon::Snap(int SnappingClient)

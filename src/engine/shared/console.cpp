@@ -294,6 +294,15 @@ LEVEL IConsole::ToLogLevel(int Level)
 	return LEVEL_INFO;
 }
 
+int IConsole::ToLogLevelFilter(int Level)
+{
+	if(!(-3 <= Level && Level <= 2))
+	{
+		dbg_assert(0, "invalid log level filter");
+	}
+	return Level + 2;
+}
+
 LOG_COLOR ColorToLogColor(ColorRGBA Color)
 {
 	return LOG_COLOR{
@@ -1271,13 +1280,13 @@ const IConsole::CCommandInfo *CConsole::GetCommandInfo(const char *pName, int Fl
 
 std::unique_ptr<IConsole> CreateConsole(int FlagMask) { return std::make_unique<CConsole>(FlagMask); }
 
-void CConsole::ResetServerGameSettings()
+void CConsole::ResetGameSettings()
 {
 #define MACRO_CONFIG_INT(Name, ScriptName, Def, Min, Max, Flags, Desc) \
 	{ \
-		if(((Flags) & (CFGFLAG_SERVER | CFGFLAG_GAME)) == (CFGFLAG_SERVER | CFGFLAG_GAME)) \
+		if(((Flags)&CFGFLAG_GAME) == CFGFLAG_GAME) \
 		{ \
-			CCommand *pCommand = FindCommand(#ScriptName, CFGFLAG_SERVER); \
+			CCommand *pCommand = FindCommand(#ScriptName, CFGFLAG_GAME); \
 			void *pUserData = pCommand->m_pUserData; \
 			FCommandCallback pfnCallback = pCommand->m_pfnCallback; \
 			TraverseChain(&pfnCallback, &pUserData); \
@@ -1290,9 +1299,9 @@ void CConsole::ResetServerGameSettings()
 
 #define MACRO_CONFIG_STR(Name, ScriptName, Len, Def, Flags, Desc) \
 	{ \
-		if(((Flags) & (CFGFLAG_SERVER | CFGFLAG_GAME)) == (CFGFLAG_SERVER | CFGFLAG_GAME)) \
+		if(((Flags)&CFGFLAG_GAME) == CFGFLAG_GAME) \
 		{ \
-			CCommand *pCommand = FindCommand(#ScriptName, CFGFLAG_SERVER); \
+			CCommand *pCommand = FindCommand(#ScriptName, CFGFLAG_GAME); \
 			void *pUserData = pCommand->m_pUserData; \
 			FCommandCallback pfnCallback = pCommand->m_pfnCallback; \
 			TraverseChain(&pfnCallback, &pUserData); \

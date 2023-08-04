@@ -11,6 +11,8 @@ CFlag::CFlag(CGameWorld *pGameWorld, int Team) :
 	m_pCarryingCharacter = NULL;
 	m_GrabTick = 0;
 
+	m_TuneZone = GameServer()->Collision()->IsTune(GameServer()->Collision()->GetMapIndex(m_Pos));
+
 	Reset();
 }
 
