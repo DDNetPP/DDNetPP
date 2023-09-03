@@ -2990,12 +2990,6 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		CNetObj_Projectile p;
 		pProj->FillInfo(&p);
 
-		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(1);
-		for(unsigned i = 0; i < sizeof(CNetObj_Projectile) / sizeof(int); i++)
-			Msg.AddInt(((int *)&p)[i]);
-
-		Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
 		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
 	}
 	else if(m_pPlayer->m_SpookyGhostActive)
@@ -3042,9 +3036,6 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 	{
 		int ShotSpread = 2;
 
-		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(ShotSpread * 2 + 1);
-
 		for(int i = -ShotSpread; i <= ShotSpread; ++i)
 		{
 			float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
@@ -3068,12 +3059,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			// pack the Projectile and send it to the client Directly
 			CNetObj_Projectile p;
 			pProj->FillInfo(&p);
-
-			for(unsigned k = 0; k < sizeof(CNetObj_Projectile) / sizeof(int); k++)
-				Msg.AddInt(((int *)&p)[k]);
 		}
-
-		Server()->SendMsg(&Msg, MSGFLAG_VITAL, m_pPlayer->GetCID());
 
 		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE);
 		return true;

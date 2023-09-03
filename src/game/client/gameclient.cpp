@@ -192,7 +192,8 @@ void CGameClient::OnConsoleInit()
 	for(auto &pComponent : m_vpAll)
 		pComponent->OnConsoleInit();
 
-	//
+	Console()->Chain("cl_languagefile", ConchainLanguageUpdate, this);
+
 	Console()->Chain("player_name", ConchainSpecialInfoupdate, this);
 	Console()->Chain("player_clan", ConchainSpecialInfoupdate, this);
 	Console()->Chain("player_country", ConchainSpecialInfoupdate, this);
@@ -226,8 +227,6 @@ void CGameClient::OnInit()
 
 	m_pGraphics = Kernel()->RequestInterface<IGraphics>();
 
-	m_pGraphics->AddWindowResizeListener([this] { OnWindowResize(); });
-
 	// propagate pointers
 	m_UI.Init(Kernel());
 	m_RenderTools.Init(Graphics(), TextRender());
@@ -254,7 +253,8 @@ void CGameClient::OnInit()
 	for(int i = 0; i < NUM_NETOBJTYPES; i++)
 		Client()->SnapSetStaticsize(i, m_NetObjHandler.GetObjSize(i));
 
-	Client()->LoadFont();
+	TextRender()->LoadFonts();
+	TextRender()->SetFontLanguageVariant(g_Config.m_ClLanguagefile);
 
 	// update and swap after font loading, they are quite huge
 	Client()->UpdateAndSwap();
@@ -380,6 +380,8 @@ void CGameClient::OnInit()
 
 void CGameClient::OnUpdate()
 {
+	HandleLanguageChanged();
+
 	CUIElementBase::Init(UI()); // update static pointer because game and editor use separate UI
 
 	// handle mouse movement
@@ -635,8 +637,6 @@ void CGameClient::UpdatePositions()
 
 	if(!m_MultiViewActivated && m_MultiView.m_IsInit)
 		ResetMultiView();
-	else if(!m_Snap.m_SpecInfo.m_Active)
-		m_MultiViewPersonalZoom = 0;
 
 	UpdateRenderedCharacters();
 }
@@ -744,6 +744,25 @@ void CGameClient::OnDummyDisconnect()
 int CGameClient::GetLastRaceTick()
 {
 	return m_Ghost.GetLastRaceTick();
+}
+
+bool CGameClient::Predict() const
+{
+	if(!g_Config.m_ClPredict)
+		return false;
+
+	if(m_Snap.m_pGameInfoObj)
+	{
+		if(m_Snap.m_pGameInfoObj->m_GameStateFlags & (GAMESTATEFLAG_GAMEOVER | GAMESTATEFLAG_PAUSED))
+		{
+			return false;
+		}
+	}
+
+	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+		return false;
+
+	return !m_Snap.m_SpecInfo.m_Active && m_Snap.m_pLocalCharacter;
 }
 
 void CGameClient::OnRelease()
@@ -883,7 +902,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 
 			// if everyone of a team killed, we have no ids to spectate anymore, so we disable multi view
 			if(!IsMultiViewIdSet())
-				m_MultiViewActivated = false;
+				ResetMultiView();
 			else
 			{
 				// the "main" tee killed, search a new one
@@ -960,18 +979,31 @@ void CGameClient::OnFlagGrab(int TeamID)
 
 void CGameClient::OnWindowResize()
 {
-	TextRender()->OnPreWindowResize();
-
 	for(auto &pComponent : m_vpAll)
 		pComponent->OnWindowResize();
 
 	UI()->OnWindowResize();
-	TextRender()->OnWindowResize();
 }
 
 void CGameClient::OnLanguageChange()
 {
-	UI()->OnLanguageChange();
+	// The actual language change is delayed because it
+	// might require clearing the text render font atlas,
+	// which would invalidate text that is currently drawn.
+	m_LanguageChanged = true;
+}
+
+void CGameClient::HandleLanguageChanged()
+{
+	if(!m_LanguageChanged)
+		return;
+	m_LanguageChanged = false;
+
+	g_Localization.Load(g_Config.m_ClLanguagefile, Storage(), Console());
+	TextRender()->SetFontLanguageVariant(g_Config.m_ClLanguagefile);
+
+	// Clear all text containers
+	Client()->OnWindowResize();
 }
 
 void CGameClient::RenderShutdownMessage()
@@ -2285,6 +2317,13 @@ void CGameClient::ConKill(IConsole::IResult *pResult, void *pUserData)
 	((CGameClient *)pUserData)->SendKill(-1);
 }
 
+void CGameClient::ConchainLanguageUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	pfnCallback(pResult, pCallbackUserData);
+	if(pResult->NumArguments())
+		((CGameClient *)pUserData)->OnLanguageChange();
+}
+
 void CGameClient::ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	pfnCallback(pResult, pCallbackUserData);
@@ -3538,7 +3577,7 @@ void CGameClient::HandleMultiView()
 			m_MultiView.m_SecondChance = Client()->LocalTime() + 0.3f;
 		else if(m_MultiView.m_SecondChance < Client()->LocalTime())
 		{
-			m_MultiViewActivated = false;
+			ResetMultiView();
 			return;
 		}
 		return;
@@ -3576,15 +3615,18 @@ bool CGameClient::InitMultiView(int Team)
 	vec2 AxisX = vec2(m_Camera.m_Center.x - (Width / 2), m_Camera.m_Center.x + (Width / 2));
 	vec2 AxisY = vec2(m_Camera.m_Center.y - (Height / 2), m_Camera.m_Center.y + (Height / 2));
 
-	m_MultiViewTeam = Team;
-
 	if(Team > 0)
 	{
+		m_MultiViewTeam = Team;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 			m_aMultiViewId[i] = m_Teams.Team(i) == Team;
 	}
 	else
 	{
+		// we want to allow spectating players in teams directly if there is no other team on screen
+		// to do that, -1 is used temporarily for "we don't know which team to spectate yet"
+		m_MultiViewTeam = -1;
+
 		int Count = 0;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -3598,26 +3640,38 @@ bool CGameClient::InitMultiView(int Team)
 			else
 				continue;
 
-			// player isnt in the correct team
-			if(m_Teams.Team(i) != Team)
+			if(PlayerPos.x == 0 || PlayerPos.y == 0)
 				continue;
 
-			if(PlayerPos.x != 0 && PlayerPos.y != 0)
+			// skip players that aren't in view
+			if(PlayerPos.x <= AxisX.x || PlayerPos.x >= AxisX.y || PlayerPos.y <= AxisY.x || PlayerPos.y >= AxisY.y)
+				continue;
+
+			if(m_MultiViewTeam == -1)
 			{
-				// is the player in view
-				if(PlayerPos.x > AxisX.x && PlayerPos.x < AxisX.y && PlayerPos.y > AxisY.x && PlayerPos.y < AxisY.y)
-				{
-					m_aMultiViewId[i] = true;
-					Count++;
-				}
+				// use the current player's team for now, but it might switch to team 0 if any other team is found
+				m_MultiViewTeam = m_Teams.Team(i);
 			}
+			else if(m_MultiViewTeam != 0 && m_Teams.Team(i) != m_MultiViewTeam)
+			{
+				// mismatched teams; remove all previously added players again and switch to team 0 instead
+				std::fill_n(m_aMultiViewId, i, false);
+				m_MultiViewTeam = 0;
+			}
+
+			m_aMultiViewId[i] = true;
+			Count++;
 		}
+
+		// might still be -1 if not a single player was in view; fallback to team 0 in that case
+		if(m_MultiViewTeam == -1)
+			m_MultiViewTeam = 0;
 
 		// we are spectating only one player
 		m_MultiView.m_Solo = Count == 1;
 	}
 
-	if(!g_Config.m_ClMultiViewUseFreeView && IsMultiViewIdSet())
+	if(IsMultiViewIdSet())
 	{
 		int SpectatorID = m_Snap.m_SpecInfo.m_SpectatorID;
 		int NewSpectatorID = -1;
@@ -3633,7 +3687,7 @@ bool CGameClient::InitMultiView(int Team)
 		int ClosestDistance = INT_MAX;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if(!m_Snap.m_apPlayerInfos[i] || m_Snap.m_apPlayerInfos[i]->m_Team == TEAM_SPECTATORS || m_Teams.Team(i) != Team)
+			if(!m_Snap.m_apPlayerInfos[i] || m_Snap.m_apPlayerInfos[i]->m_Team == TEAM_SPECTATORS || m_Teams.Team(i) != m_MultiViewTeam)
 				continue;
 
 			vec2 PlayerPos;
@@ -3713,6 +3767,7 @@ float CGameClient::MapValue(float MaxValue, float MinValue, float MaxRange, floa
 
 void CGameClient::ResetMultiView()
 {
+	m_Camera.SetZoom(std::pow(CCamera::ZOOM_STEP, g_Config.m_ClDefaultZoom - 10), g_Config.m_ClSmoothZoomTime);
 	m_MultiViewPersonalZoom = 0;
 	m_MultiViewActivated = false;
 	m_MultiView.m_Solo = false;

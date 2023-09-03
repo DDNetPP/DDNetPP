@@ -6,6 +6,7 @@
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <engine/shared/linereader.h>
+#include <engine/shared/localization.h>
 #include <engine/storage.h>
 #include <engine/textrender.h>
 #include <engine/updater.h>
@@ -660,7 +661,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	static CButtonContainer s_RandomSkinButtonID;
 	static const char *s_apDice[] = {FONT_ICON_DICE_ONE, FONT_ICON_DICE_TWO, FONT_ICON_DICE_THREE, FONT_ICON_DICE_FOUR, FONT_ICON_DICE_FIVE, FONT_ICON_DICE_SIX};
 	static int s_CurrentDie = rand() % std::size(s_apDice);
-	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 	if(DoButton_Menu(&s_RandomSkinButtonID, s_apDice[s_CurrentDie], 1, &Button, nullptr, IGraphics::CORNER_ALL, 5.0f, -0.2f))
 	{
@@ -668,7 +669,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		s_CurrentDie = rand() % std::size(s_apDice);
 	}
 	TextRender()->SetRenderFlags(0);
-	TextRender()->SetCurFont(nullptr);
+	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 	GameClient()->m_Tooltips.DoToolTip(&s_RandomSkinButtonID, &Button, Localize("Create a random skin"));
 
 	// custom color selector
@@ -770,7 +771,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	}
 
 	auto &&RenderFavIcon = [&](const CUIRect &FavIcon, bool AsFav) {
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 		if(AsFav)
 			TextRender()->TextColor({1, 1, 0, 1});
@@ -782,7 +783,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		UI()->DoLabel(&FavIcon, FONT_ICON_STAR, 12.0f, TEXTALIGN_MR, Props);
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(nullptr);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 	};
 
 	int OldSelected = -1;
@@ -873,13 +874,13 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		MainView.HSplitBottom(ms_ButtonHeight, &MainView, &QuickSearch);
 		QuickSearch.VSplitLeft(240.0f, &QuickSearch, &SkinDB);
 		QuickSearch.HSplitTop(5.0f, 0, &QuickSearch);
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 		UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 14.0f, TEXTALIGN_ML);
 		float wSearch = TextRender()->TextWidth(14.0f, FONT_ICON_MAGNIFYING_GLASS, -1, -1.0f);
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(NULL);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		QuickSearch.VSplitLeft(wSearch, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(QuickSearch.w - 15.0f, &QuickSearch, &QuickSearchClearButton);
@@ -922,24 +923,24 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	}
 	GameClient()->m_Tooltips.DoToolTip(&s_DirectoryButtonID, &DirectoryButton, Localize("Open the directory to add custom skins"));
 
-	TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+	TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 	TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 	static CButtonContainer s_SkinRefreshButtonID;
 	if(DoButton_Menu(&s_SkinRefreshButtonID, FONT_ICON_ARROW_ROTATE_RIGHT, 0, &RefreshButton, nullptr, IGraphics::CORNER_ALL, 5, 0, vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4(1, 1, 1, 0.5f)))
 	{
 		// reset render flags for possible loading screen
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(NULL);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		RefreshSkins();
 		s_InitSkinlist = true;
 	}
 	TextRender()->SetRenderFlags(0);
-	TextRender()->SetCurFont(NULL);
+	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 }
 
 typedef struct
 {
-	CLocConstString m_Name;
+	const char *m_pName;
 	const char *m_pCommand;
 	int m_KeyId;
 	int m_ModifierCombination;
@@ -947,91 +948,79 @@ typedef struct
 
 static CKeyInfo gs_aKeys[] =
 	{
-		{"Move left", "+left", 0, 0}, // Localize - these strings are localized within CLocConstString
-		{"Move right", "+right", 0, 0},
-		{"Jump", "+jump", 0, 0},
-		{"Fire", "+fire", 0, 0},
-		{"Hook", "+hook", 0, 0},
-		{"Hook collisions", "+showhookcoll", 0, 0},
-		{"Pause", "say /pause", 0, 0},
-		{"Kill", "kill", 0, 0},
-		{"Zoom in", "zoom+", 0, 0},
-		{"Zoom out", "zoom-", 0, 0},
-		{"Default zoom", "zoom", 0, 0},
-		{"Show others", "say /showothers", 0, 0},
-		{"Show all", "say /showall", 0, 0},
-		{"Toggle dyncam", "toggle cl_dyncam 0 1", 0, 0},
-		{"Toggle ghost", "toggle cl_race_show_ghost 0 1", 0, 0},
+		{Localizable("Move left"), "+left", 0, 0},
+		{Localizable("Move right"), "+right", 0, 0},
+		{Localizable("Jump"), "+jump", 0, 0},
+		{Localizable("Fire"), "+fire", 0, 0},
+		{Localizable("Hook"), "+hook", 0, 0},
+		{Localizable("Hook collisions"), "+showhookcoll", 0, 0},
+		{Localizable("Pause"), "say /pause", 0, 0},
+		{Localizable("Kill"), "kill", 0, 0},
+		{Localizable("Zoom in"), "zoom+", 0, 0},
+		{Localizable("Zoom out"), "zoom-", 0, 0},
+		{Localizable("Default zoom"), "zoom", 0, 0},
+		{Localizable("Show others"), "say /showothers", 0, 0},
+		{Localizable("Show all"), "say /showall", 0, 0},
+		{Localizable("Toggle dyncam"), "toggle cl_dyncam 0 1", 0, 0},
+		{Localizable("Toggle ghost"), "toggle cl_race_show_ghost 0 1", 0, 0},
 
-		{"Hammer", "+weapon1", 0, 0},
-		{"Pistol", "+weapon2", 0, 0},
-		{"Shotgun", "+weapon3", 0, 0},
-		{"Grenade", "+weapon4", 0, 0},
-		{"Laser", "+weapon5", 0, 0},
-		{"Next weapon", "+nextweapon", 0, 0},
-		{"Prev. weapon", "+prevweapon", 0, 0},
+		{Localizable("Hammer"), "+weapon1", 0, 0},
+		{Localizable("Pistol"), "+weapon2", 0, 0},
+		{Localizable("Shotgun"), "+weapon3", 0, 0},
+		{Localizable("Grenade"), "+weapon4", 0, 0},
+		{Localizable("Laser"), "+weapon5", 0, 0},
+		{Localizable("Next weapon"), "+nextweapon", 0, 0},
+		{Localizable("Prev. weapon"), "+prevweapon", 0, 0},
 
-		{"Vote yes", "vote yes", 0, 0},
-		{"Vote no", "vote no", 0, 0},
+		{Localizable("Vote yes"), "vote yes", 0, 0},
+		{Localizable("Vote no"), "vote no", 0, 0},
 
-		{"Chat", "+show_chat; chat all", 0, 0},
-		{"Team chat", "+show_chat; chat team", 0, 0},
-		{"Converse", "+show_chat; chat all /c ", 0, 0},
-		{"Chat command", "+show_chat; chat all /", 0, 0},
-		{"Show chat", "+show_chat", 0, 0},
+		{Localizable("Chat"), "+show_chat; chat all", 0, 0},
+		{Localizable("Team chat"), "+show_chat; chat team", 0, 0},
+		{Localizable("Converse"), "+show_chat; chat all /c ", 0, 0},
+		{Localizable("Chat command"), "+show_chat; chat all /", 0, 0},
+		{Localizable("Show chat"), "+show_chat", 0, 0},
 
-		{"Toggle dummy", "toggle cl_dummy 0 1", 0, 0},
-		{"Dummy copy", "toggle cl_dummy_copy_moves 0 1", 0, 0},
-		{"Hammerfly dummy", "toggle cl_dummy_hammer 0 1", 0, 0},
+		{Localizable("Toggle dummy"), "toggle cl_dummy 0 1", 0, 0},
+		{Localizable("Dummy copy"), "toggle cl_dummy_copy_moves 0 1", 0, 0},
+		{Localizable("Hammerfly dummy"), "toggle cl_dummy_hammer 0 1", 0, 0},
 
-		{"Emoticon", "+emote", 0, 0},
-		{"Spectator mode", "+spectate", 0, 0},
-		{"Spectate next", "spectate_next", 0, 0},
-		{"Spectate previous", "spectate_previous", 0, 0},
-		{"Console", "toggle_local_console", 0, 0},
-		{"Remote console", "toggle_remote_console", 0, 0},
-		{"Screenshot", "screenshot", 0, 0},
-		{"Scoreboard", "+scoreboard", 0, 0},
-		{"Statboard", "+statboard", 0, 0},
-		{"Lock team", "say /lock", 0, 0},
-		{"Show entities", "toggle cl_overlay_entities 0 100", 0, 0},
-		{"Show HUD", "toggle cl_showhud 0 1", 0, 0},
+		{Localizable("Emoticon"), "+emote", 0, 0},
+		{Localizable("Spectator mode"), "+spectate", 0, 0},
+		{Localizable("Spectate next"), "spectate_next", 0, 0},
+		{Localizable("Spectate previous"), "spectate_previous", 0, 0},
+		{Localizable("Console"), "toggle_local_console", 0, 0},
+		{Localizable("Remote console"), "toggle_remote_console", 0, 0},
+		{Localizable("Screenshot"), "screenshot", 0, 0},
+		{Localizable("Scoreboard"), "+scoreboard", 0, 0},
+		{Localizable("Statboard"), "+statboard", 0, 0},
+		{Localizable("Lock team"), "say /lock", 0, 0},
+		{Localizable("Show entities"), "toggle cl_overlay_entities 0 100", 0, 0},
+		{Localizable("Show HUD"), "toggle cl_showhud 0 1", 0, 0},
 };
-
-/*	This is for scripts/languages to work, don't remove!
-	Localize("Move left");Localize("Move right");Localize("Jump");Localize("Fire");Localize("Hook");
-	Localize("Hook collisions");Localize("Pause");Localize("Kill");Localize("Zoom in");Localize("Zoom out");
-	Localize("Default zoom");Localize("Show others");Localize("Show all");Localize("Toggle dyncam");
-	Localize("Toggle dummy");Localize("Toggle ghost");Localize("Dummy copy");Localize("Hammerfly dummy");
-	Localize("Hammer");Localize("Pistol");Localize("Shotgun");Localize("Grenade");Localize("Laser");
-	Localize("Next weapon");Localize("Prev. weapon");Localize("Vote yes");Localize("Vote no");
-	Localize("Chat");Localize("Team chat");Localize("Converse");Localize("Show chat");Localize("Emoticon");
-	Localize("Spectator mode");Localize("Spectate next");Localize("Spectate previous");Localize("Console");
-	Localize("Remote console");Localize("Screenshot");Localize("Scoreboard");Localize("Statboard");
-	Localize("Lock team");Localize("Show entities");Localize("Show HUD");Localize("Chat command");
-*/
 
 void CMenus::DoSettingsControlsButtons(int Start, int Stop, CUIRect View)
 {
 	for(int i = Start; i < Stop; i++)
 	{
-		CKeyInfo &Key = gs_aKeys[i];
+		const CKeyInfo &Key = gs_aKeys[i];
+
 		CUIRect Button, Label;
 		View.HSplitTop(20.0f, &Button, &View);
 		Button.VSplitLeft(135.0f, &Label, &Button);
 
 		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "%s:", Localize((const char *)Key.m_Name));
+		str_format(aBuf, sizeof(aBuf), "%s:", Localize(Key.m_pName));
 
 		UI()->DoLabel(&Label, aBuf, 13.0f, TEXTALIGN_ML);
 		int OldId = Key.m_KeyId, OldModifierCombination = Key.m_ModifierCombination, NewModifierCombination;
-		int NewId = DoKeyReader((void *)&Key.m_Name, &Button, OldId, OldModifierCombination, &NewModifierCombination);
+		int NewId = DoKeyReader(&Key.m_KeyId, &Button, OldId, OldModifierCombination, &NewModifierCombination);
 		if(NewId != OldId || NewModifierCombination != OldModifierCombination)
 		{
 			if(OldId != 0 || NewId == 0)
 				m_pClient->m_Binds.Bind(OldId, "", false, OldModifierCombination);
 			if(NewId != 0)
-				m_pClient->m_Binds.Bind(NewId, gs_aKeys[i].m_pCommand, false, NewModifierCombination);
+				m_pClient->m_Binds.Bind(NewId, Key.m_pCommand, false, NewModifierCombination);
 		}
 
 		View.HSplitTop(2.0f, 0, &View);
@@ -1204,7 +1193,7 @@ void CMenus::DoJoystickAxisPicker(CUIRect View)
 
 		// Axis label
 		char aBuf[16];
-		str_format(aBuf, sizeof(aBuf), "%d", i + 1);
+		str_from_int(i + 1, aBuf);
 		if(Active)
 			TextRender()->TextColor(TextRender()->DefaultTextColor());
 		else
@@ -1993,7 +1982,6 @@ bool CMenus::RenderLanguageSelection(CUIRect MainView)
 	if(OldSelected != s_SelectedLanguage)
 	{
 		str_copy(g_Config.m_ClLanguagefile, g_Localization.Languages()[s_SelectedLanguage].m_FileName.c_str());
-		g_Localization.Load(g_Localization.Languages()[s_SelectedLanguage].m_FileName.c_str(), Storage(), Console());
 		GameClient()->OnLanguageChange();
 	}
 
@@ -2035,6 +2023,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 	}
 
 	MainView.Margin(10.0f, &MainView);
+	RestartWarning.VMargin(10.0f, &RestartWarning);
 
 	if(g_Config.m_UiSettingsPage == SETTINGS_LANGUAGE)
 	{
@@ -2962,16 +2951,21 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 
 void CMenus::RenderSettingsDDNet(CUIRect MainView)
 {
-	CUIRect Button, Left, Right, LeftLeft, Demo, Gameplay, Miscellaneous, Label, Background;
+	CUIRect Button, Left, Right, LeftLeft, Label;
 
-	MainView.HSplitTop(100.0f, &Demo, &MainView);
+#if defined(CONF_AUTOUPDATE)
+	CUIRect UpdaterRect;
+	MainView.HSplitBottom(20.0f, &MainView, &UpdaterRect);
+	MainView.HSplitBottom(5.0f, &MainView, nullptr);
+#endif
 
+	// demo
+	CUIRect Demo;
+	MainView.HSplitTop(110.0f, &Demo, &MainView);
 	Demo.HSplitTop(30.0f, &Label, &Demo);
 	UI()->DoLabel(&Label, Localize("Demo"), 20.0f, TEXTALIGN_ML);
-	Demo.Margin(5.0f, &Demo);
-	Demo.VSplitMid(&Left, &Right);
-	Left.VSplitRight(5.0f, &Left, 0);
-	Right.VMargin(5.0f, &Right);
+	Demo.HSplitTop(5.0f, nullptr, &Demo);
+	Demo.VSplitMid(&Left, &Right, 20.0f);
 
 	Left.HSplitTop(20.0f, &Button, &Left);
 	if(DoButton_CheckBox(&g_Config.m_ClAutoRaceRecord, Localize("Save the best demo of each race"), g_Config.m_ClAutoRaceRecord, &Button))
@@ -2979,28 +2973,25 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		g_Config.m_ClAutoRaceRecord ^= 1;
 	}
 
+	Left.HSplitTop(20.0f, &Button, &Left);
+	if(DoButton_CheckBox(&g_Config.m_ClReplays, Localize("Enable replays"), g_Config.m_ClReplays, &Button))
 	{
-		Left.HSplitTop(20.0f, &Button, &Left);
-
-		if(DoButton_CheckBox(&g_Config.m_ClReplays, Localize("Enable replays"), g_Config.m_ClReplays, &Button))
+		g_Config.m_ClReplays ^= 1;
+		if(!g_Config.m_ClReplays)
 		{
-			g_Config.m_ClReplays ^= 1;
-			if(!g_Config.m_ClReplays)
-			{
-				// stop recording and remove the tmp demo file
-				Client()->DemoRecorder_Stop(RECORDER_REPLAYS, true);
-			}
-			else
-			{
-				// start recording
-				Client()->DemoRecorder_HandleAutoStart();
-			}
+			// stop recording and remove the tmp demo file
+			Client()->DemoRecorder_Stop(RECORDER_REPLAYS, true);
 		}
-
-		Left.HSplitTop(20.0f, &Button, &Left);
-		if(g_Config.m_ClReplays)
-			UI()->DoScrollbarOption(&g_Config.m_ClReplayLength, &g_Config.m_ClReplayLength, &Button, Localize("Default length"), 10, 600, &CUI::ms_LinearScrollbarScale, CUI::SCROLLBAR_OPTION_NOCLAMPVALUE);
+		else
+		{
+			// start recording
+			Client()->DemoRecorder_HandleAutoStart();
+		}
 	}
+
+	Left.HSplitTop(20.0f, &Button, &Left);
+	if(g_Config.m_ClReplays)
+		UI()->DoScrollbarOption(&g_Config.m_ClReplayLength, &g_Config.m_ClReplayLength, &Button, Localize("Default length"), 10, 600, &CUI::ms_LinearScrollbarScale, CUI::SCROLLBAR_OPTION_NOCLAMPVALUE);
 
 	Right.HSplitTop(20.0f, &Button, &Right);
 	if(DoButton_CheckBox(&g_Config.m_ClRaceGhost, Localize("Ghost"), g_Config.m_ClRaceGhost, &Button))
@@ -3024,42 +3015,35 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		}
 	}
 
-	MainView.HSplitTop(330.0f, &Gameplay, &MainView);
-
+	// gameplay
+	CUIRect Gameplay;
+	MainView.HSplitTop(150.0f, &Gameplay, &MainView);
 	Gameplay.HSplitTop(30.0f, &Label, &Gameplay);
 	UI()->DoLabel(&Label, Localize("Gameplay"), 20.0f, TEXTALIGN_ML);
-	Gameplay.Margin(5.0f, &Gameplay);
-	Gameplay.VSplitMid(&Left, &Right);
-	Left.VSplitRight(5.0f, &Left, 0);
-	Right.VMargin(5.0f, &Right);
+	Gameplay.HSplitTop(5.0f, nullptr, &Gameplay);
+	Gameplay.VSplitMid(&Left, &Right, 20.0f);
 
-	{
-		Left.HSplitTop(20.0f, &Button, &Left);
-		UI()->DoScrollbarOption(&g_Config.m_ClOverlayEntities, &g_Config.m_ClOverlayEntities, &Button, Localize("Overlay entities"), 0, 100);
-	}
+	Left.HSplitTop(20.0f, &Button, &Left);
+	UI()->DoScrollbarOption(&g_Config.m_ClOverlayEntities, &g_Config.m_ClOverlayEntities, &Button, Localize("Overlay entities"), 0, 100);
 
-	{
-		Left.HSplitTop(20.0f, &Button, &Left);
-		Button.VSplitMid(&LeftLeft, &Button);
+	Left.HSplitTop(20.0f, &Button, &Left);
+	Button.VSplitMid(&LeftLeft, &Button);
 
-		if(DoButton_CheckBox(&g_Config.m_ClTextEntities, Localize("Show text entities"), g_Config.m_ClTextEntities, &LeftLeft))
-			g_Config.m_ClTextEntities ^= 1;
+	if(DoButton_CheckBox(&g_Config.m_ClTextEntities, Localize("Show text entities"), g_Config.m_ClTextEntities, &LeftLeft))
+		g_Config.m_ClTextEntities ^= 1;
 
-		if(g_Config.m_ClTextEntities)
-			UI()->DoScrollbarOption(&g_Config.m_ClTextEntitiesSize, &g_Config.m_ClTextEntitiesSize, &Button, Localize("Size"), 0, 100);
-	}
+	if(g_Config.m_ClTextEntities)
+		UI()->DoScrollbarOption(&g_Config.m_ClTextEntitiesSize, &g_Config.m_ClTextEntitiesSize, &Button, Localize("Size"), 0, 100);
 
-	{
-		Left.HSplitTop(20.0f, &Button, &Left);
-		Button.VSplitMid(&LeftLeft, &Button);
+	Left.HSplitTop(20.0f, &Button, &Left);
+	Button.VSplitMid(&LeftLeft, &Button);
 
-		if(DoButton_CheckBox(&g_Config.m_ClShowOthers, Localize("Show others"), g_Config.m_ClShowOthers == SHOW_OTHERS_ON, &LeftLeft))
-			g_Config.m_ClShowOthers = g_Config.m_ClShowOthers != SHOW_OTHERS_ON ? SHOW_OTHERS_ON : SHOW_OTHERS_OFF;
+	if(DoButton_CheckBox(&g_Config.m_ClShowOthers, Localize("Show others"), g_Config.m_ClShowOthers == SHOW_OTHERS_ON, &LeftLeft))
+		g_Config.m_ClShowOthers = g_Config.m_ClShowOthers != SHOW_OTHERS_ON ? SHOW_OTHERS_ON : SHOW_OTHERS_OFF;
 
-		UI()->DoScrollbarOption(&g_Config.m_ClShowOthersAlpha, &g_Config.m_ClShowOthersAlpha, &Button, Localize("Opacity"), 0, 100);
+	UI()->DoScrollbarOption(&g_Config.m_ClShowOthersAlpha, &g_Config.m_ClShowOthersAlpha, &Button, Localize("Opacity"), 0, 100);
 
-		GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClShowOthersAlpha, &Button, Localize("Adjust the opacity of entities belonging to other teams, such as tees and nameplates"));
-	}
+	GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClShowOthersAlpha, &Button, Localize("Adjust the opacity of entities belonging to other teams, such as tees and nameplates"));
 
 	Left.HSplitTop(20.0f, &Button, &Left);
 	static int s_ShowOwnTeamID = 0;
@@ -3105,42 +3089,40 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 			g_Config.m_ClAntiPingGrenade ^= 1;
 		}
 	}
-	else
-	{
-		Right.HSplitTop(60.0f, 0, &Right);
-	}
 
-	Right.HSplitTop(40.0f, 0, &Right);
+	CUIRect Background, Miscellaneous;
+	MainView.VSplitMid(&Background, &Miscellaneous, 20.0f);
 
-	Left.HSplitTop(5.0f, &Button, &Left);
-	Left.VSplitRight(10.0f, &Left, 0x0);
-	Right.VSplitLeft(10.0f, 0x0, &Right);
-	Left.HSplitTop(25.0f, 0x0, &Left);
-	CUIRect TempLabel;
-	Left.HSplitTop(25.0f, &TempLabel, &Left);
-	Left.HSplitTop(5.0f, 0x0, &Left);
-
-	UI()->DoLabel(&TempLabel, Localize("Background"), 20.0f, TEXTALIGN_ML);
-
-	Right.HSplitTop(25.0f, &TempLabel, &Right);
-	Right.HSplitTop(5.0f, 0x0, &Miscellaneous);
-
-	UI()->DoLabel(&TempLabel, Localize("Miscellaneous"), 20.0f, TEXTALIGN_ML);
+	// background
+	Background.HSplitTop(30.0f, &Label, &Background);
+	Background.HSplitTop(5.0f, nullptr, &Background);
+	UI()->DoLabel(&Label, Localize("Background"), 20.0f, TEXTALIGN_ML);
 
 	static CButtonContainer s_ResetID2;
 	ColorRGBA GreyDefault(0.5f, 0.5f, 0.5f, 1);
-	DoLine_ColorPicker(&s_ResetID2, 25.0f, 13.0f, 5.0f, &Left, Localize("Entities Background color"), &g_Config.m_ClBackgroundEntitiesColor, GreyDefault, false);
+	DoLine_ColorPicker(&s_ResetID2, 25.0f, 13.0f, 5.0f, &Background, Localize("Entities Background color"), &g_Config.m_ClBackgroundEntitiesColor, GreyDefault, false);
 
-	Left.VSplitLeft(5.0f, 0x0, &Left);
-	Left.HSplitTop(25.0f, &Background, &Left);
-	Background.HSplitTop(20.0f, &Background, 0);
-	Background.VSplitLeft(100.0f, &Label, &TempLabel);
+	CUIRect EditBox;
+	Background.HSplitTop(20.0f, &Label, &Background);
+	Background.HSplitTop(2.0f, nullptr, &Background);
+	Label.VSplitLeft(100.0f, &Label, &EditBox);
+	EditBox.VSplitRight(100.0f, &EditBox, &Button);
+	EditBox.VSplitRight(5.0f, &EditBox, nullptr);
+
 	UI()->DoLabel(&Label, Localize("Map"), 14.0f, TEXTALIGN_ML);
-	static CLineInput s_BackgroundEntitiesInput(g_Config.m_ClBackgroundEntities, sizeof(g_Config.m_ClBackgroundEntities));
-	UI()->DoEditBox(&s_BackgroundEntitiesInput, &TempLabel, 14.0f);
 
-	Left.HSplitTop(20.0f, &Button, &Left);
-	bool UseCurrentMap = str_comp(g_Config.m_ClBackgroundEntities, CURRENT_MAP) == 0;
+	static CLineInput s_BackgroundEntitiesInput(g_Config.m_ClBackgroundEntities, sizeof(g_Config.m_ClBackgroundEntities));
+	UI()->DoEditBox(&s_BackgroundEntitiesInput, &EditBox, 14.0f);
+
+	static CButtonContainer s_BackgroundEntitiesReloadButton;
+	if(DoButton_Menu(&s_BackgroundEntitiesReloadButton, Localize("Reload"), 0, &Button))
+	{
+		if(str_comp(g_Config.m_ClBackgroundEntities, m_pClient->m_BackGround.MapName()) != 0)
+			m_pClient->m_BackGround.LoadBackground();
+	}
+
+	Background.HSplitTop(20.0f, &Button, &Background);
+	const bool UseCurrentMap = str_comp(g_Config.m_ClBackgroundEntities, CURRENT_MAP) == 0;
 	static int s_UseCurrentMapID = 0;
 	if(DoButton_CheckBox(&s_UseCurrentMapID, Localize("Use current map as background"), UseCurrentMap, &Button))
 	{
@@ -3148,38 +3130,44 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 			g_Config.m_ClBackgroundEntities[0] = '\0';
 		else
 			str_copy(g_Config.m_ClBackgroundEntities, CURRENT_MAP);
+		m_pClient->m_BackGround.LoadBackground();
 	}
 
-	Left.HSplitTop(20.0f, &Button, &Left);
+	Background.HSplitTop(20.0f, &Button, &Background);
 	if(DoButton_CheckBox(&g_Config.m_ClBackgroundShowTilesLayers, Localize("Show tiles layers from BG map"), g_Config.m_ClBackgroundShowTilesLayers, &Button))
 		g_Config.m_ClBackgroundShowTilesLayers ^= 1;
 
+	// miscellaneous
+	Miscellaneous.HSplitTop(30.0f, &Label, &Miscellaneous);
+	Miscellaneous.HSplitTop(5.0f, nullptr, &Miscellaneous);
+
+	UI()->DoLabel(&Label, Localize("Miscellaneous"), 20.0f, TEXTALIGN_ML);
+
 	static CButtonContainer s_ResetID1;
-	Miscellaneous.HSplitTop(25.0f, &Button, &Right);
+	Miscellaneous.HSplitTop(25.0f, &Button, &Miscellaneous);
 	DoLine_ColorPicker(&s_ResetID1, 25.0f, 13.0f, 5.0f, &Button, Localize("Regular Background Color"), &g_Config.m_ClBackgroundColor, GreyDefault, false);
 
 	static CButtonContainer s_ButtonTimeout;
-	Right.HSplitTop(10.0f, 0x0, &Right);
-	Right.HSplitTop(20.0f, &Button, &Right);
+	Miscellaneous.HSplitTop(10.0f, nullptr, &Miscellaneous);
+	Miscellaneous.HSplitTop(20.0f, &Button, &Miscellaneous);
 	if(DoButton_Menu(&s_ButtonTimeout, Localize("New random timeout code"), 0, &Button))
 	{
 		Client()->GenerateTimeoutSeed();
 	}
 
-	Right.HSplitTop(5.0f, 0, &Right);
-	Right.HSplitTop(20.0f, &Label, &Right);
-	Label.VSplitLeft(5.0f, 0, &Label);
+	Miscellaneous.HSplitTop(5.0f, nullptr, &Miscellaneous);
+	Miscellaneous.HSplitTop(20.0f, &Label, &Miscellaneous);
+	Miscellaneous.HSplitTop(2.0f, nullptr, &Miscellaneous);
 	UI()->DoLabel(&Label, Localize("Run on join"), 14.0f, TEXTALIGN_ML);
-	Right.HSplitTop(20.0f, &Button, &Right);
-	Button.VSplitLeft(5.0f, 0, &Button);
+	Miscellaneous.HSplitTop(20.0f, &Button, &Miscellaneous);
 	static CLineInput s_RunOnJoinInput(g_Config.m_ClRunOnJoin, sizeof(g_Config.m_ClRunOnJoin));
 	s_RunOnJoinInput.SetEmptyText(Localize("Chat command (e.g. showall 1)"));
 	UI()->DoEditBox(&s_RunOnJoinInput, &Button, 14.0f);
 
 #if defined(CONF_FAMILY_WINDOWS)
 	static CButtonContainer s_ButtonUnregisterShell;
-	Right.HSplitTop(10.0f, nullptr, &Right);
-	Right.HSplitTop(20.0f, &Button, &Right);
+	Miscellaneous.HSplitTop(10.0f, nullptr, &Miscellaneous);
+	Miscellaneous.HSplitTop(20.0f, &Button, &Miscellaneous);
 	if(DoButton_Menu(&s_ButtonUnregisterShell, Localize("Unregister protocol and file extensions"), 0, &Button))
 	{
 		Client()->ShellUnregister();
@@ -3189,9 +3177,6 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 	// Updater
 #if defined(CONF_AUTOUPDATE)
 	{
-		MainView.VSplitMid(&Left, &Right);
-		Left.w += 20.0f;
-		Left.HSplitBottom(20.0f, 0x0, &Label);
 		bool NeedUpdate = str_comp(Client()->LatestVersion(), "0");
 		int State = Updater()->GetCurrentState();
 
@@ -3200,8 +3185,8 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		if(NeedUpdate && State <= IUpdater::CLEAN)
 		{
 			str_format(aBuf, sizeof(aBuf), Localize("DDNet %s is available:"), Client()->LatestVersion());
-			Label.VSplitLeft(TextRender()->TextWidth(14.0f, aBuf, -1, -1.0f) + 10.0f, &Label, &Button);
-			Button.VSplitLeft(100.0f, &Button, 0);
+			UpdaterRect.VSplitLeft(TextRender()->TextWidth(14.0f, aBuf, -1, -1.0f) + 10.0f, &UpdaterRect, &Button);
+			Button.VSplitLeft(100.0f, &Button, nullptr);
 			static CButtonContainer s_ButtonUpdate;
 			if(DoButton_Menu(&s_ButtonUpdate, Localize("Update now"), 0, &Button))
 			{
@@ -3218,15 +3203,15 @@ void CMenus::RenderSettingsDDNet(CUIRect MainView)
 		else
 		{
 			str_format(aBuf, sizeof(aBuf), Localize("No updates available"));
-			Label.VSplitLeft(TextRender()->TextWidth(14.0f, aBuf, -1, -1.0f) + 10.0f, &Label, &Button);
-			Button.VSplitLeft(100.0f, &Button, 0);
+			UpdaterRect.VSplitLeft(TextRender()->TextWidth(14.0f, aBuf, -1, -1.0f) + 10.0f, &UpdaterRect, &Button);
+			Button.VSplitLeft(100.0f, &Button, nullptr);
 			static CButtonContainer s_ButtonUpdate;
 			if(DoButton_Menu(&s_ButtonUpdate, Localize("Check now"), 0, &Button))
 			{
 				Client()->RequestDDNetInfo();
 			}
 		}
-		UI()->DoLabel(&Label, aBuf, 14.0f, TEXTALIGN_ML);
+		UI()->DoLabel(&UpdaterRect, aBuf, 14.0f, TEXTALIGN_ML);
 		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 #endif

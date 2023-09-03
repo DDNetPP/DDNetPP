@@ -160,6 +160,9 @@ void CDbConnectionPool::ExecuteWrite(
 
 void CDbConnectionPool::OnShutdown()
 {
+	if(m_Shutdown)
+		return;
+	m_Shutdown = true;
 	m_pShared->m_Shutdown.store(true);
 	m_pShared->m_NumBackup.Signal();
 	int i = 0;
@@ -176,7 +179,7 @@ void CDbConnectionPool::OnShutdown()
 }
 
 // The backup worker thread looks at write queries and stores them
-// in the sqilte database (WRITE_BACKUP). It skips over read queries.
+// in the sqlite database (WRITE_BACKUP). It skips over read queries.
 // After processing the query, it gets passed on to the Worker thread.
 // This is done to not loose ranks when the server shuts down before all
 // queries are executed on the mysql server
@@ -470,6 +473,7 @@ CDbConnectionPool::CDbConnectionPool()
 
 CDbConnectionPool::~CDbConnectionPool()
 {
+	OnShutdown();
 	if(m_pWorkerThread)
 		thread_wait(m_pWorkerThread);
 	if(m_pBackupThread)

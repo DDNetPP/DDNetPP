@@ -3,9 +3,9 @@ if(CMAKE_VERSION VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_VERSION})
 endif()
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE INTERNAL "Minimum macOS deployment version")
-if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.13)
-  message(WARNING "Building for macOS < 10.13 is not supported")
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15 CACHE INTERNAL "Minimum macOS deployment version")
+if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.15)
+  message(WARNING "Building for macOS < 10.15 is not supported")
 endif()
 
 file(STRINGS src/game/version.h VERSION_LINE
@@ -1222,8 +1222,11 @@ set(EXPECTED_DATA
   countryflags/EG.png
   countryflags/EH.png
   countryflags/ER.png
+  countryflags/ES-CT.png
+  countryflags/ES-GA.png
   countryflags/ES.png
   countryflags/ET.png
+  countryflags/EU.png
   countryflags/FI.png
   countryflags/FJ.png
   countryflags/FK.png
@@ -1231,6 +1234,10 @@ set(EXPECTED_DATA
   countryflags/FO.png
   countryflags/FR.png
   countryflags/GA.png
+  countryflags/GB-ENG.png
+  countryflags/GB-NIR.png
+  countryflags/GB-SCT.png
+  countryflags/GB-WLS.png
   countryflags/GB.png
   countryflags/GD.png
   countryflags/GE.png
@@ -1396,13 +1403,6 @@ set(EXPECTED_DATA
   countryflags/VU.png
   countryflags/WF.png
   countryflags/WS.png
-  countryflags/XCA.png
-  countryflags/XEN.png
-  countryflags/XEU.png
-  countryflags/XGL.png
-  countryflags/XNI.png
-  countryflags/XSC.png
-  countryflags/XWA.png
   countryflags/YE.png
   countryflags/ZA.png
   countryflags/ZM.png
@@ -1411,14 +1411,25 @@ set(EXPECTED_DATA
   countryflags/index.txt
   debug_font.png
   editor/audio_source.png
+  editor/automap/basic_freeze.rules
+  editor/automap/ddmax_freeze.rules
+  editor/automap/ddnet_tiles.rules
+  editor/automap/ddnet_walls.rules
+  editor/automap/desert_main.rules
+  editor/automap/fadeout.rules
+  editor/automap/generic_clear.rules
+  editor/automap/generic_unhookable.rules
+  editor/automap/generic_unhookable_0.7.rules
+  editor/automap/grass_main.rules
+  editor/automap/grass_main_0.7.rules
+  editor/automap/jungle_main.rules
+  editor/automap/jungle_midground.rules
+  editor/automap/round_tiles.rules
+  editor/automap/water.rules
+  editor/automap/winter_main.rules
   editor/background.png
-  editor/basic_freeze.rules
   editor/checker.png
   editor/cursor.png
-  editor/ddmax_freeze.rules
-  editor/ddnet_tiles.rules
-  editor/ddnet_walls.rules
-  editor/desert_main.rules
   editor/entities/DDNet.png
   editor/entities/FNG.png
   editor/entities/Race.png
@@ -1431,29 +1442,19 @@ set(EXPECTED_DATA
   editor/entities_clear/fng.png
   editor/entities_clear/race.png
   editor/entities_clear/vanilla.png
-  editor/fadeout.rules
   editor/front.png
-  editor/generic_clear.rules
-  editor/generic_unhookable.rules
-  editor/generic_unhookable_0.7.rules
-  editor/grass_main.rules
-  editor/grass_main_0.7.rules
-  editor/jungle_main.rules
-  editor/jungle_midground.rules
-  editor/round_tiles.rules
   editor/speed_arrow.png
   editor/speedup.png
   editor/switch.png
   editor/tele.png
   editor/tune.png
-  editor/water.rules
-  editor/winter_main.rules
   emoticons.png
   extras.png
   fonts/DejaVuSans.ttf
-  fonts/GlowSansJCompressed-Book.otf
-  fonts/Icons.otf
-  fonts/SourceHanSansSC-Regular.otf
+  fonts/Font_Awesome_6_Free-Solid-900.otf
+  fonts/GlowSansJ-Compressed-Book.otf
+  fonts/SourceHanSans.ttc
+  fonts/index.json
   game.png
   gui_buttons.png
   gui_cursor.png
@@ -1717,7 +1718,7 @@ set(EXPECTED_DATA
   wordlist.txt
 )
 
-set_glob(DATA GLOB_RECURSE "cfg;frag;json;map;otf;png;rules;ttf;txt;vert;wv" data ${EXPECTED_DATA})
+set_glob(DATA GLOB_RECURSE "cfg;frag;json;map;otf;png;rules;ttc;ttf;txt;vert;wv" data ${EXPECTED_DATA})
 
 ########################################################################
 # COPY DATA AND SHARED LIBS
@@ -2302,18 +2303,40 @@ if(CLIENT)
     ui_scrollregion.cpp
     ui_scrollregion.h
   )
-  set_src(GAME_EDITOR GLOB src/game/editor
+  set_src(GAME_EDITOR GLOB_RECURSE src/game/editor
     auto_map.cpp
     auto_map.h
+    component.cpp
+    component.h
     editor.cpp
     editor.h
     explanations.cpp
-    io.cpp
-    layer_game.cpp
-    layer_quads.cpp
-    layer_sounds.cpp
-    layer_tiles.cpp
+    map_grid.cpp
+    map_grid.h
+    map_view.cpp
+    map_view.h
+    mapitems/image.cpp
+    mapitems/image.h
+    mapitems/layer_front.cpp
+    mapitems/layer_game.cpp
+    mapitems/layer_group.cpp
+    mapitems/layer_quads.cpp
+    mapitems/layer_sounds.cpp
+    mapitems/layer_speedup.cpp
+    mapitems/layer_switch.cpp
+    mapitems/layer_tele.cpp
+    mapitems/layer_tiles.cpp
+    mapitems/layer_tune.cpp
+    mapitems/map.cpp
+    mapitems/map_io.cpp
+    mapitems/sound.cpp
+    mapitems/sound.h
     popups.cpp
+    proof_mode.cpp
+    proof_mode.h
+    smooth_value.cpp
+    smooth_value.h
+    tileart.cpp
   )
   set(GAME_GENERATED_CLIENT
     src/game/generated/checksum.cpp

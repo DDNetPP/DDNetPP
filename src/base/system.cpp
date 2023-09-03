@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <atomic>
 #include <cctype>
+#include <charconv>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
@@ -92,10 +93,30 @@
 
 IOHANDLE io_stdin()
 {
-	return (IOHANDLE)stdin;
+#if defined(CONF_FAMILY_WINDOWS)
+	return GetStdHandle(STD_INPUT_HANDLE);
+#else
+	return stdin;
+#endif
 }
-IOHANDLE io_stdout() { return (IOHANDLE)stdout; }
-IOHANDLE io_stderr() { return (IOHANDLE)stderr; }
+
+IOHANDLE io_stdout()
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return GetStdHandle(STD_OUTPUT_HANDLE);
+#else
+	return stdout;
+#endif
+}
+
+IOHANDLE io_stderr()
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return GetStdHandle(STD_ERROR_HANDLE);
+#else
+	return stderr;
+#endif
+}
 
 IOHANDLE io_current_exe()
 {
@@ -259,21 +280,52 @@ IOHANDLE io_open_impl(const char *filename, int flags)
 	dbg_assert(flags == (IOFLAG_READ | IOFLAG_SKIP_BOM) || flags == IOFLAG_READ || flags == IOFLAG_WRITE || flags == IOFLAG_APPEND, "flags must be read, read+skipbom, write or append");
 #if defined(CONF_FAMILY_WINDOWS)
 	const std::wstring wide_filename = windows_utf8_to_wide(filename);
+	DWORD desired_access;
+	DWORD creation_disposition;
 	if((flags & IOFLAG_READ) != 0)
-		return (IOHANDLE)_wfsopen(wide_filename.c_str(), L"rb", _SH_DENYNO);
-	if(flags == IOFLAG_WRITE)
-		return (IOHANDLE)_wfsopen(wide_filename.c_str(), L"wb", _SH_DENYNO);
-	if(flags == IOFLAG_APPEND)
-		return (IOHANDLE)_wfsopen(wide_filename.c_str(), L"ab", _SH_DENYNO);
-	return 0x0;
+	{
+		desired_access = FILE_READ_DATA;
+		creation_disposition = OPEN_EXISTING;
+	}
+	else if(flags == IOFLAG_WRITE)
+	{
+		desired_access = FILE_WRITE_DATA;
+		creation_disposition = OPEN_ALWAYS;
+	}
+	else if(flags == IOFLAG_APPEND)
+	{
+		desired_access = FILE_APPEND_DATA;
+		creation_disposition = OPEN_ALWAYS;
+	}
+	else
+	{
+		dbg_assert(false, "logic error");
+		return nullptr;
+	}
+	HANDLE handle = CreateFileW(wide_filename.c_str(), desired_access, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if(handle == INVALID_HANDLE_VALUE)
+		return nullptr; // otherwise all existing checks don't work for the invalid handle
+	return handle;
 #else
+	const char *open_mode;
 	if((flags & IOFLAG_READ) != 0)
-		return (IOHANDLE)fopen(filename, "rb");
-	if(flags == IOFLAG_WRITE)
-		return (IOHANDLE)fopen(filename, "wb");
-	if(flags == IOFLAG_APPEND)
-		return (IOHANDLE)fopen(filename, "ab");
-	return 0x0;
+	{
+		open_mode = "rb";
+	}
+	else if(flags == IOFLAG_WRITE)
+	{
+		open_mode = "wb";
+	}
+	else if(flags == IOFLAG_APPEND)
+	{
+		open_mode = "ab";
+	}
+	else
+	{
+		dbg_assert(false, "logic error");
+		return nullptr;
+	}
+	return fopen(filename, open_mode);
 #endif
 }
 
@@ -294,7 +346,13 @@ IOHANDLE io_open(const char *filename, int flags)
 
 unsigned io_read(IOHANDLE io, void *buffer, unsigned size)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	DWORD actual_size;
+	ReadFile((HANDLE)io, buffer, size, &actual_size, nullptr);
+	return actual_size;
+#else
 	return fread(buffer, 1, size, (FILE *)io);
+#endif
 }
 
 void io_read_all(IOHANDLE io, void **result, unsigned *result_len)
@@ -344,14 +402,31 @@ char *io_read_all_str(IOHANDLE io)
 
 unsigned io_skip(IOHANDLE io, int size)
 {
-	fseek((FILE *)io, size, SEEK_CUR);
-	return size;
+	return io_seek(io, size, IOSEEK_CUR);
 }
 
 int io_seek(IOHANDLE io, int offset, int origin)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	DWORD move_method;
+	switch(origin)
+	{
+	case IOSEEK_START:
+		move_method = FILE_BEGIN;
+		break;
+	case IOSEEK_CUR:
+		move_method = FILE_CURRENT;
+		break;
+	case IOSEEK_END:
+		move_method = FILE_END;
+		break;
+	default:
+		dbg_assert(false, "origin invalid");
+		return -1;
+	}
+	return SetFilePointer((HANDLE)io, offset, nullptr, move_method) == INVALID_SET_FILE_POINTER ? -1 : 0;
+#else
 	int real_origin;
-
 	switch(origin)
 	{
 	case IOSEEK_START:
@@ -364,15 +439,21 @@ int io_seek(IOHANDLE io, int offset, int origin)
 		real_origin = SEEK_END;
 		break;
 	default:
+		dbg_assert(false, "origin invalid");
 		return -1;
 	}
-
 	return fseek((FILE *)io, offset, real_origin);
+#endif
 }
 
 long int io_tell(IOHANDLE io)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	const DWORD position = SetFilePointer((HANDLE)io, 0, nullptr, FILE_CURRENT);
+	return position == INVALID_SET_FILE_POINTER ? -1 : position;
+#else
 	return ftell((FILE *)io);
+#endif
 }
 
 long int io_length(IOHANDLE io)
@@ -386,12 +467,23 @@ long int io_length(IOHANDLE io)
 
 int io_error(IOHANDLE io)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	// Only works when called directly after the operation that failed
+	return GetLastError();
+#else
 	return ferror((FILE *)io);
+#endif
 }
 
 unsigned io_write(IOHANDLE io, const void *buffer, unsigned size)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	DWORD actual_size;
+	WriteFile((HANDLE)io, buffer, size, &actual_size, nullptr);
+	return actual_size;
+#else
 	return fwrite(buffer, 1, size, (FILE *)io);
+#endif
 }
 
 bool io_write_newline(IOHANDLE io)
@@ -405,12 +497,20 @@ bool io_write_newline(IOHANDLE io)
 
 int io_close(IOHANDLE io)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	return CloseHandle((HANDLE)io) == 0;
+#else
 	return fclose((FILE *)io) != 0;
+#endif
 }
 
 int io_flush(IOHANDLE io)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	return FlushFileBuffers((HANDLE)io) == FALSE;
+#else
 	return fflush((FILE *)io);
+#endif
 }
 
 int io_sync(IOHANDLE io)
@@ -420,7 +520,7 @@ int io_sync(IOHANDLE io)
 		return 1;
 	}
 #if defined(CONF_FAMILY_WINDOWS)
-	return FlushFileBuffers((HANDLE)_get_osfhandle(_fileno((FILE *)io))) == 0;
+	return FlushFileBuffers((HANDLE)io) == 0;
 #else
 	return fsync(fileno((FILE *)io)) != 0;
 #endif
@@ -1343,6 +1443,48 @@ static int parse_uint16(unsigned short *out, const char **str)
 		return -1;
 	*out = i;
 	return 0;
+}
+
+int net_addr_from_url(NETADDR *addr, const char *string, char *host_buf, size_t host_buf_size)
+{
+	char host[128];
+	int length;
+	int start = 0;
+	int end;
+	int failure;
+	const char *str = str_startswith(string, "tw-0.6+udp://");
+	if(!str)
+		return 1;
+
+	mem_zero(addr, sizeof(*addr));
+
+	length = str_length(str);
+	end = length;
+	for(int i = 0; i < length; i++)
+	{
+		if(str[i] == '@')
+		{
+			if(start != 0)
+			{
+				// Two at signs.
+				return true;
+			}
+			start = i + 1;
+		}
+		else if(str[i] == '/' || str[i] == '?' || str[i] == '#')
+		{
+			end = i;
+			break;
+		}
+	}
+	str_truncate(host, sizeof(host), str + start, end - start);
+	if(host_buf)
+		str_copy(host_buf, host, host_buf_size);
+
+	if((failure = net_addr_from_str(addr, host)))
+		return failure;
+
+	return failure;
 }
 
 int net_addr_from_str(NETADDR *addr, const char *string)
@@ -3500,6 +3642,13 @@ float str_tofloat(const char *str)
 	return strtod(str, nullptr);
 }
 
+void str_from_int(int value, char *buffer, size_t buffer_size)
+{
+	buffer[0] = '\0'; // Fix false positive clang-analyzer-core.UndefinedBinaryOperatorResult when using result
+	auto result = std::to_chars(buffer, buffer + buffer_size - 1, value);
+	result.ptr[0] = '\0';
+}
+
 int str_utf8_comp_nocase(const char *a, const char *b)
 {
 	int code_a;
@@ -3813,6 +3962,34 @@ void str_utf8_stats(const char *str, size_t max_size, size_t max_count, size_t *
 	}
 }
 
+size_t str_utf8_offset_bytes_to_chars(const char *str, size_t byte_offset)
+{
+	size_t char_offset = 0;
+	size_t current_offset = 0;
+	while(current_offset < byte_offset)
+	{
+		const size_t prev_byte_offset = current_offset;
+		current_offset = str_utf8_forward(str, current_offset);
+		if(current_offset == prev_byte_offset)
+			break;
+		char_offset++;
+	}
+	return char_offset;
+}
+
+size_t str_utf8_offset_chars_to_bytes(const char *str, size_t char_offset)
+{
+	size_t byte_offset = 0;
+	for(size_t i = 0; i < char_offset; i++)
+	{
+		const size_t prev_byte_offset = byte_offset;
+		byte_offset = str_utf8_forward(str, byte_offset);
+		if(byte_offset == prev_byte_offset)
+			break;
+	}
+	return byte_offset;
+}
+
 unsigned str_quickhash(const char *str)
 {
 	unsigned hash = 5381;
@@ -3985,7 +4162,7 @@ int kill_process(PROCESS process)
 #elif defined(CONF_FAMILY_UNIX)
 	int status;
 	kill(process, SIGTERM);
-	return !waitpid(process, &status, 0);
+	return waitpid(process, &status, 0) != -1;
 #endif
 }
 

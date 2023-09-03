@@ -665,13 +665,13 @@ void CMenus::RenderServerControl(CUIRect MainView)
 		{
 			Bottom.VSplitLeft(240.0f, &QuickSearch, &Bottom);
 			QuickSearch.HSplitTop(5.0f, 0, &QuickSearch);
-			TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+			TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 			TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 			UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 14.0f, TEXTALIGN_ML);
 			float wSearch = TextRender()->TextWidth(14.0f, FONT_ICON_MAGNIFYING_GLASS, -1, -1.0f);
 			TextRender()->SetRenderFlags(0);
-			TextRender()->SetCurFont(NULL);
+			TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 			QuickSearch.VSplitLeft(wSearch, 0, &QuickSearch);
 			QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 
@@ -988,7 +988,7 @@ void CMenus::RenderGhost(CUIRect MainView)
 
 	struct CColumn
 	{
-		CLocConstString m_Caption;
+		const char *m_pCaption;
 		int m_Id;
 		float m_Width;
 		CUIRect m_Rect;
@@ -1003,8 +1003,8 @@ void CMenus::RenderGhost(CUIRect MainView)
 	};
 
 	static CColumn s_aCols[] = {
-		{" ", -1, 2.0f, {0}, {0}},
-		{" ", COL_ACTIVE, 30.0f, {0}, {0}},
+		{"", -1, 2.0f, {0}, {0}},
+		{"", COL_ACTIVE, 30.0f, {0}, {0}},
 		{Localizable("Name"), COL_NAME, 300.0f, {0}, {0}},
 		{Localizable("Time"), COL_TIME, 200.0f, {0}, {0}},
 	};
@@ -1022,7 +1022,7 @@ void CMenus::RenderGhost(CUIRect MainView)
 
 	// do headers
 	for(int i = 0; i < NumCols; i++)
-		DoButton_GridHeader(s_aCols[i].m_Caption, Localize(s_aCols[i].m_Caption), 0, &s_aCols[i].m_Rect);
+		DoButton_GridHeader(&s_aCols[i].m_Id, Localize(s_aCols[i].m_pCaption), 0, &s_aCols[i].m_Rect);
 
 	View.Draw(ColorRGBA(0, 0, 0, 0.15f), 0, 0);
 

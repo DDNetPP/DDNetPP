@@ -254,6 +254,7 @@ public:
 	int m_RconAuthLevel;
 	int m_PrintCBIndex;
 	char m_aShutdownReason[128];
+	void *m_pPersistentData;
 
 	enum
 	{

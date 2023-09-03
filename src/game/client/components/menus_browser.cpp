@@ -37,7 +37,7 @@ void FormatServerbrowserPing(char *pBuffer, int BufferLength, const CServerInfo 
 {
 	if(!pInfo->m_LatencyIsEstimated)
 	{
-		str_format(pBuffer, BufferLength, "%d", pInfo->m_Latency);
+		str_from_int(pInfo->m_Latency, pBuffer, BufferLength);
 		return;
 	}
 	static const char *LOCATION_NAMES[CServerInfo::NUM_LOCS] = {
@@ -70,7 +70,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 	{
 		int m_ID;
 		int m_Sort;
-		CLocConstString m_Caption;
+		const char *m_pCaption;
 		int m_Direction;
 		float m_Width;
 		CUIRect m_Rect;
@@ -90,17 +90,17 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		COL_VERSION,
 	};
 
-	CColumn s_aCols[] = {
-		{-1, -1, " ", -1, 2.0f, {0}, {0}},
-		{COL_FLAG_LOCK, -1, " ", -1, 14.0f, {0}, {0}},
-		{COL_FLAG_FAV, -1, " ", -1, 14.0f, {0}, {0}},
-		{COL_FLAG_OFFICIAL, -1, " ", -1, 14.0f, {0}, {0}},
-		{COL_NAME, IServerBrowser::SORT_NAME, "Name", 0, 50.0f, {0}, {0}}, // Localize - these strings are localized within CLocConstString
+	static CColumn s_aCols[] = {
+		{-1, -1, "", -1, 2.0f, {0}, {0}},
+		{COL_FLAG_LOCK, -1, "", -1, 14.0f, {0}, {0}},
+		{COL_FLAG_FAV, -1, "", -1, 14.0f, {0}, {0}},
+		{COL_FLAG_OFFICIAL, -1, "", -1, 14.0f, {0}, {0}},
+		{COL_NAME, IServerBrowser::SORT_NAME, Localizable("Name"), 0, 50.0f, {0}, {0}},
 		{COL_GAMETYPE, IServerBrowser::SORT_GAMETYPE, Localizable("Type"), 1, 50.0f, {0}, {0}},
-		{COL_MAP, IServerBrowser::SORT_MAP, "Map", 1, 120.0f + (Headers.w - 480) / 8, {0}, {0}},
-		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, "Players", 1, 85.0f, {0}, {0}},
-		{-1, -1, " ", 1, 10.0f, {0}, {0}},
-		{COL_PING, IServerBrowser::SORT_PING, "Ping", 1, 40.0f, {0}, {0}},
+		{COL_MAP, IServerBrowser::SORT_MAP, Localizable("Map"), 1, 120.0f + (Headers.w - 480) / 8, {0}, {0}},
+		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, Localizable("Players"), 1, 85.0f, {0}, {0}},
+		{-1, -1, "", 1, 10.0f, {0}, {0}},
+		{COL_PING, IServerBrowser::SORT_PING, Localizable("Ping"), 1, 40.0f, {0}, {0}},
 	};
 
 	int NumCols = std::size(s_aCols);
@@ -143,7 +143,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		if(PlayersOrPing && g_Config.m_BrSortOrder == 2 && (s_aCols[i].m_Sort == IServerBrowser::SORT_NUMPLAYERS || s_aCols[i].m_Sort == IServerBrowser::SORT_PING))
 			Checked = 2;
 
-		if(DoButton_GridHeader(s_aCols[i].m_Caption, Localize(s_aCols[i].m_Caption), Checked, &s_aCols[i].m_Rect))
+		if(DoButton_GridHeader(&s_aCols[i].m_ID, Localize(s_aCols[i].m_pCaption), Checked, &s_aCols[i].m_Rect))
 		{
 			if(s_aCols[i].m_Sort != -1)
 			{
@@ -178,7 +178,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			UI()->DoLabel(&MsgBox, Localize("No servers match your filter criteria"), 16.0f, TEXTALIGN_MC);
 	}
 
-	if(UI()->ConsumeHotkey(CUI::HOTKEY_TAB))
+	if(!UI()->IsPopupOpen() && UI()->ConsumeHotkey(CUI::HOTKEY_TAB))
 	{
 		const int Direction = Input()->ShiftIsPressed() ? -1 : 1;
 		g_Config.m_UiToolboxPage = (g_Config.m_UiToolboxPage + 3 + Direction) % 3;
@@ -199,7 +199,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		float FontSize = 14.0f;
 		if(SmallFont)
 			FontSize = 6.0f;
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 		TextRender()->TextColor(TextColor);
 		TextRender()->TextOutlineColor(TextOutlineColor);
@@ -207,7 +207,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(nullptr);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 	};
 
 	int NumPlayers = 0;
@@ -345,7 +345,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 					if(FriendsOnServer > 1)
 					{
 						char aBufFriendsOnServer[64];
-						str_format(aBufFriendsOnServer, sizeof(aBufFriendsOnServer), "%i", FriendsOnServer);
+						str_from_int(FriendsOnServer, aBufFriendsOnServer);
 						TextRender()->TextColor(0.94f, 0.8f, 0.8f, 1);
 						UI()->DoLabel(&IconText, aBufFriendsOnServer, 10.0f, TEXTALIGN_MC);
 						TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1);
@@ -474,7 +474,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 
 	// render quick search
 	{
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 		UI()->DoLabel(&QuickSearch, FONT_ICON_MAGNIFYING_GLASS, 16.0f, TEXTALIGN_ML);
@@ -482,7 +482,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		ExcludeIconWidth = TextRender()->TextWidth(16.0f, FONT_ICON_BAN, -1, -1.0f);
 		ExcludeSearchIconMax = maximum(SearchIconWidth, ExcludeIconWidth);
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(NULL);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		QuickSearch.VSplitLeft(ExcludeSearchIconMax, 0, &QuickSearch);
 		QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 
@@ -493,7 +493,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		QuickSearch.VSplitLeft(5.0f, 0, &QuickSearch);
 
 		static CLineInput s_FilterInput(g_Config.m_BrFilterString, sizeof(g_Config.m_BrFilterString));
-		if(Input()->KeyPress(KEY_F) && Input()->ModifierIsPressed())
+		if(!UI()->IsPopupOpen() && Input()->KeyPress(KEY_F) && Input()->ModifierIsPressed())
 		{
 			UI()->SetActiveItem(&s_FilterInput);
 			s_FilterInput.SelectAll();
@@ -504,12 +504,12 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 
 	// render quick exclude
 	{
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 
 		UI()->DoLabel(&QuickExclude, FONT_ICON_BAN, 16.0f, TEXTALIGN_ML);
 		TextRender()->SetRenderFlags(0);
-		TextRender()->SetCurFont(NULL);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		QuickExclude.VSplitLeft(ExcludeSearchIconMax, 0, &QuickExclude);
 		QuickExclude.VSplitLeft(5.0f, 0, &QuickExclude);
 
@@ -520,7 +520,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 		QuickExclude.VSplitLeft(5.0f, 0, &QuickExclude);
 
 		static CLineInput s_ExcludeInput(g_Config.m_BrExcludeString, sizeof(g_Config.m_BrExcludeString));
-		if(Input()->KeyPress(KEY_X) && Input()->ShiftIsPressed() && Input()->ModifierIsPressed())
+		if(!UI()->IsPopupOpen() && Input()->KeyPress(KEY_X) && Input()->ShiftIsPressed() && Input()->ModifierIsPressed())
 			UI()->SetActiveItem(&s_ExcludeInput);
 		if(UI()->DoClearableEditBox(&s_ExcludeInput, &QuickExclude, 12.0f))
 			Client()->ServerBrowserUpdate();
@@ -576,7 +576,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			Props.m_UseIconFont = true;
 
 			static CButtonContainer s_RefreshButton;
-			if(UI()->DoButton_Menu(m_RefreshButton, &s_RefreshButton, RefreshLabelFunc, &ButtonRefresh, Props) || Input()->KeyPress(KEY_F5) || (Input()->KeyPress(KEY_R) && Input()->ModifierIsPressed()))
+			if(UI()->DoButton_Menu(m_RefreshButton, &s_RefreshButton, RefreshLabelFunc, &ButtonRefresh, Props) || (!UI()->IsPopupOpen() && (Input()->KeyPress(KEY_F5) || (Input()->KeyPress(KEY_R) && Input()->ModifierIsPressed()))))
 			{
 				RefreshBrowserTab(g_Config.m_UiPage);
 			}
@@ -591,7 +591,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			Props.m_Color = ColorRGBA(0.5f, 1.0f, 0.5f, 0.5f);
 
 			static CButtonContainer s_ConnectButton;
-			if(UI()->DoButton_Menu(m_ConnectButton, &s_ConnectButton, ConnectLabelFunc, &ButtonConnect, Props) || s_ListBox.WasItemActivated() || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+			if(UI()->DoButton_Menu(m_ConnectButton, &s_ConnectButton, ConnectLabelFunc, &ButtonConnect, Props) || s_ListBox.WasItemActivated() || (!UI()->IsPopupOpen() && UI()->ConsumeHotkey(CUI::HOTKEY_ENTER)))
 			{
 				Connect(g_Config.m_UiServerAddress);
 			}
@@ -1066,12 +1066,6 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 	{
 		ServerDetails.Margin(5.0f, &ServerDetails);
 
-		CUIRect Row;
-		static CLocConstString s_aLabels[] = {
-			"Version", // Localize - these strings are localized within CLocConstString
-			"Game type",
-			"Ping"};
-
 		// copy info button
 		{
 			CUIRect Button;
@@ -1122,20 +1116,23 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 			}
 		}
 
-		CUIRect LeftColumn, RightColumn;
+		CUIRect LeftColumn, RightColumn, Row;
 		ServerDetails.VSplitLeft(80.0f, &LeftColumn, &RightColumn);
 
-		for(auto &Label : s_aLabels)
-		{
-			LeftColumn.HSplitTop(15.0f, &Row, &LeftColumn);
-			UI()->DoLabel(&Row, Label, FontSize, TEXTALIGN_ML);
-		}
+		LeftColumn.HSplitTop(15.0f, &Row, &LeftColumn);
+		UI()->DoLabel(&Row, Localize("Version"), FontSize, TEXTALIGN_ML);
 
 		RightColumn.HSplitTop(15.0f, &Row, &RightColumn);
 		UI()->DoLabel(&Row, pSelectedServer->m_aVersion, FontSize, TEXTALIGN_ML);
 
+		LeftColumn.HSplitTop(15.0f, &Row, &LeftColumn);
+		UI()->DoLabel(&Row, Localize("Game type"), FontSize, TEXTALIGN_ML);
+
 		RightColumn.HSplitTop(15.0f, &Row, &RightColumn);
 		UI()->DoLabel(&Row, pSelectedServer->m_aGameType, FontSize, TEXTALIGN_ML);
+
+		LeftColumn.HSplitTop(15.0f, &Row, &LeftColumn);
+		UI()->DoLabel(&Row, Localize("Ping"), FontSize, TEXTALIGN_ML);
 
 		char aTemp[16];
 		FormatServerbrowserPing(aTemp, sizeof(aTemp), pSelectedServer);
@@ -1192,7 +1189,7 @@ void CMenus::RenderServerbrowserServerDetail(CUIRect View)
 			}
 			else if(ClientScoreKind == CServerInfo::CLIENT_SCORE_KIND_POINTS)
 			{
-				str_format(aTemp, sizeof(aTemp), "%d", CurrentClient.m_Score);
+				str_from_int(CurrentClient.m_Score, aTemp);
 			}
 			else
 			{
@@ -1416,11 +1413,11 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 		Header.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, UI()->MouseHovered(&Header) ? 0.4f : 0.25f), IGraphics::CORNER_ALL, 5.0f);
 		Header.VSplitLeft(Header.h, &GroupIcon, &GroupLabel);
 		GroupIcon.Margin(2.0f, &GroupIcon);
-		TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+		TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 		TextRender()->TextColor(UI()->MouseHovered(&Header) ? TextRender()->DefaultTextColor() : ColorRGBA(0.6f, 0.6f, 0.6f, 1.0f));
 		UI()->DoLabel(&GroupIcon, s_aListExtended[FriendType] ? FONT_ICON_SQUARE_MINUS : FONT_ICON_SQUARE_PLUS, GroupIcon.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
-		TextRender()->SetCurFont(nullptr);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		switch(FriendType)
 		{
 		case FRIEND_PLAYER_ON:
@@ -1535,7 +1532,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 
 						SLabelProperties Props;
 						Props.m_EnableWidthCheck = false;
-						TextRender()->SetCurFont(TextRender()->GetFont(TEXT_FONT_ICON_FONT));
+						TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
 						TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
 						TextRender()->TextColor(0.4f, 0.7f, 0.94f, 1.0f);
 						TextRender()->TextOutlineColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1546,7 +1543,7 @@ void CMenus::RenderServerbrowserFriends(CUIRect View)
 						TextRender()->TextColor(TextRender()->DefaultTextColor());
 						TextRender()->TextOutlineColor(TextRender()->DefaultTextOutlineColor());
 						TextRender()->SetRenderFlags(0);
-						TextRender()->SetCurFont(nullptr);
+						TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 					}
 
 					// server info text
