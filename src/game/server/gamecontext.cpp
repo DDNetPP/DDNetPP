@@ -648,7 +648,10 @@ void CGameContext::SendEmoticon(int ClientID, int Emoticon, int TargetClientID)
 {
 	CNetMsg_Sv_Emoticon Msg;
 	Msg.m_ClientID = ClientID;
-	if(m_apPlayers[ClientID]->m_SpookyGhostActive)
+	CPlayer *pPlayer = nullptr;
+	if(ClientID > 0 && ClientID < MAX_CLIENTS)
+		pPlayer = m_apPlayers[ClientID];
+	if(pPlayer && pPlayer->m_SpookyGhostActive)
 		Msg.m_Emoticon = 7; // ghost emote only
 	else
 		Msg.m_Emoticon = Emoticon;
