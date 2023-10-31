@@ -3,7 +3,7 @@
 #ifndef GAME_VERSION_DDPP_H
 #define GAME_VERSION_DDPP_H
 
-#define DDNETPP_VERSIONSTR "v.0.0.8-dev"
+#define DDNETPP_VERSIONSTR "v0.1.0"
 #define DDNETPP_BUILD_DATE __DATE__ ", " __TIME__
 
 // extern const char *GIT_SHORTREV_HASH;
