@@ -35,6 +35,20 @@ extern "C" {
 int regex_compile(const char *pPattern, const char *pStr);
 
 /*
+	Function: get_file_offset
+		portable wrapper around ftello
+		to get current read/write offset
+		of a given file handle
+
+	Parameters:
+		file - File handle to get offset from
+
+	Returns:
+		a file position as long
+*/
+long get_file_offset(FILE *file);
+
+/*
 	Function: fpost_get_pos
 		ensures windows and unix support for fpos_t
 
@@ -44,7 +58,7 @@ int regex_compile(const char *pPattern, const char *pStr);
 	Returns:
 		a file position as long long
 */
-long long fpost_get_pos(fpos_t pos);
+// long long fpost_get_pos(fpos_t pos);
 
 #ifdef __cplusplus
 }

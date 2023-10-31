@@ -73,16 +73,34 @@ int regex_compile(const char *pPattern, const char *pStr)
 #endif
 }
 
-long long fpost_get_pos(fpos_t pos)
+long get_file_offset(FILE *file)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return pos;
-#elif defined(CONF_PLATFORM_MACOS)
-	return pos;
-#else
-	return pos.__pos;
-#endif
+	// tested on:
+	//   - alpine musl libc
+	//   - arch glibc
+	off_t offset = ftello(file);
+	return offset;
 }
+
+// // TODO: move to detect.h in upstream
+// #include <features.h>
+// #ifndef __GLIBC__
+//     #define __MUSL__
+//     #define CONF_LIBC_MUSL
+// #endif
+
+// long long fpost_get_pos(fpos_t pos)
+// {
+// #if defined(CONF_FAMILY_WINDOWS)
+// 	return pos;
+// #elif defined(CONF_PLATFORM_MACOS)
+// 	return pos;
+// #elif defined(CONF_LIBC_MUSL)
+// 	return pos.__lldata;
+// #else
+// 	return pos.__pos;
+// #endif
+// }
 
 #if defined(__cplusplus)
 }

@@ -1817,9 +1817,7 @@ void CGameContext::SaveMapPlayerData()
 			continue;
 		fwrite(&Player->m_aTimeoutCode, 64, 1, pFile);
 		char IsLoaded = 0;
-		fpos_t pos;
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapsave", "writing isloaded at pos %lld", fpost_get_pos(pos));
+		dbg_msg("ddpp-mapsave", "writing isloaded at pos %ld", get_file_offset(pFile));
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
 		CSaveTee savetee;
@@ -1857,9 +1855,7 @@ void CGameContext::LoadMapPlayerData()
 		// ValidPlayer replaces continue to make sure the binary cursor is at the right offset
 		bool ValidPlayer = true;
 		char aTimeoutCode[64];
-		fpos_t pos;
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapload", "read timeout code at %lld", fpost_get_pos(pos));
+		dbg_msg("ddpp-mapload", "read timeout code at %ld", get_file_offset(pFile));
 		if(!fread(&aTimeoutCode, 64, 1, pFile))
 		{
 			dbg_msg("ddpp-mapload", "failed to read data");
@@ -1899,8 +1895,7 @@ void CGameContext::LoadMapPlayerData()
 			}
 		}
 		char IsLoaded;
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapload", "reading isloaded at pos %lld", fpost_get_pos(pos));
+		dbg_msg("ddpp-mapload", "reading isloaded at pos %ld", get_file_offset(pFile));
 		if(!fread(&IsLoaded, sizeof(IsLoaded), 1, pFile))
 		{
 			dbg_msg("ddpp-mapload", "failed to read data");
@@ -1913,6 +1908,7 @@ void CGameContext::LoadMapPlayerData()
 			ValidPlayer = false;
 		}
 		IsLoaded = ValidPlayer ? 1 : IsLoaded; // only change loaded state if the player is actually loaded
+		fpos_t pos;
 		fsetpos(pFile, &pos);
 		fwrite(&IsLoaded, sizeof(IsLoaded), 1, pFile);
 
@@ -1932,8 +1928,7 @@ void CGameContext::LoadMapPlayerData()
 
 			m_MapsaveLoadedPlayers++;
 			pPlayer->m_MapSaveLoaded = true;
-			fgetpos(pFile, &pos);
-			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%lld", Server()->ClientName(id), pPlayer->m_aTimeoutCode, fpost_get_pos(pos));
+			dbg_msg("ddpp-mapload", "load player=%s code=%s fp=%ld", Server()->ClientName(id), pPlayer->m_aTimeoutCode, get_file_offset(pFile));
 			loaded++;
 		}
 	}
@@ -1965,9 +1960,7 @@ void CGameContext::ReadMapPlayerData(int ClientID)
 	for(int i = 0; i < players; i++)
 	{
 		char aTimeoutCode[64];
-		fpos_t pos;
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapread", "read timeout code at %lld", fpost_get_pos(pos));
+		dbg_msg("ddpp-mapread", "read timeout code at %ld", get_file_offset(pFile));
 		if(!fread(&aTimeoutCode, 64, 1, pFile))
 		{
 			dbg_msg("ddpp-mapread", "failed to read data");
@@ -1990,8 +1983,7 @@ void CGameContext::ReadMapPlayerData(int ClientID)
 			return;
 		}
 
-		fgetpos(pFile, &pos);
-		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%lld", id, aTimeoutCode, IsLoaded, fpost_get_pos(pos));
+		dbg_msg("ddpp-mapread", "read player=%d code=%s loaded=%d fp=%ld", id, aTimeoutCode, IsLoaded, get_file_offset(pFile));
 		red++;
 	}
 	if(fclose(pFile))
