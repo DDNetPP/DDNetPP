@@ -1,3 +1,5 @@
+// This file can be included several times.
+
 #ifndef IN_CLASS_GAMECONTEXT
 #include <deque>
 #include <engine/antibot.h>

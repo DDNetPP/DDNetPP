@@ -1,3 +1,5 @@
+// This file can be included several times.
+
 #ifndef IN_CLASS_CHARACTER
 #include <deque>
 #include <engine/antibot.h>
@@ -321,7 +323,7 @@ public:
 	void Fire(bool Fire = true);
 	int GetReloadTimer() { return m_ReloadTimer; }
 
-	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	 *	All these variables are stored in CSaveTeeDDPP                       *
 	 *                                                                       *
 	 *	Add variables that have to be saved here and also in save_ddpp.h     *

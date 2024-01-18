@@ -1,11 +1,11 @@
+#ifndef GAME_SERVER_ENTITIES_LASER_TEXT_H
+#define GAME_SERVER_ENTITIES_LASER_TEXT_H
+
 /*
     Inspired by fngs lasertext / loltext
     https://github.com/Jupeyy/teeworlds-fng2-mod/blob/07ac6046c37eba552d5d0b59bcc7bf35904b3e4f/src/game/server/laser_text.cpp
     https://github.com/fstd/teeworlds/blob/edceb914f47f3fb6407a85f8cd01060bf79b847a/src/game/server/entities/loltext.cpp
 */
-
-#ifndef GAME_SERVER_ENTITIES_LASER_TEXT_H
-#define GAME_SERVER_ENTITIES_LASER_TEXT_H
 
 #include <game/server/entity.h>
 

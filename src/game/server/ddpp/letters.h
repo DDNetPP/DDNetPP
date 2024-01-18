@@ -1,5 +1,5 @@
-#ifndef GAME_SERVER_LETTERS_H
-#define GAME_SERVER_LETTERS_H
+#ifndef GAME_SERVER_DDPP_LETTERS_H
+#define GAME_SERVER_DDPP_LETTERS_H
 
 #include "../ddpp/ascii_table.h"
 #include "../gamecontext.h"

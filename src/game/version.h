@@ -1,8 +1,5 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-
-#include "version_ddpp.h"
-
 #ifndef GAME_VERSION_H
 #define GAME_VERSION_H
 #ifndef GAME_RELEASE_VERSION
@@ -13,5 +10,6 @@
 #define DDNET_VERSION_NUMBER 17030
 extern const char *GIT_SHORTREV_HASH;
 #define GAME_NAME "DDNet++"
+#include "version_ddpp.h"
 
 #endif
