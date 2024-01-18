@@ -2210,16 +2210,12 @@ int net_would_block()
 #endif
 }
 
-int net_init()
+void net_init()
 {
 #if defined(CONF_FAMILY_WINDOWS)
-	WSADATA wsaData;
-	int err = WSAStartup(MAKEWORD(1, 1), &wsaData);
-	dbg_assert(err == 0, "network initialization failed.");
-	return err == 0 ? 0 : 1;
+	WSADATA wsa_data;
+	dbg_assert(WSAStartup(MAKEWORD(1, 1), &wsa_data) == 0, "network initialization failed.");
 #endif
-
-	return 0;
 }
 
 #if defined(CONF_FAMILY_UNIX)
@@ -4154,15 +4150,32 @@ int kill_process(PROCESS process)
 {
 #if defined(CONF_FAMILY_WINDOWS)
 	BOOL success = TerminateProcess(process, 0);
-	if(success)
+	BOOL is_alive = is_process_alive(process);
+	if(success || !is_alive)
 	{
 		CloseHandle(process);
+		return true;
 	}
-	return success;
+	return false;
 #elif defined(CONF_FAMILY_UNIX)
+	if(!is_process_alive(process))
+		return true;
 	int status;
 	kill(process, SIGTERM);
 	return waitpid(process, &status, 0) != -1;
+#endif
+}
+
+bool is_process_alive(PROCESS process)
+{
+	if(process == INVALID_PROCESS)
+		return false;
+#if defined(CONF_FAMILY_WINDOWS)
+	DWORD exit_code;
+	GetExitCodeProcess(process, &exit_code);
+	return exit_code == STILL_ACTIVE;
+#else
+	return waitpid(process, nullptr, WNOHANG) == 0;
 #endif
 }
 

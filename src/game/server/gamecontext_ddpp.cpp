@@ -254,8 +254,7 @@ void CGameContext::OnClientEnterDDPP(int ClientID)
 		"DDNet++ %s (built on %s, git rev %s)",
 		DDNETPP_VERSIONSTR,
 		DDNETPP_BUILD_DATE,
-		GIT_SHORTREV_HASH
-	);
+		GIT_SHORTREV_HASH);
 	Msg.AddString(aBuf);
 	Server()->SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
@@ -781,7 +780,7 @@ bool CGameContext::IsHooked(int hookedID, int power)
 
 		if(!pChar || !pChar->IsAlive() || pChar->GetPlayer()->GetCID() == hookedID)
 			continue;
-		if(pChar->Core()->m_HookedPlayer == hookedID && pChar->GetPlayer()->m_HookPower == power)
+		if(pChar->Core()->HookedPlayer() == hookedID && pChar->GetPlayer()->m_HookPower == power)
 		{
 			return true;
 		}

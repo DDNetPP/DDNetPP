@@ -177,7 +177,7 @@ void CDummyFNN::OnTick()
 
 			if(m_pCharacter->Core()->HookedPlayer() != -1)
 			{
-				str_format(aBuf, sizeof(aBuf), "[FNN] dont get in my hook %s", Server()->ClientName(m_pCharacter->Core()->m_HookedPlayer));
+				str_format(aBuf, sizeof(aBuf), "[FNN] dont get in my hook %s", Server()->ClientName(m_pCharacter->Core()->HookedPlayer()));
 				GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, aBuf);
 			}
 		}

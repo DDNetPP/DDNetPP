@@ -225,8 +225,7 @@ void CDropPickup::Tick()
 		&m_Pos,
 		&m_Vel,
 		vec2(ms_PhysSize, ms_PhysSize),
-		vec2(GameServer()->TuningList()[m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[m_TuneZone].m_GroundElasticityY)
-	);
+		vec2(GameServer()->TuningList()[m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[m_TuneZone].m_GroundElasticityY));
 }
 
 void CDropPickup::Snap(int SnappingClient)

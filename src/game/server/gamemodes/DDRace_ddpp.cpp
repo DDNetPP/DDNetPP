@@ -227,8 +227,7 @@ void CGameControllerDDRace::FlagTick()
 					&F->m_Pos,
 					&F->m_Vel,
 					vec2(F->ms_PhysSize, F->ms_PhysSize),
-					vec2(GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityY)
-				);
+					vec2(GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityX, GameServer()->TuningList()[F->m_TuneZone].m_GroundElasticityY));
 			}
 		}
 	}

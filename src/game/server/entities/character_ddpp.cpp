@@ -1098,7 +1098,7 @@ void CCharacter::DDPP_Tick()
 
 		if(!pChar || !pChar->IsAlive() || pChar == this)
 			continue;
-		if(pChar->Core()->m_HookedPlayer == m_pPlayer->GetCID())
+		if(pChar->Core()->HookedPlayer() == m_pPlayer->GetCID())
 		{
 			m_pPlayer->UpdateLastToucher(i);
 

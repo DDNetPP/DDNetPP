@@ -1158,7 +1158,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 		if(HookState() == HOOK_GRABBED)
 		{
 			Right();
-			int HookedID = m_pCharacter->Core()->m_HookedPlayer;
+			int HookedID = m_pCharacter->Core()->HookedPlayer();
 			CPlayer *pHooked = GameServer()->m_apPlayers[HookedID];
 			CCharacter *pCharHooked = pHooked->GetCharacter();
 			if(pCharHooked)
@@ -1215,7 +1215,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 			// release hook on enemy when he is frozen on the left side
 			if(!IsPolice(pClosestChr) && IsFrozen(pClosestChr))
 				if(pClosestChr->GetPos().x < RAW(364))
-					if(m_pCharacter->Core()->m_HookedPlayer == pClosestChr->GetPlayer()->GetCID())
+					if(m_pCharacter->Core()->HookedPlayer() == pClosestChr->GetPlayer()->GetCID())
 						Hook(0);
 		}
 		if(TicksPassed(30))
@@ -1247,7 +1247,7 @@ bool CDummyBlmapChillPolice::HelpOfficerRight()
 		if(HookState() == HOOK_GRABBED)
 		{
 			Left();
-			int HookedID = m_pCharacter->Core()->m_HookedPlayer;
+			int HookedID = m_pCharacter->Core()->HookedPlayer();
 			CCharacter *pCharHooked = GameServer()->GetPlayerChar(HookedID);
 			if(pCharHooked)
 			{

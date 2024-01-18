@@ -76,7 +76,7 @@ using namespace std::chrono_literals;
 
 const char *CGameClient::Version() const { return GAME_VERSION; }
 const char *CGameClient::NetVersion() const { return GAME_NETVERSION; }
-int CGameClient::DDNetVersion() const { return CLIENT_VERSIONNR; }
+int CGameClient::DDNetVersion() const { return DDNET_VERSION_NUMBER; }
 const char *CGameClient::DDNetVersionStr() const { return m_aDDNetVersionStr; }
 const char *CGameClient::GetItemName(int Type) const { return m_NetObjHandler.GetObjName(Type); }
 
@@ -305,7 +305,7 @@ void CGameClient::OnInit()
 		else if(g_pData->m_aImages[i].m_pFilename[0] == '\0') // handle special null image without filename
 			g_pData->m_aImages[i].m_Id = IGraphics::CTextureHandle();
 		else
-			g_pData->m_aImages[i].m_Id = Graphics()->LoadTexture(g_pData->m_aImages[i].m_pFilename, IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
+			g_pData->m_aImages[i].m_Id = Graphics()->LoadTexture(g_pData->m_aImages[i].m_pFilename, IStorage::TYPE_ALL);
 		m_Menus.RenderLoading(pLoadingDDNetCaption, Localize("Initializing assets"), 1);
 	}
 
@@ -765,6 +765,14 @@ bool CGameClient::Predict() const
 	return !m_Snap.m_SpecInfo.m_Active && m_Snap.m_pLocalCharacter;
 }
 
+ColorRGBA CGameClient::GetDDTeamColor(int DDTeam, float Lightness) const
+{
+	// Use golden angle to generate unique colors with distinct adjacent colors.
+	// The first DDTeam (team 1) gets angle 0°, i.e. red hue.
+	const float Hue = std::fmod((DDTeam - 1) * (137.50776f / 360.0f), 1.0f);
+	return color_cast<ColorRGBA>(ColorHSLA(Hue, 1.0f, Lightness));
+}
+
 void CGameClient::OnRelease()
 {
 	// release all systems
@@ -1188,6 +1196,7 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	Info.m_HudAmmo = true;
 	Info.m_HudDDRace = false;
 	Info.m_NoWeakHookAndBounce = false;
+	Info.m_NoSkinChangeForFrozen = false;
 
 	if(Version >= 0)
 	{
@@ -1243,6 +1252,11 @@ static CGameInfo GetGameInfo(const CNetObj_GameInfoEx *pInfoEx, int InfoExSize, 
 	{
 		Info.m_NoWeakHookAndBounce = Flags2 & GAMEINFOFLAG2_NO_WEAK_HOOK;
 	}
+	if(Version >= 9)
+	{
+		Info.m_NoSkinChangeForFrozen = Flags2 & GAMEINFOFLAG2_NO_SKIN_CHANGE_FOR_FROZEN;
+	}
+
 	return Info;
 }
 
@@ -1770,7 +1784,7 @@ void CGameClient::OnNewSnapshot()
 			continue;
 		}
 		CMsgPacker Msg(NETMSGTYPE_CL_ISDDNETLEGACY, false);
-		Msg.AddInt(CLIENT_VERSIONNR);
+		Msg.AddInt(DDNetVersion());
 		Client()->SendMsg(i, &Msg, MSGFLAG_VITAL);
 		m_aDDRaceMsgSent[i] = true;
 	}
@@ -3337,6 +3351,11 @@ void CGameClient::RefindSkins()
 			Client.m_SkinInfo.m_ColorableRenderSkin = pSkin->m_ColorableSkin;
 			Client.UpdateRenderInfo(IsTeamPlay());
 		}
+		else
+		{
+			Client.m_SkinInfo.m_OriginalRenderSkin.Reset();
+			Client.m_SkinInfo.m_ColorableRenderSkin.Reset();
+		}
 	}
 	m_Ghost.RefindSkin();
 	m_Chat.RefindSkins();
@@ -3585,7 +3604,7 @@ void CGameClient::HandleMultiView()
 	else if(m_MultiView.m_SecondChance != 0.0f)
 		m_MultiView.m_SecondChance = 0.0f;
 
-	// if we only have one tee thats in the list, we activate solo-mode
+	// if we only have one tee that's in the list, we activate solo-mode
 	m_MultiView.m_Solo = std::count(std::begin(m_aMultiViewId), std::end(m_aMultiViewId), true) == 1;
 
 	vec2 TargetPos = vec2((Minpos.x + Maxpos.x) / 2.0f, (Minpos.y + Maxpos.y) / 2.0f);
@@ -3751,7 +3770,7 @@ float CGameClient::CalculateMultiViewZoom(vec2 MinPos, vec2 MaxPos, float Vel)
 	float Zoom = std::max(ZoomX, ZoomY);
 	// zoom out to maximum 10 percent of the current zoom for 70 velocity
 	float Diff = clamp(MapValue(70.0f, 15.0f, Zoom * 0.10f, 0.0f, Vel), 0.0f, Zoom * 0.10f);
-	// zoom should stay inbetween 1.1 and 20.0
+	// zoom should stay between 1.1 and 20.0
 	Zoom = clamp(Zoom + Diff, 1.1f, 20.0f);
 	// add the user preference
 	Zoom -= (Zoom * 0.1f) * m_MultiViewPersonalZoom;

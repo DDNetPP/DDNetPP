@@ -505,7 +505,7 @@ void CClient::RconAuth(const char *pName, const char *pPassword)
 
 	CMsgPacker Msg(NETMSG_RCON_AUTH, true);
 	Msg.AddString(pName, 32);
-	Msg.AddString(pPassword, 32);
+	Msg.AddString(pPassword, 128);
 	Msg.AddInt(1);
 	SendMsgActive(&Msg, MSGFLAG_VITAL);
 }
@@ -974,7 +974,7 @@ void CClient::ServerInfoRequest()
 
 void CClient::LoadDebugFont()
 {
-	m_DebugFont = Graphics()->LoadTexture("debug_font.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
+	m_DebugFont = Graphics()->LoadTexture("debug_font.png", IStorage::TYPE_ALL);
 }
 
 // ---
@@ -1479,6 +1479,7 @@ void CClient::ProcessServerInfo(int RawType, NETADDR *pFrom, const void *pData, 
 		GET_INT(pClient->m_Country);
 		GET_INT(pClient->m_Score);
 		GET_INT(pClient->m_Player);
+		GET_INT(pClient->m_Afk);
 		if(SavedType == SERVERINFO_EXTENDED)
 		{
 			Up.GetString(); // extra info, reserved
@@ -2637,7 +2638,9 @@ void CClient::Update()
 		if(m_DemoPlayer.IsPlaying() && IVideo::Current())
 		{
 			IVideo::Current()->NextVideoFrame();
-			IVideo::Current()->NextAudioFrameTimeline(Sound()->GetSoundMixFunc());
+			IVideo::Current()->NextAudioFrameTimeline([this](short *pFinalOut, unsigned Frames) {
+				Sound()->Mix(pFinalOut, Frames);
+			});
 		}
 		else if(m_ButtonRender)
 			Disconnect();
@@ -4305,6 +4308,16 @@ void CClient::ConchainWindowVSync(IConsole::IResult *pResult, void *pUserData, I
 		pfnCallback(pResult, pCallbackUserData);
 }
 
+void CClient::ConchainWindowResize(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	CClient *pSelf = (CClient *)pUserData;
+	pfnCallback(pResult, pCallbackUserData);
+	if(pSelf->Graphics() && pResult->NumArguments())
+	{
+		pSelf->Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, g_Config.m_GfxScreenRefreshRate);
+	}
+}
+
 void CClient::ConchainTimeoutSeed(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	CClient *pSelf = (CClient *)pUserData;
@@ -4428,6 +4441,9 @@ void CClient::RegisterCommands()
 	m_pConsole->Chain("end_favorite_group", ConchainServerBrowserUpdate, this);
 
 	m_pConsole->Chain("gfx_screen", ConchainWindowScreen, this);
+	m_pConsole->Chain("gfx_screen_width", ConchainWindowResize, this);
+	m_pConsole->Chain("gfx_screen_height", ConchainWindowResize, this);
+	m_pConsole->Chain("gfx_screen_refresh_rate", ConchainWindowResize, this);
 	m_pConsole->Chain("gfx_fullscreen", ConchainFullscreen, this);
 	m_pConsole->Chain("gfx_borderless", ConchainWindowBordered, this);
 	m_pConsole->Chain("gfx_vsync", ConchainWindowVSync, this);
@@ -4626,7 +4642,7 @@ int main(int argc, const char **argv)
 		pClient->GetGPUInfoString(aGPUInfo);
 		char aMessage[768];
 		str_format(aMessage, sizeof(aMessage),
-			"An assertion error occured. Please write down or take a screenshot of the following information and report this error.\n"
+			"An assertion error occurred. Please write down or take a screenshot of the following information and report this error.\n"
 			"Please also share the assert log which you should find in the 'dumps' folder in your config directory.\n\n"
 			"%s\n\n"
 			"Platform: %s\n"
