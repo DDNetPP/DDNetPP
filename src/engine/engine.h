@@ -9,24 +9,9 @@
 class CFutureLogger;
 class ILogger;
 
-class CHostLookup : public IJob
-{
-private:
-	void Run() override;
-
-public:
-	CHostLookup();
-	CHostLookup(const char *pHostname, int Nettype);
-
-	int m_Result;
-	char m_aHostname[128];
-	int m_Nettype;
-	NETADDR m_Addr;
-};
-
 class IEngine : public IInterface
 {
-	MACRO_INTERFACE("engine", 0)
+	MACRO_INTERFACE("engine")
 
 protected:
 	class CJobPool m_JobPool;

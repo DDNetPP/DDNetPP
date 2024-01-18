@@ -7,7 +7,7 @@
 #	3edcxzaq1		2020-06-25 00:00:00
 #	cur.ie			2020-09-28 00:00:00
 #	simpygirl		2022-02-20 00:00:00
-#	furo			2023-08-29 00:00:00
+#	furo			2024-01-14 00:00:00
 ##### /authors #####
 
 ##### translated strings #####
@@ -29,9 +29,6 @@
 
 %s wins!
 == %s vinner!
-
--Page %d-
-== -Sida %d-
 
 Abort
 == Avbryt
@@ -107,9 +104,6 @@ Delete
 
 Delete demo
 == Ta bort demo
-
-Demo details
-== Demoinformation
 
 Demofile: %s
 == Demofil: %s
@@ -264,9 +258,6 @@ No servers match your filter criteria
 Ok
 == Ok
 
-Open
-== Öppna
-
 Parent Folder
 == Uppliggande mapp
 
@@ -281,10 +272,6 @@ Ping
 
 Pistol
 == Pistol
-
-[Demo browser]
-Play
-== Spela
 
 Play background music
 == Aktivera bakgrundsmusik
@@ -319,9 +306,6 @@ Red team
 Red team wins!
 == Röda laget vann!
 
-Refresh
-== Uppdatera
-
 Remote console
 == Serverkonsol
 
@@ -330,9 +314,6 @@ Remove
 
 Remove friend
 == Ta bort kompis
-
-Rename
-== Byt namn
 
 Rename demo
 == Byt namn på demo
@@ -421,9 +402,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == Denna server kör inte standardinställningar på en reserverad speltyp.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Det finns en osparad bana i redigeraren, du kanske vill spara den innan du avslutar.
-
 Time limit
 == Tidsbegränsning
 
@@ -505,23 +483,11 @@ FSAA samples
 Sound volume
 == Volym
 
-Created:
-== Skapad:
-
 Max Screenshots
 == Max antal skärmdumpar
 
-Length:
-== Längd
-
 Laser
 == Gevär
-
-Netversion:
-== Nätversion:
-
-Map:
-== Bana
 
 Hue
 == Nyans
@@ -532,17 +498,8 @@ Record demo
 Your skin
 == Ditt skin
 
-Size:
-== Storlek:
-
 Reset to defaults
 == Nollställ till standard
-
-Quit anyway?
-== Avsluta i alla fall?
-
-Version:
-== Version:
 
 Round
 == Runda
@@ -553,9 +510,6 @@ Lht.
 UI Color
 == Gränssnittfärg
 
-Crc:
-== Crc:
-
 Alpha
 == Alpha
 
@@ -564,9 +518,6 @@ LAN
 
 Name plates size
 == Storlek på namnskyltar
-
-Type:
-== Typ:
 
 Vanilla skins only
 == Bara vanilla skins
@@ -688,9 +639,6 @@ It's recommended that you check the settings to adjust them to your liking befor
 Please enter your nickname below.
 == Skriv ditt smeknamn nedanför.
 
-Render
-== Rendera
-
 Are you sure that you want to disconnect?
 == Är du säker på att du vill koppla ifrån?
 
@@ -723,9 +671,6 @@ AntiPing
 
 Messages
 == Meddelanden
-
-Markers:
-== Markeringar:
 
 Time
 == Tid
@@ -934,9 +879,6 @@ Length
 Skin prefix
 == Skin prefix
 
-Please use a different name
-== Använd ett annat namn
-
 Game paused
 == Spel pausad
 
@@ -987,9 +929,6 @@ Update now
 
 Toggle ghost
 == Växla spöke
-
-Dummy settings
-== Dummy inställningar
 
 Team message
 == Lag meddelande
@@ -1072,9 +1011,6 @@ Auto
 
 Replay
 == Repris
-
-Saving ddnet-settings.cfg failed
-== Det gick inte att spara ddnet-settings.cfg
 
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
 == Bredden på texturen %s är inte delbar med %d, eller är höjden inte delbar med %d, vilket kan orsaka visuella buggar.
@@ -1175,9 +1111,6 @@ Background music volume
 Assets
 == Assets
 
-Kill Messages
-== Döds meddelanden
-
 Use old chat style
 == Använd gammal chatt stil
 
@@ -1190,14 +1123,8 @@ Show local player's key presses
 Background
 == Bakgrund
 
-Entities Background color
-== Entities bakgrunds färg
-
 Use current map as background
 == Använd nuvarande bana som bakgrund
-
-Regular Background Color
-== Vanlig Bakgrunds Färg
 
 Run on join
 == Kör på join
@@ -1494,9 +1421,6 @@ Open the directory to add custom themes
 Loading skin files
 == Laddar skin filer
 
-Toggle to edit your dummy settings
-== Växla till att ändra dina dummy inställningar
-
 Download community skins
 == Ladda ner community skins
 
@@ -1752,3 +1676,127 @@ Change the skip duration
 
 Go forward the specified duration
 == Gå framåt den angivna tiden
+
+Error playing demo
+== Ett fel uppstod under uppspelning av demo
+
+Some map images could not be loaded. Check the local console for details.
+== Vissa map bilder kunde inte laddas in. Se den lokala konsolen för detaljer.
+
+Some map sounds could not be loaded. Check the local console for details.
+== Vissa map ljud kunde inte laddas in. Se den lokala konsolen för detaljer.
+
+Loading menu themes
+== Laddar menyteman
+
+Render complete
+== Rendering klar
+
+Videos directory
+== Videos mapp
+
+Video was saved to '%s'
+== Video sparades till '%s'
+
+No demo selected
+== Ingen demo vald
+
+Created
+== Skapad
+
+Netversion
+== Netversion
+
+[Demo details]
+map not included
+== map inte inkluderad
+
+Ghosts directory
+== Spök mapp
+
+Activate all
+== Aktivera alla
+
+Deactivate all
+== Deaktivera alla
+
+Enable ghost
+== Aktivera spöken
+
+Only save improvements
+== Spara bara förbättringar
+
+Regular background color
+== Vanlig bakgrunds färg
+
+Entities background color
+== Entities bakgrunds färg
+
+Saving settings to '%s' failed
+== Sparning av inställningar till '%s' misslyckades
+
+Searching
+== Söker
+
+Enter Username
+== Ange Användarnamn
+
+Enter Password
+== Ange Lösenord
+
+NOT CONNECTED
+== INTE ANSLUTEN
+
+Match %d of %d
+== Resultat %d av %d
+
+No results
+== Inga resultat
+
+Lines %d - %d (%s)
+== Rader %d - %d (%s)
+
+Locked
+== Låst
+
+Following
+== Följer
+
+Press a key…
+== Tryck en knapp…
+
+Are you sure that you want to restart?
+== Är du säker att du vill starta om?
+
+There's an unsaved map in the editor, you might want to save it.
+== Det finns en osparad bana i redigeraren, du kanske vill spara den.
+
+Continue anyway?
+== Fortsätt ändå?
+
+Communities
+== Gemenskaper
+
+Please use a different filename
+== Använd ett annat filnamn
+
+Info Messages
+== Info Meddelanden
+
+Show local time always
+== Visa alltid lokal tid
+
+Chat font size
+== Chatt textstorlek
+
+Chat width
+== Chatt bredd
+
+Authed name color in scoreboard
+== Autentiserade namn färg i poänglistan
+
+Same clan color in scoreboard
+== Samma klan färg i poänglistan
+
+Show finish messages
+== Visa avklarnings meddelanden

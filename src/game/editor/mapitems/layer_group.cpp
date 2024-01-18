@@ -1,3 +1,6 @@
+#include "layer_group.h"
+
+#include <base/math.h>
 #include <game/editor/editor.h>
 
 CLayerGroup::CLayerGroup()
@@ -11,8 +14,6 @@ CLayerGroup::CLayerGroup()
 	m_OffsetY = 0;
 	m_ParallaxX = 100;
 	m_ParallaxY = 100;
-	m_CustomParallaxZoom = 0;
-	m_ParallaxZoom = 100;
 
 	m_UseClipping = 0;
 	m_ClipX = 0;
@@ -26,15 +27,16 @@ CLayerGroup::~CLayerGroup()
 	m_vpLayers.clear();
 }
 
-void CLayerGroup::Convert(CUIRect *pRect)
+void CLayerGroup::Convert(CUIRect *pRect) const
 {
 	pRect->x += m_OffsetX;
 	pRect->y += m_OffsetY;
 }
 
-void CLayerGroup::Mapping(float *pPoints)
+void CLayerGroup::Mapping(float *pPoints) const
 {
-	float ParallaxZoom = m_pMap->m_pEditor->m_PreviewZoom ? m_ParallaxZoom : 100.0f;
+	float NormalParallaxZoom = clamp((double)(maximum(m_ParallaxX, m_ParallaxY)), 0., 100.);
+	float ParallaxZoom = m_pMap->m_pEditor->m_PreviewZoom ? NormalParallaxZoom : 100.0f;
 
 	m_pMap->m_pEditor->RenderTools()->MapScreenToWorld(
 		m_pMap->m_pEditor->MapView()->GetWorldOffset().x, m_pMap->m_pEditor->MapView()->GetWorldOffset().y,
@@ -47,7 +49,7 @@ void CLayerGroup::Mapping(float *pPoints)
 	pPoints[3] += m_pMap->m_pEditor->MapView()->GetEditorOffset().y;
 }
 
-void CLayerGroup::MapScreen()
+void CLayerGroup::MapScreen() const
 {
 	float aPoints[4];
 	Mapping(aPoints);

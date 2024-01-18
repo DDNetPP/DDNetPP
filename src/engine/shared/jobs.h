@@ -3,10 +3,12 @@
 #ifndef ENGINE_SHARED_JOBS_H
 #define ENGINE_SHARED_JOBS_H
 
+#include <base/lock.h>
 #include <base/system.h>
 
 #include <atomic>
 #include <memory>
+#include <vector>
 
 class CJobPool;
 
@@ -37,15 +39,10 @@ public:
 
 class CJobPool
 {
-	enum
-	{
-		MAX_THREADS = 32
-	};
-	int m_NumThreads;
-	void *m_apThreads[MAX_THREADS];
+	std::vector<void *> m_vpThreads;
 	std::atomic<bool> m_Shutdown;
 
-	LOCK m_Lock;
+	CLock m_Lock;
 	SEMAPHORE m_Semaphore;
 	std::shared_ptr<IJob> m_pFirstJob GUARDED_BY(m_Lock);
 	std::shared_ptr<IJob> m_pLastJob GUARDED_BY(m_Lock);

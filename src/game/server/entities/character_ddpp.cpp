@@ -2095,7 +2095,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
 				{
 					CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
-					Controller->m_Teams.OnCharacterFinish(pKiller->GetCID());
+					Controller->Teams().OnCharacterFinish(pKiller->GetCID());
 				}
 			}
 		}

@@ -3,6 +3,9 @@
 #ifndef ENGINE_STORAGE_H
 #define ENGINE_STORAGE_H
 
+#include <base/hash.h>
+#include <base/types.h>
+
 #include "kernel.h"
 
 #include <set>
@@ -15,7 +18,7 @@ enum
 
 class IStorage : public IInterface
 {
-	MACRO_INTERFACE("storage", 0)
+	MACRO_INTERFACE("storage")
 public:
 	enum
 	{
@@ -51,6 +54,7 @@ public:
 	virtual bool FolderExists(const char *pFilename, int Type) = 0;
 	virtual bool ReadFile(const char *pFilename, int Type, void **ppResult, unsigned *pResultLen) = 0;
 	virtual char *ReadFileStr(const char *pFilename, int Type) = 0;
+	virtual bool CalculateHashes(const char *pFilename, int Type, SHA256_DIGEST *pSha256, unsigned *pCrc = nullptr) = 0;
 	virtual bool FindFile(const char *pFilename, const char *pPath, int Type, char *pBuffer, int BufferSize) = 0;
 	virtual size_t FindFiles(const char *pFilename, const char *pPath, int Type, std::set<std::string> *pEntries) = 0;
 	virtual bool RemoveFile(const char *pFilename, int Type) = 0;

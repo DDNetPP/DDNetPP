@@ -5,7 +5,7 @@
 
 class IAntibot : public IInterface
 {
-	MACRO_INTERFACE("antibot", 0)
+	MACRO_INTERFACE("antibot")
 public:
 	virtual void RoundStart(class IGameServer *pGameServer) = 0;
 	virtual void RoundEnd() = 0;
@@ -22,14 +22,14 @@ public:
 	virtual void OnHookAttach(int ClientID, bool Player) = 0;
 
 	// Commands
-	virtual void Dump() = 0;
+	virtual void ConsoleCommand(const char *pCommand) = 0;
 
 	virtual ~IAntibot(){};
 };
 
 class IEngineAntibot : public IAntibot
 {
-	MACRO_INTERFACE("engineantibot", 0)
+	MACRO_INTERFACE("engineantibot")
 public:
 	virtual void Init() = 0;
 

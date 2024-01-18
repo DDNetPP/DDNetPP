@@ -166,15 +166,20 @@ void SaveOutputMap(CDataFileReader &InputMap, CDataFileWriter &OutputMap)
 	for(int i = 0; i < InputMap.NumItems(); i++)
 	{
 		int ID, Type;
-		void *pItem = InputMap.GetItem(i, &Type, &ID);
+		CUuid Uuid;
+		void *pItem = InputMap.GetItem(i, &Type, &ID, &Uuid);
 
+		// Filter ITEMTYPE_EX items, they will be automatically added again.
 		if(Type == ITEMTYPE_EX)
+		{
 			continue;
+		}
+
 		if(g_apNewItem[i])
 			pItem = g_apNewItem[i];
 
 		int Size = InputMap.GetItemSize(i);
-		OutputMap.AddItem(Type, ID, Size, pItem);
+		OutputMap.AddItem(Type, ID, Size, pItem, &Uuid);
 	}
 
 	for(int i = 0; i < InputMap.NumData(); i++)
@@ -479,8 +484,8 @@ MapObject CreateMapObject(const CMapItemGroup *pLayerGroup, const int PosX, cons
 
 	for(int i = 0; i < 2; i++)
 	{
-		Ob.m_aaScreenOffset[i][0] = -Ob.ms_aStandardScreen[i];
-		Ob.m_aaScreenOffset[i][1] = Ob.ms_aStandardScreen[i];
+		Ob.m_aaScreenOffset[i][0] = -MapObject::ms_aStandardScreen[i];
+		Ob.m_aaScreenOffset[i][1] = MapObject::ms_aStandardScreen[i];
 		if(Ob.m_aSpeed[i] < 0)
 			std::swap(Ob.m_aaScreenOffset[i][0], Ob.m_aaScreenOffset[i][1]);
 	}

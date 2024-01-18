@@ -38,9 +38,6 @@
 %s wins!
 == %s wint!
 
--Page %d-
-== -Pagina %d-
-
 Abort
 == Afbreken
 
@@ -115,9 +112,6 @@ Delete
 
 Delete demo
 == Verwijder demo
-
-Demo details
-== Demo details
 
 Demofile: %s
 == Demobestand: %s
@@ -272,9 +266,6 @@ No servers match your filter criteria
 Ok
 == Oké
 
-Open
-== Open
-
 Parent Folder
 == Bovenliggende map
 
@@ -289,10 +280,6 @@ Ping
 
 Pistol
 == Pistool
-
-[Demo browser]
-Play
-== Spelen
 
 Play background music
 == Speel achtergrondmuziek
@@ -327,9 +314,6 @@ Red team
 Red team wins!
 == Rode team wint!
 
-Refresh
-== Vernieuwen
-
 Remote console
 == Remote console
 
@@ -338,9 +322,6 @@ Remove
 
 Remove friend
 == Verwijder vriend
-
-Rename
-== Hernoem
 
 Rename demo
 == Hernoem demo
@@ -429,9 +410,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == The server draait geen standaard spel type.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Er is een onopgeslagen kaart in de editor, misschien wil je deze opslaan voordat je stopt.
-
 Time limit
 == Tijdslimiet
 
@@ -515,23 +493,11 @@ FSAA samples
 Sound volume
 == Volume
 
-Created:
-== Gemaakt:
-
 Max Screenshots
 == Maximaal aantal schermafbeeldingen
 
-Length:
-== Lengte:
-
 Laser
 == Laser
-
-Netversion:
-== Netversie:
-
-Map:
-== Kaart:
 
 Hue
 == Tint
@@ -542,17 +508,8 @@ Record demo
 Your skin
 == Jouw skin
 
-Size:
-== Grootte:
-
 Reset to defaults
 == Terugzetten naar standaardinstellingen
-
-Quit anyway?
-== Toch afsluiten?
-
-Version:
-== Versie:
 
 Round
 == Ronde
@@ -563,9 +520,6 @@ Lht.
 UI Color
 == UI Kleur
 
-Crc:
-== Crc:
-
 Alpha
 == Alpha
 
@@ -574,9 +528,6 @@ LAN
 
 Name plates size
 == Grootte naamplaat
-
-Type:
-== Type:
 
 Successfully saved the replay!
 == De replay is succesvol opgeslagen!
@@ -686,14 +637,8 @@ Update now
 Restart
 == Herstarten
 
-Please use a different name
-== Gebruik a.u.b. een andere naam
-
 Remove chat
 == Verwijder chat
-
-Markers:
-== Markeringen:
 
 %.2f MiB
 == %.2f MiB
@@ -714,9 +659,6 @@ Date
 
 Fetch Info
 == Info opvragen
-
-Render
-== Verwerken
 
 Connecting dummy
 == Dummy verbinden
@@ -759,9 +701,6 @@ Automatically create statboard csv
 
 Max CSVs
 == Max CSVs
-
-Dummy settings
-== Dummy instellingen
 
 Vanilla skins only
 == Alleen vanilla skins
@@ -1021,9 +960,6 @@ Auto
 Replay
 == Herhaling
 
-Saving ddnet-settings.cfg failed
-== Het opslaan van ddnet-settings.cfg is mislukt
-
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
 == De wijdte van de texture %s is niet te delen door %d, of de hoogte is niet te delen door %d wat visuele bugs kan veroorzaken.
 
@@ -1120,9 +1056,6 @@ Config directory
 Themes directory
 == Thema map
 
-Toggle to edit your dummy settings
-== Schakel in om je dummyinstellingen te bewerken
-
 Download skins
 == Skins downloaden
 
@@ -1180,9 +1113,6 @@ Background music volume
 Assets
 == Assets
 
-Kill Messages
-== Kill Berichten
-
 Use old chat style
 == Oude chatstijl gebruiken
 
@@ -1213,14 +1143,8 @@ Show local player's key presses
 Background
 == Achtergrond
 
-Entities Background color
-== Entities Achtergrondkleur
-
 Use current map as background
 == Gebruik de huidige map als achtergrond
-
-Regular Background Color
-== Reguliere Achtergrondkleur
 
 Run on join
 == Run bij deelnemen
@@ -1328,6 +1252,12 @@ Could not initialize the given graphics backend, this is probably because you di
 Could not save downloaded map. Try manually deleting this file: %s
 == 
 
+Error playing demo
+== 
+
+Saving settings to '%s' failed
+== 
+
 Preparing demo playback
 == 
 
@@ -1358,6 +1288,33 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
 Position:
 == 
 
@@ -1370,7 +1327,19 @@ Angle:
 Multi-View
 == 
 
+Some map images could not be loaded. Check the local console for details.
+== 
+
 Uploading map data to GPU
+== 
+
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
+Press a key…
 == 
 
 Trying to determine UDP connectivity...
@@ -1394,6 +1363,18 @@ Requesting to join the game
 Rename folder
 == 
 
+Render complete
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
 A demo with this name already exists
 == 
 
@@ -1409,7 +1390,16 @@ File '%s' already exists, do you want to overwrite it?
 (paused)
 == 
 
+Videos directory
+== 
+
+Video was saved to '%s'
+== 
+
 Loading menu images
+== 
+
+Communities
 == 
 
 Copy info
@@ -1520,13 +1510,29 @@ Cut length
 Render cut to video
 == 
 
+Please use a different filename
+== 
+
 Loading demo files
 == 
 
 All combined
 == 
 
+No demo selected
+== 
+
 Folder Link
+== 
+
+Created
+== 
+
+Netversion
+== 
+
+[Demo details]
+map not included
 == 
 
 Open the directory that contains the demo files
@@ -1548,6 +1554,15 @@ Unable to delete the folder '%s'. Make sure it's empty first.
 == 
 
 Loading ghost files
+== 
+
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
 == 
 
 Menu opened. Press Esc key again to close menu.
@@ -1645,7 +1660,13 @@ Name Plate
 Hook Collisions
 == 
 
+Info Messages
+== 
+
 Show health, shields and ammo
+== 
+
+Show local time always
 == 
 
 DDRace HUD
@@ -1678,7 +1699,19 @@ Show freeze bars
 Opacity of freeze bars inside freeze
 == 
 
+Chat font size
+== 
+
+Chat width
+== 
+
 Show hook strength indicator
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
 == 
 
 Hook collision line
@@ -1703,6 +1736,9 @@ Something hookable
 == 
 
 A Tee
+== 
+
+Show finish messages
 == 
 
 Normal Color
@@ -1739,6 +1775,18 @@ Freeze Laser Inner Color
 == 
 
 Set all to Rifle
+== 
+
+Enable ghost
+== 
+
+Only save improvements
+== 
+
+Regular background color
+== 
+
+Entities background color
 == 
 
 Unregister protocol and file extensions

@@ -33,9 +33,6 @@
 %s wins!
 == %s kazandı!
 
--Page %d-
-== -Sayfa %d-
-
 Abort
 == İptal
 
@@ -110,9 +107,6 @@ Delete
 
 Delete demo
 == Demoyu sil
-
-Demo details
-== Demo ayrıntıları
 
 Demofile: %s
 == Demo dosyası: %s
@@ -267,9 +261,6 @@ No servers match your filter criteria
 Ok
 == Tamam
 
-Open
-== Aç
-
 Parent Folder
 == Üst dizin
 
@@ -284,10 +275,6 @@ Ping
 
 Pistol
 == Tabanca
-
-[Demo browser]
-Play
-== Oynat
 
 Play background music
 == Arkaplan müziğini çal
@@ -319,9 +306,6 @@ Red team
 Red team wins!
 == Kırmızı takım kazandı!
 
-Refresh
-== Yenile
-
 Remote console
 == Uzak Konsol
 
@@ -330,9 +314,6 @@ Remove
 
 Remove friend
 == Arkadaşı sil
-
-Rename
-== Yeniden isimlendir
 
 Rename demo
 == Demonun adını değiştir
@@ -421,9 +402,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == Bu sunucu standart olmayan bir ayarı saf bir oyun türünde kullanıyor.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Editörde kaydedilmemiş bir harita var, kapatmadan önce kaydetmek isteyebilirsiniz.
-
 Time limit
 == Süre limiti
 
@@ -505,23 +483,11 @@ FSAA samples
 Sound volume
 == Ses seviyesi
 
-Created:
-== Oluşturuldu:
-
 Max Screenshots
 == Maksimum Ekran Görüntüsü Sayısı
 
-Length:
-== Uzunluk:
-
 Laser
 == Lazer
-
-Netversion:
-== Netversion:
-
-Map:
-== Harita:
 
 Hue
 == Renk
@@ -532,19 +498,8 @@ Record demo
 Your skin
 == Sizin görünüşünüz
 
-Size:
-== Boyut:
-
-##### translated strings #####
-
 Reset to defaults
 == Varsayılanlara getir
-
-Quit anyway?
-== Çıkmak istediğinize emin misiniz?
-
-Version:
-== Versiyon:
 
 Round
 == Raunt
@@ -555,9 +510,6 @@ Lht.
 UI Color
 == Menü rengi
 
-Crc:
-== Crc:
-
 Alpha
 == Şeffaflık
 
@@ -566,9 +518,6 @@ LAN
 
 Name plates size
 == Boyut
-
-Type:
-== Tür:
 
 Successfully saved the replay!
 == Başarıyla kaydedildi!
@@ -684,14 +633,8 @@ Update now
 Restart
 == Yeniden başlat
 
-Please use a different name
-== Lütfen farklı takma ad kullanın
-
 Remove chat
 == Sohbeti kaldır
-
-Markers:
-== İşaretler:
 
 %.2f MiB
 == %.2f MiB
@@ -713,9 +656,6 @@ Date
 
 Fetch Info
 == Bilgileri göster
-
-Render
-== Render
 
 Connecting dummy
 == Dummy bağlanıyor
@@ -758,9 +698,6 @@ Automatically create statboard csv
 
 Max CSVs
 == Max CSVs
-
-Dummy settings
-== Dummy ayarları
 
 Vanilla skins only
 == Sadece vanilla skinleri
@@ -1070,9 +1007,6 @@ Could not initialize the given graphics backend, this is probably because you di
 
 Could not save downloaded map. Try manually deleting this file: %s
 == İndirilen map kaydedilemedi. Bu dosyayı manuel olarak silmeyi deneyin: %s
-
-Saving ddnet-settings.cfg failed
-== ddnet-settings.cfg dosyası kaydedilemedi
 
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
 == %s dokusunun genişliği %d'ye veya yüksekliği %d'ye bölünmüyor, bu görsel hatalara neden olabilir.
@@ -1390,9 +1324,6 @@ Open the directory to add custom themes
 Loading skin files
 == Skin dosyaları yükleniyor
 
-Toggle to edit your dummy settings
-== Dummy ayarlarını düzenle
-
 Download skins
 == Skinleri indir
 
@@ -1527,9 +1458,6 @@ Name Plate
 Hook Collisions
 == Kanca kesişmeleri
 
-Kill Messages
-== Ölüm mesajları
-
 Show health, shields and ammo
 == Can, kalkan ve cephaneyi göster 
 
@@ -1656,14 +1584,8 @@ Tries to predict other entities to give a feel of low latency
 Background
 == Arkaplan
 
-Entities Background color
-== Yapıların arkaplan rengi
-
 Use current map as background
 == Mevcut haritayı arkaplan olarak kullan
-
-Regular Background Color
-== Normal arkaplan rengi
 
 Run on join
 == Katılınca çalıştır
@@ -1757,3 +1679,127 @@ Go forward the specified duration
 
 Render cut to video
 == Kesiti videoya dönüştür
+
+Error playing demo
+== 
+
+Saving settings to '%s' failed
+== 
+
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
+Some map images could not be loaded. Check the local console for details.
+== 
+
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
+Press a key…
+== 
+
+Render complete
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
+== 
+
+Communities
+== 
+
+Please use a different filename
+== 
+
+No demo selected
+== 
+
+Created
+== 
+
+Netversion
+== 
+
+[Demo details]
+map not included
+== 
+
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
+== 
+
+Info Messages
+== 
+
+Show local time always
+== 
+
+Chat font size
+== 
+
+Chat width
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
+Show finish messages
+== 
+
+Enable ghost
+== 
+
+Only save improvements
+== 
+
+Regular background color
+== 
+
+Entities background color
+== 

@@ -7,6 +7,7 @@
 #include <base/vmath.h>
 
 #include <chrono>
+#include <deque>
 #include <unordered_set>
 #include <vector>
 
@@ -15,6 +16,8 @@
 #include <engine/friends.h>
 #include <engine/serverbrowser.h>
 #include <engine/shared/config.h>
+#include <engine/shared/http.h>
+#include <engine/shared/jobs.h>
 #include <engine/shared/linereader.h>
 #include <engine/textrender.h>
 
@@ -57,7 +60,7 @@ class CMenus : public CComponent
 
 	int DoButton_FontIcon(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners = IGraphics::CORNER_ALL, bool Enabled = true);
 	int DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, bool Active);
-	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float r = 5.0f, float FontFactor = 0.0f, vec4 ColorHot = vec4(1.0f, 1.0f, 1.0f, 0.75f), vec4 Color = vec4(1, 1, 1, 0.5f));
+	int DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName = nullptr, int Corners = IGraphics::CORNER_ALL, float Rounding = 5.0f, float FontFactor = 0.0f, ColorRGBA Color = ColorRGBA(1.0f, 1.0f, 1.0f, 0.5f));
 	int DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator = nullptr, const ColorRGBA *pDefaultColor = nullptr, const ColorRGBA *pActiveColor = nullptr, const ColorRGBA *pHoverColor = nullptr, float EdgeRounding = 10);
 
 	int DoButton_CheckBox_Common(const void *pID, const char *pText, const char *pBoxText, const CUIRect *pRect);
@@ -70,7 +73,6 @@ class CMenus : public CComponent
 	void DoLaserPreview(const CUIRect *pRect, ColorHSLA OutlineColor, ColorHSLA InnerColor, const int LaserType);
 	int DoButton_GridHeader(const void *pID, const char *pText, int Checked, const CUIRect *pRect);
 
-	void DoButton_KeySelect(const void *pID, const char *pText, const CUIRect *pRect);
 	int DoKeyReader(const void *pID, const CUIRect *pRect, int Key, int ModifierCombination, int *pNewModifierCombination);
 
 	void DoSettingsControlsButtons(int Start, int Stop, CUIRect View);
@@ -169,9 +171,7 @@ protected:
 		IGraphics::CTextureHandle m_GreyTexture;
 	};
 	std::vector<CMenuImage> m_vMenuImages;
-
 	static int MenuImageScan(const char *pName, int IsDir, int DirType, void *pUser);
-
 	const CMenuImage *FindMenuImage(const char *pName);
 
 	// loading
@@ -220,12 +220,9 @@ protected:
 	static float ms_ListitemAdditionalHeight;
 
 	// for settings
-	bool m_NeedRestartGeneral;
-	bool m_NeedRestartSkins;
 	bool m_NeedRestartGraphics;
 	bool m_NeedRestartSound;
 	bool m_NeedRestartUpdate;
-	bool m_NeedRestartDDNet;
 	bool m_NeedSendinfo;
 	bool m_NeedSendDummyinfo;
 	int m_SettingPlayerPage;
@@ -249,7 +246,6 @@ protected:
 	enum
 	{
 		SORT_DEMONAME = 0,
-		SORT_MARKERS,
 		SORT_LENGTH,
 		SORT_DATE,
 	};
@@ -308,8 +304,6 @@ protected:
 			if(!m_InfosLoaded)
 				return !Other.m_InfosLoaded;
 
-			if(g_Config.m_BrDemoSort == SORT_MARKERS)
-				return Left.NumMarkers() < Right.NumMarkers();
 			if(g_Config.m_BrDemoSort == SORT_LENGTH)
 				return Left.Length() < Right.Length();
 
@@ -395,6 +389,7 @@ protected:
 
 		const void *ListItemId() const { return &m_aName; }
 		const void *RemoveButtonId() const { return &m_FriendState; }
+		const void *CommunityTooltipId() const { return &m_IsPlayer; }
 
 		bool operator<(const CFriendItem &Other) const
 		{
@@ -433,7 +428,11 @@ protected:
 	void HandleDemoSeeking(float PositionToSeek, float TimeToSeek);
 	void RenderDemoPlayer(CUIRect MainView);
 	void RenderDemoPlayerSliceSavePopup(CUIRect MainView);
-	void RenderDemoList(CUIRect MainView);
+	bool m_DemoBrowserListInitialized = false;
+	void RenderDemoBrowser(CUIRect MainView);
+	void RenderDemoBrowserList(CUIRect ListView, bool &WasListboxItemActivated);
+	void RenderDemoBrowserDetails(CUIRect DetailsView);
+	void RenderDemoBrowserButtons(CUIRect ButtonsView, bool WasListboxItemActivated);
 	void PopupConfirmDeleteDemo();
 	void PopupConfirmDeleteFolder();
 
@@ -463,13 +462,15 @@ protected:
 	void PopupConfirmSwitchServer();
 	void RenderServerbrowserFilters(CUIRect View);
 	void RenderServerbrowserDDNetFilter(CUIRect View,
-		char *pFilterExclude, int FilterExcludeSize,
+		IFilterList &Filter,
 		float ItemHeight, int MaxItems, int ItemsPerRow,
 		CScrollRegion &ScrollRegion, std::vector<unsigned char> &vItemIds,
+		bool UpdateCommunityCacheOnChange,
 		const std::function<const char *(int ItemIndex)> &GetItemName,
 		const std::function<void(int ItemIndex, CUIRect Item, const void *pItemId, bool Active)> &RenderItem);
-	void RenderServerbrowserCountriesFilter(CUIRect View, const CCommunity &Community);
-	void RenderServerbrowserTypesFilter(CUIRect View, const CCommunity &Community);
+	void RenderServerbrowserCommunitiesFilter(CUIRect View);
+	void RenderServerbrowserCountriesFilter(CUIRect View);
+	void RenderServerbrowserTypesFilter(CUIRect View);
 	struct SPopupCountrySelectionContext
 	{
 		CMenus *m_pMenus;
@@ -489,7 +490,77 @@ protected:
 	bool PrintHighlighted(const char *pName, F &&PrintFn);
 	CTeeRenderInfo GetTeeRenderInfo(vec2 Size, const char *pSkinName, bool CustomSkinColors, int CustomSkinColorBody, int CustomSkinColorFeet) const;
 	static void ConchainFriendlistUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
-	static void ConchainServerbrowserUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainFavoritesUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	static void ConchainCommunitiesUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
+	struct SCommunityCache
+	{
+		int64_t m_UpdateTime = 0;
+		bool m_PageWithCommunities;
+		std::vector<const CCommunity *> m_vpSelectedCommunities;
+		std::vector<const CCommunityCountry *> m_vpSelectableCountries;
+		std::vector<const CCommunityType *> m_vpSelectableTypes;
+		bool m_AnyRanksAvailable;
+	};
+	SCommunityCache m_CommunityCache;
+	void UpdateCommunityCache(bool Force);
+
+	// community icons
+	class CAbstractCommunityIconJob
+	{
+	protected:
+		CMenus *m_pMenus;
+		char m_aCommunityId[CServerInfo::MAX_COMMUNITY_ID_LENGTH];
+		char m_aPath[IO_MAX_PATH_LENGTH];
+		int m_StorageType;
+		bool m_Success = false;
+		SHA256_DIGEST m_Sha256;
+
+		CAbstractCommunityIconJob(CMenus *pMenus, const char *pCommunityId, int StorageType);
+		virtual ~CAbstractCommunityIconJob(){};
+
+	public:
+		const char *CommunityId() const { return m_aCommunityId; }
+		bool Success() const { return m_Success; }
+		SHA256_DIGEST &&Sha256() { return std::move(m_Sha256); }
+	};
+
+	class CCommunityIconLoadJob : public IJob, public CAbstractCommunityIconJob
+	{
+		CImageInfo m_ImageInfo;
+
+	protected:
+		void Run() override;
+
+	public:
+		CCommunityIconLoadJob(CMenus *pMenus, const char *pCommunityId, int StorageType);
+		~CCommunityIconLoadJob();
+
+		CImageInfo &&ImageInfo() { return std::move(m_ImageInfo); }
+	};
+
+	class CCommunityIconDownloadJob : public CHttpRequest, public CAbstractCommunityIconJob
+	{
+	public:
+		CCommunityIconDownloadJob(CMenus *pMenus, const char *pCommunityId, const char *pUrl, const SHA256_DIGEST &Sha256);
+	};
+
+	struct SCommunityIcon
+	{
+		char m_aCommunityId[CServerInfo::MAX_COMMUNITY_ID_LENGTH];
+		SHA256_DIGEST m_Sha256;
+		IGraphics::CTextureHandle m_OrgTexture;
+		IGraphics::CTextureHandle m_GreyTexture;
+	};
+	std::vector<SCommunityIcon> m_vCommunityIcons;
+	std::deque<std::shared_ptr<CCommunityIconLoadJob>> m_CommunityIconLoadJobs;
+	std::deque<std::shared_ptr<CCommunityIconDownloadJob>> m_CommunityIconDownloadJobs;
+	int64_t m_CommunityIconsUpdateTime = 0;
+	static int CommunityIconScan(const char *pName, int IsDir, int DirType, void *pUser);
+	const SCommunityIcon *FindCommunityIcon(const char *pCommunityId);
+	bool LoadCommunityIconFile(const char *pPath, int DirType, CImageInfo &Info, SHA256_DIGEST &Sha256);
+	void LoadCommunityIconFinish(const char *pCommunityId, CImageInfo &&Info, SHA256_DIGEST &&Sha256);
+	void RenderCommunityIcon(const SCommunityIcon *pIcon, CUIRect Rect, bool Active);
+	void UpdateCommunityIcons();
 
 	// skin favorite list
 	bool m_SkinFavoritesChanged = false;
@@ -561,8 +632,8 @@ public:
 		PAGE_INTERNET,
 		PAGE_LAN,
 		PAGE_FAVORITES,
-		PAGE_DDNET,
-		PAGE_KOG,
+		PAGE_DDNET_LEGACY, // removed, redirects to PAGE_INTERNET
+		PAGE_KOG_LEGACY, // removed, redirects to PAGE_INTERNET
 		PAGE_DEMOS,
 		PAGE_SETTINGS,
 		PAGE_SYSTEM,
@@ -588,8 +659,6 @@ public:
 		BIG_TAB_INTERNET,
 		BIG_TAB_LAN,
 		BIG_TAB_FAVORITES,
-		BIG_TAB_DDNET,
-		BIG_TAB_KOG,
 		BIG_TAB_DEMOS,
 
 		BIG_TAB_LENGTH,
@@ -628,9 +697,11 @@ public:
 		char m_aFilename[IO_MAX_PATH_LENGTH];
 		char m_aPlayer[MAX_NAME_LENGTH];
 
+		bool m_Failed;
 		int m_Time;
 		int m_Slot;
 		bool m_Own;
+		time_t m_Date;
 
 		CGhostItem() :
 			m_Slot(-1), m_Own(false) { m_aFilename[0] = 0; }
@@ -650,8 +721,8 @@ public:
 	void UpdateOwnGhost(CGhostItem Item);
 	void DeleteGhostItem(int Index);
 
-	int GetCurPopup() { return m_Popup; }
-	bool CanDisplayWarning();
+	int GetCurPopup() const { return m_Popup; }
+	bool CanDisplayWarning() const;
 
 	void PopupWarning(const char *pTopic, const char *pBody, const char *pButton, std::chrono::nanoseconds Duration);
 
@@ -672,8 +743,10 @@ public:
 		POPUP_LANGUAGE,
 		POPUP_RENAME_DEMO,
 		POPUP_RENDER_DEMO,
+		POPUP_RENDER_DONE,
 		POPUP_PASSWORD,
 		POPUP_QUIT,
+		POPUP_RESTART,
 		POPUP_WARNING,
 
 		// demo player states
@@ -682,7 +755,7 @@ public:
 	};
 
 private:
-	static int GhostlistFetchCallback(const char *pName, int IsDir, int StorageType, void *pUser);
+	static int GhostlistFetchCallback(const CFsFileInfo *pInfo, int IsDir, int StorageType, void *pUser);
 	void SetMenuPage(int NewPage);
 	void RefreshBrowserTab(int UiPage);
 

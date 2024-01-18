@@ -43,9 +43,6 @@
 %s wins!
 == %s gewinnt!
 
--Page %d-
-== -Seite %d-
-
 Abort
 == Abbrechen
 
@@ -120,9 +117,6 @@ Delete
 
 Delete demo
 == Aufnahme löschen
-
-Demo details
-== Aufnahmedetails:
 
 Demofile: %s
 == Aufnahmedatei: %s
@@ -280,9 +274,6 @@ No servers match your filter criteria
 Ok
 == OK
 
-Open
-== Öffnen
-
 Parent Folder
 == Übergeordneter Ordner
 
@@ -297,10 +288,6 @@ Ping
 
 Pistol
 == Pistole
-
-[Demo browser]
-Play
-== Abspielen
 
 Play background music
 == Hintergrundmusik abspielen
@@ -335,9 +322,6 @@ Red team
 Red team wins!
 == Rotes Team gewinnt!
 
-Refresh
-== Aktualisieren
-
 Remote console
 == Remote-Konsole
 
@@ -346,9 +330,6 @@ Remove
 
 Remove friend
 == Freund entfernen
-
-Rename
-== Umbenennen
 
 Rename demo
 == Aufnahme umbenennen
@@ -452,9 +433,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == Der Server läuft nicht mit Standardeinstellungen.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Im Editor ist noch eine ungespeicherte Karte. Vielleicht möchtest du sie speichern.
-
 Time limit
 == Zeitlimit
 
@@ -539,20 +517,8 @@ FSAA samples
 Sound volume
 == Lautstärke
 
-Created:
-== Erstellt:
-
 Max Screenshots
 == Maximale Anzahl an Bildschirmfotos
-
-Length:
-== Länge:
-
-Netversion:
-== Netzwerkversion:
-
-Map:
-== Karte:
 
 Hue
 == Farb.
@@ -563,17 +529,8 @@ Record demo
 Your skin
 == Dein Skin
 
-Size:
-== Größe:
-
 Reset to defaults
 == Standardeinstellung
-
-Quit anyway?
-== Trotzdem beenden?
-
-Version:
-== Version:
 
 Round
 == Runde
@@ -584,9 +541,6 @@ Lht.
 UI Color
 == Menüfarbe
 
-Crc:
-== Prüfsumme:
-
 Alpha
 == Alpha
 
@@ -596,14 +550,8 @@ LAN
 Name plates size
 == Größe der Spielernamen
 
-Type:
-== Typ:
-
 Ratio
 == Verhältnis
-
-Dummy settings
-== Dummy-Einstellungen
 
 AntiPing
 == Anti-Ping
@@ -772,9 +720,6 @@ Grabs
 
 Automatically take game over screenshot
 == Automatisches Bildschirmfoto am Spielende
-
-Please use a different name
-== Bitte anderen Namen wählen
 
 Gameplay
 == Gameplay
@@ -968,9 +913,6 @@ Enable replays
 Toggle dummy
 == Dummy wechseln
 
-Markers:
-== Markierungen:
-
 Converse
 == Unterhalten
 
@@ -1030,9 +972,6 @@ Kill
 
 Please enter your nickname below.
 == Bitte gib deinen Spitznamen unten ein.
-
-Render
-== Rendern
 
 It's recommended that you check the settings to adjust them to your liking before joining a server.
 == Es wird empfohlen die Einstellungen nach deinem Geschmack anzupassen bevor du einem Server beitrittst.
@@ -1140,9 +1079,6 @@ Assets directory
 https://wiki.ddnet.org/
 == https://wiki.ddnet.org/wiki/Main_Page/de
 
-Saving ddnet-settings.cfg failed
-== ddnet-settings.cfg zu speichern ist fehlgeschlagen
-
 Use current map as background
 == Aktuelle Karte als Hintergrund benutzen
 
@@ -1193,12 +1129,6 @@ Preview
 
 Background
 == Hintergrund
-
-Entities Background color
-== Entities-Hintergrundfarbe
-
-Regular Background Color
-== Normale Hintergrundfarbe
 
 Chat command
 == Chat-Befehl
@@ -1257,9 +1187,6 @@ A Tee
 Are you sure that you want to disconnect and switch to a different server?
 == Bist du sicher, dass du die Verbindung trennen und zu einem anderen Server wechseln möchtest?
 
-Kill Messages
-== Kill-Nachrichten
-
 Show local player's key presses
 == Tastendrücke des eigenen Spielers anzeigen
 
@@ -1304,9 +1231,6 @@ Tutorial
 
 Can't find a Tutorial server
 == Kein Tutorial-Server wurde gefunden
-
-Toggle to edit your dummy settings
-== Umschalten, um Dummy-Einstellungen zu bearbeiten
 
 Choose default eyes when joining a server
 == Standard-Augen beim Betreten eines Servers auswählen
@@ -1765,3 +1689,127 @@ Go forward the specified duration
 
 Render cut to video
 == Schnitt zu Video rendern
+
+Error playing demo
+== Fehler beim Abspielen der Demo
+
+Some map images could not be loaded. Check the local console for details.
+== Einige Karten-Bilder konnten nicht geladen werden. Prüf die lokale Konsole für Details.
+
+Some map sounds could not be loaded. Check the local console for details.
+== Einige Karten-Töne konnten nicht geladen werden. Prüf die lokale Konsole für Details.
+
+Loading menu themes
+== Menü-Themes laden
+
+Render complete
+== Fertig gerendert
+
+Videos directory
+== Video-Ordner
+
+Video was saved to '%s'
+== Video wurde gespeichert als '%s'
+
+No demo selected
+== Keine Demo ausgewählt
+
+Created
+== Erstellt
+
+Netversion
+== Netz-Version
+
+[Demo details]
+map not included
+== Karte nicht inbegriffen
+
+Ghosts directory
+== Geister-Ordner
+
+Activate all
+== Alle aktivieren
+
+Deactivate all
+== Alle deaktivieren
+
+Enable ghost
+== Geist aktivieren
+
+Only save improvements
+== Nur Verbesserungen speichern
+
+Regular background color
+== Normale Hintergrundfarbe
+
+Entities background color
+== Entities-Hintergrundfarbe
+
+Saving settings to '%s' failed
+== Einstellungen als '%s' speichern fehlgeschlagen
+
+Searching
+== Suche
+
+Enter Username
+== Benutzername eingeben
+
+Enter Password
+== Passwort eingeben
+
+NOT CONNECTED
+== NICHT VERBUNDEN
+
+Match %d of %d
+== Treffer %d von %d
+
+No results
+== Keine Ergebnisse
+
+Lines %d - %d (%s)
+== Zeilen %d - %d (%s)
+
+Locked
+== Gesperrt
+
+Following
+== Folgen
+
+Press a key…
+== Drück eine Taste…
+
+Are you sure that you want to restart?
+== Bist du sicher dass du neustarten willst?
+
+There's an unsaved map in the editor, you might want to save it.
+== Es gibt eine ungespeicherte Karte im Editor, du könntest sie speichern wollen.
+
+Continue anyway?
+== Trotzdem fortfahren?
+
+Communities
+== Gemeinschaften
+
+Please use a different filename
+== Bitte nutz einen anderen Dateinamen
+
+Info Messages
+== Info-Nachrichten
+
+Show local time always
+== Immer lokale Zeit anzeigen
+
+Chat font size
+== Chat-Schriftgröße
+
+Chat width
+== Chat-Breite
+
+Authed name color in scoreboard
+== Authorisierte Namensfarbe in der Punktetafel
+
+Same clan color in scoreboard
+== Gleicher-Clan-Farbe in der Punktetafel
+
+Show finish messages
+== Siegnachrichten anzeigen

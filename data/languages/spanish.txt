@@ -44,9 +44,6 @@
 %s wins!
 == ¡%s gana!
 
--Page %d-
-== -Página %d-
-
 Abort
 == Cancelar
 
@@ -121,9 +118,6 @@ Delete
 
 Delete demo
 == Borrar demo
-
-Demo details
-== Detalles de la demo
 
 Demofile: %s
 == Archivo: %s
@@ -281,11 +275,8 @@ No servers match your filter criteria
 Ok
 == Aceptar
 
-Open
-== Abrir
-
 Parent Folder
-== Directorio padre
+== Carpeta principal
 
 Password
 == Contraseña
@@ -298,10 +289,6 @@ Ping
 
 Pistol
 == Pistola
-
-[Demo browser]
-Play
-== Reproducir
 
 Play background music
 == Reproducir música de fondo
@@ -336,9 +323,6 @@ Red team
 Red team wins!
 == ¡El equipo rojo gana!
 
-Refresh
-== Actualizar
-
 Remote console
 == Consola remota
 
@@ -347,9 +331,6 @@ Remove
 
 Remove friend
 == Eliminar amigo
-
-Rename
-== Renombrar
 
 Rename demo
 == Renombrar demo
@@ -441,9 +422,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == El servidor está ejecutando una configuración no estándar en un tipo de juego puro.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Tienes un mapa sin guardar en el editor, quizá quieras guardarlo antes de salir.
-
 Time limit
 == Tiempo límite
 
@@ -527,23 +505,11 @@ FSAA samples
 Sound volume
 == Volumen del sonido
 
-Created:
-== Creado:
-
 Max Screenshots
 == Número máximo de capturas
 
-Length:
-== Longitud:
-
 Laser
 == Láser
-
-Netversion:
-== Versión Net:
-
-Map:
-== Mapa:
 
 Hue
 == Matiz
@@ -554,17 +520,8 @@ Record demo
 Your skin
 == Tu skin
 
-Size:
-== Tamaño:
-
 Reset to defaults
 == Resetear por defecto
-
-Quit anyway?
-== ¿Salir de todos modos?
-
-Version:
-== Versión:
 
 Round
 == Ronda
@@ -575,9 +532,6 @@ Lht.
 UI Color
 == Color de menú
 
-Crc:
-== Crc:
-
 Alpha
 == Transp.
 
@@ -586,9 +540,6 @@ LAN
 
 Name plates size
 == Tamaño de la fuente de los apodos
-
-Type:
-== Tipo:
 
 Successfully saved the replay!
 == ¡Repetición guardada con éxito!
@@ -695,14 +646,8 @@ Update now
 Restart
 == Reiniciar
 
-Please use a different name
-== Por favor usa un nombre diferente
-
 Remove chat
 == Eliminar chat
-
-Markers:
-== Marcadores:
 
 %.2f MiB
 == %.2f MiB
@@ -717,16 +662,13 @@ Markers
 == Marcadores
 
 Length
-== Longitud
+== Duración
 
 Date
 == Fecha
 
 Fetch Info
 == Obtener info.
-
-Render
-== Renderizar
 
 Connecting dummy
 == Conectando dummy
@@ -766,9 +708,6 @@ Automatically create statboard csv
 
 Max CSVs
 == CSV máx
-
-Dummy settings
-== Config. del Dummy
 
 Vanilla skins only
 == Solo skins Vanilla
@@ -915,7 +854,7 @@ Save the best demo of each race
 == Guardar la mejor demo de cada carrera
 
 Default length
-== Longitud predeterminada
+== Duración predeterminada
 
 Enable replays
 == Habilitar repeticiones
@@ -1021,9 +960,6 @@ Grabs
 
 9+ new mentions
 == 9+ nuevas menciones
-
-Saving ddnet-settings.cfg failed
-== Error al guardar ddnet-settings.cfg
 
 Warning
 == Advertencia
@@ -1203,12 +1139,6 @@ Preview
 Background
 == Fondo
 
-Entities Background color
-== Color de fondo de entidades
-
-Regular Background Color
-== Color de fondo regular
-
 Discord
 == Discord
 
@@ -1217,9 +1147,6 @@ https://ddnet.org/discord
 
 Are you sure that you want to disconnect and switch to a different server?
 == ¿Seguro que quieres desconectarte y cambiar de servidor?
-
-Kill Messages
-== Mensajes de Muerte
 
 Show local player's key presses
 == Mostrar las teclas presionadas por el jugador local
@@ -1265,9 +1192,6 @@ Tutorial
 
 Can't find a Tutorial server
 == No se pudo encontrar un servidor Tutorial
-
-Toggle to edit your dummy settings
-== Actívalo para editar la configuración de tu dummy
 
 Choose default eyes when joining a server
 == Escoge los ojos predeterminados al unirte a un servidor
@@ -1768,3 +1692,127 @@ Go forward the specified duration
 
 Render cut to video
 == Renderizar corte a vídeo
+
+Error playing demo
+== Error al reproducir la demo
+
+Some map images could not be loaded. Check the local console for details.
+== Algunas imágenes de mapas no se pudieron cargar. Revisa la consola local para más detalles.
+
+Some map sounds could not be loaded. Check the local console for details.
+== Algunos sonidos de mapas no se pudieron cargar. Revisa la consola local para más detalles.
+
+Loading menu themes
+== Cargando temas del menú
+
+Render complete
+== Renderización completada
+
+Videos directory
+== Carpeta de videos
+
+Video was saved to '%s'
+== El video guardó en '%s'
+
+No demo selected
+== Ninguna demo seleccionada
+
+Created
+== Creado
+
+Netversion
+== Netversion
+
+[Demo details]
+map not included
+== mapa no incluido
+
+Ghosts directory
+== Carpeta de Fantasmas
+
+Activate all
+== Activar todo
+
+Deactivate all
+== Desactivar todo
+
+Enable ghost
+== Habilitar fantasma
+
+Only save improvements
+== Solo guardar las mejoras
+
+Regular background color
+== Color del fondo normal
+
+Entities background color
+== Color del fondo de entidades
+
+Saving settings to '%s' failed
+== 
+
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
+Press a key…
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
+Communities
+== 
+
+Please use a different filename
+== 
+
+Info Messages
+== 
+
+Show local time always
+== 
+
+Chat font size
+== 
+
+Chat width
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
+Show finish messages
+== 

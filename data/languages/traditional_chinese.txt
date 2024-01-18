@@ -24,6 +24,8 @@
 # 2023-05-25 cheeser0613
 # 2023-07-20 By
 # 2023-08-11 By
+# 2023-11-25 By
+# 2024-01-15 By
 ##### /authors #####
 
 ##### translated strings #####
@@ -46,9 +48,6 @@
 %s wins!
 == %s勝利！
 
--Page %d-
-== -第%d頁-
-
 Abort
 == 取消
 
@@ -65,7 +64,7 @@ All
 == 全部
 
 Are you sure that you want to quit?
-== 你確定要退出嗎？
+== 確定要退出嗎？
 
 Automatically record demos
 == 自動錄製回放
@@ -123,9 +122,6 @@ Delete
 
 Delete demo
 == 刪除回放
-
-Demo details
-== 回放詳細資訊
 
 Demofile: %s
 == 回放檔案：%s
@@ -304,9 +300,6 @@ No servers match your filter criteria
 Ok
 == 確定
 
-Open
-== 開啟
-
 Parent Folder
 == 上級目錄
 
@@ -321,10 +314,6 @@ Ping
 
 Pistol
 == 手槍
-
-[Demo browser]
-Play
-== 播放
 
 Play background music
 == 播放背景音樂
@@ -362,9 +351,6 @@ Red team
 Red team wins!
 == 紅隊勝利！
 
-Refresh
-== 重新整理
-
 Remote console
 == 遠端控制檯
 
@@ -373,9 +359,6 @@ Remove
 
 Remove friend
 == 刪除好友
-
-Rename
-== 重新命名
 
 Rename demo
 == 重新命名回放
@@ -476,9 +459,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == 此伺服器執行著經過調整的非標準遊戲模式。
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== 編輯器中的地圖尚未儲存，建議你在退出遊戲之前返回編輯器進行儲存。
-
 Time limit
 == 規定時限
 
@@ -572,26 +552,11 @@ Sound volume
 Map sound volume
 == 地圖音效音量
 
-Created:
-== 建立時間：
-
 Max Screenshots
 == 最大截圖數
 
-Dummy settings
-== 分身設定
-
-Length:
-== 長度：
-
 Laser
 == 鐳射
-
-Netversion:
-== 通訊版本：
-
-Map:
-== 地圖：
 
 Hue
 == 色調
@@ -602,17 +567,8 @@ Record demo
 Your skin
 == 你的外觀
 
-Size:
-== 大小：
-
 Reset to defaults
 == 恢復預設設定
-
-Quit anyway?
-== 無論如何都要退出嗎？
-
-Version:
-== 版本：
 
 Round
 == 回合
@@ -626,9 +582,6 @@ Automatically take statboard screenshot
 UI Color
 == 介面顏色
 
-Crc:
-== Crc:
-
 Alpha
 == 透明度
 
@@ -637,9 +590,6 @@ LAN
 
 Name plates size
 == 暱稱大小
-
-Type:
-== 型別：
 
 Use DDRace Scoreboard
 == 使用 DDRace 計分板
@@ -738,7 +688,7 @@ Check now
 == 檢查更新
 
 Loading DDNet Client
-== 載入 DDNet 客戶端中...
+== 正在載入 DDNet 客戶端
 
 Browser
 == 瀏覽
@@ -777,9 +727,6 @@ DDNet
 
 Deaths
 == 死亡數
-
-Please use a different name
-== 請換一個不同的檔名
 
 Restart
 == 重新開始
@@ -917,9 +864,6 @@ Markers
 Filter connecting players
 == 過濾正在連線的玩家
 
-Markers:
-== 標記
-
 Zoom in
 == 視距放大
 
@@ -997,9 +941,6 @@ It's recommended that you check the settings to adjust them to your liking befor
 
 Please enter your nickname below.
 == 請輸入你的暱稱。
-
-Render
-== 渲染
 
 Server best:
 == 伺服器最佳
@@ -1079,9 +1020,6 @@ Auto
 
 Replay
 == 回放
-
-Saving ddnet-settings.cfg failed
-== 配置檔案 ddnet-settings.cfg 儲存失敗
 
 Debug mode enabled. Press Ctrl+Shift+D to disable debug mode.
 == 偵錯模式已啟用。按 Ctrl+Shift+D 禁用偵錯模式。
@@ -1209,12 +1147,6 @@ Preview
 Background
 == 背景
 
-Entities Background color
-== 實體層背景顏色
-
-Regular Background Color
-== 背景層背景顏色
-
 Discord
 == Discord
 
@@ -1222,10 +1154,7 @@ https://ddnet.org/discord
 == https://ddnet.org/discord
 
 Are you sure that you want to disconnect and switch to a different server?
-== 你確定要中斷此伺服器并嘗試加入其他伺服器嗎？
-
-Kill Messages
-== 擊殺訊息
+== 確定要中斷此伺服器并嘗試加入其他伺服器嗎？
 
 Show local player's key presses
 == 顯示周圍玩家的按鍵輸入
@@ -1268,9 +1197,6 @@ auto
 
 Tutorial
 == 教學
-
-Toggle to edit your dummy settings
-== 編輯分身設定
 
 Choose default eyes when joining a server
 == 加入伺服器時的預設表情
@@ -1401,7 +1327,7 @@ Connected
 == 連接成功
 
 Loading map file from storage
-== 正在從硬盤中加載地圖檔案
+== 正在從硬盤中載入地圖檔案
 
 Why are you slowmo replaying to read this?
 == 所以你爲什麽要慢速回放來看這個？
@@ -1428,16 +1354,16 @@ Requesting to join the game
 == 正在請求加入游戲
 
 Loading menu images
-== 正在加載主菜單圖片
+== 正在載入主菜單圖片
 
 Loading demo files
-== 正在加載回放檔案
+== 正在載入回放檔案
 
 Loading ghost files
-== 正在加載影子檔案
+== 正在載入影子檔案
 
 Loading skin files
-== 正在加載外觀檔案
+== 正在載入外觀檔案
 
 Appearance
 == 游戲界面
@@ -1491,13 +1417,13 @@ A Tee
 == 其他玩家
 
 Loading assets
-== 正在加載材質
+== 正在載入材質
 
 Loading race demo files
-== 正在加載回放檔案
+== 正在載入回放檔案
 
 Loading sound files
-== 正在加載聲音檔案
+== 正在載入聲音檔案
 
 Play the current demo
 == 播放回放
@@ -1578,7 +1504,7 @@ Go forward one marker
 == 跳至下一個標記
 
 Are you sure that you want to delete the demo '%s'?
-== 你確定要刪除回放檔案 "%s" ？
+== 確定要刪除回放檔案 "%s" ？
 
 Unable to delete the demo '%s'
 == 無法刪除回放檔案 "%s"
@@ -1587,7 +1513,7 @@ Reset controls
 == 恢復預設設定
 
 Are you sure that you want to reset the controls to their defaults?
-== 你確定要將當前的控制恢復至預設設定
+== 確定要將當前的控制恢復至預設設定？
 
 [Graphics error]
 Failed during initialization. Try to change gfx_backend to OpenGL or Vulkan in settings_ddnet.cfg in the config directory and try again.
@@ -1693,22 +1619,22 @@ No server selected
 == 未選擇伺服器
 
 Mark the beginning of a cut (right click to reset)
-== 標記裁剪起點 (右鍵重置)
+== 標記裁切起點 (右鍵重置)
 
 Mark the end of a cut (right click to reset)
-== 標記裁剪終點 (右鍵重置)
+== 標記裁切終點 (右鍵重置)
 
 Close the demo player
 == 關閉回放
 
 Export demo cut
-== 另存裁剪部分
+== 另存裁切部分
 
 Cut interval
-== 裁剪區間
+== 裁切區間
 
 Cut length
-== 裁剪長度
+== 裁切長度
 
 Axis
 == 軸
@@ -1744,7 +1670,7 @@ Folder Link
 == 資料夾連結
 
 Are you sure that you want to delete the folder '%s'?
-== 你確定要刪除資料夾 "%s" ？
+== 確定要刪除資料夾 "%s" ？
 
 Delete folder
 == 刪除資料夾
@@ -1755,22 +1681,146 @@ Unable to delete the folder '%s'. Make sure it's empty first.
 Moved ingame
 == 遊戲內移動
 
+Error playing demo
+== 回放播放錯誤
+
+Some map images could not be loaded. Check the local console for details.
+== 未能載入某些地圖圖片。檢查本機控制台以取得詳情。
+
+Some map sounds could not be loaded. Check the local console for details.
+== 未能載入某些地圖音效。檢查本機控制台以取得詳情。
+
+Loading menu themes
+== 正在載入主選單主題
+
+Render complete
+== 渲染完畢
+
+Videos directory
+== 影片目錄
+
+Video was saved to '%s'
+== 影片保存至 "%s"
+
 Go back the specified duration
-== 
+== 倒轉指定時長
 
 [Demo player duration]
 %d min.
-== 
+== %d 分
 
 [Demo player duration]
 %d sec.
-== 
+== %d 秒
 
 Change the skip duration
-== 
+== 變更指定時長
 
 Go forward the specified duration
-== 
+== 快轉指定時長
 
 Render cut to video
-== 
+== 渲染裁切部分
+
+No demo selected
+== 未選擇回放
+
+Created
+== 建立日期
+
+Netversion
+== Netversion
+
+[Demo details]
+map not included
+== 未包含地圖
+
+Ghosts directory
+== 影子目錄
+
+Activate all
+== 全部啟用
+
+Deactivate all
+== 全部停用
+
+Enable ghost
+== 啟用影子
+
+Only save improvements
+== 只保存更佳記錄
+
+Regular background color
+== 原圖層背景顏色
+
+Entities background color
+== 實體層背景顏色
+
+Saving settings to '%s' failed
+== 無法儲存設定至 "%s"
+
+Searching
+== 正在搜尋
+
+Enter Username
+== 輸入用戶名稱
+
+Enter Password
+== 輸入密碼
+
+NOT CONNECTED
+== 連線未成功
+
+Match %d of %d
+== 結果 %d / 總共 %d 則
+
+No results
+== 無結果
+
+Lines %d - %d (%s)
+== 行 %d - %d (%s)
+
+Locked
+== 鎖定
+
+Following
+== 當前
+
+Press a key…
+== 按任意鍵...
+
+Are you sure that you want to restart?
+== 確定要重新開始？
+
+There's an unsaved map in the editor, you might want to save it.
+== 編輯器中有尚未儲存的地圖，你或需要儲存
+
+Continue anyway?
+== 仍要退出？
+
+Communities
+== 社區
+
+Please use a different filename
+== 請使用不同的檔案名
+
+Info Messages
+== 訊息
+
+Show local time always
+== 始終顯示本地時間
+
+Chat font size
+== 聊天字體大小
+
+Chat width
+== 聊天框寬度
+
+Authed name color in scoreboard
+== 管理權限人員名字計分板顯示顔色
+
+Same clan color in scoreboard
+== 相同戰隊計分板顯示顔色
+
+Show finish messages
+== 顯示完成訊息

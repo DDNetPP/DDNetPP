@@ -91,16 +91,13 @@ void CPlayer::Reset()
 
 	if(g_Config.m_Events)
 	{
-		time_t RawTime;
-		struct tm *pTimeInfo;
-		time(&RawTime);
-		pTimeInfo = localtime(&RawTime);
-		if((pTimeInfo->tm_mon == 11 && pTimeInfo->tm_mday == 31) || (pTimeInfo->tm_mon == 0 && pTimeInfo->tm_mday == 1))
-		{ // New Year
+		const ETimeSeason Season = time_season();
+		if(Season == SEASON_NEWYEAR)
+		{
 			m_DefEmote = EMOTE_HAPPY;
 		}
-		else if((pTimeInfo->tm_mon == 9 && pTimeInfo->tm_mday == 31) || (pTimeInfo->tm_mon == 10 && pTimeInfo->tm_mday == 1))
-		{ // Halloween
+		else if(Season == SEASON_HALLOWEEN)
+		{
 			m_DefEmote = EMOTE_ANGRY;
 			m_Halloween = true;
 		}
@@ -165,7 +162,7 @@ static int PlayerFlags_SixToSeven(int Flags)
 
 void CPlayer::Tick()
 {
-	if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult->m_Completed)
+	if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult->m_Completed && m_SentSnaps >= 3)
 	{
 		ProcessScoreResult(*m_ScoreQueryResult);
 		m_ScoreQueryResult = nullptr;
@@ -176,14 +173,7 @@ void CPlayer::Tick()
 		m_ScoreFinishResult = nullptr;
 	}
 
-	bool ClientIngame = Server()->ClientIngame(m_ClientID);
-#ifdef CONF_DEBUG
-	if(g_Config.m_DbgDummies && m_ClientID >= MAX_CLIENTS - g_Config.m_DbgDummies)
-	{
-		ClientIngame = true;
-	}
-#endif
-	if(!ClientIngame)
+	if(!Server()->ClientIngame(m_ClientID))
 		return;
 
 	if(m_ChatScore > 0)
@@ -224,7 +214,7 @@ void CPlayer::Tick()
 
 	if(Server()->GetNetErrorString(m_ClientID)[0])
 	{
-		m_Afk = true;
+		SetInitialAfk(true);
 
 		char aBuf[512];
 		str_format(aBuf, sizeof(aBuf), "'%s' would have timed out, but can use timeout protection now", Server()->ClientName(m_ClientID));
@@ -295,6 +285,9 @@ void CPlayer::PostTick()
 		return;
 
 	// update latency value
+	if(m_PlayerFlags & PLAYERFLAG_IN_MENU)
+		m_aCurLatency[m_ClientID] = GameServer()->m_apPlayers[m_ClientID]->m_Latency.m_Min;
+
 	if(m_PlayerFlags & PLAYERFLAG_SCOREBOARD)
 	{
 		for(int i = 0; i < MAX_CLIENTS; ++i)
@@ -311,11 +304,8 @@ void CPlayer::PostTick()
 
 void CPlayer::PostPostTick()
 {
-#ifdef CONF_DEBUG
-	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS - g_Config.m_DbgDummies)
-#endif
-		if(!Server()->ClientIngame(m_ClientID))
-			return;
+	if(!Server()->ClientIngame(m_ClientID))
+		return;
 
 	if(!GameServer()->m_World.m_Paused && !m_pCharacter && m_Spawning && m_WeakHookSpawn)
 		TryRespawn();
@@ -323,11 +313,8 @@ void CPlayer::PostPostTick()
 
 void CPlayer::Snap(int SnappingClient)
 {
-#ifdef CONF_DEBUG
-	if(!g_Config.m_DbgDummies || m_ClientID < MAX_CLIENTS - g_Config.m_DbgDummies)
-#endif
-		if(!Server()->ClientIngame(m_ClientID))
-			return;
+	if(!Server()->ClientIngame(m_ClientID))
+		return;
 
 	int id = m_ClientID;
 	if(!Server()->Translate(id, SnappingClient))
@@ -427,7 +414,7 @@ void CPlayer::Snap(int SnappingClient)
 			pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
 
 		// Times are in milliseconds for 0.7
-		pPlayerInfo->m_Score = Score == -9999 ? -1 : -Score * 1000;
+		pPlayerInfo->m_Score = m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientID)->m_BestTime * 1000 : -1;
 		pPlayerInfo->m_Latency = Latency;
 		DDPPSnapChangePlayerInfo7(SnappingClient, pSnapping, pPlayerInfo);
 	}
@@ -461,7 +448,7 @@ void CPlayer::Snap(int SnappingClient)
 	if(!pDDNetPlayer)
 		return;
 
-	pDDNetPlayer->m_AuthLevel = Server()->GetAuthedState(id);
+	pDDNetPlayer->m_AuthLevel = Server()->GetAuthedState(m_ClientID);
 	pDDNetPlayer->m_Flags = 0;
 	if(m_Afk && !m_IsDummy)
 		pDDNetPlayer->m_Flags |= EXPLAYERFLAG_AFK;
@@ -500,6 +487,7 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap()
 {
+	m_SentSnaps++;
 	if(GetClientVersion() >= VERSION_DDNET_OLD)
 		return;
 
@@ -614,6 +602,13 @@ CCharacter *CPlayer::GetCharacter()
 	return 0;
 }
 
+const CCharacter *CPlayer::GetCharacter() const
+{
+	if(m_pCharacter && m_pCharacter->IsAlive())
+		return m_pCharacter;
+	return 0;
+}
+
 void CPlayer::KillCharacter(int Weapon, bool SendKillMsg)
 {
 	if(m_pCharacter)
@@ -668,6 +663,8 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 				pPlayer->m_SpectatorID = SPEC_FREEVIEW;
 		}
 	}
+
+	Server()->ExpireServerInfo();
 }
 
 bool CPlayer::SetTimerType(int TimerType)
@@ -741,18 +738,27 @@ void CPlayer::UpdatePlaytime()
 
 void CPlayer::AfkTimer()
 {
-	m_Afk = g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime;
+	SetAfk(g_Config.m_SvMaxAfkTime != 0 && m_LastPlaytime < time_get() - time_freq() * g_Config.m_SvMaxAfkTime);
 }
 
 void CPlayer::SetAfk(bool Afk)
 {
+	if(m_Afk != Afk)
+	{
+		Server()->ExpireServerInfo();
+		m_Afk = Afk;
+	}
+}
+
+void CPlayer::SetInitialAfk(bool Afk)
+{
 	if(g_Config.m_SvMaxAfkTime == 0)
 	{
-		m_Afk = !m_IsDummy;
+		SetAfk(!m_IsDummy);
 		return;
 	}
 
-	m_Afk = Afk;
+	SetAfk(Afk);
 
 	// Ensure that the AFK state is not reset again automatically
 	if(Afk)
@@ -865,12 +871,12 @@ int CPlayer::ForcePause(int Time)
 	return Pause(PAUSE_SPEC, true);
 }
 
-int CPlayer::IsPaused()
+int CPlayer::IsPaused() const
 {
 	return m_ForcePauseTime ? m_ForcePauseTime : -1 * m_Paused;
 }
 
-bool CPlayer::IsPlaying()
+bool CPlayer::IsPlaying() const
 {
 	return m_pCharacter && m_pCharacter->IsAlive();
 }

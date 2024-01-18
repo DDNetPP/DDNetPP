@@ -33,6 +33,8 @@ public:
 	};
 
 	typedef std::function<void(const char *pLine)> FClipboardLineCallback;
+	typedef std::function<const char *(char *pCurrentText, size_t NumChars)> FDisplayTextCallback;
+	typedef std::function<bool()> FCalculateOffsetCallback;
 
 private:
 	static IClient *ms_pClient;
@@ -72,7 +74,10 @@ private:
 	bool m_Hidden;
 	const char *m_pEmptyText;
 	FClipboardLineCallback m_pfnClipboardLineCallback;
+	FDisplayTextCallback m_pfnDisplayTextCallback;
+	FCalculateOffsetCallback m_pfnCalculateOffsetCallback;
 	bool m_WasChanged;
+	bool m_WasCursorChanged;
 	bool m_WasRendered;
 
 	char m_ClearButtonId;
@@ -147,8 +152,8 @@ public:
 		SetSelection(0, GetLength());
 	}
 
-	size_t OffsetFromActualToDisplay(size_t ActualOffset) const;
-	size_t OffsetFromDisplayToActual(size_t DisplayOffset) const;
+	size_t OffsetFromActualToDisplay(size_t ActualOffset);
+	size_t OffsetFromDisplayToActual(size_t DisplayOffset);
 
 	// used either for vertical or horizontal scrolling
 	float GetScrollOffset() const { return m_ScrollOffset; }
@@ -165,6 +170,8 @@ public:
 	void SetEmptyText(const char *pText) { m_pEmptyText = pText; }
 
 	void SetClipboardLineCallback(FClipboardLineCallback pfnClipboardLineCallback) { m_pfnClipboardLineCallback = pfnClipboardLineCallback; }
+	void SetDisplayTextCallback(FDisplayTextCallback pfnDisplayTextCallback) { m_pfnDisplayTextCallback = pfnDisplayTextCallback; }
+	void SetCalculateOffsetCallback(FCalculateOffsetCallback pfnCalculateOffsetCallback) { m_pfnCalculateOffsetCallback = pfnCalculateOffsetCallback; }
 
 	bool ProcessInput(const IInput::CEvent &Event);
 	bool WasChanged()
@@ -173,15 +180,21 @@ public:
 		m_WasChanged = false;
 		return Changed;
 	}
+	bool WasCursorChanged()
+	{
+		const bool Changed = m_WasCursorChanged;
+		m_WasCursorChanged = false;
+		return Changed;
+	}
 
-	STextBoundingBox Render(const CUIRect *pRect, float FontSize, int Align, bool Changed, float LineWidth);
+	STextBoundingBox Render(const CUIRect *pRect, float FontSize, int Align, bool Changed, float LineWidth, float LineSpacing);
 	SMouseSelection *GetMouseSelection() { return &m_MouseSelection; }
 
 	const void *GetClearButtonId() const { return &m_ClearButtonId; }
 
 	bool IsActive() const { return GetActiveInput() == this; }
 	void Activate(EInputPriority Priority);
-	void Deactivate();
+	void Deactivate() const;
 };
 
 template<size_t MaxSize, size_t MaxChars = MaxSize>

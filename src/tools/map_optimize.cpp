@@ -115,11 +115,11 @@ int main(int argc, const char **argv)
 		return -1;
 	}
 
-	int aImageFlags[64] = {
+	int aImageFlags[MAX_MAPIMAGES] = {
 		0,
 	};
 
-	bool aaImageTiles[64][256]{
+	bool aaImageTiles[MAX_MAPIMAGES][256]{
 		{
 			false,
 		},
@@ -139,14 +139,15 @@ int main(int argc, const char **argv)
 	for(int Index = 0, i = 0; Index < Reader.NumItems(); Index++)
 	{
 		int Type, ID;
-		void *pPtr = Reader.GetItem(Index, &Type, &ID);
-		int Size = Reader.GetItemSize(Index);
+		CUuid Uuid;
+		void *pPtr = Reader.GetItem(Index, &Type, &ID, &Uuid);
 
-		// filter ITEMTYPE_EX items, they will be automatically added again
+		// Filter ITEMTYPE_EX items, they will be automatically added again.
 		if(Type == ITEMTYPE_EX)
 		{
 			continue;
 		}
+
 		// for all layers, check if it uses a image and set the corresponding flag
 		if(Type == MAPITEMTYPE_LAYER)
 		{
@@ -154,7 +155,7 @@ int main(int argc, const char **argv)
 			if(pLayer->m_Type == LAYERTYPE_TILES)
 			{
 				CMapItemLayerTilemap *pTLayer = (CMapItemLayerTilemap *)pLayer;
-				if(pTLayer->m_Image >= 0 && pTLayer->m_Image < 64 && pTLayer->m_Flags == 0)
+				if(pTLayer->m_Image >= 0 && pTLayer->m_Image < (int)MAX_MAPIMAGES && pTLayer->m_Flags == 0)
 				{
 					aImageFlags[pTLayer->m_Image] |= 1;
 					// check tiles that are used in this image
@@ -180,7 +181,7 @@ int main(int argc, const char **argv)
 			else if(pLayer->m_Type == LAYERTYPE_QUADS)
 			{
 				CMapItemLayerQuads *pQLayer = (CMapItemLayerQuads *)pLayer;
-				if(pQLayer->m_Image >= 0 && pQLayer->m_Image < 64)
+				if(pQLayer->m_Image >= 0 && pQLayer->m_Image < (int)MAX_MAPIMAGES)
 				{
 					aImageFlags[pQLayer->m_Image] |= 2;
 				}
@@ -203,7 +204,8 @@ int main(int argc, const char **argv)
 			++i;
 		}
 
-		Writer.AddItem(Type, ID, Size, pPtr);
+		int Size = Reader.GetItemSize(Index);
+		Writer.AddItem(Type, ID, Size, pPtr, &Uuid);
 	}
 
 	// add all data
@@ -274,12 +276,12 @@ int main(int argc, const char **argv)
 							int ImgTileH = Height / 16;
 							int x = (i % 16) * ImgTileW;
 							int y = (i / 16) * ImgTileH;
-							DilateImageSub(pImgBuff, Width, Height, 4, x, y, ImgTileW, ImgTileH);
+							DilateImageSub(pImgBuff, Width, Height, x, y, ImgTileW, ImgTileH);
 						}
 					}
 					else
 					{
-						DilateImage(pImgBuff, Width, Height, 4);
+						DilateImage(pImgBuff, Width, Height);
 					}
 				}
 			}
@@ -306,7 +308,7 @@ int main(int argc, const char **argv)
 			}
 		}
 
-		Writer.AddData(Size, pPtr, Z_BEST_COMPRESSION);
+		Writer.AddData(Size, pPtr, CDataFileWriter::COMPRESSION_BEST);
 
 		if(DeletePtr)
 			free(pPtr);

@@ -23,7 +23,7 @@ int g_NewDataID = -1;
 int g_NewDataSize = 0;
 void *g_pNewData = nullptr;
 
-int LoadPNG(CImageInfo *pImg, const char *pFilename)
+bool LoadPNG(CImageInfo *pImg, const char *pFilename)
 {
 	IOHANDLE File = io_open(pFilename, IOFLAG_READ);
 	if(File)
@@ -48,28 +48,33 @@ int LoadPNG(CImageInfo *pImg, const char *pFilename)
 			{
 				pImg->m_pData = pImgBuffer;
 
-				if(ImageFormat == IMAGE_FORMAT_RGB) // ignore_convention
+				if(ImageFormat == IMAGE_FORMAT_RGB)
 					pImg->m_Format = CImageInfo::FORMAT_RGB;
-				else if(ImageFormat == IMAGE_FORMAT_RGBA) // ignore_convention
+				else if(ImageFormat == IMAGE_FORMAT_RGBA)
 					pImg->m_Format = CImageInfo::FORMAT_RGBA;
 				else
 				{
 					free(pImgBuffer);
-					return 0;
+					return false;
 				}
 			}
 		}
 		else
-			return 0;
+			return false;
 	}
 	else
-		return 0;
-	return 1;
+		return false;
+	return true;
 }
 
-void *ReplaceImageItem(CMapItemImage *pImgItem, const char *pImgName, const char *pImgFile, CMapItemImage *pNewImgItem)
+void *ReplaceImageItem(int Index, CMapItemImage *pImgItem, const char *pImgName, const char *pImgFile, CMapItemImage *pNewImgItem)
 {
-	char *pName = (char *)g_DataReader.GetData(pImgItem->m_ImageName);
+	const char *pName = g_DataReader.GetDataString(pImgItem->m_ImageName);
+	if(pName == nullptr || pName[0] == '\0')
+	{
+		dbg_msg("map_replace_image", "failed to load name of image %d", Index);
+		return pImgItem;
+	}
 
 	if(str_comp(pImgName, pName) != 0)
 		return pImgItem;
@@ -143,25 +148,28 @@ int main(int argc, const char **argv)
 	for(int Index = 0; Index < g_DataReader.NumItems(); Index++)
 	{
 		int Type, ID;
-		void *pItem = g_DataReader.GetItem(Index, &Type, &ID);
+		CUuid Uuid;
+		void *pItem = g_DataReader.GetItem(Index, &Type, &ID, &Uuid);
 
-		// filter ITEMTYPE_EX items, they will be automatically added again
+		// Filter ITEMTYPE_EX items, they will be automatically added again.
 		if(Type == ITEMTYPE_EX)
+		{
 			continue;
+		}
 
 		int Size = g_DataReader.GetItemSize(Index);
 
 		CMapItemImage NewImageItem;
 		if(Type == MAPITEMTYPE_IMAGE)
 		{
-			pItem = ReplaceImageItem((CMapItemImage *)pItem, pImageName, pImageFile, &NewImageItem);
+			pItem = ReplaceImageItem(Index, (CMapItemImage *)pItem, pImageName, pImageFile, &NewImageItem);
 			if(!pItem)
 				return -1;
 			Size = sizeof(CMapItemImage);
 			NewImageItem.m_Version = CMapItemImage::CURRENT_VERSION;
 		}
 
-		Writer.AddItem(Type, ID, Size, pItem);
+		Writer.AddItem(Type, ID, Size, pItem, &Uuid);
 	}
 
 	if(g_NewDataID == -1)

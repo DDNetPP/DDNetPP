@@ -1,6 +1,7 @@
 #ifndef ENGINE_CLIENT_GRAPHICS_THREADED_H
 #define ENGINE_CLIENT_GRAPHICS_THREADED_H
 
+#include <base/system.h>
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 
@@ -117,7 +118,6 @@ public:
 
 		CMD_RENDER_TILE_LAYER, // render a tilelayer
 		CMD_RENDER_BORDER_TILE, // render one tile multiple times
-		CMD_RENDER_BORDER_TILE_LINE, // render an amount of tiles multiple times
 		CMD_RENDER_QUAD_LAYER, // render a quad layer
 		CMD_RENDER_TEXT, // render text
 		CMD_RENDER_QUAD_CONTAINER, // render a quad buffer container
@@ -130,6 +130,7 @@ public:
 		// misc
 		CMD_MULTISAMPLING,
 		CMD_VSYNC,
+		CMD_TRY_SWAP_AND_READ_PIXEL,
 		CMD_TRY_SWAP_AND_SCREENSHOT,
 		CMD_UPDATE_VIEWPORT,
 
@@ -148,9 +149,7 @@ public:
 		TEXFLAG_NOMIPMAPS = 1,
 		TEXFLAG_TO_3D_TEXTURE = (1 << 3),
 		TEXFLAG_TO_2D_ARRAY_TEXTURE = (1 << 4),
-		TEXFLAG_TO_3D_TEXTURE_SINGLE_LAYER = (1 << 5),
-		TEXFLAG_TO_2D_ARRAY_TEXTURE_SINGLE_LAYER = (1 << 6),
-		TEXFLAG_NO_2D_TEXTURE = (1 << 7),
+		TEXFLAG_NO_2D_TEXTURE = (1 << 5),
 	};
 
 	enum
@@ -380,28 +379,12 @@ public:
 			SCommand(CMD_RENDER_BORDER_TILE) {}
 		SState m_State;
 		SColorf m_Color; // the color of the whole tilelayer -- already enveloped
-		char *m_pIndicesOffset; // you should use the command buffer data to allocate vertices for this command
-		unsigned int m_DrawNum;
+		char *m_pIndicesOffset;
+		uint32_t m_DrawNum;
 		int m_BufferContainerIndex;
 
 		vec2 m_Offset;
-		vec2 m_Dir;
-		int m_JumpIndex;
-	};
-
-	struct SCommand_RenderBorderTileLine : public SCommand
-	{
-		SCommand_RenderBorderTileLine() :
-			SCommand(CMD_RENDER_BORDER_TILE_LINE) {}
-		SState m_State;
-		SColorf m_Color; // the color of the whole tilelayer -- already enveloped
-		char *m_pIndicesOffset; // you should use the command buffer data to allocate vertices for this command
-		unsigned int m_IndexDrawNum;
-		unsigned int m_DrawNum;
-		int m_BufferContainerIndex;
-
-		vec2 m_Offset;
-		vec2 m_Dir;
+		vec2 m_Scale;
 	};
 
 	struct SCommand_RenderQuadLayer : public SCommand
@@ -480,12 +463,21 @@ public:
 		void *m_pOffset;
 	};
 
+	struct SCommand_TrySwapAndReadPixel : public SCommand
+	{
+		SCommand_TrySwapAndReadPixel() :
+			SCommand(CMD_TRY_SWAP_AND_READ_PIXEL) {}
+		ivec2 m_Position;
+		SColorf *m_pColor; // processor will fill this out
+		bool *m_pSwapped; // processor may set this to true, must be initialized to false by the caller
+	};
+
 	struct SCommand_TrySwapAndScreenshot : public SCommand
 	{
 		SCommand_TrySwapAndScreenshot() :
 			SCommand(CMD_TRY_SWAP_AND_SCREENSHOT) {}
 		CImageInfo *m_pImage; // processor will fill this out, the one who adds this command must free the data as well
-		bool *m_pSwapped;
+		bool *m_pSwapped; // processor may set this to true, must be initialized to false by the caller
 	};
 
 	struct SCommand_Swap : public SCommand
@@ -755,7 +747,8 @@ public:
 	virtual bool HasQuadBuffering() { return false; }
 	virtual bool HasTextBuffering() { return false; }
 	virtual bool HasQuadContainerBuffering() { return false; }
-	virtual bool Has2DTextureArrays() { return false; }
+	virtual bool Uses2DTextureArrays() { return false; }
+	virtual bool HasTextureArraysSupport() { return false; }
 	virtual const char *GetErrorString() { return NULL; }
 
 	virtual const char *GetVendorString() = 0;
@@ -788,7 +781,8 @@ class CGraphics_Threaded : public IEngineGraphics
 	bool m_GLQuadBufferingEnabled;
 	bool m_GLTextBufferingEnabled;
 	bool m_GLQuadContainerBufferingEnabled;
-	bool m_GLHasTextureArrays;
+	bool m_GLUses2DTextureArrays;
+	bool m_GLHasTextureArraysSupport;
 	bool m_GLUseTrianglesAsQuad;
 
 	CCommandBuffer *m_apCommandBuffers[NUM_CMDBUFFERS];
@@ -816,10 +810,10 @@ class CGraphics_Threaded : public IEngineGraphics
 	bool m_DoScreenshot;
 	char m_aScreenshotName[IO_MAX_PATH_LENGTH];
 
-	CTextureHandle m_InvalidTexture;
+	CTextureHandle m_NullTexture;
 
 	std::vector<int> m_vTextureIndices;
-	int m_FirstFreeTexture;
+	size_t m_FirstFreeTexture;
 	int m_TextureMemoryUsage;
 
 	std::vector<uint8_t> m_vSpriteHelper;
@@ -933,6 +927,11 @@ class CGraphics_Threaded : public IEngineGraphics
 
 	void AdjustViewport(bool SendViewportChangeToBackend);
 
+	ivec2 m_ReadPixelPosition = ivec2(0, 0);
+	ColorRGBA *m_pReadPixelColor = nullptr;
+	void ReadPixelDirect(bool *pSwapped);
+	void ScreenshotDirect(bool *pSwapped);
+
 	int IssueInit();
 	int InitWindow();
 
@@ -967,8 +966,9 @@ public:
 	void FreeTextureIndex(CTextureHandle *pIndex);
 	int UnloadTexture(IGraphics::CTextureHandle *pIndex) override;
 	IGraphics::CTextureHandle LoadTextureRaw(size_t Width, size_t Height, CImageInfo::EImageFormat Format, const void *pData, int Flags, const char *pTexName = nullptr) override;
+	IGraphics::CTextureHandle LoadTextureRawMove(size_t Width, size_t Height, CImageInfo::EImageFormat Format, void *pData, int Flags, const char *pTexName = nullptr) override;
 	int LoadTextureRawSub(IGraphics::CTextureHandle TextureID, int x, int y, size_t Width, size_t Height, CImageInfo::EImageFormat Format, const void *pData) override;
-	IGraphics::CTextureHandle InvalidTexture() const override;
+	IGraphics::CTextureHandle NullTexture() const override;
 
 	bool LoadTextTextures(size_t Width, size_t Height, CTextureHandle &TextTexture, CTextureHandle &TextOutlineTexture, void *pTextData, void *pTextOutlineData) override;
 	bool UnloadTextTextures(CTextureHandle &TextTexture, CTextureHandle &TextOutlineTexture) override;
@@ -976,14 +976,13 @@ public:
 
 	CTextureHandle LoadSpriteTextureImpl(CImageInfo &FromImageInfo, int x, int y, size_t w, size_t h);
 	CTextureHandle LoadSpriteTexture(CImageInfo &FromImageInfo, struct CDataSprite *pSprite) override;
-	CTextureHandle LoadSpriteTexture(CImageInfo &FromImageInfo, struct client_data7::CDataSprite *pSprite) override;
 
 	bool IsImageSubFullyTransparent(CImageInfo &FromImageInfo, int x, int y, int w, int h) override;
-	bool IsSpriteTextureFullyTransparent(CImageInfo &FromImageInfo, struct client_data7::CDataSprite *pSprite) override;
+	bool IsSpriteTextureFullyTransparent(CImageInfo &FromImageInfo, struct CDataSprite *pSprite) override;
 
 	// simple uncompressed RGBA loaders
 	IGraphics::CTextureHandle LoadTexture(const char *pFilename, int StorageType, int Flags = 0) override;
-	int LoadPNG(CImageInfo *pImg, const char *pFilename, int StorageType) override;
+	bool LoadPNG(CImageInfo *pImg, const char *pFilename, int StorageType) override;
 	void FreePNG(CImageInfo *pImg) override;
 
 	bool CheckImageDivisibility(const char *pFileName, CImageInfo &Img, int DivX, int DivY, bool AllowResize) override;
@@ -991,8 +990,6 @@ public:
 
 	void CopyTextureBufferSub(uint8_t *pDestBuffer, uint8_t *pSourceBuffer, size_t FullWidth, size_t FullHeight, size_t PixelSize, size_t SubOffsetX, size_t SubOffsetY, size_t SubCopyWidth, size_t SubCopyHeight) override;
 	void CopyTextureFromTextureBufferSub(uint8_t *pDestBuffer, size_t DestWidth, size_t DestHeight, uint8_t *pSourceBuffer, size_t SrcWidth, size_t SrcHeight, size_t PixelSize, size_t SrcSubOffsetX, size_t SrcSubOffsetY, size_t SrcSubCopyWidth, size_t SrcSubCopyHeight) override;
-
-	bool ScreenshotDirect();
 
 	void TextureSet(CTextureHandle TextureID) override;
 
@@ -1015,14 +1012,14 @@ public:
 		pVert->m_Color = m_aColor[ColorIndex];
 	}
 
-	void SetColorVertex(const CColorVertex *pArray, int Num) override;
+	void SetColorVertex(const CColorVertex *pArray, size_t Num) override;
 	void SetColor(float r, float g, float b, float a) override;
 	void SetColor(ColorRGBA Color) override;
 	void SetColor4(ColorRGBA TopLeft, ColorRGBA TopRight, ColorRGBA BottomLeft, ColorRGBA BottomRight) override;
 
 	// go through all vertices and change their color (only works for quads)
 	void ChangeColorOfCurrentQuadVertices(float r, float g, float b, float a) override;
-	void ChangeColorOfQuadVertices(int QuadOffset, unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
+	void ChangeColorOfQuadVertices(size_t QuadOffset, unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
 
 	void QuadsSetSubset(float TlU, float TlV, float BrU, float BrV) override;
 	void QuadsSetSubsetFree(
@@ -1215,8 +1212,7 @@ public:
 	void FlushVerticesTex3D() override;
 
 	void RenderTileLayer(int BufferContainerIndex, const ColorRGBA &Color, char **pOffsets, unsigned int *pIndicedVertexDrawNum, size_t NumIndicesOffset) override;
-	void RenderBorderTiles(int BufferContainerIndex, const ColorRGBA &Color, char *pIndexBufferOffset, const vec2 &Offset, const vec2 &Dir, int JumpIndex, unsigned int DrawNum) override;
-	void RenderBorderTileLines(int BufferContainerIndex, const ColorRGBA &Color, char *pIndexBufferOffset, const vec2 &Offset, const vec2 &Dir, unsigned int IndexDrawNum, unsigned int RedrawNum) override;
+	virtual void RenderBorderTiles(int BufferContainerIndex, const ColorRGBA &Color, char *pIndexBufferOffset, const vec2 &Offset, const vec2 &Scale, uint32_t DrawNum) override;
 	void RenderQuadLayer(int BufferContainerIndex, SQuadRenderInfo *pQuadInfo, size_t QuadNum, int QuadOffset) override;
 	void RenderText(int BufferContainerIndex, int TextQuadNum, int TextureSize, int TextureTextIndex, int TextureTextOutlineIndex, const ColorRGBA &TextColor, const ColorRGBA &TextOutlineColor) override;
 
@@ -1261,6 +1257,7 @@ public:
 	int Init() override;
 	void Shutdown() override;
 
+	void ReadPixel(ivec2 Position, ColorRGBA *pColor) override;
 	void TakeScreenshot(const char *pFilename) override;
 	void TakeCustomScreenshot(const char *pFilename) override;
 	void Swap() override;
@@ -1287,7 +1284,8 @@ public:
 	bool IsQuadBufferingEnabled() override { return m_GLQuadBufferingEnabled; }
 	bool IsTextBufferingEnabled() override { return m_GLTextBufferingEnabled; }
 	bool IsQuadContainerBufferingEnabled() override { return m_GLQuadContainerBufferingEnabled; }
-	bool HasTextureArrays() override { return m_GLHasTextureArrays; }
+	bool Uses2DTextureArrays() override { return m_GLUses2DTextureArrays; }
+	bool HasTextureArraysSupport() override { return m_GLHasTextureArraysSupport; }
 
 	const char *GetVendorString() override;
 	const char *GetVersionString() override;

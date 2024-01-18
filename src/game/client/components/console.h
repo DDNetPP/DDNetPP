@@ -2,13 +2,14 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #ifndef GAME_CLIENT_COMPONENTS_CONSOLE_H
 #define GAME_CLIENT_COMPONENTS_CONSOLE_H
-#include <engine/shared/ringbuffer.h>
-#include <game/client/component.h>
-#include <game/client/lineinput.h>
+
+#include <base/lock.h>
 
 #include <engine/console.h>
+#include <engine/shared/ringbuffer.h>
 
-#include <mutex>
+#include <game/client/component.h>
+#include <game/client/lineinput.h>
 
 enum
 {
@@ -29,19 +30,23 @@ class CGameConsole : public CComponent
 		struct CBacklogEntry
 		{
 			float m_YOffset;
+			int m_LineCount;
 			ColorRGBA m_PrintColor;
+			size_t m_Length;
 			char m_aText[1];
 		};
-		std::mutex m_BacklogLock;
 		CStaticRingBuffer<CBacklogEntry, 1024 * 1024, CRingBufferBase::FLAG_RECYCLE> m_Backlog;
+		CLock m_BacklogPendingLock;
+		CStaticRingBuffer<CBacklogEntry, 1024 * 1024, CRingBufferBase::FLAG_RECYCLE> m_BacklogPending GUARDED_BY(m_BacklogPendingLock);
 		CStaticRingBuffer<char, 64 * 1024, CRingBufferBase::FLAG_RECYCLE> m_History;
 		char *m_pHistoryEntry;
 
-		CLineInputBuffered<512> m_Input;
+		CLineInputBuffered<IConsole::CMDLINE_LENGTH> m_Input;
 		const char *m_pName;
 		int m_Type;
-		int m_BacklogCurPage;
-		int m_BacklogLastActivePage = -1;
+		int m_BacklogCurLine;
+		int m_BacklogLastActiveLine = -1;
+		int m_LinesRendered;
 
 		STextBoundingBox m_BoundingBox = {0.0f, 0.0f, 0.0f, 0.0f};
 		float m_LastInputHeight = 0.0f;
@@ -56,13 +61,14 @@ class CGameConsole : public CComponent
 
 		CGameConsole *m_pGameConsole;
 
-		char m_aCompletionBuffer[128];
+		char m_aCompletionBuffer[IConsole::CMDLINE_LENGTH];
 		int m_CompletionChosen;
-		char m_aCompletionBufferArgument[128];
+		char m_aCompletionBufferArgument[IConsole::CMDLINE_LENGTH];
 		int m_CompletionChosenArgument;
 		int m_CompletionFlagmask;
 		float m_CompletionRenderOffset;
 		float m_CompletionRenderOffsetChange;
+		int m_CompletionArgumentPosition;
 
 		char m_aUser[32];
 		bool m_UserGot;
@@ -73,22 +79,48 @@ class CGameConsole : public CComponent
 		const char *m_pCommandHelp;
 		const char *m_pCommandParams;
 
+		bool m_Searching = false;
+		struct SSearchMatch
+		{
+			int m_Pos;
+			int m_StartLine;
+			int m_EndLine;
+			int m_EntryLine;
+
+			SSearchMatch(int Pos, int StartLine, int EndLine, int EntryLine) :
+				m_Pos(Pos), m_StartLine(StartLine), m_EndLine(EndLine), m_EntryLine(EntryLine) {}
+		};
+		int m_CurrentMatchIndex;
+		char m_aCurrentSearchString[IConsole::CMDLINE_LENGTH];
+		std::vector<SSearchMatch> m_vSearchMatches;
+
 		CInstance(int t);
 		void Init(CGameConsole *pGameConsole);
 
-		void ClearBacklog();
-		void ClearBacklogYOffsets();
+		void ClearBacklog() REQUIRES(!m_BacklogPendingLock);
+		void UpdateBacklogTextAttributes();
+		void PumpBacklogPending() REQUIRES(!m_BacklogPendingLock);
 		void ClearHistory();
 		void Reset();
 
 		void ExecuteLine(const char *pLine);
 
 		bool OnInput(const IInput::CEvent &Event);
-		void PrintLine(const char *pLine, int Len, ColorRGBA PrintColor);
+		void PrintLine(const char *pLine, int Len, ColorRGBA PrintColor) REQUIRES(!m_BacklogPendingLock);
+		int GetLinesToScroll(int Direction, int LinesToScroll);
+		void ScrollToCenter(int StartLine, int EndLine);
+		void ClearSearch();
 
 		const char *GetString() const { return m_Input.GetString(); }
 		static void PossibleCommandsCompleteCallback(int Index, const char *pStr, void *pUser);
 		static void PossibleArgumentsCompleteCallback(int Index, const char *pStr, void *pUser);
+
+		void UpdateEntryTextAttributes(CBacklogEntry *pEntry) const;
+
+	private:
+		void UpdateSearch();
+
+		friend class CGameConsole;
 	};
 
 	class IConsole *m_pConsole;
@@ -105,6 +137,9 @@ class CGameConsole : public CComponent
 	float m_StateChangeDuration;
 
 	bool m_WantsSelectionCopy = false;
+
+	static const ColorRGBA ms_SearchHighlightColor;
+	static const ColorRGBA ms_SearchSelectedColor;
 
 	void Toggle(int Type);
 	void Dump(int Type);
@@ -141,6 +176,7 @@ public:
 	virtual void OnRender() override;
 	virtual void OnMessage(int MsgType, void *pRawMsg) override;
 	virtual bool OnInput(const IInput::CEvent &Event) override;
+	void Prompt(char (&aPrompt)[32]);
 
 	bool IsClosed() { return m_ConsoleState == CONSOLE_CLOSED; }
 };

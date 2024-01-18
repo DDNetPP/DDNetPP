@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <base/hash.h>
+
 #include <engine/client.h>
 #include <engine/client/checksum.h>
 #include <engine/client/friends.h>
@@ -14,7 +15,6 @@
 #include <engine/client/serverbrowser.h>
 #include <engine/client/updater.h>
 #include <engine/editor.h>
-#include <engine/engine.h>
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <engine/shared/demo.h>
@@ -23,85 +23,37 @@
 #include <engine/shared/network.h>
 #include <engine/warning.h>
 
+#include "graph.h"
+#include "smooth_time.h"
+
 class CDemoEdit;
 class IDemoRecorder;
 class CMsgPacker;
 class CUnpacker;
 class IConfigManager;
 class IDiscord;
+class IEngine;
 class IEngineInput;
 class IEngineMap;
 class IEngineSound;
 class IFriends;
+class ILogger;
 class ISteam;
+class INotifications;
 class IStorage;
 class IUpdater;
 
 #define CONNECTLINK_DOUBLE_SLASH "ddnet://"
 #define CONNECTLINK_NO_SLASH "ddnet:"
 
-class CGraph
-{
-public:
-	enum
-	{
-		MAX_VALUES = 128,
-	};
-
-private:
-	float m_Min, m_Max;
-	float m_MinRange, m_MaxRange;
-	float m_aValues[MAX_VALUES];
-	float m_aColors[MAX_VALUES][3];
-	size_t m_Index;
-
-public:
-	void Init(float Min, float Max);
-	void SetMin(float Min);
-	void SetMax(float Max);
-
-	void Scale();
-	void Add(float v, float r, float g, float b);
-	void InsertAt(size_t Index, float v, float r, float g, float b);
-	void Render(IGraphics *pGraphics, ITextRender *pTextRender, float x, float y, float w, float h, const char *pDescription);
-};
-
-class CSmoothTime
-{
-	int64_t m_Snap;
-	int64_t m_Current;
-	int64_t m_Target;
-
-	int64_t m_SnapMargin;
-	int64_t m_CurrentMargin;
-	int64_t m_TargetMargin;
-
-	CGraph m_Graph;
-
-	int m_SpikeCounter;
-
-	float m_aAdjustSpeed[2]; // 0 = down, 1 = up
-public:
-	void Init(int64_t Target);
-	void SetAdjustSpeed(int Direction, float Value);
-
-	int64_t Get(int64_t Now);
-
-	void UpdateInt(int64_t Target);
-	void Update(CGraph *pGraph, int64_t Target, int TimeLeft, int AdjustDirection);
-
-	int64_t GetMargin(int64_t Now);
-	void UpdateMargin(int64_t TargetMargin);
-};
-
 class CServerCapabilities
 {
 public:
-	bool m_ChatTimeoutCode;
-	bool m_AnyPlayerFlag;
-	bool m_PingEx;
-	bool m_AllowDummy;
-	bool m_SyncWeaponInput;
+	bool m_ChatTimeoutCode = false;
+	bool m_AnyPlayerFlag = false;
+	bool m_PingEx = false;
+	bool m_AllowDummy = false;
+	bool m_SyncWeaponInput = false;
 };
 
 class CClient : public IClient, public CDemoPlayer::IListener
@@ -120,9 +72,11 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	IEngineMap *m_pMap = nullptr;
 	IEngineSound *m_pSound = nullptr;
 	ISteam *m_pSteam = nullptr;
+	INotifications *m_pNotifications = nullptr;
 	IStorage *m_pStorage = nullptr;
 	IEngineTextRender *m_pTextRender = nullptr;
 	IUpdater *m_pUpdater = nullptr;
+	CHttp m_Http;
 
 	CNetClient m_aNetClient[NUM_CONNS];
 	CDemoPlayer m_DemoPlayer;
@@ -135,80 +89,77 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	CFriends m_Friends;
 	CFriends m_Foes;
 
-	char m_aConnectAddressStr[MAX_SERVER_ADDRESSES * NETADDR_MAXSTRSIZE];
+	char m_aConnectAddressStr[MAX_SERVER_ADDRESSES * NETADDR_MAXSTRSIZE] = "";
 
-	CUuid m_ConnectionID;
+	CUuid m_ConnectionID = UUID_ZEROED;
 
 	bool m_HaveGlobalTcpAddr = false;
-	NETADDR m_GlobalTcpAddr;
+	NETADDR m_GlobalTcpAddr = NETADDR_ZEROED;
 
-	uint64_t m_aSnapshotParts[NUM_DUMMIES];
-	int64_t m_LocalStartTime;
-	int64_t m_GlobalStartTime;
+	uint64_t m_aSnapshotParts[NUM_DUMMIES] = {0, 0};
+	int64_t m_LocalStartTime = 0;
+	int64_t m_GlobalStartTime = 0;
 
 	IGraphics::CTextureHandle m_DebugFont;
 
 	int64_t m_LastRenderTime;
-	float m_RenderFrameTimeLow;
-	float m_RenderFrameTimeHigh;
-	int m_RenderFrames;
 
-	int m_SnapCrcErrors;
-	bool m_AutoScreenshotRecycle;
-	bool m_AutoStatScreenshotRecycle;
-	bool m_AutoCSVRecycle;
-	bool m_EditorActive;
-	bool m_SoundInitFailed;
+	int m_SnapCrcErrors = 0;
+	bool m_AutoScreenshotRecycle = false;
+	bool m_AutoStatScreenshotRecycle = false;
+	bool m_AutoCSVRecycle = false;
+	bool m_EditorActive = false;
+	bool m_SoundInitFailed = false;
 
-	int m_aAckGameTick[NUM_DUMMIES];
-	int m_aCurrentRecvTick[NUM_DUMMIES];
-	int m_aRconAuthed[NUM_DUMMIES];
-	char m_aRconUsername[32];
-	char m_aRconPassword[128];
-	int m_UseTempRconCommands;
-	char m_aPassword[128];
-	bool m_SendPassword;
+	int m_aAckGameTick[NUM_DUMMIES] = {-1, -1};
+	int m_aCurrentRecvTick[NUM_DUMMIES] = {0, 0};
+	int m_aRconAuthed[NUM_DUMMIES] = {0, 0};
+	char m_aRconUsername[32] = "";
+	char m_aRconPassword[sizeof(g_Config.m_SvRconPassword)] = "";
+	int m_UseTempRconCommands = 0;
+	char m_aPassword[sizeof(g_Config.m_Password)] = "";
+	bool m_SendPassword = false;
 	bool m_ButtonRender = false;
 
 	// version-checking
-	char m_aVersionStr[10];
+	char m_aVersionStr[10] = "0";
 
 	// pinging
-	int64_t m_PingStartTime;
+	int64_t m_PingStartTime = 0;
 
-	char m_aCurrentMap[IO_MAX_PATH_LENGTH];
-	char m_aCurrentMapPath[IO_MAX_PATH_LENGTH];
+	char m_aCurrentMap[IO_MAX_PATH_LENGTH] = "";
+	char m_aCurrentMapPath[IO_MAX_PATH_LENGTH] = "";
 
-	char m_aTimeoutCodes[NUM_DUMMIES][32];
-	bool m_aCodeRunAfterJoin[NUM_DUMMIES];
-	bool m_GenerateTimeoutSeed;
+	char m_aTimeoutCodes[NUM_DUMMIES][32] = {"", ""};
+	bool m_aCodeRunAfterJoin[NUM_DUMMIES] = {false, false};
+	bool m_GenerateTimeoutSeed = true;
 
-	//
-	char m_aCmdConnect[256];
-	char m_aCmdPlayDemo[IO_MAX_PATH_LENGTH];
-	char m_aCmdEditMap[IO_MAX_PATH_LENGTH];
+	char m_aCmdConnect[256] = "";
+	char m_aCmdPlayDemo[IO_MAX_PATH_LENGTH] = "";
+	char m_aCmdEditMap[IO_MAX_PATH_LENGTH] = "";
 
 	// map download
-	std::shared_ptr<CHttpRequest> m_pMapdownloadTask;
-	char m_aMapdownloadFilename[256];
-	char m_aMapdownloadFilenameTemp[256];
-	char m_aMapdownloadName[256];
-	IOHANDLE m_MapdownloadFileTemp;
-	int m_MapdownloadChunk;
-	int m_MapdownloadCrc;
-	int m_MapdownloadAmount;
-	int m_MapdownloadTotalsize;
-	bool m_MapdownloadSha256Present;
-	SHA256_DIGEST m_MapdownloadSha256;
+	char m_aMapDownloadUrl[256] = "";
+	std::shared_ptr<CHttpRequest> m_pMapdownloadTask = nullptr;
+	char m_aMapdownloadFilename[256] = "";
+	char m_aMapdownloadFilenameTemp[256] = "";
+	char m_aMapdownloadName[256] = "";
+	IOHANDLE m_MapdownloadFileTemp = 0;
+	int m_MapdownloadChunk = 0;
+	int m_MapdownloadCrc = 0;
+	int m_MapdownloadAmount = -1;
+	int m_MapdownloadTotalsize = -1;
+	bool m_MapdownloadSha256Present = false;
+	SHA256_DIGEST m_MapdownloadSha256 = SHA256_ZEROED;
 
-	bool m_MapDetailsPresent;
-	char m_aMapDetailsName[256];
-	int m_MapDetailsCrc;
-	SHA256_DIGEST m_MapDetailsSha256;
-	char m_aMapDetailsUrl[256];
+	bool m_MapDetailsPresent = false;
+	char m_aMapDetailsName[256] = "";
+	int m_MapDetailsCrc = 0;
+	SHA256_DIGEST m_MapDetailsSha256 = SHA256_ZEROED;
+	char m_aMapDetailsUrl[256] = "";
 
 	char m_aDDNetInfoTmp[64];
-	std::shared_ptr<CHttpRequest> m_pDDNetInfoTask;
+	std::shared_ptr<CHttpRequest> m_pDDNetInfoTask = nullptr;
 
 	// time
 	CSmoothTime m_aGameTime[NUM_DUMMIES];
@@ -224,9 +175,11 @@ class CClient : public IClient, public CDemoPlayer::IListener
 		int64_t m_Time;
 	} m_aInputs[NUM_DUMMIES][200];
 
-	int m_aCurrentInput[NUM_DUMMIES];
-	bool m_LastDummy;
-	bool m_DummySendConnInfo;
+	int m_aCurrentInput[NUM_DUMMIES] = {0, 0};
+	bool m_LastDummy = false;
+	bool m_DummySendConnInfo = false;
+	bool m_DummyConnected = false;
+	int m_LastDummyConnectTime = 0;
 
 	// graphs
 	CGraph m_InputtimeMarginGraph;
@@ -237,9 +190,9 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	CSnapshotStorage m_aSnapshotStorage[NUM_DUMMIES];
 	CSnapshotStorage::CHolder *m_aapSnapshots[NUM_DUMMIES][NUM_SNAPSHOT_TYPES];
 
-	int m_aReceivedSnapshots[NUM_DUMMIES];
+	int m_aReceivedSnapshots[NUM_DUMMIES] = {0, 0};
 	char m_aaSnapshotIncomingData[NUM_DUMMIES][CSnapshot::MAX_SIZE];
-	int m_aSnapshotIncomingDataSize[NUM_DUMMIES];
+	int m_aSnapshotIncomingDataSize[NUM_DUMMIES] = {0, 0};
 
 	CSnapshotStorage::CHolder m_aDemorecSnapshotHolders[NUM_SNAPSHOT_TYPES];
 	char m_aaaDemorecSnapshotData[NUM_SNAPSHOT_TYPES][2][CSnapshot::MAX_SIZE];
@@ -249,19 +202,19 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	std::deque<std::shared_ptr<CDemoEdit>> m_EditJobs;
 
 	//
-	bool m_CanReceiveServerCapabilities;
-	bool m_ServerSentCapabilities;
+	bool m_CanReceiveServerCapabilities = false;
+	bool m_ServerSentCapabilities = false;
 	CServerCapabilities m_ServerCapabilities;
 
 	CServerInfo m_CurrentServerInfo;
-	int64_t m_CurrentServerInfoRequestTime; // >= 0 should request, == -1 got info
+	int64_t m_CurrentServerInfoRequestTime = -1; // >= 0 should request, == -1 got info
 
-	int m_CurrentServerPingInfoType;
-	int m_CurrentServerPingBasicToken;
-	int m_CurrentServerPingToken;
-	CUuid m_CurrentServerPingUuid;
-	int64_t m_CurrentServerCurrentPingTime; // >= 0 request running
-	int64_t m_CurrentServerNextPingTime; // >= 0 should request
+	int m_CurrentServerPingInfoType = -1;
+	int m_CurrentServerPingBasicToken = -1;
+	int m_CurrentServerPingToken = -1;
+	CUuid m_CurrentServerPingUuid = UUID_ZEROED;
+	int64_t m_CurrentServerCurrentPingTime = -1; // >= 0 request running
+	int64_t m_CurrentServerNextPingTime = -1; // >= 0 should request
 
 	// version info
 	struct CVersionInfo
@@ -273,20 +226,19 @@ class CClient : public IClient, public CDemoPlayer::IListener
 			STATE_READY,
 		};
 
-		int m_State;
-		class CHostLookup m_VersionServeraddr;
+		int m_State = STATE_INIT;
 	} m_VersionInfo;
 
 	std::vector<SWarning> m_vWarnings;
 
 	CFifo m_Fifo;
 
-	IOHANDLE m_BenchmarkFile;
-	int64_t m_BenchmarkStopTime;
+	IOHANDLE m_BenchmarkFile = 0;
+	int64_t m_BenchmarkStopTime = 0;
 
 	CChecksum m_Checksum;
 	int m_OwnExecutableSize = 0;
-	IOHANDLE m_OwnExecutable;
+	IOHANDLE m_OwnExecutable = 0;
 
 	// favorite command handling
 	bool m_FavoritesGroup = false;
@@ -311,9 +263,11 @@ public:
 	IEngineInput *Input() { return m_pInput; }
 	IEngineSound *Sound() { return m_pSound; }
 	ISteam *Steam() { return m_pSteam; }
+	INotifications *Notifications() { return m_pNotifications; }
 	IStorage *Storage() { return m_pStorage; }
 	IEngineTextRender *TextRender() { return m_pTextRender; }
 	IUpdater *Updater() { return m_pUpdater; }
+	IHttp *Http() { return &m_Http; }
 
 	CClient();
 
@@ -322,9 +276,9 @@ public:
 	// Send via the currently active client (main/dummy)
 	int SendMsgActive(CMsgPacker *pMsg, int Flags) override;
 
-	void SendInfo();
+	void SendInfo(int Conn);
 	void SendEnterGame(int Conn);
-	void SendReady();
+	void SendReady(int Conn);
 	void SendMapRequest();
 
 	bool RconAuthed() const override { return m_aRconAuthed[g_Config.m_ClDummy] != 0; }
@@ -362,8 +316,6 @@ public:
 	bool DummyConnected() override;
 	bool DummyConnecting() override;
 	bool DummyAllowed() override;
-	int m_DummyConnected;
-	int m_LastDummyConnectTime;
 
 	void GetServerInfo(CServerInfo *pServerInfo) const override;
 	void ServerInfoRequest();
@@ -545,7 +497,9 @@ public:
 
 	void GetSmoothTick(int *pSmoothTick, float *pSmoothIntraTick, float MixAmount) override;
 
+	void AddWarning(const SWarning &Warning) override;
 	SWarning *GetCurWarning() override;
+
 	CChecksumData *ChecksumData() override { return &m_Checksum.m_Data; }
 	bool InfoTaskRunning() override { return m_pDDNetInfoTask != nullptr; }
 	int UdpConnectivity(int NetType) override;

@@ -15,7 +15,6 @@
 #include <game/generated/protocol.h>
 
 #include <game/mapitems.h>
-#include <game/mapitems_ex.h>
 
 static float gs_SpriteWScale;
 static float gs_SpriteHScale;
@@ -58,7 +57,7 @@ void CRenderTools::Init(IGraphics *pGraphics, ITextRender *pTextRender)
 	Graphics()->QuadContainerUpload(m_TeeQuadContainerIndex);
 }
 
-void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy)
+void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy) const
 {
 	int x = pSpr->m_X + sx;
 	int y = pSpr->m_Y + sy;
@@ -83,52 +82,45 @@ void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy)
 	Graphics()->QuadsSetSubset(x1, y1, x2, y2);
 }
 
-void CRenderTools::SelectSprite(int Id, int Flags, int sx, int sy)
+void CRenderTools::SelectSprite(int Id, int Flags, int sx, int sy) const
 {
 	if(Id < 0 || Id >= g_pData->m_NumSprites)
 		return;
 	SelectSprite(&g_pData->m_aSprites[Id], Flags, sx, sy);
 }
 
-void CRenderTools::GetSpriteScale(client_data7::CDataSprite *pSprite, float &ScaleX, float &ScaleY)
+void CRenderTools::GetSpriteScale(const CDataSprite *pSprite, float &ScaleX, float &ScaleY) const
 {
 	int w = pSprite->m_W;
 	int h = pSprite->m_H;
 	GetSpriteScaleImpl(w, h, ScaleX, ScaleY);
 }
 
-void CRenderTools::GetSpriteScale(struct CDataSprite *pSprite, float &ScaleX, float &ScaleY)
-{
-	int w = pSprite->m_W;
-	int h = pSprite->m_H;
-	GetSpriteScaleImpl(w, h, ScaleX, ScaleY);
-}
-
-void CRenderTools::GetSpriteScale(int Id, float &ScaleX, float &ScaleY)
+void CRenderTools::GetSpriteScale(int Id, float &ScaleX, float &ScaleY) const
 {
 	GetSpriteScale(&g_pData->m_aSprites[Id], ScaleX, ScaleY);
 }
 
-void CRenderTools::GetSpriteScaleImpl(int Width, int Height, float &ScaleX, float &ScaleY)
+void CRenderTools::GetSpriteScaleImpl(int Width, int Height, float &ScaleX, float &ScaleY) const
 {
 	const float f = length(vec2(Width, Height));
 	ScaleX = Width / f;
 	ScaleY = Height / f;
 }
 
-void CRenderTools::DrawSprite(float x, float y, float Size)
+void CRenderTools::DrawSprite(float x, float y, float Size) const
 {
 	IGraphics::CQuadItem QuadItem(x, y, Size * gs_SpriteWScale, Size * gs_SpriteHScale);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 }
 
-void CRenderTools::DrawSprite(float x, float y, float ScaledWidth, float ScaledHeight)
+void CRenderTools::DrawSprite(float x, float y, float ScaledWidth, float ScaledHeight) const
 {
 	IGraphics::CQuadItem QuadItem(x, y, ScaledWidth, ScaledHeight);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 }
 
-void CRenderTools::RenderCursor(vec2 Center, float Size)
+void CRenderTools::RenderCursor(vec2 Center, float Size) const
 {
 	Graphics()->WrapClamp();
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CURSOR].m_Id);
@@ -140,7 +132,7 @@ void CRenderTools::RenderCursor(vec2 Center, float Size)
 	Graphics()->WrapNormal();
 }
 
-void CRenderTools::RenderIcon(int ImageId, int SpriteId, const CUIRect *pRect, const ColorRGBA *pColor)
+void CRenderTools::RenderIcon(int ImageId, int SpriteId, const CUIRect *pRect, const ColorRGBA *pColor) const
 {
 	Graphics()->TextureSet(g_pData->m_aImages[ImageId].m_Id);
 	Graphics()->QuadsBegin();
@@ -152,25 +144,25 @@ void CRenderTools::RenderIcon(int ImageId, int SpriteId, const CUIRect *pRect, c
 	Graphics()->QuadsEnd();
 }
 
-int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float x, float y, float Size)
+int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float x, float y, float Size) const
 {
 	IGraphics::CQuadItem QuadItem(x, y, Size, Size);
 	return Graphics()->QuadContainerAddQuads(QuadContainerIndex, &QuadItem, 1);
 }
 
-int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float Size)
+int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float Size) const
 {
 	IGraphics::CQuadItem QuadItem(-(Size) / 2.f, -(Size) / 2.f, (Size), (Size));
 	return Graphics()->QuadContainerAddQuads(QuadContainerIndex, &QuadItem, 1);
 }
 
-int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float Width, float Height)
+int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float Width, float Height) const
 {
 	IGraphics::CQuadItem QuadItem(-(Width) / 2.f, -(Height) / 2.f, (Width), (Height));
 	return Graphics()->QuadContainerAddQuads(QuadContainerIndex, &QuadItem, 1);
 }
 
-int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float X, float Y, float Width, float Height)
+int CRenderTools::QuadContainerAddSprite(int QuadContainerIndex, float X, float Y, float Width, float Height) const
 {
 	IGraphics::CQuadItem QuadItem(X, Y, Width, Height);
 	return Graphics()->QuadContainerAddQuads(QuadContainerIndex, &QuadItem, 1);
@@ -270,7 +262,7 @@ void CRenderTools::GetRenderTeeOffsetToRenderedTee(const CAnimState *pAnim, cons
 	TeeOffsetToMid.y = -MidOfRendered;
 }
 
-void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos, float Alpha)
+void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos, float Alpha) const
 {
 	vec2 Direction = Dir;
 	vec2 Position = Pos;
@@ -420,9 +412,9 @@ void CRenderTools::MapScreenToWorld(float CenterX, float CenterY, float Parallax
 	pPoints[3] = pPoints[1] + Height;
 }
 
-void CRenderTools::MapScreenToGroup(float CenterX, float CenterY, CMapItemGroup *pGroup, CMapItemGroupEx *pGroupEx, float Zoom)
+void CRenderTools::MapScreenToGroup(float CenterX, float CenterY, CMapItemGroup *pGroup, float Zoom)
 {
-	float ParallaxZoom = GetParallaxZoom(pGroup, pGroupEx);
+	float ParallaxZoom = clamp((double)(maximum(pGroup->m_ParallaxX, pGroup->m_ParallaxY)), 0., 100.);
 	float aPoints[4];
 	MapScreenToWorld(CenterX, CenterY, pGroup->m_ParallaxX, pGroup->m_ParallaxY, ParallaxZoom,
 		pGroup->m_OffsetX, pGroup->m_OffsetY, Graphics()->ScreenAspect(), Zoom, aPoints);

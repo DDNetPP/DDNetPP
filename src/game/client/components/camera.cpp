@@ -24,6 +24,10 @@ CCamera::CCamera()
 	m_GotoTeleOffset = 0;
 	m_GotoSwitchLastPos = ivec2(-1, -1);
 	m_GotoTeleLastPos = ivec2(-1, -1);
+
+	mem_zero(m_aLastPos, sizeof(m_aLastPos));
+	m_PrevCenter = vec2(0, 0);
+	m_Center = vec2(0, 0);
 }
 
 float CCamera::ZoomProgress(float CurrentTime) const
@@ -39,7 +43,7 @@ void CCamera::ScaleZoom(float Factor)
 
 float CCamera::MaxZoomLevel()
 {
-	return (g_Config.m_ClLimitMaxZoomLevel) ? ((Graphics()->IsTileBufferingEnabled() ? 60 : 30)) : std::numeric_limits<float>::max();
+	return (g_Config.m_ClLimitMaxZoomLevel) ? ((Graphics()->IsTileBufferingEnabled() ? 240 : 30)) : std::numeric_limits<float>::max();
 }
 
 float CCamera::MinZoomLevel()

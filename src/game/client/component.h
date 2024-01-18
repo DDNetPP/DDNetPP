@@ -59,6 +59,10 @@ protected:
 	 */
 	class CRenderTools *RenderTools() const;
 	/**
+	 * Get the config manager interface.
+	 */
+	class IConfigManager *ConfigManager() const;
+	/**
 	 * Get the config interface.
 	 */
 	class CConfig *Config() const;
@@ -123,6 +127,11 @@ protected:
 	 * Gets the local time.
 	 */
 	float LocalTime() const;
+
+	/**
+	 * Get the http interface
+	 */
+	class IHttp *Http() const;
 
 public:
 	/**

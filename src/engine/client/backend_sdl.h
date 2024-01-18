@@ -48,7 +48,7 @@ class CGraphicsBackend_Threaded : public IGraphicsBackend
 {
 private:
 	TTranslateFunc m_TranslateFunc;
-	SGFXWarningContainer m_Warning;
+	SGfxWarningContainer m_Warning;
 
 public:
 	// constructed on the main thread, the rest of the functions is run on the render thread
@@ -58,20 +58,10 @@ public:
 		virtual ~ICommandProcessor() = default;
 		virtual void RunBuffer(CCommandBuffer *pBuffer) = 0;
 
-		virtual SGFXErrorContainer &GetError() = 0;
+		virtual const SGfxErrorContainer &GetError() const = 0;
 		virtual void ErroneousCleanup() = 0;
 
-		virtual SGFXWarningContainer &GetWarning() = 0;
-
-		bool HasError()
-		{
-			return GetError().m_ErrorType != GFX_ERROR_TYPE_NONE;
-		}
-
-		bool HasWarning()
-		{
-			return GetWarning().m_WarningType != GFX_WARNING_TYPE_NONE;
-		}
+		virtual const SGfxWarningContainer &GetWarning() const = 0;
 	};
 
 	CGraphicsBackend_Threaded(TTranslateFunc &&TranslateFunc);
@@ -81,7 +71,7 @@ public:
 	bool IsIdle() const override;
 	void WaitForIdle() override;
 
-	void ProcessError();
+	void ProcessError(const SGfxErrorContainer &Error);
 
 protected:
 	void StartProcessor(ICommandProcessor *pProcessor);
@@ -191,18 +181,18 @@ class CCommandProcessor_SDL_GL : public CGraphicsBackend_Threaded::ICommandProce
 
 	EBackendType m_BackendType;
 
-	SGFXErrorContainer m_Error;
-	SGFXWarningContainer m_Warning;
+	SGfxErrorContainer m_Error;
+	SGfxWarningContainer m_Warning;
 
 public:
 	CCommandProcessor_SDL_GL(EBackendType BackendType, int GLMajor, int GLMinor, int GLPatch);
 	virtual ~CCommandProcessor_SDL_GL();
 	void RunBuffer(CCommandBuffer *pBuffer) override;
 
-	SGFXErrorContainer &GetError() override;
+	const SGfxErrorContainer &GetError() const override;
 	void ErroneousCleanup() override;
 
-	SGFXWarningContainer &GetWarning() override;
+	const SGfxWarningContainer &GetWarning() const override;
 
 	void HandleError();
 	void HandleWarning();
@@ -281,7 +271,8 @@ public:
 	bool HasQuadBuffering() override { return m_Capabilites.m_QuadBuffering; }
 	bool HasTextBuffering() override { return m_Capabilites.m_TextBuffering; }
 	bool HasQuadContainerBuffering() override { return m_Capabilites.m_QuadContainerBuffering; }
-	bool Has2DTextureArrays() override { return m_Capabilites.m_2DArrayTextures; }
+	bool Uses2DTextureArrays() override { return m_Capabilites.m_2DArrayTextures; }
+	bool HasTextureArraysSupport() override { return m_Capabilites.m_2DArrayTextures || m_Capabilites.m_3DTextures; }
 
 	const char *GetErrorString() override
 	{

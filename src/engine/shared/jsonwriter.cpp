@@ -3,6 +3,8 @@
 
 #include "jsonwriter.h"
 
+#include <base/system.h>
+
 static char EscapeJsonChar(char c)
 {
 	switch(c)
@@ -167,7 +169,7 @@ void CJsonWriter::PushState(EJsonStateKind NewState)
 	{
 		m_States.top().m_Empty = false;
 	}
-	m_States.push(SState(NewState));
+	m_States.emplace(NewState);
 	if(NewState != STATE_ATTRIBUTE)
 	{
 		m_Indentation++;

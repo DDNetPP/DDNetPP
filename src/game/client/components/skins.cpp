@@ -3,7 +3,6 @@
 
 #include <base/math.h>
 #include <base/system.h>
-#include <ctime>
 
 #include <engine/engine.h>
 #include <engine/graphics.h>
@@ -22,15 +21,13 @@ bool CSkins::IsVanillaSkin(const char *pName)
 	return std::any_of(std::begin(VANILLA_SKINS), std::end(VANILLA_SKINS), [pName](const char *pVanillaSkin) { return str_comp(pName, pVanillaSkin) == 0; });
 }
 
-int CSkins::CGetPngFile::OnCompletion(int State)
+void CSkins::CGetPngFile::OnCompletion()
 {
-	State = CHttpRequest::OnCompletion(State);
-
-	if(State != HTTP_ERROR && State != HTTP_ABORTED && !m_pSkins->LoadSkinPNG(m_Info, Dest(), Dest(), IStorage::TYPE_SAVE))
+	// Maybe this should start another thread to load the png in instead of stalling the curl thread
+	if(State() != HTTP_ERROR && State() != HTTP_ABORTED)
 	{
-		State = HTTP_ERROR;
+		m_pSkins->LoadSkinPNG(m_Info, Dest(), Dest(), IStorage::TYPE_SAVE);
 	}
-	return State;
 }
 
 CSkins::CGetPngFile::CGetPngFile(CSkins *pSkins, const char *pUrl, IStorage *pStorage, const char *pDest) :
@@ -299,12 +296,8 @@ void CSkins::OnInit()
 
 	if(g_Config.m_Events)
 	{
-		time_t RawTime;
-		struct tm *pTimeInfo;
-		std::time(&RawTime);
-		pTimeInfo = localtime(&RawTime);
-		if(pTimeInfo->tm_mon == 11 && pTimeInfo->tm_mday >= 24 && pTimeInfo->tm_mday <= 26)
-		{ // Christmas
+		if(time_season() == SEASON_XMAS)
+		{
 			str_copy(m_aEventSkinPrefix, "santa");
 		}
 	}
@@ -378,14 +371,14 @@ const CSkin *CSkins::Find(const char *pName)
 	}
 }
 
-const CSkin *CSkins::FindOrNullptr(const char *pName)
+const CSkin *CSkins::FindOrNullptr(const char *pName, bool IgnorePrefix)
 {
 	const char *pSkinPrefix = m_aEventSkinPrefix[0] ? m_aEventSkinPrefix : g_Config.m_ClSkinPrefix;
 	if(g_Config.m_ClVanillaSkinsOnly && !IsVanillaSkin(pName))
 	{
 		return nullptr;
 	}
-	else if(pSkinPrefix && pSkinPrefix[0])
+	else if(pSkinPrefix && pSkinPrefix[0] && !IgnorePrefix)
 	{
 		char aBuf[24];
 		str_format(aBuf, sizeof(aBuf), "%s_%s", pSkinPrefix, pName);
@@ -441,12 +434,16 @@ const CSkin *CSkins::FindImpl(const char *pName)
 	char aEscapedName[256];
 	EscapeUrl(aEscapedName, sizeof(aEscapedName), pName);
 	str_format(aUrl, sizeof(aUrl), "%s%s.png", g_Config.m_ClDownloadCommunitySkins != 0 ? g_Config.m_ClSkinCommunityDownloadUrl : g_Config.m_ClSkinDownloadUrl, aEscapedName);
+
 	char aBuf[IO_MAX_PATH_LENGTH];
 	str_format(Skin.m_aPath, sizeof(Skin.m_aPath), "downloadedskins/%s", IStorage::FormatTmpPath(aBuf, sizeof(aBuf), pName));
+
 	Skin.m_pTask = std::make_shared<CGetPngFile>(this, aUrl, Storage(), Skin.m_aPath);
-	m_pClient->Engine()->AddJob(Skin.m_pTask);
+	Http()->Run(Skin.m_pTask);
+
 	auto &&pDownloadSkin = std::make_unique<CDownloadSkin>(std::move(Skin));
 	m_DownloadSkins.insert({pDownloadSkin->GetName(), std::move(pDownloadSkin)});
 	++m_DownloadingSkins;
+
 	return nullptr;
 }

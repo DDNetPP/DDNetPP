@@ -57,71 +57,73 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 	pChr->m_FreezeLaser = true;
 }
 
-void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
-		return;
+// commented out during merge because ddnet also added ConFreeze and ConUnfreeze
 
-	int Seconds = -1;
-	int Victim = pResult->GetVictim();
+// void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
+// {
+// 	CGameContext *pSelf = (CGameContext *)pUserData;
+// 	if(!CheckClientID(pResult->m_ClientID))
+// 		return;
 
-	char aBuf[128];
+// 	int Seconds = -1;
+// 	int Victim = pResult->GetVictim();
 
-	if(pResult->NumArguments() == 1)
-		Seconds = clamp(pResult->GetInteger(0), -2, 9999);
+// 	char aBuf[128];
 
-	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
-	if(!pChr)
-		return;
+// 	if(pResult->NumArguments() == 1)
+// 		Seconds = clamp(pResult->GetInteger(0), -2, 9999);
 
-	if(pSelf->m_apPlayers[Victim])
-	{
-		pChr->Freeze(Seconds);
-		pChr->GetPlayer()->m_RconFreeze = Seconds != -2;
-		CServer *pServ = (CServer *)pSelf->Server();
-		if(Seconds >= 0)
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
-		else if(Seconds == -2)
-		{
-			pChr->Core()->m_DeepFrozen = true;
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
-		}
-		else
-			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d is frozen until you unfreeze him.", pServ->ClientName(Victim), Victim);
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-	}
-}
+// 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
+// 	if(!pChr)
+// 		return;
 
-void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
-{
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
-		return;
+// 	if(pSelf->m_apPlayers[Victim])
+// 	{
+// 		pChr->Freeze(Seconds);
+// 		pChr->GetPlayer()->m_RconFreeze = Seconds != -2;
+// 		CServer *pServ = (CServer *)pSelf->Server();
+// 		if(Seconds >= 0)
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
+// 		else if(Seconds == -2)
+// 		{
+// 			pChr->Core()->m_DeepFrozen = true;
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
+// 		}
+// 		else
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d is frozen until you unfreeze him.", pServ->ClientName(Victim), Victim);
+// 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+// 	}
+// }
 
-	int Victim = pResult->GetVictim();
-	static bool Warning = false;
-	char aBuf[128];
-	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
-	if(!pChr)
-		return;
-	if(pChr->Core()->m_DeepFrozen && !Warning)
-	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "warning", "This client is deeply frozen, repeat the command to defrost him.");
-		Warning = true;
-		return;
-	}
-	if(pChr->Core()->m_DeepFrozen && Warning)
-	{
-		pChr->Core()->m_DeepFrozen = false;
-		Warning = false;
-	}
-	pChr->m_FreezeTime = 2;
-	pChr->GetPlayer()->m_RconFreeze = false;
-	CServer *pServ = (CServer *)pSelf->Server();
-	str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been defrosted.", pServ->ClientName(Victim), Victim);
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
-}
+// void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
+// {
+// 	CGameContext *pSelf = (CGameContext *)pUserData;
+// 	if(!CheckClientID(pResult->m_ClientID))
+// 		return;
+
+// 	int Victim = pResult->GetVictim();
+// 	static bool Warning = false;
+// 	char aBuf[128];
+// 	CCharacter *pChr = pSelf->GetPlayerChar(Victim);
+// 	if(!pChr)
+// 		return;
+// 	if(pChr->Core()->m_DeepFrozen && !Warning)
+// 	{
+// 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "warning", "This client is deeply frozen, repeat the command to defrost him.");
+// 		Warning = true;
+// 		return;
+// 	}
+// 	if(pChr->Core()->m_DeepFrozen && Warning)
+// 	{
+// 		pChr->Core()->m_DeepFrozen = false;
+// 		Warning = false;
+// 	}
+// 	pChr->m_FreezeTime = 2;
+// 	pChr->GetPlayer()->m_RconFreeze = false;
+// 	CServer *pServ = (CServer *)pSelf->Server();
+// 	str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been defrosted.", pServ->ClientName(Victim), Victim);
+// 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
+// }
 
 void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 {

@@ -37,9 +37,6 @@
 %s wins!
 == %s 승리!
 
--Page %d-
-== -페이지 %d-
-
 Abort
 == 취소
 
@@ -114,9 +111,6 @@ Delete
 
 Delete demo
 == 데모 삭제
-
-Demo details
-== 데모 세부정보
 
 Demos
 == 데모
@@ -268,9 +262,6 @@ No servers match your filter criteria
 Ok
 == 확인
 
-Open
-== 열기
-
 Parent Folder
 == 상위 폴더
 
@@ -285,10 +276,6 @@ Ping
 
 Pistol
 == 권총
-
-[Demo browser]
-Play
-== 재생
 
 Player
 == 플레이어
@@ -317,9 +304,6 @@ Red team
 Red team wins!
 == 레드팀 승리!
 
-Refresh
-== 새로고침
-
 Remote console
 == 원격 콘솔
 
@@ -328,9 +312,6 @@ Remove
 
 Remove friend
 == 친구 제거
-
-Rename
-== 이름 변경
 
 Rename demo
 == 데모 이름 변경
@@ -412,9 +393,6 @@ The audio device couldn't be initialised.
 
 The server is running a non-standard tuning on a pure game type.
 == 이 서버는 조정된 비표준 게임 모드를 실행하고 있습니다.
-
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== 편집기에서 맵이 저장되지 않았습니다. 종료 전 되돌아가 저장하실 수 있습니다.
 
 Time limit
 == 시간 제한
@@ -502,17 +480,11 @@ Internet
 Round
 == 라운드
 
-Quit anyway?
-== 상관 않고 종료하시겠습니까?
-
 News
 == 뉴스
 
 Join game
 == 게임 참가
-
-Crc:
-== Crc:
 
 FSAA samples
 == FSAA 샘플
@@ -526,17 +498,11 @@ LAN
 Sound volume
 == 음량
 
-Created:
-== 날짜:
-
 Record demo
 == 데모 녹화
 
 Miscellaneous
 == 여러가지
-
-Netversion:
-== 통신 버전:
 
 UI Color
 == UI 색상
@@ -547,9 +513,6 @@ Your skin
 Max Screenshots
 == 최대 스크린샷 수
 
-Size:
-== 사이즈:
-
 Hue
 == 색조
 
@@ -559,32 +522,17 @@ Reset to defaults
 Laser
 == 레이저
 
-Version:
-== 버전:
-
-Map:
-== 맵:
-
 Lht.
 == 명도
 
 Alpha
 == 투명도
 
-Length:
-== 길이:
-
 Name plates size
 == 이름 표시 크기
 
-Type:
-== 종류:
-
 Successfully saved the replay!
 == 리플레이 저장에 성공했습니다!
-
-Saving ddnet-settings.cfg failed
-== ddnet-settings.cfg 저장 실패
 
 Replay feature is disabled!
 == 리플레이 기능을 비활성화했습니다!
@@ -718,17 +666,11 @@ Types
 Leak IP
 == IP 노출하기
 
-Please use a different name
-== 다른 이름을 사용해 주십시오
-
 Remove chat
 == 채팅 제거
 
 Demofile: %s
 == 데모 파일: %s
-
-Markers:
-== 마커:
 
 Demo
 == 데모
@@ -747,9 +689,6 @@ Fetch Info
 
 Demos directory
 == 데모 폴더
-
-Render
-== 렌더링
 
 Connect Dummy
 == 더미 연결
@@ -813,9 +752,6 @@ Automatically create statboard csv
 
 Max CSVs
 == 최대 CSV 파일 수
-
-Dummy settings
-== 더미 설정
 
 Download skins
 == 스킨 다운로드
@@ -970,9 +906,6 @@ Show votes window after voting
 Show kill messages
 == 킬 메시지 표시
 
-Kill Messages
-== 킬 메시지
-
 Use old chat style
 == 구식 채팅 방식 사용
 
@@ -1057,17 +990,11 @@ Show local player's key presses
 Background
 == 배경
 
-Entities Background color
-== 엔티티 배경 색상
-
 Use current map as background
 == 현재 맵을 배경으로 사용
 
 Show tiles layers from BG map
 == 배경 맵의 타일 레이어 표시
-
-Regular Background Color
-== 기본 배경 색상
 
 New random timeout code
 == 새로운 무작위 타임아웃 코드 생성
@@ -1258,9 +1185,6 @@ Tutorial
 
 Can't find a Tutorial server
 == 튜토리얼 서버를 찾을 수 없음
-
-Toggle to edit your dummy settings
-== 더미 설정으로 전환합니다.
 
 Choose default eyes when joining a server
 == 서버 입장 시의 기본 눈을 선택합니다.
@@ -1648,16 +1572,73 @@ Copy info
 Create a random skin
 == 무작위 스킨 생성
 
+Error playing demo
+== 
+
+Saving settings to '%s' failed
+== 
+
 Quitting. Please wait…
 == 
 
 Restarting. Please wait…
 == 
 
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
 Multi-View
 == 
 
+Some map images could not be loaded. Check the local console for details.
+== 
+
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
+Press a key…
+== 
+
 Rename folder
+== 
+
+Render complete
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
 == 
 
 A demo with this name already exists
@@ -1670,6 +1651,15 @@ Unable to rename the folder
 == 
 
 (paused)
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
+== 
+
+Communities
 == 
 
 No server selected
@@ -1738,10 +1728,26 @@ Cut length
 Render cut to video
 == 
 
+Please use a different filename
+== 
+
 All combined
 == 
 
+No demo selected
+== 
+
 Folder Link
+== 
+
+Created
+== 
+
+Netversion
+== 
+
+[Demo details]
+map not included
 == 
 
 Are you sure that you want to delete the folder '%s'?
@@ -1753,10 +1759,52 @@ Delete folder
 Unable to delete the folder '%s'. Make sure it's empty first.
 == 
 
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
+== 
+
 Axis
 == 
 
 Graphics card
+== 
+
+Info Messages
+== 
+
+Show local time always
+== 
+
+Chat font size
+== 
+
+Chat width
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
+Show finish messages
+== 
+
+Enable ghost
+== 
+
+Only save improvements
+== 
+
+Regular background color
+== 
+
+Entities background color
 == 
 
 Moved ingame

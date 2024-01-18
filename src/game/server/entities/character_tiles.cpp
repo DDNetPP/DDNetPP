@@ -35,7 +35,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		char aBuf[256];
 		if(m_DDRaceState == DDRACE_STARTED)
 		{
-			float time = (float)(Server()->Tick() - Controller->m_Teams.GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
+			float time = (float)(Server()->Tick() - Controller->Teams().GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
 			if(time < 0.000001f)
 				return false;
 			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCID()), (int)time / 60, time - ((int)time / 60 * 60));

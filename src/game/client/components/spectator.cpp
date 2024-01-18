@@ -1,7 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
-#include <climits>
+#include <limits>
 
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
@@ -132,7 +132,7 @@ void CSpectator::ConSpectateClosest(IConsole::IResult *pResult, void *pUserData)
 		CurPosition.y = CurCharacter.m_Y;
 	}
 
-	int ClosestDistance = INT_MAX;
+	int ClosestDistance = std::numeric_limits<int>::max();
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(i == SpectatorID || !Snap.m_apPlayerInfos[i] || Snap.m_apPlayerInfos[i]->m_Team == TEAM_SPECTATORS || (SpectatorID == SPEC_FREEVIEW && i == Snap.m_LocalClientID))
@@ -162,6 +162,7 @@ void CSpectator::ConMultiView(IConsole::IResult *pResult, void *pUserData)
 
 CSpectator::CSpectator()
 {
+	m_SelectorMouse = vec2(0.0f, 0.0f);
 	OnReset();
 	m_OldMouseX = m_OldMouseY = 0.0f;
 }
@@ -500,7 +501,7 @@ void CSpectator::OnRender()
 
 		const CAnimState *pIdleState = CAnimState::GetIdle();
 		vec2 OffsetToMid;
-		RenderTools()->GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
+		CRenderTools::GetRenderTeeOffsetToRenderedTee(pIdleState, &TeeInfo, OffsetToMid);
 		vec2 TeeRenderPos(Width / 2.0f + x + 20.0f, Height / 2.0f + y + BoxMove + LineHeight / 2.0f + OffsetToMid.y);
 
 		RenderTools()->RenderTee(pIdleState, &TeeInfo, EMOTE_NORMAL, vec2(1.0f, 0.0f), TeeRenderPos, TeeAlpha);

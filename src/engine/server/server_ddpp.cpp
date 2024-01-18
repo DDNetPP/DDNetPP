@@ -30,6 +30,7 @@
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
 #include <vector>
+#include <zlib.h>
 
 #include "register.h"
 #include "server.h"

@@ -27,7 +27,7 @@ void CCharacterCore::setFlagPos(int id, vec2 Pos, int Stand, vec2 Vel, int carry
 	}
 }
 
-void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore)
+void CCharacterCore::DDPPWrite(CNetObj_CharacterCore *pObjCore) const
 {
 	if(m_HookedPlayer == FLAG_BLUE || m_HookedPlayer == FLAG_RED)
 		pObjCore->m_HookedPlayer = -1;
@@ -198,7 +198,7 @@ void CCharacterCore::DDPPTick()
 				Temp.y = SaturatedAdd(-DragSpeed, DragSpeed, FlagVel.y, Accel * Dir.y * 1.5f);
 
 				/*int FMapIndex = Collision()->GetPureMapIndex(FPos);int FMapIndexL = Collision()->GetPureMapIndex(vec2(FPos.x + (28/2)+4,FPos.y));int FMapIndexR = Collision()->GetPureMapIndex(vec2(FPos.x - (28/2)-4,FPos.y));int FMapIndexT = Collision()->GetPureMapIndex(vec2(FPos.x,FPos.y + (28/2)+4));int FMapIndexB = Collision()->GetPureMapIndex(vec2(FPos.x,FPos.y - (28/2)-4));
-				
+
 				int m_FTileIndex = Collision()->GetTileIndex(FMapIndex);int m_FTileFlags = Collision()->GetTileFlags(FMapIndex);int m_FTileIndexL = Collision()->GetTileIndex(FMapIndexL);int m_FTileFlagsL = Collision()->GetTileFlags(FMapIndexL);int m_FTileIndexR = Collision()->GetTileIndex(FMapIndexR);
 				int m_FTileFlagsR = Collision()->GetTileFlags(FMapIndexR);int m_FTileIndexB = Collision()->GetTileIndex(FMapIndexB);int m_FTileFlagsB = Collision()->GetTileFlags(FMapIndexB);int m_FTileIndexT = Collision()->GetTileIndex(FMapIndexT);int m_FTileFlagsT = Collision()->GetTileFlags(FMapIndexT);
 				int m_FTileFIndex = Collision()->GetFTileIndex(FMapIndex);int m_FTileFFlags = Collision()->GetFTileFlags(FMapIndex);int m_FTileFIndexL = Collision()->GetFTileIndex(FMapIndexL);int m_FTileFFlagsL = Collision()->GetFTileFlags(FMapIndexL);int m_FTileFIndexR = Collision()->GetFTileIndex(FMapIndexR);int m_FTileFFlagsR = Collision()->GetFTileFlags(FMapIndexR);

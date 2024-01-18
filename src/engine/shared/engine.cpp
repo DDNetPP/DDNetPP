@@ -10,19 +10,6 @@
 #include <engine/shared/network.h>
 #include <engine/storage.h>
 
-CHostLookup::CHostLookup() = default;
-
-CHostLookup::CHostLookup(const char *pHostname, int Nettype)
-{
-	str_copy(m_aHostname, pHostname);
-	m_Nettype = Nettype;
-}
-
-void CHostLookup::Run()
-{
-	m_Result = net_host_lookup(m_aHostname, &m_Addr, m_Nettype);
-}
-
 class CEngine : public IEngine
 {
 public:
@@ -62,15 +49,8 @@ public:
 		str_copy(m_aAppName, pAppname);
 		if(!Test)
 		{
-			//
 			dbg_msg("engine", "running on %s-%s-%s", CONF_FAMILY_STRING, CONF_PLATFORM_STRING, CONF_ARCH_STRING);
-#ifdef CONF_ARCH_ENDIAN_LITTLE
-			dbg_msg("engine", "arch is little endian");
-#elif defined(CONF_ARCH_ENDIAN_BIG)
-			dbg_msg("engine", "arch is big endian");
-#else
-			dbg_msg("engine", "unknown endian");
-#endif
+			dbg_msg("engine", "arch is %s", CONF_ARCH_ENDIAN_STRING);
 
 			char aVersionStr[128];
 			if(os_version_str(aVersionStr, sizeof(aVersionStr)))
@@ -91,6 +71,7 @@ public:
 	~CEngine() override
 	{
 		m_JobPool.Destroy();
+		CNetBase::CloseLog();
 	}
 
 	void Init() override
@@ -101,8 +82,6 @@ public:
 		if(!m_pConsole || !m_pStorage)
 			return;
 
-		char aFullPath[IO_MAX_PATH_LENGTH];
-		m_pStorage->GetCompletePath(IStorage::TYPE_SAVE, "dumps/", aFullPath, sizeof(aFullPath));
 		m_pConsole->Register("dbg_lognetwork", "", CFGFLAG_SERVER | CFGFLAG_CLIENT, Con_DbgLognetwork, this, "Log the network");
 	}
 

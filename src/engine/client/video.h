@@ -1,7 +1,7 @@
 #ifndef ENGINE_CLIENT_VIDEO_H
 #define ENGINE_CLIENT_VIDEO_H
 
-#include <base/system.h>
+#include <base/lock.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -21,7 +21,7 @@ class CGraphics_Threaded;
 class ISound;
 class IStorage;
 
-extern LOCK g_WriteLock;
+extern CLock g_WriteLock;
 
 // a wrapper around a single output AVStream
 struct OutputStream
@@ -79,7 +79,7 @@ private:
 	void FinishFrames(OutputStream *pStream);
 	void CloseStream(OutputStream *pStream);
 
-	bool AddStream(OutputStream *pStream, AVFormatContext *pOC, const AVCodec **ppCodec, enum AVCodecID CodecId);
+	bool AddStream(OutputStream *pStream, AVFormatContext *pOC, const AVCodec **ppCodec, enum AVCodecID CodecId) const;
 
 	CGraphics_Threaded *m_pGraphics;
 	IStorage *m_pStorage;

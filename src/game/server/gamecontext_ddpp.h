@@ -665,8 +665,6 @@ private:
 	static void ConDummies(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConHammer(IConsole::IResult *pResult, void *pUserData);
-	static void ConFreeze(IConsole::IResult *pResult, void *pUserData);
-	static void ConUnFreeze(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConCC(IConsole::IResult *pResult, void *pUserData);
 	static void Condisarm(IConsole::IResult *pResult, void *pUserData);

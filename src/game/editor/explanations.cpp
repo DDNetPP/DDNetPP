@@ -14,7 +14,7 @@ const char *CEditor::ExplainDDNet(int Tile, int Layer)
 			return "HOOKABLE: It's possible to hook and collide with it.";
 		break;
 	case TILE_DEATH:
-		if(Layer == LAYER_GAME)
+		if(Layer == LAYER_GAME || Layer == LAYER_FRONT)
 			return "KILL: Kills the tee.";
 		break;
 	case TILE_NOHOOK:
@@ -670,6 +670,8 @@ const char *CEditor::Explain(EExplanation Explanation, int Tile, int Layer)
 {
 	switch(Explanation)
 	{
+	case EExplanation::NONE:
+		return nullptr;
 	case EExplanation::DDNET:
 		return ExplainDDNet(Tile, Layer);
 	case EExplanation::FNG:

@@ -26,9 +26,6 @@
 %s wins!
 == %s vinder!
 
--Page %d-
-== -Side %d-
-
 Abort
 == Afbryd
 
@@ -103,9 +100,6 @@ Delete
 
 Delete demo
 == Slet demo
-
-Demo details
-== Demoinformation
 
 Demofile: %s
 == Demo fil: %s
@@ -260,9 +254,6 @@ No servers match your filter criteria
 Ok
 == Ok
 
-Open
-== Åben
-
 Parent Folder
 == Overmappe
 
@@ -277,10 +268,6 @@ Ping
 
 Pistol
 == Pistol
-
-[Demo browser]
-Play
-== Spil
 
 Play background music
 == Spil baggrunds musik
@@ -315,9 +302,6 @@ Red team
 Red team wins!
 == Rødt hold vinder!
 
-Refresh
-== Opdater
-
 Remote console
 == Serverkonsol
 
@@ -326,9 +310,6 @@ Remove
 
 Remove friend
 == Fjern ven
-
-Rename
-== Omdøb navn
 
 Rename demo
 == Omdøb navn på demoen
@@ -417,9 +398,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == Denne server kører på en ikke-standard tuning på en ren spilletype.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Der er en ikke-gemt bane i editoren, vil du gemme den før du afslutter?
-
 Time limit
 == Tidsbegrænsning
 
@@ -503,23 +481,11 @@ FSAA samples
 Sound volume
 == Lydstyrke
 
-Created:
-== Lavet:
-
 Max Screenshots
 == Max antal screenshots
 
-Length:
-== Længde
-
 Laser
 == Laser
-
-Netversion:
-== Netversion:
-
-Map:
-== Bane
 
 Hue
 == Farve
@@ -530,17 +496,8 @@ Record demo
 Your skin
 == Dit udseende
 
-Size:
-== Størrelse:
-
 Reset to defaults
 == Sæt til standard
-
-Quit anyway?
-== Afslut alligevel?
-
-Version:
-== Version:
 
 Round
 == Runde
@@ -551,9 +508,6 @@ Lht.
 UI Color
 == Brugergrænseflade farve
 
-Crc:
-== Crc:
-
 Alpha
 == Alpha
 
@@ -563,14 +517,8 @@ LAN
 Name plates size
 == Størrelse på navneskilte
 
-Type:
-== Type:
-
 Successfully saved the replay!
 == Afspilning blev gemt!
-
-Saving ddnet-settings.cfg failed
-== Gemning af ddnet-settings.cfg mislykkedes
 
 Replay feature is disabled!
 == Afspilningsfunktionen er deaktiveret!
@@ -692,14 +640,8 @@ Countries
 Types
 == Typer
 
-Please use a different name
-== Brug et andet navn
-
 Remove chat
 == Fjern chat
-
-Markers:
-== Markører:
 
 %.2f MiB
 == %.2f MiB
@@ -724,9 +666,6 @@ Fetch Info
 
 Demos directory
 == Demoer vejviser
-
-Render
-== Gør
 
 Connecting dummy
 == Forbinder dummy
@@ -784,9 +723,6 @@ Automatically create statboard csv
 
 Max CSVs
 == Maks CSVs
-
-Dummy settings
-== Dummy indstillinger
 
 Download skins
 == Download skind
@@ -1173,6 +1109,12 @@ Could not initialize the given graphics backend, this is probably because you di
 Could not save downloaded map. Try manually deleting this file: %s
 == 
 
+Error playing demo
+== 
+
+Saving settings to '%s' failed
+== 
+
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
 == 
 
@@ -1209,6 +1151,33 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
 Position:
 == 
 
@@ -1224,7 +1193,19 @@ Multi-View
 Team %d
 == 
 
+Some map images could not be loaded. Check the local console for details.
+== 
+
 Uploading map data to GPU
+== 
+
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
+Press a key…
 == 
 
 Trying to determine UDP connectivity...
@@ -1248,6 +1229,18 @@ Requesting to join the game
 Rename folder
 == 
 
+Render complete
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
 A demo with this name already exists
 == 
 
@@ -1261,6 +1254,12 @@ File '%s' already exists, do you want to overwrite it?
 == 
 
 (paused)
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
 == 
 
 Join Tutorial Server
@@ -1297,6 +1296,9 @@ Getting server list from master server
 == 
 
 Are you sure that you want to disconnect and switch to a different server?
+== 
+
+Communities
 == 
 
 Copy info
@@ -1410,13 +1412,29 @@ Cut length
 Render cut to video
 == 
 
+Please use a different filename
+== 
+
 Loading demo files
 == 
 
 All combined
 == 
 
+No demo selected
+== 
+
 Folder Link
+== 
+
+Created
+== 
+
+Netversion
+== 
+
+[Demo details]
+map not included
 == 
 
 Open the directory that contains the demo files
@@ -1440,6 +1458,15 @@ Unable to delete the folder '%s'. Make sure it's empty first.
 Loading ghost files
 == 
 
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
+== 
+
 Menu opened. Press Esc key again to close menu.
 == 
 
@@ -1461,7 +1488,7 @@ Open the directory that contains the configuration and user files
 Open the directory to add custom themes
 == 
 
-Toggle to edit your dummy settings
+Dummy
 == 
 
 Loading skin files
@@ -1470,10 +1497,10 @@ Loading skin files
 Download community skins
 == 
 
-Choose default eyes when joining a server
+Create a random skin
 == 
 
-Create a random skin
+Choose default eyes when joining a server
 == 
 
 Open the directory to add custom skins
@@ -1538,9 +1565,6 @@ Are you sure that you want to reset the controls to their defaults?
 Cancel
 == 
 
-Dummy
-== 
-
 Windowed
 == 
 
@@ -1580,10 +1604,13 @@ Name Plate
 Hook Collisions
 == 
 
-Kill Messages
+Info Messages
 == 
 
 Show health, shields and ammo
+== 
+
+Show local time always
 == 
 
 DDRace HUD
@@ -1616,6 +1643,12 @@ Show freeze bars
 Opacity of freeze bars inside freeze
 == 
 
+Chat font size
+== 
+
+Chat width
+== 
+
 Preview
 == 
 
@@ -1623,6 +1656,12 @@ Show hook strength indicator
 == 
 
 Show local player's key presses
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
 == 
 
 Hook collision line
@@ -1647,6 +1686,9 @@ Something hookable
 == 
 
 A Tee
+== 
+
+Show finish messages
 == 
 
 Normal Color
@@ -1685,10 +1727,16 @@ Freeze Laser Inner Color
 Set all to Rifle
 == 
 
+Enable ghost
+== 
+
 When you cross the start line, show a ghost tee replicating the movements of your best time
 == 
 
 Opacity
+== 
+
+Only save improvements
 == 
 
 Adjust the opacity of entities belonging to other teams, such as tees and nameplates
@@ -1703,10 +1751,10 @@ Tries to predict other entities to give a feel of low latency
 Background
 == 
 
-Entities Background color
+Regular background color
 == 
 
-Regular Background Color
+Entities background color
 == 
 
 Run on join

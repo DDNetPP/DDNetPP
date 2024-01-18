@@ -1,10 +1,13 @@
-#include <game/editor/editor.h>
+#include "layer_sounds.h"
 
+#include <game/editor/editor.h>
+#include <game/editor/editor_actions.h>
 #include <game/generated/client_data.h>
 
 static const float s_SourceVisualSize = 32.0f;
 
-CLayerSounds::CLayerSounds()
+CLayerSounds::CLayerSounds(CEditor *pEditor) :
+	CLayer(pEditor)
 {
 	m_Type = LAYERTYPE_SOUNDS;
 	m_aName[0] = '\0';
@@ -37,7 +40,7 @@ void CLayerSounds::Render(bool Tileset)
 		if(Source.m_PosEnv >= 0)
 		{
 			ColorRGBA Channels;
-			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
+			CEditor::EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
 			OffsetX = Channels.r;
 			OffsetY = Channels.g;
 		}
@@ -87,7 +90,7 @@ void CLayerSounds::Render(bool Tileset)
 		if(Source.m_PosEnv >= 0)
 		{
 			ColorRGBA Channels;
-			m_pEditor->EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
+			CEditor::EnvelopeEval(Source.m_PosEnvOffset, Source.m_PosEnv, Channels, m_pEditor);
 			OffsetX = Channels.r;
 			OffsetY = Channels.g;
 		}
@@ -142,8 +145,7 @@ void CLayerSounds::BrushSelecting(CUIRect Rect)
 int CLayerSounds::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 {
 	// create new layer
-	std::shared_ptr<CLayerSounds> pGrabbed = std::make_shared<CLayerSounds>();
-	pGrabbed->m_pEditor = m_pEditor;
+	std::shared_ptr<CLayerSounds> pGrabbed = std::make_shared<CLayerSounds>(m_pEditor);
 	pGrabbed->m_Sound = m_Sound;
 	pBrush->AddLayer(pGrabbed);
 
@@ -169,6 +171,7 @@ int CLayerSounds::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 void CLayerSounds::BrushPlace(std::shared_ptr<CLayer> pBrush, float wx, float wy)
 {
 	std::shared_ptr<CLayerSounds> pSoundLayer = std::static_pointer_cast<CLayerSounds>(pBrush);
+	std::vector<CSoundSource> vAddedSources;
 	for(const auto &Source : pSoundLayer->m_vSources)
 	{
 		CSoundSource n = Source;
@@ -177,38 +180,39 @@ void CLayerSounds::BrushPlace(std::shared_ptr<CLayer> pBrush, float wx, float wy
 		n.m_Position.y += f2fx(wy);
 
 		m_vSources.push_back(n);
+		vAddedSources.push_back(n);
 	}
+	m_pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionSoundPlace>(m_pEditor, m_pEditor->m_SelectedGroup, m_pEditor->m_vSelectedLayers[0], vAddedSources));
 	m_pEditor->m_Map.OnModify();
 }
 
 CUI::EPopupMenuFunctionResult CLayerSounds::RenderProperties(CUIRect *pToolBox)
 {
-	enum
-	{
-		PROP_SOUND = 0,
-		NUM_PROPS,
-	};
-
 	CProperty aProps[] = {
 		{"Sound", m_Sound, PROPTYPE_SOUND, -1, 0},
 		{nullptr},
 	};
 
-	static int s_aIds[NUM_PROPS] = {0};
+	static int s_aIds[(int)ELayerSoundsProp::NUM_PROPS] = {0};
 	int NewVal = 0;
-	int Prop = m_pEditor->DoProperties(pToolBox, aProps, s_aIds, &NewVal);
-	if(Prop != -1)
+	auto [State, Prop] = m_pEditor->DoPropertiesWithState<ELayerSoundsProp>(pToolBox, aProps, s_aIds, &NewVal);
+	if(Prop != ELayerSoundsProp::PROP_NONE)
 	{
 		m_pEditor->m_Map.OnModify();
 	}
 
-	if(Prop == PROP_SOUND)
+	static CLayerSoundsPropTracker s_Tracker(m_pEditor);
+	s_Tracker.Begin(this, Prop, State);
+
+	if(Prop == ELayerSoundsProp::PROP_SOUND)
 	{
 		if(NewVal >= 0)
 			m_Sound = NewVal % m_pEditor->m_Map.m_vpSounds.size();
 		else
 			m_Sound = -1;
 	}
+
+	s_Tracker.End(Prop, State);
 
 	return CUI::POPUP_KEEP_OPEN;
 }
@@ -230,4 +234,9 @@ void CLayerSounds::ModifyEnvelopeIndex(FIndexModifyFunction Func)
 std::shared_ptr<CLayer> CLayerSounds::Duplicate() const
 {
 	return std::make_shared<CLayerSounds>(*this);
+}
+
+const char *CLayerSounds::TypeName() const
+{
+	return "sounds";
 }

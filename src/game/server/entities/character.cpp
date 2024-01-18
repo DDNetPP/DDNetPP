@@ -544,7 +544,7 @@ void CCharacter::FireWeapon()
 				MouseTarget //InitDir
 			);
 
-			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, TeamMask());
+			GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
 		}
 	}
 	break;
@@ -558,7 +558,7 @@ void CCharacter::FireWeapon()
 			LaserReach = TuningList()[m_TuneZone].m_LaserReach;
 
 		new CLaser(&GameServer()->m_World, m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_SHOTGUN);
-		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE, TeamMask());
+		GameServer()->CreateSound(m_Pos, SOUND_SHOTGUN_FIRE, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	break;
 
@@ -596,7 +596,7 @@ void CCharacter::FireWeapon()
 			LaserReach = TuningList()[m_TuneZone].m_LaserReach;
 
 		new CLaser(GameWorld(), m_Pos, Direction, LaserReach, m_pPlayer->GetCID(), WEAPON_LASER);
-		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask());
+		GameServer()->CreateSound(m_Pos, SOUND_LASER_FIRE, TeamMask()); // NOLINT(clang-analyzer-unix.Malloc)
 	}
 	break;
 
@@ -695,8 +695,12 @@ void CCharacter::GiveNinja()
 
 void CCharacter::RemoveNinja()
 {
+	m_Core.m_Ninja.m_ActivationDir = vec2(0, 0);
+	m_Core.m_Ninja.m_ActivationTick = 0;
 	m_Core.m_Ninja.m_CurrentMoveTime = 0;
+	m_Core.m_Ninja.m_OldVelAmount = 0;
 	m_Core.m_aWeapons[WEAPON_NINJA].m_Got = false;
+	m_Core.m_aWeapons[WEAPON_NINJA].m_Ammo = 0;
 	m_Core.m_ActiveWeapon = m_LastWeapon;
 
 	SetWeapon(m_Core.m_ActiveWeapon);
@@ -782,8 +786,7 @@ void CCharacter::PreTick()
 	// set emote
 	if(m_EmoteStop < Server()->Tick())
 	{
-		m_EmoteType = m_pPlayer->GetDefaultEmote();
-		m_EmoteStop = -1;
+		SetEmote(m_pPlayer->GetDefaultEmote(), -1);
 	}
 
 	DDPP_Tick();
@@ -971,7 +974,16 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
-		Server()->StopRecord(m_pPlayer->GetCID());
+	{
+		CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
+
+		if(pData->m_RecordStopTick - Server()->Tick() <= Server()->TickSpeed() && pData->m_RecordStopTick != -1)
+			Server()->SaveDemo(m_pPlayer->GetCID(), pData->m_RecordFinishTime);
+		else
+			Server()->StopRecord(m_pPlayer->GetCID());
+
+		pData->m_RecordStopTick = -1;
+	}
 
 	// to have invis motd updates OR to have the spooky ghost skin in the kill msg
 	// (because it was too fast otherwise and the normal skin would be there if its a selfkill and not a death tile kill)
@@ -1047,8 +1059,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	if(!DDPPTakeDamage(Force, Dmg, From, Weapon) && Dmg)
 	{
-		m_EmoteType = EMOTE_PAIN;
-		m_EmoteStop = Server()->Tick() + 500 * Server()->TickSpeed() / 1000;
+		SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 	}
 
 	vec2 Temp = m_Core.m_Vel + Force;
@@ -1143,7 +1154,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 
 	if(Emote == EMOTE_NORMAL)
 	{
-		if(250 - ((Server()->Tick() - m_LastAction) % (250)) < 5)
+		if(5 * Server()->TickSpeed() - ((Server()->Tick() - m_LastAction) % (5 * Server()->TickSpeed())) < 5)
 			Emote = EMOTE_BLINK;
 	}
 
@@ -1184,6 +1195,10 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 			pCharacter->m_Angle -= (int)(2.0f * pi * 256.0f);
 		}
 
+		// m_HookTick can be negative when using the hook_duration tune, which 0.7 clients
+		// will consider invalid. https://github.com/ddnet/ddnet/issues/3915
+		pCharacter->m_HookTick = maximum(0, pCharacter->m_HookTick);
+
 		pCharacter->m_Tick = Tick;
 		pCharacter->m_Emote = Emote;
 		pCharacter->m_AttackTick = m_AttackTick;
@@ -1198,7 +1213,18 @@ void CCharacter::SnapCharacter(int SnappingClient, int ID)
 
 		pCharacter->m_Health = Health;
 		pCharacter->m_Armor = Armor;
-		pCharacter->m_TriggeredEvents = 0;
+		int TriggeredEvents7 = 0;
+		if(m_Core.m_TriggeredEvents & COREEVENT_GROUND_JUMP)
+			TriggeredEvents7 |= protocol7::COREEVENTFLAG_GROUND_JUMP;
+		if(m_Core.m_TriggeredEvents & COREEVENT_AIR_JUMP)
+			TriggeredEvents7 |= protocol7::COREEVENTFLAG_AIR_JUMP;
+		if(m_Core.m_TriggeredEvents & COREEVENT_HOOK_ATTACH_PLAYER)
+			TriggeredEvents7 |= protocol7::COREEVENTFLAG_HOOK_ATTACH_PLAYER;
+		if(m_Core.m_TriggeredEvents & COREEVENT_HOOK_ATTACH_GROUND)
+			TriggeredEvents7 |= protocol7::COREEVENTFLAG_HOOK_ATTACH_GROUND;
+		if(m_Core.m_TriggeredEvents & COREEVENT_HOOK_HIT_NOHOOK)
+			TriggeredEvents7 |= protocol7::COREEVENTFLAG_HOOK_HIT_NOHOOK;
+		pCharacter->m_TriggeredEvents = TriggeredEvents7;
 	}
 }
 
@@ -1234,7 +1260,7 @@ bool CCharacter::IsSnappingCharacterInView(int SnappingClientID)
 	{
 		for(const auto &AttachedPlayerID : m_Core.m_AttachedPlayers)
 		{
-			CCharacter *pOtherPlayer = GameServer()->GetPlayerChar(AttachedPlayerID);
+			const CCharacter *pOtherPlayer = GameServer()->GetPlayerChar(AttachedPlayerID);
 			if(pOtherPlayer && pOtherPlayer->m_Core.HookedPlayer() == ID)
 			{
 				if(!NetworkClippedLine(SnappingClientID, m_Pos, pOtherPlayer->m_Pos))

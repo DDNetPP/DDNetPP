@@ -9,15 +9,21 @@
 #define BASE_SYSTEM_H
 
 #include "detect.h"
+#include "types.h"
 
 #ifndef __USE_GNU
 #define __USE_GNU
 #endif
 
+#include <chrono>
 #include <cinttypes>
 #include <cstdarg>
 #include <cstdint>
+#include <cstring>
 #include <ctime>
+#include <functional>
+#include <mutex>
+#include <optional>
 #include <string>
 
 #ifdef __MINGW32__
@@ -40,9 +46,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
-
-#include <chrono>
-#include <functional>
 
 #if __cplusplus >= 201703L
 #define MAYBE_UNUSED [[maybe_unused]]
@@ -71,7 +74,7 @@
  * @see dbg_break
  */
 #define dbg_assert(test, msg) dbg_assert_imp(__FILE__, __LINE__, test, msg)
-void dbg_assert_imp(const char *filename, int line, int test, const char *msg);
+void dbg_assert_imp(const char *filename, int line, bool test, const char *msg);
 
 #ifdef __clang_analyzer__
 #include <cassert>
@@ -171,7 +174,12 @@ void mem_move(void *dest, const void *source, size_t size);
  * @param block Pointer to the block to zero out.
  * @param size Size of the block.
  */
-void mem_zero(void *block, size_t size);
+template<typename T>
+inline void mem_zero(T *block, size_t size)
+{
+	static_assert((std::is_trivially_constructible<T>::value && std::is_trivially_destructible<T>::value) || std::is_fundamental<T>::value);
+	memset(block, 0, size);
+}
 
 /**
  * Compares two blocks of memory
@@ -219,11 +227,7 @@ enum
 	IOSEEK_START = 0,
 	IOSEEK_CUR = 1,
 	IOSEEK_END = 2,
-
-	IO_MAX_PATH_LENGTH = 512,
 };
-
-typedef void *IOHANDLE;
 
 /**
  * Opens a file.
@@ -292,9 +296,9 @@ char *io_read_all_str(IOHANDLE io);
  * @param io Handle to the file.
  * @param size Number of bytes to skip.
  *
- * @return Number of bytes skipped.
+ * @return 0 on success.
  */
-unsigned io_skip(IOHANDLE io, int size);
+int io_skip(IOHANDLE io, int size);
 
 /**
  * Writes data from a buffer to file.
@@ -607,107 +611,11 @@ void thread_detach(void *thread);
  */
 bool thread_init_and_detach(void (*threadfunc)(void *), void *user, const char *name);
 
-// Enable thread safety attributes only with clang.
-// The attributes can be safely erased when compiling with other compilers.
-#if defined(__clang__) && (!defined(SWIG))
-#define THREAD_ANNOTATION_ATTRIBUTE__(x) __attribute__((x))
-#else
-#define THREAD_ANNOTATION_ATTRIBUTE__(x) // no-op
-#endif
-
-#define CAPABILITY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(capability(x))
-
-#define SCOPED_CAPABILITY \
-	THREAD_ANNOTATION_ATTRIBUTE__(scoped_lockable)
-
-#define GUARDED_BY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(guarded_by(x))
-
-#define PT_GUARDED_BY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(pt_guarded_by(x))
-
-#define ACQUIRED_BEFORE(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(acquired_before(__VA_ARGS__))
-
-#define ACQUIRED_AFTER(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(acquired_after(__VA_ARGS__))
-
-#define REQUIRES(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(requires_capability(__VA_ARGS__))
-
-#define REQUIRES_SHARED(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
-
-#define ACQUIRE(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
-
-#define ACQUIRE_SHARED(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
-
-#define RELEASE(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(release_capability(__VA_ARGS__))
-
-#define RELEASE_SHARED(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
-
-#define RELEASE_GENERIC(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
-
-#define TRY_ACQUIRE(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_capability(__VA_ARGS__))
-
-#define TRY_ACQUIRE_SHARED(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_shared_capability(__VA_ARGS__))
-
-#define EXCLUDES(...) \
-	THREAD_ANNOTATION_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
-
-#define ASSERT_CAPABILITY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(x))
-
-#define ASSERT_SHARED_CAPABILITY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_capability(x))
-
-#define RETURN_CAPABILITY(x) \
-	THREAD_ANNOTATION_ATTRIBUTE__(lock_returned(x))
-
-#define NO_THREAD_SAFETY_ANALYSIS \
-	THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
-
 /**
- * @defgroup Locks
- *
- * Synchronization primitives.
- *
+ * @defgroup Semaphore
  * @see Threads
  */
 
-typedef CAPABILITY("mutex") void *LOCK;
-
-/**
- * @ingroup Locks
- */
-LOCK lock_create();
-/**
- * @ingroup Locks
- */
-void lock_destroy(LOCK lock);
-
-/**
- * @ingroup Locks
- */
-int lock_trylock(LOCK lock) TRY_ACQUIRE(1, lock);
-/**
- * @ingroup Locks
- */
-void lock_wait(LOCK lock) ACQUIRE(lock);
-/**
- * @ingroup Locks
- */
-void lock_unlock(LOCK lock) RELEASE(lock);
-
-/* Group: Semaphores */
 #if defined(CONF_FAMILY_WINDOWS)
 typedef void *SEMAPHORE;
 #elif defined(CONF_PLATFORM_MACOS)
@@ -721,19 +629,19 @@ typedef sem_t SEMAPHORE;
 #endif
 
 /**
- * @ingroup Locks
+ * @ingroup Semaphore
  */
 void sphore_init(SEMAPHORE *sem);
 /**
- * @ingroup Locks
+ * @ingroup Semaphore
  */
 void sphore_wait(SEMAPHORE *sem);
 /**
- * @ingroup Locks
+ * @ingroup Semaphore
  */
 void sphore_signal(SEMAPHORE *sem);
 /**
- * @ingroup Locks
+ * @ingroup Semaphore
  */
 void sphore_destroy(SEMAPHORE *sem);
 
@@ -803,12 +711,15 @@ int time_houroftheday();
 /**
  * @ingroup Time
  */
-enum
+enum ETimeSeason
 {
 	SEASON_SPRING = 0,
 	SEASON_SUMMER,
 	SEASON_AUTUMN,
 	SEASON_WINTER,
+	SEASON_EASTER,
+	SEASON_HALLOWEEN,
+	SEASON_XMAS,
 	SEASON_NEWYEAR
 };
 
@@ -821,47 +732,17 @@ enum
  *
  * @see SEASON_SPRING
  */
-int time_season();
+ETimeSeason time_season();
 
 /**
  * @defgroup Network-General
  */
 
-/**
- * @ingroup Network-General
- */
-typedef struct NETSOCKET_INTERNAL *NETSOCKET;
+extern const NETADDR NETADDR_ZEROED;
 
 /**
  * @ingroup Network-General
  */
-enum
-{
-	NETADDR_MAXSTRSIZE = 1 + (8 * 4 + 7) + 1 + 1 + 5 + 1, // [XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX]:XXXXX
-
-	NETTYPE_LINK_BROADCAST = 4,
-
-	NETTYPE_INVALID = 0,
-	NETTYPE_IPV4 = 1,
-	NETTYPE_IPV6 = 2,
-	NETTYPE_WEBSOCKET_IPV4 = 8,
-
-	NETTYPE_ALL = NETTYPE_IPV4 | NETTYPE_IPV6 | NETTYPE_WEBSOCKET_IPV4,
-	NETTYPE_MASK = NETTYPE_ALL | NETTYPE_LINK_BROADCAST,
-};
-
-/**
- * @ingroup Network-General
- */
-typedef struct NETADDR
-{
-	unsigned int type;
-	unsigned char ip[16];
-	unsigned short port;
-
-	bool operator==(const NETADDR &other) const;
-	bool operator!=(const NETADDR &other) const { return !(*this == other); }
-} NETADDR;
 
 #ifdef CONF_FAMILY_UNIX
 /**
@@ -1830,6 +1711,21 @@ void str_timestamp_format(char *buffer, int buffer_size, const char *format)
 void str_timestamp_ex(time_t time, char *buffer, int buffer_size, const char *format)
 	GNUC_ATTRIBUTE((format(strftime, 4, 0)));
 
+/**
+ * Parses a string into a timestamp following a specified format.
+ *
+ * @ingroup Timestamp
+ *
+ * @param string Pointer to the string to parse
+ * @param format The time format to use (for example FORMAT_NOSPACE below)
+ * @param timestamp Pointer to the timestamp result
+ *
+ * @return true on success, false if the string could not be parsed with the specified format
+ *
+ */
+bool timestamp_from_str(const char *string, const char *format, time_t *timestamp)
+	GNUC_ATTRIBUTE((format(strftime, 2, 0)));
+
 #define FORMAT_TIME "%H:%M:%S"
 #define FORMAT_SPACE "%Y-%m-%d %H:%M:%S"
 #define FORMAT_NOSPACE "%Y-%m-%d_%H-%M-%S"
@@ -1841,6 +1737,7 @@ enum
 	TIME_MINS,
 	TIME_HOURS_CENTISECS,
 	TIME_MINS_CENTISECS,
+	TIME_SECS_CENTISECS,
 };
 
 /*
@@ -1893,15 +1790,7 @@ void str_escape(char **dst, const char *src, const char *end);
  *
  * @remark The strings are treated as zero-terminated strings.
  */
-typedef int (*FS_LISTDIR_CALLBACK)(const char *name, int is_dir, int dir_type, void *user);
 void fs_listdir(const char *dir, FS_LISTDIR_CALLBACK cb, int type, void *user);
-
-typedef struct
-{
-	const char *m_pName;
-	time_t m_TimeCreated; // seconds since UNIX Epoch
-	time_t m_TimeModified; // seconds since UNIX Epoch
-} CFsFileInfo;
 
 /**
  * Lists the files and folders in a directory and gets additional file information.
@@ -1915,7 +1804,6 @@ typedef struct
  *
  * @remark The strings are treated as zero-terminated strings.
  */
-typedef int (*FS_LISTDIR_CALLBACK_FILEINFO)(const CFsFileInfo *info, int is_dir, int dir_type, void *user);
 void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int type, void *user);
 
 /**
@@ -2210,6 +2098,15 @@ int open_link(const char *link);
 */
 int open_file(const char *path);
 
+/**
+ * Swaps the endianness of data. Each element is swapped individually by reversing its bytes.
+ *
+ * @param data Pointer to data to be swapped.
+ * @param elem_size Size in bytes of each element.
+ * @param num Number of elements.
+ *
+ * @remark The caller must ensure that the data is at least `elem_size * num` bytes in size.
+ */
 void swap_endian(void *data, unsigned elem_size, unsigned num);
 
 typedef struct
@@ -2256,14 +2153,6 @@ int str_isallnum(const char *str);
 int str_isallnum_hex(const char *str);
 
 unsigned str_quickhash(const char *str);
-
-enum
-{
-	/**
-	 * The maximum bytes necessary to encode one Unicode codepoint with UTF-8.
-	 */
-	UTF8_BYTE_LENGTH = 4,
-};
 
 int str_utf8_to_skeleton(const char *str, int *buf, int buf_len);
 
@@ -2650,9 +2539,9 @@ int kill_process(PROCESS process);
 
 /**
  * Checks if a process is alive.
- * 
+ *
  * @param process Handle/PID of the process.
- * 
+ *
  * @return bool Returns true if the process is currently running, false if the process is not running (dead).
  */
 bool is_process_alive(PROCESS process);
@@ -2804,6 +2693,7 @@ public:
  * @return The argument as a wide character string.
  *
  * @remark The argument string must be zero-terminated.
+ * @remark Fails with assertion error if passed utf8 is invalid.
  */
 std::wstring windows_utf8_to_wide(const char *str);
 
@@ -2813,11 +2703,12 @@ std::wstring windows_utf8_to_wide(const char *str);
  *
  * @param wide_str The wide character string to convert.
  *
- * @return The argument as a utf8 encoded string.
+ * @return The argument as a utf8 encoded string, wrapped in an optional.
+ * The optional is empty, if the wide string contains invalid codepoints.
  *
  * @remark The argument string must be zero-terminated.
  */
-std::string windows_wide_to_utf8(const wchar_t *wide_str);
+std::optional<std::string> windows_wide_to_utf8(const wchar_t *wide_str);
 
 /**
  * This is a RAII wrapper to initialize/uninitialize the Windows COM library,
@@ -2914,7 +2805,7 @@ bool shell_unregister_application(const char *executable, bool *updated);
  * Notifies the system that a protocol or file extension has been changed and the shell needs to be updated.
  *
  * @ingroup Shell
- * 
+ *
  * @remark This is a potentially expensive operation, so it should only be called when necessary.
  */
 void shell_update();

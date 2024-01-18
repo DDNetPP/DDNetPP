@@ -3,24 +3,23 @@
 #include <atomic>
 #include <cctype>
 #include <charconv>
+#include <chrono>
+#include <cinttypes>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <iomanip> // std::get_time
 #include <iterator> // std::size
+#include <sstream> // std::istringstream
 #include <string_view>
 
 #include "ddpp_logs.h"
+#include "lock.h"
+#include "logger.h"
 #include "system.h"
 
-#include "lock_scope.h"
-#include "logger.h"
-
 #include <sys/types.h>
-
-#include <chrono>
-
-#include <cinttypes>
 
 #if defined(CONF_WEBSOCKETS)
 #include <engine/shared/websockets.h>
@@ -93,29 +92,17 @@
 
 IOHANDLE io_stdin()
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return GetStdHandle(STD_INPUT_HANDLE);
-#else
 	return stdin;
-#endif
 }
 
 IOHANDLE io_stdout()
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return GetStdHandle(STD_OUTPUT_HANDLE);
-#else
 	return stdout;
-#endif
 }
 
 IOHANDLE io_stderr()
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return GetStdHandle(STD_ERROR_HANDLE);
-#else
 	return stderr;
-#endif
 }
 
 IOHANDLE io_current_exe()
@@ -127,8 +114,8 @@ IOHANDLE io_current_exe()
 	{
 		return 0;
 	}
-	const std::string path = windows_wide_to_utf8(wide_path);
-	return io_open(path.c_str(), IOFLAG_READ);
+	const std::optional<std::string> path = windows_wide_to_utf8(wide_path);
+	return path.has_value() ? io_open(path.value().c_str(), IOFLAG_READ) : 0;
 #elif defined(CONF_PLATFORM_MACOS)
 	char path[IO_MAX_PATH_LENGTH];
 	uint32_t path_size = sizeof(path);
@@ -198,13 +185,13 @@ bool dbg_assert_has_failed()
 	return dbg_assert_failing.load(std::memory_order_acquire);
 }
 
-void dbg_assert_imp(const char *filename, int line, int test, const char *msg)
+void dbg_assert_imp(const char *filename, int line, bool test, const char *msg)
 {
 	if(!test)
 	{
 		const bool already_failing = dbg_assert_has_failed();
 		dbg_assert_failing.store(true, std::memory_order_release);
-		char error[256];
+		char error[512];
 		str_format(error, sizeof(error), "%s(%d): %s", filename, line, msg);
 		dbg_msg("assert", "%s", error);
 		if(!already_failing)
@@ -252,11 +239,6 @@ void mem_move(void *dest, const void *source, size_t size)
 	memmove(dest, source, size);
 }
 
-void mem_zero(void *block, size_t size)
-{
-	memset(block, 0, size);
-}
-
 int mem_comp(const void *a, const void *b, size_t size)
 {
 	return memcmp(a, b, size);
@@ -282,20 +264,24 @@ IOHANDLE io_open_impl(const char *filename, int flags)
 	const std::wstring wide_filename = windows_utf8_to_wide(filename);
 	DWORD desired_access;
 	DWORD creation_disposition;
+	const char *open_mode;
 	if((flags & IOFLAG_READ) != 0)
 	{
 		desired_access = FILE_READ_DATA;
 		creation_disposition = OPEN_EXISTING;
+		open_mode = "rb";
 	}
 	else if(flags == IOFLAG_WRITE)
 	{
 		desired_access = FILE_WRITE_DATA;
-		creation_disposition = OPEN_ALWAYS;
+		creation_disposition = CREATE_ALWAYS;
+		open_mode = "wb";
 	}
 	else if(flags == IOFLAG_APPEND)
 	{
 		desired_access = FILE_APPEND_DATA;
 		creation_disposition = OPEN_ALWAYS;
+		open_mode = "ab";
 	}
 	else
 	{
@@ -304,8 +290,12 @@ IOHANDLE io_open_impl(const char *filename, int flags)
 	}
 	HANDLE handle = CreateFileW(wide_filename.c_str(), desired_access, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if(handle == INVALID_HANDLE_VALUE)
-		return nullptr; // otherwise all existing checks don't work for the invalid handle
-	return handle;
+		return nullptr;
+	const int file_descriptor = _open_osfhandle((intptr_t)handle, 0);
+	dbg_assert(file_descriptor != -1, "_open_osfhandle failure");
+	FILE *file_stream = _fdopen(file_descriptor, open_mode);
+	dbg_assert(file_stream != nullptr, "_fdopen failure");
+	return file_stream;
 #else
 	const char *open_mode;
 	if((flags & IOFLAG_READ) != 0)
@@ -346,13 +336,7 @@ IOHANDLE io_open(const char *filename, int flags)
 
 unsigned io_read(IOHANDLE io, void *buffer, unsigned size)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	DWORD actual_size;
-	ReadFile((HANDLE)io, buffer, size, &actual_size, nullptr);
-	return actual_size;
-#else
 	return fread(buffer, 1, size, (FILE *)io);
-#endif
 }
 
 void io_read_all(IOHANDLE io, void **result, unsigned *result_len)
@@ -400,32 +384,13 @@ char *io_read_all_str(IOHANDLE io)
 	return (char *)buffer;
 }
 
-unsigned io_skip(IOHANDLE io, int size)
+int io_skip(IOHANDLE io, int size)
 {
 	return io_seek(io, size, IOSEEK_CUR);
 }
 
 int io_seek(IOHANDLE io, int offset, int origin)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	DWORD move_method;
-	switch(origin)
-	{
-	case IOSEEK_START:
-		move_method = FILE_BEGIN;
-		break;
-	case IOSEEK_CUR:
-		move_method = FILE_CURRENT;
-		break;
-	case IOSEEK_END:
-		move_method = FILE_END;
-		break;
-	default:
-		dbg_assert(false, "origin invalid");
-		return -1;
-	}
-	return SetFilePointer((HANDLE)io, offset, nullptr, move_method) == INVALID_SET_FILE_POINTER ? -1 : 0;
-#else
 	int real_origin;
 	switch(origin)
 	{
@@ -443,17 +408,11 @@ int io_seek(IOHANDLE io, int offset, int origin)
 		return -1;
 	}
 	return fseek((FILE *)io, offset, real_origin);
-#endif
 }
 
 long int io_tell(IOHANDLE io)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	const DWORD position = SetFilePointer((HANDLE)io, 0, nullptr, FILE_CURRENT);
-	return position == INVALID_SET_FILE_POINTER ? -1 : position;
-#else
 	return ftell((FILE *)io);
-#endif
 }
 
 long int io_length(IOHANDLE io)
@@ -467,23 +426,12 @@ long int io_length(IOHANDLE io)
 
 int io_error(IOHANDLE io)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	// Only works when called directly after the operation that failed
-	return GetLastError();
-#else
 	return ferror((FILE *)io);
-#endif
 }
 
 unsigned io_write(IOHANDLE io, const void *buffer, unsigned size)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	DWORD actual_size;
-	WriteFile((HANDLE)io, buffer, size, &actual_size, nullptr);
-	return actual_size;
-#else
 	return fwrite(buffer, 1, size, (FILE *)io);
-#endif
 }
 
 bool io_write_newline(IOHANDLE io)
@@ -497,20 +445,12 @@ bool io_write_newline(IOHANDLE io)
 
 int io_close(IOHANDLE io)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return CloseHandle((HANDLE)io) == 0;
-#else
 	return fclose((FILE *)io) != 0;
-#endif
 }
 
 int io_flush(IOHANDLE io)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return FlushFileBuffers((HANDLE)io) == FALSE;
-#else
 	return fflush((FILE *)io);
-#endif
 }
 
 int io_sync(IOHANDLE io)
@@ -520,7 +460,7 @@ int io_sync(IOHANDLE io)
 		return 1;
 	}
 #if defined(CONF_FAMILY_WINDOWS)
-	return FlushFileBuffers((HANDLE)io) == 0;
+	return FlushFileBuffers((HANDLE)_get_osfhandle(_fileno((FILE *)io))) == FALSE;
 #else
 	return fsync(fileno((FILE *)io)) != 0;
 #endif
@@ -529,10 +469,9 @@ int io_sync(IOHANDLE io)
 #define ASYNC_BUFSIZE (8 * 1024)
 #define ASYNC_LOCAL_BUFSIZE (64 * 1024)
 
-// TODO: Use Thread Safety Analysis when this file is converted to C++
 struct ASYNCIO
 {
-	LOCK lock;
+	CLock lock;
 	IOHANDLE io;
 	SEMAPHORE sphore;
 	void *thread;
@@ -585,13 +524,12 @@ static void aio_handle_free_and_unlock(ASYNCIO *aio) RELEASE(aio->lock)
 	aio->refcount--;
 
 	do_free = aio->refcount == 0;
-	lock_unlock(aio->lock);
+	aio->lock.unlock();
 	if(do_free)
 	{
 		free(aio->buffer);
 		sphore_destroy(&aio->sphore);
-		lock_destroy(aio->lock);
-		free(aio);
+		delete aio;
 	}
 }
 
@@ -599,7 +537,7 @@ static void aio_thread(void *user)
 {
 	ASYNCIO *aio = (ASYNCIO *)user;
 
-	lock_wait(aio->lock);
+	aio->lock.lock();
 	while(true)
 	{
 		struct BUFFERS buffers;
@@ -618,9 +556,9 @@ static void aio_thread(void *user)
 				aio_handle_free_and_unlock(aio);
 				break;
 			}
-			lock_unlock(aio->lock);
+			aio->lock.unlock();
 			sphore_wait(&aio->sphore);
-			lock_wait(aio->lock);
+			aio->lock.lock();
 			continue;
 		}
 
@@ -644,26 +582,25 @@ static void aio_thread(void *user)
 			}
 		}
 		aio->read_pos = (aio->read_pos + buffers.len1 + buffers.len2) % aio->buffer_size;
-		lock_unlock(aio->lock);
+		aio->lock.unlock();
 
 		io_write(aio->io, local_buffer, local_buffer_len);
 		io_flush(aio->io);
 		result_io_error = io_error(aio->io);
 
-		lock_wait(aio->lock);
+		aio->lock.lock();
 		aio->error = result_io_error;
 	}
 }
 
 ASYNCIO *aio_new(IOHANDLE io)
 {
-	ASYNCIO *aio = (ASYNCIO *)malloc(sizeof(*aio));
+	ASYNCIO *aio = new ASYNCIO;
 	if(!aio)
 	{
 		return 0;
 	}
 	aio->io = io;
-	aio->lock = lock_create();
 	sphore_init(&aio->sphore);
 	aio->thread = 0;
 
@@ -671,8 +608,7 @@ ASYNCIO *aio_new(IOHANDLE io)
 	if(!aio->buffer)
 	{
 		sphore_destroy(&aio->sphore);
-		lock_destroy(aio->lock);
-		free(aio);
+		delete aio;
 		return 0;
 	}
 	aio->buffer_size = ASYNC_BUFSIZE;
@@ -687,8 +623,7 @@ ASYNCIO *aio_new(IOHANDLE io)
 	{
 		free(aio->buffer);
 		sphore_destroy(&aio->sphore);
-		lock_destroy(aio->lock);
-		free(aio);
+		delete aio;
 		return 0;
 	}
 	return aio;
@@ -717,12 +652,12 @@ static unsigned int next_buffer_size(unsigned int cur_size, unsigned int need_si
 
 void aio_lock(ASYNCIO *aio) ACQUIRE(aio->lock)
 {
-	lock_wait(aio->lock);
+	aio->lock.lock();
 }
 
 void aio_unlock(ASYNCIO *aio) RELEASE(aio->lock)
 {
-	lock_unlock(aio->lock);
+	aio->lock.unlock();
 	sphore_signal(&aio->sphore);
 }
 
@@ -807,7 +742,7 @@ int aio_error(ASYNCIO *aio)
 
 void aio_free(ASYNCIO *aio)
 {
-	lock_wait(aio->lock);
+	aio->lock.lock();
 	if(aio->thread)
 	{
 		thread_detach(aio->thread);
@@ -879,16 +814,14 @@ void *thread_init(void (*threadfunc)(void *), void *u, const char *name)
 #if defined(CONF_PLATFORM_MACOS) && defined(__MAC_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_10
 		pthread_attr_set_qos_class_np(&attr, QOS_CLASS_USER_INTERACTIVE, 0);
 #endif
-		int result = pthread_create(&id, &attr, thread_run, data);
-		if(result != 0)
-		{
-			dbg_msg("thread", "creating %s thread failed: %d", name, result);
-			return 0;
-		}
+		dbg_assert(pthread_create(&id, &attr, thread_run, data) == 0, "pthread_create failure");
 		return (void *)id;
 	}
 #elif defined(CONF_FAMILY_WINDOWS)
-	return CreateThread(NULL, 0, thread_run, data, 0, NULL);
+	HANDLE thread = CreateThread(nullptr, 0, thread_run, data, 0, nullptr);
+	dbg_assert(thread != nullptr, "CreateThread failure");
+	// TODO: Set thread name using SetThreadDescription (would require minimum Windows 10 version 1607)
+	return thread;
 #else
 #error not implemented
 #endif
@@ -941,98 +874,6 @@ bool thread_init_and_detach(void (*threadfunc)(void *), void *u, const char *nam
 		thread_detach(thread);
 	return thread != nullptr;
 }
-
-#if defined(CONF_FAMILY_UNIX)
-typedef pthread_mutex_t LOCKINTERNAL;
-#elif defined(CONF_FAMILY_WINDOWS)
-typedef CRITICAL_SECTION LOCKINTERNAL;
-#else
-#error not implemented on this platform
-#endif
-
-LOCK lock_create()
-{
-	LOCKINTERNAL *lock = (LOCKINTERNAL *)malloc(sizeof(*lock));
-#if defined(CONF_FAMILY_UNIX)
-	int result;
-#endif
-
-	if(!lock)
-		return 0;
-
-#if defined(CONF_FAMILY_UNIX)
-	result = pthread_mutex_init(lock, 0x0);
-	if(result != 0)
-	{
-		dbg_msg("lock", "init failed: %d", result);
-		free(lock);
-		return 0;
-	}
-#elif defined(CONF_FAMILY_WINDOWS)
-	InitializeCriticalSection((LPCRITICAL_SECTION)lock);
-#else
-#error not implemented on this platform
-#endif
-	return (LOCK)lock;
-}
-
-void lock_destroy(LOCK lock)
-{
-#if defined(CONF_FAMILY_UNIX)
-	int result = pthread_mutex_destroy((LOCKINTERNAL *)lock);
-	if(result != 0)
-		dbg_msg("lock", "destroy failed: %d", result);
-#elif defined(CONF_FAMILY_WINDOWS)
-	DeleteCriticalSection((LPCRITICAL_SECTION)lock);
-#else
-#error not implemented on this platform
-#endif
-	free(lock);
-}
-
-int lock_trylock(LOCK lock)
-{
-#if defined(CONF_FAMILY_UNIX)
-	return pthread_mutex_trylock((LOCKINTERNAL *)lock);
-#elif defined(CONF_FAMILY_WINDOWS)
-	return !TryEnterCriticalSection((LPCRITICAL_SECTION)lock);
-#else
-#error not implemented on this platform
-#endif
-}
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wthread-safety-analysis"
-#endif
-void lock_wait(LOCK lock)
-{
-#if defined(CONF_FAMILY_UNIX)
-	int result = pthread_mutex_lock((LOCKINTERNAL *)lock);
-	if(result != 0)
-		dbg_msg("lock", "lock failed: %d", result);
-#elif defined(CONF_FAMILY_WINDOWS)
-	EnterCriticalSection((LPCRITICAL_SECTION)lock);
-#else
-#error not implemented on this platform
-#endif
-}
-
-void lock_unlock(LOCK lock)
-{
-#if defined(CONF_FAMILY_UNIX)
-	int result = pthread_mutex_unlock((LOCKINTERNAL *)lock);
-	if(result != 0)
-		dbg_msg("lock", "unlock failed: %d", result);
-#elif defined(CONF_FAMILY_WINDOWS)
-	LeaveCriticalSection((LPCRITICAL_SECTION)lock);
-#else
-#error not implemented on this platform
-#endif
-}
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 
 #if defined(CONF_FAMILY_WINDOWS)
 void sphore_init(SEMAPHORE *sem)
@@ -1125,6 +966,9 @@ int64_t time_freq()
 }
 
 /* -----  network ----- */
+
+const NETADDR NETADDR_ZEROED = {NETTYPE_INVALID, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0};
+
 static void netaddr_to_sockaddr_in(const NETADDR *src, struct sockaddr_in *dest)
 {
 	mem_zero(dest, sizeof(struct sockaddr_in));
@@ -1155,9 +999,7 @@ static void netaddr_to_sockaddr_in6(const NETADDR *src, struct sockaddr_in6 *des
 
 static void sockaddr_to_netaddr(const struct sockaddr *src, NETADDR *dst)
 {
-	// Filled by accept, clang-analyzer probably can't tell because of the
-	// (struct sockaddr *) cast.
-	if(src->sa_family == AF_INET) // NOLINT(clang-analyzer-core.UndefinedBinaryOperatorResult)
+	if(src->sa_family == AF_INET)
 	{
 		mem_zero(dst, sizeof(NETADDR));
 		dst->type = NETTYPE_IPV4;
@@ -1620,9 +1462,9 @@ std::string windows_format_system_message(unsigned long error)
 	if(FormatMessageW(flags, NULL, error, 0, (LPWSTR)&wide_message, 0, NULL) == 0)
 		return "unknown error";
 
-	const std::string message = windows_wide_to_utf8(wide_message);
+	std::optional<std::string> message = windows_wide_to_utf8(wide_message);
 	LocalFree(wide_message);
-	return message;
+	return message.value_or("(invalid UTF-16 in error message)");
 }
 #endif
 
@@ -1712,14 +1554,17 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 
 			/* set broadcast */
 			if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char *)&broadcast, sizeof(broadcast)) != 0)
-				dbg_msg("socket", "Setting BROADCAST on ipv4 failed: %d", errno);
+			{
+				dbg_msg("socket", "Setting BROADCAST on ipv4 failed: %d", net_errno());
+			}
 
 			{
 				/* set DSCP/TOS */
 				int iptos = 0x10 /* IPTOS_LOWDELAY */;
-				//int iptos = 46; /* High Priority */
 				if(setsockopt(socket, IPPROTO_IP, IP_TOS, (char *)&iptos, sizeof(iptos)) != 0)
-					dbg_msg("socket", "Setting TOS on ipv4 failed: %d", errno);
+				{
+					dbg_msg("socket", "Setting TOS on ipv4 failed: %d", net_errno());
+				}
 			}
 		}
 	}
@@ -1757,15 +1602,21 @@ NETSOCKET net_udp_create(NETADDR bindaddr)
 
 			/* set broadcast */
 			if(setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char *)&broadcast, sizeof(broadcast)) != 0)
-				dbg_msg("socket", "Setting BROADCAST on ipv6 failed: %d", errno);
+			{
+				dbg_msg("socket", "Setting BROADCAST on ipv6 failed: %d", net_errno());
+			}
 
+			// TODO: setting IP_TOS on ipv6 with setsockopt is not supported on Windows, see https://github.com/ddnet/ddnet/issues/7605
+#if !defined(CONF_FAMILY_WINDOWS)
 			{
 				/* set DSCP/TOS */
 				int iptos = 0x10 /* IPTOS_LOWDELAY */;
-				//int iptos = 46; /* High Priority */
 				if(setsockopt(socket, IPPROTO_IP, IP_TOS, (char *)&iptos, sizeof(iptos)) != 0)
-					dbg_msg("socket", "Setting TOS on ipv6 failed: %d", errno);
+				{
+					dbg_msg("socket", "Setting TOS on ipv6 failed: %d", net_errno());
+				}
 			}
+#endif
 		}
 	}
 
@@ -2270,36 +2121,43 @@ void fs_listdir(const char *dir, FS_LISTDIR_CALLBACK cb, int type, void *user)
 	if(handle == INVALID_HANDLE_VALUE)
 		return;
 
-	/* add all the entries */
 	do
 	{
-		const std::string current_entry = windows_wide_to_utf8(finddata.cFileName);
-		if(cb(current_entry.c_str(), (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0, type, user))
+		const std::optional<std::string> current_entry = windows_wide_to_utf8(finddata.cFileName);
+		if(!current_entry.has_value())
+		{
+			log_error("filesystem", "ERROR: file/folder name containing invalid UTF-16 found in folder '%s'", dir);
+			continue;
+		}
+		if(cb(current_entry.value().c_str(), (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0, type, user))
 			break;
 	} while(FindNextFileW(handle, &finddata));
 
 	FindClose(handle);
 #else
-	struct dirent *entry;
-	char buffer[IO_MAX_PATH_LENGTH];
-	int length;
-	DIR *d = opendir(dir);
-
-	if(!d)
+	DIR *dir_handle = opendir(dir);
+	if(dir_handle == nullptr)
 		return;
 
+	char buffer[IO_MAX_PATH_LENGTH];
 	str_format(buffer, sizeof(buffer), "%s/", dir);
-	length = str_length(buffer);
-
-	while((entry = readdir(d)) != NULL)
+	size_t length = str_length(buffer);
+	while(true)
 	{
-		str_copy(buffer + length, entry->d_name, (int)sizeof(buffer) - length);
+		struct dirent *entry = readdir(dir_handle);
+		if(entry == nullptr)
+			break;
+		if(!str_utf8_check(entry->d_name))
+		{
+			log_error("filesystem", "ERROR: file/folder name containing invalid UTF-8 found in folder '%s'", dir);
+			continue;
+		}
+		str_copy(buffer + length, entry->d_name, sizeof(buffer) - length);
 		if(cb(entry->d_name, fs_is_dir(buffer), type, user))
 			break;
 	}
 
-	/* close the directory and return */
-	closedir(d);
+	closedir(dir_handle);
 #endif
 }
 
@@ -2315,13 +2173,17 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 	if(handle == INVALID_HANDLE_VALUE)
 		return;
 
-	/* add all the entries */
 	do
 	{
-		const std::string current_entry = windows_wide_to_utf8(finddata.cFileName);
+		const std::optional<std::string> current_entry = windows_wide_to_utf8(finddata.cFileName);
+		if(!current_entry.has_value())
+		{
+			log_error("filesystem", "ERROR: file/folder name containing invalid UTF-16 found in folder '%s'", dir);
+			continue;
+		}
 
 		CFsFileInfo info;
-		info.m_pName = current_entry.c_str();
+		info.m_pName = current_entry.value().c_str();
 		info.m_TimeCreated = filetime_to_unixtime(&finddata.ftCreationTime);
 		info.m_TimeModified = filetime_to_unixtime(&finddata.ftLastWriteTime);
 
@@ -2331,25 +2193,29 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 
 	FindClose(handle);
 #else
-	struct dirent *entry;
-	time_t created = -1, modified = -1;
-	char buffer[IO_MAX_PATH_LENGTH];
-	int length;
-	DIR *d = opendir(dir);
-
-	if(!d)
+	DIR *dir_handle = opendir(dir);
+	if(dir_handle == nullptr)
 		return;
 
+	char buffer[IO_MAX_PATH_LENGTH];
 	str_format(buffer, sizeof(buffer), "%s/", dir);
-	length = str_length(buffer);
+	size_t length = str_length(buffer);
 
-	while((entry = readdir(d)) != NULL)
+	while(true)
 	{
-		CFsFileInfo info;
-
-		str_copy(buffer + length, entry->d_name, (int)sizeof(buffer) - length);
+		struct dirent *entry = readdir(dir_handle);
+		if(entry == nullptr)
+			break;
+		if(!str_utf8_check(entry->d_name))
+		{
+			log_error("filesystem", "ERROR: file/folder name containing invalid UTF-8 found in folder '%s'", dir);
+			continue;
+		}
+		str_copy(buffer + length, entry->d_name, sizeof(buffer) - length);
+		time_t created = -1, modified = -1;
 		fs_file_time(buffer, &created, &modified);
 
+		CFsFileInfo info;
 		info.m_pName = entry->d_name;
 		info.m_TimeCreated = created;
 		info.m_TimeModified = modified;
@@ -2358,8 +2224,7 @@ void fs_listdir_fileinfo(const char *dir, FS_LISTDIR_CALLBACK_FILEINFO cb, int t
 			break;
 	}
 
-	/* close the directory and return */
-	closedir(d);
+	closedir(dir_handle);
 #endif
 }
 
@@ -2368,17 +2233,33 @@ int fs_storage_path(const char *appname, char *path, int max)
 #if defined(CONF_FAMILY_WINDOWS)
 	WCHAR *wide_home = _wgetenv(L"APPDATA");
 	if(!wide_home)
+	{
+		path[0] = '\0';
 		return -1;
-	const std::string home = windows_wide_to_utf8(wide_home);
-	str_format(path, max, "%s/%s", home.c_str(), appname);
+	}
+	const std::optional<std::string> home = windows_wide_to_utf8(wide_home);
+	if(!home.has_value())
+	{
+		log_error("filesystem", "ERROR: the APPDATA environment variable contains invalid UTF-16");
+		path[0] = '\0';
+		return -1;
+	}
+	str_format(path, max, "%s/%s", home.value().c_str(), appname);
 	return 0;
-#elif defined(CONF_PLATFORM_ANDROID)
-	// just use the data directory
-	return -1;
 #else
 	char *home = getenv("HOME");
 	if(!home)
+	{
+		path[0] = '\0';
 		return -1;
+	}
+
+	if(!str_utf8_check(home))
+	{
+		log_error("filesystem", "ERROR: the HOME environment variable contains invalid UTF-8");
+		path[0] = '\0';
+		return -1;
+	}
 
 #if defined(CONF_PLATFORM_HAIKU)
 	str_format(path, max, "%s/config/settings/%s", home, appname);
@@ -2394,7 +2275,15 @@ int fs_storage_path(const char *appname, char *path, int max)
 	{
 		char *data_home = getenv("XDG_DATA_HOME");
 		if(data_home)
+		{
+			if(!str_utf8_check(data_home))
+			{
+				log_error("filesystem", "ERROR: the XDG_DATA_HOME environment variable contains invalid UTF-8");
+				path[0] = '\0';
+				return -1;
+			}
 			str_format(path, max, "%s/%s", data_home, appname);
+		}
 		else
 			str_format(path, max, "%s/.local/share/%s", home, appname);
 	}
@@ -2519,19 +2408,31 @@ char *fs_getcwd(char *buffer, int buffer_size)
 #if defined(CONF_FAMILY_WINDOWS)
 	const DWORD size_needed = GetCurrentDirectoryW(0, nullptr);
 	std::wstring wide_current_dir(size_needed, L'0');
-	DWORD result = GetCurrentDirectoryW(size_needed, &wide_current_dir[0]);
+	DWORD result = GetCurrentDirectoryW(size_needed, wide_current_dir.data());
 	if(result == 0)
 	{
 		const DWORD LastError = GetLastError();
 		const std::string ErrorMsg = windows_format_system_message(LastError);
 		dbg_msg("filesystem", "GetCurrentDirectoryW failed: %ld %s", LastError, ErrorMsg.c_str());
+		buffer[0] = '\0';
 		return nullptr;
 	}
-	const std::string current_dir = windows_wide_to_utf8(wide_current_dir.c_str());
-	str_copy(buffer, current_dir.c_str(), buffer_size);
+	const std::optional<std::string> current_dir = windows_wide_to_utf8(wide_current_dir.c_str());
+	if(!current_dir.has_value())
+	{
+		buffer[0] = '\0';
+		return nullptr;
+	}
+	str_copy(buffer, current_dir.value().c_str(), buffer_size);
 	return buffer;
 #else
-	return getcwd(buffer, buffer_size);
+	char *result = getcwd(buffer, buffer_size);
+	if(result == nullptr || !str_utf8_check(result))
+	{
+		buffer[0] = '\0';
+		return nullptr;
+	}
+	return result;
 #endif
 }
 
@@ -2671,7 +2572,7 @@ int net_socket_read_wait(NETSOCKET sock, int time)
 	tv.tv_usec = time % 1000000;
 	sockid = 0;
 
-	FD_ZERO(&readfds); // NOLINT(clang-analyzer-security.insecureAPI.bzero)
+	FD_ZERO(&readfds);
 	if(sock->ipv4sock >= 0)
 	{
 		FD_SET(sock->ipv4sock, &readfds);
@@ -2728,17 +2629,57 @@ int time_houroftheday()
 	return time_info->tm_hour;
 }
 
-int time_season()
+static bool time_iseasterday(time_t time_data, struct tm *time_info)
+{
+	// compute Easter day (Sunday) using https://en.wikipedia.org/w/index.php?title=Computus&oldid=890710285#Anonymous_Gregorian_algorithm
+	int Y = time_info->tm_year + 1900;
+	int a = Y % 19;
+	int b = Y / 100;
+	int c = Y % 100;
+	int d = b / 4;
+	int e = b % 4;
+	int f = (b + 8) / 25;
+	int g = (b - f + 1) / 3;
+	int h = (19 * a + b - d - g + 15) % 30;
+	int i = c / 4;
+	int k = c % 4;
+	int L = (32 + 2 * e + 2 * i - h - k) % 7;
+	int m = (a + 11 * h + 22 * L) / 451;
+	int month = (h + L - 7 * m + 114) / 31;
+	int day = ((h + L - 7 * m + 114) % 31) + 1;
+
+	// (now-1d ≤ easter ≤ now+2d) <=> (easter-2d ≤ now ≤ easter+1d) <=> (Good Friday ≤ now ≤ Easter Monday)
+	for(int day_offset = -1; day_offset <= 2; day_offset++)
+	{
+		time_data = time_data + day_offset * 60 * 60 * 24;
+		time_info = localtime(&time_data);
+		if(time_info->tm_mon == month - 1 && time_info->tm_mday == day)
+			return true;
+	}
+	return false;
+}
+
+ETimeSeason time_season()
 {
 	time_t time_data;
-	struct tm *time_info;
-
 	time(&time_data);
-	time_info = localtime(&time_data);
+	struct tm *time_info = localtime(&time_data);
 
 	if((time_info->tm_mon == 11 && time_info->tm_mday == 31) || (time_info->tm_mon == 0 && time_info->tm_mday == 1))
 	{
 		return SEASON_NEWYEAR;
+	}
+	else if(time_info->tm_mon == 11 && time_info->tm_mday >= 24 && time_info->tm_mday <= 26)
+	{
+		return SEASON_XMAS;
+	}
+	else if((time_info->tm_mon == 9 && time_info->tm_mday == 31) || (time_info->tm_mon == 10 && time_info->tm_mday == 1))
+	{
+		return SEASON_HALLOWEEN;
+	}
+	else if(time_iseasterday(time_data, time_info))
+	{
+		return SEASON_EASTER;
 	}
 
 	switch(time_info->tm_mon)
@@ -2759,8 +2700,10 @@ int time_season()
 	case 9:
 	case 10:
 		return SEASON_AUTUMN;
+	default:
+		dbg_assert(false, "Invalid month");
+		dbg_break();
 	}
-	return SEASON_SPRING; // should never happen
 }
 
 void str_append(char *dst, const char *src, int dst_size)
@@ -3506,6 +3449,22 @@ void str_timestamp(char *buffer, int buffer_size)
 {
 	str_timestamp_format(buffer, buffer_size, FORMAT_NOSPACE);
 }
+
+bool timestamp_from_str(const char *string, const char *format, time_t *timestamp)
+{
+	std::tm tm{};
+	std::istringstream ss(string);
+	ss >> std::get_time(&tm, format);
+	if(ss.fail() || !ss.eof())
+		return false;
+
+	time_t result = mktime(&tm);
+	if(result < 0)
+		return false;
+
+	*timestamp = result;
+	return true;
+}
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -3546,8 +3505,12 @@ int str_time(int64_t centisecs, int format, char *buffer, int buffer_size)
 				(centisecs % hour) / min, (centisecs % min) / sec, centisecs % sec);
 		[[fallthrough]];
 	case TIME_MINS_CENTISECS:
-		return str_format(buffer, buffer_size, "%02" PRId64 ":%02" PRId64 ".%02" PRId64, centisecs / min,
-			(centisecs % min) / sec, centisecs % sec);
+		if(centisecs >= min)
+			return str_format(buffer, buffer_size, "%02" PRId64 ":%02" PRId64 ".%02" PRId64, centisecs / min,
+				(centisecs % min) / sec, centisecs % sec);
+		[[fallthrough]];
+	case TIME_SECS_CENTISECS:
+		return str_format(buffer, buffer_size, "%02" PRId64 ".%02" PRId64, (centisecs % min) / sec, centisecs % sec);
 	}
 
 	return -1;
@@ -4070,6 +4033,7 @@ void cmdline_fix(int *argc, const char ***argv)
 	int wide_argc = 0;
 	WCHAR **wide_argv = CommandLineToArgvW(GetCommandLineW(), &wide_argc);
 	dbg_assert(wide_argv != NULL, "CommandLineToArgvW failure");
+	dbg_assert(wide_argc > 0, "Invalid argc value");
 
 	int total_size = 0;
 
@@ -4094,6 +4058,7 @@ void cmdline_fix(int *argc, const char ***argv)
 		new_argv[i + 1] = new_argv[i] + size;
 	}
 
+	LocalFree(wide_argv);
 	new_argv[wide_argc] = 0;
 	*argc = wide_argc;
 	*argv = (const char **)new_argv;
@@ -4492,8 +4457,9 @@ void os_locale_str(char *locale, size_t length)
 	wchar_t wide_buffer[LOCALE_NAME_MAX_LENGTH];
 	dbg_assert(GetUserDefaultLocaleName(wide_buffer, std::size(wide_buffer)) > 0, "GetUserDefaultLocaleName failure");
 
-	const std::string buffer = windows_wide_to_utf8(wide_buffer);
-	str_copy(locale, buffer.c_str(), length);
+	const std::optional<std::string> buffer = windows_wide_to_utf8(wide_buffer);
+	dbg_assert(buffer.has_value(), "GetUserDefaultLocaleName returned invalid UTF-16");
+	str_copy(locale, buffer.value().c_str(), length);
 #elif defined(CONF_PLATFORM_MACOS)
 	CFLocaleRef locale_ref = CFLocaleCopyCurrent();
 	CFStringRef locale_identifier_ref = static_cast<CFStringRef>(CFLocaleGetValue(locale_ref, kCFLocaleIdentifier));
@@ -4618,20 +4584,23 @@ std::wstring windows_utf8_to_wide(const char *str)
 	const int orig_length = str_length(str);
 	if(orig_length == 0)
 		return L"";
-	const int size_needed = MultiByteToWideChar(CP_UTF8, 0, str, orig_length, nullptr, 0);
+	const int size_needed = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, orig_length, nullptr, 0);
+	dbg_assert(size_needed > 0, "Invalid UTF-8 passed to windows_utf8_to_wide");
 	std::wstring wide_string(size_needed, L'\0');
-	dbg_assert(MultiByteToWideChar(CP_UTF8, 0, str, orig_length, &wide_string[0], size_needed) == size_needed, "MultiByteToWideChar failure");
+	dbg_assert(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, orig_length, wide_string.data(), size_needed) == size_needed, "MultiByteToWideChar failure");
 	return wide_string;
 }
 
-std::string windows_wide_to_utf8(const wchar_t *wide_str)
+std::optional<std::string> windows_wide_to_utf8(const wchar_t *wide_str)
 {
 	const int orig_length = wcslen(wide_str);
 	if(orig_length == 0)
 		return "";
-	const int size_needed = WideCharToMultiByte(CP_UTF8, 0, wide_str, orig_length, nullptr, 0, nullptr, nullptr);
+	const int size_needed = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide_str, orig_length, nullptr, 0, nullptr, nullptr);
+	if(size_needed == 0)
+		return {};
 	std::string string(size_needed, '\0');
-	dbg_assert(WideCharToMultiByte(CP_UTF8, 0, wide_str, orig_length, &string[0], size_needed, nullptr, nullptr) == size_needed, "WideCharToMultiByte failure");
+	dbg_assert(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide_str, orig_length, string.data(), size_needed, nullptr, nullptr) == size_needed, "WideCharToMultiByte failure");
 	return string;
 }
 

@@ -5,6 +5,7 @@
 
 #include "kernel.h"
 #include <base/hash.h>
+#include <base/types.h>
 
 enum
 {
@@ -13,24 +14,26 @@ enum
 
 class IMap : public IInterface
 {
-	MACRO_INTERFACE("map", 0)
+	MACRO_INTERFACE("map")
 public:
-	virtual void *GetData(int Index) = 0;
 	virtual int GetDataSize(int Index) const = 0;
+	virtual void *GetData(int Index) = 0;
 	virtual void *GetDataSwapped(int Index) = 0;
+	virtual const char *GetDataString(int Index) = 0;
 	virtual void UnloadData(int Index) = 0;
 	virtual int NumData() const = 0;
 
-	virtual void *GetItem(int Index, int *pType = nullptr, int *pID = nullptr) = 0;
 	virtual int GetItemSize(int Index) = 0;
+	virtual void *GetItem(int Index, int *pType = nullptr, int *pID = nullptr) = 0;
 	virtual void GetType(int Type, int *pStart, int *pNum) = 0;
+	virtual int FindItemIndex(int Type, int ID) = 0;
 	virtual void *FindItem(int Type, int ID) = 0;
 	virtual int NumItems() const = 0;
 };
 
 class IEngineMap : public IMap
 {
-	MACRO_INTERFACE("enginemap", 0)
+	MACRO_INTERFACE("enginemap")
 public:
 	virtual bool Load(const char *pMapName) = 0;
 	virtual void Unload() = 0;

@@ -34,7 +34,6 @@
 #include <game/generated/client_data.h>
 #include <game/localization.h>
 
-#include "countryflags.h"
 #include "menus.h"
 
 using namespace FontIcons;
@@ -121,7 +120,7 @@ int CMenus::DoButton_Toggle(const void *pID, int Checked, const CUIRect *pRect, 
 	return Active ? UI()->DoButtonLogic(pID, Checked, pRect) : 0;
 }
 
-int CMenus::DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName, int Corners, float r, float FontFactor, vec4 ColorHot, vec4 Color)
+int CMenus::DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, const char *pImageName, int Corners, float Rounding, float FontFactor, ColorRGBA Color)
 {
 	CUIRect Text = *pRect;
 
@@ -129,7 +128,7 @@ int CMenus::DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText,
 		Color = ColorRGBA(0.6f, 0.6f, 0.6f, 0.5f);
 	Color.a *= UI()->ButtonColorMul(pButtonContainer);
 
-	pRect->Draw(Color, Corners, r);
+	pRect->Draw(Color, Corners, Rounding);
 
 	if(pImageName)
 	{
@@ -156,14 +155,6 @@ int CMenus::DoButton_Menu(CButtonContainer *pButtonContainer, const char *pText,
 	UI()->DoLabel(&Text, pText, Text.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 
 	return UI()->DoButtonLogic(pButtonContainer, Checked, pRect);
-}
-
-void CMenus::DoButton_KeySelect(const void *pID, const char *pText, const CUIRect *pRect)
-{
-	pRect->Draw(ColorRGBA(1, 1, 1, 0.5f * UI()->ButtonColorMul(pID)), IGraphics::CORNER_ALL, 5.0f);
-	CUIRect Temp;
-	pRect->HMargin(1.0f, &Temp);
-	UI()->DoLabel(&Temp, pText, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 }
 
 int CMenus::DoButton_MenuTab(CButtonContainer *pButtonContainer, const char *pText, int Checked, const CUIRect *pRect, int Corners, SUIAnimator *pAnimator, const ColorRGBA *pDefaultColor, const ColorRGBA *pActiveColor, const ColorRGBA *pHoverColor, float EdgeRounding)
@@ -386,7 +377,7 @@ ColorHSLA CMenus::DoLine_ColorPicker(CButtonContainer *pResetID, const float Lin
 	ColorHSLA PickedColor = DoButton_ColorPicker(&ColorPickerButton, pColorValue, Alpha);
 
 	ResetButton.HMargin(2.0f, &ResetButton);
-	if(DoButton_Menu(pResetID, Localize("Reset"), 0, &ResetButton, nullptr, IGraphics::CORNER_ALL, 4.0f, 0.1f, vec4(1, 1, 1, 0.5f), vec4(1, 1, 1, 0.25f)))
+	if(DoButton_Menu(pResetID, Localize("Reset"), 0, &ResetButton, nullptr, IGraphics::CORNER_ALL, 4.0f, 0.1f, ColorRGBA(1.0f, 1.0f, 1.0f, 0.25f)))
 	{
 		*pColorValue = color_cast<ColorHSLA>(DefaultColor).Pack(Alpha);
 	}
@@ -411,7 +402,9 @@ ColorHSLA CMenus::DoButton_ColorPicker(const CUIRect *pRect, unsigned int *pHsla
 	if(UI()->DoButtonLogic(pHslaColor, 0, pRect))
 	{
 		s_ColorPickerPopupContext.m_pHslaColor = pHslaColor;
+		s_ColorPickerPopupContext.m_HslaColor = HslaColor;
 		s_ColorPickerPopupContext.m_HsvaColor = color_cast<ColorHSVA>(HslaColor);
+		s_ColorPickerPopupContext.m_RgbaColor = color_cast<ColorRGBA>(s_ColorPickerPopupContext.m_HsvaColor);
 		s_ColorPickerPopupContext.m_Alpha = Alpha;
 		UI()->ShowPopupColorPicker(UI()->MouseX(), UI()->MouseY(), &s_ColorPickerPopupContext);
 	}
@@ -451,15 +444,15 @@ int CMenus::DoButton_CheckBox_Number(const void *pID, const char *pText, int Che
 int CMenus::DoKeyReader(const void *pID, const CUIRect *pRect, int Key, int ModifierCombination, int *pNewModifierCombination)
 {
 	// process
-	static const void *pGrabbedID = 0;
-	static bool MouseReleased = true;
+	static const void *s_pGrabbedID = nullptr;
+	static bool s_MouseReleased = true;
 	static int s_ButtonUsed = 0;
 	const bool Inside = UI()->MouseHovered(pRect);
 	int NewKey = Key;
 	*pNewModifierCombination = ModifierCombination;
 
-	if(!UI()->MouseButton(0) && !UI()->MouseButton(1) && pGrabbedID == pID)
-		MouseReleased = true;
+	if(!UI()->MouseButton(0) && !UI()->MouseButton(1) && s_pGrabbedID == pID)
+		s_MouseReleased = true;
 
 	if(UI()->CheckActiveItem(pID))
 	{
@@ -473,8 +466,8 @@ int CMenus::DoKeyReader(const void *pID, const CUIRect *pRect, int Key, int Modi
 			}
 			m_Binder.m_GotKey = false;
 			UI()->SetActiveItem(nullptr);
-			MouseReleased = false;
-			pGrabbedID = pID;
+			s_MouseReleased = false;
+			s_pGrabbedID = pID;
 		}
 
 		if(s_ButtonUsed == 1 && !UI()->MouseButton(1))
@@ -486,7 +479,7 @@ int CMenus::DoKeyReader(const void *pID, const CUIRect *pRect, int Key, int Modi
 	}
 	else if(UI()->HotItem() == pID)
 	{
-		if(MouseReleased)
+		if(s_MouseReleased)
 		{
 			if(UI()->MouseButton(0))
 			{
@@ -507,17 +500,19 @@ int CMenus::DoKeyReader(const void *pID, const CUIRect *pRect, int Key, int Modi
 	if(Inside)
 		UI()->SetHotItem(pID);
 
-	// draw
+	char aBuf[64];
 	if(UI()->CheckActiveItem(pID) && s_ButtonUsed == 0)
-		DoButton_KeySelect(pID, "???", pRect);
+		str_copy(aBuf, Localize("Press a key…"));
 	else if(NewKey == 0)
-		DoButton_KeySelect(pID, "", pRect);
+		aBuf[0] = '\0';
 	else
-	{
-		char aBuf[64];
 		str_format(aBuf, sizeof(aBuf), "%s%s", CBinds::GetKeyBindModifiersName(*pNewModifierCombination), Input()->KeyName(NewKey));
-		DoButton_KeySelect(pID, aBuf, pRect);
-	}
+
+	const ColorRGBA Color = UI()->CheckActiveItem(pID) && m_Binder.m_TakeKey ? ColorRGBA(0.0f, 1.0f, 0.0f, 0.4f) : ColorRGBA(1.0f, 1.0f, 1.0f, 0.5f * UI()->ButtonColorMul(pID));
+	pRect->Draw(Color, IGraphics::CORNER_ALL, 5.0f);
+	CUIRect Temp;
+	pRect->HMargin(1.0f, &Temp);
+	UI()->DoLabel(&Temp, aBuf, Temp.h * CUI::ms_FontmodHeight, TEXTALIGN_MC);
 
 	return NewKey;
 }
@@ -556,8 +551,8 @@ int CMenus::RenderMenubar(CUIRect r)
 
 		ColorRGBA HomeButtonColorAlert(0, 1, 0, 0.25f);
 		ColorRGBA HomeButtonColorAlertHover(0, 1, 0, 0.5f);
-		ColorRGBA *pHomeButtonColor = NULL;
-		ColorRGBA *pHomeButtonColorHover = NULL;
+		ColorRGBA *pHomeButtonColor = nullptr;
+		ColorRGBA *pHomeButtonColorHover = nullptr;
 
 		const char *pHomeScreenButtonLabel = FONT_ICON_HOUSE;
 		if(GotNewsOrUpdate)
@@ -572,84 +567,47 @@ int CMenus::RenderMenubar(CUIRect r)
 			m_ShowStart = true;
 		}
 
-		TextRender()->SetRenderFlags(0);
-		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
-
-		Box.VSplitLeft(10.0f, 0, &Box);
-
-		// offline menus
-		if(m_ActivePage == PAGE_NEWS)
+		Box.VSplitLeft(10.0f, nullptr, &Box);
+		Box.VSplitLeft(75.0f, &Button, &Box);
+		static CButtonContainer s_InternetButton;
+		if(DoButton_MenuTab(&s_InternetButton, FONT_ICON_EARTH_AMERICAS, m_ActivePage == PAGE_INTERNET, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_INTERNET]))
 		{
-			Box.VSplitLeft(100.0f, &Button, &Box);
-			static CButtonContainer s_NewsButton;
-			if(DoButton_MenuTab(&s_NewsButton, Localize("News"), m_ActivePage == PAGE_NEWS, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_NEWS]))
-			{
-				NewPage = PAGE_NEWS;
-			}
-		}
-		else if(m_ActivePage == PAGE_DEMOS)
-		{
-			Box.VSplitLeft(100.0f, &Button, &Box);
-			static CButtonContainer s_DemosButton;
-			if(DoButton_MenuTab(&s_DemosButton, Localize("Demos"), m_ActivePage == PAGE_DEMOS, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_DEMOS]))
-			{
-				DemolistPopulate();
-				NewPage = PAGE_DEMOS;
-			}
-		}
-		else
-		{
-			Box.VSplitLeft(100.0f, &Button, &Box);
-			static CButtonContainer s_InternetButton;
-			if(DoButton_MenuTab(&s_InternetButton, Localize("Internet"), m_ActivePage == PAGE_INTERNET, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_INTERNET]))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-				NewPage = PAGE_INTERNET;
-			}
-
-			Box.VSplitLeft(100.0f, &Button, &Box);
-			static CButtonContainer s_LanButton;
-			if(DoButton_MenuTab(&s_LanButton, Localize("LAN"), m_ActivePage == PAGE_LAN, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_LAN]))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-				NewPage = PAGE_LAN;
-			}
-
-			Box.VSplitLeft(100.0f, &Button, &Box);
-			static CButtonContainer s_FavoritesButton;
-			if(DoButton_MenuTab(&s_FavoritesButton, Localize("Favorites"), m_ActivePage == PAGE_FAVORITES, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_FAVORITES]))
+			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
 			{
 				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_FAVORITES)
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
-				NewPage = PAGE_FAVORITES;
-			}
-
-			Box.VSplitLeft(90.0f, &Button, &Box);
-			static CButtonContainer s_DDNetButton;
-			if(DoButton_MenuTab(&s_DDNetButton, "DDNet", m_ActivePage == PAGE_DDNET, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_DDNET]))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_DDNET)
-				{
 					Client()->RequestDDNetInfo();
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
-				}
-				NewPage = PAGE_DDNET;
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
 			}
-
-			Box.VSplitLeft(90.0f, &Button, &Box);
-			static CButtonContainer s_KoGButton;
-			if(DoButton_MenuTab(&s_KoGButton, "KoG", m_ActivePage == PAGE_KOG, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_KOG]))
-			{
-				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_KOG)
-				{
-					Client()->RequestDDNetInfo();
-					ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
-				}
-				NewPage = PAGE_KOG;
-			}
+			NewPage = PAGE_INTERNET;
 		}
+		GameClient()->m_Tooltips.DoToolTip(&s_InternetButton, &Button, Localize("Internet"));
+
+		Box.VSplitLeft(75.0f, &Button, &Box);
+		static CButtonContainer s_LanButton;
+		if(DoButton_MenuTab(&s_LanButton, FONT_ICON_NETWORK_WIRED, m_ActivePage == PAGE_LAN, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_LAN]))
+		{
+			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_LAN)
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
+			NewPage = PAGE_LAN;
+		}
+		GameClient()->m_Tooltips.DoToolTip(&s_LanButton, &Button, Localize("LAN"));
+
+		Box.VSplitLeft(75.0f, &Button, &Box);
+		static CButtonContainer s_FavoritesButton;
+		if(DoButton_MenuTab(&s_FavoritesButton, FONT_ICON_STAR, m_ActivePage == PAGE_FAVORITES, &Button, IGraphics::CORNER_T, &m_aAnimatorsBigPage[BIG_TAB_FAVORITES]))
+		{
+			if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_FAVORITES)
+			{
+				if(ServerBrowser()->GetCurrentType() != IServerBrowser::TYPE_INTERNET)
+					Client()->RequestDDNetInfo();
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
+			}
+			NewPage = PAGE_FAVORITES;
+		}
+		GameClient()->m_Tooltips.DoToolTip(&s_FavoritesButton, &Button, Localize("Favorites"));
+
+		TextRender()->SetRenderFlags(0);
+		TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 	}
 	else
 	{
@@ -685,7 +643,7 @@ int CMenus::RenderMenubar(CUIRect r)
 		}
 
 		Box.VSplitLeft(100.0f, &Button, &Box);
-		Box.VSplitLeft(4.0f, 0, &Box);
+		Box.VSplitLeft(4.0f, nullptr, &Box);
 		static CButtonContainer s_CallVoteButton;
 		if(DoButton_MenuTab(&s_CallVoteButton, Localize("Call vote"), m_ActivePage == PAGE_CALLVOTE, &Button, IGraphics::CORNER_TR))
 		{
@@ -712,14 +670,13 @@ int CMenus::RenderMenubar(CUIRect r)
 		}
 	}
 
-	Box.VSplitRight(10.0f, &Box, &Button);
+	Box.VSplitRight(10.0f, &Box, nullptr);
 	Box.VSplitRight(33.0f, &Box, &Button);
 	static CButtonContainer s_SettingsButton;
-
 	if(DoButton_MenuTab(&s_SettingsButton, FONT_ICON_GEAR, m_ActivePage == PAGE_SETTINGS, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_SETTINGS], nullptr, nullptr, nullptr, 10.0f))
 		NewPage = PAGE_SETTINGS;
 
-	Box.VSplitRight(10.0f, &Box, &Button);
+	Box.VSplitRight(10.0f, &Box, nullptr);
 	Box.VSplitRight(33.0f, &Box, &Button);
 	static CButtonContainer s_EditorButton;
 	if(DoButton_MenuTab(&s_EditorButton, FONT_ICON_PEN_TO_SQUARE, 0, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_EDITOR], nullptr, nullptr, nullptr, 10.0f))
@@ -729,19 +686,11 @@ int CMenus::RenderMenubar(CUIRect r)
 
 	if(Client()->State() == IClient::STATE_OFFLINE)
 	{
-		Box.VSplitRight(10.0f, &Box, &Button);
+		Box.VSplitRight(10.0f, &Box, nullptr);
 		Box.VSplitRight(33.0f, &Box, &Button);
 		static CButtonContainer s_DemoButton;
-
 		if(DoButton_MenuTab(&s_DemoButton, FONT_ICON_CLAPPERBOARD, m_ActivePage == PAGE_DEMOS, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_DEMOBUTTON], nullptr, nullptr, nullptr, 10.0f))
 			NewPage = PAGE_DEMOS;
-
-		Box.VSplitRight(10.0f, &Box, &Button);
-		Box.VSplitRight(33.0f, &Box, &Button);
-		static CButtonContainer s_ServerButton;
-
-		if(DoButton_MenuTab(&s_ServerButton, FONT_ICON_EARTH_AMERICAS, m_ActivePage == g_Config.m_UiPage, &Button, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_SERVER], nullptr, nullptr, nullptr, 10.0f))
-			NewPage = g_Config.m_UiPage;
 	}
 
 	TextRender()->SetRenderFlags(0);
@@ -820,7 +769,7 @@ void CMenus::RenderNews(CUIRect MainView)
 
 	CUIRect Label;
 
-	const char *pStr = Client()->m_aNews;
+	const char *pStr = Client()->News();
 	char aLine[256];
 	while((pStr = str_next_token(pStr, "\n", aLine, sizeof(aLine))))
 	{
@@ -842,17 +791,21 @@ void CMenus::RenderNews(CUIRect MainView)
 void CMenus::OnInit()
 {
 	if(g_Config.m_ClShowWelcome)
+	{
 		m_Popup = POPUP_LANGUAGE;
+		str_copy(g_Config.m_BrFilterExcludeCommunities, "*ddnet");
+	}
 	if(g_Config.m_ClSkipStartMenu)
 		m_ShowStart = false;
 
 	m_RefreshButton.Init(UI(), -1);
 	m_ConnectButton.Init(UI(), -1);
 
-	Console()->Chain("add_favorite", ConchainServerbrowserUpdate, this);
-	Console()->Chain("remove_favorite", ConchainServerbrowserUpdate, this);
+	Console()->Chain("add_favorite", ConchainFavoritesUpdate, this);
+	Console()->Chain("remove_favorite", ConchainFavoritesUpdate, this);
 	Console()->Chain("add_friend", ConchainFriendlistUpdate, this);
 	Console()->Chain("remove_friend", ConchainFriendlistUpdate, this);
+	Console()->Chain("br_filter_exclude_communities", ConchainCommunitiesUpdate, this);
 
 	Console()->Chain("snd_enable", ConchainUpdateMusicState, this);
 	Console()->Chain("snd_enable_music", ConchainUpdateMusicState, this);
@@ -878,13 +831,15 @@ void CMenus::OnInit()
 	// load menu images
 	m_vMenuImages.clear();
 	Storage()->ListDirectory(IStorage::TYPE_ALL, "menuimages", MenuImageScan, this);
+
+	// load community icons
+	m_vCommunityIcons.clear();
+	Storage()->ListDirectory(IStorage::TYPE_ALL, "communityicons", CommunityIconScan, this);
 }
 
 void CMenus::OnConsoleInit()
 {
-	auto *pConfigManager = Kernel()->RequestInterface<IConfigManager>();
-	if(pConfigManager != nullptr)
-		pConfigManager->RegisterCallback(CMenus::ConfigSaveCallback, this);
+	ConfigManager()->RegisterCallback(CMenus::ConfigSaveCallback, this);
 	Console()->Register("add_favorite_skin", "s[skin_name]", CFGFLAG_CLIENT, Con_AddFavoriteSkin, this, "Add a skin as a favorite");
 	Console()->Register("remove_favorite_skin", "s[skin_name]", CFGFLAG_CLIENT, Con_RemFavoriteSkin, this, "Remove a skin from the favorites");
 }
@@ -957,7 +912,7 @@ void CMenus::PopupWarning(const char *pTopic, const char *pBody, const char *pBu
 	m_PopupWarningLastTime = time_get_nanoseconds();
 }
 
-bool CMenus::CanDisplayWarning()
+bool CMenus::CanDisplayWarning() const
 {
 	return m_Popup == POPUP_NONE;
 }
@@ -974,28 +929,17 @@ int CMenus::Render()
 	static int s_Frame = 0;
 	if(s_Frame == 0)
 	{
-		m_MenuPage = g_Config.m_UiPage;
+		SetMenuPage(g_Config.m_UiPage);
 		s_Frame++;
 	}
 	else if(s_Frame == 1)
 	{
 		UpdateMusicState();
-		s_Frame++;
-
 		RefreshBrowserTab(g_Config.m_UiPage);
-		if(g_Config.m_UiPage == PAGE_INTERNET)
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-		else if(g_Config.m_UiPage == PAGE_LAN)
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-		else if(g_Config.m_UiPage == PAGE_FAVORITES)
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
-		else if(g_Config.m_UiPage == PAGE_DDNET)
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
-		else if(g_Config.m_UiPage == PAGE_KOG)
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
+		s_Frame++;
 	}
 
-	if(Client()->State() >= IClient::STATE_ONLINE)
+	if(Client()->State() == IClient::STATE_ONLINE || Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
 		ms_ColorTabbarInactive = ms_ColorTabbarInactiveIngame;
 		ms_ColorTabbarActive = ms_ColorTabbarActiveIngame;
@@ -1102,21 +1046,11 @@ int CMenus::Render()
 			else if(m_MenuPage == PAGE_DEMOS)
 			{
 				m_pBackground->ChangePosition(CMenuBackground::POS_DEMOS);
-				RenderDemoList(MainView);
+				RenderDemoBrowser(MainView);
 			}
 			else if(m_MenuPage == PAGE_FAVORITES)
 			{
 				m_pBackground->ChangePosition(CMenuBackground::POS_BROWSER_FAVORITES);
-				RenderServerbrowser(MainView);
-			}
-			else if(m_MenuPage == PAGE_DDNET)
-			{
-				m_pBackground->ChangePosition(CMenuBackground::POS_BROWSER_CUSTOM0);
-				RenderServerbrowser(MainView);
-			}
-			else if(m_MenuPage == PAGE_KOG)
-			{
-				m_pBackground->ChangePosition(CMenuBackground::POS_BROWSER_CUSTOM0 + 1);
 				RenderServerbrowser(MainView);
 			}
 			else if(m_MenuPage == PAGE_SETTINGS)
@@ -1204,9 +1138,9 @@ int CMenus::Render()
 			pTitle = Localize("Disconnected");
 			pExtraText = Client()->ErrorString();
 			pButtonText = Localize("Ok");
-			if(Client()->m_ReconnectTime > 0)
+			if(Client()->ReconnectTime() > 0)
 			{
-				str_format(aBuf, sizeof(aBuf), Localize("Reconnect in %d sec"), (int)((Client()->m_ReconnectTime - time_get()) / time_freq()));
+				str_format(aBuf, sizeof(aBuf), Localize("Reconnect in %d sec"), (int)((Client()->ReconnectTime() - time_get()) / time_freq()));
 				pTitle = Client()->ErrorString();
 				pExtraText = aBuf;
 				pButtonText = Localize("Abort");
@@ -1222,11 +1156,20 @@ int CMenus::Render()
 		{
 			pTitle = Localize("Render demo");
 		}
+		else if(m_Popup == POPUP_RENDER_DONE)
+		{
+			pTitle = Localize("Render complete");
+		}
 #endif
 		else if(m_Popup == POPUP_PASSWORD)
 		{
 			pTitle = Localize("Password incorrect");
 			pButtonText = Localize("Try again");
+		}
+		else if(m_Popup == POPUP_RESTART)
+		{
+			pTitle = Localize("Restart");
+			pExtraText = Localize("Are you sure that you want to restart?");
 		}
 		else if(m_Popup == POPUP_QUIT)
 		{
@@ -1248,13 +1191,13 @@ int CMenus::Render()
 		else if(m_Popup == POPUP_POINTS)
 		{
 			pTitle = Localize("Existing Player");
-			if(Client()->m_Points > 50)
+			if(Client()->Points() > 50)
 			{
-				str_format(aBuf, sizeof(aBuf), Localize("Your nickname '%s' is already used (%d points). Do you still want to use it?"), Client()->PlayerName(), Client()->m_Points);
+				str_format(aBuf, sizeof(aBuf), Localize("Your nickname '%s' is already used (%d points). Do you still want to use it?"), Client()->PlayerName(), Client()->Points());
 				pExtraText = aBuf;
 				TopAlign = true;
 			}
-			else if(Client()->m_Points >= 0)
+			else if(Client()->Points() >= 0)
 			{
 				m_Popup = POPUP_NONE;
 			}
@@ -1351,7 +1294,7 @@ int CMenus::Render()
 				}
 			}
 		}
-		else if(m_Popup == POPUP_QUIT)
+		else if(m_Popup == POPUP_QUIT || m_Popup == POPUP_RESTART)
 		{
 			CUIRect Yes, No;
 			Box.HSplitBottom(20.f, &Box, &Part);
@@ -1361,7 +1304,7 @@ int CMenus::Render()
 			Box.VMargin(20.f, &Box);
 			if(m_pClient->Editor()->HasUnsavedData())
 			{
-				str_format(aBuf, sizeof(aBuf), "%s\n%s", Localize("There's an unsaved map in the editor, you might want to save it before you quit the game."), Localize("Quit anyway?"));
+				str_format(aBuf, sizeof(aBuf), "%s\n\n%s", Localize("There's an unsaved map in the editor, you might want to save it."), Localize("Continue anyway?"));
 				Props.m_MaxWidth = Part.w - 20.0f;
 				UI()->DoLabel(&Box, aBuf, 20.f, TEXTALIGN_ML, Props);
 			}
@@ -1379,8 +1322,16 @@ int CMenus::Render()
 			static CButtonContainer s_ButtonTryAgain;
 			if(DoButton_Menu(&s_ButtonTryAgain, Localize("Yes"), 0, &Yes) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
 			{
-				m_Popup = POPUP_NONE;
-				Client()->Quit();
+				if(m_Popup == POPUP_RESTART)
+				{
+					m_Popup = POPUP_NONE;
+					Client()->Restart();
+				}
+				else
+				{
+					m_Popup = POPUP_NONE;
+					Client()->Quit();
+				}
 			}
 		}
 		else if(m_Popup == POPUP_PASSWORD)
@@ -1563,26 +1514,20 @@ int CMenus::Render()
 #if defined(CONF_VIDEORECORDER)
 		else if(m_Popup == POPUP_RENDER_DEMO)
 		{
-			dbg_assert(m_DemolistSelectedIndex >= 0 && !m_vpFilteredDemos[m_DemolistSelectedIndex]->m_IsDir, "m_DemolistSelectedIndex invalid for POPUP_RENDER_DEMO");
-
-			CUIRect Label, TextBox, Ok, Abort, Button;
-
-			Box.HSplitBottom(20.f, &Box, &Part);
-#if defined(__ANDROID__)
-			Box.HSplitBottom(60.f, &Box, &Part);
-#else
-			Box.HSplitBottom(24.f, &Box, &Part);
-#endif
-			Part.VMargin(80.0f, &Part);
-
-			Part.VSplitMid(&Abort, &Ok);
-
-			Ok.VMargin(20.0f, &Ok);
-			Abort.VMargin(20.0f, &Abort);
+			CUIRect Row, Ok, Abort;
+			Box.VMargin(60.0f, &Box);
+			Box.HMargin(20.0f, &Box);
+			Box.HSplitBottom(24.0f, &Box, &Row);
+			Box.HSplitBottom(40.0f, &Box, nullptr);
+			Row.VMargin(40.0f, &Row);
+			Row.VSplitMid(&Abort, &Ok, 40.0f);
 
 			static CButtonContainer s_ButtonAbort;
 			if(DoButton_Menu(&s_ButtonAbort, Localize("Abort"), 0, &Abort) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE))
+			{
+				m_DemoRenderInput.Clear();
 				m_Popup = POPUP_NONE;
+			}
 
 			static CButtonContainer s_ButtonOk;
 			if(DoButton_Menu(&s_ButtonOk, Localize("Ok"), 0, &Ok) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
@@ -1608,74 +1553,106 @@ int CMenus::Render()
 					PopupConfirmDemoReplaceVideo();
 				}
 			}
-			Box.HSplitBottom(30.f, &Box, 0);
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Box.HSplitBottom(10.f, &Box, 0);
 
-			float ButtonSize = 20.0f;
-			Part.VSplitLeft(113.0f, 0, &Part);
-			Part.VSplitLeft(200.0f, &Button, &Part);
-			if(DoButton_CheckBox(&g_Config.m_ClVideoShowChat, Localize("Show chat"), g_Config.m_ClVideoShowChat, &Button))
+			CUIRect ShowChatCheckbox, UseSoundsCheckbox;
+			Box.HSplitBottom(20.0f, &Box, &Row);
+			Box.HSplitBottom(10.0f, &Box, nullptr);
+			Row.VSplitMid(&ShowChatCheckbox, &UseSoundsCheckbox, 20.0f);
+
+			if(DoButton_CheckBox(&g_Config.m_ClVideoShowChat, Localize("Show chat"), g_Config.m_ClVideoShowChat, &ShowChatCheckbox))
 				g_Config.m_ClVideoShowChat ^= 1;
-			Part.VSplitLeft(32.0f, 0, &Part);
-			if(DoButton_CheckBox(&g_Config.m_ClVideoSndEnable, Localize("Use sounds"), g_Config.m_ClVideoSndEnable, &Part))
+
+			if(DoButton_CheckBox(&g_Config.m_ClVideoSndEnable, Localize("Use sounds"), g_Config.m_ClVideoSndEnable, &UseSoundsCheckbox))
 				g_Config.m_ClVideoSndEnable ^= 1;
 
-			Box.HSplitBottom(20.f, &Box, &Part);
-			Part.VSplitLeft(55.0f, 0, &Part);
-			Part.VSplitLeft(60.0f, 0, &Label);
+			CUIRect ShowHudButton;
+			Box.HSplitBottom(20.0f, &Box, &Row);
+			Row.VSplitMid(&Row, &ShowHudButton, 20.0f);
 
-			bool IncDemoSpeed = false, DecDemoSpeed = false;
+			if(DoButton_CheckBox(&g_Config.m_ClVideoShowhud, Localize("Show ingame HUD"), g_Config.m_ClVideoShowhud, &ShowHudButton))
+				g_Config.m_ClVideoShowhud ^= 1;
+
 			// slowdown
-			Part.VSplitLeft(5.0f, 0, &Part);
-			Part.VSplitLeft(ButtonSize, &Button, &Part);
+			CUIRect SlowDownButton;
+			Row.VSplitLeft(20.0f, &SlowDownButton, &Row);
+			Row.VSplitLeft(5.0f, nullptr, &Row);
 			static CButtonContainer s_SlowDownButton;
-			if(DoButton_FontIcon(&s_SlowDownButton, FONT_ICON_BACKWARD, 0, &Button, IGraphics::CORNER_ALL))
-				DecDemoSpeed = true;
+			if(DoButton_FontIcon(&s_SlowDownButton, FONT_ICON_BACKWARD, 0, &SlowDownButton, IGraphics::CORNER_ALL))
+				m_Speed = clamp(m_Speed - 1, 0, (int)(g_DemoSpeeds - 1));
 
 			// paused
-			Part.VSplitLeft(5.0f, 0, &Part);
-			Part.VSplitLeft(ButtonSize, &Button, &Part);
+			CUIRect PausedButton;
+			Row.VSplitLeft(20.0f, &PausedButton, &Row);
+			Row.VSplitLeft(5.0f, nullptr, &Row);
 			static CButtonContainer s_PausedButton;
-			if(DoButton_FontIcon(&s_PausedButton, FONT_ICON_PAUSE, 0, &Button, IGraphics::CORNER_ALL))
+			if(DoButton_FontIcon(&s_PausedButton, FONT_ICON_PAUSE, 0, &PausedButton, IGraphics::CORNER_ALL))
 				m_StartPaused ^= 1;
 
 			// fastforward
-			Part.VSplitLeft(5.0f, 0, &Part);
-			Part.VSplitLeft(ButtonSize, &Button, &Part);
+			CUIRect FastForwardButton;
+			Row.VSplitLeft(20.0f, &FastForwardButton, &Row);
+			Row.VSplitLeft(8.0f, nullptr, &Row);
 			static CButtonContainer s_FastForwardButton;
-			if(DoButton_FontIcon(&s_FastForwardButton, FONT_ICON_FORWARD, 0, &Button, IGraphics::CORNER_ALL))
-				IncDemoSpeed = true;
+			if(DoButton_FontIcon(&s_FastForwardButton, FONT_ICON_FORWARD, 0, &FastForwardButton, IGraphics::CORNER_ALL))
+				m_Speed = clamp(m_Speed + 1, 0, (int)(g_DemoSpeeds - 1));
 
 			// speed meter
-			Part.VSplitLeft(8.0f, 0, &Part);
 			char aBuffer[128];
 			const char *pPaused = m_StartPaused ? Localize("(paused)") : "";
 			str_format(aBuffer, sizeof(aBuffer), "%s: ×%g %s", Localize("Speed"), g_aSpeeds[m_Speed], pPaused);
-			UI()->DoLabel(&Part, aBuffer, 12.8f, TEXTALIGN_ML);
+			UI()->DoLabel(&Row, aBuffer, 12.8f, TEXTALIGN_ML);
 
-			if(IncDemoSpeed)
-				m_Speed = clamp(m_Speed + 1, 0, (int)(g_DemoSpeeds - 1));
-			else if(DecDemoSpeed)
-				m_Speed = clamp(m_Speed - 1, 0, (int)(g_DemoSpeeds - 1));
+			Box.HSplitBottom(16.0f, &Box, nullptr);
+			Box.HSplitBottom(24.0f, &Box, &Row);
 
-			Part.VSplitLeft(207.0f, 0, &Part);
-			if(DoButton_CheckBox(&g_Config.m_ClVideoShowhud, Localize("Show ingame HUD"), g_Config.m_ClVideoShowhud, &Part))
-				g_Config.m_ClVideoShowhud ^= 1;
+			CUIRect Label, TextBox;
+			Row.VSplitLeft(110.0f, &Label, &TextBox);
+			TextBox.VSplitLeft(10.0f, nullptr, &TextBox);
+			UI()->DoLabel(&Label, Localize("Video name:"), 12.8f, TEXTALIGN_ML);
+			UI()->DoEditBox(&m_DemoRenderInput, &TextBox, 12.8f);
+		}
+		else if(m_Popup == POPUP_RENDER_DONE)
+		{
+			CUIRect Ok, OpenFolder;
+
+			char aFilePath[IO_MAX_PATH_LENGTH];
+			char aSaveFolder[IO_MAX_PATH_LENGTH];
+			Storage()->GetCompletePath(IStorage::TYPE_SAVE, "videos", aSaveFolder, sizeof(aSaveFolder));
+			str_format(aFilePath, sizeof(aFilePath), "%s/%s.mp4", aSaveFolder, m_DemoRenderInput.GetString());
 
 			Box.HSplitBottom(20.f, &Box, &Part);
-#if defined(__ANDROID__)
-			Box.HSplitBottom(60.f, &Box, &Part);
-#else
 			Box.HSplitBottom(24.f, &Box, &Part);
-#endif
+			Part.VMargin(80.0f, &Part);
 
-			Part.VSplitLeft(60.0f, 0, &Label);
-			Label.VSplitLeft(120.0f, 0, &TextBox);
-			TextBox.VSplitLeft(20.0f, 0, &TextBox);
-			TextBox.VSplitRight(60.0f, &TextBox, 0);
-			UI()->DoLabel(&Label, Localize("Video name:"), 18.0f, TEXTALIGN_ML);
-			UI()->DoEditBox(&m_DemoRenderInput, &TextBox, 12.0f);
+			Part.VSplitMid(&OpenFolder, &Ok);
+
+			Ok.VMargin(20.0f, &Ok);
+			OpenFolder.VMargin(20.0f, &OpenFolder);
+
+			static CButtonContainer s_ButtonOpenFolder;
+			if(DoButton_Menu(&s_ButtonOpenFolder, Localize("Videos directory"), 0, &OpenFolder))
+			{
+				if(!open_file(aSaveFolder))
+				{
+					dbg_msg("menus", "couldn't open file '%s'", aSaveFolder);
+				}
+			}
+
+			static CButtonContainer s_ButtonOk;
+			if(DoButton_Menu(&s_ButtonOk, Localize("Ok"), 0, &Ok) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
+			{
+				m_Popup = POPUP_NONE;
+				m_DemoRenderInput.Clear();
+			}
+
+			Box.HSplitBottom(160.f, &Box, &Part);
+			Part.VMargin(20.0f, &Part);
+
+			str_format(aBuf, sizeof(aBuf), Localize("Video was saved to '%s'"), aFilePath);
+
+			SLabelProperties MessageProps;
+			MessageProps.m_MaxWidth = (int)Part.w;
+			UI()->DoLabel(&Part, aBuf, 18.0f, TEXTALIGN_TL, MessageProps);
 		}
 #endif
 		else if(m_Popup == POPUP_FIRST_LAUNCH)
@@ -1756,7 +1733,7 @@ int CMenus::Render()
 			Part.VMargin(120.0f, &Part);
 
 			static CButtonContainer s_Button;
-			if(DoButton_Menu(&s_Button, pButtonText, 0, &Part) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER) || (time_get_nanoseconds() - m_PopupWarningLastTime >= m_PopupWarningDuration))
+			if(DoButton_Menu(&s_Button, pButtonText, 0, &Part) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER) || (m_PopupWarningDuration > 0s && time_get_nanoseconds() - m_PopupWarningLastTime >= m_PopupWarningDuration))
 			{
 				m_Popup = POPUP_NONE;
 				SetActive(false);
@@ -1771,8 +1748,8 @@ int CMenus::Render()
 			static CButtonContainer s_Button;
 			if(DoButton_Menu(&s_Button, pButtonText, 0, &Part) || UI()->ConsumeHotkey(CUI::HOTKEY_ESCAPE) || UI()->ConsumeHotkey(CUI::HOTKEY_ENTER))
 			{
-				if(m_Popup == POPUP_DISCONNECTED && Client()->m_ReconnectTime > 0)
-					Client()->m_ReconnectTime = 0;
+				if(m_Popup == POPUP_DISCONNECTED && Client()->ReconnectTime() > 0)
+					Client()->SetReconnectTime(0);
 				m_Popup = POPUP_NONE;
 			}
 		}
@@ -1796,18 +1773,21 @@ int CMenus::Render()
 void CMenus::PopupConfirmDemoReplaceVideo()
 {
 	char aBuf[IO_MAX_PATH_LENGTH];
-	str_format(aBuf, sizeof(aBuf), "%s/%s", m_aCurrentDemoFolder, m_vpFilteredDemos[m_DemolistSelectedIndex]->m_aFilename);
+	str_format(aBuf, sizeof(aBuf), "%s/%s.demo", m_aCurrentDemoFolder, m_aCurrentDemoSelectionName);
 	char aVideoName[IO_MAX_PATH_LENGTH];
 	str_copy(aVideoName, m_DemoRenderInput.GetString());
 	if(!str_endswith(aVideoName, ".mp4"))
 		str_append(aVideoName, ".mp4");
-	const char *pError = Client()->DemoPlayer_Render(aBuf, m_vpFilteredDemos[m_DemolistSelectedIndex]->m_StorageType, aVideoName, m_Speed, m_StartPaused);
+	const char *pError = Client()->DemoPlayer_Render(aBuf, m_DemolistStorageType, aVideoName, m_Speed, m_StartPaused);
 	m_Speed = 4;
 	m_StartPaused = false;
 	m_LastPauseChange = -1.0f;
 	m_LastSpeedChange = -1.0f;
 	if(pError)
-		PopupMessage(Localize("Error"), str_comp(pError, "error loading demo") ? pError : Localize("Error loading demo"), Localize("Ok"));
+	{
+		m_DemoRenderInput.Clear();
+		PopupMessage(Localize("Error loading demo"), pError, Localize("Ok"));
+	}
 }
 #endif
 
@@ -2011,7 +1991,7 @@ void CMenus::OnRender()
 		RenderDemoPlayer(*UI()->Screen());
 	}
 
-	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == m_pClient->SERVERMODE_PUREMOD)
+	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == CGameClient::SERVERMODE_PUREMOD)
 	{
 		Client()->Disconnect();
 		SetActive(true);
@@ -2075,45 +2055,49 @@ void CMenus::RenderBackground()
 {
 	Graphics()->BlendNormal();
 
-	float sw = 300 * Graphics()->ScreenAspect();
-	float sh = 300;
-	Graphics()->MapScreen(0, 0, sw, sh);
+	const float ScreenHeight = 300.0f;
+	const float ScreenWidth = ScreenHeight * Graphics()->ScreenAspect();
+	Graphics()->MapScreen(0.0f, 0.0f, ScreenWidth, ScreenHeight);
 
 	// render background color
 	Graphics()->TextureClear();
 	Graphics()->QuadsBegin();
-	ColorRGBA Bottom(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
-	ColorRGBA Top(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
-	IGraphics::CColorVertex Array[4] = {
-		IGraphics::CColorVertex(0, Top.r, Top.g, Top.b, Top.a),
-		IGraphics::CColorVertex(1, Top.r, Top.g, Top.b, Top.a),
-		IGraphics::CColorVertex(2, Bottom.r, Bottom.g, Bottom.b, Bottom.a),
-		IGraphics::CColorVertex(3, Bottom.r, Bottom.g, Bottom.b, Bottom.a)};
-	Graphics()->SetColorVertex(Array, 4);
-	IGraphics::CQuadItem QuadItem(0, 0, sw, sh);
-	Graphics()->QuadsDrawTL(&QuadItem, 1);
+	Graphics()->SetColor(ms_GuiColor.WithAlpha(1.0f));
+	const IGraphics::CQuadItem BackgroundQuadItem = IGraphics::CQuadItem(0, 0, ScreenWidth, ScreenHeight);
+	Graphics()->QuadsDrawTL(&BackgroundQuadItem, 1);
 	Graphics()->QuadsEnd();
 
 	// render the tiles
 	Graphics()->TextureClear();
 	Graphics()->QuadsBegin();
-	float Size = 15.0f;
-	float OffsetTime = std::fmod(LocalTime() * 0.15f, 2.0f);
-	for(int y = -2; y < (int)(sw / Size); y++)
-		for(int x = -2; x < (int)(sh / Size); x++)
+	Graphics()->SetColor(0.0f, 0.0f, 0.0f, 0.045f);
+	const float Size = 15.0f;
+	const float OffsetTime = std::fmod(LocalTime() * 0.15f, 2.0f);
+	IGraphics::CQuadItem aCheckerItems[64];
+	size_t NumCheckerItems = 0;
+	for(int y = -2; y < (int)(ScreenWidth / Size); y++)
+	{
+		for(int x = -2; x < (int)(ScreenHeight / Size); x++)
 		{
-			Graphics()->SetColor(0, 0, 0, 0.045f);
-			QuadItem = IGraphics::CQuadItem((x - OffsetTime) * Size * 2 + (y & 1) * Size, (y + OffsetTime) * Size, Size, Size);
-			Graphics()->QuadsDrawTL(&QuadItem, 1);
+			aCheckerItems[NumCheckerItems] = IGraphics::CQuadItem((x - OffsetTime) * Size * 2 + (y & 1) * Size, (y + OffsetTime) * Size, Size, Size);
+			NumCheckerItems++;
+			if(NumCheckerItems == std::size(aCheckerItems))
+			{
+				Graphics()->QuadsDrawTL(aCheckerItems, NumCheckerItems);
+				NumCheckerItems = 0;
+			}
 		}
+	}
+	if(NumCheckerItems != 0)
+		Graphics()->QuadsDrawTL(aCheckerItems, NumCheckerItems);
 	Graphics()->QuadsEnd();
 
 	// render border fade
 	Graphics()->TextureSet(m_TextureBlob);
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 1);
-	QuadItem = IGraphics::CQuadItem(-100, -100, sw + 200, sh + 200);
-	Graphics()->QuadsDrawTL(&QuadItem, 1);
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+	const IGraphics::CQuadItem BlobQuadItem = IGraphics::CQuadItem(-100, -100, ScreenWidth + 200, ScreenHeight + 200);
+	Graphics()->QuadsDrawTL(&BlobQuadItem, 1);
 	Graphics()->QuadsEnd();
 
 	// restore screen
@@ -2145,58 +2129,51 @@ int CMenus::DoButton_CheckBox_Tristate(const void *pID, const char *pText, TRIST
 
 int CMenus::MenuImageScan(const char *pName, int IsDir, int DirType, void *pUser)
 {
-	CMenus *pSelf = (CMenus *)pUser;
-	if(IsDir || !str_endswith(pName, ".png"))
+	const char *pExtension = ".png";
+	CMenuImage MenuImage;
+	CMenus *pSelf = static_cast<CMenus *>(pUser);
+	if(IsDir || !str_endswith(pName, pExtension) || str_length(pName) - str_length(pExtension) >= (int)sizeof(MenuImage.m_aName))
 		return 0;
 
-	char aBuf[IO_MAX_PATH_LENGTH];
-	bool ImgExists = false;
-	for(const auto &Img : pSelf->m_vMenuImages)
+	char aPath[IO_MAX_PATH_LENGTH];
+	str_format(aPath, sizeof(aPath), "menuimages/%s", pName);
+
+	CImageInfo Info;
+	if(!pSelf->Graphics()->LoadPNG(&Info, aPath, DirType))
 	{
-		str_format(aBuf, std::size(aBuf), "%s.png", Img.m_aName);
-		if(str_comp(aBuf, pName) == 0)
-		{
-			ImgExists = true;
-			break;
-		}
+		char aError[IO_MAX_PATH_LENGTH + 64];
+		str_format(aError, sizeof(aError), "Failed to load menu image from '%s'", aPath);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "menus", aError);
+		return 0;
 	}
-
-	if(!ImgExists)
+	if(Info.m_Format != CImageInfo::FORMAT_RGBA)
 	{
-		str_format(aBuf, sizeof(aBuf), "menuimages/%s", pName);
-		CImageInfo Info;
-		if(!pSelf->Graphics()->LoadPNG(&Info, aBuf, DirType))
-		{
-			str_format(aBuf, sizeof(aBuf), "failed to load menu image from %s", pName);
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "game", aBuf);
-			return 0;
-		}
-
-		CMenuImage MenuImage;
-		MenuImage.m_OrgTexture = pSelf->Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, Info.m_Format, 0);
-
-		unsigned char *pData = (unsigned char *)Info.m_pData;
-
-		// create colorless version
-		const size_t Step = Info.PixelSize();
-
-		// make the texture gray scale
-		for(int i = 0; i < Info.m_Width * Info.m_Height; i++)
-		{
-			int v = (pData[i * Step] + pData[i * Step + 1] + pData[i * Step + 2]) / 3;
-			pData[i * Step] = v;
-			pData[i * Step + 1] = v;
-			pData[i * Step + 2] = v;
-		}
-
-		MenuImage.m_GreyTexture = pSelf->Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, Info.m_Format, 0);
 		pSelf->Graphics()->FreePNG(&Info);
-
-		// set menu image data
-		str_truncate(MenuImage.m_aName, sizeof(MenuImage.m_aName), pName, str_length(pName) - 4);
-		pSelf->m_vMenuImages.push_back(MenuImage);
-		pSelf->RenderLoading(Localize("Loading DDNet Client"), Localize("Loading menu images"), 1);
+		char aError[IO_MAX_PATH_LENGTH + 64];
+		str_format(aError, sizeof(aError), "Failed to load menu image from '%s': must be an RGBA image", aPath);
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "menus", aError);
+		return 0;
 	}
+
+	MenuImage.m_OrgTexture = pSelf->Graphics()->LoadTextureRaw(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, 0);
+
+	// create gray scale version
+	unsigned char *pData = static_cast<unsigned char *>(Info.m_pData);
+	const size_t Step = Info.PixelSize();
+	for(int i = 0; i < Info.m_Width * Info.m_Height; i++)
+	{
+		int v = (pData[i * Step] + pData[i * Step + 1] + pData[i * Step + 2]) / 3;
+		pData[i * Step] = v;
+		pData[i * Step + 1] = v;
+		pData[i * Step + 2] = v;
+	}
+	MenuImage.m_GreyTexture = pSelf->Graphics()->LoadTextureRawMove(Info.m_Width, Info.m_Height, Info.m_Format, Info.m_pData, 0);
+
+	str_truncate(MenuImage.m_aName, sizeof(MenuImage.m_aName), pName, str_length(pName) - str_length(pExtension));
+	pSelf->m_vMenuImages.push_back(MenuImage);
+
+	pSelf->RenderLoading(Localize("Loading DDNet Client"), Localize("Loading menu images"), 1);
+
 	return 0;
 }
 
@@ -2210,29 +2187,28 @@ const CMenus::CMenuImage *CMenus::FindMenuImage(const char *pName)
 
 void CMenus::SetMenuPage(int NewPage)
 {
+	if(NewPage == PAGE_DDNET_LEGACY || NewPage == PAGE_KOG_LEGACY)
+		NewPage = PAGE_INTERNET;
+
 	m_MenuPage = NewPage;
-	if(NewPage >= PAGE_INTERNET && NewPage <= PAGE_KOG)
+	if(NewPage >= PAGE_INTERNET && NewPage <= PAGE_FAVORITES)
 		g_Config.m_UiPage = NewPage;
 }
 
 void CMenus::RefreshBrowserTab(int UiPage)
 {
 	if(UiPage == PAGE_INTERNET)
+	{
+		Client()->RequestDDNetInfo();
 		ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-	else if(UiPage == PAGE_LAN)
-		ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-	else if(UiPage == PAGE_FAVORITES)
-		ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
-	else if(UiPage == PAGE_DDNET)
-	{
-		// start a new server list request
-		Client()->RequestDDNetInfo();
-		ServerBrowser()->Refresh(IServerBrowser::TYPE_DDNET);
 	}
-	else if(UiPage == PAGE_KOG)
+	else if(UiPage == PAGE_LAN)
 	{
-		// start a new server list request
+		ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
+	}
+	else if(UiPage == PAGE_FAVORITES)
+	{
 		Client()->RequestDDNetInfo();
-		ServerBrowser()->Refresh(IServerBrowser::TYPE_KOG);
+		ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
 	}
 }

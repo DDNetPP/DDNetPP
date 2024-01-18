@@ -6,12 +6,13 @@
 #include <engine/sound.h>
 
 #include <game/client/component.h>
+#include <game/mapitems.h>
 
 struct CSoundSource;
 
 class CMapSounds : public CComponent
 {
-	int m_aSounds[64];
+	int m_aSounds[MAX_MAPSOUNDS];
 	int m_Count;
 
 	struct CSourceQueueEntry

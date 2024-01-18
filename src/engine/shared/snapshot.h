@@ -26,14 +26,16 @@ public:
 class CSnapshot
 {
 	friend class CSnapshotBuilder;
-	int m_DataSize;
-	int m_NumItems;
+	int m_DataSize = 0;
+	int m_NumItems = 0;
 
 	int *Offsets() const { return (int *)(this + 1); }
 	char *DataStart() const { return (char *)(Offsets() + m_NumItems); }
 
 	size_t OffsetSize() const { return sizeof(int) * m_NumItems; }
 	size_t TotalSize() const { return sizeof(CSnapshot) + OffsetSize() + m_DataSize; }
+
+	static const CSnapshot ms_EmptySnapshot;
 
 public:
 	enum
@@ -46,11 +48,6 @@ public:
 		MAX_SIZE = MAX_PARTS * 1024
 	};
 
-	void Clear()
-	{
-		m_DataSize = 0;
-		m_NumItems = 0;
-	}
 	int NumItems() const { return m_NumItems; }
 	const CSnapshotItem *GetItem(int Index) const;
 	int GetItemSize(int Index) const;
@@ -59,9 +56,11 @@ public:
 	int GetExternalItemType(int InternalType) const;
 	const void *FindItem(int Type, int ID) const;
 
-	unsigned Crc();
-	void DebugDump();
+	unsigned Crc() const;
+	void DebugDump() const;
 	bool IsValid(size_t ActualSize) const;
+
+	static const CSnapshot *EmptySnapshot() { return &ms_EmptySnapshot; }
 };
 
 // CSnapshotDelta
@@ -88,7 +87,7 @@ private:
 	int m_aSnapshotDataUpdates[CSnapshot::MAX_TYPE + 1];
 	CData m_Empty;
 
-	static void UndiffItem(const int *pPast, int *pDiff, int *pOut, int Size, int *pDataRate);
+	static void UndiffItem(const int *pPast, const int *pDiff, int *pOut, int Size, int *pDataRate);
 
 public:
 	static int DiffItem(const int *pPast, const int *pCurrent, int *pOut, int Size);
@@ -96,10 +95,10 @@ public:
 	CSnapshotDelta(const CSnapshotDelta &Old);
 	int GetDataRate(int Index) const { return m_aSnapshotDataRate[Index]; }
 	int GetDataUpdates(int Index) const { return m_aSnapshotDataUpdates[Index]; }
-	void SetStaticsize(int ItemType, int Size);
+	void SetStaticsize(int ItemType, size_t Size);
 	const CData *EmptyDelta() const;
-	int CreateDelta(class CSnapshot *pFrom, class CSnapshot *pTo, void *pDstData);
-	int UnpackDelta(class CSnapshot *pFrom, class CSnapshot *pTo, const void *pSrcData, int DataSize);
+	int CreateDelta(const CSnapshot *pFrom, const CSnapshot *pTo, void *pDstData);
+	int UnpackDelta(const CSnapshot *pFrom, CSnapshot *pTo, const void *pSrcData, int DataSize);
 };
 
 // CSnapshotStorage
@@ -131,8 +130,8 @@ public:
 	void Init();
 	void PurgeAll();
 	void PurgeUntil(int Tick);
-	void Add(int Tick, int64_t Tagtime, int DataSize, void *pData, int AltDataSize, void *pAltData);
-	int Get(int Tick, int64_t *pTagtime, CSnapshot **ppData, CSnapshot **ppAltData);
+	void Add(int Tick, int64_t Tagtime, size_t DataSize, const void *pData, size_t AltDataSize, const void *pAltData);
+	int Get(int Tick, int64_t *pTagtime, const CSnapshot **ppData, const CSnapshot **ppAltData) const;
 };
 
 class CSnapshotBuilder
@@ -153,7 +152,7 @@ class CSnapshotBuilder
 
 	void AddExtendedItemType(int Index);
 	int GetExtendedItemTypeIndex(int TypeID);
-	int GetTypeFromIndex(int Index);
+	int GetTypeFromIndex(int Index) const;
 
 	bool m_Sixup;
 

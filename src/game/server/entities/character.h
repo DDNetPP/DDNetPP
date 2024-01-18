@@ -245,7 +245,6 @@ public:
 
 	int m_MoveRestrictions;
 
-	vec2 m_Intersection;
 	int64_t m_LastStartWarning;
 	int64_t m_LastRescue;
 	bool m_LastRefillJumps;
@@ -258,8 +257,6 @@ public:
 
 	int m_SpawnTick;
 	int m_WeaponChangeTick;
-
-	vec2 LastTelePos;
 
 	// Setters/Getters because i don't want to modify vanilla vars access modifiers
 	int GetLastWeapon() { return m_LastWeapon; }

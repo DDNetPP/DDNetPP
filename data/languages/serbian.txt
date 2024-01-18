@@ -29,9 +29,6 @@
 %s wins!
 == %s je pobedio!
 
--Page %d-
-== -Strana %d-
-
 Abort
 == Odustani
 
@@ -106,9 +103,6 @@ Delete
 
 Delete demo
 == Obriši snimak
-
-Demo details
-== Detalji snimka
 
 Demofile: %s
 == Snimak: %s
@@ -263,9 +257,6 @@ No servers match your filter criteria
 Ok
 == U redu
 
-Open
-== Otvori
-
 Parent Folder
 == Prethodna datoteka
 
@@ -314,9 +305,6 @@ Red team
 Red team wins!
 == Crveni tim je pobedio!
 
-Refresh
-== Osveži
-
 Remote console
 == Udaljena konzola
 
@@ -325,9 +313,6 @@ Remove
 
 Remove friend
 == Obriši prijatelja
-
-Rename
-== Preimenuj
 
 Rename demo
 == Preimenuj snimak
@@ -418,9 +403,6 @@ The audio device couldn't be initialised.
 
 The server is running a non-standard tuning on a pure game type.
 == Server izvodi nestandardno podešavanje čistog tipa igre.
-
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Mapa nije sačuvana, verovatno želite da je sačuvate pre izlaska iz igre.
 
 Time limit
 == Vremensko ograničenje
@@ -535,20 +517,8 @@ FSAA samples
 Sound volume
 == Jačina zvuka
 
-Created:
-== Napravljeno
-
 Max Screenshots
 == Maksimalan broj snimaka ekrana
-
-Length:
-== Dužina
-
-Netversion:
-== Net Verzija
-
-Map:
-== Mapa
 
 Hue
 == Nijansa
@@ -559,17 +529,8 @@ Record demo
 Your skin
 == Vaša tema
 
-Size:
-== Veličina
-
 Reset to defaults
 == Resetuj
-
-Quit anyway?
-== Izlaz?
-
-Version:
-== Verzija:
 
 Round
 == Runda
@@ -580,9 +541,6 @@ Lht.
 UI Color
 == Boja menija
 
-Crc:
-== Crc:
-
 Alpha
 == Provid.
 
@@ -591,9 +549,6 @@ LAN
 
 Name plates size
 == Veličina pločice sa imenom
-
-Type:
-== Tip:
 
 Successfully saved the replay!
 == Snimak je uspešno sačuvan!
@@ -700,14 +655,8 @@ Countries
 Types
 == Tipovi
 
-Please use a different name
-== Izaberite drugo ime
-
 Remove chat
 == Ukloni dopisivanje
-
-Markers:
-== Markeri:
 
 %.2f MiB
 == %.2f MiB
@@ -724,15 +673,8 @@ Date
 Fetch Info
 == Dohvati informacije
 
-[Demo browser]
-Play
-== Pusti
-
 Demos directory
 == Video direktorijum
-
-Render
-== Renderuj
 
 Connecting dummy
 == Povezujem kopiju
@@ -781,9 +723,6 @@ Automatically create statboard csv
 
 Max CSVs
 == Najviše csv-ova
-
-Dummy settings
-== Podešavanja kopije
 
 Download skins
 == Preuzimaj teme
@@ -1101,9 +1040,6 @@ Auto
 Replay
 == Pomnovi
 
-Saving ddnet-settings.cfg failed
-== Čuvanje ddnet-settings.cfg neuspelo
-
 The width of texture %s is not divisible by %d, or the height is not divisible by %d, which might cause visual bugs.
 == Širina teksture %s nije deljiva sa %d, ili visina nije deljiva sa %d, što će prouzrokovati vidljive greške.
 
@@ -1227,9 +1163,6 @@ Settings file
 Config directory
 == Direktorijum konfiguraciji
 
-Toggle to edit your dummy settings
-== Uključi da uređuješ podešavanja lutke
-
 Download community skins
 == Preuzmi ostale teme
 
@@ -1331,9 +1264,6 @@ Name Plate
 Hook Collisions
 == Dodir kuke
 
-Kill Messages
-== Poruke ubistava
-
 Show health, shields and ammo
 == Prikaži živote, štitove i metkove
 
@@ -1427,14 +1357,8 @@ Tries to predict other entities to give a feel of low latency
 Background
 == Pozadina
 
-Entities Background color
-== Statična boja pozadine
-
 Use current map as background
 == Koristi ovu mapu kao pozadinu
-
-Regular Background Color
-== Uobičajena boja pozadine
 
 Run on join
 == Uradi kada uđeš
@@ -1491,13 +1415,6 @@ A render command failed. Try to update your GPU drivers.
 [Graphics error]
 Submitting the render commands failed. Try to update your GPU drivers.
 == Неуспешно слање рендерних команди. Покушајте ажурирати драјвере за вашу графичку картицу.
-
-Could not initialize the given graphics backend, reverting to the default backend now.
-== Није било могуће иницијализовати дати графички позадину, сада се враћамо на подразумевану позадину.
-
-[Graphics error]
-Could not initialize the given graphics backend, this is probably because you didn't install the driver of the integrated graphics card.
-== Није било могуће иницијализовати дати графички позадину, највероватније зато што нисте инсталирали драјвер за интегрисану графичку картицу.
 
 Could not save downloaded map. Try manually deleting this file: %s
 == Није могуће сачувати преузету мапу. Покушајте ручно обрисати овај фајл: %s.
@@ -1733,6 +1650,80 @@ Failed to swap framebuffers. Try to update your GPU drivers.
 Unknown error. Try to change gfx_backend to OpenGL or Vulkan in settings_ddnet.cfg in the config directory and try again.
 == 
 
+[Graphics error]
+Could not initialize the given graphics backend, reverting to the default backend now.
+== 
+
+[Graphics error]
+Could not initialize the given graphics backend, this is probably because you didn't install the driver of the integrated graphics card.
+== 
+
+Error playing demo
+== 
+
+Saving settings to '%s' failed
+== 
+
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
+Some map images could not be loaded. Check the local console for details.
+== 
+
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
+Press a key…
+== 
+
+Render complete
+== 
+
+Are you sure that you want to restart?
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
+== 
+
+Communities
+== 
+
 Go back the specified duration
 == 
 
@@ -1751,4 +1742,62 @@ Go forward the specified duration
 == 
 
 Render cut to video
+== 
+
+Please use a different filename
+== 
+
+No demo selected
+== 
+
+Created
+== 
+
+Netversion
+== 
+
+[Demo details]
+map not included
+== 
+
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
+== 
+
+Info Messages
+== 
+
+Show local time always
+== 
+
+Chat font size
+== 
+
+Chat width
+== 
+
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
+Show finish messages
+== 
+
+Enable ghost
+== 
+
+Only save improvements
+== 
+
+Regular background color
+== 
+
+Entities background color
 == 

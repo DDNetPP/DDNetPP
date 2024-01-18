@@ -34,8 +34,8 @@
 #include "components/freezebars.h"
 #include "components/ghost.h"
 #include "components/hud.h"
+#include "components/infomessages.h"
 #include "components/items.h"
-#include "components/killmessages.h"
 #include "components/mapimages.h"
 #include "components/maplayers.h"
 #include "components/mapsounds.h"
@@ -111,7 +111,7 @@ class CGameClient : public IGameClient
 {
 public:
 	// all components
-	CKillMessages m_KillMessages;
+	CInfoMessages m_InfoMessages;
 	CCamera m_Camera;
 	CChat m_Chat;
 	CMotd m_Motd;
@@ -141,9 +141,9 @@ public:
 	CItems m_Items;
 	CMapImages m_MapImages;
 
-	CMapLayers m_MapLayersBackGround = CMapLayers{CMapLayers::TYPE_BACKGROUND};
-	CMapLayers m_MapLayersForeGround = CMapLayers{CMapLayers::TYPE_FOREGROUND};
-	CBackground m_BackGround;
+	CMapLayers m_MapLayersBackground = CMapLayers{CMapLayers::TYPE_BACKGROUND};
+	CMapLayers m_MapLayersForeground = CMapLayers{CMapLayers::TYPE_FOREGROUND};
+	CBackground m_Background;
 	CMenuBackground m_MenuBackground;
 
 	CMapSounds m_MapSounds;
@@ -164,6 +164,7 @@ private:
 	class ITextRender *m_pTextRender;
 	class IClient *m_pClient;
 	class ISound *m_pSound;
+	class IConfigManager *m_pConfigManager;
 	class CConfig *m_pConfig;
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
@@ -176,6 +177,7 @@ private:
 #if defined(CONF_AUTOUPDATE)
 	class IUpdater *m_pUpdater;
 #endif
+	class IHttp *m_pHttp;
 
 	CLayers m_Layers;
 	CCollision m_Collision;
@@ -230,6 +232,7 @@ public:
 	class ISound *Sound() const { return m_pSound; }
 	class IInput *Input() const { return m_pInput; }
 	class IStorage *Storage() const { return m_pStorage; }
+	class IConfigManager *ConfigManager() const { return m_pConfigManager; }
 	class CConfig *Config() const { return m_pConfig; }
 	class IConsole *Console() { return m_pConsole; }
 	class ITextRender *TextRender() const { return m_pTextRender; }
@@ -249,6 +252,10 @@ public:
 		return m_pUpdater;
 	}
 #endif
+	class IHttp *Http()
+	{
+		return m_pHttp;
+	}
 
 	int NetobjNumCorrections()
 	{
@@ -505,7 +512,7 @@ public:
 	void SendSwitchTeam(int Team);
 	void SendInfo(bool Start);
 	void SendDummyInfo(bool Start) override;
-	void SendKill(int ClientID);
+	void SendKill(int ClientID) const;
 
 	// DDRace
 
@@ -519,7 +526,7 @@ public:
 
 	int IntersectCharacter(vec2 HookPos, vec2 NewPos, vec2 &NewPos2, int ownID);
 
-	int GetLastRaceTick() override;
+	int GetLastRaceTick() const override;
 
 	bool IsTeamPlay() { return m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS; }
 
@@ -541,11 +548,11 @@ public:
 
 	void DummyResetInput() override;
 	void Echo(const char *pString) override;
-	bool IsOtherTeam(int ClientID);
-	int SwitchStateTeam();
-	bool IsLocalCharSuper();
-	bool CanDisplayWarning() override;
-	bool IsDisplayingWarning() override;
+	bool IsOtherTeam(int ClientID) const;
+	int SwitchStateTeam() const;
+	bool IsLocalCharSuper() const;
+	bool CanDisplayWarning() const override;
+	bool IsDisplayingWarning() const override;
 	CNetObjHandler *GetNetObjHandler() override;
 
 	void LoadGameSkin(const char *pPath, bool AsDir = false);

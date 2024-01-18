@@ -1,4 +1,5 @@
 #include "editor.h"
+#include "editor_actions.h"
 
 #include <game/editor/mapitems/image.h>
 
@@ -154,7 +155,7 @@ static std::shared_ptr<CEditorImage> ImageInfoToEditorImage(CEditor *pEditor, co
 	pEditorImage->m_Format = Image.m_Format;
 	pEditorImage->m_pData = Image.m_pData;
 
-	int TextureLoadFlag = pEditor->Graphics()->HasTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
+	int TextureLoadFlag = pEditor->Graphics()->Uses2DTextureArrays() ? IGraphics::TEXLOAD_TO_2D_ARRAY_TEXTURE : IGraphics::TEXLOAD_TO_3D_TEXTURE;
 	pEditorImage->m_Texture = pEditor->Graphics()->LoadTextureRaw(Image.m_Width, Image.m_Height, Image.m_Format, Image.m_pData, TextureLoadFlag, pName);
 	pEditorImage->m_External = 0;
 	str_copy(pEditorImage->m_aName, pName);
@@ -167,9 +168,8 @@ static std::shared_ptr<CLayerTiles> AddLayerWithImage(CEditor *pEditor, const st
 	std::shared_ptr<CEditorImage> pEditorImage = ImageInfoToEditorImage(pEditor, Image, pName);
 	pEditor->m_Map.m_vpImages.push_back(pEditorImage);
 
-	std::shared_ptr<CLayerTiles> pLayer = std::make_shared<CLayerTiles>(Width, Height);
+	std::shared_ptr<CLayerTiles> pLayer = std::make_shared<CLayerTiles>(pEditor, Width, Height);
 	str_copy(pLayer->m_aName, pName);
-	pLayer->m_pEditor = pEditor;
 	pLayer->m_Image = pEditor->m_Map.m_vpImages.size() - 1;
 	pGroup->AddLayer(pLayer);
 
@@ -185,10 +185,15 @@ static void SetTilelayerIndices(const std::shared_ptr<CLayerTiles> &pLayer, cons
 	}
 }
 
-void CEditor::AddTileart()
+void CEditor::AddTileart(bool IgnoreHistory)
 {
+	char aTileArtFileName[IO_MAX_PATH_LENGTH];
+	IStorage::StripPathAndExtension(m_aTileartFilename, aTileArtFileName, sizeof(aTileArtFileName));
+
 	std::shared_ptr<CLayerGroup> pGroup = m_Map.NewGroup();
-	str_copy(pGroup->m_aName, m_aTileartFilename);
+	str_copy(pGroup->m_aName, aTileArtFileName);
+
+	int ImageCount = m_Map.m_vpImages.size();
 
 	auto vUniqueColors = GetUniqueColors(m_TileartImageInfo);
 	auto vaColorGroups = GroupColors(vUniqueColors);
@@ -196,11 +201,16 @@ void CEditor::AddTileart()
 	char aImageName[IO_MAX_PATH_LENGTH];
 	for(size_t i = 0; i < vColorImages.size(); i++)
 	{
-		str_format(aImageName, sizeof(aImageName), "%s %" PRIzu, m_aTileartFilename, i + 1);
+		str_format(aImageName, sizeof(aImageName), "%s %" PRIzu, aTileArtFileName, i + 1);
 		std::shared_ptr<CLayerTiles> pLayer = AddLayerWithImage(this, pGroup, m_TileartImageInfo.m_Width, m_TileartImageInfo.m_Height, vColorImages[i], aImageName);
 		SetTilelayerIndices(pLayer, vaColorGroups[i], m_TileartImageInfo);
 	}
-	SortImages();
+	auto IndexMap = SortImages();
+
+	if(!IgnoreHistory)
+	{
+		m_EditorHistory.RecordAction(std::make_shared<CEditorActionTileArt>(this, ImageCount, m_aTileartFilename, IndexMap));
+	}
 
 	free(m_TileartImageInfo.m_pData);
 	m_TileartImageInfo.m_pData = nullptr;
@@ -238,7 +248,7 @@ bool CEditor::CallbackAddTileart(const char *pFilepath, int StorageType, void *p
 		return false;
 	}
 
-	IStorage::StripPathAndExtension(pFilepath, pEditor->m_aTileartFilename, sizeof(pEditor->m_aTileartFilename));
+	str_copy(pEditor->m_aTileartFilename, pFilepath);
 	if(pEditor->m_TileartImageInfo.m_Width * pEditor->m_TileartImageInfo.m_Height > 10'000)
 	{
 		pEditor->m_PopupEventType = CEditor::POPEVENT_PIXELART_BIG_IMAGE;

@@ -25,9 +25,6 @@
 %s wins!
 == %s печели!
 
--Page %d-
-== -Страница %d-
-
 Abort
 == Прекрати
 
@@ -102,9 +99,6 @@ Delete
 
 Delete demo
 == Изтрий демото
-
-Demo details
-== Детайли за демото
 
 Demofile: %s
 == Демофайл: %s
@@ -259,9 +253,6 @@ No servers match your filter criteria
 Ok
 == Добре
 
-Open
-== Отвори
-
 Parent Folder
 == Предишна Папка
 
@@ -276,10 +267,6 @@ Ping
 
 Pistol
 == Пистолет
-
-[Demo browser]
-Play
-== Възпроизведи
 
 Play background music
 == Пусни музика за фон
@@ -314,9 +301,6 @@ Red team
 Red team wins!
 == Отбор Червени печели!
 
-Refresh
-== Обнови
-
 Remote console
 == Сървър Конзола
 
@@ -325,9 +309,6 @@ Remove
 
 Remove friend
 == Премахни приятел
-
-Rename
-== Преименувай
 
 Rename demo
 == Преименувай демо
@@ -413,9 +394,6 @@ The audio device couldn't be initialised.
 The server is running a non-standard tuning on a pure game type.
 == Този сървър използва нестандартен тунинг на стандартен тип ига.
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Има незапазена карта в редактора, ако напуснете картата няма да бъде запазена.
-
 Time limit
 == Лимит на Времето
 
@@ -499,23 +477,11 @@ FSAA samples
 Sound volume
 == Сила на звука
 
-Created:
-== Създаден:
-
 Max Screenshots
 == Максимум Снимки
 
-Length:
-== Дължина:
-
 Laser
 == Лазер
-
-Netversion:
-== Версия:
-
-Map:
-== Карта:
 
 Hue
 == Оттенък
@@ -526,17 +492,8 @@ Record demo
 Your skin
 == Твоят модел
 
-Size:
-== Размер
-
 Reset to defaults
 == Рестартирай настройките
-
-Quit anyway?
-== Излезни все пак?
-
-Version:
-== Версия:
 
 Round
 == Рунд
@@ -547,9 +504,6 @@ Lht.
 UI Color
 == Цвят на Интерфейса
 
-Crc:
-== Crc:
-
 Alpha
 == Прозрачност
 
@@ -558,9 +512,6 @@ LAN
 
 Name plates size
 == Размер на лентата с имената
-
-Type:
-== Тип:
 
 [Graphics error]
 Failed during initialization. Try to change gfx_backend to OpenGL or Vulkan in settings_ddnet.cfg in the config directory and try again.
@@ -601,10 +552,13 @@ Could not initialize the given graphics backend, this is probably because you di
 Could not save downloaded map. Try manually deleting this file: %s
 == 
 
+Error playing demo
+== 
+
 Successfully saved the replay!
 == 
 
-Saving ddnet-settings.cfg failed
+Saving settings to '%s' failed
 == 
 
 Replay feature is disabled!
@@ -652,6 +606,33 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
 Debug mode enabled. Press Ctrl+Shift+D to disable debug mode.
 == 
 
@@ -679,10 +660,22 @@ Personal best:
 Team %d
 == 
 
+Some map images could not be loaded. Check the local console for details.
+== 
+
 Uploading map data to GPU
 == 
 
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
 Reset
+== 
+
+Press a key…
 == 
 
 Browser
@@ -718,6 +711,15 @@ Rename folder
 Render demo
 == 
 
+Render complete
+== 
+
+Restart
+== 
+
+Are you sure that you want to restart?
+== 
+
 Welcome to DDNet
 == 
 
@@ -742,6 +744,12 @@ Your nickname '%s' is already used (%d points). Do you still want to use it?
 Checking for existing player with your name
 == 
 
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
+== 
+
 A demo with this name already exists
 == 
 
@@ -764,6 +772,12 @@ Speed
 == 
 
 Video name:
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
 == 
 
 Join Tutorial Server
@@ -830,6 +844,9 @@ Are you sure that you want to disconnect and switch to a different server?
 == 
 
 Filter connecting players
+== 
+
+Communities
 == 
 
 Indicate map finish
@@ -958,7 +975,7 @@ Remove chat
 Render cut to video
 == 
 
-Please use a different name
+Please use a different filename
 == 
 
 File already exists, do you want to overwrite it?
@@ -970,28 +987,41 @@ Loading demo files
 All combined
 == 
 
-Folder Link
-== 
-
-Markers:
-== 
-
-%.2f MiB
-== 
-
-%.2f KiB
-== 
-
 Demo
-== 
-
-Markers
 == 
 
 Length
 == 
 
 Date
+== 
+
+No demo selected
+== 
+
+Folder Link
+== 
+
+Created
+== 
+
+Markers
+== 
+
+Netversion
+== 
+
+Size
+== 
+
+[Demo details]
+map not included
+== 
+
+%.2f MiB
+== 
+
+%.2f KiB
 == 
 
 Fetch Info
@@ -1010,9 +1040,6 @@ Are you sure that you want to delete the demo '%s'?
 == 
 
 Delete folder
-== 
-
-Render
 == 
 
 Unable to delete the demo '%s'
@@ -1048,7 +1075,13 @@ Loading ghost files
 Time
 == 
 
-Reload
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
 == 
 
 Deactivate
@@ -1105,10 +1138,7 @@ Automatically create statboard csv
 Max CSVs
 == 
 
-Dummy settings
-== 
-
-Toggle to edit your dummy settings
+Dummy
 == 
 
 Loading skin files
@@ -1129,10 +1159,10 @@ Fat skins (DDFat)
 Skin prefix
 == 
 
-Choose default eyes when joining a server
+Create a random skin
 == 
 
-Create a random skin
+Choose default eyes when joining a server
 == 
 
 Skin Database
@@ -1254,9 +1284,6 @@ Are you sure that you want to reset the controls to their defaults?
 Cancel
 == 
 
-Dummy
-== 
-
 Windowed
 == 
 
@@ -1350,7 +1377,7 @@ Name Plate
 Hook Collisions
 == 
 
-Kill Messages
+Info Messages
 == 
 
 Show health, shields and ammo
@@ -1360,6 +1387,9 @@ Show kill messages
 == 
 
 Show score
+== 
+
+Show local time always
 == 
 
 Show votes window after voting
@@ -1407,6 +1437,12 @@ Show only chat messages from friends
 Use old chat style
 == 
 
+Chat font size
+== 
+
+Chat width
+== 
+
 Messages
 == 
 
@@ -1446,6 +1482,12 @@ Show other players' key presses
 Show local player's key presses
 == 
 
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
 Hook collision line
 == 
 
@@ -1471,6 +1513,9 @@ Something hookable
 == 
 
 A Tee
+== 
+
+Show finish messages
 == 
 
 Normal Color
@@ -1521,13 +1566,22 @@ Enable replays
 Default length
 == 
 
+Enable ghost
+== 
+
 When you cross the start line, show a ghost tee replicating the movements of your best time
 == 
 
 Show ghost
 == 
 
+Opacity
+== 
+
 Save ghost
+== 
+
+Only save improvements
 == 
 
 Gameplay
@@ -1537,12 +1591,6 @@ Overlay entities
 == 
 
 Show text entities
-== 
-
-Size
-== 
-
-Opacity
 == 
 
 Adjust the opacity of entities belonging to other teams, such as tees and nameplates
@@ -1575,16 +1623,19 @@ AntiPing: predict grenade paths
 Background
 == 
 
-Entities Background color
+Regular background color
+== 
+
+Entities background color
+== 
+
+Reload
 == 
 
 Use current map as background
 == 
 
 Show tiles layers from BG map
-== 
-
-Regular Background Color
 == 
 
 New random timeout code
@@ -1682,9 +1733,6 @@ Downloading %s:
 == 
 
 Update failed! Check log...
-== 
-
-Restart
 == 
 
 Loading race demo files

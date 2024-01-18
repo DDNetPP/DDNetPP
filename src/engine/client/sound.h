@@ -3,15 +3,19 @@
 #ifndef ENGINE_CLIENT_SOUND_H
 #define ENGINE_CLIENT_SOUND_H
 
+#include <base/lock.h>
+
 #include <engine/sound.h>
 
 #include <SDL_audio.h>
 
 #include <atomic>
-#include <mutex>
 
 struct CSample
 {
+	int m_Index;
+	int m_NextFreeSampleIndex;
+
 	short *m_pData;
 	int m_NumFrames;
 	int m_Rate;
@@ -19,6 +23,11 @@ struct CSample
 	int m_LoopStart;
 	int m_LoopEnd;
 	int m_PausedAt;
+
+	float TotalTime() const
+	{
+		return m_NumFrames / (float)m_Rate;
+	}
 };
 
 struct CChannel
@@ -57,9 +66,11 @@ class CSound : public IEngineSound
 
 	bool m_SoundEnabled = false;
 	SDL_AudioDeviceID m_Device = 0;
-	std::mutex m_SoundLock;
+	CLock m_SoundLock;
 
 	CSample m_aSamples[NUM_SAMPLES] = {{0}};
+	int m_FirstFreeSampleIndex = 0;
+
 	CVoice m_aVoices[NUM_VOICES] = {{0}};
 	CChannel m_aChannels[NUM_CHANNELS] = {{255, 0}};
 	int m_NextVoice = 0;
@@ -75,49 +86,52 @@ class CSound : public IEngineSound
 
 	int *m_pMixBuffer = nullptr;
 
-	int AllocID();
-	void RateConvert(CSample &Sample);
+	CSample *AllocSample();
+	void RateConvert(CSample &Sample) const;
 
-	bool DecodeOpus(CSample &Sample, const void *pData, unsigned DataSize);
-	bool DecodeWV(CSample &Sample, const void *pData, unsigned DataSize);
+	bool DecodeOpus(CSample &Sample, const void *pData, unsigned DataSize) const;
+	bool DecodeWV(CSample &Sample, const void *pData, unsigned DataSize) const;
 
 	void UpdateVolume();
 
 public:
 	int Init() override;
 	int Update() override;
-	void Shutdown() override;
+	void Shutdown() override REQUIRES(!m_SoundLock);
 
 	bool IsSoundEnabled() override { return m_SoundEnabled; }
 
-	int LoadOpus(const char *pFilename, int StorageType = IStorage::TYPE_ALL) override;
-	int LoadWV(const char *pFilename, int StorageType = IStorage::TYPE_ALL) override;
-	int LoadOpusFromMem(const void *pData, unsigned DataSize, bool FromEditor) override;
-	int LoadWVFromMem(const void *pData, unsigned DataSize, bool FromEditor) override;
-	void UnloadSample(int SampleID) override;
+	int LoadOpus(const char *pFilename, int StorageType = IStorage::TYPE_ALL) override REQUIRES(!m_SoundLock);
+	int LoadWV(const char *pFilename, int StorageType = IStorage::TYPE_ALL) override REQUIRES(!m_SoundLock);
+	int LoadOpusFromMem(const void *pData, unsigned DataSize, bool FromEditor) override REQUIRES(!m_SoundLock);
+	int LoadWVFromMem(const void *pData, unsigned DataSize, bool FromEditor) override REQUIRES(!m_SoundLock);
+	void UnloadSample(int SampleID) override REQUIRES(!m_SoundLock);
 
-	float GetSampleDuration(int SampleID) override; // in s
+	float GetSampleTotalTime(int SampleID) override; // in s
+	float GetSampleCurrentTime(int SampleID) override REQUIRES(!m_SoundLock); // in s
+	void SetSampleCurrentTime(int SampleID, float Time) override REQUIRES(!m_SoundLock);
 
 	void SetChannel(int ChannelID, float Vol, float Pan) override;
 	void SetListenerPos(float x, float y) override;
 
-	void SetVoiceVolume(CVoiceHandle Voice, float Volume) override;
-	void SetVoiceFalloff(CVoiceHandle Voice, float Falloff) override;
-	void SetVoiceLocation(CVoiceHandle Voice, float x, float y) override;
-	void SetVoiceTimeOffset(CVoiceHandle Voice, float TimeOffset) override; // in s
+	void SetVoiceVolume(CVoiceHandle Voice, float Volume) override REQUIRES(!m_SoundLock);
+	void SetVoiceFalloff(CVoiceHandle Voice, float Falloff) override REQUIRES(!m_SoundLock);
+	void SetVoiceLocation(CVoiceHandle Voice, float x, float y) override REQUIRES(!m_SoundLock);
+	void SetVoiceTimeOffset(CVoiceHandle Voice, float TimeOffset) override REQUIRES(!m_SoundLock); // in s
 
-	void SetVoiceCircle(CVoiceHandle Voice, float Radius) override;
-	void SetVoiceRectangle(CVoiceHandle Voice, float Width, float Height) override;
+	void SetVoiceCircle(CVoiceHandle Voice, float Radius) override REQUIRES(!m_SoundLock);
+	void SetVoiceRectangle(CVoiceHandle Voice, float Width, float Height) override REQUIRES(!m_SoundLock);
 
-	CVoiceHandle Play(int ChannelID, int SampleID, int Flags, float x, float y);
-	CVoiceHandle PlayAt(int ChannelID, int SampleID, int Flags, float x, float y) override;
-	CVoiceHandle Play(int ChannelID, int SampleID, int Flags) override;
-	void Stop(int SampleID) override;
-	void StopAll() override;
-	void StopVoice(CVoiceHandle Voice) override;
-	bool IsPlaying(int SampleID) override;
+	CVoiceHandle Play(int ChannelID, int SampleID, int Flags, float x, float y) REQUIRES(!m_SoundLock);
+	CVoiceHandle PlayAt(int ChannelID, int SampleID, int Flags, float x, float y) override REQUIRES(!m_SoundLock);
+	CVoiceHandle Play(int ChannelID, int SampleID, int Flags) override REQUIRES(!m_SoundLock);
+	void Pause(int SampleID) override REQUIRES(!m_SoundLock);
+	void Stop(int SampleID) override REQUIRES(!m_SoundLock);
+	void StopAll() override REQUIRES(!m_SoundLock);
+	void StopVoice(CVoiceHandle Voice) override REQUIRES(!m_SoundLock);
+	bool IsPlaying(int SampleID) override REQUIRES(!m_SoundLock);
 
-	void Mix(short *pFinalOut, unsigned Frames) override;
+	void Mix(short *pFinalOut, unsigned Frames) override REQUIRES(!m_SoundLock);
 	void PauseAudioDevice() override;
 	void UnpauseAudioDevice() override;
 };

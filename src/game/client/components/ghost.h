@@ -57,7 +57,7 @@ class CGhost : public CComponent
 private:
 	enum
 	{
-		MAX_ACTIVE_GHOSTS = 8,
+		MAX_ACTIVE_GHOSTS = 256,
 	};
 
 	class CGhostPath
@@ -174,9 +174,9 @@ public:
 	class IGhostLoader *GhostLoader() const { return m_pGhostLoader; }
 	class IGhostRecorder *GhostRecorder() const { return m_pGhostRecorder; }
 
-	int GetLastRaceTick();
+	int GetLastRaceTick() const;
 
-	void RefindSkin();
+	void RefindSkins();
 };
 
 #endif

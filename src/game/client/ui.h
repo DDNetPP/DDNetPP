@@ -18,6 +18,22 @@ class IClient;
 class IGraphics;
 class IKernel;
 
+enum class EEditState
+{
+	NONE,
+	START,
+	EDITING,
+	END,
+	ONE_GO
+};
+
+template<typename T>
+struct SEditResult
+{
+	EEditState m_State;
+	T m_Value;
+};
+
 struct SUIAnimator
 {
 	bool m_Active;
@@ -153,6 +169,7 @@ public:
 		int m_Corners;
 
 		std::string m_Text;
+		int m_ReadCursorGlyphCount;
 
 		CTextCursor m_Cursor;
 
@@ -391,7 +408,7 @@ public:
 		HOTKEY_END = 1 << 11,
 	};
 
-	void ResetUIElement(CUIElement &UIElement);
+	void ResetUIElement(CUIElement &UIElement) const;
 
 	CUIElement *GetNewUIElement(int RequestedRectCount);
 
@@ -487,23 +504,24 @@ public:
 
 	int DoButtonLogic(const void *pID, int Checked, const CUIRect *pRect);
 	int DoDraggableButtonLogic(const void *pID, int Checked, const CUIRect *pRect, bool *pClicked, bool *pAbrupted);
-	int DoPickerLogic(const void *pID, const CUIRect *pRect, float *pX, float *pY);
-	void DoSmoothScrollLogic(float *pScrollOffset, float *pScrollOffsetChange, float ViewPortSize, float TotalSize, bool SmoothClamp = false, float ScrollSpeed = 10.0f);
+	EEditState DoPickerLogic(const void *pID, const CUIRect *pRect, float *pX, float *pY);
+	void DoSmoothScrollLogic(float *pScrollOffset, float *pScrollOffsetChange, float ViewPortSize, float TotalSize, bool SmoothClamp = false, float ScrollSpeed = 10.0f) const;
 	static vec2 CalcAlignedCursorPos(const CUIRect *pRect, vec2 TextSize, int Align, const float *pBiggestCharHeight = nullptr);
 
-	void DoLabel(const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {});
+	void DoLabel(const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {}) const;
 
-	void DoLabel(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {}, int StrLen = -1, const CTextCursor *pReadCursor = nullptr);
-	void DoLabelStreamed(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {}, int StrLen = -1, const CTextCursor *pReadCursor = nullptr);
+	void DoLabel(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {}, int StrLen = -1, const CTextCursor *pReadCursor = nullptr) const;
+	void DoLabelStreamed(CUIElement::SUIElementRect &RectEl, const CUIRect *pRect, const char *pText, float Size, int Align, const SLabelProperties &LabelProps = {}, int StrLen = -1, const CTextCursor *pReadCursor = nullptr) const;
 
 	bool DoEditBox(CLineInput *pLineInput, const CUIRect *pRect, float FontSize, int Corners = IGraphics::CORNER_ALL);
 	bool DoClearableEditBox(CLineInput *pLineInput, const CUIRect *pRect, float FontSize, int Corners = IGraphics::CORNER_ALL);
 
 	int DoButton_Menu(CUIElement &UIElement, const CButtonContainer *pID, const std::function<const char *()> &GetTextLambda, const CUIRect *pRect, const SMenuButtonProperties &Props = {});
 	// only used for popup menus
-	int DoButton_PopupMenu(CButtonContainer *pButtonContainer, const char *pText, const CUIRect *pRect, float Size, int Align, float Padding = 0.0f, bool TransparentInactive = false);
+	int DoButton_PopupMenu(CButtonContainer *pButtonContainer, const char *pText, const CUIRect *pRect, float Size, int Align, float Padding = 0.0f, bool TransparentInactive = false, bool Enabled = true);
 
 	// value selector
+	SEditResult<int64_t> DoValueSelectorWithState(const void *pID, const CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, const SValueSelectorProperties &Props = {});
 	int64_t DoValueSelector(const void *pID, const CUIRect *pRect, const char *pLabel, int64_t Current, int64_t Min, int64_t Max, const SValueSelectorProperties &Props = {});
 	bool IsValueSelectorTextMode() const { return m_ValueSelectorTextMode; }
 	void SetValueSelectorTextMode(bool TextMode) { m_ValueSelectorTextMode = TextMode; }
@@ -520,7 +538,7 @@ public:
 	void DoScrollbarOption(const void *pID, int *pOption, const CUIRect *pRect, const char *pStr, int Min, int Max, const IScrollbarScale *pScale = &ms_LinearScrollbarScale, unsigned Flags = 0u, const char *pSuffix = "");
 
 	// progress spinner
-	void RenderProgressSpinner(vec2 Center, float OuterRadius, const SProgressSpinnerProperties &Props = {});
+	void RenderProgressSpinner(vec2 Center, float OuterRadius, const SProgressSpinnerProperties &Props = {}) const;
 
 	// popup menu
 	void DoPopupMenu(const SPopupMenuId *pID, int X, int Y, int Width, int Height, void *pContext, FPopupMenuFunction pfnFunc, const SPopupMenuProperties &Props = {});
@@ -599,13 +617,27 @@ public:
 
 	struct SColorPickerPopupContext : public SPopupMenuId
 	{
+		enum EColorPickerMode
+		{
+			MODE_UNSET = -1,
+			MODE_HSVA,
+			MODE_RGBA,
+			MODE_HSLA,
+		};
+
 		CUI *m_pUI; // set by CUI when popup is shown
+		EColorPickerMode m_ColorMode = MODE_UNSET;
 		bool m_Alpha = false;
 		unsigned int *m_pHslaColor = nullptr; // may be nullptr
 		ColorHSVA m_HsvaColor;
+		ColorRGBA m_RgbaColor;
+		ColorHSLA m_HslaColor;
+		// UI element IDs
 		const char m_HuePickerId = 0;
 		const char m_ColorPickerId = 0;
 		const char m_aValueSelectorIds[5] = {0};
+		CButtonContainer m_aModeButtons[(int)MODE_HSLA + 1];
+		EEditState m_State;
 	};
 	void ShowPopupColorPicker(float X, float Y, SColorPickerPopupContext *pContext);
 

@@ -98,7 +98,7 @@ void CPlasmaBullet::Tick()
 				WEAPON_GRENADE,
 				true,
 				m_ResponsibleTeam,
-				((CGameControllerDDRace *)GameServer()->m_pController)->m_Teams.TeamMask(m_ResponsibleTeam));
+				((CGameControllerDDRace *)GameServer()->m_pController)->Teams().TeamMask(m_ResponsibleTeam));
 
 		if(m_Bloody)
 		{

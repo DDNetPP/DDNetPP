@@ -1,10 +1,14 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+#include "layer_quads.h"
+
 #include <game/editor/editor.h>
+#include <game/editor/editor_actions.h>
 
 #include "image.h"
 
-CLayerQuads::CLayerQuads()
+CLayerQuads::CLayerQuads(CEditor *pEditor) :
+	CLayer(pEditor)
 {
 	m_Type = LAYERTYPE_QUADS;
 	m_aName[0] = '\0';
@@ -27,9 +31,9 @@ void CLayerQuads::Render(bool QuadPicker)
 		Graphics()->TextureSet(m_pEditor->m_Map.m_vpImages[m_Image]->m_Texture);
 
 	Graphics()->BlendNone();
-	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_OPAQUE, m_pEditor->EnvelopeEval, m_pEditor);
+	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_OPAQUE, CEditor::EnvelopeEval, m_pEditor);
 	Graphics()->BlendNormal();
-	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_TRANSPARENT, m_pEditor->EnvelopeEval, m_pEditor);
+	m_pEditor->RenderTools()->ForceRenderQuads(m_vQuads.data(), m_vQuads.size(), LAYERRENDERFLAG_TRANSPARENT, CEditor::EnvelopeEval, m_pEditor);
 }
 
 CQuad *CLayerQuads::NewQuad(int x, int y, int Width, int Height)
@@ -107,8 +111,7 @@ void CLayerQuads::BrushSelecting(CUIRect Rect)
 int CLayerQuads::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 {
 	// create new layers
-	std::shared_ptr<CLayerQuads> pGrabbed = std::make_shared<CLayerQuads>();
-	pGrabbed->m_pEditor = m_pEditor;
+	std::shared_ptr<CLayerQuads> pGrabbed = std::make_shared<CLayerQuads>(m_pEditor);
 	pGrabbed->m_Image = m_Image;
 	pBrush->AddLayer(pGrabbed);
 
@@ -138,6 +141,7 @@ int CLayerQuads::BrushGrab(std::shared_ptr<CLayerGroup> pBrush, CUIRect Rect)
 void CLayerQuads::BrushPlace(std::shared_ptr<CLayer> pBrush, float wx, float wy)
 {
 	std::shared_ptr<CLayerQuads> pQuadLayer = std::static_pointer_cast<CLayerQuads>(pBrush);
+	std::vector<CQuad> vAddedQuads;
 	for(const auto &Quad : pQuadLayer->m_vQuads)
 	{
 		CQuad n = Quad;
@@ -149,7 +153,9 @@ void CLayerQuads::BrushPlace(std::shared_ptr<CLayer> pBrush, float wx, float wy)
 		}
 
 		m_vQuads.push_back(n);
+		vAddedQuads.push_back(n);
 	}
+	m_pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionQuadPlace>(m_pEditor, m_pEditor->m_SelectedGroup, m_pEditor->m_vSelectedLayers[0], vAddedQuads));
 	m_pEditor->m_Map.OnModify();
 }
 
@@ -217,32 +223,31 @@ void CLayerQuads::GetSize(float *pWidth, float *pHeight)
 
 CUI::EPopupMenuFunctionResult CLayerQuads::RenderProperties(CUIRect *pToolBox)
 {
-	enum
-	{
-		PROP_IMAGE = 0,
-		NUM_PROPS,
-	};
-
 	CProperty aProps[] = {
 		{"Image", m_Image, PROPTYPE_IMAGE, -1, 0},
 		{nullptr},
 	};
 
-	static int s_aIds[NUM_PROPS] = {0};
+	static int s_aIds[(int)ELayerQuadsProp::NUM_PROPS] = {0};
 	int NewVal = 0;
-	int Prop = m_pEditor->DoProperties(pToolBox, aProps, s_aIds, &NewVal);
-	if(Prop != -1)
+	auto [State, Prop] = m_pEditor->DoPropertiesWithState<ELayerQuadsProp>(pToolBox, aProps, s_aIds, &NewVal);
+	if(Prop != ELayerQuadsProp::PROP_NONE)
 	{
 		m_pEditor->m_Map.OnModify();
 	}
 
-	if(Prop == PROP_IMAGE)
+	static CLayerQuadsPropTracker s_Tracker(m_pEditor);
+	s_Tracker.Begin(this, Prop, State);
+
+	if(Prop == ELayerQuadsProp::PROP_IMAGE)
 	{
 		if(NewVal >= 0)
 			m_Image = NewVal % m_pEditor->m_Map.m_vpImages.size();
 		else
 			m_Image = -1;
 	}
+
+	s_Tracker.End(Prop, State);
 
 	return CUI::POPUP_KEEP_OPEN;
 }
@@ -277,4 +282,9 @@ int CLayerQuads::SwapQuads(int Index0, int Index1)
 	m_pEditor->m_Map.OnModify();
 	std::swap(m_vQuads[Index0], m_vQuads[Index1]);
 	return Index1;
+}
+
+const char *CLayerQuads::TypeName() const
+{
+	return "quads";
 }

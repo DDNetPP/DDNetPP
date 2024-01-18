@@ -15,26 +15,22 @@
 #include <base/math.h>
 #include <base/system.h>
 
-#include <array>
-#include <map>
-#include <set>
-#include <vector>
-
 #include <algorithm>
-
+#include <array>
+#include <condition_variable>
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <limits>
+#include <map>
 #include <memory>
-#include <string>
-
-#include <condition_variable>
 #include <mutex>
+#include <optional>
+#include <set>
+#include <string>
 #include <thread>
-
-#include <cstdlib>
-
 #include <unordered_map>
+#include <vector>
 
 #include <SDL_video.h>
 #include <SDL_vulkan.h>
@@ -68,7 +64,7 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 		return g_Config.m_DbgGfx == DEBUG_GFX_MODE_VERBOSE || g_Config.m_DbgGfx == DEBUG_GFX_MODE_ALL;
 	}
 
-	void VerboseAllocatedMemory(VkDeviceSize Size, size_t FrameImageIndex, EMemoryBlockUsage MemUsage)
+	void VerboseAllocatedMemory(VkDeviceSize Size, size_t FrameImageIndex, EMemoryBlockUsage MemUsage) const
 	{
 		const char *pUsage = "unknown";
 		switch(MemUsage)
@@ -90,7 +86,7 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 		dbg_msg("vulkan", "allocated chunk of memory with size: %" PRIzu " for frame %" PRIzu " (%s)", (size_t)Size, (size_t)m_CurImageIndex, pUsage);
 	}
 
-	void VerboseDeallocatedMemory(VkDeviceSize Size, size_t FrameImageIndex, EMemoryBlockUsage MemUsage)
+	void VerboseDeallocatedMemory(VkDeviceSize Size, size_t FrameImageIndex, EMemoryBlockUsage MemUsage) const
 	{
 		const char *pUsage = "unknown";
 		switch(MemUsage)
@@ -300,7 +296,7 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 			}
 		}
 
-		[[nodiscard]] bool IsUnused()
+		[[nodiscard]] bool IsUnused() const
 		{
 			return !m_Root.m_InUse;
 		}
@@ -721,22 +717,17 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 		float m_aPos[4 * 2];
 	};
 
-	struct SUniformTileGPosBorderLine : public SUniformTileGPos
+	struct SUniformTileGPosBorder : public SUniformTileGPos
 	{
-		vec2 m_Dir;
 		vec2 m_Offset;
-	};
-
-	struct SUniformTileGPosBorder : public SUniformTileGPosBorderLine
-	{
-		int32_t m_JumpIndex;
+		vec2 m_Scale;
 	};
 
 	typedef ColorRGBA SUniformTileGVertColor;
 
 	struct SUniformTileGVertColorAlign
 	{
-		float m_aPad[(64 - 52) / 4];
+		float m_aPad[(64 - 48) / 4];
 	};
 
 	struct SUniformPrimExGPosRotationless
@@ -834,7 +825,7 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 		// the viewport of the resulting presented image on the screen
 		// if there is a forced viewport the resulting image is smaller
 		// than the full swap image size
-		VkExtent2D GetPresentedImageViewport()
+		VkExtent2D GetPresentedImageViewport() const
 		{
 			uint32_t ViewportWidth = m_SwapImageViewport.width;
 			uint32_t ViewportHeight = m_SwapImageViewport.height;
@@ -909,6 +900,7 @@ class CCommandProcessorFragment_Vulkan : public CCommandProcessorFragment_GLBase
 
 	uint32_t m_MinUniformAlign;
 
+	std::vector<uint8_t> m_vReadPixelHelper;
 	std::vector<uint8_t> m_vScreenshotHelper;
 
 	SDeviceMemoryBlock m_GetPresentedImgDataHelperMem;
@@ -1011,7 +1003,6 @@ private:
 	SPipelineContainer m_TextPipeline;
 	SPipelineContainer m_TilePipeline;
 	SPipelineContainer m_TileBorderPipeline;
-	SPipelineContainer m_TileBorderLinePipeline;
 	SPipelineContainer m_PrimExPipeline;
 	SPipelineContainer m_PrimExRotationlessPipeline;
 	SPipelineContainer m_SpriteMultiPipeline;
@@ -1105,15 +1096,15 @@ protected:
 	 * After an error occurred, the rendering stop as soon as possible
 	 * Always stop the current code execution after a call to this function (e.g. return false)
 	 */
-	void SetError(EGFXErrorType ErrType, const char *pErr, const char *pErrStrExtra = nullptr)
+	void SetError(EGfxErrorType ErrType, const char *pErr, const char *pErrStrExtra = nullptr)
 	{
 		std::unique_lock<std::mutex> Lock(m_ErrWarnMutex);
-		SGFXErrorContainer::SError Err = {false, pErr};
+		SGfxErrorContainer::SError Err = {false, pErr};
 		if(std::find(m_Error.m_vErrors.begin(), m_Error.m_vErrors.end(), Err) == m_Error.m_vErrors.end())
 			m_Error.m_vErrors.emplace_back(Err);
 		if(pErrStrExtra != nullptr)
 		{
-			SGFXErrorContainer::SError ErrExtra = {false, pErrStrExtra};
+			SGfxErrorContainer::SError ErrExtra = {false, pErrStrExtra};
 			if(std::find(m_Error.m_vErrors.begin(), m_Error.m_vErrors.end(), ErrExtra) == m_Error.m_vErrors.end())
 				m_Error.m_vErrors.emplace_back(ErrExtra);
 		}
@@ -1131,7 +1122,7 @@ protected:
 			Lock.unlock();
 			// during initialization vulkan should not throw any errors but warnings instead
 			// since most code in the swapchain is shared with runtime code, add this extra code path
-			SetWarning(EGFXWarningType::GFX_WARNING_TYPE_INIT_FAILED, pErr);
+			SetWarning(EGfxWarningType::GFX_WARNING_TYPE_INIT_FAILED, pErr);
 		}
 	}
 
@@ -1142,7 +1133,7 @@ protected:
 			m_Warning.m_vWarnings.emplace(m_Warning.m_vWarnings.begin(), pWarningPre);
 	}
 
-	void SetWarning(EGFXWarningType WarningType, const char *pWarning)
+	void SetWarning(EGfxWarningType WarningType, const char *pWarning)
 	{
 		std::unique_lock<std::mutex> Lock(m_ErrWarnMutex);
 		dbg_msg("vulkan", "vulkan warning: %s", pWarning);
@@ -1206,10 +1197,10 @@ protected:
 			dbg_msg("vulkan", "%s", pCriticalError);
 			break;
 		case VK_ERROR_LAYER_NOT_PRESENT:
-			SetWarning(EGFXWarningType::GFX_WARNING_MISSING_EXTENSION, "One Vulkan layer was not present. (try to disable them)");
+			SetWarning(EGfxWarningType::GFX_WARNING_MISSING_EXTENSION, "One Vulkan layer was not present. (try to disable them)");
 			break;
 		case VK_ERROR_EXTENSION_NOT_PRESENT:
-			SetWarning(EGFXWarningType::GFX_WARNING_MISSING_EXTENSION, "One Vulkan extension was not present. (try to disable them)");
+			SetWarning(EGfxWarningType::GFX_WARNING_MISSING_EXTENSION, "One Vulkan extension was not present. (try to disable them)");
 			break;
 		case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:
 			dbg_msg("vulkan", "native window in use");
@@ -1274,7 +1265,6 @@ protected:
 
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_TILE_LAYER)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderTileLayer_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderTileLayer *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderTileLayer(static_cast<const CCommandBuffer::SCommand_RenderTileLayer *>(pBaseCommand), ExecBuffer); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_BORDER_TILE)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderBorderTile_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderBorderTile *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderBorderTile(static_cast<const CCommandBuffer::SCommand_RenderBorderTile *>(pBaseCommand), ExecBuffer); }};
-		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_BORDER_TILE_LINE)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderBorderTileLine_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderBorderTileLine *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderBorderTileLine(static_cast<const CCommandBuffer::SCommand_RenderBorderTileLine *>(pBaseCommand), ExecBuffer); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_QUAD_LAYER)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderQuadLayer_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderQuadLayer *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderQuadLayer(static_cast<const CCommandBuffer::SCommand_RenderQuadLayer *>(pBaseCommand), ExecBuffer); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_TEXT)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderText_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderText *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderText(static_cast<const CCommandBuffer::SCommand_RenderText *>(pBaseCommand), ExecBuffer); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_RENDER_QUAD_CONTAINER)] = {true, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_RenderQuadContainer_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_RenderQuadContainer *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_RenderQuadContainer(static_cast<const CCommandBuffer::SCommand_RenderQuadContainer *>(pBaseCommand), ExecBuffer); }};
@@ -1285,6 +1275,7 @@ protected:
 
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_VSYNC)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_VSync(static_cast<const CCommandBuffer::SCommand_VSync *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_MULTISAMPLING)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_MultiSampling(static_cast<const CCommandBuffer::SCommand_MultiSampling *>(pBaseCommand)); }};
+		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TRY_SWAP_AND_READ_PIXEL)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_ReadPixel(static_cast<const CCommandBuffer::SCommand_TrySwapAndReadPixel *>(pBaseCommand)); }};
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_TRY_SWAP_AND_SCREENSHOT)] = {false, [](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) {}, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_Screenshot(static_cast<const CCommandBuffer::SCommand_TrySwapAndScreenshot *>(pBaseCommand)); }};
 
 		m_aCommandCallbacks[CommandBufferCMDOff(CCommandBuffer::CMD_UPDATE_VIEWPORT)] = {false, [this](SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand *pBaseCommand) { Cmd_Update_Viewport_FillExecuteBuffer(ExecBuffer, static_cast<const CCommandBuffer::SCommand_Update_Viewport *>(pBaseCommand)); }, [this](const CCommandBuffer::SCommand *pBaseCommand, SRenderCommandExecuteBuffer &ExecBuffer) { return Cmd_Update_Viewport(static_cast<const CCommandBuffer::SCommand_Update_Viewport *>(pBaseCommand)); }};
@@ -1385,15 +1376,29 @@ protected:
 		}
 	}
 
-	[[nodiscard]] bool GetPresentedImageDataImpl(uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData, bool FlipImgData, bool ResetAlpha)
+	[[nodiscard]] bool GetPresentedImageDataImpl(uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData, bool ResetAlpha, std::optional<ivec2> PixelOffset)
 	{
 		bool IsB8G8R8A8 = m_VKSurfFormat.format == VK_FORMAT_B8G8R8A8_UNORM;
 		bool UsesRGBALikeFormat = m_VKSurfFormat.format == VK_FORMAT_R8G8B8A8_UNORM || IsB8G8R8A8;
 		if(UsesRGBALikeFormat && m_LastPresentedSwapChainImageIndex != std::numeric_limits<decltype(m_LastPresentedSwapChainImageIndex)>::max())
 		{
 			auto Viewport = m_VKSwapImgAndViewportExtent.GetPresentedImageViewport();
-			Width = Viewport.width;
-			Height = Viewport.height;
+			VkOffset3D SrcOffset;
+			if(PixelOffset.has_value())
+			{
+				SrcOffset.x = PixelOffset.value().x;
+				SrcOffset.y = PixelOffset.value().y;
+				Width = 1;
+				Height = 1;
+			}
+			else
+			{
+				SrcOffset.x = 0;
+				SrcOffset.y = 0;
+				Width = Viewport.width;
+				Height = Viewport.height;
+			}
+			SrcOffset.z = 0;
 			Format = CImageInfo::FORMAT_RGBA;
 
 			const size_t ImageTotalSize = (size_t)Width * Height * CImageInfo::PixelSize(Format);
@@ -1406,17 +1411,6 @@ protected:
 			if(!GetMemoryCommandBuffer(pCommandBuffer))
 				return false;
 			VkCommandBuffer &CommandBuffer = *pCommandBuffer;
-
-			VkBufferImageCopy Region{};
-			Region.bufferOffset = 0;
-			Region.bufferRowLength = 0;
-			Region.bufferImageHeight = 0;
-			Region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			Region.imageSubresource.mipLevel = 0;
-			Region.imageSubresource.baseArrayLayer = 0;
-			Region.imageSubresource.layerCount = 1;
-			Region.imageOffset = {0, 0, 0};
-			Region.imageExtent = {Viewport.width, Viewport.height, 1};
 
 			auto &SwapImg = m_vSwapChainImages[m_LastPresentedSwapChainImageIndex];
 
@@ -1432,9 +1426,11 @@ protected:
 				BlitSize.x = Width;
 				BlitSize.y = Height;
 				BlitSize.z = 1;
+
 				VkImageBlit ImageBlitRegion{};
 				ImageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				ImageBlitRegion.srcSubresource.layerCount = 1;
+				ImageBlitRegion.srcOffsets[0] = SrcOffset;
 				ImageBlitRegion.srcOffsets[1] = BlitSize;
 				ImageBlitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				ImageBlitRegion.dstSubresource.layerCount = 1;
@@ -1454,6 +1450,7 @@ protected:
 				VkImageCopy ImageCopyRegion{};
 				ImageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				ImageCopyRegion.srcSubresource.layerCount = 1;
+				ImageCopyRegion.srcOffset = SrcOffset;
 				ImageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				ImageCopyRegion.dstSubresource.layerCount = 1;
 				ImageCopyRegion.extent.width = Width;
@@ -1476,7 +1473,6 @@ protected:
 
 			VkSubmitInfo SubmitInfo{};
 			SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
 			SubmitInfo.commandBufferCount = 1;
 			SubmitInfo.pCommandBuffers = &CommandBuffer;
 
@@ -1492,8 +1488,8 @@ protected:
 			vkInvalidateMappedMemoryRanges(m_VKDevice, 1, &MemRange);
 
 			size_t RealFullImageSize = maximum(ImageTotalSize, (size_t)(Height * m_GetPresentedImgDataHelperMappedLayoutPitch));
-			if(vDstData.size() < RealFullImageSize + (Width * 4))
-				vDstData.resize(RealFullImageSize + (Width * 4)); // extra space for flipping
+			if(vDstData.size() < RealFullImageSize)
+				vDstData.resize(RealFullImageSize);
 
 			mem_copy(vDstData.data(), pResImageData, RealFullImageSize);
 
@@ -1525,17 +1521,6 @@ protected:
 				}
 			}
 
-			if(FlipImgData)
-			{
-				uint8_t *pTempRow = vDstData.data() + Width * Height * 4;
-				for(uint32_t Y = 0; Y < Height / 2; ++Y)
-				{
-					mem_copy(pTempRow, vDstData.data() + Y * Width * 4, Width * 4);
-					mem_copy(vDstData.data() + Y * Width * 4, vDstData.data() + ((Height - Y) - 1) * Width * 4, Width * 4);
-					mem_copy(vDstData.data() + ((Height - Y) - 1) * Width * 4, pTempRow, Width * 4);
-				}
-			}
-
 			return true;
 		}
 		else
@@ -1554,7 +1539,7 @@ protected:
 
 	[[nodiscard]] bool GetPresentedImageData(uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData) override
 	{
-		return GetPresentedImageDataImpl(Width, Height, Format, vDstData, false, false);
+		return GetPresentedImageDataImpl(Width, Height, Format, vDstData, false, {});
 	}
 
 	/************************
@@ -1633,7 +1618,7 @@ protected:
 				{
 					if(vkMapMemory(m_VKDevice, TmpBufferMemory.m_Mem, 0, VK_WHOLE_SIZE, 0, &pMapData) != VK_SUCCESS)
 					{
-						SetError(RequiresMapping ? EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_STAGING : EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Failed to map buffer block memory.",
+						SetError(RequiresMapping ? EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_STAGING : EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Failed to map buffer block memory.",
 							GetMemoryUsageShort());
 						delete pNewHeap;
 						return false;
@@ -1650,7 +1635,7 @@ protected:
 				Heaps.back()->m_Heap.Init(MemoryBlockSize * BlockCount, 0);
 				if(!Heaps.back()->m_Heap.Allocate(RequiredSize, TargetAlignment, AllocatedMem))
 				{
-					SetError(RequiresMapping ? EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_STAGING : EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Heap allocation failed directly after creating fresh heap.",
+					SetError(RequiresMapping ? EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_STAGING : EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Heap allocation failed directly after creating fresh heap.",
 						GetMemoryUsageShort());
 					return false;
 				}
@@ -1807,7 +1792,7 @@ protected:
 
 		if(!AllocateVulkanMemory(&MemAllocInfo, &BufferMemory.m_Mem))
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_IMAGE, "Allocation for image memory failed.",
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_IMAGE, "Allocation for image memory failed.",
 				GetMemoryUsageShort());
 			return false;
 		}
@@ -2263,7 +2248,7 @@ protected:
 
 		if(vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be ended anymore.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be ended anymore.");
 			return false;
 		}
 
@@ -2308,7 +2293,7 @@ protected:
 			const char *pCritErrorMsg = CheckVulkanCriticalError(QueueSubmitRes);
 			if(pCritErrorMsg != nullptr)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_RENDER_SUBMIT_FAILED, "Submitting to graphics queue failed.", pCritErrorMsg);
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_RENDER_SUBMIT_FAILED, "Submitting to graphics queue failed.", pCritErrorMsg);
 				return false;
 			}
 		}
@@ -2335,7 +2320,7 @@ protected:
 			const char *pCritErrorMsg = CheckVulkanCriticalError(QueuePresentRes);
 			if(pCritErrorMsg != nullptr)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_SWAP_FAILED, "Presenting graphics queue failed.", pCritErrorMsg);
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_SWAP_FAILED, "Presenting graphics queue failed.", pCritErrorMsg);
 				return false;
 			}
 		}
@@ -2377,7 +2362,7 @@ protected:
 				const char *pCritErrorMsg = CheckVulkanCriticalError(AcqResult);
 				if(pCritErrorMsg != nullptr)
 				{
-					SetError(EGFXErrorType::GFX_ERROR_TYPE_SWAP_FAILED, "Acquiring next image failed.", pCritErrorMsg);
+					SetError(EGfxErrorType::GFX_ERROR_TYPE_SWAP_FAILED, "Acquiring next image failed.", pCritErrorMsg);
 					return false;
 				}
 				else if(AcqResult == VK_ERROR_SURFACE_LOST_KHR)
@@ -2428,7 +2413,7 @@ protected:
 
 		if(vkBeginCommandBuffer(CommandBuffer, &BeginInfo) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be filled anymore.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be filled anymore.");
 			return false;
 		}
 
@@ -2600,8 +2585,7 @@ protected:
 		}
 
 		bool Requires2DTexture = (Flags & CCommandBuffer::TEXFLAG_NO_2D_TEXTURE) == 0;
-		bool Requires2DTextureArray = (Flags & (CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE | CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE_SINGLE_LAYER)) != 0;
-		bool Is2DTextureSingleLayer = (Flags & CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE_SINGLE_LAYER) != 0;
+		bool Requires2DTextureArray = (Flags & (CCommandBuffer::TEXFLAG_TO_2D_ARRAY_TEXTURE)) != 0;
 		bool RequiresMipMaps = (Flags & CCommandBuffer::TEXFLAG_NOMIPMAPS) == 0;
 		size_t MipMapLevelCount = 1;
 		if(RequiresMipMaps)
@@ -2645,44 +2629,32 @@ protected:
 			int ConvertWidth = Width;
 			int ConvertHeight = Height;
 
-			if(!Is2DTextureSingleLayer)
+			if(ConvertWidth == 0 || (ConvertWidth % 16) != 0 || ConvertHeight == 0 || (ConvertHeight % 16) != 0)
 			{
-				if(ConvertWidth == 0 || (ConvertWidth % 16) != 0 || ConvertHeight == 0 || (ConvertHeight % 16) != 0)
-				{
-					dbg_msg("vulkan", "3D/2D array texture was resized");
-					int NewWidth = maximum<int>(HighestBit(ConvertWidth), 16);
-					int NewHeight = maximum<int>(HighestBit(ConvertHeight), 16);
-					uint8_t *pNewTexData = (uint8_t *)Resize((const uint8_t *)pData, ConvertWidth, ConvertHeight, NewWidth, NewHeight, PixelSize);
+				dbg_msg("vulkan", "3D/2D array texture was resized");
+				int NewWidth = maximum<int>(HighestBit(ConvertWidth), 16);
+				int NewHeight = maximum<int>(HighestBit(ConvertHeight), 16);
+				uint8_t *pNewTexData = (uint8_t *)Resize((const uint8_t *)pData, ConvertWidth, ConvertHeight, NewWidth, NewHeight, PixelSize);
 
-					ConvertWidth = NewWidth;
-					ConvertHeight = NewHeight;
+				ConvertWidth = NewWidth;
+				ConvertHeight = NewHeight;
 
-					free(pData);
-					pData = pNewTexData;
-				}
+				free(pData);
+				pData = pNewTexData;
 			}
 
-			void *p3DTexData = pData;
 			bool Needs3DTexDel = false;
-			if(!Is2DTextureSingleLayer)
+			void *p3DTexData = malloc((size_t)PixelSize * ConvertWidth * ConvertHeight);
+			if(!Texture2DTo3D(pData, ConvertWidth, ConvertHeight, PixelSize, 16, 16, p3DTexData, Image3DWidth, Image3DHeight))
 			{
-				p3DTexData = malloc((size_t)PixelSize * ConvertWidth * ConvertHeight);
-				if(!Texture2DTo3D(pData, ConvertWidth, ConvertHeight, PixelSize, 16, 16, p3DTexData, Image3DWidth, Image3DHeight))
-				{
-					free(p3DTexData);
-					p3DTexData = nullptr;
-				}
-				Needs3DTexDel = true;
+				free(p3DTexData);
+				p3DTexData = nullptr;
 			}
-			else
-			{
-				Image3DWidth = ConvertWidth;
-				Image3DHeight = ConvertHeight;
-			}
+			Needs3DTexDel = true;
 
 			if(p3DTexData != nullptr)
 			{
-				const size_t ImageDepth2DArray = Is2DTextureSingleLayer ? 1 : ((size_t)16 * 16);
+				const size_t ImageDepth2DArray = (size_t)16 * 16;
 				VkExtent3D ImgSize{(uint32_t)Image3DWidth, (uint32_t)Image3DHeight, 1};
 				if(RequiresMipMaps)
 				{
@@ -3188,7 +3160,7 @@ protected:
 		return State.m_BlendMode == CCommandBuffer::BLEND_ADDITIVE ? VULKAN_BACKEND_BLEND_MODE_ADDITATIVE : (State.m_BlendMode == CCommandBuffer::BLEND_NONE ? VULKAN_BACKEND_BLEND_MODE_NONE : VULKAN_BACKEND_BLEND_MODE_ALPHA);
 	}
 
-	size_t GetDynamicModeIndexFromState(const CCommandBuffer::SState &State)
+	size_t GetDynamicModeIndexFromState(const CCommandBuffer::SState &State) const
 	{
 		return (State.m_ClipEnable || m_HasDynamicViewport || m_VKSwapImgAndViewportExtent.m_HasForcedViewport) ? VULKAN_BACKEND_CLIP_MODE_DYNAMIC_SCISSOR_AND_VIEWPORT : VULKAN_BACKEND_CLIP_MODE_NONE;
 	}
@@ -3224,24 +3196,20 @@ protected:
 			return GetPipeline(m_StandardPipeline, IsTextured, BlendModeIndex, DynamicIndex);
 	}
 
-	VkPipelineLayout &GetTileLayerPipeLayout(int Type, bool IsTextured, size_t BlendModeIndex, size_t DynamicIndex)
+	VkPipelineLayout &GetTileLayerPipeLayout(bool IsBorder, bool IsTextured, size_t BlendModeIndex, size_t DynamicIndex)
 	{
-		if(Type == 0)
+		if(!IsBorder)
 			return GetPipeLayout(m_TilePipeline, IsTextured, BlendModeIndex, DynamicIndex);
-		else if(Type == 1)
-			return GetPipeLayout(m_TileBorderPipeline, IsTextured, BlendModeIndex, DynamicIndex);
 		else
-			return GetPipeLayout(m_TileBorderLinePipeline, IsTextured, BlendModeIndex, DynamicIndex);
+			return GetPipeLayout(m_TileBorderPipeline, IsTextured, BlendModeIndex, DynamicIndex);
 	}
 
-	VkPipeline &GetTileLayerPipe(int Type, bool IsTextured, size_t BlendModeIndex, size_t DynamicIndex)
+	VkPipeline &GetTileLayerPipe(bool IsBorder, bool IsTextured, size_t BlendModeIndex, size_t DynamicIndex)
 	{
-		if(Type == 0)
+		if(!IsBorder)
 			return GetPipeline(m_TilePipeline, IsTextured, BlendModeIndex, DynamicIndex);
-		else if(Type == 1)
-			return GetPipeline(m_TileBorderPipeline, IsTextured, BlendModeIndex, DynamicIndex);
 		else
-			return GetPipeline(m_TileBorderLinePipeline, IsTextured, BlendModeIndex, DynamicIndex);
+			return GetPipeline(m_TileBorderPipeline, IsTextured, BlendModeIndex, DynamicIndex);
 	}
 
 	void GetStateIndices(const SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SState &State, bool &IsTextured, size_t &BlendModeIndex, size_t &DynamicIndex, size_t &AddressModeIndex)
@@ -3372,7 +3340,7 @@ protected:
 		ExecBufferFillDynamicStates(State, ExecBuffer);
 	}
 
-	[[nodiscard]] bool RenderTileLayer(SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SState &State, int Type, const GL_SColorf &Color, const vec2 &Dir, const vec2 &Off, int32_t JumpIndex, size_t IndicesDrawNum, char *const *pIndicesOffsets, const unsigned int *pDrawCount, size_t InstanceCount)
+	[[nodiscard]] bool RenderTileLayer(SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SState &State, bool IsBorder, const GL_SColorf &Color, const vec2 &Scale, const vec2 &Off, size_t IndicesDrawNum, char *const *pIndicesOffsets, const unsigned int *pDrawCount)
 	{
 		std::array<float, (size_t)4 * 2> m;
 		GetStateMatrix(State, m);
@@ -3382,8 +3350,8 @@ protected:
 		size_t DynamicIndex;
 		size_t AddressModeIndex;
 		GetStateIndices(ExecBuffer, State, IsTextured, BlendModeIndex, DynamicIndex, AddressModeIndex);
-		auto &PipeLayout = GetTileLayerPipeLayout(Type, IsTextured, BlendModeIndex, DynamicIndex);
-		auto &PipeLine = GetTileLayerPipe(Type, IsTextured, BlendModeIndex, DynamicIndex);
+		auto &PipeLayout = GetTileLayerPipeLayout(IsBorder, IsTextured, BlendModeIndex, DynamicIndex);
+		auto &PipeLine = GetTileLayerPipe(IsBorder, IsTextured, BlendModeIndex, DynamicIndex);
 
 		VkCommandBuffer *pCommandBuffer;
 		if(!GetGraphicCommandBuffer(pCommandBuffer, ExecBuffer.m_ThreadIndex))
@@ -3409,18 +3377,11 @@ protected:
 		mem_copy(VertexPushConstants.m_aPos, m.data(), m.size() * sizeof(float));
 		FragPushConstants = Color;
 
-		if(Type == 1)
+		if(IsBorder)
 		{
-			VertexPushConstants.m_Dir = Dir;
+			VertexPushConstants.m_Scale = Scale;
 			VertexPushConstants.m_Offset = Off;
-			VertexPushConstants.m_JumpIndex = JumpIndex;
 			VertexPushConstantSize = sizeof(SUniformTileGPosBorder);
-		}
-		else if(Type == 2)
-		{
-			VertexPushConstants.m_Dir = Dir;
-			VertexPushConstants.m_Offset = Off;
-			VertexPushConstantSize = sizeof(SUniformTileGPosBorderLine);
 		}
 
 		vkCmdPushConstants(CommandBuffer, PipeLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, VertexPushConstantSize, &VertexPushConstants);
@@ -3432,7 +3393,7 @@ protected:
 		{
 			VkDeviceSize IndexOffset = (VkDeviceSize)((ptrdiff_t)pIndicesOffsets[i] / sizeof(uint32_t));
 
-			vkCmdDrawIndexed(CommandBuffer, static_cast<uint32_t>(pDrawCount[i]), InstanceCount, IndexOffset, 0, 0);
+			vkCmdDrawIndexed(CommandBuffer, static_cast<uint32_t>(pDrawCount[i]), 1, IndexOffset, 0, 0);
 		}
 
 		return true;
@@ -3516,14 +3477,14 @@ public:
 		unsigned int ExtCount = 0;
 		if(!SDL_Vulkan_GetInstanceExtensions(pWindow, &ExtCount, nullptr))
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get instance extensions from SDL.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get instance extensions from SDL.");
 			return false;
 		}
 
 		std::vector<const char *> vExtensionList(ExtCount);
 		if(!SDL_Vulkan_GetInstanceExtensions(pWindow, &ExtCount, vExtensionList.data()))
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get instance extensions from SDL.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get instance extensions from SDL.");
 			return false;
 		}
 
@@ -3572,7 +3533,7 @@ public:
 		VkResult Res = vkEnumerateInstanceLayerProperties(&LayerCount, NULL);
 		if(Res != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get vulkan layers.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get vulkan layers.");
 			return false;
 		}
 
@@ -3580,7 +3541,7 @@ public:
 		Res = vkEnumerateInstanceLayerProperties(&LayerCount, vVKInstanceLayers.data());
 		if(Res != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get vulkan layers.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get vulkan layers.");
 			return false;
 		}
 
@@ -3657,7 +3618,7 @@ public:
 		const char *pCritErrorMsg = CheckVulkanCriticalError(Res);
 		if(pCritErrorMsg != nullptr)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating instance failed.", pCritErrorMsg);
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating instance failed.", pCritErrorMsg);
 			return false;
 		}
 		else if(Res == VK_ERROR_LAYER_NOT_PRESENT || Res == VK_ERROR_EXTENSION_NOT_PRESENT)
@@ -3724,12 +3685,12 @@ public:
 		auto Res = vkEnumeratePhysicalDevices(m_VKInstance, &DevicesCount, nullptr);
 		if(Res != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, CheckVulkanCriticalError(Res));
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, CheckVulkanCriticalError(Res));
 			return false;
 		}
 		if(DevicesCount == 0)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "No vulkan compatible devices found.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "No vulkan compatible devices found.");
 			return false;
 		}
 
@@ -3737,12 +3698,12 @@ public:
 		Res = vkEnumeratePhysicalDevices(m_VKInstance, &DevicesCount, vDeviceList.data());
 		if(Res != VK_SUCCESS && Res != VK_INCOMPLETE)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, CheckVulkanCriticalError(Res));
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, CheckVulkanCriticalError(Res));
 			return false;
 		}
 		if(DevicesCount == 0)
 		{
-			SetWarning(EGFXWarningType::GFX_WARNING_TYPE_INIT_FAILED_MISSING_INTEGRATED_GPU_DRIVER, "No vulkan compatible devices found.");
+			SetWarning(EGfxWarningType::GFX_WARNING_TYPE_INIT_FAILED_MISSING_INTEGRATED_GPU_DRIVER, "No vulkan compatible devices found.");
 			return false;
 		}
 		// make sure to use the correct amount of devices available
@@ -3864,7 +3825,7 @@ public:
 		vkGetPhysicalDeviceQueueFamilyProperties(CurDevice, &FamQueueCount, nullptr);
 		if(FamQueueCount == 0)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "No vulkan queue family properties found.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "No vulkan queue family properties found.");
 			return false;
 		}
 
@@ -3886,7 +3847,7 @@ public:
 
 		if(QueueNodeIndex == std::numeric_limits<uint32_t>::max())
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "No vulkan queue found that matches the requirements: graphics queue.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "No vulkan queue found that matches the requirements: graphics queue.");
 			return false;
 		}
 
@@ -3905,14 +3866,14 @@ public:
 		uint32_t DevPropCount = 0;
 		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, NULL, &DevPropCount, NULL) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
 			return false;
 		}
 
 		std::vector<VkExtensionProperties> vDevPropList(DevPropCount);
 		if(vkEnumerateDeviceExtensionProperties(m_VKGPU, NULL, &DevPropCount, vDevPropList.data()) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Querying logical device extension properties failed.");
 			return false;
 		}
 
@@ -3952,7 +3913,7 @@ public:
 		VkResult res = vkCreateDevice(m_VKGPU, &VKCreateInfo, nullptr, &m_VKDevice);
 		if(res != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Logical device could not be created.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Logical device could not be created.");
 			return false;
 		}
 
@@ -3964,7 +3925,7 @@ public:
 		if(!SDL_Vulkan_CreateSurface(pWindow, m_VKInstance, &m_VKPresentSurface))
 		{
 			dbg_msg("vulkan", "error from sdl: %s", SDL_GetError());
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating a vulkan surface for the SDL window failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating a vulkan surface for the SDL window failed.");
 			return false;
 		}
 
@@ -3972,7 +3933,7 @@ public:
 		vkGetPhysicalDeviceSurfaceSupportKHR(m_VKGPU, m_VKGraphicsQueueIndex, m_VKPresentSurface, &IsSupported);
 		if(!IsSupported)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface does not support presenting the framebuffer to a screen. (maybe the wrong GPU was selected?)");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface does not support presenting the framebuffer to a screen. (maybe the wrong GPU was selected?)");
 			return false;
 		}
 
@@ -3989,14 +3950,14 @@ public:
 		uint32_t PresentModeCount = 0;
 		if(vkGetPhysicalDeviceSurfacePresentModesKHR(m_VKGPU, m_VKPresentSurface, &PresentModeCount, NULL) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface presentation modes could not be fetched.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface presentation modes could not be fetched.");
 			return false;
 		}
 
 		std::vector<VkPresentModeKHR> vPresentModeList(PresentModeCount);
 		if(vkGetPhysicalDeviceSurfacePresentModesKHR(m_VKGPU, m_VKPresentSurface, &PresentModeCount, vPresentModeList.data()) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface presentation modes could not be fetched.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface presentation modes could not be fetched.");
 			return false;
 		}
 
@@ -4026,7 +3987,7 @@ public:
 	{
 		if(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VKGPU, m_VKPresentSurface, &VKSurfCapabilities) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface capabilities could not be fetched.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface capabilities could not be fetched.");
 			return false;
 		}
 		return true;
@@ -4078,7 +4039,7 @@ public:
 		std::vector<VkImageUsageFlags> vOurImgUsages = OurImageUsages();
 		if(vOurImgUsages.empty())
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Framebuffer image attachment types not supported.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Framebuffer image attachment types not supported.");
 			return false;
 		}
 
@@ -4089,7 +4050,7 @@ public:
 			VkImageUsageFlags ImgUsageFlags = ImgUsage & VKCapabilities.supportedUsageFlags;
 			if(ImgUsageFlags != ImgUsage)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Framebuffer image attachment types not supported.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Framebuffer image attachment types not supported.");
 				return false;
 			}
 
@@ -4112,7 +4073,7 @@ public:
 		VkResult Res = vkGetPhysicalDeviceSurfaceFormatsKHR(m_VKGPU, m_VKPresentSurface, &SurfFormats, nullptr);
 		if(Res != VK_SUCCESS && Res != VK_INCOMPLETE)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface format fetching failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface format fetching failed.");
 			return false;
 		}
 
@@ -4120,7 +4081,7 @@ public:
 		Res = vkGetPhysicalDeviceSurfaceFormatsKHR(m_VKGPU, m_VKPresentSurface, &SurfFormats, vSurfFormatList.data());
 		if(Res != VK_SUCCESS && Res != VK_INCOMPLETE)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "The device surface format fetching failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "The device surface format fetching failed.");
 			return false;
 		}
 
@@ -4206,7 +4167,7 @@ public:
 		const char *pCritErrorMsg = CheckVulkanCriticalError(SwapchainCreateRes);
 		if(pCritErrorMsg != nullptr)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the swap chain failed.", pCritErrorMsg);
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the swap chain failed.", pCritErrorMsg);
 			return false;
 		}
 		else if(SwapchainCreateRes == VK_ERROR_NATIVE_WINDOW_IN_USE_KHR)
@@ -4230,7 +4191,7 @@ public:
 		VkResult res = vkGetSwapchainImagesKHR(m_VKDevice, m_VKSwapChain, &ImgCount, nullptr);
 		if(res != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get swap chain images.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get swap chain images.");
 			return false;
 		}
 
@@ -4239,7 +4200,7 @@ public:
 		m_vSwapChainImages.resize(ImgCount);
 		if(vkGetSwapchainImagesKHR(m_VKDevice, m_VKSwapChain, &ImgCount, m_vSwapChainImages.data()) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not get swap chain images.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not get swap chain images.");
 			return false;
 		}
 
@@ -4347,7 +4308,7 @@ public:
 
 			if(vkCreateImageView(m_VKDevice, &CreateInfo, nullptr, &m_vSwapChainImageViewList[i]) != VK_SUCCESS)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Could not create image views for the swap chain framebuffers.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Could not create image views for the swap chain framebuffers.");
 				return false;
 			}
 		}
@@ -4456,7 +4417,7 @@ public:
 
 		if(vkCreateRenderPass(m_VKDevice, &CreateRenderPassInfo, nullptr, &m_VKRenderPass) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the render pass failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the render pass failed.");
 			return false;
 		}
 
@@ -4491,7 +4452,7 @@ public:
 
 			if(vkCreateFramebuffer(m_VKDevice, &FramebufferInfo, nullptr, &m_vFramebufferList[i]) != VK_SUCCESS)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the framebuffers failed.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the framebuffers failed.");
 				return false;
 			}
 		}
@@ -4518,7 +4479,7 @@ public:
 
 		if(vkCreateShaderModule(m_VKDevice, &CreateInfo, nullptr, &ShaderModule) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Shader module was not created.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Shader module was not created.");
 			return false;
 		}
 
@@ -4542,13 +4503,13 @@ public:
 
 		if(vkCreateDescriptorSetLayout(m_VKDevice, &LayoutInfo, nullptr, &m_StandardTexturedDescriptorSetLayout) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
 			return false;
 		}
 
 		if(vkCreateDescriptorSetLayout(m_VKDevice, &LayoutInfo, nullptr, &m_Standard3DTexturedDescriptorSetLayout) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
 			return false;
 		}
 		return true;
@@ -4596,7 +4557,7 @@ public:
 
 		if(!ShaderLoaded)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "A shader file could not load correctly.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "A shader file could not load correctly.");
 			return false;
 		}
 
@@ -4629,7 +4590,7 @@ public:
 		VkPipelineRasterizationStateCreateInfo &Rasterizer,
 		VkPipelineMultisampleStateCreateInfo &Multisampling,
 		VkPipelineColorBlendAttachmentState &ColorBlendAttachment,
-		VkPipelineColorBlendStateCreateInfo &ColorBlending)
+		VkPipelineColorBlendStateCreateInfo &ColorBlending) const
 	{
 		InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		InputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -4736,7 +4697,7 @@ public:
 
 		if(vkCreatePipelineLayout(m_VKDevice, &PipelineLayoutInfo, nullptr, &PipeLayout) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating pipeline layout failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating pipeline layout failed.");
 			return false;
 		}
 
@@ -4772,7 +4733,7 @@ public:
 
 		if(vkCreateGraphicsPipelines(m_VKDevice, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &Pipeline) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the graphic pipeline failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the graphic pipeline failed.");
 			return false;
 		}
 
@@ -4865,7 +4826,7 @@ public:
 
 		if(vkCreateDescriptorSetLayout(m_VKDevice, &LayoutInfo, nullptr, &m_TextDescriptorSetLayout) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
 			return false;
 		}
 
@@ -4911,21 +4872,19 @@ public:
 	}
 
 	template<bool HasSampler>
-	[[nodiscard]] bool CreateTileGraphicsPipelineImpl(const char *pVertName, const char *pFragName, int Type, SPipelineContainer &PipeContainer, EVulkanBackendTextureModes TexMode, EVulkanBackendBlendModes BlendMode, EVulkanBackendClipModes DynamicMode)
+	[[nodiscard]] bool CreateTileGraphicsPipelineImpl(const char *pVertName, const char *pFragName, bool IsBorder, SPipelineContainer &PipeContainer, EVulkanBackendTextureModes TexMode, EVulkanBackendBlendModes BlendMode, EVulkanBackendClipModes DynamicMode)
 	{
 		std::array<VkVertexInputAttributeDescription, HasSampler ? 2 : 1> aAttributeDescriptions = {};
 		aAttributeDescriptions[0] = {0, 0, VK_FORMAT_R32G32_SFLOAT, 0};
 		if(HasSampler)
-			aAttributeDescriptions[1] = {1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 2};
+			aAttributeDescriptions[1] = {1, 0, VK_FORMAT_R8G8B8A8_UINT, sizeof(float) * 2};
 
 		std::array<VkDescriptorSetLayout, 1> aSetLayouts;
 		aSetLayouts[0] = m_Standard3DTexturedDescriptorSetLayout;
 
 		uint32_t VertPushConstantSize = sizeof(SUniformTileGPos);
-		if(Type == 1)
+		if(IsBorder)
 			VertPushConstantSize = sizeof(SUniformTileGPosBorder);
-		else if(Type == 2)
-			VertPushConstantSize = sizeof(SUniformTileGPosBorderLine);
 
 		uint32_t FragPushConstantSize = sizeof(SUniformTileGVertColor);
 
@@ -4933,11 +4892,11 @@ public:
 		aPushConstants[0] = {VK_SHADER_STAGE_VERTEX_BIT, 0, VertPushConstantSize};
 		aPushConstants[1] = {VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(SUniformTileGPosBorder) + sizeof(SUniformTileGVertColorAlign), FragPushConstantSize};
 
-		return CreateGraphicsPipeline<false>(pVertName, pFragName, PipeContainer, HasSampler ? (sizeof(float) * (2 + 3)) : (sizeof(float) * 2), aAttributeDescriptions, aSetLayouts, aPushConstants, TexMode, BlendMode, DynamicMode);
+		return CreateGraphicsPipeline<false>(pVertName, pFragName, PipeContainer, HasSampler ? (sizeof(float) * 2 + sizeof(uint8_t) * 4) : (sizeof(float) * 2), aAttributeDescriptions, aSetLayouts, aPushConstants, TexMode, BlendMode, DynamicMode);
 	}
 
 	template<bool HasSampler>
-	[[nodiscard]] bool CreateTileGraphicsPipeline(const char *pVertName, const char *pFragName, int Type)
+	[[nodiscard]] bool CreateTileGraphicsPipeline(const char *pVertName, const char *pFragName, bool IsBorder)
 	{
 		bool Ret = true;
 
@@ -4947,7 +4906,7 @@ public:
 		{
 			for(size_t j = 0; j < VULKAN_BACKEND_CLIP_MODE_COUNT; ++j)
 			{
-				Ret &= CreateTileGraphicsPipelineImpl<HasSampler>(pVertName, pFragName, Type, Type == 0 ? m_TilePipeline : (Type == 1 ? m_TileBorderPipeline : m_TileBorderLinePipeline), TexMode, EVulkanBackendBlendModes(i), EVulkanBackendClipModes(j));
+				Ret &= CreateTileGraphicsPipelineImpl<HasSampler>(pVertName, pFragName, IsBorder, !IsBorder ? m_TilePipeline : m_TileBorderPipeline, TexMode, EVulkanBackendBlendModes(i), EVulkanBackendClipModes(j));
 			}
 		}
 
@@ -5010,7 +4969,7 @@ public:
 
 		if(vkCreateDescriptorSetLayout(m_VKDevice, &LayoutInfo, nullptr, &SetLayout) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating descriptor layout failed.");
 			return false;
 		}
 		return true;
@@ -5250,7 +5209,7 @@ public:
 		{
 			if(vkCreateCommandPool(m_VKDevice, &CreatePoolInfo, nullptr, &m_vCommandPools[i]) != VK_SUCCESS)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the command pool failed.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the command pool failed.");
 				return false;
 			}
 		}
@@ -5293,7 +5252,7 @@ public:
 
 		if(vkAllocateCommandBuffers(m_VKDevice, &AllocInfo, m_vMainDrawCommandBuffers.data()) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Allocating command buffers failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Allocating command buffers failed.");
 			return false;
 		}
 
@@ -5301,7 +5260,7 @@ public:
 
 		if(vkAllocateCommandBuffers(m_VKDevice, &AllocInfo, m_vMemoryCommandBuffers.data()) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Allocating memory command buffers failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Allocating memory command buffers failed.");
 			return false;
 		}
 
@@ -5316,7 +5275,7 @@ public:
 				AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 				if(vkAllocateCommandBuffers(m_VKDevice, &AllocInfo, ThreadDrawCommandBuffers.data()) != VK_SUCCESS)
 				{
-					SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Allocating thread command buffers failed.");
+					SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Allocating thread command buffers failed.");
 					return false;
 				}
 			}
@@ -5373,7 +5332,7 @@ public:
 				vkCreateSemaphore(m_VKDevice, &CreateSemaphoreInfo, nullptr, &m_vMemorySemaphores[i]) != VK_SUCCESS ||
 				vkCreateFence(m_VKDevice, &FenceInfo, nullptr, &m_vFrameFences[i]) != VK_SUCCESS)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating swap chain sync objects(fences, semaphores) failed.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating swap chain sync objects(fences, semaphores) failed.");
 				return false;
 			}
 		}
@@ -5429,7 +5388,6 @@ public:
 		m_TextPipeline.Destroy(m_VKDevice);
 		m_TilePipeline.Destroy(m_VKDevice);
 		m_TileBorderPipeline.Destroy(m_VKDevice);
-		m_TileBorderLinePipeline.Destroy(m_VKDevice);
 		m_PrimExPipeline.Destroy(m_VKDevice);
 		m_PrimExRotationlessPipeline.Destroy(m_VKDevice);
 		m_SpriteMultiPipeline.Destroy(m_VKDevice);
@@ -5669,7 +5627,7 @@ public:
 
 		if(vkCreateBuffer(m_VKDevice, &BufferInfo, nullptr, &VKBuffer) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Buffer creation failed.",
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Buffer creation failed.",
 				GetMemoryUsageShort());
 			return false;
 		}
@@ -5698,7 +5656,7 @@ public:
 
 		if(!AllocateVulkanMemory(&MemAllocInfo, &VKBufferMemory.m_Mem))
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Allocation for buffer object failed.",
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Allocation for buffer object failed.",
 				GetMemoryUsageShort());
 			return false;
 		}
@@ -5707,7 +5665,7 @@ public:
 
 		if(vkBindBufferMemory(m_VKDevice, VKBuffer, VKBufferMemory.m_Mem, 0) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Binding memory to buffer failed.",
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_OUT_OF_MEMORY_BUFFER, "Binding memory to buffer failed.",
 				GetMemoryUsageShort());
 			return false;
 		}
@@ -5736,7 +5694,7 @@ public:
 
 		if(vkCreateDescriptorPool(m_VKDevice, &PoolInfo, nullptr, &NewPool.m_Pool) != VK_SUCCESS)
 		{
-			SetError(EGFXErrorType::GFX_ERROR_TYPE_INIT, "Creating the descriptor pool failed.");
+			SetError(EGfxErrorType::GFX_ERROR_TYPE_INIT, "Creating the descriptor pool failed.");
 			return false;
 		}
 
@@ -6001,12 +5959,12 @@ public:
 		FreeDescriptorSetFromPool(DescrSet);
 	}
 
-	[[nodiscard]] bool HasMultiSampling()
+	[[nodiscard]] bool HasMultiSampling() const
 	{
 		return GetSampleCount() != VK_SAMPLE_COUNT_1_BIT;
 	}
 
-	VkSampleCountFlagBits GetMaxSampleCount()
+	VkSampleCountFlagBits GetMaxSampleCount() const
 	{
 		if(m_MaxMultiSample & VK_SAMPLE_COUNT_64_BIT)
 			return VK_SAMPLE_COUNT_64_BIT;
@@ -6024,7 +5982,7 @@ public:
 		return VK_SAMPLE_COUNT_1_BIT;
 	}
 
-	VkSampleCountFlagBits GetSampleCount()
+	VkSampleCountFlagBits GetSampleCount() const
 	{
 		auto MaxSampleCount = GetMaxSampleCount();
 		if(m_MultiSamplingCount >= 64 && MaxSampleCount >= VK_SAMPLE_COUNT_64_BIT)
@@ -6086,22 +6044,16 @@ public:
 		if(!CreateTextGraphicsPipeline("shader/vulkan/text.vert.spv", "shader/vulkan/text.frag.spv"))
 			return -1;
 
-		if(!CreateTileGraphicsPipeline<false>("shader/vulkan/tile.vert.spv", "shader/vulkan/tile.frag.spv", 0))
+		if(!CreateTileGraphicsPipeline<false>("shader/vulkan/tile.vert.spv", "shader/vulkan/tile.frag.spv", false))
 			return -1;
 
-		if(!CreateTileGraphicsPipeline<true>("shader/vulkan/tile_textured.vert.spv", "shader/vulkan/tile_textured.frag.spv", 0))
+		if(!CreateTileGraphicsPipeline<true>("shader/vulkan/tile_textured.vert.spv", "shader/vulkan/tile_textured.frag.spv", false))
 			return -1;
 
-		if(!CreateTileGraphicsPipeline<false>("shader/vulkan/tile_border.vert.spv", "shader/vulkan/tile_border.frag.spv", 1))
+		if(!CreateTileGraphicsPipeline<false>("shader/vulkan/tile_border.vert.spv", "shader/vulkan/tile_border.frag.spv", true))
 			return -1;
 
-		if(!CreateTileGraphicsPipeline<true>("shader/vulkan/tile_border_textured.vert.spv", "shader/vulkan/tile_border_textured.frag.spv", 1))
-			return -1;
-
-		if(!CreateTileGraphicsPipeline<false>("shader/vulkan/tile_border_line.vert.spv", "shader/vulkan/tile_border_line.frag.spv", 2))
-			return -1;
-
-		if(!CreateTileGraphicsPipeline<true>("shader/vulkan/tile_border_line_textured.vert.spv", "shader/vulkan/tile_border_line_textured.frag.spv", 2))
+		if(!CreateTileGraphicsPipeline<true>("shader/vulkan/tile_border_textured.vert.spv", "shader/vulkan/tile_border_textured.frag.spv", true))
 			return -1;
 
 		if(!CreatePrimExGraphicsPipeline("shader/vulkan/primex_rotationless.vert.spv", "shader/vulkan/primex_rotationless.frag.spv", false, true))
@@ -6245,7 +6197,7 @@ public:
 			BeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 			if(vkBeginCommandBuffer(MemCommandBuffer, &BeginInfo) != VK_SUCCESS)
 			{
-				SetError(EGFXErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be filled anymore.");
+				SetError(EGfxErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Command buffer cannot be filled anymore.");
 				return false;
 			}
 		}
@@ -6284,7 +6236,7 @@ public:
 
 				if(vkBeginCommandBuffer(DrawCommandBuffer, &BeginInfo) != VK_SUCCESS)
 				{
-					SetError(EGFXErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Thread draw command buffer cannot be filled anymore.");
+					SetError(EGfxErrorType::GFX_ERROR_TYPE_RENDER_RECORDING, "Thread draw command buffer cannot be filled anymore.");
 					return false;
 				}
 			}
@@ -6585,8 +6537,9 @@ public:
 
 		m_MultiSamplingCount = (g_Config.m_GfxFsaaSamples & 0xFFFFFFFE); // ignore the uneven bit, only even multi sampling works
 
-		TGLBackendReadPresentedImageData &ReadPresentedImgDataFunc = *pCommand->m_pReadPresentedImageDataFunc;
-		ReadPresentedImgDataFunc = [this](uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData) { return GetPresentedImageData(Width, Height, Format, vDstData); };
+		*pCommand->m_pReadPresentedImageDataFunc = [this](uint32_t &Width, uint32_t &Height, CImageInfo::EImageFormat &Format, std::vector<uint8_t> &vDstData) {
+			return GetPresentedImageData(Width, Height, Format, vDstData);
+		};
 
 		m_pWindow = pCommand->m_pWindow;
 
@@ -6810,18 +6763,39 @@ public:
 		return RenderStandard<CCommandBuffer::SVertex, false>(ExecBuffer, pCommand->m_State, pCommand->m_PrimType, pCommand->m_pVertices, pCommand->m_PrimCount);
 	}
 
-	[[nodiscard]] bool Cmd_Screenshot(const CCommandBuffer::SCommand_TrySwapAndScreenshot *pCommand)
+	[[nodiscard]] bool Cmd_ReadPixel(const CCommandBuffer::SCommand_TrySwapAndReadPixel *pCommand)
 	{
-		if(!NextFrame())
+		if(!*pCommand->m_pSwapped && !NextFrame())
 			return false;
 		*pCommand->m_pSwapped = true;
 
 		uint32_t Width;
 		uint32_t Height;
 		CImageInfo::EImageFormat Format;
-		if(GetPresentedImageDataImpl(Width, Height, Format, m_vScreenshotHelper, false, true))
+		if(GetPresentedImageDataImpl(Width, Height, Format, m_vReadPixelHelper, false, pCommand->m_Position))
 		{
-			size_t ImgSize = (size_t)Width * (size_t)Height * (size_t)4;
+			*pCommand->m_pColor = ColorRGBA(m_vReadPixelHelper[0] / 255.0f, m_vReadPixelHelper[1] / 255.0f, m_vReadPixelHelper[2] / 255.0f, 1.0f);
+		}
+		else
+		{
+			*pCommand->m_pColor = ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		return true;
+	}
+
+	[[nodiscard]] bool Cmd_Screenshot(const CCommandBuffer::SCommand_TrySwapAndScreenshot *pCommand)
+	{
+		if(!*pCommand->m_pSwapped && !NextFrame())
+			return false;
+		*pCommand->m_pSwapped = true;
+
+		uint32_t Width;
+		uint32_t Height;
+		CImageInfo::EImageFormat Format;
+		if(GetPresentedImageDataImpl(Width, Height, Format, m_vScreenshotHelper, true, {}))
+		{
+			const size_t ImgSize = (size_t)Width * (size_t)Height * CImageInfo::PixelSize(Format);
 			pCommand->m_pImage->m_pData = malloc(ImgSize);
 			mem_copy(pCommand->m_pImage->m_pData, m_vScreenshotHelper.data(), ImgSize);
 		}
@@ -7076,11 +7050,9 @@ public:
 
 	[[nodiscard]] bool Cmd_RenderTileLayer(const CCommandBuffer::SCommand_RenderTileLayer *pCommand, SRenderCommandExecuteBuffer &ExecBuffer)
 	{
-		int Type = 0;
-		vec2 Dir{};
+		vec2 Scale{};
 		vec2 Off{};
-		int32_t JumpIndex = 0;
-		return RenderTileLayer(ExecBuffer, pCommand->m_State, Type, pCommand->m_Color, Dir, Off, JumpIndex, (size_t)pCommand->m_IndicesDrawNum, pCommand->m_pIndicesOffsets, pCommand->m_pDrawCount, 1);
+		return RenderTileLayer(ExecBuffer, pCommand->m_State, false, pCommand->m_Color, Scale, Off, (size_t)pCommand->m_IndicesDrawNum, pCommand->m_pIndicesOffsets, pCommand->m_pDrawCount);
 	}
 
 	void Cmd_RenderBorderTile_FillExecuteBuffer(SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand_RenderBorderTile *pCommand)
@@ -7090,24 +7062,10 @@ public:
 
 	[[nodiscard]] bool Cmd_RenderBorderTile(const CCommandBuffer::SCommand_RenderBorderTile *pCommand, SRenderCommandExecuteBuffer &ExecBuffer)
 	{
-		int Type = 1;
-		vec2 Dir = pCommand->m_Dir;
+		vec2 Scale = pCommand->m_Scale;
 		vec2 Off = pCommand->m_Offset;
-		unsigned int DrawNum = 6;
-		return RenderTileLayer(ExecBuffer, pCommand->m_State, Type, pCommand->m_Color, Dir, Off, pCommand->m_JumpIndex, (size_t)1, &pCommand->m_pIndicesOffset, &DrawNum, pCommand->m_DrawNum);
-	}
-
-	void Cmd_RenderBorderTileLine_FillExecuteBuffer(SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand_RenderBorderTileLine *pCommand)
-	{
-		RenderTileLayer_FillExecuteBuffer(ExecBuffer, 1, pCommand->m_State, pCommand->m_BufferContainerIndex);
-	}
-
-	[[nodiscard]] bool Cmd_RenderBorderTileLine(const CCommandBuffer::SCommand_RenderBorderTileLine *pCommand, SRenderCommandExecuteBuffer &ExecBuffer)
-	{
-		int Type = 2;
-		vec2 Dir = pCommand->m_Dir;
-		vec2 Off = pCommand->m_Offset;
-		return RenderTileLayer(ExecBuffer, pCommand->m_State, Type, pCommand->m_Color, Dir, Off, 0, (size_t)1, &pCommand->m_pIndicesOffset, &pCommand->m_IndexDrawNum, pCommand->m_DrawNum);
+		unsigned int DrawNum = pCommand->m_DrawNum * 6;
+		return RenderTileLayer(ExecBuffer, pCommand->m_State, true, pCommand->m_Color, Scale, Off, 1, &pCommand->m_pIndicesOffset, &DrawNum);
 	}
 
 	void Cmd_RenderQuadLayer_FillExecuteBuffer(SRenderCommandExecuteBuffer &ExecBuffer, const CCommandBuffer::SCommand_RenderQuadLayer *pCommand)

@@ -21,9 +21,6 @@ Team
 Chat
 == Diskutejo
 
--Page %d-
-== -Paĝo %d-
-
 Game paused
 == Paŭzata ludo
 
@@ -144,12 +141,6 @@ Checking for existing player with your name
 Are you sure that you want to disconnect and switch to a different server?
 == Ĉu vi certas malkonektiĝi kaj movi al alia servilo?
 
-There's an unsaved map in the editor, you might want to save it before you quit the game.
-== Estas nesavata mapo en la redaktilo, vi eble volas savi ĝin antaŭ eliri la ludon.
-
-Quit anyway?
-== Eliri tamen
-
 No
 == Ne
 
@@ -252,9 +243,6 @@ Exclude
 Server address:
 == Retadreso de servilo:
 
-Refresh
-== Aktualigi
-
 Count players only
 == Nur nombri ludantojn
 
@@ -282,33 +270,14 @@ Clan
 Add Friend
 == Aldoni amikon
 
-Please use a different name
-== Bonvolu uzi malsaman nomon
-
 Remove chat
 == Malmontri la diskutejon
 
 Folder
 == Dosierujo
 
-Version:
-== Versio:
-
-Map:
-== Mapo:
-
-Open
-== Malfermi
-
-[Demo browser]
-Play
-== Legi
-
 Delete
 == Forigi
-
-Rename
-== Renomigi
 
 Connect Dummy
 == Konektigi pupon
@@ -381,9 +350,6 @@ Add
 
 Time
 == Tempo
-
-Dummy settings
-== Agordoj de la pupo
 
 Skin Database
 == Datumbazo de haŭtoj
@@ -602,10 +568,13 @@ Could not initialize the given graphics backend, this is probably because you di
 Could not save downloaded map. Try manually deleting this file: %s
 == 
 
+Error playing demo
+== 
+
 Successfully saved the replay!
 == 
 
-Saving ddnet-settings.cfg failed
+Saving settings to '%s' failed
 == 
 
 Replay feature is disabled!
@@ -641,6 +610,33 @@ Quitting. Please wait…
 Restarting. Please wait…
 == 
 
+Searching
+== 
+
+Enter Username
+== 
+
+Enter Password
+== 
+
+NOT CONNECTED
+== 
+
+Match %d of %d
+== 
+
+No results
+== 
+
+Lines %d - %d (%s)
+== 
+
+Locked
+== 
+
+Following
+== 
+
 Debug mode enabled. Press Ctrl+Shift+D to disable debug mode.
 == 
 
@@ -665,10 +661,22 @@ Personal best:
 Team %d
 == 
 
+Some map images could not be loaded. Check the local console for details.
+== 
+
 Uploading map data to GPU
 == 
 
+Some map sounds could not be loaded. Check the local console for details.
+== 
+
+Loading menu themes
+== 
+
 Reset
+== 
+
+Press a key…
 == 
 
 Demos
@@ -707,7 +715,13 @@ Rename demo
 Render demo
 == 
 
+Render complete
+== 
+
 Password incorrect
+== 
+
+Are you sure that you want to restart?
 == 
 
 DDraceNetwork is a cooperative online game where the goal is for you and your group of tees to reach the finish line of the map. As a newcomer you should start on Novice servers, which host the easiest maps. Consider the ping to choose a server close to you.
@@ -717,6 +731,12 @@ Use k key to kill (restart), q to pause and watch other players. See settings fo
 == 
 
 It's recommended that you check the settings to adjust them to your liking before joining a server.
+== 
+
+There's an unsaved map in the editor, you might want to save it.
+== 
+
+Continue anyway?
 == 
 
 A demo with this name already exists
@@ -737,13 +757,19 @@ File '%s' already exists, do you want to overwrite it?
 Replace video
 == 
 
-(paused)
-== 
-
 Show ingame HUD
 == 
 
+(paused)
+== 
+
 Video name:
+== 
+
+Videos directory
+== 
+
+Video was saved to '%s'
 == 
 
 Show DDNet map finishes in server browser
@@ -774,6 +800,9 @@ Player country:
 == 
 
 Filter connecting players
+== 
+
+Communities
 == 
 
 Indicate map finish
@@ -905,6 +934,9 @@ Cut length
 Render cut to video
 == 
 
+Please use a different filename
+== 
+
 File already exists, do you want to overwrite it?
 == 
 
@@ -912,6 +944,18 @@ Loading demo files
 == 
 
 All combined
+== 
+
+Demo
+== 
+
+Length
+== 
+
+Date
+== 
+
+No demo selected
 == 
 
 Parent Folder
@@ -923,46 +967,26 @@ Folder Link
 Invalid Demo
 == 
 
-Demo details
+Created
 == 
 
-Created:
+Markers
 == 
 
-Type:
+Netversion
 == 
 
-Length:
+Size
 == 
 
-Markers:
-== 
-
-Size:
+[Demo details]
+map not included
 == 
 
 %.2f MiB
 == 
 
 %.2f KiB
-== 
-
-Crc:
-== 
-
-Netversion:
-== 
-
-Demo
-== 
-
-Markers
-== 
-
-Length
-== 
-
-Date
 == 
 
 Fetch Info
@@ -984,9 +1008,6 @@ Delete folder
 == 
 
 Delete demo
-== 
-
-Render
 == 
 
 Unable to delete the demo '%s'
@@ -1013,7 +1034,13 @@ Remove
 Loading ghost files
 == 
 
-Reload
+Ghosts directory
+== 
+
+Activate all
+== 
+
+Deactivate all
 == 
 
 Deactivate
@@ -1091,13 +1118,7 @@ Automatically create statboard csv
 Max CSVs
 == 
 
-Toggle to edit your dummy settings
-== 
-
 Loading skin files
-== 
-
-Your skin
 == 
 
 Download skins
@@ -1115,13 +1136,16 @@ Fat skins (DDFat)
 Skin prefix
 == 
 
-Choose default eyes when joining a server
+Your skin
 == 
 
 Create a random skin
 == 
 
 Custom colors
+== 
+
+Choose default eyes when joining a server
 == 
 
 Body
@@ -1396,7 +1420,7 @@ Name Plate
 Hook Collisions
 == 
 
-Kill Messages
+Info Messages
 == 
 
 Show health, shields and ammo
@@ -1409,6 +1433,9 @@ Show kill messages
 == 
 
 Show score
+== 
+
+Show local time always
 == 
 
 Show votes window after voting
@@ -1453,6 +1480,12 @@ Show only chat messages from friends
 Use old chat style
 == 
 
+Chat font size
+== 
+
+Chat width
+== 
+
 Messages
 == 
 
@@ -1486,6 +1519,12 @@ Show other players' key presses
 Show local player's key presses
 == 
 
+Authed name color in scoreboard
+== 
+
+Same clan color in scoreboard
+== 
+
 Hook collision line
 == 
 
@@ -1508,6 +1547,9 @@ Nothing hookable
 == 
 
 Something hookable
+== 
+
+Show finish messages
 == 
 
 Normal Color
@@ -1558,13 +1600,22 @@ Enable replays
 Default length
 == 
 
+Enable ghost
+== 
+
 When you cross the start line, show a ghost tee replicating the movements of your best time
 == 
 
 Show ghost
 == 
 
+Opacity
+== 
+
 Save ghost
+== 
+
+Only save improvements
 == 
 
 Gameplay
@@ -1574,12 +1625,6 @@ Overlay entities
 == 
 
 Show text entities
-== 
-
-Size
-== 
-
-Opacity
 == 
 
 Adjust the opacity of entities belonging to other teams, such as tees and nameplates
@@ -1612,16 +1657,19 @@ AntiPing: predict grenade paths
 Background
 == 
 
-Entities Background color
+Regular background color
+== 
+
+Entities background color
+== 
+
+Reload
 == 
 
 Use current map as background
 == 
 
 Show tiles layers from BG map
-== 
-
-Regular Background Color
 == 
 
 New random timeout code

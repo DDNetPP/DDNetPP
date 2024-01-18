@@ -20,7 +20,7 @@ public:
 		CSkins *m_pSkins;
 
 	protected:
-		virtual int OnCompletion(int State) override;
+		virtual void OnCompletion() override;
 
 	public:
 		CGetPngFile(CSkins *pSkins, const char *pUrl, IStorage *pStorage, const char *pDest);
@@ -64,7 +64,7 @@ public:
 	void Refresh(TSkinLoadedCBFunc &&SkinLoadedFunc);
 	int Num();
 	std::unordered_map<std::string_view, std::unique_ptr<CSkin>> &GetSkinsUnsafe() { return m_Skins; }
-	const CSkin *FindOrNullptr(const char *pName);
+	const CSkin *FindOrNullptr(const char *pName, bool IgnorePrefix = false);
 	const CSkin *Find(const char *pName);
 
 	bool IsDownloadingSkins() { return m_DownloadingSkins; }
