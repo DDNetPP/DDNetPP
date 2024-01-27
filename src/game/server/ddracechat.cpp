@@ -1615,7 +1615,7 @@ void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 	// Teleport tee
 	pSelf->Teleport(pCallingCharacter, Pos);
 	pCallingCharacter->UnFreeze();
-	pCallingCharacter->Core()->m_Vel = vec2(0, 0);
+	pCallingCharacter->ResetVelocity();
 	pCallingPlayer->m_LastTeleTee.Save(pCallingCharacter);
 }
 
@@ -1692,7 +1692,7 @@ void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 	// Teleport tee
 	pSelf->Teleport(pCallingCharacter, Pos);
 	pCallingCharacter->UnFreeze();
-	pCallingCharacter->Core()->m_Vel = vec2(0, 0);
+	pCallingCharacter->ResetVelocity();
 	pCallingPlayer->m_LastTeleTee.Save(pCallingCharacter);
 }
 
@@ -1744,7 +1744,7 @@ void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 	}
 	pSelf->Teleport(pChr, Pos);
 	pChr->UnFreeze();
-	pChr->Core()->m_Vel = vec2(0, 0);
+	pChr->ResetVelocity();
 	pPlayer->m_LastTeleTee.Save(pChr);
 }
 
