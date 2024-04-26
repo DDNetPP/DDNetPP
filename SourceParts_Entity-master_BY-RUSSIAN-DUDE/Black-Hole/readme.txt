@@ -1,5 +1,0 @@
-BlackHole:
-
-...
-
-Cys
