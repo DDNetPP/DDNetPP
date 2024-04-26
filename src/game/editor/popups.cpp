@@ -9,6 +9,7 @@
 #include <engine/keys.h>
 #include <engine/shared/config.h>
 #include <engine/storage.h>
+#include <engine/textrender.h>
 #include <limits>
 
 #include <game/client/ui_scrollregion.h>
@@ -17,6 +18,8 @@
 
 #include "editor.h"
 #include "editor_actions.h"
+
+using namespace FontIcons;
 
 CUI::EPopupMenuFunctionResult CEditor::PopupMenuFile(void *pContext, CUIRect View, bool Active)
 {
@@ -260,11 +263,11 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 		pEditor->UI()->DoLabel(&Label, "Brush coloring", 10.0f, TEXTALIGN_ML);
 		static int s_ButtonNo = 0;
 		static int s_ButtonYes = 0;
-		if(pEditor->DoButton_ButtonDec(&s_ButtonNo, "No", !pEditor->m_BrushColorEnabled, &No, 0, "Disable brush coloring"))
+		if(pEditor->DoButton_Ex(&s_ButtonNo, "No", !pEditor->m_BrushColorEnabled, &No, 0, "Disable brush coloring", IGraphics::CORNER_L))
 		{
 			pEditor->m_BrushColorEnabled = false;
 		}
-		if(pEditor->DoButton_ButtonInc(&s_ButtonYes, "Yes", pEditor->m_BrushColorEnabled, &Yes, 0, "Enable brush coloring"))
+		if(pEditor->DoButton_Ex(&s_ButtonYes, "Yes", pEditor->m_BrushColorEnabled, &Yes, 0, "Enable brush coloring", IGraphics::CORNER_R))
 		{
 			pEditor->m_BrushColorEnabled = true;
 		}
@@ -285,11 +288,11 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 		{
 			static int s_ButtonNo = 0;
 			static int s_ButtonYes = 0;
-			if(pEditor->DoButton_ButtonDec(&s_ButtonNo, "No", !pEditor->m_AllowPlaceUnusedTiles, &No, 0, "[ctrl+u] Disallow placing unused tiles"))
+			if(pEditor->DoButton_Ex(&s_ButtonNo, "No", !pEditor->m_AllowPlaceUnusedTiles, &No, 0, "[ctrl+u] Disallow placing unused tiles", IGraphics::CORNER_L))
 			{
 				pEditor->m_AllowPlaceUnusedTiles = false;
 			}
-			if(pEditor->DoButton_ButtonInc(&s_ButtonYes, "Yes", pEditor->m_AllowPlaceUnusedTiles, &Yes, 0, "[ctrl+u] Allow placing unused tiles"))
+			if(pEditor->DoButton_Ex(&s_ButtonYes, "Yes", pEditor->m_AllowPlaceUnusedTiles, &Yes, 0, "[ctrl+u] Allow placing unused tiles", IGraphics::CORNER_R))
 			{
 				pEditor->m_AllowPlaceUnusedTiles = true;
 			}
@@ -311,7 +314,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 		static int s_ButtonOff = 0;
 		static int s_ButtonDec = 0;
 		static int s_ButtonHex = 0;
-		if(pEditor->DoButton_ButtonDec(&s_ButtonOff, "Off", pEditor->m_ShowTileInfo == SHOW_TILE_OFF, &Off, 0, "Do not show tile information"))
+		if(pEditor->DoButton_Ex(&s_ButtonOff, "Off", pEditor->m_ShowTileInfo == SHOW_TILE_OFF, &Off, 0, "Do not show tile information", IGraphics::CORNER_L))
 		{
 			pEditor->m_ShowTileInfo = SHOW_TILE_OFF;
 			pEditor->m_ShowEnvelopePreview = SHOWENV_NONE;
@@ -321,7 +324,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 			pEditor->m_ShowTileInfo = SHOW_TILE_DECIMAL;
 			pEditor->m_ShowEnvelopePreview = SHOWENV_NONE;
 		}
-		if(pEditor->DoButton_ButtonInc(&s_ButtonHex, "Hex", pEditor->m_ShowTileInfo == SHOW_TILE_HEXADECIMAL, &Hex, 0, "[ctrl+shift+i] Show tile information in hexadecimal"))
+		if(pEditor->DoButton_Ex(&s_ButtonHex, "Hex", pEditor->m_ShowTileInfo == SHOW_TILE_HEXADECIMAL, &Hex, 0, "[ctrl+shift+i] Show tile information in hexadecimal", IGraphics::CORNER_R))
 		{
 			pEditor->m_ShowTileInfo = SHOW_TILE_HEXADECIMAL;
 			pEditor->m_ShowEnvelopePreview = SHOWENV_NONE;
@@ -342,11 +345,11 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 
 		static int s_ButtonNo = 0;
 		static int s_ButtonYes = 0;
-		if(pEditor->DoButton_ButtonDec(&s_ButtonNo, "No", !g_Config.m_EdAlignQuads, &No, 0, "Do not perform quad alignment to other quads/points when moving quads"))
+		if(pEditor->DoButton_Ex(&s_ButtonNo, "No", !g_Config.m_EdAlignQuads, &No, 0, "Do not perform quad alignment to other quads/points when moving quads", IGraphics::CORNER_L))
 		{
 			g_Config.m_EdAlignQuads = false;
 		}
-		if(pEditor->DoButton_ButtonInc(&s_ButtonYes, "Yes", g_Config.m_EdAlignQuads, &Yes, 0, "Allow quad alignment to other quads/points when moving quads"))
+		if(pEditor->DoButton_Ex(&s_ButtonYes, "Yes", g_Config.m_EdAlignQuads, &Yes, 0, "Allow quad alignment to other quads/points when moving quads", IGraphics::CORNER_R))
 		{
 			g_Config.m_EdAlignQuads = true;
 		}
@@ -366,11 +369,11 @@ CUI::EPopupMenuFunctionResult CEditor::PopupMenuSettings(void *pContext, CUIRect
 
 		static int s_ButtonNo = 0;
 		static int s_ButtonYes = 0;
-		if(pEditor->DoButton_ButtonDec(&s_ButtonNo, "No", !g_Config.m_EdShowQuadsRect, &No, 0, "Do not show quad bounds when moving quads"))
+		if(pEditor->DoButton_Ex(&s_ButtonNo, "No", !g_Config.m_EdShowQuadsRect, &No, 0, "Do not show quad bounds when moving quads", IGraphics::CORNER_L))
 		{
 			g_Config.m_EdShowQuadsRect = false;
 		}
-		if(pEditor->DoButton_ButtonInc(&s_ButtonYes, "Yes", g_Config.m_EdShowQuadsRect, &Yes, 0, "Show quad bounds when moving quads"))
+		if(pEditor->DoButton_Ex(&s_ButtonYes, "Yes", g_Config.m_EdShowQuadsRect, &Yes, 0, "Show quad bounds when moving quads", IGraphics::CORNER_R))
 		{
 			g_Config.m_EdShowQuadsRect = true;
 		}
@@ -405,7 +408,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 		{
 			// gather all tile layers
 			std::vector<std::shared_ptr<CLayerTiles>> vpLayers;
-			int GameLayerIndex;
+			int GameLayerIndex = -1;
 			for(int LayerIndex = 0; LayerIndex < (int)pEditor->m_Map.m_pGameGroup->m_vpLayers.size(); LayerIndex++)
 			{
 				auto &pLayer = pEditor->m_Map.m_pGameGroup->m_vpLayers.at(LayerIndex);
@@ -446,8 +449,15 @@ CUI::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 
 			if(!pGameLayer->m_TilesHistory.empty())
 			{
-				// record undo
-				pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionTileChanges>(pEditor, pEditor->m_SelectedGroup, GameLayerIndex, "Clean up game tiles", pGameLayer->m_TilesHistory));
+				if(GameLayerIndex == -1)
+				{
+					dbg_msg("editor", "failed to record action (GameLayerIndex not found)");
+				}
+				else
+				{
+					// record undo
+					pEditor->m_EditorHistory.RecordAction(std::make_shared<CEditorActionTileChanges>(pEditor, pEditor->m_SelectedGroup, GameLayerIndex, "Clean up game tiles", pGameLayer->m_TilesHistory));
+				}
 				pGameLayer->ClearHistory();
 			}
 
@@ -610,16 +620,16 @@ CUI::EPopupMenuFunctionResult CEditor::PopupGroup(void *pContext, CUIRect View, 
 	}
 
 	CProperty aProps[] = {
-		{"Order", pEditor->m_SelectedGroup, PROPTYPE_INT_STEP, 0, (int)pEditor->m_Map.m_vpGroups.size() - 1},
-		{"Pos X", -pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_OffsetX, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Pos Y", -pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_OffsetY, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Para X", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ParallaxX, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Para Y", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ParallaxY, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Order", pEditor->m_SelectedGroup, PROPTYPE_INT, 0, (int)pEditor->m_Map.m_vpGroups.size() - 1},
+		{"Pos X", -pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_OffsetX, PROPTYPE_INT, -1000000, 1000000},
+		{"Pos Y", -pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_OffsetY, PROPTYPE_INT, -1000000, 1000000},
+		{"Para X", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ParallaxX, PROPTYPE_INT, -1000000, 1000000},
+		{"Para Y", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ParallaxY, PROPTYPE_INT, -1000000, 1000000},
 		{"Use Clipping", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_UseClipping, PROPTYPE_BOOL, 0, 1},
-		{"Clip X", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipX, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Clip Y", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipY, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Clip W", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipW, PROPTYPE_INT_SCROLL, 0, 1000000},
-		{"Clip H", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipH, PROPTYPE_INT_SCROLL, 0, 1000000},
+		{"Clip X", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipX, PROPTYPE_INT, -1000000, 1000000},
+		{"Clip Y", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipY, PROPTYPE_INT, -1000000, 1000000},
+		{"Clip W", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipW, PROPTYPE_INT, 0, 1000000},
+		{"Clip H", pEditor->m_Map.m_vpGroups[pEditor->m_SelectedGroup]->m_ClipH, PROPTYPE_INT, 0, 1000000},
 		{nullptr},
 	};
 
@@ -764,8 +774,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupLayer(void *pContext, CUIRect View, 
 		View.HSplitBottom(10.0f, &View, nullptr);
 
 	CProperty aProps[] = {
-		{"Group", pEditor->m_SelectedGroup, PROPTYPE_INT_STEP, 0, (int)pEditor->m_Map.m_vpGroups.size() - 1},
-		{"Order", pEditor->m_vSelectedLayers[0], PROPTYPE_INT_STEP, 0, (int)pCurrentGroup->m_vpLayers.size() - 1},
+		{"Group", pEditor->m_SelectedGroup, PROPTYPE_INT, 0, (int)pEditor->m_Map.m_vpGroups.size() - 1},
+		{"Order", pEditor->m_vSelectedLayers[0], PROPTYPE_INT, 0, (int)pCurrentGroup->m_vpLayers.size() - 1},
 		{"Detail", pCurrentLayer->m_Flags & LAYERFLAG_DETAIL, PROPTYPE_BOOL, 0, 1},
 		{nullptr},
 	};
@@ -821,6 +831,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupQuad(void *pContext, CUIRect View, b
 {
 	CEditor *pEditor = static_cast<CEditor *>(pContext);
 	std::vector<CQuad *> vpQuads = pEditor->GetSelectedQuads();
+	if(pEditor->m_SelectedQuadIndex < 0 || pEditor->m_SelectedQuadIndex >= (int)vpQuads.size())
+		return CUI::POPUP_CLOSE_CURRENT;
 	CQuad *pCurrentQuad = vpQuads[pEditor->m_SelectedQuadIndex];
 	std::shared_ptr<CLayerQuads> pLayer = std::static_pointer_cast<CLayerQuads>(pEditor->GetSelectedLayerType(0, LAYERTYPE_QUADS));
 
@@ -955,13 +967,13 @@ CUI::EPopupMenuFunctionResult CEditor::PopupQuad(void *pContext, CUIRect View, b
 
 	const int NumQuads = pLayer ? (int)pLayer->m_vQuads.size() : 0;
 	CProperty aProps[] = {
-		{"Order", pEditor->m_vSelectedQuads[pEditor->m_SelectedQuadIndex], PROPTYPE_INT_STEP, 0, NumQuads},
-		{"Pos X", fx2i(pCurrentQuad->m_aPoints[4].x), PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Pos Y", fx2i(pCurrentQuad->m_aPoints[4].y), PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Order", pEditor->m_vSelectedQuads[pEditor->m_SelectedQuadIndex], PROPTYPE_INT, 0, NumQuads},
+		{"Pos X", fx2i(pCurrentQuad->m_aPoints[4].x), PROPTYPE_INT, -1000000, 1000000},
+		{"Pos Y", fx2i(pCurrentQuad->m_aPoints[4].y), PROPTYPE_INT, -1000000, 1000000},
 		{"Pos. Env", pCurrentQuad->m_PosEnv + 1, PROPTYPE_ENVELOPE, 0, 0},
-		{"Pos. TO", pCurrentQuad->m_PosEnvOffset, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Pos. TO", pCurrentQuad->m_PosEnvOffset, PROPTYPE_INT, -1000000, 1000000},
 		{"Color Env", pCurrentQuad->m_ColorEnv + 1, PROPTYPE_ENVELOPE, 0, 0},
-		{"Color TO", pCurrentQuad->m_ColorEnvOffset, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Color TO", pCurrentQuad->m_ColorEnvOffset, PROPTYPE_INT, -1000000, 1000000},
 		{nullptr},
 	};
 
@@ -1092,16 +1104,16 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSource(void *pContext, CUIRect View,
 	}
 
 	CProperty aProps[] = {
-		{"Pos X", pSource->m_Position.x / 1000, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Pos Y", pSource->m_Position.y / 1000, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Pos X", pSource->m_Position.x / 1000, PROPTYPE_INT, -1000000, 1000000},
+		{"Pos Y", pSource->m_Position.y / 1000, PROPTYPE_INT, -1000000, 1000000},
 		{"Loop", pSource->m_Loop, PROPTYPE_BOOL, 0, 1},
 		{"Pan", pSource->m_Pan, PROPTYPE_BOOL, 0, 1},
-		{"Delay", pSource->m_TimeDelay, PROPTYPE_INT_SCROLL, 0, 1000000},
-		{"Falloff", pSource->m_Falloff, PROPTYPE_INT_SCROLL, 0, 255},
+		{"Delay", pSource->m_TimeDelay, PROPTYPE_INT, 0, 1000000},
+		{"Falloff", pSource->m_Falloff, PROPTYPE_INT, 0, 255},
 		{"Pos. Env", pSource->m_PosEnv + 1, PROPTYPE_ENVELOPE, 0, 0},
-		{"Pos. TO", pSource->m_PosEnvOffset, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Pos. TO", pSource->m_PosEnvOffset, PROPTYPE_INT, -1000000, 1000000},
 		{"Sound Env", pSource->m_SoundEnv + 1, PROPTYPE_ENVELOPE, 0, 0},
-		{"Sound. TO", pSource->m_SoundEnvOffset, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Sound. TO", pSource->m_SoundEnvOffset, PROPTYPE_INT, -1000000, 1000000},
 		{nullptr},
 	};
 
@@ -1183,7 +1195,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSource(void *pContext, CUIRect View,
 	case CSoundShape::SHAPE_CIRCLE:
 	{
 		CProperty aCircleProps[] = {
-			{"Radius", pSource->m_Shape.m_Circle.m_Radius, PROPTYPE_INT_SCROLL, 0, 1000000},
+			{"Radius", pSource->m_Shape.m_Circle.m_Radius, PROPTYPE_INT, 0, 1000000},
 			{nullptr},
 		};
 
@@ -1210,8 +1222,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSource(void *pContext, CUIRect View,
 	case CSoundShape::SHAPE_RECTANGLE:
 	{
 		CProperty aRectangleProps[] = {
-			{"Width", pSource->m_Shape.m_Rectangle.m_Width / 1024, PROPTYPE_INT_SCROLL, 0, 1000000},
-			{"Height", pSource->m_Shape.m_Rectangle.m_Height / 1024, PROPTYPE_INT_SCROLL, 0, 1000000},
+			{"Width", pSource->m_Shape.m_Rectangle.m_Width / 1024, PROPTYPE_INT, 0, 1000000},
+			{"Height", pSource->m_Shape.m_Rectangle.m_Height / 1024, PROPTYPE_INT, 0, 1000000},
 			{nullptr},
 		};
 
@@ -1260,11 +1272,11 @@ CUI::EPopupMenuFunctionResult CEditor::PopupPoint(void *pContext, CUIRect View, 
 	const int TextureV = fx2f(pCurrentQuad->m_aTexcoords[pEditor->m_SelectedQuadPoint].y) * 1024;
 
 	CProperty aProps[] = {
-		{"Pos X", X, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Pos Y", Y, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Pos X", X, PROPTYPE_INT, -1000000, 1000000},
+		{"Pos Y", Y, PROPTYPE_INT, -1000000, 1000000},
 		{"Color", Color, PROPTYPE_COLOR, 0, 0},
-		{"Tex U", TextureU, PROPTYPE_INT_SCROLL, -1000000, 1000000},
-		{"Tex V", TextureV, PROPTYPE_INT_SCROLL, -1000000, 1000000},
+		{"Tex U", TextureU, PROPTYPE_INT, -1000000, 1000000},
+		{"Tex V", TextureV, PROPTYPE_INT, -1000000, 1000000},
 		{nullptr},
 	};
 
@@ -1348,7 +1360,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupEnvPoint(void *pContext, CUIRect Vie
 
 	std::shared_ptr<CEnvelope> pEnvelope = pEditor->m_Map.m_vpEnvelopes[pEditor->m_SelectedEnvelope];
 
-	if(pEnvelope->GetChannels() == 4)
+	if(pEnvelope->GetChannels() == 4 && !pEditor->IsTangentSelected())
 	{
 		View.HSplitTop(RowHeight, &Row, &View);
 		View.HSplitTop(4.0f, nullptr, &View);
@@ -1598,8 +1610,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupEnvPointCurveType(void *pContext, CU
 						if(SelectedIndex != FirstSelectedIndex && SelectedIndex != LastSelectedIndex)
 						{
 							CEnvPoint &CurrentPoint = pEnvelope->m_vPoints[SelectedIndex];
-							ColorRGBA Channels;
-							HelperEnvelope.Eval(CurrentPoint.m_Time / 1000.0f, Channels);
+							ColorRGBA Channels = ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f);
+							HelperEnvelope.Eval(CurrentPoint.m_Time / 1000.0f, Channels, 1);
 							int PrevValue = CurrentPoint.m_aValues[c];
 							CurrentPoint.m_aValues[c] = f2fx(Channels.r);
 							vpActions.push_back(std::make_shared<CEditorActionEnvelopeEditPoint>(pEditor, pEditor->m_SelectedEnvelope, SelectedIndex, SelectedChannel, CEditorActionEnvelopeEditPoint::EEditType::VALUE, PrevValue, CurrentPoint.m_aValues[c]));
@@ -2430,19 +2442,48 @@ CUI::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 
 	static int s_PreviousTeleNumber;
 	static int s_PreviousCheckpointNumber;
+	static int s_PreviousViewTeleNumber;
 
 	CUIRect NumberPicker;
 	CUIRect FindEmptySlot;
-	CUIRect FindFreeTeleSlot, FindFreeCheckpointSlot;
+	CUIRect FindFreeTeleSlot, FindFreeCheckpointSlot, FindFreeViewSlot;
 
 	View.VSplitRight(15.f, &NumberPicker, &FindEmptySlot);
 	NumberPicker.VSplitRight(2.f, &NumberPicker, nullptr);
 
 	FindEmptySlot.HSplitTop(13.0f, &FindFreeTeleSlot, &FindEmptySlot);
 	FindEmptySlot.HSplitTop(13.0f, &FindFreeCheckpointSlot, &FindEmptySlot);
+	FindEmptySlot.HSplitTop(13.0f, &FindFreeViewSlot, &FindEmptySlot);
 
 	FindFreeTeleSlot.HMargin(1.0f, &FindFreeTeleSlot);
 	FindFreeCheckpointSlot.HMargin(1.0f, &FindFreeCheckpointSlot);
+	FindFreeViewSlot.HMargin(1.0f, &FindFreeViewSlot);
+
+	auto ViewTele = [](CEditor *pEd) -> bool {
+		if(!pEd->m_ViewTeleNumber)
+			return false;
+		int TeleX, TeleY;
+		pEd->m_Map.m_pTeleLayer->GetPos(pEd->m_ViewTeleNumber, -1, TeleX, TeleY);
+		if(TeleX != -1 && TeleY != -1)
+		{
+			pEd->MapView()->SetWorldOffset({32.0f * TeleX + 0.5f, 32.0f * TeleY + 0.5f});
+			return true;
+		}
+		return false;
+	};
+
+	static std::vector<ColorRGBA> s_vColors = {
+		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
+		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
+		ColorRGBA(0.5f, 1, 0.5f, 0.5f),
+	};
+	enum
+	{
+		PROP_TELE = 0,
+		PROP_TELE_CP,
+		PROP_TELE_VIEW,
+		NUM_PROPS,
+	};
 
 	// find next free numbers buttons
 	{
@@ -2465,24 +2506,19 @@ CUI::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 			if(CPNumber != -1)
 				pEditor->m_TeleCheckpointNumber = CPNumber;
 		}
+
+		static int s_NextFreeViewPid = 0;
+		int btn = pEditor->DoButton_Editor(&s_NextFreeViewPid, "N", 0, &FindFreeViewSlot, 0, "[n] Show next tele with this number");
+		if(btn || (Active && pEditor->Input()->KeyPress(KEY_N)))
+			s_vColors[PROP_TELE_VIEW] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
 	// number picker
 	{
-		static std::vector<ColorRGBA> s_vColors = {
-			ColorRGBA(0.5f, 1, 0.5f, 0.5f),
-			ColorRGBA(0.5f, 1, 0.5f, 0.5f),
-		};
-
-		enum
-		{
-			PROP_TELE = 0,
-			PROP_TELE_CP = 1,
-			NUM_PROPS,
-		};
 		CProperty aProps[] = {
-			{"Number", pEditor->m_TeleNumber, PROPTYPE_INT_STEP, 1, 255},
-			{"Checkpoint", pEditor->m_TeleCheckpointNumber, PROPTYPE_INT_STEP, 1, 255},
+			{"Number", pEditor->m_TeleNumber, PROPTYPE_INT, 1, 255},
+			{"Checkpoint", pEditor->m_TeleCheckpointNumber, PROPTYPE_INT, 1, 255},
+			{"View", pEditor->m_ViewTeleNumber, PROPTYPE_INT, 1, 255},
 			{nullptr},
 		};
 
@@ -2494,16 +2530,22 @@ CUI::EPopupMenuFunctionResult CEditor::PopupTele(void *pContext, CUIRect View, b
 			pEditor->m_TeleNumber = (NewVal - 1 + 255) % 255 + 1;
 		else if(Prop == PROP_TELE_CP)
 			pEditor->m_TeleCheckpointNumber = (NewVal - 1 + 255) % 255 + 1;
+		else if(Prop == PROP_TELE_VIEW)
+			pEditor->m_ViewTeleNumber = (NewVal - 1 + 255) % 255 + 1;
 
 		if(s_PreviousTeleNumber == 1 || s_PreviousTeleNumber != pEditor->m_TeleNumber)
 			s_vColors[PROP_TELE] = pEditor->m_Map.m_pTeleLayer->ContainsElementWithId(pEditor->m_TeleNumber, false) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
 
 		if(s_PreviousCheckpointNumber == 1 || s_PreviousCheckpointNumber != pEditor->m_TeleCheckpointNumber)
 			s_vColors[PROP_TELE_CP] = pEditor->m_Map.m_pTeleLayer->ContainsElementWithId(pEditor->m_TeleCheckpointNumber, true) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+
+		if(s_PreviousViewTeleNumber != pEditor->m_ViewTeleNumber)
+			s_vColors[PROP_TELE_VIEW] = ViewTele(pEditor) ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
 	s_PreviousTeleNumber = pEditor->m_TeleNumber;
 	s_PreviousCheckpointNumber = pEditor->m_TeleCheckpointNumber;
+	s_PreviousViewTeleNumber = pEditor->m_ViewTeleNumber;
 
 	return CUI::POPUP_KEEP_OPEN;
 }
@@ -2521,8 +2563,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSpeedup(void *pContext, CUIRect View
 	};
 
 	CProperty aProps[] = {
-		{"Force", pEditor->m_SpeedupForce, PROPTYPE_INT_STEP, 1, 255},
-		{"Max Speed", pEditor->m_SpeedupMaxSpeed, PROPTYPE_INT_STEP, 0, 255},
+		{"Force", pEditor->m_SpeedupForce, PROPTYPE_INT, 1, 255},
+		{"Max Speed", pEditor->m_SpeedupMaxSpeed, PROPTYPE_INT, 0, 255},
 		{"Angle", pEditor->m_SpeedupAngle, PROPTYPE_ANGLE_SCROLL, 0, 359},
 		{nullptr},
 	};
@@ -2551,12 +2593,43 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 {
 	CEditor *pEditor = static_cast<CEditor *>(pContext);
 
-	CUIRect NumberPicker, FindEmptySlot;
+	CUIRect NumberPicker, FindEmptySlot, ViewEmptySlot;
 
 	View.VSplitRight(15.0f, &NumberPicker, &FindEmptySlot);
 	NumberPicker.VSplitRight(2.0f, &NumberPicker, nullptr);
-	FindEmptySlot.HSplitTop(13.0f, &FindEmptySlot, nullptr);
+
+	FindEmptySlot.HSplitTop(13.0f, &FindEmptySlot, &ViewEmptySlot);
+	ViewEmptySlot.HSplitTop(13.0f, nullptr, &ViewEmptySlot);
+
 	FindEmptySlot.HMargin(1.0f, &FindEmptySlot);
+	ViewEmptySlot.HMargin(1.0f, &ViewEmptySlot);
+
+	auto ViewSwitch = [pEditor]() -> bool {
+		if(!pEditor->m_ViewSwitch)
+			return false;
+		ivec2 SwitchPos;
+		pEditor->m_Map.m_pSwitchLayer->GetPos(pEditor->m_ViewSwitch, -1, SwitchPos);
+		if(SwitchPos != ivec2(-1, -1))
+		{
+			pEditor->MapView()->SetWorldOffset({32.0f * SwitchPos.x + 0.5f, 32.0f * SwitchPos.y + 0.5f});
+			return true;
+		}
+		return false;
+	};
+
+	static std::vector<ColorRGBA> s_vColors = {
+		ColorRGBA(1, 1, 1, 0.5f),
+		ColorRGBA(1, 1, 1, 0.5f),
+		ColorRGBA(1, 1, 1, 0.5f),
+	};
+
+	enum
+	{
+		PROP_SWITCH_NUMBER = 0,
+		PROP_SWITCH_DELAY,
+		PROP_SWITCH_VIEW,
+		NUM_PROPS,
+	};
 
 	// find empty number button
 	{
@@ -2568,25 +2641,21 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 			if(Number != -1)
 				pEditor->m_SwitchNum = Number;
 		}
+
+		static int s_NextViewPid = 0;
+		int ButtonResult = pEditor->DoButton_Editor(&s_NextViewPid, "N", 0, &ViewEmptySlot, 0, "[n] Show next switcher with this number");
+		if(ButtonResult || (Active && pEditor->Input()->KeyPress(KEY_N)))
+			s_vColors[PROP_SWITCH_VIEW] = ViewSwitch() ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
 	// number picker
 	static int s_PreviousNumber = -1;
+	static int s_PreviousView = -1;
 	{
-		static std::vector<ColorRGBA> s_vColors = {
-			ColorRGBA(1, 1, 1, 0.5f),
-		};
-
-		enum
-		{
-			PROP_SWITCH_NUMBER = 0,
-			PROP_SWITCH_DELAY,
-			NUM_PROPS,
-		};
-
 		CProperty aProps[] = {
-			{"Number", pEditor->m_SwitchNum, PROPTYPE_INT_STEP, 0, 255},
-			{"Delay", pEditor->m_SwitchDelay, PROPTYPE_INT_STEP, 0, 255},
+			{"Number", pEditor->m_SwitchNum, PROPTYPE_INT, 0, 255},
+			{"Delay", pEditor->m_SwitchDelay, PROPTYPE_INT, 0, 255},
+			{"View", pEditor->m_ViewSwitch, PROPTYPE_INT, 0, 255},
 			{nullptr},
 		};
 
@@ -2602,12 +2671,19 @@ CUI::EPopupMenuFunctionResult CEditor::PopupSwitch(void *pContext, CUIRect View,
 		{
 			pEditor->m_SwitchDelay = (NewVal + 256) % 256;
 		}
+		else if(Prop == PROP_SWITCH_VIEW)
+		{
+			pEditor->m_ViewSwitch = (NewVal + 256) % 256;
+		}
 
 		if(s_PreviousNumber == 1 || s_PreviousNumber != pEditor->m_SwitchNum)
 			s_vColors[PROP_SWITCH_NUMBER] = pEditor->m_Map.m_pSwitchLayer->ContainsElementWithId(pEditor->m_SwitchNum) ? ColorRGBA(1, 0.5f, 0.5f, 0.5f) : ColorRGBA(0.5f, 1, 0.5f, 0.5f);
+		if(s_PreviousView != pEditor->m_ViewSwitch)
+			s_vColors[PROP_SWITCH_VIEW] = ViewSwitch() ? ColorRGBA(0.5f, 1, 0.5f, 0.5f) : ColorRGBA(1, 0.5f, 0.5f, 0.5f);
 	}
 
 	s_PreviousNumber = pEditor->m_SwitchNum;
+	s_PreviousView = pEditor->m_ViewSwitch;
 	return CUI::POPUP_KEEP_OPEN;
 }
 
@@ -2622,7 +2698,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupTune(void *pContext, CUIRect View, b
 	};
 
 	CProperty aProps[] = {
-		{"Zone", pEditor->m_TuningNum, PROPTYPE_INT_STEP, 1, 255},
+		{"Zone", pEditor->m_TuningNum, PROPTYPE_INT, 1, 255},
 		{nullptr},
 	};
 
@@ -2652,8 +2728,8 @@ CUI::EPopupMenuFunctionResult CEditor::PopupGoto(void *pContext, CUIRect View, b
 	static ivec2 s_GotoPos(0, 0);
 
 	CProperty aProps[] = {
-		{"X", s_GotoPos.x, PROPTYPE_INT_STEP, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()},
-		{"Y", s_GotoPos.y, PROPTYPE_INT_STEP, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()},
+		{"X", s_GotoPos.x, PROPTYPE_INT, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()},
+		{"Y", s_GotoPos.y, PROPTYPE_INT, std::numeric_limits<int>::min(), std::numeric_limits<int>::max()},
 		{nullptr},
 	};
 
@@ -2756,7 +2832,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupAnimateSettings(void *pContext, CUIR
 	pEditor->UI()->DoLabel(&Label, "Speed", 10.0f, TEXTALIGN_ML);
 
 	static char s_DecreaseButton;
-	if(pEditor->DoButton_Ex(&s_DecreaseButton, "-", 0, &ButtonDecrease, 0, "Decrease animation speed", IGraphics::CORNER_L))
+	if(pEditor->DoButton_FontIcon(&s_DecreaseButton, FONT_ICON_MINUS, 0, &ButtonDecrease, 0, "Decrease animation speed", IGraphics::CORNER_L, 7.0f))
 	{
 		pEditor->m_AnimateSpeed -= pEditor->m_AnimateSpeed <= 1.0f ? 0.1f : 0.5f;
 		pEditor->m_AnimateSpeed = maximum(pEditor->m_AnimateSpeed, MIN_ANIM_SPEED);
@@ -2764,7 +2840,7 @@ CUI::EPopupMenuFunctionResult CEditor::PopupAnimateSettings(void *pContext, CUIR
 	}
 
 	static char s_IncreaseButton;
-	if(pEditor->DoButton_Ex(&s_IncreaseButton, "+", 0, &ButtonIncrease, 0, "Increase animation speed", IGraphics::CORNER_R))
+	if(pEditor->DoButton_FontIcon(&s_IncreaseButton, FONT_ICON_PLUS, 0, &ButtonIncrease, 0, "Increase animation speed", IGraphics::CORNER_R, 7.0f))
 	{
 		if(pEditor->m_AnimateSpeed < 0.1f)
 			pEditor->m_AnimateSpeed = 0.1f;

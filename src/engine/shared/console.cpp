@@ -510,7 +510,10 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 					else
 					{
 						if(pCommand->m_Flags & CMDFLAG_TEST && !g_Config.m_SvTestingCommands)
+						{
+							Print(OUTPUT_LEVEL_STANDARD, "console", "Test commands aren't allowed, enable them with 'sv_test_cmds 1' in your initial config.");
 							return;
+						}
 
 						if(m_pfnTeeHistorianCommandCallback && !(pCommand->m_Flags & CFGFLAG_NONTEEHISTORIC))
 						{
@@ -552,7 +555,10 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 			if(!m_pfnUnknownCommandCallback(pStr, m_pUnknownCommandUserdata))
 			{
 				char aBuf[CMDLINE_LENGTH + 32];
-				str_format(aBuf, sizeof(aBuf), "No such command: %s.", Result.m_pCommand);
+				if(m_FlagMask & CFGFLAG_CHAT)
+					str_format(aBuf, sizeof(aBuf), "No such command: %s. Use /cmdlist for a list of all commands.", Result.m_pCommand);
+				else
+					str_format(aBuf, sizeof(aBuf), "No such command: %s.", Result.m_pCommand);
 				Print(OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 			}
 		}

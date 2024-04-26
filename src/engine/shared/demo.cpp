@@ -415,20 +415,34 @@ void CDemoRecorder::AddDemoMarker(int Tick)
 {
 	dbg_assert(Tick >= 0, "invalid marker tick");
 	if(m_NumTimelineMarkers >= MAX_TIMELINE_MARKERS)
+	{
+		if(m_pConsole)
+		{
+			m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demo_recorder", "Too many timeline markers", gs_DemoPrintColor);
+		}
 		return;
+	}
 
 	// not more than 1 marker in a second
 	if(m_NumTimelineMarkers > 0)
 	{
-		int Diff = Tick - m_aTimelineMarkers[m_NumTimelineMarkers - 1];
+		const int Diff = Tick - m_aTimelineMarkers[m_NumTimelineMarkers - 1];
 		if(Diff < (float)SERVER_TICK_SPEED)
+		{
+			if(m_pConsole)
+			{
+				m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demo_recorder", "Previous timeline marker too close", gs_DemoPrintColor);
+			}
 			return;
+		}
 	}
 
 	m_aTimelineMarkers[m_NumTimelineMarkers++] = Tick;
 
 	if(m_pConsole)
+	{
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_STANDARD, "demo_recorder", "Added timeline marker", gs_DemoPrintColor);
+	}
 }
 
 CDemoPlayer::CDemoPlayer(class CSnapshotDelta *pSnapshotDelta, bool UseVideo, TUpdateIntraTimesFunc &&UpdateIntraTimesFunc)
@@ -1211,11 +1225,11 @@ void CDemoEditor::Init(const char *pNetVersion, class CSnapshotDelta *pSnapshotD
 	m_pStorage = pStorage;
 }
 
-void CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int EndTick, DEMOFUNC_FILTER pfnFilter, void *pUser)
+bool CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int EndTick, DEMOFUNC_FILTER pfnFilter, void *pUser)
 {
 	CDemoPlayer DemoPlayer(m_pSnapshotDelta, false);
 	if(DemoPlayer.Load(m_pStorage, m_pConsole, pDemo, IStorage::TYPE_ALL_OR_ABSOLUTE) == -1)
-		return;
+		return false;
 
 	const CMapInfo *pMapInfo = DemoPlayer.GetMapInfo();
 	const CDemoPlayer::CPlaybackInfo *pInfo = DemoPlayer.Info();
@@ -1234,7 +1248,7 @@ void CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int 
 	if(Result != 0)
 	{
 		DemoPlayer.Stop();
-		return;
+		return false;
 	}
 
 	CDemoRecordingListener Listener;
@@ -1266,4 +1280,5 @@ void CDemoEditor::Slice(const char *pDemo, const char *pDst, int StartTick, int 
 
 	DemoPlayer.Stop();
 	DemoRecorder.Stop(IDemoRecorder::EStopMode::KEEP_FILE);
+	return true;
 }

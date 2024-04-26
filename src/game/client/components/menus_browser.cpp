@@ -108,6 +108,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View, bool &WasListboxItemAct
 		COL_NAME,
 		COL_GAMETYPE,
 		COL_MAP,
+		COL_FRIENDS,
 		COL_PLAYERS,
 		COL_PING,
 
@@ -135,7 +136,8 @@ void CMenus::RenderServerbrowserServerList(CUIRect View, bool &WasListboxItemAct
 		{COL_NAME, IServerBrowser::SORT_NAME, Localizable("Name"), 0, 50.0f, {0}},
 		{COL_GAMETYPE, IServerBrowser::SORT_GAMETYPE, Localizable("Type"), 1, 50.0f, {0}},
 		{COL_MAP, IServerBrowser::SORT_MAP, Localizable("Map"), 1, 120.0f + (Headers.w - 480) / 8, {0}},
-		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, Localizable("Players"), 1, 85.0f, {0}},
+		{COL_FRIENDS, IServerBrowser::SORT_NUMFRIENDS, "", 1, 20.0f, {0}},
+		{COL_PLAYERS, IServerBrowser::SORT_NUMPLAYERS, Localizable("Players"), 1, 60.0f, {0}},
 		{-1, -1, "", 1, 4.0f, {0}},
 		{COL_PING, IServerBrowser::SORT_PING, Localizable("Ping"), 1, 40.0f, {0}},
 	};
@@ -190,6 +192,15 @@ void CMenus::RenderServerbrowserServerList(CUIRect View, bool &WasListboxItemAct
 					g_Config.m_BrSortOrder = 0;
 				g_Config.m_BrSort = Col.m_Sort;
 			}
+		}
+
+		if(Col.m_ID == COL_FRIENDS)
+		{
+			TextRender()->SetFontPreset(EFontPreset::ICON_FONT);
+			TextRender()->SetRenderFlags(ETextRenderFlags::TEXT_RENDER_FLAG_ONLY_ADVANCE_WIDTH | ETextRenderFlags::TEXT_RENDER_FLAG_NO_X_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_Y_BEARING | ETextRenderFlags::TEXT_RENDER_FLAG_NO_PIXEL_ALIGMENT | ETextRenderFlags::TEXT_RENDER_FLAG_NO_OVERSIZE);
+			UI()->DoLabel(&Col.m_Rect, FONT_ICON_HEART, 14.0f, TEXTALIGN_MC);
+			TextRender()->SetRenderFlags(0);
+			TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
 		}
 	}
 
@@ -374,25 +385,23 @@ void CMenus::RenderServerbrowserServerList(CUIRect View, bool &WasListboxItemAct
 				if(!Printed)
 					UI()->DoLabelStreamed(*pUiElement->Rect(UI_ELEM_MAP_1), &Button, pItem->m_aMap, FontSize, TEXTALIGN_ML, Props);
 			}
-			else if(ID == COL_PLAYERS)
+			else if(ID == COL_FRIENDS)
 			{
-				Button.VMargin(2.0f, &Button);
 				if(pItem->m_FriendState != IFriends::FRIEND_NO)
 				{
-					CUIRect Icon;
-					Button.VSplitRight(50.0f, &Icon, &Button);
-					Icon.Margin(2.0f, &Icon);
-					RenderBrowserIcons(*pUiElement->Rect(UI_ELEM_FRIEND_ICON), &Icon, ColorRGBA(0.94f, 0.4f, 0.4f, 1.0f), TextRender()->DefaultTextOutlineColor(), FONT_ICON_HEART, TEXTALIGN_MC);
+					RenderBrowserIcons(*pUiElement->Rect(UI_ELEM_FRIEND_ICON), &Button, ColorRGBA(0.94f, 0.4f, 0.4f, 1.0f), TextRender()->DefaultTextOutlineColor(), FONT_ICON_HEART, TEXTALIGN_MC);
 
 					if(pItem->m_FriendNum > 1)
 					{
 						str_from_int(pItem->m_FriendNum, aTemp);
 						TextRender()->TextColor(0.94f, 0.8f, 0.8f, 1.0f);
-						UI()->DoLabel(&Icon, aTemp, 9.0f, TEXTALIGN_MC);
+						UI()->DoLabel(&Button, aTemp, 9.0f, TEXTALIGN_MC);
 						TextRender()->TextColor(TextRender()->DefaultTextColor());
 					}
 				}
-
+			}
+			else if(ID == COL_PLAYERS)
+			{
 				str_format(aTemp, sizeof(aTemp), "%i/%i", pItem->m_NumFilteredPlayers, ServerBrowser()->Max(*pItem));
 				if(g_Config.m_BrFilterString[0] && (pItem->m_QuickSearchHit & IServerBrowser::QUICK_PLAYER))
 				{
@@ -701,21 +710,6 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 	if(DoButton_CheckBox(&g_Config.m_BrFilterConnectingPlayers, Localize("Filter connecting players"), g_Config.m_BrFilterConnectingPlayers, &Button))
 		g_Config.m_BrFilterConnectingPlayers ^= 1;
 
-	// community filter
-	if((g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES) && !ServerBrowser()->Communities().empty())
-	{
-		CUIRect Row;
-		View.HSplitTop(6.0f, nullptr, &View);
-		View.HSplitTop(19.0f, &Row, &View);
-		Row.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.3f), IGraphics::CORNER_T, 4.0f);
-		UI()->DoLabel(&Row, Localize("Communities"), 12.0f, TEXTALIGN_MC);
-
-		View.HSplitTop(4.0f * 17.0f + CScrollRegion::HEIGHT_MAGIC_FIX, &Row, &View);
-		View.HSplitTop(3.0f, nullptr, &View);
-		Row.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.15f), IGraphics::CORNER_B, 4.0f);
-		RenderServerbrowserCommunitiesFilter(Row);
-	}
-
 	// map finish filters
 	if(m_CommunityCache.m_AnyRanksAvailable)
 	{
@@ -739,7 +733,9 @@ void CMenus::RenderServerbrowserFilters(CUIRect View)
 		}
 	}
 
-	if(!m_CommunityCache.m_vpSelectableCountries.empty() || !m_CommunityCache.m_vpSelectableTypes.empty())
+	// countries and types filters (not shown if there are no countries and types, or if only the none community is selected)
+	if((!m_CommunityCache.m_vpSelectableCountries.empty() || !m_CommunityCache.m_vpSelectableTypes.empty()) &&
+		(m_CommunityCache.m_vpSelectedCommunities.size() != 1 || str_comp(m_CommunityCache.m_vpSelectedCommunities[0]->Id(), IServerBrowser::COMMUNITY_NONE) != 0))
 	{
 		const ColorRGBA ColorActive = ColorRGBA(0.0f, 0.0f, 0.0f, 0.3f);
 		const ColorRGBA ColorInactive = ColorRGBA(0.0f, 0.0f, 0.0f, 0.15f);
@@ -801,13 +797,24 @@ void CMenus::ResetServerbrowserFilters()
 	g_Config.m_BrFilterGametype[0] = '\0';
 	g_Config.m_BrFilterGametypeStrict = 0;
 	g_Config.m_BrFilterConnectingPlayers = 1;
-	g_Config.m_BrFilterUnfinishedMap = 0;
 	g_Config.m_BrFilterServerAddress[0] = '\0';
-	ConfigManager()->Reset("br_filter_exclude_communities");
-	ConfigManager()->Reset("br_filter_exclude_countries");
-	ConfigManager()->Reset("br_filter_exclude_types");
+
+	if(g_Config.m_UiPage != PAGE_LAN)
+	{
+		if(m_CommunityCache.m_AnyRanksAvailable)
+		{
+			g_Config.m_BrFilterUnfinishedMap = 0;
+		}
+		if(g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES)
+		{
+			ServerBrowser()->CommunitiesFilter().Clear();
+		}
+		ServerBrowser()->CountriesFilter().Clear();
+		ServerBrowser()->TypesFilter().Clear();
+		UpdateCommunityCache(true);
+	}
+
 	Client()->ServerBrowserUpdate();
-	UpdateCommunityCache(true);
 }
 
 void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
@@ -862,7 +869,10 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 				else if(Click == 2)
 				{
 					// Right click: when all are active, only deactivate one
-					Filter.Add(GetItemName(ItemIndex));
+					if(MaxItems >= 2)
+					{
+						Filter.Add(GetItemName(ItemIndex));
+					}
 				}
 			}
 			else
@@ -914,11 +924,18 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 
 void CMenus::RenderServerbrowserCommunitiesFilter(CUIRect View)
 {
+	CUIRect Tab;
+	View.HSplitTop(19.0f, &Tab, &View);
+	Tab.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.3f), IGraphics::CORNER_T, 4.0f);
+	UI()->DoLabel(&Tab, Localize("Communities"), 12.0f, TEXTALIGN_MC);
+	View.Draw(ColorRGBA(0.0f, 0.0f, 0.0f, 0.15f), IGraphics::CORNER_B, 4.0f);
+
 	const int MaxEntries = ServerBrowser()->Communities().size();
 	const int EntriesPerRow = 1;
 
 	static CScrollRegion s_ScrollRegion;
 	static std::vector<unsigned char> s_vItemIds;
+	static std::vector<unsigned char> s_vFavoriteButtonIds;
 
 	const float ItemHeight = 13.0f;
 	const float Spacing = 2.0f;
@@ -932,12 +949,14 @@ void CMenus::RenderServerbrowserCommunitiesFilter(CUIRect View)
 	const auto &&RenderItem = [&](int ItemIndex, CUIRect Item, const void *pItemId, bool Active) {
 		const float Alpha = (Active ? 0.9f : 0.2f) + (UI()->HotItem() == pItemId ? 0.1f : 0.0f);
 
-		CUIRect Icon, Label;
+		CUIRect Icon, Label, FavoriteButton;
+		Item.VSplitRight(Item.h, &Item, &FavoriteButton);
 		Item.Margin(Spacing, &Item);
 		Item.VSplitLeft(Item.h * 2.0f, &Icon, &Label);
 		Label.VSplitLeft(Spacing, nullptr, &Label);
 
-		const SCommunityIcon *pIcon = FindCommunityIcon(GetItemName(ItemIndex));
+		const char *pItemName = GetItemName(ItemIndex);
+		const SCommunityIcon *pIcon = FindCommunityIcon(pItemName);
 		if(pIcon != nullptr)
 		{
 			RenderCommunityIcon(pIcon, Icon, Active);
@@ -946,8 +965,22 @@ void CMenus::RenderServerbrowserCommunitiesFilter(CUIRect View)
 		TextRender()->TextColor(1.0f, 1.0f, 1.0f, Alpha);
 		UI()->DoLabel(&Label, GetItemDisplayName(ItemIndex), Label.h * CUI::ms_FontmodHeight, TEXTALIGN_ML);
 		TextRender()->TextColor(TextRender()->DefaultTextColor());
+
+		const bool Favorite = ServerBrowser()->FavoriteCommunitiesFilter().Filtered(pItemName);
+		if(DoButton_Favorite(&s_vFavoriteButtonIds[ItemIndex], pItemId, Favorite, &FavoriteButton))
+		{
+			if(Favorite)
+			{
+				ServerBrowser()->FavoriteCommunitiesFilter().Remove(pItemName);
+			}
+			else
+			{
+				ServerBrowser()->FavoriteCommunitiesFilter().Add(pItemName);
+			}
+		}
 	};
 
+	s_vFavoriteButtonIds.resize(MaxEntries);
 	RenderServerbrowserDDNetFilter(View, ServerBrowser()->CommunitiesFilter(), ItemHeight + 2.0f * Spacing, MaxEntries, EntriesPerRow, s_ScrollRegion, s_vItemIds, true, GetItemName, RenderItem);
 }
 
@@ -1618,15 +1651,24 @@ void CMenus::RenderServerbrowserTabBar(CUIRect TabBar)
 
 	static CButtonContainer s_FilterTabButton;
 	if(DoButton_MenuTab(&s_FilterTabButton, FONT_ICON_LIST_UL, g_Config.m_UiToolboxPage == UI_TOOLBOX_PAGE_FILTERS, &FilterTabButton, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_BROWSER_FILTER], &ColorInactive, &ColorActive))
+	{
 		g_Config.m_UiToolboxPage = UI_TOOLBOX_PAGE_FILTERS;
+	}
+	GameClient()->m_Tooltips.DoToolTip(&s_FilterTabButton, &FilterTabButton, Localize("Server filter"));
 
 	static CButtonContainer s_InfoTabButton;
 	if(DoButton_MenuTab(&s_InfoTabButton, FONT_ICON_INFO, g_Config.m_UiToolboxPage == UI_TOOLBOX_PAGE_INFO, &InfoTabButton, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_BROWSER_INFO], &ColorInactive, &ColorActive))
+	{
 		g_Config.m_UiToolboxPage = UI_TOOLBOX_PAGE_INFO;
+	}
+	GameClient()->m_Tooltips.DoToolTip(&s_InfoTabButton, &InfoTabButton, Localize("Server info"));
 
 	static CButtonContainer s_FriendsTabButton;
 	if(DoButton_MenuTab(&s_FriendsTabButton, FONT_ICON_HEART, g_Config.m_UiToolboxPage == UI_TOOLBOX_PAGE_FRIENDS, &FriendsTabButton, IGraphics::CORNER_T, &m_aAnimatorsSmallPage[SMALL_TAB_BROWSER_FRIENDS], &ColorInactive, &ColorActive))
+	{
 		g_Config.m_UiToolboxPage = UI_TOOLBOX_PAGE_FRIENDS;
+	}
+	GameClient()->m_Tooltips.DoToolTip(&s_FriendsTabButton, &FriendsTabButton, Localize("Friends"));
 
 	TextRender()->SetRenderFlags(0);
 	TextRender()->SetFontPreset(EFontPreset::DEFAULT_FONT);
@@ -1656,17 +1698,16 @@ void CMenus::RenderServerbrowserToolBox(CUIRect ToolBox)
 void CMenus::RenderServerbrowser(CUIRect MainView)
 {
 	UpdateCommunityCache(false);
-	UpdateCommunityIcons();
 
 	/*
-		+-----------------+	+--tabs--+
-		|				  |	|		 |
-		|				  |	|		 |
-		|   server list	  |	|  tool	 |
-		|				  |	|  box	 |
-		|				  |	|		 |
-		+-----------------+	|	 	 |
-			status box		+--------+
+		+---------------------------+ +---communities---+
+		|							| |					|
+		|							| +------tabs-------+
+		|	server list				| |					|
+		|							| |		tool		|
+		|							| |		box			|
+		+---------------------------+ |					|
+			status box				  +-----------------+
 	*/
 
 	CUIRect ServerList, StatusBox, ToolBox, TabBar;
@@ -1674,6 +1715,15 @@ void CMenus::RenderServerbrowser(CUIRect MainView)
 	MainView.Margin(10.0f, &MainView);
 	MainView.VSplitRight(205.0f, &ServerList, &ToolBox);
 	ServerList.VSplitRight(5.0f, &ServerList, nullptr);
+
+	if((g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES) && !ServerBrowser()->Communities().empty())
+	{
+		CUIRect CommunityFilter;
+		ToolBox.HSplitTop(19.0f + 4.0f * 17.0f + CScrollRegion::HEIGHT_MAGIC_FIX, &CommunityFilter, &ToolBox);
+		ToolBox.HSplitTop(8.0f, nullptr, &ToolBox);
+		RenderServerbrowserCommunitiesFilter(CommunityFilter);
+	}
+
 	ToolBox.HSplitTop(24.0f, &TabBar, &ToolBox);
 	ServerList.HSplitBottom(65.0f, &ServerList, &StatusBox);
 
@@ -1762,28 +1812,70 @@ void CMenus::ConchainCommunitiesUpdate(IConsole::IResult *pResult, void *pUserDa
 {
 	pfnCallback(pResult, pCallbackUserData);
 	CMenus *pThis = static_cast<CMenus *>(pUserData);
-	if(pResult->NumArguments() >= 1 && (g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES))
+	if(pResult->NumArguments() >= 1 && (g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES || (g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_3)))
 	{
 		pThis->UpdateCommunityCache(true);
 		pThis->Client()->ServerBrowserUpdate();
 	}
 }
 
+void CMenus::ConchainUiPageUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	const int OldPage = g_Config.m_UiPage;
+	pfnCallback(pResult, pCallbackUserData);
+	CMenus *pThis = static_cast<CMenus *>(pUserData);
+	if(pResult->NumArguments() >= 1)
+	{
+		if(g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_3 &&
+			(size_t)(g_Config.m_UiPage - PAGE_FAVORITE_COMMUNITY_1) >= pThis->ServerBrowser()->FavoriteCommunities().size())
+		{
+			// Reset page to internet when there is no favorite community for this page.
+			g_Config.m_UiPage = PAGE_INTERNET;
+		}
+
+		pThis->SetMenuPage(g_Config.m_UiPage);
+
+		if(!pThis->m_ShowStart && g_Config.m_UiPage != OldPage)
+		{
+			pThis->RefreshBrowserTab(g_Config.m_UiPage);
+		}
+	}
+}
+
 void CMenus::UpdateCommunityCache(bool Force)
 {
-	const bool PageWithCommunities = g_Config.m_UiPage == PAGE_INTERNET || g_Config.m_UiPage == PAGE_FAVORITES;
-	if(!Force && m_CommunityCache.m_UpdateTime != 0 && m_CommunityCache.m_UpdateTime == ServerBrowser()->DDNetInfoUpdateTime() && m_CommunityCache.m_PageWithCommunities == PageWithCommunities)
+	if(g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_3 &&
+		(size_t)(g_Config.m_UiPage - PAGE_FAVORITE_COMMUNITY_1) >= ServerBrowser()->FavoriteCommunities().size())
+	{
+		// Reset page to internet when there is no favorite community for this page,
+		// i.e. when favorite community is removed via console while the page is open.
+		SetMenuPage(PAGE_INTERNET);
+		RefreshBrowserTab(g_Config.m_UiPage);
+	}
+
+	const unsigned CommunitiesHash = ServerBrowser()->CurrentCommunitiesHash();
+	const bool PageChanged = m_CommunityCache.m_LastPage != 0 && m_CommunityCache.m_LastPage != g_Config.m_UiPage;
+	const bool CurrentCommunitiesChanged = m_CommunityCache.m_LastPage != 0 && m_CommunityCache.m_LastPage == g_Config.m_UiPage && m_CommunityCache.m_SelectedCommunitiesHash != CommunitiesHash;
+	if(CurrentCommunitiesChanged && g_Config.m_UiPage >= PAGE_FAVORITE_COMMUNITY_1 && g_Config.m_UiPage <= PAGE_FAVORITE_COMMUNITY_3)
+	{
+		// Favorite community was changed while its page is active,
+		// refresh to get correct serverlist for updated community.
+		ServerBrowser()->Refresh(g_Config.m_UiPage - PAGE_FAVORITE_COMMUNITY_1 + IServerBrowser::TYPE_FAVORITE_COMMUNITY_1, true);
+	}
+
+	if(!Force && m_CommunityCache.m_InfoSha256 != SHA256_ZEROED &&
+		m_CommunityCache.m_InfoSha256 == ServerBrowser()->DDNetInfoSha256() &&
+		!CurrentCommunitiesChanged && !PageChanged)
+	{
 		return;
+	}
 
 	ServerBrowser()->CleanFilters();
 
-	m_CommunityCache.m_UpdateTime = ServerBrowser()->DDNetInfoUpdateTime();
-	m_CommunityCache.m_PageWithCommunities = PageWithCommunities;
-
-	if(m_CommunityCache.m_PageWithCommunities)
-		m_CommunityCache.m_vpSelectedCommunities = ServerBrowser()->SelectedCommunities();
-	else
-		m_CommunityCache.m_vpSelectedCommunities.clear();
+	m_CommunityCache.m_InfoSha256 = ServerBrowser()->DDNetInfoSha256();
+	m_CommunityCache.m_LastPage = g_Config.m_UiPage;
+	m_CommunityCache.m_SelectedCommunitiesHash = CommunitiesHash;
+	m_CommunityCache.m_vpSelectedCommunities = ServerBrowser()->CurrentCommunities();
 
 	m_CommunityCache.m_vpSelectableCountries.clear();
 	m_CommunityCache.m_vpSelectableTypes.clear();
@@ -1842,6 +1934,7 @@ void CMenus::CCommunityIconLoadJob::Run()
 CMenus::CCommunityIconLoadJob::CCommunityIconLoadJob(CMenus *pMenus, const char *pCommunityId, int StorageType) :
 	CAbstractCommunityIconJob(pMenus, pCommunityId, StorageType)
 {
+	Abortable(true);
 }
 
 CMenus::CCommunityIconLoadJob::~CCommunityIconLoadJob()
@@ -1866,7 +1959,7 @@ int CMenus::CommunityIconScan(const char *pName, int IsDir, int DirType, void *p
 	return 0;
 }
 
-const CMenus::SCommunityIcon *CMenus::FindCommunityIcon(const char *pCommunityId)
+const SCommunityIcon *CMenus::FindCommunityIcon(const char *pCommunityId)
 {
 	auto Icon = std::find_if(m_vCommunityIcons.begin(), m_vCommunityIcons.end(), [pCommunityId](const SCommunityIcon &Element) {
 		return str_comp(Element.m_aCommunityId, pCommunityId) == 0;
@@ -1900,7 +1993,7 @@ bool CMenus::LoadCommunityIconFile(const char *pPath, int DirType, CImageInfo &I
 	return true;
 }
 
-void CMenus::LoadCommunityIconFinish(const char *pCommunityId, CImageInfo &&Info, SHA256_DIGEST &&Sha256)
+void CMenus::LoadCommunityIconFinish(const char *pCommunityId, CImageInfo &Info, const SHA256_DIGEST &Sha256)
 {
 	SCommunityIcon CommunityIcon;
 	str_copy(CommunityIcon.m_aCommunityId, pCommunityId);
@@ -1957,7 +2050,7 @@ void CMenus::UpdateCommunityIcons()
 	if(!m_CommunityIconLoadJobs.empty())
 	{
 		std::shared_ptr<CCommunityIconLoadJob> pJob = m_CommunityIconLoadJobs.front();
-		if(pJob->Status() == IJob::STATE_DONE)
+		if(pJob->Done())
 		{
 			if(pJob->Success())
 				LoadCommunityIconFinish(pJob->CommunityId(), pJob->ImageInfo(), pJob->Sha256());
@@ -1979,16 +2072,16 @@ void CMenus::UpdateCommunityIcons()
 			{
 				std::shared_ptr<CCommunityIconLoadJob> pLoadJob = std::make_shared<CCommunityIconLoadJob>(this, pJob->CommunityId(), IStorage::TYPE_SAVE);
 				Engine()->AddJob(pLoadJob);
-				m_CommunityIconLoadJobs.emplace_back(std::move(pLoadJob));
+				m_CommunityIconLoadJobs.push_back(pLoadJob);
 			}
 			m_CommunityIconDownloadJobs.pop_front();
 		}
 	}
 
 	// Rescan for changed communities only when necessary
-	if(m_CommunityIconsUpdateTime != 0 && m_CommunityIconsUpdateTime == ServerBrowser()->DDNetInfoUpdateTime())
+	if(!ServerBrowser()->DDNetInfoAvailable() || (m_CommunityIconsInfoSha256 != SHA256_ZEROED && m_CommunityIconsInfoSha256 == ServerBrowser()->DDNetInfoSha256()))
 		return;
-	m_CommunityIconsUpdateTime = ServerBrowser()->DDNetInfoUpdateTime();
+	m_CommunityIconsInfoSha256 = ServerBrowser()->DDNetInfoSha256();
 
 	// Remove icons for removed communities
 	auto RemovalIterator = m_vCommunityIcons.begin();

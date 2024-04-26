@@ -15,7 +15,6 @@
 #include <csignal>
 #endif
 
-#define WIN32_LEAN_AND_MEAN
 #include <curl/curl.h>
 
 // There is a stray constant on Windows/MSVC...
@@ -67,26 +66,15 @@ bool HttpHasIpresolveBug()
 CHttpRequest::CHttpRequest(const char *pUrl)
 {
 	str_copy(m_aUrl, pUrl);
-	sha256_init(&m_ActualSha256);
+	sha256_init(&m_ActualSha256Ctx);
 }
 
 CHttpRequest::~CHttpRequest()
 {
-	m_ResponseLength = 0;
-	if(!m_WriteToFile)
-	{
-		m_BufferSize = 0;
-		free(m_pBuffer);
-		m_pBuffer = nullptr;
-	}
+	dbg_assert(m_File == nullptr, "HTTP request file was not closed");
+	free(m_pBuffer);
 	curl_slist_free_all((curl_slist *)m_pHeaders);
-	m_pHeaders = nullptr;
-	if(m_pBody)
-	{
-		m_BodyLength = 0;
-		free(m_pBody);
-		m_pBody = nullptr;
-	}
+	free(m_pBody);
 }
 
 bool CHttpRequest::BeforeInit()
@@ -95,14 +83,14 @@ bool CHttpRequest::BeforeInit()
 	{
 		if(fs_makedir_rec_for(m_aDestAbsolute) < 0)
 		{
-			dbg_msg("http", "i/o error, cannot create folder for: %s", m_aDest);
+			log_error("http", "i/o error, cannot create folder for: %s", m_aDest);
 			return false;
 		}
 
 		m_File = io_open(m_aDestAbsolute, IOFLAG_WRITE);
 		if(!m_File)
 		{
-			dbg_msg("http", "i/o error, cannot open file: %s", m_aDest);
+			log_error("http", "i/o error, cannot open file: %s", m_aDest);
 			return false;
 		}
 	}
@@ -151,7 +139,10 @@ bool CHttpRequest::ConfigureHandle(void *pHandle)
 #endif
 	curl_easy_setopt(pH, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(pH, CURLOPT_MAXREDIRS, 4L);
-	curl_easy_setopt(pH, CURLOPT_FAILONERROR, 1L);
+	if(m_FailOnErrorStatus)
+	{
+		curl_easy_setopt(pH, CURLOPT_FAILONERROR, 1L);
+	}
 	curl_easy_setopt(pH, CURLOPT_URL, m_aUrl);
 	curl_easy_setopt(pH, CURLOPT_NOSIGNAL, 1L);
 	curl_easy_setopt(pH, CURLOPT_USERAGENT, GAME_NAME " " GAME_RELEASE_VERSION " (" CONF_PLATFORM_STRING "; " CONF_ARCH_STRING ")");
@@ -185,7 +176,7 @@ bool CHttpRequest::ConfigureHandle(void *pHandle)
 	}
 
 #ifdef CONF_PLATFORM_ANDROID
-	curl_easy_setopt(pHandle, CURLOPT_CAINFO, "data/cacert.pem");
+	curl_easy_setopt(pH, CURLOPT_CAINFO, "data/cacert.pem");
 #endif
 
 	switch(m_Type)
@@ -224,7 +215,7 @@ size_t CHttpRequest::OnData(char *pData, size_t DataSize)
 		return 0;
 	}
 
-	sha256_update(&m_ActualSha256, pData, DataSize);
+	sha256_update(&m_ActualSha256Ctx, pData, DataSize);
 
 	if(!m_WriteToFile)
 	{
@@ -268,43 +259,47 @@ int CHttpRequest::ProgressCallback(void *pUser, double DlTotal, double DlCurr, d
 	return pTask->m_Abort ? -1 : 0;
 }
 
-void CHttpRequest::OnCompletionInternal(std::optional<unsigned int> Result)
+void CHttpRequest::OnCompletionInternal(void *pHandle, unsigned int Result)
 {
-	EHttpState State;
-	if(Result.has_value())
+	if(pHandle)
 	{
-		CURLcode Code = static_cast<CURLcode>(Result.value());
-		if(Code != CURLE_OK)
+		CURL *pH = (CURL *)pHandle;
+		long StatusCode;
+		curl_easy_getinfo(pH, CURLINFO_RESPONSE_CODE, &StatusCode);
+		m_StatusCode = StatusCode;
+	}
+
+	EHttpState State;
+	const CURLcode Code = static_cast<CURLcode>(Result);
+	if(Code != CURLE_OK)
+	{
+		if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::FAILURE)
 		{
-			if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::FAILURE)
-				dbg_msg("http", "%s failed. libcurl error (%u): %s", m_aUrl, Code, m_aErr);
-			State = (Code == CURLE_ABORTED_BY_CALLBACK) ? EHttpState::ABORTED : EHttpState::ERROR;
+			log_error("http", "%s failed. libcurl error (%u): %s", m_aUrl, Code, m_aErr);
 		}
-		else
-		{
-			if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::ALL)
-				dbg_msg("http", "task done: %s", m_aUrl);
-			State = EHttpState::DONE;
-		}
+		State = (Code == CURLE_ABORTED_BY_CALLBACK) ? EHttpState::ABORTED : EHttpState::ERROR;
 	}
 	else
 	{
-		dbg_msg("http", "%s failed. internal error: %s", m_aUrl, m_aErr);
-		State = EHttpState::ERROR;
+		if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::ALL)
+		{
+			log_info("http", "task done: %s", m_aUrl);
+		}
+		State = EHttpState::DONE;
 	}
 
-	if(State == EHttpState::DONE && m_ExpectedSha256 != SHA256_ZEROED)
+	if(State == EHttpState::DONE)
 	{
-		const SHA256_DIGEST ActualSha256 = sha256_finish(&m_ActualSha256);
-		if(ActualSha256 != m_ExpectedSha256)
+		m_ActualSha256 = sha256_finish(&m_ActualSha256Ctx);
+		if(m_ExpectedSha256 != SHA256_ZEROED && m_ActualSha256 != m_ExpectedSha256)
 		{
 			if(g_Config.m_DbgCurl || m_LogProgress >= HTTPLOG::FAILURE)
 			{
 				char aActualSha256[SHA256_MAXSTRSIZE];
-				sha256_str(ActualSha256, aActualSha256, sizeof(aActualSha256));
+				sha256_str(m_ActualSha256, aActualSha256, sizeof(aActualSha256));
 				char aExpectedSha256[SHA256_MAXSTRSIZE];
 				sha256_str(m_ExpectedSha256, aExpectedSha256, sizeof(aExpectedSha256));
-				dbg_msg("http", "SHA256 mismatch: got=%s, expected=%s, url=%s", aActualSha256, aExpectedSha256, m_aUrl);
+				log_error("http", "SHA256 mismatch: got=%s, expected=%s, url=%s", aActualSha256, aExpectedSha256, m_aUrl);
 			}
 			State = EHttpState::ERROR;
 		}
@@ -314,9 +309,10 @@ void CHttpRequest::OnCompletionInternal(std::optional<unsigned int> Result)
 	{
 		if(m_File && io_close(m_File) != 0)
 		{
-			dbg_msg("http", "i/o error, cannot close file: %s", m_aDest);
+			log_error("http", "i/o error, cannot close file: %s", m_aDest);
 			State = EHttpState::ERROR;
 		}
+		m_File = nullptr;
 
 		if(State == EHttpState::ERROR || State == EHttpState::ABORTED)
 		{
@@ -368,12 +364,8 @@ void CHttpRequest::Wait()
 
 void CHttpRequest::Result(unsigned char **ppResult, size_t *pResultLength) const
 {
-	if(m_WriteToFile || State() != EHttpState::DONE)
-	{
-		*ppResult = nullptr;
-		*pResultLength = 0;
-		return;
-	}
+	dbg_assert(State() == EHttpState::DONE, "Request not done");
+	dbg_assert(!m_WriteToFile, "Result not usable together with WriteToFile");
 	*ppResult = m_pBuffer;
 	*pResultLength = m_ResponseLength;
 }
@@ -383,11 +375,19 @@ json_value *CHttpRequest::ResultJson() const
 	unsigned char *pResult;
 	size_t ResultLength;
 	Result(&pResult, &ResultLength);
-	if(!pResult)
-	{
-		return nullptr;
-	}
 	return json_parse((char *)pResult, ResultLength);
+}
+
+const SHA256_DIGEST &CHttpRequest::ResultSha256() const
+{
+	dbg_assert(State() == EHttpState::DONE, "Request not done");
+	return m_ActualSha256;
+}
+
+int CHttpRequest::StatusCode() const
+{
+	dbg_assert(State() == EHttpState::DONE, "Request not done");
+	return m_StatusCode;
 }
 
 bool CHttp::Init(std::chrono::milliseconds ShutdownDelay)
@@ -422,7 +422,7 @@ void CHttp::RunLoop()
 	std::unique_lock Lock(m_Lock);
 	if(curl_global_init(CURL_GLOBAL_DEFAULT))
 	{
-		dbg_msg("http", "curl_global_init failed");
+		log_error("http", "curl_global_init failed");
 		m_State = CHttp::ERROR;
 		m_Cv.notify_all();
 		return;
@@ -431,7 +431,7 @@ void CHttp::RunLoop()
 	m_pMultiH = curl_multi_init();
 	if(!m_pMultiH)
 	{
-		dbg_msg("http", "curl_multi_init failed");
+		log_error("http", "curl_multi_init failed");
 		m_State = CHttp::ERROR;
 		m_Cv.notify_all();
 		return;
@@ -440,19 +440,18 @@ void CHttp::RunLoop()
 	// print curl version
 	{
 		curl_version_info_data *pVersion = curl_version_info(CURLVERSION_NOW);
-		dbg_msg("http", "libcurl version %s (compiled = " LIBCURL_VERSION ")", pVersion->version);
+		log_info("http", "libcurl version %s (compiled = " LIBCURL_VERSION ")", pVersion->version);
 	}
 
 	m_State = CHttp::RUNNING;
 	m_Cv.notify_all();
-	dbg_msg("http", "running");
 	Lock.unlock();
 
 	while(m_State == CHttp::RUNNING)
 	{
-		static int NextTimeout = std::numeric_limits<int>::max();
+		static int s_NextTimeout = std::numeric_limits<int>::max();
 		int Events = 0;
-		CURLMcode mc = curl_multi_poll(m_pMultiH, NULL, 0, NextTimeout, &Events);
+		const CURLMcode PollCode = curl_multi_poll(m_pMultiH, nullptr, 0, s_NextTimeout, &Events);
 
 		// We may have been woken up for a shutdown
 		if(m_Shutdown)
@@ -461,7 +460,7 @@ void CHttp::RunLoop()
 			if(!m_ShutdownTime.has_value())
 			{
 				m_ShutdownTime = Now + m_ShutdownDelay;
-				NextTimeout = m_ShutdownDelay.count();
+				s_NextTimeout = m_ShutdownDelay.count();
 			}
 			else if(m_ShutdownTime < Now || m_RunningRequests.empty())
 			{
@@ -469,36 +468,36 @@ void CHttp::RunLoop()
 			}
 		}
 
-		if(mc != CURLM_OK)
+		if(PollCode != CURLM_OK)
 		{
 			Lock.lock();
-			dbg_msg("http", "Failed multi wait: %s", curl_multi_strerror(mc));
+			log_error("http", "Failed multi wait: %s", curl_multi_strerror(PollCode));
 			m_State = CHttp::ERROR;
 			break;
 		}
 
-		mc = curl_multi_perform(m_pMultiH, &Events);
-		if(mc != CURLM_OK)
+		const CURLMcode PerformCode = curl_multi_perform(m_pMultiH, &Events);
+		if(PerformCode != CURLM_OK)
 		{
 			Lock.lock();
-			dbg_msg("http", "Failed multi perform: %s", curl_multi_strerror(mc));
+			log_error("http", "Failed multi perform: %s", curl_multi_strerror(PerformCode));
 			m_State = CHttp::ERROR;
 			break;
 		}
 
-		struct CURLMsg *m;
-		while((m = curl_multi_info_read(m_pMultiH, &Events)))
+		struct CURLMsg *pMsg;
+		while((pMsg = curl_multi_info_read(m_pMultiH, &Events)))
 		{
-			if(m->msg == CURLMSG_DONE)
+			if(pMsg->msg == CURLMSG_DONE)
 			{
-				auto RequestIt = m_RunningRequests.find(m->easy_handle);
+				auto RequestIt = m_RunningRequests.find(pMsg->easy_handle);
 				dbg_assert(RequestIt != m_RunningRequests.end(), "Running handle not added to map");
 				auto pRequest = std::move(RequestIt->second);
 				m_RunningRequests.erase(RequestIt);
 
-				pRequest->OnCompletionInternal(m->data.result);
-				curl_multi_remove_handle(m_pMultiH, m->easy_handle);
-				curl_easy_cleanup(m->easy_handle);
+				pRequest->OnCompletionInternal(pMsg->easy_handle, pMsg->data.result);
+				curl_multi_remove_handle(m_pMultiH, pMsg->easy_handle);
+				curl_easy_cleanup(pMsg->easy_handle);
 			}
 		}
 
@@ -511,7 +510,7 @@ void CHttp::RunLoop()
 		{
 			auto &pRequest = NewRequests.front();
 			if(g_Config.m_DbgCurl)
-				dbg_msg("http", "task: %s %s", CHttpRequest::GetRequestType(pRequest->m_Type), pRequest->m_aUrl);
+				log_debug("http", "task: %s %s", CHttpRequest::GetRequestType(pRequest->m_Type), pRequest->m_aUrl);
 
 			CURL *pEH = curl_easy_init();
 			if(!pEH)
@@ -520,8 +519,7 @@ void CHttp::RunLoop()
 			if(!pRequest->ConfigureHandle(pEH))
 				goto error_configure;
 
-			mc = curl_multi_add_handle(m_pMultiH, pEH);
-			if(mc != CURLM_OK)
+			if(curl_multi_add_handle(m_pMultiH, pEH) != CURLM_OK)
 				goto error_configure;
 
 			m_RunningRequests.emplace(pEH, std::move(pRequest));
@@ -532,7 +530,7 @@ void CHttp::RunLoop()
 		error_configure:
 			curl_easy_cleanup(pEH);
 		error_init:
-			dbg_msg("http", "failed to start new request");
+			log_error("http", "failed to start new request");
 			Lock.lock();
 			m_State = CHttp::ERROR;
 			break;
@@ -553,20 +551,21 @@ void CHttp::RunLoop()
 	for(auto &pRequest : m_PendingRequests)
 	{
 		str_copy(pRequest->m_aErr, "Shutting down");
-		pRequest->OnCompletionInternal(std::nullopt);
+		pRequest->OnCompletionInternal(nullptr, CURLE_ABORTED_BY_CALLBACK);
 	}
 
 	for(auto &ReqPair : m_RunningRequests)
 	{
 		auto &[pHandle, pRequest] = ReqPair;
+
+		str_copy(pRequest->m_aErr, "Shutting down");
+		pRequest->OnCompletionInternal(pHandle, CURLE_ABORTED_BY_CALLBACK);
+
 		if(Cleanup)
 		{
 			curl_multi_remove_handle(m_pMultiH, pHandle);
 			curl_easy_cleanup(pHandle);
 		}
-
-		str_copy(pRequest->m_aErr, "Shutting down");
-		pRequest->OnCompletionInternal(std::nullopt);
 	}
 
 	if(Cleanup)
@@ -578,9 +577,16 @@ void CHttp::RunLoop()
 
 void CHttp::Run(std::shared_ptr<IHttpRequest> pRequest)
 {
+	std::shared_ptr<CHttpRequest> pRequestImpl = std::static_pointer_cast<CHttpRequest>(pRequest);
 	std::unique_lock Lock(m_Lock);
+	if(m_Shutdown)
+	{
+		str_copy(pRequestImpl->m_aErr, "Shutting down");
+		pRequestImpl->OnCompletionInternal(nullptr, CURLE_ABORTED_BY_CALLBACK);
+		return;
+	}
 	m_Cv.wait(Lock, [this]() { return m_State != CHttp::UNINITIALIZED; });
-	m_PendingRequests.emplace_back(std::static_pointer_cast<CHttpRequest>(pRequest));
+	m_PendingRequests.emplace_back(pRequestImpl);
 	curl_multi_wakeup(m_pMultiH);
 }
 

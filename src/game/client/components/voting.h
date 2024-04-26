@@ -18,15 +18,20 @@ class CVoting : public CComponent
 	static void ConCallvote(IConsole::IResult *pResult, void *pUserData);
 	static void ConVote(IConsole::IResult *pResult, void *pUserData);
 
+	int64_t m_Opentime;
 	int64_t m_Closetime;
 	char m_aDescription[VOTE_DESC_LENGTH];
 	char m_aReason[VOTE_REASON_LENGTH];
 	int m_Voted;
 	int m_Yes, m_No, m_Pass, m_Total;
+	bool m_ReceivingOptions;
 
 	void AddOption(const char *pDescription);
+	void RemoveOption(const char *pDescription);
 	void ClearOptions();
 	void Callvote(const char *pType, const char *pValue, const char *pReason);
+
+	void RenderBars(CUIRect Bars) const;
 
 public:
 	int m_NumVoteOptions;
@@ -41,9 +46,8 @@ public:
 	virtual void OnReset() override;
 	virtual void OnConsoleInit() override;
 	virtual void OnMessage(int Msgtype, void *pRawMsg) override;
-	virtual void OnRender() override;
 
-	void RenderBars(CUIRect Bars, bool Text);
+	void Render();
 
 	void CallvoteSpectate(int ClientID, const char *pReason, bool ForceVote = false);
 	void CallvoteKick(int ClientID, const char *pReason, bool ForceVote = false);
@@ -58,6 +62,7 @@ public:
 	int TakenChoice() const { return m_Voted; }
 	const char *VoteDescription() const { return m_aDescription; }
 	const char *VoteReason() const { return m_aReason; }
+	bool IsReceivingOptions() const { return m_ReceivingOptions; }
 };
 
 #endif

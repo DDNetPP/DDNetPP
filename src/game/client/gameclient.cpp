@@ -161,31 +161,12 @@ void CGameClient::OnConsoleInit()
 						  &m_Controls,
 						  &m_Binds});
 
-	// add the some console commands
+	// add basic console commands
 	Console()->Register("team", "i[team-id]", CFGFLAG_CLIENT, ConTeam, this, "Switch team");
 	Console()->Register("kill", "", CFGFLAG_CLIENT, ConKill, this, "Kill yourself to restart");
 
-	// register server dummy commands for tab completion
-	Console()->Register("tune", "s[tuning] ?f[value]", CFGFLAG_SERVER, 0, 0, "Tune variable to value or show current value");
-	Console()->Register("tune_reset", "?s[tuning]", CFGFLAG_SERVER, 0, 0, "Reset all or one tuning variable to default");
-	Console()->Register("tunes", "", CFGFLAG_SERVER, 0, 0, "List all tuning variables and their values");
-	Console()->Register("change_map", "?r[map]", CFGFLAG_SERVER, 0, 0, "Change map");
-	Console()->Register("restart", "?i[seconds]", CFGFLAG_SERVER, 0, 0, "Restart in x seconds");
-	Console()->Register("broadcast", "r[message]", CFGFLAG_SERVER, 0, 0, "Broadcast message");
-	Console()->Register("say", "r[message]", CFGFLAG_SERVER, 0, 0, "Say in chat");
-	Console()->Register("set_team", "i[id] i[team-id] ?i[delay in minutes]", CFGFLAG_SERVER, 0, 0, "Set team of player to team");
-	Console()->Register("set_team_all", "i[team-id]", CFGFLAG_SERVER, 0, 0, "Set team of all players to team");
-	Console()->Register("add_vote", "s[name] r[command]", CFGFLAG_SERVER, 0, 0, "Add a voting option");
-	Console()->Register("remove_vote", "s[name]", CFGFLAG_SERVER, 0, 0, "remove a voting option");
-	Console()->Register("force_vote", "s[name] s[command] ?r[reason]", CFGFLAG_SERVER, 0, 0, "Force a voting option");
-	Console()->Register("clear_votes", "", CFGFLAG_SERVER, 0, 0, "Clears the voting options");
-	Console()->Register("add_map_votes", "", CFGFLAG_SERVER, 0, 0, "Automatically adds voting options for all maps");
-	Console()->Register("vote", "r['yes'|'no']", CFGFLAG_SERVER, 0, 0, "Force a vote to yes/no");
-	Console()->Register("swap_teams", "", CFGFLAG_SERVER, 0, 0, "Swap the current teams");
-	Console()->Register("shuffle_teams", "", CFGFLAG_SERVER, 0, 0, "Shuffle the current teams");
-
 	// register tune zone command to allow the client prediction to load tunezones from the map
-	Console()->Register("tune_zone", "i[zone] s[tuning] f[value]", CFGFLAG_CLIENT | CFGFLAG_GAME, ConTuneZone, this, "Tune in zone a variable to value");
+	Console()->Register("tune_zone", "i[zone] s[tuning] f[value]", CFGFLAG_GAME, ConTuneZone, this, "Tune in zone a variable to value");
 
 	for(auto &pComponent : m_vpAll)
 		pComponent->m_pClient = this;
@@ -211,6 +192,12 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("dummy_color_body", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_color_feet", ConchainSpecialDummyInfoupdate, this);
 	Console()->Chain("dummy_skin", ConchainSpecialDummyInfoupdate, this);
+
+	Console()->Chain("cl_skin_download_url", ConchainRefreshSkins, this);
+	Console()->Chain("cl_skin_community_download_url", ConchainRefreshSkins, this);
+	Console()->Chain("cl_download_skins", ConchainRefreshSkins, this);
+	Console()->Chain("cl_download_community_skins", ConchainRefreshSkins, this);
+	Console()->Chain("cl_vanilla_skins_only", ConchainRefreshSkins, this);
 
 	Console()->Chain("cl_dummy", ConchainSpecialDummy, this);
 	Console()->Chain("cl_text_entities_size", ConchainClTextEntitiesSize, this);
@@ -567,6 +554,8 @@ void CGameClient::OnReset()
 	m_LastFlagCarrierRed = -4;
 	m_LastFlagCarrierBlue = -4;
 	m_aTuning[g_Config.m_ClDummy] = CTuningParams();
+
+	m_NextChangeInfo = 0;
 
 	m_Teams.Reset();
 	m_aDDRaceMsgSent[0] = false;
@@ -958,6 +947,11 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dumm
 			m_CharOrder.GiveWeak(ID.first);
 		}
 	}
+	else if(MsgId == NETMSGTYPE_SV_CHANGEINFOCOOLDOWN)
+	{
+		CNetMsg_Sv_ChangeInfoCooldown *pMsg = (CNetMsg_Sv_ChangeInfoCooldown *)pRawMsg;
+		m_NextChangeInfo = pMsg->m_WaitUntil;
+	}
 }
 
 void CGameClient::OnStateChange(int NewState, int OldState)
@@ -973,8 +967,6 @@ void CGameClient::OnStateChange(int NewState, int OldState)
 
 void CGameClient::OnShutdown()
 {
-	RenderShutdownMessage();
-
 	for(auto &pComponent : m_vpAll)
 		pComponent->OnShutdown();
 }
@@ -3260,6 +3252,7 @@ void CGameClient::LoadHudSkin(const char *pPath, bool AsDir)
 		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudTeleportGun);
 		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudTeleportLaser);
 		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudPracticeMode);
+		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudLockMode);
 		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudDummyHammer);
 		Graphics()->UnloadTexture(&m_HudSkin.m_SpriteHudDummyCopy);
 		m_HudSkinLoaded = false;
@@ -3318,6 +3311,7 @@ void CGameClient::LoadHudSkin(const char *pPath, bool AsDir)
 		m_HudSkin.m_SpriteHudTeleportGun = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_TELEPORT_GUN]);
 		m_HudSkin.m_SpriteHudTeleportLaser = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_TELEPORT_LASER]);
 		m_HudSkin.m_SpriteHudPracticeMode = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_PRACTICE_MODE]);
+		m_HudSkin.m_SpriteHudLockMode = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_LOCK_MODE]);
 		m_HudSkin.m_SpriteHudDummyHammer = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_DUMMY_HAMMER]);
 		m_HudSkin.m_SpriteHudDummyCopy = Graphics()->LoadSpriteTexture(ImgInfo, &g_pData->m_aSprites[SPRITE_HUD_DUMMY_COPY]);
 
@@ -3371,8 +3365,17 @@ void CGameClient::LoadExtrasSkin(const char *pPath, bool AsDir)
 	}
 }
 
-void CGameClient::RefindSkins()
+void CGameClient::RefreshSkins()
 {
+	const auto SkinStartLoadTime = time_get_nanoseconds();
+	m_Skins.Refresh([&](int) {
+		// if skin refreshing takes to long, swap to a loading screen
+		if(time_get_nanoseconds() - SkinStartLoadTime > 500ms)
+		{
+			m_Menus.RenderLoading(Localize("Loading skin files"), "", 0, false);
+		}
+	});
+
 	for(auto &Client : m_aClients)
 	{
 		Client.m_SkinInfo.m_OriginalRenderSkin.Reset();
@@ -3390,9 +3393,19 @@ void CGameClient::RefindSkins()
 		}
 		Client.UpdateRenderInfo(IsTeamPlay());
 	}
-	m_Ghost.RefindSkins();
-	m_Chat.RefindSkins();
-	m_InfoMessages.RefindSkins();
+
+	for(auto &pComponent : m_vpAll)
+		pComponent->OnRefreshSkins();
+}
+
+void CGameClient::ConchainRefreshSkins(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
+{
+	CGameClient *pThis = static_cast<CGameClient *>(pUserData);
+	pfnCallback(pResult, pCallbackUserData);
+	if(pResult->NumArguments() && pThis->m_Menus.IsInit())
+	{
+		pThis->RefreshSkins();
+	}
 }
 
 static bool UnknownMapSettingCallback(const char *pCommand, void *pUser)
@@ -3491,11 +3504,6 @@ void CGameClient::DummyResetInput()
 bool CGameClient::CanDisplayWarning() const
 {
 	return m_Menus.CanDisplayWarning();
-}
-
-bool CGameClient::IsDisplayingWarning() const
-{
-	return m_Menus.GetCurPopup() == CMenus::POPUP_WARNING;
 }
 
 CNetObjHandler *CGameClient::GetNetObjHandler()

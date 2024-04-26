@@ -128,4 +128,115 @@ An alternative is to do it for every account manually with the chat command '/sq
 
 *Explanation & fix*:
 
+<<<<<<< HEAD
 If you run multiple servers on different ports the server has to save which port the accounts are logged in. Newer ddnet allows you to not set ``sv_port`` or set it to 0 which picks a free port for you. But the database will then store 0 for all servers. So if you are using multiple servers sharing the same database you have to explicitly set ``sv_port`` to something non zero.
+=======
+Install [osxcross](https://github.com/tpoechtrager/osxcross), then add
+`-DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/darwin.toolchain` and
+`-DCMAKE_OSX_SYSROOT=/path/to/osxcross/target/SDK/MacOSX10.11.sdk/` to the
+**initial** CMake command line.
+
+Install `dmg` and `hfsplus` from
+[libdmg-hfsplus](https://github.com/mozilla/libdmg-hfsplus) and `newfs_hfs`
+from
+[diskdev\_cmds](http://pkgs.fedoraproject.org/repo/pkgs/hfsplus-tools/diskdev_cmds-540.1.linux3.tar.gz/0435afc389b919027b69616ad1b05709/diskdev_cmds-540.1.linux3.tar.gz)
+to unlock the `package_dmg` target that outputs a macOS disk image.
+
+Importing the official DDNet Database
+-------------------------------------
+
+```bash
+$ wget https://ddnet.org/stats/ddnet-sql.zip
+$ unzip ddnet-sql.zip
+$ yaourt -S mariadb mysql-connector-c++
+$ mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+$ systemctl start mariadb
+$ mysqladmin -u root password 'PW'
+$ mysql -u root -p'PW'
+MariaDB [(none)]> create database teeworlds; create user 'teeworlds'@'localhost' identified by 'PW2'; grant all privileges on teeworlds.* to 'teeworlds'@'localhost'; flush privileges;
+# this takes a while, you can remove the KEYs in record_race.sql to trade performance in queries
+$ mysql -u teeworlds -p'PW2' teeworlds < ddnet-sql/record_*.sql
+
+$ cat mine.cfg
+sv_use_sql 1
+add_sqlserver r teeworlds record teeworlds "PW2" "localhost" "3306"
+add_sqlserver w teeworlds record teeworlds "PW2" "localhost" "3306"
+
+$ mkdir build
+$ cd build
+$ cmake -DMYSQL=ON ..
+$ make -j$(nproc)
+$ ./DDNet-Server -f mine.cfg
+```
+
+<a href="https://repology.org/metapackage/ddnet/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/ddnet.svg?header=" alt="Packaging status" align="right">
+</a>
+
+Installation from Repository
+----------------------------
+
+Debian/Ubuntu
+
+```bash
+$ apt-get install ddnet
+
+```
+
+MacOS
+
+```bash
+$ brew install --cask ddnet
+```
+
+Fedora
+
+```bash
+$ dnf install ddnet
+```
+
+Arch Linux
+
+```bash
+$ yay -S ddnet
+```
+
+FreeBSD
+
+```bash
+$ pkg install DDNet
+```
+
+Benchmarking
+------------
+
+DDNet is available in the [Phoronix Test Suite](https://openbenchmarking.org/test/pts/ddnet). If you have PTS installed you can easily benchmark DDNet on your own system like this:
+
+```bash
+$ phoronix-test-suite benchmark ddnet
+```
+
+Better Git Blame
+----------------
+
+First, use a better tool than `git blame` itself, e.g. [`tig`](https://jonas.github.io/tig/). There's probably a good UI for Windows, too. Alternatively, use the GitHub UI, click "Blame" in any file view.
+
+For `tig`, use `tig blame path/to/file.cpp` to open the blame view, you can navigate with arrow keys or kj, press comma to go to the previous revision of the current line, q to quit.
+
+Only then you could also set up git to ignore specific formatting revisions:
+```bash
+git config blame.ignoreRevsFile formatting-revs.txt
+```
+
+(Neo)Vim Syntax Highlighting for config files
+----------------------------------------
+Copy the file detection and syntax files to your vim config folder:
+
+```bash
+# vim
+cp -R other/vim/* ~/.vim/
+
+# neovim
+cp -R other/vim/* ~/.config/nvim/
+```
+>>>>>>> 17402cc43fdf51c8cb81b724228f11c423d17007^
