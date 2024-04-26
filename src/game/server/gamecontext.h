@@ -273,13 +273,13 @@ public:
 	void CallVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
 	void SendChatTarget(int To, const char *pText, int Flags = CHAT_SIX | CHAT_SIXUP) const;
 	void SendChatTeam(int Team, const char *pText) const;
-	void SendChat(int ClientID, int Team, const char *pText, int SpamProtectionClientID = -1, int Flags = CHAT_SIX | CHAT_SIXUP, int ToClientID = -1); // TODO: ddnet++ can we remove ToClientID?
-	void SendStartWarning(int ClientID, const char *pMessage);
-	void SendEmoticon(int ClientID, int Emoticon, int TargetClientID) const;
-	void SendWeaponPickup(int ClientID, int Weapon) const;
-	void SendMotd(int ClientID) const;
-	void SendSettings(int ClientID) const;
-	void SendBroadcast(const char *pText, int ClientID, int Importance = 1, bool IsSupermod = false);
+	void SendChat(int ClientId, int Team, const char *pText, int SpamProtectionClientId = -1, int Flags = CHAT_SIX | CHAT_SIXUP, int ToClientId = -1); // TODO: ddnet++ can we remove ToClientId?
+	void SendStartWarning(int ClientId, const char *pMessage);
+	void SendEmoticon(int ClientId, int Emoticon, int TargetClientId) const;
+	void SendWeaponPickup(int ClientId, int Weapon) const;
+	void SendMotd(int ClientId) const;
+	void SendSettings(int ClientId) const;
+	void SendBroadcast(const char *pText, int ClientId, int Importance = 1, bool IsSupermod = false);
 
 	void List(int ClientId, const char *pFilter);
 
@@ -325,14 +325,14 @@ public:
 	void OnKillNetMessage(const CNetMsg_Cl_Kill *pMsg, int ClientId);
 	void OnStartInfoNetMessage(const CNetMsg_Cl_StartInfo *pMsg, int ClientId);
 
-	bool OnClientDataPersist(int ClientID, void *pData) override;
-	void OnClientConnected(int ClientID, void *pData) override;
-	void OnClientEnter(int ClientID, bool Silent = false) override;
-	void OnClientDrop(int ClientID, const char *pReason, bool Silent = false) override;
-	void OnClientPrepareInput(int ClientID, void *pInput) override;
-	void OnClientDirectInput(int ClientID, void *pInput) override;
-	void OnClientPredictedInput(int ClientID, void *pInput) override;
-	void OnClientPredictedEarlyInput(int ClientID, void *pInput) override;
+	bool OnClientDataPersist(int ClientId, void *pData) override;
+	void OnClientConnected(int ClientId, void *pData) override;
+	void OnClientEnter(int ClientId, bool Silent = false) override;
+	void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) override;
+	void OnClientPrepareInput(int ClientId, void *pInput) override;
+	void OnClientDirectInput(int ClientId, void *pInput) override;
+	void OnClientPredictedInput(int ClientId, void *pInput) override;
+	void OnClientPredictedEarlyInput(int ClientId, void *pInput) override;
 
 	void TeehistorianRecordAntibot(const void *pData, int DataSize) override;
 	void TeehistorianRecordPlayerJoin(int ClientId, bool Sixup) override;

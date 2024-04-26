@@ -73,7 +73,7 @@ void CDummyBase::SetWeapon(int Weapon)
 	m_pCharacter->SetWeapon(Weapon);
 	m_WantedWeapon = -1;
 }
-void CDummyBase::Die() { m_pCharacter->Die(m_pCharacter->GetPlayer()->GetCID(), WEAPON_SELF); }
+void CDummyBase::Die() { m_pCharacter->Die(m_pCharacter->GetPlayer()->GetCid(), WEAPON_SELF); }
 void CDummyBase::Left() { m_pCharacter->Input()->m_Direction = DIRECTION_LEFT; }
 void CDummyBase::Right() { m_pCharacter->Input()->m_Direction = DIRECTION_RIGHT; }
 void CDummyBase::StopMoving() { m_pCharacter->Input()->m_Direction = DIRECTION_NONE; }

@@ -46,21 +46,21 @@ void CMinigame::SavePosition(CPlayer *pPlayer)
 	if(!pPlayer)
 		return;
 
-	if(m_apSavedPositions[pPlayer->GetCID()])
-		delete m_apSavedPositions[pPlayer->GetCID()];
-	m_apSavedPositions[pPlayer->GetCID()] = nullptr;
+	if(m_apSavedPositions[pPlayer->GetCid()])
+		delete m_apSavedPositions[pPlayer->GetCid()];
+	m_apSavedPositions[pPlayer->GetCid()] = nullptr;
 
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
 
 	// save ddnet state
-	m_apSavedPositions[pPlayer->GetCID()] = new CSaveTee();
-	m_apSavedPositions[pPlayer->GetCID()]->Save(pChr);
+	m_apSavedPositions[pPlayer->GetCid()] = new CSaveTee();
+	m_apSavedPositions[pPlayer->GetCid()]->Save(pChr);
 
 	// save ddnet++ state
-	m_apSavedPositionsDDPP[pPlayer->GetCID()] = new CSaveTeeDDPP();
-	m_apSavedPositionsDDPP[pPlayer->GetCID()]->Save(pChr);
+	m_apSavedPositionsDDPP[pPlayer->GetCid()] = new CSaveTeeDDPP();
+	m_apSavedPositionsDDPP[pPlayer->GetCid()]->Save(pChr);
 }
 
 void CMinigame::LoadPosition(CCharacter *pChr)
@@ -70,38 +70,38 @@ void CMinigame::LoadPosition(CCharacter *pChr)
 	CPlayer *pPlayer = pChr->GetPlayer();
 	if(!pPlayer)
 		return;
-	if(!m_apSavedPositions[pPlayer->GetCID()])
+	if(!m_apSavedPositions[pPlayer->GetCid()])
 		return;
-	if(!m_apSavedPositionsDDPP[pPlayer->GetCID()])
+	if(!m_apSavedPositionsDDPP[pPlayer->GetCid()])
 		return;
-	if(!m_aRestorePos[pPlayer->GetCID()])
+	if(!m_aRestorePos[pPlayer->GetCid()])
 		return;
 
-	m_aRestorePos[pPlayer->GetCID()] = false;
+	m_aRestorePos[pPlayer->GetCid()] = false;
 
 	// restore ddnet state
-	m_apSavedPositions[pPlayer->GetCID()]->Load(pChr, 0);
-	delete m_apSavedPositions[pPlayer->GetCID()];
-	m_apSavedPositions[pPlayer->GetCID()] = nullptr;
+	m_apSavedPositions[pPlayer->GetCid()]->Load(pChr, 0);
+	delete m_apSavedPositions[pPlayer->GetCid()];
+	m_apSavedPositions[pPlayer->GetCid()] = nullptr;
 
 	// restore ddnet++ state
-	m_apSavedPositionsDDPP[pPlayer->GetCID()]->Load(pChr);
-	delete m_apSavedPositionsDDPP[pPlayer->GetCID()];
-	m_apSavedPositionsDDPP[pPlayer->GetCID()] = nullptr;
+	m_apSavedPositionsDDPP[pPlayer->GetCid()]->Load(pChr);
+	delete m_apSavedPositionsDDPP[pPlayer->GetCid()];
+	m_apSavedPositionsDDPP[pPlayer->GetCid()] = nullptr;
 }
 
 void CMinigame::SendChatAll(const char *pMessage)
 {
 	for(auto &Player : GameServer()->m_apPlayers)
 		if(Player)
-			if(IsActive(Player->GetCID()))
-				GameServer()->SendChatTarget(Player->GetCID(), pMessage);
+			if(IsActive(Player->GetCid()))
+				GameServer()->SendChatTarget(Player->GetCid(), pMessage);
 }
 
 void CMinigame::SendBroadcastAll(const char *pMessage)
 {
 	for(auto &Player : GameServer()->m_apPlayers)
 		if(Player)
-			if(IsActive(Player->GetCID()))
-				GameServer()->SendBroadcast(pMessage, Player->GetCID());
+			if(IsActive(Player->GetCid()))
+				GameServer()->SendBroadcast(pMessage, Player->GetCid());
 }

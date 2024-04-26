@@ -468,7 +468,7 @@ void CServer::Kick(int ClientId, const char *pReason)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "you can't kick yourself");
 		return;
 	}
-	else if(m_aClients[ClientID].m_Authed > m_RconAuthLevel || m_aClients[ClientID].m_State == CClient::STATE_BOT)
+	else if(m_aClients[ClientId].m_Authed > m_RconAuthLevel || m_aClients[ClientId].m_State == CClient::STATE_BOT)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "kick command denied");
 		return;
@@ -565,9 +565,9 @@ void CServer::SetRconCid(int ClientId)
 
 int CServer::GetAuthedState(int ClientId) const
 {
-	if(m_aClients[ClientID].m_Authed == AUTHED_HONEY)
+	if(m_aClients[ClientId].m_Authed == AUTHED_HONEY)
 		return AUTHED_NO;
-	return m_aClients[ClientID].m_Authed;
+	return m_aClients[ClientId].m_Authed;
 }
 
 const char *CServer::GetAuthName(int ClientId) const
@@ -603,13 +603,13 @@ bool CServer::GetClientInfo(int ClientId, CClientInfo *pInfo) const
 		}
 		return true;
 	}
-	else if(m_aClients[ClientID].m_State == CClient::STATE_BOT)
+	else if(m_aClients[ClientId].m_State == CClient::STATE_BOT)
 	{
-		pInfo->m_pName = m_aClients[ClientID].m_aName;
+		pInfo->m_pName = m_aClients[ClientId].m_aName;
 		pInfo->m_Latency = 999;
 		pInfo->m_GotDDNetVersion = false;
 		pInfo->m_DDNetVersion = VERSION_VANILLA;
-		pInfo->m_pConnectionID = 0;
+		pInfo->m_pConnectionId = 0;
 		pInfo->m_pDDNetVersionStr = 0;
 		return true;
 	}
@@ -637,8 +637,8 @@ const char *CServer::ClientName(int ClientId) const
 {
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS || m_aClients[ClientId].m_State == CServer::CClient::STATE_EMPTY)
 		return "(invalid)";
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
-		return m_aClients[ClientID].m_aName;
+	if(m_aClients[ClientId].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientId].m_State == CClient::STATE_BOT)
+		return m_aClients[ClientId].m_aName;
 	else
 		return "(connecting)";
 }
@@ -647,8 +647,8 @@ const char *CServer::ClientClan(int ClientId) const
 {
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS || m_aClients[ClientId].m_State == CServer::CClient::STATE_EMPTY)
 		return "";
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
-		return m_aClients[ClientID].m_aClan;
+	if(m_aClients[ClientId].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientId].m_State == CClient::STATE_BOT)
+		return m_aClients[ClientId].m_aClan;
 	else
 		return "";
 }
@@ -657,8 +657,8 @@ int CServer::ClientCountry(int ClientId) const
 {
 	if(ClientId < 0 || ClientId >= MAX_CLIENTS || m_aClients[ClientId].m_State == CServer::CClient::STATE_EMPTY)
 		return -1;
-	if(m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT)
-		return m_aClients[ClientID].m_Country;
+	if(m_aClients[ClientId].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientId].m_State == CClient::STATE_BOT)
+		return m_aClients[ClientId].m_Country;
 	else
 		return -1;
 }
@@ -670,7 +670,7 @@ bool CServer::ClientSlotEmpty(int ClientId) const
 
 bool CServer::ClientIngame(int ClientId) const
 {
-	return ClientID >= 0 && ClientID < MAX_CLIENTS && (m_aClients[ClientID].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientID].m_State == CClient::STATE_BOT);
+	return ClientId >= 0 && ClientId < MAX_CLIENTS && (m_aClients[ClientId].m_State == CServer::CClient::STATE_INGAME || m_aClients[ClientId].m_State == CClient::STATE_BOT);
 }
 
 bool CServer::ClientAuthed(int ClientId) const
@@ -1171,23 +1171,23 @@ int CServer::DelClientCallback(int ClientId, const char *pReason, void *pUser)
 	if(pThis->m_aClients[ClientId].m_State >= CClient::STATE_READY)
 		pThis->GameServer()->OnClientDrop(ClientId, pReason);
 
-	pThis->m_aClients[ClientID].m_State = CClient::STATE_EMPTY;
-	pThis->m_aClients[ClientID].m_aName[0] = 0;
-	pThis->m_aClients[ClientID].m_aClan[0] = 0;
-	pThis->m_aClients[ClientID].m_Country = -1;
-	pThis->m_aClients[ClientID].m_IsDummy = false;
-	pThis->m_aClients[ClientID].m_Authed = AUTHED_NO;
-	pThis->m_aClients[ClientID].m_AuthKey = -1;
-	pThis->m_aClients[ClientID].m_AuthTries = 0;
-	pThis->m_aClients[ClientID].m_pRconCmdToSend = nullptr;
-	pThis->m_aClients[ClientID].m_Traffic = 0;
-	pThis->m_aClients[ClientID].m_TrafficSince = 0;
-	pThis->m_aClients[ClientID].m_ShowIps = false;
-	pThis->m_aClients[ClientID].m_DebugDummy = false;
-	pThis->m_aPrevStates[ClientID] = CClient::STATE_EMPTY;
-	pThis->m_aClients[ClientID].m_Snapshots.PurgeAll();
-	pThis->m_aClients[ClientID].m_Sixup = false;
-	pThis->m_aClients[ClientID].m_RedirectDropTime = 0;
+	pThis->m_aClients[ClientId].m_State = CClient::STATE_EMPTY;
+	pThis->m_aClients[ClientId].m_aName[0] = 0;
+	pThis->m_aClients[ClientId].m_aClan[0] = 0;
+	pThis->m_aClients[ClientId].m_Country = -1;
+	pThis->m_aClients[ClientId].m_IsDummy = false;
+	pThis->m_aClients[ClientId].m_Authed = AUTHED_NO;
+	pThis->m_aClients[ClientId].m_AuthKey = -1;
+	pThis->m_aClients[ClientId].m_AuthTries = 0;
+	pThis->m_aClients[ClientId].m_pRconCmdToSend = nullptr;
+	pThis->m_aClients[ClientId].m_Traffic = 0;
+	pThis->m_aClients[ClientId].m_TrafficSince = 0;
+	pThis->m_aClients[ClientId].m_ShowIps = false;
+	pThis->m_aClients[ClientId].m_DebugDummy = false;
+	pThis->m_aPrevStates[ClientId] = CClient::STATE_EMPTY;
+	pThis->m_aClients[ClientId].m_Snapshots.PurgeAll();
+	pThis->m_aClients[ClientId].m_Sixup = false;
+	pThis->m_aClients[ClientId].m_RedirectDropTime = 0;
 
 	pThis->GameServer()->TeehistorianRecordPlayerDrop(ClientId, pReason);
 	pThis->Antibot()->OnEngineClientDrop(ClientId, pReason);
@@ -1591,26 +1591,26 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					pPersistentData = m_aClients[ClientId].m_pPersistentData;
 					m_aClients[ClientId].m_HasPersistentData = false;
 				}
-				m_aClients[ClientID].m_State = CClient::STATE_READY;
-				m_aClients[ClientID].m_IsDummy = false;
-				m_aClients[ClientID].m_IsClientDummy = false;
-				char aIP[32];
-				char aCheckIP[32];
-				net_addr_str(m_NetServer.ClientAddr(ClientID), aCheckIP, sizeof(aCheckIP), false);
+				m_aClients[ClientId].m_State = CClient::STATE_READY;
+				m_aClients[ClientId].m_IsDummy = false;
+				m_aClients[ClientId].m_IsClientDummy = false;
+				char aIp[32];
+				char aCheckIp[32];
+				net_addr_str(m_NetServer.ClientAddr(ClientId), aCheckIp, sizeof(aCheckIp), false);
 				for(int i = 0; i < MAX_CLIENTS; i++)
 				{
-					if(i != ClientID && (m_aClients[i].m_State == CClient::STATE_READY || m_aClients[i].m_State == CClient::STATE_INGAME)) //dont comepare with own ip AND only check ingame clients no data leichen
+					if(i != ClientId && (m_aClients[i].m_State == CClient::STATE_READY || m_aClients[i].m_State == CClient::STATE_INGAME)) //dont comepare with own ip AND only check ingame clients no data leichen
 					{
-						net_addr_str(m_NetServer.ClientAddr(i), aIP, sizeof(aIP), false);
-						if(!str_comp(aIP, aCheckIP))
+						net_addr_str(m_NetServer.ClientAddr(i), aIp, sizeof(aIp), false);
+						if(!str_comp(aIp, aCheckIp))
 						{
-							m_aClients[ClientID].m_IsClientDummy = true;
-							//dbg_msg("cBug", "'%s' ID=%d NAME='%s' == '%s' ID=%d NAME='%s' clientdummy", aIP, i, ClientName(i),aCheckIP, ClientID, ClientName(ClientID));
+							m_aClients[ClientId].m_IsClientDummy = true;
+							//dbg_msg("cBug", "'%s' Id=%d NAME='%s' == '%s' Id=%d NAME='%s' clientdummy", aIp, i, ClientName(i),aCheckIp, ClientId, ClientName(ClientId));
 							break;
 						}
 					}
 				}
-				GameServer()->OnClientConnected(ClientID, pPersistentData);
+				GameServer()->OnClientConnected(ClientId, pPersistentData);
 			}
 
 			SendConnectionReady(ClientId);
@@ -1826,8 +1826,8 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					}
 					case AUTHED_HONEY:
 					{
-						SendRconLine(ClientID, "Admin authentication successful. Full remote console access granted.");
-						str_format(aBuf, sizeof(aBuf), "ClientID=%d authed (honeypot admin)", ClientID);
+						SendRconLine(ClientId, "Admin authentication successful. Full remote console access granted.");
+						str_format(aBuf, sizeof(aBuf), "ClientId=%d authed (honeypot admin)", ClientId);
 						break;
 					}
 					}

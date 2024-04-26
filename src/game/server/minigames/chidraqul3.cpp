@@ -76,7 +76,7 @@ void CGameContext::C3_RenderFrame()
 
 			//dbg_msg("debug", "printing: %s", aBuf);
 
-			SendBroadcast(aBuf, Player->GetCID(), 0);
+			SendBroadcast(aBuf, Player->GetCid(), 0);
 		}
 	}
 }

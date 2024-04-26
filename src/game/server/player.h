@@ -46,7 +46,7 @@ class CPlayer
 #include "player_ddpp.h"
 
 public:
-	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team, bool IsDummy = false);
+	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientId, int ClientId, int Team, bool IsDummy = false);
 	~CPlayer();
 
 	void Reset();

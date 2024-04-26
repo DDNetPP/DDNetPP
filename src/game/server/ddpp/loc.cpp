@@ -15,10 +15,10 @@ CGameContext *CLoc::GameServer()
 	return m_pGameContext;
 }
 
-const char *CLoc::DDPPLocalize(const char *pStr, int ClientID)
+const char *CLoc::DDPPLocalize(const char *pStr, int ClientId)
 {
-	// dbg_msg("lang", "id=%d str=%s", ClientID, pStr);
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	// dbg_msg("lang", "id=%d str=%s", ClientId, pStr);
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
 		return pStr;
 	if(pPlayer->Language() == LANG_EN)

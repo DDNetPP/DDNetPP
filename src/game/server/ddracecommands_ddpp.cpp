@@ -13,29 +13,29 @@
 
 #include <game/server/ddpp/shop.h>
 
-bool CheckClientID(int ClientID);
+bool CheckClientId(int ClientId);
 
 void CGameContext::ConfreezeShotgun(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_freezeShotgun ^= true;
 		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_freezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "freezeShotgun has been %s for %s", pChr->m_freezeShotgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "freezeShotgun was %s by %s", pChr->m_freezeShotgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "freezeShotgun was %s by %s", pChr->m_freezeShotgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
@@ -62,7 +62,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // void CGameContext::ConFreeze(IConsole::IResult *pResult, void *pUserData)
 // {
 // 	CGameContext *pSelf = (CGameContext *)pUserData;
-// 	if(!CheckClientID(pResult->m_ClientID))
+// 	if(!CheckClientId(pResult->m_ClientId))
 // 		return;
 
 // 	int Seconds = -1;
@@ -83,14 +83,14 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // 		pChr->GetPlayer()->m_RconFreeze = Seconds != -2;
 // 		CServer *pServ = (CServer *)pSelf->Server();
 // 		if(Seconds >= 0)
-// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientId=%d has been frozen for %d.", pServ->ClientName(Victim), Victim, Seconds);
 // 		else if(Seconds == -2)
 // 		{
 // 			pChr->Core()->m_DeepFrozen = true;
-// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientId=%d has been Deep Frozen.", pServ->ClientName(Victim), Victim);
 // 		}
 // 		else
-// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d is frozen until you unfreeze him.", pServ->ClientName(Victim), Victim);
+// 			str_format(aBuf, sizeof(aBuf), "'%s' ClientId=%d is frozen until you unfreeze him.", pServ->ClientName(Victim), Victim);
 // 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 // 	}
 // }
@@ -98,7 +98,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // void CGameContext::ConUnFreeze(IConsole::IResult *pResult, void *pUserData)
 // {
 // 	CGameContext *pSelf = (CGameContext *)pUserData;
-// 	if(!CheckClientID(pResult->m_ClientID))
+// 	if(!CheckClientId(pResult->m_ClientId))
 // 		return;
 
 // 	int Victim = pResult->GetVictim();
@@ -121,7 +121,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 // 	pChr->m_FreezeTime = 2;
 // 	pChr->GetPlayer()->m_RconFreeze = false;
 // 	CServer *pServ = (CServer *)pSelf->Server();
-// 	str_format(aBuf, sizeof(aBuf), "'%s' ClientID=%d has been defrosted.", pServ->ClientName(Victim), Victim);
+// 	str_format(aBuf, sizeof(aBuf), "'%s' ClientId=%d has been defrosted.", pServ->ClientName(Victim), Victim);
 // 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 // }
 
@@ -129,29 +129,29 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		//allles müll lolololol
 		//pChr->m_Health = 10;
-		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
-		//GameServer()->CreateDeath(Position, ClientID);
+		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
+		//GameServer()->CreateDeath(Position, ClientId);
 		pChr->IncreaseHealth(10);
 		pChr->m_isHeal = true; //hier wird der heil effekt getriggat yuuu!
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "%s has been given full health.", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "%s has been given full health.", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Your health is now at 10HP! Say thanks to %s", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Your health is now at 10HP! Say thanks to %s", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "%s was healed by %s", pSelf->Server()->ClientName(ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "%s was healed by %s", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 	}
 }
@@ -159,20 +159,20 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 	int Mode = pResult->GetInteger(1);
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		if(Mode == DUMMYMODE_SHOPBOT && pSelf->GetShopBot() != -1) // there can only be one shop bot
 		{
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "There is already a shop bot: '%s'", pSelf->Server()->ClientName(pSelf->GetShopBot()));
-			pSelf->SendChatTarget(pResult->m_ClientID, aBuf);
+			pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 			return;
 		}
 		else
@@ -183,12 +183,12 @@ void CGameContext::Condummymode(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && pPlayer->m_IsDummy)
 	{
 		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
@@ -200,12 +200,12 @@ void CGameContext::ConDummyColor(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && pPlayer->m_IsDummy)
 		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
 }
@@ -213,12 +213,12 @@ void CGameContext::ConDummySkin(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetInteger(0) && !pPlayer->m_IsDummy)
 	{
 		pPlayer->m_TeeInfos.m_UseCustomColor = 1;
@@ -230,12 +230,12 @@ void CGameContext::ConForceColor(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer && pResult->GetString(0)[0] && !pPlayer->m_IsDummy)
 		str_copy(pPlayer->m_TeeInfos.m_aSkinName, pResult->GetString(0), sizeof(pPlayer->m_TeeInfos.m_aSkinName));
 }
@@ -243,68 +243,68 @@ void CGameContext::ConForceSkin(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::Condisarm(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
-		pSelf->m_apPlayers[ClientID]->m_disarm ^= true;
+		pSelf->m_apPlayers[ClientId]->m_disarm ^= true;
 
 		//  kommentiert wegen disarm buggs xD
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "%s has %s hammer for the next respawn", pPlayer->m_disarm ? "added" : "removed", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Hammer has been %s for your next respawn by %s", pPlayer->m_disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Hammer has been %s for your next respawn by %s", pPlayer->m_disarm ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::Conninjasteam(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_ninjasteam ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "ninjasteam has been %s for %s", pPlayer->m_ninjasteam ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "ninjasteam has been %s for %s", pPlayer->m_ninjasteam ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "ninjasteam was %s by %s", pPlayer->m_ninjasteam ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "ninjasteam was %s by %s", pPlayer->m_ninjasteam ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConGodmode(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_Godmode ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Godmode has been %s for %s", pChr->m_Godmode ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Godmode has been %s for %s", pChr->m_Godmode ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Godmode was %s by %s", pChr->m_Godmode ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Godmode was %s by %s", pChr->m_Godmode ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
@@ -313,274 +313,274 @@ void CGameContext::ConGodmode(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConOldRainbow(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_Rainbow ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Rainbow has been %s for %s", pChr->m_Rainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Rainbow has been %s for %s", pChr->m_Rainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Rainbow was %s by %s", pChr->m_Rainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Rainbow was %s by %s", pChr->m_Rainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConInfRainbow(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		//pPlayer->m_freezeShotgun ^= true;
 		pPlayer->m_InfRainbow ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow has been %s for %s", pPlayer->m_InfRainbow ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Infinite Rainbow was %s by %s", pPlayer->m_InfRainbow ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConOldBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_Bloody ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Bloody has been %s for %s", pChr->m_Bloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Bloody has been %s for %s", pChr->m_Bloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Bloody was %s by %s", pChr->m_Bloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Bloody was %s by %s", pChr->m_Bloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConInfBloody(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_InfBloody ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Bloody has been %s for %s", pPlayer->m_InfBloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Infinite Bloody has been %s for %s", pPlayer->m_InfBloody ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite Bloody was %s by %s", pPlayer->m_InfBloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Infinite Bloody was %s by %s", pPlayer->m_InfBloody ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConOldAtom(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_Atom ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Atom has been %s for %s", pChr->m_Atom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Atom has been %s for %s", pChr->m_Atom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Atom was %s by %s", pChr->m_Atom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Atom was %s by %s", pChr->m_Atom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConInfAtom(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_InfAtom ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Atom has been %s for %s", pPlayer->m_InfAtom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Infinite Atom has been %s for %s", pPlayer->m_InfAtom ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite Atom was %s by %s", pPlayer->m_InfAtom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Infinite Atom was %s by %s", pPlayer->m_InfAtom ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConInfAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_InfAutoSpreadGun ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite spread gun has been %s for %s", pPlayer->m_InfAutoSpreadGun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Infinite spread gun has been %s for %s", pPlayer->m_InfAutoSpreadGun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite spread gun was %s by %s", pPlayer->m_InfAutoSpreadGun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Infinite spread gun was %s by %s", pPlayer->m_InfAutoSpreadGun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConOldAutoSpreadGun(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_autospreadgun ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Spread gun has been %s for %s", pChr->m_autospreadgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Spread gun has been %s for %s", pChr->m_autospreadgun ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Spread Gun was %s by %s", pChr->m_autospreadgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Spread Gun was %s by %s", pChr->m_autospreadgun ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConHomingMissile(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_HomingMissile ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Homing Missile has been %s for %s", pChr->m_HomingMissile ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Homing Missile has been %s for %s", pChr->m_HomingMissile ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Homing Missile was %s by %s", pChr->m_HomingMissile ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Homing Missile was %s by %s", pChr->m_HomingMissile ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConOldTrail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_Trail ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Trail has been %s for %s", pChr->m_Trail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Trail has been %s for %s", pChr->m_Trail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Trail was %s by %s", pChr->m_Trail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Trail was %s by %s", pChr->m_Trail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConInfTrail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_InfTrail ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Infinite Trail has been %s for %s", pPlayer->m_InfTrail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Infinite Trail has been %s for %s", pPlayer->m_InfTrail ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Infinite Trail was %s by %s", pPlayer->m_InfTrail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Infinite Trail was %s by %s", pPlayer->m_InfTrail ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConForceJail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->JailPlayer(pResult->GetInteger(0));
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "[JAIL] You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientID), pResult->GetInteger(0));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "[JAIL] You were jailed by the evil admin '%s' for %d seconds.", pSelf->Server()->ClientName(pResult->m_ClientId), pResult->GetInteger(0));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
 void CGameContext::ConForceUnJail(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(pPlayer)
 	{
 		pPlayer->m_Account.m_JailTime = 0;
@@ -595,13 +595,13 @@ void CGameContext::ConForceUnJail(IConsole::IResult *pResult, void *pUserData)
 			}
 			else //no jailrelease
 			{
-				pSelf->SendChatTarget(pPlayer->GetCID(), "gibts nich");
+				pSelf->SendChatTarget(pPlayer->GetCid(), "gibts nich");
 			}
 		}
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "You were released by the kind admin '%s'.", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "You were released by the kind admin '%s'.", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
@@ -609,22 +609,22 @@ void CGameContext::ConDamage(IConsole::IResult *pResult, void *pUserData)
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		pChr->m_isDmg ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s.", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "Damage has been %s for %s.", pChr->m_isDmg ? "enabled" : "disabled", pSelf->Server()->ClientName(ClientId));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s.", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "Damage was %s by %s.", pChr->m_isDmg ? "given to you" : "removed", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 	}
 }
 
@@ -632,31 +632,31 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 {
 	// pSelf = GameContext()
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
-	CCharacter *pChr = pSelf->GetPlayerChar(ClientID);
+	CCharacter *pChr = pSelf->GetPlayerChar(ClientId);
 	if(pChr)
 	{
 		//allles müll lolololol
 		//pChr->m_Health = 10;
-		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
-		//GameServer()->CreateDeath(Position, ClientID);
+		//GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
+		//GameServer()->CreateDeath(Position, ClientId);
 		pChr->IncreaseHealth(10);
 		pChr->m_isHeal = true; //hier wird der heil effekt getriggat yuuu!
 		pChr->m_isDmg ^= true;
 		pChr->m_hammerfight ^= true;
 
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "For %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientID), pChr->m_hammerfight ? "ON" : "OFF");
+		str_format(aBuf, sizeof(aBuf), "For %s hammerfight mode has been changed to: %s", pSelf->Server()->ClientName(ClientId), pChr->m_hammerfight ? "ON" : "OFF");
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "info", aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "You were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientID));
-		pSelf->SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "You were %s hammerfight-mode and your health was set to 10hp by %s", pChr->m_hammerfight ? "moved to" : "removed from", pSelf->Server()->ClientName(pResult->m_ClientId));
+		pSelf->SendChatTarget(ClientId, aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "hammerfight-mode has been turned %s for %s by %s", pChr->m_hammerfight ? "ON" : "OFF", pSelf->Server()->ClientName(ClientID), pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "hammerfight-mode has been turned %s for %s by %s", pChr->m_hammerfight ? "ON" : "OFF", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 	}
 }
@@ -671,7 +671,7 @@ void CGameContext::ConRegisterBan(IConsole::IResult *pResult, void *pUserData)
 }
 
 // RegisterBan through client id
-void CGameContext::ConRegisterBanID(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConRegisterBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
@@ -684,7 +684,7 @@ void CGameContext::ConRegisterBanID(IConsole::IResult *pResult, void *pUserData)
 }
 
 // RegisterBan through ip, arguments reversed to workaround parsing
-void CGameContext::ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConRegisterBanIp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	NETADDR Addr;
@@ -748,7 +748,7 @@ void CGameContext::ConLoginBan(IConsole::IResult *pResult, void *pUserData)
 }
 
 // LoginBan through client id
-void CGameContext::ConLoginBanID(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConLoginBanId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
@@ -761,7 +761,7 @@ void CGameContext::ConLoginBanID(IConsole::IResult *pResult, void *pUserData)
 }
 
 // LoginBan through ip, arguments reversed to workaround parsing
-void CGameContext::ConLoginBanIP(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConLoginBanIp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	NETADDR Addr;
@@ -825,7 +825,7 @@ void CGameContext::ConNameChangeMute(IConsole::IResult *pResult, void *pUserData
 }
 
 // NameChangeMute through client id
-void CGameContext::ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	int Victim = pResult->GetVictim();
@@ -838,7 +838,7 @@ void CGameContext::ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserDa
 }
 
 // NameChangeMute through ip, arguments reversed to workaround parsing
-void CGameContext::ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConNameChangeMuteIp(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	NETADDR Addr;
@@ -911,7 +911,7 @@ void CGameContext::ConDummies(IConsole::IResult *pResult, void *pUserData)
 			"%d (%s): %s",
 			Player->DummyMode(),
 			Player->DummyModeStr(),
-			pSelf->Server()->ClientName(Player->GetCID()));
+			pSelf->Server()->ClientName(Player->GetCid()));
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "dummies", aBuf);
 	}
 	if(!Found)
@@ -936,10 +936,10 @@ void CGameContext::ConDestroyLaser(IConsole::IResult *pResult, void *pUserData)
 	pChr->m_DestroyLaser = true;
 }
 
-void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConSql_ADD(IConsole::IResult *pResult, void *pUserData)
 {
 	//CGameContext *pSelf = (CGameContext *)pUserData;
-	//if (!CheckClientID(pResult->m_ClientID))
+	//if (!CheckClientId(pResult->m_ClientId))
 	//	return;
 
 	//char aBuf[128];
@@ -948,7 +948,7 @@ void CGameContext::ConSQL_ADD(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	char aBuf[512];
@@ -970,7 +970,7 @@ void CGameContext::ConActivateShopItem(IConsole::IResult *pResult, void *pUserDa
 void CGameContext::ConDeactivateShopItem(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	char aBuf[512];
@@ -1036,66 +1036,66 @@ void CGameContext::ConDDPPLogs(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConRconApiSayID(IConsole::IResult *pResult, void *pUserData)
+void CGameContext::ConRconApiSayId(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(CheckClientID(pResult->m_ClientID))
+	if(CheckClientId(pResult->m_ClientId))
 	{
 		dbg_msg("RCON_API", "some ingame admin tried to abuse the api");
 		return;
 	}
 	dbg_msg("RCON_API", "some non client executed an api command");
 
-	int ClientID = pResult->GetVictim();
+	int ClientId = pResult->GetVictim();
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
-	pSelf->SendChatTarget(ClientID, aBuf);
+	pSelf->SendChatTarget(ClientId, aBuf);
 }
 
 void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(CheckClientID(pResult->m_ClientID))
+	if(CheckClientId(pResult->m_ClientId))
 	{
-		dbg_msg("RCON_API", "some ingame admin tried to abuse the api ClientID=%d", pResult->m_ClientID);
+		dbg_msg("RCON_API", "some ingame admin tried to abuse the api ClientId=%d", pResult->m_ClientId);
 		return;
 	}
 	dbg_msg("RCON_API", "some non client executed an api command");
 
 	char aBuf[256];
-	char aSQL[256];
+	char aSql[256];
 	int Type = pResult->GetInteger(0);
 
 	if(Type == 0)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type INTEGER", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s INTEGER DEFAULT 0", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s INTEGER DEFAULT 0", pResult->GetString(1));
 	}
 	else if(Type == 1)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(4)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(4) DEFAULT ''", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s VARCHAR(4) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 2)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(16)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(16) DEFAULT ''", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s VARCHAR(16) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 3)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(32)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(32) DEFAULT ''", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s VARCHAR(32) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 4)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(64)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(64) DEFAULT ''", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s VARCHAR(64) DEFAULT ''", pResult->GetString(1));
 	}
 	else if(Type == 5)
 	{
 		str_format(aBuf, sizeof(aBuf), "added column '%s' of type VARCHAR(128)", pResult->GetString(1));
-		str_format(aSQL, sizeof(aSQL), "ALTER TABLE Accounts ADD %s VARCHAR(128) DEFAULT ''", pResult->GetString(1));
+		str_format(aSql, sizeof(aSql), "ALTER TABLE Accounts ADD %s VARCHAR(128) DEFAULT ''", pResult->GetString(1));
 	}
 	else
 	{
@@ -1118,7 +1118,7 @@ void CGameContext::ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserD
 
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "RCON_API", aBuf);
 #if defined(CONF_DEBUG)
-	dbg_msg("SQL", "RCON_API: %s", aSQL);
+	dbg_msg("SQL", "RCON_API: %s", aSql);
 #endif
-	pSelf->m_pAccounts->ExecuteSQL(aSQL);
+	pSelf->m_pAccounts->ExecuteSql(aSql);
 }

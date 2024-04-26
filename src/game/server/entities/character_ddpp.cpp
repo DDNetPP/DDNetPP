@@ -36,7 +36,7 @@ void CCharacter::ConstructDDPP()
 	m_DDPP_Finished = false;
 	//if (g_Config.m_SvInstagibMode)
 	//{
-	//	Teams()->OnCharacterStart(m_pPlayer->GetCID());
+	//	Teams()->OnCharacterStart(m_pPlayer->GetCid());
 	//}
 	m_OnMoneytile = MONEYTILE_NONE;
 }
@@ -70,7 +70,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 	m_AliveSince = time_get();
 	if(g_Config.m_SvInstagibMode)
 	{
-		Teams()->OnCharacterStart(m_pPlayer->GetCID());
+		Teams()->OnCharacterStart(m_pPlayer->GetCid());
 		m_LastTimeCp = -2;
 	}
 
@@ -96,7 +96,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 	{
 		if (!m_pPlayer->m_IsSurvivaling) //don't mess things up on game start
 		{
-			GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), 1);
+			GameServer()->SetPlayerSurvival(m_pPlayer->GetCid(), 1);
 		}
 	}
 	*/
@@ -120,7 +120,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else // no shop tile
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No shop spawn set.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "No shop spawn set.");
 			}
 		}
 	}
@@ -135,7 +135,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		else //no jailplayer
 		{
 			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), "No jail set.");
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), "No jail set.");
 		}
 	}
 	else if(m_pPlayer->m_IsBlockWaving && !m_pPlayer->m_IsBlockWaveWaiting)
@@ -150,7 +150,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else //no BlockWaveSpawnTile
 			{
-				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				//GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BlockWave] No arena set.");
 				GameServer()->m_BlockWaveGameState = 0;
 			}
 		}
@@ -164,7 +164,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else //no BlockWaveSpawnTile
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BlockWave] No arena set.");
 				GameServer()->m_BlockWaveGameState = 0;
 			}
 		}
@@ -188,7 +188,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		else //no botspawn tile
 		{
 			dbg_msg("WARNING", "player [%d][%s] failed to botspwan tile=%d",
-				m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_DummySpawnTile);
+				m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()), m_pPlayer->m_DummySpawnTile);
 			m_pPlayer->m_DummySpawnTile = 0;
 		}
 	}
@@ -203,7 +203,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 1 found.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BLOCK] no deathmatch arena 1 found.");
 				m_pPlayer->m_IsBlockDeathmatch = false;
 				m_Core.m_Pos = m_Pos;
 			}
@@ -217,7 +217,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BLOCK] no deathmatch arena 2 found.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BLOCK] no deathmatch arena 2 found.");
 				m_pPlayer->m_IsBlockDeathmatch = false;
 				m_Core.m_Pos = m_Pos;
 			}
@@ -239,7 +239,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else //no balance battle spawn tile
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[balance] no battle arena found.");
 				m_pPlayer->m_IsBalanceBatteling = false;
 				m_Core.m_Pos = m_Pos;
 			}
@@ -254,7 +254,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			}
 			else //no balance battle spawn tile
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[balance] no battle arena found.");
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[balance] no battle arena found.");
 				m_pPlayer->m_IsBalanceBatteling = false;
 				m_Core.m_Pos = m_Pos;
 			}
@@ -271,7 +271,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 		if(m_pPlayer->m_NoboSpawnStop > Server()->Tick())
 		{
 			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Time until real spawn is unlocked: %" PRId64 " sec", (m_pPlayer->m_NoboSpawnStop - Server()->Tick()) / Server()->TickSpeed());
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 			m_Core.m_Pos.x = g_Config.m_SvNoboSpawnX * 32;
 			m_Core.m_Pos.y = g_Config.m_SvNoboSpawnY * 32;
 		}
@@ -280,7 +280,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 			m_Core.m_Pos = m_Pos;
 			m_pPlayer->m_IsNoboSpawn = false;
 			str_format(aBuf, sizeof(aBuf), "[NoboSpawn] Welcome to the real spawn!");
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		}
 	}
 	else
@@ -306,7 +306,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 
 	if(GetPlayer()->m_IsSurvivaling && !GetPlayer()->m_IsSurvivalAlive)
 	{
-		GameServer()->LoadCosmetics(GetPlayer()->GetCID());
+		GameServer()->LoadCosmetics(GetPlayer()->GetCid());
 	}
 
 	m_LastHitWeapon = -1;
@@ -315,7 +315,7 @@ void CCharacter::PostSpawnDDPP(vec2 Pos)
 	m_pPlayer->m_SpawnGrenadeActive = 0;
 	m_pPlayer->m_SpawnRifleActive = 0;
 
-	if(g_Config.m_SvAllowSpawnWeapons && !GameServer()->IsMinigame(m_pPlayer->GetCID()))
+	if(g_Config.m_SvAllowSpawnWeapons && !GameServer()->IsMinigame(m_pPlayer->GetCid()))
 	{
 		SetSpawnWeapons();
 	}
@@ -341,8 +341,8 @@ void CCharacter::ClearFakeMotd()
 {
 	if(m_pPlayer->m_IsFakeMotd)
 	{
-		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCID());
-		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "clear fake motd");
+		GameServer()->AbuseMotd(g_Config.m_SvMotd, m_pPlayer->GetCid());
+		//GameServer()->SendChatTarget(m_pPlayer->GetCid(), "clear fake motd");
 		m_pPlayer->m_CanClearFakeMotd = true;
 		m_pPlayer->m_IsFakeMotd = false;
 	}
@@ -371,7 +371,7 @@ bool CCharacter::HandleConfigTile(int Type)
 		m_Core.m_DeepFrozen = false;
 	else if(Type == CFG_TILE_DEATH)
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD); // TODO: probably should be in places where TILE_DEATH is and not here
+		Die(m_pPlayer->GetCid(), WEAPON_WORLD); // TODO: probably should be in places where TILE_DEATH is and not here
 		return true;
 	}
 	else if(Type == CFG_TILE_GIVE_BLOODY)
@@ -393,12 +393,12 @@ void CCharacter::SnapCharacterDDPP()
 	{
 		if(m_WaveBloodyStrength < 1 || Server()->Tick() % m_WaveBloodyStrength == 0)
 		{
-			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid());
 			if(m_WaveBloodyStrength < -5)
 			{
 				for(int i = 0; i < 3; i++) //strong bloody
 				{
-					GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+					GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
 				}
 			}
 		}
@@ -425,11 +425,11 @@ void CCharacter::SnapCharacterDDPP()
 		}
 	}
 
-	if(m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCID(), 2) || m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
+	if(m_Bloody || GameServer()->IsHooked(m_pPlayer->GetCid(), 2) || m_pPlayer->m_InfBloody) //wenn bloody aktiviert ist
 	{
 		if(Server()->Tick() % 3 == 0) //low bloody
 		{
-			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
 		}
 	}
 
@@ -437,7 +437,7 @@ void CCharacter::SnapCharacterDDPP()
 	{
 		for(int i = 0; i < 3; i++) //strong bloody
 		{
-			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der effekt erstellt.
+			GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der effekt erstellt.
 		}
 	}
 
@@ -451,7 +451,7 @@ void CCharacter::SnapCharacterDDPP()
 
 	if(m_isHeal)
 	{
-		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID()); //hier wird der tee zerplatzt xD effekt erstellt.
+		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCid()); //hier wird der tee zerplatzt xD effekt erstellt.
 		m_isHeal = false;
 	}
 }
@@ -464,12 +464,12 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 	}
 	else
 	{
-		if(From == m_pPlayer->GetCID())
+		if(From == m_pPlayer->GetCid())
 		{
 			m_pPlayer->m_Account.m_GrenadeShotsNoRJ--; //warning also reduce NoRJ shots on close kills
 		}
 
-		if(From != m_pPlayer->GetCID() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
+		if(From != m_pPlayer->GetCid() && Dmg >= g_Config.m_SvNeededDamage2NadeKill)
 		{
 			if(m_pPlayer->m_IsInstaMode_fng || GameServer()->m_apPlayers[From]->m_IsInstaMode_fng)
 			{
@@ -524,21 +524,21 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//killingspree system by toast stolen from twf (shit af xd(has crashbug too if a killingspreeeer gets killed))
 			//GameServer()->m_apPlayers[From]->m_KillStreak++;
 			//char aBuf[256];
-			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_pPlayer->m_KillStreak);
+			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCid()), m_pPlayer->m_KillStreak);
 			//if (m_pPlayer->m_KillStreak >= 5)
 			//{
 			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			//}
 			//m_pPlayer->m_KillStreak = 0;
 			//char m_SpreeMsg[10][100] = { "on a killing spree", "on a rampage", "dominating", "unstoppable", "godlike", "prolike", "cheating", "the master","the best","imba" };
 			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
-			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCID()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
+			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCid()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
 			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
 			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 			// set attacker's face to happy (taunt!)
-			if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			if(From >= 0 && From != m_pPlayer->GetCid() && GameServer()->m_apPlayers[From])
 			{
 				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
 				if(pChr)
@@ -549,12 +549,12 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			}
 
 			// do damage Hit sound
-			if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			if(From >= 0 && From != m_pPlayer->GetCid() && GameServer()->m_apPlayers[From])
 			{
 				// int64_t Mask = CmaskOne(From);
 				// for(int i = 0; i < MAX_CLIENTS; i++)
 				// {
-				// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+				// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorId == From)
 				// 		Mask |= CmaskOne(i);
 				// }
 				// TODO: this was done to fix build after merge and is untested
@@ -564,13 +564,13 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//if zCatch mode --> move to spec
 			if(g_Config.m_SvInstagibMode == 2 || g_Config.m_SvInstagibMode == 4) //grenade and rifle zCatch
 			{
-				if(From != m_pPlayer->GetCID())
+				if(From != m_pPlayer->GetCid())
 				{
 					m_pPlayer->SetTeam(-1, false);
 				}
 
 				//Save The Player in catch array
-				GameServer()->m_apPlayers[From]->m_aCatchedID[m_pPlayer->GetCID()] = 1;
+				GameServer()->m_apPlayers[From]->m_aCatchedId[m_pPlayer->GetCid()] = 1;
 			}
 		}
 	}
@@ -632,8 +632,8 @@ void CCharacter::SaveRealInfos()
 	{
 		str_copy(m_pPlayer->m_RealSkinName, m_pPlayer->m_TeeInfos.m_aSkinName, sizeof(m_pPlayer->m_RealSkinName));
 		m_pPlayer->m_RealUseCustomColor = m_pPlayer->m_TeeInfos.m_UseCustomColor;
-		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealClan));
-		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCID()), sizeof(m_pPlayer->m_RealName));
+		str_copy(m_pPlayer->m_RealClan, Server()->ClientClan(m_pPlayer->GetCid()), sizeof(m_pPlayer->m_RealClan));
+		str_copy(m_pPlayer->m_RealName, Server()->ClientName(m_pPlayer->GetCid()), sizeof(m_pPlayer->m_RealName));
 	}
 }
 
@@ -659,7 +659,7 @@ void CCharacter::DropLoot()
 {
 #ifdef CONF_DEBUG
 	// https://github.com/DDNetPP/DDNetPP/issues/325
-	// dbg_msg("drop", "DropLoot() ClientID=%d", m_pPlayer->GetCID());
+	// dbg_msg("drop", "DropLoot() ClientId=%d", m_pPlayer->GetCid());
 #endif
 	if(m_pPlayer->m_IsSurvivaling && !m_pPlayer->m_IsSurvivalLobby)
 	{
@@ -671,7 +671,7 @@ void CCharacter::DropLoot()
 		DropWeapon(WEAPON_GRENADE);
 		DropWeapon(WEAPON_LASER);
 	}
-	else if(!GameServer()->IsMinigame(m_pPlayer->GetCID()))
+	else if(!GameServer()->IsMinigame(m_pPlayer->GetCid()))
 	{
 		int SpecialGun = 0;
 		if(m_Core.m_Jetpack || m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
@@ -699,7 +699,7 @@ void CCharacter::DropHealth(int amount)
 			&GameServer()->m_World,
 			POWERUP_HEALTH,
 			300, // lifetime
-			m_pPlayer->GetCID(),
+			m_pPlayer->GetCid(),
 			rand() % 3 - 1, // direction
 			(float)(amount / 5), // force
 			Team());
@@ -724,7 +724,7 @@ void CCharacter::DropArmor(int amount)
 			&GameServer()->m_World,
 			POWERUP_ARMOR,
 			300, // lifetime
-			m_pPlayer->GetCID(),
+			m_pPlayer->GetCid(),
 			rand() % 3 - 1, // direction
 			(float)(amount / 5), // force
 			Team());
@@ -732,17 +732,17 @@ void CCharacter::DropArmor(int amount)
 	}
 }
 
-void CCharacter::DropWeapon(int WeaponID)
+void CCharacter::DropWeapon(int WeaponId)
 {
 	if(!g_Config.m_SvAllowDroppingWeapons)
 		return;
 	if(isFreezed || m_FreezeTime)
 		return;
-	if(!m_Core.m_aWeapons[WeaponID].m_Got)
+	if(!m_Core.m_aWeapons[WeaponId].m_Got)
 		return;
 	if(m_pPlayer->IsInstagibMinigame())
 		return;
-	if(m_pPlayer->m_SpookyGhostActive && WeaponID != WEAPON_GUN)
+	if(m_pPlayer->m_SpookyGhostActive && WeaponId != WEAPON_GUN)
 		return;
 
 	bool HasJetPack = m_Core.m_Jetpack;
@@ -752,20 +752,20 @@ void CCharacter::DropWeapon(int WeaponID)
 	bool DropNotHammerPistol = g_Config.m_SvAllowDroppingWeapons == 3; // normal weapons+spawn weapons
 	bool DropSpawnAllowed = DropAll || DropNotHammerPistol;
 
-	if(WeaponID == WEAPON_NINJA)
+	if(WeaponId == WEAPON_NINJA)
 		return;
-	if(WeaponID == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && !DropAll && !DropNotSpawn)
+	if(WeaponId == WEAPON_HAMMER && !m_pPlayer->m_IsSurvivaling && !DropAll && !DropNotSpawn)
 		return;
-	if(WeaponID == WEAPON_GUN && !HasJetPack && !HasSpreadGun && !m_pPlayer->m_IsSurvivaling && !DropAll && !DropNotSpawn)
+	if(WeaponId == WEAPON_GUN && !HasJetPack && !HasSpreadGun && !m_pPlayer->m_IsSurvivaling && !DropAll && !DropNotSpawn)
 		return;
-	if(WeaponID == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && !DropSpawnAllowed)
+	if(WeaponId == WEAPON_LASER && (m_pPlayer->m_SpawnRifleActive || m_aDecreaseAmmo[WEAPON_LASER]) && !DropSpawnAllowed)
 		return;
-	if(WeaponID == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && !DropSpawnAllowed)
+	if(WeaponId == WEAPON_SHOTGUN && (m_pPlayer->m_SpawnShotgunActive || m_aDecreaseAmmo[WEAPON_SHOTGUN]) && !DropSpawnAllowed)
 		return;
-	if(WeaponID == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && !DropSpawnAllowed)
+	if(WeaponId == WEAPON_GRENADE && (m_pPlayer->m_SpawnGrenadeActive || m_aDecreaseAmmo[WEAPON_GRENADE]) && !DropSpawnAllowed)
 		return;
 
-	std::vector<CWeapon *> &DroppedWeapons = m_pPlayer->m_aWeaponLimit[WeaponID];
+	std::vector<CWeapon *> &DroppedWeapons = m_pPlayer->m_aWeaponLimit[WeaponId];
 	if(DroppedWeapons.size() >= 5)
 	{
 		CWeapon *&pWeapon = DroppedWeapons[0];
@@ -785,20 +785,20 @@ void CCharacter::DropWeapon(int WeaponID)
 		if(HasJetPack)
 		{
 			m_Core.m_Jetpack = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your jetpack gun");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost your jetpack gun");
 		}
 		if(HasSpreadGun)
 		{
 			m_autospreadgun = false;
 			m_pPlayer->m_InfAutoSpreadGun = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost your spread gun");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost your spread gun");
 		}
 
-		m_Core.m_aWeapons[WeaponID].m_Got = false;
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+		m_Core.m_aWeapons[WeaponId].m_Got = false;
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 
-		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponID, 300, m_pPlayer->GetCID(),
-			GetAimDir(), Team(), m_Core.m_aWeapons[WeaponID].m_Ammo, HasJetPack, HasSpreadGun);
+		CWeapon *Weapon = new CWeapon(&GameServer()->m_World, WeaponId, 300, m_pPlayer->GetCid(),
+			GetAimDir(), Team(), m_Core.m_aWeapons[WeaponId].m_Ammo, HasJetPack, HasSpreadGun);
 		DroppedWeapons.push_back(Weapon);
 	}
 
@@ -825,8 +825,8 @@ void CCharacter::PvPArenaTick()
 				m_Core.m_Pos = m_pPlayer->m_PVP_return_pos;
 			}
 
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Successfully teleported out of arena.");
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] You got your ticket back because you have survived.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Successfully teleported out of arena.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] You got your ticket back because you have survived.");
 		}
 		else // join request
 		{
@@ -834,13 +834,13 @@ void CCharacter::PvPArenaTick()
 			m_pPlayer->m_Account.m_PvpArenaGamesPlayed++;
 			m_IsPVParena = true;
 			m_isDmg = true;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleporting to arena... good luck and have fun!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleporting to arena... good luck and have fun!");
 		}
 	}
 
 	if(m_Core.m_Vel.x < -0.02f || m_Core.m_Vel.x > 0.02f || m_Core.m_Vel.y != 0.0f)
 	{
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[PVP] Teleport failed because you have moved.");
+		GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[PVP] Teleport failed because you have moved.");
 		m_pvp_arena_tele_request_time = -1;
 	}
 }
@@ -963,7 +963,7 @@ void CCharacter::DDPPPostCoreTick()
 	}
 	m_OldLastHookedPlayer = m_Core.m_LastHookedPlayer;
 
-	GameServer()->Shop()->MotdTick(GetPlayer()->GetCID());
+	GameServer()->Shop()->MotdTick(GetPlayer()->GetCid());
 }
 
 void CCharacter::DDPP_Tick()
@@ -983,7 +983,7 @@ void CCharacter::DDPP_Tick()
 			continue;
 		int CarryId = -1;
 		if(Flag->m_pCarryingCharacter)
-			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCID();
+			CarryId = Flag->m_pCarryingCharacter->GetPlayer()->GetCid();
 		m_Core.setFlagPos(i, Flag->m_Pos, Flag->m_AtStand, Flag->m_Vel, CarryId);
 	}
 
@@ -1037,7 +1037,7 @@ void CCharacter::DDPP_Tick()
 				BlockWaveFreezeTicks++; //gets set to zer0 in Unfreeze() func
 				if(BlockWaveFreezeTicks > Server()->TickSpeed() * 4)
 				{
-					str_format(aBuf, sizeof(aBuf), "[BlockWave] '%s' died.", Server()->ClientName(m_pPlayer->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "[BlockWave] '%s' died.", Server()->ClientName(m_pPlayer->GetCid()));
 					GameServer()->SendChatBlockWave(aBuf);
 					m_pPlayer->m_IsBlockWaveDead = true; //also gets set to zer0 on Unfreezefunc
 				}
@@ -1055,7 +1055,7 @@ void CCharacter::DDPP_Tick()
 	}
 
 	//Block points (clear touchid on freeze and unfreeze agian)
-	//if (m_pPlayer->m_LastToucherID != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
+	//if (m_pPlayer->m_LastToucherId != -1 && isFreezed) //didn't use m_FreezeTime because we want a freeze tile here not an freezelaser or something (idk about freeze canons)
 	//{
 	//	m_pPlayer->m_BlockWasTouchedAndFreezed = true;
 	//}
@@ -1063,19 +1063,19 @@ void CCharacter::DDPP_Tick()
 	//{
 	//	m_pPlayer->UpdateLastToucher(-1);
 	//}
-	//Better system: Remove LastToucherID after some unfreeze time this has less bugs and works also good in other situations like: your racing with your mate and then you rush away solo and fail and suicide (this situation wont count as kill).
-	if(m_pPlayer->m_LastToucherID != -1 && m_FreezeTime == 0)
+	//Better system: Remove LastToucherId after some unfreeze time this has less bugs and works also good in other situations like: your racing with your mate and then you rush away solo and fail and suicide (this situation wont count as kill).
+	if(m_pPlayer->m_LastToucherId != -1 && m_FreezeTime == 0)
 	{
 		//char aBuf[64];
-		//str_format(aBuf, sizeof(aBuf), "ID: %d is not -1", m_pPlayer->m_LastToucherID); //ghost debug
+		//str_format(aBuf, sizeof(aBuf), "Id: %d is not -1", m_pPlayer->m_LastToucherId); //ghost debug
 		//dbg_msg("block", aBuf);
 
 		m_pPlayer->m_LastTouchTicks++;
 		if(m_pPlayer->m_LastTouchTicks > Server()->TickSpeed() * 3) //3 seconds unfreeze --> wont die block death on freeze suicide
 		{
 			//char aBuf[64];
-			//str_format(aBuf, sizeof(aBuf), "'%s' [ID: %d] touch removed", Server()->ClientName(m_pPlayer->m_LastToucherID), m_pPlayer->m_LastToucherID);
-			//GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			//str_format(aBuf, sizeof(aBuf), "'%s' [Id: %d] touch removed", Server()->ClientName(m_pPlayer->m_LastToucherId), m_pPlayer->m_LastToucherId);
+			//GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 			m_pPlayer->UpdateLastToucher(-1);
 		}
 	}
@@ -1084,7 +1084,7 @@ void CCharacter::DDPP_Tick()
 	// wtf why did i code that? xd
 	// wait until blocker disconnects to not count as blocked ?!?
 	//clear last toucher on disconnect/unexistance
-	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherID])
+	if (!GameServer()->m_apPlayers[m_pPlayer->m_LastToucherId])
 	{
 		m_pPlayer->UpdateLastToucher(-1);
 	}
@@ -1098,26 +1098,26 @@ void CCharacter::DDPP_Tick()
 
 		if(!pChar || !pChar->IsAlive() || pChar == this)
 			continue;
-		if(pChar->Core()->HookedPlayer() == m_pPlayer->GetCID())
+		if(pChar->Core()->HookedPlayer() == m_pPlayer->GetCid())
 		{
 			m_pPlayer->UpdateLastToucher(i);
 
 			//was debugging because somekills at spawn werent recongized. But now i know that the dummys just kill to fast even before getting freeze --> not a block kill. But im ok with it spawnblock farming bots isnt nice anyways
-			//dbg_msg("debug", "[%d:%s] hooked [%d:%s]", i, Server()->ClientName(i), m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
+			//dbg_msg("debug", "[%d:%s] hooked [%d:%s]", i, Server()->ClientName(i), m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()));
 		}
 	}
 	if(m_Core.m_HookState == HOOK_GRABBED)
 	{
 		//m_Dummy_nn_touched_by_humans = true;
-		//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "dont get in my hook -.-");
+		//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "dont get in my hook -.-");
 
 		//Quest 2 level 8 Block 3 tees without using hook
 		if(m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 8)
 		{
 			if(m_pPlayer->m_QuestProgressValue)
 			{
-				//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] don't use hook!");
-				GameServer()->QuestFailed(m_pPlayer->GetCID());
+				//GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] don't use hook!");
+				GameServer()->QuestFailed(m_pPlayer->GetCid());
 			}
 		}
 	}
@@ -1131,7 +1131,7 @@ void CCharacter::DDPP_Tick()
 		{
 			if(pChr->m_Pos.x < m_Core.m_Pos.x + 45 && pChr->m_Pos.x > m_Core.m_Pos.x - 45 && pChr->m_Pos.y < m_Core.m_Pos.y + 50 && pChr->m_Pos.y > m_Core.m_Pos.y - 50)
 			{
-				m_pPlayer->UpdateLastToucher(pChr->GetPlayer()->GetCID());
+				m_pPlayer->UpdateLastToucher(pChr->GetPlayer()->GetCid());
 			}
 		}
 	}
@@ -1171,7 +1171,7 @@ void CCharacter::DDPP_Tick()
 		m_pPlayer->m_Account.m_GiftDelay--;
 		if(m_pPlayer->m_Account.m_GiftDelay == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[GIFT] delay expired.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[GIFT] delay expired.");
 		}
 	}
 
@@ -1184,12 +1184,12 @@ void CCharacter::DDPP_Tick()
 		{
 			if(!m_pPlayer->m_hidejailmsg)
 			{
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 			}
 		}
 		if(m_pPlayer->m_Account.m_JailTime == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[JAIL] You were released from jail.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[JAIL] You were released from jail.");
 			vec2 JailReleaseSpawn = GameServer()->Collision()->GetRandomTile(TILE_JAILRELEASE);
 			//vec2 DefaultSpawn = GameServer()->Collision()->GetRandomTile(ENTITY_SPAWN);
 
@@ -1200,7 +1200,7 @@ void CCharacter::DDPP_Tick()
 			else //no jailrelease
 			{
 				//SetPosition(DefaultSpawn); //crashbug for mod stealer
-				GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[JAIL] no jail release spot found.");
+				GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[JAIL] no jail release spot found.");
 			}
 		}
 	}
@@ -1221,13 +1221,13 @@ void CCharacter::DDPP_Tick()
 		{
 			if(!m_pPlayer->m_hidejailmsg)
 			{
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 			}
 		}
 		if(m_pPlayer->m_Account.m_EscapeTime == 1)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "Your life as a gangster is over. You are free now.");
-			GameServer()->AddEscapeReason(GetPlayer()->GetCID(), "unknown");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "Your life as a gangster is over. You are free now.");
+			GameServer()->AddEscapeReason(GetPlayer()->GetCid(), "unknown");
 			m_isDmg = false;
 			m_Health = 10;
 		}
@@ -1342,12 +1342,12 @@ void CCharacter::DDPP_Tick()
 		if(m_pPlayer->m_IsInstaArena_gdm)
 		{
 			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvGrenadeScorelimit);
-			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 		}
 		if(m_pPlayer->m_IsInstaArena_idm)
 		{
 			str_format(aBuf, sizeof(aBuf), "score: %04d/%04d                                                                                                                 0", m_pPlayer->m_InstaScore, g_Config.m_SvRifleScorelimit);
-			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 		}
 	}
 	m_UpdateInstaScoreBoard = false;
@@ -1359,11 +1359,11 @@ void CCharacter::DDPP_Tick()
 		{
 			if(m_TileIndex != TILE_BANK_IN && m_TileFIndex != TILE_BANK_IN)
 			{
-				GameServer()->SendBroadcast(" ", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast(" ", m_pPlayer->GetCid(), 0);
 				m_InBank = false; // DDracePostCoreTick() (which handels tiles) is after DDPP_Tick() so while being in bank it will never be false because tiles are always stronger than DDPP tick        <---- this comment was made before the tile checker if clause but can be interesting for further resettings
 			}
 		}
-		if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
+		if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
 		{
 			if(m_TileIndex != TILE_SHOP && m_TileFIndex != TILE_SHOP)
 			{
@@ -1372,8 +1372,8 @@ void CCharacter::DDPP_Tick()
 					SendShopMessage("Bye! Come back if you need something.");
 					m_pPlayer->m_ShopBotAntiSpamTick = Server()->Tick() + Server()->TickSpeed() * 5;
 				}
-				GameServer()->SendBroadcast("", m_pPlayer->GetCID(), 0);
-				GameServer()->Shop()->LeaveShop(GetPlayer()->GetCID());
+				GameServer()->SendBroadcast("", m_pPlayer->GetCid(), 0);
+				GameServer()->Shop()->LeaveShop(GetPlayer()->GetCid());
 			}
 		}
 	}
@@ -1387,7 +1387,7 @@ void CCharacter::DDPP_FlagTick()
 		return;
 
 	if(!m_pPlayer->IsLoggedIn())
-		return; // GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCID());
+		return; // GameServer()->SendBroadcast("You need an account to get xp from flags. \n Get an Account with '/register (name) (pw) (pw)'", m_pPlayer->GetCid());
 
 	if(Server()->Tick() % 50 == 0)
 	{
@@ -1406,7 +1406,7 @@ void CCharacter::DDPP_FlagTick()
 				m_pPlayer->m_QuestProgressValue2++;
 				if(m_pPlayer->m_QuestProgressValue2 > 20)
 				{
-					GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+					GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 					m_pPlayer->m_QuestProgressValue2 = 0;
 				}
 			}
@@ -1416,7 +1416,7 @@ void CCharacter::DDPP_FlagTick()
 		{
 			if(m_pPlayer->m_xpmsg)
 			{
-				GameServer()->SendBroadcast("[FLAG] You reached the maximum level.", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("[FLAG] You reached the maximum level.", m_pPlayer->GetCid(), 0);
 			}
 			return;
 		}
@@ -1447,21 +1447,21 @@ void CCharacter::DDPP_FlagTick()
 			{
 				if(!m_pPlayer->m_xpmsg)
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
-					// GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
+					// GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You entered the bank. You can rob the bank with '/rob_bank'");  // lol no spam old unused commands pls
 				}
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
 				}
@@ -1470,43 +1470,43 @@ void CCharacter::DDPP_FlagTick()
 			{
 				if(!m_pPlayer->m_xpmsg)
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
 				}
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ B A N K ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
 				}
 			}
 		}
-		else if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
+		else if(GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
 		{
 			if(!m_pPlayer->m_xpmsg)
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
 			}
 			else if(m_survivexpvalue == 0)
 			{
 				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 				m_pPlayer->GiveXP(1);
 			}
 			else if(m_survivexpvalue > 0)
 			{
 				char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip + %d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
-				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 				m_pPlayer->GiveXP(1); //flag
 				m_pPlayer->GiveXP(m_survivexpvalue); // survival
 			}
@@ -1514,20 +1514,20 @@ void CCharacter::DDPP_FlagTick()
 			{
 				if(!m_pPlayer->m_xpmsg)
 				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
 				}
 				else if(m_survivexpvalue == 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1);
 				}
 				else if(m_survivexpvalue > 0)
 				{
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "~ S H O P ~\nXP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
-					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 					m_pPlayer->GiveXP(1); //flag
 					m_pPlayer->GiveXP(m_survivexpvalue); // survival
 				}
@@ -1543,14 +1543,14 @@ void CCharacter::DDPP_FlagTick()
 					{
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d vip +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), VIPBonus, m_survivexpvalue);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
 					}
@@ -1564,14 +1564,14 @@ void CCharacter::DDPP_FlagTick()
 					{
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 						m_pPlayer->GiveXP(1);
 					}
 					else if(m_survivexpvalue > 0)
 					{
 						char aBuf[256];
 						str_format(aBuf, sizeof(aBuf), "XP [%" PRId64 "/%" PRId64 "] +1 flag +%d survival", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP(), m_survivexpvalue);
-						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+						GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 						m_pPlayer->GiveXP(1); //flag
 						m_pPlayer->GiveXP(m_survivexpvalue); // survival
 					}
@@ -1585,11 +1585,11 @@ bool CCharacter::DDPP_Respawn()
 {
 	vec2 SpawnPos;
 
-	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
+	if(!GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCid())))
 		return false;
 
-	if(Server()->IsRecording(m_pPlayer->GetCID()))
-		Server()->StopRecord(m_pPlayer->GetCID());
+	if(Server()->IsRecording(m_pPlayer->GetCid()))
+		Server()->StopRecord(m_pPlayer->GetCid());
 
 	SetPosition(SpawnPos);
 	return true;
@@ -1598,7 +1598,7 @@ bool CCharacter::DDPP_Respawn()
 int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 {
 #if defined(CONF_DEBUG)
-	dbg_msg("debug", "character die ID: %d Name: %s", m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()));
+	dbg_msg("debug", "character die Id: %d Name: %s", m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()));
 #endif
 	ClearFakeMotd();
 	char aBuf[256];
@@ -1652,12 +1652,12 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 		GetPlayer()->m_pDummyMode->OnDeath();
 
 	if(g_Config.m_SvDDPPscore == 0)
-		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCID())
+		if(GameServer()->m_apPlayers[Killer] && Killer != m_pPlayer->GetCid())
 			GameServer()->m_apPlayers[Killer]->m_MinigameScore++;
 
 	// TODO: combine with insta 1on1
 	// insta kills
-	if(Killer != m_pPlayer->GetCID() && GameServer()->m_apPlayers[Killer])
+	if(Killer != m_pPlayer->GetCid() && GameServer()->m_apPlayers[Killer])
 	{
 		if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)
 		{
@@ -1673,21 +1673,21 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	// insta 1on1
 	if(GameServer()->m_apPlayers[Killer])
 	{
-		if(GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCID() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
+		if(GameServer()->m_apPlayers[Killer]->m_Insta1on1_id != -1 && Killer != m_pPlayer->GetCid() && (GameServer()->m_apPlayers[Killer]->m_IsInstaArena_gdm || GameServer()->m_apPlayers[Killer]->m_IsInstaArena_idm)) //is in 1on1
 		{
 			GameServer()->m_apPlayers[Killer]->m_Insta1on1_score++;
-			str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_Insta1on1_score);
+			str_format(aBuf, sizeof(aBuf), "%s:%d killed %s:%d", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_Insta1on1_score, Server()->ClientName(m_pPlayer->GetCid()), m_pPlayer->m_Insta1on1_score);
 			if(!GameServer()->m_apPlayers[Killer]->m_HideInsta1on1_killmessages)
 			{
 				GameServer()->SendChatTarget(Killer, aBuf);
 			}
 			if(!m_pPlayer->m_HideInsta1on1_killmessages)
 			{
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 			}
 			if(GameServer()->m_apPlayers[Killer]->m_Insta1on1_score >= 5)
 			{
-				GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCID());
+				GameServer()->WinInsta1on1(Killer, m_pPlayer->GetCid());
 			}
 		}
 	}
@@ -1696,37 +1696,37 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 	// balance battle
 	if(m_pPlayer->m_IsBalanceBatteling && GameServer()->m_BalanceBattleState == 2) //ingame in a balance battle
 	{
-		if(GameServer()->m_BalanceID1 == m_pPlayer->GetCID())
+		if(GameServer()->m_BalanceId1 == m_pPlayer->GetCid())
 		{
-			if(GameServer()->m_apPlayers[GameServer()->m_BalanceID2])
+			if(GameServer()->m_apPlayers[GameServer()->m_BalanceId2])
 			{
-				GameServer()->SendChatTarget(GameServer()->m_BalanceID2, "[balance] you won!");
-				GameServer()->SendChatTarget(GameServer()->m_BalanceID1, "[balance] you lost!");
-				GameServer()->m_apPlayers[GameServer()->m_BalanceID1]->m_IsBalanceBatteling = false;
-				GameServer()->m_apPlayers[GameServer()->m_BalanceID2]->m_IsBalanceBatteling = false;
+				GameServer()->SendChatTarget(GameServer()->m_BalanceId2, "[balance] you won!");
+				GameServer()->SendChatTarget(GameServer()->m_BalanceId1, "[balance] you lost!");
+				GameServer()->m_apPlayers[GameServer()->m_BalanceId1]->m_IsBalanceBatteling = false;
+				GameServer()->m_apPlayers[GameServer()->m_BalanceId2]->m_IsBalanceBatteling = false;
 				GameServer()->m_BalanceBattleState = 0;
-				if(GameServer()->GetPlayerChar(GameServer()->m_BalanceID2))
+				if(GameServer()->GetPlayerChar(GameServer()->m_BalanceId2))
 				{
-					GameServer()->GetPlayerChar(GameServer()->m_BalanceID2)->Die(GameServer()->m_BalanceID2, WEAPON_SELF);
+					GameServer()->GetPlayerChar(GameServer()->m_BalanceId2)->Die(GameServer()->m_BalanceId2, WEAPON_SELF);
 				}
-				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1, Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2);
+				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1, Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2);
 				GameServer()->StopBalanceBattle();
 			}
 		}
-		else if(GameServer()->m_BalanceID2 == m_pPlayer->GetCID())
+		else if(GameServer()->m_BalanceId2 == m_pPlayer->GetCid())
 		{
-			if(GameServer()->m_apPlayers[GameServer()->m_BalanceID1])
+			if(GameServer()->m_apPlayers[GameServer()->m_BalanceId1])
 			{
-				GameServer()->SendChatTarget(GameServer()->m_BalanceID1, "[balance] you won!");
-				GameServer()->SendChatTarget(GameServer()->m_BalanceID2, "[balance] you lost!");
-				GameServer()->m_apPlayers[GameServer()->m_BalanceID1]->m_IsBalanceBatteling = false;
-				GameServer()->m_apPlayers[GameServer()->m_BalanceID2]->m_IsBalanceBatteling = false;
+				GameServer()->SendChatTarget(GameServer()->m_BalanceId1, "[balance] you won!");
+				GameServer()->SendChatTarget(GameServer()->m_BalanceId2, "[balance] you lost!");
+				GameServer()->m_apPlayers[GameServer()->m_BalanceId1]->m_IsBalanceBatteling = false;
+				GameServer()->m_apPlayers[GameServer()->m_BalanceId2]->m_IsBalanceBatteling = false;
 				GameServer()->m_BalanceBattleState = 0;
-				if(GameServer()->GetPlayerChar(GameServer()->m_BalanceID1))
+				if(GameServer()->GetPlayerChar(GameServer()->m_BalanceId1))
 				{
-					GameServer()->GetPlayerChar(GameServer()->m_BalanceID1)->Die(GameServer()->m_BalanceID1, WEAPON_SELF);
+					GameServer()->GetPlayerChar(GameServer()->m_BalanceId1)->Die(GameServer()->m_BalanceId1, WEAPON_SELF);
 				}
-				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceID2), GameServer()->m_BalanceID2, Server()->ClientName(GameServer()->m_BalanceID1), GameServer()->m_BalanceID1);
+				//dbg_msg("balance", "%s:%d lost and %s:%d got killed too", Server()->ClientName(GameServer()->m_BalanceId2), GameServer()->m_BalanceId2, Server()->ClientName(GameServer()->m_BalanceId1), GameServer()->m_BalanceId1);
 				GameServer()->StopBalanceBattle();
 			}
 		}
@@ -1743,14 +1743,14 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 			if(GameServer()->GetPlayerChar(Killer)->m_IsPVParena)
 			{
 				if(GameServer()->m_apPlayers[Killer]->IsMaxLevel() ||
-					GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()) || // dont give xp on dummy kill
-					GameServer()->IsSameIP(m_pPlayer->GetCID(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
+					GameServer()->IsSameIp(Killer, m_pPlayer->GetCid()) || // dont give xp on dummy kill
+					GameServer()->IsSameIp(m_pPlayer->GetCid(), GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id) // dont give xp on killing same ip twice in a row
 				)
 				{
 					GameServer()->m_apPlayers[Killer]->MoneyTransaction(+150, "pvp_arena kill");
 					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
 
-					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "[PVP] +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCid()));
 					GameServer()->SendChatTarget(Killer, aBuf);
 				}
 				else
@@ -1759,7 +1759,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					GameServer()->m_apPlayers[Killer]->GiveXP(100);
 					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaKills++;
 
-					str_format(aBuf, sizeof(aBuf), "[PVP] +100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "[PVP] +100 xp +150 money for killing %s", Server()->ClientName(m_pPlayer->GetCid()));
 					GameServer()->SendChatTarget(Killer, aBuf);
 				}
 
@@ -1769,7 +1769,7 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 					GameServer()->m_apPlayers[Killer]->m_Account.m_PvpArenaTickets++;
 					GameServer()->SendChatTarget(Killer, "[PVP] +1 pvp_arena_ticket        (special random drop for kill)");
 				}
-				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCID();
+				GameServer()->m_apPlayers[Killer]->m_pvp_arena_last_kill_id = m_pPlayer->GetCid();
 			}
 		}
 	}
@@ -1781,14 +1781,14 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 			m_pPlayer->m_Account.m_PvpArenaDeaths++;
 
 			str_format(aBuf, sizeof(aBuf), "[PVP] You lost the arena-fight because you were killed by %s.", Server()->ClientName(Killer));
-			GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+			GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		}
 	}
 
 	//bomb
 	if(m_IsBombing)
 	{
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BOMB] you lost bomb because you died.");
+		GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BOMB] you lost bomb because you died.");
 	}
 
 	m_pPlayer->UpdateLastToucher(-1);
@@ -1823,14 +1823,14 @@ int CCharacter::DDPP_DIE(int Killer, int Weapon, bool fngscore)
 bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 {
 	// m_pPlayer only inflicts half damage on self
-	if(From == m_pPlayer->GetCID())
+	if(From == m_pPlayer->GetCid())
 		Dmg = maximum(1, Dmg / 2);
 	//Block points check for touchers (weapons)
 	if(From >= 0)
 	{
 		if((Weapon == WEAPON_GRENADE || Weapon == WEAPON_HAMMER || Weapon == WEAPON_SHOTGUN || Weapon == WEAPON_LASER) && GameServer()->m_apPlayers[From])
 		{
-			if(From != m_pPlayer->GetCID())
+			if(From != m_pPlayer->GetCid())
 			{
 				m_pPlayer->UpdateLastToucher(From);
 				m_LastHitWeapon = Weapon;
@@ -1854,12 +1854,12 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 	{
 		//m_Core.m_Vel += Force;
 
-		//  dragon      if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
+		//  dragon      if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCid(), From) && !g_Config.m_SvTeamdamage)
 		//	dragon      return false;
 
 		// m_pPlayer only inflicts half damage on self
 
-		if(From == m_pPlayer->GetCID())
+		if(From == m_pPlayer->GetCid())
 		{
 			Dmg = maximum(1, Dmg / 2);
 
@@ -1912,12 +1912,12 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 		m_DamageTakenTick = Server()->Tick();
 
 		// do damage Hit sound
-		if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+		if(From >= 0 && From != m_pPlayer->GetCid() && GameServer()->m_apPlayers[From])
 		{
 			// int64_t Mask = CmaskOne(From);
 			// for(int i = 0; i < MAX_CLIENTS; i++)
 			// {
-			// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+			// 	if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorId == From)
 			// 		Mask |= CmaskOne(i);
 			// }
 			// GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
@@ -1931,7 +1931,7 @@ bool CCharacter::DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			Die(From, Weapon);
 
 			// set attacker's face to happy (taunt!)
-			if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+			if(From >= 0 && From != m_pPlayer->GetCid() && GameServer()->m_apPlayers[From])
 			{
 				CCharacter *pChr = GameServer()->m_apPlayers[From]->GetCharacter();
 				if(pChr)
@@ -2001,13 +2001,13 @@ void CCharacter::KillSpeed()
 	m_Core.m_Vel.y = 0.0f;
 }
 
-void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
+void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 {
 	char aBuf[128];
 
 	//killingspree system by FruchtiHD and ChillerDragon stolen from twlevel (edited by ChillerDragon)
 	CCharacter *pVictim = m_pPlayer->GetCharacter();
-	CPlayer *pKiller = GameServer()->m_apPlayers[KillerID];
+	CPlayer *pKiller = GameServer()->m_apPlayers[KillerId];
 	if(GameServer()->CountConnectedPlayers() >= g_Config.m_SvSpreePlayers) //only count killing sprees if enough players are online (also counting spectators)
 	{
 		if(pVictim && pKiller)
@@ -2023,7 +2023,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_GrenadeSpree)
 						{
 							pVictim->GetPlayer()->m_Account.m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
-							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
+							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCid(), "New grenade Killingspree record!");
 						}
 						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 						//dbg_msg("insta", aBuf);
@@ -2034,16 +2034,16 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 						if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_RifleSpree)
 						{
 							pVictim->GetPlayer()->m_Account.m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
-							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
+							GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCid(), "New rifle Killingspree record!");
 						}
 						//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 						//dbg_msg("insta", aBuf);
 					}
 
-					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pVictim->GetPlayer()->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pVictim->GetPlayer()->GetCid()), pVictim->GetPlayer()->m_KillStreak);
 					pVictim->GetPlayer()->m_KillStreak = 0;
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 				}
 			}
 
@@ -2056,7 +2056,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_GrenadeSpree)
 					{
 						pVictim->GetPlayer()->m_Account.m_GrenadeSpree = pVictim->GetPlayer()->m_KillStreak;
-						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New grenade Killingspree record!");
+						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCid(), "New grenade Killingspree record!");
 					}
 					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 					//dbg_msg("insta", aBuf);
@@ -2067,16 +2067,16 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					if(pVictim->GetPlayer()->m_KillStreak > pVictim->GetPlayer()->m_Account.m_RifleSpree)
 					{
 						pVictim->GetPlayer()->m_Account.m_RifleSpree = pVictim->GetPlayer()->m_KillStreak;
-						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCID(), "New rifle Killingspree record!");
+						GameServer()->SendChatTarget(pVictim->GetPlayer()->GetCid(), "New rifle Killingspree record!");
 					}
 					//str_format(aBuf, sizeof(aBuf), "last: %d top: %d", pVictim->GetPlayer()->m_KillStreak, pVictim->GetPlayer()->m_Account.m_GrenadeSpree);
 					//dbg_msg("insta", aBuf);
 				}
 
-				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCID()), Server()->ClientName(pKiller->GetCID()), pVictim->GetPlayer()->m_KillStreak);
+				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pKiller->GetCid()), pVictim->GetPlayer()->m_KillStreak);
 				pVictim->GetPlayer()->m_KillStreak = 0;
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			}
 
 			if(pKiller != pVictim->GetPlayer())
@@ -2086,7 +2086,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 					pKiller->m_KillStreak++;
 				}
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCID()), pKiller->m_KillStreak);
+				str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCid()), pKiller->m_KillStreak);
 
 				if(pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
 					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -2095,7 +2095,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
 				{
 					CGameControllerDDRace *Controller = (CGameControllerDDRace *)GameServer()->m_pController;
-					Controller->Teams().OnCharacterFinish(pKiller->GetCID());
+					Controller->Teams().OnCharacterFinish(pKiller->GetCid());
 				}
 			}
 		}
@@ -2115,7 +2115,7 @@ void CCharacter::InstagibKillingSpree(int KillerID, int Weapon)
 			if(pKiller->m_KillStreak == 5)
 			{
 				str_format(aBuf, sizeof(aBuf), "[SPREE] %d players needed to start a spree.", g_Config.m_SvSpreePlayers);
-				GameServer()->SendChatTarget(pKiller->GetCID(), aBuf);
+				GameServer()->SendChatTarget(pKiller->GetCid(), aBuf);
 				pKiller->m_KillStreak = 0; //reset killstreak to avoid some1 collecting 100 kills with dummy and then if player connect he could save the spree
 			}
 		}
@@ -2128,23 +2128,23 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 {
 	if(m_FreezeTime <= 0)
 		return Killer;
-	if(m_pPlayer->m_LastToucherID == -1)
+	if(m_pPlayer->m_LastToucherId == -1)
 		return Killer;
 	if(m_pPlayer->m_IsInstaMode_fng && !fngscore)
-		return Killer; // Killer = KilledID --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
+		return Killer; // Killer = KilledId --> gets count as selfkill in score sys and not counted as kill (because only fng score tiles score)
 
-	if(m_pPlayer->m_LastToucherID == m_pPlayer->GetCID())
+	if(m_pPlayer->m_LastToucherId == m_pPlayer->GetCid())
 	{
-		dbg_msg("block", "WARNING '%s' [ID: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->GetCID());
+		dbg_msg("block", "WARNING '%s' [Id: %d] blocked himself", Server()->ClientName(m_pPlayer->GetCid()), m_pPlayer->GetCid());
 		return Killer;
 	}
 
 	char aBuf[128];
-	Killer = m_pPlayer->m_LastToucherID; // kill message
+	Killer = m_pPlayer->m_LastToucherId; // kill message
 
 	if(g_Config.m_SvBlockBroadcast == 1) // send kill message broadcast
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' was blocked by '%s'", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(Killer));
+		str_format(aBuf, sizeof(aBuf), "'%s' was blocked by '%s'", Server()->ClientName(m_pPlayer->GetCid()), Server()->ClientName(Killer));
 		GameServer()->SendBroadcastAll(aBuf, 0);
 	}
 
@@ -2205,9 +2205,9 @@ int CCharacter::BlockPointsMain(int Killer, bool fngscore)
 		// bounty money reward to the blocker
 		if(m_pPlayer->m_BlockBounty)
 		{
-			str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCID()));
+			str_format(aBuf, sizeof(aBuf), "[BOUNTY] +%d money for blocking '%s'", m_pPlayer->m_BlockBounty, Server()->ClientName(m_pPlayer->GetCid()));
 			GameServer()->SendChatTarget(Killer, aBuf);
-			str_format(aBuf, sizeof(aBuf), "bounty '%s'", Server()->ClientName(m_pPlayer->GetCID()));
+			str_format(aBuf, sizeof(aBuf), "bounty '%s'", Server()->ClientName(m_pPlayer->GetCid()));
 			GameServer()->m_apPlayers[Killer]->MoneyTransaction(+m_pPlayer->m_BlockBounty, aBuf);
 			m_pPlayer->m_BlockBounty = 0;
 		}
@@ -2222,9 +2222,9 @@ void CCharacter::XpOnKill(int Killer)
 		return;
 	if(!pKiller->GetCharacter())
 		return;
-	if(Killer == m_pPlayer->GetCID())
+	if(Killer == m_pPlayer->GetCid())
 		return;
-	if(GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
+	if(GameServer()->IsSameIp(Killer, m_pPlayer->GetCid()))
 		return;
 	if(!pKiller->IsLoggedIn())
 		return;
@@ -2279,7 +2279,7 @@ void CCharacter::XpOnKill(int Killer)
 	if(!pKiller->m_HideBlockXp)
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", TotalXP, Server()->ClientName(m_pPlayer->GetCID()));
+		str_format(aBuf, sizeof(aBuf), "+%d xp for blocking '%s'", TotalXP, Server()->ClientName(m_pPlayer->GetCid()));
 		GameServer()->SendChatTarget(Killer, aBuf);
 	}
 	pKiller->GiveXP(TotalXP);
@@ -2288,7 +2288,7 @@ void CCharacter::XpOnKill(int Killer)
 void CCharacter::BlockSpawnProt(int Killer)
 {
 	char aBuf[128];
-	if(GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->GetCharacter() && m_pPlayer->GetCID() != Killer)
+	if(GameServer()->m_apPlayers[Killer] && GameServer()->m_apPlayers[Killer]->GetCharacter() && m_pPlayer->GetCid() != Killer)
 	{
 		//punish spawn blockers
 		if(GameServer()->IsPosition(Killer, 3)) //if killer is in spawn area
@@ -2336,12 +2336,12 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 	}
 	else if(GameServer()->m_apPlayers[Killer]->m_QuestState == CPlayer::QUEST_BLOCK)
 	{
-		if(GameServer()->IsSameIP(Killer, m_pPlayer->GetCID()))
+		if(GameServer()->IsSameIp(Killer, m_pPlayer->GetCid()))
 		{
 			if(!m_pPlayer->m_HideQuestWarning)
 			{
 				GameServer()->SendChatTarget(Killer, "[QUEST] your dummy doesn't count.");
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[QUEST] your dummy doesn't count."); //send it both so that he recives the message. i know this can be weird on lanpartys but fuck it xd
 			}
 		}
 		else
@@ -2374,9 +2374,9 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 				}
 				else
 				{
-					if(m_pPlayer->GetCID() != GameServer()->m_apPlayers[Killer]->m_QuestPlayerID)
+					if(m_pPlayer->GetCid() != GameServer()->m_apPlayers[Killer]->m_QuestPlayerId)
 					{
-						str_format(aBuf, sizeof(aBuf), "[QUEST] You have to block '%s' to complete the quest.", Server()->ClientName(GameServer()->m_apPlayers[Killer]->m_QuestPlayerID));
+						str_format(aBuf, sizeof(aBuf), "[QUEST] You have to block '%s' to complete the quest.", Server()->ClientName(GameServer()->m_apPlayers[Killer]->m_QuestPlayerId));
 						if(!m_pPlayer->m_HideQuestWarning)
 						{
 							GameServer()->SendChatTarget(Killer, aBuf);
@@ -2392,7 +2392,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 			{
 				if(m_pPlayer->m_KillStreak < 5)
 				{
-					str_format(aBuf, sizeof(aBuf), "[QUEST] '%s' is only on a %d tee blockingspree", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_KillStreak);
+					str_format(aBuf, sizeof(aBuf), "[QUEST] '%s' is only on a %d tee blockingspree", Server()->ClientName(m_pPlayer->GetCid()), m_pPlayer->m_KillStreak);
 					if(!m_pPlayer->m_HideQuestWarning)
 					{
 						GameServer()->SendChatTarget(Killer, aBuf);
@@ -2432,7 +2432,7 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 	{
 		if(GameServer()->m_apPlayers[Killer]->m_QuestStateLevel == 7) // Rifle <specific player> and then block him [LEVEL 7]
 		{
-			if(GameServer()->m_apPlayers[Killer]->m_QuestPlayerID == m_pPlayer->GetCID())
+			if(GameServer()->m_apPlayers[Killer]->m_QuestPlayerId == m_pPlayer->GetCid())
 			{
 				if(GameServer()->m_apPlayers[Killer]->m_QuestProgressValue)
 				{
@@ -2448,11 +2448,11 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 		{
 			if(GameServer()->m_apPlayers[Killer]->m_QuestProgressBool)
 			{
-				if(GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID == m_pPlayer->GetCID())
+				if(GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerId == m_pPlayer->GetCid())
 				{
 					GameServer()->QuestAddProgress(Killer, 5);
 					GameServer()->m_apPlayers[Killer]->m_QuestProgressBool = false;
-					GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerID = -1;
+					GameServer()->m_apPlayers[Killer]->m_QuestLastQuestedPlayerId = -1;
 				}
 				else
 				{
@@ -2468,13 +2468,13 @@ void CCharacter::BlockQuestSubDieFuncBlockKill(int Killer)
 
 void CCharacter::BlockQuestSubDieFuncDeath(int Killer)
 {
-	if(Killer != m_pPlayer->GetCID() && m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 7 && m_pPlayer->m_QuestProgressValue > 0)
+	if(Killer != m_pPlayer->GetCid() && m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 7 && m_pPlayer->m_QuestProgressValue > 0)
 	{
-		GameServer()->QuestFailed(m_pPlayer->GetCID());
+		GameServer()->QuestFailed(m_pPlayer->GetCid());
 	}
 	if(m_pPlayer->m_QuestStateLevel == 9 && m_pPlayer->m_QuestState == CPlayer::QUEST_HAMMER)
 	{
-		GameServer()->QuestFailed(m_pPlayer->GetCID());
+		GameServer()->QuestFailed(m_pPlayer->GetCid());
 	}
 }
 
@@ -2491,7 +2491,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	CPlayer *pKiller = GameServer()->m_apPlayers[Killer]; //removed pointer alien code and used the long way to have less bugsis with left players
 
 	// dont count selfkills only count real being blocked as dead
-	if(m_pPlayer->GetCID() == Killer)
+	if(m_pPlayer->GetCid() == Killer)
 	{
 		//dbg_msg("SPREE", "didnt count selfkill [%d][%s]", Killer, Server()->ClientName(Killer));
 		return;
@@ -2508,10 +2508,10 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 
 	if(m_pPlayer->m_KillStreak >= 5)
 	{
-		GameServer()->GetSpreeType(m_pPlayer->GetCID(), aSpreeType, sizeof(aSpreeType), true);
-		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCID()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
+		GameServer()->GetSpreeType(m_pPlayer->GetCid(), aSpreeType, sizeof(aSpreeType), true);
+		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCID(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
+		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 	}
 
 	if(pKiller)
@@ -2561,7 +2561,7 @@ void CCharacter::CITick()
 	}
 	if(m_ci_freezetime > g_Config.m_SvCIfreezetime * Server()->TickSpeed())
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_SELF); //call CIRestart() there
+		Die(m_pPlayer->GetCid(), WEAPON_SELF); //call CIRestart() there
 	}
 }
 
@@ -2569,14 +2569,14 @@ void CCharacter::CIRestart()
 {
 	char aBuf[128];
 
-	//str_format(aBuf, sizeof(aBuf), "%x", GameServer()->Score()->LoadCIData()); //linux compile error (doesnt work on win anyways)
+	//str_format(aBuf, sizeof(aBuf), "%x", GameServer()->Score()->LoadCidata()); //linux compile error (doesnt work on win anyways)
 	//if (!str_comp(aBuf, "error"))
 	//{
 	//	dbg_msg("CI", "error loading data...");
 	//}
 	//else
 	//{
-	//	dbg_msg("CI", "loaded DIST [%x]", GameServer()->Score()->LoadCIData());
+	//	dbg_msg("CI", "loaded DIST [%x]", GameServer()->Score()->LoadCidata());
 	//}
 
 	m_pPlayer->m_ci_latest_dest_dist = CIGetDestDist();
@@ -2593,7 +2593,7 @@ void CCharacter::CIRestart()
 	str_format(aBuf, sizeof(aBuf), "%ld", m_pPlayer->m_ci_lowest_dest_dist);
 
 	// TODO: got lost when file score was removed by upstream
-	// GameServer()->Score()->SaveCIData(aBuf);
+	// GameServer()->Score()->SaveCidata(aBuf);
 }
 
 int CCharacter::CIGetDestDist()
@@ -2613,7 +2613,7 @@ int CCharacter::CIGetDestDist()
 
 void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 {
-	bool selfkill = Killer == m_pPlayer->GetCID();
+	bool selfkill = Killer == m_pPlayer->GetCid();
 	if(m_pPlayer->m_IsSurvivalAlive && GameServer()->m_apPlayers[Killer]->m_IsSurvivalAlive) //ignore lobby and stuff
 	{
 		//=== DEATHS and WINCHECK ===
@@ -2621,11 +2621,11 @@ void CCharacter::SurvivalSubDieFunc(int Killer, int weapon)
 		{
 			if(GameServer()->m_survivalgamestate > 1) //if game running
 			{
-				GameServer()->SetPlayerSurvival(m_pPlayer->GetCID(), GameServer()->SURVIVAL_DIE);
-				GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[SURVIVAL] you lost the round.");
+				GameServer()->SetPlayerSurvival(m_pPlayer->GetCid(), GameServer()->SURVIVAL_DIE);
+				GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[SURVIVAL] you lost the round.");
 				GameServer()->SurvivalCheckWinnerAndDeathMatch();
-				GameServer()->SurvivalGetNextSpectator(m_pPlayer->GetCID(), Killer);
-				GameServer()->SurvivalUpdateSpectators(m_pPlayer->GetCID(), Killer);
+				GameServer()->SurvivalGetNextSpectator(m_pPlayer->GetCid(), Killer);
+				GameServer()->SurvivalUpdateSpectators(m_pPlayer->GetCid(), Killer);
 			}
 		}
 
@@ -2678,7 +2678,7 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 		}
 
 		//=== MULTIS (credit to noby) ===
-		if(Killer != m_pPlayer->GetCID()) // don't count selkills as multi
+		if(Killer != m_pPlayer->GetCid()) // don't count selkills as multi
 		{
 			time_t ttmp = time(NULL);
 			if((ttmp - GameServer()->m_apPlayers[Killer]->m_lastkilltime) <= 5)
@@ -2724,7 +2724,7 @@ bool CCharacter::IsHammerBlocked()
 	{
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "You have to wait %" PRId64 " minutes to use your super jail hammer agian.", (m_pPlayer->m_JailHammerDelay / Server()->TickSpeed()) / 60);
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+		GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 		return true;
 	}
 	return false;
@@ -2733,14 +2733,14 @@ bool CCharacter::IsHammerBlocked()
 void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 {
 	/*pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
-    m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);*/
+    m_pPlayer->GetCid(), m_Core.m_ActiveWeapon);*/
 
 	// shop bot
 	if(pTarget->m_pPlayer->m_IsDummy)
 	{
 		if(pTarget->m_pPlayer->DummyMode() == DUMMYMODE_SHOPBOT)
 		{
-			GameServer()->Shop()->StartShop(GetPlayer()->GetCID());
+			GameServer()->Shop()->StartShop(GetPlayer()->GetCid());
 		}
 	}
 
@@ -2755,7 +2755,7 @@ void CCharacter::DDPPHammerHit(CCharacter *pTarget)
 				pTarget->m_IsBomb = true;
 
 				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCID()), Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "%s bombed %s", Server()->ClientName(m_pPlayer->GetCid()), Server()->ClientName(pTarget->GetPlayer()->GetCid()));
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
 			}
 		}
@@ -2771,19 +2771,19 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 	{
 		char aBuf[256];
 
-		if(!GameServer()->IsMinigame(pTarget->GetPlayer()->GetCID()))
+		if(!GameServer()->IsMinigame(pTarget->GetPlayer()->GetCid()))
 		{
 			if(pTarget->GetPlayer()->m_Account.m_EscapeTime) //always prefer normal hammer
 			{
 				if(pTarget->GetPlayer()->GetMoney() < 200)
 				{
-					str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+5 minutes extra arrest: He had no money to corrupt you!");
+					str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCid()));
+					GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
+					GameServer()->SendChatTarget(m_pPlayer->GetCid(), "+5 minutes extra arrest: He had no money to corrupt you!");
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "+5 minutes extra: You couldn't corrupt the police!");
+					str_format(aBuf, sizeof(aBuf), "You were arrested for 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCid()));
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCid(), aBuf);
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCid(), "+5 minutes extra: You couldn't corrupt the police!");
 					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(600); //10 minutes jail
@@ -2791,15 +2791,15 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 				}
 				else
 				{
-					str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), "+200 money (corruption)");
-					str_format(aBuf, sizeof(aBuf), "caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCID()));
+					str_format(aBuf, sizeof(aBuf), "You caught the gangster '%s' (5 minutes arrest).", Server()->ClientName(pTarget->GetPlayer()->GetCid()));
+					GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
+					GameServer()->SendChatTarget(m_pPlayer->GetCid(), "+200 money (corruption)");
+					str_format(aBuf, sizeof(aBuf), "caught gangster '%s'", Server()->ClientName(pTarget->GetPlayer()->GetCid()));
 					m_pPlayer->MoneyTransaction(+200, aBuf);
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCID()));
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), "-200 money (corruption)");
+					str_format(aBuf, sizeof(aBuf), "You were arrested 5 minutes by '%s'.", Server()->ClientName(m_pPlayer->GetCid()));
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCid(), aBuf);
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCid(), "-200 money (corruption)");
 					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(300); //5 minutes jail
@@ -2811,12 +2811,12 @@ void CCharacter::PoliceHammerHit(CCharacter *pTarget)
 			{
 				if(m_pPlayer->m_JailHammer > 1)
 				{
-					str_format(aBuf, sizeof(aBuf), "You jailed '%s' (%d seconds arrested).", Server()->ClientName(pTarget->GetPlayer()->GetCID()), m_pPlayer->m_JailHammer);
-					GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+					str_format(aBuf, sizeof(aBuf), "You jailed '%s' (%d seconds arrested).", Server()->ClientName(pTarget->GetPlayer()->GetCid()), m_pPlayer->m_JailHammer);
+					GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 					m_pPlayer->m_JailHammerDelay = Server()->TickSpeed() * 1200; // can only use every 20 minutes super hammer
 
-					str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", Server()->ClientName(m_pPlayer->GetCID()), m_pPlayer->m_JailHammer);
-					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCID(), aBuf);
+					str_format(aBuf, sizeof(aBuf), "You were arrested by '%s' for %d seconds.", Server()->ClientName(m_pPlayer->GetCid()), m_pPlayer->m_JailHammer);
+					GameServer()->SendChatTarget(pTarget->GetPlayer()->GetCid(), aBuf);
 					pTarget->GetPlayer()->m_Account.m_EscapeTime = 0;
 					pTarget->GetPlayer()->m_GangsterBagMoney = 0;
 					pTarget->GetPlayer()->JailPlayer(Server()->TickSpeed() * m_pPlayer->m_JailHammer);
@@ -2835,7 +2835,7 @@ void CCharacter::DDPPGunFire(vec2 Direction)
 		{
 			if(g_Config.m_SvQuestRaceCondition == 1) //no gun (also jetpack)
 			{
-				GameServer()->QuestFailed2(m_pPlayer->GetCID());
+				GameServer()->QuestFailed2(m_pPlayer->GetCid());
 			}
 		}
 	}
@@ -2867,7 +2867,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), // owner
+			m_pPlayer->GetCid(), // owner
 			ProjStartPos, // pos
 			Direction, // dir
 			false, // freeze
@@ -2883,7 +2883,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), // owner
+			m_pPlayer->GetCid(), // owner
 			ProjStartPos, // pos
 			vec2(cosf(a - 0.200f), sinf(a - 0.200f)), // dir
 			false, // freeze
@@ -2899,7 +2899,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), // owner
+			m_pPlayer->GetCid(), // owner
 			ProjStartPos, // pos
 			vec2(cosf(a - 0.040f), sinf(a - 0.040f)), // dir
 			false, // freeze
@@ -2913,7 +2913,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			10.0f // speed
 		);
 
-		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 	}
 	else if(m_autospreadgun || m_pPlayer->m_InfAutoSpreadGun)
 	{
@@ -2937,7 +2937,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		new CProjectile(
 			GameWorld(),
 			WEAPON_GUN, // Type
-			m_pPlayer->GetCID(), // Owner
+			m_pPlayer->GetCid(), // Owner
 			ProjStartPos, // Pos
 			vec2(cosf(a), sinf(a)), // Dir
 			Lifetime, // Span
@@ -2950,7 +2950,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		new CProjectile(
 			GameWorld(),
 			WEAPON_GUN, // Type
-			m_pPlayer->GetCID(), // Owner
+			m_pPlayer->GetCid(), // Owner
 			ProjStartPos, // Pos
 			vec2(cosf(a - 0.070f), sinf(a - 0.070f)), // Dir
 			Lifetime, // Span
@@ -2963,7 +2963,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		new CProjectile(
 			GameWorld(),
 			WEAPON_GUN, // Type
-			m_pPlayer->GetCID(), // Owner
+			m_pPlayer->GetCid(), // Owner
 			ProjStartPos, // Pos
 			vec2(cosf(a - 0.170f), sinf(a - 0.170f)), // Dir
 			Lifetime, // Span
@@ -2976,7 +2976,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		CProjectile *pProj = new CProjectile(
 			GameWorld(),
 			WEAPON_GUN, // Type
-			m_pPlayer->GetCID(), // Owner
+			m_pPlayer->GetCid(), // Owner
 			ProjStartPos, // Pos
 			Direction, // Dir
 			Lifetime, // Span
@@ -2990,13 +2990,13 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		CNetObj_Projectile p;
 		pProj->FillInfo(&p);
 
-		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+		GameServer()->CreateSound(m_Pos, SOUND_GUN_FIRE, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 	}
 	else if(m_pPlayer->m_SpookyGhostActive)
 	{
 		new CPlasmaBullet(
 			GameWorld(),
-			m_pPlayer->GetCID(), // owner
+			m_pPlayer->GetCid(), // owner
 			ProjStartPos, // pos
 			Direction, // dir
 			false, // freeze
@@ -3009,7 +3009,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 			1.0f, // accel
 			10.0f // speed
 		);
-		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCID()));
+		GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH, Teams()->TeamMask(Team(), -1, m_pPlayer->GetCid()));
 	}
 	else if(m_pPlayer->m_lasergun)
 	{
@@ -3019,7 +3019,7 @@ bool CCharacter::SpecialGunProjectile(vec2 Direction, vec2 ProjStartPos, int Lif
 		{
 			float a = angle(Direction);
 			a += Spreading[i + 1];
-			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), 0);
+			new CLaser(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCid(), 0);
 		}
 
 		// summon meteor
@@ -3046,7 +3046,7 @@ bool CCharacter::FreezeShotgun(vec2 Direction, vec2 ProjStartPos)
 			CProjectile *pProj = new CProjectile(
 				GameWorld(),
 				WEAPON_SHOTGUN, // Type
-				m_pPlayer->GetCID(), // Owner
+				m_pPlayer->GetCid(), // Owner
 				ProjStartPos, // Pos
 				vec2(cosf(a), sinf(a)) * Speed, // Dir
 				(int)(Server()->TickSpeed() * GameServer()->Tuning()->m_ShotgunLifetime), // Span
@@ -3094,7 +3094,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 			m_CountSpookyGhostInputs = true;
 		}
 
-		GameServer()->Shop()->WillFireWeapon(GetPlayer()->GetCID());
+		GameServer()->Shop()->WillFireWeapon(GetPlayer()->GetCid());
 	}
 
 	if(FullAuto && (m_LatestInput.m_Fire & 1) && m_Core.m_aWeapons[m_Core.m_ActiveWeapon].m_Ammo)
@@ -3132,7 +3132,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 		m_NumObjectsHit = 0;
 		GameServer()->CreateSound(m_Pos, SOUND_HAMMER_FIRE, TeamMask());
 
-		Antibot()->OnHammerFire(m_pPlayer->GetCID());
+		Antibot()->OnHammerFire(m_pPlayer->GetCid());
 
 		if(m_Core.m_HammerHitDisabled)
 			break;
@@ -3147,7 +3147,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 			CCharacter *pTarget = apEnts[i];
 
 			//if ((pTarget == this) || GameServer()->Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, NULL, NULL))
-			if((pTarget == this || (pTarget->IsAlive() && !CanCollide(pTarget->GetPlayer()->GetCID()))))
+			if((pTarget == this || (pTarget->IsAlive() && !CanCollide(pTarget->GetPlayer()->GetCid()))))
 				continue;
 
 			if(m_pPlayer->m_IsInstaMode_fng)
@@ -3187,7 +3187,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 				Temp = ClampVel(pTarget->m_MoveRestrictions, Temp);
 				Temp -= pTarget->m_Core.m_Vel;
 				pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, 0,
-					m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+					m_pPlayer->GetCid(), m_Core.m_ActiveWeapon);
 				IsDDNetPPHit = true;
 			}
 
@@ -3203,7 +3203,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 			{
 				if(m_pPlayer->m_QuestStateLevel == 8) // Hammer 2+ tees in one hit
 				{
-					GameServer()->QuestCompleted(m_pPlayer->GetCID());
+					GameServer()->QuestCompleted(m_pPlayer->GetCid());
 				}
 			}
 		}
@@ -3263,7 +3263,7 @@ bool CCharacter::FireWeaponDDPP(bool &FullAuto)
 
 		if(m_HomingMissile)
 		{
-			/* CHomingMissile *pMissile = */ new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCID(), 0, Direction);
+			/* CHomingMissile *pMissile = */ new CHomingMissile(GameWorld(), 100, m_pPlayer->GetCid(), 0, Direction);
 			IsDDNetPPHit = true;
 		}
 		QuestGrenade();
@@ -3330,7 +3330,7 @@ void CCharacter::PostFireWeapon()
 		}
 	}
 
-	GameServer()->Shop()->FireWeapon(GetAimDir(), GetPlayer()->GetCID());
+	GameServer()->Shop()->FireWeapon(GetAimDir(), GetPlayer()->GetCid());
 
 	//spawn weapons
 
@@ -3379,10 +3379,10 @@ void CCharacter::SendShopMessage(const char *pMsg)
 	if(g_Config.m_SvMaxShopMessages != -1 && g_Config.m_SvMaxShopMessages <= recv)
 		return;
 
-	if(Server()->IsSixup(GetPlayer()->GetCID()))
-		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIXUP, m_pPlayer->GetCID());
+	if(Server()->IsSixup(GetPlayer()->GetCid()))
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIXUP, m_pPlayer->GetCid());
 	else
-		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIX, m_pPlayer->GetCID());
+		GameServer()->SendChat(GameServer()->GetShopBot(), CGameContext::CHAT_TO_ONE_CLIENT, pMsg, -1, CGameContext::CHAT_SIX, m_pPlayer->GetCid());
 	m_pPlayer->m_ShopBotMesssagesRecieved++;
 }
 
@@ -3458,7 +3458,7 @@ void CCharacter::KillFreeze(bool unfreeze)
 	}
 	if(Server()->Tick() - m_FirstFreezeTick > (Server()->TickSpeed() / 10) * g_Config.m_SvFreezeKillDelay)
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_SELF);
+		Die(m_pPlayer->GetCid(), WEAPON_SELF);
 		m_FirstFreezeTick = 0;
 	}
 }
@@ -3477,7 +3477,7 @@ bool CCharacter::ForceFreeze(int Seconds)
 				if(m_Core.m_aWeapons[i].m_Got)
 				{
 					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
-						//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
+						//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()),i, m_aWeaponsBackup[i][1]);
 					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}
@@ -3516,7 +3516,7 @@ bool CCharacter::FreezeFloat(float Seconds)
 				if(m_Core.m_aWeapons[i].m_Got)
 				{
 					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
-					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
+					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()),i, m_aWeaponsBackup[i][1]);
 					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}

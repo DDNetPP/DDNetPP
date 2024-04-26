@@ -38,18 +38,18 @@ bool CPlasmaBullet::HitCharacter()
 	if(Hit->Team() != m_ResponsibleTeam)
 		return false;
 
-	if(Hit->GetPlayer()->GetCID() == m_Owner) // dont hit yourself
+	if(Hit->GetPlayer()->GetCid() == m_Owner) // dont hit yourself
 	{
 		return false;
 	}
 	else
 	{
 		Hit->SetEmote(3, Server()->Tick() + 2 * Server()->TickSpeed()); // eyeemote surprise
-		GameServer()->SendEmoticon(Hit->GetPlayer()->GetCID(), 7, -1); //emoticon ghost
+		GameServer()->SendEmoticon(Hit->GetPlayer()->GetCid(), 7, -1); //emoticon ghost
 	}
 
 	if(m_Bloody)
-		GameServer()->CreateDeath(m_Pos, Hit->GetPlayer()->GetCID());
+		GameServer()->CreateDeath(m_Pos, Hit->GetPlayer()->GetCid());
 
 	if(m_Freeze)
 		Hit->Freeze();
@@ -139,17 +139,17 @@ void CPlasmaBullet::Snap(int SnappingClient)
 	if(SnapChar && SnapChar->IsAlive() && (m_Layer == LAYER_SWITCH && !GameServer()->Switchers()[m_Number].m_aStatus[SnapChar->Team()]) && (!Tick))
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID != -1 && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID) && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorID)->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorId != -1 && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorId) && GameServer()->GetPlayerChar(SnapPlayer->m_SpectatorId)->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
 		return;
 
 	if(SnapPlayer && SnapPlayer->GetTeam() != TEAM_SPECTATORS && !SnapPlayer->IsPaused() && SnapChar && SnapChar->Team() != m_ResponsibleTeam && !SnapPlayer->m_ShowOthers)
 		return;
 
-	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorID == -1 && SnapChar && SnapChar->Team() != m_ResponsibleTeam && SnapPlayer->m_SpecTeam)
+	if(SnapPlayer && (SnapPlayer->GetTeam() == TEAM_SPECTATORS || SnapPlayer->IsPaused()) && SnapPlayer->m_SpectatorId == -1 && SnapChar && SnapChar->Team() != m_ResponsibleTeam && SnapPlayer->m_SpecTeam)
 		return;
 
 	CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(
-		NETOBJTYPE_LASER, GetID(), sizeof(CNetObj_Laser)));
+		NETOBJTYPE_LASER, GetId(), sizeof(CNetObj_Laser)));
 
 	if(!pObj)
 		return;

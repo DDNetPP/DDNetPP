@@ -121,7 +121,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 {
 	IGameController::OnPlayerConnect(pPlayer, Silent);
-	int ClientID = pPlayer->GetCID();
+	int ClientId = pPlayer->GetCid();
 
 	// init the player
 	Score()->PlayerData(ClientId)->Reset();
@@ -135,26 +135,26 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 		char aBuf[512];
 		if(!Silent)
 		{
-			if(GameServer()->ShowJoinMessage(ClientID))
+			if(GameServer()->ShowJoinMessage(ClientId))
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (message hidden)", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
 		if(g_Config.m_SvInstagibMode)
 		{
-			GameServer()->SendChatTarget(ClientID, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
+			GameServer()->SendChatTarget(ClientId, "DDNet++ Instagib Mod (" DDNETPP_VERSIONSTR ") based on DDNet " GAME_RELEASE_VERSION);
 		}
 		else
 		{
 			char aWelcome[128];
 			str_format(aWelcome, sizeof(aWelcome), "DDNet++ %s Mod (%s) based on DDNet " GAME_RELEASE_VERSION, g_Config.m_SvDDPPgametype, DDNETPP_VERSIONSTR);
-			GameServer()->SendChatTarget(ClientID, aWelcome);
+			GameServer()->SendChatTarget(ClientId, aWelcome);
 		}
 	}
 }

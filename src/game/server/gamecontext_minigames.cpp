@@ -8,25 +8,25 @@
 
 #include "gamecontext.h"
 
-EScore CGameContext::MinigameScoreType(int ClientID)
+EScore CGameContext::MinigameScoreType(int ClientId)
 {
 	for(auto &Minigame : m_vMinigames)
 	{
 		if(!Minigame)
 			continue;
 
-		if(Minigame->IsActive(ClientID))
+		if(Minigame->IsActive(ClientId))
 			return Minigame->ScoreType();
 	}
 	return SCORE_BLOCK;
 }
 
-int CGameContext::IsMinigame(int playerID) //if you update this function please also update the '/minigames' chat command
+int CGameContext::IsMinigame(int playerId) //if you update this function please also update the '/minigames' chat command
 {
-	CPlayer *pPlayer = m_apPlayers[playerID];
+	CPlayer *pPlayer = m_apPlayers[playerId];
 	if(!pPlayer)
 		return 0;
-	CCharacter *pChr = GetPlayerChar(playerID);
+	CCharacter *pChr = GetPlayerChar(playerId);
 
 	if(pPlayer->m_Account.m_JailTime)
 	{

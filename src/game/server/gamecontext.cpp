@@ -543,7 +543,7 @@ void CGameContext::CallVote(int ClientId, const char *pDesc, const char *pCmd, c
 		return;
 
 	int64_t Now = Server()->Tick();
-	CPlayer *pPlayer = m_apPlayers[ClientID];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 	SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
@@ -595,7 +595,7 @@ void CGameContext::SendChatTeam(int Team, const char *pText) const
 			SendChatTarget(i, pText);
 }
 
-void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, int SpamProtectionClientID, int Flags, int ToClientID)
+void CGameContext::SendChat(int ChatterClientId, int Team, const char *pText, int SpamProtectionClientId, int Flags, int ToClientId)
 {
 	if(SpamProtectionClientId >= 0 && SpamProtectionClientId < MAX_CLIENTS)
 		if(ProcessSpamProtection(SpamProtectionClientId))
@@ -641,11 +641,11 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 		str_format(aBuf, sizeof(aBuf), "Chat: %s", aText);
 		LogEvent(aBuf, ChatterClientId);
 	}
-	else if(Team == CHAT_TO_ONE_CLIENT && ToClientID > -1)
+	else if(Team == CHAT_TO_ONE_CLIENT && ToClientId > -1)
 	{
 		CNetMsg_Sv_Chat Msg;
 		Msg.m_Team = 0;
-		Msg.m_ClientID = ChatterClientID;
+		Msg.m_ClientId = ChatterClientId;
 		Msg.m_pMessage = aText;
 
 		// pack one for the recording only
@@ -653,8 +653,8 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText, in
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NOSEND, -1);
 
 		// send to the clients
-		if(!m_apPlayers[ToClientID]->m_DND)
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientID);
+		if(!m_apPlayers[ToClientId]->m_DND)
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ToClientId);
 	}
 	else
 	{
@@ -705,15 +705,15 @@ void CGameContext::SendStartWarning(int ClientId, const char *pMessage)
 void CGameContext::SendEmoticon(int ClientId, int Emoticon, int TargetClientId) const
 {
 	CNetMsg_Sv_Emoticon Msg;
-	Msg.m_ClientID = ClientID;
+	Msg.m_ClientId = ClientId;
 	CPlayer *pPlayer = nullptr;
-	if(ClientID >= 0 && ClientID < MAX_CLIENTS)
-		pPlayer = m_apPlayers[ClientID];
+	if(ClientId >= 0 && ClientId < MAX_CLIENTS)
+		pPlayer = m_apPlayers[ClientId];
 	if(pPlayer && pPlayer->m_SpookyGhostActive)
 		Msg.m_Emoticon = 7; // ghost emote only
 	else
 		Msg.m_Emoticon = Emoticon;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, TargetClientID);
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, TargetClientId);
 }
 
 void CGameContext::SendWeaponPickup(int ClientId, int Weapon) const
@@ -747,7 +747,7 @@ void CGameContext::SendMotd(int ClientId) const
 	if(IsSupporterOnline)
 		Msg.m_pMessage = aBroad;
 
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
 void CGameContext::SendSettings(int ClientId) const
@@ -762,13 +762,13 @@ void CGameContext::SendSettings(int ClientId) const
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 }
 
-void CGameContext::SendBroadcast(const char *pText, int ClientID, int Importance, bool IsSupermod)
+void CGameContext::SendBroadcast(const char *pText, int ClientId, int Importance, bool IsSupermod)
 {
-	if(ClientID == -1) //classical rcon broadcast
+	if(ClientId == -1) //classical rcon broadcast
 	{
 		CNetMsg_Sv_Broadcast Msg;
 		Msg.m_pMessage = pText; //default broadcast
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientId);
 
 		for(auto &pPlayer : m_apPlayers)
 		{
@@ -782,22 +782,22 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int Importance
 	}
 	else //non rcon broadcast
 	{
-		if(!m_apPlayers[ClientID]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
+		if(!m_apPlayers[ClientId]) //ddpp added by ChillerDragon because we handel player vriables here and idk why we should send it to non exsisting players anyways
 		{
-			//dbg_msg("cBug", "returned id=%d", ClientID);
+			//dbg_msg("cBug", "returned id=%d", ClientId);
 			return;
 		}
 
-		if(m_apPlayers[ClientID]->m_LastBroadcastImportance) //only care if last broadcast was important
+		if(m_apPlayers[ClientId]->m_LastBroadcastImportance) //only care if last broadcast was important
 		{
-			if(m_apPlayers[ClientID]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
+			if(m_apPlayers[ClientId]->m_LastBroadcast > Server()->Tick() - Server()->TickSpeed() * 6) //dont overwrite broadcasts send 6 seconds ago
 			{
 				if(Importance == 0)
 				{
 					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
 				}
-				else if(Importance == 1 && IsSupermod && m_apPlayers[ClientID]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
+				else if(Importance == 1 && IsSupermod && m_apPlayers[ClientId]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
 					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
 					return;
@@ -805,7 +805,7 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int Importance
 			}
 		}
 
-		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", Importance, m_apPlayers[ClientID]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientID]->m_LastBroadcast);
+		//dbg_msg("cBug", "curr_imp[%d] last_imp[%d]     curr_t[%d] last_t[%d]", Importance, m_apPlayers[ClientId]->m_LastBroadcastImportance, Server()->Tick(), m_apPlayers[ClientId]->m_LastBroadcast);
 
 		CNetMsg_Sv_Broadcast Msg;
 		//if (IsSupermod)
@@ -816,18 +816,18 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, int Importance
 		//									   //Msg.m_pMessage = aText;														//supermod broadcast with advertisement attached
 
 		//	Msg.m_pMessage = pText; //default broadcast (comment this out if you want to use the adveertisement string)
-		//	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		//	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientId);
 		//}
 		//else
 		//{
 		Msg.m_pMessage = pText; //default broadcast
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientId);
 
 		m_iBroadcastDelay = Server()->TickSpeed() * 4; //set 4 second delay after normal broadcasts before supermods can send a new one
 		//}
 
-		m_apPlayers[ClientID]->m_LastBroadcast = Server()->Tick();
-		m_apPlayers[ClientID]->m_LastBroadcastImportance = Importance;
+		m_apPlayers[ClientId]->m_LastBroadcast = Server()->Tick();
+		m_apPlayers[ClientId]->m_LastBroadcastImportance = Importance;
 	}
 }
 
@@ -1035,7 +1035,7 @@ void CGameContext::SendTuningParams(int ClientId, int Zone)
 				Msg.AddInt(0);
 			}
 			else if((i == 12) // gravity for 420 trolling
-				&& m_apPlayers[ClientID]->m_TROLL420)
+				&& m_apPlayers[ClientId]->m_TROLL420)
 			{
 				Msg.AddInt(-1000000);
 			}
@@ -1563,14 +1563,14 @@ void CGameContext::ProgressVoteOptions(int ClientId)
 	}
 }
 
-void CGameContext::OnClientEnter(int ClientID, bool Silent)
+void CGameContext::OnClientEnter(int ClientId, bool Silent)
 {
 	if(m_TeeHistorianActive)
 	{
 		m_TeeHistorian.RecordPlayerReady(ClientId);
 	}
-	m_pController->OnPlayerConnect(m_apPlayers[ClientID]);
-	OnClientEnterDDPP(ClientID);
+	m_pController->OnPlayerConnect(m_apPlayers[ClientId]);
+	OnClientEnterDDPP(ClientId);
 
 	if(Server()->IsSixup(ClientId))
 	{
@@ -1792,7 +1792,7 @@ void CGameContext::OnClientConnected(int ClientId, void *pData)
 	}
 
 	// Check which team the player should be on
-	const int StartTeam = (Spec || g_Config.m_SvTournamentMode || m_insta_survival_gamestate) ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
+	const int StartTeam = (Spec || g_Config.m_SvTournamentMode || m_insta_survival_gamestate) ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientId);
 
 	if(m_apPlayers[ClientId])
 		delete m_apPlayers[ClientId];
@@ -1806,15 +1806,15 @@ void CGameContext::OnClientConnected(int ClientId, void *pData)
 	Server()->ExpireServerInfo();
 }
 
-void CGameContext::OnClientDrop(int ClientID, const char *pReason, bool Silent)
+void CGameContext::OnClientDrop(int ClientId, const char *pReason, bool Silent)
 {
-	m_ClientLeftServer[ClientID] = true;
-	LogEvent("Disconnect", ClientID);
+	m_ClientLeftServer[ClientId] = true;
+	LogEvent("Disconnect", ClientId);
 
-	AbortVoteKickOnDisconnect(ClientID);
-	m_pController->OnPlayerDisconnect(m_apPlayers[ClientID], pReason, Silent);
-	delete m_apPlayers[ClientID];
-	m_apPlayers[ClientID] = 0;
+	AbortVoteKickOnDisconnect(ClientId);
+	m_pController->OnPlayerDisconnect(m_apPlayers[ClientId], pReason, Silent);
+	delete m_apPlayers[ClientId];
+	m_apPlayers[ClientId] = 0;
 
 	m_VoteUpdate = true;
 
@@ -2215,7 +2215,7 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 
 	if(pMsg->m_pMessage[0] == '/')
 	{
-		if(IsDDPPChatCommand(ClientID, pPlayer, pMsg->m_pMessage + 1))
+		if(IsDDPPChatCommand(ClientId, pPlayer, pMsg->m_pMessage + 1))
 		{
 			// pass
 		}
@@ -2274,7 +2274,7 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 			Console()->SetFlagMask(CFGFLAG_SERVER);
 		}
 	}
-	else if(!IsChatMessageBlocked(ClientID, pPlayer, Team, pMsg->m_pMessage)) // ddnet++
+	else if(!IsChatMessageBlocked(ClientId, pPlayer, Team, pMsg->m_pMessage)) // ddnet++
 	{
 		pPlayer->UpdatePlaytime();
 		char aCensoredMessage[256];
@@ -2528,7 +2528,7 @@ void CGameContext::OnCallVoteNetMessage(const CNetMsg_Cl_CallVote *pMsg, int Cli
 void CGameContext::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId)
 {
 	// ddnet++
-	CPlayer *pPlayer = m_apPlayers[ClientID];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(pMsg->m_Vote == 1) //vote yes (f3)
 		VotedYes(pChr, pPlayer);
@@ -2567,7 +2567,7 @@ void CGameContext::OnSetTeamNetMessage(const CNetMsg_Cl_SetTeam *pMsg, int Clien
 	if(pPlayer->GetTeam() == pMsg->m_Team || (g_Config.m_SvSpamprotection && pPlayer->m_LastSetTeam && pPlayer->m_LastSetTeam + Server()->TickSpeed() * g_Config.m_SvTeamChangeDelay > Server()->Tick()))
 		return;
 
-	if(AbortTeamChange(ClientID, pPlayer)) // ddnet++
+	if(AbortTeamChange(ClientId, pPlayer)) // ddnet++
 		return;
 
 	// Kill Protection
@@ -2702,15 +2702,15 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 		char aChatText[256];
 
 		// ddnet++
-		int MuteTime = NameChangeMuteCheck(ClientID);
+		int MuteTime = NameChangeMuteCheck(ClientId);
 		if(MuteTime > 0)
 		{
 			str_format(aChatText, sizeof aChatText, "[MUTE] %d seconds delay for name change message.", MuteTime);
-			SendChatTarget(ClientID, aChatText);
+			SendChatTarget(ClientId, aChatText);
 		}
 		else
 		{
-			str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientID));
+			str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientId));
 			SendChat(-1, CGameContext::CHAT_ALL, aChatText);
 		}
 
@@ -2901,7 +2901,7 @@ void CGameContext::OnKillNetMessage(const CNetMsg_Cl_Kill *pMsg, int ClientId)
 		return;
 	}
 
-	if(AbortKill(ClientID, pPlayer, pChr)) // ddnet++
+	if(AbortKill(ClientId, pPlayer, pChr)) // ddnet++
 		return;
 
 	pPlayer->m_LastKill = Server()->Tick();
@@ -4511,7 +4511,7 @@ void CGameContext::OnSetAuthed(int ClientId, int Level)
 {
 	if(Level == AUTHED_HONEY)
 		return;
-	if(m_apPlayers[ClientID])
+	if(m_apPlayers[ClientId])
 	{
 		char aBuf[512], aIp[NETADDR_MAXSTRSIZE];
 		Server()->GetClientAddr(ClientId, aIp, sizeof(aIp));
@@ -4529,14 +4529,14 @@ void CGameContext::OnSetAuthed(int ClientId, int Level)
 		timeinfo = localtime(&rawtime);
 
 		strftime(timestr, sizeof(timestr), "%F %H:%M:%S", timeinfo);
-		char aAccID[32];
-		aAccID[0] = '\0';
-		if(m_apPlayers[ClientID]->IsLoggedIn())
-			str_format(aAccID, sizeof(aAccID), "accID=%d ", m_apPlayers[ClientID]->GetAccID());
-		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccID, aIP, Server()->ClientName(ClientID));
+		char aAccId[32];
+		aAccId[0] = '\0';
+		if(m_apPlayers[ClientId]->IsLoggedIn())
+			str_format(aAccId, sizeof(aAccId), "accId=%d ", m_apPlayers[ClientId]->GetAccId());
+		str_format(aBuf, sizeof(aBuf), "[%s] level=%d %sip=%s name=%s", timestr, Level, aAccId, aIp, Server()->ClientName(ClientId));
 		ddpp_log(DDPP_LOG_AUTH_RCON, aBuf);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "AuthInfo", aBuf); // presist in normal logs to scan logs for illegal authing
-		ShowAdminWelcome(ClientID);
+		ShowAdminWelcome(ClientId);
 		m_WrongRconAttempts = 0;
 	}
 	if(m_TeeHistorianActive)
@@ -4839,11 +4839,11 @@ void CGameContext::WhisperId(int ClientId, int VictimId, const char *pMessage)
 		SendChatTarget(VictimId, aBuf);
 	}
 
-	str_format(aBuf, sizeof(aBuf), "['%s' -> '%s'] %s", Server()->ClientName(ClientID), Server()->ClientName(VictimID), pMessage);
+	str_format(aBuf, sizeof(aBuf), "['%s' -> '%s'] %s", Server()->ClientName(ClientId), Server()->ClientName(VictimId), pMessage);
 	dbg_msg("whisper", "%s", aBuf);
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(m_apPlayers[i] && i != VictimID && i != ClientID)
+		if(m_apPlayers[i] && i != VictimId && i != ClientId)
 		{
 			if(Server()->GetAuthedState(i) && Server()->GetAuthedState(i) == AUTHED_ADMIN)
 			{

@@ -11,9 +11,9 @@
 
 #include "block_tournament.h"
 
-bool CBlockTournament::IsActive(int ClientID)
+bool CBlockTournament::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
 		return false;
 	return pPlayer->m_IsBlockTourning;
@@ -34,7 +34,7 @@ void CBlockTournament::Leave(CPlayer *pPlayer)
 		return;
 
 	pPlayer->m_IsBlockTourning = false;
-	m_aRestorePos[pPlayer->GetCID()] = true;
+	m_aRestorePos[pPlayer->GetCid()] = true;
 }
 
 void CBlockTournament::Join(CPlayer *pPlayer)
@@ -47,14 +47,14 @@ void CBlockTournament::Join(CPlayer *pPlayer)
 	pPlayer->m_IsBlockTourningInArena = false;
 }
 
-bool CBlockTournament::AllowSelfKill(int ClientID)
+bool CBlockTournament::AllowSelfKill(int ClientId)
 {
-	if(ClientID < 0 || ClientID > MAX_CLIENTS)
+	if(ClientId < 0 || ClientId > MAX_CLIENTS)
 		return true;
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
 		return true;
-	if(!IsActive(ClientID))
+	if(!IsActive(ClientId))
 		return true;
 
 	if(State() == STATE_IN_GAME || State() == STATE_COOLDOWN)
@@ -101,7 +101,7 @@ bool CBlockTournament::PickSpawn(vec2 *pPos, CPlayer *pPlayer)
 	if(State() != STATE_COOLDOWN)
 		return false;
 
-	int Id = pPlayer->GetCID();
+	int Id = pPlayer->GetCid();
 	vec2 Pos = GetNextArenaSpawn(Id);
 	if(Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
 		return false;
@@ -129,7 +129,7 @@ void CBlockTournament::PostSpawn(CCharacter *pChr, vec2 Pos)
 	pChr->m_BlockTournaDeadTicks = 0;
 }
 
-vec2 CBlockTournament::GetNextArenaSpawn(int ClientID)
+vec2 CBlockTournament::GetNextArenaSpawn(int ClientId)
 {
 	vec2 Spawn = Collision()->GetBlockTournamentSpawn(m_SpawnCounter++);
 	if(Spawn == vec2(-1, -1))
@@ -158,7 +158,7 @@ void CBlockTournament::CharacterTick(CCharacter *pChr)
 	CPlayer *pPlayer = pChr->GetPlayer();
 	if(!pPlayer)
 		return;
-	if(!IsActive(pPlayer->GetCID()))
+	if(!IsActive(pPlayer->GetCid()))
 		return;
 
 	if(!pChr->m_FreezeTime)
@@ -169,7 +169,7 @@ void CBlockTournament::CharacterTick(CCharacter *pChr)
 
 	pChr->m_BlockTournaDeadTicks++;
 	if(pChr->m_BlockTournaDeadTicks > 15 * Server()->TickSpeed())
-		pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+		pChr->Die(pPlayer->GetCid(), WEAPON_SELF);
 }
 
 void CBlockTournament::SlowTick()
@@ -186,7 +186,7 @@ void CBlockTournament::SlowTick()
 
 		Leave(Player);
 		if(Player->GetCharacter())
-			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+			Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 	}
 	State(CBlockTournament::STATE_OFF);
 }
@@ -211,7 +211,7 @@ void CBlockTournament::Tick()
 					Leave(Player);
 					if(Player->GetCharacter() && !Player->m_IsBlockTourningDead)
 					{
-						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+						Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 					}
 				}
 			}
@@ -261,7 +261,7 @@ void CBlockTournament::Tick()
 					if(Player->GetCharacter())
 					{
 						SavePosition(Player);
-						Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+						Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 					}
 		}
 	}
@@ -305,14 +305,14 @@ void CBlockTournament::EndRound()
 	{
 		if(!Player)
 			continue;
-		if(!IsActive(Player->GetCID()))
+		if(!IsActive(Player->GetCid()))
 			continue;
 
 		Leave(Player);
 		if(Player->GetCharacter() && !Player->m_IsBlockTourningDead && Player->m_IsBlockTourningInArena)
-			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+			Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 		else if(Player->GetCharacter())
-			m_aRestorePos[Player->GetCID()] = false;
+			m_aRestorePos[Player->GetCid()] = false;
 	}
 }
 
@@ -328,7 +328,7 @@ int CBlockTournament::CountAlive()
 			if(Player->m_IsBlockTourning)
 			{
 				c++;
-				id = Player->GetCID();
+				id = Player->GetCid();
 			}
 		}
 	}
@@ -371,10 +371,10 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	Leave(pPlayer);
 	pPlayer->m_IsBlockTourningDead = true;
 	pPlayer->m_IsBlockTourningInArena = false;
-	int wonID = CountAlive();
+	int wonId = CountAlive();
 
 	//update skill levels
-	if(pPlayer->GetCID() == Killer) //selfkill
+	if(pPlayer->GetCid() == Killer) //selfkill
 	{
 		GameServer()->UpdateBlockSkill(-40, Killer);
 	}
@@ -387,12 +387,12 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		{
 			if(deadskill < killskill) //the killer is better
 			{
-				GameServer()->UpdateBlockSkill(-29, pPlayer->GetCID()); //killed
+				GameServer()->UpdateBlockSkill(-29, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+30, Killer); //killer
 			}
 			else //the killer is worse
 			{
-				GameServer()->UpdateBlockSkill(-40, pPlayer->GetCID()); //killed
+				GameServer()->UpdateBlockSkill(-40, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+40, Killer); //killer
 			}
 		}
@@ -400,29 +400,29 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		{
 			if(deadskill < killskill) //the killer is better
 			{
-				GameServer()->UpdateBlockSkill(-19, pPlayer->GetCID()); //killed
+				GameServer()->UpdateBlockSkill(-19, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+20, Killer); //killer
 			}
 			else //the killer is worse
 			{
-				GameServer()->UpdateBlockSkill(-60, pPlayer->GetCID()); //killed
+				GameServer()->UpdateBlockSkill(-60, pPlayer->GetCid()); //killed
 				GameServer()->UpdateBlockSkill(+60, Killer); //killer
 			}
 		}
 	}
 
-	if(wonID == -404)
+	if(wonId == -404)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
-	else if(wonID < 0)
+	else if(wonId < 0)
 	{
-		if(wonID == -420)
-			wonID = 0;
-		wonID *= -1;
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonID), m_StartPlayers);
+		if(wonId == -420)
+			wonId = 0;
+		wonId *= -1;
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonId), m_StartPlayers);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_ENDING; //set end state
 
@@ -475,30 +475,30 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 		}
 
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d xp", xp_rew);
-		GameServer()->SendChatTarget(wonID, aBuf);
+		GameServer()->SendChatTarget(wonId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d money", money_rew);
-		GameServer()->SendChatTarget(wonID, aBuf);
+		GameServer()->SendChatTarget(wonId, aBuf);
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] +%d points", points_rew);
-		GameServer()->SendChatTarget(wonID, aBuf);
+		GameServer()->SendChatTarget(wonId, aBuf);
 
-		GameServer()->m_apPlayers[wonID]->MoneyTransaction(+money_rew, "block tournament");
-		GameServer()->m_apPlayers[wonID]->GiveXP(xp_rew);
-		GameServer()->m_apPlayers[wonID]->GiveBlockPoints(points_rew);
-		GameServer()->UpdateBlockSkill(+skill_rew, wonID);
+		GameServer()->m_apPlayers[wonId]->MoneyTransaction(+money_rew, "block tournament");
+		GameServer()->m_apPlayers[wonId]->GiveXP(xp_rew);
+		GameServer()->m_apPlayers[wonId]->GiveBlockPoints(points_rew);
+		GameServer()->UpdateBlockSkill(+skill_rew, wonId);
 	}
-	else if(wonID == 0)
+	else if(wonId == 0)
 	{
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
 		m_State = STATE_OFF;
 	}
-	else if(wonID > 1)
+	else if(wonId > 1)
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonID + 1);
-		GameServer()->SendChatTarget(pPlayer->GetCID(), aBuf);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] you died and placed as rank %d in the tournament", wonId + 1);
+		GameServer()->SendChatTarget(pPlayer->GetCid(), aBuf);
 	}
 	else
 	{
-		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonID);
+		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		m_State = STATE_OFF;
 	}

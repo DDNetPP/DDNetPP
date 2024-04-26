@@ -19,8 +19,8 @@ MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
 IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
-CPlayer::CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team, bool IsDummy) :
-	m_UniqueClientID(UniqueClientID)
+CPlayer::CPlayer(CGameContext *pGameServer, uint32_t UniqueClientId, int ClientId, int Team, bool IsDummy) :
+	m_UniqueClientId(UniqueClientId)
 {
 	m_pGameServer = pGameServer;
 	m_ClientId = ClientId;
@@ -28,7 +28,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientI
 	m_NumInputs = 0;
 	m_IsDummy = IsDummy;
 	Reset();
-	GameServer()->Antibot()->OnPlayerInit(m_ClientID);
+	GameServer()->Antibot()->OnPlayerInit(m_ClientId);
 	ConstructDDPP();
 }
 
@@ -342,9 +342,9 @@ void CPlayer::Snap(int SnappingClient)
 		m_ShowName = true;
 	}
 
-	StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
-	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientID));
-	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
+	StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientId));
+	StrToInts(&pClientInfo->m_Clan0, 3, Server()->ClientClan(m_ClientId));
+	pClientInfo->m_Country = Server()->ClientCountry(m_ClientId);
 
 	if(!DDPPSnapChangeSkin(pClientInfo))
 	{
@@ -355,7 +355,7 @@ void CPlayer::Snap(int SnappingClient)
 	}
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-	int Latency = SnappingClient == SERVER_DEMO_CLIENT ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aCurLatency[m_ClientID];
+	int Latency = SnappingClient == SERVER_DEMO_CLIENT ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aCurLatency[m_ClientId];
 	int Score;
 	// This is the time sent to the player while ingame (do not confuse to the one reported to the master server).
 	// Due to clients expecting this as a negative value, we have to make sure it's negative.
@@ -717,7 +717,7 @@ void CPlayer::TryRespawn()
 {
 	vec2 SpawnPos;
 
-	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this, GameServer()->GetDDRaceTeam(m_ClientID)))
+	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, this, GameServer()->GetDDRaceTeam(m_ClientId)))
 		return;
 
 	m_WeakHookSpawn = false;
@@ -966,8 +966,8 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 				GameServer()->SendBroadcast(aBuf, m_ClientId);
 				m_BirthdayAnnounced = true;
 			}
-			GameServer()->InitDDPPScore(m_ClientID);
-			GameServer()->SendRecord(m_ClientID);
+			GameServer()->InitDDPPScore(m_ClientId);
+			GameServer()->SendRecord(m_ClientId);
 			break;
 		}
 	}

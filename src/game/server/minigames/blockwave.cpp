@@ -68,7 +68,7 @@ void CGameContext::BlockWaveWonRound()
 	}
 	else //no BlockWaveSpawnTile
 	{
-		//GameServer()->SendChatTarget(m_pPlayer->GetCID(), "[BlockWave] No arena set.");
+		//GameServer()->SendChatTarget(m_pPlayer->GetCid(), "[BlockWave] No arena set.");
 		m_BlockWaveGameState = 0;
 	}
 
@@ -79,7 +79,7 @@ void CGameContext::BlockWaveWonRound()
 			Player->m_IsBlockWaveDead = false; //noboy is dead on new round
 			if(Player->m_IsBlockWaving && Player->m_IsDummy) //disconnect dummys
 			{
-				Server()->BotLeave(Player->GetCID(), true);
+				Server()->BotLeave(Player->GetCid(), true);
 			}
 		}
 	}
@@ -177,10 +177,10 @@ void CGameContext::BlockWaveStartNewGame()
 	{
 		if(Player && Player->m_IsBlockWaving && Player->GetCharacter())
 		{
-			Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+			Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 			if(Player->m_IsDummy)
 			{
-				Server()->BotLeave(Player->GetCID(), true);
+				Server()->BotLeave(Player->GetCid(), true);
 			}
 		}
 	}
@@ -205,7 +205,7 @@ void CGameContext::SendBroadcastBlockWave(const char *pMsg)
 	{
 		if(Player && Player->m_IsBlockWaving)
 		{
-			SendBroadcast(pMsg, Player->GetCID());
+			SendBroadcast(pMsg, Player->GetCid());
 		}
 	}
 }
@@ -216,7 +216,7 @@ void CGameContext::SendChatBlockWave(const char *pMsg)
 	{
 		if(Player && Player->m_IsBlockWaving)
 		{
-			SendChatTarget(Player->GetCID(), pMsg);
+			SendChatTarget(Player->GetCid(), pMsg);
 		}
 	}
 }

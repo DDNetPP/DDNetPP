@@ -62,7 +62,7 @@ bool CDummyBlmapChillPolice::CheckStuck()
 	if(m_Confused < 7) // confused
 	{
 		if(IsStuck && m_Confused > 1)
-			GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_QUESTION, -1);
+			GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_QUESTION, -1);
 		if(m_Confused == 3)
 			Jump();
 		else if(m_Confused == 4)
@@ -84,7 +84,7 @@ bool CDummyBlmapChillPolice::CheckStuck()
 	else // too confused -> sad
 	{
 		if(IsStuck)
-			GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_DROP, -1);
+			GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_DROP, -1);
 		if(m_Sad > 3)
 			m_Sad % 2 ? Left() : Right();
 		if(m_Sad > 6)
@@ -124,7 +124,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 	if(!m_LowerPanic && Y > 437 && GetPos().y > m_LovedY)
 	{
 		m_LowerPanic = 1;
-		GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_SPLATTEE, -1);
+		GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_SPLATTEE, -1);
 	}
 
 	if(m_LowerPanic)
@@ -306,7 +306,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 					{
 						m_LovedX = RAW(420) + rand() % 69;
 						m_LovedY = RAW(430);
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_GHOST, -1);
+						GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_GHOST, -1);
 					}
 					else
 					{
@@ -317,7 +317,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 					{
 						m_LovedX = RAW(384) + rand() % 128;
 						m_LovedY = RAW(430);
-						GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_MUSIC, -1);
+						GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_MUSIC, -1);
 					}
 					else
 					{
@@ -325,13 +325,13 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 						{
 							m_LovedX = RAW(420) + rand() % 128;
 							m_LovedY = RAW(430);
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_SUSHI, -1);
+							GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_SUSHI, -1);
 						}
 						else if(rand() % 4 == 0)
 						{
 							m_LovedX = RAW(429) + rand() % 64;
 							m_LovedY = RAW(430);
-							GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_SUSHI, -1);
+							GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_SUSHI, -1);
 						}
 					}
 					if(rand() % 5 == 0) //lower middel base
@@ -341,7 +341,7 @@ void CDummyBlmapChillPolice::OldPoliceMoves()
 					}
 				}
 				else
-					GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_EXCLAMATION, -1);
+					GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_EXCLAMATION, -1);
 			}
 		}
 	}
@@ -419,7 +419,7 @@ void CDummyBlmapChillPolice::OnTick()
 		if(IsFrozen() && X > 32)
 		{
 			if(TicksPassed(60))
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_DROP, -1); // tear emote before killing
+				GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_DROP, -1); // tear emote before killing
 			if(TicksPassed(500) && IsGrounded()) //kill when freeze
 			{
 				Die();
@@ -485,7 +485,7 @@ void CDummyBlmapChillPolice::OnTick()
 			Right();
 			if(X > 33 && X < 42 && Y > 20 && Y < 25)
 			{
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_EYES, -1); //happy emote when successfully did the grenaede jump
+				GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_EYES, -1); //happy emote when successfully did the grenaede jump
 			}
 			if(X < 50)
 			{
@@ -625,7 +625,7 @@ void CDummyBlmapChillPolice::OnTick()
 	if(IsFrozen() && Y < 410) // kills when in freeze and not in policebase
 	{
 		if(TicksPassed(60))
-			GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_DROP, -1); // tear emote before killing
+			GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_DROP, -1); // tear emote before killing
 		if(TicksPassed(500) && IsGrounded()) // kill when freeze
 		{
 			Die();
@@ -1024,7 +1024,7 @@ void CDummyBlmapChillPolice::OnTick()
 		if(IsFrozen())
 		{
 			if(TicksPassed(60))
-				GameServer()->SendEmoticon(m_pPlayer->GetCID(), EMOTICON_DROP, -1); // tear emote before killing
+				GameServer()->SendEmoticon(m_pPlayer->GetCid(), EMOTICON_DROP, -1); // tear emote before killing
 			if(TicksPassed(3000) && (IsGrounded() || X > 430)) // kill when freeze
 			{
 				Die();
@@ -1158,8 +1158,8 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 		if(HookState() == HOOK_GRABBED)
 		{
 			Right();
-			int HookedID = m_pCharacter->Core()->HookedPlayer();
-			CPlayer *pHooked = GameServer()->m_apPlayers[HookedID];
+			int HookedId = m_pCharacter->Core()->HookedPlayer();
+			CPlayer *pHooked = GameServer()->m_apPlayers[HookedId];
 			CCharacter *pCharHooked = pHooked->GetCharacter();
 			if(pCharHooked)
 			{
@@ -1215,7 +1215,7 @@ bool CDummyBlmapChillPolice::HelpOfficerLeft()
 			// release hook on enemy when he is frozen on the left side
 			if(!IsPolice(pClosestChr) && IsFrozen(pClosestChr))
 				if(pClosestChr->GetPos().x < RAW(364))
-					if(m_pCharacter->Core()->HookedPlayer() == pClosestChr->GetPlayer()->GetCID())
+					if(m_pCharacter->Core()->HookedPlayer() == pClosestChr->GetPlayer()->GetCid())
 						Hook(0);
 		}
 		if(TicksPassed(30))
@@ -1247,8 +1247,8 @@ bool CDummyBlmapChillPolice::HelpOfficerRight()
 		if(HookState() == HOOK_GRABBED)
 		{
 			Left();
-			int HookedID = m_pCharacter->Core()->HookedPlayer();
-			CCharacter *pCharHooked = GameServer()->GetPlayerChar(HookedID);
+			int HookedId = m_pCharacter->Core()->HookedPlayer();
+			CCharacter *pCharHooked = GameServer()->GetPlayerChar(HookedId);
 			if(pCharHooked)
 			{
 				// hooked a non police tee -> try to get rid of it

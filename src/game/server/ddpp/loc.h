@@ -16,7 +16,7 @@ class CLoc
 public:
 	CLoc(CGameContext *pGameContext);
 
-	const char *DDPPLocalize(const char *pStr, int ClientID);
+	const char *DDPPLocalize(const char *pStr, int ClientId);
 	CGameContext *GameServer();
 };
 

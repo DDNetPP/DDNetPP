@@ -50,7 +50,7 @@ void CDummyGrenadeFng::OnTick()
 		if(GetPos().y + offset_y > 73 * 32)
 		{
 			Jump();
-			//GameServer()->SendChat(m_pPlayer->GetCID(), CGameContext::CHAT_ALL, "hopsa");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "hopsa");
 		}
 	}
 

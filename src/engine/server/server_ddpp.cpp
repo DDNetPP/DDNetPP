@@ -57,7 +57,7 @@ void CServer::DDPPRegisterDatabases()
 	}
 }
 
-void CServer::BotJoin(int BotID)
+void CServer::BotJoin(int BotId)
 {
 	const char *pNames[] = {//Array für die Namen
 		"flappy.*",
@@ -256,46 +256,46 @@ void CServer::BotJoin(int BotID)
 		"63",
 		"64"};
 
-	m_aClients[BotID].m_State = CClient::STATE_PREAUTH;
-	m_aClients[BotID].m_DnsblState = CClient::DNSBL_STATE_NONE;
-	m_aClients[BotID].m_aName[0] = 0;
-	m_aClients[BotID].m_aClan[0] = 0;
-	m_aClients[BotID].m_Country = -1;
-	m_aClients[BotID].m_Authed = AUTHED_NO;
-	m_aClients[BotID].m_AuthKey = -1;
-	m_aClients[BotID].m_AuthTries = 0;
-	m_aClients[BotID].m_pRconCmdToSend = 0;
-	m_aClients[BotID].m_Traffic = 0;
-	m_aClients[BotID].m_TrafficSince = 0;
-	m_aClients[BotID].m_ShowIps = false;
-	m_aClients[BotID].m_DDNetVersion = VERSION_NONE;
-	m_aClients[BotID].m_GotDDNetVersionPacket = false;
-	m_aClients[BotID].m_DDNetVersionSettled = false;
-	memset(&m_aClients[BotID].m_Addr, 0, sizeof(NETADDR));
-	m_aClients[BotID].Reset();
-	m_aClients[BotID].m_Sixup = false;
+	m_aClients[BotId].m_State = CClient::STATE_PREAUTH;
+	m_aClients[BotId].m_DnsblState = CClient::DNSBL_STATE_NONE;
+	m_aClients[BotId].m_aName[0] = 0;
+	m_aClients[BotId].m_aClan[0] = 0;
+	m_aClients[BotId].m_Country = -1;
+	m_aClients[BotId].m_Authed = AUTHED_NO;
+	m_aClients[BotId].m_AuthKey = -1;
+	m_aClients[BotId].m_AuthTries = 0;
+	m_aClients[BotId].m_pRconCmdToSend = 0;
+	m_aClients[BotId].m_Traffic = 0;
+	m_aClients[BotId].m_TrafficSince = 0;
+	m_aClients[BotId].m_ShowIps = false;
+	m_aClients[BotId].m_DDNetVersion = VERSION_NONE;
+	m_aClients[BotId].m_GotDDNetVersionPacket = false;
+	m_aClients[BotId].m_DDNetVersionSettled = false;
+	memset(&m_aClients[BotId].m_Addr, 0, sizeof(NETADDR));
+	m_aClients[BotId].Reset();
+	m_aClients[BotId].m_Sixup = false;
 
-	m_NetServer.BotInit(BotID);
-	m_aClients[BotID].m_State = CClient::STATE_BOT;
+	m_NetServer.BotInit(BotId);
+	m_aClients[BotId].m_State = CClient::STATE_BOT;
 
-	str_copy(m_aClients[BotID].m_aName, pNames[BotID], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
-	str_copy(m_aClients[BotID].m_aClan, pClans[BotID], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
+	str_copy(m_aClients[BotId].m_aName, pNames[BotId], MAX_NAME_LENGTH); //Namen des Jeweiligen Dummys setzten
+	str_copy(m_aClients[BotId].m_aClan, pClans[BotId], MAX_CLAN_LENGTH); //Clan des jeweiligen Dummys setzten
 }
 
-void CServer::BotLeave(int BotID, bool Silent)
+void CServer::BotLeave(int BotId, bool Silent)
 {
-	GameServer()->OnClientDrop(BotID, "", Silent);
+	GameServer()->OnClientDrop(BotId, "", Silent);
 
-	m_aClients[BotID].m_State = CClient::STATE_EMPTY;
-	m_aClients[BotID].m_aName[0] = 0;
-	m_aClients[BotID].m_aClan[0] = 0;
-	m_aClients[BotID].m_Country = -1;
-	m_aClients[BotID].m_Authed = AUTHED_NO;
-	m_aClients[BotID].m_AuthTries = 0;
-	m_aClients[BotID].m_pRconCmdToSend = 0;
-	m_aClients[BotID].m_Snapshots.PurgeAll();
+	m_aClients[BotId].m_State = CClient::STATE_EMPTY;
+	m_aClients[BotId].m_aName[0] = 0;
+	m_aClients[BotId].m_aClan[0] = 0;
+	m_aClients[BotId].m_Country = -1;
+	m_aClients[BotId].m_Authed = AUTHED_NO;
+	m_aClients[BotId].m_AuthTries = 0;
+	m_aClients[BotId].m_pRconCmdToSend = 0;
+	m_aClients[BotId].m_Snapshots.PurgeAll();
 
-	m_NetServer.BotDelete(BotID);
+	m_NetServer.BotDelete(BotId);
 }
 
 void CServer::ConStartBlockTourna(IConsole::IResult *pResult, void *pUser)
@@ -315,7 +315,7 @@ int CServer::LoadMapLive(const char *pMapName)
 		return 0;
 
 	// reinit snapshot ids
-	m_IDPool.TimeoutIDs();
+	m_IdPool.TimeoutIds();
 
 	// get the crc of the map
 	m_aCurrentMapSha256[MAP_TYPE_SIX] = m_pMap->Sha256();

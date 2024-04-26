@@ -88,7 +88,7 @@ public:
         Will be called for every client that tries to selfkill
         can be overwritten to disallow selfkill during the minigame
     */
-	virtual bool AllowSelfKill(int ClientID) { return true; }
+	virtual bool AllowSelfKill(int ClientId) { return true; }
 
 	/*
         OnDeath
@@ -128,9 +128,9 @@ public:
 	/*
         IsActive
 
-        Returns true if the ClientID is playing the minigame
+        Returns true if the ClientId is playing the minigame
     */
-	virtual bool IsActive(int ClientID) = 0;
+	virtual bool IsActive(int ClientId) = 0;
 
 	/*
         ScoreType
@@ -155,7 +155,7 @@ public:
         Make sure SavePosition is called first.
         Use this to restore position after leaving the minigame.
 
-        m_aRestorePos[ClientID] has to be set to true
+        m_aRestorePos[ClientId] has to be set to true
     */
 	virtual void LoadPosition(CCharacter *pChr);
 

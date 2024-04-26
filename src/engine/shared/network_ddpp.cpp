@@ -11,14 +11,14 @@
 #include <engine/shared/protocol.h>
 #include <game/generated/protocol.h>
 
-void CNetServer::BotInit(int BotID)
+void CNetServer::BotInit(int BotId)
 {
-	m_aSlots[BotID].m_Connection.BotConnect();
+	m_aSlots[BotId].m_Connection.BotConnect();
 }
 
-void CNetServer::BotDelete(int BotID)
+void CNetServer::BotDelete(int BotId)
 {
-	m_aSlots[BotID].m_Connection.BotDrop();
+	m_aSlots[BotId].m_Connection.BotDrop();
 }
 
 void CNetConnection::BotConnect()

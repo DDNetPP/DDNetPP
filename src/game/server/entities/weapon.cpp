@@ -22,10 +22,10 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 	m_PickupDelay = Server()->TickSpeed() * 2;
 
-	m_ID2 = Server()->SnapNewID();
-	m_ID3 = Server()->SnapNewID();
-	m_ID4 = Server()->SnapNewID();
-	m_ID5 = Server()->SnapNewID();
+	m_Id2 = Server()->SnapNewId();
+	m_Id3 = Server()->SnapNewId();
+	m_Id4 = Server()->SnapNewId();
+	m_Id5 = Server()->SnapNewId();
 
 	m_TuneZone = GameServer()->Collision()->IsTune(GameServer()->Collision()->GetMapIndex(m_Pos));
 
@@ -34,10 +34,10 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Weapon, int Lifetime, int Owner, in
 
 CWeapon::~CWeapon()
 {
-	Server()->SnapFreeID(m_ID2);
-	Server()->SnapFreeID(m_ID3);
-	Server()->SnapFreeID(m_ID4);
-	Server()->SnapFreeID(m_ID5);
+	Server()->SnapFreeId(m_Id2);
+	Server()->SnapFreeId(m_Id3);
+	Server()->SnapFreeId(m_Id4);
+	Server()->SnapFreeId(m_Id5);
 }
 
 void CWeapon::Reset()
@@ -92,7 +92,7 @@ int CWeapon::IsCharacterNear()
 	{
 		CCharacter *pChr = apEnts[i];
 		if(pChr && pChr->IsAlive())
-			return pChr->GetPlayer()->GetCID();
+			return pChr->GetPlayer()->GetCid();
 	}
 
 	return -1;
@@ -100,10 +100,10 @@ int CWeapon::IsCharacterNear()
 
 void CWeapon::Pickup()
 {
-	int CharID = IsCharacterNear();
-	if(CharID != -1)
+	int CharId = IsCharacterNear();
+	if(CharId != -1)
 	{
-		CCharacter *pChar = GameServer()->GetPlayerChar(CharID);
+		CCharacter *pChar = GameServer()->GetPlayerChar(CharId);
 		if(!pChar)
 			return;
 		if(pChar->GetPlayer()->m_SpookyGhostActive && m_Type != WEAPON_GUN)
@@ -146,12 +146,12 @@ void CWeapon::Pickup()
 		if(m_SpreadGun && (!pChar->m_autospreadgun && !pChar->GetPlayer()->m_InfAutoSpreadGun))
 		{
 			pChar->m_autospreadgun = true;
-			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a spread gun");
+			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCid(), "You have a spread gun");
 		}
 		if(m_Jetpack && !pChar->Core()->m_Jetpack)
 		{
 			pChar->Core()->m_Jetpack = true;
-			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCID(), "You have a jetpack gun");
+			GameServer()->SendChatTarget(pChar->GetPlayer()->GetCid(), "You have a jetpack gun");
 		}
 
 		if(m_Type == WEAPON_SHOTGUN || m_Type == WEAPON_LASER)
@@ -287,7 +287,7 @@ void CWeapon::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetID(), sizeof(CNetObj_Pickup)));
+	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetId(), sizeof(CNetObj_Pickup)));
 	if(!pP)
 		return;
 
@@ -309,7 +309,7 @@ void CWeapon::Snap(int SnappingClient)
 
 	if(m_Jetpack)
 	{
-		CNetObj_Projectile *pJetpackIndicator = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID2, sizeof(CNetObj_Projectile)));
+		CNetObj_Projectile *pJetpackIndicator = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id2, sizeof(CNetObj_Projectile)));
 		if(pJetpackIndicator)
 		{
 			pJetpackIndicator->m_X = pP->m_X;
@@ -321,7 +321,7 @@ void CWeapon::Snap(int SnappingClient)
 
 	if(m_SpreadGun)
 	{
-		CNetObj_Projectile *pSpreadGunIndicator1 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID3, sizeof(CNetObj_Projectile)));
+		CNetObj_Projectile *pSpreadGunIndicator1 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id3, sizeof(CNetObj_Projectile)));
 		if(pSpreadGunIndicator1)
 		{
 			pSpreadGunIndicator1->m_X = pP->m_X;
@@ -330,7 +330,7 @@ void CWeapon::Snap(int SnappingClient)
 			pSpreadGunIndicator1->m_StartTick = Server()->Tick();
 		}
 
-		CNetObj_Projectile *pSpreadGunIndicator2 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID4, sizeof(CNetObj_Projectile)));
+		CNetObj_Projectile *pSpreadGunIndicator2 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id4, sizeof(CNetObj_Projectile)));
 		if(pSpreadGunIndicator2)
 		{
 			pSpreadGunIndicator2->m_X = pP->m_X - 20;
@@ -339,7 +339,7 @@ void CWeapon::Snap(int SnappingClient)
 			pSpreadGunIndicator2->m_StartTick = Server()->Tick();
 		}
 
-		CNetObj_Projectile *pSpreadGunIndicator3 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_ID5, sizeof(CNetObj_Projectile)));
+		CNetObj_Projectile *pSpreadGunIndicator3 = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, m_Id5, sizeof(CNetObj_Projectile)));
 		if(pSpreadGunIndicator3)
 		{
 			pSpreadGunIndicator3->m_X = pP->m_X + 20;

@@ -26,10 +26,10 @@ void CDummyShopBot::OnTick()
 	StopMoving();
 
 	CCharacter *pChr = GameServer()->m_World.ClosestCharType(GetPos(), false, m_pCharacter);
-	if(pChr && pChr->IsAlive() && GameServer()->Shop()->IsInShop(pChr->GetPlayer()->GetCID()))
+	if(pChr && pChr->IsAlive() && GameServer()->Shop()->IsInShop(pChr->GetPlayer()->GetCid()))
 		AimPos(pChr->GetPos());
 
 	if(m_pCharacter->m_IsFreeShopBot)
-		if(Server()->Tick() % 500 == 0 && !GameServer()->Shop()->IsInShop(m_pPlayer->GetCID()))
+		if(Server()->Tick() % 500 == 0 && !GameServer()->Shop()->IsInShop(m_pPlayer->GetCid()))
 			Die();
 }

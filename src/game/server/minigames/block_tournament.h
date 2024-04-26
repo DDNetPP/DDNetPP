@@ -16,12 +16,12 @@ public:
 	void Tick() override;
 	void SlowTick() override;
 	void CharacterTick(CCharacter *pChr) override;
-	bool AllowSelfKill(int ClientID) override;
+	bool AllowSelfKill(int ClientId) override;
 	void OnDeath(CCharacter *pChr, int Killer) override;
 	void PostSpawn(CCharacter *pChr, vec2 Pos) override;
 	bool PickSpawn(vec2 *pPos, CPlayer *pPlayer) override;
 
-	bool IsActive(int ClientID) override;
+	bool IsActive(int ClientId) override;
 	void Leave(CPlayer *pPlayer); // move to base?
 	void Join(CPlayer *pPlayer);
 
@@ -38,7 +38,7 @@ public:
 private:
 	int CountAlive();
 	void EndRound();
-	vec2 GetNextArenaSpawn(int ClientID);
+	vec2 GetNextArenaSpawn(int ClientId);
 
 	/*
 		m_StartPlayers

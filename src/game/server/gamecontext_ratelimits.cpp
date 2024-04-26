@@ -9,10 +9,10 @@ void CGameContext::IncrementWrongRconAttempts()
 	m_WrongRconAttempts++;
 }
 
-void CGameContext::RegisterBanCheck(int ClientID)
+void CGameContext::RegisterBanCheck(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
@@ -43,11 +43,11 @@ void CGameContext::RegisterBanCheck(int ClientID)
 
 	if(regs >= g_Config.m_SvMaxRegisterPerIp)
 	{
-		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+		RegisterBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientID=%d has registered %d/%d accounts.", ClientID, regs, g_Config.m_SvMaxRegisterPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has registered %d/%d accounts.", ClientId, regs, g_Config.m_SvMaxRegisterPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 	else // no free slot found
@@ -103,10 +103,10 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	}
 }
 
-void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
+void CGameContext::CheckDeleteLoginBanEntry(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumLoginBans; i++)
@@ -119,23 +119,23 @@ void CGameContext::CheckDeleteLoginBanEntry(int ClientID)
 			if(m_aLoginBans[i].m_LastAttempt + (time_freq() * LOGIN_BAN_DELAY) < time_get())
 			{
 				// TODO: be consistent with log types... sometimes its "bans", "mutes", "login_bans", "account" like wtf?
-				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				dbg_msg("mutes", "delete login ban entry for player=%d:'%s' due to expiration", ClientId, Server()->ClientName(ClientId));
 				m_aLoginBans[m_NumLoginBans].m_NumAttempts = 0;
-				if(ClientID < 0 || ClientID >= m_NumLoginBans)
+				if(ClientId < 0 || ClientId >= m_NumLoginBans)
 					return;
 
 				m_NumLoginBans--;
-				m_aLoginBans[ClientID] = m_aLoginBans[m_NumLoginBans];
+				m_aLoginBans[ClientId] = m_aLoginBans[m_NumLoginBans];
 				return;
 			}
 		}
 	}
 }
 
-void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
+void CGameContext::CheckDeleteRegisterBanEntry(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumRegisterBans; i++)
@@ -147,23 +147,23 @@ void CGameContext::CheckDeleteRegisterBanEntry(int ClientID)
 				return;
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * REGISTER_BAN_DELAY) < time_get())
 			{
-				dbg_msg("mutes", "delete register ban entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				dbg_msg("mutes", "delete register ban entry for player=%d:'%s' due to expiration", ClientId, Server()->ClientName(ClientId));
 				m_aRegisterBans[m_NumRegisterBans].m_NumAttempts = 0;
-				if(ClientID < 0 || ClientID >= m_NumRegisterBans)
+				if(ClientId < 0 || ClientId >= m_NumRegisterBans)
 					return;
 
 				m_NumRegisterBans--;
-				m_aRegisterBans[ClientID] = m_aRegisterBans[m_NumRegisterBans];
+				m_aRegisterBans[ClientId] = m_aRegisterBans[m_NumRegisterBans];
 				return;
 			}
 		}
 	}
 }
 
-void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
+void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	// find a matching ban for this ip, delete if expired
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
@@ -175,23 +175,23 @@ void CGameContext::CheckDeleteNamechangeMuteEntry(int ClientID)
 				return;
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAMECHANGE_BAN_DELAY) < time_get())
 			{
-				dbg_msg("mutes", "delete namechange mute entry for player=%d:'%s' due to expiration", ClientID, Server()->ClientName(ClientID));
+				dbg_msg("mutes", "delete namechange mute entry for player=%d:'%s' due to expiration", ClientId, Server()->ClientName(ClientId));
 				m_aNameChangeMutes[m_NumNameChangeMutes].m_NumAttempts = 0;
-				if(ClientID < 0 || ClientID >= m_NumNameChangeMutes)
+				if(ClientId < 0 || ClientId >= m_NumNameChangeMutes)
 					return;
 
 				m_NumNameChangeMutes--;
-				m_aNameChangeMutes[ClientID] = m_aNameChangeMutes[m_NumNameChangeMutes];
+				m_aNameChangeMutes[ClientId] = m_aNameChangeMutes[m_NumNameChangeMutes];
 				return;
 			}
 		}
 	}
 }
 
-void CGameContext::LoginBanCheck(int ClientID)
+void CGameContext::LoginBanCheck(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
@@ -206,7 +206,7 @@ void CGameContext::LoginBanCheck(int ClientID)
 			m_aLoginBans[m_NumLoginBans].m_LastAttempt = time_get();
 			atts = ++m_aLoginBans[i].m_NumAttempts;
 			Found = 1;
-			// dbg_msg("login", "found ClientID=%d with %d failed attempts.", ClientID, atts);
+			// dbg_msg("login", "found ClientId=%d with %d failed attempts.", ClientId, atts);
 			break;
 		}
 	}
@@ -221,18 +221,18 @@ void CGameContext::LoginBanCheck(int ClientID)
 			atts = m_aLoginBans[m_NumLoginBans].m_NumAttempts = 1;
 			m_NumLoginBans++;
 			Found = 1;
-			// dbg_msg("login", "adding ClientID=%d with %d failed attempts.", ClientID, atts);
+			// dbg_msg("login", "adding ClientId=%d with %d failed attempts.", ClientId, atts);
 		}
 	}
 
 	if(atts >= g_Config.m_SvMaxLoginPerIp)
-		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+		LoginBan(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	else if(atts % 3 == 0 && BanTime < 60) // rate limit every 3 fails for 1 minute ( only if bantime is less than 1 min )
-		LoginBan(&Addr, 60, Server()->ClientName(ClientID));
+		LoginBan(&Addr, 60, Server()->ClientName(ClientId));
 
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientID=%d has %d/%d failed account login attempts.", ClientID, atts, g_Config.m_SvMaxLoginPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has %d/%d failed account login attempts.", ClientId, atts, g_Config.m_SvMaxLoginPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "accounts", aBuf);
 	}
 	else // no free slot found
@@ -290,11 +290,11 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 	}
 }
 
-int64_t CGameContext::NameChangeMuteCheck(int ClientID)
+int64_t CGameContext::NameChangeMuteCheck(int ClientId)
 {
-	int64_t muteTime = NameChangeMuteTime(ClientID);
+	int64_t muteTime = NameChangeMuteTime(ClientId);
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	char aBuf[128];
 	int Found = 0;
@@ -307,7 +307,7 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientID)
 		{
 			if(m_aNameChangeMutes[i].m_LastAttempt + (time_freq() * NAME_CHANGE_DELAY) < time_get())
 			{
-				// dbg_msg("mutes", "name changes mute counter reset for player=%d:'%s'", ClientID, Server()->ClientName(ClientID));
+				// dbg_msg("mutes", "name changes mute counter reset for player=%d:'%s'", ClientId, Server()->ClientName(ClientId));
 				m_aNameChangeMutes[i].m_NumAttempts = 0;
 			}
 			changes = ++m_aNameChangeMutes[i].m_NumAttempts;
@@ -333,11 +333,11 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientID)
 	if(changes >= g_Config.m_SvMaxNameChangesPerIp)
 	{
 		if(!muteTime)
-			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientID));
+			NameChangeMute(&Addr, 60 * 60 * 12, Server()->ClientName(ClientId));
 	}
 	if(Found)
 	{
-		str_format(aBuf, sizeof(aBuf), "ClientID=%d has changed name %d/%d times.", ClientID, changes, g_Config.m_SvMaxNameChangesPerIp);
+		str_format(aBuf, sizeof(aBuf), "ClientId=%d has changed name %d/%d times.", ClientId, changes, g_Config.m_SvMaxNameChangesPerIp);
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "mute", aBuf);
 	}
 	else // no free slot found
@@ -347,10 +347,10 @@ int64_t CGameContext::NameChangeMuteCheck(int ClientID)
 	return muteTime;
 }
 
-int64_t CGameContext::NameChangeMuteTime(int ClientID)
+int64_t CGameContext::NameChangeMuteTime(int ClientId)
 {
 	NETADDR Addr;
-	Server()->GetClientAddr(ClientID, &Addr);
+	Server()->GetClientAddr(ClientId, &Addr);
 	Addr.port = 0;
 	for(int i = 0; i < m_NumNameChangeMutes; i++)
 		if(!net_addr_comp(&Addr, &m_aNameChangeMutes[i].m_Addr))

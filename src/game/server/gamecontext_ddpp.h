@@ -43,11 +43,11 @@ public:
 
 	class CAccounts *Accounts() { return m_pAccounts; }
 	class CShop *Shop() { return m_pShop; }
-	const char *Loc(const char *pStr, int ClientID);
+	const char *Loc(const char *pStr, int ClientId);
 
-	void ShowProfile(int ViewerID, int ViewedID);
-	void ShowAdminWelcome(int ID);
-	int PrintSpecialCharUsers(int ID);
+	void ShowProfile(int ViewerId, int ViewedId);
+	void ShowAdminWelcome(int Id);
+	int PrintSpecialCharUsers(int Id);
 	int TestSurvivalSpawns();
 
 	/*
@@ -62,28 +62,28 @@ public:
 			default switcher state seems to be bugged
 	*/
 	void LoadMapLive(const char *pMapName);
-	void SetSpawnweapons(bool Active, int ClientID);
+	void SetSpawnweapons(bool Active, int ClientId);
 
 	void ChatCommands();
 	void DummyChat();
 	void SaveWrongLogin(const char *pLogin);
 	//Instagib Survival
-	void WinInsta1on1(int WinnerID, int LooserID);
+	void WinInsta1on1(int WinnerId, int LooserId);
 	bool CanJoinInstaArena(bool grenade, bool PrivateMatch);
 	int m_insta_survival_gamestate; //0=prepearing 1=running 2=deathmatch
 	int m_insta_survival_delay;
-	int GetNextClientID();
+	int GetNextClientId();
 
 	// dummy
 	void CreateBasicDummys();
 	int CreateNewDummy(EDummyMode Mode, bool Silent = false, int Tile = 0);
 
 	//usefull everywhere
-	void AbuseMotd(const char *pMsg, int ClientID);
-	int IsMinigame(int playerID);
-	EScore MinigameScoreType(int ClientID);
+	void AbuseMotd(const char *pMsg, int ClientId);
+	int IsMinigame(int playerId);
+	EScore MinigameScoreType(int ClientId);
 	bool IsDDPPgametype(const char *pGametype);
-	int GetCIDByName(const char *pName);
+	int GetCidByName(const char *pName);
 	int CountConnectedPlayers();
 	int CountConnectedHumans();
 	int CountIngameHumans();
@@ -93,12 +93,12 @@ public:
 	void CheckServerEmpty();
 	bool IsAllowedCharSet(const char *pStr);
 	int GetPlayerByTimeoutcode(const char *pTimeout);
-	void GetSpreeType(int ClientID, char *pBuf, size_t BufSize, bool IsRecord = false);
+	void GetSpreeType(int ClientId, char *pBuf, size_t BufSize, bool IsRecord = false);
 	void LogoutAllPlayersMessage();
 
-	bool ShowJoinMessage(int ClientID);
-	bool ShowLeaveMessage(int ClientID);
-	bool ShowTeamSwitchMessage(int ClientID);
+	bool ShowJoinMessage(int ClientId);
+	bool ShowLeaveMessage(int ClientId);
+	bool ShowTeamSwitchMessage(int ClientId);
 
 	enum
 	{
@@ -126,8 +126,8 @@ public:
 	CLetters *m_pLetters;
 
 	// sql
-	void SQLaccount(int mode, int ClientID, const char *pUsername, const char *pPassword = "");
-	void SQLcleanZombieAccounts(int ClientID);
+	void SQLaccount(int mode, int ClientId, const char *pUsername, const char *pPassword = "");
+	void SQLcleanZombieAccounts(int ClientId);
 
 	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char *pMsg);
@@ -149,29 +149,29 @@ public:
 	char m_aAllowedCharSet[128]; //assignment moved to constructor
 	void SendBroadcastAll(const char *pText, int importance = 1, bool supermod = false);
 	void KillAll();
-	bool IsPosition(int playerID, int pos);
-	void StartAsciiAnimation(int viewerID, int creatorID, int medium); //0='/ascii view' 1='/profile view'
-	bool IsHooked(int hookedID, int power);
-	bool IsSameIP(int ID_1, int ID_2);
-	void ShowInstaStats(int requestID, int requestedID);
-	void ShowSurvivalStats(int requestID, int requestedID);
-	void ShowDDPPStats(int requestID, int requestedID);
-	void LeaveInstagib(int ID);
+	bool IsPosition(int playerId, int pos);
+	void StartAsciiAnimation(int viewerId, int creatorId, int medium); //0='/ascii view' 1='/profile view'
+	bool IsHooked(int hookedId, int power);
+	bool IsSameIp(int Id_1, int Id_2);
+	void ShowInstaStats(int requestId, int requestedId);
+	void ShowSurvivalStats(int requestId, int requestedId);
+	void ShowDDPPStats(int requestId, int requestedId);
+	void LeaveInstagib(int Id);
 	void SendChatInsta(const char *pMsg, int Weapon);
 	void DoInstaScore(int score, int id);
-	void CheckInstaWin(int ID);
-	void InstaGrenadeRoundEndTick(int ID);
+	void CheckInstaWin(int Id);
+	void InstaGrenadeRoundEndTick(int Id);
 	int m_InstaGrenadeRoundEndTickTicker;
 	int m_InstaGrenadeRoundEndDelay; //never set this value directly it is only a storage variable
-	int m_InstaGrenadeWinnerID;
+	int m_InstaGrenadeWinnerId;
 	char m_aInstaGrenadeScoreboard[1024];
-	void InstaRifleRoundEndTick(int ID);
+	void InstaRifleRoundEndTick(int Id);
 	int m_InstaRifleRoundEndTickTicker;
 	int m_InstaRifleRoundEndDelay; //never set this value directly it is only a storage variable
-	int m_InstaRifleWinnerID;
+	int m_InstaRifleWinnerId;
 	char m_aInstaRifleScoreboard[1024];
 	bool ChillWriteToLine(char const *filename, unsigned lineNo, char const *data);
-	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingID);
+	int ChillUpdateFileAcc(const char *account, unsigned int line, const char *value, int requestingId);
 	int m_LastVoteCallAll;
 	void ConnectFngBots(int amount, int mode); //mode=0 rifle mode=1 grenade
 	void SaveCosmetics(int id);
@@ -192,10 +192,10 @@ public:
 	void ShowHideConfigCharToBool(int id); // full side effect function which loads all the showhide bools from the char array
 
 	//FNN
-	void FNN_LoadRun(const char *path, int botID);
+	void FNN_LoadRun(const char *path, int botId);
 	vec2 m_FinishTilePos;
 	vec2 GetFinishTile();
-	void TestPrintTiles(int botID);
+	void TestPrintTiles(int botId);
 	bool m_IsDebug;
 
 	// double moneytile announcement
@@ -226,7 +226,7 @@ public:
 	// TODO: make this a own class
 	void SaveMapPlayerData();
 	void LoadMapPlayerData();
-	void ReadMapPlayerData(int ClientID = -1); // load debug only output do nothing
+	void ReadMapPlayerData(int ClientId = -1); // load debug only output do nothing
 	int m_MapsavePlayers;
 	int m_MapsaveLoadedPlayers;
 
@@ -261,8 +261,8 @@ public:
 
 	//survival
 
-	vec2 GetNextSurvivalSpawn(int ClientID);
-	vec2 GetSurvivalLobbySpawn(int ClientID);
+	vec2 GetNextSurvivalSpawn(int ClientId);
+	vec2 GetSurvivalLobbySpawn(int ClientId);
 	void SurvivalLobbyTick();
 	void SurvivalDeathmatchTick();
 	void SurvivalStartGame();
@@ -288,9 +288,9 @@ public:
 	void SurvivalSetGameState(int state);
 	void SurvivalCheckWinnerAndDeathMatch();
 	bool SurvivalPickWinner();
-	int SurvivalGetRandomAliveID(int NotThis = -1);
-	void SurvivalGetNextSpectator(int UpdateID, int KillerID);
-	void SurvivalUpdateSpectators(int DiedID, int KillerID);
+	int SurvivalGetRandomAliveId(int NotThis = -1);
+	void SurvivalGetNextSpectator(int UpdateId, int KillerId);
+	void SurvivalUpdateSpectators(int DiedId, int KillerId);
 	/*
 		m_survivalgamestate
 		0	SURVIVAL_OFF
@@ -339,39 +339,39 @@ public:
 
 	//QUESTS
 
-	void QuestReset(int playerID);
-	void QuestFailed(int playerID);
-	void QuestFailed2(int playerID); //sets fail bool and doest restart
-	bool QuestAddProgress(int playerID, int globalMAX, int localMAX = -1);
-	void QuestCompleted(int playerID);
-	int QuestReward(int playerID);
-	//void PickNextQuest(int playerID); //includeded in QuestComplete
-	void StartQuest(int playerID);
-	int PickQuestPlayer(int playerID);
+	void QuestReset(int playerId);
+	void QuestFailed(int playerId);
+	void QuestFailed2(int playerId); //sets fail bool and doest restart
+	bool QuestAddProgress(int playerId, int globalMAX, int localMAX = -1);
+	void QuestCompleted(int playerId);
+	int QuestReward(int playerId);
+	//void PickNextQuest(int playerId); //includeded in QuestComplete
+	void StartQuest(int playerId);
+	int PickQuestPlayer(int playerId);
 	void CheckConnectQuestBot();
 
 	//police
 	void SendAllPolice(const char *pMessage);
-	void AddEscapeReason(int ID, const char *pReason);
+	void AddEscapeReason(int Id, const char *pReason);
 
 	//bank
 	bool m_IsBankOpen;
 
 	//balance battels
 	void StopBalanceBattle();
-	void StartBalanceBattle(int ID1, int ID2);
+	void StartBalanceBattle(int Id1, int Id2);
 	void BalanceBattleTick();
 	int m_BalanceBattleCountdown;
 	int m_BalanceBattleState; // 0=offline 1=preparing 2=ingame
-	int m_BalanceID1;
-	int m_BalanceID2;
-	int m_BalanceDummyID1;
-	int m_BalanceDummyID2;
+	int m_BalanceId1;
+	int m_BalanceId2;
+	int m_BalanceDummyId1;
+	int m_BalanceDummyId2;
 
 	//bomb
 	void SendBroadcastBomb(const char *pMsg);
 	void SendChatBomb(const char *pMsg);
-	void EndBombGame(int WinnerID);
+	void EndBombGame(int WinnerId);
 	void CheckStartBomb();
 	void BombTick();
 	int FindNextBomb();
@@ -396,33 +396,33 @@ public:
 	*     TRADE      *
 	******************/
 	//  --- selll
-	int TradePrepareSell(const char *pToName, int FromID, const char *pItemName, int Price, bool IsPublic);
-	int TradeSellCheckUser(const char *pToName, int FromID);
-	//int TradeSellCheckItem(const char *pItemName, int FromID); //unused! keept just as backup if the new system isnt good
+	int TradePrepareSell(const char *pToName, int FromId, const char *pItemName, int Price, bool IsPublic);
+	int TradeSellCheckUser(const char *pToName, int FromId);
+	//int TradeSellCheckItem(const char *pItemName, int FromId); //unused! keept just as backup if the new system isnt good
 	//  --- buy
-	int TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID);
+	int TradePrepareBuy(int BuyerId, const char *pSellerName, int ItemId);
 
 	//  --- base
 	int TradeItemToInt(const char *pItemName);
-	const char *TradeItemToStr(int ItemID);
-	int TradeHasItem(int ItemID, int ID);
+	const char *TradeItemToStr(int ItemId);
+	int TradeHasItem(int ItemId, int Id);
 
-	bool CheckAccounts(int AccountID);
+	bool CheckAccounts(int AccountId);
 
-	void GlobalChat(int ClientID, const char *pMsg);
-	bool IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char *pCommand);
-	bool IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage);
+	void GlobalChat(int ClientId, const char *pMsg);
+	bool IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand);
+	bool IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage);
 	void VotedYes(CCharacter *pChr, CPlayer *pPlayer);
 	void VotedNo(CCharacter *pChr);
-	bool AbortTeamChange(int ClientID, CPlayer *pPlayer);
-	bool AbortKill(int ClientID, CPlayer *pPlayer, CCharacter *pChr);
+	bool AbortTeamChange(int ClientId, CPlayer *pPlayer);
+	bool AbortKill(int ClientId, CPlayer *pPlayer, CCharacter *pChr);
 	/*
 		CallVetoVote
 
 		Veto votes only pass if nobody voted agianst it
 		(vote yes doesnt count at all so if nobody votes yes or no the vote will pass)
 	*/
-	void CallVetoVote(int ClientID, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
+	void CallVetoVote(int ClientId, const char *pDesc, const char *pCmd, const char *pReason, const char *pChatmsg, const char *pSixupDesc = 0);
 	bool m_IsDDPPVetoVote;
 
 	//Chiller
@@ -587,26 +587,26 @@ public:
 	};
 	std::vector<CBlockDMA2> m_BlockDMA2;
 
-	void InitDDPPScore(int ClientID);
+	void InitDDPPScore(int ClientId);
 	void DestructDDPP();
 
 	static const int LOGIN_BAN_DELAY = 60 * 60 * 12; // reset login attempts counter every day
 	static const int REGISTER_BAN_DELAY = 60 * 60 * 12 * 7; // reset register attempts counter every week
 	static const int NAMECHANGE_BAN_DELAY = 60 * 60 * 12; // reset namechange counter every day
-	void RegisterBanCheck(int ClientID);
-	void LoginBanCheck(int ClientID);
-	void CheckDeleteLoginBanEntry(int ClientID);
-	void CheckDeleteRegisterBanEntry(int ClientID);
-	void CheckDeleteNamechangeMuteEntry(int ClientID);
-	int64_t NameChangeMuteCheck(int ClientID);
-	void SetIpJailed(int ClientID);
-	bool CheckIpJailed(int ClientID);
+	void RegisterBanCheck(int ClientId);
+	void LoginBanCheck(int ClientId);
+	void CheckDeleteLoginBanEntry(int ClientId);
+	void CheckDeleteRegisterBanEntry(int ClientId);
+	void CheckDeleteNamechangeMuteEntry(int ClientId);
+	int64_t NameChangeMuteCheck(int ClientId);
+	void SetIpJailed(int ClientId);
+	bool CheckIpJailed(int ClientId);
 
 	virtual void IncrementWrongRconAttempts() override;
 
 private:
 	bool InitTileDDPP(int Index, int x, int y);
-	void OnClientEnterDDPP(int ClientID);
+	void OnClientEnterDDPP(int ClientId);
 	void OnInitDDPP();
 
 	bool m_IsServerEmpty;
@@ -629,15 +629,15 @@ private:
 	CGenericBan m_aRegisterBans[MAX_REGISTER_BANS];
 	CGenericBan m_aLoginBans[MAX_LOGIN_BANS];
 	CGenericBan m_aNameChangeMutes[MAX_NAME_CHANGE_MUTES];
-	NETADDR m_aJailIPs[MAX_JAILS];
+	NETADDR m_aJailIps[MAX_JAILS];
 	int m_NumRegisterBans;
 	int m_NumLoginBans;
 	int m_NumNameChangeMutes;
-	int m_NumJailIPs;
+	int m_NumJailIps;
 	void RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName);
 	void NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayName);
-	int64_t NameChangeMuteTime(int ClientID);
+	int64_t NameChangeMuteTime(int ClientId);
 
 	static void ConFreezeLaser(IConsole::IResult *pResult, void *pUserData);
 	static void ConDestroyLaser(IConsole::IResult *pResult, void *pUserData);
@@ -645,20 +645,20 @@ private:
 	static void ConShop(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConRegisterBan(IConsole::IResult *pResult, void *pUserData);
-	static void ConRegisterBanID(IConsole::IResult *pResult, void *pUserData);
-	static void ConRegisterBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanId(IConsole::IResult *pResult, void *pUserData);
+	static void ConRegisterBanIp(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnRegisterBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegisterBans(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConLoginBan(IConsole::IResult *pResult, void *pUserData);
-	static void ConLoginBanID(IConsole::IResult *pResult, void *pUserData);
-	static void ConLoginBanIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanId(IConsole::IResult *pResult, void *pUserData);
+	static void ConLoginBanIp(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnLoginBan(IConsole::IResult *pResult, void *pUserData);
 	static void ConLoginBans(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConNameChangeMute(IConsole::IResult *pResult, void *pUserData);
-	static void ConNameChangeMuteID(IConsole::IResult *pResult, void *pUserData);
-	static void ConNameChangeMuteIP(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteId(IConsole::IResult *pResult, void *pUserData);
+	static void ConNameChangeMuteIp(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeUnmute(IConsole::IResult *pResult, void *pUserData);
 	static void ConNameChangeMutes(IConsole::IResult *pResult, void *pUserData);
 
@@ -706,10 +706,10 @@ private:
 	static void ConHomingMissile(IConsole::IResult *pResult, void *pUserData);
 
 	//SQL
-	static void ConSQL_ADD(IConsole::IResult *pResult, void *pUserData);
+	static void ConSql_ADD(IConsole::IResult *pResult, void *pUserData);
 
 	//rcon api
-	static void ConRconApiSayID(IConsole::IResult *pResult, void *pUserData);
+	static void ConRconApiSayId(IConsole::IResult *pResult, void *pUserData);
 	static void ConRconApiAlterTable(IConsole::IResult *pResult, void *pUserData);
 
 	//account stuff
@@ -720,10 +720,10 @@ private:
 	static void ConLogin2(IConsole::IResult *pResult, void *pUserData);
 	static void ConRegister2(IConsole::IResult *pResult, void *pUserData);
 	static void ConACC2(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQL(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQLName(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQLLogout(IConsole::IResult *pResult, void *pUserData);
-	static void ConSQLLogoutAll(IConsole::IResult *pResult, void *pUserData);
+	static void ConSql(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlName(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlLogout(IConsole::IResult *pResult, void *pUserData);
+	static void ConSqlLogoutAll(IConsole::IResult *pResult, void *pUserData);
 	static void ConAcc_Info(IConsole::IResult *pResult, void *pUserData);
 	static void ConStats(IConsole::IResult *pResult, void *pUserData);
 	static void ConProfile(IConsole::IResult *pResult, void *pUserData);

@@ -182,7 +182,7 @@ public:
 	//instagib
 	int m_SpreeTimerState; //0 = ready 1 = running (i know could be bool for now but maybe ill add different modes like count from spawn or count from first kill)
 	void InstagibSubDieFunc(int Killer, int Weapon);
-	void InstagibKillingSpree(int KillerID, int Weapon);
+	void InstagibKillingSpree(int KillerId, int Weapon);
 	bool m_UpdateInstaScoreBoard;
 	void MoneyTile();
 	void MoneyTilePolice();
@@ -234,7 +234,7 @@ public:
 	// drop pickups
 	void DropHealth(int amount = 1);
 	void DropArmor(int amount = 1);
-	void DropWeapon(int WeaponID);
+	void DropWeapon(int WeaponId);
 	bool m_aDecreaseAmmo[NUM_WEAPONS];
 
 	void DropLoot();

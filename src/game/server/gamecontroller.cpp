@@ -179,7 +179,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, class CPlayer *pPlayer, 
 		}
 		else if(pPlayer->m_IsSurvivaling)
 		{
-			int Id = pPlayer->GetCID();
+			int Id = pPlayer->GetCid();
 			Eval.m_Pos = pPlayer->m_IsSurvivalAlive ? GameServer()->GetNextSurvivalSpawn(Id) : GameServer()->GetSurvivalLobbySpawn(Id);
 			if(Eval.m_Pos == vec2(-1, -1)) // fallback to ddr spawn if there is no arena
 				EvaluateSpawnType(&Eval, 0, DDTeam); //default
@@ -472,14 +472,14 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 		if(!Silent)
 		{
 			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientID), pReason);
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(ClientId), pReason);
 			else
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientID));
-			if(GameServer()->ShowLeaveMessage(ClientID))
+				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
+			if(GameServer()->ShowLeaveMessage(ClientId))
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientID, Server()->ClientName(ClientID));
+				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
 				GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 			}
 		}
@@ -702,7 +702,7 @@ void IGameController::Snap(int SnappingClient)
 		{
 			pGameInfoObj->m_RoundStartTick = Server()->Tick() - 500001;
 		}
-		else if((pPlayer->GetTeam() == TEAM_SPECTATORS || pPlayer->IsPaused()) && pPlayer->m_SpectatorID != SPEC_FREEVIEW && (pPlayer2 = GameServer()->m_apPlayers[pPlayer->m_SpectatorID]))
+		else if((pPlayer->GetTeam() == TEAM_SPECTATORS || pPlayer->IsPaused()) && pPlayer->m_SpectatorId != SPEC_FREEVIEW && (pPlayer2 = GameServer()->m_apPlayers[pPlayer->m_SpectatorId]))
 		{
 			if((pChr = pPlayer2->GetCharacter()) && pChr->m_DDRaceState == DDRACE_STARTED)
 			{

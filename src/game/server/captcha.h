@@ -18,7 +18,7 @@ private:
 	int RandAlpha() { return rand() % 23 + 65; }
 	int RandAlphaNum() { return (rand() % 2) ? RandNum() : RandAlpha(); }
 
-	int m_ClientID;
+	int m_ClientId;
 	int m_Score;
 	bool m_IsHuman;
 	char m_aBigText[7];
@@ -42,7 +42,7 @@ private:
 	};
 
 public:
-	CCaptcha(CGameContext *pGameServer, int ClientID);
+	CCaptcha(CGameContext *pGameServer, int ClientId);
 
 	bool Prompt(const char *pAnswer);
 

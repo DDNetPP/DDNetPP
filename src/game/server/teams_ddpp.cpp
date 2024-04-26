@@ -15,11 +15,11 @@ void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, int mins, float secs)
 		if(!pPlayer->IsMaxLevel())
 		{
 			pPlayer->GiveXP(250);
-			GameServer()->SendChatTarget(pPlayer->GetCID(), "+250 xp (finish race)");
+			GameServer()->SendChatTarget(pPlayer->GetCid(), "+250 xp (finish race)");
 			if(g_Config.m_SvFinishEvent == 1)
 			{
 				pPlayer->GiveXP(500);
-				GameServer()->SendChatTarget(pPlayer->GetCID(), "+500 xp (Event-bonus)");
+				GameServer()->SendChatTarget(pPlayer->GetCid(), "+500 xp (Event-bonus)");
 			}
 		}
 	}
@@ -33,53 +33,53 @@ void CGameTeams::OnQuestFinish(CPlayer *Player)
 		return;
 	//str_format(aBuf, sizeof(aBuf),
 	//	"'%s' [%d:%5.2f] total (int)[%d] (int) / 60[%d]",
-	//	Server()->ClientName(Player->GetCID()), (int)time / 60,
+	//	Server()->ClientName(Player->GetCid()), (int)time / 60,
 	//	time - ((int)time / 60 * 60),
 	//(int)time, //<---- seconds (total)
 	//(int)time / 60); //<--- minutes (total)
-	//GameServer()->SendChatTarget(Player->GetCID(), aBuf);
+	//GameServer()->SendChatTarget(Player->GetCid(), aBuf);
 
 	if(Player->m_QuestState == CPlayer::QUEST_RACE)
 	{
 		if(Player->m_QuestStateLevel == 0)
 		{
-			GameServer()->QuestCompleted(Player->GetCID());
+			GameServer()->QuestCompleted(Player->GetCid());
 		}
 		else if(Player->m_QuestStateLevel == 1)
 		{
 			if((int)time <= g_Config.m_SvQuestRaceTime1)
 			{
-				GameServer()->QuestCompleted(Player->GetCID());
+				GameServer()->QuestCompleted(Player->GetCid());
 			}
 			else
 			{
-				GameServer()->QuestFailed(Player->GetCID());
+				GameServer()->QuestFailed(Player->GetCid());
 			}
 		}
 		else if(Player->m_QuestStateLevel == 2)
 		{
 			if((int)time <= g_Config.m_SvQuestRaceTime2)
 			{
-				GameServer()->QuestCompleted(Player->GetCID());
+				GameServer()->QuestCompleted(Player->GetCid());
 			}
 			else
 			{
-				GameServer()->QuestFailed(Player->GetCID());
+				GameServer()->QuestFailed(Player->GetCid());
 			}
 		}
 		else if(Player->m_QuestStateLevel == 3)
 		{
-			GameServer()->QuestAddProgress(Player->GetCID(), 2, 1); //finish and go back to start
+			GameServer()->QuestAddProgress(Player->GetCid(), 2, 1); //finish and go back to start
 		}
 		else if(Player->m_QuestStateLevel == 4)
 		{
 			if((int)time <= g_Config.m_SvQuestRaceTime3)
 			{
-				GameServer()->QuestCompleted(Player->GetCID());
+				GameServer()->QuestCompleted(Player->GetCid());
 			}
 			else
 			{
-				GameServer()->QuestFailed(Player->GetCID());
+				GameServer()->QuestFailed(Player->GetCid());
 			}
 		}
 	}

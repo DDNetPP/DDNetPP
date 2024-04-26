@@ -693,8 +693,8 @@ void CGameTeams::OnFinish(CPlayer *Player, float Time, const char *pTimestamp)
 	int mins = (int)Time / 60;
 	float secs = Time - mins * 60;
 	OnFinishDDPP(Player, mins, secs);
-	const int ClientID = Player->GetCID();
-	CPlayerData *pData = GameServer()->Score()->PlayerData(ClientID);
+	const int ClientId = Player->GetCid();
+	CPlayerData *pData = GameServer()->Score()->PlayerData(ClientId);
 
 	char aBuf[128];
 	SetLastTimeCp(Player, -1);

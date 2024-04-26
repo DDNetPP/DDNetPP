@@ -4,10 +4,10 @@
 
 #include "captcha.h"
 
-CCaptcha::CCaptcha(CGameContext *pGameServer, int ClientID)
+CCaptcha::CCaptcha(CGameContext *pGameServer, int ClientId)
 {
 	m_pGameServer = pGameServer;
-	m_ClientID = ClientID;
+	m_ClientId = ClientId;
 	m_aQuestion[0] = '\0';
 	m_aAnswer[0] = '\0';
 	m_aBigText[0] = '\0';
@@ -117,7 +117,7 @@ bool CCaptcha::Prompt(const char *pAnswer)
 void CCaptcha::ShowQuestion()
 {
 	if(m_aBigText[0])
-		GameServer()->m_pLetters->SendChat(m_ClientID, m_aBigText);
+		GameServer()->m_pLetters->SendChat(m_ClientId, m_aBigText);
 	SendChat(m_aQuestion);
 }
 
@@ -125,5 +125,5 @@ void CCaptcha::SendChat(const char *pMsg)
 {
 	char aBuf[128];
 	str_format(aBuf, sizeof(aBuf), "[CAPTCHA] %s", pMsg);
-	GameServer()->SendChatTarget(m_ClientID, aBuf);
+	GameServer()->SendChatTarget(m_ClientId, aBuf);
 }

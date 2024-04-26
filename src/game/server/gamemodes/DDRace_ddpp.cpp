@@ -39,7 +39,7 @@ void CGameControllerDDRace::FlagTick()
 			{
 				/*char aBuf[256];
 				str_format(aBuf, sizeof(aBuf), "Your freeze Time Amount is: %i AND %i",F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed()*8, Server()->Tick());
-				GameServer()->SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), aBuf);*/
+				GameServer()->SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), aBuf);*/
 
 				if(Server()->Tick() > F->m_pCarryingCharacter->m_FirstFreezeTick + Server()->TickSpeed() * 8)
 				{
@@ -49,12 +49,12 @@ void CGameControllerDDRace::FlagTick()
 					if(m_apFlags[0] && m_apFlags[0]->m_pCarryingCharacter && m_apFlags[0]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
 						DropFlag(0, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //red
-						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped red flag");
+						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped red flag");
 					}
 					else if(m_apFlags[1] && m_apFlags[1]->m_pCarryingCharacter && m_apFlags[1]->m_pCarryingCharacter == F->m_pCarryingCharacter->GetPlayer()->GetCharacter())
 					{
 						DropFlag(1, F->m_pCarryingCharacter->GetPlayer()->GetCharacter()->GetAimDir()); //blue
-						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCID(), "you dropped blue flag");
+						//SendChatTarget(F->m_pCarryingCharacter->GetPlayer()->GetCid(), "you dropped blue flag");
 					}
 				}
 			}
@@ -119,7 +119,7 @@ void CGameControllerDDRace::FlagTick()
 						if(!pPlayer)
 							continue;
 
-						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorID] && GameServer()->m_apPlayers[pPlayer->m_SpectatorID]->GetTeam() == fi)
+						if(pPlayer->GetTeam() == TEAM_SPECTATORS && pPlayer->m_SpectatorId != SPEC_FREEVIEW && GameServer()->m_apPlayers[pPlayer->m_SpectatorId] && GameServer()->m_apPlayers[pPlayer->m_SpectatorId]->GetTeam() == fi)
 							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
 						else if(pPlayer->GetTeam() == fi)
 							GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, c);
@@ -254,9 +254,9 @@ bool CGameControllerDDRace::OnEntity(int Index, int x, int y, int Layer, int Fla
 	return true;
 }
 
-int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID)
+int CGameControllerDDRace::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponId)
 {
-	IGameController::OnCharacterDeath(pVictim, pKiller, WeaponID);
+	IGameController::OnCharacterDeath(pVictim, pKiller, WeaponId);
 	int HadFlag = 0;
 
 	// drop flags
@@ -329,7 +329,7 @@ int CGameControllerDDRace::HasFlag(CCharacter *pChr)
 
 	for(auto &Flag : m_apFlags)
 		if(Flag && Flag->m_pCarryingCharacter == pChr)
-			return pChr->GetPlayer()->GetCID();
+			return pChr->GetPlayer()->GetCid();
 	return -1;
 }
 
@@ -367,7 +367,7 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 		if(m_apFlags[TEAM_RED]->m_AtStand)
 			FlagCarrierRed = FLAG_ATSTAND;
 		else if(m_apFlags[TEAM_RED]->GetCarrier() && m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer())
-			FlagCarrierRed = m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer()->GetCID();
+			FlagCarrierRed = m_apFlags[TEAM_RED]->GetCarrier()->GetPlayer()->GetCid();
 		else
 			FlagCarrierRed = FLAG_TAKEN;
 	}
@@ -378,7 +378,7 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 		if(m_apFlags[TEAM_BLUE]->m_AtStand)
 			FlagCarrierBlue = FLAG_ATSTAND;
 		else if(m_apFlags[TEAM_BLUE]->GetCarrier() && m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer())
-			FlagCarrierBlue = m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer()->GetCID();
+			FlagCarrierBlue = m_apFlags[TEAM_BLUE]->GetCarrier()->GetPlayer()->GetCid();
 		else
 			FlagCarrierBlue = FLAG_TAKEN;
 	}
@@ -405,20 +405,20 @@ void CGameControllerDDRace::Snap(int SnappingClient)
 
 void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int m_TileIndex, int m_TileFIndex, int Tile1, int Tile2, int Tile3, int Tile4, int FTile1, int FTile2, int FTile3, int FTile4, int PlayerDDRaceState)
 {
-	int ClientID = pChr->GetPlayer()->GetCID();
+	int ClientId = pChr->GetPlayer()->GetCid();
 	// start
-	if(((m_TileIndex == TILE_START) || (m_TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GameServer()->GetDDRaceTeam(ClientID) && g_Config.m_SvTeam != 3)))
+	if(((m_TileIndex == TILE_START) || (m_TileFIndex == TILE_START) || FTile1 == TILE_START || FTile2 == TILE_START || FTile3 == TILE_START || FTile4 == TILE_START || Tile1 == TILE_START || Tile2 == TILE_START || Tile3 == TILE_START || Tile4 == TILE_START) && (PlayerDDRaceState == DDRACE_NONE || PlayerDDRaceState == DDRACE_FINISHED || (PlayerDDRaceState == DDRACE_STARTED && !GameServer()->GetDDRaceTeam(ClientId) && g_Config.m_SvTeam != 3)))
 	{
 		pChr->GetPlayer()->m_MoneyTilePlus = true;
 		if(pChr->GetPlayer()->m_QuestState == CPlayer::QUEST_RACE)
 		{
 			if((pChr->GetPlayer()->m_QuestStateLevel == 3 || pChr->GetPlayer()->m_QuestStateLevel == 8) && pChr->GetPlayer()->m_QuestProgressValue)
 			{
-				GameServer()->QuestAddProgress(pChr->GetPlayer()->GetCID(), 2);
+				GameServer()->QuestAddProgress(pChr->GetPlayer()->GetCid(), 2);
 			}
 			else if(pChr->GetPlayer()->m_QuestStateLevel == 9 && pChr->GetPlayer()->m_QuestFailed)
 			{
-				// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), "[QUEST] running agian.");
+				// GameServer()->SendChatTarget(pChr->GetPlayer()->GetCid(), "[QUEST] running agian.");
 				pChr->GetPlayer()->m_QuestFailed = false;
 			}
 		}
@@ -433,18 +433,18 @@ void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int
 			{
 				if(HasFlag(pChr) != -1) //has flag
 				{
-					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCID());
+					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCid());
 				}
 				else
 				{
-					GameServer()->QuestFailed(pChr->GetPlayer()->GetCID());
+					GameServer()->QuestFailed(pChr->GetPlayer()->GetCid());
 				}
 			}
 			else if(pChr->GetPlayer()->m_QuestStateLevel == 9)
 			{
 				if(!pChr->GetPlayer()->m_QuestFailed)
 				{
-					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCID());
+					GameServer()->QuestCompleted(pChr->GetPlayer()->GetCid());
 				}
 			}
 		}
@@ -455,7 +455,7 @@ void CGameControllerDDRace::HandleCharacterTilesDDPP(class CCharacter *pChr, int
 		/*
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "xp [%d/1000]", pChr->GetPlayer()->GetXP());
-		GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCID(), 0);
+		GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCid(), 0);
 		*/
 	}
 }

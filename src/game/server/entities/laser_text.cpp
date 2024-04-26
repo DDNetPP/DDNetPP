@@ -113,7 +113,7 @@ void CLaserText::Snap(int SnappingClient)
 
 	for(int i = 0; i < m_MaxPlasmas; ++i)
 	{
-		CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_LolPlasmas[i]->GetIDWrap(), sizeof(CNetObj_Laser)));
+		CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_LolPlasmas[i]->GetIdWrap(), sizeof(CNetObj_Laser)));
 		if(!pObj)
 			return;
 

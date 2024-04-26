@@ -38,7 +38,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			float time = (float)(Server()->Tick() - Controller->Teams().GetStartTime(m_pPlayer)) / ((float)Server()->TickSpeed());
 			if(time < 0.000001f)
 				return false;
-			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCID()), (int)time / 60, time - ((int)time / 60 * 60));
+			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d:%5.2f]!", Server()->ClientName(m_pPlayer->GetCid()), (int)time / 60, time - ((int)time / 60 * 60));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 			// quest
@@ -48,19 +48,19 @@ bool CCharacter::HandleTilesDDPP(int Index)
 				{
 					if((int)time > g_Config.m_SvQuestSpecialRaceTime)
 					{
-						GameServer()->QuestFailed(m_pPlayer->GetCID());
+						GameServer()->QuestFailed(m_pPlayer->GetCid());
 					}
 					else
 					{
-						GameServer()->QuestCompleted(m_pPlayer->GetCID());
+						GameServer()->QuestCompleted(m_pPlayer->GetCid());
 					}
 				}
 			}
 		}
 		else
 		{
-			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCID()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
-			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(m_pPlayer->GetCID()));
+			// str_format(aBuf, sizeof(aBuf), "'%s' finished the special race [%d seconds]!", Server()->ClientName(m_pPlayer->GetCid()), m_SpawnTick / Server()->TickSpeed()); //prints server up time in sec
+			str_format(aBuf, sizeof(aBuf), "'%s' finished the special race !", Server()->ClientName(m_pPlayer->GetCid()));
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 			// quest
@@ -70,11 +70,11 @@ bool CCharacter::HandleTilesDDPP(int Index)
 				{
 					if(Server()->Tick() > m_SpawnTick + Server()->TickSpeed() * g_Config.m_SvQuestSpecialRaceTime)
 					{
-						GameServer()->QuestFailed(m_pPlayer->GetCID());
+						GameServer()->QuestFailed(m_pPlayer->GetCid());
 					}
 					else
 					{
-						GameServer()->QuestCompleted(m_pPlayer->GetCID());
+						GameServer()->QuestCompleted(m_pPlayer->GetCid());
 					}
 				}
 			}
@@ -84,11 +84,11 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		{
 			if(m_pPlayer->m_QuestStateLevel == 6)
 			{
-				GameServer()->QuestCompleted(m_pPlayer->GetCID());
+				GameServer()->QuestCompleted(m_pPlayer->GetCid());
 			}
 			else if(m_pPlayer->m_QuestStateLevel == 8) //backwards
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 2, 1);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 2, 1);
 			}
 		}
 
@@ -120,7 +120,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// 		if (!(m_LastIndexTile == 66 || m_LastIndexFrontTile == 66) ){
 	// 		char aBuf[256];
 	// 		str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
-	// 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+	// 		GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 	// 		}*/
 
 	// 		if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
@@ -140,7 +140,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	// 		if (!(m_LastIndexTile == 67 || m_LastIndexFrontTile == 67) ){
 	// 		char aBuf[256];
 	// 		str_format(aBuf, sizeof(aBuf), "You need a Flag to enter this Area!");
-	// 		GameServer()->SendChatTarget(m_pPlayer->GetCID(), aBuf);
+	// 		GameServer()->SendChatTarget(m_pPlayer->GetCid(), aBuf);
 	// 		}*/
 
 	// 		if ((int)GameServer()->Collision()->GetPos(MapIndexL).x)
@@ -160,13 +160,13 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 		if((m_Rainbow) || (m_pPlayer->m_InfRainbow))
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost rainbow!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost rainbow!");
 			m_Rainbow = false;
 			m_pPlayer->m_InfRainbow = false;
 		}
 		else
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got rainbow!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got rainbow!");
 			m_Rainbow = true;
 		}
 	}
@@ -179,14 +179,14 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 		if((m_Bloody) || (m_StrongBloody) || (m_pPlayer->m_InfBloody))
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost bloody!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost bloody!");
 			m_Bloody = false;
 			m_StrongBloody = false;
 			m_pPlayer->m_InfBloody = false;
 		}
 		else
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got bloody!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got bloody!");
 			m_Bloody = true;
 		}
 	}
@@ -199,13 +199,13 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 		if((m_Atom) || (m_pPlayer->m_InfAtom))
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost atom!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost atom!");
 			m_Atom = false;
 			m_pPlayer->m_InfAtom = false;
 		}
 		else
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got atom!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got atom!");
 			m_Atom = true;
 		}
 	}
@@ -218,13 +218,13 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 		if((m_Trail) || (m_pPlayer->m_InfTrail))
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost trail!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost trail!");
 			m_Trail = false;
 			m_pPlayer->m_InfTrail = false;
 		}
 		else
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got trail!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got trail!");
 			m_Trail = true;
 		}
 	}
@@ -237,13 +237,13 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 		if((m_autospreadgun) || (m_pPlayer->m_InfAutoSpreadGun))
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You lost spread gun!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You lost spread gun!");
 			m_autospreadgun = false;
 			m_pPlayer->m_InfAutoSpreadGun = false;
 		}
 		else
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You got spread gun!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You got spread gun!");
 			m_autospreadgun = true;
 		}
 	}
@@ -280,7 +280,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if(((m_TileIndex == TILE_FNG_SCORE) || (m_TileFIndex == TILE_FNG_SCORE)))
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD, true, true);
+		Die(m_pPlayer->GetCid(), WEAPON_WORLD, true, true);
 	}
 
 	if(((m_TileIndex == TILE_MONEY_DOUBLE) || (m_TileFIndex == TILE_MONEY_DOUBLE)))
@@ -304,11 +304,11 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	}
 	else if(g_Config.m_SvRoomState == 3) //buy admin
 	{
-		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID());
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCid());
 	}
 	else if(g_Config.m_SvRoomState == 4) //buy admin invite
 	{
-		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCID()) || m_HasRoomKeyBySuperModerator;
+		Allowed = m_pPlayer->m_BoughtRoom || Server()->GetAuthedState(GetPlayer()->GetCid()) || m_HasRoomKeyBySuperModerator;
 	}
 
 	//ROOMTILE
@@ -343,13 +343,13 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		//	m_Core.m_HookedPlayer = -1;
 		//	m_Core.m_HookState = HOOK_RETRACTED;
 		//	m_Core.m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
-		//	GameWorld()->ReleaseHooked(GetPlayer()->GetCID());
+		//	GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
 		//	m_Core.m_HookPos = m_Core.m_Pos;
 		//}
 
 		if(!m_WasInRoom)
 		{
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You need a key to enter this area!\nTry '/buy room_key' to enter this area.");
 		}
 
 		m_WasInRoom = true;
@@ -360,8 +360,8 @@ bool CCharacter::HandleTilesDDPP(int Index)
 		if(!m_pPlayer->m_IsBlockDeathmatch)
 		{
 			m_pPlayer->m_IsBlockDeathmatch = true;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[BLOCK] you joined the deathmatch arena!");
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "[BLOCK] type /leave to leave");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[BLOCK] you joined the deathmatch arena!");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "[BLOCK] type /leave to leave");
 		}
 	}
 
@@ -373,12 +373,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ B A N K ~", m_pPlayer->GetCid(), 0);
 			}
 		}
 		m_InBank = true;
@@ -386,10 +386,10 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if(m_TileIndex == TILE_SHOP || m_TileFIndex == TILE_SHOP) // SHOP
 	{
-		if(!GameServer()->Shop()->IsInShop(GetPlayer()->GetCID()))
+		if(!GameServer()->Shop()->IsInShop(GetPlayer()->GetCid()))
 		{
 			m_EnteredShop = true;
-			GameServer()->Shop()->EnterShop(GetPlayer()->GetCID());
+			GameServer()->Shop()->EnterShop(GetPlayer()->GetCid());
 		}
 		if(Server()->Tick() % 450 == 0 || m_EnteredShop)
 		{
@@ -397,12 +397,12 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			{
 				if(!m_pPlayer->IsLoggedIn()) // only print stuff if player is not logged in while flag carry
 				{
-					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+					GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
 				}
 			}
 			else // no flag --> print always
 			{
-				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCID(), 0);
+				GameServer()->SendBroadcast("~ S H O P ~", m_pPlayer->GetCid(), 0);
 			}
 		}
 		if(m_EnteredShop)
@@ -410,7 +410,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			if(m_pPlayer->m_ShopBotAntiSpamTick <= Server()->Tick())
 			{
 				char aBuf[256];
-				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCID()));
+				str_format(aBuf, sizeof(aBuf), "Welcome to the shop, %s! Press f4 to start shopping.", Server()->ClientName(m_pPlayer->GetCid()));
 				SendShopMessage(aBuf);
 			}
 			m_EnteredShop = false;
@@ -419,11 +419,11 @@ bool CCharacter::HandleTilesDDPP(int Index)
 
 	if(m_TileIndex == TILE_JAIL || m_TileFIndex == TILE_JAIL)
 	{
-		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCID(), 0); //dont spam people in jail this is just an tele tile
+		//GameServer()->SendBroadcast("You were arrested by the police!", m_pPlayer->GetCid(), 0); //dont spam people in jail this is just an tele tile
 	}
 	else if(m_TileIndex == TILE_JAILRELEASE || m_TileFIndex == TILE_JAILRELEASE)
 	{
-		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCID(), 0); //dont send the message here wtf this is just an to tele tile
+		//GameServer()->SendBroadcast("Your life as a gangster is over, don't get caught again!", m_pPlayer->GetCid(), 0); //dont send the message here wtf this is just an to tele tile
 		m_InJailOpenArea = true;
 		//dbg_msg("ddpp-tiles", "in jail release area");
 	}
@@ -436,7 +436,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_pPlayer->m_IsVanillaDmg = true;
 			m_pPlayer->m_IsVanillaWeapons = true;
 			m_pPlayer->m_IsVanillaCompetetive = true;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a vanilla area.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You entered a vanilla area.");
 		}
 	}
 
@@ -444,7 +444,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 	{
 		if(m_pPlayer->DummyMode() == DUMMYMODE_ADVENTURE)
 		{
-			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			Die(m_pPlayer->GetCid(), WEAPON_SELF);
 		}
 		else
 		{
@@ -452,7 +452,7 @@ bool CCharacter::HandleTilesDDPP(int Index)
 			m_pPlayer->m_IsVanillaDmg = false;
 			m_pPlayer->m_IsVanillaWeapons = false;
 			m_pPlayer->m_IsVanillaCompetetive = false;
-			GameServer()->SendChatTarget(GetPlayer()->GetCID(), "You entered a ddrace area.");
+			GameServer()->SendChatTarget(GetPlayer()->GetCid(), "You entered a ddrace area.");
 		}
 	}
 
@@ -478,7 +478,7 @@ void CCharacter::MoneyTile()
 			return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -488,7 +488,7 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_QuestProgressValue2++;
 			if(m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
@@ -501,7 +501,7 @@ void CCharacter::MoneyTile()
 			m_pPlayer->m_QuestProgressValue2++;
 			if(m_pPlayer->m_QuestProgressValue2 > 10)
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
@@ -510,7 +510,7 @@ void CCharacter::MoneyTile()
 	{
 		if(m_pPlayer->m_xpmsg)
 		{
-			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
 		return;
 	}
@@ -571,9 +571,9 @@ void CCharacter::MoneyTile()
 		char aMoney[128];
 		char aXp[128];
 		char aLevel[128];
-		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
+		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCid()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +1", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// money
 		if(VIPBonus)
@@ -598,7 +598,7 @@ void CCharacter::MoneyTile()
 
 		str_format(aBuf, sizeof(aBuf), "%s\n%s\n%s", aMoney, aXp, aLevel);
 		str_append(aBuf, FixBroadcast, sizeof(aBuf));
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 	}
 }
 
@@ -609,7 +609,7 @@ void CCharacter::MoneyTilePolice()
 		return;
 	if(!GameServer()->m_IsPoliceFarmActive)
 	{
-		GameServer()->SendBroadcast("Too many players on police tiles", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast("Too many players on police tiles", m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(!g_Config.m_SvFreezeFarm)
@@ -617,7 +617,7 @@ void CCharacter::MoneyTilePolice()
 			return;
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -627,7 +627,7 @@ void CCharacter::MoneyTilePolice()
 			m_pPlayer->m_QuestProgressValue2++;
 			if(m_pPlayer->m_QuestProgressValue2 > 10)
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
@@ -636,7 +636,7 @@ void CCharacter::MoneyTilePolice()
 	{
 		if(m_pPlayer->m_xpmsg)
 		{
-			GameServer()->SendBroadcast("You have reached the maximum level.", m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast("You have reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
 		return;
 	}
@@ -691,9 +691,9 @@ void CCharacter::MoneyTilePolice()
 		char aMoney[128];
 		char aXp[128];
 		char aLevel[128];
-		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCID()), m_pPlayer->GetMoney());
+		str_format(aMoney, sizeof(aMoney), "%s [%" PRId64 "] +1", GameServer()->Loc("Money", m_pPlayer->GetCid()), m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// money
 		if(m_pPlayer->m_Account.m_PoliceRank > 0)
@@ -721,7 +721,7 @@ void CCharacter::MoneyTilePolice()
 
 		str_format(aBuf, sizeof(aBuf), "%s\n%s\n%s", aMoney, aXp, aLevel);
 		str_append(aBuf, FixBroadcast, sizeof(aBuf));
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 	}
 }
 
@@ -735,19 +735,19 @@ void CCharacter::MoneyTileDouble()
 			return;
 	if(g_Config.m_SvMinDoubleTilePlayers == 0)
 	{
-		GameServer()->SendBroadcast("double moneytiles have been deactivated by an administrator", m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast("double moneytiles have been deactivated by an administrator", m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(GameServer()->CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers)
 	{
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "[%d/%d] players to activate the double moneytile", GameServer()->CountIngameHumans(), g_Config.m_SvMinDoubleTilePlayers);
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(!m_pPlayer->IsLoggedIn())
 	{
-		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCID()), m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(GameServer()->Loc("You need to be logged in to use moneytiles. \nGet an account with '/register <name> <pw> <pw>'", m_pPlayer->GetCid()), m_pPlayer->GetCid(), 0);
 		return;
 	}
 	if(m_pPlayer->m_QuestState == CPlayer::QUEST_FARM)
@@ -757,7 +757,7 @@ void CCharacter::MoneyTileDouble()
 			m_pPlayer->m_QuestProgressValue2++;
 			if(m_pPlayer->m_QuestProgressValue2 > m_pPlayer->m_QuestStateLevel)
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
@@ -770,7 +770,7 @@ void CCharacter::MoneyTileDouble()
 			m_pPlayer->m_QuestProgressValue2++;
 			if(m_pPlayer->m_QuestProgressValue2 > 10)
 			{
-				GameServer()->QuestAddProgress(m_pPlayer->GetCID(), 10);
+				GameServer()->QuestAddProgress(m_pPlayer->GetCid(), 10);
 				m_pPlayer->m_QuestProgressValue2 = 0;
 			}
 		}
@@ -779,7 +779,7 @@ void CCharacter::MoneyTileDouble()
 	{
 		if(m_pPlayer->m_xpmsg)
 		{
-			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCID(), 0);
+			GameServer()->SendBroadcast("You reached the maximum level.", m_pPlayer->GetCid(), 0);
 		}
 		return;
 	}
@@ -821,7 +821,7 @@ void CCharacter::MoneyTileDouble()
 		char aLevel[128];
 		str_format(aMoney, sizeof(aMoney), "Money [%" PRId64 "] +4", m_pPlayer->GetMoney());
 		str_format(aXp, sizeof(aXp), "XP [%" PRId64 "/%" PRId64 "] +2", m_pPlayer->GetXP(), m_pPlayer->GetNeededXP());
-		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCID()), m_pPlayer->GetLevel());
+		str_format(aLevel, sizeof(aLevel), "%s [%d]", GameServer()->Loc("Level", m_pPlayer->GetCid()), m_pPlayer->GetLevel());
 
 		// xp
 		if(((CGameControllerDDRace *)GameServer()->m_pController)->HasFlag(this) != -1)
@@ -833,7 +833,7 @@ void CCharacter::MoneyTileDouble()
 		}
 
 		str_format(aBuf, sizeof(aBuf), "%s\n%s\n%s", aMoney, aXp, aLevel);
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 0);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 0);
 	}
 }
 
@@ -845,11 +845,11 @@ void CCharacter::MoneyTilePlus()
 
 	if(m_pPlayer->IsMaxLevel())
 	{
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile Plus!  +500money");
+		GameServer()->SendChatTarget(m_pPlayer->GetCid(), "You touched a MoneyTile Plus!  +500money");
 	}
 	else
 	{
-		GameServer()->SendChatTarget(m_pPlayer->GetCID(), "You touched a MoneyTile Plus! +2500xp  +500money");
+		GameServer()->SendChatTarget(m_pPlayer->GetCid(), "You touched a MoneyTile Plus! +2500xp  +500money");
 		m_pPlayer->GiveXP(2500);
 	}
 	if(m_pPlayer->m_xpmsg && m_pPlayer->IsLoggedIn())
@@ -864,9 +864,9 @@ void CCharacter::MoneyTilePlus()
 			m_pPlayer->GetMoney(),
 			m_pPlayer->GetXP(),
 			m_pPlayer->GetNeededXP(),
-			GameServer()->Loc("Level", m_pPlayer->GetCID()),
+			GameServer()->Loc("Level", m_pPlayer->GetCid()),
 			m_pPlayer->GetLevel());
-		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCID(), 1);
+		GameServer()->SendBroadcast(aBuf, m_pPlayer->GetCid(), 1);
 	}
 	m_pPlayer->MoneyTransaction(+500, "moneytile plus");
 }

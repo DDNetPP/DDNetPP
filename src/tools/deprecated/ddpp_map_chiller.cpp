@@ -220,12 +220,12 @@ int main(int argc, const char **argv)
 			}
 			dbg_msg("LayerInfo", "aName: %s i=%d Width=%d Height=%d Data=%d", aName, i, pTilemap->m_Width, pTilemap->m_Height, pTilemap->m_Data);
 		}
-		int TypeID;
-		int ItemID;
-		int *pData = (int *)DataFile.GetItem(i, &TypeID, &ItemID);
+		int TypeId;
+		int ItemId;
+		int *pData = (int *)DataFile.GetItem(i, &TypeId, &ItemId);
 		int Size = DataFile.GetItemSize(i) - sizeof(int) * 2;
 
-		df.AddItem(TypeID, ItemID, Size, pData);
+		df.AddItem(TypeId, ItemId, Size, pData);
 	}
 
 	for(int i = 0; i < DataFile.NumData() || i == SettingsIndex; i++) //iterate through all tile layers (each iteration is a single layer)

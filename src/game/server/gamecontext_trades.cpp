@@ -6,16 +6,16 @@
 
 #include "gamecontext.h"
 
-int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *pItemName, int Price, bool IsPublic)
+int CGameContext::TradePrepareSell(const char *pToName, int FromId, const char *pItemName, int Price, bool IsPublic)
 {
-	CPlayer *pPlayer = m_apPlayers[FromID];
+	CPlayer *pPlayer = m_apPlayers[FromId];
 	if(!pPlayer)
 		return -1;
 
-	CCharacter *pChr = GetPlayerChar(FromID);
+	CCharacter *pChr = GetPlayerChar(FromId);
 	if(!pChr)
 	{
-		SendChatTarget(FromID, "[TRADE] you have to be alive to use this command.");
+		SendChatTarget(FromId, "[TRADE] you have to be alive to use this command.");
 		return -1;
 	}
 
@@ -25,13 +25,13 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 	{
 		int TimeLeft = (pPlayer->m_TradeTick - Server()->Tick()) / Server()->TickSpeed();
 		str_format(aBuf, sizeof(aBuf), "[TRADE] delay: %02d:%02d", TimeLeft / 60, TimeLeft % 60);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
 	if(pPlayer->IsLoggedIn()) //LOGGED IN ???
 	{
-		SendChatTarget(FromID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		SendChatTarget(FromId, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
 	}
 
@@ -39,215 +39,215 @@ int CGameContext::TradePrepareSell(const char *pToName, int FromID, const char *
 	if(item == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
 	if(item == 2 && pPlayer->m_SpawnShotgunActive) // are items spawn weapons?
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade your spawn shotgun.");
+		SendChatTarget(FromId, "[TRADE] you can't trade your spawn shotgun.");
 		return -1;
 	}
 	if(item == 3 && pPlayer->m_SpawnGrenadeActive)
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade your spawn grenade.");
+		SendChatTarget(FromId, "[TRADE] you can't trade your spawn grenade.");
 		return -1;
 	}
 	if(item == 4 && pPlayer->m_SpawnRifleActive)
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade your spawn rifle.");
+		SendChatTarget(FromId, "[TRADE] you can't trade your spawn rifle.");
 		return -1;
 	}
 	if(item == 5 && (pPlayer->m_SpawnShotgunActive || pPlayer->m_SpawnGrenadeActive || pPlayer->m_SpawnRifleActive))
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade your spawn weapons.");
+		SendChatTarget(FromId, "[TRADE] you can't trade your spawn weapons.");
 		return -1;
 	}
 
 	if(item == 2 && pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN]) // do items have infinite ammo? (not a pickep up spawn weapon)
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
 	if(item == 3 && pChr->m_aDecreaseAmmo[WEAPON_GRENADE])
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
 	if(item == 4 && pChr->m_aDecreaseAmmo[WEAPON_LASER])
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
+		SendChatTarget(FromId, "[TRADE] you can't trade if your weapon doesn't have infinite bullets.");
 		return -1;
 	}
 	if(item == 5 && (pChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] || pChr->m_aDecreaseAmmo[WEAPON_GRENADE] || pChr->m_aDecreaseAmmo[WEAPON_LASER]))
 	{
-		SendChatTarget(FromID, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
+		SendChatTarget(FromId, "[TRADE] you can't trade if your weapons doesn't have infinite bullets.");
 		return -1;
 	}
 
-	int HasItem = TradeHasItem(item, FromID); // ITEM OWNED ???
+	int HasItem = TradeHasItem(item, FromId); // ITEM OWNED ???
 	if(HasItem == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] you don't own the item [ %s ]", pItemName);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
 	if(Price < 1) // TRADE MONEY TOO LOW ???
 	{
-		SendChatTarget(FromID, "[TRADE] the trade price has to be higher than zer0.");
+		SendChatTarget(FromId, "[TRADE] the trade price has to be higher than zer0.");
 		return -1;
 	}
 
 	if(!IsPublic) // private trade
 	{
-		return TradeSellCheckUser(pToName, FromID); // DOES THE USER EXIST ??? AND IS HE LOGGED IN ???
+		return TradeSellCheckUser(pToName, FromId); // DOES THE USER EXIST ??? AND IS HE LOGGED IN ???
 	}
 
 	return 1;
 }
 
-int CGameContext::TradeSellCheckUser(const char *pToName, int FromID)
+int CGameContext::TradeSellCheckUser(const char *pToName, int FromId)
 {
 	char aBuf[128];
-	int TradeID = GetCIDByName(pToName); //USER ONLINE ???
-	if(TradeID == -1)
+	int TradeId = GetCidByName(pToName); //USER ONLINE ???
+	if(TradeId == -1)
 	{
 		if(!str_comp_nocase(pToName, ""))
 		{
-			SendChatTarget(FromID, "[TRADE] Error: Missing username");
+			SendChatTarget(FromId, "[TRADE] Error: Missing username");
 			return -1;
 		}
 		str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online", pToName);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
-	if(m_apPlayers[TradeID]->IsLoggedIn()) //USER LOGGED IN ???
+	if(m_apPlayers[TradeId]->IsLoggedIn()) //USER LOGGED IN ???
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pToName);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
-	return TradeID;
+	return TradeId;
 }
 
-int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int ItemID)
+int CGameContext::TradePrepareBuy(int BuyerId, const char *pSellerName, int ItemId)
 {
-	CPlayer *pBPlayer = m_apPlayers[BuyerID]; // BUYER ONLINE ??
+	CPlayer *pBPlayer = m_apPlayers[BuyerId]; // BUYER ONLINE ??
 	if(!pBPlayer)
 		return -1;
 
 	char aBuf[128];
-	int SellerID = GetCIDByName(pSellerName); // SELLER ONLINE ??
-	if(SellerID == -1)
+	int SellerId = GetCidByName(pSellerName); // SELLER ONLINE ??
+	if(SellerId == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] User '%s' not online.", pSellerName);
-		SendChatTarget(BuyerID, aBuf);
+		SendChatTarget(BuyerId, aBuf);
 		return -1;
 	}
 
-	CPlayer *pSPlayer = m_apPlayers[SellerID];
+	CPlayer *pSPlayer = m_apPlayers[SellerId];
 	if(!pSPlayer)
 		return -1;
 
-	CCharacter *pBChr = GetPlayerChar(BuyerID);
-	CCharacter *pSChr = GetPlayerChar(SellerID);
+	CCharacter *pBChr = GetPlayerChar(BuyerId);
+	CCharacter *pSChr = GetPlayerChar(SellerId);
 
 	if(pBPlayer->IsLoggedIn()) // BUYER LOGGED IN ??
 	{
-		SendChatTarget(BuyerID, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
+		SendChatTarget(BuyerId, "[TRADE] you have to be logged in to use this command. Check '/accountinfo'");
 		return -1;
 	}
 
 	if(pSPlayer->IsLoggedIn()) // SELLER LOGGED IN ??
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] player '%s' is not logged in.", pSellerName);
-		SendChatTarget(BuyerID, aBuf);
+		SendChatTarget(BuyerId, aBuf);
 		return -1;
 	}
 
 	if(!pBChr || !pSChr) // BOTH ALIVE ??
 	{
-		SendChatTarget(BuyerID, "[TRADE] both players have to be alive.");
+		SendChatTarget(BuyerId, "[TRADE] both players have to be alive.");
 		return -1;
 	}
 
-	if(BuyerID == SellerID) // SAME TEE ??
+	if(BuyerId == SellerId) // SAME TEE ??
 	{
-		SendChatTarget(BuyerID, "[TRADE] you can't trade alone, lol");
+		SendChatTarget(BuyerId, "[TRADE] you can't trade alone, lol");
 		return -1;
 	}
 
 	if(pSPlayer->m_TradeMoney > pBPlayer->GetMoney()) // ENOUGH MONEY ??
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] %" PRId64 "/%d money missing.", pBPlayer->GetMoney(), pSPlayer->m_TradeMoney);
-		SendChatTarget(BuyerID, aBuf);
+		SendChatTarget(BuyerId, aBuf);
 		return -1;
 	}
 
-	if(pSPlayer->m_TradeID != -1 && // PRIVATE TRADE ??
-		pSPlayer->m_TradeID != BuyerID) // wrong private trade mate
+	if(pSPlayer->m_TradeId != -1 && // PRIVATE TRADE ??
+		pSPlayer->m_TradeId != BuyerId) // wrong private trade mate
 	{
-		SendChatTarget(BuyerID, "[TRADE] error, this trade is private.");
+		SendChatTarget(BuyerId, "[TRADE] error, this trade is private.");
 		return -1;
 	}
 
-	if(pSChr->HasWeapon(ItemID) || (ItemID == 5 && pSChr->HasWeapon(2) && pSChr->HasWeapon(3) && pSChr->HasWeapon(4)))
+	if(pSChr->HasWeapon(ItemId) || (ItemId == 5 && pSChr->HasWeapon(2) && pSChr->HasWeapon(3) && pSChr->HasWeapon(4)))
 	{
 		//has the weapons
 	}
 	else
 	{
-		SendChatTarget(BuyerID, "[TRADE] the seller doesn't own the item right now. try agian later.");
+		SendChatTarget(BuyerId, "[TRADE] the seller doesn't own the item right now. try agian later.");
 		return -1;
 	}
 
-	if(IsMinigame(SellerID))
+	if(IsMinigame(SellerId))
 	{
-		SendChatTarget(BuyerID, "[TRADE] trade failed because seller is in jail or minigame.");
+		SendChatTarget(BuyerId, "[TRADE] trade failed because seller is in jail or minigame.");
 		return -1;
 	}
 
-	if(IsMinigame(BuyerID))
+	if(IsMinigame(BuyerId))
 	{
-		SendChatTarget(BuyerID, "[TRADE] trade failed because you are in jail or minigame.");
+		SendChatTarget(BuyerId, "[TRADE] trade failed because you are in jail or minigame.");
 		return -1;
 	}
 
-	if(pSPlayer->m_SpawnShotgunActive && ItemID == 2)
+	if(pSPlayer->m_SpawnShotgunActive && ItemId == 2)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
 		return -1;
 	}
 
-	if(pSPlayer->m_SpawnGrenadeActive && ItemID == 3)
+	if(pSPlayer->m_SpawnGrenadeActive && ItemId == 3)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
 		return -1;
 	}
 
-	if(pSPlayer->m_SpawnRifleActive && ItemID == 4)
+	if(pSPlayer->m_SpawnRifleActive && ItemId == 4)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon is a spawn weapon and can't be bought.");
 		return -1;
 	}
 
-	if(pSChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] && ItemID == 2)
+	if(pSChr->m_aDecreaseAmmo[WEAPON_SHOTGUN] && ItemId == 2)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;
 	}
 
-	if(pSChr->m_aDecreaseAmmo[WEAPON_GRENADE] && ItemID == 3)
+	if(pSChr->m_aDecreaseAmmo[WEAPON_GRENADE] && ItemId == 3)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;
 	}
 
-	if(pSChr->m_aDecreaseAmmo[WEAPON_LASER] && ItemID == 4)
+	if(pSChr->m_aDecreaseAmmo[WEAPON_LASER] && ItemId == 4)
 	{
-		SendChatTarget(BuyerID, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
+		SendChatTarget(BuyerId, "[TRADE] the wanted weapon doesn't have infinite bullets and can't be bought.");
 		return -1;
 	}
 
@@ -255,7 +255,7 @@ int CGameContext::TradePrepareBuy(int BuyerID, const char *pSellerName, int Item
 }
 
 /*
-int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
+int CGameContext::TradeSellCheckItem(const char *pItemName, int FromId)
 {
 
 	if (!str_comp_nocase(pItemName, "shotgun"))   // OWN TRADE ITEM ???
@@ -266,7 +266,7 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 		}
 		else
 		{
-			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			SendChatTarget(FromId, "[TRADE] you don't own this item.");
 			return -1;
 		}
 	}
@@ -278,7 +278,7 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 		}
 		else
 		{
-			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			SendChatTarget(FromId, "[TRADE] you don't own this item.");
 			return -1;
 		}
 	}
@@ -290,7 +290,7 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 		}
 		else
 		{
-			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			SendChatTarget(FromId, "[TRADE] you don't own this item.");
 			return -1;
 		}
 	}
@@ -302,7 +302,7 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 		}
 		else
 		{
-			SendChatTarget(FromID, "[TRADE] you don't own this item.");
+			SendChatTarget(FromId, "[TRADE] you don't own this item.");
 			return -1;
 		}
 	}
@@ -310,7 +310,7 @@ int CGameContext::TradeSellCheckItem(const char *pItemName, int FromID)
 	if (item == -1)
 	{
 		str_format(aBuf, sizeof(aBuf), "[TRADE] unknown item '%s' check '/trade items' for a full list.", pItemName);
-		SendChatTarget(FromID, aBuf);
+		SendChatTarget(FromId, aBuf);
 		return -1;
 	}
 
@@ -341,61 +341,61 @@ int CGameContext::TradeItemToInt(const char *pItemName)
 	return item;
 }
 
-const char *CGameContext::TradeItemToStr(int ItemID)
+const char *CGameContext::TradeItemToStr(int ItemId)
 {
-	if(ItemID == 2)
+	if(ItemId == 2)
 	{
 		return "shotgun";
 	}
-	else if(ItemID == 3)
+	else if(ItemId == 3)
 	{
 		return "grenade";
 	}
-	else if(ItemID == 4)
+	else if(ItemId == 4)
 	{
 		return "rifle";
 	}
-	else if(ItemID == 5)
+	else if(ItemId == 5)
 	{
 		return "all_weapons";
 	}
 	return "(null)";
 }
 
-int CGameContext::TradeHasItem(int ItemID, int ID)
+int CGameContext::TradeHasItem(int ItemId, int Id)
 {
-	CPlayer *pPlayer = m_apPlayers[ID];
+	CPlayer *pPlayer = m_apPlayers[Id];
 	if(!pPlayer)
 		return -1;
 
-	CCharacter *pChr = GetPlayerChar(ID);
+	CCharacter *pChr = GetPlayerChar(Id);
 	if(!pChr)
 		return -1;
 
 	int item = -1;
 
-	if(ItemID == 2) // shotgun
+	if(ItemId == 2) // shotgun
 	{
 		if(pChr->HasWeapon(2))
 		{
 			item = 2;
 		}
 	}
-	else if(ItemID == 3) // grenade
+	else if(ItemId == 3) // grenade
 	{
 		if(pChr->HasWeapon(3))
 		{
 			item = 3;
 		}
 	}
-	else if(ItemID == 4) // rifle
+	else if(ItemId == 4) // rifle
 	{
 		if(pChr->HasWeapon(4))
 		{
 			item = 4;
 		}
 	}
-	else if(ItemID == 5) // all_weapons
+	else if(ItemId == 5) // all_weapons
 	{
 		if(pChr->HasWeapon(4) && pChr->HasWeapon(3) && pChr->HasWeapon(2))
 		{

@@ -447,8 +447,8 @@ public:
 	// vanilla token/gametick shouldn't be negative
 	SECURITY_TOKEN GetVanillaToken(const NETADDR &Addr) { return absolute(GetToken(Addr)); }
 
-	void BotInit(int BotID);
-	void BotDelete(int BotID);
+	void BotInit(int BotId);
+	void BotDelete(int BotId);
 };
 
 class CNetConsole

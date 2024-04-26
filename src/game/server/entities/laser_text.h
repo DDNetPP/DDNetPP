@@ -16,7 +16,7 @@ public:
 		CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER, Pos, 0)
 	{
 	}
-	int GetIDWrap() { return GetID(); }
+	int GetIdWrap() { return GetId(); }
 };
 
 class CLaserText : public CEntity

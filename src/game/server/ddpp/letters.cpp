@@ -39,11 +39,11 @@ void CLetters::UpdateBuffers(int Ascii, int offset)
 	}
 }
 
-void CLetters::SendChat(int ClientID, int Ascii)
+void CLetters::SendChat(int ClientId, int Ascii)
 {
 	UpdateBuffers(Ascii);
 	for(auto &AsciiBuf : m_aaAsciiBuf)
-		GameServer()->SendChatTarget(ClientID, AsciiBuf);
+		GameServer()->SendChatTarget(ClientId, AsciiBuf);
 }
 
 void CLetters::ToUpper(char *pStr)
@@ -52,12 +52,12 @@ void CLetters::ToUpper(char *pStr)
 		*pStr = str_uppercase(*pStr);
 }
 
-void CLetters::SendChat(int ClientID, const char *pStr)
+void CLetters::SendChat(int ClientId, const char *pStr)
 {
 	char aUpper[ASCII_BUF_LENGTH + 1];
 	str_copy(aUpper, pStr, sizeof(aUpper));
 	ToUpper(aUpper);
-	printf("CLetters::SendChat(id=%d, str=%s) upper=%s\n", ClientID, pStr, aUpper);
+	printf("CLetters::SendChat(id=%d, str=%s) upper=%s\n", ClientId, pStr, aUpper);
 	for(int i = 0; i < ASCII_BUF_LENGTH; i++)
 	{
 		if(!aUpper[i])
@@ -66,7 +66,7 @@ void CLetters::SendChat(int ClientID, const char *pStr)
 		UpdateBuffers((int)aUpper[i], i);
 	}
 	for(auto &AsciiBuf : m_aaAsciiBuf)
-		GameServer()->SendChatTarget(ClientID, AsciiBuf);
+		GameServer()->SendChatTarget(ClientId, AsciiBuf);
 }
 
 void CLetters::DebugPrint(int Ascii)

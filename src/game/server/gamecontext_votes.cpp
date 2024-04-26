@@ -10,10 +10,10 @@
 
 void CGameContext::VotedYes(CCharacter *pChr, CPlayer *pPlayer)
 {
-	// SendChatTarget(ClientID, "you pressed f3");
+	// SendChatTarget(ClientId, "you pressed f3");
 	if(!pChr)
 		return;
-	if(Shop()->VoteYes(pChr->GetPlayer()->GetCID()))
+	if(Shop()->VoteYes(pChr->GetPlayer()->GetCid()))
 		return;
 	IGameController *ControllerDDrace = pPlayer->GetCharacter()->GameServer()->m_pController;
 	if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0])
@@ -21,7 +21,7 @@ void CGameContext::VotedYes(CCharacter *pChr, CPlayer *pPlayer)
 		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[0]->m_pCarryingCharacter == pChr)
 		{
 			((CGameControllerDDRace *)ControllerDDrace)->DropFlag(0, pChr->GetAimDir()); //red
-			//SendChatTarget(ClientID, "you dropped red flag");
+			//SendChatTarget(ClientId, "you dropped red flag");
 		}
 	}
 	if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1])
@@ -29,17 +29,17 @@ void CGameContext::VotedYes(CCharacter *pChr, CPlayer *pPlayer)
 		if(((CGameControllerDDRace *)ControllerDDrace)->m_apFlags[1]->m_pCarryingCharacter == pChr)
 		{
 			((CGameControllerDDRace *)ControllerDDrace)->DropFlag(1, pChr->GetAimDir()); //blue
-			//SendChatTarget(ClientID, "you dropped blue flag");
+			//SendChatTarget(ClientId, "you dropped blue flag");
 		}
 	}
 }
 
 void CGameContext::VotedNo(CCharacter *pChr)
 {
-	//SendChatTarget(ClientID, "you pressed f4");
+	//SendChatTarget(ClientId, "you pressed f4");
 	if(!pChr)
 		return;
-	if(Shop()->VoteNo(pChr->GetPlayer()->GetCID()))
+	if(Shop()->VoteNo(pChr->GetPlayer()->GetCid()))
 		return;
 	if(g_Config.m_SvAllowDroppingWeapons)
 		pChr->DropWeapon(pChr->GetActiveWeapon()); // drop the weapon youre holding.

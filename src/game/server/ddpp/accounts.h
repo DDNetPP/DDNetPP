@@ -31,9 +31,9 @@ struct CAccountData
 {
 	CAccountData()
 	{
-		m_ClientID = -1;
+		m_ClientId = -1;
 
-		m_ID = 0;
+		m_Id = 0;
 		m_aUsername[0] = '\0';
 		m_aPassword[0] = '\0';
 		m_aRegisterDate[0] = '\0';
@@ -44,9 +44,9 @@ struct CAccountData
 		m_LastLogoutIGN3[0] = '\0';
 		m_LastLogoutIGN4[0] = '\0';
 		m_LastLogoutIGN5[0] = '\0';
-		m_aIP_1[0] = '\0';
-		m_aIP_2[0] = '\0';
-		m_aIP_3[0] = '\0';
+		m_aIp_1[0] = '\0';
+		m_aIp_2[0] = '\0';
+		m_aIp_3[0] = '\0';
 		m_aClan1[0] = '\0';
 		m_aClan2[0] = '\0';
 		m_aClan3[0] = '\0';
@@ -127,9 +127,9 @@ struct CAccountData
 	}
 
 	// meta
-	int m_ClientID;
+	int m_ClientId;
 
-	int m_ID;
+	int m_Id;
 	char m_aUsername[64];
 	char m_aPassword[64];
 	char m_aRegisterDate[64];
@@ -140,9 +140,9 @@ struct CAccountData
 	char m_LastLogoutIGN3[32];
 	char m_LastLogoutIGN4[32];
 	char m_LastLogoutIGN5[32];
-	char m_aIP_1[32];
-	char m_aIP_2[32];
-	char m_aIP_3[32];
+	char m_aIp_1[32];
+	char m_aIp_2[32];
+	char m_aIp_3[32];
 	char m_aClan1[32];
 	char m_aClan2[32];
 	char m_aClan3[32];
@@ -279,8 +279,8 @@ struct CAdminCommandResult : ISqlResult
 
 	char m_aaMessages[MAX_MESSAGES][512];
 	char m_aBroadcast[1024];
-	int m_AdminClientID;
-	int m_TargetAccountID;
+	int m_AdminClientId;
+	int m_TargetAccountId;
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
@@ -338,8 +338,8 @@ struct CSqlAdminCommandRequest : ISqlData
 	}
 
 	char m_aQuery[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
-	int m_AdminClientID;
-	int m_TargetAccountID;
+	int m_AdminClientId;
+	int m_TargetAccountId;
 	char m_aUsername[64];
 	char m_aPassword[64];
 	int m_State;
@@ -353,7 +353,7 @@ struct CSqlSetLoginData : ISqlData
 	{
 	}
 
-	int m_AccountID;
+	int m_AccountId;
 	int m_LoggedIn;
 	int m_Port;
 };
@@ -366,7 +366,7 @@ struct CSqlCleanZombieAccountsData : ISqlData
 	}
 
 	char m_aQuery[128 + (MAX_CLIENTS * (MAX_SQL_ID_LENGTH + 1))];
-	int m_ClientID;
+	int m_ClientId;
 	int m_Port;
 };
 
@@ -423,16 +423,16 @@ class CAccounts
 	static bool SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 	static bool CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 	static bool LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
-	static bool ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
+	static bool ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize);
 
 	// returns new SqlResult bound to the player, if no current Thread is active for this player
-	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientID);
-	std::shared_ptr<CAdminCommandResult> NewSqlAdminCommandResult(int ClientID);
+	std::shared_ptr<CAccountResult> NewSqlAccountResult(int ClientId);
+	std::shared_ptr<CAdminCommandResult> NewSqlAdminCommandResult(int ClientId);
 	// Creates for player bound database requests (1 request max at a time per player)
 	void ExecUserThread(
 		bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 		const char *pThreadName,
-		int ClientID,
+		int ClientId,
 		const char *pUsername,
 		const char *pPassword,
 		const char *pNewPassword,
@@ -440,8 +440,8 @@ class CAccounts
 	void ExecAdminThread(
 		bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 		const char *pThreadName,
-		int AdminClientID,
-		int TargetAccountID,
+		int AdminClientId,
+		int TargetAccountId,
 		int State,
 		CAdminCommandResult::Variant Type,
 		const char *pUsername,
@@ -461,19 +461,19 @@ public:
 			so account saves will not execute if the player
 			is currently executing a login query or changing his password
 	*/
-	void Save(int ClientID, CAccountData *pAccountData);
-	void Login(int ClientID, const char *pUsername, const char *pPassword);
-	void Register(int ClientID, const char *pUsername, const char *pPassword);
-	void ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
-	void AdminSetPassword(int ClientID, const char *pUsername, const char *pPassword);
+	void Save(int ClientId, CAccountData *pAccountData);
+	void Login(int ClientId, const char *pUsername, const char *pPassword);
+	void Register(int ClientId, const char *pUsername, const char *pPassword);
+	void ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword);
+	void AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword);
 
-	void UpdateAccountState(int AdminClientID, int TargetAccountID, int State, CAdminCommandResult::Variant Type, const char *pQuery);
+	void UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAdminCommandResult::Variant Type, const char *pQuery);
 
 	void CreateDatabase();
-	void SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port);
-	void CleanZombieAccounts(int ClientID, int Port, const char *pQuery);
+	void SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port);
+	void CleanZombieAccounts(int ClientId, int Port, const char *pQuery);
 	void LogoutUsername(const char *pUsername);
-	void ExecuteSQL(const char *pQuery);
+	void ExecuteSql(const char *pQuery);
 };
 
 #endif

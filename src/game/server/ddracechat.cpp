@@ -1136,7 +1136,7 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 // void CGameContext::ConJoin(IConsole::IResult *pResult, void *pUserData)
 // {
 // 	CGameContext *pSelf = (CGameContext *)pUserData;
-// 	if(!CheckClientID(pResult->m_ClientID))
+// 	if(!CheckClientId(pResult->m_ClientId))
 // 		return;
 
 // 	int Target = -1;
@@ -1157,10 +1157,10 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 // 	}
 
 // 	int Team = pSelf->GetDDRaceTeam(Target);
-// 	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
+// 	if(pSelf->ProcessSpamProtection(pResult->m_ClientId, false))
 // 		return;
 
-// 	pSelf->AttemptJoinTeam(pResult->m_ClientID, Team);
+// 	pSelf->AttemptJoinTeam(pResult->m_ClientId, Team);
 // }
 
 void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
@@ -1304,19 +1304,19 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 		if(pPlayer->m_NinjaJetpack)
 		{
 			pPlayer->m_NinjaJetpack = false;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Ninjajetpack disabled");
+			pSelf->SendChatTarget(pResult->m_ClientId, "Ninjajetpack disabled");
 			return;
 		}
 		else
 		{
 			pPlayer->m_NinjaJetpack = true;
-			pSelf->SendChatTarget(pResult->m_ClientID, "Ninjajetpack enabled");
+			pSelf->SendChatTarget(pResult->m_ClientId, "Ninjajetpack enabled");
 			return;
 		}
 	}
 	else
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "You don't have ninjajetpack. Buy it using '/buy ninjajetpack'.");
+		pSelf->SendChatTarget(pResult->m_ClientId, "You don't have ninjajetpack. Buy it using '/buy ninjajetpack'.");
 		return;
 	}
 }

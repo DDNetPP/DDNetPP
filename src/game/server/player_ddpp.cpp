@@ -16,16 +16,16 @@
 
 #include "player.h"
 
-void CPlayer::FixForNoName(int ID)
+void CPlayer::FixForNoName(int Id)
 {
-	m_FixNameID = ID; // 0 for just to display the name in the right moment (e.g. kill msg killer)
+	m_FixNameId = Id; // 0 for just to display the name in the right moment (e.g. kill msg killer)
 	m_SetRealName = true;
 	m_SetRealNameTick = Server()->Tick() + Server()->TickSpeed() / 20;
 }
 
 void CPlayer::ConstructDDPP()
 {
-	m_pCaptcha = new CCaptcha(GameServer(), GetCID());
+	m_pCaptcha = new CCaptcha(GameServer(), GetCid());
 	m_pDummyMode = nullptr;
 }
 
@@ -69,8 +69,8 @@ void CPlayer::ResetDDPP()
 		str_format(m_Account.m_aAsciiFrame[14], sizeof(m_Account.m_aAsciiFrame[14]), ":");
 		str_format(m_Account.m_aAsciiFrame[15], sizeof(m_Account.m_aAsciiFrame[15]), ".:.");
 	}
-	for(auto &CachedID : m_aCatchedID)
-		CachedID = -1;
+	for(auto &CachedId : m_aCatchedId)
+		CachedId = -1;
 
 	if(GameServer()->IsDDPPgametype("fly"))
 	{
@@ -88,13 +88,13 @@ void CPlayer::ResetDDPP()
 	{
 		m_IsNoboSpawn = true;
 	}
-	SetAccID(0);
+	SetAccId(0);
 	m_PlayerHumanLevel = 0;
 	m_HumanLevelTime = 0;
 	m_NoboSpawnStop = Server()->Tick() + Server()->TickSpeed() * (60 * g_Config.m_SvNoboSpawnTime);
-	m_QuestPlayerID = -1;
+	m_QuestPlayerId = -1;
 	m_JailHammer = true;
-	m_AsciiWatchingID = -1;
+	m_AsciiWatchingId = -1;
 	m_AsciiAnimSpeed = 10;
 	str_format(m_HashSkin, sizeof(m_HashSkin), "#");
 	m_ChilliWarnings = 0;
@@ -113,7 +113,7 @@ void CPlayer::ResetDDPP()
 	m_BalanceBattle_id = -1;
 	m_TradeItem = -1;
 	m_TradeMoney = -1;
-	m_TradeID = -1;
+	m_TradeId = -1;
 
 	//dbg_msg("debug", "init player showhide='%s'", m_Account.m_aShowHideConfig);
 	m_ShowBlockPoints = GameServer()->CharToBool(m_Account.m_aShowHideConfig[0]); //doing it manually becuase the gamecontext function cant be called here
@@ -123,7 +123,7 @@ void CPlayer::ResetDDPP()
 	m_HideInsta1on1_killmessages = GameServer()->CharToBool(m_Account.m_aShowHideConfig[4]);
 	m_HideQuestProgress = GameServer()->CharToBool(m_Account.m_aShowHideConfig[5]);
 	m_HideQuestWarning = GameServer()->CharToBool(m_Account.m_aShowHideConfig[6]);
-	//GameServer()->ShowHideConfigCharToBool(this->GetCID()); //cant be called because somehow players doesnt exist for gameconext idk
+	//GameServer()->ShowHideConfigCharToBool(this->GetCid()); //cant be called because somehow players doesnt exist for gameconext idk
 	//str_format(m_Account.m_aShowHideConfig, sizeof(m_Account.m_aShowHideConfig), "%s", "0010000000000000"); // <3
 	//m_xpmsg = true;
 
@@ -140,7 +140,7 @@ void CPlayer::ResetDDPP()
 	m_trail_offer = false;
 	m_autospreadgun_offer = false;
 	//Block points
-	m_LastToucherID = -1;
+	m_LastToucherId = -1;
 	m_DisplayScore = SCORE_LEVEL;
 	m_Language = LANG_EN;
 	m_MinigameScore = 0;
@@ -154,10 +154,10 @@ void CPlayer::SetLanguage(const char *pLang)
 		SetLanguage(LANG_RU);
 	else
 	{
-		GameServer()->SendChatTarget(m_ClientID, "[lang] invalid language pick one of those: en, ru");
+		GameServer()->SendChatTarget(m_ClientId, "[lang] invalid language pick one of those: en, ru");
 		return;
 	}
-	GameServer()->SendChatTarget(m_ClientID, "[lang] language set");
+	GameServer()->SendChatTarget(m_ClientId, "[lang] language set");
 }
 
 void CPlayer::DDPPTick()
@@ -185,7 +185,7 @@ void CPlayer::DDPPTick()
 	if(Server()->Tick() % 1000 == 0)
 	{
 		m_IsProfileViewLoaded = true;
-		//GameServer()->SendChatTarget(m_ClientID, "View loaded");
+		//GameServer()->SendChatTarget(m_ClientId, "View loaded");
 	}
 
 	//bomb
@@ -194,7 +194,7 @@ void CPlayer::DDPPTick()
 		m_Account.m_BombBanTime--;
 		if(m_Account.m_BombBanTime == 1)
 		{
-			GameServer()->SendChatTarget(m_ClientID, "Bomb bantime expired.");
+			GameServer()->SendChatTarget(m_ClientId, "Bomb bantime expired.");
 		}
 	}
 
@@ -222,13 +222,13 @@ void CPlayer::DDPPTick()
 	{
 		if(m_SetRealNameTick < Server()->Tick())
 		{
-			if(m_FixNameID == 1)
-				GameServer()->SendChat(m_ClientID, m_ChatTeam, m_ChatText, m_ClientID);
-			else if(m_FixNameID == 2)
+			if(m_FixNameId == 1)
+				GameServer()->SendChat(m_ClientId, m_ChatTeam, m_ChatText, m_ClientId);
+			else if(m_FixNameId == 2)
 			{
 				CNetMsg_Sv_KillMsg Msg;
 				Msg.m_Killer = m_MsgKiller;
-				Msg.m_Victim = GetCID();
+				Msg.m_Victim = GetCid();
 				Msg.m_Weapon = m_MsgWeapon;
 				Msg.m_ModeSpecial = m_MsgModeSpecial;
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
@@ -289,7 +289,7 @@ bool CPlayer::SetDummyMode(EDummyMode Mode)
 	}
 
 	str_copy(m_aDummyMode, m_pDummyMode->ModeStr(), sizeof(m_aDummyMode));
-	dbg_msg("dummy", "set mode %d (%s) for player %d:'%s'", Mode, m_pDummyMode->ModeStr(), GetCID(), Server()->ClientName(GetCID()));
+	dbg_msg("dummy", "set mode %d (%s) for player %d:'%s'", Mode, m_pDummyMode->ModeStr(), GetCid(), Server()->ClientName(GetCid()));
 	return true;
 }
 
@@ -403,7 +403,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 
 	if(m_SetRealName || m_ShowName)
 	{
-		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientID));
+		StrToInts(&pClientInfo->m_Name0, 4, Server()->ClientName(m_ClientId));
 	}
 	else
 	{
@@ -413,7 +413,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 	if(GetCharacter())
 	{
 		if(m_PlayerFlags & PLAYERFLAG_SCOREBOARD)
-			GameServer()->Shop()->OnOpenScoreboard(GetCID());
+			GameServer()->Shop()->OnOpenScoreboard(GetCid());
 		else
 			GetCharacter()->m_TimesShot = 0;
 	}
@@ -473,7 +473,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 			pClientInfo->m_ColorFeet = (GameServer()->m_BombColor * 255 / 360);
 		}
 	}
-	else if(m_InfRainbow || GameServer()->IsHooked(GetCID(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
+	else if(m_InfRainbow || GameServer()->IsHooked(GetCid(), 1) || (GetCharacter() && GetCharacter()->m_Rainbow && !GetCharacter()->m_IsBombing)) //rainbow (hide finit rainbow if in bomb game)
 	{
 		StrToInts(&pClientInfo->m_Skin0, 6, m_TeeInfos.m_aSkinName);
 		pClientInfo->m_UseCustomColor = true;
@@ -489,7 +489,7 @@ bool CPlayer::DDPPSnapChangeSkin(CNetObj_ClientInfo *pClientInfo)
 void CPlayer::DDPPSnapChangePlayerInfo(int SnappingClient, CPlayer *pSnapping, CNetObj_PlayerInfo *pPlayerInfo)
 {
 	// send 0 if times of others are not shown
-	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
+	if(SnappingClient != m_ClientId && g_Config.m_SvHideScore)
 	{
 		pPlayerInfo->m_Score = -9999;
 	}
@@ -563,11 +563,11 @@ void CPlayer::OnDisconnectDDPP()
 {
 	if(m_Insta1on1_id != -1 && (m_IsInstaArena_gdm || m_IsInstaArena_idm))
 	{
-		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCID());
+		GameServer()->WinInsta1on1(m_Insta1on1_id, GetCid());
 	}
 	if(m_Account.m_JailTime)
 	{
-		GameServer()->SetIpJailed(GetCID());
+		GameServer()->SetIpJailed(GetCid());
 	}
 	Logout();
 }
@@ -578,7 +578,7 @@ void CPlayer::Logout(int SetLoggedIn)
 		return;
 
 	Save(SetLoggedIn);
-	dbg_msg("account", "logging out AccountID=%d SetLoggedIn=%d", GetAccID(), SetLoggedIn);
+	dbg_msg("account", "logging out AccountId=%d SetLoggedIn=%d", GetAccId(), SetLoggedIn);
 
 	// Keep jail and escape time on logout
 	int64_t JailTime = m_Account.m_JailTime;
@@ -620,7 +620,7 @@ void CPlayer::JailPlayer(int seconds)
 		else //no jailplayer
 		{
 			//GetCharacter()->SetPosition(DefaultSpawn); //crashbug for mod stealer
-			GameServer()->SendChatTarget(GetCID(), "No jail set.");
+			GameServer()->SendChatTarget(GetCid(), "No jail set.");
 		}
 	}
 }
@@ -652,7 +652,7 @@ float CPlayer::TaserFreezeTime()
 void CPlayer::Save(int SetLoggedIn)
 {
 #if defined(CONF_DEBUG)
-	dbg_msg("account", "saving account '%s' CID=%d AccountID=%d SetLoggedIn=%d", Server()->ClientName(GetCID()), GetCID(), GetAccID(), SetLoggedIn);
+	dbg_msg("account", "saving account '%s' CID=%d AccountId=%d SetLoggedIn=%d", Server()->ClientName(GetCid()), GetCid(), GetAccId(), SetLoggedIn);
 #endif
 	if(!IsLoggedIn())
 		return;
@@ -661,7 +661,7 @@ void CPlayer::Save(int SetLoggedIn)
 
 	// Proccess Clan Data...
 	char aClan[32];
-	str_copy(aClan, Server()->ClientClan(m_ClientID), sizeof(aClan));
+	str_copy(aClan, Server()->ClientClan(m_ClientId), sizeof(aClan));
 
 	if(str_comp(aClan, m_Account.m_aClan1) && str_comp(aClan, m_Account.m_aClan2) && str_comp(aClan, m_Account.m_aClan3))
 	{
@@ -672,20 +672,20 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// Proccess IP ADDR...
-	char aIP[32];
-	Server()->GetClientAddr(GetCID(), aIP, sizeof(aIP));
+	char aIp[32];
+	Server()->GetClientAddr(GetCid(), aIp, sizeof(aIp));
 
-	if(str_comp(aIP, m_Account.m_aIP_1) && str_comp(aIP, m_Account.m_aIP_2) && str_comp(aIP, m_Account.m_aIP_3))
+	if(str_comp(aIp, m_Account.m_aIp_1) && str_comp(aIp, m_Account.m_aIp_2) && str_comp(aIp, m_Account.m_aIp_3))
 	{
-		//dbg_msg("save", "updated ip '%s'", aIP);
-		str_format(m_Account.m_aIP_3, sizeof(m_Account.m_aIP_3), "%s", m_Account.m_aIP_2);
-		str_format(m_Account.m_aIP_2, sizeof(m_Account.m_aIP_2), "%s", m_Account.m_aIP_1);
-		str_format(m_Account.m_aIP_1, sizeof(m_Account.m_aIP_1), "%s", aIP);
+		//dbg_msg("save", "updated ip '%s'", aIp);
+		str_format(m_Account.m_aIp_3, sizeof(m_Account.m_aIp_3), "%s", m_Account.m_aIp_2);
+		str_format(m_Account.m_aIp_2, sizeof(m_Account.m_aIp_2), "%s", m_Account.m_aIp_1);
+		str_format(m_Account.m_aIp_1, sizeof(m_Account.m_aIp_1), "%s", aIp);
 	}
 
 	// Proccess IngameName Data...
 	char aName[32];
-	str_copy(aName, Server()->ClientName(m_ClientID), sizeof(aName));
+	str_copy(aName, Server()->ClientName(m_ClientId), sizeof(aName));
 
 	// new name --> add it in history and overwrite the oldest
 	if(str_comp(aName, m_Account.m_LastLogoutIGN1) && str_comp(aName, m_Account.m_LastLogoutIGN2) && str_comp(aName, m_Account.m_LastLogoutIGN3) && str_comp(aName, m_Account.m_LastLogoutIGN4) && str_comp(aName, m_Account.m_LastLogoutIGN5))
@@ -705,12 +705,12 @@ void CPlayer::Save(int SetLoggedIn)
 	}
 
 	// read showhide bools to char array that is being saved
-	// GameServer()->ShowHideConfigBoolToChar(this->GetCID());
+	// GameServer()->ShowHideConfigBoolToChar(this->GetCid());
 
 	if(m_IsFileAcc)
 		SaveFileBased();
 	else
-		GameServer()->Accounts()->Save(GetCID(), &m_Account);
+		GameServer()->Accounts()->Save(GetCid(), &m_Account);
 }
 
 void CPlayer::SaveFileBased()
@@ -980,7 +980,7 @@ void CPlayer::CalcExp()
 
 	if(IsMaxLevel())
 	{
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
+		GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] GRATULATIONS !!! you reached the maximum level.");
 		SetXP(OldNeededXp);
 		// m_neededxp = OldNeededXp; // covered by the 404 else if ACC_MAX_LEVEL is if branch limit if it is less it uses next levels neededxp which doesnt hurt either
 	}
@@ -1002,7 +1002,7 @@ void CPlayer::CheckLevel()
 
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "You are now Level %d!   +50money", GetLevel());
-		GameServer()->SendChatTarget(m_ClientID, aBuf); //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
+		GameServer()->SendChatTarget(m_ClientId, aBuf); //woher weiss ich dass? mit dem GameServer()-> und m_Cli...
 		MoneyTransaction(+50, "level up");
 
 		CalcExp();
@@ -1015,7 +1015,7 @@ void CPlayer::MoneyTransaction(int Amount, const char *Description)
 #if defined(CONF_DEBUG)
 	if(GetMoney() < 0)
 	{
-		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%" PRId64 "", GetCID(), Server()->ClientName(GetCID()), GetMoney());
+		dbg_msg("MoneyTransaction", "WARNING money went negative! id=%d name=%s value=%" PRId64 "", GetCid(), Server()->ClientName(GetCid()), GetMoney());
 	}
 #endif
 	if(!str_comp(Description, ""))
@@ -1046,7 +1046,7 @@ void CPlayer::chidraqul3_GameTick()
 
 	if(g_Config.m_SvAllowChidraqul == 0)
 	{
-		GameServer()->SendChatTarget(m_ClientID, "Admin has disabled chidraqul3.");
+		GameServer()->SendChatTarget(m_ClientId, "Admin has disabled chidraqul3.");
 		m_C3_GameState = false;
 	}
 	else if(g_Config.m_SvAllowChidraqul == 1) //dynamic but resourcy way (doesnt work on linux)
@@ -1123,7 +1123,7 @@ void CPlayer::chidraqul3_GameTick()
 		str_format(aBuf, sizeof(aBuf), "\n\n\n%s\nPos: [%d/%d] Gold: %d", m_minigame_world, m_HashPos, m_HashPosY, m_HashGold);
 
 		//print all
-		GameServer()->SendBroadcast(aBuf, m_ClientID);
+		GameServer()->SendBroadcast(aBuf, m_ClientId);
 	}
 	else if(g_Config.m_SvAllowChidraqul == 2) //old hardcodet
 	{
@@ -1132,57 +1132,57 @@ void CPlayer::chidraqul3_GameTick()
 		if(m_HashPos == 0)
 		{
 			str_format(aBuf, sizeof(aBuf), "%s___________", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 1)
 		{
 			str_format(aBuf, sizeof(aBuf), "_%s__________", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 2)
 		{
 			str_format(aBuf, sizeof(aBuf), "__%s_________", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 3)
 		{
 			str_format(aBuf, sizeof(aBuf), "___%s________", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 4)
 		{
 			str_format(aBuf, sizeof(aBuf), "_____%s______", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 5)
 		{
 			str_format(aBuf, sizeof(aBuf), "______%s_____", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 6)
 		{
 			str_format(aBuf, sizeof(aBuf), "_______%s____", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 7)
 		{
 			str_format(aBuf, sizeof(aBuf), "________%s___", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 8)
 		{
 			str_format(aBuf, sizeof(aBuf), "_________%s__", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 9)
 		{
 			str_format(aBuf, sizeof(aBuf), "__________%s_", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 		else if(m_HashPos == 10)
 		{
 			str_format(aBuf, sizeof(aBuf), "___________%s", m_HashSkin);
-			GameServer()->SendBroadcast(aBuf, m_ClientID);
+			GameServer()->SendBroadcast(aBuf, m_ClientId);
 		}
 	}
 	else if(g_Config.m_SvAllowChidraqul == 3) //next generation
@@ -1205,7 +1205,7 @@ void CPlayer::chidraqul3_GameTick()
 			str_format(aHUD, sizeof(aHUD), "\n\nPos: %d", m_HashPos);
 			str_format(aBuf, sizeof(aBuf), "%s%s", aWorld, aHUD);
 
-			GameServer()->SendBroadcast(aWorld, m_ClientID, 0);
+			GameServer()->SendBroadcast(aWorld, m_ClientId, 0);
 		}
 		if(Server()->Tick() % 120 == 0)
 		{
@@ -1218,28 +1218,28 @@ bool CPlayer::JoinMultiplayer()
 {
 	if(GameServer()->C3_GetFreeSlots() > 0)
 	{
-		GameServer()->SendChatTarget(GetCID(), "[chidraqul] joined multiplayer.");
+		GameServer()->SendChatTarget(GetCid(), "[chidraqul] joined multiplayer.");
 		m_C3_UpdateFrame = true;
 		m_C3_GameState = 2;
 		return true;
 	}
-	GameServer()->SendChatTarget(GetCID(), "[chidraqul] multiplayer is full.");
+	GameServer()->SendChatTarget(GetCid(), "[chidraqul] multiplayer is full.");
 	return false;
 }
 
-void CPlayer::UpdateLastToucher(int ID)
+void CPlayer::UpdateLastToucher(int Id)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldID=%d player=%d:'%s'", ID, m_LastToucherID, GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("ddnet++", "UpdateLastToucher(%d) oldId=%d player=%d:'%s'", Id, m_LastToucherId, GetCid(), Server()->ClientName(GetCid()));
 #endif
-	m_LastToucherID = ID;
+	m_LastToucherId = Id;
 	m_LastTouchTicks = 0;
-	if(ID == -1)
+	if(Id == -1)
 		return;
-	CPlayer *pToucher = GameServer()->m_apPlayers[ID];
+	CPlayer *pToucher = GameServer()->m_apPlayers[Id];
 	if(!pToucher)
 		return;
-	str_copy(m_aLastToucherName, Server()->ClientName(ID), sizeof(m_aLastToucherName));
+	str_copy(m_aLastToucherName, Server()->ClientName(Id), sizeof(m_aLastToucherName));
 	m_LastToucherTeeInfos.m_ColorBody = pToucher->m_TeeInfos.m_ColorBody;
 	m_LastToucherTeeInfos.m_ColorFeet = pToucher->m_TeeInfos.m_ColorFeet;
 	str_copy(m_LastToucherTeeInfos.m_aSkinName, pToucher->m_TeeInfos.m_aSkinName, sizeof(pToucher->m_TeeInfos.m_aSkinName));
@@ -1269,7 +1269,7 @@ void CPlayer::GiveBlockPoints(int Points)
 			str_format(aBuf, sizeof(aBuf), "+%d point%s (warning! use '/login' to save your '/points')", Points, Points == 1 ? "" : "s");
 		}
 
-		GameServer()->SendChatTarget(GetCID(), aBuf);
+		GameServer()->SendChatTarget(GetCid(), aBuf);
 	}
 	else // chat info deactivated
 	{
@@ -1279,19 +1279,19 @@ void CPlayer::GiveBlockPoints(int Points)
 			if(m_Account.m_BlockPoints == 5 || m_Account.m_BlockPoints == 10)
 			{
 				str_format(aBuf, sizeof(aBuf), "you made %d unsaved block points. Use '/login' to save your '/points'.", m_Account.m_BlockPoints);
-				GameServer()->SendChatTarget(GetCID(), aBuf);
-				GameServer()->SendChatTarget(GetCID(), "Use '/accountinfo' for more information.");
+				GameServer()->SendChatTarget(GetCid(), aBuf);
+				GameServer()->SendChatTarget(GetCid(), "Use '/accountinfo' for more information.");
 			}
 		}
 	}
 }
 
-void CPlayer::SetAccID(int ID)
+void CPlayer::SetAccId(int Id)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetAccID(%d) oldID=%d player=%d:'%s'", ID, GetAccID(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetAccId(%d) oldId=%d player=%d:'%s'", Id, GetAccId(), GetCid(), Server()->ClientName(GetCid()));
 #endif
-	m_Account.m_ID = ID;
+	m_Account.m_Id = Id;
 }
 
 void CPlayer::GiveXP(int value)
@@ -1305,7 +1305,7 @@ void CPlayer::GiveXP(int value)
 void CPlayer::SetXP(int xp)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetXP(%d) oldID=%d player=%d:'%s'", xp, GetXP(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetXP(%d) oldId=%d player=%d:'%s'", xp, GetXP(), GetCid(), Server()->ClientName(GetCid()));
 #endif
 	m_Account.m_XP = xp;
 }
@@ -1313,7 +1313,7 @@ void CPlayer::SetXP(int xp)
 void CPlayer::SetLevel(int Level)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetLevel(%d) oldID=%d player=%d:'%s'", Level, GetLevel(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetLevel(%d) oldId=%d player=%d:'%s'", Level, GetLevel(), GetCid(), Server()->ClientName(GetCid()));
 #endif
 	m_Account.m_Level = Level;
 }
@@ -1321,7 +1321,7 @@ void CPlayer::SetLevel(int Level)
 void CPlayer::SetMoney(int Money)
 {
 #if defined(CONF_DEBUG)
-	// dbg_msg("account", "SetMoney(%d) oldID=%d player=%d:'%s'", Money, GetMoney(), GetCID(), Server()->ClientName(GetCID()));
+	// dbg_msg("account", "SetMoney(%d) oldId=%d player=%d:'%s'", Money, GetMoney(), GetCid(), Server()->ClientName(GetCid()));
 #endif
 	m_Account.m_Money = Money;
 }

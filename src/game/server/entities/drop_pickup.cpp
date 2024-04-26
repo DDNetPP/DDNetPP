@@ -83,7 +83,7 @@ int CDropPickup::IsCharacterNear()
 	{
 		CCharacter *pChr = apEnts[i];
 		if(pChr && pChr->IsAlive())
-			return pChr->GetPlayer()->GetCID();
+			return pChr->GetPlayer()->GetCid();
 	}
 
 	return -1;
@@ -91,10 +91,10 @@ int CDropPickup::IsCharacterNear()
 
 void CDropPickup::Pickup()
 {
-	int CharID = IsCharacterNear();
-	if(CharID != -1)
+	int CharId = IsCharacterNear();
+	if(CharId != -1)
 	{
-		CCharacter *pChar = GameServer()->GetPlayerChar(CharID);
+		CCharacter *pChar = GameServer()->GetPlayerChar(CharId);
 		if(!pChar)
 			return;
 
@@ -233,7 +233,7 @@ void CDropPickup::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetID(), sizeof(CNetObj_Pickup)));
+	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, GetId(), sizeof(CNetObj_Pickup)));
 	if(!pP)
 		return;
 

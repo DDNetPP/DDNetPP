@@ -20,7 +20,7 @@ void CPlayer::OnLogin()
 
 	if(m_Account.m_IsAccFrozen)
 	{
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed: Account is frozen.");
+		GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login failed: Account is frozen.");
 		Logout();
 		return;
 	}
@@ -30,7 +30,7 @@ void CPlayer::OnLogin()
 	// Start to do something...
 	//==========================
 
-	GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login successful.");
+	GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login successful.");
 
 	// load scoreboard scores
 	if(g_Config.m_SvInstaScore)
@@ -46,7 +46,7 @@ void CPlayer::OnLogin()
 	{
 		m_IsNoboSpawn = false;
 		m_NoboSpawnStop = 0;
-		GameServer()->SendChatTarget(m_ClientID, "[NoboSpawn] Real spawn unlocked due to login.");
+		GameServer()->SendChatTarget(m_ClientId, "[NoboSpawn] Real spawn unlocked due to login.");
 	}
 
 	//jail
@@ -62,7 +62,7 @@ void CPlayer::OnLogin()
 			}
 			else //no jailplayer
 			{
-				GameServer()->SendChatTarget(m_ClientID, "No jail set.");
+				GameServer()->SendChatTarget(m_ClientId, "No jail set.");
 			}
 		}
 	}
@@ -72,11 +72,11 @@ void CPlayer::OnLogin()
 	{
 		if(!g_Config.m_SvAllowInsta)
 		{
-			GameServer()->SendChatTarget(m_ClientID, "[INSTA] fng autojoin failed because fng is deactivated by an admin.");
+			GameServer()->SendChatTarget(m_ClientId, "[INSTA] fng autojoin failed because fng is deactivated by an admin.");
 		}
 		else
 		{
-			GameServer()->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
+			GameServer()->SendChatTarget(m_ClientId, "[INSTA] you automatically joined an fng game. (use '/fng' to change this setting)");
 			GameServer()->m_pInstagib->Join(this, WEAPON_LASER, true);
 		}
 	}
@@ -84,24 +84,24 @@ void CPlayer::OnLogin()
 	{
 		if(!g_Config.m_SvAllowInsta)
 		{
-			GameServer()->SendChatTarget(m_ClientID, "[INSTA] boomfng autojoin failed because fng is deactivated by an admin.");
+			GameServer()->SendChatTarget(m_ClientId, "[INSTA] boomfng autojoin failed because fng is deactivated by an admin.");
 		}
 		else
 		{
-			GameServer()->SendChatTarget(m_ClientID, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
+			GameServer()->SendChatTarget(m_ClientId, "[INSTA] you automatically joined an boomfng game. (use '/fng' to change this setting)");
 			GameServer()->m_pInstagib->Join(this, WEAPON_GRENADE, true);
 		}
 	}
 
 	// account pass reset info
 	if(!str_comp(m_Account.m_ProfileEmail, "") && !str_comp(m_Account.m_ProfileSkype, ""))
-		GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
+		GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] set an '/profile email' or '/profile skype' to restore your password if you forget it.");
 
 	//========================================
 	// LEAVE THIS CODE LAST!!!!
 	// multiple server account protection stuff
 	//========================================
-	GameServer()->Accounts()->SetLoggedIn(m_ClientID, 1, m_Account.m_ID, g_Config.m_SvPort);
+	GameServer()->Accounts()->SetLoggedIn(m_ClientId, 1, m_Account.m_Id, g_Config.m_SvPort);
 }
 
 void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
@@ -115,7 +115,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			{
 				if(aMessage[0] == 0)
 					break;
-				GameServer()->SendChatTarget(m_ClientID, aMessage);
+				GameServer()->SendChatTarget(m_ClientId, aMessage);
 			}
 			break;
 		case CAccountResult::ALL:
@@ -126,7 +126,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 				if(aMessage[0] == 0)
 					break;
 
-				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
+				if(GameServer()->ProcessSpamProtection(m_ClientId) && PrimaryMessage)
 					break;
 
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
@@ -139,22 +139,22 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			// 	GameServer()->SendBroadcast(Result.m_aBroadcast, -1);
 			break;
 		case CAccountResult::LOGGED_IN_ALREADY:
-			if(GameServer()->CheckAccounts(Result.m_Account.m_ID))
-				GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] This account is already logged in on this server.");
+			if(GameServer()->CheckAccounts(Result.m_Account.m_Id))
+				GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] This account is already logged in on this server.");
 			else
-				GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. This account is already logged in on another server.");
-			dbg_msg("account", "sql id=%d is already logged in.", Result.m_Account.m_ID);
+				GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login failed. This account is already logged in on another server.");
+			dbg_msg("account", "sql id=%d is already logged in.", Result.m_Account.m_Id);
 			break;
 		case CAccountResult::LOGIN_WRONG_PASS:
-			GameServer()->SendChatTarget(m_ClientID, "[ACCOUNT] Login failed. Wrong password or username.");
+			GameServer()->SendChatTarget(m_ClientId, "[ACCOUNT] Login failed. Wrong password or username.");
 			char aBuf[1024];
 			str_format(
 				aBuf,
 				sizeof(aBuf),
 				"[%s] '%s' '%s'",
-				GameServer()->Server()->ClientName(m_ClientID), Result.m_Account.m_aUsername, Result.m_Account.m_aPassword);
+				GameServer()->Server()->ClientName(m_ClientId), Result.m_Account.m_aUsername, Result.m_Account.m_aPassword);
 			GameServer()->SaveWrongLogin(aBuf);
-			GameServer()->LoginBanCheck(m_ClientID);
+			GameServer()->LoginBanCheck(m_ClientId);
 			break;
 		case CAccountResult::LOGIN_INFO:
 			m_Account = Result.m_Account;
@@ -165,9 +165,9 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 			{
 				if(aMessage[0] == 0)
 					continue;
-				GameServer()->SendChatTarget(m_ClientID, aMessage);
+				GameServer()->SendChatTarget(m_ClientId, aMessage);
 			}
-			GameServer()->RegisterBanCheck(m_ClientID);
+			GameServer()->RegisterBanCheck(m_ClientId);
 			break;
 		case CAccountResult::LOG_ONLY:
 			for(auto &aMessage : Result.m_aaMessages)
@@ -196,7 +196,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(!GameServer()->m_apPlayers[i])
 					continue;
 
-				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				if(GameServer()->m_apPlayers[i]->GetAccId() == Result.m_TargetAccountId)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsAccFrozen = Result.m_State;
 					// always logout and send you got frozen also if he gets unfreezed because if some1 gets unfreezed he is not logged in xd
@@ -206,7 +206,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 					break;
 				}
 			}
-			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;
 		}
 		case CAdminCommandResult::MODERATOR:
@@ -218,7 +218,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(!GameServer()->m_apPlayers[i])
 					continue;
 
-				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				if(GameServer()->m_apPlayers[i]->GetAccId() == Result.m_TargetAccountId)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsModerator = Result.m_State;
 					if(Result.m_State == 1)
@@ -229,7 +229,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 					break;
 				}
 			}
-			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;
 		}
 		case CAdminCommandResult::SUPER_MODERATOR:
@@ -241,7 +241,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(!GameServer()->m_apPlayers[i])
 					continue;
 
-				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				if(GameServer()->m_apPlayers[i]->GetAccId() == Result.m_TargetAccountId)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsSuperModerator = Result.m_State;
 					if(Result.m_State == 1)
@@ -252,7 +252,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 					break;
 				}
 			}
-			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;
 		}
 		case CAdminCommandResult::SUPPORTER:
@@ -264,7 +264,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(!GameServer()->m_apPlayers[i])
 					continue;
 
-				if(GameServer()->m_apPlayers[i]->GetAccID() == Result.m_TargetAccountID)
+				if(GameServer()->m_apPlayers[i]->GetAccId() == Result.m_TargetAccountId)
 				{
 					GameServer()->m_apPlayers[i]->m_Account.m_IsSupporter = Result.m_State;
 					if(Result.m_State == 1)
@@ -275,7 +275,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 					break;
 				}
 			}
-			GameServer()->SendChatTarget(m_ClientID, aBuf);
+			GameServer()->SendChatTarget(m_ClientId, aBuf);
 			break;
 		}
 		case CAdminCommandResult::DIRECT:
@@ -283,7 +283,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 			{
 				if(aMessage[0] == 0)
 					break;
-				GameServer()->SendChatTarget(m_ClientID, aMessage);
+				GameServer()->SendChatTarget(m_ClientId, aMessage);
 			}
 			break;
 		case CAdminCommandResult::ALL:
@@ -294,7 +294,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(aMessage[0] == 0)
 					break;
 
-				if(GameServer()->ProcessSpamProtection(m_ClientID) && PrimaryMessage)
+				if(GameServer()->ProcessSpamProtection(m_ClientId) && PrimaryMessage)
 					break;
 
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);

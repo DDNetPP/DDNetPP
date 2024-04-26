@@ -12,9 +12,9 @@
 
 #include "balance.h"
 
-bool CBalance::IsActive(int ClientID)
+bool CBalance::IsActive(int ClientId)
 {
-	return ClientID == GameServer()->m_BalanceID1 || ClientID == GameServer()->m_BalanceID2;
+	return ClientId == GameServer()->m_BalanceId1 || ClientId == GameServer()->m_BalanceId2;
 }
 
 bool CBalance::HandleCharacterTiles(CCharacter *pChr, int Index)
@@ -26,9 +26,9 @@ bool CBalance::HandleCharacterTiles(CCharacter *pChr, int Index)
 	// freeze
 	if((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE))
 	{
-		if((pPlayer->GetCID() == GameServer()->m_BalanceID1 || pPlayer->GetCID() == GameServer()->m_BalanceID2) && GameServer()->m_BalanceBattleState == 2)
+		if((pPlayer->GetCid() == GameServer()->m_BalanceId1 || pPlayer->GetCid() == GameServer()->m_BalanceId2) && GameServer()->m_BalanceBattleState == 2)
 		{
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pChr->Die(pPlayer->GetCid(), WEAPON_SELF);
 			return true;
 		}
 	}
@@ -47,46 +47,46 @@ void CGameContext::StopBalanceBattle()
 			}
 			if(Player->m_IsBalanceBattleDummy)
 			{
-				Server()->BotLeave(Player->GetCID(), true);
+				Server()->BotLeave(Player->GetCid(), true);
 			}
 		}
 	}
-	m_BalanceID1 = -1;
-	m_BalanceID2 = -1;
+	m_BalanceId1 = -1;
+	m_BalanceId2 = -1;
 	m_BalanceBattleState = 0; //set offline
 }
 
-void CGameContext::StartBalanceBattle(int ID1, int ID2)
+void CGameContext::StartBalanceBattle(int Id1, int Id2)
 {
-	if(m_apPlayers[ID1] && !m_apPlayers[ID2])
+	if(m_apPlayers[Id1] && !m_apPlayers[Id2])
 	{
-		SendChatTarget(ID1, "[balance] can't start a battle because your mate left.");
+		SendChatTarget(Id1, "[balance] can't start a battle because your mate left.");
 	}
-	else if(!m_apPlayers[ID1] && m_apPlayers[ID2])
+	else if(!m_apPlayers[Id1] && m_apPlayers[Id2])
 	{
-		SendChatTarget(ID2, "[balance] can't start a battle because your mate left.");
+		SendChatTarget(Id2, "[balance] can't start a battle because your mate left.");
 	}
 	else if(m_BalanceBattleState)
 	{
-		SendChatTarget(ID1, "[balance] can't start a battle because arena is full.");
-		SendChatTarget(ID2, "[balance] can't start a battle because arena is full.");
+		SendChatTarget(Id1, "[balance] can't start a battle because arena is full.");
+		SendChatTarget(Id2, "[balance] can't start a battle because arena is full.");
 	}
-	else if(m_apPlayers[ID1] && m_apPlayers[ID2])
+	else if(m_apPlayers[Id1] && m_apPlayers[Id2])
 	{
 		//moved to tick func
-		//m_apPlayers[ID1]->m_IsBalanceBatteling = true;
-		//m_apPlayers[ID2]->m_IsBalanceBatteling = true;
-		//m_apPlayers[ID1]->m_IsBalanceBattlePlayer1 = true;
-		//m_apPlayers[ID2]->m_IsBalanceBattlePlayer1 = false;
-		//SendChatTarget(ID1, "[balance] BATTLE STARTED!");
-		//SendChatTarget(ID2, "[balance] BATTLE STARTED!");
-		//m_apPlayers[ID1]->GetCharacter()->Die(ID1, WEAPON_SELF);
-		//m_apPlayers[ID2]->GetCharacter()->Die(ID2, WEAPON_SELF);
+		//m_apPlayers[Id1]->m_IsBalanceBatteling = true;
+		//m_apPlayers[Id2]->m_IsBalanceBatteling = true;
+		//m_apPlayers[Id1]->m_IsBalanceBattlePlayer1 = true;
+		//m_apPlayers[Id2]->m_IsBalanceBattlePlayer1 = false;
+		//SendChatTarget(Id1, "[balance] BATTLE STARTED!");
+		//SendChatTarget(Id2, "[balance] BATTLE STARTED!");
+		//m_apPlayers[Id1]->GetCharacter()->Die(Id1, WEAPON_SELF);
+		//m_apPlayers[Id2]->GetCharacter()->Die(Id2, WEAPON_SELF);
 
-		m_BalanceDummyID1 = CreateNewDummy(DUMMYMODE_BALANCE1, true);
-		m_BalanceDummyID2 = CreateNewDummy(DUMMYMODE_BALANCE2, true);
-		m_BalanceID1 = ID1;
-		m_BalanceID2 = ID2;
+		m_BalanceDummyId1 = CreateNewDummy(DUMMYMODE_BALANCE1, true);
+		m_BalanceDummyId2 = CreateNewDummy(DUMMYMODE_BALANCE2, true);
+		m_BalanceId1 = Id1;
+		m_BalanceId2 = Id2;
 		m_BalanceBattleCountdown = Server()->TickSpeed() * 10;
 		m_BalanceBattleState = 1; //set state to preparing
 	}
@@ -102,43 +102,43 @@ void CGameContext::BalanceBattleTick()
 		if(m_BalanceBattleCountdown % Server()->TickSpeed() == 0)
 		{
 			str_format(aBuf, sizeof(aBuf), "[balance] battle starts in %d seconds", m_BalanceBattleCountdown / Server()->TickSpeed());
-			SendBroadcast(aBuf, m_BalanceID1);
-			SendBroadcast(aBuf, m_BalanceID2);
+			SendBroadcast(aBuf, m_BalanceId1);
+			SendBroadcast(aBuf, m_BalanceId2);
 		}
 		if(!m_BalanceBattleCountdown)
 		{
 			//move the dummys
-			if(m_apPlayers[m_BalanceDummyID1] && m_apPlayers[m_BalanceDummyID1]->GetCharacter())
+			if(m_apPlayers[m_BalanceDummyId1] && m_apPlayers[m_BalanceDummyId1]->GetCharacter())
 			{
-				m_apPlayers[m_BalanceDummyID1]->GetCharacter()->MoveTee(-4, -2);
+				m_apPlayers[m_BalanceDummyId1]->GetCharacter()->MoveTee(-4, -2);
 			}
-			if(m_apPlayers[m_BalanceDummyID2] && m_apPlayers[m_BalanceDummyID2]->GetCharacter())
+			if(m_apPlayers[m_BalanceDummyId2] && m_apPlayers[m_BalanceDummyId2]->GetCharacter())
 			{
-				m_apPlayers[m_BalanceDummyID2]->GetCharacter()->MoveTee(-4, -2);
+				m_apPlayers[m_BalanceDummyId2]->GetCharacter()->MoveTee(-4, -2);
 			}
 
-			if(m_apPlayers[m_BalanceID1] && m_apPlayers[m_BalanceID2]) //both on server
+			if(m_apPlayers[m_BalanceId1] && m_apPlayers[m_BalanceId2]) //both on server
 			{
-				m_apPlayers[m_BalanceID1]->m_IsBalanceBatteling = true;
-				m_apPlayers[m_BalanceID2]->m_IsBalanceBatteling = true;
-				m_apPlayers[m_BalanceID1]->m_IsBalanceBattlePlayer1 = true;
-				m_apPlayers[m_BalanceID2]->m_IsBalanceBattlePlayer1 = false;
-				SendChatTarget(m_BalanceID1, "[balance] BATTLE STARTED!");
-				SendChatTarget(m_BalanceID2, "[balance] BATTLE STARTED!");
-				m_apPlayers[m_BalanceID1]->GetCharacter()->Die(m_BalanceID1, WEAPON_SELF);
-				m_apPlayers[m_BalanceID2]->GetCharacter()->Die(m_BalanceID2, WEAPON_SELF);
-				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID1);
-				SendBroadcast("[balance] BATTLE STARTED", m_BalanceID2);
+				m_apPlayers[m_BalanceId1]->m_IsBalanceBatteling = true;
+				m_apPlayers[m_BalanceId2]->m_IsBalanceBatteling = true;
+				m_apPlayers[m_BalanceId1]->m_IsBalanceBattlePlayer1 = true;
+				m_apPlayers[m_BalanceId2]->m_IsBalanceBattlePlayer1 = false;
+				SendChatTarget(m_BalanceId1, "[balance] BATTLE STARTED!");
+				SendChatTarget(m_BalanceId2, "[balance] BATTLE STARTED!");
+				m_apPlayers[m_BalanceId1]->GetCharacter()->Die(m_BalanceId1, WEAPON_SELF);
+				m_apPlayers[m_BalanceId2]->GetCharacter()->Die(m_BalanceId2, WEAPON_SELF);
+				SendBroadcast("[balance] BATTLE STARTED", m_BalanceId1);
+				SendBroadcast("[balance] BATTLE STARTED", m_BalanceId2);
 				m_BalanceBattleState = 2; //set ingame
 			}
-			else if(m_apPlayers[m_BalanceID1])
+			else if(m_apPlayers[m_BalanceId1])
 			{
-				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID1);
+				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceId1);
 				StopBalanceBattle();
 			}
-			else if(m_apPlayers[m_BalanceID2])
+			else if(m_apPlayers[m_BalanceId2])
 			{
-				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceID2);
+				SendBroadcast("[balance] BATTLE STOPPED (because mate left)", m_BalanceId2);
 				StopBalanceBattle();
 			}
 			else
@@ -149,15 +149,15 @@ void CGameContext::BalanceBattleTick()
 	}
 	//else if (m_BalanceBattleState == 2) //ingame //moved to die(); because it is less ressource to avoid it in tick functions
 	//{
-	//	if (m_apPlayers[m_BalanceID1] && m_apPlayers[m_BalanceID2])
+	//	if (m_apPlayers[m_BalanceId1] && m_apPlayers[m_BalanceId2])
 	//	{
-	//		if (!m_apPlayers[m_BalanceID1]->GetCharacter())
+	//		if (!m_apPlayers[m_BalanceId1]->GetCharacter())
 	//		{
-	//			SendChatTarget(m_BalanceID1, "[balance] you lost!");
-	//			SendChatTarget(m_BalanceID2, "[balance] you won!");
+	//			SendChatTarget(m_BalanceId1, "[balance] you lost!");
+	//			SendChatTarget(m_BalanceId2, "[balance] you won!");
 	//		}
 	//	}
-	//	else if (!m_apPlayers[m_BalanceID1] && !m_apPlayers[m_BalanceID2]) //all lef --> close game
+	//	else if (!m_apPlayers[m_BalanceId1] && !m_apPlayers[m_BalanceId2]) //all lef --> close game
 	//	{
 	//		m_BalanceBattleState = 0;
 	//	}

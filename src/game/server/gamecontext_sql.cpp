@@ -6,7 +6,7 @@
 
 #include "gamecontext.h"
 
-void CGameContext::SQLcleanZombieAccounts(int ClientID)
+void CGameContext::SQLcleanZombieAccounts(int ClientId)
 {
 	/*
 		support up to 99 999 999 (8 digit long) registered accounts
@@ -37,12 +37,12 @@ void CGameContext::SQLcleanZombieAccounts(int ClientID)
 			if(!Player->IsLoggedIn())
 				continue;
 			char aBufBuf[MAX_SQL_ID_LENGTH + 2]; // max supported id len + comma + nullterm
-			str_format(aBufBuf, sizeof(aBufBuf), "%d,", Player->GetAccID());
+			str_format(aBufBuf, sizeof(aBufBuf), "%d,", Player->GetAccId());
 			str_append(aBuf, aBufBuf, sizeof(aBuf));
 		}
 		aBuf[strlen(aBuf) - 1] = '\0'; // chop of the last comma
 		str_append(aBuf, ")", sizeof(aBuf));
 	}
 	dbg_msg("accounts", "clean broken accounts: %s", aBuf);
-	m_pAccounts->CleanZombieAccounts(ClientID, g_Config.m_SvPort, aBuf);
+	m_pAccounts->CleanZombieAccounts(ClientId, g_Config.m_SvPort, aBuf);
 }

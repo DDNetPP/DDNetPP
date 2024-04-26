@@ -10,9 +10,9 @@
 
 #include "instagib.h"
 
-bool CInstagib::IsActive(int ClientID)
+bool CInstagib::IsActive(int ClientId)
 {
-	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientId];
 	if(!pPlayer)
 		return false;
 	return pPlayer->m_IsInstaArena_idm || pPlayer->m_IsInstaArena_gdm;
@@ -23,8 +23,8 @@ void CInstagib::Leave(CPlayer *pPlayer)
 	if(!pPlayer)
 		return;
 
-	GameServer()->LeaveInstagib(pPlayer->GetCID());
-	m_aRestorePos[pPlayer->GetCID()] = true;
+	GameServer()->LeaveInstagib(pPlayer->GetCid());
+	m_aRestorePos[pPlayer->GetCid()] = true;
 }
 
 void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
@@ -33,14 +33,14 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
 		return;
 
 #if defined(CONF_DEBUG)
-		//dbg_msg("cBug", "PLAYER '%s' ID=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(ID), ID, weapon, fng);
+		//dbg_msg("cBug", "PLAYER '%s' Id=%d JOINED INSTAGIB WITH WEAPON = %d ANF FNG = %d", Server()->ClientName(Id), Id, weapon, fng);
 #endif
 
 	//die first to not count death
 	if(pPlayer->GetCharacter())
 	{
 		SavePosition(pPlayer);
-		pPlayer->GetCharacter()->Die(pPlayer->GetCID(), WEAPON_SELF);
+		pPlayer->GetCharacter()->Die(pPlayer->GetCid(), WEAPON_SELF);
 	}
 
 	//reset values
@@ -65,12 +65,12 @@ void CInstagib::Join(CPlayer *pPlayer, int Weapon, bool fng)
 	}
 	else
 	{
-		GameServer()->SendChatTarget(pPlayer->GetCID(), "[WARNING] Something went horrible wrong please report an admin");
+		GameServer()->SendChatTarget(pPlayer->GetCid(), "[WARNING] Something went horrible wrong please report an admin");
 		return;
 	}
 
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(pPlayer->GetCID()));
+	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' joined the game.", Server()->ClientName(pPlayer->GetCid()));
 	GameServer()->SendChatInsta(aBuf, Weapon);
 }
 
@@ -126,75 +126,75 @@ bool CGameContext::CanJoinInstaArena(bool grenade, bool PrivateMatch)
 	return !cPlayer || !PrivateMatch;
 }
 
-void CGameContext::WinInsta1on1(int WinnerID, int LooserID)
+void CGameContext::WinInsta1on1(int WinnerId, int LooserId)
 {
 #if defined(CONF_DEBUG)
-	if(!m_apPlayers[WinnerID])
+	if(!m_apPlayers[WinnerId])
 		dbg_msg("cBug", "[WARNING] WinInsta1on1() at gamecontext.cpp");
 #endif
 
 	char aBuf[128];
 
 	//WINNER
-	if(m_apPlayers[WinnerID])
+	if(m_apPlayers[WinnerId])
 	{
-		SendChatTarget(WinnerID, "==== Insta 1on1 WON ====");
-		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerID), m_apPlayers[WinnerID]->m_Insta1on1_score);
-		SendChatTarget(WinnerID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
-		SendChatTarget(WinnerID, aBuf);
-		SendChatTarget(WinnerID, "==================");
-		SendChatTarget(WinnerID, "+200 money for winning 1on1"); // actually it is only +100 because you have to pay to start an 1on1
-		m_apPlayers[WinnerID]->MoneyTransaction(+200, "won insta 1on1");
+		SendChatTarget(WinnerId, "==== Insta 1on1 WON ====");
+		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerId), m_apPlayers[WinnerId]->m_Insta1on1_score);
+		SendChatTarget(WinnerId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserId), m_apPlayers[LooserId]->m_Insta1on1_score);
+		SendChatTarget(WinnerId, aBuf);
+		SendChatTarget(WinnerId, "==================");
+		SendChatTarget(WinnerId, "+200 money for winning 1on1"); // actually it is only +100 because you have to pay to start an 1on1
+		m_apPlayers[WinnerId]->MoneyTransaction(+200, "won insta 1on1");
 
-		m_apPlayers[WinnerID]->m_IsInstaArena_gdm = false;
-		m_apPlayers[WinnerID]->m_IsInstaArena_idm = false;
-		m_apPlayers[WinnerID]->m_IsInstaArena_fng = false;
-		m_apPlayers[WinnerID]->m_Insta1on1_id = -1;
-		if(m_apPlayers[WinnerID]->GetCharacter())
+		m_apPlayers[WinnerId]->m_IsInstaArena_gdm = false;
+		m_apPlayers[WinnerId]->m_IsInstaArena_idm = false;
+		m_apPlayers[WinnerId]->m_IsInstaArena_fng = false;
+		m_apPlayers[WinnerId]->m_Insta1on1_id = -1;
+		if(m_apPlayers[WinnerId]->GetCharacter())
 		{
-			m_apPlayers[WinnerID]->GetCharacter()->Die(WinnerID, WEAPON_SELF);
+			m_apPlayers[WinnerId]->GetCharacter()->Die(WinnerId, WEAPON_SELF);
 		}
 	}
 
 	//LOOSER
-	if(LooserID != -1)
+	if(LooserId != -1)
 	{
-		SendChatTarget(LooserID, "==== Insta 1on1 LOST ====");
-		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerID), m_apPlayers[WinnerID]->m_Insta1on1_score);
-		SendChatTarget(LooserID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserID), m_apPlayers[LooserID]->m_Insta1on1_score);
-		SendChatTarget(LooserID, aBuf);
-		SendChatTarget(LooserID, "==================");
+		SendChatTarget(LooserId, "==== Insta 1on1 LOST ====");
+		str_format(aBuf, sizeof(aBuf), "1. '%s' %d", Server()->ClientName(WinnerId), m_apPlayers[WinnerId]->m_Insta1on1_score);
+		SendChatTarget(LooserId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "2. '%s' %d", Server()->ClientName(LooserId), m_apPlayers[LooserId]->m_Insta1on1_score);
+		SendChatTarget(LooserId, aBuf);
+		SendChatTarget(LooserId, "==================");
 
-		m_apPlayers[LooserID]->m_IsInstaArena_gdm = false;
-		m_apPlayers[LooserID]->m_IsInstaArena_idm = false;
-		m_apPlayers[LooserID]->m_IsInstaArena_fng = false;
-		m_apPlayers[LooserID]->m_Insta1on1_id = -1;
-		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
-		if(m_apPlayers[LooserID]->GetCharacter())
+		m_apPlayers[LooserId]->m_IsInstaArena_gdm = false;
+		m_apPlayers[LooserId]->m_IsInstaArena_idm = false;
+		m_apPlayers[LooserId]->m_IsInstaArena_fng = false;
+		m_apPlayers[LooserId]->m_Insta1on1_id = -1;
+		m_apPlayers[LooserId]->m_Insta1on1_score = 0;
+		if(m_apPlayers[LooserId]->GetCharacter())
 		{
-			m_apPlayers[LooserID]->GetCharacter()->Die(LooserID, WEAPON_SELF); //needed for /insta leave where the looser culd be alive
+			m_apPlayers[LooserId]->GetCharacter()->Die(LooserId, WEAPON_SELF); //needed for /insta leave where the looser culd be alive
 		}
 	}
 
 	//RESET SCORE LAST CUZ SCOREBOARD
-	if(m_apPlayers[WinnerID])
-		m_apPlayers[WinnerID]->m_Insta1on1_score = 0;
-	if(m_apPlayers[LooserID])
-		m_apPlayers[LooserID]->m_Insta1on1_score = 0;
+	if(m_apPlayers[WinnerId])
+		m_apPlayers[WinnerId]->m_Insta1on1_score = 0;
+	if(m_apPlayers[LooserId])
+		m_apPlayers[LooserId]->m_Insta1on1_score = 0;
 }
 
-void CGameContext::LeaveInstagib(int ID)
+void CGameContext::LeaveInstagib(int Id)
 {
-	CPlayer *pPlayer = m_apPlayers[ID];
+	CPlayer *pPlayer = m_apPlayers[Id];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
 	if(!pChr)
 		return;
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' left the game.", Server()->ClientName(ID));
+	str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' left the game.", Server()->ClientName(Id));
 	if(pPlayer->m_IsInstaArena_gdm)
 	{
 		SendChatInsta(aBuf, 4);
@@ -206,9 +206,9 @@ void CGameContext::LeaveInstagib(int ID)
 
 	if((pPlayer->m_IsInstaArena_gdm || pPlayer->m_IsInstaArena_idm) && pPlayer->m_Insta1on1_id != -1)
 	{
-		WinInsta1on1(pPlayer->m_Insta1on1_id, ID);
-		SendChatTarget(ID, "[INSTA] You left the 1on1.");
-		SendBroadcast("", ID);
+		WinInsta1on1(pPlayer->m_Insta1on1_id, Id);
+		SendChatTarget(Id, "[INSTA] You left the 1on1.");
+		SendBroadcast("", Id);
 		return;
 	}
 
@@ -218,11 +218,11 @@ void CGameContext::LeaveInstagib(int ID)
 	{
 		if(pPlayer->m_IsInstaArena_gdm)
 		{
-			SendChatTarget(ID, "[INSTA] You left boomfng.");
+			SendChatTarget(Id, "[INSTA] You left boomfng.");
 		}
 		else if(pPlayer->m_IsInstaArena_idm)
 		{
-			SendChatTarget(ID, "[INSTA] You left fng.");
+			SendChatTarget(Id, "[INSTA] You left fng.");
 		}
 		else
 		{
@@ -233,11 +233,11 @@ void CGameContext::LeaveInstagib(int ID)
 	{
 		if(pPlayer->m_IsInstaArena_gdm)
 		{
-			SendChatTarget(ID, "[INSTA] You left grenade deathmatch.");
+			SendChatTarget(Id, "[INSTA] You left grenade deathmatch.");
 		}
 		else if(pPlayer->m_IsInstaArena_idm)
 		{
-			SendChatTarget(ID, "[INSTA] You left rifle deathmatch.");
+			SendChatTarget(Id, "[INSTA] You left rifle deathmatch.");
 		}
 		else
 		{
@@ -255,13 +255,13 @@ void CGameContext::LeaveInstagib(int ID)
 		pPlayer->m_IsInstaMode_fng = false;
 		if(pChr)
 		{
-			pChr->Die(pPlayer->GetCID(), WEAPON_SELF);
+			pChr->Die(pPlayer->GetCid(), WEAPON_SELF);
 		}
-		SendBroadcast("", ID); //clear score
+		SendBroadcast("", Id); //clear score
 	}
 	else
 	{
-		SendChatTarget(ID, "[INSTA] You are not in a instagib game.");
+		SendChatTarget(Id, "[INSTA] You are not in a instagib game.");
 	}
 }
 
@@ -278,14 +278,14 @@ void CGameContext::SendChatInsta(const char *pMsg, int Weapon)
 			{
 				if(Player->m_IsInstaArena_gdm)
 				{
-					SendChatTarget(Player->GetCID(), pMsg);
+					SendChatTarget(Player->GetCid(), pMsg);
 				}
 			}
 			else if(Weapon == WEAPON_LASER) //rifle
 			{
 				if(Player->m_IsInstaArena_idm)
 				{
-					SendChatTarget(Player->GetCID(), pMsg);
+					SendChatTarget(Player->GetCid(), pMsg);
 				}
 			}
 		}
@@ -308,35 +308,35 @@ void CGameContext::DoInstaScore(int score, int id)
 	CheckInstaWin(id);
 }
 
-void CGameContext::CheckInstaWin(int ID)
+void CGameContext::CheckInstaWin(int Id)
 {
-	if(m_apPlayers[ID]->m_IsInstaArena_gdm)
+	if(m_apPlayers[Id]->m_IsInstaArena_gdm)
 	{
-		if(m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvGrenadeScorelimit)
+		if(m_apPlayers[Id]->m_InstaScore >= g_Config.m_SvGrenadeScorelimit)
 		{
 			m_InstaGrenadeRoundEndDelay = Server()->TickSpeed() * 20; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
 			m_InstaGrenadeRoundEndTickTicker = m_InstaGrenadeRoundEndDelay; //start grenade round end tick
-			m_InstaGrenadeWinnerID = ID;
+			m_InstaGrenadeWinnerId = Id;
 		}
 	}
-	else if(m_apPlayers[ID]->m_IsInstaArena_idm)
+	else if(m_apPlayers[Id]->m_IsInstaArena_idm)
 	{
-		if(m_apPlayers[ID]->m_InstaScore >= g_Config.m_SvRifleScorelimit)
+		if(m_apPlayers[Id]->m_InstaScore >= g_Config.m_SvRifleScorelimit)
 		{
 			m_InstaRifleRoundEndDelay = Server()->TickSpeed() * 20; //stored the value to be on the save side. I have no idea how this func works and i need the EXACT value lateron
 			m_InstaRifleRoundEndTickTicker = m_InstaRifleRoundEndDelay; //start grenade round end tick
-			m_InstaRifleWinnerID = ID;
+			m_InstaRifleWinnerId = Id;
 		}
 	}
 }
 
-void CGameContext::InstaGrenadeRoundEndTick(int ID)
+void CGameContext::InstaGrenadeRoundEndTick(int Id)
 {
 	if(!m_InstaGrenadeRoundEndTickTicker)
 	{
 		return;
 	}
-	if(!m_apPlayers[ID]->m_IsInstaArena_gdm)
+	if(!m_apPlayers[Id]->m_IsInstaArena_gdm)
 	{
 		return;
 	}
@@ -345,13 +345,13 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 
 	if(m_InstaGrenadeRoundEndTickTicker == m_InstaGrenadeRoundEndDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
-		SendChatTarget(ID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerID));
-		SendBroadcast(aBuf, ID);
-		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
+		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerId));
+		SendChatTarget(Id, aBuf);
+		str_format(aBuf, sizeof(aBuf), "'%s' won the grenade game", Server()->ClientName(m_InstaGrenadeWinnerId));
+		SendBroadcast(aBuf, Id);
+		m_apPlayers[Id]->m_HasInstaRoundEndPos = false;
 
-		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
+		//PlayerArryaId / PlayerTeeworldsId / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
 		for(auto &aScorePlayer : aaScorePlayers) //prepare array
@@ -402,39 +402,39 @@ void CGameContext::InstaGrenadeRoundEndTick(int ID)
 	if(m_InstaGrenadeRoundEndTickTicker == 1)
 	{
 		//reset stats
-		m_apPlayers[ID]->m_InstaScore = 0;
+		m_apPlayers[Id]->m_InstaScore = 0;
 
-		if(m_apPlayers[ID]->GetCharacter())
+		if(m_apPlayers[Id]->GetCharacter())
 		{
-			m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
+			m_apPlayers[Id]->GetCharacter()->Die(Id, WEAPON_WORLD);
 		}
-		SendChatTarget(ID, "[INSTA] new round new luck.");
+		SendChatTarget(Id, "[INSTA] new round new luck.");
 	}
 
-	if(m_apPlayers[ID]->GetCharacter())
+	if(m_apPlayers[Id]->GetCharacter())
 	{
-		if(!m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		if(!m_apPlayers[Id]->m_HasInstaRoundEndPos)
 		{
-			m_apPlayers[ID]->m_InstaRoundEndPos = m_apPlayers[ID]->GetCharacter()->GetPosition();
-			m_apPlayers[ID]->m_HasInstaRoundEndPos = true;
+			m_apPlayers[Id]->m_InstaRoundEndPos = m_apPlayers[Id]->GetCharacter()->GetPosition();
+			m_apPlayers[Id]->m_HasInstaRoundEndPos = true;
 		}
 
-		if(m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		if(m_apPlayers[Id]->m_HasInstaRoundEndPos)
 		{
-			m_apPlayers[ID]->GetCharacter()->SetPosition(m_apPlayers[ID]->m_InstaRoundEndPos);
+			m_apPlayers[Id]->GetCharacter()->SetPosition(m_apPlayers[Id]->m_InstaRoundEndPos);
 		}
 	}
 
-	AbuseMotd(m_aInstaGrenadeScoreboard, ID); //send the scoreboard every fokin tick hehe
+	AbuseMotd(m_aInstaGrenadeScoreboard, Id); //send the scoreboard every fokin tick hehe
 }
 
-void CGameContext::InstaRifleRoundEndTick(int ID)
+void CGameContext::InstaRifleRoundEndTick(int Id)
 {
 	if(!m_InstaRifleRoundEndTickTicker)
 	{
 		return;
 	}
-	if(!m_apPlayers[ID]->m_IsInstaArena_idm)
+	if(!m_apPlayers[Id]->m_IsInstaArena_idm)
 	{
 		return;
 	}
@@ -443,13 +443,13 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 
 	if(m_InstaRifleRoundEndTickTicker == m_InstaRifleRoundEndDelay)
 	{
-		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
-		SendChatTarget(ID, aBuf);
-		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerID));
-		SendBroadcast(aBuf, ID);
-		m_apPlayers[ID]->m_HasInstaRoundEndPos = false;
+		str_format(aBuf, sizeof(aBuf), "[INSTA] '%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerId));
+		SendChatTarget(Id, aBuf);
+		str_format(aBuf, sizeof(aBuf), "'%s' won the rifle game", Server()->ClientName(m_InstaRifleWinnerId));
+		SendBroadcast(aBuf, Id);
+		m_apPlayers[Id]->m_HasInstaRoundEndPos = false;
 
-		//PlayerArryaID / PlayerTeeworldsID / PlayerScore == 64x2
+		//PlayerArryaId / PlayerTeeworldsId / PlayerScore == 64x2
 		int aaScorePlayers[MAX_CLIENTS][2];
 
 		for(auto &aScorePlayer : aaScorePlayers) //prepare array
@@ -500,25 +500,25 @@ void CGameContext::InstaRifleRoundEndTick(int ID)
 	if(m_InstaRifleRoundEndTickTicker == 1)
 	{
 		//reset stats
-		m_apPlayers[ID]->m_InstaScore = 0;
+		m_apPlayers[Id]->m_InstaScore = 0;
 
-		m_apPlayers[ID]->GetCharacter()->Die(ID, WEAPON_WORLD);
-		SendChatTarget(ID, "[INSTA] new round new luck.");
+		m_apPlayers[Id]->GetCharacter()->Die(Id, WEAPON_WORLD);
+		SendChatTarget(Id, "[INSTA] new round new luck.");
 	}
 
-	if(m_apPlayers[ID]->GetCharacter())
+	if(m_apPlayers[Id]->GetCharacter())
 	{
-		if(!m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		if(!m_apPlayers[Id]->m_HasInstaRoundEndPos)
 		{
-			m_apPlayers[ID]->m_InstaRoundEndPos = m_apPlayers[ID]->GetCharacter()->GetPosition();
-			m_apPlayers[ID]->m_HasInstaRoundEndPos = true;
+			m_apPlayers[Id]->m_InstaRoundEndPos = m_apPlayers[Id]->GetCharacter()->GetPosition();
+			m_apPlayers[Id]->m_HasInstaRoundEndPos = true;
 		}
 
-		if(m_apPlayers[ID]->m_HasInstaRoundEndPos)
+		if(m_apPlayers[Id]->m_HasInstaRoundEndPos)
 		{
-			m_apPlayers[ID]->GetCharacter()->SetPosition(m_apPlayers[ID]->m_InstaRoundEndPos);
+			m_apPlayers[Id]->GetCharacter()->SetPosition(m_apPlayers[Id]->m_InstaRoundEndPos);
 		}
 	}
 
-	AbuseMotd(m_aInstaRifleScoreboard, ID); //send the scoreboard every fokin tick hehe
+	AbuseMotd(m_aInstaRifleScoreboard, Id); //send the scoreboard every fokin tick hehe
 }

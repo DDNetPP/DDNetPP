@@ -11,7 +11,7 @@
 
 #include "gamecontext.h"
 
-void CGameContext::GlobalChat(int ClientID, const char *pMsg)
+void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 {
 	//############
 	//GLOBAL CHAT
@@ -31,12 +31,12 @@ void CGameContext::GlobalChat(int ClientID, const char *pMsg)
 
 				//dont send messages twice
 				str_format(aBuf, sizeof(aBuf), "%s", m_aLastPrintedGlobalChatMessage);
-				str_format(aBuf2, sizeof(aBuf2), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
+				str_format(aBuf2, sizeof(aBuf2), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), msg_format.c_str());
 				aBuf[0] = ' '; //ignore confirms on double check
 				aBuf2[0] = ' '; //ignore confirms on double check
 				if(!str_comp(aBuf, aBuf2))
 				{
-					SendChatTarget(ClientID, "[CHAT] global chat ignores doublicated messages");
+					SendChatTarget(ClientId, "[CHAT] global chat ignores doublicated messages");
 					return;
 				}
 				else
@@ -78,7 +78,7 @@ void CGameContext::GlobalChat(int ClientID, const char *pMsg)
 
 					if(confirms < g_Config.m_SvGlobalChatServers)
 					{
-						SendChatTarget(ClientID, "[CHAT] Global chat is currently printing messages. Try agian later.");
+						SendChatTarget(ClientId, "[CHAT] Global chat is currently printing messages. Try agian later.");
 						ChatReadFile.close();
 						return; //idk if this is too good ._. better check if it skips any spam protections
 					}
@@ -98,7 +98,7 @@ void CGameContext::GlobalChat(int ClientID, const char *pMsg)
 					{
 						//SendChat(-1, CGameContext::CHAT_ALL, "global chat");
 
-						str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientID), msg_format.c_str());
+						str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), msg_format.c_str());
 						dbg_msg("global_chat", "msg [ %s ]", aBuf);
 						ChatFile << aBuf << "\n";
 					}
@@ -116,7 +116,7 @@ void CGameContext::GlobalChat(int ClientID, const char *pMsg)
 	}
 }
 
-bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char *pCommand)
+bool CGameContext::IsDDPPChatCommand(int ClientId, CPlayer *pPlayer, const char *pCommand)
 {
 	// todo: adde mal deine ganzen cmds hier in das system von ddnet ddracechat.cpp
 	// geb mal ein cmd /join spec   && /join fight (player)
@@ -124,28 +124,28 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 	{
 		if(pPlayer->m_IsBlockDeathmatch)
 		{
-			SendChatTarget(ClientID, "[BLOCK] you left the deathmatch arena!");
-			SendChatTarget(ClientID, "[BLOCK] now kys :p");
+			SendChatTarget(ClientId, "[BLOCK] you left the deathmatch arena!");
+			SendChatTarget(ClientId, "[BLOCK] now kys :p");
 			pPlayer->m_IsBlockDeathmatch = false;
 		}
 		else
 		{
-			SendChatTarget(ClientID, "leave what? xd");
-			SendChatTarget(ClientID, "Do you want to leave the minigame you are playing?");
-			SendChatTarget(ClientID, "then type '/<minigame> leave'");
-			SendChatTarget(ClientID, "check '/minigames status' for the minigame command you need");
+			SendChatTarget(ClientId, "leave what? xd");
+			SendChatTarget(ClientId, "Do you want to leave the minigame you are playing?");
+			SendChatTarget(ClientId, "then type '/<minigame> leave'");
+			SendChatTarget(ClientId, "check '/minigames status' for the minigame command you need");
 		}
 	}
 	else if(!str_comp(pCommand, "testcommand3000"))
 	{
-		if(Server()->GetAuthedState(ClientID) != AUTHED_ADMIN)
+		if(Server()->GetAuthedState(ClientId) != AUTHED_ADMIN)
 		{
-			SendChatTarget(ClientID, "Missing permission.");
+			SendChatTarget(ClientId, "Missing permission.");
 			return true;
 		}
 		if(!g_Config.m_SvTestingCommands)
 		{
-			SendChatTarget(ClientID, "This is not a test server.");
+			SendChatTarget(ClientId, "This is not a test server.");
 			return true;
 		}
 		// TODO: make this a rcon command?
@@ -155,42 +155,42 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 	}
 	else if(!str_comp(pCommand, "hax_me_admin_mummy"))
 	{
-		m_apPlayers[ClientID]->m_fake_admin = true;
+		m_apPlayers[ClientId]->m_fake_admin = true;
 	}
 	else if(!str_comp(pCommand, "fake_super"))
 	{
 		if(g_Config.m_SvFakeSuper == 0)
 		{
-			SendChatTarget(ClientID, "Admin has disabled this command.");
+			SendChatTarget(ClientId, "Admin has disabled this command.");
 			return true;
 		}
 
-		if(m_apPlayers[ClientID]->m_fake_admin)
+		if(m_apPlayers[ClientId]->m_fake_admin)
 		{
-			GetPlayerChar(ClientID)->m_fake_super ^= true;
+			GetPlayerChar(ClientId)->m_fake_super ^= true;
 
-			if(GetPlayerChar(ClientID)->m_fake_super)
+			if(GetPlayerChar(ClientId)->m_fake_super)
 			{
-				//SendChatTarget(ClientID, "Turned ON fake super.");
+				//SendChatTarget(ClientId, "Turned ON fake super.");
 			}
 			else
 			{
-				//SendChatTarget(ClientID, "Turned OFF fake super.");
+				//SendChatTarget(ClientId, "Turned OFF fake super.");
 			}
 		}
 		else
 		{
-			SendChatTarget(ClientID, "You don't have enough permission.");
+			SendChatTarget(ClientId, "You don't have enough permission.");
 		}
 	}
 	else if(!str_comp(pCommand, "_"))
 	{
-		if(Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
+		if(Server()->GetAuthedState(ClientId) == AUTHED_ADMIN)
 			CreateBasicDummys();
 	}
 	else if(str_comp_nocase_num(pCommand, "dummy ", 6) == 0) //hab den hier kopiert un dbissl abgeändert
 	{
-		if(Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
+		if(Server()->GetAuthedState(ClientId) == AUTHED_ADMIN)
 		{
 			char pValue[32];
 			str_copy(pValue, pCommand + 6, 32);
@@ -201,19 +201,19 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 				for(int i = 0; i < Value; i++)
 				{
 					CreateNewDummy(DUMMYMODE_DEFAULT);
-					SendChatTarget(ClientID, "Bot has been added.");
+					SendChatTarget(ClientId, "Bot has been added.");
 				}
 			}
 		}
 		else
 		{
-			SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
+			SendChatTarget(ClientId, "You don't have enough permission to use this command"); //passt erstmal so
 		}
 	}
 	else if(!str_comp(pCommand, "dcdummys"))
 	{
-		//if (Server()->GetAuthedState(ClientID))
-		if(Server()->GetAuthedState(ClientID) == AUTHED_ADMIN)
+		//if (Server()->GetAuthedState(ClientId))
+		if(Server()->GetAuthedState(ClientId) == AUTHED_ADMIN)
 		{
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
@@ -224,11 +224,11 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 					//m_apPlayers[i] = 0x0;
 				}
 			}
-			SendChatTarget(ClientID, "All bots have been removed."); //save? jo, muss aber normalerweise nicht sein kk
+			SendChatTarget(ClientId, "All bots have been removed."); //save? jo, muss aber normalerweise nicht sein kk
 		}
 		else
 		{
-			SendChatTarget(ClientID, "You don't have enough permission to use this command"); //passt erstmal so
+			SendChatTarget(ClientId, "You don't have enough permission to use this command"); //passt erstmal so
 		}
 	}
 	else
@@ -236,20 +236,20 @@ bool CGameContext::IsDDPPChatCommand(int ClientID, CPlayer *pPlayer, const char 
 	return true;
 }
 
-bool CGameContext::IsChatMessageBlocked(int ClientID, CPlayer *pPlayer, int Team, const char *pMesage)
+bool CGameContext::IsChatMessageBlocked(int ClientId, CPlayer *pPlayer, int Team, const char *pMesage)
 {
 	if(pPlayer->m_PlayerHumanLevel < g_Config.m_SvChatHumanLevel)
 	{
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientID]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
-		SendChatTarget(ClientID, aBuf);
+		str_format(aBuf, sizeof(aBuf), "your '/human_level' is too low %d/%d to use the chat.", m_apPlayers[ClientId]->m_PlayerHumanLevel, g_Config.m_SvChatHumanLevel);
+		SendChatTarget(ClientId, aBuf);
 	}
-	else if(m_apPlayers[ClientID] && !Server()->GetAuthedState(ClientID) && AdminChatPing(pMesage))
+	else if(m_apPlayers[ClientId] && !Server()->GetAuthedState(ClientId) && AdminChatPing(pMesage))
 	{
 		if(g_Config.m_SvMinAdminPing > 256)
-			SendChatTarget(ClientID, "you are not allowed to ping admins in chat.");
+			SendChatTarget(ClientId, "you are not allowed to ping admins in chat.");
 		else
-			SendChatTarget(ClientID, "your message is too short to bother an admin with that.");
+			SendChatTarget(ClientId, "your message is too short to bother an admin with that.");
 	}
 	else
 	{

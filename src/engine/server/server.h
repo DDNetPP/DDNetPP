@@ -505,8 +505,8 @@ public:
 
 	// DDNet++
 
-	void BotJoin(int BotID) override;
-	void BotLeave(int BotID, bool silent = false) override;
+	void BotJoin(int BotId) override;
+	void BotLeave(int BotId, bool silent = false) override;
 	void DDPPRegisterDatabases();
 	int LoadMapLive(const char *pMapName) override;
 };

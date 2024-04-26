@@ -8,7 +8,7 @@
 
 #include "../gamecontext.h"
 
-void CGameContext::EndBombGame(int WinnerID)
+void CGameContext::EndBombGame(int WinnerId)
 {
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -31,29 +31,29 @@ void CGameContext::EndBombGame(int WinnerID)
 	m_BombGameState = 0;
 	m_BombTick = g_Config.m_SvBombTicks;
 
-	if(WinnerID == -1)
+	if(WinnerId == -1)
 	{
 		return;
 	}
 
 	//winner private
 	char aBuf[128];
-	m_apPlayers[WinnerID]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
+	m_apPlayers[WinnerId]->MoneyTransaction(m_BombMoney * m_BombStartPlayers, "won bomb");
 	str_format(aBuf, sizeof(aBuf), "[BOMB] You won the bomb game. +%" PRId64 " money.", m_BombMoney * m_BombStartPlayers);
-	SendChatTarget(WinnerID, aBuf);
-	m_apPlayers[WinnerID]->m_Account.m_BombGamesWon++;
-	m_apPlayers[WinnerID]->m_Account.m_BombGamesPlayed++;
+	SendChatTarget(WinnerId, aBuf);
+	m_apPlayers[WinnerId]->m_Account.m_BombGamesWon++;
+	m_apPlayers[WinnerId]->m_Account.m_BombGamesPlayed++;
 	if(!str_comp_nocase(m_BombMap, "NoArena"))
 	{
 		//GetPlayerChar(i)->ChillTelePortTile(GetPlayerChar(i)->m_BombPosX, GetPlayerChar(i)->m_BombPosY); //dont tele back in no arena
 	}
 	else
 	{
-		GetPlayerChar(WinnerID)->ChillTelePortTile(GetPlayerChar(WinnerID)->m_BombPosX, GetPlayerChar(WinnerID)->m_BombPosY); //tele on pos where game started
+		GetPlayerChar(WinnerId)->ChillTelePortTile(GetPlayerChar(WinnerId)->m_BombPosX, GetPlayerChar(WinnerId)->m_BombPosY); //tele on pos where game started
 	}
 
 	//winner public
-	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %" PRId64 " money!", Server()->ClientName(WinnerID), m_BombMoney * m_BombStartPlayers);
+	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %" PRId64 " money!", Server()->ClientName(WinnerId), m_BombMoney * m_BombStartPlayers);
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 }
 
@@ -66,11 +66,11 @@ void CGameContext::CheckStartBomb()
 		if(!Player)
 			continue;
 
-		int PlayerID = Player->GetCID();
-		if(!GetPlayerChar(PlayerID))
+		int PlayerId = Player->GetCid();
+		if(!GetPlayerChar(PlayerId))
 			continue;
 
-		if(GetPlayerChar(PlayerID)->m_IsBombing && !GetPlayerChar(PlayerID)->m_IsBombReady)
+		if(GetPlayerChar(PlayerId)->m_IsBombing && !GetPlayerChar(PlayerId)->m_IsBombReady)
 		{
 			AllReady = false;
 			//break; //back in the times this was an performance improvement but nowerdays we need all id's of the unready players to kick em
@@ -79,16 +79,16 @@ void CGameContext::CheckStartBomb()
 			Player->m_BombTicksUnready++;
 			if(Player->m_BombTicksUnready + 500 == g_Config.m_SvBombUnreadyKickDelay)
 			{
-				SendChatTarget(PlayerID, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
+				SendChatTarget(PlayerId, "[BOMB] WARNING! Type '/bomb start' or you will be kicked out of the bomb game.");
 			}
 			if(Player->m_BombTicksUnready > g_Config.m_SvBombUnreadyKickDelay)
 			{
-				SendBroadcast("", PlayerID); //send empty broadcast to signalize lobby leave
-				SendChatTarget(PlayerID, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
+				SendBroadcast("", PlayerId); //send empty broadcast to signalize lobby leave
+				SendChatTarget(PlayerId, "[BOMB] you got kicked out of lobby. (Reason: too late '/bomb start')");
 
-				GetPlayerChar(PlayerID)->m_IsBombing = false;
-				GetPlayerChar(PlayerID)->m_IsBomb = false;
-				GetPlayerChar(PlayerID)->m_IsBombReady = false;
+				GetPlayerChar(PlayerId)->m_IsBombing = false;
+				GetPlayerChar(PlayerId)->m_IsBomb = false;
+				GetPlayerChar(PlayerId)->m_IsBombReady = false;
 			}
 		}
 	}
@@ -121,11 +121,11 @@ void CGameContext::CheckStartBomb()
 				{
 					if(!str_comp_nocase(m_BombMap, "Default"))
 					{
-						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
+						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCid() * 2; //spread the spawns round the cfg var depending on cid max distance is 63 * 2 = 126 = almost 4 tiles
 						//GetPlayerChar(i)->m_Pos.x = g_Config.m_SvBombSpawnX;
 						//GetPlayerChar(i)->m_Pos.y = g_Config.m_SvBombSpawnY;
-						GetPlayerChar(i)->ChillTelePort((g_Config.m_SvBombSpawnX * 32) + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY * 32);
-						//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCID() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary)
+						GetPlayerChar(i)->ChillTelePort((g_Config.m_SvBombSpawnX * 32) + m_apPlayers[i]->GetCid() * 2, g_Config.m_SvBombSpawnY * 32);
+						//GetPlayerChar(i)->m_Pos = vec2(g_Config.m_SvBombSpawnX + m_apPlayers[i]->GetCid() * 2, g_Config.m_SvBombSpawnY); //doesnt tele but would freeze the tees (which could be nice but idk ... its scary)
 					}
 					str_format(aBuf, sizeof(aBuf), "Bomb game has started! +%" PRId64 " money for the winner!", m_BombMoney * m_BombStartPlayers);
 					SendBroadcast(aBuf, i);
@@ -151,16 +151,16 @@ void CGameContext::BombTick()
 			if(!Player)
 				continue;
 
-			int PlayerID = Player->GetCID();
-			if(GetPlayerChar(PlayerID))
+			int PlayerId = Player->GetCid();
+			if(GetPlayerChar(PlayerId))
 			{
-				if(GetPlayerChar(PlayerID)->m_IsBomb)
+				if(GetPlayerChar(PlayerId)->m_IsBomb)
 				{
 					Player->m_Account.m_BombGamesPlayed++;
-					CreateExplosion(GetPlayerChar(PlayerID)->m_Pos, PlayerID, WEAPON_GRENADE, false, 0, GetPlayerChar(PlayerID)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
-					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(PlayerID));
+					CreateExplosion(GetPlayerChar(PlayerId)->m_Pos, PlayerId, WEAPON_GRENADE, false, 0, GetPlayerChar(PlayerId)->Teams()->TeamMask(0)); //bomb explode! (think this explosion is always team 0 but yolo)
+					str_format(aBuf, sizeof(aBuf), "'%s' exploded as bomb", Server()->ClientName(PlayerId));
 					Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "bomb", aBuf);
-					GetPlayerChar(PlayerID)->Die(PlayerID, WEAPON_GAME);
+					GetPlayerChar(PlayerId)->Die(PlayerId, WEAPON_GAME);
 					break;
 				}
 			}
@@ -210,7 +210,7 @@ void CGameContext::BombTick()
 							m_BombMap,
 							m_BombMoney);
 					}
-					SendBroadcast(aBuf, Player->GetCID());
+					SendBroadcast(aBuf, Player->GetCid());
 				}
 			}
 		}
@@ -288,7 +288,7 @@ int CGameContext::FindNextBomb()
 	//Check who has the furthest distance to all other players (no average middle needed)
 	//New version with pythagoras
 	int MaxDist = 0;
-	int NextBombID = -1;
+	int NextBombId = -1;
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -313,11 +313,11 @@ int CGameContext::FindNextBomb()
 			if(Dist > MaxDist)
 			{
 				MaxDist = Dist;
-				NextBombID = i;
+				NextBombId = i;
 			}
 		}
 	}
-	return NextBombID;
+	return NextBombId;
 }
 
 int CGameContext::CountBannedBombPlayers()
@@ -375,7 +375,7 @@ void CGameContext::SendBroadcastBomb(const char *pMsg)
 		if(!pChr->m_IsBombing)
 			continue;
 
-		SendBroadcast(pMsg, Player->GetCID());
+		SendBroadcast(pMsg, Player->GetCid());
 	}
 }
 
@@ -392,6 +392,6 @@ void CGameContext::SendChatBomb(const char *pMsg)
 		if(!pChr->m_IsBombing)
 			continue;
 
-		SendChatTarget(Player->GetCID(), pMsg);
+		SendChatTarget(Player->GetCid(), pMsg);
 	}
 }

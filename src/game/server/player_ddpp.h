@@ -66,9 +66,9 @@ public:
 	void MoneyTransaction(int Amount, const char *Description = "");
 	bool IsInstagibMinigame();
 	bool IsMaxLevel() { return GetLevel() >= ACC_MAX_LEVEL; }
-	bool IsLoggedIn() { return GetAccID() != 0; } // -1 filebased acc >0 sql id
-	int GetAccID() { return m_Account.m_ID; }
-	void SetAccID(int ID);
+	bool IsLoggedIn() { return GetAccId() != 0; } // -1 filebased acc >0 sql id
+	int GetAccId() { return m_Account.m_Id; }
+	void SetAccId(int Id);
 	/*
 		GiveXP(int value)
 
@@ -118,12 +118,12 @@ public:
 	int m_AsciiAnimSpeed;
 	int m_AsciiWatchFrame;
 	int m_AsciiWatchTicker;
-	int m_AsciiWatchingID;
+	int m_AsciiWatchingId;
 	int m_AsciiViewsDefault; //direct with ascii view command
 	int m_AsciiViewsProfile;
 
 	//zCatch ChillerDragon
-	int m_aCatchedID[64];
+	int m_aCatchedId[64];
 
 	//###########
 	//minigames
@@ -211,15 +211,15 @@ public:
 	bool m_IsSurvivalWinner;
 
 	//no name chat fix
-	void FixForNoName(int ID);
-	int m_FixNameID;
+	void FixForNoName(int Id);
+	int m_FixNameId;
 	bool m_ShowName;
 	bool m_SetRealName;
 	int64_t m_SetRealNameTick;
-	//ID == 1 // chat message
+	//Id == 1 // chat message
 	int m_ChatTeam;
 	char m_ChatText[256];
-	//ID == 2 // kill message
+	//Id == 2 // kill message
 	int m_MsgKiller;
 	int m_MsgWeapon;
 	int m_MsgModeSpecial;
@@ -307,7 +307,7 @@ public:
 
 	int m_TradeMoney;
 	int m_TradeItem;
-	int m_TradeID;
+	int m_TradeId;
 	int64_t m_TradeTick;
 	int m_GangsterBagMoney;
 	char m_aTradeOffer[256];
@@ -327,7 +327,7 @@ public:
 	int m_JailHammer;
 	//int m_JailHammerTime;
 	int64_t m_JailHammerDelay;
-	//int m_CorruptID;
+	//int m_CorruptId;
 	//int m_CorruptMoney;
 	short m_JailCode;
 
@@ -346,11 +346,11 @@ public:
 	int m_QuestLevelUnlocked; // maybe save this in sql and later people can choose all levels untill unlocked
 	int m_QuestState; // current quest 0 = not questing
 	int m_QuestStateLevel; // current quest level (difficulty)
-	int m_QuestLastQuestedPlayerID; // store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
-	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerID
+	int m_QuestLastQuestedPlayerId; // store here the id to make sure in level 3 quest 1 for example he doenst hammer 1 tee 5 times
+	int m_QuestProgressValue; // saves the values of m_QuestLastQuestedPlayerId
 	int m_QuestProgressValue2;
 	bool m_QuestProgressBool;
-	int m_QuestPlayerID; // the id of the player which is the quest
+	int m_QuestPlayerId; // the id of the player which is the quest
 	char m_aQuestString[512]; // stores the quest information
 	int m_aQuestProgress[2]; // stores the quest progress information
 	bool m_QuestFailed;
@@ -467,7 +467,7 @@ public:
 	bool m_fake_admin;
 	int64_t m_LastFight;
 
-	char m_aSQLNameName[32]; //used to save account name admins interact with in the '/sql_name' command
+	char m_aSqlNameName[32]; //used to save account name admins interact with in the '/sql_name' command
 
 	void Save(int SetLoggedIn);
 	void SaveFileBased();
@@ -557,16 +557,16 @@ public:
 	int m_BlockSpreeHighscore;
 
 	/*
-		m_LastToucherID
+		m_LastToucherId
 
 		Use UpdateLastToucher() to set this variable
 		it tracks the id of the last person who touched it
 		used for block kills
 	*/
-	int m_LastToucherID;
+	int m_LastToucherId;
 	int m_LastTouchTicks;
 	char m_aLastToucherName[64];
-	void UpdateLastToucher(int ID);
+	void UpdateLastToucher(int Id);
 
 	int m_BlockBounty;
 

@@ -67,11 +67,11 @@ void CBlackHole::Attract()
 	if(GoingToKill == true)
 	{
 		if(m_Timer == 2)
-			GameServer()->SendBroadcast("3", pChr->GetPlayer()->GetCID());
+			GameServer()->SendBroadcast("3", pChr->GetPlayer()->GetCid());
 		if(m_Timer == 50)
-			GameServer()->SendBroadcast("2", pChr->GetPlayer()->GetCID());
+			GameServer()->SendBroadcast("2", pChr->GetPlayer()->GetCid());
 		if(m_Timer == 100)
-			GameServer()->SendBroadcast("1", pChr->GetPlayer()->GetCID());
+			GameServer()->SendBroadcast("1", pChr->GetPlayer()->GetCid());
 
 		if(m_Timer == 149)
 		{
@@ -109,7 +109,7 @@ void CBlackHole::Snap(int SnappingClient)
 {
 	/*CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
 
-	CNetObj_Laser *pObj = static_cast<CNetObj_Laser*>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_ID, sizeof(CNetObj_Laser))); 
+	CNetObj_Laser *pObj = static_cast<CNetObj_Laser*>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_Id, sizeof(CNetObj_Laser))); 
 	
 	pObj->m_X = (int)m_Pos.x;
 	pObj->m_Y = (int)m_Pos.y;	

@@ -92,7 +92,7 @@ void CDummySurvival::OnTick()
 			{
 				if(Server()->Tick() % 10 == 0) //angry
 				{
-					GameServer()->SendEmoticon(m_pPlayer->GetCID(), 9, -1);
+					GameServer()->SendEmoticon(m_pPlayer->GetCid(), 9, -1);
 				}
 
 				Hook();

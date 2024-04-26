@@ -221,7 +221,7 @@ void CCharacter::HandleJetpack()
 				Strength = Tuning()->m_JetpackStrength;
 			else
 				Strength = GameServer()->TuningList()[m_TuneZone].m_JetpackStrength;
-			TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), 0, m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+			TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), 0, m_pPlayer->GetCid(), m_Core.m_ActiveWeapon);
 		}
 	}
 	}
@@ -495,7 +495,7 @@ void CCharacter::FireWeapon()
 			Temp -= pTarget->m_Core.m_Vel;
 
 			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
-				m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+				m_pPlayer->GetCid(), m_Core.m_ActiveWeapon);
 
 			if(!pTarget->m_pPlayer->m_RconFreeze && !m_pPlayer->m_IsInstaMode_fng)
 				pTarget->UnFreeze();
@@ -978,7 +978,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 {
 	Killer = DDPP_DIE(Killer, Weapon, fngscore);
 
-	if(Server()->IsRecording(m_pPlayer->GetCID()))
+	if(Server()->IsRecording(m_pPlayer->GetCid()))
 	{
 		CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCid());
 
@@ -1010,7 +1010,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 		m_pPlayer->GetCid(), Server()->ClientName(m_pPlayer->GetCid()), Weapon, ModeSpecial);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-	if(Killer < 0 || Killer == m_pPlayer->GetCID())
+	if(Killer < 0 || Killer == m_pPlayer->GetCid())
 	{
 		m_LastHitWeapon = -1;
 		Weapon = -1;
@@ -1035,7 +1035,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 	{
 		CNetMsg_Sv_KillMsg Msg;
 		Msg.m_Killer = Killer;
-		Msg.m_Victim = m_pPlayer->GetCID();
+		Msg.m_Victim = m_pPlayer->GetCid();
 		if(!m_pPlayer->m_IsSurvivaling && !m_pPlayer->IsInstagibMinigame())
 			Msg.m_Weapon = m_LastHitWeapon;
 		else
@@ -1994,7 +1994,7 @@ void CCharacter::HandleTiles(int Index)
 		}
 		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
 		vec2 SpawnPos;
-		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
+		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCid())))
 		{
 			m_Core.m_Pos = SpawnPos;
 			m_Core.m_Vel = vec2(0, 0);
@@ -2029,7 +2029,7 @@ void CCharacter::HandleTiles(int Index)
 		}
 		// if no checkpointout have been found (or if there no recorded checkpoint), teleport to start
 		vec2 SpawnPos;
-		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCID())))
+		if(GameServer()->m_pController->CanSpawn(m_pPlayer->GetTeam(), &SpawnPos, m_pPlayer, GameServer()->GetDDRaceTeam(GetPlayer()->GetCid())))
 		{
 			m_Core.m_Pos = SpawnPos;
 
@@ -2290,7 +2290,7 @@ bool CCharacter::Freeze(int Seconds)
 				if(m_Core.m_aWeapons[i].m_Got)
 				{
 					m_aWeaponsBackup[i][1] = m_Core.m_aWeapons[i].m_Ammo; //save all ammo sats for m_IsVanillaWeapons to load em on unfreeze
-					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()),i, m_aWeaponsBackup[i][1]);
+					//dbg_msg("vanilla", "'%s' saved weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()),i, m_aWeaponsBackup[i][1]);
 					m_Core.m_aWeapons[i].m_Ammo = 0; //dont set this to 0 in freeze to allow shoting in freeze (can be used for events)
 				}
 			}
@@ -2342,12 +2342,12 @@ bool CCharacter::UnFreeze()
 					if(m_pPlayer->m_IsVanillaWeapons || m_aDecreaseAmmo[i] || (m_pPlayer->m_SpawnShotgunActive && i == WEAPON_SHOTGUN) || (m_pPlayer->m_SpawnGrenadeActive && i == WEAPON_GRENADE) || (m_pPlayer->m_SpawnRifleActive && i == WEAPON_LASER))
 					{
 						m_Core.m_aWeapons[i].m_Ammo = m_aWeaponsBackup[i][1];
-						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_Core.m_aWeapons[i].m_Ammo);
+						//dbg_msg("vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()), i, m_Core.m_aWeapons[i].m_Ammo);
 					}
 					else
 					{
 						m_Core.m_aWeapons[i].m_Ammo = -1;
-						//dbg_msg("not vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCID()), i, m_Core.m_aWeapons[i].m_Ammo);
+						//dbg_msg("not vanilla", "'%s' loaded weapon[%d] ammo[%d]", Server()->ClientName(m_pPlayer->GetCid()), i, m_Core.m_aWeapons[i].m_Ammo);
 					}
 				}
 			}

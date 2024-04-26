@@ -16,8 +16,8 @@ void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *p
 {
 	if(pRequest)
 	{
-		m_AdminClientID = pRequest->m_AdminClientID;
-		m_TargetAccountID = pRequest->m_TargetAccountID;
+		m_AdminClientId = pRequest->m_AdminClientId;
+		m_TargetAccountId = pRequest->m_TargetAccountId;
 		m_State = pRequest->m_State;
 		m_Type = pRequest->m_Type;
 		str_copy(m_aUsername, pRequest->m_aUsername, sizeof(m_aUsername));
@@ -25,8 +25,8 @@ void CAdminCommandResult::SetVariant(Variant v, const CSqlAdminCommandRequest *p
 	}
 	else
 	{
-		m_AdminClientID = -1;
-		m_TargetAccountID = -1;
+		m_AdminClientId = -1;
+		m_TargetAccountId = -1;
 		m_State = -1;
 		m_Type = DIRECT;
 		m_aUsername[0] = '\0';
@@ -89,9 +89,9 @@ CAccounts::CAccounts(CGameContext *pGameServer, CDbConnectionPool *pPool) :
 {
 }
 
-std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int ClientID)
+std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int ClientId)
 {
-	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientID];
+	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
 	if(pCurPlayer->m_AdminCommandQueryResult != nullptr) // TODO: send player a message: "too many requests"
 		return nullptr;
 	pCurPlayer->m_AdminCommandQueryResult = std::make_shared<CAdminCommandResult>();
@@ -101,20 +101,20 @@ std::shared_ptr<CAdminCommandResult> CAccounts::NewSqlAdminCommandResult(int Cli
 void CAccounts::ExecAdminThread(
 	bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 	const char *pThreadName,
-	int AdminClientID,
-	int TargetAccountID,
+	int AdminClientId,
+	int TargetAccountId,
 	int State,
 	CAdminCommandResult::Variant Type,
 	const char *pUsername,
 	const char *pPassword,
 	const char *pQuery)
 {
-	auto pResult = NewSqlAdminCommandResult(AdminClientID);
+	auto pResult = NewSqlAdminCommandResult(AdminClientId);
 	if(pResult == nullptr)
 		return;
 	auto Tmp = std::make_unique<CSqlAdminCommandRequest>(pResult);
-	Tmp->m_AdminClientID = AdminClientID;
-	Tmp->m_TargetAccountID = TargetAccountID;
+	Tmp->m_AdminClientId = AdminClientId;
+	Tmp->m_TargetAccountId = TargetAccountId;
 	Tmp->m_State = State;
 	Tmp->m_Type = Type;
 	str_copy(Tmp->m_aUsername, pUsername, sizeof(Tmp->m_aUsername));
@@ -124,9 +124,9 @@ void CAccounts::ExecAdminThread(
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
-std::shared_ptr<CAccountResult> CAccounts::NewSqlAccountResult(int ClientID)
+std::shared_ptr<CAccountResult> CAccounts::NewSqlAccountResult(int ClientId)
 {
-	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientID];
+	CPlayer *pCurPlayer = GameServer()->m_apPlayers[ClientId];
 	if(pCurPlayer->m_AccountQueryResult != nullptr) // TODO: send player a message: "too many requests"
 		return nullptr;
 	pCurPlayer->m_AccountQueryResult = std::make_shared<CAccountResult>();
@@ -136,13 +136,13 @@ std::shared_ptr<CAccountResult> CAccounts::NewSqlAccountResult(int ClientID)
 void CAccounts::ExecUserThread(
 	bool (*pFuncPtr)(IDbConnection *, const ISqlData *, char *pError, int ErrorSize),
 	const char *pThreadName,
-	int ClientID,
+	int ClientId,
 	const char *pUsername,
 	const char *pPassword,
 	const char *pNewPassword,
 	CAccountData *pAccountData)
 {
-	auto pResult = NewSqlAccountResult(ClientID);
+	auto pResult = NewSqlAccountResult(ClientId);
 	if(pResult == nullptr)
 		return;
 	auto Tmp = std::make_unique<CSqlAccountRequest>(pResult);
@@ -157,9 +157,9 @@ void CAccounts::ExecUserThread(
 	m_pPool->Execute(pFuncPtr, std::move(Tmp), pThreadName);
 }
 
-void CAccounts::Save(int ClientID, CAccountData *pAccountData)
+void CAccounts::Save(int ClientId, CAccountData *pAccountData)
 {
-	ExecUserThread(SaveThread, "save user", ClientID, "", "", "", pAccountData);
+	ExecUserThread(SaveThread, "save user", ClientId, "", "", "", pAccountData);
 }
 
 bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -202,7 +202,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 		"	AsciiFrame1 = ?, AsciiFrame2 = ?, AsciiFrame3 = ?, AsciiFrame4 = ?, AsciiFrame5 = ?,"
 		"	AsciiFrame6 = ?, AsciiFrame7 = ?, AsciiFrame8 = ?, AsciiFrame9 = ?, AsciiFrame10 = ?,"
 		"	AsciiFrame11 = ?, AsciiFrame12 = ?, AsciiFrame13 = ?, AsciiFrame14 = ?, AsciiFrame15 = ?"
-		"	WHERE ID = ?;",
+		"	WHERE Id = ?;",
 		sizeof(aBuf));
 
 	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -217,9 +217,9 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN3);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN4);
 	pSqlServer->BindString(Index++, pAcc->m_LastLogoutIGN5);
-	pSqlServer->BindString(Index++, pAcc->m_aIP_1);
-	pSqlServer->BindString(Index++, pAcc->m_aIP_2);
-	pSqlServer->BindString(Index++, pAcc->m_aIP_3);
+	pSqlServer->BindString(Index++, pAcc->m_aIp_1);
+	pSqlServer->BindString(Index++, pAcc->m_aIp_2);
+	pSqlServer->BindString(Index++, pAcc->m_aIp_3);
 	pSqlServer->BindString(Index++, pAcc->m_aClan1);
 	pSqlServer->BindString(Index++, pAcc->m_aClan2);
 	pSqlServer->BindString(Index++, pAcc->m_aClan3);
@@ -284,7 +284,7 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	pSqlServer->BindInt(Index++, pAcc->m_AsciiViewsProfile);
 	for(const auto &AsciiFrame : pAcc->m_aAsciiFrame)
 		pSqlServer->BindString(Index++, AsciiFrame);
-	pSqlServer->BindInt(Index++, pAcc->m_ID);
+	pSqlServer->BindInt(Index++, pAcc->m_Id);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
@@ -295,20 +295,20 @@ bool CAccounts::SaveThread(IDbConnection *pSqlServer, const ISqlData *pGameData,
 	{
 		str_format(pResult->m_aaMessages[0],
 			sizeof(pResult->m_aaMessages[0]),
-			"save ID=%d finished with status=fail",
-			pData->m_AccountData.m_ID);
+			"save Id=%d finished with status=fail",
+			pData->m_AccountData.m_Id);
 		return true;
 	}
 	str_format(pResult->m_aaMessages[0],
 		sizeof(pResult->m_aaMessages[0]),
-		"save ID=%d finished with status=success",
-		pData->m_AccountData.m_ID);
+		"save Id=%d finished with status=success",
+		pData->m_AccountData.m_Id);
 	return false;
 }
 
-void CAccounts::Login(int ClientID, const char *pUsername, const char *pPassword)
+void CAccounts::Login(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(LoginThread, "login user", ClientID, pUsername, pPassword, "", NULL);
+	ExecUserThread(LoginThread, "login user", ClientId, pUsername, pPassword, "", NULL);
 }
 
 bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -319,7 +319,7 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	char aBuf[2048];
 	str_copy(aBuf,
 		"SELECT "
-		"	ID,"
+		"	Id,"
 		/*  2         3 */
 		"	Username, Password,"
 		/*  4             5           6 */
@@ -380,12 +380,12 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		if(pSqlServer->GetInt(5)) // IsLoggedIn
 		{
 			pResult->SetVariant(CAccountResult::LOGGED_IN_ALREADY);
-			pResult->m_Account.m_ID = pSqlServer->GetInt(1);
+			pResult->m_Account.m_Id = pSqlServer->GetInt(1);
 			return false;
 		}
 		int Index = 1;
 		pResult->SetVariant(CAccountResult::LOGIN_INFO);
-		pResult->m_Account.m_ID = pSqlServer->GetInt(Index++); // 1
+		pResult->m_Account.m_Id = pSqlServer->GetInt(Index++); // 1
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aUsername, sizeof(pResult->m_Account.m_aUsername));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aPassword, sizeof(pResult->m_Account.m_aPassword));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aRegisterDate, sizeof(pResult->m_Account.m_aRegisterDate));
@@ -396,9 +396,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN3, sizeof(pResult->m_Account.m_LastLogoutIGN3));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN4, sizeof(pResult->m_Account.m_LastLogoutIGN4));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_LastLogoutIGN5, sizeof(pResult->m_Account.m_LastLogoutIGN5));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_1, sizeof(pResult->m_Account.m_aIP_1));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_2, sizeof(pResult->m_Account.m_aIP_2));
-		pSqlServer->GetString(Index++, pResult->m_Account.m_aIP_3, sizeof(pResult->m_Account.m_aIP_3));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_1, sizeof(pResult->m_Account.m_aIp_1));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_2, sizeof(pResult->m_Account.m_aIp_2));
+		pSqlServer->GetString(Index++, pResult->m_Account.m_aIp_3, sizeof(pResult->m_Account.m_aIp_3));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan1, sizeof(pResult->m_Account.m_aClan1));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan2, sizeof(pResult->m_Account.m_aClan2));
 		pSqlServer->GetString(Index++, pResult->m_Account.m_aClan3, sizeof(pResult->m_Account.m_aClan3));
@@ -476,9 +476,9 @@ bool CAccounts::LoginThread(IDbConnection *pSqlServer, const ISqlData *pGameData
 	return false;
 }
 
-void CAccounts::UpdateAccountState(int AdminClientID, int TargetAccountID, int State, CAdminCommandResult::Variant Type, const char *pQuery)
+void CAccounts::UpdateAccountState(int AdminClientId, int TargetAccountId, int State, CAdminCommandResult::Variant Type, const char *pQuery)
 {
-	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientID, TargetAccountID, State, Type, "", "", pQuery);
+	ExecAdminThread(UpdateAccountStateThread, "update account state", AdminClientId, TargetAccountId, State, Type, "", "", pQuery);
 }
 
 bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -491,7 +491,7 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	// str_copy(aBuf,
 	// 	"UPDATE Accounts SET "
 	// 	"	IsFrozen = ?"
-	// 	"	WHERE ID = ?;",
+	// 	"	WHERE Id = ?;",
 	// 	sizeof(aBuf));
 
 	if(pSqlServer->PrepareStatement(pData->m_aQuery, pError, ErrorSize))
@@ -499,7 +499,7 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 		return true;
 	}
 	pSqlServer->BindInt(1, pData->m_State);
-	pSqlServer->BindInt(2, pData->m_TargetAccountID);
+	pSqlServer->BindInt(2, pData->m_TargetAccountId);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
@@ -521,9 +521,9 @@ bool CAccounts::UpdateAccountStateThread(IDbConnection *pSqlServer, const ISqlDa
 	return false;
 }
 
-void CAccounts::AdminSetPassword(int ClientID, const char *pUsername, const char *pPassword)
+void CAccounts::AdminSetPassword(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(AdminSetPasswordThread, "admin set password", ClientID, pUsername, pPassword, "", NULL);
+	ExecUserThread(AdminSetPasswordThread, "admin set password", ClientId, pUsername, pPassword, "", NULL);
 }
 
 bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -587,9 +587,9 @@ bool CAccounts::AdminSetPasswordThread(IDbConnection *pSqlServer, const ISqlData
 	return false;
 }
 
-void CAccounts::ChangePassword(int ClientID, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
+void CAccounts::ChangePassword(int ClientId, const char *pUsername, const char *pOldPassword, const char *pNewPassword)
 {
-	ExecUserThread(ChangePasswordThread, "change password", ClientID, pUsername, pOldPassword, pNewPassword, NULL);
+	ExecUserThread(ChangePasswordThread, "change password", ClientId, pUsername, pOldPassword, pNewPassword, NULL);
 }
 
 bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -632,19 +632,19 @@ bool CAccounts::ChangePasswordThread(IDbConnection *pSqlServer, const ISqlData *
 	return false;
 }
 
-void CAccounts::ExecuteSQL(const char *pQuery)
+void CAccounts::ExecuteSql(const char *pQuery)
 {
 	auto Tmp = std::make_unique<CSqlStringData>();
 	str_copy(Tmp->m_aString, pQuery, sizeof(Tmp->m_aString));
 
-	m_pPool->ExecuteWrite(ExecuteSQLThread, std::move(Tmp), "add table column");
+	m_pPool->ExecuteWrite(ExecuteSqlThread, std::move(Tmp), "add table column");
 }
 
-bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
+bool CAccounts::ExecuteSqlThread(IDbConnection *pSqlServer, const ISqlData *pGameData, Write w, char *pError, int ErrorSize)
 {
 	if(w != Write::NORMAL && w != Write::NORMAL_FAILED)
 	{
-		dbg_assert(false, "ExecuteSQLThread failed to write");
+		dbg_assert(false, "ExecuteSqlThread failed to write");
 		return true;
 	}
 
@@ -663,7 +663,7 @@ bool CAccounts::ExecuteSQLThread(IDbConnection *pSqlServer, const ISqlData *pGam
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
 	{
-		dbg_assert(false, "ExecuteSQLThread did not step");
+		dbg_assert(false, "ExecuteSqlThread did not step");
 		return true;
 	}
 	return !End;
@@ -706,10 +706,10 @@ bool CAccounts::LogoutUsernameThread(IDbConnection *pSqlServer, const ISqlData *
 	return !End;
 }
 
-void CAccounts::CleanZombieAccounts(int ClientID, int Port, const char *pQuery)
+void CAccounts::CleanZombieAccounts(int ClientId, int Port, const char *pQuery)
 {
 	auto Tmp = std::make_unique<CSqlCleanZombieAccountsData>();
-	Tmp->m_ClientID = ClientID;
+	Tmp->m_ClientId = ClientId;
 	Tmp->m_Port = Port;
 	str_copy(Tmp->m_aQuery, pQuery, sizeof(Tmp->m_aQuery));
 
@@ -745,12 +745,12 @@ bool CAccounts::CleanZombieAccountsThread(IDbConnection *pSqlServer, const ISqlD
 	return !End;
 }
 
-void CAccounts::SetLoggedIn(int ClientID, int LoggedIn, int AccountID, int Port)
+void CAccounts::SetLoggedIn(int ClientId, int LoggedIn, int AccountId, int Port)
 {
 	auto Tmp = std::make_unique<CSqlSetLoginData>();
 	Tmp->m_Port = Port;
 	Tmp->m_LoggedIn = LoggedIn;
-	Tmp->m_AccountID = AccountID;
+	Tmp->m_AccountId = AccountId;
 
 	m_pPool->ExecuteWrite(SetLoggedInThread, std::move(Tmp), "set logged in");
 }
@@ -766,7 +766,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 
 	char aBuf[512];
 	str_copy(aBuf,
-		"UPDATE Accounts SET IsLoggedIn = ?, LastLoginPort = ? WHERE ID = ?;",
+		"UPDATE Accounts SET IsLoggedIn = ?, LastLoginPort = ? WHERE Id = ?;",
 		sizeof(aBuf));
 
 	if(pSqlServer->PrepareStatement(aBuf, pError, ErrorSize))
@@ -775,7 +775,7 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	}
 	pSqlServer->BindInt(1, pData->m_LoggedIn);
 	pSqlServer->BindInt(2, pData->m_Port);
-	pSqlServer->BindInt(3, pData->m_AccountID);
+	pSqlServer->BindInt(3, pData->m_AccountId);
 
 	bool End;
 	if(pSqlServer->Step(&End, pError, ErrorSize))
@@ -786,9 +786,9 @@ bool CAccounts::SetLoggedInThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	return !End;
 }
 
-void CAccounts::Register(int ClientID, const char *pUsername, const char *pPassword)
+void CAccounts::Register(int ClientId, const char *pUsername, const char *pPassword)
 {
-	ExecUserThread(RegisterThread, "register user", ClientID, pUsername, pPassword, "", NULL);
+	ExecUserThread(RegisterThread, "register user", ClientId, pUsername, pPassword, "", NULL);
 }
 
 bool CAccounts::RegisterThread(IDbConnection *pSqlServer, const ISqlData *pGameData, char *pError, int ErrorSize)
@@ -888,7 +888,7 @@ bool CAccounts::CreateTableThread(IDbConnection *pSqlServer, const ISqlData *pGa
 	char aBuf[4096];
 	str_copy(aBuf,
 		"CREATE TABLE IF NOT EXISTS Accounts ("
-		"  ID					INTEGER			PRIMARY KEY		AUTOINCREMENT,"
+		"  Id					INTEGER			PRIMARY KEY		AUTOINCREMENT,"
 		"  Username				VARCHAR(32)		NOT NULL,"
 		"  Password				VARCHAR(128)	NOT NULL,"
 		"  RegisterDate			VARCHAR(32)		DEFAULT '',"

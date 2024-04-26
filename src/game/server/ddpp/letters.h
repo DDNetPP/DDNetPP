@@ -13,8 +13,8 @@ public:
 
 	void ToUpper(char *pStr);
 	void UpdateBuffers(int Ascii, int offset = 0);
-	void SendChat(int ClientID, int Ascii);
-	void SendChat(int ClientID, const char *pStr);
+	void SendChat(int ClientId, int Ascii);
+	void SendChat(int ClientId, const char *pStr);
 	void DebugPrint(int Ascii);
 
 private:

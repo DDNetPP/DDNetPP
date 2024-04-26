@@ -270,12 +270,12 @@ public:
 
 	virtual int *GetIdMap(int ClientId) = 0;
 
-	virtual void BotJoin(int BotID) = 0;
-	virtual void BotLeave(int BotID, bool silet = false) = 0;
+	virtual void BotJoin(int BotId) = 0;
+	virtual void BotLeave(int BotId, bool silet = false) = 0;
 	virtual int LoadMapLive(const char *pMapName) = 0;
-	virtual bool DnsblWhite(int ClientID) = 0;
-	virtual bool DnsblPending(int ClientID) = 0;
-	virtual bool DnsblBlack(int ClientID) = 0;
+	virtual bool DnsblWhite(int ClientId) = 0;
+	virtual bool DnsblPending(int ClientId) = 0;
+	virtual bool DnsblBlack(int ClientId) = 0;
 	virtual const char *GetAnnouncementLine(const char *pFileName) = 0;
 	virtual bool ClientPrevIngame(int ClientId) = 0;
 	virtual const char *GetNetErrorString(int ClientId) = 0;
@@ -341,12 +341,12 @@ public:
 	// previously stored.
 	virtual void OnClientConnected(int ClientId, void *pPersistentData) = 0;
 
-	virtual void OnClientEnter(int ClientID, bool Silent = false) = 0;
-	virtual void OnClientDrop(int ClientID, const char *pReason, bool Silent = false) = 0;
-	virtual void OnClientPrepareInput(int ClientID, void *pInput) = 0;
-	virtual void OnClientDirectInput(int ClientID, void *pInput) = 0;
-	virtual void OnClientPredictedInput(int ClientID, void *pInput) = 0;
-	virtual void OnClientPredictedEarlyInput(int ClientID, void *pInput) = 0;
+	virtual void OnClientEnter(int ClientId, bool Silent = false) = 0;
+	virtual void OnClientDrop(int ClientId, const char *pReason, bool Silent = false) = 0;
+	virtual void OnClientPrepareInput(int ClientId, void *pInput) = 0;
+	virtual void OnClientDirectInput(int ClientId, void *pInput) = 0;
+	virtual void OnClientPredictedInput(int ClientId, void *pInput) = 0;
+	virtual void OnClientPredictedEarlyInput(int ClientId, void *pInput) = 0;
 
 	virtual bool IsClientReady(int ClientId) const = 0;
 	virtual bool IsClientPlayer(int ClientId) const = 0;

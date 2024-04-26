@@ -5,24 +5,24 @@
 
 #include "../gamecontext.h"
 
-vec2 CGameContext::GetNextSurvivalSpawn(int ClientID)
+vec2 CGameContext::GetNextSurvivalSpawn(int ClientId)
 {
 	vec2 Spawn = Collision()->GetSurvivalSpawn(m_survival_spawn_counter++);
 	if(Spawn == vec2(-1, -1))
 	{
-		SendChatTarget(ClientID, "[SURVIVAL] No arena set.");
+		SendChatTarget(ClientId, "[SURVIVAL] No arena set.");
 		SurvivalSetGameState(SURVIVAL_OFF);
-		return GetSurvivalLobbySpawn(ClientID);
+		return GetSurvivalLobbySpawn(ClientId);
 	}
 	return Spawn;
 }
 
-vec2 CGameContext::GetSurvivalLobbySpawn(int ClientID)
+vec2 CGameContext::GetSurvivalLobbySpawn(int ClientId)
 {
 	vec2 Spawn = Collision()->GetRandomTile(TILE_SURVIVAL_LOBBY);
 	if(Spawn == vec2(-1, -1))
 	{
-		SendChatTarget(ClientID, "[SURVIVAL] No lobby set.");
+		SendChatTarget(ClientId, "[SURVIVAL] No lobby set.");
 		SurvivalSetGameState(SURVIVAL_OFF);
 	}
 	return Spawn;
@@ -154,7 +154,7 @@ void CGameContext::SendChatSurvival(const char *pMsg)
 		{
 			if(Player->m_IsSurvivaling)
 			{
-				SendChatTarget(Player->GetCID(), pMsg);
+				SendChatTarget(Player->GetCid(), pMsg);
 			}
 		}
 	}
@@ -168,7 +168,7 @@ void CGameContext::SendBroadcastSurvival(const char *pMsg, int Importance)
 		{
 			if(Player->m_IsSurvivaling)
 			{
-				SendBroadcast(pMsg, Player->GetCID(), Importance);
+				SendBroadcast(pMsg, Player->GetCid(), Importance);
 			}
 		}
 	}
@@ -224,7 +224,7 @@ void CGameContext::SetPlayerSurvival(int id, int mode) //0=off 1=lobby 2=ingame 
 	}
 }
 
-int CGameContext::SurvivalGetRandomAliveID(int NotThis)
+int CGameContext::SurvivalGetRandomAliveId(int NotThis)
 {
 	int r = rand() % CountSurvivalPlayers(true);
 	int x = 0;
@@ -232,26 +232,26 @@ int CGameContext::SurvivalGetRandomAliveID(int NotThis)
 	{
 		if(!Player)
 			continue;
-		if(Player->GetCID() == NotThis)
+		if(Player->GetCid() == NotThis)
 			continue;
 
 		if(Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 			if(x++ == r)
-				return Player->GetCID();
+				return Player->GetCid();
 	}
 	return -1;
 }
 
-void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
+void CGameContext::SurvivalGetNextSpectator(int UpdateId, int KillerId)
 {
-	CPlayer *pPlayer = m_apPlayers[UpdateID];
+	CPlayer *pPlayer = m_apPlayers[UpdateId];
 	if(!pPlayer)
 		return;
 
 	int AliveTees = CountSurvivalPlayers(true);
 	if(AliveTees > 1)
 	{
-		pPlayer->m_SpectatorID = UpdateID == KillerID ? SurvivalGetRandomAliveID() : KillerID;
+		pPlayer->m_SpectatorId = UpdateId == KillerId ? SurvivalGetRandomAliveId() : KillerId;
 		pPlayer->Pause(CPlayer::PAUSE_SPEC, true);
 	}
 	else
@@ -260,15 +260,15 @@ void CGameContext::SurvivalGetNextSpectator(int UpdateID, int KillerID)
 	}
 }
 
-void CGameContext::SurvivalUpdateSpectators(int DiedID, int KillerID)
+void CGameContext::SurvivalUpdateSpectators(int DiedId, int KillerId)
 {
 	for(auto &Player : m_apPlayers)
 	{
 		if(!Player || !Player->m_IsSurvivaling)
 			continue;
-		if(Player->m_SpectatorID == DiedID)
+		if(Player->m_SpectatorId == DiedId)
 		{
-			SurvivalGetNextSpectator(Player->GetCID(), KillerID);
+			SurvivalGetNextSpectator(Player->GetCid(), KillerId);
 		}
 	}
 }
@@ -290,7 +290,7 @@ void CGameContext::SurvivalSetGameState(int state)
 	{
 		for(auto &Player : m_apPlayers)
 			if(Player)
-				SetPlayerSurvival(Player->GetCID(), SURVIVAL_OFF);
+				SetPlayerSurvival(Player->GetCid(), SURVIVAL_OFF);
 	}
 	else if(state == SURVIVAL_LOBBY)
 	{
@@ -309,11 +309,11 @@ void CGameContext::SurvivalSetGameState(int state)
 			{
 				if(Player->GetCharacter()) //only kill if isnt dead already or server crashes (he should respawn correctly anayways)
 				{
-					SaveCosmetics(Player->GetCID());
-					Player->GetCharacter()->Die(Player->GetCID(), WEAPON_GAME);
+					SaveCosmetics(Player->GetCid());
+					Player->GetCharacter()->Die(Player->GetCid(), WEAPON_GAME);
 				}
 				Player->Pause(CPlayer::PAUSE_NONE, true);
-				SetPlayerSurvival(Player->GetCID(), SURVIVAL_INGAME);
+				SetPlayerSurvival(Player->GetCid(), SURVIVAL_INGAME);
 			}
 		}
 		m_survival_start_players = CountSurvivalPlayers(true); // all should be alive at game start. But in case we implment a afk state it should only count the active ones.
@@ -348,39 +348,39 @@ void CGameContext::SurvivalSetGameState(int state)
 
 bool CGameContext::SurvivalPickWinner()
 {
-	int winnerID = -1;
+	int winnerId = -1;
 	for(auto &Player : m_apPlayers)
 	{
 		if(Player && Player->m_IsSurvivaling && Player->m_IsSurvivalAlive)
 		{
-			winnerID = Player->GetCID();
+			winnerId = Player->GetCid();
 			break;
 		}
 	}
-	if(winnerID == -1)
+	if(winnerId == -1)
 	{
 		return false;
 	}
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(winnerID));
+	str_format(aBuf, sizeof(aBuf), "[SURVIVAL] '%s' won the game!", Server()->ClientName(winnerId));
 	SendChatSurvival(aBuf);
 	SendBroadcastSurvival(aBuf);
-	m_apPlayers[winnerID]->m_IsSurvivalWinner = true;
+	m_apPlayers[winnerId]->m_IsSurvivalWinner = true;
 
-	if(m_apPlayers[winnerID]->IsLoggedIn())
+	if(m_apPlayers[winnerId]->IsLoggedIn())
 	{
-		SendChatTarget(winnerID, "[SURVIVAL] you won! [+50xp] [+50money]");
-		m_apPlayers[winnerID]->MoneyTransaction(+50, "survival win");
-		m_apPlayers[winnerID]->GiveXP(50);
+		SendChatTarget(winnerId, "[SURVIVAL] you won! [+50xp] [+50money]");
+		m_apPlayers[winnerId]->MoneyTransaction(+50, "survival win");
+		m_apPlayers[winnerId]->GiveXP(50);
 	}
 	else
 	{
-		SendChatTarget(winnerID, "[SURVIVAL] you won!");
+		SendChatTarget(winnerId, "[SURVIVAL] you won!");
 	}
 
-	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerID), sizeof(m_aLastSurvivalWinnerName));
-	m_apPlayers[winnerID]->m_Account.m_SurvivalWins++;
-	m_apPlayers[winnerID]->m_Account.m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
-	SetPlayerSurvival(winnerID, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
+	str_copy(m_aLastSurvivalWinnerName, Server()->ClientName(winnerId), sizeof(m_aLastSurvivalWinnerName));
+	m_apPlayers[winnerId]->m_Account.m_SurvivalWins++;
+	m_apPlayers[winnerId]->m_Account.m_SurvivalDeaths--; //hacky method too keep deaths the same (because they get incremented in the next step)
+	SetPlayerSurvival(winnerId, 3); //also set winner to dead now so that he can see names in lobby and respawns in lobby
 	return true;
 }

@@ -54,7 +54,7 @@ int CPlant::IsCharacterNear()
 		CCharacter *pChr = apEnts[i];
 
 		if(pChr && pChr->IsAlive())
-			return pChr->GetPlayer()->GetCID();
+			return pChr->GetPlayer()->GetCid();
 	}
 
 	return -1;
@@ -77,10 +77,10 @@ void CPlant::Harvest()
 {
 #if defined(CONF_DEBUG)
 #endif
-	int CharID = IsCharacterNear();
-	if(CharID != -1)
+	int CharId = IsCharacterNear();
+	if(CharId != -1)
 	{
-		CCharacter *pChr = GameServer()->GetPlayerChar(CharID);
+		CCharacter *pChr = GameServer()->GetPlayerChar(CharId);
 		pChr->m_CanHarvestPlant = true;
 
 		if(!pChr->m_HarvestPlant)
@@ -144,7 +144,7 @@ void CPlant::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
-	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, GetID(), sizeof(CNetObj_Projectile)));
+	CNetObj_Projectile *pProj = static_cast<CNetObj_Projectile *>(Server()->SnapNewItem(NETOBJTYPE_PROJECTILE, GetId(), sizeof(CNetObj_Projectile)));
 	if(!pProj)
 		return;
 
