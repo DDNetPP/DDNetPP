@@ -100,7 +100,7 @@ float IGameController::EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos, int DDTeam)
 	for(; pC; pC = (CCharacter *)pC->TypeNext())
 	{
 		// ignore players in other teams
-		if(GameServer()->GetDDRaceTeam(pC->GetPlayer()->GetCID()) != DDTeam)
+		if(GameServer()->GetDDRaceTeam(pC->GetPlayer()->GetCid()) != DDTeam)
 			continue;
 
 		float d = distance(Pos, pC->m_Pos);
@@ -451,13 +451,13 @@ bool IGameController::OnEntity(int Index, int x, int y, int Layer, int Flags, bo
 
 void IGameController::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 {
-	int ClientID = pPlayer->GetCID();
+	int ClientId = pPlayer->GetCid();
 	pPlayer->Respawn();
 
-	if(!Server()->ClientPrevIngame(ClientID))
+	if(!Server()->ClientPrevIngame(ClientId))
 	{
 		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), pPlayer->GetTeam());
+		str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientId, Server()->ClientName(ClientId), pPlayer->GetTeam());
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 	}
 }
@@ -465,8 +465,8 @@ void IGameController::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pReason, bool Silent)
 {
 	pPlayer->OnDisconnect();
-	int ClientID = pPlayer->GetCID();
-	if(Server()->ClientIngame(ClientID))
+	int ClientId = pPlayer->GetCid();
+	if(Server()->ClientIngame(ClientId))
 	{
 		char aBuf[512];
 		if(!Silent)
@@ -484,7 +484,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 			}
 		}
 
-		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientID, Server()->ClientName(ClientID));
+		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", ClientId, Server()->ClientName(ClientId));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 	}
 	pPlayer->OnDisconnectDDPP();
@@ -560,7 +560,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 void IGameController::OnCharacterSpawn(class CCharacter *pChr)
 {
 	pChr->SetTeams(&Teams());
-	Teams().OnCharacterSpawn(pChr->GetPlayer()->GetCID());
+	Teams().OnCharacterSpawn(pChr->GetPlayer()->GetCid());
 
 	// default health
 	pChr->IncreaseHealth(10);
@@ -618,7 +618,7 @@ bool IGameController::IsForceBalanced()
 	return false;
 }
 
-bool IGameController::CanBeMovedOnBalance(int ClientID)
+bool IGameController::CanBeMovedOnBalance(int ClientId)
 {
 	return true;
 }
@@ -792,12 +792,12 @@ void IGameController::Snap(int SnappingClient)
 	GameServer()->SnapSwitchers(SnappingClient);
 }
 
-int IGameController::GetAutoTeam(int NotThisID)
+int IGameController::GetAutoTeam(int NotThisId)
 {
 	int aNumplayers[2] = {0, 0};
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(GameServer()->m_apPlayers[i] && i != NotThisID)
+		if(GameServer()->m_apPlayers[i] && i != NotThisId)
 		{
 			if(GameServer()->m_apPlayers[i]->GetTeam() >= TEAM_RED && GameServer()->m_apPlayers[i]->GetTeam() <= TEAM_BLUE)
 				aNumplayers[GameServer()->m_apPlayers[i]->GetTeam()]++;
@@ -806,14 +806,14 @@ int IGameController::GetAutoTeam(int NotThisID)
 
 	int Team = 0;
 
-	if(CanJoinTeam(Team, NotThisID, nullptr, 0))
+	if(CanJoinTeam(Team, NotThisId, nullptr, 0))
 		return Team;
 	return -1;
 }
 
-bool IGameController::CanJoinTeam(int Team, int NotThisID, char *pErrorReason, int ErrorReasonSize)
+bool IGameController::CanJoinTeam(int Team, int NotThisId, char *pErrorReason, int ErrorReasonSize)
 {
-	const CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisID];
+	const CPlayer *pPlayer = GameServer()->m_apPlayers[NotThisId];
 	if(pPlayer && pPlayer->IsPaused())
 	{
 		if(pErrorReason)
@@ -826,7 +826,7 @@ bool IGameController::CanJoinTeam(int Team, int NotThisID, char *pErrorReason, i
 	int aNumplayers[2] = {0, 0};
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		if(GameServer()->m_apPlayers[i] && i != NotThisID)
+		if(GameServer()->m_apPlayers[i] && i != NotThisId)
 		{
 			if(GameServer()->m_apPlayers[i]->GetTeam() >= TEAM_RED && GameServer()->m_apPlayers[i]->GetTeam() <= TEAM_BLUE)
 				aNumplayers[GameServer()->m_apPlayers[i]->GetTeam()]++;
@@ -899,12 +899,12 @@ int IGameController::ClampTeam(int Team)
 	return 0;
 }
 
-CClientMask IGameController::GetMaskForPlayerWorldEvent(int Asker, int ExceptID)
+CClientMask IGameController::GetMaskForPlayerWorldEvent(int Asker, int ExceptId)
 {
 	if(Asker == -1)
-		return CClientMask().set().reset(ExceptID);
+		return CClientMask().set().reset(ExceptId);
 
-	return Teams().TeamMask(GameServer()->GetDDRaceTeam(Asker), ExceptID, Asker);
+	return Teams().TeamMask(GameServer()->GetDDRaceTeam(Asker), ExceptId, Asker);
 }
 
 void IGameController::InitTeleporter()
@@ -939,17 +939,17 @@ void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)
 		return;
 
 	pPlayer->SetTeam(Team);
-	int ClientID = pPlayer->GetCID();
+	int ClientId = pPlayer->GetCid();
 
 	char aBuf[128];
 	DoChatMsg = false;
 	if(DoChatMsg)
 	{
-		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(ClientID), GameServer()->m_pController->GetTeamName(Team));
+		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(ClientId), GameServer()->m_pController->GetTeamName(Team));
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 	}
 
-	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", ClientID, Server()->ClientName(ClientID), Team);
+	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", ClientId, Server()->ClientName(ClientId), Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	// OnPlayerInfoChange(pPlayer);

@@ -11,7 +11,7 @@
 #include "player.h"
 #include "score.h"
 
-bool CheckClientID(int ClientID);
+bool CheckClientId(int ClientId);
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 {
@@ -86,15 +86,15 @@ void CGameContext::ConInfo(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConList(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	int ClientID = pResult->m_ClientID;
-	if(!CheckClientID(ClientID))
+	int ClientId = pResult->m_ClientId;
+	if(!CheckClientId(ClientId))
 		return;
 
 	char zerochar = 0;
 	if(pResult->NumArguments() > 0)
-		pSelf->List(ClientID, pResult->GetString(0));
+		pSelf->List(ClientId, pResult->GetString(0));
 	else
-		pSelf->List(ClientID, &zerochar);
+		pSelf->List(ClientId, &zerochar);
 }
 
 void CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
@@ -300,12 +300,12 @@ void CGameContext::ConRules(IConsole::IResult *pResult, void *pUserData)
 
 void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
 {
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	IServer *pServ = pSelf->Server();
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -318,7 +318,7 @@ void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
 	}
 	else if(pResult->NumArguments() > 0)
 	{
-		if(-PauseState == PauseType && pPlayer->m_SpectatorID != pResult->m_ClientID && pServ->ClientIngame(pPlayer->m_SpectatorID) && !str_comp(pServ->ClientName(pPlayer->m_SpectatorID), pResult->GetString(0)))
+		if(-PauseState == PauseType && pPlayer->m_SpectatorId != pResult->m_ClientId && pServ->ClientIngame(pPlayer->m_SpectatorId) && !str_comp(pServ->ClientName(pPlayer->m_SpectatorId), pResult->GetString(0)))
 		{
 			pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 		}
@@ -340,11 +340,11 @@ void ToggleSpecPause(IConsole::IResult *pResult, void *pUserData, int PauseType)
 
 void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int PauseType)
 {
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -360,9 +360,9 @@ void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int Pause
 
 	bool IsPlayerBeingVoted = pSelf->m_VoteCloseTime &&
 				  (pSelf->IsKickVote() || pSelf->IsSpecVote()) &&
-				  pResult->m_ClientID != pSelf->m_VoteVictim;
+				  pResult->m_ClientId != pSelf->m_VoteVictim;
 	if((!IsPlayerBeingVoted && -PauseState == PauseType) ||
-		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorID == pSelf->m_VoteVictim))
+		(IsPlayerBeingVoted && PauseState && pPlayer->m_SpectatorId == pSelf->m_VoteVictim))
 	{
 		pPlayer->Pause(CPlayer::PAUSE_NONE, false);
 	}
@@ -370,7 +370,7 @@ void ToggleSpecPauseVoted(IConsole::IResult *pResult, void *pUserData, int Pause
 	{
 		pPlayer->Pause(PauseType, false);
 		if(IsPlayerBeingVoted)
-			pPlayer->m_SpectatorID = pSelf->m_VoteVictim;
+			pPlayer->m_SpectatorId = pSelf->m_VoteVictim;
 	}
 }
 
@@ -397,7 +397,7 @@ void CGameContext::ConTogglePauseVoted(IConsole::IResult *pResult, void *pUserDa
 void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvHideScore)
@@ -409,28 +409,28 @@ void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() == 0)
 	{
-		pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, 1);
+		pSelf->Score()->ShowTeamTop5(pResult->m_ClientId, 1);
 	}
 	else if(pResult->NumArguments() == 1)
 	{
 		if(pResult->GetInteger(0) != 0)
 		{
-			pSelf->Score()->ShowTeamTop5(pResult->m_ClientID, pResult->GetInteger(0));
+			pSelf->Score()->ShowTeamTop5(pResult->m_ClientId, pResult->GetInteger(0));
 		}
 		else
 		{
 			const char *pRequestedName = (str_comp_nocase(pResult->GetString(0), "me") == 0) ?
-							     pSelf->Server()->ClientName(pResult->m_ClientID) :
+							     pSelf->Server()->ClientName(pResult->m_ClientId) :
 							     pResult->GetString(0);
-			pSelf->Score()->ShowPlayerTeamTop5(pResult->m_ClientID, pRequestedName, 0);
+			pSelf->Score()->ShowPlayerTeamTop5(pResult->m_ClientId, pRequestedName, 0);
 		}
 	}
 	else if(pResult->NumArguments() == 2 && pResult->GetInteger(1) != 0)
 	{
 		const char *pRequestedName = (str_comp_nocase(pResult->GetString(0), "me") == 0) ?
-						     pSelf->Server()->ClientName(pResult->m_ClientID) :
+						     pSelf->Server()->ClientName(pResult->m_ClientId) :
 						     pResult->GetString(0);
-		pSelf->Score()->ShowPlayerTeamTop5(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
+		pSelf->Score()->ShowPlayerTeamTop5(pResult->m_ClientId, pRequestedName, pResult->GetInteger(1));
 	}
 	else
 	{
@@ -443,7 +443,7 @@ void CGameContext::ConTeamTop5(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConTop(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvHideScore)
@@ -454,41 +454,41 @@ void CGameContext::ConTop(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	if(pResult->NumArguments() > 0)
-		pSelf->Score()->ShowTop(pResult->m_ClientID, pResult->GetInteger(0));
+		pSelf->Score()->ShowTop(pResult->m_ClientId, pResult->GetInteger(0));
 	else
-		pSelf->Score()->ShowTop(pResult->m_ClientID);
+		pSelf->Score()->ShowTop(pResult->m_ClientId);
 }
 
 void CGameContext::ConTimes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(pResult->NumArguments() == 0)
 	{
-		pSelf->Score()->ShowTimes(pResult->m_ClientID, 1);
+		pSelf->Score()->ShowTimes(pResult->m_ClientId, 1);
 	}
 	else if(pResult->NumArguments() == 1)
 	{
 		if(pResult->GetInteger(0) != 0)
 		{
-			pSelf->Score()->ShowTimes(pResult->m_ClientID, pResult->GetInteger(0));
+			pSelf->Score()->ShowTimes(pResult->m_ClientId, pResult->GetInteger(0));
 		}
 		else
 		{
 			const char *pRequestedName = (str_comp_nocase(pResult->GetString(0), "me") == 0) ?
-							     pSelf->Server()->ClientName(pResult->m_ClientID) :
+							     pSelf->Server()->ClientName(pResult->m_ClientId) :
 							     pResult->GetString(0);
-			pSelf->Score()->ShowTimes(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
+			pSelf->Score()->ShowTimes(pResult->m_ClientId, pRequestedName, pResult->GetInteger(1));
 		}
 	}
 	else if(pResult->NumArguments() == 2 && pResult->GetInteger(1) != 0)
 	{
 		const char *pRequestedName = (str_comp_nocase(pResult->GetString(0), "me") == 0) ?
-						     pSelf->Server()->ClientName(pResult->m_ClientID) :
+						     pSelf->Server()->ClientName(pResult->m_ClientId) :
 						     pResult->GetString(0);
-		pSelf->Score()->ShowTimes(pResult->m_ClientID, pRequestedName, pResult->GetInteger(1));
+		pSelf->Score()->ShowTimes(pResult->m_ClientId, pRequestedName, pResult->GetInteger(1));
 	}
 	else
 	{
@@ -501,10 +501,10 @@ void CGameContext::ConTimes(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConDND(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -523,7 +523,7 @@ void CGameContext::ConDND(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvMapVote == 0)
@@ -539,55 +539,55 @@ void CGameContext::ConMap(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
-	if(pSelf->RateLimitPlayerVote(pResult->m_ClientID) || pSelf->RateLimitPlayerMapVote(pResult->m_ClientID))
+	if(pSelf->RateLimitPlayerVote(pResult->m_ClientId) || pSelf->RateLimitPlayerMapVote(pResult->m_ClientId))
 		return;
 
-	pSelf->Score()->MapVote(pResult->m_ClientID, pResult->GetString(0));
+	pSelf->Score()->MapVote(pResult->m_ClientId, pResult->GetString(0));
 }
 
 void CGameContext::ConMapInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
 	if(pResult->NumArguments() > 0)
-		pSelf->Score()->MapInfo(pResult->m_ClientID, pResult->GetString(0));
+		pSelf->Score()->MapInfo(pResult->m_ClientId, pResult->GetString(0));
 	else
-		pSelf->Score()->MapInfo(pResult->m_ClientID, g_Config.m_SvMap);
+		pSelf->Score()->MapInfo(pResult->m_ClientId, g_Config.m_SvMap);
 }
 
 void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
 	const char *pTimeout = pResult->NumArguments() > 0 ? pResult->GetString(0) : pPlayer->m_aTimeoutCode;
 
-	if(!pSelf->Server()->IsSixup(pResult->m_ClientID))
+	if(!pSelf->Server()->IsSixup(pResult->m_ClientId))
 	{
 		for(int i = 0; i < pSelf->Server()->MaxClients(); i++)
 		{
-			if(i == pResult->m_ClientID)
+			if(i == pResult->m_ClientId)
 				continue;
 			if(!pSelf->m_apPlayers[i])
 				continue;
 			if(str_comp(pSelf->m_apPlayers[i]->m_aTimeoutCode, pTimeout))
 				continue;
-			if(pSelf->Server()->SetTimedOut(i, pResult->m_ClientID))
+			if(pSelf->Server()->SetTimedOut(i, pResult->m_ClientId))
 			{
 				if(pSelf->m_apPlayers[i]->GetCharacter())
 					pSelf->SendTuningParams(i, pSelf->m_apPlayers[i]->GetCharacter()->m_TuneZone);
@@ -601,21 +601,21 @@ void CGameContext::ConTimeout(IConsole::IResult *pResult, void *pUserData)
 			"Your timeout code has been set. 0.7 clients can not reclaim their tees on timeout; however, a 0.6 client can claim your tee ");
 	}
 
-	pSelf->Server()->SetTimeoutProtected(pResult->m_ClientID);
+	pSelf->Server()->SetTimeoutProtected(pResult->m_ClientId);
 	str_copy(pPlayer->m_aTimeoutCode, pResult->GetString(0), sizeof(pPlayer->m_aTimeoutCode));
 }
 
 void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientId, false))
 		return;
 
 	if(!g_Config.m_SvPractice)
@@ -629,7 +629,7 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
 
-	int Team = Teams.m_Core.Team(pResult->m_ClientID);
+	int Team = Teams.m_Core.Team(pResult->m_ClientId);
 
 	if(Team < TEAM_FLOCK || (Team == TEAM_FLOCK && g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO) || Team >= TEAM_SUPER)
 	{
@@ -673,7 +673,7 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 	int NumRequiredVotes = TeamSize / 2 + 1;
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "'%s' voted to %s /practice mode for your team, which means you can use /r, but you can't earn a rank. Type /practice to vote (%d/%d required votes)", pSelf->Server()->ClientName(pResult->m_ClientID), VotedForPractice ? "enable" : "disable", NumCurrentVotes, NumRequiredVotes);
+	str_format(aBuf, sizeof(aBuf), "'%s' voted to %s /practice mode for your team, which means you can use /r, but you can't earn a rank. Type /practice to vote (%d/%d required votes)", pSelf->Server()->ClientName(pResult->m_ClientId), VotedForPractice ? "enable" : "disable", NumCurrentVotes, NumRequiredVotes);
 	pSelf->SendChatTeam(Team, aBuf);
 
 	if(NumCurrentVotes >= NumRequiredVotes)
@@ -688,10 +688,10 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	const char *pName = pResult->GetString(0);
 
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -706,7 +706,7 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
 
-	int Team = Teams.m_Core.Team(pResult->m_ClientID);
+	int Team = Teams.m_Core.Team(pResult->m_ClientId);
 
 	if(Team < TEAM_FLOCK || Team >= TEAM_SUPER)
 	{
@@ -734,7 +734,7 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 		int TeamSize = 1;
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-			if(pSelf->m_apPlayers[i] && Teams.m_Core.Team(i) == Team && i != pResult->m_ClientID)
+			if(pSelf->m_apPlayers[i] && Teams.m_Core.Team(i) == Team && i != pResult->m_ClientId)
 			{
 				TargetClientId = i;
 				TeamSize++;
@@ -750,7 +750,7 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(TargetClientId == pResult->m_ClientID)
+	if(TargetClientId == pResult->m_ClientId)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Can't swap with yourself");
 		return;
@@ -779,16 +779,16 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Need to have started the map to swap with a player.");
 		return;
 	}
-	if(pSelf->m_World.m_Core.m_apCharacters[pResult->m_ClientID] == nullptr || pSelf->m_World.m_Core.m_apCharacters[TargetClientId] == nullptr)
+	if(pSelf->m_World.m_Core.m_apCharacters[pResult->m_ClientId] == nullptr || pSelf->m_World.m_Core.m_apCharacters[TargetClientId] == nullptr)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You and the other player must not be paused.");
 		return;
 	}
 
-	bool SwapPending = pSwapPlayer->m_SwapTargetsClientID != pResult->m_ClientID;
+	bool SwapPending = pSwapPlayer->m_SwapTargetsClientId != pResult->m_ClientId;
 	if(SwapPending)
 	{
-		if(pSelf->ProcessSpamProtection(pResult->m_ClientID))
+		if(pSelf->ProcessSpamProtection(pResult->m_ClientId))
 			return;
 
 		Teams.RequestTeamSwap(pPlayer, pSwapPlayer, Team);
@@ -801,12 +801,12 @@ void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(!g_Config.m_SvSaveGames)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Save-function is disabled on this server");
+		pSelf->SendChatTarget(pResult->m_ClientId, "Save-function is disabled on this server");
 		return;
 	}
 
@@ -814,37 +814,37 @@ void CGameContext::ConSave(IConsole::IResult *pResult, void *pUserData)
 	if(pResult->NumArguments() > 0)
 		pCode = pResult->GetString(0);
 
-	pSelf->Score()->SaveTeam(pResult->m_ClientID, pCode, g_Config.m_SvSqlServerName);
+	pSelf->Score()->SaveTeam(pResult->m_ClientId, pCode, g_Config.m_SvSqlServerName);
 }
 
 void CGameContext::ConLoad(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(!g_Config.m_SvSaveGames)
 	{
-		pSelf->SendChatTarget(pResult->m_ClientID, "Save-function is disabled on this server");
+		pSelf->SendChatTarget(pResult->m_ClientId, "Save-function is disabled on this server");
 		return;
 	}
 
 	if(pResult->NumArguments() > 0)
-		pSelf->Score()->LoadTeam(pResult->GetString(0), pResult->m_ClientID);
+		pSelf->Score()->LoadTeam(pResult->GetString(0), pResult->m_ClientId);
 	else
-		pSelf->Score()->GetSaves(pResult->m_ClientID);
+		pSelf->Score()->GetSaves(pResult->m_ClientId);
 }
 
 void CGameContext::ConTeamRank(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(pResult->NumArguments() > 0)
 	{
 		if(!g_Config.m_SvHideScore)
-			pSelf->Score()->ShowTeamRank(pResult->m_ClientID, pResult->GetString(0));
+			pSelf->Score()->ShowTeamRank(pResult->m_ClientId, pResult->GetString(0));
 		else
 			pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
@@ -852,20 +852,20 @@ void CGameContext::ConTeamRank(IConsole::IResult *pResult, void *pUserData)
 				"Showing the team rank of other players is not allowed on this server.");
 	}
 	else
-		pSelf->Score()->ShowTeamRank(pResult->m_ClientID,
-			pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->Score()->ShowTeamRank(pResult->m_ClientId,
+			pSelf->Server()->ClientName(pResult->m_ClientId));
 }
 
 void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(pResult->NumArguments() > 0)
 	{
 		if(!g_Config.m_SvHideScore)
-			pSelf->Score()->ShowRank(pResult->m_ClientID, pResult->GetString(0));
+			pSelf->Score()->ShowRank(pResult->m_ClientId, pResult->GetString(0));
 		else
 			pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
@@ -873,14 +873,14 @@ void CGameContext::ConRank(IConsole::IResult *pResult, void *pUserData)
 				"Showing the rank of other players is not allowed on this server.");
 	}
 	else
-		pSelf->Score()->ShowRank(pResult->m_ClientID,
-			pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->Score()->ShowRank(pResult->m_ClientId,
+			pSelf->Server()->ClientName(pResult->m_ClientId));
 }
 
 void CGameContext::ConLock(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
@@ -890,7 +890,7 @@ void CGameContext::ConLock(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 
 	bool Lock = pSelf->m_pController->Teams().TeamLocked(Team);
 
@@ -906,19 +906,19 @@ void CGameContext::ConLock(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientId, false))
 		return;
 
 	char aBuf[512];
 	if(Lock)
 	{
-		pSelf->UnlockTeam(pResult->m_ClientID, Team);
+		pSelf->UnlockTeam(pResult->m_ClientId, Team);
 	}
 	else
 	{
 		pSelf->m_pController->Teams().SetTeamLock(Team, true);
 
-		str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race starts, killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientID));
+		str_format(aBuf, sizeof(aBuf), "'%s' locked your team. After the race starts, killing will kill everyone in your team.", pSelf->Server()->ClientName(pResult->m_ClientId));
 		pSelf->SendChatTeam(Team, aBuf);
 	}
 }
@@ -926,7 +926,7 @@ void CGameContext::ConLock(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConUnlock(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
@@ -936,33 +936,33 @@ void CGameContext::ConUnlock(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 
 	if(Team <= TEAM_FLOCK || Team >= TEAM_SUPER)
 		return;
 
-	if(pSelf->ProcessSpamProtection(pResult->m_ClientID, false))
+	if(pSelf->ProcessSpamProtection(pResult->m_ClientId, false))
 		return;
 
-	pSelf->UnlockTeam(pResult->m_ClientID, Team);
+	pSelf->UnlockTeam(pResult->m_ClientId, Team);
 }
 
-void CGameContext::UnlockTeam(int ClientID, int Team) const
+void CGameContext::UnlockTeam(int ClientId, int Team) const
 {
 	m_pController->Teams().SetTeamLock(Team, false);
 
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "'%s' unlocked your team.", Server()->ClientName(ClientID));
+	str_format(aBuf, sizeof(aBuf), "'%s' unlocked your team.", Server()->ClientName(ClientId));
 	SendChatTeam(Team, aBuf);
 }
 
-void CGameContext::AttemptJoinTeam(int ClientID, int Team)
+void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 {
-	CPlayer *pPlayer = m_apPlayers[ClientID];
+	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 
-	if(m_VoteCloseTime && m_VoteCreator == ClientID && (IsKickVote() || IsSpecVote()))
+	if(m_VoteCloseTime && m_VoteCreator == ClientId && (IsKickVote() || IsSpecVote()))
 	{
 		Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1000,7 +1000,7 @@ void CGameContext::AttemptJoinTeam(int ClientID, int Team)
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 				"You can\'t change teams that fast!");
 		}
-		else if(Team > 0 && Team < MAX_CLIENTS && m_pController->Teams().TeamLocked(Team) && !m_pController->Teams().IsInvited(Team, ClientID))
+		else if(Team > 0 && Team < MAX_CLIENTS && m_pController->Teams().TeamLocked(Team) && !m_pController->Teams().IsInvited(Team, ClientId))
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 				g_Config.m_SvInvite ?
@@ -1013,7 +1013,7 @@ void CGameContext::AttemptJoinTeam(int ClientID, int Team)
 			str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvMaxTeamSize);
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 		}
-		else if(const char *pError = m_pController->Teams().SetCharacterTeam(pPlayer->GetCID(), Team))
+		else if(const char *pError = m_pController->Teams().SetCharacterTeam(pPlayer->GetCid(), Team))
 		{
 			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", pError);
 		}
@@ -1021,13 +1021,13 @@ void CGameContext::AttemptJoinTeam(int ClientID, int Team)
 		{
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "'%s' joined team %d",
-				Server()->ClientName(pPlayer->GetCID()),
+				Server()->ClientName(pPlayer->GetCid()),
 				Team);
 			SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			pPlayer->m_Last_Team = Server()->Tick();
 
 			if(m_pController->Teams().IsPractice(Team))
-				SendChatTarget(pPlayer->GetCID(), "Practice mode enabled for your team, happy practicing!");
+				SendChatTarget(pPlayer->GetCid(), "Practice mode enabled for your team, happy practicing!");
 		}
 	}
 }
@@ -1051,7 +1051,7 @@ void CGameContext::ConInvite(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	int Team = pController->Teams().m_Core.Team(pResult->m_ClientID);
+	int Team = pController->Teams().m_Core.Team(pResult->m_ClientId);
 	if(Team > TEAM_FLOCK && Team < TEAM_SUPER)
 	{
 		int Target = -1;
@@ -1076,20 +1076,20 @@ void CGameContext::ConInvite(IConsole::IResult *pResult, void *pUserData)
 			return;
 		}
 
-		if(pSelf->m_apPlayers[pResult->m_ClientID] && pSelf->m_apPlayers[pResult->m_ClientID]->m_LastInvited + g_Config.m_SvInviteFrequency * pSelf->Server()->TickSpeed() > pSelf->Server()->Tick())
+		if(pSelf->m_apPlayers[pResult->m_ClientId] && pSelf->m_apPlayers[pResult->m_ClientId]->m_LastInvited + g_Config.m_SvInviteFrequency * pSelf->Server()->TickSpeed() > pSelf->Server()->Tick())
 		{
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Can't invite this quickly");
 			return;
 		}
 
 		pController->Teams().SetClientInvited(Team, Target, true);
-		pSelf->m_apPlayers[pResult->m_ClientID]->m_LastInvited = pSelf->Server()->Tick();
+		pSelf->m_apPlayers[pResult->m_ClientId]->m_LastInvited = pSelf->Server()->Tick();
 
 		char aBuf[512];
-		str_format(aBuf, sizeof(aBuf), "'%s' invited you to team %d. Use /team %d to join.", pSelf->Server()->ClientName(pResult->m_ClientID), Team, Team);
+		str_format(aBuf, sizeof(aBuf), "'%s' invited you to team %d. Use /team %d to join.", pSelf->Server()->ClientName(pResult->m_ClientId), Team, Team);
 		pSelf->SendChatTarget(Target, aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "'%s' invited '%s' to your team.", pSelf->Server()->ClientName(pResult->m_ClientID), pSelf->Server()->ClientName(Target));
+		str_format(aBuf, sizeof(aBuf), "'%s' invited '%s' to your team.", pSelf->Server()->ClientName(pResult->m_ClientId), pSelf->Server()->ClientName(Target));
 		pSelf->SendChatTeam(Team, aBuf);
 	}
 	else
@@ -1099,16 +1099,16 @@ void CGameContext::ConInvite(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
 	if(pResult->NumArguments() > 0)
 	{
-		pSelf->AttemptJoinTeam(pResult->m_ClientID, pResult->GetInteger(0));
+		pSelf->AttemptJoinTeam(pResult->m_ClientId, pResult->GetInteger(0));
 	}
 	else
 	{
@@ -1126,7 +1126,7 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 				aBuf,
 				sizeof(aBuf),
 				"You are in team %d",
-				pSelf->GetDDRaceTeam(pResult->m_ClientID));
+				pSelf->GetDDRaceTeam(pResult->m_ClientId));
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", aBuf);
 		}
 	}
@@ -1166,16 +1166,16 @@ void CGameContext::ConTeam(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConMe(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	char aBuf[256 + 24];
 
 	str_format(aBuf, 256 + 24, "'%s' %s",
-		pSelf->Server()->ClientName(pResult->m_ClientID),
+		pSelf->Server()->ClientName(pResult->m_ClientId),
 		pResult->GetString(0));
 	if(g_Config.m_SvSlashMe)
-		pSelf->SendChat(-2, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientID);
+		pSelf->SendChat(-2, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientId);
 	else
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1197,10 +1197,10 @@ void CGameContext::ConSetEyeEmote(IConsole::IResult *pResult,
 	void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	if(pResult->NumArguments() == 0)
@@ -1237,10 +1237,10 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -1293,10 +1293,10 @@ void CGameContext::ConEyeEmote(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	if(pPlayer->m_Account.m_NinjaJetpackBought)
@@ -1324,10 +1324,10 @@ void CGameContext::ConNinjaJetpack(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	if(g_Config.m_SvShowOthers)
@@ -1347,10 +1347,10 @@ void CGameContext::ConShowOthers(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -1367,18 +1367,18 @@ void CGameContext::ConShowAll(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	if(pPlayer->m_ShowAll)
-		pSelf->SendChatTarget(pResult->m_ClientID, "You will now see all tees on this server, no matter the distance");
+		pSelf->SendChatTarget(pResult->m_ClientId, "You will now see all tees on this server, no matter the distance");
 	else
-		pSelf->SendChatTarget(pResult->m_ClientID, "You will no longer see all tees on this server");
+		pSelf->SendChatTarget(pResult->m_ClientId, "You will no longer see all tees on this server");
 }
 
 void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -1388,38 +1388,38 @@ void CGameContext::ConSpecTeam(IConsole::IResult *pResult, void *pUserData)
 		pPlayer->m_SpecTeam = !pPlayer->m_SpecTeam;
 }
 
-bool CheckClientID(int ClientID)
+bool CheckClientId(int ClientId)
 {
-	return ClientID >= 0 && ClientID < MAX_CLIENTS;
+	return ClientId >= 0 && ClientId < MAX_CLIENTS;
 }
 
 void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	int ClientID;
+	int ClientId;
 	char aBufName[MAX_NAME_LENGTH];
 
 	if(pResult->NumArguments() > 0)
 	{
-		for(ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientID)) == 0)
+		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
+			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
 				break;
 
-		if(ClientID == MAX_CLIENTS)
+		if(ClientId == MAX_CLIENTS)
 			return;
 
-		str_format(aBufName, sizeof(aBufName), "%s's", pSelf->Server()->ClientName(ClientID));
+		str_format(aBufName, sizeof(aBufName), "%s's", pSelf->Server()->ClientName(ClientId));
 	}
 	else
 	{
 		str_copy(aBufName, "Your", sizeof(aBufName));
-		ClientID = pResult->m_ClientID;
+		ClientId = pResult->m_ClientId;
 	}
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1439,10 +1439,10 @@ void CGameContext::ConSayTime(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1454,19 +1454,19 @@ void CGameContext::ConSayTimeAll(IConsole::IResult *pResult, void *pUserData)
 	char aBufTime[32];
 	char aBuf[64];
 	int64_t Time = (int64_t)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
-	const char *pName = pSelf->Server()->ClientName(pResult->m_ClientID);
+	const char *pName = pSelf->Server()->ClientName(pResult->m_ClientId);
 	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
 	str_format(aBuf, sizeof(aBuf), "%s\'s current race time is %s", pName, aBufTime);
-	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientID);
+	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientId);
 }
 
 void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1478,7 +1478,7 @@ void CGameContext::ConTime(IConsole::IResult *pResult, void *pUserData)
 	int64_t Time = (int64_t)100 * (float)(pSelf->Server()->Tick() - pChr->m_StartTime) / ((float)pSelf->Server()->TickSpeed());
 	str_time(Time, TIME_HOURS, aBufTime, sizeof(aBufTime));
 	str_format(aBuf, sizeof(aBuf), "Your time is %s", aBufTime);
-	pSelf->SendBroadcast(aBuf, pResult->m_ClientID);
+	pSelf->SendBroadcast(aBuf, pResult->m_ClientId);
 }
 
 static const char s_aaMsg[4][128] = {"game/round timer.", "broadcast.", "both game/round timer and broadcast.", "racetime."};
@@ -1487,10 +1487,10 @@ void CGameContext::ConSetTimerType(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
 
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
@@ -1524,7 +1524,7 @@ void CGameContext::ConSetTimerType(IConsole::IResult *pResult, void *pUserData)
 		}
 
 		if((OldType == CPlayer::TIMERTYPE_BROADCAST || OldType == CPlayer::TIMERTYPE_GAMETIMER_AND_BROADCAST) && (pPlayer->m_TimerType == CPlayer::TIMERTYPE_GAMETIMER || pPlayer->m_TimerType == CPlayer::TIMERTYPE_NONE))
-			pSelf->SendBroadcast("", pResult->m_ClientID);
+			pSelf->SendBroadcast("", pResult->m_ClientId);
 	}
 
 	if(pPlayer->m_TimerType <= CPlayer::TIMERTYPE_SIXUP && pPlayer->m_TimerType >= CPlayer::TIMERTYPE_GAMETIMER)
@@ -1538,9 +1538,9 @@ void CGameContext::ConSetTimerType(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1548,10 +1548,10 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!g_Config.m_SvRescue && !Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "Rescue is not enabled on this server and you're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Rescue is not enabled on this server and you're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1562,9 +1562,9 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pCallingPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pCallingPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pCallingPlayer)
 		return;
 	CCharacter *pCallingCharacter = pCallingPlayer->GetCharacter();
@@ -1572,10 +1572,10 @@ void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pCallingPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pCallingPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1589,19 +1589,19 @@ void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 	else
 	{
 		// Search for player with this name
-		int ClientID;
-		for(ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
+		int ClientId;
+		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
 		{
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientID)) == 0)
+			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
 				break;
 		}
-		if(ClientID == MAX_CLIENTS)
+		if(ClientId == MAX_CLIENTS)
 		{
-			pSelf->SendChatTarget(pCallingPlayer->GetCID(), "No player with this name found.");
+			pSelf->SendChatTarget(pCallingPlayer->GetCid(), "No player with this name found.");
 			return;
 		}
 
-		CPlayer *pDestPlayer = pSelf->m_apPlayers[ClientID];
+		CPlayer *pDestPlayer = pSelf->m_apPlayers[ClientId];
 		if(!pDestPlayer)
 			return;
 		CCharacter *pDestCharacter = pDestPlayer->GetCharacter();
@@ -1622,9 +1622,9 @@ void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pCallingPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pCallingPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pCallingPlayer)
 		return;
 	CCharacter *pCallingCharacter = pCallingPlayer->GetCharacter();
@@ -1632,10 +1632,10 @@ void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pCallingPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pCallingPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1643,7 +1643,7 @@ void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 
 	if(pResult->NumArguments() != 2)
 	{
-		pSelf->SendChatTarget(pCallingPlayer->GetCID(), "Can't recognize specified arguments. Usage: /tpxy x y, e.g. /tpxy 9 3.");
+		pSelf->SendChatTarget(pCallingPlayer->GetCid(), "Can't recognize specified arguments. Usage: /tpxy x y, e.g. /tpxy 9 3.");
 		return;
 	}
 	else
@@ -1677,12 +1677,12 @@ void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 
 		if(!DetermineCoordinateRelativity(pResult->GetString(0), pCallingPlayer->m_ViewPos.x, BaseX))
 		{
-			pSelf->SendChatTarget(pCallingPlayer->GetCID(), "Invalid X coordinate.");
+			pSelf->SendChatTarget(pCallingPlayer->GetCid(), "Invalid X coordinate.");
 			return;
 		}
 		if(!DetermineCoordinateRelativity(pResult->GetString(1), pCallingPlayer->m_ViewPos.y, BaseY))
 		{
-			pSelf->SendChatTarget(pCallingPlayer->GetCID(), "Invalid Y coordinate.");
+			pSelf->SendChatTarget(pCallingPlayer->GetCid(), "Invalid Y coordinate.");
 			return;
 		}
 
@@ -1699,9 +1699,9 @@ void CGameContext::ConTeleXY(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1709,10 +1709,10 @@ void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1723,18 +1723,18 @@ void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 	}
 	else if(pResult->NumArguments() > 0)
 	{
-		int ClientID;
-		for(ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
+		int ClientId;
+		for(ClientId = 0; ClientId < MAX_CLIENTS; ClientId++)
 		{
-			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientID)) == 0)
+			if(str_comp(pResult->GetString(0), pSelf->Server()->ClientName(ClientId)) == 0)
 				break;
 		}
-		if(ClientID == MAX_CLIENTS)
+		if(ClientId == MAX_CLIENTS)
 		{
-			pSelf->SendChatTarget(pPlayer->GetCID(), "No player with this name found.");
+			pSelf->SendChatTarget(pPlayer->GetCid(), "No player with this name found.");
 			return;
 		}
-		CPlayer *pPlayerTo = pSelf->m_apPlayers[ClientID];
+		CPlayer *pPlayerTo = pSelf->m_apPlayers[ClientId];
 		if(!pPlayerTo)
 			return;
 		CCharacter *pChrTo = pPlayerTo->GetCharacter();
@@ -1751,9 +1751,9 @@ void CGameContext::ConTeleCursor(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConLastTele(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1761,15 +1761,15 @@ void CGameContext::ConLastTele(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 	if(!pPlayer->m_LastTeleTee.GetPos().x)
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You haven't previously teleported. Use /tp before using this command.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You haven't previously teleported. Use /tp before using this command.");
 		return;
 	}
 	pPlayer->m_LastTeleTee.Load(pChr, pChr->Team(), true);
@@ -1779,9 +1779,9 @@ void CGameContext::ConLastTele(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConPracticeUnSolo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1790,15 +1790,15 @@ void CGameContext::ConPracticeUnSolo(IConsole::IResult *pResult, void *pUserData
 
 	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "Command is not available on solo servers");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Command is not available on solo servers");
 		return;
 	}
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1808,9 +1808,9 @@ void CGameContext::ConPracticeUnSolo(IConsole::IResult *pResult, void *pUserData
 void CGameContext::ConPracticeSolo(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1819,15 +1819,15 @@ void CGameContext::ConPracticeSolo(IConsole::IResult *pResult, void *pUserData)
 
 	if(g_Config.m_SvTeam == SV_TEAM_FORBIDDEN || g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO)
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "Command is not available on solo servers");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Command is not available on solo servers");
 		return;
 	}
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1837,9 +1837,9 @@ void CGameContext::ConPracticeSolo(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConPracticeUnDeep(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1847,10 +1847,10 @@ void CGameContext::ConPracticeUnDeep(IConsole::IResult *pResult, void *pUserData
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1861,9 +1861,9 @@ void CGameContext::ConPracticeUnDeep(IConsole::IResult *pResult, void *pUserData
 void CGameContext::ConPracticeDeep(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1871,10 +1871,10 @@ void CGameContext::ConPracticeDeep(IConsole::IResult *pResult, void *pUserData)
 		return;
 
 	CGameTeams &Teams = pSelf->m_pController->Teams();
-	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientID);
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
 	if(!Teams.IsPractice(Team))
 	{
-		pSelf->SendChatTarget(pPlayer->GetCID(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		pSelf->SendChatTarget(pPlayer->GetCid(), "You're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
 		return;
 	}
 
@@ -1884,9 +1884,9 @@ void CGameContext::ConPracticeDeep(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConProtectedKill(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 	CCharacter *pChr = pPlayer->GetCharacter();
@@ -1905,13 +1905,13 @@ void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 	if(((CGameContext *)pUserData)->DDPPPoints(pResult, pUserData))
 		return;
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(pResult->NumArguments() > 0)
 	{
 		if(!g_Config.m_SvHideScore)
-			pSelf->Score()->ShowPoints(pResult->m_ClientID, pResult->GetString(0));
+			pSelf->Score()->ShowPoints(pResult->m_ClientId, pResult->GetString(0));
 		else
 			pSelf->Console()->Print(
 				IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1919,14 +1919,14 @@ void CGameContext::ConPoints(IConsole::IResult *pResult, void *pUserData)
 				"Showing the global points of other players is not allowed on this server.");
 	}
 	else
-		pSelf->Score()->ShowPoints(pResult->m_ClientID,
-			pSelf->Server()->ClientName(pResult->m_ClientID));
+		pSelf->Score()->ShowPoints(pResult->m_ClientId,
+			pSelf->Server()->ClientName(pResult->m_ClientId));
 }
 
 void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvHideScore)
@@ -1937,15 +1937,15 @@ void CGameContext::ConTopPoints(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	if(pResult->NumArguments() > 0)
-		pSelf->Score()->ShowTopPoints(pResult->m_ClientID, pResult->GetInteger(0));
+		pSelf->Score()->ShowTopPoints(pResult->m_ClientId, pResult->GetInteger(0));
 	else
-		pSelf->Score()->ShowTopPoints(pResult->m_ClientID);
+		pSelf->Score()->ShowTopPoints(pResult->m_ClientId);
 }
 
 void CGameContext::ConTimeCP(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
+	if(!CheckClientId(pResult->m_ClientId))
 		return;
 
 	if(g_Config.m_SvHideScore)
@@ -1955,10 +1955,10 @@ void CGameContext::ConTimeCP(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
 	if(!pPlayer)
 		return;
 
 	const char *pName = pResult->GetString(0);
-	pSelf->Score()->LoadPlayerData(pResult->m_ClientID, pName);
+	pSelf->Score()->LoadPlayerData(pResult->m_ClientId, pName);
 }
