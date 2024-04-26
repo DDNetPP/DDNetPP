@@ -28,7 +28,7 @@ void CUIElement::Init(CUi *pUI, int RequestedRectCount)
 
 void CUIElement::InitRects(int RequestedRectCount)
 {
-	dbg_assert(m_vUIRects.empty(), "Ui rects can only be initialized once, create another ui element instead.");
+	dbg_assert(m_vUIRects.empty(), "UI rects can only be initialized once, create another ui element instead.");
 	m_vUIRects.resize(RequestedRectCount);
 	for(auto &Rect : m_vUIRects)
 		Rect.m_pParent = this;
@@ -112,11 +112,6 @@ void CUi::Init(IKernel *pKernel)
 CUi::CUi()
 {
 	m_Enabled = true;
-
-	m_pHotItem = nullptr;
-	m_pActiveItem = nullptr;
-	m_pLastActiveItem = nullptr;
-	m_pBecomingHotItem = nullptr;
 
 	m_MouseX = 0;
 	m_MouseY = 0;
@@ -220,6 +215,8 @@ void CUi::Update(float MouseX, float MouseY, float MouseDeltaX, float MouseDelta
 	if(m_pActiveItem)
 		m_pHotItem = m_pActiveItem;
 	m_pBecomingHotItem = nullptr;
+	m_pHotScrollRegion = m_pBecomingHotScrollRegion;
+	m_pBecomingHotScrollRegion = nullptr;
 
 	if(Enabled())
 	{
@@ -231,6 +228,7 @@ void CUi::Update(float MouseX, float MouseY, float MouseDeltaX, float MouseDelta
 	{
 		m_pHotItem = nullptr;
 		m_pActiveItem = nullptr;
+		m_pHotScrollRegion = nullptr;
 	}
 }
 
@@ -804,7 +802,7 @@ bool CUi::DoEditBox(CLineInput *pLineInput, const CUIRect *pRect, float FontSize
 		SetHotItem(pLineInput);
 
 	if(Enabled() && Active && !JustGotActive)
-		pLineInput->Activate(EInputPriority::Ui);
+		pLineInput->Activate(EInputPriority::UI);
 	else
 		pLineInput->Deactivate();
 
@@ -1288,7 +1286,7 @@ float CUi::DoScrollbarH(const void *pId, const CUIRect *pRect, float Current, co
 	return ReturnValue;
 }
 
-void CUi::DoScrollbarOption(const void *pId, int *pOption, const CUIRect *pRect, const char *pStr, int Min, int Max, const IScrollbarScale *pScale, unsigned Flags, const char *pSuffix)
+bool CUi::DoScrollbarOption(const void *pId, int *pOption, const CUIRect *pRect, const char *pStr, int Min, int Max, const IScrollbarScale *pScale, unsigned Flags, const char *pSuffix)
 {
 	const bool Infinite = Flags & CUi::SCROLLBAR_OPTION_INFINITE;
 	const bool NoClampValue = Flags & CUi::SCROLLBAR_OPTION_NOCLAMPVALUE;
@@ -1334,7 +1332,12 @@ void CUi::DoScrollbarOption(const void *pId, int *pOption, const CUIRect *pRect,
 			Value = 0;
 	}
 
-	*pOption = Value;
+	if(*pOption != Value)
+	{
+		*pOption = Value;
+		return true;
+	}
+	return false;
 }
 
 void CUi::RenderProgressSpinner(vec2 Center, float OuterRadius, const SProgressSpinnerProperties &Props) const
@@ -1416,7 +1419,10 @@ void CUi::RenderPopupMenus()
 		const bool Active = i == m_vPopupMenus.size() - 1;
 
 		if(Active)
+		{
+			// Prevent UI elements below the popup menu from being activated.
 			SetHotItem(pId);
+		}
 
 		if(CheckActiveItem(pId))
 		{
@@ -1435,6 +1441,12 @@ void CUi::RenderPopupMenus()
 		{
 			if(MouseButton(0))
 				SetActiveItem(pId);
+		}
+
+		if(Inside)
+		{
+			// Prevent scroll regions directly behind popup menus from using the mouse scroll events.
+			SetHotScrollRegion(nullptr);
 		}
 
 		CUIRect PopupRect = PopupMenu.m_Rect;

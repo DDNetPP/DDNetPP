@@ -2357,6 +2357,7 @@ void CServer::UpdateRegisterServerInfo()
 		"},"
 		"\"version\":\"%s\","
 		"\"client_score_kind\":\"time\","
+		"\"requires_login\":false,"
 		"\"clients\":[",
 		MaxClients,
 		MaxPlayers,

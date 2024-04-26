@@ -7,6 +7,7 @@
 #include <engine/shared/protocol.h>
 
 #include <list>
+#include <map>
 #include <vector>
 
 enum
@@ -125,6 +126,10 @@ public:
 	class CLayers *Layers() { return m_pLayers; }
 	int m_HighestSwitchNumber;
 
+	const std::vector<vec2> &TeleIns(int Number) { return m_TeleIns[Number]; }
+	const std::vector<vec2> &TeleOuts(int Number) { return m_TeleOuts[Number]; }
+	const std::vector<vec2> &TeleCheckOuts(int Number) { return m_TeleCheckOuts[Number]; }
+
 	// DDNet++ start
 private:
 	int m_NumSurvivalSpawns;
@@ -134,6 +139,10 @@ public:
 	// DDNet++ end
 
 private:
+	std::map<int, std::vector<vec2>> m_TeleIns;
+	std::map<int, std::vector<vec2>> m_TeleOuts;
+	std::map<int, std::vector<vec2>> m_TeleCheckOuts;
+
 	class CTeleTile *m_pTele;
 	class CSpeedupTile *m_pSpeedup;
 	class CTile *m_pFront;

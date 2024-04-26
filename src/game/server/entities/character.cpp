@@ -849,7 +849,7 @@ void CCharacter::TickDeferred()
 	// advance the dummy
 	{
 		CWorldCore TempWorld;
-		m_ReckoningCore.Init(&TempWorld, Collision(), &Teams()->m_Core, m_pTeleOuts);
+		m_ReckoningCore.Init(&TempWorld, Collision(), &Teams()->m_Core);
 		m_ReckoningCore.m_Id = m_pPlayer->GetCid();
 		m_ReckoningCore.Tick(false);
 		m_ReckoningCore.Move();
@@ -933,7 +933,7 @@ void CCharacter::TickDeferred()
 		m_ReckoningCore.Write(&Predicted);
 		m_Core.Write(&Current);
 
-		// only allow dead reackoning for a top of 3 seconds
+		// only allow dead reckoning for a top of 3 seconds
 		if(m_Core.m_Reset || m_ReckoningTick + Server()->TickSpeed() * 3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
 		{
 			m_ReckoningTick = Server()->Tick();
@@ -1031,7 +1031,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 		m_pPlayer->m_MsgModeSpecial = ModeSpecial;
 		m_pPlayer->FixForNoName(2);
 	}
-	else if(SendKillMsg && (Team() == TEAM_FLOCK || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == CGameTeams::TEAMSTATE_OPEN || Teams()->TeamLocked(Team()) == false))
+	else if(SendKillMsg && (Team() == TEAM_FLOCK || Teams()->TeamFlock(Team()) || Teams()->Count(Team()) == 1 || Teams()->GetTeamState(Team()) == CGameTeams::TEAMSTATE_OPEN || !Teams()->TeamLocked(Team())))
 	{
 		CNetMsg_Sv_KillMsg Msg;
 		Msg.m_Killer = Killer;
@@ -1389,13 +1389,6 @@ int CCharacter::Team()
 	return Teams()->m_Core.Team(m_pPlayer->GetCid());
 }
 
-void CCharacter::SetTeleports(std::map<int, std::vector<vec2>> *pTeleOuts, std::map<int, std::vector<vec2>> *pTeleCheckOuts)
-{
-	m_pTeleOuts = pTeleOuts;
-	m_pTeleCheckOuts = pTeleCheckOuts;
-	m_Core.SetTeleOuts(pTeleOuts);
-}
-
 void CCharacter::FillAntibot(CAntibotCharacterData *pData)
 {
 	pData->m_Pos = m_Pos;
@@ -1541,7 +1534,7 @@ void CCharacter::SetTimeCheckpoint(int TimeCheckpoint)
 		if(m_pPlayer->GetClientVersion() >= VERSION_DDRACE)
 		{
 			CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCid());
-			if(pData->m_BestTime && pData->m_aBestTimeCp[m_LastTimeCp] != 0.0f)
+			if(pData->m_aBestTimeCp[m_LastTimeCp] != 0.0f)
 			{
 				CNetMsg_Sv_DDRaceTime Msg;
 				Msg.m_Time = (int)(m_Time * 100.0f);
@@ -1879,7 +1872,7 @@ void CCharacter::HandleTiles(int Index)
 
 		m_StartTime -= (min * 60 + sec) * Server()->TickSpeed();
 
-		if((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || Team != TEAM_FLOCK) && Team != TEAM_SUPER)
+		if((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || (Team != TEAM_FLOCK && !Teams()->TeamFlock(Team))) && Team != TEAM_SUPER)
 		{
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
@@ -1905,7 +1898,7 @@ void CCharacter::HandleTiles(int Index)
 		if(m_StartTime > Server()->Tick())
 			m_StartTime = Server()->Tick();
 
-		if((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || Team != TEAM_FLOCK) && Team != TEAM_SUPER)
+		if((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || (Team != TEAM_FLOCK && !Teams()->TeamFlock(Team))) && Team != TEAM_SUPER)
 		{
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
@@ -1933,12 +1926,12 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 	int z = Collision()->IsTeleport(MapIndex);
-	if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons && z && !(*m_pTeleOuts)[z - 1].empty())
+	if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons && z && !Collision()->TeleOuts(z - 1).empty())
 	{
 		if(m_Core.m_Super)
 			return;
-		int TeleOut = GameWorld()->m_Core.RandomOr0((*m_pTeleOuts)[z - 1].size());
-		m_Core.m_Pos = (*m_pTeleOuts)[z - 1][TeleOut];
+		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(z - 1).size());
+		m_Core.m_Pos = Collision()->TeleOuts(z - 1)[TeleOut];
 		if(!g_Config.m_SvTeleportHoldHook)
 		{
 			ResetHook();
@@ -1948,12 +1941,12 @@ void CCharacter::HandleTiles(int Index)
 		return;
 	}
 	int evilz = Collision()->IsEvilTeleport(MapIndex);
-	if(evilz && !(*m_pTeleOuts)[evilz - 1].empty())
+	if(evilz && !Collision()->TeleOuts(evilz - 1).empty())
 	{
 		if(m_Core.m_Super)
 			return;
-		int TeleOut = GameWorld()->m_Core.RandomOr0((*m_pTeleOuts)[evilz - 1].size());
-		m_Core.m_Pos = (*m_pTeleOuts)[evilz - 1][TeleOut];
+		int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleOuts(evilz - 1).size());
+		m_Core.m_Pos = Collision()->TeleOuts(evilz - 1)[TeleOut];
 		if(!g_Config.m_SvOldTeleportHook && !g_Config.m_SvOldTeleportWeapons)
 		{
 			m_Core.m_Vel = vec2(0, 0);
@@ -1977,10 +1970,10 @@ void CCharacter::HandleTiles(int Index)
 		// first check if there is a TeleCheckOut for the current recorded checkpoint, if not check previous checkpoints
 		for(int k = m_TeleCheckpoint - 1; k >= 0; k--)
 		{
-			if(!(*m_pTeleCheckOuts)[k].empty())
+			if(!Collision()->TeleCheckOuts(k).empty())
 			{
-				int TeleOut = GameWorld()->m_Core.RandomOr0((*m_pTeleCheckOuts)[k].size());
-				m_Core.m_Pos = (*m_pTeleCheckOuts)[k][TeleOut];
+				int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleCheckOuts(k).size());
+				m_Core.m_Pos = Collision()->TeleCheckOuts(k)[TeleOut];
 				m_Core.m_Vel = vec2(0, 0);
 
 				if(!g_Config.m_SvTeleportHoldHook)
@@ -2014,10 +2007,10 @@ void CCharacter::HandleTiles(int Index)
 		// first check if there is a TeleCheckOut for the current recorded checkpoint, if not check previous checkpoints
 		for(int k = m_TeleCheckpoint - 1; k >= 0; k--)
 		{
-			if(!(*m_pTeleCheckOuts)[k].empty())
+			if(!Collision()->TeleCheckOuts(k).empty())
 			{
-				int TeleOut = GameWorld()->m_Core.RandomOr0((*m_pTeleCheckOuts)[k].size());
-				m_Core.m_Pos = (*m_pTeleCheckOuts)[k][TeleOut];
+				int TeleOut = GameWorld()->m_Core.RandomOr0(Collision()->TeleCheckOuts(k).size());
+				m_Core.m_Pos = Collision()->TeleCheckOuts(k)[TeleOut];
 
 				if(!g_Config.m_SvTeleportHoldHook)
 				{
@@ -2281,7 +2274,7 @@ bool CCharacter::Freeze(int Seconds)
 	isFreezed = true;
 	if(Seconds <= 0 || m_Core.m_Super || m_FreezeTime > Seconds * Server()->TickSpeed())
 		return false;
-	if(m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed())
+	if(m_FreezeTime == 0 || m_Core.m_FreezeStart < Server()->Tick() - Server()->TickSpeed())
 	{
 		if(!m_WeaponsBackupped) //only save once
 		{
@@ -2370,6 +2363,12 @@ bool CCharacter::UnFreeze()
 	return false;
 }
 
+void CCharacter::ResetJumps()
+{
+	m_Core.m_JumpedTotal = 0;
+	m_Core.m_Jumped = 0;
+}
+
 bool CCharacter::GiveWeapon(int Weapon, bool Remove, int Ammo)
 {
 	if(Weapon == WEAPON_NINJA)
@@ -2445,12 +2444,17 @@ void CCharacter::Pause(bool Pause)
 			ResetHook();
 			GameWorld()->ReleaseHooked(GetPlayer()->GetCid());
 		}
+		m_PausedTick = Server()->Tick();
 	}
 	else
 	{
 		m_Core.m_Vel = vec2(0, 0);
 		GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCid()] = &m_Core;
 		GameServer()->m_World.InsertEntity(this);
+		if(m_Core.m_FreezeStart > 0 && m_PausedTick >= 0)
+		{
+			m_Core.m_FreezeStart += Server()->Tick() - m_PausedTick;
+		}
 	}
 }
 

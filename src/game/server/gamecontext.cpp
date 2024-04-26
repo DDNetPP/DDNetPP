@@ -894,7 +894,7 @@ void CGameContext::SendVoteSet(int ClientId)
 			Type = protocol7::VOTE_END_FAIL;
 		else if(m_VoteEnforce == VOTE_ENFORCE_YES || m_VoteEnforce == VOTE_ENFORCE_YES_ADMIN)
 			Type = protocol7::VOTE_END_PASS;
-		else if(m_VoteEnforce == VOTE_ENFORCE_ABORT)
+		else if(m_VoteEnforce == VOTE_ENFORCE_ABORT || m_VoteEnforce == VOTE_ENFORCE_CANCEL)
 			Type = protocol7::VOTE_END_ABORT;
 
 		if(m_VoteEnforce == VOTE_ENFORCE_NO_ADMIN || m_VoteEnforce == VOTE_ENFORCE_YES_ADMIN)
@@ -1130,6 +1130,13 @@ void CGameContext::OnTick()
 		if(m_VoteEnforce == VOTE_ENFORCE_ABORT)
 		{
 			SendChat(-1, CGameContext::CHAT_ALL, "Vote aborted");
+			EndVote();
+		}
+		else if(m_VoteEnforce == VOTE_ENFORCE_CANCEL)
+		{
+			char aBuf[64];
+			str_format(aBuf, sizeof(aBuf), "'%s' canceled their vote", Server()->ClientName(m_VoteCreator));
+			SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			EndVote();
 		}
 		else
@@ -1689,7 +1696,7 @@ void CGameContext::OnClientEnter(int ClientId, bool Silent)
 	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
 	NewClientInfoMsg.m_Silent = false;
 
-	for(int p = 0; p < 6; p++)
+	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
 		NewClientInfoMsg.m_apSkinPartNames[p] = pNewPlayer->m_TeeInfos.m_apSkinPartNames[p];
 		NewClientInfoMsg.m_aUseCustomColors[p] = pNewPlayer->m_TeeInfos.m_aUseCustomColors[p];
@@ -1719,7 +1726,7 @@ void CGameContext::OnClientEnter(int ClientId, bool Silent)
 			ClientInfoMsg.m_Country = Server()->ClientCountry(i);
 			ClientInfoMsg.m_Silent = 0;
 
-			for(int p = 0; p < 6; p++)
+			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 			{
 				ClientInfoMsg.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_apSkinPartNames[p];
 				ClientInfoMsg.m_aUseCustomColors[p] = pPlayer->m_TeeInfos.m_aUseCustomColors[p];
@@ -1988,7 +1995,7 @@ void *CGameContext::PreProcessMsg(int *pMsgId, CUnpacker *pUnpacker, int ClientI
 
 			protocol7::CNetMsg_Sv_SkinChange Msg;
 			Msg.m_ClientId = ClientId;
-			for(int p = 0; p < 6; p++)
+			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 			{
 				Msg.m_apSkinPartNames[p] = pMsg->m_apSkinPartNames[p];
 				Msg.m_aSkinPartColors[p] = pMsg->m_aSkinPartColors[p];
@@ -2549,6 +2556,13 @@ void CGameContext::OnVoteNetMessage(const CNetMsg_Cl_Vote *pMsg, int ClientId)
 	if(!pMsg->m_Vote)
 		return;
 
+	// Allow the vote creator to cancel the vote
+	if(pPlayer->GetCid() == m_VoteCreator && pMsg->m_Vote == -1)
+	{
+		m_VoteEnforce = VOTE_ENFORCE_CANCEL;
+		return;
+	}
+
 	pPlayer->m_Vote = pMsg->m_Vote;
 	pPlayer->m_VotePos = ++m_VotePos;
 	m_VoteUpdate = true;
@@ -2757,7 +2771,7 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 		Info.m_Silent = true;
 		Info.m_Team = pPlayer->GetTeam();
 
-		for(int p = 0; p < 6; p++)
+		for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 		{
 			Info.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_apSkinPartNames[p];
 			Info.m_aSkinPartColors[p] = pPlayer->m_TeeInfos.m_aSkinPartColors[p];
@@ -2777,7 +2791,7 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 	{
 		protocol7::CNetMsg_Sv_SkinChange Msg;
 		Msg.m_ClientId = ClientId;
-		for(int p = 0; p < 6; p++)
+		for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 		{
 			Msg.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_apSkinPartNames[p];
 			Msg.m_aSkinPartColors[p] = pPlayer->m_TeeInfos.m_aSkinPartColors[p];
@@ -3793,6 +3807,7 @@ void CGameContext::RegisterChatCommands()
 	Console()->Register("unlock", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConUnlock, this, "Unlock a team");
 	Console()->Register("invite", "r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConInvite, this, "Invite a person to a locked team");
 	Console()->Register("join", "r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConJoin, this, "Join the team of the specified player");
+	Console()->Register("team0mode", "?i['0'|'1']", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeam0Mode, this, "Toggle team between team 0 and team mode. This mode will make your team behave like team 0.");
 
 	Console()->Register("showothers", "?i['0'|'1'|'2']", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShowOthers, this, "Whether to show players from other teams or not (off by default), optional i = 0 for off, i = 1 for on, i = 2 for own team only");
 	Console()->Register("showall", "?i['0'|'1']", CFGFLAG_CHAT | CFGFLAG_SERVER, ConShowAll, this, "Whether to show players at any distance (off by default), optional i = 0 for off else for on");
@@ -3802,18 +3817,19 @@ void CGameContext::RegisterChatCommands()
 	Console()->Register("saytimeall", "", CFGFLAG_CHAT | CFGFLAG_SERVER | CFGFLAG_NONTEEHISTORIC, ConSayTimeAll, this, "Publicly messages everyone your current time in this current running race");
 	Console()->Register("time", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTime, this, "Privately shows you your current time in this current running race in the broadcast message");
 	Console()->Register("timer", "?s['gametimer'|'broadcast'|'both'|'none'|'cycle']", CFGFLAG_CHAT | CFGFLAG_SERVER, ConSetTimerType, this, "Personal Setting of showing time in either broadcast or game/round timer, timer s, where s = broadcast for broadcast, gametimer for game/round timer, cycle for cycle, both for both, none for no timer and nothing to show current status");
-	Console()->Register("r", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRescue, this, "Teleport yourself out of freeze (use sv_rescue 1 to enable this feature)");
-	Console()->Register("rescue", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRescue, this, "Teleport yourself out of freeze (use sv_rescue 1 to enable this feature)");
-	Console()->Register("tp", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeleTo, this, "Depending on the number of supplied arguments, teleport yourself to; (0.) where you are spectating or aiming; (1.) the specified player name");
-	Console()->Register("teleport", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeleTo, this, "Depending on the number of supplied arguments, teleport yourself to; (0.) where you are spectating or aiming; (1.) the specified player name");
-	Console()->Register("tpxy", "f[x] f[y]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeleXY, this, "Teleport yourself to the specified coordinates");
-	Console()->Register("lasttp", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConLastTele, this, "Teleport yourself to the last location you teleported to");
-	Console()->Register("tc", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeleCursor, this, "Teleport yourself to player or to where you are spectating/or looking if no player name is given");
-	Console()->Register("telecursor", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTeleCursor, this, "Teleport yourself to player or to where you are spectating/or looking if no player name is given");
-	Console()->Register("unsolo", "", CFGFLAG_CHAT, ConPracticeUnSolo, this, "Puts you out of solo part");
-	Console()->Register("solo", "", CFGFLAG_CHAT, ConPracticeSolo, this, "Puts you into solo part");
-	Console()->Register("undeep", "", CFGFLAG_CHAT, ConPracticeUnDeep, this, "Puts you out of deep freeze");
-	Console()->Register("deep", "", CFGFLAG_CHAT, ConPracticeDeep, this, "Puts you into deep freeze");
+
+	Console()->Register("r", "", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConRescue, this, "Teleport yourself out of freeze (use sv_rescue 1 to enable this feature)");
+	Console()->Register("rescue", "", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConRescue, this, "Teleport yourself out of freeze (use sv_rescue 1 to enable this feature)");
+	Console()->Register("tp", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConTeleTo, this, "Depending on the number of supplied arguments, teleport yourself to; (0.) where you are spectating or aiming; (1.) the specified player name");
+	Console()->Register("teleport", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConTeleTo, this, "Depending on the number of supplied arguments, teleport yourself to; (0.) where you are spectating or aiming; (1.) the specified player name");
+	Console()->Register("tpxy", "f[x] f[y]", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConTeleXY, this, "Teleport yourself to the specified coordinates. A tilde (~) can be used to denote your current position, e.g. '/tpxy ~1 ~' to teleport one tile to the right");
+	Console()->Register("lasttp", "", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConLastTele, this, "Teleport yourself to the last location you teleported to");
+	Console()->Register("tc", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConTeleCursor, this, "Teleport yourself to player or to where you are spectating/or looking if no player name is given");
+	Console()->Register("telecursor", "?r[player name]", CFGFLAG_CHAT | CFGFLAG_SERVER | CMDFLAG_PRACTICE, ConTeleCursor, this, "Teleport yourself to player or to where you are spectating/or looking if no player name is given");
+	Console()->Register("unsolo", "", CFGFLAG_CHAT | CMDFLAG_PRACTICE, ConPracticeUnSolo, this, "Puts you out of solo part");
+	Console()->Register("solo", "", CFGFLAG_CHAT | CMDFLAG_PRACTICE, ConPracticeSolo, this, "Puts you into solo part");
+	Console()->Register("undeep", "", CFGFLAG_CHAT | CMDFLAG_PRACTICE, ConPracticeUnDeep, this, "Puts you out of deep freeze");
+	Console()->Register("deep", "", CFGFLAG_CHAT | CMDFLAG_PRACTICE, ConPracticeDeep, this, "Puts you into deep freeze");
 
 	Console()->Register("kill", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProtectedKill, this, "Kill yourself when kill-protected during a long game (use f1, kill for regular kill)");
 

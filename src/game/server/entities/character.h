@@ -143,6 +143,7 @@ private:
 
 	bool m_Alive;
 	bool m_Paused;
+	int m_PausedTick;
 
 	// weapon info
 	CEntity *m_apHitObjects[10];
@@ -186,9 +187,6 @@ private:
 	CCharacterCore m_Core;
 	CGameTeams *m_pTeams = nullptr;
 
-	std::map<int, std::vector<vec2>> *m_pTeleOuts = nullptr;
-	std::map<int, std::vector<vec2>> *m_pTeleCheckOuts = nullptr;
-
 	// info for dead reckoning
 	int m_ReckoningTick; // tick that we are performing dead reckoning From
 	CCharacterCore m_SendCore; // core that we should send
@@ -218,7 +216,6 @@ private:
 public:
 	CGameTeams *Teams() { return m_pTeams; }
 	void SetTeams(CGameTeams *pTeams);
-	void SetTeleports(std::map<int, std::vector<vec2>> *pTeleOuts, std::map<int, std::vector<vec2>> *pTeleCheckOuts);
 
 	void FillAntibot(CAntibotCharacterData *pData);
 	void Pause(bool Pause);
@@ -227,6 +224,7 @@ public:
 	bool UnFreeze();
 	void GiveAllWeapons();
 	void ResetPickups();
+	void ResetJumps();
 	int m_DDRaceState;
 	int Team();
 	bool CanCollide(int ClientId);

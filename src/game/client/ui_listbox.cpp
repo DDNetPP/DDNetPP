@@ -117,7 +117,6 @@ void CListBox::DoStart(float RowHeight, int NumItems, int ItemsPerRow, int RowsP
 	// setup the scrollbar
 	m_ScrollOffset = vec2(0.0f, 0.0f);
 	CScrollRegionParams ScrollParams;
-	ScrollParams.m_Active = m_Active;
 	ScrollParams.m_ScrollbarWidth = ScrollbarWidthMax();
 	ScrollParams.m_ScrollbarMargin = ScrollbarMargin();
 	ScrollParams.m_ScrollUnit = (m_ListBoxRowHeight + m_AutoSpacing) * RowsPerScroll;
@@ -148,7 +147,7 @@ CListboxItem CListBox::DoNextRow()
 	return Item;
 }
 
-CListboxItem CListBox::DoNextItem(const void *pId, bool Selected)
+CListboxItem CListBox::DoNextItem(const void *pId, bool Selected, float CornerRadius)
 {
 	if(m_AutoSpacing > 0.0f && m_ListBoxItemIndex > 0)
 		DoSpacing(m_AutoSpacing);
@@ -188,11 +187,11 @@ CListboxItem CListBox::DoNextItem(const void *pId, bool Selected)
 			}
 		}
 
-		Item.m_Rect.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, m_Active ? 0.5f : 0.33f), IGraphics::CORNER_ALL, 5.0f);
+		Item.m_Rect.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, m_Active ? 0.5f : 0.33f), IGraphics::CORNER_ALL, CornerRadius);
 	}
 	if(Ui()->HotItem() == pId && !m_ScrollRegion.Animating())
 	{
-		Item.m_Rect.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.33f), IGraphics::CORNER_ALL, 5.0f);
+		Item.m_Rect.Draw(ColorRGBA(1.0f, 1.0f, 1.0f, 0.33f), IGraphics::CORNER_ALL, CornerRadius);
 	}
 
 	return Item;
@@ -208,7 +207,7 @@ CListboxItem CListBox::DoSubheader()
 int CListBox::DoEnd()
 {
 	m_ScrollRegion.End();
-	m_Active |= m_ScrollRegion.Params().m_Active;
+	m_Active |= m_ScrollRegion.Active();
 
 	m_ScrollbarShown = m_ScrollRegion.ScrollbarShown();
 	if(m_ListBoxNewSelOffset != 0 && m_ListBoxNumItems > 0 && m_ListBoxSelectedIndex == m_ListBoxNewSelected)

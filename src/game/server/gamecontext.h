@@ -237,7 +237,10 @@ public:
 		VOTE_ENFORCE_UNKNOWN = 0,
 		VOTE_ENFORCE_NO,
 		VOTE_ENFORCE_YES,
+		VOTE_ENFORCE_NO_ADMIN,
+		VOTE_ENFORCE_YES_ADMIN,
 		VOTE_ENFORCE_ABORT,
+		VOTE_ENFORCE_CANCEL,
 	};
 	CHeap *m_pVoteOptionHeap;
 	CVoteOptionServer *m_pVoteOptionFirst;
@@ -458,6 +461,7 @@ private:
 	static void ConInvite(IConsole::IResult *pResult, void *pUserData);
 	// static void ConJoin(IConsole::IResult *pResult, void *pUserData); // conflicting with ddnet++ /join block tournaments
 	static void ConAccept(IConsole::IResult *pResult, void *pUserData);
+	static void ConTeam0Mode(IConsole::IResult *pResult, void *pUserData);
 	static void ConMe(IConsole::IResult *pResult, void *pUserData);
 	static void ConWhisper(IConsole::IResult *pResult, void *pUserData);
 	static void ConConverse(IConsole::IResult *pResult, void *pUserData);
@@ -553,9 +557,6 @@ public:
 
 	enum
 	{
-		VOTE_ENFORCE_NO_ADMIN = VOTE_ENFORCE_YES + 1,
-		VOTE_ENFORCE_YES_ADMIN,
-
 		VOTE_TYPE_UNKNOWN = 0,
 		VOTE_TYPE_OPTION,
 		VOTE_TYPE_KICK,
