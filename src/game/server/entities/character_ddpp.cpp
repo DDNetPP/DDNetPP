@@ -773,14 +773,14 @@ void CCharacter::DropWeapon(int WeaponId)
 			pWeapon->Reset();
 	}
 
-	int m_CountWeapons = 0;
-	for(auto &m_aWeapon : m_Core.m_aWeapons)
+	int CountWeapons = 0;
+	for(auto &Weapon : m_Core.m_aWeapons)
 	{
-		if(m_aWeapon.m_Got)
-			m_CountWeapons++;
+		if(Weapon.m_Got)
+			CountWeapons++;
 	}
 
-	if(m_CountWeapons > 1)
+	if(CountWeapons > 1)
 	{
 		if(HasJetPack)
 		{
