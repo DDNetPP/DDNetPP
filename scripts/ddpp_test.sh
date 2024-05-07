@@ -297,7 +297,7 @@ else
 	fi
 	check_account LastLogoutIGN2 client1
 	check_account Shit 1
-	check_account Money '1-2'
+	check_account Money '1-5'
 	check_account Level 0
 	check_account ProfileEmail client1@zillyhuhn.com
 	check_account ProfileHomepage zillyhuhn.com
