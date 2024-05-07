@@ -768,7 +768,7 @@ void CCharacter::DropWeapon(int WeaponId)
 	std::vector<CWeapon *> &DroppedWeapons = m_pPlayer->m_aWeaponLimit[WeaponId];
 	if(DroppedWeapons.size() >= 5)
 	{
-		CWeapon *&pWeapon = DroppedWeapons[0];
+		CWeapon *pWeapon = DroppedWeapons[0];
 		if(pWeapon)
 			pWeapon->Reset();
 	}
