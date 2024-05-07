@@ -177,7 +177,7 @@ jobs:
         cd headless
         # Remove old coverage data:
         find . -name '*.gcno' -o -name '*.gcda' -delete
-        ./DDNet-Server &
+        ./DDNet-Server "sv_map coverage" &
         ./DDNet "cl_download_skins 0;connect localhost:8303;quit"
 
     - name: Upload Codecov report (start & connect)
