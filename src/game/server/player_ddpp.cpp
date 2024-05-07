@@ -1,19 +1,17 @@
 /* CPlayer related ddnet++ methods */
 
-#include "gamemodes/DDRace.h"
 #include <engine/shared/config.h>
-
-#include <cinttypes>
-#include <fstream>
-#include <limits>
-
+#include <game/generated/protocol.h>
+#include <game/mapitems.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 
+#include <cinttypes>
+#include <fstream>
+
+#include "gamemodes/DDRace.h"
+
 #include "gamecontext.h"
-
-#include <game/mapitems.h>
-
 #include "player.h"
 
 void CPlayer::FixForNoName(int Id)
@@ -144,6 +142,9 @@ void CPlayer::ResetDDPP()
 	m_DisplayScore = SCORE_LEVEL;
 	m_Language = LANG_EN;
 	m_MinigameScore = 0;
+
+	for(auto &WeaponLimit : m_aWeaponLimit)
+		WeaponLimit.resize(0);
 }
 
 void CPlayer::SetLanguage(const char *pLang)

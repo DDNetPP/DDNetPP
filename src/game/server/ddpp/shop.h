@@ -3,6 +3,7 @@
 #ifndef GAME_SERVER_DDPP_SHOP_H
 #define GAME_SERVER_DDPP_SHOP_H
 
+#include <engine/server.h>
 #include <engine/shared/config.h>
 
 #include <vector>
