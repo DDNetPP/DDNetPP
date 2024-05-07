@@ -78,12 +78,12 @@ void CBlockTournament::StartRound()
 {
 	if(State() != STATE_OFF)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournament already running.");
+		GameServer()->SendChat(-1, TEAM_ALL, "[EVENT] error tournament already running.");
 		return;
 	}
 	if(g_Config.m_SvAllowBlockTourna == 0)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] error tournaments are deactivated by an admin.");
+		GameServer()->SendChat(-1, TEAM_ALL, "[EVENT] error tournaments are deactivated by an admin.");
 		return;
 	}
 
@@ -215,7 +215,7 @@ void CBlockTournament::Tick()
 					}
 				}
 			}
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[EVENT] Block tournament stopped because time was over.");
+			GameServer()->SendChat(-1, TEAM_ALL, "[EVENT] Block tournament stopped because time was over.");
 			m_State = STATE_OFF;
 		}
 	}
@@ -414,7 +414,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	if(wonId == -404)
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
 	else if(wonId < 0)
@@ -423,7 +423,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 			wonId = 0;
 		wonId *= -1;
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] '%s' won the tournament (%d players).", Server()->ClientName(wonId), m_StartPlayers);
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_ENDING; //set end state
 
 		//give price to the winner
@@ -488,7 +488,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	}
 	else if(wonId == 0)
 	{
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "[BLOCK] nobody won the tournament");
+		GameServer()->SendChat(-1, TEAM_ALL, "[BLOCK] nobody won the tournament");
 		m_State = STATE_OFF;
 	}
 	else if(wonId > 1)
@@ -499,7 +499,7 @@ void CBlockTournament::OnDeath(CCharacter *pChr, int Killer)
 	else
 	{
 		str_format(aBuf, sizeof(aBuf), "[BLOCK] error %d", wonId);
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		m_State = STATE_OFF;
 	}
 }

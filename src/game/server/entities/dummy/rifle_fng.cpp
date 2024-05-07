@@ -57,7 +57,7 @@ void CDummyRifleFng::OnTick()
 		if(GetPos().y + offset_y > 73 * 32)
 		{
 			Jump();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "hopsa");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hopsa");
 		}
 	}
 

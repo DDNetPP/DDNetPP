@@ -355,33 +355,33 @@ void CDummyChillBlock5Race::OnTick()
 		if(GetPos().x < 390 * 32 && GetPos().x > 325 * 32 && GetPos().y > 215 * 32) //Links am spawn runter
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Links am spawn runter");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Links am spawn runter");
 		}
 		//else if ((GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x > 392 * 32 && GetPos().y > 190) || (GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x < 390 * 32 && GetPos().y > 190)) //freeze decke am spawn
 		//{
 		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke am spawn");
 		//}
 		//else if (GetPos().y > 218 * 32 + 31 /* für tee balance*/ && GetPos().x < 415 * 32) //freeze boden am spawn
 		//{
 		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden am spawn");
 		//}
 		else if(GetPos().y < 215 * 32 && GetPos().y > 213 * 32 && GetPos().x > 415 * 32 && GetPos().x < 428 * 32) //freeze decke im tunnel
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze decke im tunnel");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke im tunnel");
 		}
 		else if(GetPos().y > 222 * 32) //freeze becken unter area
 		{
 			//Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze becken unter area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze becken unter area");
 		}
 
 		if((GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) && (GetPos().x > 350 * 32)) //always suicide on freeze if not reached teh block area yet             (new) AND not coming from the new spawn and falling through the freeze
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze und links der block area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze und links der block area");
 		}
 
 		//Movement bis zur ruler area:
@@ -443,7 +443,7 @@ void CDummyChillBlock5Race::OnTick()
 			if(GetPos().x > 413 * 32 && GetPos().x < 415 * 32) // in den tunnel springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 				//Jump(0);
 			}
 			else if(GetPos().x > 428 * 32 - 20 && GetPos().y > 213 * 32) // im tunnel springen
@@ -455,14 +455,14 @@ void CDummyChillBlock5Race::OnTick()
 			if(GetPos().x > 428 * 32 && GetPos().y > 213 * 32) // im tunnel springen nicht mehr springen
 			{
 				Jump(0);
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 			}
 
 			//nochmal extern weil springen während springen
 			if(GetPos().x > 430 * 32 && GetPos().y > 213 * 32) // im tunnel springen springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 			}
 
 			if(GetPos().x > 431 * 32 && GetPos().y > 213 * 32) //jump refillen für wayblock spot
@@ -847,7 +847,7 @@ void CDummyChillBlock5Race::OnTick()
 									Fire();
 								}
 
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "jump + hook");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "jump + hook");
 							}
 
 							if(m_Dummy_help_m8_before_hf_hook)
@@ -857,7 +857,7 @@ void CDummyChillBlock5Race::OnTick()
 								if(m_Dummy_help_m8_before_hf_hook > 60 && HookState() != HOOK_GRABBED)
 								{
 									m_Dummy_help_m8_before_hf_hook = 0;
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stopped hook");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stopped hook");
 								}
 							}
 						}
@@ -925,11 +925,11 @@ void CDummyChillBlock5Race::OnTick()
 							{
 								Fire(0);
 								m_DummyFreezed = false;
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "hey im freezded lul xD");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hey im freezded lul xD");
 							}
 							else
 							{
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "iwas is maechtig flasch gelaufen du bob");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "iwas is maechtig flasch gelaufen du bob");
 							}
 						}
 						else if(m_Dummy_mode23 == 2) //Speedhammerfly for ChillerDragon
@@ -968,7 +968,7 @@ void CDummyChillBlock5Race::OnTick()
 						{
 							if(Server()->Tick() % 600 == 0)
 							{
-								GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "for this dummymode23 is no hammerflytype set :c");
+								GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "for this dummymode23 is no hammerflytype set :c");
 							}
 						}
 					}
@@ -1115,7 +1115,7 @@ void CDummyChillBlock5Race::OnTick()
 						if(m_pCharacter->m_FreezeTime == 0 && GetPos().x > 485 * 32 && pChr->GetPos().x < 485 * 32) //wenn der bot rechts und unfreeze is und der mate noch links
 						{
 							m_Dummy_2p_state = 5;
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "set state 5");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "set state 5");
 						}
 
 						if(m_pCharacter->m_FreezeTime == 0 && GetPos().x > 490 * 32 && pChr->m_FreezeTime > 0)
@@ -1128,7 +1128,7 @@ void CDummyChillBlock5Race::OnTick()
 						if(m_Dummy_2p_state == 0) //prepare doing the part (gettin right pos)
 						{
 							Right(); //walking right until state 1 gets triggerd
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug [1]");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [1]");
 						}
 						else if(m_Dummy_2p_state == 1) //starting to do the part -> walking left and hammerin'
 						{
@@ -1156,7 +1156,7 @@ void CDummyChillBlock5Race::OnTick()
 
 							if(pChr->GetPos().y < 197 * 32)
 								Right();
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug [2]");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [2]");
 						}
 						else if(m_Dummy_2p_state == 3) //final stage of doing the part->jumpin' and unfreeze pChr with hammerhit
 						{
@@ -1170,7 +1170,7 @@ void CDummyChillBlock5Race::OnTick()
 								Hook();
 							}
 
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug [3]");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [3]");
 							Right();
 							Jump();
 
@@ -1220,7 +1220,7 @@ void CDummyChillBlock5Race::OnTick()
 						else //wenn de füllst
 						{
 							Right();
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug [4]");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [4]");
 						}
 
 						//DJ ins freeze
@@ -1247,7 +1247,7 @@ void CDummyChillBlock5Race::OnTick()
 							if(GetPos().x < 492 * 32 - 30) //zu weit links
 							{
 								Right();
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Direction = 1");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Direction = 1");
 
 								if(GetPos().x > 488 * 32) //wenn schon knapp dran
 								{
@@ -1316,7 +1316,7 @@ void CDummyChillBlock5Race::OnTick()
 						else if(GetPos().x < 479 * 32 - 1)
 						{
 							Right();
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug [6]");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug [6]");
 						}
 
 						//Get mate with shotgun in right position:
@@ -1825,67 +1825,67 @@ void CDummyChillBlock5Race::OnTick()
 
 										if(r == 0)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "YOU SUCK LOL!");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "YOU SUCK LOL!");
 										}
 										else if(r == 1)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "what do you do?!");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "what do you do?!");
 										}
 										else if(r == 2)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "O M G =!! what r u triin mate?");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "O M G =!! what r u triin mate?");
 										}
 										else if(r == 3)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "you did shit. i didnt do shit because im a bot and i am perfect.");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "you did shit. i didnt do shit because im a bot and i am perfect.");
 										}
 										else if(r == 4)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "what was your plan?");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "what was your plan?");
 										}
 										else if(r == 5)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "this looks bad! i try to balance...");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "this looks bad! i try to balance...");
 										}
 										else if(r == 6)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "i think we gonna die ....  lemme try to balance");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "i think we gonna die ....  lemme try to balance");
 										}
 										else if(r == 7)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "what was this?");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "what was this?");
 										}
 										else if(r == 8)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "you fucked it up .. let me try to save us with my balance skills.");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "you fucked it up .. let me try to save us with my balance skills.");
 										}
 										else if(r == 9)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "do you have lags? i dont have lags.");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "do you have lags? i dont have lags.");
 										}
 										else if(r == 10)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "lol.");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "lol.");
 										}
 										else if(r == 11)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "lul");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "lul");
 										}
 										else if(r == 12)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "wtf?");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "wtf?");
 										}
 										else if(r == 13)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "OMG");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "OMG");
 										}
 										else if(r == 14)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "?!");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "?!");
 										}
 										else if(r == 15)
 										{
-											GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "whats going on here?!");
+											GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "whats going on here?!");
 										}
 
 										//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 4, -1);

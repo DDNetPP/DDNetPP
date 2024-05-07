@@ -1301,12 +1301,6 @@ static CServerCapabilities GetServerCapabilities(int Version, int Flags)
 
 void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 {
-	// only allow packets from the server we actually want
-	if(net_addr_comp(&pPacket->m_Address, &ServerAddress()))
-	{
-		return;
-	}
-
 	CUnpacker Unpacker;
 	Unpacker.Reset(pPacket->m_pData, pPacket->m_DataSize);
 	CMsgPacker Packer(NETMSG_EX, true);
@@ -1585,11 +1579,10 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 			{
 				return;
 			}
-			char aAddr[128];
-			char aIp[64];
+			char aAddr[NETADDR_MAXSTRSIZE];
 			NETADDR ServerAddr = ServerAddress();
-			net_addr_str(&ServerAddr, aIp, sizeof(aIp), 0);
-			str_format(aAddr, sizeof(aAddr), "%s:%d", aIp, RedirectPort);
+			ServerAddr.port = RedirectPort;
+			net_addr_str(&ServerAddr, aAddr, sizeof(aAddr), true);
 			Connect(aAddr);
 		}
 		else if(Conn == CONN_MAIN && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && Msg == NETMSG_RCON_CMD_ADD)
@@ -3308,9 +3301,14 @@ void CClient::StartVideo(const char *pFilename, bool WithTimestamp)
 	Graphics()->WaitForIdle();
 	// pause the sound device while creating the video instance
 	Sound()->PauseAudioDevice();
-	new CVideo((CGraphics_Threaded *)m_pGraphics, Sound(), Storage(), Graphics()->ScreenWidth(), Graphics()->ScreenHeight(), aFilename);
+	new CVideo(Graphics(), Sound(), Storage(), Graphics()->ScreenWidth(), Graphics()->ScreenHeight(), aFilename);
 	Sound()->UnpauseAudioDevice();
-	IVideo::Current()->Start();
+	if(!IVideo::Current()->Start())
+	{
+		log_error("videorecorder", "Failed to start recording to '%s'", aFilename);
+		m_DemoPlayer.Stop("Failed to start video recording. See local console for details.");
+		return;
+	}
 	if(m_DemoPlayer.Info()->m_Info.m_Paused)
 	{
 		IVideo::Current()->Pause(true);
@@ -3929,8 +3927,10 @@ void CClient::SwitchWindowScreen(int Index)
 	int IsFullscreen = g_Config.m_GfxFullscreen;
 	int IsBorderless = g_Config.m_GfxBorderless;
 
-	if(Graphics()->SetWindowScreen(Index))
-		g_Config.m_GfxScreen = Index;
+	if(!Graphics()->SetWindowScreen(Index))
+	{
+		return;
+	}
 
 	SetWindowParams(3, false); // prevent DDNet to get stretch on monitors
 
@@ -3943,7 +3943,7 @@ void CClient::SwitchWindowScreen(int Index)
 	g_Config.m_GfxScreenHeight = CurMode.m_WindowHeight;
 	g_Config.m_GfxScreenRefreshRate = CurMode.m_RefreshRate;
 
-	Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, g_Config.m_GfxScreenRefreshRate);
+	Graphics()->ResizeToScreen();
 
 	SetWindowParams(IsFullscreen, IsBorderless);
 }
@@ -4032,7 +4032,7 @@ void CClient::ConchainWindowResize(IConsole::IResult *pResult, void *pUserData, 
 	pfnCallback(pResult, pCallbackUserData);
 	if(pSelf->Graphics() && pResult->NumArguments())
 	{
-		pSelf->Graphics()->Resize(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, g_Config.m_GfxScreenRefreshRate);
+		pSelf->Graphics()->ResizeToScreen();
 	}
 }
 
@@ -4499,9 +4499,9 @@ int main(int argc, const char **argv)
 		pSteam->ClearConnectAddress();
 	}
 
-	const int Mode = g_Config.m_Logappend ? IOFLAG_APPEND : IOFLAG_WRITE;
 	if(g_Config.m_Logfile[0])
 	{
+		const int Mode = g_Config.m_Logappend ? IOFLAG_APPEND : IOFLAG_WRITE;
 		IOHANDLE Logfile = pStorage->OpenFile(g_Config.m_Logfile, Mode, IStorage::TYPE_SAVE_OR_ABSOLUTE);
 		if(Logfile)
 		{
@@ -4510,7 +4510,12 @@ int main(int argc, const char **argv)
 		else
 		{
 			log_error("client", "failed to open '%s' for logging", g_Config.m_Logfile);
+			pFutureFileLogger->Set(log_logger_noop());
 		}
+	}
+	else
+	{
+		pFutureFileLogger->Set(log_logger_noop());
 	}
 
 	// Register protocol and file extensions

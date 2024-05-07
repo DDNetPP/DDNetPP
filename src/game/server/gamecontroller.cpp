@@ -474,7 +474,7 @@ void IGameController::OnPlayerDisconnect(class CPlayer *pPlayer, const char *pRe
 			else
 				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(ClientId));
 			if(GameServer()->ShowLeaveMessage(ClientId))
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			else
 			{
 				str_format(aBuf, sizeof(aBuf), "leave player='%d:%s' (message hidden)", ClientId, Server()->ClientName(ClientId));
@@ -917,7 +917,7 @@ void IGameController::DoTeamChange(CPlayer *pPlayer, int Team, bool DoChatMsg)
 	if(DoChatMsg)
 	{
 		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(ClientId), GameServer()->m_pController->GetTeamName(Team));
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 	}
 
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", ClientId, Server()->ClientName(ClientId), Team);

@@ -138,7 +138,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer, bool Silent)
 			if(GameServer()->ShowJoinMessage(ClientId))
 			{
 				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientId), GetTeamName(pPlayer->GetTeam()));
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 			}
 			else
 			{
@@ -167,7 +167,7 @@ void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pRe
 	IGameController::OnPlayerDisconnect(pPlayer, pReason, Silent);
 
 	if(!GameServer()->PlayerModerating() && WasModerator)
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "Server kick/spec votes are no longer actively moderated.");
+		GameServer()->SendChat(-1, TEAM_ALL, "Server kick/spec votes are no longer actively moderated.");
 
 	if(g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO)
 		Teams().SetForceCharacterTeam(ClientId, TEAM_FLOCK);

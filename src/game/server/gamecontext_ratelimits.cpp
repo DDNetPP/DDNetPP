@@ -91,7 +91,7 @@ void CGameContext::RegisterBan(NETADDR *Addr, int Secs, const char *pDisplayName
 	{
 		str_format(aBuf, sizeof aBuf, "'%s' has been banned from register system for %d seconds.",
 			pDisplayName, Secs);
-		SendChat(-1, CHAT_ALL, aBuf);
+		SendChat(-1, TEAM_ALL, aBuf);
 	}
 	else // no free slot found
 	{
@@ -278,7 +278,7 @@ void CGameContext::LoginBan(NETADDR *Addr, int Secs, const char *pDisplayName)
 			str_format(aBuf, sizeof aBuf, "'%s' has been unbanned from login system.", pDisplayName);
 		else
 			str_format(aBuf, sizeof aBuf, "'%s' has been banned from login system for %d seconds.", pDisplayName, Secs);
-		SendChat(-1, CHAT_ALL, aBuf);
+		SendChat(-1, TEAM_ALL, aBuf);
 	}
 	else // no free slot found
 	{
@@ -388,7 +388,7 @@ void CGameContext::NameChangeMute(NETADDR *Addr, int Secs, const char *pDisplayN
 	{
 		str_format(aBuf, sizeof aBuf, "'%s' has been name change muted for %d seconds.",
 			pDisplayName, Secs);
-		SendChat(-1, CHAT_ALL, aBuf);
+		SendChat(-1, TEAM_ALL, aBuf);
 	}
 	else // no free slot found
 	{

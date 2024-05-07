@@ -47,7 +47,7 @@ void CDummyChillBlock5BlockerTryHard::OnDeath()
 void CDummyChillBlock5BlockerTryHard::OnTick()
 {
 	Hook(0);
-	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "HALLO ICH BIN 18!");
+	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "HALLO ICH BIN 18!");
 
 	//Check ob dem bot langweilig geworden is :)
 
@@ -94,7 +94,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		{
 			//Wenn der bot im tunnel ist und ein Gegner im RulerWB bereich
 			m_Dummy_mode18 = 1;
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Wayblocker gesichtet");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Wayblocker gesichtet");
 		}
 	}
 	else if(m_Dummy_happy && m_Dummy_bored)
@@ -372,7 +372,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 		if(GetVel().x > 1.0f)
 		{
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "speed: schneller als 1");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "speed: schneller als 1");
 		}
 
 		//Check ob jemand in der linken freeze wand is
@@ -384,7 +384,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 				// clang tidy redundant bool
 				// m_Dummy_left_freeze_full = true;
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Da liegt einer im freeze");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Da liegt einer im freeze");
 			}
 			else // wenn da keiner is fülle diesen spot (linke freeze wand im ruler spot)
 			{
@@ -397,48 +397,48 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		if(GetPos().x < 390 * 32 && GetPos().x > 325 * 32 && GetPos().y > 215 * 32) //Links am spawn runter
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Links am spawn runter");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Links am spawn runter");
 		}
 		//else if ((GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x > 392 * 32 && GetPos().y > 190) || (GetPos().y < 204 * 32 && GetPos().x < 415 * 32 && GetPos().x < 390 * 32 && GetPos().y > 190)) //freeze decke am spawn
 		//{
 		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze decke am spawn");
+		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke am spawn");
 		//}
 		//else if (GetPos().y > 218 * 32 + 31 /* für tee balance*/ && GetPos().x < 415 * 32) //freeze boden am spawn
 		//{
 		//	Die();
-		//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze boden am spawn");
+		//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden am spawn");
 		//}
 		else if(GetPos().y < 215 * 32 && GetPos().y > 213 * 32 && GetPos().x > 415 * 32 && GetPos().x < 428 * 32) //freeze decke im tunnel
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze decke im tunnel");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze decke im tunnel");
 		}
 		else if(GetPos().y > 222 * 32) //freeze becken unter area
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze becken unter area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze becken unter area");
 		}
 		else if(GetPos().y > 213 * 32 && GetPos().x > 436 * 32) //freeze rechts neben freeze becken
 		{
 			//Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze rechts neben freeze becken");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze rechts neben freeze becken");
 		}
 		else if(GetPos().x > 469 * 32) //zu weit ganz rechts in der ruler area
 		{
 			//Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "zu weit ganz rechts in der ruler area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "zu weit ganz rechts in der ruler area");
 		}
 		else if(GetPos().y > 211 * 32 + 34 && GetPos().x > 455 * 32) //alles freeze am boden rechts in der area
 		{
 			//Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze boden rechts der area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze boden rechts der area");
 		}
 
 		if(GetPos().y < 220 * 32 && GetPos().x < 415 * 32 && m_pCharacter->m_FreezeTime > 1) //always suicide on freeze if not reached teh block area yet
 		{
 			Die();
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "freeze und links der block area");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "freeze und links der block area");
 		}
 
 		if(GetPos().x < 388 * 32 && GetPos().y > 213 * 32) //jump to old spawn
@@ -546,7 +546,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(GetPos().x > 413 * 32 && GetPos().x < 415 * 32) // in den tunnel springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 				//Jump(0);
 			}
 			else if(GetPos().x > 428 * 32 - 20 && GetPos().y > 213 * 32) // im tunnel springen
@@ -558,14 +558,14 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			if(GetPos().x > 428 * 32 && GetPos().y > 213 * 32) // im tunnel springen nicht mehr springen
 			{
 				Jump(0);
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 			}
 
 			//nochmal extern weil springen während springen
 			if(GetPos().x > 430 * 32 && GetPos().y > 213 * 32) // im tunnel springen springen
 			{
 				Jump();
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "triggerd");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "triggerd");
 			}
 
 			if(GetPos().x > 431 * 32 && GetPos().y > 213 * 32) //jump refillen für wayblock spot
@@ -587,14 +587,14 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 		/*
 		if (GetPos().y < 213 * 32 && GetPos().x > (427 * 32) - 20 && GetPos().x < (428 * 32) + 10) //wenn der bot sich an seinem ruler spot befindet
 		{
-		//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich mag diesen ort :)");
+		//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich mag diesen ort :)");
 
 		if (!m_Dummy_wb_hooked && !m_Dummy_emergency && !m_Dummy_pushing && GetVel().x > 0.90f) //wenn der bot sich auf das freeze zubewegt obwohl er nicht selber läuft
 		{
 		// --> er wird wahrscheinlich gehookt oder anderweitig extern angegriffen
 		// --> schutzmaßnahmen treffen
 
-		GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "AAAh ich werde angegriffen");
+		GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "AAAh ich werde angegriffen");
 		Jump();
 		}
 		m_Dummy_pushing = false;
@@ -629,22 +629,22 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			//if (GetPos().y < 201 * 32) // decke
 			//{
 			//	Die();
-			//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "suicide reason: roof rulerspot");
+			//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "suicide reason: roof rulerspot");
 			//}
 			//else if (GetPos().x < 417 * 32 && GetPos().x > 414 * 32 + 17 && IsFrozen()) //linker streifen xD
 			//{
 			//	Die();
-			//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "suicide reason: left wall rulerspot");
+			//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "suicide reason: left wall rulerspot");
 			//}
 
 			//because shitty structure (more infos at TODO(1)) check here for enemys attacking from outside of the ruler area
 
 			//Checken Ob ein potentieller Gegner auf der edge unter dem WBbereich ist
 			//Falls diesem so sei --> mach den da weg
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug");
 			if(1 == 1)
 			{
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "debug");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "debug");
 				CCharacter *pChr = GameServer()->m_World.ClosestCharTypeRulerWBBottom(GetPos(), true, m_pCharacter);
 				if(pChr && pChr->IsAlive() && !IsFrozen(pChr)) //wenn jemand da so im bereich lebt und unfreeze ist
 				{
@@ -731,7 +731,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 						if(!m_Dummy_jumped)
 						{
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "boing!");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "boing!");
 							Jump();
 							m_Dummy_jumped = true;
 						}
@@ -771,7 +771,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 						}
 					}
 
-					//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "NOTSTAND");
+					//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "NOTSTAND");
 
 					if(Server()->Tick() % 30 == 0) //angry emotes machen
 					{
@@ -803,7 +803,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					if(pChr->m_FreezeTime > 0 && pChr->GetPos().y > 204 * 32 && pChr->GetPos().x > 422 * 32) //wenn ein gegner weit genung rechts freeze am boden liegt
 					{
 						// soll der bot sich einer position links des spielers nähern
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "hab n opfer gefunden");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hab n opfer gefunden");
 
 						if(GetPos().x + (5 * 32 + 40) < pChr->GetPos().x) // er versucht 5 tiles links des gefreezten gegner zu kommen
 						{
@@ -812,14 +812,14 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 							if(GetPos().x > pChr->GetPos().x && GetPos().x < pChr->GetPos().x + (4 * 32)) // wenn er 4 tiles rechts des gefreezten gegners is
 							{
 								Jump();
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "boing!");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "boing!");
 							}
 						}
 						else //wenn der bot links des gefreezten spielers is
 						{
 							Jump();
 							//echo jump
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "boing!");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "boing!");
 
 							Left();
 
@@ -854,7 +854,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									{
 										Fire(0);
 
-										//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "haha owned");
+										//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "haha owned");
 									}
 
 									//letzten stupser geben (sonst gibs bugs kb zu fixen)
@@ -866,15 +866,15 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								else
 								{
 									Right();
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stop error code: 1");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stop error code: 1");
 									if(pChr->m_FreezeTime > 0)
 									{
 										Fire(0);
 
-										//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "haha owned");
+										//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "haha owned");
 									}
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "ich halte das auf.");
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich will da nich rein laufen");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "ich halte das auf.");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
 								}
 							}
 							else //wenn der gegner nicht tief genung ist
@@ -885,21 +885,21 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								{
 									Fire(0);
 
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "haha owned");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "haha owned");
 								}
 							}
 						}
 						else //wenn da schon jemand liegt
 						{
 							// sag das mal xD
-							//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "da liegt schon einer");
+							//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "da liegt schon einer");
 						}
 					}
 					else if(GetPos().x < 419 * 32 + 10) //sonst mehr abstand halten
 					{
 						Right();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stop error code: 2");
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich will da nich rein laufen");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stop error code: 2");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
 					}
 					// else // wenn nichts los is erstmal stehen bleiben
 
@@ -929,12 +929,12 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 							if(GetPos().x > pChr->GetPos().x - 45) //zu weit rechts von hammer position
 							{
 								Left(); //gehe links
-									//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich will da nich rein laufen");
+									//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich will da nich rein laufen");
 							}
 							else if(GetPos().x < pChr->GetPos().x - 39) // zu weit links von hammer position
 							{
 								Right();
-								//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stop error code: 3");
+								//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stop error code: 3");
 							}
 							else //im hammer bereich
 							{
@@ -948,7 +948,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					if(pChr->m_FreezeTime > 0 && pChr->GetPos().y > 208 * 32 && !IsFrozen(pChr)) //wenn der Gegner tief und freeze is macht es wenig sinn den frei zu hammern
 					{
 						Fire(0);
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "haha owned");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "haha owned");
 					}
 
 					//Hau den weg (wie dummymode 21)
@@ -981,7 +981,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 					}
 
 					//m_pPlayer->m_TeeInfos.m_ColorBody = (0 * 255 / 360);
-					//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Enemy in ruler spot found!");
+					//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Enemy in ruler spot found!");
 				}
 				else //sonst normal wayblocken und 427 aufsuchen
 				{
@@ -1009,23 +1009,23 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 						Hook();
 					}
 
-					//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Prüfe ob zu weit rechts");
+					//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Prüfe ob zu weit rechts");
 					if(GetPos().x < (427 * 32) - 20) // zu weit links -> geh rechts
 					{
 						Right();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stop error code: 4");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stop error code: 4");
 					}
 					else if(GetPos().x > (428 * 32) + 10) // zu weit rechts -> geh links
 					{
 						Left();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich bin zuweit rechts...");
 					}
 					else // im toleranz bereich -> stehen bleiben
 					{
 						m_Dummy_happy = true;
 						m_Dummy_ruled = true;
 						StopMoving();
-						//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "toleranz bereich");
+						//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "toleranz bereich");
 						//m_Input.m_LatestTargetX = 0;
 						//m_Input.m_LatestTargetY = 0;
 
@@ -1072,7 +1072,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 									else
 									{
 										StopMoving(); // aber nicht zu weit
-											//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "ja ich bin das!");
+											//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "ja ich bin das!");
 									}
 								}
 							}
@@ -1147,13 +1147,13 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 								//if (Server()->Tick() % 50 == 0) //hook ihn xD
 								//{
-								//	//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "bin im bereich");
+								//	//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "bin im bereich");
 								//	if (m_Input.m_Hook == 0)
 								//	{
 								//		Hook();
 								//		m_Dummy_wb_hooked = true;
 								//		//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 1, -1);
-								//		//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "huke");
+								//		//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "huke");
 								//		//schiess delay
 								//		if (Server()->Tick() >= m_EmoteTickNext)
 								//		{
@@ -1174,7 +1174,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 								//	{
 								//		Hook(0);
 								//		GameServer()->SendEmoticon(m_pPlayer->GetCid(), 7, -1);
-								//		//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "huke nich");
+								//		//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "huke nich");
 
 								//	}
 								//}
@@ -1190,12 +1190,12 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 				if(GetPos().x < (427 * 32) - 20) // zu weit links -> geh rechts
 				{
 					Right();
-					//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "stop error code: special");
+					//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "stop error code: special");
 				}
 				else if(GetPos().x > (427 * 32) + 40) // zu weit rechts -> geh links
 				{
 					Left();
-					//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "Ich bin zuweit rechts...");
+					//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "Ich bin zuweit rechts...");
 				}
 				//GameServer()->SendEmoticon(m_pPlayer->GetCid(), 1, -1);
 			}
@@ -1209,7 +1209,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 			else if(GetPos().x > (434 * 32) - 20 && GetPos().x < (434 * 32) + 20) // bei flug über freeze jump wd holen
 			{
 				Jump(0);
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "refilling jump");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "refilling jump");
 			}
 		}
 
@@ -1219,7 +1219,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 
 		if (GetVel().x == 16 * 32)
 		{
-		GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "speed: 16");
+		GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "speed: 16");
 		}
 
 		*/
@@ -1265,7 +1265,7 @@ void CDummyChillBlock5BlockerTryHard::OnTick()
 	}
 	else //Change to mode main and reset all
 	{
-		GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "EROOR!!!!");
+		GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "EROOR!!!!");
 		//RestOnChange (zuruecksetzten)
 		Hook(0);
 		Jump(0);

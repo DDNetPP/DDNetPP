@@ -48,7 +48,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 
 					if(!std::ifstream(g_Config.m_SvGlobalChatFile))
 					{
-						SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+						SendChat(-1, TEAM_ALL, "[CHAT] global chat stopped working.");
 						g_Config.m_SvAllowGlobalChat = 0;
 						ChatReadFile.close();
 						return;
@@ -87,7 +87,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 					std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
 					if(!ChatFile)
 					{
-						SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+						SendChat(-1, TEAM_ALL, "[CHAT] global chat failed.... deactivating it.");
 						dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
 						g_Config.m_SvAllowGlobalChat = 0;
 						ChatFile.close();
@@ -96,7 +96,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 
 					if(ChatFile.is_open())
 					{
-						//SendChat(-1, CGameContext::CHAT_ALL, "global chat");
+						//SendChat(-1, TEAM_ALL, "global chat");
 
 						str_format(aBuf, sizeof(aBuf), "0[CHAT@%s] %s: %s", g_Config.m_SvMap, Server()->ClientName(ClientId), msg_format.c_str());
 						dbg_msg("global_chat", "msg [ %s ]", aBuf);
@@ -104,7 +104,7 @@ void CGameContext::GlobalChat(int ClientId, const char *pMsg)
 					}
 					else
 					{
-						SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+						SendChat(-1, TEAM_ALL, "[CHAT] global chat failed.... deactivating it.");
 						dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
 						g_Config.m_SvAllowGlobalChat = 0;
 					}

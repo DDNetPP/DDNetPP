@@ -457,7 +457,7 @@ int CGameContext::GetNextClientId()
 //{
 //#if defined(CONF_DEBUG)
 //#endif
-//	SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] server shutdown!");
+//	SendChat(-1, TEAM_ALL, "[DDNet++] server shutdown!");
 //}
 
 void CGameContext::AbuseMotd(const char *pMsg, int ClientId)
@@ -922,7 +922,7 @@ void CGameContext::FNN_LoadRun(const char *path, int botId)
 	//start run
 	pPlayer->m_dmm25 = 4; //replay submode
 	str_format(aBuf, sizeof(aBuf), "[FNN] loaded run with ticks=%d distance=%.2f fitness=%.2f distance_finish=%.2f", pDummyFNN->m_FNN_ticks_loaded_run, loaded_distance, loaded_fitness, loaded_distance_finish);
-	SendChat(botId, CGameContext::CHAT_ALL, aBuf);
+	SendChat(botId, TEAM_ALL, aBuf);
 }
 
 void CGameContext::TestPrintTiles(int botId)
@@ -1335,12 +1335,12 @@ void CGameContext::CheckDDPPshutdown()
 		{
 			if(players < g_Config.m_SvDDPPshutdownPlayers)
 			{
-				//SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
+				//SendChat(-1, TEAM_ALL, "[DDNet++] WARNING SERVER SHUTDOWN!");
 				CallVetoVote(-1, "shutdown server", "shutdown", "Update", "[DDNet++] do you want to update the server now?", 0);
 			}
 			else
 			{
-				SendChat(-1, CGameContext::CHAT_ALL, "[DDNet++] shutdown failed: too many players online.");
+				SendChat(-1, TEAM_ALL, "[DDNet++] shutdown failed: too many players online.");
 			}
 		}
 	}
@@ -1546,12 +1546,12 @@ void CGameContext::DDPP_SlowTick()
 	{
 		if(CountIngameHumans() >= g_Config.m_SvMinDoubleTilePlayers && MoneyDoubleEnoughPlayers) // MoneyTileDouble();  bla bla
 		{
-			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been activated!");
+			SendChat(-1, TEAM_ALL, "The double-moneytile has been activated!");
 			MoneyDoubleEnoughPlayers = false;
 		}
 		if(CountIngameHumans() < g_Config.m_SvMinDoubleTilePlayers && !MoneyDoubleEnoughPlayers)
 		{
-			SendChat(-1, CGameContext::CHAT_ALL, "The double-moneytile has been deactivated!");
+			SendChat(-1, TEAM_ALL, "The double-moneytile has been deactivated!");
 			MoneyDoubleEnoughPlayers = true;
 		}
 	}
@@ -2011,7 +2011,7 @@ void CGameContext::GlobalChatPrintMessage()
 
 	if(!std::ifstream(g_Config.m_SvGlobalChatFile))
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat stopped working.");
+		SendChat(-1, TEAM_ALL, "[CHAT] global chat stopped working.");
 		g_Config.m_SvAllowGlobalChat = 0;
 		ChatReadFile.close();
 		return;
@@ -2023,16 +2023,16 @@ void CGameContext::GlobalChatPrintMessage()
 
 	if(!str_comp(m_aLastPrintedGlobalChatMessage, aData))
 	{
-		//SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] no new global message");
+		//SendChat(-1, TEAM_ALL, "[CHAT] no new global message");
 		ChatReadFile.close();
 		return;
 	}
 
 	GlobalChatUpdateConfirms(data.c_str());
 	str_format(m_aLastPrintedGlobalChatMessage, sizeof(m_aLastPrintedGlobalChatMessage), "%s", aData);
-	SendChat(-1, CGameContext::CHAT_ALL, aData);
+	SendChat(-1, TEAM_ALL, aData);
 	//str_format(aBuf, sizeof(aBuf), "[CHAT] '%s'", aData);
-	//SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	//SendChat(-1, TEAM_ALL, aBuf);
 
 	ChatReadFile.close();
 }
@@ -2064,7 +2064,7 @@ void CGameContext::GlobalChatUpdateConfirms(const char *pStr)
 	std::ofstream ChatFile(g_Config.m_SvGlobalChatFile);
 	if(!ChatFile)
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		SendChat(-1, TEAM_ALL, "[CHAT] global chat failed.... deactivating it.");
 		dbg_msg("CHAT", "ERROR1 writing file '%s'", g_Config.m_SvGlobalChatFile);
 		g_Config.m_SvAllowGlobalChat = 0;
 		ChatFile.close();
@@ -2079,7 +2079,7 @@ void CGameContext::GlobalChatUpdateConfirms(const char *pStr)
 	}
 	else
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, "[CHAT] global chat failed.... deactivating it.");
+		SendChat(-1, TEAM_ALL, "[CHAT] global chat failed.... deactivating it.");
 		dbg_msg("CHAT", "ERROR2 writing file '%s'", g_Config.m_SvGlobalChatFile);
 		g_Config.m_SvAllowGlobalChat = 0;
 	}
@@ -2548,7 +2548,7 @@ void CGameContext::SetIpJailed(int ClientId)
 	if(Found)
 	{
 		str_format(aBuf, sizeof aBuf, "'%s' has been ip jailed.", Server()->ClientName(ClientId));
-		SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		SendChat(-1, TEAM_ALL, aBuf);
 	}
 	else // no free slot found
 	{
@@ -2698,7 +2698,7 @@ void CGameContext::CallVetoVote(int ClientId, const char *pDesc, const char *pCm
 	m_IsDDPPVetoVote = true;
 	if(ClientId == -1) //Server vote
 	{
-		SendChat(-1, CGameContext::CHAT_ALL, pChatmsg);
+		SendChat(-1, TEAM_ALL, pChatmsg);
 		if(!pSixupDesc)
 			pSixupDesc = pDesc;
 

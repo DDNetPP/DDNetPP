@@ -115,7 +115,7 @@ public:
 		// CHAT_BLUE = 1,
 		// CHAT_WHISPER_SEND = 2,
 		// CHAT_WHISPER_RECV = 3,
-		CHAT_TO_ONE_CLIENT = 4,
+		CHAT_TO_ONE_CLIENT = TEAM_WHISPER_RECV + 1, // 4
 
 		// CHAT_SIX = 1 << 0,
 		// CHAT_SIXUP = 1 << 1,

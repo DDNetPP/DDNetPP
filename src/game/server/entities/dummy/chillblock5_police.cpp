@@ -106,7 +106,7 @@ void CDummyChillBlock5Police::OnTick()
 		//If a policerank escapes from jail he is treated like a non police
 		if((pChr->GetPlayer()->m_Account.m_PoliceRank > 0 && pChr->GetPlayer()->m_Account.m_EscapeTime == 0) || (pChr->GetPlayer()->m_PoliceHelper && pChr->GetPlayer()->m_Account.m_EscapeTime == 0))
 		{
-			//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "hello officär");
+			//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "hello officär");
 			m_Dummy_ClosestPolice = true;
 			//if (pChr->isFreezed)
 			//{
@@ -340,7 +340,7 @@ void CDummyChillBlock5Police::OnTick()
 			AimPos(pChr->GetPos());
 			if(Server()->Tick() % 120 == 0)
 			{
-				//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "error: unknow sub-mode for this dummymode set.");
+				//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "error: unknow sub-mode for this dummymode set.");
 			}
 		}
 	}

@@ -174,7 +174,7 @@ void CGameContext::ConSayServer(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "[SERVER] %s", pResult->GetString(0));
-	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 }
 
 void CGameContext::ConPolicehelper(IConsole::IResult *pResult, void *pUserData)
@@ -648,7 +648,7 @@ void CGameContext::ConPoliceChat(IConsole::IResult *pResult, void *pUserData)
 		pSelf->Server()->ClientName(pResult->m_ClientId),
 		pResult->GetString(0));
 	if(pPlayer->m_Account.m_PoliceRank > 0)
-		pSelf->SendChat(-2, CGameContext::CHAT_ALL, aBuf, pResult->m_ClientId);
+		pSelf->SendChat(-2, TEAM_ALL, aBuf, pResult->m_ClientId);
 	else
 		pSelf->Console()->Print(
 			IConsole::OUTPUT_LEVEL_STANDARD,
@@ -1748,45 +1748,45 @@ void CGameContext::ConCC(IConsole::IResult *pResult, void *pUserData)
 
 	if(pSelf->Server()->GetAuthedState(pResult->m_ClientId) == AUTHED_ADMIN)
 	{
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'namless rofl' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(1)namless tee' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'einFISCH' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'GAGAGA' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Steve-' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Gro�erDBC' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'cB | Bashcord' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'LIVUS BAGGUGE' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'BoByBANK' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'noobson tnP' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'vali' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'ChiliDreghugn' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Stahkilla' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Detztin' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'pikutee <3' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'namless tee' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'BoByBANK' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Ubu' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Magnet' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Jambi*' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'HurricaneZ' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Sonix' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'darkdragonovernoob' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Ubu' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'deen' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'fuck me soon' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'fik you!' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'fuckmeson' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(1)' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Noved' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'Aoe' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'artkis' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'namless brain' entered and joined the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(1)ChillerDrago' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'HurricaneZ' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(2)ChillerDrago' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'hax0r' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'(3)ChillerDrago' has left the game");
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, "'SarKro' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'namless rofl' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'(1)namless tee' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'einFISCH' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'GAGAGA' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Steve-' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Gro�erDBC' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'cB | Bashcord' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'LIVUS BAGGUGE' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'BoByBANK' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'noobson tnP' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'vali' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'ChiliDreghugn' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Stahkilla' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Detztin' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'pikutee <3' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'namless tee' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'BoByBANK' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Ubu' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Magnet' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Jambi*' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'HurricaneZ' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Sonix' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'darkdragonovernoob' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Ubu' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'deen' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'fuck me soon' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'fik you!' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'fuckmeson' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'(1)' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Noved' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'Aoe' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'artkis' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'namless brain' entered and joined the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'(1)ChillerDrago' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'HurricaneZ' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'(2)ChillerDrago' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'hax0r' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'(3)ChillerDrago' has left the game");
+		pSelf->SendChat(-1, TEAM_ALL, "'SarKro' has left the game");
 	}
 	else
 	{
@@ -7062,7 +7062,7 @@ void CGameContext::ConBounty(IConsole::IResult *pResult, void *pUserData)
 				str_format(aBuf, sizeof(aBuf), "[BOUNTY] added %d money to '%s' (%d total)", pResult->GetInteger(1), pSelf->Server()->ClientName(Id), pSelf->m_apPlayers[Id]->m_BlockBounty);
 				pSelf->SendChatTarget(pResult->m_ClientId, aBuf);
 				str_format(aBuf, sizeof(aBuf), "[BOUNTY] '%s' added %d money to '%s's bounty (%d total)", pSelf->Server()->ClientName(pResult->m_ClientId), pResult->GetInteger(1), pSelf->Server()->ClientName(Id), pSelf->m_apPlayers[Id]->m_BlockBounty);
-				pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				pSelf->SendChat(-1, TEAM_ALL, aBuf);
 			}
 		}
 		else
@@ -7262,7 +7262,7 @@ void CGameContext::ConTrade(IConsole::IResult *pResult, void *pUserData)
 
 		//send trade info to the invited player
 		str_format(aBuf, sizeof(aBuf), "[TRADE] '%s' created a public offer [ %s ] for [ %d ] money (use '/trade' command to accept it)", pSelf->Server()->ClientName(pResult->m_ClientId), aWeaponName, pResult->GetInteger(2));
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		pSelf->SendChat(-1, TEAM_ALL, aBuf);
 		//and save it for all players so it can be seen later in '/trade'
 		for(auto &Player : pSelf->m_apPlayers)
 		{

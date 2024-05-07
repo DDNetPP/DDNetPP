@@ -54,7 +54,7 @@ void CGameContext::EndBombGame(int WinnerId)
 
 	//winner public
 	str_format(aBuf, sizeof(aBuf), "[BOMB] '%s' won and got %" PRId64 " money!", Server()->ClientName(WinnerId), m_BombMoney * m_BombStartPlayers);
-	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	SendChat(-1, TEAM_ALL, aBuf);
 }
 
 void CGameContext::CheckStartBomb()

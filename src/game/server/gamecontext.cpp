@@ -546,7 +546,7 @@ void CGameContext::CallVote(int ClientId, const char *pDesc, const char *pCmd, c
 	CPlayer *pPlayer = m_apPlayers[ClientId];
 	if(!pPlayer)
 		return;
-	SendChat(-1, CGameContext::CHAT_ALL, pChatmsg, -1, CHAT_SIX);
+	SendChat(-1, TEAM_ALL, pChatmsg, -1, CHAT_SIX);
 	if(!pSixupDesc)
 		pSixupDesc = pDesc;
 
@@ -613,9 +613,9 @@ void CGameContext::SendChat(int ChatterClientId, int Team, const char *pText, in
 	}
 	else
 		str_format(aBuf, sizeof(aBuf), "*** %s", aText);
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, Team != CHAT_ALL ? "teamchat" : "chat", aBuf);
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, Team != TEAM_ALL ? "teamchat" : "chat", aBuf);
 
-	if(Team == CHAT_ALL)
+	if(Team == TEAM_ALL)
 	{
 		CNetMsg_Sv_Chat Msg;
 		Msg.m_Team = 0;
@@ -673,16 +673,16 @@ void CGameContext::SendChat(int ChatterClientId, int Team, const char *pText, in
 		{
 			if(m_apPlayers[i] != 0)
 			{
-				if(Team == CHAT_SPEC)
+				if(Team == TEAM_SPECTATORS)
 				{
-					if(m_apPlayers[i]->GetTeam() == CHAT_SPEC)
+					if(m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS)
 					{
 						Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
 					}
 				}
 				else
 				{
-					if(pTeams->Team(i) == Team && m_apPlayers[i]->GetTeam() != CHAT_SPEC)
+					if(pTeams->Team(i) == Team && m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
 					{
 						Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
 					}
@@ -794,12 +794,12 @@ void CGameContext::SendBroadcast(const char *pText, int ClientId, int Importance
 			{
 				if(Importance == 0)
 				{
-					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					//SendChat(-1, TEAM_ALL, "broadcast got ignored");
 					return;
 				}
 				else if(Importance == 1 && IsSupermod && m_apPlayers[ClientId]->m_LastBroadcastImportance == 2) //supermoderators can't overwrite broadcaste with lvl 2 importance
 				{
-					//SendChat(-1, CGameContext::CHAT_ALL, "broadcast got ignored");
+					//SendChat(-1, TEAM_ALL, "broadcast got ignored");
 					return;
 				}
 			}
@@ -1129,14 +1129,14 @@ void CGameContext::OnTick()
 		// abort the kick-vote on player-leave
 		if(m_VoteEnforce == VOTE_ENFORCE_ABORT)
 		{
-			SendChat(-1, CGameContext::CHAT_ALL, "Vote aborted");
+			SendChat(-1, TEAM_ALL, "Vote aborted");
 			EndVote();
 		}
 		else if(m_VoteEnforce == VOTE_ENFORCE_CANCEL)
 		{
 			char aBuf[64];
 			str_format(aBuf, sizeof(aBuf), "'%s' canceled their vote", Server()->ClientName(m_VoteCreator));
-			SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			SendChat(-1, TEAM_ALL, aBuf);
 			EndVote();
 		}
 		else
@@ -1276,7 +1276,7 @@ void CGameContext::OnTick()
 				Console()->ExecuteLine(m_aVoteCommand);
 				Server()->SetRconCid(IServer::RCON_CID_SERV);
 				EndVote();
-				SendChat(-1, CGameContext::CHAT_ALL, m_IsDDPPVetoVote ? "Vote passed because nobody used veto (Veto Vote)" : "Vote passed", -1, CHAT_SIX);
+				SendChat(-1, TEAM_ALL, m_IsDDPPVetoVote ? "Vote passed because nobody used veto (Veto Vote)" : "Vote passed", -1, CHAT_SIX);
 
 				if(m_apPlayers[m_VoteCreator] && !IsKickVote() && !IsSpecVote())
 					m_apPlayers[m_VoteCreator]->m_LastVoteCall = 0;
@@ -1284,24 +1284,24 @@ void CGameContext::OnTick()
 			else if(m_VoteEnforce == VOTE_ENFORCE_YES_ADMIN)
 			{
 				Console()->ExecuteLine(m_aVoteCommand, m_VoteEnforcer);
-				SendChat(-1, CGameContext::CHAT_ALL, "Vote passed enforced by authorized player", -1, CHAT_SIX);
+				SendChat(-1, TEAM_ALL, "Vote passed enforced by authorized player", -1, CHAT_SIX);
 				EndVote();
 			}
 			else if(m_VoteEnforce == VOTE_ENFORCE_NO_ADMIN)
 			{
 				EndVote();
-				SendChat(-1, CGameContext::CHAT_ALL, "Vote failed enforced by authorized player", -1, CHAT_SIX);
+				SendChat(-1, TEAM_ALL, "Vote failed enforced by authorized player", -1, CHAT_SIX);
 			}
 			//else if(m_VoteEnforce == VOTE_ENFORCE_NO || time_get() > m_VoteCloseTime)
 			else if(m_VoteEnforce == VOTE_ENFORCE_NO || (time_get() > m_VoteCloseTime && g_Config.m_SvVoteMajority))
 			{
 				EndVote();
 				if(VetoStop || (m_VoteWillPass && Veto))
-					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because of veto. Find an empty server instead", -1, CHAT_SIX);
+					SendChat(-1, TEAM_ALL, "Vote failed because of veto. Find an empty server instead", -1, CHAT_SIX);
 				else if(m_IsDDPPVetoVote)
-					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed because someone voted agianst it. (Veto Vote)", -1, CHAT_SIX);
+					SendChat(-1, TEAM_ALL, "Vote failed because someone voted agianst it. (Veto Vote)", -1, CHAT_SIX);
 				else
-					SendChat(-1, CGameContext::CHAT_ALL, "Vote failed", -1, CHAT_SIX);
+					SendChat(-1, TEAM_ALL, "Vote failed", -1, CHAT_SIX);
 			}
 			else if(m_VoteUpdate)
 			{
@@ -1331,7 +1331,7 @@ void CGameContext::OnTick()
 	{
 		const char *pLine = Server()->GetAnnouncementLine(g_Config.m_SvAnnouncementFileName);
 		if(pLine)
-			SendChat(-1, CGameContext::CHAT_ALL, pLine);
+			SendChat(-1, TEAM_ALL, pLine);
 	}
 
 	for(auto &Switcher : Switchers())
@@ -1880,6 +1880,30 @@ void CGameContext::TeehistorianRecordPlayerRejoin(int ClientId)
 	}
 }
 
+void CGameContext::TeehistorianRecordPlayerName(int ClientId, const char *pName)
+{
+	if(m_TeeHistorianActive)
+	{
+		m_TeeHistorian.RecordPlayerName(ClientId, pName);
+	}
+}
+
+void CGameContext::TeehistorianRecordPlayerFinish(int ClientId, int TimeTicks)
+{
+	if(m_TeeHistorianActive)
+	{
+		m_TeeHistorian.RecordPlayerFinish(ClientId, TimeTicks);
+	}
+}
+
+void CGameContext::TeehistorianRecordTeamFinish(int TeamId, int TimeTicks)
+{
+	if(m_TeeHistorianActive)
+	{
+		m_TeeHistorian.RecordTeamFinish(TeamId, TimeTicks);
+	}
+}
+
 bool CGameContext::OnClientDDNetVersionKnown(int ClientId)
 {
 	IServer::CClientInfo Info;
@@ -2216,9 +2240,9 @@ void CGameContext::OnSayNetMessage(const CNetMsg_Cl_Say *pMsg, int ClientId, con
 
 	int GameTeam = GetDDRaceTeam(pPlayer->GetCid());
 	if(Team)
-		Team = ((pPlayer->GetTeam() == TEAM_SPECTATORS) ? CHAT_SPEC : GameTeam);
+		Team = ((pPlayer->GetTeam() == TEAM_SPECTATORS) ? TEAM_SPECTATORS : GameTeam);
 	else
-		Team = CHAT_ALL;
+		Team = TEAM_ALL;
 
 	if(pMsg->m_pMessage[0] == '/')
 	{
@@ -2725,7 +2749,7 @@ void CGameContext::OnChangeInfoNetMessage(const CNetMsg_Cl_ChangeInfo *pMsg, int
 		else
 		{
 			str_format(aChatText, sizeof(aChatText), "'%s' changed name to '%s'", aOldName, Server()->ClientName(ClientId));
-			SendChat(-1, CGameContext::CHAT_ALL, aChatText);
+			SendChat(-1, TEAM_ALL, aChatText);
 		}
 
 		// reload scores
@@ -3216,7 +3240,7 @@ void CGameContext::ConPause(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConChangeMap(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	pSelf->m_pController->ChangeMap(pResult->NumArguments() ? pResult->GetString(0) : "");
+	pSelf->m_pController->ChangeMap(pResult->GetString(0));
 }
 
 void CGameContext::ConRandomMap(IConsole::IResult *pResult, void *pUserData)
@@ -3274,7 +3298,7 @@ void CGameContext::ConBroadcast(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConSay(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	pSelf->SendChat(-1, CGameContext::CHAT_ALL, pResult->GetString(0));
+	pSelf->SendChat(-1, TEAM_ALL, pResult->GetString(0));
 }
 
 void CGameContext::ConSetTeam(IConsole::IResult *pResult, void *pUserData)
@@ -3304,7 +3328,7 @@ void CGameContext::ConSetTeamAll(IConsole::IResult *pResult, void *pUserData)
 
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "All players were moved to the %s", pSelf->m_pController->GetTeamName(Team));
-	pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 
 	for(auto &pPlayer : pSelf->m_apPlayers)
 		if(pPlayer)
@@ -3425,7 +3449,7 @@ void CGameContext::ConRemoveVote(IConsole::IResult *pResult, void *pUserData)
 
 		// copy option
 		int Len = str_length(pSrc->m_aCommand);
-		CVoteOptionServer *pDst = (CVoteOptionServer *)pVoteOptionHeap->Allocate(sizeof(CVoteOptionServer) + Len);
+		CVoteOptionServer *pDst = (CVoteOptionServer *)pVoteOptionHeap->Allocate(sizeof(CVoteOptionServer) + Len, alignof(CVoteOptionServer));
 		pDst->m_pNext = 0;
 		pDst->m_pPrev = pVoteOptionLast;
 		if(pDst->m_pPrev)
@@ -3661,7 +3685,7 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("mapbug", "s[mapbug]", CFGFLAG_SERVER | CFGFLAG_GAME, ConMapbug, this, "Enable map compatibility mode using the specified bug (example: grenade-doubleexplosion@ddnet.tw)");
 	Console()->Register("switch_open", "i[switch]", CFGFLAG_SERVER | CFGFLAG_GAME, ConSwitchOpen, this, "Whether a switch is deactivated by default (otherwise activated)");
 	Console()->Register("pause_game", "", CFGFLAG_SERVER, ConPause, this, "Pause/unpause game");
-	Console()->Register("change_map", "?r[map]", CFGFLAG_SERVER | CFGFLAG_STORE, ConChangeMap, this, "Change map");
+	Console()->Register("change_map", "r[map]", CFGFLAG_SERVER | CFGFLAG_STORE, ConChangeMap, this, "Change map");
 	Console()->Register("random_map", "?i[stars]", CFGFLAG_SERVER, ConRandomMap, this, "Random map");
 	Console()->Register("random_unfinished_map", "?i[stars]", CFGFLAG_SERVER, ConRandomUnfinishedMap, this, "Random unfinished map");
 	Console()->Register("restart", "?i[seconds]", CFGFLAG_SERVER | CFGFLAG_STORE, ConRestart, this, "Restart in x seconds (0 = abort)");
@@ -4370,7 +4394,8 @@ void CGameContext::OnShutdown(void *pPersistentData)
 
 	DeleteTempfile();
 	ConfigManager()->ResetGameSettings();
-	Collision()->Dest();
+	Collision()->Unload();
+	Layers()->Unload();
 	delete m_pController;
 	m_pController = 0;
 	Clear();
@@ -4442,6 +4467,7 @@ void CGameContext::OnSnap(int ClientId)
 void CGameContext::OnPreSnap() {}
 void CGameContext::OnPostSnap()
 {
+	m_World.PostSnap();
 	m_Events.Clear();
 }
 
@@ -4814,7 +4840,7 @@ void CGameContext::WhisperId(int ClientId, int VictimId, const char *pMessage)
 	else if(GetClientVersion(ClientId) >= VERSION_DDNET_WHISPER)
 	{
 		CNetMsg_Sv_Chat Msg;
-		Msg.m_Team = CHAT_WHISPER_SEND;
+		Msg.m_Team = TEAM_WHISPER_SEND;
 		Msg.m_ClientId = VictimId;
 		Msg.m_pMessage = aCensoredMessage;
 		if(g_Config.m_SvDemoChat)
@@ -4841,7 +4867,7 @@ void CGameContext::WhisperId(int ClientId, int VictimId, const char *pMessage)
 	else if(GetClientVersion(VictimId) >= VERSION_DDNET_WHISPER)
 	{
 		CNetMsg_Sv_Chat Msg2;
-		Msg2.m_Team = CHAT_WHISPER_RECV;
+		Msg2.m_Team = TEAM_WHISPER_RECV;
 		Msg2.m_ClientId = ClientId;
 		Msg2.m_pMessage = aCensoredMessage;
 		if(g_Config.m_SvDemoChat)

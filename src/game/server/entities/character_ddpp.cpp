@@ -477,7 +477,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 				{
 					//char aBuf[256];
 					//str_format(aBuf, sizeof(aBuf), "freezetime %d", m_FreezeTime);
-					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					//GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 					Freeze(10);
 					// on fire mode
 					if(g_Config.m_SvOnFireMode == 1)
@@ -490,7 +490,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 				}
 				else
 				{
-					//GameServer()->SendChat(-1, CGameContext::CHAT_ALL, "returned cuz freeze time");
+					//GameServer()->SendChat(-1, TEAM_ALL, "returned cuz freeze time");
 					//return false; //dont count freezed tee shots (no score or sound or happy emote)
 					//dont return because we loose hammer vel then
 					return; //we can return agian because the instagib stuff has his own func and got moved out of TakeDamage();
@@ -527,7 +527,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//str_format(aBuf, sizeof(aBuf), "%s's Killingspree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), Server()->ClientName(GameServer()->m_apPlayers[From]->GetCid()), m_pPlayer->m_KillStreak);
 			//if (m_pPlayer->m_KillStreak >= 5)
 			//{
-			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			//	GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 			//	GameServer()->CreateExplosion(m_pPlayer->GetCharacter()->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, false, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			//}
 			//m_pPlayer->m_KillStreak = 0;
@@ -535,7 +535,7 @@ void CCharacter::DDPP_TakeDamageInstagib(int Dmg, int From, int Weapon)
 			//int iBuf = ((GameServer()->m_apPlayers[From]->m_KillStreak / 5) - 1) % 10;
 			//str_format(aBuf, sizeof(aBuf), "%s is %s with %d Kills!", Server()->ClientName(GameServer()->m_apPlayers[From]->GetCid()), m_SpreeMsg[iBuf], GameServer()->m_apPlayers[From]->m_KillStreak);
 			//if (m_pPlayer->m_KillStreak % 5 == 0 && GameServer()->m_apPlayers[From]->m_KillStreak >= 5)
-			//	GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+			//	GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 
 			// set attacker's face to happy (taunt!)
 			if(From >= 0 && From != m_pPlayer->GetCid() && GameServer()->m_apPlayers[From])
@@ -1109,7 +1109,7 @@ void CCharacter::DDPP_Tick()
 	if(m_Core.m_HookState == HOOK_GRABBED)
 	{
 		//m_Dummy_nn_touched_by_humans = true;
-		//GameServer()->SendChat(m_pPlayer->GetCid(), CGameContext::CHAT_ALL, "dont get in my hook -.-");
+		//GameServer()->SendChat(m_pPlayer->GetCid(), TEAM_ALL, "dont get in my hook -.-");
 
 		//Quest 2 level 8 Block 3 tees without using hook
 		if(m_pPlayer->m_QuestState == CPlayer::QUEST_BLOCK && m_pPlayer->m_QuestStateLevel == 8)
@@ -2042,7 +2042,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 
 					str_format(aBuf, sizeof(aBuf), "%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pVictim->GetPlayer()->GetCid()), pVictim->GetPlayer()->m_KillStreak);
 					pVictim->GetPlayer()->m_KillStreak = 0;
-					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 					GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 				}
 			}
@@ -2075,7 +2075,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 
 				str_format(aBuf, sizeof(aBuf), "'%s's killingspree was ended by %s (%d Kills)", Server()->ClientName(pVictim->GetPlayer()->GetCid()), Server()->ClientName(pKiller->GetCid()), pVictim->GetPlayer()->m_KillStreak);
 				pVictim->GetPlayer()->m_KillStreak = 0;
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 				GameServer()->CreateExplosion(pVictim->m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 			}
 
@@ -2089,7 +2089,7 @@ void CCharacter::InstagibKillingSpree(int KillerId, int Weapon)
 				str_format(aBuf, sizeof(aBuf), "'%s' is on a killing spree with %d Kills!", Server()->ClientName(pKiller->GetCid()), pKiller->m_KillStreak);
 
 				if(pKiller->m_KillStreak % 5 == 0 && pKiller->m_KillStreak >= 5)
-					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 
 				//Finish time if cfg val reached
 				if(pKiller->m_KillStreak == g_Config.m_SvKillsToFinish && g_Config.m_SvInstagibMode) //only finish if sv_insta is on... needed for the future if we actiavte this killsys in ddrace mode (sv_insta 0) to dont fuck up race scores
@@ -2510,7 +2510,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 	{
 		GameServer()->GetSpreeType(m_pPlayer->GetCid(), aSpreeType, sizeof(aSpreeType), true);
 		str_format(aBuf, sizeof(aBuf), "'%s's %s spree was ended by %s (%d Kills)", Server()->ClientName(m_pPlayer->GetCid()), aSpreeType, aKillerName, m_pPlayer->m_KillStreak);
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 		GameServer()->CreateExplosion(m_Pos, m_pPlayer->GetCid(), WEAPON_GRENADE, true, 0, m_pPlayer->GetCharacter()->Teams()->TeamMask(0));
 	}
 
@@ -2541,7 +2541,7 @@ void CCharacter::KillingSpree(int Killer) // handles all ddnet++ gametype sprees
 			{
 				GameServer()->GetSpreeType(Killer, aSpreeType, sizeof(aSpreeType), false);
 				str_format(aBuf, sizeof(aBuf), "%s is on a %s spree with %d kills!", aKillerName, aSpreeType, pKiller->m_KillStreak);
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 			}
 		}
 	}
@@ -2692,7 +2692,7 @@ void CCharacter::InstagibSubDieFunc(int Killer, int Weapon)
 				if(GameServer()->IsDDPPgametype("fng"))
 				{
 					str_format(aBuf, sizeof(aBuf), "'%s' multi x%d!", Server()->ClientName(Killer), GameServer()->m_apPlayers[Killer]->m_multi);
-					GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+					GameServer()->SendChat(-1, TEAM_ALL, aBuf);
 				}
 				if(GameServer()->m_apPlayers[Killer]->m_IsInstaArena_fng)
 				{

@@ -52,7 +52,7 @@ void CGameContext::ConFreezeLaser(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[128];
 	str_format(aBuf, sizeof aBuf, "'%s' got freeze Laser!",
 		pSelf->Server()->ClientName(Victim));
-	pSelf->SendChat(-1, CHAT_ALL, aBuf);
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 
 	pChr->m_FreezeLaser = true;
 }
@@ -152,7 +152,7 @@ void CGameContext::Conheal(IConsole::IResult *pResult, void *pUserData)
 		pSelf->SendChatTarget(ClientId, aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "%s was healed by %s", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		pSelf->SendChat(-1, TEAM_ALL, aBuf);
 	}
 }
 
@@ -657,7 +657,7 @@ void CGameContext::ConHammerfightMode(IConsole::IResult *pResult, void *pUserDat
 		pSelf->SendChatTarget(ClientId, aBuf);
 
 		str_format(aBuf, sizeof(aBuf), "hammerfight-mode has been turned %s for %s by %s", pChr->m_hammerfight ? "ON" : "OFF", pSelf->Server()->ClientName(ClientId), pSelf->Server()->ClientName(pResult->m_ClientId));
-		pSelf->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+		pSelf->SendChat(-1, TEAM_ALL, aBuf);
 	}
 }
 
@@ -931,7 +931,7 @@ void CGameContext::ConDestroyLaser(IConsole::IResult *pResult, void *pUserData)
 	char aBuf[128];
 	str_format(aBuf, sizeof aBuf, "'%s' got freeze hammer!",
 		pSelf->Server()->ClientName(Victim));
-	pSelf->SendChat(-1, CHAT_ALL, aBuf);
+	pSelf->SendChat(-1, TEAM_ALL, aBuf);
 	*/
 	pChr->m_DestroyLaser = true;
 }

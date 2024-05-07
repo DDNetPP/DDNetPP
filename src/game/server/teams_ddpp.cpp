@@ -7,8 +7,11 @@
 #include "entities/character.h"
 #include "player.h"
 
-void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, int mins, float secs)
+void CGameTeams::OnFinishDDPP(CPlayer *pPlayer, float Time)
 {
+	int mins = (int)Time / 60;
+	// float secs = Time - mins * 60;
+
 	OnQuestFinish(pPlayer);
 	if(mins > 0) // only give xp if race was at least 1 minute
 	{

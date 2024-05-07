@@ -129,7 +129,7 @@ void CPlayer::DDPPProcessScoreResult(CAccountResult &Result)
 				if(GameServer()->ProcessSpamProtection(m_ClientId) && PrimaryMessage)
 					break;
 
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
+				GameServer()->SendChat(-1, TEAM_ALL, aMessage, -1);
 				PrimaryMessage = false;
 			}
 			break;
@@ -297,7 +297,7 @@ void CPlayer::DDPPProcessAdminCommandResult(CAdminCommandResult &Result)
 				if(GameServer()->ProcessSpamProtection(m_ClientId) && PrimaryMessage)
 					break;
 
-				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aMessage, -1);
+				GameServer()->SendChat(-1, TEAM_ALL, aMessage, -1);
 				PrimaryMessage = false;
 			}
 			break;

@@ -25,16 +25,14 @@ struct CAntibotMapData;
 
 class CCollision
 {
-	class CTile *m_pTiles;
-	int m_Width;
-	int m_Height;
-	class CLayers *m_pLayers;
-
 public:
 	CCollision();
 	~CCollision();
+
 	void Init(class CLayers *pLayers);
+	void Unload();
 	void FillAntibot(CAntibotMapData *pMapData);
+
 	bool CheckPoint(float x, float y) const { return IsSolid(round_to_int(x), round_to_int(y)); }
 	bool CheckPoint(vec2 Pos) const { return CheckPoint(Pos.x, Pos.y); }
 	int GetCollisionAt(float x, float y) const { return GetTile(round_to_int(x), round_to_int(y)); }
@@ -48,8 +46,6 @@ public:
 	bool TestBox(vec2 Pos, vec2 Size) const;
 
 	// DDRace
-
-	void Dest();
 	void SetCollisionAt(float x, float y, int id);
 	void SetDTile(float x, float y, bool State);
 	void SetDCollisionAt(float x, float y, int Type, int Flags, int Number);
@@ -139,6 +135,11 @@ public:
 	// DDNet++ end
 
 private:
+	class CTile *m_pTiles;
+	int m_Width;
+	int m_Height;
+	class CLayers *m_pLayers;
+
 	std::map<int, std::vector<vec2>> m_TeleIns;
 	std::map<int, std::vector<vec2>> m_TeleOuts;
 	std::map<int, std::vector<vec2>> m_TeleCheckOuts;
