@@ -33,6 +33,7 @@ void CGameContext::ConstructDDPP()
 	m_pAccounts = nullptr;
 	m_pBlockTournament = nullptr;
 	m_pBalance = nullptr;
+	m_pInstagib = nullptr;
 	m_MapsavePlayers = 0;
 	m_MapsaveLoadedPlayers = 0;
 	m_vDropLimit.resize(2);
