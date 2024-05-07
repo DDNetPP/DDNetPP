@@ -1,8 +1,10 @@
 // ddnet++ generic character stuff
 
 #include <base/math_ddpp.h>
+#include <base/system.h>
 #include <engine/server/server.h>
 #include <engine/shared/config.h>
+#include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamemodes/DDRace.h>
 #include <game/server/player.h>
@@ -734,6 +736,11 @@ void CCharacter::DropArmor(int amount)
 
 void CCharacter::DropWeapon(int WeaponId)
 {
+	{
+		char aAssert[512];
+		str_format(aAssert, sizeof(aAssert), "DropWeapon(WeaponId=%d) weapon out of range 0-%d", WeaponId, NUM_WEAPONS);
+		dbg_assert(WeaponId >= 0 && WeaponId < NUM_WEAPONS, aAssert);
+	}
 	if(!g_Config.m_SvAllowDroppingWeapons)
 		return;
 	if(isFreezed || m_FreezeTime)
