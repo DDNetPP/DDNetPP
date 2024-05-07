@@ -1815,7 +1815,6 @@ void CGameContext::OnClientConnected(int ClientId, void *pData)
 
 void CGameContext::OnClientDrop(int ClientId, const char *pReason, bool Silent)
 {
-	m_ClientLeftServer[ClientId] = true;
 	LogEvent("Disconnect", ClientId);
 
 	AbortVoteKickOnDisconnect(ClientId);

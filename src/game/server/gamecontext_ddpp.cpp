@@ -59,7 +59,6 @@ void CGameContext::ConstructDDPP()
 	m_NumLoginBans = 0;
 	m_NumRegisterBans = 0;
 	m_NumNameChangeMutes = 0;
-	mem_zero(m_ClientLeftServer, sizeof(m_ClientLeftServer));
 	m_LastAccountMode = g_Config.m_SvAccountStuff;
 	m_IsServerEmpty = false;
 	m_IsPoliceFarmActive = true;

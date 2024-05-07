@@ -170,7 +170,7 @@ void CWeapon::Pickup()
 
 void CWeapon::Tick()
 {
-	if(m_Owner != -1 && GameServer()->m_ClientLeftServer[m_Owner])
+	if(m_Owner != -1 && !GameServer()->m_apPlayers[m_Owner])
 	{
 		m_Owner = -1;
 	}

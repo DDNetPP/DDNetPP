@@ -129,7 +129,6 @@ public:
 	void SQLaccount(int mode, int ClientId, const char *pUsername, const char *pPassword = "");
 	void SQLcleanZombieAccounts(int ClientId);
 
-	bool m_ClientLeftServer[MAX_CLIENTS];
 	bool AdminChatPing(const char *pMsg);
 
 	/*
