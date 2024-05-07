@@ -179,6 +179,7 @@ jobs:
         find . -name '*.gcno' -o -name '*.gcda' -delete
         ./DDNet-Server "sv_map coverage" &
         ./DDNet "cl_download_skins 0;connect localhost:8303;quit"
+        pkill -f DDNet-Server || true
 
     - name: Upload Codecov report (start & connect)
       if: contains(matrix.os, 'ubuntu-latest')
@@ -204,6 +205,8 @@ jobs:
       if: matrix.fancy
       run: |
         cd fancy
+        pkill -f DDNetPP || true
+        pkill -f DDNet-Server || true
         ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Run integration tests with Valgrind's Memcheck
