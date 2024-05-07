@@ -75,11 +75,15 @@ int regex_compile(const char *pPattern, const char *pStr)
 
 long get_file_offset(FILE *file)
 {
+#if defined(CONF_FAMILY_WINDOWS)
+	return fseek(file);
+#else
 	// tested on:
 	//   - alpine musl libc
 	//   - arch glibc
 	off_t offset = ftello(file);
 	return offset;
+#endif
 }
 
 // // TODO: move to detect.h in upstream
