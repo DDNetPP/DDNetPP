@@ -73,17 +73,11 @@ int regex_compile(const char *pPattern, const char *pStr)
 #endif
 }
 
+// TODO: remove get_file_offset and use teeworlds styled io_tell
+//       IOHANDLE instead of FILE
 long get_file_offset(FILE *file)
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	return fseek(file);
-#else
-	// tested on:
-	//   - alpine musl libc
-	//   - arch glibc
-	off_t offset = ftello(file);
-	return offset;
-#endif
+	return io_tell(file);
 }
 
 // // TODO: move to detect.h in upstream
