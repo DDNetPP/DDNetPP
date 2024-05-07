@@ -141,7 +141,15 @@ jobs:
         mkdir headless
         cd headless
         ${{ matrix.cmake-path }}cmake --version
-        ${{ matrix.cmake-path }}cmake -E env CXXFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake -E env LDFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DHEADLESS_CLIENT=ON -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.cmake-path }}cmake -E env CXXFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake -E env LDFLAGS="--coverage -Werror" ${{ matrix.cmake-path }}cmake \
+          ${{ matrix.cmake-args }} \
+          -DCLIENT=ON \
+          -DHEADLESS_CLIENT=ON \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -Werror=dev \
+          -DDOWNLOAD_GTEST=ON \
+          -DDEV=ON \
+          -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
         ${{ matrix.cmake-path }}cmake -E env RUSTFLAGS="-Clink-arg=--coverage" ${{ matrix.cmake-path }}cmake --build . --config Debug  ${{ matrix.build-args }}
         cp DDNetPP.exe DDNet-Server.exe || true
         cp data/maps/ddnetpp-test.map data/maps/'Sunny Side Up'.map
