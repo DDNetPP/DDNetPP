@@ -29,21 +29,20 @@
 #include <cstring>
 #include <engine/shared/linereader.h>
 #include <game/server/gamecontext.h>
-#include <vector>
 #include <zlib.h>
 
 #include "register.h"
 #include "server.h"
 
 #if defined(CONF_FAMILY_WINDOWS)
+#ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #endif
-
-// DDPP ( ChillerDragon )
-#include <fstream>
-#include <string>
 
 #include "databases/connection.h"
 #include "databases/connection_pool.h"
