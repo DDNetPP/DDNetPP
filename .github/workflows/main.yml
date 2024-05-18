@@ -54,7 +54,6 @@ jobs:
     #     brew install pkg-config sdl2
 
     - name: Build in debug mode
-      env: ${{ matrix.env }}
       run: |
         mkdir debug
         cd debug
@@ -67,7 +66,6 @@ jobs:
         ./DDNetPP "sv_map ddnetpp-test;shutdown"
 
     - name: Build in release mode
-      env: ${{ matrix.env }}
       run: |
         mkdir release
         cd release
