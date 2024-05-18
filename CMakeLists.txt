@@ -2732,6 +2732,10 @@ if(SERVER)
     ${LIBS}
   )
 
+  add_subdirectory(src/DDNetPP-bots)
+  include_directories(src/DDNetPP-bots/src)
+  set(LIBS_SERVER twbl ${LIBS_SERVER})
+
   # Target
   add_executable(game-server
     ${DEPS}

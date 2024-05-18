@@ -26,6 +26,11 @@ enum EDummyMode
 	DUMMYMODE_CTF5_PVP = 103,
 	DUMMYMODE_BLMAPV5_LOWER_BLOCKER = 104,
 	DUMMYMODE_BLMAPV5_UPPER_BLOCKER = 105,
+
+	DUMMYMODE_TWBL_START = 106, // define your twbl mode below
+	DUMMYMODE_TWBL_TEST = 107,
+	DUMMYMODE_TWBL_END, // define your twbl mode above
+
 };
 
 #endif

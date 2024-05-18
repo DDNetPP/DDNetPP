@@ -112,6 +112,7 @@ public:
 	void DDPPPostCoreTick();
 	bool DDPPTakeDamage(vec2 Force, int Dmg, int From, int Weapon);
 	int DDPP_DIE(int Killer, int Weapon, bool fngscore = false);
+	void TwblTick();
 	void DummyTick();
 	void PvPArenaTick();
 

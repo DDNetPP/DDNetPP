@@ -3,6 +3,7 @@
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/mapitems.h>
+#include <game/server/ddpp/dummymode.h>
 #include <game/server/ddpp/loc.h>
 #include <game/server/ddpp/shop.h>
 
@@ -256,6 +257,12 @@ bool CPlayer::SetDummyMode(EDummyMode Mode)
 	{
 		delete m_pDummyMode;
 		m_pDummyMode = nullptr;
+	}
+
+	if(m_DummyMode > DUMMYMODE_TWBL_START && m_DummyMode < DUMMYMODE_TWBL_END)
+	{
+		dbg_msg("dummy", "set mode %d (twbl) for player %d:'%s'", Mode, GetCid(), Server()->ClientName(GetCid()));
+		return true;
 	}
 
 	switch(m_DummyMode)

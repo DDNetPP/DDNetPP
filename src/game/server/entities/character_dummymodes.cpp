@@ -9,6 +9,11 @@
 
 #include <game/server/ddpp/shop.h>
 
+// twbl
+#include <bots/ddpp_test.h>
+#include <server/set_state.h>
+#include <shared/types.h>
+
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
 
@@ -24,6 +29,21 @@ void CCharacter::Fire(bool Fire)
 		m_LatestInput.m_Fire = 0;
 		m_Input.m_Fire = 0;
 	}
+}
+
+void CCharacter::TwblTick()
+{
+	CServerBotStateIn State;
+	CServerBotStateOut Bot;
+	TWBL::SetState(this, &State);
+
+	if(m_pPlayer->DummyMode() == DUMMYMODE_TWBL_TEST)
+		TwblTestTick(&State, &Bot);
+	else
+		dbg_msg("twbl", "error unknown mode");
+
+	// TODO: this should be moved to a method or macro in twbl/server/*
+	m_SavedInput.m_Direction = Bot.m_Direction;
 }
 
 void CCharacter::DummyTick()
@@ -52,6 +72,8 @@ void CCharacter::DummyTick()
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_CHILLINTELLIGENCE)
 		CITick();
+	else if(m_pPlayer->DummyMode() > DUMMYMODE_TWBL_START && m_pPlayer->DummyMode() < DUMMYMODE_TWBL_END)
+		TwblTick();
 	else if(m_pPlayer->m_pDummyMode)
 		m_pPlayer->m_pDummyMode->Tick(this);
 	else if(m_pPlayer->DummyMode() != DUMMYMODE_DEFAULT)
