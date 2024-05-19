@@ -38,7 +38,7 @@ void CCharacter::TwblTick()
 	TWBL::SetState(this, &State);
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_TWBL_TEST)
-		TwblTestTick(&State, &Bot);
+		TWBL::TestTick(&State, &Bot);
 	else
 		dbg_msg("twbl", "error unknown mode");
 
