@@ -2732,8 +2732,8 @@ if(SERVER)
     ${LIBS}
   )
 
-  add_subdirectory(src/DDNetPP-bots)
-  include_directories(src/DDNetPP-bots/src)
+  add_subdirectory(src/external/DDNetPP-bots)
+  include_directories(src/external/DDNetPP-bots/src)
   set(LIBS_SERVER twbl ${LIBS_SERVER})
 
   # Target

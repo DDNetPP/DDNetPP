@@ -5,6 +5,6 @@
 	path = data/maps
 	url = git@github.com:DDNetPP/maps.git
 	shallow = true
-[submodule "src/DDNetPP-bots"]
-	path = src/DDNetPP-bots
+[submodule "src/external/DDNetPP-bots"]
+	path = src/external/DDNetPP-bots
 	url = git@github.com:DDNetPP/DDNetPP-bots.git
