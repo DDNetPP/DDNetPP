@@ -218,9 +218,9 @@ void CDummyBase::AvoidFreezeWeapons()
 	// avoid hitting freeze roof
 	if(GetVel().y < -0.05)
 	{
-		int distY = GetPos().y + GetVel().y * 4 - 40;
-		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, distY), 0, 0) &&
-			IsFreezeTile(GetPos().x, distY))
+		int DistY = GetPos().y + GetVel().y * 4 - 40;
+		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), 0, 0) &&
+			IsFreezeTile(GetPos().x, DistY))
 		{
 			Aim(GetVel().x, -200);
 			Fire();
@@ -232,9 +232,9 @@ void CDummyBase::AvoidFreezeWeapons()
 	// avoid hitting freeze floor
 	else if(GetVel().y > 0.05)
 	{
-		int distY = GetPos().y + GetVel().y * 3 + 20;
-		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, distY), 0, 0) &&
-			IsFreezeTile(GetPos().x, distY))
+		int DistY = GetPos().y + GetVel().y * 3 + 20;
+		if(!GameServer()->Collision()->IntersectLine(GetPos(), vec2(GetPos().x, DistY), 0, 0) &&
+			IsFreezeTile(GetPos().x, DistY))
 		{
 			Aim(GetVel().x, 200);
 			if(JumpedTotal() == Jumps() - 1)
