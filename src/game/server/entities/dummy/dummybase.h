@@ -10,12 +10,12 @@ class CDummyBase
 {
 public:
 	CDummyBase(class CPlayer *pPlayer, int Mode);
-	virtual ~CDummyBase(){};
+	virtual ~CDummyBase() = default;
 	virtual const char *ModeStr() = 0;
 	void Tick(class CCharacter *pChr);
 	virtual void OnDeath(){};
 	virtual void TakeDamage(vec2 Force, int Dmg, int From, int Weapon){};
-	int Mode() { return m_Mode; }
+	int Mode() const { return m_Mode; }
 
 private:
 	virtual void OnTick() {}
