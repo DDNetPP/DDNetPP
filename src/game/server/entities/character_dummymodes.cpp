@@ -1,6 +1,7 @@
 // Hardcoded serverside bots madness
 // created by yung ChillerDragon xd
 
+#include "bots/follow.h"
 #include "character.h"
 
 #include <engine/server/server.h>
@@ -10,9 +11,9 @@
 #include <game/server/ddpp/shop.h>
 
 // twbl
-#include <bots/ddpp_test.h>
-#include <server/set_state.h>
 #include <shared/types.h>
+#include <bots/sample.h>
+#include <server/set_state.h>
 
 #include <fstream> //ChillerDragon saving bot move records
 #include <string> //ChillerDragon std::getline
@@ -36,14 +37,15 @@ void CCharacter::TwblTick()
 	CServerBotStateIn State;
 	CServerBotStateOut Bot;
 	TWBL::SetState(this, &State);
+	State.m_pCollision = Collision();
+	State.m_ppPlayers = GameServer()->m_apPlayers;
 
 	if(m_pPlayer->DummyMode() == DUMMYMODE_TWBL_TEST)
-		TWBL::TestTick(&State, &Bot);
+		Twbl_FollowTick(&State, &Bot);
 	else
 		dbg_msg("twbl", "error unknown mode");
 
-	// TODO: this should be moved to a method or macro in twbl/server/*
-	m_SavedInput.m_Direction = Bot.m_Direction;
+	TWBL_SET_INPUT(m_SavedInput, Bot);
 }
 
 void CCharacter::DummyTick()

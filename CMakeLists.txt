@@ -2732,9 +2732,32 @@ if(SERVER)
     ${LIBS}
   )
 
-  add_subdirectory(src/external/DDNetPP-bots)
-  include_directories(src/external/DDNetPP-bots/src)
-  set(LIBS_SERVER twbl ${LIBS_SERVER})
+  # twbl start
+  set(TWBL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/external/DDNetPP-bots)
+  include_directories(${TWBL_ROOT}/src)
+  FILE(GLOB TWBL_SRC
+    ${TWBL_ROOT}/src/shared/base/*.cpp
+    ${TWBL_ROOT}/src/shared/base/*.h
+    ${TWBL_ROOT}/src/shared/*.cpp
+    ${TWBL_ROOT}/src/shared/*.h
+    ${TWBL_ROOT}/src/bots/*.cpp
+    ${TWBL_ROOT}/src/bots/*.h
+  )
+
+  set(SERVER_SRC ${SERVER_SRC} ${TWBL_SRC})
+  add_library(twbl_bottick SHARED
+    ${GAME_SHARED}
+    ${TWBL_SRC}
+    ${GAME_GENERATED_SHARED})
+
+  target_compile_options(twbl_bottick PRIVATE -std=gnu++17)
+  target_compile_definitions(twbl_bottick PRIVATE TWBL_SHARED_OBJECT=1)
+
+  target_include_directories(twbl_bottick PRIVATE src)
+  target_include_directories(twbl_bottick PRIVATE ${PROJECT_BINARY_DIR}/src)
+  add_cxx_compiler_flag_if_supported(OUR_FLAGS_LINK -rdynamic)
+  # twbl end
+
 
   # Target
   add_executable(game-server
