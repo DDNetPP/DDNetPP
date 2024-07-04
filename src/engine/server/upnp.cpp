@@ -25,14 +25,20 @@ void CUPnP::Open(NETADDR Address)
 
 		m_pUPnPDevice = upnpDiscover(2000, NULL, NULL, 0, 0, 2, &Error);
 
+#if MINIUPNPC_API_VERSION > 17
+		char aWanAddr[64];
+		int Status = UPNP_GetValidIGD(m_pUPnPDevice, m_pUPnPUrls, m_pUPnPData, aLanAddr, sizeof(aLanAddr), aWanAddr, sizeof(aWanAddr));
+		dbg_msg("upnp", "status=%d, lan_addr=%s, wan_addr=%s", Status, aLanAddr, aWanAddr);
+#else
 		int Status = UPNP_GetValidIGD(m_pUPnPDevice, m_pUPnPUrls, m_pUPnPData, aLanAddr, sizeof(aLanAddr));
 		dbg_msg("upnp", "status=%d, lan_addr=%s", Status, aLanAddr);
+#endif
 
 		if(Status == 1)
 		{
 			m_Enabled = true;
 			dbg_msg("upnp", "found valid IGD: %s", m_pUPnPUrls->controlURL);
-			str_from_int(m_Addr.port, aPort);
+			str_format(aPort, sizeof(aPort), "%d", m_Addr.port);
 			Error = UPNP_AddPortMapping(m_pUPnPUrls->controlURL, m_pUPnPData->first.servicetype,
 				aPort, aPort, aLanAddr,
 				"DDNet Server " GAME_RELEASE_VERSION,
@@ -55,7 +61,7 @@ void CUPnP::Shutdown()
 		if(m_Enabled)
 		{
 			char aPort[6];
-			str_from_int(m_Addr.port, aPort);
+			str_format(aPort, sizeof(aPort), "%d", m_Addr.port);
 			int Error = UPNP_DeletePortMapping(m_pUPnPUrls->controlURL, m_pUPnPData->first.servicetype, aPort, "UDP", NULL);
 
 			if(Error != 0)

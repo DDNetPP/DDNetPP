@@ -1359,13 +1359,30 @@ void CServer::SendRconCmdRem(const IConsole::CCommandInfo *pCommandInfo, int Cli
 	SendMsg(&Msg, MSGFLAG_VITAL, ClientId);
 }
 
+int CServer::GetConsoleAccessLevel(int ClientId)
+{
+	return m_aClients[ClientId].m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : m_aClients[ClientId].m_Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER;
+}
+
+int CServer::NumRconCommands(int ClientId)
+{
+	int Num = 0;
+	int ConsoleAccessLevel = GetConsoleAccessLevel(ClientId);
+	for(const IConsole::CCommandInfo *pCmd = Console()->FirstCommandInfo(ConsoleAccessLevel, CFGFLAG_SERVER);
+		pCmd; pCmd = pCmd->NextCommandInfo(ConsoleAccessLevel, CFGFLAG_SERVER))
+	{
+		Num++;
+	}
+	return Num;
+}
+
 void CServer::UpdateClientRconCommands()
 {
 	int ClientId = Tick() % MAX_CLIENTS;
 
 	if(m_aClients[ClientId].m_State != CClient::STATE_EMPTY && m_aClients[ClientId].m_Authed)
 	{
-		int ConsoleAccessLevel = m_aClients[ClientId].m_Authed == AUTHED_ADMIN ? IConsole::ACCESS_LEVEL_ADMIN : m_aClients[ClientId].m_Authed == AUTHED_MOD ? IConsole::ACCESS_LEVEL_MOD : IConsole::ACCESS_LEVEL_HELPER;
+		int ConsoleAccessLevel = GetConsoleAccessLevel(ClientId);
 		for(int i = 0; i < MAX_RCONCMD_SEND && m_aClients[ClientId].m_pRconCmdToSend; ++i)
 		{
 			SendRconCmdAdd(m_aClients[ClientId].m_pRconCmdToSend, ClientId);
@@ -1795,6 +1812,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 						// AUTHED_ADMIN - AuthLevel gets the proper IConsole::ACCESS_LEVEL_<x>
 						m_aClients[ClientId].m_pRconCmdToSend = Console()->FirstCommandInfo(AUTHED_ADMIN - AuthLevel, CFGFLAG_SERVER);
 						CMsgPacker MsgStart(NETMSG_RCON_CMD_GROUP_START, true);
+						MsgStart.AddInt(NumRconCommands(ClientId));
 						SendMsg(&MsgStart, MSGFLAG_VITAL, ClientId);
 						if(m_aClients[ClientId].m_pRconCmdToSend == nullptr)
 						{
@@ -1986,7 +2004,7 @@ void CServer::CacheServerInfo(CCache *pCache, int Type, bool SendClients)
 #define ADD_INT(p, x) \
 	do \
 	{ \
-		str_from_int(x, aBuf); \
+		str_format(aBuf, sizeof(aBuf), "%d", x); \
 		(p).AddString(aBuf, 0); \
 	} while(0)
 
@@ -2247,7 +2265,7 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 #define ADD_INT(p, x) \
 	do \
 	{ \
-		str_from_int(x, aBuf); \
+		str_format(aBuf, sizeof(aBuf), "%d", x); \
 		(p).AddString(aBuf, 0); \
 	} while(0)
 
@@ -2915,9 +2933,10 @@ int CServer::Run()
 						}
 					}
 
-					if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED &&
-						Config()->m_SvDnsblBan)
-						m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60 * 10, "VPN detected, try connecting without. Contact admin if mistaken");
+					if(m_aClients[ClientId].m_DnsblState == CClient::DNSBL_STATE_BLACKLISTED && Config()->m_SvDnsblBan)
+					{
+						m_NetServer.NetBan()->BanAddr(m_NetServer.ClientAddr(ClientId), 60 * 10, Config()->m_SvDnsblBanReason);
+					}
 				}
 			}
 
@@ -3893,18 +3912,18 @@ const char *CServer::GetAnnouncementLine(const char *pFileName)
 		str_copy(m_aAnnouncementFile, pFileName);
 		m_vAnnouncements.clear();
 
-		IOHANDLE File = m_pStorage->OpenFile(pFileName, IOFLAG_READ | IOFLAG_SKIP_BOM, IStorage::TYPE_ALL);
-		if(!File)
+		CLineReader LineReader;
+		if(!LineReader.OpenFile(m_pStorage->OpenFile(pFileName, IOFLAG_READ, IStorage::TYPE_ALL)))
+		{
 			return 0;
-
-		char *pLine;
-		CLineReader Reader;
-		Reader.Init(File);
-		while((pLine = Reader.Get()))
+		}
+		while(const char *pLine = LineReader.Get())
+		{
 			if(str_length(pLine) && pLine[0] != '#')
+			{
 				m_vAnnouncements.emplace_back(pLine);
-
-		io_close(File);
+			}
+		}
 	}
 
 	if(m_vAnnouncements.empty())

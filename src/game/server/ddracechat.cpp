@@ -56,7 +56,7 @@ void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Teero, furo, dobrykafe, Moiman, JSaurusRex,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
-		"Steinchen & others");
+		"Steinchen, ewancg, gerdoe-jr, BlaiZephyr & others");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
 		"Based on DDRace by the DDRace developers,");
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp",
@@ -700,20 +700,32 @@ void CGameContext::ConPractice(IConsole::IResult *pResult, void *pUserData)
 	{
 		Teams.SetPractice(Team, true);
 		pSelf->SendChatTeam(Team, "Practice mode enabled for your team, happy practicing!");
-
-		char aPracticeCommands[256];
-		mem_zero(aPracticeCommands, sizeof(aPracticeCommands));
-		str_append(aPracticeCommands, "Available practice commands: ");
-		for(const IConsole::CCommandInfo *pCmd = pSelf->Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE);
-			pCmd; pCmd = pCmd->NextCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE))
-		{
-			char aCommand[64];
-
-			str_format(aCommand, sizeof(aCommand), "/%s%s", pCmd->m_pName, pCmd->NextCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE) ? ", " : "");
-			str_append(aPracticeCommands, aCommand);
-		}
-		pSelf->SendChatTeam(Team, aPracticeCommands);
+		pSelf->SendChatTeam(Team, "See /practicecmdlist for a list of all avaliable practice commands. Most commonly used ones are /telecursor, /lasttp and /rescue");
 	}
+}
+
+void CGameContext::ConPracticeCmdList(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	char aPracticeCommands[256];
+	mem_zero(aPracticeCommands, sizeof(aPracticeCommands));
+	str_append(aPracticeCommands, "Available practice commands: ");
+	for(const IConsole::CCommandInfo *pCmd = pSelf->Console()->FirstCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE);
+		pCmd; pCmd = pCmd->NextCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE))
+	{
+		char aCommand[64];
+
+		str_format(aCommand, sizeof(aCommand), "/%s%s", pCmd->m_pName, pCmd->NextCommandInfo(IConsole::ACCESS_LEVEL_USER, CMDFLAG_PRACTICE) ? ", " : "");
+
+		if(str_length(aCommand) + str_length(aPracticeCommands) > 255)
+		{
+			pSelf->SendChatTarget(pResult->m_ClientId, aPracticeCommands);
+			mem_zero(aPracticeCommands, sizeof(aPracticeCommands));
+		}
+		str_append(aPracticeCommands, aCommand);
+	}
+	pSelf->SendChatTarget(pResult->m_ClientId, aPracticeCommands);
 }
 
 void CGameContext::ConSwap(IConsole::IResult *pResult, void *pUserData)
@@ -1043,7 +1055,7 @@ void CGameContext::AttemptJoinTeam(int ClientId, int Team)
 					"This team is locked using /lock. Only members of the team can unlock it using /lock." :
 					"This team is locked using /lock. Only members of the team can invite you or unlock it using /lock.");
 		}
-		else if(Team > 0 && Team < MAX_CLIENTS && m_pController->Teams().Count(Team) >= g_Config.m_SvMaxTeamSize && !m_pController->Teams().TeamFlock(Team))
+		else if(Team > 0 && Team < MAX_CLIENTS && m_pController->Teams().Count(Team) >= g_Config.m_SvMaxTeamSize && !m_pController->Teams().TeamFlock(Team) && !m_pController->Teams().IsPractice(Team))
 		{
 			char aBuf[512];
 			str_format(aBuf, sizeof(aBuf), "This team already has the maximum allowed size of %d players", g_Config.m_SvMaxTeamSize);
@@ -1674,8 +1686,76 @@ void CGameContext::ConRescue(IConsole::IResult *pResult, void *pUserData)
 		return;
 	}
 
-	pChr->Rescue();
-	pChr->UnFreeze();
+	bool GoRescue = true;
+
+	if(pPlayer->m_RescueMode == RESCUEMODE_MANUAL)
+	{
+		// if character can't set his rescue state then we should rescue him instead
+		GoRescue = !pChr->TrySetRescue(RESCUEMODE_MANUAL);
+	}
+
+	if(GoRescue)
+	{
+		pChr->Rescue();
+		pChr->UnFreeze();
+	}
+}
+
+void CGameContext::ConRescueMode(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientId(pResult->m_ClientId))
+		return;
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientId];
+	if(!pPlayer)
+		return;
+
+	CGameTeams &Teams = pSelf->m_pController->Teams();
+	int Team = pSelf->GetDDRaceTeam(pResult->m_ClientId);
+	if(!g_Config.m_SvRescue && !Teams.IsPractice(Team))
+	{
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Rescue is not enabled on this server and you're not in a team with /practice turned on. Note that you can't earn a rank with practice enabled.");
+		return;
+	}
+
+	if(str_comp_nocase(pResult->GetString(0), "auto") == 0)
+	{
+		if(pPlayer->m_RescueMode != RESCUEMODE_AUTO)
+		{
+			pPlayer->m_RescueMode = RESCUEMODE_AUTO;
+
+			pSelf->SendChatTarget(pPlayer->GetCid(), "Rescue mode changed to auto.");
+		}
+
+		return;
+	}
+
+	if(str_comp_nocase(pResult->GetString(0), "manual") == 0)
+	{
+		if(pPlayer->m_RescueMode != RESCUEMODE_MANUAL)
+		{
+			pPlayer->m_RescueMode = RESCUEMODE_MANUAL;
+
+			pSelf->SendChatTarget(pPlayer->GetCid(), "Rescue mode changed to manual.");
+		}
+
+		return;
+	}
+
+	if(str_comp_nocase(pResult->GetString(0), "list") == 0)
+	{
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Available rescue modes: auto, manual");
+	}
+	else if(str_comp_nocase(pResult->GetString(0), "") == 0)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "Current rescue mode: %s.", pPlayer->m_RescueMode == RESCUEMODE_MANUAL ? "manual" : "auto");
+		pSelf->SendChatTarget(pPlayer->GetCid(), aBuf);
+	}
+	else
+	{
+		pSelf->SendChatTarget(pPlayer->GetCid(), "Unknown argument. Check '/rescuemode list'");
+	}
 }
 
 void CGameContext::ConTeleTo(IConsole::IResult *pResult, void *pUserData)

@@ -461,7 +461,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 			else
 			{
 				static float s_PrevAmount = 0.0f;
-				float AmountSeek = clamp((Ui()->MouseX() - SeekBar.x - Rounding) / (float)(SeekBar.w - 2 * Rounding), 0.0f, 1.0f);
+				float AmountSeek = clamp((Ui()->MouseX() - SeekBar.x - Rounding) / (SeekBar.w - 2 * Rounding), 0.0f, 1.0f);
 
 				if(Input()->ShiftIsPressed())
 				{
@@ -494,7 +494,7 @@ void CMenus::RenderDemoPlayer(CUIRect MainView)
 
 		if(Ui()->HotItem() == pId)
 		{
-			const int HoveredTick = (int)(clamp((Ui()->MouseX() - SeekBar.x - Rounding) / (float)(SeekBar.w - 2 * Rounding), 0.0f, 1.0f) * TotalTicks);
+			const int HoveredTick = (int)(clamp((Ui()->MouseX() - SeekBar.x - Rounding) / (SeekBar.w - 2 * Rounding), 0.0f, 1.0f) * TotalTicks);
 			static char s_aHoveredTime[32];
 			str_time((int64_t)HoveredTick / Client()->GameTickSpeed() * 100, TIME_HOURS, s_aHoveredTime, sizeof(s_aHoveredTime));
 			GameClient()->m_Tooltips.DoToolTip(pId, &SeekBar, s_aHoveredTime);
@@ -830,13 +830,15 @@ void CMenus::RenderDemoPlayerSliceSavePopup(CUIRect MainView)
 	static CButtonContainer s_ButtonOk;
 	if(DoButton_Menu(&s_ButtonOk, Localize("Ok"), 0, &OkButton) || (!Ui()->IsPopupOpen() && Ui()->ConsumeHotkey(CUi::HOTKEY_ENTER)))
 	{
+		if(str_endswith(m_DemoSliceInput.GetString(), ".demo"))
+		{
+			char aNameWithoutExt[IO_MAX_PATH_LENGTH];
+			fs_split_file_extension(m_DemoSliceInput.GetString(), aNameWithoutExt, sizeof(aNameWithoutExt));
+			m_DemoSliceInput.Set(aNameWithoutExt);
+		}
+
 		char aDemoName[IO_MAX_PATH_LENGTH];
-		char aNameWithoutExt[IO_MAX_PATH_LENGTH];
 		DemoPlayer()->GetDemoName(aDemoName, sizeof(aDemoName));
-
-		fs_split_file_extension(m_DemoSliceInput.GetString(), aNameWithoutExt, sizeof(aNameWithoutExt));
-		m_DemoSliceInput.Set(aNameWithoutExt);
-
 		if(str_comp(aDemoName, m_DemoSliceInput.GetString()) == 0)
 		{
 			static CUi::SMessagePopupContext s_MessagePopupContext;
@@ -1309,7 +1311,7 @@ void CMenus::RenderDemoBrowserDetails(CUIRect DetailsView)
 	Contents.HSplitTop(18.0f, &Left, &Contents);
 	Left.VSplitMid(&Left, &Right, 4.0f);
 	Ui()->DoLabel(&Left, pItem->m_Info.m_aType, FontSize - 1.0f, TEXTALIGN_ML);
-	str_from_int(pItem->m_Info.m_Version, aBuf);
+	str_format(aBuf, sizeof(aBuf), "%d", pItem->m_Info.m_Version);
 	Ui()->DoLabel(&Right, aBuf, FontSize - 1.0f, TEXTALIGN_ML);
 	Contents.HSplitTop(4.0f, nullptr, &Contents);
 
@@ -1321,7 +1323,7 @@ void CMenus::RenderDemoBrowserDetails(CUIRect DetailsView)
 	Left.VSplitMid(&Left, &Right, 4.0f);
 	str_time((int64_t)pItem->Length() * 100, TIME_HOURS, aBuf, sizeof(aBuf));
 	Ui()->DoLabel(&Left, aBuf, FontSize - 1.0f, TEXTALIGN_ML);
-	str_from_int(pItem->NumMarkers(), aBuf);
+	str_format(aBuf, sizeof(aBuf), "%d", pItem->NumMarkers());
 	Ui()->DoLabel(&Right, aBuf, FontSize - 1.0f, TEXTALIGN_ML);
 	Contents.HSplitTop(4.0f, nullptr, &Contents);
 

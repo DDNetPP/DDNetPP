@@ -77,7 +77,6 @@ private:
 	char *m_pClipboardText;
 
 	bool m_MouseFocus;
-	bool m_MouseDoubleClick;
 #if defined(CONF_PLATFORM_ANDROID)
 	ivec2 m_LastMousePos = ivec2(0, 0); // No relative mouse on Android
 	int m_NumBackPresses = 0;
@@ -92,14 +91,17 @@ private:
 	std::vector<std::string> m_vCandidates;
 	int m_CandidateSelectedIndex;
 
-	void AddEvent(char *pText, int Key, int Flags);
-	void Clear() override;
-	bool IsEventValid(const CEvent &Event) const override { return Event.m_InputCount == m_InputCounter; }
+	// events
+	std::vector<CEvent> m_vInputEvents;
+	int64_t m_LastUpdate;
+	float m_UpdateTime;
+	void AddKeyEvent(int Key, int Flags);
+	void AddTextEvent(const char *pText);
 
 	// quick access to input
-	unsigned short m_aInputCount[g_MaxKeys]; // tw-KEY
-	unsigned char m_aInputState[g_MaxKeys]; // SDL_SCANCODE
-	int m_InputCounter;
+	uint32_t m_aInputCount[g_MaxKeys];
+	unsigned char m_aInputState[g_MaxKeys];
+	uint32_t m_InputCounter;
 
 	void UpdateMouseState();
 	void UpdateJoystickState();
@@ -122,6 +124,10 @@ public:
 	int Update() override;
 	void Shutdown() override;
 
+	void ConsumeEvents(std::function<void(const CEvent &Event)> Consumer) const override;
+	void Clear() override;
+	float GetUpdateTime() const override;
+
 	bool ModifierIsPressed() const override { return KeyState(KEY_LCTRL) || KeyState(KEY_RCTRL) || KeyState(KEY_LGUI) || KeyState(KEY_RGUI); }
 	bool ShiftIsPressed() const override { return KeyState(KEY_LSHIFT) || KeyState(KEY_RSHIFT); }
 	bool AltIsPressed() const override { return KeyState(KEY_LALT) || KeyState(KEY_RALT); }
@@ -138,7 +144,6 @@ public:
 	void MouseModeRelative() override;
 	void NativeMousePos(int *pX, int *pY) const override;
 	bool NativeMousePressed(int Index) override;
-	bool MouseDoubleClick() override;
 
 	const char *GetClipboardText() override;
 	void SetClipboardText(const char *pText) override;

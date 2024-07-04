@@ -2,6 +2,8 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "voting.h"
 
+#include <base/system.h>
+
 #include <engine/shared/config.h>
 #include <engine/textrender.h>
 
@@ -47,7 +49,7 @@ void CVoting::CallvoteSpectate(int ClientId, const char *pReason, bool ForceVote
 	else
 	{
 		char aBuf[32];
-		str_from_int(ClientId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%d", ClientId);
 		Callvote("spectate", aBuf, pReason);
 	}
 }
@@ -63,7 +65,7 @@ void CVoting::CallvoteKick(int ClientId, const char *pReason, bool ForceVote)
 	else
 	{
 		char aBuf[32];
-		str_from_int(ClientId, aBuf);
+		str_format(aBuf, sizeof(aBuf), "%d", ClientId);
 		Callvote("kick", aBuf, pReason);
 	}
 }
@@ -137,6 +139,11 @@ void CVoting::Vote(int v)
 		m_Voted = v;
 	CNetMsg_Cl_Vote Msg = {v};
 	Client()->SendPackMsgActive(&Msg, MSGFLAG_VITAL);
+}
+
+int CVoting::SecondsLeft() const
+{
+	return (m_Closetime - time()) / time_freq();
 }
 
 CVoting::CVoting()

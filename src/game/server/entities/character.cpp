@@ -58,6 +58,7 @@ CCharacter::CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput) :
 
 void CCharacter::Reset()
 {
+	StopRecording();
 	Destroy();
 }
 
@@ -110,6 +111,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	SendZoneMsgs(); // we want a entermessage also on spawn
 	GameServer()->SendTuningParams(m_pPlayer->GetCid(), m_TuneZone);
 
+	TrySetRescue(RESCUEMODE_MANUAL);
 	Server()->StartRecord(m_pPlayer->GetCid());
 
 	PostSpawnDDPP(Pos);
@@ -303,13 +305,13 @@ void CCharacter::HandleNinja()
 					return;
 
 				// make sure we haven't Hit this object before
-				bool bAlreadyHit = false;
+				bool AlreadyHit = false;
 				for(int j = 0; j < m_NumObjectsHit; j++)
 				{
 					if(m_apHitObjects[j] == pChr)
-						bAlreadyHit = true;
+						AlreadyHit = true;
 				}
-				if(bAlreadyHit)
+				if(AlreadyHit)
 					continue;
 
 				// check so we are sufficiently close
@@ -986,10 +988,8 @@ bool CCharacter::IncreaseArmor(int Amount)
 	return true;
 }
 
-void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
+void CCharacter::StopRecording()
 {
-	Killer = DDPP_DIE(Killer, Weapon, fngscore);
-
 	if(Server()->IsRecording(m_pPlayer->GetCid()))
 	{
 		CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCid());
@@ -1001,18 +1001,12 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool fngscore)
 
 		pData->m_RecordStopTick = -1;
 	}
+}
 
-	// to have invis motd updates OR to have the spooky ghost skin in the kill msg
-	// (because it was too fast otherwise and the normal skin would be there if its a selfkill and not a death tile kill)
-	if((!m_pPlayer->m_ShowName && m_pPlayer->m_SpookyGhostActive) || m_pPlayer->m_CanClearFakeMotd)
-	{
-		// TODO: fix this merge with upstream removed CPlayer::m_RespawnTick
-		// m_pPlayer->m_RespawnTick = Server()->Tick() + Server()->TickSpeed() / 10;
-
-		m_pPlayer->m_CanClearFakeMotd = false;
-	}
-
-	//m_pPlayer->m_RespawnTick = Server()->Tick();
+void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg, bool FngScore)
+{
+	StopRecording();
+	Killer = DDPP_DIE(Killer, Weapon, FngScore);
 
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 
@@ -1578,6 +1572,8 @@ void CCharacter::HandleTiles(int Index)
 		m_TeleCheckpoint = TeleCheckpoint;
 
 	GameServer()->m_pController->HandleCharacterTiles(this, Index);
+	if(!m_Alive)
+		return;
 
 	// freeze
 	if(((m_TileIndex == TILE_FREEZE) || (m_TileFIndex == TILE_FREEZE)) && !m_Core.m_Super && !m_Core.m_DeepFrozen)
@@ -2109,10 +2105,46 @@ void CCharacter::SetTeams(CGameTeams *pTeams)
 	m_Core.SetTeamsCore(&m_pTeams->m_Core);
 }
 
-void CCharacter::SetRescue()
+bool CCharacter::TrySetRescue(int RescueMode)
 {
-	m_RescueTee.Save(this);
-	m_SetSavePos = true;
+	bool Set = false;
+	if(g_Config.m_SvRescue || ((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || Team() > TEAM_FLOCK) && Team() >= TEAM_FLOCK && Team() < TEAM_SUPER))
+	{
+		// check for nearby health pickups (also freeze)
+		bool InHealthPickup = false;
+		if(!m_Core.m_IsInFreeze)
+		{
+			CEntity *apEnts[9];
+			int Num = GameWorld()->FindEntities(m_Pos, GetProximityRadius() + CPickup::ms_CollisionExtraSize, apEnts, std::size(apEnts), CGameWorld::ENTTYPE_PICKUP);
+			for(int i = 0; i < Num; ++i)
+			{
+				CPickup *pPickup = static_cast<CPickup *>(apEnts[i]);
+				if(pPickup->Type() == POWERUP_HEALTH)
+				{
+					// This uses a separate variable InHealthPickup instead of setting m_Core.m_IsInFreeze
+					// as the latter causes freezebars to flicker when standing in the freeze range of a
+					// health pickup. When the same code for client prediction is added, the freezebars
+					// still flicker, but only when standing at the edge of the health pickup's freeze range.
+					InHealthPickup = true;
+					break;
+				}
+			}
+		}
+
+		if(!m_Core.m_IsInFreeze && IsGrounded() && !m_Core.m_DeepFrozen && !InHealthPickup)
+		{
+			ForceSetRescue(RescueMode);
+			Set = true;
+		}
+	}
+
+	return Set;
+}
+
+void CCharacter::ForceSetRescue(int RescueMode)
+{
+	m_RescueTee[RescueMode].Save(this);
+	m_SetSavePos[RescueMode] = true;
 }
 
 void CCharacter::DDRaceTick()
@@ -2164,35 +2196,9 @@ void CCharacter::DDRaceTick()
 		}
 	}
 
-	// check for nearby health pickups (also freeze)
-	bool InHealthPickup = false;
-	if(!m_Core.m_IsInFreeze)
-	{
-		CEntity *apEnts[9];
-		int Num = GameWorld()->FindEntities(m_Pos, GetProximityRadius() + CPickup::ms_CollisionExtraSize, apEnts, std::size(apEnts), CGameWorld::ENTTYPE_PICKUP);
-		for(int i = 0; i < Num; ++i)
-		{
-			CPickup *pPickup = static_cast<CPickup *>(apEnts[i]);
-			if(pPickup->Type() == POWERUP_HEALTH)
-			{
-				// This uses a separate variable InHealthPickup instead of setting m_Core.m_IsInFreeze
-				// as the latter causes freezebars to flicker when standing in the freeze range of a
-				// health pickup. When the same code for client prediction is added, the freezebars
-				// still flicker, but only when standing at the edge of the health pickup's freeze range.
-				InHealthPickup = true;
-				break;
-			}
-		}
-	}
-
 	// look for save position for rescue feature
-	if(g_Config.m_SvRescue || ((g_Config.m_SvTeam == SV_TEAM_FORCED_SOLO || Team() > TEAM_FLOCK) && Team() >= TEAM_FLOCK && Team() < TEAM_SUPER))
-	{
-		if(!m_Core.m_IsInFreeze && IsGrounded() && !m_Core.m_DeepFrozen && !InHealthPickup)
-		{
-			SetRescue();
-		}
-	}
+	// always update auto rescue
+	TrySetRescue(RESCUEMODE_AUTO);
 
 	m_Core.m_Id = GetPlayer()->GetCid();
 }
@@ -2473,7 +2479,8 @@ void CCharacter::DDRaceInit()
 	m_Paused = false;
 	m_DDRaceState = DDRACE_NONE;
 	m_PrevPos = m_Pos;
-	m_SetSavePos = false;
+	for(bool &Set : m_SetSavePos)
+		Set = false;
 	m_LastBroadcast = 0;
 	m_TeamBeforeSuper = 0;
 	m_Core.m_Id = GetPlayer()->GetCid();
@@ -2523,7 +2530,7 @@ void CCharacter::DDRaceInit()
 
 void CCharacter::Rescue()
 {
-	if(m_SetSavePos && !m_Core.m_Super)
+	if(m_SetSavePos[GetPlayer()->m_RescueMode] && !m_Core.m_Super)
 	{
 		if(m_LastRescue + (int64_t)g_Config.m_SvRescueDelay * Server()->TickSpeed() > Server()->Tick())
 		{
@@ -2534,7 +2541,7 @@ void CCharacter::Rescue()
 		}
 
 		float StartTime = m_StartTime;
-		m_RescueTee.Load(this, Team());
+		m_RescueTee[GetPlayer()->m_RescueMode].Load(this, Team());
 		// Don't load these from saved tee:
 		m_Core.m_Vel = vec2(0, 0);
 		m_Core.m_HookState = HOOK_IDLE;

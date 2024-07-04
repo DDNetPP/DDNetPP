@@ -222,7 +222,6 @@ enum
 	IOFLAG_READ = 1,
 	IOFLAG_WRITE = 2,
 	IOFLAG_APPEND = 4,
-	IOFLAG_SKIP_BOM = 8,
 
 	IOSEEK_START = 0,
 	IOSEEK_CUR = 1,
@@ -237,7 +236,7 @@ enum
  * @param File to open.
  * @param flags A set of IOFLAG flags.
  *
- * @sa IOFLAG_READ, IOFLAG_WRITE, IOFLAG_APPEND, IOFLAG_SKIP_BOM.
+ * @sa IOFLAG_READ, IOFLAG_WRITE, IOFLAG_APPEND.
  *
  * @return A handle to the file on success and 0 on failure.
  *
@@ -1229,6 +1228,31 @@ int str_format_v(char *buffer, int buffer_size, const char *format, va_list args
 int str_format(char *buffer, int buffer_size, const char *format, ...)
 	GNUC_ATTRIBUTE((format(printf, 3, 4)));
 
+#if !defined(CONF_DEBUG)
+int str_format_int(char *buffer, size_t buffer_size, int value);
+
+template<typename... Args>
+int str_format_opt(char *buffer, int buffer_size, const char *format, Args... args)
+{
+	return str_format(buffer, buffer_size, format, args...);
+}
+
+template<>
+inline int str_format_opt(char *buffer, int buffer_size, const char *format, int val)
+{
+	if(strcmp(format, "%d") == 0)
+	{
+		return str_format_int(buffer, buffer_size, val);
+	}
+	else
+	{
+		return str_format(buffer, buffer_size, format, val);
+	}
+}
+
+#define str_format str_format_opt
+#endif
+
 /**
  * Trims specific number of words at the start of a string.
  *
@@ -2098,14 +2122,6 @@ int64_t str_toint64_base(const char *str, int base = 10);
 float str_tofloat(const char *str);
 bool str_tofloat(const char *str, float *out);
 
-void str_from_int(int value, char *buffer, size_t buffer_size);
-
-template<size_t N>
-void str_from_int(int value, char (&dst)[N])
-{
-	str_from_int(value, dst, N);
-}
-
 /**
  * Determines whether a character is whitespace.
  *
@@ -2620,7 +2636,7 @@ void generate_password(char *buffer, unsigned length, const unsigned short *rand
  *
  * @return `0` on success.
  */
-int secure_random_init();
+[[nodiscard]] int secure_random_init();
 
 /**
  * Uninitializes the secure random module.
