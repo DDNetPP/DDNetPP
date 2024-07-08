@@ -74,13 +74,55 @@ vec2 CCollision::GetRandomTile(int Tile)
 	return vec2(-1, -1);
 }
 
+bool CCollision::FirstNonEmpty(int x, int y, int *pGroupOut, int *pLayerOut)
+{
+	*pGroupOut = 0;
+	*pLayerOut = 0;
+
+	for(int g = 0; g < m_pLayers->NumGroups(); g++)
+	{
+		CMapItemGroup *pGroup = m_pLayers->GetGroup(g);
+		if(!pGroup)
+		{
+			dbg_msg("maplayers", "error group was null, group number = %d, total groups = %d", g, m_pLayers->NumGroups());
+			dbg_msg("maplayers", "this is here to prevent a crash but the source of this is unknown, please report this for it to get fixed");
+			dbg_msg("maplayers", "we need mapname and crc and the map that caused this if possible, and anymore info you think is relevant");
+			continue;
+		}
+
+		for(int l = 0; l < pGroup->m_NumLayers; l++)
+		{
+			CMapItemLayer *pLayer = m_pLayers->GetLayer(pGroup->m_StartLayer + l);
+			if(pLayer->m_Type != LAYERTYPE_TILES)
+				continue;
+
+			CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
+			int TotalTiles = pTilemap->m_Width * pTilemap->m_Height;
+			int MapIndex = y * pTilemap->m_Width + x;
+			if(MapIndex < 0 || MapIndex >= TotalTiles)
+			{
+				continue;
+			}
+
+			CTile *pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(pTilemap->m_Data));
+			if(pTiles[MapIndex].m_Index == 0)
+				continue;
+
+			*pGroupOut = g;
+			*pLayerOut = l;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void CCollision::ModifyTile(int x, int y, int Group, int Layer, int Index, int Flags)
 {
 	CMapItemGroup *pGroup = m_pLayers->GetGroup(Group);
 	CMapItemLayer *pLayer = m_pLayers->GetLayer(pGroup->m_StartLayer + Layer);
 	if(pLayer->m_Type == LAYER_GAME)
 	{
-		dbg_msg("modify_tile", "is game layer");
 		SetCollisionAt(x, y, Index);
 		return;
 	}
